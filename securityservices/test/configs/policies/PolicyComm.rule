@@ -1,0 +1,18 @@
+
+
+
+
+society.communities.add("FwdUserDomainComm") do |community|
+  community.add_attribute("CommunityType", "User")
+  community.add_attribute("CommunityManager", "FwdUserAdminAgent")
+  community.add_agent("EnclaveOneWorkerNode") do |entity|
+     entity.add_role("Member")
+  end
+  community.add_agent("FwdUserAdminAgent") do |entity|
+    entity.add_role("Member")
+    entity.add_role("UserManager")
+  end
+  community.add_agent("FwdCaNode") do |entity|
+    entity.add_role("Member")
+  end
+end
