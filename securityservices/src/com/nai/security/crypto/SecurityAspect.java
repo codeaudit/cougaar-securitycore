@@ -178,7 +178,7 @@ public class SecurityAspect extends StandardAspect
             return set;
         }
 */
-	protected Message getContents() {
+	public Message getContents() {
         try{
             //unsecure the message
             Message m = unsecure();
