@@ -40,6 +40,11 @@ import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.security.util.CommunityServiceUtilListener;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.Entity;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.thread.Schedulable;
+import java.util.TimerTask;
 
 public class ThreatConLevelSensor extends ComponentPlugin
 {
@@ -47,6 +52,8 @@ public class ThreatConLevelSensor extends ComponentPlugin
     private ThreatConDiagnosis diagnosis;
     private ServiceBroker sb;
     private boolean techspecError = false;
+    private String _communityName;
+    private ThreadService threadService;
 
   private CommunityServiceUtil _csu;
 
@@ -61,11 +68,19 @@ public class ThreatConLevelSensor extends ComponentPlugin
         }
       };
 
+    private final UnaryPredicate diagnosisPredicate = new UnaryPredicate() {
+      public boolean execute(Object o) {
+        return (o instanceof ThreatConDiagnosis);
+      }
+    };
+
     public void load() {
         super.load();
         sb = getServiceBroker();
         log = (LoggingService)sb.getService(this, LoggingService.class, null);
 
+        threadService = (ThreadService) this.getServiceBroker().getService(this,
+                ThreadService.class, null);
     }
 
     public synchronized void unload() {
@@ -76,6 +91,30 @@ public class ThreatConLevelSensor extends ComponentPlugin
   protected void setupSubscriptions() {
     _subscription = (IncrementalSubscription)
       blackboard.subscribe(INTER_AGENT_OPERATING_MODE);
+
+    if (threadService != null) {
+      servicesReady();
+    }
+    else {
+      ServiceAvailableListener listener = new ServiceAvailableListener() {
+        public void serviceAvailable(ServiceAvailableEvent ae) {
+          Class sc = ae.getService();
+          if (sc == ThreadService.class) {
+            if (threadService != null) {
+              return;
+            }
+
+            threadService = (ThreadService)
+              getServiceBroker().getService(this,
+                ThreadService.class, null);
+            if (threadService != null) {
+              servicesReady();
+            }
+          }
+        }
+      };
+      getServiceBroker().addServiceListener(listener);
+    }
 
     _csu = new CommunityServiceUtil(sb);
   }
@@ -106,7 +145,18 @@ public class ThreatConLevelSensor extends ComponentPlugin
         // value - Comparable
         // set value
         try {
-          diagnosis.setValue(iaom.getValue());
+          String value = ThreatConActionInfo.NONEDiagnosis;
+          if (iaom.getValue().equals("LOW")) {
+            value = ThreatConActionInfo.LOWDiagnosis;
+          }
+          else if (iaom.getValue().equals("HIGH")) {
+            value = ThreatConActionInfo.HIGHDiagnosis;
+          }
+          else {
+            throw new IllegalValueException("InterAgentOperatingMode");
+          }
+
+          diagnosis.setValue(value);
           blackboard.publishChange(diagnosis);
           if (log.isDebugEnabled()) {
             log.debug(diagnosis + " changed.");
@@ -129,7 +179,6 @@ public class ThreatConLevelSensor extends ComponentPlugin
           if(log.isDebugEnabled()){
             log.debug(" call back for community is called :" + resp );
           }
-          blackboard.openTransaction();
 
           if((resp!=null)&& (!resp.isEmpty())){
             Iterator it = resp.iterator();
@@ -137,27 +186,54 @@ public class ThreatConLevelSensor extends ComponentPlugin
               log.warn("there is only one community allowed!");
             }
             Community community = (Community)it.next();
-            createDiagnosis(community.getName());
+            _communityName = community.getName();
+            servicesReady(); 
           }
-          blackboard.closeTransaction();
 
         }
       };
       _csu.getManagedSecurityCommunity(csu);
     }
 
+  private synchronized void servicesReady() {
+    if (_communityName != null && start && diagnosis == null) {
+    try {
+      throw new Throwable();
+    } catch (Throwable t) {
+      log.debug("diagnosis: " + diagnosis + " trace: ", t);
+    }
+
+        start = false;
+      Schedulable sch = threadService.getThread(this, new CreateDiagnosisThread());
+      sch.schedule(1);
+      sch.start();
+    }
+  }
+
+  class CreateDiagnosisThread extends TimerTask {
+    public void run() {
+      createDiagnosis(_communityName);
+    }    
+
     private void createDiagnosis(String communityName) {
       if (techspecError) {
         return;
       }
 
+      blackboard.openTransaction();
+      Collection c = blackboard.query(diagnosisPredicate);
+      Iterator iter = c.iterator();
+      while (iter.hasNext()) {
+        ThreatConDiagnosis thediagnosis = (ThreatConDiagnosis)iter.next();
+        blackboard.publishRemove(thediagnosis);
+      }
+    
       if (log.isDebugEnabled()) {
         log.debug("initializing diagnosis for " + communityName);
       }
 
       try {
-        start = false;
-        diagnosis = new ThreatConDiagnosis(communityName, sb);
+        diagnosis = new ThreatConDiagnosis(communityName, ThreatConActionInfo.NONEDiagnosis, sb);
         blackboard.publishAdd(diagnosis);
         if (log.isDebugEnabled()) {
           log.debug(diagnosis + " added.");
@@ -167,6 +243,11 @@ public class ThreatConLevelSensor extends ComponentPlugin
                     log.error("TechSpec not found for ThreatConDiagnosis.  ");
          techspecError = true;
       }
+      catch (IllegalValueException iv) {
+        log.error("Failed to create diagnosis: " + iv);
+      }
+      blackboard.closeTransaction();
     }
+  }
 }
 

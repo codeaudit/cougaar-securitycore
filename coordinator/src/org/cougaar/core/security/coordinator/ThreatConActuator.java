@@ -98,8 +98,8 @@ public class ThreatConActuator extends ComponentPlugin
       
         try {
           Set values = new HashSet();
-          values.add(ThreatConActionInfo.LOW);
-          values.add(ThreatConActionInfo.HIGH);
+          values.add(ThreatConActionInfo.LOWSecurity);
+          values.add(ThreatConActionInfo.HIGHSecurity);
           action = new ThreatConAction(communityName, values, sb);
           blackboard.publishAdd(action);
           if (log.isDebugEnabled()) log.debug(action+" added.");
@@ -124,15 +124,35 @@ public class ThreatConActuator extends ComponentPlugin
         }
 
         Set newPV = action.getNewPermittedValues(); 
+          try {
+            action.setPermittedValues(newPV);
+          } catch (IllegalValueException ioe) {
+            log.error("Illegal actionValue = "+action,ioe);
+            continue;
+          }
+          if (newPV.size() == 0) {
+            // it is not doing anything, just acknowledging some change
+            if (log.isDebugEnabled()) {
+              log.debug("Ignoring action with no value");
+            }
+            continue;
+          }
+
           if (newPV.size() != 1) {
             log.warn("More than one possible action value. Action will not be performed");
-            break;
+            Iterator it = newPV.iterator();
+            while (it.hasNext()) {
+              String newAct = (String)it.next();
+              log.warn("Action: " + newAct);
+            }
+            continue;
           }
 
           Iterator values = newPV.iterator();
           String value = (String)values.next();
           try {
               action.start(value);
+              action.clearNewPermittedValues();
               blackboard.publishChange(action);
                         if (log.isDebugEnabled()) 
                             log.debug(action + " started.");
@@ -169,6 +189,23 @@ public class ThreatConActuator extends ComponentPlugin
       }
       blackboard.publishRemove(info); 
     }
+
+    // remove action with diagnosis removed
+    iter = diagnosisSub.getRemovedCollection().iterator();
+    while (iter.hasNext()) {
+      ThreatConDiagnosis diagnosis = (ThreatConDiagnosis)iter.next();
+      String agent = diagnosis.getAssetName();
+      if (action == null) {
+        log.error("Diagnosis removed for " + agent + " but action not found");
+      }
+      else if (action.getAssetName().equals(agent)) {
+        blackboard.publishRemove(action);
+        if (log.isDebugEnabled()) {
+          log.debug("Action for " + agent + " removed");
+        }
+      }
+    }
+
   }
 }
 
