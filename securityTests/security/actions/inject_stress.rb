@@ -40,6 +40,10 @@ module Cougaar
 	return ret
       end
 
+      def Stressors.addStressIds(stressIds)
+        $configuredSecurityTests.concat(stressIds)
+      end
+
       def Stressors.getStressInstance(stressorClass, current_run) 
 	setMyRun(current_run)
 	if @@myexperiment == nil
