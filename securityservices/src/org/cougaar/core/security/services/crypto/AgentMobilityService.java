@@ -47,7 +47,7 @@ public interface AgentMobilityService extends Service {
    * @return an encrypted object that should be sent to the remote
    * node agent
    */
-  public Object moveAgent(String agentName, String targetNodeAgent);
+  public Object moveAgentTo(String agentName, String targetNodeAgent);
 
   /** Notify the cryptographic service that an agent previously
    *  running on a remote node is about to be installed and
@@ -58,6 +58,6 @@ public interface AgentMobilityService extends Service {
    * the local node through a Cougaar message
    * @param agentName        the name of the agent to be installed
    */
-  public void setupAgent(Object cryptoAgentData, String agentName);
+  public void moveAgentFrom(String agentName, Object cryptoAgentData);
 
 }
