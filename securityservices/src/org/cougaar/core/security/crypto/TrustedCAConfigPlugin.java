@@ -39,7 +39,7 @@ public class TrustedCAConfigPlugin extends ConfigPlugin {
       log.debug("executing ... ");
     }
     for (int i = 0; i < calist.size(); i++) {
-      addTrustedPolicy((String)calist.elementAt(i));
+      addTrustedPolicy((String)calist.elementAt(i), true);
     }
   }
 

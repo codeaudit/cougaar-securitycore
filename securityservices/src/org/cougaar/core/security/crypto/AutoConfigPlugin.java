@@ -34,7 +34,7 @@ public class AutoConfigPlugin extends ConfigPlugin {
 
   protected void execute() {
     for (int i = 0; i < calist.size(); i++) {
-      addTrustedPolicy((String)calist.elementAt(i));
+      addTrustedPolicy((String)calist.elementAt(i), (i == 0));
     }
   }
 
