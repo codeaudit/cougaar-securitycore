@@ -23,6 +23,7 @@ else
 	set usePersistence=${COUGAAR_USE_PERSISTENCE}
 endif
 
+####################################################################
 # Setting useBootstrapper to true will enable the use of the boostrapper.
 # In particular, the bootstrapper supports the Java security manager
 # and the JAR file signature verifier.
@@ -41,6 +42,8 @@ set useCryptoAspect=true
 # Setting useGuardedNode to true will run this node as a KAoS
 # guarded node.
 set useGuardedNode=true
+
+####################################################################
 
 # set COUGAAR_INSTALL_PATH=/alpine/demo98
 if (! $?COUGAAR3RDPARTY) then
@@ -64,7 +67,7 @@ endif
 # But you may still use properties if you wish.
 #set MYDOMAINS="-Dorg.cougaar.domain.alp=org.cougaar.domain.glm.GLMDomain"
 set MYDOMAINS=""
-set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.cluster.startTime=08/10/2005 -Dorg.cougaar.domain.planning.ldm.lps.ComplainingLP.level=0 -Dorg.cougaar.core.cluster.SharedPlugInManager.watching=false"
+set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.agent.startTime=08/10/2005 -Dorg.cougaar.planning.ldm.lps.ComplainingLP.level=0"
 
 # Debug property for the monitoring & response service
 set MYPROPERTIES="$MYPROPERTIES -Dcom.nai.security.monitoringdebug=true"
@@ -223,9 +226,9 @@ set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar"
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.message.isLogging=true -Djava.rmi.server.logCalls=true -Dsun.rmi.server.exceptionTrace=true -Dsun.rmi.transport.tcp.readTimeout=150000 "
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.nameserver.verbosity=20"
 
-if ( "$usePersistence" == "true") then
-    set javaargs="-Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar $javaargs"
-endif
+#if ( "$usePersistence" == "true") then
+#    set javaargs="-Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar $javaargs"
+#endif
 
 if ($?COUGAAR_DEV_PATH) then
     echo java $javaargs org.cougaar.core.node.Node $args
