@@ -62,7 +62,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
   {
     super();
     try {
-      UserAuthenticatorImpl   userAuth  = new UserAuthenticatorImpl("RearUserDomainComm\\george");
+      UserAuthenticatorImpl   userAuth  = new UserAuthenticatorImpl();
       SecurityServiceProvider secprov   = new SecurityServiceProvider();
       userAuth.init(secprov);
       _brains = new TunnelClient(uri);
