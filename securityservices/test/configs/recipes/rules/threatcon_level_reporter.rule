@@ -1,0 +1,33 @@
+#!/usr/bin/ruby
+####################################################
+# Adds plugin in the PolicyDomainManagers to notify 
+# agents in a particular security community of the
+# threat con level 
+
+if ! defined? CIP
+  CIP = ENV['CIP']
+end
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
+require 'framework/common_security_rules'
+
+society.each_node do |node|
+  node.each_facet(:role) do |facet|
+    if facet[:role] == $facetManagement
+      facetval = node.host.get_facet(:enclave)
+      enclave = facetval[0..0] + facetval[1..facetval.length].downcase 
+      policyDomainMgr = enclave + "PolicyDomainManager"
+      securityComm = facetval + "-SECURITY-COMM"
+
+      node.each_agent do |agent|
+        if agent.name == policyDomainMgr
+          # for threat con level reporter
+          agent.add_component do |c|
+            c.classname = "org.cougaar.core.security.monitoring.plugin.ThreatConLevelReporter"
+            c.add_argument(securityComm);
+          end
+        end
+      end
+    end
+  end
+end
