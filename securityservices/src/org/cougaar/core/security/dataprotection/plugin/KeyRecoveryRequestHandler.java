@@ -61,7 +61,7 @@ import java.util.Iterator;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -97,8 +97,13 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
         	if(o instanceof DataProtectionKeyContainer){
         		DataProtectionKeyContainer container = (DataProtectionKeyContainer)o;
         		if(log.isDebugEnabled()){
-        			log.debug("Check dpkey, remote copy:" + dpKey);
-        			log.debug("Check dpkey, local copy:" + container.getKey());
+        			try{
+        			log.debug("Check dpkey, remote copy:" + dpKey.getCertificateChain()[0].getSignature());
+        			log.debug("Check dpkey, local copy:" + container.getKey().getCertificateChain()[0].getSignature());
+        			}catch(NullPointerException npe){
+        				log.debug("Null dpkey cert");
+        				
+        			}
         		}
         		return container.getKey().equals(dpKey);
         	}
