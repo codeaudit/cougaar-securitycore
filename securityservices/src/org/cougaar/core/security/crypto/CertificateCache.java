@@ -197,6 +197,21 @@ public class CertificateCache
     if(!found){
       log.warn(" not found cert:");
     }
+
+    // should check all certificate status, checkCertificate in cert cache
+    // does not check cert chain, so the cert issued by a revoked signer
+    // would still be considered valid
+    Enumeration allcerts = certsCache.elements();
+    while (allcerts.hasMoreElements()) {
+      ArrayList certList = (ArrayList)allcerts.nextElement();
+      it = certList.listIterator();
+      while (it.hasNext()) {
+        CertificateStatus cs = (CertificateStatus)it.next();
+        if (cs.isValid()) {
+          checkCertificate(cs, true, true);
+        }
+      }
+    }
   }
 
   private void addCertStatus(ArrayList list, CertificateStatus certEntry,
@@ -547,6 +562,11 @@ public class CertificateCache
   }
 
   private boolean checkCertificate(CertificateStatus cs) {
+    return checkCertificate(cs, false, false);
+  }
+
+  private boolean checkCertificate(CertificateStatus cs,
+      boolean buildChain, boolean changeStatus) {
     boolean isTrustedAndValid = false;
 
     X500Name x500Name = null;
@@ -568,6 +588,9 @@ public class CertificateCache
     }
     try {
       cs.checkCertificateValidity();
+
+      if (buildChain)
+        directorykeystore.checkCertificateTrust(cs.getCertificate());
       // Certificate is valid. Return it.
       isTrustedAndValid = true;
     }
@@ -618,6 +641,22 @@ public class CertificateCache
       if (log.isWarnEnabled()) {
 	log.warn("Invalid certificate: " + e);
       }
+
+      // in some cases (cert chain problem) the status should be changed
+      // otherwise next time if chain verification is not specified the
+      // cert will still be considered valid
+      // this code only handles revoked cert, should change status anytime
+      // on any certificate
+      if (changeStatus) {
+        if (e instanceof CertificateChainException) {
+          if (log.isWarnEnabled()) {
+            log.warn("One of signers in chain has been revoked.");
+          }
+          cs.setCertificateTrust( CertificateTrust. CERT_TRUST_REVOKED_CERT);
+          cs.setValidity(false);
+        }
+      }
+
     }
     return isTrustedAndValid;
   }
