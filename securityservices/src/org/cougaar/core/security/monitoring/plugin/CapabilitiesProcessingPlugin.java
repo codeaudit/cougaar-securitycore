@@ -211,6 +211,10 @@ public class CapabilitiesProcessingPlugin
     // process unallocated tasks
     loggingService.debug(" execute of Capabilities processing plugin called"+
 			 "@@@@@@@@@@@@@@@@@@@@"+ myAddress.toString());
+    if((capabilities==null)||( capabilitiesRelays==null)||( completecapabilities==null)||( subordinatecapabilities==null)) {
+      loggingService.debug("Error Have not subscribed to any predicate: Returning :");
+      return;
+    }
     updateRelayedCapabilities();
     Event event=null;
     RegistrationAlert registration=null;
