@@ -146,6 +146,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   /** Holds value of property loggingService. */
   private LoggingService loggingService;
   private boolean readcollection=false;
+  private boolean isMgrset=false;
   
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -233,6 +234,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   
 
   public boolean setManagerAddress() {
+
+    
     mySecurityCommunity= getMySecurityCommunity();
     loggingService.debug(" My security community :"+mySecurityCommunity +" agent name :"+myAddress.toString());  
     if(mySecurityCommunity==null) {
@@ -253,26 +256,14 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	}
       }
     }
-    dest_community=getDestinationCommunity(myRole);
-    if(dest_community==null) {
-      loggingService.error("Cannot get Destination community in agent  !!!!!!"+myAddress.toString()
-			   +"\nmy Role is "+ myRole);
-      
+    destcluster =getDestinationCommunity(myRole);
+    if((destcluster ==null) &&(!myRole.equalsIgnoreCase("SecurityMnRManager-Society"))) {
+      return true;
     }
-    if((dest_community!=null)&&(mgrrole!=null)) {
-      Collection managers = communityService.searchByRole(dest_community, mgrrole);          
-      if(managers.size() > 1) {
-	  loggingService.error("There are " + managers.size() + " Society Security Manager in community=" + dest_community + " agent :"+myAddress.toString() );
-	return false;
-      }
-      if(managers.size()==0) {
-	loggingService.warn("Unable to get manager agent  for agent :" +myAddress.toString());
-	return true;
-      }
-      destcluster=(MessageAddress)managers.iterator().next();
-	return false;
-      
+    else {
+      return false;
     }
+    
     return true;
        
   }
@@ -281,10 +272,13 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
    * Top level plugin execute loop.  
    */
   protected void execute () {
-    if((destcluster ==null)&&(myRole.equalsIgnoreCase("SecurityMnRManager-Society"))) {
+    
+    if((destcluster ==null) &&(!myRole.equalsIgnoreCase("SecurityMnRManager-Society"))) {
       loggingService.warn(" Destination address is not set for agent:"+myAddress.toAddress()); 
-    } 
-    // Unwrap subordinate capabilities from new/changed/deleted relays
+      return ;
+    }
+    
+// Unwrap subordinate capabilities from new/changed/deleted relays
     loggingService.debug("Update of relay called from :"+myAddress.toAddress());
     if((myRole==null) && (mySecurityCommunity==null)) {
       loggingService.debug("Error Cannot continue -- as  myRole/mySecurityCommunity is null at "+ myAddress.toString());
@@ -1210,9 +1204,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  loggingService.warn("Belongs to more than one Security Community " +myAddress.toString());  
 	  return mySecurityCommunity;
 	}
-	String [] securitycommunity=new String[1];
-	securitycommunity=(String [])securitycom.toArray(new String[1]);
-	mySecurityCommunity=securitycommunity[0];
+	mySecurityCommunity=(String)securitycom.iterator().next();
       }
       else {
 	loggingService.warn("Search  for my Security Community FAILED !!!!" +myAddress.toString()); 
@@ -1255,7 +1247,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     						      
     }
   
-    public String getDestinationCommunity(String role) {
+    public MessageAddress  getDestinationAddress(String role) {
       if(communityService==null) {
 	loggingService.error(" Community Service is null" +myAddress.toString()); 
       }
@@ -1269,7 +1261,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       String filter="(CommunityType=Security)";
       Collection securitycol=communityService.search(filter);
       Iterator itersecurity=securitycol.iterator();
-      String comm=null;
+      MessageAddress  dest=null;
       while(itersecurity.hasNext()) {
 	comm=(String)itersecurity.next();
 	Collection societysearchresult=communityService.searchByRole(comm,destrole);
@@ -1284,7 +1276,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  break;
 	}
       }
-      return comm;
+      dest=(MessageAddress)societysearchresult.iterator().next();
+      return dest;
     }
    
     /**
@@ -1339,6 +1332,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	      retryTime=counter*RETRY_TIME;
 	    }
 	    Thread.sleep(retryTime);
+	  }
+	  else {
+	    isMgrSet=tryAgain;
 	  }
 	}
 	catch(InterruptedException ix) {
