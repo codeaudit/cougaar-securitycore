@@ -132,6 +132,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
   private boolean _crlRegistered = false;
   private boolean _createdCRLBlackboard=false;
   private boolean _crlcacheInitilized=false;
+  private boolean enableCRLUpdates = true;
   private final Object _blackboardLock = new Object();
 
  
@@ -234,6 +235,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     if(cacheService!=null){
       initCRLCacheFromKeystore();
     }
+    enableCRLUpdates=  Boolean.valueOf(System.getProperty("org.cougaar.core.security.enableCRL","true")).booleanValue();
   }
 
   public void startThread() {
@@ -940,26 +942,28 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     final Vector crlrelays=crls;
     Schedulable crlThread = threadService.getThread(CRLCache.this, new Runnable( ) {
         public void run(){
-          synchronized (_blackboardLock){
-            blackboardService.openTransaction();
-            for(int i=0;i<crlrelays.size();i++) {
-              Vector crlRelays=(Vector)crlrelays.elementAt(i);
-              CrlRelay relay=null;
-              for(int j=0;j<crlRelays.size();j++) {
-                relay=(CrlRelay)crlRelays.elementAt(j);
-                blackboardService.publishAdd(relay);
-                log.debug(" CRL relay being published :"+relay.toString() + "Source :" + relay.getTarget());
+          if(enableCRLUpdates){
+            synchronized (_blackboardLock){
+              blackboardService.openTransaction();
+              for(int i=0;i<crlrelays.size();i++) {
+                Vector crlRelays=(Vector)crlrelays.elementAt(i);
+                CrlRelay relay=null;
+                for(int j=0;j<crlRelays.size();j++) {
+                  relay=(CrlRelay)crlRelays.elementAt(j);
+                  blackboardService.publishAdd(relay);
+                  log.debug(" CRL relay being published :"+relay.toString() + "Source :" + relay.getTarget());
+                }
+              }
+              try {
+                blackboardService.closeTransaction() ;
+              }
+              catch(SubscriberException subexep) {
+                log.warn(" Unable to publish CRl registration :"+ subexep.getMessage());
+                return;
               }
             }
-            try {
-              blackboardService.closeTransaction() ;
-            }
-            catch(SubscriberException subexep) {
-              log.warn(" Unable to publish CRl registration :"+ subexep.getMessage());
-              return;
-            }
+            _crlRegistered=true;
           }
-          _crlRegistered=true;
         }
       },"CRLPushRegistrationThread");
     crlThread.start();
