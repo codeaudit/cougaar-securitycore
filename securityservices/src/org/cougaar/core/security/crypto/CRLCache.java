@@ -1024,26 +1024,14 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
       createCrlBlackBoard();
     }
     if (threadService != null && _communityTimerTask == null) {
-      _communityTimerTask = new CommunityTimerTask();
-      threadService.scheduleAtFixedRate(
-	_communityTimerTask, CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT,
-	CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT);
-    }
-  }
-
-  private class CommunityTimerTask extends TimerTask {
-    private long count;
-    public void run() {
-      count++;
-      synchronized (_mySecurityCommunitiesLock) {
-	if (log.isWarnEnabled() && (_mySecurityCommunities == null ||
-				    _mySecurityCommunities.isEmpty())) {
-	  log.warn("Agent is not part of any community: " + myAddress
-		   + " - " + count + " checks so far - Timeout=" +
-		   CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT / 1000
-		   + "s");
-	}
-      }
+      _communityTimerTask = new CommunityTimerTask(
+	new CommunityTimerTaskClient() {
+	  public Object getLock() { return _mySecurityCommunitiesLock; }
+	  public Set getCommunities() { return _mySecurityCommunities; }
+	  public MessageAddress getAddress() { return myAddress;}
+	  public LoggingService getLogService() { return log; }
+	  public ThreadService getThreadService() { return threadService; }
+	});
     }
   }
 

@@ -493,11 +493,17 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     Iterator iter = communities.iterator();
 
     if (communities.size() == 0) {
-      _log.warn("Agent '" + agentName +
-        "' does not belong to any security community. Message failures won't be reported.");
+      if (_log.isInfoEnabled()) {
+	_log.info("Agent '" + agentName +
+		  "' does not belong to any security community. "
+		  + "Message failures won't be reported.");
+      }
     }
     else if(communities.size() > 1) {
-      _log.warn("Agent '" + agentName + "' belongs to more than one security community.");
+      if (_log.isWarnEnabled()) {
+	_log.warn("Agent '" + agentName +
+		  "' belongs to more than one security community.");
+      }
     }
 
     while(iter.hasNext()) {
@@ -524,7 +530,6 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
         bbs.publishAdd(relay);
       }
     }
-
 
     cs.addListener(new CommunityChangeListener() {
       public String getCommunityName() {

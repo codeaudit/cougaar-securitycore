@@ -466,7 +466,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
       break;
     }
     if (messageAddress == null) {
-      _log.warn("This agent does not belong to any community. Login failures won't be reported.");
+      _log.info("This agent does not belong to any community. Login failures won't be reported.");
       // may receive a add change message later
       return;
     }

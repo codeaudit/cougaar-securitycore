@@ -28,6 +28,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.net.URL;
+import java.net.JarURLConnection;
+import java.net.MalformedURLException;
 
 // Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
@@ -69,6 +72,8 @@ public class TestSecureConfigFinder
    */
   private static String _cfgInJarFile = "BootPolicyList.ini";
 
+  private static URL _cfgInJarFileUrl = null;
+
   // The size of a test file
   private static int FILE_SIZE = 5000;
 
@@ -94,6 +99,17 @@ public class TestSecureConfigFinder
       _log.debug("setupSubscriptions");
     }
 
+    try {
+      _cfgInJarFileUrl =
+	new URL("jar:file:" +
+		System.getProperty("org.cougaar.install.path")
+		+ "/configs/security/securityservices_config.jar" +
+		"!common/BootPolicyList.ini");
+    }
+    catch (MalformedURLException e) {
+      _log.warn("Unable to construct cfgInJarFileUrl");
+    }
+
     TestCase tc = new TestCase();
     tc.start();
   }
@@ -108,9 +124,9 @@ public class TestSecureConfigFinder
       deleteFile(_cfgCommonNodeConf);
       File f = new File(_cfgCommonNodeConf);
       createFile(_cfgCommonNodeConf);
-      concurrentAccess(f.getName(), false);
+      concurrentAccess(f.getName(), false, null);
 
-      concurrentAccess(_cfgInJarFile, true);
+      concurrentAccess(_cfgInJarFile, true, null);
     }
 
     /**
@@ -122,36 +138,43 @@ public class TestSecureConfigFinder
       if (_log.isInfoEnabled()) {
 	_log.info("Single Run");
       }
-      // Try to open inexistent file
-      deleteFile(_tmpFile); // With absolute path
-      tryToOpenFile(_tmpFile, null, false);
 
       // Try to open inexistent file
-      // The Java policy does not allow to delete the file
-      // The file should be delete externally.
       deleteFile(_absoluteNodeConf); // With absolute path
-      tryToOpenFile(_absoluteNodeConf, null, false);
+      tryToOpenFile(_absoluteNodeConf, null, false, null);
 
-      deleteFile(_cfgCommonNodeConf); // With relative path
       File f = new File(_cfgCommonNodeConf);
+
+      /*
+      deleteFile(_cfgCommonNodeConf); // With relative path
       tryToOpenFile(f.getName(), null, false);
+      */
 
       // Try to open existing file
       createFile(_tmpFile); // With absolute path
-      tryToOpenFile(_tmpFile, null, true);
+      tryToOpenFile(_tmpFile, null, true, null);
 
       // Try to open existing files
       createFile(_absoluteNodeConf); // With absolute path
-      tryToOpenFile(_absoluteNodeConf, null, false);
+      tryToOpenFile(_absoluteNodeConf, null, false, null);
 
       createFile(_cfgCommonNodeConf); // With relative path
-      tryToOpenFile(f.getName(), null, false);
+      tryToOpenFile(f.getName(), null, false, null);
 
-      tryToOpenFile(_cfgInJarFile, null, true);
+      try {
+	// Open reference file
+	JarURLConnection jc = (JarURLConnection)_cfgInJarFileUrl.openConnection();
+	tryToOpenFile(_cfgInJarFile, null, true, jc.getInputStream());
+	jc.getInputStream().close();
+      }
+      catch (IOException e) {
+	_log.warn("Unable to open reference file");
+      }
     }
 
     private void concurrentAccess(final String fileName,
-				  final boolean shouldBeFound) {
+				  final boolean shouldBeFound,
+				  final InputStream referenceStream) {
       if (_log.isInfoEnabled()) {
 	_log.info("Starting concurrent access of " + fileName);
       }
@@ -161,7 +184,7 @@ public class TestSecureConfigFinder
       for (int i = 0 ; i < MAX_THREADS ; i++) {
 	Thread t = new Thread(new Runnable() {
 	    public void run() {
-	      tryToOpenFile(fileName, cd, shouldBeFound);
+	      tryToOpenFile(fileName, cd, shouldBeFound, referenceStream);
 	    }
 	  });
 	al.add(t);
@@ -254,7 +277,8 @@ public class TestSecureConfigFinder
 
   private void tryToOpenFile(String fileName,
 			     CountDown cd,
-			     boolean shouldBeFound) {
+			     boolean shouldBeFound,
+			     InputStream referenceStream) {
     InputStream is = null;
     // Try to read a file with an absolute path
     try {
@@ -262,8 +286,15 @@ public class TestSecureConfigFinder
 
       if (is != null) {
 	if (shouldBeFound) { // The file has been found
-	  if (checkFile(is, fileName) && _log.isDebugEnabled()) {
-	    _log.debug("Test passed: " + fileName);
+	  if (referenceStream != null) {
+	    StreamComparator sc =
+	      new StreamComparator(referenceStream, is);
+	    sc.compare();
+	  }
+	  else if (checkFile(is, fileName)) {
+	    if (_log.isDebugEnabled()) {
+	      _log.debug("Test passed: " + fileName);
+	    }
 	  }
 	}
 	else { // The file should not have been found
@@ -307,6 +338,52 @@ public class TestSecureConfigFinder
     }
     if (cd != null) {
       cd.release();
+    }
+  }
+
+  private class StreamComparator {
+    private InputStream _is1;
+    private InputStream _is2;
+    public StreamComparator(InputStream is1, InputStream is2) {
+      _is1 = is1;
+      _is2 = is2;
+    }
+
+    public boolean compare() {
+      int count = 0;
+      boolean success = true;
+      int b1 = 0, b2 = 0;
+      try {
+	while ( (b1 = _is1.read()) != -1 ) {
+	  b2 = _is2.read();
+	  if ((b2 == -1) || (b2 != b1)) {
+	    if (_log.isWarnEnabled()) {
+	      _log.warn("Content does not match - b1=" + b1
+			+ " - b2=" + b2 + " at pos=" + count);
+	    }
+	    success = false;
+	    break;
+	  }
+	  count++;
+	}
+	b2 = _is2.read();
+      }
+      catch (IOException e) {
+	_log.warn("Unable to compare files");
+      }
+      if (b2 != -1) {
+	if (_log.isWarnEnabled()) {
+	  _log.warn("Content does not match - b2 stream longer than b1");
+	}
+	success = false;
+      }
+      
+      if (success) {
+	if (_log.isDebugEnabled()) {
+	  _log.debug("Compare successfull");
+	}
+      }
+      return success;
     }
   }
 }
