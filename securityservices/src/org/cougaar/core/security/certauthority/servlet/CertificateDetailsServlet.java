@@ -77,7 +77,7 @@ public class CertificateDetailsServlet extends  HttpServlet
     throws ServletException,IOException
   {
     
-    res.setContentType("Text/HTML");
+    res.setContentType("text/html");
     String distinguishedName=null;
     String role=null;
     String cadnname=null;

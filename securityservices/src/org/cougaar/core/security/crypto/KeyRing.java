@@ -162,16 +162,21 @@ final public class KeyRing
 	if (cafile2 != null) {
 	  param.caKeystorePath = cafile2.getPath();
 	}
-	else if (param.isCertAuth) {
-	  if (log.isInfoEnabled()) {
-	    log.info(param.caKeystorePath +
-		     " Trusted CA keystore does not exist. Creating...");
+	else {
+	  if (param.isCertAuth) {
+	    if (log.isInfoEnabled()) {
+	      log.info(param.caKeystorePath +
+		       " Trusted CA keystore does not exist. Creating...");
+	    }
+	    KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
+	    FileOutputStream fos = new FileOutputStream(param.caKeystorePath);
+	    k.load(null, param.caKeystorePassword);
+	    k.store(fos, param.caKeystorePassword);
+	    fos.close();
 	  }
-	  KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
-	  FileOutputStream fos = new FileOutputStream(param.caKeystorePath);
-	  k.load(null, param.caKeystorePassword);
-	  k.store(fos, param.caKeystorePassword);
-	  fos.close();
+	  else {
+	    log.error("CA keystore unavailable. At least one CA certificate should be included");
+	  }
 	}
       }
 

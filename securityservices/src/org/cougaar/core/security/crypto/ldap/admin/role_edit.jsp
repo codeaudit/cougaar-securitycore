@@ -29,6 +29,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
+    <META http-equiv="Content-Type" content="text/html; charset=US-ASCII">
     <script language="JavaScript">
 <!--
 function cancelAction() {

@@ -75,7 +75,7 @@ public class PendingCertDetailsServlet extends  HttpServlet
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
-    res.setContentType("Text/HTML");
+    res.setContentType("text/html");
 
     String alias=null;
     //String role=null;

@@ -86,7 +86,7 @@ public class ListCaKeysServlet
   
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
     throws ServletException, IOException  {
-    res.setContentType("Text/HTML");
+    res.setContentType("text/html");
     PrintWriter out=res.getWriter();
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");

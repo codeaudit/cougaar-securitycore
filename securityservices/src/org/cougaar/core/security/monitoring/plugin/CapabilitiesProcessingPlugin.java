@@ -210,7 +210,7 @@ public class CapabilitiesProcessingPlugin
   protected void execute () {
     // process unallocated tasks
     loggingService.debug(" execute of Capabilities processing plugin called"+
-			 "@@@@@@@@@@@@@@@@@@@@"+ myAddress.toString());
+			 myAddress.toString());
     if((capabilities==null)||( capabilitiesRelays==null)||( completecapabilities==null)||( subordinatecapabilities==null)) {
       loggingService.debug("Error Have not subscribed to any predicate: Returning :");
       return;
@@ -226,7 +226,7 @@ public class CapabilitiesProcessingPlugin
     if((list==null)||(list.size()==0)){
       if(loggingService.isDebugEnabled()) {
 	loggingService.debug("No capabilities object present in capabilities processing plugin:"+
-			     "RETURNING !!!!!!!!!!!"+ myAddress.toString());
+			     "RETURNING !"+ myAddress.toString());
       }
       return;
     }

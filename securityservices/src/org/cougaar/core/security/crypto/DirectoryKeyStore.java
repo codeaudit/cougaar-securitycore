@@ -492,12 +492,12 @@ public class DirectoryKeyStore
     }
     else {
       if (log.isWarnEnabled()) {
-	log.warn("Certificate finder is null:");
+	log.warn("Certificate finder is null. Unable to perform the search: " + filter);
       }
     }
     if(certs==null) {
       if (log.isErrorEnabled()) {
-	log.error("Search for certs is null in lookupCertInLDAP:");
+	log.error("LDAP search failed for: " + filter);
       }
       return;
     }

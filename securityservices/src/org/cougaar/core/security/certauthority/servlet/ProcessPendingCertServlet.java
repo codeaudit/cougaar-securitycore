@@ -73,7 +73,7 @@ public class ProcessPendingCertServlet extends  HttpServlet
     throws ServletException,IOException
   {
     PrintWriter out=res.getWriter();
-    res.setContentType("Text/HTML");
+    res.setContentType("text/html");
     String alias=req.getParameter("alias");
     //String role=req.getParameter("role");
     String cadnname=req.getParameter("cadnname");

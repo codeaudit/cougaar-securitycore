@@ -182,6 +182,9 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     CapabilitiesObject capabilities=null;
     Iterator relayiterator=null;
     boolean capabilitiesChanged=false;
+    if ((capabilitiesobject == null) || (queryRelays == null) || (querymapping == null)) {
+      return;
+    }
     loggingService.debug("!!!!!! !!!! Execute of mnRQueryreceiver called :"+  myAddress.toString());
     if(queryRelays.hasChanged()) {
       loggingService.debug("queryRelays.hasChanged() :"+  myAddress.toString());

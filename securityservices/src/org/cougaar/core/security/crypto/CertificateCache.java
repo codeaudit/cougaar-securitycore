@@ -376,7 +376,7 @@ public class CertificateCache
       }
       else {
 	if(log.isWarnEnabled())
-	  log.warn("Certificate is not trusted yet trust="
+	  log.warn("Certificate " + principal.getName() + " is not trusted yet trust="
 		   + certEntry.getCertificateTrust());
       }
 

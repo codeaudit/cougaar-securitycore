@@ -75,11 +75,12 @@ public class SSLServiceProvider
 		      });
 
     try {
+      log.debug("Initializing SSL service");
       sslservice = new SSLServiceImpl(sb);
       sslservice.init(ksr);
     }
     catch (Exception e) {
-      log.debug("Failed to initialize SSLService! " + e.toString());
+      log.error("Failed to initialize SSLService! " + e.toString());
       e.printStackTrace();
     }
     return sslservice;

@@ -172,7 +172,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     String mySecurityCommunity= getMySecurityCommunity();
     loggingService.debug(" My security community :"+mySecurityCommunity +" agent name :"+myAddress.toString());  
     if(mySecurityCommunity==null) {
-      loggingService.error("No Info about My  SecurityCommunity : returning Cannot continue !!!!!!"+myAddress.toString());  
+      loggingService.error("No Info about My SecurityCommunity. This plugin should be included in M&R managers only:"
+			   +myAddress.toString());  
       return;
     }
     else {
@@ -182,9 +183,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	mgrrole="SecurityMnRManager-Society";
 	dest_community=getDestinationCommunity(myRole);
 	if(dest_community==null) {
-	  loggingService.error("Cannot get Destination community in agent  !!!!!!"+myAddress.toString()
+	  loggingService.error("Cannot get Destination community in agent"+myAddress.toString()
 			       +"\nmy Role is "+ myRole+
-			       "\nCannot continue RETURNING !!!!!!!!!!!!!!!");
+			       "\nCannot continue RETURNING");
 	  return;
 	}
 	loggingService.debug(" My destination community is  :"+dest_community +" agent name :"+myAddress.toString());
@@ -205,14 +206,19 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     
     // Unwrap subordinate capabilities from new/changed/deleted relays
     loggingService.debug("Update of relay called from :"+myAddress.toAddress());
+    if ((modifiedcapabilities == null) || (capabilitiesRelays == null) || (agentRegistrations == null)) {
+      loggingService.error("Subscriptions are not initialized");
+      return;
+    }
+
     updateRelayedCapabilities();
     if (loggingService.isDebugEnabled())
-      loggingService.debug(" Execute of CapabilitiesConsolidation Plugin called !!!!!!!!"
+      loggingService.debug(" Execute of CapabilitiesConsolidation Plugin called"
 			   +myAddress.toAddress() );
     DomainService service=getDomainService();
     if(service==null) {
       if (loggingService.isDebugEnabled()) 
-	loggingService.debug(" Got service as null in   CapabilitiesConsolidation Plugin :"+ myAddress.toAddress());
+	loggingService.debug(" Got service as null in CapabilitiesConsolidation Plugin :"+ myAddress.toAddress());
       return;
     }
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");

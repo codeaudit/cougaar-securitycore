@@ -88,7 +88,7 @@ public class RevokeCertificateServlet
     throws ServletException,IOException
   {
     PrintWriter out=res.getWriter();
-    res.setContentType("Text/HTML");
+    res.setContentType("text/html");
    
     String distinguishedName=req.getParameter("distinguishedName");
     String domain=req.getParameter("domain");
@@ -186,7 +186,7 @@ public class RevokeCertificateServlet
     throws ServletException, IOException
   {
      PrintWriter out=res.getWriter();
-    res.setContentType("Text/HTML");
+    res.setContentType("text/html");
     
     if(context==null)
       {
