@@ -51,8 +51,6 @@ module Cougaar
       end
     end
 
-
-
     class WaitForUserManagerReady < Cougaar::Action
       def initialize(run)
         super(run)
@@ -264,7 +262,7 @@ module Cougaar
         @run.info_message("checking audit on node #{node.name}")
         done = false
         ret = false
-        url = "#{node.uri}/testAuditServlet"
+        url = "#{node.uri}/$#{node.name}/testAuditServlet"
         while ! done do
           result = web.getHtml(url)
           #@run.info_message("result = #{result.body}")
