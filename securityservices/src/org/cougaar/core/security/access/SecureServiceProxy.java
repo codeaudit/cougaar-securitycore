@@ -61,25 +61,23 @@ class SecureServiceProxy {
   private boolean allowQuery(Object o, ExecutionContext ec) {
     SecurityManager sm = System.getSecurityManager();
     if(sm != null) {
+      String object = o.getClass().getName();
+      String comp = "unknown";
+      if(ec instanceof RoleExecutionContext) {
+        comp = ((RoleExecutionContext)ec).getComponent();
+      }
       try {
         if(_debug) {
-          _log.debug("checking permission for querying object " + o.getClass().getName());
+          _log.debug("checking query permission: [" + comp + ", " + object + "]");
         }
         _scs.setExecutionContext(ec);
-        BlackboardPermission bbp = new BlackboardPermission(o.getClass().getName(), "query");
+        BlackboardPermission bbp = new BlackboardPermission(object, "query");
         sm.checkPermission(bbp);
         _scs.resetExecutionContext();
       }
       catch(SecurityException se) {
-        // log this security exception ?????
-        if(_debug) {
-          String comp = null;
-          if(ec instanceof RoleExecutionContext) {
-            comp = ((RoleExecutionContext)ec).getComponent();
-          }
-          _log.debug("query denied: component(" + comp + "), object(" + 
-            o.getClass().getName() + ")");
-        }
+        // log this security exception as a warning
+        _log.warn("QUERY DENIED: [" + comp + ", " + object + "]");
         return false; 
       }
     }
@@ -94,7 +92,6 @@ class SecureServiceProxy {
       _ec = ec;
     }
     public boolean execute(Object o) {
-      _log.debug("SecureUnaryPredicate.execute() is called.....");
       if(!allowQuery(o, _ec)) {
         return false;
       }
