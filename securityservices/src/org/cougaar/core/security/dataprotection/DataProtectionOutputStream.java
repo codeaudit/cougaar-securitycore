@@ -222,7 +222,6 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     if (_sigOut != null) {
       byte[] sig = _sigOut.writeSignature();
 
-/*
       DataProtectionKeyCollection keyCollection =
         (DataProtectionKeyCollection)_pke.getDataProtectionKey();
       keyCollection.setSignature(sig);      
@@ -251,7 +250,6 @@ public class DataProtectionOutputStream extends FilterOutputStream {
           RelaySessionKey.getInstance().relaySessionKey(keyCollection,pmName,agent);
         }
       }
-*/
     }
     super.close();
     if (ci != null) {

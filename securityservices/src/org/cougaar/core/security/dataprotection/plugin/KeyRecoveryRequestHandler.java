@@ -63,7 +63,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -104,13 +104,25 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
             return false;
           }
 
+if (log.isDebugEnabled()) {
+  log.debug("Found agent " + agentName + ", " + container.getTimestamp());
+}
           DataProtectionKeyImpl keyImpl = (DataProtectionKeyImpl)
             keyCollection.get(0);
           try {
             MessageDigest dg1 = MessageDigest.getInstance(keyImpl.getDigestAlg());
             dg1.update(keyCollection.getSignature());
-          
-            return MessageDigest.isEqual(dg1.digest(), container.getKey());
+
+            byte [] digest = dg1.digest();
+if (log.isDebugEnabled()) {
+  log.debug("digests ");
+  printBytes(container.getKey(), log);
+  log.debug("vs ");
+  printBytes(digest, log);
+
+  log.debug("timestamp " + container.getTimestamp());
+}
+            return MessageDigest.isEqual(digest, container.getKey());
           } catch (Exception ex) {
             if (log.isWarnEnabled()) {
               log.warn("Unable to get digest: ", ex); 
@@ -190,7 +202,7 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
       if (log.isWarnEnabled()) {
         log.warn("A request dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
       }
-      return;
+//      return;
     }
     if (results.size() != 1) {
       if (log.isWarnEnabled()) {
@@ -345,5 +357,28 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
    */
   public long currentTimeMillis() {
     return System.currentTimeMillis();
+  }
+
+  public static void printBytes(byte[] b, LoggingService _log) {
+    printBytes(b, 0, b.length, _log);
+  }
+  public static void printBytes(byte[] b, int start, int len, LoggingService _log) {
+    char[] hex = { '0','1','2','3','4','5','6','7',
+                   '8','9','A','B','C','D','E','F' };
+    for (int i = start; i < start + len; i++) {
+      int highNibble = (b[i] & 0xF0) >> 4;
+      int lowNibble  = (b[i] & 0x0F);
+      if ((i - start) % 16 == 0) {
+        int b1 = ((i - start) & 0xF000) >> 12;
+        int b2 = ((i - start) & 0x0F00) >>  8;
+        int b3 = ((i - start) & 0x00F0) >>  4;
+        int b4 = ((i - start) & 0x000F);
+        _log.debug("\n" + hex[b1] + hex[b2] + 
+                         hex[b3] + hex[b4] + ":");
+      } else if ((i - start) % 8 == 0) {
+        _log.debug("  ");
+      } 
+      _log.debug(" " + hex[highNibble] + hex[lowNibble]);
+    } // end of for (int i = start; i < start + len; i++)
   }
 }

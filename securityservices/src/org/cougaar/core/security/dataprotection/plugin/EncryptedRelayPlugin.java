@@ -41,7 +41,6 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.util.UnaryPredicate;
 
-
 /**
  * Receives Encrypted keys through relay
  *
@@ -121,8 +120,17 @@ public class EncryptedRelayPlugin extends ComponentPlugin {
         try {
           MessageDigest dg = MessageDigest.getInstance(dpKey.getDigestAlg());
           dg.update(keyCollection.getSignature());
+          byte [] digest = dg.digest();
+
+          if (logging.isDebugEnabled()) {
+            logging.debug("digest ");
+            KeyRecoveryRequestHandler.printBytes(digest, logging);
+
+            logging.debug("timestamp " + timestamp);
+          }
+
           DataProtectionKeyContainer container = new DataProtectionKeyContainer(
-            agent, dg.digest(), timestamp);
+            agent, digest, timestamp);
           container.setUID(uidService.nextUID());
           getBlackboardService().publishAdd(container);
         } catch (Exception e) {
