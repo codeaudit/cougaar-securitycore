@@ -1,22 +1,27 @@
-# <copyright>
-#  Copyright 2001-2003 Cougaar Software Inc.
-#  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
 # 
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the Cougaar Open Source License as published by
-#  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+# <copyright> 
+#  Copyright 1999-2004 Cougaar Software, Inc.
+#  under sponsorship of the Defense Advanced Research Projects 
+#  Agency (DARPA). 
+#  
+#  You can redistribute this software and/or modify it under the
+#  terms of the Cougaar Open Source License as published on the
+#  Cougaar Open Source Website (www.cougaar.org).  
+#  
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#  
+# </copyright> 
 # 
-#  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
-#  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
-#  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
-#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
-#  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
-#  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
-#  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
-#  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-#  PERFORMANCE OF THE COUGAAR SOFTWARE.
-# </copyright>
-
 
 # Set this if you require remote X display.
 # If you don't know what this is, you don't need it.
@@ -26,8 +31,6 @@ display = nil # eg "localhost"
 # NOTE: this should use the host of the Root CA for unzip and run
 # this value is used if an alpreg.ini does not exist
 namesrv = nil # eg "lemon:8888:5555"
-
-#require 'cougaar/scripting'
 
 # used to obtain environment variables
 require 'Env'
@@ -109,9 +112,6 @@ society.each_host do |host|
     #
     node.override_parameter("-Dorg.cougaar.core.persistence.clear", "false")
     node.override_parameter("-Dorg.cougaar.core.persistence.enable", "true")
-
-    # Secure bootstrapper logger   
-    # node.override_parameter("-Dorg.cougaar.core.security.securebootstrap.logger", "org.cougaar.core.security.securebootstrap.ConsoleLogger")
 
     # Interval (in milliseconds) between persistence snapshots
     #node.override_parameter("-Dorg.cougaar.core.persistence.lazyInterval", "3600000")
@@ -230,20 +230,11 @@ society.each_host do |host|
     #node.override_parameter("-Dorg.cougaar.workspace", "#{cws}")
     node.override_parameter("-Djava.io.tmpdir", "$COUGAAR_INSTALL_PATH/workspace")
     
-    # Bootstrap keystore to store JAR file keys
-    node.override_parameter("-Dorg.cougaar.core.security.bootstrap.keystore", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security#{File::SEPARATOR}bootstrap_keystore")
-    
     # Log4j Logging
     #node.override_parameter("-Dorg.cougaar.core.logging.config.filename", "loggingConfig.conf")
     #node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}workspace#{File::SEPARATOR}log4jlogs#{File::SEPARATOR}#{node.name}.log")
     #node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.A1.File", "log4jnode.log")
     
-    # Add the secure bootstrapper to the bootstrap class path
-    # This is needed because of a bug in the SDK 1.4.
-    # Internal Java runtime classes can create infinite recursive calls
-    #node.remove_parameter("-Xbootclasspath/a.*")
-    node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}secure_bootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar")
-    #node.replace_parameter(/-Xbootclasspath\/p/, "-Xbootclasspath/p:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}buffer-java-patch.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}javaiopatch.jar")
     
     # Aspects: MessageProtectionAspect
     # Add the MessageProtectionAspect to the org.cougaar.message.transport.aspects property to turn on
@@ -265,25 +256,6 @@ society.each_host do |host|
     # Role to take when making LDAP requests
     # This parameter is used in the cryptoPolicy.xml file.
     node.override_parameter("-Dorg.cougaar.security.role", "#{user}")
-    
-    # The bootstrapper class
-    # This replaces the standard (non-secure bootstrapper) with the secure bootstrapper.
-    # The secure bootstrapper adds a Java security manager and an authenticated class loader.
-    node.override_parameter("-Dorg.cougaar.bootstrap.class", "org.cougaar.core.security.securebootstrap.SecureBootstrapper")
-    
-    # The java.security.policy property defines the name of the Java policy file,
-    # which is used by the Security Manager.
-    # Warning!!! Use JAR files ONLY when using this policy file.
-    # If directories containing .class files are included in the CLASSPATH,
-    # the .class files will not have sufficient privileges to be executed.
-    node.override_parameter("-Djava.security.policy", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security#{File::SEPARATOR}Cougaar_Java.policy")
-    
-    # Use Java security manager
-    node.override_parameter("-Dorg.cougaar.core.security.useSecurityManager", "true")
-    
-    # This property specifies whether to use the authenticated class loader or
-    # the legacy class loader
-    node.override_parameter("-Dorg.cougaar.core.security.useAuthenticatedLoader", "true")
     
     # This property is used to set the interval (in seconds) at which CRLs are checked
     node.override_parameter("-Dorg.cougaar.core.security.crypto.crlpoll", "600")
@@ -310,18 +282,6 @@ society.each_host do |host|
     # ########################################################
     # DEBUG properties [probably not used anymore because we are using log4j]
     #
-    
-    # The java.security.debug property can be used to debug the
-    # Security Manager.
-    # Acceptable values: all, access, jar, policy, scl, stack, domain, failure
-    #node.override_parameter("-Djava.security.debug", "all")
-    
-    # Used to show bootstrapper debugging information
-    # In particular, it will show information about the JAR file signature
-    # verification process.
-    # Acceptable values: true, shout, false
-    #node.override_parameter("-Dorg.cougaar.bootstrap.Bootstrapper.loud" ,"false")
-    #node.override_parameter("-Dorg.cougaar.core.security.bootstrapper.policydebug", "all")
     
     #node_override_parameter("-Dorg.cougaar.core.security.policy.debug", "true")
     
