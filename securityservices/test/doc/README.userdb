@@ -1,0 +1,140 @@
+USER LDAP DB HOWTO
+==================
+
+Note that many of these steps are copied from the README.openldap
+file. You may use the same or different databases for user data
+and certificate data depending on your security needs.
+
+1. Install the OpenLDAP server. You can get it from openldap.org
+   or as a Redhat RPM:
+
+http://www.openldap.org
+http://www.rpmfind.net
+
+2. Copy the cougaar schema to the OpenLDAP schema directory:
+
+cp securityservices/test/configs/common/cougaar.schema \
+   /etc/openldap/schema
+
+3. If you are not using ldaps (LDAP over SSL), you may skip this step.
+   You must have a certificate and trust certificate list. First copy
+   and edit the openssl.cnf:
+
+cp /usr/share/ssl/openssl.cnf /tmp/slapdcert.cnf
+vi /tmp/slapdcert.cnf
+
+   Add the following lines into the [ req_distinguished_name ] section:
+
+T                       = Certificate Title (Type)
+T_default               = server
+
+   Create a certificate request using
+   openssl:
+
+openssl req  -new -keyout slapdkey.pem -out slapdreq.pem  -days 3653 \
+  -config /tmp/slapdcert.cnf -rand choose:five:random:files:here
+
+   You should choose 5 good random files. If you don't have enough, you
+   may create some using /dev/urandom. See the urandom manual page.
+
+   Enter your certificate information. For Common Name, use the complete
+   host name where your ldap server is going to be run. Use your
+   certificate authority to sign the certificate. If you are using
+   NAI's certificate authority, you will have to modify the slapdreq.pem
+   file to read "BEGIN NEW CERTIFICATE REQUEST" instead of
+   "BEGIN CERTIFICATE REQUEST."
+
+   Put the slapdkey.pem, slapdcert.pem (signed certificate), and
+   slapdca.pem (PEM export of the CA's public certificate) in a good
+   certificate directory like /usr/share/ssl/certs. If the CA uses
+   a jks keystore, export the public using:
+
+keytool -export -rfc -file slapdca.pem -keystore ./keystore-CONUS-RSA \
+        -alias conusca-1
+
+4. Edit the slapd.conf which was installed into /etc/openldap unless
+   you have installed OpenLDAP other than the default location. You must
+   be sure to include the cougaar user schema:
+
+include         /etc/openldap/schema/core.schema
+include         /etc/openldap/schema/cosine.schema
+include         /etc/openldap/schema/inetorgperson.schema
+include         /etc/openldap/schema/nis.schema
+include         /etc/openldap/schema/cougaar.schema
+
+   Modify the suffix, rootdn, and rootpw to work with your setup:
+
+suffix		"dc=cougaar,dc=org"
+rootdn		"cn=manager,dc=cougaar,dc=org"
+rootpw		foo
+
+   The suffix field is automatically appended to any queries performed by the 
+   server. The root distinguished name (rootdn) is the name of the superuser 
+   who is expempted from access control rules. This should only be used by the
+   user administration servlet and monitoring and response agents. The root
+   password (rootpw) is the password field for the rootdn account. It is
+   highly recommended that you encrypt the rootpw using slappasswd. 
+
+   It i salso helpful to add the following directives:
+
+index   objectClass,uid,uidNumber,gidNumber,memberUid   eq
+index   cn,mail,surname,givenname                       eq,subinitial
+index   roleOccupant                                    eq
+
+   If you want to use SSL, add the following:
+
+TLSCertificateFile    /usr/share/ssl/certs/slapdcert.pem
+TLSCertificateKeyFile /usr/share/ssl/certs/slapdkey.pem
+TLSCACertificateFile  /usr/share/ssl/certs/slapdca.pem
+# If you don't want the client to be forced to present a certificate,
+# comment out the next line
+TLSVerifyClient        1
+
+# Force SSL strength to be 128-bit or better
+security ssf=128
+
+5. Add the root entries to the LDAP server using slapadd. You will need
+   to be root to do this:
+
+slapadd -l userroot.ldif
+
+   Where userroot.ldif contains:
+
+# Base for all user searches
+dn: dc=cougaar, dc=org
+objectClass: dcObject
+objectClass: organization
+dc: cougaar
+o: UltraLog
+description: User Database
+
+# Define an entry to base role searches on
+dn: dc=roles,dc=cougaar,dc=org
+objectClass: dcObject
+objectClass: organization
+dc: roles
+o: UltraLog
+description: Role Database
+
+   Note that the above are configurable, so you can change them to fit
+   your needs.
+
+5. Start the LDAP server. For normal ldap:
+
+/usr/libexec/slapd -h ldap:///
+
+   Or for LDAPS:
+
+/usr/libexec/slapd -h ldaps:///
+
+6. Modify the policy to use your new user ldap server.
+
+7. Add the user administration servlet to your agent ini file:
+
+plugin = org.cougaar.core.security.certauthority.CaServletComponent(org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet, /user_admin)
+
+8. Start your Node using SecureNode and point it to your agent's user_admin
+   servlet. You should be able to add roles, add users, and assign roles
+   to those users. Once you have done so, you can assign policy to servlets
+   using your domain manager (or modifying the BootPolicy.ldm.xml) to force
+   users to login to particular agents or URLs.
