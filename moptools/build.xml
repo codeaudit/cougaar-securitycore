@@ -175,11 +175,19 @@
         <echo message="+++++ Generating ZIP files"/>
   	    <mkdir dir="${securityservices.staging}/Manifest"/>
      	<mkdir dir="${securityservices.staging}/configs/security"/>
-  	<mkdir dir="${securityservices.staging}/csmart/config/rules/security"/>
+  	<mkdir dir="${securityservices.staging}/csmart/config/rules/security/mop"/>
+  	<mkdir dir="${securityservices.staging}/csmart/config/rules/security/assessment"/>
         <copy file="${securityservices.signed}/configs_${project.name}.jar" 
           todir="${securityservices.staging}/configs/security"/>
-        <copy todir="${securityservices.staging}/csmart/config/rules/security/">
-            <fileset dir="${securityservices.configs}/rules">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/mop">
+            <fileset dir="${securityservices.configs}/recipes/rules">
+                <patternset>
+                    <include name="*.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/assessment">
+            <fileset dir="${securityservices.configs}/recipes/rules/assessment">
                 <patternset>
                     <include name="*.rule"/>
                 </patternset>
