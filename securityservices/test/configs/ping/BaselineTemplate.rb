@@ -82,7 +82,7 @@ at :after_stage_1
   # 1K society would advance time here
 at :before_stage_2
 at :during_stage_2
-  do_action "Sleep", 1.minutes 
+  do_action "Sleep", 20.minutes 
 at :after_stage_2
 
 at :before_stage_3
