@@ -44,9 +44,8 @@ public class Forgetful {
     public static void main(String args[]) 
 	throws RDFException, FileNotFoundException {
 
-        if (args.length != 2) {
-            System.err.println(
-		   "Both arguments should be a paths to a daml Ontology");
+        if (args.length != 1) {
+            System.err.println("This call takes a single argument - an ugly daml file");
             System.exit(-1);
         }
 
@@ -56,21 +55,8 @@ public class Forgetful {
 	FileReader desc1 = new FileReader(args[0]);
 	model1.read(desc1,"");
 
-	DAMLModel model2 = new DAMLModelImpl();
-	model2.getLoader().setLoadImportedOntologies(false);
-	FileReader desc2 = new FileReader(args[1]);
-	model2.read(desc2,"");
-
-	System.out.println("Here is the first model");
+	System.out.println("Here is the model");
 	System.out.println(beautify(model1));
-	System.out.println("Here is the second model");
-	System.out.println(beautify(model2));
-
-	if (copy(model1).equals(copy(model2))) {
-	    System.out.println("They are equal");
-	} else {
-	    System.out.println("They are not equal");
-	}
     }
 
 
