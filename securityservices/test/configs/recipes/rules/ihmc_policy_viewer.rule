@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 ####################################################
 # Rule to insert PolicyViewerServlet to all node agents
 # plugin = safe.guard.PolicyViewerServletComponent

@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 #######################################################################
 # Rule to insert MnRUserLockoutPlugin to SocietyMnRManagerAgent
 # plugin = org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin 

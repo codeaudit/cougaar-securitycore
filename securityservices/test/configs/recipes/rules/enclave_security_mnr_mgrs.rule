@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 ####################################################
 # enclave_security_mnr_mgrs.rule
 # Adds EnclaveMnRManagers complete agent recipe

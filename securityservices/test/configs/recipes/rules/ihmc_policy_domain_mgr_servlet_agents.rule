@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 ####################################################
 # ihmc_policy_domain_mgr_agents.rule
 # Adds PolicyDomainManagers 
@@ -7,7 +8,7 @@ society.each_node do |node|
     if facet[:role] == 'Management'
       facetval = node.host.get_facet(:enclave)
       enclave = facetval[0..0] + facetval[1..facetval.length].downcase 
-      agentname = enclave + "PolicyServletAgent"
+      agentname = enclave + "PolicyDomainManagerServlet"
       node.add_agent(agentname) do |agent|
         agent.add_component do |c|
           c.classname = "safe.policyManager.PolicyAdminServletComponent"

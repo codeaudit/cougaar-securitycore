@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 ####################################################
 # ihmc_policy_domain_mgr_agents.rule
 # Adds PolicyDomainManagers 

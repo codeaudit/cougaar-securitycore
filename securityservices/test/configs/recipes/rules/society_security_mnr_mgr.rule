@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 ####################################################
 # society_security_mnr_mgr.rule
 # Adds SocietyMnRManager complete agent recipe
