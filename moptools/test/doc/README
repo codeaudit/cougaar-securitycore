@@ -1,0 +1,17 @@
+
+
+Install tethereal
+=================
+Install tethereal 0.9.12 (which is not part of the RedHat distribution).
+
+Because of package dependency issues on RedHat, it is easier to download the source code,
+compile and install it.
+
+Download ethereal-0.9.12.tar.gz
+
+tar xvfz ethereal-0.9.12.tar.gz
+cd ethereal-0.9.12
+./configure
+make
+
+

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Executable
-exec="/cygdrive/c/Progra~1/Ethereal/tethereal"
+exec="tethereal"
 
 # Stop writing to a capture file after value seconds have elapsed.
 duration=60
