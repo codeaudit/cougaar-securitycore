@@ -93,11 +93,25 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
    *
    * @throws CertificateException
    * @throws GeneralSecurityException
+   * @throws RuntimeException DOCUMENT ME!
    */
   public Wrapper wrap(String name, Object object) throws CertificateException, GeneralSecurityException {
     if (log.isDebugEnabled()) {
       log.debug(WhitePagesProtectionServiceImpl.NAME + " wrapping object: " + object + " with name + " + name);
     }
+
+    keyRingService = (KeyRingService) serviceBroker.getService(this, KeyRingService.class, null);
+
+    if (keyRingService == null) {
+      throw new RuntimeException("KeyRingService is null");
+    }
+
+    encryptService = (EncryptionService) serviceBroker.getService(this, EncryptionService.class, null);
+
+    if (encryptService == null) {
+      throw new RuntimeException("EncryptionService is null");
+    }
+
 
     List certList = keyRingService.findCert(name, KeyRingService.LOOKUP_KEYSTORE);
     if ((certList == null) || !(certList.size() > 0)) {
@@ -144,11 +158,30 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
    * @return the object if the siganature is valid
    *
    * @throws CertificateException
+   * @throws RuntimeException DOCUMENT ME!
    */
   public Object unwrap(String name, Wrapper wrapper) throws CertificateException {
     ProtectedRequest wrap = (ProtectedRequest) wrapper;
     if (log.isDebugEnabled()) {
       log.debug(WhitePagesProtectionServiceImpl.NAME + " unwrapping object: " + wrap.getSignedObject() + " with name + " + name);
+    }
+
+    keyRingService = (KeyRingService) serviceBroker.getService(this, KeyRingService.class, null);
+
+    if (keyRingService == null) {
+      throw new RuntimeException("KeyRingService is null");
+    }
+
+    encryptService = (EncryptionService) serviceBroker.getService(this, EncryptionService.class, null);
+
+    if (encryptService == null) {
+      throw new RuntimeException("EncryptionService is null");
+    }
+
+    csrv = (CertificateCacheService) serviceBroker.getService(this, CertificateCacheService.class, null);
+
+    if (encryptService == null) {
+      throw new RuntimeException("CertificateCacheService is null");
     }
 
     X509Certificate[] certChain = wrap.getCertificateChain();
