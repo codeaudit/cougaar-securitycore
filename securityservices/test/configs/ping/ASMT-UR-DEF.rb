@@ -96,6 +96,9 @@ include_scripts:
       - dbPassword: s0c0nfig
       - db: cougaar104
       - wait: true
+  - script: $CIP/csmart/lib/security/scripts/install_boot_policies.rb
+    parameters:
+      - start_label: wait_for_initialization
 #################################################
 # Unit Reassignment Handoff
   - script: $CIP/csmart/lib/security/scripts/starthandoff.rb
