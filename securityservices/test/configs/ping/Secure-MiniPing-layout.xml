@@ -5,6 +5,7 @@
     <facet enclave='EnclaveA'/> 
     <node name='ROOT-CA-NODE'> 
       <facet role="RootCertificateAuthority"/> 
+      <facet role="NameServer"/> 
     </node> 
     <node name='CA-NODE'> 
       <facet role="CertificateAuthority"/> 
@@ -13,7 +14,6 @@
       <facet role="Management"/> 
     </node> 
     <node name='NodeA'> 
-      <facet role="NameServer"/> 
       <agent name='AgentA'/> 
     </node> 
     <node name='NodeB'> 
