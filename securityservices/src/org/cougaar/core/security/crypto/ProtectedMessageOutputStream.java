@@ -239,15 +239,27 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     }
 
     synchronized (certEntry) {
-      if (certEntry.source == null || certEntry.target == null) {
-        Hashtable certs = _keyRing.findCertPairFromNS(_source, _target);
-        if (certs != null) {
-          certEntry.source = (X509Certificate) certs.get(_source);
-          certEntry.target = (X509Certificate) certs.get(_target);
+      if (certEntry.source != null && certEntry.target != null) {
+        try {
+          certEntry.source.checkCertificateValidity();
+          certEntry.target.checkCertificateValidity();
+        } catch (Exception ex) {
+          if (_log.isDebugEnabled()) {
+            _log.debug("Found invalid certificate in cache: " + ex);
+          }
+          certEntry.source = null;
+          certEntry.target = null;
         }
       }
-      _targetCert = certEntry.target;
-      _sourceCert = certEntry.source;
+      if (certEntry.source == null || certEntry.target == null) {
+        Hashtable certs = _keyRing.findCertStatusPairFromNS(_source, _target);
+        if (certs != null) {
+          certEntry.source = (CertificateStatus) certs.get(_source);
+          certEntry.target = (CertificateStatus) certs.get(_target);
+        }
+      }
+      _targetCert = certEntry.target.getCertificate();
+      _sourceCert = certEntry.source.getCertificate();
     }
 
     if (_sourceCert == null || _targetCert == null) {
@@ -406,7 +418,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
   }
 
   private static class CertEntry {
-    public X509Certificate source;
-    public X509Certificate target;
+    public CertificateStatus source;
+    public CertificateStatus target;
   }
 }
