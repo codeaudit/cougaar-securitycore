@@ -1,0 +1,1642 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="UnzipAndRun_files/filelist.xml">
+<title>This README file explains how to configure the security services</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Sebastien Rosset</o:Author>
+  <o:LastAuthor>Sebastien Rosset</o:LastAuthor>
+  <o:Revision>125</o:Revision>
+  <o:TotalTime>324</o:TotalTime>
+  <o:Created>2003-02-28T16:34:00Z</o:Created>
+  <o:LastSaved>2003-05-06T20:49:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>1078</o:Words>
+  <o:Characters>6149</o:Characters>
+  <o:Company>Network Associates, Inc.</o:Company>
+  <o:Lines>51</o:Lines>
+  <o:Paragraphs>14</o:Paragraphs>
+  <o:CharactersWithSpaces>7213</o:CharactersWithSpaces>
+  <o:Version>10.3501</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:Zoom>97</w:Zoom>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:UpdateStylesOnOpen/>
+  <w:DefaultTableStyle Number="155">Table Theme</w:DefaultTableStyle>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:1627421319 -2147483648 8 0 66047 0;}
+@font-face
+	{font-family:"Trebuchet MS";
+	panose-1:2 11 6 3 2 2 2 2 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:647 0 0 0 159 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-style:italic;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:13.0pt;
+	font-family:Arial;}
+h4
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:4;
+	font-size:14.0pt;
+	font-family:"Times New Roman";}
+h5
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:5;
+	font-size:13.0pt;
+	font-family:Arial;
+	mso-bidi-font-family:"Times New Roman";
+	font-style:italic;}
+h6
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:6;
+	font-size:11.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+	{mso-style-update:auto;
+	mso-style-noshow:yes;
+	mso-style-next:Normal;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{mso-style-noshow:yes;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	background:navy;
+	font-size:10.0pt;
+	font-family:Tahoma;
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{mso-style-link:"Plain Text Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	mso-fareast-font-family:"Times New Roman";}
+span.PlainTextChar
+	{mso-style-name:"Plain Text Char";
+	mso-style-link:"Plain Text";
+	mso-ansi-font-size:12.0pt;
+	mso-bidi-font-size:12.0pt;
+	font-family:"Courier New";
+	mso-ascii-font-family:"Courier New";
+	mso-hansi-font-family:"Courier New";
+	mso-bidi-font-family:"Courier New";
+	color:black;
+	mso-ansi-language:EN-US;
+	mso-fareast-language:EN-US;
+	mso-bidi-language:AR-SA;}
+p.mstheme-label, li.mstheme-label, div.mstheme-label
+	{mso-style-name:mstheme-label;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-bannertxt, li.mstheme-bannertxt, div.mstheme-bannertxt
+	{mso-style-name:mstheme-bannertxt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:4.5pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-horiz-navtxt, li.mstheme-horiz-navtxt, div.mstheme-horiz-navtxt
+	{mso-style-name:mstheme-horiz-navtxt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-vert-navtxt, li.mstheme-vert-navtxt, div.mstheme-vert-navtxt
+	{mso-style-name:mstheme-vert-navtxt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-navtxthome, li.mstheme-navtxthome, div.mstheme-navtxthome
+	{mso-style-name:mstheme-navtxthome;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-navtxtup, li.mstheme-navtxtup, div.mstheme-navtxtup
+	{mso-style-name:mstheme-navtxtup;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-navtxtprev, li.mstheme-navtxtprev, div.mstheme-navtxtprev
+	{mso-style-name:mstheme-navtxtprev;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-navtxtnext, li.mstheme-navtxtnext, div.mstheme-navtxtnext
+	{mso-style-name:mstheme-navtxtnext;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-topbar-font, li.mstheme-topbar-font, div.mstheme-topbar-font
+	{mso-style-name:mstheme-topbar-font;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-main, li.ms-main, div.ms-main
+	{mso-style-name:ms-main;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-bannerframe, li.ms-bannerframe, div.ms-bannerframe
+	{mso-style-name:ms-bannerframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-banner, li.ms-banner, div.ms-banner
+	{mso-style-name:ms-banner;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-navframe, li.ms-navframe, div.ms-navframe
+	{mso-style-name:ms-navframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-verticaldots, li.ms-verticaldots, div.ms-verticaldots
+	{mso-style-name:ms-verticaldots;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-titlearea, li.ms-titlearea, div.ms-titlearea
+	{mso-style-name:ms-titlearea;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-titleareaframe, li.ms-titleareaframe, div.ms-titleareaframe
+	{mso-style-name:ms-titleareaframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-pagetitle, li.ms-pagetitle, div.ms-pagetitle
+	{mso-style-name:ms-pagetitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:14.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-announcementtitle, li.ms-announcementtitle, div.ms-announcementtitle
+	{mso-style-name:ms-announcementtitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-formlabel, li.ms-formlabel, div.ms-formlabel
+	{mso-style-name:ms-formlabel;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-formbody, li.ms-formbody, div.ms-formbody
+	{mso-style-name:ms-formbody;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-formdescription, li.ms-formdescription, div.ms-formdescription
+	{mso-style-name:ms-formdescription;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-radiotext, li.ms-radiotext, div.ms-radiotext
+	{mso-style-name:ms-radiotext;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-searchbox, li.ms-searchbox, div.ms-searchbox
+	{mso-style-name:ms-searchbox;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-input, li.ms-input, div.ms-input
+	{mso-style-name:ms-input;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-long, li.ms-long, div.ms-long
+	{mso-style-name:ms-long;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-wvsel, li.ms-wvsel, div.ms-wvsel
+	{mso-style-name:ms-wvsel;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-selected, li.ms-selected, div.ms-selected
+	{mso-style-name:ms-selected;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-descriptiontext, li.ms-descriptiontext, div.ms-descriptiontext
+	{mso-style-name:ms-descriptiontext;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-toolbar, li.ms-toolbar, div.ms-toolbar
+	{mso-style-name:ms-toolbar;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-separator, li.ms-separator, div.ms-separator
+	{mso-style-name:ms-separator;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-authoringcontrols, li.ms-authoringcontrols, div.ms-authoringcontrols
+	{mso-style-name:ms-authoringcontrols;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-sectionheader, li.ms-sectionheader, div.ms-sectionheader
+	{mso-style-name:ms-sectionheader;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-sectionline, li.ms-sectionline, div.ms-sectionline
+	{mso-style-name:ms-sectionline;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-propertysheet, li.ms-propertysheet, div.ms-propertysheet
+	{mso-style-name:ms-propertysheet;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-discussiontitle, li.ms-discussiontitle, div.ms-discussiontitle
+	{mso-style-name:ms-discussiontitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-vh, li.ms-vh, div.ms-vh
+	{mso-style-name:ms-vh;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-vb, li.ms-vb, div.ms-vb
+	{mso-style-name:ms-vb;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-homepagetitle, li.ms-homepagetitle, div.ms-homepagetitle
+	{mso-style-name:ms-homepagetitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-addnew, li.ms-addnew, div.ms-addnew
+	{mso-style-name:ms-addnew;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-cal, li.ms-cal, div.ms-cal
+	{mso-style-name:ms-cal;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caltop, li.ms-caltop, div.ms-caltop
+	{mso-style-name:ms-caltop;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calhead, li.ms-calhead, div.ms-calhead
+	{mso-style-name:ms-calhead;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:16.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caldow, li.ms-caldow, div.ms-caldow
+	{mso-style-name:ms-caldow;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calmid, li.ms-calmid, div.ms-calmid
+	{mso-style-name:ms-calmid;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calspacer, li.ms-calspacer, div.ms-calspacer
+	{mso-style-name:ms-calspacer;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calbot, li.ms-calbot, div.ms-calbot
+	{mso-style-name:ms-calbot;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-appt, li.ms-appt, div.ms-appt
+	{mso-style-name:ms-appt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caldowdown, li.ms-caldowdown, div.ms-caldowdown
+	{mso-style-name:ms-caldowdown;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caldown, li.ms-caldown, div.ms-caldown
+	{mso-style-name:ms-caldown;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-datepickeriframe, li.ms-datepickeriframe, div.ms-datepickeriframe
+	{mso-style-name:ms-datepickeriframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-datepicker, li.ms-datepicker, div.ms-datepicker
+	{mso-style-name:ms-datepicker;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpdow, li.ms-dpdow, div.ms-dpdow
+	{mso-style-name:ms-dpdow;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpday, li.ms-dpday, div.ms-dpday
+	{mso-style-name:ms-dpday;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpselectedday, li.ms-dpselectedday, div.ms-dpselectedday
+	{mso-style-name:ms-dpselectedday;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpnonmonth, li.ms-dpnonmonth, div.ms-dpnonmonth
+	{mso-style-name:ms-dpnonmonth;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dphead, li.ms-dphead, div.ms-dphead
+	{mso-style-name:ms-dphead;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpfoot, li.ms-dpfoot, div.ms-dpfoot
+	{mso-style-name:ms-dpfoot;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+span.Hyperlink1
+	{mso-style-name:Hyperlink1;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#330066;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink1
+	{mso-style-name:FollowedHyperlink1;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#330066;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink2
+	{mso-style-name:FollowedHyperlink2;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#666699;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:underline;
+	text-underline:single;}
+span.Hyperlink2
+	{mso-style-name:Hyperlink2;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#009999;
+	text-decoration:underline;
+	text-underline:single;}
+span.FollowedHyperlink3
+	{mso-style-name:FollowedHyperlink3;
+	color:#666699;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink4
+	{mso-style-name:FollowedHyperlink4;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#666699;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink5
+	{mso-style-name:FollowedHyperlink5;
+	color:#666699;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.Hyperlink3
+	{mso-style-name:Hyperlink3;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#330066;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink6
+	{mso-style-name:FollowedHyperlink6;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#330066;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink7
+	{mso-style-name:FollowedHyperlink7;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#666699;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:underline;
+	text-underline:single;}
+span.Hyperlink4
+	{mso-style-name:Hyperlink4;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#009999;
+	text-decoration:underline;
+	text-underline:single;}
+span.FollowedHyperlink8
+	{mso-style-name:FollowedHyperlink8;
+	color:#666699;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink9
+	{mso-style-name:FollowedHyperlink9;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#666699;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink10
+	{mso-style-name:FollowedHyperlink10;
+	color:#666699;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 65.95pt 1.0in 65.95pt;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:28991660;
+	mso-list-template-ids:-681177562;}
+@list l0:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l0:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level5
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level6
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:3.0in;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l0:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:4.5in;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l1
+	{mso-list-id:525875216;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-161216572 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l1:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l2
+	{mso-list-id:675616185;
+	mso-list-template-ids:734688132;}
+@list l2:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3
+	{mso-list-id:809789278;
+	mso-list-template-ids:67698721;}
+@list l3:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F076;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l3:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	margin-left:.5in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l3:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l3:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	margin-left:1.0in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l3:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A8;
+	mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l3:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	margin-left:1.5in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l3:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.75in;
+	mso-level-number-position:left;
+	margin-left:1.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l3:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	margin-left:2.0in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l3:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A8;
+	mso-level-tab-stop:2.25in;
+	mso-level-number-position:left;
+	margin-left:2.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l4
+	{mso-list-id:882521822;
+	mso-list-template-ids:-161216572;}
+@list l4:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l4:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;}
+@list l4:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:1.75in;
+	mso-level-number-position:right;
+	margin-left:1.75in;
+	text-indent:-9.0pt;}
+@list l4:level4
+	{mso-level-tab-stop:2.25in;
+	mso-level-number-position:left;
+	margin-left:2.25in;
+	text-indent:-.25in;}
+@list l4:level5
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:2.75in;
+	mso-level-number-position:left;
+	margin-left:2.75in;
+	text-indent:-.25in;}
+@list l4:level6
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:3.25in;
+	mso-level-number-position:right;
+	margin-left:3.25in;
+	text-indent:-9.0pt;}
+@list l4:level7
+	{mso-level-tab-stop:3.75in;
+	mso-level-number-position:left;
+	margin-left:3.75in;
+	text-indent:-.25in;}
+@list l4:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:4.25in;
+	mso-level-number-position:left;
+	margin-left:4.25in;
+	text-indent:-.25in;}
+@list l4:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:4.75in;
+	mso-level-number-position:right;
+	margin-left:4.75in;
+	text-indent:-9.0pt;}
+@list l5
+	{mso-list-id:1909028907;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1673454964 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l5:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l6
+	{mso-list-id:2046363028;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1642167622 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l6:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7
+	{mso-list-id:2084062060;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1922614254 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l7:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l8
+	{mso-list-id:2098210080;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-681177562 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l8:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+table.MsoTableGrid
+	{mso-style-name:"Table Grid";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	border:solid windowtext 1.0pt;
+	mso-border-alt:solid windowtext .5pt;
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-border-insideh:.5pt solid windowtext;
+	mso-border-insidev:.5pt solid windowtext;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+table.MsoTableTheme
+	{mso-style-name:"Table Theme";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	border:solid #669999 1.0pt;
+	mso-border-alt:solid #669999 .5pt;
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-border-insideh:.5pt solid #669999;
+	mso-border-insidev:.5pt solid #669999;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="7170"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body bgcolor=white lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:16.0pt;font-family:Tahoma;color:black'>Unzip And
+Run Configuration Guide<o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'>This document explains how to install the security services
+overlay. It assumes the society will be run using the ACME environment.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><u><span style='font-size:14.0pt;
+font-family:Tahoma;color:black'>Installation<o:p></o:p></span></u></p>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma;color:black'>Download
+     from <a href="http://www.cougaar.org/">http://www.cougaar.org</a> or <a
+     href="http://www.alpine.bbn.com/~mthome">http://www.alpine.bbn.com/~mthome</a>
+     to get the most recent release. </span><span style='font-family:Tahoma'>Select
+     a version that will be compatible with the security services (e.g.
+     security services B10_2 is compatible with Cougaar B10_2).<o:p></o:p></span></li>
+ <li class=MsoNormal style='margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Install Cougaar as
+     described in the Cougaar installation guide.<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Download and install
+     the ACME scripting environment. <a
+     href="https://cvs.ultralog.net/dist/isat_acme_stable.zip">https://cvs.ultralog.net/dist/isat_acme_stable.zip</a>.
+     The ZIP file contains an installation guide. Also, more installation information
+     can be found on a <span class=SpellE>Wiki</span> page at <a
+     href="https://cvs.ultralog.net/ultralog/AcmeServiceFaq">https://cvs.ultralog.net/ultralog/AcmeServiceFaq</a>.
+     <o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Download the
+     security services overlay from <a href="https://cvs.ultralog.net/dist/">https://cvs.ultralog.net/dist/</a>.
+     This page requires a user name and password.<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>The following zip
+     files are required:<o:p></o:p></span></li>
+ <ol style='margin-top:0in' start=1 type=a>
+  <li class=MsoNormal style='margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'><a
+      href="https://cvs.ultralog.net/dist/AS_csi_secserv_B10_2.zip">CSI
+      security services B10_2 hourly (Cougaar branch B10_2)</a>. The file name
+      should be something like AS_csi_secserv_B10_2.zip. Select the appropriate
+      version of the CSI <span class=SpellE>security_services</span> module.
+      The HEAD is not guaranteed to work properly.<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma;color:windowtext'><a
+      href="https://cvs.ultralog.net/dist/AS_umem.zip">University of Memphis
+      Security Console hourly (Cougaar branch B10_2)</a>. The file name should
+      be something like <span class=SpellE>AS_umem.zip</span>.</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+ </ol>
+</ol>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:.5in'><span style='font-family:Tahoma'>The CSI “overlay” is not
+required. This module is used as a temporary repository for code contributed to
+Cougaar core.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:.5in'><span style='font-family:Tahoma'>The IHMC Safe overlay is not
+required. This module is already included in the CSI security services module.<o:p></o:p></span></p>
+
+<ol style='margin-top:0in' start=6 type=1>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Unzip </span><span
+     style='font-family:Tahoma;color:windowtext'>AS_csi_secserv_B10_2.zip under
+     $COUGAAR_INSTALL_PATH.</span><span style='font-family:Tahoma'><o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma;color:windowtext'>Unzip
+     <span class=SpellE>AS_umem.zip</span> under $COUGAAR_INSTALL_PATH.</span><span
+     style='font-family:Tahoma'><o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma;color:windowtext'>You
+     may also download other overlays, such as the robustness overlays.
+     However, it is strongly recommended to start with one overlay and verify
+     that the society runs as expected.</span><span style='font-family:Tahoma'><o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma;color:windowtext'>Install
+     a <span class=SpellE>communities.xml</span> file that contains the
+     appropriate robustness and security entries. A good <span class=SpellE>communities.xml</span>
+     can be found by downloading the BBN commons overlay ZIP file from <a
+     href="https://cvs.ultralog.net/dist/bbn_commons_overlay.zip">https://cvs.ultralog.net/dist/bbn_commons_overlay.zip</a>
+     and extracting <span class=SpellE>configs/common/communties.xml</span>.</span><span
+     style='font-family:Tahoma'><o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma;color:windowtext'>Build
+     an XML file with the host-node-agent (HNA) names mappings. The security
+     rules do not depend on host name, but they do depend on node and agent
+     names. The ROOT-CA-NODE must run on its own host; no other node must be
+     running with ROOT-CA-NODE. In addition to the standard logistics nodes, make
+     sure you HNA file has the following node entries:</span><span
+     style='font-family:Tahoma'><o:p></o:p></span></li>
+ <ol style='margin-top:0in' start=1 type=a>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma;color:windowtext'>ROOT-CA-NODE</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma;color:windowtext'>FWD-CA-NODE</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma;color:windowtext'>FWD-MGMT-NODE</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma;color:windowtext'>REAR-CA-NODE</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma;color:windowtext'>REAR-MGMT-NODE</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma;color:windowtext'>CONUS-CA-NODE</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma;color:windowtext'>CONUS-MGMT-NODE</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma;color:windowtext'>TRANS-CA-NODE</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma;color:windowtext'>TRANS-MGMT-NODE</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+ </ol>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Execute the security
+     services rules. When you unzip the security services overlay, the rules
+     are installed under $COUGAAR_INSTALL_PATH/<span class=SpellE>csmart/config/rules/security</span>.
+     Make sure you do not have any error while executing the rules. Some of the
+     rules may require some editing, depending on your environment:<o:p></o:p></span></li>
+ <ol style='margin-top:0in' start=1 type=a>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>The <b
+      style='mso-bidi-font-weight:normal'>A26-msg_protection_aspect.rule</b> rule
+      loads the Message Protection Aspect as a component. The order in which
+      aspects are initialized is important: the message protection aspect must
+      be the last aspect in the chain of aspects. If you install more than one
+      aspect (e.g. <span class=SpellE>StatisticsAspect</span>, robustness
+      aspects), you should not use the Message Protection Aspect rule. Instead,
+      you should have one rule that initializes all the aspects. This can be
+      done by adding a rule that overrides the <span class=SpellE>org.cougaar.message.transport.aspects</span>
+      Java Virtual Machine property. For example, add the following rule:<o:p></o:p></span></li>
+ </ol>
+</ol>
+
+<p class=MsoNormal style='margin-left:1.5in;mso-layout-grid-align:none;
+text-autospace:none'><span class=SpellE><span style='font-family:"Courier New"'>society.each_node</span></span><span
+style='font-family:"Courier New"'> do |node|<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:135.0pt;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-family:"Courier New"'>aspects = &quot;<span
+class=SpellE>org.cougaar.core.mts.NameSupportTimeoutAspect</span>,&quot; + <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-family:"Courier New"'><span
+style='mso-spacerun:yes'>          </span>&quot;<span class=SpellE>org.cougaar.core.mts.RMISocketControlAspect</span>,&quot;
++ <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-family:"Courier New"'><span
+style='mso-spacerun:yes'>          </span>&quot;<span class=SpellE>org.cougaar.core.mts.StatisticsAspect</span>,&quot;
++ <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-family:"Courier New"'><span
+style='mso-spacerun:yes'>          </span>&quot;<span class=SpellE>org.cougaar.core.mts.RMISendTimeoutAspect</span>,&quot;
++ <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-family:"Courier New"'><span
+style='mso-spacerun:yes'>          </span>&quot;<span class=SpellE>org.cougaar.core.mts.ShowTrafficAspect</span>,&quot;
++ <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-family:"Courier New"'><span
+style='mso-spacerun:yes'>          </span>&quot;<span class=SpellE>org.cougaar.core.mts.MessageOrderingAspect</span>,&quot;
++ <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-family:"Courier New"'><span
+style='mso-spacerun:yes'>          </span>&quot;<span class=SpellE>org.cougaar.core.mts.MessageSendHistoryAspect</span>,&quot;
++ <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-family:"Courier New"'><span
+style='mso-spacerun:yes'>          </span>&quot;<span class=SpellE>org.cougaar.core.mts.acking.MessageAckingAspect</span>,&quot;
++ <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-family:"Courier New"'><span
+style='mso-spacerun:yes'>          </span>&quot;<span class=SpellE>org.cougaar.core.mts.RTTAspect</span>,&quot;
++ <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-family:"Courier New"'><span
+style='mso-spacerun:yes'>          </span>&quot;<span class=SpellE>org.cougaar.core.mts.MessageNumberingAspect</span>&quot;
++<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:135.0pt'><span style='font-family:"Courier New"'>&quot;<span
+class=SpellE><span style='color:black'>org.cougaar.core.security.crytpo.MessageProtectionAspect</span></span>&quot;<span
+style='color:black'><o:p></o:p></span></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:135.0pt'><span class=SpellE><span style='font-family:"Courier New"'>node.override_parameter</span></span><span
+style='font-family:"Courier New"'>(&quot;-<span class=SpellE>Dorg.cougaar.message.transport.aspects</span>&quot;,
+aspects)<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:1.5in'><span style='font-family:"Courier New"'>end<o:p></o:p></span></p>
+
+<ol style='margin-top:0in' start=11 type=1>
+ <ol style='margin-top:0in' start=2 type=a>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>Depending on your
+      base HNA file, you may or may not have to edit some JVM properties. <span
+      style='mso-spacerun:yes'> </span>In particular, make sure the following
+      properties are defined:<o:p></o:p></span></li>
+ </ol>
+</ol>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:1.5in;text-indent:-1.5in;mso-text-indent-alt:-9.0pt;mso-list:l5 level3 lfo6;
+tab-stops:list 1.5in'><![if !supportLists]><span style='font-family:Tahoma;
+mso-fareast-font-family:Tahoma;color:black'><span style='mso-list:Ignore'><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>i.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=FR style='font-family:Tahoma;
+color:black;mso-ansi-language:FR'>-D</span><span class=SpellE><span
+style='font-family:Tahoma;color:black'>org.cougaar.install.path</span></span><span
+style='font-family:Tahoma;color:black'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:1.5in;text-indent:-1.5in;mso-text-indent-alt:-9.0pt;mso-list:l5 level3 lfo6;
+tab-stops:list 1.5in'><![if !supportLists]><span style='font-family:Tahoma;
+mso-fareast-font-family:Tahoma;color:black'><span style='mso-list:Ignore'><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>ii.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=FR style='font-family:Tahoma;
+color:black;mso-ansi-language:FR'>-D</span><span class=SpellE><span
+style='font-family:Tahoma;color:black'>cougaar.core.persistence.clear</span></span><span
+style='font-family:Tahoma;color:black'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:1.5in;text-indent:-1.5in;mso-text-indent-alt:-9.0pt;mso-list:l5 level3 lfo6;
+tab-stops:list 1.5in'><![if !supportLists]><span lang=FR style='font-family:
+Tahoma;mso-fareast-font-family:Tahoma;color:black;mso-ansi-language:FR'><span
+style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>iii.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=FR style='font-family:Tahoma;
+color:black;mso-ansi-language:FR'>-<span class=SpellE>Dorg.cougaar.core.persistence.enable</span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:1.5in;text-indent:-1.5in;mso-text-indent-alt:-9.0pt;mso-list:l5 level3 lfo6;
+tab-stops:list 1.5in'><![if !supportLists]><span style='font-family:Tahoma;
+mso-fareast-font-family:Tahoma;color:black'><span style='mso-list:Ignore'><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>iv.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:Tahoma;color:black'>-<span
+class=SpellE>Xbootclasspath</span>/p<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:1.5in;text-indent:-1.5in;mso-text-indent-alt:-9.0pt;mso-list:l5 level3 lfo6;
+tab-stops:list 1.5in'><![if !supportLists]><span style='font-family:Tahoma;
+mso-fareast-font-family:Tahoma;color:black'><span style='mso-list:Ignore'><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>v.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:Tahoma;color:black'>–<span
+class=SpellE>Xms</span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:1.5in;text-indent:-1.5in;mso-text-indent-alt:-9.0pt;mso-list:l5 level3 lfo6;
+tab-stops:list 1.5in'><![if !supportLists]><span style='font-family:Tahoma;
+mso-fareast-font-family:Tahoma;color:black'><span style='mso-list:Ignore'><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>vi.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:Tahoma;color:black'>–<span
+class=SpellE>Xmx</span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:1.5in;text-indent:-1.5in;mso-text-indent-alt:-9.0pt;mso-list:l5 level3 lfo6;
+tab-stops:list 1.5in'><![if !supportLists]><span style='font-family:Tahoma;
+mso-fareast-font-family:Tahoma;color:black'><span style='mso-list:Ignore'><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>vii.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:Tahoma;color:black'>-<span
+class=SpellE>XX:ThreadStackSize</span><o:p></o:p></span></p>
+
+<ol style='margin-top:0in' start=11 type=1>
+ <ol style='margin-top:0in' start=3 type=a>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>Appropriate VM
+      property values depend on your environment. The <span class=SpellE>security_param_tic.rule</span>
+      file contains examples of such VM properties. Those properties can be
+      commented out directly in that file, or a new rule file can be created if
+      necessary.<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>The name server
+      must be running on the root CA node. This can be configured by editing
+      the <span class=SpellE>org.cougaar.name.server</span> property, and
+      setting it to the <o:p></o:p></span></li>
+ </ol>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Once you have
+     generated the society definition file (either as a Ruby or XML file), the
+     society is ready to be executed. You may have to create a startup script,
+     if necessary. Make the following changes to your startup script:<o:p></o:p></span></li>
+ <ol style='margin-top:0in' start=1 type=a>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>Delete the
+      $COUGAAR_INSTALL_PATH/P directory before every run (unless you want to
+      test <span class=SpellE>rehydration</span>)<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>Delete the
+      $COUGAAR_INSTALL_PATH/workspace/security directory before every run
+      (unless you want to test <span class=SpellE>rehydration</span>)<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>Delete files under
+      $COUGAAR_INSTALL_PATH/workspace/log4jlogs before every run<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo6;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>Delete files under
+      $COUGAAR_INSTALL_PATH/log/bootstrap before every run<o:p></o:p></span></li>
+ </ol>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo6;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Execute the society
+     by launching you startup Ruby script. The root CA should be started, then
+     the subordinate CAs, then the nodes.<o:p></o:p></span></li>
+</ol>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><u><span style='font-size:14.0pt;
+font-family:Tahoma;color:black'>Troubleshooting<o:p></o:p></span></u></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'>If the society does not seem to start properly, check the
+following potential issues:<o:p></o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level1 lfo11;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>You should not have
+     any exception in the log4j log files. Do a “<span class=SpellE>grep</span>
+     Exception *.log” under $COUGAAR_INSTALL_PATH/workspace/log4jlogs. The
+     exception might give you a clue about the cause of the problem.<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level1 lfo11;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Make sure the root
+     CA starts correctly. Launch a browser, then go to <a
+     href="http://root-ca-hostname:8800/">http://root-ca-hostname:8800</a>, where
+     root-ca-hostname is the host name where the Root CA is running. You should
+     see a “<span class=SpellE>RootCA</span>” entry in the list of agents.
+     Click on “<span class=SpellE>RootCA</span>”, then select the “Index”
+     servlet. You should see the root CA management interface. Click on the “Certificate
+     List” URL, then select the default CA in the drop-down list. You should
+     see the Root CA key, and four subordinate CA keys, if the subordinate CAs have
+     started correctly.<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level1 lfo11;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Make sure the
+     subordinate CAs start correctly. After the root CA is initialized, you
+     should see the subordinate CAs if you go to <a
+     href="http://root-ca-hostname:8800/">http://root-ca-hostname:8800</a>.<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level1 lfo11;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Make sure ALL nodes
+     use the same naming service (<span class=SpellE>org.cougaar.name.server</span>
+     property).<o:p></o:p></span></li>
+</ul>
+
+</div>
+
+</body>
+
+</html>
