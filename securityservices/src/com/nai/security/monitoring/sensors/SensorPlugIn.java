@@ -152,58 +152,64 @@ String [] nodename=null;
 					System.out.println("got log  path"+logfilepath.toString());
 				filelist=new File(logfilepath.toString());
 			}
-			String [] filenames=filelist.list();
-			if(MonitoringUtils.debug>0)
-			{	
-				for(int i=0;i<filenames.length;i++)
-				{
+			String [] filenames=null;
+			if(filelist!=null)
+			  {
+			    filenames=filelist.list();
+			    if((filenames!=null)&&(filenames.length>0))
+			      {
+			      
+				if(MonitoringUtils.debug>0)
+				  {	
+				    for(int i=0;i<filenames.length;i++)
+				      {
 					System.out.println("file name at : "+ i+"  :: "+filenames[i]);
-				}
-			}
-			String [] uniquelog=findUniquePerNode(filenames,filelist,"SecurityManager");
-			if(MonitoringUtils.debug>0)
-			{	
-				for(int i=0;i<uniquelog.length;i++)
-				{
+				      }
+				  }
+				String [] uniquelog=findUniquePerNode(filenames,filelist,"SecurityManager");
+				if(MonitoringUtils.debug>0)
+				  {	
+				    for(int i=0;i<uniquelog.length;i++)
+				      {
 					System.out.println("file name unique at : "+ i+"  :: "+uniquelog[i]);
-				}
-			}
-			fi = new FileInputStream[uniquelog.length];
-			File tempfile=null;
-			for(int i=0;i<uniquelog.length;i++)
-			{
-				tempfile=new File(filelist,uniquelog[i]);
-				try
-				{
+				      }
+				  }
+				fi = new FileInputStream[uniquelog.length];
+				File tempfile=null;
+				for(int i=0;i<uniquelog.length;i++)
+				  {
+				    tempfile=new File(filelist,uniquelog[i]);
+				    try
+				      {
 					fi[i]=new FileInputStream(tempfile);
-				}
-				catch(IOException ioexp)
-				{
+				      }
+				    catch(IOException ioexp)
+				      {
 					System.err.println("Error while opening file stream for file :::  "+tempfile.toString());
 					ioexp.printStackTrace();
-				}
+				      }
 				//nodename=findNodeName(fi);
 
-			}
+				  }
 				nodename=findNodeName(fi);
-                        for(int i=0;i<uniquelog.length;i++)
-                        {
-                                tempfile=new File(filelist,uniquelog[i]);
-                                try
-                                {
+				for(int i=0;i<uniquelog.length;i++)
+				  {
+				    tempfile=new File(filelist,uniquelog[i]);
+				    try
+				      {
                                         fi[i]=new FileInputStream(tempfile);
-                                }
-                                catch(IOException ioexp)
-                                {
+				      }
+				    catch(IOException ioexp)
+				      {
                                         System.err.println("Error while opening file stream for file :::  "+tempfile.toString());
                                         ioexp.printStackTrace();
-                                }
+				      }
                                 //nodename=findNodeName(fi);
 
-                        }
-
-
-                 }
+				  }
+			      }
+			  }
+		}
               }
                              
         	process_publishCmd(allcmd.getAddedList());
@@ -237,8 +243,10 @@ String [] nodename=null;
 		Vector parsed;
 		Vector similarlist;
 		String Key;
-		for(int i=0;i<onlysecuritym.length;i++)
-		{
+		if(onlysecuritym!=null)
+		  {
+		    for(int i=0;i<onlysecuritym.length;i++)
+		      {
 			filename=onlysecuritym[i];
 			parsed=MonitoringUtils.parseString(filename,'_');
 			if(MonitoringUtils.debug>0)
@@ -268,7 +276,8 @@ String [] nodename=null;
 			{
 				System.err.println("Error in parsing the log file name::"+filename);
 			}
-		}
+		      }
+		  }
 		Enumeration keylist=list.keys();
 		String nodename;
 		String latestfile=null;
@@ -321,15 +330,22 @@ String [] nodename=null;
 	{
 		Vector foundfiles=new Vector();
 		String temp;
-		for( int i=0;i<filelist.length;i++)
-		{
+		if(filelist==null)
+		  {
+		    return MonitoringUtils.toStringArray(foundfiles);
+		  }
+		if(filelist.length>0)
+		  {
+		    for( int i=0;i<filelist.length;i++)
+		      {
 			temp=filelist[i];
 			if(temp.startsWith(startswith))
 			{
 				foundfiles.add(new String(temp));
 				
 			}
-		}
+		      }
+		  }
 		return MonitoringUtils.toStringArray(foundfiles);
 	}
 	private String[] findNodeName(FileInputStream [] fileis)
