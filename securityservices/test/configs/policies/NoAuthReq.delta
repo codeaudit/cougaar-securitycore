@@ -19,7 +19,7 @@
 # </copyright>
 #
 
-PolicyPrefix=%NoAuthReq/
+PolicyPrefix=%tests/
 
 #
 # WARNING: I had trouble with comments in the grammar.  It is

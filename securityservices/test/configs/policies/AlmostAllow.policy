@@ -26,7 +26,7 @@
 # pretty small and permissive but it 
 #
 
-PolicyPrefix=%AlmostAllow/
+PolicyPrefix=%tests/
 
 
 #
@@ -36,20 +36,20 @@ PolicyPrefix=%AlmostAllow/
 Policy AllowCommunication = [ 
    GenericTemplate
    Priority = 2,
-   $Actor.daml#Agent is authorized to perform
-   $Action.daml#EncryptedCommunicationAction as long as
-    the value of $Action.daml#hasDestination
-    is a subset of the set $Actor.daml#Agent
+   $Actor.owl#Agent is authorized to perform
+   $Action.owl#EncryptedCommunicationAction as long as
+    the value of $Action.owl#hasDestination
+    is a subset of the set $Actor.owl#Agent
 ]
 
 Policy EncryptCommunication = [ 
    GenericTemplate
    Priority = 3,
-   $Actor.daml#Agent is not authorized to perform
-   $Action.daml#EncryptedCommunicationAction as long as
-    the value of $Ultralog/UltralogAction.daml#usedProtectionLevel
+   $Actor.owl#Agent is not authorized to perform
+   $Action.owl#EncryptedCommunicationAction as long as
+    the value of $Ultralog/UltralogAction.owl#usedProtectionLevel
     is a subset of the complement of the set
-     { $Ultralog/Names/EntityInstances.daml#NSAApprovedProtection }
+     { $Ultralog/Names/EntityInstances.owl#NSAApprovedProtection }
 ]
 
 
@@ -60,11 +60,11 @@ Policy EncryptCommunication = [
 Policy AllowBlackboard = [ 
    GenericTemplate
    Priority = 2,
-   $Ultralog/UltralogActor.daml#UltralogPlugins is authorized to perform
-   $Ultralog/UltralogAction.daml#BlackBoardAccess as long as
-    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+   $Ultralog/UltralogActor.owl#UltralogPlugins is authorized to perform
+   $Ultralog/UltralogAction.owl#BlackBoardAccess as long as
+    the value of $Ultralog/UltralogAction.owl#blackBoardAccessObject
     is a subset of the set
-      $Ultralog/UltralogEntity.daml#BlackBoardObjects
+      $Ultralog/UltralogEntity.owl#BlackBoardObjects
 ]
 
 
@@ -76,8 +76,8 @@ Policy AllowBlackboard = [
 Policy AllowServlet = [ 
    GenericTemplate
    Priority = 2,
-   $Actor.daml#Person is authorized to perform
-   $UltralogAction.daml#ServletAccess as long as
-    the value of $Ultralog/UltralogAction.daml#accessedServlet
-    is a subset of the set $Ultralog/UltralogEntity.daml#Servlet
+   $Actor.owl#Person is authorized to perform
+   $Ultralog/UltralogAction.owl#ServletAccess as long as
+    the value of $Ultralog/UltralogAction.owl#accessedServlet
+    is a subset of the set $Ultralog/UltralogEntity.owl#Servlet
 ]

@@ -22,12 +22,24 @@
 
 PolicyPrefix=%tests/
 
+UserRole CAAdministrator
+UserRole Logistician
+UserRole LogisticsViewer
+UserRole SocietyAdmin
+
+Servlet CAWriteServlet
+Servlet HierarchyServlet
+Servlet SocietyAdminServlet
+
+BlackBoardObject OrgActivity
+
+PlugInRole OrgActivityAdd
+
 Delete LogisticianHierarchy
 Delete LogisticsViewerHierarchy
 Delete CertWrite
 Delete SocietyAdmin
 Delete OrgActivityAdd
-
 
 
 Policy LogisticianHierarchy = [
