@@ -337,7 +337,7 @@ public class UserManagerPlugin extends ComponentPlugin {
         _userCache.disableUser((String) arg);
         break;
       case CasRelay.LOCK_USER_4_TIME:
-        _userCache.disableUser((String) arr[0], ((Long) arr[0]).longValue());
+        _userCache.disableUser((String) arr[0], ((Long) arr[1]).longValue());
         break;
       case CasRelay.UNLOCK_USER:
         _userCache.enableUser((String) arg);
@@ -416,16 +416,18 @@ public class UserManagerPlugin extends ComponentPlugin {
 
   private static final UnaryPredicate CAS_TARGETS = 
     new UnaryPredicate() {
-//         Logger _log = LoggerFactory.getInstance().createLogger(this);
+      //   Logger _log = LoggerFactory.getInstance().createLogger(this);
         public boolean execute(Object obj) {
-//           if (_log.isDebugEnabled()) {
-//             _log.debug("Comparing against object of class: " + obj.getClass().getName() + " will return " + (obj instanceof CasRelay && 
-//                   ((CasRelay) obj).isTarget()));
-//           }
-          return (obj instanceof CasRelay && 
-                  ((CasRelay) obj).isTarget());
+          /* debug code 
+             if (_log.isDebugEnabled()) {
+            _log.debug("Comparing against object of class: " + obj.getClass().getName() + " will return " + (obj instanceof CasRelay && 
+                   ((CasRelay) obj).isTarget()));
+           }
+           */
+           return (obj instanceof CasRelay && 
+                   ((CasRelay) obj).isTarget());
         }
-      };
+    };
 
   private static final UnaryPredicate UNANSWERED_CAS_TARGETS = 
     new UnaryPredicate() {
