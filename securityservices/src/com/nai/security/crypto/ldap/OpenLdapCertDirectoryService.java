@@ -400,8 +400,14 @@ public class OpenLdapCertDirectoryService extends CertDirectoryService
 	if(activeentry.size()>1) {
 	  throw new MultipleEntryException("Found multiple active entries for filter : "+filter.toString());
 	}
-	result=null;
-	result=(SearchResult)activeentry.elementAt(0);
+	//result=null;
+	if((result!=null)&&(activeentry.isEmpty())){
+	  return result;
+	}
+	else{
+	  result=null;
+	  result=(SearchResult)activeentry.elementAt(0);
+	}
 	//System.out.println("
       }
       else {
