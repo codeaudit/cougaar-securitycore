@@ -154,7 +154,7 @@ public class JNDISSLFactory extends SocketFactory {
 
   /**
    * Initializes the class so that the default SocketFactory to
-   * use the context provided.
+   * use the context provided. 
    *
    * @see getDefault
    */

@@ -27,15 +27,23 @@ package org.cougaar.core.security.crypto.ldap;
 
 import java.util.Hashtable;
 import java.util.List;
+import java.util.ArrayList;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.security.cert.X509Certificate;
 import java.security.Principal;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.Attribute;
+import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.SearchResult;
 
-import org.apache.catalina.realm.JNDIRealm;
+import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.realm.GenericPrincipal;
+import org.cougaar.core.security.services.crypto.LdapUserService;
+
 
 /**
  * A Realm extension for Tomcat 4.0 that uses SSL to talk to
@@ -43,137 +51,128 @@ import org.apache.catalina.realm.GenericPrincipal;
  * The KeyStore and TrustStore used are made available via the
  * KeyRingService and use the Node's certificates.                       <p>
  *
- * An example KeyRingJNDIRealm addition to server.xml which uses
- * anonymous binding to the ldap database:
+ * An example KeyRingJNDIRealm addition to server.xml:
  * <pre>
  *   &lt;Realm className="org.cougaar.security.crypto.ldap.KeyRingJNDIRealm" 
- *          connectionURL="ldaps://chump"
- *          roleBase="dc=roles,dc=nai,dc=com"
  *          roleName="cn"
- *          roleSearch="(uniqueMember={0})"
- *          roleSubtree="false"
  *          userPassword="userPassword"
- *          userPattern="cn={0},dc=nai,dc=com"
+ *          certComponent="CN"
  *          debug="-1" />
  * </pre>
- * <code>KeyRingJNDIRealm</code> supports all of Tomcat's JNDIRealm
- * configuration parameters, but modifies the meaning of the
- * <code>connectionURL</code>. URL's beginning with "ldaps://" 
- * will use SSL to communicate with the server and have a default
- * port number of 636 instead of 389.<p>
+ * <code>KeyRingJNDIRealm</code> uses the <code>LdapUserService</code>
+ * for access to the LDAP database so only the roleName and userPassword
+ * attributes need to be set.
  *
  * Additionally, if a client certificate is used for gathering role
  * information the subject's distinguished name will replace the user
  * distinguished name in the roleSearch. In case only a single
  * portion of the subject's dn is to be used, set the 
- * <code>certAuth</code> attribute to the component that is to be
+ * <code>certComponent</code> attribute to the component that is to be
  * used (e.g. "CN").
  *
  * @see org.apache.catalina.realm.JNDIRealm
  * @see SecureJNDIRealm
  * @author George Mount <gmount@nai.com>
  */
-public class KeyRingJNDIRealm extends JNDIRealm {
+public class KeyRingJNDIRealm extends RealmBase {
+  private static LdapUserService _defaultUserService;
+  private LdapUserService _userService;
+  private String          _certComponent;
+  private String          _passwordAttr;
+  private String          _roleAttr;
 
-  String _certAuth;
-
-  /** Default constructor */
-  public KeyRingJNDIRealm() {}
-
-  /**
-   * Open (if necessary) and return a connection to the configured
-   * directory server for this Realm.
-   *
-   * @exception NamingException if a directory server error occurs
+  /** 
+   * Default constructor. Uses <code>LdapUserService</code>
+   * given in the setDefaultLdapUserService call.
    */
-  protected DirContext open() throws NamingException {
-    if (context == null) {
+  public KeyRingJNDIRealm() {
+    _userService = _defaultUserService;
+  }
 
-      if (debug >= 1)
-        log("Connecting to URL " + connectionURL);
-
-      Hashtable env = new Hashtable(11);
-
-      env.put(Context.INITIAL_CONTEXT_FACTORY, contextFactory);
-      if (connectionName != null)
-        env.put(Context.SECURITY_PRINCIPAL, connectionName);
-      if (connectionPassword != null)
-        env.put(Context.SECURITY_CREDENTIALS, connectionPassword);
-
-      boolean useSSL = false;
-      String url = connectionURL;
-      if (url != null && url.startsWith("ldaps://")) {
-        useSSL = true;
-        int colonIndex = url.indexOf(":",8);
-        int slashIndex = url.indexOf("/",8);
-        String host;
-        if (slashIndex == -1) slashIndex = url.length();
-        if (colonIndex == -1 || colonIndex > slashIndex) {
-          // there is no default port -- change the default
-          // port to 636 for ldaps
-          if (slashIndex == 0) {
-            // there is no host either -- use 0.0.0.0 as host
-            host = "0.0.0.0";
-          } else {
-            host = url.substring(8,slashIndex);
-          }
-          url = "ldap://" + host + ":636" + 
-            url.substring(slashIndex);
-        } else {
-          url = "ldap://" + url.substring(8);
-        }
-      }
-
-      if (url != null)
-        env.put(Context.PROVIDER_URL, url);
-
-      if (useSSL) {
-        env.put(Context.SECURITY_PROTOCOL, "ssl");
-        
-        env.put("java.naming.ldap.factory.socket", 
-                "org.cougaar.core.security.crypto.ldap.KeyRingSSLFactory");
-      }
-      context = new InitialDirContext(env);
-    }
-    return context;
+  /** 
+   * Constructor that uses the given LdapUserService for
+   * its connection to the User LDAP database.
+   */
+  public KeyRingJNDIRealm(LdapUserService ldap) {
+    _userService = ldap;
   }
 
   /**
-   * Returns the certificate subject's domain component to be used in
+   * Sets the default LdapUserService that this class uses when
+   * the default constructor is called.
+   */
+  public static void setDefaultLdapUserService(LdapUserService defaultService) {
+    _defaultUserService = defaultService;
+  }
+
+  /**
+   * Returns the attribute to use for password comparison. The
+   * default is "userPassword"
+   */
+  public String getUserPassword() {
+    return _passwordAttr;
+  }
+
+  /**
+   * Sets the attribute to use for password comparison.
+   */
+  public void setUserPassword(String passwordAttribute) {
+    _passwordAttr = passwordAttribute;
+  }
+
+  /**
+   * Returns the attribute to use as the role name. The
+   * default is "cn"
+   */
+  public String getRoleName() {
+    return _roleAttr;
+  }
+
+  /**
+   * Sets the attribute to use for the role name
+   */
+  public void setRoleName(String roleAttribute) {
+    _roleAttr = roleAttribute;
+  }
+
+  /**
+   * Returns the certificate subject's component to be used in
    * case the subject is not to be used. Returns <code>null</code> if
    * the full dn is to be used.
    */
-  public String getCertAuth() {
-    return _certAuth;
+  public String getCertComponent() {
+    return _certComponent;
+  }
+ 
+  /**
+   * Set the certificate subject's domain component to be used in
+   * case the subject is not to be used. certComponent can be
+   * <code>null</code> or empty string to use the full subject dn.
+   */
+  public void setCertComponent(String certComponent) {
+    if (certComponent != null && certComponent.length() == 0) {
+      certComponent = null;
+    }
+    _certComponent = certComponent;
   }
 
   /**
-   * Set the certificate subject's domain component to be used in
-   * case the subject is not to be used. certAuth can be
-   * <code>null</code> or empty string to use the full subject dn.
+   * Authenticate the user with the given credentials against the
+   * LDAP database.
+   *
+   * @param username The user id of the user
+   * @param credentials The given authentication credentials (password)
+   *                    to check against the password
+   * @return A <code>GenericPrincipal</code> representing the user
+   * if the credentials match the database or <code>null</code> otherwise.
    */
-  public void setCertAuth(String certAuth) {
-    if (certAuth != null && certAuth.length() == 0) {
-      certAuth = null;
+  public Principal authenticate(String username, String credentials) {
+    if (!passwordOk(username, credentials)) {
+      return null;
     }
-    _certAuth = certAuth;
+    return getPrincipal(username);
   }
 
-  public Principal authenticate(String username, String credentials) {
-    System.err.println("authenticate(String username, String credentials)");
-    return super.authenticate(username,credentials);
-  }
-  public Principal authenticate(String username, byte[] credentials) {
-    System.err.println("authenticate(String username, byte[] credentials)");
-    return super.authenticate(username,credentials);
-  }
-    public Principal authenticate(String username, String clientDigest,
-                                  String nOnce, String nc, String cnonce,
-                                  String qop, String realm,
-                                  String md5a2) {
-      System.err.println("    public Principal authenticate(String username, String clientDigest,...");
-      return super.authenticate(username,clientDigest,nOnce,nc,cnonce,qop,realm,md5a2);
-    }
   /**
    * Return the Principal associated with the specified chain of X509
    * client certificates.  If there is none, return <code>null</code>.
@@ -183,7 +182,7 @@ public class KeyRingJNDIRealm extends JNDIRealm {
    */
   public Principal authenticate(X509Certificate certs[]) {
 
-    System.err.println("Trying to authenticate the certificates");
+//     System.out.println("Trying to authenticate the certificates");
     if ( (certs == null) || (certs.length < 1) )
       return null;
 
@@ -198,41 +197,31 @@ public class KeyRingJNDIRealm extends JNDIRealm {
       }
     }
 
-    String dn,un,subjectDN;
-    boolean noRoles = false;
+    String user = certs[0].getSubjectDN().getName();
 
-    subjectDN = certs[0].getSubjectDN().getName();
-    un = getUserName(subjectDN);
-    if (un == null) {
-      System.err.println("un = null");
-      return null;
+    if (_certComponent != null) {
+      user = getUserName(user);
+      if (user == null) {
+        // certificate is bad, bad, bad!
+        return null;
+      }
     }
-
-    dn = getUserDN(subjectDN,un);
-    if (dn == null) {
-      System.err.println("dn = null");
-      return null;
-    }
-
-    List       roles   = getRoles(un,dn);
-    System.err.println("Got roles for " + un);
-    return new GenericPrincipal(this, un, null, roles);
+      
+    return getPrincipal(user);
   }
 
   /**
-   * If certAuth is set, the certAuth component
+   * If certComponent is set, the certComponent component
    * of the subject DN is returned. Otherwise
    * the entire subjectDN is returned.
    */
   protected String getUserName(String subjectDN) {
-    if ( _certAuth == null) return subjectDN;
-
-    int start = subjectDN.indexOf(_certAuth + "=");
+    int start = subjectDN.indexOf(_certComponent + "=");
     if (start == -1) {
       // doesn't contain the required component!
       return null;
     }
-    start += _certAuth.length() + 1;
+    start += _certComponent.length() + 1;
     int end = subjectDN.indexOf(",",start);
     if (end == -1) {
       return subjectDN.substring(start);
@@ -241,37 +230,84 @@ public class KeyRingJNDIRealm extends JNDIRealm {
   }
 
   /**
-   * returns the subjectDN if the certAuth is not set or 
-   * fabricates a DN from the userName if certAuth is set
+   * Creates a principal with associated roles based off of the
+   * user name given
+   *
+   * @param username The user to establish as the Principal
+   * @returns A <code>GenericPrincipal</code> associated with the
+   * user, having the roles assigned to that user.
    */
-  protected String getUserDN(String subjectDN, String userName) {
-    if ( _certAuth == null) return subjectDN;
-    return userFormat.format(new String[] { userName });
+  protected Principal getPrincipal(String username) {
+//     System.out.println("getting principal for: " + username);
+    try {
+      NamingEnumeration ne = _userService.getRoles(username);
+//       System.out.println("Got roles for " + username);
+      ArrayList roles = new ArrayList();
+      while (ne.hasMore()) {
+        SearchResult result = (SearchResult) ne.next();
+        Attributes attrs = result.getAttributes();
+        String role = attrs.get(_roleAttr).get().toString();
+        roles.add(role);
+//         System.out.println("  role: " + role);
+      }
+      return new GenericPrincipal(this, username, null, roles);
+    } catch (NamingException e) {
+//       System.out.println("Caught exception: ");
+//       e.printStackTrace();
+      return new GenericPrincipal(this, username, null);
+    }
   }
 
   /**
-   * Returns the roles for the given user name (un) and
-   * user's distinguished name (dn).
+   * Supposed to return the password for comparison by base class,
+   * but we do not ever have the password. Therefore, we override
+   * all the authentication functions and just return null here.
    */
-  protected List getRoles(String un, String dn) {
-    List       roles   = null;
-    DirContext context = null;;
+  public String getPassword(String username) {
+    return null;
+  }
+
+  /**
+   * Returns true if the given user/password match the database.
+   * Also logs failures to M&R.
+   */
+  protected boolean passwordOk(String user, String password) {
+    boolean match = false;
     try {
-      // Ensure that we have a directory context available
-      context = open();
-      roles = getRoles(context,un,dn);
-      release(context);
-    } catch (NamingException e) {
+      Attributes attrs = _userService.getUser(user);
+      if (attrs == null) return false;
 
-      // Log the problem for posterity
-      super.log(sm.getString("jndiRealm.exception"), e);
+      Attribute  attr  = attrs.get(_passwordAttr);
+      if (attr == null) return false;
 
-      // Close the connection so that it gets reopened next time
-      if (context != null) {
-        close(context);
+      Object     attrVal = attr.get();
+      if (attrVal == null) return false;
+
+      String passwordCheck;
+      if (attrVal instanceof byte[]) {
+        passwordCheck = new String((byte[]) attrVal);
+      } else {
+        passwordCheck = attrVal.toString();
       }
-      // authenticated, but no roles
+
+      if (hasMessageDigest()) {
+        match = digest(password).equalsIgnoreCase(passwordCheck);
+      } else {
+        match = digest(password).equals(passwordCheck);
+      }
+
+      // in the future log a password match failure in a finally block
+      return match;
+    } catch (NamingException e) {
+      return false;
     }
-    return roles;
+  }
+
+  /**
+   * Return a short name for this Realm implementation, 
+   * for use in log messages.
+   */
+  public String getName() {
+    return "KeyRing JNDI Realm";
   }
 }

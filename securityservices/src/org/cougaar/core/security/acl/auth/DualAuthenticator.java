@@ -28,23 +28,27 @@ import java.util.ResourceBundle;
 import java.util.MissingResourceException;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
-import org.apache.catalina.valves.ValveBase;
-import org.apache.catalina.ValveContext;
-import org.apache.catalina.authenticator.AuthenticatorBase;
-import org.apache.catalina.authenticator.SSLAuthenticator;
-import org.apache.catalina.authenticator.BasicAuthenticator;
-import org.apache.catalina.HttpRequest;
-import org.apache.catalina.HttpResponse;
-import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
 import org.apache.catalina.Context;
 import org.apache.catalina.Container;
+import org.apache.catalina.ValveContext;
+import org.apache.catalina.HttpRequest;
+import org.apache.catalina.HttpResponse;
+import org.apache.catalina.realm.GenericPrincipal;
+import org.apache.catalina.valves.ValveBase;
+import org.apache.catalina.deploy.LoginConfig;
+import org.apache.catalina.authenticator.AuthenticatorBase;
+import org.apache.catalina.authenticator.SSLAuthenticator;
+import org.apache.catalina.authenticator.BasicAuthenticator;
+import org.apache.catalina.connector.HttpResponseWrapper;
 
 import java.security.Principal;
-import org.apache.catalina.realm.GenericPrincipal;
 
 public class DualAuthenticator extends ValveBase {
   private static ResourceBundle _authenticators = null;
@@ -63,14 +67,8 @@ public class DualAuthenticator extends ValveBase {
 
   public DualAuthenticator(AuthenticatorBase primaryAuth,
                            AuthenticatorBase secondaryAuth) {
-    System.out.println("In the DualAuthenticator constructor"); 
-    try {
     setPrimaryAuthenticator(primaryAuth);
     setSecondaryAuthenticator(secondaryAuth);
-    } catch (Exception e) {
-      System.out.println("Bad!");
-      e.printStackTrace();
-    }
   }
 
   /**
@@ -80,34 +78,17 @@ public class DualAuthenticator extends ValveBase {
   public void invoke(Request request, Response response,
                      ValveContext context) throws IOException, ServletException {
     setContainer();
-    /*
-    ServletException se = null;
-    try {
-    */
-      _primaryAuth.invoke(request,response,context);
-      HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
-      Principal principal = hreq.getUserPrincipal();
-      if (principal == null) {
-//         System.out.println("Trying secondary authentication....");
-        _secondaryAuth.invoke(request,response,context);
-      }
-      /*
-    } catch (ServletException e) {
-      se = e;
-    }
+     HttpServletResponse no_err =
+       new NoErrorResponse((HttpServletResponse) response.getResponse());
+     ResponseDummy tmpRes = new ResponseDummy((HttpResponse) response, no_err);
+
+     _primaryAuth.invoke(request,tmpRes,context);
     HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
     Principal principal = hreq.getUserPrincipal();
-    System.out.println("Authenticated: " + principal);
-    if (principal != null && principal instanceof GenericPrincipal) {
-      String roles[] = ((GenericPrincipal) principal).getRoles();
-      for (int i = 0; i < roles.length; i++) {
-        System.out.println("  role: " + roles[i]);
-      }
+    if (principal == null) {
+//       System.out.println("Trying secondary authentication....");
+      _secondaryAuth.invoke(request,response,context);
     }
-    if (se != null) {
-      throw se;
-    }
-      */
   }
 
   private static AuthenticatorBase getAuthenticator(Class authClass) {
@@ -210,6 +191,64 @@ public class DualAuthenticator extends ValveBase {
       } catch (MissingResourceException e) {
         throw new IllegalStateException("Could not open Authenticators setup resource: " + e.getMessage());
       }
+    }
+  }
+
+  private class ResponseDummy extends HttpResponseWrapper {
+    HttpServletResponse _hres;
+    HttpResponse        _resp;
+
+    public ResponseDummy(HttpResponse resp, HttpServletResponse hres) {
+      super(resp);
+      _hres = hres;
+      _resp = resp;
+      
+    }
+    
+    public ServletResponse getResponse() {
+      return _hres;
+    }
+
+    public boolean isAppCommitted() {
+      return _resp.isAppCommitted();
+    }
+
+    public boolean isError() {
+      return _resp.isError();
+    }
+
+    public boolean isSuspended() {
+      return _resp.isSuspended();
+    }
+
+    public void setAppCommitted(boolean appCommitted) {
+      _resp.setAppCommitted(appCommitted);
+    }
+
+    public void setError() {
+      _resp.setError();
+    }
+
+    public void setSuspended(boolean suspended) {
+      _resp.setSuspended(suspended);
+    }
+
+    public javax.servlet.http.Cookie[] getCookies() {
+      return _resp.getCookies();
+    }
+
+  }
+
+  private class NoErrorResponse extends HttpServletResponseWrapper {
+    boolean             _error = false;
+    public NoErrorResponse(HttpServletResponse resp) {
+      super(resp);
+    }
+    
+    public void sendError(int sc) {
+    }
+    
+    public void sendError(int sc, String msg) {
     }
   }
 }

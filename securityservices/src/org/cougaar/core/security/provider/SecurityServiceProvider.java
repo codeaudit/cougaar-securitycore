@@ -192,12 +192,6 @@ public class SecurityServiceProvider
 		 new KeyRingServiceProvider());
     serviceBroker.addService(KeyRingService.class, this);
 
-    /* Node-level SSL service needs to be initialized with the
-     * KeyRingService */
-    KeyRingService krs = (KeyRingService) serviceBroker.
-      getService(this, KeyRingService.class, null);
-    org.cougaar.core.security.crypto.ldap.KeyRingSSLFactory.init(krs);
-
     /* Encryption Service */
     services.put(EncryptionService.class,
 		 new EncryptionServiceProvider());
@@ -244,6 +238,13 @@ public class SecurityServiceProvider
     services.put(WebserverIdentityService.class,
 		 new WebserverSSLServiceProvider());
     serviceBroker.addService(WebserverIdentityService.class, this);
+
+    /* ********************************
+     * LDAP user administration
+     */
+    services.put(LdapUserService.class, new LdapUserServiceProvider());
+    serviceBroker.addService(LdapUserService.class, this);
+    serviceBroker.getService(this, LdapUserService.class, null);
   }
 
   /* ******************************************************************
