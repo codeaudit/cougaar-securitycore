@@ -16,9 +16,11 @@ final public class UltralogEntityConcepts
 	}
 
 	// Concepts
+    public static final String Community = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "Community");
     public static final String PlugInRoles = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "PlugInRoles");
     public static final String WPAccessType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAccessType");
     public static final String BlackBoardAccessMode = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "BlackBoardAccessMode");
+    public static final String CommunityActionType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "CommunityActionType");
     public static final String ProtectionLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ProtectionLevel");
     public static final String UltralogEntity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UltralogEntity");
     public static final String Servlet = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "Servlet");
@@ -27,9 +29,11 @@ final public class UltralogEntityConcepts
     public static final String AuthenticationLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "AuthenticationLevel");
     public static final String ULContentValue = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ULContentValue");
 
+    public static String Community() { return Community; };
     public static String PlugInRoles() { return PlugInRoles; };
     public static String WPAccessType() { return WPAccessType; };
     public static String BlackBoardAccessMode() { return BlackBoardAccessMode; };
+    public static String CommunityActionType() { return CommunityActionType; };
     public static String ProtectionLevel() { return ProtectionLevel; };
     public static String UltralogEntity() { return UltralogEntity; };
     public static String Servlet() { return Servlet; };
@@ -42,11 +46,25 @@ final public class UltralogEntityConcepts
 
 
 	// Instances
+    public static final String testCommunityTwo = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "testCommunityTwo");
     public static final String WPAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAdd");
+    public static final String ModifyCommunityAttributes = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ModifyCommunityAttributes");
     public static final String WPChange = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPChange");
+    public static final String JoinCommunity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "JoinCommunity");
+    public static final String ListCommunities = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ListCommunities");
     public static final String WPRemove = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPRemove");
+    public static final String GetCommunityDescriptor = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "GetCommunityDescriptor");
+    public static final String LeaveCommunity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "LeaveCommunity");
+    public static final String testCommunityOne = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "testCommunityOne");
 
+    public static String testCommunityTwo() { return testCommunityTwo; };
     public static String WPAdd() { return WPAdd; };
+    public static String ModifyCommunityAttributes() { return ModifyCommunityAttributes; };
     public static String WPChange() { return WPChange; };
+    public static String JoinCommunity() { return JoinCommunity; };
+    public static String ListCommunities() { return ListCommunities; };
     public static String WPRemove() { return WPRemove; };
+    public static String GetCommunityDescriptor() { return GetCommunityDescriptor; };
+    public static String LeaveCommunity() { return LeaveCommunity; };
+    public static String testCommunityOne() { return testCommunityOne; };
 }
