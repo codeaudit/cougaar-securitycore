@@ -102,7 +102,19 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webserver.jar" signed
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.KeyRingService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.LdapUserService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertificateManagementService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.service.identity.AgentIdentityService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertValidityService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CryptoPolicyService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.EncryptionService";
 };
+
+grant codeBase "file:${org.cougaar.install.path}${/}sys${/}servlet.jar" signedBy "privileged"  {
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.EncryptionService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.service.identity.AgentIdentityService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertValidityService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CryptoPolicyService";
+};
+
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webtomcat.jar" signedBy "privileged" {
         permission java.security.SecurityPermission "getPolicy";
         permission java.lang.RuntimePermission "getClassLoader";
@@ -113,12 +125,20 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webtomcat.jar" signed
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.ConfigParserService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertificateManagementService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.KeyRingService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.service.identity.AgentIdentityService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertValidityService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CryptoPolicyService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.EncryptionService";
 };
 grant codeBase "file:${org.cougaar.install.path}${/}sys${/}tomcat_40.jar" signedBy "privileged"  {
         permission java.security.SecurityPermission "getPolicy";
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
         permission java.util.PropertyPermission "java.protocol.handler.pkgs", "read,write";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.service.identity.AgentIdentityService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.EncryptionService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CryptoPolicyService";
+        permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertValidityService";
 };
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "privileged" {
         permission java.security.SecurityPermission "getPolicy";
