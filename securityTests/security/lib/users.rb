@@ -289,61 +289,61 @@ class SecurityStressFramework
    # Creates the parameter file used as input to openssl
    #    which will generate a certificate request
    def createParamFile(user)
-      url = @@ca_signer
-
-      # find the dnname 'CN=Enclave1_CA, OU=...'
-      result = getHtml(url).body
-      dnname = result.scan(/option value=\"(.*)\">/)[0][0]
-puts dnname.as_string
-
-      #CN=Enclave1_CA, OU=Enclave1, O=DLA, L=San Francisco, ST=CA, C=US, T=ca
-      orgUnitName = dnname.scan(/CN=(.*), OU=/)[0][0]
-      orgName = dnname.scan(/, OU=(.*), O=/)[0][0]+"CA"
-      city = dnname.scan(/, L=(.*), ST=/)[0][0]
-      state = dnname.scan(/, ST=(.*), C=/)[0][0]
-      country = dnname.scan(/, C=(.*), T=/)[0][0]
-
-      #Generate a certificate request using openssl
-      paramFile = File.new("params", "w")
-      # country, state, locality, orgName, orgUnitName, common name, email addr
-#      parameters = "US\nVA\nArlington\nCougaar\nUltralog\n#{user}\n\n\n\n"
+     
+     url = @@ca_signer
+     # find the dnname 'CN=Enclave1_CA, OU=...'
+     result = getHtml(url).body
+     dnname = result.scan(/option value=\"(.*)\">/)[0][0]
+     puts dnname.as_string
+     
+     #CN=Enclave1_CA, OU=Enclave1, O=DLA, L=San Francisco, ST=CA, C=US, T=ca
+     orgUnitName = dnname.scan(/CN=(.*), OU=/)[0][0]
+     orgName = dnname.scan(/, OU=(.*), O=/)[0][0]+"CA"
+     city = dnname.scan(/, L=(.*), ST=/)[0][0]
+     state = dnname.scan(/, ST=(.*), C=/)[0][0]
+     country = dnname.scan(/, C=(.*), T=/)[0][0]
+     
+     #Generate a certificate request using openssl
+     paramFile = File.new("params", "w")
+     # country, state, locality, orgName, orgUnitName, common name, email addr
+     #      parameters = "US\nVA\nArlington\nCougaar\nUltralog\n#{user}\n\n\n\n"
      parameters = "#{country}\n#{state}\n#{city}\n#{orgName}\n#{orgUnitName}\n#{user}\n\n\n\n"
-      paramFile.puts parameters
-      paramFile.close
-      dnname
+     paramFile.puts parameters
+     paramFile.close
+     dnname
    end
 
    def create_cert(user, prefix='', extraParams='')
-      url = @@ca_signer
+     url = @@ca_signer
+     puts "create_cert for user #{user} url is #{url}"
+     puts "\n"
+     dnname = createParamFile(user)
+     cert = %x{openssl req -nodes -new -keyout "#{user}"_key.pem -days 365 < params}
+     puts
+     puts "cert = #{cert}"
+     File.delete("params")
+     
+     #Get the certificate signed
+     params = []
+     params << "dnname=#{CGI.escape(dnname)}"
+     params << "pkcs=pkcs10"
+     params << "pkcsdata=#{CGI.escape(cert)}"
+     params << "replyformat=html"
+     puts "params = #{(params.collect {|p| CGI.unescape(p)}).join("&")}"
+     puts "getting signed_cert from url=#{url} ..."
 
-      dnname = createParamFile(user)
-      cert = %x{openssl req -nodes -new -keyout "#{user}"_key.pem -days 365 < params}
-
-puts
-puts "cert = #{cert}"
-      File.delete("params")
-
-      #Get the certificate signed
-      params = []
-      params << "dnname=#{CGI.escape(dnname)}"
-      params << "pkcs=pkcs10"
-      params << "pkcsdata=#{CGI.escape(cert)}"
-      params << "replyformat=html"
-puts "params = #{(params.collect {|p| CGI.unescape(p)}).join("&")}"
-puts "getting signed_cert from url=#{url} ..."
-
-      signed_cert = postHtml(url, params).body
-puts "signed_cert ="
-puts signed_cert
-      signed_cert = CGI.unescape(signed_cert)
-      array = signed_cert.split('<br>')
-      array[0] = array[0].split[1]
-      signed_cert = array[0..-2].join("\n")
-puts signed_cert
+     signed_cert = postHtml(url, params).body
+     puts "signed_cert ="
+     puts signed_cert
+     signed_cert = CGI.unescape(signed_cert)
+     array = signed_cert.split('<br>')
+     array[0] = array[0].split[1]
+     signed_cert = array[0..-2].join("\n")
+     puts signed_cert
       #signed_cert = CGI.unescape(Cougaar::Util.do_http_post(url, params.join("&")))
-      cert_file = File.new("#{user}_cert.pem", "w")
-      cert_file.puts("#{signed_cert}")
-      cert_file.close
+     cert_file = File.new("#{user}_cert.pem", "w")
+     cert_file.puts("#{signed_cert}")
+     cert_file.close
    end
 
    def create_bogus_cert(user)
