@@ -472,15 +472,17 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       };
     // TODO: do this truly asynchronously.
     String filter = "(CommunityType=Security)";
-    cs.searchCommunity(null, filter, true,
-		       Community.COMMUNITIES_ONLY, crl);
-    try {
-      s.acquire();
-    } catch (InterruptedException ie) {
-      _log.error("Error in searchByCommunity:", ie);
+    Collection communities = 
+      cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
+    if (communities == null) {
+      try {
+        s.acquire();
+      } catch (InterruptedException ie) {
+        _log.error("Error in searchByCommunity:", ie);
+      }
+      communities = (Set)status.value;
     }
 
-    Collection communities = (Set)status.value;
     Iterator iter = communities.iterator();
     
     if (communities.size() == 0) {
