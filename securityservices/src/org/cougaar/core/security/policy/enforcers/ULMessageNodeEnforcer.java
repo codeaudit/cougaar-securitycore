@@ -95,8 +95,6 @@ public class ULMessageNodeEnforcer
 	    if (_communityService == null) {
 		_log.debug("Community service is missing");
 	    }
-	    //	    _semFactory = 
-	    //new ComponentSemanticMatcherFactory(_communityService);
 	    _log.debug("Community Service Created");
 	    _log.debug("Community = " + _communityService);
 	    _log.debug("Object Hash = " + hashCode());

@@ -4,7 +4,7 @@ import org.cougaar.core.security.policy.enforcers.ontology.*;
 import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
 import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
-
+import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -289,7 +289,8 @@ public class ServletNodeEnforcer
      * scheme would not be able to express policies that correlate
      * cypher suites with users.
      */
-    public int whichAuthenticationMethod(String uri, CypherSuite c) {
+    public int whichAuthenticationMethod(String uri, CypherSuite c) 
+    {
 	String kaosuri = (String) HardWired.uriMap.get(uri);
 	if (kaosuri == null) {
 	    return CypherSuiteWithAuth.authInvalid;
@@ -306,7 +307,7 @@ public class ServletNodeEnforcer
 	}
 	ActionInstanceDescription action = 
 	    new ActionInstanceDescription(_enforcedActionType,
-					  "SomeAgent",  
+					  UserDatabase.anybody(),  
 					  targets);
 	action.removeProperty(ActionConcepts._performedBy_);
 	action.removeAllActorInstances();
@@ -359,10 +360,9 @@ public class ServletNodeEnforcer
 	}
 	ActionInstanceDescription action = 
 	    new ActionInstanceDescription(_enforcedActionType,
-					  "User",  
+					  UserDatabase.anybody(),  
 					  targets);
 	KAoSProperty userProp = action.getProperty(ActionConcepts._performedBy_);
-	//userProp.setSemanticMatcher(new UserSemanticMatcher(kaosroles));
 	try {
 	    return _guard.isActionAuthorized(action);
 	} catch (Throwable th) {
@@ -386,7 +386,8 @@ public class ServletNodeEnforcer
      * would have allowed the login.  A null return indicates failure.
      */
     public Set allowedCypherSuites(Set roles,
-				   String uri) {
+				   String uri) 
+    {
 
 	String kaosuri = (String) HardWired.uriMap.get(uri);
 	if (kaosuri == null) {
@@ -397,6 +398,7 @@ public class ServletNodeEnforcer
 	for (Iterator roleIt = roles.iterator(); roleIt.hasNext();) {
 	    kaosroles.add(HardWired.kaosRoleFromRole((String) roleIt.next()));
 	}
+	String user = UserDatabase.login(kaosroles);
 
 	Set    targets = new HashSet();
 	if (!targets.add(
@@ -409,10 +411,9 @@ public class ServletNodeEnforcer
 	}
 	ActionInstanceDescription action = 
 	    new ActionInstanceDescription(_enforcedActionType,
-					  "User",  
+					  user,  
 					  targets);
 	KAoSProperty userProp = action.getProperty(ActionConcepts._performedBy_);
-	//	userProp.setSemanticMatcher(new UserSemanticMatcher(kaosroles));
 	Set authlevels = 
 	    _guard.getAllowableValuesForActionSingleTim(
 		  UltralogActionConcepts._usedAuthenticationLevel_,
@@ -428,86 +429,4 @@ public class ServletNodeEnforcer
 	return suites;
     }
 
-
-    private class UserSemanticMatcher implements SemanticMatcher
-    {
-	Set _roles = null;
-
-	public UserSemanticMatcher(Set roles)
-	{
-	    _roles = roles;
-	}
-
-	/**                               successful, details will be
-	 *                                provided in the return string 
-	 * Check if the instance is in the given class range 
-	 *
-	 * @param className               ontology name of the class
-	 *                                defining the range   
-	 *
-	 * @param instance		  the instance to be checked
-	 *
-	 * @return                        True if the instance is of
-	 *                                the specified class, false if not. 
-	 *
-	 * @exception                     throws 
-	 *                                SemanticMatcherInitializationException
-	 *                                if the initialization of the
-	 *                                matcher was not successful, details
-	 *                                will be provided in the return string
-	 */
-	public boolean matchSemantically(String className, Object instance) 
-	    throws SemanticMatcherInitializationException
-	{
-	    if (_roles.contains((Object) className)) { return true; } 
-	    else                                     { return false; }
-	}
-	
-	
-	/**
-	 * Check if the instances are in the given class range 
-	 *
-	 * @param className               ontology name of the class
-	 *                                defining the range  
-	 *
-	 * @param instances		  the instances to be checked
-	 *
-	 * @return                        -1 if all the instances are present,
-	 *                                   #instances present otherwise.	
-	 *
-	 * @exception                     throws 
-	 *                                SemanticMatcherInitializationException
-	 *                                if the initialization of the
-	 *                                matcher was not successful, details
-	 *                                will be provided in the return string
-	 */
-	
-	public int matchSemantically(String className, Set instances)
-	    throws SemanticMatcherInitializationException
-	{
-	    if (_roles.contains((Object) className)) {
-		return KAoSProperty._ALL_INST_PRESENT;
-	    } else {
-		return KAoSProperty._NO_INST_PRESENT;
-	    }
-	}
-   
-    
-	/**
-	 * Initializes the specific semantic matcher for instance
-	 * loading necessary ontologies, etc. 
-	 *
-	 * @exception           SemanticMatcherInitializationException if the
-	 *                      initialization of the semantic            
-	 *                      matcher was not  successful, details
-	 *                      will be provided in the return string 
-	 */
-	public void initSemanticMatcher ()
-	    throws SemanticMatcherInitializationException
-	{
-	    return;
-	}
-
-	
-    }
 }
