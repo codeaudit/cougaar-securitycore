@@ -102,6 +102,7 @@ SMART CARD KEYSTORE PASSWORD APPLET
     tar xzf pcsc-lite-1.1.1.tar.gz
     tar xzf slb_rfUSB-drv-0.9.0.tar.gz
     tar xzf jpcsc.tar.gz
+    tar xZf java_card_kit-2_1_1-unix.tar.Z
 
     cd pcsc-lite-1.1.1
     ./configure
@@ -122,6 +123,7 @@ SMART CARD KEYSTORE PASSWORD APPLET
    your classpath to include the .jars and export files:
 
    mv "$CAPmaker/Export Files" $CAPmaker/Export_Files"
+   cp jc211/bin/*.jar $CAPmaker
    setenv CLASSPATH `echo $CAPmaker/*.jar $CAPmaker/Export_Files | \
                      sed -e 's/ /:/g'`
    
@@ -143,11 +145,16 @@ SMART CARD KEYSTORE PASSWORD APPLET
    The AID is 0102030405
 
 7) Create an application instance. Use the applet id 000102030405 and
-   size of 800 bytes.
+   size of 1000 bytes.
 
 8) Plug the USB card reader into your Linux server.
 
-9) Restart the pcscd daemon:
+9) Set the LD_LIBRARY_PATH to point to /usr/local/lib, which has
+   all the pcsc libraries:
+
+   setenv LD_LIBRARY_PATH /usr/local/lib
+
+10) Restart the pcscd daemon:
 
    killall -9 pcscd
    rm -rf /usr/pcsc
@@ -156,13 +163,13 @@ SMART CARD KEYSTORE PASSWORD APPLET
    If you want to see the communication between to and from the card, add
    a parameter '-d stdout' to the pcscd command line.
 
-10) Modify the cryptoPolicy.xml file to tell the server to use the smart card
+11) Modify the cryptoPolicy.xml file to tell the server to use the smart card
     for the keystore password. Add the following line under the
     "cryptoClientPolicy."
 
     <keystoreUseSmartCard/>
 
-11) The keystore password is created and stored into the smart card
+12) The keystore password is created and stored into the smart card
     automatically. Therefore, you must not have a keystore before 
     starting the server. In otherwords, delete any keystore for this
     node. Then start the server as usual.
