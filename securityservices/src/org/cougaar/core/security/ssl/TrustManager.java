@@ -31,7 +31,7 @@ import java.security.cert.*;
 import java.util.*;
 
 import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.crypto.DirectoryKeyStore;
+import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public class TrustManager implements X509TrustManager {
@@ -69,7 +69,23 @@ public class TrustManager implements X509TrustManager {
     if (CryptoDebug.debug)
       System.out.println("checkClientTrusted: " + chain);
 
-    // TODO: check whether client is user or node
+    // check whether client is user or node
+    if (chain.length == 0)
+      throw new CertificateException("No certificate present");
+    X509Certificate usrcert = chain[0];
+    String clndn = usrcert.getSubjectDN().getName();
+    String title = CertificateUtility.findAttribute(clndn, "t");
+    // we allow application user to access only tomcat
+    boolean accept = false;
+    if (title != null) {
+      if (title.equals(DirectoryKeyStore.CERT_TITLE_NODE))
+        accept = true;
+      if (title.equals(DirectoryKeyStore.CERT_TITLE_USER)
+        && this instanceof ServerTrustManager)
+        accept = true;
+    }
+    if (!accept)
+      throw new CertificateException("Wrong type of certificate present.");
 
     // check whether cert is valid, then build the chain
     keystore.checkCertificateTrust(chain[0]);
@@ -88,7 +104,16 @@ public class TrustManager implements X509TrustManager {
     if (CryptoDebug.debug)
       System.out.println("checkServerTrusted: " + chain);
 
-    // TODO: check whether cert is of type node or server
+    // check whether cert is of type node or server
+    // Need to check whether needAuth?
+    if (chain.length == 0)
+      throw new CertificateException("No certificate present");
+    X509Certificate srvcert = chain[0];
+    String srvdn = srvcert.getSubjectDN().getName();
+    String title = CertificateUtility.findAttribute(srvdn, "t");
+    if (title == null || (!title.equals(DirectoryKeyStore.CERT_TITLE_NODE)
+      && !title.equals(DirectoryKeyStore.CERT_TITLE_WEBSERVER)))
+      throw new CertificateException("Wrong type of certificate present.");
 
     keystore.checkCertificateTrust(chain[0]);
   }
