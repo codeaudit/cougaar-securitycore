@@ -27,106 +27,114 @@ package org.cougaar.core.security.test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
+
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cougaar.core.agent.service.MessageSwitchService;
 import org.cougaar.core.blackboard.Directive;
 import org.cougaar.core.blackboard.DirectiveMessage;
+import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.mts.MessageTransportClient;
+import org.cougaar.core.mts.MessageHandler;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.core.service.ServletService;
 import org.cougaar.planning.ldm.PlanningDomain;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
+import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.util.UnaryPredicate;
+
 
 /**
  * This plugin tests the use of Message Access Control binder.
  */
-public class TestMsgAccessServletPlugin extends ComponentPlugin
+public class TestMsgAccessServletPlugin 
+  extends ComponentPlugin
+  implements Serializable
 {
-  private LoggingService log;
-  private BlackboardService bbs = null;
-  private MessageAddress myAgent = null;
-  private PlanningFactory pf;
+  private static Random _r  = new Random();
 
-  private ServletService _servletService;
-  private String sendServletName = "/message/sendVerb";
+  private LoggingService       _log;
+  private MessageSwitchService _mss;
+  private PlanningFactory      _pf;
 
-  private NewTask task;
+  private MessageAddress       _myAgent = null;
 
-  protected void setupSubscriptions() {
+  private Task                 _received = null;
+  private UnaryPredicate _isTask
+    = new UnaryPredicate() {
+        public boolean execute(Object o) 
+        {
+          return o instanceof Task;
+        }
+      };
+  private IncrementalSubscription  _taskSubscription;
+
+
+
+  private String _sendServletName    = "/message/sendVerb";
+  private String _receiveServletName = "/message/receiveVerb";
+
+  protected void setupSubscriptions() 
+  {
     ServiceBroker sb = getServiceBroker();
-    log =  (LoggingService)sb.getService(this, LoggingService.class, null);
-
-    bbs = getBlackboardService();
+    _log =  (LoggingService)sb.getService(this, LoggingService.class, null);
+    
+    _taskSubscription = 
+      (IncrementalSubscription) blackboard.subscribe(_isTask);
     AgentIdentificationService ais = (AgentIdentificationService)
       sb.getService(this, AgentIdentificationService.class, null); 
-    myAgent = ais.getMessageAddress();
+    _myAgent = ais.getMessageAddress();
+
+    _mss = (MessageSwitchService)
+      sb.getService(this, MessageSwitchService.class, null);
 
     //get input
-    Collection params = getParameters();
-    initTransport();
     DomainService ds 
       = (DomainService) sb.getService(this, DomainService.class, null);
-    log.debug("ds = " + ds + " ds class = " + ds.getClass().getName());
-    pf = (PlanningFactory) ds.getFactory(PlanningDomain.class);
-    log.debug("pf = " + pf);
+    _log.debug("ds = " + ds + " ds class = " + ds.getClass().getName());
+    _pf = (PlanningFactory) ds.getFactory(PlanningDomain.class);
+    _log.debug("pf = " + _pf);
 
-    _servletService
+    ServletService servletService
       = (ServletService) sb.getService(this, ServletService.class, null);
     try {
-      _servletService.register(sendServletName, new RequestServlet());
+      servletService.register(_sendServletName, new SendServlet());
+      servletService.register(_receiveServletName, new ReceiveServlet());
     } catch ( Exception e ) {
-      log.error("Could not register servlets for testing sending directives", 
+      _log.error("Could not register servlets for testing sending directives", 
                 e);
     }
     
   }
 
-  protected void execute() {
-  }
-
-  private MessageTransportClient mtc;
-  private MessageTransportService mts;
-  private void initTransport() {
-    // create a dummy message transport client
-    mtc = new MessageTransportClient() {
-        public void receiveMessage(Message message) {
-	  //completeTransfer(message);
-        }
-        public MessageAddress getMessageAddress() {
-          return myAgent;
-        }
-        public long getIncarnationNumber() {
-          return 0;
-        }
-      };
-
-    // get the message transport
-    mts = (MessageTransportService) 
-      getBindingSite().getServiceBroker().getService(
-	mtc,   // simulated client 
-	MessageTransportService.class,
-	null);
-    if (mts == null) {
-      System.out.println(
-                         "Unable to get message transport service");
+  protected void execute() 
+  {
+    for (Iterator tIt 
+           = _taskSubscription.getAddedCollection().iterator();
+         tIt.hasNext();) {
+      _received = (Task) tIt.next();
     }
   }
 
-  private class RequestServlet extends HttpServlet {
+
+  private class SendServlet extends HttpServlet 
+  {
     protected void doGet(HttpServletRequest req,
                          HttpServletResponse resp)
       throws IOException
@@ -144,45 +152,67 @@ public class TestMsgAccessServletPlugin extends ComponentPlugin
                 "<TITLE>Message Request Servlet</TITLE>\n" + 
                 "</head>\n" + 
                 "<body>\n");
-        out.println("<form name=\"send\" action=\"" + 
-                    "/$" + getAgentIdentifier().toAddress() +
-                    sendServletName + 
-                    "/Sending\" method=\"POST\">\n" +
-                    "<br>\n" +
-                    "Send a message to: " +
-                    "  <input type=\"text\" name=\"address\">\n" +
-                    " with verb" + 
-                    "  <input type=\"text\" name=\"verb\">\n" +
-                    "  <input type=\"submit\" name=\"Send\">\n" +
-                    "</form>");
-        if (req != null) {
-          String theTarget = req.getParameter("address");
-          String theVerb   = req.getParameter("verb");
-          if (theTarget != null && theVerb != null) {
-            out.print("<html>\n" + 
-                      "<head>\n" + 
-                      "<TITLE>Message Sending Servlet</TITLE>\n" + 
-                      "</head>\n" + 
-                      "<body>\n");
+      out.println("<form name=\"send\" action=\"" + 
+                  "/$" + getAgentIdentifier().toAddress() +
+                  _sendServletName + 
+                  "/Sending\" method=\"POST\">\n" +
+                  "<br>\n" +
+                  "Send a message to: " +
+                  "  <input type=\"text\" name=\"address\">\n" +
+                  " with verb" + 
+                  "  <input type=\"text\" name=\"verb\">\n" +
+                  "  <input type=\"submit\" name=\"Send\">\n" +
+                  "</form>");
+      if (req != null) {
+        String theTarget = req.getParameter("address");
+        String theVerb   = req.getParameter("verb");
+        if (theTarget != null && theVerb != null) {
+          out.print("<html>\n" + 
+                    "<head>\n" + 
+                    "<TITLE>Message Sending Servlet</TITLE>\n" + 
+                    "</head>\n" + 
+                    "<body>\n");
 
-            Verb verb = Verb.getVerb(theVerb);
-            log.debug("pf = " + pf);
-            task = pf.newTask();
-            task.setVerb(verb);
-            //create the message
-            Directive[] d = new Directive[1];
-            d[0] = task;
-            DirectiveMessage dm = new DirectiveMessage(d);
-            dm.setSource(myAgent);
-            dm.setDestination(MessageAddress.getMessageAddress(theTarget));
-            mts.sendMessage(dm);
+          Verb verb = Verb.get(theVerb);
+          _log.debug("pf = " + _pf);
+          NewTask task = _pf.newTask();
+          task.setVerb(verb);
+          //create the message
+          Directive[] d = new Directive[1];
+          d[0] = task;
+          DirectiveMessage dm = new DirectiveMessage(d);
+          dm.setSource(_myAgent);
+          dm.setDestination(MessageAddress.getMessageAddress(theTarget));
+          _mss.sendMessage(dm);
 
-            out.println("<p>Sent directive to " + theTarget + 
-                        " with verb " + theVerb);
-            out.println("</body>");
-          }
+          out.println("<p>Sent directive (id = " + 
+                      ") to " + theTarget + 
+                      " with verb " + theVerb);
+          out.println("</body>");
         }
-
+      }
     }
   }
+
+  private class ReceiveServlet extends HttpServlet 
+  {
+    protected void doGet(HttpServletRequest req,
+                         HttpServletResponse resp)
+      throws IOException
+    {
+      PrintWriter out = resp.getWriter();
+      out.print("<html>\n" + 
+                "<head>\n" + 
+                "<TITLE>Message Receiving Servlet</TITLE>\n" + 
+                "</head>\n" + 
+                "<body>\n");
+      if (_received == null) {
+        out.print("No tasks received");
+      } else {
+        out.print("Task received with verb " + _received.getVerb());
+      }
+      out.print("</body>");
+    }
+  }
+
 }
