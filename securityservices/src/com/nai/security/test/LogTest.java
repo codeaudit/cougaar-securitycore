@@ -24,14 +24,13 @@ package com.nai.security.test;
 
 import java.util.*;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
+import org.apache.log4j.Category;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
  
 public class LogTest {
 
-  static Logger logger = Logger.getLogger(LogTest.class.getName());
+  static Category logger = Category.getInstance(LogTest.class.getName());
         
   public static void main(String[] args) {
     LogTest tc = new LogTest();

@@ -24,13 +24,10 @@ package com.nai.security.test;
 
 import java.util.*;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.Category;
 
 public class LoggingFacility {
-  static Logger logger = Logger.getLogger(LoggingFacility.class);
+  static Category logger = Category.getInstance(LoggingFacility.class);
   
   public void doIt() {
     logger.debug("Did it again!");    
