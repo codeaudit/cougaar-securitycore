@@ -14,6 +14,35 @@ require 'framework/jar_util'
 require 'framework/common_security_rules'
 
 if !(@mnrPlaysCompleted)
+  playclause = "
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  : PERCEIVED_THREAT_LEVEL = 2;
+"
+  robustness = false
+  enclave1 = nil
+  society.each_enclave { |enclave|
+    enclave1 = enclave
+    break
+  }
+
+  society.each_enclave_agent(enclave1) { |agent|
+    agent.each_component { |comp|
+      if comp.classname == "org.cougaar.robustness.dos.manager.AttackAssessmentPlugin"
+        robustness = true
+        break
+      end
+    }
+  }
+
+  if (robustness)
+    playclause = "
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 & org.cougaar.core.robustness.PERCEIVED_DOS_ATTACK_LEVEL == LOW  : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 & org.cougaar.core.robustness.PERCEIVED_DOS_ATTACK_LEVEL == HIGH : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  & org.cougaar.core.robustness.PERCEIVED_DOS_ATTACK_LEVEL == LOW  : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  & org.cougaar.core.robustness.PERCEIVED_DOS_ATTACK_LEVEL == HIGH : PERCEIVED_THREAT_LEVEL = 2;
+"
+  end
+ 
   @mnrPlaysCompleted = true
   configJar = "#{CIP}/configs/security/securityservices_config.jar"
 
@@ -54,10 +83,7 @@ if !(@mnrPlaysCompleted)
  * 2160 login failures/day == 30 failures/20 minutes
  */
 
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 & org.cougaar.core.robustness.DOS_ATTACK <= 10 : PERCEIVED_THREAT_LEVEL = 1;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 & org.cougaar.core.robustness.DOS_ATTACK > 10  : PERCEIVED_THREAT_LEVEL = 2;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  & org.cougaar.core.robustness.DOS_ATTACK <= 10 : PERCEIVED_THREAT_LEVEL = 2;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  & org.cougaar.core.robustness.DOS_ATTACK > 10  : PERCEIVED_THREAT_LEVEL = 2;
+#{playclause}
 
 PERCEIVED_THREAT_LEVEL == 1
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
