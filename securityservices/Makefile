@@ -27,6 +27,7 @@ clean-data:
 	rm -f test/configs/certauthority/keystoreTest
 	rm -f test/configs/demo/*.log
 	rm -f test/configs/demo/*.swp
+	rm -rf ${COUGAAR_INSTALL_PATH}/P
 
 jar: classes
 # Build core.jar
