@@ -30,6 +30,7 @@ import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.StateModelException ;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.planning.ldm.plan.*;
 import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
@@ -49,10 +50,11 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
   private DomainService domainService = null;
   private String mgrrole=null;
   private AttributeBasedAddress mgrAddress;
+  private MessageAddress myAddress;
   private String sensor_name=null;
   private String dest_community=null;
   private Object param;
-  private String[] givecapabilities;
+  private String dest_agent;
     
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -69,7 +71,7 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     return domainService;
   }
 
-   public void setParameter(Object o){
+  public void setParameter(Object o){
     this.param=o;
   }
 
@@ -78,19 +80,21 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
   }
    
   protected void setupSubscriptions() {
+    
     log = (LoggingService)
       getBindingSite().getServiceBroker().getService(this,
 						     LoggingService.class, null);
-
-    log.debug("setupSubscriptions of Test dummy sensor called :"); 
+    myAddress = getBindingSite().getAgentIdentifier();
+    log.debug("setupSubscriptions of  called for TestDummySensor Plugin in  :"+ myAddress.toString()); 
     DomainService service=getDomainService();
     if(service==null) {
       log.debug(" Got service as null in Test Dummy Sensor  :");
       return;
     }
     Collection col=getParameters();
-    if(col.size()>3) {
-      log.debug("setupSubscriptions of TestDummy sensorPlugin called  too many parameters :"); 
+    if(col.size()>4) {
+      if(log.isDebugEnabled())
+	log.debug("setupSubscriptions of TestDummy sensorPlugin called  too many parameters :" +myAddress.toString()); 
     }
     if(col.size()!=0){
       String params[]=new String[1];
@@ -98,8 +102,16 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
       mgrrole=parameters[0];
       sensor_name=parameters[1];
       dest_community=parameters[2];
-      
+      /**
+	 Below 2 lines of code was used for testing purpose.Was trying to use MessageAddress of the
+	 destination agent. This is passed as a paremeter to the plugin through ini file 
+      */
+      if(col.size()>4)
+	dest_agent=parameters[3];
     }
+    if(log.isDebugEnabled())
+      log.debug(" destination agent is :"+dest_agent +" from "+
+		myAddress.toString() );
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
     IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
     TestDummySensor sensor=new TestDummySensor (sensor_name);
@@ -110,17 +122,42 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     capabilities.add( imessage.createClassification( "TCPSCAN", null  ) );
     capabilities.add( imessage.createClassification( "LOGINFAILURE", null  ) );
    
-    RegistrationAlert reg=imessage.createRegistrationAlert(sensor,capabilities,IdmefMessageFactory.newregistration,IdmefMessageFactory.SensorType);
+    RegistrationAlert reg=imessage.createRegistrationAlert(sensor,capabilities,
+							   IdmefMessageFactory.newregistration,
+							   IdmefMessageFactory.SensorType);
     
     NewEvent event=factory.newEvent(reg);
     log.debug(" going to publish capabilities in Test Dummy sensorplugin  1:");
+    System.out.println(" going to publish capabilities in TestDummySensorplugin from :"+myAddress.toString()
+		       +" Capabilities are :"+reg.toString() );
     mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
+    if(log.isDebugEnabled())
+      log.debug(" destination ABA address is :"+mgrAddress.toString());
+    //MessageAddress destagent=new MessageAddress(dest_agent);
     relay = factory.newCmrRelay(event,mgrAddress);
+    //relay = factory.newCmrRelay(event,destagent);
+    if(log.isDebugEnabled())
+      log.debug("From testDummysensorPlugin :"+ myAddress.toString() +"  relay is :"+relay.toString());
     getBlackboardService().publishAdd(relay);
+    /*
+      This part odf the code was to test  capabilities consolidation  
+      getBlackboardService().closeTransaction();
+      sensor=new TestDummySensor (sensor_name+1);
+      capabilities.add( imessage.createClassification( "SecurityException", null  ) );
+      capabilities.add( imessage.createClassification( "JarException", null  ) );
+      reg=imessage.createRegistrationAlert(sensor,capabilities,IdmefMessageFactory.newregistration,
+      IdmefMessageFactory.SensorType);
+    
+      event=factory.newEvent(reg);
+   
+      relay = factory.newCmrRelay(event,mgrAddress);
+      if(log.isEnabled())
+      log.debug("From testDummysensorPlugin with new Sensor  :"+ myAddress.toString() +"  relay is :"+relay.toString());
+      getBlackboardService().openTransaction();
+      getBlackboardService().publishAdd(relay);
+    */
     //getBlackboardService().closeTransaction();
-    // TestDummySensor sensor=new TestDummySensor (sensor_name+1);
-    // capabilities.add( imessage.createClassification( "SecurityException", null  ) );
-    // capabilities.add( imessage.createClassification( "JarException", null  ) );
+    //mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
    
   }
           
