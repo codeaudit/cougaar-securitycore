@@ -53,6 +53,9 @@ import org.cougaar.core.security.util.ServletRequestUtil;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 
+import org.cougaar.core.service.wp.AddressEntry;
+import org.cougaar.core.wp.resolver.ConfigReader;
+
 public class NameServerCertificateComponent extends ComponentPlugin {
   private static Logger log;
   private CertificateCacheService cacheservice;
@@ -108,69 +111,8 @@ public class NameServerCertificateComponent extends ComponentPlugin {
     if (_validityService == null) {
       throw new RuntimeException("Fail to obtain CertValidityService");
     }
-
-    // check whether this is a name server
-    String nameString = "org.cougaar.name.server";
-    String nameserver = System.getProperty(nameString, null);
-    if (log.isDebugEnabled()) {
-      log.debug("org.cougaar.name.server property is " + nameserver);
-    }
-    if (nameserver == null) {
-      log.warn("There is no property for name server, will NOT try to get name server certificate.");
-      return;
-    }
-    // Pattern example:
-    // agent@host:port_number
-    Pattern pattern = Pattern.compile("(.+)(@?)(.*)(:?)(\\d*)");
-    Matcher matcher = pattern.matcher(nameserver);
-    if (!matcher.find()) {
-      if (log.isErrorEnabled()) {
-	log.error("Unexpected name server property: " + nameserver
-	  + ". Has the format changed?");
-      }
-    }
-
-    int i = 2;
-    while (true) {
-      nameserver = nameserver.substring(0, nameserver.indexOf(':'));
-
-      int agentIndex = nameserver.indexOf('@');
-      String agent = null;
-      if (agentIndex != -1) {
-        agent = nameserver.substring(0, agentIndex);
-        nameserver = nameserver.substring(agentIndex + 1, nameserver.length());
-      }
-
-      if (log.isDebugEnabled()) {
-        log.debug("Name server is " + agent + ":" + nameserver + " Localhost:"
-	  + NodeInfo.getHostName());
-      }
-      if (NodeInfo.getHostName().equals(nameserver)) {
-        _isNameServer = true;  
-        if (agent == null) {
-          agent = NodeInfo.getNodeName();
-        }
-
-        _nameservers.put(agent, 
-          new NameServerCertificate(agent, null));
-      }
-      else {
-	if (agent == null) {
-	  if (log.isErrorEnabled()) {
-	    log.error("Cannot add null to pending cache", new Throwable());
-	  }
-	}
-	else {
-	  _pendingCache.put(agent, agent);
-	}
-      }
-
-      nameserver = System.getProperty(nameString + ".WP-" + i, null);
-      if (nameserver == null) {
-        break;
-      }
-      i++;
-    }
+  
+    readNameServerConfig();
 
     if (log.isDebugEnabled()) {
       log.debug("isNameServer: " + _isNameServer);
@@ -201,6 +143,48 @@ public class NameServerCertificateComponent extends ComponentPlugin {
 
   }
 
+  private void readNameServerConfig() {
+    // regardless of the naming server configs, we get the entries that
+    // are parsed by ConfigReader.
+    Iterator i = ConfigReader.listEntries().iterator();
+    // iterator through the list of naming server entries
+    while(i.hasNext()) {
+      AddressEntry entry = (AddressEntry)i.next();
+      
+      if (log.isDebugEnabled()) {
+          log.debug("NamingServer AddressEntry: " + entry);
+      }
+      
+      // we should match all local WP binds that aren't of type alias.
+      // this could be -HTTP, -HTTPS, -RMI_REG
+      if(!entry.getType().equals("alias")) {
+        
+        String host = entry.getURI().getHost();
+        String agent = entry.getName(); 
+        if (log.isDebugEnabled()) {
+          log.debug("Name server is " + agent + ":" + host + " Localhost:"
+          + NodeInfo.getHostName());
+        }
+        //if (NodeInfo.getNodeName().equals(agent)) {
+        if (getAgentIdentifier().toString().equals(agent)) {
+          _isNameServer = true; 
+          _nameservers.put(agent, 
+            new NameServerCertificate(agent, null));
+        }
+        else {
+          if (agent == null) {
+            if (log.isErrorEnabled()) {
+              log.error("Cannot add null to pending cache", new Throwable());
+            }
+          }
+          else {
+            _pendingCache.put(agent, agent);
+          }
+        }
+      }
+    }
+  }
+  
   private void addValidityListener(final String agent) {
     _validityService.addAvailabilityListener(new CertValidityListener() {
       public String getName() {
@@ -295,7 +279,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
 
               try {
                 if (log.isDebugEnabled()) {
-                  log.debug("submiting " + nameserver + " cert to " + certURL);
+                  log.debug("submitting " + nameserver + " cert to " + certURL);
                 }
                 new ServletRequestUtil().sendRequest(certURL,
                     _certCache.get(nameserver), _period);
@@ -373,14 +357,13 @@ public class NameServerCertificateComponent extends ComponentPlugin {
         try {
           String [] names = new String[_pendingCache.size()];
           _pendingCache.values().toArray(names);
-
           ObjectInputStream ois = new ObjectInputStream(
             new ServletRequestUtil().sendRequest(certURL, names, _period));
           NameServerCertificate [] certs = (NameServerCertificate [])ois.readObject();
           ois.close();
 
           if (log.isDebugEnabled()) {
-            log.debug("Received reply for name server cert");
+            log.debug("Received reply from " + certURL + " for name server cert");
           }
 
           for (int i = 0; i < certs.length; i++) {
