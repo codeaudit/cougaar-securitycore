@@ -174,17 +174,17 @@ public abstract class GuardRegistration
    * @param policies a list of kaos.core.util.PolicyMsg objects
    **/
 
-  public void receivePolicyUpdate(String updateType,
-				  List policies)
+  public void updatePolicies(List addedPolicies,
+                             List changedPolicies,
+                             List removedPolicies)
   //throws PolicyMessageException
   {
     if (log.isInfoEnabled()) {
       log.info("GuardRegistration. Received " +
-	       policies.size() + " policy messages. Type="
-	       + updateType);
+	       addedPolicies.size() + " policy messages.");
     }
 
-    Iterator it = policies.iterator();
+    Iterator it = addedPolicies.iterator();
     while (it.hasNext()) {
       kaos.core.util.PolicyMsg aMsg = (kaos.core.util.PolicyMsg) it.next();
       processPolicyMessage(aMsg);
