@@ -67,7 +67,7 @@ import java.util.NoSuchElementException;
  * org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES is the operating mode
  * that the ConcreteResponder requires to determine when to take action on a culprit.
  */
-public abstract class ResponderPlugin extends ComponentPlugin {
+public abstract class ResponderPlugin extends SensorPlugin {
   
   protected int  _maxFailures   = 3;
   protected long _cleanInterval = 1000 * 60 * 10;      // 10 minutes
@@ -133,6 +133,14 @@ public abstract class ResponderPlugin extends ComponentPlugin {
   public DomainService getDomainService() {
     return _domainService;
   }
+    
+  protected boolean agentIsTarget() {
+    return false;
+  }
+
+  protected boolean agentIsSource() {
+    return false;
+  }
   
   public void setParameter(Object o) {
     if (!(o instanceof List)) {
@@ -176,6 +184,7 @@ public abstract class ResponderPlugin extends ComponentPlugin {
   }
   
   protected void setupSubscriptions() {
+    super.setupSubscriptions();
     _maxFailurePredicate =  new UnaryPredicate() {
       public boolean execute(Object o) {
         if (o instanceof OperatingMode) {
@@ -221,6 +230,7 @@ public abstract class ResponderPlugin extends ComponentPlugin {
   }
 
   public void execute() {
+    super.execute();
     if (_maxFailureSubscription.hasChanged()) {
       updateMaxFailures();
     }
@@ -230,6 +240,7 @@ public abstract class ResponderPlugin extends ComponentPlugin {
   }
 
   protected void addCulprit(String culprit) {
+    _log.debug(" adding culprit :"+ culprit);
     synchronized (_failureCache) {
       _failureCache.add(culprit); 
     }
@@ -275,6 +286,7 @@ public abstract class ResponderPlugin extends ComponentPlugin {
         } catch (Exception e) {
           _log.error("Error taking action against " + culprit + ": " + e.toString());
           synchronized (_failureCache) {
+            _log.debug("putting culprit :"+culprit +"back to failure cache");
             _failures.put(culprit, failure); // put it back in...
           }
         }
