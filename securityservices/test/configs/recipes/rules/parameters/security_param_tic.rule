@@ -221,6 +221,11 @@ society.each_host do |host|
     # The authentication requirements and access control parameters are specified
     # in the $CIP/configs/security/BootPolicy.ldm.xml file.
     node.override_parameter("-Dorg.cougaar.lib.web.tomcat.enableAuth", "true")
+
+    # Enable audit service for http requests
+    # The audit service logs a record every time a user accesses a servlet.
+    # The org.cougaar.lib.web.tomcat.enableAuth must be set to true.
+    node.override_parameter("-Dorg.cougaar.security.audit", "true")
     
     # Role to take when making LDAP requests
     # This parameter is used in the cryptoPolicy.xml file.
