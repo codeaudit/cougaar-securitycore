@@ -143,7 +143,7 @@ public class CrlUtility {
     X500Name name=new X500Name(caDN);
     Calendar c = Calendar.getInstance();
     Date current=c.getTime();
-    c.set(2002,5,21);
+    c.add(Calendar.HOUR_OF_DAY,1);
     Date next=c.getTime();
     X509CRLImpl crl=new X509CRLImpl(name,current,next,null);
      crl.sign(privatekey,algorithm);
