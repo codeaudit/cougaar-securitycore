@@ -25,6 +25,8 @@ package org.cougaar.core.service;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
@@ -39,7 +41,9 @@ import org.cougaar.core.mts.ProtectedOutputStream;
  * This service should be called by the transport service for
  * all Cougaar messages.
  */
-public interface MessageProtectionService extends Service {
+public interface MessageProtectionService
+  extends Service
+{
 
   /**
    * Sign and/or encrypt the header of an outgoing message.
@@ -64,9 +68,10 @@ public interface MessageProtectionService extends Service {
    * @param destination The destination of the message
    * @return the protected header (sign and/or encrypted)
    */
-  public byte[] protectHeader(byte[] rawData,
-			      MessageAddress source,
-			      MessageAddress destination);
+  byte[] protectHeader(byte[] rawData,
+		       MessageAddress source,
+		       MessageAddress destination)
+    throws GeneralSecurityException, IOException;
 
   /**
    * Verify the signed and/or encrypted header of an incoming message.
@@ -76,9 +81,10 @@ public interface MessageProtectionService extends Service {
    * @param destination The destination of the message
    * @return the header in the clear
    */
-  public byte[] unprotectHeader(byte[] rawData,
-				MessageAddress source,
-				MessageAddress destination);
+  byte[] unprotectHeader(byte[] rawData,
+			 MessageAddress source,
+			 MessageAddress destination)
+    throws GeneralSecurityException, IOException;
 
   /** 
    * Gets a stream to encrypt and/or sign outgoing messages
@@ -105,10 +111,11 @@ public interface MessageProtectionService extends Service {
    * @param attrs       The attributes of the outgoing message
    * @return A filter output stream
    */
-  public ProtectedOutputStream getOutputStream(OutputStream os,
-					       MessageAddress source,
-					       MessageAddress destination,
-					       MessageAttributes attrs);
+  ProtectedOutputStream getOutputStream(OutputStream os,
+					MessageAddress source,
+					MessageAddress destination,
+					MessageAttributes attrs)
+    throws IOException;
 
   /** 
    * Gets a stream to verify incoming messages
@@ -134,9 +141,9 @@ public interface MessageProtectionService extends Service {
    * @param attrs       The attributes of the incoming message
    * @return A filter intput stream
    */
-  public ProtectedInputStream getInputStream(InputStream is,
-					     MessageAddress src,
-					     MessageAddress dst,
-					     MessageAttributes attrs);
-
+  ProtectedInputStream getInputStream(InputStream is,
+				      MessageAddress src,
+				      MessageAddress dst,
+				      MessageAttributes attrs)
+    throws IOException;
 }
