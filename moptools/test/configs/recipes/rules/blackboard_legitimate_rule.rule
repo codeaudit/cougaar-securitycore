@@ -7,7 +7,7 @@ subscribeplugin = "org.cougaar.core.security.test.blackboard.LegitimateBlackboar
 
 servlet="org.cougaar.core.security.test.blackboard.BlackboardTestManagerServlet"
 analyzer="org.cougaar.core.security.test.blackboard.AnalyzerServlet"
-include_array=["NCA","TRANSCOM","1-35-ARBN"]
+include_array=["2-BDE-1-AD","1-6-INFBN","1-35-ARBN"]
 
 society.each_agent(true) do |agent|
   include_array.each{ |targetagent|
