@@ -9,19 +9,19 @@
 #
 foreach jar (`ls ${COUGAAR_INSTALL_PATH}/lib/*.jar`)
 	echo Signing $jar ...
-	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore -storepass keystore $jar privileged
+	jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/common/signingCA_keystore -storepass keystore $jar privileged
 end
 # This is not currently necessary but if zip files end up in lib then it will
 # be needed for those archives to be signed.
 foreach zip (`ls ${COUGAAR_INSTALL_PATH}/lib/*.zip`)
 	echo Signing $zip ...
-	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore -storepass keystore $zip privileged
+	jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/common/signingCA_keystore -storepass keystore $zip privileged
 end
 foreach jar (`ls ${COUGAAR_INSTALL_PATH}/sys/*.jar`)
 	echo Signing $jar ...
-	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore -storepass keystore $jar privileged
+	jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/common/signingCA_keystore -storepass keystore $jar privileged
 end
 foreach zip (`ls ${COUGAAR_INSTALL_PATH}/sys/*.zip`)
 	echo Signing $zip ...
-	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore -storepass keystore $zip privileged
+	jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/common/signingCA_keystore -storepass keystore $zip privileged
 end
