@@ -109,7 +109,7 @@
     </target>
 
     <!-- sign moptools -->
-    <target name="sign-mopconfidentialityjars" depends="jar-mopconfidentiality">
+    <target name="sign-mopconfidentialityjar" depends="jar-mopconfidentiality">
         <echo message="+++++ Signing jar files"/>
         <signjar jar="${moptools.classes}/mopconfidentiality.jar" alias="privileged" 
             signedjar="${moptools.signed}/mopconfidentiality.jar"
@@ -118,7 +118,7 @@
         <echo message="+++++ Signed jar files"/>
     </target>
 
-    <target name="sign-mopblackboardjars" depends="jar-mopblackboard">
+    <target name="sign-mopblackboardjar" depends="jar-mopblackboard">
         <echo message="+++++ Signing blackboard jar files"/>
         <signjar jar="${moptools.classes}/mopblackboard.jar" alias="privileged" 
             signedjar="${moptools.signed}/mopblackboard.jar"
@@ -127,13 +127,16 @@
         <echo message="+++++ Signed jar files"/>
     </target>
 
-    <target name="sign-jars" depends="sign-mopconfidentialityjars, sign-mopblackboardjars">
+    <!-- For now, don't build mopconfidentialityjar as it requires
+         JDK 1.4.2
+    -->
+    <target name="sign-jars" depends="sign-mopblackboardjar">
     </target>
     
     <!-- install moptools -->
     <target name="install-signed-jars" depends="sign-jars">
         <echo message="+++++ Installing signed jar files"/>
-        <copy file="${moptools.signed}/mop*.jar" 
+        <copy file="${moptools.signed}/mopblackboard.jar" 
             todir="${cougaar.install.path}/lib"/>
         <echo message="+++++ Installed signed jar files"/>
     </target>
