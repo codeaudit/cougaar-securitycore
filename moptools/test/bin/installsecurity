@@ -41,6 +41,8 @@ cp test/configs/acme_scripts/*.rb $COUGAAR_INSTALL_PATH/csmart/config/lib/securi
 mkdir -p $COUGAAR_INSTALL_PATH/configs/testKeystore
 cp test/configs/testKeystore/*keystore $COUGAAR_INSTALL_PATH/configs/testKeystore
 
+PATH=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/:$PATH
+PATH=~/srosset/apache-ant-1.6.1/bin/:$PATH
 #PATH=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/:$PATH
 #export PATH
 COUGAAR_WORKSPACE=$COUGAAR_INSTALL_PATH/workspace && export COUGAAR_WORKSPACE
