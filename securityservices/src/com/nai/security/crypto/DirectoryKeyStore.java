@@ -548,13 +548,15 @@ public class DirectoryKeyStore
     }
     if (CryptoDebug.debug) {
       Iterator it = collection.iterator();
-      while (it.hasNext()) {
-	System.out.println( ((X509Certificate)it.next()).toString() );
-
+      for (int i = 0 ; it.hasNext() ; i++) {
+	Object cert = it.next();
+	System.out.println("Reply[" + i + "] - " + cert.getClass().getName());
+	System.out.println( ((X509Certificate)cert).toString());
       }
     }
-    X509Certificate certificateReply[] =
-      (X509Certificate[])collection.toArray();
+    X509Certificate certificateReply[] = new X509Certificate[0];
+    certificateReply =
+      (X509Certificate[])collection.toArray(certificateReply);
     X509Certificate certificateForImport[];
 
 
