@@ -23,7 +23,7 @@ import java.util.TimerTask;
  * Plugin sends relay with the session key in it to the persistence manager
  *
  * @author ttschampel
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class SessionKeySenderPlugin extends ComponentPlugin {
     /** Plugin name */
@@ -89,11 +89,11 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
      * @param pmAgent PersistenceManager Agent
      */
     protected void sendSessionKey(Collection keyCollection, String pmAgent) {
+        MessageAddress source = this.getAgentIdentifier();
         if (logging.isDebugEnabled()) {
-            logging.debug("Relaying session key....");
+            logging.debug("Relaying session key...." + source);
         }
 
-        MessageAddress source = this.getAgentIdentifier();
         MessageAddress target = MessageAddress.getMessageAddress(pmAgent);
         SharedDataRelay sdr = new SharedDataRelay(uidService.nextUID(), source,
                 target, keyCollection, null);
@@ -115,7 +115,7 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
             getBlackboardService().publishAdd(sdr);
             getBlackboardService().closeTransactionDontReset();
             if (logging.isDebugEnabled()) {
-                logging.debug("Published Session key relay");
+                logging.debug("Published Session key relay " + sdr.getSource());
             }
         }
     }
