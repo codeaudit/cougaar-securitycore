@@ -14,6 +14,9 @@ module Cougaar
         def packageAndSignJarFile(directory, fileName)
           #puts "Packaging and signing #{directory}/#{fileName}  with all files under #{directory}"
 
+          if !File.exists?(directory)
+            return
+          end
           begin
             File.delete("#{directory}/#{fileName}")
           rescue => detail
