@@ -33,6 +33,7 @@
     <property file="${base.directory.name}/automated-test-build.properties"/>
 
     <target name="init">
+      <fail message="anthill.cougaar.branch.name is not defined" unless="anthill.cougaar.branch.name"/>
       <mkdir dir="${overlays.directory.name}"/>
       <taskdef resource="net/sf/antcontrib/antcontrib.properties">
         <classpath>
@@ -151,7 +152,7 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="cd ${testbed.cip.dir} ; rm cougaar-test.zip"
+	command="cd ${testbed.cip.dir} ; rm -f cougaar-test.zip"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Unzip overlay files on testbed machine..."/>
