@@ -24,16 +24,19 @@ package org.cougaar.core.security.util;
 
 import java.security.Permission;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 public class ActionPermission extends java.security.Permission {
   private static long NONE = 0x0;
   private static final String[] EMPTY_STRING_ARRAY = {};
 
-  private String   _name;
-  private boolean  _wildName;
-  private long     _mask = NONE;
-  private String   _actionStr;
+  private String        _name;
+  private boolean      _wildName;
+  private boolean      _nameIsOther;
+  private long         _mask = NONE;
+  private String       _actionStr;
 
   public ActionPermission(String name) {
     super(name);
@@ -79,13 +82,31 @@ public class ActionPermission extends java.security.Permission {
     return _actionStr;
   }
 
+  public String [] getActionList() {
+    return getActions(getActions());
+  }
+
+  protected Set nameableObjects()
+  {
+    HashSet ret = null;
+    return ret;
+  }
+
   protected boolean nameMatches(String name) {
     if (name == null) {
       return false;
+    } else if (_nameIsOther) {
+      Set nameable = nameableObjects();
+      if (nameable == null) {
+        throw new RuntimeException
+          ("Other objects not supported by this permission type");
+      }
+      return ! nameable.contains(name);
+    } else if (_wildName) {
+      return name.startsWith(_name);
+    } else {
+      return name.equals(_name);
     }
-    return (_wildName
-            ? name.startsWith(_name)
-            : name.equals(_name));
   }
 
   public int hashCode() {
@@ -97,18 +118,25 @@ public class ActionPermission extends java.security.Permission {
       ActionPermission p = (ActionPermission) obj;
       return (_name.equals(p._name) && 
               _wildName == p._wildName &&
+              _nameIsOther == p._nameIsOther &&
               _mask == p._mask);
     }
     return false;
   }
 
   protected void parseName(String name) {
-    if (name.endsWith(".*") || name.equals("*")) {
+    if (name.equals("%Other%")) {
+      _nameIsOther = true;
+      _wildName    = false;
+    } else if (name.endsWith(".*") || name.equals("*")) {
+      _nameIsOther = false;
       _wildName = true;
       // get everything up to the '*'
       _name = name.substring(0, name.length() - 1);
     } else {
       // a class name
+      _nameIsOther = false;
+      _wildName = false;
       _name = name;
     }
   }
