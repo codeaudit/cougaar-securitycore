@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 rm -f $CIP/workspace/log4jlogs/ethereal.log
 
 # deal with command-line arguments
@@ -50,5 +49,4 @@ ${coptions} \
 ${bootclass} ${nodeclass} \
 ${postargs}"
 
-echo exec java $allargs
 exec java $allargs

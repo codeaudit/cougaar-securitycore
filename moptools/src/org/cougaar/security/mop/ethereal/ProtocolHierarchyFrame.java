@@ -98,15 +98,16 @@ public class ProtocolHierarchyFrame
     splitPane.setTopComponent(treeView);
     splitPane.setBottomComponent(detailView);
 
-    Dimension minimumSize = new Dimension(100, 50);
-    detailView.setMinimumSize(minimumSize);
-    treeView.setMinimumSize(minimumSize);
-    splitPane.setDividerLocation(100); //XXX: ignored in some releases
+    Dimension minimumSize = new Dimension(300, 80);
+    detailView.setPreferredSize(minimumSize);
+    minimumSize = new Dimension(300, 300);
+    treeView.setPreferredSize(minimumSize);
+    splitPane.setDividerLocation(-1); //XXX: ignored in some releases
     //of Swing. bug 4101306
     //workaround for bug 4101306:
     //treeView.setPreferredSize(new Dimension(100, 100)); 
 
-    splitPane.setPreferredSize(new Dimension(500, 300));
+    //splitPane.setPreferredSize(new Dimension(500, 300));
 
     //Add the split pane to this frame.
     getContentPane().add(splitPane, BorderLayout.CENTER);
