@@ -32,19 +32,26 @@ public class ParsedPolicyFile
 {
   private Map    _declarations;
   private List   _policies;
+  private List   _deletedPolicies;
   private String _prefix;
 
   public ParsedPolicyFile()
   {
-    _prefix       = "";
-    _declarations = new HashMap();
-    _policies     = new Vector();
+    _prefix          = "";
+    _declarations    = new HashMap();
+    _policies        = new Vector();
+    _deletedPolicies = new Vector();
   }
 
+  /**
+   * The prefix notion is useful for ensuring that a set of policies have
+   * a similar name or that policies are saved to a particular directory.
+   */
   public void setPrefix(String prefix)
   {
     _prefix = prefix;
   }
+
 
   public void addPolicy(ParsedPolicy pp)
   {
@@ -52,14 +59,37 @@ public class ParsedPolicyFile
     _policies.add(pp);
   }
 
+  public void addDeletion(String name)
+  {
+    _deletedPolicies.add(name);
+  }
+
+  /**
+   * Declares instanceName to be an instance of className.  The interpretation
+   * of declarations is done in PolicyUtils.java
+   */
   public void declareInstance(String instanceName,
                               String className)
   {
     _declarations.put(instanceName, className);
   }
 
-  public Map  declarations() { return _declarations; }
-  public List policies()     { return _policies;     }
+
+  /**
+   * Get the declarations.  Most of the interpretation of declarations is done
+   * inside PolicyUtils.java
+   */
+  public Map  declarations()   { return _declarations;    }
+
+  /**
+   * Get the policies
+   */
+  public List policies()       { return _policies;        }
+
+  /**
+   * Get  the policies to be deleted.
+   */
+  public List getDeletedList() { return _deletedPolicies; }
 
 
   /*-------------------------------------------------------------------

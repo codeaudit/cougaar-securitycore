@@ -286,6 +286,7 @@ class Main
     try {
       System.out.println("Parsing policies from grammar");
       ParsedPolicyFile parsed = compile(_policyFile);
+      List deletePolicies = parsed.getDeletedList();
       List parsedPolicies = parsed.policies();
       System.out.println("Policies parsed");
       if (_cmdLineAuth) {
@@ -298,7 +299,7 @@ class Main
                                                     parsed.declarations());
       }
 
-      commitUnconditionalPolicies(parsedPolicies);
+      commitUnconditionalPolicies(parsedPolicies, deletePolicies);
       commitConditionalPolicies(parsedPolicies);
     } catch (Exception e) {
       e.printStackTrace();
@@ -311,7 +312,7 @@ class Main
    * This routine gathers unconditional policies - either from disk or
    * by building them itself - and then commits them.
    */
-  public void commitUnconditionalPolicies(List    parsed)
+  public void commitUnconditionalPolicies(List    parsed, List deletePolicies)
     throws Exception
   {
     System.out.println("Constructing New Unconditional Policy Msgs");
@@ -347,7 +348,7 @@ class Main
       Msg oldPolicy = (Msg) oldPoliciesIt.next();
       oldPolicyMsgs.add(convertMsgToPolicyMsg(oldPolicy));
     }
-    updatePolicies(newPolicies, oldPolicyMsgs);
+    updatePolicies(newPolicies, oldPolicyMsgs, deletePolicies);
   }
 
   /**
@@ -359,9 +360,18 @@ class Main
    * described above.  If a newPolicy and an old policy both have the
    * same id then the old policy must not be removed  and the new
    * policy must be put in the changed list.
+   *
+   * The deletePolicies variable should only be non-empty if we are
+   * not doing set-policies.  In this case the policy change is an
+   * increment and we may want to delete some of the existing policies
+   * from the domain manager.  For now this code assumes that we are
+   * not deleting a policy that we are adding.  Later we may change
+   * this by having the ParsedPolicyFile class check this as policies
+   * and deletion statements are added.
    */
   public void updatePolicies(List    newPolicies,
-                             List    oldPolicies)
+                             List    oldPolicies,
+                             List    deletePolicies)
     throws IOException
   {
     List oldIds = new Vector();
@@ -390,6 +400,18 @@ class Main
         PolicyMsg policy = (PolicyMsg) policyIt.next();
         if (!commonIds.contains(policy.getId())) {
           removedPolicies.add(policy);
+        }
+      }
+    } else {
+      for (Iterator deletePoliciesIt = deletePolicies.iterator();
+           deletePoliciesIt.hasNext();) {
+        String deletePolicyName = (String) deletePoliciesIt.next();
+        for (Iterator oldPoliciesIt = oldPolicies.iterator(); 
+             oldPoliciesIt.hasNext();) {
+          PolicyMsg existingPolicy = (PolicyMsg) oldPoliciesIt.next();
+          if (existingPolicy.getName().endsWith(deletePolicyName)) {
+            removedPolicies.add(existingPolicy);
+          }
         }
       }
     }

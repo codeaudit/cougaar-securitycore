@@ -47,12 +47,14 @@ throws PolicyCompilerException
                 } else {
                   policyNames.add(pp.getPolicyName());
                 }
-             })+
+             })*
     ;
 
 declaration[ParsedPolicyFile ppf]
 throws PolicyCompilerException
     : setprefix[ppf]
+    | "Delete" policyName:TOKEN
+        { ppf.addDeletion(ParsedPolicyFile.tokenToText(policyName)); }
     | "Agent" agentName:URI
         { ppf.declareInstance(ParsedPolicyFile.identifierToURI(agentName),
                               ActorConcepts._Agent_); }
