@@ -77,7 +77,7 @@ import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 // Cougaar core infrastructure
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
-import org.cougaar.core.service.AgentIdentityService;
+import org.cougaar.core.service.identity.*;
 import org.cougaar.core.node.NodeIdentificationService;
 import org.cougaar.core.node.NodeIdentifier;
 import org.cougaar.core.security.services.crypto.LdapUserService;
@@ -85,10 +85,6 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.coreservices.tomcat.AuthValve;
 import org.cougaar.core.agent.ClusterIdentifier;
-
-// Cougaar Overlay
-import org.cougaar.core.security.coreservices.identity.PendingRequestException;
-import org.cougaar.core.security.coreservices.identity.IdentityDeniedException;
 
 /**
  * A Realm extension for Tomcat 4.0 that uses SSL to talk to
@@ -187,7 +183,7 @@ public class KeyRingJNDIRealm extends RealmBase {
       if (ais != null) {
         // force a certificate for the node
         try {
-          ais.CreateCryptographicIdentity(nis.getNodeIdentifier(), null);
+          ais.acquire(null);
         } catch (PendingRequestException e) {
           // well, can't use it, but no biggy
         } catch (IdentityDeniedException e) {

@@ -32,9 +32,11 @@ import java.security.cert.Certificate;
 import org.cougaar.core.component.Service;
 
 // Overlay
-import org.cougaar.core.security.coreservices.identity.*;
+import org.cougaar.core.service.identity.*;
 
-public interface UserIdentityService extends Service {
+public interface UserIdentityService
+  extends Service
+{
   /** Create a cryptographic identity for an user.
    *  This method is called by restricted entities which act
    *  as CA registry. The CA registry will interact with user
@@ -53,15 +55,13 @@ public interface UserIdentityService extends Service {
    *  make sure that only known entities will call the service.
    *
    * @param      profile of the user
-   * @param      clientCallBack a callBack to the client
    * @exception  PendingRequestException the certificate authority
    *             did not sign the request immediately. The same request
    *             should be sent again later
    * @exception  IdentityDeniedException the certificiate authority
    *             refused to sign the key
    */
-  public void CreateCryptographicIdentity(UserProfile profile,
-					  RevocationCallBack clientCallBack)
+  public void CreateCryptographicIdentity(UserProfile profile)
     throws PendingRequestException,
 	   IdentityDeniedException;
 

@@ -34,9 +34,11 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 import javax.security.auth.x500.X500Principal;
 
+// Cougaar core infrastructure
+import org.cougaar.core.mts.MessageAddress;
+
 // Overlay
-import org.cougaar.core.security.coreservices.identity.*;
-import org.cougaar.core.service.AgentIdentityService;
+import org.cougaar.core.service.identity.*;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
@@ -53,6 +55,7 @@ import org.cougaar.core.security.config.*;
 
 public class CreateCaKeyServlet
   extends  HttpServlet
+  implements AgentIdentityClient
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
@@ -136,7 +139,7 @@ public class CreateCaKeyServlet
 
     X500Principal p = new X500Principal(caDN);
     try {
-      agentIdentity.CreateCryptographicIdentity(p, null);
+      agentIdentity.acquireX500Identity(p);
     }
     catch (Exception e) {
       out.println("Unable to generate CA key: " + e);
@@ -279,4 +282,11 @@ public class CreateCaKeyServlet
     return("Generate a CA key");
   }
 
+  // AgentIdentityClient implementation
+  public void identityRevoked(CrlReason reason) {
+  }
+
+  public MessageAddress getName() {
+    return support.getAgentIdentifier();
+  }
 }

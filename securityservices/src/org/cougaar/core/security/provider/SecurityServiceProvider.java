@@ -32,7 +32,7 @@ import java.util.Hashtable;
 // Cougaar core services
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
-import org.cougaar.core.service.AgentIdentityService;
+import org.cougaar.core.service.identity.*;
 import org.cougaar.core.service.DataProtectionService;
 import org.cougaar.core.service.MessageProtectionService;
 
@@ -40,12 +40,11 @@ import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
-import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.services.identity.*;
 
 // Cougaar overlay
 import org.cougaar.core.security.coreservices.crypto.*;
-import org.cougaar.core.security.coreservices.identity.*;
 
 public class SecurityServiceProvider
   extends ContainerSupport

@@ -27,12 +27,19 @@ import java.io.OutputStream;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.mts.ProtectedOutputStream;
 import org.cougaar.core.service.MessageProtectionService;
+
+// Cougaar security services
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 /** Cryptographic Service used to cryptographically protect incoming
  * and outgoing messages.
@@ -43,6 +50,52 @@ import org.cougaar.core.service.MessageProtectionService;
 public class MessageProtectionServiceImpl
   implements MessageProtectionService
 {
+  private ServiceBroker serviceBroker;
+
+  private KeyRingService keyRing;
+  private EncryptionService encryptService;
+  private SecurityPropertiesService secprop;
+  private CryptoPolicyService cps = null;
+
+  private int infoLevel = 0;
+  private boolean debug = false;
+
+  public MessageProtectionServiceImpl(ServiceBroker sb) {
+    serviceBroker = sb;
+
+    // Retrieve security properties service
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this, SecurityPropertiesService.class, null);
+
+    // Retrieve KeyRing service
+    this.keyRing = (KeyRingService)
+      serviceBroker.getService(
+	this, KeyRingService.class, null);
+
+    // Retrieve Encryption service
+    this.encryptService = (EncryptionService)
+      serviceBroker.getService(this, EncryptionService.class, null);
+    if (encryptService == null) {
+      System.out.println("Unable to get Encryption service");
+      throw new RuntimeException("MessageProtectionService. No encryption service");
+    }
+
+    // Retrieve policy service
+    cps = (CryptoPolicyService)
+      serviceBroker.getService(this, CryptoPolicyService.class, null);
+    if (cps == null) {
+      System.out.println("Unable to get crypto policy service");
+      throw new RuntimeException("MessageProtectionService. No crypto policy service");
+    }
+
+
+    String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
+    if ( db!=null && (db.equalsIgnoreCase("true") ||
+		      db.indexOf("security")>=0) ) debug=true;
+    infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
+						     "0"))).intValue();
+  }
+
   /**
    * Sign and/or encrypt the header of an outgoing message.
    *

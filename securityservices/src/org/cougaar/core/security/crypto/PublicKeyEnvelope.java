@@ -32,9 +32,6 @@ import java.io.Serializable;
 import javax.crypto.SealedObject;
 import java.security.cert.X509Certificate;
 
-// Overlay
-import org.cougaar.core.security.coreservices.identity.TransferableIdentity;
-
 public class PublicKeyEnvelope
   implements Serializable
 {

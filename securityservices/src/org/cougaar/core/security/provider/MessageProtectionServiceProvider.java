@@ -49,7 +49,7 @@ public class MessageProtectionServiceProvider
 					Object requestor, 
 					Class serviceClass) {
     if (mps == null) {
-      mps = new MessageProtectionServiceImpl();
+      mps = new MessageProtectionServiceImpl(sb);
     }
     return mps;
   }
