@@ -1,7 +1,7 @@
 require 'singleton'
 
-SnortDir = "#{ENV['CIP']}/csmart/assessment/lib/security/data"
-NoScore = "0.0  (see details)"
+snortDir = "#{ENV['CIP']}/csmart/assessment/lib/security/data"
+noScore = "0.0  (see details)"
     
 class AbstractSecurityMop < SecurityStressFramework
   attr_accessor :date, :runid, :name, :descript, :score, :info, :calculationDone, :raw, :summary
@@ -168,7 +168,7 @@ puts "error, probably in compileResults" if $VerboseDebugging
 
   def scoreText
     if @summary =~ /^There weren/
-      return NoScore
+      return noScore
     else
       return @score
     end
@@ -210,7 +210,7 @@ class SecurityMop22 < AbstractSecurityMop
       if match
         size = match[0][0].to_i
         if size == 0
-          return NoScore
+          return noScore
         else
           return @score
         end
@@ -236,7 +236,7 @@ class SecurityMop23 < AbstractSecurityMop
 
   def scoreText
     if @summary =~ /^There weren/
-      return NoScore
+      return noScore
     else
       return @score
     end
@@ -266,7 +266,7 @@ class SecurityMop23 < AbstractSecurityMop
     puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}" if $VerboseDebugging
 
     @hosts.each do |host|
-      doRemoteCmd(host.name, "#{SnortDir}/runsnort #{ENV['CIP']}")
+      doRemoteCmd(host.name, "#{snortDir}/runsnort #{ENV['CIP']}")
     end
   end
 
@@ -278,7 +278,7 @@ class SecurityMop23 < AbstractSecurityMop
     return unless @hosts
     logInfoMsg (@hosts.collect {|h| h.name}).sort if $VerboseDebugging
     @hosts.each do |host|
-      doRemoteCmd(host.name, "#{SnortDir}/analyzesnort #{ENV['CIP']}")
+      doRemoteCmd(host.name, "#{snortDir}/analyzesnort #{ENV['CIP']}")
     end
   end
 
@@ -346,7 +346,7 @@ class SecurityMop24 < AbstractSecurityMop
   end
   def scoreText
     if @summary =~ /^There weren/
-      return NoScore
+      return noScore
     else
       return @score
     end
@@ -768,7 +768,7 @@ class SecurityMop25 < AbstractSecurityMop
 
   def scoreText
     if @summary =~ /^There weren/
-      return NoScore
+      return noScore
     else
       return @score
     end
@@ -823,7 +823,7 @@ class SecurityMop26 < AbstractSecurityMop
 
   def scoreText
     if @summary =~ /^There weren/
-      return NoScore
+      return noScore
     else
       return @score
     end

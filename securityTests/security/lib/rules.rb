@@ -43,17 +43,17 @@ This file provides rules to run against an already loaded society.
 
 
    def getAgent(agentName)
-      getRun.society.agents[agentName]
+      run.society.agents[agentName]
    end
 
    def eachNodeAgent(&block)
-      getRun.society.each_node_agent() do |agent|
+      run.society.each_node_agent() do |agent|
          yield agent
       end
    end
 
    def eachHost(&block)
-      getRun.society.each_host do |host|
+      run.society.each_host do |host|
          yield host
       end
    end
@@ -95,7 +95,7 @@ This file provides rules to run against an already loaded society.
    end
 
    def on_cougaar_event(&block)
-      getRun.comms.on_cougaar_event do |event|
+      run.comms.on_cougaar_event do |event|
          yield event
       end
    end
@@ -164,7 +164,7 @@ This file provides rules to run against an already loaded society.
 
 class Regexp
    def on_cougaar_event(&block)
-      getRun.comms.on_cougaar_event do |event|
+      run.comms.on_cougaar_event do |event|
          eventStr = event.to_s
          if self =~ eventStr
 #puts '*************************************************'
@@ -180,7 +180,7 @@ end
 
 #class AbstractStressFramework
    def on_cougaar_event(&block)
-      getRun.comms.on_cougaar_event do |event|
+      run.comms.on_cougaar_event do |event|
          yield event
       end
    end
@@ -220,7 +220,7 @@ module Cougaar
          component = getComponentsMatching(/AutoConfigPlugin/)[0]
          # 1st arg is something like: sv041:ConusEnclaveCaManager:8810:9810
          argument = component.arguments[0] 
-         getRun.society.agents[argument.to_s.split(':')[1]]
+         run.society.agents[argument.to_s.split(':')[1]]
       end
    end
    

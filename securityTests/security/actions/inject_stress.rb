@@ -4,6 +4,13 @@ module Cougaar
 
     $Dbg_action = false
 
+    class MyExperiment
+      attr_accessor :run
+      def initialize(run)
+	@run = run
+      end
+    end
+
     class Stressors 
       # A hash map indexed by #{className}
       # Value is the instance of the stress class
@@ -29,7 +36,7 @@ module Cougaar
 	ret =  @@stressMap[stressorClass]
 	if (ret == nil) 
 	  ret = eval("#{stressorClass}.new(run)")
-	  ret.myexperiment=run.experiment
+	  ret.myexperiment = MyExperiment.new(run)
 	  #puts "Run.name: #{run.name} Experiment: #{run.experiment.name}"
 	  @@stressMap[stressorClass] = ret
 	end
