@@ -64,7 +64,7 @@ module Cougaar
 
 
       def deleteStagingDir
-        `rm -rf #{@stagingDir}`
+        `rm -rf #{@stagingdir}`
       end # def deleteStagingDir
 #
 # The only things below are buildUserRoleMap, buildUriMap,
