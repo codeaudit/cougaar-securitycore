@@ -188,10 +188,10 @@ public class MessageOutputStream
       		 + " - No policy");
       }
       IOException ioe = new IOException("Could not find message policy between "
-			    + source.toAddress()
-			    + " and " + target.toAddress());
-			publishMessageFailure(MessageFailureEvent.INVALID_POLICY,
-			                      ioe.toString());
+					+ source.toAddress()
+					+ " and " + target.toAddress());
+      publishMessageFailure(MessageFailureEvent.INVALID_POLICY,
+			    ioe.toString());
       throw ioe;
     }
     if (log.isDebugEnabled()) {

@@ -216,8 +216,13 @@ public class MessageProtectionServiceImpl
 				  + " and " + destination.getAddress());
 		  publishMessageFailure(source.toString(), destination.toString(),
         MessageFailureEvent.INVALID_POLICY, gse.toString());
-      
-      throw gse;
+
+      IOException ioex = new IOException("Unable to protect header:"
+					 + gse.getMessage());
+      ioex.initCause(gse);
+      // Don't throw a security exception, otherwise the MTS will never
+      // retry to send the message.
+      throw ioex;
     }     
     if (log.isDebugEnabled()) {
       log.debug("protectHeader: " + source.toAddress()
@@ -242,7 +247,12 @@ public class MessageProtectionServiceImpl
       publishMessageFailure(source.toString(),
                             destination.toString(),
                             gse);
-      throw gse;
+      IOException ioex = new IOException("Unable to protect header:"
+	+ gse.getMessage());
+      ioex.initCause(gse);
+      // Don't throw a security exception, otherwise the MTS will never
+      // retry to send the message.
+      throw ioex;
     }
     return baos.toByteArray();
   }
