@@ -207,6 +207,13 @@ public class AuthServiceImpl
     if (ec instanceof RoleExecutionContext) {
       return (RoleExecutionContext) ec;
     } else {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Execution context = " + ec);
+        if (ec != null) {
+          _log.debug("Not the right kind of execution context, class = " + 
+                     ec.getClass().getName());
+        }
+      }
       return null;
     }
   }
@@ -240,7 +247,7 @@ public class AuthServiceImpl
     } else {
       if (_log.isWarnEnabled()) {
         _log.warn("No execution context available at mediation time" +
-                  " - is this ok?", new Throwable());
+                  " - is this ok?");
       }
       return true;
     }
