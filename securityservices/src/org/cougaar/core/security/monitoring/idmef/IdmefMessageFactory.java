@@ -231,14 +231,11 @@ final public class IdmefMessageFactory {
             agentAddress = createAddress( m_agentId.getAddress(), null, Address.URL_ADDR );
         }
         
-    m_agent = new Agent( agentName,
-			 null,  // description
-			 null,  // location
-			 agentAddress,
-			 null );  // how am i suppose to link this to the analyzer, source, or target
-    m_agentData = createAdditionalData( AdditionalData.XML, 
-					AGENT_INFO,
-					m_agent.toTaggedString() );
+    m_agent = createAgent( agentName,
+			                     null,  // description
+			                     null,  // location
+			                     agentAddress,
+			                     null );
   }
     
   /** 
@@ -390,9 +387,20 @@ final public class IdmefMessageFactory {
       targets = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
     if( classificationList != null )
       classifications = ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
-    if( dataList != null )
+    if( dataList != null ){
+      // add agent info to the alert
+      if( analyzer != null ){
+        List refList = new ArrayList();
+        refList.add( analyzer.getAnalyzerid() );
+        Agent newAgent = m_agent.cloneAgent();
+        newAgent.setRefIdents( ( String [] )refList.toArray( new String[ 0 ] ) );
+        dataList.add( createAdditionalData( AdditionalData.XML, 
+					                                  AGENT_INFO,
+					                                  newAgent.toTaggedString() ) ); 
+      } 
+      
       data = ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
-                        
+    }
     return new Alert( analyzer,
 		      new CreateTime(),
 		      detectTime,           // is this needed? if not, null.
@@ -583,7 +591,7 @@ final public class IdmefMessageFactory {
         
     if( sensor instanceof SensorInfo ){
       SensorInfo sensorInfo = ( SensorInfo )sensor;
-      String analyzerId = m_agent.getName() + sensorInfo.getName();           // get the sensor id
+      String analyzerId = m_agent.getName() + "/" + sensorInfo.getName();           // get the sensor id
       String manufacturer = sensorInfo.getManufacturer(); // get the sensor manufacturer
       String model = sensorInfo.getModel();               // get the sensor model
       String version = sensorInfo.getVersion();           // get the sensor version
@@ -1359,7 +1367,7 @@ final public class IdmefMessageFactory {
    * @return a new Agent
    */
   public Agent createAgent(){
-    Agent newAgent = ( Agent )m_agent.cloneAgent();    
+    Agent newAgent = m_agent.cloneAgent();    
     return newAgent;
   }
     
