@@ -129,7 +129,7 @@ def deltaPolicy(enclave, text)
     if !fileExists
       # load the boot policies -- we haven't done any delta yet
       bootPolicyFile = File.join(CIP, "configs", "security",
-                                 "DamlBootPolicyList")
+                                 "OwlBootPolicyList")
       result = commitPolicy(host, port, manager, "commit --dm", bootPolicyFile)
 #      logInfoMsg result
       sleep 30.seconds
@@ -215,34 +215,34 @@ module Cougaar
                 newPolicies <<  "GenericTemplate\n"
                 newPolicies << "Priority = 3,\n"
                 newPolicies << "$AgentsInGroup\#Cloud#{cloud1} is not authorized to perform\n"
-                newPolicies << "$Action.daml#EncryptedCommunicationAction as long as\n"
-                newPolicies << "the value of $Action.daml#hasDestination\n"
+                newPolicies << "$Action.owl#EncryptedCommunicationAction as long as\n"
+                newPolicies << "the value of $Action.owl#hasDestination\n"
                 newPolicies << "is a subset of the set $AgentsInGroup\#Cloud#{cloud2}\n"
                 newPolicies << "and \n"
-                newPolicies << "the value of $Ultralog/UltralogAction.daml#hasSubject\n"
+                newPolicies << "the value of $Ultralog/UltralogAction.owl#hasSubject\n"
                 newPolicies << "is a subset of the complement of the set\n"
-                newPolicies << "{ $Ultralog/Names/EntityInstances.daml#NoVerb }\n"
+                newPolicies << "{ $Ultralog/Names/EntityInstances.owl#NoVerb }\n"
                 newPolicies << "]\n"
 
                 newPolicies << "Policy \"Deny#{cloud2}-to-#{cloud1}\" = [\n"
                 newPolicies <<  "GenericTemplate\n"
                 newPolicies << "Priority = 3,\n"
                 newPolicies << "$AgentsInGroup\#Cloud#{cloud2} is not authorized to perform\n"
-                newPolicies << "$Action.daml#EncryptedCommunicationAction as long as\n"
-                newPolicies << "the value of $Action.daml#hasDestination\n"
+                newPolicies << "$Action.owl#EncryptedCommunicationAction as long as\n"
+                newPolicies << "the value of $Action.owl#hasDestination\n"
                 newPolicies << "is a subset of the set $AgentsInGroup\#Cloud#{cloud1}\n"
                 newPolicies << "and \n"
-                newPolicies << "the value of $Ultralog/UltralogAction.daml#hasSubject\n"
+                newPolicies << "the value of $Ultralog/UltralogAction.owl#hasSubject\n"
                 newPolicies << "is a subset of the complement of the set\n"
-                newPolicies << "{ $Ultralog/Names/EntityInstances.daml#NoVerb }\n"
+                newPolicies << "{ $Ultralog/Names/EntityInstances.owl#NoVerb }\n"
                 newPolicies << "]\n"
               end
 
             }
           }
-          origFile = "#{CIP}/configs/security/DamlBootPolicyList.orig"
-          prevFile = "#{CIP}/configs/security/DamlBootPolicyList"
-          stopFile = "#{CIP}/configs/security/DamlBootPolicyList.completed"
+          origFile = "#{CIP}/configs/security/OwlBootPolicyList.orig"
+          prevFile = "#{CIP}/configs/security/OwlBootPolicyList"
+          stopFile = "#{CIP}/configs/security/OwlBootPolicyList.completed"
 #          puts("finished creating lines")
           origLines = File.readlines(origFile)
           policyLines = lines.concat(origLines).concat(newPolicies)
@@ -273,7 +273,7 @@ module Cougaar
             # add the files to the security config jar file
             configJar = "#{CIP}/configs/security/securityservices_config.jar"
             replaceFileInJar(configJar,
-                             "#{CIP}/configs/security/DamlBootPolicyList")
+                             "#{CIP}/configs/security/OwlBootPolicyList")
             Dir["#{CIP}/configs/security/*.info"].each { |file|
               replaceFileInJar(configJar, file)
             }
