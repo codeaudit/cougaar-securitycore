@@ -24,27 +24,17 @@
     		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
     		<SigningAlgorithm>MD5withRSA</SigningAlgorithm>
     		<!--SigningAlgorithm>MD2withRSA</SigningAlgorithm-->
-	</PolicyEntry>
 
-	<!--
-	<PolicyEntry>
-		<MsgParty>3-69-ARBN</MsgParty>
-		<SecureMethod>sign</SecureMethod>
-    		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
-    		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
-    		<SigningAlgorithm>MD5withRSA</SigningAlgorithm>
-	</PolicyEntry>
-	-->
-
-	<!--
-	<PolicyEntry>
+		<!--for community policy-->
+		<!--
 		<MsgCommunity>testComm</MsgCommunity>
 		<ComSecureMethod>sign</ComSecureMethod>
+		<ComSecureMethod>plain</ComSecureMethod>
     		<ComSymmetricAlgorithm>DES</ComSymmetricAlgorithm>
     		<ComAsymmetricAlgorithm>RSA</ComAsymmetricAlgorithm>
     		<ComSigningAlgorithm>MD5withRSA</ComSigningAlgorithm>
+		-->
 	</PolicyEntry>
-	-->
 
     </cryptoPolicy>
   </policy>

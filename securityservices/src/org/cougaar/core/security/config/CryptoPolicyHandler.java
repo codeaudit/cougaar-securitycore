@@ -53,6 +53,8 @@ public class CryptoPolicyHandler
   private static final String IAA_ELEMENT = "AsymmetricAlgorithm";
   private static final String IS_ELEMENT = "SigningAlgorithm";
 
+  private String msgCom;
+  
   public CryptoPolicyHandler(ServiceBroker sb) {
     super(sb);
   }
@@ -77,6 +79,7 @@ public class CryptoPolicyHandler
 
     if (localName.equals(POLICY_ELEMENT)) {
       msgParty = "";
+      msgCom = "";
     }
   }
 
@@ -149,6 +152,27 @@ public class CryptoPolicyHandler
     if (localName.equals(IS_ELEMENT)) {
       String value = getContents();
       cp.setSignSpec(msgParty,value);
+    }
+    
+    //now for community
+    if (localName.equals("MsgCommunity")) {
+      msgCom = getContents();
+    }
+    if (localName.equals("ComSecureMethod")) {
+      String value = getContents();
+      cp.setComSecuMethod(msgCom,value);
+    }
+    if (localName.equals("ComSymmetricAlgorithm")) {
+      String value = getContents();
+      cp.setComSymmSpec(msgCom,value);
+    }
+    if (localName.equals("ComAsymmetricAlgorithm")) {
+      String value = getContents();
+      cp.setComAsymmSpec(msgCom,value);
+    }
+    if (localName.equals("ComSigningAlgorithm")) {
+      String value = getContents();
+      cp.setComSignSpec(msgCom,value);
     }
 
     // Reset contents
