@@ -35,6 +35,8 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.IOException;
 
+import java.security.SecureRandom;
+
 import edu.jhuapl.idmef.IDMEFTime;
 import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.IDMEF_Message;
@@ -49,8 +51,11 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.UIDService;
+
 
 import org.cougaar.core.util.UID;
+import org.cougaar.core.util.UniqueObject;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
@@ -144,12 +149,12 @@ public class EventQueryPlugin extends ComponentPlugin {
    * Results of the subscription are only going to belong to the 
    * a member of the _queryAdapters variable.
    */
-  protected HashSet         _queryAdapters = new HashSet();
+  protected HashSet         _queryAdapters = null;
 
   /**
    * A set of agents that have the required sensor capabilities.
    */
-  protected HashSet         _agents = new HashSet();
+  protected HashSet         _agents = null;
 
   /**
    * for set/get DomainService
@@ -160,6 +165,11 @@ public class EventQueryPlugin extends ComponentPlugin {
    * List of classifications to query
    */
   protected String         _classifications[];
+
+  /**
+   * Class used for choosing Events to retrieve
+   */
+  protected String         _unaryPredicateClass;
 
   /**
    * The predicate script for selecting which events to copy
@@ -206,6 +216,30 @@ public class EventQueryPlugin extends ComponentPlugin {
         }
       }
     };
+
+  /**
+   * Used for retrieving the persisting data
+   */
+  private final UnaryPredicate PERSIST_PREDICATE =
+    new UnaryPredicate() {
+      public boolean execute(Object o) {
+        if (o instanceof EventQueryData) {
+          EventQueryData eqd = (EventQueryData) o;
+          if (eqd.unaryPredicateClass.equals(_unaryPredicateClass) &&
+              eqd.classifications.length == _classifications.length) {
+            for (int i = 0; i < _classifications.length; i++) {
+              if (!eqd.classifications[i].equals(_classifications[i])) {
+                return false;
+              }
+            }
+            return true; // all classifications are the same
+          }
+        }
+        return false;
+      }
+    };
+
+  private EventQueryData _persistData;
 
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -316,7 +350,8 @@ public class EventQueryPlugin extends ComponentPlugin {
                                          "QueryClassificationProvider " +
                                          "interface");
     } // end of if (qcp == null)
-    
+
+    _unaryPredicateClass = up;
     _predSpec = new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JAVA, up);
     _classifications = qcp.getClassifications();
   }
@@ -328,34 +363,74 @@ public class EventQueryPlugin extends ComponentPlugin {
     _log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
     
-    _eventQuery = (IncrementalSubscription)
-      getBlackboardService().subscribe(_eventPredicate);
-
     ServiceBroker        sb           = getBindingSite().getServiceBroker();
     DomainService        ds           = getDomainService(); 
     CmrFactory           cmrFactory   = (CmrFactory) ds.getFactory("cmr");
     IdmefMessageFactory  imessage     = cmrFactory.getIdmefMessageFactory();
+    BlackboardService    bbs          = getBlackboardService();
     _agentName = ((AgentIdentificationService)
                   sb.getService(this, AgentIdentificationService.class, null)).getName();
 
+    rehydrate();
+
+    _eventQuery = (IncrementalSubscription)
+      getBlackboardService().subscribe(_eventPredicate);
+
     _sensors = (IncrementalSubscription) 
-      getBlackboardService().subscribe(SENSORS_PREDICATE);
+      bbs.subscribe(SENSORS_PREDICATE);
 
     for (int i = 0 ; i < _classifications.length; i++) {
-      Classification classification = 
-        imessage.createClassification(_classifications[i], null);
-      MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, 
-                                                classification, null, null, true );
-      ClusterIdentifier destination = 
-        new ClusterIdentifier(_societySecurityManager);
-      CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
-      getBlackboardService().publishAdd(relay);
-      if (_log.isDebugEnabled()) {
-	_log.debug("Searching for sensors using security manager cluster " +
-		   "id: " + _societySecurityManager);
-      }
+      Collection c = bbs.query(new MRAgentPredicate(_classifications[i]));
+      if (!c.isEmpty()) {
+        if (_log.isInfoEnabled()) {
+          _log.info("MRAgentLookUp exists for " + _classifications[i]);
+        } // end of if (_log.isInfoEnabled())
+      } else {
+        // need to create a lookup for this classification
+        Classification classification = 
+          imessage.createClassification(_classifications[i], null);
+        MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, 
+                                                  classification, null, null, true );
+        ClusterIdentifier destination = 
+          new ClusterIdentifier(_societySecurityManager);
+        CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
+        bbs.publishAdd(relay);
+        if (_log.isDebugEnabled()) {
+          _log.debug("Searching for sensors using security manager cluster " +
+                     "id: " + _societySecurityManager);
+        }
+      } // end of else
     } // end of for (int i = 0 ; i < classifications.length; i++)
-    
+  }
+
+  /**
+   * Picks up the persisted data and restores it to the local cache
+   */
+  protected void rehydrate() {
+    BlackboardService bbs = getBlackboardService();
+    Collection c = bbs.query(PERSIST_PREDICATE);
+    if (c.isEmpty()) {
+      UIDService uids = 
+        (UIDService) getServiceBroker().getService(this,
+                                                   UIDService.class,
+                                                   null);
+      _persistData = new EventQueryData();
+      if (uids != null) {
+        uids.registerUniqueObject(_persistData);
+      }
+      _agents = _persistData.agents = new HashSet();
+      _queryAdapters = _persistData.queryAdapters = new HashSet();
+      _persistData.classifications = _classifications;
+      _persistData.unaryPredicateClass = _unaryPredicateClass;
+      bbs.publishAdd(_persistData);
+      _log.info("No rehydration.");
+    } else {
+      _persistData = (EventQueryData) c.iterator().next();
+      _agents = _persistData.agents;
+      _queryAdapters = _persistData.queryAdapters;
+      bbs.publishChange(_persistData);
+      _log.info("Rehydrating.");
+    }
   }
 
   /**
@@ -381,36 +456,36 @@ public class EventQueryPlugin extends ComponentPlugin {
     while (queryResults.hasMoreElements()) {
       QueryResultAdapter queryResult = 
         (QueryResultAdapter) queryResults.nextElement();
-    EQAggregationResultSet results = 
-      (EQAggregationResultSet) queryResult.getResultSet();
-    if (results.exceptionThrown()) {
-      _log.error("Exception when executing query: " + results.getExceptionSummary());
-      _log.debug("XML: " + results.toXml());
-    } else {
-      Iterator atoms = results.getAddedAtoms();
-      BlackboardService bbs = getBlackboardService();
-      DocumentBuilder parser;
-      try {
-        parser = _parserFactory.newDocumentBuilder();
-      } catch (ParserConfigurationException e) {
-        _log.error("Can't parse any events. The parser factory isn't configured properly.");
-        _log.debug("Configuration error.", e);
-        return;
-      }
-      while (atoms.hasNext()) {
-        ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
-        String owner = d.getIdentifier("owner").toString();
-        String id = d.getIdentifier("id").toString();
-        String source = d.getValue("source").toString();
-        String xml = d.getValue("event").toString();
+      EQAggregationResultSet results = 
+        (EQAggregationResultSet) queryResult.getResultSet();
+      if (results.exceptionThrown()) {
+        _log.error("Exception when executing query: " + results.getExceptionSummary());
+        _log.debug("XML: " + results.toXml());
+      } else {
+        Iterator atoms = results.getAddedAtoms();
+        BlackboardService bbs = getBlackboardService();
+        DocumentBuilder parser;
+        try {
+          parser = _parserFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+          _log.error("Can't parse any events. The parser factory isn't configured properly.");
+          _log.debug("Configuration error.", e);
+          return;
+        }
+        while (atoms.hasNext()) {
+          ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
+          String owner = d.getIdentifier("owner").toString();
+          String id = d.getIdentifier("id").toString();
+          String source = d.getValue("source").toString();
+          String xml = d.getValue("event").toString();
 
-        Event event = new EventImpl(new UID(owner,Long.parseLong(id)),
-                                    new ClusterIdentifier(source),
-                                    IDMEF_Message.createMessage(xml));
+          Event event = new EventImpl(new UID(owner,Long.parseLong(id)),
+                                      new ClusterIdentifier(source),
+                                      IDMEF_Message.createMessage(xml));
           
-        bbs.publishAdd(event);
+          bbs.publishAdd(event);
+        }
       }
-    }
     }
   }
 
@@ -450,6 +525,7 @@ public class EventQueryPlugin extends ComponentPlugin {
     }
 
     getBlackboardService().publishAdd(qra);
+    getBlackboardService().publishChange(_persistData);
   }
 
   public static class FormatEvent implements IncrementFormat {
@@ -497,6 +573,27 @@ public class EventQueryPlugin extends ComponentPlugin {
       Iterator iter = addedList.iterator();
       addedAtoms.clear();
       return iter;
+    }
+  }
+
+  private static class MRAgentPredicate implements UnaryPredicate {
+    String _cfn;
+
+    public MRAgentPredicate(String classification) {
+      _cfn = classification;
+    }
+
+    public boolean execute(Object o) {
+      if (!(o instanceof CmrRelay)) {
+        return false;
+      } // end of if (!(o instanceof CmrRelay))
+      CmrRelay cmr = (CmrRelay) o;
+      Object content = cmr.getContent();
+      if (!(content instanceof MRAgentLookUp)) {
+        return false;
+      } // end of if (!(content instanceof MRAgentLookUp))
+      MRAgentLookUp mr = (MRAgentLookUp) content;
+      return (_cfn.equals(mr.classification.getName()));
     }
   }
 }

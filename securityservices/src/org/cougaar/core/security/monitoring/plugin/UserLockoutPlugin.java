@@ -46,6 +46,8 @@ import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+
 
 // Cougaar overlay
 import org.cougaar.core.security.constants.IdmefClassifications;
@@ -183,6 +185,63 @@ public class UserLockoutPlugin extends ResponderPlugin {
 
   private static final String LOCKOUT_DURATION = AdaptiveMnROperatingModes.LOCKOUT_DURATION;
 
+  /**
+   * For the lockout duration OperatingMode
+   */
+  private static final UnaryPredicate LOCKOUT_DURATION_PREDICATE = 
+    new UnaryPredicate() {
+      public boolean execute(Object o) {
+        if (o instanceof OperatingMode) {
+          OperatingMode om = (OperatingMode) o;
+          String omName = om.getName();
+          if (LOCKOUT_DURATION.equals(omName)) {
+            return true;
+          }
+        }
+        return false;
+      }
+    };
+  
+  private static class RegistrationPredicate implements UnaryPredicate {
+    private String _agent;
+
+    public RegistrationPredicate(String agentName) {
+      _agent = agentName;
+    }
+
+    public boolean execute(Object o) {
+      if (!(o instanceof CmrRelay)) {
+        return false;
+      } // end of if (!(o instanceof CmrRelay))
+
+      CmrRelay cmr = (CmrRelay) o;
+      Object content = cmr.getContent();
+      if (!(content instanceof NewEvent)) {
+        return false; // not a registration event
+      } // end of if (!(content instanceof Event))
+      NewEvent ev = (NewEvent) content;
+      IDMEF_Message msg = ev.getEvent();
+      if (!(msg instanceof RegistrationAlert)) {
+        return false;
+      } // end of if (!(msg instanceof RegistrationAlert))
+      RegistrationAlert r = (RegistrationAlert) msg;
+      if (!_agent.equals(r.getAgentName()) ||
+          r.getOperation_type() != IdmefMessageFactory.newregistration ||
+          !IdmefMessageFactory.SensorType.equals(r.getType())) {
+        return false;
+      }
+      Classification cf[] = r.getClassifications();
+      for (int i = 0; i < cf.length; i++) {
+        if (cf[i] != null && 
+            IdmefClassifications.LOGIN_FAILURE.equals(cf[i].getName())) {
+          return true;
+        } 
+      } // end of for (int i = 0; i < cf.length; i++)
+      
+      return false; // not the right classification
+    }
+  }
+
   public void execute() {
     if (_lockoutDurationSubscription.hasChanged()) {
       updateLockoutDuration();
@@ -208,11 +267,17 @@ public class UserLockoutPlugin extends ResponderPlugin {
     _lockoutDurationSubscription = (IncrementalSubscription)
       blackboard.subscribe(LOCKOUT_DURATION_PREDICATE);
     
-    _lockoutDurationOM = new OperatingModeImpl(LOCKOUT_DURATION, 
-                                               LOCKOUT_DURATION_RANGE, 
-                                               new Double(_lockoutTime/1000));
+    Collection c = blackboard.query(LOCKOUT_DURATION_PREDICATE);
+    if (c.isEmpty()) {
+      _lockoutDurationOM = new OperatingModeImpl(LOCKOUT_DURATION, 
+                                                 LOCKOUT_DURATION_RANGE, 
+                                                 new Double(_lockoutTime/1000));
+      blackboard.publishAdd(_lockoutDurationOM);
+    } else {
+      _lockoutDurationOM = (OperatingMode) c.iterator().next();
+      _lockoutTime = ((Number) _lockoutDurationOM.getValue()).longValue() * 1000;
+    } // end of else
     
-    blackboard.publishAdd(_lockoutDurationOM);
     setupFailureSensor();
   }
   
@@ -246,6 +311,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
   protected UnaryPredicate getFailurePredicate(){
     return LOGIN_FAILURES_PREDICATE; 
   }
+
   /**
    * method that creates and publishes an IDMEF message with
    * an assessment specifying the action taken in response to 
@@ -301,23 +367,6 @@ public class UserLockoutPlugin extends ResponderPlugin {
     return cfs;
   }
   
-  /**
-   * For the lockout duration OperatingMode
-   */
-  private static final UnaryPredicate LOCKOUT_DURATION_PREDICATE = 
-    new UnaryPredicate() {
-      public boolean execute(Object o) {
-        if (o instanceof OperatingMode) {
-          OperatingMode om = (OperatingMode) o;
-          String omName = om.getName();
-          if (LOCKOUT_DURATION.equals(omName)) {
-          return true;
-          }
-        }
-        return false;
-      }
-    };
-  
   private void setupFailureSensor() {
     BlackboardService    bbs          = getBlackboardService();
     ServiceBroker        sb           = getBindingSite().getServiceBroker();
@@ -325,6 +374,14 @@ public class UserLockoutPlugin extends ResponderPlugin {
       sb.getService(this, AgentIdentificationService.class, null);
     String               agentName    = ais.getName();
     MessageAddress       myAddress    = ais.getMessageAddress();
+
+    Collection c = bbs.query(new RegistrationPredicate(agentName));
+    if (!c.isEmpty()) {
+      _log.info("Rehydrating - no need to publish sensor capabilities");
+      return; // this is rehydrated and we've already registered
+    } // end of if (!c.isEmpty())
+    
+    _log.info("No rehydration - publishing sensor capabilities");
     CommunityService     cs           = (CommunityService)
       sb.getService(this, CommunityService.class,null);
 
@@ -341,7 +398,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
                                              null,
                                              _idmefFactory.newregistration ,
                                              _idmefFactory.SensorType,
-                                             myAddress.toString());
+                                             agentName);
     
     NewEvent regEvent = _cmrFactory.newEvent(reg);
     Collection communities = cs.listParentCommunities(agentName);

@@ -20,9 +20,9 @@
  * 
  * </copyright>
  *
-* CHANGE RECORD
-* - 
-*/
+ * CHANGE RECORD
+ * - 
+ */
 package org.cougaar.core.security.monitoring.plugin;
 
 // cougaar core classes
@@ -37,6 +37,7 @@ import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.util.UnaryPredicate;
 
 // overlay class
 import org.cougaar.core.security.constants.IdmefClassifications;
@@ -61,6 +62,8 @@ import edu.jhuapl.idmef.Address;
 import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.Source;
 import edu.jhuapl.idmef.Target;
+import edu.jhuapl.idmef.IDMEF_Message;
+import edu.jhuapl.idmef.Alert;
 
 // java classes
 import java.util.ArrayList;
@@ -113,22 +116,22 @@ public abstract class SensorPlugin extends ComponentPlugin {
   }
 
 
-   public void setCommunityService(CommunityService cs) {
+  public void setCommunityService(CommunityService cs) {
     //System.out.println(" set community services Servlet component :");
-     this.m_cs=cs;
-   }
-   public CommunityService getCommunityService() {
-     return this.m_cs;
-   }
+    this.m_cs=cs;
+  }
+  public CommunityService getCommunityService() {
+    return this.m_cs;
+  }
   
   public void setParameter(Object o){
-   if (!(o instanceof List)) {
+    if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List argument to setParameter");
     }
     List l = (List) o;
     if (l.size() > 1) {
       m_log.warn("Unexpected number of parameters given. Expecting 1, got " + 
-                l.size());
+                 l.size());
     }
     if (l.size() > 0) {
       m_managerRole = l.get(0).toString();
@@ -154,77 +157,90 @@ public abstract class SensorPlugin extends ComponentPlugin {
       m_log = (LoggingService)sb.getService(this, LoggingService.class, null);
     }
     // register this sensor's capabilities
-      Thread th=new Thread(new RegistrationTask());
-      th.start();
-     //registerCapabilities(cs, m_agent);
-    }  
+    Thread th=new Thread(new RegistrationTask());
+    th.start();
+    //registerCapabilities(cs, m_agent);
+  }  
   
-    /**
-    * doesn't do anything
-    */
-    protected void execute(){
-    }
+  /**
+   * doesn't do anything
+   */
+  protected void execute(){
+  }
   
-   /**
-    * register the capabilities of the sensor
-    */
-    private boolean registerCapabilities( String agentName){
-      List capabilities = new ArrayList();
-      List targets = null;
-      List sources=null;
-      List data = null;
+  /**
+   * register the capabilities of the sensor
+   */
+  private boolean registerCapabilities( String agentName){
+    List capabilities = new ArrayList();
+    List targets = null;
+    List sources=null;
+    List data = null;
    
-      if(m_cs == null) {
-        return true;
+    if(m_cs == null) {
+      return true;
+    }
+    Collection manager = getEnclaveManager();
+    if(manager == null) {
+      return false;
+    }
+    else if(manager.size() == 0) {
+      m_log.debug("Enclave Security Manager not yet alive!");
+      return true; // enclave managers not yet alive
+    }  
+    // if agent is the target then add the necessary information to the registration
+    if(agentIsTarget()) {
+      List tRefList = new ArrayList(1);
+      targets = new ArrayList(1);
+      data = new ArrayList(1);
+      Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
+      Target t = m_idmefFactory.createTarget(null, null, null, null, null, null);
+      // add the target ident to the reference ident list
+      tRefList.add(t.getIdent());
+      targets.add(t);
+      // since there isn't a data model for cougaar Agents, the Agent object is
+      // added to the AdditionalData of an IDMEF message
+      Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
+      data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+    }
+    if(agentIsSource()) {
+      List tRefList = new ArrayList(1);
+      sources = new ArrayList(1);
+      if(data==null) {
+        data = new ArrayList(1);
       }
-      Collection manager = getEnclaveManager();
-      if(manager == null) {
-  	return false;
-      }
-      else if(manager.size() == 0) {
- 	m_log.debug("Enclave Security Manager not yet alive!");
-  	return true; // enclave managers not yet alive
-      }  
-      // if agent is the target then add the necessary information to the registration
-      if(agentIsTarget()) {
-        List tRefList = new ArrayList(1);
-	targets = new ArrayList(1);
-	data = new ArrayList(1);
-        Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
-        Target t = m_idmefFactory.createTarget(null, null, null, null, null, null);
-       // add the target ident to the reference ident list
-        tRefList.add(t.getIdent());
-        targets.add(t);
-        // since there isn't a data model for cougaar Agents, the Agent object is
-        // added to the AdditionalData of an IDMEF message
-        Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
-        data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
-      }
-      if(agentIsSource()) {
-	List tRefList = new ArrayList(1);
-        sources = new ArrayList(1);
-	if(data==null) {
-	  data = new ArrayList(1);
-	}
-	Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
-	Source s = m_idmefFactory.createSource(null, null, null, null, null);
-	// add the target ident to the reference ident list
-	tRefList.add(s.getIdent());
-	sources.add(s);
-	// since there isn't a data model for cougaar Agents, the Agent object is
-	// added to the AdditionalData of an IDMEF message
-	Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
-	data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
-      }
+      Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
+      Source s = m_idmefFactory.createSource(null, null, null, null, null);
+      // add the target ident to the reference ident list
+      tRefList.add(s.getIdent());
+      sources.add(s);
+      // since there isn't a data model for cougaar Agents, the Agent object is
+      // added to the AdditionalData of an IDMEF message
+      Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
+      data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+    }
     
-      String []classifications = getClassifications();
-      for(int i = 0; i < classifications.length; i++) {
-	Classification classification = 
-	  m_idmefFactory.createClassification(classifications[i], null);
-	capabilities.add(classification);
-      }  
-      RegistrationAlert reg = 
-	m_idmefFactory.createRegistrationAlert( getSensorInfo(), 
+    String []classifications = getClassifications();
+    for(int i = 0; i < classifications.length; i++) {
+      Classification classification = 
+        m_idmefFactory.createClassification(classifications[i], null);
+      capabilities.add(classification);
+    }  
+
+    m_blackboard.openTransaction();
+    Collection c = 
+      m_blackboard.query(new RegistrationPredicate(getSensorInfo(), 
+                                                   targets, capabilities,
+                                                   data, agentName));
+    m_blackboard.closeTransaction();
+    if (!c.isEmpty()) {
+      m_log.info("Rehydrating - no need to publish sensor capabilities");
+      return false; // this is rehydrated and we've already registered
+    } // end of if (!c.isEmpty())
+
+    m_log.info("No rehydration - publishing sensor capabilities");
+    RegistrationAlert reg = 
+      m_idmefFactory.createRegistrationAlert( getSensorInfo(), 
                                               null,
                                               targets,
                                               capabilities,
@@ -261,26 +277,26 @@ public abstract class SensorPlugin extends ComponentPlugin {
     }
   }
 
-   private Collection getEnclaveManager() {
-      Collection community = m_cs.listParentCommunities(m_agent, "(CommunityType=Security)");
-      if(community.size() > 1) {
-	  m_log.error(m_agent + " should belong to only one Security community!");
-	  return null;
-      }
-      else if(community.size() == 0) {
-	  m_log.debug("Security M&R Manager may not have registered yet!");
-	  return community;
-      }
-      printCommunityInfo(m_cs, community);
+  private Collection getEnclaveManager() {
+    Collection community = m_cs.listParentCommunities(m_agent, "(CommunityType=Security)");
+    if(community.size() > 1) {
+      m_log.error(m_agent + " should belong to only one Security community!");
+      return null;
+    }
+    else if(community.size() == 0) {
+      m_log.debug("Security M&R Manager may not have registered yet!");
+      return community;
+    }
+    printCommunityInfo(m_cs, community);
       
-      String communityName = community.iterator().next().toString();
-      Collection managers = m_cs.searchByRole(communityName, m_managerRole);          
-      if(managers.size() > 1) {
-	  m_log.error("There are " + managers.size() + " Enclave Security Manager in community=" + communityName);
-	return null;
-      }
-      return managers;
-   }  
+    String communityName = community.iterator().next().toString();
+    Collection managers = m_cs.searchByRole(communityName, m_managerRole);          
+    if(managers.size() > 1) {
+      m_log.error("There are " + managers.size() + " Enclave Security Manager in community=" + communityName);
+      return null;
+    }
+    return managers;
+  }  
   /**
    * method used to determine if the plugin is located in the same
    * agent as the enclave security manager
@@ -303,35 +319,109 @@ public abstract class SensorPlugin extends ComponentPlugin {
     int retryTime = RETRY_TIME;
     int counter = 1;
     public void run() {
-	boolean  tryAgain = true;
-	try {
-	  Thread.sleep(18*retryTime);
-	}
-	catch(InterruptedException ix) {
-	  m_log.error("Was interrupted while delaying the polling of NS sleeping: " + ix);
-	  tryAgain = false;
-	}
-	//boolean neverfalse=true;
-	while(tryAgain) {
-	    m_log.debug("Trying to register counter: " + counter++);
-	    tryAgain = registerCapabilities( m_agent);
-	    try {
-		if(tryAgain) {
-		  if(counter<6) { 
-		    retryTime=counter* RETRY_TIME;
-		  }
-		    Thread.sleep(retryTime);
-		}
-	     }
-            catch(InterruptedException ix) {
-		m_log.error("Was interrupted while sleeping: " + ix);
-		tryAgain = false;
+      boolean  tryAgain = true;
+      try {
+        Thread.sleep(18*retryTime);
+      }
+      catch(InterruptedException ix) {
+        m_log.error("Was interrupted while delaying the polling of NS sleeping: " + ix);
+        tryAgain = false;
+      }
+      //boolean neverfalse=true;
+      while(tryAgain) {
+        m_log.debug("Trying to register counter: " + counter++);
+        tryAgain = registerCapabilities( m_agent);
+        try {
+          if(tryAgain) {
+            if(counter<6) { 
+              retryTime=counter* RETRY_TIME;
             }
-	}
+            Thread.sleep(retryTime);
+          }
+        }
+        catch(InterruptedException ix) {
+          m_log.error("Was interrupted while sleeping: " + ix);
+          tryAgain = false;
+        }
+      }
     }
   }
   
  
+  private static class RegistrationPredicate implements UnaryPredicate {
+    private String _agent;
+    private List _targets;
+    private List _capabilities;
+    private List _data;
+    private String _agentName;
+    private SensorInfo _sensor;
+
+    public RegistrationPredicate(SensorInfo sensor,
+                                 List targets,
+                                 List capabilities,
+                                 List data,
+                                 String agentName) {
+      _sensor = sensor;
+      _targets = targets;
+      _capabilities = capabilities;
+      _data = data;
+      _agent = agentName;
+    }
+
+    public static boolean arrayEquals(Object arr[], List list) {
+      if ((arr == null || arr.length == 0) &&
+          (list == null || list.size() == 0)) {
+        return true;
+      }
+      if (arr == null || list == null || arr.length != list.size()) {
+        return false;
+      }
+
+      Iterator iter = list.iterator();
+      for (int i = 0; i < arr.length; i++) {
+        Object o = iter.next();
+        if (!(arr[i] == null && o == null)) {
+          if (arr[i] == null || o == null) {
+            return false;
+          }
+          if (!arr[i].equals(o)) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    public boolean execute(Object o) {
+      if (!(o instanceof CmrRelay)) {
+        return false;
+      } // end of if (!(o instanceof CmrRelay))
+      CmrRelay cmr = (CmrRelay) o;
+      Object content = cmr.getContent();
+      if (!(content instanceof NewEvent)) {
+        return false; // not a registration event
+      } // end of if (!(content instanceof Event))
+      NewEvent ev = (NewEvent) content;
+      IDMEF_Message msg = ev.getEvent();
+      if (!(msg instanceof RegistrationAlert)) {
+        return false;
+      } // end of if (!(msg instanceof RegistrationAlert))
+      RegistrationAlert r = (RegistrationAlert) msg;
+      if (!_agent.equals(r.getAgentName()) ||
+          r.getOperation_type() != IdmefMessageFactory.newregistration ||
+          !IdmefMessageFactory.SensorType.equals(r.getType())) {
+        return false;
+      }
+
+      return (arrayEquals(r.getClassifications(),_capabilities) &&
+              arrayEquals(r.getAdditionalData(),_data) &&
+              arrayEquals(r.getTargets(),_targets) &&
+              ((r.getAnalyzer() == null && _sensor.getModel() == null) ||
+               (r.getAnalyzer() != null && 
+                r.getAnalyzer().equals(_sensor.getModel()))));
+    }
+  }
+
   protected CommunityService m_cs;
   protected BlackboardService m_blackboard;
   protected DomainService m_domainService;
