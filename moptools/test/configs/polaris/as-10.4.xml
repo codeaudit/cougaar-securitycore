@@ -1,0 +1,47 @@
+<?xml version="1.0"?> 
+<configuration name="ASDT HEAD, COUGAAR 10.4.5">
+  <description>
+This configuration will run FULL-TRANS with:
+*	COUGAAR - HEAD
+*	ISAT - HEAD
+  </description>
+  <cougaar branch="B10_4_5" />
+
+  <society file="society/MASTER-SB-1AD-NEW-AL-STRIPPED.xml" />
+
+  <layout file="operator/1ad-layout-10_4_5.xml" />
+
+  <rules>
+    <rule file="csmart/config/rules/isat"/> 
+    <rule file="csmart/config/rules/logistics"/>
+    <rule file="csmart/config/rules/security"/>   
+  </rules>
+
+  <overlays>
+    <overlay file="isat_ticenv_HEAD_B10_4_5.zip" branch="HEAD"
+                manifest="ticenvironment-overlay-attacks.txt"/>
+    <overlay file="isat_oplan.zip_HEAD_B10_4_5" branch="HEAD"
+                manifest="ticenvironment-overlay-oplan.txt"/>
+    <overlay file="isat_plugins_HEAD_B10_4_5.zip" branch="HEAD"
+                manifest="isat-csmart-overlay-plugins.txt" />
+    <!-- The manifest file is not included
+         in the current zip file -->
+    <overlay file="isat_acme_HEAD_B10_4_5.zip" branch="HEAD"
+                manifest="isat-csmart-overlay-acme.txt" />
+    <overlay file="bbn_commons_HEAD_B10_4_5.zip" branch="HEAD"
+                manifest="bbn_commons.txt" />
+    <overlay file="AS_csi_secserv_HEAD_B10_4_5.zip" branch="HEAD" 
+                manifest="AS_csi_secserv.txt" />
+
+    <!-- The manifest file is not included
+         in the current zip file -->
+    <overlay file="AS_csi_mop_secserv_HEAD_B10_4_5.zip" branch="HEAD" 
+                manifest="AS_csi_mop_secserv.txt" />
+    <overlay file="AS_umem_HEAD_B10_4_5.zip" branch="HEAD" 
+                manifest="securityconsole" />
+   <overlay file="SRI_cnc_HEAD_B10_4_5.zip" branch="HEAD"
+                manifest="CnCcalc.txt" />
+  </overlays>
+  
+</configuration>
+
