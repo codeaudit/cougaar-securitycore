@@ -31,6 +31,9 @@ import org.cougaar.core.mts.SimpleMessageAddress;
 
 import java.security.cert.X509Certificate;
 import java.util.StringTokenizer;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 
 public class ProtectedMessageHeader implements java.io.Serializable {
   /** The encrypted symmetric key used to encrypt an object.
@@ -166,5 +169,50 @@ public class ProtectedMessageHeader implements java.io.Serializable {
        ? "null" 
        : _receiver.getSubjectX500Principal().getName()) +
       ": " + _policy;
+  }
+
+  private void writeObject(ObjectOutputStream out) throws IOException {
+    boolean enc = (_policy.secureMethod == SecureMethodParam.ENCRYPT ||
+                   _policy.secureMethod == SecureMethodParam.SIGNENCRYPT);
+    boolean sign = (_policy.secureMethod == SecureMethodParam.SIGN ||
+                   _policy.secureMethod == SecureMethodParam.SIGNENCRYPT);
+    out.writeInt(_policy.secureMethod);
+    if (enc) {
+      out.writeObject(_policy.symmSpec);
+      out.writeObject(_encryptedSymmetricKey);
+      out.writeObject(_encryptedSymmetricKeySender);
+    }
+    if (sign || enc) {
+      out.writeObject(_policy.asymmSpec);
+      out.writeObject(_receiver);
+    }
+    if (sign) {
+      out.writeObject(_policy.signSpec);
+      out.writeObject(_sender);
+    }
+  }
+
+  private void readObject(ObjectInputStream is) 
+    throws IOException, ClassNotFoundException {
+    _policy = new SecureMethodParam();
+    _policy.secureMethod = is.readInt();
+    boolean enc = (_policy.secureMethod == SecureMethodParam.ENCRYPT ||
+                   _policy.secureMethod == SecureMethodParam.SIGNENCRYPT);
+    boolean sign = (_policy.secureMethod == SecureMethodParam.SIGN ||
+                   _policy.secureMethod == SecureMethodParam.SIGNENCRYPT);
+    
+    if (enc) {
+      _policy.symmSpec = (String) is.readObject();
+      _encryptedSymmetricKey = (byte[]) is.readObject();
+      _encryptedSymmetricKeySender = (byte[]) is.readObject();
+    }
+    if (sign || enc) {
+      _policy.asymmSpec = (String) is.readObject();
+      _receiver = (X509Certificate) is.readObject();
+    }
+    if (sign) {
+      _policy.signSpec = (String) is.readObject();
+      _sender = (X509Certificate[]) is.readObject();
+    }
   }
 }
