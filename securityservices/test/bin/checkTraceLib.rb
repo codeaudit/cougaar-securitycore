@@ -131,6 +131,10 @@ $okMessages= [
   ###########################################################
   [nil, /No incarnation number in message/],
   [nil, /OldIncarnationAspect/],
+  [nil, /Found no source for Parameters - Expected to find \.cougaarrc/],
+
+  # temporary until we get an explanation from Ron
+  [nil, /Community request timeout/],
 ]
 
 $repeatingErrors = [

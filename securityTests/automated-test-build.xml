@@ -109,6 +109,8 @@
                    dest="${overlays.directory.name}/isat.tar.gz"/>
           <get src="${webdav.url}/support/acme_oss_1.6.zip"
                    dest="${overlays.directory.name}/acme_oss_1.6.zip"/>
+          <get src="${webdav.url}/support/commons_isat_plugins.zip"
+                   dest="${overlays.directory.name}/commons_isat_plugins.zip"/>
         </then>
       </if>
     </target>
@@ -192,11 +194,11 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="ruby ${testbed.cip.dir}/operator/security/checkTraceAlt.rb"
+	command="ruby ${testbed.cip.dir}/operator/security/checkTrace.rb"
         timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
-      <echo message="Parsing results of checkTraceAlt.rb..."/>
+      <echo message="Parsing results of checkTrace.rb..."/>
       <exec dir="${analysis.directory.name}" executable="tail" outputproperty="test.result">
          <arg line="-n 1"/>
       </exec>

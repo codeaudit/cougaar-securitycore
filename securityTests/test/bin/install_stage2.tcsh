@@ -16,7 +16,7 @@ foreach f (cougaar.zip cougaar-support.zip)
   unzip -q -o $f
 end
 
-foreach f (acme*.zip)
+foreach f (acme*.zip common*.zip)
   echo "Unzipping $f"
   unzip -q -o $f
 end
