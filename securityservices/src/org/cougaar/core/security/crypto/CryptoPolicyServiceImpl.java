@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.Collection;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -59,13 +60,14 @@ public class CryptoPolicyServiceImpl
   CryptoPolicy dcp_in = null;
   CryptoPolicy dcp_out = null;
   
+  
   //policy for community--common policy for the team
-  CryptoPolicy incoming_c = null;
-  CryptoPolicy outgoing_c = null;
+  HashMap incoming_c = new HashMap();
+  HashMap outgoing_c = new HashMap();
 
-  //policy for agent
-  CryptoPolicy incoming_a = null;
-  CryptoPolicy outgoing_a = null;
+  //policy for agent--the one and only
+  HashMap incoming_a = new HashMap();
+  HashMap outgoing_a = new HashMap();
 
   /** Creates new CryptoPolicyServiceImpl */
   public CryptoPolicyServiceImpl(ServiceBroker sb) {
@@ -84,102 +86,112 @@ public class CryptoPolicyServiceImpl
     cpp = new CryptoPolicyProxy(serviceBroker);
   }
 
-    public SecureMethodParam getSendPolicy(String name) {
+    public SecureMethodParam getSendPolicy(String source, String target) {
       if(log.isDebugEnabled()) {
         log.debug("Outgoing SecureMethodParam for "
-               + name );
-      }
-
-      //agent first
-      if(outgoing_a != null){
-        return outgoing_a.getSecureMethodParam(name);
+               + source );
       }
       
-      //then community
-      if(outgoing_c != null){
-        return outgoing_c.getSecureMethodParam(name);
-      }
-
-      //default last
-      if(dcp_out != null){
-        return dcp_out.getSecureMethodParam(name);
-      }
+      CryptoPolicy p = getOutgoingPolicy(source);
+      if (p==null) return null;
       
-      //fall through, this probably results a "throw" somewhere.
-      return null;
+      SecureMethodParam smp = new SecureMethodParam();
+      smp = p.getSecureMethodParam(target);
+
+      if(smp==null){
+          log.error("Failed converting CryptoPolicy " + p);
+      }
+      return smp;
     }
 
-    public CryptoPolicy getOutgoingPolicy() {
+    public CryptoPolicy getOutgoingPolicy(String source) {
       if(log.isDebugEnabled()) {
-        log.debug("getting outgoing CryptoPolicy.");
+        log.debug("getting outgoing CryptoPolicy for " + source);
       }
 
-      //agent first
-      if(outgoing_a != null){
-        return outgoing_a;
-      }
-      
-      //then community
-      if(outgoing_c != null){
-        return outgoing_c;
+      //try agent first
+      CryptoPolicy cp = (CryptoPolicy)incoming_a.get(source);
+
+      if(cp==null && commu!=null){
+        //find which community the agent belongs to and get the policy
+        Collection c = commu.listParentCommunities(source);
+        if(c!=null){
+          String cname = null;
+          try{
+            //agent could belongs to multiple communities, thus multiple set
+            //of policy--no policy consolidation for now, just pick one.
+            cname = (String)c.iterator().next();
+          }catch(Exception e){
+            log.error("failed getting community name: " + e.getMessage());
+          }
+          if(cname != null && outgoing_c !=null) 
+            cp = (CryptoPolicy)outgoing_c.get(source);
+        }
       }
 
-      //default last
-      if(dcp_out != null){
-        return dcp_out;
+      if(cp==null){
+        //last try
+        cp = dcp_out;
       }
-      
-      //fall through, this probably results a "throw" somewhere.
-      return null;
+
+      if(cp==null){
+          log.error("Can't find policy for " + "->" +  source);
+      }
+        return cp;
     }
     
-    public SecureMethodParam getReceivePolicy(String name) {
+    public SecureMethodParam getReceivePolicy(String source, String target) {
       if(log.isDebugEnabled()) {
         log.debug("Incoming SecureMethodParam for "
-               + name );
+               + target );
       }
 
-      //agent first
-      if(incoming_a != null){
-        return incoming_a.getSecureMethodParam(name);
-      }
+      CryptoPolicy p = getIncomingPolicy(target);
+      if (p==null) return null;
       
-      //then community
-      if(incoming_c != null){
-        return incoming_c.getSecureMethodParam(name);
-      }
+      SecureMethodParam smp = new SecureMethodParam();
+      smp = p.getSecureMethodParam(source);
 
-      //default last
-      if(dcp_in != null){
-        return dcp_in.getSecureMethodParam(name);
+      if(smp==null){
+          log.error("Failed converting CryptoPolicy " + p);
       }
-      
-      //fall through, this probably results a "throw" somewhere.
-      return null;
+      return smp;
     }
 
-    public CryptoPolicy getIncomingPolicy() {
+    public CryptoPolicy getIncomingPolicy(String target) {
       if(log.isDebugEnabled()) {
-        log.debug("getting incoming CryptoPolicy.");
-      }
-
-      //agent first
-      if(incoming_a != null){
-        return incoming_a;
+        log.debug("getting incoming CryptoPolicy for " + target);
       }
       
-      //then community
-      if(incoming_c != null){
-        return incoming_c;
+      //try agent first
+      CryptoPolicy cp = (CryptoPolicy)incoming_a.get(target);
+
+      if(cp==null && commu!=null){
+        //find which community the agent belongs to and get the policy
+        Collection c = commu.listParentCommunities(target);
+        if(c!=null){
+          String cname = null;
+          try{
+            //agent could belongs to multiple communities, thus multiple set
+            //of policy--no policy consolidation for now, just pick one.
+            cname = (String)c.iterator().next();
+          }catch(Exception e){
+            log.error("Failed getting community name: " + e.getMessage());
+          }
+          if(cname != null && incoming_c !=null) 
+            cp = (CryptoPolicy)incoming_c.get(target);
+        }
       }
 
-      //default last
-      if(dcp_in != null){
-        return dcp_in;
+      if(cp==null){
+        //last try
+        cp = dcp_in;
       }
-      
-      //fall through, this probably results a "throw" somewhere.
-      return null;
+
+      if(cp==null){
+          log.debug("can't find policy for " + "->" +  target);
+      }
+        return cp;
     }
 
     private class CryptoPolicyProxy
@@ -253,22 +265,22 @@ public class CryptoPolicyServiceImpl
       switch(cp.Type){
       case  CryptoPolicy.AGENT:
         if(cp.Direction == CryptoPolicy.INCOMING){
-          incoming_a = cp;
+          incoming_a.put(cp.Name, cp);
         }else if(cp.Direction == CryptoPolicy.OUTGOING){
-          outgoing_a = cp;
+          outgoing_a.put(cp.Name, cp);
         }else if(cp.Direction == CryptoPolicy.BOTH){
-          incoming_a = cp;
-          outgoing_a = cp;
+          incoming_a.put(cp.Name, cp);
+          outgoing_a.put(cp.Name, cp);
         }
         break;
       case  CryptoPolicy.COMMUNITY:
         if(cp.Direction == CryptoPolicy.INCOMING){
-          incoming_c = cp;
+          incoming_c.put(cp.Name, cp);
         }else if(cp.Direction == CryptoPolicy.OUTGOING){
-          outgoing_c = cp;
+          outgoing_c.put(cp.Name, cp);
         }else if(cp.Direction == CryptoPolicy.BOTH){
-          incoming_c = cp;
-          outgoing_c = cp;
+          incoming_c.put(cp.Name, cp);
+          outgoing_c.put(cp.Name, cp);
         }
         break;
       case  CryptoPolicy.SOCIETY:

@@ -129,8 +129,7 @@ public class MessageOutputStream
   private ProtectedObject protectMessage()
     throws IOException {
     SecureMethodParam policy =
-      cps.getSendPolicy(source.toAddress() + ":"
-			+ target.toAddress());
+      cps.getSendPolicy(source.toAddress(), target.toAddress());
 
     if (policy == null) {
       if (log.isWarnEnabled()) {

@@ -161,8 +161,7 @@ public class MessageProtectionServiceImpl
       setPolicyService();
     }
     SecureMethodParam policy =
-      cps.getSendPolicy(source.getAddress() + ":"
-			+ destination.getAddress());
+      cps.getSendPolicy(source.getAddress(), destination.getAddress());
     if (policy == null) {
       if (log.isWarnEnabled()) {
 	      log.warn("protectHeader NOK: " + source.toAddress()
@@ -216,9 +215,7 @@ public class MessageProtectionServiceImpl
       setPolicyService();
     }
     SecureMethodParam policy =
-      cps.getReceivePolicy(source.toAddress()
-			   +":"
-			   +destination.toAddress());
+      cps.getReceivePolicy(source.toAddress(), destination.toAddress());
     if (policy == null) {
       if (log.isWarnEnabled()) {
 	      log.warn("unprotectHeader NOK: " + source.toAddress()

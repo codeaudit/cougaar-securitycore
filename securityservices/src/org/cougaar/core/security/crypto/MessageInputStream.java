@@ -188,8 +188,7 @@ public class MessageInputStream
     }
 
     SecureMethodParam policy =
-      cps.getReceivePolicy(source.toAddress() + ":"
-			   + target.toAddress());
+      cps.getReceivePolicy(source.toAddress(), target.toAddress());
     if (policy == null) {
       if (log.isWarnEnabled()) {
 	log.warn("readInputStream NOK: " + source.toAddress()

@@ -27,12 +27,16 @@ import org.cougaar.core.component.Service;
 
 // Cougaar security services
 import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.security.policy.CryptoPolicy;
 
 public interface CryptoPolicyService
   extends Service
 {
 
-    public SecureMethodParam getSendPolicy(String name);
-    public SecureMethodParam getReceivePolicy(String name);
+    public SecureMethodParam getSendPolicy(String source, String target);
+    public SecureMethodParam getReceivePolicy(String source, String target);
+
+    public CryptoPolicy getIncomingPolicy(String target);
+    public CryptoPolicy getOutgoingPolicy(String source);
 }
 
