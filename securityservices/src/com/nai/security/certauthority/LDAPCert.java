@@ -134,14 +134,17 @@ public class LDAPCert //extends LdapContext
 	return cert;
     }
 
-    public LDAPCert() 
+    public LDAPCert() {
+	this(System.getProperty("org.cougaar.security.ldap.url",
+				"ldap://palm:389/"));
+    }
+
+    public LDAPCert(String url) 
     {
 	Hashtable env = new Hashtable();
 	
 	env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
-	env.put(Context.PROVIDER_URL, 
-		System.getProperty("org.cougaar.security.ldap.url",
-				   "ldap://palm:389/"));
+	env.put(Context.PROVIDER_URL, url);
 	if(debug) {
 	    System.out.println(Context.INITIAL_CONTEXT_FACTORY + " = " + 
 			       env.get(Context.INITIAL_CONTEXT_FACTORY));
@@ -156,29 +159,29 @@ public class LDAPCert //extends LdapContext
 	}
     }
 
-    public LDAPCert(String filename) {
-	X509Certificate cert = loadCert(filename);
-	set = new BasicAttributes(true);
-	objectclass.add("xuda_ca");
-	set.put(objectclass);	
-	init(cert, cert);
-    }
+    //public LDAPCert(String filename) {
+    //X509Certificate cert = loadCert(filename);
+    //set = new BasicAttributes(true);
+    //objectclass.add("xuda_ca");
+    //set.put(objectclass);	
+    //init(cert, cert);
+    //}
 
-    public LDAPCert(X509Certificate cert) {
-	set = new BasicAttributes(true);
-	objectclass.add("xuda_ca");
-	set.put(objectclass);	
-	init(cert, cert);
-    }
+    //public LDAPCert(X509Certificate cert) {
+    //set = new BasicAttributes(true);
+    //objectclass.add("xuda_ca");
+    //set.put(objectclass);	
+    //init(cert, cert);
+    //}
 
-    public LDAPCert(String certFile, String caFile) {
-	X509Certificate cert = loadCert(certFile);
-	X509Certificate ca = loadCert(caFile);
-	set = new BasicAttributes(true);
-	objectclass.add("xuda_certifcate");
-	set.put(objectclass);	
-	init(cert, ca);
-    }
+    //public LDAPCert(String certFile, String caFile) {
+    //X509Certificate cert = loadCert(certFile);
+    //X509Certificate ca = loadCert(caFile);
+    //set = new BasicAttributes(true);
+    //objectclass.add("xuda_certifcate");
+    //set.put(objectclass);	
+    //init(cert, ca);
+    //}
 
     public LDAPCert(X509Certificate cert, X509Certificate ca) {
 	set = new BasicAttributes(true);
@@ -295,9 +298,9 @@ public class LDAPCert //extends LdapContext
 	try {
 	    System.out.println("ldap namespace = " + 
 			       ctx.getNameInNamespace());
-	    System.out.println("NAME = " + name);
 	    name = (String)ctx.getEnvironment().get(Context.PROVIDER_URL);
-	    ctx.search(name, match);
+	    if(debug)System.out.println("name = " + name);
+	    results = ctx.search(name, match);
 	    while(results.hasMoreElements()) {
 		Object elm = results.nextElement();
 		System.out.println("Result: " + elm.getClass().toString());
@@ -319,26 +322,9 @@ public class LDAPCert //extends LdapContext
     }
     
     public static void main(String arg[]) {
-	LDAPCert lcert = new LDAPCert();
-	Hashtable env = new Hashtable();
-
-	env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
-	env.put(Context.PROVIDER_URL, "ldap://palm:389/");
-	
-	//switch(arg.length) {
-	//case 0:  return;
-	//case 1:  lcert = new LDAPCert(arg[0]);
-	//         break;
-	//default: env.put(Context.PROVIDER_URL, "ldap://palm:389/");
-	//case 2:  lcert = new LDAPCert(arg[0], arg[1]);
-	//}
-	
-	//System.out.println("Using certificate file = " + arg[0]);
-	if(debug)System.out.println("Initial context is " + 
-				    env.get(Context.PROVIDER_URL));
+	LDAPCert lcert = new LDAPCert("ldap://yew:389/");
 	try {
 	    lcert.getCertificates();
-	    
 	}
 	catch(Exception ex) {
 	    if(debug)ex.printStackTrace();
