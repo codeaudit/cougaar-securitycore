@@ -50,6 +50,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchResult;
 
 import org.apache.catalina.Container;
+import org.apache.catalina.Valve;
 import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.core.ContainerBase;
 
@@ -82,6 +83,8 @@ import org.cougaar.core.node.NodeIdentifier;
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
+import org.cougaar.core.security.coreservices.tomcat.AuthValve;
+import org.cougaar.core.agent.ClusterIdentifier;
 
 // Cougaar Overlay
 import org.cougaar.core.security.coreservices.identity.PendingRequestException;
@@ -97,7 +100,7 @@ import org.cougaar.core.security.coreservices.identity.IdentityDeniedException;
  * <pre>
  *   &lt;Realm className="org.cougaar.security.crypto.ldap.KeyRingJNDIRealm" 
  *          certComponent="CN"
- *          debug="-1" />
+ *          debug="-1" /&gt;
  * </pre>
  * <code>KeyRingJNDIRealm</code> uses the <code>LdapUserService</code>
  * for access to the LDAP database. In order to convert certificate
@@ -165,8 +168,10 @@ public class KeyRingJNDIRealm extends RealmBase {
   }
 
   private synchronized boolean init() {
-    if (_nodeServiceBroker == null)
+    if (_nodeServiceBroker == null) {
       return false;
+    }
+
     if (_userService == null) {
       _userService = (LdapUserService) _nodeServiceBroker.
         getService(this, LdapUserService.class, null);
@@ -189,7 +194,6 @@ public class KeyRingJNDIRealm extends RealmBase {
           e.printStackTrace();
         }
       }
-      setFactory(_nodeServiceBroker);
     }
     return true;
   }
@@ -593,6 +597,12 @@ public class KeyRingJNDIRealm extends RealmBase {
   private DualAuthenticator findDAValve(Container container) {
     Container[] children = container.findChildren();
     for (int i = 0; i < children.length; i++) {
+      if (children[i] instanceof AuthValve) {
+        Valve v = ((AuthValve) children[i]).getValve();
+        if (v instanceof Container) {
+          children[i] = (Container) v;
+        }
+      }
       if (children[i] instanceof DualAuthenticator) {
         return (DualAuthenticator) children[i];
       }
@@ -604,31 +614,36 @@ public class KeyRingJNDIRealm extends RealmBase {
     return null;
   }
 
-  private void setFactory(ServiceBroker sb) {
-    _blackboardService =
-      (BlackboardService) sb.getService(this, BlackboardService.class, null);
-    DomainService ds = 
-      (DomainService) sb.getService(this, DomainService.class, null);
-    if (ds == null) {
-      System.out.println("Error: There is no DomainService. I cannot alert on login failures.");
-    } else {
-      CmrFactory cmrFactory = (CmrFactory) ds.getFactory("cmr");
-      _idmefFactory = cmrFactory.getIdmefMessageFactory();
+  private synchronized boolean initAlert(ServiceBroker sb) {
+    if (sb == null) return false;
+
+    if (_idmefFactory == null) {
+      _blackboardService =
+        (BlackboardService) sb.getService(this, BlackboardService.class, null);
+      DomainService ds = 
+        (DomainService) sb.getService(this, DomainService.class, null);
+      if (ds == null) {
+        System.out.println("Error: There is no DomainService. I cannot alert on login failures.");
+      } else {
+        CmrFactory cmrFactory = (CmrFactory) ds.getFactory("cmr");
+        _idmefFactory = cmrFactory.getIdmefMessageFactory();
       
-      List capabilities = new ArrayList();
-      for (int i = 0; i < CAPABILITIES.length; i++) {
-        capabilities.add( CAPABILITIES[i] );
+        List capabilities = new ArrayList();
+        for (int i = 0; i < CAPABILITIES.length; i++) {
+          capabilities.add( CAPABILITIES[i] );
+        }
+      
+        RegistrationAlert reg = 
+          _idmefFactory.createRegistrationAlert( _sensor, capabilities,
+                                                 _idmefFactory.newregistration );
+        NewEvent regEvent = _cmrFactory.newEvent(reg);
+      
+        _blackboardService.openTransaction();
+        _blackboardService.publishAdd(regEvent);
+        _blackboardService.closeTransaction();
       }
-      
-      RegistrationAlert reg = 
-        _idmefFactory.createRegistrationAlert( _sensor, capabilities,
-                                             _idmefFactory.newregistration );
-      NewEvent regEvent = _cmrFactory.newEvent(reg);
-      
-      _blackboardService.openTransaction();
-      _blackboardService.publishAdd(regEvent);
-      _blackboardService.closeTransaction();
     }
+    return (_idmefFactory != null);
   }
 
   public void alertLoginFailure(int failureType, String userName) {
@@ -637,51 +652,52 @@ public class KeyRingJNDIRealm extends RealmBase {
 
   public void alertLoginFailure(int failureType, String userName1, 
                                 String userName2) {
-    if (_idmefFactory != null) {
-      ArrayList cfs = new ArrayList();
-      cfs.add(CAPABILITIES[failureType]);
-      Alert alert = _idmefFactory.createAlert(_sensor, new DetectTime(),
-                                              null, null, cfs, null);
-    
-      Analyzer      a       = alert.getAnalyzer();
-    
-      if (a != null) {
-        IDMEF_Node    node    = a.getNode();
-        IDMEF_Process process = a.getProcess();
-
-        User user = null;
-        UserId uid1 = null;
-        UserId uid2 = null;
-        int uidCount = 0;
-        if (userName1 != null) {
-          uid1 = new UserId( userName1, null, null, UserId.TARGET_USER );
-          uidCount++;
-        }
-        if (userName2 != null) {
-          uid2 = new UserId( userName2, null, null, UserId.TARGET_USER );
-          uidCount++;
-        }
-        if (uidCount > 0) {
-          UserId uids[] = new UserId[uidCount];
-          if (uid2 != null) {
-            uids[--uidCount] = uid2;
-          }
-          if (uid1 != null) {
-            uids[--uidCount] = uid1;
-          }
-          user = new User( uids, null, User.UNKNOWN );
-        }
-        Target t = new Target(node, user, process, null, null, null,
-                              Target.UNKNOWN, null);
-        alert.setTargets( new Target[] {t} );
-      }
-
-      NewEvent event = _cmrFactory.newEvent(alert);
-    
-      _blackboardService.openTransaction();
-      _blackboardService.publishAdd(event);
-      _blackboardService.closeTransaction();
+    if (!initAlert(_nodeServiceBroker)) {
+      return; // can't alert without IDMEF factory
     }
+    ArrayList cfs = new ArrayList();
+    cfs.add(CAPABILITIES[failureType]);
+    Alert alert = _idmefFactory.createAlert(_sensor, new DetectTime(),
+                                            null, null, cfs, null);
+    
+    Analyzer      a       = alert.getAnalyzer();
+    
+    if (a != null) {
+      IDMEF_Node    node    = a.getNode();
+      IDMEF_Process process = a.getProcess();
+      
+      User user = null;
+      UserId uid1 = null;
+      UserId uid2 = null;
+      int uidCount = 0;
+      if (userName1 != null) {
+        uid1 = new UserId( userName1, null, null, UserId.TARGET_USER );
+        uidCount++;
+      }
+      if (userName2 != null) {
+        uid2 = new UserId( userName2, null, null, UserId.TARGET_USER );
+        uidCount++;
+      }
+      if (uidCount > 0) {
+        UserId uids[] = new UserId[uidCount];
+        if (uid2 != null) {
+          uids[--uidCount] = uid2;
+        }
+        if (uid1 != null) {
+          uids[--uidCount] = uid1;
+        }
+        user = new User( uids, null, User.UNKNOWN );
+      }
+      Target t = new Target(node, user, process, null, null, null,
+                            Target.UNKNOWN, null);
+      alert.setTargets( new Target[] {t} );
+    }
+
+    NewEvent event = _cmrFactory.newEvent(alert);
+    
+    _blackboardService.openTransaction();
+    _blackboardService.publishAdd(event);
+    _blackboardService.closeTransaction();
   }
 
   private static class LoginFailureSensor implements SensorInfo {
