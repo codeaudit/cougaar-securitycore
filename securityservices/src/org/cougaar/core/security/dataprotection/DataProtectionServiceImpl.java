@@ -66,14 +66,14 @@ public class DataProtectionServiceImpl
 
   // event publisher for data protection failures
   private static EventPublisher eventPublisher;
-  
+
   // add event publisher
   public static void addPublisher(EventPublisher publisher) {
     if(eventPublisher == null) {
       eventPublisher = publisher;
-    }  
+    }
   }
-  
+
   public DataProtectionServiceImpl(ServiceBroker sb, Object requestor)
   {
     serviceBroker = sb;
@@ -126,7 +126,7 @@ public class DataProtectionServiceImpl
 				      OutputStream os)
 	throws IOException, GeneralSecurityException
   {
- 
+
     String agent = dpsClient.getAgentIdentifier().toAddress();
 
     if (log.isDebugEnabled())
@@ -151,10 +151,10 @@ public class DataProtectionServiceImpl
       }
       catch(GeneralSecurityException gsx) {
         publishDataFailure(agent, DataFailureEvent.CREATE_KEY_FAILURE, gsx.toString());
-        throw gsx; 
+        throw gsx;
       }
       catch(IOException iox) {
-        publishDataFailure(agent, DataFailureEvent.IO_EXCEPTION, iox.toString());  
+        publishDataFailure(agent, DataFailureEvent.IO_EXCEPTION, iox.toString());
         throw iox;
       }
       pke.setDataProtectionKey(dpKey);
@@ -165,7 +165,7 @@ public class DataProtectionServiceImpl
       return os;
 
     // check whether key needs to be replaced
-    DataProtectionOutputStream dpos = 
+    DataProtectionOutputStream dpos =
       new DataProtectionOutputStream(os, pke, agent, serviceBroker);
     dpos.addPublisher(eventPublisher);
     return dpos;
@@ -187,7 +187,13 @@ public class DataProtectionServiceImpl
       KeyGenerator kg = KeyGenerator.getInstance(keygenAlg);
       kg.init(random);
       SecretKey sk = kg.generateKey();
-      X509Certificate agentCert = keyRing.findFirstAvailableCert(agent);
+      List certList = keyRing.findCert(agent);
+      if (certList == null || certList.size() == 0) {
+        CertificateException cex = new CertificateException("Can not find agent cert: "+ agent);
+        throw cex;
+      }
+      CertificateStatus cs = (CertificateStatus)certList.get(0);
+      X509Certificate agentCert = (X509Certificate)cs.getCertificate();
 
       SealedObject skeyobj = encryptionService.asymmEncrypt(agent,
         policy.asymmSpec, sk, agentCert);
@@ -226,11 +232,11 @@ public class DataProtectionServiceImpl
         else
           keyList = keyRing.findPrivateKey(agent, false);
         if (keyList == null || keyList.size() == 0) {
-          GeneralSecurityException gsx = 
+          GeneralSecurityException gsx =
             new GeneralSecurityException("No private key available to decrypt");
           publishDataFailure(agent, DataFailureEvent.NO_PRIVATE_KEYS, gsx.toString());
           throw gsx;
-        
+
         }
         Iterator it = keyList.iterator();
         SecretKey skey = null;
@@ -278,14 +284,20 @@ public class DataProtectionServiceImpl
           continue;
         }
 
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
           log.debug("Re-encrypting Data Protection secret key.");
+        }
+        List certList = keyRing.findCert(agent);
+        if (certList == null || certList.size() == 0) {
+          CertificateException cex = new CertificateException("Can not find agent cert: "+ agent);
+          throw cex;
+        }
+        CertificateStatus cs = (CertificateStatus)certList.get(0);
+        X509Certificate agentCert = (X509Certificate)cs.getCertificate();
 
-	        X509Certificate agentCert = keyRing.findFirstAvailableCert(agent);
-
-          obj = encryptionService.asymmEncrypt(agent, spec, skey, agentCert);
-          pke.setDataProtectionKey(
-            new DataProtectionKeyImpl(obj, dpKey.getDigestAlg(), dpKey.getSecureMethod()));
+        obj = encryptionService.asymmEncrypt(agent, spec, skey, agentCert);
+        pke.setDataProtectionKey(
+          new DataProtectionKeyImpl(obj, dpKey.getDigestAlg(), dpKey.getSecureMethod()));
       } catch (IOException ioe) {
       }
     }
@@ -328,7 +340,7 @@ public class DataProtectionServiceImpl
     }
     return new ByteArrayInputStream(bos.toByteArray());
 	*/
-	  DataProtectionInputStream dpis = 
+	  DataProtectionInputStream dpis =
   	  new DataProtectionInputStream(is, pke, agent, serviceBroker);
     dpis.addPublisher(eventPublisher);
     return dpis;
@@ -350,12 +362,12 @@ public class DataProtectionServiceImpl
                                               reason,
                                               data);
     if(eventPublisher != null) {
-      eventPublisher.publishEvent(event); 
+      eventPublisher.publishEvent(event);
     }
     else {
       if(log.isDebugEnabled()) {
         log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
-    }  
+    }
   }
 }
