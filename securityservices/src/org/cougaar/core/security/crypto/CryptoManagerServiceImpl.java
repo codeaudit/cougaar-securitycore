@@ -28,6 +28,7 @@ import org.cougaar.core.security.policy.CryptoPolicy;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.ssl.KeyManager;
 import org.cougaar.core.security.ssl.KeyRingSSLServerFactory;
 import org.cougaar.core.security.util.ErasingMap;
 import org.cougaar.core.service.LoggingService;
@@ -79,11 +80,12 @@ public class CryptoManagerServiceImpl
 
 
   private KeyRingService keyRing;
+  private KeyManager clientSSLKeyManager;
   private CertificateCacheService cacheService;
   private ServiceBroker serviceBroker;
   private LoggingService log;
   private Hashtable ciphers = new Hashtable();
-  private Map _sent = new ErasingMap();
+  private Map _sendingAgentCerts = new ErasingMap();
   private Map _keyGenerators = new HashMap();
 
   /** A hashtable that contains encrypted session keys.
@@ -103,6 +105,15 @@ public class CryptoManagerServiceImpl
     sessionKeys = new Hashtable();
     cacheService = (CertificateCacheService) 
       sb.getService(this, CertificateCacheService.class, null);
+    try {
+      clientSSLKeyManager = keyRing.getClientSSLKeyManager();
+    } catch (IllegalStateException ise) { 
+      log.error("No client ssl key manager found - will always sign messages",
+                ise);
+    }
+    if (log.isDebugEnabled()) {
+      log.debug("clientSSLKeyManager = " + clientSSLKeyManager);
+    }
   }
 
   private PrivateKey getPrivateKey(String name) 
@@ -1629,36 +1640,19 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  private Map getSentMap(Object obj) {
-    synchronized (_sent) {
-      if (log.isDebugEnabled()) {
-        log.debug("Checking sent set for " + obj + ", class = " + obj.getClass().getName());
-      }
-      Map results = (Map) _sent.get(obj);
-      if (results == null) {
-        results = new HashMap();
-        _sent.put(obj, results);
-      }
-      if (log.isDebugEnabled()) {
-        log.debug("Found " + results);
-      }
-      return results;
-    }
-  }
-
-  private boolean certOk(String link, String agent) 
-    throws GeneralSecurityException {
-    Map sentMap = getSentMap(link);
-    synchronized (sentMap) {
-      X509Certificate cert = (X509Certificate) sentMap.get(agent);
-      if (cert != null) {
-        try {
-          keyRing.checkCertificateTrust(cert);
-          return true;
-        } catch (GeneralSecurityException e) {
-          sentMap.remove(agent);
-          throw e;
-        }
+  private synchronized boolean 
+    certOk(String source, String nodePrincipal, String target) 
+    throws GeneralSecurityException 
+  {
+    ConnectionInfo ci = new ConnectionInfo(source, nodePrincipal, target);
+    X509Certificate cert = (X509Certificate) _sendingAgentCerts.get(ci);
+    if (cert != null) {
+      try {
+        keyRing.checkCertificateTrust(cert);
+        return true;
+      } catch (GeneralSecurityException e) {
+        _sendingAgentCerts.remove(ci);
+        throw e;
       }
     }
     return false;
@@ -1666,10 +1660,9 @@ public class CryptoManagerServiceImpl
 
   public boolean receiveNeedsSignature(String source) 
     throws GeneralSecurityException {
-    Principal p = KeyRingSSLServerFactory.getPrincipal();
-    if (p != null) {
-      String strP = p.getName();
-      boolean invalid = !certOk(strP, source);
+    String strP = getRemotePrincipal();
+    if (strP != null) {
+      boolean invalid = !certOk(source, strP, null);
       if (log.isDebugEnabled()) {
         log.debug("receiveNeedsSignature(" + source + ") " +
                   strP + " -> " + invalid);
@@ -1686,10 +1679,16 @@ public class CryptoManagerServiceImpl
 
   public boolean sendNeedsSignature(String source, String target) 
     throws GeneralSecurityException {
-    boolean needsSig = !certOk(source, target);
+    X509Certificate [] certs = clientSSLKeyManager.getCertificateChain(null);
+    if (certs == null) {
+      throw new GeneralSecurityException("No cert for my node??");
+    }
+    String nodePrincipal = certs[0].getSubjectDN().getName();
+    boolean needsSig = !certOk(source, nodePrincipal, target);
     if (log.isDebugEnabled()) {
       log.debug("From " + source + " to " + target + ": need signature? " +
                 needsSig);
+      log.debug("my node principal = " + nodePrincipal);
     }
     return needsSig;
     // the following will imply that the sender always signs.  We needed it 
@@ -1697,32 +1696,46 @@ public class CryptoManagerServiceImpl
     // return true;
   }
 
-  public void setSendNeedsSignature(String source, String target) {
-    Map sentMap = getSentMap(source);
-    synchronized (sentMap) {
-      sentMap.remove(target);
-    }
+  public synchronized void setSendNeedsSignature(String source, 
+                                                 String nodePrincipal,
+                                                 String target)
+  {
+    ConnectionInfo ci = new ConnectionInfo(source, nodePrincipal, target);
+    _sendingAgentCerts.remove(ci);
   }
 
-  public void removeSendNeedsSignature(String source, String target, 
-                                       X509Certificate cert) {
-    Map sentMap = getSentMap(source);
-    synchronized (sentMap) {
-      sentMap.put(target, cert);
-    }
+  public synchronized void removeSendNeedsSignature(String source, 
+                                                    String nodePrincipal,
+                                                    String target, 
+                                                    X509Certificate cert) 
+  {
+    ConnectionInfo ci = new ConnectionInfo(source, nodePrincipal, target);
+    _sendingAgentCerts.put(ci, cert);
   }
 
-  public void setReceiveSignatureValid(String source, X509Certificate cert) {
+  public String getRemotePrincipal()
+  {
     Principal p = KeyRingSSLServerFactory.getPrincipal();
     if (p != null) {
-      String strP = p.getName();
-      Map sentMap = getSentMap(strP);
-      synchronized (sentMap) {
+      if (log.isDebugEnabled()) {
+        log.debug("remote principal = " + p.getName());
+      }
+      return p.getName();
+    } else { return null; }
+  }
+
+  public void setReceiveSignatureValid(String source, 
+                                       X509Certificate cert) 
+  {
+    String strP = getRemotePrincipal();
+    if (strP != null) {
+      ConnectionInfo ci = new ConnectionInfo(source, strP);
+      synchronized (_sendingAgentCerts) {
         if (log.isDebugEnabled()) {
           log.debug("setReceiveSignatureValid(" + source + ") adding to " +
                     strP);
         }
-        sentMap.put(source, cert);
+        _sendingAgentCerts.put(ci, cert);
       }
     } else {
       if (log.isDebugEnabled()) {
@@ -1743,6 +1756,64 @@ public class CryptoManagerServiceImpl
     }
     public int getKeyLength() {
       return _keyLength;
+    }
+  }
+
+  /*
+   * This is a private class representing certain critical information about
+   * a connection.  This information will get associated with a known 
+   * certificate for the source by the Map, clientSSLKeyManager.
+   *
+   * I am using a target of null to represent any agent on my node (e.g. 
+   * I am receiving a message in a stream for one of my agents.
+   */
+  private class ConnectionInfo
+  {
+    private String _source;
+    private String _sourceNodePrincipal;
+    private String _target;
+
+    public ConnectionInfo(String source, 
+                          String sourceNodePrincipal)
+    {
+      _source              = source;
+      _sourceNodePrincipal = sourceNodePrincipal;
+      _target              = null;
+    }
+
+
+    public ConnectionInfo(String source, 
+                          String sourceNodePrincipal,
+                          String target)
+    {
+      _source              = source;
+      _sourceNodePrincipal = sourceNodePrincipal;
+      _target              = target;
+    }
+
+    public boolean equals(Object o)
+    {
+      if (o instanceof ConnectionInfo) {
+        ConnectionInfo ci = (ConnectionInfo) o;
+        return 
+          _source.equals(ci._source) &&
+          _sourceNodePrincipal.equals(ci._sourceNodePrincipal) &&
+          (_target == null ? ci._target == null : _target.equals(ci._target));
+      } else { return false; }
+    }
+
+    public int hashCode()
+    {
+      return
+        _source.hashCode() + _sourceNodePrincipal.hashCode() +
+        (_target == null ? 42 : _target.hashCode());
+    }
+
+    public String toString()
+    {
+      return 
+        _source + "/" + _sourceNodePrincipal + " -> "
+        + (_target == null ? "me" : _target);
     }
   }
 }
