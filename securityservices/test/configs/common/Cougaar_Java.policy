@@ -49,8 +49,33 @@ grant codeBase "file:${org.cougaar.install.path}${/}sys${/}jce1_2_1.jar" {
 	permission java.security.AllPermission;
 };
 
-// SUN JCE cryptographic provider
+// SUN JCE cryptographic providers
+// All crypto providers should have these permissions.
+// Crypto providers are listed in the cryptoprovider.conf file
+// (under the configs/common directory).
+// Currently, the following providers are installed:
+//    security.provider.1=com.sun.crypto.provider.SunJCE
+//    security.provider.2=com.sun.net.ssl.internal.ssl.Provider
+//    security.provider.3=cryptix.jce.provider.CryptixCrypto
+//    security.provider.4=com.ibm.crypto.provider.IBMJCE
+
 grant codeBase "file:${org.cougaar.install.path}${/}sys${/}sunjce_provider.jar" {
+	// Refer to SUN Java Cryptography Extension (JCE) 1.2.1
+	// documentation for a description of the following permissions.
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}jce1_2_1.jar", "read";
+	permission java.lang.RuntimePermission "getProtectionDomain";
+	permission java.security.SecurityPermission "putProviderProperty.SunJCE";
+};
+
+grant codeBase "file:${org.cougaar.install.path}${/}sys${/}IBMJCEProvider.jar" {
+	// Refer to SUN Java Cryptography Extension (JCE) 1.2.1
+	// documentation for a description of the following permissions.
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}jce1_2_1.jar", "read";
+	permission java.lang.RuntimePermission "getProtectionDomain";
+	permission java.security.SecurityPermission "putProviderProperty.SunJCE";
+};
+
+grant codeBase "file:${org.cougaar.install.path}${/}sys${/}jsse.jar" {
 	// Refer to SUN Java Cryptography Extension (JCE) 1.2.1
 	// documentation for a description of the following permissions.
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}jce1_2_1.jar", "read";
