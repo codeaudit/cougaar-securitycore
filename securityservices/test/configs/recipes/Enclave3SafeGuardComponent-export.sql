@@ -1,141 +1,126 @@
--- MySQL dump 8.21
---
--- Host: localhost    Database: tempcopy
----------------------------------------------------------
--- Server version	3.23.49-nt
+# MySQL dump 8.16
+#
+# Host: mango    Database: tempcopy
+#--------------------------------------------------------
+# Server version	3.23.51
 
---
--- Dumping data for table 'alib_component'
---
-
+#
+# Dumping data for table 'alib_component'
+#
 
 LOCK TABLES alib_component WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'asb_agent'
---
-
+#
+# Dumping data for table 'asb_agent'
+#
 
 LOCK TABLES asb_agent WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'asb_agent_pg_attr'
---
-
+#
+# Dumping data for table 'asb_agent_pg_attr'
+#
 
 LOCK TABLES asb_agent_pg_attr WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'asb_agent_relation'
---
-
+#
+# Dumping data for table 'asb_agent_relation'
+#
 
 LOCK TABLES asb_agent_relation WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'asb_assembly'
---
-
+#
+# Dumping data for table 'asb_assembly'
+#
 
 LOCK TABLES asb_assembly WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'asb_component_arg'
---
-
+#
+# Dumping data for table 'asb_component_arg'
+#
 
 LOCK TABLES asb_component_arg WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'asb_component_hierarchy'
---
-
+#
+# Dumping data for table 'asb_component_hierarchy'
+#
 
 LOCK TABLES asb_component_hierarchy WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'asb_oplan'
---
-
+#
+# Dumping data for table 'asb_oplan'
+#
 
 LOCK TABLES asb_oplan WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'asb_oplan_agent_attr'
---
-
+#
+# Dumping data for table 'asb_oplan_agent_attr'
+#
 
 LOCK TABLES asb_oplan_agent_attr WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'community_attribute'
---
-
+#
+# Dumping data for table 'community_attribute'
+#
 
 LOCK TABLES community_attribute WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'community_entity_attribute'
---
-
+#
+# Dumping data for table 'community_entity_attribute'
+#
 
 LOCK TABLES community_entity_attribute WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'lib_agent_org'
---
-
+#
+# Dumping data for table 'lib_agent_org'
+#
 
 LOCK TABLES lib_agent_org WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'lib_component'
---
-
+#
+# Dumping data for table 'lib_component'
+#
 
 LOCK TABLES lib_component WRITE;
 UNLOCK TABLES;
 
---
--- Dumping data for table 'lib_mod_recipe'
---
-
+#
+# Dumping data for table 'lib_mod_recipe'
+#
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0006Enclave3SafeGuardComponent','Enclave3SafeGuardComponent-cpy','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0006Enclave3SafeGuardComponentEnclave3SafeGuardComponent','Enclave3SafeGuardComponent','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
 UNLOCK TABLES;
 
---
--- Dumping data for table 'lib_mod_recipe_arg'
---
-
+#
+# Dumping data for table 'lib_mod_recipe_arg'
+#
 
 LOCK TABLES lib_mod_recipe_arg WRITE;
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponent','Class Name',2.000000000000000000000000000000,'safe.util.SAFESecurityComponent');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponent','Component Name',5.000000000000000000000000000000,'safe.util.SAFESecurityComponentEnclave3');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponent','Component Priority',0.000000000000000000000000000000,'HIGH');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponent','Number of Arguments',1.000000000000000000000000000000,'1');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponent','Target Component Selection Query',4.000000000000000000000000000000,'recipeQueryEnclave3SecurityCommunityNodeAgents');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponent','Type of Insertion',6.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponent','Value 1',3.000000000000000000000000000000,'PolicyDomainManager3');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponentEnclave3SafeGuardComponent','Class Name',7.000000000000000000000000000000,'safe.util.SAFESecurityComponent');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponentEnclave3SafeGuardComponent','Component Name',0.000000000000000000000000000000,'safe.util.SAFESecurityComponentEnclave3');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponentEnclave3SafeGuardComponent','Component Priority',2.000000000000000000000000000000,'HIGH');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponentEnclave3SafeGuardComponent','Number of Arguments',3.000000000000000000000000000000,'2');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponentEnclave3SafeGuardComponent','Target Component Selection Query',5.000000000000000000000000000000,'recipeQueryEnclave3SecurityCommunityNodeAgents');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponentEnclave3SafeGuardComponent','Type of Insertion',1.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponentEnclave3SafeGuardComponent','Value 1',6.000000000000000000000000000000,'PolicyDomainManager3');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0006Enclave3SafeGuardComponentEnclave3SafeGuardComponent','Value 2',4.000000000000000000000000000000,'PolicyDomainManager3Domain');
 UNLOCK TABLES;
 
---
--- Dumping data for table 'lib_pg_attribute'
---
-
+#
+# Dumping data for table 'lib_pg_attribute'
+#
 
 LOCK TABLES lib_pg_attribute WRITE;
 UNLOCK TABLES;
