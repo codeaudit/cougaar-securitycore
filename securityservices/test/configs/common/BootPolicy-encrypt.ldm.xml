@@ -52,14 +52,18 @@
   </RuleParam>
 
   <RuleParam name="IncomingVerb">
-    <KeySet value="Transport">
-	<!-- <KeyValue key="3-69-ARBN" value="Transport:AssetTransfer"/> -->
+    <KeySet value="*">
+	<!--<KeyValue key="TRANSCOM" value="GetLogSupport"/>-->
+	<!--<KeyValue key="3-69-ARBN" value="Transport:ProjectSupply"/>-->
+	<!--<KeyValue key="703-MSB" value="none"/>-->
     </KeySet>
   </RuleParam>
 
   <RuleParam name="OutgoingVerb">
-    <KeySet value="Transport">
-	<!-- <KeyValue key="3-69-ARBN" value="Transport:AssetTransfer"/> -->
+    <KeySet value="*">
+	<!--<KeyValue key="TRANSCOM" value="GetLogSupport"/>-->
+	<!--<KeyValue key="3-69-ARBN" value="Transport:ProjectSupply"/>-->
+	<!--<KeyValue key="703-MSB" value="none"/>-->
     </KeySet>
   </RuleParam>
 
