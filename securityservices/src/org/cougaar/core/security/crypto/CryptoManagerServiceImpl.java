@@ -1675,6 +1675,8 @@ public class CryptoManagerServiceImpl
                   strP + " -> " + invalid);
       }
       return invalid;
+    } else if (log.isDebugEnabled()) {
+      log.debug("Principal = null so we must require a signature");
     }
     if (log.isDebugEnabled()) {
       log.debug("receiveNeedsSignature(" + source + ") not SSL");
@@ -1689,7 +1691,11 @@ public class CryptoManagerServiceImpl
       log.debug("From " + source + " to " + target + ": need signature? " +
                 needsSig);
     }
-    return needsSig;
+    // This optimization isn't working at the moment because KeyRingSSLFactory 
+    // is not storing the principal for a connection properly.  It is 
+    // associating  the principal with a thread which does not work.
+    //    return needsSig;
+    return true;
   }
 
   public void setSendNeedsSignature(String source, String target) {
