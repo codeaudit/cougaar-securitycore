@@ -18,9 +18,9 @@ java \
 	-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
 	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
 	-Dorg.cougaar.security.keystore=keystoreTest \
-	-Dorg.cougaar.core.society.Node.name=TEST3ID-HHC \
-	-Dorg.cougaar.core.security.crypto.debug=true \
+	-Dorg.cougaar.node.name=TEST3ID-HHC \
 	-Dorg.cougaar.security.role=srosset \
+	-Dorg.cougaar.core.security.crypto.debug=true \
 	com.nai.security.certauthority.KeyManagement  \
 	-1 srosset testalias
 	#-10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer
