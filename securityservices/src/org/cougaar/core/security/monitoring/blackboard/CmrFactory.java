@@ -85,7 +85,7 @@ public class CmrFactory
 			 selfClusterId,
 			 aMessage);
     }
-
+ 
     public NewEventTransfer newEventTransfer(Event event,
 					   Asset target) {
 	return new EventTransferImpl(getNextUID(),
@@ -100,4 +100,10 @@ public class CmrFactory
         CmrRelay relay = new CmrRelay(getNextUID(), selfClusterId, dest, event, null);
         return relay;
     }
+  
+   public CmrRelay newCmrRelay(Object event, MessageAddress dest) {
+        CmrRelay relay = new CmrRelay(getNextUID(), selfClusterId, dest, event,null);
+        return relay;
+    }
+ 
 }
