@@ -56,6 +56,7 @@ import org.cougaar.core.security.services.crypto.CertValidityService;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.CACertDirectoryService;
+import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
@@ -71,29 +72,40 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
   private BlackboardService _blackboardService;
   private LoggingService _log;
   private CertificateBlackboardStore _certStore = new CertificateBlackboardStore();
+  private ThreadService threadService=null;
   //private Hashtable _certStore = new Hashtable();
   private boolean bbAvailable = false;
+  private boolean _needPersist = false;
+  private long _sleepTime = 60000;
 
   public CACertDirectoryServiceImpl(ServiceBroker sb) {
     _serviceBroker = sb;
     _log = (LoggingService)_serviceBroker.getService
       (this, LoggingService.class, null);
 
+    try {
+      long sleepTime = Integer.parseInt(System.getProperty("org.cougaar.core.security.certauthority.persistInterval"));
+      _sleepTime = sleepTime;
+    } catch (Exception ex) {}
+
     BlackboardService bbs = (BlackboardService)
       _serviceBroker.getService(this,
 			       BlackboardService.class,
 			       null);
-    if(bbs==null) {
+    threadService=(ThreadService)_serviceBroker.getService(this,ThreadService.class, null);
+
+    if(bbs==null || threadService==null) {
       if (_log.isDebugEnabled()) {
 	_log.debug("Adding service listner for blackboard service :");
       }
-      _serviceBroker.addServiceListener(new BlackboardServiceAvailableListener());
+      _serviceBroker.addServiceListener(new CAServiceAvailableListener());
     }
     else {
       if (_log.isDebugEnabled()) {
 	_log.debug("acquired blackboard service :");
       }
       setBlackboardService();
+      startThread();
     }
   }
 
@@ -219,6 +231,7 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
       try {
         _blackboardService.openTransaction();
         _blackboardService.publishChange(_certStore);
+        _needPersist = true;
       }
       catch (Exception e) {
         _log.error("Failed to publish change to blackboard: ", e);
@@ -393,6 +406,7 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
       try {
         _blackboardService.openTransaction();
         _blackboardService.publishAdd(_certStore);
+        _needPersist = true;
       }
       catch (Exception e) {
         _log.error("Failed to add to blackboard: ", e);
@@ -552,7 +566,7 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
   /** Service listener for the Blackboard Service.
    *  Set the blackboard service when it becomes available.
    */
-  private class BlackboardServiceAvailableListener implements ServiceAvailableListener {
+  private class CAServiceAvailableListener implements ServiceAvailableListener {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
       if(org.cougaar.core.service.BlackboardService.class.isAssignableFrom(sc)) {
@@ -560,9 +574,44 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
 	if(_blackboardService==null){
 	  setBlackboardService();
 	}
+      } else if ( sc == ThreadService.class) {
+        threadService = (ThreadService) _serviceBroker.getService(this, ThreadService.class, null);
+        if(threadService!=null) {
+          _log.info(" Got Thread service in Service Available Listener  --  ");          //startThread();
+        }
+      }
+      if (threadService != null && _blackboardService != null) {
+        startThread();
       }
     }
   }
+
+  public void startThread() {
+    threadService.getThread(this, new PersistToBB()).
+        schedule(0,_sleepTime);
+
+  }
+
+  private class PersistToBB implements Runnable {
+
+    public void run() {
+      Thread td=Thread.currentThread();
+      td.setPriority(Thread.MIN_PRIORITY);
+      synchronized (updateLock) {
+        if (_needPersist && persistOk) {
+          try {
+            _blackboardService.persistNow();
+            _needPersist = false;
+            _log.info("Persisted certificates size: " + _certStore.size());
+          } catch (Exception ex) {
+            _log.info("Persistence is not enabled. Certificates will not be persisted");
+          }
+        }
+      }
+     
+    }
+  }
+
 
   private class CertificateBlackboardStorePredicate implements UnaryPredicate {
     public boolean execute(Object o) {
