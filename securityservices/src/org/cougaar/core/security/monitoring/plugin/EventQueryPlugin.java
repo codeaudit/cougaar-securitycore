@@ -229,6 +229,7 @@ public class EventQueryPlugin extends ComponentPlugin {
   }
 
   public void setParameter(Object o) {
+    System.out.println("setParameter called with: " + o);
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List parameter " +
                                          "instead of " + 
@@ -238,12 +239,13 @@ public class EventQueryPlugin extends ComponentPlugin {
     }
 
     List l = (List) o;
+    Object[] arr = l.toArray();
 
-    if (l.size() <= 1) {
+    if (arr.length <= 1) {
       throw new IllegalArgumentException("You must provide the Society Security Manager name, and class names for the Unary Predicate and QueryClassificationProvider");
     }
 
-    _societySecurityManager = (String) l.remove(0);
+    _societySecurityManager = (String) arr[0];
     if (_log == null && getServiceBroker() != null) {
       _log = (LoggingService)
         getServiceBroker().getService(this, LoggingService.class, null);
@@ -255,8 +257,8 @@ public class EventQueryPlugin extends ComponentPlugin {
     String up = null;
     String className = "<not found>";
     try {
-      while (l.size() > 0) {
-        className = (String) l.remove(0);
+      for (int i = 1; i < arr.length; i++) {
+        className = (String) arr[i];
         Class c = Class.forName(className);
         if (QueryClassificationProvider.class.isAssignableFrom(c)) {
           if (qcp != null) {
@@ -282,7 +284,7 @@ public class EventQueryPlugin extends ComponentPlugin {
             up = className;
           } // end of else
         } // end of if (UnaryPredicate.class.isAssignableFrom(c))
-      } // end of while (l.size() > 0)
+      } 
     } catch (IllegalAccessException e) {
       throw new IllegalArgumentException("The class name you provided: " +
                                          className + 

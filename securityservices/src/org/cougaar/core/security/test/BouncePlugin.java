@@ -72,6 +72,8 @@ public class BouncePlugin extends ComponentPlugin {
   }
 
   public void setParameter(Object o) {
+    System.out.println("setParameter called with: " + o);
+    Thread.dumpStack();
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List parameter " +
                                          "instead of " + 
@@ -81,14 +83,15 @@ public class BouncePlugin extends ComponentPlugin {
     }
 
     List l = (List) o;
-    if (l.size() != 0) {
-      _id = l.remove(0).toString();
+    Object[] arr = l.toArray();
+    if (arr.length != 0) {
+      _id = arr[0].toString();
     }
-    if (l.size() != 0) {
-      _destination =  MessageAddress.getMessageAddress(l.remove(0).toString());
+    if (arr.length > 1) {
+      _destination =  MessageAddress.getMessageAddress(arr[1].toString());
     }
-    if (l.size() != 0) {
-      _sendCount = Integer.parseInt(l.remove(0).toString());
+    if (arr.length > 2) {
+      _sendCount = Integer.parseInt(arr[2].toString());
     } // end of else
   }
 
