@@ -58,7 +58,7 @@ public class DataProtectionInputStream extends FilterInputStream {
   private EncryptionService encryptionService;
 
   private DataProtectionKeyImpl dpKey;
-  private String agent;
+  private static String agent;
 
   private Cipher ci = null;
   private SecureMethodParam policy = null;
@@ -139,10 +139,14 @@ public class DataProtectionInputStream extends FilterInputStream {
   }
 
   public synchronized void close() throws IOException {
-    log.debug("Closing...");
+    if (log.isDebugEnabled()) {
+      log.debug("Closing...");
+    }
     // read until the end of file
     if (this.in == null) {
-      log.debug("Closed already");
+      if (log.isDebugEnabled()) {
+        log.debug("Closed already");
+      }
       return;
     }
 
@@ -192,7 +196,7 @@ public class DataProtectionInputStream extends FilterInputStream {
   /**
    * publish a data protection failure idmef alert
    */
-  private void publishDataFailure(String reason, String data) {
+  private static void publishDataFailure(String reason, String data) {
     FailureEvent event = new DataFailureEvent(agent,
                                               agent,
                                               reason,
@@ -248,6 +252,7 @@ public class DataProtectionInputStream extends FilterInputStream {
     }
 
     public synchronized void refillBuf() throws IOException {
+        try {
       if (_buf.available() == 0 && !_eof) {
         int len = ((DataInputStream) this.in).readInt();
         if (len == 0) {
@@ -261,6 +266,11 @@ public class DataProtectionInputStream extends FilterInputStream {
         ((DataInputStream)this.in).readFully(_byteBuf, 0, len);
         _buf = new ByteArrayInputStream(_byteBuf, 0, len);
       }
+        } catch (Exception iox) {
+          publishDataFailure(DataFailureEvent.VERIFY_DIGEST_FAILURE, 
+            iox.toString());
+          throw new IOException(iox.toString());
+        }
     }
 
     public synchronized void resetEnd() throws IOException {
