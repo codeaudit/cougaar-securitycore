@@ -33,7 +33,7 @@ mv src/com/nai/security/bootstrap/ src/org/cougaar/core/security/securebootstrap
 mv src/com/nai/security/monitoring/ src/org/cougaar/core/security/oldmonitoring
 
 # Move com directory to org directory
-mv src/com/nai/security/* src/org/cougaar/core/security
+mv -f src/com/nai/security/* src/org/cougaar/core/security
 
 # Remove any remaining directory under com
 rm -rf src/com
