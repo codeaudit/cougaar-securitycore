@@ -120,11 +120,15 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     List certList = keyRing.findCert(nodename, KeyRingService.LOOKUP_KEYSTORE);
     if (certList != null && certList.size() > 0) {
       nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
-      log.debug("update nodex509: " + nodex509);
+      if (log.isDebugEnabled()) {
+        log.debug("update nodex509: " + nodex509);
+      }
 
       privatekey = findPrivateKey(nodealias);
       certChain = findCertificateChain(nodealias);
-      setManagerReady();
+      if (privatekey != null) {
+        setManagerReady();
+      }
     }
 
     if (log.isDebugEnabled()) {
