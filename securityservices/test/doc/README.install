@@ -1,0 +1,53 @@
+This file contains instructions for building the NAI Labs security services 
+packages. The services are separated into two Java archives: bootstrap.jar and 
+securityservices.jar. The bootstrap.jar archive contains classes necessary to
+initialize a security enhanced Ultra*Log node. The remain packages for 
+cryptographic services, access control, and monitoring & response are compiled
+into the security services.jar file.
+
+1. Set the CVSROOT to point to NAI Labs cvs module:
+
+export CVSROOT=:ext:user@cvs.utralog.net:/cvs/nai # for bash shell users
+setenv CVSROOT :ext:user@cvs.utralog.net:/cvs/nai # for tcsh or csh shell users
+
+2. Unpack the security services distribution and go to the top level of the 
+   source code tree. From cvs type the following:
+
+cvs co securityservices
+cd src
+
+3. Use the myalpc tool to compile all the Java source code. Several environment
+   variables will need to be set beforehandr. For the purposes of this example,
+   we aassume that CVS check outs are done at a users home directory. If they
+   are performed at a different location, substitute that location for the '~':
+
+setenv COUGAAR_INSTALL_PATH ~/cougaar-8.4.1.1		# needed for alpc to run
+setenv COUGAARCLASSES ~/securityservices/classes	# bytecode tree root
+
+-or- 
+
+export COUGAAR_INSTALL_PATH=~/cougaar-8.4.1.1		# needed for alpc to run
+export COUGAARCLASSES=~/securityservices/classes	# bytecode tree root
+
+   Make sure that alpc is in your path by adding $COUGAAR_INSTALL_PATH/build/bin
+   to the PATH environment variable.
+
+setenv PATH ${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for bash shell users
+export PATH ${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for csh or tcsh users
+
+4. Use the myalpc script from the securityservices directory. 
+
+test/bin/myalpc src
+
+
+5. Now all the source code should be compiled under the $COUGAARCLASSES 
+   directory. Use make to build and sign the jar files. All class files are 
+   expected in the $COUGAARCLASSES directory. The makefile automatically 
+   signs the bootstrap.jar and securityservices.jar with the appropriate keys.
+
+make jar
+
+6. The signed jar files can be now be installed into the $COUGAAR_INSTALL_PATH
+   directory. 
+
+make install
