@@ -103,23 +103,19 @@ zip -qr AS_csi_secserv.zip \
 	operator/printProcessInfo.rb \
 	webtomcat/data/conf/server.xml \
 	webtomcat/data/webapps/ROOT/WEB-INF/web.xml \
-	sys/antlr.jar \
 	sys/bcprov-jdk*.jar \
         sys/commons-logging.jar \
 	sys/dl.jar \
 	sys/ibmpkcs.jar \
-        sys/icu4j.jar \
 	sys/iw.jar \
 	sys/jas.jar \
 	sys/jasper-runtime.jar \
 	sys/jdom.jar \
-        sys/jena.jar \
 	sys/jpcsc.jar \
 	sys/jtp.jar \
 	sys/mail.jar \
 	sys/ontologyRepInit.jar \
 	sys/polCert.jar \
-        sys/xercesImpl.jar \
         sys/xmlParserAPIs.jar \
         sys/Tidy.jar \
         workspace
