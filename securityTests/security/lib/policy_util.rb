@@ -82,13 +82,12 @@ def waitForUserManager(agent, path="/userManagerReady", path2=nil)
   while (true)
     begin
       logInfoMsg "Connecting to #{url}" if $COUGAAR_DEBUG
-      result, url2 = Cougaar::Communications::HTTP.get(url, 30.seconds)
-      logInfoMsg url2 if $COUGAAR_DEBUG
-      logInfoMsg result if $COUGAAR_DEBUG
+      result = getHtml(url, 30.seconds)
+      logInfoMsg "Result: #{result.body}" if $COUGAAR_DEBUG
       re1 = %r"<user>(.*)</user>"
       re2 = %r"<domain>(.*)</domain>"
-      userMatch = re1.match(result)
-      domainMatch = re2.match(result)
+      userMatch = re1.match(result.body)
+      domainMatch = re2.match(result.body)
       if (userMatch != nil && domainMatch != nil &&
           userMatch[1] != "" && domainMatch[1] != "")
         # found it!
@@ -102,17 +101,6 @@ def waitForUserManager(agent, path="/userManagerReady", path2=nil)
     rescue Timeout::Error => e
       logInfoMsg "Timeout connecting to #{url}" if $COUGAAR_DEBUG
       sleep 3.seconds
-    end
-  end
-  if (path2 != nil)
-    pokeURL = agentURL + path2
-    result = nil
-    while (result == nil)
-      result, url2 = Cougaar::Communications::HTTP.get(pokeURL)
-      if (result == nil || result =~ /HTTP Status 401/)
-        result = nil
-        sleep 10.seconds
-      end
     end
   end
 end # waitForUserManager

@@ -107,6 +107,9 @@ class SRIWeb
     conn = Net::HTTP.new(uri.host, uri.port)
     conn.read_timeout = timeout
     path = uri.path
+    if uri.scheme == "https"
+      conn.use_ssl = true
+    end
     path += "?"+uri.query if uri.query
 #puts "host: #{uri.host}, #{uri.port}, #{path}"
     request = Net::HTTP::Get.new(path)
