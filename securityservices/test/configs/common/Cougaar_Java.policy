@@ -619,6 +619,8 @@ grant signedBy "privileged" {
 
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}configs${/}-", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}core${/}configs${/}common${/}-", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}core${/}configs${/}common${/}*", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}core${/}configs${/}common${/}", "read";
 	permission java.io.FilePermission "${user.home}${/}.alprc", "read";
 	permission java.io.FilePermission "${user.home}${/}.cougaarrc", "read";
 
