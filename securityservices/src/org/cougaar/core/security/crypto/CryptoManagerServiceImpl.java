@@ -278,24 +278,41 @@ public class CryptoManagerServiceImpl
 
     int method = policy.secureMethod;
     if (log.isDebugEnabled()) {
-      log.debug("Protect object with policy: "
-			 + method);
+      log.debug("Protect object " + source.toAddress() + " -> " 
+		+ target.toAddress() + " with policy: "
+		+ method);
     }
-    switch(method) {
-    case SecureMethodParam.PLAIN:
-      po = new ProtectedObject(policy, object);
-      break;
-    case SecureMethodParam.SIGN:
-      po = sign(object, source, target, policy);
-      break;
-    case SecureMethodParam.ENCRYPT:
-      po = encrypt(object, source, target, policy);
-      break;
-    case SecureMethodParam.SIGNENCRYPT:
-      po = signAndEncrypt(object, source, target, policy);
-      break;
-    default:
-      throw new GeneralSecurityException("Invalid policy");
+    try {
+      switch(method) {
+      case SecureMethodParam.PLAIN:
+	po = new ProtectedObject(policy, object);
+	break;
+      case SecureMethodParam.SIGN:
+	po = sign(object, source, target, policy);
+	break;
+      case SecureMethodParam.ENCRYPT:
+	po = encrypt(object, source, target, policy);
+	break;
+      case SecureMethodParam.SIGNENCRYPT:
+	po = signAndEncrypt(object, source, target, policy);
+	break;
+      default:
+	throw new GeneralSecurityException("Invalid policy");
+      }
+    }
+    catch (GeneralSecurityException e) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to protect object: " + source.toAddress()
+		 + " -> " + target.toAddress() + " - policy=" + method);
+      }
+      throw e;
+    }
+    catch (IOException e) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to protect object: " + source.toAddress()
+		 + " -> " + target.toAddress() + " - policy=" + method);
+      }
+      throw e;
     }
     return po;
   }
@@ -328,30 +345,40 @@ public class CryptoManagerServiceImpl
     // Unprotect the message.
     int method = policy.secureMethod;
     if (log.isDebugEnabled()) {
-      log.debug("Unprotect object with policy: "
-			 + method);
+      log.debug("Unprotect object " + source.toAddress() + " -> " 
+		+ target.toAddress() + "with policy: "
+		+ method);
     }
-    switch(method) {
-    case SecureMethodParam.PLAIN:
-      theObject = protectedObject.getObject();
-      break;
-    case SecureMethodParam.SIGN:
-      theObject = verify(source, target,
-			 (PublicKeyEnvelope)protectedObject,
-			 policy);
-      break;
-    case SecureMethodParam.ENCRYPT:
-      theObject = decrypt(source, target,
-			  (PublicKeyEnvelope)protectedObject,
-			  policy);
-      break;
-    case SecureMethodParam.SIGNENCRYPT:
-      theObject = decryptAndVerify(source, target,
-				   (PublicKeyEnvelope)protectedObject,
-				   policy);
-      break;
-    default:
-      throw new GeneralSecurityException("Invalid policy");
+    try {
+      switch(method) {
+      case SecureMethodParam.PLAIN:
+	theObject = protectedObject.getObject();
+	break;
+      case SecureMethodParam.SIGN:
+	theObject = verify(source, target,
+			   (PublicKeyEnvelope)protectedObject,
+			   policy);
+	break;
+      case SecureMethodParam.ENCRYPT:
+	theObject = decrypt(source, target,
+			    (PublicKeyEnvelope)protectedObject,
+			    policy);
+	break;
+      case SecureMethodParam.SIGNENCRYPT:
+	theObject = decryptAndVerify(source, target,
+				     (PublicKeyEnvelope)protectedObject,
+				     policy);
+	break;
+      default:
+	throw new GeneralSecurityException("Invalid policy");
+      }
+    }
+    catch (GeneralSecurityException e) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to unprotect object: " + source.toAddress()
+		 + " -> " + target.toAddress() + " - policy=" + method);
+      }
+      throw e;
     }
     return theObject;
   }
@@ -453,7 +480,7 @@ public class CryptoManagerServiceImpl
     SignedObject signedObject = null;
       
     if(log.isDebugEnabled()) {
-      log.debug("Encrypting session key");
+      log.debug("Encrypting session key with " + target.toAddress() + " certificate");
     }
     // Encrypt session key
     sessionKey = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk);
@@ -461,7 +488,7 @@ public class CryptoManagerServiceImpl
     sessionKeySender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk);
 
     if(log.isDebugEnabled()) {
-      log.debug("Signing object");
+      log.debug("Signing object with " + source.toAddress() + " key");
     }
     // Sign object
     signedObject = sign(source.toAddress(), policy.signSpec, object);
