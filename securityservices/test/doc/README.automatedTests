@@ -5,8 +5,7 @@ INTRODUCTION
 ============
 The test suite has the following capabilities:
 * A series of regression tests can be run on a regular basis (e.g. every
-  two hours or every day) to verify that the security services do not have
-  bugs.
+  day) to verify that the security services do not have bugs.
 * During a test, one or more nodes are executed concurrently. The order
   and the timing of the nodes execution can be controlled. Since nodes are
   supposed to run forever, each node is given a maximum amount of time
@@ -73,4 +72,47 @@ tests can be executed.
 
 * build-dashboard.xml
   This file is used to update the dashboard every time the test suite is
-  executed. Dashboard web pages are copied to the Tomcat 
+  executed. Dashboard web pages are copied to the Tomcat.
+* TODO: describe all files.
+
+TEST SUITE
+==========
+
+All the tests assume that Cougaar has been installed on every host where nodes will be
+executed. In addition, software such as LDAP must be installed in order to run some of the
+tests. For example, the CA requires OpenLdap to store certificates.
+
+The following tests are currently implemented:
+
+Start a CA from scratch
+-----------------------
+Description:
+  This test executes a certificate authority from scratch.
+Pre-operations:
+  The CA keystore is deleted,
+  All the certificates are removed from the LDAP directory service.
+Tests:
+  The test verifies that no error is generated when the CA is initialized and executed.
+
+Start a CA. Create a CA key
+---------------------------
+Description:
+  This test executes a certificate authority and generate a CA key.
+  The test simulates a CA administrator who would configure the CA and generate a key.
+  This is done by invoking a CA servlet.
+Tests:
+  The test verifies that no error is generated, and that the CA key is actually created.
+
+Restart a CA after CA key generation
+------------------------------------
+Description:
+  This test executes a CA after the key has been generated.
+Tests:
+  The test verifies that no error is generated when a CA is stopped and restarted.
+
+Start small-135 society using CA
+--------------------------------
+Description:
+  This test executes the small 135 society.
+Tests:
+  The test verifies that all nodes can be started, and that all agents can get a certificate.
