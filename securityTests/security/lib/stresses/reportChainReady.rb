@@ -6,7 +6,6 @@ class TestReportChainReady < SecurityStressFramework
     @run = run
     @expectedSubordinates = Hash.new
     @foundSubordinates    = Hash.new
-    @bbPlugin = "org.cougaar.core.security.test.BlackBoardCollectorPlugin"
     @stressid = "ReportChainReady Detector"
   end
 
@@ -75,8 +74,12 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def eventCall(event)
+    parseLine(event.data)
+  end
+
+  def parseLine(line)
     regexp = /Interception: ReportForDuty with role : <(.*)> : <(.*)> : (.*)/
-    parsed = regexp.match(event.data)
+    parsed = regexp.match(line)
     if parsed != nil
       subordinate = parsed.to_a[1].split(" ").last
       superior    = parsed.to_a[2].split(" ").last
@@ -87,4 +90,17 @@ class TestReportChainReady < SecurityStressFramework
       @foundSubordinates[superior].push(subordinate)
     end
   end
+
+  def readEventsFromFile
+    filename = File.join(ENV["CIP"], "workspace", "test", "acme_events.log")
+    File.open(filename) do |file|
+      parseLine(file.readline)
+      getBadChains(["OSD.GOV"]).each do |chain|
+        puts "Found bad chain ending at #{chain.last}"
+        puts "Chain = " + chain.join(' -> ')
+      end
+    end
+  end
+
+
 end
