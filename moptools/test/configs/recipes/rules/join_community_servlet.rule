@@ -1,0 +1,11 @@
+####################################################
+# Rule to add the join community servlet
+
+plugin = "org.cougaar.core.security.test.community.JoinCommunityServlet"
+
+society.each_agent(true) do |agent|
+  agent.add_component do |c|
+    c.classname = plugin
+    c.add_argument("/joinCommunity")
+  end
+end
