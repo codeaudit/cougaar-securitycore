@@ -180,7 +180,7 @@ public class LDAPCert //extends LdapContext
     //X509Certificate cert = loadCert(certFile);
     //X509Certificate ca = loadCert(caFile);
     //set = new BasicAttributes(true);
-    //objectclass.add("xuda_certificate");
+    //objectclass.add("xuda_certifcate");
     //set.put(objectclass);	
     //init(cert, ca);
     //}
@@ -238,14 +238,14 @@ public class LDAPCert //extends LdapContext
         dn = digestAlg.toLowerCase() + "=" +  toHex(hash);
 	set.put("md5", toHex(hash));
 	set.put("ca_md5", toHex(ca_hash));
-	set.put("serial_no",
+	set.put("serialNumber",
 		cert.getSerialNumber().toString(16).toUpperCase());
 	set.put("notbefore_dte", day.format(cert.getNotBefore()));
 	set.put("notbefore_tim" , time.format(cert.getNotBefore()));
 	set.put("notafter_dte", day.format(cert.getNotAfter()));
 	set.put("notafter_tim" , time.format(cert.getNotAfter()));
 	set.put("cert_status", "1");
-	set.put("pem_x509", pem);
+	set.put("userCertificate", pem);
 	parseDN(cert.getIssuerDN().getName(), set);
 	if(debug) {
 	    System.out.println("Loaded certificate with dn = " + dn);
@@ -320,6 +320,7 @@ public class LDAPCert //extends LdapContext
 	SearchControls controls = new SearchControls();
 	String filter = "(objectclass=xuda_certificate)";
 	BasicAttributes match = new BasicAttributes();
+	BasicAttributes cert;
 
 	controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 	objectclass = new BasicAttribute("objectclass");
@@ -338,7 +339,7 @@ public class LDAPCert //extends LdapContext
 		if(elm instanceof NameClassPair) {
 		    NameClassPair pair = (NameClassPair)elm;
 		    System.out.println("++++" + pair.getName());
-		    //formatAttributes(ctx.getAttributes(pair.getName()));
+		    formatAttributes(ctx.getAttributes(pair.getName()));
 		}
 	    }
 	}
