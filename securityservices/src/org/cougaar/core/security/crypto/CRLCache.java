@@ -49,7 +49,7 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
-import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
+import org.cougaar.core.security.crlextension.x509.extensions.*;
 import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
@@ -319,7 +319,8 @@ public class CRLCache implements Runnable
 	      CertificateIssuerExtension ciext=new CertificateIssuerExtension( new Boolean(false),obj);
 	      CertAttrSet certattrset = (CertAttrSet)constructor.newInstance(aobj);
 	      if(certattrset instanceof CertificateIssuerExtension) {
-		GeneralNames gn=(GeneralNames) certattrset.get(CertificateIssuerExtension.ISSUERNAME);
+		CougaarGeneralNames gn=(CougaarGeneralNames) certattrset.get
+		  (CertificateIssuerExtension.ISSUERNAME);
 		if(log.isDebugEnabled())
 		  log.debug(" gneral names are in CRL Caches updateCRLEntryInCertCache  :"+gn.toString());
 		if(gn.size()==1){
