@@ -449,5 +449,35 @@ DONE
     end #Test Results
 
 
+
+    class checkRMISwitch < Cougaar::Action
+      def initialize(run)
+        super(run)
+        @run = run
+        @web = SRIWeb.new()
+        @agentName1 = "testBounceOne"
+        @agentName2 = "testBounceTwo"
+      end
+
+      def perform
+        @agent1 = @run.society.agents[@agentName1]
+        @agent2 = @run.society.agents[@agentName2]
+        @sendUri = 
+           "#{@agent1.uri}/message/send?address=#{@agentName2}&Send=Submit"
+        pw = PolicyWaiter.new(@run, "testBounceOne")
+        deltaPolicy(enclave, <<DONE)
+          Delete EncryptCommunication
+          Policy testEncryptCommunication = [
+            MessageEncryptionTemplate
+            Require SecretProtection on all messages from members of 
+            $Actor.owl#Agent to members of $Actor.owl#Agent
+          ]
+DONE
+        pw.wait(60)
+        @web.getHtml(@sendUri)
+      end
+    end
+
+
   end  # module Actions
 end  # module Cougaar
