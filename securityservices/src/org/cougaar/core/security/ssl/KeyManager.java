@@ -114,7 +114,15 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 
       return;
     }
-    updateCertAndKey();
+    List certList = keyRing.findCert(nodename, KeyRingService.LOOKUP_KEYSTORE);
+    if (certList != null && certList.size() > 0) {
+      nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
+      log.debug("update nodex509: " + nodex509);
+
+      privatekey = findPrivateKey(nodealias);
+      certChain = findCertificateChain(nodealias);
+      setManagerReady();
+    }
 
     if (log.isDebugEnabled()) {
       String s = "SSLContext:KeyManager: node name: " + nodename
@@ -125,20 +133,6 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
       }
       log.debug(s);
     }
-  }
-
-  protected boolean updateCertAndKey() {
-    String nodename = getName();
-    List certList = keyRing.findCert(nodename, KeyRingService.LOOKUP_KEYSTORE);
-    if (certList != null && certList.size() > 0) {
-      nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
-      log.debug("update nodex509: " + nodex509);
-
-      privatekey = findPrivateKey(nodealias);
-      certChain = findCertificateChain(nodealias);
-      return true;
-    }
-    return false;
   }
 
   /**  Choose an alias to authenticate the client side of a secure socket
@@ -264,6 +258,9 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 
   public void updateCertificate() {
     updateKeystore();
+  }
+
+  protected void setManagerReady() {
   }
 
 }

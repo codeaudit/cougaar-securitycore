@@ -37,9 +37,6 @@ import java.security.cert.X509Certificate;
 
 public final class ServerKeyManager
   extends org.cougaar.core.security.ssl.KeyManager {
-  
-  boolean _isSelfSigned = true;
-
   public ServerKeyManager(KeyRingService krs, ServiceBroker sb)
     throws CertificateException
   {
@@ -101,20 +98,10 @@ public final class ServerKeyManager
           log.debug("Cannot retrieve server's self-signed cert. " + kex);
       }
     }
-    else {
-      _isSelfSigned = false;
-    }
 
     if (log.isDebugEnabled())
       log.debug("WeberserverSSLContext:KeyManager: nodealias is " + nodealias
 			 + " and nodex509 is " + nodex509);
-  }
-
-  public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
-    if (_isSelfSigned) {
-      _isSelfSigned = !updateCertAndKey();
-    }
-    return super.chooseServerAlias(keyType, issuers, socket);
   }
 
   public String chooseClientAlias(String keyType, Principal[] issuers, Socket socket) {
@@ -130,4 +117,12 @@ public final class ServerKeyManager
     return NodeInfo.getHostName();
   }
 
+  static boolean _managerReady = false;
+  protected void setManagerReady() {
+    _managerReady = true;
+  }
+
+  public static boolean isManagerReady() {
+    return _managerReady;
+  }
 }
