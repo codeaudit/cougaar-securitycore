@@ -27,6 +27,8 @@ module Cougaar
       #                   false means scheduled stress should be stopped.
       @@stressesState = Hash.new
 
+      @@myexperiment = nil
+
       def Stressors.setRunState(className, methodName, runstate)
 	logInfoMsg "setRunState: #{className}.#{methodName}" if $Dbg_action
 	@@stressesState["#{className}.#{methodName}"] = runstate
@@ -38,15 +40,23 @@ module Cougaar
 	return ret
       end
 
-      def Stressors.getStressInstance(stressorClass, run) 
+      def Stressors.getStressInstance(stressorClass, current_run) 
+	setMyRun(current_run)
+	if @@myexperiment == nil
+	  @@myexperiment = MyExperiment.new(current_run)
+	end
+
 	ret =  @@stressMap[stressorClass]
 	if (ret == nil) 
           begin
-	    ret = eval("#{stressorClass}.new(run)")
+	    #logInfoMsg "getStressInstance #{current_run}"
+	    ret = eval("#{stressorClass}.new(current_run)")
           rescue => ex
             if ex.message =~ /private method `new' called/
-	      ret = eval("#{stressorClass}.instance(run)")
+	      ret = eval("#{stressorClass}.instance(current_run)")
             else
+	      saveUnitTestResult(stressorClass,
+                  "Unable to start #{stressorClass} - #{ex}\n#{ex.backtrace.join("\n")}")
               raise ex
 	    end
           end
@@ -54,10 +64,9 @@ module Cougaar
 	    # Get the names of the stresses.
             $configuredSecurityTests.concat( ret.getStressIds() )
           rescue
-            logWarningMsg "The stressor class should implement a getStressIds() method"
+            logWarningMsg "The stressor class [#{stressorClass}] should implement a getStressIds() method"
           end
-	  ret.myexperiment = MyExperiment.new(run)
-	  setMyRun(run)
+	  ret.myexperiment = @@myexperiment
 	  #puts "Run.name: #{run.name} Experiment: #{run.experiment.name}"
 	  @@stressMap[stressorClass] = ret
 	end
@@ -72,12 +81,12 @@ module Cougaar
 	@stressorClassName = className
 	@methodName = methodName
 	begin
-	  #logInfoMsg "Starting stress1: #{@stressorClassName}.#{@methodName}"
-	  @stressor = Stressors.getStressInstance(className, run)
+	  #logInfoMsg "Starting stress1: #{@stressorClassName}.#{@methodName} - #{run}"
+	  @stressor = Stressors.getStressInstance(@stressorClassName, run)
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
-	  logInfoMsg "Unable to start stress: #{@stressorClassName} - " + ex
-          saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}",
+	  logInfoMsg "InjectStress - Unable to initialize stress: #{@stressorClassName} - #{ex} "
+          saveResult(false, "Unable to initialize Stress: #{@stressorClassName}.#{@methodName}",
              "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	  return
 	end
@@ -93,7 +102,7 @@ module Cougaar
 	begin
 	  @aMethod.call()
 	rescue => ex
-	  logInfoMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
+	  logInfoMsg "InjectStress. Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
           saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}",
                "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	end
@@ -111,7 +120,7 @@ module Cougaar
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
 	  logInfoMsg "Unable to start stress: #{className} - " + ex
-          saveResult(false, "Stress: #{className}.#{methodName}",
+          saveResult(false, "Unable to initialize Stress: #{className}.#{methodName}",
              "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	  return
 	end

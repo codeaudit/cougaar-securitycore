@@ -31,42 +31,42 @@ class Security3c2 < SecurityStressFramework
    end
 
    def postStartJabberCommunications
-      #printDotsOnCougaarEvents
+     #printDotsOnCougaarEvents
      on_cougaar_event do |event|
-#       puts "event: #{event.event_type}, #{event.cluster_identifier}, #{event.component}, #{event.data.to_s}"
+       begin
+	 # puts "event: #{event.event_type}, #{event.cluster_identifier}, #{event.component}, #{event.data.to_s}"
 
-       # message revoked Idmef message
-       if event.event_type == 'STATUS' && event.component == 'IdmefEventPublisherPlugin' && event.data =~ /MESSAGE_FAILURE/
-          #saveUnitTestResult('5k', "event: #{event.cluster_identifier}, #{event.component}, #{event.data}" )
-         if event.data =~ /@revoked_agent/
-           @msg_nodes[event.cluster_identifier] = @revoked_agent
-         end
-         
-       end
+	 # message revoked Idmef message
+	 if event.event_type == 'STATUS' && event.component == 'IdmefEventPublisherPlugin' && event.data =~ /MESSAGE_FAILURE/
+	   #saveUnitTestResult('5k', "event: #{event.cluster_identifier}, #{event.component}, #{event.data}" )
+	   if event.data =~ /@revoked_agent/
+	     @msg_nodes[event.cluster_identifier] = @revoked_agent
+	   end
+	 end
 
-       # SSL revoked Idmef message
-       msgPattern = /CertificateRevoked([^)]*)/m
-       if event.event_type == 'STATUS' && event.data =~ /Revoked/
-          #saveUnitTestResult('5k', "event: #{event.cluster_identifier}, #{event.component}, #{event.data.to_s}" )
+	 # SSL revoked Idmef message
+	 msgPattern = /CertificateRevoked([^)]*)/m
+	 if event.event_type == 'STATUS' && event.data =~ /Revoked/
+	   #saveUnitTestResult('5k', "event: #{event.cluster_identifier}, #{event.component}, #{event.data.to_s}" )
 
-         name = event.data.scan(msgPattern)
-         raise "wrong revocation message found #{event.data}" unless name != []
+	   name = event.data.scan(msgPattern)
+	   raise "wrong revocation message found #{event.data}" unless name != []
           
-         agent_name = name[0].to_s.split('(')[1]
-         if agent_name == @revoked_node.name
-        
-           if event.data =~ /ServerTrustManager/
-#             summary "Confirmed SSL failure on revoked certificate for node #{agent_name} as initiator."
-             @ssl_receiver_nodes[event.cluster_identifier] = @revoked_node.name
-           elsif event.data =~ /ClientTrustManager/
-#             summary "Confirmed SSL failure on revoked certificate for node #{agent_name} as receiver."
-             @ssl_initiator_nodes[event.cluster_identifier] = @revoked_node.name
-           end
-         end
-
-       end 
-
-     end
+	   agent_name = name[0].to_s.split('(')[1]
+	   if agent_name == @revoked_node.name
+	     if event.data =~ /ServerTrustManager/
+	       # summary "Confirmed SSL failure on revoked certificate for node #{agent_name} as initiator."
+	       @ssl_receiver_nodes[event.cluster_identifier] = @revoked_node.name
+	     elsif event.data =~ /ClientTrustManager/
+	       # summary "Confirmed SSL failure on revoked certificate for node #{agent_name} as receiver."
+	       @ssl_initiator_nodes[event.cluster_identifier] = @revoked_node.name
+	     end
+	   end # if agent_name
+	 end # if event.event_type
+       rescue => ex
+	 logInfoMsg "Exception while processing event: #{event.to_s} - #{ex}\n #{ex.backtrace.join('\n')}"
+       end
+     end # on_cougaar_events
    end
 
 #   def postConditionalStartSociety
@@ -83,8 +83,20 @@ class Security3c2 < SecurityStressFramework
         saveResult("Stress5k103", "Error: could not find node to revoke")
       end
       result = @certRevocation.revokeNode(node)
-       saveResult(result, "Stress5k103",
+      saveResult(result, "Stress5k103",
          "revoke a node through administrator: #{node.name}")
+
+      sleep(3.minutes)
+
+      summary "The following nodes received SSL connection request from revoked node:"
+      summary "#{@ssl_receiver_nodes.keys.to_s}"
+      result = false unless @ssl_receiver_nodes.keys.size != 0
+      saveResult(result, "Stress3c2", "SSL initiated by node with revoked certificate.")
+
+      summary "The following nodes initiated SSL connection request to revoked node:"
+      summary "#{@ssl_initiator_nodes.keys.to_s}"
+      result = false unless @ssl_initiator_nodes.keys.size != 0
+      saveResult(result, "Stress3c5", "SSL received by node with revoked certificate.")
    end
 
    def revokeAgent(agent)
@@ -113,18 +125,6 @@ class Security3c2 < SecurityStressFramework
 	raise "Unable to find destination agent"
       end
       testMessage(agent1, agent2)      
-
-      summary "The following nodes received SSL connection request from revoked node:"
-      summary "#{@ssl_receiver_nodes.keys.to_s}"
-      result = false unless @ssl_receiver_nodes.keys.size != 0
-      saveResult(result, "Stress3c2", "SSL initiated by node with revoked certificate.")
-
-      summary "The following nodes initiated SSL connection request to revoked node:"
-      summary "#{@ssl_initiator_nodes.keys.to_s}"
-      result = false unless @ssl_initiator_nodes.keys.size != 0
-      saveResult(result, "Stress3c5", "SSL received by node with revoked certificate.")
-      #sleep(2.minutes)
-
    end
 
    def getValidDestAgent
@@ -166,6 +166,7 @@ class Security3c2 < SecurityStressFramework
 	 @revoked_agent = getAttackAgent()
 	 @revoked_node = getAttackNode()
 	 revokeAgent(@revoked_agent.name)
+	 sleep(10.minutes)
 	 revokeNode(@revoked_node)
        rescue => ex
 	 saveUnitTestResult('Stress3c2', "Unable to run test: #{ex}\n#{ex.backtrace.join("\n")}" )

@@ -121,14 +121,20 @@ class ThreatConChange < SecurityStressFramework
     user = 'george'
     badPasswd = 'thisisabadpasswd'
     saveUnitTestResult('Stress1e1', "performLoginFailures" )
-
+    totalCount = 0
     run.society.each_agent do |agent|
       params = ['Basic', agent, user, badPasswd, servlet, 401]
       count = 0
-      while count < 5
-	@userDomain.accessServlet(params)
-	count += 1
-      end 
+      if !@enteredHIGH
+	while count < 5
+	  @userDomain.accessServlet(params)
+	  count += 1
+          totalCount += 1
+	end 
+      else
+	logInfoMsg "Entered HIGH threat level after #{totalCount} login failures. No need to generate more login failures"
+	break
+      end
     end
 =begin   
     # wait for the THREATCON_LEVEL HIGH event
@@ -216,18 +222,21 @@ class ThreatConChange < SecurityStressFramework
     # sleep for a max of 30 minutes or at least until the THREATCON_LEVEL
     # has gone back to the LOW state
     totalWaitTime = 0
-    sleepTime = 10.seconds
-    maxTime = 30.minutes
+    sleepTime = 300.seconds
+    maxTime = 25.minutes
     # wait for the THREATCON_LEVEL LOW event
     logInfoMsg "Waiting for: THREATCON_LEVEL LOW"
     while @enteredLOW == false && totalWaitTime < maxTime
-      logInfoMsg "Waited #{totalWaitTime} for threat con to go back to the LOW state"
-      sleep(sleepTime) # sleep for 10 sec
+      logInfoMsg "Waited #{totalWaitTime} seconds for threat con to go back to the LOW state"
+      sleep(sleepTime) # sleep
       totalWaitTime += sleepTime
     end
-    if count >= maxTime && @enteredLOW == false
+    logInfoMsg "ThreatCon low?: #{@enteredLOW} Waited #{totalWaitTime} seconds"
+
+    if ( (totalWaitTime >= maxTime) && (@enteredLOW == false) )
       saveResult(false, "Stress1e2", "Timeout Didn't receive THREATCON_LEVEL LOW")
-    elsif @enteredLOW == true
+    elsif (@enteredLOW == true)
+      logInfoMsg "Saving LOW threatcon level results"
       saveResult(true, "Stress1e2", "Received THREATCON_LEVEL LOW")
     end
   end

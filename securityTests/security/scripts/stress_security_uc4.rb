@@ -3,17 +3,17 @@
 #
 #
 
+require 'security/lib/scripting'
 require 'security/lib/stresses/jar_files.rb'
 
-
 insert_before :wait_for_initialization do
-  do_action "InjectStress", "Stress4a53", "postLoadSociety"
+  do_action "InjectStress", "Stress4a50", "postLoadSociety"
   do_action "InjectStress", "Stress4a50", "preConditionalStartSociety"
 
-  do_action "InjectStress", "Stress4a53", "postLoadSociety"
+  do_action "InjectStress", "Stress4a51", "postLoadSociety"
   do_action "InjectStress", "Stress4a51", "preConditionalStartSociety"
 
-  do_action "InjectStress", "Stress4a53", "postLoadSociety"
+  do_action "InjectStress", "Stress4a52", "postLoadSociety"
   do_action "InjectStress", "Stress4a52", "preConditionalStartSociety"
 
   do_action "InjectStress", "Stress4a53", "postLoadSociety"

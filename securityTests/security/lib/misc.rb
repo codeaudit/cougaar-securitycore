@@ -19,7 +19,7 @@
 # </copyright>
 #
 
-#require 'security/lib/experimentFramework'
+require 'security/lib/experimentFramework'
 
 $CIP = ENV['COUGAAR_INSTALL_PATH']
 #$User = ''
@@ -179,19 +179,10 @@ end
 # Logging methods
 
 def logInfoMsg(msg='')
-  # Cougaar.logger.info  "[#{Time.now}]     #{msg}"
-  if defined?(Cougaar::Run) and run
-    if msg and msg!=''
-      run.info_message msg
-    else
-      run.info_message ''
-    end
+  if msg and msg!=''
+    run.info_message msg
   else
-    if msg and msg!=''
-      puts "[#{Time.now}]     #{msg}"
-    else
-      puts
-    end
+    run.info_message ''
   end
 end
 
@@ -423,6 +414,7 @@ end # saveResult
 
 def saveUnitTestResult(testnum, description)
   Thread.critical = true
+  #puts "Entered critical section - #{Time.now}"
   begin
     file = getTestResultXmlFile()
     file.print("<unitTestResult>\n")
@@ -434,12 +426,14 @@ def saveUnitTestResult(testnum, description)
   rescue => ex
     logWarningMsg "Unable to save test result: #{ex}"
   end
+  #puts "Leaving critical section - #{Time.now}"
   Thread.critical = false
 end # saveUnitTestResult
 
 
 def saveResultsToFile(pass, success, testnum, testname, tagId)
   Thread.critical = true
+  #logInfoMsg "saveResultsToFile - Entered critical section - #{Time.now}"
   begin
     file = getTestResultFile()
     file.print(success + "\t" + testnum + "\t" + testname + "\n");
@@ -456,6 +450,7 @@ def saveResultsToFile(pass, success, testnum, testname, tagId)
   rescue => ex
     logWarningMsg "Unable to save test result: #{ex}"
   end
+  #logInfoMsg "saveResultsToFile - Leaving critical section - #{Time.now}"
   Thread.critical = false
     
 end 

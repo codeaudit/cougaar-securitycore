@@ -163,9 +163,9 @@ class StressFramework
   
   attr_accessor :myexperiment
   
-  def run
-    @myexperiment.run
-  end
+#  def run
+#    @myexperiment.run
+#  end
 end
 
 ##########################################################
