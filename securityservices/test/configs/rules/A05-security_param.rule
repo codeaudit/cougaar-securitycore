@@ -267,6 +267,9 @@ society.each_host do |host|
     # indicates unzip & run
     node.override_parameter("-Dorg.cougaar.core.autoconfig", "true")
     node.override_parameter("-Dorg.cougaar.core.security.configpoll", "5000")
+
+    # for coordinator 
+    node.override_parameter("-Dorg.cougaar.core.security.coordinatorOn", "true")
     
     # In the future, we need to store the name of the domain manager
     # in a configuration file.
