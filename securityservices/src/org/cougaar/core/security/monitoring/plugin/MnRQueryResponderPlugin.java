@@ -146,104 +146,104 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     Iterator iter;
     CmrRelay relay;
     loggingService.debug("updateRelayedQueryResponse of MnRQueryResponderPlugin called:"
-			 + myAddress ); 
+        + myAddress ); 
     if(queryResponse.hasChanged()) {
       loggingService.debug("queryRelays has changed in MnRQueryResponderPlugin at:"
-			   +myAddress); 
+          +myAddress); 
       Collection  querymapping_col=querymapping.getCollection();
       if (loggingService.isDebugEnabled())  {
-	loggingService.debug(" collection size of query mapping in MnRQueryResponderPlugin:"
-			     + querymapping_col.size() );
-	loggingService.debug(" Going to get iterator for query relays:");
+        loggingService.debug(" collection size of query mapping in MnRQueryResponderPlugin:"
+            + querymapping_col.size() );
+        loggingService.debug(" Going to get iterator for query relays:");
       }
       Collection cols=queryResponse.getChangedCollection();
       loggingService.debug("query relays changed collection size in MnRQueryResponderPlugin is "
-			   + cols.size());
+          + cols.size());
       iter = cols.iterator();
       while (iter.hasNext()) {
-	querymapping_col=querymapping.getCollection();
-	relay = (CmrRelay)iter.next();
-	if (relay.getSource().equals(myAddress)) {
-	  if (loggingService.isDebugEnabled()) {
-	    loggingService.debug(" Got query relay with source as my address :" + relay.toString());
-	  }
-	  if(relay.getResponse() != null) {
-	    if (loggingService.isDebugEnabled()) {
-	      loggingService.debug("Relay with response is :"+relay.toString());
-	      loggingService.debug(" Got response  :"+relay.getResponse().toString());
-	      loggingService.debug(" Going to look for query mapping object with UID :"+ relay.getUID()); 
-	    }
-	    boolean isoriginator=isRelayQueryOriginator(relay.getUID(),querymapping_col);
-	    /*if(isoriginator) {
-	      loggingService.debug("Relay received is the originator of the query :"+ relay.toString());
-	      continue;
-	      }
-	    */
-	    mapping=findQueryMappingFromBB(relay.getUID(),querymapping_col);
-	    if(mapping!=null) {
-	      if(mapping.isResultPublished()) {
-		if (loggingService.isDebugEnabled())  {
-		  loggingService.debug("Relay received has a mapping object with result published as true :" +mapping.toString());
-		}
-		continue;
-	      }
-	      ArrayList list=mapping.getQueryList(); 
-	      OutStandingQuery outstandingquery;
-	      boolean modified=false;
-	      if(list!=null) {
-		for(int i=0;i<list.size();i++) {
-		  outstandingquery=(OutStandingQuery)list.get(i);
-		  loggingService.debug("Ouststanding query uid "+outstandingquery.getUID() + "outstanding object is :"+ outstandingquery.toString());
-		  if(outstandingquery.getUID().equals(relay.getUID())) {
-		    loggingService.debug("Receive Response for Ouststanding query uid "+outstandingquery.getUID() + "Current relay id is :"+relay.getUID() );
-		    list.remove(i);
-		    outstandingquery.setOutStandingQuery(false);
-		    list.add(i,outstandingquery);
-		    mapping.setQueryList(list);
-		    modified=true;
-		  }
-		}
-		boolean anyOutStandingquery=findQueryStatus(mapping);
+        querymapping_col=querymapping.getCollection();
+        relay = (CmrRelay)iter.next();
+        if (relay.getSource().equals(myAddress)) {
+          if (loggingService.isDebugEnabled()) {
+            loggingService.debug(" Got query relay with source as my address :" + relay.toString());
+          }
+          if(relay.getResponse() != null) {
+            if (loggingService.isDebugEnabled()) {
+              loggingService.debug("Relay with response is :"+relay.toString());
+              loggingService.debug(" Got response  :"+relay.getResponse().toString());
+              loggingService.debug(" Going to look for query mapping object with UID :"+ relay.getUID()); 
+            }
+            boolean isoriginator=isRelayQueryOriginator(relay.getUID(),querymapping_col);
+            /*if(isoriginator) {
+              loggingService.debug("Relay received is the originator of the query :"+ relay.toString());
+              continue;
+              }
+             */
+            mapping=findQueryMappingFromBB(relay.getUID(),querymapping_col);
+            if(mapping!=null) {
+              if(mapping.isResultPublished()) {
+                if (loggingService.isDebugEnabled())  {
+                  loggingService.debug("Relay received has a mapping object with result published as true :" +mapping.toString());
+                }
+                continue;
+              }
+              ArrayList list=mapping.getQueryList(); 
+              OutStandingQuery outstandingquery;
+              boolean modified=false;
+              if(list!=null) {
+                for(int i=0;i<list.size();i++) {
+                  outstandingquery=(OutStandingQuery)list.get(i);
+                  loggingService.debug("Ouststanding query uid "+outstandingquery.getUID() + "outstanding object is :"+ outstandingquery.toString());
+                  if(outstandingquery.getUID().equals(relay.getUID())) {
+                    loggingService.debug("Receive Response for Ouststanding query uid "+outstandingquery.getUID() + "Current relay id is :"+relay.getUID() );
+                    list.remove(i);
+                    outstandingquery.setOutStandingQuery(false);
+                    list.add(i,outstandingquery);
+                    mapping.setQueryList(list);
+                    modified=true;
+                  }
+                }
+                boolean anyOutStandingquery=findQueryStatus(mapping);
 		
-		if(!anyOutStandingquery) {
-		  // All the replies have been received.
-		  // Update the response and send it back to the originator.
-		  if (loggingService.isDebugEnabled()) {
-		    loggingService.debug("Updating response in responder plugin with no outstanding query");
-		  }
-		  updateResponse(mapping);
-		}
-		if(modified) {
-		  getBlackboardService().publishChange(mapping);
-		}
-	      }
-	      else {
-		if (loggingService.isDebugEnabled()) {
-		  loggingService.debug(" Relay List in Query Mapping is NULL :");
-		}
-	      }
-	    }
-	    else {
-	      if (loggingService.isDebugEnabled()) {
-		loggingService.debug(" Could not find Query mapping object for UId :"+ relay.getUID());
-	      }
-	    }
-	  }
-	  else {
-	    if (loggingService.isDebugEnabled()) {
-	      loggingService.debug("got relay as my address but response is null:"
-				   +relay.toString());
-	    }
-	  }
-	}
-	else{
-	  if (loggingService.isDebugEnabled()) {
-	    loggingService.debug(" i'm not the source and I want relay with me as source :"+relay.toString());
-	  }
-	}
+                if(!anyOutStandingquery) {
+                  // All the replies have been received.
+                  // Update the response and send it back to the originator.
+                  if (loggingService.isDebugEnabled()) {
+                    loggingService.debug("Updating response in responder plugin with no outstanding query");
+                  }
+                  updateResponse(mapping);
+                }
+                if(modified) {
+                  getBlackboardService().publishChange(mapping);
+                }
+              }
+              else {
+                if (loggingService.isDebugEnabled()) {
+                  loggingService.debug(" Relay List in Query Mapping is NULL :");
+                }
+              }
+            }
+            else {
+              if (loggingService.isDebugEnabled()) {
+                loggingService.debug(" Could not find Query mapping object for UId :"+ relay.getUID());
+              }
+            }
+          }
+          else {
+            if (loggingService.isDebugEnabled()) {
+              loggingService.debug("got relay as my address but response is null:"
+                  +relay.toString());
+            }
+          }
+        }
+        else{
+          if (loggingService.isDebugEnabled()) {
+            loggingService.debug(" i'm not the source and I want relay with me as source :"+relay.toString());
+          }
+        }
       }
       if (loggingService.isDebugEnabled()) {
-	loggingService.debug(" Done with update relay from responder plugin:");
+        loggingService.debug(" Done with update relay from responder plugin:");
       }
     }
   }
@@ -252,15 +252,15 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     QueryMapping querymapping=null;
     if(!queryMappingCol.isEmpty()){
       if (loggingService.isDebugEnabled()) {
-	loggingService.debug("Going to find if this relay id is originator of query :"); 
+        loggingService.debug("Going to find if this relay id is originator of query :"); 
       }
       Iterator iter=queryMappingCol.iterator();
       while(iter.hasNext()) {
-	querymapping=(QueryMapping)iter.next();
-	if(querymapping.getRelayUID().equals(givenUID)) {
-	  isoriginator=true;
-	  return isoriginator;
-	}
+        querymapping=(QueryMapping)iter.next();
+        if(querymapping.getRelayUID().equals(givenUID)) {
+          isoriginator=true;
+          return isoriginator;
+        }
       }
     }
     return isoriginator;
@@ -273,27 +273,27 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     //QueryMapping tempqMapping;
     if(!queryMappingCol.isEmpty()){
       if (loggingService.isDebugEnabled()) {
-	loggingService.debug("Going to find uid from list of Query mapping Objects on bb"+queryMappingCol.size()); 
+        loggingService.debug("Going to find uid from list of Query mapping Objects on bb"+queryMappingCol.size()); 
       }
       Iterator iter=queryMappingCol.iterator();
       while(iter.hasNext()) {
-	foundqMapping=(QueryMapping)iter.next();
-	if(foundqMapping.getRelayUID().equals(givenUID)) {
-	  return foundqMapping;
-	}
-	relayList=foundqMapping.getQueryList();
-	if(relayList==null) {
-	  return null;
-	}
-	for(int i=0;i<relayList.size();i++) {
-	  outstandingq=(OutStandingQuery)relayList.get(i);
-	  if(outstandingq.getUID().equals(givenUID)) {
-	    if (loggingService.isDebugEnabled()) {
-	      loggingService.debug(" Found given uid :"+ givenUID +" in object with UID :"+outstandingq.getUID());
-	    }
-	    return foundqMapping;
-	  }
-	}
+        foundqMapping=(QueryMapping)iter.next();
+        if(foundqMapping.getRelayUID().equals(givenUID)) {
+          return foundqMapping;
+        }
+        relayList=foundqMapping.getQueryList();
+        if(relayList==null) {
+          return null;
+        }
+        for(int i=0;i<relayList.size();i++) {
+          outstandingq=(OutStandingQuery)relayList.get(i);
+          if(outstandingq.getUID().equals(givenUID)) {
+            if (loggingService.isDebugEnabled()) {
+              loggingService.debug(" Found given uid :"+ givenUID +" in object with UID :"+outstandingq.getUID());
+            }
+            return foundqMapping;
+          }
+        }
       }
       
     }
@@ -315,8 +315,8 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
       outstandingquery=(OutStandingQuery)list.get(i);
       boolean currentstatus=outstandingquery.isQueryOutStanding();
       if(currentstatus){
-	outStandingQuery=currentstatus;
-	return outStandingQuery;
+        outStandingQuery=currentstatus;
+        return outStandingQuery;
       }
     }
     return outStandingQuery;
@@ -331,46 +331,46 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     relay=findCmrRelay(map.getRelayUID());
     if(relay!=null) {
       if (loggingService.isDebugEnabled()) {
-	loggingService.debug("Update response called for relay :"+relay.toString());
+        loggingService.debug("Update response called for relay :"+relay.toString());
       }
       ArrayList list=map.getQueryList();
       if(list==null) {
-	reply=new MRAgentLookUpReply(agentList);
-	map.setResultPublished(true);
-	relay.updateResponse(relay.getSource(),reply);
-	getBlackboardService().publishChange(relay);
-	getBlackboardService().publishChange(map);
-	loggingService.debug("Got the mapping list as null setting the relay response as empty:");
-	return;
+        reply=new MRAgentLookUpReply(agentList);
+        map.setResultPublished(true);
+        relay.updateResponse(relay.getSource(),reply);
+        getBlackboardService().publishChange(relay);
+        getBlackboardService().publishChange(map);
+        loggingService.debug("Got the mapping list as null setting the relay response as empty:");
+        return;
       }
       OutStandingQuery outstandingquery;
       //boolean completed=false;
       for(int i=0;i<list.size();i++) {
-	outstandingquery=(OutStandingQuery)list.get(i);
-	if (loggingService.isDebugEnabled()) {
-	  loggingService.debug("Finding relay for outstanding query");
-	}
-	response_relay=findCmrRelay(outstandingquery.getUID());
-	if(response_relay!=null) {
-	  reply=(MRAgentLookUpReply ) response_relay.getResponse();
-	  if (reply != null) {
-	    if( reply.getAgentList()!=null) {
-	      agentList=mergeResponse(agentList, reply.getAgentList());
-	      //agentList.addAll( reply.getAgentList());
-	    }
-	  }
-	  else {
-	    loggingService.error("Lookup query marked as completed, but at least one response is null. "
-				 + "Subquery:" + response_relay.toString()
-				 + ". Original query:" + relay.toString());
-	  }
-	}
-	else {
+        outstandingquery=(OutStandingQuery)list.get(i);
+        if (loggingService.isDebugEnabled()) {
+          loggingService.debug("Finding relay for outstanding query");
+        }
+        response_relay=findCmrRelay(outstandingquery.getUID());
+        if(response_relay!=null) {
+          reply=(MRAgentLookUpReply ) response_relay.getResponse();
+          if (reply != null) {
+            if( reply.getAgentList()!=null) {
+              agentList=mergeResponse(agentList, reply.getAgentList());
+              //agentList.addAll( reply.getAgentList());
+            }
+          }
+          else {
+            loggingService.error("Lookup query marked as completed, but at least one response is null. "
+                + "Subquery:" + response_relay.toString()
+                + ". Original query:" + relay.toString());
+          }
+        }
+        else {
 	  
-	  if (loggingService.isDebugEnabled())
-	    loggingService.debug(" Could not find UID:"+ outstandingquery.getUID()+
-				 "in Update response of agent :"+myAddress.toString());
-	}
+          if (loggingService.isDebugEnabled())
+            loggingService.debug(" Could not find UID:"+ outstandingquery.getUID()+
+                "in Update response of agent :"+myAddress.toString());
+        }
       }
       reply=new MRAgentLookUpReply(agentList);
       map.setResultPublished(true);
@@ -380,7 +380,7 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     }
     else {
       if (loggingService.isDebugEnabled()) {
-	loggingService.debug("Could not find relay for :"+map.getRelayUID().toString());
+        loggingService.debug("Could not find relay for :"+map.getRelayUID().toString());
       }
     }
   }
@@ -398,10 +398,10 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     while(existinglistiterator.hasNext()) {
       agentid=(MessageAddress)existinglistiterator.next();
       if(agentid!=null) {
-	ispresent=isAgentInList(agentid.getAddress(),returnList);
-	if(!ispresent) {
-	  returnList.add(agentid);
-	}
+        ispresent=isAgentInList(agentid.getAddress(),returnList);
+        if(!ispresent) {
+          returnList.add(agentid);
+        }
       }
       
     }
@@ -409,10 +409,10 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     while(listiterator.hasNext()) {
       agentid=(MessageAddress)listiterator.next();
       if(agentid!=null) {
-	ispresent=isAgentInList(agentid.getAddress(),returnList);
-	if(!ispresent) {
-	  returnList.add(agentid);
-	}
+        ispresent=isAgentInList(agentid.getAddress(),returnList);
+        if(!ispresent) {
+          returnList.add(agentid);
+        }
       }
     }
     return returnList;
@@ -432,10 +432,10 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     while(listiterator.hasNext()) {
       agentid=(MessageAddress)listiterator.next();
       if(agentid!=null){
-	if(agentid.getAddress().equalsIgnoreCase(agent)){
-	  present=true;
-	  return present;
-	}
+        if(agentid.getAddress().equalsIgnoreCase(agent)){
+          present=true;
+          return present;
+        }
       }
     }
     return present;
@@ -455,7 +455,7 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     while(iter.hasNext()) {
       relay=(CmrRelay)iter.next();
       if(relay.getUID().equals(key)) {
-	return relay;
+        return relay;
       }
     }
     return null;
