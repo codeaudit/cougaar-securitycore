@@ -36,6 +36,28 @@ import kaos.ontology.util.JTPStringFormatUtils;
 import kaos.ontology.util.ValueNotSet;
 
 
+/*
+ * This class and its subclasses have an awkward problem.  It is
+ * attempting to bridge a gap between the OntologyRepository
+ * interfaces and the TunnelClient/KAoSDirectoryService interface.  I
+ * use the OntologyRepository class for the standalone applications
+ * and the TunnelClient class for the applications involving remote
+ * access to the directory service.
+ * 
+ * Really this class should have the KAoSDirectoryService interfaces.
+ * However it is not clear how to start the KAoSDirectoryService in a
+ * standalone application.  The KAoSDirectoryService is abstract
+ * (easily fixed) but it also obtains services using a service root.
+ * I looked briefly at DAMLBasedKAoSDirectory but this class uses a
+ * backwards pointer to the KAoSDirectoryService which is passed to it
+ * in its constructor.  This may be fixable?
+ *
+ * Conceivably if this gets me into trouble we could switch to a mode
+ * where all policy building is done locally and I use the tunnel
+ * client to commit them???
+ *
+ */
+
 public abstract class OntologyConnection
 {
   /*
