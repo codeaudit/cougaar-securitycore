@@ -35,10 +35,16 @@ public class SecurityLog
 {
   private PrintStream log;
   private int loudness;
-  
+  private EventHolder eventholder=null;
+  private String type=null;
+
   public SecurityLog(int loudness)
   {
     this.loudness = loudness;
+    this.type=BootstrapEvent.JarVerificationAlarm;
+    eventholder=EventHolder.getInstance();
+    System.out.println("Instance of Event holder in  security Log :"+eventholder.toString());
+    
   }
   public void createLogFile(String nodeName) {
 
@@ -90,6 +96,10 @@ public class SecurityLog
       log.print("\n<stack>\n");
       e.printStackTrace(log);
       log.print("</stack></securityEvent>\n");
+      ByteArrayOutputStream outstream=new ByteArrayOutputStream();
+      e.printStackTrace(new PrintStream(outstream));
+      eventholder.addEvent(new BootstrapEvent(type,Calendar.getInstance().getTime(),
+						      null,outstream.toString()));
     }
     else if (loudness > 0) {
       System.out.println("Unable to log JAR file verification error:" + e);
