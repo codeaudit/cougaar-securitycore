@@ -9,5 +9,6 @@
 #      c.insertionpoint = "Node.AgentManager.Agent.MessageTransport.Aspect"
 #      c.priority = "INTERNAL"
 #      c.classname = plugin
+#      c.order = 510
 #  end
 #end
