@@ -3,7 +3,7 @@ KPAT HOW-TO
 
 1. To start the KPAT policy editor on Linux, first edit the runKPAT script
    to set appropriate properties. The script can be found under
-   test/configs/demo.
+   test/configs/demo or the safe module (bin directory).
    In particular, the host name where the domain manager is running
    and the http port number should be configured.
 2. The society must be running before launching the policy editor, and
@@ -11,23 +11,79 @@ KPAT HOW-TO
    manager.
 3. Execute the runKPAT script. All the agents should be visible in the
    left panel.
-4. To set a policy for a specific agent, select the agent.
-5. On the right panel, Click the "Add..." button, new window pops up 
-6. Type the following parameters:
+
+Unconditional policies
+----------------------
+1. To set a policy for a specific agent, select the agent in the left panel.
+   To set a policy for the entire domain, select the domain.
+2. On the right panel, Click the "Add..." button. A new window pops up.
+3. Type the following parameters:
     - name: a name for the policy
-    - Description: a description of that policy.
-    - type: one of
-             org.cougaar.core.security.policy.AccessControlPolicy
-             org.cougaar.core.security.policy.CryptoPolicy
-7. Click the "New" button to select a new policy parameter, then click
+    - Description: a description of that policy. (optional)
+    - type: see below in the "policy type" section.
+
+4. Click the "New" button to select a new policy parameter, then click
    on the "import XML" button. Select the appropriate XML policy file.
-   NOTE: the XML file must be in $COUGAAR_INSTALL_PATH/configs/common
-8. Click the "in force" check box
-9. Click "XML Content" in the "Allowed Attributes" window
-10.Click ">> Select >>" button, "XML Content" added to the "Selected Attributes"
-   window
-11.Click "OK" pop up window closes.
-12.On the Main window, click "Commit" on the lower right.
+   NOTE: the XML files are in the $COUGAAR_INSTALL_PATH/configs/security
+   directory. Type the name of the file without the full path.
+5. Click the "in force" check box.
+6. Click "XML Content" in the "Allowed Attributes" window.
+7. Click ">> Select >>" button, "XML Content" added to the "Selected Attributes"
+   window.
+8. Click "OK" pop up window closes.
+9. In the Main window, click "Commit" on the lower right.
+
+Conditional policies
+--------------------
+Conditional policies are policies that may change depending on the value
+of an operating mode. Currently, KPAT supports one policy operating mode,
+which can be either LOW or HIGH.
+
+For each policy operating mode value, a set of policies can be selected.
+For instance, the LOW mode can specify that users can log in using
+either a password or a certificate. In the HIGH mode, users are required
+to provide a certificate. Users with a password will not be allowed to
+log in.
+Two ServletPolicy files have been written for each policy operating mode.
+Select the ThreatConLOW.ServletPolicy.xml for the LOW operating mode
+and ThreatConHIGH.ServletPolicy.xml for the HIGH operating mode.
+
+1. Click the "Add" button in the "Conditional Policies" frame
+   to create a new conditional policy.
+2. A pop-up window with the domain structure shows up. Select the entity
+   that must enforce the conditional policy. If the policy applies to the
+   entire domain, select the domain.
+3. Select the value of the policy operating mode for which you plan to
+   specify a policy.
+4. Click the "Add" button to create a new policy, and add a new policy
+   as described in "Unconditional policies", step 2 to 9.
+5. Click "OK" to return to the main window. You should see one new
+   line in the "Conditional policies" frame with the value of the policy
+   mode you have selected and the name of the policy.
+6. Repeat step 1 to 5 with a different value for the operating mode.
+7. In the Main window, click "Commit" on the lower right.
+
+Policy type
+-----------
+The policy type can be one of:
+org.cougaar.core.security.policy.AccessControlPolicy
+org.cougaar.core.security.policy.BlackboardFilterPolicy
+org.cougaar.core.security.policy.CryptoPolicy
+org.cougaar.core.security.policy.DataProtectionPolicy
+org.cougaar.core.security.policy.LdapUserServicePolicy
+org.cougaar.core.security.policy.ServletPolicy
+
+* The AccessControlPolicy is used to perform access control on messages flowing between
+  Cougaar agents. For instance, agents may or may not accept messages from other agents,
+  or may accept only a limited set of messages.
+* The BlackboardFilterPolicy is used to control access to the blackboard by servlets.
+  For instance, some users may be allowed to read and write blackboard objects, while
+  other users may have read-only access to blackboard objects.
+* The CryptoPolicy is used to control the cryptographic policy when sending or receiving
+  messages.
+* The DataProtectionPolicy is used to control how persisted data is protected.
+* The LdapUserServicePolicy is used to control access to the user and role database.
+* The ServletPolicy is used to enforce user access control on serlvets.
 
 NOTE:
 If you want to change the policy, go edit the xml policy file, then in above step 5,
