@@ -961,8 +961,9 @@ public class DirectoryKeyStore
 	// Self signed certificate
 	cause = CertificateTrust.CERT_TRUST_SELF_SIGNED;
       }
-      if (log.isWarnEnabled()) {
-	log.warn("Certificate chain failed for: " + principal.getName());
+      if (log.isInfoEnabled()) {
+	log.info("Certificate chain failed for: " + principal.getName() + 
+		 " Cause: " + cause.toString());
       }
       throw new CertificateChainException("Failed to establish chain from reply", cause);
     }
@@ -1045,6 +1046,8 @@ public class DirectoryKeyStore
       if (log.isDebugEnabled()) {
 	log.debug("-- Checking certificates validity for: " + name);
       }
+
+      boolean isTrusted = false; // Raise a warning if there is no trusted cert for that entity.
       while (it.hasNext()) {
 	CertificateStatus cs = (CertificateStatus) it.next();
 	X509Certificate certificate = cs.getCertificate();
@@ -1058,11 +1061,12 @@ public class DirectoryKeyStore
 	  }
 	  cs.setCertificateTrust(CertificateTrust.CERT_TRUST_CA_SIGNED);
           certCache.updateBigInt2Dn(certificate);
+	  isTrusted = true;
 	}
 	catch (CertificateChainException exp) {
-	  if (log.isWarnEnabled()) {
-	    log.warn("Unable to get certificate chain. Cause= "
-		     + exp.cause);
+	  if (log.isInfoEnabled()) {
+	    log.info("Unable to get certificate chain. Cause= "
+		     + exp.cause + " - Cert:" + certificate.toString());
 	  }
 	  if (exp.cause == CertificateTrust.CERT_TRUST_SELF_SIGNED) {
 	    // Maybe we didn't get a reply from the CA the last time
@@ -1084,27 +1088,31 @@ public class DirectoryKeyStore
 	  }
 	}
 	catch (CertificateExpiredException exp) {
-	  if (log.isWarnEnabled()) {
-	    log.warn("Certificate in chain has expired. "
+	  if (log.isInfoEnabled()) {
+	    log.info("Certificate in chain has expired. "
 		     + " - " + exp);
 	  }
 	}
 	catch (CertificateNotYetValidException exp) {
-	  if (log.isWarnEnabled()) {
-	    log.warn("Certificate in chain is not yet valid. "
+	  if (log.isInfoEnabled()) {
+	    log.info("Certificate in chain is not yet valid. "
 		     + " - " + exp);
 	  }
 	}
 	catch(CertificateRevokedException certrevoked) {
-	  if(log.isWarnEnabled()) {
-	    log.warn(" certificate is revoked for dn ="
+	  if(log.isInfoEnabled()) {
+	    log.info(" certificate is revoked for dn ="
 		     +((X509Certificate)certificate).getSubjectDN().getName());
-	    certrevoked.printStackTrace();
+	    //certrevoked.printStackTrace();
 	  }
-
+	}
+      } // END while(it.hasNext())
+      if (isTrusted == false) {
+	if (log.isWarnEnabled()) {
+	  log.warn("No trusted certificate was found for " + name.toString());
 	}
       }
-    }
+    } // END while(e.hasMoreElements()
 
     for (Enumeration en = selfsignedCAs.keys(); en.hasMoreElements(); ) {
       try {
@@ -1351,7 +1359,8 @@ public class DirectoryKeyStore
 
     //Enumeration enumeration = vector1.elements();
     Iterator it = listSigner.listIterator();
-    // Loop through all the issuer keys
+    // Loop through all the issuer keys and check to see if there is at least
+    // one trusted key.
     while(it.hasNext()) {
       CertificateStatus cs = (CertificateStatus) it.next();
       X509Certificate x509certificate1 = (X509Certificate)cs.getCertificate();
@@ -1360,12 +1369,12 @@ public class DirectoryKeyStore
 	x509certificate.verify(publickey);
       }
       catch(Exception exception) {
-	if (log.isDebugEnabled()) {
-	  log.debug("Unable to verify signature: "
+	if (log.isInfoEnabled()) {
+	  log.info("Unable to verify signature: "
 			     + exception + " - "
 			     + x509certificate1
                              + " - " + cs.getCertificateAlias());
-	  exception.printStackTrace();
+	  //exception.printStackTrace();
 	}
 	continue;
       }
@@ -1958,12 +1967,12 @@ public class DirectoryKeyStore
 		  + alias
 		  + " (" + e + ")"
 		  + " Current date is " + d.toString());
-        e.printStackTrace();
+        //e.printStackTrace();
       }
     } catch(Exception e) {
       if (log.isWarnEnabled()) {
-        log.warn("Error: can't get certificate for " + alias);
-        e.printStackTrace();
+        log.warn("Error: can't get certificate for " + alias + " Reason: " + e);
+        //e.printStackTrace();
       }
     }
     return privatekey;

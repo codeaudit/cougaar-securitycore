@@ -135,8 +135,8 @@ public class CryptoManagerServiceImpl
       try {
 	java.security.cert.Certificate c =
 	  ((CertificateStatus)it.next()).getCertificate();
-    // filter out those non valid certificates first
-            System.out.println("Cert: " + c + " : " + new Date());
+	// filter out those non valid certificates first
+	//System.out.println("Cert: " + c + " : " + new Date());
         if (expiredOk) {
           try {
             keyRing.checkCertificateTrust((X509Certificate)c);

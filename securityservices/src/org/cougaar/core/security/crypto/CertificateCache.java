@@ -375,8 +375,8 @@ public class CertificateCache
 	updateBigInt2Dn(cert);
       }
       else {
-	if(log.isWarnEnabled())
-	  log.warn("Certificate " + principal.getName() + " is not trusted yet trust="
+	if(log.isInfoEnabled())
+	  log.info("Certificate " + principal.getName() + " is not trusted yet trust="
 		   + certEntry.getCertificateTrust());
       }
 
@@ -596,8 +596,8 @@ public class CertificateCache
       }
       else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
 	// Try to find out certificate trust
-	if (log.isWarnEnabled()) {
-	  log.warn("checkCertificate. Certificate trust is unknown");
+	if (log.isDebugEnabled()) {
+	  log.debug("checkCertificate. Certificate trust is unknown");
 	}
 	isTrustedAndValid = false;
       }
