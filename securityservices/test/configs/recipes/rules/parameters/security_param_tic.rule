@@ -217,7 +217,7 @@ society.each_host do |host|
     # This is needed because of a bug in the SDK 1.4.
     # Internal Java runtime classes can create infinite recursive calls
     #node.remove_parameter("-Xbootclasspath/a.*")
-    node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar:$COUGAAR_INSTALL_PATH/lib/bootstrap.jar")
+    node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH/lib/bootstrap.jar")
     
     # Aspects: MessageProtectionAspect
     # Add the MessageProtectionAspect to the org.cougaar.message.transport.aspects property to turn on
