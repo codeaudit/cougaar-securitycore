@@ -59,8 +59,8 @@ class DamlURLStreamHandler extends URLStreamHandler
     if (_log != null && _log.isDebugEnabled()) {
       _log.debug("Opening url " + u.toString());
     }
-    if (u.toString().endsWith(".daml") && 
-        u.toString().startsWith("http://ontology.coginst.uwf.edu")) {
+    if (u.toString().endsWith(".owl") && 
+        u.toString().startsWith("http://ontology.ihmc.us")) {
       if (_log != null && _log.isDebugEnabled()) {
         _log.debug("Using proxy");
         _log.debug("++++++++++++++++++++++++++++++++++++++++++++++++");
