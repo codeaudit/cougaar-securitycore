@@ -1,6 +1,6 @@
 CIP = ENV['CIP'] 
 RULES = File.join(CIP, 'csmart','config','rules') 
-RULES1 = File.join(CIP, 'config','rules') 
+RULES1 = File.join(CIP, 'csmart','config','rules') 
  
 $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib') 
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist') 
@@ -45,7 +45,7 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   end 
  
   # transform the basic society to use our host-node layout 
-  do_action "LayoutSociety", "MiniPing-layout.xml", hosts_file 
+  do_action "LayoutSociety", "Secure-MiniPing-layout.xml", hosts_file 
  
   # add the community plugins 
   do_action "SetupCommunityPlugins" 
