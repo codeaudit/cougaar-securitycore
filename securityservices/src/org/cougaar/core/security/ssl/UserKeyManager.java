@@ -53,7 +53,6 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
   private Hashtable aliasTable;
   */
 
-  private PrivateKey privatekey = null;
   protected X509Certificate userx509 = null;
 
   public UserKeyManager(KeyRingService krs, ServiceBroker sb) {

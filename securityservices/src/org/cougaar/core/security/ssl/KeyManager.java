@@ -43,6 +43,8 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
   protected KeyRingService keyRing = null;
   protected DirectoryKeyStore keystore = null;
   protected String nodealias = null;
+  protected PrivateKey privatekey = null;
+  protected X509Certificate [] certChain = null;
   protected X509Certificate nodex509 = null;
   protected String nodename = null;
   private ServiceBroker serviceBroker;
@@ -76,10 +78,6 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 
     keystore = keyRing.getDirectoryKeyStore();
     keystore.setKeyManager(this);
-
-    if (log.isDebugEnabled())
-      log.debug("SSLContext:KeyManager: nodealias is " + nodealias
-        + " and nodex509 is " + nodex509);
   }
 
   public synchronized void finishInitialization() {
@@ -107,7 +105,14 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     if (certList != null && certList.size() > 0) {
       nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
       log.debug("update nodex509: " + nodex509);
+
+      privatekey = findPrivateKey(nodealias);
+      certChain = findCertificateChain(nodealias);
     }
+
+    if (log.isDebugEnabled())
+      log.debug("SSLContext:KeyManager: nodealias is " + nodealias
+        + " and nodex509 is " + nodex509);
   }
 
   /**  Choose an alias to authenticate the client side of a secure socket
@@ -138,6 +143,10 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
    * Returns the certificate chain associated with the given alias.
    */
   public X509Certificate[] getCertificateChain(String alias) {
+    return certChain;
+  }
+
+  protected X509Certificate[] findCertificateChain(String alias) {
     // should be only asking for node's chain for now
     if (log.isDebugEnabled()) {
       log.debug("getCertificateChain: " + alias);
@@ -152,7 +161,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 		   + alias + ": " + e);
 	}
       }
-    } 
+    }
 
     if (log.isWarnEnabled()) {
       log.warn("Failed to getCertificateChain for " + alias);
@@ -176,6 +185,10 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
    * Returns the key associated with the given alias.
    */
   public PrivateKey getPrivateKey(String alias) {
+    return privatekey;
+  }
+
+  protected PrivateKey findPrivateKey(String alias) {
     // only find for node, why would agent certificate be asked?
     if (nodex509 == null || nodealias == null || !alias.equals(nodealias))
       return null;

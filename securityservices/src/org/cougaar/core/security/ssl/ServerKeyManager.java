@@ -54,6 +54,7 @@ public final class ServerKeyManager
     }
   }
 
+  /*
   public synchronized void updateKeystore() {
     // find the valid hostname, get key alias and server certificate
     // use nodealias to set server alias which is the hostname
@@ -75,6 +76,7 @@ public final class ServerKeyManager
       log.debug("WeberserverSSLContext:KeyManager: nodealias is " + nodealias
 			 + " and nodex509 is " + nodex509);
   }
+  */
 
   public String chooseClientAlias(String keyType, Principal[] issuers, Socket socket) {
     // server application has no client alias
