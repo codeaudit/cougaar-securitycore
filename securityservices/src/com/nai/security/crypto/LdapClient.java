@@ -93,7 +93,9 @@ public class LdapClient
     SearchControls constrains=new SearchControls();
     constrains.setSearchScope(SearchControls.SUBTREE_SCOPE);
     try {
-      results=context.search(Contexturl,filter,constrains);
+      if (context != null) {
+ 				results=context.search(Contexturl,filter,constrains);
+ 			}
     }
     catch(NamingException searchexp) {
       System.out.println("search failed");
@@ -117,7 +119,9 @@ public class LdapClient
     SearchControls constrains=new SearchControls();
     constrains.setSearchScope(SearchControls.SUBTREE_SCOPE);
     try {
-      results = context.search(Provider_Url,filter.toString(),constrains);
+      if (context != null) {
+ 				results=context.search(Provider_Url,filter.toString(),constrains);
+ 			}
     }
     catch(NamingException searchexp) {
       System.out.println("search failed");
@@ -136,7 +140,9 @@ public class LdapClient
     System.out.println("Filters provided for search ..........."+filter);
     System.out.println("Provider url is  ..........."+Provider_Url);
     try {
-      results=context.search(Provider_Url,filter,constrains);
+      if (context != null) {
+ 				results=context.search(Provider_Url,filter,constrains);
+ 			}
     }
     catch(NamingException searchexp) {
       System.out.println("search failed");
