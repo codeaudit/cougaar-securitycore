@@ -307,12 +307,23 @@ public class SecurityAspect extends StandardAspect
             if(set[i+1] == null){
                 set[i+1] = policy; //new TrustSet();
             }else{
-                compare(set[i+1], policy);
-            }
-          }
+		if(directive[i] instanceof Task) {
+		    Task task = (Task)directive[i];
+		    if(matchInVerb(task.getDestination().toString(), 
+				   task.getSource().toString(),
+				    task.getVerb())) {
+			set[i+1] = policy;
+		    } else {
+			compare(set[i+1], policy);
+		    }
+		} else {		    
+		    compare(set[i+1], policy);
+		}
+	    }
+	  }
       }
     }
-
+	
     private boolean incomingAgentAction(Message msg) {
 	String action;
 
@@ -541,12 +552,26 @@ public class SecurityAspect extends StandardAspect
             policy = acps.getOutgoingTrust
               (directive[i].getSource().toString(),
                directive[i].getDestination().toString());
-            set[i+1] = policy; //new TrustSet();
-          }
+            if(set[i+1] == null){
+		set[i+1] = policy;
+            }else{
+		if(directive[i] instanceof Task) {
+		    Task task = (Task)directive[i];
+		    if(matchOutVerb(task.getDestination().toString(), 
+				   task.getSource().toString(),
+				   task.getVerb())) {
+			set[i+1] = policy;
+		    } else {
+			compare(set[i+1], policy);
+		    }
+		} else 
+		    compare(set[i+1], policy);		
+	    }
+	  }
       }
       return set;        
     }
-
+	
     private boolean matchOutVerb(String source, String target, Verb verb) {
       Object[] verbs = acps.getOutgoingVerbs(source, target);
       if(verb == null || verbs.length == 0) {

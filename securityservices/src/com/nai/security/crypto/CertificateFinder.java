@@ -39,9 +39,15 @@ import java.security.spec.*;
 import javax.naming.*;
 import javax.naming.directory.*;
 
+import com.nai.security.certauthority.LdapEntry;
+
 public class CertificateFinder  
 {
   static private boolean debug = false;
+
+  static private final int NETTOOLS = 1;
+  static private final int OPENLDAP = 2;
+  static private int ldapType = OPENLDAP;
 
   /** Creates new CertificateFinder */
   private String Provider_Url;
@@ -58,10 +64,36 @@ public class CertificateFinder
     }
   }
   public X509Certificate getCertificate(String commonName)
-  {
+  { 
     NamingEnumeration search_results = client.search(commonName);
     int counter=0;
     X509Certificate certificate=null;
+    if(ldapType == OPENLDAP) {
+    while((search_results!=null)&&(search_results.hasMoreElements())) {
+      try {
+	SearchResult result = (SearchResult)search_results.next();
+	LdapEntry entry = client.getLdapEntry(result.getName());
+	if(entry.getStatus().trim().equals("3"))continue;
+	
+	certificate = entry.getCertificate();
+	//verify CA signiture
+	Principal issuer = certificate.getIssuerDN();
+	java.security.cert.Certificate c = KeyRing.findCert(issuer);
+	if (c == null) {
+	  throw new CertificateException("Abort getting cert for " + 
+	    commonName
+	    + ", Unable to get CA certificate for verifying.");
+	}
+	PublicKey pk = c.getPublicKey();
+	certificate.verify(pk);
+      } catch(Exception ex) {
+	  certificate = null;
+	  ex.printStackTrace();
+      }
+    }
+    return certificate;
+    }
+    else {
     while((search_results!=null)&&(search_results.hasMoreElements())) {
       try {
 	SearchResult singleentry=(SearchResult)search_results.next();
@@ -105,12 +137,12 @@ public class CertificateFinder
     if (debug) {
       System.out.println("value of counter is " + counter);
     }
-     
+    }
     return certificate; 
   }
   public Hashtable getCRL()
   {
-
+    if(ldapType == OPENLDAP)return new Hashtable();
     String filter="(cert_status=3)";
     NamingEnumeration search_results= client.searchwithfilter(filter);
     int counter=0;

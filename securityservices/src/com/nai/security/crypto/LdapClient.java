@@ -33,6 +33,8 @@ import java.util.Enumeration;
 import javax.naming.*;
 import javax.naming.directory.*;
 
+import com.nai.security.certauthority.LdapEntry;
+
 public class LdapClient 
 {
   public String Provider_Url;
@@ -139,6 +141,18 @@ public class LdapClient
       searchexp.printStackTrace();
     }
     return results;
+  }
+
+  public LdapEntry getLdapEntry(String name) {
+    LdapEntry entry = null;
+    try {
+      entry = (LdapEntry)context.lookup(name);
+    }
+    catch(Exception ex) {
+      if(debug)ex.printStackTrace();
+      System.out.print("Unable to fetch ldap entry for " + name);
+    }
+    return entry;
   }
 
 }
