@@ -230,7 +230,7 @@ public class NodeServerTest
 	+ tcc.getRmiRegistryPort() + "";
 
       try {
-	//System.out.println("Executing " + commandLine);
+	System.out.println("Executing " + commandLine);
 	nodeApp = thisApp.exec(commandLine);
 
 	ProcessGobbler pg = new ProcessGobbler(resultPath, "ssh-" + tcc.getHostName(), nodeApp);

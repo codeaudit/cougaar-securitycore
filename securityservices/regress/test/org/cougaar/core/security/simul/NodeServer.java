@@ -137,6 +137,7 @@ public class NodeServer
 
       PrintWriter outWriter = new PrintWriter(nodeApp.getOutputStream(), true);
       outWriter.println("cd " + nodeStartupDirectory.getAbsoluteFile());
+      System.out.println("Executing: " + commandLine);
       outWriter.println(commandLine);
       outWriter.flush();
 

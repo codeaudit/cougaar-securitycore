@@ -105,6 +105,7 @@
         <mkdir dir="${securityservices.classes}"/>
         <mkdir dir="${securityservices.signed}"/>
         <mkdir dir="${securityservices.docdir}"/>
+        <mkdir dir="${cougaar.workspace}/log4jlogs"/>
 
         <!-- make regress directory -->
         <mkdir dir="${securityservices.results}" />
@@ -507,10 +508,14 @@
     </target>
         
     <!-- Junit tests -->
-    <target name="junit" depends="clean-log, cvs-update-junit, build-securityservices">
+    <target name="junit" depends="clean-log, build-securityservices">
        <ant antfile="build-junit.xml" dir="." target="run-node-tests-with-report" inheritRefs="true">
           <property name="junit.test.desc"   value="CaStandaloneFromScratch"/>
           <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandaloneFromScratch.xml"/>
+       </ant>
+       <ant antfile="build-junit.xml" dir="." target="run-node-tests-with-report" inheritRefs="true">
+          <property name="junit.test.desc"   value="CaStandalone"/>
+          <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandalone.xml"/>
        </ant>
     </target>
 

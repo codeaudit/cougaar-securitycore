@@ -70,7 +70,7 @@
   </target>
 
   <target name="clean" description="Delete compiled files">
-     <delete verbose="true">
+     <delete>
         <fileset  dir="${build}"/>
      </delete>
   </target>
