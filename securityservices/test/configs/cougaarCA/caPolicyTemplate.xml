@@ -15,7 +15,7 @@
       <clientCertPolicy>
         <!-- The X509 version number to be created -->
         <certVersion>2</certVersion>
-        <nodeIsSigner>false</nodeIsSigner>
+        <nodeIsSigner>$[nodeIsSigner]</nodeIsSigner>
         <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
         <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
         <keysize>$[keysize]</keysize>
