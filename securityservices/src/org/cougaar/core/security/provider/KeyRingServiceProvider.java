@@ -64,7 +64,7 @@ public class KeyRingServiceProvider
 	boolean exec =
 	  Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
 	if (exec == true) {
-	  log.warn("Unable to initialize KeyRingService: " + e);
+	  log.warn("Unable to initialize KeyRingService: ", e);
 	}
 	else {
 	  log.info("Unable to initialize KeyRingService: " + e);

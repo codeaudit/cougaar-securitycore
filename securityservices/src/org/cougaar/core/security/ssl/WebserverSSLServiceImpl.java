@@ -48,8 +48,9 @@ public class WebserverSSLServiceImpl
   public synchronized void init(KeyRingService krs)
     throws Exception
   {
-    if (srvcontext != null)
+    if (srvcontext != null) {
       return;
+    }
 
     // create context
     SSLContext context = SSLContext.getInstance(protocol);

@@ -55,8 +55,9 @@ public class WebtomcatSSLServerFactory
     // check permission
 
     // if not initialized throws runtime exception
-    if (socfac == null)
+    if (socfac == null) {
       throw new CertificateException("SSL socket factory is not initialized.");
+    }
   }
 
   public synchronized static void init(WebserverIdentityService webssl) {

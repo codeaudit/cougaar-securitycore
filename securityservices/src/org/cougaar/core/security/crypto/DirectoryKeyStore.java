@@ -72,6 +72,7 @@ import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.identity.*;
+import org.cougaar.core.security.ssl.KeyManager;
 
 import org.cougaar.core.security.test.crypto.*;
 import org.cougaar.core.security.dataprotection.*;
@@ -131,6 +132,9 @@ public class DirectoryKeyStore
    */
   private NameMapping nameMapping;
 
+  private List       _initKeyManager = new LinkedList();
+  private boolean    _initializing = true;
+
   /* Update OIDMap to include IssuingDistribution Point Extension &
    * Certificate Issuer Extension
    */
@@ -146,6 +150,52 @@ public class DirectoryKeyStore
     }
   }
 
+  public synchronized void setKeyManager(KeyManager km) {
+    if (!_initializing) {
+      km.finishInitialization();
+    } else {
+      _initKeyManager.add(km);
+    } 
+  }
+
+  public synchronized void finishInitialization() {
+    // LDAP certificate directory
+    if (_initializing) {
+      _initializing = false;
+      certificateFinder =
+        CertDirectoryServiceFactory.
+        getCertDirectoryServiceClientInstance(param.ldapServerType, 
+                                              param.ldapServerUrl,
+                                              param.serviceBroker);
+      if(certificateFinder == null) {
+        if (!param.isCertAuth) {
+          if (log.isErrorEnabled()) {
+            log.error("Could  not get certificate finder from factory");
+          }
+          throw new RuntimeException("Could  not get certificate finder from factory");
+        } else {
+          if (log.isInfoEnabled()) {
+            log.info("CA does not have a superior");
+          }
+        }
+      }
+      // initCertCache may has already been updating crl
+      // in case of root CA cert in trusted store while direct
+      // CA is not, direct CA will be added to crlCache when
+      // node cert trust is checked
+      crlCache=new CRLCache(this, param.serviceBroker);
+
+      if (!param.isCertAuth) {
+	initCRLCache();
+      }
+
+      Iterator iter = _initKeyManager.iterator();
+      while (iter.hasNext()) {
+        KeyManager km = (KeyManager) iter.next();
+        km.finishInitialization();
+      } // end of while (iter.hasNext())
+    } // end of if (_initializing)
+  }
 
  /** Initialize the directory key store */
   public DirectoryKeyStore(DirectoryKeyStoreParameters aParam) {
@@ -159,25 +209,6 @@ public class DirectoryKeyStore
     this.log = (LoggingService)
       param.serviceBroker.getService(this,
 				     LoggingService.class, null);
-
-    // LDAP certificate directory
-    certificateFinder =
-      CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-	param.ldapServerType, param.ldapServerUrl,
-	param.serviceBroker);
-    if(certificateFinder == null) {
-      if (!param.isCertAuth) {
-	if (log.isErrorEnabled()) {
-	  log.error("Could  not get certificate finder from factory");
-	}
-	throw new RuntimeException("Could  not get certificate finder from factory");
-      }
-      else {
-	if (log.isInfoEnabled()) {
-	  log.info("CA does not have a superior");
-	}
-      }
-    }
 
     try {
       // Open Keystore
@@ -227,24 +258,15 @@ public class DirectoryKeyStore
 	log.warn("DirectoryKeystore warning: Role not defined");
       }
 
-      // initCertCache may has already been updating crl
-      // in case of root CA cert in trusted store while direct
-      // CA is not, direct CA will be added to crlCache when
-      // node cert trust is checked
-      crlCache=new CRLCache(this, param.serviceBroker);
-
       // Initialize certificate cache
       initCertCache();
-      if (!param.isCertAuth) {
-	initCRLCache();
-      }
+
     }
     catch (Exception e) {
       log.error("Unable to initialize DirectoryKeystore: " + e);
     }
 
     certCache.printbigIntCache();
-
   }
 
   private void publishCAToLdap(String caDN) {
@@ -2672,7 +2694,7 @@ public class DirectoryKeyStore
 
     } catch(Exception e) {
       log.warn("Unable to send PKCS request to CA. CA URL:" + trustedCaPolicy[0].caURL
-	       + " . CA DN:" + trustedCaPolicy[0].caDN + e.getMessage());
+	       + " . CA DN:" + trustedCaPolicy[0].caDN, e);
     }
       
     return reply;

@@ -50,13 +50,13 @@ public class SSLServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public Object getService(ServiceBroker sb,
-			   Object requestor,
-			   Class serviceClass) {
+  public synchronized Object getService(ServiceBroker sb,
+                                        Object requestor,
+                                        Class serviceClass) {
 
     LoggingService log = (LoggingService)
-      sb.getService(this,
-			       LoggingService.class, null);
+      sb.getService(this, LoggingService.class, null);
+
     if (sslservice != null)
       return sslservice;
 

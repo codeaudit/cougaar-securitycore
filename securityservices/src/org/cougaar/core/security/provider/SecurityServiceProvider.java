@@ -51,6 +51,7 @@ import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.provider.SecurityServicePermission;
 import org.cougaar.core.security.util.*;
+import org.cougaar.core.security.ssl.JaasSSLFactory;
 
 // Cougaar overlay
 import org.cougaar.core.security.coreservices.crypto.*;
@@ -284,8 +285,7 @@ public class SecurityServiceProvider
     rootServiceBroker.addService(CertificateManagementService.class, this);
 
     /* Key lookup service */
-    services.put(KeyRingService.class,
-		 new KeyRingServiceProvider());
+    services.put(KeyRingService.class, new KeyRingServiceProvider());
     rootServiceBroker.addService(KeyRingService.class, this);
 
     services.put(CertValidityService.class,
@@ -299,12 +299,9 @@ public class SecurityServiceProvider
       rootServiceBroker.addService(EncryptionService.class, this);
 
       /* Data protection service */
-      /* turn off the data protection service. It seems to 
-         be causing us problems by being too slow or something...
       services.put(DataProtectionService.class,
                    new DataProtectionServiceProvider());
       rootServiceBroker.addService(DataProtectionService.class, this);
-      */
 
       /* Message protection service */
       services.put(MessageProtectionService.class,
@@ -348,10 +345,21 @@ public class SecurityServiceProvider
       services.put(SSLService.class,
                    new SSLServiceProvider());
       rootServiceBroker.addService(SSLService.class, this);
+
       // SSLService and WebserverIdentityService are self started
       // they offer static functions to get socket factory
       // in the functions the permission will be checked.
       rootServiceBroker.getService(this, SSLService.class, null);
+
+      KeyRingService krs = 
+        (KeyRingService) rootServiceBroker.getService(this, 
+                                                      KeyRingService.class,
+                                                      null);
+
+      javax.net.ssl.HttpsURLConnection.
+        setDefaultSSLSocketFactory(new JaasSSLFactory(krs, rootServiceBroker));
+
+      krs.getDirectoryKeyStore().finishInitialization();
 
       // configured to use SSL?
       if (secprop.getProperty(secprop.WEBSERVER_HTTPS_PORT, null) != null) {
@@ -371,10 +379,15 @@ public class SecurityServiceProvider
         setNodeServiceBroker(serviceBroker);
     }
     else {
-      log.debug("Running in standalone mode");
+      KeyRingService krs = 
+        (KeyRingService) rootServiceBroker.getService(this, 
+                                                      KeyRingService.class,
+                                                      null);
+      log.info("Running in standalone mode");
       services.put(UserSSLService.class,
                    new UserSSLServiceProvider());
       rootServiceBroker.addService(UserSSLService.class, this);
+      krs.getDirectoryKeyStore().finishInitialization();
     }
 
   }

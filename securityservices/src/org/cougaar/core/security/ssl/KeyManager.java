@@ -74,6 +74,14 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     }
 
     keystore = keyRing.getDirectoryKeyStore();
+    keystore.setKeyManager(this);
+
+    if (log.isDebugEnabled())
+      log.debug("SSLContext:KeyManager: nodealias is " + nodealias
+        + " and nodex509 is " + nodex509);
+  }
+
+  public synchronized void finishInitialization() {
     if (!(this instanceof UserKeyManager)) {
       keyRing.checkOrMakeCert(getName());
       CertValidityService cvs = (CertValidityService)
@@ -82,12 +90,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
       cvs.addValidityListener(this);
     }
 
-    // get nodename, nodealias, and node certificate
     updateKeystore();
-
-    if (log.isDebugEnabled())
-      log.debug("SSLContext:KeyManager: nodealias is " + nodealias
-        + " and nodex509 is " + nodex509);
   }
 
   public synchronized void updateKeystore() {
@@ -148,7 +151,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 		   + alias + ": " + e);
 	}
       }
-    }
+    } 
 
     if (log.isWarnEnabled()) {
       log.warn("Failed to getCertificateChain for " + alias);
