@@ -309,7 +309,6 @@ TRANSCOM-COMM,TRANSCOM,Role,Member
 TRANSCOM-COMM,TheaterGround,MemberType,Agent
 TRANSCOM-COMM,TheaterGround,Role,Member
 Security-Mgmt-COMM,SocietySecurityMnRManager,Role,Member
-Security-Mgmt-COMM,SocietySecurityMnRManager,Role,SecurityMnRManager-Society
 Security-Mgmt-COMM,SocietySecurityMnRManager,MemberType,Agent
 Security-Mgmt-COMM,SOCIETY_SECURITY,Role,Member
 Security-Mgmt-COMM,SOCIETY_SECURITY,MemberType,Agent
@@ -338,13 +337,16 @@ Enclave1Security-COMM,Enclave1SecurityMnRManager,Role,SecurityMnRManager-Enclave
 Enclave1Security-COMM,Enclave1SecurityMnRManager,MemberType,Agent
 Enclave2Security-COMM,FULL_1AD_c,Role,Member
 Enclave2Security-COMM,FULL_1AD_c,MemberType,Agent
-Enclave2Security-COMM,SOCIETY_SECURITY,Role,Member
-Enclave2Security-COMM,SOCIETY_SECURITY,MemberType,Agent
 Enclave2Security-COMM,ENCLAVE2-MANAGEMENT,Role,Member
 Enclave2Security-COMM,ENCLAVE2-MANAGEMENT,MemberType,Agent
 Enclave2Security-COMM,Enclave2SecurityMnRManager,Role,Member
 Enclave2Security-COMM,Enclave2SecurityMnRManager,Role,SecurityMnRManager-Enclave
 Enclave2Security-COMM,Enclave2SecurityMnRManager,MemberType,Agent
+Enclave3Security-COMM,SOCIETY_SECURITY,Role,Member
+Enclave3Security-COMM,SOCIETY_SECURITY,MemberType,Agent
+Enclave3Security-COMM,SocietySecurityMnRManager,Role,Member
+Enclave3Security-COMM,SocietySecurityMnRManager,Role,SecurityMnRManager-Society
+Enclave3Security-COMM,SocietySecurityMnRManager,MemberType,Agent
 Enclave3Security-COMM,FULL_1AD_top,Role,Member
 Enclave3Security-COMM,FULL_1AD_top,MemberType,Agent
 Enclave3Security-COMM,USERADMIN-NODE,Role,Member
