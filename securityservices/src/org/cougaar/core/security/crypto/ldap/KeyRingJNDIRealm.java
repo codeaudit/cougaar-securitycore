@@ -138,6 +138,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   public static final int    LF_PASSWORD_MISMATCH       = 6;
   public static final int    LF_USER_MISMATCH           = 7;
   public static final int    LF_REQUIRES_CERT           = 8;
+  public static final int    LF_REQUIRES_ROLE           = 9;
 
   public static final String LOGIN_FAILURE_ID = "LOGINFAILURE";
   public static final String FAILURE_REASON = "Reason for login failure";
@@ -162,7 +163,9 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
                         "dual authentication user names are different")},
     {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "requires user certificate")}
+                        "requires user certificate")},
+    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
+                        "does not have required role")}
   };
 
   /** 

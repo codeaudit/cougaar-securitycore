@@ -236,12 +236,9 @@ public class DualAuthenticator extends ValveBase {
       hres.sendError(hres.SC_UNAUTHORIZED,
                      "You have entered a different user name than " +
                      "in your certificate.");
-      if (realm instanceof KeyRingJNDIRealm) {
-        KeyRingJNDIRealm krjr = (KeyRingJNDIRealm) realm;
-        krjr.alertLoginFailure( krjr.LF_USER_MISMATCH, 
-                                certPrincipal.getName(),
-                                passPrincipal.getName() );
-      }
+      sendFailureMessage(realm, KeyRingJNDIRealm.LF_USER_MISMATCH,
+                         certPrincipal.getName(),
+                         passPrincipal.getName() );
       return false;
     } else if ( ( certInvoked && passInvoked ) ||
                 ( passInvoked && (totalConstraint & CONST_CERT) == 0 ) ||
@@ -262,23 +259,29 @@ public class DualAuthenticator extends ValveBase {
         hres.sendError(hres.SC_UNAUTHORIZED,
                        "You must provide a client certificate in order " +
                        "to access this URL");
-        if (realm instanceof KeyRingJNDIRealm) {
-          KeyRingJNDIRealm krjr = (KeyRingJNDIRealm) realm;
-          krjr.alertLoginFailure( krjr.LF_REQUIRES_CERT, 
-                                  passPrincipal.getName() );
-        }
+        sendFailureMessage(realm,KeyRingJNDIRealm.LF_REQUIRES_CERT,
+                           passPrincipal.getName(), null);
         return false;
       } else if (!certInvoked && !passInvoked) {
         hres.sendError(hres.SC_UNAUTHORIZED,
                        "You do not have the required role to access this URL");
+        sendFailureMessage(realm, KeyRingJNDIRealm.LF_REQUIRES_ROLE,
+                           certPrincipal.getName(), null);
         return false;
       } else {
 //         System.out.println("user is granted");
         return true; // user is granted access
       }
     } else if (!certInvoked && !passInvoked) {
-      // nobody authenticated this user and therefore we must deny them
+      // nobody authenticated this user and therefore we must deny them.
       // the password authentication has already given a response.
+      String name = null;
+      if (certPrincipal != null) name=certPrincipal.getName();
+      else if (passPrincipal != null) name=passPrincipal.getName();
+      if (name != null) {
+        sendFailureMessage(realm, KeyRingJNDIRealm.LF_REQUIRES_ROLE,
+                           name, null);
+      }
       return false;
     } else {
       // authentication is accepted
@@ -286,7 +289,18 @@ public class DualAuthenticator extends ValveBase {
       return true;
     }
   }
-        
+
+  private static void sendFailureMessage(Realm realm, int messageID, 
+                                         String user1, String user2) {
+    if (realm instanceof KeyRingJNDIRealm) {
+      KeyRingJNDIRealm krjr = (KeyRingJNDIRealm) realm;
+      if (user2 == null) {
+        krjr.alertLoginFailure( messageID, user1 );
+      } else {
+        krjr.alertLoginFailure( messageID, user1, user2 );
+      }
+    }
+  }
   /**
    * Sets an authentication constraints. It allows
    * the specification of whether the path should support authentication
