@@ -22,10 +22,8 @@
 
 package test.org.cougaar.core.security.simul;
 
-import junit.framework.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import junit.framework.TestCase;
+import junit.framework.TestResult;
 
 public class ThreadTestResult
   extends TestResult

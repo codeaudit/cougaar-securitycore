@@ -26,13 +26,17 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.util.regex.*;
-import junit.framework.*;
-import java.rmi.Naming;
-import java.rmi.registry.*;
+import java.io.File;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.ArrayList;
+
+import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
+import junit.framework.Protectable;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestResult;
 
 public class NodeServerTest
   extends TestCase

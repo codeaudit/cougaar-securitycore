@@ -26,14 +26,14 @@
 
 package test.org.cougaar.core.security.nodetests;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.util.regex.*;
-import junit.framework.*;
-import com.meterware.httpunit.*;
+import junit.framework.Assert;
 
-import org.w3c.dom.Document.*;
+import com.meterware.httpunit.AuthorizationRequiredException;
+import com.meterware.httpunit.GetMethodWebRequest;
+import com.meterware.httpunit.WebConversation;
+import com.meterware.httpunit.WebForm;
+import com.meterware.httpunit.WebRequest;
+import com.meterware.httpunit.WebResponse;
 
 public class CaWebClient
 {

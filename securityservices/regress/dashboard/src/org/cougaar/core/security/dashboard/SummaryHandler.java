@@ -26,11 +26,12 @@
 
 package org.cougaar.core.security.dashboard;
 
-import java.io.*;
-import java.util.*;
+import java.io.CharArrayWriter;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class SummaryHandler
   extends DefaultHandler

@@ -22,20 +22,23 @@
 
 package test.org.cougaar.core.security.crypto;
 
-import junit.framework.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-import java.io.*;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
-// Cougaar core services
-import org.cougaar.core.service.*;
-import org.cougaar.core.component.*;
-import org.cougaar.core.mts.*;
-
-// Cougaar security services
-import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.MessageAttributes;
+import org.cougaar.core.mts.ProtectedInputStream;
+import org.cougaar.core.mts.ProtectedOutputStream;
+import org.cougaar.core.mts.SimpleMessageAddress;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.service.MessageProtectionService;
 
-// Regress
 import test.org.cougaar.core.security.simul.BasicNode;
 
 public class MessageProtectionServiceTest

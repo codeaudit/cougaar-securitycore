@@ -24,44 +24,27 @@
  * - 
  */
 
-package test.org.cougaar.core.security.test.crypto;
+package test.org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
 import java.security.PrivateKey;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CRL;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
-import com.ibm.security.pkcs12.PKCS12PFX;
-import com.ibm.security.pkcs8.PrivateKeyInfo;
-import com.ibm.security.pkcsutil.PKCSException;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
-// Cougaar core infrastructure
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.SimpleMessageAddress;
-import org.cougaar.core.service.identity.*;
-import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar Security Services
-import org.cougaar.core.security.util.CryptoDebug;
-import org.cougaar.core.security.crypto.KeyRing;
-import org.cougaar.core.security.crypto.PrivateKeyCert;
-import org.cougaar.core.security.crypto.KeySet;
-import org.cougaar.core.security.crypto.KeyWrapping;
 import org.cougaar.core.security.crypto.CertificateStatus;
-import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.KeySet;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.util.CryptoDebug;
+import org.cougaar.core.service.identity.AgentIdentityService;
+import org.cougaar.core.service.identity.TransferableIdentity;
 
-import junit.framework.*;
-
-// Regress
 import test.org.cougaar.core.security.simul.BasicNode;
 
 public class AgentMobilityTest

@@ -29,9 +29,6 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.util.*;
-import java.io.*;
-import org.xml.sax.*;
 
 public class SaxMapperLog {
 

@@ -26,14 +26,7 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import junit.framework.*;
-
-import org.w3c.dom.*;
+import java.util.Vector;
 
 public class Argument
 {

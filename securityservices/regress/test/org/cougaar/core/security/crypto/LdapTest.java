@@ -24,57 +24,20 @@
  * - 
  */
 
-package test.org.cougaar.core.security.test.crypto;
+package test.org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.security.cert.*;
-import java.security.SignatureException;
-import java.security.NoSuchAlgorithmException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchProviderException;
-import java.security.Signature;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.MessageDigest;
-import java.math.BigInteger;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
-import javax.crypto.*;
-
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.Attributes;
-import sun.security.pkcs.*;
-import sun.security.x509.*;
-import sun.security.util.*;
-import sun.security.provider.*;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-// Cougaar
-import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.ServiceRevokedListener;
-import org.cougaar.core.component.ServiceRevokedEvent;
-
-// Cougaar Security Services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
-import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
 import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
-
-import org.cougaar.core.security.services.crypto.CertificateManagementService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.NodeConfiguration;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 
-import junit.framework.*;
-
-// Regress
 import test.org.cougaar.core.security.simul.BasicNode;
 
 public class LdapTest

@@ -26,10 +26,7 @@
 
 package org.cougaar.core.security.dashboard;
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.text.*;
+import java.io.File;
 
 public class ResultFiles
 {

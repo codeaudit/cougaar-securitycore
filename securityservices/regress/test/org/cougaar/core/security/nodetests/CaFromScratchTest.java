@@ -26,13 +26,21 @@
 
 package test.org.cougaar.core.security.nodetests;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-import javax.naming.*;
-import javax.naming.directory.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Hashtable;
 
-import junit.framework.*;
+import javax.naming.Context;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+
+import junit.framework.Assert;
 
 public class CaFromScratchTest
 {

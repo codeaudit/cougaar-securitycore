@@ -26,8 +26,6 @@
 
 package org.cougaar.core.security.dashboard;
 
-import java.io.*;
-import java.util.*;
 
 public class NodeResults
 {

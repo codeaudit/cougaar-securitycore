@@ -26,14 +26,12 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import junit.framework.*;
-
-import org.w3c.dom.*;
+import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Vector;
 
 public class Experiment
   implements Serializable

@@ -30,7 +30,6 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 import java.text.*;
-import junit.framework.*;
 import junit.extensions.ExceptionTestCase;
 
 import test.org.cougaar.core.security.simul.*;

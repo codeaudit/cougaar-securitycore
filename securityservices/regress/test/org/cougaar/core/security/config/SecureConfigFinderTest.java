@@ -26,18 +26,21 @@
 
 package test.org.cougaar.core.security.config;
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLClassLoader;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.log4j.Category;
+import org.cougaar.core.security.config.jar.SecureConfigFinder;
 import org.cougaar.util.ConfigFinder;
-
-// Cougaar Security Services
-import org.cougaar.core.security.config.SecureConfigFinder;
-
 import org.w3c.dom.Document;
-import junit.framework.*;
-import org.apache.log4j.*;
 
 public class SecureConfigFinderTest
   extends TestCase
@@ -76,7 +79,7 @@ public class SecureConfigFinderTest
     _scf = (SecureConfigFinder)ConfigFinder.getInstance();
     Assert.assertNotNull(_scf);
     URL[] jarFiles = getJarFilesFromClassPath();
-    _scf.appendUrlSearchPath(jarFiles);
+    //_scf.appendUrlSearchPath(jarFiles);
 
     // Search file. It should be found in the config path.
     testLocateFile(files, shouldExist);

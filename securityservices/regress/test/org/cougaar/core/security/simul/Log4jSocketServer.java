@@ -22,33 +22,25 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.net.Socket;
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
-import java.text.*;
-import java.lang.reflect.Constructor;
 
-import junit.framework.*;
+import junit.framework.Assert;
 
-import org.cougaar.util.ConfigFinder;
-import org.cougaar.bootstrap.XURLClassLoader;
-
-import org.w3c.dom.*;
-import org.xml.sax.InputSource;
+import org.apache.log4j.Category;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.net.SocketNode;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.apache.xerces.parsers.DOMParser;
-
-import org.apache.log4j.*;
-import org.apache.log4j.net.*;
-import org.apache.log4j.spi.*;
-import org.apache.log4j.or.RendererMap;
-import org.apache.log4j.helpers.*;
-import org.apache.log4j.xml.*;
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 public class Log4jSocketServer
 {

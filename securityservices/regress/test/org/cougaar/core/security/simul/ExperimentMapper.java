@@ -26,14 +26,24 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import junit.framework.*;
+import java.io.BufferedReader;
+import java.io.CharArrayWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Properties;
+import java.util.Stack;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.w3c.dom.*;
+import junit.framework.Assert;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 public class ExperimentMapper
   extends SaxMapper

@@ -26,12 +26,12 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.util.*;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
+import java.io.FileInputStream;
+import java.util.ArrayList;
 
-import org.w3c.dom.*;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ConfigParser
 {

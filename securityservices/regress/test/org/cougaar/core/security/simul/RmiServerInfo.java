@@ -26,13 +26,6 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.util.regex.*;
-import junit.framework.*;
-import java.rmi.Naming;
-import java.rmi.registry.*;
 
 public class RmiServerInfo
 {

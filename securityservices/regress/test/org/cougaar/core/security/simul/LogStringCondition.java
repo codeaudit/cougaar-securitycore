@@ -25,9 +25,6 @@
  */
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.util.*;
-import junit.framework.*;
 
 public class LogStringCondition
 {

@@ -26,11 +26,12 @@
 
 package org.cougaar.core.security.dashboard;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ResultParser
 {

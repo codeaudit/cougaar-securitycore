@@ -22,11 +22,19 @@
 
 package test.org.cougaar.core.security.simul;
 
-import junit.framework.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Properties;
+import java.util.StringTokenizer;
+
+import junit.framework.Assert;
 
 public class PropertyFile
 {

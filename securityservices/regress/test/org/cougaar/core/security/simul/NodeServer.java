@@ -22,19 +22,16 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
+import java.io.File;
+import java.net.InetAddress;
 import java.rmi.Naming;
 import java.rmi.RMISecurityManager;
 import java.rmi.registry.LocateRegistry;
 
-import junit.framework.*;
-import org.apache.log4j.net.*;
+import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
+
 import org.apache.log4j.LogManager;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.xml.DOMConfigurator;
 
 public class NodeServer
   extends java.rmi.server.UnicastRemoteObject

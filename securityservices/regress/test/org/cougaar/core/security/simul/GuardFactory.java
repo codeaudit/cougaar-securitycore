@@ -26,13 +26,13 @@
 
 package test.org.cougaar.core.security.simul;
 
-import org.cougaar.core.component.*;
-import org.cougaar.core.agent.*;
-import org.cougaar.core.mts.*;
-import org.cougaar.core.service.MessageTransportService;
-import org.cougaar.util.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.services.util.PolicyBootstrapperService;
+import org.cougaar.core.service.MessageTransportService;
 
 import safe.guard.NodeGuard;
 
