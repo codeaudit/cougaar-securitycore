@@ -76,7 +76,7 @@ rm -rf $TOMCAT_HOME/logs/*
 
 cp $COUGAAR_SECURITY_SERVICES/sys/*.jar $TOMCAT_HOME/webapps/CA/WEB-INF/lib/
 cp $COUGAARCLASSES/securityservices.jar $TOMCAT_HOME/webapps/CA/WEB-INF/lib/
-cd  $TOMCAT_HOME/webapps/CA/WEB-INF/lib
+cd  $TOMCAT_HOME/webapps/CA/WEB-INF/classes
 
 jar -xvf $TOMCAT_HOME/webapps/CA/WEB-INF/lib/securityservices.jar \
         com/nai/security/certauthority/CertificateSigningRequest.class \
