@@ -16,6 +16,9 @@ db_csmart=csmart${version}
 db_superuser=root
 db_spassword=ultralog
 
+# Assembly ID
+assembly_id=COMM-0001
+
 # Super user name and password to access the database server
 db_user=ultralog
 db_password=ul-password
@@ -38,19 +41,19 @@ echo "Note: You must execute this script on the database server (probably mango)
 echo "Existing databases on server:"
 mysqlshow
 
-echo "The following database will be removed and recreated if you continue:"
-echo "1: ${db_1ad}"
-echo "2: ${db_csmart}"
-
-echo -n "Do you want to continue (y/n) ?"
-read reply
-if [ ${reply} != "y" ]; then
-	exit
-fi
 
 #############################################
 # Functions used in this script
 drop_database () {
+	echo "The following database will be removed and recreated if you continue:"
+	echo "1: ${db_1ad}"
+	echo "2: ${db_csmart}"
+
+	echo -n "Do you want to continue (y/n) ?"
+	read reply
+	if [ ${reply} != "y" ]; then
+		exit
+	fi
 	#echo "Dropping ${db_1ad}"
 	#mysqladmin drop ${db_1ad} -u ${db_superuser} --password=${db_spassword}
 	echo "Dropping ${db_csmart}"
@@ -88,7 +91,7 @@ load_communities() {
 	echo "Loading communities"
 	/bin/cp -f ${community_file_attr} ${CIP}/csmart/data/database/scripts/mysql
 	/bin/cp -f ${community_file_entity} ${CIP}/csmart/data/database/scripts/mysql
-	${CIP}/csmart/data/database/scripts/mysql/load_communities.sh ${db_superuser} ${db_spassword} ${db_csmart}
+	${CIP}/csmart/data/database/scripts/mysql/load_communities.sh ${db_superuser} ${db_spassword} ${db_csmart} ${assembly_id}
 }
 
 load_domain_database() {
