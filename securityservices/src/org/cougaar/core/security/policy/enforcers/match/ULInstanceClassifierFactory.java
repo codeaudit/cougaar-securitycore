@@ -29,6 +29,11 @@ import kaos.policy.information.KAoSProperty;
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
 // Cougaar core and securityservices imports
+import org.cougaar.core.service.community.Agent;
+import org.cougaar.core.service.community.CommunityChangeEvent;
+import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.role.RoleExecutionContext;
 import org.cougaar.core.security.policy.enforcers.util.DAMLBlackboardMapping;
@@ -53,8 +58,10 @@ public class ULInstanceClassifierFactory
   private ServiceBroker _sb;
   private CommunityService _communityService;
   private HashMap _communityCache = new HashMap();
+  private HashMap _listeners      = new HashMap();
   private LoggingService _log;
   private ULActorInstanceClassifier _instClassifier;
+  private Object _csLock = new Object(); // a mutex for _communityService
 
   public ULInstanceClassifierFactory(ServiceBroker sb)
   {
@@ -68,6 +75,13 @@ public class ULInstanceClassifierFactory
     if (_log == null) {
       throw new NullPointerException("LoggingService");
     }
+
+    _communityService = (CommunityService) 
+      _sb.getService(this, CommunityService.class, null);
+    if (_communityService == null) {
+      _sb.addServiceListener(new CommunityServiceListener());
+    }
+
     if (_log.isDebugEnabled()) {
       _log.debug("ULInstanceClassifier factory initialized");
     }
@@ -105,16 +119,18 @@ public class ULInstanceClassifierFactory
 
   private void ensureCommunityServicePresent()
   {
+    // wait for the community service to show up
     if (_communityService == null) {
-      _communityService = 
-        (CommunityService) _sb.getService(this, 
-                                          CommunityService.class, 
-                                          null);
-      if (_communityService == null) {
-        throw new RuntimeException("No community service");
-      }
-      if (_log.isDebugEnabled()) {
-        _log.debug("ULInstanceClassifier: Community Service installed");
+      synchronized (_csLock) {
+        while (_communityService == null) {
+          try {
+            _log.debug("Waiting for CommunityService to be available...");
+            _csLock.wait();
+            _log.debug("CommunityService is now available");
+          } catch (InterruptedException e) {
+            // go around again...
+          }
+        }
       }
     }
   }
@@ -133,12 +149,25 @@ public class ULInstanceClassifierFactory
     private String personPrefix     = 
       org.cougaar.core.security.policy.enforcers.ontology.jena.
       ActorClassesConcepts.ActorClassesDamlURL;
+    private Set    _loadAgents     = new HashSet();
 
     public void init ()
       throws InstanceClassifierInitializationException 
     {
       _log.debug("Initializing the Actor Instance Classifier");
       return;
+    }
+
+    public void init(String className) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Initializing the Actor Instance Classifier "
+                   + "for the classname" + className);
+      }
+      if (className.startsWith(communityPrefix)) {
+        ensureCommunityServicePresent();
+        String community = className.substring(communityPrefix.length());
+        loadAgentsInCommunity(community);
+      }
     }
 
     public boolean classify(String className, Object instance) 
@@ -200,9 +229,8 @@ public class ULInstanceClassifierFactory
 
         String community 
           = className.substring(communityPrefix.length());
-        Collection communities = getCommunitiesFromAgent(actor);
 
-        return communities.contains(community);
+        return isAgentInCommunity(community, actor);
       } else if (className.startsWith(personPrefix)) {
         if (_log.isDebugEnabled()) {
           _log.debug("Dealing with a person");
@@ -210,7 +238,7 @@ public class ULInstanceClassifierFactory
         String role 
           = className.substring(personPrefix.length());
         if (_log.isDebugEnabled()) {
-          _log.debug("MatchSing with the role " + role);
+          _log.debug("Matching with the role " + role);
         }
         
         if (actor.equals(UserDatabase.anybody())) {
@@ -271,26 +299,160 @@ public class ULInstanceClassifierFactory
       public Collection communities;
     }
 
-    private Collection getCommunitiesFromAgent(String agent)
-    {
-      Collection communities  = null;
-      Object     cached;
-
-      if ((cached = _communityCache.get(agent)) == null) {
-	// TODO. Resolve community membership in the policy update call.
-	String comms[] = _communityService.getParentCommunities(true);
-	if (comms != null) {
-	  communities = new ArrayList(comms.length);
-	  for (int i = 0 ; i < comms.length ; i++) {
-	    communities.add(comms[i]);
-	  }
-	  _communityCache.put(agent, communities);
-	}
-      } else {
-        communities = (Collection) cached;
+    private void loadAgentsInCommunity(String community) {
+      LoadAgentsListener listener = new LoadAgentsListener(community);
+      Collection c = _communityService.searchCommunity(community, "*", true,
+                                                       Community.AGENTS_ONLY,
+                                                       listener);
+      if (c != null) {
+        setCommunityAgents(community, c);
+        return;
       }
-      _log.debug("Returning " + communities + " for " + agent);
-      return communities;
+      boolean block = false;
+      synchronized (_loadAgents) {
+        _loadAgents.add(listener);
+        if (_loadAgents.size() == 1) {
+          // we have to block, there are no others waiting...
+          do {
+            try {
+              _loadAgents.wait();
+            } catch (InterruptedException e) {
+            }
+          } while (!_loadAgents.isEmpty());
+        }
+      }
+    }
+
+    private void setCommunityAgents(String community, Collection c) {
+      synchronized (_communityCache) {
+        Set agents = (Set) _communityCache.get(community);
+        if (agents == null) {
+          agents = new HashSet();
+          _communityCache.put(community, agents);
+        } else {
+          agents.clear();
+        }
+        Iterator iter = c.iterator();
+        while (iter.hasNext()) {
+          Agent agent = (Agent) iter.next();
+          agents.add(agent.getName());
+        }
+      }
+      addCommunityListener(community);
+    }
+
+    private synchronized void addCommunityListener(String community) {
+      if (!_listeners.containsKey(community)) {
+        CommunityWatcher listener = new CommunityWatcher(community);
+        _communityService.addListener(listener);
+        _listeners.put(community, listener);
+      }
+    }
+
+    private synchronized void removeCommunityListener(String community) {
+      CommunityWatcher listener = (CommunityWatcher)
+        _listeners.remove(community);
+      if (listener != null) {
+        _communityService.removeListener(listener);
+      }
+    }
+
+    private boolean isAgentInCommunity(String community, String agent) {
+      synchronized (_communityCache) {
+        Set agents = (Set) _communityCache.get(community);
+        if (agents == null) {
+          return false;
+        }
+        return agents.contains(agent);
+      }
+    }
+
+    private class LoadAgentsListener implements CommunityResponseListener {
+      private Collection _response = null;
+      private String     _community;
+
+      public LoadAgentsListener(String community) {
+        _community = community;
+      }
+
+      public synchronized void getResponse(CommunityResponse response) {
+        if (response.getStatus() != response.SUCCESS) {
+          _log.warn("Problem loading community response: " + 
+                    response.getStatusAsString());
+          _response = new LinkedList();
+        } else {
+          _response = (Collection) response.getContent();
+        }
+        setCommunityAgents(_community, _response);
+        synchronized (_loadAgents) {
+          _loadAgents.remove(this);
+          if (_loadAgents.isEmpty()) {
+            _loadAgents.notifyAll();
+          }
+        }
+      }
+
+      public Collection getResponse() {
+        return _response;
+      }
+
+      public int hashCode() {
+        return _community.hashCode();
+      }
+
+      public boolean equals(Object obj) {
+        if (obj instanceof LoadAgentsListener) {
+          return _community.equals(((LoadAgentsListener) obj)._community);
+        }
+        return false;
+      }
+    }
+
+    private class CommunityWatcher implements CommunityChangeListener {
+      private String _community;
+
+      public CommunityWatcher(String community) {
+        _community = community;
+      }
+
+      public void communityChanged(CommunityChangeEvent event) {
+        Set communitySet;
+        synchronized (_communityCache) {
+          communitySet = (Set) _communityCache.get(_community);
+        }
+        if (communitySet != null) {
+          synchronized (communitySet) {
+            int type = event.getType();
+            if (type == event.ADD_COMMUNITY) {
+              addCommunityListener(event.getCommunityName());
+            } else if (type == event.REMOVE_COMMUNITY) {
+              removeCommunityListener(event.getCommunityName());
+            } 
+            // type == event.ADD_ENTITY || type == event.REMOVE_ENTITY also...
+            loadAgentsInCommunity(_community);
+          }
+        }
+      }
+
+      public String getCommunityName() {
+        return _community;
+      }
+    }
+  }
+
+
+
+  private class CommunityServiceListener implements ServiceAvailableListener {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      if (ae.getService().equals(CommunityService.class)) {
+        _communityService = (CommunityService) 
+          ae.getServiceBroker().getService(ULInstanceClassifierFactory.this,
+                                           CommunityService.class, null);
+        ae.getServiceBroker().removeServiceListener(this);
+        synchronized (_csLock) {
+          _csLock.notifyAll();
+        }
+      }
     }
   }
 }
