@@ -525,6 +525,8 @@ public class AgentIdentityServiceImpl
      * updating certificate
      */
     public void updateCertificate() {}
+          
+    public void invalidate(String cname) {}
   }
 
 }

@@ -143,6 +143,8 @@ public class JarFileHandler
     return NodeInfo.getNodeName();
   }
 
+  public void invalidate(String cname) {}
+
   /** Update certificate after checkOrMakeCert
    * CertValidityListener callback
    */

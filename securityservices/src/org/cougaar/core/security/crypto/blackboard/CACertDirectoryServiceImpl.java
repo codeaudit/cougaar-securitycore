@@ -601,6 +601,8 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
     return NodeInfo.getNodeName();
   }
 
+  public void invalidate(String cname) {}
+
   public void updateCertificate() {
     persistOk = true;
     if (_log.isDebugEnabled()) {
