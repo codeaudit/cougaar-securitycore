@@ -247,8 +247,13 @@ public class CryptoManagerServiceImpl
 					 + " key is null. Unable to verify signature");
     }
     // need to find all certs with the name signed by multiple CAs
+    // key not found is ok here, the verifier may not have the private key
+    // and it may not have the certificate of a peer
     //List nameList = keyRing.findDNFromNS(name);
-    List nameList = keyRing.getX500NameFromNameMapping(name);
+    List nameList =  keyRing.findDNFromNS(name);
+    if (nameList == null || nameList.size() == 0) {
+      nameList = keyRing.getX500NameFromNameMapping(name);
+    }
 
     int lookupFlags[] = { KeyRingService.LOOKUP_KEYSTORE |
                           KeyRingService.LOOKUP_LDAP,
