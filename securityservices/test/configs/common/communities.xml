@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Communities [
+<!ELEMENT Communities (Community+)>
+<!ELEMENT Community (Attribute+, Entity*)>
+<!ATTLIST Community Name CDATA #REQUIRED>
+
+<!ELEMENT AttributeID EMPTY>
+<!ATTLIST AttributeID ID CDATA #REQUIRED>
+<!ATTLIST AttributeID Access (manager|member|associate|world) #IMPLIED>
+
+<!ELEMENT Entity (Attribute*)>
+<!ATTLIST Entity Name CDATA #REQUIRED>
+
+<!ELEMENT Attribute EMPTY>
+<!ATTLIST Attribute ID CDATA #REQUIRED>
+<!ATTLIST Attribute Value CDATA #REQUIRED>
+]>
+<Communities>
+</Communities>
