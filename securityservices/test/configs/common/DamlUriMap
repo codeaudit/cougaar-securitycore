@@ -1,7 +1,51 @@
-/$*/policyAdmin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#PolicyServlet
-/$*/CA/RevokeCertificateServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
-/$*/CA/CreateCaKeyServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
-/$*/CA/SubmitCaKeyServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
-/$*/CA/ProcessPendingCertServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
-/$*/CA/CaKeyManagement http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
-/$*/useradmin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
+#
+# This file is an interim solution until we decide how this really
+# should be done.
+#
+# This file has the form:
+#    (Ultra*Log Policy Pattern) Space (KAoS Name)
+# The Ultra*Log Policy Pattern has the same syntax as the ones in the
+# xml policies.  This is a very rigid pattern - the method that reads
+# this file has no smarts.
+#
+# When edditing this file you need to be sure that each KAoS name in
+# this file also appears in the Ontology-EntityInstances.daml file as
+# a ultralogEntity:Servlet.
+#
+# Start with the servlets that are specific to a particular agent.
+# Some how it seems if we know the agent then the pattern is more
+# specific.
+#
+/$AGG-Agent/aggregator AggegatorServlets
+/$AGG-Agent/aggregatorkeepalive AggegatorServlets
+# 
+/$NCA/glsinit NCAServlets
+/$NCA/glsreply NCAServlets
+/$NCA/editOplan NCAServlets
+# 
+/$SCmrmanager/* SCmrmanagerServlets
+#
+# Servlets with no particular agent.
+#
+/$*/CA/Index CAReadServlet
+/$*/CA/Browser CAReadServlet
+/$*/CA/Main CAReadServlet
+/$*/CA/CertificateList CAReadServlet
+/$*/CA/CertificateDetailsServlet CAReadServlet
+/$*/CA/DownloadCertificateServlet CAReadServlet
+/$*/CA/PendingCertificateServlet CAReadServlet
+/$*/CA/PendingCertDetailsServlet CAReadServlet
+/$*/CA/ListCaKeysServlet CAReadServlet
+/$*/CA/ListSubordCaServlet CAReadServlet
+# 
+/$*/CA/RevokeCertificateServlet CAWriteServlet
+/$*/CA/CreateCaKeyServlet CAWriteServlet
+/$*/CA/SubmitCaKeyServlet CAWriteServlet
+/$*/CA/ProcessPendingCertServlet CAWriteServlet
+/$*/CA/CaKeyManagement CAWriteServlet
+#
+/$*/hierarchy HierarchyServlet
+/$*/log_inventory LogInventoryServlet
+#
+/$*/policyAdmin PolicyServlet
+/$*/useradmin UserManagerServlets
