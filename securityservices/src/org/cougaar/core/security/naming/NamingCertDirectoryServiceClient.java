@@ -68,7 +68,7 @@ public class NamingCertDirectoryServiceClient {
     if (log.isDebugEnabled()) {
       log.debug("Adding service listener for naming service :");
     }
-    sb.addServiceListener(new NamingServiceAvailableListener());
+    sb.addServiceListener(new MyServiceAvailableListener());
 
     _threadService=(ThreadService)sb.getService(this,ThreadService.class, null);
   }
@@ -114,10 +114,18 @@ public class NamingCertDirectoryServiceClient {
   }
 
   private void setNamingService() {
-    _whitePagesService = (WhitePagesService)
-      sb.getService(this, WhitePagesService.class, null);
+    if (_whitePagesService == null) {
+      _whitePagesService = (WhitePagesService)
+	sb.getService(this, WhitePagesService.class, null);
+      updateCertEntryFromCache();
+    }
+  }
 
-    updateCertEntryFromCache();
+  private void setThreadService() {
+    if (_threadService == null) {
+      _threadService = (ThreadService)
+	sb.getService(this, ThreadService.class, null);
+    }
   }
 
   private void updateCertEntryFromCache() {
@@ -290,12 +298,16 @@ public class NamingCertDirectoryServiceClient {
     }
   }
 
-  private class NamingServiceAvailableListener implements ServiceAvailableListener {
+  private class MyServiceAvailableListener implements ServiceAvailableListener {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
       if(org.cougaar.core.service.wp.WhitePagesService.class.isAssignableFrom(sc)) {
 	log.debug("Naming Service is now available");
         setNamingService();
+      }
+      else if (org.cougaar.core.service.ThreadService.class.isAssignableFrom(sc)) {
+	log.debug("Thread Service is now available");
+        setThreadService();
       }
     }
   }
