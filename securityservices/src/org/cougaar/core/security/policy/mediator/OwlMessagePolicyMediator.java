@@ -74,9 +74,10 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
   private CommunityService _communityService;
   private CipherSuiteMapping _csm;
 
-  private final String _enforcedActionType 
-  = ActionConcepts.EncryptedCommunicationAction();
-
+  private final String _messageAction 
+    = ActionConcepts.EncryptedCommunicationAction();
+  private final String _messageActionSelf
+    = UltralogActionConcepts.EncryptedCommunicationActionSelf;
   private List                   _agents;
   private EnforcerManagerService _guard;
   
@@ -90,7 +91,7 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
   public Vector getControlledActionClasses()
     {
       Vector result = new Vector();
-      result.add(_enforcedActionType);
+      result.add(_messageAction);
       result.add(ActionConcepts.CommunicationAction());
       return result;
     }
@@ -241,7 +242,7 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
         }
         throw new RuntimeException("No guard registration. ULMessageNodeEnforcer running without policy");
       }
-      if (!_guard.registerEnforcer(this, _enforcedActionType, _agents)) {
+      if (!_guard.registerEnforcer(this, _messageAction, _agents)) {
         _sb.releaseService(this, EnforcerManagerService.class, _guard);
         if (_log.isWarnEnabled()) {
           _log.warn("Could not register with the Enforcer Manager Service");
@@ -396,7 +397,8 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
       targets.add(new TargetInstanceDescription(ActionConcepts.hasDestination(), 
                                                 ULOntologyNames.agentPrefix + receiver));
       ActionInstanceDescription action = 
-        new ActionInstanceDescription(_enforcedActionType,
+        new ActionInstanceDescription(sender.equals(receiver) ?
+                                        _messageActionSelf : _messageAction,
                                       ULOntologyNames.agentPrefix + sender,
                                       targets);
       boolean allowed = false;
@@ -446,7 +448,8 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
                                               ULOntologyNames.agentPrefix 
                                               + receiver));
     ActionInstanceDescription action = 
-      new ActionInstanceDescription(_enforcedActionType,
+      new ActionInstanceDescription(sender.equals(receiver) ?
+                                      _messageActionSelf : _messageAction,
                                     ULOntologyNames.agentPrefix + sender,
                                     targets);
     Set ciphers = null;
