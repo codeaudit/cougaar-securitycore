@@ -132,15 +132,15 @@ public abstract class ParsedPolicy
   {
     boolean actorIsInstance = false;
     try {
+      String policyId = null;
       _pb = new DAMLPolicyBuilderImpl();
       actorIsInstance = checkActorIsInstance(ontology);
       ontology.verifySubClass(_action,  
                               kaos.ontology.jena.ActionConcepts._Action_);
 
       try {
-        _pb.setPolicyIDAndModalityType("#policy-grammarGenerated-" 
-                                       + UniqueIdentifier.GenerateUID(), 
-                                       _modality);
+        policyId="#policy-grammarGenerated-" + UniqueIdentifier.GenerateUID();
+        _pb.setPolicyIDAndModalityType(policyId, _modality);
       } catch (SpecifiedModalityTypeNotExists e) {
         RuntimeException fatal 
           = new RuntimeException("This should be impossible - CODING ERROR");
@@ -155,7 +155,8 @@ public abstract class ParsedPolicy
                                  + "AnySite");
 
       // build the KAoSClassBuilderImp (e.g. the targets)
-      _controls = new KAoSClassBuilderImpl(_action);
+      _controls = new KAoSClassBuilderImpl(policyId.substring(1) + _action);
+      _controls.addImmediateBaseClass(_action);
       if (actorIsInstance) {
         _controls.addPropertyRangeInstance(ActionConcepts._performedBy_, 
                                            _actor);
