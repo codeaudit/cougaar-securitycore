@@ -1229,6 +1229,13 @@ final public class KeyRing  implements KeyRingService  {
     for (int i = 0; i < tc.length; i++) {
       tcTable.put(tc[i].caDN, tc[i].caDN);
     }
+    if (cryptoClientPolicy.isRootCA()) {
+      // trust itself
+      X500Name [] caDNs = configParser.getCaDNs();
+      for (int i = 0; i < caDNs.length; i++) {
+        tcTable.put(caDNs[i].getName(), caDNs[i].getName());
+      }
+    }
 
     Iterator it = tgtdns.iterator();
     while (it.hasNext()) {
@@ -1241,7 +1248,7 @@ final public class KeyRing  implements KeyRingService  {
         CertificateStatus cs = (CertificateStatus)tgtList.get(0);
         // chain should be valid because findCert has been called
         tgtCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
-        for (int i = 1; i < tgtCerts.length && i < trustedIndex; i++) {
+        for (int i = 0; i < tgtCerts.length && i < trustedIndex; i++) {
           String principalName = tgtCerts[i].getSubjectDN().getName();
           if (tcTable.get(principalName) != null) {
             trustedIndex = i;
