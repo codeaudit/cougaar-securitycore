@@ -315,6 +315,7 @@ Policy PolicyServletAuth  = [
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named PolicyServlet
 ]
+
 Policy TestPolicyServlet  = [ 
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named TestUserPolicyServlet
@@ -334,12 +335,6 @@ Policy SCmrManagerAuth  = [
 Policy SCmrManager  = [ 
   ServletUserAccessTemplate
   A user in role MonitorManager can access a servlet named SCmrmanagerServlets
-]
-
-Policy SCmrManagerAuth  = [ 
-  ServletAuthenticationTemplate
-  All users must use Password, PasswordSSL, CertificateSSL
-  authentication when accessing the servlet named SCmrmanagerServlets
 ]
 
 Policy NCAServlet = [
@@ -495,7 +490,7 @@ END
     lines2 = []
   end
   if (lines2 != lines1)
-    output = policyUtil("--maxReasoningDepth 150 build --info #{damlFile}",
+    output = policyUtil("--maxReasoningDepth 150 build --quiet --info #{damlFile}",
                         nil, "#{CIP}/configs/security")
     scheduleConfigChange(damlFile)
     Dir["#{CIP}/configs/security/*.info"].each { |file|
