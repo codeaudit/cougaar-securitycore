@@ -1,6 +1,10 @@
 This README covers how to install the Schlumberger smart card reader,
 install a user certificate on it and use that certificate to authenticate
-to secured Cougaar Servlets.
+to secured Cougaar Servlets. It also covers how to install the keystore
+password applet on Linux servers.
+
+SMART CARD BROWSER SUPPORT
+==========================
 
 1) Install the Schlumberger software from the driver CD onto your
    Windows machine. If you are using Windows NT, you will not be able
@@ -87,3 +91,78 @@ to secured Cougaar Servlets.
 14) Connect to the SSL port of your Cougaar service. You should be able to
     select the new certificate (or it may be done for you automatically) and
     it will recognize you as the user in the smart card.
+
+
+SMART CARD KEYSTORE PASSWORD APPLET
+===================================
+
+1) Compile and install the smart card libraries and software:
+
+    cd securityservices/test/configs/smartcard
+    tar xzf pcsc-lite-1.1.1.tar.gz
+    tar xzf slb_rfUSB-drv-0.9.0.tar.gz
+    tar xzf jpcsc.tar.gz
+
+    cd pcsc-lite-1.1.1
+    ./configure
+    make
+    sudo make install
+    cd ../slb_rfUSB
+    make
+    sudo mkdir -p /usr/local/pcsc/drivers/
+    sudo make install
+    cd ../jpcsc
+    make
+    sudo cp libjpcsc.so /usr/local/lib
+    
+2) If you want to compile the applet, you must install java 1.3.1.
+   If you do not want to compile the applet, skip to step #6.
+
+3) Copy the contents from the Schlumberger's CAPmaker/ directory, point
+   your classpath to include the .jars and export files:
+
+   mv "$CAPmaker/Export Files" $CAPmaker/Export_Files"
+   setenv CLASSPATH `echo $CAPmaker/*.jar $CAPmaker/Export_Files | \
+                     sed -e 's/ /:/g'`
+   
+4) Compile the PasswordApplet.
+
+   javac -d . PasswordApplet.java
+
+5) Create the .cap file from the .class file:
+   
+   java com.sun.javacard.converter.Converter -exportpath \
+     "$CAPmaker/Export_Files" -out CAP -d . \
+     -applet 0x00:0x01:0x02:0x03:0x04:0x05 PasswordApplet \
+     org.cougaar.javacard.demo 0x01:0x02:0x03:0x04:0x05 1.0
+
+   java com.slb.javacard.jctools.Cap.makecap \
+     org/cougaar/javacard/demo/javacard/demo.cap
+
+6) Use the Schlumberger's toolkit software to install the new demo.cap file.
+   The AID is 0102030405
+
+7) Create an application instance. Use the applet id 000102030405 and
+   size of 800 bytes.
+
+8) Plug the USB card reader into your Linux server.
+
+9) Restart the pcscd daemon:
+
+   killall -9 pcscd
+   rm -rf /usr/pcsc
+   /usr/local/sbin/pcscd
+
+   If you want to see the communication between to and from the card, add
+   a parameter '-d stdout' to the pcscd command line.
+
+10) Modify the cryptoPolicy.xml file to tell the server to use the smart card
+    for the keystore password. Add the following line under the
+    "cryptoClientPolicy."
+
+    <keystoreUseSmartCard/>
+
+11) The keystore password is created and stored into the smart card
+    automatically. Therefore, you must not have a keystore before 
+    starting the server. In otherwords, delete any keystore for this
+    node. Then start the server as usual.
