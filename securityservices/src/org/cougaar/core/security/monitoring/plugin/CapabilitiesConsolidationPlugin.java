@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
+import java.util.Iterator;
 
 import edu.jhuapl.idmef.*;
 
@@ -39,6 +40,8 @@ import org.cougaar.util.StateModelException ;
 import org.cougaar.planning.ldm.plan.*;
 import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
+import org.cougaar.core.mts.*;
+import org.cougaar.core.agent.*;
 import org.cougaar.core.domain.RootFactory;
 import org.cougaar.core.domain.Factory;
 
@@ -49,17 +52,44 @@ import org.cougaar.core.security.monitoring.blackboard.CmrObject;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.CapabilitiesObject;
 import org.cougaar.core.security.monitoring.idmef.*;
+import org.cougaar.core.security.monitoring.blackboard.*;
 
 class ModifiedCapabilitiesPredicate implements UnaryPredicate{
   public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof CapabilitiesObject ) {
-      System.out.println(" Got object which is  instanceof CapabilitiesObject");
       return true;
     }
     return ret;
   }
 }
+
+class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
+ public boolean execute(Object o) {
+    boolean ret = false;
+    if (o instanceof CmrRelay ) {
+      CmrRelay relay = (CmrRelay)o;
+      Event event = (Event)relay.getContent();
+      ret = (event.getEvent() instanceof ConsolidatedCapabilities);
+    }
+    return ret;
+  }
+}
+
+class AgentRegistrationPredicate implements UnaryPredicate{
+ public boolean execute(Object o) {
+    boolean ret = false;
+    if (o instanceof Event ) {
+      Event e=(Event)o;
+      IDMEF_Message msg=e.getEvent();
+      if(msg instanceof AgentRegistration){
+	return true;
+      }
+    }
+    return ret;
+  }
+}
+
 
 /**
  *
@@ -70,9 +100,15 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private DomainService domainService = null;
 
   private IncrementalSubscription modifiedcapabilities;
+  private IncrementalSubscription capabilitiesRelays;
+  private IncrementalSubscription agentRegistrations;
     
   private int firstobject=0;
-
+  private MessageAddress mgrAddress;
+  private MessageAddress myAddress;
+  
+  /** Holds value of property loggingService. */
+  private LoggingService loggingService;  
   
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -95,8 +131,23 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
    */
   protected void setupSubscriptions() {
     System.out.println("setupSubscriptions of CapabilitiesConsolidationPlug in called :"); 
+    
+    //
+    // This needs to be converted to make mgrAddress an AttributeBasedAddress.
+    // For now, just send by name.
+    //
+    String mgrName = "MRManager";
+    Iterator params = getParameters().iterator();
+    while (params.hasNext()) {
+        String param = (String)params.next();
+        mgrName = param;
+    }
+    mgrAddress = new ClusterIdentifier(mgrName);
+    
+    myAddress = getBindingSite().getAgentIdentifier();
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate());
-
+    capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe(new ConsolidatedCapabilitiesRelayPredicate());
+    agentRegistrations= (IncrementalSubscription)getBlackboardService().subscribe(new AgentRegistrationPredicate());
   }
 
 
@@ -104,7 +155,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
    * Top level plugin execute loop.  
    */
   protected void execute () {
-    // process unallocated tasks
+    // Unwrap subordinate capabilities from new/changed/deleted relays
+    updateRelayedCapabilities();
+    
     System.out.println(" Execute of CapabilitiesConsolidation Plugin called !!!!!!!!");
      DomainService service=getDomainService();
     if(service==null) {
@@ -167,6 +220,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
      NewEvent event=factory.newEvent(consCapabilities);
      getBlackboardService().publishAdd(event);
     */
+    addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
   }
 
 
@@ -249,6 +303,91 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     System.out.println(" Classification Name :"+classification.getName());
     System.out.println(" Classification URL :"+classification.getUrl());
   }
+  
+  private void addOrUpdateRelay(Event event, CmrFactory factory) {
+      if (loggingService.isDebugEnabled())
+          loggingService.debug("addOrUpdateRelay");
+      CmrRelay relay = null;
+      // Find the (one) outgoing relay
+      Iterator iter = capabilitiesRelays.iterator();
+      while (iter.hasNext()) {
+        CmrRelay aRelay = (CmrRelay)iter.next();
+        if (aRelay.getSource().equals(myAddress)) {
+            relay = aRelay;
+            break;
+        }
+      }
+      if (relay == null) {
+          relay = factory.newCmrRelay(event, mgrAddress);
+          getBlackboardService().publishAdd(relay);
+      } else {
+          relay.updateContent(event, null);
+          getBlackboardService().publishChange(relay);
+      }
+  }
+  
+   private void updateRelayedCapabilities() {
+       if (capabilitiesRelays.hasChanged()) {
+           CmrRelay relay;
+           // New relays
+           Iterator iter = capabilitiesRelays.getAddedCollection().iterator();
+           while (iter.hasNext()) {
+               relay = (CmrRelay)iter.next();
+               if (!relay.getSource().equals(myAddress)) { // make sure it's remote, not local
+                   getBlackboardService().publishAdd(relay.getContent());
+               }
+           }
+           
+           // Changed relays
+           iter = capabilitiesRelays.getChangedCollection().iterator();
+           while (iter.hasNext()) {
+               relay = (CmrRelay)iter.next();
+               if (!relay.getSource().equals(myAddress)) {
+                   Event oldCapabilities = findEventFrom(relay.getSource());
+                   if (oldCapabilities != null)
+                       getBlackboardService().publishRemove(oldCapabilities);
+                   getBlackboardService().publishAdd(relay.getContent());
+               }
+           }
+           // Removed relays
+           iter = capabilitiesRelays.getRemovedCollection().iterator();
+           while (iter.hasNext()) {
+               relay = (CmrRelay)iter.next();
+               if (!relay.getSource().equals(myAddress)) {
+                   Event oldCapabilities = findEventFrom(relay.getSource());
+                   if (oldCapabilities != null)
+                       getBlackboardService().publishRemove(oldCapabilities);
+               }
+           }
+       }
+   }
+   
+   /**
+    * Find the previous AgentRegistration Event from this source (if any)
+    */
+   private Event findEventFrom(MessageAddress source) {
+       Iterator iter = this.agentRegistrations.iterator();
+       while (iter.hasNext()) {
+           Event event = (Event)iter.next();
+           if (event.getSource().equals(source))
+               return event;
+       }
+       return null;
+   }
     
+  /** Getter for property loggingService.
+   * @return Value of property loggingService.
+   */
+  public LoggingService getLoggingService() {
+      return loggingService;
+  }
+  
+  /** Setter for property loggingService.
+   * @param loggingService New value of property loggingService.
+   */
+  public void setLoggingService(LoggingService loggingService) {
+      this.loggingService = loggingService;
+  }
+  
 }
 

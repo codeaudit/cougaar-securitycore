@@ -34,6 +34,8 @@ import org.cougaar.core.domain.RootFactory;
 import org.cougaar.core.domain.LDMServesPlugin;
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.mts.MessageAddress;
+
 public class CmrFactory
   implements Factory
 {
@@ -88,5 +90,10 @@ public class CmrFactory
     }
     public IdmefMessageFactory getIdmefMessageFactory(){
 	return idmefmessagefactory;
+    }
+    
+    public CmrRelay newCmrRelay(Event event, MessageAddress dest) {
+        CmrRelay relay = new CmrRelay(getNextUID(), selfClusterId, dest, event, null);
+        return relay;
     }
 }

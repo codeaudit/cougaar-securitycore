@@ -28,6 +28,7 @@ import org.cougaar.core.util.UniqueObject;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.blackboard.Publishable;
 import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.util.XMLize;
 
 /** Event implementation
  */
@@ -115,4 +116,13 @@ public class EventImpl
     }
     return s;
   }
+  
+  public String getDocument() {
+      return toString();
+  }
+  
+  public org.w3c.dom.Element getXML(org.w3c.dom.Document document) {
+     return XMLize.getPlanObjectXML(this, document);
+  }
+  
 }

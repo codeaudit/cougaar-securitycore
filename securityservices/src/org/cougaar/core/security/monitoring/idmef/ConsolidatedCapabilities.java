@@ -28,13 +28,15 @@ import edu.jhuapl.idmef.CreateTime;
 import edu.jhuapl.idmef.Source;
 import edu.jhuapl.idmef.Target;
 
+import org.cougaar.core.util.XMLizable;
+import org.cougaar.core.util.XMLize;
 /**
  * Registration subclasses Alert, and is used to distinguish
  * the difference been an Alert message and a Registration message
  * avoiding the need to determine the message type via the AdditionalData
  * object.
  */
-public class ConsolidatedCapabilities extends Alert implements AgentRegistration{
+public class ConsolidatedCapabilities extends Alert implements AgentRegistration, XMLizable {
     
   public static String TYPE = "consolidated-capabilities";
   /**
@@ -58,4 +60,8 @@ public class ConsolidatedCapabilities extends Alert implements AgentRegistration
 	   data, 
 	   ident );  // ident 
   }
+  public org.w3c.dom.Element getXML(org.w3c.dom.Document document) {
+     return XMLize.getPlanObjectXML(this, document);
+  }
+
 }
