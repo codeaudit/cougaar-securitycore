@@ -682,20 +682,31 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
 	      CougaarGeneralNames gn=(CougaarGeneralNames) certattrset.get
 		(CertificateIssuerExtension.ISSUERNAME);
 	      if(log.isDebugEnabled())
-		log.debug(" gneral names are in CRL Caches updateCRLEntryInCertCache  :"+gn.toString());
+		log.debug("General names are in CRL Caches updateCRLEntryInCertCache  :"+gn.toString());
 	      if(gn.size()==1){
-		GeneralName  name=(GeneralName)gn.elementAt(0);
+		GeneralName  name=(GeneralName)gn.get(0);
 		if(name.getType()==4)  {
 		  if(log.isDebugEnabled())
 		    log.debug("got actual data from extension in  CRL Caches updateCRLEntryInCertCache :"+name.toString());
 		  actualIssuerDN=name.toString();
 		}
-		else
-		  log.debug("Error !!!! not x500 name ");
+		else {
+		  if (log.isErrorEnabled()) {
+		    log.error("Not x500 name - Type=" + name.getType());
+		  }
+		}
+	      }
+	      else {
+		if (log.isWarnEnabled()) {
+		  log.warn("Did not get expected size of GeneralNames. Size="
+		    + gn.size());
+		}
 	      }
 	    }
 	    else {
-	      log.debug("Warning !!!!!!  not instance of CertificateIssuerExtension");
+	      if (log.isWarnEnabled()) {
+		log.debug("Not instance of CertificateIssuerExtension");
+	      }
 	    }
 	  }
 	  catch(InvocationTargetException invocationtargetexception)  {

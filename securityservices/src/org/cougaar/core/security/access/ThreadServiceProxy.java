@@ -51,7 +51,13 @@ class ThreadServiceProxy extends SecureServiceProxy
     return new SecureSchedulable(_ts.getThread(consumer, sr, name), 
                                  _scs.getExecutionContext());
   }
-  
+  public Schedulable getThread(Object consumer, Runnable runnable, String name,
+			       int lane) {
+    Runnable sr = new SecureRunnable(runnable, _scs.getExecutionContext());
+    return new SecureSchedulable(_ts.getThread(consumer, sr, name, lane), 
+                                 _scs.getExecutionContext());
+  }
+
   public void schedule(TimerTask task, long delay) {
     _ts.schedule(new SecureTimerTask(task, _scs.getExecutionContext()), 
                  delay);
@@ -76,6 +82,18 @@ class ThreadServiceProxy extends SecureServiceProxy
       _schedulable = scheduable;
       _ec = ec;
     }
+
+    /**
+     * Lane
+     */
+    public int getLane() {
+      int retval = 0;
+      _scs.setExecutionContext(_ec);
+      retval = _schedulable.getLane();
+      _scs.resetExecutionContext();
+      return retval;
+    }
+
     public boolean cancel() {
       boolean retval = false;
       _scs.setExecutionContext(_ec);

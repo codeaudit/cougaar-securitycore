@@ -22,11 +22,11 @@
 package org.cougaar.core.security.crypto;
 
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.mts.AttributedMessage;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.mts.std.AttributedMessage;
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.ProtectedInputStream;
-import org.cougaar.core.mts.SendQueue;
+import org.cougaar.mts.base.SendQueue;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;

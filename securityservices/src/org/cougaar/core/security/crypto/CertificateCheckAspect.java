@@ -23,12 +23,12 @@
 package org.cougaar.core.security.crypto;
 
 
-import org.cougaar.core.mts.AttributedMessage;
-import org.cougaar.core.mts.DestinationLink;
-import org.cougaar.core.mts.DestinationLinkDelegateImplBase;
-import org.cougaar.core.mts.StandardAspect;
+import org.cougaar.mts.std.AttributedMessage;
+import org.cougaar.mts.base.DestinationLink;
+import org.cougaar.mts.base.DestinationLinkDelegateImplBase;
+import org.cougaar.mts.base.StandardAspect;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.mts.LoopbackLinkProtocol;
+import org.cougaar.mts.base.LoopbackLinkProtocol;
 import org.cougaar.core.service.LoggingService;
 
 import org.cougaar.core.security.services.crypto.KeyRingService;

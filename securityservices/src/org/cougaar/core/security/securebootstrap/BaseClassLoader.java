@@ -26,8 +26,6 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import org.cougaar.bootstrap.XURLClassLoader;
-
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;

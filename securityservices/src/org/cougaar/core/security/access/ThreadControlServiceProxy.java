@@ -27,6 +27,7 @@ import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.service.ThreadControlService;
 import org.cougaar.core.thread.RightsSelector;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.thread.RightsSelector;
 
 import java.util.Comparator;
 
@@ -41,7 +42,45 @@ class ThreadControlServiceProxy extends SecureServiceProxy
     _tcs = tcs;
     _requestor = requestor;
   }
-  
+
+  public void setMaxRunningThreadCount(int count, int lane) {
+    _tcs.setMaxRunningThreadCount(count, lane);
+  }
+  public void setQueueComparator(Comparator comparator, int lane) {
+    _tcs.setQueueComparator(comparator, lane);
+  }
+  public void setRightsSelector(RightsSelector selector, int lane) {
+    _tcs.setRightsSelector(selector, lane);
+  }
+  public boolean setQualifier(UnaryPredicate predicate, int lane) {
+    return _tcs.setQualifier(predicate, lane);
+  }
+  public boolean setChildQualifier(UnaryPredicate predicate, int lane) {
+    return _tcs.setChildQualifier(predicate, lane);
+  }
+
+    // Status
+  public int runningThreadCount(int lane) {
+    return _tcs.runningThreadCount(lane);
+  }
+  public int pendingThreadCount(int lane) {
+    return _tcs.pendingThreadCount(lane);
+  }
+  public int activeThreadCount(int lane) {
+    return _tcs.activeThreadCount(lane);
+  }
+  public int maxRunningThreadCount(int lane) {
+    return _tcs.maxRunningThreadCount(lane);
+  }
+
+    // Default lane
+  public int getDefaultLane() {
+    return _tcs.getDefaultLane();
+  }
+  public void setDefaultLane(int lane) {
+    _tcs.setDefaultLane(lane);
+  }
+
   public int activeThreadCount() {
     return _tcs.activeThreadCount();
   }

@@ -299,7 +299,7 @@ public class SecureConfigFinder
       // In addition, remove the file from the cache.
       // It cannot be accessed.
       _logger.debug("Removing " + aFilename + " from cache");
-      _file2URLs.remove(aUrl);
+      //_file2URLs.remove(aUrl);
 
       if (tempFile.exists()) {
 	// Delete the file, as the components may try to open the

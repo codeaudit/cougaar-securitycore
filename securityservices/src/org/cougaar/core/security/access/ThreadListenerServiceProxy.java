@@ -46,9 +46,15 @@ class ThreadListenerServiceProxy extends SecureServiceProxy
   public void addListener(ThreadListener listener) {
     _tls.addListener(addThreadListener(listener));
   }
+  public void addListener(ThreadListener listener, int lane) {
+    _tls.addListener(addThreadListener(listener), lane);
+  }
             
   public void removeListener(ThreadListener listener) {
     _tls.removeListener(removeThreadListener(listener));
+  }
+  public void removeListener(ThreadListener listener, int lane) {
+    _tls.removeListener(removeThreadListener(listener), lane);
   }
 
   private ThreadListener addThreadListener(ThreadListener listener) {

@@ -49,8 +49,10 @@ import java.util.Vector;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerValue;
 import sun.security.util.ObjectIdentifier;
+import sun.security.util.DerOutputStream;
 import sun.security.x509.CRLExtensions;
 import sun.security.x509.Extension;
+import sun.security.x509.GeneralName;
 import sun.security.x509.OIDMap;
 import sun.security.x509.X500Name;
 import sun.security.x509.X509AttributeName;
@@ -257,8 +259,16 @@ public class CrlUtility {
       }
       //CRLExtensions crlext=new CRLExtensions();//CertificateIssuerExtension
       X500Name username=new X500Name(clientCert.getIssuerDN().getName());
-      CougaarGeneralNames gns=	new  CougaarGeneralNames();
-      gns.add(username);
+      // Encode X500Name
+      DerOutputStream deroutputstream = new DerOutputStream();
+      username.encode(deroutputstream);
+      DerValue derValue = new DerValue(deroutputstream.toByteArray());
+      CougaarGeneralNames gns = new CougaarGeneralNames();
+      GeneralName gn = new GeneralName(derValue);
+      if (_log.isDebugEnabled()) {
+	_log.debug("General Name type: " + gn.getType());
+      }
+      gns.add(gn);
       //CertificateIssuerExtension cie=new CertificateIssuerExtension();
       CertificateIssuerExtension certificateext=new  CertificateIssuerExtension(gns);
       CRLExtensions crlentryext =new CRLExtensions();

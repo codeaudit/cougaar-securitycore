@@ -24,11 +24,7 @@
  * - 
  */
 
-
-
 package org.cougaar.core.security.crlextension.x509.extensions;
-
-
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +38,6 @@ import sun.security.util.ObjectIdentifier;
 import sun.security.x509.AttributeNameEnumeration;
 import sun.security.x509.CertAttrSet;
 import sun.security.x509.Extension;
-import sun.security.x509.GeneralNamesException;
 
 public class CertificateIssuerExtension extends Extension
   implements CertAttrSet {
@@ -57,9 +52,9 @@ public class CertificateIssuerExtension extends Extension
     try {
       issuerName.encode(deroutputstream);
     }
-    catch(GeneralNamesException generalnamesexception)  {
+    catch(IOException generalnamesexception)  {
       generalnamesexception.printStackTrace();
-      throw new IOException(generalnamesexception.toString());
+      throw generalnamesexception;
     }
     super.extensionValue = deroutputstream.toByteArray();
   }
@@ -94,12 +89,12 @@ public class CertificateIssuerExtension extends Extension
 
     super.extensionValue = abyte0;
     DerValue dervalue = new DerValue(abyte0);
-    try {
+//    try {
       issuerName = new CougaarGeneralNames(dervalue);
-    }
-    catch(GeneralNamesException generalnamesexception){
-      throw new IOException("IssuerAlternativeNameExtension" + generalnamesexception.toString());
-    }
+//    }
+//    catch(GeneralNamesException generalnamesexception){
+//      throw new IOException("IssuerAlternativeNameExtension" + generalnamesexception.toString());
+//    }
   }
 
   public String toString()  {

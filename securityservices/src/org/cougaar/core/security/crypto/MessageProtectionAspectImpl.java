@@ -23,16 +23,16 @@
 package org.cougaar.core.security.crypto;
 
 
-import org.cougaar.core.mts.AttributedMessage;
-import org.cougaar.core.mts.DestinationLink;
-import org.cougaar.core.mts.DestinationLinkDelegateImplBase;
 import org.cougaar.core.mts.MessageAttributes;
-import org.cougaar.core.mts.MessageProtectionAspect;
-import org.cougaar.core.mts.ReceiveLink;
-import org.cougaar.core.mts.ReceiveLinkDelegateImplBase;
-import org.cougaar.core.mts.SendQueue;
-import org.cougaar.core.mts.SendQueueDelegateImplBase;
 import org.cougaar.core.mts.SimpleMessageAttributes;
+import org.cougaar.mts.base.DestinationLink;
+import org.cougaar.mts.base.DestinationLinkDelegateImplBase;
+import org.cougaar.mts.base.ReceiveLink;
+import org.cougaar.mts.base.ReceiveLinkDelegateImplBase;
+import org.cougaar.mts.base.SendQueue;
+import org.cougaar.mts.base.SendQueueDelegateImplBase;
+import org.cougaar.mts.std.MessageProtectionAspect;
+import org.cougaar.mts.std.AttributedMessage;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.service.LoggingService;

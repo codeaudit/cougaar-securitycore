@@ -24,42 +24,37 @@
  * - 
  */
 
-
-
 package org.cougaar.core.security.crlextension.x509.extensions;
 
-
-
 import java.io.IOException;
-import java.util.Enumeration;
+import java.util.Iterator;
 
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
 import sun.security.x509.GeneralNameInterface;
 import sun.security.x509.GeneralNames;
-import sun.security.x509.GeneralNamesException;
-
 
 public class CougaarGeneralNames extends GeneralNames{
 
   public  CougaarGeneralNames() {
      super();
   }
-  public  CougaarGeneralNames(DerValue dervalue) throws GeneralNamesException,IOException {
+
+  public  CougaarGeneralNames(DerValue dervalue) throws IOException {
     super(dervalue);
   }
+
   public void encode(DerOutputStream deroutputstream)
-        throws IOException, GeneralNamesException
-    {
+     throws IOException {
         if(size() == 0)
             return;
-        Enumeration enumeration = elements();
+        Iterator it = iterator();
         DerOutputStream deroutputstream1 = new DerOutputStream();
-        while(enumeration.hasMoreElements()) 
+        while(it.hasNext()) 
         {
-            Object obj = enumeration.nextElement();
+            Object obj = it.next();
             if(!(obj instanceof GeneralNameInterface))
-                throw new GeneralNamesException("Element in GeneralNames not of type GeneralName.");
+                throw new IOException("Element in GeneralNames not of type GeneralName.");
             GeneralNameInterface generalnameinterface = (GeneralNameInterface)obj;
             DerOutputStream deroutputstream2 = new DerOutputStream();
             generalnameinterface.encode(deroutputstream2);

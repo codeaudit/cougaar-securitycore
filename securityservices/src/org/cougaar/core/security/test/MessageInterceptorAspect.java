@@ -20,14 +20,16 @@
  */
 package org.cougaar.core.security.test;
 
-import org.cougaar.core.mts.AttributedMessage;
+import org.cougaar.mts.std.AttributedMessage;
 import org.cougaar.core.mts.MessageAttributes;
-import org.cougaar.core.mts.ReceiveLink;
-import org.cougaar.core.mts.ReceiveLinkDelegateImplBase;
-import org.cougaar.core.mts.SendQueue;
-import org.cougaar.core.mts.SendQueueDelegateImplBase;
+import org.cougaar.mts.base.DestinationLink;
+import org.cougaar.mts.base.DestinationLinkDelegateImplBase;
+import org.cougaar.mts.base.ReceiveLink;
+import org.cougaar.mts.base.ReceiveLinkDelegateImplBase;
+import org.cougaar.mts.base.SendQueue;
+import org.cougaar.mts.base.SendQueueDelegateImplBase;
 import org.cougaar.core.mts.SimpleMessageAttributes;
-import org.cougaar.core.mts.StandardAspect;
+import org.cougaar.mts.base.StandardAspect;
 
 import java.util.Enumeration;
 import java.util.Hashtable;

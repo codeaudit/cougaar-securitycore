@@ -43,7 +43,8 @@ import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.ssl.KeyManager;
 import org.cougaar.core.security.util.NodeInfo;
-import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -89,7 +90,7 @@ final public class KeyRing  implements KeyRingService  {
   private ServiceBroker serviceBroker;
   private ConfigParserService configParser = null;
   private NodeConfiguration nodeConfiguration;
-  private LoggingService log;
+  private static Logger log;
   private CertificateCacheService cacheservice=null;
   /*
     private boolean isCertAuth=false;
@@ -127,20 +128,19 @@ final public class KeyRing  implements KeyRingService  {
   private List ignoredList = new ArrayList();
 
   static {
+    log = LoggerFactory.getInstance().createLogger(KeyRing.class);
     try {
-      /*  NOTE: the following commented code is not compatible with versions before jdk1.4.1_02.
-          OIDMap.addAttribute("org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension"
-          ,"2.5.29.28","x509.info.extensions.IssuingDistibutionPoint");
-          OIDMap.addAttribute("org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension"
-          ,"2.5.29.29","x509.info.extensions.CertificateIssuer");
-      */
-      OIDMap.addAttribute("x509.info.extensions.IssuingDistibutionPoint", "2.5.29.28",
+      OIDMap.addAttribute("x509.info.extensions.IssuingDistibutionPoint",
+			  "2.5.29.28",
                           IssuingDistributionPointExtension.class);
-      OIDMap.addAttribute("x509.info.extensions.CertificateIssuer", "2.5.29.29",
+      OIDMap.addAttribute("x509.info.extensions.CertificateIssuer",
+			  "2.5.29.29",
                           CertificateIssuerExtension.class);
     }
     catch(CertificateException certexp) {
-      System.err.println(" Could not add OID Mapping :"+certexp.getMessage());
+      if (log.isErrorEnabled()) {
+	log.error(" Could not add OID Mapping :" + certexp.getMessage());
+      }
     }
   }
 
@@ -150,10 +150,6 @@ final public class KeyRing  implements KeyRingService  {
   }
 
   private void init() {
-    log = (LoggingService) serviceBroker.getService(this,
-						    LoggingService.class,
-						    null);
-
     //log.debug(" Service broker available at Key Ring is:"+ serviceBroker.toString());
     secprop = (SecurityPropertiesService)serviceBroker.getService(this,
 								  SecurityPropertiesService.class,

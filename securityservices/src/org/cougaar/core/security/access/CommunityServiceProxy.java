@@ -30,8 +30,8 @@ import org.cougaar.core.service.community.CommunityChangeEvent;
 import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityRoster;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.FindCommunityCallback;
 
 import java.util.Collection;
 import java.util.Hashtable;
@@ -52,60 +52,19 @@ class CommunityServiceProxy extends SecureServiceProxy
     _cs = cs;
     _requestor = requestor;
   }
-  
-  public void addListener(CommunityChangeListener l) {
-    _cs.addListener(addChangeListener(l));
-  }
-  
-  public boolean addListener(MessageAddress addr, String communityName) {
-    return _cs.addListener(addr, communityName);
-  }
-  
-  public boolean addRole(String communityName, String entityName, String roleName) {
-    return _cs.addRole(communityName, entityName, roleName);
-  }
-  
-  public boolean addToCommunity(String communityName, Object entity, 
-    String entityName, Attributes attributes) {
-    return _cs.addToCommunity(communityName, entity, entityName, attributes);    
-  }
-  public boolean communityExists(String communityName) {
-    return _cs.communityExists(communityName);
-  }
+
+  /*
   public boolean createCommunity(String communityName, Attributes attributes) {
     return _cs.createCommunity(communityName, attributes);
   }
+  */
   public void createCommunity(String communityName, Attributes attrs, 
     CommunityResponseListener crl) {
     _cs.createCommunity(communityName, attrs, createSecureResponse(crl));
   }
+
   public Community getCommunity(String communityName, CommunityResponseListener crl) {
     return _cs.getCommunity(communityName, createSecureResponse(crl));
-  }
-  public Attributes getCommunityAttributes(String communityName) {
-    return _cs.getCommunityAttributes(communityName);
-  }
-  public Collection getCommunityRoles(String communityName) {
-    return _cs.getCommunityRoles(communityName);
-  }
-         
-  public Attributes getEntityAttributes(String communityName, String entityName) {
-    return _cs.getEntityAttributes(communityName, entityName);
-  }
-  
-  public Collection getEntityRoles(String communityName, String entityName) {
-    return _cs.getEntityRoles(communityName, entityName);
-  }
-
-  public Collection getListeners(String communityName) {
-    return _cs.getListeners(communityName);
-  }
-  public String [] getParentCommunities(boolean allLevels) {
-    return _cs.getParentCommunities(allLevels);
-  }
-  
-  public CommunityRoster getRoster(String communityName) {
-    return _cs.getRoster(communityName);
   }
   
   public void joinCommunity(String communityName, String entityName, int entityType, 
@@ -114,16 +73,81 @@ class CommunityServiceProxy extends SecureServiceProxy
     _cs.joinCommunity(communityName, entityName, entityType, entityAttrs,
       createIfNotFound, newCommunityAttrs, createSecureResponse(crl));
   }
+  
   public void leaveCommunity(String communityName, String entityName, 
     CommunityResponseListener crl) {
     _cs.leaveCommunity(communityName, entityName, createSecureResponse(crl));
   }
+
+  public void modifyAttributes(String communityName, String entityName, 
+    ModificationItem[] mods, CommunityResponseListener crl) {
+    _cs.modifyAttributes(communityName, entityName, mods, createSecureResponse(crl));
+  }
+
+  public void addListener(CommunityChangeListener l) {
+    _cs.addListener(addChangeListener(l));
+  }
+  
+  /*
+  public boolean addListener(MessageAddress addr, String communityName) {
+    return _cs.addListener(addr, communityName);
+  }
+  */
+  /*
+  public boolean addRole(String communityName, String entityName, String roleName) {
+    return _cs.addRole(communityName, entityName, roleName);
+  }
+  */
+  /*
+  public boolean addToCommunity(String communityName, Object entity, 
+    String entityName, Attributes attributes) {
+    return _cs.addToCommunity(communityName, entity, entityName, attributes);    
+  }
+  public boolean communityExists(String communityName) {
+    return _cs.communityExists(communityName);
+  }
+  public Attributes getCommunityAttributes(String communityName) {
+    return _cs.getCommunityAttributes(communityName);
+  }
+  public Collection getCommunityRoles(String communityName) {
+    return _cs.getCommunityRoles(communityName);
+  }
+  public Attributes getEntityAttributes(String communityName, String entityName) {
+    return _cs.getEntityAttributes(communityName, entityName);
+  }
+  public Collection getEntityRoles(String communityName, String entityName) {
+    return _cs.getEntityRoles(communityName, entityName);
+  }
+  public Collection getListeners(String communityName) {
+    return _cs.getListeners(communityName);
+  }
+  */
+  public String [] getParentCommunities(boolean allLevels) {
+    return _cs.getParentCommunities(allLevels);
+  }
+  
+/*
+  public CommunityRoster getRoster(String communityName) {
+    return _cs.getRoster(communityName);
+  }
+*/
   public Collection listAllCommunities() {
     return _cs.listAllCommunities();
   }
+  public void listAllCommunities(CommunityResponseListener crl) {
+    _cs.listAllCommunities(crl);
+  }
+/*
   public Collection listEntities(String communityName) { 
     return _cs.listEntities(communityName);
   }
+*/
+  public void findCommunity(String                communityName,
+			    FindCommunityCallback fccb,
+			    long                  timeout) {
+    _cs.findCommunity(communityName, fccb, timeout);
+  }
+
   public Collection listParentCommunities(String member) {
     return _cs.listParentCommunities(member);
   }
@@ -134,10 +158,12 @@ class CommunityServiceProxy extends SecureServiceProxy
 					  CommunityResponseListener crl) {
     return _cs.listParentCommunities(member, crl);
   } 
-  public void modifyAttributes(String communityName, String entityName, 
-    ModificationItem[] mods, CommunityResponseListener crl) {
-    _cs.modifyAttributes(communityName, entityName, mods, createSecureResponse(crl));
-  }
+  public Collection listParentCommunities(String member,
+					  String filter,
+					  CommunityResponseListener crl) {
+    return _cs.listParentCommunities(member, crl);
+  } 
+/*
   public boolean modifyCommunityAttributes(String communityName, 
     ModificationItem[] mods) { 
     return _cs.modifyCommunityAttributes(communityName, mods);
@@ -149,9 +175,11 @@ class CommunityServiceProxy extends SecureServiceProxy
   public boolean removeFromCommunity(String communityName, String entityName) {
     return _cs.removeFromCommunity(communityName, entityName);
   }
+*/
   public void removeListener(CommunityChangeListener l) {
     _cs.removeListener(removeChangeListener(l));
   }
+/*
   public boolean removeListener(MessageAddress addr, String communityName) {
     return _cs.removeListener(addr, communityName);
   }
@@ -161,15 +189,18 @@ class CommunityServiceProxy extends SecureServiceProxy
   public Collection search(String filter) { 
     return _cs.search(filter);
   }
+*/
   public Collection search(String communityName, String filter) {
     return _cs.search(communityName, filter);
   }
+/*
   public Collection search(String communityName, String filter, boolean blockingMode) {
     return _cs.search(communityName, filter, blockingMode);
   }
   public Collection searchByRole(String communityName, String roleName) {
     return _cs.searchByRole(communityName, roleName);
   }
+*/
   // NOTE: return is void for this method but the API states that the return type is
   //       a Collection
   public Collection searchCommunity(String communityName, String searchFilter, 
@@ -177,6 +208,7 @@ class CommunityServiceProxy extends SecureServiceProxy
     return _cs.searchCommunity(communityName, searchFilter, recursiveSearch, 
       resultQualifier, createSecureResponse(crl));
   }
+  /*
   public boolean setCommunityAttributes(String communityName, Attributes attributes) {
     return _cs.setCommunityAttributes(communityName, attributes);
   }
@@ -184,7 +216,7 @@ class CommunityServiceProxy extends SecureServiceProxy
     Attributes attributes) {
     return _cs.setEntityAttributes(communityName, entityName, attributes);
   }
-
+  */
   private CommunityChangeListener addChangeListener(CommunityChangeListener listener) {
     SecureCommunityChangeListener scl =
       new SecureCommunityChangeListener(listener, _scs.getExecutionContext());

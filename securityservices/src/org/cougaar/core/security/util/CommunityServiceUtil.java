@@ -1103,6 +1103,9 @@ public class CommunityServiceUtil {
       } 
       return false;
     }
+    public int getLane() {
+      return _sched.getLane();
+    }
     public void cancelTimer() {
       _sched.cancelTimer();
     }
