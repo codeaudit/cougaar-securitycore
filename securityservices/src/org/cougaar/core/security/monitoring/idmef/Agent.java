@@ -20,6 +20,7 @@
  */
 package org.cougaar.core.security.monitoring.idmef;
 
+import java.util.List;
 import java.util.ArrayList;
 
 import edu.jhuapl.idmef.Address;
@@ -105,9 +106,9 @@ public class Agent implements XMLSerializable {
     public Agent( Node agentNode ){
         // set the private member variables accordingly
       
-        NodeList children = agentNode.getChildNodes();
-    	ArrayList refIdents = new ArrayList();
-        int len = children.getLength();
+      NodeList children = agentNode.getChildNodes();
+    	List refIdents = new ArrayList();
+      int len = children.getLength();
     	for( int i = 0; i < len; i++ ){
     	    Node child = children.item( i );
     	    String nodeName = child.getNodeName();
@@ -126,15 +127,15 @@ public class Agent implements XMLSerializable {
                 refIdents.add( XMLUtils.getAssociatedString( child ) );
     	    }
 	    }
-
-        int size = refIdents.size();
-        if( size > 0 ){
-            m_refIdents = new String[ size ];
-            for( int i = 0; i < size; i++ ){
-                m_refIdents[ i ] = ( String ) refIdents.get( i );
-            }
-        }
         
+      int size = refIdents.size();
+      if( size > 0 ){
+        m_refIdents = new String[ size ];
+        for( int i = 0; i < size; i++ ){
+          m_refIdents[ i ] = ( String ) refIdents.get( i );
+        }
+      }
+     
     	NamedNodeMap nnm = agentNode.getAttributes();
 
     	Node nameNode = nnm.getNamedItem( NAME_ATTRIBUTE );
@@ -171,11 +172,11 @@ public class Agent implements XMLSerializable {
         m_address = address;
     }
 
-    public String[] getReferenceIdents()
+    public String []getRefIdents()
     {
         return m_refIdents;
     }
-    public void setReferenceIdents( String []refIdents )
+    public void setRefIdents( String []refIdents )
     {
         m_refIdents = refIdents;
     }

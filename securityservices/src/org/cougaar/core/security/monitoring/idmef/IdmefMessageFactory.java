@@ -160,7 +160,7 @@ import org.cougaar.core.security.monitoring.plugin.SensorInfo;
  *  The Alert class has one attribute:
  *
  *  ident
- *     Optional.  A unique identifier for the alert, see Section 4.4.9.
+ *     Optional.  A unique identifier for the alert.
  * </pre>
  *
  ********************************************************************/
@@ -185,39 +185,50 @@ final public class IdmefMessageFactory {
     m_osName = System.getProperty( "os.name" );
     m_osVersion = System.getProperty( "os.version" ); 
       
-    if( ldm != null ){
-      String ip = "localhost";
-      try{
-	ip = InetAddress.getLocalHost().getHostAddress();
-      }
-      catch( UnknownHostException uhe ){
-	// what should we do here?
-      }
-            
-      List addressList = new ArrayList();
-      addressList.add( createAddress( ip, null, Address.IPV4_ADDR ) );
-      m_agentId = ( ( ClusterServesPlugin)ldm ).getClusterIdentifier();
-      m_uidServer = ( ( ClusterContext )ldm ).getUIDServer();
-      /*
-       * can get the process name
-       * cannot get the process id since java doesn't provide you with an api to do so!
-       * can get the path 
-       * can get the program arguments via the System.getProperty( ArgTableIfc.<names> );
-       * can get the env variables
-       */ 
-      m_process = createProcess( null, null, null, null, null ); // get the process info from the LDMServesPlugin ( program name, args, env, etc.. )
-      /**
-       * name and address
-       * get the name from the System.getProperty( ArgTableIfc.NAME_KEY );
-       * get the address from
-       *
-       */
-            
-      m_node = createNode( System.getProperty( ArgTableIfc.NAME_KEY ),
-			   addressList );    // get the node info from the LDMServesPlugin ( name and address )
-      agentName = m_agentId.toString();
-      agentAddress = createAddress( m_agentId.getAddress(), null, Address.URL_ADDR );
-    }
+        if( ldm != null ){
+            String ip = "localhost";
+            String vmInfo = SystemUtils.getVMInfo();
+            String vmPath = SystemUtils.getJavaHome();
+            // get the program arguments
+            List progArgs = SystemUtils.getCmdLineArgs();
+            // get the env variables
+            List envVars = SystemUtils.getEnvs();
+                        
+            try{
+                ip = InetAddress.getLocalHost().getHostAddress();
+            }
+            catch( UnknownHostException uhe ){
+                // what should we do here?
+            }
+
+            List addressList = new ArrayList();
+            addressList.add( createAddress( ip, null, Address.IPV4_ADDR ) );
+            m_agentId = ( ( ClusterServesPlugin)ldm ).getClusterIdentifier();
+            m_uidServer = ( ( ClusterContext )ldm ).getUIDServer();
+            /*
+             * can get the process name
+             * cannot get the process id since java doesn't provide you with an api to do so!
+             * can get the path 
+             * can get the program arguments via the System.getProperty( ArgTableIfc.<names> );
+             * can get the env variables
+             */ 
+            m_process = createProcess( vmInfo, 
+                                       null,  // can't get the pid from java without using native methods
+                                       vmPath, 
+                                       progArgs, 
+                                       envVars ); // get the process info from the LDMServesPlugin ( program name, args, env, etc.. )
+            /**
+             * name and address
+             * get the name from the System.getProperty( ArgTableIfc.NAME_KEY );
+             * get the address from
+             *
+             */
+
+            m_node = createNode( SystemUtils.getNodeName(),
+                                 addressList );    // get the node info from the LDMServesPlugin ( name and address )
+            agentName = m_agentId.toString();
+            agentAddress = createAddress( m_agentId.getAddress(), null, Address.URL_ADDR );
+        }
         
     m_agent = new Agent( agentName,
 			 null,  // description
@@ -226,7 +237,7 @@ final public class IdmefMessageFactory {
 			 null );  // how am i suppose to link this to the analyzer, source, or target
     m_agentData = createAdditionalData( AdditionalData.XML, 
 					AGENT_INFO,
-					m_agent.toString() );
+					m_agent.toTaggedString() );
   }
     
   /** 
@@ -367,21 +378,18 @@ final public class IdmefMessageFactory {
 			    List targetList,
 			    List classificationList,
 			    List dataList ){
-    // temporary until JavaIDMEF is converted using dynamic lists
     Source sources[] = null;
-    if (sourceList != null) 
-      sources = ( Source [] )sourceList.toArray( ( new Source[ 0 ] ) );
-
     Target targets[] = null;
-    if (targetList != null) 
-      targets = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
-
     Classification classifications[] = null;
-    if (classificationList != null)
-      classifications = ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
-    
     AdditionalData data[] = null;
-    if (dataList != null)
+    
+    if( sourceList != null )
+      sources = ( Source [] )sourceList.toArray( ( new Source[ 0 ] ) );
+    if( targetList != null )
+      targets = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
+    if( classificationList != null )
+      classifications = ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
+    if( dataList != null )
       data = ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
                         
     return new Alert( analyzer,
@@ -416,11 +424,11 @@ final public class IdmefMessageFactory {
 			    List dataList ){
     if( sensor instanceof SensorInfo ){
       return createAlert( createAnalyzer( sensor ),
-			  detectTime,
-			  sourceList,
-			  targetList,
-			  classificationList,
-			  dataList );  // should we generated unique id for messages?
+			                    detectTime,
+			                    sourceList,
+			                    targetList,
+			                    classificationList,
+			                    dataList );
     }
     return new Alert();
   }
@@ -440,14 +448,17 @@ final public class IdmefMessageFactory {
    * @return a capability Registration message
    */
   public RegistrationAlert createRegistrationAlert( Object sensor, 
-					  List classficationList,
-					  List targetList,int type ){
+					                                          List classificationList,
+					                                          List targetList,
+					                                          int type ){
     // get all the info from the sensor for capability registration
     if( sensor instanceof SensorInfo ){ 
-      // temporary until JavaIDMEF is converted using dynamic lists
-      Classification capabilities[] = 
-	( Classification [] )classficationList.toArray( ( new Classification[ 0 ] ) );
-      Target targets[] = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
+      Classification capabilities[] = null;
+      Target targets[] = null;
+      if( classificationList != null )
+	      capabilities = ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
+	    if( targetList != null )
+        targets = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
           
       //TODO: move string constants to appropriate classes
       AdditionalData data[] = { createAdditionalData( AdditionalData.STRING, 
@@ -459,7 +470,8 @@ final public class IdmefMessageFactory {
 			       targets,
 			       capabilities,
 			       data,
-			       createUniqueId(),type ); 
+			       createUniqueId(),
+			       type ); 
     }
     return new RegistrationAlert();
   }
@@ -475,13 +487,13 @@ final public class IdmefMessageFactory {
    * @return a capability Registration message
    */
   public RegistrationAlert createRegistrationAlert( Object sensor, 
-					  List classficationList,
+					  List classificationList,
 					  int type ){
     // get all the info from the sensor for capability registration
     if( sensor instanceof SensorInfo ){ 
-      // temporary until JavaIDMEF is converted using dynamic lists
-      Classification capabilities[] = 
-	( Classification [] )classficationList.toArray( ( new Classification[ 0 ] ) );
+      Classification capabilities[] = null;
+      if( classificationList != null )
+	      capabilities = ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
                
       //TODO: move string constants to appropriate classes
       AdditionalData data[] = { createAdditionalData( AdditionalData.STRING, 
@@ -497,6 +509,7 @@ final public class IdmefMessageFactory {
     }
     return new RegistrationAlert();
   }
+  
   /**
    * Factory method to create initial consolidated capabilities.
    *
@@ -504,7 +517,7 @@ final public class IdmefMessageFactory {
    */
   public ConsolidatedCapabilities  createConsolidatedCapabilities( ){
     // update all info when first capability registration object
-    Analyzer analyzer=null; 
+    Analyzer analyzer = null; 
     Source sources[] = null; // get the source info from the sensor
     Target targets[] = null; // get the target info from the sensor
     Classification capabilities[] = null;  // get the capabilities from the sensor
@@ -530,9 +543,9 @@ final public class IdmefMessageFactory {
    */
   public Heartbeat createHeartBeat( Analyzer analyzer, 
 				    List dataList ){
-    // temporary until JavaIDMEF is converted using dynamic lists
-    AdditionalData data[] = 
-      ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
+    AdditionalData data[] = null;
+    if( dataList != null )
+      data = ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
     Heartbeat heartBeat = new Heartbeat( analyzer, 
 					 new CreateTime(), 
 					 null,   //  analyzer time not used
@@ -552,9 +565,6 @@ final public class IdmefMessageFactory {
   public Heartbeat createHeartBeat( Object sensor,
 				    List dataList ){
     if( sensor instanceof SensorInfo ){
-      // temporary until JavaIDMEF is converted using dynamic lists
-      AdditionalData data[] = 
-	( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
       return createHeartBeat( createAnalyzer( sensor ), dataList );
     }
     return new Heartbeat();
@@ -664,8 +674,10 @@ final public class IdmefMessageFactory {
    * @return an IDMEF_Node object
    */    
   public IDMEF_Node createNode( String name, List addressList ){
-    Address addresses[] = 
-      ( Address [] )addressList.toArray( ( new Address[ 0 ] ) );
+    
+    Address addresses[] = null;
+    if( addressList != null )
+      addresses = ( Address [] )addressList.toArray( ( new Address[ 0 ] ) );
     return new IDMEF_Node( null,  // location not necessary
 			   name, 
 			   addresses, 
@@ -690,25 +702,20 @@ final public class IdmefMessageFactory {
 				      String path, 
 				      List argList, 
 				      List envList ){
-    if((argList!=null)&&(envList!=null)) {
-      String args[] = ( String [] )argList.toArray( ( new String[ 0 ] ) );  
-      String envs[] = ( String [] )envList.toArray( ( new String[ 0 ] ) );
+      String args[] = null;
+      String envs[] = null;
+      if( argList != null )
+        args = ( String [] )argList.toArray( ( new String[ 0 ] ) );  
+      if( envList != null )
+        envs = ( String [] )envList.toArray( ( new String[ 0 ] ) );
        return new IDMEF_Process( program, 
-			      pid, 
-			      path, 
-			      args, 
-			      envs, 
-			      null ); // unique id not necessary
-    }
-        
-    return new IDMEF_Process( program, 
-			      pid, 
-			      path, 
-			      null, 
-			      null, 
-			      null ); // unique id not necessary
+			                           pid, 
+	                     		       path, 
+			                           args, 
+			                           envs, 
+			                           null ); // unique id not necessary
   }
-    
+          
   /**
    * Factory method to create a User
    *
@@ -717,8 +724,9 @@ final public class IdmefMessageFactory {
    * @return a User object
    */
   public User createUser( List userIdList ){
-    UserId userIds[] = 
-      ( UserId [] )userIdList.toArray( ( new UserId[ 0 ] ) );
+    UserId userIds[] = null;
+    if( userIdList != null )
+    userIds = ( UserId [] )userIdList.toArray( ( new UserId[ 0 ] ) );
     return new User( userIds, null, null );
   }
    
@@ -797,8 +805,10 @@ final public class IdmefMessageFactory {
    * @return a FileList object
    */
   public FileList createFileList( List fileList ){
-    IDMEF_File files[] = 
-      ( IDMEF_File [] )fileList.toArray(  ( new IDMEF_File[ 0 ] )  );
+    
+    IDMEF_File files[] = null;
+    if( fileList != null )
+      files = ( IDMEF_File [] )fileList.toArray(  ( new IDMEF_File[ 0 ] )  );
     return new FileList( files );
   }
     
@@ -911,7 +921,9 @@ final public class IdmefMessageFactory {
    * @return an Assessment object
    */
   public Assessment createAssessment( Impact impact, List actionList, Confidence confidence ){
-    Action actions[] = ( Action [] )actionList.toArray( ( new Action[ 0 ] ) );
+    Action actions[] = null;
+    if( actionList != null )
+      actions = ( Action [] )actionList.toArray( ( new Action[ 0 ] ) );
     return new Assessment( impact, actions, confidence );
   }
  
@@ -976,15 +988,28 @@ final public class IdmefMessageFactory {
 				Inode inode, 
 				String category,
 				String fstype ){
-    FileAccess fileAccesses[] = 
-      ( FileAccess [] )fileAccessList.toArray( ( new FileAccess[ 0 ] ) );
-    Linkage linkages[] = ( Linkage [] )linkageList.toArray( ( new Linkage[ 0 ] ) );
-    Long size = new Long( file.length() );
-    Integer dataSize = new Integer( size.intValue() );
+	  
+    FileAccess fileAccesses[] = null;
+    Linkage linkages[] = null;
+    Integer dataSize = null;
+    Date modifiedDate = null;
+    
+    if( fileAccessList != null )
+      fileAccesses = ( FileAccess [] )fileAccessList.toArray( ( new FileAccess[ 0 ] ) );
+    if( linkageList != null )
+      linkages =( Linkage [] )linkageList.toArray( ( new Linkage[ 0 ] ) );
+    if( file != null ){
+      Long size = new Long( file.length() );
+      long mDate = file.lastModified();
+      dataSize = new Integer( size.intValue() );
+      if( mDate > 0L )
+        modifiedDate = new Date( mDate );
+    }
+      
     return new IDMEF_File( file.getName(), 
 			   file.getPath(), 
 			   null, // createTime
-			   new Date( file.lastModified() ), 
+			   modifiedDate, 
 			   null, // accessTime
 			   dataSize, // data size 
 			   null, // disk size
@@ -1018,8 +1043,9 @@ final public class IdmefMessageFactory {
    * @return a FileAccess object
    */    
   public FileAccess createFileAccess( String userId, List permissionList ){
-    String permissions[] = 
-      ( String [] )permissionList.toArray( ( new String[ 0 ] ) );
+    String permissions[] = null;
+    if( permissionList != null )
+      permissions = ( String [] )permissionList.toArray( ( new String[ 0 ] ) );
     return new FileAccess( createUserId( userId ), permissions );
   }
     
@@ -1313,9 +1339,15 @@ final public class IdmefMessageFactory {
    * 
    * @return a new Agent
    */    
-  public Agent createAgent( String name, String description, 
-			    String location, Address address, List refIdentList ){
-    String refIdents[] = ( String [] )refIdentList.toArray( ( new String[ 0 ] ) );
+  public Agent createAgent( String name, 
+                            String description, 
+		                        String location, 
+		                        Address address, 
+		                        List refIdentList ){
+		                          
+    String refIdents[] = null;
+    if( refIdentList != null )
+      refIdents = ( String [] )refIdentList.toArray( ( new String[ 0 ] ) );
     return new Agent( name, description, location,
 		      address, refIdents );                
   }
