@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.certauthority.servlet;
@@ -30,6 +30,7 @@ import java.io.*;
 import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import sun.security.x509.*;
 
 import org.w3c.dom.*;
 
@@ -38,7 +39,7 @@ import org.cougaar.util.*;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import  org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.certauthority.*;
 import org.cougaar.core.security.crypto.CertificateUtility;
@@ -55,7 +56,7 @@ public class CertificateSigningRequest
     }
     this.support = support;
   }
-  
+
   public void init(ServletConfig config) throws ServletException
   {
     super.init(config);
@@ -84,7 +85,7 @@ public class CertificateSigningRequest
     try {
       //domain = CertificateUtility.getX500Domain(CA_DN_name, true, ',', true);
       byte [] bytedata=null;
-    
+
       if(( CA_DN_name==null)||( CA_DN_name=="")) {
 	printstream.print("Error ---Unknown  type CA dn name :");
 	printstream.flush();
@@ -107,7 +108,7 @@ public class CertificateSigningRequest
 	printstream.close();
 	return;
       }
-      
+
       type=req.getParameter("pkcs");
       if((type==null)||(type==""))  {
 	printstream.print("Error --- Unknown pkcs type:");
@@ -116,27 +117,70 @@ public class CertificateSigningRequest
 	return;
       }
       pkcs=(String)req.getParameter("pkcsdata");
+
+      String replyformat = (String)req.getParameter("replyformat");
+      if (replyformat == null)
+        replyformat = "text";
+
+      boolean replyhtml = replyformat.equalsIgnoreCase("html");
+      if (replyhtml)
+        printstream.println("<html>");
+      System.out.println("Replying with " + replyformat);
+
       try  {
 	if(type.equalsIgnoreCase("pkcs7"))  {
 	  bytedata=pkcs.getBytes();
 	  bytestream=new ByteArrayInputStream(bytedata);
 	  signer.processX509Request(printstream,(InputStream)bytestream);
-	  
+
 	}
 	else if(type.equalsIgnoreCase("pkcs10"))  {
 	  bytedata=pkcs.getBytes();
 	  bytestream=new ByteArrayInputStream(bytedata);
-	  signer.processPkcs10Request(printstream,(InputStream)bytestream);
+
+          if (replyhtml) {
+            String reply = signer.processPkcs10Request(
+              printstream,(InputStream)bytestream, true);
+
+            System.out.println("reply: " + reply);
+
+            // is it pending? then display pending msg
+            String strStat = "status=";
+            int statindex = reply.indexOf(strStat);
+            if (statindex >= 0) {
+              // in the pending mode
+              statindex += strStat.length();
+              int status = Integer.parseInt(reply.substring(statindex,
+                                                            statindex + 1));
+              switch (status) {
+                case KeyManagement.PENDING_STATUS_PENDING:
+                  printstream.println("Certificate is pending for approval.");
+                  break;
+                case KeyManagement.PENDING_STATUS_DENIED:
+                  printstream.println("Certificate is denied by CA.");
+                  break;
+                default:
+                  printstream.println("Unknown certificate status:" + status);
+              }
+            }
+            else {
+              printstream.print(reply);
+            }
+          }
+          else
+            signer.processPkcs10Request(printstream,(InputStream)bytestream);
 	}
 	else  {
 	  printstream.print("Error ----Got a wrong parameter for type"+type);
 	}
+        if (replyhtml)
+          printstream.println("</html>");
       }
       catch (Exception  exp)  {
 	printstream.print("Error ------"+exp.toString());
 	printstream.flush();
 	printstream.close();
-	
+
       }
       finally  {
 	printstream.flush();
@@ -149,7 +193,7 @@ public class CertificateSigningRequest
       printstream.close();
     }
   }
-  
+
   protected void doGet(HttpServletRequest req,
 		       HttpServletResponse res)
     throws ServletException, IOException  {
@@ -186,6 +230,8 @@ public class CertificateSigningRequest
     out.println("<td>");
     out.println("<input name=\"pkcs\" type=\"radio\" value=\"pkcs7\">pkcs7</input>&nbsp;&nbsp;&nbsp;");
     out.println("<input name=\"pkcs\" type=\"radio\" value=\"pkcs10\">pkcs10</input>");
+    // to distinguish between input from browser and from program
+    out.println("<input name=\"replyformat\" type=\"hidden\" value=\"html\"></input>");
     out.println("<br></td><td></td>");
     out.println("</tr><tr><td></td><td><br><input type=\"submit\">&nbsp;&nbsp;&nbsp;");
     out.println("<input type=\"reset\"></td><td></td></tr>");
@@ -194,12 +240,12 @@ public class CertificateSigningRequest
     out.flush();
     out.close();
   }
-  
+
   public String getServletInfo()
   {
     return("Accepts signing request and returns signed certificate");
   }
-            
- 
+
+
 }
 
