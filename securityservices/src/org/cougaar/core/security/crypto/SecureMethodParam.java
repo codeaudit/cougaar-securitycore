@@ -74,10 +74,10 @@ public final class SecureMethodParam
      * should probably be fixed. (e.g. make a real class that hides this 
      * stuff?) 
      */
-    boolean enc = (_policy.secureMethod == SecureMethodParam.ENCRYPT ||
-                   _policy.secureMethod == SecureMethodParam.SIGNENCRYPT);
-    boolean sign = (_policy.secureMethod == SecureMethodParam.SIGN ||
-                   _policy.secureMethod == SecureMethodParam.SIGNENCRYPT);
+    boolean enc = (secureMethod == SecureMethodParam.ENCRYPT ||
+                   secureMethod == SecureMethodParam.SIGNENCRYPT);
+    boolean sign = (secureMethod == SecureMethodParam.SIGN ||
+                   secureMethod == SecureMethodParam.SIGNENCRYPT);
     String out = "SecureMethodParam: " + getSecureMethodToString();
     out += " " + symmSpec;
     if (!enc) {
