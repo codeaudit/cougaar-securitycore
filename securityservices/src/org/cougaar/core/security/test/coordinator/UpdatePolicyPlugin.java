@@ -22,8 +22,11 @@ package org.cougaar.core.security.test.coordinator;
 
 import javax.agent.JasBean;
 
+import java.io.IOException;
+
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import kaos.core.service.directory.KAoSAgentDirectoryServiceProxy;
 import kaos.core.service.util.cougaar.CougaarLocator;
@@ -36,6 +39,8 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.coordinator.ThreatConActionInfo;
 import org.cougaar.core.security.provider.SecurityComponent;
+import org.cougaar.core.security.policy.builder.KAoSAgentOntologyConnection;
+import org.cougaar.core.security.policy.builder.Main;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
@@ -47,12 +52,22 @@ import ri.JasBeanImpl;
 public class UpdatePolicyPlugin
   extends ComponentPlugin
 {
+  private static String HIGH_POLICY = "OwlCoordinatorHighPolicy";
+  private static String LOW_POLICY  = "OwlCoordinatorLowPolicy";
+  private static String BOOT_POLICY = "OwlBootPolicyList";
+  private static int    TIMEOUT     = 10000;
+  
+  private Object                         _threatLock = new Object();
+  private String                         _requestedThreatLevel = null;
+  private List                           _threatQueue = new Vector();
+
   private boolean                        _initialized = false;
   private ServiceBroker                  _sb;
   private String                         _policyManager;
   private String                         _myAgentName;
+  private BlackboardService              _bbs;
   private LoggingService                 _log;
-  private KAoSAgentDirectoryServiceProxy _kds;
+  private KAoSAgentOntologyConnection    _kds;
   private IncrementalSubscription        _threatAction;
 
 
@@ -79,33 +94,29 @@ public class UpdatePolicyPlugin
     super.load();
     _sb = getBindingSite().getServiceBroker();
     _log = (LoggingService) _sb.getService(this,
-                                          LoggingService.class,
-                                          null);
-    BlackboardService bbs 
-      = (BlackboardService) _sb.getService(this,
-                                          BlackboardService.class,
-                                          null);
-    TransactionLock __tlock = new TransactionLock();
+                                           LoggingService.class,
+                                           null);
+    _bbs = (BlackboardService) _sb.getService(this,
+                                              BlackboardService.class,
+                                              null);
+    _tlock = new TransactionLock();
     AgentIdentificationService idService 
       = (AgentIdentificationService) _sb.getService(
-                   this, 
-                   AgentIdentificationService.class, 
-                   null);
+                                                    this, 
+                                                    AgentIdentificationService.class, 
+                                                    null);
     _myAgentName = idService.getMessageAddress().toAddress();
     _sb.releaseService(this, AgentIdentificationService.class, idService);
 
-    _ts = (ThreadService) _sb.getService(this,
-                                         ThreadService.class,
-                                         null);
-
     CougaarServiceRoot sr 
-      = new CougaarServiceRoot(_sb, bbs, _tlock, obtainEntityEnv());
+      = new CougaarServiceRoot(_sb, _bbs, _tlock, obtainEntityEnv());
     Object o = sr.getAgentDirectoryService();
     if (!(o instanceof KAoSAgentDirectoryServiceProxy)) {
       _log.error("got directory service of wrong class - " + 
                  (o == null ? null : o.getClass().getName()));
     }
-    _kds = (KAoSAgentDirectoryServiceProxy) o;
+    _kds = new KAoSAgentOntologyConnection((KAoSAgentDirectoryServiceProxy) o);
+    new Thread(new PolicyRunner()).start();
   }
 
   protected void setupSubscriptions()
@@ -120,28 +131,32 @@ public class UpdatePolicyPlugin
     if (_log.isDebugEnabled()) {
       _log.debug("In execute");
     }
-    for (Iterator threatIt = _threatAction.getAddedCollection().iterator();
-         threatIt.hasNext();) {
-      ThreatConActionInfo threatAction = (ThreatConActionInfo) threatIt.next();
-      
-    }
-    if (firstTime) {
-      firstTime = false;
-      new Thread(new Runnable() {
-          public void run()
-          {
-            try {
-              List policies = _kds.getPolicies();
-              if (policies == null) {
-                _log.debug("no policies found");
-              } else {
-                _log.debug("policies size = " + policies.size());
-              }
-            } catch (Exception e) {
-              _log.error("Oops...", e);
-            }
-          }
-        }).start();
+    boolean doNotify = false;
+    synchronized (_threatLock) {
+      for (Iterator threatIt = _threatAction.getAddedCollection().iterator();
+           threatIt.hasNext();) {
+        ThreatConActionInfo threatAction = (ThreatConActionInfo) threatIt.next();
+        if (threatAction.getDiagnosis().equals(ThreatConActionInfo.START)) {
+          _threatQueue.add(threatAction);
+          _requestedThreatLevel = threatAction.getLevel();
+          doNotify = true;
+        }
+      }
+      for (Iterator threatIt = _threatAction.getAddedCollection().iterator();
+           threatIt.hasNext();) {
+        ThreatConActionInfo threatAction = (ThreatConActionInfo) threatIt.next();
+        _requestedThreatLevel = threatAction.getLevel();
+        if (threatAction.getDiagnosis().equals(ThreatConActionInfo.START)) {
+          doNotify = true;
+        }
+      }
+      if (doNotify) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Coordinator requesting threat level set at " 
+                     + _requestedThreatLevel);
+        }
+        _threatLock.notify();
+      }
     }
   }
 
@@ -157,9 +172,92 @@ public class UpdatePolicyPlugin
   }
 
   private void commitPolicy(String policy)
+    throws IOException
   {
-
+    Main m = new Main();
+    m.setPolicyFile(policy);
+    m.setOntologyConnection(_kds);
+    m.commitPolicies(false);
   }
 
+  private class PolicyRunner
+    implements Runnable
+  {
+    public void run()
+    {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Entering Policy thread");
+      }
+      try {
+        commitPolicy(BOOT_POLICY);
+      } catch (IOException ioe) {
+        _log.fatal("UpdatPolicyPlugin failed to commit boot policies - canot proceed", ioe);
+        return;
+      }
+      if (_log.isDebugEnabled()) {
+        _log.debug("Domain Manager has policies");
+      }
+      String myThreatLevel = null;
+      try {
+        while (true) {
+          String level;
+          synchronized(_threatLock) {
+            while (_threatQueue.isEmpty()) {
+              _threatLock.wait();
+            }
+            if (_requestedThreatLevel.equals(myThreatLevel)) {
+              if (_log.isDebugEnabled()) {
+                _log.debug("I have responded to the coordinators request");
+                _log.debug("Proceeding to mark requests as active");
+              }
+              _bbs.openTransaction();
+              try {
+                for (Iterator threatIt = _threatQueue.iterator();
+                     threatIt.hasNext();) {
+                  ThreatConActionInfo tcai = (ThreatConActionInfo) threatIt.next();
+                  if (tcai.getLevel().equals(myThreatLevel)) {
+                    tcai.setDiagnosis(ThreatConActionInfo.ACTIVE);
+                    _bbs.publishAdd(tcai);
+                  }
+                  _threatQueue = new Vector();
+                } 
+              } finally {
+                _bbs.closeTransaction();
+              }
+              continue;
+            } else {
+              level = _requestedThreatLevel;
+            }
+          } // synchronized(_threatLock)
 
+          try {
+            if (level.equals(ThreatConActionInfo.LOW)) {
+              if (_log.isDebugEnabled()) {
+                _log.debug("committing low policy");
+              }
+              commitPolicy(LOW_POLICY);
+              myThreatLevel = ThreatConActionInfo.LOW;
+              if (_log.isDebugEnabled()) {
+                _log.debug("low policy committed");
+              }
+            } else {
+              if (_log.isDebugEnabled()) {
+                _log.debug("committing high policy");
+              }
+              commitPolicy(HIGH_POLICY);
+              myThreatLevel = ThreatConActionInfo.HIGH;
+              if (_log.isDebugEnabled()) {
+                _log.debug("high policy committed");
+              }
+            }
+          } catch(IOException ioe) {
+            _log.error("Exception trying to commit policies", ioe);
+            Thread.sleep(TIMEOUT);
+          }
+        }  // while(true)
+      } catch (InterruptedException  ie) {
+        _log.error("Inerrupted! - maybe I was thrashing?", ie);
+      }
+    } // public void run()
+  }
 }
