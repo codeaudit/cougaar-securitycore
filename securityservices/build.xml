@@ -162,6 +162,8 @@
     <!-- org/cougaar/core/security/**/test/**, -->
     <!-- jar security services -->
     <!-- TODO: SecurityComponent.class is a hack until KAOS has been fixed -->
+                      <!-- org/cougaar/core/security/**/test/**,-->
+
     <target name="jar-securityservices" depends="build-securityservices">
         <echo message="+++++ Building jar files"/>
         <jar jarfile="${securityservices.classes}/securebootstrapper.jar" 
@@ -279,6 +281,7 @@
             <fileset dir="${securityservices.configs}/adaptiveMnR">
                 <patternset>
                     <include name="AMnR*.txt"/>
+                    <include name="dummy*.txt"/>
                 </patternset>
             </fileset>
         </copy>
