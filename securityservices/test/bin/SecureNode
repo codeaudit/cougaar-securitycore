@@ -139,6 +139,7 @@ if ( "$useBootstrapper" == "true") then
 	# This property specifies whether to use the authenticated class loader or
 	# the legacy class loader.
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useAuthenticatedLoader=true"
+
 else
 	#
 	# No bootstrapper
@@ -153,6 +154,9 @@ else
         #this property has to be set so that Node.launch() rather than Bootstrapper.launch() is used to launch the society
 	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.useBootstrapper=false"
 endif
+
+# This property is used to set the interval (in seconds) at which CRLs are checked
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.crlpoll=600"
 
 if ( "$useJaas" == "true") then
 	# Enable/disable use of component execution using multiple subjects.

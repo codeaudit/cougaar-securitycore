@@ -33,7 +33,7 @@ import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 
 import edu.jhuapl.idmef.*;
-import org.cougaar.core.security.monitoring.plan.*;
+import org.cougaar.core.security.monitoring.blackboard.*;
 
 public class Idmef {
         

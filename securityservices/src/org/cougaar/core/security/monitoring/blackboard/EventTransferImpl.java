@@ -19,7 +19,7 @@
  * </copyright>
  */
 
-package org.cougaar.core.security.monitoring.plan;
+package org.cougaar.core.security.monitoring.blackboard;
 
 import edu.jhuapl.idmef.IDMEF_Message;
 

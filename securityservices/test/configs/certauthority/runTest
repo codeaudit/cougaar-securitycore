@@ -123,7 +123,7 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=false"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH}"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.keystore=keystoreTest"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=${node}"
-
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.crlpoll=600"
 
 if ($?COUGAAR_MYPROP) then
     set MYPROPERTIES="$MYPROPERTIES $COUGAAR_MYPROP"

@@ -28,13 +28,15 @@ import java.security.SignedObject;
 import java.security.cert.CertificateException;
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
-import org.cougaar.core.component.Service;
 
+// Cougaar core services
+import org.cougaar.core.component.Service;
+import com.nai.security.crypto.SecureMethodParam;
 
 /** Service for most common public key cryptographic operations.
  *  Use: cryptographic aspect.
  */
-public interface MessageService extends Service {
+public interface EncryptionService extends Service {
 
   /** Sign an object.
    *
@@ -128,5 +130,12 @@ public interface MessageService extends Service {
   public Object symmDecrypt(SecretKey secretKey,
 			    SealedObject sealedObject);
 
+
+  public SealedObject signAndEncrypt(Serializable object,
+				     String sourceAgent,
+				     String targetAgent,
+				     SecureMethodParam policy);
+
+  public Object decryptAndVerify(SealedObject object);
 }
 

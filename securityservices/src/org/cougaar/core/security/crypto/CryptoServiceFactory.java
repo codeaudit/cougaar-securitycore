@@ -76,7 +76,7 @@ public class CryptoServiceFactory {
 			     cryptoServiceProvider);
 
 
-    serviceBroker.addService(MessageService.class,
+    serviceBroker.addService(EncryptionService.class,
 			     cryptoServiceProvider);
 
     serviceBroker.addService(KeyRingService.class,
