@@ -49,6 +49,7 @@ import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.identity.*;
+import org.cougaar.core.security.provider.SecurityServicePermission;
 import org.cougaar.core.security.util.*;
 
 // Cougaar overlay
@@ -113,6 +114,14 @@ public class SecurityServiceProvider
     }
     ServiceProvider servMgr = null;
     Service service = null;
+    SecurityManager security = System.getSecurityManager();
+    if( (security != null)&& (serviceClass!=null)) {
+      log.debug(" !!! Going to check Security Permission for :"+serviceClass.getName()+
+	"\nRequestor is "+requestor.getClass().getName()); 
+      security.checkPermission(new SecurityServicePermission(serviceClass.getName()));
+    }
+    else 
+      return service;
     try {
       servMgr = (ServiceProvider) services.get(serviceClass);
       service = (Service) servMgr.getService(sb,
