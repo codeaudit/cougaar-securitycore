@@ -73,7 +73,7 @@ public class CertificateCache
     directorykeystore = d;
   }
 
-  /** Return the most up-to-date certificate for a given distinguished name.
+  /** Return the most up-to-date certificates for a given distinguished name.
    * Since there might be multiple certificates to choose from, the
    * certificate is selected by applying the following rules:
    * 1) Remove certificates that have been revoked.
@@ -88,103 +88,6 @@ public class CertificateCache
    * X wants to talk to A and B. A has been signed by CA1, B has been signed by CA2,
    * CA1 and CA2 do not have a common root CA.
    */
-  public CertificateStatus getCertificate(String distinguishedName)
-  {
-    X500Name x500Name = null;
-    try {
-      x500Name = new X500Name(distinguishedName);
-    } catch(Exception e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to get Common Name - " + e);
-      }
-    }
-    return getCertificate(x500Name);
-  }
-
-  public CertificateStatus getCertificate(X500Name x500Name)
-  {
-    CertificateStatus reply = null;
-
-    if (CryptoDebug.debug) {
-      System.out.println("CertificateCache. getCert(" + x500Name + ")");
-    }
-    if (x500Name == null) {
-      return null;
-    }
-
-    // The most up-to-date certificate should be the first in the list.
-    ArrayList v = getCertificates(x500Name);
-    if (v == null) {
-      return null;
-    }
-    Iterator it = v.listIterator();
-    while (it.hasNext()) {
-      // The first element in the list should be the most up-to-date
-      // certificate. However, there are some cases where it may not.
-      // For instance, we may have just received a new certificate from the CA,
-      // but it is not yet valid and we still have another certificate
-      // which is still valid.
-      CertificateStatus cs = (CertificateStatus) it.next();
-      if (cs == null) {
-	continue;
-      }
-      try {
-	cs.checkCertificateValidity();
-	reply = cs;
-	// Certificate is valid. Return it.
-	break;
-      }
-      catch (CertificateNotTrustedException e) {
-	// Find out cause
-	if (e.cause == CertificateTrust.CERT_TRUST_SELF_SIGNED) {
-	  /* Certificate has not been signed by a CA. Either the CA has refused
-	   * to issue the certificate or communication with the CA was not
-	   * possible. */
-
-	  /* There are two cases:
-	   * 1) If this is a remote entity certificate, then we need to send
-	   * a message to that remote entity, notifying that the certificate
-	   * cannot be trusted. The remote entity will then have to request
-	   * an appropriate certificate and have the CA publish it to the
-	   * certificate directory.
-	   * This capability has yet to be implemented (TODO).
-	   *
-	   * 2) If this a local entity certificate, then we can send a certificate
-	   * signing request to the CA. If the certificate has a matching private key,
-	   * then it is considered a local entity.
-	   */
-
-	  // See getPrivateKey code. It will send a PKCS10 request to the CA
-	  // if this is a local key.
-	  if (getPrivateKey(x500Name) == null) {
-	    // Was unable to get trusted key
-	    reply = null;
-	  }
-	}
-	else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
-	  // Try to find out certificate trust
-	  if (CryptoDebug.debug) {
-	    System.out.println("Certificate trust is unknown");
-	  }
-	  reply = null;
-	}
-	else {
-	  // Otherwise, certificate is not trusted.
-	  reply = null;
-	}
-	// TODO: mechanism by which one can send a message to a remote entity
-	// requesting for that entity to generate a certificate that we can use.
-      }
-      catch (CertificateException e) {
-	// There is no suitable private key (expired, revoked, ...)
-	// Request a new one to the Certificate Authority
-	if (CryptoDebug.debug) {
-	  System.out.println("Invalid certificate: " + e);
-	}
-      }
-    }
-    return reply;
-  }
 
   /** Returns an ArrayList of valid certificates.
    * The certificates:
@@ -192,33 +95,23 @@ public class CertificateCache
    * 2) have a "notBefore" date in the past.
    * 3) have not expired
    */
-  public ArrayList getValidCertificates(String distinguishedName)
+  public ArrayList getValidCertificates(X500Name x500Name)
   {
-    ArrayList v = getCertificates(distinguishedName);
-    // Get the current date
-    Date now = new Date();
-
+    ArrayList v = getCertificates(x500Name);
     ArrayList validCerts = new ArrayList();
-
     ListIterator it = v.listIterator();
+
     while (it.hasNext()) {
       CertificateStatus cs = (CertificateStatus) it.next();
-      if (cs.isValid() == true) {
-	// Certificate has not been revoked (as far as we know)
-	X509Certificate c = (X509Certificate) cs.getCertificate();
-	Date notBefore = c.getNotBefore();
-	Date notAfter = c.getNotAfter();
-	if (notBefore.before(now) && notAfter.after(now)) {
-	  // Certificate can be used now ("not before" date is not in the future)
-	  // Certificate has not expired ("not after" date is not in the past)
-	  validCerts.add(cs);
-	}
+      boolean isTrustedAndValid = checkCertificate(cs);
+      if (isTrustedAndValid) {
+	validCerts.add(cs);
       }
     }
     return validCerts;
   }
 
-  public ArrayList getCertificates(String distinguishedName)
+  private ArrayList getCertificates(String distinguishedName)
   {
     X500Name x500Name = null;
     try {
@@ -230,8 +123,11 @@ public class CertificateCache
   }
 
   /** Return all the certificates associated with a given distinguished name */
-  public ArrayList getCertificates(X500Name x500Name)
+  private ArrayList getCertificates(X500Name x500Name)
   {
+    if (x500Name == null) {
+      throw new IllegalArgumentException("getCertificate: Argument is null");
+    }
     ArrayList list = (ArrayList) certsCache.get(x500Name);
     return list;
   }
@@ -240,6 +136,7 @@ public class CertificateCache
   public void revokeCertificate(Certificate certificate)
   {
   }
+
   public  void revokeStatus(BigInteger serialno, String issuerDN, String subjectDN) {
     if(subjectDN==null) {
       return;
@@ -279,6 +176,7 @@ public class CertificateCache
       System.out.println(" not found cert:");
     }
   }
+
   private void addCertStatus(ArrayList list, CertificateStatus certEntry,
 			     PrivateKey privkey)
     throws SecurityException
@@ -478,162 +376,41 @@ public class CertificateCache
     if(bigint2dn.contains(crlkey)) {
 
       if(CryptoDebug.debug) {
-	System.out.println(" Warning !!!!!Bigint to dn mapping already contains key ::"+crlkey.toString());
-	System.out.println("Warning !!!! Overriding existing entry :"+bigint2dn.get(crlkey));
+	System.out.println(" Warning !!!!!Bigint to dn mapping already contains key ::"
+			   +crlkey.toString());
+	System.out.println("Warning !!!! Overriding existing entry :"
+			   +bigint2dn.get(crlkey));
 	bigint2dn.put(crlkey,subjectDN);
       }
     }
     else {
       if(CryptoDebug.debug) {
-	System.out.println(" Adding entry to Bigint to dn mapping "+crlkey.toString() + "subjectdn ::" +subjectDN);
+	System.out.println(" Adding entry to Bigint to dn mapping "
+			   +crlkey.toString() + "subjectdn ::" +subjectDN);
       }
     }
     bigint2dn.put(crlkey,subjectDN);
     if(CryptoDebug.debug) {
       printbigIntCache();
     }
-
   }
 
-  public PrivateKey getPrivateKey(String distinguishedName)
-  {
-    X500Name x500Name = null;
-    if (distinguishedName == null) {
-      return null;
-    }
-    try {
-      x500Name = new X500Name(distinguishedName);
-    } catch(Exception e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to get Common Name - " + e);
-      }
-    }
-    return getPrivateKey(x500Name);
-  }
-
-  public PrivateKey getPrivateKey(X500Name x500Name)
-  {
-    PrivateKey privkey = null;
-    if (CryptoDebug.debug) {
-      System.out.println("CertificateCache. getPrivateKey(" + x500Name + ")");
-    }
-
-    if (x500Name == null) {
-      return null;
-    }
-    // The most up-to-date certificate should be the first in the list.
+  public ArrayList getValidPrivateKeys(X500Name x500Name) {
     ArrayList v = getPrivateKeys(x500Name);
-    if (v == null) {
-      return null;
-    }
+    ArrayList validPrivateKeys = new ArrayList();
+    ListIterator it = v.listIterator();
 
-    Iterator it = v.listIterator();
     while (it.hasNext()) {
-      // The first element in the list should be the most up-to-date
-      // certificate. However, there are some cases where it may not.
-      // For instance, we may have just received a new certificate from the CA,
-      // but it is not yet valid and we still have another certificate
-      // which is still valid.
-
-      PrivateKeyCert pcert = (PrivateKeyCert) it.next();
-      if (pcert == null) {
-	continue;
-      }
-      try {
-	pcert.getCertificateStatus().checkCertificateValidity();
-	privkey = pcert.getPrivateKey();
-	if(CryptoDebug.debug) {
-	  System.out.println(" Got private key and returning private key :"
-			     +x500Name.toString());
-	}
-	// Key is valid. Return it.
-	break;
-      } catch (CertificateNotTrustedException e) {
-	// Find out cause
-	if (e.cause == CertificateTrust.CERT_TRUST_SELF_SIGNED) {
-	  /* Certificate has not been signed by a CA. Either the CA has refused
-	   * to issue the certificate or communication with the CA was not
-	   * possible. */
-	  Date lastTime = pcert.getCertificateStatus().getPKCS10Date();
-	  Date now = new Date();
-
-	  boolean sendnow = true;
-	  long timeDiff = 0;
-	  if (lastTime == null) {
-	    /* We don't know when the request was submitted.
-	     * This can happen if the node has sent a request, then the
-	     * node was shut down and restarted. Try to resubmit it.
-	     */
-	    sendnow = true;
-	  }
-	  else {
-	    timeDiff = (lastTime.getTime() - now.getTime()) / 1000;
-	    if ( timeDiff < pkcs10MinInterval) {
-	      sendnow = false;
-	    }
-	  }
-
-	  if (sendnow == false) {
-	    // This prevents from sending the request too frequently
-	    if (CryptoDebug.debug) {
-	      System.out.println("Waiting " +
-				 (pkcs10MinInterval - timeDiff)
-				 + "s before send PKCS10 request");
-	    }
-	    privkey = null;
-	  }
-	  else {
-	    if (CryptoDebug.debug) {
-	      System.out.println("Self-signed certificate.");
-	    }
-
-            // Richard -- this will create endless recursive loop if
-            // communication failed or certificate is in pending status
-            // and node alias is already created.
-            // Every findCert function has the possibility of sending
-            // a cert request in this situation.
-	    // Send a PKCS#10 request to the CA.
-/*
-	    try {
-	      directorykeystore.addKeyPair(x500Name.getCommonName(),
-					   pcert.getCertificateStatus().getCertificateAlias());
-	    }
-	    catch (Exception exp) {
-	      // Unable to send request. Give up.
-	      if (CryptoDebug.debug) {
-		System.out.println("Unable to send PKCS10 request to CA");
-	      }
-	      privkey = null;
-	    }
-*/
-	  }
-	}
-	else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
-	  // Try to find out certificate trust
-	  if (CryptoDebug.debug) {
-	    System.out.println("Certificate trust is unknown");
-	  }
-	  privkey = null;
-	}
-	else {
-	  // Otherwise, certificate is not trusted.
-	  // Request a new certificate to the Certificate Authority?
-	  privkey = null;
-	}
-      }
-      catch (CertificateException e) {
-	// There is no suitable private key (expired, revoked, ...)
-	// Request a new one to the Certificate Authority
-	if (CryptoDebug.debug) {
-	  System.out.println("Invalid certificate: " + e);
-	}
-	privkey = null;
+      PrivateKeyCert cs = (PrivateKeyCert) it.next();
+      boolean isTrustedAndValid = checkCertificate(cs.getCertificateStatus());
+      if (isTrustedAndValid) {
+	validPrivateKeys.add(cs);
       }
     }
-    return privkey;
+    return validPrivateKeys;
   }
 
-  public ArrayList getPrivateKeys(String distinguishedName)
+  private ArrayList getPrivateKeys(String distinguishedName)
   {
     X500Name x500Name = null;
     try {
@@ -645,7 +422,7 @@ public class CertificateCache
   }
 
   /** Return all the private keys associated with a given distinguished name */
-  public ArrayList getPrivateKeys(X500Name x500Name)
+  private ArrayList getPrivateKeys(X500Name x500Name)
   {
     ArrayList list = (ArrayList) privateKeyCache.get(x500Name);
     return list;
@@ -678,10 +455,11 @@ public class CertificateCache
     Enumeration e=bigint2dn.keys();
     CRLKey keys=null ;
     String dnname=null;
-    System.out.println("******************** Printing contents of bigint 2dn mapping in certcache **************************** ");
+    System.out.println("Printing contents of bigint 2dn mapping in certcache");
     while(e.hasMoreElements()) {
       keys=(CRLKey)e.nextElement();
-      System.out.println("In bigint cache  Key is :"+keys.toString() +" hash code is :"+keys.hashCode());
+      System.out.println("In bigint cache  Key is :"
+			 +keys.toString() +" hash code is :"+keys.hashCode());
       dnname=(String)bigint2dn.get(keys);
       System.out.println("In bigint cache dn name is :: "+dnname);
     }
@@ -733,36 +511,72 @@ public class CertificateCache
     return certsCache.keys();
   }
 
-  private class PrivateKeyCert
-  {
-    public PrivateKey pk;
-    public CertificateStatus cert;
+  private boolean checkCertificate(CertificateStatus cs) {
+    boolean isTrustedAndValid = false;
 
-    public PrivateKeyCert(PrivateKey p, CertificateStatus c)
-    {
-      pk = p;
-      cert = c;
+    X500Name x500Name = null;
+    try {
+      x500Name = new X500Name(cs.getCertificate().getSubjectDN().getName());
+    } catch(Exception e) {
+      if (CryptoDebug.debug) {
+	System.out.println("Unable to get X500 Name - " + e);
+      }
     }
-    public CertificateStatus getCertificateStatus()
-    {
-      return cert;
+
+    // The first element in the list should be the most up-to-date
+    // certificate. However, there are some cases where it may not.
+    // For instance, we may have just received a new certificate from the CA,
+    // but it is not yet valid and we still have another certificate
+    // which is still valid.
+    if (cs == null) {
+      throw new IllegalArgumentException("CertificateStatus is null");
     }
-    public PrivateKey getPrivateKey()
-    {
-      return pk;
+    try {
+      cs.checkCertificateValidity();
+      // Certificate is valid. Return it.
+      isTrustedAndValid = true;
     }
-    public String toString()
-    {
-      return cert.toString();
+    catch (CertificateNotTrustedException e) {
+      // Find out cause
+      if (e.cause == CertificateTrust.CERT_TRUST_SELF_SIGNED) {
+	/* Certificate has not been signed by a CA. Either the CA has refused
+	 * to issue the certificate or communication with the CA was not
+	 * possible. */
+
+	/* There are two cases:
+	 * 1) If this is a remote entity certificate, then we need to send
+	 * a message to that remote entity, notifying that the certificate
+	 * cannot be trusted. The remote entity will then have to request
+	 * an appropriate certificate and have the CA publish it to the
+	 * certificate directory.
+	 * This capability has yet to be implemented (TODO).
+	 *
+	 * 2) If this a local entity certificate, then we can send a certificate
+	 * signing request to the CA. If the certificate has a matching private key,
+	 * then it is considered a local entity.
+	 */
+      }
+      else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
+	// Try to find out certificate trust
+	if (CryptoDebug.debug) {
+	  System.out.println("Certificate trust is unknown");
+	}
+	isTrustedAndValid = false;
+      }
+      else {
+	// Otherwise, certificate is not trusted.
+	isTrustedAndValid = false;
+      }
+      // TODO: mechanism by which one can send a message to a remote entity
+      // requesting for that entity to generate a certificate that we can use.
     }
+    catch (CertificateException e) {
+      // There is no suitable private key (expired, revoked, ...)
+      // Request a new one to the Certificate Authority
+      if (CryptoDebug.debug) {
+	System.out.println("Invalid certificate: " + e);
+      }
+    }
+    return isTrustedAndValid;
   }
 }
-
-
-
-
-
-
-
-
-

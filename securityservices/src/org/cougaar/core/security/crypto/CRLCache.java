@@ -195,7 +195,14 @@ public class CRLCache implements Runnable
     catch(Exception exp) {
       exp.printStackTrace();
     }
-    CertificateStatus certstatus=keystore.certCache.getCertificate(name);
+
+    ArrayList certList = keystore.certCache.getValidCertificates(name);
+    CertificateStatus certstatus = null;
+    if (certList != null) {
+      // For now, get the first certificate
+      certstatus = (CertificateStatus) certList.get(0);
+    }
+
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
     crlIssuerPublickey=crlIssuerCert.getPublicKey();
     if(keystore.certificateFinder== null) {

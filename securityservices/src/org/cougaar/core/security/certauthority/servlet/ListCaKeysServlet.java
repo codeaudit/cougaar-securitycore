@@ -98,15 +98,18 @@ public class ListCaKeysServlet
     while (aliases.hasMoreElements()) {
       String a = (String)aliases.nextElement();
       String cn = keyRingService.getCommonName(a);
-      X509Certificate c = (X509Certificate)
-	keyRingService.findCert(cn, DirectoryKeyStore.LOOKUP_KEYSTORE);
+      List certList = keyRingService.findCert(cn, DirectoryKeyStore.LOOKUP_KEYSTORE);
+      Iterator it = certList.iterator();
+      while (it.hasNext()) {
+	X509Certificate c = ((CertificateStatus)it.next()).getCertificate();
 
-      System.out.println("alias=" + a + " - cn=" + cn);
-      if (c != null) {
-	out.println("<TR>");
-	out.println("<TD>" + c.getSubjectDN().getName() +"</TD>\n" );
-	out.println("<TD>" + c.getIssuerDN().getName());
-	out.println("</TD></TR>\n");
+	System.out.println("alias=" + a + " - cn=" + cn);
+	if (c != null) {
+	  out.println("<TR>");
+	  out.println("<TD>" + c.getSubjectDN().getName() +"</TD>\n" );
+	  out.println("<TD>" + c.getIssuerDN().getName());
+	  out.println("</TD></TR>\n");
+	}
       }
     }
     out.println("</table>");

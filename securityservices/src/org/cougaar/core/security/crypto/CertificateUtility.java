@@ -298,11 +298,8 @@ public class CertificateUtility {
     out.println("<b>Public Key&nbsp;&nbsp;&nbsp;:</b><PRE>"
 		+CertificateUtility.toHexinHTML(certimpl.getPublicKey().getEncoded()) + "</PRE>");
     out.println("<br>");
-    out.println("<b>Validity &nbsp;&nbsp;:</b>");
-    out.println("<br>");
-    out.println("<b>&nbsp;&nbsp;From &nbsp;:</b>"
+    out.println("<b>Valid from &nbsp;:</b>"
 		+certimpl.getNotBefore().toString());
-    out.println("<br>");
     out.println("<b>&nbsp &nbsp;To &nbsp;:</b>"
 		+certimpl.getNotAfter().toString());
     out.println("<br>");
@@ -371,6 +368,4 @@ public class CertificateUtility {
     }
     return title;
   }
-
- 
 }

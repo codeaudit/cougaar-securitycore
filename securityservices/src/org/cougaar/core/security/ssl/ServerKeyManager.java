@@ -33,6 +33,8 @@ import java.util.*;
 
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.crypto.DirectoryKeyStore;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
+import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public final class ServerKeyManager extends org.cougaar.core.security.ssl.KeyManager {
@@ -45,17 +47,21 @@ public final class ServerKeyManager extends org.cougaar.core.security.ssl.KeyMan
     // use nodealias to set server alias which is the hostname
     String hostname = keystore.getHostName();
     nodename = hostname;
+
     //System.out.println("=====> getHostName: " + hostname);
 
     // node will generate host certificate
     //keyRing.checkOrMakeCert(hostname);
 
-    nodex509 = (X509Certificate)keyRing.findCert(hostname);
+    List nodex509List = keyRing.findCert(hostname);
+    if (nodex509List != null && nodex509List.size() > 0) {
+      nodex509 = ((CertificateStatus)nodex509List.get(0)).getCertificate();
+    }
     nodealias = keystore.findAlias(hostname);
 
     if (CryptoDebug.debug)
       System.out.println("WeberserverSSLContext:KeyManager: nodealias is " + nodealias
-        + " and nodex509 is " + nodex509);
+			 + " and nodex509 is " + nodex509);
   }
 
   public String chooseClientAlias(String keyType, Principal[] issuers, Socket socket) {

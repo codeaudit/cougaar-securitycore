@@ -287,7 +287,7 @@ public class DirectoryKeyStore
   /** Lookup a private key given a Cougaar name.
    *  Currently, the Cougaar name is the common name.
    */
-  public synchronized PrivateKey findPrivateKey(String cougaarName) {
+  public synchronized List findPrivateKey(String cougaarName) {
     X500Name x500Name = nameMapping.getX500Name(cougaarName);
     if (x500Name == null) {
       return null;
@@ -295,32 +295,29 @@ public class DirectoryKeyStore
     return findPrivateKey(x500Name);
   }
 
-  public synchronized PrivateKey findPrivateKey(X500Name x500Name) {
+  /** Returns a list of private keys
+   * @return A List of PrivateKeyCert
+   */
+  public synchronized List findPrivateKey(X500Name x500Name) {
     // Check security permissions
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
       security.checkPermission(new KeyRingPermission("readPrivateKey"));
     }
-    PrivateKey pk = null;
+
     // First, try with the hash map (cache)
-    pk = certCache.getPrivateKey(x500Name);
-    if (pk != null && CryptoDebug.debug) {
-      System.out.println("Found private key in hash map");
+    List pkc = certCache.getValidPrivateKeys(x500Name);
+    if (CryptoDebug.debug) {
+      System.out.println("Found " + pkc.size() + " private keys for "
+			 + x500Name.toString());
     }
 
-    if (pk == null) {
-      // Key was not found in keystore.
-      if (CryptoDebug.debug) {
-	System.out.println("No private key for " + x500Name.toString()
-			   + " was found in keystore");
-      }
-    }
     /* Now, we have a private key. However, the key may not be valid for the
      * following reasons:
      *   + the key has expired
      *   + the key was generated, but we couldn't get it signed from the CA
      */
-    return pk;
+    return pkc;
   }
 
   public static final int LOOKUP_LDAP               = 1;
@@ -331,92 +328,78 @@ public class DirectoryKeyStore
    * LOOKUP_LDAP set: Lookup in LDAP directory service.
    * LOOKUP_KEYSTORE: Lookup in keystore file.
    * LOOKUP_FORCE_LDAP_REFRESH: Force a new lookup in the LDAP service.
+   * @return A list of CertificateStatus
   */
-  public synchronized X509Certificate findCert(String commonName,
-					       int lookupType)
-  throws Exception
+  public synchronized List findCert(String commonName,
+				    int lookupType)
   {
-
-    X509Certificate cert = null;
+    ArrayList certificateList = new ArrayList(0);
     X500Name x500name = nameMapping.getX500Name(commonName);
 
     if (CryptoDebug.debug) {
       System.out.println("DirectoryKeyStore.findCert(" + commonName
-			 + ") lookup type=" + lookupType);
+			 + ") - x500 Name = " +
+			 ((x500name == null) ? "not assigned yet" : x500name.toString())
+			 + " lookup type=" + lookupType);
     }
-    if (commonName == null) {
-      throw new Exception("Common Name is null");
+    if (x500name == null) {
+      return certificateList;
     }
-
-    CertificateStatus certstatus=null;
-    /*
-      String alias = (String) commonName2alias.get(commonName);
-      if (alias == null) {
-      // Key does not exist in keystore
-      if (debug) {
-      System.out.println("Certificate [" + commonName
-      + "] not in key store");
-      listKeyStoreAlias(keystore, keystorePath);
-      }
-      }
-    */
 
     // Refresh from LDAP service if requested
     if ((lookupType & LOOKUP_FORCE_LDAP_REFRESH) != 0) {
       // Update cache with certificates from LDAP.
       String filter = "(cn=" + commonName + ")";
       lookupCertInLDAP(filter);
-      certstatus = certCache.getCertificate(x500name);
-      if (certstatus != null) {
-	cert = certstatus.getCertificate();
-      }
     }
 
     // Search in the local hash map.
+    List certList = certCache.getValidCertificates(x500name);
     if (CryptoDebug.debug) {
-      System.out.println("Search key in local hash table:" + commonName);
+      System.out.println("Search key in local hash table:" + commonName
+	+ " - found " + certList.size() + " keys");
     }
-    certstatus = certCache.getCertificate(x500name);
-    if(certstatus != null) {
-      if((lookupType & LOOKUP_LDAP) != 0 &&
-	 certstatus.getCertificateOrigin() == CertificateOrigin.CERT_ORI_LDAP) {
-	// The caller accepts certificates from LDAP.
-	cert = certstatus.getCertificate();
-      }
-      else if ((lookupType & LOOKUP_KEYSTORE) != 0 &&
-	 certstatus.getCertificateOrigin() == CertificateOrigin.CERT_ORI_KEYSTORE) {
-	// The caller accepts certificates from the keystore.
-	cert = certstatus.getCertificate();
-      }
-    }
-    else {
+
+    if (certList == null || certList.size() == 0) {
       if ((lookupType & LOOKUP_FORCE_LDAP_REFRESH) != 0) {
 	// We have just tried to lookup in LDAP so don't bother retrying again
+	return certificateList;
       }
       else {
 	// Look up in certificate directory service
 	if ((lookupType & LOOKUP_LDAP) != 0) {
 	  String filter = "(cn=" + commonName + ")";
 	  lookupCertInLDAP(filter);
-	  certstatus = certCache.getCertificate(x500name);
-	  if (certstatus != null) {
-	    cert = certstatus.getCertificate();
+	  certList = certCache.getValidCertificates(x500name);
+
+	  // Did we find certificates in LDAP?
+	  if (certList == null || certList.size() == 0) {
+	    return certificateList;
 	  }
 	}
       }
     }
-    if (CryptoDebug.debug) {
-      if (cert != null) {
+
+    Iterator it = certList.iterator();
+    CertificateStatus certstatus=null;
+    while (it.hasNext()) {
+      certstatus = (CertificateStatus) it.next();
+      if((lookupType & LOOKUP_LDAP) != 0 &&
+	 certstatus.getCertificateOrigin() == CertificateOrigin.CERT_ORI_LDAP) {
+	// The caller accepts certificates from LDAP.
+	certificateList.add(certstatus);
+      }
+      else if ((lookupType & LOOKUP_KEYSTORE) != 0 &&
+	       certstatus.getCertificateOrigin() == CertificateOrigin.CERT_ORI_KEYSTORE) {
+	// The caller accepts certificates from the keystore.
+	certificateList.add(certstatus);
+      }
+      if (CryptoDebug.debug) {
 	System.out.println("DirectoryKeyStore.findCert: " + commonName
 			   + " - Cert origin: " + certstatus.getCertificateOrigin());
-
-      }
-      else {
-	System.out.println("DirectoryKeyStore.findCert: " + commonName + " not found");
       }
     }
-
-    return cert;
+    return certificateList;
   }
 
   /** Lookup a certificate in the LDAP directory service.
@@ -934,7 +917,7 @@ public class DirectoryKeyStore
     while (e.hasMoreElements()) {
       X500Name name = (X500Name) e.nextElement();
 
-      ArrayList list = certCache.getCertificates(name);
+      ArrayList list = certCache.getValidCertificates(name);
       ListIterator it = list.listIterator();
       if (CryptoDebug.debug) {
 	System.out.println("-- Checking certificates validity for: " + name);
@@ -1130,7 +1113,14 @@ public class DirectoryKeyStore
       System.out.println("Build chain: " + principal.getName());
     }
 
-    ArrayList list1 = certCache.getCertificates(principal1.getName());
+    X500Name x500Name1 = null;
+    try {
+      x500Name1 = new X500Name(principal1.getName());
+    } catch(Exception e) {
+      System.out.println("Unable to get X500 name - " + e);
+    }
+
+    ArrayList list1 = certCache.getValidCertificates(x500Name1);
 
     if(principal.equals(principal1)) {
       // Self-signed certificate
@@ -1171,7 +1161,7 @@ public class DirectoryKeyStore
 	lookupCertInLDAP(filter);
 
 	// Now, seach again.
-	list1 = certCache.getCertificates(principal1.getName());
+	list1 = certCache.getValidCertificates(x500Name1);
 	if (list1 == null) {
 	  // It's OK not to have the full chain if at least one certificate in the
 	  // chain is trusted.
@@ -1482,8 +1472,12 @@ public class DirectoryKeyStore
 	if (CryptoDebug.debug) {
 	  System.out.println("Searching node key again: " + nodeName);
 	}
-	X509Certificate nodex509 =
-	  (X509Certificate) findCert(nodeName, LOOKUP_KEYSTORE);
+	List nodex509List = findCert(nodeName, LOOKUP_KEYSTORE);
+	X509Certificate nodex509 = null;
+	if (nodex509List.size() > 0) {
+	  nodex509 =
+	    ((CertificateStatus) nodex509List.get(0)).getCertificate();
+	}
 	if (CryptoDebug.debug) {
 	  System.out.println("Node key is: " + nodex509);
 	}
@@ -1545,10 +1539,16 @@ public class DirectoryKeyStore
 
     String nodeAlias = findAlias(nodeName);
     if (nodeAlias != null) {
-      nodex509 = findCert(nodeName, LOOKUP_KEYSTORE);
+      List nodex509List = findCert(nodeName, LOOKUP_KEYSTORE);
+      if (nodex509List.size() > 0) {
+	nodex509 = ((CertificateStatus)nodex509List.get(0)).getCertificate();
+      }
       if(nodex509 == null) {
         // maybe approved and in LDAP?
-        nodex509 = findCert(nodeName, LOOKUP_LDAP);
+	nodex509List = findCert(nodeName, LOOKUP_LDAP);
+	if (nodex509List.size() > 0) {
+	  nodex509 = ((CertificateStatus)nodex509List.get(0)).getCertificate();
+	}
         if (nodex509 != null) {
           // install the certificate into keystore
 
@@ -1682,10 +1682,10 @@ public class DirectoryKeyStore
     return alias;
   }
 
-  public X509Certificate findCert(Principal p) {
+  public List findCert(Principal p) {
     X500Name x500Name = null;
     String a = null;
-    X509Certificate c = null;
+    List certificateList = null;
     try {
       x500Name = new X500Name(p.getName());
       a = x500Name.getCommonName();
@@ -1698,23 +1698,23 @@ public class DirectoryKeyStore
       return null;
     }
     try {
-      c=findCert(a, LOOKUP_KEYSTORE | LOOKUP_LDAP);
+      certificateList = findCert(a, LOOKUP_KEYSTORE | LOOKUP_LDAP);
     }
     catch (Exception e) {
       e.printStackTrace();
     }
-    return c;
+    return certificateList;
   }
 
-  public X509Certificate findCert(String name) {
-    X509Certificate c = null;
+  public List findCert(String name) {
+    List certificateList = null;
     try {
-      c = findCert(name, LOOKUP_KEYSTORE | LOOKUP_LDAP);
+      certificateList = findCert(name, LOOKUP_KEYSTORE | LOOKUP_LDAP);
     }
     catch (Exception e) {
       e.printStackTrace();
     }
-    return c;
+    return certificateList;
   }
 
   private void initCN2aliasMap()
@@ -1941,10 +1941,10 @@ public class DirectoryKeyStore
       System.out.println("CheckOrMakeCert: " + dname.toString());
     }
     //check first
-    X509Certificate c = null;
+    List certificateList = null;
     try{
-      c = findCert(dname.getCommonName(), LOOKUP_KEYSTORE);
-      if(c!=null) {
+      certificateList = findCert(dname.getCommonName(), LOOKUP_KEYSTORE);
+      if(certificateList != null) {
 	return;
       }
     }
@@ -2055,17 +2055,25 @@ public class DirectoryKeyStore
     PrivateKeyPKCS12 pkcs12Mgmt = new PrivateKeyPKCS12(this);
 
     String nodeName = NodeInfo.getNodeName();
-    X509Certificate signerCertificate = findCert(nodeName);
-    PrivateKey signerPrivKey = findPrivateKey(nodeName);
+    List signerCertificateList = findCert(nodeName);
+    X509Certificate signerCertificate =
+      ((CertificateStatus)signerCertificateList.get(0)).getCertificate();
 
-    X509Certificate cert = findCert(agentCN);
-    PrivateKey privKey = findPrivateKey(agentCN);
+    List pkc = findPrivateKey(nodeName);
+    // Take the first key to sign
+    PrivateKey signerPrivKey = ((PrivateKeyCert)pkc.get(0)).getPrivateKey();
 
-    X509Certificate rcvrCert = findCert(rcvrNode);
-    PrivateKey rcvrPrivKey = findPrivateKey(rcvrNode);
+    List certList = findCert(agentCN);
+    List privKeyList = findPrivateKey(agentCN);
 
-    byte[] pkcs12 = pkcs12Mgmt.protectPrivateKey(privKey,
-						 cert,
+    List rcvrCertList = findCert(rcvrNode);
+    X509Certificate rcvrCert = ((CertificateStatus)rcvrCertList.get(0)).getCertificate();
+    List rcvrPrivKeyList = findPrivateKey(rcvrNode);
+    // Take the first key to encrypt
+    PrivateKey rcvrPrivKey = ((PrivateKeyCert)(rcvrPrivKeyList.get(0))).getPrivateKey();
+
+    byte[] pkcs12 = pkcs12Mgmt.protectPrivateKey(privKeyList,
+						 certList,
 						 signerPrivKey,
 						 signerCertificate,
 						 rcvrCert);
@@ -2077,12 +2085,13 @@ public class DirectoryKeyStore
     PrivateKeyPKCS12 pkcs12Mgmt = new PrivateKeyPKCS12(this);
 
     String nodeName = NodeInfo.getNodeName();
-    X509Certificate rcvrCert = findCert(nodeName);
-    PrivateKey rcvrPrivKey = findPrivateKey(nodeName);
+
+    List rcvrCertList = findCert(nodeName);
+    List rcvrPrivKeyList = findPrivateKey(nodeName);
 
     PrivateKeyCert[] pkey = pkcs12Mgmt.getPfx(pfxBytes,
-					      rcvrPrivKey,
-					      rcvrCert);
+					      rcvrPrivKeyList,
+					      rcvrCertList);
     for (int i = 0 ; i < pkey.length ; i++) {
       if (pkey[i] == null) {
 	continue;
@@ -2147,11 +2156,11 @@ public class DirectoryKeyStore
 			       "application/x-www-form-urlencoded");
 	huc.setRequestMethod("POST");
 	PrintWriter out = new PrintWriter(huc.getOutputStream());
-	String content = "pkcs=" + URLEncoder.encode(pkcs);
-	content = content + "&role=" + URLEncoder.encode(role);
+	String content = "pkcs=" + URLEncoder.encode(pkcs, "UTF-8");
+	content = content + "&role=" + URLEncoder.encode(role, "UTF-8");
 	content = content + "&dnname="
-	  + URLEncoder.encode(trustedCaPolicy[0].caDN);
-	content = content + "&pkcsdata=" + URLEncoder.encode(request);
+	  + URLEncoder.encode(trustedCaPolicy[0].caDN, "UTF-8");
+	content = content + "&pkcsdata=" + URLEncoder.encode(request, "UTF-8");
 	out.println(content);
 	out.flush();
 	out.close();
@@ -2165,7 +2174,7 @@ public class DirectoryKeyStore
 	  reply = reply + new String(cbuf, 0, read);
 	}
 	in.close();
-        reply = URLDecoder.decode(reply);
+        reply = URLDecoder.decode(reply, "UTF-8");
 	if (CryptoDebug.debug) {
 	  System.out.println("Reply: " + reply);
 	}

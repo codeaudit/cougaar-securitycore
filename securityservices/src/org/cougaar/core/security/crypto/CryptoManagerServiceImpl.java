@@ -25,6 +25,8 @@ package org.cougaar.core.security.crypto;
 import java.io.Serializable;
 import java.security.*;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Iterator;
 import java.security.cert.CertificateException;
 import javax.crypto.*;
 import java.security.cert.X509Certificate;
@@ -56,12 +58,16 @@ public class CryptoManagerServiceImpl
 			   String spec,
 			   Serializable obj){
     try {
-      PrivateKey pk = (PrivateKey)
+      List pkList = (List)
 	AccessController.doPrivileged(new PrivilegedAction() {
 	    public Object run(){
 	      return keyRing.findPrivateKey(name);
 	    }
 	  });
+      if (pkList.size() == 0) {
+        throw new SecurityException("Private key not found.");
+      }
+      PrivateKey pk = ((PrivateKeyCert)pkList.get(0)).getPrivateKey();
       Signature se;
       // if(spec==null||spec=="")spec=pk.getAlgorithm();
 
@@ -71,9 +77,6 @@ public class CryptoManagerServiceImpl
       // when agent is started with signAndEncrypt without
       // obtaining a certificate successfully this will generate
       // null pointer exception
-      if (pk == null) {
-        throw new SecurityException("Private key not found.");
-      }
 
       spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
       se=Signature.getInstance(spec);
@@ -85,39 +88,47 @@ public class CryptoManagerServiceImpl
     }
   }
 
-   public Object verify(String name, String spec, SignedObject obj)
-   throws CertificateException {
-       java.security.cert.Certificate c = keyRing.findCert(name);
-       if (c == null) {
-	 throw
-	   new CertificateException("Verify. Unable to get certificate for "
-				    + name);
-       }
-       try {
-	 PublicKey pk = c.getPublicKey();
-	 Signature ve;
-	 //if(spec==null||spec=="")spec=pk.getAlgorithm();
-	 spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
-	 ve=Signature.getInstance(spec);
-	 if (obj.verify(pk,ve)) {
-	   return obj.getObject();
-	 } else {
-	   return null;
-	 }
-       } catch (Exception e) {
-	 e.printStackTrace();
-	 return null;
+  public Object verify(String name, String spec, SignedObject obj)
+    throws CertificateException {
+    List certList = keyRing.findCert(name);
+    if (certList == null || certList.size() == 0) {
+      throw
+	new CertificateException("Verify. Unable to get certificate for "
+				 + name);
+    }
+    Iterator it = certList.iterator();
+    while (it.hasNext()) {
+      try {
+	java.security.cert.Certificate c = 
+	  ((CertificateStatus)it.next()).getCertificate();
+	PublicKey pk = c.getPublicKey();
+	Signature ve;
+	//if(spec==null||spec=="")spec=pk.getAlgorithm();
+	spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
+	ve=Signature.getInstance(spec);
+	if (obj.verify(pk,ve)) {
+	  return obj.getObject();
+	} else {
+	  continue;
+	}
+      } catch (Exception e) {
+	e.printStackTrace();
+	continue;
       }
     }
+    return null;
+  }
 
   public SealedObject asymmEncrypt(String name, String spec, Serializable obj)
     throws CertificateException {
     /*encrypt the secretekey with receiver's public key*/
 
-    java.security.cert.Certificate cert = keyRing.findCert(name);
-    if (cert == null) {
+    List certList = keyRing.findCert(name);
+    if (certList.size() == 0) {
       throw new CertificateException("asymmEncrypt. Unable to get certificate for " + name);
     }
+    java.security.cert.Certificate cert =
+      ((CertificateStatus)certList.get(0)).getCertificate();
     try{
       PublicKey key = cert.getPublicKey();
       if (spec==""||spec==null) spec=key.getAlgorithm();
@@ -139,29 +150,36 @@ public class CryptoManagerServiceImpl
   public Object asymmDecrypt(final String name,
 			     String spec,
 			     SealedObject obj){
-    try{
-      /*get secretKey*/
-      PrivateKey key = (PrivateKey)
-	AccessController.doPrivileged(new PrivilegedAction() {
-	    public Object run(){
-	      return keyRing.findPrivateKey(name);
-	    }
-	  });
-
-      if(spec==null||spec=="") spec=key.getAlgorithm();
-      Cipher ci;
-      ci=Cipher.getInstance(spec);
-      ci.init(Cipher.DECRYPT_MODE, key);
-      return obj.getObject(ci);
-    }
-    catch(Exception e){
-      if (CryptoDebug.debug) {
-	System.out.println("Error: cannot recover message. Invalid key? "
-	  + e);
-	e.printStackTrace();
+    /*get secretKey*/
+    List keyList = (List)
+      AccessController.doPrivileged(new PrivilegedAction() {
+	  public Object run(){
+	    return keyRing.findPrivateKey(name);
+	  }
+	});
+    Iterator it = keyList.iterator();
+    PrivateKey key = null;
+    Cipher ci = null;
+    while (it.hasNext()) {
+      key = ((PrivateKeyCert)it.next()).getPrivateKey();
+      if(spec==null||spec=="") 
+	spec=key.getAlgorithm();
+      try {
+	ci=Cipher.getInstance(spec);
+	ci.init(Cipher.DECRYPT_MODE, key);
+	return obj.getObject(ci);
       }
-      return null;
+      catch (Exception e) {
+	if (CryptoDebug.debug) {
+	  System.out.println("Warning: cannot recover message. " + e);
+	  e.printStackTrace();
+	}
+	continue;
+      }
     }
+    return null;
+
+ 
   }
 
   public SealedObject symmEncrypt(SecretKey sk,
@@ -277,17 +295,19 @@ public class CryptoManagerServiceImpl
       sealedObject = symmEncrypt(sk, policy.symmSpec, signedObject);
       
       // Find source certificate
-      X509Certificate sender = (X509Certificate)keyRing.findCert(source);
-      if (sender == null) {
+      List senderList = keyRing.findCert(source);
+      if (senderList.size() == 0) {
 	throw new RuntimeException("Unable to find sender certificate: " 
 				   + source);
       }
+      X509Certificate sender = ((CertificateStatus)senderList.get(0)).getCertificate();
 
-      X509Certificate receiver = (X509Certificate)keyRing.findCert(target);
-      if (receiver == null) {
+      List receiverList = keyRing.findCert(target);
+      if (receiverList.size() == 0) {
 	throw new RuntimeException("Unable to find target certificate: " 
 				   + target);
       }
+      X509Certificate receiver = ((CertificateStatus)receiverList.get(0)).getCertificate();
 
       envelope = 
 	new PublicKeyEnvelope(sender, receiver, sessionKey, sealedObject);

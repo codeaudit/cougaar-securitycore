@@ -24,14 +24,7 @@
 package org.cougaar.core.security.crypto;
 
 import java.io.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.util.ArrayList;
-import java.util.Vector;
-import java.util.Properties;
-import java.util.Collection;
+import java.util.*;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -242,40 +235,35 @@ final public class KeyRing
     return keystore;
   }
 
-  public synchronized PrivateKey findPrivateKey(String cougaarName) {
+  public synchronized List findPrivateKey(String cougaarName) {
     if (keystore == null) {
       return null;
     }
     return keystore.findPrivateKey(cougaarName);
   }
 
-  public synchronized PrivateKey findPrivateKey(X500Name x500name) {
+  public synchronized List findPrivateKey(X500Name x500name) {
     if (keystore == null) {
       return null;
     }
     return keystore.findPrivateKey(x500name);
   }
 
-  public synchronized X509Certificate findCert(Principal p) {
+  public synchronized List findCert(Principal p) {
     if (keystore == null) {
       return null;
     }
     return keystore.findCert(p);
   }
 
-  public synchronized X509Certificate findCert(String cougaarName) {
+  public synchronized List findCert(String cougaarName) {
     if(CryptoDebug.debug)
       System.out.println("Looking for cougaar name " + cougaarName + " in keystore ");
     return keystore.findCert(cougaarName);
   }
 
-  public synchronized X509Certificate findCert(String cougaarName, int lookupType) {
-    X509Certificate c = null;
-    try {
-      c = keystore.findCert(cougaarName, lookupType);
-    }
-    catch (Exception e) {
-    }
+  public synchronized List findCert(String cougaarName, int lookupType) {
+    List c = keystore.findCert(cougaarName, lookupType);
     return c;
   }
 
@@ -336,14 +324,14 @@ final public class KeyRing
     return;
   }
 
-  /** @param privKey        The private key to store in a PKCS#12 enveloppe
+  /** @param privKey        The private keys to store in a PKCS#12 enveloppe
    *  @param cert           The certificate to store in a PKCS#12 enveloppe
    *  @param signerPrivKey  The private key of the signer
    *  @param signerCert     The certificate of the signer
    *  @param rcvrCert       The certificate of the intended receiver
    */
-  public byte[] protectPrivateKey(PrivateKey privKey,
-				  X509Certificate cert,
+  public byte[] protectPrivateKey(List privKey,
+				  List cert,
 				  PrivateKey signerPrivKey,
 				  X509Certificate signerCert,
 				  X509Certificate rcvrCert)
@@ -357,12 +345,12 @@ final public class KeyRing
 
   /** Extract information from a PKCS#12 PFX
    * @param pfxBytes       The DER encoded PFX
-   * @param rcvrPrivKey    The private key of the receiver
+   * @param rcvrPrivKey    The private keys of the receiver
    * @param rcvrCert       The certificate of the receiver
    */
   public PrivateKeyCert[] getPfx(byte[] pfxBytes,
-					PrivateKey rcvrPrivKey,
-					X509Certificate rcvrCert)
+					List rcvrPrivKey,
+					List rcvrCert)
   {
     return pkcs12.getPfx(pfxBytes,
 			 rcvrPrivKey,
@@ -375,17 +363,6 @@ final public class KeyRing
 
   public void setKeyEntry(PrivateKey key, X509Certificate cert) {
     keystore.setKeyEntry(key, cert);
-  }
-
-
-  public X509Certificate[] getCertificates(Principal p) {
-    X509Certificate[] certSet = null;
-    return certSet;
-  }
-
-  public PrivateKey[] getPrivateKeys(Principal principal) {
-    PrivateKey[] keySet = null;
-    return keySet;
   }
 
   public String getCommonName(String alias) {

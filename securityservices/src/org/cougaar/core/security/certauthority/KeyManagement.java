@@ -215,7 +215,10 @@ public class KeyManagement
       }
     }
     try {
-      caX509cert = (X509Certificate)keyRing.findCert(caX500Name.getCommonName());
+      List caX509certList = keyRing.findCert(caX500Name.getCommonName());
+      if (caX509certList.size() > 0) {
+	caX509cert = ((CertificateStatus)caX509certList.get(0)).getCertificate();
+      }
     }
     catch (java.io.IOException e) {
       throw new RuntimeException("Error: Unable to find CA cert: " + e);
@@ -227,6 +230,7 @@ public class KeyManagement
   {
     System.out.println("calling publish CA in ldap :");
     Certificate c=null;
+    List certList = null;
      Enumeration enum=keyRing.getAliasList();
      if(enum!=null) {
        for(;enum.hasMoreElements();) {
@@ -235,7 +239,9 @@ public class KeyManagement
 	 try {
 	   cn= keyRing.getCommonName(a);
 	   System.out.println("got common name from alias : "+a +"cn = "+cn);
-	   c=keyRing.findCert(cn, DirectoryKeyStore.LOOKUP_LDAP);
+	   certList = keyRing.findCert(cn, DirectoryKeyStore.LOOKUP_LDAP);
+
+	   c= ((CertificateStatus)certList.get(0)).getCertificate();
 	   if(c==null) {
 	     System.out.println("Found no certificate for --> :: "+ cn);
 	   }
@@ -250,9 +256,10 @@ public class KeyManagement
 	   //exp.printStackTrace();
 
 	 }
-	  System.out.println("trying to get with cn name :: "+ cn);
+	 System.out.println("trying to get with cn name :: "+ cn);
 	 try {
-	   c=keyRing.findCert(cn);
+	   certList = keyRing.findCert(cn);
+	   c=((CertificateStatus)certList.get(0)).getCertificate();
 	   System.out.println("got certificate with cn ---> =" +cn);
 	 }
 	 catch (Exception exp2) {
@@ -260,7 +267,9 @@ public class KeyManagement
 
 	 }
 	 System.out.println("going to call for publishing ca with ca  : "+cn);
-	 PrivateKey pk=keyRing.findPrivateKey(cn);
+
+	 List pkc = keyRing.findPrivateKey(cn);
+	 PrivateKey pk = ((PrivateKeyCert)pkc.get(0)).getPrivateKey();
 	 caOperations.publishCertificate((X509Certificate)c,CertificateUtility.CACert,pk);
 
        }
@@ -391,7 +400,7 @@ public class KeyManagement
           reply = reply.replaceAll("\n", "<br>");
         }
         else {
-          out.print(URLEncoder.encode(reply));
+          out.print(URLEncoder.encode(reply, "UTF-8"));
         }
 
       }
@@ -760,7 +769,8 @@ public class KeyManagement
     }
 
     // Get Signature object for certificate authority
-    PrivateKey caPrivateKey = keyRing.findPrivateKey(caX500Name);
+    List caPrivateKeyList = keyRing.findPrivateKey(caX500Name);
+    PrivateKey caPrivateKey = ((PrivateKeyCert)caPrivateKeyList.get(0)).getPrivateKey();
     //Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
     // TODO
     Signature caSignature = Signature.getInstance("SHA1withRSA");
@@ -979,7 +989,8 @@ public class KeyManagement
   {
     int status=1;
     X500Name x500name=new X500Name(caDN);
-    PrivateKey caprivatekey=keyRing.findPrivateKey(x500name);
+    List caprivatekeyList = keyRing.findPrivateKey(x500name);
+    PrivateKey caprivatekey = ((PrivateKeyCert)caprivatekeyList.get(0)).getPrivateKey();
     if(caprivatekey==null) {
       throw new IOException(" Could not find PrivateKey for CA :"+caDN);
     }

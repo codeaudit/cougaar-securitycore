@@ -57,14 +57,14 @@ public class PrivateKeyPKCS12
   }
 
   
-  /** @param privKey        The private key to store in a PKCS#12 enveloppe
+  /** @param privKey        The private keys to store in a PKCS#12 enveloppe
    *  @param cert           The certificate to store in a PKCS#12 enveloppe
    *  @param signerPrivKey  The private key of the signer
    *  @param signerCert     The certificate of the signer
    *  @param rcvrCert       The certificate of the intended receiver
    */
-  public byte[] protectPrivateKey(PrivateKey privKey,
-				  Certificate cert,
+  public byte[] protectPrivateKey(List privKey,
+				  List cert,
 				  PrivateKey signerPrivKey,
 				  Certificate signerCert,
 				  Certificate rcvrCert)
@@ -105,7 +105,11 @@ public class PrivateKeyPKCS12
       if (CryptoDebug.debug) {
 	System.out.println("Adding certificate to the PFX");
       }
-      pfx.addBagWithPubkeyPrivacy(cert, null, rcvrCerts);
+      Iterator it = cert.iterator();
+      while (it.hasNext()) {
+	X509Certificate c = ((CertificateStatus)it.next()).getCertificate();
+	pfx.addBagWithPubkeyPrivacy(c, null, rcvrCerts);
+      }
 
       if (CryptoDebug.debug) {
 	System.out.println("Adding signer certificate to the PFX");
@@ -115,16 +119,21 @@ public class PrivateKeyPKCS12
       if (CryptoDebug.debug) {
 	System.out.println("Adding private key to the PFX");
       }
-      try {
-	com.ibm.security.x509.AlgorithmId algid =
-	  com.ibm.security.x509.AlgorithmId.get(privKey.getAlgorithm());
-	PrivateKeyInfo pkinfo = new PrivateKeyInfo(algid, privKey.getEncoded(), null);
-	pfx.addBagWithPubkeyPrivacy(pkinfo, null, rcvrCerts);
-      } catch (java.security.NoSuchAlgorithmException ex) {
-	if (CryptoDebug.debug) {
-	  System.out.println("Error: " + ex);
+      it = privKey.iterator();
+      while (it.hasNext()) {
+	PrivateKeyCert pkc = (PrivateKeyCert)it.next();
+	PrivateKey key = pkc.getPrivateKey();
+	try {
+	  com.ibm.security.x509.AlgorithmId algid =
+	    com.ibm.security.x509.AlgorithmId.get(key.getAlgorithm());
+	  PrivateKeyInfo pkinfo = new PrivateKeyInfo(algid, key.getEncoded(), null);
+	  pfx.addBagWithPubkeyPrivacy(pkinfo, null, rcvrCerts);
+	} catch (java.security.NoSuchAlgorithmException ex) {
+	  if (CryptoDebug.debug) {
+	    System.out.println("Error: " + ex);
+	  }
+	  return null;
 	}
-	return null;
       }
     } catch (PKCSException e) {
       if (CryptoDebug.debug) {
@@ -213,17 +222,21 @@ public class PrivateKeyPKCS12
 
   /** Extract information from a PKCS#12 PFX
    * @param pfxBytes       The DER encoded PFX
-   * @param rcvrPrivKey    The private key of the receiver
+   * @param rcvrPrivKey    The private keys of the receiver
    * @param rcvrCert       The certificate of the receiver
    */
   public PrivateKeyCert[] getPfx(byte[] pfxBytes,
-				 PrivateKey rcvrPrivKey,
-				 Certificate rcvrCert)
+				 List rcvrPrivKeyList,
+				 List rcvrCertList)
   {
     PKCS12PFX pfx = new PKCS12PFX();
     Certificate[] certs = null;
     PrivateKey[] keys = null;
     PrivateKeyCert[] keypairs = null;
+
+    // TODO: try all keys
+    PrivateKey rcvrPrivKey = ((PrivateKeyCert)rcvrPrivKeyList.get(0)).getPrivateKey();
+    X509Certificate rcvrCert = ((CertificateStatus)rcvrCertList.get(0)).getCertificate();
 
     /* 
      * Construct a PFX from its DER-encoding. In this PFX, public

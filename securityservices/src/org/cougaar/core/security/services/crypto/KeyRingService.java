@@ -45,16 +45,6 @@ import org.cougaar.core.security.crypto.*;
  */
 public interface KeyRingService extends Service {
 
-  /** Get an array of certificates associated with a given entity.
-   *  @param principal
-   */
-  X509Certificate[] getCertificates(Principal principal);
-
-  /** Get an array of private keys associated with a given entity.
-   *  @param principal
-   */
-  PrivateKey[] getPrivateKeys(Principal principal);
-
   /** ******************************
    *  Methods to access public keys
    */
@@ -62,17 +52,18 @@ public interface KeyRingService extends Service {
   /** Find the list of all public keys of an entity
    */
 
-  /** 
+  /** Get an array of certificates associated with a given entity.
+   *  @param principal
    */
-  X509Certificate findCert(Principal p);
+  List findCert(Principal p);
 
   /** 
    */
-  X509Certificate findCert(String commonName);
+  List findCert(String commonName);
 
   /**
    */
-  X509Certificate findCert(String commonName, int lookupType);
+  List findCert(String commonName, int lookupType);
 
   /**
    */
@@ -95,11 +86,14 @@ public interface KeyRingService extends Service {
   DirectoryKeyStore getDirectoryKeyStore();
 
   /** 
+   * @return A list of PrivateKeyCert
    */
-  PrivateKey findPrivateKey(String commonName);
+  List findPrivateKey(String commonName);
+
   /** 
+   * @return A list of PrivateKeyCert
    */
-  PrivateKey findPrivateKey(X500Name x500name);
+  List findPrivateKey(X500Name x500name);
 
 
   Enumeration getAliasList();
@@ -116,11 +110,11 @@ public interface KeyRingService extends Service {
   void removeEntry(String commonName);
   void setKeyEntry(PrivateKey key, X509Certificate cert);
 
-  byte[] protectPrivateKey(PrivateKey privKey,
-				  X509Certificate cert,
-				  PrivateKey signerPrivKey,
-				  X509Certificate signerCert,
-				  X509Certificate rcvrCert);
+  byte[] protectPrivateKey(List privKey,
+			   List cert,
+			   PrivateKey signerPrivKey,
+			   X509Certificate signerCert,
+			   X509Certificate rcvrCert);
 
   /** Extract information from a PKCS#12 PFX
    * @param pfxBytes       The DER encoded PFX
@@ -128,8 +122,8 @@ public interface KeyRingService extends Service {
    * @param rcvrCert       The certificate of the receiver
    */
   PrivateKeyCert[] getPfx(byte[] pfxBytes,
-				 PrivateKey rcvrPrivKey,
-				 X509Certificate rcvrCert);
+			  List rcvrPrivKey,
+			  List rcvrCert);
 
   String getAlias(X509Certificate clientX509);
   String parseDN(String aDN);

@@ -177,8 +177,10 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
 
     // look for it in the
     String commonName = keystore.getCommonName(alias);
-    if (commonName != null)
-      privatekey = keyRing.findPrivateKey(commonName);
+    if (commonName != null) {
+      List privatekeyList = keyRing.findPrivateKey(commonName);
+      privatekey = ((PrivateKeyCert)privatekeyList.get(0)).getPrivateKey();
+    }
 
     // prompt for password if user certificate is locked
     // private key not in cert cache, then load it from the keystore

@@ -142,21 +142,26 @@ public class AgentIdentityServiceImpl
     }     
 
     // Retrieve keys of the agent
-    PrivateKey agentPrivKey = keyRing.findPrivateKey(agent);
-    if (agentPrivKey == null) {
+    List agentPrivKeyList = keyRing.findPrivateKey(agent);
+
+    if (agentPrivKeyList.size() == 0) {
       throw new RuntimeException("Could not find private keys for "
 	+ agent);
     }
-    X509Certificate agentCert = (X509Certificate)keyRing.findCert(agent);
-    if (agentCert == null) {
+    PrivateKey[] privKey = new PrivateKey[agentPrivKeyList.size()];
+    for (int i = 0 ; i < agentPrivKeyList.size() ; i++) {
+      privKey[i] = ((PrivateKeyCert)(agentPrivKeyList.get(i))).getPrivateKey();
+    }
+
+    List agentCertList = keyRing.findCert(agent);
+    if (agentCertList.size() == 0) {
       throw new RuntimeException("Could not find certificates for "
 	+ agent);
     }
-
-    PrivateKey[] privKey = new PrivateKey[1];
-    privKey[0] = agentPrivKey;
-    X509Certificate[] cert = new X509Certificate[1];
-    cert[0] = agentCert;
+    X509Certificate[] cert = new X509Certificate[agentCertList.size()];
+    for (int i = 0 ; i < agentCertList.size() ; i++) {
+      cert[i] = ((CertificateStatus)(agentCertList.get(i))).getCertificate();
+    }
     
     KeySet keySet = new KeySet(privKey, cert);
 

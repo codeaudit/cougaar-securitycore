@@ -29,9 +29,12 @@ import javax.net.ssl.*;
 import java.security.*;
 import java.security.cert.*;
 import java.net.*;
+import java.util.List;
 
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.crypto.DirectoryKeyStore;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
+import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public class KeyManager implements X509KeyManager {
@@ -62,7 +65,10 @@ public class KeyManager implements X509KeyManager {
     // use DirectoryKeyStore's functions (it assumes there is only one matching
     // between commonName and cert/alias)
     nodealias = keystore.findAlias(nodename);
-    nodex509 = (X509Certificate)keyRing.findCert(nodename);
+    List certList = keyRing.findCert(nodename);
+    if (certList.size() > 0) {
+      nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
+    }
   }
 
   /**  Choose an alias to authenticate the client side of a secure socket
@@ -136,7 +142,9 @@ public class KeyManager implements X509KeyManager {
       System.out.println("getPrivateKey: " + alias);
 
     // DirectoryKeyStore sends out request if key not found
-    return keyRing.findPrivateKey(nodename);
+    // Get the first key in the list
+    PrivateKeyCert pkc = (PrivateKeyCert)keyRing.findPrivateKey(nodename).get(0);
+    return pkc.getPrivateKey();
   }
 
   /**
