@@ -522,13 +522,28 @@ public class ServletNodeEnforcer
       _guard.checkPermission(kap, null);
       result=true;
     } catch (SecurityException e) {
-      if (_log.isWarnEnabled()) {
+      if (_log.isWarnEnabled() && audit) {
         _log.warn("Permission denied");
         _log.warn("Action = " + action);
         _log.warn("User " + user + " in roles " + policyRoles);
       }
       result=false;
     }
+    /*
+     *{
+     *_log.debug("Testing Obligation Code");
+     *Vector obligations = _guard.getObligationsForTriggerCondition(action);
+     *for (Iterator obligationsIt = obligations.iterator(); 
+     *obligationsIt.hasNext(); ) {
+     *ActionInstanceDescription obligated 
+     *= (ActionInstanceDescription) obligationsIt.next();
+     *if (_log.isDebugEnabled()) {
+     *_log.debug("obligation = " + obligated);
+     *}
+     *}
+     *}
+    */
+      
     UserDatabase.logout(user);
     return result;
   }
