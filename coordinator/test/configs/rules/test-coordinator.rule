@@ -1,0 +1,18 @@
+if ! defined? CIP
+  CIP = ENV['COUGAAR_INSTALL_PATH']
+end
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
+require 'security/lib/common_security_rules'
+
+sact = "org.cougaar.core.security.test.coordinator.CoordinatorTest"
+
+plugins = [sact]
+
+society.each_agent(true) do |agent|
+    agent.each_facet(:role) do |facet|
+        if facet[:role] == $facetMonitoringManagerAgent
+            agent.add_components(plugins) 
+        end
+    end
+end
