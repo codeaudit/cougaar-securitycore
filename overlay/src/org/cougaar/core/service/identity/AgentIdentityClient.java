@@ -26,6 +26,9 @@
 
 package org.cougaar.core.service.identity;
 
+// Cougaar core infrastructure
+import org.cougaar.core.mts.MessageAddress;
+
 public interface AgentIdentityClient {
   /** Callback for revocation of an aquired identity.
    *  See RFC 2459, 5.3.1 for a list of possible reasons
@@ -35,7 +38,7 @@ public interface AgentIdentityClient {
    */
   void identityRevoked(CrlReason reason);
 
-  /** [optional] name of the agent (or is this implied?)
+  /** Name of the agent (or is this implied?)
    */
-  //String getName();
+  MessageAddress getName();
 }

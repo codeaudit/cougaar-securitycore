@@ -24,7 +24,7 @@
 
 package org.cougaar.core.service.identity;
 
-class CrlReason
+public class CrlReason
 {
   // revocation reasons:
   public static int UNSPECIFIED            = 0;
