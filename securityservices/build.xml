@@ -83,7 +83,7 @@
         <pathelement location="${cougaar.install.path}/lib/safe.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jpcsc.jar"/>
 	<!-- DAML libraries -->
-        <pathelement location="${cougaar.install.path}/lib/jena.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/jena.jar"/>
     </path>
 
     <path id="securityservices.class.path">
