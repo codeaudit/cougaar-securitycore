@@ -46,7 +46,7 @@ mysqlshow
 # Functions used in this script
 drop_database () {
 	echo "The following database will be removed and recreated if you continue:"
-	echo "1: ${db_1ad}"
+	#echo "1: ${db_1ad}"
 	echo "2: ${db_csmart}"
 
 	echo -n "Do you want to continue (y/n) ?"
@@ -61,15 +61,15 @@ drop_database () {
 }
 
 create_database () {
-	echo "Creating ${db_1ad}"
-	mysqladmin create ${db_1ad} -u ${db_superuser} --password=${db_spassword}
+	#echo "Creating ${db_1ad}"
+	#mysqladmin create ${db_1ad} -u ${db_superuser} --password=${db_spassword}
 	echo "Creating ${db_csmart}"
 	mysqladmin create ${db_csmart} -u ${db_superuser} --password=${db_spassword}
 }
 
 user_privileges() {
 	echo "Creating db user and setting privileges"
-	echo 'GRANT ALL PRIVILEGES ON '${db_1ad}'.* TO '${db_user}'@"%" IDENTIFIED BY "'${db_password}'";' > /tmp/mysql.grant
+	#echo 'GRANT ALL PRIVILEGES ON '${db_1ad}'.* TO '${db_user}'@"%" IDENTIFIED BY "'${db_password}'";' > /tmp/mysql.grant
 	echo 'GRANT ALL PRIVILEGES ON '${db_csmart}'.* TO '${db_user}'@"%" IDENTIFIED BY "'${db_password}'";' >> /tmp/mysql.grant
 	mysql -D mysql -u ${db_superuser} -p${db_spassword} < /tmp/mysql.grant
 	#cat /tmp/mysql.grant
@@ -89,6 +89,12 @@ load_csmart_database() {
 
 load_communities() {
 	echo "Loading communities"
+	echo "You must create an experiment before loading the community information"
+	echo -n "Enter the assembly ID [${assembly_id}]  " 
+	read reply
+	if [ ! -z ${reply} ]; then
+		assembly_id=${reply}
+	fi
 	/bin/cp -f ${community_file_attr} ${CIP}/csmart/data/database/scripts/mysql
 	/bin/cp -f ${community_file_entity} ${CIP}/csmart/data/database/scripts/mysql
 	${CIP}/csmart/data/database/scripts/mysql/load_communities.sh ${db_superuser} ${db_spassword} ${db_csmart} ${assembly_id}
@@ -101,8 +107,8 @@ load_domain_database() {
 	# The ZIP file should contain the 1ad_domain_data_dump.sql file.
 
 	echo "Loading 1ad_domain_data_dump.sql to database"
-	mysql -D ${db_1ad} -p${db_spassword} -u ${db_superuser} < /tmp/${db_sql_file}
-	#mysql -D ${db_csmart} -p${db_spassword} -u ${db_superuser} < /tmp/${db_sql_file}
+	#mysql -D ${db_1ad} -p${db_spassword} -u ${db_superuser} < /tmp/${db_sql_file}
+	mysql -D ${db_csmart} -p${db_spassword} -u ${db_superuser} < /tmp/${db_sql_file}
 	rm -f /tmp/1ad_domain_data_dump.sql
 }
 
@@ -118,16 +124,16 @@ load_cougaar_domain_plugins() {
 	echo "Unzip domain plugins"
 	unzip -o -q ${CIP}/dbms/data/mysql/1ADDomainData.zip -d /tmp
 	sarep "FORCE varchar" "\`FORCE\` varchar" /tmp/1ADDomainData.sql
-	mysql -D ${db_1ad} -p${db_spassword} -u ${db_superuser} < /tmp/1ADDomainData.sql
+	mysql -D ${db_csmart} -p${db_spassword} -u ${db_superuser} < /tmp/1ADDomainData.sql
 	rm -f /tmp/1ADDomainData.sql
 
 	unzip -q -o ${CIP}/dbms/data/mysql/army_spares.ZIP -d /tmp
-	mysql -D ${db_1ad} -p${db_spassword} -u ${db_superuser} < /tmp/army.txt
+	mysql -D ${db_csmart} -p${db_spassword} -u ${db_superuser} < /tmp/army.txt
 	rm -f /tmp/army.txt
 
 	#unzip -q ${CIP}/dbms/data/mysql/spares_index.zip -d /tmp
 	cp ${CIP}/dbms/data/mysql/spares_index.txt -d /tmp
-	mysql -D ${db_1ad} -p${db_spassword} -u ${db_superuser} < /tmp/spares_index.txt
+	mysql -D ${db_csmart} -p${db_spassword} -u ${db_superuser} < /tmp/spares_index.txt
 	rm -f /tmp/spares_index.txt
 }
 
@@ -139,13 +145,14 @@ echo "What do you want to do?"
 echo "1: Load communities from"
 echo "       ${community_file_attr}"
 echo "2: Set user privileges"
-echo "2: Load security recipes from"
+echo "3: Load security recipes from"
 echo "       ${recipes_dir}"
-echo '4: Everything (drop and recreate db, set user privileges,'
-echo '       load csmart and domain database, load communities,'
-echo '       load security services recipes)'
-echo "5: Load domain database"
-echo "6: Load domain plugins"
+echo "4: Load domain database (Domain-MySQL.ZIP)"
+echo "5: Load domain plugins (1ADDomainData.zip, army_spares.ZIP, spares_index.txt)"
+echo '6: Everything: drop and recreate db, set user privileges,'
+echo '       load csmart and domain database'
+echo '       load security services recipes'
+echo '       You must load the communities separately'
 echo -n "Please enter your choice: "
 read reply
 
@@ -156,18 +163,17 @@ elif [ ${reply} == "2" ]; then
 elif [ ${reply} == "3" ]; then
 	load_sec_recipes
 elif [ ${reply} == "4" ]; then
+	load_domain_database
+elif [ ${reply} == "5" ]; then
+	load_cougaar_domain_plugins
+elif [ ${reply} == "6" ]; then
 	drop_database
 	create_database
 	user_privileges
 	load_csmart_database
-	load_communities
 	load_domain_database
 	load_cougaar_domain_plugins
 	load_sec_recipes
-elif [ ${reply} == "5" ]; then
-	load_domain_database
-elif [ ${reply} == "6" ]; then
-	load_cougaar_domain_plugins
 else
 	echo "Nothing to do"
 fi
