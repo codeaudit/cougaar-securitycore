@@ -30,6 +30,7 @@ import java.util.Vector;
 
 import jtp.ReasoningException;
 import kaos.ontology.util.JTPStringFormatUtils;
+import kaos.ontology.util.SerializableDAMLModelImpl;
 
 import com.hp.hpl.jena.daml.DAMLModel;
 
@@ -133,6 +134,9 @@ public abstract class OntologyConnection
                                                     String propertyName) 
     throws ReasoningException;
 
+  public abstract Set getIndividualTargets (String baseTargetClass) 
+    throws ReasoningException;
+
   public abstract void declareInstance(String instanceName,
                                        String className)
     throws ReasoningException;
@@ -148,8 +152,8 @@ public abstract class OntologyConnection
    * Not implemented on the tunnelled ontology
    */
 
-  public abstract void loadOntology (DAMLModel myDAMLModel, 
-                                     boolean recursiveLoad)
+  public abstract void loadOntology(SerializableDAMLModelImpl  myDAMLModel, 
+                                    boolean                    recursiveLoad)
     throws ReasoningException, IOException;
 
 

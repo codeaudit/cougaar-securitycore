@@ -32,15 +32,24 @@ import java.util.Vector;
 
 import jtp.ReasoningException;
 import kaos.kpat.tunnel.TunnelClient;
+import kaos.ontology.util.SerializableDAMLModelImpl;
 
 import com.hp.hpl.jena.daml.DAMLModel;
 
+/**
+ * This class represents a connection to the reasoner (the ontology
+ * repository) in the case where the reasoner is in a remote domain
+ * manager.
+ *
+ * This class gets the reasoner by using http to communicate with a
+ * servlet which tunnels the connection through to the domain
+ * manager.  The Tunnel client class takes care of all of the
+ * communication details; this class only needs to invoke the tunnel
+ * client class.
+ */
+
 public class TunnelledOntologyConnection extends OntologyConnection
 {
-  /*
-   * For various reasons, this class needs intelligence.  I also
-   * provide a convenience method for outsiders to load intelligence.
-   */
 
   private static TunnelClient _brains = null;
 
@@ -50,7 +59,9 @@ public class TunnelledOntologyConnection extends OntologyConnection
    * Opens a tunnelled connection (through the policy servlet) to the
    * KAoSDirectoryService.  
    */
-  public TunnelledOntologyConnection(String uri, Map declarations)
+  public TunnelledOntologyConnection(String uri, 
+                                     Map declarations, 
+                                     Map agentGroupMap)
     throws IOException
   {
     super();
@@ -59,7 +70,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
       SecurityServiceProvider secprov   = new SecurityServiceProvider();
       userAuth.init(secprov);
       _brains = new TunnelClient(uri);
-      loadDeclarations(declarations);
+      PolicyUtils.autoGenerateGroups(declarations, agentGroupMap);
     } catch (Exception e) {
       IOException ioe =  new IOException("Could not tunnel to client: " + uri);
       ioe.initCause(e);
@@ -76,7 +87,8 @@ public class TunnelledOntologyConnection extends OntologyConnection
   public TunnelledOntologyConnection(String  uri, 
                                      String  user,
                                      char [] password,
-                                     Map declarations)
+                                     Map declarations,
+                                     Map agentGroupMap)
     throws IOException
   {
     super();
@@ -86,7 +98,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
       userAuth.init(secprov);
       userAuth.authenticateWithPassword(user, password);
       _brains = new TunnelClient(uri);
-      loadDeclarations(declarations);
+      PolicyUtils.autoGenerateGroups(declarations, agentGroupMap);
     } catch (Exception e) {
       IOException ioe =  new IOException("Could not tunnel to client: " + uri);
       ioe.initCause(e);
@@ -135,6 +147,19 @@ public class TunnelledOntologyConnection extends OntologyConnection
     }
   }
 
+  public Set getIndividualTargets (String baseTargetClass) 
+    throws ReasoningException
+  {
+    try {
+      return _brains.getIndividualTargets(baseTargetClass);
+    } catch (Exception e) {
+      ReasoningException re = new ReasoningException(e.toString());
+      re.initCause(e);
+      throw re;
+    }
+  }
+
+
   public void declareInstance(String instanceName,
                                String className)
     throws ReasoningException
@@ -174,11 +199,23 @@ public class TunnelledOntologyConnection extends OntologyConnection
    * Not implemented on the tunnelled ontology
    */
 
-  public void loadOntology (DAMLModel myDAMLModel, 
-                            boolean recursiveLoad)
+  public void loadOntology(SerializableDAMLModelImpl  myDAMLModel, 
+                           boolean                    recursiveLoad)
     throws ReasoningException, IOException
   {
-    throw new RuntimeException("loadOntology (for models) not implemented");
+    try {
+      _brains.loadOntology(myDAMLModel, recursiveLoad);
+    } catch (Exception e) {
+      if (e instanceof IOException) {
+        throw (IOException) e;
+      } else if (e instanceof ReasoningException) {
+        throw (ReasoningException) e;
+      } else {
+        ReasoningException throwExc = new ReasoningException(e.toString());
+        throwExc.initCause(e);
+        throw throwExc;
+      }
+    }
   }
 
 

@@ -32,6 +32,7 @@ import kaos.ontology.DefaultOntologies;
 import kaos.ontology.repository.KAoSContext;
 import kaos.ontology.repository.OntologyRepository;
 import kaos.ontology.util.JTPStringFormatUtils;
+import kaos.ontology.util.SerializableDAMLModelImpl;
 
 import com.hp.hpl.jena.daml.DAMLModel;
 
@@ -46,7 +47,8 @@ public class LocalOntologyConnection extends OntologyConnection
 
   private static OntologyRepository  _brains = null;
 
-  public LocalOntologyConnection(Map declarations)
+  public LocalOntologyConnection(Map declarations,
+                                 Map agentGroupMap)
   {
     super();
     if (_brains  == null) {
@@ -59,7 +61,7 @@ public class LocalOntologyConnection extends OntologyConnection
         _brains.loadOntology
           ("http://ontology.coginst.uwf.edu/Ultralog/UltralogOntologies.daml",
            true);
-        PolicyUtils.autoGenerateGroups(null, declarations);
+        PolicyUtils.autoGenerateGroups(declarations, agentGroupMap);
       } catch (Exception e) {
         // If you need to be smart but have no brains you are screwed.
         e.printStackTrace();
@@ -91,6 +93,15 @@ public class LocalOntologyConnection extends OntologyConnection
   {
     return _brains.getRangeOnPropertyForClass(className,propertyName);
   }
+
+  public Set getIndividualTargets (String baseTargetClass) 
+    throws ReasoningException
+  {
+    return _brains.getResourcesWithValueForProperty(
+                                       kaos.ontology.RDFConcepts._type_, 
+                                       baseTargetClass); 
+  }
+
 
   public void declareInstance(String instanceName,
                                String className)
@@ -132,8 +143,8 @@ public class LocalOntologyConnection extends OntologyConnection
    * Not implemented on the tunnelled ontology
    */
 
-  public void loadOntology (DAMLModel myDAMLModel, 
-                            boolean recursiveLoad)
+  public void loadOntology (SerializableDAMLModelImpl  myDAMLModel, 
+                            boolean                   recursiveLoad)
     throws ReasoningException, IOException
   {
     _brains.loadOntology(myDAMLModel, recursiveLoad);
