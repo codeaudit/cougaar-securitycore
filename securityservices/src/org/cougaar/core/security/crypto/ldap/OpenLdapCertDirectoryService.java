@@ -157,7 +157,7 @@ public class OpenLdapCertDirectoryService
     }
     catch(Exception ex) {
       if(log.isDebugEnabled()) {
-	System.out.print("Unable to fetch ldap entry for " + bindingName);
+	log.debug("Unable to fetch ldap entry for " + bindingName);
 	ex.printStackTrace();
       }
     }

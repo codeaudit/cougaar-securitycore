@@ -81,7 +81,7 @@ public class CertificateUtility {
     try {
       inputstream.reset();
       PKCS7 pkcs7 = new PKCS7(inputstream);
-      System.out.println("PKCS7: " + pkcs7);
+      //System.out.println("PKCS7: " + pkcs7);
 
       X509Certificate ax509certificate[] = pkcs7.getCertificates();
       if(ax509certificate != null)
@@ -140,9 +140,9 @@ public class CertificateUtility {
     // Extract Base-64 encoded request and remove request from sbuf
     String base64pkcs = sbuf.substring(ind_start + header.length(), ind_stop - 1);
     sbuf = sbuf.substring(ind_stop + trailer.length());
-    if (CryptoDebug.debug) {
-      System.out.println("base64pkcs: " + base64pkcs + "******");
-    }
+    //if (CryptoDebug.debug) {
+      //System.out.println("base64pkcs: " + base64pkcs + "******");
+    //}
     return base64pkcs;
   }
 
@@ -355,7 +355,7 @@ public class CertificateUtility {
       return CertificateUtility.toHexinHTML(abyte1);
     }
     catch (Exception  e) {
-      System.out.println("Unable to compute certificate fingerprint");
+      //System.out.println("Unable to compute certificate fingerprint");
       return "Unable to compute fingerprint";
     }
   }

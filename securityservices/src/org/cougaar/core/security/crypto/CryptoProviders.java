@@ -67,15 +67,15 @@ public class CryptoProviders {
   public static void printProviderProperties() {
     Provider[] pv = Security.getProviders();
     for (int i = 0 ; i < pv.length ; i++) {
-      System.out.println("Provider[" + i + "]: " + pv[i].getName() + " - Version: " + pv[i].getVersion());
-      System.out.println(pv[i].getInfo());
+      //System.out.println("Provider[" + i + "]: " + pv[i].getName() + " - Version: " + pv[i].getVersion());
+      //System.out.println(pv[i].getInfo());
       // List properties
       Enumeration properties = pv[i].propertyNames();
       while (properties.hasMoreElements()) {
 	String key, value;
 	key = (String) properties.nextElement();
 	value = pv[i].getProperty(key);
-	System.out.println("Key: " + key + " - Value: " + value);
+	//System.out.println("Key: " + key + " - Value: " + value);
       }
     }
   }
