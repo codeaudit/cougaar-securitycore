@@ -44,6 +44,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -93,6 +94,13 @@ public class CertificateVerifierImpl
 
   /** Log file to store Jar verification errors */
   private static SecurityLog _securelog;
+
+  /** The time when the verifier was first invoked. */
+  private static Date _startupTime;
+
+  static {
+    _startupTime = new Date();
+  }
 
   protected CertificateVerifierImpl() {
     keyStorePath =
@@ -200,7 +208,9 @@ public class CertificateVerifierImpl
       CertificateVerificationException e =
 	new CertificateVerificationException
 	(jf.getName(), ex);
-      _securelog.logJarVerificationError(jfURL, e);
+      if (!isXmlConfigurationFile(jf)) {
+        _securelog.logJarVerificationError(jfURL, e);
+      }
       _jarFiles.put(jf.getName(), new JarFileStatus(false, e));
       throw e;
     }
@@ -209,7 +219,9 @@ public class CertificateVerifierImpl
       CertificateVerificationException e =
 	new CertificateVerificationException
 	(jf.getName(), new NoManifestFoundException(jf.getName()));
-      _securelog.logJarVerificationError(jfURL, e);
+      if (!isXmlConfigurationFile(jf)) {
+        _securelog.logJarVerificationError(jfURL, e);
+      }
       _jarFiles.put(jf.getName(), new JarFileStatus(false, e));
       throw e;
     }
@@ -221,7 +233,9 @@ public class CertificateVerifierImpl
       CertificateVerificationException e =
 	new CertificateVerificationException
 	(jf.getName(), ex);
-      _securelog.logJarVerificationError(jfURL, e);
+      if (!isXmlConfigurationFile(jf)) {
+        _securelog.logJarVerificationError(jfURL, e);
+      }
       _jarFiles.put(jf.getName(), new JarFileStatus(false, e));
       throw e;
     }
@@ -234,7 +248,9 @@ public class CertificateVerifierImpl
       CertificateVerificationException e =
 	new CertificateVerificationException
 	(jf.getName(), ex);
-      _securelog.logJarVerificationError(jfURL, e);
+      if (!isXmlConfigurationFile(jf)) {
+        _securelog.logJarVerificationError(jfURL, e);
+      }
       _jarFiles.put(jf.getName(), new JarFileStatus(false, e));
       throw e;
     }
@@ -248,7 +264,9 @@ public class CertificateVerifierImpl
 	CertificateVerificationException e =
 	  new CertificateVerificationException
 	  (jf.getName(), ex);
-	_securelog.logJarVerificationError(jfURL, e);
+        if (!isXmlConfigurationFile(jf)) {
+          _securelog.logJarVerificationError(jfURL, e);
+        }
 	_jarFiles.put(jf.getName(), new JarFileStatus(false, e));
 	throw e;
       }
@@ -266,7 +284,9 @@ public class CertificateVerifierImpl
 		CertificateVerificationException e =
 		  new CertificateVerificationException
 		  (jf.getName(), ex);
-		_securelog.logJarVerificationError(jfURL, e);
+                if (!isXmlConfigurationFile(jf)) {
+		  _securelog.logJarVerificationError(jfURL, e);
+                }
 		_jarFiles.put(jf.getName(), new JarFileStatus(false, e));
 		throw e;
 	      }
@@ -280,7 +300,9 @@ public class CertificateVerifierImpl
 		  CertificateVerificationException e =
 		    new CertificateVerificationException
 		    (jf.getName(), cee);
-		  _securelog.logJarVerificationError(jfURL, e);
+                  if (!isXmlConfigurationFile(jf)) {
+		    _securelog.logJarVerificationError(jfURL, e);
+                  }
 		  _jarFiles.put(jf.getName(), new JarFileStatus(false, e));
 		  throw e;
 		}
@@ -288,7 +310,9 @@ public class CertificateVerifierImpl
 		  CertificateVerificationException e =
 		    new CertificateVerificationException
 		    (jf.getName(), cye);
-		  _securelog.logJarVerificationError(jfURL, e);
+                  if (!isXmlConfigurationFile(jf)) {
+		    _securelog.logJarVerificationError(jfURL, e);
+                  }
 		  _jarFiles.put(jf.getName(), new JarFileStatus(false, e));
 		  throw e;
 		}
@@ -305,7 +329,9 @@ public class CertificateVerifierImpl
     CertificateVerificationException e =
       new CertificateVerificationException
       (jf.getName(), new Exception("Jar file does not have any certificate"));
-    _securelog.logJarVerificationError(jfURL, e);
+    if (!isXmlConfigurationFile(jf)) {
+      _securelog.logJarVerificationError(jfURL, e);
+    }
     _jarFiles.put(jf.getName(), new JarFileStatus(false, e));
     throw e;
   }
@@ -423,5 +449,21 @@ public class CertificateVerifierImpl
      *  that was raised during the first check
      */
     public CertificateVerificationException _exception;
+  }
+
+  /**
+   * Checks whether the Jar file is a configuration file.
+   * ACME builds and generates jar files containing XML configuration files on the fly.
+   * Before a node is started, ACME generates the XML configuration file, jars it
+   * and signs the jar file. Then ACME starts the node. These operations happens in parallel.
+   * This means one node may start and verify all the jar files while ACME is in the middle of
+   * building a configuration jar file for another node. This results in annoying IDMEF messages.
+   * So we do not report IDMEF messages for files that have the ".xml.jar" suffix, because we
+   * don't care about them.
+   * We do not report the problem as IDMEF, AND we reject the jar file as invalid.
+   */
+  private boolean isXmlConfigurationFile(JarFile jf) {
+    return ( ((new Date()).getTime() - _startupTime.getTime()) < (60 * 1000)  &&
+         jf.getName().endsWith(".xml.jar")); 
   }
 }
