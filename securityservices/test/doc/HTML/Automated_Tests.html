@@ -7,29 +7,27 @@ xmlns="http://www.w3.org/TR/REC-html40">
 <meta name=ProgId content=Word.Document>
 <meta name=Generator content="Microsoft Word 10">
 <meta name=Originator content="Microsoft Word 10">
-<link rel=File-List href="README.automatedTests_files/filelist.xml">
+<link rel=File-List href="Automated_Tests_files/filelist.xml">
 <title>This README file explains how to install and configure the test suite
 for the security services</title>
 <!--[if gte mso 9]><xml>
  <o:DocumentProperties>
   <o:LastAuthor>Sebastien Rosset</o:LastAuthor>
-  <o:Revision>2</o:Revision>
-  <o:TotalTime>4</o:TotalTime>
+  <o:Revision>8</o:Revision>
+  <o:TotalTime>14</o:TotalTime>
   <o:Created>2003-02-28T02:18:00Z</o:Created>
-  <o:LastSaved>2003-02-28T02:18:00Z</o:LastSaved>
+  <o:LastSaved>2003-04-17T20:11:00Z</o:LastSaved>
   <o:Pages>1</o:Pages>
-  <o:Words>739</o:Words>
-  <o:Characters>4213</o:Characters>
+  <o:Words>761</o:Words>
+  <o:Characters>4339</o:Characters>
   <o:Company>Network Associates, Inc.</o:Company>
-  <o:Lines>35</o:Lines>
-  <o:Paragraphs>9</o:Paragraphs>
-  <o:CharactersWithSpaces>4943</o:CharactersWithSpaces>
+  <o:Lines>36</o:Lines>
+  <o:Paragraphs>10</o:Paragraphs>
+  <o:CharactersWithSpaces>5090</o:CharactersWithSpaces>
   <o:Version>10.3501</o:Version>
  </o:DocumentProperties>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <w:WordDocument>
-  <w:SpellingState>Clean</w:SpellingState>
-  <w:GrammarState>Clean</w:GrammarState>
   <w:Compatibility>
    <w:BreakWrappedTables/>
    <w:SnapToGridInCell/>
@@ -55,7 +53,7 @@ for the security services</title>
 	mso-font-charset:0;
 	mso-generic-font-family:swiss;
 	mso-font-pitch:variable;
-	mso-font-signature:1627421319 -2147483648 8 0 66047 0;}
+	mso-font-signature:553679495 -2147483648 8 0 66047 0;}
  /* Style Definitions */
  p.MsoNormal, li.MsoNormal, div.MsoNormal
 	{mso-style-parent:"";
@@ -66,6 +64,14 @@ for the security services</title>
 	font-family:Arial;
 	mso-fareast-font-family:"Times New Roman";
 	mso-bidi-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
 p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
 	{mso-style-noshow:yes;
 	margin:0in;
@@ -82,12 +88,6 @@ p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
 	font-size:10.0pt;
 	font-family:"Courier New";
 	mso-fareast-font-family:"Times New Roman";}
-span.SpellE
-	{mso-style-name:"";
-	mso-spl-e:yes;}
-span.GramE
-	{mso-style-name:"";
-	mso-gram-e:yes;}
 @page Section1
 	{size:8.5in 11.0in;
 	margin:1.0in 65.95pt 1.0in 65.95pt;
@@ -98,23 +98,27 @@ div.Section1
 	{page:Section1;}
  /* List Definitions */
  @list l0
-	{mso-list-id:130943377;
+	{mso-list-id:751048626;
 	mso-list-type:hybrid;
-	mso-list-template-ids:353791976 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+	mso-list-template-ids:-1714008712 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
 @list l0:level1
-	{mso-level-start-at:0;
-	mso-level-number-format:bullet;
+	{mso-level-number-format:bullet;
 	mso-level-text:\F0B7;
 	mso-level-tab-stop:.5in;
 	mso-level-number-position:left;
 	text-indent:-.25in;
-	font-family:Symbol;
-	mso-fareast-font-family:"Times New Roman";
-	mso-bidi-font-family:"Times New Roman";}
+	font-family:Symbol;}
+@list l0:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:"Courier New";}
 @list l1
-	{mso-list-id:231623097;
+	{mso-list-id:1515847693;
 	mso-list-type:hybrid;
-	mso-list-template-ids:-1034718 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+	mso-list-template-ids:1559383538 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
 @list l1:level1
 	{mso-level-number-format:bullet;
 	mso-level-text:\F0B7;
@@ -123,43 +127,10 @@ div.Section1
 	text-indent:-.25in;
 	font-family:Symbol;}
 @list l2
-	{mso-list-id:264121730;
+	{mso-list-id:2094206278;
 	mso-list-type:hybrid;
-	mso-list-template-ids:502404538 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+	mso-list-template-ids:-1058134266 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
 @list l2:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:\F0B7;
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	font-family:Symbol;}
-@list l3
-	{mso-list-id:441338232;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-1941506820 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l3:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:\F0B7;
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	font-family:Symbol;}
-@list l4
-	{mso-list-id:1545630514;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-1778380044 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l4:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:\F0B7;
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	font-family:Symbol;}
-@list l5
-	{mso-list-id:1777098880;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-1620573760 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l5:level1
 	{mso-level-number-format:bullet;
 	mso-level-text:\F0B7;
 	mso-level-tab-stop:.5in;
@@ -191,98 +162,227 @@ ul
 <![endif]-->
 </head>
 
-<body lang=EN-US style='tab-interval:.5in'>
+<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
 
 <div class=Section1>
 
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'>This README
-file explains how to install and configure the test suite for the security
-services.<br>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+style='font-size:14.0pt;font-family:Arial'>Junit Framework<o:p></o:p></span></b></p>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman"'>This document
+explains how to install and configure the test suite for the security services.<br>
 <br>
 <b style='mso-bidi-font-weight:normal'><u>INTRODUCTION<br>
-</u></b>The test suite has the following capabilities:<br>
-A series of regression tests can be run on a regular basis (e.g. every day) to
-verify that the security services do not have bugs.<br>
-During a test, one or more nodes are executed concurrently. The order and the
-timing of the nodes execution can be controlled. Since nodes are supposed to
-run forever, each node is given a maximum amount of time during which it must
-perform its operation (at least for test purposes). An operation can be
-executed before and after the node is executed. For instance, configuration
-files can be customized during the pre-operation and files can be cleaned up or
-analyzed during the post-operation.<br>
-Tests are executed sequentially.<br>
-After all the tests have been executed, a program analyzes the results and
-determines whether the test has been successful or not.<br>
-The set of nodes can be executed on one or multiple hosts.<br>
-A dashboard, which is accessible from a web page, provides a summary of the
-test results and has links to log details. The dashboard is updated every time
-the test suite is executed.<br>
-The latest version of the <span class=SpellE>securityservices</span> module is
-fetched every time the test suite is executed.<br>
-The test suite must currently be executed on Linux. There is no support for
-Windows.<br>
+</u></b>The test suite has the following capabilities:<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>A
+series of regression tests can be run automatically (e.g. every day) to test
+the security services.<span style='mso-spacerun:yes'>  </span>The tests include
+a suite of experiments that are run sequentially.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>During
+a test, one or more nodes are executed concurrently. The order and the timing
+of the nodes execution can be controlled. Each node is given a maximum amount
+of time during which it must perform the expected operations.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>The
+set of nodes can be executed on one or multiple hosts.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Code
+can be executed before and after the node is executed. For instance,
+configuration files can be customized during the pre-operation and files can be
+cleaned up or analyzed during the post-operation.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>After
+all the tests have been executed, a program analyzes the results and determines
+whether the tests have been successfully executed or not.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>A
+dashboard, which is accessible from a web page, provides a summary of the test
+results and has links to log details. The dashboard is updated every time the
+test suite is executed.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>The
+latest version of the securityservices module is fetched every time the test
+suite is executed.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>The
+test suite must currently be executed on Linux. There is no support for
+Windows.<o:p></o:p></span></p>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman"'><br>
+<b style='mso-bidi-font-weight:normal'><u>INSTALLATION<o:p></o:p></u></b></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Create
+a user for the Tomcat web server and another user for the tests. For example,
+create a &quot;tomcat&quot; user and a &quot;junittest&quot; user. The Tomcat
+web server (which is used to run the dashboard) and the test suite should be
+executed under two different users. This is because Tomcat is a java
+application and the test suite kills all java processes on all machines where
+the tests are executed.<span style='mso-spacerun:yes'>   </span>An alternative
+is to run the Tomcat server on a host where the test suite will not be
+executed.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Install
+Java web services (or at a minimum Tomcat) which can be found at:<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman";
+mso-bidi-font-family:"Courier New"'><a
+href="http://java.sun.com/webservices/downloads/webservicespack.html">http://java.sun.com/webservices/downloads/webservicespack.html</a></span><span
+style='font-family:"Times New Roman"'><o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>In
+general, the installation directory is ${HOME/jwsdp-1_0.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Install
+and configure ssh and sshd on every host where the tests will be executed. Configure
+ssh for the &quot;junittest&quot; user so that the user can log to another
+machine without human intervention. For example, create a private/public key
+pair with no passphrase. The test suite uses ssh to run nodes remotely.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Configure
+CVS for the junittest user. The junittest user should be able to checkout and
+update the securityservices module from the CVS server (currently
+cvs.ultralog.net). Since the securityservices module is updated before the test
+suite is executed, make sure the junittest user can update from CVS without
+user intervention.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Checkout
+the securityservices module from CVS in the directory of your choice.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'>cvs
+checkout securityservices<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Install
+the version of Cougaar that matches the version of the securityservices module.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Install
+ant version &gt;= 1.5<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Optional
+tasks are required to run the junit tests and the result analyzis.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Add
+junit.jar and Xalan 2.x to the ant/lib directory<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>JUNIT
+can be found at </span><span style='font-family:"Times New Roman";mso-bidi-font-family:
+"Courier New"'><a href="http://www.junit.org/">http://www.junit.org</a></span><span
+style='font-family:"Times New Roman"'><o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>XALAN
+can be found at </span><span style='font-family:"Times New Roman";mso-bidi-font-family:
+"Courier New"'><a href="http://xml.apache.org/xalan-j">http://xml.apache.org/xalan-j</a></span><span
+style='font-family:"Times New Roman"'><o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
+mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Install
+and customize the crontab for the junittest user. A crontab example is
+available under regress/config/nodeTest/crontab. By default, the crontab
+executes the tests every 2 hours.<o:p></o:p></span></p>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><u><span
+style='font-family:"Times New Roman"'>CONFIGURATION<br>
+</span></u></b><span style='font-family:"Times New Roman"'>A number of files
+must be customized for your environment before the tests can be executed.<br>
 <br>
-<b style='mso-bidi-font-weight:normal'><u>INSTALLATION<br>
-</u></b><br>
-* Create a user for the Tomcat web server and another user for the tests. For
-example, create a &quot;tomcat&quot; user and a &quot;<span class=SpellE>junittest</span>&quot;
-user. The Tomcat web server (which is used to run the dashboard) and the test
-suite should be executed under two different users. This is because Tomcat is a
-java application and the test suite kills <span
-style='mso-spacerun:yes'>  </span>all java processes on all machines where the
-tests are executed. <span style='mso-spacerun:yes'>  </span>An alternative is
-to run the Tomcat server on a host where the test <span
-style='mso-spacerun:yes'>  </span>suite will not be executed.<br>
-Install Java web services (or at a minimum Tomcat)<br>
-http://java.sun.com/webservices/downloads/webservicespack.html<br>
-In general, the installation directory is ${HOME/jwsdp-1_0.<br>
-Install and configure <span class=SpellE><span class=GramE>ssh</span></span>
-and <span class=SpellE>sshd</span> on every host where the tests will be
-executed. Configure <span class=SpellE><span class=GramE>ssh</span></span> for
-the &quot;<span class=SpellE>junittest</span>&quot; user so that the user can
-log to another machine without human intervention. For example, create a
-private/public key pair with no <span class=SpellE>passphrase</span>. The test
-suite uses <span class=SpellE><span class=GramE>ssh</span></span> to run nodes
-remotely.<br>
-Configure CVS for the <span class=SpellE>junittest</span> user. The <span
-class=SpellE>junittest</span> user should be able to checkout and update the <span
-class=SpellE>securityservices</span> module from the CVS server (currently
-cvs.ultralog.net). Since the <span class=SpellE>securityservices</span> module
-is updated before the test suite is executed, make sure the <span class=SpellE>junittest</span>
-user can update from CVS without user intervention.<br>
-Checkout the <span class=SpellE>securityservices</span> module from CVS in the
-directory of your choice.<br>
-<span class=SpellE><span class=GramE>cvs</span></span> checkout <span
-class=SpellE>securityservices</span><br>
-Install the version of Cougaar that matches the version of the <span
-class=SpellE>securityservices</span> module.<br>
-Install ant version &gt;= 1.5<br>
-Optional tasks are required to run the <span class=SpellE>junit</span> tests
-and the result <span class=SpellE>analyzis</span>.<br>
-Add <span class=SpellE>junit.jar</span> and <span class=SpellE>Xalan</span> 2.x
-to the ant/lib directory<br>
-JUNIT can be found at http://www.junit.org<br>
-XALAN can be found at http://xml.apache.org/xalan-j<br>
-Install and customize the <span class=SpellE>crontab</span> for the <span
-class=SpellE>junittest</span> user. A <span class=SpellE>crontab</span> example
-is available under regress/<span class=SpellE>config/nodeTest/crontab</span>. By
-default, the <span class=SpellE>crontab</span> executes the tests every 2
-hours.<br>
-<br>
-<b style='mso-bidi-font-weight:normal'><u>CONFIGURATION<br>
-</u></b>A number of files must be customized for your environment before the tests
-can be executed.<br>
-<br>
-build-<span class=SpellE>dashboard.xml</span><br>
-This file is used to update the dashboard every time the test suite is executed.
-Dashboard web pages are copied to the Tomcat.<br>
+build-dashboard.xml<o:p></o:p></span></p>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman"'><br>
+This file is used to update the dashboard every time the test suite is
+executed. Dashboard web pages are copied to the Tomcat.<br>
 TODO: describe all files.<br>
 <br>
 <b style='mso-bidi-font-weight:normal'><u>TEST SUITE<br>
 </u></b>All the tests assume that Cougaar has been installed on every host
 where nodes will be executed. In addition, software such as LDAP must be
-installed in order to run some of the tests. For example, the CA requires <span
-class=SpellE>OpenLdap</span> to store certificates.<br>
+installed in order to run some of the tests. For example, the CA requires
+OpenLdap to store certificates.<br>
 <br>
 The following tests are currently implemented:<br>
 <br>
@@ -291,8 +391,7 @@ The following tests are currently implemented:<br>
 <span style='mso-spacerun:yes'>  </span>This test executes a certificate
 authority from scratch.<br>
 Pre-operations:<br>
-<span style='mso-spacerun:yes'>  </span>The CA <span class=SpellE>keystore</span>
-is deleted,<br>
+<span style='mso-spacerun:yes'>  </span>The CA keystore is deleted,<br>
 <span style='mso-spacerun:yes'>  </span>All the certificates are removed from
 the LDAP directory service.<br>
 Tests:<br>
@@ -301,12 +400,11 @@ generated when the CA is initialized and executed.<br>
 <br>
 <b style='mso-bidi-font-weight:normal'><u>Start a CA. Create a CA key<br>
 </u></b>Description:<br>
-<span style='mso-spacerun:yes'>  </span><span class=GramE>This test executes a
-certificate authority and generate</span> a CA key.<br>
+<span style='mso-spacerun:yes'>  </span>This test executes a certificate
+authority and generate a CA key.<br>
 <span style='mso-spacerun:yes'>  </span>The test simulates a CA administrator
 who would configure the CA and generate a key.<br>
-<span style='mso-spacerun:yes'>  </span>This is done by invoking a CA <span
-class=SpellE>servlet</span>.<br>
+<span style='mso-spacerun:yes'>  </span>This is done by invoking a CA servlet.<br>
 Tests:<br>
 <span style='mso-spacerun:yes'>  </span>The test verifies that no error is
 generated, and that the CA key is actually created.<br>
@@ -325,8 +423,7 @@ generated when a CA is stopped and restarted.<br>
 society.<br>
 Tests:<br>
 <span style='mso-spacerun:yes'>  </span>The test verifies that all nodes can be
-started, and that all agents can get a certificate.<br>
-<o:p>&nbsp;</o:p></span></p>
+started, and that all agents can get a certificate.<o:p></o:p></span></p>
 
 </div>
 
