@@ -22,13 +22,6 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.auth;
 
@@ -65,8 +58,8 @@ public class JaasClient {
   }
   
   public Object doAs(ExecutionContext ec, 
-    java.security.PrivilegedAction action, boolean displaySubject) {
-  
+      java.security.PrivilegedAction action, boolean displaySubject) {
+    
     Subject subj = createSubject(ec);
     return doAs(subj, action, displaySubject);  
   }
@@ -98,11 +91,11 @@ public class JaasClient {
    *   });
    */
   public Object doAs(String agentName,
-		     java.security.PrivilegedAction action, boolean displaySubject) {
+      java.security.PrivilegedAction action, boolean displaySubject) {
     Subject subj = createSubject(agentName);
     return doAs(subj, action, displaySubject);
   }
-
+  
   /**
    * Same method except that the privilege action can return
    * an exception. Below is an example of how it could be called:
@@ -120,35 +113,91 @@ public class JaasClient {
    *  }
    */
   public Object doAs(String agentName,
-		     java.security.PrivilegedExceptionAction action, boolean displaySubject)
-    throws Exception {
+      java.security.PrivilegedExceptionAction action, boolean displaySubject)
+  throws Exception {
     Subject subj = createSubject(agentName);
     return doAs(subj, action, displaySubject);
   }
-
+  
   /** Print the list of principals associated with the running
    *  context.
    */
   public static void printPrincipals() {
     final AccessControlContext acc = AccessController.getContext();
     Subject subj = (Subject)
-      AccessController.doPrivileged(new PrivilegedAction() {
-	  public Object run() {
-	    Subject subj = Subject.getSubject(acc);
-	    return subj;
-	  }
-	});
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        Subject subj = Subject.getSubject(acc);
+        return subj;
+      }
+    });
     if (subj != null) {
       Iterator it = subj.getPrincipals().iterator(); 
       while (it.hasNext()) {
         Object p = it.next();
         if(!(p instanceof ExecutionPrincipal) && _log.isDebugEnabled()) {
-	        _log.debug(p.toString());
+          _log.debug(p.toString());
         }
       }
     }
   }
-
+  
+  /**
+   * Retrieves the ExecutionContext in which the current thread executes.
+   * @return the ExecutionContext in which the current thread executes.
+   */
+  private static ExecutionContext getExecutionContext() {
+    ExecutionContext ec = null;
+    final AccessControlContext acc = AccessController.getContext();
+    Subject subj = (Subject)
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        Subject subj = Subject.getSubject(acc);
+        return subj;
+      }
+    });
+    if (subj != null) {
+      Iterator it = subj.getPrincipals().iterator(); 
+      Principal p = null;
+      while (it.hasNext()) {
+        p = (Principal) it.next();
+        if (p instanceof ExecutionPrincipal) {
+          ec = ((ExecutionPrincipal)p).getExecutionContext();
+          break;
+        }
+      }
+    }
+    return ec;
+  }
+  
+  /**
+   * Retrieves the name of the agent in which the current thread executes.
+   * It retrieves the name in a trusted manner.
+   * @return the name of the agent in which the current thread executes.
+   */
+  public static String getAgentName() {
+    String agentName = null;
+    ExecutionContext ec = getExecutionContext();
+    if (ec != null && ec.getAgent() != null) {
+      agentName = ec.getAgent().toAddress();
+    }
+    return agentName;
+  }
+  
+  /**
+   * Retrieves the component name in which the current thread executes.
+   * It retrieves the name in a trusted manner.
+   * @return the name of the agent in which the current thread executes.
+   */
+  public static String getComponentName() {
+    String componentName = null;
+    ExecutionContext ec = getExecutionContext();
+    if (ec != null) {
+      componentName = ec.getComponent();
+    }
+    return componentName;
+  }
+  
   /** Add a principal to an existing chain of principals.
    */
   private void addChainedPrincipal(Subject subject, Principal newPrincipal)
@@ -156,73 +205,73 @@ public class JaasClient {
     if (subject == null) {
       throw new IllegalArgumentException("Subject cannot be null");
     }
-
+    
     ChainedPrincipal  cp = new ChainedPrincipal();
-
+    
     // Find out if there is a chained principal in the current
     // security context.
     final AccessControlContext acc = AccessController.getContext();
-
+    
     Subject subj = (Subject)
-      AccessController.doPrivileged(new PrivilegedAction() {
-	  public Object run() {
-	    Subject subj = Subject.getSubject(acc);
-	    return subj;
-	  }
-	});
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        Subject subj = Subject.getSubject(acc);
+        return subj;
+      }
+    });
     
     if (subj != null) {
       Iterator it = subj.getPrincipals().iterator(); 
       Principal p = null;
       while (it.hasNext()) {
-	p = (Principal) it.next();
-	if (_log.isDebugEnabled()) {
-	  _log.debug("principal:" + p.getClass().getName()
-		     + " - " + p.toString());
-	}
+        p = (Principal) it.next();
+        if (_log.isDebugEnabled()) {
+          _log.debug("principal:" + p.getClass().getName()
+              + " - " + p.toString());
+        }
         // NOTE: This won't be the case going forward because this class is relocated
         //       to securityservice.jar
-	// Do not use (p instanceof ChainedPrincipal) as 
-	// the class may have been loaded by a different class loader.
+        // Do not use (p instanceof ChainedPrincipal) as 
+        // the class may have been loaded by a different class loader.
         /*
-	if (p.getClass().getName().
-	    equals("org.cougaar.core.security.securebootstrap.ChainedPrincipal")) {
-	*/
-
-	if(p instanceof ChainedPrincipal) {
-	  if (_log.isDebugEnabled()) {
-	    _log.debug("Adding principals:" + p.toString());
-	  }
+         if (p.getClass().getName().
+         equals("org.cougaar.core.security.securebootstrap.ChainedPrincipal")) {
+         */
+        
+        if(p instanceof ChainedPrincipal) {
+          if (_log.isDebugEnabled()) {
+            _log.debug("Adding principals:" + p.toString());
+          }
           ChainedPrincipal oldCP = (ChainedPrincipal)p;
           cp.addChainedPrincipals(oldCP.getChain());
-
-  // NOTE: This won't be the case going forward because this class is relocated
-  //       to securityservice.jar
-	  /* In the JDK 1.4 (at least on Linux, not tested on other platforms),
-	   * the thread either hangs or dies when the following statement is executed:
-	   *   ChainedPrincipal newP = (ChainedPrincipal)p;
-	   * It must have something to do with the fact that p may be loaded
-	   * by a different class loader than newP.
-	   * Using introspection works.
-	   */
-	/*
-	  try {
-	    Class c = p.getClass();
-	    Method m = c.getDeclaredMethod("getChain", null);
-	    ArrayList newp = (ArrayList) m.invoke(p, null);
-	    cp.addChainedPrincipals(newp);
-	  }
-	  catch (Exception e) {
-	    System.out.println("Unable to get principal: " + e);
-	  }
-	*/
-	  break;
-	}
+          
+          // NOTE: This won't be the case going forward because this class is relocated
+          //       to securityservice.jar
+          /* In the JDK 1.4 (at least on Linux, not tested on other platforms),
+           * the thread either hangs or dies when the following statement is executed:
+           *   ChainedPrincipal newP = (ChainedPrincipal)p;
+           * It must have something to do with the fact that p may be loaded
+           * by a different class loader than newP.
+           * Using introspection works.
+           */
+          /*
+           try {
+           Class c = p.getClass();
+           Method m = c.getDeclaredMethod("getChain", null);
+           ArrayList newp = (ArrayList) m.invoke(p, null);
+           cp.addChainedPrincipals(newp);
+           }
+           catch (Exception e) {
+           System.out.println("Unable to get principal: " + e);
+           }
+           */
+          break;
+        }
       }
     }
     else {
       if (_log.isDebugEnabled()) {
-	_log.debug("No parent principal");
+        _log.debug("No parent principal");
       }
     }
     if (_log.isDebugEnabled()) {
@@ -231,10 +280,10 @@ public class JaasClient {
     cp.addPrincipal(newPrincipal);
     subject.getPrincipals().add(cp);
   }
-
+  
   private Subject createSubject(String name) {
     final Subject s = new Subject();
-
+    
     /* Adding the cluster identifier string as a principal
      * We could also add certificate credentials at this point.
      */
@@ -247,7 +296,7 @@ public class JaasClient {
     }
     
     addChainedPrincipal(s, namePrincipal);
-
+    
     /* Modifications (additions and removals) to this Subject's Principal
      * Set and credential Sets will be disallowed. The destroy operation
      * on this Subject's credentials will still be permitted. 
@@ -255,16 +304,16 @@ public class JaasClient {
     AccessController.doPrivileged(new SetReadOnlyAction(s));
     return s;
   }
-
+  
   private Subject createSubject(ExecutionContext ec) {
     final Subject s = new Subject();
-
+    
     /* Adding the cluster identifier string as a principal
      * We could also add certificate credentials at this point.
      */
     Principal executionPrincipal = new ExecutionPrincipal(ec);
     s.getPrincipals().add(executionPrincipal);
- 
+    
     /* Modifications (additions and removals) to this Subject's Principal
      * Set and credential Sets will be disallowed. The destroy operation
      * on this Subject's credentials will still be permitted. 
@@ -272,11 +321,11 @@ public class JaasClient {
     AccessController.doPrivileged(new SetReadOnlyAction(s));
     return s;   
   }
-
+  
   private Subject createSubject(URIPrincipal up) {
     Subject s = new Subject();
     s.getPrincipals().add(up);
- 
+    
     /* Modifications (additions and removals) to this Subject's Principal
      * Set and credential Sets will be disallowed. The destroy operation
      * on this Subject's credentials will still be permitted. 
@@ -292,7 +341,7 @@ public class JaasClient {
       pw.print("Principals: ");
       Iterator it = subj.getPrincipals().iterator(); 
       while (it.hasNext()) {
-	pw.print(it.next() + ". ");
+        pw.print(it.next() + ". ");
       }
       Throwable t = new Throwable();
       t.printStackTrace(pw);
@@ -300,14 +349,14 @@ public class JaasClient {
       _log.debug(caw.toString());
     }
   }
-
+  
   private Object doAs(Subject subj, java.security.PrivilegedAction action, boolean displaySubject) {
     Object o = null;
-
+    
     if (_log.isDebugEnabled() && displaySubject) {
       printPrincipalsInSubject(subj);
     }
-
+    
     /* 1- Retrieve the current Thread's AccessControlContext via
      *    AccessController.getContext
      * 2- Instantiates a new AccessControlContext using the retrieved
@@ -318,19 +367,19 @@ public class JaasClient {
      * constructed AccessControlContext. 
      */
     o = Subject.doAs(subj, action);
-
+    
     if (_log.isDebugEnabled() && displaySubject) {
       _log.debug("JaasClient. doAs done ");
     }
     return o;
   }
-
+  
   private Object doAs(Subject subj,
-		      java.security.PrivilegedExceptionAction action,
-		      boolean displaySubject)
-    throws Exception {
+      java.security.PrivilegedExceptionAction action,
+      boolean displaySubject)
+  throws Exception {
     Object o = null;
-
+    
     if (_log.isDebugEnabled() && displaySubject) {
       printPrincipalsInSubject(subj);
     }
@@ -345,21 +394,21 @@ public class JaasClient {
      * constructed AccessControlContext.
      */
     o = Subject.doAs(subj, action);
-
+    
     if (_log.isDebugEnabled() && displaySubject) {
       _log.debug("JaasClient. doAs done ");
     }
     return o;
   }
-
+  
   class SetReadOnlyAction implements PrivilegedAction {
-  	Subject _s;
-  	SetReadOnlyAction(Subject s) {
-  	  _s = s; 
-  	}
-  	public Object run() {
-  	  _s.setReadOnly();
-  	  return null; // nothing to return
-  	}
+    Subject _s;
+    SetReadOnlyAction(Subject s) {
+      _s = s; 
+    }
+    public Object run() {
+      _s.setReadOnly();
+      return null; // nothing to return
+    }
   } // end class SetReadOnlyAction
 }
