@@ -441,6 +441,21 @@ society.each_node do |node|
      node.add_parameter("-Xrunpri:startAudit=t,port=1470,pause=t,filter=$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security#{File::SEPARATOR}cougaarOptimizeIt.oif")
    end
 
+   if facet[:role] == 'ejp' \
+     # EJP profiling
+     # 1) Download ejp-tracer and ejp-presenter
+     # 2) Unzip ejp-tracer
+     # 3) Create the libtracer.so library
+     #       cd tracer/gen ; gmake -f linux.mk all
+     # 4) Set your LD_LIBRARY_PATH to include the EJP lib directory:
+     #     export LD_LIBRARY_PATH=<ejpDir>/lib:$LD_LIBRARY_PATH
+     # 5) Copy tracerapi.jar to $CIP/sys
+     # 6) Copy <ejpDir>/bin/filter.cfg to your home directory
+     # 6) Add -Xruntracer
+     node.add_parameter("-Xruntracer:enabled=true")
+     node.override_parameter("-Djava.class.path", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}CougaarCRLextensions.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}tracerapi.jar")
+   end
+
  end
 end
 
