@@ -11,6 +11,7 @@ society.each_agent(true) do |agent|
       agent.add_component do |c|
 	  	c.classname = plugin
         c.add_argument("AGENTX")
+        c.add_argument("MaliciousMessageVerb")
       end
     end
   }
