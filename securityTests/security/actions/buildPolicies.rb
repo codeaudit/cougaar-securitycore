@@ -162,7 +162,10 @@ END
 /\\$.*/topology SocietyAdminServlet
 #
 /\\$.*/useradmin UserManagerServlets
+
 /\\$.*/TestUserPolicy TestUserPolicyServlet
+/\\$.*/TestPasswordPolicy TestPasswordPolicyServlet
+/\\$.*/TestCertPolicy TestCertPolicyServlet
 
 
 END
@@ -234,6 +237,8 @@ UserRole SocietyAdmin
 #
 
 Servlet TestUserPolicyServlet
+Servlet TestPasswordPolicyServlet
+Servlet TestCertPolicyServlet
 Servlet AggegatorServlets
 Servlet NCAServlets
 Servlet SCmrmanagerServlets
@@ -474,15 +479,46 @@ Policy #{@policies.push("PolicyServletAuth").last()}  = [
   authentication when accessing the servlet named PolicyServlet
 ]
 
-Policy #{@policies.push("TestPolicyServlet").last()}  = [ 
+Policy #{@policies.push("TestUserPolicyServlet").last()}  = [ 
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named TestUserPolicyServlet
 ]
-Policy #{@policies.push("TestPolicyServletAuth").last()}  = [ 
+Policy #{@policies.push("TestUserPolicyServletAuth").last()}  = [ 
       ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named TestUserPolicyServlet
 ]
+
+
+Policy #{@policies.push("TestPasswordPolicyServlet").last()}  = [ 
+  ServletUserAccessTemplate
+  A user in role Logistician can access a servlet 
+  named TestPasswordPolicyServlet
+]
+Policy #{@policies.push("TestPasswordPolicyServletAuth").last()}  = [ 
+      ServletAuthenticationTemplate
+  All users must use Password, PasswordSSL
+  authentication when accessing the servlet 
+  named TestPasswordPolicyServlet
+]
+
+
+Policy #{@policies.push("TestCertPolicyServlet").last()}  = [ 
+  ServletUserAccessTemplate
+  A user in role Logistician can access a servlet 
+  named TestCertPolicyServlet
+]
+Policy #{@policies.push("TestCertPolicyServletAuth").last()}  = [ 
+      ServletAuthenticationTemplate
+  All users must use CertificateSSL
+  authentication when accessing the servlet 
+  named TestCertPolicyServlet
+]
+
+
+
+
+
 
 Policy #{@policies.push("SCmrManagerAuth").last()}  = [ 
   ServletAuthenticationTemplate
