@@ -139,7 +139,11 @@
             ln -s cougaar-B11_2-1201 cougaar
         -->
       <echo message="Copy scripts on testbed machine..."/>
-      <scp file="${base.directory.name}/test/bin/install_stage*.tcsh"
+      <scp file="${base.directory.name}/test/bin/install_stage1.tcsh"
+           todir="${testbed.user.name}@${testbed.operator.host}:UL"
+           keyfile="${user.home}/.ssh/id_dsa"
+           passphrase=""/>
+      <scp file="${base.directory.name}/test/bin/install_stage2.tcsh"
            todir="${testbed.user.name}@${testbed.operator.host}:UL"
            keyfile="${user.home}/.ssh/id_dsa"
            passphrase=""/>
