@@ -7,8 +7,9 @@ require 'security/lib/common_security_rules'
 
 sact = "org.cougaar.core.security.test.coordinator.CoordinatorTest"
 stca = "org.cougaar.core.security.test.coordinator.SetThreatConActionPlugin"
+stom = "org.cougaar.core.security.test.SendOperatingModeServlet"
 
-plugins = [sact, stca]
+plugins = [sact, stca, stom]
 
 society.each_agent(true) do |agent|
     agent.each_facet(:role) do |facet|
