@@ -641,8 +641,8 @@ public class SecurityAspect extends StandardAspect
 	return true;
       String act;
 	try {
-		act = acps.getIncomingAction
-		    (msg.getTarget().toString(), (String)trust.getAttribute(MissionCriticality.name).getValue());
+		act = acps.getOutgoingAction
+		    (msg.getOriginator().toString(), (String)trust.getAttribute(MissionCriticality.name).getValue());
 	}
 	catch(Exception ex) {
 	    ex.printStackTrace();
