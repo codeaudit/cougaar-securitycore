@@ -312,81 +312,6 @@ public class MessageProtectionServiceImpl
     return bout.toByteArray();
   }
 
-  /*
-  public byte[] protectHeader(byte[] rawData,
-			      MessageAddress source,
-			      MessageAddress destination)
-    throws GeneralSecurityException, IOException
-  {
-    if (!isInitialized) {
-      setPolicyService();
-    }
-
-    CryptoPolicy policy =
-       cps.getOutgoingPolicy(source.getAddress());
-
-    // SR - 10/21/2002. UGLY & TEMPORARY FIX
-    // The advance message clock uses an unsupported address type.
-    // Since this is demo-ware, we are not encrypting those messages.
-    if (destination.toAddress().endsWith("(MTS)")) {
-	log.info("Outgoing postmaster message. Skipping encryption");
-	return rawData;
-    }
-
-    if (policy == null) {
-      if (log.isWarnEnabled()) {
-	      log.warn("protectHeader NOK: " + source.toAddress()
-		      + " -> " + destination.toAddress()
-		      + " (No policy)");
-      }
-      GeneralSecurityException gse = new
-	      GeneralSecurityException("Could not find message policy between "
-				  + source.getAddress()
-				  + " and " + destination.getAddress());
-		  publishMessageFailure(source.toString(), destination.toString(),
-        MessageFailureEvent.INVALID_POLICY, gse.toString());
-
-      IOException ioex = new IOException("Unable to protect header:"
-					 + gse.getMessage());
-      ioex.initCause(gse);
-      // Don't throw a security exception, otherwise the MTS will never
-      // retry to send the message.
-      throw ioex;
-    }
-    if (log.isDebugEnabled()) {
-      log.debug("protectHeader: " + source.toAddress()
-		    + " -> " + destination.toAddress()
- 		    + " (" + policy.toString() + ")");
-    }
-    ByteArrayOutputStream baos = null;
-    try {
-      ProtectedObject po =
-        encryptService.protectObject(rawData, source, destination, policy);
-      baos = new ByteArrayOutputStream();
-  
-      ObjectOutputStream oos = new ObjectOutputStream(baos);
-      oos.writeObject(po);
-  
-      if (log.isDebugEnabled()) {
-        log.debug("protectHeader OK: " + source.toAddress()
-  		+ " -> " + destination.toAddress());
-      }
-    }
-    catch(GeneralSecurityException gse) {
-      publishMessageFailure(source.toString(),
-                            destination.toString(),
-                            gse);
-      IOException ioex = new IOException("Unable to protect header:"
-	+ gse.getMessage());
-      ioex.initCause(gse);
-      // Don't throw a security exception, otherwise the MTS will never
-      // retry to send the message.
-      throw ioex;
-    }
-    return baos.toByteArray();
-  }
-  */
-
   private MessageAddress getNodeAddress(MessageAddress agent) 
     throws IOException {
     
@@ -694,6 +619,7 @@ public class MessageProtectionServiceImpl
       setPolicyService();
     }
 
+    /* as of 10.4.3 -- hack is no longer needed
     // SR - 10/21/2002. UGLY & TEMPORARY FIX
     // The advance message clock uses an unsupported address type.
     // Since this is demo-ware, we are not encrypting those messages.
@@ -709,7 +635,7 @@ public class MessageProtectionServiceImpl
       destination = MessageAddress.getMessageAddress(name);
       log.info("Outgoing target postmaster message. Protecting with node key");
     }
-
+    */
     try {
       boolean encryptedSocket = isEncrypted(attrs);
       log.debug("returning encrypted service");
@@ -803,6 +729,7 @@ public class MessageProtectionServiceImpl
       setPolicyService();
     }
 
+    /* as of 10.4.3 -- hack is no longer needed
     // SR - 10/21/2002. UGLY & TEMPORARY FIX
     // The advance message clock uses an unsupported address type.
     // Since this is demo-ware, we are not encrypting those messages.
@@ -818,6 +745,7 @@ public class MessageProtectionServiceImpl
       destination = MessageAddress.getMessageAddress(name);
       log.info("Incoming target postmaster message. Protecting with node key");
     }
+    */
 
     boolean encryptedSocket = isEncrypted(attrs);
     try {
