@@ -34,7 +34,6 @@ import org.cougaar.core.component.Service;
 
 // Cougaar core services
 import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.crypto.PublicKeyEnvelope;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 
 /** Service for parsing security services configuration files

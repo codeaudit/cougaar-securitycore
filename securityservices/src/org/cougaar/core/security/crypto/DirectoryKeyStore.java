@@ -531,6 +531,7 @@ public class DirectoryKeyStore
     }
     LdapEntry[] certs = null;
     CertificateStatus certstatus=null;
+    String url = null;
     // Look in certificate directory service
     if (log.isDebugEnabled()) {
       log.debug("DirectoryKeyStore.findCert. Looking up ["
@@ -538,22 +539,25 @@ public class DirectoryKeyStore
     }
     if (certFinder != null) {
       certs = certFinder.searchWithFilter(filter);
+      url = certFinder.getDirectoryServiceURL();
     }
     else {
       if (log.isWarnEnabled()) {
-	log.warn("Certificate finder is null. Unable to perform the search: " + filter, new Throwable());
+	log.warn("Certificate finder is null. Unable to perform the search: " + filter,
+		 new Throwable());
       }
     }
     if(certs==null) {
       if (log.isErrorEnabled()) {
-	log.error("LDAP search failed for: " + filter);
+	log.error("LDAP search failed for: " + filter + " (" + url + ")");
       }
       return;
     }
     else {
       if (certs.length == 0) {
 	if (log.isWarnEnabled()) {
-	  log.warn("Failed to lookup certificate for " + filter + " in LDAP ");
+	  log.warn("Failed to lookup certificate for " + filter + " in LDAP:"
+		   + url);
 	}
       }
     }

@@ -295,7 +295,9 @@ public class AgentIdentityServiceImpl
       log.error("Cannot move agent ["
 		+ requestorAddress.toAddress()
 		+ "]. Unable to get private and public keys: " + e);
-      return null;
+      throw new RuntimeException("Cannot move agent ["
+				 + requestorAddress.toAddress()
+				 + "]. Unable to get private and public keys: " + e);
     }
 
     // Create a secure envelope with the agent keys and certificates
@@ -319,10 +321,17 @@ public class AgentIdentityServiceImpl
       }
       return null;
     }
-
+    if (envelope.getSenderAddress() == null || envelope.getReceiverAddress() == null) {
+      log.warn("Unable to move " + requestorAddress.toAddress()
+	       + " agent. Either sender or receiver is null");
+      throw new RuntimeException("Unable to move " + requestorAddress.toAddress()
+				 + " agent. Either sender or receiver is null");
+    }
     KeyIdentity keyIdentity =
       new KeyIdentity(envelope.getSender(),
 		      envelope.getReceiver(),
+		      thisNodeAddress,
+		      targetNode,
 		      policy,
 		      envelope.getEncryptedSymmetricKey(),
 		      envelope.getEncryptedSymmetricKeySender(),
@@ -355,32 +364,15 @@ public class AgentIdentityServiceImpl
 	+ identity.getClass().getName());
     }
 
-    KeyIdentity ki = (KeyIdentity)identity;
-    X500Name dname = null;
-    String sender = null;
-    if (ki == null) {
+    KeyIdentity keyIdentity = (KeyIdentity)identity;
+    if (keyIdentity == null) {
       log.warn("Unable to install moved agent. KeyIdentity is null");
       throw new RuntimeException("Unable to install moved agent. KeyIdentity is null");
     }
-    if (ki.getSender() == null) {
+    MessageAddress sender = keyIdentity.getSenderAddress();
+    if (sender == null) {
       log.warn("Unable to install moved agent. Sender identity is null");
       throw new RuntimeException("Unable to install moved agent. Sender identity is null");
-    }
-    if (ki.getSender() == null) {
-      log.warn("Unable to install moved agent. Sender identity is null");
-      throw new RuntimeException("Unable to install moved agent. Sender identity is null");
-    }
-
-    try {
-      dname = new X500Name(ki.getSender().getSubjectDN().getName());
-      sender = dname.getCommonName();
-    }
-    catch (Exception e) {
-      if (log.isErrorEnabled()) {
-	log.error("Unable to get sender Common Name: " + e);
-      }
-      throw new RuntimeException("Unable to get sender information:"
-				 + ki.getSender().getSubjectDN().getName());
     }
 
     /* Step 1 */
@@ -396,25 +388,31 @@ public class AgentIdentityServiceImpl
     policy.asymmSpec = "RSA";
     policy.signSpec = "MD5withRSA";
 
-/*      cps.getReceivePolicy(sender
-			   +":"
-			   +thisNodeAddress.toAddress());
-*/
+    /*
+      cps.getReceivePolicy(sender
+      +":"
+      +thisNodeAddress.toAddress());
+    */
     KeySet keySet = null;
-
-    KeyIdentity keyIdentity = (KeyIdentity) identity;
     if (log.isDebugEnabled()) {
       log.debug("Decrypting KeyIdentity");
     }
     Object o = null;
     try {
-      o = encryptionService.unprotectObject(new MessageAddress(sender),
+      o = encryptionService.unprotectObject(sender,
 					    thisNodeAddress,
 					    keyIdentity, policy);
     }
     catch (GeneralSecurityException e) {
+      log.warn("Unable to decrypt KeyIdentity for moved agent:"
+	       + sender.toAddress() + "->" + thisNodeAddress.toAddress());
       return;
     }
+    if (o == null) {
+      log.warn("TransferableIdentity is null");
+      return;
+    }
+
     if (log.isDebugEnabled()) {
       log.debug("Decrypted TransferableIdentity is " +
 		o.getClass().getName());
@@ -422,7 +420,8 @@ public class AgentIdentityServiceImpl
     if (!(o instanceof KeySet)) {
       // Error
       if (log.isErrorEnabled()) {
-	log.error("Unexpected TransferableIdentity");
+	log.error("Unexpected TransferableIdentity: " + o.getClass().getName()
+	  + ". Agent moved" + sender.toAddress() + "->" + thisNodeAddress.toAddress());
       }
     }
     else {
@@ -436,6 +435,8 @@ public class AgentIdentityServiceImpl
 	}
       }
       else {
+	log.warn("TransferableIdentity does not contain private keys. "
+		 + sender.toAddress() + "->" + thisNodeAddress.toAddress());
 	return;
       }
       if (certificates != null) {
@@ -445,8 +446,13 @@ public class AgentIdentityServiceImpl
 	}
       }
       else {
+	log.warn("TransferableIdentity does not contain certificates. "
+		 + sender.toAddress() + "->" + thisNodeAddress.toAddress());
 	return;
       }
+      /*
+       * It should be ok to have a different number of private keys and public keys.
+       */
       if (certificates.length != privateKeys.length) {
 	return;
       }

@@ -32,6 +32,9 @@ import java.io.Serializable;
 import javax.crypto.SealedObject;
 import java.security.cert.X509Certificate;
 
+// Cougaar core infrastructure
+import org.cougaar.core.mts.MessageAddress;
+
 public class PublicKeyEnvelope
   extends ProtectedObject
 {
@@ -57,8 +60,13 @@ public class PublicKeyEnvelope
    */
   private X509Certificate sender;
 
+  private MessageAddress receiverAddress;
+  private MessageAddress senderAddress;
+
   public PublicKeyEnvelope(X509Certificate asender,
 			   X509Certificate areceiver,
+			   MessageAddress areceiverAddress,
+			   MessageAddress asenderAddress,
 			   SecureMethodParam policy,
 			   SealedObject sKey,
 			   SealedObject sKeySender,
@@ -68,6 +76,8 @@ public class PublicKeyEnvelope
     encryptedSymmetricKeySender = sKeySender;
     receiver = areceiver;
     sender = asender;
+    receiverAddress = areceiverAddress;
+    senderAddress = asenderAddress;
   }
 
   public SealedObject getEncryptedSymmetricKey() {
@@ -81,8 +91,14 @@ public class PublicKeyEnvelope
   public X509Certificate getReceiver() {
     return receiver;
   }
-
   public X509Certificate getSender() {
     return sender;
+  }
+
+  public MessageAddress getReceiverAddress() {
+    return receiverAddress;
+  }
+  public MessageAddress getSenderAddress() {
+    return senderAddress;
   }
 }

@@ -206,7 +206,7 @@ public class MessageOutputStream
       	fileMsgDumper.close();
       }
       catch (Exception e) {
-	      log.warn("Unable to dump message: " + e);
+	log.warn("Unable to dump message: " + e);
       }
     }
 

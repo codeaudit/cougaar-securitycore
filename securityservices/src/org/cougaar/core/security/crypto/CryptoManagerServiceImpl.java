@@ -89,8 +89,7 @@ public class CryptoManagerServiceImpl
       if (log.isWarnEnabled()) {
 	      log.warn(message);
       }
-
-      throw new CertificateException("Private key not found.");
+      throw new NoValidKeyException("Private key of " + name + " not found");
     }
     PrivateKey pk = ((PrivateKeyCert)pkList.get(0)).getPrivateKey();
     Signature se;
@@ -164,9 +163,8 @@ public class CryptoManagerServiceImpl
 	log.warn("Unable to verify object. Certificate of " + name
 		 + " does not exist.");
       }
-      throw
-	new CertificateException("Verify. Unable to get certificate for "
-				 + name);
+      throw new NoValidKeyException("Unable to get certificate of "
+				    + name);
     }
     Iterator it = certList.iterator();
 
@@ -179,10 +177,12 @@ public class CryptoManagerServiceImpl
           try {
             keyRing.checkCertificateTrust((X509Certificate)c);
           } catch (CertificateException ce) {
-            if (!(ce instanceof CertificateExpiredException))
+            if (!(ce instanceof CertificateExpiredException)) {
               continue;
-            if (log.isDebugEnabled())
+	    }
+            if (log.isDebugEnabled()) {
               log.debug("Certificate has expired." + cs.getCertificateAlias());
+	    }
           }
         }
 
@@ -415,20 +415,20 @@ public class CryptoManagerServiceImpl
       	po = signAndEncrypt(object, source, target, policy);
       	break;
       default:
-	      throw new GeneralSecurityException("Invalid policy");
+	throw new GeneralSecurityException("Invalid policy");
       }
     }
     catch (GeneralSecurityException gse) {
       if (log.isWarnEnabled()) {
-	      log.warn("Unable to protect object: " + source.toAddress()
-		      + " -> " + target.toAddress() + " - policy=" + method);
+	log.warn("Unable to protect object: " + source.toAddress()
+		 + " -> " + target.toAddress() + " - policy=" + method);
       }
       throw gse;
     }
     catch (IOException e) {
       if (log.isWarnEnabled()) {
-	      log.warn("Unable to protect object: " + source.toAddress()
-		    + " -> " + target.toAddress() + " - policy=" + method);
+	log.warn("Unable to protect object: " + source.toAddress()
+		 + " -> " + target.toAddress() + " - policy=" + method);
       }
       throw e;
     }
@@ -517,7 +517,7 @@ public class CryptoManagerServiceImpl
     SignedObject signedObject = sign(source.toAddress(), policy.signSpec, object);
 
     PublicKeyEnvelope pke =
-      new PublicKeyEnvelope(null, null, policy, null, null, signedObject);
+      new PublicKeyEnvelope(null, null, source, target, policy, null, null, signedObject);
     return pke;
   }
 
@@ -587,7 +587,7 @@ public class CryptoManagerServiceImpl
     SecretKey sk = so.secretKey;
     SealedObject sealedMsg = symmEncrypt(sk, policy.symmSpec, object);
 
-    pke = new PublicKeyEnvelope(null, null, policy, secret, secretSender, sealedMsg);
+    pke = new PublicKeyEnvelope(null, null, source, target, policy, secret, secretSender, sealedMsg);
     return pke;
   }
 
@@ -629,7 +629,7 @@ public class CryptoManagerServiceImpl
     }
 
     envelope =
-      new PublicKeyEnvelope(null, null, policy,
+      new PublicKeyEnvelope(null, null, source, target, policy,
 			    secret, secretSender, sealedObject);
     return envelope;
   }
@@ -769,7 +769,7 @@ public class CryptoManagerServiceImpl
     }
     catch (CertificateException e) {
       if(log.isErrorEnabled()) {
-	      log.error("Signature verification failed");
+	log.error("Signature verification failed: " + e);
       }
       throw e;
     }
@@ -902,7 +902,7 @@ public class CryptoManagerServiceImpl
               }
             }
           }
-        }else{
+        } else {
           smp.secureMethod = SecureMethodParam.INVALID;
           if (log.isErrorEnabled()) {
             log.error("outputStream NOK: " + source.toAddress()
@@ -1059,20 +1059,23 @@ public class CryptoManagerServiceImpl
   }//getRawData
 
   private ProtectedObject getProtection(Serializable obj,
-				       MessageAddress source,
-				       MessageAddress target,
-              SecureMethodParam policy, boolean goOn)
-              throws GeneralSecurityException, IOException
+					MessageAddress source,
+					MessageAddress target,
+					SecureMethodParam policy,
+					boolean goOn)
+    throws GeneralSecurityException, IOException
   {
     try {
       return protectObject(obj, source, target, policy);
     }
     catch (GeneralSecurityException gse) {
-      if(goOn) return null;
+      if(goOn) {
+	return null;
+      }
       if (log.isWarnEnabled()) {
         log.warn("put OutputStream NOK: " + source.toAddress()
-           + " -> " + target.toAddress()
-           + gse);
+		 + " -> " + target.toAddress()
+		 + gse);
       }
       throw gse;
     }

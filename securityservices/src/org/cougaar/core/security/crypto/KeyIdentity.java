@@ -36,6 +36,9 @@ import java.security.cert.X509Certificate;
 // Overlay
 import org.cougaar.core.service.identity.TransferableIdentity;
 
+// Cougaar core infrastructure
+import org.cougaar.core.mts.MessageAddress;
+
 public class KeyIdentity
   extends PublicKeyEnvelope
   implements TransferableIdentity
@@ -43,10 +46,12 @@ public class KeyIdentity
 
   public KeyIdentity(X509Certificate asender,
 		     X509Certificate areceiver,
+		     MessageAddress areceiverAddress,
+		     MessageAddress asenderAddress,
 		     SecureMethodParam policy,
 		     SealedObject sKey,
 		     SealedObject sKeySender,
 		     Object encObj) {
-    super(asender, areceiver, policy, sKey, sKeySender, encObj);
+    super(asender, areceiver, areceiverAddress, asenderAddress, policy, sKey, sKeySender, encObj);
   }
 }

@@ -41,6 +41,7 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageAttributes;
+import org.cougaar.core.mts.AttributeConstants;
 import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.mts.ProtectedOutputStream;
 import org.cougaar.core.service.MessageProtectionService;
@@ -324,6 +325,12 @@ public class MessageProtectionServiceImpl
     if (!isInitialized) {
       setPolicyService();
     }
+
+    if (attrs.getAttribute(AttributeConstants.ENCRYPTED_SOCKET_ATTRIBUTE) != null) {
+      // The message is encrypted using SSL. Do not do double encryption.
+      log.debug("Outgoing message encrypted using SSL. Skipping message protection");
+    }
+
     pos =
       new MessageOutputStream(os, encryptService, cps,
 			      source, destination, serviceBroker);
@@ -365,9 +372,16 @@ public class MessageProtectionServiceImpl
       log.debug("getInputStream: " + source.toAddress()
 		+ " -> " + destination.toAddress());
     }
+
     if (!isInitialized) {
       setPolicyService();
     }
+
+    if (attrs.getAttribute(AttributeConstants.ENCRYPTED_SOCKET_ATTRIBUTE) != null) {
+      // The message is encrypted using SSL. Do not do double encryption.
+      log.debug("Incoming message encrypted using SSL. Skipping message protection");
+    }
+
     pis =
       new MessageInputStream(is, encryptService, cps,
 			     source, destination, serviceBroker);
