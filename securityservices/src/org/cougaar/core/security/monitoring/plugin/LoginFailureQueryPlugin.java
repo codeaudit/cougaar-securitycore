@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.Enumeration;
 import java.util.Collection;
+import java.util.HashSet;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -137,20 +138,19 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
 
   /** 
    * Results of the subscription are only going to belong to the 
-   * _queryAdapter variable.
+   * a member of the _queryAdapters variable.
    */
-  protected QueryResultAdapter      _queryAdapter;
+  protected HashSet         _queryAdapters = new HashSet();
+
+  /**
+   * A set of agents that have Login Failure sensor capabilities.
+   */
+  protected HashSet         _agents = new HashSet();
 
   /**
    * for set/get DomainService
    */
   protected DomainService  _domainService;
-
-  /**
-   * Indicates whether the sensor search query has been published or not.
-   * We shouldn't publish the query until we have sensors to search!
-   */
-  private boolean _queryPublished = false;
 
   /**
    * Society security manager agent. Default to "SocietySecurityManager".
@@ -187,7 +187,9 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
   private UnaryPredicate _loginFailurePredicate =
     new UnaryPredicate() {
       public boolean execute(Object o) {
-        return (o == _queryAdapter);
+        synchronized (_queryAdapters) {
+          return (_queryAdapters.contains(o));
+        }
       }
     };
 
@@ -209,13 +211,13 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
    * creates the AggregationQuery for use in searching for login failure
    * IDMEF messages
    */
-  protected AggregationQuery createQuery() {
+  protected QueryResultAdapter createQuery() {
     AggregationQuery aq = new AggregationQuery(QueryType.PERSISTENT);
     aq.setName("Login Failure Rate Query");
     aq.setUpdateMethod(UpdateMethod.PUSH);
     aq.setPredicateSpec(PRED_SPEC);
     aq.setFormatSpec(FORMAT_SPEC);
-    return aq;
+    return new QueryResultAdapter(aq);
   }
   
   public void setParameter(Object o) {
@@ -248,9 +250,6 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
     _log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
     
-    AggregationQuery aq = createQuery();
-    _queryAdapter = new QueryResultAdapter(aq);
-
     _loginFailureQuery = (IncrementalSubscription)
       getBlackboardService().subscribe(_loginFailurePredicate);
 
@@ -264,7 +263,7 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
     Classification classification = 
       imessage.createClassification("LOGINFAILURE", null);
     MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, 
-                                              classification, null, null );
+                                              classification, null, null, true );
     ClusterIdentifier destination = 
       new ClusterIdentifier(_societySecurityManager);
     CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
@@ -283,7 +282,7 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
    */
   public void execute() {
     if (_loginFailureQuery.hasChanged()) {
-      processLoginFailure(_queryAdapter);
+      processLoginFailure();
     }
     if (_sensors.hasChanged()) {
       updateSensors();
@@ -293,7 +292,11 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
   /**
    * Copy the login failure to the blackboard
    */
-  protected void processLoginFailure(QueryResultAdapter queryResult) {
+  protected void processLoginFailure() {
+    Enumeration queryResults = _loginFailureQuery.getChangedList();
+    while (queryResults.hasMoreElements()) {
+      QueryResultAdapter queryResult = 
+        (QueryResultAdapter) queryResults.nextElement();
     AggregationResultSet results = queryResult.getResultSet();
     if (results.exceptionThrown()) {
       _log.error("Exception when executing query: " + results.getExceptionSummary());
@@ -323,6 +326,7 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
         bbs.publishAdd(event);
       }
     }
+    }
   }
 
   /**
@@ -330,7 +334,10 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
    */
   private synchronized void updateSensors() {
     Enumeration e = _sensors.getChangedList();
-    AggregationQuery query = _queryAdapter.getQuery();
+
+    QueryResultAdapter qra = createQuery();
+    AggregationQuery query = qra.getQuery();
+
     while (e.hasMoreElements()) {
       CmrRelay relay = (CmrRelay) e.nextElement();
       MRAgentLookUpReply reply = (MRAgentLookUpReply) relay.getResponse();
@@ -338,16 +345,23 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
       Iterator iter = agents.iterator();
       while (iter.hasNext()) {
         String agent = iter.next().toString();
-        query.addSourceCluster(agent);
+        if (!_agents.contains(agent)) {
+          query.addSourceCluster(agent);
+          _agents.add(agent);
+        }
       }
     }
 
-    if (_queryPublished) {
-      getBlackboardService().publishChange(_queryAdapter);
-    } else {
-      getBlackboardService().publishAdd(_queryAdapter);
-      _queryPublished = true;
+    if (!query.getSourceClusters().hasMoreElements()) {
+      // nothing new
+      return;
     }
+
+    synchronized (_queryAdapters) {
+      _queryAdapters.add(qra);
+    }
+
+    getBlackboardService().publishAdd(qra);
   }
 
   /**
