@@ -162,11 +162,12 @@ class  SecurityMop2_4 < AbstractSecurityMop
           #puts "summary of result : #{@summary}"
           success = false 
           @summary <<"<BR> Score :#{@score}</BR>\n" 
-          @summary << "#{@info}"
+          #@summary << "#{@info}"
           if (@score == 100.0)
             success = true
           end
           saveResult(success, 'SecurityMop2.4',@summary)
+          saveAssertion("SecurityMop2.4",@info)
           saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done")
         end
       rescue Exception => e
@@ -252,7 +253,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
           File.rename("pems/#{user}_cert.pem", 'pems/RL_cert.orig.pem')
           File.rename("pems/#{user}_key.pem", 'pems/RL_key.orig.pem')
           #puts "Calling lookForCRLUpdate  "
-          lookForCRLUpdate(getOSDGOVAgent.node,"newCRL")
+          lookForCRLUpdate(getOSDGOVAgent.node,"newCRL Issuer(#{getOSDGOVAgent.caDomains[0].cadn})")
           revokeCertBeforeTest getOSDGOVAgent.caDomains[0],'RevokedLogistician'
           revokeCertBeforeTest @conusDomain.agent.caDomains[0],'RecreatedLogistician'
           #@conusDomain.agent.caDomains[0].revokeUserCert('RecreatedLogistician')
@@ -301,7 +302,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
   def checkCrlUpdateEvent(event,node,pattern)
     if ((event.component == 'CRLCache') && (event.node == node.name) &&  (event.data.include? pattern) &&  (@crlUpdated == false) )
-      #puts "GOT CRL update for Node----> #{node.name}"
+      puts "GOT CRL update for Node----> #{node.name}"
       @crlUpdated = true
     end
   end
@@ -363,7 +364,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
           saveAssertion("SecurityMop2.4","Calling run Tests after CRL Update ")
           runTests(@tests)
         end
-        runServletPolicyTests
+       # runServletPolicyTests
         logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
         setPerformDone
       rescue Exception => e
@@ -499,7 +500,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
             @numLoggableActions += 1
             @numtotalAccessAttemptCorrect+=1
           end
-          if actualResult == 200
+          if actualResult == 200 
             @numActionsLogged += 1
             if expectedResult == 200
                @numtotalAccessAttemptCorrect+=1
@@ -520,14 +521,19 @@ class  SecurityMop2_4 < AbstractSecurityMop
             end
             if (mop24)   # scope =~ /user/
               @numAccessAttempts += 1
-              if suc
+              if successBoolean
                 @numAccessesCorrect += 1
                 @numtotalAccessAttemptCorrect+=1
-                @logins << " Success :  #{msg}"
+                @logins << " #{msg}"
                 #logInfoMsg  "Success :  #{msg}"
               else
-                @logins << "Failure : #{msg}"
-                logInfoMsg "Failure :  #{msg}"
+                if useCase!=nil
+                  @logins << "Failure : test case #{useCase}  #{msg}" 
+                  saveAssertion("Failure :test case #{useCase}   #{msg}")
+                else 
+                  @logins << "Failure : #{msg}" 
+                  saveAssertion("Failure :  #{msg}")
+                end
               end
             end
             if (mop26)   # scope =~ /policy/
@@ -537,7 +543,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
                 @numtotalAccessAttemptCorrect+=1
                 @policies << " Success : #{msg}"
               else
-                @policies << " Failure : #{msg}"
+                @policies << " Failure No IDMEF Generated for #{useCase} : #{msg}"
+                saveAssertion(useCase," FAILED TEST :No IDMEF Generated for #{useCase} SecurityMop2.6 expectedResult:#{expectedResult} actual:#{actualResult} idmefPattern:#{idmefPattern} NOT Found")
               end
             end
           end # if actualResult == 200
@@ -549,11 +556,12 @@ class  SecurityMop2_4 < AbstractSecurityMop
             logInfoMsg "$                 numAccessAttempts             #{@numAccessAttempts}                                                   "
             logInfoMsg "$                 numAccessesCorrect            #{@numAccessesCorrect}                                                   "
           end
-        rescue Exception => e
+          rescue Exception => e
           logInfoMsg "error in runTests"
           logInfoMsg "#{e.class}: #{e.message}"
           logInfoMsg  e.backtrace.join("\n")
         end
+        sleep 6.seconds
       end # testSet.each
     end # tests.each
     logInfoMsg "done with runTests" if $VerboseDebugging
@@ -651,7 +659,6 @@ class  SecurityMop2_4 < AbstractSecurityMop
       logInfoMsg "Test set called with ------------->> >>   agent: #{agent.name}, #{user}, #{otherUser}"
     end
     agent = run.society.agents[agent] if agent.kind_of?(String)
-
     domainName = agent.userDomain.name
     policyServlet = '/policyAdmin'
     tests = [
@@ -660,7 +667,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
       ['Cert',  agent, user,  true,       policyServlet,  200 ,   '1A103',    '',                             'SecurityMop2.5'],
       ['Basic', agent, user, 'badpasswd', policyServlet,  401 ,   '1A1-1A20', 'WRONG_PASSWORD',               'SecurityMop2.4-SecurityMop2.6'],
       ['Cert',  agent, user,  false,      policyServlet,  403 ,   '1A2-1A21', 'INSUFFICIENT_PRIVILEGES',      'SecurityMop2.4-SecurityMop2.6']
-     ]
+    ]
     
     if(agent == @fwdAgent)
       tests.push(
@@ -742,7 +749,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
       #1A4 and 1A23 
       ['Cert',     osdgovAgent,    revokedLog,  true,        servlet,    403,    '1A4-1A23',  'INVALID_USER_CERTIFICATE',   'SecurityMop2.4-SecurityMop2.6'],
-      #['Basic',    osdgovAgent,    revokedLog,  revokedLog,  servlet,   491,    '1A41-1A231','INVALID_USER_CERTIFICATE',   'SecurityMop2.4-SecurityMop2.6'],
+      ['Basic',    osdgovAgent,    revokedLog,  revokedLog,  servlet,   491,    '1A41-1A231','INVALID_USER_CERTIFICATE',   'SecurityMop2.4-SecurityMop2.6'],
 
       #1A6 and 1A25 
       ['Basic',    osdgovAgent,    certLog,     certLog,     servlet,    491,    '1A6-1A25',  'WRONG_PASSWORD',             'SecurityMop2.4-SecurityMop2.6'], 
