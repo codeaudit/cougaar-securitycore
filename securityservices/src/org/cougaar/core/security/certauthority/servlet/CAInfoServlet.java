@@ -32,6 +32,7 @@ import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
 import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.policy.TrustedCaPolicy;
+import org.cougaar.core.security.ssl.ServerKeyManager;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.util.NodeInfo;
@@ -118,8 +119,11 @@ public class CAInfoServlet
     // cert request will use https, so need to wait til server cert has
     // been approved
     if (!(httpsport == null || httpsport.equals("-1"))) {
+/*
       l = krs.findCert(NodeInfo.getHostName(), KeyRingService.LOOKUP_KEYSTORE, true);
       if (l == null || l.size() == 0) {
+*/
+      if (!ServerKeyManager.isManagerReady()) {
         if (log.isWarnEnabled()) {
           log.warn("Host cert has not been signed by CA yet.");
         }
