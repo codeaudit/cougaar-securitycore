@@ -419,8 +419,12 @@ def saveAssertion(testnum, description)
   begin
     file = getTestResultXmlFile()
 
-    testnum = REXML::Text.new(testnum, true, nil, false).to_s
-    description = REXML::Text.new(description, true, nil, false).to_s
+    if testnum != nil
+      testnum = REXML::Text.new(testnum, true, nil, false).to_s
+    end
+    if description != nil
+      description = REXML::Text.new(description, true, nil, false).to_s
+    end
 
     file.print("<unitTestResult>\n")
     file.print("  <date>#{Time.now.to_s}</date>\n")
