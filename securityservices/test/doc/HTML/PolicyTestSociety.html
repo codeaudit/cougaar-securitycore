@@ -32,5 +32,31 @@ This script
   service to provide community information)
 <li> commits an initial set of policies to the domain manager.
 </ol>
-Once the script is completed we are ready to continue with the policy tests.
+Once the script is completed we are ready to continue with the policy
+tests.
+
+<H1>Blackboard Access Tests</H1>
+
+We have configured the test society to make some blackboard access
+tests very easy.  In RearWorkerNode there is an agent called
+testBBPolicyAgent.  This agent has a servlet that adds OrgActivity
+objects to the blackboard.  The boot policies and configutation files give
+this agent the ability to add OrgActivity objects to the blackboard.
+In particular the file OwlMapRoleUri has the line
+<pre>
+/$testBBPolicyAgent/OrgActivityAdd http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAdd
+</pre>
+
+<pre>
+   org.cougaar.glm.ldm.oplan.OrgActivity http://ontology.ihmc.us/Ultralog/BlackboardObject#OrgActivity
+</pre>
+
+<pre>
+  Policy OrgActivityAdd = [
+     BlackboardTemplate
+     A PlugIn in the role OrgActivityAdd can Add objects of type OrgActivity
+  ]
+</pre>
+
+
 </body>
