@@ -40,8 +40,8 @@ public class DataProtectionStatus {
   public String agent;
   public String status;
 
-  private static Hashtable inputStatus;
-  private static Hashtable outputStatus;
+  private static Hashtable inputStatus = new Hashtable();
+  private static Hashtable outputStatus = new Hashtable();
 
   public DataProtectionStatus(long timestamp, String agent, String status) {
     this.timestamp = timestamp;
@@ -59,11 +59,6 @@ public class DataProtectionStatus {
 
   public static Hashtable getInputStatus() {
     return inputStatus;
-  }
-
-  public static void initStatus() {
-    inputStatus = new Hashtable();
-    outputStatus = new Hashtable();
   }
 
   public static Hashtable getOutputStatus() {
