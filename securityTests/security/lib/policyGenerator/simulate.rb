@@ -48,10 +48,15 @@ end
 
 def installPolicies(p)
   p.commonDecls()
+  p.communityDecls()
   p.allowNameService()
   tally(p,"name service")
   p.allowSpecialCommunity()
   tally(p, "community")
+  p.allowRestartCommunityNodesTalk()
+  tally(p, "Robustness (Nodes)")
+  p.allowHealthMonitoring()
+  tally(p, "Health Monitoring")
   p.allowSecurityManagement()
   tally(p, "Security")
   p.allowSuperiorSubordinate()
@@ -80,10 +85,10 @@ Cougaar.new_experiment("Test").run(1) do
       p = CommPolicies.new(run)
 #      load 'debug.rb'
       installPolicies(p)
+      load "debug.rb"
       puts "#{checkPolicy(run, p)} bad communication paths"
       puts "Density = #{100 * p.density}%"
       p.writePolicies("#{DATASET}/policies")
-#      load "debug.rb"
     rescue => ex
       puts "Exception found = #{ex}, trace = #{ex.backtrace().join("\n")}"
     end
