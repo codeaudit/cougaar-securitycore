@@ -230,6 +230,21 @@ public class SecurityServiceProvider
     services.put(SecurityPropertiesService.class,
 		 new SecurityPropertiesServiceProvider());
     rootServiceBroker.addService(SecurityPropertiesService.class, this);
+    SecurityPropertiesService secprop = (SecurityPropertiesService)
+      rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
+    boolean standalone = false;
+    try {
+    /*
+      String nodeName = secprop.getProperty("org.cougaar.node.name",
+    					"");
+      if (nodeName == null || nodeName.equals(""))
+        standalone = true;
+        */
+      standalone = new Boolean(secprop.getProperty(
+        "org.cougaar.core.security.standalone", "false")).booleanValue();
+    } catch (Exception ex) {
+      log.warn("Unable to get value of standalone mode");
+    }
 
     /* ********************************
      * Configuration services
@@ -243,7 +258,7 @@ public class SecurityServiceProvider
      */
     /* Certificate Management service */
     services.put(CertificateManagementService.class,
-		 new CertificateManagementServiceProvider());
+                 new CertificateManagementServiceProvider());
     rootServiceBroker.addService(CertificateManagementService.class, this);
 
     /* Key lookup service */
@@ -251,60 +266,49 @@ public class SecurityServiceProvider
 		 new KeyRingServiceProvider());
     rootServiceBroker.addService(KeyRingService.class, this);
 
-    /* Encryption Service */
-    services.put(EncryptionService.class,
-		 new EncryptionServiceProvider());
-    rootServiceBroker.addService(EncryptionService.class, this);
-
-    /* Data protection service */
-    services.put(DataProtectionService.class,
-		 new DataProtectionServiceProvider());
-    rootServiceBroker.addService(DataProtectionService.class, this);
-
-    /* Message protection service */
-    services.put(MessageProtectionService.class,
-		 new MessageProtectionServiceProvider());
-    rootServiceBroker.addService(MessageProtectionService.class, this);
-
-    /* ********************************
-     * Identity services
-     */
-    /* Agent identity service */
-    services.put(AgentIdentityService.class,
-		 new AgentIdentityServiceProvider());
-    rootServiceBroker.addService(AgentIdentityService.class, this);
-
-    /* ********************************
-     * Access Control services
-     */
-
-    /* ********************************
-     * Policy services
-     */
-    services.put(PolicyBootstrapperService.class,
-		 new PolicyBootstrapperServiceProvider());
-    rootServiceBroker.addService(PolicyBootstrapperService.class, this);
-
-    services.put(AccessControlPolicyService.class,
-		 new AccessControlPolicyServiceProvider());
-    rootServiceBroker.addService(AccessControlPolicyService.class, this);
-
-    services.put(CryptoPolicyService.class,
-		 new CryptoPolicyServiceProvider());
-    rootServiceBroker.addService(CryptoPolicyService.class, this);
-
-    SecurityPropertiesService secprop = (SecurityPropertiesService)
-      rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
-    boolean standalone = false;
-    try {
-      String nodeName = secprop.getProperty("org.cougaar.node.name",
-    					"");
-      if (nodeName == null || nodeName.equals(""))
-        standalone = true;
-    } catch (Exception ex) {
-      log.warn("Unable to get value of standalone mode");
-    }
     if (!standalone) {
+      /* Encryption Service */
+      services.put(EncryptionService.class,
+                   new EncryptionServiceProvider());
+      rootServiceBroker.addService(EncryptionService.class, this);
+
+      /* Data protection service */
+      services.put(DataProtectionService.class,
+                   new DataProtectionServiceProvider());
+      rootServiceBroker.addService(DataProtectionService.class, this);
+
+      /* Message protection service */
+      services.put(MessageProtectionService.class,
+                   new MessageProtectionServiceProvider());
+      rootServiceBroker.addService(MessageProtectionService.class, this);
+
+      /* ********************************
+       * Identity services
+       */
+      /* Agent identity service */
+      services.put(AgentIdentityService.class,
+                   new AgentIdentityServiceProvider());
+      rootServiceBroker.addService(AgentIdentityService.class, this);
+
+      /* ********************************
+       * Access Control services
+       */
+
+      /* ********************************
+       * Policy services
+       */
+      services.put(PolicyBootstrapperService.class,
+                   new PolicyBootstrapperServiceProvider());
+      rootServiceBroker.addService(PolicyBootstrapperService.class, this);
+
+      services.put(AccessControlPolicyService.class,
+                   new AccessControlPolicyServiceProvider());
+      rootServiceBroker.addService(AccessControlPolicyService.class, this);
+
+      services.put(CryptoPolicyService.class,
+                   new CryptoPolicyServiceProvider());
+      rootServiceBroker.addService(CryptoPolicyService.class, this);
+
       services.put(ServletPolicyService.class,
                    new ServletPolicyServiceProvider(serviceBroker));
       rootServiceBroker.addService(ServletPolicyService.class, this);
@@ -327,6 +331,15 @@ public class SecurityServiceProvider
         rootServiceBroker.addService(WebserverIdentityService.class, this);
         rootServiceBroker.getService(this, WebserverIdentityService.class, null);
       }
+
+      /* ********************************
+       * LDAP user administration
+       */
+      services.put(LdapUserService.class,
+                   new LdapUserServiceProvider());
+      rootServiceBroker.addService(LdapUserService.class, this);
+      org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.
+        setNodeServiceBroker(serviceBroker);
     }
     else {
       log.warn("Running in standalone mode");
@@ -335,13 +348,5 @@ public class SecurityServiceProvider
       rootServiceBroker.addService(UserSSLService.class, this);
     }
 
-    /* ********************************
-     * LDAP user administration
-     */
-    services.put(LdapUserService.class,
-                 new LdapUserServiceProvider());
-    rootServiceBroker.addService(LdapUserService.class, this);
-    org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.
-      setNodeServiceBroker(serviceBroker);
   }
 }
