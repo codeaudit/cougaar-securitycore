@@ -45,7 +45,7 @@ import org.cougaar.core.component.*;
 import org.cougaar.core.agent.*;
 import org.cougaar.core.service.community.*;
 // Cougaar security services
-import org.cougaar.core.security.securebootstrap.EventHolder;
+//import org.cougaar.core.security.securebootstrap.EventHolder;
 import org.cougaar.core.security.securebootstrap.BootstrapEvent;
 
 // Cougaar overlay
@@ -71,7 +71,7 @@ import edu.jhuapl.idmef.*;
 
 public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
   
-  private EventHolder eventholder=null;
+  //private EventHolder eventholder=null;
   private Condition sensorCondition;
   private int numberOfEvents = 0;
   private OperatingMode dummyOP = null;
@@ -89,7 +89,9 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
     // For test purposes
     
     super.setupSubscriptions();
-    openTransaction=true;
+    /* Fix for nested open transaction
+       openTransaction=true;
+     */
     sensorCondition = new BootstrapEventCondition(numberOfEvents);
     m_blackboard.publishAdd(sensorCondition);
 
@@ -100,7 +102,10 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
 				    DUMMY_OP_RANGE, 
 				    new Double(5));
     m_blackboard.publishAdd(dummyOP);
-    openTransaction=false;
+    /*
+      Fix for nested open transaction
+      openTransaction=false;
+    */
   }
   
   protected void execute() {
@@ -163,11 +168,7 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
     BootstrapEvent event=null;
     AdditionalData adddata=null;
     boolean myopenTransaction=false;
-    if(!openTransaction){
-      m_blackboard.openTransaction();
-      openTransaction=true;
-      myopenTransaction=true;
-    }
+    m_blackboard.openTransaction();
     for(int cnt=0;cnt<vectorofevents.size();cnt++) {
       event=(BootstrapEvent)vectorofevents.elementAt(cnt);
       classification= imessage.createClassification(event.classification,
@@ -221,10 +222,12 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
        m_blackboard.publishChange(sensorCondition);
        // bbservice.closeTransaction();
     }
-    if(myopenTransaction) {
-      //openTransaction=false;
+    /* Fix for nested open transaction
+      if(myopenTransaction) {
+      openTransaction=false;
+    */
       m_blackboard.closeTransaction();
-    }
+      // }
     
   }
   public BootstrapEvent constructbootstrapevent(Object o) {
