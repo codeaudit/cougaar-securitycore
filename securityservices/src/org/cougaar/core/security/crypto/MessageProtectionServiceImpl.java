@@ -220,6 +220,19 @@ public class MessageProtectionServiceImpl
    * 6) The service encrypts the message and write the encrypte/signed
    *    message to the output stream.
    * 7) The encrypted message is actually sent over the network.
+   * 8) When the receiver finishes processing a message, a reply header is 
+   *    prepared to be sent back (including attributes such as Message
+   *    dropped etc.)
+   * 9) The reply header is protected on the receiver side and
+   *    returned to the sender
+   * 10) The reply header is unprotected by the sender.
+   * 
+   * We are currently a little inconsistent on how we are handling the
+   * protection of the headers.  If the socket is encrypted we apply
+   * no further protections.  It is signed and encrypted by/for the
+   * sending and receiving nodes.  If the socket is unencrypted, we
+   * apply protections as defined  for agent -> agent communications.
+   * Compare this to what happens in ProtectedMessageInput/OutputStream.
    *
    * @param attributes  The attributes to be protected
    * @param source      The source of the message
@@ -232,8 +245,6 @@ public class MessageProtectionServiceImpl
     throws GeneralSecurityException, IOException
   {
     // first get the target node
-    MessageAddress targetNode = getNodeAddress(target);
-
     ByteArrayOutputStream bout = new ByteArrayOutputStream();
     ObjectOutputStream    oout = new ObjectOutputStream(bout);
 
@@ -246,8 +257,8 @@ public class MessageProtectionServiceImpl
       return bout.toByteArray();
     }
 
-    String sourceName = _localNode.toAddress();
-    String targetName = targetNode.toAddress();
+    String sourceName = source.toAddress();
+    String targetName = target.toAddress();
 
     if (!isInitialized) {
       setPolicyService();
@@ -290,7 +301,7 @@ public class MessageProtectionServiceImpl
     
     try {
       ProtectedObject po =
-        encryptService.protectObject(attributes, _localNode, targetNode, 
+        encryptService.protectObject(attributes, source, target, 
                                      policy);
   
       oout.writeObject(po);
@@ -312,42 +323,6 @@ public class MessageProtectionServiceImpl
     return bout.toByteArray();
   }
 
-  private MessageAddress getNodeAddress(MessageAddress agent) 
-    throws IOException {
-    
-    return agent;
-
-    /* There are problems with the following because there is no
-     * way to detect the WhitePagesService agent name without
-     * going through the WhitePagesService. Chicken-and-egg, eh?
-     * Actually, there are some work-arounds, but they aren't
-     * really worth it, so I'm not going to bother...
-     */
-    /*
-    MessageAddress addr;
-    if (agent.equals(_localNode)) {
-      return agent;
-    }
-    
-    try {
-      AddressEntry entry = _wps.get(agent.toAddress(), "topology", -1);
-      if (entry != null) {
-        addr = MessageAddress.getMessageAddress(entry.getName());
-      } else {
-        // try a callback to force a lookup...
-        _wps.get(agent.toAddress(), "topology", LOOKUP_CALLBACK);
-        addr = null;
-      }
-    } catch (Exception e) {
-      addr = null;
-    }
-    if (addr == null) {
-      throw new IOException("Message cannot be accepted until node name can be found");
-    }
-    return addr;
-    */
-  }
-
   /**
    * Verify the signed and/or encrypted header of an incoming message.
    *
@@ -356,26 +331,6 @@ public class MessageProtectionServiceImpl
    * @param destination The destination of the message
    * @return the header in the clear
    */
-  /* not needed anymore...
-  public byte[] unprotectHeader(byte[] rawData,
-				MessageAddress source,
-				MessageAddress target)
-    throws GeneralSecurityException, IOException
-  {
-    try {
-      MessageAttributes attrs = unprotectHeader2(rawData, source, target);
-      ByteArrayOutputStream bout = new ByteArrayOutputStream();
-      ObjectOutputStream oout = new ObjectOutputStream(bout);
-      oout.writeObject(attrs);
-      oout.close();
-      return bout.toByteArray();
-    } catch (IOException e) {
-      throw e;
-    } catch (Exception e) {
-      return null;
-    }
-  }
-  */
 
   /**
    * Verify the signed and/or encrypted header of an incoming message.
@@ -435,9 +390,8 @@ public class MessageProtectionServiceImpl
                                            ": clear channel used");
       }
     } else {
-      MessageAddress sourceNode = getNodeAddress(source);
-      String sourceName = sourceNode.toAddress();
-      String targetName = _localNode.toAddress();
+      String sourceName = source.toAddress();
+      String targetName = target.toAddress();
     
       SecureMethodParam policy;
       try {
@@ -492,15 +446,13 @@ public class MessageProtectionServiceImpl
       }
       try {
         attrs = (MessageAttributes)
-          encryptService.unprotectObject(sourceNode, _localNode, po, policy);
+          encryptService.unprotectObject(source, target, po, policy);
         if (log.isDebugEnabled()) {
           log.debug("unprotectHeader OK: " + sourceName + " -> " + targetName);
         }
       } catch (ClassCastException e) {
         throw new IOException("Found the wrong type of object in stream: " + e);
       } catch(DecryptSecretKeyException e) {
-        // send the new certificate to the server
-        // AttributedMessage msg = getCertificateMessage(sourceNode, _localNode);
         throw new RetryWithNewCertificateException(e.getMessage());
       } catch(GeneralSecurityException e) {
         publishMessageFailure(sourceName, targetName, e);
