@@ -125,28 +125,16 @@ public class IdmefEventPublisher implements EventPublisher {
       }
       //openTransaction= _blackboard.isTransactionOpen();
       //if(!openTransaction) {
-      _scs.setExecutionContext(_ec);
-      final boolean lock[] = new boolean[1];
       Runnable publishIt = new Runnable() {
           public void run() {
             _blackboard.openTransaction();
             _blackboard.publishAdd(createIDMEFAlert(event));
             _blackboard.closeTransaction();
-            synchronized (lock) {
-              lock[0] = true;
-              lock.notifyAll();
-            }
           }
         };
+      _scs.setExecutionContext(_ec);
       Schedulable s = _threadService.getThread(this, publishIt);
       s.start();
-      synchronized (lock) {
-        while (lock[0] == false) {
-          try {
-            lock.wait();
-          } catch (Exception e) {}
-        }
-      }
       _scs.resetExecutionContext();
     }
   }
