@@ -103,7 +103,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     // get the last valid certificate
     // use DirectoryKeyStore's functions (it assumes there is only one matching
     // between commonName and cert/alias)
-    
+   
     if(keyRing!=null) {
       nodealias =  keyRing.findAlias(nodename);
     }
@@ -114,23 +114,29 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 
       return;
     }
+    
     List certList = keyRing.findCert(nodename, KeyRingService.LOOKUP_KEYSTORE);
     if (certList != null && certList.size() > 0) {
       nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
       log.debug("update nodex509: " + nodex509);
 
+      nodealias = ((CertificateStatus)certList.get(0)).getCertificateAlias();
+      if (nodealias == null) {       
+        throw new RuntimeException("No alias for certificate entry " + nodename);
+      }
+
       privatekey = findPrivateKey(nodealias);
       certChain = findCertificateChain(nodealias);
     }
 
-    if (log.isDebugEnabled()) {
+    if (log.isInfoEnabled()) {
       String s = "SSLContext:KeyManager: node name: " + nodename
 	+ " - nodealias is " + nodealias
 	+ " and nodex509 is " + nodex509 + " - cert Chain: ";
       if (certChain != null) {
 	s = s + certChain[0];
       }
-      log.debug(s);
+      log.info(s);
     }
   }
 
