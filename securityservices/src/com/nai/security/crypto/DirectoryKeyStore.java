@@ -630,6 +630,9 @@ public class DirectoryKeyStore implements Runnable
     }
   }
 
+  /** @param certificate      Contains the self-signed certificate
+   *  @param certificateReply Contains the certificate signed by the CA
+   */
   private X509Certificate[] establishCertChain(X509Certificate certificate,
 					       X509Certificate certificateReply)
     throws CertificateException, KeyStoreException
