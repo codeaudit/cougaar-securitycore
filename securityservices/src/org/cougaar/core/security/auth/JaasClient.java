@@ -26,6 +26,8 @@
 
 package org.cougaar.core.security.auth;
 
+import org.cougaar.core.security.acl.auth.URIPrincipal;
+
 import java.security.Principal;
 
 import java.util.Iterator;
@@ -66,7 +68,12 @@ public class JaasClient {
     Subject subj = createSubject(ec);
     return doAs(subj, action, displaySubject);  
   }
-    
+  
+  public Object doAs(URIPrincipal up, java.security.PrivilegedAction action) {
+    Subject subj = createSubject(up);
+    return doAs(subj, action, false);  
+  }
+  
   /**
    *  The doAs method should be called by any core component that wishes to run
    *  another component in a specific access controller context.
@@ -187,8 +194,8 @@ public class JaasClient {
           ChainedPrincipal oldCP = (ChainedPrincipal)p;
           cp.addChainedPrincipals(oldCP.getChain());
 
-        // NOTE: This won't be the case going forward because this class is relocated
-        //       to securityservice.jar
+  // NOTE: This won't be the case going forward because this class is relocated
+  //       to securityservice.jar
 	  /* In the JDK 1.4 (at least on Linux, not tested on other platforms),
 	   * the thread either hangs or dies when the following statement is executed:
 	   *   ChainedPrincipal newP = (ChainedPrincipal)p;
@@ -243,12 +250,7 @@ public class JaasClient {
      * Set and credential Sets will be disallowed. The destroy operation
      * on this Subject's credentials will still be permitted. 
      */
-    AccessController.doPrivileged(new PrivilegedAction() {
-	public Object run() {
-	  s.setReadOnly();
-	  return null; // nothing to return
-	}
-      });
+    AccessController.doPrivileged(new SetReadOnlyAction(s));
     return s;
   }
 
@@ -265,14 +267,21 @@ public class JaasClient {
      * Set and credential Sets will be disallowed. The destroy operation
      * on this Subject's credentials will still be permitted. 
      */
-    AccessController.doPrivileged(new PrivilegedAction() {
-      	public Object run() {
-      	  s.setReadOnly();
-      	  return null; // nothing to return
-      	}
-    	});
+    AccessController.doPrivileged(new SetReadOnlyAction(s));
     return s;   
   }
+
+  private Subject createSubject(URIPrincipal up) {
+    Subject s = new Subject();
+    s.getPrincipals().add(up);
+ 
+    /* Modifications (additions and removals) to this Subject's Principal
+     * Set and credential Sets will be disallowed. The destroy operation
+     * on this Subject's credentials will still be permitted. 
+     */
+    AccessController.doPrivileged(new SetReadOnlyAction(s));
+    return s;
+  }  
   
   private void printPrincipalsInSubject(Subject subj) {
     if (_log.isDebugEnabled()) {
@@ -341,4 +350,14 @@ public class JaasClient {
     return o;
   }
 
+  class SetReadOnlyAction implements PrivilegedAction {
+  	Subject _s;
+  	SetReadOnlyAction(Subject s) {
+  	  _s = s; 
+  	}
+  	public Object run() {
+  	  _s.setReadOnly();
+  	  return null; // nothing to return
+  	}
+  } // end class SetReadOnlyAction
 }
