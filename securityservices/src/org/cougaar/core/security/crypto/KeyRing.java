@@ -57,7 +57,7 @@ import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.crypto.*;
 //import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
+
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.ssl.KeyManager;
@@ -73,8 +73,8 @@ final public class KeyRing  implements KeyRingService  {
   private CertificateRequestor certRequestor;
   private NamingCertDirectoryServiceClient namingService;
   /*
-  private SearchServiceParameters searchParam;
-  private DirectoryKeyStoreParameters param;
+    private SearchServiceParameters searchParam;
+    private DirectoryKeyStoreParameters param;
   */
   private boolean debug = false;
   private PrivateKeyPKCS12 pkcs12;
@@ -84,8 +84,8 @@ final public class KeyRing  implements KeyRingService  {
   private NodeConfiguration nodeConfiguration;
   private LoggingService log;
   /*
-  private boolean isCertAuth=false;
-  private boolean isRootCA=false;
+    private boolean isCertAuth=false;
+    private boolean isRootCA=false;
   */
   private String role;
   private CryptoClientPolicy cryptoClientPolicy;
@@ -96,9 +96,9 @@ final public class KeyRing  implements KeyRingService  {
   private boolean    _initializing = true;
 
   /*
-  private static final String CDTYPE_ATTR = "CertDirectoryType";
-  private static final String CDURL_ATTR = "CertDirectoryURL";
-  private static final String CERT_DIR = "/Certificates";
+    private static final String CDTYPE_ATTR = "CertDirectoryType";
+    private static final String CDURL_ATTR = "CertDirectoryURL";
+    private static final String CERT_DIR = "/Certificates";
   */
 
 
@@ -191,8 +191,8 @@ final public class KeyRing  implements KeyRingService  {
 	log.debug(" TrustedCaPolicy is  :"+ trustedCaPolicy[0].toString());
       }
       /*
-      searchParam.ldapServerUrl = trustedCaPolicy[0].certDirectoryUrl;
-      searchParam.ldapServerType = trustedCaPolicy[0].certDirectoryType;
+        searchParam.ldapServerUrl = trustedCaPolicy[0].certDirectoryUrl;
+        searchParam.ldapServerType = trustedCaPolicy[0].certDirectoryType;
       */
     }
     else {
@@ -211,12 +211,12 @@ final public class KeyRing  implements KeyRingService  {
 
       X500Name [] caDNs=configParser.getCaDNs();
       if (caDNs.length > 0) {
-      /*
-        String caDN=caDNs[0].getName();
-        CaPolicy capolicy=configParser.getCaPolicy(caDN);
-        searchParam.ldapServerUrl =capolicy.ldapURL;
-        searchParam.ldapServerType =capolicy.ldapType;
-	searchParam.defaultCaDn = caDN;
+        /*
+          String caDN=caDNs[0].getName();
+          CaPolicy capolicy=configParser.getCaPolicy(caDN);
+          searchParam.ldapServerUrl =capolicy.ldapURL;
+          searchParam.ldapServerType =capolicy.ldapType;
+          searchParam.defaultCaDn = caDN;
         */
       }
       else {
@@ -224,15 +224,15 @@ final public class KeyRing  implements KeyRingService  {
       }
     }
     /*
-    if (log.isDebugEnabled()) {
+      if (log.isDebugEnabled()) {
       log.debug(" Ladap type is :"+ searchParam.ldapServerType);
-    }
+      }
     */
 
     //search=new SearchServiceImpl(searchParam,serviceBroker);
     search = (CertificateSearchService) serviceBroker.getService(this,
-						    CertificateSearchService.class,
-						    null);
+                                                                 CertificateSearchService.class,
+                                                                 null);
     certRequestor=new CertificateRequestor(serviceBroker,configParser,role);
     namingService = new NamingCertDirectoryServiceClient(serviceBroker);
     //directoryKeystore = new DirectoryKeyStore(param);
@@ -292,8 +292,8 @@ final public class KeyRing  implements KeyRingService  {
     }
     CertificateCacheService cacheservice=(CertificateCacheService)
       serviceBroker.getService(this,
-				     CertificateCacheService.class,
-				     null);
+                               CertificateCacheService.class,
+                               null);
 
     Enumeration e = null;
     if( cacheservice!=null){
@@ -422,11 +422,11 @@ final public class KeyRing  implements KeyRingService  {
     X509Certificate [] acertificate)
     throws CertificateChainException, CertificateExpiredException,
     CertificateNotYetValidException, CertificateRevokedException {
-      if (acertificate.length == 1) {
-        return checkCertificateTrust(acertificate[0]);
-      }
-      return checkCertificateTrust(acertificate, false);
+    if (acertificate.length == 1) {
+      return checkCertificateTrust(acertificate[0]);
     }
+    return checkCertificateTrust(acertificate, false);
+  }
 
   public X509Certificate[] checkCertificateTrust(
     X509Certificate certificate)
@@ -435,8 +435,8 @@ final public class KeyRing  implements KeyRingService  {
     {
       CertificateCacheService cacheservice=(CertificateCacheService)
 	serviceBroker.getService(this,
-				       CertificateCacheService.class,
-				       null);
+                                 CertificateCacheService.class,
+                                 null);
 
       if(cacheservice==null) {
 	log.warn("Unable to get Certificate Cache service in checkCertificateTrust :");
@@ -477,9 +477,9 @@ final public class KeyRing  implements KeyRingService  {
       }
     }
 
-    /* if a full certificate chain is received, no need to build chain,
-       this function takes both single cert and an unvalidated chain.
-       */
+  /* if a full certificate chain is received, no need to build chain,
+     this function takes both single cert and an unvalidated chain.
+  */
   private X509Certificate[] checkCertificateTrust(
     X509Certificate [] acertificate, boolean isValidated)
     throws CertificateChainException, CertificateExpiredException,
@@ -498,64 +498,64 @@ final public class KeyRing  implements KeyRingService  {
         isTrusted = true;
       }
 
-	for(int i = acertificate.length - 1; i >= 0; i--) {
-	  // Check certificate validity
-	  ((X509Certificate) acertificate[i]).checkValidity();
-	  // Check key usage
-	  if (i > 0) {
-	    // does the cert has signing capability? otherwise should not be in
-	    // the upper level of the chain
-	    KeyUsageExtension keyusage = null;
-	    try {
-	      String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
-	      if(s != null) {
-		keyusage = (KeyUsageExtension)((X509CertImpl)acertificate[i]).get(s);
-	      }
-	    } catch (Exception ex) {
-	      if (log.isErrorEnabled()) {
-		log.error("Exception in getKeyUsage: " + ex.toString());
-	      }
-	    }
-	    if (keyusage == null
-		|| keyusage.getBits().length < KeyManagement.KEYUSAGE_CERT_SIGN_BIT
-		|| !keyusage.getBits()[KeyManagement.KEYUSAGE_CERT_SIGN_BIT]) {
-	      log.warn("Certificate does not have signing capability."
-                + acertificate[i].getSubjectDN().getName());
-	      throw new CertificateChainException("Certificate does not have signing capability.",
-						  CertificateTrust.CERT_TRUST_NOT_TRUSTED);
-
-	    }
-	  }
-          // need to check whether one of the cert in the chain is revoked
-          if (!isValidated) {
-            CertificateCacheService cacheservice=(CertificateCacheService)
-              serviceBroker.getService(this,
-                                       CertificateCacheService.class,
-                                       null);
-
-            if (cacheservice.checkRevokedCache(acertificate[i])) {
-              throw new CertificateRevokedException("Certificate is revoked: "
-                + acertificate[i].getSubjectDN().getName());
+      for(int i = acertificate.length - 1; i >= 0; i--) {
+        // Check certificate validity
+        ((X509Certificate) acertificate[i]).checkValidity();
+        // Check key usage
+        if (i > 0) {
+          // does the cert has signing capability? otherwise should not be in
+          // the upper level of the chain
+          KeyUsageExtension keyusage = null;
+          try {
+            String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
+            if(s != null) {
+              keyusage = (KeyUsageExtension)((X509CertImpl)acertificate[i]).get(s);
             }
-
-            // then check whether any signer is trusted
-            String signerName = acertificate[i].getSubjectDN().getName();
-            try {
-              X500Name x500signer = new X500Name(signerName);
-              List listSigner = getValidCertificates(x500signer);
-              if (listSigner == null || listSigner.size() == 0) {
-                isTrusted = true;
-              }
-            } catch (IOException iox) {
-              throw new CertificateChainException("Not a valid signer: " + signerName,
-                 CertificateTrust.CERT_TRUST_UNKNOWN);
+          } catch (Exception ex) {
+            if (log.isErrorEnabled()) {
+              log.error("Exception in getKeyUsage: " + ex.toString());
             }
           }
-	}
+          if (keyusage == null
+              || keyusage.getBits().length < KeyManagement.KEYUSAGE_CERT_SIGN_BIT
+              || !keyusage.getBits()[KeyManagement.KEYUSAGE_CERT_SIGN_BIT]) {
+            log.warn("Certificate does not have signing capability."
+                     + acertificate[i].getSubjectDN().getName());
+            throw new CertificateChainException("Certificate does not have signing capability.",
+                                                CertificateTrust.CERT_TRUST_NOT_TRUSTED);
+
+          }
+        }
+        // need to check whether one of the cert in the chain is revoked
+        if (!isValidated) {
+          CertificateCacheService cacheservice=(CertificateCacheService)
+            serviceBroker.getService(this,
+                                     CertificateCacheService.class,
+                                     null);
+
+          if (cacheservice.checkRevokedCache(acertificate[i])) {
+            throw new CertificateRevokedException("Certificate is revoked: "
+                                                  + acertificate[i].getSubjectDN().getName());
+          }
+
+          // then check whether any signer is trusted
+          String signerName = acertificate[i].getSubjectDN().getName();
+          try {
+            X500Name x500signer = new X500Name(signerName);
+            List listSigner = getValidCertificates(x500signer);
+            if (listSigner == null || listSigner.size() == 0) {
+              isTrusted = true;
+            }
+          } catch (IOException iox) {
+            throw new CertificateChainException("Not a valid signer: " + signerName,
+                                                CertificateTrust.CERT_TRUST_UNKNOWN);
+          }
+        }
+      }
 
       if (!isTrusted) {
         throw new CertificateChainException("No trusted signer found for " +
-          acertificate[0].getSubjectDN().getName(), CertificateTrust.CERT_TRUST_UNKNOWN);
+                                            acertificate[0].getSubjectDN().getName(), CertificateTrust.CERT_TRUST_UNKNOWN);
       }
       return acertificate;
     }
@@ -587,7 +587,7 @@ final public class KeyRing  implements KeyRingService  {
 				     boolean checkValidity)  {
     Principal principal = x509certificate.getSubjectDN();
     Principal principalSigner = x509certificate.getIssuerDN();
-    	List listSigner=null;
+    List listSigner=null;
     if (log.isDebugEnabled()) {
       log.debug("Build chain: " + principal.getName());
     }
@@ -962,7 +962,7 @@ final public class KeyRing  implements KeyRingService  {
   }
 
   public synchronized  List findCert(X500Name dname,
-                                    int lookupType, boolean validOnly)
+                                     int lookupType, boolean validOnly)
     {
 
       ArrayList certificateList = new ArrayList(0);
@@ -1001,8 +1001,8 @@ final public class KeyRing  implements KeyRingService  {
 	// Update cache with certificates from LDAP.
 	//String filter = "(cn=" + commonName + ")";
         /*
-	String filter = parseDN(dname.getName());
-	lookupCertInLDAP(filter, certFinder);
+          String filter = parseDN(dname.getName());
+          lookupCertInLDAP(filter, certFinder);
         */
         searchCert(dname);
 
@@ -1042,9 +1042,9 @@ final public class KeyRing  implements KeyRingService  {
 		    + " - Cert origin: " + certstatus.getCertificateOrigin());
 	}
       }
-    return  certificateList;
+      return  certificateList;
 
-  }
+    }
 
   private List internalFindCert(X500Name x500name,
 				int lookupType,
@@ -1052,8 +1052,8 @@ final public class KeyRing  implements KeyRingService  {
     // Search in the local hash map.
 
     CertificateCacheService cacheservice=(CertificateCacheService)serviceBroker.getService(this,
-												 CertificateCacheService.class,
-												 null);
+                                                                                           CertificateCacheService.class,
+                                                                                           null);
 
     if(cacheservice==null) {
       log.error(" Unable to get Certificate cache service in internalFindCert");
@@ -1090,8 +1090,8 @@ final public class KeyRing  implements KeyRingService  {
 	if ((lookupType & KeyRingService.LOOKUP_LDAP) != 0) {
 	  //String filter = "(cn=" + commonName + ")";
           /*
-	  String filter = parseDN(x500name.getName());
-	  lookupCertInLDAP(filter, certFinder);
+            String filter = parseDN(x500name.getName());
+            lookupCertInLDAP(filter, certFinder);
           */
           searchCert(x500name);
 	  if (validOnly) {
@@ -1147,25 +1147,25 @@ final public class KeyRing  implements KeyRingService  {
     if(log.isDebugEnabled())
       log.debug("Looking for cougaar name " + cougaarName
 		+ " type = " + lookupType);
-     CertificateCacheService cacheservice=(CertificateCacheService)
-       serviceBroker.getService(this,
-				CertificateCacheService.class,
-				null);
-     if(cacheservice==null) {
-       log.warn(" Unable to get Certificate Cache service in findCert");
-       return null;
-     }
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+                               CertificateCacheService.class,
+                               null);
+    if(cacheservice==null) {
+      log.warn(" Unable to get Certificate Cache service in findCert");
+      return null;
+    }
 
-     if (cryptoClientPolicy.isCertificateAuthority()) {
-       List nameList = cacheservice.getX500NameFromNameMapping(cougaarName);
-       if (nameList != null && nameList.size() > 0) {
-	 X500Name dname = (X500Name)nameList.get(0);
-	 return findCert(dname, lookupType, validOnly);
-       }
-       // else no cert has been created
-       return null;
-     }
-     return findCert(CertificateUtility.getX500Name(getX500DN(cougaarName)), lookupType, validOnly);
+    if (cryptoClientPolicy.isCertificateAuthority()) {
+      List nameList = cacheservice.getX500NameFromNameMapping(cougaarName);
+      if (nameList != null && nameList.size() > 0) {
+        X500Name dname = (X500Name)nameList.get(0);
+        return findCert(dname, lookupType, validOnly);
+      }
+      // else no cert has been created
+      return null;
+    }
+    return findCert(CertificateUtility.getX500Name(getX500DN(cougaarName)), lookupType, validOnly);
 
   }
 
@@ -1176,7 +1176,7 @@ final public class KeyRing  implements KeyRingService  {
     // LDAP is dirty and returning old certificates. If agent has started
     // and obtained new certificates it will update naming.
     if (log.isDebugEnabled()) {
-	log.debug("findCertPairFromNS: " + source + " vs " + target);
+      log.debug("findCertPairFromNS: " + source + " vs " + target);
     }
 
     Hashtable certTable = new Hashtable();
@@ -1203,169 +1203,169 @@ final public class KeyRing  implements KeyRingService  {
     }
 
     Iterator it = tgtdns.iterator();
-      while (it.hasNext()) {
-	X500Name dname = (X500Name)it.next();
-	List tgtList = findCert(dname,
-				KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP, true);
-	if (tgtList != null && tgtList.size() != 0) {
-	  // this should not have certificate exception because the cert
-	  // path is supposed to be established and valid
-	  CertificateStatus cs = (CertificateStatus)tgtList.get(0);
-	  // chain should be valid because findCert has been called
-	  tgtCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
-	  for (int i = 1; i < tgtCerts.length && i < trustedIndex; i++) {
-	    String principalName = tgtCerts[i].getSubjectDN().getName();
-	    if (tcTable.get(principalName) != null) {
-	      trustedIndex = i;
-	    }
-	  }
+    while (it.hasNext()) {
+      X500Name dname = (X500Name)it.next();
+      List tgtList = findCert(dname,
+                              KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP, true);
+      if (tgtList != null && tgtList.size() != 0) {
+        // this should not have certificate exception because the cert
+        // path is supposed to be established and valid
+        CertificateStatus cs = (CertificateStatus)tgtList.get(0);
+        // chain should be valid because findCert has been called
+        tgtCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
+        for (int i = 1; i < tgtCerts.length && i < trustedIndex; i++) {
+          String principalName = tgtCerts[i].getSubjectDN().getName();
+          if (tcTable.get(principalName) != null) {
+            trustedIndex = i;
+          }
+        }
 
-	  // there must be one that matches, otherwise check trust is not correct
-	  certTable.put(target, tgtCerts[0]);
-	}
+        // there must be one that matches, otherwise check trust is not correct
+        certTable.put(target, tgtCerts[0]);
       }
-
-      // find the matching source path
-      if (certTable.get(target) == null) {
-	String errMsg = "No trusted path found for " + target;
-	if (log.isDebugEnabled()) {
-	  log.debug(errMsg);
-	}
-	throw new CertificateException(errMsg);
-      }
-      String trustedPrincipal = tgtCerts[trustedIndex].getSubjectDN().getName();
-      if (log.isDebugEnabled()) {
-	log.debug("Found trusted cert : " + certTable.get(target) + " for " + target
-		  + ", the shortest path to trusted ca: " + trustedPrincipal);
-      }
-
-      X509Certificate [] srcCerts = null;
-      boolean found = false;
-      it = srcdns.iterator();
-      while (it.hasNext() && !found) {
-	X500Name dname = (X500Name)it.next();
-	List srcList = findCert(dname,
-				KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP, true);
-	if (srcList != null && srcList.size() != 0) {
-	  CertificateStatus cs = (CertificateStatus)srcList.get(0);
-	  // the trust chain should be valid
-	  srcCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
-
-	  // we can communicate now, put a cert that is trusted by both sides here
-	  // if we find a cert that has the shortest path to target then replace
-	  // the hashtable entry with that one
-	  certTable.put(source, srcCerts[0]);
-
-	  for (int i = 1; i < srcCerts.length; i++) {
-	    // principal matched?
-	    if (trustedPrincipal.equals(srcCerts[i].getSubjectDN().getName())) {
-	      certTable.put(source, srcCerts[0]);
-	      found = true;
-	    }
-	  }
-	}
-      }
-
-      // is it successful?
-      if (!found) {
-	String errMsg = "Can not find matching source cert with same trust.";
-	if (log.isDebugEnabled()) {
-	  log.debug(errMsg);
-	}
-	throw new CertificateException(errMsg);
-      }
-
-      if (log.isDebugEnabled()) {
-	log.debug("Found trusted cert : " + certTable.get(source) + " for " + source);
-      }
-      if (!found) {
-	if (log.isWarnEnabled()) {
-	  log.warn("No cert of " + source + " signed by " +
-		   trustedPrincipal + " has been found.");
-	}
-      }
-
-      return certTable;
     }
+
+    // find the matching source path
+    if (certTable.get(target) == null) {
+      String errMsg = "No trusted path found for " + target;
+      if (log.isDebugEnabled()) {
+        log.debug(errMsg);
+      }
+      throw new CertificateException(errMsg);
+    }
+    String trustedPrincipal = tgtCerts[trustedIndex].getSubjectDN().getName();
+    if (log.isDebugEnabled()) {
+      log.debug("Found trusted cert : " + certTable.get(target) + " for " + target
+                + ", the shortest path to trusted ca: " + trustedPrincipal);
+    }
+
+    X509Certificate [] srcCerts = null;
+    boolean found = false;
+    it = srcdns.iterator();
+    while (it.hasNext() && !found) {
+      X500Name dname = (X500Name)it.next();
+      List srcList = findCert(dname,
+                              KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP, true);
+      if (srcList != null && srcList.size() != 0) {
+        CertificateStatus cs = (CertificateStatus)srcList.get(0);
+        // the trust chain should be valid
+        srcCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
+
+        // we can communicate now, put a cert that is trusted by both sides here
+        // if we find a cert that has the shortest path to target then replace
+        // the hashtable entry with that one
+        certTable.put(source, srcCerts[0]);
+
+        for (int i = 1; i < srcCerts.length; i++) {
+          // principal matched?
+          if (trustedPrincipal.equals(srcCerts[i].getSubjectDN().getName())) {
+            certTable.put(source, srcCerts[0]);
+            found = true;
+          }
+        }
+      }
+    }
+
+    // is it successful?
+    if (!found) {
+      String errMsg = "Can not find matching source cert with same trust.";
+      if (log.isDebugEnabled()) {
+        log.debug(errMsg);
+      }
+      throw new CertificateException(errMsg);
+    }
+
+    if (log.isDebugEnabled()) {
+      log.debug("Found trusted cert : " + certTable.get(source) + " for " + source);
+    }
+    if (!found) {
+      if (log.isWarnEnabled()) {
+        log.warn("No cert of " + source + " signed by " +
+                 trustedPrincipal + " has been found.");
+      }
+    }
+
+    return certTable;
+  }
 
   public List findDNFromNS(String name) {
-  /*
-    List nameList = new ArrayList();
-    try {
+    /*
+      List nameList = new ArrayList();
+      try {
       BasicAttributes ldapattrib = getNamingAttributes(name);
       if (ldapattrib != null) {
-	NamingEnumeration ids = ldapattrib.getIDs();
-	while (ids.hasMore()) {
-	  X500Name dname = CertificateUtility.getX500Name((String)ids.next());
-	  nameList.add(dname);
-	}
+      NamingEnumeration ids = ldapattrib.getIDs();
+      while (ids.hasMore()) {
+      X500Name dname = CertificateUtility.getX500Name((String)ids.next());
+      nameList.add(dname);
+      }
       }
       else {
-	if (log.isDebugEnabled()) {
-	  log.debug("No ldap attrib found in naming for " + name
-		    + ". It may not have been started yet.");
-	}
-      }
-    }
-    catch (NamingException ns) {
       if (log.isDebugEnabled()) {
-	log.debug("findCertFromNS failed, reason: " + ns);
+      log.debug("No ldap attrib found in naming for " + name
+      + ". It may not have been started yet.");
       }
-    }
+      }
+      }
+      catch (NamingException ns) {
+      if (log.isDebugEnabled()) {
+      log.debug("findCertFromNS failed, reason: " + ns);
+      }
+      }
 
-    return nameList;
+      return nameList;
     */
     return search.findDNFromNS(name);
   }
 
 /*
   private DirContext ensureCertContext() throws NamingException {
-    // First, get the Naming service root context
-    if (namingContext != null) {
-      return namingContext;
-    }
-
-    NamingService namingSrv = (NamingService)
-      serviceBroker.getService(this,
-			       NamingService.class,
-			       null);
-
-    if (namingSrv == null) {
-      throw new NamingException("Cannot get naming service");
-    }
-
-    DirContext ctx = namingSrv.getRootContext();
-    try {
-      // Try to to get the /Certificate subcontext
-      try {
-	ctx = (DirContext) ctx.lookup(CERT_DIR);
-      } catch (NamingException ne) {
-	// If nobody has registered yet for the /Certificate subcontext,
-	// create it.
-	if (log.isInfoEnabled()) {
-	  log.info("Creating " + CERT_DIR + " subcontext in the naming service");
-	}
-	try {
-	  ctx = (DirContext)
-	    ctx.createSubcontext(CERT_DIR, new BasicAttributes());
-	} catch (NameAlreadyBoundException nbex) {
-	  // concurrency issue, context may be created already
-	  ctx = (DirContext) ctx.lookup(CERT_DIR);
-	}
-      }
-    } catch (Exception e) {
-      NamingException x = new NamingException("Unable to access name-server");
-      x.setRootCause(e);
-      if (log.isWarnEnabled()) {
-	log.warn(x.getMessage());
-      }
-      throw x;
-    }
-    namingContext = ctx;
-
-    return ctx;
+  // First, get the Naming service root context
+  if (namingContext != null) {
+  return namingContext;
   }
-  */
+
+  NamingService namingSrv = (NamingService)
+  serviceBroker.getService(this,
+  NamingService.class,
+  null);
+
+  if (namingSrv == null) {
+  throw new NamingException("Cannot get naming service");
+  }
+
+  DirContext ctx = namingSrv.getRootContext();
+  try {
+  // Try to to get the /Certificate subcontext
+  try {
+  ctx = (DirContext) ctx.lookup(CERT_DIR);
+  } catch (NamingException ne) {
+  // If nobody has registered yet for the /Certificate subcontext,
+  // create it.
+  if (log.isInfoEnabled()) {
+  log.info("Creating " + CERT_DIR + " subcontext in the naming service");
+  }
+  try {
+  ctx = (DirContext)
+  ctx.createSubcontext(CERT_DIR, new BasicAttributes());
+  } catch (NameAlreadyBoundException nbex) {
+  // concurrency issue, context may be created already
+  ctx = (DirContext) ctx.lookup(CERT_DIR);
+  }
+  }
+  } catch (Exception e) {
+  NamingException x = new NamingException("Unable to access name-server");
+  x.setRootCause(e);
+  if (log.isWarnEnabled()) {
+  log.warn(x.getMessage());
+  }
+  throw x;
+  }
+  namingContext = ctx;
+
+  return ctx;
+  }
+*/
 
   public X509Certificate[] findCertChain(X509Certificate c)  {
     X509Certificate[] chain = null;
@@ -1384,13 +1384,13 @@ final public class KeyRing  implements KeyRingService  {
   /*
 
   public Vector getCRL()
-    {
-      if (directoryKeystore == null) {
-	return null;
-      }
-      return null;
-      //return directoryKeystore.getCRL();
-    }
+  {
+  if (directoryKeystore == null) {
+  return null;
+  }
+  return null;
+  //return directoryKeystore.getCRL();
+  }
   */
 
 
@@ -1444,7 +1444,7 @@ final public class KeyRing  implements KeyRingService  {
           if (log.isDebugEnabled()) {
             log.debug("Creating self signed host key");
           }
-         certRequestor.makeKeyPair(dname, false, cap);
+          certRequestor.makeKeyPair(dname, false, cap);
         }
       } catch (Exception ex) {
         if (log.isWarnEnabled()) {
@@ -1462,7 +1462,7 @@ final public class KeyRing  implements KeyRingService  {
   }
 
 
-   /**
+  /**
    * This function should only be used by user or CA identity request
    */
   public void checkOrMakeCert(X500Name dname, boolean isCACert) {
@@ -1533,7 +1533,7 @@ final public class KeyRing  implements KeyRingService  {
     }
     //we'll have to make one
     PrivateKey privatekey = certRequestor.addKeyPair(dname, null,
-      isCACert, trustedCaPolicy);
+                                                     isCACert, trustedCaPolicy);
     if (privatekey != null) {
       String commonname=cacheservice.getCommonName(dname);
       // only do it for node cert, otherwise will have infinite loop here
@@ -1544,42 +1544,42 @@ final public class KeyRing  implements KeyRingService  {
       // notify validity listener
       CertValidityService validityService = (CertValidityService)
         serviceBroker.getService(this,
-                                       CertValidityService.class,
-                                       null);
+                                 CertValidityService.class,
+                                 null);
       validityService.updateCertificate(commonname);
 
     }
   }
 
 
-   private void handleRequestedIdentities(TrustedCaPolicy trustedCaPolicy) {
+  private void handleRequestedIdentities(TrustedCaPolicy trustedCaPolicy) {
     // for unzip & run
     // after grabbing CA info from CA, plugin will request node
     // certificate
-     // flag for unzip & run
-     if (System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
-       for (Enumeration en = requestedIdentities.keys(); en.hasMoreElements(); ) {
-	 String cname = (String)en.nextElement();
-	 // no need to do dname again
-	 if (cname.equals(NodeInfo.getNodeName())) {
-	   continue;
-	 }
-	 X500Name dname = null;
-	 try {
-	   dname = new X500Name(CertificateUtility.getX500DN(cname,CertificateCache.getTitle(cname),
-            cryptoClientPolicy.getCertificateAttributesPolicy(trustedCaPolicy)));
-	 } catch (IOException iox) {}
+    // flag for unzip & run
+    if (System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
+      for (Enumeration en = requestedIdentities.keys(); en.hasMoreElements(); ) {
+        String cname = (String)en.nextElement();
+        // no need to do dname again
+        if (cname.equals(NodeInfo.getNodeName())) {
+          continue;
+        }
+        X500Name dname = null;
+        try {
+          dname = new X500Name(CertificateUtility.getX500DN(cname,CertificateCache.getTitle(cname),
+                                                            cryptoClientPolicy.getCertificateAttributesPolicy(trustedCaPolicy)));
+        } catch (IOException iox) {}
 
-	 if (log.isDebugEnabled()) {
-	   log.debug("processing cert request for " + cname + " : " + dname);
-	 }
+        if (log.isDebugEnabled()) {
+          log.debug("processing cert request for " + cname + " : " + dname);
+        }
 
-	 checkOrMakeCert(dname, false, trustedCaPolicy);
+        checkOrMakeCert(dname, false, trustedCaPolicy);
       }
     }
-   }
+  }
 
-   public String findAlias(String commonName) {
+  public String findAlias(String commonName) {
     CertificateCacheService cacheservice=(CertificateCacheService)
       serviceBroker.getService(this,
 			       CertificateCacheService.class,
@@ -1595,12 +1595,12 @@ final public class KeyRing  implements KeyRingService  {
     /*
       this method needs to be modifed inoder to incorporate
       publishing CA to wp/yp or ldap
-    CertificateManagementService km = (CertificateManagementService)
+      CertificateManagementService km = (CertificateManagementService)
       param.serviceBroker.getService(
-	new CertificateManagementServiceClientImpl(caDN),
-	CertificateManagementService.class,
-	null);
-    if (log.isDebugEnabled())
+      new CertificateManagementServiceClientImpl(caDN),
+      CertificateManagementService.class,
+      null);
+      if (log.isDebugEnabled())
       log.debug("adding CA certificate to LDAP: " + caDN);
     */
   }
@@ -1619,7 +1619,7 @@ final public class KeyRing  implements KeyRingService  {
   }
 
 
-   public List getValidCertificates(X500Name x500Name)  {
+  public List getValidCertificates(X500Name x500Name)  {
     CertificateCacheService cacheservice=(CertificateCacheService)
       serviceBroker.getService(this,
 			       CertificateCacheService.class,
@@ -1659,7 +1659,7 @@ final public class KeyRing  implements KeyRingService  {
     return validCerts;
   }
 
- public String getAlias(X509Certificate clientX509) {
+  public String getAlias(X509Certificate clientX509) {
     String alias = null;
     CertificateCacheService cacheservice=(CertificateCacheService)
       serviceBroker.getService(this,
@@ -1670,23 +1670,23 @@ final public class KeyRing  implements KeyRingService  {
       log.warn("Unable to get Certificate cache Service in getAlias");
     }
     try {
-	String alg = "MD5"; // TODO: make this dynamic
-	MessageDigest md = CertificateUtility.createDigest(alg, clientX509.getTBSCertificate());
-	byte[] digest = md.digest();
+      String alg = "MD5"; // TODO: make this dynamic
+      MessageDigest md = CertificateUtility.createDigest(alg, clientX509.getTBSCertificate());
+      byte[] digest = md.digest();
 
-	String prefix =null;
-	if(cacheservice!=null){
-	  prefix=cacheservice.getCommonName(clientX509);
-	}
-	alias = prefix + "-" +CertificateUtility.toHex(digest);
+      String prefix =null;
+      if(cacheservice!=null){
+        prefix=cacheservice.getCommonName(clientX509);
       }
-      catch (Exception e) {
-	log.error("Unable to get alias: " + e);
-      }
-      return alias;
+      alias = prefix + "-" +CertificateUtility.toHex(digest);
+    }
+    catch (Exception e) {
+      log.error("Unable to get alias: " + e);
+    }
+    return alias;
   }
 
-   /**
+  /**
    * Extract a private key/certificate pair from the keystore.
    * Sign with node key.
    *
@@ -1726,113 +1726,115 @@ final public class KeyRing  implements KeyRingService  {
 
 
   public byte[] getPkcs12Envelope(String agentCN, String rcvrNode)
-    {
-      PrivateKeyPKCS12 pkcs12Mgmt = new PrivateKeyPKCS12(this,
-							 param.serviceBroker);
+  {
+  PrivateKeyPKCS12 pkcs12Mgmt = new PrivateKeyPKCS12(this,
+  param.serviceBroker);
 
-      String nodeName = NodeInfo.getNodeName();
-      List signerCertificateList = findCert(nodeName);
-      X509Certificate signerCertificate =
-	((CertificateStatus)signerCertificateList.get(0)).getCertificate();
+  String nodeName = NodeInfo.getNodeName();
+  List signerCertificateList = findCert(nodeName);
+  X509Certificate signerCertificate =
+  ((CertificateStatus)signerCertificateList.get(0)).getCertificate();
 
-      List pkc = findPrivateKey(nodeName);
-      // Take the first key to sign
-      PrivateKey signerPrivKey = ((PrivateKeyCert)pkc.get(0)).getPrivateKey();
+  List pkc = findPrivateKey(nodeName);
+  // Take the first key to sign
+  PrivateKey signerPrivKey = ((PrivateKeyCert)pkc.get(0)).getPrivateKey();
 
-      List certList = findCert(agentCN);
-      List privKeyList = findPrivateKey(agentCN);
+  List certList = findCert(agentCN);
+  List privKeyList = findPrivateKey(agentCN);
 
-      List rcvrCertList = findCert(rcvrNode);
-      X509Certificate rcvrCert = ((CertificateStatus)rcvrCertList.get(0)).getCertificate();
-      List rcvrPrivKeyList = findPrivateKey(rcvrNode);
-      // Take the first key to encrypt
-      PrivateKey rcvrPrivKey = ((PrivateKeyCert)(rcvrPrivKeyList.get(0))).getPrivateKey();
+  List rcvrCertList = findCert(rcvrNode);
+  X509Certificate rcvrCert = ((CertificateStatus)rcvrCertList.get(0)).getCertificate();
+  List rcvrPrivKeyList = findPrivateKey(rcvrNode);
+  // Take the first key to encrypt
+  PrivateKey rcvrPrivKey = ((PrivateKeyCert)(rcvrPrivKeyList.get(0))).getPrivateKey();
 
-      byte[] pkcs12 = pkcs12Mgmt.protectPrivateKey(privKeyList,
-						   certList,
-						   signerPrivKey,
-						   signerCertificate,
-						   rcvrCert);
-      return pkcs12;
-    }
+  byte[] pkcs12 = pkcs12Mgmt.protectPrivateKey(privKeyList,
+  certList,
+  signerPrivKey,
+  signerCertificate,
+  rcvrCert);
+  return pkcs12;
+  }
 
 */
 
   /* This function was part of directorykeystore but I could not find any reference in our code
-  or in the core code
+     or in the core code
 
-   public void installPkcs12Envelope(byte[] pfxBytes)
-    {
-      PrivateKeyPKCS12 pkcs12Mgmt = new PrivateKeyPKCS12(this,
-							 param.serviceBroker);
+     public void installPkcs12Envelope(byte[] pfxBytes)
+     {
+     PrivateKeyPKCS12 pkcs12Mgmt = new PrivateKeyPKCS12(this,
+     param.serviceBroker);
 
-      String nodeName = NodeInfo.getNodeName();
+     String nodeName = NodeInfo.getNodeName();
 
-      List rcvrCertList = findCert(nodeName);
-      List rcvrPrivKeyList = findPrivateKey(nodeName);
+     List rcvrCertList = findCert(nodeName);
+     List rcvrPrivKeyList = findPrivateKey(nodeName);
 
-      PrivateKeyCert[] pkey = pkcs12Mgmt.getPfx(pfxBytes,
-						rcvrPrivKeyList,
-						rcvrCertList);
-      for (int i = 0 ; i < pkey.length ; i++) {
-	if (pkey[i] == null) {
-	  continue;
-	}
-	CertificateStatus cs = pkey[i].getCertificateStatus();
-	PrivateKey pk = pkey[i].getPrivateKey();
+     PrivateKeyCert[] pkey = pkcs12Mgmt.getPfx(pfxBytes,
+     rcvrPrivKeyList,
+     rcvrCertList);
+     for (int i = 0 ; i < pkey.length ; i++) {
+     if (pkey[i] == null) {
+     continue;
+     }
+     CertificateStatus cs = pkey[i].getCertificateStatus();
+     PrivateKey pk = pkey[i].getPrivateKey();
 
-	X509Certificate[] certChain = null;
-	try {
-	  certChain = checkCertificateTrust(cs.getCertificate());
-	}
-	catch (Exception e) {
-	  if (log.isWarnEnabled()) {
-	    log.warn("Warning: Certificate cannot be trusted");
-	  }
-	  // Do not add to the list
-	  continue;
-	}
+     X509Certificate[] certChain = null;
+     try {
+     certChain = checkCertificateTrust(cs.getCertificate());
+     }
+     catch (Exception e) {
+     if (log.isWarnEnabled()) {
+     log.warn("Warning: Certificate cannot be trusted");
+     }
+     // Do not add to the list
+     continue;
+     }
 
-	CertificateCacheService cacheservice=(CertificateCacheService)param.serviceBroker.getService(this,
-												     CertificateCacheService.class,
-												     null);
+     CertificateCacheService cacheservice=(CertificateCacheService)param.serviceBroker.getService(this,
+     CertificateCacheService.class,
+     null);
 
-	if(cacheservice==null) {
-	  log.warn("Unable to get Certificate cache Service in installPkcs12Envelope");
-	}
-	// Get the common name of that certificate
-	String cn =null;
-	if(cacheservice!=null) {
-	  cn=cacheservice.getCommonName(cs.getCertificate());
-	}
+     if(cacheservice==null) {
+     log.warn("Unable to get Certificate cache Service in installPkcs12Envelope");
+     }
+     // Get the common name of that certificate
+     String cn =null;
+     if(cacheservice!=null) {
+     cn=cacheservice.getCommonName(cs.getCertificate());
+     }
 
-	// Get the next available alias for this key.
-	String alias = getNextAlias( cn);
+     // Get the next available alias for this key.
+     String alias = getNextAlias( cn);
 
-	// Set the key entry in the keystore.
-	if(cacheservice!=null) {
-	  cacheservice.setKeyEntry(alias, pk, certChain);
-	}
+     // Set the key entry in the keystore.
+     if(cacheservice!=null) {
+     cacheservice.setKeyEntry(alias, pk, certChain);
+     }
 
-	if (log.isDebugEnabled()) {
-	  log.debug("installPkcs12Envelope: add Private Key");
-	}
-	if(cacheservice!=null) {
-	  // Update the certificate cache
-	  cacheservice.addCertificate(cs);
+     if (log.isDebugEnabled()) {
+     log.debug("installPkcs12Envelope: add Private Key");
+     }
+     if(cacheservice!=null) {
+     // Update the certificate cache
+     cacheservice.addCertificate(cs);
 
-	  // Update private key cache
-	  cacheservice.addPrivateKey(pk, cs);
-	  // Update Common Name to DN hashtable
-	  cacheservice.addNameToNameMapping(cs);
-	}
-	else {
-	  log.warn("Unable to get Certificate cache service in installPkcs12Envelope..Cannot add certificate to certificate cache");
-	}
-      }
-    }
-*/
+     // Update private key cache
+     cacheservice.addPrivateKey(pk, cs);
+     // Update Common Name to DN hashtable
+     cacheservice.addNameToNameMapping(cs);
+     }
+     else {
+     log.warn("Unable to get Certificate cache service in installPkcs12Envelope..Cannot add certificate to certificate cache");
+     }
+     }
+     }
+  */
 
+  
+  
   public void updateNS(String commonName) {
 
     CertificateCacheService cacheservice=(CertificateCacheService)
@@ -1862,108 +1864,38 @@ final public class KeyRing  implements KeyRingService  {
       log.warn("Unable to register LDAP URL to naming service for " + commonName + ". Reason:" + ex);
     }
   }
+  
 
-   /**
+  /**
    * Adding LDAP URL entry in the naming service.
-   */
+   */ 
   public void updateNS(X500Name x500Name) {
 
 // check whether cert exist and whether it is agent
-/*
-    String dname = x500Name.toString();
-    String title = CertificateUtility.findAttribute(dname, "t");
-    */
+    
     CertificateCacheService cacheservice=(CertificateCacheService)
       serviceBroker.getService(this,
 			       CertificateCacheService.class,
 			       null);
-
+    
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in updateNS");
     }
 
-    /*
-    if (log.isDebugEnabled()) {
-      log.debug("updateNS: " + dname);
-    }
-    if (title == null ||
-	!(title.equals(CertificateCache.CERT_TITLE_AGENT) ||
-	  title.equals(CertificateCache.CERT_TITLE_NODE) ||
-	  title.equals(CertificateCache.CERT_TITLE_SERVER))) {
-      log.info("Not registering LDAP URL to naming service. Wrong title. DN:" + dname);
-      return;
-    }
-    */
     List certificateList = findCert(x500Name);
     if (certificateList == null || certificateList.size() == 0) {
       log.warn("Not registering LDAP URL to naming service. Cannot find certificate. DN:" + x500Name);
       return;
     }
     try {
-    /*
-      DirContext ctx = ensureCertContext();
-      String cname = x500Name.getCommonName();
-
-      BasicAttributes attributes = null;
-      try {
-	attributes = (BasicAttributes) getNamingAttributes(cname);
-      } catch (NamingException nex) {}
-      if (attributes == null) {
-	attributes = new BasicAttributes();
-      }
-      // go get the CA dn to find out who signed the cert
-      X500Name x500Principal = x500Name;
-      String ldapUrl = param.ldapServerUrl;
-      int ldapType = param.ldapServerType;
-      TrustedCaPolicy [] tc = cryptoClientPolicy.getIssuerPolicy();
-      if (tc.length > 1) {
-	while (true) {
-	  List certList = null;
-	  certList=getValidCertificates(x500Principal);
-	  if (certList == null || certList.size() == 0) {
-	    break;
-	  }
-
-	  CertificateStatus cs = (CertificateStatus)certList.get(0);
-	  X509Certificate certificate = (X509Certificate)cs.getCertificate();
-	  x500Principal = CertificateUtility.getX500Name(certificate.getIssuerDN().getName());
-	  // if it is not the node it must be the signing CA
-	  String commonname=null;
-	  if(cacheservice!=null) {
-	    commonname=cacheservice.getCommonName(x500Principal);
-	  }
-	  if (!(commonname!=null &&commonname.equals(NodeInfo.getNodeName()))) {
-	    for (int i = 1; i < tc.length; i++) {
-	      if (tc[i].caDN.equals(x500Principal.getName())) {
-		ldapUrl = tc[i].certDirectoryUrl;
-		ldapType = tc[i].certDirectoryType;
-	      }
-	    }
-	    break;
-	  }
-	}
-      }
-
-      BasicAttributes ldapattrib = new BasicAttributes();
-      ldapattrib.put(CDTYPE_ATTR, new Integer(ldapType));
-      ldapattrib.put(CDURL_ATTR, ldapUrl);
-
-      attributes.put(x500Name.getName(), ldapattrib);
-      String value = cname.toLowerCase();
-      ctx.rebind(value, value, attributes);
-
-      if (log.isDebugEnabled()) {
-	log.debug("successfully update: " + value + " attrib: " + attributes + " in NS");
-      }
-      */
       CertificateStatus cs = (CertificateStatus)certificateList.get(0);
       CertificateEntry certEntry = new CertificateEntry(cs.getCertificate(),
-          // of course the cert is trusted by local node, otherwise not valid
-          CertificateRevocationStatus.VALID,
-          cs.getCertificateType());
+                                                        // of course the cert is trusted by local node, otherwise not valid
+                                                        CertificateRevocationStatus.VALID,
+                                                        cs.getCertificateType());
       certEntry.setCertificateChain(cs.getCertificateChain());
       namingService.updateCert(certEntry);
-
+      
     } catch (Exception nx) {
       if (log.isWarnEnabled()) {
 	log.warn("Cannot update "+x500Name+ " cert in naming." + nx.toString(), nx);
@@ -1974,41 +1906,30 @@ final public class KeyRing  implements KeyRingService  {
   }
 
 
-  /**
-   * get information from naming service, input is common name.
-   * Only agent information is registered with ldap naming.
-   */
-   /*
-  public BasicAttributes getNamingAttributes(String cname)
-    throws NamingException  {
+  public void publishCertificate(CertificateEntry certEntry) {
 
-    String key = cname.toLowerCase();
-    BasicAttributes attrs =
-      (BasicAttributes) _namingAttributesCache.get(key);
-    if (attrs == null) {
-      DirContext ctx = ensureCertContext();
-      attrs = (BasicAttributes) ctx.getAttributes(key);
-      if (attrs != null) {
-	_namingAttributesCache.put(key,attrs);
-      }
+    boolean status=false;
+    try {
+      status= namingService.updateCert(certEntry);
     }
-    return attrs;
+    catch (Exception exp) {
+      if (log.isWarnEnabled()) {
+	log.warn("Cannot update cert in naming." + certEntry.getCertificate().getSubjectDN().getName());
+      } 
+    }
+    if(status) {
+      if (log.isDebugEnabled()) {
+	log.debug("Sucessfully update cert in naming." + certEntry.getCertificate().getSubjectDN().getName());
+      } 
+    }
+    else {
+      if (log.isWarnEnabled()) {
+	log.warn("Update cert in naming FAILED ." + certEntry.getCertificate().getSubjectDN().getName());
+      } 
+    }
   }
 
-
-  private Object getAttribute(BasicAttributes ats, String id) throws NamingException {
-    if (ats != null) {
-      Attribute at = ats.get(id);
-      if (at != null) {
-	return at.get();
-      }
-    }
-    return null;
-  }
-  */
-
-
- public boolean checkExpiry(String commonName) {
+  public boolean checkExpiry(String commonName) {
     boolean expired = false;
     TrustedCaPolicy [] tc = cryptoClientPolicy.getIssuerPolicy();
     if (tc.length == 0) {
@@ -2030,9 +1951,9 @@ final public class KeyRing  implements KeyRingService  {
     CertificateAttributesPolicy certAttribPolicy =
       cryptoClientPolicy.getCertificateAttributesPolicy(trustedCaPolicy);
     List certificateList = findCert(CertificateUtility.getX500Name(
-				     CertificateUtility.getX500DN(commonName,
-						CertificateCache.getTitle(commonName),
-						certAttribPolicy)));
+                                      CertificateUtility.getX500DN(commonName,
+                                                                   CertificateCache.getTitle(commonName),
+                                                                   certAttribPolicy)));
     if(certificateList != null && certificateList.size() != 0) {
       // check envelope
       long envelope = certAttribPolicy.regenEnvelope;
@@ -2078,11 +1999,11 @@ final public class KeyRing  implements KeyRingService  {
 
 
   public String getX500DN(String commonName) {
-     CertificateCacheService cacheservice=(CertificateCacheService)
-       serviceBroker.getService(this,
-				CertificateCacheService.class,
-				null);
-     String title=CertificateCache.getTitle(commonName);
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+                               CertificateCacheService.class,
+                               null);
+    String title=CertificateCache.getTitle(commonName);
     return CertificateUtility.getX500DN(commonName,title, cryptoClientPolicy.getCertificateAttributesPolicy());
   }
 
@@ -2090,8 +2011,8 @@ final public class KeyRing  implements KeyRingService  {
   public void setKeyEntry(PrivateKey key, X509Certificate cert) {
 
     CertificateCacheService cacheservice=(CertificateCacheService)serviceBroker.getService(this,
-												 CertificateCacheService.class,
-												 null);
+                                                                                           CertificateCacheService.class,
+                                                                                           null);
     if(cacheservice==null) {
       log.warn(" Unabale to get Certificate cache service in setKeyEntry");
     }
@@ -2128,30 +2049,30 @@ final public class KeyRing  implements KeyRingService  {
     }
   }
 
-   public void removeEntry(String commonName)  {
-      if (log.isInfoEnabled()) {
-	log.info("Removing entry from keystore:" + commonName);
-      }
-
-      String alias = findAlias(commonName);
-      CertificateCacheService cacheservice=(CertificateCacheService)
-	serviceBroker.getService(this,
-				 CertificateCacheService.class,
-				 null);
-      if(cacheservice==null) {
-	log.warn(" Unabale to get Certificate cache service in removeEntry");
-      }
-      if(cacheservice!=null){
-	cacheservice.deleteEntry(alias, commonName);
-      }
-      if (log.isDebugEnabled()) {
-	if(cacheservice!=null){
-	  cacheservice.printCertificateCache();
-	}
-      }
-
-      // TODO: for node, hostname, CA aliases, need to get replacement
+  public void removeEntry(String commonName)  {
+    if (log.isInfoEnabled()) {
+      log.info("Removing entry from keystore:" + commonName);
     }
+
+    String alias = findAlias(commonName);
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+                               CertificateCacheService.class,
+                               null);
+    if(cacheservice==null) {
+      log.warn(" Unabale to get Certificate cache service in removeEntry");
+    }
+    if(cacheservice!=null){
+      cacheservice.deleteEntry(alias, commonName);
+    }
+    if (log.isDebugEnabled()) {
+      if(cacheservice!=null){
+        cacheservice.printCertificateCache();
+      }
+    }
+
+    // TODO: for node, hostname, CA aliases, need to get replacement
+  }
 
 
   /** @param privKey        The private keys to store in a PKCS#12 enveloppe
@@ -2190,21 +2111,21 @@ final public class KeyRing  implements KeyRingService  {
 /*
   public X509CRL getCRL(String  distingushname) {
 
-    X509CRL crl=null;
-    crl=search.getCRL(distingushname);
-    return crl;
+  X509CRL crl=null;
+  crl=search.getCRL(distingushname);
+  return crl;
   }
 
   public  CertDirectoryServiceClient getCACertDirServiceClient(String dname) {
-    return directoryKeystore.getCACertDirServiceClient(dname);
+  return directoryKeystore.getCACertDirServiceClient(dname);
   }
 
   public void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy tc) {
-    if (directoryKeystore == null) {
-      return;
-    }
-    directoryKeystore.checkOrMakeCert(dname, isCACert, tc);
-    return;
+  if (directoryKeystore == null) {
+  return;
+  }
+  directoryKeystore.checkOrMakeCert(dname, isCACert, tc);
+  return;
   }
 */
 
@@ -2251,7 +2172,7 @@ final public class KeyRing  implements KeyRingService  {
           entry.setCertificateChain(certChain);
 
 	  if(entry.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)) {
-          // now can truly set certificate validity
+            // now can truly set certificate validity
 	    certstatus = new CertificateStatus(certificate,
 					       CertificateOrigin.CERT_ORI_LDAP,
 					       CertificateRevocationStatus.REVOKED,
