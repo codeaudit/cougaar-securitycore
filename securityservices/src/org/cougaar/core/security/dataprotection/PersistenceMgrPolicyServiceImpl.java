@@ -405,7 +405,9 @@ public class PersistenceMgrPolicyServiceImpl
           List certList = _keyRing.findCert(name, 
             KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE, true);
           if (certList == null || certList.size() == 0) {
-            _log.warn("Found PM entry in WP but no certificate!");
+            if (_log.isInfoEnabled()) {
+              _log.warn("Found PM entry in WP but no certificate!");
+            }
             _agents.remove(_agent);
             return;
           }

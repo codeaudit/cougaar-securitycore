@@ -311,8 +311,8 @@ public class NamingCertDirectoryServiceClient {
 	      }
 	    }
 	    else {
-	      if (log.isWarnEnabled()) {
-		log.warn("Unable to update naming: " + cname);
+	      if (log.isInfoEnabled()) {
+		log.info("Unable to update naming: " + cname);
 	      }
 	    }
 	  }
