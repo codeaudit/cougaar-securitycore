@@ -29,7 +29,12 @@
           <CA_DN role="junittest">CN=JUNIT CA, OU=NAI Labs, O=Network Associates, L=Santa Clara, ST=California, C=USA, T=ca</CA_DN>
           <CA_DN role="gmount">CN=GeorgeCA, OU=NAI Labs, O=NAI, L=Santa Clara, ST=California, C=US, T=ca</CA_DN>
           <CA_DN role="sri">CN=cougaarca, OU=SRI, O=SRI, L=Santa Clara, ST=California, C=US, T=ca</CA_DN>
+
           <CA_DN role="asmt">CN=1ADROOTCA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CA_DN role="asmt" securitycommunity="Enclave1Security-COMM">CN=enclave1CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CA_DN role="asmt" securitycommunity="Enclave2Security-COMM">CN=enclave2CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CA_DN role="asmt" securitycommunity="Enclave3Security-COMM">CN=enclave3CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CA_DN role="asmt" securitycommunity="Enclave4Security-COMM">CN=enclave4CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
 
           <CA_URL>http://tea:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="srosset">http://cypress:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
@@ -51,6 +56,10 @@
           <CA_URL role="junittest" securitycommunity="Enclave-4">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
 
           <CA_URL role="asmt">http://u050:8800/$1ADCAAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="asmt" securitycommunity="Enclave1Security-COMM">http://u125:8800/$enclave1CAAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="asmt" securitycommunity="Enclave2Security-COMM">http://u222:8800/$enclave2CAAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="asmt" securitycommunity="Enclave3Security-COMM">http://u199:8800/$enclave3CAAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="asmt" securitycommunity="Enclave4Security-COMM">http://u169:8800/$enclave4CAAgent/CA/CertificateSigningRequest</CA_URL>
 
           <!-- Certificate directory service for certificate storage -->
           <CertDirectoryURL>ldap://yew:389/dc=cougaar,dc=org</CertDirectoryURL>
@@ -72,6 +81,10 @@
           <CertDirectoryURL role="junittest" securitycommunity="Enclave-4">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
 
           <CertDirectoryURL role="asmt">ldap://u050/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="asmt" securitycommunity="Enclave1Security-COMM">ldap://u125:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="asmt" securitycommunity="Enclave2Security-COMM">ldap://u222:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="asmt" securitycommunity="Enclave3Security-COMM">ldap://u199:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="asmt" securitycommunity="Enclave4Security-COMM">ldap://u169:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
 
           <!-- The type of the certificate directory service.
                Currently, either CougaarOpenLdap or NetTools -->

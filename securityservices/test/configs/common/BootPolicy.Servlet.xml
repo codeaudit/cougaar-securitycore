@@ -41,7 +41,7 @@
     <failure-delay>1000</failure-delay>
 
     <!-- define rules for a specific agent -->
-    <agent name="DomainManager">
+    <agent name="*">
       <!-- A rule defines which roles are allowed to access which uri
            patterns. It may optionally restrict the authentication
            mechanism for the urls in the rule. 
@@ -50,9 +50,10 @@
            use certificate (CERT), password (PASSWORD), or the default
            of either (EITHER), or both (BOTH). If multiple patterns
            match a url, a union of the restrictions is made. -->
-      <rule auth="EITHER">
+      <rule requireSSL="true" auth="CERT">
         <!-- a rule must have at least one uri pattern -->
-        <pattern>/*</pattern>
+	<!-- KPAT, Policy -->
+        <pattern>/policyAdmin</pattern>
         <!-- a rule must have at least one role -->
         <role>PolicyAdministrator</role>
       </rule>
@@ -75,7 +76,7 @@
     </agent>
 
     <agent name="AGG-Agent">
-      <rule requireSSL="false">
+      <rule requireSSL="true" auth="CERT">
         <pattern>/aggregator</pattern>
         <pattern>/aggregatorkeepalive</pattern>
         <role>Logistician</role>

@@ -6,7 +6,7 @@
 <!ATTLIST policy name CDATA #REQUIRED>
 <!ATTLIST policy type CDATA #REQUIRED>
 
-<!ELEMENT user-db-config  (ldap-url?,ldap-user?,ldap-password?,user-dn?,role-dn?,user-attr?,role-attr?,user-role-attr?,auth-attr?,enable-attr?,password-attr?,user-object-class*,role-object-class*)>
+<!ELEMENT user-db-config  (ldap-url*,ldap-user*,ldap-password*,user-dn*,role-dn*,user-attr*,role-attr*,user-role-attr*,auth-attr*,enable-attr*,password-attr*,user-object-class*,role-object-class*)>
 
 <!ELEMENT ldap-url (#PCDATA)>
 <!ELEMENT ldap-user (#PCDATA)>
@@ -27,10 +27,12 @@
   <user-db-config>
     <!-- the ldap url for the user database -->
     <ldap-url>ldap://mango:3890</ldap-url>
+    <ldap-url role="asmt">ldap://u088</ldap-url>
 
     <!-- The user allowed to write to the ldap database. Only the
          user admin agent and M&R agents should be given this. -->
     <ldap-user>cn=Manager,dc=cougaar,dc=org</ldap-user>
+    <ldap-user role="asmt">cn=manager,dc=cougaar,dc=org</ldap-user>
     <ldap-password>secret</ldap-password>
 
     <!-- The dn under which users are stored -->
