@@ -133,13 +133,6 @@ public class CertificateList
   {
     res.setContentType("text/html");
     PrintWriter out=res.getWriter();
-    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
-    out.println("<html>");
-    out.println("<head>");
-    out.println("<title>Certificate List</title>");
-    out.println("</head>");
-    out.println("<body>");
-    out.println("<H2>Certificate List</H2>");
 
     String cadnname = getCaDn(req);
     if (log.isDebugEnabled()) {
@@ -229,6 +222,14 @@ public class CertificateList
    * Display a drop-down list to display the list of CAs
    */
   private void doCaList(PrintWriter out, HttpServletRequest req) {
+    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+    out.println("<html>");
+    out.println("<head>");
+    out.println("<title>Certificate List</title>");
+    out.println("</head>");
+    out.println("<body>");
+    out.println("<H2>Certificate List</H2>");
+
     caDNs = configParser.getCaDNs();
     if (log.isDebugEnabled()) {
       if (caDNs == null || caDNs.length == 0) {
