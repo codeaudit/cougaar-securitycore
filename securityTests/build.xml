@@ -11,21 +11,8 @@ ARCHIVE_TIME=${build.time}
 </target>
 
 <target name="create_cougaar_overlay" depends="create-overlay-manifest">
-	<property name="zip" value="SRI_auto.zip"/>
+	<property name="zip" value="securityTests.zip"/>
 	<delete dir="staging"/>			
-  <mkdir dir="staging/csmart/assessment/"/>
-	<copy todir="staging/csmart/assessment/configs/">
-		<fileset dir="configs"/>
-	</copy>
-	<copy todir="staging/csmart/assessment/lib/">
-		<fileset dir="lib03"/>
-	</copy>
-	<copy todir="staging/csmart/assessment/scripts/">
-		<fileset dir="scripts03"/>
-	</copy>
-	<copy todir="staging/csmart/assessment/assess/">
-		<fileset dir="assess04"/>
-	</copy>
 	<copy todir="staging/Manifest">
 		<fileset dir="Manifest"/>
 	</copy>
@@ -39,37 +26,11 @@ ARCHIVE_TIME=${build.time}
 
 <target name="install" depends="create_cougaar_overlay">
         <property environment="env"/>
-	<property name="zip" value="SRI_auto.zip"/>
+	<property name="zip" value="securityTests.zip"/>
         <property name="cougaar.install.path" value="${env.COUGAAR_INSTALL_PATH}"/>
 	<unzip src="${zip}" dest="${cougaar.install.path}">
 	</unzip>
 </target>
-
-<target name="create-overlay-manifest-reporting">
-    <tstamp>
-      <format property="build.time" pattern="MM/dd/yyyy hh:mm aa"/>
-    </tstamp>
-    <mkdir dir="Manifest"/>
-    <echo file="Manifest/sri-reporting-overlay.txt" append="no">NAME=sri-reporting-overlay
-ARCHIVE_TIME=${build.time}
-</echo>
-</target>
-
-<target name="create_cougaar_overlay_reporting" depends="create-overlay-manifest-reporting">
-	<property name="zip" value="SRI_reporting.zip"/>
-	<delete dir="staging"/>			
-  <mkdir dir="staging/plugins/"/>
-	<copy todir="staging/plugins/">
-		<fileset dir="plugins04"/>
-	</copy>
-	<copy todir="staging/Manifest">
-		<fileset dir="Manifest"/>
-	</copy>
-	<zip zipfile="${zip}">
-		<fileset dir="staging"/>
-	</zip>
-</target>
-
 
 </project>
   
