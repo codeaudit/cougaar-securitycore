@@ -99,8 +99,10 @@ Servlet OtherServlets
 #    OwlMapRoleUri       - to get the role from the URI
 #
 
-PlugInRole OpPlanPlugIn
 PlugInRole PolicyServlet
+PlugInRole DomainManagerAgent
+
+PlugInRole OpPlanPlugIn
 PlugInRole OrgActivityAdd
 PlugInRole OrgActivityQuery
 PlugInRole OrgActivityQueryNoRead
@@ -171,8 +173,39 @@ Policy AllowBlackboard = [
    $Ultralog/UltralogAction.owl#BlackBoardAccess as long as
     the value of $Ultralog/UltralogAction.owl#blackBoardAccessObject
     is a subset of the complement of the set
-     { $Ultralog/Names/EntityInstances.owl#OrgActivity }
+     { $Ultralog/BlackboardObject#OrgActivity
+#       $Ultralog/BlackboardObject#SafeRelay
+        }
 ]
+
+#Policy AllowBlackboardPolicyQuery = [ 
+#   GenericTemplate
+#   Priority = 2,
+#   $Ultralog/UltralogActor.owl#UltralogPlugins is authorized to perform
+#   $Ultralog/UltralogAction.owl#BlackBoardAccess as long as
+#    the value of $Ultralog/UltralogAction.owl#blackBoardAccessObject
+#    is a subset of the set
+#     { $Ultralog/Names/EntityInstances.owl#OrgActivity
+#       $Ultralog/Names/EntityInstances.owl#SafeRelay }
+#    and the value of $Ultralog/UltralogAction.owl#blackBoardAccessMode
+#    is a subset of the set
+#     { $Ultralog/Names/EntityInstances.owl#BlackBoardAccessQuery 
+#       $Ultralog/Names/EntityInstances.owl#BlackBoardAccessRead }
+#]
+
+
+#Policy PolicyBlackboardServlet = [
+#   BlackboardTemplate
+#   A PlugIn in the role PolicyServlet can Add, Remove, Change
+#   objects of type SafeRelay
+#]
+
+#Policy BlackboardDomainManager = [
+#   BlackboardTemplate
+#   A PlugIn in the role DomainManagerAgent can Add, Remove, Change
+#   objects of type SafeRelay
+#]
+
 
 Policy OrgActivityAdd = [
    BlackboardTemplate
@@ -402,15 +435,27 @@ Policy SocietyAdminAuth  = [
   authentication when accessing the servlet named SocietyAdminServlet
 ]
 
-Policy AllowWhitePagesAccess = [
+Policy AllowWhitePagesUpdate = [
   GenericTemplate
   Priority = 2,
   $Actor.owl#Agent is  authorized to perform
   $Ultralog/UltralogAction.owl#WPUpdateSelf
-  as long as the value of 
-  $Ultralog/UltralogAction.owl#wpAccessType is a subset of the set 
-  $Ultralog/UltralogEntity.owl#WPAccessType
  ]
+
+Policy AllowWhitePagesLookup = [
+  GenericTemplate
+  Priority = 2,
+  $Actor.owl#Agent is  authorized to perform
+  $Ultralog/UltralogAction.owl#WPLookup
+ ]
+
+Policy AllowWhiteForward = [
+  GenericTemplate
+  Priority = 2,
+  $Actor.owl#Agent is  authorized to perform
+  $Ultralog/UltralogAction.owl#WPForward
+ ]
+
 
 Policy AllowRegistration = [
   GenericTemplate
@@ -419,6 +464,7 @@ Policy AllowRegistration = [
   $DomainManagementAction.owl#RegisterAction
   as long as the value of
   $Action.owl#performedBy is a subset of the set
+
   $Actor.owl#Agent
  ]
 
