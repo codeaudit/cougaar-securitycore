@@ -2048,13 +2048,11 @@ public class DirectoryKeyStore
 		  + alias
 		  + " (" + e + ")"
 		  + " Current date is " + d.toString());
-	log.warn("Reply from CA was:" + reply);
         //e.printStackTrace();
       }
     } catch(Exception e) {
       if (log.isWarnEnabled()) {
         log.warn("Error: can't get certificate for " + alias + " Reason: " + e);
-	log.warn("Reply from CA was:" + reply);
         //e.printStackTrace();
       }
     }
@@ -2881,12 +2879,28 @@ public class DirectoryKeyStore
 
       Date notafter = cs.getCertificate().getNotAfter();
       Date curdate = new Date();
-      log.debug("Envelope: " + envelope + " ? " + curdate + " : " + notafter);
+      if (log.isDebugEnabled())
+        log.debug("Envelope: " + envelope + " ? " + curdate + " : " + notafter);
       if (curdate.getTime() + envelope * 1000L < notafter.getTime()) {
-        return false;
+        // maybe upper level has expired
+        try {
+          checkCertificateTrust(cs.getCertificate());
+          return true;
+        } catch (CertificateException cex) {
+          // do not handle certificate revoked exception, should just fail to verify
+          // because cannot establish chain (cannot find valid cert)
+          if (log.isDebugEnabled())
+            log.debug("checkCertificateTrust: " + cex);
+          if (!(cex instanceof CertificateExpiredException))
+            return false;
+        }
+
       }
+
     }
     // expired, regen key
+    if (log.isDebugEnabled())
+      log.debug("Certificate expired, requesting again.");
     addKeyPair(commonName, null);
 
     return true;
