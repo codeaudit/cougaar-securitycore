@@ -49,6 +49,7 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/stress_security_uc3.rb
   - script: $CIP/csmart/lib/security/scripts/stress_security_uc5.rb
   - script: $CIP/csmart/lib/security/scripts/threatcon_level_change.rb
+  - script: $CIP/csmart/lib/security/scripts/invalid_community_request.rb
   - script: $CIP/csmart/lib/security/scripts/check_mop.rb
 # ######################################################
 #  - script: setup_robustness.rb
