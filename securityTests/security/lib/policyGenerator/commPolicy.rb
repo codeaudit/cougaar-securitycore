@@ -34,10 +34,10 @@ class CommPolicy
     @enclaveHash           = Hash.new()
     @enclaveNodeHash       = Hash.new()
     @run                   = run
-    @policyCounter         = 0
 
     @setHashMap            = Hash.new
     @policies              = []
+    @mumbleFlag            = false
     @debug                 = false
   end
 
@@ -54,7 +54,6 @@ class CommPolicy
   }
 
   def permit(senderSet, receiverSet, name, enclaves = getEnclaves())
-      @policyCounter += 1
       if @setHashMap(senderSet) == nil || @setHashMap(receiverSet) == nil
         raise "Sender (#{senderSet}) or receiver (#{receiverSet}) set not declared"
       end
@@ -88,7 +87,7 @@ class CommPolicy
   end
 
   def policyCount()
-    @policyCounter
+    @policies.size + @mumbleFlag ? 1 : 0
   end
 
   def viewPolicy()
@@ -100,10 +99,16 @@ class CommPolicy
       puts "#{policy[0]} = #{@setHashMap[policy[0]]}"
       puts "#{policy[1]} = #{@setHashMap[policy[1]]}"
     end
-    puts "#{@policyCounter} policies found"
+    if @mumbleFlag then
+      puts "Agents can talk to themselves"
+    end
+    puts "#{policyCount()} policies found"
   end
 
   def isMsgAllowed(sender, receiver)
+    if @mumbleFlag && sender == receiver then
+      return true
+    end
     @policies.each do |policy|
       if policySenders(policy).include?(sender) 
             && policyReceivers(policy).include?(receiver) then
@@ -136,6 +141,9 @@ class CommPolicy
           i += 1
         end
       end
+      if @mumbleFlag then
+        i += 1
+      end
       puts "#{i} policies in enclave #{enclave}"
     end
   end
@@ -153,6 +161,9 @@ class CommPolicy
     count = 0
     allowed.each_key do |sender|
       count += allowed[sender].length
+    end
+    if @mumbleFlag then
+      count += totalAgents
     end
     (count * 1.0) /(totalAgents * totalAgents)
   end
@@ -228,6 +239,10 @@ class CommPolicy
     raise "Agent has no node"
   end
 
+  def namedAgent(agent)
+    "Agent#{agent}"
+  end
+
   def enclaveNodesName(enclave)
     "NodesIn#{enclave}"
   end
@@ -241,6 +256,10 @@ class CommPolicy
     @allNodesName  = "AllNodes"
     declareSet(@allAgentsName, getAgents)
     declareSet(@allNodesName, getNodes)
+    @run.society.each_enclave do |enclave|
+      declareSet(enclaveNodesName(enclave), getEnclaveNodes(enclave))
+      declareSet(enclaveAgentsName(enclave), getEnclaveAgents(enclave))
+    end
   end
 
 
@@ -255,9 +274,10 @@ class CommPolicy
     banner("Allow Name Service")
     nameServers = getNameServers()
     agents = getAgents()
-    declareSet("NameServers", nameservers)
-    permit("NameServers", @allAgentsName, "Allow Name Service - I")
-    permit(@allAgentsName, "NameServers", "Allow Name Service - II")
+    @NameServersName = "NameServers"
+    declareSet(@NameServersName, nameservers)
+    permit(@NameServersName, @allAgentsName, "Allow Name Service - I")
+    permit(@allAgentsName, @NameServersName, "Allow Name Service - II")
   end
 
   def getNameServers()
@@ -287,22 +307,23 @@ class CommPolicy
       debug "special members = #{specialMembers.join(", ")}"
       specialSetName = "Special#{community.name}Members"
       declareSet(specialSetName, specialMembers);
-      permit(@AllNodesName, specialSetName, 
-             "All nodes can talk to special community members - I",
+      permit(@allNodesName, specialSetName, 
+             "All nodes can talk to special community members of #{community.name} - I",
              getCommmunityEnclaves(commmunity))
-      permit(specialSetName, @AllNodesName,
-             "All nodes can talk to special community members - II",
+      permit(specialSetName, @allNodesName,
+             "All nodes can talk to special community members of #{community.name} - II",
              getCommmunityEnclaves(commmunity))
-#      getCommunityEnclaves(community).each do |enclave|
-#        permit(getEnclaveNodes(enclave), specialMembers)
-#        permit(specialMembers, getEnclaveNodes(enclave))
-#      end
       members = getMembersRecursive(community)
       membersName = "#{community.name}Members"
       declareSet(membersName, members)
       debug "members = #{members.join(", ")}"
-      permit(membersName, specialSetName)
-      permit(specialSetName, membersName)
+      permit(membersName, specialSetName, 
+             "Members/Special Members of #{community.name} - I",
+             getCommunityEnclaves(community)
+      permit(specialSetName, membersName,
+             "Members/Special Members of #{community.name} - II",
+             getCommunityEnclaves(community)
+
     end    
   end
 
@@ -480,8 +501,14 @@ class CommPolicy
     banner("Allow Security")
     @run.society.each_enclave() do |enclave|
       securityAgents = getSecurityAgents(enclave)
-      permit(getEnclaveAgents(enclave), securityAgents)
-      permit(securityAgents, getEnclaveAgents(enclave))
+      securityAgentsName = "SecurityAgents"
+      declareAgents(#{enclave}SecurityAgentsName, securityAgents)
+      permit(enclaveAgentsName(enclave), securityAgentsName,
+             "AllowSecurityManagement - II",
+             [ enclave ])
+      permit(securityAgentsName, , enclaveAgentsName(enclave),
+             "AllowSecurityManagement - II",
+             [ enclave ])
     end
   end
 
@@ -522,7 +549,9 @@ class CommPolicy
   def allowInterMnR()
     banner("Allow Inter MnR")
     mnrs = getMnRManagers()
-    permit(mnrs, mnrs)
+    mnrName = "MnRManagers"
+    declareSet(mnrName, mnrs)
+    permit(mnrName, mnrName, "AllowMnRDiscussion")
   end
 
   def getMnRManagers()
@@ -553,21 +582,17 @@ class CommPolicy
       subordinates = directlyReportingAll(superior)
       debug "subordinates = #{subordinates.join(',')}"
       if (! subordinates.empty?) then
-        permit([ superior ], subordinates)
-        permit(subordinates, [ superior ])
+        declareSet(namedAgent(superior), [superior])
+        suborindatesName = "SubordinatesOf#{superior}"
+        declareSet(subordinatesName, subordinates)
+        permit(namedAgent(superior), subordinatesName,
+               "#{superior}TalksToSubordinates - I",
+               [ agent.host.enclave ])
+        permit(subordinatesName, namedAgent(superior),
+               "#{superior}TalksToSubordinates - II",
+               [ agent.host.enclave ])
       end
     end
-  end
-
-  def allowSuperiorSubordinateLinear()
-    banner("Allow Superior/Subordinate")
-    levelSets = calculateLevelSets
-    i = 0
-    while (i < levelSets.size - 1) do
-      permit(levelSets[i], levelSets[i+1])
-      permit(levelSets[i+1], levelSets[i])
-      i += 1
-    end  
   end
 
   def calculateLevelSets()
@@ -701,8 +726,10 @@ select distinct role from org_relation;
         debug "#{clients} need service #{providerType} but nobody can give it"
       else 
         debug "the agents in #{clients} can talk to the agents in #{servers}"
-        permit(clients, servers)
-        permit(servers, clients)
+        clientsName = "#{providerType}Clients"
+        serversName = "#{providerType}Servers"
+        permit(clientsName, serversName, "#{providerType}Comm - I")
+        permit(serversName, clientsName, "#{providerType}Comm - II")
       end
     end
   end
@@ -765,42 +792,8 @@ select distinct role from org_relation;
 
   def allowTalkToSelf()
     banner("Allow Agents to mumble")
-    @run.society.each_agent do |agent|
-      permitSingle(agent.name, agent.name)
-    end
+    @mumbleFlag = true
   end
-
-
-#==========================================================================
-# A node can talk to everybody in the enclave
-#   we are avoiding using this.
-#==========================================================================
-  def allowNodeToEnclave()
-    banner("Allow Node to enclave")
-    @run.society.each_node do |node|
-      @run.society.each_enclave_agent(node.host.enclave) do |agent|
-        permitSingle(node.name, agent.name)
-        permitSingle(agent.name, node.name)
-      end
-    end
-  end
-
-
-
-#==========================================================================
-# Every node should be able to talk to everybody
-#  Avoid
-#==========================================================================
-  def allowNodeToAll()
-    bannner("Allow node to all")
-    @run.society.each_node do |node|
-      @run.society.each_agent(true) do |agent|
-        permitSingle(node.name, agent.name)
-        permitSingle(agent.name, node.name)
-      end
-    end
-  end
-
 
 #==========================================================================
 #  END OF POLICIES
