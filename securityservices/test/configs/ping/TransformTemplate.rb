@@ -9,6 +9,7 @@ HOSTS_FILE = Ultralog::OperatorUtils::HostManager.new.get_hosts_file
 CIP = ENV['CIP']
 $:.unshift File.join(CIP, 'csmart', 'lib')
 require 'security/actions/buildHostFile'
+require 'security/actions/build_config_files'
 
 Cougaar::ExperimentMonitor.enable_stdout
 Cougaar::ExperimentMonitor.enable_logging
@@ -44,4 +45,6 @@ at :transformed_society
   do_action "SaveCurrentSociety", "mySociety.xml"
   do_action 'SaveCurrentCommunities', 'myCommunity.xml'
 
+  do_action "BuildSignedCommunityJarFile", "myCommunity.xml"
+  do_action "BuildSignedNodeJarFiles"
 }
