@@ -68,8 +68,6 @@ public class StringPairMapping {
 
   /**
    * This method reads a mapping from a file.  
-   *
-   * We assume that the mapping is functional.
    */
 
   public List loadPairs(String filename)
@@ -128,6 +126,29 @@ public class StringPairMapping {
     }
     return m;
   }
+
+  public Map loadFunctionalMap(String filename) throws IOException {
+    Map m = new HashMap();
+    List l = loadPairs(filename);
+    Iterator iter = l.iterator();
+    if (_log.isDebugEnabled()) {
+      _log.debug("getting mappings for filename " + filename);
+    }
+    while (iter.hasNext()) {
+      StringPair p = (StringPair) iter.next();
+      String s = (String) m.get(p._first);
+      if (_log.isDebugEnabled()) {
+        _log.debug(p._first + " --> " + p._second);
+      }
+      if (s != null) {
+        throw new IOException("Configuration file " + filename +
+                              " is not functional.");
+      }
+      m.put(p._first, p._second);
+    }
+    return m;
+  }
+
 
   public static class StringPair
   {
