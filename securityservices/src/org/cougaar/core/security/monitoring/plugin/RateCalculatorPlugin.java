@@ -74,25 +74,26 @@ import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.util.UnaryPredicate;
 
 /**
- * Queries for LOGIN_FAILURE IDMEF messages and creates a LOGIN_FAILURE_RATE
+ * Queries for IDMEF messages and creates a 
  * condition from the results. The arguments to the plugin
- * component in the .ini file determine how LOGINFAILURERATEs are
+ * component in the .ini file determine how rates are
  * generated.
  *
  * <table width="100%">
  * <tr><td>Parameter Number</td><td>Type</td><td>Meaning</td></tr>
  * <tr><td>1</td><td>Integer</td><td>Poll interval in seconds.
- *   Determines how often LOGIN_FAILURE_RATE is recalculated.</td></tr>
- * <tr><td>2</td><td>Integer</td><td>Window for LOGINFAILUREs to be gathered
- * over to determin the LOGIN_FAILURE_RATE. The value is a duration in 
+ *   Determines how often the rate is recalculated.</td></tr>
+ * <tr><td>2</td><td>Integer</td><td>Window for IDMEF messages to be gathered
+ * over to determine the rate. The value is a duration in 
  * seconds.</td></tr>
- * <tr><td>3</td><td>String</td><td>The society security manager name.</td></tr>
+ * <tr><td>3</td><td>String</td><td>The IDMEF message category to examine.</td></tr>
+ * <tr><td>4</td><td>String</td><td>The name of the condition to post to the blackboard</td></tr>
  * </table>
  * Example:
  * <pre>
  * [ Plugins ]
  * plugin = org.cougaar.core.servlet.SimpleServletComponent(org.cougaar.planning.servlet.PlanViewServlet, /tasks)
- * plugin = org.cougaar.core.security.monitorin.plugin.LoginFailureRatePlugin(20,60)
+ * plugin = org.cougaar.core.security.monitorin.plugin.RateCalculatorPlugin(20,60,org.cougaar.core.security.monitoring.LOGIN_FAILURE,org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE)
  * plugin = org.cougaar.core.security.monitoring.plugin.LoginFailureQueryPlugin(SocietySecurityManager)
  * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
  * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
@@ -100,7 +101,7 @@ import org.cougaar.util.UnaryPredicate;
  *
  * @author George Mount <gmount@nai.com>
  */
-public class LoginFailureRatePlugin extends ComponentPlugin {
+public class RateCalculatorPlugin extends ComponentPlugin {
   final static long SECONDSPERDAY = 60 * 60 * 24;
 
   /** 
@@ -112,25 +113,25 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
   /** Logging service */
   private LoggingService _log;
 
-  /** The number of seconds between LOGIN_FAILURE_RATE updates */
+  /** The number of seconds between rate updates */
   protected int    _pollInterval    = 0;
 
   /** 
    * The amount of time to take into account when determining the
-   * LOGIN_FAILURE_RATE
+   * rate.
    */
   protected int    _window          = 0;
 
   /**
-   * Buckets, one second each, containing the login failures that
-   * happened within that second.
+   * Buckets, one second each, containing the count of appropriate
+   * IDMEF messages that happened within that second.
    */
-  protected int    _failures[]      = null;
+  protected int    _messages[]      = null;
 
   /**
-   * The total number of failures that happened within the window
+   * The total number of IDMEF messages that happened within the window
    */
-  protected int    _totalFailures   = 0;
+  protected int    _totalMessages   = 0;
 
   /**
    * The time that the service was started
@@ -138,15 +139,25 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
   protected long   _startTime       = System.currentTimeMillis();
 
   /**
-   * Subscription to the login failures on the local blackboard
+   * Subscription to the IDMEF messages on the local blackboard
    */
-  protected IncrementalSubscription _loginFailureQuery;
+  protected IncrementalSubscription _subscription;
+
+  /**
+   * The IDMEF classification to search for.
+   */
+  protected String _classification;
+
+  /**
+   * The condition name for this rate
+   */
+  protected String _conditionName;
 
   /**
    * The predicate indicating that we should retrieve all new
-   * login failures
+   * IDMEF messages with a given classification
    */
-  private static final UnaryPredicate LOGIN_FAILURES_PREDICATE = 
+  private UnaryPredicate SUBSCRIPTION_PREDICATE = 
     new UnaryPredicate() {
       public boolean execute(Object o) {
         if (o instanceof Event) {
@@ -156,7 +167,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
             Classification cs[] = alert.getClassifications();
             if (cs != null) {
               for (int i = 0; i < cs.length; i++) {
-                if (IdmefClassifications.LOGIN_FAILURE.equals(cs[i].getName())) {
+                if (_classification.equals(cs[i].getName())) {
                   return true;
                 }
               }
@@ -168,9 +179,9 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     };
     
   /**
-   * Gets the poll interval (seconds between LOGIN_FAILURE_RATE updates)
-   * and window (the number of seconds over which the LOGIN_FAILURE_RATE
-   * is determined) from the recipe parameters.
+   * Gets the poll interval (seconds between rate updates),
+   * window (the number of seconds over which the rate
+   * is determined), IDMEF classification, and condition name.
    */
   public void setParameter(Object o) {
     if (!(o instanceof List)) {
@@ -193,7 +204,12 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
       paramName = "window duration";
       param = iter.next().toString();
       _window = Integer.parseInt(param);
+
+      paramName = "IDMEF message classification";
+      _classification = iter.next().toString();
       
+      paramName = "Rate condition name";
+      _conditionName = iter.next().toString();
     } catch (NoSuchElementException e) {
       throw new IllegalArgumentException("You must provide a " +
                                         paramName +
@@ -209,14 +225,14 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
                                          "window and poll interval arguments");
     }
 
-    _failures = new int[_window + OVERSIZE];
-    for (int i = 0; i < _failures.length; i++) {
-      _failures[i] = 0;
+    _messages = new int[_window + OVERSIZE];
+    for (int i = 0; i < _messages.length; i++) {
+      _messages[i] = 0;
     }
   }
 
   /**
-   * Sets up the login failure rate task for
+   * Sets up the rate task for
    * updating the rate at the interval specified in the configuartion
    * parameters. 
    */
@@ -224,45 +240,47 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     _log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
 
-    _loginFailureQuery = (IncrementalSubscription)
-      getBlackboardService().subscribe(LOGIN_FAILURES_PREDICATE);
+    _subscription = (IncrementalSubscription)
+      getBlackboardService().subscribe(SUBSCRIPTION_PREDICATE);
 
     ThreadService ts = (ThreadService) getServiceBroker().
       getService(this, ThreadService.class, null);
-    ts.schedule(new LoginFailureRateTask(),
+    ts.schedule(new RateTask(),
                 0, ((long)_pollInterval) * 1000);
   }
 
   /**
-   * Counts the number of LOGINFAILURE's and updates the count for
+   * Counts the number of IDMEF messages and updates the count for
    * the current second.
    */
   public void execute() {
-    if (_loginFailureQuery.hasChanged()) {
+    if (_subscription.hasChanged()) {
       long now = System.currentTimeMillis();
 
-      Collection added = _loginFailureQuery.getAddedCollection();
+      Collection added = _subscription.getAddedCollection();
       int count = added.size();
 
-      synchronized (_failures) {
-        _failures[(int)((now - _startTime)/1000)%_failures.length] += count;
-        _totalFailures += count;
+      synchronized (_messages) {
+        _messages[(int)((now - _startTime)/1000)%_messages.length] += count;
+        _totalMessages += count;
       }
     }
   }
 
   /**
    * A condition published to the blackboard whenever there is a 
-   * login failure rate change. The target for this condition is the
+   * rate change. The target for this condition is the
    * Adaptivity Engine.
    */
-  static class LoginFailureRateCondition
+  static class RateCondition
     implements Condition, Serializable {
     Double _rate;
     static final OMCRangeList RANGE = 
       new OMCRangeList(new Double(0.0), new Double(Integer.MAX_VALUE));
+    String _name;
  
-    public LoginFailureRateCondition() {
+    public RateCondition(String name) {
+      _name = name;
       setRate(-1);
     }
       
@@ -271,7 +289,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     }
      
     public String getName() {
-      return "org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE";
+      return _name;
     }
   
     public Comparable getValue() {
@@ -285,47 +303,47 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
 
   /**
    * This class is used internally to periodically update the 
-   * login failure rate. It relies on the ThreadService to trigger
+   * rate. It relies on the ThreadService to trigger
    * its run() method.
    */
-  class LoginFailureRateTask extends TimerTask {
+  class RateTask extends TimerTask {
     int  _lastCleared= (OVERSIZE + (int) 
                         (_startTime - 
-                         System.currentTimeMillis())/1000)%_failures.length;
+                         System.currentTimeMillis())/1000)%_messages.length;
     int  _prevTotal = -1;
 
     /**
-     * The LOGIN_FAILURE_RATE that was last reported.
+     * The rate that was last reported.
      */
-    protected LoginFailureRateCondition _rate = null;
+    protected RateCondition _rate = null;
 
-    public LoginFailureRateTask() {
+    public RateTask() {
     }
 
     /**
-     * Counts the login failures and checks to see if the rate needs
+     * Counts the IDMEF messages and checks to see if the rate needs
      * to be reported to the Adaptivity Engine. It also cleans out the
      * buckets expected to be filled before the next call to run() is
      * triggered.
      */
     public void run() {
       boolean report = false;
-      synchronized (_failures) {
+      synchronized (_messages) {
         long now = System.currentTimeMillis();
-        int  bucketOn = (int)((now - _startTime)/1000)%_failures.length;
+        int  bucketOn = (int)((now - _startTime)/1000)%_messages.length;
 
-        if (_totalFailures != _prevTotal) {
-          _prevTotal = _totalFailures;
+        if (_totalMessages != _prevTotal) {
+          _prevTotal = _totalMessages;
           report = true;
         }
 
         // clear the buckets between 
         int nextCleared = (bucketOn + _pollInterval + OVERSIZE) % 
-          _failures.length;
+          _messages.length;
         while (_lastCleared != nextCleared) {
-          _totalFailures -= _failures[_lastCleared];
-          _failures[_lastCleared] = 0;
-          _lastCleared = (_lastCleared + 1) % _failures.length;
+          _totalMessages -= _messages[_lastCleared];
+          _messages[_lastCleared] = 0;
+          _lastCleared = (_lastCleared + 1) % _messages.length;
         }
       }
 
@@ -335,16 +353,17 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     }
 
     /**
-     * Publishes a change in the login failure rate condition to the
+     * Publishes a change in the rate condition to the
      * blackboard.
      */
-    private void reportRate(int failureCount) {
-      int rate = (int) (failureCount * SECONDSPERDAY / _window);
-      _log.debug("Rate = " + rate + " login failures/day");
+    private void reportRate(int messageCount) {
+      int rate = (int) (messageCount * SECONDSPERDAY / _window);
+      _log.debug(_conditionName + " = " + rate +
+                 " " + _classification + "/day");
 
       boolean add = false;
       if (_rate == null) {
-        _rate = new LoginFailureRateCondition();
+        _rate = new RateCondition(_conditionName);
         add = true;
       }
       _rate.setRate(rate);
