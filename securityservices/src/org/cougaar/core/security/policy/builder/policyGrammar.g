@@ -23,6 +23,7 @@ header {
     package org.cougaar.core.security.policy.builder;
 
     import java.util.*;
+    import kaos.ontology.jena.*;
 }
 
 class PolicyParser extends Parser;
@@ -41,6 +42,9 @@ throws PolicyCompilerException
     : "declareInstance" instanceName:URI className:URI
         { ppf.declareInstance(ParsedPolicy.tokenToURI(instanceName), 
                               ParsedPolicy.tokenToURI(className)); }
+    | "Agent" agentName:URI
+        { ppf.declareInstance(ParsedPolicy.tokenToURI(agentName),
+                              ActorConcepts._Agent_); }
     ;
 
 policy 
