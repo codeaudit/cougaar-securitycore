@@ -7,11 +7,11 @@ subscribeplugin = "org.cougaar.core.security.test.blackboard.LegitimateBlackboar
 
 servlet="org.cougaar.core.security.test.blackboard.BlackboardTestManagerServlet"
 analyzer="org.cougaar.core.security.test.blackboard.AnalyzerServlet"
-include_array=["2-BDE-1-AD","1-6-INFBN","1-35-ARBN"]
+#include_array=["2-BDE-1-AD","1-6-INFBN","1-35-ARBN"]
 
 society.each_agent(true) do |agent|
-  include_array.each{ |targetagent|
-    if agent.name == targetagent
+#  include_array.each{ |targetagent|
+#    if agent.name == targetagent
       agent.add_component do |c|
 		c.classname = plugin
     	c.add_argument("TIMERINTERVAL=60000")
@@ -23,11 +23,11 @@ society.each_agent(true) do |agent|
       agent.add_component do |c|
 		c.classname = servlet
       end
-      if agent.name=="NCA"
+      if agent.name=="OSD.GOV"
 		agent.add_component do |c|
 	  		c.classname=analyzer	  		
         end
       end
-    end
-  }
+#    end
+#  }
 end

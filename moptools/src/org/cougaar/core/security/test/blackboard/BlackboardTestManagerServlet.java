@@ -36,7 +36,9 @@ package org.cougaar.core.security.test.blackboard;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Vector;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,7 +47,9 @@ import org.cougaar.core.security.test.AbstractServletComponent;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewPrepositionalPhrase;
+import org.cougaar.planning.ldm.plan.PrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.NewTask;
+import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.util.UnaryPredicate;
 
@@ -125,14 +129,16 @@ public class BlackboardTestManagerServlet extends AbstractServletComponent {
     			return o instanceof OrgActivity;
     		}
     	});
-			PrintWriter out = null;
-			try {
-				out = response.getWriter();
-			} catch (IOException e) {
-				if(logging.isErrorEnabled()){
-					logging.error("Error writing ready result",e);
-				}
-			}
+	blackboardService.closeTransaction();
+
+	PrintWriter out = null;
+	try {
+	  out = response.getWriter();
+	} catch (IOException e) {
+	  if(logging.isErrorEnabled()){
+	    logging.error("Error writing ready result",e);
+	  }
+	}
     	
     	if(c.size()>0){
     		out.println("TRUE");	
@@ -141,6 +147,43 @@ public class BlackboardTestManagerServlet extends AbstractServletComponent {
     		out.println("FALSE");
     	}
     	out.close();
+    }
+    else {
+      // Status for real user invoking servlet
+      if(logging.isDebugEnabled()){
+	logging.debug("blackboard test status");
+      }
+      blackboardService.openTransaction();
+      Collection c= blackboardService.query(new UnaryPredicate(){
+	  public boolean execute(Object o){
+	    return ((o instanceof Task) && ((Task)o).getVerb().equals(VERB));
+	  }
+    	});
+      blackboardService.closeTransaction();
+      PrintWriter out = null;
+      try {
+	out = response.getWriter();
+	Iterator it = c.iterator();
+	out.println("Blackboard check status - List of requests tasks on the blackboard:");
+	for (int i = 0 ; it.hasNext() ; i++) {
+	  Task t = (Task) it.next();
+	  out.println("Request " + i);
+	  Enumeration phrases = t.getPrepositionalPhrases();
+	  while (phrases.hasMoreElements()) {
+	    PrepositionalPhrase pp = (PrepositionalPhrase)phrases.nextElement();
+	    out.println("  Indirect object: " + pp.getIndirectObject());
+	  }
+	}
+      } catch (IOException e) {
+	if(logging.isErrorEnabled()){
+	  logging.error("Error writing ready result",e);
+	}
+      }
+      finally {
+	if (out != null) {
+	  out.close();
+	}
+      }
     }
   }
 }

@@ -10,15 +10,15 @@ predicatePlugin="org.cougaar.core.security.test.blackboard.MaliciousBlackboardPr
 
 servlet="org.cougaar.core.security.test.blackboard.BlackboardTestManagerServlet"
 analyzer="org.cougaar.core.security.test.blackboard.AnalyzerServlet"
-include_array=["2-BDE-1-AD","1-6-INFBN","1-35-ARBN"]
+#include_array=["2-BDE-1-AD","1-6-INFBN","1-35-ARBN"]
 
-society.each_node do |node|
-  node.override_parameter("-Dorg.cougaar.core.security.auth.debug", "false")
-end
+#society.each_node do |node|
+#  node.override_parameter("-Dorg.cougaar.core.security.auth.debug", "false")
+#end
 
 society.each_agent(true) do |agent|
-  include_array.each{ |targetagent|
-    if agent.name == targetagent
+#  include_array.each{ |targetagent|
+#    if agent.name == targetagent
       agent.add_component do |c|
 		c.classname = queryPlugin
     	c.add_argument("TIMERINTERVAL=60000")
@@ -43,11 +43,11 @@ society.each_agent(true) do |agent|
 	c.classname = servlet
       end
 	
-      if agent.name=="NCA"
+      if agent.name=="OSD.GOV"
 	agent.add_component do |c|
 	  c.classname=analyzer	  		
   	end
       end
-    end
-  }
+#    end
+#  }
 end
