@@ -34,14 +34,15 @@ import java.security.cert.*;
 
 import org.cougaar.core.security.ssl.ui.*;
 import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
 
 public class KeyRingUserAuthImpl extends AuthenticationHandler {
-  protected KeyStore keystore = null;
+  protected CertificateCacheService cacheService = null;
   protected CertAuthListener authListener = null;
   protected String useralias = "";
 
-  public KeyRingUserAuthImpl(KeyStore keystore) {
-    this.keystore = keystore;
+  public KeyRingUserAuthImpl(CertificateCacheService cacheservice) {
+    this.cacheService = cacheservice;
   }
 
   protected PasswordAuthentication getUserAliasPwd(String username) {
@@ -49,23 +50,22 @@ public class KeyRingUserAuthImpl extends AuthenticationHandler {
     dialog.setAlias(username);
 
     ArrayList aliasList = new ArrayList();
-    try {
-      Enumeration aliases = keystore.aliases();
-      while (aliases.hasMoreElements()) {
-        try {
-          String alias = (String)aliases.nextElement();
-          java.security.cert.Certificate[] certChain = keystore.getCertificateChain(alias);
-          if (certChain.length <= 1)
-            continue;
-          String dname = ((X509Certificate)certChain[0]).getSubjectDN().getName();
-          String title = CertificateUtility.findAttribute(dname, "t");
-          if (!title.equals(DirectoryKeyStore.CERT_TITLE_USER))
-            continue;
-          aliasList.add(alias + " (" + dname + ")");
-        }
-        catch (KeyStoreException ksx) {}
+    Enumeration aliases = cacheService.getAliasList();
+    while (aliases.hasMoreElements()) {
+      try {
+	String alias = (String)aliases.nextElement();
+	java.security.cert.Certificate[] certChain = cacheService.getCertificateChain(alias);
+	if (certChain.length <= 1)
+	  continue;
+	String dname = ((X509Certificate)certChain[0]).getSubjectDN().getName();
+	String title = CertificateUtility.findAttribute(dname, "t");
+	if (!title.equals(CertificateCache.CERT_TITLE_USER))
+	  continue;
+	aliasList.add(alias + " (" + dname + ")");
       }
-    } catch (KeyStoreException kex) {}
+      catch (KeyStoreException ksx) {}
+    }
+    
     dialog.setAliasList(aliasList);
     dialog.setHost(requestUrl);
 
@@ -118,11 +118,11 @@ public class KeyRingUserAuthImpl extends AuthenticationHandler {
 
       // will throw exception if fatal error occurs, such as keystore problem
       try {
-        PrivateKey privatekey = (PrivateKey)keystore.getKey(alias, pa.getPassword());
+        PrivateKey privatekey = (PrivateKey)cacheService.getKey(alias, pa.getPassword());
         if (privatekey != null) {
           // install into certcache, but does not validate
           // later on the getCertificateChain will be called
-          X509Certificate userx509 = (X509Certificate)keystore.getCertificate(alias);
+          X509Certificate userx509 = (X509Certificate)cacheService.getCertificate(alias);
 
           if (authListener != null) {
             authListener.setAlias(alias);
