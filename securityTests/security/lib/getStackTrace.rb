@@ -48,9 +48,12 @@ class GetStackTrace < SecurityStressFramework
         response = @run.comms.new_message(host).set_body("command[stdio]#{pid}").request(30)
       end
     end
-    response = @run.comms.new_message(host).set_body("command[stack]#{pid}").request(300)
+    logInfoMsg "retrieving stack trace.."
+    response = @run.comms.new_message(host).set_body("command[stack]#{pid}").request(60)
     if response != nil
       stacktrace = response.body
+    else
+      saveAssertion("wp_registration", "ACME did not return any stack trace")
     end
     return stacktrace
   end

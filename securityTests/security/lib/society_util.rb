@@ -132,7 +132,7 @@ module Cougaar
     end # CorrectURLs
 
     class TestWPRegistration < Cougaar::Action
-      def initialize(run, interval = 5.minutes, delay = 0.minutes)
+      def initialize(run, interval = 5.minutes, delay = 9.minutes)
         super(run)
         @interval = interval
         @delay = delay
@@ -158,7 +158,8 @@ module Cougaar
 #            puts("#{Time.now} Agents who haven't registered with the white pages: #{missing.join(" ")}")
 #            puts("#{Time.now} Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
             # Get stack trace of agents that have not registered
-            getStackTraceAgents(missing)
+            # Unfortunately, ACME is broken
+            #getStackTraceAgents(missing)
           end
           lastCheck = missing.length
         }
