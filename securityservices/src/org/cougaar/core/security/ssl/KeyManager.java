@@ -114,7 +114,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 
       return;
     }
-    List certList = keyRing.findCert(nodename);
+    List certList = keyRing.findCert(nodename, KeyRingService.LOOKUP_KEYSTORE);
     if (certList != null && certList.size() > 0) {
       nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
       log.debug("update nodex509: " + nodex509);
@@ -123,9 +123,15 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
       certChain = findCertificateChain(nodealias);
     }
 
-    if (log.isDebugEnabled())
-      log.debug("SSLContext:KeyManager: nodealias is " + nodealias
-        + " and nodex509 is " + nodex509);
+    if (log.isDebugEnabled()) {
+      String s = "SSLContext:KeyManager: node name: " + nodename
+	+ " - nodealias is " + nodealias
+	+ " and nodex509 is " + nodex509 + " - cert Chain: ";
+      if (certChain != null) {
+	s = s + certChain[0];
+      }
+      log.debug(s);
+    }
   }
 
   /**  Choose an alias to authenticate the client side of a secure socket
@@ -135,8 +141,8 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
   public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
     // node alias if opening socket for RMI... node service
     // if server is tomcat prompt for user certificate
-    //if (log.isDebugEnabled())
-    //  log.debug("chooseClientAlias: " + socket);
+    if (log.isDebugEnabled())
+      log.debug("chooseClientAlias: " + socket);
     return nodealias;
   }
 
@@ -147,8 +153,8 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
    */
   public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
     // if tomcat return tomcat alias
-    //if (log.isDebugEnabled())
-    //  log.debug("chooseServerAlias: " + nodealias);
+    if (log.isDebugEnabled())
+      log.debug("chooseServerAlias: " + nodealias);
     return nodealias;
   }
 
@@ -156,6 +162,9 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
    * Returns the certificate chain associated with the given alias.
    */
   public X509Certificate[] getCertificateChain(String alias) {
+    if (log.isDebugEnabled()) {
+      log.debug("getCertificateChain: " + certChain);
+    }
     return certChain;
   }
 
@@ -191,8 +200,8 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
    */
   public String[] getClientAliases(String keyType, Principal[] issuers) {
     // node and agent aliases?
-    //if (log.isDebugEnabled())
-    //  log.debug("getClientAliases: " + issuers);
+    if (log.isDebugEnabled())
+      log.debug("getClientAliases: " + issuers);
     return new String [] {nodealias};
   }
 
@@ -235,8 +244,8 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
    */
   public String[] getServerAliases(String keyType, Principal[] issuers) {
     // node and agent aliases?
-    //if (log.isDebugEnabled())
-    //  log.debug("getServerAliases: " + issuers);
+    if (log.isDebugEnabled())
+      log.debug("getServerAliases: " + issuers);
     return new String [] {nodealias};
   }
 
