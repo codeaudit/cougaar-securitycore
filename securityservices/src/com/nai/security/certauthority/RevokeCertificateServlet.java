@@ -44,14 +44,12 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
 import com.nai.security.crypto.MultipleEntryException;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class RevokeCertificateServlet extends  HttpServlet
 {
-  /* private CaPolicy caPolicy = null;            // the policy of the CA
-  private CertDirectoryServiceCA caOperations=null;
-  private CertDirectoryServiceClient certificateFinder=null;
-  private ConfParser confParser = null;
-  */
+  private SecurityPropertiesService secprop = null;
   private KeyManagement keymanagement=null;
   javax.servlet.ServletContext context=null;
   protected boolean debug = false;
@@ -59,10 +57,11 @@ public class RevokeCertificateServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    //confParser = new ConfParser();
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
      
     context=config.getServletContext();
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
     if(debug)
       System.out.println(" context is :"+ context.toString());
@@ -79,8 +78,8 @@ public class RevokeCertificateServlet extends  HttpServlet
     String role=req.getParameter("role");
     String cadnname=req.getParameter("cadnname");
    
-    String certpath=(String)context.getAttribute("org.cougaar.security.CA.certpath");
-    String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+    String certpath=(String)context.getAttribute(secprop.CA_CERTPATH);
+    String confpath=(String)context.getAttribute(secprop.CRYPTO_CONFIG);
     
     out.println("<html>");
      out.println("<script language=\"javascript\">");
@@ -106,16 +105,7 @@ public class RevokeCertificateServlet extends  HttpServlet
     String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/certlist";
     try {
     
-    keymanagement=new KeyManagement(cadnname,role,certpath,confpath);
-    /*try {
-      caPolicy = confParser.readCaPolicy(cadnname, role);
-      caOperations = 
-	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
-				       caPolicy.ldapType, caPolicy.ldapURL);
-      certificateFinder = 
-	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-				       caPolicy.ldapType, caPolicy.ldapURL);
-    */
+    keymanagement=new KeyManagement(cadnname,role,certpath,confpath, true);
     String uniqueIdentifier=distinguishedName;
     status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
     }

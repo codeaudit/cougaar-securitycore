@@ -43,19 +43,15 @@ import com.ibm.security.pkcs12.PKCS12PFX;
 import com.ibm.security.pkcs8.PrivateKeyInfo;
 import com.ibm.security.pkcsutil.PKCSException;
 import com.nai.security.util.CryptoDebug;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class PrivateKeyPKCS12
 {
-  //private static boolean CryptoDebug.debug = false;
   private DirectoryKeyStore directory = null;
 
   public PrivateKeyPKCS12(DirectoryKeyStore aDirectory)
   {
-    /*String debugProperty = "org.cougaar.core.security.crypto.debug";
-    debug =
-      (Boolean.valueOf(System.getProperty(debugProperty,
-					  "false"))).booleanValue();
-    */
     directory = aDirectory;
   }
 

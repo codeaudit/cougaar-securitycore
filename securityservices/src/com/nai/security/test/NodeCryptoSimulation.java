@@ -127,7 +127,7 @@ public class NodeCryptoSimulation
 
     // Process a PKCS10 request:
     KeyManagement km = null;
-    km = new KeyManagement(caDN, role);
+    km = new KeyManagement(caDN, role, null, null, false);
 
     FileInputStream f = new FileInputStream(filename);
     PrintStream ps = new PrintStream(System.out);
@@ -141,7 +141,7 @@ public class NodeCryptoSimulation
 
     // Process a signed certificate request
     KeyManagement km = null;
-    km = new KeyManagement(caDN, role);
+    km = new KeyManagement(caDN, role, null, null, false);
 
     FileInputStream is = new FileInputStream(filename);
     km.printPkcs7Request(is);

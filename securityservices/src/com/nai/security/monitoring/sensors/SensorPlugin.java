@@ -50,6 +50,8 @@ import org.cougaar.core.domain.RootFactory;
 import org.cougaar.util.UnaryPredicate;
 
 import com.nai.security.monitoring.util.*;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 
 /**
@@ -60,6 +62,7 @@ import com.nai.security.monitoring.util.*;
 
 public class SensorPlugin extends LDMEssentialPlugin
 {
+  private SecurityPropertiesService secprop = null;
 
   Vector Services ;
   Vector currentlypublishing;
@@ -72,6 +75,11 @@ public class SensorPlugin extends LDMEssentialPlugin
   private IncrementalSubscription allorganization,allcmd;
 
     
+  public SensorPlugin() {
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+  }
+
   /**
    * A predicate that matches all Organization related to the cluster either through 
    * supporting /subordinate relationship.
@@ -117,7 +125,7 @@ public class SensorPlugin extends LDMEssentialPlugin
       publishedcapabilities=publishcapabilities();
       File filelist=null;
       if(Services.contains("SecurityException") )   {
-	String filename=System.getProperty("org.cougaar.core.security.bootstrap.SecurityManagerLogFile");
+	String filename=secprop.getProperty(secprop.BOOTSTRAP_LOGFILE);
 	if(filename!=null)  {
 	  int lastindex=filename.lastIndexOf(File.separator);
 	  filename=filename.substring(0,lastindex);
@@ -126,15 +134,18 @@ public class SensorPlugin extends LDMEssentialPlugin
 	else  {
 	  if(MonitoringUtils.debug>0)
 	    System.out.println("Could not get the log file name for security exception through java property .Probably org.cougaar.core.security.bootstrap.SecurityManagerLogFile is not set ---- using default values");
-	  String cougaarpath=System.getProperty("org.cougaar.install.path");
+	  String cougaarpath=secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
 	  StringBuffer logfilepath=new StringBuffer();
 	  logfilepath.append(cougaarpath);
 	  if(MonitoringUtils.debug>0)
-	    System.out.println("got cougaar install path"+logfilepath.toString());
+	    System.out.println("got cougaar install path"
+			       +logfilepath.toString());
 	  logfilepath.append(File.separatorChar);
-	  logfilepath.append("log"+File.separatorChar+"bootstrap"+File.separator);
+	  logfilepath.append("log"+File.separatorChar+"bootstrap"
+			     +File.separator);
 	  if(MonitoringUtils.debug>0)
-	    System.out.println("IN Sensor Plugin got log  path"+logfilepath.toString());
+	    System.out.println("IN Sensor Plugin got log  path"
+			       +logfilepath.toString());
 	  filelist=new File(logfilepath.toString());
 	}
 	String [] filenames=null;

@@ -46,6 +46,9 @@ import org.cougaar.planning.ldm.plan.Directive;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.planning.ldm.plan.Task;
 
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
+
 /**
  *
  * The message is unsecured by a SecureDeliverer aspect delegate 
@@ -69,11 +72,18 @@ public class CryptoAspect extends StandardAspect
     "org.cougaar.message.transport.secure";
   private boolean firsttime=true;
   private ServiceBroker sb=null;
+
+  private SecurityPropertiesService secprop = null;
   
   public CryptoAspect() {
-    String db = System.getProperty("org.cougaar.message.transport.debug");
-    if ( db!=null && (db.equalsIgnoreCase("true") || db.indexOf("security")>=0) ) debug=true;
-    infoLevel = (Integer.valueOf(System.getProperty("org.cougaar.security.info","0"))).intValue();
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
+    String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
+    if ( db!=null && (db.equalsIgnoreCase("true") ||
+		      db.indexOf("security")>=0) ) debug=true;
+    infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
+						     "0"))).intValue();
 
     //add crypto related services:
     sb = new ServiceBrokerSupport();

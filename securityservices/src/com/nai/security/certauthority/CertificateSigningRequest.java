@@ -143,10 +143,12 @@ public class CertificateSigningRequest extends  HttpServlet
     }
     try  {
       if(( role==null)||( role==""))  {
-	signer=new KeyManagement(CA_DN_name,null,certpath,confpath);
+	signer=new KeyManagement(CA_DN_name, null, 
+				 certpath, confpath, true);
       }
       else  {
-	signer=new KeyManagement(CA_DN_name,role,certpath,confpath);
+	signer=new KeyManagement(CA_DN_name, role,
+				 certpath, confpath, true);
 	
       }
     }

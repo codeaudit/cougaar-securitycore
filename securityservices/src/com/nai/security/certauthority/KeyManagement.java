@@ -65,6 +65,7 @@ import com.nai.security.crypto.ldap.CertificateRevocationStatus;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import com.nai.security.util.SecurityPropertiesService;
 
 /** Certification Authority service
  * The following java properties are necessary:
@@ -76,16 +77,20 @@ import org.cougaar.core.security.crypto.CryptoServiceProvider;
 public class KeyManagement implements CertificateManagementService
 {
   private KeyRingService keyRing = null;
+  private SecurityPropertiesService secprop = null;
 
   private String topLevelDirectory = null;
   private String x509directory = null;
   private ConfParser confParser = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
-  private NodePolicy nodePolicy = null;            // the policy of the Node
-  private DirectoryKeyStore caKeyStore = null; // the keystore where the CA private key is stored
+  private NodePolicy nodePolicy = null;        // the policy of the Node
+  private DirectoryKeyStore caKeyStore = null; /* the keystore where the
+						* CA private key is stored */
 
-  private String caDN = null;                  // the distinguished name of the CA
-  private X509Certificate caX509cert = null;   // the X.509 certificate of the CA
+  private String caDN = null;                  /* the distinguished name of
+						* the CA */
+  private X509Certificate caX509cert = null;   /* the X.509 certificate
+						  of the CA */
   private X500Name caX500Name = null;          // the X.500 name of the CA
 
   private String x509DirectoryName;
@@ -96,76 +101,48 @@ public class KeyManagement implements CertificateManagementService
   private boolean standalone;             /* true if run as a standalone server
 					     false if run within Cougaar */
  
+  /**  KeyManagement constructor
+   * @param aCA_DN       - The distinguished name of the CA
+   * @param role         - The role
+   * @param certPath     - The path where all cert requests are stored
+   *                       May be null, in which case it reads a java
+   *                       property. It should not be null in the case
+   *                       of a standalone certificate authority.
+   * @param confpath     - The configuration path for the conf parser
+   *                       May be null, in which case it reads a java
+   *                       property. It should not be null in the case
+   *                       of a standalone certificate authority.
+   * @param isStandalone - true if running as a certificate authority
+   *                       false if running as a Cougaar node
+   */
   public KeyManagement(String aCA_DN, String role,
-		       String certPath, String confpath) 
+		       String certPath, String confpath,
+		       boolean isStandalone) 
     throws Exception
   {
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
+
     caDN = aCA_DN;
     caX500Name = new X500Name(caDN);
     String caCommonName = caX500Name.getCommonName();
-
-    if (certPath != null) {
-      standalone = true;
-      if (CryptoDebug.debug) {
-	System.out.println("Running as standalone CA");
-      }
-
-      /* The following directory structure will be created automatically (except for
-       * the keystore file which must be manually installed) when running as a
-       * standalone CA:
-       * top-level directory (org.cougaar.security.CA.certpath)
-       * +-+ <CA common name>
-       *   +-+ conf
-       *     +-- <keystore file>     (this is the CA keystore file.
-       *     |                        it must be manually installed)
-       *     +-- <serial number file>
-       *     +-- <pkcs10Directory>
-       *     +-+ <x509CertDirectory>
-       *       +-- signed X509 certificates
-       */
-      String topLevelDirectory = certPath + File.separatorChar + caCommonName;
-      confDirectoryName = topLevelDirectory +  File.separatorChar + "conf";
-
-    }
-    else {
-      standalone = false;
-    }
- 
-    confParser = new ConfParser(confpath, standalone);
-
-    try {
-      caPolicy = confParser.readCaPolicy(caDN, role);
-    }
-    catch (Exception e) {
-       if(CryptoDebug.debug)
-	e.printStackTrace();
-      throw new Exception("Unable to read policy for DN=" + caDN + ". Role="
-			  + role + " - " + e );
-   
-    }
-    
-    init(role);
-  }
-
-  public KeyManagement(String aCA_DN, String role) 
-    throws Exception
-  {
-    caDN = aCA_DN;
-    caX500Name = new X500Name(caDN);
-
-    String caCommonName = caX500Name.getCommonName();
-    String certpath = System.getProperty("org.cougaar.security.CA.certpath");
 
     if(CryptoDebug.debug) {
       System.out.println(" got ca dn name as :"+caDN);
     }
 
-    if (certpath != null) {
-      standalone = true;
-      if (CryptoDebug.debug) {
+    standalone = isStandalone;
+    if (CryptoDebug.debug) {
+      if (standalone) {
 	System.out.println("Running as standalone CA");
       }
+      else {
+	System.out.println("Running as Cougaar node");
+      }
+    }
 
+    if (certPath != null) {
       /* The following directory structure will be created automatically
        * (except for the keystore file which must be manually installed)
        * when running as a standalone CA:
@@ -179,27 +156,30 @@ public class KeyManagement implements CertificateManagementService
        *     +-+ <x509CertDirectory>
        *       +-- signed X509 certificates
        */
-      String topLevelDirectory = certpath + File.separatorChar + caCommonName;
+      String topLevelDirectory = certPath + File.separatorChar + caCommonName;
       confDirectoryName = topLevelDirectory +  File.separatorChar + "conf";
-
     }
     else {
-      standalone = false;
+      confDirectoryName =
+	secprop.getProperty("org.cougaar.security.CA.certpath");
     }
-
-    confParser = new ConfParser(standalone);
+ 
+    confParser = new ConfParser(confpath, standalone);
 
     try {
       caPolicy = confParser.readCaPolicy(caDN, role);
-      if(caPolicy==null) {
-	System.out.println(" Got Ca policy NUULLLL");
-      }
-      else {
-	System.out.println(" Got Ca policy "+ caPolicy.toString());
+      if (CryptoDebug.debug) {
+	if(caPolicy==null) {
+	  System.out.println(" Got Ca policy NULL");
+	}
+	else {
+	  System.out.println(" Got Ca policy "+ caPolicy.toString());
+	}
       }
     }
     catch (Exception e) {
-      e.printStackTrace();
+       if(CryptoDebug.debug)
+	e.printStackTrace();
       throw new Exception("Unable to read policy for DN=" + caDN + ". Role="
 			  + role + " - " + e );
     }
@@ -231,19 +211,19 @@ public class KeyManagement implements CertificateManagementService
       caKeyStore = new DirectoryKeyStore(param);
 
       if (CryptoDebug.debug) {
-	System.out.println("CA Certificate directory service URL: " + caPolicy.ldapURL);
+	System.out.println("CA Certificate directory service URL: "
+			   + caPolicy.ldapURL);
       }
 
-      caOperations = CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
-										   caPolicy.ldapType, caPolicy.ldapURL);
+      caOperations =
+	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
+	  caPolicy.ldapType, caPolicy.ldapURL);
       if (caOperations == null) {
 	throw new Exception("Unable to communicate with LDAP server");
       }
       publishCAinLdap();
     }
     else{
-
-      
       try {
 	caPolicy = confParser.readCaPolicy("", role);
       }

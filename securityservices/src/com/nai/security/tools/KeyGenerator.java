@@ -81,7 +81,7 @@ public class KeyGenerator {
     }
     System.setProperty("org.cougaar.security.crypto.config", args[0]);
 
-    confParser = new ConfParser(false);
+    confParser = new ConfParser(null, false);
 
     Element root = confParser.getConfigDocument().getDocumentElement();
     iterateKeyStore(root, action);

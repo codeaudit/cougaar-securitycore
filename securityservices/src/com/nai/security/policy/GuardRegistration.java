@@ -36,6 +36,8 @@ import org.cougaar.core.blackboard.*;
 import org.cougaar.core.plugin.*;
 import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.util.*;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 // KAoS policy management
 import kaos.core.guard.Guard;
@@ -52,6 +54,7 @@ public abstract class GuardRegistration
   implements Enforcer
 {
   public final String XML_KEY = "XMLContent";
+  private SecurityPropertiesService secprop = null;
 
   /**
    * toggles debugging messages for a vebose mode
@@ -69,11 +72,14 @@ public abstract class GuardRegistration
   private String enforcerName = null;
 
   public GuardRegistration(String aPolicyType, String enforcerName) {
-      // Setup whether we're in debug mode or not
-      debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.policy.debug",
-						  "false"))).booleanValue();
-      setPolicyType(aPolicyType);
-      setName(enforcerName);	// Setup the enforcer's name (agent or node)
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
+    // Setup whether we're in debug mode or not
+    debug = (Boolean.valueOf(secprop.getProperty(secprop.POLICY_DEBUG,
+						"false"))).booleanValue();
+    setPolicyType(aPolicyType);
+    setName(enforcerName);	// Setup the enforcer's name (agent or node)
   }
 
   /** Set the policy type to which this policy enforcer is subscribing **/

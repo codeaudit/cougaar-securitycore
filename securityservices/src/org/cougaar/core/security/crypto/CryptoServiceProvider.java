@@ -43,6 +43,7 @@ import org.cougaar.core.security.crypto.*;
 
 import com.nai.security.certauthority.KeyManagement;
 import com.nai.security.crypto.KeyRing;
+import com.nai.security.util.*;
 
 public class CryptoServiceProvider 
   extends ContainerSupport
@@ -162,4 +163,26 @@ public class CryptoServiceProvider
     }
     return keyRingService;
   }
+
+  /** *********************************************
+   * TODO
+   * Temporary hack until the security properties service is fully
+   * componentized.
+   */
+  static private SecurityPropertiesService securityPropertiesService = null;
+  static private Integer securityPropertiesServiceLock = new Integer(0);
+
+  public static SecurityPropertiesService getSecurityProperties()
+  {
+    /* Create a singleton class for now
+     */
+    synchronized(securityPropertiesServiceLock) {
+      if (securityPropertiesService == null) {
+	securityPropertiesService = new SecurityPropertiesServiceImpl();
+      }
+    }
+    return securityPropertiesService;
+  }
+
+
 }

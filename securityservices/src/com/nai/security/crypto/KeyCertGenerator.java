@@ -61,10 +61,6 @@ public final class KeyCertGenerator
 			  String provider)
     throws NoSuchAlgorithmException, NoSuchProviderException
   {
-    /*CryptoDebug.debug =
-      (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.CryptoDebug.debug",
-					  "false"))).booleanValue();
-   */    
     if (provider == null || provider.equals("")) {
       keyGen = KeyPairGenerator.getInstance(algorithm);
     }

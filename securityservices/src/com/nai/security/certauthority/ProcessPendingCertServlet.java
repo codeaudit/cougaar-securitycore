@@ -15,8 +15,13 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
 
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
+
 public class ProcessPendingCertServlet extends  HttpServlet
 {
+  private SecurityPropertiesService secprop = null;
+
   private CaPolicy caPolicy = null;            // the policy of the CA
   private CertDirectoryServiceCA caOperations=null;
   private ConfParser confParser = null;
@@ -26,10 +31,13 @@ public class ProcessPendingCertServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
+    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
     context=config.getServletContext();
-    String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+    String confpath=(String)context.getAttribute(secprop.CRYPTO_CONFIG);
     confParser = new ConfParser(confpath, true);
   }
 

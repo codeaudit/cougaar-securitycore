@@ -39,9 +39,12 @@ import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class PendingCertDetailsServlet extends  HttpServlet
 {
+  private SecurityPropertiesService secprop = null;
   private CertDirectoryServiceClient certificateFinder=null;
   private CaPolicy caPolicy = null;            // the policy of the CA
 
@@ -50,7 +53,10 @@ public class PendingCertDetailsServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
+    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
     context=config.getServletContext();
   }

@@ -68,9 +68,6 @@ public class CertificateCache
 
   public CertificateCache(DirectoryKeyStore d)
   {
-    /*debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-    */
     directorykeystore = d;
   }
 

@@ -57,68 +57,11 @@ import java.util.*;
 
 public class CryptoProviders {
 
-  /* static private boolean debug = false;
-
-  static {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-  }
-  */
-
   /**  Dynamically load Crypto providers */
- /** This function is commented as Crypto Providers are loaded from 
-  * BaseBootstrapper 
- **/
+  /** This function is commented as Crypto Providers are loaded from 
+   * BaseBootstrapper 
+   **/
   public static void loadCryptoProviders() {
-    /*String cryptoProvidersProperty =
-      System.getProperty("org.cougaar.core.security.crypto.cryptoProvidersFile",
-			 "cryptoProviders.xml");
-    ConfigFinder configFinder = new ConfigFinder();
-    File f = configFinder.locateFile(cryptoProvidersProperty);
-    if (f == null) {
-      System.out.println("No additional cryptographic providers");
-      return;
-    }
-
-    Document doc = null;
-    try {
-      doc = configFinder.parseXMLConfigFile(cryptoProvidersProperty);
-    }
-    catch (java.io.IOException e) {
-      System.out.println("Unable to parse " + f.getPath() + " file");
-      e.printStackTrace();
-      return;
-    }
-    if (debug) {
-      System.out.println("path=" + f.getPath());
-    }
-    if (doc == null) {
-      System.out.println("Unable to parse cryptographic providers configuration file");
-      return;
-    }
-
-    Element root = doc.getDocumentElement();
-
-    Element[] cryptoProviders = findChildElements(root, "securityProvider");
-    for (int i = 0; i < cryptoProviders.length; i++) {
-      String providerName = cryptoProviders[i].getAttribute("class");
-      if (debug) {
-	System.out.println("Provider: " + providerName);
-      }
-      try {
-	Class c = Class.forName(providerName);
-        Object o = c.newInstance();
-	if (o instanceof java.security.Provider) {
-	  Security.addProvider((java.security.Provider) o);
-	}
-      } 
-      catch(Exception e) {
-	System.err.println("Error loading security provider (" + e + ")"); 
-      }
-    }
-    if (debug) {
-      printProviderProperties();
-      }*/
   }
 
   public static void printProviderProperties() {

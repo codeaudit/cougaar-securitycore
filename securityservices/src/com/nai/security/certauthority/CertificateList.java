@@ -41,8 +41,13 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
 
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
+
 public class CertificateList extends  HttpServlet
 {
+  private SecurityPropertiesService secprop = null;
+
   private ConfParser confParser = null;
   private X500Name[] caDNs = null;
   private String[] roles = null;
@@ -53,10 +58,13 @@ public class CertificateList extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-      					"false"))).booleanValue();
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
+    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+						 "false"))).booleanValue();
     context=config.getServletContext();
-    String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+    String confpath=(String)context.getAttribute(secprop.CRYPTO_CONFIG);
     if(debug)
       System.out.println("^^^^^^^^^^^^^^^^ In cert list  "+confpath);
     confParser = new ConfParser(confpath, true);

@@ -33,6 +33,8 @@ import org.cougaar.core.domain.RootFactory;
 import java.util.Vector;
 import java.util.Enumeration;
 
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class MonitoringUtils
 
@@ -64,7 +66,7 @@ public class MonitoringUtils
   public static int debug=0;
   static
   {
-    String sdebug=System.getProperty("com.nai.security.monitoringdebug");
+    String sdebug=System.getProperty(SecurityPropertiesService.MONITORING_DEBUG);
     if(sdebug!=null) {
       if(sdebug.equalsIgnoreCase("true")) {
 	debug=1;

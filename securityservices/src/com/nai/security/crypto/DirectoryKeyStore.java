@@ -60,13 +60,10 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.crypto.ldap.CertificateRevocationStatus;
-
-
-
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class DirectoryKeyStore 
-  //implements Runnable
-
 {
   /** This keystore stores the following keys:
    *  - Keys that have been introduced through the automated key pair
@@ -77,6 +74,8 @@ public class DirectoryKeyStore
    *   as well as certificates from other entities.
    */
   private KeyStore keystore = null;
+
+  private SecurityPropertiesService secprop = null;
 
   /** This keystore stores certificates of trusted certificate authorities. */
   private KeyStore caKeystore = null;
@@ -132,6 +131,9 @@ public class DirectoryKeyStore
 
   /** Initialize the directory key store */
   public DirectoryKeyStore(DirectoryKeyStoreParameters aParam) {
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
     try {
       param = aParam;
 
@@ -172,14 +174,12 @@ public class DirectoryKeyStore
       if (!param.standalone) {
 	// We running as part of Cougaar, this class may be used to support
 	// certificate authority services. In that cases, we need CA policy
-	String role = System.getProperty("org.cougaar.security.role"); 
+	String role = secprop.getProperty(secprop.SECURITY_ROLE); 
 	if (role == null && CryptoDebug.debug == true) {
 	  System.out.println("DirectoryKeystore warning: LDAP role not defined");
 	}
 	caClient = new CAClient(role);
         //the KAoS domain manager runs a plugin, check if it has a cert
-        //String dn = System.getProperty("org.cougaar.domain.manager");
-        //if(dn!=null) checkOrMakeCert(dn);
 	NodePolicy nodePolicy = caClient.getNodePolicy();
 
 	defaultOrganizationUnit = nodePolicy.ou;
@@ -1220,8 +1220,13 @@ public class DirectoryKeyStore
    * lookup the LDAP directory. The CA may have already signed and published
    * the certificate, in which case it is not necessary to re-generated and
    * send a PKCS#10 request to the CA.
+   *
+   * @param commonName - the common name of the entity (agent or node)
+   * @param keyAlias - the alias of the key in the keystore
+   * @return - the private key of the entity
    */
-  protected synchronized PrivateKey addKeyPair(String commonName, String keyAlias)
+  protected synchronized PrivateKey addKeyPair(String commonName,
+					       String keyAlias)
   {
     String request = "";
     String reply = "";
@@ -1230,16 +1235,18 @@ public class DirectoryKeyStore
     String nodeName = NodeInfo.getNodeName();
 
     if (CryptoDebug.debug) {
-      System.out.println("Creating key pair for " + commonName + " - Node name:" + nodeName);
+      System.out.println("Creating key pair for "
+			 + commonName + " - Node name:" + nodeName);
     }
 
     if (nodeName == null && CryptoDebug.debug) {
-      System.out.println("DirectoryKeyStore Error: Cannot get node name");
-      return null;
+	System.out.println("DirectoryKeyStore Error: Cannot get node name");
+	return null;
     }
     String alias = null;
     PrivateKey privatekey = null;
     try {
+	/* */
       if(commonName.equals(nodeName)){
 	// We are node
 	if (keyAlias != null) {
@@ -1257,9 +1264,8 @@ public class DirectoryKeyStore
 	  }
 	  alias = makeKeyPair(commonName);
 	}
-	// At this point, the key pair has been added to the keystore, but we don't
-	// have the reply from the certificate authority yet.
-
+	// At this point, the key pair has been added to the keystore,
+	// but we don't have the reply from the certificate authority yet.
 	// Send the public key to the Certificate Authority (PKCS10)
 	request =
 	  generateSigningCertificateRequest((X509Certificate)
@@ -1322,9 +1328,12 @@ public class DirectoryKeyStore
                 System.out.println("Certificate in pending mode.");
               }
               statindex += strStat.length();
-              int status = Integer.parseInt(reply.substring(statindex, statindex + 1));
+              int status = Integer.parseInt(reply.substring(statindex,
+							    statindex + 1));
               if (CryptoDebug.debug) {
-                System.out.println("pending status is: " + reply.substring(statindex, statindex + 1));
+                System.out.println("pending status is: "
+				   + reply.substring(statindex,
+						     statindex + 1));
               }
               if (status == KeyManagement.PENDING_STATUS_PENDING) {
                 System.out.println("Certificate is pending for approval.");
@@ -1346,7 +1355,8 @@ public class DirectoryKeyStore
           
             //we don't have a node key pair, so make it
             if (CryptoDebug.debug) {
-              System.out.println("Recursively creating key pair for node: " + nodeName);
+              System.out.println("Recursively creating key pair for node: "
+				 + nodeName);
             }
             addKeyPair(nodeName, null);
             if (CryptoDebug.debug) {

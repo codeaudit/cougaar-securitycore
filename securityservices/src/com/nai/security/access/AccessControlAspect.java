@@ -40,6 +40,8 @@ import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.planning.ldm.plan.Task;
 
 import com.nai.security.crypto.CryptoManagerServiceProvider;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 import org.cougaar.core.security.policy.AccessControlPolicy;
 
 /**
@@ -51,6 +53,7 @@ import org.cougaar.core.security.policy.AccessControlPolicy;
 public class AccessControlAspect extends StandardAspect
 {
   private static AccessControlPolicyService acps = null;
+  private SecurityPropertiesService secprop = null;
 
   private static boolean enabled = false;
   private static boolean debug = false;
@@ -62,12 +65,16 @@ public class AccessControlAspect extends StandardAspect
   private ServiceBroker sb=null;
   
   public AccessControlAspect() {
-    String db = System.getProperty("org.cougaar.message.transport.debug");
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
+    String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
     if (db!=null &&
 	(db.equalsIgnoreCase("true") || db.indexOf("security")>=0) ) {
       debug=true;
     }
-    infoLevel = (Integer.valueOf(System.getProperty("org.cougaar.security.info","0"))).intValue();
+    infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
+						     "0"))).intValue();
 
     //add crypto related services:
     sb = new ServiceBrokerSupport();

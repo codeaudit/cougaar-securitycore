@@ -41,39 +41,37 @@ import sun.security.util.ObjectIdentifier;
 
 import com.nai.security.policy.*;
 import com.nai.security.util.*;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 /** Helper class to read the cryptographic service configuration.
  * 
  */
 public class ConfParser {
+  private SecurityPropertiesService secprop = null;
 
   boolean standalone = false;
 
   private String configFile = null;
   private Document configDoc = null;
 
-  public ConfParser(boolean isStandalone) {
-    String defaultConfigFile = "cryptoPolicy.xml";
+  public ConfParser(String path, boolean isStandalone) {
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
 
-    configFile = System.getProperty("org.cougaar.security.crypto.config",
-				    defaultConfigFile);
-    System.out.println("conf file is at :"+configFile);
+    String defaultConfigFile = "cryptoPolicy.xml";
+    if(path==null) {
+      if(CryptoDebug.debug) {
+	System.out.println(" Got conf path as: null:");
+      }
+      configFile = secprop.getProperty(secprop.CRYPTO_CONFIG,
+				       defaultConfigFile);
+    }
+    else {
+      configFile=path;
+    }
     standalone = isStandalone;
     init();
-  }
-   public ConfParser(String path, boolean isStandalone) {
-     if(path==null) {
-       if(CryptoDebug.debug) {
-	 System.out.println(" Got conf path as: null:");
-       }
-       String defaultConfigFile= "cryptoPolicy.xml";
-       configFile=defaultConfigFile;
-     }
-     else {
-       configFile=path;
-     }
-     standalone = isStandalone;
-     init();
   }
 
   public Document getConfigDocument() {

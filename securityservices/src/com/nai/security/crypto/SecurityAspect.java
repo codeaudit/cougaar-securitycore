@@ -45,6 +45,8 @@ import com.nai.security.access.TrustSet;
 import com.nai.security.access.TrustAttribute;
 import org.cougaar.core.security.policy.AccessControlPolicy;
 
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 
 /**
@@ -56,6 +58,7 @@ import org.cougaar.core.security.policy.AccessControlPolicy;
 
 public class SecurityAspect extends StandardAspect
 {
+  private SecurityPropertiesService secprop = null;
   private static CryptoManagerService cms = null;
   private static CryptoPolicyService cps = null;
   private static AccessControlPolicyService acps = null;
@@ -80,10 +83,15 @@ public class SecurityAspect extends StandardAspect
     System.err.println("This security aspect is outdated and not maintained");
     System.err.println("Use CryptoAspect and AccessControlAspect instead");
 
-    String db = System.getProperty("org.cougaar.message.transport.debug");
-    if ( db!=null && (db.equalsIgnoreCase("true") || db.indexOf("security")>=0) ) debug=true;
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
 
-    infoLevel = (Integer.valueOf(System.getProperty("org.cougaar.security.info","0"))).intValue();
+    String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
+    if ( db!=null && (db.equalsIgnoreCase("true") ||
+		      db.indexOf("security")>=0) ) debug=true;
+
+    infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
+						     "0"))).intValue();
 
     //add crypto related services:
     sb = new ServiceBrokerSupport();

@@ -27,6 +27,8 @@ import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.component.ServiceBroker;
 import com.nai.security.access.AccessControlPolicyService;
 import com.nai.security.access.AccessControlPolicyServiceImpl;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 import java.security.Security;
 import java.security.Provider;
@@ -34,12 +36,16 @@ import java.security.Provider;
 public class CryptoManagerServiceProvider implements ServiceProvider {
   private static CryptoPolicyService cps = null;
   private static AccessControlPolicyService acps = null;
+  private SecurityPropertiesService secprop = null;
 
   private static boolean debug = false;
 
   /** Creates new CryptoManagerServiceProvider */
   public CryptoManagerServiceProvider() {
-    String sdebug = System.getProperty("org.cougaar.message.transport.debug");
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
+    String sdebug = secprop.getProperty(secprop.TRANSPORT_DEBUG);
     if (sdebug != null
 	&& (sdebug.equalsIgnoreCase("true")
 	    || sdebug.indexOf("security")>=0) ) {

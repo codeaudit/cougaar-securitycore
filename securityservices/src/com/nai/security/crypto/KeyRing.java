@@ -49,6 +49,8 @@ import com.nai.security.policy.NodePolicy;
 import com.nai.security.util.CryptoDebug;
 
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 /** A common holder for Security keystore information and functionality
  **/
@@ -62,14 +64,17 @@ final public class KeyRing
   private boolean debug = false;
   private ConfParser confParser = null;
   private PrivateKeyPKCS12 pkcs12;
+  private SecurityPropertiesService secprop = null;
 
   public KeyRing() {
     init();
   }
 
   private synchronized void init() {
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
     try {
-      String installpath = System.getProperty("org.cougaar.install.path");
+      String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
 
       // CA keystore: contains trusted certificates of Certificate Authorities
       String defaultCaKeystorePath = installpath + File.separatorChar
@@ -82,10 +87,10 @@ final public class KeyRing
 	+ File.separatorChar + "keystore";
       param = new DirectoryKeyStoreParameters();
       param.keystorePassword =
-	System.getProperty("org.cougaar.security.keystore.password",
+	secprop.getProperty(secprop.KEYSTORE_PASSWORD,
 			   "alpalp").toCharArray();
       param.keystorePath =
-	System.getProperty("org.cougaar.security.keystore",
+	secprop.getProperty(secprop.KEYSTORE_PATH,
 			     defaultKeystorePath);
       File file = new File(param.keystorePath);
       if (!file.exists()){
@@ -104,8 +109,8 @@ final public class KeyRing
       param.standalone = false;
       
       // CA keystore parameters
-      confParser = new ConfParser(param.standalone);
-      String role = System.getProperty("org.cougaar.security.role"); 
+      confParser = new ConfParser(null, param.standalone);
+      String role = secprop.getProperty(secprop.SECURITY_ROLE); 
       if (role == null && CryptoDebug.debug == true) {
 	System.out.println("Keyring Warning: LDAP role not defined");
       }
@@ -130,8 +135,10 @@ final public class KeyRing
       }
 
       if (CryptoDebug.debug) {
-	System.out.println("Secure message keystore: path=" + param.keystorePath);
-	System.out.println("Secure message CA keystore: path=" + param.caKeystorePath);
+	System.out.println("Secure message keystore: path="
+			   + param.keystorePath);
+	System.out.println("Secure message CA keystore: path="
+			   + param.caKeystorePath);
       }
     
       // LDAP certificate directory
@@ -152,7 +159,7 @@ final public class KeyRing
     } catch (Exception e) {
       e.printStackTrace();
     }
-    if (keystore == null || pkcs12 == null) {
+    if (keystore == null || pkcs12 == null && param.standalone == false) {
       // Cannot proceed without keystore
       System.err.println("ERROR: Cannot continue secure execution");
       System.err.println("       without cryptographic data files");
@@ -164,7 +171,6 @@ final public class KeyRing
       }
       System.exit(-1);
     }
-      
   }
 
   public synchronized KeyStore getKeyStore() { 

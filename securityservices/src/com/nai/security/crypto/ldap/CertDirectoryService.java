@@ -63,9 +63,6 @@ public abstract class CertDirectoryService
   public CertDirectoryService(String aURL) 
     throws Exception
   {
-    /*debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-    */
     if (CryptoDebug.debug) {
       System.out.println("Creating Directory Service for " + aURL);
     }

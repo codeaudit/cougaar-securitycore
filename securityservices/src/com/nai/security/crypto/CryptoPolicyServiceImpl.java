@@ -28,12 +28,15 @@ import java.util.Set;
 import java.util.Iterator;
 import com.nai.security.policy.*;
 import org.cougaar.planning.ldm.policy.*;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 import safe.enforcer.NodeEnforcer;
 
 public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 
   private boolean dbg = false;
+  private SecurityPropertiesService secprop = null;
 
     //policy source
     CryptoPolicyProxy cpp;
@@ -44,9 +47,12 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 
     /** Creates new CryptoPolicyServiceImpl */
     public CryptoPolicyServiceImpl() {
-      dbg = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.policy.debug",
+      // TODO. Modify following line to use service broker instead
+      secprop = CryptoServiceProvider.getSecurityProperties();
+
+      dbg = (Boolean.valueOf(secprop.getProperty(secprop.POLICY_DEBUG,
 						"false"))).booleanValue();
-        cpp = new CryptoPolicyProxy();
+      cpp = new CryptoPolicyProxy();
     }
 
     public synchronized SecureMethodParam getSendPolicy(String name) {

@@ -30,22 +30,19 @@ import java.io.*;
 import com.nai.security.policy.NodePolicy;
 import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
+import com.nai.security.util.CryptoDebug;
 
 public class CAClient {
 
   private KeyPairGenerator kpg;
   private NodePolicy policy;
-  private boolean debug = false;
   private String role = null;
 
   /** Creates new CertGenerator */
   public CAClient(String aRole) {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-
     role = aRole;
 
-    ConfParser confParser = new ConfParser(false);
+    ConfParser confParser = new ConfParser(null, false);
     try{
       //kpg = KeyPairGenerator.getInstance("RSA");
             
@@ -65,7 +62,7 @@ public class CAClient {
   public String sendPKCS(String request, String pkcs){
     String reply = "";
     try {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Sending request to " + policy.CA_URL
 			   + ", DN= " + policy.CA_DN);
 	System.out.println("DN= " + policy.CA_DN);
@@ -91,7 +88,8 @@ public class CAClient {
       out.flush();
       out.close();
 
-      BufferedReader in = new BufferedReader(new InputStreamReader(huc.getInputStream()));
+      BufferedReader in =
+	new BufferedReader(new InputStreamReader(huc.getInputStream()));
       int len = 2000;     // Size of a read operation
       char [] cbuf = new char[len];
       while (in.ready()) {
@@ -99,7 +97,7 @@ public class CAClient {
 	reply = reply + new String(cbuf, 0, read);
       }
       in.close();
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Reply: " + reply);
       }
  
@@ -114,11 +112,12 @@ public class CAClient {
   public String signPKCS(String request, String nodeDN){
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try{
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Signing PKCS10 request with node");
       }
-      KeyManagement km = new KeyManagement(nodeDN, role);
-      X509Certificate[] cf = km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
+      KeyManagement km = new KeyManagement(nodeDN, role, null, null, false);
+      X509Certificate[] cf =
+	km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
       PrintStream ps = new PrintStream(baos);
       CertificateUtility.base64EncodeCertificates(ps, cf);
       //get the output to the CA

@@ -50,6 +50,8 @@ import safe.util.*;
 // Cougaar security services
 import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.core.security.policy.TypedPolicy;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 import com.nai.security.util.DOMWriter;
 
@@ -57,7 +59,8 @@ import com.nai.security.util.DOMWriter;
  * The PolicyExpanderPlugIn expands policies before
  * they reach the DomainManagerPlugIn for approval.
  * 
- * It subscribes to UnexpandedPolicyUpdates and UnexpandedConditionalPolicyMsgs.
+ * It subscribes to UnexpandedPolicyUpdates and
+ * UnexpandedConditionalPolicyMsgs.
  * 
  * It publishes ConditionalPolicyMsgs and ProposedPolicyUpdates.
  * 
@@ -67,75 +70,80 @@ import com.nai.security.util.DOMWriter;
 public class PolicyExpanderPlugin
   extends SimplePlugin
 {
-    private UnaryPredicate _unexCondPolicyPredicate = new UnaryPredicate() {
-        public boolean execute(Object o) {
+  private SecurityPropertiesService secprop = null;
+
+  private UnaryPredicate _unexCondPolicyPredicate = new UnaryPredicate() {
+      public boolean execute(Object o) {
         return (o instanceof UnexpandedConditionalPolicyMsg);
-        }
-        };
-    private UnaryPredicate _unexPolicyUpdatePredicate = new UnaryPredicate() {
-        public boolean execute(Object o) {
+      }
+    };
+  private UnaryPredicate _unexPolicyUpdatePredicate = new UnaryPredicate() {
+      public boolean execute(Object o) {
         return (o instanceof UnexpandedPolicyUpdate);
-        }
-        };
+      }
+    };
 
-    public void setupSubscriptions()
+  public void setupSubscriptions()
     {
-        _ucpm = (IncrementalSubscription) subscribe(_unexCondPolicyPredicate);
-        _upu = (IncrementalSubscription) subscribe (_unexPolicyUpdatePredicate);
+      // TODO. Modify following line to use service broker instead
+      secprop = CryptoServiceProvider.getSecurityProperties();
 
-        // should we print debugging info?
-        String debug = System.getProperty("SAFE.debug");
-        if (debug != null && debug.equalsIgnoreCase("true")) {
-            _debug = true;
-        }
+      _ucpm = (IncrementalSubscription) subscribe(_unexCondPolicyPredicate);
+      _upu = (IncrementalSubscription) subscribe (_unexPolicyUpdatePredicate);
+
+      // should we print debugging info?
+      String debug = secprop.getProperty(secprop.KAOS_DEBUG);
+      if (debug != null && debug.equalsIgnoreCase("true")) {
+	_debug = true;
+      }
     }
     
-    public void execute()
+  public void execute()
     {
-        if (_debug) System.out.println("PolicyExpanderPlugIn::execute()");
-        // check for added UnexpandedConditionalPolicyMsgs
-        Enumeration ucpmEnum = _ucpm.getAddedList();
-        while (ucpmEnum.hasMoreElements()) {
-            UnexpandedConditionalPolicyMsg ucpm = (UnexpandedConditionalPolicyMsg) ucpmEnum.nextElement();
-            // extract the ConditionalPolicyMsg
-            ConditionalPolicyMsg condPolicyMsg = ucpm.getConditionalPolicyMsg();
-            // get the policies
-            Vector policies = condPolicyMsg.getPolicies();
-            Vector newPolicies = new Vector();
-            // expand each policy
-            for (int i=0; i<policies.size(); i++) {
-                PolicyMsg policyMsg = (PolicyMsg) policies.elementAt(i);
-                try {                    
-                    expandPolicy (policyMsg);
-                }
-                catch (Exception xcp) {
-                    xcp.printStackTrace();
-                }                    
-            }
-            publishRemove (ucpm);
-            if (_debug) System.out.println("publishAdd ConditionalPolicyMsg");
-            publishAdd (condPolicyMsg);			
-        }
+      if (_debug) System.out.println("PolicyExpanderPlugIn::execute()");
+      // check for added UnexpandedConditionalPolicyMsgs
+      Enumeration ucpmEnum = _ucpm.getAddedList();
+      while (ucpmEnum.hasMoreElements()) {
+	UnexpandedConditionalPolicyMsg ucpm = (UnexpandedConditionalPolicyMsg) ucpmEnum.nextElement();
+	// extract the ConditionalPolicyMsg
+	ConditionalPolicyMsg condPolicyMsg = ucpm.getConditionalPolicyMsg();
+	// get the policies
+	Vector policies = condPolicyMsg.getPolicies();
+	Vector newPolicies = new Vector();
+	// expand each policy
+	for (int i=0; i<policies.size(); i++) {
+	  PolicyMsg policyMsg = (PolicyMsg) policies.elementAt(i);
+	  try {                    
+	    expandPolicy (policyMsg);
+	  }
+	  catch (Exception xcp) {
+	    xcp.printStackTrace();
+	  }                    
+	}
+	publishRemove (ucpm);
+	if (_debug) System.out.println("publishAdd ConditionalPolicyMsg");
+	publishAdd (condPolicyMsg);			
+      }
         
-        // check for added UnexpandedPolicyUpdates
-        Enumeration upuEnum = _upu.getAddedList();
-        while (upuEnum.hasMoreElements()) {
-            UnexpandedPolicyUpdate upu = (UnexpandedPolicyUpdate) upuEnum.nextElement();
-            List policies = upu.getPolicies();
-            Iterator policyIt = policies.iterator();
-            while (policyIt.hasNext()) {
-                PolicyMsg policyMsg = (PolicyMsg) policyIt.next();
-                try {
-                    expandPolicy (policyMsg);
-                }
-                catch (Exception xcp) {
-                    xcp.printStackTrace();
-                }
-            }
-            publishRemove (upu);
-            publishAdd (new ProposedPolicyUpdate(upu.getUpdateType(),
-                                                 policies));
-        }
+      // check for added UnexpandedPolicyUpdates
+      Enumeration upuEnum = _upu.getAddedList();
+      while (upuEnum.hasMoreElements()) {
+	UnexpandedPolicyUpdate upu = (UnexpandedPolicyUpdate) upuEnum.nextElement();
+	List policies = upu.getPolicies();
+	Iterator policyIt = policies.iterator();
+	while (policyIt.hasNext()) {
+	  PolicyMsg policyMsg = (PolicyMsg) policyIt.next();
+	  try {
+	    expandPolicy (policyMsg);
+	  }
+	  catch (Exception xcp) {
+	    xcp.printStackTrace();
+	  }
+	}
+	publishRemove (upu);
+	publishAdd (new ProposedPolicyUpdate(upu.getUpdateType(),
+					     policies));
+      }
     }
 
   /**
@@ -153,54 +161,54 @@ public class PolicyExpanderPlugin
    */
   private void expandPolicy(PolicyMsg policyMsg)
     throws Exception
-  {
-    if (_debug == true) {
-      System.out.println("Expanding policy message: " + policyMsg);
-    }
+    {
+      if (_debug == true) {
+	System.out.println("Expanding policy message: " + policyMsg);
+      }
 
-    // get the attributes of the policy
-    Vector attributes = policyMsg.getAttributes();
+      // get the attributes of the policy
+      Vector attributes = policyMsg.getAttributes();
 
-    Document xmlContent = null;
-    for (int i=0; i<attributes.size(); i++) {
-      AttributeMsg attrMsg = (AttributeMsg) attributes.elementAt(i);
+      Document xmlContent = null;
+      for (int i=0; i<attributes.size(); i++) {
+	AttributeMsg attrMsg = (AttributeMsg) attributes.elementAt(i);
 
-      // Find the XML policy attributes and expand them
-      if (attrMsg.getName().equals(XML_KEY)) {
-	xmlContent = (Document) attrMsg.getValue();
+	// Find the XML policy attributes and expand them
+	if (attrMsg.getName().equals(XML_KEY)) {
+	  xmlContent = (Document) attrMsg.getValue();
 
-	XMLPolicyCreator policyCreator =
-	  new XMLPolicyCreator(xmlContent, getClusterIdentifier().toAddress());
-	Policy[] policies = policyCreator.getPolicies();
+	  XMLPolicyCreator policyCreator =
+	    new XMLPolicyCreator(xmlContent, getClusterIdentifier().toAddress());
+	  Policy[] policies = policyCreator.getPolicies();
 
-	if (_debug == true) {
-	  System.out.println("\n\nTHERE ARE " + policies.length
-			     + " POLICIES");
-	  PrintStream out = new PrintStream(System.out);
-	  DOMWriter xmlwriter = new DOMWriter(out);
-	  xmlwriter.print(xmlContent);
-	}
-
-	for (int j = 0 ; j < policies.length ; j++) {
-	  if (policies[j] instanceof TypedPolicy){
-	    TypedPolicy policyObject = (TypedPolicy) policies[j];
-	    // Add policy type.
-	    String binderType = policyObject.getType();
-	    policyMsg.addSymbol(PolicyConstants.HLP_POLICY_TYPE,
-				binderType);
-
-	    policyMsg.addSymbol(org.cougaar.core.security.
-				policy.TypedPolicy.POLICY_OBJECT_KEY,
-				policyObject);
-	    if (_debug == true) {
-	      System.out.println("Adding policy object["+ i + "]: " +
-				 binderType + " - " + policyObject);
-	    }
+	  if (_debug == true) {
+	    System.out.println("\n\nTHERE ARE " + policies.length
+			       + " POLICIES");
+	    PrintStream out = new PrintStream(System.out);
+	    DOMWriter xmlwriter = new DOMWriter(out);
+	    xmlwriter.print(xmlContent);
 	  }
-	}                   
+
+	  for (int j = 0 ; j < policies.length ; j++) {
+	    if (policies[j] instanceof TypedPolicy){
+	      TypedPolicy policyObject = (TypedPolicy) policies[j];
+	      // Add policy type.
+	      String binderType = policyObject.getType();
+	      policyMsg.addSymbol(PolicyConstants.HLP_POLICY_TYPE,
+				  binderType);
+
+	      policyMsg.addSymbol(org.cougaar.core.security.
+				  policy.TypedPolicy.POLICY_OBJECT_KEY,
+				  policyObject);
+	      if (_debug == true) {
+		System.out.println("Adding policy object["+ i + "]: " +
+				   binderType + " - " + policyObject);
+	      }
+	    }
+	  }                   
+	}
       }
     }
-  }
   private IncrementalSubscription _ucpm;
   private IncrementalSubscription _upu;
   private boolean _debug = false;

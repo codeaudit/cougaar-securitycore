@@ -64,6 +64,7 @@ import javax.security.auth.Subject;
     permission javax.security.auth.AuthPermission "getPolicy";
 
  **/
+
 public class CougaarSecurityManager extends SecurityManager
 {
   private PrintStream auditlog;

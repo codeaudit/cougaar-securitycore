@@ -70,9 +70,6 @@ public class CertificateStatus
 			   CertificateOrigin origin, CertificateType type,
 			   CertificateTrust trust,
 			   String a) {
-    /*debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-    */
     certificate = cert;
     certificateIsValid = isValid;
     certificateOrigin = origin;

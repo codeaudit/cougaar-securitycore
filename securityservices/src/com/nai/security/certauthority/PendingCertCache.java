@@ -39,8 +39,12 @@ import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
 import java.security.PublicKey;
 
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class PendingCertCache extends Hashtable {
+  private SecurityPropertiesService secprop = null;
+
   private CaPolicy caPolicy = null;            // the policy of the CA
   private String x509DirectoryName = null;
   protected boolean debug = false;
@@ -63,12 +67,13 @@ public class PendingCertCache extends Hashtable {
     return thisCache;
   }
 
-  private PendingCertCache(String cadnname, String role, String certpath, String confpath) 
+  private PendingCertCache(String cadnname, String role,
+			   String certpath, String confpath) 
     throws Exception {
     ConfParser confParser = new ConfParser(confpath, true);
     try {
       caPolicy = confParser.readCaPolicy(cadnname, role);
-      signer = new KeyManagement(cadnname, role, certpath, confpath);
+      signer = new KeyManagement(cadnname, role, certpath, confpath, true);
     }
     catch (Exception e) {
       throw new Exception("Unable to read policy for DN=" + cadnname + ". Role="
@@ -100,7 +105,10 @@ public class PendingCertCache extends Hashtable {
 
   private void init()
     throws Exception {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
+    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
 
     x509DirectoryName = signer.getX509DirectoryName();

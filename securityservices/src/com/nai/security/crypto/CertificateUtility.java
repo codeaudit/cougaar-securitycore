@@ -44,12 +44,7 @@ public class CertificateUtility {
   public static final String PKCS7TRAILER  = "-----END CERTIFICATE-----";
   public static int CACert=1;
   public static int EntityCert=2;
-  /*
-  static {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-  }
-  */
+
   public static Collection parseX509orPKCS7Cert(InputStream inputstream)
     throws CertificateException
   {
