@@ -1,0 +1,44 @@
+This file contains instructions for changing crypto policies. An example of an XML based policy file is located in $COUGAAR_INSTALL_PATH/configs/common/BootPolicy.ldm.xml. This file is served as a set of default policies upon boot time, after booting, policies can be dynamicly updated via the KPAT tool.
+
+IncomingSecureMethod
+====================
+	The expected method of securing on incoming messages.
+	* Possible values	: plain, encrypt, sign, or signAndEncrypt
+	* plain	: no method of securing is applied.
+	* encrypt	: messages are encrypted with a symmetric key, which is encrypted using the receiver's public key.
+	* sign	: messages are signed using sender's private key.
+	* signAndEncrypt: messages are signed with the sender's private key and encrypted with a symetric key sealed with the receiver's public key.
+
+OutgoingSecureMethod
+====================
+	Same as "IncomingSecureMethod" except this one is applied to sending out messages.
+
+IncomingSymmetricAlgorithm
+==========================
+	The expected algorithm applied to "encrypt" or "signAndEncrypt" on the incoming message. If "plain" or "sign" is used, this parameter is ignored.
+	* possible values: DES, or DESede
+
+OutgoingSymmetricAlgorithm
+==========================
+	Same as "IncomingSymmetricAlgorithm" except this one is applied to sending out messages.
+
+
+IncomingAsymmetricAlgorithm
+===========================
+	The expected algorithm applied to "encrypt" or "signAndEncrypt" on the incoming message. If "plain" or "sign" is used, this parameter is ignored.
+	* possible values: RSA/ECB/PKCS#1, or ElGamal/ECB/PKCS#1
+
+OutgoingAsymmetricAlgorithm
+===========================
+	Same as "IncomingAsymmetricAlgorithm" except this one is applied to sending out messages.
+
+IncomingSigningAlgorithm
+========================
+	The expected algorithm applied to "sign" or "signAndEncrypt" on the incoming message. If "plain" or "encrypt" is used, this parameter is ignored.
+	* possible values: MD2withRSA, MD5withRSA, or SHA1withRSA 
+
+OutgoingSigningAlgorithm
+========================
+	Same as "IncomingSigningAlgorithm" except this one is applied to sending out messages.
+
+10/30/01
