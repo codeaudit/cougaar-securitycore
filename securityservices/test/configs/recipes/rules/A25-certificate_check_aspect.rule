@@ -2,13 +2,13 @@
 ####################################################
 # Rule to insert CertificateCheckAspect
 
-#plugin = "org.cougaar.core.security.crypto.CertificateCheckAspect"
+plugin = "org.cougaar.core.security.crypto.CertificateCheckAspect"
 
-#society.each_node do |node|
-#  node.add_component do |c|
-#      c.insertionpoint = "Node.AgentManager.Agent.MessageTransport.Aspect"
-#      c.priority = "INTERNAL"
-#      c.classname = plugin
-#      c.order = 510
-#  end
-#end
+society.each_node do |node|
+  node.add_component do |c|
+      c.insertionpoint = "Node.AgentManager.Agent.MessageTransport.Aspect"
+      c.priority = "INTERNAL"
+      c.classname = plugin
+      c.order = 510
+  end
+end
