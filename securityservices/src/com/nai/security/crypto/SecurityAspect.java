@@ -65,8 +65,10 @@ public class SecurityAspect extends StandardAspect
   private static String smlist[]={"CLEAR","SIGN","ENCRYPT","SIGN+ENCRYPT"};
   private static boolean enabled = false;
   private static boolean debug = false;
+  private static int infoLevel = 0;
+
   /** Do we use the cryptographic service? */
-//  private static String nodeName= null;
+  //  private static String nodeName= null;
   //private static Verb TRANSPORT = new Verb("Transport");
   private static String SECURE_PROPERTY = 
       "org.cougaar.message.transport.secure";
@@ -76,10 +78,11 @@ public class SecurityAspect extends StandardAspect
   public SecurityAspect() {
     String db = System.getProperty("org.cougaar.message.transport.debug");
     if ( db!=null && (db.equalsIgnoreCase("true") || db.indexOf("security")>=0) ) debug=true;
-    
+    infoLevel = (Integer.valueOf(System.getProperty("org.cougaar.security.info"))).intValue();
+
     //add crypto related services:
     sb = new ServiceBrokerSupport();
-//    setChildServiceBroker(sb);
+    //    setChildServiceBroker(sb);
     CryptoManagerServiceProvider cmsp = new CryptoManagerServiceProvider();
     sb.addService(CryptoManagerService.class, cmsp);
     sb.addService(CryptoPolicyService.class, cmsp);                
@@ -490,8 +493,13 @@ public class SecurityAspect extends StandardAspect
 	  }
 	}
       } catch (CertificateException e) {
-	System.out.println("Unable to secure message: " + message + ". Reason: " + e.getMessage());
-        e.printStackTrace();
+	if (infoLevel > 0) {
+	  System.out.println("Unable to secure message: " + message );
+	}
+	if (debug) {
+	  System.out.println(". Reason: " + e.getMessage());
+	  e.printStackTrace();
+	}
       } catch (Exception e) {
 	System.out.println("Unable to send message: " + e);
 	e.printStackTrace();

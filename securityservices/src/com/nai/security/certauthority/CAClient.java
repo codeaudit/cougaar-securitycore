@@ -123,7 +123,7 @@ public class CAClient {
       PrintStream ps = new PrintStream(baos);
       km.base64EncodeCertificates(ps, cf);
       //get the output to the CA
-      String req = KeyManagement.PKCS7HEADER + baos.toString() + KeyManagement.PKCS7TRAILER;
+      String req = baos.toString();
       String reply = sendPKCS(req, "PKCS7");
     }catch(Exception e){
       System.err.println("Error: can't get the certificate signed--"

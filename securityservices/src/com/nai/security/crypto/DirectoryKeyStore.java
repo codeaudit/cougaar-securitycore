@@ -561,7 +561,12 @@ public class DirectoryKeyStore implements Runnable
 	throw new CertificateException(s1);
       }
     }
+    return checkCertificateTrust(certificateReply);
+  }
 
+  private Certificate[] checkCertificateTrust(Certificate certificate)
+    throws CertificateException, KeyStoreException
+  {
     Hashtable hashtable = null;
     if(keystore.size() > 0) {
       // Build a hash table that indexes keys in the keystore by DN
@@ -577,7 +582,7 @@ public class DirectoryKeyStore implements Runnable
     }
 
     Vector vector = new Vector(2);
-    if(buildChain((X509Certificate)certificateReply, vector, hashtable)) {
+    if(buildChain((X509Certificate)certificate, vector, hashtable)) {
       Certificate acertificate[] = new Certificate[vector.size()];
       int i = 0;
       for(int j = vector.size() - 1; j >= 0; j--) {
@@ -684,10 +689,11 @@ public class DirectoryKeyStore implements Runnable
       throw new CertificateNotYetValidException(e.getMessage());
     }
 
-    // Now, make sure that the certificate chain leads to a trusted CA.
-    // If not, maybe it's because we did not send the certificate request
-    // to the CA, or maybe because we didn't get the reply from the CA
-    // the last time we tried to send it to the CA.
+    /* Now, make sure that the certificate chain leads to a trusted CA.
+     * If not, maybe it's because we did not send the certificate request
+     * to the CA, or maybe because we didn't get the reply from the CA
+     * the last time we tried to send it to the CA.
+     */
   }
 
   /** Build a certificate chain.
@@ -783,12 +789,11 @@ public class DirectoryKeyStore implements Runnable
     catch (CertificateException e) {
       System.out.println("Unable to sign certificate request." + e);
     }
-    byte der[] = request.getEncoded();
-    System.out.println("generateSigningCertificateRequest. der size:" + der.length);
 
-    char base64req[] = Base64.encode(der);
-    String reply = KeyManagement.PKCS10HEADER + "\n"
-      + new String(base64req) + "\n" + KeyManagement.PKCS10TRAILER;
+    String reply = KeyManagement.base64encode(request.getEncoded(), KeyManagement.PKCS10HEADER,
+				KeyManagement.PKCS10TRAILER);
+
+    System.out.println("generateSigningCertificateRequest:\n" + reply);
     return reply;
   }
 

@@ -343,7 +343,15 @@ public class KeyManagement
     }
   }
 
-  public void base64EncodeCertificates(PrintStream out, X509Certificate[] certs)
+  static public String base64encode(byte [] der, String header, String trailer)
+    throws IOException
+  {
+    ByteArrayOutputStream b = new ByteArrayOutputStream(500);
+    base64encode(b, der, header, trailer);
+    return b.toString("US-ASCII");
+  }
+
+  static public void base64EncodeCertificates(OutputStream out, X509Certificate[] certs)
     throws CertificateEncodingException, IOException
   {
     for (int i = 0 ; i < certs.length ; i++) {
@@ -351,13 +359,16 @@ public class KeyManagement
     }
   }
 
-  private void base64encode(PrintStream out, byte [] der, String header, String trailer)
+  static private void base64encode(OutputStream out, byte [] der, String header, String trailer)
     throws IOException
   {
-    out.println(header);
+    String h = header + "\n";
+    String t = trailer + "\n";
+
+    out.write(h.getBytes());
     BASE64Encoder b64 = new BASE64Encoder();
     b64.encodeBuffer(der, out);
-    out.println(trailer);
+    out.write(t.getBytes());
   }
 
   private void saveX509Request(X509CertImpl clientX509)
@@ -425,6 +436,7 @@ public class KeyManagement
 	int read = bufreader.read(cbuf, 0, len);
 	sbuf = sbuf + new String(cbuf, 0, read);
       }
+
       String base64EncodeRequest = getBase64Block(sbuf, PKCS7HEADER, PKCS7TRAILER);
       byte der[] = Base64.decode(base64EncodeRequest.toCharArray());
       InputStream inputstream = new ByteArrayInputStream(der);
@@ -489,9 +501,6 @@ public class KeyManagement
     while (reader.available() > 0) {
       int read = reader.read(bbuf, 0, len);
       String s = new String(bbuf, 0, read);
-      if (debug) {
-	System.out.println("getSigningRequests: reading:" + s);
-      }
       sbuf = sbuf + s;
 
       // Find header
@@ -521,9 +530,6 @@ public class KeyManagement
       //FileOutputStream f = new FileOutputStream("der.cer");
       //f.write(pkcs10DER);
       //f.close();
-      if (debug) {
-	System.out.println("PKCS10 Request:" + new String(Base64.encode(pkcs10DER)));
-      }
 
       // Create PKCS10 object
       PKCS10 pkcs10 = getSigningRequest(pkcs10DER);
