@@ -109,14 +109,28 @@ public class AgentCompromiseActuator extends ComponentPlugin
 
         // check whether action has start or stopped
         ActionRecord lastAction = action.getValue();
-        if (lastAction != null && lastAction.getAction().equals(AgentCompromiseAction.RESTART)) {
-          continue;
+        if (lastAction != null) {
+          if (lastAction.getAction().equals(AgentCompromiseAction.RESTART)) {
+            if (log.isDebugEnabled()) {
+              log.debug("Ignoring action already in process.");
+            }
+            continue;
+          }
         }
 
         Set newPV = action.getNewPermittedValues(); 
         if (newPV != null) {
+          try {
+            action.setPermittedValues(newPV);
+          } catch (IllegalValueException ioe) {
+            log.error("Illegal actionValue = "+action,ioe);
+            continue;
+          }
           if (newPV.size() == 0) {
             // it is not doing anything, just acknowledging some change
+            if (log.isDebugEnabled()) {
+              log.debug("Ignoring action with no value");
+            }
             continue;
           }
 
@@ -252,6 +266,17 @@ public class AgentCompromiseActuator extends ComponentPlugin
       if (action == null) {
         log.warn("There is no action associated with info: " + info);
         continue;
+      }
+      ActionRecord record = action.getValue();
+      if (record.hasCompleted()) {
+        if (log.isDebugEnabled()) {
+          log.debug("Ignoring info for action already completed.");
+        }
+        continue;
+      }
+
+      if (log.isDebugEnabled()) {
+        log.debug("Info " + info.getDiagnosis() + " for action." + action);
       }
       try {
         if (info.getDiagnosis().equals(AgentCompromiseInfo.FAILED)) {
