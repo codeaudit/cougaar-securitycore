@@ -36,6 +36,9 @@ public class ProcessGobbler
   private FileOutputStream experimentOutLog;
   private FileOutputStream experimentErrLog;
 
+  private File experimentOutLogFile;
+  private File experimentErrLogFile;
+
   private StreamGobbler nodeAppOut;
   private StreamGobbler nodeAppErr;
 
@@ -49,13 +52,13 @@ public class ProcessGobbler
     try {
       Date currentDate = new Date();
       SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss");
-      File experimentOutLogFile = new File(experimentPath + File.separator
-					   + "NODE-" + nodeName 
-					   + "-out.log");
+      experimentOutLogFile = new File(experimentPath + File.separator
+				      + "NODE-" + nodeName 
+				      + "-out.log");
       //+ "-" + df.format(currentDate) 
-      File experimentErrLogFile = new File(experimentPath + File.separator
-					   + "NODE-" + nodeName 
-					   + "-err.log");
+      experimentErrLogFile = new File(experimentPath + File.separator
+				      + "NODE-" + nodeName 
+				      + "-err.log");
       System.out.println("Node standard output file: "
 			 + experimentOutLogFile.getPath());
       System.out.println("Node standard error file:  "
@@ -91,5 +94,12 @@ public class ProcessGobbler
   }
   public StreamGobbler getErrStreamGobbler() {
     return nodeAppErr;
+  }
+
+  public File getOutFile() {
+    return experimentOutLogFile;
+  }
+  public File getErrFile() {
+    return experimentErrLogFile;
   }
 }

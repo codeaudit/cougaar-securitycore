@@ -24,15 +24,20 @@
  * - 
  */
 
-package org.cougaar.core.security.dashboard;
+package test.org.cougaar.core.security.simul;
 
 import java.io.*;
 import java.util.*;
+import java.text.*;
+import java.util.regex.*;
+import junit.framework.*;
+import java.rmi.Naming;
+import java.rmi.registry.*;
 
-public class ExperimentResults
+public class RmiServerInfo
 {
-  public String analyzisDate;
-  public String experimentName;
-
-  public NodeResults[] nodeResults;
+  public String hostName;
+  public int rmiPort;
+  public RemoteControl remoteControl;
+  public Process rmiServerProcess;
 }

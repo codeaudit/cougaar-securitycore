@@ -1,0 +1,20 @@
+<!-- CaWebClient.xml -->
+
+<!-- Test the CA by connecting to the CA as a web client
+-->
+
+<experiment name="Certificate Authority web client">
+  <!-- Operations to perform before the experiment -->
+  <operation type="before">
+    <class>test.org.cougaar.core.security.nodetests.CaWebClient</class>
+    <method>testCreateCaKey</method>
+    <argument></argument>
+  </operation>
+
+  <!-- Operations to perform after the experiment -->
+  <operation type="after">
+    <class></class>
+    <method></method>
+    <argument></argument>
+  </operation>
+</experiment>

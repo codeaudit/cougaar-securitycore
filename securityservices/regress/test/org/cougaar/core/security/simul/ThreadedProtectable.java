@@ -24,15 +24,18 @@
  * - 
  */
 
-package org.cougaar.core.security.dashboard;
+package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.util.*;
+import junit.framework.*;
 
-public class ExperimentResults
+public class ThreadedProtectable
+  implements Protectable
 {
-  public String analyzisDate;
-  public String experimentName;
-
-  public NodeResults[] nodeResults;
+  private TestCase testCase;
+  public ThreadedProtectable(TestCase tc) {
+    testCase = tc;
+  }
+  public void protect() throws Throwable {
+    testCase.runBare();
+  }
 }

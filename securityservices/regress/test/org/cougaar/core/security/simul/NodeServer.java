@@ -37,27 +37,17 @@ public class NodeServer
 {
   private int rmiRegistryPort;
 
-  /** Environment variables when launching a node. */
-  private String environmentVariables[];
-  private ArrayList properties;
-
-  private String javaBin;
-  private String mainClassName;
-
-  private String cip;
-  private String hostName;
-  private String nodeName;
-  private String userName;
-
   private String commandLine;
   private File nodeStartupDirectory;
   private String resultPath;
   private String junitConfigPath;
 
+  private PropertyFile propertyFile;
+
   public NodeServer()
     throws java.rmi.RemoteException {
     super();
-    properties = new ArrayList();
+    propertyFile = new PropertyFile();
   }
 
   public void killServer()
@@ -84,7 +74,10 @@ public class NodeServer
 
     System.out.println("NodeServer.startNode");
     String args[] = tcc.getNodeArguments();
-    nodeName = args[0];
+
+    if (tcc.getNodeName() == null || tcc.getNodeName().equals("")) {
+      return;
+    }
 
     resultPath = System.getProperty("junit.test.result.path");
     System.out.println("Result path: " + resultPath);
@@ -96,37 +89,25 @@ public class NodeServer
       Assert.fail("Unable to go to " + nodeStartupDirectory.getPath());
     }
 
-    userName = System.getProperty("user.name");
-    Assert.assertNotNull("Unable to get user name", userName);
-
-    cip = System.getProperty("org.cougaar.install.path");
-    Assert.assertNotNull("Unable to get COUGAAR_INSTALL_PATH", cip);
-
     junitConfigPath = System.getProperty("org.cougaar.junit.config.path");
     Assert.assertNotNull("Unable to get org.cougaar.junit.config.path", junitConfigPath);
 
-    try {
-      hostName = InetAddress.getLocalHost().getHostName();
-    }
-    catch (Exception e) {
-      Assert.fail("Unable to get host name: " + e);
-      return;
-    }
 
-    File f = findPropertiesFile(tcc.getPropertyFile());
-    readPropertiesFile(f, tcc);
+    propertyFile.readPropertiesFile(tcc);
 
     // Construct command array
-    properties.add(0, javaBin);
-    properties.add(mainClassName);
-    properties.add("org.cougaar.core.node.Node");
-    properties.add("-n");
-    properties.add(nodeName);
-    properties.add("-c");
-    for (int i = 1 ; i < args.length ; i++) {
-      properties.add(args[i]);
+    propertyFile.getProperties().add(0, propertyFile.getJavaBin());
+    // Add java properties
+
+    propertyFile.getProperties().add(propertyFile.getMainClassName());
+    //properties.add("org.cougaar.core.node.Node");
+    //properties.add("-n");
+    //properties.add(nodeName);
+    //properties.add("-c");
+    for (int i = 0 ; i < args.length ; i++) {
+      propertyFile.getProperties().add(args[i]);
     }
-    String cmdArray[] = (String[]) properties.toArray(new String[0]);
+    String cmdArray[] = (String[]) propertyFile.getProperties().toArray(new String[0]);
     commandLine = "";
     System.out.println("+++ BEGIN Command line arguments");
     for (int i = 0 ; i < cmdArray.length ; i++) {
@@ -138,24 +119,28 @@ public class NodeServer
     Runtime thisApp = Runtime.getRuntime();
     Process nodeApp = null;
     try {
+      // Run Pre operation
+      tcc.getPreOperation().invokeMethod(null);
+
       //System.out.println(commandLine);
-      for (int i = 0 ; i < environmentVariables.length ; i++) {
-	System.out.println(environmentVariables[i]);
+      for (int i = 0 ; i < propertyFile.getEnvironmentVariables().length ; i++) {
+	System.out.println(propertyFile.getEnvironmentVariables()[i]);
       }
       System.out.println("Node startup directory: " + nodeStartupDirectory);
 
       nodeApp = thisApp.exec(cmdArray,
-			     environmentVariables,
+			     propertyFile.getEnvironmentVariables(),
 			     nodeStartupDirectory);
 
      // Kill the node after n seconds
       System.out.println("Node will be forcible killed in "
 			 + tcc.getMaxExecutionTime() + " seconds.");
       NodeTimeoutController ntc =
-	new NodeTimeoutController(nodeApp, tcc.getMaxExecutionTime());
+	new NodeTimeoutController(nodeApp, tcc);
       ntc.start();
 
-      ProcessGobbler pg = new ProcessGobbler(resultPath, nodeName, nodeApp);
+      String nodeResultPath = resultPath + File.separator + tcc.getNodeName();
+      ProcessGobbler pg = new ProcessGobbler(nodeResultPath, tcc.getNodeName(), nodeApp);
       pg.dumpProcessStream();
 
       // Write to process stdin
@@ -172,14 +157,14 @@ public class NodeServer
       int exitVal = nodeApp.waitFor();
       System.out.println("ExitValue: " + exitVal); 
 
-      // Wait for the threads to die
-      //nodeAppOut.join();
-      //nodeAppErr.join();
-
       if (pg.getErrStreamGobbler().getWrittenBytes() > 0) {
 	// There was an error
 	Assert.fail("The node wrote " +
 			  pg.getErrStreamGobbler().getWrittenBytes() + " bytes to STDERR");
+      }
+      // Was there an error during the node cleanup?
+      if (ntc.assertionFailure != null) {
+	throw ntc.assertionFailure;
       }
 
       pg.getExperimentOutLog().close();
@@ -192,221 +177,6 @@ public class NodeServer
       e.printStackTrace();
       Assert.fail("Unable to start node: " + e);
     }
-  }
-
-
-  private File findPropertiesFile(String propertyFile) {
-    File f = null;
-    f = new File(propertyFile);
-    if (!f.exists()) {
-      f = null;
-    }
-    if (f == null) {
-      f = new File("Linux.props");
-      if (!f.exists()) {
-	f = null;
-      }
-    }
-    if (f == null) {
-      String file = getCanonicalPath(cip + File.separator + "configs"
-				     + File.separator + "security" 
-				     + File.separator + "Linux.props");
-      f = new File(file);
-      System.out.println("Trying " + f.getPath() + "...");
-      if (!f.exists()) {
-	f = null;
-      }
-    }
-    Assert.assertNotNull("Unable to find properties file", f);
-    return f;
-  }
-
-  private String getCanonicalPath(String fileName) {
-    String can = null;
-    File f = new File(fileName);
-    try {
-      can = f.getCanonicalPath();
-    }
-    catch (IOException e) {
-      Assert.fail("Unable to get canonical path for " + fileName);
-    }
-    return can;
-  }
-
-  private void readPropertiesFile(File f, NodeConfiguration tcc) {
-    ArrayList env = new ArrayList();
-    try {
-      FileReader filereader=new FileReader(f);
-      BufferedReader buffreader=new BufferedReader(filereader);
-      String linedata=new String();
-
-      // Default values
-      javaBin = "java";
-      while((linedata=buffreader.readLine())!=null) {
-	linedata.trim();
-	if(linedata.startsWith("#")) {
-	  continue;
-	}
-	StringTokenizer st = new StringTokenizer(linedata, "=");
-	if (!st.hasMoreTokens()) {
-	  // Empty line. Continue
-	  continue;
-	}
-	String property = st.nextToken();
-	String propertyValue = null;
-	if (st.hasMoreTokens()) {
-	  propertyValue = customizeProperty(st.nextToken(), tcc);
-	}
-
-	if (property.startsWith("env.")) {
-	  // Environment variable
-	  property = property.substring(4);
-	  String ev = property + "=" + propertyValue;
-	  env.add(ev);
-	}
-	else if (property.equals("java.jvm.program")) {
-	  javaBin = propertyValue;
-	}
-	else if (property.equals("java.class.name")) {
-	  mainClassName = propertyValue;
-	}
-	else {
-	  StringTokenizer st1 = new StringTokenizer(makeProperty(property, propertyValue));
-	  while (st1.hasMoreTokens()) {
-	    String arg = st1.nextToken();
-	    properties.add(arg);
-	  }
-	}
-      }
-    }
-    catch(FileNotFoundException fnotfoundexp) {
-      Assert.fail("User parameter configuration file not found");
-    }
-    catch(IOException ioexp) {
-      Assert.fail("Cannot read User parameter configuration file: " + ioexp);
-    }
-    env.add("COUGAAR_INSTALL_PATH=" + System.getProperty("org.cougaar.install.path"));
-    env.add("COUGAAR_WORKSPACE=" + System.getProperty("org.cougaar.workspace"));
-    environmentVariables = (String[])env.toArray(new String[0]);
-  }
-
-  private String customizeProperty(String propertyValue, NodeConfiguration tcc) {
-    String convertFrom[] = {
-      "/mnt/shared/integ92",
-      "asmt",
-      "5557",
-      "6557",
-      "\\$HOSTNAME.log",
-      "\\$HOSTNAME",
-      "\""
-      };
-
-    String convertTo[] = {
-      cip,
-      userName,
-      Integer.toString(tcc.getHttpPort()),
-      Integer.toString(tcc.getHttpsPort()),
-      nodeName + ".log",
-      hostName,
-      ""
-    };
-
-    for (int i = 0 ; i < convertFrom.length ; i++) {
-      propertyValue = propertyValue.replaceAll(convertFrom[i], convertTo[i]);
-    }
-    return propertyValue;
-  }
-
-  private String makeProperty(String propertyName, String propertyValue) {
-    String argument = null;
-
-    String convertFlagsFrom[] = {
-      "java.jar",
-      "java.class.path"
-    };
-    String convertFlagsTo[] = {
-      "jar",
-      "classpath"
-    };
-
-    String convertEqualsFrom[] = {
-      "java.heap.min",
-      "java.heap.max",
-      "java.stack.size"
-    };
-    String convertEqualsTo[] = {
-      "Xms",
-      "Xmx",
-      "Xss"
-    };
-
-    String convertCPFrom[] = {
-      "java.Xbootclasspath",
-      "java.Xbootclasspath/a",
-      "java.Xbootclasspath/p"
-    };
-    String convertCPTo[] = {
-      "Xbootclasspath",
-      "Xbootclasspath/a",
-      "Xbootclasspath/p"
-    };
-
-    if (propertyName.startsWith("java.")) {
-      boolean isConverted = false;
-      for (int i = 0 ; i < convertFlagsFrom.length ; i++) {
-	if (propertyName.equals(convertFlagsFrom[i])) {
-	  propertyName = convertFlagsTo[i];
-	  argument = "-" + propertyName + " " + propertyValue;
-	  isConverted = true;
-	  break;
-	}
-      }
-      if (!isConverted) {
-	for (int i = 0 ; i < convertEqualsFrom.length ; i++) {
-	  if (propertyName.equals(convertEqualsFrom[i])) {
-	    propertyName = convertEqualsTo[i];
-	    argument = "-" + propertyName + "=" + propertyValue;
-	    isConverted = true;
-	    break;
-	  }
-	}
-      }
-      if (!isConverted) {
-	for (int i = 0 ; i < convertCPFrom.length ; i++) {
-	  if (propertyName.equals(convertCPFrom[i])) {
-	    propertyName = convertCPTo[i];
-	    argument = "-" + propertyName + ":" + propertyValue;
-	    isConverted = true;
-	    break;
-	  }
-	}
-      }
-
-      if (!isConverted) {
-	if (propertyName.equals("java.jvm.mode")) {
-	  if (propertyValue.equals("client") ||
-	      propertyValue.equals("server")) {
-	    argument = "-" + propertyValue;
-	    isConverted = true;
-	  }
-	}
-      }
-
-      if (!isConverted) {
-	propertyName = propertyName.substring("java.".length());
-	if (propertyValue != null) {
-	  argument = "-" + propertyName + "=" + propertyValue;
-	}
-	else {
-	  argument = "-" + propertyName;
-	}
-	isConverted = true;
-      }
-    }
-    else {
-      argument = "-D" + propertyName + "=" + propertyValue;
-    }
-    return argument;
   }
 
   public static void main (String args[]) {
@@ -455,22 +225,28 @@ public class NodeServer
     extends Thread
   {
     Process theNode;
+    NodeConfiguration ncc;
     int maxExecutionTime;
+    Error assertionFailure;
 
-    public NodeTimeoutController(Process aNode, int maxtime) {
+    public NodeTimeoutController(Process aNode, NodeConfiguration nc) {
       theNode = aNode;
-      maxExecutionTime = maxtime;
+      ncc = nc;
     }
 
     public void run() {
       try {
-	Thread.sleep(maxExecutionTime * 1000);
+	Thread.sleep(ncc.getMaxExecutionTime() * 1000);
+	System.out.println("Forcibly destroying node");
+	theNode.destroy();
+      
+	// Run Post operation
+	ncc.getPostOperation().invokeMethod(null);
       }
       catch (Exception e) {
 	System.out.println("Error: " + e);
+	assertionFailure =  new AssertionFailedError("Error during node cleanup: " + e);
       }
-      System.out.println("Forcibly destroying node");
-      theNode.destroy();
     }
   }
 }

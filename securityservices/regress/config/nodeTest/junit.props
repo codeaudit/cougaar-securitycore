@@ -11,8 +11,13 @@ org.cougaar.core.security.results.path=/home/u/junittest/UL/securityservices/reg
 # The Junit tests may run on multiple hosts.
 # Replace the following properties with whatever hosts are available in your
 # environment.
-hostA=tea
-hostB=cypress
-hostC=yew
-hostD=fig
-hostE=apple
+junit.host.hostA=cypress
+junit.host.hostB=tea
+junit.host.hostC=yew
+junit.host.hostD=fig
+junit.host.hostE=apple
+
+
+# The HTTP port number used by Tomcat (should match the value defined in userparameter.conf)
+junit.http.port=5570
+

@@ -24,15 +24,26 @@
  * - 
  */
 
-package org.cougaar.core.security.dashboard;
+package test.org.cougaar.core.security.simul;
 
 import java.io.*;
 import java.util.*;
 
-public class ExperimentResults
+public class SerializableTestResult
+  extends junit.framework.TestResult
+  implements Serializable
 {
-  public String analyzisDate;
-  public String experimentName;
+  public SerializableTestResult(Enumeration failures,
+				Enumeration errors,
+				int runCount) {
+    while (failures.hasMoreElements()) {
+      fFailures.addElement(failures.nextElement());
+    }
+    while (errors.hasMoreElements()) {
+      fErrors.addElement(errors.nextElement());
+    }
+    fRunTests = runCount;
+  }
 
-  public NodeResults[] nodeResults;
+  public SerializableTestResult() {}
 }

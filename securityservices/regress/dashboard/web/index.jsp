@@ -1,9 +1,12 @@
 <%@page import="java.util.*"%>
 <%@page import="java.io.*" %>
 <%@page import="java.net.*" %>
+<%@page import="java.text.*" %>
 <%@page import="javax.servlet.*" %>
 <%@page import="javax.servlet.http.*" %>
+<%@page import="junit.framework.*" %>
 <%@page import="org.cougaar.core.security.dashboard.*" %>
+<%@page import="test.org.cougaar.core.security.simul.*" %>
 <%
 /*
  * <copyright>
@@ -33,6 +36,8 @@
 %>
 
 <%!
+  private Dashboard dashboard;
+
   public void jspInit() {
   }
    	
@@ -56,8 +61,9 @@
       String s = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort()
                  + s1.substring(0, s1.lastIndexOf('/')) + "/java.props";
       System.out.println("servlet: " + s);
-      Dashboard.setJavaPropURL(s);
-      Dashboard.analyzeResults();
+      dashboard = Dashboard.getInstance();
+      dashboard.setJavaPropURL(s);
+      dashboard.analyzeResults();
     }
     catch(Exception e) {
       System.out.println("Unable to analyze results" + e);
@@ -71,7 +77,7 @@
     <td>
     <h1><center><b>The UltraLog NAI Dashboard</b></center></h1>
     <h4><center>Tests summary - Last Analyzis:
-    <%=Dashboard.getAnalyzisDate() %>
+    <%=dashboard.getAnalyzisDate() %>
     </center></h4>
     <h4><center>Click <a href="results/html/index.html">here</a> to access the Junit report</center></h4>
     </td>
@@ -83,91 +89,106 @@
 <table cellpadding="2" cellspacing="2" border="1" width="100%">
    <tbody>
      <tr>
-       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>Name<br>
-       </b></font></th>
-       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>Errors<br>
-       </b></font></th>
-       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>Failures<br>
-       </b></font></th>
-       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>Start Time<br>
-       </b></font></th>
-       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>Completion Time<br>
-       </b></font></th>
-       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>cvs log<br>
-       </b></font></th>
-       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>build log<br>
-       </b></font></th>
-       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>test results log<br>
-       </b></font></th>
-       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>log files<br>
-       </b></font></th>
+       <th valign="top" bgcolor="#ffcc99"><b>Experiment Name<br>
+       </b></th>
+       <th valign="top" bgcolor="#ffcc99"><b>Node Name<br>
+       </b></th>
+       <th valign="top" bgcolor="#ffcc99"><b>Errors<br>
+       </b></th>
+       <th valign="top" bgcolor="#ffcc99"><b>Failures<br>
+       </b></th>
+       <th valign="top" bgcolor="#ffcc99"><b>Start Time<br>
+       </b></th>
+       <th valign="top" bgcolor="#ffcc99"><b>Completion Time<br>
+       </b></th>
+       <th valign="top" bgcolor="#ffcc99"><b>test results log<br>
+       </b></th>
+       <th valign="top" bgcolor="#ffcc99"><b>log files<br>
+       </b></th>
      </tr>
 
 <%
-    for (int i = 0 ; i < Dashboard.getNumberOfTests() ; i++) {
+    Vector experiments = dashboard.getExperiments();
+    for (int i = 0 ; i < experiments.size() ; i++) {
+      Experiment exp = (Experiment) experiments.get(i);
+      Vector nodeConfList = exp.getNodeConfiguration();
 %>
      <tr>
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-         <%=Dashboard.getExperimentName(i)%>
-       </font></td>
+       <td valign="top" rowspan=<%=(nodeConfList.size() + 1)%>>
+         <b><%=exp.getExperimentName()%></b>
+       </td>
+       <td valign="top">Experiment pre & post operations</td>
+       <td valign="top" bgcolor=
+<%     if (exp.getTestResult().errorCount() > 0) { %>
+       "#ff0000"
+<%     } else { %>
+       "#33ff33"
+<%     } %>
+       ><%=String.valueOf(exp.getTestResult().errorCount())%>
+       </td>
 
        <td valign="top" bgcolor=
-<%
-       if (Dashboard.getErrors(i) > 0) {
-%>
+<%     if (exp.getTestResult().failureCount() > 0) { %>
        "#ff0000"
-<%
-       } else {
-%>
+<%     } else { %>
        "#33ff33"
+<%     } %>
+       ><%=String.valueOf(exp.getTestResult().failureCount())%>
+       </td>
+
+       <td valign="top">
+       <%=(new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss")).format(exp.getAnalyzisDate()) %>
+       </td>
+       <td valign="top"> </td>
+       <td valign="top"><%=exp.getJunitResultLink()%></td>
+       <td valign="top"> </td>
+       </tr>
 <%
-       }
+      /////////////////////////////////////
+      // Information about individual nodes
+      for (int j = 0 ; j < nodeConfList.size() ; j++) {
+        NodeConfiguration nc = (NodeConfiguration) nodeConfList.get(j);
 %>
-       ><font face="Helvetica, Arial, sans-serif"><br>
-         <%=String.valueOf(Dashboard.getErrors(i))%>
-       </font></td>
+       <tr>
+       <td valign="top"><%=String.valueOf(nc.getNodeName())%></td>
+       <td valign="top" bgcolor=
+<%     if (nc.getErrors() > 0) { %>
+       "#ff0000"
+<%     } else { %>
+       "#33ff33"
+<%     } %>
+       ><%=String.valueOf(nc.getErrors())%>
+       </td>
 
        <td valign="top" bgcolor=
-<%
-       if (Dashboard.getFailures(i) > 0) {
-%>
+<%     if (nc.getFailures() > 0) { %>
        "#ff0000"
-<%
-       } else {
-%>
+<%     } else { %>
        "#33ff33"
+<%     } %>
+       ><%=String.valueOf(nc.getFailures())%>
+       </td>
+
+       <td valign="top">
+         <%=String.valueOf(nc.getStartTime())%>
+       </td>
+
+       <td valign="top">
+         <%=String.valueOf(nc.getCompletionTime())%>
+       </td>
+
+       <td valign="top"> </td>
+
+       <td valign="top">
+         <%=nc.getLogFilesUrls()%>
+       </td>
+
 <%
-       }
+      } // for (int j...
 %>
-       ><font face="Helvetica, Arial, sans-serif"><br>
-         <%=String.valueOf(Dashboard.getFailures(i))%>
-       </font></td>
-
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-         <%=String.valueOf(Dashboard.getStartTime(i))%>
-       </font></td>
-
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-         <%=String.valueOf(Dashboard.getCompletionTime(i))%>
-       </font></td>
-
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-       </font></td>
-
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-       </font></td>
-
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-         <%=Dashboard.getResultLogFileUrls(i)%>
-       </font></td>
-
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-         <%=Dashboard.getLogFileUrls(i)%>
-       </font></td>
-
      </tr>
 <%
-	}
+      } // for (int i...
 %>
    
   </tbody> 

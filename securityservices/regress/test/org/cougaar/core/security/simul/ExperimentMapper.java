@@ -69,6 +69,7 @@ public class ExperimentMapper
   public static String NODE_STARTUP_DIRECTORY = "nodeStartupDirectory";
   public static String PROPERTY_FILE = "propertyFile";
   public static String NODE_ARGUMENTS = "nodeArguments";
+  public static String NODE_DESCRIPTION = "nodeDescription";
 
   private String getCanonicalPath(String fileName) {
     String can = null;
@@ -126,7 +127,8 @@ public class ExperimentMapper
 			     Attributes attr ) {
 	  // Capture the node name...
 	  String nodeName = attr.getValue("name");
-	  currentNodeConf = new NodeConfiguration( nodeName );
+	  currentNodeConf = new NodeConfiguration();
+	  currentNodeConf.setNodeName(nodeName);
 
 	  // Set top-level directory
 	  File f1 = new File(System.getProperty("org.cougaar.securityservices.base"));
@@ -199,6 +201,9 @@ public class ExperimentMapper
 	  else if (localName.equals(HOST_NAME)) {
 	    currentNodeConf.setHostName(value);
 	  }
+	  else if (localName.equals(NODE_DESCRIPTION)) {
+	    currentNodeConf.setNodeDescription(value);
+	  }
 	  else if (localName.equals(NODE_STARTUP_DIRECTORY)) {
 	    currentNodeConf.setNodeStartupDirectoryName(getCanonicalPath(currentNodeConf.getTopLevelDirectory()
 							+ File.separator + value));
@@ -221,9 +226,24 @@ public class ExperimentMapper
     nodeConf.track( "howLongBeforeStart", nodeConfItem);
     nodeConf.track( "maxExecTime", nodeConfItem);
     nodeConf.track( "hostName", nodeConfItem);
+    nodeConf.track( "nodeDescription", nodeConfItem);
     nodeConf.track( "nodeStartupDirectory", nodeConfItem);
     nodeConf.track( "propertyFile", nodeConfItem);
     nodeConf.track( "nodeArguments", nodeConfItem);
+
+    TagTracker nodeConfProperty = new TagTracker() {
+	private NodeConfiguration currentNodeConf;
+	public void onStart( String namespaceURI,
+			     String localName,
+			     String qName,
+			     Attributes attr ) {
+	  currentNodeConf = (NodeConfiguration) stack.peek();
+	  String key = attr.getValue("name");
+	  String value = attr.getValue("value");
+	  currentNodeConf.addAdditionalVmProperties(key, value);
+	}
+      };
+    nodeConf.track("property", nodeConfProperty);
 
     // -- create action experiment/operation
     //    and nodeTest/operation
@@ -345,6 +365,10 @@ public class ExperimentMapper
      *   ${org.cougaar.node.name} will be replaced by the value
      *   of the org.cougaar.node.name java property.
      */
+
+      PropertyFile pf = new PropertyFile();
+      Properties props = pf.readCustomPropertiesFile();
+  
       matcher = p_javaprop.matcher(s);
       result = matcher.find();
       // Loop through and create a new String 
@@ -352,7 +376,7 @@ public class ExperimentMapper
       while(result) {
 	String token = matcher.group();
 	String propertyName = token.substring(2, token.length() - 1);
-	String propertyValue = System.getProperty(propertyName);
+	String propertyValue = props.getProperty(propertyName);
 	matcher.appendReplacement(sb, propertyValue);
 	result = matcher.find();
       }

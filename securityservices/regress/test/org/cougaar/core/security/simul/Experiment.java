@@ -36,17 +36,51 @@ import junit.framework.*;
 import org.w3c.dom.*;
 
 public class Experiment
+  implements Serializable
 {
+  // Configuration
   private String experimentName;
+  private String junitResultLink;
   private Vector nodeConfList;
   private OperationConf preOperation;
   private OperationConf postOperation;
  
-
+  // Results
+  private Date analyzisDate;
+  /** The date & time at which the experiment was started. */
+  private Date startDate;
+  private SerializableTestResult testResult;
+  
   public Experiment() {
     nodeConfList = new Vector();
+    startDate = new Date();
+    analyzisDate = new Date();
   }
 
+  //////////////////////////////////////////////////////
+  // GET methods
+  public String getExperimentName() {
+    return experimentName;
+  }
+
+  public Vector getNodeConfiguration() {
+    return nodeConfList;
+  }
+
+  public OperationConf getPreOperation() {
+    return preOperation;
+  }
+
+  public OperationConf getPostOperation() {
+    return postOperation;
+  }
+
+  public Date getStartDate() {
+    return startDate;
+  }
+
+  //////////////////////////////////////////////////////
+  // SET methods
   public void setExperimentName(String name) {
     experimentName = name;
   }
@@ -54,29 +88,48 @@ public class Experiment
   public void addNodeConfiguration(NodeConfiguration nc) {
     nodeConfList.addElement(nc);
   }
-  public Vector getNodeConfiguration() {
-    return nodeConfList;
-  }
 
   public void setPreOperation(OperationConf oc) {
     preOperation = oc;
-  }
-  public OperationConf getPreOperation() {
-    return preOperation;
   }
 
   public void setPostOperation(OperationConf oc) {
     postOperation = oc;
   }
-  public OperationConf getPostOperation() {
-    return postOperation;
+
+  ///////////////////////////////////////////////////////////////
+  // Results GET methods
+  public Date getAnalyzisDate() {
+    return analyzisDate;
+  }
+  public SerializableTestResult getTestResult() {
+    return testResult;
+  }
+  public String getJunitResultLink() {
+    return junitResultLink;
   }
 
+  ///////////////////////////////////////////////////////////////
+  // Results SET methods
+  public void setAnalyzisDate(Date date) {
+    analyzisDate = date;
+  }
+  public void setTestResult(SerializableTestResult tr) {
+    testResult = tr;
+  }
+  public void setJunitResultLink(String link) {
+    junitResultLink = link;
+  }
+
+  ///////////////////////////////////////////////////////////////
   public String toString() {
     String s = "Experiment name: " + experimentName + "\n";
 
     s = s + ( (preOperation == null) ? "None" : preOperation.toString()) + "\n";
     s = s + ( (postOperation == null) ? "None" : postOperation.toString()) + "\n";
+
+    // Results
+    s = s + "Start Date: " + startDate + " - Analyzis Date: " + analyzisDate + "\n";
 
     Enumeration e = nodeConfList.elements();
     int i = 0;

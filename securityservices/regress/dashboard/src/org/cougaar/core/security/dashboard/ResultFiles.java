@@ -28,11 +28,11 @@ package org.cougaar.core.security.dashboard;
 
 import java.io.*;
 import java.util.*;
+import java.net.*;
+import java.text.*;
 
-public class ExperimentResults
+public class ResultFiles
 {
-  public String analyzisDate;
-  public String experimentName;
-
-  public NodeResults[] nodeResults;
+  public File resultFile;
+  public File summaryFile;
 }

@@ -34,15 +34,15 @@ import org.xml.sax.helpers.*;
 
 public class ResultParser
 {
-  private String resultFile;
-  private String summaryFile;
+  private File resultFile;
+  private File summaryFile;
   private XMLReader parser;
   private ResultHandler handler;
   private SummaryHandler summaryHandler;
 
-  public ResultParser(String resultFile, String summaryFile) {
-    this.resultFile = resultFile;
-    this.summaryFile = summaryFile;
+  public ResultParser(ResultFiles resultFile) {
+    this.resultFile = resultFile.resultFile;
+    this.summaryFile = resultFile.summaryFile;
     createParser();
   }
 
@@ -64,11 +64,14 @@ public class ResultParser
   }
 
   public void parseResults() {
+    if (resultFile == null) {
+      return;
+    }
     // Set the ContentHandler...
     handler = new ResultHandler(parser);
     parser.setContentHandler(handler);
 
-    System.out.println("Parsing result file: " + resultFile);
+    System.out.println("Parsing result file: " + resultFile.getPath());
     try {
       FileInputStream fis = new FileInputStream(resultFile);
 
@@ -82,11 +85,14 @@ public class ResultParser
   }
 
   public void parseSummary() {
+    if (summaryFile == null) {
+      return;
+    }
     // Set the ContentHandler...
     summaryHandler = new SummaryHandler(parser);
     parser.setContentHandler(summaryHandler);
 
-    System.out.println("Parsing summary file: " + summaryFile);
+    System.out.println("Parsing summary file: " + summaryFile.getPath());
     try {
       FileInputStream fis = new FileInputStream(summaryFile);
 

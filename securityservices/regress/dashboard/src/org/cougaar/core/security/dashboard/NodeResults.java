@@ -29,10 +29,12 @@ package org.cougaar.core.security.dashboard;
 import java.io.*;
 import java.util.*;
 
-public class ExperimentResults
+public class NodeResults
 {
-  public String analyzisDate;
-  public String experimentName;
-
-  public NodeResults[] nodeResults;
+  public int errors;
+  public int failures;
+  public double completionTime;
+  public String startTime;
+  public String logFilesUrls;
+  public String resultLogFilesUrls;
 }
