@@ -43,6 +43,7 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.EventService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.thread.Schedulable;
 import org.cougaar.util.UnaryPredicate;
 
 import java.security.cert.X509CRL;
@@ -67,6 +68,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
   private LoggingService loggingService=null;
   private EventService eventService=null;
   private CrlRegistrationTable crlRegistrationTable=null;
+  private Schedulable crlPollingThread=null;
   //private boolean completeregistration =true;
 
   /** The number of seconds between crl updates */
@@ -182,7 +184,8 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     */
     ThreadService ts = (ThreadService) getServiceBroker().
       getService(this, ThreadService.class, null);
-    ts.getThread(this, new CRLUpdate()).schedule(0, _pollInterval );
+    crlPollingThread=ts.getThread(this, new CRLUpdate());
+    crlPollingThread.schedule(0, _pollInterval );
     loggingService.debug("Set up subscription done:"); 
   }
 
@@ -270,6 +273,11 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       getBlackboardService().publishChange(crlRegistrationTable);
     }
   }
+  public void unload() {
+    if(crlPollingThread!=null) {
+      crlPollingThread.cancel();
+    }
+  }
 
   private class CRLUpdate implements Runnable {
 
@@ -296,6 +304,9 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       if(searchService==null) {
         loggingService.warn("Unable to get CRL as Search Service is NULL:");
         return;
+      }
+      if(loggingService.isDebugEnabled()){
+        loggingService.debug(" Starting the polling in CRL Registration plugin for CRLs");
       }
      
       String key=null;
@@ -327,6 +338,9 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
                 encodedCRL=caCertEntry.getEncodedCRL();
                 loggingService.debug("Getting the modified time stamp for :"+ regObject.dnName);
                 modifiedTimestamp=caCertEntry.getLastModifiedTimeStamp();
+                if(loggingService.isDebugEnabled()) {
+                  loggingService.debug(" Received modified Time stamp from Naming Entry is :"+modifiedTimestamp); 
+                }
                 loggingService.debug("Modified time stamp for :"+ regObject.dnName);
                 if(regObject.getModifiedTimeStamp()!=null) { 
                   loggingService.debug("Reg object modified stamp was NOT null");
