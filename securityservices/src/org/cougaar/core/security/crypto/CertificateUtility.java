@@ -42,8 +42,10 @@ import org.cougaar.core.security.util.CryptoDebug;
 public class CertificateUtility {
   //private static boolean debug = false;
 
-  public static final String PKCS10HEADER  = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-  public static final String PKCS10TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
+  public static final String PKCS10HEADER[]  = {
+    "-----", "BEGIN", "CERTIFICATE REQUEST", "-----"};
+  public static final String PKCS10TRAILER[] = {
+    "-----", "END", "CERTIFICATE REQUEST", "-----"};
 
   public static final String PKCS7HEADER   = "-----BEGIN CERTIFICATE-----";
   public static final String PKCS7TRAILER  = "-----END CERTIFICATE-----";
