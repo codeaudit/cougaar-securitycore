@@ -43,6 +43,7 @@ include_scripts:
 
 CIP = ENV['CIP']
 $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib')
+$:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist')
 
 require 'cougaar/scripting'
 Cougaar::ExperimentDefinition.register(__FILE__)
