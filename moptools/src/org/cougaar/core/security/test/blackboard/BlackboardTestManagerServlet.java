@@ -155,8 +155,15 @@ public class BlackboardTestManagerServlet extends AbstractServletComponent {
       }
       blackboardService.openTransaction();
       Collection c= blackboardService.query(new UnaryPredicate(){
-	  public boolean execute(Object o){
-	    return ((o instanceof Task) && ((Task)o).getVerb().equals(VERB));
+	  public boolean execute(Object o) {
+	    boolean ret = false;
+	    if (o instanceof Task) {
+	      Task t = (Task) o;
+	      if (t.getVerb().equals(Verb.getVerb(VERB))) {
+		ret = true;
+	      }
+	    }
+	    return ret;
 	  }
     	});
       blackboardService.closeTransaction();
