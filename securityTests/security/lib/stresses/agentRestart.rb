@@ -3,11 +3,15 @@ require 'security/lib/message_util'
 require 'security/lib/misc'
 require 'security/lib/common_security_rules'
 
-require 'conf-full-1ad-ARUC1' unless $POLARIS
+#require 'conf-full-1ad-ARUC1' unless $POLARIS
 
 class InjectBlackboardCompromise < SecurityStressFramework
   def initialize(run)
     super(run)
+  end
+
+  def getStressIds
+    return ["blackboardCompromise"]
   end
 
    def postLoadSociety
