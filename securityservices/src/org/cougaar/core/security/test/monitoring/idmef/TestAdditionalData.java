@@ -57,10 +57,7 @@ public class TestAdditionalData extends TestIdmef {
         TestIdmef test = new TestAdditionalData( "TestAdditionalData" );
         test.run();
     }
-    
-    public void run(){
-       
-        Document document = m_docBuilder.newDocument();
+    public AdditionalData createAdditionalData(){
         String refIdents[] = { "00000001", "00000002" };
         Address address = null;
         try {
@@ -77,17 +74,12 @@ public class TestAdditionalData extends TestIdmef {
                                                 address,
                                                 refIdents );
         
-        String agentStr = agent.toTaggedString();
-        
-        AdditionalData ad1 = 
-            m_msgFactory.createAdditionalData( AdditionalData.XML,
-                                               MEANING,
-                                               agentStr );
-        
-        Node adNode = ad1.convertToXML( document );
-        AdditionalData ad2 = new AdditionalData( adNode );
-        
-        if( !( ad1.getType().equals( ad2.getType() ) ) ){
+        return m_msgFactory.createAdditionalData( AdditionalData.XML,
+                                                  MEANING,
+                                                   agent.toTaggedString() );
+    }
+    public void compare( AdditionalData ad1, AdditionalData ad2 ){
+       if( !( ad1.getType().equals( ad2.getType() ) ) ){
             System.out.println( "Additional Data type is inconsistent!" );
             System.out.println( "AdditionalData1.type = " + ad1.getType() );
             System.out.println( "AdditionalData2.type = " + ad2.getType() );
@@ -102,6 +94,16 @@ public class TestAdditionalData extends TestIdmef {
             System.out.println( "AdditionalData1.data = " + ad1.getAdditionalData() );
             System.out.println( "AdditionalData2.data = " + ad2.getAdditionalData() );
         }
+    }
+    public void run(){
+       
+        Document document = m_docBuilder.newDocument();
+        AdditionalData ad1 = createAdditionalData();
+        
+        Node adNode = ad1.convertToXML( document );
+        AdditionalData ad2 = new AdditionalData( adNode );
+        compare( ad1, ad2 );
+        
         document.appendChild( adNode );
         XMLUtils.printDocument( document );
     }

@@ -75,7 +75,6 @@ public class TestFile extends TestIdmef {
             System.out.println(" Files1.length = " + files1.length );
             System.out.println(" Files2.length = " + files2.length );
         }
-        
     }
   
     public void compare( IDMEF_File file1, IDMEF_File file2 ){
