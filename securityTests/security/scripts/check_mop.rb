@@ -48,7 +48,7 @@ insert_after :after_stage_1 do
   # MOP 2.5: IDMEF events
   do_action  "InjectStress", "SecurityMop2_6", "calculate"
 
-  do_action "Sleep", 3.minutes
+#  do_action "Sleep", 3.minutes
 #  do_action "InjectStress", "SecurityMop23", "postCalculate"
 
 end

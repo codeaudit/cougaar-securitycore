@@ -15,7 +15,6 @@ module Cougaar
       def perform
         # the first slot is a placehold so that mop 2.1 is at index 1.
 begin
-puts "in storemopinrunhashtable"
         run['mops'] = [
           AbstractSecurityMop.new(run),
           SecurityMop21.instance,
@@ -74,7 +73,7 @@ end
       end
 
       def self.halt
-puts "halting security mops" if $VerboseDebugging
+        puts "halting security mops" if $VerboseDebugging
         @@halt = true
       end
       def self.halted?

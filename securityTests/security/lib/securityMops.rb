@@ -1,6 +1,7 @@
 require 'singleton'
 require 'security/lib/AbstractSecurityMop'
 require 'security/lib/securityMopAnalysis'
+require 'security/lib/doIrb'
 
 ################################################
 
