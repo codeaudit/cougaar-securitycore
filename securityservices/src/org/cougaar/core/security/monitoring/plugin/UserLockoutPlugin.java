@@ -52,6 +52,12 @@ import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.thread.Schedulable;
+import org.cougaar.core.service.SchedulerService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.security.services.acl.UserServiceException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -124,7 +130,12 @@ public class UserLockoutPlugin extends ResponderPlugin {
   public static final Classification LOGIN_FAILURE =
   new Classification(IdmefClassifications.LOGIN_FAILURE, "",
                      Classification.VENDOR_SPECIFIC);
-
+   
+  private static final String[] CLASSIFICATIONS = {
+    IdmefClassifications.LOGIN_FAILURE
+  };
+  
+  private boolean addedListener =false;
   /**
    * The predicate indicating that we should retrieve all new
    * login failures
@@ -252,6 +263,27 @@ public class UserLockoutPlugin extends ResponderPlugin {
   private void setUserService() {
     _userService = (UserService)
       getServiceBroker().getService(this, UserService.class, null);
+    if(_userService==null) {
+      Iterator iter = getServiceBroker().getCurrentServiceClasses();
+      if(_log!=null){
+        _log.error("Current services that can be obtained at UserLockout plugin are:"); 
+      }
+      Object object=null;
+      while(iter.hasNext()){
+        object =iter.next();
+        if(_log!=null){
+          _log.error("Service ----->"+ object.toString());
+        }
+      }
+      if(_log!=null){
+        _log.warn(" USER SERVICE is NULL adding Service listener");
+      }
+      if(!addedListener) {
+        ServiceAvailableListener listener = new ServicesListener();
+        getServiceBroker().addServiceListener(listener);
+        addedListener=true;
+      }
+    }
   }
 
   protected void setupSubscriptions() {
@@ -288,6 +320,15 @@ public class UserLockoutPlugin extends ResponderPlugin {
     sb.releaseService(this, ThreadService.class, ts);
   }
 
+ 
+  protected  String []getClassifications() {
+    return CLASSIFICATIONS;
+
+  }
+  
+  protected SensorInfo getSensorInfo() {
+    return _sensor;
+  } 
   private void addCommunityListener() {
     ServiceBroker sb = getServiceBroker();
     CommunityService cs = (CommunityService)
@@ -344,6 +385,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
     } // end of if (_log.isDebugEnabled())
     if (_userService == null) {
       _log.info("User service was not set. Trying to get it");
+      setUserService();
     }
     else {
       setUserService();
@@ -354,11 +396,35 @@ public class UserLockoutPlugin extends ResponderPlugin {
       throw new RuntimeException(msg);
     }
     else {
+      final String localculprit=culprit;
+      final long lockoutTime=_lockoutTime;
+      ThreadService currentthreadService = (ThreadService)  getServiceBroker().getService(this, ThreadService.class, null); 
       if (_lockoutTime < 0) {
-	_userService.disableUser(culprit);
-      } else {
-	_userService.disableUser(culprit, _lockoutTime);
+        Schedulable disablethread=currentthreadService.getThread(this, new Runnable( ){ 
+            public void run(){
+              try{
+                _userService.disableUser(localculprit);
+              }
+              catch(UserServiceException use) {
+                _log.warn("cannot idable user ",use);
+              }
+            }
+          },"UserLockoutThread");
+        disablethread.start();
       }
+      else {
+        Schedulable disablethread=currentthreadService.getThread(this, new Runnable( ){ 
+            public void run(){ 
+              try{
+                _userService.disableUser(localculprit,lockoutTime);
+              }
+              catch(UserServiceException use) {
+                _log.warn("cannot idable user ",use);
+              } 
+            }
+          },"UserLockoutThread-withLockTime");
+         disablethread.start();
+      }                                                                                                                                         
     }
   }
 
@@ -395,8 +461,8 @@ public class UserLockoutPlugin extends ResponderPlugin {
    * method to process a login failure
    */
   protected void processFailure() {
+    _log.debug("Processing failure in UserLockout Plugin ");
     Enumeration iter = _failureQuery.getAddedList();
-
     while (iter.hasMoreElements()) {
       Event e = (Event) iter.nextElement();
       Alert alert = (Alert) e.getEvent();
@@ -444,7 +510,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
     	}
       };
 
-    String filter = "(CommunityType=Security)";
+    String filter = "(CommunityType=MnR-Security)";
     Collection communities =
       cs.searchCommunity(null, filter, false, Community.COMMUNITIES_ONLY, crl);
     if (communities != null) {
@@ -526,6 +592,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
 
 
   private void updateLockoutDuration() {
+    _log.debug("Updating updateLockoutDuration");
     Collection oms = _lockoutDurationSubscription.getChangedCollection();
     Iterator i = oms.iterator();
     OperatingMode om = null;
@@ -535,7 +602,17 @@ public class UserLockoutPlugin extends ResponderPlugin {
       _lockoutTime = (long)Double.parseDouble(om.getValue().toString()) * 1000;
     }
   }
-
+  
+  private class ServicesListener  implements ServiceAvailableListener {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      Class sc = ae.getService();
+      ServiceBroker sb = ae.getServiceBroker();
+      if (sc == UserService.class ) {
+        _log.info(" Got user service in user lockout plugin");
+      }
+      setUserService();
+    }
+  }
   private static class ULSensor implements SensorInfo {
 
     public String getName() {
