@@ -1593,14 +1593,14 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  private Set getSentSet(Object obj) {
+  private Map getSentMap(Object obj) {
     synchronized (_sent) {
       if (log.isDebugEnabled()) {
         log.debug("Checking sent set for " + obj + ", class = " + obj.getClass().getName());
       }
-      Set results = (Set) _sent.get(obj);
+      Map results = (Map) _sent.get(obj);
       if (results == null) {
-        results = new HashSet();
+        results = new HashMap();
         _sent.put(obj, results);
       }
       if (log.isDebugEnabled()) {
@@ -1610,27 +1610,32 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  private void setSent(String source, Object link) {
-    if (link != null) {
-      Set sentSet = getSentSet(link);
-      synchronized (sentSet) {
-        sentSet.add(source);
+  private boolean certOk(String link, String agent) {
+    Map sentMap = getSentMap(link);
+    synchronized (sentMap) {
+      X509Certificate cert = (X509Certificate) sentMap.get(agent);
+      if (cert != null) {
+        try {
+          keyRing.checkCertificateTrust(cert);
+          return true;
+        } catch (GeneralSecurityException e) {
+          sentMap.remove(agent);
+        }
       }
     }
+    return false;
   }
 
   public boolean receiveNeedsSignature(String source) {
     Principal p = KeyRingSSLServerFactory.getPrincipal();
     if (p != null) {
       String strP = p.getName();
-      Set sentSet = getSentSet(strP);
-      synchronized (sentSet) {
-        if (log.isDebugEnabled()) {
-          log.debug("receiveNeedsSignature(" + source + ") " +
-                    strP + " -> " + (!sentSet.contains(source)));
-        }
-        return !sentSet.contains(source);
+      boolean invalid = !certOk(strP, source);
+      if (log.isDebugEnabled()) {
+        log.debug("receiveNeedsSignature(" + source + ") " +
+                  strP + " -> " + invalid);
       }
+      return invalid;
     }
     if (log.isDebugEnabled()) {
       log.debug("receiveNeedsSignature(" + source + ") not SSL");
@@ -1639,42 +1644,40 @@ public class CryptoManagerServiceImpl
   }
 
   public boolean sendNeedsSignature(String source, String target) {
-    Set sentSet = getSentSet(source);
-    synchronized (sentSet) {
-      boolean needsSig = !sentSet.contains(target);
-      if (log.isDebugEnabled()) {
-        log.debug("From " + source + " to " + target + ": need signature? " +
-                  needsSig);
-      }
-      return needsSig;
+    boolean needsSig = !certOk(source, target);
+    if (log.isDebugEnabled()) {
+      log.debug("From " + source + " to " + target + ": need signature? " +
+                needsSig);
     }
+    return needsSig;
   }
 
   public void setSendNeedsSignature(String source, String target) {
-    Set sentSet = getSentSet(source);
-    synchronized (sentSet) {
-      sentSet.remove(target);
+    Map sentMap = getSentMap(source);
+    synchronized (sentMap) {
+      sentMap.remove(target);
     }
   }
 
-  public void removeSendNeedsSignature(String source, String target) {
-    Set sentSet = getSentSet(source);
-    synchronized (sentSet) {
-      sentSet.add(target);
+  public void removeSendNeedsSignature(String source, String target, 
+                                       X509Certificate cert) {
+    Map sentMap = getSentMap(source);
+    synchronized (sentMap) {
+      sentMap.put(target, cert);
     }
   }
 
-  public void setReceiveSignatureValid(String source) {
+  public void setReceiveSignatureValid(String source, X509Certificate cert) {
     Principal p = KeyRingSSLServerFactory.getPrincipal();
     if (p != null) {
       String strP = p.getName();
-      Set sentSet = getSentSet(strP);
-      synchronized (sentSet) {
+      Map sentMap = getSentMap(strP);
+      synchronized (sentMap) {
         if (log.isDebugEnabled()) {
           log.debug("setReceiveSignatureValid(" + source + ") adding to " +
                     strP);
         }
-        sentSet.add(source);
+        sentMap.put(source, cert);
       }
     } else {
       if (log.isDebugEnabled()) {

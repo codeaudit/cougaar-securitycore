@@ -74,6 +74,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
   private OnTopCipherInputStream _cypherIn;
   private SignatureInputStream   _signature;
   //private EventPublisher         _eventPublisher;
+  private X509Certificate        _senderCert;
 
   private static LoggingService      _log;
   private static KeyRingService      _keyRing;
@@ -216,7 +217,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
                    " to " + _target);
       }
       if (_encryptedSocket) {
-        _crypto.setReceiveSignatureValid(_source);
+        _crypto.setReceiveSignatureValid(_source, _senderCert);
         sendSignatureValid(true);
       }
     }
@@ -414,8 +415,8 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     CertificateNotYetValidException, CertificateRevokedException, IOException,
     SignatureException {
     _sign = true;
-    X509Certificate senderCert = header.getSender()[0];
-    PublicKey pub = senderCert.getPublicKey();
+    _senderCert = header.getSender()[0];
+    PublicKey pub = _senderCert.getPublicKey();
     SecureMethodParam policy = header.getPolicy();
     if (_log.isDebugEnabled()) {
       _log.debug("unsigning the message using " + policy.signSpec +

@@ -39,6 +39,9 @@ import org.cougaar.core.service.LoggingService;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Hashtable;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 /**
  * This class adds the necessary
@@ -126,9 +129,18 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
           signMessage = Boolean.valueOf(sign.toString()).booleanValue();
         }
         if (signMessage) {
-          _crypto.setSendNeedsSignature(target, source);
+            _crypto.setSendNeedsSignature(target, source);
         } else {
-          _crypto.removeSendNeedsSignature(target, source);
+          try {
+            Hashtable certs = _keyRing.findCertPairFromNS(target, source);
+            if (certs != null) {
+              X509Certificate cert = (X509Certificate) certs.get(source);
+              _crypto.removeSendNeedsSignature(target, source, cert);
+            }
+          } catch (Exception e) {
+            _log.warn("Can't remove signature requirement for agent pair " +
+                      target + ", " + source + ": " + e.getMessage());
+          }
         }
         MessageAttributes meta = new SimpleMessageAttributes();
         meta.setAttribute(MessageAttributes.DELIVERY_ATTRIBUTE,
