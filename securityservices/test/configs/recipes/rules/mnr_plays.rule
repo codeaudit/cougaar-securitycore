@@ -30,21 +30,21 @@ if !(@mnrPlaysCompleted)
     end
     @mnrPlaysWrittenOnce = true
     playclause = "
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 :
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 36000 :
     PERCEIVED_THREAT_LEVEL = LOW;
 
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  :
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 36000  :
    PERCEIVED_THREAT_LEVEL = HIGH;
 "
     if (robustness)
       playclause = "
-(org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL == LOW) :
+(org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 36000) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL == LOW) :
      PERCEIVED_THREAT_LEVEL = LOW;
 
-(org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL != LOW) :
+(org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 36000) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL != LOW) :
      PERCEIVED_THREAT_LEVEL = HIGH;
 
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080 :
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 36000 :
      PERCEIVED_THREAT_LEVEL = HIGH;
 "
     end
@@ -82,8 +82,8 @@ org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080 :
  * In threat level 3, the preventive measure policy is set to HIGH. Users must provide a certificate
  * to login.
  *
- * 1080 login failures/day == 15 failures/20 minutes
- * 2160 login failures/day == 30 failures/20 minutes
+ * 36000 login failures/day == 500 failures/20 minutes
+ * 72000 login failures/day == 1000 failures/20 minutes
  */
 
 #{playclause}
@@ -119,8 +119,8 @@ END
  * Society Manager does not control the operating modes now. 
  * This is all done in the enclave playbooks.
  */
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080 : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 360000 : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 360000 : PERCEIVED_THREAT_LEVEL = 2;
 PERCEIVED_THREAT_LEVEL == 1
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 60
