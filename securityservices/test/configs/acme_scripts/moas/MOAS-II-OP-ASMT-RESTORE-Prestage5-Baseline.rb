@@ -22,7 +22,7 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/cleanup_societyRestore.rb
 ###########################################
   - script: $CIP/csmart/lib/isat/datagrabber_include.rb
-  - script: $CIP/csmart/lib/isat/network_shaping.rb
+#  - script: $CIP/csmart/lib/isat/network_shaping.rb
   - script: $CIP/csmart/assessment/assess/inbound_aggagent_include.rb
   - script: $CIP/csmart/assessment/assess/outofbound_aggagent_include.rb
   - script: $CIP/csmart/assessment/assess/cnccalc_include.rb
