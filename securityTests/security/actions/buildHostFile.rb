@@ -5,8 +5,25 @@ module Cougaar
     class BuildCsiHostFile < Cougaar::Action
       @@hosts = nil
 
-      def initialize(run, hostfilename="host-layout-file.xml")
+      # "host-layout-file.xml"
+      def initialize(run, hostfilename)
         super(run)
+        @hostFileName = hostfilename
+      end
+
+      def initialize(hostfilename)
+        @hostFileName = hostfilename
+      end
+
+      def perform
+        buildHostFile()
+      end
+
+      def BuildCsiHostFile.getHosts
+        @@hosts
+      end
+
+      def buildHostFile()
         user = ENV["USER"]
         hostsMap = {
           'mluu'     => ["aspen", "apricot", "peach", "olive", "almond"],
@@ -23,19 +40,8 @@ module Cougaar
           @@hosts = hostsMap['default']
         end
         #puts @@hosts
-        @hostFileName = hostfilename
-      end
 
-      def perform
-        buildHostFile()
-      end
-
-      def BuildCsiHostFile.getHosts
-        @@hosts
-      end
-
-      def buildHostFile()
-        puts @hostFileName
+        #puts @hostFileName
         file = File.open(@hostFileName ,"w") { |file|
           file.write <<END
 <?xml version="1.0"?>
