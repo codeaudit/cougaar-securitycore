@@ -45,6 +45,7 @@ import org.apache.catalina.Container;
 import org.apache.catalina.ValveContext;
 import org.apache.catalina.HttpRequest;
 import org.apache.catalina.HttpResponse;
+import org.apache.catalina.Realm;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.authenticator.AuthenticatorBase;
@@ -53,6 +54,7 @@ import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.connector.HttpResponseWrapper;
 
 import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
+import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 
 public class DualAuthenticator extends ValveBase {
   static final int CONST_NONE     = 0x00;
@@ -87,7 +89,7 @@ public class DualAuthenticator extends ValveBase {
    */
   public void invoke(Request request, Response response,
                      ValveContext context) throws IOException, ServletException {
-    setContainer();
+    setContainer(); // ensure that authentication containers are set
     // create dummies so that authentication doesn't do anything
     // we really do want it to do
     DummyValveContext  dummyValveContext = new DummyValveContext();
@@ -133,8 +135,10 @@ public class DualAuthenticator extends ValveBase {
 
 //     System.out.println("Principal is: " + passPrincipal);
 
+    Realm realm = _context.getRealm();
+    
     if (authOk(certPrincipal, passPrincipal, totalConstraint, 
-               dummyValveContext.getInvokeCount(), hres)) {
+               dummyValveContext.getInvokeCount(), hres, realm)) {
 //       System.out.println("Going to invoke the next valve");
       context.invokeNext(request,response);
     }
@@ -144,7 +148,8 @@ public class DualAuthenticator extends ValveBase {
                                 Principal passPrincipal,
                                 int totalConstraint,
                                 int invokeCount,
-                                HttpServletResponse hres) 
+                                HttpServletResponse hres,
+                                Realm realm) 
     throws ServletException, IOException {
     if (certPrincipal != null && passPrincipal != null &&
         !certPrincipal.getName().equals(passPrincipal.getName())) {
@@ -153,6 +158,12 @@ public class DualAuthenticator extends ValveBase {
       hres.sendError(hres.SC_UNAUTHORIZED,
                      "You have entered a different user name than " +
                      "in your certificate.");
+      if (realm instanceof KeyRingJNDIRealm) {
+        KeyRingJNDIRealm krjr = (KeyRingJNDIRealm) realm;
+        krjr.alertLoginFailure( krjr.LF_USER_MISMATCH, 
+                                certPrincipal.getName(),
+                                passPrincipal.getName());
+      }
       return false;
     } else if ( invokeCount > 1 ||
                 ((totalConstraint & CONST_PASSWORD) == 0 &&

@@ -41,6 +41,7 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
@@ -53,6 +54,25 @@ import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.core.ContainerBase;
 import org.cougaar.core.security.acl.auth.DualAuthenticator;
 
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Analyzer;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.DetectTime;
+import edu.jhuapl.idmef.IDMEF_Node;
+import edu.jhuapl.idmef.IDMEF_Process;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
+import edu.jhuapl.idmef.User;
+import edu.jhuapl.idmef.UserId;
+
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.blackboard.NewEvent;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.DomainService;
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
@@ -84,13 +104,48 @@ import org.cougaar.core.security.services.identity.IdentityDeniedException;
  * @author George Mount <gmount@nai.com>
  */
 public class KeyRingJNDIRealm extends RealmBase {
+
   private static ServiceBroker    _nodeServiceBroker;
   private static final DateFormat LDAP_TIME =
     new SimpleDateFormat("yyyyMMddHHmmss'Z'");
   private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
-  private LdapUserService _userService;
   private String          _certComponent = "CN";
   private static String   _realmName = "Cougaar";
+
+  private LdapUserService     _userService;
+  private BlackboardService   _blackboardService;
+  private IdmefMessageFactory _idmefFactory;
+  private CmrFactory          _cmrFactory;
+  private SensorInfo          _sensor = new LoginFailureSensor();
+
+  public static final int    LF_USER_DOESNT_EXIST       = 0;
+  public static final int    LF_LDAP_ERROR              = 1;
+  public static final int    LF_CERTIFICATE_INVALID     = 2;
+  public static final int    LF_BAD_CERTIFICATE_SUBJECT = 3;
+  public static final int    LF_USER_DISABLED           = 4;
+  public static final int    LF_LDAP_PASSWORD_NULL      = 5;
+  public static final int    LF_PASSWORD_MISMATCH       = 6;
+  public static final int    LF_USER_MISMATCH           = 7;
+
+  public static final Classification CAPABILITIES[] = {
+    new Classification("LOGIN FAILURE - user does not exist",
+                       "", Classification.VENDOR_SPECIFIC),
+    new Classification("LOGIN FAILURE - database error", 
+                       "", Classification.VENDOR_SPECIFIC),
+    new Classification("LOGIN FAILURE - user certificate is invalid", 
+                       "", Classification.VENDOR_SPECIFIC),
+    new Classification("LOGIN FAILURE - invalid subject in user certificate",
+                       "", Classification.VENDOR_SPECIFIC),
+    new Classification("LOGIN FAILURE - the user account has been disabled",
+                       "", Classification.VENDOR_SPECIFIC),
+    new Classification("LOGIN FAILURE - the password for the user is null " +
+                       "in the database", 
+                       "", Classification.VENDOR_SPECIFIC),
+    new Classification("LOGIN FAILURE - the user has entered the wrong " +
+                       "password", "", Classification.VENDOR_SPECIFIC),
+    new Classification("LOGIN FAILURE - dual authentication user names are " +
+                       "different", "", Classification.VENDOR_SPECIFIC)
+  };
 
   /** 
    * Default constructor. Uses <code>LdapUserService</code>
@@ -99,28 +154,20 @@ public class KeyRingJNDIRealm extends RealmBase {
   public KeyRingJNDIRealm() {
     _userService = (LdapUserService) _nodeServiceBroker.
       getService(this, LdapUserService.class, null);
-    if (_nodeServiceBroker != null) {
-      AgentIdentityService ais = (AgentIdentityService)
-        _nodeServiceBroker.getService(this, AgentIdentityService.class, null);
-      if (ais != null) {
-        // force a certificate for the node
-        try {
-          ais.CreateCryptographicIdentity(NodeInfo.getNodeName(), null);
-        } catch (PendingRequestException e) {
-          // well, can't use it, but no biggy
-        } catch (IdentityDeniedException e) {
-          e.printStackTrace();
-        }
+
+    AgentIdentityService ais = (AgentIdentityService)
+      _nodeServiceBroker.getService(this, AgentIdentityService.class, null);
+    if (ais != null) {
+      // force a certificate for the node
+      try {
+        ais.CreateCryptographicIdentity(NodeInfo.getNodeName(), null);
+      } catch (PendingRequestException e) {
+        // well, can't use it, but no biggy
+      } catch (IdentityDeniedException e) {
+        e.printStackTrace();
       }
     }
-  }
-
-  /** 
-   * Constructor that uses the given LdapUserService for
-   * its connection to the User LDAP database.
-   */
-  public KeyRingJNDIRealm(LdapUserService ldap) {
-    _userService = ldap;
+    setFactory(_nodeServiceBroker);
   }
 
   /**
@@ -169,6 +216,8 @@ public class KeyRingJNDIRealm extends RealmBase {
   public Principal authenticate(String username, String credentials) {
 //     System.out.println("Authenticating " + username + " with " + credentials);
     if (username == null || credentials == null) {
+      // don't alert that there was no credentials -- that happens
+      // under normal operation
       return null;
     }
     try {
@@ -177,9 +226,13 @@ public class KeyRingJNDIRealm extends RealmBase {
         return null;
       }
       return getPrincipal(attrs);
+    } catch (NameNotFoundException e) {
+      alertLoginFailure(LF_USER_DOESNT_EXIST, username);
     } catch (NamingException e) {
-      return null;
+      alertLoginFailure(LF_LDAP_ERROR, username);
+      e.printStackTrace();
     }
+    return null;
   }
 
   /**
@@ -192,25 +245,29 @@ public class KeyRingJNDIRealm extends RealmBase {
   public Principal authenticate(X509Certificate certs[]) {
 
 //     System.out.println("Trying to authenticate the certificates");
-    if ( (certs == null) || (certs.length < 1) )
+    if ( (certs == null) || (certs.length < 1) ) {
+      // don't log this -- there aren't any certificates and that's ok
       return null;
+    }
 
     // Check the validity of each certificate in the chain
     for (int i = 0; i < certs.length; i++) {
       try {
         certs[i].checkValidity();
       } catch (Exception e) {
+        alertLoginFailure(LF_CERTIFICATE_INVALID, null);
         if (debug >= 2) super.log("  Validity exception", e);
         System.err.println("Error with validity: " + e);
         return null;
       }
     }
 
-    String user = certs[0].getSubjectDN().getName();
+    String userdn = certs[0].getSubjectDN().getName();
 
-    user = getUserName(user);
+    String user = getUserName(userdn);
     if (user == null) {
       // certificate is bad, bad, bad!
+      alertLoginFailure(LF_BAD_CERTIFICATE_SUBJECT, userdn);
       return null;
     }
 
@@ -218,12 +275,19 @@ public class KeyRingJNDIRealm extends RealmBase {
 //       System.out.println("Getting attributes for user: " + user);
       Attributes attrs = _userService.getUser(user);
       if (attrs == null) {
+        alertLoginFailure(LF_USER_DOESNT_EXIST, user);
         return null; // user isn't in the database
       }
       if (!userDisabled(attrs)) {
         return getPrincipal(attrs);
+      } else {
+        alertLoginFailure(LF_USER_DISABLED, user);
       }
+    } catch (NameNotFoundException nnfe) {
+      alertLoginFailure(LF_USER_DOESNT_EXIST, user);
+      nnfe.printStackTrace();
     } catch (NamingException ne) {
+      alertLoginFailure(LF_LDAP_ERROR, user);
       ne.printStackTrace();
     }
     return null;
@@ -263,6 +327,7 @@ public class KeyRingJNDIRealm extends RealmBase {
       Attributes userAttrs = _userService.getUser(username);
       Attribute pwdAttr = userAttrs.get(_userService.getPasswordAttribute());
       if (pwdAttr == null || pwdAttr.size() == 0) {
+        alertLoginFailure(LF_LDAP_PASSWORD_NULL, username);
 //         System.out.println("Password attribute: " + pwdAttr);
         return null;
       }
@@ -273,9 +338,8 @@ public class KeyRingJNDIRealm extends RealmBase {
       } else {
         md5a1 = pwdVal.toString();
       }
+
 //       System.out.println("md5a1 = " + md5a1);
-      if (md5a1 == null)
-        return null;
       String serverDigestValue = md5a1 + ":" + nOnce + ":" + nc + ":"
         + cnonce + ":" + qop + ":" + md5a2;
       String serverDigest = this.md5Encoder.
@@ -284,7 +348,13 @@ public class KeyRingJNDIRealm extends RealmBase {
       
       if (serverDigest.equals(clientDigest))
         return getPrincipal(userAttrs);
+      
+      alertLoginFailure(LF_PASSWORD_MISMATCH, username);
+    } catch (NameNotFoundException nnfe) {
+      alertLoginFailure(LF_USER_DOESNT_EXIST, username);
+      nnfe.printStackTrace();
     } catch (NamingException ne) {
+      alertLoginFailure(LF_LDAP_ERROR, username);
       ne.printStackTrace();
     }
     return null;
@@ -339,11 +409,12 @@ public class KeyRingJNDIRealm extends RealmBase {
    * user, having the roles assigned to that user.
    */
   protected Principal getPrincipal(Attributes userAttr) {
+    String username = null;
+    String authFields = "EITHER";
     try {
-      String username = userAttr.get(_userService.getUserIDAttribute()).
+      username = userAttr.get(_userService.getUserIDAttribute()).
         get().toString();
       Attribute authAttr = userAttr.get(_userService.getAuthFieldsAttribute());
-      String authFields = "EITHER";
       if (authAttr != null) {
         Object val = authAttr.get();
         if (val != null) {
@@ -362,10 +433,14 @@ public class KeyRingJNDIRealm extends RealmBase {
       }
       return new CougaarPrincipal(this, username, roles, authFields);
     } catch (NamingException e) {
+      if (username != null) {
+        return new CougaarPrincipal(this, username, null, authFields);
+      }
+      alertLoginFailure(LF_LDAP_ERROR, username);
 //       System.out.println("Caught exception: ");
       e.printStackTrace();
-      return null;
     }
+    return null;
   }
 
   /**
@@ -385,19 +460,29 @@ public class KeyRingJNDIRealm extends RealmBase {
                                Attributes attrs)
     throws NamingException {
     boolean match = false;
-    if (attrs == null) return false;
+    if (attrs == null) {
+      alertLoginFailure(LF_USER_DOESNT_EXIST, username);
+      return false;
+    }
 
     if (userDisabled(attrs)) {
 //       System.out.println("Password login isn't ok.");
+      alertLoginFailure(LF_USER_DISABLED, username);
       return false;
     }
     Attribute  attr  = attrs.get(_userService.getPasswordAttribute());
 //     System.out.println("attr = " + attr);
-    if (attr == null || attr.size() < 1) return false;
+    if (attr == null || attr.size() < 1) {
+      alertLoginFailure(LF_LDAP_PASSWORD_NULL, username);
+      return false;
+    }
 
     Object     attrVal = attr.get();
 //     System.out.println("attrVal = " + attrVal);
-    if (attrVal == null) return false;
+    if (attrVal == null) {
+      alertLoginFailure(LF_LDAP_PASSWORD_NULL, username);
+      return false;
+    }
 
     String passwordCheck;
     if (attrVal instanceof byte[]) {
@@ -413,6 +498,9 @@ public class KeyRingJNDIRealm extends RealmBase {
       match = digest(password).equals(passwordCheck);
     }
 
+    if (!match) {
+      alertLoginFailure(LF_PASSWORD_MISMATCH, username);
+    }
     // in the future log a password match failure in a finally block
     return match;
   }
@@ -488,6 +576,109 @@ public class KeyRingJNDIRealm extends RealmBase {
       }
     }
     return null;
+  }
+
+  private void setFactory(ServiceBroker sb) {
+    _blackboardService =
+      (BlackboardService) sb.getService(this, BlackboardService.class, null);
+    DomainService ds = 
+      (DomainService) sb.getService(this, DomainService.class, null);
+    if (ds == null) {
+      System.out.println("Error: There is no DomainService. I cannot alert on login failures.");
+    } else {
+      CmrFactory cmrFactory = (CmrFactory) ds.getFactory("cmr");
+      _idmefFactory = cmrFactory.getIdmefMessageFactory();
+      
+      List capabilities = new ArrayList();
+      for (int i = 0; i < CAPABILITIES.length; i++) {
+        capabilities.add( CAPABILITIES[i] );
+      }
+      
+      RegistrationAlert reg = 
+        _idmefFactory.createRegistrationAlert( _sensor, capabilities,
+                                             _idmefFactory.newregistration );
+      NewEvent regEvent = _cmrFactory.newEvent(reg);
+      
+      _blackboardService.openTransaction();
+      _blackboardService.publishAdd(regEvent);
+      _blackboardService.closeTransaction();
+    }
+  }
+
+  public void alertLoginFailure(int failureType, String userName) {
+    alertLoginFailure(failureType, userName, null);
+  }
+
+  public void alertLoginFailure(int failureType, String userName1, 
+                                String userName2) {
+    if (_idmefFactory != null) {
+      ArrayList cfs = new ArrayList();
+      cfs.add(CAPABILITIES[failureType]);
+      Alert alert = _idmefFactory.createAlert(_sensor, new DetectTime(),
+                                              null, null, cfs, null);
+    
+      Analyzer      a       = alert.getAnalyzer();
+    
+      if (a != null) {
+        IDMEF_Node    node    = a.getNode();
+        IDMEF_Process process = a.getProcess();
+
+        User user = null;
+        UserId uid1 = null;
+        UserId uid2 = null;
+        int uidCount = 0;
+        if (userName1 != null) {
+          uid1 = new UserId( userName1, null, null, UserId.TARGET_USER );
+          uidCount++;
+        }
+        if (userName2 != null) {
+          uid2 = new UserId( userName2, null, null, UserId.TARGET_USER );
+          uidCount++;
+        }
+        if (uidCount > 0) {
+          UserId uids[] = new UserId[uidCount];
+          if (uid2 != null) {
+            uids[--uidCount] = uid2;
+          }
+          if (uid1 != null) {
+            uids[--uidCount] = uid1;
+          }
+          user = new User( uids, null, User.UNKNOWN );
+        }
+        Target t = new Target(node, user, process, null, null, null,
+                              Target.UNKNOWN, null);
+        alert.setTargets( new Target[] {t} );
+      }
+
+      NewEvent event = _cmrFactory.newEvent(alert);
+    
+      _blackboardService.openTransaction();
+      _blackboardService.publishAdd(event);
+      _blackboardService.closeTransaction();
+    }
+  }
+
+  private static class LoginFailureSensor implements SensorInfo {
+
+    public String getName() {
+      return "Login Failure Sensor";
+    }
+
+    public String getManufacturer() {
+      return "NAI Labs";
+    }
+
+    public String getModel() {
+      return "Servlet Login Failure";
+    }
+    
+    public String getVersion() {
+      return "1.0";
+    }
+
+    public String getAnalyzerClass() {
+      return "org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm";
+    }
   }
 
   static {
