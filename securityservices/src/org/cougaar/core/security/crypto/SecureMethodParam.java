@@ -61,8 +61,37 @@ public final class SecureMethodParam
     return secureMethodToString(secureMethod);
   }
 
+  /**
+   * Print the SecureMethodParam as a string
+   */
   public String toString() {
-    return "SecureMethodParam: " + getSecureMethodToString() + ' ' +
-      symmSpec + ' ' + asymmSpec + ' ' + signSpec;
+    /*
+     * This routine prints the method of signing and encrypting the message 
+     * even when the policy says that these algorithms don't need to be used. 
+     * This makes other routines that copy this object and drop the extra
+     * information look wrong even though they work correctly.  I think the 
+     * "(ignorable)" logic will help the next guy debugging this code.  This
+     * should probably be fixed. (e.g. make a real class that hides this 
+     * stuff?) 
+     */
+    boolean enc = (_policy.secureMethod == SecureMethodParam.ENCRYPT ||
+                   _policy.secureMethod == SecureMethodParam.SIGNENCRYPT);
+    boolean sign = (_policy.secureMethod == SecureMethodParam.SIGN ||
+                   _policy.secureMethod == SecureMethodParam.SIGNENCRYPT);
+    String out = "SecureMethodParam: " + getSecureMethodToString();
+    out += " " + symmSpec;
+    if (!enc) {
+      out += " (ignorable)";
+    }
+    out += " " + signSpec;
+    if (!sign) {
+      out += " (ignorable)";
+    }
+    return out;
   }
+
+  /*
+   * Maybe there should be readObject and writeObject routines here.  Look at 
+   * ProtectedMessageHeader.java.
+   */
 }
