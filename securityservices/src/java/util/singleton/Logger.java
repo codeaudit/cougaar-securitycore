@@ -24,7 +24,7 @@
  * - 
  */
 
-package org.cougaar.core.security.securebootstrap;
+package java.util.singleton;
 
 public class Logger
 {

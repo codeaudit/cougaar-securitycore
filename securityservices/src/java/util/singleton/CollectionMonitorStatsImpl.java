@@ -53,7 +53,7 @@ public class CollectionMonitorStatsImpl implements CollectionMonitorStats
 
     // FIX: TODO
     _theInstance = (CollectionMonitorStats)
-      getInstance(CollectionMonitorStatsImpl.class,
+      BaseSingleton.getInstance(CollectionMonitorStatsImpl.class,
 		  CollectionMonitorStats.class,
 		  _theInstance);
     return _theInstance;

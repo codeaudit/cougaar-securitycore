@@ -24,8 +24,7 @@
  * CHANGE RECORD
  * - 
  */
-
-package org.cougaar.core.security.securebootstrap;
+package java.util.singleton;
 
 public class NullLogger
   extends Logger
