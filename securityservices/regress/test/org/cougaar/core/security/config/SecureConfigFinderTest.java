@@ -24,7 +24,7 @@
  * - 
  */
 
-package test.org.cougaar.core.security.test.config;
+package test.org.cougaar.core.security.config;
 
 import java.io.*;
 import java.util.*;
@@ -67,7 +67,9 @@ public class SecureConfigFinderTest
 
   private void testFiles(String files[]) {
     Assert.assertNotNull(files);
+    Assert.assertTrue(files.length > 0);
     _scf = (SecureConfigFinder)ConfigFinder.getInstance();
+    Assert.assertNotNull(_scf);
     URL[] jarFiles = getJarFilesFromClassPath();
     for (int i = 0 ; i < jarFiles.length ; i++) {
       _scf.appendAndSearch(jarFiles[i], null);
