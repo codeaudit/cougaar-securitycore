@@ -30,7 +30,11 @@ import java.security.cert.CertificateException;
 import javax.crypto.*;
 
 public class CryptoManagerServiceImpl implements CryptoManagerService {
+  private boolean debug = false;
+
   public CryptoManagerServiceImpl() {
+    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
   }
 
   public SignedObject sign(final String name, String spec, Serializable obj){
@@ -136,7 +140,9 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
         }
 	catch(NullPointerException nullexp){
 	  boolean loop = true;
-	  System.out.println("in symmDecrypt" +nullexp);
+	  if (debug) {
+	    System.out.println("in symmDecrypt" +nullexp);
+	  }
 	  while(loop){
 	    try{
 	      Thread.sleep(200);
