@@ -44,6 +44,8 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
+import javax.net.ssl.HandshakeCompletedEvent;
+import javax.net.ssl.HandshakeCompletedListener;
 
 public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   private static KeyRingSSLServerFactory _default;
@@ -59,6 +61,12 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   SSLServerSocketFactory ssocfac;
 
   boolean needAuth = true;
+  static final HandshakeCompletedListener HANDSHAKE_LISTENER = 
+    new HandshakeCompletedListener() {
+      public void handshakeCompleted(HandshakeCompletedEvent event) {
+        updateSocketCache(event.getSocket());
+      }
+    };
 
   public static Principal getPrincipal() {
     synchronized (_sessionMap) {
@@ -204,8 +212,9 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
       if (sock == null) {
         return sock;
       }
-      updateSocketCache(sock);
-      return new WrappedSSLSocket(sock);
+      SSLSocket sslSocket = (SSLSocket) sock;
+      sslSocket.addHandshakeCompletedListener(HANDSHAKE_LISTENER);
+      return new WrappedSSLSocket(sslSocket);
     }
   }
 
