@@ -24,13 +24,14 @@ package org.cougaar.core.security.policy.enforcers.match;
 import java.util.*;
 
 import kaos.ontology.matching.*;
-import kaos.ontology.jena.ActionConcepts;
 import kaos.policy.information.KAoSProperty;
 
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
-// Cougaar core services
+// Cougaar core and securityservices imports
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.auth.role.RoleExecutionContext;
+import org.cougaar.core.security.policy.enforcers.util.DAMLBlackboardMapping;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.Community;
@@ -39,12 +40,16 @@ import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.Entity;
 
-import org.cougaar.core.security.policy.enforcers.ontology.ActorClassesConcepts;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 
 public class ULInstanceClassifierFactory
     implements InstanceClassifierFactory
 {
+  public static final String pluginPrefix =
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
+    EntityInstancesConcepts.EntityInstancesDamlURL
+    + "#PluginsInRole";
+
   private ServiceBroker _sb;
   private CommunityService _communityService;
   private HashMap _communityCache = new HashMap();
@@ -84,8 +89,10 @@ public class ULInstanceClassifierFactory
   public  InstanceClassifier getInstance (String propertyName) 
     throws InstanceClassifierInitializationException
   {
-    if (propertyName.equals(ActionConcepts._performedBy_) || 
-        propertyName.equals(ActionConcepts._hasDestination_) ) {
+    if (propertyName.equals(kaos.ontology.jena.
+                            ActionConcepts._performedBy_) || 
+        propertyName.equals(kaos.ontology.jena.
+                            ActionConcepts._hasDestination_) ) {
       return _instClassifier;
     } else {
       return null;
@@ -117,8 +124,10 @@ public class ULInstanceClassifierFactory
 
   private class ULActorInstanceClassifier implements InstanceClassifier
   {
-    private String communityPrefix = "KAoS#MembersOfDomainCommunity";
-    private String personPrefix    = ActorClassesConcepts.ActorClassesDamlURL;
+    private String communityPrefix  = "KAoS#MembersOfDomainCommunity";
+    private String personPrefix     = 
+      org.cougaar.core.security.policy.enforcers.ontology.jena.
+      ActorClassesConcepts.ActorClassesDamlURL;
 
     public void init ()
       throws InstanceClassifierInitializationException 
@@ -129,9 +138,25 @@ public class ULInstanceClassifierFactory
     public boolean classify(String className, Object instance) 
       throws InstanceClassifierInitializationException
     {
+      className = removeHashChar(className);
+      if (className
+          .equals(org.cougaar.core.security.policy.enforcers.ontology.jena.
+                  UltralogActorConcepts._UltralogPlugins_)) {
+        return (instance instanceof RoleExecutionContext);
+      }
+      if (className.startsWith(pluginPrefix)) {
+        if (instance instanceof RoleExecutionContext) {
+          String role = className.substring(pluginPrefix.length());
+          RoleExecutionContext rec = (RoleExecutionContext) instance;
+          return rec.hasComponentRole(role);
+        } else { return false; }
+      }
+      if (! (instance instanceof String)) {
+        return false;
+      }
+
       String actor = (String) instance;
       actor     = removeHashChar(actor);
-      className = removeHashChar(className);
       if (className.equals(kaos.ontology.jena.ActorConcepts._Agent_)) {
         return !UserDatabase.isUser(actor);
       } else if (className.startsWith(communityPrefix)) {
@@ -175,7 +200,7 @@ public class ULInstanceClassifierFactory
                    + className + " and instances: ");
         for (Iterator instancesIt = instances.iterator();
              instancesIt.hasNext();) {
-          String instance = (String) instancesIt.next();
+          Object instance = instancesIt.next();
           _log.debug(".ULInstanceClassifier: " + instance);
         }
       }
@@ -183,7 +208,7 @@ public class ULInstanceClassifierFactory
       boolean someDontMatch = false;
       for (Iterator actorIt = instances.iterator(); 
            actorIt.hasNext();) {
-        Object actor = (String) actorIt.next();
+        Object actor = actorIt.next();
         if (classify(className, actor)) {
           _log.debug("ULInstanceClassifier: found match of " + className +
                      " and " + actor);
