@@ -171,11 +171,17 @@ module Cougaar
     end
 
     class StopScheduledStress < Cougaar::Action
+
       def initialize(run, className, methodName)
 	super(run)
 	@stressorClassName = className
 	@methodName = methodName
       end
+
+      def to_s
+        super.to_s+"(#{@stressorClassName}.#{@methodName})"
+      end
+
       def perform()
 	#logInfoMsg "Stopping stress: #{@stressorClassName}.#{@methodName}"
 	val = Stressors.getRunState(@stressorClassName, @methodName)
