@@ -16,6 +16,39 @@ module Cougaar
       end
     end
 
+   class InjectStress < Cougaar::Action
+
+     def initialize(run, className, methodName, delay=5.minute)
+	super(run)
+	begin
+	  @stressor = eval("#{className}.new(run)")
+	  @aMethod = @stressor.method(methodName)
+	rescue => ex
+	  logWarningMsg "Unable to start stress: #{className}" + ex
+	  return
+	end
+
+	@delay = delay
+	@stressorClassName = className
+	@methodName = methodName
+      end
+
+      def perform()
+	#logInfoMsg "Starting stress: #{@stressorClassName}.#{@methodName}"
+	if @stressor == nil
+	  return
+	end
+	#logInfoMsg "Delay Invoke stress: #{@stressorClassName}.#{@methodName} #{@delay}"
+	sleep @delay
+	logInfoMsg "Invoking stress: #{@stressorClassName}.#{@methodName}"
+	begin
+	  @aMethod.call()
+	rescue
+	  logWarningMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
+	end
+      end
+    end
+
     class StartScheduledStress < Cougaar::Action
 
      def initialize(run, className, methodName, delay=5.minute, interval=2.minute)
