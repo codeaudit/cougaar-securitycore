@@ -270,23 +270,25 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
    
     while (iter.hasNext()) {
       relay = (CmrRelay)iter.next();
-      if(capabilitieschanged) {
-	loggingService.debug("New capabilities have come in and going to iterate through all relay and provide up date :");
-	if(!relay.getSource().equals(myAddress)) {
-	  loggingService.debug("CAPABILITIES CHANGED  RELAY IS NOT FROM ME");
-	  loggingService.debug("CONTENTS OF RELAY ARE :"+ relay.toString());
-	  if(relay.getContent() instanceof MRAgentLookUp) {
-	    agentlookupquery=(MRAgentLookUp)relay.getContent();
-	    if(!agentlookupquery.updates) {
-	      loggingService.debug("Got relay without update "+agentlookupquery.toString());
-	      continue;
-	    }
-	    loggingService.debug(" got relay update "+agentlookupquery.toString());
-	    Collection queryMappingCollection=querymapping.getCollection();
+      Collection queryMappingCollection=querymapping.getCollection();
+      if(relay.getContent() instanceof MRAgentLookUp) {
+	agentlookupquery=(MRAgentLookUp)relay.getContent();
+	if(agentlookupquery==null) {
+	  loggingService.warn(" Contents of the relay is null:"+relay.toString()); 
+	}
+	if(!agentlookupquery.updates) {
+	  loggingService.debug("Got relay without update "+agentlookupquery.toString());
+	  continue;
+	}
+	boolean isqueryoriginator= isRelayQueryOriginator(relay.getUID(),queryMappingCollection);
+	if(capabilitieschanged) {
+	  loggingService.debug("New capabilities have come in and going to iterate through all relay and provide up date :");
+	  if(isqueryoriginator){
 	    mapping=findQueryMappingFromBB(relay.getUID(),queryMappingCollection) ;
 	    if(mapping!=null) {
 	      removeRelay(mapping);
 	      mapping.setQueryList(null);
+	      mapping.setResultPublished(false);
 	    }
 	    if (loggingService.isDebugEnabled())
 	      loggingService.debug("Printing receive relay which is not local"
@@ -299,21 +301,18 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	    }
 	  }
 	  else {
+	    /* current relay is not the originator so we will continue with the next relay . */
 	    continue;
 	  }
 	}
       }
-      if (!relay.getSource().equals(myAddress)) {
-	if(relay.getContent() instanceof MRAgentLookUp) {
-	  agentlookupquery=(MRAgentLookUp)relay.getContent();
-	  if (agentlookupquery == null) {
-	    loggingService.error("MnRAgentLookup query is null. Relay is " + relay.toString());
-	    continue;
-	  }
-	}
+      else {
+	/*
+	  Not an instance or MRAgentLookUp contine with te next relay.  */
+	continue;
       }
       if(capabilitieschanged) {
-	loggingService.debug("Going to search again");
+	loggingService.debug("Going to search again For persiated query ");
       }
       List response= findAgent(agentlookupquery, capabilities, false);
       if (loggingService.isDebugEnabled()) {
@@ -1455,6 +1454,25 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       }
     }
     return contains;
+  }
+  
+  public boolean isRelayQueryOriginator(UID givenUID, Collection queryMappingCol ) {
+    boolean isoriginator=false;
+    QueryMapping querymapping=null;
+    if(!queryMappingCol.isEmpty()){
+      if (loggingService.isDebugEnabled()) {
+	loggingService.debug("Going to find if this relay is originator of query :"); 
+      }
+      Iterator iter=queryMappingCol.iterator();
+      while(iter.hasNext()) {
+	querymapping=(QueryMapping)iter.next();
+	if(querymapping.getRelayUID().equals(givenUID)) {
+	  isoriginator=true;
+	  return isoriginator;
+	}
+      }
+    }
+    return isoriginator;
   }
   
   public QueryMapping findQueryMappingFromBB(UID givenUID, Collection queryMappingCol ) {
