@@ -211,18 +211,4 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
     return fac.getCertDirectoryService(scheme);
   }
 
-  public List findCert() {
-    if (log.isWarnEnabled()) {
-      log.warn("findCert() should not be called within a normal node, "
-        + "this function only works in CA.");
-    }
-  }
-
-  public List findCertByIdentifier(String uniqueIdentifier) {
-    if (log.isWarnEnabled()) {
-      log.warn("findCertByIdentifier(String) should not be called within a normal node, "
-        + "this function only works in CA.");
-    }
-  }
-
 }
