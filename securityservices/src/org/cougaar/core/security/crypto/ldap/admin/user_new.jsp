@@ -99,7 +99,8 @@ function cancelAction() {
     for (int i = 0; i < UserInterface.LDAP_USER_FIELDS.length; i++) {
       String title   = UserInterface.LDAP_USER_FIELDS[i][1];
       String field   = UserInterface.LDAP_USER_FIELDS[i][0];
-      Attribute attr = user.get(field);
+      Attribute attr = null;
+      if (user != null) attr = user.get(field);
       Object val     = "";
       if (attr != null) {
         val = attr.get();

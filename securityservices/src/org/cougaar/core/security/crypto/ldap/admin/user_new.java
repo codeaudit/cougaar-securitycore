@@ -217,142 +217,143 @@ public class user_new extends HttpJspBase {
                 out.write("-repeat\" \r\n               value=\"\"></td>\r\n        </tr>\r\n");
 
             // end
-            // begin [file="/user_new.jsp";from=(97,2);to=(107,0)]
+            // begin [file="/user_new.jsp";from=(97,2);to=(108,0)]
                 
                     for (int i = 0; i < UserInterface.LDAP_USER_FIELDS.length; i++) {
                       String title   = UserInterface.LDAP_USER_FIELDS[i][1];
                       String field   = UserInterface.LDAP_USER_FIELDS[i][0];
-                      Attribute attr = user.get(field);
+                      Attribute attr = null;
+                      if (user != null) attr = user.get(field);
                       Object val     = "";
                       if (attr != null) {
                         val = attr.get();
                       }
                       if (field != UserInterface.LDAP_USER_UID) {
             // end
-            // HTML // begin [file="/user_new.jsp";from=(107,2);to=(109,14)]
+            // HTML // begin [file="/user_new.jsp";from=(108,2);to=(110,14)]
                 out.write("\r\n        <tr>\r\n          <td>");
 
             // end
-            // begin [file="/user_new.jsp";from=(109,17);to=(109,22)]
+            // begin [file="/user_new.jsp";from=(110,17);to=(110,22)]
                 out.print(title);
             // end
-            // HTML // begin [file="/user_new.jsp";from=(109,24);to=(111,0)]
+            // HTML // begin [file="/user_new.jsp";from=(110,24);to=(112,0)]
                 out.write("</td>\r\n          <td>\r\n");
 
             // end
-            // begin [file="/user_new.jsp";from=(111,2);to=(114,0)]
+            // begin [file="/user_new.jsp";from=(112,2);to=(115,0)]
                 
                         if (field == UserInterface.LDAP_USER_AUTH) {
                           if ("".equals(val)) val = UserInterface.LDAP_USER_AUTH_VALS[UserInterface.LDAP_USER_AUTH_DEFAULT_VAL][0];
             // end
-            // HTML // begin [file="/user_new.jsp";from=(114,2);to=(115,26)]
+            // HTML // begin [file="/user_new.jsp";from=(115,2);to=(116,26)]
                 out.write("\r\n            <select name=\"");
 
             // end
-            // begin [file="/user_new.jsp";from=(115,29);to=(115,34)]
+            // begin [file="/user_new.jsp";from=(116,29);to=(116,34)]
                 out.print(field);
             // end
-            // HTML // begin [file="/user_new.jsp";from=(115,36);to=(116,0)]
+            // HTML // begin [file="/user_new.jsp";from=(116,36);to=(117,0)]
                 out.write("\">\r\n");
 
             // end
-            // begin [file="/user_new.jsp";from=(116,2);to=(121,0)]
+            // begin [file="/user_new.jsp";from=(117,2);to=(122,0)]
                 
                           for (int j = 0; j < UserInterface.LDAP_USER_AUTH_VALS.length; j++) { 
                             String selected = "";
                             if (UserInterface.LDAP_USER_AUTH_VALS[j][0].equals(val))
                               selected = " selected";
             // end
-            // HTML // begin [file="/user_new.jsp";from=(121,2);to=(122,29)]
+            // HTML // begin [file="/user_new.jsp";from=(122,2);to=(123,29)]
                 out.write("\r\n              <option value=\"");
 
             // end
-            // begin [file="/user_new.jsp";from=(122,32);to=(122,71)]
+            // begin [file="/user_new.jsp";from=(123,32);to=(123,71)]
                 out.print(UserInterface.LDAP_USER_AUTH_VALS[j][0]);
             // end
-            // HTML // begin [file="/user_new.jsp";from=(122,73);to=(123,22)]
+            // HTML // begin [file="/user_new.jsp";from=(123,73);to=(124,22)]
                 out.write("\"\r\n                      ");
 
             // end
-            // begin [file="/user_new.jsp";from=(123,25);to=(123,33)]
+            // begin [file="/user_new.jsp";from=(124,25);to=(124,33)]
                 out.print(selected);
             // end
-            // HTML // begin [file="/user_new.jsp";from=(123,35);to=(124,16)]
+            // HTML // begin [file="/user_new.jsp";from=(124,35);to=(125,16)]
                 out.write(" >\r\n                ");
 
             // end
-            // begin [file="/user_new.jsp";from=(124,19);to=(124,58)]
+            // begin [file="/user_new.jsp";from=(125,19);to=(125,58)]
                 out.print(UserInterface.LDAP_USER_AUTH_VALS[j][1]);
             // end
-            // HTML // begin [file="/user_new.jsp";from=(124,60);to=(126,0)]
+            // HTML // begin [file="/user_new.jsp";from=(125,60);to=(127,0)]
                 out.write("\r\n              </option>\r\n");
 
             // end
-            // begin [file="/user_new.jsp";from=(126,2);to=(126,10)]
+            // begin [file="/user_new.jsp";from=(127,2);to=(127,10)]
                       } 
             // end
-            // HTML // begin [file="/user_new.jsp";from=(126,12);to=(128,0)]
+            // HTML // begin [file="/user_new.jsp";from=(127,12);to=(129,0)]
                 out.write("\r\n            </select>\r\n");
 
             // end
-            // begin [file="/user_new.jsp";from=(128,2);to=(130,0)]
+            // begin [file="/user_new.jsp";from=(129,2);to=(131,0)]
                 
                         } else if (field == UserInterface.LDAP_USER_ENABLE) {
             // end
-            // HTML // begin [file="/user_new.jsp";from=(130,2);to=(131,35)]
+            // HTML // begin [file="/user_new.jsp";from=(131,2);to=(132,35)]
                 out.write("\r\n          <input type=\"text\" name=\"");
 
             // end
-            // begin [file="/user_new.jsp";from=(131,38);to=(131,43)]
+            // begin [file="/user_new.jsp";from=(132,38);to=(132,43)]
                 out.print(field);
             // end
-            // HTML // begin [file="/user_new.jsp";from=(131,45);to=(131,54)]
+            // HTML // begin [file="/user_new.jsp";from=(132,45);to=(132,54)]
                 out.write("\" value=\"");
 
             // end
-            // begin [file="/user_new.jsp";from=(131,57);to=(131,60)]
+            // begin [file="/user_new.jsp";from=(132,57);to=(132,60)]
                 out.print(val);
             // end
-            // HTML // begin [file="/user_new.jsp";from=(131,62);to=(134,0)]
+            // HTML // begin [file="/user_new.jsp";from=(132,62);to=(135,0)]
                 out.write("\">&nbsp;&nbsp;\r\n          <input type=\"button\" value=\"Enable\" onClick=\"enableUser();\">&nbsp;\r\n          <input type=\"button\" value=\"Disable\" onClick=\"disableUser();\">\r\n");
 
             // end
-            // begin [file="/user_new.jsp";from=(134,2);to=(136,0)]
+            // begin [file="/user_new.jsp";from=(135,2);to=(137,0)]
                 
                         } else {
             // end
-            // HTML // begin [file="/user_new.jsp";from=(136,2);to=(137,35)]
+            // HTML // begin [file="/user_new.jsp";from=(137,2);to=(138,35)]
                 out.write("\r\n          <input type=\"text\" name=\"");
 
             // end
-            // begin [file="/user_new.jsp";from=(137,38);to=(137,43)]
+            // begin [file="/user_new.jsp";from=(138,38);to=(138,43)]
                 out.print(field);
             // end
-            // HTML // begin [file="/user_new.jsp";from=(137,45);to=(137,54)]
+            // HTML // begin [file="/user_new.jsp";from=(138,45);to=(138,54)]
                 out.write("\" value=\"");
 
             // end
-            // begin [file="/user_new.jsp";from=(137,57);to=(137,60)]
+            // begin [file="/user_new.jsp";from=(138,57);to=(138,60)]
                 out.print(val);
             // end
-            // HTML // begin [file="/user_new.jsp";from=(137,62);to=(138,0)]
+            // HTML // begin [file="/user_new.jsp";from=(138,62);to=(139,0)]
                 out.write("\">\r\n");
 
             // end
-            // begin [file="/user_new.jsp";from=(138,2);to=(140,0)]
+            // begin [file="/user_new.jsp";from=(139,2);to=(141,0)]
                 
                         }
             // end
-            // HTML // begin [file="/user_new.jsp";from=(140,2);to=(143,0)]
+            // HTML // begin [file="/user_new.jsp";from=(141,2);to=(144,0)]
                 out.write("\r\n          </td>\r\n        </tr>\r\n");
 
             // end
-            // begin [file="/user_new.jsp";from=(143,2);to=(146,0)]
+            // begin [file="/user_new.jsp";from=(144,2);to=(147,0)]
                 
                       }
                     }
             // end
-            // HTML // begin [file="/user_new.jsp";from=(146,2);to=(151,0)]
+            // HTML // begin [file="/user_new.jsp";from=(147,2);to=(152,0)]
                 out.write("\r\n      </table>\r\n    </form>\r\n  </body>\r\n</html>\r\n");
 
             // end
