@@ -54,3 +54,5 @@
 /$*/topology SocietyAdminServlet
 #
 /$*/useradmin UserManagerServlets
+#
+/$*/* OtherServlets
