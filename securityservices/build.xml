@@ -147,9 +147,18 @@
             includes="edu/jhuapl/idmef/*.java" srcdir="${securityservices.src}"/>
         <echo message="+++++ Built JavaIDMEF"/>
     </target>
-    
+
+    <target name="build-policyparser" depends="init">
+      <java classname="antlr.Tool"
+            fork="true"
+            dir="${securityservices.src}/org/cougaar/core/security/policy/builder"
+            classpathref="core.class.path" >
+        <arg value="policyGrammar.g" />
+      </java>
+    </target>
+
     <!-- Build the org.cougaar.core.security package -->
-    <target name="build-securityservices" depends="init, build-idmef, compile-jsps">
+    <target name="build-securityservices" depends="init, build-idmef, compile-jsps, build-policyparser">
         <echo message="+++++ Building security services"/>
         <javac classpathref="core.class.path" debug="true" 
             deprecation="true" destdir="${securityservices.classes}"
@@ -596,6 +605,10 @@
         <delete dir="${securityservices.classes}/org" includeEmptyDirs="true" quiet="true"/>
         <delete dir="${securityservices.classes}/test" includeEmptyDirs="true" quiet="true"/>
         <delete dir="${securityservices.signed}" includeEmptyDirs="true" quiet="true"/>
+        <delete file="${securityservices.src}/org/cougaar/core/security/policy/builder/PolicyParser.java" />
+        <delete file="${securityservices.src}/org/cougaar/core/security/policy/builder/PolicyLexer.java" />
+        <delete file="${securityservices.src}/org/cougaar/core/security/policy/builder/PolicyParserTokenTypes.java" />
+        <delete file="${securityservices.src}/org/cougaar/core/security/policy/builder/PolicyParserTokenTypes.txt" />
         <delete quiet="true">
            <fileset dir="${securityservices.classes}" includes="*.jar"/>
         </delete>
