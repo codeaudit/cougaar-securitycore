@@ -190,13 +190,13 @@
     </target>
 
     <target name="run-society">
-      <!-- Run society for 10 minutes 10 * 60 * 1000-->
+      <!-- Run society for 30 minutes 30 * 60 * 1000-->
       <echo message="Running society..."/>
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
 	command="cd ${testbed.cip.dir}/configs/ping ; ruby ASMT-PING-DEF.rb"
-        timeout="600000"
+        timeout="1800000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <!-- parse results -->
