@@ -44,7 +44,7 @@ public class EventAgentProxy implements EventService {
   private EventService myEventService;
   private MessageAddress myID = null;
   private LinkedList myqueue=null; 
-  protected long    _pollInterval    = 12L;
+  protected long    _pollInterval    = 50L;
 
   private final int THRESHOLD_SIZE_RAISE_WARNING = 1000;
  
