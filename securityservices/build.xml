@@ -40,6 +40,8 @@
         <pathelement location="${cougaar.install.path}/lib/glm.jar"/>
         <pathelement location="${cougaar.install.path}/lib/planserver.jar"/>
         <pathelement location="${cougaar.install.path}/lib/core.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/util.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
         <!-- KAoS libraries -->
         <pathelement location="${cougaar.install.path}/sys/mail.jar"/>
         <pathelement location="${cougaar.install.path}/lib/kaos.jar"/>
