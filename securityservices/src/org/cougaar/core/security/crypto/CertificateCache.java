@@ -92,6 +92,11 @@ public class CertificateCache
   private DirectoryKeyStore directorykeystore = null;
   private LoggingService log;
 
+  /** Cache to store strings containing revoked certificate DN, issuer DN, and serial number,
+   * The certificate being revoked may not be in cert cache.
+   */
+  private Hashtable revokedCache = new Hashtable();
+
   public CertificateCache(DirectoryKeyStore d, LoggingService aLog)
   {
     directorykeystore = d;
@@ -184,6 +189,17 @@ public class CertificateCache
   {
   }
 
+  public void addToRevokedCache(String issuerDN, BigInteger serialno) {
+    // need to keep this information, so that once we receive a certificate we know
+    // immediately whether it has been revoked.
+    String cacheString = issuerDN + "," + serialno;
+
+    if (log.isDebugEnabled()) {
+      log.debug("addToRevokedCache - " + cacheString);
+    }
+    revokedCache.put(cacheString, cacheString);
+  }
+
   /**
    */
   public  void revokeStatus(BigInteger serialno, String issuerDN, String subjectDN) {
@@ -228,7 +244,8 @@ public class CertificateCache
     }
     if(!found){
       log.warn(" not found cert:");
-    }
+      return;
+     }
 
     // should check all certificate status, checkCertificate in cert cache
     // does not check cert chain, so the cert issued by a revoked signer
@@ -250,6 +267,51 @@ public class CertificateCache
    */
   private void invalidateSessions(X509Certificate cert) {
     KeyRingSSLFactory.invalidateSession(cert);
+  }
+
+
+  public boolean checkRevokedCache(X509Certificate certificate) {
+    boolean revoked = false; 
+
+    // is it revoked?
+    String subjectDN = certificate.getSubjectDN().getName();
+    String issuerDN = certificate.getIssuerDN().getName();
+    BigInteger serialno = certificate.getSerialNumber();
+    if (revokedCache.get(issuerDN + "," + serialno) != null) {
+      if (log.isDebugEnabled()) {
+	log.debug("Certificate found in revokedCache: " + subjectDN);
+      }
+      revoked = true;
+    }
+
+    // find cert status
+    List list = getCertificates(subjectDN);
+    CertificateStatus cs = null;
+    if (list != null) {
+      ListIterator it = list.listIterator();
+      while (it.hasNext()) {
+        cs = (CertificateStatus)it.next();
+        if (cs.getCertificate().getPublicKey().equals(certificate.getPublicKey())) {
+          if (!cs.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)) {
+            if (revoked) {
+              cs.setCertificateTrust(CertificateTrust.CERT_TRUST_REVOKED_CERT);
+              cs.setValidity(false);
+            }
+          }
+          else {
+            revoked = true;
+          }
+          break;
+        }
+        cs = null;
+      }
+    }
+    if (cs == null) {
+      if (log.isDebugEnabled()) {
+        log.debug("Certificate being checked is not in cert cache: " + certificate.getSubjectDN());
+      }
+    }
+    return revoked;
   }
 
   private CertificateStatus addCertStatus(List list, CertificateStatus certEntry,
