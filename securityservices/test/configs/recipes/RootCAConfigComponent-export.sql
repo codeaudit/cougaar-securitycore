@@ -100,7 +100,7 @@ UNLOCK TABLES;
 --
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0008RootCAConfigComponent','RootCAConfigComponent','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0105RootCAConfigComponent','RootCAConfigComponent','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
 UNLOCK TABLES;
 
 --
@@ -108,13 +108,13 @@ UNLOCK TABLES;
 --
 
 LOCK TABLES lib_mod_recipe_arg WRITE;
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008RootCAConfigComponent','Class Name',6.000000000000000000000000000000,'org.cougaar.core.security.certauthority.ConfigPlugin');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008RootCAConfigComponent','Component Name',4.000000000000000000000000000000,'org.cougaar.core.security.certauthority.ConfigPlugin');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008RootCAConfigComponent','Component Priority',2.000000000000000000000000000000,'HIGH');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008RootCAConfigComponent','Number of Arguments',1.000000000000000000000000000000,'2');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008RootCAConfigComponent','Target Component Selection Query',5.000000000000000000000000000000,'recipeQueryNodeRootCA');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008RootCAConfigComponent','Type of Insertion',3.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008RootCAConfigComponent','Value 1',0.000000000000000000000000000000,'CN=Root_CA, OU=Root, O=DLA, L=San Francisco, ST=CA, C=US, T=ca');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0105RootCAConfigComponent','Class Name',6.000000000000000000000000000000,'org.cougaar.core.security.certauthority.ConfigPlugin');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0105RootCAConfigComponent','Component Name',4.000000000000000000000000000000,'org.cougaar.core.security.certauthority.ConfigPlugin');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0105RootCAConfigComponent','Component Priority',2.000000000000000000000000000000,'HIGH');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0105RootCAConfigComponent','Number of Arguments',1.000000000000000000000000000000,'2');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0105RootCAConfigComponent','Target Component Selection Query',5.000000000000000000000000000000,'recipeQueryNodeRootCA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0105RootCAConfigComponent','Type of Insertion',3.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0105RootCAConfigComponent','Value 1',0.000000000000000000000000000000,'CN=Root_CA, OU=Root, O=DLA, L=San Francisco, ST=CA, C=US, T=ca');
 UNLOCK TABLES;
 
 --
