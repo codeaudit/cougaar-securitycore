@@ -210,7 +210,7 @@ public class MnRAggRateCalculator extends TimerTask implements AggregationType,j
     data.add(adddata);
     adddata = imessage.createAdditionalData(AdditionalData.STRING,
                                             DrillDownQueryConstants.ORIGINATORS_UID, 
-                                            parentUID.toString());
+                                            originatorUID.toString());
     data.add(adddata);
     adddata = imessage.createAdditionalData(AdditionalData.STRING,
                                             DrillDownQueryConstants.PARENT_UID, 
