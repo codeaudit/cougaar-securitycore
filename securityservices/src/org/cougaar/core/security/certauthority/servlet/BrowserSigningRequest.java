@@ -359,7 +359,8 @@ public class BrowserSigningRequest
 		+ "submit button, your request will be submitted to the Certificate Authority.</br>"
 		+ "When the certificate authority has approved your request, you will be able "
 		+ "to install your certificate in your browser</br>"
-		+ "and use it as a client certificate or to send and receive encrypted e-mail.</br>");
+		+ "and use it as a client certificate or to send and receive encrypted e-mail.</br>"
+		+ "User ID format: \"DomainName-UserName\"</br>");
     switch (browserType) {
     case BROWSER_EXPLORER_5:
     case BROWSER_EXPLORER_DEFAULT:
