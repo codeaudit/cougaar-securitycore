@@ -2,7 +2,7 @@
 ####################################################
 # Rule to insert JaasAgentBinder
 
-plugin = "org.cougaar.core.security.policy.webproxy.WebProxySecurityComponent"
+plugin = "org.cougaar.core.security.util.webproxy.WebProxySecurityComponent"
 
 if !$disableKaosPolicy
   society.each_node do |node|
