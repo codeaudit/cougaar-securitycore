@@ -84,6 +84,8 @@ import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
 
 // Cougaar overlay
 import org.cougaar.core.security.constants.IdmefClassifications;
@@ -168,6 +170,9 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       }
       _userService = (UserService) _serviceBroker.
         getService(this, UserService.class, null);
+      if (_userService == null) {
+        _serviceBroker.addServiceListener(new UserServiceListener());
+      }
     }
     if (log == null) {
       log = (LoggingService)
@@ -787,4 +792,18 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       }
     }
   }
+
+  private class UserServiceListener implements ServiceAvailableListener {
+    public final String USER_SERVICE_NAME = UserService.class.getName();
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      if (ae.getService().equals(USER_SERVICE_NAME)) {
+        _userService = (UserService) ae.getServiceBroker().
+           getService(this, UserService.class, null);
+        if (_userService != null) {
+          ae.getServiceBroker().removeServiceListener(this);
+        }
+      }
+    }
+  }
+
 }
