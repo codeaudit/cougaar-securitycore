@@ -319,6 +319,18 @@ Policy PolicyServletEnclaveaAuth  = [
   authentication when accessing the servlet named EnclaveaPolicyServlet
 ]
 
+Policy PolicyServlet  = [ 
+  ServletUserAccessTemplate
+  A user in role PolicyAdministrator can access a servlet 
+  named PolicyServlet
+]
+
+Policy PolicyServletAuth  = [ 
+  ServletAuthenticationTemplate
+  All users must use Password, PasswordSSL, CertificateSSL
+  authentication when accessing the servlet named PolicyServlet
+]
+
 Policy SCmrManager  = [ 
   ServletUserAccessTemplate
   A user in role MonitorManager can access a servlet named SCmrmanagerServlets
