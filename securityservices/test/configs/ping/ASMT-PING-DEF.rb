@@ -17,12 +17,24 @@ parameters:
 # ######################################################
 # Security rules
     - $CIP/csmart/config/rules/security
+#
+# Choosing the MTS Protocol: There are currently four protocols:
+# loopback, http, https and rmi/ssl.  (I am not sure how to enable rmi
+# on its own yet).  Choose protocols by uncommenting the appropriate
+# mts rule.  The naming rule that follows the mts rules is needed
+# regardless of which protocols are enabled.
+#
     - $CIP/csmart/config/rules/security/mts/loopback_protocol.rule
 #    - $CIP/csmart/config/rules/security/mts/http_mts.rule
     - $CIP/csmart/config/rules/security/mts/https_mts.rule
 #    - $CIP/csmart/config/rules/security/mts/sslRMI.rule
     - $CIP/csmart/config/rules/security/naming
 
+#
+# These rules will involve the network configuration service which is
+# not quiet ready yet but is needed for the integration work.
+#
+#    - $CIP/csmart/config/rules/security/network
 
 #    - $CIP/csmart/config/rules/security/ruleset/base
 #    - $CIP/csmart/config/rules/security/ruleset/crypto
