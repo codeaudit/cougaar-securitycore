@@ -24,6 +24,7 @@ package org.cougaar.core.security.monitoring.plugin;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.multicast.AttributeBasedAddress;
 
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -38,6 +39,7 @@ import org.cougaar.core.security.monitoring.idmef.*;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import edu.jhuapl.idmef.*;
 
@@ -45,6 +47,13 @@ import edu.jhuapl.idmef.*;
 public class TestDummySensorPlugin  extends  ComponentPlugin   {
   private LoggingService log;
   private DomainService domainService = null;
+  private String mgrrole=null;
+  private AttributeBasedAddress mgrAddress;
+  private String sensor_name=null;
+  private String dest_community=null;
+  private Object param;
+  private String[] givecapabilities;
+    
   /**
    * Used by the binding utility through reflection to set my DomainService
    */
@@ -60,11 +69,18 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     return domainService;
   }
 
-    
+   public void setParameter(Object o){
+    this.param=o;
+  }
+
+  public java.util.Collection getParameters() {
+    return (Collection)param;
+  }
+   
   protected void setupSubscriptions() {
     log = (LoggingService)
       getBindingSite().getServiceBroker().getService(this,
-			       LoggingService.class, null);
+						     LoggingService.class, null);
 
     log.debug("setupSubscriptions of Test dummy sensor called :"); 
     DomainService service=getDomainService();
@@ -72,54 +88,40 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
       log.debug(" Got service as null in Test Dummy Sensor  :");
       return;
     }
+    Collection col=getParameters();
+    if(col.size()>3) {
+      log.debug("setupSubscriptions of TestDummy sensorPlugin called  too many parameters :"); 
+    }
+    if(col.size()!=0){
+      String params[]=new String[1];
+      String parameters[]=(String[])col.toArray(new String[0]);
+      mgrrole=parameters[0];
+      sensor_name=parameters[1];
+      dest_community=parameters[2];
+      
+    }
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
     IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
-    TestDummySensor sensor=new TestDummySensor("sensor1");
-     List capabilities = new ArrayList();
+    TestDummySensor sensor=new TestDummySensor (sensor_name);
+    CmrRelay relay=null;
+    List capabilities = new ArrayList();
+   
     capabilities.add( imessage.createClassification( "POD", null  ) );
     capabilities.add( imessage.createClassification( "TCPSCAN", null  ) );
     capabilities.add( imessage.createClassification( "LOGINFAILURE", null  ) );
-    
-    RegistrationAlert reg=imessage.createRegistrationAlert(sensor,capabilities,IdmefMessageFactory.newregistration);
+   
+    RegistrationAlert reg=imessage.createRegistrationAlert(sensor,capabilities,IdmefMessageFactory.newregistration,IdmefMessageFactory.SensorType);
     
     NewEvent event=factory.newEvent(reg);
-    log.debug(" going to publish capabilities in Test Dummy sensor :");
-    getBlackboardService().publishAdd(event);
-    getBlackboardService().closeTransaction();
-    sensor=new TestDummySensor("sensor2");
-    capabilities.add( imessage.createClassification( "SecurityManager", null  ) ); 
-    capabilities.add( imessage.createClassification( "JarVerification", null  ) );
-     
-    reg=imessage.createRegistrationAlert(sensor,capabilities,IdmefMessageFactory.newregistration);
-    event=factory.newEvent(reg);
-    getBlackboardService().openTransaction();
-    getBlackboardService().publishAdd(event);
-    getBlackboardService().closeTransaction();
-      
-    log.debug("Success in publishing  capabilities in Test Dummy sensor  :");
+    log.debug(" going to publish capabilities in Test Dummy sensorplugin  1:");
+    mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
+    relay = factory.newCmrRelay(event,mgrAddress);
+    getBlackboardService().publishAdd(relay);
+    //getBlackboardService().closeTransaction();
+    // TestDummySensor sensor=new TestDummySensor (sensor_name+1);
+    // capabilities.add( imessage.createClassification( "SecurityException", null  ) );
+    // capabilities.add( imessage.createClassification( "JarException", null  ) );
    
-    capabilities = new ArrayList();
-    capabilities.add( imessage.createClassification( "POD", null  ) );
-    capabilities.add( imessage.createClassification( "JarVerification", null  ) );
-    
-    reg=imessage.createRegistrationAlert(sensor,capabilities,IdmefMessageFactory.removefromregistration);
-    event=factory.newEvent(reg);
-    getBlackboardService().openTransaction();
-    getBlackboardService().publishAdd(event);
-      /* getBlackboardService().closeTransaction();
-      newevents=new String[1];
-      neworigins=new String[1]; 
-       newevents[0]="POD";
-       //newevents[0]="JarVerification";
-      neworigins[0]="Classification.VENDOR_SPECIFIC";
-      // neworigins[1]="Classification.VENDOR_SPECIFIC";
-       sensor=new DummySensor("sensor1");
-      reg=imessage.createRegistrationAlert(sensor,newevents,neworigins,IdmefMessageFactory.removefromregistration);
-      event=factory.newEvent(reg);
-      getBlackboardService().openTransaction();
-      getBlackboardService().publishAdd(event);
-      */
-    
   }
           
        
