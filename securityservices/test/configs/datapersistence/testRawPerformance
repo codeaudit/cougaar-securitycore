@@ -1,0 +1,20 @@
+
+fileName="dummyFile.bin"
+maxSize=10000
+
+rm -f node.log
+#java -cp $CIP/lib/CougaarCRLextensions.jar:$CIP/lib/util.jar \
+java -cp $CIP/lib/core.jar:$CIP/lib/util.jar:$CIP/lib/securityservices.jar:$CIP/sys/log4j.jar:$CIP/lib/bootstrap.jar:$CIP/sys/bcprov-jdk14-118.jar \
+   -Dorg.cougaar.util.log.config=$CIP/configs/common/loggingConfig.conf \
+   -Dorg.cougaar.install.path=$CIP \
+   -Dorg.cougaar.workspace=$CIP/workspace \
+   -Dorg.cougaar.config.path=".;$CIP/configs/security;$CIP/configs/common;$CIP/configs/glmtrans;$CIP/configs/daml" \
+   -Xms64m \
+   -Xmx512m \
+   org.cougaar.core.security.test.dataprotection.StreamPerformance \
+   $fileName $maxSize
+
+   #-Dorg.cougaar.core.security.bootstrap.keystore=$CIP/configs/security/bootstrap_keystore \
+  # -Dorg.cougaar.bootstrap.class=org.cougaar.core.security.securebootstrap.SecureBootstrapper \
+  # -Xbootclasspath/a:$CIP/lib/securebootstrapper.jar:$CIP/lib/bootstrap.jar \
+  # org.cougaar.bootstrap.Bootstrapper \
