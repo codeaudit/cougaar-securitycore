@@ -77,6 +77,8 @@ public interface SecurityPropertiesService
   "org.cougaar.core.security.standalone";
   public static String WEBSERVER_HTTPS_PORT =
   "org.cougaar.lib.web.https.port";
+  public static String PM_LOOKUP_PERIOD = 
+  "org.cougaar.core.security.dataprotection.PMLookupPeriod";
 
   public String getProperty(String property);
   public String getProperty(String property, String defaultValue);
