@@ -154,17 +154,37 @@ public class CryptoManagerServiceImpl
       throw new IllegalArgumentException("Signed object with " + name
 					 + " key is null. Unable to verify signature");
     }
-    List certList =
-      keyRing.findCert(name,
-		       KeyRingService.LOOKUP_LDAP |
-		       KeyRingService.LOOKUP_KEYSTORE, !expiredOk);
+
+    int lookupFlags[] = { KeyRingService.LOOKUP_KEYSTORE | 
+                          KeyRingService.LOOKUP_LDAP,
+                          KeyRingService.LOOKUP_KEYSTORE | 
+                          KeyRingService.LOOKUP_LDAP | 
+                          KeyRingService.LOOKUP_FORCE_LDAP_REFRESH };
+
+    List certList = null;
+    for (int i = 0; i < lookupFlags.length; i++) {
+       
+      certList = keyRing.findCert(name, lookupFlags[i], !expiredOk);
+      
+      if (certList == null) {
+        log.info("certList is null: " + lookupFlags[i]);
+      } else {
+        log.info("certList size is " + certList.size() + ": " + lookupFlags[i]);
+      } // end of else
+      
+      
     if (certList == null || certList.size() == 0) {
+      if (i < lookupFlags.length - 1) {
+        continue;
+      } // end of if (i < lookupFlags.length -1)
+
       if (log.isWarnEnabled()) {
-	log.warn("Unable to verify object. Certificate of " + name
-		 + " does not exist.");
+        log.warn("Unable to verify object. Certificate of " + name
+                 + " does not exist.");
       }
       throw new NoValidKeyException("Unable to get certificate of "
-				    + name);
+                                    + name);
+        
     }
     Iterator it = certList.iterator();
 
@@ -218,6 +238,8 @@ public class CryptoManagerServiceImpl
 	continue;
       }
     }
+    } // end of for (int i = 0; i < lookupFlags.length; i++)
+    
     // No suitable certificate was found.
     if (log.isWarnEnabled()) {
       log.warn("Signature verification failed. Agent=" + name
@@ -553,7 +575,11 @@ public class CryptoManagerServiceImpl
 
     synchronized (targets) {
       SessionKeySet so = (SessionKeySet) targets.get(target.toAddress());
-      if (so == null) {
+      // Find target & receiver certificates
+      X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
+      X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
+      if (so == null || !so.receiverCert.equals(receiver) || 
+          !so.senderCert.equals(sender)) {
 	/*generate the secret key*/
 	int i = policy.symmSpec.indexOf("/");
 	String a;
@@ -563,14 +589,12 @@ public class CryptoManagerServiceImpl
 	kg.init(random);
 	SecretKey sk = kg.generateKey();
 
-	// Find target & receiver certificates
-	X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
-	X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
 
 	// Encrypt session key
 	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
 	SealedObject secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk, sender);
-	so = new SessionKeySet(secretSender, secret, sk, secret, secretSender);
+	so = new SessionKeySet(secretSender, secret, sk, secret, secretSender,
+                               sender, receiver);
 	targets.put(target.toAddress(), so);
       }
       else {
@@ -723,7 +747,7 @@ public class CryptoManagerServiceImpl
       if (sk != null && sender != null && receiver != null) {
 	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
 	SealedObject secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk, sender);
-	SessionKeySet sks = new SessionKeySet(secretSender, secret, sk, secret, secretSender);
+	SessionKeySet sks = new SessionKeySet(secretSender, secret, sk, secret, secretSender, sender,  receiver);
 	targets.put(target.toAddress(), sks);
       }
     }
@@ -759,7 +783,7 @@ public class CryptoManagerServiceImpl
         log.error("DecryptAndVerify: unable to retrieve secret key. Msg:" + source.toAddress()
 		  + " -> " + target.toAddress());
       }
-      throw new GeneralSecurityException("can't get secret key.");
+      throw new DecryptSecretKeyException("can't get secret key.");
     }
 
     if(log.isDebugEnabled()) {
@@ -811,7 +835,7 @@ public class CryptoManagerServiceImpl
       if (log.isErrorEnabled()) {
 	log.error("Error: unable to retrieve secret key");
       }
-      throw new GeneralSecurityException("can't get secret key.");
+      throw new DecryptSecretKeyException("can't get secret key.");
     }
     // Decrypt the object
     Object o =
@@ -1093,12 +1117,15 @@ public class CryptoManagerServiceImpl
 
   private class SessionKeySet {
     public SessionKeySet(SealedObject snd, SealedObject rcv, SecretKey sk, 
-			 SealedObject eskReceiver, SealedObject eskSender) {
+			 SealedObject eskReceiver, SealedObject eskSender,
+                         X509Certificate sndCert, X509Certificate rcvCert) {
       sender = snd;
       receiver = rcv;
       secretKey = sk;
       senderSecretKey = eskSender;
       receiverSecretKey = eskReceiver;
+      senderCert = sndCert;
+      receiverCert = rcvCert;
     }
 
     public SealedObject sender;
@@ -1106,5 +1133,7 @@ public class CryptoManagerServiceImpl
     public SecretKey secretKey;
     public SealedObject senderSecretKey;
     public SealedObject receiverSecretKey;
+    public X509Certificate senderCert;
+    public X509Certificate receiverCert;
   }
 }

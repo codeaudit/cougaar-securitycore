@@ -33,17 +33,23 @@ import java.lang.ClassNotFoundException;
 import java.security.GeneralSecurityException;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.security.cert.X509Certificate;
+import java.security.cert.CertificateException;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.SendQueue;
 import org.cougaar.core.mts.Message;
+import org.cougaar.core.mts.AttributedMessage;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.AttributeConstants;
 import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.mts.ProtectedOutputStream;
+import org.cougaar.core.mts.FakeRequestMessage;
+import org.cougaar.core.mts.SimpleMessageAttributes;
 import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
@@ -82,6 +88,9 @@ public class MessageProtectionServiceImpl
   // event publisher to publish message failure
   private EventPublisher eventPublisher = null;
   private MessageFormat exceptionFormat = new MessageFormat("{0} -");
+
+  public static final String NEW_CERT = 
+    "org.cougaar.core.security.crypto.newcert";
   
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
@@ -140,6 +149,26 @@ public class MessageProtectionServiceImpl
       log.debug("Done initializing MessageProtectionServiceImpl");
     }
     isInitialized = true;
+  }
+
+  private AttributedMessage  getCertificateMessage(MessageAddress source, 
+                                                   MessageAddress destination) {
+    // force refresh of destination certificate
+    String destAddr = destination.toAddress();
+    keyRing.findCert(destAddr, keyRing.LOOKUP_FORCE_LDAP_REFRESH);
+    try {
+      X509Certificate certificate = keyRing.findFirstAvailableCert(destAddr);
+      AttributedMessage msg = 
+        new AttributedMessage(new FakeRequestMessage(destination, source, null));
+      msg.setAttribute(NEW_CERT, certificate);
+      msg.setContentsId(certificate.hashCode());
+      return msg;
+    } catch (CertificateException e) {
+      log.error("Couldn't find certificate for " + destAddr +
+                ", can't respond with a valid certificate.");
+      return null;
+    } // end of try-catch
+    
   }
 
   /**
@@ -277,6 +306,24 @@ public class MessageProtectionServiceImpl
         log.debug("unprotectHeader OK: " + source.toAddress()
 		      + " -> " + destination.toAddress());
       }
+    }
+    catch(DecryptSecretKeyException dske) {
+      // send the new certificate to the server
+      AttributedMessage msg = getCertificateMessage(source, destination);
+      if (msg != null) {
+        SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
+        if (sendQ != null) {
+          sendQ.sendMessage(msg);
+          if (log.isInfoEnabled()) {
+            log.info("Requesting that " + source.toAddress() + " use new certificate");
+          } 
+        } else if (log.isWarnEnabled()) {
+          log.warn("Could not send message to " + source + " to use a new certificate. Make sure that org.cougaar.core.security.crypto.MessageProtectionAspectImpl is used.");
+        }
+      }
+      
+      
+      throw new RetryWithNewCertificateException(dske.getMessage());
     }
     catch(GeneralSecurityException gse) {
       publishMessageFailure(source.toString(),
@@ -427,5 +474,14 @@ public class MessageProtectionServiceImpl
                           target,
                           reason,
                           gse.toString());  
+  }
+
+  public static class RetryWithNewCertificateException extends IOException {
+    public RetryWithNewCertificateException() {
+    }
+
+    public RetryWithNewCertificateException(String message) {
+      super(message);
+    }
   }
 }

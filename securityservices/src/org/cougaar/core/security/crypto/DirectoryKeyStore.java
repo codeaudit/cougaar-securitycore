@@ -1512,8 +1512,10 @@ public class DirectoryKeyStore
    * checkCertificateTrust().
    * @param checkValidity - False if we don't care about the validity of the chain
    */
-  private boolean internalBuildChain(X509Certificate x509certificate, Vector vector,
-    boolean signedByAtLeastOneCA, CertDirectoryServiceClient certFinder,
+  private boolean internalBuildChain(X509Certificate x509certificate, 
+                                     Vector vector, 
+                                     boolean signedByAtLeastOneCA, 
+                                     CertDirectoryServiceClient certFinder,
 				     boolean checkValidity)
   {
     Principal principal = x509certificate.getSubjectDN();
@@ -1531,120 +1533,132 @@ public class DirectoryKeyStore
       }
     }
 
-    List listSigner = certCache.getCertificates(x500NameSigner);
+    for (int i = 0; i < 2; i++) {
+      List listSigner;
+      if (i == 0) {
+        // get the signer from the cache if available
+        listSigner = certCache.getCertificates(x500NameSigner);
 
-    if(principal.equals(principalSigner)) {
-      // Self-signed certificate
-      vector.addElement(x509certificate);
-      CertificateStatus cs = null;
-      if (listSigner != null && listSigner.size() > 0) {
-	cs = (CertificateStatus) listSigner.get(0);
-      }
+        if(principal.equals(principalSigner)) {
+          if (log.isDebugEnabled()) {
+            log.debug("Certificate is self issued");
+          }
 
-      if (cs != null && cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
-	// This is a trusted certificate authority.
-        signedByAtLeastOneCA = true;
-      }
-      if (log.isDebugEnabled()) {
-	log.debug("Certificate is self issued");
-      }
-      if (param.isCertAuth && cryptoClientPolicy.isRootCA()) {
-	// If DirectoryKeyStore is used in the context of a Certificate
-	// Authority, then a self-signed certificate is OK.
-        // Self-signed certificate should only be valid if it is type CA
-        String title = CertificateUtility.findAttribute(principalSigner.getName(), "t");
-        if (title != null && !title.equals(CERT_TITLE_CA))
-          return false;
+          vector.addElement(x509certificate);
 
-        return true;
-      }
-      else {
-	return signedByAtLeastOneCA;
-      }
-    }
+          CertificateStatus cs = null;
+          if (listSigner != null && listSigner.size() > 0) {
+            cs = (CertificateStatus) listSigner.get(0);
+          }
 
-    //Vector vector1 = (Vector)hashtable.get(principalSigner);
-    if(listSigner == null) {
-      if (log.isDebugEnabled()) {
-	log.debug("No Signer certificate in cache");
-      }
-      // One intermediate CA may not be in the local keystore.
-      // We need to go to the LDAP server to get the key if we haven't found
-      // a trusted CA yet.
-      if (!signedByAtLeastOneCA) {
-	if (log.isDebugEnabled()) {
-	  log.debug("Looking up certificate in directory service");
-	}
-	String filter = parseDN(principalSigner.toString());
-	lookupCertInLDAP(filter, certFinder);
+          if (cs != null && 
+              cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
+            // This is a trusted certificate authority.
+            signedByAtLeastOneCA = true;
+          }
 
-	// Now, seach again.
-	if (checkValidity) {
-	  listSigner = certCache.getValidCertificates(x500NameSigner);
-	}
-	else {
-	  listSigner = certCache.getCertificates(x500NameSigner);
-	}
-	if (listSigner == null) {
-	  // It's OK not to have the full chain if at least one certificate in the
-	  // chain is trusted.
-	  return signedByAtLeastOneCA;
-	}
-      }
-      else {
-	// It's OK not to have the full chain if at least one certificate in the
-	// chain is trusted.
-	return signedByAtLeastOneCA;
-      }
-    }
+          if (param.isCertAuth && cryptoClientPolicy.isRootCA()) {
+            // If DirectoryKeyStore is used in the context of a Certificate
+            // Authority, then a self-signed certificate is OK.
+            // Self-signed certificate should only be valid if it is type CA
+            String title = CertificateUtility.findAttribute(principalSigner.getName(), "t");
+            if (title != null && !title.equals(CERT_TITLE_CA))
+              return false;
+          
+            return true;
+          }
+          else {
+            return signedByAtLeastOneCA;
+          }
+        }
 
-    //Enumeration enumeration = vector1.elements();
-    Iterator it = listSigner.listIterator();
-    // Loop through all the issuer keys and check to see if there is at least
-    // one trusted key.
-    while(it.hasNext()) {
-      CertificateStatus cs = (CertificateStatus) it.next();
-      // no need to check this if it is revoked
-      if (cs.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)
-	  && checkValidity) {
-        continue;
-      }
-      X509Certificate x509certificate1 = (X509Certificate)cs.getCertificate();
-      java.security.PublicKey publickey = x509certificate1.getPublicKey();
-      try {
-	x509certificate.verify(publickey);
-      }
-      catch(Exception exception) {
-	if (log.isInfoEnabled()) {
-	  log.info("Unable to verify signature: "
-			     + exception + " - "
-			     + x509certificate1
-                             + " - " + cs.getCertificateAlias());
-	}
-	continue;
-      }
+        if (listSigner == null) {
+          if (log.isDebugEnabled()) {
+            log.debug("Cache has not been filled for this certificate");
+          }
+          continue; // try again with refreshing the cache
+        } // end of if (listSigner == null)
+      } else {
+        if (log.isDebugEnabled()) {
+          log.debug("Refreshing the cache for this certificate");
+        }
 
-      if (cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
-	// The signing certificate is a CA. Therefore the certificate
-	// can be trusted.
-	signedByAtLeastOneCA = true;
-      }
+        // One intermediate CA may not be in the local keystore.
+        // We need to go to the LDAP server to get the key if we haven't found
+        // a trusted CA yet.
+        if (!signedByAtLeastOneCA) {
+          if (log.isDebugEnabled()) {
+            log.debug("Looking up certificate in directory service");
+          }
+          String filter = parseDN(principalSigner.toString());
+          lookupCertInLDAP(filter, certFinder);
 
-      if (log.isDebugEnabled()) {
-	log.debug("Found signing key: "
-			   + x509certificate1.getSubjectDN().toString());
-      }
+          // Now, seach again.
+          if (checkValidity) {
+            listSigner = certCache.getValidCertificates(x500NameSigner);
+          }
+          else {
+            listSigner = certCache.getCertificates(x500NameSigner);
+          }
+          if (listSigner == null) {
+            // It's OK not to have the full chain if at least one certificate in the
+            // chain is trusted.
+            return signedByAtLeastOneCA;
+          }
+        } else {
+          // It's OK not to have the full chain if at least one certificate in the
+          // chain is trusted.
+          return signedByAtLeastOneCA;
+        }
+      } 
+      
+      Iterator it = listSigner.listIterator();
+      // Loop through all the issuer keys and check to see if there is at least
+      // one trusted key.
+      while(it.hasNext()) {
+        CertificateStatus cs = (CertificateStatus) it.next();
+        // no need to check this if it is revoked
+        if (cs.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)
+            && checkValidity) {
+          continue; // revoked, try the next one
+        }
 
-      // Recursively build a certificate chain.
-      if(internalBuildChain(x509certificate1, vector, signedByAtLeastOneCA, certFinder, checkValidity)) {
-	vector.addElement(x509certificate);
-	return true;
+        X509Certificate x509certificate1 = (X509Certificate)cs.getCertificate();
+        java.security.PublicKey publickey = x509certificate1.getPublicKey();
+        try {
+          x509certificate.verify(publickey);
+        } catch(Exception exception) {
+          if (log.isInfoEnabled()) {
+            log.info("Unable to verify signature: "
+                     + exception + " - "
+                     + x509certificate1
+                     + " - " + cs.getCertificateAlias());
+          }
+          continue;
+        }
+
+        if (cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
+          // The signing certificate is a CA. Therefore the certificate
+          // can be trusted.
+          signedByAtLeastOneCA = true;
+        }
+
+        if (log.isDebugEnabled()) {
+          log.debug("Found signing key: "
+                    + x509certificate1.getSubjectDN().toString());
+        }
+
+        // Recursively build a certificate chain.
+        if(internalBuildChain(x509certificate1, vector, signedByAtLeastOneCA, certFinder, checkValidity)) {
+          vector.addElement(x509certificate);
+          return true;
+        }
       }
-    }
+    } // end of for (int i = 0; i < 2; i++)
+    
     if (log.isDebugEnabled()) {
       log.debug("No valid signer key");
     }
-    //return false;
     return signedByAtLeastOneCA;
   }
 
