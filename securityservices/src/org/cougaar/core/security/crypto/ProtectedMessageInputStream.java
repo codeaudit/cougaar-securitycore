@@ -397,11 +397,13 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     byte digestComputed[] = md.digest();
     byte digestRead[] = new byte[digestComputed.length];
     // now read and compare
-    int len = 0;
-    while (len < digestRead.length) {
-      int bytesRead = read(digestRead, len, digestRead.length - len);
+    int len = digestRead.length;
+    int off = 0;
+    while (len > 0) {
+      int bytesRead = read(digestRead, off, len);
       if (bytesRead >= 0) {
-        len += bytesRead;
+        len -= bytesRead;
+        off += bytesRead;
       } else {
         throw new IOException("Can't read header message digest");
       }
