@@ -115,6 +115,10 @@ $okMessages= [
   [nil, /Starting Time set to/],
   [nil, /Expanding an already disposed task/],
   [nil, /which is before this orgs arrival time/],
+  [nil, /Avoiding "UID mismatch" bug 3774/],
+
+  # This is part of another exception - maybe i misnamed this class
+  [nil, /^\s*at org.cougaar.core.security.crypto.RemotePolicyExceptionAspect/],
   ############################################################
   # Possible issues
   ###########################################################
@@ -125,12 +129,29 @@ $okMessages= [
   [nil, /WARN  - InventoryPlugin.*GetSplitTimes\.\.\. task is:/],
   [nil, /WARN  - InventoryPlugin.*TRYING TO ALLOCATE PROJECTION REFILL TASKS/],
   [nil, /WARN.*VishnuPlugin.*no expansion of mp task.*must be in the middle of rescinds/],
+  [$startupDelay, /TrafficMatrixResponsePlugin - .*: Wake interval reset from from specified -1 to minimum accepted value:/],
+  ###########################################################
+  # Temporarily ignoring the following for now...
+  ###########################################################
+  [nil, /No incarnation number in message/],
+  [nil, /OldIncarnationAspect/],
+]
+
+ @repeatingErrors = [
+   /DeliveryVerificationAspect/,
+   /MessageTimeoutAspect/,
+   /Failure in communication/,
+   /Connection reset/,
+   /Connection refused/,
+   /Unable to get Certifificate entry for DN/
 ]
 
 
 ######################################################################
 # Code Section
 #
+
+$repeatCount = 5
 
 #
 # a class to facilitate lazy evaluation of Time.local
@@ -170,6 +191,7 @@ end
 
 def checkLogs(path)
   Dir.glob(File.join(path, "*.log")).each do |file|
+    repeats = copyRepeats
     File.open(file) do |fd|
       currentTime = MyTime.new(fd.gets())
       startTime = currentTime.getTime()
@@ -187,7 +209,9 @@ def checkLogs(path)
               nobadlogs = false
               banner(startTime, file)
             end
-            puts "\t#{logmsg}"
+            if allowRepeats(logmsg, repeats) then
+              puts "\t#{logmsg}"
+            end
           end
         end
       end
@@ -225,6 +249,34 @@ def actuallyOk(startTime, currentTime, logmsg)
     end
   end
   return false
+end
+
+def copyRepeats()
+  repeats = [] 
+  @repeatingErrors.each do |repeatSpec|
+    repeats.push([repeatSpec, $repeatCount])
+  end
+  repeats
+end
+
+def allowRepeats(logmsg, repeats)
+  repeats.each do |repeatSpec|
+    regexp     = repeatSpec[0]
+    remaining  = repeatSpec[1]
+    if regexp.match(logmsg) then
+      repeatSpec[1] -= 1
+      if remaining > 0 then
+        return true
+      elsif remaining == 0 then
+        puts("\t*****")
+        puts("\tMore instances of pattern #{regexp}")
+        puts("\t*****")
+        return false
+      else 
+        return false
+      end
+    end
+  end
 end
 
 
