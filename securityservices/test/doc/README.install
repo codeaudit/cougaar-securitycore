@@ -3,11 +3,11 @@ packages.
 
 Organization of the release
 ===========================
-The services are separated into two Java archives: bootstrap.jar and 
+The security services are separated into two Java archives: bootstrap.jar and
 securityservices.jar. The bootstrap.jar archive contains classes necessary to
-initialize a security enhanced Ultra*Log node. The remain packages for 
-cryptographic services, access control, and monitoring & response are compiled
-into the security services.jar file.
+initialize a security enhanced Ultra*Log node. The securityservices.jar archive
+contains the following services: cryptographic, access control, and monitoring
+& response.
 
 Directory structure
 ===================
