@@ -65,11 +65,13 @@ import org.w3c.dom.NamedNodeMap;
  *   Cougaar:ref-ident+ ) &gt
  *
  *  &lt!ATTLIST Cougaar:Agent
- *      xmlns                   CDATA                #FIXED
+ *      xmlns                   CDATA   #FIXED
  *          'idmef+cougaar'
- *      xmlns:Cougaar           CDATA                #FIXED
+ *      xmlns:Cougaar           CDATA   #FIXED
  *          'idmef+cougaar'
- *      Cougaar:name            CDATA                #REQUIRED &gt
+ *      Cougaar:name            CDATA   #REQUIRED 
+ *      Cougaar:class           CDATA   #FIXED  
+ *          'org.cougaar.core.security.monitoring.idmef.Agent' &gt
  *
  *  &lt!ELEMENT Cougaar:description   (#PCDATA) &gt
  *  &lt!ELEMENT Cougaar:location      (#PCDATA) &gt
@@ -84,6 +86,7 @@ public class Agent implements XMLSerializable, Cloneable {
     public static String COUGAAR_NAMESPACE_PREFIX = "Cougaar:";
     public static String ELEMENT_NAME = COUGAAR_NAMESPACE_PREFIX + "Agent";
     public static String NAME_ATTRIBUTE = COUGAAR_NAMESPACE_PREFIX + "name";
+    public static String CLASS_ATTRIBUTE = COUGAAR_NAMESPACE_PREFIX + "class";
     public static String DESCRIPTION_ELEMENT = COUGAAR_NAMESPACE_PREFIX + "desciption";
     public static String LOCATION_ELEMENT = COUGAAR_NAMESPACE_PREFIX + "location";
     public static String REF_IDENT_ELEMENT = COUGAAR_NAMESPACE_PREFIX + "ref-ident";
@@ -142,6 +145,7 @@ public class Agent implements XMLSerializable, Cloneable {
     	if( nameNode != null) {
     	    m_name = nameNode.getNodeValue();
         }
+      // we can safely ignore the class attribute
     }
     
     public String getName(){
@@ -186,7 +190,7 @@ public class Agent implements XMLSerializable, Cloneable {
      *   <br>
      *   Example Agent node:
      *   <pre>
-     *   &ltCougaar:Agent Cougaar:name="ViewRecordAgent"&gt
+     *   &ltCougaar:Agent Cougaar:name="ViewRecordAgent" Cougaar:class="org.cougaar.core.security.monitoring.idmef.Agent"&gt
      *      &ltCougaar:description&gtAgent used to view confidential records&lt/Cougaar:description&gt
      *      &ltCougaar:location>Santa Clara, CA&lt/Cougaar:location&gt
      *      &ltAddress category="url"&gt
@@ -199,11 +203,12 @@ public class Agent implements XMLSerializable, Cloneable {
     public Node convertToXML( Document parent )
     {
         
-        Element agentNode = parent.createElement( ELEMENT_NAME );
+      Element agentNode = parent.createElement( ELEMENT_NAME );
         
-        if( m_name != null ){
-            agentNode.setAttribute( NAME_ATTRIBUTE, m_name );
+      if( m_name != null ){
+        agentNode.setAttribute( NAME_ATTRIBUTE, m_name );
 	    }
+	    agentNode.setAttribute( CLASS_ATTRIBUTE, getClass().getName() );
 	    if( m_description != null ) {
             Node descriptionElm = parent.createElement( DESCRIPTION_ELEMENT );
 	        descriptionElm.appendChild( parent.createTextNode( m_description ) );
@@ -237,84 +242,7 @@ public class Agent implements XMLSerializable, Cloneable {
 	      throw new InternalError();
 	    }
     }
-  
-    public String toTaggedString(){
-        // initialize to 500B
-        StringBuffer sb = new StringBuffer( 500 );
-        sb.append( "<" );
-        sb.append( ELEMENT_NAME );
-        if( m_name != null ){
-            sb.append( " " + NAME_ATTRIBUTE );
-            sb.append( "=\"" );
-            sb.append( m_name + "\">" );
-        }
-        else{
-            sb.append( ">" );
-        }
-        // description of agent
-        if( m_description != null ){
-            sb.append( "<" + DESCRIPTION_ELEMENT );
-            sb.append( ">" + m_description);
-            sb.append( "</" + DESCRIPTION_ELEMENT );
-            sb.append( ">" );
-        }
-        // location of agent
-        if( m_location != null ){
-            sb.append( "<" + LOCATION_ELEMENT );
-            sb.append( ">" + m_location );
-            sb.append( "</" + LOCATION_ELEMENT );
-            sb.append( ">" );
-        }
-        // address of agent
-        if( m_address != null ){
-            
-            String netmask = m_address.getNetmask();
-            String address = m_address.getAddress();
-            // attribute
-            String category = m_address.getCategory();
-            
-            sb.append( "<" + Address.ELEMENT_NAME );
-            if( category != null ){
-                sb.append( " " + Address.ATTRIBUTE_CATEGORY );
-                sb.append( "=\"" + category );
-                sb.append( "\">" );
-            }
-            else{
-                sb.append( ">" );
-            }
-            if( address != null ){
-                sb.append( "<" + Address.CHILD_ELEMENT_ADDRESS );
-                sb.append( ">" + address );
-                sb.append( "</" + Address.CHILD_ELEMENT_ADDRESS );
-                sb.append( ">" );      
-            }
-            if( netmask != null ){
-                sb.append( "<" + Address.CHILD_ELEMENT_NETMASK );
-                sb.append( ">" + netmask );
-                sb.append( "</" + Address.CHILD_ELEMENT_NETMASK );
-                sb.append( ">" );
-            }
-            sb.append( "</" + Address.ELEMENT_NAME );
-            sb.append( ">" );
-        }
-        // ref-idents
-        if( m_refIdents != null ){
-            int len = m_refIdents.length;
-            if( len > 0 ){
-                for( int i = 0; i < len; i++ ){
-                    sb.append( "<" + REF_IDENT_ELEMENT );
-                    sb.append( ">" + m_refIdents[ i ] );
-                    sb.append( "</" + REF_IDENT_ELEMENT );
-                    sb.append( ">" );
-                }   
-            }
-        }
-        
-        sb.append( "</" + ELEMENT_NAME );
-        sb.append( ">" );
-        return sb.toString();
-    }
-   
+    
     private String m_name;
     private String m_description;
     private String m_location;

@@ -394,9 +394,8 @@ final public class IdmefMessageFactory {
         refList.add( analyzer.getAnalyzerid() );
         Agent newAgent = ( Agent )m_agent.clone();
         newAgent.setRefIdents( ( String [] )refList.toArray( new String[ 0 ] ) );
-        dataList.add( createAdditionalData( AdditionalData.XML, 
-					                                  AGENT_INFO,
-					                                  newAgent.toTaggedString() ) ); 
+        dataList.add( createAdditionalData( AGENT_INFO,
+					                                  newAgent ) ); 
       } 
       
       data = ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
@@ -915,7 +914,6 @@ final public class IdmefMessageFactory {
 				 url, 
 				 Classification.VENDOR_SPECIFIC );     
   }
-
     
   /**
    * Factory method to create an Assessment
@@ -978,7 +976,20 @@ final public class IdmefMessageFactory {
 			       meaning, 
 			       data );
   }
-    
+  
+  /**
+   * Factory method to create an AdditionalData
+   *
+   * @param meaning A string describing the meaning of the xml data (Optional).
+   * @param data an XMLSerializable data
+   *
+   * @return an AdditionalData object
+   */
+  public AdditionalData createAdditionalData( String meaning, 
+					                                    XMLSerializable data ){
+    return new AdditionalData(  meaning, 
+			                          data );
+  } 
   /**
    * Factory method to create an IDMEF File
    * 
