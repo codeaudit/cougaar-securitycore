@@ -114,10 +114,12 @@ class TestReportChainReady < SecurityStressFramework
       subordinate = parsed.to_a[1].split(" ").last
       superior    = parsed.to_a[2].split(" ").last
       role        = parsed.to_a[3]
-      if (@foundSubordinates[superior] == nil)
-        @foundSubordinates[superior] = []
+      if role == "Subordinate"
+        if (@foundSubordinates[superior] == nil)
+          @foundSubordinates[superior] = []
+        end
+        @foundSubordinates[superior].push(subordinate)
       end
-      @foundSubordinates[superior].push(subordinate)
     end
   end
 
