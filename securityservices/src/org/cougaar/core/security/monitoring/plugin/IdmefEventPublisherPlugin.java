@@ -46,7 +46,7 @@ import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.XMLSerializable;
 
 public class IdmefEventPublisherPlugin
-  extends ComponentPlugin
+extends ComponentPlugin
 {
   private IncrementalSubscription _idmefevents;
   private LoggingService _log;
@@ -66,23 +66,23 @@ public class IdmefEventPublisherPlugin
         return (msg instanceof Alert);
       }
       /*
-      if (o instanceof Event ) {
-	Event e=(Event)o;
-	IDMEF_Message msg=e.getEvent();
-	if(msg instanceof Registration){
-	  return false;
-	}
-	else if(msg instanceof AgentRegistration) {
-	  return false;
-	}
+        if (o instanceof Event ) {
+        Event e=(Event)o;
+        IDMEF_Message msg=e.getEvent();
+        if(msg instanceof Registration){
+        return false;
+        }
+        else if(msg instanceof AgentRegistration) {
+        return false;
+        }
         Alert a = (Alert)msg; 
         Classification []cls = a.getClassifications();
         for(int i = 0; i < cls.length; i++) {
-          if(cls[i].getName().equals(IdmefClassifications.LOGIN_FAILURE)) {
-            return true;
-          }
+        if(cls[i].getName().equals(IdmefClassifications.LOGIN_FAILURE)) {
+        return true;
         }
-      }
+        }
+        }
       */
       return false;
     }
@@ -106,7 +106,7 @@ public class IdmefEventPublisherPlugin
     Iterator eventiterator = eventcollection.iterator();
     if (_eventService.isEventEnabled()) {
       while(eventiterator.hasNext()) {
-	Event foo=(Event)eventiterator.next();
+        Event foo=(Event)eventiterator.next();
         Alert event = (Alert) foo.getEvent();
 // 	Alert event=(Alert)eventiterator.next();
         StringBuffer s = new StringBuffer("[STATUS] IDMEF(");
@@ -168,7 +168,7 @@ public class IdmefEventPublisherPlugin
           }
           s.append(')');
         }
-        
+        boolean stacktrace = false;
         AdditionalData [] data = event.getAdditionalData();
         if (data != null && data.length != 0) {
           s.append(" AdditionalData(");
@@ -177,9 +177,27 @@ public class IdmefEventPublisherPlugin
               s.append(',');
             }
             s.append(data[i].getMeaning());
+            if(data[i].getMeaning().equals("STACK_TRACE")) {
+              stacktrace=true;
+            }
             s.append(':');
             if (data[i].getAdditionalData() != null) {
-              s.append(data[i].getAdditionalData());
+              if(stacktrace) {
+                StringBuffer stackdata= new StringBuffer(data[i].getAdditionalData());
+                int index = stackdata.indexOf(")");
+                if(index == -1) {
+                  s.append(data[i].getAdditionalData());
+                }
+                else {
+                  s.append(stackdata.substring(0,index));
+                  s.append(")");
+                }
+                // Exception exp=new Exception(stackdata);
+                // s.append(exp.getMessage());
+              }
+              else {
+                s.append(data[i].getAdditionalData());
+              }
             } else {
               XMLSerializable xml = data[i].getXMLData();
               if (xml instanceof Agent) {
