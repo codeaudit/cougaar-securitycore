@@ -87,7 +87,7 @@
           <CertDirectoryURL role="asmt" securitycommunity="Enclave4Security-COMM">ldap://u169:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
 
           <CertDirectoryURL role="csmart1">ldap://pear/dc=csmart1,dc=cougaar,dc=org</CertDirectoryURL>
-          <CertDirectoryURL role="csmart2">ldaps://pear/dc=csmart2,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="csmart2">ldap://pear/dc=csmart2,dc=cougaar,dc=org</CertDirectoryURL>
 
           <!-- The type of the certificate directory service.
                Currently, either CougaarOpenLdap or NetTools -->
