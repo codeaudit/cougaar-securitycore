@@ -12,6 +12,11 @@
 <!-- The failure-delay element only supports a number -->
 <!ELEMENT failure-delay (#PCDATA)>
 
+<!-- The session-life element contains a long int for the
+     time in milliseconds that a session lasts before being
+     expired -->
+<!ELEMENT session-life (#PCDATA)>
+
 <!-- The agent attributes specifies a rule for a particular Agent or
      all agents -->
 <!ELEMENT agent (rule+)>
@@ -42,7 +47,7 @@
 
     <!-- life of a session in (milliseconds) before the authorization and
          authentication are rechecked -->
-    <session-life>60000</failure-delay>
+    <session-life>60000</session-life>
 
     <!-- define rules for a specific agent -->
     <agent name="*">
