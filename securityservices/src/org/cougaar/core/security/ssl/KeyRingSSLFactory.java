@@ -179,6 +179,10 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
 
   private void updateSocketCache(Socket socket) {
     SSLSession session = null;
+    // Adding a timeout to try to resolve bug 13600.
+    // https://bugs.ultralog.net/show_bug.cgi?id=13600
+    socket.setSoTimeout(5 * 60 * 1000);
+
     if (socket instanceof SSLSocket) {
       session = ((SSLSocket)socket).getSession();
     }
