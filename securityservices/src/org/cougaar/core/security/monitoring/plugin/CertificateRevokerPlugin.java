@@ -432,28 +432,29 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
    */
   private void registerCapabilities(final CommunityService cs,
                                     final String agentName){
-    ThreadService ts = (ThreadService)
-      _serviceBroker.getService(this, ThreadService.class, null);
-    Runnable tt = new Runnable() {
-        final CommunityServiceUtil csu = 
-          new CommunityServiceUtil(_serviceBroker);
-        public void run() {
-          CommunityServiceUtilListener listener =
-            new CommunityServiceUtilListener() {
-              public void getResponse(Set communities) {
-                if (communities.size() > 1 && _log.isWarnEnabled()) {
-                  _log.warn("Agent '" + agentName +
-                            "' belongs to more than one security community.");
-                }
-                csu.releaseServices();
-                finishRegisterCapabilities(communities, agentName, cs);
-              }
-            };
-          csu.getSecurityCommunities(listener);
+    final CommunityServiceUtil csu = new CommunityServiceUtil(_serviceBroker);
+    CommunityServiceUtilListener listener = 
+      new CommunityServiceUtilListener() {
+        public void getResponse(Set communities) {
+          if (communities.size() > 1 && _log.isWarnEnabled()) {
+            _log.warn("Agent '" + agentName +
+                      "' belongs to more than one security community.");
+          }
+          csu.releaseServices();
+          ThreadService ts = (ThreadService)
+          _serviceBroker.getService(this, ThreadService.class, null);
+          final Set fComms = communities;
+          Runnable tt = new Runnable() {
+            public void run() {               
+              finishRegisterCapabilities(fComms, agentName, cs);
+            }
+          };
+          ts.getThread(this, tt).schedule(0);
+          _serviceBroker.releaseService(this, ThreadService.class, ts);
+      
         }
       };
-    ts.getThread(this, tt).schedule(0);
-    _serviceBroker.releaseService(this, ThreadService.class, ts);
+    csu.getSecurityCommunities(listener);
   }
 
   private void finishRegisterCapabilities(Collection communities, 
