@@ -32,18 +32,24 @@
         <!-- Cougaar packages -->
         <pathelement location="${cougaar.install.path}/lib/build.jar"/>
         <pathelement location="${cougaar.install.path}/lib/core.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/glm.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/planning.jar"/>
         <pathelement location="${cougaar.install.path}/lib/util.jar"/>
         <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
+
+       <pathelement location="${moptools.lib}/csiutil-1.0.jar"/>
+       <pathelement location="${moptools.lib}/securityservices.jar"/>
+       <pathelement location="${moptools.lib}/idmef.jar"/>
     </path>
     
-    <target name="tstamp" depends="checkversion">
+    <target name="tstamp">
         <tstamp>
             <format property="currentTime" pattern="MM/dd/yyyy hh:mm:ss"/>
         </tstamp>
         <echo message="Build started at ${currentTime}"/>
     </target>
 
-    <target name="checkversion">
+    <target name="checkversion-mopconfidentiality">
         <condition property="vm.version.incorrect" value="true">
           <not>
             <contains string="${java.vm.version}" substring="1.4.2"/>
@@ -59,20 +65,29 @@
         <mkdir dir="${moptools.docdir}"/>
     </target>
     
+    <!-- Build the org.cougaar.core.security package -->
+    <target name="build-mopblackboard" depends="init">
+        <echo message="+++++ Building security services blackboard test files"/>
+        <javac classpathref="moptools.class.path" debug="true" 
+            deprecation="true" destdir="${moptools.classes}"
+            includes="org/cougaar/core/security/**" srcdir="${moptools.src}"/>          
+        <echo message="+++++ Built security services blabboard test files"/>
+    </target>
+
     <!-- Build the moptools library -->
-    <target name="build-moptools" depends="init">
+    <target name="build-mopconfidentiality" depends="init, checkversion-mopconfidentiality">
         <echo message="+++++ Building moptools"/>
         <javac classpathref="moptools.class.path" debug="true" 
             deprecation="true" destdir="${moptools.classes}" 
-            includes="org/**" srcdir="${moptools.src}"/>
+            includes="org/cougaar/security/mop/**" srcdir="${moptools.src}"/>
         <echo message="+++++ Built moptools"/>
     </target>
     
     <!-- jar moptools -->
-    <target name="jar-moptools" depends="build-moptools">
-        <jar jarfile="${moptools.classes}/moptools.jar">
+    <target name="jar-mopconfidentiality" depends="build-mopconfidentiality">
+        <jar jarfile="${moptools.classes}/mopconfidentiality.jar">
             <fileset dir="${moptools.classes}"
-                includes="org/**/*.class"/>
+                includes="org/cougaar/security/mop/**/*.class"/>
             <manifest>
               <attribute name="Built-By" value="${user.name}"/>
               <attribute name="Main-Class"
@@ -81,20 +96,44 @@
         </jar>
     </target>
     
+   <target name="jar-mopblackboard" depends="build-mopblackboard">
+        <echo message="+++++ Building mop blackboard jar files"/>
+    	<jar jarfile="${moptools.classes}/mopblackboard.jar">
+            <fileset dir="${moptools.classes}"
+                includes="org/cougaar/core/security/**/*.class"/>
+            <manifest>
+              <attribute name="Built-By" value="${user.name}"/>
+            </manifest>
+        </jar>
+        <echo message="+++++ Built jar files"/>
+    </target>
+
     <!-- sign moptools -->
-    <target name="sign-jars" depends="jar-moptools">
+    <target name="sign-mopconfidentialityjars" depends="jar-mopconfidentiality">
         <echo message="+++++ Signing jar files"/>
-        <signjar jar="${moptools.classes}/moptools.jar" alias="privileged" 
-            signedjar="${moptools.signed}/moptools.jar"
+        <signjar jar="${moptools.classes}/mopconfidentiality.jar" alias="privileged" 
+            signedjar="${moptools.signed}/mopconfidentiality.jar"
             keystore="${moptools.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <echo message="+++++ Signed jar files"/>
+    </target>
+
+    <target name="sign-mopblackboardjars" depends="jar-mopblackboard">
+        <echo message="+++++ Signing blackboard jar files"/>
+        <signjar jar="${moptools.classes}/mopblackboard.jar" alias="privileged" 
+            signedjar="${moptools.signed}/mopblackboard.jar"
+            keystore="${moptools.configs}/sign-jars/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <echo message="+++++ Signed jar files"/>
+    </target>
+
+    <target name="sign-jars" depends="sign-mopconfidentialityjars, sign-mopblackboardjars">
     </target>
     
     <!-- install moptools -->
     <target name="install-signed-jars" depends="sign-jars">
         <echo message="+++++ Installing signed jar files"/>
-        <copy file="${moptools.signed}/moptools.jar" 
+        <copy file="${moptools.signed}/mop*.jar" 
             todir="${cougaar.install.path}/lib"/>
         <echo message="+++++ Installed signed jar files"/>
     </target>
@@ -103,9 +142,9 @@
         <echo message="+++++ Installed MOP tools"/>
     </target>
     
-    <target name="install-unsigned-jars" depends="jar-moptools">
+    <target name="install-unsigned-jars" depends="jar-mopconfidentiality">
         <echo message="+++++ Installing jar files"/>
-        <copy file="${moptools.classes}/moptools.jar" 
+        <copy file="${moptools.classes}/mopconfidentiality.jar" 
             todir="${cougaar.install.path}/lib"/>
         <echo message="+++++ Installed jar files"/>
     </target>
