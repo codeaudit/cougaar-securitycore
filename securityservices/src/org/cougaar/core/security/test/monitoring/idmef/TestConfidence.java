@@ -29,21 +29,20 @@ import edu.jhuapl.idmef.XMLUtils;
 
 public class TestConfidence extends TestIdmef {
     
+    public TestConfidence(){
+        this( null );
+    }
     public TestConfidence( String name ){
         super( name );
     }
-    
     public static void main( String []args ){
         TestIdmef test = new TestConfidence( "TestConfidence" );
         test.run();
     }
-    
-    public void run(){
-        Confidence confidence1 = m_msgFactory.createConfidence( Confidence.NUMERIC, new Float( 0.5f ) );
-        Document document = m_docBuilder.newDocument();
-        Node confidenceNode = confidence1.convertToXML( document );
-        
-        Confidence confidence2 = new Confidence( confidenceNode );
+    public Confidence createConfidence(){
+        return m_msgFactory.createConfidence( Confidence.NUMERIC, new Float( 0.5f ) );
+    }
+    public void compare( Confidence confidence1, Confidence confidence2 ){
         if( !( confidence1.getRating().equals( confidence2.getRating() ) ) ){
             System.out.println( "Confidence category is inconsistent!" );
             System.out.println( "Confidence1.category = " + confidence1.getRating() );
@@ -54,6 +53,14 @@ public class TestConfidence extends TestIdmef {
             System.out.println( "Confidence1.description = " + confidence1.getNumeric() );
             System.out.println( "Confidence2.description = " + confidence2.getNumeric() );
         }
+    }
+    public void run(){
+        Confidence confidence1 = createConfidence();
+        Document document = m_docBuilder.newDocument();
+        Node confidenceNode = confidence1.convertToXML( document );
+        
+        Confidence confidence2 = new Confidence( confidenceNode );
+        compare( confidence1, confidence2 );
         document.appendChild( confidenceNode );
         XMLUtils.printDocument( document );
     }

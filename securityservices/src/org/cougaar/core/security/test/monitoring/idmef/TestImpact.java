@@ -29,24 +29,23 @@ import edu.jhuapl.idmef.XMLUtils;
 
 public class TestImpact extends TestIdmef {
     
+    public TestImpact(){
+        this( null );
+    }
     public TestImpact( String name ){
         super( name );
     }
-    
     public static void main( String []args ){
         TestIdmef test = new TestImpact( "TestImpact" );
         test.run();
     }
-    
-    public void run(){
-        Impact impact1 = m_msgFactory.createImpact( Impact.HIGH, 
-                                                    Impact.SUCCEEDED, 
-                                                    Impact.DOS,
-                                                    "test dos attack" );
-        Document document = m_docBuilder.newDocument();
-        Node impactNode = impact1.convertToXML( document );
-        
-        Impact impact2 = new Impact( impactNode );
+    public Impact createImpact(){
+        return m_msgFactory.createImpact( Impact.HIGH, 
+                                          Impact.SUCCEEDED, 
+                                          Impact.DOS,
+                                          "test dos attack" );    
+    }
+    public void compare( Impact impact1, Impact impact2 ){
         if( !( impact1.getSeverity().equals( impact2.getSeverity() ) ) ){
             System.out.println( "Impact severity is inconsistent!" );
             System.out.println( "Impact1.severity = " + impact1.getSeverity() );
@@ -67,6 +66,14 @@ public class TestImpact extends TestIdmef {
             System.out.println( "Impact1.description = " + impact1.getDescription() );
             System.out.println( "Impact2.description = " + impact2.getDescription() );
         }
+    }
+    public void run(){
+        Impact impact1 = createImpact();
+        Document document = m_docBuilder.newDocument();
+        Node impactNode = impact1.convertToXML( document );
+        
+        Impact impact2 = new Impact( impactNode );
+        compare( impact1, impact2 );
         document.appendChild( impactNode );
         XMLUtils.printDocument( document );
     }

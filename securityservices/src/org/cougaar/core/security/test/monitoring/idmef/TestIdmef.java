@@ -43,7 +43,7 @@ public abstract class TestIdmef{
     public IdmefMessageFactory getMessageFactory(){
         return m_msgFactory;
     }
-    
+    public void init(){}
     abstract public void run();
 
     // protected members
