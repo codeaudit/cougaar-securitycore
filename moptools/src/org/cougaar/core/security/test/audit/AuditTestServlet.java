@@ -51,7 +51,7 @@ import java.io.PrintWriter;
  * to read the audit logs when running in Secure Mode!
  *
  * @author ttschampel
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class AuditTestServlet extends BaseServletComponent {
   private String agentName;
@@ -116,7 +116,9 @@ public class AuditTestServlet extends BaseServletComponent {
       String auditDirectory = AuditLogger.getLoggingDirectory();
       String fileName = auditDirectory + File.separator + "WebLog-"
         + System.getProperty("org.cougaar.node.name") + ".txt.0";
-      System.out.println(fileName);
+      if(logging.isDebugEnabled()){
+      	logging.debug("Reading audit file:" + fileName);
+      }
       long minTime = (timeMillis - 30000);
       long maxTime = (timeMillis + 30000);
       try {
@@ -149,7 +151,10 @@ public class AuditTestServlet extends BaseServletComponent {
             _servletName = dataLine.substring(dataLine.indexOf("<servlet>") + 9,
                 dataLine.indexOf("</servlet>"));
           }
-
+		  if(logging.isDebugEnabled()){
+		  	logging.debug("Found:" + _timestamp +","+_servletName+","+_agentName);
+		  	logging.debug("Required:" + minTime+":"+maxTime+",testAuditServlet," + agentName);
+		  }
           if (((_timestamp >= minTime) && (_timestamp <= maxTime))
             && (_servletName!=null && _servletName.equals("testAuditServlet")) &&(_agentName!=null && _agentName.equals(agentName))) {
             responseString = "TRUE";
