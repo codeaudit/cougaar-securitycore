@@ -227,6 +227,9 @@ public class ConfigParserHandler
   
   void updateSecurityPolicy(SecurityPolicy policy) 
     throws PolicyUpdateException {
+    if(policy == null) {
+      throw new PolicyUpdateException("no security policy specified");
+    }
     if(policy instanceof CryptoClientPolicy) {
       CryptoClientPolicy ccp = (CryptoClientPolicy)policy;
       cryptoClientHandler.updatePolicy(ccp); 
