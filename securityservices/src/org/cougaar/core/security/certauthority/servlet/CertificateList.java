@@ -79,6 +79,9 @@ public class CertificateList
 					      ConfigParserService.class,
 					      null);
       caDNs = configParser.getCaDNs();
+      search = (CACertDirectoryService)
+        support.getServiceBroker().getService(this, CACertDirectoryService.class, null);
+      search.refreshBlackboard();
     }
     catch (Exception e) {
       log.error("Unable to initialize servlet:" + e);
@@ -122,8 +125,6 @@ public class CertificateList
     CertDirServiceRequestor cdsr =
       new CertDirServiceRequestor(support.getServiceBroker(), cadnname);
     */
-    search = (CACertDirectoryService)
-      support.getServiceBroker().getService(this, CACertDirectoryService.class, null);
 
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
