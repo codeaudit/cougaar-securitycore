@@ -78,6 +78,13 @@ final public class NamingCertEntry extends Cert
 
     dnList = dnlist;
     certList = certlist;
+
+    _hashcode = 0;
+    for (int i = 0; i < dnlist.size(); i++) {
+      _hashcode += ((String)dnlist.get(i)).hashCode();
+    }
+    // should not need to hash the certificate, there should not
+    // be more than one entry at any time
   }
 
   public List getEntries() {
@@ -87,4 +94,18 @@ final public class NamingCertEntry extends Cert
   public List getDNList() {
     return dnList;
   }
+
+  public boolean equals(Object o) {
+    if (o instanceof NamingCertEntry) {
+      return (((NamingCertEntry)o).hashCode() == hashCode());
+    }
+
+    return false;
+  }
+
+  public int hashCode() {
+    return _hashcode;
+  }
+
+  int _hashcode;
 }
