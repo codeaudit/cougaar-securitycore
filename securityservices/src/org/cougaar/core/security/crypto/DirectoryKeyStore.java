@@ -488,7 +488,8 @@ public class DirectoryKeyStore
       // a particular CA is not trusted locally.
       try {
 
-	X509Certificate[] certChain = checkCertificateTrust(certs[i].getCertificate());
+	X509Certificate[] certChain = checkCertificateTrust(
+          certs[i].getCertificate(), certFinder);
 	if(certs[i].getStatus().equals(CertificateRevocationStatus.REVOKED)) {
 	  certstatus = new CertificateStatus(certs[i].getCertificate(),false,
 					     CertificateOrigin.CERT_ORI_LDAP,
@@ -878,11 +879,18 @@ public class DirectoryKeyStore
     throws CertificateChainException, CertificateExpiredException,
 	   CertificateNotYetValidException, CertificateRevokedException
   {
+    return checkCertificateTrust(certificate, null);
+  }
 
+  public X509Certificate[] checkCertificateTrust(
+    X509Certificate certificate, CertDirectoryServiceClient certFinder)
+    throws CertificateChainException, CertificateExpiredException,
+	   CertificateNotYetValidException, CertificateRevokedException
+  {
     // Prepare a vector that will contain at least the entity certificate
     // and the signer.
     Vector vector = new Vector(2);
-    boolean ok = buildChain(certificate, vector);
+    boolean ok = buildChain(certificate, vector, certFinder);
     X509Certificate acertificate[] = new X509Certificate[vector.size()];
     if (ok) {
       int i = 0;
@@ -1208,15 +1216,23 @@ public class DirectoryKeyStore
    */
   private boolean buildChain(X509Certificate x509certificate, Vector vector)
   {
-    String cname = x509certificate.getSubjectDN().getName();
-    String ctype = CertificateUtility.findAttribute(cname, "t");
-    CertDirectoryServiceClient certFinder = certificateFinder;
-    if (ctype != null && ctype.equals(CERT_TITLE_AGENT))
-      // all other types should not have cross CA communication
-      // for SSL the mechanism is different, the protocol handshake
-      // requires the peer to supply the chain.
-      certFinder = getCertDirectoryServiceClient(
-        CertificateUtility.findAttribute(cname, "cn"));
+    return buildChain(x509certificate, vector, null);
+  }
+
+  private boolean buildChain(
+    X509Certificate x509certificate, Vector vector, CertDirectoryServiceClient certFinder)
+  {
+    if (certFinder == null) {
+      String cname = x509certificate.getSubjectDN().getName();
+      String ctype = CertificateUtility.findAttribute(cname, "t");
+      certFinder = certificateFinder;
+      if (ctype != null && ctype.equals(CERT_TITLE_AGENT))
+        // all other types should not have cross CA communication
+        // for SSL the mechanism is different, the protocol handshake
+        // requires the peer to supply the chain.
+        certFinder = getCertDirectoryServiceClient(
+          CertificateUtility.findAttribute(cname, "cn"));
+    }
 
     boolean ret = internalBuildChain(x509certificate, vector, false, certFinder);
     if (log.isDebugEnabled()) {
