@@ -26,19 +26,55 @@ package org.cougaar.core.security.provider;
 // Cougaar core services
 import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.auth.role.AuthServiceImpl;
+import org.cougaar.core.security.auth.ObjectContextUtil;
 import org.cougaar.core.security.services.auth.AuthorizationService;
+
+import java.security.Permission;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
+import java.lang.reflect.Method;
+import java.security.*;
 
 public class AuthorizationServiceProvider 
   extends BaseSecurityServiceProvider
 {
   // singleton 
-  private AuthorizationService _instance;
-  
-  public AuthorizationServiceProvider(ServiceBroker sb, String community) {
+  private static AuthorizationService _instance;
+
+  static synchronized void setService(final ServiceBroker sb) {
+    if (_instance != null) {
+      return;
+    }
+    _instance = new AuthServiceImpl(sb);
+    PrivilegedAction setService = new PrivilegedAction() {
+        public Object run() {
+          SecurityManager sm = System.getSecurityManager();
+          try {
+            ObjectContextUtil.setAuthorizationService(_instance);
+          } catch (Exception e) {
+            LoggingService log = 
+              (LoggingService) sb.getService(this, LoggingService.class, null);
+            log.warn("Could not call ObjectContextUtil" +
+                     ".setAuthorizationService()", e);
+            sb.releaseService(this, LoggingService.class, log);
+          }
+          return null;
+        }
+      };
+    AccessController.doPrivileged(setService);
+  }
+  public static synchronized AuthorizationService getService() {
+    return _instance;
+  }
+
+  public AuthorizationServiceProvider(ServiceBroker sb, 
+                                      String community) {
     super(sb, community);
+    setService(sb);
   }
 
   /**
@@ -51,10 +87,6 @@ public class AuthorizationServiceProvider
   protected synchronized Service getInternalService(ServiceBroker sb, 
 				    Object requestor, 
 				    Class serviceClass) {
-	  if(_instance == null) {
-            // TODO: this is only a stub implementation
-	    _instance = new AuthServiceImpl(sb);
-	  }
     return _instance;
   }
 
@@ -69,4 +101,5 @@ public class AuthorizationServiceProvider
 					Class serviceClass,
 					Object service) {
   }
+
 }

@@ -22,24 +22,29 @@
 
 package org.cougaar.core.security.auth;
 
-import java.io.Serializable;
 import java.security.Permission;
-
-import org.cougaar.core.security.util.ActionPermission;
+import java.util.StringTokenizer;
 
 /**
- * Base abstract class for service permissions.
- *
- * @see BlackboardPermission
+ * A Java security manager permission to create, read, and modify
+ * objects that go on the blackboard.
  */
-public abstract class ServicePermission extends ActionPermission 
-  implements Serializable {
-  
-  public ServicePermission(String name) {
-    super(name);
+public final class BlackboardObjectPermission extends ServicePermission {
+
+  private static final String[] ACTIONS = { 
+    "create", "read", "write"
+  };
+  /**
+   * Constructor
+   *
+   * @param name The class of blackboard object. For example, "oplan"
+   * @param actions comma-separated: create, read, or write (* for all actions)
+   */
+  public BlackboardObjectPermission(String name, String actions) {
+    super(name, actions);
   }
 
-  public ServicePermission(String name, String actions) {
-    super(name, actions);
+  protected String[] getAvailableActions() {
+    return ACTIONS;
   }
 }

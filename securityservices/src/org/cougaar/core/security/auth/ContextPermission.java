@@ -21,21 +21,25 @@
 
 package org.cougaar.core.security.auth;
 
+import java.security.Permission;
+import java.security.BasicPermission;
+import java.util.StringTokenizer;
+
 /**
  * Permission for setting and getting object and execution
  * security context.
  * <p>
  * Currently we support the following permissions:<br>
  * <ul>
- * <li><tt>org.cougaar.core.security.auth.ContextPermission "object" "setAddress"</tt>
+ * <li><tt>org.cougaar.core.security.auth.ContextPermission "setSource"</tt>
+ * <li><tt>org.cougaar.core.security.auth.ContextPermission "setContextService"</tt>
+ * <li><tt>org.cougaar.core.security.auth.ContextPermission "setAuthorizationService"</tt>
  * </ul>
  */
-public class ContextPermission extends java.security.BasicPermission {
+public class ContextPermission extends BasicPermission {
+
   public ContextPermission(String name) {
     super(name);
   }
 
-  public ContextPermission(String name, String actions) {
-    super(name, actions);
-  }
 }

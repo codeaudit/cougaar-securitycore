@@ -28,11 +28,12 @@ import org.cougaar.core.mts.MessageAddress;
 import java.security.Permission;
 import java.util.Arrays;
 import java.util.List;
+import java.io.Serializable;
 
-public class RoleObjectContext implements ObjectContext {
+public class RoleObjectContext implements ObjectContext, Serializable {
   private MessageAddress _agent;
   private static final Permission SET_SOURCE_PERMISSION =
-    new ContextPermission("object", "setSource");
+    new ContextPermission("setSource");
 
   RoleObjectContext(MessageAddress agent) {
     _agent = agent;

@@ -23,22 +23,51 @@
  */
 package org.cougaar.core.security.provider;
 
+import java.security.PrivilegedAction;
+import java.security.AccessController;
+
 // Cougaar core services
 import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.auth.SecurityContextServiceImpl;
+import org.cougaar.core.security.auth.ObjectContextUtil;
 import org.cougaar.core.security.services.auth.SecurityContextService;
 
 public class SecurityContextServiceProvider 
   extends BaseSecurityServiceProvider
 {
-  // singleton 
-  private SecurityContextService _instance;
+  // singleton
+  private static SecurityContextService _instance;
   
-  public SecurityContextServiceProvider(ServiceBroker sb, String community) {
+  private static synchronized void setService(final ServiceBroker sb) {
+    if (_instance != null) {
+      return;
+    }
+    _instance = new SecurityContextServiceImpl(sb);
+    PrivilegedAction setService = new PrivilegedAction() {
+        public Object run() {
+          try {
+            ObjectContextUtil.setContextService(_instance);
+          } catch (Exception e) {
+            LoggingService log = 
+              (LoggingService) sb.getService(this, LoggingService.class, null);
+            log.warn("Could not call ObjectContextUtil" +
+                     ".setContextService()", e);
+            sb.releaseService(this, LoggingService.class, log);
+          }
+          return null;
+        }
+      };
+    AccessController.doPrivileged(setService);
+  }
+
+  public SecurityContextServiceProvider(ServiceBroker sb, 
+                                        String community) {
     super(sb, community);
+    setService(sb);
   }
 
   /**
@@ -51,9 +80,6 @@ public class SecurityContextServiceProvider
   protected synchronized Service getInternalService(ServiceBroker sb, 
 				    Object requestor, 
 				    Class serviceClass) {
-	  if(_instance == null) {
-	    _instance = new SecurityContextServiceImpl(sb);
-	  }
     return _instance;
   }
 

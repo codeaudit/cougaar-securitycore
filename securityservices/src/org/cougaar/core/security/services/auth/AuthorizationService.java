@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Network Associates
+ *  Copyright 2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -21,15 +21,19 @@
 
 package org.cougaar.core.security.services.auth;
 
+// java classes
+import java.security.Permission;
+import java.security.ProtectionDomain;
+import java.util.List;
+
 // cougaar classes
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.component.ComponentDescription;
 import org.cougaar.core.component.Service;
+
 // security services classes
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.ObjectContext;
-// java classes
-import java.security.Permission;
 
 /**
  *
@@ -46,8 +50,23 @@ public interface AuthorizationService extends Service {
 
   public ObjectContext createObjectContext(ExecutionContext ec, Object object);
   
-  public void checkPermission(Permission perm);
-  
-  public void checkPermission(Permission perm, Object context);
-                            
+  /**
+   * Checks the permission against the ProtectionDomain to
+   * determine if the permission is allowed. The domain may
+   * contain an ExecutionPrincipal and if a SecuredObject is being
+   * checked, a SecuredObjectPrincipal.
+   *
+   * @return <tt>true</tt> if permission is allowed for the
+   * given domain. <tt>false</tt> otherwise.
+   */
+  boolean implies(ProtectionDomain domain, Permission permission);
+
+  /**
+   * Retrieves a list of Permission objects for which the domain is
+   * allowed access. The domain may
+   * contain an ExecutionPrincipal and if a SecuredObject is being
+   * checked, a SecuredObjectPrincipal.
+   */
+  List    getPermissions(ProtectionDomain domain);
+
 }

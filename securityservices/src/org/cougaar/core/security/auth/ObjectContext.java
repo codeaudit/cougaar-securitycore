@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -31,8 +31,7 @@ import org.cougaar.core.mts.MessageAddress;
  * whether a blackboard object should be accessed when compared to
  * the execution security context derived from <code>ExecutionContext</code>.
  *
- * @see org.cougaar.core.security.auth.ExecutionContext
- * @author <a href="mailto:gmount@nai.com">George Mount</a>
+ * @see org.cougaar.core.security.authorization.ExecutionContext
  */
 public interface ObjectContext {
   /**

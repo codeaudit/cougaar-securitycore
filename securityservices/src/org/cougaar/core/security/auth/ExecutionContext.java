@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +21,8 @@
 
 package org.cougaar.core.security.auth;
 
+import org.cougaar.core.mts.MessageAddress;
+
 /**
  * The <code>ExecutionContext</code> is the security context base
  * interface that all authorization models must use to derive their
@@ -32,8 +34,14 @@ package org.cougaar.core.security.auth;
  * The <code>ExecutionContext</code> is used in combination with
  * the <code>ObjectContext</code> to check Permissions.
  *
- * @see org.cougaar.core.security.auth.ObjectContext
- * @author <a href="mailto:gmount@nai.com">George Mount</a>
+ * @see org.cougaar.core.security.authorization.ObjectContext
  */
 public interface ExecutionContext {
+  /**
+   * Returns the agent identifier for this context. 
+   *
+   * @return The MessageAddress for the agent or <tt>null</tt> if no
+   *         agent is specified for this context.
+   */
+  public MessageAddress getAgent();
 }

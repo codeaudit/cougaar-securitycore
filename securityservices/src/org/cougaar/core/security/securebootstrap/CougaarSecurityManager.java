@@ -26,6 +26,7 @@
 
 package org.cougaar.core.security.securebootstrap;
 
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.io.PrintStream;
 import java.io.ByteArrayOutputStream;
@@ -45,6 +46,9 @@ import java.security.PermissionCollection;
 import java.security.ProtectionDomain;
 import java.security.CodeSource;
 import java.security.Principal;
+import java.security.DomainCombiner;
+import javax.security.auth.Subject;
+import javax.security.auth.SubjectDomainCombiner;
 
 // Needed to retrieve the subject associated with an accessController context
 import javax.security.auth.Subject;
@@ -77,6 +81,12 @@ public class CougaarSecurityManager
   private int debug = 0;
   private EventHolder eventholder=null;
   private String type=null;
+ 
+  /**
+   * The principal class used for SecuredObject's
+   */
+  private final static String SECURED_OBJECT_PRINCIPAL = 
+    "org.cougaar.core.security.auth.SecuredObjectPrincipal";
 
   /**
    * cougaar classification name prefix
@@ -138,6 +148,47 @@ public class CougaarSecurityManager
       return eventholder;
     }
     return null;
+  }
+
+  private static boolean isSecuredObject(Object obj) {
+    System.out.println("Checing if it is a secured object");
+    if (obj instanceof org.cougaar.core.security.auth.SecuredObject) {
+      System.out.println("yes");
+      return true;
+    }
+    try {
+      Class c = obj.getClass();
+      Method m = c.getMethod("getObjectContext", null);
+      System.out.println("yes");
+      return true;
+    } catch (Exception e) {
+      System.out.println("no");
+      return false;
+    }
+  }
+
+  public void checkPermission(Permission perm, Object context) {
+    if (context instanceof AccessControlContext) {
+      super.checkPermission(perm, context);
+      return;
+    } 
+
+    if (isSecuredObject(context)) {
+      ClassLoader loader = context.getClass().getClassLoader();
+      AccessControlContext acc = AccessController.getContext();
+      try {
+//         Class princClass = Class.forName(SECURED_OBJECT_PRINCIPAL);
+        Principal p = 
+          new org.cougaar.core.security.auth.SecuredObjectPrincipal(context);
+        Subject subject = new Subject();
+        subject.getPrincipals().add(p);
+        DomainCombiner dc = new BothSubjectDomainCombiner(subject);
+        context = new AccessControlContext(acc, dc);
+      } catch (Exception e) {
+        e.printStackTrace(); // this shouldn't happen! (I hope)
+      }
+    }
+    super.checkPermission(perm, context);
   }
 
   /** throws a security exception if the requested access, specified by
@@ -460,5 +511,20 @@ public class CougaarSecurityManager
     public Class stackClassElement;
     public Boolean canDo = null;
     public ProtectionDomain protectionDomain = null;
+  }
+
+  private static class BothSubjectDomainCombiner
+    extends SubjectDomainCombiner {
+    public BothSubjectDomainCombiner(Subject subject) {
+      super(subject);
+    }
+    
+    public ProtectionDomain[] combine(ProtectionDomain[] currentDomains, 
+                                      ProtectionDomain[] assignedDomains) {
+      if (assignedDomains != null) {
+        assignedDomains = super.combine(assignedDomains, null);
+      }
+      return super.combine(currentDomains, assignedDomains);
+    }
   }
 }

@@ -52,11 +52,13 @@ import org.cougaar.core.security.coreservices.crypto.*;
 // Cougaar security services
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
-import org.cougaar.core.security.services.auth.*;
+import org.cougaar.core.service.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.ldap.*;
 import org.cougaar.core.security.services.identity.*;
+import org.cougaar.core.security.services.auth.*;
 
+import org.cougaar.core.security.policy.dynamic.DynamicPolicy;
 import org.cougaar.core.security.provider.SecurityServicePermission;
 import org.cougaar.core.security.ssl.JaasSSLFactory;
 
@@ -401,9 +403,19 @@ public class SecurityServiceProvider
       /**
        * Authorization service
        */
-      newSP = new AuthorizationServiceProvider(serviceBroker, mySecurityCommunity);
+      newSP = new AuthorizationServiceProvider(serviceBroker, 
+                                               mySecurityCommunity);
       services.put(AuthorizationService.class, newSP);
       rootServiceBroker.addService(AuthorizationService.class, newSP);
+
+      /* ********************************
+       * Change the policy to support
+       * DAML
+       */
+      AuthorizationService authServ = (AuthorizationService) rootServiceBroker.
+        getService(this, AuthorizationService.class, null);
+      DynamicPolicy.install(authServ);
+                            
 
       /**********************************
        * Security context service

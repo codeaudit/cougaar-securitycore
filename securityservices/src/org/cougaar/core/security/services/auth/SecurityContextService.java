@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Networks Associates Technology, Inc.
+ *  Copyright 2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -67,7 +67,7 @@ public interface SecurityContextService extends Service {
     * @param oc the object context to associate with o
     * @param o object to associate the security context
     */
-   public void setObjectContext(ObjectContext oc, Object o);
+//    public void setObjectContext(ObjectContext oc, Object o);
 
    /**
     * Get the execution context for the current thread.
@@ -89,7 +89,7 @@ public interface SecurityContextService extends Service {
     *
     * @return the execution context for the current thread
     */
-   public ExecutionContext resetExecutionContext();
+  public ExecutionContext resetExecutionContext();
 
    /**
     * Reset the execution context for a given object to the previous execution context.
@@ -97,5 +97,6 @@ public interface SecurityContextService extends Service {
     * @param o an object
     * @return the execution context for object o
     */
-   public ObjectContext resetObjectContext(Object o);
+//    public ObjectContext resetObjectContext(Object o);
+
 }
