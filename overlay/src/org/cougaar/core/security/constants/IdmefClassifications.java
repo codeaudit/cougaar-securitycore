@@ -36,6 +36,12 @@ public class IdmefClassifications {
    */
   public final static String COUGAAR_PREFIX = "org.cougaar.core.security.monitoring.";
   /**
+   * data protection failure
+   * @see DataFailureEvent
+   */
+  public final static String DATA_FAILURE = 
+    COUGAAR_PREFIX + "DATA_FAILURE";
+  /**
    * message failure
    * @see MessageFailureEvent
    */
