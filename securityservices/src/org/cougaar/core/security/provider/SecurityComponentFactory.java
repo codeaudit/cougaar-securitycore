@@ -52,19 +52,14 @@ public final class SecurityComponentFactory
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List argument to setParameter");
     }
-    setLoggingService();
     List l = (List) o;
     if (l.size() != 1) {
-      if (log.isWarnEnabled()) {
-        log.warn(this.getClass().getName() + " should take 1 parameter, got " + l.size()
-		 + ". Fix configuration file");
-      }
+      throw new IllegalArgumentException(this.getClass().getName()
+					 + " should take 1 parameter, got " + l.size()
+					 + ". Fix configuration file");
     }
     else {
       mySecurityCommunity = l.get(0).toString();
-      if (log.isInfoEnabled()) {
-	log.info("Setting Security Community to " + mySecurityCommunity);
-      }
     }
   }
 

@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.security.GeneralSecurityException;
+import java.util.Random;
+import java.io.FileOutputStream;
 
 // Cougaar core services
 import org.cougaar.core.mts.ProtectedOutputStream;
@@ -56,6 +58,14 @@ public class MessageOutputStream
   private ServiceBroker serviceBroker;
   private LoggingService log;
 
+  /** Set to true to dump messages to a file (for debug purposes) */
+  private static boolean dumpMessages = 
+  Boolean.valueOf(
+    System.getProperty("org.cougaar.core.security.crypto.dumpMessages")).booleanValue();
+
+  /** The file output stream to dump the message. */
+  private FileOutputStream fileMsgDumper;
+
   private static final int DEFAULT_INIT_BUFFER_SIZE = 200;
 
   public MessageOutputStream(OutputStream stream,
@@ -77,6 +87,18 @@ public class MessageOutputStream
     this.cps = cps;
     this.source = source;
     this.target = target;
+
+    if (dumpMessages) {
+      Random r = new Random();
+      String fileName = "msgDump-" + r.nextLong() + ".dmp";
+      log.debug("Dumping message content to file " + fileName);
+      try {
+	fileMsgDumper = new FileOutputStream(fileName);
+      }
+      catch (Exception e) {
+	log.warn("Unable to create dump message file: " + e);
+      }
+    }
   }
 
   /* ***********************************************************************
@@ -144,6 +166,17 @@ public class MessageOutputStream
     if (log.isDebugEnabled()) {
       log.debug("protectMessage: " + source.toAddress()
 		+ " -> " + target.toAddress());
+    }
+
+    // Dump the message.
+    if (dumpMessages) {
+      try {
+	fileMsgDumper.write(dataOut.toByteArray());
+	fileMsgDumper.close();
+      }
+      catch (Exception e) {
+	log.warn("Unable to dump message: " + e);
+      }
     }
 
     ProtectedObject protectedMessage = null;
