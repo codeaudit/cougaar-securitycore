@@ -72,6 +72,7 @@ cd $COUGAAR_INSTALL_PATH
 
 zip -qr AS_csi_mop_secserv.zip \
         csmart/acme_service/src/plugins/acme_security_reporting \
+        csmart/lib/security/actions/resultParser.rb \
 	csmart/config/rules/security/mop \
 	csmart/config/rules/security/assessment \
 	csmart/config/lib/security/mop \

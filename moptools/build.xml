@@ -150,6 +150,9 @@
          todir="${cougaar.install.path}/csmart/acme_service/src/plugins/acme_security_reporting">
         <fileset dir="csmart/plugins/acme_security_reporting"/>
       </copy>
+      <mkdir dir="${cougaar.install.path}/csmart/lib/security/actions"/>
+      <copy file="csmart/plugins/acme_security_reporting/resultParser.rb"
+            todir="${cougaar.install.path}/csmart/lib/security/actions"/>
     </target>
 
     <target name="install" depends="install-signed-jars, install-reporting">
