@@ -22,6 +22,8 @@
 package org.cougaar.core.security.policy.enforcers.util;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
+import org.cougaar.core.service.LoggingService;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -35,18 +37,19 @@ import java.util.Set;
  * concepts and the UltraLog concepts.  For now I am using
  * configuration files but some of this will change later...
  */
-public class DAMLBlackboardMapping extends StringPairMapping {
+public class DAMLBlackboardMapping  {
 
   public static final String otherBlackboardObjectDAML = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL
-    + "otherBlackboardObjects";
-  private boolean _initialized = false;
-  private List _objectMap;
+    EntityInstancesConcepts.EntityInstancesDamlURL + "otherBlackboardObjects";
+  private boolean            _initialized = false;
+  private List                _objectMap;
+  private ServiceBroker       _sb;
+  private LoggingService      _log; 
 
   public DAMLBlackboardMapping(ServiceBroker sb)
   {
-    super(sb);
+    _sb = sb;
+    _log = (LoggingService) sb.getService(this, LoggingService.class, null);
     if (_log.isDebugEnabled()) {
       _log.debug("Initializing DAML Blackboard Mapper");
     }
@@ -57,7 +60,8 @@ public class DAMLBlackboardMapping extends StringPairMapping {
   {
     try {
       _log.debug("loading daml blackboard object mappings...");
-      _objectMap = loadPairs("DamlBlackboardObjectMap");
+      _objectMap = new StringPairMapping(_sb, "DamlBlackboardObjectMap")
+                                                       .buildPairList();
     } catch (IOException e) {
       _log.error("IO Exception reading DAML <-> " + 
                  "blackboard configuration file", e);

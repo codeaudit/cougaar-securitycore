@@ -40,13 +40,12 @@ public class RegexpStringMapping extends StringPairMapping
   public RegexpStringMapping(ServiceBroker sb, String fileName)
     throws IOException, RESyntaxException
   {
-    super(sb);
+    super(sb, fileName);
 
     _log = (LoggingService) sb.getService(this, LoggingService.class, null);
 
     _regexpMapping = new Vector();
-    List stringPairs = loadPairs(fileName);
-    for (Iterator stringPairsIt = stringPairs.iterator(); 
+    for (Iterator stringPairsIt = _mapping.iterator(); 
          stringPairsIt.hasNext();) {
       StringPair stringPair = (StringPair) stringPairsIt.next();
       _regexpMapping.add(new RegexpPair(stringPair._first, 
