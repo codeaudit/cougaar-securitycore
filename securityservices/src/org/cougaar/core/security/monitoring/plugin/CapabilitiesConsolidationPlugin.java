@@ -1319,6 +1319,14 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     int counter = 1;
     public void run() {
       boolean  tryAgain = true;
+      try {
+	  Thread.sleep(18*retryTime);
+	}
+	catch(InterruptedException ix) {
+	  m_log.error("Was interrupted while delaying the polling of NS sleeping: " + ix);
+	  tryAgain = false;
+	}
+      
       //boolean neverfalse=true;
       while(tryAgain) {
 	loggingService.debug("Trying to register counter: " + counter++);
