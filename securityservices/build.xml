@@ -66,6 +66,7 @@
         <pathelement location="${cougaar.install.path}/lib/core.jar"/>
         <pathelement location="${cougaar.install.path}/lib/util.jar"/>
         <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/aggagent.jar"/>
         <!-- Overlay packages -->
         <pathelement location="${cougaar.install.path}/lib/overlay.jar"/>
         <!-- KAoS libraries -->
