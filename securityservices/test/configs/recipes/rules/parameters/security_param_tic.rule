@@ -305,7 +305,14 @@ society.each_host do |host|
     
     # setting "cmr" domain
     #node.override_parameter("-Dorg.cougaar.domain.cmr", "org.cougaar.core.security.monitoring.blackboard.CmrDomain")
-    
+   
+    # thread max count 
+    #node.override_parameter("-Dorg.cougaar.thread.running.max", "200")
+    # FOR DEBUGGING ONLY!
+    # for blackboard authorization debug (currently only used for print out warning if query is
+    # denied for a unary predicate that returns true for a SecuredObject
+    node.override_parameter("-Dorg.cougaar.core.security.auth.debug", "true") 
+
     # daml settings
     node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.servlet.useDaml", "true") 
     node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.crypto.useDaml", "true") 
