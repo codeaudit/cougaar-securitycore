@@ -101,6 +101,7 @@ UNLOCK TABLES;
 
 LOCK TABLES lib_mod_recipe WRITE;
 REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponent','Enclave4CAConfigComponent','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponentEnclave4CAConfigComponent','Enclave4CAConfigComponent','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
 UNLOCK TABLES;
 
 --
@@ -115,7 +116,15 @@ REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VAL
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponent','Target Component Selection Query',3.000000000000000000000000000000,'recipeQueryNodeEnclave4CA');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponent','Type of Insertion',7.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponent','Value 1',5.000000000000000000000000000000,'CN=Enclave4_CA, OU=Enclave4, O=DLA, L=San Francisco, ST=CA, C=US, T=ca');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponent','Value 3',2.000000000000000000000000000000,'tea:RootCA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponent','Value 3',2.000000000000000000000000000000,'cypress:RootCA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponentEnclave4CAConfigComponent','Class Name',1.000000000000000000000000000000,'org.cougaar.core.security.certauthority.ConfigPlugin');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponentEnclave4CAConfigComponent','Component Name',4.000000000000000000000000000000,'org.cougaar.core.security.certauthority.ConfigPlugin');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponentEnclave4CAConfigComponent','Component Priority',6.000000000000000000000000000000,'HIGH');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponentEnclave4CAConfigComponent','Number of Arguments',0.000000000000000000000000000000,'3');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponentEnclave4CAConfigComponent','Target Component Selection Query',3.000000000000000000000000000000,'recipeQueryNodeEnclave4CA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponentEnclave4CAConfigComponent','Type of Insertion',7.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponentEnclave4CAConfigComponent','Value 1',5.000000000000000000000000000000,'CN=Enclave4_CA, OU=Enclave4, O=DLA, L=San Francisco, ST=CA, C=US, T=ca');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave4CAConfigComponentEnclave4CAConfigComponentEnclave4CAConfigComponent','Value 3',2.000000000000000000000000000000,'tea:RootCA');
 UNLOCK TABLES;
 
 --

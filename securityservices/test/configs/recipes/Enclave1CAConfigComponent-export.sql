@@ -102,6 +102,7 @@ UNLOCK TABLES;
 LOCK TABLES lib_mod_recipe WRITE;
 REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponent','Enclave1CAConfigComponent','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
 REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0008Enclave1CAConfigComponent','Enclave1CAConfigComponent','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponentEnclave1CAConfigComponent','Enclave1CAConfigComponent','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
 UNLOCK TABLES;
 
 --
@@ -116,7 +117,7 @@ REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VAL
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponent','Target Component Selection Query',3.000000000000000000000000000000,'recipeQueryNodeEnclave1CA');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponent','Type of Insertion',5.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponent','Value 1',0.000000000000000000000000000000,'CN=Enclave1_CA, OU=Enclave1, O=DLA, L=San Francisco, ST=CA, C=US, T=ca');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponent','Value 3',6.000000000000000000000000000000,'tea:RootCA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponent','Value 3',6.000000000000000000000000000000,'cypress:RootCA');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponent','Class Name',7.000000000000000000000000000000,'org.cougaar.core.security.certauthority.ConfigPlugin');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponent','Component Name',2.000000000000000000000000000000,'org.cougaar.core.security.certauthority.ConfigPlugin');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponent','Component Priority',1.000000000000000000000000000000,'HIGH');
@@ -125,6 +126,14 @@ REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VAL
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponent','Type of Insertion',5.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponent','Value 1',0.000000000000000000000000000000,'CN=Enclave1_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US, T=ca');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponent','Value 3',6.000000000000000000000000000000,'tea:RootCA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponentEnclave1CAConfigComponent','Class Name',7.000000000000000000000000000000,'org.cougaar.core.security.certauthority.ConfigPlugin');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponentEnclave1CAConfigComponent','Component Name',2.000000000000000000000000000000,'org.cougaar.core.security.certauthority.ConfigPlugin');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponentEnclave1CAConfigComponent','Component Priority',1.000000000000000000000000000000,'HIGH');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponentEnclave1CAConfigComponent','Number of Arguments',4.000000000000000000000000000000,'3');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponentEnclave1CAConfigComponent','Target Component Selection Query',3.000000000000000000000000000000,'recipeQueryNodeEnclave1CA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponentEnclave1CAConfigComponent','Type of Insertion',5.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponentEnclave1CAConfigComponent','Value 1',0.000000000000000000000000000000,'CN=Enclave1_CA, OU=Enclave1, O=DLA, L=San Francisco, ST=CA, C=US, T=ca');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave1CAConfigComponentEnclave1CAConfigComponentEnclave1CAConfigComponent','Value 3',6.000000000000000000000000000000,'tea:RootCA');
 UNLOCK TABLES;
 
 --
