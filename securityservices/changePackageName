@@ -1,6 +1,32 @@
 #!/bin/tcsh
 
-find . -name '*.java' -exec sarep 'com.nai.security' 'org.cougaar.core.security' {} \;
+#Remove unecessary files
+find . -name '*~' -exec rm {} \;
+find . -name '.#*' -exec rm {} \;
+rm -rf classes/*
+rm -rf test/doc/API/
+
+# Java files
+find src -name '*.java' -exec sarep 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
+find src -name '*.java' -exec sarep 'com.nai.security' 'org.cougaar.core.security' {} \;
+
+# Configuration files
+find test -exec sarep 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
+find test -exec sarep 'com.nai.security' 'org.cougaar.core.security' {} \;
+
+# Makefiles
+find . -name 'Makefile*' -exec sarep 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
+find . -name 'Makefile*' -exec sarep 'com.nai.security' 'org.cougaar.core.security' {} \;
 
 echo  ############################################
-#mv -i -v src/com/nai/security src/org/cougaar/core
+# Remove 'CVS' directory under src/com
+find src/com/ -name CVS -type d -exec rm -i {} \;
+
+# Move bootstrap directory to securebootstrap
+mv -i -v src/com/nai/security/bootstrap/ src/org/cougaar/core/security/securebootstrap
+
+# Move com directory to org directory
+mv -i -v src/com/nai/security src/org/cougaar/core
+
+# Remove any remaining directory under com
+rm -i -r src/com
