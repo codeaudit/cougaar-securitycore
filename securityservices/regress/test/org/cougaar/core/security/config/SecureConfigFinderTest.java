@@ -76,9 +76,8 @@ public class SecureConfigFinderTest
     _scf = (SecureConfigFinder)ConfigFinder.getInstance();
     Assert.assertNotNull(_scf);
     URL[] jarFiles = getJarFilesFromClassPath();
-    for (int i = 0 ; i < jarFiles.length ; i++) {
-      _scf.appendAndSearch(jarFiles[i], null);
-    }
+    _scf.appendUrlSearchPath(jarFiles);
+
     // Search file. It should be found in the config path.
     testLocateFile(files, shouldExist);
     testOpen(files, shouldExist);
