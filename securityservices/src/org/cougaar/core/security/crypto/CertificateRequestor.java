@@ -383,7 +383,7 @@ public class CertificateRequestor {
       }
     } catch (Exception e) {
       if (log.isDebugEnabled()) {
-	log.warn("Unable to create key: " + dname + " - Reason:" + e,new Throwable());
+	log.warn("Unable to create key: " + dname + " - Reason:", e);
       }
     }
     return privatekey;
