@@ -51,6 +51,10 @@ public interface MessageProtectionService extends Service {
    * 4) The aspect calls getOuputStream.
    *    - The source and destination should be the same as what was found
    *      in the call to protectHeader().
+   *    - The output stream contains the outgoing message in the clear.
+   *    - What do I do about it?????
+   *      I cannot read the output stream!!!!
+   *
    *    - The first byte of the input stream should be the first byte
    *      of the message content.
    * 5) The service returns an output stream that contains the encrypted
