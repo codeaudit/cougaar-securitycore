@@ -384,10 +384,12 @@ public class SecurityServiceProvider
                                                       KeyRingService.class,
                                                       null);
       log.info("Running in standalone mode");
-      services.put(UserSSLService.class,
-                   new UserSSLServiceProvider());
-      rootServiceBroker.addService(UserSSLService.class, this);
-      krs.getDirectoryKeyStore().finishInitialization();
+      if (krs != null) {
+	services.put(UserSSLService.class,
+		     new UserSSLServiceProvider());
+	rootServiceBroker.addService(UserSSLService.class, this);
+	krs.getDirectoryKeyStore().finishInitialization();
+      }
     }
 
   }
