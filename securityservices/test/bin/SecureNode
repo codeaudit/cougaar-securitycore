@@ -240,8 +240,15 @@ endsw
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.http.port=${httpport}"
 
 # setup for running tomcat https
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.port=${httpsport}"
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory"
+# set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.port=${httpsport}"
+# set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory"
+# set MYPROPERTIES="$MYPROPERTIES -Djavax.net.debug=ssl"
+
+# setup for RMI over SSL
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol"
+
+# setup for Naming over SSL
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.naming.useSSL=true"
 
 #################################
 
