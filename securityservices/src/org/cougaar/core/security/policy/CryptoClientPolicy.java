@@ -63,6 +63,15 @@ public class CryptoClientPolicy
    */
   private boolean useSmartCard = false;
 
+  /**
+   * For unzip & run, infoURL specifies path to CAInfoServlet
+   * requestURL specifies path to certificate signing request.
+   * NOTE: CA host, port, and agent is not included in the path,
+   * host and agent are supplied thru plugin param and port thru prop.
+   */
+  private String infoURL;
+  private String requestURL;
+
   private CertificateAttributesPolicy certificateAttributesPolicy;
 
   public CryptoClientPolicy() {
@@ -161,6 +170,19 @@ public class CryptoClientPolicy
   }
   public void addTrustedCaPolicy(TrustedCaPolicy tc) {
     trustedCAs.addElement(tc);
+  }
+
+  public String getInfoURL() {
+    return infoURL;
+  }
+  public String getRequestURL() {
+    return requestURL;
+  }
+  public void setInfoURL(String url) {
+    infoURL = url;
+  }
+  public void setRequestURL(String url) {
+    requestURL = url;
   }
 
   public String toString() {
