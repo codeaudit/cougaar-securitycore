@@ -92,7 +92,7 @@ public class PersistenceMgrPolicyServiceImpl
     try {
       SecurityPropertiesService sps = (SecurityPropertiesService)
       sb.getService(this, SecurityPropertiesService.class, null);
-      String prop = sps.getProperty(SecurityPropertiesService.PM_LOOKUP_PERIOD, "120");  // default to 120 secs
+      String prop = sps.getProperty(SecurityPropertiesService.PM_SEARCH_PERIOD, "120");  // default to 120 secs
       period = Long.parseLong(prop) * 1000; // in msecs 
     }
     catch(NumberFormatException nfe) {
