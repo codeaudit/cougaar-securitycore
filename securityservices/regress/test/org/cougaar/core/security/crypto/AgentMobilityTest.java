@@ -45,7 +45,9 @@ import com.ibm.security.pkcsutil.PKCSException;
 
 // Cougaar core infrastructure
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.SimpleMessageAddress;
 import org.cougaar.core.service.identity.*;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar Security Services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -69,6 +71,7 @@ public class AgentMobilityTest
   private BasicNode bn;
   private KeyRingService keyRing = null;
   private AgentIdentityService agentIdentity = null;
+  private ServiceBroker serviceBroker;
 
   public AgentMobilityTest(String name)
   {
@@ -81,16 +84,14 @@ public class AgentMobilityTest
     Assert.assertNotNull("Could not get Basic Node", bn);
 
     secProvider = bn.getSecurityServiceProvider();
+    serviceBroker = bn.getServiceBroker();
 
-    keyRing = (KeyRingService)secProvider.getService(null,
-						     this,
-						     KeyRingService.class);
+    keyRing = (KeyRingService)
+      serviceBroker.getService(this, KeyRingService.class, null);
     Assert.assertNotNull("Could not get KeyRingService", keyRing);
 
     agentIdentity = (AgentIdentityService)
-      secProvider.getService(null,
-			     this,
-			     AgentIdentityService.class);
+      serviceBroker.getService(this, AgentIdentityService.class, null);
     Assert.assertNotNull("Could not get AgentIdentityService",
 			 agentIdentity);
   }
@@ -107,9 +108,12 @@ public class AgentMobilityTest
 				 String pkcs12Alias,
 				 String receiverAlias) {
 
-    MessageAddress agent = new MessageAddress(pkcs12Alias);
-    MessageAddress signer = new MessageAddress(signerAlias);
-    MessageAddress receiver = new MessageAddress(receiverAlias);
+    MessageAddress agent =
+      SimpleMessageAddress.getSimpleMessageAddress(pkcs12Alias);
+    MessageAddress signer =
+      SimpleMessageAddress.getSimpleMessageAddress(signerAlias);
+    MessageAddress receiver =
+      SimpleMessageAddress.getSimpleMessageAddress(receiverAlias);
 
     System.out.println("======== Wrapping key");
     TransferableIdentity identity =

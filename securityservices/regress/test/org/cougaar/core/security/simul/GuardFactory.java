@@ -26,7 +26,6 @@
 
 package test.org.cougaar.core.security.simul;
 
-import org.cougaar.core.security.SecurityComponent;
 import org.cougaar.core.component.*;
 import org.cougaar.core.agent.*;
 import org.cougaar.core.mts.*;
@@ -92,7 +91,10 @@ public final class GuardFactory
 	PolicyBootstrapperService pbs = (PolicyBootstrapperService)
 	  serviceBroker.getService(this, PolicyBootstrapperService.class, null);
 
-	guard = new NodeGuard(dmId, serviceBroker);
+	String policyManagerUIC = "UniqueID";
+	ServiceBroker rootServiceBroker = serviceBroker;
+	guard = new NodeGuard(policyManagerUIC, dmId, serviceBroker,
+			      rootServiceBroker);
         
         System.out.println("Initializing Guard.");
 	boolean isInitialized = false; // ((NodeGuard)guard).initialize(dmId, );

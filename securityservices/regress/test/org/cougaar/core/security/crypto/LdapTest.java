@@ -61,15 +61,16 @@ import org.cougaar.core.component.ServiceRevokedEvent;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceCA;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
 
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
 
 import junit.framework.*;
 
@@ -82,7 +83,7 @@ public class LdapTest
   private BasicNode bn;
   private CertDirectoryServiceCA caOperations = null;
   private CertDirectoryServiceClient certificateFinder=null;
-  private SecurityPropertiesService secprop = null;
+  private ServiceBroker serviceBroker;
   private SecurityServiceProvider secProvider;
 
   public LdapTest(String name) {
@@ -96,13 +97,8 @@ public class LdapTest
     Assert.assertNotNull("Could not get Basic Node", bn);
 
     secProvider = bn.getSecurityServiceProvider();
+    serviceBroker = bn.getServiceBroker();
 
-    secprop = (SecurityPropertiesService)
-      secProvider.getService(null,
-			     this,
-			     SecurityPropertiesService.class);
-    Assert.assertNotNull("Could not get SecurityPropertiesService",
-			 secprop);
   }
 
   public void runTest() {
@@ -114,22 +110,21 @@ public class LdapTest
       new NodeConfiguration(caDN,
 			    secProvider.getServiceBroker());
 
-    String role = secprop.getProperty(secprop.SECURITY_ROLE);
-    if (role == null) {
-      System.out.println("warning: Role not defined");
-    }
+    CertDirectoryServiceRequestor cdsr =
+      new CertDirectoryServiceRequestorImpl(url,
+					    TrustedCaPolicy.COUGAAR_OPENLDAP,
+					    serviceBroker, caDN);
+    caOperations = (CertDirectoryServiceCA)
+      serviceBroker.getService(cdsr, CertDirectoryServiceCA.class, null);
 
-    caOperations =
-      CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
-	TrustedCaPolicy.COUGAAR_OPENLDAP, url,
-	secProvider.getServiceBroker());
+    cdsr =
+      new CertDirectoryServiceRequestorImpl(url,
+					    TrustedCaPolicy.COUGAAR_OPENLDAP,
+					    serviceBroker, caDN);
+    certificateFinder = (CertDirectoryServiceClient)
+      serviceBroker.getService(cdsr, CertDirectoryServiceClient.class, null);
 
-    certificateFinder = 
-	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-				     TrustedCaPolicy.COUGAAR_OPENLDAP,
-				     url,
-	secProvider.getServiceBroker());
-    certificateFinder.getContexts();
+    //certificateFinder.getContexts();
 
   }
 }

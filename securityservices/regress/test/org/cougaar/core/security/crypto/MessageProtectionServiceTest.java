@@ -44,9 +44,12 @@ public class MessageProtectionServiceTest
   private MessageProtectionService mps;
   private BasicNode bn;
   private SecurityServiceProvider secProvider;
+  private ServiceBroker serviceBroker;
 
-  private MessageAddress source = new MessageAddress("theSender");
-  private MessageAddress destination = new MessageAddress("theReceiver");
+  private MessageAddress source =
+  SimpleMessageAddress.getSimpleMessageAddress("theSender");
+  private MessageAddress destination =
+  SimpleMessageAddress.getSimpleMessageAddress("theReceiver");
 
   public MessageProtectionServiceTest(String name) {
     super(name);
@@ -58,12 +61,11 @@ public class MessageProtectionServiceTest
     Assert.assertNotNull("Could not get Basic Node", bn);
 
     secProvider = bn.getSecurityServiceProvider();
+    serviceBroker = bn.getServiceBroker();
 
     // Get Message Protection Service
     mps = (MessageProtectionService)
-      secProvider.getService(bn.getServiceBroker(),
-			     this,
-			     MessageProtectionService.class);
+      serviceBroker.getService(this, MessageProtectionService.class, null);
     Assert.assertNotNull("Could not get MessageProtectionService", mps);
   }
 
