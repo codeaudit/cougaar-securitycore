@@ -65,7 +65,8 @@ echo "Zipping files to AS_csi_mop_secserv.zip"
 cd $COUGAAR_INSTALL_PATH
 zip -qr AS_csi_mop_secserv.zip \
 	csmart/config/rules/security/mop \
-        csmart/config/lib/security/mop \
+	csmart/config/lib/security/mop \
+	Manifest \
 	lib/csiutil*.jar \
 	lib/mopblackboard.jar
 

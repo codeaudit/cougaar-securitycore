@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+
 <project basedir="." default="create_cougaar_overlay" name="moptools">
-	<target name="create_cougaar_overlay">
+  
+	<target name="create-overlay-manifest">
+    <tstamp>
+      <format property="build.time" pattern="MM/dd/yyyy hh:mm aa"/>
+    </tstamp>
+    <mkdir dir="Manifest"/>
+    <echo file="Manifest/${ant.project.name}.txt" append="no">NAME=${ant.project.name}
+ARCHIVE_TIME=${build.time}
+</echo>
+    </target>
+	
+	<target name="create_cougaar_overlay" depends="create-overlay-manifest">
 		<exec dir="." executable="test/bin/installsecurity" os="Linux">
 		</exec>
 	</target>
