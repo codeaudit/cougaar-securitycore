@@ -232,7 +232,7 @@ public class MsgAccessPolicyHandler
       agtActionCom = getContents();
     }
     if (localName.equals("ComAgentAction")) {
-      acp.setAgentAction(actionCom, agtActionCom);
+      acp.setComAgentAction(actionCom, agtActionCom);
     }
     
     if (localName.equals("FilterCommunity")) {
@@ -243,7 +243,7 @@ public class MsgAccessPolicyHandler
       verbsCom.add(value);
     }
     if (localName.equals("ComVerbFilter")) {
-      acp.setVerbs(filterCom, verbsCom);
+      acp.setComVerbs(filterCom, verbsCom);
     }
 
     if (localName.equals("MsgCommunity")) {
@@ -253,7 +253,7 @@ public class MsgAccessPolicyHandler
       integrityCom = getContents();
     }
     if (localName.equals("ComMessageIntegrity")) {
-      acp.setIntegrity(msgCom, integrityCom);
+      acp.setComIntegrity(msgCom, integrityCom);
     }
 
     if (localName.equals("CritCommunity")) {
@@ -263,7 +263,7 @@ public class MsgAccessPolicyHandler
       criticalityCom = getContents();
     }
     if (localName.equals("ComMessageCriticality")) {
-      acp.setCriticality(critCom, criticalityCom);
+      acp.setComCriticality(critCom, criticalityCom);
     }
     
     // Reset contents
