@@ -161,7 +161,8 @@ module Cougaar
        
         def to_s
 	  now = Time.new
-          "#{now.strftime("%m/%d/%Y")}\t#{now.strftime("%H:%M:%S")}\t#{@host.name}\t#{@pid}\t#{name}\t#{@mem_size}\t#{@xmx}\t#{pcpu}\t#{pmem}\t#{rss}"
+          s = "#{now.strftime("%m/%d/%Y")}\t#{now.strftime("%H:%M:%S")}\t"
+          s += "#{@host.name.ljust(15)}\t#{@pid}\t#{name.ljust(20)}\t#{@mem_size}\t#{@xmx}\t#{pcpu}\t#{pmem}\t#{rss}"
         end
         
       end # end class NodeInfo
