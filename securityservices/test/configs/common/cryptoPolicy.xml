@@ -59,7 +59,7 @@
           <CA_URL role="asmt" securitycommunity="Enclave4Security-COMM">http://u169:8800/$enclave4CAAgent/CA/CertificateSigningRequest</CA_URL>
 
           <CA_URL role="csmart1">http://maple:5571/$caAgent/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="csmart2">https://maple:5575/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="csmart2">https://maple:6675/$caAgent/CA/CertificateSigningRequest</CA_URL>
 
           <!-- Certificate directory service for certificate storage -->
           <CertDirectoryURL>ldap://yew:389/dc=cougaar,dc=org</CertDirectoryURL>
