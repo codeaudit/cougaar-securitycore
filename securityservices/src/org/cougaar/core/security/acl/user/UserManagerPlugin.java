@@ -326,7 +326,6 @@ public class UserManagerPlugin extends ComponentPlugin {
   private class MyServiceListener implements ServiceAvailableListener {
     private AgentIdentificationService _ais;
     private CommunityService           _cs;
-    private boolean                    _completed;
 
     public MyServiceListener(AgentIdentificationService ais,
                              CommunityService cs) {
@@ -346,15 +345,12 @@ public class UserManagerPlugin extends ComponentPlugin {
       }
       if (_ais != null && _cs != null) {
         ae.getServiceBroker().removeServiceListener(this);
-        if (!_completed) {
-          _completed = true;
-          setDomain();
-          getServiceBroker().releaseService(UserManagerPlugin.this, 
-                                            CommunityService.class, _cs);
-          getServiceBroker().releaseService(UserManagerPlugin.this, 
-                                            AgentIdentificationService.class,
-                                            _ais);
-        }
+        setDomain();
+        getServiceBroker().releaseService(UserManagerPlugin.this, 
+                                          CommunityService.class, _cs);
+        getServiceBroker().releaseService(UserManagerPlugin.this, 
+                                          AgentIdentificationService.class,
+                                          _ais);
       }
     }
   }

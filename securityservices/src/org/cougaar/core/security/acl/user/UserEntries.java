@@ -68,6 +68,7 @@ public class UserEntries implements UniqueObject {
   public static final String FIELD_RID = "rid";
   public static final String FIELD_DESCRIPTION = "description";
   public static final String FIELD_ROLE_LIST = "roles";
+  public static final String FIELD_IS_CLEAR_TEXT_PASSWORD = "clearText";
 
   private static class UserData implements java.io.Serializable {
     //     private String  _userName;

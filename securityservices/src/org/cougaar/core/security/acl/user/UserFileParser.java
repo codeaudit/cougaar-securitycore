@@ -28,7 +28,9 @@ package org.cougaar.core.security.acl.user;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,6 +42,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet;
+import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.util.UID;
 import org.w3c.dom.Document;
@@ -70,6 +73,13 @@ public class UserFileParser {
   public static final String ROLE_ASSIGNMENT = "role";
 
   public UserFileParser(UserEntries userCache) {
+    init(userCache);
+  }
+
+  public UserFileParser() {
+  }
+  
+  private void init(UserEntries userCache) {
     _userCache = userCache;
     _domain = _userCache.getDomain();
     if (_domain == null) {
@@ -82,8 +92,13 @@ public class UserFileParser {
   }
   
   public void readUsers() {
+    String fileName = "UserFile-" + _domain + ".xml";
+    readUsers(fileName);
+  }
+  
+  public void readUsers(String fileName) {
     try {
-      InputStream userIs = ConfigFinder.getInstance().open("UserFile.xml");
+      InputStream userIs = ConfigFinder.getInstance().open(fileName);
       if (userIs != null) {
         if (_log.isInfoEnabled()) {
           _log.info("Reading users file...");
@@ -125,6 +140,10 @@ public class UserFileParser {
     PrintStream ps = new PrintStream(os);
     ps.println("<?xml version='1.0' encoding='ISO-8859-1'?>");
     ps.println("<userdata>");
+    ps.println("  <password>");
+    ps.println("    <" + UserEntries.FIELD_IS_CLEAR_TEXT_PASSWORD +
+        ">false</" + UserEntries.FIELD_IS_CLEAR_TEXT_PASSWORD + ">");
+    ps.println("  </password>");
     saveUsers(ps);
     saveRoles(ps);
     ps.println("</userdata>");
@@ -188,6 +207,10 @@ public class UserFileParser {
     }
   }
   
+  /**
+   * Loads a database of users from an XML file.
+   * @param in - the InputStream containing the XML user file.
+   */
   public void readUsers(InputStream in) {
     try {
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -197,6 +220,7 @@ public class UserFileParser {
       NodeList nodes = rootElement.getChildNodes();
       HashMap userAssigns = new HashMap();
       HashMap roleAssigns = new HashMap();
+      boolean isClearTextPassword = true;
       for (int i = 0; i < nodes.getLength(); i++) {
         Node item = nodes.item(i);
         if (item instanceof Element) {
@@ -214,13 +238,10 @@ public class UserFileParser {
               _log.debug("Adding user " + user + " with password:"
                   + pwd);
             }
-            /*
-             * Password is already hashed.
-            if (pwd != null) {
+            if (isClearTextPassword && pwd != null) {
               pwd = KeyRingJNDIRealm.encryptPassword(_domain + "\\" + user, 
                                                      pwd);
             }
-            */
             map.put(UserEntries.FIELD_PASSWORD,pwd);
             _userCache.addUser(user, map);
             if (groups != null) {
@@ -237,6 +258,12 @@ public class UserFileParser {
             _userCache.addRole(role, map);
             if (groups != null) {
               roleAssigns.put(role, groups);
+            }
+          } else if ("password".equals(l.getNodeName())) {
+            String isClearText = (String)
+                map.get(UserEntries.FIELD_IS_CLEAR_TEXT_PASSWORD);
+            if (isClearText != null) {
+              isClearTextPassword = Boolean.getBoolean(isClearText);
             }
           }
         }
@@ -302,13 +329,61 @@ public class UserFileParser {
     return map;
   }
 
-  public static void main(String[] args) {
+  private void usage() {
+    System.out.println("UserFileParser usage:");
+    System.out.println("   UserFileParser -d <userDomainName> -f <output file>");
+    System.out.println("Reads a user XML file with unencrypted passwords.");
+    System.out.println("    The input file name is 'UserFile.xml'");
+    System.out.println("Generate a user XML file with digested passwords.");
+    System.out.println("    If -f argument is not specified, will create a file named");
+    System.out.println("          UserFile-<domain>.xml");
+    System.exit(-1);
+  }
+
+  private void buildDigestedUserFile(String args[]) {
+    // Parse command-line arguments.
+    String domain = null;
+    String fileName = null;
+    for (int i = 0 ; i < args.length ; i++) {
+      if (args[i].equals("-d")) {
+        if (++i == args.length) {
+          usage();
+        }
+        domain = args[i];
+      }
+      else if (args[i].equals("-f")) {
+        if (++i == args.length) {
+          usage();
+        }
+        fileName = args[i]; 
+      }
+    }
+    if (fileName == null) {
+      fileName = "UserFile-" + domain + ".xml";
+    }
+    
+    // The UID is not important. Make a fake one.
     UID uid = UID.toUID("AgentA/1094690973044");
     UserEntries userCache = new UserEntries(uid);
-    userCache.setDomain("fooDomain");
-    UserFileParser ufp = new UserFileParser(userCache);
-    ufp.readUsers();
+    userCache.setDomain(domain);
+    init(userCache);
     
-    ufp.saveUsersAndRoles(System.out);
+    UserFileParser ufp = new UserFileParser(userCache);
+    ufp.readUsers("UserFile.xml");
+    OutputStream os = null;
+    try {
+      os = new FileOutputStream(fileName);
+    }
+    catch (FileNotFoundException e) {
+      usage();
+    }
+    System.out.println("Generating user XML file: " + fileName
+        + " for domain: " + domain);
+    ufp.saveUsersAndRoles(os);
+  }
+
+  public static void main(String[] args) {
+    UserFileParser ufp = new UserFileParser();
+    ufp.buildDigestedUserFile(args);
   }
 }
