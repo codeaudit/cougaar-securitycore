@@ -39,7 +39,9 @@ import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.services.crypto.*;
 
-public class JarFileHandler implements CertValidityListener {
+public class JarFileHandler
+  implements CertValidityListener
+{
   static JarFileHandler _handler = null;
   ServiceBroker serviceBroker;
   private LoggingService log;
@@ -95,17 +97,20 @@ public class JarFileHandler implements CertValidityListener {
     if (nodealias != null && privatekey != null && certChain != null
       && certChain.length != 0) {
       if (log.isDebugEnabled()) {
-        log.debug("Signing jar: " + file.getPath());
+        log.debug("Signing jar: " + file.getPath() + " with key alias "
+		  + nodealias);
       }
 
       try {
         JARSigner signer = new JARSigner(nodealias, privatekey, certChain);
-        JarFile jar = new JarFile(file);
+        JarFile jar = new JarFile(file, false);
 
         ByteArrayOutputStream jos = new ByteArrayOutputStream();
         signer.signJarFile(jar, jos);
         FileOutputStream jarOut = new FileOutputStream(file);
         jarOut.write(jos.toByteArray());
+	jarOut.close();
+	jos.close();
 
         if (log.isDebugEnabled()) {
           log.debug("Signed jar: " + file.getPath());
@@ -130,6 +135,9 @@ public class JarFileHandler implements CertValidityListener {
     return NodeInfo.getNodeName();
   }
 
+  /** Update certificate after checkOrMakeCert
+   * CertValidityListener callback
+   */
   public void updateCertificate() {
     KeyRingService keyRing = (KeyRingService)
       serviceBroker.getService(this,
