@@ -51,4 +51,8 @@ public class ULOntologyNames
   // fix this...
   public static String cipherPrefix
     = EntityInstancesConcepts.EntityInstancesOwlURL();
+
+  public static String drrsPrivPrefix = "urn:DrrsPrivilege#";
+  public static String drrsDataFieldPrefix = "urn:DrrsDataField#";
+  public static String drrsDataSourcePrefix = "urn:DrrsDataSource#";
 }
