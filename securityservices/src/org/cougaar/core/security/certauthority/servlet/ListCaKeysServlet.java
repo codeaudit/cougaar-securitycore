@@ -96,7 +96,7 @@ public class ListCaKeysServlet
     out.println("<body>");
     out.println("<H2>CA Keys List</H2>");
     out.println("<table>");
-    out.println("<form action=\"\" method =\"post\">");
+    out.println("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
 
     Enumeration aliases = keyRingService.getAliasList();
     out.println("<table align=\"center\" border=\"2\">\n");

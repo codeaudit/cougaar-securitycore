@@ -172,7 +172,7 @@ public class PendingCertificateServlet extends  HttpServlet
     }
     else {
       out.println("<table>");
-      out.println("<form action=\"\" method =\"post\">");
+      out.println("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
       out.println("<tr ><td colspan=\"3\">");
       // Role
       //out.println("Name space: <select id=\"role\" name=\"role\">");

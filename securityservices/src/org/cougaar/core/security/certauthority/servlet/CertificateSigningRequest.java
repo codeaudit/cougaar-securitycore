@@ -241,7 +241,7 @@ public class CertificateSigningRequest
     out.println("<body>");
     out.println("<H2> Certificate Signing Request</H2>");
     out.println("<table>");
-    out.println("<form action=\"\" method =\"post\">");
+    out.println("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
     //out.println("<tr ><td colspan=\"3\">");
     //out.println("Domain : <input name=\"domain\" type=\"text\" value=\"\">");
     //out.println(" <br> <br></td></tr>");

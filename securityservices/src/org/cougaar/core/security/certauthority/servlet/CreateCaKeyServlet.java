@@ -197,7 +197,7 @@ public class CreateCaKeyServlet
     out.println("<table>");
     out.println("<b>CA X.509 Attributes</b>");
 //    out.println("<TR><TH>Attribute</TH><TH>Value</TH></TR>\n");
-    out.println("<form action=\"\" method =\"post\">");
+    out.println("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
 
     out.println("<tr><td>");
     out.println("Common Name:</td><td><input name=\"CN\" type=\"text\" value=\"\">");

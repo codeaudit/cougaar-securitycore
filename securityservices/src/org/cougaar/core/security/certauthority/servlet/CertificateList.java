@@ -170,8 +170,9 @@ public class CertificateList extends  HttpServlet
       out.println("No CA has been configured yet");
     }
     else {
+      String uri=req.getRequestURI();
       out.println("<table>");
-      out.println("<form action=\"\" method =\"post\">");
+      out.println("<form action=\"" + uri + "\" method =\"post\">");
       out.println("<tr ><td colspan=\"3\">");
       // Domain
       //out.println("Name space: <select id=\"domain\" name=\"domain\">");
