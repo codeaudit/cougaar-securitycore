@@ -45,12 +45,20 @@ import org.cougaar.core.security.util.*;
 public class BlackboardFilterPolicyHandler extends BaseConfigHandler {
   private BlackboardFilterPolicy _policy;
 
-  private String    _agent;
+  // for read-only rules
   private String    _default;
   private HashSet   _patterns;
   private HashSet   _writeRoles;
   private HashSet   _readRoles;
   private HashSet   _deniedRoles;
+
+  // for select rules
+  private HashSet   _methods;
+  private HashSet   _allowedRoles;
+
+  // for both
+  private String    _agent;
+  private boolean   _readOnly;
 
   public BlackboardFilterPolicyHandler(ServiceBroker sb) {
     super(sb);
@@ -72,14 +80,24 @@ public class BlackboardFilterPolicyHandler extends BaseConfigHandler {
 			    Attributes attrs )
     throws SAXException {
     super.startElement(namespaceURI, localName, qName, attrs);
-    if (localName.equals("rule")) {
+    if (localName.equals("read-only-policy")) {
+      _readOnly = true;
+    } else if (localName.equals("select-method-policy")) {
+      _readOnly = false;
+    } else if (localName.equals("rule")) {
       _agent       = attrs.getValue("agent");
-      _default     = null;
       _patterns    = new HashSet();
-      _writeRoles  = new HashSet();
-      _readRoles   = new HashSet();
-      _deniedRoles = new HashSet();
-    }
+
+      if (_readOnly) {
+        _default     = null;
+        _writeRoles  = new HashSet();
+        _readRoles   = new HashSet();
+        _deniedRoles = new HashSet();
+      } else {
+        _allowedRoles = new HashSet();
+        _methods      = new HashSet();
+      }
+    } 
   }
   
   public void endElement( String namespaceURI,
@@ -95,30 +113,36 @@ public class BlackboardFilterPolicyHandler extends BaseConfigHandler {
         log.error("You must provide an agent name as a rule parameter");
       } else if (_patterns.size() == 0) {
         log.error("You must have at least one uri pattern in a rule");
-      } else if (_default == null) {
-        log.error("You must have a default privilege");
       } else {
-        if (BlackboardFilterPolicy.READ_ACCESS.equals(_default)) {
-          _default = BlackboardFilterPolicy.READ_ACCESS;
-        } else if (BlackboardFilterPolicy.WRITE_ACCESS.equals(_default)) {
-          _default = BlackboardFilterPolicy.WRITE_ACCESS;
-        } else if (BlackboardFilterPolicy.DENIED_ACCESS.equals(_default)) {
-          _default = BlackboardFilterPolicy.DENIED_ACCESS;
-        } else {
-          log.error("The default privilege must be one of 'read', 'write', " +
-                    "or 'denied'");
-          return;
+        if (_readOnly) {
+          if (_default == null) {
+            log.error("You must have a default privilege");
+          } else {
+            if (BlackboardFilterPolicy.READ_ACCESS.equals(_default)) {
+              _default = BlackboardFilterPolicy.READ_ACCESS;
+            } else if (BlackboardFilterPolicy.WRITE_ACCESS.equals(_default)) {
+              _default = BlackboardFilterPolicy.WRITE_ACCESS;
+            } else if (BlackboardFilterPolicy.DENIED_ACCESS.equals(_default)) {
+              _default = BlackboardFilterPolicy.DENIED_ACCESS;
+            } else {
+              log.error("The default privilege must be one of 'read'," + 
+                        " 'write', or 'denied'");
+              return;
+            }
+            // good rule
+            BlackboardFilterPolicy.ReadOnlyRule rule = createRORule();
+            _policy.addReadOnlyRule(rule);
+          }
+        } else { // select rule
+          if (_allowedRoles.size() == 0) {
+            log.error("You must have at least one role allowed access to this rule");
+          } else if (_methods.size() == 0) {
+            log.error("You must have at least one method protected by this rule");
+          } else { // yay! good rule
+            BlackboardFilterPolicy.SelectRule rule = createSelectRule();
+            _policy.addSelectRule(rule);
+          }
         }
-        // good rule
-        BlackboardFilterPolicy.ReadOnlyRule rule =
-          new BlackboardFilterPolicy.ReadOnlyRule();
-        rule.agent = _agent;
-        rule.defaultAccess = _default;
-        rule.patterns = _patterns;
-        rule.writeRoles = _writeRoles;
-        rule.readRoles = _readRoles;
-          rule.deniedRoles = _deniedRoles;
-        _policy.addRule(rule);
       }
     } else if (localName.equals("pattern")) {
       _patterns.add(getContents());
@@ -126,10 +150,36 @@ public class BlackboardFilterPolicyHandler extends BaseConfigHandler {
       _default = getContents();
     } else if (localName.equals("write-role")) {
       _writeRoles.add(getContents());
+    } else if (localName.equals("role")) {
+      _allowedRoles.add(getContents());
+    } else if (localName.equals("method")) {
+      _methods.add(getContents());
     } else if (localName.equals("read-role")) {
       _readRoles.add(getContents());
     } else if (localName.equals("denied-role")) {
       _deniedRoles.add(getContents());
     }
+  }
+
+  private  BlackboardFilterPolicy.ReadOnlyRule createRORule() {
+    BlackboardFilterPolicy.ReadOnlyRule rule =
+      new BlackboardFilterPolicy.ReadOnlyRule();
+    rule.agent = _agent;
+    rule.defaultAccess = _default;
+    rule.patterns = _patterns;
+    rule.writeRoles = _writeRoles;
+    rule.readRoles = _readRoles;
+    rule.deniedRoles = _deniedRoles;
+    return rule;
+  }
+
+  private  BlackboardFilterPolicy.SelectRule createSelectRule() {
+    BlackboardFilterPolicy.SelectRule rule =
+      new BlackboardFilterPolicy.SelectRule();
+    rule.agent = _agent;
+    rule.methods = _methods;
+    rule.patterns = _patterns;
+    rule.roles    = _allowedRoles;
+    return rule;
   }
 }

@@ -29,11 +29,13 @@ package org.cougaar.core.security.policy;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashSet;
+import java.util.Collection;
 
 public class BlackboardFilterPolicy extends SecurityPolicy {
   public static final String READ_ACCESS   = "read";
   public static final String WRITE_ACCESS  = "write";
   public static final String DENIED_ACCESS = "denied";
+
   public static class ReadOnlyRule implements java.io.Serializable {
     public String agent         = null;
     public String defaultAccess = null;
@@ -41,18 +43,6 @@ public class BlackboardFilterPolicy extends SecurityPolicy {
     public HashSet writeRoles    = null;
     public HashSet readRoles     = null;
     public HashSet deniedRoles   = null;
-
-    private static void addTo(StringBuffer buf, HashSet list) {
-      if (list != null) {
-        Iterator iter = list.iterator();
-        boolean first = true;
-        while (iter.hasNext()) {
-          if (first) first = false;
-          else buf.append(',');
-          buf.append(iter.next().toString());
-        }
-      }
-    }
 
     public String toString() {
       StringBuffer buf = new StringBuffer();
@@ -71,22 +61,65 @@ public class BlackboardFilterPolicy extends SecurityPolicy {
     }
   }
 
-  private ArrayList _rules = new ArrayList();
+  public static class SelectRule implements java.io.Serializable {
+    public String  agent         = null;
+    public HashSet patterns      = null;
+    public HashSet roles         = null;
+    public HashSet methods       = null;
 
-  public ReadOnlyRule[] getRules() {
-    return (ReadOnlyRule[]) _rules.toArray(new ReadOnlyRule[_rules.size()]);
+    public String toString() {
+      StringBuffer buf = new StringBuffer();
+      buf.append("ReadOnlyRule (")
+        .append(agent).append(",[");
+      addTo(buf,patterns);
+      buf.append("],[");
+      addTo(buf,methods);
+      buf.append("],[");
+      addTo(buf,roles);
+      buf.append("])");
+      return buf.toString();
+    }
   }
 
-  public void addRule(ReadOnlyRule rule) {
-    _rules.add(rule);
+  private ArrayList _readOnlyRules = new ArrayList();
+  private ArrayList _selectRules   = new ArrayList();
+
+  protected static void addTo(StringBuffer buf, Collection list) {
+    if (list != null) {
+      Iterator iter = list.iterator();
+      boolean first = true;
+      while (iter.hasNext()) {
+        if (first) first = false;
+        else buf.append(',');
+        buf.append(iter.next().toString());
+      }
+    }
+  }
+
+  public ReadOnlyRule[] getReadOnlyRules() {
+    return (ReadOnlyRule[]) 
+      _readOnlyRules.toArray(new ReadOnlyRule[_readOnlyRules.size()]);
+  }
+
+  public void addReadOnlyRule(ReadOnlyRule rule) {
+    _readOnlyRules.add(rule);
+  }
+
+  public SelectRule[] getSelectRules() {
+    return (SelectRule[]) 
+      _selectRules.toArray(new SelectRule[_selectRules.size()]);
+  }
+
+  public void addSelectRule(SelectRule rule) {
+    _selectRules.add(rule);
   }
 
   public String toString() {
-    Iterator iter = _rules.iterator();
     StringBuffer buf = new StringBuffer("BlackboardFilterPolicy: (");
-    while (iter.hasNext()) {
-      buf.append(iter.next().toString());
-    }
+    addTo(buf,_readOnlyRules);
+    buf.append("),(");
+    addTo(buf,_selectRules);
+    buf.append(")");
     return buf.toString();
   }
 }
