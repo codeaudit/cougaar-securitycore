@@ -142,6 +142,11 @@
        </rdfs:subClassOf>
      </owl:Class>
 
+     <owl:Class rdf:ID="EncryptedCommunicationActionSelf">
+       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#EncryptedCommunicationAction" />
+     </owl:Class>
+
+
      <owl:Class rdf:ID="WPUpdateDelegate">
        <owl:disjointWith rdf:resource="#ServletAccess"/>
        <owl:disjointWith rdf:resource="#BlackBoardAccess"/>
