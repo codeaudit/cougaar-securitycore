@@ -36,7 +36,8 @@ import org.cougaar.core.agent.ClusterIdentifier;
  *  an EventTransfer directly.
  *  
  */
-public interface Event extends CmrObject 
+public interface Event
+  extends CmrObject 
 {
 
   /**

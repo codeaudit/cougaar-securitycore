@@ -21,7 +21,15 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
+import java.io.Serializable;
+
+// Cougaar core services
+import org.cougaar.core.util.UniqueObject;
+import org.cougaar.core.blackboard.Publishable;
+
 /** Cougaar Monitoring & Response base Object interface
  **/
-public interface CmrObject {
+public interface CmrObject
+  extends Serializable, UniqueObject, Publishable
+{
 }

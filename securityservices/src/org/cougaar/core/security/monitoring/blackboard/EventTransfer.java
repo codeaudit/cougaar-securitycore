@@ -31,26 +31,14 @@ import org.cougaar.core.agent.ClusterIdentifier;
  *  An EventTransfer logic provider is responsible for
  *  sending EventTransfer objects to remote agents.
  */
-public interface EventTransfer extends CmrObject {
-
-  /** Returns a Monitoring & Response Event.
-   * This Event is being assigned to an agent for use.
-   *
-   * @return Event - a Monitoring & Response Event
-   */
-  public Event getEvent();
-
-  /** Returns the Asset to which the asset is being assigned.
+public interface EventTransfer
+  extends Event
+{
+  /** Returns the Asset to which the asset is being sent.
    * @return Asset representing the destination asset
    */
-  public Asset getAssignee();
+  public Asset getTarget();
  
-  /** Returns the Cluster from which the asset was assigned.
-   * @return ClusterIdentifier representing the source of the asset
-   */
- 	
-  public ClusterIdentifier getAssignor();
-
 }
 
 

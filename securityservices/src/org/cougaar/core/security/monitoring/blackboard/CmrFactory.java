@@ -21,6 +21,8 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
+import edu.jhuapl.idmef.IDMEF_Message;
+
 // Cougaar core services
 import org.cougaar.core.domain.Factory;
 import org.cougaar.core.agent.ClusterContext;
@@ -30,6 +32,7 @@ import org.cougaar.core.service.UIDServer;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.domain.RootFactory;
 import org.cougaar.core.domain.LDMServesPlugin;
+import org.cougaar.planning.ldm.asset.Asset;
 
 public class CmrFactory
   implements Factory
@@ -68,11 +71,16 @@ public class CmrFactory
     return myUIDServer.nextUID();
   }
 
-  public NewEvent newEvent() {
-    return new EventImpl(getNextUID(), selfClusterId);
+  public NewEvent newEvent(IDMEF_Message aMessage) {
+    return new EventImpl(getNextUID(),
+			 selfClusterId,
+			 aMessage);
   }
 
-  public NewEventTransfer newEventTransfer() {
-    return new EventTransferImpl(getNextUID(), selfClusterId);
+  public NewEventTransfer newEventTransfer(Event event,
+					   Asset target) {
+    return new EventTransferImpl(getNextUID(),
+				 target,
+				 event);
   }
 }

@@ -37,17 +37,17 @@ import org.cougaar.core.agent.ClusterIdentifier;
  *  
  */
 public interface NewEvent
-  extends CmrObject, Event
+  extends Event
 {
 
   /**
    * Set the IDMEF message
    * @param aMessage - The IDMEF message (alert or heartbeat)
    */
-  public void setEvent(IDMEF_Message aMessage);
+  // public void setEvent(IDMEF_Message aMessage);
 
   /**
    * Set the name of the M&R agent that created the event.
    */
-  public void setSource(ClusterIdentifier aSource);
+  // public void setSource(ClusterIdentifier aSource);
 }

@@ -32,23 +32,11 @@ import org.cougaar.core.agent.ClusterIdentifier;
  *  sending EventTransfer objects to remote agents.
  */
 public interface NewEventTransfer
-  extends CmrObject, EventTransfer
+  extends EventTransfer
 {
-
-  /** Set a Monitoring & Response Event.
-   * This Event is being assigned to an agent for use.
-   *
-   * @param Event - a Monitoring & Response Event
-   */
-  public void setEvent(Event aEvent);
-
   /** Set the Asset to which the asset is being assigned.
    * @param Asset representing the destination asset
    */
-  public void setAssignee(Asset toAsset);
+  public void setTarget(Asset toAsset);
  
-  /** Set the Cluster from which the asset was assigned.
-   * @param ClusterIdentifier representing the source of the asset
-   */
-  public void setAssignor(ClusterIdentifier aCluster);
 }

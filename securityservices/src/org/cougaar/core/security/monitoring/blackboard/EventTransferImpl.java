@@ -32,105 +32,41 @@ import org.cougaar.core.blackboard.Publishable;
 
 /** EventTransferImpl
  */
-public class EventTransferImpl 
-  implements NewEventTransfer, UniqueObject, Publishable
+public class EventTransferImpl
+  extends EventImpl
+  implements NewEventTransfer
 {
+  private Asset targetAsset;
 
-  private UID myUID;
-  private Event theEvent;
-  private Asset assigneeAsset;
-  private ClusterIdentifier assignerCluster;
+  public EventTransferImpl(UID aUID)
+  {
+    super(aUID);
+  }
 
   /** 
    * @param aEvent  The event being transferred
    * @param to  The agent that will receive this event for use
    * @param from  The agent that is provided this event for use
    */
-
-  public EventTransferImpl(Event aEvent,
-			   UID aUID,
-			   Asset to, ClusterIdentifier from)
+  public EventTransferImpl(UID aUID,
+			   Asset aTarget,
+			   Event aEvent)
   {
-    setEvent(aEvent);
-    setAssignee(to);
-    setAssignor(from);
-    setUID(aUID);
-  }
-
-  public EventTransferImpl(UID aUID)
-  {
-    setUID(aUID);
-  }
-  public EventTransferImpl(UID aUID, ClusterIdentifier aSource)
-  {
-    setUID(aUID);
-    setAssignor(aSource);
+    super(aUID, aEvent.getSource(), aEvent.getEvent());
+    setTarget(aTarget);
   }
 
   /** ******************************************************************
    *  EventTransfer interface
    */
 
-  /** Returns a Monitoring & Response Event.
-   * This Event is being assigned to an agent for use.
-   *
-   * @return Event - a Monitoring & Response Event
-   */
-		
-  public Event getEvent() {
-    return theEvent;
-  }
-
-  public void setEvent(Event aEvent)
+  public Asset getTarget()
   {
-    theEvent = aEvent;
-  }
- 	
-  public Asset getAssignee()
-  {
-    return assigneeAsset;
+    return targetAsset;
   }
  
-  public ClusterIdentifier getAssignor()
-  {
-    return assignerCluster;
-  }
-
-  public void setAssignee(Asset toAsset) {
-    assigneeAsset = toAsset;
-  }
-  
-  public void setAssignor(ClusterIdentifier aCluster) {
-    assignerCluster = aCluster;
-  }
-  /** ******************************************************************
-   *  UniqueObject interface
-   */
-
-  /**
-   * setUID - set uid for the object
-   *
-   * @param uid UID assigned to object
-   */
-  public void setUID(UID uid) {
-    myUID = uid;
-  }
-  
-  /**
-   * getUID - get uid for the object
-   *
-   * @return UID assigned to object
-   */
-  public UID getUID() { 
-    return myUID;
-  }
-
-  /** ******************************************************************
-   *  Publishable interface
-   */
-
-  public boolean isPersistable() {
-    return true;
+  public void setTarget(Asset toAsset) {
+    targetAsset = toAsset;
   }
 
   /** ******************************************************************
@@ -139,15 +75,14 @@ public class EventTransferImpl
 
   public String toString() {
     String s = "";
-    if (getAssignor() != null) {
-      s = s + getAssignor().toString() + "->";
+    if (getSource() != null) {
+      s = s + getSource().toString() + "->";
     }
-    if (getAssignee() != null) {
-      s = s + getAssignee().toString() + "/";
+    if (getTarget() != null) {
+      s = s + getTarget().toString() + "/";
     }
-    Event e = getEvent();
-    if (e != null) {
-      s = s + e.toString();
+    if (getEvent() != null) {
+      s = s + getEvent().toString();
     }
     return s;
   }

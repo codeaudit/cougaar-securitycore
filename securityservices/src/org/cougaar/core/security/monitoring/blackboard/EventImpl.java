@@ -32,35 +32,36 @@ import org.cougaar.core.agent.ClusterIdentifier;
 /** Event implementation
  */
 public class EventImpl
-  implements NewEvent, UniqueObject, Publishable
+  implements NewEvent
 {
-  private IDMEF_Message theMessage = null;
-  private ClusterIdentifier theAgent = null;
-  private UID myUID;
-
-  public EventImpl(IDMEF_Message aMessage, UID aUID)
-  {
-    setEvent(aMessage);
-    setUID(aUID);
-  }
+  protected IDMEF_Message theMessage;
+  protected ClusterIdentifier theAgent;
+  protected UID myUID;
 
   public EventImpl(UID aUID)
   {
     setUID(aUID);
   }
 
-  public EventImpl(UID aUID, ClusterIdentifier aSource)
+  public EventImpl(UID aUID,
+		   ClusterIdentifier aSource,
+		   IDMEF_Message aMessage)
   {
     setUID(aUID);
     setSource(aSource);
+    setEvent(aMessage);
   }
 
   /** ******************************************************************
    *  Event interface
    */
-  public void setEvent(IDMEF_Message aMessage)
+
+  private void setEvent(IDMEF_Message aMessage)
   {
     theMessage = aMessage;
+  }
+  private void setSource(ClusterIdentifier aSource) {
+    theAgent = aSource;
   }
 
   public IDMEF_Message getEvent()
@@ -71,9 +72,7 @@ public class EventImpl
   public ClusterIdentifier getSource() {
     return theAgent;
   }
-  public void setSource(ClusterIdentifier aSource) {
-    theAgent = aSource;
-  }
+
 
   /** ******************************************************************
    *  UniqueObject interface
