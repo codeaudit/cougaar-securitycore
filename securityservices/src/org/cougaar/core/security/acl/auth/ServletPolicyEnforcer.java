@@ -52,9 +52,11 @@ public class ServletPolicyEnforcer
   extends GuardRegistration
   implements ServletPolicyService, NodeEnforcer {
 
-  public static String ALLOW_ROLE            = "allow-role";
-  public static String DENY_ROLE             = "deny-role";
-  public static String SET_AUTH_CONSTRAINT   = "auth-constraint";
+  public  static final String ALLOW_ROLE            = "allow-role";
+  public  static final String DENY_ROLE             = "deny-role";
+  public  static final String SET_AUTH_CONSTRAINT   = "auth-constraint";
+
+  private static final String STR_ARRAY[]           = new String[1];
 
   private Context           _context = null;
   private DualAuthenticator _daValve = null;
@@ -185,8 +187,40 @@ public class ServletPolicyEnforcer
   }
 
   public synchronized String[] getRoles(String path) {
-    SecurityConstraint sc = getSecurityConstraint(path);
-    return sc.findAuthRoles();
+    HashSet roles = new HashSet();
+    if (_context == null) {
+      Iterator iter = _constraints.entrySet().iterator();
+      while (iter.hasNext()) {
+        Map.Entry entry = (Map.Entry) iter.next();
+        String wildPath = (String)entry.getKey();
+        boolean match;
+        if (wildPath.startsWith("*")) {
+          match = path.endsWith(wildPath.substring(1));
+        } else if (wildPath.endsWith("*")) {
+          match = path.startsWith(wildPath.substring(0,wildPath.length()-1));
+        } else {
+          match = path.equals(wildPath);
+        }
+        if (match) {
+          HashSet r = (HashSet) entry.getValue();
+          Iterator rIter = r.iterator();
+          while (rIter.hasNext()) {
+            roles.add(rIter.next());
+          }
+        }
+      }
+    } else {
+      SecurityConstraint scs[] = _context.findConstraints();
+      for (int i = 0; i < scs.length; i++) {
+        if (scs[i].included(path, "GET")) {
+          String r[] = scs[i].findAuthRoles();
+          for (int j = 0; j < r.length; j++) {
+            roles.add(r[j]);
+          }
+        }
+      }
+    }
+    return (String[]) roles.toArray(STR_ARRAY);
   }
 
   /**
