@@ -14,18 +14,9 @@ require 'framework/jar_util'
 require 'framework/common_security_rules'
 
 if !(@mnrPlaysCompleted)
-  playclause = "
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  : PERCEIVED_THREAT_LEVEL = 2;
-"
   robustness = false
-  enclave1 = nil
-  society.each_enclave { |enclave|
-    enclave1 = enclave
-    break
-  }
 
-  society.each_enclave_agent(enclave1) { |agent|
+  society.each_agent { |agent|
     agent.each_component { |comp|
       if comp.classname == "org.cougaar.robustness.dos.manager.AttackAssessmentPlugin"
         robustness = true
@@ -33,21 +24,29 @@ org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  : PERCEIVED_THRE
       end
     }
   }
-  if (robustness)
+  if (robustness || !(@mnrPlaysWrittenOnce))
+    if robustness
+      @mnrPlaysCompleted = true
+    end
+    @mnrPlaysWrittenOnce = true
     playclause = "
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  : PERCEIVED_THREAT_LEVEL = 2;
+"
+    if (robustness)
+      playclause = "
 org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
 org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080 : PERCEIVED_THREAT_LEVEL = 2;
 org.cougaar.core.robustness.DOS_ATTACK_LEVEL != LOW : PERCEIVED_THREAT_LEVEL = 2;
 "
-  end
- 
-  @mnrPlaysCompleted = true
-  configJar = "#{CIP}/configs/security/securityservices_config.jar"
+    end
 
-  society.each_enclave { |enclave|
-    playsFile = "#{CIP}/configs/security/AMnRPlaysEnclave#{enclave.capitalize}.txt"
-    file = File.open(playsFile ,"w") { |file|
-      file.write <<END
+    configJar = "#{CIP}/configs/security/securityservices_config.jar"
+    
+    society.each_enclave { |enclave|
+      playsFile = "#{CIP}/configs/security/AMnRPlaysEnclave#{enclave.capitalize}.txt"
+      file = File.open(playsFile ,"w") { |file|
+        file.write <<END
 //
 // Society level play book
 //
@@ -99,13 +98,13 @@ PERCEIVED_THREAT_LEVEL == 2
 //    : com.telcordia.mode.AdaptiveFilterOperatingModeReportingRate = MODERATE;
 
 END
-    }
-    replaceFileInJar(configJar, playsFile)
+      }
+      replaceFileInJar(configJar, playsFile)
 
-  }
-  playsFile = "#{CIP}/configs/security/AMnRPlaysSocietyManager.txt"
-  File.open(playsFile, "w") { |file|
-    file.write <<END
+    }
+    playsFile = "#{CIP}/configs/security/AMnRPlaysSocietyManager.txt"
+    File.open(playsFile, "w") { |file|
+      file.write <<END
 /*
  * Society Manager does not control the operating modes now. 
  * This is all done in the enclave playbooks.
@@ -122,8 +121,9 @@ PERCEIVED_THREAT_LEVEL == 2
     : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES;
 
 END
-  }
-  replaceFileInJar(configJar, playsFile)
-  signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
-                      "privileged")
+    }
+    replaceFileInJar(configJar, playsFile)
+    signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
+                        "privileged")
+  end
 end 
