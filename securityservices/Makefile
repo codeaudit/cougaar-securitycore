@@ -120,6 +120,9 @@ install: installconf
 	mkdir ${COUGAAR_INSTALL_PATH}/log/bootstrap
 	mkdir ${COUGAAR_INSTALL_PATH}/log/core
 	mkdir ${COUGAAR_INSTALL_PATH}/log/plugin
+
+	@echo Do not forget to run make confnai
+	@echo DO NOT FORGET to modify the alpreg.ini file
 	@echo +++++++ Done installing jar files and log directories
 
 installconf:
@@ -127,13 +130,13 @@ installconf:
 	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/
 	cp -r test/configs/small-135 ${COUGAAR_INSTALL_PATH}/configs
 	cp sys/*.jar ${COUGAAR_INSTALL_PATH}/sys
+	cp lib/*.jar ${COUGAAR_INSTALL_PATH}/lib
 #	cp -r ./test/configs/demo ${COUGAAR_INSTALL_PATH}/configs/.
 #	cp -r ./test/configs/ul-mini-config  ${COUGAAR_INSTALL_PATH}/configs/.
 
 confnai:
 	echo +++++++ Installing NAI configuration files
 	cp test/configs/mysql/cougaar.rc ${COUGAAR_INSTALL_PATH}/configs/small-135
-	echo DO NOT FORGET to modify the alpreg.ini file
 
 doc:
 	test/bin/generatedoc
