@@ -124,6 +124,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webtomcat.jar" signed
         permission java.security.SecurityPermission "getPolicy";
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
+        permission java.util.logging.LoggingPermission "control";
         permission java.util.PropertyPermission "java.protocol.handler.pkgs", "read,write";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.LdapUserService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.SecurityPropertiesService";
@@ -229,6 +230,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
         permission java.security.SecurityPermission "setPolicy";
         permission java.security.SecurityPermission "createAccessControlContext";
         permission javax.security.auth.AuthPermission "getSubject";
+        permission java.util.logging.LoggingPermission "control";
         permission java.lang.RuntimePermission "getClassLoader";
 	permission java.lang.RuntimePermission "createClassLoader";
 	permission javax.security.auth.AuthPermission "setReadOnly";
