@@ -1183,35 +1183,35 @@ final public class IdmefMessageFactory {
      *                 for this attribute are shown below.  The default value
      *                 is "unknown".
      *
-     * Rank   Keyword            Description
-     * ----   -------            -----------
-     *   0    unknown            Address type unknown
-     *   1    atm                Asynchronous Transfer Mode network
-     *                           address
-     *   2    e-mail             Electronic mail address (RFC 822)
-     *   3    lotus-notes        Lotus Notes e-mail address
-     *   4    mac                Media Access Control (MAC) address
-     *   5    sna                IBM Shared Network Architecture (SNA)
-     *                           address
-     *   6    vm                 IBM VM ("PROFS") e-mail address
-     *   7    ipv4-addr          IPv4 host address in dotted-decimal
-     *                           notation (a.b.c.d)
-     *   8    ipv4-addr-hex      IPv4 host address in hexadecimal
-     *                           notation
-     *   9    ipv4-net           IPv4 network address in dotted-decimal
-     *                           notation, slash, significant bits
-     *                           (a.b.c.d/nn)
-     *  10    ipv4-net-mask      IPv4 network address in dotted-decimal
-     *                           notation, slash, network mask in dotted-
-     *                           decimal notation (a.b.c.d/w.x.y.z)
-     *  11    ipv6-addr          IPv6 host address
-     *  12    ipv6-addr-hex      IPv6 host address in hexadecimal
-     *                           notation
-     *  13    ipv6-net           IPv6 network address, slash, significant
-     *                           bits
-     *  14    ipv6-net-mask      IPv6 network address, slash, network
-     *                           mask
-     *  99    url               A url
+     * Rank   Keyword               Description
+     * ----   -------               -----------
+     *   0    Address.UNKNOWN       Address type unknown
+     *   1    Address.ATM           Asynchronous Transfer Mode network
+     *                              address
+     *   2    Address.EMAIL         Electronic mail address (RFC 822)
+     *   3    Address.LOTUS_NOTES   Lotus Notes e-mail address
+     *   4    Address.MAC           Media Access Control (MAC) address
+     *   5    Address.SNA           IBM Shared Network Architecture (SNA)
+     *                              address
+     *   6    Address.VM            IBM VM ("PROFS") e-mail address
+     *   7    Address.IPV4_ADDR     IPv4 host address in dotted-decimal
+     *                              notation (a.b.c.d)
+     *   8    Address.IPV4_ADDR_HEX IPv4 host address in hexadecimal
+     *                              notation
+     *   9    Address.IPV4_NET      IPv4 network address in dotted-decimal
+     *                              notation, slash, significant bits
+     *                              (a.b.c.d/nn)
+     *  10    Address.IPV4_NET_MASK IPv4 network address in dotted-decimal
+     *                              notation, slash, network mask in dotted-
+     *                              decimal notation (a.b.c.d/w.x.y.z)
+     *  11    Address.IPV6_ADDR     IPv6 host address
+     *  12    Address.IPV6_ADDR_HEX IPv6 host address in hexadecimal
+     *                              notation
+     *  13    Address.IPV6_NET      IPv6 network address, slash, significant
+     *                              bits
+     *  14    Address.IPV6_NET_MASK IPv6 network address, slash, network
+     *                              mask
+     *  99    Address.URL_ADDR      A url
      *
      * @return a Address object
      */  
