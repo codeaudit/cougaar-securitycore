@@ -172,7 +172,7 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="sh -c 'cd ${testbed.cip.dir} ; for f in `ls *.zip | grep -v ${zip.file.name}` ; do echo $f ; unzip -q -o $f ; done ; for f in *.tar.gz ; do echo $f ; tar xfz $f ; done ;'"
+	command="sh -c 'cd ${testbed.cip.dir} ; for f in `ls *.zip | grep -v ${zip.file.name}` ; do echo Unzipping $f ; unzip -q -o $f ; done ; for f in *.tar.gz ; do echo Untar $f ; tar xfz $f ; done ;'"
         timeout="240000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 

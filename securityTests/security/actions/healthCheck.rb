@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require "#{$CIP}/operator/security/checkTraceAlt.rb"
+require "#{$CIP}/operator/security/checkTraceLib.rb"
 
 module Cougaar
   module Actions
@@ -23,11 +23,13 @@ module Cougaar
         # 3) If there is no problem, sleep for 5 minutes,
         #    then goto step 1.
         thread = Thread.fork {
+         testPassed = nil
          while (true)
            sleep @sleep_time
            testPassed = processLogFiles() 
            if !testPassed
              ::Cougaar.logger.warn "Test failure"
+             exit
              `killall -9 ruby`
            end
          end
