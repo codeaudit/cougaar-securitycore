@@ -142,4 +142,5 @@ public interface KeyRingService extends Service {
 
   public boolean checkExpiry(String commonName);
   public void updateNS(String commonName);
+  public void updateNS(X500Name x500name);
 }
