@@ -134,7 +134,7 @@ public class Inode implements XMLSerializable {
         Node changeTimeNode = XMLUtils.GetNodeForName( node,
                                     CHILD_ELEMENT_CHANGE_TIME );
         SimpleDateFormat formatter = 
-                new SimpleDateFormat ("yyyy-MM-dd'T'hh:mm:ss'Z'");
+                new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss'Z'");
         
         if( changeTimeNode != null ){
             try{

@@ -89,7 +89,7 @@ public class IDMEFTime implements XMLSerializable{
 
     public static String convertToIDMEFFormat(Date date){
 
-	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd'T'hh:mm:ss'Z'");
+	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss'Z'");
  
 	return formatter.format(date);
 
