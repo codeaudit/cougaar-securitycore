@@ -47,5 +47,5 @@
         <role>God</role>
       </rule>
     </root>
-  </ServletPolicy>
+  </servlet-policy>
 </policy>
