@@ -43,9 +43,6 @@ public class SecurityPropertiesServiceImpl
 
   public String getProperty(String property, String defaultValue) {
     String value = null;
-    if (CryptoDebug.debug) {
-      System.out.println("getProperty(" + property + ")");
-    }
     if (servletContext != null) {
       value = (String) servletContext.getAttribute(property);
       if (value == null) {
@@ -57,6 +54,9 @@ public class SecurityPropertiesServiceImpl
     }
     if (value == null) {
       value = System.getProperty(property, defaultValue);
+    }
+    if (CryptoDebug.debug) {
+      System.out.println("getProperty(" + property + ")=" + value);
     }
     return value;
   }
