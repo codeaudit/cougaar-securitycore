@@ -32,7 +32,7 @@ public class BlackboardTestManagerServlet extends AdvancedSimpleServletComponent
    */
   protected String getPath() {
     // TODO Auto-generated method stub
-    return "/testManager";
+    return "/testBlackboardManager";
   }
 
   /* (non-Javadoc)
@@ -43,6 +43,9 @@ public class BlackboardTestManagerServlet extends AdvancedSimpleServletComponent
 
     String doParam = request.getParameter(DO_PARAM);
     String expParam = request.getParameter(EXP_PARAM);
+    if (logging.isDebugEnabled()) {
+      logging.debug("BlackboardTestManagerServlet: " + doParam + " - " + expParam);
+    }
     if(doParam!=null){
       blackboardService.openTransaction();
       PlanningFactory pf = (PlanningFactory)domainService.getFactory("planning");

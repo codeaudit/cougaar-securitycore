@@ -50,8 +50,7 @@ import edu.jhuapl.idmef.Classification;
 
 /**
  * DOCUMENT ME!
- *
- * @author ttschampel
+ * * @author ttschampel
  */
 public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
   /** Plugin parameter for time interval */
@@ -175,7 +174,8 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
  
   private void dumpCSVResults() {
 		  try {
-			  String filename = dumpDir + File.separator + expName + ".csv";
+			  String filename = dumpDir + File.separator + expName + 
+			    "-" + getAgentIdentifier().toAddress() + ".csv";
 			  File file = new File(filename);
 			  FileWriter writer = new FileWriter(file);
 			  writer.write(
@@ -201,7 +201,8 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
 	  private void dumpHTMLResults() {
 		  try {
-			  String filename =  dumpDir + File.separator +expName + ".html";
+			  String filename =  dumpDir + File.separator +expName + 
+			    "-" + getAgentIdentifier().toAddress() + ".html";
 			  File file = new File(filename);
 			  FileWriter writer = new FileWriter(file);
 			  writer.write("<HTML><BODY><TABLE><TR>");
@@ -292,6 +293,9 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
    */
   private void initAnalyzerDatabase() {
     try {
+      if(logging.isInfoEnabled()){
+	logging.info("Dump directory:" + dumpDir);
+      }
       File dumpDirFile = new File(dumpDir);
       if (!dumpDirFile.mkdirs()) {
 			if (logging.isInfoEnabled()) {
@@ -403,6 +407,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
       } else if (status.equals(BlackboardTestManagerServlet.END_TESTING)) {
 	this.stopTesting = true;
+	this.dumpResults();
       }
     }
   }
