@@ -42,4 +42,22 @@ public class DetailsDrillDownQuery implements java.io.Serializable {
   public UID getParentUID(){
     return parentQuery_UID;
   }
+
+  public String toString() {
+    StringBuffer buff=new StringBuffer(" DetailsDrillDownQuery: \n");
+    if(originator_UID==null) {
+      buff.append("Originator UID : NULL \n");
+    }
+    else {
+      buff.append("Originator UID :"+originator_UID + "\n");
+    }
+    if(parentQuery_UID ==null) {
+      buff.append("Parent UID : NULL \n");
+    }
+    else {
+      buff.append("Parent  UID :"+parentQuery_UID + "\n");
+    }
+    return buff.toString();
+      
+  }
 } 
