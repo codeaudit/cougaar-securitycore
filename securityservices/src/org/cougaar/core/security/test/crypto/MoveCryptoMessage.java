@@ -32,11 +32,8 @@ import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.node.*;
 
-// Cougaar security services
-import org.cougaar.core.security.services.identity.*;
-
 // Cougaar overlay
-import org.cougaar.core.security.coreservices.identity.*;
+import org.cougaar.core.service.identity.*;
 
 public class MoveCryptoMessage
   extends AgentManagementMessage

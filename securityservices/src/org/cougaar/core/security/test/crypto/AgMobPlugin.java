@@ -43,13 +43,9 @@ import org.cougaar.core.mts.*;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.domain.RootFactory;
-import org.cougaar.core.service.AgentIdentityService;
-
-// Cougaar security services
-import org.cougaar.core.security.services.identity.*;
 
 // Cougaar overlay
-import org.cougaar.core.security.coreservices.identity.*;
+import org.cougaar.core.service.identity.*;
 
 public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin 
 {
@@ -107,7 +103,13 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
 	  System.out.println("Setting target Node to " + targetNode);
 
 	  if (targetNode != null) {
-	    initiateTransfer();
+	    try {
+	      initiateTransfer();
+	    }
+	    catch (Exception ex) {
+	      System.out.println("ERROR: " + ex);
+	      ex.printStackTrace();
+	    }
 	  }
 	  else {
 	    System.out.println("Target agent not specified");
@@ -124,7 +126,7 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
 
   private void initiateTransfer() {
     TransferableIdentity ti =
-      aiService.initiateTransfer(thisAgentID, thisNodeID, toNodeID);
+      aiService.transferTo(toNodeID);
 
     // create the move-message
     MoveCryptoMessage moveMsg = 
@@ -147,9 +149,13 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
       MoveCryptoMessage m = (MoveCryptoMessage) msg;
       System.out.println("Received Transferable identity from "
 			 + source + " to " + target);
-      aiService.completeTransfer(m.getTransferableIdentity(),
-				 msg.getOriginator(),
-				 msg.getTarget());
+      try {
+	aiService.acquire(m.getTransferableIdentity());
+      }
+      catch (Exception e) {
+	System.out.println("Error: " + e);
+	e.printStackTrace();
+      }
     }
   }
 

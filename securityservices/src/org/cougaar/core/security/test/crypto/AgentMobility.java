@@ -45,8 +45,7 @@ import com.ibm.security.pkcsutil.PKCSException;
 
 // Cougaar core infrastructure
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.AgentIdentityService;
-import org.cougaar.core.security.coreservices.identity.TransferableIdentity;
+import org.cougaar.core.service.identity.*;
 
 // Cougaar Security Services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -99,16 +98,17 @@ public class AgentMobility
       System.out.println("======== Wrapping key");
     }
     TransferableIdentity identity =
-      agentIdentity.initiateTransfer(agent,
-				     signer,
-				     receiver);
+      agentIdentity.transferTo(receiver);
     if (CryptoDebug.debug) {
       System.out.println("======== Unwrapping key");
     }
     KeySet keySet = null;
-    agentIdentity.completeTransfer(identity,
-				   signer,
-				   receiver);
+    try {
+      agentIdentity.acquire(identity);
+    }
+    catch (Exception e) {
+      System.out.println("ERROR: " + e);
+    }
   }
 
   public void testAgentMobilityWithPkcs12(String[] args) {
