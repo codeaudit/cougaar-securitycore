@@ -16,6 +16,7 @@ public class UserAliasPwdDialog extends JDialog {
   JButton okButton = new JButton();
   JTextArea jTextArea1 = new JTextArea();
   BorderLayout borderLayout2 = new BorderLayout();
+  BorderLayout borderLayout3 = new BorderLayout();
   GridLayout gridLayout1 = new GridLayout();
   JPanel jPanel4 = new JPanel();
   JPanel jPanel5 = new JPanel();
@@ -85,15 +86,22 @@ public class UserAliasPwdDialog extends JDialog {
     aliasLabel.setText("Alias list:");
     aliaslistBox.setPreferredSize(new Dimension(130, 22));
     aliaslistBox.setMinimumSize(new Dimension(120, 21));
-    aliaslistBox.setMaximumSize(new Dimension(200, 22));
+    aliaslistBox.setMaximumSize(new Dimension(130, 22));
     aliaslistBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         aliaslistBox_actionPerformed(e);
       }
     });
+    jLabel3.setText("Host:");
+    hostField.setMinimumSize(new Dimension(120, 21));
+    hostField.setPreferredSize(new Dimension(120, 21));
+    hostField.setEditable(false);
+    cacheBox.setText("cache credential");
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(jPanel5, null);
     jPanel5.add(jPanel6, null);
+    jPanel5.add(jPanel14, null);
+    jPanel14.add(jLabel3, null);
     jPanel9.add(jLabel1, null);
     jPanel5.add(jPanel8, null);
     jPanel8.add(aliasLabel, null);
@@ -102,6 +110,8 @@ public class UserAliasPwdDialog extends JDialog {
     jPanel7.add(jLabel2, null);
     jPanel1.add(jPanel4, null);
     jPanel4.add(jPanel10, null);
+    jPanel4.add(jPanel15, null);
+    jPanel15.add(hostField, null);
     jPanel4.add(jPanel12, null);
     jPanel12.add(aliaslistBox, null);
     jPanel4.add(jPanel11, null);
@@ -109,10 +119,15 @@ public class UserAliasPwdDialog extends JDialog {
     jPanel4.add(jPanel13, null);
     jPanel13.add(pwdField, null);
     this.getContentPane().add(jPanel2, BorderLayout.SOUTH);
-    jPanel2.add(okButton, null);
-    jPanel2.add(cancelButton, null);
+    jPanel2.setLayout(borderLayout3);
+    jPanel2.add(jPanel16, BorderLayout.CENTER);
+    jPanel16.add(cacheBox, null);
+    jPanel2.add(jPanel17, BorderLayout.SOUTH);
+    jPanel17.add(okButton, null);
+    jPanel17.add(cancelButton, null);
     this.getContentPane().add(jPanel3, BorderLayout.NORTH);
     jPanel3.add(jTextArea1, BorderLayout.CENTER);
+    cacheBox.setVisible(false);
 
     setSize(300, 400);
     UIUtil.centerWindow(this);
@@ -131,8 +146,16 @@ public class UserAliasPwdDialog extends JDialog {
     return aliasField.getText();
   }
 
+  public void setHost(String host) {
+    hostField.setText(host);
+  }
+
   public char[] getPwd() {
     return pwdField.getPassword();
+  }
+
+  public boolean isCached() {
+    return cacheBox.isSelected();
   }
 
   public void setAliasList(ArrayList list) {
@@ -140,15 +163,24 @@ public class UserAliasPwdDialog extends JDialog {
     aliaslistBox.updateUI();
   }
 
+  // this is for BASIC authentication
   public void hideLookup() {
     aliasLabel.setVisible(false);
     aliaslistBox.setVisible(false);
+    cacheBox.setVisible(true);
   }
 
   boolean isOk = false;
   Vector aliaslist = new Vector();
   JLabel aliasLabel = new JLabel();
   JComboBox aliaslistBox = new JComboBox(aliaslist);
+  JPanel jPanel14 = new JPanel();
+  JPanel jPanel15 = new JPanel();
+  JPanel jPanel16 = new JPanel();
+  JPanel jPanel17 = new JPanel();
+  JLabel jLabel3 = new JLabel();
+  JTextField hostField = new JTextField();
+  JCheckBox cacheBox = new JCheckBox();
 
   void okButton_actionPerformed(ActionEvent e) {
     isOk =true;
