@@ -24,6 +24,8 @@ package org.cougaar.core.security.monitoring.blackboard;
 
 
 import edu.jhuapl.idmef.*;
+import java.io.Serializable;
+
 
 public class MRAgentLookUp implements java.io.Serializable {
 
@@ -43,6 +45,26 @@ public class MRAgentLookUp implements java.io.Serializable {
     this.source=findsource;
     this.target=findtarget;
     this.classification=findclassification;
+  }
+  
+  public String toString() {
+    StringBuffer buff=new StringBuffer(" MRAgent Look up Object :\n");
+    if(community!=null) {
+      buff.append(" Destination Community : "+community +"\n");
+    }
+    if(role!=null) {
+      buff.append(" Destination Role : "+role+"\n" );
+    }
+    if(source!=null) {
+      buff.append(" Destination Source : "+ source+"\n" );
+    }
+    if(target!=null) {
+      buff.append(" Destination Target: "+target +"\n");
+    }
+     if(classification!=null) {
+      buff.append(" Destination Classification : "+ classification.getName() +"\n" );
+    }
+     return buff.toString();
   }
 
 

@@ -23,6 +23,11 @@
 package org.cougaar.core.security.monitoring.blackboard;
  
 import java.util.List;
+import java.util.ListIterator;
+import java.io.Serializable;
+
+import org.cougaar.core.agent.ClusterIdentifier;
+
 
 public class MRAgentLookUpReply implements java.io.Serializable {
 
@@ -39,5 +44,21 @@ public class MRAgentLookUpReply implements java.io.Serializable {
   public List getAgentList() {
     return this.AgentList;
   }
+  
+  public String toString(){
+    StringBuffer buff=new StringBuffer("MRAgentLookUpReply data is :");
+    if(!AgentList.isEmpty()) {
+      int counter=0;
+      ListIterator iter=AgentList.listIterator();
+      ClusterIdentifier agentid=null;
+      while(iter.hasNext()) {
+	agentid=(ClusterIdentifier)iter.next();
+	buff.append(" Agent no :"+ counter+" agent Name :"+ agentid.toString()+"\n");
+	counter++;
+      }
+    }
+    return buff.toString();
+  }
+  
 
 }
