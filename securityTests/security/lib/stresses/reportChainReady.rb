@@ -68,7 +68,7 @@ class TestReportChainReady < SecurityStressFramework
     if ! checkBlackBoardCollectorPlugin then
       logInfoMsg("BlackBoardCollectorPlugin not installed")
       logInfoMsg("Report Chain Ready script exiting...")
-      logInfoMsg("Command line tool still viable.")
+      logInfoMsg("Command line report chain ready won't work either")
       return
     end
     Thread.fork do
