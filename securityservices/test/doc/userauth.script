@@ -33,7 +33,6 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
 # workspace to create directory to store keystore, default below
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace=$APP_INSTALL_PATH/workspace"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=$node"
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.standalone=true"
 
 # Logger
 # Logger is turnt off, it can be turnt on for debugging
