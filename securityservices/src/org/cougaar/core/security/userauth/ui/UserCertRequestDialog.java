@@ -135,7 +135,13 @@ public class UserCertRequestDialog extends JDialog {
 
   private void loadRequest() {
     // get user certificates
+    if (keyRing == null) {
+      JOptionPane.showMessageDialog(null, "The cryptographic service is not initialized properly",
+				    "Configuration error", JOptionPane.ERROR_MESSAGE, null);
+      throw new RuntimeException("The cryptographic service is not initialized properly");
+    }
     try {
+
       KeyStore keystore = keyRing.getKeyStore();
       Enumeration aliases = keystore.aliases();
       for (; aliases.hasMoreElements(); ) {

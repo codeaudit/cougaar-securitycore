@@ -926,7 +926,7 @@ public class DirectoryKeyStore
     }
 
     String alias = findAlias(commonName);
-    deleteEntry(alias);
+    deleteEntry(alias, commonName);
 
     //certCache.deleteCertificate();
     //certCache.deletePrivateKey();
@@ -938,9 +938,9 @@ public class DirectoryKeyStore
     // TODO: for node, hostname, CA aliases, need to get replacement
   }
 
-  public void deleteEntry(String alias)
+  public void deleteEntry(String alias, String commonName)
   {
-    removeCN2alias(alias);
+    removeCN2alias(commonName);
     try {
       keystore.deleteEntry(alias);
     } catch(Exception e) {
@@ -2974,8 +2974,8 @@ public class DirectoryKeyStore
 	}
       }
       else {
-	if (log.isWarnEnabled()) {
-	  log.warn("Unable to find attributes in NS for " + cname);
+	if (log.isInfoEnabled()) {
+	  log.info("Unable to find attributes in NS for " + cname + ". Will retry later.");
 	}
       }
     } catch (Exception nx) {

@@ -355,7 +355,7 @@ public class OpenLdapCertDirectoryServiceImpl
       log.debug("Publish certificate, dn:" + dnname);
     }
     try {
-      setLdapAttributes(cert, set,type,privatekey);
+      setLdapAttributes(cert, set, type,privatekey);
 
       // Set unique identifier
       String dn = "uniqueIdentifier=" +
@@ -374,6 +374,10 @@ public class OpenLdapCertDirectoryServiceImpl
       synchronized (_contextLock) {
 	DirContext context = contextHolder.getContext();
 	context.createSubcontext(dn,set);
+      }
+      if (log.isInfoEnabled()) {
+	log.info("Successfully published certificate in LDAP: " + dnname
+	  + " URL: " + getDirectoryServiceURL());
       }
       /* }
 	 else {
@@ -885,7 +889,7 @@ public class OpenLdapCertDirectoryServiceImpl
       }
     }
 
-    log.debug("@@@@@@@@@@@ returning extensions :"+extensions.toString());
+    log.debug("Returning extensions :"+extensions.toString());
     return extensions;
 
   }
@@ -930,7 +934,7 @@ public class OpenLdapCertDirectoryServiceImpl
       }
     }
     catch (Exception exp) {
-      exp.printStackTrace();
+      log.warn("Unable to set LDAP attributes for " + cert.getSubjectDN().getName());
     }
 
     // Set certificate status
@@ -956,10 +960,10 @@ public class OpenLdapCertDirectoryServiceImpl
 		parser.nextToken());
       }
       catch(Exception ex) {
-	if(log.isDebugEnabled()) {
-	  log.debug("Error: DN=" + cert.getSubjectDN().getName()
-			     + "ldapAttrib = " + ldapAttrib);
-	  ex.printStackTrace();
+	if(log.isWarnEnabled()) {
+	  log.warn("Unable to set LDAP attributes. DN=" + cert.getSubjectDN().getName()
+		   + "ldapAttrib= " + ldapAttrib
+		   + ". Reason: " + ex);
 	}
       }
     }

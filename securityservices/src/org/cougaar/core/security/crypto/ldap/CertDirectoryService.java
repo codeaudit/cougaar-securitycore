@@ -129,7 +129,7 @@ public abstract class CertDirectoryService
 	  for (i = 0 ; i < MAX_RETRIES ; i++) {
 	    try {
 	      _context = new InitialDirContext(_config);
-	      log.debug("Created context");
+	      log.debug("Created context successful");
 	      break;
 	    }
 	    catch (javax.naming.NamingSecurityException e) {

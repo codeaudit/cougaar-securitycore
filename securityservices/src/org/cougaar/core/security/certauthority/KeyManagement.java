@@ -385,6 +385,9 @@ public class KeyManagement
 	  caOperations.publishCertificate(clientX509,
 					  CertificateUtility.EntityCert,null);
 	}
+	else {
+	  log.warn("Unable to publish Certificate. Certificate is null");
+	}
       }
       if (configParser.isCertificateAuthority()) {
         publishCAinLdap();
@@ -422,7 +425,7 @@ public class KeyManagement
 	if (configParser.isCertificateAuthority()) {
 	  // Publish certificate in LDAP directory
 	  if (log.isDebugEnabled()) {
-	    log.debug("Publishing cert to LDAP service");
+	    log.debug("Publishing cert to LDAP service: " + clientX509.getSubjectDN().getName());
 	  }
 	  caOperations.publishCertificate(clientX509,
 					  CertificateUtility.EntityCert,null);

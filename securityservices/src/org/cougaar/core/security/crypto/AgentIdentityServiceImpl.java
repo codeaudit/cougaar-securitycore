@@ -152,7 +152,7 @@ public class AgentIdentityServiceImpl
     IdentityDeniedException {
     if (log.isDebugEnabled()) {
       log.debug("acquire identity:"
-		+ requestorAddress.toAddress());
+		+ requestorAddress.toAddress() + ". TransferableIdentity" + transferableIdentity);
     }
     // Add the agent to the list that the ServletPolicyEnforcer
     // has to keep track of for rules that deal with all agents.
@@ -240,21 +240,28 @@ public class AgentIdentityServiceImpl
     policy.asymmSpec = "RSA";
     policy.signSpec = "MD5withRSA";
 
-/*      cps.getSendPolicy(thisNodeAddress.toAddress() + ":"
+    /*
+      cps.getSendPolicy(thisNodeAddress.toAddress() + ":"
 			  + targetNode.toAddress());
     if (policy == null) {
        throw new RuntimeException("Could not find message policy between "
 	+ thisNodeAddress.toAddress() + " and " + targetNode.toAddress());
     }
-*/
+    */
+
     // Retrieve private keys of the agent
     List agentPrivKeyList =
       keyRing.findPrivateKey(requestorAddress.toAddress());
 
     if (agentPrivKeyList.size() == 0) {
+      log.warn("Cannot move agent. Could not find private keys for " + requestorAddress.toAddress());
       throw new RuntimeException("Could not find private keys for "
-	+ requestorAddress.toAddress());
+				 + requestorAddress.toAddress());
     }
+    if (log.isDebugEnabled()) {
+      log.debug("Moving " + agentPrivKeyList.size() + " private keys of " + requestorAddress.toAddress());
+    }
+
     PrivateKey[] privKey = new PrivateKey[agentPrivKeyList.size()];
     for (int i = 0 ; i < agentPrivKeyList.size() ; i++) {
       privKey[i] = ((PrivateKeyCert)(agentPrivKeyList.get(i))).getPrivateKey();
@@ -266,9 +273,15 @@ public class AgentIdentityServiceImpl
       keyRing.findCert(requestorAddress.toAddress(),
 		       KeyRingService.LOOKUP_KEYSTORE);
     if (agentCertList.size() == 0) {
+      log.warn("Cannot move agent. Could not find certificates for "
+	       + requestorAddress.toAddress());
       throw new RuntimeException("Could not find certificates for "
-	+ requestorAddress.toAddress());
+				 + requestorAddress.toAddress());
     }
+    if (log.isDebugEnabled()) {
+      log.debug("Moving " + agentCertList.size() + "  of " + requestorAddress.toAddress());
+    }
+
     X509Certificate[] cert = new X509Certificate[agentCertList.size()];
     for (int i = 0 ; i < agentCertList.size() ; i++) {
       cert[i] = ((CertificateStatus)(agentCertList.get(i))).getCertificate();
@@ -332,9 +345,9 @@ public class AgentIdentityServiceImpl
      * 2 - Install keys in the local keystore.
      */
 
-    if (log.isDebugEnabled()) {
-      log.debug("Encrypted TransferableIdentity is " +
-		identity.getClass().getName());
+    if (log.isInfoEnabled()) {
+      log.info("CompleteTransfer. Encrypted TransferableIdentity is " +
+	       identity.getClass().getName());
     }
 
     if (!(identity instanceof KeyIdentity)) {
@@ -345,6 +358,19 @@ public class AgentIdentityServiceImpl
     KeyIdentity ki = (KeyIdentity)identity;
     X500Name dname = null;
     String sender = null;
+    if (ki == null) {
+      log.warn("Unable to install moved agent. KeyIdentity is null");
+      throw new RuntimeException("Unable to install moved agent. KeyIdentity is null");
+    }
+    if (ki.getSender() == null) {
+      log.warn("Unable to install moved agent. Sender identity is null");
+      throw new RuntimeException("Unable to install moved agent. Sender identity is null");
+    }
+    if (ki.getSender() == null) {
+      log.warn("Unable to install moved agent. Sender identity is null");
+      throw new RuntimeException("Unable to install moved agent. Sender identity is null");
+    }
+
     try {
       dname = new X500Name(ki.getSender().getSubjectDN().getName());
       sender = dname.getCommonName();
