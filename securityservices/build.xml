@@ -179,18 +179,6 @@
         />
     </target>
     
-    <!-- Build the web proxy library -->
-	<!--
-    <target name="build-webproxy" depends="init">
-        <echo message="+++++ Building webproxy"/>
-        <javac classpathref="core.class.path" debug="true" 
-            deprecation="true" destdir="${securityservices.classes}" 
-            includes="org/cougaar/core/security/policy/webproxy/*.java"
-             srcdir="${securityservices.src}"/>
-        <echo message="+++++ Built WebProxy"/>
-    </target>
-    -->
-
     <!-- Build the Java Util library
          Overrides some java.util classes to track the memory utilization -->
 	<!--
@@ -284,11 +272,12 @@
                       common/*.conf,
                       common/*.ini,
                       common/*.xsl,
-                      common/*.info,
                       common/*.owl,
-                      common/OwlBootPolicyList,
-                      common/OwlMap*
-                      common/DamlTest*,
+                      common/OwlMapBlackboardObjects,
+                      common/OwlMapRoleAgent,
+                      common/OwlMapRoleComponent,
+                      common/OwlMapRoleUri,
+                      common/OwlMapVerbs,
                       common/*.props,
                       common/*.policy,
                       common/bootstrap_keystore,
