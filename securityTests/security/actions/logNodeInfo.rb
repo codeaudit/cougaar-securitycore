@@ -41,12 +41,14 @@ module Cougaar
 		# check for new nodes. Also, some nodes may die.
 		@run.society.each_service_host("acme") { |host|
 		  response = @run.comms.new_message(host).set_body("command[list_java_pids]").request(30)
-		  parsePids(response.body).each { |node, pid|
-		    #saveAssertion "processInfo", "getNodePid: #{node}: #{host.name} - #{pid}"
-		    nodeInfo = NodeInfo.new(node, host, pid)
-		    getParam(nodeInfo, "-Xmx")		    
-		    @nodeInfoMap[node] = nodeInfo
-		  }
+		  if (response != nil)
+		    parsePids(response.body).each { |node, pid|
+		      #saveAssertion "processInfo", "getNodePid: #{node}: #{host.name} - #{pid}"
+		      nodeInfo = NodeInfo.new(node, host, pid)
+		      getParam(nodeInfo, "-Xmx")		    
+		      @nodeInfoMap[node] = nodeInfo
+		    }
+		  end
 		}
 		sleep sleep_time
 		sleep_time = sleep_time * 2
