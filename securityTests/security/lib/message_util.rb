@@ -201,7 +201,7 @@ class MessageEventWatcher
   
   def stop
     if (@listener != nil)
-      getRun.comms.remove_on_cougaar_event(@listener)
+      run.comms.remove_on_cougaar_event(@listener)
       @listener = nil
     end
   end
@@ -226,7 +226,7 @@ class IdmefWatcher
   end
 
   def start
-    @listener = getRun.comms.on_cougaar_event do |event|
+    @listener = run.comms.on_cougaar_event do |event|
       #            puts("Looking at event #{event.data}")
       #            puts("compare against #{@idmefText}")
       if event.data =~ /#{@idmefText}/
@@ -239,7 +239,7 @@ class IdmefWatcher
   
   def stop
     if @listener != -1
-      getRun.comms.remove_on_cougaar_event(@listener)
+      run.comms.remove_on_cougaar_event(@listener)
       @listener = -1
       saveResult(@idmefFound == @expected, @attackNum, @attackName)
     end

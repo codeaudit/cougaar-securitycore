@@ -22,8 +22,9 @@ end
 if attackHost != nil
   attackHost.add_node("MESSAGE-ATTACK-NODE") do |node|
     #node.override_parameter('-Dorg.cougaar.lib.web.http.port', '8830');
-    node.add_facet({"attacker" => "true"})
+    node.add_facet({"NodeAttacker" => "true"})
     node.add_agent("MessageAttacker") do |agent|
+      agent.add_facet({"AgentAttacker" => "true"})
     end
   end
 else

@@ -71,7 +71,6 @@ class CertRevocation
    end
 
             def revokeAgent(agent)
-              saveUnitTestResult("Revocation", "revoking agent #{agent}")
               caDomains = run.society.agents[agent].caDomains
               return revoke(agent, caDomains)
             end
@@ -80,7 +79,7 @@ class CertRevocation
      CaDomains.instance.getActualEntities
               caManager = caDomains[0].signer
               cadn = caDomains[0].cadn
-              puts "cadn #{cadn}"
+              #puts "cadn #{cadn}"
 
               url = "#{caManager.uri}/CA/RevokeCertificateServlet"
               # role = getParameter(ca.node, /security.role/, nil)
@@ -88,7 +87,7 @@ class CertRevocation
 #              dn_names = getDistinguishNames(caDomains)
 #              dnname = dn_names[agent]
 ###              dnname = caDomains[0].distinguishedNames[agent]
-puts agent
+#puts agent
 #doIrb
               obj = run.society.agents[agent]
               if obj == nil
@@ -98,25 +97,27 @@ puts agent
                 end
               end
               dnname = obj.distinguishedName
-              puts "dnname #{dnname}"
+              #puts "dnname #{dnname}"
               if dnname == nil
-puts "WARNING:  no dnname, returning"
-exit
+		logWarningMsg "WARNING:  no dnname, returning"
+#exit
                 return false
               end
 
               params = ["cadnname=#{CGI.escape(cadn)}", "distinguishedName=#{dnname}"]
           ##    set_auth('george', 'george')
-puts "params: #{params}"
+#puts "params: #{params}"
               response = postHtml(url, params)
 
-puts "response.code #{response.code}, body #{response.body}"
+#puts "response.code #{response.code}, body #{response.body}"
 #              puts "revocation response #{response.body.to_s}"
               if response.body.to_s =~ /Success/
-                puts "Successfully revoked #{agent}"
+                saveUnitTestResult("Revocation", "successfully revoke agent: #{agent}")
+                #puts "Successfully revoked #{agent}"
                 return true
               else
-                puts "Revoke #{agent} failed"
+                saveUnitTestResult("Revocation", "Unable to revoke agent: #{agent}")
+                #puts "Revoke #{agent} failed"
               end
               return false
             end
@@ -162,7 +163,7 @@ puts "remove identities of #{agent.name}"
     params = ["identifier=#{agent.name}"]
     response = postHtml(url, params)
     unless response.body.to_s =~ /Success/
-      puts response.body
+      logWarningMsg "RemoveAgentIdentities - #{response.body}"
     end
     raise "Failed to get new certificate. Error #{response.body.to_s}" unless response.body.to_s =~ /Success/
     
@@ -173,7 +174,7 @@ puts "remove identities of #{agent.name}"
     caDomains = run.society.agents[agent.name].caDomains
     caManager = caDomains[0].signer
     cadn = caDomains[0].cadn
-puts "cadn #{cadn}"
+#puts "cadn #{cadn}"
 
     url = "#{caManager.uri}/CA/CAInfoServlet"
     params = ["howLong=#{timeString}"]

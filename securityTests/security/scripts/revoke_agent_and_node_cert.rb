@@ -18,5 +18,5 @@ insert_before :wait_for_initialization do
 end
 
 insert_before :society_running do
-  do_action  "InjectStress", "Security3c2", "postConditionalGLSConnection"
+  do_action  "InjectStress", "Security3c2", "revokeAgentAndNode"
 end

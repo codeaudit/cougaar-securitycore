@@ -68,53 +68,94 @@ class Security3c2 < SecurityStressFramework
 #   def postConditionalStartSociety
 #      sleep 5.minutes unless $WasRunning
 
-   def postConditionalGLSConnection
-    Thread.fork {
+   def revokeNode(node)
       # Give the agents time to retrieve their certificates
       # user admin may not be started yet
-      @certRevocation = CertRevocation.new
+      if (@certRevocation == nil)
+        @certRevocation = CertRevocation.new
+      end
 
-      @revoked_node = @certRevocation.selectNode
-      if (@revoked_node == nil)
+      if (node == nil)
         saveResult("5k103", "Error: could not find node to revoke")
       end
-      result = @certRevocation.revokeNode(@revoked_node)
-      saveResult(result, "5k103", "revoke a node through administrator")
+      result = @certRevocation.revokeNode(node)
+       saveResult(result, "5k103",
+         "revoke a node through administrator: #{node}")
+   end
 
-      @revoked_agent = @certRevocation.selectAgent
-      result = @certRevocation.revokeAgent(@revoked_agent)
-      saveResult(result, "5k104", "revoke an agent through administrator")
+   def revokeAgent(agent)
+      # Give the agents time to retrieve their certificates
+      # user admin may not be started yet
+      if (@certRevocation == nil)
+        @certRevocation = CertRevocation.new
+      end
 
+      result = @certRevocation.revokeAgent(agent)
+      saveResult(result, "5k104",
+	 "revoke an agent through administrator: #{agent}")
 
-# no need to kill revoked node, trust manager is supposed to detect it      
-#      @run.do_action "Sleep", 10.minutes
-#      @run.do_action "GenericAction" do |run|
-         sleep(10.minutes)
-
-puts "thread awakens"
+      sleep(10.minutes)
+      puts "thread awakens"
 
       @dest_agent = @certRevocation.selectAgent
-      agent1 = @run.society.agents[@revoked_agent]
+      agent1 = @run.society.agents[agent]
       agent2 = @run.society.agents[@dest_agent]
 
       testMessage(agent1, agent2)      
 
-         summary "The following nodes received SSL connection request from revoked node:"
-         summary "#{@ssl_receiver_nodes.keys.to_s}"
-         result = false unless @ssl_receiver_nodes.keys.size != 0
-         saveResult(result, "3c2", "SSL initiated by node with revoked certificate.")
+      summary "The following nodes received SSL connection request from revoked node:"
+      summary "#{@ssl_receiver_nodes.keys.to_s}"
+      result = false unless @ssl_receiver_nodes.keys.size != 0
+      saveResult(result, "3c2", "SSL initiated by node with revoked certificate.")
 
-         summary "The following nodes initiated SSL connection request to revoked node:"
-         summary "#{@ssl_initiator_nodes.keys.to_s}"
-         result = false unless @ssl_initiator_nodes.keys.size != 0
-         saveResult(result, "3c5", "SSL received by node with revoked certificate.")
+      summary "The following nodes initiated SSL connection request to revoked node:"
+      summary "#{@ssl_initiator_nodes.keys.to_s}"
+      result = false unless @ssl_initiator_nodes.keys.size != 0
+      saveResult(result, "3c5", "SSL received by node with revoked certificate.")
+      #sleep(2.minutes)
 
-      sleep(2.minutes)
+   end
 
-#         exit 0      
-#      end
-    }
-    end
+   def getAttackAgent
+     agentName = nil
+     run.society.each_agent(true) do |agent|
+       if agent.has_facet? "AgentAttacker"
+	 agentName = agent.name
+	 break
+       end
+     end
+     return agentName
+   end
+
+   def getAttackNode
+     nodeName = nil
+     run.society.each_node do |node|
+       if node.has_facet? "NodeAttacker"
+	 nodeName = node.name
+	 break
+       end
+     end
+     return nodeName
+   end
+
+   def revokeAgentAndNode
+     Thread.fork {
+       @revoked_agent = getAttackAgent()
+       @revoked_node = getAttackNode()
+       revokeAgent(@revoked_agent)
+       revokeNode(@revoked_node)
+     }
+   end
+
+   def postConditionalGLSConnection
+     Thread.fork {
+       @revoked_node = @certRevocation.selectNode
+       revokeNode(@revoked_node)
+
+       @revoked_agent = @certRevocation.selectAgent
+       revokeAgent(@revoked_agent)
+     }
+   end
 
    def testMessage(agent1, agent2)
     if (@useIdmef)
