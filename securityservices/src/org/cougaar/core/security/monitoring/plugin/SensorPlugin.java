@@ -95,7 +95,7 @@ import java.util.Hashtable;
  * for the registration to take place.
  */
 public abstract class SensorPlugin
-  extends ComponentPlugin {
+extends ComponentPlugin {
 
   private MessageAddress myAddress;
   private MessageAddress myManagerAddress;
@@ -114,7 +114,7 @@ public abstract class SensorPlugin
    * of attacks
    */
   protected abstract boolean agentIsTarget();
-   /**
+  /**
    * method to determine if the agent, the plugin is running in, is the source
    * of attacks
    */
@@ -149,7 +149,7 @@ public abstract class SensorPlugin
     List l = (List) o;
     if (l.size() > 1) {
       _log.warn("Unexpected number of parameters given. Expecting 1, got " +
-                 l.size());
+                l.size());
     }
     if (l.size() > 0) {
       _managerRole = l.get(0).toString();
@@ -176,8 +176,26 @@ public abstract class SensorPlugin
     }
     _csu = new CommunityServiceUtil(sb);
     // register this sensor's capabilities
-    getSecurityManager();
+    if( !_blackboard.didRehydrate()) {
+       getSecurityManager();
+    }
+
+    /*
+    Thread td=Thread.currentThread();
+    _log.error("Current thread is :"+td.toString());
+    ThreadService ts = (ThreadService)sb.getService(this,
+                                                    ThreadService.class, null);
+    ts.getThread(this, new Runnable() {
+        public void run() {
+          getSecurityManager();
+        }
+      }).start();
+    sb.releaseService(this, ThreadService.class, ts);
+    */
   }
+  
+   
+ 
 
   /**
    * doesn't do anything
@@ -191,6 +209,9 @@ public abstract class SensorPlugin
     }
     CommunityServiceUtilListener listener = new CommunityServiceUtilListener() {
 	public void getResponse(Set entities) {
+          if(_log.isDebugEnabled()) {
+            _log.debug(" Call Back called for agent :"+  myAddress);
+          }
 	  Iterator it = entities.iterator();
 	  if (entities.size() == 0) {
 	    _log.warn("Could not find a security manager");
@@ -206,6 +227,7 @@ public abstract class SensorPlugin
             if(myManagerAddress==null) {
               myManagerAddress=addr;
               if(_log.isDebugEnabled()){
+                _log.error("CommunityServiceUtilListener thread is :" + Thread.currentThread().hashCode());
                 _log.debug("Setting Manager for Sensor Plugin -- Manager  : "+ myManagerAddress +" For Agent : " +myAddress);
               }
               registerCapabilities(addr);
@@ -213,9 +235,9 @@ public abstract class SensorPlugin
 	  }
 	}
       };
-     if(_log.isDebugEnabled()) {
+    if(_log.isDebugEnabled()) {
       _log.debug("findSecurityManager from Communityservice util called in Sensor Plugins getSecurityManager:"
-                  +myAddress.toString()); 
+                 +myAddress.toString()); 
     }
     _csu.findSecurityManager(listener);
   }
@@ -223,12 +245,13 @@ public abstract class SensorPlugin
   /**
    * register the capabilities of the sensor
    */
-  private void registerCapabilities(MessageAddress myManager){
-    List capabilities = new ArrayList();
-    List targets = null;
-    List sources=null;
-    List data = null;
-
+  private void registerCapabilities(final MessageAddress myManager){
+    final List capabilities = new ArrayList();
+    final List targets = new ArrayList();
+    final List  sources=new ArrayList();
+    final List  data =new ArrayList() ;
+    Thread td=Thread.currentThread();
+    _log.error("Current thread is :"+td.toString());
     if(myManager == null) {
       // manager may not have been initialize yet
       return;
@@ -236,10 +259,9 @@ public abstract class SensorPlugin
     // if agent is the target then add the necessary information to the registration
     if(agentIsTarget()) {
       List tRefList = new ArrayList(1);
-      targets = new ArrayList(1);
-      data = new ArrayList(1);
+      //data = new ArrayList(1);
       Address tAddr = _idmefFactory.createAddress(myAddress.toString(),
-						   null, Address.URL_ADDR);
+                                                  null, Address.URL_ADDR);
       Target t = _idmefFactory.createTarget(null, null, null, null, null, null);
       // add the target ident to the reference ident list
       tRefList.add(t.getIdent());
@@ -247,26 +269,27 @@ public abstract class SensorPlugin
       // since there isn't a data model for cougaar Agents, the Agent object is
       // added to the AdditionalData of an IDMEF message
       Agent tAgent = _idmefFactory.createAgent(myAddress.toString(),
-						null, null, tAddr, tRefList);
+                                               null, null, tAddr, tRefList);
       data.add(_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
     }
     if(agentIsSource()) {
-      List tRefList = new ArrayList(1);
-      sources = new ArrayList(1);
+      List sRefList = new ArrayList(1);
+      /*
       if(data==null) {
         data = new ArrayList(1);
       }
-      Address tAddr = _idmefFactory.createAddress(myAddress.toString(),
-						   null, Address.URL_ADDR);
+      */
+      Address sAddr = _idmefFactory.createAddress(myAddress.toString(),
+                                                  null, Address.URL_ADDR);
       Source s = _idmefFactory.createSource(null, null, null, null, null);
       // add the target ident to the reference ident list
-      tRefList.add(s.getIdent());
+      sRefList.add(s.getIdent());
       sources.add(s);
       // since there isn't a data model for cougaar Agents, the Agent object is
       // added to the AdditionalData of an IDMEF message
-      Agent tAgent = _idmefFactory.createAgent(myAddress.toString(),
-						null, null, tAddr, tRefList);
-      data.add(_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+      Agent sAgent = _idmefFactory.createAgent(myAddress.toString(),
+                                               null, null, sAddr, sRefList);
+      data.add(_idmefFactory.createAdditionalData(Agent.SOURCE_MEANING, sAgent));
     }
 
     String []classifications = getClassifications();
@@ -276,35 +299,75 @@ public abstract class SensorPlugin
       capabilities.add(classification);
     }
 
-    _blackboard.openTransaction();
+
+    TimerTask task =new TimerTask() {
+      public void run() {
+        RegistrationAlert reg =
+          _idmefFactory.createRegistrationAlert( getSensorInfo(),
+                                                 null,
+                                                 targets,
+                                                 capabilities,
+                                                 data,
+                                                 _idmefFactory.newregistration,
+                                                 _idmefFactory.SensorType,
+                                                 myAddress.toString());
+        NewEvent regEvent = _cmrFactory.newEvent(reg);
+        
+        CmrRelay regRelay = _cmrFactory.newCmrRelay(regEvent, myManager);
+        _blackboard.openTransaction();
+        _blackboard.publishAdd(regRelay);
+        _blackboard.closeTransaction();
+        _log.debug("Registered sensor successfully!");
+      }
+    };
+
+    /*
+    boolean closeTransaction = true;
+    try{
+      _blackboard.openTransaction();
+    }
+    catch (Exception exp) {
+      _log.error("registerCapabilities openTransaction failed!");
+      _log.error("registerCapabilities thread is : " + Thread.currentThread().hashCode());
+      closeTransaction = false;
+    }
+    
     Collection c =
       _blackboard.query(new RegistrationPredicate(getSensorInfo(),
-                                                   targets, capabilities,
-                                                   data, myAddress.toString()));
-    _blackboard.closeTransaction();
+                                                  targets, capabilities,
+                                                  data, myManager.toString()));
+    if(closeTransaction) {
+      _blackboard.closeTransaction();
+    }
+    
     if (!c.isEmpty()) {
       _log.info("Rehydrating - no need to publish sensor capabilities");
       return; // this is rehydrated and we've already registered
     } // end of if (!c.isEmpty())
-
+    
     _log.info("No rehydration - publishing sensor capabilities");
     RegistrationAlert reg =
       _idmefFactory.createRegistrationAlert( getSensorInfo(),
-                                              null,
-                                              targets,
-                                              capabilities,
-                                              data,
-                                              _idmefFactory.newregistration,
-                                              _idmefFactory.SensorType,
-                                              myAddress.toString());
+                                             null,
+                                             targets,
+                                             capabilities,
+                                             data,
+                                             _idmefFactory.newregistration,
+                                             _idmefFactory.SensorType,
+                                             myAddress.toString());
     NewEvent regEvent = _cmrFactory.newEvent(reg);
-
+    
     CmrRelay regRelay = _cmrFactory.newCmrRelay(regEvent, myManager);
     _blackboard.openTransaction();
     _blackboard.publishAdd(regRelay);
     _blackboard.closeTransaction();
     _log.debug("Registered sensor successfully!");
+    */
     ServiceBroker sb =getBindingSite().getServiceBroker();
+    ThreadService ts = (ThreadService)
+      sb.getService(this, ThreadService.class, null);
+    ts.schedule(task, 0);
+    sb.releaseService(this, ThreadService.class, ts);
     if(sb!=null) {
       sb.releaseService(this,CommunityService.class,_cs);
       _cs=null;
@@ -336,7 +399,7 @@ public abstract class SensorPlugin
 	    if (!(response instanceof Set)) {
 	      String errorString = "Unexpected community response class:"
 		+ response.getClass().getName() + " - Should be a Set";
-		_log.error(errorString);
+              _log.error(errorString);
 	      throw new RuntimeException(errorString);
 	    }
             printCommunities((Set) response, communityName);
@@ -498,10 +561,10 @@ public abstract class SensorPlugin
         sb.getService(this, ThreadService.class, null);
       final List fEvents = events;
       ts.getThread(this, new Runnable() {
-        public void run() {
-         _publisher.publishEvents(fEvents);
-        }
-      }).start();
+          public void run() {
+            _publisher.publishEvents(fEvents);
+          }
+        }).start();
       sb.releaseService(this, ThreadService.class, ts);
     }
   }
