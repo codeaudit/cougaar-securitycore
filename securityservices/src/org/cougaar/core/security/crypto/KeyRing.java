@@ -2430,8 +2430,8 @@ try {
 	  }
 	}
 	catch (CertificateRevokedException certrevoked) {
-	  if (log.isErrorEnabled()) {
-	    log.error("Found cert in cert directory which has been revoked ! "
+	  if (log.isInfoEnabled()) {
+	    log.info("Found cert in cert directory which has been revoked ! "
 		      + x500Name + " - " + certrevoked);
 	  }
 	}
