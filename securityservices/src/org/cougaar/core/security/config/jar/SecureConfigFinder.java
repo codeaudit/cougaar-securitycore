@@ -111,6 +111,17 @@ public class SecureConfigFinder
     readExceptionList();
   }
   
+  public InputStream open(String aURL)
+    throws IOException {
+    return super.open(aURL);
+    /*
+    Turn the following code to identify components that do not
+    release resources.
+    InputStream is = super.open(aURL);
+    return new DebugInputStream(is);
+    */
+  }
+
   private void readExceptionList() {
     if (_logger.isDebugEnabled()) {
       _logger.debug("Reading SecureConfigFinder configuration file");
@@ -170,6 +181,10 @@ public class SecureConfigFinder
 	_logger.warn("Unable to read regular expression file");
       }
     }
+    try {
+      br.close();
+    }
+    catch (IOException e) {}
   }
 
   /**
@@ -313,6 +328,61 @@ public class SecureConfigFinder
       "jarconfig" + File.separator +
       System.getProperty("org.cougaar.node.name");
     return s;
+  }
+
+
+  /**
+   * This input stream wraps the InputStream returned by the open()
+   * method and checks that the client invokes the close() method.
+   */
+  public static class DebugInputStream
+    extends InputStream
+  {
+    public static final int DELAY_BEFORE_WARN = 30000;
+    private boolean _isClosed = false;
+    private long _initTime;
+    private Throwable _t;
+    private InputStream _in;
+
+    public DebugInputStream(InputStream in) {
+      _in = in;
+      _initTime = System.currentTimeMillis();
+      _t = new Throwable();
+
+      Runnable r = new Runnable() {
+	  public void run() {
+	    boolean done = false;
+	    while (!done) {
+	      try {
+		Thread.sleep(DELAY_BEFORE_WARN);
+	      }
+	      catch (InterruptedException ex) {}
+	      if (!_isClosed) {
+		if (_logger.isWarnEnabled()) {
+		  long now = System.currentTimeMillis();
+		  _logger.warn("Stream status after "
+			       + ((now - _initTime) / 1000) + "s: "
+			       + _isClosed, _t);
+		}
+	      }
+	      else {
+		done = true;
+	      }
+	    }
+	  }
+	};
+      Thread t = new Thread(r);
+      t.start();
+    }
+    public int read() 
+      throws IOException {
+      return _in.read();
+    }
+    public void close()
+      throws IOException {
+      _isClosed = true;
+      _in.close();
+    }
   }
 
 }
