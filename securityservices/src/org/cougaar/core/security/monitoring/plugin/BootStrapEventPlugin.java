@@ -37,10 +37,17 @@ import java.util.Collection;
 import java.lang.reflect.*;
 import java.security.Principal;
 
-import org.cougaar.core.security.securebootstrap.EventHolder;
-import org.cougaar.core.security.securebootstrap.BootstrapEvent;
+// Cougaar core infrastructure
+import org.cougaar.core.adaptivity.Condition;
+import org.cougaar.core.adaptivity.OMCRangeList;
+import org.cougaar.core.adaptivity.OMCThruRange;
 import org.cougaar.core.component.*;
 import org.cougaar.core.agent.*;
+
+// Cougaar security services
+import org.cougaar.core.security.securebootstrap.EventHolder;
+import org.cougaar.core.security.securebootstrap.BootstrapEvent;
+
 /*
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceAvailableListener;
@@ -51,7 +58,10 @@ import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.adaptivity.OperatingMode;
+import org.cougaar.core.adaptivity.OperatingModeImpl;
 
+// Security services
 import org.cougaar.core.security.securebootstrap.CougaarSecurityManager;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.blackboard.*;
@@ -59,8 +69,6 @@ import org.cougaar.core.security.monitoring.idmef.*;
 import  org.cougaar.core.security.securebootstrap.BootstrapEvent;
 
 import edu.jhuapl.idmef.*;
-
-
 
 public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, SensorInfo  {
   
@@ -74,6 +82,15 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
   private ClusterIdentifier destcluster;
   private String dest_agent;
   private LoggingService log; 
+
+  // For test purposes
+  private Condition sensorCondition;
+  private int numberOfEvents;
+  private OperatingMode dummyOP = null;
+  private static final String DUMMY_OP =
+    "org.cougaar.core.security.monitoring.DUMMY_OP";
+  private static final OMCRangeList DUMMY_OP_RANGE =
+      new OMCRangeList(new OMCThruRange(1.0, Double.MAX_VALUE ));
 
   public void setDomainService(DomainService aDomainService) {
     domainService = aDomainService;
@@ -98,17 +115,19 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
    * subscribe to
    */
   protected void setupSubscriptions() {
+    log = (LoggingService)
+      getBindingSite().getServiceBroker().getService(this,
+						     LoggingService.class, null);
+
     BlackboardService bbservice=getBlackboardService();
-     DomainService service=getDomainService();
+    DomainService service=getDomainService();
     if((service==null)|| (bbservice==null)){
-      System.out.println(" Unusual error either bbservice or domain service is null:");
+      log.error("Unusual error either bbservice or domain service is null:");
       
     }
-     log = (LoggingService)
-      getBindingSite().getServiceBroker().getService(this,
-	LoggingService.class, null);
-     Collection col=getParameters();
-     if(col.size()>3) {
+
+    Collection col=getParameters();
+    if(col.size()>3) {
       log.debug("setupSubscriptions of TestDummy sensorPlugin called  too many parameters :"); 
     }
     if(col.size()!=0){
@@ -130,7 +149,14 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     registercapabilities();
     registerforEvents();
    
-    
+    // For test purposes
+    sensorCondition = new BootstrapEventCondition(numberOfEvents);
+    bbservice.publishAdd(sensorCondition);
+    // Dummy operating mode
+    dummyOP = new OperatingModeImpl(DUMMY_OP, 
+				    DUMMY_OP_RANGE, 
+				    new Double(5));
+    bbservice.publishAdd(dummyOP);
   }
   
   protected void execute() {
@@ -214,6 +240,10 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
       //System.out.println("Publishing sensor Event :");
       bbservice.publishAdd(e);
 
+      // Increment the total number of events
+      numberOfEvents++;
+      ((BootstrapEventCondition)sensorCondition).setValue(numberOfEvents);
+      bbservice.publishChange(sensorCondition);
     }
      
     
@@ -333,5 +363,31 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     return "Security Analyzer";
   }
 
-   
+  // This condition is used to test the adaptivity engine
+  // A realistic condition should be developed.
+  static class BootstrapEventCondition
+    implements Condition
+  {
+    Double _rate;
+    static final OMCRangeList RANGE = 
+      new OMCRangeList(new Double(0.0), new Double(Integer.MAX_VALUE));
+
+    public BootstrapEventCondition(int rate) {
+      _rate = new Double((double) rate);
+    }
+    
+    public OMCRangeList getAllowedValues() {
+      return RANGE;
+    }
+    
+    public String getName() {
+      return "org.cougaar.core.security.monitoring.BOOTSTRAP_EVENT";
+    }
+
+    public Comparable getValue() {
+      return _rate;
+    }
+    public void setValue(int rate) {
+    }
+  }
 }

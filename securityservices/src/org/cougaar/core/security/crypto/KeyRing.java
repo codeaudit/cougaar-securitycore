@@ -372,6 +372,9 @@ final public class KeyRing
   }
 
   public void removeEntry(String cougaarName) {
+    if (log.isInfoEnabled()) {
+      log.info("Removing entry from keystore");
+    }
     keystore.removeEntry(cougaarName);
   }
 

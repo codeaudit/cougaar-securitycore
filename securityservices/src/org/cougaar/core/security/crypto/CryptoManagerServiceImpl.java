@@ -188,9 +188,8 @@ public class CryptoManagerServiceImpl
 	return obj.getObject(ci);
       }
       catch (Exception e) {
-	if (log.isDebugEnabled()) {
-	  log.debug("Warning: cannot recover message. " + e);
-	  e.printStackTrace();
+	if (log.isWarnEnabled()) {
+	  log.warn("Cannot recover message. " + e);
 	}
 	continue;
       }
