@@ -37,12 +37,16 @@ include_scripts:
 #  - script: clearPnLogs.rb
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
   - script: setup_ping.rb
-  - script: $CIP/csmart/lib/security/scripts/setup_society_ping.rb
 # ######################################################
 # Security rules
   - script: $CIP/csmart/lib/security/scripts/build_config_jarfiles.rb
   - script: $CIP/csmart/lib/security/scripts/setup_acme_user.rb
   - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
+  - script: $CIP/csmart/lib/security/scripts/security_archives.rb
+  - script: $CIP/csmart/lib/security/scripts/saveAcmeEvents.rb
+  # log_node_process_info should be BEFORE setup_society_ping
+  - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_society_ping.rb
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
   - script: $CIP/csmart/lib/security/scripts/revoke_agent_and_node_cert.rb
   - script: $CIP/csmart/lib/security/scripts/stress_security_uc1.rb
@@ -53,8 +57,6 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/invalid_community_request.rb
   - script: $CIP/csmart/lib/security/scripts/check_mop.rb
   - script: $CIP/csmart/lib/security/scripts/parseResults.rb
-  - script: $CIP/csmart/lib/security/scripts/saveAcmeEvents.rb
-  - script: $CIP/csmart/lib/security/scripts/security_archives.rb
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
 # ######################################################
 #  - script: setup_robustness.rb
