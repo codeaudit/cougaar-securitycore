@@ -73,7 +73,7 @@ public class PolicyBootstrapper
 
     xpc = new XMLPolicyCreator(policyPath, new ConfigFinder(), "PolicyBootstrapper");
 
-    if (log.isWarnEnabled()) {
+    if (xpc == null && log.isWarnEnabled()) {
       log.warn("Cannot get XML policy creator instance");
     }
   }
@@ -85,11 +85,19 @@ public class PolicyBootstrapper
     }
     Policy[] ruleParamPolicies = null;
     SecurityPolicy[] policies = null;
-  
-    if (type.equals(SecurityPolicy.class)) {
+
+    Object obj = null;
+    try{  
+      obj = type.newInstance();
+    }catch(Exception e){
+      if(log.isDebugEnabled()) log.debug("getBootPolicy: invaild type specification--"
+      + e.getMessage());
+    }
+      
+    if ( obj instanceof SecurityPolicy) {
       policies = cps.getSecurityPolicies(type);
     }
-    else if (type.equals(Policy.class)) {
+    else if ( obj instanceof Policy) {
       if(xpc!=null) {
         ruleParamPolicies = xpc.getPoliciesByType(type.getName());
       }
@@ -105,29 +113,30 @@ public class PolicyBootstrapper
     SubjectMsg sm = new SubjectMsg("bootID","default","scope");
     Vector v = new Vector();
     v.add(sm);
-    if (policies != null || ruleParamPolicies != null) {
-        policyMsg = new PolicyMsg ("boot",
-				   "BootPolicy",
-				   "boot policy",
-				   type.toString(),
-				   "admin",
-				   v,
-				   false);
-        for (int i=0; i<policies.length; i++) {                    
-            // wrap the policy in a KAoS message
-            AttributeMsg attribMsg = new AttributeMsg("POLICY_OBJECT",
-                                                      policies[i],
-                                                      true);
-            policyMsg.setAttribute(attribMsg);
-        }
-
-        for (int i=0; i<ruleParamPolicies.length; i++) {                    
-            // wrap the policy in a KAoS message
-            AttributeMsg attribMsg = new AttributeMsg("POLICY_OBJECT",
-                                                      ruleParamPolicies[i],
-                                                      true);
-            policyMsg.setAttribute(attribMsg);
-        }
+    policyMsg = new PolicyMsg ("boot",
+       "BootPolicy",
+       "boot policy",
+       type.toString(),
+       "admin",
+       v,
+       false);
+    if (ruleParamPolicies != null) {
+      for (int i=0; i<ruleParamPolicies.length; i++) {                    
+        // wrap the policy in a KAoS message
+        AttributeMsg attribMsg = new AttributeMsg("POLICY_OBJECT",
+                                                  ruleParamPolicies[i],
+                                                  true);
+        policyMsg.setAttribute(attribMsg);
+      }
+    } 
+    if (policies != null) {
+      for (int i=0; i<policies.length; i++) {                    
+        // wrap the policy in a KAoS message
+        AttributeMsg attribMsg = new AttributeMsg("POLICY_OBJECT",
+                                                  policies[i],
+                                                  true);
+        policyMsg.setAttribute(attribMsg);
+      }
     } 
     return policyMsg;
   }
