@@ -1,3 +1,4 @@
+
 /*
  * <copyright>
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
@@ -42,86 +43,72 @@ import org.cougaar.core.component.Service;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.ssl.KeyManager;
 
 /** Low-level service to retrieve certificates and private keys
  */
 public interface KeyRingService extends Service {
 
-  /** ******************************
-   *  Methods to access public keys
-   */
-
-  /** Find the list of all public keys of an entity
-   */
-
-  /** Get an array of certificates associated with a given entity.
-   *  @param principal
-   */
-  List findCert(Principal p);
-
-  /**
-   */
-  List findCert(String commonName);
-
-  Hashtable findCertPairFromNS(String source, String target)
-    throws CertificateException;
-  public List findDNFromNS(String name);
-  public List findCert(X500Name dname, int lookupType, boolean validOnly);
-
   public static final int LOOKUP_LDAP               = 1;
   public static final int LOOKUP_KEYSTORE           = 2;
   public static final int LOOKUP_FORCE_LDAP_REFRESH = 4;
 
-  /**
-   */
-  List findCert(String commonName, int lookupType);
-  List findCert(String commonName, int lookupType, boolean validOnly);
+  void setKeyManager(KeyManager km);
+  void finishInitialization();
 
-  /**
-   */
-  X509Certificate[] findCertChain(X509Certificate c);
-
-  // String getCommonName(String alias);
-
-  /** ******************************
-   *  Methods to access private keys
-   *  Very few selected clients can access this service directly.
-   *  These methods are controlled by the security manager.
-   */
-
-  /**
-   */
-  //KeyStore getKeyStore();
-
-  /**
-   */
-  DirectoryKeyStore getDirectoryKeyStore();
-
-  // Enumeration getAliasList();
-  /**
+   /**
    * @return A list of PrivateKeyCert
    */
 
   List findPrivateKey(String commonName);
   List findPrivateKey(String commonName, boolean validOnly);
-
-  /**
-   * @return A list of PrivateKeyCert
-   */
   List findPrivateKey(X500Name x500name);
 
-  // Enumeration getAliasList();
-
-  /** ******************************
-   *  TODO: Remove these methods
+  /** Get an array of certificates associated with a given entity.
+   *  @param principal
    */
+  List findCert(Principal p);
+  /** Get an array of certificates associated with a given entity.
+   *  @param commonName
+   */
+  List findCert(String commonName);
+
+  List findCert(String commonName, int lookupType);
+  List findCert(String commonName, int lookupType, boolean validOnly);
+  List findCert(X500Name dname, int lookupType, boolean validOnly);
+
+
+  Hashtable findCertPairFromNS(String source, String target) throws CertificateException;
+  List findDNFromNS(String name);
+
+
+  List getValidCertificates(X500Name x500Name);
+  List getValidPrivateKeys(X500Name x500Name);
+
+  void updateNS(String commonName);
+  //void updateNS(X500Name x500name);
+  // String getCommonName(String alias);
+
+  void removeEntry(String commonName);
+  //void addSSLCertificateToCache(X509Certificate cert);
+  //void removeEntryFromCache(String commonName);
+  void setKeyEntry(PrivateKey key, X509Certificate cert);
   void checkOrMakeCert(String name);
   void checkOrMakeCert(X500Name dname, boolean isCACert);
-  void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy tc);
-  Vector getCRL();
-  /* long getSleeptime();
-  void setSleeptime(long sleeptime);
-  */
+  void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy trustedCaPolicy);
+  boolean checkExpiry(String commonName);
+
+  X509Certificate[] findCertChain(X509Certificate c);
+  X509Certificate[] buildCertificateChain(X509Certificate certificate);
+  X509Certificate[] checkCertificateTrust(X509Certificate certificate)throws CertificateChainException,
+    CertificateExpiredException, CertificateNotYetValidException, CertificateRevokedException ;
+
+  boolean checkCertificate(CertificateStatus cs,
+			   boolean buildChain, boolean changeStatus);
+
+
+  String getAlias(X509Certificate clientX509);
+  String findAlias(String commonName);
 
   byte[] protectPrivateKey(List privKey,
 			   List cert,
@@ -138,28 +125,6 @@ public interface KeyRingService extends Service {
 			  List rcvrPrivKey,
 			  List rcvrCert);
 
-  String getAlias(X509Certificate clientX509);
-  String parseDN(String aDN);
-  X509Certificate[] checkCertificateTrust(X509Certificate certificate)
-    throws CertificateChainException, CertificateExpiredException,
-    CertificateNotYetValidException, CertificateRevokedException;
+  //X509CRL getCRL(String  distingushname);
 
-  X509Certificate[] buildCertificateChain(X509Certificate certificate);
-
-  //String getCaKeyStorePath();
-  //String getKeyStorePath();
-
-  boolean checkExpiry(String commonName);
-  void updateNS(String commonName);
-  void updateNS(X500Name x500name);
-  // String getCommonName(String alias);
-
-  void removeEntry(String commonName);
-  //void addSSLCertificateToCache(X509Certificate cert);
-  //void removeEntryFromCache(String commonName);
-  void setKeyEntry(PrivateKey key, X509Certificate cert);
-  CertDirectoryServiceClient getCACertDirServiceClient(String dname);
-  boolean checkCertificate(CertificateStatus cs,
-			   boolean buildChain, boolean changeStatus);
-  List getValidCertificates(X500Name x500Name);
 }
