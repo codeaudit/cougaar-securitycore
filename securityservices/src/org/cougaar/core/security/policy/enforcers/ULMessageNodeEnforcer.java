@@ -204,7 +204,7 @@ public class ULMessageNodeEnforcer
         CipherSuite suites = getAllowedCipherSuites(sender,
                                                     // "##" + 
                                                     receiver);
-        if (suites == null || !suites.isCipherAvailable()) { 
+        if (suites == null) {
           out.print("<p>None</p>");
         } else {
           Iterator iter = suites.getSymmetric().iterator();
