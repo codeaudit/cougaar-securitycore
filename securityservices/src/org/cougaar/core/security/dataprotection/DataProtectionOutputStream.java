@@ -52,7 +52,6 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private SecureMethodParam policy;
   private DataProtectionKeyImpl dpKey;
   private Cipher ci;
-  private ObjectOutputStream oos;
 
   public static final String strPrefix = "--SIGNATUREBEGIN--";
   public static final String strPostfix = "--SIGNATUREEND--";
@@ -88,14 +87,15 @@ public class DataProtectionOutputStream extends FilterOutputStream {
 
     dpKey = (DataProtectionKeyImpl)pke.getDataProtectionKey();
     policy = dpKey.getSecureMethod();
-    // unprotect key
-    SecretKey skey = getSecretKey();
     String digestAlg = dpKey.getDigestAlg();
 
     // encrypt stream
     theos = bos;
     if (policy.secureMethod == SecureMethodParam.ENCRYPT
       || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+      // unprotect key
+      SecretKey skey = getSecretKey();
+
       //Cipher ci=Cipher.getInstance(policy.symmSpec);
       ci = encryptionService.getCipher(policy.symmSpec);
       ci.init(Cipher.ENCRYPT_MODE,skey);
@@ -104,7 +104,6 @@ public class DataProtectionOutputStream extends FilterOutputStream {
 
     MessageDigest md = MessageDigest.getInstance(digestAlg);
     theos = new DigestOutputStream(theos, md);
-    oos = new ObjectOutputStream(out);
 
     System.out.println("Opening output stream " + agent + " : " + new Date());
   }
@@ -117,7 +116,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   }
 
   public void close() throws IOException {
-    System.out.println("Closing output stream " + new Date());
+    System.out.println("Closing output stream " + agent + " : " + new Date());
     flushToOutput(true);
 
     if (ci != null)
@@ -134,7 +133,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     theos.close();
 
     // use this as a marker
-    //out.write(strPrefix.getBytes());
+    ObjectOutputStream oos = new ObjectOutputStream(out);
     oos.writeInt(bos.size());
     oos.writeInt(genDigest ? 1 : 0);
     oos.flush();
@@ -156,6 +155,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
           SecretKey skey = getSecretKey();
           sobj = encryptionService.symmEncrypt(skey, policy.symmSpec, sobj);
         }
+        oos = new ObjectOutputStream(out);
         oos.writeObject(sobj);
         oos.flush();
       } catch (GeneralSecurityException ex) {

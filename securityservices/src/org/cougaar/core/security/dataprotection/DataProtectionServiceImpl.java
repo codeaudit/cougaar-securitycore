@@ -133,6 +133,11 @@ public class DataProtectionServiceImpl
       dpKey = createDataProtectionKey(agent);
       pke.setDataProtectionKey(dpKey);
     }
+
+    SecureMethodParam policy = ((DataProtectionKeyImpl)dpKey).getSecureMethod();
+    if (policy.secureMethod == SecureMethodParam.PLAIN)
+      return os;
+
     // check whether key needs to be replaced
 
     return new DataProtectionOutputStream(os, pke, agent, serviceBroker);
@@ -146,15 +151,19 @@ public class DataProtectionServiceImpl
     if (policy == null)
        throw new RuntimeException("Could not find data protection policy for " + agent);
 
-    SecureRandom random = new SecureRandom();
-    KeyGenerator kg = KeyGenerator.getInstance(keygenAlg);
-    kg.init(random);
-    SecretKey sk = kg.generateKey();
-    X509Certificate agentCert = keyRing.findFirstAvailableCert(agent);
+    if (policy.secureMethod == SecureMethodParam.ENCRYPT
+      || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+      SecureRandom random = new SecureRandom();
+      KeyGenerator kg = KeyGenerator.getInstance(keygenAlg);
+      kg.init(random);
+      SecretKey sk = kg.generateKey();
+      X509Certificate agentCert = keyRing.findFirstAvailableCert(agent);
 
-    SealedObject skeyobj = encryptionService.asymmEncrypt(agent,
-      policy.asymmSpec, sk, agentCert);
-    return new DataProtectionKeyImpl(skeyobj, digestAlg, policy);
+      SealedObject skeyobj = encryptionService.asymmEncrypt(agent,
+        policy.asymmSpec, sk, agentCert);
+      return new DataProtectionKeyImpl(skeyobj, digestAlg, policy);
+    }
+    return new DataProtectionKeyImpl(null, digestAlg, policy);
   }
 
   public void reprotectClient(DataProtectionServiceClient client, PrivateKey oldkey)
@@ -256,6 +265,11 @@ public class DataProtectionServiceImpl
 
     if (log.isDebugEnabled())
       log.debug("getInputStream for " + agent);
+
+    DataProtectionKeyImpl dpKey = (DataProtectionKeyImpl)pke.getDataProtectionKey();
+    SecureMethodParam policy = dpKey.getSecureMethod();
+    if (policy.secureMethod == SecureMethodParam.PLAIN)
+      return is;
 
     // check if there is key and certificate created for the client
     List certList = keyRing.findCert(agent);

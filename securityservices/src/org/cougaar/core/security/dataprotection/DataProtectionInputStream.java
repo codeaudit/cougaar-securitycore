@@ -59,6 +59,11 @@ public class DataProtectionInputStream extends FilterInputStream {
   private DataProtectionDigestObject dobj = null;
   private static int skiplimit = 2000;
 
+  private byte [] rbytes = new byte[2000];
+
+  private SecretKey skey = null;
+  private ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
   public DataProtectionInputStream(InputStream is,
     DataProtectionKeyEnvelope pke,
     String agent,
@@ -88,7 +93,15 @@ public class DataProtectionInputStream extends FilterInputStream {
     if (dpKey == null)
       throw new GeneralSecurityException("No data protection key present.");
     policy = dpKey.getSecureMethod();
+    skey = getSecretKey();
+    md = MessageDigest.getInstance(dpKey.getDigestAlg());
+    if (policy.secureMethod == SecureMethodParam.ENCRYPT
+      || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+      //ci=Cipher.getInstance(policy.symmSpec);
+      ci=encryptionService.getCipher(policy.symmSpec);
+    }
 
+    System.out.println("Opening inputStream: " + agent + " : " + new Date());
     theis = processStream(is);
   }
 
@@ -129,6 +142,11 @@ public class DataProtectionInputStream extends FilterInputStream {
     throws IOException
   {
     // clean up?
+    System.out.println("Closing inputStream " + new Date());
+
+    verifyDigest();
+    if (ci != null)
+      encryptionService.returnCipher(policy.symmSpec, ci);
     super.close();
   }
 
@@ -194,20 +212,8 @@ public class DataProtectionInputStream extends FilterInputStream {
       }
     }
 
+    //System.out.println("read: " + len + " : " + result);
     return result;
-  }
-
-  private void initStream()
-    throws GeneralSecurityException
-  {
-    md = MessageDigest.getInstance(dpKey.getDigestAlg());
-    if (policy.secureMethod == SecureMethodParam.ENCRYPT
-      || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
-      // unprotect key
-      SecretKey skey = getSecretKey();
-      ci=Cipher.getInstance(policy.symmSpec);
-      ci.init(Cipher.DECRYPT_MODE,skey);
-    }
   }
 
   private SecretKey getSecretKey()
@@ -215,6 +221,22 @@ public class DataProtectionInputStream extends FilterInputStream {
   {
     return (SecretKey)encryptionService.asymmDecrypt(agent,
         policy.asymmSpec, (SealedObject)dpKey.getObject());
+  }
+
+  private void verifyDigest()
+    throws IOException
+  {
+    if (dobj != null) {
+      md = ((DigestInputStream)theis).getMessageDigest();
+      // reset so that digest does not get updated
+      theis = null;
+      if (!MessageDigest.isEqual(dobj.getDigest(), md.digest()))
+        throw new IOException("Digest does not match");
+      if (log.isDebugEnabled())
+        log.debug("Decrypt successful, digest matching.");
+      dobj = null;
+    }
+
   }
 
   /**
@@ -233,30 +255,24 @@ public class DataProtectionInputStream extends FilterInputStream {
     throws IOException, GeneralSecurityException
   {
     //verify digest
-    if (dobj != null) {
-      md = ((DigestInputStream)theis).getMessageDigest();
-      if (!MessageDigest.isEqual(dobj.getDigest(), md.digest()))
-        throw new GeneralSecurityException("Digest does not match");
-      if (log.isDebugEnabled())
-        log.debug("Decrypt successful, digest matching.");
-    }
+    verifyDigest();
 
     if (is.available() == 0)
       return null;
-
-    byte [] rbytes = new byte[2000];
 
     /*
     int read = is.read(rbytes, 0, DataProtectionOutputStream.strPrefix.length());
     System.out.println("Read:" + new String(rbytes, 0, read));
     */
 
-    dobj = (DataProtectionDigestObject)getSignedObject(is);
-    initStream();
+    //dobj = (DataProtectionDigestObject)getSignedObject(is);
 
-    int totalBytes = dobj.getEncryptedSize();
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    //int totalBytes = dobj.getEncryptedSize();
+    ObjectInputStream ois = new ObjectInputStream(is);
+    int totalBytes = ois.readInt();
+    int readDigest = ois.readInt();
 
+    bos.reset();
     while (totalBytes > 0) {
       int result = (totalBytes > rbytes.length) ? rbytes.length : totalBytes;
       result = is.read(rbytes, 0, result);
@@ -268,10 +284,21 @@ public class DataProtectionInputStream extends FilterInputStream {
       bos.write(rbytes, 0, result);
     }
 
+    // digest is at the end of the whole stream
+    if (readDigest == 1)
+      dobj = (DataProtectionDigestObject)getSignedObject(is);
+    //System.out.println("digest: " + readDigest + " : " + dobj);
+
     InputStream dis = new ByteArrayInputStream(bos.toByteArray());
-    if (ci != null)
+    if (ci != null) {
+      ci.init(Cipher.DECRYPT_MODE,skey);
       dis = new CipherInputStream(dis, ci);
+    }
     // get digest stream
+    if (theis != null) {
+      md = ((DigestInputStream)theis).getMessageDigest();
+    }
+
     dis = new DigestInputStream(dis, md);
 
     /*
@@ -287,16 +314,22 @@ public class DataProtectionInputStream extends FilterInputStream {
     // verify signed object
     try {
       ObjectInputStream ois = new ObjectInputStream(is);
-      SealedObject sealedObj = (SealedObject)ois.readObject();
-      SecretKey skey = getSecretKey();
-      SignedObject sobj = (SignedObject)
-        encryptionService.symmDecrypt(skey, sealedObj);
-      if (sobj == null)
-        throw new GeneralSecurityException("Invalid private key");
-      Object obj = encryptionService.verify(agent, policy.signSpec, sobj, true);
-      if (obj == null)
-        throw new GeneralSecurityException("Cannot verify signature.");
-      return obj;
+      Object sobj = (Serializable)ois.readObject();
+      //SecretKey skey = getSecretKey();
+      if (policy.secureMethod == SecureMethodParam.ENCRYPT
+        || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+        sobj = encryptionService.symmDecrypt(skey, (SealedObject)sobj);
+        if (sobj == null)
+          throw new GeneralSecurityException("Invalid private key");
+      }
+      if (policy.secureMethod == SecureMethodParam.SIGN
+        || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+        sobj = encryptionService.verify(agent, policy.signSpec,
+          (SignedObject)sobj, true);
+        if (sobj == null)
+          throw new GeneralSecurityException("Cannot verify signature.");
+      }
+      return sobj;
     } catch (ClassNotFoundException ex) {
       throw new IOException("Cannot retrieve object" + ex.toString());
     }
