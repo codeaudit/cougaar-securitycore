@@ -197,7 +197,7 @@ public class AccessAgentProxy
        *
        *REMOVED for 10.2 port - mluu
        */
-          
+      /*
       TrustSet[] ts;
       ts = checkOutgoing(message);
 
@@ -214,6 +214,8 @@ public class AccessAgentProxy
         log.debug("DONE sending Message from Access Agent proxy"
           +mwt.toString());
       }
+      */
+      mts.sendMessage(message);
     }//if(mts!=null)
   }
   
@@ -295,6 +297,21 @@ public class AccessAgentProxy
       log.info("receiveMessage: "
 		+ getMessageAddress().toString() +" : "+ m.toString());
     }
+    if (true) {
+      // Check verb of incoming message
+      boolean tossMessage = checkInVerbs(m);
+      if (tossMessage) {
+        publishMessageFailure(m.getOriginator().toString(),
+			      m.getTarget().toString(),
+			      MessageFailureEvent.INVALID_MESSAGE_CONTENTS,
+			      m.toString());
+	if(log.isWarnEnabled()) {
+          log.warn("Rejecting incoming message: " + m);
+        }
+        return;
+      }
+      mtc.receiveMessage(m);
+    } else {
     if (m instanceof MessageWithTrust ) {
       if(log.isDebugEnabled()) {
       	log.debug(" Got instance of MWT");
@@ -410,7 +427,7 @@ public class AccessAgentProxy
         }
         return;
       }
-//    }
+    }
   }
   
   /** removes the nth directive from a directive message */
@@ -444,6 +461,9 @@ public class AccessAgentProxy
    * @param direction true: incoming message. false: outgoing message.
    */
   private boolean checkMessage(Message msg, boolean direction) {
+    if (log.isDebugEnabled()) {
+      log.debug("checkMessage(" + msg + ", " + direction);
+    }
     String source = msg.getOriginator().toString();
     String target = msg.getTarget().toString();
 
@@ -473,6 +493,9 @@ public class AccessAgentProxy
         }
         boolean denied = isMessageDenied(source, target, verb, direction);
         if (denied) {
+          if (log.isDebugEnabled()) {
+            log.debug("Stripping task with verb " + verb);
+          }
           directive[i] = null;
           newLen--;
         }
@@ -494,7 +517,9 @@ public class AccessAgentProxy
   private boolean isMessageDenied(String source, String target, 
                                   String verb, boolean direction) {
     if (USE_DAML) {
-      return _enforcer.isActionAuthorized(source, target, verb.toString());
+      boolean ret =  _enforcer.isActionAuthorized(source, target, verb);
+      log.debug("isActionAuthorized returns "  + ret);
+      return !ret;
     }
     if (verb == null) {
       // only DAML policy handles no verb case
