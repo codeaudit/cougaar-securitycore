@@ -26,6 +26,7 @@
 
 package org.cougaar.core.security.services.identity;
 
+import java.security.cert.Certificate;
 import org.cougaar.core.component.Service;
 
 public interface UserIdentityService extends Service {
@@ -65,6 +66,14 @@ public interface UserIdentityService extends Service {
   public void RevokeCryptographicIdentity(UserProfile profile);
 
   /**
+   * Check certificate validity - check if certificate is not yet valid,
+   *               is expired, is revoked, is not trusted (selfsigned), etc.
+   *
+   * Should this be provided in another api?
+   */
+  public boolean checkCryptographicIdentity(Certificate cert);
+
+  /**
    * User management
    * The information on user profile will be stored in centralized
    * data storage (database or LDAP). And the user information
@@ -93,8 +102,10 @@ public interface UserIdentityService extends Service {
   public UserProfile getUserProfile(String username);
 
   /**
-   *
+   * The certificates associate with the user profile needs to
+   * be revoked as well.
    */
   public void removeUser(UserProfile profile);
+
 }
 
