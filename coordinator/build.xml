@@ -65,7 +65,7 @@
         <pathelement location="${cougaar.install.path}/lib/mtsstd.jar"/>
         <pathelement location="${cougaar.install.path}/lib/planning.jar"/>
         <!-- Coordinator -->
-        <pathelement location="${cougaar.install.path}/lib/coordinator.jar"/>
+        <pathelement location="lib/security/coordinator.jar"/>
         <!-- KAoS libraries -->
     	<!--
         <pathelement location="${securityservices.base}/lib/kaos.jar"/>
@@ -83,7 +83,7 @@
         <pathelement location="${securityservices.base}/lib/security/secure_util.jar"/>
         <pathelement location="${securityservices.base}/lib/security/securityservices.jar"/>
 -->
-        <pathelement location="${cougaar.install.path}/lib/secure_util.jar"/>
+        <pathelement location="lib/security/secure_util.jar"/>
     </path>
 
     <target name="tstamp">
