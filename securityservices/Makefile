@@ -123,6 +123,8 @@ install: installconf
 	mkdir ${COUGAAR_INSTALL_PATH}/log/core
 	mkdir ${COUGAAR_INSTALL_PATH}/log/plugin
 
+	rm -f ${COUGAAR_INSTALL_PATH}/sys/tomcat_33.jar 
+
 	@echo Do not forget to run make confnai
 	@echo DO NOT FORGET to modify the alpreg.ini file
 	@echo +++++++ Done installing jar files and log directories
@@ -135,6 +137,8 @@ installconf:
 	cp lib/*.jar ${COUGAAR_INSTALL_PATH}/lib
 #	cp -r ./test/configs/demo ${COUGAAR_INSTALL_PATH}/configs/.
 #	cp -r ./test/configs/ul-mini-config  ${COUGAAR_INSTALL_PATH}/configs/.
+
+	cp test/configs/tomcat4/server.xml ${COUGAAR_INSTALL_PATH}/webtomcat/data/conf
 
 confnai:
 	echo +++++++ Installing NAI configuration files
