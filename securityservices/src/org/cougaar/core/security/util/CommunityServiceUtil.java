@@ -1472,11 +1472,14 @@ public class CommunityServiceUtil {
        requestType == Request.MODIFY_ATTRIBUTES) {
       // hard coded for now, but in the future, we will have a policy that may allow
       // an agent to issue community service request on behalf of another agent.
-      if(!(request.getSource().toString().equals(msgSource) &&
-           request.getEntity() != null &&
-           request.getEntity().getName().equals(msgSource))) {
-        valid = false;
+      Entity e = request.getEntity();
+      if(e != null && e instanceof Agent) {
+        if(!(request.getSource().toString().equals(msgSource) &&
+             e.getName().equals(msgSource))) {
+          valid = false;
+        }
       }
+      // else handle CommunityImpl
     }
     return valid; 
   }
