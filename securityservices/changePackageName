@@ -21,7 +21,7 @@ find . -name 'Makefile*' -exec sarep 'com.nai.security.bootstrap' 'org.cougaar.c
 find . -name 'Makefile*' -exec sarep 'com.nai.security' 'org.cougaar.core.security' {} \;
 
 echo  ############################################
-echo ' +++++ Moving com directory to org/cougaar'
+echo ' ++++++ Moving com directory to org/cougaar'
 # Remove 'CVS' directory under src/com
 find src/com/ -name CVS -type d -exec rm -rf {} \;
 find src/org/cougaar/core/security/securebootstrap/ -name CVS -type d -exec rm -rf {} \;
@@ -34,3 +34,6 @@ mv src/com/nai/security src/org/cougaar/core
 
 # Remove any remaining directory under com
 rm -rf src/com
+
+echo ' ++++++ Done'
+echo  ############################################
