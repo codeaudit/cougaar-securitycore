@@ -34,7 +34,6 @@ import java.lang.*;
 import com.nai.security.bootstrap.JaasClient;
 
 public class PlugIn
-  implements java.security.PrivilegedExceptionAction
 {
   String name = null;
 
@@ -42,7 +41,7 @@ public class PlugIn
     name = plugInName;
   }
 
-  public Object run() {
+  public Object execute() {
     // Attempts to read a file for which we should not
     // have access
     JaasClient.printPrincipals();

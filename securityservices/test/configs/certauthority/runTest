@@ -33,7 +33,7 @@ case "1":
     # keystore test
     echo "Running ${choice1} ..."
     set execclass = com.nai.security.certauthority.KeyManagement
-    set args = "-1 srosset testalias RSA"
+    set args = "-1 ${user} testalias RSA"
     set args = "${args} -10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer"
     set args = "${args} -7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer"
     breaksw

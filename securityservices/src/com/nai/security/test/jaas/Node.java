@@ -32,6 +32,9 @@ import java.security.PrivilegedAction;
 import com.nai.security.bootstrap.JaasClient;
 import com.nai.security.bootstrap.CougaarSecurityManager;
 
+/** A simple simulation of a node with JAAS security contexts.
+ *  The node starts agents in their own security context.
+ */
 public class Node {
   public static void main(String args[]) {
     System.out.println("TestJaas main()");
@@ -39,12 +42,10 @@ public class Node {
     Node node = new Node();
     String agentName1 = "3ID-HHC";
     String agentName2 = "NCA";
-    DummyAgent agent = null;
-
-    // Set security manager
-    //System.setSecurityManager(new CougaarSecurityManager());
+    Agent agent = null;
 
     try {
+      // Start agentName1 in its own security context
       agent = node.launchAgent(agentName1);
     }
     catch (Exception e) {
@@ -52,23 +53,23 @@ public class Node {
     }
   }
 
-  private DummyAgent launchAgent(final String agentName)
+  private Agent launchAgent(final String agentName)
   {
-    DummyAgent agent = null;
+    Agent agent = null;
     JaasClient jc = new JaasClient();
     try {
       System.out.println("Agent Manager starting "
 			 + agentName);
-      agent = (DummyAgent)
+      agent = (Agent)
 	jc.doAs(agentName,
 		new java.security.PrivilegedExceptionAction() {
 		    public Object run() throws Exception {
-		      DummyAgent agent = new DummyAgent(agentName);
+		      Agent agent = new Agent(agentName);
 		      System.out.println("Agent manager: "
 					 + agentName
 					 + " security context is:");
 		      JaasClient.printPrincipals();
-		      agent.run();
+		      agent.execute();
 		      return (Object) agent;
 		    }
 		  });

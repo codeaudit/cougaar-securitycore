@@ -31,14 +31,13 @@ import java.util.Iterator;
 import com.nai.security.bootstrap.JaasClient;
 
 public class Agent
-  implements java.security.PrivilegedExceptionAction
 {
   String name = null;
   public Agent(String aName) {
     name = aName;
   }
 
-  public Object run() {
+  public Object execute() {
     launchPlugIn("LDM");
     return null;
   }
@@ -59,7 +58,7 @@ public class Agent
 					 + plugInName
 					 + " security context is:");
 		      JaasClient.printPrincipals();
-		      plugin.run();
+		      plugin.execute();
 		      return (Object) plugin;
 		    }
 		  });
