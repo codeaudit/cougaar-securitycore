@@ -90,8 +90,8 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
       }
       if (found) {
         this.failures++;
-        if (logging.isDebugEnabled()) {
-          logging.debug("Was able to modify OrgActivity Object!");
+        if (logging.isWarnEnabled()) {
+          logging.warn("Was able to modify OrgActivity Object!");
         }
 
         this.createIDMEFEvent(pluginName, "Able to modify OrgActivity on the Blackboard!");

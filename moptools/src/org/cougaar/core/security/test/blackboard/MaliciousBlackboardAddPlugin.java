@@ -103,8 +103,8 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
       }
 
       if (found) {
-	if (logging.isDebugEnabled()) {
-	  logging.debug("Found added org activity");
+	if (logging.isWarnEnabled()) {
+	  logging.warn("Found added org activity");
 	}
 	//failure
 	this.failures++;

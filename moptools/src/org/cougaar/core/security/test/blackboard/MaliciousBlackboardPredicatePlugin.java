@@ -33,6 +33,8 @@ import org.cougaar.util.UnaryPredicate;
 
 import java.util.Collection;
 import java.util.Iterator;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 
 /**
@@ -41,6 +43,11 @@ import java.util.Iterator;
  * @author ttschampel
  */
 public class MaliciousBlackboardPredicatePlugin extends AbstractBlackboardPlugin {
+  private static Logger _log;
+  static {
+    _log = LoggerFactory.getInstance().createLogger(MaliciousBlackboardPredicatePlugin.class);
+  }
+
   private UnaryPredicate evilPredicate = new UnaryPredicate() {
     public boolean execute(Object o) {
       return true;
@@ -56,6 +63,9 @@ public class MaliciousBlackboardPredicatePlugin extends AbstractBlackboardPlugin
         obj = null;
         totalRuns++;
         failures++;
+	if (_log.isWarnEnabled()) {
+	  _log.warn("Able to get OrgActivity in predicate");
+	}
         createIDMEFEvent(pluginName, "Able to get OrgActivity in predicate");
         bol = true;
       }
@@ -86,11 +96,13 @@ public class MaliciousBlackboardPredicatePlugin extends AbstractBlackboardPlugin
       if (iterator.next() instanceof OrgActivity) {
         gotOrgActivity = true;
         break;
-
       }
     }
 
     if (gotOrgActivity) {
+      if (_log.isWarnEnabled()) {
+	_log.warn("Got an OrgActivity from predicate");
+      }
       this.failures++;
       this.createIDMEFEvent(pluginName, "Got an OrgActivity from predicate");
     } else {

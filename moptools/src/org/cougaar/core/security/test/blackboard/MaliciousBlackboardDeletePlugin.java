@@ -81,8 +81,8 @@ public class MaliciousBlackboardDeletePlugin extends AbstractBlackboardPlugin {
       }
 
       if (foundIt) {
-        if (logging.isDebugEnabled()) {
-          logging.debug("Was Able to delete an OrgActivity!");
+        if (logging.isWarnEnabled()) {
+          logging.warn("Was Able to delete an OrgActivity!");
         }
 
         this.failures++;
