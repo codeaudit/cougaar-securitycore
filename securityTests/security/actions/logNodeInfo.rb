@@ -173,7 +173,7 @@ module Cougaar
 
         def NodeInfo.header_string
           #      "05/13/2004 13:51:24 u129            16434  ROOT-CA-NODE                         1"
-	  return "Date       Time     Host            PID    Node_Name                            RSZ\tXMX\tPCPU\tPMEM\tRSS\tL1\tL5\tL15"
+	  return "Date       Time     Host            PID    Node_Name                            RSZ\tXMX\tDIFF\tPCPU\tPMEM\tRSS\tL1\tL5\tL15"
         end
        
         def to_s
@@ -192,7 +192,9 @@ module Cougaar
               value = value
             end
           }
-          s += "#{value}\t#{pcpu}\t#{pmem}\t#{rss}"
+          # Compute diff between XMX and RSZ
+          diff = value.to_i - rsz.to_i
+          s += "#{value}\t#{diff}\t#{pcpu}\t#{pmem}\t#{rss}"
           s += "\t#{load1min}\t#{load5min}\t#{load15min}"
         end
         
