@@ -73,6 +73,7 @@ public class CryptoClientPolicyHandler
   private static final String SIGALGNAME_ELEMENT   = "sigAlgName";
   private static final String KEYSIZE_ELEMENT      = "keysize";
   private static final String VALIDITY_ELEMENT     = "validity";
+  private static final String ENVELOPE_ELEMENT     = "timeEnvelope";
   private static final String NODE_IS_SIGNER_ELEMENT = "nodeIsSigner";
 
 
@@ -84,7 +85,7 @@ public class CryptoClientPolicyHandler
 			    ContentHandler parent,
 			    String role,
 			    String topLevelTag) {
-    
+
     if (log.isDebugEnabled()) {
       log.debug("Reading crypto client policy");
     }
@@ -121,7 +122,7 @@ public class CryptoClientPolicyHandler
     }
 
     if (log.isDebugEnabled()) {
-      log.debug("CryptoClientPolicy: " + localName 
+      log.debug("CryptoClientPolicy: " + localName
 		+ " = " + getContents());
     }
 
@@ -240,9 +241,11 @@ public class CryptoClientPolicyHandler
       duration.parse(getContents());
       currentCertAttr.howLong = duration.getDuration();
     }
-
-    // Reset contents
-    contents.reset();
+    if (localName.equals(ENVELOPE_ELEMENT)) {
+      Duration duration = new Duration(serviceBroker);
+      duration.parse(getContents());
+      currentCertAttr.regenEnvelope = duration.getDuration();
+    }
   }
 
 }

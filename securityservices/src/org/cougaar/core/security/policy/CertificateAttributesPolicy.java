@@ -78,6 +78,10 @@ public class CertificateAttributesPolicy {
    */
   public boolean nodeIsSigner;
 
+  /** Determines when to regenerate keys
+   */
+  public long regenEnvelope;
+
   /**
    * Certificate Version, used for node to create agent certificate
    */
