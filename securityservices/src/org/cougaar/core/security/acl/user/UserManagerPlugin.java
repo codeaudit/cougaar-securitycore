@@ -66,7 +66,12 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
+ * @author srosset
  *
+ * This UserManagerPlugin class provides the following capabilities:
+ *  - Reading a list of users and passwords from a configuration file.
+ *  - Storing users and passwords on the blackboard.
+ *  - Processing requests from remote agents, such as authentication users.
  */
 public class UserManagerPlugin extends ComponentPlugin {
   private DomainService    _domainService;
