@@ -85,7 +85,7 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
   private MessageAddress myAddress;
   // For test purposes
   private Condition sensorCondition;
-  private int numberOfEvents;
+  private int numberOfEvents = 0;
   private OperatingMode dummyOP = null;
   private static final String DUMMY_OP =
     "org.cougaar.core.security.monitoring.DUMMY_OP";
@@ -122,6 +122,10 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
       log.error("Unusual error either bbservice or domain service is null:");
       
     }
+    // For test purposes
+    sensorCondition = new BootstrapEventCondition(numberOfEvents);
+    bbservice.publishAdd(sensorCondition);
+
     myAddress = getBindingSite().getAgentIdentifier();
     log.debug("setupSubscriptions of  called for BootStrapSensor Plugin in  :"+ myAddress.toString()); 
     String mySecurityCommunity= getMySecurityCommunity();
@@ -152,9 +156,6 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     //registercapabilities();
     registerforEvents();
    
-    // For test purposes
-    sensorCondition = new BootstrapEventCondition(numberOfEvents);
-    bbservice.publishAdd(sensorCondition);
     // Dummy operating mode
     dummyOP = new OperatingModeImpl(DUMMY_OP, 
 				    DUMMY_OP_RANGE, 
