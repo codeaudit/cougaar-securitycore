@@ -39,6 +39,7 @@ public class ServletPolicy extends SecurityPolicy {
     public List   urls;
     public String auth;
     public List   roles;
+    public boolean requireSSL = false;
     
     public String toString() {
       StringBuffer buf = new StringBuffer();
@@ -64,17 +65,19 @@ public class ServletPolicy extends SecurityPolicy {
     }
   }
 
-  public void addRule(String agent, List urls, String auth, List roles) {
+  public void addRule(String agent, List urls, String auth, List roles,
+                      boolean requireSSL) {
     ServletPolicyRule spr = new ServletPolicyRule();
     spr.agentName = agent;
     spr.urls = urls;
     spr.auth = auth;
     spr.roles = roles;
+    spr.requireSSL = requireSSL;
     _rules.add(spr);
   }
 
-  public void addRootRule(List urls, String auth, List roles) {
-    addRule(null, urls, auth, roles);
+  public void addRootRule(List urls, String auth, List roles, boolean requireSSL) {
+    addRule(null, urls, auth, roles, requireSSL);
   }
 
   public List getRules() {

@@ -239,6 +239,10 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
 
         SecurityConstraint constraint = new SecurityConstraint();
 
+        if (rule.requireSSL) {
+          constraint.setUserConstraint("CONFIDENTIAL");
+        }
+
         Iterator jter = rule.roles.iterator();
         while (jter.hasNext()) {
           String role = jter.next().toString();

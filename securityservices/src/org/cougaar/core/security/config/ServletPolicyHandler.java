@@ -48,6 +48,7 @@ public class ServletPolicyHandler extends BaseConfigHandler {
   private List          _roles;
   private String        _authType;
   private List          _patterns;
+  private boolean       _requireSSL;
   
   public ServletPolicyHandler(ServiceBroker sb) {
     super(sb);
@@ -83,6 +84,25 @@ public class ServletPolicyHandler extends BaseConfigHandler {
       _patterns = new ArrayList();
       _roles    = new ArrayList();
       _authType = null;
+      String requireSSL = attrs.getValue("requireSSL");
+      _requireSSL = false;
+      if ("yes".equalsIgnoreCase(requireSSL) ||
+          "true".equalsIgnoreCase(requireSSL) ||
+          "1".equals(requireSSL)) {
+        _requireSSL = true;
+      }
+      _authType = attrs.getValue("auth");
+      if (_authType == null) {
+        _authType = "EITHER";
+      } else if ("CERT".equalsIgnoreCase(_authType) ||
+                 "EITHER".equalsIgnoreCase(_authType) ||
+                 "PASSWORD".equalsIgnoreCase(_authType)) {
+        _authType = _authType.toUpperCase();
+      } else {
+        log.error("Invalid auth type: '" + _authType +
+                    "' expecting EITHER, PASSWORD, or CERT");
+        _authType = "EITHER";
+      }
     }
   }
   
@@ -97,16 +117,6 @@ public class ServletPolicyHandler extends BaseConfigHandler {
 
     if (localName.equals("role")) {
       _roles.add(getContents());
-    } else if (localName.equals("auth")) {
-      String val = getContents();
-      if ("CERT".equalsIgnoreCase(val) ||
-          "EITHER".equalsIgnoreCase(val) ||
-          "PASSWORD".equalsIgnoreCase(val)) {
-        _authType = val.toUpperCase();
-      } else {
-        log.error("Invalid auth type: '" + val +
-                    "' expecting EITHER, PASSWORD, or CERT");
-      }
     } else if (localName.equals("pattern")) {
       _patterns.add(getContents());
     } else if (localName.equals("agent")) {
@@ -120,9 +130,9 @@ public class ServletPolicyHandler extends BaseConfigHandler {
                   "at least one role. Skipping this one");
       } else {
         if (_agent == null) {
-          _policy.addRootRule(_patterns, _authType, _roles);
+          _policy.addRootRule(_patterns, _authType, _roles, _requireSSL);
         } else {
-          _policy.addRule(_agent, _patterns, _authType, _roles);
+          _policy.addRule(_agent, _patterns, _authType, _roles, _requireSSL);
         }
         _roles    = null;
         _authType = null;
