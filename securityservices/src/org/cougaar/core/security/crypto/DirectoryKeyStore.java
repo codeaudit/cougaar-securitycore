@@ -1720,7 +1720,7 @@ public class DirectoryKeyStore
     return title;
   }
 
-  protected String getX500DN(String commonName) {
+  public String getX500DN(String commonName) {
     String dn = "cn=" + commonName
       + ", ou=" + cryptoClientPolicy.getCertificateAttributesPolicy().ou
       + ",o=" + cryptoClientPolicy.getCertificateAttributesPolicy().o
@@ -2010,11 +2010,21 @@ public class DirectoryKeyStore
 	}
       }
       else {
-        // make self signed key
-        if (commonName.equals(getHostName()))
-          keyAlias = makeKeyPair(dname, false);
-        if (getNodeCert(nodeName) == null)
+        PrivateKey nodeprivatekey = null;
+        try {
+          nodeprivatekey = getNodeCert(nodeName);
+        } catch (Exception nex) {
+          if (log.isWarnEnabled())
+            log.warn("Failed to get node cert. Reason: " + nex);
+        }
+        if (nodeprivatekey == null) {
+          if (commonName.equals(getHostName())) {
+            if (log.isDebugEnabled())
+              log.debug("Creating self signed host key");
+            makeKeyPair(dname, false);
+          }
           return null;
+        }
 
 	// The Node key should exist now
 	if (log.isDebugEnabled()) {
