@@ -57,15 +57,20 @@ public class SecureConfigFinderTest
    *  args[0] should be the name of a configuration file
    */
   public void setUp() {
-    
   }
 
   public void testSecureConfigFinder() {
-    String files[] = {"BootPolicy.ldm.xml", "cryptoPolicy.xml", "foo"};
-    testFiles(files);
+    String knownFiles[] = {"BootPolicy.ldm.xml", "cryptoPolicy.xml"};
+    String unknownFiles[] = {"foo.ldm.xml", "bar.xml"};
+    testFiles(knownFiles, true);
+    testFiles(unknownFiles, false);
   }
 
-  private void testFiles(String files[]) {
+  /** 
+   * @param files - A list of files to be found in JAR files.
+   * @param shouldExist - Whether the files should be found in the path or not.
+   */
+  private void testFiles(String files[], boolean shouldExist) {
     Assert.assertNotNull(files);
     Assert.assertTrue(files.length > 0);
     _scf = (SecureConfigFinder)ConfigFinder.getInstance();
@@ -75,12 +80,12 @@ public class SecureConfigFinderTest
       _scf.appendAndSearch(jarFiles[i], null);
     }
     // Search file. It should be found in the config path.
-    testLocateFile(files);
-    testOpen(files);
-    testFind(files);
-    testParseXMLConfigFile(files);
+    testLocateFile(files, shouldExist);
+    testOpen(files, shouldExist);
+    testFind(files, shouldExist);
+    testParseXMLConfigFile(files, shouldExist);
     // Search again same file. It should be found in cache.
-    testLocateFile(files);
+    testLocateFile(files, shouldExist);
   }
 
   private URL[] getJarFilesFromClassPath() {
@@ -96,12 +101,19 @@ public class SecureConfigFinderTest
     return jarFiles;
   }
 
-  private void testLocateFile(String files[]) {
+  private void testLocateFile(String files[], boolean shouldExist) {
     for (int i = 0 ; i < files.length ; i++) {
       _logger.debug("Looking up file handle for: " + files[i]);
       try {
 	File f = _scf.locateFile(files[i]);
-	if (f.exists()) {
+	boolean exists = f.exists();
+	if (shouldExist) {
+	  Assert.assertTrue("File does not exist but it should:" + files[1], exists);
+	}
+	else {
+	  Assert.assertTrue("File exists but it should not:" + files[1], !exists);
+	}
+	if (exists) {
 	  dumpFileContent(files[i], new FileInputStream(f), 4);
 	}
 	else {
@@ -114,40 +126,65 @@ public class SecureConfigFinderTest
     }
   }
 
-  private void testOpen(String files[]) {
+  private void testOpen(String files[], boolean shouldExist) {
     for (int i = 0 ; i < files.length ; i++) {
       _logger.debug("Looking up file InputStream for: " + files[i]);
       try {
 	InputStream is = _scf.open(files[i]);
 	dumpFileContent(files[i], is, 4);
+	if (!shouldExist) {
+	  Assert.fail("File should not exist:" + files[i]);
+	}
       }
       catch (Exception e) {
 	_logger.warn("Unable to open file:" + files[i]);
+	if (shouldExist) {
+	  Assert.fail("Unable to open file:" + files[i]);
+	}
       }
     }
   }
 
-  private void testFind(String files[]) {
+  private void testFind(String files[], boolean shouldExist) {
     for (int i = 0 ; i < files.length ; i++) {
       _logger.debug("Looking up file URL: " + files[i]);
       try {
-	_logger.debug(files[i] + " : " + _scf.find(files[i]));
+	URL aURL = _scf.find(files[i]);
+	_logger.debug(files[i] + " : " + aURL);
+	if (!shouldExist && aURL != null) {
+	  Assert.fail("File should not exist:" + files[i]);
+	}
+	if (shouldExist && aURL == null) {
+	  Assert.fail("File should have been found:" + files[i]);
+	}
       }
       catch (Exception e) {
 	_logger.warn("Unable to find file: " + files[i]);
-      }
+	if (shouldExist) {
+	  Assert.fail("File should have been found:" + files[i]);
+	}
+     }
     }
   }
 
-  private void testParseXMLConfigFile(String files[]) {
+  private void testParseXMLConfigFile(String files[], boolean shouldExist) {
     for (int i = 0 ; i < files.length ; i++) {
       _logger.debug("Parsing XML: " + files[i]);
       try {
 	Document d = _scf.parseXMLConfigFile(files[i]);
 	_logger.debug("Document:" + d);
+	if (!shouldExist && d != null) {
+	  Assert.fail("File should not exist:" + files[i]);
+	}
+	if (shouldExist && d == null) {
+	  Assert.fail("File should have been found:" + files[i]);
+	}
       }
       catch (Exception e) {
 	_logger.warn("Unable to parse XML file: " + files[i]);
+	if (shouldExist) {
+	  Assert.fail("File should have been found:" + files[i]);
+	}
       }
     }
   }
