@@ -41,6 +41,7 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.crypto.ProtectedObject;
+import org.cougaar.core.security.policy.CryptoPolicy;
 
 public class MessageOutputStream
   extends ProtectedOutputStream
@@ -150,8 +151,8 @@ public class MessageOutputStream
    */
   private ProtectedObject protectMessage()
     throws IOException {
-    SecureMethodParam policy =
-      cps.getSendPolicy(source.toAddress(), target.toAddress());
+     CryptoPolicy policy =
+       cps.getOutgoingPolicy(source.toAddress());
 
     if (policy == null) {
       if (log.isWarnEnabled()) {
