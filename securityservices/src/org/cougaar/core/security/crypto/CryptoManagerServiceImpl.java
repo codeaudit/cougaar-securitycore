@@ -142,7 +142,7 @@ public class CryptoManagerServiceImpl
 
   private PrivateKey getPrivateKey(final String name, 
                                    final X509Certificate cert) 
-    throws GeneralSecurityException, IOException {
+    throws GeneralSecurityException {
     PrivateKey pk = (PrivateKey) 
         AccessController.doPrivileged(new PrivilegedAction() {
           public Object run(){
@@ -375,9 +375,9 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  public byte[] encryptKey(String name, String spec, byte[] plainKey,
-                           java.security.cert.Certificate cert)
-    throws GeneralSecurityException, IOException {
+  public byte[] encryptSecretKey(String spec, SecretKey skey,
+                                 X509Certificate cert) 
+    throws GeneralSecurityException {
     /*encrypt the secret key with receiver's public key*/
 
     PublicKey key = cert.getPublicKey();
@@ -386,30 +386,33 @@ public class CryptoManagerServiceImpl
       spec=key.getAlgorithm();
     }
     if (log.isDebugEnabled()) {
-      log.debug("Encrypting for " + name + " using " + spec);
+      log.debug("Encrypting for " + cert.getSubjectDN() + " using " + spec);
     }
     /*init the cipher*/
-    Cipher ci = getCipher(spec);
+    Cipher ci = null;
     try {
+      ci = getCipher(spec);
       ci.init(Cipher.ENCRYPT_MODE, key);
-      return ci.doFinal(plainKey);
+      return ci.wrap(skey);
 //       SealedObject so = new SealedObject(obj,ci);
 //       return so;
-    }
-    finally {
+    } finally {
       if (ci != null) {
         returnCipher(spec,ci);
       }
     }
   }
 
-  private byte[] decryptKey(PrivateKey key, String spec, byte[] encKey)
-    throws GeneralSecurityException, IOException, ClassNotFoundException {
+  private SecretKey decryptSecretKey(String name, String spec, byte[] encKey,
+                                     String keySpec,
+                                     X509Certificate cert)
+    throws GeneralSecurityException {
     Cipher ci = null;
     try {
+      PrivateKey key = getPrivateKey(name, cert);
       ci=getCipher(spec);
       ci.init(Cipher.DECRYPT_MODE, key);
-      return ci.doFinal(encKey);
+      return (SecretKey) ci.unwrap(encKey, keySpec, Cipher.SECRET_KEY);
     } finally {
       if (ci != null) {
         returnCipher(spec, ci);
@@ -1506,9 +1509,16 @@ public class CryptoManagerServiceImpl
       Hashtable certTable = keyRing.
         findCertPairFromNS(_sender, target.toAddress());
       _senderCert = (X509Certificate) certTable.get(_sender);
+
+      this.out = (stream instanceof ObjectOutputStream) 
+        ? (ObjectOutputStream) stream 
+        : new ObjectOutputStream(stream);
+
       X509Certificate receiverCert = (X509Certificate) 
           certTable.get(target.toAddress());
       if (_senderCert == null || receiverCert == null) {
+        // send a message to receiver that this message is bad:
+        ((ObjectOutputStream) this.out).writeObject("Please wait. I don't have certificates, yet");
         throw new CertificateException("No valid key pair found for the 2 message address " + _sender + " vs "
           + target.toAddress());
       }
@@ -1528,15 +1538,16 @@ public class CryptoManagerServiceImpl
         _encrypt = true;
         // first encrypt the secret key with the target's public key
         secret = createSecretKey(policy);
-        byte[] secretBytes = secret.getEncoded();
-        senderSecret = encryptKey(_sender, policy.asymmSpec,
-                                  secretBytes, _senderCert);
-        receiverSecret = encryptKey(target.toAddress(), policy.asymmSpec,
-                                    secretBytes, receiverCert);
-//         senderSecret = asymmEncrypt(_sender, policy.asymmSpec,
-//                                     secret, _senderCert);
-//         receiverSecret = asymmEncrypt(target.toAddress(), policy.asymmSpec,
-//                                       secret, receiverCert);
+        try {
+          senderSecret = encryptSecretKey(policy.asymmSpec,
+                                          secret, _senderCert);
+          receiverSecret = encryptSecretKey(policy.asymmSpec,
+                                            secret, receiverCert);
+        } catch (GeneralSecurityException e) {
+          log.error("Could not encrypt secret key. This message will not " +
+                    "go out properly! -- we'll retry later", e);
+          throw new IOException(e.getMessage());
+        }
       }
 
       ProtectedMessageHeader header = 
@@ -1545,9 +1556,6 @@ public class CryptoManagerServiceImpl
       if (log.isDebugEnabled()) {
         log.debug("Sending " + header);
       }
-      this.out = (stream instanceof ObjectOutputStream) 
-        ? (ObjectOutputStream) stream 
-        : new ObjectOutputStream(stream);
       ((ObjectOutputStream) this.out).writeObject(header);
 
       if (_encrypt) {
@@ -1711,8 +1719,13 @@ public class CryptoManagerServiceImpl
       this.in = ois;
 
       try {
-        ProtectedMessageHeader header = 
-          (ProtectedMessageHeader) ois.readObject();
+        Object headerObj = ois.readObject();
+        if (!(headerObj instanceof ProtectedMessageHeader)) {
+          this.in = null;
+          throw new IOException(headerObj.toString());
+        }
+
+        ProtectedMessageHeader header = (ProtectedMessageHeader) headerObj;
         if (log.isDebugEnabled()) {
           log.debug("ProtectedMessageInputStream header = " + header);
         }
@@ -1744,24 +1757,22 @@ public class CryptoManagerServiceImpl
       X509Certificate receiverCert = header.getReceiver();
       byte[] encKey = header.getEncryptedSymmetricKey();
       SecureMethodParam policy = header.getPolicy();
-      PrivateKey key = getPrivateKey(targetName, header.getReceiver());
       try {
-        byte[] secretBytes = decryptKey(key, policy.asymmSpec, encKey);
-        if (secretBytes == null) {
+        SecretKey skey = decryptSecretKey(targetName, policy.asymmSpec,
+                                          encKey, policy.symmSpec,
+                                          receiverCert);
+        if (skey == null) {
           throw new DecryptSecretKeyException("Can't find secret key for " +
                                               header.getReceiver());
         }
-        SecretKeySpec skSpec = new SecretKeySpec(secretBytes, policy.symmSpec);
         _symmSpec = policy.symmSpec;
         _cipher = getCipher(policy.symmSpec);
-        _cipher.init(Cipher.DECRYPT_MODE, skSpec);
+        _cipher.init(Cipher.DECRYPT_MODE, skey);
         _cypherIn = new OnTopCipherInputStream(this.in, _cipher);
         this.in = _cypherIn;
-      } catch (ClassNotFoundException e) {
-        log.error("Couldn't decrypt the header", e);
-        throw new IOException(e.getMessage());
       } catch (Exception e) {
-        log.debug("Ack!", e);
+        log.warn("Could not decrypt secret key");
+        log.debug("Here's the exception", e);
       }
     }
 
