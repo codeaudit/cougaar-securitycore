@@ -30,11 +30,16 @@ public class CertificateSigningRequest extends  HttpServlet
              {
                  jdexp.printStackTrace();
              }
+	 /*ServletContext context=config.getServletContext();
+	  context.setAttribute("asas",(Object)new String("dssd"));
+	 */
   }
   public void setjavaproperty(Element root)
   {
-        List Children = root.getMixedContent();
-        Iterator propertyIterator = Children.iterator();
+    javax.servlet.ServletContext context=null;
+    context=getServletContext();
+    List Children = root.getMixedContent();
+    Iterator propertyIterator = Children.iterator();
          // Iterate through javaproperty
         while (propertyIterator.hasNext())
         {
@@ -52,14 +57,15 @@ public class CertificateSigningRequest extends  HttpServlet
                 try
                 {
                         System.setProperty(propertyName,propertyValue);
+			System.out.println("setting property name :"+propertyName);
+			System.out.println("setting property value ::"+propertyValue);
+			context.setAttribute(propertyName,(Object)propertyValue);
+		       
                 }
                 catch(SecurityException sexp)
                 {
-                        sexp.printStackTrace();
+                       sexp.printStackTrace();
                 }
-
-
-
             }
         }
   }
