@@ -69,6 +69,15 @@ public class MessageProtectionServiceImpl
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
 
+    String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
+    if ( db!=null && (db.equalsIgnoreCase("true") ||
+		      db.indexOf("security")>=0) ) debug=true;
+    infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
+						     "0"))).intValue();
+    if (infoLevel > 0) {
+      System.out.println("Initializing MessageProtectionServiceImpl");
+    }
+
     // Retrieve security properties service
     secprop = (SecurityPropertiesService)
       serviceBroker.getService(this, SecurityPropertiesService.class, null);
@@ -93,13 +102,6 @@ public class MessageProtectionServiceImpl
       System.out.println("Unable to get crypto policy service");
       throw new RuntimeException("MessageProtectionService. No crypto policy service");
     }
-
-
-    String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
-    if ( db!=null && (db.equalsIgnoreCase("true") ||
-		      db.indexOf("security")>=0) ) debug=true;
-    infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
-						     "0"))).intValue();
   }
 
   /**

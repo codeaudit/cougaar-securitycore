@@ -44,208 +44,215 @@ public class BlackboardAccessControlAdaptor
   implements BlackboardService, BlackboardServesLogicProvider,
   BlackboardForAgent
 {
-   protected BlackboardClient client;
+  protected BlackboardClient client;
 
-   protected Blackboard service;
+  protected Blackboard service;
 
-   public BlackboardAccessControlAdaptor
-       (BlackboardClient client, Blackboard service)
-    {
-	this.client = client;
-	this.service = service;
-    }
+  public BlackboardAccessControlAdaptor
+  (BlackboardClient client, Blackboard service) {
+    this.client = client;
+    this.service = service;
+  }
 
 
-   // BlackboardServesLogicProvider methods
+  // BlackboardServesLogicProvider methods
 
-   public void add(Object obj) 
-    {
-	service.add(obj);
-    }
+  public void add(Object obj) {
+    service.add(obj);
+  }
 
-   public void change(Object obj, Collection changes)
-    {
-	service.change(obj, changes);
-    }
+  public void change(Object obj, Collection changes) {
+    service.change(obj, changes);
+  }
     
-    public void remove(Object obj) { service.remove(obj);
-    }
+  public void remove(Object obj) { service.remove(obj);
+  }
     
-    public PublishHistory getHistory() { return service.getHistory(); }
+  public PublishHistory getHistory() { return service.getHistory(); }
     
-   public Enumeration searchBlackboard(UnaryPredicate predicate) {
-       return service.searchBlackboard(predicate);
-   }
+  public Enumeration searchBlackboard(UnaryPredicate predicate) {
+    return service.searchBlackboard(predicate);
+  }
 
-   public void sendDirective(Directive dir) { service.sendDirective(dir); }
+  public void sendDirective(Directive dir) { service.sendDirective(dir); }
 
-   public void sendDirective(Directive dir, Collection changeReports) {
-       service.sendDirective(dir, changeReports);
-   }
+  public void sendDirective(Directive dir, Collection changeReports) {
+    service.sendDirective(dir, changeReports);
+  }
 
-    // BlackboardService methods
+  // BlackboardService methods
 
-    public void closeTransaction() { service.closeTransaction(); } 
+  public void closeTransactionDontReset() {
+    service.closeTransactionDontReset();
+  }
+
+  public void closeTransaction() {
+    service.closeTransaction();
+  } 
  
-    public void closeTransaction(boolean resetp) 
-      { service.closeTransaction(resetp); }
+  /** Close a transaction opened by openTransaction() or a 
+   * successful tryOpenTransaction().
+   * @param resetSubscriptions IFF true, all subscriptions will have
+   * their resetChanges() method called to clear any delta lists, etc.
+   * @exception SubscriberException IFF we did not own the transaction
+   * lock.
+   * @deprecated Use {@link #closeTransactionDontReset closeTransactionDontReset}
+   * This method becomes private after deprecation period expires.
+   */
+  public void closeTransaction(boolean resetp) {
+    // Method is deprecated.
+    service.closeTransactionDontReset();
+  }
              
-    public boolean didRehydrate() { return service.didRehydrate(); }
+  public boolean didRehydrate() { return service.didRehydrate(); }
 
-    public int getPublishAddedCount() 
+  public int getPublishAddedCount() { 
+    return service.getPublishAddedCount(); 
+  }
+                               
+  public int getPublishChangedCount() { 
+    return service.getPublishChangedCount(); 
+  }
+                               
+  public int getPublishRemovedCount() { 
+    return service.getPublishRemovedCount(); 
+  }
+                               
+  public Subscriber getSubscriber() { return service.getSubscriber(); }
+                               
+  public int getSubscriptionCount() { 
+    return service.getSubscriptionCount(); 
+  }
+                               
+  public int getSubscriptionSize() { return service.getSubscriptionSize(); }
+                               
+  public boolean haveCollectionsChanged() 
     { 
-	return service.getPublishAddedCount(); 
-    }
-                               
-    public int getPublishChangedCount() 
-    { 
-	return service.getPublishChangedCount(); 
-    }
-                               
-    public int getPublishRemovedCount() 
-    { 
-	return service.getPublishRemovedCount(); 
-    }
-                               
-    public Subscriber getSubscriber() { return service.getSubscriber(); }
-                               
-    public int getSubscriptionCount() 
-    { 
-	return service.getSubscriptionCount(); 
-    }
-                               
-    public int getSubscriptionSize() { return service.getSubscriptionSize(); }
-                               
-    public boolean haveCollectionsChanged() 
-    { 
-	return service.haveCollectionsChanged(); 
+      return service.haveCollectionsChanged(); 
     }
                 
-    public void openTransaction() { service.openTransaction(); }
+  public void openTransaction() { service.openTransaction(); }
              
-    public boolean publishAdd(Object o) { return service.publishAdd(o); }
+  public boolean publishAdd(Object o) { return service.publishAdd(o); }
              
-    public boolean publishChange(Object o) { return service.publishChange(o); }
+  public boolean publishChange(Object o) { return service.publishChange(o); }
                  
-    public boolean publishChange(Object o, Collection changes) 
+  public boolean publishChange(Object o, Collection changes) 
     { 
-	return publishChange(o, changes); 
+      return publishChange(o, changes); 
     }
                                            
-    public boolean publishRemove(Object o) { return publishRemove(o); }
+  public boolean publishRemove(Object o) { return publishRemove(o); }
                                
-    public Collection query(UnaryPredicate isMember) 
+  public Collection query(UnaryPredicate isMember) 
     { 
-	return service.query(isMember); 
+      return service.query(isMember); 
     }
 
-    public SubscriptionWatcher registerInterest() 
+  public SubscriptionWatcher registerInterest() 
     { 
-	return service.registerInterest(); 
+      return service.registerInterest(); 
     }
 
-    public SubscriptionWatcher registerInterest(SubscriptionWatcher w) 
+  public SubscriptionWatcher registerInterest(SubscriptionWatcher w) 
     { 
-        return service.registerInterest(w); 
+      return service.registerInterest(w); 
     }
                 
-    public void setReadyToPersist()  { service.setReadyToPersist(); }
+  public void setReadyToPersist()  { service.setReadyToPersist(); }
                 
-    public void setShouldBePersisted(boolean value) 
+  public void setShouldBePersisted(boolean value) 
     { 
-	service.setShouldBePersisted(value); 
+      service.setShouldBePersisted(value); 
     }
              
-    public boolean shouldBePersisted() { return service.shouldBePersisted(); }
+  public boolean shouldBePersisted() { return service.shouldBePersisted(); }
                                                                       
-    public void signalClientActivity() 
+  public void signalClientActivity() 
     { 
-	service.signalClientActivity(); 
+      service.signalClientActivity(); 
     }
+
+  public Subscription subscribe(Subscription s) {
+    return service.subscribe(s);
+  }
+
+  public Subscription subscribe(UnaryPredicate isMember) { 
+    return service.subscribe(isMember);  
+  }
          
-    public Subscription subscribe(UnaryPredicate isMember) 
-    { 
-	return service.subscribe(isMember);  
-    }
+  public Subscription subscribe(UnaryPredicate isMember, boolean isIncremental)  {
+    return service.subscribe(isMember, isIncremental);   
+  }
          
-    public Subscription subscribe(UnaryPredicate isMember, boolean isIncremental)  {
-        return service.subscribe(isMember, isIncremental);   
-    }
-         
-    public Subscription subscribe(UnaryPredicate isMember, 
-				  Collection realCollection) 
-    {
-        return service.subscribe(isMember, realCollection);
-    }
+  public Subscription subscribe(UnaryPredicate isMember, 
+				Collection realCollection) {
+    return service.subscribe(isMember, realCollection);
+  }
          
         
-    public Subscription subscribe(UnaryPredicate isMember, 
-				  Collection realCollection, 
-				  boolean isIncremental)
-    {
-        return service.subscribe(isMember, realCollection,isIncremental);
-    }
+  public Subscription subscribe(UnaryPredicate isMember, 
+				Collection realCollection, 
+				boolean isIncremental) {
+    return service.subscribe(isMember, realCollection,isIncremental);
+  }
              
-    public boolean tryOpenTransaction() 
-    {
-        return service.tryOpenTransaction();
-    }                         
+  public boolean tryOpenTransaction() {
+    return service.tryOpenTransaction();
+  }                         
                 
-    public void unregisterInterest(SubscriptionWatcher w)  
-    { 
-	service.unregisterInterest(w); 
-    }
+  public void unregisterInterest(SubscriptionWatcher w) { 
+    service.unregisterInterest(w); 
+  }
     
-    public void unsubscribe(Subscription subscription) 
-    { 
-	service.unsubscribe(subscription); 
-    }
+  public void unsubscribe(Subscription subscription) { 
+    service.unsubscribe(subscription); 
+  }
 
-    public void persistNow() throws PersistenceNotEnabledException
+  public void persistNow() throws PersistenceNotEnabledException {
+    service.persistNow();
+  }
+
+  // BlackboardForAgent Methods
+
+  /**
+   * Process a list of messages from the distributor. 
+   */
+  public void receiveMessages(List messages)
     {
-	service.persistNow();
-    }
-
-    // BlackboardForAgent Methods
-
-    /**
-     * Process a list of messages from the distributor. 
-     */
-    public void receiveMessages(List messages)
-    {
-	Directive[] directive = null;
-	TrustSet[] trustSet = null;
-	Iterator it = messages.iterator();
-	while(it.hasNext()) {
-	    Message msg = (Message)it.next();
-	    if(msg instanceof Message) {
-		if(msg instanceof DirectiveMessage) {
-		   directive =  ((DirectiveMessage)msg).getDirectives();
+      Directive[] directive = null;
+      TrustSet[] trustSet = null;
+      Iterator it = messages.iterator();
+      while(it.hasNext()) {
+	Message msg = (Message)it.next();
+	if(msg instanceof Message) {
+	  if(msg instanceof DirectiveMessage) {
+	    directive =  ((DirectiveMessage)msg).getDirectives();
 //		   trustSet =  ((DirectiveMessage)msg).getTrustSets();
-		   for(int minor = 0; minor < directive.length; minor++) {
-		       // add trust attributes from each directive here
-		       //trustService.add(directive[minor], trustSet[minor]);
-		   } 
-		}
-		else { // add trust attributes to the trust service
+	    for(int minor = 0; minor < directive.length; minor++) {
+	      // add trust attributes from each directive here
+	      //trustService.add(directive[minor], trustSet[minor]);
+	    } 
+	  }
+	  else { // add trust attributes to the trust service
 		    
-		}
-	    }
+	  }
 	}
-	service.receiveMessages(messages);
+      }
+      service.receiveMessages(messages);
     }
 
-    public Persistence getPersistence() 
+  public Persistence getPersistence() 
     {
-	return null;		// this will break but we need it to compile
-	//return service.getPersistence();
+      return null;		// this will break but we need it to compile
+      //return service.getPersistence();
     }    
 
-    //
-    // This method in the BlackboardForAgent interface is new in 8.6.2.
-    // This is a stub implementation.
-    //
-    public void restartAgent(ClusterIdentifier cid) {
-        System.err.println("WARNING: org.cougaar.core.security.access.BlackboardAccessControlAdapter.restartAgent() not implemented. cid="+cid);
-    }
+  //
+  // This method in the BlackboardForAgent interface is new in 8.6.2.
+  // This is a stub implementation.
+  //
+  public void restartAgent(ClusterIdentifier cid) {
+    System.err.println("WARNING: org.cougaar.core.security.access.BlackboardAccessControlAdapter.restartAgent() not implemented. cid="+cid);
+  }
 }

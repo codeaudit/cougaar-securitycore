@@ -107,6 +107,9 @@ public class BlackboardServiceFilter extends ServiceFilter{
       //System.err.println("Warning: "+client+" is calling BlackboardService.getSubscriber()!");
       return bs.getSubscriber();
     }
+    public Subscription subscribe(Subscription s) {
+      return bs.subscribe(s);
+    }
     public Subscription subscribe(UnaryPredicate isMember) { 
       //System.err.println("BlackboardService.subscribe("+isMember+") called by: "+client);
       return bs.subscribe(isMember); 
@@ -166,8 +169,13 @@ public class BlackboardServiceFilter extends ServiceFilter{
       bs.closeTransaction();
     }
     public void closeTransaction(boolean resetp) throws SubscriberException {
-      bs.closeTransaction(resetp);
+      // Method is deprecated.
+      bs.closeTransactionDontReset();
     }
+    public void closeTransactionDontReset() {
+      bs.closeTransactionDontReset();
+    }
+
     public void signalClientActivity() {
       bs.signalClientActivity();
     }

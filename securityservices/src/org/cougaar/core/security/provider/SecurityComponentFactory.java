@@ -38,28 +38,18 @@ import org.cougaar.util.*;
 public final class SecurityComponentFactory
   extends SecurityComponent
 {
-  protected AgentManagerBindingSite bindingSite = null;
+  protected BindingSite bindingSite = null;
 
   public SecurityComponentFactory() {
   }
 
   public void setBindingSite(BindingSite bs) {
-    if (bs instanceof AgentManagerBindingSite) {
-      bindingSite = (AgentManagerBindingSite) bs;
-    } else {
-      throw new RuntimeException("Tried to load " +
-				 this.getClass().getName()
-				 + "into " + bs);
-    }
+    bindingSite = bs;
   }
 
   public void load() {
     super.load();
-    
-    // figure out the name
-    String name = bindingSite.getName();
     final ServiceBroker sb = bindingSite.getServiceBroker();
-
     SecurityServiceProvider ssp =
       new SecurityServiceProvider(sb);
   }

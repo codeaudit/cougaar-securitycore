@@ -160,9 +160,15 @@ public class BlackboardFilter extends ServiceFilter {
       _bbs.closeTransaction();
     }
     
+    public void closeTransactionDontReset() {
+      checkRoles("closeTransaction");
+      _bbs.closeTransactionDontReset();
+    }
+
     public void closeTransaction(boolean resetp) {
       checkRoles("closeTransaction");
-      _bbs.closeTransaction(resetp);
+      // Method is deprecated.
+      _bbs.closeTransactionDontReset();
     }
 
     public boolean didRehydrate() {
@@ -173,6 +179,11 @@ public class BlackboardFilter extends ServiceFilter {
     public Persistence getPersistence() {
       checkRoles("getPersistence");
       return _bbs.getPersistence();
+    }
+
+    public Subscription subscribe(Subscription s) {
+      checkRoles("subscribe");
+      return _bbs.subscribe(s);
     }
 
     public Subscription subscribe(UnaryPredicate isMember) {
