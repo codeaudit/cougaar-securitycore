@@ -2,8 +2,8 @@
 This code provides for saving summary messages during the course of the experiment which may be re-printed at the end.  Very often the core messages are lost in the deluge of diagnostic messages.  This is intended to remedy this problem.
 =end
 
-puts "in summary"
-exit
+#puts "in summary"
+#exit
 
 #class AbstractExperimentFramework
    def summary(msg)
