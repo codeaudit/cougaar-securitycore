@@ -8,10 +8,10 @@
     <caCommonName>NCA_CA</caCommonName>
 
     <!-- Name of keystore where to find private key of CA -->
-    <keystoreFile>keystore-CONUS</keystoreFile>
+    <keystoreFile>keystore-CONUS-RSA</keystoreFile>
 
     <!-- Password of keystore where to find private key of CA -->
-    <keystorePassword>CONUS-Ultra*Log</keystorePassword>
+    <keystorePassword>Ultra*Log</keystorePassword>
 
     <!-- Certificate directory service for certificate storage -->
     <ldapURL>ldap://pear:389/dc=cougaar,dc=org</ldapURL>
