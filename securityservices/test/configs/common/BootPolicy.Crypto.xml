@@ -3,15 +3,39 @@
 <policies>
   <policy name="Crypto Policy" type="org.cougaar.core.security.policy.CryptoPolicy">
     <cryptoPolicy>
-	<IncomingSecureMethod>signAndEncrypt</IncomingSecureMethod>
-    	<IncomingSymmetricAlgorithm>DES</IncomingSymmetricAlgorithm>
-    	<IncomingAsymmetricAlgorithm>RSA</IncomingAsymmetricAlgorithm>
-    	<IncomingSigningAlgorithm>MD5withRSA</IncomingSigningAlgorithm>
+	<!-- whom this policy is for -->
+	<Name>DEFAULT</Name>
+	
+	<!-- one of AGENT,COMMUNITY,or SOCIETY -->
+	<Type>AGENT</Type>
+	
+	<!-- one of INCOMING, OUTGOING, or BOTH -->
+	<Direction>BOTH</Direction>
+	
+	<!-- one policy entry for each messaging party -->
+	<PolicyEntry>
+		<MsgParty>DEFAULT</MsgParty>
+		<!-- EACH one of the following can have more than one values -->
+		
+		<!-- one of: plain, encrypt, sign, signAndEncrypt -->
+		<SecureMethod>signAndEncrypt</SecureMethod>
+		<SecureMethod>sign</SecureMethod>
+		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
+    		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
+    		<SigningAlgorithm>MD5withRSA</SigningAlgorithm>
+    		<SigningAlgorithm>MD2withRSA</SigningAlgorithm>
+	</PolicyEntry>
 
-    	<OutgoingSecureMethod>signAndEncrypt</OutgoingSecureMethod>
-    	<OutgoingSymmetricAlgorithm>DES</OutgoingSymmetricAlgorithm>
-    	<OutgoingAsymmetricAlgorithm>RSA</OutgoingAsymmetricAlgorithm>
-    	<OutgoingSigningAlgorithm>MD5withRSA</OutgoingSigningAlgorithm>
+	<!--
+	<PolicyEntry>
+		<MsgParty>3-69-ARBN</MsgParty>
+		<SecureMethod>sign</SecureMethod>
+    		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
+    		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
+    		<SigningAlgorithm>MD5withRSA</SigningAlgorithm>
+	</PolicyEntry>
+	-->
+
     </cryptoPolicy>
   </policy>
 </policies>

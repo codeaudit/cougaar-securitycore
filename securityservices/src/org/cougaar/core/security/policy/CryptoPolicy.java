@@ -26,58 +26,129 @@
 
 package org.cougaar.core.security.policy;
 
+import java.util.HashMap;
+import java.util.Vector;
+
+import org.cougaar.core.security.crypto.SecureMethodParam;
+
 public class CryptoPolicy extends SecurityPolicy {
-  private String InSecureMethod;
-  private String InSymmSpec;
-  private String InAsymmSpec;
-  private String InSignSpec;
-  private String OutSecureMethod;
-  private String OutSymmSpec;
-  private String OutAsymmSpec;
-  private String OutSignSpec;
+  /**
+   * to whom this policy is applied to.
+   */
+  public String Name = "UNKNOWN";
 
-  public String getInSecureMethod() {  return InSecureMethod;   }
-  public String getInSymmSpec() {      return InSymmSpec;    }
-  public String getInAsymmSpec() {      return InAsymmSpec;    }
-  public String getInSignSpec() {      return InSignSpec;    }
-  public String getOutSecureMethod() {   return OutSecureMethod;    }
-  public String getOutSymmSpec() {      return OutSymmSpec;    }
-  public String getOutAsymmSpec() {      return OutAsymmSpec;    }
-  public String getOutSignSpec() {      return OutSignSpec;    }
+  public static final int AGENT = 1;
+  public static final int COMMUNITY = 2;
+  public static final int SOCIETY = 3;
+  public int Type = AGENT;
 
-  public void setInSecureMethod(String ism){
-    this.InSecureMethod = ism;   
+  public static final int INCOMING = 1;
+  public static final int OUTGOING = 2;
+  public static final int BOTH = 3;
+  public int Direction = BOTH;
+  
+  private HashMap secuMethod = new HashMap();
+  public void setSecuMethod(String key, String method){
+    Object o = secuMethod.get(key);
+    if(o==null){
+      Vector sm = new Vector();
+      sm.add(method);
+      secuMethod.put(key, sm);
+    }else{
+      Vector sm = (Vector)o;
+      if(!sm.contains(method))
+        sm.add(method);
+    }
   }
-  public void setInAsymmSpec(String ias){
-    this.InAsymmSpec = ias;   
-  }
-  public void setInSymmSpec(String iss){
-    this.InSymmSpec = iss;   
-  }
-  public void setInSignSpec(String is){
-    this.InSignSpec = is;   
-  }
-  public void setOutSecureMethod(String osm){
-    this.OutSecureMethod = osm;   
-  }
-  public void setOutAsymmSpec(String oas){
-    this.OutAsymmSpec = oas;   
-  }
-  public void setOutSymmSpec(String oss){
-    this.OutSymmSpec = oss;   
-  }
-  public void setOutSignSpec(String os){
-    this.OutSignSpec = os;   
+  
+  private HashMap symmSpec = new HashMap();
+  public void setSymmSpec(String key, String spec){
+    Object o = symmSpec.get(key);
+    if(o==null){
+      Vector sp = new Vector();
+      sp.add(spec);
+      symmSpec.put(key, sp);
+    }else{
+      Vector sp = (Vector)o;
+      if(!sp.contains(spec))  
+        sp.add(spec);
+    }
   }
 
+  private HashMap signSpec = new HashMap();
+  public void setSignSpec(String key, String spec){
+    Object o = signSpec.get(key);
+    if(o==null){
+      Vector sp = new Vector();
+      sp.add(spec);
+      signSpec.put(key, sp);
+    }else{
+      Vector sp = (Vector)o;
+      if(!sp.contains(spec))  
+        sp.add(spec);
+    }
+  }
+
+  private HashMap asymmSpec = new HashMap();
+  public void setAsymmSpec(String key, String spec){
+    Object o = asymmSpec.get(key);
+    if(o==null){
+      Vector sp = new Vector();
+      sp.add(spec);
+      asymmSpec.put(key, sp);
+    }else{
+      Vector sp = (Vector)o;
+      if(!sp.contains(spec))  
+        sp.add(spec);
+    }
+  }
+
+  public Vector getSecuMethod(String key){ return (Vector)secuMethod.get(key); }
+  public Vector getSymmSpec(String key) { return (Vector)symmSpec.get(key); }
+  public Vector getAsymmSpec(String key) { return (Vector)asymmSpec.get(key); }
+  public Vector getSignSpec(String key) { return (Vector)signSpec.get(key); }
+
+  //for backward compatiblity
+  public SecureMethodParam getSecureMethodParam(String key){
+    SecureMethodParam smp = new SecureMethodParam();
+    
+    Vector v = (Vector)secuMethod.get(key);
+    //if key not found use "DEFAULT"
+    if(v==null) v=(Vector)secuMethod.get("DEFAULT");
+    String method = "invalid"; 
+    if(v!=null) method = (String)(v.firstElement());
+    
+    if(method.equalsIgnoreCase("plain")){
+      smp.secureMethod = SecureMethodParam.PLAIN;
+    }else if(method.equalsIgnoreCase("sign")){ 
+      smp.secureMethod = SecureMethodParam.SIGN;
+    }else if(method.equalsIgnoreCase("encrypt")){ 
+      smp.secureMethod = SecureMethodParam.ENCRYPT;
+    }else if(method.equalsIgnoreCase("signAndEncrypt")){ 
+      smp.secureMethod = SecureMethodParam.SIGNENCRYPT;
+    }else{
+      smp.secureMethod = SecureMethodParam.INVALID;
+    }
+    
+    v = (Vector)symmSpec.get(key);
+    if(v==null) v=(Vector)symmSpec.get("DEFAULT");
+    if(v!=null) smp.symmSpec = (String)(v.firstElement());
+
+    v = (Vector)asymmSpec.get(key);
+    if(v==null) v=(Vector)asymmSpec.get("DEFAULT");
+    if(v!=null) smp.asymmSpec = (String)(v.firstElement());
+
+    v = (Vector)signSpec.get(key);
+    if(v==null) v=(Vector)signSpec.get("DEFAULT");
+    if(v!=null) smp.signSpec = (String)(v.firstElement());
+    
+    return smp;
+  }
+  
   public String toString() {
-    return " InSecureMethod:" + InSecureMethod +
-      " \nInAsymmSpec:" + InAsymmSpec +
-      " \nInSymmSpec:" + InSymmSpec +
-      " \nInSignSpec:" + InSignSpec +
-      " \nOutSecureMethod:" + OutSecureMethod +
-      " \nOutAsymmSpec:" + OutAsymmSpec +
-      " \nOutSymmSpec:" + OutSymmSpec +
-      " \nOutSignSpec:" + OutSignSpec;
+  return "crypto policy--NAME:" + Name +
+        " TYPE:" + Type +
+        " DIRECTION:" + Direction 
+  ;
   }
 }

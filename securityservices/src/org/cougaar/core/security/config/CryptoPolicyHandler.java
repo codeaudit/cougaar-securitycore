@@ -44,16 +44,14 @@ public class CryptoPolicyHandler
   extends BaseConfigHandler
 {
   private CryptoPolicy cp;
+  private String msgParty;
 
-  private static final String POLICY_ELEMENT = "policy";
-  private static final String ISM_ELEMENT = "IncomingSecureMethod";
-  private static final String OSM_ELEMENT = "OutgoingSecureMethod";
-  private static final String ISA_ELEMENT = "IncomingSymmetricAlgorithm";
-  private static final String OSA_ELEMENT = "OutgoingSymmetricAlgorithm";
-  private static final String IAA_ELEMENT = "IncomingAsymmetricAlgorithm";
-  private static final String OAA_ELEMENT = "OutgoingAsymmetricAlgorithm";
-  private static final String IS_ELEMENT = "IncomingSigningAlgorithm";
-  private static final String OS_ELEMENT = "OutgoingSigningAlgorithm";
+  private static final String POLICY_ELEMENT = "PolicyEntry";
+  private static final String PARTY_ELEMENT = "MsgParty";
+  private static final String ISM_ELEMENT = "SecureMethod";
+  private static final String ISA_ELEMENT = "SymmetricAlgorithm";
+  private static final String IAA_ELEMENT = "AsymmetricAlgorithm";
+  private static final String IS_ELEMENT = "SigningAlgorithm";
 
   public CryptoPolicyHandler(ServiceBroker sb) {
     super(sb);
@@ -78,6 +76,9 @@ public class CryptoPolicyHandler
     throws SAXException {
     super.startElement(namespaceURI, localName, qName, attr);
 
+    if (localName.equals(POLICY_ELEMENT)) {
+      msgParty = "";
+    }
   }
   
   public void endElement( String namespaceURI,
@@ -94,39 +95,26 @@ public class CryptoPolicyHandler
 		+ " = " + getContents());
     }
 
+    if (localName.equals(PARTY_ELEMENT)) {
+      msgParty = getContents();
+    }
     if (localName.equals(ISM_ELEMENT)) {
       String value = getContents();
-      cp.setInSecureMethod(value);
+      cp.setSecuMethod(msgParty,value);
     }
     if (localName.equals(ISA_ELEMENT)) {
       String value = getContents();
-      cp.setInSymmSpec(value);
+      cp.setSymmSpec(msgParty,value);
     }
     if (localName.equals(IAA_ELEMENT)) {
       String value = getContents();
-      cp.setInAsymmSpec(value);
+      cp.setAsymmSpec(msgParty,value);
     }
     if (localName.equals(IS_ELEMENT)) {
       String value = getContents();
-      cp.setInSignSpec(value);
+      cp.setSignSpec(msgParty,value);
     }
 
-    if (localName.equals(OSM_ELEMENT)) {
-      String value = getContents();
-      cp.setOutSecureMethod(value);
-    }
-    if (localName.equals(OSA_ELEMENT)) {
-      String value = getContents();
-      cp.setOutSymmSpec(value);
-    }
-    if (localName.equals(OAA_ELEMENT)) {
-      String value = getContents();
-      cp.setOutAsymmSpec(value);
-    }
-    if (localName.equals(OS_ELEMENT)) {
-      String value = getContents();
-      cp.setOutSignSpec(value);
-    }
     // Reset contents
     contents.reset();
   }
