@@ -82,7 +82,7 @@ public class TestSecureConfigFinder
     try {
       tmpFile.createNewFile();
     }
-    catch (IOException e) {
+    catch (Exception e) {
       _log.warn("Error while processing file" , e);
     }
     // Try to read a file with an absolute path

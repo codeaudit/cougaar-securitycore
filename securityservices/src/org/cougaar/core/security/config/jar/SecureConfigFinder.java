@@ -46,6 +46,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.Logging;
+import org.cougaar.util.log.LoggerFactory;
 
 // Cougaar core infrastructure
 import org.cougaar.util.jar.JarConfigFinder;
@@ -63,7 +64,7 @@ public class SecureConfigFinder
   extends JarConfigFinder
 {
   private static final Logger _logger =
-  Logging.getLogger(SecureConfigFinder.class);
+  LoggerFactory.getInstance().createLogger(SecureConfigFinder.class);
 
   /** Log file to store Jar verification errors */
   private static SecurityLog _securelog;
@@ -79,6 +80,7 @@ public class SecureConfigFinder
    * can be loaded.
    */
   private List _exceptionListRegularExpressions;
+  private boolean _jarFilesOnly = true;
 
   public SecureConfigFinder() {
     super();
@@ -105,37 +107,60 @@ public class SecureConfigFinder
     _certificateVerifier = CertificateVerifierImpl.getInstance();
     _securelog = SecurityLogImpl.getInstance();
     _exceptionListRegularExpressions = new ArrayList();
+    readExceptionList();
   }
   
   private void readExceptionList() {
+    if (_logger.isDebugEnabled()) {
+      _logger.debug("Reading SecureConfigFinder configuration file");
+    }
     InputStream is = null;
     try {
       is = open(EXCEPTION_LIST_FILE_NAME);
     }
     catch (IOException e) {
       if (_logger.isInfoEnabled()) {
-	_logger.info("No regular expression file was found (exception list)");
+	_logger.info("Unable to open SecureConfigFinder configuration file");
       }
       return;
     }
     if (is == null) {
+      if (_logger.isInfoEnabled()) {
+	_logger.info("SecureConfigFinder configuration file not found");
+      }
       return;
     }
     BufferedReader br = new BufferedReader(new InputStreamReader(is));
     String line = null;
+    Pattern p1 = Pattern.compile("(exceptionPattern=)(.*)");
+    Pattern p2 = Pattern.compile("(jarFilesOnly=)(.*)");
     try {
       while ((line = br.readLine()) != null) {
 	if (line.startsWith("#")) {
 	  continue;
 	}
-	try {
-	  Pattern p = Pattern.compile(line);
-	  _exceptionListRegularExpressions.add(p);
-	}
-	catch (PatternSyntaxException e) {
-	  if (_logger.isWarnEnabled()) {
-	    _logger.warn("Unable to parse regular expression: " + line);
+	Matcher matcher = p1.matcher(line);
+	if (matcher.find()) {
+	  try {
+	    Pattern p = Pattern.compile(matcher.group(2));
+	    _exceptionListRegularExpressions.add(p);
+	    if (_logger.isDebugEnabled()) {
+	      _logger.debug("New exception pattern: " + p.pattern());
+	    }
 	  }
+	  catch (PatternSyntaxException e) {
+	    if (_logger.isWarnEnabled()) {
+	      _logger.warn("Unable to parse regular expression: " + line);
+	    }
+	  }
+	  continue;
+	}
+	matcher = p2.matcher(line);
+	if (matcher.find()) {
+	  _jarFilesOnly = (Boolean.valueOf(matcher.group(2))).booleanValue();
+	    if (_logger.isDebugEnabled()) {
+	      _logger.debug("jarFilesOnly:" + _jarFilesOnly);
+	    }
 	}
       }
     }
@@ -173,11 +198,17 @@ public class SecureConfigFinder
       return false;
     }
     String url = aURL.toString();
+    if (_logger.isDebugEnabled()) {
+      _logger.debug("Check validity of " + url);
+    }
     Iterator it = _exceptionListRegularExpressions.iterator();
     while (it.hasNext()) {
       Pattern pattern = (Pattern) it.next();
       Matcher matcher = pattern.matcher(url);
       boolean result = matcher.find();
+      if (_logger.isDebugEnabled()) {
+	_logger.debug("Trying against " + pattern.pattern() + " - Result: " + result);
+      }
       if (result) {
 	if (_logger.isDebugEnabled()) {
 	  _logger.debug(url + " may be loaded without signature");
@@ -232,7 +263,7 @@ public class SecureConfigFinder
   /** Do not allow unsigned files by default.
    */
   protected boolean jarFilesOnly() {
-    return true;
+    return _jarFilesOnly;
   }
 
   protected File copyFileToTempDirectory(URL aUrl, String aFilename)
