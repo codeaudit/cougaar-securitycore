@@ -3,6 +3,7 @@
 <policies>
   <policy name="Crypto Client Policy" type = "cryptoClientPolicy">
     <cryptoClientPolicy>
+      <isRootCA>false</isRootCA>
       <isCertificateAuthority>false</isCertificateAuthority>
       <keystoreFileName>keystore-${org.cougaar.node.name}</keystoreFileName>
       <keystorePassword>keystorePassword</keystorePassword>
@@ -10,6 +11,15 @@
         <CA_keystore>keystoreNCA_CA</CA_keystore>
 
         <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
+<!--
+        <trustedCA>
+          <CA_alias>NCA_CA</CA_alias>
+          <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US, T=ca</CA_DN>
+          <CA_URL>http://tea:5556/$ca1ADAgent/CA/CertificateSigningRequest</CA_URL>
+          <CertDirectoryURL>ldap://yew:389/dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
+-->
 	<CA_requestURL>/CA/CertificateSigningRequest</CA_requestURL>
 	<CA_infoURL>/CA/CAInfoServlet</CA_infoURL>
       </trustedCAs>
