@@ -1,0 +1,51 @@
+This file contains instructions for changing access control policies. An example of an XML based policy file is located in $COUGAAR_INSTALL_PATH/configs/common/BootPolicy.ldm.xml. This file is served as a set of default policies upon boot time. Like all other xml policy files, the "KeySet value" servers as the default value for the particular Rule Parameter.
+
+Open the xml file with a text editor, find the line:
+<Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.AccessControlPolicy">
+which is the beginning of access control policy block, following are descriptions for each Rule Parameters:
+
+IncomingMessageAction
+=====================
+	The list of criticality levels (can not be changed) and corresponding actions (accept or set aside). 
+	* Possible values: AcceptMessage or SetAside
+	* default: no default allowed
+
+IncomingVerb
+============
+	The incoming Message or Directive for the agent named in the "key" entry will be set aside if it contains the Cougaar Task Verb that matches the key value (e.g. "Transport").
+	* possible values: any Cougaar Task Verb
+	* default: ""
+
+OutgoingVerb
+============
+	Same as "IncomingVerb" except this one is applied to sending out messages.
+
+
+IncomingAgentAction
+===================
+	The incoming Message or Directive for the agent named in the "key" entry will be set aside or accepted according to the key value
+	* possible values: AcceptMessage or SetAside
+	* default: AcceptMessage 
+
+OutgoingAgentAction
+===================
+	Same as "IncomingAgentAction" except this one is applied to sending out messages.
+
+IncomingMessageCriticality
+==========================
+	A numerical value to signify increasing message criticality, the incoming message is accepted or rejected based on looking up this criticality value in the IncomingMessageAction key and resulting vaule (SetAside or AcceptMessage).
+	* possible values: a integer within the range appeared in IncomingMessageAction key entries (e.g. 0 through 5)
+
+OutgoingMessageCriticality
+==========================
+	Same as "IncomingMessageCriticality" except this one is applied to sending out messages.
+
+IncomingMessageIntegrity
+========================
+	Not used.
+
+OutgoingMessageIntegrity
+========================
+	Not used.
+
+12/21/01
