@@ -27,6 +27,7 @@
 package org.cougaar.core.security.userauth;
 
 import java.net.*;
+import org.cougaar.core.security.util.CryptoDebug;
 
 public final class UserPasswordAuthenticator extends Authenticator
   implements AuthenticationListener {
@@ -39,6 +40,7 @@ public final class UserPasswordAuthenticator extends Authenticator
 
   public void setAuthHandler(AuthenticationHandler handler) {
     this.handler = handler;
+    handler.setAuthListener(this);
   }
 
   /**
@@ -67,7 +69,8 @@ public final class UserPasswordAuthenticator extends Authenticator
   */
 
   public PasswordAuthentication getPasswordAuthentication() {
-    //System.out.println("password? " + _pa + " : " + handler);
+    if (CryptoDebug.debug)
+      System.out.println("password? " + _pa + " : " + handler);
     //if (_pa == null && handler != null && trial < 3) {
     if (handler != null) {
       try {
@@ -77,6 +80,8 @@ public final class UserPasswordAuthenticator extends Authenticator
 
     // should have a table of password authentication based on
     // host, port, protocol, etc
+    if (CryptoDebug.debug)
+      System.out.println("password: " + _pa);
     return _pa;
   }
 }
