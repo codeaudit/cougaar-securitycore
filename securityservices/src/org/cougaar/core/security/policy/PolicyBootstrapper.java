@@ -25,6 +25,7 @@ package org.cougaar.core.security.policy;
 
 import java.util.Properties;
 import java.io.File;
+import java.util.Vector;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -37,8 +38,7 @@ import org.cougaar.core.security.services.util.PolicyBootstrapperService;
 import org.cougaar.core.security.config.ConfigParserServiceImpl;
 
 //from kaos
-import kaos.core.util.PolicyMsg;
-import kaos.core.util.AttributeMsg;
+import kaos.core.util.*;
 
 public class PolicyBootstrapper 
   implements PolicyBootstrapperService
@@ -82,18 +82,16 @@ public class PolicyBootstrapper
     SecurityPolicy[] policies = cps.getSecurityPolicies(type);
     
     PolicyMsg policyMsg = null;
+    SubjectMsg sm = new SubjectMsg("bootID","default","scope");
+    Vector v = new Vector();
+    v.add(sm);
     if (policies != null) {
-        policyMsg = new PolicyMsg ("",
-                                             "",
-                                             "",
-                                             "",
-                                             "",
-                                             "",
-                                             "",
-                                             "",
-                                             "",
-                                             true,
-                                             false,
+        policyMsg = new PolicyMsg ("boot",
+                                             "BootPolicy",
+                                             "boot policy",
+                                             type.toString(),
+                                             "admin",
+                                             v,
                                              false);
         for (int i=0; i<policies.length; i++) {                    
             // wrap the policy in a KAoS message
