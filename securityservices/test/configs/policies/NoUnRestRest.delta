@@ -1,0 +1,166 @@
+#
+# <copyright>
+#  Copyright 2003 Cougaar Software, Inc.
+#  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the Cougaar Open Source License as published by
+#  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+#
+#  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+#  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+#  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+#  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+#  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+#  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+#  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+#  PERFORMANCE OF THE COUGAAR SOFTWARE.
+# </copyright>
+#
+
+
+
+#
+# WARNING: I had trouble with comments in the grammar.  It is
+#          possible/easy to make a reasonable comment that contains
+#          some character that leads to a lexical error.
+#          If you are having trouble use the "policyUtil parse ..."
+#          command to debug and avoid frustration.
+
+Policy DamlBootPolicyAllowCommunication = [ 
+   GenericTemplate
+   Priority = 2,
+   $Actor.daml#Agent is authorized to perform
+   $Action.daml#EncryptedCommunicationAction as long as
+    the value of $Action.daml#hasDestination
+    is a subset of the set $Actor.daml#Agent
+]
+
+Policy DamlBootPolicyEncryptCommunication = [ 
+   GenericTemplate
+   Priority = 3,
+   $Actor.daml#Agent is not authorized to perform
+   $Action.daml#EncryptedCommunicationAction as long as
+    the value of $Ultralog/UltralogAction.daml#usedProtectionLevel
+    is a subset of the complement of the set
+     { $Ultralog/Names/EntityInstances.daml#NSAApprovedProtection }
+]
+
+
+Policy DamlBootPolicyAllowBlackboard = [ 
+   GenericTemplate
+   Priority = 2,
+   $Ultralog/UltralogActor.daml#UltralogPlugins is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess as long as
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the complement of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }
+]
+
+Policy DamlBootPolicyOrgActivityAdd = [
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityAdd can Add objects of type OrgActivity
+]
+
+Policy DamlBootPolicyOrgActivityChange = [
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityChange can Change, Query objects
+   of type OrgActivity
+]
+
+Policy DamlBootPolicyOrgActivityQuery = [
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityQuery can Query objects of type OrgActivity
+]
+
+Policy DamlBootPolicyOrgActivityRemove = [
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityRemove can Remove, Query objects 
+   of type OrgActivity
+]
+
+Policy DamlBootPolicyOrgActivityAll = [
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityAll can Add, Change, Query, Remove
+   objects of type OrgActivity
+]
+
+Policy DamlBootPolicyPolicyServletRear  = [ 
+  ServletUserAccessTemplate
+  A user in role RearPolicyAdministrator can access a servlet 
+  named RearPolicyServlet
+]
+
+Policy DamlBootPolicyPolicyServletFwd  = [ 
+  ServletUserAccessTemplate
+  A user in role FwdPolicyAdministrator can access a servlet 
+  named FwdPolicyServlet
+]
+
+Policy DamlBootPolicyPolicyServletConus  = [ 
+  ServletUserAccessTemplate
+  A user in role ConusPolicyAdministrator can access a servlet 
+  named ConusPolicyServlet
+]
+
+Policy DamlBootPolicyPolicyServletTrans  = [ 
+  ServletUserAccessTemplate
+  A user in role TransPolicyAdministrator can access a servlet 
+  named TransPolicyServlet
+]
+
+Policy DamlBootPolicySCmrManager  = [ 
+  ServletUserAccessTemplate
+  A user in role MonitorManager can access a servlet named SCmrmanagerServlets
+]
+
+Policy DamlBootPolicyNCAServlet = [
+  ServletUserAccessTemplate
+  A user in role Logistician can access a servlet named NCAServlets
+]
+
+Policy DamlBootPolicyLogisticianAgg = [
+  ServletUserAccessTemplate
+  A user in role Logistician can access a servlet named AggegatorServlets
+]
+
+Policy DamlBootPolicyLogisticianViewAgg = [
+  ServletUserAccessTemplate
+  A user in role LogisticsViewer can access a servlet named AggegatorServlets
+]
+
+Policy DamlBootPolicyUserAdminServlets = [
+  ServletUserAccessTemplate
+  A user in role UserManager can access a servlet named UserManagerServlets
+]
+
+Policy DamlBootPolicyLogisticianInventory = [
+  ServletUserAccessTemplate
+  A user in role Logistician can access a servlet named LogInventoryServlet
+]
+
+Policy DamlBootPolicyLogisticsViewerInventory = [
+  ServletUserAccessTemplate
+  A user in role LogisticsViewer can access a servlet named LogInventoryServlet
+]
+
+Policy DamlBootPolicyLogisticianHierarchy = [
+  ServletUserAccessTemplate
+  A user in role Logistician can access a servlet named HierarchyServlet
+]
+
+Policy DamlBootPolicyLogisticsViewerHierarchy  = [
+  ServletUserAccessTemplate
+  A user in role LogisticsViewer can access a servlet named HierarchyServlet
+]
+
+Policy DamlBootPolicyCertWrite  = [
+  ServletUserAccessTemplate
+  A user in role CAAdministrator can access a servlet named CAWriteServlet
+]
+
+Policy DamlBootPolicySocietyAdmin = [
+  ServletUserAccessTemplate
+  A user in role SocietyAdmin can access a servlet named SocietyAdminServlet
+]

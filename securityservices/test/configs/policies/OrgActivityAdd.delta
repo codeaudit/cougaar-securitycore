@@ -1,0 +1,8 @@
+
+
+PolicyPrefix=%OrgActivityAdd/
+
+Policy DamlBootPolicyOrgActivityAdd = [
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityAdd can Add objects of type OrgActivity
+]

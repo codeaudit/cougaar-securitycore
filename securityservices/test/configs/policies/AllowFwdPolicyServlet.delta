@@ -1,0 +1,23 @@
+
+PolicyPrefix=%AllowFwdPolicyServlet/
+
+UserRole FwdPolicyAdministrator
+
+Servlet CAReadServlet
+Servlet CertReqServlet
+Servlet RearPolicyServlet
+
+Policy AllowFwdGetsRearPolicy  = [ 
+  ServletUserAccessTemplate
+  A user in role FwdPolicyAdministrator can access a servlet 
+  named RearPolicyServlet
+]
+
+Policy RequireAuditFwdRear = [
+  AuditTemplate
+  Require audit for all accesses to servlet RearPolicyServlet by
+  users in role FwdPolicyAdministrator
+]
+
+
+       

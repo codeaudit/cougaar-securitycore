@@ -1,0 +1,17 @@
+
+
+PolicyPrefix=%Communication/
+
+Agent %#ca1ADNode
+Agent %#UserAdmin
+Agent %#EnclaveOneWorkerNode
+
+Policy BreakCAAccess = [ 
+   GenericTemplate
+   Priority = 3,
+   %#ca1ADNode is not authorized to perform
+   $Action.daml#EncryptedCommunicationAction  
+   as long as
+   the value of $Action.daml#hasDestination
+   is a subset of the set { %#EnclaveOneWorkerNode %#UserAdmin }
+   ]
