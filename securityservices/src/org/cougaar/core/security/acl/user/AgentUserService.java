@@ -201,6 +201,13 @@ public class AgentUserService implements UserService, BlackboardClient {
         return target;
       }
 
+      if (_communityService == null) {
+	String message = "User attempting to login before community " +
+	  "service is available";
+	_log.debug(message);
+	throw new UserServiceException(message);
+	
+      }
       Attributes attrs = _communityService.getCommunityAttributes(community);
       if (attrs != null) {
         Attribute  attr  = attrs.get("CommunityType");
