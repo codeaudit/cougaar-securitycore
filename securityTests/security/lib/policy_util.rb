@@ -150,9 +150,9 @@ def getPolicyDir()
   dir
 end
 
-def commitPolicy(host, port, manager, args, filename)
+def commitPolicy(host, port, manager, args, filename, dir)
   # now commit the new policy
-  policyUtil("#{args} --auth george george #{host} #{port} #{manager} #{filename}")
+  policyUtil("#{args} --auth george george #{host} #{port} #{manager} #{filename}",nil,dir)
 end
 
 def policyUtil(args, javaArgs = nil, execDir = nil)
