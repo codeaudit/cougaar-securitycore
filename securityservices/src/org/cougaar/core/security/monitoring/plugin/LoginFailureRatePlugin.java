@@ -31,15 +31,29 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.Enumeration;
+import java.util.Collection;
+
+import java.io.Serializable;
 
 import edu.jhuapl.idmef.IDMEFTime;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.IDMEF_Message;
+import edu.jhuapl.idmef.Alert;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
+import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.lib.aggagent.query.Alert;
+import org.cougaar.core.adaptivity.OMCRangeList;
+import org.cougaar.core.adaptivity.Condition;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
+import org.cougaar.core.service.ThreadService;
+
+import org.cougaar.util.UnaryPredicate;
+
 import org.cougaar.lib.aggagent.query.AlertDescriptor;
 import org.cougaar.lib.aggagent.query.AggregationQuery;
 import org.cougaar.lib.aggagent.query.QueryResultAdapter;
@@ -49,6 +63,9 @@ import org.cougaar.lib.aggagent.query.AggregationResultSet;
 
 import org.cougaar.lib.aggagent.session.UpdateDelta;
 import org.cougaar.lib.aggagent.session.SessionManager;
+import org.cougaar.lib.aggagent.session.XMLEncoder;
+import org.cougaar.lib.aggagent.session.SubscriptionAccess;
+import org.cougaar.lib.aggagent.session.IncrementFormat;
 
 import org.cougaar.lib.aggagent.util.Enum.QueryType;
 import org.cougaar.lib.aggagent.util.Enum.Language;
@@ -56,10 +73,6 @@ import org.cougaar.lib.aggagent.util.Enum.AggType;
 import org.cougaar.lib.aggagent.util.Enum.ScriptType;
 import org.cougaar.lib.aggagent.util.Enum.UpdateMethod;
 import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
-
-import org.cougaar.core.adaptivity.OMCRangeList;
-import org.cougaar.core.adaptivity.Condition;
-
 
 /**
  * Queries for LOGINFAILURE IDMEF messages and creates a LOGIN_FAILURE_RATE
@@ -79,7 +92,7 @@ import org.cougaar.core.adaptivity.Condition;
  * <pre>
  * [ Plugins ]
  * plugin = org.cougaar.core.servlet.SimpleServletComponent(org.cougaar.planning.servlet.PlanViewServlet, /tasks)
- * plugin = org.cougaar.core.security.monitor.plugin.LoginFailureRatePlugin(20,60,TestNode)
+ * plugin = org.cougaar.core.security.monitorin.plugin.LoginFailureRatePlugin(20,60,TestNode)
  * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
  * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
  * </pre>
@@ -88,60 +101,27 @@ import org.cougaar.core.adaptivity.Condition;
  */
 public class LoginFailureRatePlugin extends ComponentPlugin {
   static long SECONDSPERDAY = 60 * 60 * 24;
-  private static final String[] STR_ARRAY = new String[1];
-  private static final String PRED_SCRIPT = 
-    "from edu.jhuapl.idmef import Alert\n" +
-    "from org.cougaar.core.security.crypto.ldap import KeyRingJNDIRealm\n" +
-    "from org.cougaar.core.security.monitoring.blackboard import Event\n" +
-    "def getAlert(x):\n" +
-    "  if isinstance(x, Event) == 0:\n" +
-    "    return 0\n" +
-    "  event = x.getEvent()\n" +
-    "  if isinstance(event, Alert) == 0:\n" +
-    "    return 0\n" +
-    "  for capability in event.getClassifications():\n" +
-    "    if KeyRingJNDIRealm.LOGIN_FAILURE_ID == capability.getName():\n" +
-    "      detectTime = event.getDetectTime()\n" +
-    "      if detectTime is None:\n" +
-    "        return 0\n" +
-    "      return 1\n" +
-    "  return 0\n" +
-    "def instantiate ():\n" +
-    "  return getAlert\n";
-
-  private static final String FORMAT_SCRIPT =
-//     "from java.lang import System\n" +
-    "from org.cougaar.lib.aggagent.query import ResultSetDataAtom\n" +
-    "def encode (out, x):\n" +
-    "  atom = ResultSetDataAtom()\n" +
-    "  atom.addIdentifier('document', 'foo')\n" +
-    "  list = x.getAddedCollection()\n" +
-    "  if list is None:\n" +
-    "    count = 0\n" +
-    "  else:\n" +
-    "    count = list.size()\n" +
-    "  atom.addValue('delta', count)\n" +
-//     "  atom.addValue('date', x.getEvent().getDetectTime().getidmefDate())\n" +
-    "  out.getAddedList().add(atom)\n" +
-    "def instantiate ():\n" +
-    "  return encode\n";
-
   private static final ScriptSpec PRED_SPEC =
-    new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JPYTHON, PRED_SCRIPT);
-  private static ScriptSpec FORMAT_SPEC =
-    new ScriptSpec(Language.JPYTHON, XmlFormat.INCREMENT, FORMAT_SCRIPT);
+    new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JAVA, 
+                   LoginFailurePredicate.class.getName());
 
-  private static final int OVERSIZE = 60;
+  private static final ScriptSpec FORMAT_SPEC =
+    new ScriptSpec(Language.JAVA,  XmlFormat.INCREMENT,
+                   LoginFailurePredicate.class.getName());
+
+  private static final int OVERSIZE = 600;
   private LoggingService log;
+
+  private IncrementalSubscription _queryChanged;
+  private QueryResultAdapter      _queryAdapter;
 
   protected int    _pollInterval    = 0;
   protected int    _window          = 0;
   protected String _clusters[]      = null;
-  protected Alert  _alert           = null;
   protected int    _failures[]      = null;
   protected int    _totalFailures   = 0;
-  protected Thread _pollThread      = null;
   protected long   _startTime       = System.currentTimeMillis();
+  protected int    _lastRate        = -1;
 
   public void setParameter(Object o) {
     if (!(o instanceof List)) {
@@ -186,7 +166,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     while (iter.hasNext()) {
       clusters.add(iter.next().toString());
     }
-    _clusters = (String[]) clusters.toArray(STR_ARRAY);
+    _clusters = (String[]) clusters.toArray(new String[clusters.size()]);
 
     _failures = new int[_window + OVERSIZE];
     for (int i = 0; i < _failures.length; i++) {
@@ -196,9 +176,8 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
 
   protected AggregationQuery createQuery() {
     AggregationQuery aq = new AggregationQuery(QueryType.PERSISTENT);
-    aq.setName("Login Rate Query");
+    aq.setName("Login Failure Rate Query");
     aq.setUpdateMethod(UpdateMethod.PUSH);
-    aq.setPullRate(_pollInterval);
     
     for (int i = 0 ; i < _clusters.length; i++) {
       aq.addSourceCluster(_clusters[i]);
@@ -213,109 +192,159 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
     AggregationQuery aq = createQuery();
-    QueryResultAdapter qra = new QueryResultAdapter(aq);
-    _alert = new LoginFailureAlert();
-    _alert.setQueryAdapter(qra);
-    qra.addAlert(_alert);
-    _pollThread = new PollRate();
-    _pollThread.start();
-//     getBlackboardService().openTransaction();
-    try {
-      getBlackboardService().publishAdd(qra);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-//     getBlackboardService().closeTransaction();
+    _queryAdapter = new QueryResultAdapter(aq);
+
+    _queryChanged = (IncrementalSubscription)
+      getBlackboardService().subscribe(new QueryChanged());
+
+    getBlackboardService().publishAdd(_queryAdapter);
+
+    ThreadService ts = (ThreadService) getServiceBroker().
+      getService(this, ThreadService.class, null);
+    ts.schedule(ts.getTimerTask(this, new LoginFailureRateTask()),
+                0, ((long)_pollInterval) * 1000);
   }
 
   protected void execute() {
+    
+    long now = System.currentTimeMillis();
+    
+    Enumeration e = _queryChanged.getChangedList();
+    QueryResultAdapter qra = null;
+
+    while (e.hasMoreElements() && qra == null) {
+      qra = (QueryResultAdapter) e.nextElement();
+      if (!qra.checkID(_queryAdapter.getID())) qra = null;
+    }
+
+    if (qra == null) return;
+    AggregationResultSet results = qra.getResultSet();
+    if (results.exceptionThrown()) {
+      log.error("Exception when executing query: " + results.getExceptionSummary());
+      log.debug("XML: " + results.toXml());
+    } else {
+      Iterator atoms = results.getAllAtoms();
+      int count = 0;
+      while (atoms.hasNext()) {
+        ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
+        count += Integer.parseInt(d.getValue("delta").toString());
+      }
+      synchronized (_failures) {
+        _failures[(int)((now - _startTime)/1000)%_failures.length] += count;
+        _totalFailures += count;
+      }
+    }
   }
+
+  private static class QueryChanged implements UnaryPredicate {
+    public QueryChanged() {
+    }
+
+    public boolean execute(Object o) {
+      return (o instanceof QueryResultAdapter);
+    }
+  }
+
+  private static class LoginFailureRateCondition
+    implements Condition, Serializable {
+    Double _rate;
+    static final OMCRangeList RANGE = 
+      new OMCRangeList(new Double(0.0), new Double(Integer.MAX_VALUE));
+ 
+    public LoginFailureRateCondition(int rate) {
+      _rate = new Double((double) rate);
+    }
+      
+    public OMCRangeList getAllowedValues() {
+      return RANGE;
+    }
+     
+    public String getName() {
+      return "org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE";
+    }
   
-  private class LoginFailureAlert extends Alert {
-
-    int _lastRate = -1;
-
-    public LoginFailureAlert() {
-      setName("LoginFailureAlert");
-    }
-
-    public void handleUpdate() {
-      long now = System.currentTimeMillis();
-      /*
-        TimeZone gmt = TimeZone.getTimeZone("GMT");
-        Calendar backTime = Calendar.getInstance(gmt);
-        backTime.add(Calendar.SECOND, -_window);
-        String backString = IDMEFTime.convertToIDMEFFormat(backTime.getTime());
-      */
-
-      QueryResultAdapter qra = getQueryAdapter();
-      AggregationResultSet results = qra.getResultSet();
-      if (results.exceptionThrown()) {
-        log.error("Exception when executing query: " + results.getExceptionSummary());
-        log.debug("XML: " + results.toXml());
-      } else {
-        Iterator atoms = results.getAllAtoms();
-        int count = 0;
-        while (atoms.hasNext()) {
-          ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
-          count += Integer.parseInt(d.getValue("delta").toString());
-        }
-        synchronized (_failures) {
-          _failures[(int)((now - _startTime)/1000)%_failures.length] += count;
-          _totalFailures += count;
-        }
-      }
+    public Comparable getValue() {
+      return _rate;
     }
   }
 
-  private class PollRate extends Thread {
-    public PollRate() {
-      setDaemon(true);
+  public static class LoginFailurePredicate
+    implements UnaryPredicate, IncrementFormat {
+    // UnaryPredicate API
+    public boolean execute(Object obj) {
+      if (!(obj instanceof Event)) {
+        return false;
+      }
+      Event event = (Event) obj;
+      IDMEF_Message msg = event.getEvent();
+      if (!(msg instanceof Alert)) {
+        return false;
+      }
+      Alert alert = (Alert) msg;
+      if (alert.getDetectTime() == null) {
+        return false;
+      }
+      Classification[] classifications = alert.getClassifications();
+      for (int i = 0; i < classifications.length; i++) {
+        if (KeyRingJNDIRealm.LOGIN_FAILURE_ID.
+            equals(classifications[i].getName())) {
+          return true;
+        }
+      }
+      return false;
     }
 
+    // IncrementFormat API
+    public void encode(UpdateDelta out, SubscriptionAccess sacc) {
+      ResultSetDataAtom atom = new ResultSetDataAtom();
+      atom.addIdentifier("LoginFailureCount", "Results");
+      atom.addValue("delta", String.valueOf(sacc.getAddedCollection().size()));
+      out.getAddedList().add(atom);
+    }
+  }
+
+  private class LoginFailureRateTask implements Runnable {
+    int  _lastCleared= (OVERSIZE + (int) 
+                        (_startTime - 
+                         System.currentTimeMillis())/1000)%_failures.length;
+    int  _prevTotal = -1;
+
+    public LoginFailureRateTask() {
+    }
+    
     public void run() {
-      long pollTime  = ((long) _pollInterval) * 1000;
-      long nextWake  = System.currentTimeMillis();
-      int  arrSize   = _failures.length;
-      int  last      = (OVERSIZE + (int)(_startTime - nextWake)/1000)%arrSize;
-      int  prevTotal = -1;
+      boolean report = false;
+      synchronized (_failures) {
+        long now = System.currentTimeMillis();
+        int  bucketOn = (int)((now - _startTime)/1000)%_failures.length;
 
-      while (true) {
-        boolean report = false;
-        synchronized (_failures) {
-          if (_totalFailures != prevTotal) {
-            prevTotal = _totalFailures;
-            report = true;
-          }
-          for(int next = (last + _pollInterval) % arrSize;
-              last != next; last = (last + 1) % arrSize) {
-            _totalFailures -= _failures[last];
-            _failures[last] = 0;
-          }
-        }
-        if (report) {
-          reportRate(prevTotal);
+        if (_totalFailures != _prevTotal) {
+          _prevTotal = _totalFailures;
+          report = true;
         }
 
-        nextWake += pollTime;
-        long sleepTime;
-        while ((sleepTime = nextWake - System.currentTimeMillis()) > 0) {
-          try {
-            this.sleep(sleepTime);
-          } catch (InterruptedException e) {
-            // just sleep again..
-          }
+        // clear the buckets between 
+        int nextCleared = (bucketOn + _pollInterval + OVERSIZE) % 
+          _failures.length;
+        while (_lastCleared != nextCleared) {
+          _totalFailures -= _failures[_lastCleared];
+          _failures[_lastCleared] = 0;
+          _lastCleared = (_lastCleared + 1) % _failures.length;
         }
+      }
+
+      if (report) {
+        reportRate(_prevTotal);
       }
     }
 
-    void reportRate(int failureCount) {
+    private void reportRate(int failureCount) {
       int rate = (int) (failureCount * SECONDSPERDAY / _window);
       log.debug("Rate = " + rate + " login failures/day");
       Condition cond = new LoginFailureRateCondition(rate);
       boolean close = true;
       try {
-        close = getBlackboardService().tryOpenTransaction();
+        getBlackboardService().openTransaction();
       } catch (Exception e) {
         close = false;
       }
@@ -329,28 +358,6 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
         }
       } catch (Exception e) {
       }
-    }
-  }
-
-  static class LoginFailureRateCondition implements Condition {
-    Double _rate;
-    static final OMCRangeList RANGE = 
-      new OMCRangeList(new Double(0.0), new Double(Integer.MAX_VALUE));
-
-    public LoginFailureRateCondition(int rate) {
-      _rate = new Double((double) rate);
-    }
-    
-    public OMCRangeList getAllowedValues() {
-      return RANGE;
-    }
-    
-    public String getName() {
-      return "org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE";
-    }
-
-    public Comparable getValue() {
-      return _rate;
     }
   }
 }

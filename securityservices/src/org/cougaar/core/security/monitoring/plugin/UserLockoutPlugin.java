@@ -31,19 +31,33 @@ import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.OMCThruRange;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.security.services.crypto.LdapUserService;
+import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
+import org.cougaar.core.security.monitoring.blackboard.Event;
 
-import org.cougaar.lib.aggagent.query.Alert;
 import org.cougaar.lib.aggagent.query.AggregationQuery;
 import org.cougaar.lib.aggagent.query.ScriptSpec;
 import org.cougaar.lib.aggagent.query.QueryResultAdapter;
 import org.cougaar.lib.aggagent.query.AggregationResultSet;
 import org.cougaar.lib.aggagent.query.ResultSetDataAtom;
 
+import org.cougaar.lib.aggagent.session.UpdateDelta;
+import org.cougaar.lib.aggagent.session.SubscriptionAccess;
+import org.cougaar.lib.aggagent.session.IncrementFormat;
+
 import org.cougaar.lib.aggagent.util.Enum.ScriptType;
 import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
 import org.cougaar.lib.aggagent.util.Enum.UpdateMethod;
 import org.cougaar.lib.aggagent.util.Enum.Language;
 import org.cougaar.lib.aggagent.util.Enum.QueryType;
+import org.cougaar.lib.aggagent.util.Enum.Language;
+
+import edu.jhuapl.idmef.Target;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.IDMEF_Message;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.User;
+import edu.jhuapl.idmef.UserId;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -76,7 +90,6 @@ public class UserLockoutPlugin extends ComponentPlugin {
   long _lockoutTime   = 1000 * 60 * 60 * 24; // 1 day
 
   FailureCache _failures       = new FailureCache();
-  Alert  _alert                = null;
   String _clusters[]           = null;
   private LoggingService  _log;
   private LdapUserService _userService;
@@ -85,6 +98,7 @@ public class UserLockoutPlugin extends ComponentPlugin {
 
   private OperatingMode _maxLoginFailureOM = null;
   private OperatingMode _lockoutDurationOM = null;
+  private IncrementalSubscription _queryChanged;
 
   private static final OMCRange []LD_VALUES = {
     new OMCThruRange(-1.0, Double.MAX_VALUE) 
@@ -94,66 +108,13 @@ public class UserLockoutPlugin extends ComponentPlugin {
   private static final OMCRangeList LOCKOUT_DURATION_RANGE =
       new OMCRangeList(LD_VALUES);
 
-  private static final String[] STR_ARRAY = new String[1];
-  private static final String PRED_SCRIPT = 
-    "from org.cougaar.core.security.crypto.ldap import KeyRingJNDIRealm\n" +
-    "from edu.jhuapl.idmef import Alert\n" +
-    "from org.cougaar.core.security.monitoring.blackboard import Event\n" +
-    "def getAlert(x):\n" +
-    "  if isinstance(x, Event) == 0:\n" +
-    "    return 0\n" +
-    "  event = x.getEvent()\n" +
-    "  if isinstance(event, Alert) == 0:\n" +
-    "    return 0\n" +
-    "  targets = event.getTargets()\n" +
-    "  if (targets is None) or (len(targets) == 0):\n" +
-    "    return 0\n" +
-    "  for capability in event.getClassifications():\n" +
-    "    if KeyRingJNDIRealm.LOGIN_FAILURE_ID == capability.getName():\n" +
-    "      detectTime = event.getDetectTime()\n" +
-    "      if detectTime is None:\n" +
-    "        return 0\n" +
-    "      return 1\n" +
-    "  return 0\n" +
-    "def instantiate ():\n" +
-    "  return getAlert\n";
-
-  private static final String FORMAT_SCRIPT =
-//     "from java.lang import System\n" +
-    "from org.cougaar.core.security.crypto.ldap import KeyRingJNDIRealm\n" +
-    "from org.cougaar.lib.aggagent.query import ResultSetDataAtom\n" +
-    "def encode (out, x):\n" +
-    "  added = x.getAddedCollection()\n" +
-    "  addTo = out.getAddedList()\n" +
-    "  if added is None:\n" +
-    "    return\n" +
-    "  iter = added.iterator()\n" +
-    "  while iter.hasNext():\n" +
-    "    failure = iter.next().getEvent()\n" +
-    "    user = None\n" +
-    "    reason = None\n" +
-    "    for target in failure.getTargets():\n" +
-    "      user = target.getUser()\n" +
-    "      if user is not None:\n" +
-    "        break\n" +
-    "    for addData in failure.getAdditionalData():\n" +
-    "      if addData.getMeaning() == KeyRingJNDIRealm.FAILURE_REASON:\n" +
-    "        reason = addData.getAdditionalData()\n" +
-    "        break\n" +
-    "    if user is not None:\n" +
-    "      if reason is not None:\n" +
-    "        user = user.getUserIds()[0].getName()\n" +
-    "        atom = ResultSetDataAtom()\n" +
-    "        atom.addIdentifier('user', user)\n" +
-    "        atom.addValue('reason', reason)\n" +
-    "        addTo.add(atom)\n" +
-    "def instantiate ():\n" +
-    "  return encode\n";
 
   private static final ScriptSpec PRED_SPEC =
-    new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JPYTHON, PRED_SCRIPT);
+    new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JAVA,
+                   LoginFailurePredicate.class.getName());
   private static ScriptSpec FORMAT_SPEC =
-    new ScriptSpec(Language.JPYTHON, XmlFormat.INCREMENT, FORMAT_SCRIPT);
+    new ScriptSpec(Language.JAVA, XmlFormat.INCREMENT, 
+                   LoginFailurePredicate.class.getName());
 
   private static final String MAX_LOGIN_FAILURES =
     "org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES";
@@ -234,7 +195,7 @@ public class UserLockoutPlugin extends ComponentPlugin {
     while (iter.hasNext()) {
       clusters.add(iter.next().toString());
     }
-    _clusters = (String[]) clusters.toArray(STR_ARRAY);
+    _clusters = (String[]) clusters.toArray(new String[clusters.size()]);
   }
 
   public void lock(String user) throws NamingException {
@@ -267,17 +228,15 @@ public class UserLockoutPlugin extends ComponentPlugin {
 	getServiceBroker().getService(this, LdapUserService.class, null);
     AggregationQuery aq = createQuery();
     QueryResultAdapter qra = new QueryResultAdapter(aq);
-    _alert = new LoginFailureAlert();
-    _alert.setQueryAdapter(qra);
-    qra.addAlert(_alert);
     BlackboardService blackboard = getBlackboardService();
-//     getBlackboardService().openTransaction();
+    _queryChanged = (IncrementalSubscription)
+      getBlackboardService().subscribe(new QueryChanged());
+
     try {
       blackboard.publishAdd(qra);
     } catch (Exception e) {
       e.printStackTrace();
     }
-//     getBlackboardService().closeTransaction();
 
     _maxLoginFailureSubscription = (IncrementalSubscription)blackboard.subscribe(MAX_LOGIN_FAILURE_PREDICATE);
     _lockoutDurationSubscription = (IncrementalSubscription)blackboard.subscribe(LOCKOUT_DURATION_PREDICATE);
@@ -326,36 +285,6 @@ public class UserLockoutPlugin extends ComponentPlugin {
       _lockoutTime = (long)Double.parseDouble(om.getValue().toString()) * 1000;
     } else {
       _log.error("lockoutDurationSubscription.getChangedCollection() returned collection of size 0!");
-    }
-  }
-
-  private class LoginFailureAlert extends Alert {
-
-    int _lastRate = -1;
-
-    public LoginFailureAlert() {
-      setName("LoginFailureAlert");
-    }
-
-    public void handleUpdate() {
-      if (_maxFailures > 0) {
-        QueryResultAdapter qra = getQueryAdapter();
-        AggregationResultSet results = qra.getResultSet();
-        if (results.exceptionThrown()) {
-          _log.error("Exception when executing query: " + results.getExceptionSummary());
-          _log.debug("XML: " + results.toXml());
-        } else {
-          Iterator atoms = results.getAllAtoms();
-          while (atoms.hasNext()) {
-            ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
-            String user = d.getIdentifier("user").toString();
-            String reason = d.getValue("reason").toString();
-            if ("the user has entered the wrong password".equals(reason)) {
-              _failures.add(user);
-            }
-          }
-        }
-      }
     }
   }
 
@@ -421,4 +350,83 @@ public class UserLockoutPlugin extends ComponentPlugin {
     int  failureCount = 0;
     long lastFailure;
   }
+
+  public static class LoginFailurePredicate
+    implements UnaryPredicate, IncrementFormat {
+
+    // UnaryPredicate API
+    public boolean execute(Object obj) {
+      if (!(obj instanceof Event)) {
+        return false;
+      }
+      Event event = (Event) obj;
+      IDMEF_Message msg = event.getEvent();
+      if (!(msg instanceof Alert)) {
+        return false;
+      }
+      Alert alert = (Alert) msg;
+      Target target[];
+      if (alert.getDetectTime() == null || alert.getTargets() == null) {
+        return false;
+      }
+      Classification[] classifications = alert.getClassifications();
+      for (int i = 0; i < classifications.length; i++) {
+        if (KeyRingJNDIRealm.LOGIN_FAILURE_ID.
+            equals(classifications[i].getName())) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // IncrementFormat API
+    public void encode(UpdateDelta out, SubscriptionAccess sacc) {
+      Collection added = sacc.getAddedCollection();
+      Collection addTo = out.getAddedList();
+      
+      if (added == null) {
+        return;
+      }
+      Iterator iter = added.iterator();
+      while (iter.hasNext()) {
+        Alert          failure   = (Alert) ((Event)iter.next()).getEvent();
+        String         user      = null;
+        String         reason    = null;
+        Target         targets[] = failure.getTargets();
+        AdditionalData addData[] = failure.getAdditionalData();
+
+        for (int i = 0; i < targets.length && user == null; i++) {
+          User u = targets[i].getUser();
+          if (u != null) {
+            UserId uids[] = u.getUserIds();
+            if (uids != null) {
+              user = uids[0].getName();
+            }
+          }
+        }
+        for (int i = 0; i < addData.length && reason == null; i++) {
+          String meaning = addData[i].getMeaning();
+          if (KeyRingJNDIRealm.FAILURE_REASON.equals(meaning)) {
+            reason = addData[i].getAdditionalData();
+          }
+        }
+        if (user != null && reason != null) {
+          ResultSetDataAtom atom = new ResultSetDataAtom();
+          atom.addIdentifier("user", user);
+          atom.addValue("reason", reason);
+          addTo.add(atom);
+        }
+      }
+    }
+  }
+
+  private static class QueryChanged implements UnaryPredicate {
+    public QueryChanged() {
+    }
+
+    public boolean execute(Object o) {
+      return (o instanceof QueryResultAdapter);
+    }
+  }
+
 }
