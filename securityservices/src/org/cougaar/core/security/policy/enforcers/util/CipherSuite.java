@@ -26,7 +26,7 @@
 
 package org.cougaar.core.security.policy.enforcers.util;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -51,9 +51,9 @@ public class CipherSuite {
   public CipherSuite(Set symmetric,
                      Set asymmetric,
                      Set signature) {
-    _symmetric  = new HashSet();
-    _asymmetric = new HashSet();
-    _signature   = new HashSet();
+    _symmetric  = new LinkedHashSet();
+    _asymmetric = new LinkedHashSet();
+    _signature   = new LinkedHashSet();
     if (symmetric != null) {
       _symmetric.addAll(symmetric);
     }
