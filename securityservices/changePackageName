@@ -12,13 +12,13 @@ echo ' ++++++ Search and replace com.nai -> org/cougaar'
 #  - Java files
 #  - Configuration files
 #  - Makefiles
-find src test ./Makefile* -exec sarep -m 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
-find src test ./Makefile* -exec sarep -m 'com.nai.security.monitoring' 'org.cougaar.core.security.oldmonitoring' {} \;
-find src test ./Makefile* -exec sarep -m 'com.nai.security' 'org.cougaar.core.security' {} \;
+find src test ./Makefile* -type f -exec sarep -m 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
+find src test ./Makefile* -type f -exec sarep -m 'com.nai.security.monitoring' 'org.cougaar.core.security.oldmonitoring' {} \;
+find src test ./Makefile* -type f -exec sarep -m 'com.nai.security' 'org.cougaar.core.security' {} \;
 
-find src test ./Makefile* -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/core/security/securebootstrap' {} \;
-find src test ./Makefile* -exec sarep 'com/nai/security/monitoring' 'org/cougaar/core/security/oldmonitoring' {} \;
-find src test ./Makefile* -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
+find src test ./Makefile* -type f -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/core/security/securebootstrap' {} \;
+find src test ./Makefile* -type f -exec sarep 'com/nai/security/monitoring' 'org/cougaar/core/security/oldmonitoring' {} \;
+find src test ./Makefile* -type f -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
 
 # Update Makefiles
 sarep -m '*/bootstrap' '*/*bootstrap' Makefile*
