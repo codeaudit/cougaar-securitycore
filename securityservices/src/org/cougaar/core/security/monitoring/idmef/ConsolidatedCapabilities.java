@@ -38,7 +38,8 @@ import org.cougaar.core.util.XMLize;
  */
 public class ConsolidatedCapabilities extends Alert implements AgentRegistration, XMLizable {
     
-  public static String TYPE = "consolidated-capabilities";
+  private  String Type =null;
+  private String AgentName=null;
   /**
    * Creates a message for an analyzer to register its capabilities.
    * Can only be create through IdmefMessageFactory
@@ -48,7 +49,7 @@ public class ConsolidatedCapabilities extends Alert implements AgentRegistration
 			    Target []targets,
 			    Classification []capabilities,
 			    AdditionalData []data,
-			    String ident ){
+			    String ident,String type,String agentName ){
     super( analyzer, 
 	   null, 
 	   null,  // detection time
@@ -59,9 +60,40 @@ public class ConsolidatedCapabilities extends Alert implements AgentRegistration
 	   null,    // assessment 
 	   data, 
 	   ident );  // ident 
+    this.Type=type;
+    this.AgentName=agentName;
   }
   public org.w3c.dom.Element getXML(org.w3c.dom.Document document) {
      return XMLize.getPlanObjectXML(this, document);
   }
+   
+  public String toString() {
+    StringBuffer buff=new StringBuffer();
+    buff.append(" ConsolidatedCapabilities are :\n");
+    if(getAnalyzer()!=null)
+      buff.append(" Analyzer :"+getAnalyzer().getAnalyzerid());
+    if(getClassifications()!=null) {
+      Classification classs[]=getClassifications();
+      Classification classi=null;
+      buff.append(" Classifications are :\n");
+      for( int i=0;i<classs.length;i++) {
+	classi=classs[i];
+	buff.append("Classification Name:"+classi.getName());
+      }
+    }
+     return buff.toString();
+  }
+ 
+  public void setType(String type) {
+    this.Type=type;
+  }
+   public String getType() {
+    return this.Type;
+  }
+
+  public String getAgentName() {
+    return this.AgentName;
+  } 
+  
 
 }
