@@ -114,16 +114,16 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
           _log.info("Another " + _warnCount + " ProtectionLevel messages received");
           _plmsgcounter = 0;
         }
-        if (_log.isInfoEnabled()) {
-          _log.info("Got a message from " + source +
-                    " to switch signing from " + target +
-                    " to " + sign);
-        }
         boolean signMessage;
         if (sign instanceof Boolean) {
           signMessage = ((Boolean) sign).booleanValue();
         } else {
           signMessage = Boolean.valueOf(sign.toString()).booleanValue();
+        }
+        if (_log.isInfoEnabled()) {
+          _log.info("Got a message from " + source +
+                    " to " + (signMessage? "start" : "stop") + 
+                    " signing messages sent from " + target);
         }
         if (signMessage) {
           _crypto.setSendNeedsSignature(target, source);
