@@ -26,9 +26,13 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.util.*;
-import junit.framework.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import junit.framework.Assert;
 
 public class LogAnalyzer
 {

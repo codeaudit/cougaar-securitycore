@@ -22,10 +22,14 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
-import junit.framework.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import junit.framework.Assert;
 
 public class ProcessGobbler
 {

@@ -23,12 +23,13 @@
 
 package test.org.cougaar.core.security.simul;
 
-import org.apache.log4j.spi.RepositorySelector;
-import org.apache.log4j.spi.LoggerRepository;
-import org.apache.log4j.spi.RootCategory;
+import java.util.Hashtable;
+
 import org.apache.log4j.Hierarchy;
 import org.apache.log4j.Level;
-import java.util.Hashtable;
+import org.apache.log4j.spi.LoggerRepository;
+import org.apache.log4j.spi.RepositorySelector;
+import org.apache.log4j.spi.RootCategory;
 
 public class LogSelector
   implements RepositorySelector

@@ -20,18 +20,19 @@
  */
 package java.util.singleton;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Collection;
-import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.security.AccessControlContext;
 import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.Principal;
+import java.security.PrivilegedAction;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import javax.security.auth.Subject;
 
 //import org.cougaar.core.mts.MessageAddress;

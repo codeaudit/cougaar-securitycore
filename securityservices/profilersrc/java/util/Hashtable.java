@@ -6,7 +6,7 @@
  */
 
 package java.util;
-import java.io.*;
+import java.io.IOException;
 
 /**
  * This class implements a hashtable, which maps keys to values. Any 

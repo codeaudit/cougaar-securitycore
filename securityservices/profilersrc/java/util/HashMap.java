@@ -6,7 +6,8 @@
  */
 
 package java.util;
-import  java.io.*;
+import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * Hash table based implementation of the <tt>Map</tt> interface.  This

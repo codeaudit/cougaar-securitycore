@@ -22,7 +22,7 @@
 
 package test.org.cougaar.core.security.access;
 
-import junit.framework.*;
+import junit.framework.TestCase;
 /*
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageEnvelope;

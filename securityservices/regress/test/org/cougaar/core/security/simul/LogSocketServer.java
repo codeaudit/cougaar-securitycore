@@ -22,8 +22,8 @@
 
 package test.org.cougaar.core.security.simul;
 
-import org.apache.log4j.xml.DOMConfigurator;
 import org.apache.log4j.net.SimpleSocketServer;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.w3c.dom.Element;
 
 public class LogSocketServer {

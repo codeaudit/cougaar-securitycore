@@ -29,9 +29,10 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.util.*;
-import java.io.*;
-import org.xml.sax.*;
+import java.io.CharArrayWriter;
+import java.util.Stack;
+
+import org.xml.sax.Attributes;
 
 class SkippingTagTracker
   extends TagTracker

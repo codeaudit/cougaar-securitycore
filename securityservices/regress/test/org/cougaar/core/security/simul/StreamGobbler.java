@@ -22,7 +22,10 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class StreamGobbler
   extends Thread

@@ -26,7 +26,8 @@
 
 package test.org.cougaar.core.security.simul;
 
-import junit.framework.*;
+import junit.framework.Protectable;
+import junit.framework.TestCase;
 
 public class ThreadedProtectable
   implements Protectable

@@ -1,6 +1,7 @@
 package java.util;
 
-import java.util.singleton.*;
+import java.util.singleton.CollectionMonitorStats;
+import java.util.singleton.CollectionMonitorStatsImpl;
 
 public class MemoryTracker {
   static CollectionMonitorStats m;

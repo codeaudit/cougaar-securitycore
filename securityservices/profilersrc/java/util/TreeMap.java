@@ -7,6 +7,8 @@
 
 package java.util;
 
+import java.io.IOException;
+
 /**
  * Red-Black tree based implementation of the <tt>SortedMap</tt> interface.
  * This class guarantees that the map will be in ascending key order, sorted

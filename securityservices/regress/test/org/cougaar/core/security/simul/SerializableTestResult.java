@@ -26,8 +26,8 @@
 
 package test.org.cougaar.core.security.simul;
 
-import java.io.*;
-import java.util.*;
+import java.io.Serializable;
+import java.util.Enumeration;
 
 public class SerializableTestResult
   extends junit.framework.TestResult
