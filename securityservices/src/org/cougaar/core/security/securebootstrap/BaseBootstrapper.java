@@ -301,6 +301,7 @@ public class BaseBootstrapper
 	    System.out.println("Removing " + aUrl.toString() + " from URL list");
 	  }
 	  it.remove();
+          break;
 	}
       }
     }
