@@ -34,6 +34,7 @@ import org.cougaar.core.component.*;
 import org.cougaar.util.*;
 import org.cougaar.core.service.AgentIdentityService;
 import org.cougaar.core.service.DataProtectionService;
+import org.cougaar.core.service.MessageProtectionService;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -203,8 +204,14 @@ public class SecurityServiceProvider
     serviceBroker.addService(EncryptionService.class, this);
 
     /* Data protection service */
+    services.put(DataProtectionService.class,
+		 new DataProtectionServiceProvider());
     serviceBroker.addService(DataProtectionService.class, this);
 
+    /* Message protection service */
+    services.put(MessageProtectionService.class,
+		 new MessageProtectionServiceProvider());
+    serviceBroker.addService(MessageProtectionService.class, this);
 
     /* ********************************
      * Identity services
