@@ -19,6 +19,9 @@ if ($user eq 'redmond') {
 } elsif ($user eq 'rliao1') {
   $httpport=5556;
   $httpsport=6556;
+} elsif ($user eq 'george') {
+  $httpport=5557;
+  $httpsport=6557;
 } elsif ($user eq 'gmount') {
   $httpport=5557;
   $httpsport=6557;
