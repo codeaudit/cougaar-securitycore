@@ -19,23 +19,21 @@ society.each_node do |node|
   node.add_component { |c|
     c.classname = detector
   }
-  agentname = ""
-  node.each_facet(:role) do |facet|
-    if facet[:role] == $facetManagement
-       enclave = node.host.get_facet(:enclave)
-       agentname = enclave[0..0] + enclave[1..enclave.length].downcase + "UserAdminAgent"
-      node.add_agent(agentname) do |agent|
-        agent.add_component do |c|
-	  c.classname = caServlet
-	  c.add_argument("org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet")
-	  c.add_argument("/useradmin")
-        end
-        agent.add_component do |c|
-	  c.classname = userService 
-        end
-        agent.add_component do |c|
-	  c.classname = userManager
-        end
+end
+
+society.each_agent do |agent|
+  agent.each_facet(:role) do |facet|
+    if facet[:role] == $facetUserManagerAgent
+      agent.add_component do |c|
+        c.classname = caServlet
+        c.add_argument("org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet")
+        c.add_argument("/useradmin")
+      end
+      agent.add_component do |c|
+        c.classname = userService 
+      end
+      agent.add_component do |c|
+        c.classname = userManager
       end
     end
   end

@@ -36,7 +36,11 @@ if !use_ssl
   end
 
   society.each_agent() do |agent|
-    if agent.name =~ /CaManager/
+    # Is this a CA agent?
+    if (agent.has_facet?($facetRootCaManagerAgent) ||
+          agent.has_facet?($facetRedundantRootCaManagerAgent) ||
+          agent.has_facet?($facetCaManagerAgent) ||
+          agent.has_facet?($facetRedundantCaManagerAgent) )
       agent.add_component do |c|
         c.classname = servletComp
         c.add_argument(servlet)

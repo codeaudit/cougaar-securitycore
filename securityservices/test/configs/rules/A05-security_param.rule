@@ -353,7 +353,7 @@ society.each_node do |node|
   # would select a dynamically allocated port number.
   #
   # should move the rundant stuff out to another rule
-   if facet[:role] == 'CertificateAuthority' \
+   if facet[:role] == $facetCaManagerAgent \
    or facet[:role] == 'RedundantCertificateAuthority' 
 
     httpport = 8810

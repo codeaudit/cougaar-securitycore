@@ -19,13 +19,30 @@ SUB_COMM = {"REAR"=>	[
 # BUILD ROOT COMMUNITY
 ROOT_COMM_MGRS = ["SocietyMnRManager"]
 
-society.each_enclave do |enclave|
+society.each_enclave do |e|
+  enclave = e.capitalize
 
   # BUILD CORE COMMUNITIES
+
+  # Find the associated M&R manager
+  monitoringManagerAgent = nil
+  society.each_agent do |ag|
+    e1 = ag.node.host.get_facet(:enclave).capitalize
+    ag.each_facet do |f|
+      if f[:role] == $facetMonitoringManagerAgent && e1 == enclave
+        monitoringManagerAgent = ag
+        break
+      end
+    end
+    if monitoringManagerAgent != nil
+      break
+    end
+  end
+
   society.communities.add("#{enclave}-SECURITY-COMM") do |community|
-    mgragent = society.agents["#{enclave.capitalize}EnclaveMnRManager"]
-    if mgragent != nil
-      community.add_attribute("CommunityManager", mgragent.name)
+    # Set the M&R manager as the community manager
+    if monitoringManagerAgent != nil
+      community.add_attribute("CommunityManager", monitoringManagerAgent.name)
     end
     community.add_attribute("CommunityType", "Security")
     society.each_enclave_node(enclave) do |node|
@@ -35,37 +52,41 @@ society.each_enclave do |enclave|
       node.each_agent do |agent|
         community.add_agent(agent.name) do |entity|
           entity.add_role("Member")
-          case agent.name
-          when "#{enclave.capitalize}EnclaveCrlManager"
-            entity.add_role("CrlProvider")
-          when "#{enclave.capitalize}EnclavePersistenceManager"
-            entity.add_role("PersistenceManager")
-          when "#{enclave.capitalize}RedundantPersistenceManager"
-            entity.add_role("PersistenceManager")
-          when "#{enclave.capitalize}EnclaveMnRManager"
-           # ROOT_COMM_MGRS << agent.name
-            entity.add_role("Member")
+          agent.each_facet do |facet|
+            #puts "#{facet[:role]} #{agent.name} "
+            case facet[:role]
+            when $facetCrlManagerAgent
+              entity.add_role("CrlProvider")
+            when $facetPersistenceManagerAgent
+              entity.add_role("PersistenceManager")
+            when $facetRedundantPersistenceManagerAgent
+              entity.add_role("PersistenceManager")
+            #when $facetMonitoringManagerAgent
+             # ROOT_COMM_MGRS << agent.name
+            #  entity.add_role("Member")
+            end
           end
         end
       end
     end
   end
+
   society.communities.add("#{enclave}-MnR-SECURITY-COMM") do |community|
-    mgragent = society.agents["#{enclave.capitalize}EnclaveMnRManager"]
-    if mgragent != nil
-      community.add_attribute("CommunityManager", mgragent.name)
+    if monitoringManagerAgent != nil
+      community.add_attribute("CommunityManager", monitoringManagerAgent.name)
     end
     community.add_attribute("CommunityType", "MnR-Security")
     society.each_enclave_node(enclave) do |node|
       community.add_agent(node.name) do |entity|
         entity.add_role("Member")
-    end
+      end
       node.each_agent do |agent|
         if(agent.name != "SocietyMnRManager")
           community.add_agent(agent.name) do |entity|
             entity.add_role("Member")
-            case agent.name
-              when "#{enclave.capitalize}EnclaveMnRManager"
+            agent.each_facet do |facet|
+              case facet[:role]
+              when $facetMonitoringManagerAgent
                 ROOT_COMM_MGRS << agent.name
                 entity.add_role("Manager")
               end
@@ -73,6 +94,7 @@ society.each_enclave do |enclave|
           end
         end
       end
+    end
   end
 
 =begin  
@@ -97,12 +119,26 @@ society.each_enclave do |enclave|
   end
 =end
   
+  # Find the associated user manager
+  userManagerAgent = nil
+  society.each_agent do |ag|
+    e1 = ag.node.host.get_facet(:enclave).capitalize
+    ag.each_facet do |f|
+      if f[:role] == $facetUserManagerAgent && e1 == enclave
+        userManagerAgent = ag
+        break
+      end
+    end
+    if userManagerAgent != nil
+      break
+    end
+  end
+
   # BUILD USERDOMAIN COMMUNITIES
   society.communities.add("#{enclave.capitalize}UserDomainComm") do |community|
     community.add_attribute("CommunityType", "User")
-    mgragent = society.agents["#{enclave.capitalize}UserAdminAgent"]
-    if mgragent != nil
-      community.add_attribute("CommunityManager", mgragent.name)
+    if userManagerAgent != nil
+      community.add_attribute("CommunityManager", userManagerAgent.name)
     end
     society.each_enclave_node(enclave) do |node|
      # community.add_entity(node.name, "Agent") do |entity|
@@ -112,7 +148,7 @@ society.each_enclave do |enclave|
         entity.add_role("Member")
       end
     end
-    community.add_agent("#{enclave.capitalize}UserAdminAgent") do |entity|
+    community.add_agent(userManagerAgent.name) do |entity|
       entity.add_role("Member")
       entity.add_role("UserManager")
     end

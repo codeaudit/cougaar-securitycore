@@ -2,40 +2,64 @@
 ####################################################
 # enclave_safeguard_component.rule
 
-enclave = nil
+require 'security/lib/common_security_rules'
 
 compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
 
-society.each_node do |node|
-  enclave = nil
-  community = nil
-  
-  facetval = node.host.get_facet(:enclave)
-  if facetval == nil
-    puts "Error: no facet for Node #{node.name} - Host #{node.host.name}"
-  end
-  enclave = facetval[0..0] + facetval[1..facetval.length].downcase
-  community = facetval + "-SECURITY-COMM"
-
-  if !$disableKaosPolicy
-    # Add the KAoS guard
-    node.agent.add_component do |c|
-      c.name = "safe.util.SAFESecurityComponentEnclave" + enclave
-      c.classname = "safe.util.SAFESecurityComponent"
-      c.priority = "HIGH"
-      c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-      c.add_argument(enclave + "PolicyDomainManager")
-      c.add_argument(enclave + "Domain")
-      c.add_argument("http://ontology.ihmc.us/DomainManagementAction.owl#RegisterAction")
-    end
-  end
-
+def addSecurityComponentFactory(node, clsName, enclave, community)
   # Add the security component factory
   node.agent.add_component do |c|
-    c.name = compFactory + enclave
-    c.classname = compFactory
+    c.name = clsName
+    c.classname = clsName
     c.priority = "HIGH"
     c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
     c.add_argument(community)
   end
 end
+
+society.each_node do |node|
+  enclave = nil
+  community = nil
+  
+  enclave = node.host.get_facet(:enclave).capitalize
+  if enclave == nil
+    puts "Error: no facet for Node #{node.name} - Host #{node.host.name}"
+  end
+  community = enclave + "-SECURITY-COMM"
+
+  if !$disableKaosPolicy
+    # Find the associated policy manager agent
+    policyManagerAgentName = nil
+    society.each_agent do |ag|
+      e = ag.node.host.get_facet(:enclave).capitalize
+      ag.each_facet do |f|
+        #puts "#{ag.name} - #{f[:role]} - #{$facetPolicyManagerAgent} - #{e} - #{enclave}"
+        if (f[:role] == $facetPolicyManagerAgent) && (e == enclave)
+          policyManagerAgentName = ag.name
+          break
+        end
+      end
+      if (policyManagerAgentName != nil)
+        break
+      end
+    end
+
+    if policyManagerAgentName != nil
+      #puts "Found policy manager: #{policyManagerAgentName}"
+      # Add the KAoS guard
+      node.agent.add_component do |c|
+        c.name = "safe.util.SAFESecurityComponentEnclave" + enclave
+        c.classname = "safe.util.SAFESecurityComponent"
+        c.priority = "HIGH"
+        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+        c.add_argument(policyManagerAgentName)
+        c.add_argument(enclave + "Domain")
+        c.add_argument("http://ontology.ihmc.us/DomainManagementAction.owl#RegisterAction")
+      end
+      addSecurityComponentFactory(node, compFactory, enclave, community)
+    end
+  else
+    addSecurityComponentFactory(node, compFactory, enclave, community)
+  end
+end
+

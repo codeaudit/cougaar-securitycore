@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+
 society.each_agent() do |agent|
        agent.add_component do |c|
                 c.classname="org.cougaar.core.security.dataprotection.SessionKeySenderPlugin"

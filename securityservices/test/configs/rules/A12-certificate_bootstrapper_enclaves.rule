@@ -9,36 +9,35 @@ society.each_node do |node|
   certAuthority = false
   
   node.each_facet(:role) do |facet|
-    if facet[:role] == 'RootCertificateAuthority' \
-     or facet[:role] == 'CertificateAuthority' \
-     or facet[:role] == 'RedundantRootCertificateAuthority' \
-     or facet[:role] == 'RedundantCertificateAuthority'
+    if facet[:role] == $facetRootCaManagerAgent \
+     or facet[:role] == $facetCaManagerAgent \
+     or facet[:role] == $facetRedundantRootCaManagerAgent \
+     or facet[:role] == $facetRedundantCaManagerAgent
       certAuthority = true
     end
   end
 
   if not certAuthority
 
-    facetval = node.host.get_facet(:enclave)
-    enclave = facetval.capitalize
+    enclave = node.host.get_facet(:enclave).capitalize
     caAgent = nil
     redundantCa = nil
 
-    society.each_agent { |agent|
+    society.each_agent do |agent|
       if (agent.node.host.get_facet(:enclave) == node.host.get_facet(:enclave))
-	agent.each_facet("catype") { |caFacet|
-	  if caFacet["catype"] == "CertificateAuthority"
+	agent.each_facet("catype") do |caFacet|
+	  if caFacet["catype"] == $facetCaManagerAgent
 	    caAgent = agent
 	  end
-	  if caFacet["catype"] == "RedundantCertificateAuthority"
+	  if caFacet["catype"] == $facetRedundantCaManagerAgent
 	    redundantCa = agent
 	  end
 	  if redundantCa != nil && caAgent != nil
 	    break
 	  end
-	}
+	end
       end
-    }
+    end
 
     if caAgent != nil
       arg = "#{caAgent.node.host.name}:#{caAgent.name}:" +
@@ -50,17 +49,21 @@ society.each_node do |node|
     end
    
     if arg != nil || arg1 != nil
-      node.agent.add_component do |c|
-        c.classname = "org.cougaar.core.security.crypto.AutoConfigPlugin"
-        c.priority = "HIGH"
-        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-        if (arg != nil)
-          c.add_argument(arg)
-        end
-        if (arg1 != nil)
-          c.add_argument(arg1)
-        end
-      end
-    end
-  end
+      if node.agent.has_component?("org.cougaar.core.security.provider.SecurityComponentFactory") 
+        # This is to ensure AutoConfigPlugin is installed AFTER SecurityComponentFactgory
+        node.agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.crypto.AutoConfigPlugin"
+          c.priority = "HIGH"
+          c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+          if (arg != nil)
+            c.add_argument(arg)
+          end
+          if (arg1 != nil)
+            c.add_argument(arg1)
+          end
+        end # node.agent.add_component
+      end # if (node.agent.has_component?
+    end # if arg != nil
+  end # if not certauthority
 end
+

@@ -1,0 +1,51 @@
+#!/usr/bin/ruby
+
+require 'security/lib/common_security_rules'
+
+# Define mapping between $facetManagement facet and security managers
+#
+
+# The securityManagersLayout variable has the following syntax:
+# The first item is the name of a node facet.
+# The second item is the name of a security manager agent.
+# The third item is an array of agent facets.
+#
+# The script:
+#   * walks through each node in the society
+#   * if a node has a node facet specified in argument 1
+#        it creates an agent with the name specified in argument 2
+#        and adds the agent facets specified in argument 3
+def getSecurityManagersLayout(enclave) 
+  [
+    [$facetRootManagement,     "SocietyMnRManager",             [$facetRootMonitoringManagerAgent]],
+    [$facetRootCaManagerAgent, "RootCaManager",                 [$facetRootCaManagerAgent]],
+    [$facetCaManagerAgent,     "#{enclave}CaManager",           [$facetCaManagerAgent, $facetCrlManagerAgent]],
+    [$facetManagement,         "#{enclave}MonitoringManager",   [$facetUserManagerAgent, $facetMonitoringManagerAgent]],
+    [$facetManagement,         "#{enclave}PersistenceManager",  [$facetPersistenceManagerAgent]],
+    [$facetManagement,         "#{enclave}PolicyManager",       [$facetPolicyManagerAgent, $facetPolicyServletManagerAgent]],
+  ]
+end
+
+society.each_node do |node|
+  enclave = node.host.get_facet(:enclave).capitalize
+  layout = getSecurityManagersLayout(enclave)
+  node.each_facet(:role) do |facet|
+    layout.each do |facetGroups|
+      nodeFacet = facetGroups[0]
+      securityMgrAgentName = facetGroups[1]
+      securityMgrAgentFacets = facetGroups[2]
+
+      if facet[:role] == nodeFacet
+      # Add security manager agents and facets
+        if society.agents[securityMgrAgentName] == nil
+          #puts "Adding agent #{securityMgrAgentName} with facets #{securityMgrAgentFacets.join(' ')}"
+          node.add_agent(securityMgrAgentName) do |agent|
+            securityMgrAgentFacets.each do |facet|
+              agent.add_facet({:role=>facet})
+            end
+          end
+        end 
+      end #securityManagersLayout.each
+    end # if facet[:role]
+  end
+end

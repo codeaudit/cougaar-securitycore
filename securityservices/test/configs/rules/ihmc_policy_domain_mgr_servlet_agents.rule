@@ -11,17 +11,23 @@ $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 require 'security/lib/common_security_rules'
 
 if !$disableKaosPolicy
-  society.each_node do |node|
-    node.each_facet(:role) do |facet|
-      if facet[:role] == $facetManagement
-        facetval = node.host.get_facet(:enclave)
-        enclave = facetval[0..0] + facetval[1..facetval.length].downcase 
-        agentname = enclave + "PolicyDomainManagerServlet"
-        node.add_agent(agentname) do |agent|
-          agent.add_component do |c|
-            c.classname = "safe.policyManager.PolicyAdminServletComponent"
-            c.add_argument(enclave + "PolicyDomainManager")
+  society.each_agent do |agent|
+    agent.each_facet(:role) do |facet|
+      if facet[:role] == $facetPolicyServletManagerAgent
+        enclave = agent.node.host.get_facet(:enclave).capitalize
+        # Find the name of the associated policy manager
+        policyManagerAgentName = nil
+        society.each_agent do |ag|
+          e = ag.node.host.get_facet(:enclave).capitalize
+          ag.each_facet do |f|
+            if f[:role] == $facetPolicyManagerAgent && e == enclave
+              policyManagerAgentName = ag.name
+            end
           end
+        end
+        agent.add_component do |c|
+          c.classname = "safe.policyManager.PolicyAdminServletComponent"
+          c.add_argument(policyManagerAgentName)
         end
       end
     end

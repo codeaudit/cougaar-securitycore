@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+
 #This rule's purpose is to add the Configuration Manager plugins to the
 # appropriate plugin(s).  Also, the ConfigurationManagerInitPlugin's 
 # parameters are populated with the agent and node configuration used
@@ -18,48 +20,47 @@ require 'security/lib/common_security_rules'
 agentlist =[]
 #node role list
 nodelist =[]
-#list of agents to include the Configuration Manager in
-include_array=["RootCaManager"]
+#list of agents (identified with facets) to include the Configuration Manager in
+include_array=[$facetRootCaManagerAgent]
 theCMInitPlugin="org.cougaar.core.security.cm.ConfigurationManagerInitPlugin"
 theCMMessagePlugin="org.cougaar.core.security.cm.ConfigurationManagerMessagePlugin"
 
-
 society.each_agent(true) do |agent|
-        if agent.has_facet?("cm_role")
-                facet = agent.get_facet("cm_role")
-                #puts "#{agent.name} cm role: #{facet}"
-                agentlist.concat ["agent,#{agent.name}=#{facet}"]
-        end
+  if agent.has_facet?("cm_role")
+    facet = agent.get_facet("cm_role")
+    #puts "#{agent.name} cm role: #{facet}"
+    agentlist.concat ["agent,#{agent.name}=#{facet}"]
+  end
 end
 
 society.each_node do |node|
-        if node.has_facet?("role")
-                facet=node.get_facet("role")
-                if facet==$facetManagement
-                        #puts "#{node.name} has management role"
-                        nodelist.concat ["node,#{node.name}=#{$facetManagement}"]
-                end
-        end
+  if node.has_facet?("role")
+    facet=node.get_facet("role")
+    if facet==$facetManagement
+      #puts "#{node.name} has management role"
+      nodelist.concat ["node,#{node.name}=#{$facetManagement}"]
+    end
+  end
 end
 
 society.each_agent(true) do |agent|
-        include_array.each{ |targetagent|
-                #puts "#{targetagent}"
-                if agent.name ==targetagent
-                        agent.add_component do |c|
-                                c.classname=theCMInitPlugin
-                                agentlist.each{ |facet|
-                                        c.add_argument(facet)
-                                }
-                                nodelist.each{ |facet|
-                                        c.add_argument(facet)
-                                }
-                        end
-                        agent.add_component do |c|
-                        	c.classname=theCMMessagePlugin
-                        	
-                        end
-                end
-
-        }
+  include_array.each do |targetagentFacet|
+    #puts "#{targetagentFacet}"
+    agent.each_facet do |facet|
+      if facet == targetagentFacet
+        agent.add_component do |c|
+          c.classname=theCMInitPlugin
+          agentlist.each do |facet|
+            c.add_argument(facet)
+          end
+        end
+        nodelist.each do |facet|
+          c.add_argument(facet)
+        end
+      end
+      agent.add_component do |c|
+      	c.classname=theCMMessagePlugin
+      end
+    end
+  end
 end

@@ -6,10 +6,13 @@ plugin = "org.cougaar.core.security.util.webproxy.WebProxySecurityComponent"
 
 if !$disableKaosPolicy
   society.each_node do |node|
-    node.add_component do |c|
+    if node.agent.has_component?("org.cougaar.core.security.provider.SecurityComponentFactory")
+      # This is to ensure web proxy is installed AFTER SecurityComponentFactgory
+      node.add_component do |c|
         c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
         c.priority = "HIGH"
         c.classname = plugin
+      end
     end
   end
 end
