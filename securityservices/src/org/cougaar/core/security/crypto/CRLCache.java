@@ -200,9 +200,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
                                    ais);
     }
     threadService=(ThreadService)serviceBroker.getService(this,ThreadService.class, null);
-     _searchService = (CertificateSearchService) serviceBroker.getService(this,
-                                                                 CertificateSearchService.class,
-                                                                  null);
+    _searchService = (CertificateSearchService) serviceBroker.getService(this,
+                                                                         CertificateSearchService.class,
+                                                                         null);
     setServices();
     if (cacheService == null || keyRingService == null ||
         blackboardService == null || crlMgmtService == null ||
@@ -336,7 +336,10 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     public void run() {
       Thread td=Thread.currentThread();
       td.setPriority(Thread.MIN_PRIORITY);
-      log.debug("CRL CACHE THREAD IS RUNNING +++++++++++++++++++++++++++++++++++++++++"+new Date(System.currentTimeMillis()).toString());
+      if(log.isDebugEnabled()){
+        log.debug("CRL CACHE Polling THREAD IS RUNNING +++++++++"+new Date(System.currentTimeMillis()).toString());
+        log.debug(" Polling interval is set to :" +  getSleepTime()/60 + " seconds");
+      }
       String dnname=null;
       Enumeration enumkeys =crlsCache.keys();
       while(enumkeys.hasMoreElements()) {
@@ -560,7 +563,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       crl=caentry.getCRL();
     }
     else {
-       if (log.isWarnEnabled()) {
+      if (log.isWarnEnabled()) {
 	log.warn("Unable to get CRL for " + distingushname + ". As CACertificateEntry is NULL");
       }
       return;
@@ -763,8 +766,8 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
 
     _eventService.event("[STATUS] " + status 
-	+ " Issuer(" + issuerDN  
-	+ ") subject(" + subjectDN + ")");
+                        + " Issuer(" + issuerDN  
+                        + ") subject(" + subjectDN + ")");
   }
 
   public void setSleeptime(long sleeptime){
@@ -1203,7 +1206,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       }
       else if((sc == CertificateSearchService.class) &&(_searchService == null)) {
         _searchService=(CertificateSearchService) sb.getService(this, CertificateSearchService.class, null);
-         startThread();
+        startThread();
       }
       //log.info(" Got Called in Service Listner for "+ sc.getName());
       if(settingServices) {
@@ -1257,7 +1260,11 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       CRLWrapper receivedcrl=null;
       String dn=null;
       responsecollection= crlresponse.getChangedCollection();
+      if(log.isDebugEnabled()) {
+        log.debug("Size of changed Crlrelay collection is :"+ responsecollection.size());
+      }
       resiterator=responsecollection.iterator();
+      boolean responsemodified=false;
       while(resiterator.hasNext()) {
 	responserelay=(CrlRelay)resiterator.next();
 	log.debug("Received response :"+ responserelay.toString());
@@ -1276,7 +1283,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
 	    if(currentLastmodified.after(cacheLastModified)) {
 	      log.debug("Updating CRL Cache for DN :"+ dn);
 	      updateCRLCache(receivedcrl);
-	    }
+            }
 	    else {
 	      log.debug("Received dates are equal in response plugin:");
 	    }
@@ -1284,8 +1291,8 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
 	  else{
 	    log.debug("Updating CRL Cache for DN :"+ dn);
 	    updateCRLCache(receivedcrl);
-	  }
-	}
+          }
+        }
 	else{
 	  log.debug("Received response for crl update but response was null:");
 	}
