@@ -1,4 +1,3 @@
-
 require 'security/lib/AbstractSecurityMop'
 require 'security/lib/SecurityMop2_5'
 require 'security/lib/rules'
@@ -13,6 +12,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   attr_accessor :numActionsLogged,        :numLoggableActions,          :actions
   attr_accessor :numPoliciesLogged,       :numLoggablePolicies,         :policies
   attr_accessor :numtotalAccessAttempts,  :numtotalAccessAttemptCorrect, :totalactions
+  attr_accessor :calcDone, :performDone
   
   #def initialize(run)
   #  super(run)
@@ -26,8 +26,6 @@ class  SecurityMop2_4 < AbstractSecurityMop
     reset
     removePemCertificates
     @name = "2.4"
-    @performDone = false
-    @crlUpdated = false;
     @descript = "Percentage of user actions that were available for invocation counter to authorization policy"
   end
 
@@ -40,6 +38,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def reset
+    # this method will be called once per run (if run.count=3, it will be called three times).
     @numAccessAttempts = @numAccessesCorrect = 0
     @numActionsLogged = @numLoggableActions = 0
     @numPoliciesLogged = @numLoggablePolicies = 0
@@ -48,6 +47,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
     @actions = []
     @policies = []
     @totalactions = []
+    @calcDone = false
+    @performDone = false
+    @crlUpdated = false
   end
 
   def to_s
@@ -125,7 +127,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def isCalculationDone
-    return @calcDone == true
+    return (@calcDone and @performDone)
   end
 
   def calculate
@@ -168,12 +170,13 @@ class  SecurityMop2_4 < AbstractSecurityMop
           saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done")
         end
       rescue Exception => e
+        saveResult(false, "SecurityMop2.4", "Error: #{e.class}")
         logInfoMsg "error in 2.4 calculate "
         logInfoMsg "#{e.class}: #{e.message}"
         logInfoMsg e.backtrace.join("\n")
       end
+      @calcDone = true
     }
-    @calcDone = true
   end
   
   #def cleanupOldkeys
@@ -197,6 +200,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   
   def setup
     #puts "Calling capture Idmefs"
+    reset
     Thread.fork {
       begin
         captureIdmefs

@@ -34,7 +34,22 @@ module Cougaar
       end
     end
 
+    class WaitForCalculationCompletion < Cougaar::Action
+      def initialize(run, timeout=30.minutes)
+        super(run)
+        @timeout = timeout
+      end
 
+      def perform
+        return if run['mops'] == nil
+        endTime = Time.now + @timeout
+        run['mops'].each do |mop|
+          while !mop.isCalculationDone and Time.now <= endTime
+            sleep 10.seconds
+          end
+        end
+      end
+    end
 
 
     class StartTcpCapture < Cougaar::Action
@@ -193,12 +208,10 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
 begin
         mops.each do |mop|
           startTime = Time.now
-puts "waiting for mop calculation to complete in #{mop.class.name} (#{retries})"
           while (!mop.isCalculationDone) do
             retries -= 1
             break if Time.now - startTime > 5.minutes
             puts "waiting for mop calculation in #{mop.class.name} (#{retries})" if $VerboseDebugging
-puts "waiting for mop calculation in #{mop.class.name} (#{retries})"
             sleep 30.seconds
           end
           result += "#{makeMopXml(mop)}\n"
