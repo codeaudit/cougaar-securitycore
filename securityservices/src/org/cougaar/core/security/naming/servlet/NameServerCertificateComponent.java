@@ -142,6 +142,8 @@ public class NameServerCertificateComponent extends ComponentPlugin {
             return _certName;
           }
 
+    public void invalidate(String cname) {}
+
           public void updateCertificate() {
             if (log.isDebugEnabled()) {
               log.debug("node cert generated, next update CA naming server cert");
