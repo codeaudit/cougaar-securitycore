@@ -223,7 +223,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
    * Abstract methods requiring a domain manager.
    */
 
-  public Vector getPolicies() 
+  public List getPolicies() 
     throws IOException
   {
     try {

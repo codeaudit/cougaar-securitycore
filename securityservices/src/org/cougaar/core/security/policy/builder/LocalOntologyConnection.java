@@ -154,7 +154,7 @@ public class LocalOntologyConnection extends OntologyConnection
    * the following interfaces cannot be implemented without a domain manager.
    */
 
-  public Vector getPolicies() 
+  public List getPolicies() 
     throws IOException
   {
     throw new IOException("Remote Ultralog Policies Unavailable");

@@ -135,7 +135,7 @@ public class KAoSOntologyConnection extends OntologyConnection
   /*
    *  Methods requiring a domain manager.
    */
-  public Vector getPolicies() throws IOException
+  public List getPolicies() throws IOException
   {
     return _kds.getPolicies();
   }

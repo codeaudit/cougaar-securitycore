@@ -164,7 +164,7 @@ public abstract class OntologyConnection
   /*
    * Abstract methods requiring a domain manager.
    */
-  public abstract Vector getPolicies() throws IOException;
+  public abstract List getPolicies() throws IOException;
 
   public abstract void updatePolicies (List addedPolicies,
                                        List changedPolicies,
