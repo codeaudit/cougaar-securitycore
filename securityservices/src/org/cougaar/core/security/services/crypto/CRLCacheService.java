@@ -51,11 +51,8 @@ import org.cougaar.core.security.crypto.*;
  */
 public interface CRLCacheService extends Service {
   boolean isCertificateInCRL(X509Certificate subjectCertificate, String IssuerDN);
-  void addToCRLCache(String dnname,String ldapURL,int ldapType);
+  void addToCRLCache(String dnname);
   long getSleeptime();
   void setSleeptime(long sleeptime);
-  /*String getLastModifiedTime(String dnname);
-  void updateCRLCache(CRLWrapper wrapperFromDirectory);
-  void setBlackboardService (BlackboardService bbs);
-  */
+  
 }
