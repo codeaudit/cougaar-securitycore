@@ -32,7 +32,7 @@ public interface AgentIdentityService extends Service {
   /** Create a cryptographic identity for an agent. 
    *  This method is called by Cougaar core services before
    *  an agent is initialized.
-   *
+	 *  
    *  If the agent already has a cryptographic identity, the
    *  method returns immediately. If the agent does not have
    *  a cryptographic key, or if no key is valid, a new key
@@ -41,10 +41,25 @@ public interface AgentIdentityService extends Service {
    *  This service provider will call checkPermission() to
    *  make sure that only known entities will call the service.
    *
-   *  Issue: There is a very weak notion of agent identity.
+   *  Issue 1: There is a very weak notion of agent identity.
    *  Cougaar currently uses a String to represent the name
    *  of an agent but this should be changed.
    *
+	 *  Issue 2: This service could be called either by the node
+	 *  agent or the agent itself.
+	 *  In the first case, the node agent calls the API for
+	 *  all agents including the node agent itself. The node
+	 *  agent receives a notification from the crypto service
+	 *  when an agent has been revoked. An advantage is that
+	 *  the node agent can take an action such as shutting down
+	 *  the revoked agent.
+	 *  In the second case, the agent itself would have to be
+	 *  trusted to shut down itself when it has been revoked.
+   *	The API is currently written for the first case.
+	 *  
+	 *  It is assumed that the user of the service will respond
+	 *  appropriately when an agent has been revoked.
+	 *
    * @param      agentName the name of the agent
    * @param      clientCallBack a callBack to the client
    * @exception  PendingRequestException the certificate authority
