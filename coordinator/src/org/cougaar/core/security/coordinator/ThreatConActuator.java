@@ -124,6 +124,7 @@ public class ThreatConActuator extends ComponentPlugin
         }
 
         Set newPV = action.getNewPermittedValues(); 
+        if (newPV != null) {
           try {
             action.setPermittedValues(newPV);
           } catch (IllegalValueException ioe) {
@@ -162,6 +163,7 @@ public class ThreatConActuator extends ComponentPlugin
               log.error("Illegal action "+action,e);
               continue;
           }
+        }
       } // if
     } // while
   
