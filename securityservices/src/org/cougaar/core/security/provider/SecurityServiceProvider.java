@@ -193,6 +193,7 @@ public class SecurityServiceProvider
   }
 
   private void registerServices() {
+    boolean isExecutedWithinNode = true;
 
     // Get root service broker
     nodeControlService = (NodeControlService)
@@ -204,27 +205,25 @@ public class SecurityServiceProvider
       }
     }
     else {
-      System.err.println("WARNING: Running in a test environment");
+      // We are running outside a Cougaar node.
+      // No Cougaar services are available.
+      isExecutedWithinNode = false;
       rootServiceBroker = serviceBroker;
-    }
 
-    /* ********************************
-     * Logging service
-     */
-    // NodeAgent has not started the logging service at this point,
-    // but we need it.
-    /* removed because the Logging service is started early in 9.4
-    try {
+      /* ********************************
+       * Logging service
+       */
+      // NodeAgent has not started the logging service at this point,
+      // but we need it.
+      // Removed because the Logging service is started early in 9.4
+
       LoggingServiceProvider loggingServiceProvider =
-        new LoggingServiceProvider(SystemProperties.getSystemPropertiesWithPrefix("org.cougaar.core.logging."));
+	new LoggingServiceProvider();
       rootServiceBroker.addService(LoggingService.class,
-                    loggingServiceProvider);
+				   loggingServiceProvider);
       rootServiceBroker.addService(LoggingControlService.class,
-                    loggingServiceProvider);
-    } catch (java.io.IOException ioe) {
-      throw new Error("Couldn't initialize LoggingService "+ioe);
+				   loggingServiceProvider);
     }
-    */
 
     this.log = (LoggingService)
       rootServiceBroker.getService(this,
@@ -234,6 +233,10 @@ public class SecurityServiceProvider
 
     if (log.isDebugEnabled()) {
       log.debug("Registering security services");
+    }
+
+    if (log.isInfoEnabled() && isExecutedWithinNode == false) {
+      log.info("Running outside a Cougaar node");
     }
 
     /* ********************************
