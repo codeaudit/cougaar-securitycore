@@ -1149,10 +1149,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  loggingService.debug(" No relay was present creating one  "+ relay.toString());
 	//relay = factory.newCmrRelay(event, mgrAddress);
 	//relay =factory.newCmrRelay(event, new MessageAddress(dest_agent));
+	loggingService.info(" Creating relay to :"+ destcluster.toString());
 	getBlackboardService().publishAdd(relay);
       } else {
 	loggingService.debug(" relay was present Updating event  Event "+ event.toString());
 	relay.updateContent(event, null);
+	oggingService.info(" Modifying  relay to :"+ destcluster.toString());
 	getBlackboardService().publishChange(relay);
       }
     }
@@ -1285,6 +1287,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  }
 	  break;
 	}
+      }
+      if(societysearchresult.isEmpty()) {
+	return null;
+      }
+      if(societysearchresult.size()>0) {
+	return null;
       }
       dest=(MessageAddress)societysearchresult.iterator().next();
       return dest;
