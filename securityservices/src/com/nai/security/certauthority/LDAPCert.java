@@ -81,8 +81,10 @@ public class LDAPCert //extends LdapContext
     protected Attribute objectclass = new BasicAttribute("objectclass");
     protected String cn;
     
-    protected X509Certificate cert;
-    
+    protected X509Certificate cert = null;
+    protected LdapEntry certEntry = null;
+    protected String hash = null;
+
     protected static SimpleDateFormat day = new SimpleDateFormat("yyyyMMdd");
     protected static SimpleDateFormat time = new SimpleDateFormat("hhmmss");
 
@@ -109,6 +111,7 @@ public class LDAPCert //extends LdapContext
 	objectclass.add("top");
 	set.put(objectclass);	
 	init(ca, ca);
+	certEntry = new LdapEntry(cert, hash, "1");
 	put();
     }
 
@@ -273,7 +276,7 @@ public class LDAPCert //extends LdapContext
 	//set.put("notbefore_tim" , time.format(cert.getNotBefore()));
 	//set.put("notafter_dte", day.format(cert.getNotAfter()));
 	//set.put("notafter_tim" , time.format(cert.getNotAfter()));
-	set.put("cert_status", "1");
+	//set.put("cert_status", "1");
 	//set.put(PEM_ATTRIBUTE, pem);
 	parseDN(cert.getSubjectDN().getName(), set);
 	if(debug) {
@@ -314,6 +317,19 @@ public class LDAPCert //extends LdapContext
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
+    }
+
+    public Object removeObject(String cn) 
+    {
+	Object obj = null;
+	try {
+	    obj = ctx.lookup(cn); 
+	    ctx.unbind(cn);
+	}
+	catch(NamingException ex) {
+	    ex.printStackTrace();
+	}
+	return obj;
     }
 
     public LdapEntry getCertificate(String hash) 
@@ -370,7 +386,8 @@ public class LDAPCert //extends LdapContext
 		    if(debug)System.out.println("Adding " + pair.getName() +
 						" Class == " + pair.getClass());
 		    formatAttributes(ctx.getAttributes(pair.getName()));
-		    entries.add(getCertificate(pair.getName()));
+		    if(ctx.getAttributes(pair.getName()).get("objectClass").contains("top"))
+			entries.add(getCertificate(pair.getName()));
 		}
 	    }
 	}
@@ -404,8 +421,9 @@ public class LDAPCert //extends LdapContext
 	    }
 	    else if(arg[0].equals("search")) {
 		lcert.getCertificate(arg[1]);
-
-	    
+	    }
+	    else if(arg[0].equals("remove")) {
+		lcert.removeObject(arg[2]);
 	    }
 	}
 	catch(Exception ex) {
@@ -415,5 +433,7 @@ public class LDAPCert //extends LdapContext
     }
 
   void publishCRLentry(X509CRLEntry crlEntry) {
+      //certEntry = new LdapEntry(cert, hash, "1");
+      //put();
   }
 }
