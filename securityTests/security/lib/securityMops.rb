@@ -39,7 +39,7 @@ class SecurityMop21 < AbstractSecurityMop
         #puts "result #{result}" if $VerboseDebugging
       end
     rescue Exception => e
-      if @nextAgent.kind_of?(Agent)
+      if @nextAgent.kind_of?(Cougaar::Model::Agent)
         puts "ERROR: Could not activate testBlackboardManager on #{@nextAgent.name}"
       else
         puts "ERROR: Could not activate testBlackboardManager on #{@nextAgent.class}"

@@ -19,7 +19,7 @@ def getRegisteredAgents
   end
   end
   return [] if result == nil
-  re = /<a\s+href\s*=\s*"\/\$[^\/]*\/list"\s*>([^<]*)</
+  re = /<a\s+href\s*=\s*"\/\$([^\/]*)\/list"\s*>[^<]*</
   agents = result.scan(re)
   agents.collect { |a| a[0] }
 end
@@ -148,11 +148,11 @@ module Cougaar
         testAgentRegistrations(@interval, @delay) { |missing, expected|
 #puts "#{Time.now} WP Registration: callback"
           if missing.empty?
-            saveResults(true, "wp_registration", "All agents have registered to the white pages")
+            saveResult(true, "wp_registration", "All agents have registered to the white pages")
 #            puts("All agents have registered to the white pages")
           else
             if (lastCheck == missing.length)
-              saveResults(false, "wp_registration", "No new agents have registered to the white pages for #{@interval} seconds")
+              saveResult(false, "wp_registration", "No new agents have registered to the white pages for #{@interval} seconds")
 #              puts("No new agents have registered to the white pages for #{interval} seconds")
             end
             saveAssertion("wp_registration", "Agents who haven't registered with the white pages: #{missing.join(" ")}")
