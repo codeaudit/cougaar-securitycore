@@ -116,6 +116,26 @@ BlackBoardObject OrgActivity
 #
 
 
+#
+# Message Passing Policies
+#
+#     Note: Users of the message passing policy templates need not worry
+#           about the policy assumptions because the policy templates
+#           satisfy the assumptions. 
+#
+# Policy Assumptions:
+#     1. Positive policies have priority two and can only involve the
+#        sender and the receiver.
+#     2. Negative policies have priority three.
+#
+#
+# Justification:
+#    The message enforcer has two enforcement phases and both phases
+#     make decisions based on incomplete information.  In order for
+#     these enforcers to make valid decisions assumptions 1 & 2 are
+#     necessary. 
+#
+
 Policy DamlBootPolicyAllowCommunication = [ 
    GenericTemplate
    Priority = 2,
@@ -135,6 +155,10 @@ Policy DamlBootPolicyEncryptCommunication = [
      { $Ultralog/Names/EntityInstances.daml#NSAApprovedProtection }
 ]
 
+
+#
+# Blackboard policies
+#
 
 Policy DamlBootPolicyAllowBlackboard = [ 
    GenericTemplate
@@ -174,6 +198,30 @@ Policy DamlBootPolicyOrgActivityAll = [
    objects of type OrgActivity
 ]
 
+
+
+#
+# Servlet Policies
+#
+#     Note: Users of the servlet policy templates need not worry
+#           about the policy assumptions because the servlet policy
+#           templates satisfy the assumptions.
+#
+# Policy Assumptions:
+#     1. Positive policies have priority two and can only involve the
+#        set of users accessing the servlet and the name of the
+#        servlet being accessed.
+#     2. Negative policies have priority three.
+#     3. Policies only require Audit.  E.g. positive polices do not
+#        involve audit and no policy states that audit is illegal.
+#
+# Justification:
+#    The Servlet enforcer has two enforcement phases and the first
+#     phase uses incomplete information. In order for the first phase to make
+#     valid decisions assumptions 1 & 2 are necessary.  Assumption
+#     three is a detail based on how mediation is performed.  A less
+#     efficient mechanism would not need this assumption.
+#
 
 Policy DamlBootPolicyUnrestServlet = [ 
    GenericTemplate
