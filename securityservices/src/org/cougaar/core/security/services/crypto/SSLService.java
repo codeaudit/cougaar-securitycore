@@ -29,6 +29,7 @@ package org.cougaar.core.security.services.crypto;
 import org.cougaar.core.component.Service;
 
 import javax.net.ssl.*;
+import javax.net.*;
 import java.net.*;
 import java.security.cert.CertificateException;
 import java.io.IOException;
@@ -45,9 +46,13 @@ public interface SSLService extends Service {
    * or will be created will be using the socket factories
    * instantiated here.
    */
-  public SSLServerSocketFactory getServerSocketFactory();
+   /*
+	These classes are static
 
-  public SSLSocketFactory getSocketFactory();
+  public ServerSocketFactory getServerSocketFactory();
+
+  public SocketFactory getSocketFactory();
+  */
 
   /**
    * The sockets created with the two functions above
