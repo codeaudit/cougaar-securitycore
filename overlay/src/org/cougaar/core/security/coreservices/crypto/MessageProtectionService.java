@@ -23,8 +23,14 @@
 
 package org.cougaar.core.security.coreservices.crypto;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
+// Cougaar core services
 import org.cougaar.core.component.Service;
 import org.cougaar.core.mts.Message;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.MessageAttributes;
 
 /** Cryptographic Service used to cryptographically protect incoming
  * and outgoing messages.
@@ -32,6 +38,56 @@ import org.cougaar.core.mts.Message;
  * all Cougaar messages.
  */
 public interface MessageProtectionService extends Service {
+
+  /**
+   * Sign and/or encrypt the header of an outgoing message.
+   *
+   * When a message is sent out:
+   * 1) The aspect calls protectHeader().
+   * 2) The data protection service encrypts/signs the header.
+   *    It uses the information provided in the source and destination
+   *    to decide how to encrypt and/or sign.
+   * 3) The encrypted header is returned.
+   * 4) The aspect calls getOuputStream.
+   *    - The source and destination should be the same as what was found
+   *      in the call to protectHeader().
+   *    - The first byte of the input stream should be the first byte
+   *      of the message content.
+   * 5) The service returns an output stream that contains the encrypted
+   *    message.
+   * 6) The service reads data from the input stream.
+   * 6) The aspect reads data from the ProtectedOutputStream.
+   *
+   * @param rawData     The unencrypted header
+   * @param source      The source of the message
+   * @param destination The destination of the message
+   * @return the protected header (sign and/or encrypted)
+   */
+  public byte[] protectHeader(byte[] rawData,
+			      MessageAddress source,
+			      MessageAddress destination);
+
+  /**
+   * Verify the signed and/or encrypted header of an incoming message.
+   *
+   * @param rawData     The signed and/or encrypted header
+   * @param source      The source of the message
+   * @param destination The destination of the message
+   * @return the header in the clear
+   */
+  public byte[] unprotectHeader(byte[] rawData,
+				MessageAddress source,
+				MessageAddress destination);
+
+  public ProtectedOutputStream getOutputStream(OutputStream os,
+					       MessageAddress src,
+					       MessageAddress dst,
+					       MessageAttributes attrs);
+
+  public ProtectedInputStream getInputStream(InputStream is,
+					     MessageAddress src,
+					     MessageAddress dst,
+					     MessageAttributes attrs);
 
   /** 
    * Take an unprotected message and apply appropriate cryptographic
