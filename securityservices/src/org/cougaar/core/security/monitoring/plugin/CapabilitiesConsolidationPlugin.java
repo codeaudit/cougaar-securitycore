@@ -1315,6 +1315,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 
   class ManagerRegistrationTask extends TimerTask {
     int RETRY_TIME = 10 * 1000;
+    int retryTime=RETRY_TIME;
     int counter = 1;
     public void run() {
       boolean  tryAgain = true;
@@ -1324,7 +1325,10 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	tryAgain = setManagerAddress();
 	try {
 	  if(tryAgain) {
-	    Thread.sleep(RETRY_TIME);
+	    if(counter<6) {
+	      retryTime=counter*RETRY_TIME;
+	    }
+	    Thread.sleep(retryTime);
 	  }
 	}
 	catch(InterruptedException ix) {
