@@ -165,6 +165,8 @@ grant signedBy "bootstrapper" {
 	// Note that the boostrapper only can write to the bootstrap subdirectory.
 	//permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}bootstrap${/}-", "read";
 	//permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}bootstrap${/}", "read";
+	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
+	permission org.cougaar.core.security.crypto.KeyRingPermission "readPrivateKey";
 };
 
 ////////////////////////////////////////////////////////////
@@ -499,6 +501,11 @@ grant signedBy "privileged" {
         permission java.util.PropertyPermission "catalina.home", "read,write";
         permission java.util.PropertyPermission "catalina.base", "read,write";
         permission java.util.PropertyPermission "catalina.useNaming", "read,write";
+
+	// FIX
+	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
+	permission org.cougaar.core.security.crypto.KeyRingPermission "readPrivateKey";
+//	permission java.security.SecurityPermission "printIdentity";
 };
 
 ////////////////////////////////////////////////////////////
@@ -509,7 +516,7 @@ grant signedBy "privileged" {
 // Permissions for everybody else
 // No permission: unsigned code should not have access
 // to any system resource.
-grant { 
+grant signedBy "unprivileged" { 
 	// "standard" properies that can be read by anyone
 
 	permission java.util.PropertyPermission "java.version", "read";
@@ -570,16 +577,4 @@ grant {
 
 	// "Cougaar" properies that can be read
 	permission java.util.PropertyPermission "org.cougaar.*", "read";
-
-	// FIX - CRITICAL:
-	// The following permission is enabled because system properties are
-	// read at Node.java:79, but Node.java should really be fixed.
-	// Need to fix core/cluster/ClaimableImpl.java:95
-	//permission java.util.PropertyPermission "*", "read, write";
-
-	// FIX
-	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
-	permission org.cougaar.core.security.crypto.KeyRingPermission "readPrivateKey";
-	permission java.security.SecurityPermission "printIdentity";
-
 };
