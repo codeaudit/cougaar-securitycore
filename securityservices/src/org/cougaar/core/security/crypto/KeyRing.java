@@ -454,7 +454,10 @@ final public class KeyRing  implements KeyRingService  {
       boolean ok = buildChain(certificate, vector, true);
       X509Certificate acertificate[] = new X509Certificate[vector.size()];
       if (ok) {
-        acertificate = (X509Certificate [])vector.toArray(acertificate);
+        // the list returned by buildChain is a reversed chain list!
+        for (int i = 0; i < acertificate.length; i++) {
+          acertificate[i] = (X509Certificate)vector.get(acertificate.length-i-1);
+        }
         checkCertificateTrust(acertificate, true);
 	return acertificate;
       } else {
@@ -516,7 +519,8 @@ final public class KeyRing  implements KeyRingService  {
 	    if (keyusage == null
 		|| keyusage.getBits().length < KeyManagement.KEYUSAGE_CERT_SIGN_BIT
 		|| !keyusage.getBits()[KeyManagement.KEYUSAGE_CERT_SIGN_BIT]) {
-	      log.warn("Certificate does not have signing capability.");
+	      log.warn("Certificate does not have signing capability."
+                + acertificate[i].getSubjectDN().getName());
 	      throw new CertificateChainException("Certificate does not have signing capability.",
 						  CertificateTrust.CERT_TRUST_NOT_TRUSTED);
 
@@ -656,11 +660,6 @@ final public class KeyRing  implements KeyRingService  {
 	// chain is trusted.
 	return signedByAtLeastOneCA;
       }
-    }
-    else {
-      // It's OK not to have the full chain if at least one certificate in the
-      // chain is trusted.
-      return signedByAtLeastOneCA;
     }
 
     Iterator it = listSigner.listIterator();
@@ -1857,7 +1856,7 @@ final public class KeyRing  implements KeyRingService  {
 	throw (new Exception("X500Name not found in name mapping"));
       }
       for (int i = 0; i < nameList.size(); i++) {
-	namingService.updateNS((X500Name)nameList.get(i));
+	updateNS((X500Name)nameList.get(i));
       }
     } catch (Exception ex) {
       log.warn("Unable to register LDAP URL to naming service for " + commonName + ". Reason:" + ex);
@@ -1957,11 +1956,17 @@ final public class KeyRing  implements KeyRingService  {
 	log.debug("successfully update: " + value + " attrib: " + attributes + " in NS");
       }
       */
-      namingService.updateNS(x500Name);
+      CertificateStatus cs = (CertificateStatus)certificateList.get(0);
+      CertificateEntry certEntry = new CertificateEntry(cs.getCertificate(),
+          // of course the cert is trusted by local node, otherwise not valid
+          CertificateRevocationStatus.VALID,
+          cs.getCertificateType());
+      certEntry.setCertificateChain(cs.getCertificateChain());
+      namingService.updateCert(certEntry);
 
     } catch (Exception nx) {
       if (log.isWarnEnabled()) {
-	log.warn("Cannot update "+x500Name+ " ldap in naming." + nx.toString(), nx);
+	log.warn("Cannot update "+x500Name+ " cert in naming." + nx.toString(), nx);
       }
     }
 
