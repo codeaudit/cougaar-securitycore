@@ -1,3 +1,11 @@
+#This rule's purpose is to add the Configuration Manager plugins to the
+# appropriate plugin(s).  Also, the ConfigurationManagerInitPlugin's 
+# parameters are populated with the agent and node configuration used
+# as the ground truth for the configuration manager.  The "role" facet
+# is extracted from nodes to look for "role" = "Management" and added to the 
+# plugin parameters.  Also the "cm_role"
+# facet is extracted from agents and added to the plugin parameters.
+
 #agent role list
 agentlist =[]
 #node role list
@@ -5,6 +13,7 @@ nodelist =[]
 #list of agents to include the Configuration Manager in
 include_array=["1-35-ARBN","1-AD"]
 CMInitPlugin="org.cougaar.core.security.cm.ConfigurationManagerInitPlugin"
+CMMessagePlugin="org.cougaar.core.security.cm.ConfigurationManagerMessagePlugin"
 
 
 society.each_agent(true) do |agent|
@@ -37,6 +46,10 @@ society.each_agent(true) do |agent|
                                 nodelist.each{ |facet|
                                         c.add_argument(facet)
                                 }
+                        end
+                        agent.add_component do |c|
+                        	c.classname=CMMessagePlugin
+                        	
                         end
                 end
 
