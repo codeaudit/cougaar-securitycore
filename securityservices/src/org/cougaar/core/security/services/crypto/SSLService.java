@@ -45,9 +45,9 @@ public interface SSLService extends Service {
    * or will be created will be using the socket factories
    * instantiated here.
    */
-  SSLServerSocketFactory getServerSocketFactory();
+  public SSLServerSocketFactory getServerSocketFactory();
 
-  SSLSocketFactory getSocketFactory();
+  public SSLSocketFactory getSocketFactory();
 
   /**
    * The sockets created with the two functions above
@@ -64,10 +64,10 @@ public interface SSLService extends Service {
    * support agent peer-to-peer communication
    */
    /*
-  SSLServerSocket createServerSocket(String agentName)
+  public SSLServerSocket createServerSocket(String agentName)
 	throws IOException, CertificateException;
 
-  SSLSocket createSocket(String targetAgent, String agentName)
+  public SSLSocket createSocket(String targetAgent, String agentName)
         throws IOException, CertificateException;
         */
 
