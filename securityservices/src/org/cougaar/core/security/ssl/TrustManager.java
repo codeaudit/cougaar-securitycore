@@ -37,6 +37,9 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateCache;
 
 public class TrustManager implements X509TrustManager {
   protected KeyRingService keyRing = null;
@@ -57,8 +60,19 @@ public class TrustManager implements X509TrustManager {
   }
 
   public synchronized void updateKeystore() {
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
     try {
-      issuers = keystore.getTrustedIssuers();
+      if(cacheservice==null) {
+	if (log.isDebugEnabled()){
+	  log.warn("Unable to get Certificate cache service in updateKeystore");
+	 }
+	issuers = new X509Certificate[] {};
+	return;
+      }
+	issuers = cacheservice.getTrustedIssuers();
     } catch (Exception ex) {
       if (log.isDebugEnabled())
         ex.printStackTrace();
@@ -91,14 +105,14 @@ public class TrustManager implements X509TrustManager {
     // we allow users, agents, or nodes to access tomcat
     boolean accept = false;
     if (title != null) {
-      if (title.equals(DirectoryKeyStore.CERT_TITLE_NODE)) {
+      if (title.equals(CertificateCache.CERT_TITLE_NODE)) {
         accept = true;
       }
-      else if (title.equals(DirectoryKeyStore.CERT_TITLE_USER)
+      else if (title.equals(CertificateCache.CERT_TITLE_USER)
 	  && this instanceof ServerTrustManager) {
         accept = true;
       }
-      else if(title.equals(DirectoryKeyStore.CERT_TITLE_AGENT)
+      else if(title.equals(CertificateCache.CERT_TITLE_AGENT)
           && this instanceof ServerTrustManager) {
         accept = true;
       }
@@ -135,8 +149,8 @@ public class TrustManager implements X509TrustManager {
     X509Certificate srvcert = chain[0];
     String srvdn = srvcert.getSubjectDN().getName();
     String title = CertificateUtility.findAttribute(srvdn, "t");
-    if (title == null || (!title.equals(DirectoryKeyStore.CERT_TITLE_NODE)
-			  && !title.equals(DirectoryKeyStore.CERT_TITLE_SERVER))) {
+    if (title == null || (!title.equals(CertificateCache.CERT_TITLE_NODE)
+			  && !title.equals(CertificateCache.CERT_TITLE_SERVER))) {
       log.warn("Wrong type of certificate present.");
       throw new CertificateException("Wrong type of certificate present.");
     }
@@ -154,6 +168,15 @@ public class TrustManager implements X509TrustManager {
     if (chain == null || chain.length == 0) {
       throw new CertificateException("Certificate chain does not contain a certificate");
     }
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
+    
+    if(cacheservice==null) {
+      log.warn("Unable to get Certificate cache Service in checkChainTrust");
+    }
+    
     try {
       for (int i = (chain.length - 1) ; i >= 0 ; i--) {
 	keystore.checkCertificateTrust(chain[i]);
@@ -162,7 +185,12 @@ public class TrustManager implements X509TrustManager {
 	  log.debug("Checked trust of " + chain[i].getSubjectDN().getName()
 		    + ". Adding cert to the cache");
 	}
-	keystore.addSSLCertificateToCache(chain[i]);
+	if(cacheservice!=null) {
+	  cacheservice.addSSLCertificateToCache(chain[i]);
+	}
+	else {
+	  log.warn("Unable to add SSL Certificate To Cache as Certificate cache Service is null in checkChainTrust");
+	}
       }
     }
     catch (Exception e) {
