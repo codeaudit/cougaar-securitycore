@@ -77,8 +77,6 @@ cp test/configs/recipes/rules/*.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/s
 cp test/configs/recipes/rules/testCollectData/*.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security/testCollectData
 cp test/configs/recipes/rules/parameters/community.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security/communities
 cp test/configs/recipes/rules/parameters/RunSoc.rb.patch $COUGAAR_INSTALL_PATH/csmart/scripts
-cp test/bin/runallparallel $COUGAAR_INSTALL_PATH/operator
-cp test/bin/printProcessInfo.rb $COUGAAR_INSTALL_PATH/operator
 
 echo "NAME=AS_csi_secserv" > $COUGAAR_INSTALL_PATH/Manifest/AS_csi_secserv.txt
 echo "ARCHIVE_TIME=`date \"+%m/%d/%Y %I:%M %p\"`" >> $COUGAAR_INSTALL_PATH/Manifest/AS_csi_secserv.txt
@@ -101,8 +99,7 @@ zip -qr AS_csi_secserv.zip \
 	lib/securebootstrapper.jar \
 	lib/securityservices.jar \
 	lib/javautil.jar \
-	operator/runallparallel \
-	operator/printProcessInfo.rb \
+	operator \
 	webtomcat/data/conf/server.xml \
 	webtomcat/data/webapps/ROOT/WEB-INF/web.xml \
 	sys/bcprov-jdk*.jar \

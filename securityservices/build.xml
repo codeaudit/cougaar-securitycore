@@ -445,6 +445,16 @@
             </fileset>
         </copy>
 
+        <copy todir="${cougaar.install.path}/operator">
+            <fileset dir="${securityservices.base}/test/bin">
+                <patternset>
+                    <include name="checkTrace.rb"/>
+                    <include name="runallparallel"/>
+                    <include name="printProcessInfo.rb"/>
+                </patternset>
+            </fileset>
+        </copy>
+
         <!-- The bootstrap_keystore itself should be outside a Jar file
              so that we can verify jar files.
              The Java policy file must also be outside a jar file.
