@@ -29,8 +29,8 @@ package org.cougaar.core.security.test.blackboard;
 
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.util.UID;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
-import org.cougaar.util.UnaryPredicate;
 
 import java.util.Collection;
 import java.util.Enumeration;
@@ -46,16 +46,8 @@ import java.util.Iterator;
 public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
   private static final String ACTIVITY_NAME = "MaliciousBlackboardModifyPlugin";
   private IncrementalSubscription orgSubs = null;
-  private UnaryPredicate changedPredicate = new UnaryPredicate() {
-      public boolean execute(Object o) {
-        if (o instanceof OrgActivity) {
-          OrgActivity orgA = (OrgActivity) o;
-          return orgA.getActivityName().equals(ACTIVITY_NAME);
-        }
-
-        return false;
-      }
-    };
+  
+  private UID modId = null;
 
   /**
    * DOCUMENT ME!
@@ -71,7 +63,7 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
    */
   public void setupSubscriptions() {
     super.setupSubscriptions();
-    orgSubs = (IncrementalSubscription) getBlackboardService().subscribe(changedPredicate);
+    orgSubs = (IncrementalSubscription) getBlackboardService().subscribe(orgActivityPredicate);
   }
 
 
@@ -85,12 +77,20 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
 
 
   private void checkModified() {
-    Enumeration enumeration = orgSubs.getChangedList();
-    while (enumeration.hasMoreElements()) {
-      this.successes--;
-      this.failures++;
-      this.createIDMEFEvent(pluginName,
-        "Able to modify OrgActivity on the Blackboard!");
+    if (modId != null) {
+      Enumeration enumeration = orgSubs.getChangedList();
+      while (enumeration.hasMoreElements()) {
+        OrgActivity orgActivity = (OrgActivity) enumeration.nextElement();
+        if (orgActivity.getUID().equals(modId)) {
+          this.successes--;
+          this.failures++;
+          if (logging.isDebugEnabled()) {
+            logging.debug("Was able to modify OrgActivity Object!");
+          }
+
+          this.createIDMEFEvent(pluginName, "Able to modify OrgActivity on the Blackboard!");
+        }
+      }
     }
   }
 
@@ -105,8 +105,12 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
       OrgActivity orgActivity = (OrgActivity) iterator.next();
       orgActivity.setActivityName(ACTIVITY_NAME);
       getBlackboardService().publishChange(orgActivity);
+      this.modId = orgActivity.getUID();
       this.totalRuns++;
       this.successes++;
+    } else {
+      this.modId = null;
+
     }
   }
 }

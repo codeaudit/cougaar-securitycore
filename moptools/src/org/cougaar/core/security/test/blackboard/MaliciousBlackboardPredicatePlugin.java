@@ -42,29 +42,28 @@ import java.util.Iterator;
  */
 public class MaliciousBlackboardPredicatePlugin extends AbstractBlackboardPlugin {
   private UnaryPredicate evilPredicate = new UnaryPredicate() {
-      public boolean execute(Object o) {
-        return true;
-      }
-    };
+    public boolean execute(Object o) {
+      return true;
+    }
+  };
 
   private UnaryPredicate moreEvilPredicate = new UnaryPredicate() {
-      public boolean execute(Object o) {
-        Object obj = o;
-        boolean bol = false;
+    public boolean execute(Object o) {
+      Object obj = o;
+      boolean bol = false;
+
+      if (obj instanceof OrgActivity) {
+        obj = null;
         totalRuns++;
-        successes++;
-        if (obj instanceof OrgActivity) {
-          obj = null;
-          failures++;
-		  successes--;
-          bol = true;
-        }
-
-        
-
-        return bol;
+        failures++;
+        createIDMEFEvent(pluginName, "Able to get OrgActivity in predicate");
+        bol = true;
       }
-    };
+
+
+      return bol;
+    }
+  };
 
   /**
    * DOCUMENT ME!
@@ -80,13 +79,23 @@ public class MaliciousBlackboardPredicatePlugin extends AbstractBlackboardPlugin
    */
   protected void queryBlackboard() {
     Collection coll1 = getBlackboardService().query(evilPredicate);
-    Iterator iterator = coll1.iterator();
     this.totalRuns++;
+    boolean gotOrgActivity = false;
+    Iterator iterator = coll1.iterator();
     while (iterator.hasNext()) {
       if (iterator.next() instanceof OrgActivity) {
-        this.failures++;
-        this.createIDMEFEvent(pluginName, "Got an OrgActivity");
+        gotOrgActivity = true;
+        break;
+
       }
+    }
+
+    if (gotOrgActivity) {
+      this.failures++;
+      this.createIDMEFEvent(pluginName, "Got an OrgActivity from predicate");
+    } else {
+      this.successes++;
+
     }
 
     Collection coll2 = getBlackboardService().query(moreEvilPredicate);

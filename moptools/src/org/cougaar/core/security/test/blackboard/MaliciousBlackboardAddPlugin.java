@@ -28,13 +28,13 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import java.util.Enumeration;
-
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.util.UID;
 import org.cougaar.glm.ldm.oplan.OplanFactory;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
 import org.cougaar.util.UnaryPredicate;
+
+import java.util.Enumeration;
 
 
 /**
@@ -48,17 +48,7 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
 
   //subscription to org activitys
   private IncrementalSubscription orgActivitySubs = null;
-  private UnaryPredicate myorgActivityPredicate = new UnaryPredicate() {
-      public boolean execute(Object o) {
-        if (o instanceof OrgActivity) {
-          OrgActivity orgA = (OrgActivity) o;
-          return (orgA.getActivityName() != null)
-          && orgA.getActivityName().equals(MALCICOUS_ADD_ACTIVITY_NAME);
-        }
-
-        return false;
-      }
-    };
+  private UID addUID = null;
 
   /**
    *
@@ -75,8 +65,7 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
   public void setupSubscriptions() {
     super.setupSubscriptions();
     //add subscription to org activities
-    orgActivitySubs = (IncrementalSubscription) getBlackboardService()
-                                                  .subscribe(this.myorgActivityPredicate);
+    orgActivitySubs = (IncrementalSubscription) getBlackboardService().subscribe(this.orgActivityPredicate);
 
   }
 
@@ -92,13 +81,33 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
 
 
   private void checkForAddedOrgActivitySubs() {
-    Enumeration enumeration = this.orgActivitySubs.getAddedList();
-    while (enumeration.hasMoreElements()) {
-      //failure
-      this.failures++;
-      this.successes--;
-      //create IDMEF Event
-      this.createIDMEFEvent(pluginName, "Was able to add OrgActivity object");
+    if (addUID != null) {
+      Enumeration enumeration = this.orgActivitySubs.getAddedList();
+      if (logging.isDebugEnabled()) {
+        logging.debug("Check for Added Org Activity....");
+      }
+
+      boolean found = false;
+      while (enumeration.hasMoreElements()) {
+        OrgActivity orgActivity = (OrgActivity) enumeration.nextElement();
+        if (orgActivity.getUID().equals(addUID)) {
+          found = true;
+          break;
+        }
+      }
+
+      if (found) {
+        if (logging.isDebugEnabled()) {
+          logging.debug("Found added org activity");
+        }
+
+        //failure
+        this.failures++;
+        //create IDMEF Event
+        this.createIDMEFEvent(pluginName, "Was able to add OrgActivity object");
+      } else {
+        this.successes++;
+      }
     }
   }
 
@@ -108,11 +117,11 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
    */
   protected void queryBlackboard() {
     //automatically increment success
-	OrgActivity orgActivity = OplanFactory.newOrgActivity(pluginName,uidService.nextUID());
+    OrgActivity orgActivity = OplanFactory.newOrgActivity(pluginName, uidService.nextUID());
     orgActivity.setActivityName(MALCICOUS_ADD_ACTIVITY_NAME);
     orgActivity.setUID(uidService.nextUID());
     getBlackboardService().publishAdd(orgActivity);
-    this.successes++;
+    this.addUID = orgActivity.getUID();
     this.totalRuns++;
   }
 }

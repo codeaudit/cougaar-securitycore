@@ -40,6 +40,9 @@ public class MaliciousBlackboardDeletePlugin extends AbstractBlackboardPlugin{
 			while(enum.hasMoreElements()){
 				OrgActivity orgAct = (OrgActivity)enum.nextElement();
 				if(orgAct.getUID().equals(deleteUID)){
+					if(logging.isDebugEnabled()){
+						logging.debug("Was Able to delete an OrgActivity!");
+					}
 					this.successes--;
 					this.failures++;
 					this.createIDMEFEvent(pluginName,"Was able to delete a OrgActivity from the Blackboard");

@@ -33,17 +33,10 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Analyzer;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.DetectTime;
 
 import org.cougaar.core.adaptivity.OperatingMode;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -63,10 +56,18 @@ import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.util.UnaryPredicate;
 
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.Analyzer;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.DetectTime;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Serializable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 
 /**
@@ -177,9 +178,17 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     this.domainService = service;
   }
 
-  public void setUIDService(UIDService service){
-  	this.uidService =service;
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @param service DOCUMENT ME!
+   */
+  public void setUIDService(UIDService service) {
+    this.uidService = service;
   }
+
+
   /**
    * dumps test results to database
    */
@@ -454,53 +463,61 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
    * @param classification DOCUMENT ME!
    */
   protected void createIDMEFEvent(final String sensorName, String classification) {
-    DetectTime detectTime = new DetectTime();
-    detectTime.setIdmefDate(new java.util.Date());
-    CmrFactory cmrFactory = (CmrFactory) this.domainService.getFactory("cmr");
-    ArrayList classifications = new ArrayList();
-    Classification c = (Classification) cmrFactory.getIdmefMessageFactory().createClassification(classification, null);
-    classifications.add(c);
-    Analyzer a = cmrFactory.getIdmefMessageFactory().createAnalyzer(new SensorInfo() {
-        public String getName() {
-          return sensorName;
+    try {
+      if(logging.isDebugEnabled()){
+      	logging.debug(pluginName + " creating idmef event " + classification);
+      }	
+      DetectTime detectTime = new DetectTime();
+      detectTime.setIdmefDate(new java.util.Date());
+      CmrFactory cmrFactory = (CmrFactory) this.domainService.getFactory("cmr");
+      ArrayList classifications = new ArrayList();
+      Classification c = (Classification) cmrFactory.getIdmefMessageFactory().createClassification(classification, null);
+      classifications.add(c);
+      Analyzer a = cmrFactory.getIdmefMessageFactory().createAnalyzer(new SensorInfo() {
+          public String getName() {
+            return sensorName;
+          }
+
+
+          public String getManufacturer() {
+            return "CSI";
+          }
+
+
+          public String getModel() {
+            return "BlackboardTool";
+          }
+
+
+          public String getVersion() {
+            return "1.0";
+          }
+
+
+          public String getAnalyzerClass() {
+            return "BlackboardAccessControlPlugin";
+          }
+        });
+
+      Alert alert = cmrFactory.getIdmefMessageFactory().createAlert(a, detectTime, null, null, classifications, null);
+      if (logging.isInfoEnabled()) {
+        logging.info("Publishing IDMEF Event");
+      }
+
+      Event event = cmrFactory.newEvent(alert);
+
+      if (!(event instanceof Serializable)) {
+        if (logging.isErrorEnabled()) {
+          logging.error("Event is not serializable");
         }
+      }
 
-
-        public String getManufacturer() {
-          return "CSI";
-        }
-
-
-        public String getModel() {
-          return "BlackboardTool";
-        }
-
-
-        public String getVersion() {
-          return "1.0";
-        }
-
-
-        public String getAnalyzerClass() {
-          return "BlackboardAccessControlPlugin";
-        }
-      });
-
-    Alert alert = cmrFactory.getIdmefMessageFactory().createAlert(a, detectTime, null, null, classifications, null);
-    if (logging.isInfoEnabled()) {
-      logging.info("Publishing IDMEF Event");
-    }
-
-    Event event = cmrFactory.newEvent(alert);
-
-    if (!(event instanceof Serializable)) {
+      getBlackboardService().publishAdd(event);
+    } catch (Exception e) {
       if (logging.isErrorEnabled()) {
-        logging.error("Event is not serializable");
+        //logging.error("Error creating IDMEF Event", e);
       }
     }
-
-    getBlackboardService().publishAdd(event);
-
   }
 
 
@@ -543,7 +560,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
       getBlackboardService().openTransaction();
       getBlackboardService().signalClientActivity();
-      getBlackboardService().closeTransaction();
+      getBlackboardService().closeTransactionDontReset();
     }
   }
 }
