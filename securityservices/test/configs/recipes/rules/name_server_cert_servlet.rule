@@ -7,7 +7,7 @@ servletComp = "org.cougaar.core.security.certauthority.CaServletComponent"
 servlet = "org.cougaar.core.security.certauthority.servlet.NameServerCertificateServlet"
 uri = "NameServerCertificateServlet"
 
-sslRMILinkProtocol = "org.cougaar.core.mts.SSLRMILinkProtocol"
+sslRMILinkProtocol = "org.cougaar.mts.std.SSLRMILinkProtocol"
 protocolInsertion = "Node.AgentManager.Agent.MessageTransport.Component"
 
 # comment out the following small section to remove SSLRMILinkProtocol

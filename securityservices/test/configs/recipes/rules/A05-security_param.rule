@@ -141,6 +141,7 @@ society.each_host do |host|
     #node.override_parameter("-Dorg.cougaar.config.path", "\".;$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security;$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}common;$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}glmtrans;$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}daml\"")
     node.prepend_value_on_parameter("-Dorg.cougaar.config.path", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security")
     node.append_value_on_parameter("-Dorg.cougaar.config.path", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}daml")
+    #node.append_value_on_parameter("-Dorg.cougaar.config.path", "#{File::SEPARATOR}tmp")
 
     #node.override_parameter("-Dorg.cougaar.config.path", "\".;#{cip}#{File::SEPARATOR}configs#{File::SEPARATOR}security\;\"")
     
@@ -180,6 +181,8 @@ society.each_host do |host|
     #
     node.override_parameter("-Dorg.cougaar.core.naming.useSSL", "true")
 
+    #node.override_parameter("-Djavax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl")
+
     # system properties to timeout white pages "/$" lookups:
     node.override_parameter("-Dorg.cougaar.lib.web.list.timeout", "5000")
     # system properties to timeout white pages "/agents" listing lookups:
@@ -189,7 +192,7 @@ society.each_host do |host|
     # The certificates need to be created first before this feature is turned on.
     #
 # this is installed in a different rule now
-#    node.override_parameter("-Dorg.cougaar.message.protocol.classes", "org.cougaar.core.mts.SSLRMILinkProtocol")
+#    node.override_parameter("-Dorg.cougaar.message.protocol.classes", "org.cougaar.mts.std.SSLRMILinkProtocol")
     
     # You can also turn on/off http/s. Turn of by setting the port to -1
     # Note that HTTPS is off by default, and HTTP is at 8800
@@ -237,8 +240,8 @@ society.each_host do |host|
     # Add the MessageProtectionAspect to the org.cougaar.message.transport.aspects property to turn on
     # the Message Protection Service (inter-agent message protection mechanism).
     # 
-    #node.override_parameter("-Dorg.cougaar.message.transport.aspects", "org.cougaar.core.mts.MessageProtectionAspect")
-    #node.override_parameter("-Dorg.cougaar.message.transport.aspects", "org.cougaar.core.mts.StatisticsAspect")
+    #node.override_parameter("-Dorg.cougaar.message.transport.aspects", "org.cougaar.mts.std.MessageProtectionAspect")
+    #node.override_parameter("-Dorg.cougaar.message.transport.aspects", "org.cougaar.mts.std.StatisticsAspect")
     
     # Enable user authentication over HTTP (or HTTPS)
     # The authentication requirements and access control parameters are specified
