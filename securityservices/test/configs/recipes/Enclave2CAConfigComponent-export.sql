@@ -124,7 +124,7 @@ REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VAL
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave2CAConfigComponentEnclave2CAConfigComponentEnclave2CAConfigComponent','Target Component Selection Query',2.000000000000000000000000000000,'recipeQueryNodeEnclave2CA');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave2CAConfigComponentEnclave2CAConfigComponentEnclave2CAConfigComponent','Type of Insertion',1.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave2CAConfigComponentEnclave2CAConfigComponentEnclave2CAConfigComponent','Value 1',5.000000000000000000000000000000,'CN=Enclave2_CA, OU=Enclave2, O=DLA, L=San Francisco, ST=CA, C=US, T=ca');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave2CAConfigComponentEnclave2CAConfigComponentEnclave2CAConfigComponent','Value 3',7.000000000000000000000000000000,'tea:RootCA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0008Enclave2CAConfigComponentEnclave2CAConfigComponentEnclave2CAConfigComponent','Value 3',7.000000000000000000000000000000,'cypress:RootCA');
 UNLOCK TABLES;
 
 --
