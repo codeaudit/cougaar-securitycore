@@ -26,7 +26,9 @@
 
 package org.cougaar.core.security.policy;
 
-public class SecurityPolicy {
+import java.io.Serializable;
+
+public class SecurityPolicy implements Serializable {
   /** The name of this policy.
    */
   private String name;
