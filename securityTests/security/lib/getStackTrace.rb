@@ -105,7 +105,7 @@ class GetStackTrace < SecurityStressFramework
         result = system("#{command}")
         #logInfoMsg "Copying stack trace file to operator host: #{command} - #{result}"
       end
-      if (File.stat(tmplogfile).file?)
+      if (File.exist?(tmplogfile))
         f = File.open(tmplogfile, File::RDONLY)
         stacktrace = f.read
         f.close
