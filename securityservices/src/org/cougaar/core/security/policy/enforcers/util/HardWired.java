@@ -155,7 +155,10 @@ public class HardWired {
   public static final CipherSuite nsaApproved;
   static {
     nsaApproved = new CipherSuite();
+    nsaApproved.addSymmetric("RC4");
     nsaApproved.addSymmetric("DESede");
+    nsaApproved.addSymmetric("Blowfish");
+    nsaApproved.addSymmetric("AES");
     nsaApproved.addAsymmetric("RSA");
     nsaApproved.addSignature("MD5withRSA");
   }
