@@ -99,8 +99,8 @@ public class AgentUserService implements UserService, BlackboardClient {
     _uidService = (UIDService)
       _serviceBroker.getService(this, UIDService.class, null);
     if (_uidService == null) {
-      if (_log.isWarnEnabled()) {
-        _log.warn("Unable to get UID service");
+      if (_log.isInfoEnabled()) {
+        _log.info("Unable to get UID service");
       }
       _serviceBroker.addServiceListener(new MyServiceListener());
     }
