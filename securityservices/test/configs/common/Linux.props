@@ -1,0 +1,234 @@
+# Sample Unix/Linux configuration file for the AppServer.
+# 
+# Edit the claspath, install-path and config-path to reflect your 
+#   local installation.  See "java.util.Properties" for syntax details.
+#
+# CSMART will add some properties to this list, such as the 
+#   "org.cougaar.node.name=..", but otherwise this is the *complete*
+#   list of properties.
+#
+# Note that some symbols, such as ";", must be encoded ("\;")
+
+# Set the Cougaar install path.
+org.cougaar.install.path=/mnt/shared/integ92
+
+# Set the cougaar system path, which is used to find third-party jars
+#   (e.g. "log4j.jar").
+#
+# This defaults to "{org.cougaar.install.path} + /sys", but one can
+#   use a different directory by setting this property.
+#org.cougaar.system.path=/mnt/shared/integ92
+
+
+# Enable or disable persistence.
+#
+# By default persistence is disabled.
+org.cougaar.core.persistence.enable=true
+org.cougaar.core.persistence.clear=true
+
+
+# Add the "java-io-patch" to allow Cougaar persistence.
+#
+# If persistence is disabled then this has no effect.  For simplicity
+# this "java-io-patch" jar should always be included.  Since this jar
+# overrides "java.io" it must be prepended to the JVM's bootclasspath.
+java.Xbootclasspath/p=/mnt/shared/integ92/lib/javaiopatch.jar
+
+# Set the class path for starting the Node, which uses ":" separators.
+#
+# Typically only bootstrap.jar needs to be in here.
+# java.class.path=/mnt/shared/integ92/lib/bootstrap.jar
+# However, the Jython interpreter requires the JAR files
+# referenced from Python be on the "real" classpath.
+java.class.path=/mnt/shared/integ92/lib/CougaarCRLextensions.jar
+#java.class.path=/mnt/shared/integ92/lib/idmef.jar:/mnt/shared/integ92/lib/core.jar:/mnt/shared/integ92/lib/securityservices.jar:/mnt/shared/integ92/lib/aggagent.jar:/mnt/shared/integ92/lib/CougaarCRLextensions.jar
+
+
+# Set the config path, which uses ";" separators.
+#
+# Note that this must end with an (escaped) semi-colon to indicate
+# that the path specified here should in addition to the default
+# search path.
+#
+# This path must contain your "cougaar.rc", database files ("*.q"), 
+#   "default.psps.xml", and other configuration files.
+#
+# Here we override the default configuration path to include both
+# the "common" directory and "GLMTrans" directory.
+#org.cougaar.config.path="/mnt/shared/integ92/configs/common\;/mnt/shared/integ92/glmtrans/configs/demo-config/config\;"
+org.cougaar.config.path="/mnt/shared/integ92/configs/common;/mnt/shared/integ92/glmtrans/configs/demo-config/config;/mnt/shared/integ92/configs/security;"
+#org.cougaar.config.path=/mnt/shared/integ92/configs/security;
+
+# Some standard memory settings.
+#
+# These are not usually modified.
+# Modified for NAI use
+#java.Xms448m
+java.Xms64m
+java.Xmx512m
+
+# Set some standard COUGAAR properties.
+
+java.Djava.rmi.server.hostname=$HOSTNAME
+#
+# These are not usually modified.
+user.timezone=GMT
+org.cougaar.core.agent.startTime=08/10/2005
+org.cougaar.planning.ldm.lps.ComplainingLP.level=0
+
+# See NAI aspect below
+#org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect
+
+# Set the classname to the Bootstrapper. You must supply a command-line
+# argument for the class to run, usually org.cougaar.core.node.Node
+java.class.name=org.cougaar.bootstrap.Bootstrapper
+
+# You can also turn on/off http/s. Turn of by setting the port to -1
+# Note that HTTPS is off by default, and HTTP is at 8800
+#org.cougaar.lib.web.https.port=-1
+
+# Default to localhost popups, which also requires that localhost
+#   have "xhost +localhost" for local X authorization.
+#
+# In general, the CSMART UI will be on host "csmarthost" with multiple
+#   server hosts, "serverhost[1-N]".  For the display to work (AWT, 
+#   Swing, etc) each "serverhost[1-N]" needs "env.DISPLAY=csmarthost:0.0" 
+#   and the CSMART UI host needs "xhost +serverhost1 .. +serverhostN" 
+#   (or just "xhost +").
+#
+# On some machines you may need to use the full machine name.
+env.DISPLAY=localhost:0.0
+
+########################################################################
+# A couple properties fir the kaos domain manager
+########################################################################
+org.cougaar.core.security.Domain=TestDomain
+org.cougaar.safe.domainName=TestDomain
+
+
+########################################################################
+# NAI Security services
+########################################################################
+
+# Naming service over SSL.
+# True to enable naming service over SSL.
+# The certificates need to be createdd first before this feature is turned on.
+org.cougaar.core.naming.useSSL=true
+
+# MTS RMI over SSL
+# The certificates need to be createdd first before this feature is turned on.
+#org.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol
+
+# You can also turn on/off http/s. Turn of by setting the port to -1
+# Note that HTTPS is off by default, and HTTP is at 8800
+# HTTP port number
+org.cougaar.lib.web.http.port=5557
+
+# HTTPS port number
+# Comment out the following two lines if you don't want HTTPS
+# The certificates need to be createdd first before this feature is turned on.
+#org.cougaar.lib.web.https.port=6557
+#org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory
+
+# Cougaar workspace
+org.cougaar.workspace=/mnt/shared/integ92/workspace
+
+# Bootstrap keystore to store JAR file keys
+org.cougaar.core.security.bootstrap.keystore=/mnt/shared/integ92/configs/common/bootstrap_keystore
+
+# Log4j Logging
+org.cougaar.core.logging.config.filename=loggingConfig.conf
+org.cougaar.core.logging.log4j.appender.SECURITY.File=/mnt/shared/integ92/workspace/log4jlogs/$HOSTNAME.log
+#org.cougaar.core.logging.log4j.appender.A1.File=log4jnode.log
+
+# Add the secure bootstrapper to the bootstrap class path
+# This is needed because of a bug in the SDK 1.4.
+# Internal Java runtime classes can create infinite recursive calls
+java.Xbootclasspath/a=/mnt/shared/integ92/lib/securebootstrapper.jar:/mnt/shared/integ92/lib/bootstrap.jar
+
+# Aspects: MessageProtectionAspect
+# Add the MessageProtectionAspect to the org.cougaar.message.transport.aspects property to turn on
+# the Message Protection Service (inter-agent message protection mechanism).
+# DON'T FORGET to delete that property in CSMART global parameters, otherwise CSMART will override it.
+org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect,org.cougaar.core.mts.MessageProtectionAspect
+#org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect
+
+# Set the classname to the Bootstrapper. You must supply a command-line
+# argument for the class to run, usually org.cougaar.core.node.Node
+java.class.name=org.cougaar.bootstrap.Bootstrapper
+
+# Enable user authentication over HTTP (or HTTPS)
+# The authentication requirements and access control parameters are specified
+# in the $CIP/configs/common/BootPolicy.ldm.xml file.
+org.cougaar.lib.web.tomcat.enableAuth=true
+
+# Role to take when making LDAP requests
+# This parameter is used in the cryptoPolicy.xml file.
+org.cougaar.security.role=asmt
+
+# The bootstrapper class
+# This replaces the standard (non-secure bootstrapper) with the secure bootstrapper.
+# The secure bootstrapper adds a Java security manager and an authenticated class loader.
+org.cougaar.bootstrap.class=org.cougaar.core.security.securebootstrap.SecureBootstrapper
+
+# The java.security.policy property defines the name of the Java policy file,
+# which is used by the Security Manager.
+# Warning!!! Use JAR files ONLY when using this policy file.
+# If directories containing .class files are included in the CLASSPATH,
+# the .class files will not have sufficient privileges to be executed.
+java.Djava.security.policy=/mnt/shared/integ92/configs/common/Cougaar_Java.policy
+
+# Use Java security manager
+org.cougaar.core.security.useSecurityManager=true
+
+# This property specifies whether to use the authenticated class loader or
+# the legacy class loader
+org.cougaar.core.security.useAuthenticatedLoader=true
+
+# This property is used to set the interval (in seconds) at which CRLs are checked
+org.cougaar.core.security.crypto.crlpoll=600
+
+# Enable/disable use of component execution using multiple subjects.
+# Not used anymore.
+#org.cougaar.core.security.useJaas=true
+
+# In the future, we need to store the name of the domain manager
+# in a configuration file.
+# KAoS required parameter.
+#org.cougaar.core.security.Domain=NCADomain
+
+# indicate the name of the cryptoPolicy.xml file
+org.cougaar.security.crypto.config=cryptoPolicy.xml
+
+# ########################################################
+# DEBUG properties [probably not used anymore because we are using log4j]
+#
+
+# The java.security.debug property can be used to debug the
+# Security Manager.
+# Acceptable values: all, access, jar, policy, scl, stack, domain, failure
+#java.security.debug=all
+
+# Used to show bootstrapper debugging information
+# In particular, it will show information about the JAR file signature
+# verification process.
+# Acceptable values: true, shout, false
+#org.cougaar.bootstrap.Bootstrapper.loud=false
+#org.cougaar.core.security.bootstrapper.policydebug=all
+
+#org.cougaar.core.security.policy.debug=true
+
+# Enable Jaas trace debugging
+#org.cougaar.core.security.jaasDebug=true
+
+# Print crypto-related debug information about the security aspect
+org.cougaar.core.security.crypto.debug=true
+
+# Print transport-related debug information about the security aspect
+org.cougaar.message.transport.debug=security
+
+#org.cougaar.core.cluster.persistence.debug=true
+
+# END DEBUG properties
+# ########################################################
+
