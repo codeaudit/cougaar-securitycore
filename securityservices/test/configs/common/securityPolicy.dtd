@@ -1,46 +1,39 @@
 
-<!ENTITY % cryptoConfiguration.content "nodeConfiguration&certificateAuthority">
-<!ENTITY % nodeConfiguration.content "CA_DN&CA_URL&CA_keystore&CA_keystorePassword&CertDirectoryURL&CertDirectoryType&ou&o&l&st&c&keyAlgName&keysize&sigAlgName&validity">
+<!ELEMENT cryptoConfiguration (nodeConfiguration, certificateAuthority)>
 
-<!ELEMENT cryptoConfiguration (%cryptoConfiguration.content;)>
+<!ELEMENT nodeConfiguration (CA_DN, CA_URL, CA_keystore, CA_keystorePassword, CertDirectoryURL, CertDirectoryType, ou, o, l, st, c, keyAlgName, keysize, sigAlgName, validity)>
+<!ELEMENT CA_DN (#PCDATA)>
 
-<!ELEMENT nodeConfiguration (%nodeConfiguration.content;)>
-<!ELEMENT CA_DN CDATA>
-
-<!ELEMENT CA_URL CDATA>
+<!ELEMENT CA_URL (#PCDATA)>
 <!ATTLIST CA_URL role CDATA #REQUIRED>
 
-<!ELEMENT CA_keystore CDATA>
+<!ELEMENT CA_keystore (#PCDATA)>
 
-<!ELEMENT CA_keystorePassword CDATA>
+<!ELEMENT CA_keystorePassword (#PCDATA)>
 
-<!ELEMENT CertDirectoryURL CDATA>
-<!ATTLIST CertDirectoryURL role CDATA>
+<!ELEMENT CertDirectoryURL (#PCDATA)>
+<!ATTLIST CertDirectoryURL role CDATA #REQUIRED>
 
-<!ELEMENT ou CDATA>
-<!ELEMENT o CDATA>
-<!ELEMENT l CDATA>
-<!ELEMENT st CDATA>
-<!ELEMENT c CDATA>
+<!ELEMENT ou (#PCDATA)>
+<!ELEMENT o (#PCDATA)>
+<!ELEMENT l (#PCDATA)>
+<!ELEMENT st (#PCDATA)>
+<!ELEMENT c (#PCDATA)>
 
-<!ELEMENT keyAlgName CDATA>
-<!ELEMENT keysize CDATA>
-<!ELEMENT sigAlgName CDATA>
-<!ELEMENT validity CDATA>
+<!ELEMENT keyAlgName (#PCDATA)>
+<!ELEMENT keysize (#PCDATA)>
+<!ELEMENT sigAlgName (#PCDATA)>
+<!ELEMENT validity (#PCDATA)>
 
 
-<!ENTITY %certificateAuthority.content "serialNumberFile &
-                                pkcs10Directory & x509Directory &
-                                clientCertPolicy">
-<!ELEMENT certificateAuthority ()>
-<!ELEMENT serialNumberFile CDATA>
-<!ELEMENT pkcs10Directory CDATA>
-<!ELEMENT x509Directory CDATA>
-<!ELEMENT clientCertPolicy (certVersion & AlgorithmId &
-                            keysize & certValidity)>
+<!ELEMENT certificateAuthority (serialNumberFile, pkcs10Directory, x509Directory, clientCertPolicy)>
+<!ELEMENT serialNumberFile (#PCDATA)>
+<!ELEMENT pkcs10Directory (#PCDATA)>
+<!ELEMENT x509Directory (#PCDATA)>
+<!ELEMENT clientCertPolicy (certVersion, AlgorithmId, keysize, certValidity)>
 
-<!ELEMENT certVersion CDATA>
-<!ELEMENT AlgorithmId CDATA>
-<!ELEMENT keysize CDATA>
-<!ELEMENT certValidity CDATA>
+<!ELEMENT certVersion (#PCDATA)>
+<!ELEMENT AlgorithmId (#PCDATA)>
+<!ELEMENT keysize (#PCDATA)>
+<!ELEMENT certValidity (#PCDATA)>
 
