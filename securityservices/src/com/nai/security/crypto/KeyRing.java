@@ -76,11 +76,6 @@ final public class KeyRing
     try {
       String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
 
-      // CA keystore: contains trusted certificates of Certificate Authorities
-      String defaultCaKeystorePath = installpath + File.separatorChar
-	+ "configs" + File.separatorChar + "common"
-	+ File.separatorChar + "keystoreCA";
-
       // Keystore to store key pairs
       String defaultKeystorePath = installpath + File.separatorChar
 	+ "configs" + File.separatorChar + "common"

@@ -187,13 +187,7 @@ public class KeyManagement implements CertificateManagementService
   }
 
   public void init(String role)  throws Exception {
-
-    // TODO
-    // Use service broker instead
-    keyRing = CryptoServiceProvider.getKeyRing();
-
     if(standalone) {
-
       String keystoreFile = confDirectoryName + File.separatorChar
 	+ caPolicy.keyStoreFile;
       if (CryptoDebug.debug) {
@@ -224,6 +218,10 @@ public class KeyManagement implements CertificateManagementService
       publishCAinLdap();
     }
     else{
+      // TODO
+      // Use service broker instead
+      keyRing = CryptoServiceProvider.getKeyRing();
+
       try {
 	caPolicy = confParser.readCaPolicy("", role);
       }
