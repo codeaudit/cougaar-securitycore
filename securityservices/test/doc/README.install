@@ -321,6 +321,8 @@ Running the ul-mini-config society
       rm -rf $COUGAAR_INSTALL_PATH/P
       rm -rf *.log
       rm -rf $COUGAAR_INSTALL_PATH/log/bootstrap/*
+    The launch-society-clean scripts removes these files and then launches
+    launch-society.
 
 The launch-society script launches multiple nodes from one single
 command. The options are the following:
