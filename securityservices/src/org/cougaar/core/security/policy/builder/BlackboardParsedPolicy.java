@@ -148,7 +148,7 @@ public class BlackboardParsedPolicy extends ParsedAuthenticationPolicy
       for (Iterator objectTypeIt = _objectTypes.iterator();
            objectTypeIt.hasNext(); ) {
         String objectType = (String) objectTypeIt.next();
-        String jenaObjectClass = EntityInstancesConcepts.EntityInstancesOwlURL()
+        String jenaObjectClass = ULOntologyNames.blackboardObjectPrefix
                                           + objectType;
         ontology.verifyInstanceOf(jenaObjectClass,
                                   UltralogEntityConcepts.BlackBoardObjects());

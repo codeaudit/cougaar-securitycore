@@ -89,7 +89,7 @@ throws PolicyCompilerException
                               UltralogEntityConcepts.PlugInRoles()); }
     | "BlackBoardObject" blackBoardObjectName:TOKEN
         { ppf.declareInstance(
-                    EntityInstancesConcepts.EntityInstancesOwlURL() +
+                    ULOntologyNames.blackboardObjectPrefix + 
                            ParsedPolicyFile.tokenToText(blackBoardObjectName),
                     UltralogEntityConcepts.BlackBoardObjects()); }
     | { Set agents = null; }
