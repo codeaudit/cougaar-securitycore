@@ -15,6 +15,7 @@ public class DebugSSLSocket extends SSLSocketWrapper {
     super(socket);
     System.out.println("" + _id +
                        "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= <init>: " +
+                       socket.getLocalSocketAddress() + " -> " +
                        socket.getRemoteSocketAddress());
   }
 
@@ -179,7 +180,7 @@ public class DebugSSLSocket extends SSLSocketWrapper {
 
   public void setTcpNoDelay(boolean on)
     throws SocketException{
-    System.out.println("" + _id + "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= setTcpNoDelay");
+    System.out.println("" + _id + "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= setTcpNoDelay: " + on);
     super.setTcpNoDelay(on);
   }
 
