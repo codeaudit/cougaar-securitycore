@@ -27,14 +27,16 @@
 package com.nai.security.policy;
 
 import java.util.*;
+
+// Cougaar core infrastructure
 import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.core.blackboard.*;
 import org.cougaar.core.plugin.*;
 import org.cougaar.util.*;
 
-import kaos.core.enforcer.IGuard;
-import kaos.core.enforcer.GuardRetriever;
+// KAoS policy management
 import kaos.core.enforcer.Enforcer;
+import kaos.core.guard.Guard;
 
 /**
  * Parent class, which defines methods for processing Cougaar and KAoS 
@@ -74,7 +76,7 @@ public class PolicyCache
   public static final String DEFAULT = "DEFAULT";
 
   /** The KAoS guard **/
-  private IGuard guard;
+  private Guard guard;
 
   /**
    * Constructor registers as KAoS binder and sets default variables based 

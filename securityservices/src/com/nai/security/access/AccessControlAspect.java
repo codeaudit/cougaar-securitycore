@@ -595,10 +595,8 @@ public class AccessControlAspect extends StandardAspect
 	act = acps.getOutgoingAction(msgOrigin, trustValue);
       }
       catch(Exception ex) {
-	System.out.println("AccessControlAspect: Warning: no access control for message"
+	System.out.println("AccessControlAspect: Warning: no access control for msg"
 			   + msg);
-	ex.printStackTrace();
-            
 	return true;
       }
       if(act == null) {

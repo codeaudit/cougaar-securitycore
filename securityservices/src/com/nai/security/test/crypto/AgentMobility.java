@@ -83,11 +83,20 @@ public class AgentMobility
       System.out.println("========= Looking up key for sender node");
     }
     PrivateKey signerPrivKey = keyRing.findPrivateKey(signerAlias);
+    if (signerPrivKey == null) {
+      System.out.println("Error: unable to get key for sender node");
+      return;
+    }
+
     if (CryptoDebug.debug) {
       System.out.println("========= Looking up certificate for sender node");
     }
     X509Certificate signerCertificate =
       (X509Certificate)keyRing.findCert(signerAlias);
+    if (signerPrivKey == null) {
+      System.out.println("Error: unable to get certificate for sender node");
+      return;
+    }
 
     if (CryptoDebug.debug) {
       System.out.println("======== Looking up agent's key to be wrapped");
@@ -95,6 +104,10 @@ public class AgentMobility
     PrivateKey privKey = keyRing.findPrivateKey(pkcs12Alias);
     X509Certificate cert =
       (X509Certificate)keyRing.findCert(pkcs12Alias);
+    if (signerPrivKey == null) {
+      System.out.println("Error: unable to get agent key");
+      return;
+    }
 
     if (CryptoDebug.debug) {
       System.out.println("======== Looking up key for receiver node");
