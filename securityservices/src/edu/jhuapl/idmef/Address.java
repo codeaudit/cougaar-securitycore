@@ -129,14 +129,21 @@ public class Address implements XMLSerializable{
     public void setVlan_Num(Integer inVlan_Num){
 	vlan_num = inVlan_Num;
     }
-  
+
+/* 
+   returns true when attributes of comparing object and this object are null or equal.
+   Attributes that are compared are :
+    Addresses
+    Name
+      
+*/
   public boolean equals(Object anObject) {
     boolean equals=false;
     boolean areaddressequal=false;
-    boolean arenetmaskequal=false;
+    boolean arenetmaskequal=true;
     boolean arecategoryequal=false;
-    boolean arevlannameequal=false;
-    boolean arevlannumequal=false;
+    boolean arevlannameequal=true;
+    boolean arevlannumequal=true;
     Address inaddress;
     if(anObject==null) {
       return equals;
@@ -155,6 +162,7 @@ public class Address implements XMLSerializable{
       else if((myvalue==null)&&(invalue==null)) {
 	areaddressequal=true;
       }
+      /*
       invalue=inaddress.getNetmask();
       myvalue=this.getNetmask();
       if((myvalue!=null) && (invalue!=null)){
@@ -163,8 +171,9 @@ public class Address implements XMLSerializable{
 	}
       }
       else if((myvalue==null) && (invalue==null)){
-	areaddressequal=true;
+	arenetmaskequal=true;
       }
+      */
       invalue=inaddress.getCategory();
       myvalue=this.getCategory();
       if((myvalue!=null) &&(invalue!=null)) {
@@ -175,6 +184,7 @@ public class Address implements XMLSerializable{
       else if((myvalue==null) &&(invalue==null)) {
 	arecategoryequal=true;
       }
+      /*
       invalue=inaddress.getVlan_name();
       myvalue=this.getVlan_name();
       if((myvalue!=null) && (invalue!=null)) {
@@ -192,6 +202,10 @@ public class Address implements XMLSerializable{
       }
       else if((this.getVlan_num()==null) && (inaddress.getVlan_num()==null)) {
 	 arevlannumequal=true;
+      }
+      */
+      if(areaddressequal && arenetmaskequal &&  arecategoryequal && arevlannameequal && arevlannumequal) {
+	equals=true;
       }
       
     }

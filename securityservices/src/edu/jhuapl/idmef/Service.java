@@ -152,7 +152,7 @@ public class Service implements XMLSerializable{
 
   }
   
-  public boolean equlas( Object anObject) {
+  public boolean equals( Object anObject) {
     boolean equals=false;
     boolean arenameequal=false;
     boolean areportequal=false;

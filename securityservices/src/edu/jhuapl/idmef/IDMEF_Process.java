@@ -114,14 +114,20 @@ public class IDMEF_Process implements XMLSerializable{
   public void setIdent(String inIdent){
     ident = inIdent;
   }
-  
+  /*
+    returns true when attributes of comparing object and this object are null or equal.
+    Attributes that are compared are :
+     Name
+     Path
+     
+   */
   public boolean equals(Object anObject) {
     boolean equals=false;
     boolean arenameequal=false;
-    boolean arepidequal=false;
+    boolean arepidequal=true;
     boolean arepathequal=false;
-    boolean areargsequal=false;
-    boolean areenvsequal=false;
+    boolean areargsequal=true;
+    boolean areenvsequal=true;
     IDMEF_Process process;
     if(anObject==null) {
       return equals;
@@ -150,6 +156,7 @@ public class IDMEF_Process implements XMLSerializable{
       else if((myvalue==null) && (invalue==null)) {
 	arepathequal=true;
       }
+      /*
       String [] myarray;
       String [] inarray;
       myarray=this.getArgs();
@@ -197,7 +204,7 @@ public class IDMEF_Process implements XMLSerializable{
       else if((this.getPid()==null) && (process.getPid()==null)) {
 	arepidequal=true;
       }
-      
+      */
       if(arenameequal && arepathequal && areargsequal && areenvsequal && arepidequal) {
 	equals=true;
       }

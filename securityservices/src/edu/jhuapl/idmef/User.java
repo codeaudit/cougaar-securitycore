@@ -88,11 +88,15 @@ public class User implements XMLSerializable{
   public void setCategory(String inCategory){
     category = inCategory;
   }
-  
+  /* 
+  returns true when attributes of comparing object and this object are null or equal.
+    Attributes that are compared are :
+    UserId
+  */ 
   public boolean equals( Object anObject) {
     boolean equals=false;
     boolean areuseridsequal=false;
-    boolean arecategoryequal=false;
+    boolean arecategoryequal=true;
     User user;
     if(anObject==null) {
       return equals;
@@ -119,6 +123,7 @@ public class User implements XMLSerializable{
       else if((myarray==null) && (inarray==null)) {
 	areuseridsequal=true;
       }
+      /*
       String myvalue;
       String invalue;
       myvalue=this.getCategory();
@@ -131,6 +136,7 @@ public class User implements XMLSerializable{
       else if((myvalue==null) && (invalue==null)) {
 	arecategoryequal=true;
       }
+      */
       if(areuseridsequal && arecategoryequal) {
 	equals=true;
       }

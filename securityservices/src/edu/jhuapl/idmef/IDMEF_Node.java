@@ -232,15 +232,18 @@ public class IDMEF_Node implements XMLSerializable{
     return contains;
   }
   
-  /* 
-     Compares the input Object to the current object for quality and returns true
-     when Addresses,category,name and location are equal; 
+  /*
+    returns true when attributes of comparing object and this object are null or equal.
+    Attributes that are compared are :
+     Addresses
+     Category
+     Name
   */
   public boolean equals( Object anObject) {
     boolean equals=false;
     boolean areaddressesequal=false;
     boolean arecategoryequal=false;
-    boolean arelocationequal=false;
+    boolean arelocationequal=true;
     boolean arenameequal=false;
     IDMEF_Node idmefnode;
     Address[] comparingAddresses;
@@ -275,6 +278,7 @@ public class IDMEF_Node implements XMLSerializable{
       else if((myvalue==null)&&(invalue==null)) {
 	arecategoryequal=true;
       }
+      /*
       invalue=idmefnode.getLocation();
       myvalue=this.getLocation();
       if((myvalue!=null) &&(invalue!=null)) {
@@ -285,6 +289,7 @@ public class IDMEF_Node implements XMLSerializable{
       else if((myvalue==null) &&(invalue==null)) {
 	arelocationequal=true;
       }
+      */
       invalue=idmefnode.getName();
       myvalue=this.getName();
       if((myvalue!=null) &&(invalue!=null)) {

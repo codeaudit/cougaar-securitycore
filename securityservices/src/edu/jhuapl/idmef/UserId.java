@@ -99,12 +99,16 @@ public class UserId implements XMLSerializable{
   public void setType(String inType){
     type = inType;
   }
-
+  /* returns true when attributes of comparing object and this object are null or equal.
+    Attributes that are compared are :
+     Name
+     Number
+  */
   public boolean equals( Object anObject) {
     boolean equals=false;
     boolean arenameequal=false;
     boolean arenumberequal=false;
-    boolean aretypeequal=false;
+    boolean aretypeequal=true;
     UserId userid;
     if(anObject==null) {
       return equals;
@@ -123,6 +127,7 @@ public class UserId implements XMLSerializable{
       else if((myvalue==null) && (invalue==null)) {
 	arenameequal=true;
       }
+      /*
       myvalue=this.getType();
       invalue=userid.getType();
       if( (myvalue!=null) && (invalue!=null) ) {
@@ -133,6 +138,7 @@ public class UserId implements XMLSerializable{
       else if((myvalue==null) && (invalue==null)) {
 	aretypeequal=true;
       }
+      */
       if((this.getNumber()!=null) && (userid.getNumber()!=null)) {
 	if(this.getNumber().intValue()==userid.getNumber().intValue()) {
 	  arenumberequal=true;
