@@ -1,9 +1,11 @@
 #!/bin/sh
 
-set xmlPolarisConfiguration="as-10.4.xml"
 
 #cd ~/CSI/polaris/automation/scripts03
 #ruby runTestScript.rb 1a ${xmlPolarisConfiguration}
 
-cd ~/CSI/polaris/automation/scripts03
-p-run.rb security/JTG-Security-1a.rb ${xmlPolarisConfiguration}
+xmlPolarisConfiguration=as-10.4.xml
+rundir=~/CSI/polaris/automation/scripts03/security
+cp ${xmlPolarisConfiguration} ${rundir}
+cd ${rundir}
+$CIP/csmart/acme_scripting/bin/p-run.rb JTG-Security-1a.rb ${xmlPolarisConfiguration}
