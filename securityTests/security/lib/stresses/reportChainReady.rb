@@ -69,7 +69,10 @@ class TestReportChainReady < SecurityStressFramework
         else
           saveResult true, stressid, "ReportChainReady succeeded"
         end 
-    rescue => ex
+      rescue => ex
+        puts "error in afterReportChainReady"
+        puts "#{e.class}: #{e.message}"
+        puts e.backtrace.join("\n")
         saveAssertion stressid, "Exception = #{ex}\n #{ex.backtrace.join('\n')}"
       end
     end
