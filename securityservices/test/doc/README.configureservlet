@@ -44,7 +44,21 @@ Procedure to configure servlet for Security services
 5. Copy core.jar provided by cougaar installation and securityservices.jar from
    securityservices into the lib directory and other directory,
    Refer to compiling and installation doc for securityservices module.
-6. For each Certificate Authority, the following directory structure will be
+6. Directory structure will be similar to one shown below:
+	+-+Tomcat_Home
+	  +-+webapps
+	    +-+CA
+	      +-+WEB-INF
+		+-+classes
+		| +-+com
+		|   +-+nai
+		|     +-+security
+		|	+-+certauthority (Under this directory put all servlet classes
+		+-+lib (Under this directory put core.jar,securityservices.jar,jdom.jar and xerces.jar)
+		+-+config
+		  +-+certauthority (Should contain all files and directory as decribed in 7)
+		  +-+servlet (contains servletjavaproperties)
+7. For each Certificate Authority, the following directory structure will be
    created automatically (except for the CA keystore file which must be manually
    installed) when running as a standalone CA:
    top-level directory (as defined by the org.cougaar.security.CA.certpath property)
@@ -57,13 +71,15 @@ Procedure to configure servlet for Security services
             +-+ <x509CertDirectory>
               +-- signed X509 certificates
 
-7. Copy CertificateSigningRequest.class, CertificateDetailsServlet.class,
-   CertificateList.class, RevokeCertificateServlet.class into the certauthority directory.
+8. Copy CertificateSigningRequest.class, CertificateDetailsServlet.class,
+   CertificateList.class, RevokeCertificateServlet.class into the certauthority directory under 
+   Tomcat_home/webapps/CA/WEB-INF/classes/com/nai/security/certauthority.
    The classes directory only contains the servlet class and all the other helper
-   classes required by the servlet should be put in lib directory.
+   classes required by the servlet should be put in lib directory 
+   under Tomcat_home/webapps/CA/WEB-INF/.
    Servlet classes are using classes from securityservices.jar and core.jar.
 
-8. To summarize, create a directory structure as shown below:
+9. To summarize, create a directory structure as shown below:
      +Tomcat_Home/webapps
      +-+ CA
        +-+ WEB-INF
@@ -81,25 +97,29 @@ Procedure to configure servlet for Security services
        | +-+ lib
        |   +-- securityservices.jar
        |   +-- core.jar
-       +-+ <CA1>
-       | +-+ conf
-       |   +-- <keystore file>
-       |   +-- <serial number file>
-       |   +-- <pkcs10Directory>
-       |   +-+ <x509CertDirectory>
-       |     +-- signed X509 certificates
-       +-+ <CA2>
-         +-+ conf
-           +-- <keystore file>
-           +-- <serial number file>
-           +-- <pkcs10Directory>
-           +-+ <x509CertDirectory>
-             +-- signed X509 certificates
+       +-+config
+       | +-+servlet
+       |   +-+servletjavapropertie.xml
+       +-+certauthority
+	 +-+ <CA1>
+        |  +-+ conf
+        |    +-- <keystore file>
+        |    +-- <serial number file>
+        |    +-- <pkcs10Directory>
+        |    +-+ <x509CertDirectory>
+        |      +-- signed X509 certificates
+        +-+ <CA2>
+          +-+ conf
+            +-- <keystore file>
+            +-- <serial number file>
+            +-- <pkcs10Directory>
+            +-+ <x509CertDirectory>
+              +-- signed X509 certificates
 
-9. Servlet name to class mapping is specified in web.xml security services module. 
+10. Servlet name to class mapping is specified in web.xml security services module. 
    For installation of security service module refer to README.install.
 
-10 A sample web.xml file is shown below:
+11 A sample web.xml file is shown below:
 
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE web-app
@@ -126,7 +146,7 @@ Procedure to configure servlet for Security services
 The URL used to connect to servlet is as follows:
 http://host:portno/CA/servlet/servletname
 where host is the name of host running the tomcat server, portno is the port at which
-it is running, servlet name is name of the servlet you want to invoke.
+it is running, servlet name is name of the servlet as specified in web.xml under tomcat_home/webapps/CA/
 All certificate related service are put under CA URL.
 
 
