@@ -40,10 +40,12 @@ import org.apache.catalina.Context;
 public class ServletPolicyServiceProvider 
   implements ServiceProvider
 {
-  static private ServletPolicyEnforcer _servletPolicyService = 
-    new ServletPolicyEnforcer();
+  static private ServletPolicyEnforcer _servletPolicyService = null;
 
-  public static void setContext(Context context) {
+  public static synchronized void setContext(Context context) {
+    if (_servletPolicyService == null) {
+      _servletPolicyService = new ServletPolicyEnforcer();
+    }
     _servletPolicyService.setContext(context);
   }
 
