@@ -47,6 +47,7 @@ final public class UltralogActionConcepts
     public static final String WPUpdateDelegate = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdateDelegate");
     public static final String BlackBoardAccess = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "BlackBoardAccess");
     public static final String WPUpdate = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdate");
+    public static final String EncryptedCommunicationActionSelf = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "EncryptedCommunicationActionSelf");
     public static final String ServletAccess = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "ServletAccess");
     public static final String CommunityActionDelegate = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "CommunityActionDelegate");
     public static final String WPLookup = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPLookup");
@@ -58,6 +59,7 @@ final public class UltralogActionConcepts
     public static String WPUpdateDelegate() { return WPUpdateDelegate; };
     public static String BlackBoardAccess() { return BlackBoardAccess; };
     public static String WPUpdate() { return WPUpdate; };
+    public static String EncryptedCommunicationActionSelf() { return EncryptedCommunicationActionSelf; };
     public static String ServletAccess() { return ServletAccess; };
     public static String CommunityActionDelegate() { return CommunityActionDelegate; };
     public static String WPLookup() { return WPLookup; };
