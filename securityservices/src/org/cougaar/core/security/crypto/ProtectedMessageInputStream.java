@@ -209,6 +209,9 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
         public Object run() {
           _keyRing = (KeyRingService) 
             sb.getService(this, KeyRingService.class, null);
+          if (_keyRing == null) {
+            _log.error("This needs fixing");
+          }
           _cacheService = (CertificateCacheService) 
             sb.getService(this, CertificateCacheService.class, null);
           _crypto = (EncryptionService)
