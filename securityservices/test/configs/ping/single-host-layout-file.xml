@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<society name='foo.com-hosts'  
+  xmlns:xsi='http:/www.w3.org/2001/XMLSchema-instance' 
+  xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'>
+  <host name='localhost'>
+    <facet service="operator"/>
+    <facet service="acme"/>
+  </host>
+</society>
