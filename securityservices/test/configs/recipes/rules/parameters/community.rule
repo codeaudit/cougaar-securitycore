@@ -23,7 +23,7 @@ ROOT_COMM_MGRS = ["SocietyMnRManager", "RearEnclaveMnRManager",
 society.communities.add("ROOT-SECURITY-COMM") do |community|
   if (society.agents[ROOT_COMM_MGRS[0]] != nil)
     # Add manager role to the society manager
-    community.add_attribute("Manager", society.agents[ROOT_COMM_MGRS[0]].node.name)
+    community.add_attribute("CommunityManager", society.agents[ROOT_COMM_MGRS[0]].node.name)
   end
   community.add_attribute("CommunityType", "Security")
   for i in 0...ROOT_COMM_MGRS.length
@@ -45,7 +45,7 @@ society.each_enclave do |enclave|
   society.communities.add("#{enclave}-SECURITY-COMM") do |community|
     mgragent = society.agents["#{enclave.capitalize}EnclaveMnRManager"]
     if mgragent != nil
-      community.add_attribute("Manager", mgragent.node.name)
+      community.add_attribute("CommunityManager", mgragent.node.name)
     end
     community.add_attribute("CommunityType", "Security")
     society.each_enclave_node(enclave) do |node|
@@ -74,7 +74,7 @@ society.each_enclave do |enclave|
       society.communities.add("#{enclave}-SECURITY-SUB#{index+1}-COMM") do |community|
         mgragent = society.agents["Enclave#{COMMS.index(enclave)+1}Sub#{index+1}Manager"]
         if mgragent != nil
-          community.add_attribute("Manager", mgragent.node.name)
+          community.add_attribute("CommunityManager", mgragent.node.name)
         end
         community.add_attribute("CommunityType", "Security")
         community.add_agent("Enclave#{COMMS.index(enclave)+1}Sub#{index+1}Manager") do |entity|
@@ -93,7 +93,7 @@ society.each_enclave do |enclave|
     community.add_attribute("CommunityType", "User")
     mgragent = society.agents["#{enclave.capitalize}UserAdminAgent"]
     if mgragent != nil
-      community.add_attribute("Manager", mgragent.node.name)
+      community.add_attribute("CommunityManager", mgragent.node.name)
     end
     society.each_enclave_node(enclave) do |node|
      # community.add_entity(node.name, "Agent") do |entity|
