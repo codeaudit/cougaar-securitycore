@@ -27,8 +27,10 @@ import org.cougaar.core.util.UniqueObject;
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.core.agent.ClusterIdentifier;
 
-/** EventTransfer interface
- **/
+/** EventTransfer interface. See Event class description.
+ *  An EventTransfer logic provider is responsible for
+ *  sending EventTransfer objects to remote agents.
+ */
 public interface EventTransfer extends CmrObject {
 
   /** Returns a Monitoring & Response Event.
