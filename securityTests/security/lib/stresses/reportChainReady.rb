@@ -14,7 +14,7 @@ class TestReportChainReady < SecurityStressFramework
     @run = run
     @expectedSubordinates   = Hash.new
     @foundSubordinates      = Hash.new
-    @stressid = "ReportChainReady_Detector"
+    @stressid = "ChainReady"
     @cmdline  = false
   end
 

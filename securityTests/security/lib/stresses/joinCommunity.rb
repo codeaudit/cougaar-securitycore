@@ -23,7 +23,7 @@ class JoinCommunity < SecurityStressFramework
   end
 
   def getStressIds()
-    return ["StressMaliciousJoinCommunity"]
+    return ["StressComty"]
   end
 
   def setupStress

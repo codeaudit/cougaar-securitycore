@@ -432,7 +432,7 @@ def saveAssertion(testnum, description)
     end
 
     file.print("<unitTestResult>\n")
-    file.print("  <date>#{Time.now.to_s}</date>\n")
+    file.print("  <date>#{Time.now.strftime("%H:%M:%S %m/%d")}</date>\n")
     file.print("  <testId>#{testnum}</testId>\n")
     file.print("  <description>#{description}</description>\n")
     file.print("</unitTestResult>\n")
@@ -458,7 +458,7 @@ def saveResultsToFile(pass, success, testnum, testname, tagId)
     
     file = getTestResultXmlFile()
     file.print("<event>\n")
-    file.print("  <date>#{Time.now.to_s}</date>\n")
+    file.print("  <date>#{Time.now.strftime("%H:%M:%S %m/%d")}</date>\n")
     file.print("  <#{tagId}>#{testnum}</#{tagId}>\n")
     file.print("  <success>#{pass}</success>\n")
     file.print("  <description>#{testname}</description>\n")

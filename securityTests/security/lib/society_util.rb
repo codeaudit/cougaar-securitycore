@@ -75,7 +75,7 @@ def testAgentRegistrations(interval = 5.minutes, delay = 5.minutes)
         #end
       end
     rescue => e
-      saveAssertion "wp_registration", "Unable to check WP: #{e} #{e.backtrace.join("\n")}"
+      saveAssertion "wpReg", "Unable to check WP: #{e} #{e.backtrace.join("\n")}"
     end
   }
 end
@@ -153,7 +153,7 @@ module Cougaar
         super(run)
         @interval = interval
         @delay = delay
-        Cougaar::Actions::Stressors.addStressIds(['wp_registration'])
+        Cougaar::Actions::Stressors.addStressIds(['wpReg'])
         @stackTrace = GetStackTrace.new(run)
       end #initialize
 
@@ -163,15 +163,15 @@ module Cougaar
         testAgentRegistrations(@interval, @delay) { |missing, expected|
 #puts "#{Time.now} WP Registration: callback"
           if missing.empty?
-            saveResult(true, "wp_registration", "All agents (#{expected.size}) have registered to the white pages")
+            saveResult(true, "wpReg", "All agents (#{expected.size}) have registered to the white pages")
 #            puts("All agents have registered to the white pages")
           else
             if (lastCheck == missing.length)
-              saveAssertion("wp_registration", "No new agents have registered to the white pages for #{@interval} seconds")
+              saveAssertion("wpReg", "No new agents have registered to the white pages for #{@interval} seconds")
 #              puts("No new agents have registered to the white pages for #{interval} seconds")
             else
-              saveAssertion("wp_registration", "#{missing.size} agents haven't registered with the white pages: #{missing.join(" ")}")
-              saveAssertion("wp_registration", "#{(expected - missing).size} agents have registered with the white pages: #{(expected - missing).join(" ")}")
+              saveAssertion("wpReg", "#{missing.size} agents haven't registered with the white pages: #{missing.join(" ")}")
+              saveAssertion("wpReg", "#{(expected - missing).size} agents have registered with the white pages: #{(expected - missing).join(" ")}")
             end
 #            puts("#{Time.now} Agents who haven't registered with the white pages: #{missing.join(" ")}")
 #            puts("#{Time.now} Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
@@ -195,14 +195,14 @@ module Cougaar
              end
            }
          rescue => e
-           saveAssertion "wp_registration", "Unable to find agent: #{agent} #{e} #{e.backtrace.join("\n")}"
+           saveAssertion "wpReg", "Unable to find agent: #{agent} #{e} #{e.backtrace.join("\n")}"
          end
        }
        nodenames = []
        nodes.each {|node|
          nodenames << node.name
        }
-       saveAssertion "wp_registration", "Nodes where agents are missing: #{nodenames.join(" ")}"
+       saveAssertion "wpReg", "Nodes where agents are missing: #{nodenames.join(" ")}"
        nodes.each { |node|
          @stackTrace.getStack(node.name)
        }
