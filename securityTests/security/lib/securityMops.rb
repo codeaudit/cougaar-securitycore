@@ -275,6 +275,7 @@ class SecurityMop23 < AbstractSecurityMop
     @hosts = hosts.uniq
 
     puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}" if $VerboseDebugging
+    saveAssertion "SecurityMop2.3", "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}" 
     
     begin
       @hosts.each do |host|
@@ -292,6 +293,7 @@ class SecurityMop23 < AbstractSecurityMop
   def stopTcpCapture
     return unless @hosts
     logInfoMsg (@hosts.collect {|h| h.name}).sort if $VerboseDebugging
+    saveAssertion "SecurityMop2.3", "Stopping TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}" 
     @hosts.each do |host|
       doRemoteCmd(host.name, "#{@scriptsdir}/analyzesnort #{@datadir} #{@cipuser}")
     end
@@ -313,13 +315,10 @@ class SecurityMop23 < AbstractSecurityMop
 
   def postCalculate
     begin
-puts "securitymop 2.3"
       analysis = PostSecurityMopAnalysis.new(@datadir)
       analysis.mops = run['mops']
       info = analysis.getXMLDataForMop(3)
-puts "securitymop 2.3"
-puts analysis.scores[3]
-puts info.inspect
+      saveAssertion "SecurityMop2.3", "postCalculate: #{analysis.scores[3]}\n#{info.inspect}"
       saveResult(analysis.scores[3] <= 0.0, 'SecurityMop2.3', info)
     rescue Exception => e
       logInfoMsg "Error: #{e.class}: #{e.message}"
