@@ -518,12 +518,14 @@ public class CommunityServiceUtil {
       if (_log.isErrorEnabled()) { 
       	if (searchType == Community.COMMUNITIES_ONLY && e instanceof Agent) {
           _log.error("Bug in the community service. Entity " + e.getName()
-                + " (which is an agent) has been returned by cs.search(... Community.COMMUNITIES_ONLY...)");
+                + " (which is an agent) has been returned by cs.search(... Community.COMMUNITIES_ONLY...)",
+                new Throwable());
           it.remove();
         }
         else if (searchType == Community.AGENTS_ONLY && e instanceof Community) {
           _log.error("Bug in the community service. Entity " + e.getName()
-              + " (which is a community) has been returned by cs.search(... Community.AGENTS_ONLY...)");
+              + " (which is a community) has been returned by cs.search(... Community.AGENTS_ONLY...)",
+                            new Throwable());
           it.remove();
         }
       }
