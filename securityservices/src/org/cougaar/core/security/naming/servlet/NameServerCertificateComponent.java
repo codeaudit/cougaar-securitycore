@@ -66,6 +66,8 @@ public class NameServerCertificateComponent extends ComponentPlugin {
   private static Hashtable _pendingCache = new Hashtable();
   private static Hashtable _submitList = new Hashtable();
   private long _period = 10000;
+  private int  _warnCount = 30;
+  private int  _warnCounter = 0;
 
   private CryptoClientPolicy cryptoClientPolicy;
 
@@ -288,12 +290,14 @@ public class NameServerCertificateComponent extends ComponentPlugin {
                 break;
 
               } catch (Exception ex) {
-                if (ex instanceof IOException) {
+                if (ex instanceof IOException 
+                    && _warnCounter++ < _warnCount) {
                   if (log.isDebugEnabled()) {
                     log.debug("Waiting to " + nameserver + " cert to " + certURL);
                   }
                 }
                 else {
+                  _warnCounter = 0;
                   if (log.isWarnEnabled()) {
                     log.warn("Exception occurred. ", ex);
                   }
