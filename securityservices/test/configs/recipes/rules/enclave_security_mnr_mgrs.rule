@@ -60,7 +60,7 @@ society.each_node do |node|
         end
         agent.add_component do |c|
           c.classname = "org.cougaar.core.adaptivity.PlaybookManager"
-          c.add_argument("AMnRPlaysEnclave.txt")
+          c.add_argument("AMnRPlaysEnclave#{enclave.capitalize}.txt")
         end
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.plugin.EventQueryPlugin"

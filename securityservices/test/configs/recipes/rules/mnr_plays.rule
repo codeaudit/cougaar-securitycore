@@ -15,15 +15,12 @@ require 'framework/common_security_rules'
 
 if !(@mnrPlaysCompleted)
   @mnrPlaysCompleted = true
-  enclave_list = []
-  society.each_enclave { |enclave|
-    enclave_list << enclave;
-  }
-
-  playsFile = "#{CIP}/configs/security/AMnRPlaysSocietyManager.txt"
   configJar = "#{CIP}/configs/security/securityservices_config.jar"
-  file = File.open(playsFile ,"w") { |file|
-    file.write <<END
+
+  society.each_enclave { |enclave|
+    playsFile = "#{CIP}/configs/security/AMnRPlaysEnclave#{enclave.capitalize}.txt"
+    file = File.open(playsFile ,"w") { |file|
+      file.write <<END
 //
 // Society level play book
 //
@@ -57,28 +54,41 @@ if !(@mnrPlaysCompleted)
  * 2160 login failures/day == 30 failures/20 minutes
  */
 
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE >  1080 : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 & org.cougaar.core.robustness.DOS_ATTACK <= 10 : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 & org.cougaar.core.robustness.DOS_ATTACK > 10  : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  & org.cougaar.core.robustness.DOS_ATTACK <= 10 : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  & org.cougaar.core.robustness.DOS_ATTACK > 10  : PERCEIVED_THREAT_LEVEL = 2;
 
 PERCEIVED_THREAT_LEVEL == 1
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 60
     : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_FAILURES
-#{enclave_list.collect {|e| "    : [agent.#{e.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW"}.join("\n")};
+    : [agent.#{enclave.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW";
 PERCEIVED_THREAT_LEVEL == 2
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 3
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 600
     : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES
-#{enclave_list.collect {|e| "    : [agent.#{e.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH"}.join("\n")};
+    : [agent.#{enclave.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH";
 //org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE <= 100
 //    : com.telcordia.mode.AdaptiveFilterOperatingModeReportingRate = RAPID;
 //org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE > 100
 //    : com.telcordia.mode.AdaptiveFilterOperatingModeReportingRate = MODERATE;
 
 END
+    }
+    replaceFileInJar(configJar, playsFile)
+
+  }
+  playsFile = "#{CIP}/configs/security/AMnRPlaysSocietyManager.txt"
+  File.open(playsFile, "w") { |file|
+    file.write <<END
+/*
+ * Society Manager does not control the operating modes now. 
+ * This is all done in the enclave playbooks.
+ */
+END
   }
   replaceFileInJar(configJar, playsFile)
-
   signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
                       "privileged")
 end 
