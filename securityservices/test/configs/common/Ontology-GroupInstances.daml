@@ -19,21 +19,6 @@
 	<daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogGroup.daml"/>
     </daml:Ontology>
 
-    <ultralogGroup:Role rdf:ID="AdministratorRole"/>
-    <ultralogGroup:Role rdf:ID="CAAdministratorRole"/>
-    <ultralogGroup:Role rdf:ID="GeneralRole"/>
-    <ultralogGroup:Role rdf:ID="GuestRole"/>
-    <ultralogGroup:Role rdf:ID="LogisticianRole"/>
-    <ultralogGroup:Role rdf:ID="LogisticsViewerRole"/>
-    <ultralogGroup:Role rdf:ID="MonitorManagerRole"/>
-    <ultralogGroup:Role rdf:ID="RearPolicyAdministratorRole"/>
-    <ultralogGroup:Role rdf:ID="FwdPolicyAdministratorRole"/>
-    <ultralogGroup:Role rdf:ID="ConusPolicyAdministratorRole"/>
-    <ultralogGroup:Role rdf:ID="TransPolicyAdministratorRole"/>
-    <ultralogGroup:Role rdf:ID="PolicyAdministratorRole"/>
-    <ultralogGroup:Role rdf:ID="UserManagerRole"/>
-    <ultralogGroup:Role rdf:ID="SocietyAdminRole"/>
-
     <ultralogGroup:Community rdf:ID="CommunityX"/>
     <ultralogGroup:Community rdf:ID="CommunityY"/>
 
