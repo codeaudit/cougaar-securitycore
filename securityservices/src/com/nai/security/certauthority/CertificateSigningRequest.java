@@ -81,14 +81,10 @@ public class CertificateSigningRequest extends  HttpServlet
       }
     finally
       {
-	printstream.flush();
-	printstream.close();
+            printstream.flush();
+             printstream.close();
+        }
 
-      }
-
-
-    printstream.flush();
-    printstream.close();
   }
   protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException
   {

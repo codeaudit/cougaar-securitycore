@@ -51,7 +51,7 @@ public class CertificateDetailsServlet extends  HttpServlet
 
 
        }
-       //ldapentry=ldapcert.getCertificate(hash);
+       ldapentry=ldapcert.getCertificate(hash);
        if(ldapentry==null)
        {
            out.println("error in retrieving certificate from LDAP ");
@@ -60,19 +60,18 @@ public class CertificateDetailsServlet extends  HttpServlet
            return;
 
        }
-	X509CertImpl certimpl;	
-	try
-	{
-       		certimpl=new X509CertImpl(ldapentry.getCertificate().getTBSCertificate());
-	}
-	catch (Exception exp)
-	{
+        X509CertImpl certimpl;
+        try
+        {
+                certimpl=new X509CertImpl(ldapentry.getCertificate().getTBSCertificate());
+        }
+        catch (Exception exp)
+        {
            out.println("error-----------  "+exp.toString());
            out.flush();
            out.close();
            return;
-		
-	}
+        }
        out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
        out.println("<html>");
        out.println("<head>");
