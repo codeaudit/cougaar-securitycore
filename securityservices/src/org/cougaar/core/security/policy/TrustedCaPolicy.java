@@ -32,7 +32,7 @@ import org.w3c.dom.*;
 import sun.security.x509.*;
 import java.net.*;
 
-public class TrustedCaPolicy {
+public class TrustedCaPolicy implements XMLSerializable {
   /** The alias of the certificate of a trusted CA in the keystore
    */
   //public String caAlias;

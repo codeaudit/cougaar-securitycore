@@ -35,7 +35,7 @@ import java.net.*;
 /** This class contains the default attributes used to generate
  *  a certificate
  */
-public class CertificateAttributesPolicy {
+public class CertificateAttributesPolicy implements XMLSerializable {
 
   /** The default Organization Unit when generating a new certificate
    */
@@ -100,24 +100,6 @@ public class CertificateAttributesPolicy {
       + " - sigAlgName=" + sigAlgName
       + " - keyAlgName=" + keyAlgName;
   }
-  /*
-  CryptoClientPolicyHandler
-   // Certificate Attributes
-  public static final String CERTIFICATE_ATTR_ELEMENT = "certificateAttributes";
-  public static final String CACERTIFICATE_ATTR_ELEMENT = "caCertificateAttributes";
-  public static final String OU_ELEMENT           = "ou";
-  public static final String O_ELEMENT            = "o";
-  public static final String L_ELEMENT            = "l";
-  public static final String ST_ELEMENT           = "st";
-  public static final String C_ELEMENT            = "c";
-  public static final String DOMAIN_ELEMENT       = "domain";
-  public static final String KEYALGNAME_ELEMENT   = "keyAlgName";
-  public static final String SIGALGNAME_ELEMENT   = "sigAlgName";
-  public static final String KEYSIZE_ELEMENT      = "keysize";
-  public static final String VALIDITY_ELEMENT     = "validity";
-  public static final String ENVELOPE_ELEMENT     = "timeEnvelope";
-  public static final String NODE_IS_SIGNER_ELEMENT = "nodeIsSigner";
-  */
   
   public Node convertToXML(Document parent) {
     Element certAttrNode = 

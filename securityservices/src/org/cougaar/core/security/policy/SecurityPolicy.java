@@ -26,9 +26,10 @@
 
 package org.cougaar.core.security.policy;
 
-import java.io.Serializable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
-public class SecurityPolicy implements Serializable {
+public abstract class SecurityPolicy implements XMLSerializable {
   /** The name of this policy.
    */
   private String name;
@@ -41,5 +42,9 @@ public class SecurityPolicy implements Serializable {
   public void setName(String name) {
     this.name = name;
   }
-
+  
+  // this method should be overwritten by the concrete class
+  public Node convertToXML(Document parent) {
+    return null; 
+  }
 }
