@@ -402,6 +402,16 @@ Policy SocietyAdminAuth  = [
   authentication when accessing the servlet named SocietyAdminServlet
 ]
 
+Policy AllowWhitePagesAccess = [
+  GenericTemplate
+  Priority = 2,
+  $Actor.owl#Agent is  authorized to perform
+  $Ultralog/UltralogAction.owl#WPUpdateSelf
+  as long as the value of 
+  $Ultralog/UltralogAction.owl#wpAccessType is a subset of the set 
+  $Ultralog/UltralogEntity.owl#WPAccessType
+ ]
+
 END
   }
   lines1 = File.readlines(damlFile)
