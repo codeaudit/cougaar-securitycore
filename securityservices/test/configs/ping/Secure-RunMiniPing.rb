@@ -62,6 +62,7 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
  
   # load local rules (ping_env.rule) 
   do_action "TransformSociety", false, ".", 
+    "#{RULES}/isat",
     "#{RULES}/security" 
  
   # Build the communities.xml file 
