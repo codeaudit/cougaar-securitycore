@@ -64,6 +64,17 @@ public class AgentIdentityServiceImpl
     this.encryptionService = encryptionService;
     this.cps = cps;
     this.keyRing = keyRing;
+
+    if (this.encryptionService == null) {
+       throw new RuntimeException("Encryption service not available");
+    }     
+    if (this.cps == null) {
+       throw new RuntimeException("Policy service not available");
+    }     
+    if (this.keyRing == null) {
+       throw new RuntimeException("KeyRing service not available");
+    }     
+
   }
 
   public void CreateCryptographicIdentity(String agentName,
@@ -90,28 +101,43 @@ public class AgentIdentityServiceImpl
 					       String targetAgent)
   {
 
-    /* 1 - Package the agent private and public keys.
+    /* Three steps:
+     * 1 - Package the agent private and public keys.
      * 2 - Remove the agent keys from the local cache.
      * 3 - Remove the agent keys from the local keystore.
      * There should be a transaction here, otherwise we may end
      * up deleting keys before they have reached their destination.
      */
 
+    /* Step 1 */
+    if (CryptoDebug.debug) {
+      System.out.println("Initiating key transfer of " + agent
+			 + " from " + sourceAgent
+			 + " to " + targetAgent);
+    }
     SecureMethodParam policy;
 
     policy = cps.getSendPolicy(sourceAgent+":"+targetAgent);
-
-    if (CryptoDebug.debug) {
-      System.out.println("Wrapping keys");
-    }
+    if (policy == null) {
+       throw new RuntimeException("Could not find message policy between "
+	+ sourceAgent + " and " + targetAgent);
+    }     
 
     // Retrieve keys of the agent
     PrivateKey agentPrivKey = keyRing.findPrivateKey(agent);
-    Certificate agentCert = keyRing.findCert(agent);
+    if (agentPrivKey == null) {
+      throw new RuntimeException("Could not find private keys for "
+	+ agent);
+    }
+    X509Certificate agentCert = (X509Certificate)keyRing.findCert(agent);
+    if (agentCert == null) {
+      throw new RuntimeException("Could not find certificates for "
+	+ agent);
+    }
 
     PrivateKey[] privKey = new PrivateKey[1];
     privKey[0] = agentPrivKey;
-    Certificate[] cert = new Certificate[1];
+    X509Certificate[] cert = new X509Certificate[1];
     cert[0] = agentCert;
     
     KeySet keySet = new KeySet(privKey, cert);
@@ -125,6 +151,10 @@ public class AgentIdentityServiceImpl
 		      envelope.getReceiver(),
 		      envelope.getEncryptedSymmetricKey(),
 		      envelope.getEncryptedObject());
+
+    /* Step 2 & 3 */
+    keyRing.removeEntry(agent);
+
     return keyIdentity;
   }
 
@@ -141,24 +171,71 @@ public class AgentIdentityServiceImpl
      * 2 - Install keys in the local keystore.
      */
 
-    SecureMethodParam policy = null;
-    policy = cps.getReceivePolicy(sourceAgent+":"+targetAgent);
+    /* Step 1 */
+    if (CryptoDebug.debug) {
+      System.out.println("Completing key transfer from " + sourceAgent
+			 + " to " + targetAgent);
+    }
+
+    SecureMethodParam policy =
+      cps.getReceivePolicy(sourceAgent+":"+targetAgent);
 
     KeySet keySet = null;
 
+    if (CryptoDebug.debug) {
+      System.out.println("Encrypted TransferableIdentity is " +
+			 identity.getClass().getName());
+    }
+
     if (identity instanceof KeyIdentity) {
       KeyIdentity keyIdentity = (KeyIdentity) identity;
+      if (CryptoDebug.debug) {
+	System.out.println("Decrypting KeyIdentity");
+      }
       Object o = encryptionService.decryptAndVerify(sourceAgent, targetAgent,
 						    keyIdentity, policy);
 
+      if (CryptoDebug.debug) {
+	System.out.println("Decrypted TransferableIdentity is " +
+			 o.getClass().getName());
+      }
       if (!(o instanceof KeySet)) {
 	// Error
+	if (CryptoDebug.debug) {
+	  System.out.println("ERROR: unexpected TransferableIdentity");
+	}
       }
       else {
 	keySet = (KeySet) o;
+	PrivateKey[]  privateKeys = keySet.getPrivateKeys();
+	X509Certificate[] certificates = keySet.getCertificates();
+	if (privateKeys != null) {
+	  if (CryptoDebug.debug) {
+	    System.out.println("KeySet contains " + privateKeys.length
+			       + " private keys");
+	  }
+	}
+	else {
+	  return;
+	}
+	if (certificates != null) {
+	  if (CryptoDebug.debug) {
+	    System.out.println("KeySet contains " + certificates.length
+			       + " certificates");
+	  }
+	}
+	else {
+	  return;
+	}
+	if (certificates.length != privateKeys.length) {
+	  return;
+	}
+	/* Step 2 */
+	for (int i = 0 ; i < certificates.length ; i++) {
+	  keyRing.setKeyEntry(privateKeys[i], certificates[i]);
+	}
       }
     }
 
-    //return keySet;
   }
 }

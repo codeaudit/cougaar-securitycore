@@ -28,6 +28,7 @@ package org.cougaar.core.security.crypto;
 
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
+import java.security.cert.*;
 
 import org.cougaar.core.security.services.identity.TransferableIdentity;
 
@@ -35,10 +36,10 @@ public class KeySet
   implements java.io.Serializable
 {
   private PrivateKey[]  privateKeys;
-  private Certificate[] certificates;
+  private X509Certificate[] certificates;
 
   public KeySet(PrivateKey[] privateKeys,
-		Certificate[] certificates) {
+		X509Certificate[] certificates) {
     if ((privateKeys == null) || (privateKeys.length ==0) ||
 	(certificates == null) || (certificates.length == 0)) {
       throw new IllegalArgumentException("Keys are not provided");
@@ -57,7 +58,7 @@ public class KeySet
     return privateKeys;
   }
 
-  public Certificate[] getCertificates() {
+  public X509Certificate[] getCertificates() {
     return certificates;
   }
 }

@@ -45,6 +45,10 @@ import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.acl.trust.*;
 
+// For test purposes only
+//import com.nai.security.test.crypto.*;
+//import org.cougaar.core.node.*;
+//import org.cougaar.core.security.services.identity.*;
 /**
  *
  * The message is unsecured by a SecureDeliverer aspect delegate 
@@ -54,6 +58,9 @@ import org.cougaar.core.security.acl.trust.*;
 public class AccessControlAspect extends StandardAspect
 {
   private static AccessControlPolicyService acps = null;
+  // For test purposes only
+  //private static AgentIdentityService aiService;
+
   private SecurityPropertiesService secprop = null;
 
   private static boolean enabled = false;
@@ -64,7 +71,7 @@ public class AccessControlAspect extends StandardAspect
       "org.cougaar.message.transport.secure";
   private boolean firsttime=true;
   private ServiceBroker serviceBroker=null;
-  
+
   public AccessControlAspect() {
     // TODO. Modify following line to use service broker instead
     secprop = SecurityServiceProvider.getSecurityProperties(null);
@@ -97,6 +104,13 @@ public class AccessControlAspect extends StandardAspect
 	throw new RuntimeException("Access Control Aspect:"
 				   +e.toString());
       }
+      /* For test purposes only
+      aiService = (AgentIdentityService)
+	serviceBroker.getService(
+	  this, 
+	  AgentIdentityService.class,
+	  null);
+      */
     }else{
       System.out.println("ACL: Unable to get service broker");
       throw new RuntimeException("Access Control Aspect: no service broker");
@@ -168,7 +182,7 @@ public class AccessControlAspect extends StandardAspect
       }
     }
     else if (msg.getClass().
-	     getName().equals("SAFE.Comm.SAFEMessage")) {
+	     getName().equals("safe.comm.SAFEMessage")) {
       // Silently ignore these messages
     }
     else {
@@ -176,6 +190,17 @@ public class AccessControlAspect extends StandardAspect
 	System.out.println("Warning: unexpected message. Message Class:"
 			   + msg.getClass().getName());
       }
+      /* For test purposes only 
+      if (msg instanceof MoveCryptoMessage && direction) {
+	MoveCryptoMessage m = (MoveCryptoMessage) msg;
+	System.out.println("Received Transferable identity from "
+			   + m.getOriginator().toAddress()
+			   + " to " + m.getTarget().toAddress());
+	aiService.completeTransfer(m.getTransferableIdentity(),
+				   m.getOriginator().toAddress(),
+				   m.getTarget().toAddress());
+      }
+      */
     }
   }
 
@@ -251,7 +276,8 @@ public class AccessControlAspect extends StandardAspect
   /** ***************************************************
    *  SecurityEnvelope
    */
-  private static class AccessSecurityEnvelope extends MessageEnvelope
+  private static class AccessSecurityEnvelope
+    extends MessageEnvelope
   {
     //for access control
     private TrustSet[] set = null;

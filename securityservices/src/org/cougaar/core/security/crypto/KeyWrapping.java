@@ -61,10 +61,10 @@ public class KeyWrapping
    *  @param rcvrCert       The certificate of the intended receiver
    */
   public TransferableIdentity protectPrivateKey(PrivateKey[] privKey,
-						Certificate[] cert,
+						X509Certificate[] cert,
 						PrivateKey signerPrivKey,
-						Certificate signerCert,
-						Certificate rcvrCert)
+						X509Certificate signerCert,
+						X509Certificate rcvrCert)
   {
     if (CryptoDebug.debug) {
       System.out.println("Wrapping keys");
