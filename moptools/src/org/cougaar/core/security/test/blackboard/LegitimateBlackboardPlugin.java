@@ -41,6 +41,8 @@ import org.cougaar.glm.ldm.oplan.OplanFactory;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
 import org.cougaar.glm.ldm.oplan.OrgActivityImpl;
 import org.cougaar.core.service.UIDService;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.mts.MessageAddress;
 
 
 /**
@@ -92,8 +94,8 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
 	logging.warn("Unable to get AgentIdentificationService");
       }
     }
-    ((OrgActivityImpl)orgActivity).setOwner(ma);
-    this.addUID = orgActivity.getUID();
+    ((OrgActivityImpl)oa).setOwner(ma);
+    this.addUID = oa.getUID();
 
     try {
       this.totalRuns++;
@@ -109,8 +111,8 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
     }
 
     // Try to query again
-    orgActivities = getBlackboardService().query(this.orgActivityPredicate);
-    iter = orgActivities.iterator();
+    Collection orgActivities = getBlackboardService().query(this.orgActivityPredicate);
+    Iterator iter = orgActivities.iterator();
     if (!iter.hasNext()) {
       //failure
       this.failures++;
