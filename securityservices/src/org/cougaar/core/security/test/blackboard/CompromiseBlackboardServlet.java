@@ -31,7 +31,7 @@ package org.cougaar.core.security.test.blackboard;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cougaar.core.security.monitoring.blackboard.CompromiseBlackboard;
+import org.cougaar.core.security.monitoring.plugin.CompromiseBlackboard;
 import org.cougaar.core.security.test.AbstractServletComponent;
 import org.cougaar.core.service.UIDService;
 
@@ -42,7 +42,7 @@ import org.cougaar.core.service.UIDService;
  * is <i>scope<i> which is the scope of the compromise, either Agent, Node or Host
  *
  * @author ttschampel
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class CompromiseBlackboardServlet extends AbstractServletComponent {
   private static final String SCOPE_PARAM="scope";
