@@ -149,6 +149,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "p
 	permission java.util.PropertyPermission "*", "read, write";
         permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
         permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLServerFactory.getDefault";
+        permission org.cougaar.core.security.crypto.KeyRingPermission "getKeyStore";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.SecurityPropertiesService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.PolicyBootstrapperService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.service.identity.AgentIdentityService";
@@ -190,6 +191,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}util.jar" signedBy "p
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertificateManagementService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.LdapUserService";
 	permission org.cougaar.core.security.access.AccessPermission "org.cougaar.core.service.MessageTransportService";
+        permission org.cougaar.core.security.crypto.KeyRingPermission "getKeyStore";
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}safe.jar" signedBy "privileged" {
@@ -220,6 +222,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
 	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
         permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
         permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLServerFactory.getDefault";
+        permission org.cougaar.core.security.crypto.KeyRingPermission "getKeyStore";
  	permission org.cougaar.core.security.provider.SecurityServicePermission "*";
 	permission org.cougaar.core.security.access.AccessPermission "org.cougaar.core.service.MessageTransportService";
 };
