@@ -139,6 +139,11 @@
             <fileset dir="${securityservices.classes}"
                 includes="edu/jhuapl/idmef/*.class"/>
             <fileset dir="${securityservices.src}" includes="edu/jhuapl/idmef/*.dtd"/>
+            <manifest>
+              <attribute name="Built-By" value="${user.name}"/>
+              <attribute name="Sealed" value="true"/>
+              <attribute name="Class-Path" value="/"/>
+            </manifest>
         </jar>
     </target>
     

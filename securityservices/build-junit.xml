@@ -47,8 +47,17 @@
     <!-- jar Junit tests -->
     <target name="jar-junit-tests" depends="build-junit-tests, compile-junit-rmi">
         <jar jarfile="${securityservices.classes}/junitTests.jar">
-            <fileset dir="${securityservices.classes}"
-                includes="test/**/*.class"/>
+            <fileset dir="${securityservices.classes}">
+                <include name="test/**/*.class"/>
+	    </fileset>
+             <fileset dir="${securityservices.regress}">
+               <include name="**/*.dtd"/>
+	    </fileset>
+            <manifest>
+              <attribute name="Built-By" value="${user.name}"/>
+              <attribute name="Sealed" value="true"/>
+              <attribute name="Class-Path" value="/"/>
+            </manifest>
         </jar>
     </target>
 
