@@ -337,7 +337,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
         } catch (Exception ex) {
           if (ex instanceof IOException) {
             if (log.isDebugEnabled()) {
-              log.debug("Waiting to get naming cert from " + certURL);
+              log.debug("Waiting to get naming cert from " + certURL, ex);
             }
           }
           else {

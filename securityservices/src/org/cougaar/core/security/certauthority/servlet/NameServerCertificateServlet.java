@@ -94,9 +94,17 @@ public class NameServerCertificateServlet extends HttpServlet {
           X509Certificate [] cert = (X509Certificate [])/*_certCache.get(names[i]);*/
             NameServerCertificateComponent.getNameServerCert(names[i]);
           if (cert == null) {
+            if (log.isDebugEnabled()) {
+              log.debug("Did not find a cert for " + names[i]);
+            }
             //_pendingCache.add(names[i]);
             NameServerCertificateComponent.getPendingList().add(names[i]);
           }
+	  else {
+	    if (log.isDebugEnabled()) {
+	      log.debug("Found a cert for " + names[i]);
+	    }
+	  }
           certs[i] = new NameServerCertificate(names[i], cert);
         }
 
@@ -122,11 +130,20 @@ public class NameServerCertificateServlet extends HttpServlet {
           CertificateCacheService.class, cacheservice);
       }
       else {
-        errString = "received unknown request";
+        errString = "received unknown request: ";
+	if (obj != null) {
+	  errString = errString + obj.getClass().getName();
+	}
       }
     }
     catch (Exception e) {
-      errString = "Unable to response " + e.toString();
+      errString = "Unable to respond: " + e.toString();
+      if (log.isWarnEnabled()) {
+	log.warn(errString, e);
+      }
+    }
+    if (log.isWarnEnabled()) {
+      log.warn(errString);
     }
     PrintWriter out = res.getWriter();
     out.println(errString);
