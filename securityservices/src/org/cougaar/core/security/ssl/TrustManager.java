@@ -122,7 +122,7 @@ public class TrustManager implements X509TrustManager {
     String srvdn = srvcert.getSubjectDN().getName();
     String title = CertificateUtility.findAttribute(srvdn, "t");
     if (title == null || (!title.equals(DirectoryKeyStore.CERT_TITLE_NODE)
-      && !title.equals(DirectoryKeyStore.CERT_TITLE_WEBSERVER)))
+      && !title.equals(DirectoryKeyStore.CERT_TITLE_SERVER)))
       throw new CertificateException("Wrong type of certificate present.");
 
     keystore.checkCertificateTrust(chain[0]);
