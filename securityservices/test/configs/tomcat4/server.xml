@@ -11,26 +11,33 @@
 
 <Server>
   <!-- There must be one and only one Service for cougaar -->
-  <Service name="CougaarService">
+  <Service name="CougaarWebService">
 
     <!-- There must be one and only one Engine tag representing the engine
          that is used for all web applications -->
-    <Engine name="CougaarEngine" defaultHost="DEFAULT">
+    <Engine name="CougaarWebEngine" defaultHost="DEFAULT">
 
       <!-- turn on fatal error logging to webtomcat-*.log -->
       <Logger className="org.apache.catalina.logger.FileLogger"
        verbosity="0" timestamp="true" prefix="webtomcat" directory="logs"/>
 
+      <!-- Turn on memory realm. We will later be moving to the JNDIRealm -->
+      <!--
+      <Realm className="org.apache.catalina.realm.MemoryRealm" 
+       debug="-1" pathname="conf/tomcat-users.xml" />
+      -->
       <!-- This realm supports security services when they are enabled
       -->
       <Realm className="org.cougaar.lib.web.tomcat.SecureRealm"/> 
 
-      <!-- set up the host. For cougaar there is only a single host -->
-      <Host name="DEFAULT" appBase="webapps" unpackWARs="true">
+      <!-- set up the host. For cougaar there is only a single host.
+           Unpack-wars is false; we should only have the ROOT. -->
+      <Host name="DEFAULT" appBase="webapps" unpackWARs="false">
 
         <!-- Set the default context configuration for the automatically
-             added webapps -->
-        <DefaultContext cookies="true" crossContext="false" reloadable="true"/>
+             added webapps.
+             Reloadable is false; we should only have the ROOT. -->
+        <DefaultContext cookies="true" crossContext="false" reloadable="false"/>
 
         <!-- set up the default Context -->
         <Context path="" docBase="ROOT" workDir="work"
@@ -45,7 +52,7 @@
                implemented in org.cougaar.lib.web.tomcat.EmbeddedTomcat) -->
           <Manager className="org.apache.catalina.session.StandardManager"
            entropy="ND(L{=$#fas993Fa-d91Fsf0aA512ofka9emASg9_^elfkjf02ldmxc23DFjf9mI)mfls9wh4mrpfd0eWsklf9a(^fk2vcxzz03/f0wk.,r-xc93j36390-7luydSJUT87ejgmRy9shwf"
-           checkInterval="60" randomClass="java.security.SecureRandom"
+           checkInterval="83" randomClass="java.security.SecureRandom"
            maxActiveSession="-1" pathname="UserSessions.dat"/>
 
            <Valve className="org.apache.catalina.valves.CertificatesValve"/>
