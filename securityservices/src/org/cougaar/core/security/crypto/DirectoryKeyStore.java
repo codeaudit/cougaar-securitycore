@@ -1556,7 +1556,7 @@ public class DirectoryKeyStore
         // store DNs so that there is no need to restart CA to generate all the certs
         caCertList.put(dname.toString(), (keyAlias == null) ? "" : keyAlias);
 
-        if (getCommonName(dname).equals(NodeInfo.getHostName())) {
+        if (cacheservice.getCommonName(dname).equals(NodeInfo.getHostName())) {
           if (log.isDebugEnabled())
             log.debug("Creating self signed host key");
           makeKeyPair(dname, false, certAttribPolicy);
@@ -1707,7 +1707,7 @@ public class DirectoryKeyStore
 
           if (keyAlias == "")
             keyAlias = null;
-          dname = getX500Name(certdname);
+          dname = CertificateUtility.getX500Name(certdname);
           if (dname == null)
             continue;
           if (addKeyPairOnCA(dname, keyAlias) != null) {
