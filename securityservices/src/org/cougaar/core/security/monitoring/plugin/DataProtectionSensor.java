@@ -21,19 +21,65 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.plugin.ComponentPlugin;
+// overlay classes
+import org.cougaar.core.security.constants.IdmefClassifications;
 
-/** 
- * DataProtectionSensor detects failures that occur in the 
- * DataProtectionService and publishes IDMEF events.
+// securityservices classes
+import org.cougaar.core.security.dataprotection.DataProtectionServiceImpl;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.security.monitoring.publisher.IdmefEventPublisher;
+
+/**
+ * This class must be placed in the Node ini file to allow
+ * the DataProtectionService to report data protection failures. 
+ * This class reports the sensor capabilities to the enclave security
+ * manager.
  *
- * NOTE: this class has been added to elimate exceptions when
- * trying to load this component.
+ * Add the following line to your Node ini file's Plugins section:
+ * <pre>
+ * plugin = org.cougaar.core.security.monitoring.plugin.DataProtectionSensor
+ * </pre>
+ * The plugin also takes an optional parameter indicating the role
+ * of the security manager to report to. The default is "SecurityMnRManager-Enclave".
+ * The communities that the capabilities are sent to are all the ones that
+ * this sensor belongs to.
  */
-public class DataProtectionSensor extends  ComponentPlugin
+public class DataProtectionSensor extends  SensorPlugin
 {
-  protected void setupSubscriptions() { }
-  protected void execute() { }
+  private static final String[] CLASSIFICATIONS = {
+    IdmefClassifications.DATA_FAILURE
+  };
+  
+  protected SensorInfo getSensorInfo() {
+    if(m_sensorInfo == null) {
+      m_sensorInfo = new DPSensorInfo();  
+    } 
+    return m_sensorInfo;
+  }
+  
+  protected String []getClassifications() {
+    return CLASSIFICATIONS;
+  }
+  
+  protected boolean agentIsTarget() {
+    return false;
+  }
+  
+  /**
+   * Register this sensor's capabilities, and initialize the services that need to
+   * to publish message failure events to this plugin's blackboard.
+   * 
+   */
+  protected void setupSubscriptions() {
+    super.setupSubscriptions();
+    //initialize the EventPublisher in the following services
+    EventPublisher publisher = 
+      new IdmefEventPublisher(m_blackboard, 
+                              m_cmrFactory, 
+                              m_log, 
+                              m_sensorInfo);
+    DataProtectionServiceImpl.addPublisher(publisher);
+  }  
   
   private class DPSensorInfo implements SensorInfo {
     public String getName(){
@@ -52,4 +98,6 @@ public class DataProtectionSensor extends  ComponentPlugin
       return "Cougaar Security";
     }
   }
+  
+  private SensorInfo m_sensorInfo;
 }

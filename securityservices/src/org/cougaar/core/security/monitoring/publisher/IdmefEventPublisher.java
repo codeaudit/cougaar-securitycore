@@ -70,9 +70,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
  *
  * @see FailureEvents
  * @see MessageFailureSensor
- * @see AccessAgentProxy
- * @see MessageProtectionServiceImpl
- * @see CryptoManagerServiceImpl
+ * @see DataProtectionSensor
  */
 public class IdmefEventPublisher implements EventPublisher {
   

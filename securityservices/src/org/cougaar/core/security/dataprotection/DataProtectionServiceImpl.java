@@ -46,6 +46,9 @@ import org.cougaar.core.service.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.event.DataFailureEvent;
 
 
 public class DataProtectionServiceImpl
@@ -61,6 +64,16 @@ public class DataProtectionServiceImpl
   private String keygenAlg = "DES";
   private String digestAlg = "SHA";
 
+  // event publisher for data protection failures
+  private static EventPublisher eventPublisher;
+  
+  // add event publisher
+  public static void addPublisher(EventPublisher publisher) {
+    if(eventPublisher == null) {
+      eventPublisher = publisher;
+    }  
+  }
+  
   public DataProtectionServiceImpl(ServiceBroker sb, Object requestor)
   {
     serviceBroker = sb;
@@ -113,6 +126,7 @@ public class DataProtectionServiceImpl
 				      OutputStream os)
 	throws IOException, GeneralSecurityException
   {
+ 
     String agent = dpsClient.getAgentIdentifier().toAddress();
 
     if (log.isDebugEnabled())
@@ -120,17 +134,29 @@ public class DataProtectionServiceImpl
 
     // check if there is key and certificate created for the client
     List certList = keyRing.findCert(agent);
-    if (certList == null || certList.size() == 0)
-      throw new CertificateException("No certificate available to sign.");
-
+    if (certList == null || certList.size() == 0) {
+      CertificateException cx = new CertificateException("No certificate available to sign.");
+      publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
+      throw cx;
+    }
     DataProtectionKey dpKey = null;
     try {
       dpKey = pke.getDataProtectionKey();
     }
-    catch (Exception ex) {
+    catch (Exception ioe) {
     }
     if (dpKey == null) {
-      dpKey = createDataProtectionKey(agent);
+      try {
+        dpKey = createDataProtectionKey(agent);
+      }
+      catch(GeneralSecurityException gsx) {
+        publishDataFailure(agent, DataFailureEvent.CREATE_KEY_FAILURE, gsx.toString());
+        throw gsx; 
+      }
+      catch(IOException iox) {
+        publishDataFailure(agent, DataFailureEvent.IO_EXCEPTION, iox.toString());  
+        throw iox;
+      }
       pke.setDataProtectionKey(dpKey);
     }
 
@@ -139,8 +165,10 @@ public class DataProtectionServiceImpl
       return os;
 
     // check whether key needs to be replaced
-
-    return new DataProtectionOutputStream(os, pke, agent, serviceBroker);
+    DataProtectionOutputStream dpos = 
+      new DataProtectionOutputStream(os, pke, agent, serviceBroker);
+    dpos.addPublisher(eventPublisher);
+    return dpos;
   }
 
   private DataProtectionKey createDataProtectionKey(String agent)
@@ -148,9 +176,11 @@ public class DataProtectionServiceImpl
     //SecureMethodParam policy =
     cps.getSendPolicy(agent, agent);
     SecureMethodParam policy = cps.getDataProtectionPolicy(agent);
-    if (policy == null)
-       throw new RuntimeException("Could not find data protection policy for " + agent);
-
+    if (policy == null) {
+       RuntimeException rte = new RuntimeException("Could not find data protection policy for " + agent);
+       publishDataFailure(agent, DataFailureEvent.INVALID_POLICY, rte.toString());
+       throw rte;
+    }
     if (policy.secureMethod == SecureMethodParam.ENCRYPT
       || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
       SecureRandom random = new SecureRandom();
@@ -195,9 +225,13 @@ public class DataProtectionServiceImpl
         }
         else
           keyList = keyRing.findPrivateKey(agent, false);
-        if (keyList == null || keyList.size() == 0)
-          throw new GeneralSecurityException("No private key available to decrypt");
-
+        if (keyList == null || keyList.size() == 0) {
+          GeneralSecurityException gsx = 
+            new GeneralSecurityException("No private key available to decrypt");
+          publishDataFailure(agent, DataFailureEvent.NO_PRIVATE_KEYS, gsx.toString());
+          throw gsx;
+        
+        }
         Iterator it = keyList.iterator();
         SecretKey skey = null;
 
@@ -247,11 +281,11 @@ public class DataProtectionServiceImpl
         if (log.isDebugEnabled())
           log.debug("Re-encrypting Data Protection secret key.");
 
-	X509Certificate agentCert = keyRing.findFirstAvailableCert(agent);
+	        X509Certificate agentCert = keyRing.findFirstAvailableCert(agent);
 
-        obj = encryptionService.asymmEncrypt(agent, spec, skey, agentCert);
-        pke.setDataProtectionKey(
-          new DataProtectionKeyImpl(obj, dpKey.getDigestAlg(), dpKey.getSecureMethod()));
+          obj = encryptionService.asymmEncrypt(agent, spec, skey, agentCert);
+          pke.setDataProtectionKey(
+            new DataProtectionKeyImpl(obj, dpKey.getDigestAlg(), dpKey.getSecureMethod()));
       } catch (IOException ioe) {
       }
     }
@@ -273,9 +307,11 @@ public class DataProtectionServiceImpl
 
     // check if there is key and certificate created for the client
     List certList = keyRing.findCert(agent);
-    if (certList == null || certList.size() == 0)
-      throw new CertificateException("No certificate available to sign.");
-
+    if (certList == null || certList.size() == 0) {
+      CertificateException cx = new CertificateException("No certificate available to sign.");
+      publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
+      throw cx;
+    }
       /*
     String ofname = keyRing.getKeyStorePath();
     ofname = ofname.substring(0, ofname.lastIndexOf("/")) + "/" + agent + ".data";
@@ -292,7 +328,10 @@ public class DataProtectionServiceImpl
     }
     return new ByteArrayInputStream(bos.toByteArray());
 	*/
-    return new DataProtectionInputStream(is, pke, agent, serviceBroker);
+	  DataProtectionInputStream dpis = 
+  	  new DataProtectionInputStream(is, pke, agent, serviceBroker);
+    dpis.addPublisher(eventPublisher);
+    return dpis;
   }
 
   public void release() {
@@ -302,5 +341,21 @@ public class DataProtectionServiceImpl
     }
   }
 
-
+  /**
+   * publish a data protection failure idmef alert
+   */
+  private void publishDataFailure(String agent, String reason, String data) {
+    FailureEvent event = new DataFailureEvent(agent,
+                                              agent,
+                                              reason,
+                                              data);
+    if(eventPublisher != null) {
+      eventPublisher.publishEvent(event); 
+    }
+    else {
+      if(log.isDebugEnabled()) {
+        log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
+      }
+    }  
+  }
 }

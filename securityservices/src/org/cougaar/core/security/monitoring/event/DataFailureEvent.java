@@ -25,21 +25,23 @@ package org.cougaar.core.security.monitoring.event;
 import org.cougaar.core.security.constants.IdmefClassifications;
 
 /**
- * This data structure represent an Message Failure Event
+ * This data structure represent a Data Protection  Failure Event that could
+ * occur during data persistence.
  */
-public class MessageFailureEvent extends CryptoFailureEvent {
-  public final static String REASON_ID = "MESSAGE_FAILURE_REASON";
-  public final static String DATA_ID = "MESSAGE_FAILURE_DATA";
-  // reasons
-  public final static String INCONSISTENT_IDENTIFIER = "Inconsistent Identifier";
-  public final static String SETASIDE_INCOMING_MESSAGE_ACTION = "Set Aside Incoming Message Action";
-  public final static String SETASIDE_OUTGOING_MESSAGE_ACTION = "Set Aside Outgoing Message Action";
-  public final static String SETASIDE_INCOMING_AGENT_ACTION = "Set Aside Incoming Agent Action";
-  public final static String SETASIDE_OUTGOING_AGENT_ACTION = "Set Aside Outgoing Agent Action";
-  public final static String INVALID_MESSAGE_CONTENTS = "Invalid Message Contents";
+public class DataFailureEvent extends CryptoFailureEvent {
+  public final static String REASON_ID = "DATA_FAILURE_REASON";
+  public final static String DATA_ID = "DATA_FAILURE_DATA";
+  //reasons
+  public final static String NO_PRIVATE_KEYS = "No private keys";
+  public final static String NO_CERTIFICATES = "No certificates";
+  public final static String CREATE_KEY_FAILURE = "Failed to create key";
+  public final static String NO_KEYS = "No data protection keys";
+  public final static String VERIFY_DIGEST_FAILURE = "Verify digest failure";
+  public final static String CLASS_NOT_FOUND = "Class not found";
+  public final static String SECRET_KEY_FAILURE = "Unable to get secret key";
   
-  public MessageFailureEvent(String source, String target, String reason, String data){
-    super(IdmefClassifications.MESSAGE_FAILURE, source, 
+  public DataFailureEvent(String source, String target, String reason, String data){
+    super(IdmefClassifications.DATA_FAILURE, source, 
       target, reason, REASON_ID, data, DATA_ID);
   }
 }
