@@ -14,6 +14,7 @@
 package org.cougaar.core.security.test.blackboard;
 
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import edu.jhuapl.idmef.Analyzer;
@@ -61,7 +62,7 @@ public class MaliciousBlackboardPlugin extends AbstractBlackboardPlugin {
 
     }
 
-    public class MaliciousBlackboardPluginAnalyzer extends Analyzer {
+    public class MaliciousBlackboardPluginAnalyzer extends Analyzer implements Serializable {
         public MaliciousBlackboardPluginAnalyzer() {
             this.setAnalyzerid(pluginName);
 

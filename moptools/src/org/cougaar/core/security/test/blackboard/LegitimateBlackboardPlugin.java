@@ -14,10 +14,11 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import edu.jhuapl.idmef.Analyzer;
-
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
+
+import edu.jhuapl.idmef.Analyzer;
 
 
 /**
@@ -53,7 +54,7 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
     }
   }
 
-  public class LegitAnalyzer extends Analyzer {
+  public class LegitAnalyzer extends Analyzer implements Serializable {
     public LegitAnalyzer() {
       this.setAnalyzerid(pluginName);
 
