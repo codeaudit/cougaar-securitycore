@@ -10,13 +10,13 @@
 
 LOCK TABLES alib_component WRITE;
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UMmrmManagerAgent-cpy','UMmrmManagerAgent-cpy','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UMmrmanager','UMmrmanager','UMmrmanager','agent',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UMmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','UMmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','plugin|edu.memphis.issrl.mrmanager.SCAggregationComponent','plugin',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UMmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','UMmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','plugin|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','plugin',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UMmrmanager|org.cougaar.lib.aggagent.plugin.AggregationPlugin','UMmrmanager|org.cougaar.lib.aggagent.plugin.AggregationPlugin','plugin|org.cougaar.lib.aggagent.plugin.AggregationPlugin','plugin',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UMmrmanager|org.cougaar.lib.aggagent.plugin.AlertPlugin','UMmrmanager|org.cougaar.lib.aggagent.plugin.AlertPlugin','plugin|org.cougaar.lib.aggagent.plugin.AlertPlugin','plugin',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UMmrmanager|org.cougaar.mlm.plugin.organization.OrgDataPlugin','UMmrmanager|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UMmrmanager|org.cougaar.mlm.plugin.organization.OrgReportPlugin','UMmrmanager|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SCmrmanager','SCmrmanager','SCmrmanager','agent',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','plugin|edu.memphis.issrl.mrmanager.SCAggregationComponent','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','plugin|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SCmrmanager|org.cougaar.lib.aggagent.plugin.AggregationPlugin','SCmrmanager|org.cougaar.lib.aggagent.plugin.AggregationPlugin','plugin|org.cougaar.lib.aggagent.plugin.AggregationPlugin','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SCmrmanager|org.cougaar.lib.aggagent.plugin.AlertPlugin','SCmrmanager|org.cougaar.lib.aggagent.plugin.AlertPlugin','plugin|org.cougaar.lib.aggagent.plugin.AlertPlugin','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SCmrmanager|org.cougaar.mlm.plugin.organization.OrgDataPlugin','SCmrmanager|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SCmrmanager|org.cougaar.mlm.plugin.organization.OrgReportPlugin','SCmrmanager|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin',0.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -24,7 +24,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent WRITE;
-REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager','UMmrmanager',0.000000000000000000000000000000,'UMmrmanager');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','SCmrmanager',0.000000000000000000000000000000,'SCmrmanager');
 UNLOCK TABLES;
 
 #
@@ -32,11 +32,11 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent_pg_attr WRITE;
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager','ClusterPG|ClusterIdentifier','UMmrmanager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager','ItemIdentificationPG|AlternateItemIdentification','UMmrmanager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager','ItemIdentificationPG|ItemIdentification','UMmrmanager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager','ItemIdentificationPG|Nomenclature','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager','TypeIdentificationPG|TypeIdentification','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','ClusterPG|ClusterIdentifier','SCmrmanager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','ItemIdentificationPG|AlternateItemIdentification','SCmrmanager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','ItemIdentificationPG|ItemIdentification','SCmrmanager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','ItemIdentificationPG|Nomenclature','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','TypeIdentificationPG|TypeIdentification','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
 UNLOCK TABLES;
 
 #
@@ -59,9 +59,9 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_arg WRITE;
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager','UMmrmanager',1.000000000000000000000000000000);
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','/manager',1.000000000000000000000000000000);
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','/keepalivemanager',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','SCmrmanager',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','/manager',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','/keepalivemanager',1.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -69,13 +69,13 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager','UMmrmManagerAgent-cpy','COMPONENT',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','UMmrmanager','COMPONENT',1.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','UMmrmanager','COMPONENT',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager|org.cougaar.lib.aggagent.plugin.AggregationPlugin','UMmrmanager','COMPONENT',4.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager|org.cougaar.lib.aggagent.plugin.AlertPlugin','UMmrmanager','COMPONENT',5.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager|org.cougaar.mlm.plugin.organization.OrgDataPlugin','UMmrmanager','COMPONENT',2.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','UMmrmanager|org.cougaar.mlm.plugin.organization.OrgReportPlugin','UMmrmanager','COMPONENT',3.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','UMmrmManagerAgent-cpy','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','SCmrmanager','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','SCmrmanager','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|org.cougaar.lib.aggagent.plugin.AggregationPlugin','SCmrmanager','COMPONENT',4.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|org.cougaar.lib.aggagent.plugin.AlertPlugin','SCmrmanager','COMPONENT',5.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|org.cougaar.mlm.plugin.organization.OrgDataPlugin','SCmrmanager','COMPONENT',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|org.cougaar.mlm.plugin.organization.OrgReportPlugin','SCmrmanager','COMPONENT',3.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -111,7 +111,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_agent_org WRITE;
-REPLACE INTO lib_agent_org (COMPONENT_LIB_ID, AGENT_LIB_NAME, AGENT_ORG_CLASS) VALUES ('UMmrmanager','UMmrmanager','MilitaryOrganization');
+REPLACE INTO lib_agent_org (COMPONENT_LIB_ID, AGENT_LIB_NAME, AGENT_ORG_CLASS) VALUES ('SCmrmanager','SCmrmanager','MilitaryOrganization');
 UNLOCK TABLES;
 
 #
@@ -120,7 +120,7 @@ UNLOCK TABLES;
 
 LOCK TABLES lib_component WRITE;
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('recipe|##RECIPE_CLASS##','recipe','##RECIPE_CLASS##','recipe','Added recipe');
-REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('UMmrmanager','agent','org.cougaar.core.agent.ClusterImpl','Node.AgentManager.Agent','Added agent');
+REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('SCmrmanager','agent','org.cougaar.core.agent.ClusterImpl','Node.AgentManager.Agent','Added agent');
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|edu.memphis.issrl.mrmanager.SCAggregationComponent','plugin','edu.memphis.issrl.mrmanager.SCAggregationComponent','Node.AgentManager.Agent.PluginManager.Plugin','Added plugin');
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','plugin','edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','Node.AgentManager.Agent.PluginManager.Plugin','Added plugin');
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|org.cougaar.lib.aggagent.plugin.AggregationPlugin','plugin','org.cougaar.lib.aggagent.plugin.AggregationPlugin','Node.AgentManager.Agent.PluginManager.Plugin','Added plugin');
