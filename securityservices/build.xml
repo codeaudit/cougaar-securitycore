@@ -517,7 +517,9 @@
           <property name="junit.test.desc"   value="CaStandalone"/>
           <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandalone.xml"/>
        </ant>
+       <!-- Update dashbaord -->
+       <ant antfile="build-dashboard.xml" dir="." target="dashboard">
+       </ant>
     </target>
-
-</project>
+ </project>
 <!-- End Ultra*Log/securityservices ant build script -->

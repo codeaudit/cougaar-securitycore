@@ -28,6 +28,7 @@ package test.org.cougaar.core.security.simul;
 
 import java.io.*;
 import java.util.*;
+import java.text.*;
 import java.util.regex.*;
 import junit.framework.*;
 import java.rmi.Naming;
@@ -56,13 +57,16 @@ public class NodeServerTest
   public void setUp() {
     junitConfigPath = System.getProperty("org.cougaar.junit.config.path");
     Assert.assertNotNull("Unable to get org.cougaar.junit.config.path", junitConfigPath);
+    junitConfigPath = getCanonicalPath(junitConfigPath);
 
     resultPath = System.getProperty("junit.test.result.path");
     Assert.assertNotNull("Unable to get test output path. Set junit.test.result.path",
 			 resultPath);
+    resultPath = getCanonicalPath(resultPath);
 
     classPath = System.getProperty("org.cougaar.securityservices.classes");
     Assert.assertNotNull("Unable to get org.cougaar.securityservices.classes", classPath);
+    classPath = getCanonicalPath(classPath);
 
     userDir = System.getProperty("user.dir");
     Assert.assertNotNull("Unable to get user dir", userDir);
@@ -73,6 +77,18 @@ public class NodeServerTest
     configFileName = System.getProperty("junit.config.file");
     Assert.assertNotNull("Unable to get junit.config.file", configFileName);
 
+  }
+
+  private static String getCanonicalPath(String fileName) {
+    String can = null;
+    File f = new File(fileName);
+    try {
+      can = f.getCanonicalPath();
+    }
+    catch (IOException e) {
+      Assert.fail("Unable to get canonical path for " + fileName);
+    }
+    return can;
   }
 
   /**
@@ -120,6 +136,8 @@ public class NodeServerTest
 	System.out.print(tcc.getNodeArguments()[j] + " ");
       }
       System.out.println();
+
+      saveExperimentInfo(tcc);
       try {
 	Thread.sleep(1000 * tcc.getHowLongBeforeStart());
 
@@ -156,7 +174,29 @@ public class NodeServerTest
     }
 
   }
-  
+
+  private void saveExperimentInfo(NodeConfiguration tcc) {
+    try {
+      FileOutputStream fo = new FileOutputStream(resultPath + File.separator + "summary.xml");
+      PrintWriter pw = new PrintWriter(fo);
+
+      Date currentDate = new Date();
+      SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss");
+      String starttime = df.format(currentDate);
+
+      pw.println("<experiment name="
+		 + "\"" + System.getProperty("junit.test.desc") + "\""
+		 + " starttime="
+		 + "\"" + starttime + "\">");
+      pw.println("</experiment>");
+      pw.close();
+    }
+    catch (Exception e) {
+      System.out.println("Unable to save summary:" + e);
+      e.printStackTrace();
+    }
+  }
+
   private Thread runRemoteNode(NodeConfiguration tcc) {
     RemoteNode rn = new RemoteNode(tcc, testResult, this);
     rn.start();
@@ -198,31 +238,32 @@ public class NodeServerTest
       Runtime thisApp = Runtime.getRuntime();
       Process nodeApp = null;
       
-      String jarFile1 = userDir + File.separator + classPath + File.separator + "junitTests.jar";
-      String jarFile2 = System.getProperty("org.cougaar.install.path") + File.separator
-	+ "sys" + File.separator + "junit.jar";
+      String jarFile1 = getCanonicalPath(classPath + File.separator + "junitTests.jar");
+
+      String jarFile2 = getCanonicalPath(System.getProperty("org.cougaar.install.path") + File.separator
+					 + "sys" + File.separator + "junit.jar");
 
       String commandLine = "/usr/bin/ssh " + tcc.getHostName()
 	+ " " + System.getProperty("java.home") + File.separator + "bin" + File.separator
 	+ "java -classpath " + jarFile1 + ":" + jarFile2
 	+ " -Djava.rmi.server.codebase=file://" + jarFile1 + ":file://" + jarFile2
 	+ " -Djava.security.policy="
-	+ userDir + File.separator + junitConfigPath + File.separator + "JavaPolicy.conf"
+	+ getCanonicalPath(junitConfigPath + File.separator + "JavaPolicy.conf")
 	+ " -Dorg.cougaar.install.path=" + System.getProperty("org.cougaar.install.path")
 	+ " -Dorg.cougaar.workspace=" + System.getProperty("org.cougaar.workspace")
 	+ " -Dorg.cougaar.securityservices.configs="
-	+ userDir + File.separator + System.getProperty("org.cougaar.securityservices.configs")
+	+ getCanonicalPath(userDir + File.separator + System.getProperty("org.cougaar.securityservices.configs"))
 	+ " -Dorg.cougaar.securityservices.base="
-	+ userDir + File.separator + System.getProperty("org.cougaar.securityservices.base")
+	+ getCanonicalPath(userDir + File.separator + System.getProperty("org.cougaar.securityservices.base"))
 	+ " -Dorg.cougaar.securityservices.classes="
-	+ userDir + File.separator + System.getProperty("org.cougaar.securityservices.classes")
+	+ getCanonicalPath(userDir + File.separator + System.getProperty("org.cougaar.securityservices.classes"))
 	+ " -Dorg.cougaar.securityservices.regress="
-	+ userDir + File.separator + System.getProperty("org.cougaar.securityservices.regress")
+	+ getCanonicalPath(userDir + File.separator + System.getProperty("org.cougaar.securityservices.regress"))
 	+ " -Dorg.cougaar.junit.config.path="
-	+ userDir + File.separator + System.getProperty("org.cougaar.junit.config.path")
+	+ getCanonicalPath(userDir + File.separator + System.getProperty("org.cougaar.junit.config.path"))
 	+ " -Djunit.test.result.path="
-	+ userDir + File.separator + System.getProperty("org.cougaar.securityservices.base")
-	+ File.separator + System.getProperty("junit.test.result.path")
+	+ getCanonicalPath(userDir + File.separator + System.getProperty("org.cougaar.securityservices.base")
+			   + File.separator + System.getProperty("junit.test.result.path"))
 	+ " -Djunit.config.file=" + System.getProperty("junit.config.file")
 	+ " -Djunit.test.desc=" + System.getProperty("junit.test.desc")
 	//
@@ -275,7 +316,7 @@ public class NodeServerTest
       try {
 	System.out.println("Waiting for SSH process to die");
 	if (nodeApp != null) {
-	  nodeApp.waitFor();
+	  nodeApp.destroy();
 	}
       }
       catch (Exception e) {

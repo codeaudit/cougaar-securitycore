@@ -93,8 +93,13 @@ public class ConfigHandler
 
       // Set top-level directory
       File f1 = new File(System.getProperty("org.cougaar.securityservices.base"));
-      String top = f1.getAbsolutePath();
-      currentNodeConf.setTopLevelDirectory(top);
+      try {
+	String top = f1.getCanonicalPath();
+	currentNodeConf.setTopLevelDirectory(top);
+      }
+      catch (IOException e) {
+	System.err.println("Unable to get top level directory");
+      }
 
       // Set user parameters
       setUserParameters(currentNodeConf);

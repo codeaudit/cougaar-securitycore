@@ -99,6 +99,15 @@ public class BaseBootstrapper
   }
 
   protected void launchMain(ClassLoader cl, String classname, String[] args) {
+    if (loudness>0) {
+      System.out.println("Starting " + classname + " in "
+			 + System.getProperty("user.dir"));
+      System.out.println("Arguments: ");
+      for (int i = 0 ; i < args.length ; i++) {
+	System.out.print(args[i] + " ");
+      }
+      System.out.println();
+    }
     super.launchMain(cl, classname, args);
   }
 
@@ -159,7 +168,7 @@ public class BaseBootstrapper
     StringBuffer configfile=new StringBuffer();
     String configproviderpath=
       System.getProperty("org.cougaar.core.security.crypto.cryptoProvidersFile");
-    String sep =  System.getProperty("file.separator", "/");
+    String sep = File.separator;
     if((configproviderpath==null)||(configproviderpath=="")) {
       configproviderpath=System.getProperty("org.cougaar.install.path");    
       if((configproviderpath!=null)||(configproviderpath!="")) {

@@ -35,11 +35,18 @@ import org.xml.sax.helpers.*;
 public class ResultParser
 {
   private String resultFile;
+  private String summaryFile;
   private XMLReader parser;
   private ResultHandler handler;
+  private SummaryHandler summaryHandler;
 
-  public ResultParser(String resultFile) {
+  public ResultParser(String resultFile, String summaryFile) {
     this.resultFile = resultFile;
+    this.summaryFile = summaryFile;
+    createParser();
+  }
+
+  public void createParser() {
     try {
       // Create SAX 2 parser...
       parser = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
@@ -47,18 +54,41 @@ public class ResultParser
     catch ( Exception e ) {
       e.printStackTrace();
     }
-    // Set the ContentHandler...
-    handler = new ResultHandler(parser);
-    parser.setContentHandler(handler);
   }
 
   public ResultHandler getResultHandler() {
     return handler;
   }
+  public SummaryHandler getSummaryHandler() {
+    return summaryHandler;
+  }
 
   public void parseResults() {
+    // Set the ContentHandler...
+    handler = new ResultHandler(parser);
+    parser.setContentHandler(handler);
+
+    System.out.println("Parsing result file: " + resultFile);
     try {
       FileInputStream fis = new FileInputStream(resultFile);
+
+      // Parse the file...
+      parser.parse(new InputSource(fis));
+    }
+    catch ( Exception e ) {
+      System.out.println("Error: " + e);
+      e.printStackTrace();
+    }
+  }
+
+  public void parseSummary() {
+    // Set the ContentHandler...
+    summaryHandler = new SummaryHandler(parser);
+    parser.setContentHandler(summaryHandler);
+
+    System.out.println("Parsing summary file: " + summaryFile);
+    try {
+      FileInputStream fis = new FileInputStream(summaryFile);
 
       // Parse the file...
       parser.parse(new InputSource(fis));

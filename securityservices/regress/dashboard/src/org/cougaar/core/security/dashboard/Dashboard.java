@@ -29,15 +29,18 @@ package org.cougaar.core.security.dashboard;
 import java.io.*;
 import java.util.*;
 import java.net.*;
+import java.text.*;
 
 public class Dashboard
 {
   static private int numberOfTests;
   static private File[] subdirectories;
   static private File resultFiles[];
+  static private File summaryFiles[];
   static private File resultsDirectory;
   static private ExperimentResults experimentResults[];
   static private boolean analyzisDone = false;
+  static private String analyzisDate;
 
   static public void main(String args[]) {
     System.out.println("Number of tests: " + getNumberOfTests());
@@ -53,28 +56,35 @@ public class Dashboard
       return;
     }
 
+    Date currentDate = new Date();
+    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    analyzisDate = df.format(currentDate);
+
     subdirectories = getDirectories();
     if (subdirectories != null) {
       numberOfTests = subdirectories.length;
       resultFiles = getResultFiles();
+      summaryFiles = getSummaryFiles();
     }
     System.out.println("Number of directories to analyze: " + resultFiles.length);
 
     if (resultFiles != null) {
       experimentResults = new ExperimentResults[resultFiles.length];
       for (int i = 0 ; i < resultFiles.length ; i++) {
-	ResultHandler rp = null;
-
-	System.out.println("Parsing file [" + i + "/" + resultFiles.length + "]: " + resultFiles[i]);
-	rp = parseExperimentResults(resultFiles[i]);
+	System.out.println("Parsing file [" + (i+1) + "/" + resultFiles.length + "]: " + resultFiles[i]);
+	ResultParser res = parseExperimentResults(resultFiles[i], summaryFiles[i]);
+	ResultHandler rp = res.getResultHandler();
+	SummaryHandler sh = res.getSummaryHandler();
 
 	experimentResults[i] = new ExperimentResults();
 	experimentResults[i].errors = rp.getErrors();
 	experimentResults[i].failures = rp.getFailures();
-	experimentResults[i].experimentName = rp.getName();
 	experimentResults[i].completionTime = rp.getCompletionTime();
 	experimentResults[i].logFilesUrls = getLogFileUrls(subdirectories[i], ".log");
-	experimentResults[i].resultLogFilesUrls = getLogFileUrls(subdirectories[i], ".xml");
+	experimentResults[i].resultLogFilesUrls = getLogFileUrls(subdirectories[i], "results.xml");
+
+	experimentResults[i].experimentName = sh.getExperimentName();
+	experimentResults[i].startTime = sh.getStartTime();
       }
     }
     analyzisDone = true;
@@ -140,7 +150,7 @@ public class Dashboard
 	      if (f == null) {
 		return false;
 	      }
-	      return f.getName().endsWith(".xml");
+	      return f.getName().endsWith("results.xml");
 	    }
 	  });
 	if (rfile != null) {
@@ -154,14 +164,58 @@ public class Dashboard
     return resFiles;
   }
 
-  public static ResultHandler parseExperimentResults(File file) {
-    ResultParser rp = new ResultParser(file.getPath());
+  public static File[] getSummaryFiles() {
+    File resFiles[] = null;
+    if (subdirectories == null) {
+      subdirectories = getDirectories();
+    }
+    if (subdirectories != null) {
+      ArrayList fileList = new ArrayList();
+      for (int i = 0 ; i < subdirectories.length ; i++) {
+	File[] rfile = null;
+	rfile = subdirectories[i].listFiles(
+	  new FileFilter() {
+	    public boolean accept(File f) {
+	      if (f == null) {
+		return false;
+	      }
+	      return f.getName().endsWith("summary.xml");
+	    }
+	  });
+	if (rfile != null) {
+	  for (int j = 0 ; j < rfile.length ; j++) {
+	    fileList.add(rfile[j]);
+	  }
+	}
+      }
+      resFiles = (File[]) fileList.toArray(new File[0]);
+    }
+    return resFiles;
+  }
+
+  public static ResultParser parseExperimentResults(File file, File summaryFile) {
+    ResultParser rp = new ResultParser(file.getPath(), summaryFile.getPath());
     rp.parseResults();
-    return rp.getResultHandler();
+    rp.parseSummary();
+    return rp;
   }
 
   public static int getNumberOfTests() {
+    if (analyzisDone == false) {
+      analyzeResults();
+    }
     return numberOfTests;
+  }
+
+  public static String getAnalyzisDate() {
+    if (analyzisDone == false) {
+      analyzeResults();
+    }
+    return analyzisDate;
+  }
+
+  public static String getStartTime(int i) {
+    return experimentResults[i].startTime;
   }
 
   public static String getLogFileUrls(int i) {

@@ -62,7 +62,21 @@ public class NodeServer
 
   public void killServer()
     throws java.rmi.RemoteException {
-    Runtime.getRuntime().exit(0);
+    Thread t = new RmiServerShutdownThread();
+    t.start();
+  }
+
+  private class RmiServerShutdownThread extends Thread {
+    // Need a clean solution to stop the RMI server,
+    // but RMI launches non-daemon threads.
+    // The Sleep() is to allow the client to receive the ACK
+    public void run() {
+      try {
+	Thread.sleep(2000);
+      }
+      catch (Exception e) {}
+      Runtime.getRuntime().exit(0);
+    }
   }
 
   public void startNode(NodeConfiguration tcc)
@@ -102,16 +116,25 @@ public class NodeServer
     File f = findPropertiesFile(tcc.getPropertyFile());
     readPropertiesFile(f, tcc);
 
-    commandLine = javaBin + " ";
-    for (int i = 0 ; i < properties.size() ; i++) {
-      commandLine = commandLine + properties.get(i) + " ";
-    }
-    commandLine = commandLine + " " + mainClassName
-      + " org.cougaar.core.node.Node -n " + nodeName + " -c ";
-    // Additional arguments
+    // Construct command array
+    properties.add(0, javaBin);
+    properties.add(mainClassName);
+    properties.add("org.cougaar.core.node.Node");
+    properties.add("-n");
+    properties.add(nodeName);
+    properties.add("-c");
     for (int i = 1 ; i < args.length ; i++) {
-      commandLine = commandLine + args[i] + " ";
+      properties.add(args[i]);
     }
+    String cmdArray[] = (String[]) properties.toArray(new String[0]);
+    commandLine = "";
+    System.out.println("+++ BEGIN Command line arguments");
+    for (int i = 0 ; i < cmdArray.length ; i++) {
+      commandLine = commandLine + cmdArray[i] + " ";
+      System.out.println(cmdArray[i]);
+    }
+    System.out.println("+++ END Command line arguments");
+
     Runtime thisApp = Runtime.getRuntime();
     Process nodeApp = null;
     try {
@@ -119,10 +142,10 @@ public class NodeServer
       for (int i = 0 ; i < environmentVariables.length ; i++) {
 	System.out.println(environmentVariables[i]);
       }
-      System.out.println("Node startup directory: " + nodeStartupDirectory.getAbsoluteFile());
+      System.out.println("Node startup directory: " + nodeStartupDirectory);
 
-      nodeApp = thisApp.exec("tcsh",
-			     null, // environmentVariables
+      nodeApp = thisApp.exec(cmdArray,
+			     environmentVariables,
 			     nodeStartupDirectory);
 
      // Kill the node after n seconds
@@ -135,11 +158,14 @@ public class NodeServer
       ProcessGobbler pg = new ProcessGobbler(resultPath, nodeName, nodeApp);
       pg.dumpProcessStream();
 
+      // Write to process stdin
+/*
       PrintWriter outWriter = new PrintWriter(nodeApp.getOutputStream(), true);
-      outWriter.println("cd " + nodeStartupDirectory.getAbsoluteFile());
+      outWriter.println("cd " + nodeStartupDirectory.getCanonicalFile());
       System.out.println("Executing: " + commandLine);
       outWriter.println(commandLine);
       outWriter.flush();
+*/
 
       // any error???
       System.out.println("Waiting for node to exit");
@@ -182,9 +208,10 @@ public class NodeServer
       }
     }
     if (f == null) {
-      f = new File(cip + File.separator + "configs"
-		   + File.separator + "security" 
-		   + File.separator + "Linux.props");
+      String file = getCanonicalPath(cip + File.separator + "configs"
+				     + File.separator + "security" 
+				     + File.separator + "Linux.props");
+      f = new File(file);
       System.out.println("Trying " + f.getPath() + "...");
       if (!f.exists()) {
 	f = null;
@@ -192,6 +219,18 @@ public class NodeServer
     }
     Assert.assertNotNull("Unable to find properties file", f);
     return f;
+  }
+
+  private String getCanonicalPath(String fileName) {
+    String can = null;
+    File f = new File(fileName);
+    try {
+      can = f.getCanonicalPath();
+    }
+    catch (IOException e) {
+      Assert.fail("Unable to get canonical path for " + fileName);
+    }
+    return can;
   }
 
   private void readPropertiesFile(File f, NodeConfiguration tcc) {
@@ -232,7 +271,11 @@ public class NodeServer
 	  mainClassName = propertyValue;
 	}
 	else {
-	  properties.add(makeProperty(property, propertyValue));
+	  StringTokenizer st1 = new StringTokenizer(makeProperty(property, propertyValue));
+	  while (st1.hasMoreTokens()) {
+	    String arg = st1.nextToken();
+	    properties.add(arg);
+	  }
 	}
       }
     }
@@ -242,6 +285,8 @@ public class NodeServer
     catch(IOException ioexp) {
       Assert.fail("Cannot read User parameter configuration file: " + ioexp);
     }
+    env.add("COUGAAR_INSTALL_PATH=" + System.getProperty("org.cougaar.install.path"));
+    env.add("COUGAAR_WORKSPACE=" + System.getProperty("org.cougaar.workspace"));
     environmentVariables = (String[])env.toArray(new String[0]);
   }
 
@@ -252,7 +297,8 @@ public class NodeServer
       "5557",
       "6557",
       "\\$HOSTNAME.log",
-      "\\$HOSTNAME"
+      "\\$HOSTNAME",
+      "\""
       };
 
     String convertTo[] = {
@@ -261,7 +307,8 @@ public class NodeServer
       Integer.toString(tcc.getHttpPort()),
       Integer.toString(tcc.getHttpsPort()),
       nodeName + ".log",
-      hostName
+      hostName,
+      ""
     };
 
     for (int i = 0 ; i < convertFrom.length ; i++) {

@@ -29,14 +29,51 @@ package org.cougaar.core.security.dashboard;
 import java.io.*;
 import java.util.*;
 
-public class ExperimentResults
+import org.xml.sax.*;
+import org.xml.sax.helpers.*;
+
+public class SummaryHandler
+  extends DefaultHandler
 {
-  public String analyzisDate;
-  public String experimentName;
-  public int errors;
-  public int failures;
-  public double completionTime;
-  public String startTime;
-  public String logFilesUrls;
-  public String resultLogFilesUrls;
+  // XML Parser
+  protected XMLReader parser;
+
+  private String starttime;
+  private String experimentname;
+
+  // Buffer for collecting data from
+  // the "characters" SAX event.
+  protected CharArrayWriter contents = new CharArrayWriter();
+
+  public SummaryHandler(XMLReader parser) {
+    this.parser = parser;
+  }
+
+  public String getStartTime() {
+    return starttime;
+  }
+  public String getExperimentName() {
+    return experimentname;
+  }
+
+  public static final String EXPERIMENT = "experiment";
+
+  public void startElement( String namespaceURI,
+			    String localName,
+			    String qName,
+			    Attributes attr )
+    throws SAXException {
+    contents.reset();
+
+    System.out.println("localname:" + localName);
+    if (localName.equals(EXPERIMENT)) {
+      experimentname = attr.getValue("name");
+      starttime = attr.getValue("starttime");
+    }
+  }
+
+  public void characters( char[] ch, int start, int length )
+    throws SAXException {
+    contents.write(ch, start, length);
+  }
 }

@@ -32,6 +32,10 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
+// Cougaar core services
+import org.cougaar.util.log.*;
+
+// Cougaar security services
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 /**
@@ -44,6 +48,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 public class KeyRingSSLFactory extends SSLSocketFactory {
   static KeyRingSSLFactory _default;
   static SSLContext        _ctx;
+  static Logger            _log;
 
   SSLSocketFactory         _fact;
   /**
@@ -51,10 +56,12 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    */
   protected KeyRingSSLFactory() {
     _fact = _ctx.getSocketFactory();
+    _log = LoggerFactory.getInstance().createLogger(KeyRingSSLFactory.class);
   }
 
   protected KeyRingSSLFactory(SSLContext ctx) {
     _fact = ctx.getSocketFactory();
+    _log = LoggerFactory.getInstance().createLogger(KeyRingSSLFactory.class);
   }
 
   /**
@@ -67,8 +74,15 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   public synchronized static SocketFactory getDefault() {
     if (_default == null) {
       if (_ctx == null) {
-        //System.out.println("Context is null!!!!");
-        throw new RuntimeException("null SSL Context!");
+	RuntimeException e = new RuntimeException("SSL Context is null");
+	if (_log != null) {
+	  _log.error("SSL Context is null", e);
+	}
+	else {
+	  System.err.println("SSL Context is null");
+	  e.printStackTrace();
+	}
+        throw e;
       }
       _default = new KeyRingSSLFactory();
     }

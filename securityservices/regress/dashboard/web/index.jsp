@@ -47,13 +47,32 @@
      <title>Junit NAI Dashboard</title>
   </head>
   <body>
+<%
+    StringBuffer sb = request.getRequestURL();
+    try {
+      URL url = null;
+      url = new URL(new String(sb));
+      String s1 = request.getRequestURI();
+      String s = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort()
+                 + s1.substring(0, s1.lastIndexOf('/')) + "/java.props";
+      System.out.println("servlet: " + s);
+      Dashboard.setJavaPropURL(s);
+      Dashboard.analyzeResults();
+    }
+    catch(Exception e) {
+      System.out.println("Unable to analyze results" + e);
+      e.printStackTrace();
+    }
+%>
     <center>
     <table>
     <tr>
     <td><img src="./Small_UL_Shield.jpg"></td>
     <td>
     <h1><center><b>The UltraLog NAI Dashboard</b></center></h1>
-    <h4><center>Tests summary</center></h4>
+    <h4><center>Tests summary - Last Analyzis:
+    <%=Dashboard.getAnalyzisDate() %>
+    </center></h4>
     <h4><center>Click <a href="results/html/index.html">here</a> to access the Junit report</center></h4>
     </td>
     <td><img src="./Small_UL_Shield.jpg"></td>
@@ -70,7 +89,7 @@
        </b></font></th>
        <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>Failures<br>
        </b></font></th>
-       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>Time<br>
+       <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>Start Time<br>
        </b></font></th>
        <th valign="top" bgcolor="#ffcc99"><font face="Helvetica, Arial, sans-serif"><b>Completion Time<br>
        </b></font></th>
@@ -85,20 +104,6 @@
      </tr>
 
 <%
-    StringBuffer sb = request.getRequestURL();
-    try {
-      URL url = null;
-      url = new URL(new String(sb));
-      String s1 = request.getRequestURI();
-      String s = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + s1.substring(0, s1.lastIndexOf('/')) + "/java.props";
-      System.out.println("servlet: " + s);
-      Dashboard.setJavaPropURL(s);
-      Dashboard.analyzeResults();
-    }
-    catch(Exception e) {
-      System.out.println("Unable to analyze results" + e);
-      e.printStackTrace();
-    }
     for (int i = 0 ; i < Dashboard.getNumberOfTests() ; i++) {
 %>
      <tr>
@@ -139,12 +144,16 @@
        </font></td>
 
        <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
+         <%=String.valueOf(Dashboard.getStartTime(i))%>
        </font></td>
+
        <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
          <%=String.valueOf(Dashboard.getCompletionTime(i))%>
        </font></td>
+
        <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
        </font></td>
+
        <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
        </font></td>
 

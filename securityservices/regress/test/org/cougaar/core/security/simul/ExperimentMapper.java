@@ -70,6 +70,18 @@ public class ExperimentMapper
   public static String PROPERTY_FILE = "propertyFile";
   public static String NODE_ARGUMENTS = "nodeArguments";
 
+  private String getCanonicalPath(String fileName) {
+    String can = null;
+    File f = new File(fileName);
+    try {
+      can = f.getCanonicalPath();
+    }
+    catch (IOException e) {
+      Assert.fail("Unable to get canonical path for " + fileName);
+    }
+    return can;
+  }
+
   public TagTracker createTagTrackerNetwork() {
     SaxMapperLog.trace("Creating tag track network");
 
@@ -118,8 +130,13 @@ public class ExperimentMapper
 
 	  // Set top-level directory
 	  File f1 = new File(System.getProperty("org.cougaar.securityservices.base"));
-	  String top = f1.getAbsolutePath();
-	  currentNodeConf.setTopLevelDirectory(top);
+	  try {
+	    String top = f1.getCanonicalPath();
+	    currentNodeConf.setTopLevelDirectory(top);
+	  }
+	  catch (IOException e) {
+	    System.err.println("Unable to get top level directory");
+	  }
 	  
 	  // Set user parameters
 	  setUserParameters(currentNodeConf);
@@ -183,8 +200,8 @@ public class ExperimentMapper
 	    currentNodeConf.setHostName(value);
 	  }
 	  else if (localName.equals(NODE_STARTUP_DIRECTORY)) {
-	    currentNodeConf.setNodeStartupDirectoryName(currentNodeConf.getTopLevelDirectory()
-							+ File.separator + value);
+	    currentNodeConf.setNodeStartupDirectoryName(getCanonicalPath(currentNodeConf.getTopLevelDirectory()
+							+ File.separator + value));
 	  }
 	  else if (localName.equals(PROPERTY_FILE)) {
 	    currentNodeConf.setPropertyFile(value);
@@ -373,7 +390,8 @@ public class ExperimentMapper
     return s;
   }
   private void setUserParameters(NodeConfiguration tcc) {
-    File userParamFile = new File(junitConfigPath + File.separator + "userParameters.conf");
+    File userParamFile = new File(getCanonicalPath(junitConfigPath
+						   + File.separator + "userParameters.conf"));
     if (!userParamFile.exists()) {
       throw new RuntimeException("Unable to find user parameter configuration file");
     }

@@ -36,24 +36,23 @@ public class TestProcess
   //private String commandLine = "date";
 
   private String commandLine =
-  "java -Dorg.cougaar.install.path=/home/u/srosset/UL/cougaar -Dorg.cougaar.core.persistence.enable=true -Dorg.cougaar.core.persistence.clear=true -Xbootclasspath/p:/home/u/srosset/UL/cougaar/lib/javaiopatch.jar -classpath /home/u/srosset/UL/cougaar/lib/CougaarCRLextensions.jar -Dorg.cougaar.config.path=\"/home/u/srosset/UL/cougaar/configs/security;\" -Xms64m -Xmx512m -Djava.rmi.server.hostname=tea -Duser.timezone=GMT -Dorg.cougaar.core.agent.startTime=08/10/2005 -Dorg.cougaar.planning.ldm.lps.ComplainingLP.level=0 -Dorg.cougaar.core.security.Domain=TestDomain -Dorg.cougaar.safe.domainName=TestDomain -Dorg.cougaar.core.naming.useSSL=true -Dorg.cougaar.lib.web.http.port=5561 -Dorg.cougaar.workspace=/home/u/srosset/UL/cougaar/workspace -Dorg.cougaar.core.security.bootstrap.keystore=/home/u/srosset/UL/cougaar/configs/security/bootstrap_keystore -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=/home/u/srosset/UL/cougaar/workspace/log4jlogs/caNode.log -Xbootclasspath/a:/home/u/srosset/UL/cougaar/lib/securebootstrapper.jar:/home/u/srosset/UL/cougaar/lib/bootstrap.jar -Dorg.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect,org.cougaar.core.mts.MessageProtectionAspect -Dorg.cougaar.lib.web.tomcat.enableAuth=true -Dorg.cougaar.security.role=srosset -Dorg.cougaar.bootstrap.class=org.cougaar.core.security.securebootstrap.SecureBootstrapper -Djava.security.policy=/home/u/srosset/UL/cougaar/configs/security/Cougaar_Java.policy -Dorg.cougaar.core.security.useSecurityManager=true -Dorg.cougaar.core.security.useAuthenticatedLoader=true -Dorg.cougaar.core.security.crypto.crlpoll=600 -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml -Dorg.cougaar.core.security.crypto.debug=true -Dorg.cougaar.message.transport.debug=security  org.cougaar.bootstrap.Bootstrapper org.cougaar.core.node.Node -n caNode -c";
+  "java -classpath /home/u/junittest/UL/cougaar/lib/securityservices.jar org.cougaar.core.security.test.TestProcess foo";
 
   public void start(String args[]) {
     Runtime thisApp = Runtime.getRuntime();
     Process nodeApp = null;
     nodeStartupDirectory = new File("./test/configs/cougaarCA");
     try {
-      nodeApp = thisApp.exec(commandLine, environmentVariables, nodeStartupDirectory);
-      System.out.println("Exit value: " + nodeApp.exitValue());
+      nodeApp = thisApp.exec(commandLine, null, nodeStartupDirectory);
       BufferedInputStream nodeAppOut = new BufferedInputStream(nodeApp.getInputStream());
       BufferedInputStream nodeAppErr = new BufferedInputStream(nodeApp.getErrorStream());
 
-      Thread.sleep(5000);
-      byte buffer[] = new byte[2000];
+      Thread.sleep(3000);
+      byte buffer[] = new byte[1000];
       int bytes = 0;
       while (bytes != -1) {
 	bytes = nodeAppErr.read(buffer, 0, buffer.length);
-	System.out.println("StdErr: Reading " + bytes + " bytes");
+	//System.out.println("StdErr: Reading " + bytes + " bytes");
 	if (bytes > 0) {
 	  String s = new String(buffer, 0, bytes);
 	  System.err.print(s);
@@ -63,7 +62,7 @@ public class TestProcess
       bytes = 0;
       while (bytes != -1) {
 	bytes = nodeAppOut.read(buffer, 0, buffer.length);
-	System.out.println("StdOut: Reading " + bytes + " bytes");
+	//System.out.println("StdOut: Reading " + bytes + " bytes");
 	if (bytes > 0) {
 	  String s = new String(buffer, 0, bytes);
 	  System.out.print(s);
@@ -72,6 +71,7 @@ public class TestProcess
       nodeAppOut.close();
       nodeAppErr.close();
       nodeApp.waitFor();
+      System.out.println("Exit value: " + nodeApp.exitValue());
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -80,7 +80,10 @@ public class TestProcess
  }
 
   public static void main(String args[]) {
-    TestProcess tp = new TestProcess();
-    tp.start(args);
+    System.out.println("Startup directory: " + System.getProperty("user.dir"));
+    if (args.length == 0) {
+      TestProcess tp = new TestProcess();
+      tp.start(args);
+    }
   }
 }

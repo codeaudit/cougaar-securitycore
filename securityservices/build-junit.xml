@@ -68,6 +68,7 @@
           <sysproperty key="org.cougaar.junit.config.path" value="${securityservices.regress}/config/nodeTest"/>
           <sysproperty key="junit.test.result.path" value="${junit.test.result.path}"/>
           <sysproperty key="junit.config.file" value="${junit.config.file}"/>
+          <sysproperty key="junit.test.desc" value="${junit.test.desc}"/>
 
           <!-- <sysproperty key="test.org.cougaar.core.security.simul.SaxMapper.trace" value="true"/> -->
 
@@ -107,9 +108,6 @@
          </fileset>
          <report format="frames" todir="${securityservices.results}/html"/>
       </junitreport>
-      <!-- Update dashbaord -->
-      <antcall target="dashboard">
-      </antcall>
     </target>
 
     <!-- Run the Junit tests -->
