@@ -44,7 +44,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
-// java 
+// java
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,9 +58,9 @@ import sun.security.x509.X500Name;
  * The PersistenceMgrPolicyService queries the community service for agents
  * with the "PersistenceManager" role, and caches the search results.
  */
-public class PersistenceMgrPolicyServiceImpl 
+public class PersistenceMgrPolicyServiceImpl
   implements PersistenceMgrPolicyService {
-  
+
   private ServiceBroker _serviceBroker;
   private LoggingService _log;
   // key ring service used to determine the DN(s) of the persistence manager(s)
@@ -78,12 +78,12 @@ public class PersistenceMgrPolicyServiceImpl
   private List _agents;
   // debug flag
   private boolean _debug;
-  
+
   // this is the uri of the persistence manager key recovery servlet
   private static String PM_SERVLET_URI = "/KeyRecoveryServlet";
   // this is the role of a persistence manager
   private static String PM_ROLE = "PersistenceManager";
-  
+
   public PersistenceMgrPolicyServiceImpl(ServiceBroker sb, String community) {
     _serviceBroker = sb;
     _log = (LoggingService)sb.getService(this, LoggingService.class, null);
@@ -91,8 +91,11 @@ public class PersistenceMgrPolicyServiceImpl
     _cs = (CommunityService)sb.getService(this, CommunityService.class, null);
     _wps = (WhitePagesService)sb.getService(this, WhitePagesService.class, null);
     if(_cs == null || _wps == null) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Starting service listener.");
+      }
       registerServiceListener();
-    } 
+    }
     _myCommunity = community;
     _policies = new ArrayList();
     _agents = new ArrayList();
@@ -103,7 +106,7 @@ public class PersistenceMgrPolicyServiceImpl
       SecurityPropertiesService sps = (SecurityPropertiesService)
       sb.getService(this, SecurityPropertiesService.class, null);
       String prop = sps.getProperty(SecurityPropertiesService.PM_SEARCH_PERIOD, "120");  // default to 120 secs
-      period = Long.parseLong(prop) * 1000; // in msecs 
+      period = Long.parseLong(prop) * 1000; // in msecs
     }
     catch(NumberFormatException nfe) {
       _log.error("error parsing persistence manager lookup period");
@@ -111,7 +114,7 @@ public class PersistenceMgrPolicyServiceImpl
     // schedule task to lookup persistence managers from community service
     (new Timer()).schedule(new PersistenceMgrSearchTask(), 0, period);
   }
-  
+
   /**
    * get the latest Persistence Manager Policies
    */
@@ -123,29 +126,29 @@ public class PersistenceMgrPolicyServiceImpl
     }
     return policies;
   }
-  
+
   // register community and white pages service listener
   private void registerServiceListener() {
-    ServiceAvailableListener sal = new ServiceAvailableListener() {  
+    ServiceAvailableListener sal = new ServiceAvailableListener() {
       public void serviceAvailable(ServiceAvailableEvent ae) {
-        if(ae.getService() == CommunityService.class) {
+        Class sc = ae.getService();
+        //if(ae.getService() == CommunityService.class) {
+        if(org.cougaar.core.service.community.CommunityService.class.isAssignableFrom(sc)) {
           _log.debug("community service is now available");
           _cs = (CommunityService)
             ae.getServiceBroker().getService(this, CommunityService.class, null);
         }
-        else if(ae.getService() == WhitePagesService.class) {
+        if(org.cougaar.core.service.wp.WhitePagesService.class.isAssignableFrom(sc)) {
+        //else if(ae.getService() == WhitePagesService.class) {
           _log.debug("white pages service is now available");
           _wps = (WhitePagesService)
             ae.getServiceBroker().getService(this, WhitePagesService.class, null);
         }
-        if(_cs != null && _wps != null) {
-          removeServiceListener();
-        }
       }
     };
     _serviceBroker.addServiceListener(sal);
-    _serviceListener = sal; 
-  } 
+    _serviceListener = sal;
+  }
 
   // remove service listener for community and white pages service
   private void removeServiceListener() {
@@ -161,11 +164,11 @@ public class PersistenceMgrPolicyServiceImpl
     policy.pmDN = dn;
     return policy;
   }
-  
+
   private void addPolicy(PersistenceManagerPolicy policy) {
     synchronized(_policies) {
-      _policies.add(policy); 
-    } 
+      _policies.add(policy);
+    }
     if(_debug) {
       _log.debug("adding PersistenceManagerPolicy: " + policy);
     }
@@ -174,14 +177,14 @@ public class PersistenceMgrPolicyServiceImpl
   /**
    * This task is searches for persistence managers and constructs
    * a PersistenceManagerPolicy for new persistence managers
-   */  
+   */
   class PersistenceMgrSearchTask extends TimerTask  {
-    // list of persistence managers 
+    // list of persistence managers
     private List _agents;
 
     public PersistenceMgrSearchTask() {
       _agents = new ArrayList();
-    }    
+    }
 
     public void run() {
       // get a list of all security communities
@@ -216,7 +219,7 @@ public class PersistenceMgrPolicyServiceImpl
               e.printStackTrace();
               continue;
             }
-            // construct the url for this persistence manager 
+            // construct the url for this persistence manager
             URI uri = entry.getAddress();
             String servletUrl = uri + PM_SERVLET_URI;
             // get all DNs associated with this agent
@@ -228,7 +231,7 @@ public class PersistenceMgrPolicyServiceImpl
             }
             // only add the agent if haven't already
             if(dns.size() > 0) {
-              _agents.add(agent); 
+              _agents.add(agent);
             }
           } // if(!_agents.contains(pm))
         } // while(pms.hasNext())
