@@ -722,6 +722,7 @@ public class DirectoryKeyStore
     // sent to the first CA, then sent to the second CA,
     // but the certificate is approved by the 1st but not
     // the second
+    /*
     String dname = certificateForImport[0].getSubjectDN().getName();
     if (CertificateUtility.findAttribute(dname, "t").equals(CERT_TITLE_AGENT)) {
       try {
@@ -730,6 +731,7 @@ public class DirectoryKeyStore
         log.debug("Exception in updateNS: " + ex.toString());
       }
     }
+    */
   }
 
   /**
@@ -1055,6 +1057,7 @@ public class DirectoryKeyStore
 	    log.debug("Certificate chain established");
 	  }
 	  cs.setCertificateTrust(CertificateTrust.CERT_TRUST_CA_SIGNED);
+          certCache.updateBigInt2Dn(certificate);
 	}
 	catch (CertificateChainException exp) {
 	  if (log.isWarnEnabled()) {
@@ -1254,7 +1257,7 @@ public class DirectoryKeyStore
       String cname = x509certificate.getSubjectDN().getName();
       String ctype = CertificateUtility.findAttribute(cname, "t");
       certFinder = certificateFinder;
-      if (ctype != null && ctype.equals(CERT_TITLE_AGENT))
+      if (ctype != null && (ctype.equals(CERT_TITLE_AGENT) || ctype.equals(CERT_TITLE_CA)))
         // all other types should not have cross CA communication
         // for SSL the mechanism is different, the protocol handshake
         // requires the peer to supply the chain.
@@ -2286,9 +2289,14 @@ public class DirectoryKeyStore
       }
     }
     */
+
     //check first
     List certificateList = null;
     try{
+      if (param.isCertAuth && CertificateUtility.findAttribute(
+        dname.toString(), "t").equals(CERT_TITLE_AGENT))
+        updateCAonNS();
+
       certificateList = findCert(dname.getCommonName(),
 				 KeyRingService.LOOKUP_KEYSTORE);
       if(certificateList != null && certificateList.size() != 0) {
@@ -2310,6 +2318,15 @@ public class DirectoryKeyStore
     addKeyPair(dname, null, isCACert);
 
     //checkOrMakeHostKey();
+  }
+
+  private void updateCAonNS() {
+    // find local CA
+    X500Name [] caDNs = configParser.getCaDNs();
+
+    // updateNS, if the CA cert if not created
+    for (int i = 0; i < caDNs.length; i++)
+      updateNS(caDNs[i]);
   }
 
   private void checkOrMakeHostKey() {
@@ -2630,82 +2647,68 @@ public class DirectoryKeyStore
   private static final String CERT_DIR = "/Certificates";
 
   public void updateNS(String commonName) {
-    // check whether cert exist and whether it is agent
-    List certificateList = findCert(commonName);
-    if (certificateList != null && certificateList.size() > 0) {
-      CertificateStatus cs = (CertificateStatus)certificateList.get(0);
-      X509Certificate cert = (X509Certificate)cs.getCertificate();
-      String dname = cert.getSubjectDN().getName();
-      if (CertificateUtility.findAttribute(dname, "t").equals(CERT_TITLE_AGENT)) {
-        try {
-          updateNS(new X500Name(dname));
-        } catch (Exception ex) {
-          log.debug("Exception in updateNS: " + ex.toString());
-        }
-      }
-    }
+    try {
+      updateNS(new X500Name(getX500DN(commonName)));
+    } catch (Exception ex) {}
   }
 
-  private void updateNS(X500Name x500Name) {
+  public void updateNS(X500Name x500Name) {
+    // check whether cert exist and whether it is agent
+    String dname = x500Name.toString();
+    String title = CertificateUtility.findAttribute(dname, "t");
+    if (log.isDebugEnabled())
+      log.debug("updateNS: " + dname);
+
+    if (title == null || (!title.equals(CERT_TITLE_AGENT) && !title.equals(CERT_TITLE_CA)))
+      return;
+    List certificateList = findCert(x500Name);
+    if (certificateList == null || certificateList.size() == 0)
+      return;
     try {
-      String agent = x500Name.getCommonName();
-      List certs = findCert(agent);
-      if (certs.size() != 0) {
-        if (log.isDebugEnabled())
-          log.debug("updateNS: " + agent);
+      if (namingSrv == null)
+        namingSrv = (NamingService)
+          param.serviceBroker.getService(this,
+                                   NamingService.class,
+                                   null);
+      if (namingSrv == null) {
+        throw new NamingException("Cannot get naming service");
+      }
 
-        if (namingSrv == null)
-          namingSrv = (NamingService)
-            param.serviceBroker.getService(this,
-                                     NamingService.class,
-                                     null);
-        if (namingSrv == null)
-          return;
-
-	// Commented out until BBN fixes the bug
-	/*
-        try {
-          String key = NameSupport.TOPOLOGY_DIR + NS.DirSeparator + agent;
-          InitialDirContext ctx = namingSrv.getRootContext();
-
-          //BasicAttributes attributes = new BasicAttributes();
-          //_registerWithSociety(key, new MessageAddress(agent), attributes);
-
-          BasicAttributes attributes = (BasicAttributes)ctx.getAttributes(key);
-          attributes.put(CDTYPE_ATTR, new Integer(param.ldapServerType));
-          attributes.put(CDURL_ATTR, param.ldapServerUrl);
-          ctx.modifyAttributes(key, DirContext.REPLACE_ATTRIBUTE, attributes);
-        } catch (NamingException nx) {
-          log.warn("Cannot update agent ldap in naming." + nx.toString());
-        }
-      */
-      try {
-        DirContext ctx = ensureCertContext();
-        Attributes attributes = new BasicAttributes();
+      DirContext ctx = ensureCertContext();
+      Attributes attributes = new BasicAttributes();
+      if (title.equals(CERT_TITLE_AGENT)) {
         attributes.put(CDTYPE_ATTR, new Integer(param.ldapServerType));
         attributes.put(CDURL_ATTR, param.ldapServerUrl);
-        String value = agent.toLowerCase();
-        ctx.rebind(value, value, attributes);
-      } catch (NamingException nx) {
-        log.warn(
-            "Cannot update agent "+agent+
-            " ldap in naming." + nx.toString());
       }
+      // for CA should put the ca policy LDAP
+      else {
+        CaPolicy caPolicy = configParser.getCaPolicy(dname);
+        attributes.put(CDTYPE_ATTR, new Integer(caPolicy.ldapType));
+        attributes.put(CDURL_ATTR, caPolicy.ldapURL);
+      }
+      String value = x500Name.getCommonName().toLowerCase();
+      ctx.rebind(value, value, attributes);
 
-      //log.warn("Cannot update agent ldap in naming.");
-      }
-    } catch (IOException ix) {
+      if (log.isDebugEnabled())
+        log.debug("successfully update: " + value + " attrib: " + attributes + " in NS");
+
+    } catch (Exception nx) {
+      log.warn(
+          "Cannot update "+dname+
+          " ldap in naming." + nx.toString());
     }
+
+    //log.warn("Cannot update agent ldap in naming.");
   }
 
   /**
    * Check whether the certificate comes from the local CA
    */
-  private CertDirectoryServiceClient getCertDirectoryServiceClient(String cname) {
-    if (cname.equals(NodeInfo.getNodeName()) || cname.equals(getHostName()))
-      return certificateFinder;
-
+  public CertDirectoryServiceClient getCertDirectoryServiceClient(String cname) {
     try {
+      if (cname.equals(NodeInfo.getNodeName()) || cname.equals(getHostName()))
+        return certificateFinder;
+
       if (namingSrv == null)
         namingSrv = (NamingService)
           param.serviceBroker.getService(this,
@@ -2731,9 +2734,12 @@ public class DirectoryKeyStore
           return CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
             cdType.intValue(), cdUrl, param.serviceBroker);
       }
-    } catch (NamingException nx) {
-      log.info("Cannot get certificate information from naming server: "
-        + nx.toString());
+    } catch (Exception nx) {
+      if (!(nx instanceof NamingException)) {
+        if (log.isDebugEnabled())
+          log.debug("Cannot get certificate information from naming server: "
+            + nx.toString());
+      }
     }
     // default
     return certificateFinder;
