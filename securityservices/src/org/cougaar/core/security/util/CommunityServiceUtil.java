@@ -1228,7 +1228,11 @@ public class CommunityServiceUtil {
         Object response = resp.getContent();
 
 	if (response == null) {
-	  _log.warn("ResultListener (agent:" + _agent + "): response is null");
+	  if (_log.isInfoEnabled()) {
+	    _log.info("ResultListener (agent:" + _agent + "): response is null");
+	  }
+	  // didn't find any appropriate community. Start a listener
+	  addListener();
 	  return;
 	}
         if (!(response instanceof Set)) {
@@ -1257,6 +1261,14 @@ public class CommunityServiceUtil {
           return;
         }
       }
+      // didn't find any appropriate community. Start a listener
+      addListener();
+    }
+
+    /** Invoked when we didn't find any appropriate community.
+     *  Start a listener
+     */
+    private void addListener() {
       if(_log.isDebugEnabled()) {
         _log.debug(_ws.getWarning());
         if(_containsRole) {
@@ -1271,7 +1283,6 @@ public class CommunityServiceUtil {
       // didn't find any appropriate community... start a listener
       _cs.addListener(_changeListener);
     }
-
   }
    
   private class GetAgentInCommunity implements CommunityChangeListener {
