@@ -196,5 +196,7 @@ public class MsgAccessPolicyHandler
     if (localName.equals("MessageCriticality")) {
       acp.setCriticality(critParty, criticality);
     }
+    // Reset contents
+    contents.reset();
   }
 }

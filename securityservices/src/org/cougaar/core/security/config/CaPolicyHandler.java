@@ -103,9 +103,10 @@ public class CaPolicyHandler
     // Names
     if (localName.equals(CA_DN_ELEMENT)) {
       X500Name aDN = null;
-      if (getContents() != null && !getContents().equals("")) {
+      String s = getContents();
+      if (s != null && !s.equals("")) {
 	try {
-	  aDN = new X500Name(getContents());
+	  aDN = new X500Name(s);
 	  if (log.isDebugEnabled()) {
 	    log.debug(" Got aDN is :"+ aDN.toString() + ".");
 	  }
@@ -114,7 +115,7 @@ public class CaPolicyHandler
 	}
 	catch (IOException e) {
 	  if (log.isErrorEnabled()) {
-	    log.error("Unable to parse DN: " + getContents() + ".");
+	    log.error("Unable to parse DN: " + s + ".");
 	  }
 	}
       }
@@ -207,6 +208,9 @@ public class CaPolicyHandler
 	caPolicy.nodeIsSigner = true;
       }
     }
+    // Reset contents
+    contents.reset();
+
   }
 }
 

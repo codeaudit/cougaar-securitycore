@@ -127,6 +127,8 @@ public class CryptoPolicyHandler
       String value = getContents();
       cp.setOutSignSpec(value);
     }
+    // Reset contents
+    contents.reset();
   }
   
 }

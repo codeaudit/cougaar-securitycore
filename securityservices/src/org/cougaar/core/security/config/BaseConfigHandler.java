@@ -133,7 +133,7 @@ public class BaseConfigHandler
       if (log.isDebugEnabled()) {
 	log.debug("Swapping to content handler back to parent");
       }
-      //contents.reset();
+      contents.reset();
       parser.setContentHandler(parent);
     }
   }
@@ -156,7 +156,7 @@ public class BaseConfigHandler
   }
 
   public String getContents() {
-    return contentsValue;
+    return (contentsValue == null ? null : contentsValue.trim());
   }
 
   private String contentsValue;

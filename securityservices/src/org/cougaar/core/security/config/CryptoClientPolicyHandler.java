@@ -240,6 +240,9 @@ public class CryptoClientPolicyHandler
       duration.parse(getContents());
       currentCertAttr.howLong = duration.getDuration();
     }
+
+    // Reset contents
+    contents.reset();
   }
 
 }

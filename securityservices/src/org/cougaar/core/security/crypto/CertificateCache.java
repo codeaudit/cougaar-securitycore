@@ -360,8 +360,8 @@ public class CertificateCache
 	updateBigInt2Dn(cert);
       }
       else {
-	if(log.isWarnEnabled())
-	  log.warn("Certificate is not trusted yet trust="
+	if(log.isInfoEnabled())
+	  log.info("Certificate is not trusted yet trust="
 		   + certEntry.getCertificateTrust());
       }
     

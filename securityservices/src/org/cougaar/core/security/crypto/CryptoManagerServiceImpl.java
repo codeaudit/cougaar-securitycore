@@ -75,6 +75,10 @@ public class CryptoManagerServiceImpl
 	  }
 	});
     if (pkList == null || pkList.size() == 0) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to sign object. Private key of " + name
+	  + " does not exist.");
+      }
       throw new CertificateException("Private key not found.");
     }
     PrivateKey pk = ((PrivateKeyCert)pkList.get(0)).getPrivateKey();
@@ -134,6 +138,10 @@ public class CryptoManagerServiceImpl
       keyRing.findCert(name,
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (certList == null || certList.size() == 0) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to encrypt object with public key. Certificate of " + name
+	  + " was not found.");
+      }
       throw new CertificateException("asymmEncrypt. Unable to get certificate for " + name);
     }
     java.security.cert.Certificate cert =
@@ -161,6 +169,10 @@ public class CryptoManagerServiceImpl
 	  }
 	});
     if (keyList == null || keyList.size() == 0) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to decrypt object with public key. Private key of " + name
+	  + " was not found.");
+      }
       return null;
     }
     Iterator it = keyList.iterator();
@@ -200,8 +212,8 @@ public class CryptoManagerServiceImpl
   public Object symmDecrypt(SecretKey sk, SealedObject obj){
     Object o = null;
     if (sk == null) {
-      if (log.isDebugEnabled()) {
-	log.debug("Secret key not provided!");
+      if (log.isErrorEnabled()) {
+	log.error("Secret key not provided!");
       }
       return o;
     }
@@ -358,6 +370,10 @@ public class CryptoManagerServiceImpl
       keyRing.findCert(source.toAddress(),
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (senderList.size() == 0) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to sign object. Certificate of " + source.toAddress()
+		 + " was not found.");
+      }
       throw new CertificateException("Unable to find sender certificate: " 
 				     + source.toAddress());
     }
