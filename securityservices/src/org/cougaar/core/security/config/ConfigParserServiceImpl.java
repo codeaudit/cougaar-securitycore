@@ -87,7 +87,6 @@ public class ConfigParserServiceImpl
 
     isNode =
       Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
-
     // Add workspace/security/keystores/$nodeName directory to the search path
     String nodeName = secprop.getProperty("org.cougaar.node.name");
     if (nodeName == null || nodeName.length() == 0) {
@@ -230,7 +229,7 @@ public class ConfigParserServiceImpl
       }
     }
   }
-
+  
   /*
   public Document getConfigDocument() {
     return configDoc;
@@ -306,6 +305,11 @@ public class ConfigParserServiceImpl
 
   public SecurityPolicy[] getSecurityPolicies(Class policyClass) {
     return handler.getSecurityPolicies(policyClass);
+  }
+
+  public void updateCryptoClientPolicy(CryptoClientPolicy policy) 
+    throws CryptoPolicyUpdateException {
+    handler.updateCryptoClientPolicy(policy);
   }
 
   public boolean isCertificateAuthority() {

@@ -26,6 +26,9 @@
 
 package org.cougaar.core.security.policy;
 
+import org.cougaar.core.security.config.CryptoClientPolicyHandler;
+
+import org.w3c.dom.*;
 import java.util.*;
 
 public class CryptoClientPolicy
@@ -175,4 +178,58 @@ public class CryptoClientPolicy
     return s;
   }
 
+  public Node convertToXML(Document parent) {
+    Element ccPolicyNode = parent.createElement("cryptoClientPolicy");
+    // is certificate authority
+    Node node = parent.createElement(CryptoClientPolicyHandler.IS_CERT_AUTH_ELEMENT);    
+    node.appendChild(parent.createTextNode((new Boolean(isCertificateAuthority)).toString()));
+    ccPolicyNode.appendChild(node);
+    
+    if(keystoreName != null) {
+      // keystore file name
+      node = parent.createElement(CryptoClientPolicyHandler.KEYSTORE_FILE_ELEMENT);    
+      node.appendChild(parent.createTextNode(keystoreName));
+      ccPolicyNode.appendChild(node);
+    }
+    if(keystorePassword != null) {
+      // keystore password (BAD, we shouldn't store the keystore password in the clear!)
+      node = parent.createElement(CryptoClientPolicyHandler.KEYSTORE_PASSWORD_ELEMENT);    
+      node.appendChild(parent.createTextNode(keystorePassword));
+      ccPolicyNode.appendChild(node);
+    }
+    // KEYSTORE_USE_SMART_CARD optional
+    /*
+    node = parent.createElement(CryptoClientPolicyHandler.KEYSTORE_USE_SMART_CARD);    
+    node.appendChild(parent.createTextNode((new Boolean(useSmartCard)).toString()));
+    ccPolicyNode.appendChild(node);
+    */
+    // iterator the vector of trusted CAs
+    node = parent.createElement("trustedCAs");
+    // trusted CAs inner nodes
+    Node innerNode = null;
+    if(trustedCaKeystoreName != null) {
+      // CA keystore
+      innerNode = parent.createElement(CryptoClientPolicyHandler.CA_KEYSTORE_ELEMENT);
+      innerNode.appendChild(parent.createTextNode(trustedCaKeystoreName));
+      node.appendChild(innerNode);
+    }
+    if(trustedCaKeystorePassword != null) {
+      // CA keystore password (shouldn't be storing passwords in the clear!)
+      innerNode = parent.createElement(CryptoClientPolicyHandler.CA_KEYSTORE_PASSWORD_ELEMENT);
+      innerNode.appendChild(parent.createTextNode(trustedCaKeystorePassword));
+      node.appendChild(innerNode);
+    }
+    // iterator through the trusted CAs
+    Iterator i = trustedCAs.iterator();
+    while(i.hasNext()) {
+      TrustedCaPolicy tcp = (TrustedCaPolicy)i.next();
+      node.appendChild(tcp.convertToXML(parent));
+    }
+    ccPolicyNode.appendChild(node);
+    if(certificateAttributesPolicy != null) {
+      // certificate attributes
+      ccPolicyNode.appendChild(certificateAttributesPolicy.convertToXML(parent));
+    }
+    return ccPolicyNode;
+  }
 };

@@ -26,6 +26,9 @@
 
 package org.cougaar.core.security.policy;
 
+import org.cougaar.core.security.config.CryptoClientPolicyHandler;
+
+import org.w3c.dom.*;
 import sun.security.x509.*;
 import java.net.*;
 
@@ -69,7 +72,8 @@ public class CertificateAttributesPolicy {
   /** The default period of validity
    */
   public long howLong;
-
+  public String validity;
+  
   /** The signature algorithm name
    */
   public String sigAlgName;
@@ -81,7 +85,8 @@ public class CertificateAttributesPolicy {
   /** Determines when to regenerate keys
    */
   public long regenEnvelope;
-
+  public String timeEnvelope;
+  
   /**
    * Certificate Version, used for node to create agent certificate
    */
@@ -94,5 +99,93 @@ public class CertificateAttributesPolicy {
       + " - howLong=" + howLong
       + " - sigAlgName=" + sigAlgName
       + " - keyAlgName=" + keyAlgName;
+  }
+  /*
+  CryptoClientPolicyHandler
+   // Certificate Attributes
+  public static final String CERTIFICATE_ATTR_ELEMENT = "certificateAttributes";
+  public static final String CACERTIFICATE_ATTR_ELEMENT = "caCertificateAttributes";
+  public static final String OU_ELEMENT           = "ou";
+  public static final String O_ELEMENT            = "o";
+  public static final String L_ELEMENT            = "l";
+  public static final String ST_ELEMENT           = "st";
+  public static final String C_ELEMENT            = "c";
+  public static final String DOMAIN_ELEMENT       = "domain";
+  public static final String KEYALGNAME_ELEMENT   = "keyAlgName";
+  public static final String SIGALGNAME_ELEMENT   = "sigAlgName";
+  public static final String KEYSIZE_ELEMENT      = "keysize";
+  public static final String VALIDITY_ELEMENT     = "validity";
+  public static final String ENVELOPE_ELEMENT     = "timeEnvelope";
+  public static final String NODE_IS_SIGNER_ELEMENT = "nodeIsSigner";
+  */
+  
+  public Node convertToXML(Document parent) {
+    Element certAttrNode = 
+      parent.createElement(CryptoClientPolicyHandler.CERTIFICATE_ATTR_ELEMENT);
+    // distinguished name
+    Node node = parent.createElement("distinguishedName");
+    Node innerNode = null;
+    // organizational unit
+    if(ou != null) {
+      innerNode = parent.createElement(CryptoClientPolicyHandler.OU_ELEMENT);
+      innerNode.appendChild(parent.createTextNode(ou));
+      node.appendChild(innerNode);
+    }
+    // organization
+    if(o != null) {
+      innerNode = parent.createElement(CryptoClientPolicyHandler.O_ELEMENT);
+      innerNode.appendChild(parent.createTextNode(o));
+      node.appendChild(innerNode);
+    }
+    // locality
+    if(l != null) {
+      innerNode = parent.createElement(CryptoClientPolicyHandler.L_ELEMENT);
+      innerNode.appendChild(parent.createTextNode(l));
+      node.appendChild(node);
+    }
+    // state
+    if(st != null) {
+      innerNode = parent.createElement(CryptoClientPolicyHandler.ST_ELEMENT);
+      innerNode.appendChild(parent.createTextNode(st));
+      node.appendChild(innerNode);
+    }
+    // country
+    if(c != null) {
+      innerNode = parent.createElement(CryptoClientPolicyHandler.C_ELEMENT);
+      innerNode.appendChild(parent.createTextNode(c));
+      node.appendChild(innerNode);
+    }
+    // domain
+    if(domain != null) {
+      innerNode = parent.createElement(CryptoClientPolicyHandler.DOMAIN_ELEMENT);
+      innerNode.appendChild(parent.createTextNode(domain));
+      node.appendChild(innerNode);
+    }
+    certAttrNode.appendChild(node);
+    // node is signer
+    node = parent.createElement(CryptoClientPolicyHandler.NODE_IS_SIGNER_ELEMENT);
+    node.appendChild(parent.createTextNode((new Boolean(nodeIsSigner)).toString()));
+    certAttrNode.appendChild(node);
+    // key algorithm
+    node = parent.createElement(CryptoClientPolicyHandler.KEYALGNAME_ELEMENT);
+    node.appendChild(parent.createTextNode(keyAlgName));
+    certAttrNode.appendChild(node);
+     // key size
+    node = parent.createElement(CryptoClientPolicyHandler.KEYSIZE_ELEMENT);
+    node.appendChild(parent.createTextNode((new Integer(keysize)).toString()));
+    certAttrNode.appendChild(node);
+    // signing algorithm
+    node = parent.createElement(CryptoClientPolicyHandler.SIGALGNAME_ELEMENT);
+    node.appendChild(parent.createTextNode(sigAlgName));
+    certAttrNode.appendChild(node);
+    // cert validity
+    node = parent.createElement(CryptoClientPolicyHandler.VALIDITY_ELEMENT);
+    node.appendChild(parent.createTextNode(validity));
+    certAttrNode.appendChild(node);
+    // cert time envelope
+    node = parent.createElement(CryptoClientPolicyHandler.ENVELOPE_ELEMENT);
+    node.appendChild(parent.createTextNode(timeEnvelope));
+    certAttrNode.appendChild(node);
+    return certAttrNode;
   }
 };

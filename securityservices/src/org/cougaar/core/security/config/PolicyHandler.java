@@ -45,8 +45,6 @@ import org.cougaar.core.security.services.util.*;
 public class PolicyHandler
 {
   private SecurityPropertiesService secprop = null;
-  private ByteArrayInputStream newPolicyInputStream;
-  private ByteArrayOutputStream policy;
   private ConfigParserService configParser = null;
   private ServiceBroker serviceBroker;
   private LoggingService log;
@@ -135,7 +133,12 @@ public class PolicyHandler
     ByteArrayInputStream bis = new ByteArrayInputStream(newPolicyOutputStream.toByteArray());
     configParser.parsePolicy(bis, fileName);
   }
-
+  
+  public void updateCryptoClientPolicy(CryptoClientPolicy policy) 
+    throws CryptoPolicyUpdateException {
+    configParser.updateCryptoClientPolicy(policy);
+  }
+  
   public ByteArrayOutputStream parseXmlTemplate(String xmlTemplateFile,
 						Hashtable attributeTable) {
 

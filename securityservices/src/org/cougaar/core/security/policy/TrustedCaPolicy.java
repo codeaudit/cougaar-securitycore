@@ -26,6 +26,9 @@
 
 package org.cougaar.core.security.policy;
 
+import org.cougaar.core.security.config.CryptoClientPolicyHandler;
+
+import org.w3c.dom.*;
 import sun.security.x509.*;
 import java.net.*;
 
@@ -86,5 +89,59 @@ public class TrustedCaPolicy {
       s = s + "\nCertificate Attributes:" +  certificateAttributesPolicy.toString();
     }
     return s;
+  }
+ 
+  public Node convertToXML(Document parent) {
+    Element trustedCANode = 
+      parent.createElement(CryptoClientPolicyHandler.TRUSTED_CA_ELEMENT);
+    Node node = null;
+    // CA DN
+    if(caDN != null) {
+      node = parent.createElement(CryptoClientPolicyHandler.CA_DN_ELEMENT);
+      node.appendChild(parent.createTextNode(caDN));
+      trustedCANode.appendChild(node);
+    }
+    // CA url
+    if(caURL != null) {
+      node = parent.createElement(CryptoClientPolicyHandler.CA_URL_ELEMENT);
+      node.appendChild(parent.createTextNode(caURL));
+      trustedCANode.appendChild(node);
+    }
+    // cert directory url
+    if(certDirectoryUrl != null) {
+      node = parent.createElement(CryptoClientPolicyHandler.CERT_DIRECTORY_URL_ELEMENT);
+      node.appendChild(parent.createTextNode(certDirectoryUrl));
+      trustedCANode.appendChild(node);
+    }
+    // cert directory principal
+    if(certDirectoryPrincipal != null) {
+      node = parent.createElement(CryptoClientPolicyHandler.CERT_DIRECTORY_PRINCIPAL_ELEMENT);
+      node.appendChild(parent.createTextNode(certDirectoryPrincipal));
+      trustedCANode.appendChild(node);
+    }
+    // cert directory credential
+    if(certDirectoryCredential != null) {
+      node = parent.createElement(CryptoClientPolicyHandler.CERT_DIRECTORY_CREDENTIAL_ELEMENT);
+      node.appendChild(parent.createTextNode(certDirectoryCredential));
+      trustedCANode.appendChild(node);
+    }
+    // cert directory type
+    String certDirType = "CougaarOpenLdap";
+    if(certDirectoryType != COUGAAR_OPENLDAP) {
+      if(certDirectoryType == NETTOOLS) {
+        certDirType = "NetTools"; 
+      }
+      else {
+        certDirType = "Unknown";
+      }
+    }
+    node = parent.createElement(CryptoClientPolicyHandler.CERT_DIRECTORY_TYPE_ELEMENT);
+    node.appendChild(parent.createTextNode(certDirectoryCredential));
+    trustedCANode.appendChild(node);
+    if(certificateAttributesPolicy != null) {
+      // cert attributes for this trusted CA
+      trustedCANode.appendChild(certificateAttributesPolicy.convertToXML(parent));
+    }
+    return trustedCANode;
   }
 };
