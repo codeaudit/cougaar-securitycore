@@ -88,7 +88,9 @@ import java.security.cert.*;
 public class BaseBootstrapper
 {
   protected XURLClassLoader baseclassloader=null;
-  public  static int loudness = 0;
+  public static int loudness = 0;
+  private static String nodeName = null;
+ 
   static {
     String s = System.getProperty("org.cougaar.core.society.bootstrapper.loud");
     if ("true".equals(s)) {
@@ -130,7 +132,6 @@ public class BaseBootstrapper
     String check = null;
     String next = null;
     boolean sawname = false;
-    String nodeName = null;
     for( int x = 0; x < argc;){
       check = args[x++];
       if (! check.startsWith("-") && !sawname) {
@@ -148,6 +149,9 @@ public class BaseBootstrapper
     return nodeName;
   }
 
+  public static String getNodeName() {
+    return nodeName;
+  }
 
   public void launch(String classname, String[] args){
     if (isBootstrapped) {
