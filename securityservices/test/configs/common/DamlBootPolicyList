@@ -19,6 +19,52 @@
 # </copyright>
 #
 
+#
+# Declarations Section
+#
+
+#
+# Each of the declarations that follow defines names of policy
+# concepts.  These names are used for stating and reasoning about
+# policy.  However, in order for these names to be understood by the
+# Ultralog enforcers, we need a mapping file that tells how Ultralog
+# names are translated into these names.  Arguably all the
+# declarations should go in here?
+#
+# The two exceptions to this scheme are 
+#  1. message verbs which are declared in Ontology-EntityInstances.daml and 
+#     don't need a mapping file, and
+#  2. communities which are declared in Ontology-GroupInstances.daml
+#     and don't need a mapping file.
+# I haven't moved the verb declarations because it requires a hack
+# which I am not yet happy with.  I haven't moved the community
+# declarations because they may be going away and I am concerned that
+# there might be a performance hit.
+#
+
+#
+# The mapping file for the following KAoS policy names is DamlUserRoleMap.
+#
+
+UserRole Administrator
+UserRole CAAdministrator
+UserRole General
+UserRole Guest
+UserRole Logistician
+UserRole LogisticsViewer
+UserRole MonitorManager
+UserRole RearPolicyAdministrator
+UserRole FwdPolicyAdministrator
+UserRole ConusPolicyAdministrator
+UserRole TransPolicyAdministrator
+UserRole PolicyAdministrator
+UserRole UserManager
+UserRole SocietyAdmin
+
+#
+# The mapping file for the following KAoS policy names is DamlUriMap
+#
+
 Servlet AggegatorServlets
 Servlet NCAServlets
 Servlet SCmrmanagerServlets
@@ -37,6 +83,14 @@ Servlet SocietyAdminServlet
 Servlet UserManagerServlets
 Servlet OtherServlets
 
+
+#
+# There are three mapping files for these declarations, 
+#    RoleAgent        - to get the role from the agent name
+#    RoleComponentMap - to get the role from the component name
+#    RoleUriMap       - to get the role from the URI
+#
+
 PlugInRole OpPlanPlugInRole
 PlugInRole PolicyServletRole
 PlugInRole OrgActivityAddRole
@@ -46,9 +100,22 @@ PlugInRole OrgActivityChangeRole
 PlugInRole OrgActivityRemoveRole
 PlugInRole OrgActivityAllRole
 
+#
+# The mapping file for these declarations is DamlBlackboardObjectMap.
+#
+
 BlackBoardObject BlackboardOpPlanObject
 BlackBoardObject SafeRelay
 BlackBoardObject OrgActivity
+
+#
+# End of Declarations Section
+#
+
+#
+# Now the Policies follow:
+#
+
 
 Policy DamlBootPolicyAllowCommunication = [ 
    GenericTemplate
