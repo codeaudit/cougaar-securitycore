@@ -189,6 +189,10 @@ public class AccessAgentProxy
         if (log.isWarnEnabled()) {
           log.warn("Rejecting outgoing message: " + message);
         }
+        publishMessageFailure(message.getOriginator().toString(),
+                              message.getTarget().toString(),
+                              MessageFailureEvent.INVALID_MESSAGE_CONTENTS,
+                              "All contents have been disalllowed");
         return;
       }
 
