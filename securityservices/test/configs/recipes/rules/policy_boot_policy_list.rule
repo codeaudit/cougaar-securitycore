@@ -14,8 +14,8 @@ require 'framework/jar_util'
 require 'framework/policy_util'
 require 'framework/common_security_rules'
 
-if !(@damlUriMapCompleted)
-  @damlUriMapCompleted = true
+if !(@damlBootPolicyCompleted)
+  @damlBootPolicyCompleted = true
   enclave_list = []
   society.each_enclave { |enclave|
     enclave_list << enclave;
