@@ -254,7 +254,7 @@ public class AgentUserService implements UserService, BlackboardClient {
 	  }
 	};
       // TODO: do this truly asynchronously.
-      _communityService.getCommunity(communityName, -1, crl);
+      _communityService.getCommunity(communityName, crl);
       try {
 	s.acquire();
       } catch (InterruptedException ie) {

@@ -212,7 +212,7 @@ public class AccessControlPolicy
 	    commList.put(comName, entityNames);
 	  }
 	};
-      cs.getCommunity(comName, -1, crl);
+      cs.getCommunity(comName, crl);
 
     }
   }

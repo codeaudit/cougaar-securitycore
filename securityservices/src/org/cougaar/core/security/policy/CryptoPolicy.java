@@ -294,7 +294,7 @@ public class CryptoPolicy extends SecurityPolicy {
 	  }
 	};
       // TODO: do this truly asynchronously.
-      cs.getCommunity(comName, -1, crl);
+      cs.getCommunity(comName, crl);
       try {
 	s.acquire();
       } catch (InterruptedException ie) {

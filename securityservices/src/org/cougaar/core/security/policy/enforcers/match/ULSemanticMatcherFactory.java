@@ -355,29 +355,14 @@ public class ULSemanticMatcherFactory
       Object     cached;
 
       if ((cached = _communityCache.get(agent)) == null) {
-
 	// TODO. Resolve community membership in the policy update call.
-
-	final Semaphore s = new Semaphore(0);
-	final Status status = new Status();
-	CommunityResponseListener crl = new CommunityResponseListener() {
-	    public void getResponse(CommunityResponse response) {
-	      if (!(response instanceof Set)) {
-		String errorString = "Unexpected community response class:"
-		  + response.getClass().getName() + " - Should be a Set";
-		_log.error(errorString);
-		throw new RuntimeException(errorString);
-	      }
-	      status.communities = new HashSet((Set)response);
-	      s.release();
-	    }
-	  };
-	_communityService.getParentCommunities(true, crl);
-	try {
-	  s.acquire();
-	  _communityCache.put(agent, status.communities);
-	} catch (InterruptedException ie) {
-	  _log.error("Error in getCommunitiesFromAgent:", ie);
+	String comms[] = _communityService.getParentCommunities(true);
+	if (comms != null) {
+	  communities = new ArrayList(comms.length);
+	  for (int i = 0 ; i < comms.length ; i++) {
+	    communities.add(comms[i]);
+	  }
+	  _communityCache.put(agent, communities);
 	}
       } else {
         communities = (Collection) cached;

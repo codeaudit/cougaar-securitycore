@@ -689,7 +689,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
 	}
       };
     // TODO: do this truly asynchronously.
-    communityService.getCommunity(community, -1, crl);
+    communityService.getCommunity(community, crl);
     try {
       s.acquire();
     } catch (InterruptedException ie) {
