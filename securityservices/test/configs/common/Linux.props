@@ -260,6 +260,8 @@ class9.max.parts=5
 org.cougaar.core.security.policy.enforcers.servlet.useDaml=true
 org.cougaar.core.security.policy.enforcers.crypto.useDaml=true
 org.cougaar.core.security.policy.enforcers.access.useDaml=true
+org.cougaar.core.security.policy.auth.role.useDaml=true
+org.cougaar.core.security.policy.auth.role.useAccessCaching=true
 
 #dump messages
 #org.cougaar.core.security.crypto.dumpMessages=true
