@@ -46,12 +46,7 @@ import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 // java
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import sun.security.x509.X500Name;
 
 /**
@@ -83,6 +78,11 @@ public class PersistenceMgrPolicyServiceImpl
   private static String PM_SERVLET_URI = "/KeyRecoveryServlet";
   // this is the role of a persistence manager
   private static String PM_ROLE = "PersistenceManager";
+
+  // need to inform listeners new pm arrived, so that they can protect their
+  // old keys with it, some listeners are not protected with any PM keys
+  // because there are none available when they start persisting.
+  private Hashtable pmListeners = new Hashtable();
 
   public PersistenceMgrPolicyServiceImpl(ServiceBroker sb, String community) {
     _serviceBroker = sb;
@@ -166,12 +166,22 @@ public class PersistenceMgrPolicyServiceImpl
   }
 
   private void addPolicy(PersistenceManagerPolicy policy) {
-    synchronized(_policies) {
-      _policies.add(policy);
-    }
     if(_debug) {
       _log.debug("adding PersistenceManagerPolicy: " + policy);
     }
+    synchronized(_policies) {
+      _policies.add(policy);
+
+      for (Enumeration it = pmListeners.elements(); it.hasMoreElements(); ) {
+        PersistenceMgrAvailListener listener =
+          (PersistenceMgrAvailListener)it.nextElement();
+        listener.newPMAvailable(policy);
+      }
+    }
+  }
+
+  public void addPMListener(String name, PersistenceMgrAvailListener listener) {
+    pmListeners.put(name, listener);
   }
 
   /**

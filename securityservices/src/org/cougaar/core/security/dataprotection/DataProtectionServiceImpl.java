@@ -44,18 +44,18 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.*;
 
 // Cougaar security services
-import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.policy.*;
+import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.DataFailureEvent;
 
 
 public class DataProtectionServiceImpl
-  implements DataProtectionService
+  implements DataProtectionService, PersistenceMgrAvailListener
 {
   private ServiceBroker serviceBroker;
   private EncryptionService encryptionService;
@@ -67,9 +67,11 @@ public class DataProtectionServiceImpl
   private PersistenceMgrPolicyService pps;
   private String keygenAlg = "DES";
   private String digestAlg = "SHA";
+  private CryptoClientPolicy cryptoClientPolicy;
 
   // event publisher for data protection failures
   private static EventPublisher eventPublisher;
+  private Hashtable keyCache = new Hashtable();
 
   // add event publisher
   public static void addPublisher(EventPublisher publisher) {
@@ -108,6 +110,14 @@ public class DataProtectionServiceImpl
                                PersistenceMgrPolicyService.class,
                                null);
 
+    ConfigParserService configParser = (ConfigParserService)
+      serviceBroker.getService(this,
+					    ConfigParserService.class,
+					    null);
+    SecurityPolicy[] sp =
+      configParser.getSecurityPolicies(CryptoClientPolicy.class);
+    cryptoClientPolicy = (CryptoClientPolicy) sp[0];
+
     if (encryptionService == null) {
        throw new RuntimeException("Encryption service not available");
     }
@@ -125,14 +135,33 @@ public class DataProtectionServiceImpl
     }
     dpsClient = (DataProtectionServiceClient)requestor;
 
-    /*
-    try {
-      reprotectClient(dpsClient, null);
-    } catch (GeneralSecurityException gsx) {
-      if (log.isDebugEnabled())
-        log.debug("Exception occured while reprotecting keys: " + gsx.toString());
+    // add listener to new persistence manager coming up
+    String agent = dpsClient.getAgentIdentifier().toAddress();
+    if (!cryptoClientPolicy.isCertificateAuthority()
+      && !agent.equals(NodeInfo.getNodeName())) {
+      pps.addPMListener(dpsClient.getAgentIdentifier().toAddress(), this);
     }
-    */
+  }
+
+  public void newPMAvailable(PersistenceManagerPolicy pmp) {
+    if (log.isDebugEnabled()) {
+      log.debug("Reprotect with " + keyCache.size() + " entries with " + pmp.pmDN);
+    }
+
+    for (Enumeration it = keyCache.keys(); it.hasMoreElements(); ) {
+      try {
+        SecretKey skey = (SecretKey)it.nextElement();
+        DataProtectionKeyEnvelope pke =
+          (DataProtectionKeyEnvelope)keyCache.get(skey);
+        DataProtectionKeyCollection keyCollection =
+          (DataProtectionKeyCollection)pke.getDataProtectionKey();
+
+        protectWithPM(pmp, skey, keyCollection);
+        pke.setDataProtectionKey(keyCollection);
+      } catch (IOException iox) {
+        log.warn("Reprotect secret key failed!", iox);
+      }
+    }
   }
 
   public OutputStream getOutputStream(DataProtectionKeyEnvelope pke,
@@ -160,7 +189,7 @@ public class DataProtectionServiceImpl
     }
     if (dpKey == null) {
       try {
-        dpKey = createDataProtectionKey(agent);
+        dpKey = createDataProtectionKey(agent,pke);
       }
       catch(GeneralSecurityException gsx) {
         publishDataFailure(agent, DataFailureEvent.CREATE_KEY_FAILURE, gsx.toString());
@@ -192,7 +221,7 @@ public class DataProtectionServiceImpl
     return dpos;
   }
 
-  private DataProtectionKey createDataProtectionKey(String agent)
+  private DataProtectionKey createDataProtectionKey(String agent, DataProtectionKeyEnvelope pke)
     throws GeneralSecurityException, IOException {
     //SecureMethodParam policy =
     //cps.getSendPolicy(agent, agent);
@@ -225,49 +254,35 @@ public class DataProtectionServiceImpl
       DataProtectionKeyCollection keyCollection =
 	new DataProtectionKeyCollection();
       keyCollection.add(0, keyImpl);
+
+      // if CA no need to worry about recovery, a new CA should be started
+      // no need to recover for node
+      if (cryptoClientPolicy.isCertificateAuthority()
+        || agent.equals(NodeInfo.getNodeName())) {
+        return keyCollection;
+      }
+
       // Now, add keys of persistence manager agents (TODO)
       // PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
+      // wait for at least one pm to start
       PersistenceManagerPolicy [] pmp = pps.getPolicies();
 
-      if (pmp.length == 0) {
-        if (log.isDebugEnabled()) {
-          log.debug("No persistence manager policy available.");
-        }
+      if (log.isDebugEnabled()) {
+        log.debug("Protecting " + agent + " with " + pmp.length + " managers.");
       }
 
       for (int i = 0; i < pmp.length; i++) {
-        try {
-          if (log.isDebugEnabled()) {
-            log.debug("Encrypting secretkey with " + pmp[i].pmDN);
-          }
-          X500Name pmx500name = new X500Name(pmp[i].pmDN);
-          String commonName = pmx500name.getCommonName();
-          // find cert with common name does not return the certs from
-          // peer, it only returns all the cert locally
-          List certList = keyRing.findCert(pmx500name, 
-           KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP, true);
-          if (certList == null || certList.size() == 0) {
-            if (log.isWarnEnabled()) {
-              log.warn("PersistenceManager cert not found: " + pmx500name);
-            }
-            continue;
-          }
-          cs = (CertificateStatus)certList.get(0);
-          X509Certificate pmCert = cs.getCertificate();
-
-          skeyobj = encryptionService.asymmEncrypt(commonName,
-            policy.asymmSpec, sk, pmCert);
-          DataProtectionKeyImpl pmDPKey =
-        	new DataProtectionKeyImpl(skeyobj, digestAlg, policy,
-				  keyRing.findCertChain(pmCert));
-          keyCollection.add(pmDPKey);
+        if (log.isDebugEnabled()) {
+          log.debug("Protecting " + agent + " with " + pmp[i].pmDN);
         }
-        catch (Exception iox) {
-          if (log.isWarnEnabled()) {
-            log.warn("Unable to get persistence manager: " + pmp[i].pmDN + " Reason: " + iox);
-          }
-        }
+        protectWithPM(pmp[i], sk, keyCollection);
       }
+
+      // add a listener to the new managers available
+      // cache secret key and keycollection, protect with the newly
+      // available PM, and save it (does the set method actually
+      // saves when called?)
+      keyCache.put(sk, pke);
 
       return keyCollection;
     }
@@ -281,30 +296,46 @@ public class DataProtectionServiceImpl
     }
   }
 
-  /**
-   * This function is not doing anything because persistence is not providing
-   * the iterator.
-   */
-   /*
-  public void reprotectClient(DataProtectionServiceClient client, PrivateKey oldkey)
-    throws GeneralSecurityException
-  {
-    String agent = dpsClient.getAgentIdentifier().toAddress();
-    if (log.isDebugEnabled())
-      log.debug("reprotecting client:" + agent);
-
-    Iterator keys = client.iterator();
-    if (keys == null)
-      return;
-
-    while (keys.hasNext()) {
-        DataProtectionKeyEnvelope pke = (DataProtectionKeyEnvelope)
-          keys.next();
-
-
+  private DataProtectionKeyCollection protectWithPM(PersistenceManagerPolicy pmp,
+    SecretKey sk, DataProtectionKeyCollection keyCollection) {
+    if (log.isDebugEnabled()) {
+      log.debug("Encrypting secretkey with " + pmp.pmDN);
     }
+    try {
+      // get the first entry to get the dp policy
+      DataProtectionKeyImpl dpKey = (DataProtectionKeyImpl)keyCollection.get(0);
+      SecureMethodParam policy = dpKey.getSecureMethod();
+
+      X500Name pmx500name = new X500Name(pmp.pmDN);
+      String commonName = pmx500name.getCommonName();
+      // find cert with common name does not return the certs from
+      // peer, it only returns all the cert locally
+      List certList = keyRing.findCert(pmx500name,
+       KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP, true);
+      if (certList == null || certList.size() == 0) {
+        if (log.isWarnEnabled()) {
+          log.warn("PersistenceManager cert not found: " + pmx500name);
+        }
+        return keyCollection;
+      }
+      CertificateStatus cs = (CertificateStatus)certList.get(0);
+      X509Certificate pmCert = cs.getCertificate();
+
+      SealedObject skeyobj = encryptionService.asymmEncrypt(commonName,
+        policy.asymmSpec, sk, pmCert);
+      DataProtectionKeyImpl pmDPKey =
+            new DataProtectionKeyImpl(skeyobj, digestAlg, policy,
+                              keyRing.findCertChain(pmCert));
+      keyCollection.add(pmDPKey);
+    }
+    catch (Exception iox) {
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get persistence manager: " + pmp.pmDN + " Reason: " + iox);
+      }
+    }
+
+    return keyCollection;
   }
-  */
 
   private void reprotectClient(String agent, DataProtectionKeyEnvelope pke) {
       try {
@@ -338,61 +369,6 @@ public class DataProtectionServiceImpl
                           policy.asymmSpec,
                           (SealedObject)dpKey.getObject());
 
-        /*
-        List keyList = null;
-        if (oldkey != null) {
-          keyList = new Vector();
-          keyList.add(oldkey);
-        }
-        else
-          keyList = keyRing.findPrivateKey(agent, false);
-        if (keyList == null || keyList.size() == 0) {
-          GeneralSecurityException gsx =
-            new GeneralSecurityException("No private key available to decrypt");
-          publishDataFailure(agent, DataFailureEvent.NO_PRIVATE_KEYS, gsx.toString());
-          throw gsx;
-
-        }
-        Iterator it = keyList.iterator();
-        SecretKey skey = null;
-
-        SealedObject obj = (SealedObject)dpKey.getObject();
-        while (it.hasNext()) {
-          PrivateKeyCert cs = (PrivateKeyCert) it.next();
-          try {
-            X509Certificate [] certList = keyRing.checkCertificateTrust(
-              (X509Certificate)cs.getCertificateStatus().getCertificate());
-            if (certList.length == 0) {
-              if (log.isDebugEnabled())
-                log.debug("Certificate not trusted.");
-              continue;
-            }
-          } catch (CertificateException ex) {
-            if (ex instanceof CertificateExpiredException) {
-              if (log.isDebugEnabled())
-                log.debug("Private key expired.");
-            }
-            else {
-              if (log.isDebugEnabled())
-                log.debug("Private key not trusted.");
-              continue;
-            }
-          }
-
-          PrivateKey key = cs.getPrivateKey();
-          String spec = policy.asymmSpec;
-          if(spec==null||spec=="")
-            spec=key.getAlgorithm();
-          try {
-            Cipher ci=Cipher.getInstance(spec);
-            ci.init(Cipher.DECRYPT_MODE, key);
-            skey = (SecretKey)obj.getObject(ci);
-          }
-          catch (Exception e) {
-            continue;
-          }
-        }
-        */
 
 	List certlist = keyRing.findCert(agent);
 	CertificateStatus cs = (CertificateStatus)certlist.get(0);
@@ -416,12 +392,7 @@ public class DataProtectionServiceImpl
                                               /*target*/null,
                                               keyCollection,
                                               keyRing.findCertChain(agentCert));
-          //PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
-          PersistenceManagerPolicy [] pmp = pps.getPolicies();
-          // start the threads
-          HttpRequestThread [] ts = new HttpRequestThread[pmp.length];
 
-          boolean nopm = true;
           Hashtable pmNames = new Hashtable();
           for (int idn = 1; idn < keyCollection.size(); idn++) {
             DataProtectionKeyImpl pmkey = (DataProtectionKeyImpl)keyCollection.get(idn);
@@ -432,56 +403,29 @@ public class DataProtectionServiceImpl
               log.warn("Invalid PM encrypted: " + pmName);
             }
           }
-          for (int i = 0; i < pmp.length; i++) {
-            // did we use the pm cert to encrypt the secret key at all?
-            try {
-              X500Name pmx500 = new X500Name(pmp[i].pmDN);
-              if (pmNames.get(pmx500.getCommonName()) == null) {
-                if (log.isDebugEnabled()) {
-                  log.debug("PM is available but is not used to encrypt." + pmp[i].pmDN);
+
+          //PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
+          while (skey == null) {
+            PersistenceManagerPolicy [] pmp = pps.getPolicies();
+            for (int i = 0; i < pmp.length; i++) {
+              // did we use the pm cert to encrypt the secret key at all?
+              try {
+                X500Name pmx500 = new X500Name(pmp[i].pmDN);
+                if (pmNames.get(pmx500.getCommonName()) != null) {
+                  skey = requestPersistenceRecovery(req, pmp[i], agent);
                 }
+              } catch (IOException iox) {
+                log.warn("Invalid pm: " + pmp[i].pmDN);
                 continue;
               }
-            } catch (IOException iox) {
-              log.warn("Invalid pm: " + pmp[i].pmDN);
-              continue;
-            }
 
-            nopm = false;
-            ts[i] = new HttpRequestThread(req, pmp[i], agent);
-            ts[i].start();
-          }
-
-          if (nopm) {
-            log.error("Key is not persisted with any of the persistence managers available.");
-            return;
-          }
-
-          // timeout while checking results
-          long timeout = 60000;
-          while (skey == null && timeout > 0) {
-            for (int i = 0; i < ts.length; i++) {
-              if (ts[i]._skey != null) {
-                skey = ts[i]._skey;
+              if (skey != null) {
                 break;
               }
             }
-            Thread.currentThread().sleep(1000);
-            timeout -= 1000;
-            /*
-            if (log.isDebugEnabled()) {
-              log.debug("Time remaining: " + timeout);
-            }
-            */
+            Thread.currentThread().sleep(10000);
           }
 
-          if (skey == null) {
-            if (log.isWarnEnabled()) {
-              log.warn("Cannot recover secret key from persistence manager for: " + agent);
-            }
-            return;
-          }
-          else {
             if (log.isDebugEnabled()) {
               log.debug("Re-encrypting Data Protection secret key for: " + agent);
             }
@@ -524,7 +468,6 @@ public class DataProtectionServiceImpl
 
             pke.setDataProtectionKey(newCollection);
           }
-        }
 
       } catch (Exception ioe) {
 	if (log.isWarnEnabled()) {
@@ -533,21 +476,9 @@ public class DataProtectionServiceImpl
       }
   }
 
-  class HttpRequestThread extends Thread {
-    SecretKey _skey;
-    DataProtectionKeyUnlockRequest _req;
-    PersistenceManagerPolicy _pmp;
-    String _agent;
-
-    HttpRequestThread(DataProtectionKeyUnlockRequest req,
-                      PersistenceManagerPolicy pmp,
-                      String agent) {
-      _req = req;
-      _pmp = pmp;
-      _agent = agent;
-    }
-
-    public void run() {
+  SecretKey requestPersistenceRecovery(DataProtectionKeyUnlockRequest _req,
+                      PersistenceManagerPolicy _pmp,
+                      String _agent) {
       try {
         if (log.isDebugEnabled()) {
           log.debug("Sending recovery msg to " + _pmp.pmUrl);
@@ -581,13 +512,14 @@ public class DataProtectionServiceImpl
         if (newKey != null) {
           SealedObject responseObj = (SealedObject)newKey.getObject();
           if (responseObj != null) {
-            _skey = (SecretKey)encryptionService.asymmDecrypt(
+            SecretKey skey = (SecretKey)encryptionService.asymmDecrypt(
                           _agent,
                           newKey.getSecureMethod().asymmSpec,
                           responseObj);
             if (log.isDebugEnabled()) {
               log.debug("Secretkey recovered from " + _pmp.pmDN);
             }
+            return skey;
           }
         }
         else {
@@ -599,8 +531,7 @@ public class DataProtectionServiceImpl
       } catch(Exception e) {
         log.warn("Unable to send keyUnlock request to persistence manager.", e);
       }
-    }
-
+    return null;
   }
 
   public InputStream getInputStream(DataProtectionKeyEnvelope pke,
