@@ -120,6 +120,16 @@ public class BlackboardTestManagerServlet extends AbstractServletComponent {
         blackboardService.publishRemove(t);
       }
       blackboardService.closeTransaction();
+      PrintWriter out = null;
+      try {
+        out = response.getWriter();
+        out.println("Removed all tasks related to MOP 2.1");
+        out.close();
+      } catch (IOException e) {
+        if(logging.isErrorEnabled()){
+          logging.error("Error writing result",e);
+        }
+      }
     }
     else if (doParam != null && !(doParam.equals("isReady"))) {
       blackboardService.openTransaction();
