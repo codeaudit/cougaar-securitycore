@@ -20,6 +20,7 @@ junit.host.hostF=tea
 junit.host.hostG=pear
 junit.host.hostH=rose
 
+# Note: todo: the RMI server does not work on apple and pear
 
 # The HTTP port number used by Tomcat (should match the value defined in userparameter.conf)
 junit.http.port=5570

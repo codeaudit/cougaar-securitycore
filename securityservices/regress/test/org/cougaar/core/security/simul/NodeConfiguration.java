@@ -188,7 +188,7 @@ public class NodeConfiguration
     String s = "";
     s = s +          makeLink("NODE-" + getNodeName() + "-out.log");
     s = s + "<br>" + makeLink("NODE-" + getNodeName() + "-err.log");
-    s = s + "<br>" + makeLink("log4j.log");
+    s = s + "<br>" + makeLink("log4j.html");
     logFilesUrls = s;
   }
 

@@ -23,9 +23,10 @@
 
   <!-- Operations to perform after the experiment -->
   <operation type="after">
-    <class></class>
-    <method></method>
-    <argument></argument>
+    <class>test.org.cougaar.core.security.nodetests.CaWebClient</class>
+    <method>checkCertificateList</method>
+    <!-- Argument: The expected number of certificates -->
+    <argument>36</argument>
   </operation>
 
   <nodeTest name="caNode">
@@ -162,7 +163,7 @@
     <!-- The maximum amount of time the node is allowed to run -->
     <maxExecTime>300</maxExecTime>
     <!-- The host where the node is supposed to run -->
-    <hostName>${junit.host.hostG}</hostName>
+    <hostName>${junit.host.hostH}</hostName>
     <!-- The node startup directory -->
     <nodeStartupDirectory>${org.cougaar.install.path}/configs/small-135</nodeStartupDirectory>
     <!-- The name of the file containing java properties -->

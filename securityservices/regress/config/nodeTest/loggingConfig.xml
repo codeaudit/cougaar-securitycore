@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" [
+  <!ENTITY XCategory "org.log4j.xml.examples.XCategory">
+]>
+
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+  <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern"
+	    value="%d %-5p [%t] %c %C{3} (%F:%L) - %m\n"/>
+    </layout>	    
+  </appender>
+
+  <appender name="FileAppender" class="org.apache.log4j.FileAppender">
+    <param name="File" value="node.log"/>
+    <param name="Append" value="false" />
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern"
+	    value="%d{ABSOLUTE} %-5p - %c{1} - %m%"/>
+    </layout>
+  </appender>
+
+  <appender name="SocketAppender" class="org.apache.log4j.net.SocketAppender">
+     <param name="RemoteHost" value="localhost"/>
+     <param name="Port" value="5000"/>
+     <param name="LocationInfo" value="true"/>
+     <layout class="org.apache.log4j.PatternLayout">
+       <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p - %c{1} - %m%"/>
+     </layout>
+  </appender>
+	
+  <category name="org.cougaar.core.security">
+     <priority value="warn" class="org.cougaar.core.security"/>
+     <param name="Suffix"   value=" (Freedom as in the capacity to exercise choice.)"/>
+  </category>
+	
+  <root>
+    <priority value ="warn"/>
+    <appender-ref ref="FileAppender" />
+  </root>
+
+</log4j:configuration>

@@ -50,6 +50,12 @@
   <head>
      <META http-equiv="Content-Type" content="text/html; charset=US-ASCII">
      <title>Junit NAI Dashboard</title>
+<style type="text/css">
+<!--
+body, table {font-family: arial,sans-serif; font-size: x-small;}
+th {background: #336699; color: #FFFFFF; text-align: left;}
+-->
+</style>
   </head>
   <body>
 <%
@@ -84,7 +90,6 @@
     <td><img src="./Small_UL_Shield.jpg"></td>
     </tr>
     </table>
-    <hr>
  
 <table cellpadding="2" cellspacing="2" border="1" width="100%">
    <tbody>

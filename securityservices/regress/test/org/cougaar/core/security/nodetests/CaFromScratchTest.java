@@ -171,6 +171,7 @@ public class CaFromScratchTest
       //System.out.println("Class: " + name.getClass().getName() + " - " + name.getName() + " / " + name.getClassName());
       // Remove entries
       NamingEnumeration namingEnum = context.list(name.getName() + top);
+
       if (namingEnum.hasMore()) {
 	//System.out.println("Deleting recursively");
 	deleteLdapRecursively(context, namingEnum, top);

@@ -117,6 +117,7 @@
         <include name="**/*" />
       </fileset>
       <fileset dir="${cougaar.workspace}/log4jlogs/">
+        <include name="**/*.html" />
         <include name="**/*.log" />
       </fileset>
     </copy>

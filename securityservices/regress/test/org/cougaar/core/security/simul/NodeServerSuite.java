@@ -475,7 +475,7 @@ public class NodeServerSuite
     tcc.setResultPath(getCanonicalPath(System.getProperty("junit.test.result.path")));
     String logfile = getCanonicalPath(System.getProperty("org.cougaar.workspace") + File.separator +
 				      "log4jlogs" + File.separator + tcc.getExperimentName() + File.separator
-				      + tcc.getNodeName() +  File.separator + "log4j.log");
+				      + tcc.getNodeName() +  File.separator + "log4j.html");
     File logf = new File(logfile);
     File parent = logf.getParentFile();
     parent.mkdirs();

@@ -35,14 +35,7 @@ public class NodeServer
   extends java.rmi.server.UnicastRemoteObject
   implements RemoteControl
 {
-  private int rmiRegistryPort;
-
-  private String commandLine;
-  private File nodeStartupDirectory;
-  private String resultPath;
-  private String junitConfigPath;
-
-  private PropertyFile propertyFile;
+  private static int rmiRegistryPort;
 
   public NodeServer()
     throws java.rmi.RemoteException {
@@ -70,6 +63,13 @@ public class NodeServer
 
   public void startNode(NodeConfiguration tcc)
     throws java.rmi.RemoteException {
+
+    String commandLine;
+    File nodeStartupDirectory;
+    String resultPath;
+    String junitConfigPath;
+    PropertyFile propertyFile;
+
 
     System.out.println("NodeServer.startNode");
     String args[] = tcc.getNodeArguments();

@@ -52,6 +52,9 @@ public class CaWebClient
   /** The URL that points to the Main window, e.g. http://cypress:8080/$caAgent/CA/Main.  */
   private String caMainUrl;
 
+  /** The URL that points to the certificate list window, e.g. http://cypress:8080/$caAgent/CA/CertificateList.  */
+  private String caListUrl;
+
   /** The URL that points to the CA keys window, e.g. http://cypress:8080/$caAgent/CA/ListCaKeysServlet.  */
   private String caListCaUrl;
 
@@ -94,6 +97,7 @@ public class CaWebClient
     agentListUrl = topLevelPageUrl + "agents?scope=all";
     caIndexUrl = topLevelPageUrl + "$caAgent/CA/Index";
     caMainUrl = topLevelPageUrl + "$caAgent/CA/Main";
+    caListUrl = topLevelPageUrl + "$caAgent/CertificateList";
     caListCaUrl = topLevelPageUrl + "$caAgent/CA/ListCaKeysServlet";
   }
 
@@ -307,6 +311,120 @@ public class CaWebClient
       "CA key has been generated.<br><br>",
       "CA certificate has been stored in:<br>",
       "CA private key has been stored in:<br>"
+    };
+    checkStringsWebResponse(response, e1, null);
+
+    /*
+    "/home/u/junittest/UL/cougaar/workspace/security/keystores/caNode/keystore-caNode"
+    "/home/u/junittest/UL/cougaar/workspace/security/keystores/caNode/keystore-CONUS-RSA"
+    */
+  }
+
+  /**
+   *  I-CBTSVCSUP-NODE            10 agents'
+   *          24-SPTGP-HHC
+   *          24-CSB-HHD
+   *          110-QMCO-POLSPLY
+   *          553-CSB-HHD
+   *          10-TCBN-HHC
+   *          416-TKCO-POL
+   *          89-TKCO-CGO
+   *          180-TCBN-HHD
+   *          418-TKCO-POL
+   *          92-ENGBN-CBTHVY
+   *  I-COMMAND-NODE               3 agents'
+   *          NCA
+   *          CENTCOM-HHC
+   *          JTF-HHC
+   *  I-CONUS-DIV-NODE             5 agents'
+   *          3ID-HHC'
+   *          3-DISCOM-HHC
+   *          703-MSB
+   *          DLAHQ
+   *          IOC
+   *  I-IBCT-2BDE-NODE             7 agents'
+   *          2-7-INFBN
+   *          2-BDE-3ID-HHC
+   *          3-69-ARBN
+   *          3-FSB
+   *          3-BDE-2ID-HHC
+   *          1-23-INFBN
+   *          296-SPTBN
+   *  I-TRANSCOM-NODE              1 agent'
+   *          TRANSCOM 
+   *  TEST-NODE-NCADomainManager   1 agent
+   *          NCADomainManager
+   *                              ---------
+   *                              27 agents       27 certificates
+   *  6 nodes                                     33 certificates
+   *  6 hosts                                     39 certificates
+   * 
+   *  CA-NODE: agent + node + host + ca           43 certificates
+   *          caAgent'
+   *          caNode'
+   *          Junit CA'
+   *
+   */
+
+  public void checkCertificateList(String expectedCertificates) {
+    String e1[] = {
+      "<title>Certificate List from Ldap </title>",
+      "<H2>Certificate List</H2>",
+      "Select CA: <select id=\"cadnname\" name=\"cadnname\">",
+      "<option value=\"CN=" + cnValue + ", OU=" + ouValue + ", O=" + oValue
+      + ", L=" + lValue + ", ST=" + stValue + ", C=" + cValue
+      + ", T=ca\">",
+    };
+    checkStringsWebResponse(caListUrl, e1, null);
+
+    // What is the number of expected certificates?
+    int count = Integer.valueOf(expectedCertificates).intValue();
+    checkCertificateListForm(caListUrl, count);
+  }
+
+  private void checkCertificateListForm(String url, int expectedCertificates) {
+    WebConversation wc = new WebConversation();
+    WebRequest     req = new GetMethodWebRequest(url);
+    WebResponse   resp = null;
+
+    try {
+      resp = wc.getResponse( req );
+    }
+    catch (Exception e) {
+      Assert.fail("Unable to get response for " + url + " Reason: " + e);
+    }
+
+    // select the first form in the page
+    WebForm form = null;
+    try {
+      form = resp.getForms()[0];
+    }
+    catch (Exception e) {
+      Assert.fail("Unable to get form for " + url + " Reason: " + e);
+    }
+
+    WebRequest request = form.getRequest();
+
+    String dnName = "CN=" + cnValue + ", OU=" + ouValue + ", O=" + oValue
+      + ", L=" + lValue + ", ST=" + stValue + ", C=" + cValue
+      + ", T=ca";
+
+    // Set parameters
+    request.setParameter( "cadnname", dnName );
+
+    WebResponse response = null;
+    try {
+      response = wc.getResponse( request );
+    }
+    catch (Exception e) {
+      Assert.fail("Unable to get response for " + url + " Reason: " + e);
+    }
+
+    
+    String e1[] = {
+      "<title>Certificate List</title>",
+      "<H2>Certificate List</H2>",
+      "<H3>" + String.valueOf(expectedCertificates) + " entries</H3>"
     };
     checkStringsWebResponse(response, e1, null);
 
