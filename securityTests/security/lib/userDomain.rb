@@ -358,7 +358,7 @@ class UserDomains
       # this walks through the agents/nodes of this community
       community.each do |entity|
         agent = run.society.entity(entity.name)
-       	 puts "member agent: #{agent}, #{entity.name}"
+       	 #puts "member agent: #{agent}, #{entity.name}"
         members << agent
         # check if this is the userAdmin agent for this community
         entity.each_role do |role|
