@@ -15,6 +15,12 @@ module Cougaar
 killall -9 java ; /etc/init.d/acme stop 
 killall -9 start_acme ; pkill -9 -u root /usr/bin/ruby
 rm -f /tmp/*.xml ; rm -f /tmp/*.sig ; rm -f /tmp/*.jar ; rm -f /tmp/*.sql
+rm -rf $CIP/workspace/P
+rm -rf $CIP/workspace/log4jlogs/*
+rm -rf $CIP/workspace/nodelogs/*
+rm -rf $CIP/workspace/auditlogs/*
+rm -rf $CIP/workspace/security/*
+rm -rf $CIP/workspace/test/*
 sleep 3
 /etc/init.d/acme start
 END

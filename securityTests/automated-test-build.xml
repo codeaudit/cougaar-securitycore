@@ -177,6 +177,12 @@
         timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
+      <echo message="Copying loggingConfig.conf file to testbed machine..."/>
+      <scp file="test/configs/logging/loggingConfig.conf"
+           todir="${testbed.user.name}@${testbed.operator.host}:${testbed.cip.dir}/configs/common"
+           keyfile="${user.home}/.ssh/id_dsa"
+           passphrase=""/>
+
       <loadfile property="ssh-message-1"
                srcFile="${analysis.directory.name}/sshexec.log"/>
       <echo message="Result of SSH commands: ${ssh-message-1}"/>
