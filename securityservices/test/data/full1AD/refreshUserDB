@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ "$1" == "" ]; then
+  echo "Usage: refreshUserDB <ldap url>"
+  exit 1
+fi
+
+echo "Deleting old users"
+ldapdelete -x -D "cn=manager, dc=cougaar, dc=org" -w "secret" -H "$1" -r "dc=roles,dc=cougaar,dc=org"
+ldapdelete -x -D "cn=manager, dc=cougaar, dc=org" -w "secret" -H "$1" -r "dc=users,dc=cougaar,dc=org"
+
+echo "Adding new users"
+ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -w "secret" -H "$1" -f ./userdb.ldif
+echo "done"
