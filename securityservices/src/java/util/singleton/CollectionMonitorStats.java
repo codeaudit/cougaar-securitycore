@@ -24,39 +24,14 @@ import java.util.*;
 
 public interface CollectionMonitorStats
 {
-  public int getNumberOfHashtables();
-  public List getTopHashtables(int topNumber);
+  public EntityStats getEntityStats();
   public void addHashtable(Hashtable h);
-
-  public int getNumberOfArrayLists();
-  public List getTopArrayLists(int topNumber);
   public void addArrayList(ArrayList l);
-
-  public int getNumberOfHashMaps();
-  public List getTopHashMaps(int topNumber);
   public void addHashMap(HashMap m);
-
-  public int getNumberOfHashSets();
-  public List getTopHashSets(int topNumber);
   public void addHashSet(HashSet s);
-
-  public int getNumberOfTreeMaps();
-  public List getTopTreeMaps(int topNumber);
   public void addTreeMap(TreeMap m);
-
-  public int getNumberOfTreeSets();
-  public List getTopTreeSets(int topNumber);
   public void addTreeSet(TreeSet s);
-
-  public int getNumberOfLinkedLists();
-  public List getTopLinkedLists(int topNumber);
   public void addLinkedList(LinkedList l);
-  
-  public int getNumberOfWeakHashMaps();
-  public List getTopWeakHashMaps(int topNumber);
   public void addWeakHashMap(WeakHashMap m);
-
-  public int getNumberOfIdentityHashMaps();
-  public List getTopIdentityHashMaps(int topNumber);
   public void addIdentityHashMap(IdentityHashMap m);
 }

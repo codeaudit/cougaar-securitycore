@@ -25,6 +25,7 @@ import java.util.singleton.CollectionMonitorStats;
 import java.util.singleton.CollectionMonitorStatsImpl;
 
 public class CollectionUtil {
+/*
   public static final int HASH_TABLE          = 1;
   public static final int HASH_SET            = 2;
   public static final int HASH_MAP            = 3;
@@ -38,12 +39,6 @@ public class CollectionUtil {
   public static final int TREE_SET            = 11;
   public static final int VECTOR              = 12;
   public static final int WEAK_HASH_MAP       = 13;
-
-  private String _names[] = {
-    "Hashtable", "HashSet", "HashMap", "ArrayList",
-    "IdentityHashMap", "LinkedHashMap", "LinkedHashSet",
-    "LinkedList", "Stack", "TreeMap", "TreeSet", "Vectory",
-    "WeakHashMap"};
 
   private CollectionMonitorStats _stats;
   private static CollectionUtil _theInstance;
@@ -160,5 +155,5 @@ public class CollectionUtil {
   public String getElementName(int type) {
     return _names[type - 1];
   }
-
+*/
 }
