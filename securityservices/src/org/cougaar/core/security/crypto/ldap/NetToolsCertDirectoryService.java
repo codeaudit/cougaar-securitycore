@@ -34,7 +34,7 @@ import java.security.cert.CertificateException;
 import org.cougaar.core.security.crypto.Base64;
 import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.services.ldap.LdapEntry;
+//import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 
@@ -43,15 +43,15 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 public class NetToolsCertDirectoryService
-  extends CertDirectoryService
-  implements CertDirectoryServiceClient
+extends CertDirectoryService
+implements CertDirectoryServiceClient
 {
 
   public NetToolsCertDirectoryService(CertDirectoryServiceRequestor requestor, ServiceBroker sb) 
     throws javax.naming.NamingException
-  {
-    super(requestor, sb);
-  }
+    {
+      super(requestor, sb);
+    }
 
   public LdapEntry getCertificate(SearchResult result) {
     LdapEntry ldapEntry = null;
@@ -148,8 +148,8 @@ public class NetToolsCertDirectoryService
   public X509CRL  getCRL(String  distingushName) {
     return null;
   }
-   public String getModifiedTimeStamp(String dn) {
-     return null;
-   }
+  public String getModifiedTimeStamp(String dn) {
+    return null;
+  }
 
 }
