@@ -152,7 +152,7 @@ module Cougaar
 #            puts("All agents have registered to the white pages")
           else
             if (lastCheck == missing.length)
-              saveResults(false, "wp_registration", "No new agents have registered to the white pages for #{interval} seconds")
+              saveResults(false, "wp_registration", "No new agents have registered to the white pages for #{@interval} seconds")
 #              puts("No new agents have registered to the white pages for #{interval} seconds")
             end
             saveAssertion("wp_registration", "Agents who haven't registered with the white pages: #{missing.join(" ")}")
