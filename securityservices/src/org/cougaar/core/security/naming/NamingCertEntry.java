@@ -115,11 +115,16 @@ final public class NamingCertEntry extends Cert
     Iterator iter =certList.iterator();
     Object Obj=null;
     CACertificateEntry caentry =null;
+    CertificateEntry certentry =null;
     while(iter.hasNext()){
       Obj=(Object)iter.next();
       if(Obj instanceof CACertificateEntry) {
         caentry=(CACertificateEntry)Obj;
         buff.append (" CA Entry  : "+ caentry.toString() +"\n");
+      }
+      if(Obj instanceof CertificateEntry) {
+       certentry=(CertificateEntry)Obj;
+        buff.append (" Certificate Entry  : "+ certentry.toString() +"\n"); 
       }
     }
     return buff.toString();
