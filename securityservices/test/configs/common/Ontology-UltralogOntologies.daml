@@ -16,6 +16,7 @@
         </rdfs:comment>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogGroup.daml"/>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml"/>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml"/>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogDefaultPolicy.daml"/>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml"/>

@@ -102,16 +102,49 @@
     <ultralogEntity:ULContentValue rdf:ID="UserInput"/>
     <ultralogEntity:ULContentValue rdf:ID="Withdraw"/>
 
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessAdd" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessRemove" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessChange" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessQuery" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessRead" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessWrite" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessCreate" />
+
+
+
     <ultralogEntity:PlugInRoles rdf:ID="OpPlanPlugInRole" />
 
-    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessAdd" />
-    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessRemove" />
-    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessChange" />
-    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessQuery" />
-    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessRead" />
-    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessWrite" />
-    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessCreate" />
+    <ultralogEntity:PlugInRoles rdf:ID="PolicyServletRole" />
+    <daml:Class rdf:ID="PluginsInRolePolicyServletRole">  <!-- temporary hack until templates arrive -->
+       <rdfs:subClassOf 
+          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
+       <rdfs:subClassOf>
+          <daml:Restriction>
+             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
+             <daml:hasValue rdf:resource="PolicyServletRole" />
+          </daml:Restriction>
+       </rdfs:subClassOf>
+    </daml:Class>
 
-    <ultralogEntity:BlackBoardObjects rdf:ID="BlackBoardOpPlanObject" />
+    <daml:Class rdf:ID="OtherBlackBoardObjects">
+       <rdfs:subClassOf 
+         rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackboardObjects" />
+       <daml:intersectionOf rdf:parseType="daml:collection">
+          <daml:class>
+             <daml:complementOf>
+                <daml:class>
+                   <daml:oneOf rdf:parseType="daml:collection">
+                      <ultralogEntity:BlackBoardObjects rdf:ID="BlackboardOpPlanObject" />
+                      <ultralogEntity:BlackBoardObjects rdf:ID="SafeRelay" />
+                   </daml:oneOf>
+                </daml:class>
+             </daml:complementOf>
+          </daml:class>
+          <daml:class rdf:about="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackboardObjects"/>
+       </daml:intersectionOf>
+    </daml:Class>
+
+
+
 
 </rdf:RDF>
