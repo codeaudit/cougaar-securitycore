@@ -186,7 +186,7 @@
         <copy todir="${securityservices.staging}/operator/security">
             <fileset dir="${securityservices.base}/test/bin">
                 <patternset>
-                    <include name="checkTrace.rb"/>
+                    <include name="checkTrace*.rb"/>
                     <include name="signSingleJar"/>
                     <include name="runallparallel"/>
                     <include name="printProcessInfo.rb"/>
