@@ -126,7 +126,10 @@ public class JaasClient {
     if (subj != null) {
       Iterator it = subj.getPrincipals().iterator(); 
       while (it.hasNext()) {
-	System.out.println(it.next());
+        Object p = it.next();
+        if(!(p instanceof ExecutionPrincipal)) {
+	  System.out.println(p);
+        }
       }
     }
   }

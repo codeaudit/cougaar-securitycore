@@ -97,12 +97,11 @@ public class JaasPluginBinder
                 public Object run() {
                   _log.debug("Plugin manager is loading: "
 			    + getPluginName()
-			    + " security context is:");
-                  JaasClient.printPrincipals();
+			    + " security context is : " + _ec);
                   doLoad();
                   return null;
                 }
-              }, true);
+              }, false);
      _scs.resetExecutionContext();
      sb.releaseService(this, AgentIdentificationService.class, ais);
      sb.releaseService(this, AuthorizationService.class, as);
@@ -117,8 +116,7 @@ public class JaasPluginBinder
                 public Object run() {
                   _log.debug("Plugin manager is starting: "
 			    + getPluginName()
-			    + " security context is:");
-                  JaasClient.printPrincipals();
+			    + " security context is : " + _ec);
                   doStart();
                   return null;
                 }

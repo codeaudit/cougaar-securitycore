@@ -115,8 +115,7 @@ public class JaasAgentBinder
             new java.security.PrivilegedAction() {
                 public Object run() {
                   _log.debug("Agent manager is loading: "
-			    + getAgentName()
-			    + " security context is:");
+			    + getAgentName());
                   JaasClient.printPrincipals();
                   doLoad();
                   return null;
@@ -131,9 +130,7 @@ public class JaasAgentBinder
             new java.security.PrivilegedAction() {
                 public Object run() {
                   _log.debug("Agent manager is starting: "
-			    + getAgentName()
-			    + " security context is:");
-                  JaasClient.printPrincipals();
+			    + getAgentName());
                   doStart();
                   return null;
                 }
