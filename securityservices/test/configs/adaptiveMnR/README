@@ -13,6 +13,8 @@ plugin on the remote agent:
 
 org.cougaar.core.adaptivity.OperatingModePolicyManager
 
+For example, if Agent A contains the adaptivity engine and plays that contrains an operating mode in Agent B then Agent B should contain the OperatingModePolicyManager plugin.
+
 An optional servlet is available to view adaptivity objects (conditions and operating
 modes) and edit operating mode policies.  Include the following plugin in your agent ini file:
 org.cougaar.core.servlet.BlackboardServletComponent(org.cougaar.core.adaptivity.AEViewerServlet, /aeviewer)
