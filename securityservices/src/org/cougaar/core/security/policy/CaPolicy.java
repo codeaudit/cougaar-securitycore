@@ -58,6 +58,10 @@ public class CaPolicy
    */
   public long howLong;
 
+  /** The duration of the validity before issuing an X509 certificate.
+   */
+  public long timeEnvelope;
+
   /** *************************************************************
    *  These fields are used by the CA only.
    */

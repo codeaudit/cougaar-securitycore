@@ -22,6 +22,7 @@
         <!-- How long to certify for. -->
         <certValidity>$[validity]</certValidity>
         <requirePending>$[requirePending]</requirePending>
+	<timeEnvelope>$[timeEnvelope]</timeEnvelope>
       </clientCertPolicy>
     </certificateAuthority>
   </policy>

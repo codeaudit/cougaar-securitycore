@@ -75,6 +75,7 @@ public class CaPolicyHandler
   private static final String CA_CRL_ALGORITHMID_ELEMENT  = "crlalgorithmId";
   private static final String CA_KEYSIZE_ELEMENT          = "keysize";
   private static final String CA_CERTVALIDITY_ELEMENT     = "certValidity";
+  private static final String CA_TIMEENVELOPE_ELEMENT     = "timeEnvelope";
   private static final String CA_REQUIREPENDING_ELEMENT   = "requirePending";
   private static final String CA_NODE_IS_SIGNER_ELEMENT   = "nodeIsSigner";
 
@@ -103,23 +104,38 @@ public class CaPolicyHandler
     // Names
     if (localName.equals(CA_DN_ELEMENT)) {
       X500Name aDN = null;
-      String s = getContents();
-      if (s != null && !s.equals("")) {
-	try {
-	  aDN = new X500Name(s);
-	  if (log.isDebugEnabled()) {
-	    log.debug(" Got aDN is :"+ aDN.toString() + ".");
-	  }
-	  caPolicy.caDnName = aDN;
-	  caPolicy.caCommonName = aDN.getCommonName();
+      try {
+	aDN = new X500Name(getContents());
+	if (log.isDebugEnabled()) {
+	  log.debug(" Got aDN is :"+ aDN.toString());
 	}
-	catch (IOException e) {
-	  if (log.isErrorEnabled()) {
-	    log.error("Unable to parse DN: " + s + ".");
-	  }
+	caPolicy.caDnName = aDN;
+	caPolicy.caCommonName = aDN.getCommonName();
+      }
+      catch (IOException e) {
+	if (log.isErrorEnabled()) {
+	  log.error("Unable to parse DN");
 	}
       }
     }
+    // Directories
+    /*
+    if (localName.equals(CA_SERIAL_ELEMENT)) {
+      caPolicy.serialNumberFile = getContents();
+    }
+    if (localName.equals(CA_PKCS10_ELEMENT)) {
+      caPolicy.pkcs10Directory = getContents();
+    }
+    if (localName.equals(CA_X509_ELEMENT  )) {
+      caPolicy.x509CertDirectory = getContents();
+    }
+    if (localName.equals(CA_PENDING_ELEMENT )) {
+      caPolicy.pendingDirectory = getContents();
+    }
+    if (localName.equals(CA_DENIED_ELEMENT )) {
+      caPolicy.deniedDirectory = getContents();
+    }
+    */
 
     // Certificate Directory Service
     if (localName.equals(CA_LDAP_URL_ELEMENT)) {
@@ -195,6 +211,11 @@ public class CaPolicyHandler
       duration.parse(getContents());
       caPolicy.howLong = duration.getDuration();
     }
+    if (localName.equals(CA_TIMEENVELOPE_ELEMENT)) {
+      Duration duration = new Duration(serviceBroker);
+      duration.parse(getContents());
+      caPolicy.timeEnvelope = duration.getDuration();
+    }
     if (localName.equals(CA_REQUIREPENDING_ELEMENT)) {
       String strPending = getContents();
       caPolicy.requirePending = false;
@@ -208,9 +229,6 @@ public class CaPolicyHandler
 	caPolicy.nodeIsSigner = true;
       }
     }
-    // Reset contents
-    contents.reset();
-
   }
 }
 
