@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Iterator;
 
 //cougaar services
-import org.cougaar.core.security.acl.trust.*;
 import org.cougaar.core.service.community.CommunityService;
 
 /**
@@ -114,16 +113,7 @@ public class AccessControlPolicy extends SecurityPolicy {
     return o;
   }
   public void setIntegrity(String key, Object value){
-    IntegrityAttribute ia = null;
-    if(value instanceof String){
-      ia = new IntegrityAttribute((String)value);
-    }else if (value instanceof Integer){
-      ia = new IntegrityAttribute((Integer)value);
-    }else if (value instanceof IntegrityAttribute) {
-      ia = new IntegrityAttribute((IntegrityAttribute)value);
-    }
-    
-    integrity.put(key, ia);
+    integrity.put(key, value);
     return;
   }
 
@@ -173,16 +163,7 @@ public class AccessControlPolicy extends SecurityPolicy {
     return o;
   }
   public void setCriticality(String key, Object value){
-    MissionCriticality mc = null;
-    if(value instanceof String){
-      mc = new MissionCriticality((String)value);
-    }else if (value instanceof Integer){
-      mc = new MissionCriticality((Integer)value);
-    }else if (value instanceof MissionCriticality) {
-      mc = new MissionCriticality((MissionCriticality)value);
-    }
-
-    criticality.put(key, mc);
+    criticality.put(key, value);
     return;
   }
 
