@@ -57,6 +57,7 @@
           <!-- Domain -->
           <domain>dc=srosset,dc=cougaar,dc=org</domain>
         </distinguishedName>
+        <nodeIsSigner>true</nodeIsSigner>
         <!-- The key algorithm -->
         <keyAlgName>RSA</keyAlgName>
         <!-- The key size -->
