@@ -37,6 +37,7 @@ import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.component.Service;
 import org.cougaar.core.blackboard.Subscriber;
 import org.cougaar.core.blackboard.Subscription;
@@ -93,6 +94,10 @@ public class BlackboardFilter extends ServiceFilter {
     abstract protected BlackboardService getBlackboardServiceProxy(BlackboardService bbs,
                                                                    Object client);
 
+    abstract protected BlackboardQueryService 
+      getBlackboardQueryServiceProxy(BlackboardQueryService bbs,
+                                     Object client);
+
     // this method specifies a binder proxy to use, so as to
     // avoid exposing the binder itself to the lower level objects.
     protected ContainerAPI createContainerProxy() { 
@@ -131,7 +136,11 @@ public class BlackboardFilter extends ServiceFilter {
       protected Object getServiceProxy(Object service, Class serviceClass, Object client) {
         if (service instanceof BlackboardService) {
           return getBlackboardServiceProxy((BlackboardService) service,client);
-        } 
+        }
+        if (service instanceof BlackboardQueryService) {
+          return getBlackboardQueryServiceProxy((BlackboardQueryService) service,client);
+        }
+
         return null;
       }
     }

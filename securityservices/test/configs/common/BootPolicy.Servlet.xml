@@ -4,6 +4,7 @@
   <servlet-policy>
     <!-- set the delay time (milliseconds) when a user fails -->
     <failure-delay>1000</failure-delay>
+
     <!-- define rules for a specific agent -->
     <agent name="DomainManager">
       <!-- A rule defines which roles are allowed to access which uri
@@ -21,12 +22,14 @@
         <auth>EITHER</auth>
       </rule>
     </agent>
+
     <agent name="UMmrmanager">
       <rule>
         <pattern>/*</pattern>
         <role>MonitorManager</role>
       </rule>
     </agent>
+
     <agent name="*">
       <rule>
         <pattern>/useradmin</pattern>
@@ -40,7 +43,15 @@
         <pattern>/TopologyServlet</pattern>
         <role>Topology</role>
       </rule>
+      <rule>
+        <pattern>/tasks</pattern>
+        <role>MonitorManager</role>
+        <role>MoveAgent</role>
+        <role>Topology</role>
+        <role>CAAdministrator</role>
+      </rule>
     </agent>
+
     <root>
       <rule>
         <pattern>*.secure</pattern>

@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<policy name="Servlet Policy" type="org.cougaar.core.security.policy.BlackboardFilterPolicy">
+  <read-only-policy>
+    <rule agent="foo">
+      <pattern>/foo</pattern>
+      <pattern>/bar</pattern>
+      <default-privilege>denied</default-privilege>
+      <write-role>secure</write-role>
+      <read-role>tomcat</read-role>
+      <read-role>foobar</read-role>
+    </rule>
+    <rule agent="*">
+      <pattern>/tasks</pattern>
+      <default-privilege>read</default-privilege>
+      <denied-role>MoveAgent</denied-role>
+    </rule>
+  </read-only-policy>
+</policy>

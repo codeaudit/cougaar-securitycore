@@ -100,6 +100,7 @@ public class ConfigParserServiceImpl
     setConfigurationFile("BootPolicy.MsgAccess.xml");
     setConfigurationFile("BootPolicy.Servlet.xml");
     setConfigurationFile("BootPolicy.UserDB.xml");
+    setConfigurationFile("BootPolicy.BBFilter.xml");
   }
 
   public File findWorkspacePolicyPath(String policyfilename) {

@@ -5,59 +5,7 @@
 <!-- Policies for BOOTPOLICY -->
 
 <Policies>
-<!-- Requires User database
- -->
-  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.LdapUserServicePolicy">
-    <RuleParam name="ldapurl">
-<!--
-      <String value="ldaps://tea:6360/"/>
--->
-      <String value="ldap://tea:3890/"/>
-    </RuleParam>
-    <RuleParam name="user">
-      <String value="cn=Manager,dc=cougaar,dc=org"/>
-    </RuleParam>
-    <RuleParam name="password">
-      <String value="secret"/>
-    </RuleParam>
-    <RuleParam name="user_dn">
-      <String value="dc=cougaar,dc=org"/>
-    </RuleParam>
-    <RuleParam name="role_dn">
-      <String value="dc=roles,dc=cougaar,dc=org"/>
-    </RuleParam>
-    <RuleParam name="user_rdn">
-      <String value="uid"/>
-    </RuleParam>
-    <RuleParam name="role_rdn">
-      <String value="cn"/>
-    </RuleParam>
-    <RuleParam name="userClass">
-      <KeySet value="1">
-        <Key key="1" value="inetOrgPerson"/>
-        <Key key="2" value="cougaarAcct"/>
-      </KeySet>
-    </RuleParam>
-    <RuleParam name="roleClass">
-      <KeySet value="1">
-        <Key key="1" value="organizationalRole"/>
-      </KeySet>
-    </RuleParam>
-    <RuleParam name="roleAttr">
-      <String value="roleOccupant"/>
-    </RuleParam>
-  </Policy>
-
-<!-- BlackboardService read-only filter
-  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.BlackboardFiltePolicy">
-    <RuleParam name="read-only-rule">
-      <KeySet value="org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet">
-        <Key key="secure" value="write"/>
-        <Key key="tomcat" value="read"/>
-        <Key key="disabled" value="none"/>
-      </KeySet>
-    </RuleParam>
-  </Policy>
+<!-- Moved all policies elsewhere
 -->
 
 </Policies>

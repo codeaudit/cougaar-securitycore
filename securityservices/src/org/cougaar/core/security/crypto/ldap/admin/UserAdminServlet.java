@@ -72,8 +72,6 @@ import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
  */
 public class UserAdminServlet extends HttpServlet {
   
-  private static final ModificationItem[] MODS_ARRAY = new ModificationItem[1];
-
   LdapUserService _userService;
   HttpServlet _admin         = new admin();
   HttpServlet _user          = new user();
@@ -363,7 +361,8 @@ public class UserAdminServlet extends HttpServlet {
                            
       mods.add(new ModificationItem(modType, pwdAttr));
     }
-    _userService.editUser(uid, (ModificationItem[]) mods.toArray(MODS_ARRAY));
+    _userService.editUser(uid, (ModificationItem[]) 
+                          mods.toArray(new ModificationItem[mods.size()]));
     gotoViewUser(req, resp, uid);
   }
 
@@ -398,7 +397,8 @@ public class UserAdminServlet extends HttpServlet {
       }
     }
     
-    _userService.editRole(rid, (ModificationItem[]) mods.toArray(MODS_ARRAY));
+    _userService.editRole(rid, (ModificationItem[]) 
+                          mods.toArray(new ModificationItem[mods.size()]));
     gotoViewRole(req, resp,rid);
   }
 

@@ -29,47 +29,65 @@ import java.util.Iterator;
 import java.security.AccessController;
 import java.security.AccessControlContext;
 import java.security.PrivilegedAction;
+import java.security.DomainCombiner;
 import javax.security.auth.Subject;
+import javax.security.auth.SubjectDomainCombiner;
 
 import org.apache.catalina.realm.GenericPrincipal;
 
 public class UserRoles {
-  private static final String[] STRING_ARRAY = new String[1];
-
-  private static PrivilegedAction _default = new UserRolesImpl();
-
   /**
    * Use this function to retrieve all the user roles as inserted
    * by the SecureHookServlet
    */
   public static String[] getRoles() {
-    return (String[]) AccessController.doPrivileged(_default,
-                                                    AccessController.getContext());
+    AccessControlContext acc = AccessController.getContext();
+    Subject subject = (Subject) 
+      AccessController.doPrivileged(new GetSubject(acc));
+
+    ArrayList roles = new ArrayList();
+    if (subject != null) {
+      Set principals = subject.getPrincipals(GenericPrincipal.class);
+      Iterator i = principals.iterator();
+      while (i.hasNext()) {
+        GenericPrincipal principal = (GenericPrincipal) i.next();
+        String proles[] = principal.getRoles();
+        for (int j = 0; j < proles.length; j++) {
+          roles.add(proles[j]);
+        }
+      }
+    }
+    return (String[]) roles.toArray(new String[roles.size()]);
   }
 
-  private static class UserRolesImpl implements PrivilegedAction {
-    public UserRolesImpl() {
+  /**
+   * Use this function to retrieves the URI that the user
+   * is currently accessing.
+   */
+  public static String getURI() {
+    AccessControlContext acc = AccessController.getContext();
+    Subject subject = (Subject) 
+      AccessController.doPrivileged(new GetSubject(acc));
+
+    if (subject != null) {
+      Set principals = subject.getPrincipals(URIPrincipal.class);
+      Iterator i = principals.iterator();
+      if (i.hasNext()) {
+        return ((URIPrincipal) i.next()).getURI();
+      }
+    }
+    return null;
+  }
+
+  private static class GetSubject implements PrivilegedAction {
+    AccessControlContext _acc;
+
+    public GetSubject(AccessControlContext acc) {
+      _acc = acc;
     }
 
     public Object run() {
-      AccessControlContext context = AccessController.getContext();
-      Subject mySubject = Subject.getSubject(context);
-      
-      ArrayList roles = new ArrayList();
-      if (mySubject != null) {
-        Set principals = mySubject.getPrincipals();
-        Iterator i = principals.iterator();
-        while (i.hasNext()) {
-          Object principal = i.next();
-          if (principal instanceof GenericPrincipal) {
-            String proles[] = ((GenericPrincipal) principal).getRoles();
-            for (int j = 0; j < proles.length; j++) {
-              roles.add(proles[j]);
-            }
-          }
-        }
-      }
-      return roles.toArray(STRING_ARRAY);
+      return Subject.getSubject(_acc);
     }
   }
 }

@@ -42,6 +42,7 @@ import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.component.Service;
 import org.cougaar.core.blackboard.Subscriber;
 import org.cougaar.core.blackboard.Subscription;
@@ -52,6 +53,7 @@ import org.cougaar.core.persist.Persistence;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.mts.MessageAddress;
 
+import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.ServiceFilter;
 import org.cougaar.core.component.ServiceFilterBinder;
 import org.cougaar.core.component.ContainerAPI;
@@ -64,6 +66,7 @@ import org.cougaar.planning.ldm.policy.KeyRuleParameter;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.BlackboardFilterPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.acl.auth.UserRoles;
 
 
@@ -79,12 +82,26 @@ import org.cougaar.core.security.acl.auth.UserRoles;
  **/
 public class BBReadOnlyFilter extends BlackboardFilter {
 
+  static BlackboardGuard _bbg = null;
+
   public BBReadOnlyFilter() {
     super(BBReadOnlyFilterBinder.class);
   }
 
+  public void setParameter(Object o) {
+  }
+
+  public void setBindingSite(BindingSite bs) {
+    super.setBindingSite(bs);
+    synchronized (BBReadOnlyFilter.class) {
+      if (_bbg == null) {
+        _bbg = new BlackboardGuard(bs.getServiceBroker());
+      }
+    }
+  }
+
   // This is a "Wrapper" binder which installs a service filter for plugins
-  public class BBReadOnlyFilterBinder 
+  public static class BBReadOnlyFilterBinder 
     extends BlackboardFilter.PluginServiceFilterBinder {
 
     public BBReadOnlyFilterBinder(BinderFactory bf, Object child) {
@@ -97,13 +114,22 @@ public class BBReadOnlyFilter extends BlackboardFilter {
       return new BBReadOnlyProxy(bbs, address.getAddress(),
 				 getServiceBroker());
     }
+
+    protected BlackboardQueryService getBlackboardQueryServiceProxy(BlackboardQueryService bbs,
+                                                          Object child) {
+      MessageAddress address = getPluginManager().getAgentIdentifier();
+      return new BBReadOnlyQuery(bbs, address.getAddress(),
+				 getServiceBroker());
+    }
+
+    public void setParameter(Object o) {
+    }
   }
 
   // this class is a proxy for the blackboard service which audits subscription
   // requests.
-  public class BBReadOnlyProxy
+  public static class BBReadOnlyProxy
     implements BlackboardService {
-    private BlackboardGuard   _bbg;
     private BlackboardService _bbs;
     private String            _agentName;
     private ServiceBroker     _serviceBroker;
@@ -113,7 +139,6 @@ public class BBReadOnlyFilter extends BlackboardFilter {
       _bbs = service;
       _agentName = agentName;
       _serviceBroker = sb;
-      _bbg = new BlackboardGuard(_serviceBroker);
     }
 
     private void checkWrite(String method) {
@@ -132,11 +157,17 @@ public class BBReadOnlyFilter extends BlackboardFilter {
       _bbs.closeTransaction();
     }
     
-    public void closeTransaction(boolean resetp) {
+    /** @deprecated Use {@link #closeTransactionDontReset closeTransactionDontReset}
+     **/
+    public void closeTransaction(boolean reset) {
       checkWrite("closeTransaction");
-      _bbs.closeTransaction(resetp);
+      if (!reset) {
+        closeTransactionDontReset();
+      } else {
+        _bbs.closeTransaction();
+      }
     }
-
+    
     public boolean didRehydrate() {
 //       checkWrite("didRehydrate");
       return _bbs.didRehydrate();
@@ -308,18 +339,53 @@ public class BBReadOnlyFilter extends BlackboardFilter {
 
   }
 
-  public class BlackboardGuard 
+  public static class BBReadOnlyQuery
+    implements BlackboardQueryService {
+    private BlackboardQueryService _bbs;
+    private String            _agentName;
+    private ServiceBroker     _serviceBroker;
+
+    public BBReadOnlyQuery(BlackboardQueryService service, String agentName,
+                           ServiceBroker sb) {
+      _bbs = service;
+      _agentName = agentName;
+      _serviceBroker = sb;
+    }
+
+    public Collection query(UnaryPredicate isMember) {
+      if (_bbg.canWrite(_agentName)) {
+        return _bbs.query(isMember);
+      } else if (!_bbg.canRead(_agentName)) {
+        throw new BlackboardAccessException("query");
+      }
+
+      Collection col = _bbs.query(isMember);
+      ArrayList newList = new ArrayList();
+      Iterator iter = col.iterator();
+      while (iter.hasNext()) {
+        Object o = iter.next();
+        if (o instanceof Cloneable) {
+          try {
+            Class c = o.getClass();
+            Method m = c.getMethod("clone", null);
+            if ((m.getModifiers() & Modifier.PUBLIC) == Modifier.PUBLIC) {
+              o = m.invoke(o, null);
+            }
+          } catch (Exception e) {
+            // just use the original object
+          }
+        }
+        newList.add(o);
+      }
+      return newList;
+    }
+  }
+
+  public static class BlackboardGuard 
     extends GuardRegistration 
     implements NodeEnforcer {
 
-    public final static String WRITE_ROLE    = "write";
-    public final static String READ_ROLE     = "read";
-    public final static String DISALLOW_ROLE = "none";
-
-    public final static String RO_RULE       = "read-only-rule";
-
-    HashSet _read  = new HashSet();
-    HashSet _write = new HashSet();
+    HashMap _ruleMap = new HashMap();
 
     public BlackboardGuard(ServiceBroker sb) {
       super(BlackboardFilterPolicy.class.getName(), "BBReadOnlyFilter",
@@ -332,10 +398,6 @@ public class BBReadOnlyFilter extends BlackboardFilter {
       }
     }
 
-    /**
-     * Merges an existing policy with a new policy.
-     * @param policy the new policy to be added
-     */
     public void receivePolicyMessage(Policy policy,
                                      String policyID,
                                      String policyName,
@@ -346,82 +408,154 @@ public class BBReadOnlyFilter extends BlackboardFilter {
                                      String policyTargetID,
                                      String policyTargetName,
                                      String policyType) {
-      try {
-      if (policy == null) {
+      log.warn("receivePolicyMessage(Policy...) should not be called");
+    }
+    /**
+     * Merges an existing policy with a new policy.
+     * @param policy the new policy to be added
+     */
+    public void receivePolicyMessage(SecurityPolicy policy,
+                                     String policyID,
+                                     String policyName,
+                                     String policyDescription,
+                                     String policyScope,
+                                     String policySubjectID,
+                                     String policySubjectName,
+                                     String policyTargetID,
+                                     String policyTargetName,
+                                     String policyType) {
+      if (policy == null || !(policy instanceof BlackboardFilterPolicy)) {
         return;
       }
 
       if (log.isDebugEnabled()) {
         log.debug("ProxyBlackboard: Received policy message");
-        RuleParameter[] param = policy.getRuleParameters();
-        for (int i = 0 ; i < param.length ; i++) {
-          log.debug("Rule: " + param[i].getName() +
-                             " - " + param[i].getValue());
-        }
+        log.debug(policy.toString());
       }
-      // what is the policy change?
-      RuleParameter[] param = policy.getRuleParameters();
-      synchronized (this) {
-        for (int i = 0; i < param.length; i++) {
-          String ruleType = param[i].getName();
-          if (RO_RULE.equals(ruleType)) {
-            if (!(param[i] instanceof KeyRuleParameter)) {
-              log.debug("Invalid parameter type for " + 
-                                 RO_RULE + ". Expecting KeySet");
-            } else {
-              String aName = param[i].getValue().toString();
-              KeyRuleParameterEntry entries[] = 
-                ((KeyRuleParameter) param[i]).getKeys();
-              for (int j = 0; j < entries.length; j++) {
-                String role = aName + " - " + entries[j].getKey();
-                String allow = entries[j].getValue();
-                if (READ_ROLE.equals(allow)) {
-                  _write.remove(role);
-                  _read.add(role);
-                } else if (WRITE_ROLE.equals(allow)) {
-                  _read.remove(role);
-                  _write.add(role);
-                } else if (DISALLOW_ROLE.equals(allow)) {
-                  _read.remove(role);
-                  _write.remove(role);
-                }
-              }
-            }
+      BlackboardFilterPolicy bbPolicy = (BlackboardFilterPolicy) policy;
+      HashMap map = new HashMap();
+      BlackboardFilterPolicy.ReadOnlyRule[] rules = bbPolicy.getRules();
+      for (int i = 0; i < rules.length; i++) {
+        ArrayList list = (ArrayList) map.get(rules[i].agent);
+        if (list == null) {
+          list = new ArrayList();
+          map.put(rules[i].agent,list);
+        }
+        list.add(rules[i]);
+      }
+      _ruleMap = map;
+    }
+
+    private boolean canAccess(String agentName, boolean write) {
+      if (agentName == null) {
+        log.debug("agentName is null");
+        return true;
+      }
+      ArrayList rules = (ArrayList) _ruleMap.get(agentName);
+      ArrayList rules2 = (ArrayList) _ruleMap.get("*");
+      if (rules == null && rules2 == null) {
+        return true; // no rules for this agent
+      }
+
+      String roles[] = UserRoles.getRoles();
+      if (roles == null) {
+        // this isn't a servlet -- allow it.
+//         log.debug("This isn't a servlet call");
+        return true;
+      }
+
+      String uri = UserRoles.getURI();
+      if (uri == null) {
+//         log.debug("There is no uri for the user.");
+        return true; // no uri for the user so not a secured servlet.
+      }
+      if (!uri.substring(0,agentName.length() + 2).
+          equals("/$" + agentName) ||
+          (uri.charAt(agentName.length() + 2) != '/' &&
+           uri.length() != agentName.length() + 2)) {
+        log.warn("User attempting illegal access to " + agentName +
+                 " -- uri is " + uri);
+        return false;
+      }
+      uri = uri.substring(agentName.length() + 2);
+        
+      // now go through each of the rules and check for a match:
+      BlackboardFilterPolicy.ReadOnlyRule rule = findRule(rules,uri);
+      if (rule == null) {
+        rule = findRule(rules2,uri);
+      }
+      if (rule == null) {
+//         log.debug("no rules apply to this uri");
+        return true; // no rules apply
+      }
+
+      // now check the rule against the roles
+      boolean readOnly = false;
+      boolean denied   = false;
+      for (int i = 0; i < roles.length; i++) {
+        if (rule.writeRoles.contains(roles[i])) {
+//           log.debug("rule allows: " + rule);
+          return true;
+        }
+        if (rule.readRoles.contains(roles[i])) {
+          if (write == false) {
+//             log.debug("rule allows 2: " + rule);
+            return true;
           }
+          readOnly = true;
+        } else if (rule.deniedRoles.contains(roles[i])) {
+          denied = true;
         }
       }
-      }catch (Exception e) {
-        e.printStackTrace();
+      if (readOnly || denied) {
+        // default doesn't apply to someone who's denied explicitly
+//         log.debug("user is explicitly denied (" + 
+//                   readOnly + "," + denied + ")");
+        return false; 
       }
+      if (rule.defaultAccess.equals(BlackboardFilterPolicy.WRITE_ACCESS)) {
+//         log.debug("default access allows write permissions");
+        return true;
+      } else if (rule.defaultAccess.equals(BlackboardFilterPolicy.READ_ACCESS)) {
+//         log.debug("default access allows read access");
+        return !write;
+      }
+//       log.debug("default doesn't allow the user to do this action: " + 
+//                 rule.defaultAccess);
+      return false;
     }
 
     public boolean canRead(String agentName) {
-      String roles[] = UserRoles.getRoles();
-      if (roles != null) {
-        synchronized (this) {
-          for (int i = 0; i < roles.length; i++) {
-            if (_read.contains(roles[i]) || _write.contains(agentName + " - " + 
-                                                            roles[i])) {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
+      return canAccess(agentName, false);
     }
 
     public boolean canWrite(String agentName) {
-      String roles[] = UserRoles.getRoles();
-      if (roles != null) {
-        synchronized (this) {
-          for (int i = 0; i < roles.length; i++) {
-            if (_write.contains(agentName + " - " + roles[i])) {
-              return true;
+      return canAccess(agentName, true);
+    }
+
+    private BlackboardFilterPolicy.ReadOnlyRule findRule(ArrayList rules,
+                                                         String uri) {
+      if (rules == null) return null;
+      Iterator iter = rules.iterator();
+      while (iter.hasNext()) {
+        BlackboardFilterPolicy.ReadOnlyRule rule = 
+          (BlackboardFilterPolicy.ReadOnlyRule) iter.next();
+        HashSet patterns = rule.patterns;
+        if (patterns.contains(uri)) return rule;
+        Iterator jter = patterns.iterator();
+        while (jter.hasNext()) {
+          String pattern = (String) jter.next();
+          if (pattern.endsWith("*")) {
+            if (uri.startsWith(pattern.substring(0,pattern.length()-1))) {
+              return rule;
             }
+          } else if (pattern.startsWith("*") &&
+                     uri.endsWith(pattern.substring(1))) {
+            return rule;
           }
         }
       }
-      return false;
-    }
+      return null;
+    } 
   }
 }
