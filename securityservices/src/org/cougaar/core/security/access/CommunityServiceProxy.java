@@ -197,6 +197,9 @@ class CommunityServiceProxy extends SecureServiceProxy
   }
   
   private CommunityResponseListener createSecureResponse(CommunityResponseListener crl) {
+    if (crl == null) {
+      return null;
+    }
     return new SecureCommunityResponseListener(crl, _scs.getExecutionContext()); 
   }
   class SecureCommunityChangeListener implements CommunityChangeListener {
@@ -223,6 +226,9 @@ class CommunityServiceProxy extends SecureServiceProxy
     CommunityResponseListener _listener;
     ExecutionContext _ec;
     SecureCommunityResponseListener(CommunityResponseListener listener, ExecutionContext ec) {
+      if (listener == null) {
+	throw new IllegalArgumentException("CommunityResponseListener cannot be null");
+      }
       _listener = listener; 
       _ec = ec;
     }
