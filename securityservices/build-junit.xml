@@ -106,20 +106,32 @@
           <sysproperty key="junit.config.file" value="${junit.config.file}"/>
           <sysproperty key="junit.test.desc" value="${junit.test.desc}"/>
 
+          <sysproperty key="org.cougaar.util.ConfigFinder.ClassName" value="org.cougaar.core.security.config.SecureConfigFinder"/>
+          <sysproperty key="log4j.configuration" value="loggingConfigJunit.conf"/>
+
           <!-- <sysproperty key="test.org.cougaar.core.security.simul.SaxMapper.trace" value="true"/> -->
 
           <classpath>
+             <pathelement path="${securityservices.configs}/confnai"/>
              <fileset dir="${securityservices.classes}">
                 <include name="junitTests.jar" />
+                <include name="securityservices.jar" />
+                <include name="securityservices_config.jar"/>
              </fileset>
              <fileset dir="${cougaar.install.path}/sys">
                 <include name="xerces.jar" />
                 <include name="httpunit.jar" />
+                <include name="log4j.jar" />
                 <include name="Tidy.jar" />
+             </fileset>
+             <fileset dir="${cougaar.install.path}/lib">
+                <include name="core.jar" />
+                <include name="util.jar" />
              </fileset>
           </classpath>
 
-	  <test name="test.org.cougaar.core.security.simul.NodeServerSuite"
+
+	  <test name="${junit.test.testClass}"
                 haltonfailure="no" haltonerror="no"
                 todir="${junit.test.result.path}" outfile="TEST-results" >
 	    <formatter type="xml" />
