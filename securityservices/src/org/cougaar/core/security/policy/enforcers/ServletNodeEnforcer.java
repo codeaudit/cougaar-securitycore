@@ -397,12 +397,22 @@ public class ServletNodeEnforcer
                                     String sslCipher,
                                     int authLevel) 
   {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Entering isActionAuthorized with roles = " + roles + 
+                 " uri = " + uri + " sslCiphter = " + sslCipher + 
+                 " authLevel = " + authLevel);
+    }
     String kaosuri = (String) _uriMap.ulUriToKAoSUri(uri);
     if (kaosuri == null) {
       return false;
     }
 
+    roles = HardWired.stripDomainFromRoles(roles);
+
     String user = UserDatabase.login(roles);
+    if (_log.isDebugEnabled()) {
+      _log.debug("Obtained user = " + user);
+    }
         
     Set targets = new HashSet();
     if ( !targets.add(new TargetInstanceDescription
