@@ -29,7 +29,7 @@
        The name should be the distinguished name of the X509 certificate -->
   <certificateAuthority name="CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US">
     <!-- Alias of CA private key in the keystore -->
-    <alias>NCA001</alias>
+    <caCommonName>NCA</caCommonName>
 
     <!-- Name of keystore where to find private key of CA -->
     <keystoreFile>keystore-CONUS</keystoreFile>

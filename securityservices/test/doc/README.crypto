@@ -1,7 +1,18 @@
 Keystore password:
 ------------------
 
-configs/common/keystoreCA             Ultra*Log
-keystore-CONUS                        CONUS-Ultra*Log
-keystore-Support                      Support-Ultra*Log
-keystore-Combat                       Combat-Ultra*Log
+
+Keystores containing certificates of trusted CAs
+================================================
+test/configs/common/keystoreCA			Ultra*Log
+
+Keystores containing key pairs of CAs
+=====================================
+keystore-CONUS					CONUS-Ultra*Log
+keystore-Support				Support-Ultra*Log
+keystore-Combat					Combat-Ultra*Log
+
+Keystores containing keys for nodes and agents
+==============================================
+
+test/configs/certauthority/keystoreTest		Ultra*Log

@@ -426,7 +426,11 @@ public class KeyManagement
 
     while (reader.available() > 0) {
       int read = reader.read(bbuf, 0, len);
-      sbuf = sbuf + new String(bbuf, 0, read);
+      String s = new String(bbuf, 0, read);
+      if (debug) {
+	System.out.println("getSigningRequests: reading:" + s);
+      }
+      sbuf = sbuf + s;
 
       // Find header
       ind_start = sbuf.indexOf(PKCS10HEADER);
