@@ -81,7 +81,7 @@ public class DataProtectionSensor extends  SensorPlugin
       new IdmefEventPublisher(m_blackboard, 
                               m_cmrFactory, 
                               m_log, 
-                              m_sensorInfo);
+                              getSensorInfo());
     DataProtectionServiceImpl.addPublisher(publisher);
   }  
   
