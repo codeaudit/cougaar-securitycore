@@ -56,9 +56,8 @@ public class TrustedCAConfigPlugin extends ConfigPlugin {
       }
     }
     if (newPolicy) {
-      setCAInfo(info, requestURL);
+      setCAInfo(info, requestURL, false);
     }
-    TrustedCaPolicy tcp = info.caPolicy;
 
     // request certificates from the particular CA that has started
     // the certificate may have been created
