@@ -112,7 +112,7 @@ society.each_host do |host|
     # this "java-io-patch" jar should always be included.  Since this jar
     # overrides "java.io" it must be prepended to the JVM's bootclasspath.
     #node.remove_parameter("-Xbootclasspath/p")
-    #node.add_parameter("-Xbootclasspath/p:#{cip}/lib/javaiopatch.jar")
+    #node.add_parameter("-Xbootclasspath/p:#{cip}#{File::SEPARATOR}lib#{File::SEPARATOR}javaiopatch.jar")
     
     # Set the class path for starting the Node, which uses ":" separators.
     #
@@ -120,7 +120,7 @@ society.each_host do |host|
     # java.class.path=/mnt/shared/integ/lib/bootstrap.jar
     # However, the Jython interpreter requires the JAR files
     # referenced from Python be on the "real" classpath.
-    node.override_parameter("-Djava.class.path", "$COUGAAR_INSTALL_PATH/lib/CougaarCRLextensions.jar")
+    node.override_parameter("-Djava.class.path", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}CougaarCRLextensions.jar")
         
     # Set the config path, which uses ";" separators.
     #
@@ -133,12 +133,12 @@ society.each_host do |host|
     #
     # Here we override the default configuration path to include both
     # the "common" directory and "GLMTrans" directory.
-    #node.override_parameter("-Dorg.cougaar.config.path", "\"#{cip}/configs/common\;#{cip}/configs/glmtrans\;\"")
-    #node.override_parameter("-Dorg.cougaar.config.path", "\".;$COUGAAR_INSTALL_PATH/configs/security;$COUGAAR_INSTALL_PATH/configs/common;$COUGAAR_INSTALL_PATH/configs/glmtrans;$COUGAAR_INSTALL_PATH/configs/daml\"")
-    node.prepend_value_on_parameter("-Dorg.cougaar.config.path", "$COUGAAR_INSTALL_PATH/configs/security")
-    node.append_value_on_parameter("-Dorg.cougaar.config.path", "$COUGAAR_INSTALL_PATH/configs/daml")
+    #node.override_parameter("-Dorg.cougaar.config.path", "\"#{cip}#{File::SEPARATOR}configs#{File::SEPARATOR}common\;#{cip}#{File::SEPARATOR}configs#{File::SEPARATOR}glmtrans\;\"")
+    #node.override_parameter("-Dorg.cougaar.config.path", "\".;$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security;$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}common;$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}glmtrans;$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}daml\"")
+    node.prepend_value_on_parameter("-Dorg.cougaar.config.path", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security")
+    node.append_value_on_parameter("-Dorg.cougaar.config.path", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}daml")
 
-    #node.override_parameter("-Dorg.cougaar.config.path", "\".;#{cip}/configs/security\;\"")
+    #node.override_parameter("-Dorg.cougaar.config.path", "\".;#{cip}#{File::SEPARATOR}configs#{File::SEPARATOR}security\;\"")
     
     # Some standard memory settings.
     #
@@ -206,18 +206,18 @@ society.each_host do |host|
     #node.override_parameter("-Dorg.cougaar.workspace", "#{cws}")
     
     # Bootstrap keystore to store JAR file keys
-    node.override_parameter("-Dorg.cougaar.core.security.bootstrap.keystore", "$COUGAAR_INSTALL_PATH/configs/security/bootstrap_keystore")
+    node.override_parameter("-Dorg.cougaar.core.security.bootstrap.keystore", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security#{File::SEPARATOR}bootstrap_keystore")
     
     # Log4j Logging
     #node.override_parameter("-Dorg.cougaar.core.logging.config.filename", "loggingConfig.conf")
-    #node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File", "$COUGAAR_INSTALL_PATH/workspace/log4jlogs/#{node.name}.log")
+    #node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}workspace#{File::SEPARATOR}log4jlogs#{File::SEPARATOR}#{node.name}.log")
     #node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.A1.File", "log4jnode.log")
     
     # Add the secure bootstrapper to the bootstrap class path
     # This is needed because of a bug in the SDK 1.4.
     # Internal Java runtime classes can create infinite recursive calls
     #node.remove_parameter("-Xbootclasspath/a.*")
-    node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH/lib/bootstrap.jar")
+    node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}securebootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar")
     
     # Aspects: MessageProtectionAspect
     # Add the MessageProtectionAspect to the org.cougaar.message.transport.aspects property to turn on
@@ -250,7 +250,7 @@ society.each_host do |host|
     # Warning!!! Use JAR files ONLY when using this policy file.
     # If directories containing .class files are included in the CLASSPATH,
     # the .class files will not have sufficient privileges to be executed.
-    node.override_parameter("-Djava.security.policy", "$COUGAAR_INSTALL_PATH/configs/security/Cougaar_Java.policy")
+    node.override_parameter("-Djava.security.policy", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security#{File::SEPARATOR}Cougaar_Java.policy")
     
     # Use Java security manager
     node.override_parameter("-Dorg.cougaar.core.security.useSecurityManager", "true")
@@ -358,7 +358,7 @@ society.each_node do |node|
     httpport = 8810
     httpsport = 9810
     
-    # node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File","$COUGAAR_INSTALL_PATH/workspace/log4jlogs/${HOSTNAME}-ca.log")
+    # node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File","$COUGAAR_INSTALL_PATH#{File::SEPARATOR}workspace#{File::SEPARATOR}log4jlogs#{File::SEPARATOR}${HOSTNAME}-ca.log")
 
     # You can also turn on/off http/s. Turn of by setting the port to -1
     # Note that HTTPS is off by default, and HTTP is at 8800
