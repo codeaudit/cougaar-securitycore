@@ -14,10 +14,14 @@ parameters:
     - $CIP/csmart/config/rules/isat
     - $CIP/csmart/config/rules/yp
 #    - $CIP/csmart/config/rules/logistics
+# ######################################################
+# Security rules
     - $CIP/csmart/config/rules/security
+    - $CIP/csmart/lib/security/rules
     - $CIP/csmart/config/rules/security/mop
-#    - $CIP/csmart/config/rules/security/robustness
     - $CIP/csmart/config/rules/security/testCollectData
+# ######################################################
+#    - $CIP/csmart/config/rules/security/robustness
 #    - $CIP/csmart/config/rules/robustness
 #    - $CIP/csmart/config/rules/robustness/uc1
   - community_rules:
