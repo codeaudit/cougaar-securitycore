@@ -162,6 +162,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "p
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.identity.WebserverIdentityService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertificateManagementService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.LdapUserService";
+	permission org.cougaar.core.security.access.AccessPermission "*";	
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}util.jar" signedBy "privileged" {
