@@ -7,7 +7,7 @@ compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
  
 
 redundantroot = nil
-caDupManager = 'RootBackupCaManager'
+caDupManager = 'RedundantRootCaManager'
 caDupHttpPort = '8830'
 caDupHttpsPort = '9830'
 
@@ -37,12 +37,13 @@ end
 
 # use redundant root if there is one
 if redundantroot != nil
-         facetval = redundantroot.host.get_facet(:enclave)
-    securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase
+#         facetval = redundantroot.host.get_facet(:enclave)
+#    securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase
 
 #    puts "SecurityComponent #{securityFactoryComponentName}"
 
-    if redundantroot.agent.has_component?(securityFactoryComponentName)
+#    if redundantroot.agent.has_component?(securityFactoryComponentName)
+    if redundantroot.agent.has_component?("org.cougaar.core.security.provider.SecurityComponentFactory")
       redundantroot.agent.add_component do |c|
         c.name = "RootCAConfigPlugin"
         c.classname = configPlugin
@@ -60,10 +61,10 @@ if redundantroot != nil
         c.add_argument(arg);
       end
     end
-    
-         facetval = caroot.host.get_facet(:enclave)
-    securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase
-    if caroot.agent.has_component?(securityFactoryComponentName)
+#         facetval = caroot.host.get_facet(:enclave)
+#    securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase
+#    if caroot.agent.has_component?(securityFactoryComponentName)
+    if caroot.agent.has_component?("org.cougaar.core.security.provider.SecurityComponentFactory")
       caroot.agent.add_component do |c|
         c.name = "TrustedCAConfigPlugin"
         c.classname = trustedCAConfigPlugin
@@ -73,19 +74,20 @@ if redundantroot != nil
         c.add_argument(arg);
       end
     end
-
 end
 
 if caroot != nil
   society.each_node do |node|
     node.each_facet(:role) do |facet|
-      if facet[:role] == 'RedundantCertificateAuthority'
+#      if facet[:role] == 'RedundantCertificateAuthority'
+      if facet[:role] == $facetRedundantCaManagerAgent
          facetval = node.host.get_facet(:enclave)
 
-         enclave = facetval[0..0] + facetval[1..facetval.length].downcase + "Backup"
-         securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase 
-         if node.agent.has_component?(securityFactoryComponentName)
-           if enclave != nil
+         enclave = facetval[0..0] + facetval[1..facetval.length].downcase + "Redundant"
+#         securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase 
+#         if node.agent.has_component?(securityFactoryComponentName)
+         if node.agent.has_component?("org.cougaar.core.security.provider.SecurityComponentFactory")
+           if enclave != nil 
              #puts "Adding redundant CA component"
              arg = 'CN=' + enclave + 'EnclaveCA, OU=' + enclave + 'Enclave' \
                ', O=DLA, L=MV, ST=CA, C=US, T=ca'
@@ -123,37 +125,39 @@ if caroot != nil
                  arg = "#{caroot.host.name}:#{caManager}:#{caHttpPort}:#{caHttpsPort}"
                  c.add_argument(arg);
                end 
-             end
-           end
-        else
-          #puts "Not adding component yet (to preserve component order requirements)"
-        end
+             end # redundantroot
+           end # if enclave
+         else
+           #puts "Not adding component yet (to preserve component order requirements)"
+         end
       end
-      if facet[:role] == 'CertificateAuthority' \
+#      if facet[:role] == 'CertificateAuthority' \
+      if facet[:role] == $facetCaManagerAgent \
          and redundantroot != nil
-         facetval = node.host.get_facet(:enclave)
+          facetval = node.host.get_facet(:enclave)
 
-         enclave = facetval[0..0] + facetval[1..facetval.length].downcase
-         securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase 
-         if node.agent.has_component?(securityFactoryComponentName)
+          enclave = facetval[0..0] + facetval[1..facetval.length].downcase
+#          securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase 
+#          if node.agent.has_component?(securityFactoryComponentName)
+          if node.agent.has_component?("org.cougaar.core.security.provider.SecurityComponentFactory")
            if enclave != nil
-             node.agent.add_component do |c|
-               c.name = enclave + "TrustedCaConfigPlugin"
-               c.classname = trustedCAConfigPlugin
-               c.priority = "HIGH"
-               c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-               #  1st arg: host name where CA is running
-               #  2nd arg: Name of CA agent
-               #  3rd arg: HTTP port number of CA
-               #  4th arg: HTTPs port number of CA
-                 arg = "#{redundantroot.host.name}:#{caDupManager}:#{caDupHttpPort}:#{caDupHttpsPort}"
-                 c.add_argument(arg);
-             end
-           end
-        else
-          #puts "Not adding component yet (to preserve component order requirements)"
-        end
-      end
+              node.agent.add_component do |c|
+                c.name = enclave + "TrustedCaConfigPlugin"
+                c.classname = trustedCAConfigPlugin
+                c.priority = "HIGH"
+                c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+                #  1st arg: host name where CA is running
+                #  2nd arg: Name of CA agent
+                #  3rd arg: HTTP port number of CA
+                #  4th arg: HTTPs port number of CA
+                arg = "#{redundantroot.host.name}:#{caDupManager}:#{caDupHttpPort}:#{caDupHttpsPort}"
+                c.add_argument(arg);
+              end
+            end
+          else
+            #puts "Not adding component yet (to preserve component order requirements)"
+          end
+      end # if facet
     end
   end
 end
