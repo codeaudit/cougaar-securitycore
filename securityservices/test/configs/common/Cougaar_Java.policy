@@ -166,6 +166,8 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "jaxp.debug", "read";
 	permission java.util.PropertyPermission "driver.postgresql", "read";
 
+	permission java.util.PropertyPermission "generic.database.expander.database", "read";
+
 	// ICIS database
 	permission java.util.PropertyPermission "icis.database", "read";
 	permission java.util.PropertyPermission "icis.database.user", "read";
