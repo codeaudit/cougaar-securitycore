@@ -182,7 +182,7 @@ public abstract class SensorPlugin extends ComponentPlugin {
   	return false;
       }
       else if(manager.size() == 0) {
- 	m_log.warn("Enclave Security Manager not yet alive!");
+ 	m_log.debug("Enclave Security Manager not yet alive!");
   	return true; // enclave managers not yet alive
       }  
       // if agent is the target then add the necessary information to the registration
@@ -268,7 +268,7 @@ public abstract class SensorPlugin extends ComponentPlugin {
 	  return null;
       }
       else if(community.size() == 0) {
-	  m_log.warn("Security Manager may not have registered yet!");
+	  m_log.debug("Security M&R Manager may not have registered yet!");
 	  return community;
       }
       printCommunityInfo(m_cs, community);

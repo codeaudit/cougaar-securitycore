@@ -65,8 +65,8 @@ public class PublicKeyEnvelope
 
   public PublicKeyEnvelope(X509Certificate asender,
 			   X509Certificate areceiver,
-			   MessageAddress areceiverAddress,
 			   MessageAddress asenderAddress,
+			   MessageAddress areceiverAddress,
 			   SecureMethodParam policy,
 			   SealedObject sKey,
 			   SealedObject sKeySender,
@@ -74,8 +74,10 @@ public class PublicKeyEnvelope
     super(policy, encObj);
     encryptedSymmetricKey = sKey;
     encryptedSymmetricKeySender = sKeySender;
-    receiver = areceiver;
+
     sender = asender;
+    receiver = areceiver;
+
     receiverAddress = areceiverAddress;
     senderAddress = asenderAddress;
   }

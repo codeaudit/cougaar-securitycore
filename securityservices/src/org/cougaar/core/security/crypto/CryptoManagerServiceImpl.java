@@ -150,6 +150,7 @@ public class CryptoManagerServiceImpl
 
   public Object verify(String name, String spec, SignedObject obj, boolean expiredOk)
     throws CertificateException {
+    ArrayList signatureIssues = new ArrayList();
     if (obj == null) {
       throw new IllegalArgumentException("Signed object with " + name
 					 + " key is null. Unable to verify signature");
@@ -169,14 +170,16 @@ public class CryptoManagerServiceImpl
     Iterator it = certList.iterator();
 
     while (it.hasNext()) {
+      CertificateStatus cs = (CertificateStatus)it.next();
+      java.security.cert.Certificate c = cs.getCertificate();
       try {
-        CertificateStatus cs = (CertificateStatus)it.next();
-	java.security.cert.Certificate c = cs.getCertificate();
-    // filter out those non valid certificates first
+	// filter out those non valid certificates first
         if (expiredOk) {
           try {
             keyRing.checkCertificateTrust((X509Certificate)c);
           } catch (CertificateException ce) {
+	    signatureIssues.add("Certificate trust exception:" + ce
+				+ ". Certificate:" + (X509Certificate)c);
             if (!(ce instanceof CertificateExpiredException)) {
               continue;
 	    }
@@ -192,6 +195,8 @@ public class CryptoManagerServiceImpl
 	spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
 	if (spec == null) {
 	  log.warn("Unable to retrieve Algorithm specification from key");
+	  signatureIssues.add("Unable to retrieve Algorithm specification from key. Certificate:"
+			      + (X509Certificate)c);
 	  continue;
 	}
 	ve=Signature.getInstance(spec);
@@ -200,11 +205,14 @@ public class CryptoManagerServiceImpl
 	} else {
 	  // That's OK. Maybe there is an old certificate which is not
 	  // trusted anymore, but we may have a newer one too.
+	  signatureIssues.add("Verification failure. Certificate:" + ((X509Certificate)c).toString());
 	  continue;
 	}
       } catch (Exception e) {
 	// That's OK. Maybe there is an old certificate which is not
 	// trusted anymore, but we may have a newer one too.
+	signatureIssues.add("Unable to verify signature:" + e + ". Certificate:" + (X509Certificate)c);
+
 	if (log.isInfoEnabled()) {
 	  log.info("Unable to verify signature", e);
 	}
@@ -215,6 +223,9 @@ public class CryptoManagerServiceImpl
     if (log.isWarnEnabled()) {
       log.warn("Signature verification failed. Agent=" + name
 	+ " - Tried with " + certList.size() + " certificates");
+      for (int i = 0 ; i < signatureIssues.size() ; i++) {
+	log.warn((String) signatureIssues.get(i));
+      }
     }
     return null;
   }

@@ -665,8 +665,8 @@ public class CertificateCache
     catch (CertificateException e) {
       // There is no suitable private key (expired, revoked, ...)
       // Request a new one to the Certificate Authority
-      if (log.isWarnEnabled()) {
-	log.warn("Invalid certificate: " + e);
+      if (log.isInfoEnabled()) {
+	log.info("Invalid certificate: " + e);
       }
 
       // in some cases (cert chain problem) the status should be changed

@@ -152,7 +152,7 @@ public class AgentIdentityServiceImpl
     IdentityDeniedException {
     if (log.isDebugEnabled()) {
       log.debug("acquire identity:"
-		+ requestorAddress.toAddress() + ". TransferableIdentity" + transferableIdentity);
+		+ requestorAddress.toAddress() + ". TransferableIdentity: " + transferableIdentity);
     }
     // Add the agent to the list that the ServletPolicyEnforcer
     // has to keep track of for rules that deal with all agents.
@@ -409,7 +409,8 @@ public class AgentIdentityServiceImpl
       return;
     }
     if (o == null) {
-      log.warn("TransferableIdentity is null");
+      log.warn("TransferableIdentity could not be decrypted (null) " +
+	       sender.toAddress() + "->" + thisNodeAddress.toAddress());
       return;
     }
 

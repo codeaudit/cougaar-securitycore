@@ -137,7 +137,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private int firstobject=0;
   //private MessageAddress mgrAddress;
   private MessageAddress myAddress;
-  private MessageAddress  destcluster;
+  private MessageAddress  destcluster=null;;
   private String dest_community;
   private Object param;  
   private String mgrrole=null;
@@ -203,8 +203,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     else {
       myRole=getMyRole(mySecurityCommunity);
       loggingService.debug(" My Role is  :"+myRole +" agent name :"+myAddress.toString());
-      if((myRole.equalsIgnoreCase("memeber"))||(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave"))) {
-	if(myRole.equalsIgnoreCase("memeber")) {
+      if((myRole.equalsIgnoreCase("member"))||(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave"))) {
+	if(myRole.equalsIgnoreCase("member")) {
 	  loggingService.error("This plugin can only be part of SecurityMnRManager-Enclave/SecurityMnRManager-Society.");
 	  loggingService.error("It is is in the right agent then modify community information");
 	}
@@ -243,8 +243,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     else {
       myRole=getMyRole(mySecurityCommunity);
       loggingService.debug(" My Role is  :"+myRole +" agent name :"+myAddress.toString());
-      if((myRole.equalsIgnoreCase("memeber"))||(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave"))) {
-	if(myRole.equalsIgnoreCase("memeber")) {
+      if((myRole.equalsIgnoreCase("member"))||(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave"))) {
+	if(myRole.equalsIgnoreCase("member")) {
 	  loggingService.error("This plugin can only be part of SecurityMnRManager-Enclave/SecurityMnRManager-Society.");
 	  loggingService.error("It is is in the right agent then modify community information");
 	}
@@ -281,7 +281,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
    * Top level plugin execute loop.  
    */
   protected void execute () {
-    
+    if((destcluster ==null)&&(myRole.equalsIgnoreCase("SecurityMnRManager-Society"))) {
+      loggingService.warn(" Destination address is not set for agent:"+myAddress.toAddress()); 
+    } 
     // Unwrap subordinate capabilities from new/changed/deleted relays
     loggingService.debug("Update of relay called from :"+myAddress.toAddress());
     if((myRole==null) && (mySecurityCommunity==null)) {

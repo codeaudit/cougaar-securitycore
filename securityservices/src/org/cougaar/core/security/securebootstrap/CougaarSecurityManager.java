@@ -71,7 +71,8 @@ import javax.security.auth.Subject;
 
  **/
 
-public class CougaarSecurityManager extends SecurityManager 
+public class CougaarSecurityManager
+  extends SecurityManager 
 {
   private PrintStream auditlog;
   private int debug = 0;

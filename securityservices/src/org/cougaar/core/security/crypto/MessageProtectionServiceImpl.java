@@ -328,7 +328,8 @@ public class MessageProtectionServiceImpl
 
     if (attrs.getAttribute(AttributeConstants.ENCRYPTED_SOCKET_ATTRIBUTE) != null) {
       // The message is encrypted using SSL. Do not do double encryption.
-      log.debug("Outgoing message encrypted using SSL. Skipping message protection");
+      log.info("Outgoing message encrypted using SSL. Skipping message protection");
+      return new BasicMessageOutputStream(os, source, destination, serviceBroker);
     }
 
     pos =
@@ -379,7 +380,8 @@ public class MessageProtectionServiceImpl
 
     if (attrs.getAttribute(AttributeConstants.ENCRYPTED_SOCKET_ATTRIBUTE) != null) {
       // The message is encrypted using SSL. Do not do double encryption.
-      log.debug("Incoming message encrypted using SSL. Skipping message protection");
+      log.info("Incoming message encrypted using SSL. Skipping message protection");
+      return new BasicMessageInputStream(is, source, destination, serviceBroker);
     }
 
     pis =
