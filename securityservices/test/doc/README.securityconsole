@@ -1,0 +1,12 @@
+Security console How-TO
+
+1.) Check out University of Memphis Security console form the cvs
+2.) Copy the data directory which is under $Security_Console to $COUGAAR_INSTALL_PATH/configs/security/
+3.) Copy the umemphis.jar for the $Security_Console/lib directory to $COUGAAR_INSTALL_PATH/lib
+4.) If the umemphis.jar is not signed. Please sign the jar by giving following command from  $COUGAAR_INSTALL_PATH/lib directory 
+jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore umemphis.jar privileged
+
+5.) Copy the securityconsole directory from ${COUGAAR_SECURITY_SERVICES}/test/bin/ to $COUGAAR_INSTALL_PATH/bin/ 
+
+ 
+ 
