@@ -362,10 +362,12 @@ final public class IdmefMessageFactory {
                               List classificationList,
                               List dataList ){
         // temporary until JavaIDMEF is converted using dynamic lists
-        Source sources[] = ( Source [] )sourceList.toArray();
-        Target targets[] = ( Target [] )targetList.toArray();
-        Classification classifications[] = ( Classification [] )classificationList.toArray();
-        AdditionalData data[] = ( AdditionalData [] )dataList.toArray();
+        Source sources[] = ( Source [] )sourceList.toArray( ( new Source[ 0 ] ) );
+        Target targets[] = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
+        Classification classifications[] = 
+            ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
+        AdditionalData data[] = 
+            ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
                         
         return new Alert( analyzer,
                           new CreateTime(),
@@ -399,10 +401,12 @@ final public class IdmefMessageFactory {
                               List dataList ){
       if( sensor instanceof SensorInfo ){
          // temporary until JavaIDMEF is converted using dynamic lists
-        Source sources[] = ( Source [] )sourceList.toArray();
-        Target targets[] = ( Target [] )targetList.toArray();
-        Classification classifications[] = ( Classification [] )classificationList.toArray();
-        AdditionalData data[] = ( AdditionalData [] )dataList.toArray();
+        Source sources[] = ( Source [] )sourceList.toArray( ( new Source[ 0 ] ) );
+        Target targets[] = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
+        Classification classifications[] = 
+            ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
+        AdditionalData data[] = 
+            ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
         
         return createAlert( createAnalyzer( sensor ),
                             detectTime,
@@ -434,8 +438,9 @@ final public class IdmefMessageFactory {
         // get all the info from the sensor for capability registration
         if( sensor instanceof SensorInfo ){ 
           // temporary until JavaIDMEF is converted using dynamic lists
-          Classification capabilities[] = ( Classification [] )classficationList.toArray();
-          Target targets[] = ( Target [] )targetList.toArray();
+          Classification capabilities[] = 
+              ( Classification [] )classficationList.toArray( ( new Classification[ 0 ] ) );
+          Target targets[] = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
           
           //TODO: move string constants to appropriate classes
           AdditionalData data[] = { createAdditionalData( AdditionalData.STRING, 
@@ -463,7 +468,8 @@ final public class IdmefMessageFactory {
     public Heartbeat createHeartBeat( Analyzer analyzer, 
                                       List dataList ){
         // temporary until JavaIDMEF is converted using dynamic lists
-        AdditionalData data[] = ( AdditionalData [] )dataList.toArray();
+        AdditionalData data[] = 
+            ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
         Heartbeat heartBeat = new Heartbeat( analyzer, 
                                              new CreateTime(), 
                                              null,   //  analyzer time not used
@@ -484,7 +490,8 @@ final public class IdmefMessageFactory {
                                       List dataList ){
         if( sensor instanceof SensorInfo ){
             // temporary until JavaIDMEF is converted using dynamic lists
-            AdditionalData data[] = ( AdditionalData [] )dataList.toArray();
+            AdditionalData data[] = 
+                ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
             return createHeartBeat( createAnalyzer( sensor ), dataList );
         }
         return new Heartbeat();
@@ -594,7 +601,8 @@ final public class IdmefMessageFactory {
     * @return an IDMEF_Node object
     */    
     public IDMEF_Node createNode( String name, List addressList ){
-        Address addresses[] = ( Address [] )addressList.toArray();
+        Address addresses[] = 
+            ( Address [] )addressList.toArray( ( new Address[ 0 ] ) );
         return new IDMEF_Node( null,  // location not necessary
                                name, 
                                addresses, 
@@ -619,8 +627,8 @@ final public class IdmefMessageFactory {
                                         String path, 
                                         List argList, 
                                         List envList ){
-        String args[] = ( String [] )argList.toArray();  
-        String envs[] = ( String [] )envList.toArray();
+        String args[] = ( String [] )argList.toArray( ( new String[ 0 ] ) );  
+        String envs[] = ( String [] )envList.toArray( ( new String[ 0 ] ) );
         
         return new IDMEF_Process( program, 
                                   pid, 
@@ -638,7 +646,8 @@ final public class IdmefMessageFactory {
      * @return a User object
      */
     public User createUser( List userIdList ){
-        UserId userIds[] = ( UserId [] )userIdList.toArray();
+        UserId userIds[] = 
+            ( UserId [] )userIdList.toArray( ( new UserId[ 0 ] ) );
         return new User( userIds, null, null );
     }
    
@@ -717,7 +726,8 @@ final public class IdmefMessageFactory {
      * @return a FileList object
      */
     public FileList createFileList( List fileList ){
-        IDMEF_File files[] = ( IDMEF_File [] )fileList.toArray();
+        IDMEF_File files[] = 
+            ( IDMEF_File [] )fileList.toArray(  ( new IDMEF_File[ 0 ] )  );
         return new FileList( files );
     }
     
@@ -830,7 +840,7 @@ final public class IdmefMessageFactory {
      * @return an Assessment object
      */
     public Assessment createAssessment( Impact impact, List actionList, Confidence confidence ){
-        Action actions[] = ( Action [] )actionList.toArray();
+        Action actions[] = ( Action [] )actionList.toArray( ( new Action[ 0 ] ) );
         return new Assessment( impact, actions, confidence );
     }
  
@@ -895,8 +905,9 @@ final public class IdmefMessageFactory {
                                   Inode inode, 
                                   String category,
                                   String fstype ){
-        FileAccess fileAccesses[] = ( FileAccess [] )fileAccessList.toArray();
-        Linkage linkages[] = ( Linkage [] )linkageList.toArray();
+        FileAccess fileAccesses[] = 
+            ( FileAccess [] )fileAccessList.toArray( ( new FileAccess[ 0 ] ) );
+        Linkage linkages[] = ( Linkage [] )linkageList.toArray( ( new Linkage[ 0 ] ) );
         Long size = new Long( file.length() );
         Integer dataSize = new Integer( size.intValue() );
         return new IDMEF_File( file.getName(), 
@@ -936,7 +947,8 @@ final public class IdmefMessageFactory {
      * @return a FileAccess object
      */    
     public FileAccess createFileAccess( String userId, List permissionList ){
-        String permissions[] = ( String [] )permissionList.toArray();
+        String permissions[] = 
+            ( String [] )permissionList.toArray( ( new String[ 0 ] ) );
         return new FileAccess( createUserId( userId ), permissions );
     }
     
@@ -1232,7 +1244,7 @@ final public class IdmefMessageFactory {
      */    
     public Agent createAgent( String name, String description, 
             String location, Address address, List refIdentList ){
-        String refIdents[] = ( String [] )refIdentList.toArray();
+        String refIdents[] = ( String [] )refIdentList.toArray( ( new String[ 0 ] ) );
         return new Agent( name, description, location,
                           address, refIdents );                
     }
