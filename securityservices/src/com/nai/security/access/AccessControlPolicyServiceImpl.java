@@ -32,6 +32,8 @@ import java.util.Vector;
 import java.util.Iterator;
 
 import com.nai.security.policy.*;
+import com.nai.security.crypto.KeyRing;
+
 import org.cougaar.domain.planning.ldm.policy.*;
 import org.cougaar.domain.planning.ldm.plan.Verb;
 
@@ -80,12 +82,20 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 
     private void checkOrMakeProxy(String agent){
         if(proxies.contains(agent)) return;
+        
+        //if we need to add proxy, there is a good chance we need a new certificate too
+        //so check for it
+        if(debug) System.out.println("checking certs for agent " + agent);
+        KeyRing.checkOrMakeCert(agent);
+        
         AccessPolicyProxy app = new AccessPolicyProxy(agent);
+        
         if(app!=null){
             pp.add(app);
             proxies.add(agent);
         }
 	if(debug)System.out.println("Making proxy for agent " + agent);
+        
         return;
     }
     public synchronized TrustSet getIncomingTrust(String agent, String key) {
