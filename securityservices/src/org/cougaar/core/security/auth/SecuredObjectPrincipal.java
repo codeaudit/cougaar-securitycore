@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 public class SecuredObjectPrincipal implements Principal {
   private final SecuredObject _obj;
 
+  // NOTE: CougaarSecurityManager assumes there is only ONE constructor
   public SecuredObjectPrincipal(SecuredObject obj) {
     _obj = obj;
   }

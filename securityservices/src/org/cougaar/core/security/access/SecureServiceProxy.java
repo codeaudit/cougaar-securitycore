@@ -26,12 +26,14 @@ package org.cougaar.core.security.access;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.glm.ldm.oplan.OrgActivity;
 
 // security services
 import org.cougaar.core.security.auth.BlackboardPermission;
 import org.cougaar.core.security.auth.SecuredObject;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.role.RoleExecutionContext;
+import org.cougaar.core.security.access.bbo.SecuredOrgActivity;
 import org.cougaar.core.security.services.auth.SecurityContextService;
 
 // service proxies will need to extend this class to provide a way to 
@@ -63,14 +65,25 @@ class SecureServiceProxy {
     _sb.releaseService(this, LoggingService.class, _log);
   }
   
+  String getClassName(Object o) {
+    if (o instanceof OrgActivity) {
+      return OrgActivity.class.getName();
+    }
+    return o.getClass().getName();
+  }
+
+  boolean isValidClass(Object o) {
+    return (o instanceof SecuredOrgActivity);
+  }
+
   private boolean allowQuery(Object o, ExecutionContext ec) {
     if (EFFICIENT && !(o instanceof SecuredObject)) {
       return true;
     }
     SecurityManager sm = System.getSecurityManager();
     if(sm != null) {
-      String object = o.getClass().getName();
-      String comp = "unknown";
+      String object = getClassName(o);
+      String comp = "unknown";      
       if(ec instanceof RoleExecutionContext) {
         comp = ((RoleExecutionContext)ec).getComponent();
       }

@@ -133,9 +133,9 @@ public class RoleExecutionContext implements ExecutionContext {
 
   public String toString() {
     StringBuffer sb = new StringBuffer(256);
-    sb.append("component " + _component + "\n");
-    sb.append("agent " + _agent + "\n");
-    sb.append("user " + _user + "\n");
+    sb.append("component (" + _component + ")\n");
+    sb.append("agent (" + _agent + ")\n");
+    sb.append("user (" + _user + ")\n");
     sb.append(formatRoleString("agent roles", _agentRoles));
     sb.append("\n");
     sb.append(formatRoleString("component roles", _componentRoles));

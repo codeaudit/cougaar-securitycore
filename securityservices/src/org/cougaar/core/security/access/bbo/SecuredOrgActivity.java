@@ -57,6 +57,9 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
 
   private final static java.security.Permission CREATE =
     new BlackboardObjectPermission(OrgActivity.class.getName(), "create");
+  // NOTE: since read is implied by the Blackboard access permissions
+  //       (add, change, query, remove), it's not necessary to doing a 
+  //       check permission read.  thus, the commented checkPermission(READ).
   private final static java.security.Permission READ =
     new BlackboardObjectPermission(OrgActivity.class.getName(), "read");
   private final static java.security.Permission WRITE =
@@ -75,7 +78,7 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   }
 
   public String getActivityType() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getActivityType();
   }
 
@@ -85,7 +88,7 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   }
 
   public String getActivityName() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getActivityName();
   }
 
@@ -95,7 +98,7 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   }
 
   public String getOrgID() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getOrgID();
   }
 
@@ -105,7 +108,7 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   }
 
   public UID getOrgActivityId() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getOrgActivityId();
   }
 
@@ -126,7 +129,7 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   }
 
   public String getOpTempo() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getOpTempo();
   }
 
@@ -136,7 +139,7 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   }
 
   public GeolocLocation getGeoLoc() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getGeoLoc();
   }
 
@@ -146,7 +149,7 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   }
 
   public String getActivityItem(String key) {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getActivityItem(key);
   }
 
@@ -165,7 +168,7 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
       checkPermission(WRITE);
       return _org.getItems();
     } catch (SecurityException e) {
-      checkPermission(READ);
+      //checkPermission(READ);
       // this should really be changed to:
       // return Collections.unmodifiableMap(_org.getItems());
       return new HashMap(_org.getItems());
@@ -179,47 +182,50 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
    * cannot be constructed (e.g. no schedule, no location).
    **/
   public LocationScheduleElement getNormalizedScheduleElement() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getNormalizedScheduleElement();
   }
 
   // Cloneable + Transferable:
 
   public Object clone() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return new SecuredOrgActivity((OrgActivity)_org.clone());
   }
 
   // SecuredObject
-
   public ObjectContext getObjectContext() {
     return _context;
   }
 
   // UniqueObject interface
   public UID getUID() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getUID();
   }
 
   public void setUID(UID uid) {
-    checkPermission(WRITE);
+    // NOTE:
+    // setUID throws a RuntimeException if called more than once.
+    // so there isn't a need to perform a WRITE permission check
+    //
+    //checkPermission(WRITE);
     _org.setUID(uid);
   }
 
   // Transferable interface
   public MessageAddress getSource() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getSource();
   }
 
   public boolean isFrom(MessageAddress src) {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.isFrom(src);
   }
 
   public boolean same(Transferable other) {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.same(other);
   }
 
@@ -230,12 +236,12 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
 
   // TimeSpan interface
   public long getStartTime() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getStartTime();
   }
 
   public long getEndTime() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getEndTime();
   }
 
@@ -243,12 +249,12 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
 
   /** @deprecated Use getOplanUID */
   public UID getOplanID() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getOplanUID();
   }
 
   public UID getOplanUID() {
-    checkPermission(READ);
+    //checkPermission(READ);
     return _org.getOplanUID();
   }
 
@@ -257,7 +263,7 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
       checkPermission(WRITE);
       return _org.getTimeSpan();
     } catch (SecurityException e) {
-      checkPermission(READ);
+      //checkPermission(READ);
       return (TimeSpan) _org.getTimeSpan().clone();
     }
   }

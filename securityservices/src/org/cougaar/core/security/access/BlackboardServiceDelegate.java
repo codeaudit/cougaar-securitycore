@@ -147,17 +147,6 @@ class BlackboardServiceDelegate extends SecureServiceProxy
     throw new RuntimeException("We should never get here");
   }
 
-  private static String getClassName(Object o) {
-    if (o instanceof OrgActivity) {
-      return OrgActivity.class.getName();
-    }
-    return o.getClass().getName();
-  }
-
-  private static boolean isValidClass(Object o) {
-    return (o instanceof SecuredOrgActivity);
-  }
-
   private Object protectObject(Object o, String perm) {
     if (!EFFICIENT || isProtected(o)) {
       // check if the component has permission to add the object

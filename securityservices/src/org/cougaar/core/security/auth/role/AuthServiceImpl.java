@@ -231,8 +231,13 @@ public class AuthServiceImpl
         _log.debug("Have an execution context calling isAuthorizeUL");
       }
       boolean ret = isAuthorizedUL(ec, perm);
-      if (_log.isDebugEnabled()) {
-        _log.debug("implies returning " + ret);
+      if(!ret) {   
+        if (_log.isWarnEnabled()) {      
+          _log.warn("UNAUTHORIZED BLACKBOARD ACCESS: [" + ec.getComponent() + ", " + perm.getName() + ", " + perm.getActions() + "]");
+        }
+        if(_log.isDebugEnabled()) {
+          _log.debug("Component execution context: \n" + ec); 
+        }
       }
       return ret;
     } else {
