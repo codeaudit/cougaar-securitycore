@@ -36,17 +36,18 @@ import sun.security.x509.*;
 import com.nai.security.util.CryptoDebug;
 
 
-/** A hash table to store certificates from keystore, caKeystore and the LDAP directory
- * service, indexed by distinguished name.
- * Each entry in the hash table contains a list of all the certificates for a given
- * distinguished name.
- * The most up-to-date certificate is always the first element of the list. The list
- * is maintained by applying the following rules (from the end of the list):
+/** A hash table to store certificates from keystore, caKeystore and
+ * the LDAP directory service, indexed by distinguished name.
+ * Each entry in the hash table contains a list of all the certificates
+ * for a given distinguished name.
+ * The most up-to-date certificate is always the first element of the list.
+ * The list is maintained by applying the following rules (from the end
+ * of the list):
  * 1) Revoked certificates are pushed to the very end of the list.
  * 2) Expired certificates are next.
  * 3) Certificates which are not yet valid are next.
- * 4) For remaining certificates, certificates are sorted by most recently issued
- *    certificate first.
+ * 4) For remaining certificates, certificates are sorted by most recently
+ *    issued certificate first.
  */
 
 public class CertificateCache
@@ -68,15 +69,12 @@ public class CertificateCache
 
   public CertificateCache(DirectoryKeyStore d)
   {
-    /*debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-    */
     directorykeystore = d;
   }
 
   /** Return the most up-to-date certificate for a given distinguished name.
-   * Since there might be multiple certificates to choose from, the certificate is
-   * selected by applying the following rules:
+   * Since there might be multiple certificates to choose from, the
+   * certificate is selected by applying the following rules:
    * 1) Remove certificates that have been revoked.
    * 2) Remove certificates that have a "notBefore" date in the future.
    * 3) Remove certificates that have expired ("notAfter" date is in the past).
@@ -449,12 +447,18 @@ public class CertificateCache
 	// Update Common Name to DN hashtable
 	updateCn2Dn(principal);
 	if(CryptoDebug.debug) {
-	  System.out.println("$ Certificate dn name is :"+principal.getName());
-	  System.out.println("$ Certificate Issuer dn name is :"+cert.getIssuerDN().getName());
-	  System.out.println("$ Trust of cert is :"+certEntry.getCertificateTrust());
+	  System.out.println("$ Certificate dn name is :"
+			     +principal.getName());
+	  System.out.println("$ Certificate Issuer dn name is :"
+			     +cert.getIssuerDN().getName());
+	  System.out.println("$ Trust of cert is :"
+			     +certEntry.getCertificateTrust());
 	}
-	if((certEntry.getCertificateTrust()== CertificateTrust.CERT_TRUST_CA_SIGNED) ||           (certEntry.getCertificateTrust() == CertificateTrust.CERT_TRUST_CA_CERT))    {
-  updateBigInt2Dn(cert);
+	if((certEntry.getCertificateTrust()==
+	    CertificateTrust.CERT_TRUST_CA_SIGNED) ||
+	   (certEntry.getCertificateTrust()
+	    == CertificateTrust.CERT_TRUST_CA_CERT))    {
+	  updateBigInt2Dn(cert);
          }
          else {
               if(CryptoDebug.debug)
@@ -476,6 +480,7 @@ public class CertificateCache
       certsCache.put(principal, list);
     }
   }
+
   private void updateBigInt2Dn(X509Certificate cert) {
     CRLKey crlkey=null;
     String subjectDN=cert.getSubjectDN().getName();
@@ -551,7 +556,8 @@ public class CertificateCache
 	pcert.getCertificateStatus().checkCertificateValidity();
 	privkey = pcert.getPrivateKey();
 	if(CryptoDebug.debug) {
-	  System.out.println(" Got private key and returning private key :"+x500Name.toString());
+	  System.out.println(" Got private key and returning private key :"
+			     +x500Name.toString());
 	}
 	// Key is valid. Return it.
 	break;

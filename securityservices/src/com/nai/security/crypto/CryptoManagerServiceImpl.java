@@ -156,27 +156,35 @@ public class CryptoManagerServiceImpl
     }
     catch(Exception e){
       if (CryptoDebug.debug) {
-	System.out.println("Error: cannot recover message. Invalid key?");
+	System.out.println("Error: cannot recover message. Invalid key? "
+	  + e);
 	e.printStackTrace();
       }
       return null;
     }
   }
 
-    public SealedObject symmEncrypt(SecretKey sk, String spec, Serializable obj){
-      try{
-          /*create the cipher and init it with the secret key*/
-          Cipher ci;
-          ci=Cipher.getInstance(spec);
-          ci.init(Cipher.ENCRYPT_MODE,sk);
-          return new SealedObject(obj,ci);
-      }
-      catch(Exception e){
-          throw new RuntimeException(e.toString());
-      }
+  public SealedObject symmEncrypt(SecretKey sk,
+				  String spec,
+				  Serializable obj){
+    try{
+      /*create the cipher and init it with the secret key*/
+      Cipher ci;
+      ci=Cipher.getInstance(spec);
+      ci.init(Cipher.ENCRYPT_MODE,sk);
+      return new SealedObject(obj,ci);
     }
+    catch(Exception e){
+      if (CryptoDebug.debug) {
+	System.out.println("ERROR:" + obj.getClass().getName() 
+			   + " - " + e);
+	e.printStackTrace();
+      }
+      throw new RuntimeException(e.toString());
+    }
+  }
 
-    public Object symmDecrypt(SecretKey sk, SealedObject obj){
+  public Object symmDecrypt(SecretKey sk, SealedObject obj){
       Object o = null;
       if (sk == null) {
 	if (CryptoDebug.debug) {
@@ -229,6 +237,19 @@ public class CryptoManagerServiceImpl
 					  SecureMethodParam policy) {
     PublicKeyEnvelope envelope = null;
 
+    if (object == null) {
+      throw new IllegalArgumentException("Object to protect is null");
+    }
+    if (source == null) {
+      throw new IllegalArgumentException("Source not specified");
+    }
+    if (target == null) {
+      throw new IllegalArgumentException("Target not specified");
+    }
+    if (policy == null) {
+      throw new IllegalArgumentException("Policy not specified");
+    }
+
     /* Generate the secret key */
     int i = policy.symmSpec.indexOf("/");
     String a;
@@ -257,13 +278,25 @@ public class CryptoManagerServiceImpl
       
       // Find source certificate
       X509Certificate sender = (X509Certificate)keyRing.findCert(source);
-      X509Certificate receiver = (X509Certificate)keyRing.findCert(target);
+      if (sender == null) {
+	throw new RuntimeException("Unable to find sender certificate: " 
+				   + source);
+      }
 
-      new PublicKeyEnvelope(sender, receiver, sessionKey, sealedObject);
+      X509Certificate receiver = (X509Certificate)keyRing.findCert(target);
+      if (receiver == null) {
+	throw new RuntimeException("Unable to find target certificate: " 
+				   + target);
+      }
+
+      envelope = 
+	new PublicKeyEnvelope(sender, receiver, sessionKey, sealedObject);
     }
     catch (java.security.NoSuchAlgorithmException e) {
+      throw new RuntimeException("Unable to protect object: " + e);
     }
     catch (java.security.cert.CertificateException e) {
+      throw new RuntimeException("Unable to protect object: " + e);
     }
     return envelope;
   }

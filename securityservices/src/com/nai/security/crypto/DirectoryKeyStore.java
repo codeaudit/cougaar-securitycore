@@ -523,13 +523,6 @@ public class DirectoryKeyStore
       System.out.println("installPkcs7Reply for " + alias);
     }
     CertificateFactory cf = CertificateFactory.getInstance("X509");
-    PrivateKey privatekey = (PrivateKey) keystore.getKey(alias, param.keystorePassword);
-    X509Certificate certificate =
-      (X509Certificate)keystore.getCertificate(alias);
-
-    if(certificate == null) {
-      throw new CertificateException(alias + " has no certificate");
-    }
 
     Collection collection = cf.generateCertificates(inputstream);
     if(collection.isEmpty()) {
@@ -546,22 +539,71 @@ public class DirectoryKeyStore
     X509Certificate certificateReply[] = new X509Certificate[0];
     certificateReply =
       (X509Certificate[])collection.toArray(certificateReply);
+
+    installCertificate(alias, certificateReply);
+  }
+
+  public void setKeyEntry(PrivateKey key, X509Certificate cert) {
+     if (CryptoDebug.debug) {
+      System.out.println("setKeyEntry for " + cert.toString());
+    }
+     X509Certificate[] certificateChain = null;
+    try {
+      certificateChain = checkCertificateTrust(cert);
+    }
+    catch (Exception e) {
+      if (CryptoDebug.debug) {
+	System.out.println("Unable to setKeyEntry: " + e);
+      }
+    }
+    if (certificateChain != null) {
+      X500Name dname = null;
+      try {
+	dname = new X500Name(cert.getSubjectDN().getName());
+	String commonName = dname.getCommonName();
+	String alias = getNextAlias(keystore, commonName);
+	setKeyEntry(alias, key, certificateChain);
+      }
+      catch (Exception e) {
+	if (CryptoDebug.debug) {
+	  System.out.println("Unable to setKeyEntry: " + e);
+	}
+      }
+    }
+  }
+
+  public void installCertificate(String alias,
+				 X509Certificate[] certificateChain) 
+    throws CertificateException, KeyStoreException,
+    NoSuchAlgorithmException, UnrecoverableKeyException
+  {
     X509Certificate certificateForImport[];
 
+    X509Certificate certificate =
+      (X509Certificate)keystore.getCertificate(alias);
+    PrivateKey privatekey = (PrivateKey)
+      keystore.getKey(alias, param.keystorePassword);
 
-    if(certificateReply.length == 1) {
-      // The PKCS7 reply does not include the certificate chain.
+    if(certificate == null) {
+      throw new CertificateException(alias + " has no certificate");
+    }
+
+    if(certificateChain.length == 1) {
+      // There is no certificate chain.
       // We have to construct the chain first.
       if(CryptoDebug.debug)
-	System.out.println("Certificate for alias :"+ alias +"does not contain chain");
-      certificateForImport = establishCertChain(certificate, certificateReply[0]);
+	System.out.println("Certificate for alias :"+ alias
+			   +"does not contain chain");
+      certificateForImport = establishCertChain(certificate,
+						certificateChain[0]);
       if(CryptoDebug.debug)
-	System.out.println(" success fullly established chain");
+	System.out.println(" successfullly established chain");
     }
     else {
       // The PKCS7 reply contains the certificate chain.
       // Validate the chain before proceeding.
-      certificateForImport = validateReply(alias, certificate, certificateReply);
+      certificateForImport = validateReply(alias,
+					   certificate, certificateChain);
     }
     if(certificateForImport != null) {
 	setKeyEntry(alias, privatekey, certificateForImport);
@@ -578,7 +620,7 @@ public class DirectoryKeyStore
 	certCache.addPrivateKey(privatekey, certstatus);
 
     }
-  }
+   }
 
   private String getCommonName(X509Certificate x509)
   {
@@ -644,6 +686,24 @@ public class DirectoryKeyStore
     }
     // Store key store in permanent storage.
     storeKeyStore();
+  }
+
+  public void removeEntry(String commonName)
+  {
+    if (CryptoDebug.debug) {
+      System.out.println("Removing entry from keystore:" + commonName);
+    }
+    
+    String alias = findAlias(commonName);
+    deleteEntry(alias);
+
+    //certCache.deleteCertificate();
+    //certCache.deletePrivateKey();
+
+    if (CryptoDebug.debug) {
+      certCache.printCertificateCache();
+    }
+
   }
 
   public void deleteEntry(String alias)

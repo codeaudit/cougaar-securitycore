@@ -295,5 +295,13 @@ final public class KeyRing
 			 rcvrPrivKey,
 			 rcvrCert);
   }
+
+  public void removeEntry(String commonName) {
+    keystore.removeEntry(commonName);
+  }
+
+  public void setKeyEntry(PrivateKey key, X509Certificate cert) {
+    keystore.setKeyEntry(key, cert);
+  }
 }
 
