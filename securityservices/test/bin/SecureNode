@@ -73,6 +73,7 @@ set MYDOMAINS=""
 set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.agent.startTime=08/10/2005 -Dorg.cougaar.planning.ldm.lps.ComplainingLP.level=0"
 # -Dorg.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol -Dorg.cougaar.core.naming.useSSL=true"
 
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
 # ########################################################
 # DEBUG properties
 
