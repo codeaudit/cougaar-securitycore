@@ -28,7 +28,7 @@ Policy DamlBootPolicyAllowBlackboard = [
 
 Policy DamlBootPolicyOrgActivityAdd = [
    Priority = 2,
-   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityAddRole 
+   $Ultralog/PluginsInRole#OrgActivityAdd
    is authorized to perform
    $Ultralog/UltralogAction.daml#BlackBoardAccess
    as long as
@@ -46,7 +46,7 @@ Policy DamlBootPolicyOrgActivityAdd = [
 
 Policy DamlBootPolicyOrgActivityChange = [
    Priority = 2,
-   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityChangeRole 
+   $Ultralog/PluginsInRole#OrgActivityChange 
    is authorized to perform
    $Ultralog/UltralogAction.daml#BlackBoardAccess
    as long as 
@@ -63,7 +63,7 @@ Policy DamlBootPolicyOrgActivityChange = [
 
 Policy DamlBootPolicyOrgActivityQuery = [
    Priority = 2,
-   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityQueryRole 
+   $Ultralog/PluginsInRole#OrgActivityQuery 
    is authorized to perform
    $Ultralog/UltralogAction.daml#BlackBoardAccess
    as long as
@@ -79,7 +79,7 @@ Policy DamlBootPolicyOrgActivityQuery = [
 
 Policy DamlBootPolicyOrgActivityRemove = [
    Priority = 2,
-   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityQueryRole 
+   $Ultralog/PluginsInRole#OrgActivityQuery 
    is authorized to perform
    $Ultralog/UltralogAction.daml#BlackBoardAccess
    as long as
@@ -94,7 +94,7 @@ Policy DamlBootPolicyOrgActivityRemove = [
 
 Policy DamlBootPolicyOrgActivityAll = [
    Priority = 2,
-   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityAllRole 
+   $Ultralog/PluginsInRole#OrgActivityAll 
    is authorized to perform
    $Ultralog/UltralogAction.daml#BlackBoardAccess
    as long as
