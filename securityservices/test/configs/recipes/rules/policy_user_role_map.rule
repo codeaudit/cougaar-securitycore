@@ -20,7 +20,7 @@ if !(@damlUserMapCompleted)
     enclave_list << enclave;
   }
 
-  damlFile = "#{CIP}/configs/security/DamlUserRoleMap"
+  damlFile = "#{CIP}/configs/security/OwlMapUserRole"
   file = File.open(damlFile ,"w") { |file|
     file.write <<END
 .*\\\\Administrator Administrator

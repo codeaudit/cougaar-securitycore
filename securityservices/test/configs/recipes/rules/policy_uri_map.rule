@@ -20,7 +20,7 @@ if !(@damlUriMapCompleted)
     enclave_list << enclave;
   }
 
-  damlFile = "#{CIP}/configs/security/DamlUriMap"
+  damlFile = "#{CIP}/configs/security/OwlMapUri"
   file = File.open(damlFile ,"w") { |file|
     file.write <<END
 #
