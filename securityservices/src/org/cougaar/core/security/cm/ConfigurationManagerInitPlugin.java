@@ -304,9 +304,9 @@ public class ConfigurationManagerInitPlugin extends ComponentPlugin {
         agentMap.put(name, nodeList);
 
       } else if (localName.equals("argument")) {
-        assert (currentComponent != null);
-        assert (chars == null);
-        chars = new CharArrayWriter();
+      	if(currentComponent!=null && chars==null){
+        	chars = new CharArrayWriter();
+      	}
       }
     }
 
