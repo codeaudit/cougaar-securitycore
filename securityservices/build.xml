@@ -186,6 +186,7 @@
         <echo message="+++++ Building security services"/>
         <javac classpathref="core.class.path" debug="true" 
             deprecation="true" destdir="${securityservices.classes}"
+            source="1.4"
             includes="org/cougaar/core/security/**" srcdir="${securityservices.src}"/>
         <echo message="+++++ Built security services"/>
     </target>
