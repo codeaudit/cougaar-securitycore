@@ -661,26 +661,7 @@ public class DirectoryKeyStore
      * update SSL certificates if node certificate is created.
      */
     if (NodeInfo.getNodeName().equals(getCommonName(alias))) {
-      // generate one for webserver
-      WebserverIdentityService sslwebserver = (WebserverIdentityService)
-        param.serviceBroker.getService(this,
-                                       WebserverIdentityService.class,
-                                       null);
-      if (sslwebserver != null) {
-        if (findCert(getHostName()) == null) {
-          addKeyPair(getHostName(), null);
-          sslwebserver.updateKeystore();
-        }
-      }
 
-      // update SSL node cert
-      SSLService sslservice = (SSLService)
-        param.serviceBroker.getService(this,
-                                       SSLService.class,
-                                       null);
-      if (sslservice != null) {
-        sslservice.updateKeystore();
-      }
     }
   }
 
@@ -2150,6 +2131,28 @@ public class DirectoryKeyStore
 
     // put agent CA attrib in naming service
     updateNS(dname);
+
+
+      // generate one for webserver
+      WebserverIdentityService sslwebserver = (WebserverIdentityService)
+        param.serviceBroker.getService(this,
+                                       WebserverIdentityService.class,
+                                       null);
+      if (sslwebserver != null) {
+        if (findCert(getHostName()) == null) {
+          addKeyPair(getHostName(), null);
+          sslwebserver.updateKeystore();
+        }
+      }
+
+      // update SSL node cert
+      SSLService sslservice = (SSLService)
+        param.serviceBroker.getService(this,
+                                       SSLService.class,
+                                       null);
+      if (sslservice != null) {
+        sslservice.updateKeystore();
+      }
   }
 
    public void setSleeptime(long sleeptime)
@@ -2470,13 +2473,15 @@ public class DirectoryKeyStore
         if (namingSrv == null)
           return;
 
+	// Commented out until BBN fixes the bug
+	/*
         try {
           String key = NameSupport.TOPOLOGY_DIR + NS.DirSeparator + agent;
           InitialDirContext ctx = namingSrv.getRootContext();
-          /*
-          BasicAttributes attributes = new BasicAttributes();
-          _registerWithSociety(key, new MessageAddress(agent), attributes);
-          */
+
+          //BasicAttributes attributes = new BasicAttributes();
+          //_registerWithSociety(key, new MessageAddress(agent), attributes);
+
           BasicAttributes attributes = (BasicAttributes)ctx.getAttributes(key);
           attributes.put(CDTYPE_ATTR, new Integer(param.ldapServerType));
           attributes.put(CDURL_ATTR, param.ldapServerUrl);
@@ -2484,6 +2489,8 @@ public class DirectoryKeyStore
         } catch (NamingException nx) {
           log.warn("Cannot update agent ldap in naming." + nx.toString());
         }
+      */
+      log.warn("Cannot update agent ldap in naming.");
       }
     } catch (IOException ix) {
     }
@@ -2522,7 +2529,7 @@ public class DirectoryKeyStore
           cdUrl = (String)att.get();
         if (cdType != null && cdUrl != null)
           return CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-            cdType.intValue(), cdUrl);
+            cdType.intValue(), cdUrl, param.serviceBroker);
       }
     } catch (NamingException nx) {
       log.warn("Cannot get certificate information from naming serve "

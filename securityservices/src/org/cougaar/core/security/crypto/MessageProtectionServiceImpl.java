@@ -68,8 +68,6 @@ public class MessageProtectionServiceImpl
   private MessageOutputStream pos;
   private MessageInputStream pis;
 
-  private int infoLevel = 0;
-  private boolean debug = false;
   private LoggingService log;
 
   public MessageProtectionServiceImpl(ServiceBroker sb) {
@@ -82,12 +80,7 @@ public class MessageProtectionServiceImpl
     secprop = (SecurityPropertiesService)
       serviceBroker.getService(this, SecurityPropertiesService.class, null);
 
-    String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
-    if ( db!=null && (db.equalsIgnoreCase("true") ||
-		      db.indexOf("security")>=0) ) debug=true;
-    infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
-						     "0"))).intValue();
-    if (infoLevel > 0) {
+    if (log.isDebugEnabled()) {
       log.debug("Initializing MessageProtectionServiceImpl");
     }
     

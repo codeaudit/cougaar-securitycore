@@ -51,34 +51,32 @@ public class WebtomcatSSLServerFactory
    */
   public WebtomcatSSLServerFactory() {
     // check permission
+    System.out.println("Creating WebtomcatSSLServerFactory");
   }
 
   public synchronized static void init(WebserverIdentityService webssl) {
-      socfac = (javax.net.ssl.SSLServerSocketFactory)
-        webssl.getWebServerSocketFactory();
-      if (needAuth)
-        ((KeyRingSSLServerFactory)socfac).setNeedClientAuth(true);
+    socfac = (javax.net.ssl.SSLServerSocketFactory)
+      webssl.getWebServerSocketFactory();
+    if (needAuth)
+      ((KeyRingSSLServerFactory)socfac).setNeedClientAuth(true);
   }
 
   // all the keystore related functions will not be supported
+  // --------------------------------------------------------- Public Methods
 
-    // --------------------------------------------------------- Public Methods
-
-    public ServerSocket createSocket(int port) throws IOException {
-        return socfac.createServerSocket(port);
-    }
-
-
-    public ServerSocket createSocket(int port, int backlog)
-        throws IOException {
-        return socfac.createServerSocket(port, backlog);
-    }
-
-    public ServerSocket createSocket(int port, int backlog,
-                                     InetAddress ifAddress)
-        throws IOException {
-        return socfac.createServerSocket(port, backlog, ifAddress);
-    }
+  public ServerSocket createSocket(int port) throws IOException {
+    return socfac.createServerSocket(port);
+  }
 
 
+  public ServerSocket createSocket(int port, int backlog)
+    throws IOException {
+    return socfac.createServerSocket(port, backlog);
+  }
+
+  public ServerSocket createSocket(int port, int backlog,
+				   InetAddress ifAddress)
+    throws IOException {
+    return socfac.createServerSocket(port, backlog, ifAddress);
+  }
 }

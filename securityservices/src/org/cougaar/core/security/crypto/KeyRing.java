@@ -323,6 +323,14 @@ final public class KeyRing
     return;
   }
 
+  public synchronized void checkOrMakeCert(X500Name dname, boolean isCACert) {
+    if (keystore == null) {
+      return;
+    }
+    keystore.checkOrMakeCert(dname, isCACert);
+    return;
+  }
+
   /** @param privKey        The private keys to store in a PKCS#12 enveloppe
    *  @param cert           The certificate to store in a PKCS#12 enveloppe
    *  @param signerPrivKey  The private key of the signer
