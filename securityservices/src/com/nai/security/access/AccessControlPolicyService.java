@@ -23,7 +23,7 @@
 
 package com.nai.security.access;
 
-import org.cougaar.domain.planning.ldm.plan.Verb;
+import org.cougaar.planning.ldm.plan.Verb;
 
 public interface AccessControlPolicyService {
     TrustSet getIncomingTrust(String agent, String key);

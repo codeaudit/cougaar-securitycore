@@ -59,7 +59,7 @@ public class CertificateList extends  HttpServlet
     String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
     if(debug)
       System.out.println("^^^^^^^^^^^^^^^^ In cert list  "+confpath);
-    confParser = new ConfParser(confpath);
+    confParser = new ConfParser(confpath, true);
     caDNs = confParser.getCaDNs();
     roles = confParser.getRoles();
   }

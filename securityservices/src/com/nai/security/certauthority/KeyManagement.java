@@ -60,6 +60,8 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceCA;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.CertificateRevocationStatus;
 
+import org.cougaar.core.security.services.crypto.CertificateManagementService;
+
 /** Certification Authority service
  * The following java properties are necessary:
  * + org.cougaar.security.CA.certpath: set when class used as a standalone CA.
@@ -67,7 +69,7 @@ import com.nai.security.crypto.ldap.CertificateRevocationStatus;
  *     The property should not be defined if the CA service is instantiated from
  *     Cougaar. 
  * + See also com.nai.security.crypto.ConfParser for other required properties. */
-public class KeyManagement
+public class KeyManagement implements CertificateManagementService
 {
 
   private String topLevelDirectory = null;
@@ -87,30 +89,17 @@ public class KeyManagement
   private CertDirectoryServiceCA caOperations = null;
 
   private boolean standalone;             /* true if run as a standalone server
-						  false if run within Cougaar */
+					     false if run within Cougaar */
  
-  public KeyManagement(String aCA_DN, String role, String certPath, String confpath) 
+  public KeyManagement(String aCA_DN, String role,
+		       String certPath, String confpath) 
     throws Exception
   {
     caDN = aCA_DN;
-    confParser = new ConfParser(confpath);
-
-    try {
-      caPolicy = confParser.readCaPolicy(caDN, role);
-    }
-    catch (Exception e) {
-       if(CryptoDebug.debug)
-	e.printStackTrace();
-      throw new Exception("Unable to read policy for DN=" + caDN + ". Role="
-			  + role + " - " + e );
-   
-    }
     caX500Name = new X500Name(caDN);
-
     String caCommonName = caX500Name.getCommonName();
-    String certpath =certPath; 
-    //System.getProperty("org.cougaar.security.CA.certpath");
-    if (certpath != null) {
+
+    if (certPath != null) {
       standalone = true;
       if (CryptoDebug.debug) {
 	System.out.println("Running as standalone CA");
@@ -129,6 +118,62 @@ public class KeyManagement
        *     +-+ <x509CertDirectory>
        *       +-- signed X509 certificates
        */
+      String topLevelDirectory = certPath + File.separatorChar + caCommonName;
+      confDirectoryName = topLevelDirectory +  File.separatorChar + "conf";
+
+    }
+    else {
+      standalone = false;
+    }
+ 
+    confParser = new ConfParser(confpath, standalone);
+
+    try {
+      caPolicy = confParser.readCaPolicy(caDN, role);
+    }
+    catch (Exception e) {
+       if(CryptoDebug.debug)
+	e.printStackTrace();
+      throw new Exception("Unable to read policy for DN=" + caDN + ". Role="
+			  + role + " - " + e );
+   
+    }
+    
+    init(role);
+  }
+
+  public KeyManagement(String aCA_DN, String role) 
+    throws Exception
+  {
+    caDN = aCA_DN;
+    caX500Name = new X500Name(caDN);
+
+    String caCommonName = caX500Name.getCommonName();
+    String certpath = System.getProperty("org.cougaar.security.CA.certpath");
+
+    if(CryptoDebug.debug) {
+      System.out.println(" got ca dn name as :"+caDN);
+    }
+
+    if (certpath != null) {
+      standalone = true;
+      if (CryptoDebug.debug) {
+	System.out.println("Running as standalone CA");
+      }
+
+      /* The following directory structure will be created automatically
+       * (except for the keystore file which must be manually installed)
+       * when running as a standalone CA:
+       * top-level directory (org.cougaar.security.CA.certpath)
+       * +-+ <CA common name>
+       *   +-+ conf
+       *     +-- <keystore file>     (this is the CA keystore file.
+       *     |                        it must be manually installed)
+       *     +-- <serial number file>
+       *     +-- <pkcs10Directory>
+       *     +-+ <x509CertDirectory>
+       *       +-- signed X509 certificates
+       */
       String topLevelDirectory = certpath + File.separatorChar + caCommonName;
       confDirectoryName = topLevelDirectory +  File.separatorChar + "conf";
 
@@ -136,14 +181,32 @@ public class KeyManagement
     else {
       standalone = false;
     }
-    init(role);
 
+    confParser = new ConfParser(standalone);
+
+    try {
+      caPolicy = confParser.readCaPolicy(caDN, role);
+      if(caPolicy==null) {
+	System.out.println(" Got Ca policy NUULLLL");
+      }
+      else {
+	System.out.println(" Got Ca policy "+ caPolicy.toString());
+      }
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      throw new Exception("Unable to read policy for DN=" + caDN + ". Role="
+			  + role + " - " + e );
+    }
+    init(role);
   }
+
   public void init(String role)  throws Exception {
 
     if(standalone) {
 
-      String keystoreFile = confDirectoryName + File.separatorChar + caPolicy.keyStoreFile;
+      String keystoreFile = confDirectoryName + File.separatorChar
+	+ caPolicy.keyStoreFile;
       if (CryptoDebug.debug) {
 	System.out.println("CA keystore: " + keystoreFile);
       }
@@ -224,62 +287,7 @@ public class KeyManagement
 
   }
  
-  public KeyManagement(String aCA_DN, String role) 
-    throws Exception
-  {
 
-    caDN = aCA_DN;
-    if(CryptoDebug.debug) {
-      System.out.println(" got ca dn name as :"+caDN);
-    }
-    confParser = new ConfParser();
-
-    try {
-      caPolicy = confParser.readCaPolicy(caDN, role);
-      if(caPolicy==null) {
-	System.out.println(" Got Ca policy NUULLLL");
-      }
-      else {
-	System.out.println(" Got Ca policy "+ caPolicy.toString());
-      }
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      throw new Exception("Unable to read policy for DN=" + caDN + ". Role="
-			  + role + " - " + e );
-    }
-    caX500Name = new X500Name(caDN);
-
-    String caCommonName = caX500Name.getCommonName();
-    String certpath = System.getProperty("org.cougaar.security.CA.certpath");
-    if (certpath != null) {
-      standalone = true;
-      if (CryptoDebug.debug) {
-	System.out.println("Running as standalone CA");
-      }
-
-      /* The following directory structure will be created automatically (except for
-       * the keystore file which must be manually installed) when running as a
-       * standalone CA:
-       * top-level directory (org.cougaar.security.CA.certpath)
-       * +-+ <CA common name>
-       *   +-+ conf
-       *     +-- <keystore file>     (this is the CA keystore file.
-       *     |                        it must be manually installed)
-       *     +-- <serial number file>
-       *     +-- <pkcs10Directory>
-       *     +-+ <x509CertDirectory>
-       *       +-- signed X509 certificates
-       */
-      String topLevelDirectory = certpath + File.separatorChar + caCommonName;
-      confDirectoryName = topLevelDirectory +  File.separatorChar + "conf";
-
-    }
-    else {
-      standalone = false;
-    }
-    init(role);
-  }
   private void publishCAinLdap()
   {
     System.out.println("calling publish CA in ldap :");
@@ -326,6 +334,7 @@ public class KeyManagement
        System.out.println(" CA key store is empty ::");
      }
   }
+
   private X509Certificate findCert(String commonName)
   {
     X509Certificate x509cert;
@@ -1006,7 +1015,8 @@ public class KeyManagement
   {
   }
 
-  public int  revokeCertificate(String caDN ,String userUniqueIdentifier) throws IOException,Exception,CertificateException
+  public int  revokeCertificate(String caDN ,String userUniqueIdentifier)
+    throws IOException,Exception,CertificateException
   {
     int status=1;
     X500Name x500name=new X500Name(caDN);
@@ -1073,115 +1083,6 @@ public class KeyManagement
     //09CRLEntryImpl crlentry = new X509CRLEntryImpl(serialNumber, currentDate);
 
     //Operations.publishCRLentry((X509CRLEntry)crlentry);
-  }
-   public static void main(String[] args) {
-    String option = args[0];
-    String role = args[1];
-
-    String caDN = "CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US";
-    try {
-
-      KeyManagement km = null;
-      km = new KeyManagement(caDN, role);
-      if (CryptoDebug.debug) {
-	System.out.println("Option is : " + option);
-      }
-
-      if (option.equals("-10")) {
-	// Process a PKCS10 request:
-	FileInputStream f = new FileInputStream(args[2]);
-	PrintStream ps = new PrintStream(System.out);
-	km.processPkcs10Request(ps, f);
-      }
-      else if (option.equals("-7")) {
-	// Process a signed certificate request
-	FileInputStream is = new FileInputStream(args[2]);
-	km.printPkcs7Request(is);
-	// km.printPkcs7Request(args[1]);
-      }
-      else if (option.equals("-1")) {
-	/* - Search for the private key of an agent specified on the
-	 *   command line.
-	 * - Search for the public key of that same entity.
-	 * - It will create the key pair if it does not exist already:
-	 *    1) Create a self-signed certificate and key pair for the node.
-	 *    2) Send a PKCS10 request for the node to the CA.
-	 *    3) CA signs node's certificate
-	 *    4) CA stores node's certificate in file system and LDAP.
-	 *    5) Wait for the reply from the CA.
-	 *    6) Install the node's certificate signed by the CA.
-	 *    7) Create a self-signed certificate and key pair for the agent.
-	 *    8) Sign the agent's certificate with the node's private key.
-	 *    9) Send agent's certificate to the CA
-	 *    10) CA publishes agent's certificate to LDAP directory service.
-	 */
-
-	String cn = args[2];
-	if (CryptoDebug.debug) {
-	  System.out.println("Search private key for " + cn);
-	}
-	PrivateKey pk = KeyRing.findPrivateKey(cn);
-	if (CryptoDebug.debug) {
-	  System.out.println("Private key is : " + pk);
-	  System.out.println(" ========================================");
-	  System.out.println("Search cert for " + cn);
-	}
-	Certificate c = KeyRing.findCert(cn);
-	if (CryptoDebug.debug) {
-	  System.out.println("Certificate is : " + c);
-	}
-	System.out.println(" ========================================");
-	testEncryptionUsingRSA(c, args[3]);
-      }
-
-    } catch (Exception e) {
-      System.out.println("Exception: " + e);
-      e.printStackTrace();      
-    }
-  }
-
-  private static void testEncryptionUsingRSA(Certificate cert, String spec)
-  {
-    try {
-      if (CryptoDebug.debug) {
-	System.out.println("Trying RSA encryption using existing key");
-      }
-      PublicKey key = cert.getPublicKey();
-      testRSAencryption(key, spec);
-
-      if (CryptoDebug.debug) {
-	System.out.println("===================================");
-	System.out.println("Trying RSA encryption using new key");
-      }
-      KeyCertGenerator kc = new KeyCertGenerator(spec, "MD5WithRSA",
-						 "IBMJCE");
-      kc.generate(512);
-      testRSAencryption(kc.getPublicKey(), spec);
-      if (CryptoDebug.debug) {
-	System.out.println("===================================");
-      }
-    } catch (Exception e) {
-      System.out.println("Exception: " + e);
-      e.printStackTrace();      
-    }
-  }
-
-  private static void testRSAencryption(PublicKey key, String spec)
-  {
-    try {
-      if (CryptoDebug.debug) {
-	System.out.println("Encrypting using " + spec);
-      }
-      /*init the cipher*/
-      Cipher ci;
-      ci=Cipher.getInstance(spec);
-      ci.init(Cipher.ENCRYPT_MODE, key);
-      String theObjectToEncrypt = "Secret Message";
-      SealedObject so = new SealedObject(theObjectToEncrypt, ci);
-    } catch (Exception e) {
-      System.out.println("Exception: " + e);
-      e.printStackTrace();      
-    }
   }
 
 }

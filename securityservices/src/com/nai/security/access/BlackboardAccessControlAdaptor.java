@@ -29,12 +29,13 @@ package com.nai.security.access;
 import java.util.*;
 
 import org.cougaar.util.*;
-import org.cougaar.core.cluster.*;
-import org.cougaar.core.society.*;
-import org.cougaar.core.cluster.persist.*;
-import org.cougaar.core.component.*;
 import org.cougaar.core.blackboard.*;
-import org.cougaar.domain.planning.ldm.plan.*;
+import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.mts.*;
+import org.cougaar.core.persist.*;
+import org.cougaar.core.component.*;
+import org.cougaar.planning.ldm.plan.*;
 
 /**
  * An interface to objects which guard the blackboard. 

@@ -23,9 +23,11 @@
  * CHANGE RECORD
  * - 
  */
+
 package com.nai.security.policy;
 
-import org.cougaar.domain.planning.ldm.policy.Policy;
+import org.cougaar.planning.ldm.policy.Policy;
+
 import SAFE.Enforcer.AgentEnforcer;
 import KAoS.Util.Msg;
 

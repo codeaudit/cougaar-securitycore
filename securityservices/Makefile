@@ -71,7 +71,9 @@ jar: build-classes
 		com/nai/security/policy \
 		com/nai/security/test \
 		com/nai/security/util \
-		org/cougaar/core/security/policy 
+		org/cougaar/core/security/policy \
+		org/cougaar/core/security/services \
+		org/cougaar/core/security/crypto 
 	@echo +++++++ Done Building securityservices.jar
 	@echo +++++++ Bulding jar for extensions
 	  cd ${COUGAARCLASSES}; \

@@ -25,7 +25,7 @@ public class TrustAttributeService
     protected Hashtable tuples = new Hashtable();
 
     /**
-     * Construct a new service for the specified Agent, PlugIn, or Node.
+     * Construct a new service for the specified Agent, Plugin, or Node.
      * @param id the unique name for agent, etc.
      */
     public TrustAttributeService(String id) 
@@ -34,7 +34,7 @@ public class TrustAttributeService
     }
 
     /**
-     * Construct a new service for the specified Agent, PlugIn, or Node with
+     * Construct a new service for the specified Agent, Plugin, or Node with
      * the specified TrustSet.
      * @param id unique identifier for this group of trust buckets.
      * @param trust the default trust bucket to use, which may be null.

@@ -26,7 +26,7 @@
 
 package org.cougaar.core.security.policy;
 
-import org.cougaar.domain.planning.ldm.policy.*;
+import org.cougaar.planning.ldm.policy.*;
 
 /**
  * Access control policy class instance and policy contstants. The constants

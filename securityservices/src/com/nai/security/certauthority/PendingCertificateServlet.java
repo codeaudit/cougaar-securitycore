@@ -56,8 +56,8 @@ public class PendingCertificateServlet extends  HttpServlet
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
     context=config.getServletContext();
-      String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
-      confParser = new ConfParser(confpath);
+    String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+    confParser = new ConfParser(confpath, true);
     caDNs = confParser.getCaDNs();
     roles = confParser.getRoles();
   }

@@ -27,8 +27,8 @@
 package com.nai.security.policy;
 
 import java.util.*;
-import org.cougaar.domain.planning.ldm.policy.*;
-import org.cougaar.core.cluster.*;
+import org.cougaar.planning.ldm.policy.*;
+import org.cougaar.core.blackboard.*;
 import org.cougaar.core.plugin.*;
 import org.cougaar.util.*;
 

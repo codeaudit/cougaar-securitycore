@@ -24,33 +24,36 @@
 
 package com.nai.security.access;
 
-import org.cougaar.core.component.*;
+import java.util.*;
+
+import org.cougaar.planning.ldm.policy.*;
+import org.cougaar.planning.ldm.asset.*;
+import org.cougaar.core.blackboard.*;
+import org.cougaar.core.plugin.*;
+import org.cougaar.util.*;
+
+import com.nai.security.policy.*;
 
 /**
- * An interface to allow Agents and Plugins limited access to the trust 
- * attribute service. <CODE>TrustAttributes</CODE> are immutable and this 
- * interface ensures that a malicious Plugin or Agent and cannot replace an 
- * entire <CODE>TrustSet</CODE>.
+ * Creates and publishes a threat con level object so 
+ * the cougaar-aware proxy can be informed of the society's current
+ * threat con level.
  */
-public interface AgentTrustService extends Service
-{
-    /**
-     * Accessor method for retrieving a trust attribute based on the object
-     * and trust attribute (e.g. "IntegrityLevel", "MissionCriticality", etc.)
-     * 
-     * @see TrustSet
-     *
-     * @return an immutable trust attribute or null if either object has no 
-     * valid trust set or the trust attribute type is not available in the 
-     * trust set.
-     */
-    public TrustAttribute getTrustAttribute(Object obj, String type);
+public class AssetCreationPlugin extends SimplePlugin {
+
+    public void setupSubscriptions(){
+        ThreatConLevelAsset threatConLevelPrototype = 
+	    (ThreatConLevelAsset)theLDMF.createPrototype
+	    (ThreatConLevelAsset.class, "tcl");
+        theLDM.cachePrototype("tcl", threatConLevelPrototype);
+        threatConLevelPrototype.setThreatConLevel(3);
+        publishAdd(threatConLevelPrototype);
+    }
 
     /**
-     * Assignment method for associating the specified trust attribute with 
-     * a blackboard object. 
+     * this method should never be called but it is defined here to conform
+     * to the interface...
      */
-    public void setTrustAttribute(Object obj, TrustAttribute trust);
+    public void execute(){  }
 
 }
-    

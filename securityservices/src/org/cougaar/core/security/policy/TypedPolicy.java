@@ -26,7 +26,7 @@
 
 package org.cougaar.core.security.policy;
 
-import org.cougaar.domain.planning.ldm.policy.Policy;
+import org.cougaar.planning.ldm.policy.Policy;
 
 public class TypedPolicy extends Policy { 
 

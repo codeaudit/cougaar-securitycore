@@ -80,7 +80,7 @@ public class SecurityLog
    */
   public  void logJarVerificationError (Exception e) {
     /* Could be used to report jar file verification exceptions
-     * to a Monitoring & Response PlugIn. */
+     * to a Monitoring & Response Plugin. */
     if (log != null) {
       String curTime = DateFormat.getDateInstance().format(new Date());
       log.print("<securityEvent><time>" + curTime + "</time>");

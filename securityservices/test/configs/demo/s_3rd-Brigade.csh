@@ -1,1 +1,1 @@
-setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=keystore-3rd-Brigade -Dorg.cougaar.security.keystore.password=ul-maple -Dorg.cougaar.core.security.Domain=NCADomain -DSAFE.domainName=NCADomain"
+setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=keystore-3rd-Brigade -Dorg.cougaar.security.keystore.password=ul-maple -DSAFE.domainName=NCADomain"

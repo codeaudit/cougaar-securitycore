@@ -27,9 +27,9 @@
 
 package com.nai.security.monitoring.util;
 
-import org.cougaar.domain.planning.ldm.asset.*;
-import org.cougaar.domain.planning.ldm.plan.*;
-import org.cougaar.domain.planning.ldm.RootFactory;
+import org.cougaar.planning.ldm.asset.*;
+import org.cougaar.planning.ldm.plan.*;
+import org.cougaar.core.domain.RootFactory;
 import java.util.Vector;
 import java.util.Enumeration;
 

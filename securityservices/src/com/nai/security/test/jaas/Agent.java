@@ -38,22 +38,22 @@ public class Agent
   }
 
   public Object execute() {
-    launchPlugIn("LDM");
+    launchPlugin("LDM");
     return null;
   }
 
-  private PlugIn launchPlugIn(final String plugInName)
+  private Plugin launchPlugin(final String plugInName)
   {
-    PlugIn plugin = null;
+    Plugin plugin = null;
     JaasClient jc = new JaasClient();
     try {
       System.out.println("Launching plugin "
 			 + plugInName);
-      plugin = (PlugIn)
+      plugin = (Plugin)
 	jc.doAs(plugInName,
 		new java.security.PrivilegedExceptionAction() {
 		    public Object run() throws Exception {
-		      PlugIn plugin = new PlugIn(plugInName);
+		      Plugin plugin = new Plugin(plugInName);
 		      System.out.println("Agent : "
 					 + plugInName
 					 + " security context is:");
@@ -64,7 +64,7 @@ public class Agent
 		  });
     }
     catch (Exception e) {
-      System.out.println("Exception occuring while executing PlugIn: " + e);
+      System.out.println("Exception occuring while executing Plugin: " + e);
     }
     return plugin;
   }

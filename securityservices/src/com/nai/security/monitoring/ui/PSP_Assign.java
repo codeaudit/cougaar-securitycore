@@ -30,15 +30,15 @@ package com.nai.security.monitoring.ui;
 
 
 import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.cluster.*;
-import org.cougaar.domain.planning.ldm.plan.*;
+import org.cougaar.core.blackboard.*;
+import org.cougaar.planning.ldm.plan.*;
 import org.cougaar.lib.planserver.*;
-import org.cougaar.domain.planning.ldm.RootFactory;
+import org.cougaar.core.domain.RootFactory;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
 import com.nai.security.monitoring.util.*;
-import org.cougaar.domain.glm.ldm.asset.Organization;
+import org.cougaar.glm.ldm.asset.Organization;
 
 
 public class PSP_Assign extends PSP_BaseAdapter implements PlanServiceProvider, UISubscriber
@@ -117,7 +117,7 @@ public class PSP_Assign extends PSP_BaseAdapter implements PlanServiceProvider, 
 	  System.out.println("Error in url parameter In Assign PSP");
 	}
       }
-      Collection response=psc.getServerPlugInSupport().queryForSubscriber(new responsePredicate());
+      Collection response=psc.getServerPluginSupport().queryForSubscriber(new responsePredicate());
       Vector responsetasks= getResponseObj(response,unique_id);
       if(responsetasks.size()> 1)  {
 	System.out.println("too many response In Assign PSP::::::::::");
@@ -126,7 +126,7 @@ public class PSP_Assign extends PSP_BaseAdapter implements PlanServiceProvider, 
       Organization sensororg= findOrg(robj,Sensor,"sensor");
       Organization analyzerorg=findOrg(robj,Analyzer,"Analyzer");
       cmdObj cmd= new cmdObj(type,sensororg, analyzerorg);
-      psc.getServerPlugInSupport().publishAddForSubscriber(cmd);
+      psc.getServerPluginSupport().publishAddForSubscriber(cmd);
       out.println("<html>");
       out.println( "<body>");
       out.print("<h2> Started providing sensor data for event" +type+"</h2>");
@@ -140,7 +140,7 @@ public class PSP_Assign extends PSP_BaseAdapter implements PlanServiceProvider, 
       //	out.println("Query Parameters are :"+query_parameters);
       out.println("<p>");
       
-      ServerPlugInSupport sps;
+      ServerPluginSupport sps;
       
       // url and cluster info
       String clusterID;
@@ -150,7 +150,7 @@ public class PSP_Assign extends PSP_BaseAdapter implements PlanServiceProvider, 
       String cluster_psp_url;
       String psp_path;
       
-      sps = psc.getServerPlugInSupport();
+      sps = psc.getServerPluginSupport();
       // url and cluster info
       clusterID = sps.getClusterIDAsString();
       encodedClusterID = URLEncoder.encode(clusterID);

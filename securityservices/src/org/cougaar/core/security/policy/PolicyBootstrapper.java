@@ -26,7 +26,7 @@ package org.cougaar.core.security.policy;
 import java.util.Properties;
 import java.io.File;
 
-import org.cougaar.domain.planning.ldm.policy.Policy;
+import org.cougaar.planning.ldm.policy.Policy;
 
 import org.cougaar.util.ConfigFinder;
 

@@ -26,21 +26,23 @@
 
 package com.nai.security.monitoring.manager;
 
-import org.cougaar.core.cluster.IncrementalSubscription;
-import org.cougaar.domain.planning.ldm.RootFactory;
-import org.cougaar.domain.planning.ldm.asset.*;
-import org.cougaar.domain.glm.ldm.asset.*;
-import org.cougaar.domain.planning.ldm.plan.*;
-import org.cougaar.core.plugin.SimplePlugIn;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.TimeSpan;
-import org.cougaar.core.plugin.util.PlugInHelper;
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.Iterator;
 import java.util.Collection;
 import java.util.HashSet;
+
+import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.domain.RootFactory;
+import org.cougaar.planning.ldm.asset.*;
+import org.cougaar.glm.ldm.asset.*;
+import org.cougaar.planning.ldm.plan.*;
+import org.cougaar.core.plugin.SimplePlugin;
+import org.cougaar.util.UnaryPredicate;
+import org.cougaar.util.TimeSpan;
+import org.cougaar.core.plugin.util.PluginHelper;
+
 import com.nai.security.monitoring.util.*;
 
 
@@ -51,7 +53,7 @@ import com.nai.security.monitoring.util.*;
  * Sends command to sensor to start publishing.
  */
 
-public class MonitoringManager extends SimplePlugIn
+public class MonitoringManager extends SimplePlugin
 {
 
   private IncrementalSubscription allCapabilitiesTask,allorganization,allcmdTask,allfindingtask;
@@ -223,7 +225,7 @@ public class MonitoringManager extends SimplePlugIn
       for(int i=0;i<capab.Services.size();i++) {
 	String servicename= (String) capab.Services.elementAt(i);
 	if(MonitoringUtils.debug>0)
-	  System.out.println("In managers PlugIn service name is :"+servicename);
+	  System.out.println("In managers Plugin service name is :"+servicename);
 	boolean contains= LocalYP_analyzer.containsKey(servicename);
 	if(contains) {
 	  Vector capableorg= (Vector) LocalYP_analyzer.get( servicename);
@@ -359,7 +361,7 @@ public class MonitoringManager extends SimplePlugIn
   {
     for(int i=0;i<vec.size();i++) {
       Organization og=(Organization)vec.elementAt(i);
-      System.out.println("In manager PlugIn org found is :"+og.toString()+"at  ::"+i);
+      System.out.println("In manager Plugin org found is :"+og.toString()+"at  ::"+i);
     }
   }
   
@@ -387,7 +389,7 @@ public class MonitoringManager extends SimplePlugIn
   
 
   /**
-   * "Start_Publishing_ui" Task received from the UIInterfacePlugIn sends the request to
+   * "Start_Publishing_ui" Task received from the UIInterfacePlugin sends the request to
    *  Analyzer Manager provide analyzer capable of providing the service specified by indirect
    * object.If Analyzer manager referenced in indirect object is same as current manager then
    * it  creates a Reporting_Analyzer task with cmdObj as indirect object holding reference to
@@ -443,7 +445,7 @@ public class MonitoringManager extends SimplePlugIn
       allocResult = allocPred.Predict(task, getDelegate());
     else
       allocResult = 
-	PlugInHelper.createEstimatedAllocationResult(
+	PluginHelper.createEstimatedAllocationResult(
 						     task, getFactory(), 0.0, true);
     Allocation myalloc = getFactory().createAllocation(
 						       task.getPlan(), task, org, 

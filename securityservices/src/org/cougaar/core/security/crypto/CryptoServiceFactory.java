@@ -28,19 +28,65 @@ package org.cougaar.core.security.crypto;
 
 import java.lang.*;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceBrokerSupport;
+
+import com.nai.security.util.CryptoDebug;
+import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.services.identity.*;
+
 public class CryptoServiceFactory {
 
-  public void createCryptographicServices()
+  private ServiceBroker serviceBroker;
+  private CryptoManagerServiceProvider cryptoServiceProvider;
+
+  public void initCryptoServices()
   {
     // Add cryptographic related services
 
-    /*
-    sb = new ServiceBrokerSupport();
-    //    setChildServiceBroker(sb);
-    CryptoManagerServiceProvider cmsp = new CryptoManagerServiceProvider();
-    sb.addService(CryptoManagerService.class, cmsp);
-    sb.addService(CryptoPolicyService.class, cmsp);
-    sb.addService(AccessControlPolicyService.class, cmsp);
-    */
+    if (serviceBroker == null) {
+      throw new RuntimeException("Service Broker not set");
+    }
+
+    cryptoServiceProvider = new CryptoManagerServiceProvider();
+
+    registerServices();
   }
+
+  public void setServiceBroker(ServiceBroker sb)
+  {
+    serviceBroker = sb;
+  }
+
+  private void registerServices()
+  {
+    if (CryptoDebug.debug) {
+      System.out.println("Registering cryptographic services");
+    }
+
+    /* Register cryptographic services.
+     */
+    serviceBroker.addService(AgentMobilityService.class,
+			     cryptoServiceProvider);
+
+    serviceBroker.addService(CertificateManagementService.class,
+			     cryptoServiceProvider);
+
+    serviceBroker.addService(DataProtectionService.class,
+			     cryptoServiceProvider);
+
+    serviceBroker.addService(IdentityService.class,
+			     cryptoServiceProvider);
+
+    serviceBroker.addService(PublicKeyRingService.class,
+			     cryptoServiceProvider);
+
+    serviceBroker.addService(MessageService.class,
+			     cryptoServiceProvider);
+
+    serviceBroker.addService(PrivateKeyRingService.class,
+			     cryptoServiceProvider);
+
+  }
+
 }

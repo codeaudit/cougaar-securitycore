@@ -92,7 +92,7 @@ public class CertificateDetailsServlet extends  HttpServlet
     }
     try {
       String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
-      ConfParser confParser = new ConfParser(confpath);
+      ConfParser confParser = new ConfParser(confpath, true);
       caPolicy = confParser.readCaPolicy(cadnname, role);
       certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(

@@ -47,39 +47,33 @@ import com.nai.security.util.*;
  */
 public class ConfParser {
 
+  boolean standalone = false;
+
   private String configFile = null;
   private Document configDoc = null;
-  // private boolean debug = false;
 
-  public ConfParser() {
-    /*
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-    */
-    //String installpath = System.getProperty("org.cougaar.install.path");
-    String defaultConfigFile = /*installpath + File.separatorChar
-      + "configs" + File.separatorChar + "common"
-      + File.separatorChar + */"cryptoPolicy.xml";
+  public ConfParser(boolean isStandalone) {
+    String defaultConfigFile = "cryptoPolicy.xml";
 
-    configFile = System.getProperty("org.cougaar.security.crypto.config", defaultConfigFile);
+    configFile = System.getProperty("org.cougaar.security.crypto.config",
+				    defaultConfigFile);
     System.out.println("conf file is at :"+configFile);
+    standalone = isStandalone;
     init();
   }
-   public ConfParser(String path) {
-     /* debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-     */
+   public ConfParser(String path, boolean isStandalone) {
      if(path==null) {
        if(CryptoDebug.debug) {
 	 System.out.println(" Got conf path as: null:");
        }
-        String defaultConfigFile= "cryptoPolicy.xml";
-	configFile=defaultConfigFile;
+       String defaultConfigFile= "cryptoPolicy.xml";
+       configFile=defaultConfigFile;
      }
-     else 
+     else {
        configFile=path;
- 
-    init();
+     }
+     standalone = isStandalone;
+     init();
   }
 
   public Document getConfigDocument() {
@@ -329,43 +323,70 @@ public class ConfParser {
 					CA_CLIENT_POLICY_ELEMENT);
       
       caPolicy = new CaPolicy();
-      caPolicy.keyStoreFile      = getElementValue(caPolicyElement,
-						   CA_KEYSTORE_ELEMENT,
-						   role);
-      caPolicy.keyStorePassword  = getElementValue(caPolicyElement,
-						   CA_KEYSTORE_PWD_ELEMENT,
-						   role);
-      caPolicy.caCommonName      = getElementValue(caPolicyElement,
-						   CA_CN_ELEMENT,
-						   role);
-      caPolicy.ldapURL           = getElementValue(caPolicyElement,
-						   CA_LDAP_URL_ELEMENT,
-						   role);
+      if (standalone) {
+	// These fields are used in standalone mode only
+	caPolicy.keyStoreFile      = getElementValue(caPolicyElement,
+						     CA_KEYSTORE_ELEMENT,
+						     role);
+	caPolicy.keyStorePassword  = getElementValue(caPolicyElement,
+						     CA_KEYSTORE_PWD_ELEMENT,
+						     role);
+	caPolicy.caCommonName      = getElementValue(caPolicyElement,
+						     CA_CN_ELEMENT,
+						     role);
+	caPolicy.ldapURL           = getElementValue(caPolicyElement,
+						     CA_LDAP_URL_ELEMENT,
+						     role);
 
-      String type = getElementValue(caPolicyElement,
-				    CA_LDAP_TYPE_ELEMENT, role);
+	String type = getElementValue(caPolicyElement,
+				      CA_LDAP_TYPE_ELEMENT, role);
+	
+	if (type != null) {
+	  if (type.equalsIgnoreCase("NetTools")) {
+	    caPolicy.ldapType = CaPolicy.NETTOOLS; 
+	  }
+	  else if (type.equalsIgnoreCase("CougaarOpenLdap")) {
+	    caPolicy.ldapType = CaPolicy.COUGAAR_OPENLDAP;
+	  }
+	}
+	else {
+	  if (CryptoDebug.debug) { 
+	    System.out.println("Error !!!!!!! No LDAP server type specified.");
+	  }
+	}
 
-      if (type != null) {
-	if (type.equalsIgnoreCase("NetTools")) {
-	  caPolicy.ldapType = CaPolicy.NETTOOLS; 
-	}
-	else if (type.equalsIgnoreCase("CougaarOpenLdap")) {
-	  caPolicy.ldapType = CaPolicy.COUGAAR_OPENLDAP;
-	}
+	String crlalgIdString = getElementValue(caClientPolicy,
+						CA_CRL_ALGORITHMID_ELEMENT,
+						role);
+	//Class crlalgIdClass = AlgorithmId.class;
+	Field crlalgIdField =
+	  AlgorithmId.class.getDeclaredField(crlalgIdString);
+	caPolicy.CRLalgorithmId =
+	  new AlgorithmId((ObjectIdentifier)crlalgIdField.get(null));
+
+	String strPending = getElementValue(caClientPolicy,
+					    CA_REQUIREPENDING_ELEMENT, role);
+	caPolicy.requirePending = false;
+	if (strPending != null && strPending.equals("true"))
+	  caPolicy.requirePending = true;
       }
-      else {
-	if (CryptoDebug.debug) { 
-	  System.out.println("Error !!!!!!! No LDAP server type specified.");
-	}
-      }
 
-      //caPolicy.ldapURL           = caPolicyElement.getChildText(CA_LDAP_URL_ELEMENT);
-      caPolicy.serialNumberFile  = getElementValue(caPolicyElement, CA_SERIAL_NB_FILE_ELEMENT, role);
+      caPolicy.serialNumberFile  = getElementValue(caPolicyElement,
+						   CA_SERIAL_NB_FILE_ELEMENT,
+						   role);
 
-      caPolicy.pkcs10Directory   = getElementValue(caPolicyElement, CA_PKCS10_DIR_ELEMENT, role);
-      caPolicy.x509CertDirectory = getElementValue(caPolicyElement, CA_X509_CERT_DIR_ELEMENT, role);
-      caPolicy.pendingDirectory = getElementValue(caPolicyElement, CA_CERT_PENDING_DIR_ELEMENT, role);
-      caPolicy.deniedDirectory = getElementValue(caPolicyElement, CA_CERT_DENIED_DIR_ELEMENT, role);
+      caPolicy.pkcs10Directory   = getElementValue(caPolicyElement,
+						   CA_PKCS10_DIR_ELEMENT,
+						   role);
+      caPolicy.x509CertDirectory = getElementValue(caPolicyElement,
+						   CA_X509_CERT_DIR_ELEMENT,
+						   role);
+      caPolicy.pendingDirectory = getElementValue(caPolicyElement,
+						  CA_CERT_PENDING_DIR_ELEMENT,
+						  role);
+      caPolicy.deniedDirectory = getElementValue(caPolicyElement,
+						 CA_CERT_DENIED_DIR_ELEMENT,
+						 role);
 
       caPolicy.certVersion = (Integer.valueOf(getElementValue(caClientPolicy,
 				 CA_CERTVERSION_ELEMENT, role))).intValue();
@@ -379,26 +400,20 @@ public class ConfParser {
        *  sha1WithDSA_OIW_oid
        *  sha1WithDSA_oid
        */
-      String algIdString = getElementValue(caClientPolicy, CA_ALGORITHMID_ELEMENT, role);
+      String algIdString = getElementValue(caClientPolicy,
+					   CA_ALGORITHMID_ELEMENT, role);
       Class algIdClass = AlgorithmId.class;
       Field algIdField = AlgorithmId.class.getDeclaredField(algIdString);
-      caPolicy.algorithmId = new AlgorithmId((ObjectIdentifier)algIdField.get(null));
+      caPolicy.algorithmId =
+	new AlgorithmId((ObjectIdentifier)algIdField.get(null));
       
-      String crlalgIdString = getElementValue(caClientPolicy, CA_CRL_ALGORITHMID_ELEMENT, role);
-       
-      Class crlalgIdClass = AlgorithmId.class;
-      Field crlalgIdField = AlgorithmId.class.getDeclaredField(crlalgIdString);
-      caPolicy.CRLalgorithmId = new AlgorithmId((ObjectIdentifier)crlalgIdField.get(null));
       
       caPolicy.keySize = (Integer.valueOf(getElementValue(caClientPolicy,
 				 CA_KEYSIZE_ELEMENT, role))).intValue();
       Duration duration = new Duration();
-      duration.parse(getElementValue(caClientPolicy, CA_CERTVALIDITY_ELEMENT, role));
+      duration.parse(getElementValue(caClientPolicy,
+				     CA_CERTVALIDITY_ELEMENT, role));
       caPolicy.howLong = duration.getDuration();
-      String strPending = getElementValue(caClientPolicy, CA_REQUIREPENDING_ELEMENT, role);
-      caPolicy.requirePending = false;
-      if (strPending != null && strPending.equals("true"))
-        caPolicy.requirePending = true;
     }
     return caPolicy;
   }

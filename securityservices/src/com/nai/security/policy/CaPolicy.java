@@ -31,27 +31,94 @@ import java.net.*;
 
 public class CaPolicy {
 
+  /** *************************************************************
+   *  These fields are used by the CA and the node acting as a CA.
+   */
+
+  /** The name of a file where the next serial number is stored.
+   */
+  public String serialNumberFile;
+
+  /** The name of a directory where all PKCS10 requests are stored.
+   */
+  public String pkcs10Directory;
+
+  /** The name of a directory where all issued X509 certificates
+   *  are stored.
+   */
+  public String x509CertDirectory;
+
+  /** *************************
+   *  Policy parameters when issuing certificates.
+   */
+
+  /** The X509 version number when an entity is issuing a
+   *  certificate.
+   */
+  public int certVersion;
+
+  /** The algorithm ID used to sign an X509 certificate.
+   */
+  public AlgorithmId algorithmId;
+
+  /** The key size used to sign an X509 certificate.
+   */
+  public int keySize;
+
+  /** The duration of the validity when issuing an X509 certificate.
+   */
+  public long howLong;
+
+
+
+  /** *************************************************************
+   *  These fields are used by the CA only.
+   */
+
+  /** The name of a keystore file where the CA private key is
+   *  stored.
+   */
   public String keyStoreFile;
+
+  /** The password used to open the CA keystore file.
+   */
   public String keyStorePassword;
+
+  /** The common name of the CA.
+   */
   public String caCommonName;
 
+  /** The URL of the LDAP directory where all certificates are
+   *  published.
+   */
   public String ldapURL;
+
+  /** The type of LDAP directory where all certificates are published.
+   */
   public int ldapType;
   // Values for ldapType
   static public final int NETTOOLS = 1;
   static public final int COUGAAR_OPENLDAP = 2;
 
-  public String serialNumberFile;
-  public String pkcs10Directory;
-  public String x509CertDirectory;
+  /** The name of a directory where all pending requests are stored.
+   */
   public String pendingDirectory;
+
+  /** The name of a directory where all denied requests are stored.
+   */
   public String deniedDirectory;
 
-  // Client policy
-  public int certVersion;
-  public AlgorithmId algorithmId;
-  public int keySize;
-  public long howLong;
+  /** *************************
+   *  Policy parameters when issuing certificates.
+   */
+
+  /** Are certificates issuing automatically or are they stored
+   *  in a pending queue until an administrator validates them?
+   */
   public boolean requirePending;
+
+  /** The algorithm ID used to sign CRLs
+   */
   public AlgorithmId CRLalgorithmId;
+
 };

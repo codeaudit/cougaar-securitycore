@@ -28,23 +28,24 @@
  
 package com.nai.security.monitoring.ui;
 
-
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.cluster.*;
-import org.cougaar.domain.planning.ldm.plan.*;
-import org.cougaar.lib.planserver.*;
-import org.cougaar.domain.planning.ldm.RootFactory;
-import org.cougaar.core.society.UID;
-import org.cougaar.core.society.UniqueObject;
-import org.cougaar.lib.planserver.*;
 import java.io.*;
 import java.util.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+
+import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.blackboard.*;
+import org.cougaar.planning.ldm.plan.*;
+import org.cougaar.lib.planserver.*;
+import org.cougaar.core.domain.RootFactory;
+import org.cougaar.core.util.UID;
+import org.cougaar.core.util.UniqueObject;
+import org.cougaar.lib.planserver.*;
+import org.cougaar.glm.ldm.asset.Organization;
+
 import com.nai.security.monitoring.util.*;
-import org.cougaar.domain.glm.ldm.asset.Organization;
 
 
 public class PSP_Threat extends PSP_BaseAdapter implements PlanServiceProvider, UISubscriber

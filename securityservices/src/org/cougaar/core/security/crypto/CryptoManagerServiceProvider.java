@@ -27,20 +27,50 @@
 package org.cougaar.core.security.crypto;
 
 import java.lang.*;
+import java.util.Hashtable;
+
 import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.Service;
+
+import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.crypto.*;
+
+import com.nai.security.certauthority.KeyManagement;
 
 public class CryptoManagerServiceProvider implements ServiceProvider {
 
+  private Hashtable services;
+
   public CryptoManagerServiceProvider() {
+    services = new Hashtable();
+    services.put(AgentMobilityService.class,
+		 AgentMobilityServiceImpl.class);
+    services.put(CertificateManagementService.class,
+		 KeyManagement.class);
+    /*
+    services.put(DataProtectionService.class,
+		 DataProtectionServiceImpl.class);
+    */
   }
 
   public Object getService(ServiceBroker sb, Object obj, Class cls) {
-    return null;
+    Class serviceClass = (Class) services.get(cls);
+
+    Object service = null;
+    try {
+      service = serviceClass.newInstance();
+    }
+    catch (java.lang.InstantiationException e) {
+    }
+    catch (java.lang.IllegalAccessException e) {
+    }
+    return service;
   }
   
   public void releaseService(ServiceBroker sb, Object obj1,
 			     Class cls, Object obj2)
   {
   }
+
 }

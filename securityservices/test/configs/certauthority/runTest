@@ -11,6 +11,7 @@ set choice2="2: PKCS#12   - wrap private key in a PKCS#12 envelope"
 set choice3="3: JAAS      - simulate three security contexts (node/agent/PlugIn)"
 set choice4="4: Hashtable - Test hashtables"
 set choice5="5: Log4j     - Test log4j security capabilities"
+set choice6="6: IDMEF     - Test JavaIDMEF library"
 
 echo "Select test:"
 echo "  ${choice1}"
@@ -18,7 +19,8 @@ echo "  ${choice2}"
 echo "  ${choice3}"
 echo "  ${choice4}"
 echo "  ${choice5}"
-echo "Enter your choice: [1, 2, 3, 4, 5]"
+echo "  ${choice6}"
+echo "Enter your choice: [1, 2, 3, 4, 5, 6]"
 
 set choice=$<
 
@@ -34,7 +36,7 @@ switch (${choice})
 case "1":
     # keystore test
     echo "Running ${choice1} ..."
-    set execclass = com.nai.security.certauthority.KeyManagement
+    set execclass = com.nai.security.test.NodeCryptoSimulation
     set args = "-1 ${user} testalias RSA"
     set args = "${args} -10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer"
     set args = "${args} -7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer"
@@ -68,6 +70,13 @@ case "5":
     set args = "log4j.conf"
     breaksw
 
+case "6":
+    # IDMEF test
+    echo "Running ${choice6} ..."
+    set execclass = com.nai.security.test.monitoring.Idmef
+    set args = ""
+    breaksw
+
 default:
     echo "Invalid choice"
     exit
@@ -85,6 +94,7 @@ if ( ${execmode} == "2") then
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xmlparserv2.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/ibmpkcs.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/jce1_2_1.jar"
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/idmef.jar"
 endif
 
 if (! $?COUGAAR3RDPARTY) then
@@ -129,13 +139,13 @@ case "1":
 # With bootstrapper
     java $javaargs \
 	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
-	com.nai.security.bootstrap.SecureBootstrapper ${execclass} $args
+	com.nai.security.bootstrap.SecureBootstrapper ${execclass} $args | tee runTest.log
     breaksw;
 case "2":
 # No bootstrapper
     java $javaargs \
 	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
-	${execclass} $args
+	${execclass} $args | tee runTest.log
     breaksw;
 default:
     echo "Unknown execution mode"

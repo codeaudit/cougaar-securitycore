@@ -30,7 +30,7 @@ package com.nai.security.monitoring.util;
 
 import java.util.Vector;
 
-import org.cougaar.domain.glm.ldm.asset.Organization;
+import org.cougaar.glm.ldm.asset.Organization;
 
 public class ResponseObj implements java.io.Serializable
 {

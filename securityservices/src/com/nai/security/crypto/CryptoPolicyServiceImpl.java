@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.Iterator;
 import com.nai.security.policy.*;
-import org.cougaar.domain.planning.ldm.policy.*;
+import org.cougaar.planning.ldm.policy.*;
 
 import SAFE.Enforcer.NodeEnforcer;
 

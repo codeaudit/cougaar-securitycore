@@ -1,6 +1,6 @@
 package org.cougaar.core.security.policy;
 
-import org.cougaar.domain.planning.ldm.policy.*;
+import org.cougaar.planning.ldm.policy.*;
 //import com.nai.security.policy.*;
 
 public class CryptoPolicy extends TypedPolicy {

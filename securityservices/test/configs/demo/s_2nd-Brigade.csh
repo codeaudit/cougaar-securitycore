@@ -1,1 +1,1 @@
-setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=keystore-2nd-Brigade -Dorg.cougaar.security.keystore.password=ul-redwood -Dorg.cougaar.core.security.Domain=NCADomain -DSAFE.domainName=NCADomain"
+setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=keystore-2nd-Brigade -Dorg.cougaar.security.keystore.password=ul-redwood -DSAFE.domainName=NCADomain"

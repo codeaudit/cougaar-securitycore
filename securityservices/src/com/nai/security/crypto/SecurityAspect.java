@@ -22,15 +22,22 @@
 
 package com.nai.security.crypto;
 
+import java.security.*;
+import javax.crypto.*;
+import java.util.*;
+import java.security.cert.CertificateException;
+import java.lang.RuntimeException;
+
 import org.cougaar.core.component.*;
 import org.cougaar.core.mts.*;
 
-import org.cougaar.core.cluster.DirectiveMessage;
-import org.cougaar.core.cluster.ClusterMessage;
-import org.cougaar.core.society.Message;
-import org.cougaar.core.society.MessageEnvelope;
-import org.cougaar.core.society.MessageAddress;
-import org.cougaar.core.society.NodeIdentificationService;
+import org.cougaar.core.blackboard.DirectiveMessage;
+import org.cougaar.core.agent.ClusterMessage;
+import org.cougaar.core.node.NodeIdentificationService;
+import org.cougaar.planning.ldm.plan.Directive;
+import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.planning.ldm.plan.Task;
+
 import com.nai.security.access.AccessControlPolicyService;
 import com.nai.security.access.IntegrityAttribute;
 import com.nai.security.access.MissionCriticality;
@@ -38,17 +45,7 @@ import com.nai.security.access.TrustSet;
 import com.nai.security.access.TrustAttribute;
 import org.cougaar.core.security.policy.AccessControlPolicy;
 
-import org.cougaar.domain.planning.ldm.plan.Directive;
-import org.cougaar.domain.planning.ldm.plan.Verb;
-import org.cougaar.domain.planning.ldm.plan.Task;
 
-//import java.io.Serializable;
-import java.security.*;
-//import java.security.cert.*;
-import javax.crypto.*;
-import java.util.*;
-import java.security.cert.CertificateException;
-import java.lang.RuntimeException;
 
 /**
  *
@@ -102,7 +99,7 @@ public class SecurityAspect extends StandardAspect
   {
     /* Currently supported messages are:
      * - AdvanceClockMessage
-     * - AggregationPlugIn.XMLMessage
+     * - AggregationPlugin.XMLMessage
      * - ClusterMessage
      *    - AckDirectiveMessage
      *    - ClusterInitializedMessage

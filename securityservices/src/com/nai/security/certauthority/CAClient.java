@@ -26,7 +26,6 @@ import java.security.*;
 import java.security.cert.*;
 import java.net.*;
 import java.io.*;
-//import java.net.HttpURLConnection.*;
 
 import com.nai.security.policy.NodePolicy;
 import com.nai.security.crypto.ConfParser;
@@ -46,7 +45,7 @@ public class CAClient {
 
     role = aRole;
 
-    ConfParser confParser = new ConfParser();
+    ConfParser confParser = new ConfParser(false);
     try{
       //kpg = KeyPairGenerator.getInstance("RSA");
             

@@ -26,22 +26,12 @@
 
 package org.cougaar.core.security.policy;
 
-import org.cougaar.domain.planning.ldm.policy.*;
-//import com.nai.security.policy.*;
-import org.cougaar.domain.planning.ldm.RootFactory;
-import org.cougaar.core.util.*;
-import org.cougaar.util.*;
-import org.cougaar.core.society.UID;
-import org.cougaar.core.cluster.ClusterIdentifier;
-
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
-
-
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -51,6 +41,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+
+import org.cougaar.planning.ldm.policy.*;
+import org.cougaar.core.domain.RootFactory;
+import org.cougaar.core.util.*;
+import org.cougaar.util.*;
+import org.cougaar.core.util.UID;
+import org.cougaar.core.agent.ClusterIdentifier;
 
 public class XMLPolicyCreator {
   private boolean debug = false;
@@ -70,7 +67,7 @@ public class XMLPolicyCreator {
       System.out.println("Couldn't parse file");
   }
 
-  /** this constructor will be called from SAFE.PolicyManager.PolicyExpanderPlugIn */
+  /** this constructor will be called from SAFE.PolicyManager.PolicyExpanderPlugin */
   public XMLPolicyCreator(Document xmldoc, String anOwner) {
     debug = System.getProperty("org.cougaar.core.security.policy.debug", "false").equalsIgnoreCase("true");
     owner = anOwner;

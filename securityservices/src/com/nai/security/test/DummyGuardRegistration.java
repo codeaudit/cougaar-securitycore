@@ -28,8 +28,8 @@ package com.nai.security.test;
 
 import java.util.*;
 import com.nai.security.policy.GuardRegistration;
-import org.cougaar.domain.planning.ldm.policy.Policy;
-import org.cougaar.domain.planning.ldm.policy.RuleParameter;
+import org.cougaar.planning.ldm.policy.Policy;
+import org.cougaar.planning.ldm.policy.RuleParameter;
 import SAFE.Enforcer.NodeEnforcer;  // or import SAFE.Enforcer.AgentEnforcer;
 
 public class DummyGuardRegistration extends GuardRegistration implements NodeEnforcer {

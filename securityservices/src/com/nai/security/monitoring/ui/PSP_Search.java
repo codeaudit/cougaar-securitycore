@@ -29,15 +29,14 @@ package com.nai.security.monitoring.ui;
 
 
 import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.cluster.*;
-import org.cougaar.domain.planning.ldm.plan.*;
+import org.cougaar.core.blackboard.*;
+import org.cougaar.planning.ldm.plan.*;
+import org.cougaar.glm.ldm.asset.Organization;
 import org.cougaar.lib.planserver.*;
-import org.cougaar.domain.planning.ldm.RootFactory;
+import org.cougaar.core.domain.RootFactory;
 import java.io.*;
 import java.util.*;
 import com.nai.security.monitoring.util.*;
-import org.cougaar.domain.glm.ldm.asset.Organization;
-
 
 
 class GetResponsePredicate implements UnaryPredicate
@@ -73,11 +72,11 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
     try  {
       Vector url =query_parameters.getParameterTokens("ver",'=');;
       if(MonitoringUtils.debug>0)
-	System.out.println("IN Search PSP cluster id  string is :"+psc.getServerPlugInSupport().getClusterIDAsString());
+	System.out.println("IN Search PSP cluster id  string is :"+psc.getServerPluginSupport().getClusterIDAsString());
       Vector vulnerablevector=null;
       if(url==null)   {
 	out.println("<HTML><head>");
-	out.println(insertJavascript(psc.getServerPlugInSupport().getClusterIDAsString()));
+	out.println(insertJavascript(psc.getServerPluginSupport().getClusterIDAsString()));
 	out.println("<body><h2> Search for Vulnerability</h2>");
 	out.println("<form name=\"choiceForm\" Method=\"GET\" >");                
 	out.println("<SELECT NAME=\"Vulnerability\" SIZE=\"1\">");
@@ -107,26 +106,26 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
 	long id=0;
 	if(MonitoringUtils.debug>0)
 	  System.out.println("Got verb  to look for");
-	//psc.getServerPlugInSupport().openLogPlanTransaction();
+	//psc.getServerPluginSupport().openLogPlanTransaction();
 	for(int i=0; i<url.size();i++)   {
 	  String type=(String) url.elementAt(i);
 	  id=System.currentTimeMillis();
 	  Query tempquery=new Query(type,id);
 	  if(MonitoringUtils.debug>0)
 	    System.out.println("Specified type Vernability in search PSP is  :"+type);
-	  // Task tsk=  createsearchTask( psc.getServerPlugInSupport().getFactoryForPSP(), MonitoringUtils.Query_PSP_Verb,type);
-	  psc.getServerPlugInSupport().publishAddForSubscriber(tempquery);
+	  // Task tsk=  createsearchTask( psc.getServerPluginSupport().getFactoryForPSP(), MonitoringUtils.Query_PSP_Verb,type);
+	  psc.getServerPluginSupport().publishAddForSubscriber(tempquery);
 	  
 	}
 	
 	boolean wait=true;
-	Collection c= psc.getServerPlugInSupport().queryForSubscriber(new GetResponsePredicate());
+	Collection c= psc.getServerPluginSupport().queryForSubscriber(new GetResponsePredicate());
 	boolean first=true;
 	while(wait)   {
 	  if(contains_id(c,id))   {
 	    wait=false;
 	    out.println("<html><head>");
-	    out.println(insertJavascript_publish(psc.getServerPlugInSupport().getClusterIDAsString()));
+	    out.println(insertJavascript_publish(psc.getServerPluginSupport().getClusterIDAsString()));
 	    out.println("<body>");
 	    Vector response=getResponseObj(c,id);
 	    for(Iterator i=response.iterator();i.hasNext();)   {
@@ -140,7 +139,7 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
 	    
 	  }
 	  else   {
-	    c= psc.getServerPlugInSupport().queryForSubscriber(new GetResponsePredicate());
+	    c= psc.getServerPluginSupport().queryForSubscriber(new GetResponsePredicate());
 	    if(first)  {
 	      out.println("<html><body><h2>Please wait search in progress</h2></body></html>");
 	      out.flush();

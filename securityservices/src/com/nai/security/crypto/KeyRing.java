@@ -62,12 +62,7 @@ final public class KeyRing {
   private static PrivateKeyPKCS12 pkcs12;
 
   static {
-  /*  
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
- 						"false"))).booleanValue();
-  */   
     init();
-    
   }
 
   private static synchronized void init() {
@@ -104,9 +99,10 @@ final public class KeyRing {
         
       }
       param.keystoreStream = new FileInputStream(param.keystorePath);
+      param.standalone = false;
       
       // CA keystore parameters
-      confParser = new ConfParser();
+      confParser = new ConfParser(param.standalone);
       String role = System.getProperty("org.cougaar.security.role"); 
       if (role == null && CryptoDebug.debug == true) {
 	System.out.println("Keyring Warning: LDAP role not defined");
@@ -140,7 +136,6 @@ final public class KeyRing {
       param.ldapServerUrl = nodePolicy.certDirectoryUrl;
       param.ldapServerType = nodePolicy.certDirectoryType;
 
-      param.standalone = false;
       keystore = new DirectoryKeyStore(param);
 
       if (param.keystoreStream != null) {

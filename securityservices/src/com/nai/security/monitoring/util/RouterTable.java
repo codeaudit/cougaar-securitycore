@@ -30,7 +30,7 @@
 
  package com.nai.security.monitoring.util;
 
-import org.cougaar.domain.glm.ldm.asset.Organization;
+import org.cougaar.glm.ldm.asset.Organization;
 import java.util.Hashtable;
 
 public class RouterTable implements java.io.Serializable

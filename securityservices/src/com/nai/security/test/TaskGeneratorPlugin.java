@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2001 Networks Associates Inc
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -23,24 +23,49 @@
  * CHANGE RECORD
  * - 
  */
+package com.nai.security.test;
 
-package com.nai.security.util;
+import java.io.*;
+import java.lang.*;
 
+import org.cougaar.core.plugin.SimplePlugin;
+import org.cougaar.planning.ldm.plan.NewTask;
+import org.cougaar.planning.ldm.plan.Verb;
 
-public  class CryptoDebug {
-  public static boolean debug =false;
-  public static boolean crldebug =false;
+/** This Plugin repeatedely sends tasks to an agent.
+ * Parameters:
+ * - agent: the name of the agent to which tasks will be sent.
+ * - verb:  the task verb.
+ */
 
-  static {
-     debug =
-       (Boolean.valueOf(System.
-			getProperty("org.cougaar.core.security.crypto.debug",
-				    "false"))).booleanValue();
-     crldebug =
-       (Boolean.valueOf(System.
-			getProperty("org.cougaar.core.security.crypto.crldebug",
-				    "false"))).booleanValue();
-  }
-  
- 
-} 
+public class TaskGeneratorPlugin extends SimplePlugin
+{
+    String theVerb;
+    String theAgent;
+
+    public TaskGeneratorPlugin() {}
+
+    protected void setupSubscriptions() {
+	// Send N malicious tasks to the agent
+	int n = 10;
+	for (int i = 0 ; i < n ; i++) {
+	    publishTask();
+	}
+    }
+
+    public void execute() {
+    }
+
+    protected void publishTask() {
+	NewTask task = createTask();
+	publishAdd(task);
+    }
+
+    protected NewTask createTask() {
+	Verb verb = new Verb(theVerb);
+	NewTask task = getFactory().newTask();
+	task.setVerb(verb);
+
+	return task;
+    }
+}

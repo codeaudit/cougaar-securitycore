@@ -27,17 +27,18 @@
  
 package com.nai.security.monitoring.ui;
 
-
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.cluster.*;
-import org.cougaar.domain.planning.ldm.plan.*;
-import org.cougaar.lib.planserver.*;
-import org.cougaar.domain.planning.ldm.RootFactory;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
+import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.blackboard.*;
+import org.cougaar.planning.ldm.plan.*;
+import org.cougaar.lib.planserver.*;
+import org.cougaar.core.domain.RootFactory;
+import org.cougaar.glm.ldm.asset.Organization;
+
 import com.nai.security.monitoring.util.*;
-import org.cougaar.domain.glm.ldm.asset.Organization;
 
 
 public class PSP_AnalyzerList extends PSP_BaseAdapter implements PlanServiceProvider, UISubscriber
@@ -101,7 +102,7 @@ public class PSP_AnalyzerList extends PSP_BaseAdapter implements PlanServiceProv
     }
     printLinksToAnalyzer(out,analyzerlink,analyzername);
     out.println("<p><p><p>");
-    ServerPlugInSupport sps;
+    ServerPluginSupport sps;
     
     // url and cluster info
     String clusterID;
@@ -111,7 +112,7 @@ public class PSP_AnalyzerList extends PSP_BaseAdapter implements PlanServiceProv
     String cluster_psp_url;
     String psp_path;
     
-    sps = psc.getServerPlugInSupport();
+    sps = psc.getServerPluginSupport();
     // url and cluster info
     clusterID = sps.getClusterIDAsString();
     encodedClusterID = URLEncoder.encode(clusterID);

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2001 Networks Associates Inc
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -23,24 +23,36 @@
  * CHANGE RECORD
  * - 
  */
+package com.nai.security.test;
 
-package com.nai.security.util;
+import java.io.*;
+import java.net.*;
+import java.lang.*;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Iterator;
 
+import org.cougaar.core.plugin.SimplePlugin;
 
-public  class CryptoDebug {
-  public static boolean debug =false;
-  public static boolean crldebug =false;
+public class MaliciousPlugin extends SimplePlugin
+{
+   public MaliciousPlugin() {}
 
-  static {
-     debug =
-       (Boolean.valueOf(System.
-			getProperty("org.cougaar.core.security.crypto.debug",
-				    "false"))).booleanValue();
-     crldebug =
-       (Boolean.valueOf(System.
-			getProperty("org.cougaar.core.security.crypto.crldebug",
-				    "false"))).booleanValue();
-  }
-  
- 
-} 
+    protected void setupSubscriptions() {
+      // Attempts to read a file for which we should not
+      // have access
+      String fileName = "/etc/passwd";
+      try {
+	FileReader f = new FileReader(fileName);
+	
+	char[] cbuf = new char[2048];
+	int nbcar = f.read(cbuf, 0, 2048);
+	f.close();
+      } catch (Exception e) {
+	e.printStackTrace();
+      }
+    }
+
+    public void execute() {}
+
+}

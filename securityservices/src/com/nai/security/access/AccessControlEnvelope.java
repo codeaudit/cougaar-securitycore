@@ -21,8 +21,8 @@
  */
 package com.nai.security.access;
 
-import org.cougaar.core.society.Message;
-import org.cougaar.core.society.MessageEnvelope;
+import org.cougaar.core.mts.Message;
+import org.cougaar.core.mts.MessageEnvelope;
 
 public class AccessControlEnvelope extends MessageEnvelope
 {

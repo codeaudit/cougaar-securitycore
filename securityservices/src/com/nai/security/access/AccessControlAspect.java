@@ -22,29 +22,25 @@
 
 package com.nai.security.access;
 
-import org.cougaar.core.component.*;
-import org.cougaar.core.mts.*;
-
-import org.cougaar.core.cluster.DirectiveMessage;
-import org.cougaar.core.cluster.ClusterMessage;
-import org.cougaar.core.society.Message;
-import org.cougaar.core.society.MessageEnvelope;
-import org.cougaar.core.society.MessageAddress;
-import org.cougaar.core.society.NodeIdentificationService;
-import com.nai.security.crypto.CryptoManagerServiceProvider;
-import org.cougaar.core.security.policy.AccessControlPolicy;
-
-import org.cougaar.domain.planning.ldm.plan.Directive;
-import org.cougaar.domain.planning.ldm.plan.Verb;
-import org.cougaar.domain.planning.ldm.plan.Task;
-
-//import java.io.Serializable;
 import java.security.*;
-//import java.security.cert.*;
 import javax.crypto.*;
 import java.util.*;
 import java.security.cert.CertificateException;
 import java.lang.RuntimeException;
+
+import org.cougaar.core.component.*;
+import org.cougaar.core.mts.*;
+
+import org.cougaar.core.blackboard.DirectiveMessage;
+import org.cougaar.core.agent.ClusterMessage;
+import org.cougaar.core.node.NodeIdentificationService;
+
+import org.cougaar.planning.ldm.plan.Directive;
+import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.planning.ldm.plan.Task;
+
+import com.nai.security.crypto.CryptoManagerServiceProvider;
+import org.cougaar.core.security.policy.AccessControlPolicy;
 
 /**
  *
@@ -99,7 +95,6 @@ public class AccessControlAspect extends StandardAspect
   /** removes the nth directive from a directive message */
   private static boolean removeDirective(DirectiveMessage msg, int index) {
     Directive[] oldDirective = msg.getDirectives();
-    //if(oldDirective.length == 0) return;
     if(oldDirective.length == 1){
       msg.setDirectives(new Directive[0]);
       if(debug)System.out.println("WARNING: removing last directive.");
@@ -161,7 +156,8 @@ public class AccessControlAspect extends StandardAspect
 	}
       }
     }
-    else if (msg instanceof SAFE.Comm.SAFEMessage) {
+    else if (msg.getClass().
+	     getName().equals("SAFE.Comm.SAFEMessage")) {
       // Silently ignore these messages
     }
     else {

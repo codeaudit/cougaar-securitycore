@@ -108,7 +108,7 @@ public class BaseBootstrapper
   public static void main(String[] args) {
 
     if (args.length <= 1) { // assemble command line from java VM properties
-      String nodeClassName = "org.cougaar.core.society.Node";
+      String nodeClassName = "org.cougaar.core.node.Node";
 	
       if (args.length == 1)
 	nodeClassName = args[0];

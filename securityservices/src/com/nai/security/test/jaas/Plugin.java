@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2001 Networks Associates Inc
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -24,23 +24,40 @@
  * - 
  */
 
-package com.nai.security.util;
+package com.nai.security.test.jaas;
 
+import java.util.Iterator;
+import java.io.*;
+import java.net.*;
+import java.lang.*;
 
-public  class CryptoDebug {
-  public static boolean debug =false;
-  public static boolean crldebug =false;
+import com.nai.security.bootstrap.JaasClient;
 
-  static {
-     debug =
-       (Boolean.valueOf(System.
-			getProperty("org.cougaar.core.security.crypto.debug",
-				    "false"))).booleanValue();
-     crldebug =
-       (Boolean.valueOf(System.
-			getProperty("org.cougaar.core.security.crypto.crldebug",
-				    "false"))).booleanValue();
+public class Plugin
+{
+  String name = null;
+
+  public Plugin(String plugInName) {
+    name = plugInName;
   }
-  
- 
-} 
+
+  public Object execute() {
+    // Attempts to read a file for which we should not
+    // have access
+    try {
+      String fileName = "/etc/passwd";
+      FileReader f = new FileReader(fileName);
+      
+      char[] cbuf = new char[2048];
+      int nbcar = f.read(cbuf, 0, 2048);
+      f.close();
+    }
+    catch (java.io.FileNotFoundException e) {
+      System.out.println("Error: " + e);
+    }
+    catch (java.io.IOException e) {
+      System.out.println("Error: " + e);
+    }
+    return null;
+  }
+}

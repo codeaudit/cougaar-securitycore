@@ -27,18 +27,20 @@
 package com.nai.security.test;
 
 import java.util.*;
-import org.cougaar.domain.planning.ldm.policy.*;
-import org.cougaar.core.cluster.*;
+
+import org.cougaar.planning.ldm.policy.*;
+import org.cougaar.core.blackboard.*;
 import org.cougaar.core.plugin.*;
 import org.cougaar.util.*;
+
 import com.nai.security.policy.EnforcerRegistrationException;
 
-public class DummyEnforcer extends SimplePlugIn {
+public class DummyEnforcer extends SimplePlugin {
 
   private DummyGuardRegistration gr;
 
   public DummyEnforcer() {
-    super();		// SimplePlugIn constructor...
+    super();		// SimplePlugin constructor...
     gr = new DummyGuardRegistration("com.nai.security.policy.CryptoPolicy",
 				    "DummyEnforcer");
   }

@@ -65,7 +65,7 @@ public class PendingCertCache extends Hashtable {
 
   private PendingCertCache(String cadnname, String role, String certpath, String confpath) 
     throws Exception {
-    ConfParser confParser = new ConfParser(confpath);
+    ConfParser confParser = new ConfParser(confpath, true);
     try {
       caPolicy = confParser.readCaPolicy(cadnname, role);
       signer = new KeyManagement(cadnname, role, certpath, confpath);

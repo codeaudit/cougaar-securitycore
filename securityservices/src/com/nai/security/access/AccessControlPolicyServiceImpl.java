@@ -34,12 +34,13 @@ import java.util.Iterator;
 import com.nai.security.policy.*;
 import com.nai.security.crypto.KeyRing;
 
-import org.cougaar.domain.planning.ldm.policy.*;
-import org.cougaar.domain.planning.ldm.plan.Verb;
+import org.cougaar.planning.ldm.policy.*;
+import org.cougaar.planning.ldm.plan.Verb;
 
 import SAFE.Enforcer.AgentEnforcer;
 
-public class AccessControlPolicyServiceImpl implements AccessControlPolicyService {
+public class AccessControlPolicyServiceImpl
+  implements AccessControlPolicyService {
   //named proxies
   HashSet proxies = new HashSet();
 

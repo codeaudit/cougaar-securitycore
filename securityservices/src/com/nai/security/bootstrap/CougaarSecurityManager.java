@@ -169,7 +169,7 @@ public class CougaarSecurityManager extends SecurityManager
    **/
   private void logPermissionFailure(Permission perm, SecurityException e, boolean displaySubject) {
     // Could be used to report checkPermission failures to a Monitoring & Response
-    // PlugIn.
+    // Plugin.
     String curTime = DateFormat.getDateInstance().format(new Date());
     auditlog.print("<securityEvent><securityManagerAlarm><time>" + curTime + "</time><perm>" + perm + "</perm>\n");
     
