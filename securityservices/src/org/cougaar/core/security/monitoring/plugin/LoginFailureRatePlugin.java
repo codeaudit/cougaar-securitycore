@@ -113,15 +113,15 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     "def encode (x, out):\n" +
     "  atom = ResultSetDataAtom()\n" +
     "  atom.addIdentifier('document', x.getUID())\n" +
-    "  atom.addValue('date', x.getEvent().getDetectTime().getidmefDate())\n" +
+//     "  atom.addValue('date', x.getEvent().getDetectTime().getidmefDate())\n" +
     "  out.add(atom) \n" +
     "def instantiate ():\n" +
     "  return encode\n";
 
   private static final ScriptSpec PRED_SPEC =
     new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JPYTHON, PRED_SCRIPT);
-  private static final ScriptSpec FORMAT_SPEC =
-    new ScriptSpec(Language.JPYTHON, XmlFormat.XMLENCODER, FORMAT_SCRIPT);
+  private static ScriptSpec FORMAT_SPEC =
+    new ScriptSpec(Language.JPYTHON, XmlFormat.INCREMENT, FORMAT_SCRIPT);
 
   private static final int OVERSIZE = 60;
   private LoggingService log;
@@ -130,6 +130,10 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
   protected int    _window          = 0;
   protected String _clusters[]      = null;
   protected Alert  _alert           = null;
+  protected int    _failures[]      = null;
+  protected int    _totalFailures   = 0;
+  protected Thread _pollThread      = null;
+  protected long   _startTime       = System.currentTimeMillis();
 
   public void setParameter(Object o) {
     if (!(o instanceof List)) {
@@ -175,18 +179,17 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
       clusters.add(iter.next().toString());
     }
     _clusters = (String[]) clusters.toArray(STR_ARRAY);
-    /*
-    _loginFailures = new int[_window + OVERSIZE];
-    for (int i = 0; i < _loginFailures.length; i++) {
-      _loginFailures[i] = 0;
+
+    _failures = new int[_window + OVERSIZE];
+    for (int i = 0; i < _failures.length; i++) {
+      _failures[i] = 0;
     }
-    */
   }
 
   protected AggregationQuery createQuery() {
     AggregationQuery aq = new AggregationQuery(QueryType.PERSISTENT);
     aq.setName("Login Rate Query");
-    aq.setUpdateMethod(UpdateMethod.PULL);
+    aq.setUpdateMethod(UpdateMethod.PUSH);
     aq.setPullRate(_pollInterval);
     
     for (int i = 0 ; i < _clusters.length; i++) {
@@ -200,17 +203,14 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
 
   protected void setupSubscriptions() {
     log = (LoggingService)
-	getBindingSite().getServiceBroker().getService(this,
-	LoggingService.class, null);
-
-//     _startTime = System.currentTimeMillis();
+	getServiceBroker().getService(this, LoggingService.class, null);
     AggregationQuery aq = createQuery();
     QueryResultAdapter qra = new QueryResultAdapter(aq);
     _alert = new LoginFailureAlert();
     _alert.setQueryAdapter(qra);
     qra.addAlert(_alert);
-//     _pollThread = new PollThread();
-//     _pollThread.start();
+    _pollThread = new PollRate();
+    _pollThread.start();
 //     getBlackboardService().openTransaction();
     try {
       getBlackboardService().publishAdd(qra);
@@ -233,52 +233,104 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
 
     public void handleUpdate() {
       long now = System.currentTimeMillis();
-      TimeZone gmt = TimeZone.getTimeZone("GMT");
-      Calendar backTime = Calendar.getInstance(gmt);
-      backTime.add(Calendar.SECOND, -_window);
-      String backString = IDMEFTime.convertToIDMEFFormat(backTime.getTime());
+      /*
+        TimeZone gmt = TimeZone.getTimeZone("GMT");
+        Calendar backTime = Calendar.getInstance(gmt);
+        backTime.add(Calendar.SECOND, -_window);
+        String backString = IDMEFTime.convertToIDMEFFormat(backTime.getTime());
+      */
 
       QueryResultAdapter qra = getQueryAdapter();
       AggregationResultSet results = qra.getResultSet();
-//       log.debug("Exception thrown:  " + results.exceptionThrown());
-//       log.debug("Exception Summary: " + results.getExceptionSummary());
-//       log.debug("XML: " + results.toXml());
+      if (results.exceptionThrown()) {
+        log.error("Exception when executing query: " + results.getExceptionSummary());
+        log.debug("XML: " + results.toXml());
+      }
       
+      /*
       Iterator atoms = results.getAllAtoms();
       int count = 0;
       while (atoms.hasNext()) {
         ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
-        String val = d.getValue("date").toString();
-        if (val != null && backString.compareTo(val) <= 0) {
+//         String val = d.getValue("date").toString();
+//         if (val != null && backString.compareTo(val) <= 0) {
           count++;
-        }
+//         }
       }
-      long rate = count * SECONDSPERDAY / _window;
-      log.debug("Rate = " + rate + " login failures/day");
-      if (_lastRate != rate) {
-        _lastRate = (int) rate;
-        Condition cond = new LoginFailureRateCondition(_lastRate);
-        boolean close = true;
-        try {
-          close = getBlackboardService().tryOpenTransaction();
-        } catch (Exception e) {
-          close = false;
-        }
-        try {
-          getBlackboardService().publishAdd(cond);
-        } catch (Exception e) {
-        }
-        try {
-          if (close) {
-            getBlackboardService().closeTransaction();
-          }
-        } catch (Exception e) {
-        }
+      */
+      int count = 1;
+      synchronized (_failures) {
+        _failures[(int)((now - _startTime)/1000) % _failures.length] += count;
+        _totalFailures += count;
       }
     }
   }
 
-  private static class LoginFailureRateCondition implements Condition {
+  private class PollRate extends Thread {
+    public PollRate() {
+      setDaemon(true);
+    }
+
+    public void run() {
+      long pollTime  = ((long) _pollInterval) * 1000;
+      long nextWake  = System.currentTimeMillis();
+      int  arrSize   = _failures.length;
+      int  last      = (OVERSIZE + (int)(_startTime - nextWake)/1000)%arrSize;
+      int  prevTotal = -1;
+
+      while (true) {
+        boolean report = false;
+        synchronized (_failures) {
+          if (_totalFailures != prevTotal) {
+            prevTotal = _totalFailures;
+            report = true;
+          }
+          for(int next = (last + _pollInterval) % arrSize;
+              last != next; last = (last + 1) % arrSize) {
+            _totalFailures -= _failures[last];
+            _failures[last] = 0;
+          }
+        }
+        if (report) {
+          reportRate(prevTotal);
+        }
+
+        nextWake += pollTime;
+        long sleepTime;
+        while ((sleepTime = nextWake - System.currentTimeMillis()) > 0) {
+          try {
+            this.sleep(sleepTime);
+          } catch (InterruptedException e) {
+            // just sleep again..
+          }
+        }
+      }
+    }
+
+    void reportRate(int failureCount) {
+      int rate = (int) (failureCount * SECONDSPERDAY / _window);
+      log.debug("Rate = " + rate + " login failures/day");
+      Condition cond = new LoginFailureRateCondition(rate);
+      boolean close = true;
+      try {
+        close = getBlackboardService().tryOpenTransaction();
+      } catch (Exception e) {
+        close = false;
+      }
+      try {
+        getBlackboardService().publishAdd(cond);
+      } catch (Exception e) {
+      }
+      try {
+        if (close) {
+          getBlackboardService().closeTransaction();
+        }
+      } catch (Exception e) {
+      }
+    }
+  }
+
+  static class LoginFailureRateCondition implements Condition {
     Integer _rate;
     static final OMCRangeList RANGE = 
       new OMCRangeList(new Integer(0), new Integer(Integer.MAX_VALUE));
