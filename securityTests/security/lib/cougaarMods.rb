@@ -125,14 +125,22 @@ module Cougaar
        
        def process
          if @agent == nil
+           firstAgent = nil
            @run.society.each_agent(true) { |agent|
-             agent.each_facet("org_id") { |facet| 
+             if firstAgent == nil
+               firstAgent = agent.name
+             end
+             agent.each_facet("org_id") { |facet|
                if facet["org_id"] == "OSD.GOV"
-	         @agent = agent.name
-	         break
+                 @agent = agent.name
+                 break
                end
              }
-	   }
+           }
+           if @agent == nil
+             puts "Using #{@agent} to check for UserManagerReady"
+             @agent = firstAgent
+           end
          end
          @run.info_message "Waiting for #{@agent} to be ready for user access"
          waitForUserManager(@agent, @path, '/move')
