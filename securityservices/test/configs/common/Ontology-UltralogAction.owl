@@ -67,6 +67,15 @@
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#BlackBoardAccessMode"/> 
     </owl:ObjectProperty>
 
+
+    <owl:ObjectProperty rdf:ID="wpAccessType">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
+        <rdfs:domain rdf:resource="#WPUpdateSelf"/> 
+        <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#WPAccessType"/>
+    </owl:ObjectProperty>
+
+
 <!-- Section with class definitions--> 
 
      <owl:Class rdf:ID="BlackBoardAccess">
@@ -89,6 +98,16 @@
               <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Ultralog/UltraActor.owl#UltralogPlugIns"/>
            </owl:Restriction>
         </rdfs:subClassOf>
+     </owl:Class>
+
+     <owl:Class rdf:ID="WPUpdateSelf">
+       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
+       <rdfs:subClassOf>
+         <owl:Restriction>
+           <owl:onProperty rdf:resource="http://ontology.ihmc.us/Action.owl#performedBy"/>
+           <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent" />
+         </owl:Restriction>
+       </rdfs:subClassOf>
      </owl:Class>
 
 </rdf:RDF>
