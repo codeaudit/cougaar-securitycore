@@ -85,7 +85,8 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
 
   defs = [
     "-Dorg.cougaar.config.path=#{File.join(CIP,'configs','security')}",
-    "-Dlog4j.configuration=#{File.join(CIP,'configs','common','loggingConfig.conf')}",
+    "-Dlog4j.configuration=#{File.join(CIP, 'configs', 'security', 'cmdlineLoggingConfig.conf')}",
+    "-Dorg.cougaar.core.logging.config.filename=#{File.join(CIP, 'configs', 'security', 'cmdlineLoggingConfig.conf')}",
   ]
 
   if javaArgs != nil
@@ -96,7 +97,7 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
   if (execDir != nil)
     cdCmd = "cd #{execDir} && "
   end
-  `#{cdCmd}java #{defs.join(" ")} -Xmx512m -classpath #{classpath.join(':')} org.cougaar.core.security.policy.builder.Main #{args} 2> /dev/null`
+  `#{cdCmd}java #{defs.join(" ")} -Xmx512m -classpath #{classpath.join(':')} org.cougaar.core.security.policy.builder.Main #{args}`
 end
 
 $policyLockLock = Mutex.new
