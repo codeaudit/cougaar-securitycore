@@ -55,7 +55,7 @@ class Stress5f < SecurityStressFramework
       if result.to_s =~ /TRUE/
         @numberOfSuccess = @numberOfSuccess + 1
       else
-	saveUnitTestResult('Stress5f', "Unexpected response: #{result} at #{goodurl}" )
+	saveAssertion('Stress5f', "Unexpected response: #{result} at #{goodurl}" )
       end
     end
     result = 100 * (@numberOfSuccess.to_f / @numberOfAgents.to_f)
@@ -81,7 +81,7 @@ class Stress5f < SecurityStressFramework
       if result.to_s =~ /TRUE/
         @numberOfSuccess = @numberOfSuccess + 1
       else
-	saveUnitTestResult('Stress5f', "Unexpected response: #{result} at #{badurl}")
+	saveAssertion('Stress5f', "Unexpected response: #{result} at #{badurl}")
       end
     end
     result = 100 * (@numberOfSuccess.to_f / @numberOfAgents.to_f)
