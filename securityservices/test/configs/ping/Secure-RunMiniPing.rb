@@ -7,6 +7,7 @@ $:.unshift File.join(CIP, 'csmart', 'config', 'lib')
 
 # Uncomment the following two lines if working in the CSI testbed
 $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib') 
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'scripts') 
 require 'framework/scripting'
  
 require 'cougaar/scripting' 
@@ -85,13 +86,15 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   do_action "SaveCurrentSociety", "mySociety.xml" 
   do_action "SaveCurrentCommunities", "myCommunities.xml" 
 
-  # Uncomment the following line if working in the CSI testbed
-  do_action "SetAcmeUser" 
 
   # start jabber 
   # 
   # replace the last parameter with your jabber server's host name  
   do_action "StartJabberCommunications"
+
+  # Uncomment the following line if working in the CSI testbed
+  do_action "SetAcmeUser" 
+
   do_action "CleanupSociety"
   do_action "VerifyHosts" 
   #do_action "ConnectOperatorService"
