@@ -19,13 +19,6 @@
 # </copyright>
 #
 
-#
-# WARNING: I had trouble with comments in the grammar.  It is
-#          possible/easy to make a reasonable comment that contains
-#          some character that leads to a lexical error.
-#          If you are having trouble use the "policyUtil parse ..."
-#          command to debug and avoid frustration.
-
 Policy DamlBootPolicyAllowCommunication = [ 
    GenericTemplate
    Priority = 2,
@@ -129,6 +122,12 @@ Policy DamlBootPolicyPolicyServletRear  = [
   A user in role RearPolicyAdministrator can access a servlet 
   named RearPolicyServlet
 ]
+
+#Policy DamlBootPolicyPolicyServletRearAuth  = [ 
+#  ServletAuthenticationTemplate
+#  All users must use Password, PasswordSSL, CertificateSSL
+#  authentication when accessing the servlet named RearPolicyServlet
+#]
 
 Policy DamlBootPolicyPolicyServletFwd  = [ 
   ServletUserAccessTemplate
