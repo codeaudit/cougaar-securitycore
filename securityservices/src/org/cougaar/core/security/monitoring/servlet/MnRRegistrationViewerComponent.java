@@ -85,11 +85,7 @@ public class MnRRegistrationViewerComponent
     path=(String)l.get(0);
   }
 
-  public void setAgentIdentificationService(AgentIdentificationService ais) {
-    this.ais = ais;
-    agentId = ais.getMessageAddress();
-  } 
-   public void setBlackboardService(BlackboardService blackboard) {
+  public void setBlackboardService(BlackboardService blackboard) {
     this.blackboard = blackboard;
   }
 
@@ -97,9 +93,10 @@ public class MnRRegistrationViewerComponent
     this.ds = ds;
   }
   
-   public void setCommunityService(CommunityService cs) {
-     this.cs=cs;
-   }
+  public void setCommunityService(CommunityService cs) {
+    this.cs=cs;
+  }
+  
   public void setLoggingService(LoggingService ls) {
     this.logging=ls;
   }
@@ -112,9 +109,15 @@ public class MnRRegistrationViewerComponent
     super.unload();
     // FIXME release the rest!
   }
-  
 
-    public String getBlackboardClientName() {
+  public void init(ServletConfig config)
+    throws ServletException {
+    ais = (AgentIdentificationService)
+      serviceBroker.getService(this, AgentIdentificationService.class, null);
+    agentId = ais.getMessageAddress();
+  }
+
+  public String getBlackboardClientName() {
     return toString();
   }
 
