@@ -125,8 +125,6 @@ public class SecurityAspect extends StandardAspect
                 return;
               }else if(s.secureMethod==s.SIGN){
                 keyName = Origin;
-                //guard is taking node's key
-                if(Origin.endsWith("Guard")) keyName = keyName.substring(0,keyName.length()-5);
                 signedMsg = cms.sign(keyName,s.signSpec,m);
               }else if(s.secureMethod==s.ENCRYPT){
                 /*generate the secret key*/
@@ -138,8 +136,6 @@ public class SecurityAspect extends StandardAspect
                 kg.init(random);
                 SecretKey sk=kg.generateKey();
                 keyName = Target;
-                //guard is taking node's key
-                if(Target.endsWith("Guard")) keyName = keyName.substring(0,keyName.length()-5);
                 secret=cms.asymmEncrypt(keyName,s.asymmSpec,sk);
                 sealedMsg = cms.symmEncrypt(sk,s.symmSpec,m);
 
@@ -156,7 +152,6 @@ public class SecurityAspect extends StandardAspect
                 kg.init(random);
                 SecretKey sk=kg.generateKey();
                 keyName = Target;
-                if(Target.endsWith("Guard")) keyName = keyName.substring(0,keyName.length()-5);
 
                 // Encrypt session key
                 secret=cms.asymmEncrypt(keyName,s.asymmSpec,sk);
@@ -165,10 +160,8 @@ public class SecurityAspect extends StandardAspect
                 sealedMsg = cms.symmEncrypt(sk,s.symmSpec,m);
 
                 keyName = Origin;
-                if(Origin.endsWith("Guard")) keyName = keyName.substring(0,keyName.length()-5);
                 // Sign message
                 signedMsg = cms.sign(keyName,s.signSpec,sealedMsg);
-                sealedMsg = null;
               }else {
                 throw new RuntimeException("SecurityAspect: incorrect secureMethod parameter.");
               }
