@@ -85,6 +85,10 @@ include_scripts:
 
 # ############################################################
 # Robustness include scripts
+# setup_robustness.rb is not found with the isat update_cougaar,
+# need to copy it from old builds
+# This script needs to be included to have robustness defenses unleash,
+# otherwise there is no use adding robustness
 #  - script: setup_robustness.rb
 #  - script: $CIP/csmart/lib/isat/network_shaping.rb
 #  - script: $CIP/csmart/lib/isat/datagrabber_include.rb
