@@ -2153,6 +2153,7 @@ public class DirectoryKeyStore
     try{
       certificateList = findCert(dname.getCommonName(), LOOKUP_KEYSTORE);
       if(certificateList != null && certificateList.size() != 0) {
+	checkOrMakeHostKey();
 	return;
       }
     }
@@ -2172,14 +2173,18 @@ public class DirectoryKeyStore
     // put agent CA attrib in naming service
     updateNS(dname);
 
+    checkOrMakeHostKey();
+  }
+
+  private void checkOrMakeHostKey() {
     // generate one for webserver
     List hostList = findCert(getHostName());
     if (hostList == null || hostList.size() == 0) {
       addKeyPair(getHostName(), null);
       WebserverIdentityService sslwebserver = (WebserverIdentityService)
         param.serviceBroker.getService(this,
-				     WebserverIdentityService.class,
-				     null);
+				       WebserverIdentityService.class,
+				       null);
       if (sslwebserver != null)
         sslwebserver.updateKeystore();
     }
