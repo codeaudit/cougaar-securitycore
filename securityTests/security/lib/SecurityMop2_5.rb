@@ -4,15 +4,23 @@ require 'security/lib/SecurityMop2_4'
 class SecurityMop2_5 < AbstractSecurityMop
   include Singleton
   
-  def initialize(run)
-    super(run)
-    @name = "2.5"
+
+ # def initialize(run)
+ #   super(run)
+ #   @name = "2-5"
+ #   @descript = "Percentage of all designated user actions that are recorded"
+ # end
+  
+  def initialize()
+    #   super(run)
+    @name = "2-5"
     @descript = "Percentage of all designated user actions that are recorded"
   end
 
   def getStressIds()
     return ["SecurityMop2.5"]
   end
+
 
   def to_s
     logged = SecurityMop2_4.instance.numActionsLogged
@@ -45,6 +53,11 @@ class SecurityMop2_5 < AbstractSecurityMop
     end
     @raw = SecurityMop2_4.instance.raw5
     @info = SecurityMop2_4.instance.html5
+    success = false
+    if (@score == 100.0)
+      success = true
+    end
+    saveResult(success, 'mop2.5',@summary)
   end
 
   def scoreText

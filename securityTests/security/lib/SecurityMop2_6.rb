@@ -4,9 +4,17 @@ require 'security/lib/SecurityMop2_4'
 class SecurityMop26 < AbstractSecurityMop
   include Singleton
   
-  def initialize(run)
-    super(run)
+
+  #def initialize(run)
+  #  super(run)
+  #  @name = "2-6"
+  #  @descript = "Percentage of all designated user actions in violation of policy that are recorded as policy violations"
+  #end
+  
+  def initialize()
+    #super(run)
     @name = "2.6"
+
     @descript = "Percentage of all designated user actions in violation of policy that are recorded as policy violations"
   end
 
@@ -45,6 +53,11 @@ class SecurityMop26 < AbstractSecurityMop
     end
     @raw = SecurityMop2_4.instance.raw6
     @info = SecurityMop2_4.instance.html6
+     success = false
+    if (@score == 100.0)
+      success = true
+    end
+    saveResult(success, 'mop2.6',@summary)
   end
 
   def scoreText
