@@ -86,11 +86,11 @@ final public class NamingCertEntry extends Cert
     }
   }
 
-  public List getEntries() {
+  final public List getEntries() {
     return certList;
   }
 
-  public List getDNList() {
+  final public List getDNList() {
     return dnList;
   }
 
