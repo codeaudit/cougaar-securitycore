@@ -39,7 +39,6 @@ public class CertDirectoryServiceFactory
       sb.getService(new CertDirectoryServiceFactory(),
 		    LoggingService.class, null);
     CertDirectoryServiceClient ldapClient = null;
-    //log.debug("%%%%%%%%%%%%  type found is : "+serverType);
     switch (serverType) {
     case TrustedCaPolicy.COUGAAR_OPENLDAP:
       ldapClient = new OpenLdapCertDirectoryService(serverUrl, sb);
@@ -48,8 +47,8 @@ public class CertDirectoryServiceFactory
       ldapClient = new NetToolsCertDirectoryService(serverUrl, sb);
       break;
     default:
-      if (log.isDebugEnabled()) {
-	log.debug("Client: Unknown directory service type: " + serverType);
+      if (log.isWarnEnabled()) {
+	log.warn("Client: Unknown directory service type: " + serverType);
       }
     }
     return ldapClient;

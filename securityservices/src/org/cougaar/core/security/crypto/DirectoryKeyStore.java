@@ -2858,18 +2858,21 @@ public class DirectoryKeyStore
    * Check whether the certificate comes from the local CA
    */
   public CertDirectoryServiceClient getCertDirectoryServiceClient(String cname) {
+    String cdUrl = null;
     try {
-      if (cname.equals(NodeInfo.getNodeName()) || cname.equals(getHostName()))
+      if (cname.equals(NodeInfo.getNodeName()) || cname.equals(getHostName())) {
         return certificateFinder;
+      }
 
-      if (namingSrv == null)
+      if (namingSrv == null) {
         namingSrv = (NamingService)
           param.serviceBroker.getService(this,
-                                   NamingService.class,
-                                   null);
-      if (namingSrv == null)
+					 NamingService.class,
+					 null);
+      }
+      if (namingSrv == null) {
         return certificateFinder;
-
+      }
         /*
       InitialDirContext ctx = namingSrv.getRootContext();
       String key = NameSupport.AGENT_DIR + NS.DirSeparator + cname;
@@ -2877,21 +2880,28 @@ public class DirectoryKeyStore
       DirContext ctx = ensureCertContext();
       String key = cname.toLowerCase();
       BasicAttributes attrib = (BasicAttributes)ctx.getAttributes(key);
-      if (log.isDebugEnabled())
+      if (log.isDebugEnabled()) {
         log.debug("getCertDirectoryServiceClient: " + cname + " attrib: "
           + attrib);
+      }
       if (attrib != null) {
         Integer cdType = (Integer)getAttribute(attrib, CDTYPE_ATTR);
-        String cdUrl = (String)getAttribute(attrib, CDURL_ATTR);
-        if (cdType != null && cdUrl != null)
-          return CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
+        cdUrl = (String)getAttribute(attrib, CDURL_ATTR);
+        if (cdType != null && cdUrl != null) {
+	  CertDirectoryServiceClient cdsc = CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
             cdType.intValue(), cdUrl, param.serviceBroker);
+          return cdsc;
+	}
       }
     } catch (Exception nx) {
       if (!(nx instanceof NamingException)) {
-        if (log.isDebugEnabled())
-          log.debug("Cannot get certificate information from naming server: "
-            + nx.toString());
+        if (log.isWarnEnabled())
+          log.warn("Cannot get LDAP lookup service at " + cdUrl + ". Reason:"
+		   + nx.toString(), nx);
+      }
+      else {
+	// We are trying to lookup an agent's certificate, but the agent
+	// hasn't registered yet in the naming service.
       }
     }
     // default
