@@ -71,9 +71,6 @@ public final class GuardFactory
   public void init() {
     String dmId = System.getProperty(SMD_PROP);
   
-    // figure out the name
-    String name = "nodeNameHack";
-
     serviceBroker.addServiceListener(new ServiceAvailableListener() {
         public void serviceAvailable(ServiceAvailableEvent ae) {
           Class sc = ae.getService();
@@ -95,10 +92,10 @@ public final class GuardFactory
 	PolicyBootstrapperService pbs = (PolicyBootstrapperService)
 	  serviceBroker.getService(this, PolicyBootstrapperService.class, null);
 
-	guard = new NodeGuard(name, name, dmId, pbs);
+	guard = new NodeGuard(dmId, serviceBroker);
         
         System.out.println("Initializing Guard.");
-	boolean isInitialized = ((NodeGuard)guard).initialize();
+	boolean isInitialized = false; // ((NodeGuard)guard).initialize(dmId, );
 	System.out.println("Guard initialization status: " + isInitialized);
       } catch (Exception e) {
         System.err.println("ERROR!: while loading NodeGuard: " + e);
