@@ -152,7 +152,8 @@ $repeatingErrors = [
 # Errors that are so bad that we don't want to miss them
 #
 $fatalErrors = [
-   /SuicideService/
+   /SuicideService/,
+   /permission denied/i
 ]
 
 
@@ -223,13 +224,14 @@ def checkLogs(path)
             if isFatal(logmsg) then
               fatals.push(logmsg)
             end
-            if allowRepeats(logmsg, repeats) then
+            if ! allowRepeats(logmsg, repeats) then
               puts "\t#{logmsg}"
             end
           end
         end
       end
     end
+    documentRepeats(repeats)
   end
   if !fatals.empty? then
     puts "==================================================="
@@ -298,15 +300,21 @@ def allowRepeats(logmsg, repeats)
     if regexp.match(logmsg) then
       repeatSpec[1] -= 1
       if remaining > 0 then
+        return false
+      else
         return true
-      elsif remaining == 0 then
-        puts("\t*****")
-        puts("\tMore instances of pattern #{regexp}")
-        puts("\t*****")
-        return false
-      else 
-        return false
       end
+    end
+  end
+end
+
+def documentRepeats(repeats)
+  repeats.each do |repeatSpec|
+    regexp = repeatSpec[0]
+    count  = 1 - repeatSpec[1]
+    if (count >= 1) then
+      puts("\t*****")
+      puts("\t#{count} more instances of pattern #{regexp.source}")
     end
   end
 end
