@@ -218,7 +218,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       capabilitiesChanged=true;
        Collection  capabilitiesobj_col=capabilitiesobject.getChangedCollection();
       if( capabilitiesobj_col.isEmpty()) {
-	loggingService.error(" Changed collection is empty though capabilitiesobject.hasChanged returned true ");
+	loggingService.info(" Changed collection is empty though capabilitiesobject.hasChanged returned true ");
 	return ;
       }
       ArrayList list=new ArrayList(capabilitiesobj_col);

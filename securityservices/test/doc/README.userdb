@@ -143,3 +143,125 @@ plugin = org.cougaar.core.security.certauthority.CaServletComponent(org.cougaar.
    to those users. Once you have done so, you can assign policy to servlets
    using your domain manager (or modifying the BootPolicy.ldm.xml) to force
    users to login to particular agents or URLs.
+
+
+Full 1AD society
+================
+
+Roles
+-----
+SocietyAdmin        Able to view modify society layout
+ Users
+   mbarger
+   rkilmer
+ Servlets
+   */move
+   */load
+   */topology
+
+Logistician         Able to view and modify plans, tasks, and use the GLS applet
+ Users
+   george
+   mbarger
+ Servlets
+   NCA/glsinit
+   NCA/glsreply
+   NCA/editOplan
+   AGG-Agent/aggregator
+   AGG-Agent/aggregatorkeepalive
+   */datagatherer
+   */log_inventory
+   */hierarchy
+
+RoverManager        Control and Modification of Rovers
+ Users
+   mbarger
+   saul
+ Servlets
+   */Rover/ui
+
+PolicyAdministrator Can modify and distribute policy with KPAT
+ Users
+   james
+   mbarger
+   kpat
+ Servlets
+   */policyAdmin    requireSSL=true, Client Certificate
+
+UserManager         Manages Users and Roles
+ Users
+   amarinea
+   mbarger
+   george
+ Servlets
+   */useradmin
+
+LogisticsViewer     Able to view logistics data in a society
+ Users
+   mbarger
+   gordon
+   al-inventory
+   datagrabber
+   stoplight
+ Servlets
+   AGG-Agent/aggregator
+   AGG-Agent/aggregatorkeepalive
+   */datagatherer
+   */log_inventory
+   */hierarchy
+
+Rover               Allows rover to insert code and communicate directly with other rovers
+ Users
+   mbarger
+ Servlets
+   */Rover/messageChallenge
+
+MonitorManager
+ Users 
+   amarinea
+   mbarger
+ Servlets
+   UMmrmanager/*    requireSSL=false
+
+CAAdministrator
+ Users
+   sebastien
+   mbarger
+ Servlets
+   */CA/RevokeCertificateServlet
+   */CA/CreateCaKeyServlet
+   */CA/SubmitCaKeyServlet
+   */CA/ProcessPendingCertServlet
+   */CA/CaKeyManagement
+
+All users
+ Servlets
+   */CA/CertificateSigningRequest
+   */CA/BrowserSigningRequest
+
+   */CA/Index
+   */CA/Browser
+   */CA/Main
+   */CA/CertificateList
+   */CA/CertificateDetailsServlet
+   */CA/DownloadCertificateServlet
+   */CA/PendingCertificateServlet
+   */CA/PendingCertDetailsServlet
+   */CA/ListCaKeysServlet
+   */CA/ListSubordCaServlet
+
+Users
+-----
+rkilmer
+mbarger
+gordon
+george
+sebastien
+amarineau
+saul
+james
+stoplight
+inventory
+al-inventory
+datagrabber
+kpat

@@ -903,8 +903,8 @@ public class DirectoryKeyStore
 
   public void removeEntry(String commonName)
   {
-    if (log.isWarnEnabled()) {
-      log.warn("Removing entry from keystore:" + commonName);
+    if (log.isInfoEnabled()) {
+      log.info("Removing entry from keystore:" + commonName);
     }
 
     String alias = findAlias(commonName);
