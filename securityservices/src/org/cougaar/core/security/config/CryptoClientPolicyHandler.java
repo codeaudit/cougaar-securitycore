@@ -53,6 +53,7 @@ public class CryptoClientPolicyHandler
 
   private static final String KEYSTORE_FILE_ELEMENT          = "keystoreFileName";
   private static final String KEYSTORE_PASSWORD_ELEMENT      = "keystorePassword";
+  private static final String KEYSTORE_USE_SMART_CARD        = "keystoreUseSmartCard";
 
   // Trusted Ca attributes
   private static final String TRUSTED_CA_ELEMENT          = "trustedCA";
@@ -149,8 +150,10 @@ public class CryptoClientPolicyHandler
     if (localName.equals(KEYSTORE_PASSWORD_ELEMENT)) {
       cryptoClientPolicy.setKeystorePassword(getContents());
     }
-
-
+    if (localName.equals(KEYSTORE_USE_SMART_CARD)) {
+      cryptoClientPolicy.setUseSmartCard(true);
+    } // end of if (localName.equals(KEYSTORE_USE_SMART_CARD))
+    
     // trusted CA keystore
     if (localName.equals(CA_KEYSTORE_ELEMENT)) {
       cryptoClientPolicy.setTrustedCaKeystoreName(getContents());

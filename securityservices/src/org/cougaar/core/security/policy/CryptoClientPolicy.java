@@ -55,6 +55,11 @@ public class CryptoClientPolicy
    */
   private Vector trustedCAs;
 
+  /** Flag to indicate whether the smart card is to be used
+   * in conjunction with keystore.
+   */
+  private boolean useSmartCard = false;
+
   private CertificateAttributesPolicy certificateAttributesPolicy;
 
   public CryptoClientPolicy() {
@@ -75,6 +80,9 @@ public class CryptoClientPolicy
   }
   public String getKeystorePassword() {
     return keystorePassword;
+  }
+  public boolean getUseSmartCard() {
+    return useSmartCard;
   }
 
   public String getTrustedCaKeystoreName() {
@@ -106,6 +114,9 @@ public class CryptoClientPolicy
   }
   public void setKeystorePassword(String keystorePassword) {
     this.keystorePassword = keystorePassword;
+  }
+  public void setUseSmartCard(boolean flag) {
+    this.useSmartCard = flag;
   }
 
   public void setTrustedCaKeystoreName(String trustedCaKeystoreName) {

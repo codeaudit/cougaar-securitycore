@@ -81,6 +81,7 @@
         <!-- KAoS libraries -->
         <pathelement location="${cougaar.install.path}/lib/kaos.jar"/>
         <pathelement location="${cougaar.install.path}/lib/safe.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/jpcsc.jar"/>
     </path>
 
     <path id="securityservices.class.path">

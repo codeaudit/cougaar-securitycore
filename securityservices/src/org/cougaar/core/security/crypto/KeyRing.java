@@ -123,7 +123,20 @@ final public class KeyRing
       nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
       param.keystorePath = nodeConfiguration.getNodeDirectory()
 	+ cryptoClientPolicy.getKeystoreName();
-      param.keystorePassword = cryptoClientPolicy.getKeystorePassword().toCharArray();
+      log.debug("going to use smart card: " + cryptoClientPolicy.getUseSmartCard());
+      if (cryptoClientPolicy.getUseSmartCard()) {
+        try {
+          param.keystorePassword = 
+            SmartCardApplet.getKeystorePassword(cryptoClientPolicy.getKeystorePassword(),
+                                                log);
+          
+        } catch (RuntimeException e) {
+          log.error("Couldn't talk to the keystore");
+          throw e;
+        }
+      } else {
+        param.keystorePassword = cryptoClientPolicy.getKeystorePassword().toCharArray();
+      } // end of else
 
       File file = new File(param.keystorePath);
       if (!file.exists()){
