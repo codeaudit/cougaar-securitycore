@@ -26,19 +26,15 @@ fi
 
 LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrap.jar
 
-if [ "$1" = "" ]; then
-  echo startKPAT requires an argument  eg: startKPAT portnumber
-  exit;
-fi
-
-port=$1
+host=$1
+port=$2
 
 MYPROPERTIES="-Dorg.cougaar.bootstrap.Bootstrapper.loud=shout -Dorg.cougaar.system.path=$COUGAAR_INSTALL_PATH/sys -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Dorg.cougaar.core.servlet.enable=true -Dorg.cougaar.lib.web.scanRange=100 -Dorg.cougaar.lib.web.http.port=$port -Dorg.cougaar.lib.web.https.port=-1 -Dorg.cougaar.lib.web.https.clientAuth=true -Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar"
 
 MYMEMORY=""
 MYCLASSES="org.cougaar.bootstrap.Bootstrapper kaos.kpat.applet.KPATAppletMain"
-MYARGUMENTS="http://localhost:$port/\$EnclaveOnePolicyManagerServlet/policyAdmin true"
+MYARGUMENTS="http://$host:$port/\$EnclaveOnePolicyManagerServlet/policyAdmin true"
 
-echo java $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS $MYCLASSES $MYARGUMENTS $2 $3
-java $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS $MYCLASSES $MYARGUMENTS $2 $3
+echo java $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS $MYCLASSES $MYARGUMENTS
+java $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS $MYCLASSES $MYARGUMENTS
 
