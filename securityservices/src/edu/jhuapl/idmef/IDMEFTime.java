@@ -162,14 +162,14 @@ public class IDMEFTime implements XMLSerializable{
 
 	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
 	    sezr.serialize(document);
-	    System.out.println(buf.getBuffer());
+	    //System.out.println(buf.getBuffer());
 	      
 
 	    IDMEFTime new_t = new IDMEFTime(tNode);
 
-	    System.out.println("Test of Node constructor: " 
-			       + new_t.getNtpstamp()+ " " 
-			       + new_t.getidmefDate() );
+	    //System.out.println("Test of Node constructor: " 
+			//       + new_t.getNtpstamp()+ " " 
+			//       + new_t.getidmefDate() );
 
 
 	} catch (Exception e) {e.printStackTrace();}

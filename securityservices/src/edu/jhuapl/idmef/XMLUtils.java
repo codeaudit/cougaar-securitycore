@@ -61,7 +61,7 @@ public class XMLUtils{
             throw (new Exception("Missing or incorrect" +childName+ " tag"));
 	
         String childString =  XMLUtils.getAssociatedString(childNode);
-	System.out.println("In getSingleChildOfNode:" +childName+ " recognized as "+childString);
+	//System.out.println("In getSingleChildOfNode:" +childName+ " recognized as "+childString);
         if (childString == null)
             throw (new Exception("Missing or incorrect " +childName+ " string"));
         else
@@ -224,18 +224,18 @@ public class XMLUtils{
         // Must have one and only one string associted with it
         NodeList children = node.getChildNodes();
         if (children.getLength() > 1){
-	    System.out.println("XMLUtils: Node has more than one child");
+	    //System.out.println("XMLUtils: Node has more than one child");
             return null;
 	}
         Node firstChild = children.item(0);
         if (firstChild.getNodeType() != Node.TEXT_NODE){
-	    System.out.println("XMLUtils: Node is not a text node");
-  	    System.out.println("XMLUtils: Node = " + firstChild.getNodeName() + ", Parent Node = " + node.getNodeName() );
+	    //System.out.println("XMLUtils: Node is not a text node");
+  	    //System.out.println("XMLUtils: Node = " + firstChild.getNodeName() + ", Parent Node = " + node.getNodeName() );
             return null;
 	}
         String stringToReturn = firstChild.getNodeValue().trim();
         if (stringToReturn.equals("")){
-	    System.out.println("XMLUtils: Trimmed string is empty");
+	    //System.out.println("XMLUtils: Trimmed string is empty");
             return null;
 	}
         else
@@ -253,8 +253,8 @@ public class XMLUtils{
 
 	        XMLSerializer sezr = new XMLSerializer( buf , new OutputFormat( document, "UTF-8", true) );
 	        sezr.serialize( document );
-	        System.out.println( "XMLUtils: printDocument()....." );
-	        System.out.println( buf.getBuffer() );
+	        //System.out.println( "XMLUtils: printDocument()....." );
+	        //System.out.println( buf.getBuffer() );
 	    }
 	    catch( Exception e ){
 	        e.printStackTrace();
@@ -267,20 +267,20 @@ public class XMLUtils{
     public static void main (String args[]){
 	try {
 	    while(true){
-		System.out.println ("XMLUtils: Type a file to read in");
+		//System.out.println ("XMLUtils: Type a file to read in");
 		String testFile = FileUtils.getNextLine(System.in);
-		System.out.println ("XMLUtils: Opening: " +testFile);
+		//System.out.println ("XMLUtils: Opening: " +testFile);
 		FileReader in = new FileReader(testFile);
 		int next;
 		StringBuffer fileString = new StringBuffer();
 		while ((next = in.read()) != -1)
 		    fileString.append((char)next);
-		System.out.println ("XMLUtils: Converting " +testFile+" to XML Document");
+		//System.out.println ("XMLUtils: Converting " +testFile+" to XML Document");
 		Document doc = makeDocumentFromString(fileString.toString());
-		System.out.println ("XMLUtils: Done.");
-		System.out.println ("XMLUtils: Document is of type " + getDocumentType(doc));
-		System.out.println ("Converting XML Document back to string.");
-		System.out.println("XMLUtils: Done. String is:\n" + doc2String(doc));
+		//System.out.println ("XMLUtils: Done.");
+		//System.out.println ("XMLUtils: Document is of type " + getDocumentType(doc));
+		//System.out.println ("Converting XML Document back to string.");
+		//System.out.println("XMLUtils: Done. String is:\n" + doc2String(doc));
 	    }
         }
         catch(Exception e) {
@@ -299,51 +299,51 @@ public class XMLUtils{
         if (node == null) 
             return;
         NodeList children;
-        System.out.print("Node: " + node.getNodeName() + " ");
+        //System.out.print("Node: " + node.getNodeName() + " ");
         switch (node.getNodeType()) {
             case Node.DOCUMENT_NODE:
-              System.out.println("Document Node");
+              //System.out.println("Document Node");
               break;
        
             case Node.ELEMENT_NODE:
-              System.out.println("Element Node");
+              //System.out.println("Element Node");
               break;
       
             case Node.TEXT_NODE:
-              System.out.println("->"+node.getNodeValue().trim()+"<-");
+              //System.out.println("->"+node.getNodeValue().trim()+"<-");
               break;
       
             case Node.CDATA_SECTION_NODE:
-              System.out.println("CData Node");
+              //System.out.println("CData Node");
               break;
       
             case Node.PROCESSING_INSTRUCTION_NODE:
-              System.out.println("Proposing Instruction Node");
+              //System.out.println("Proposing Instruction Node");
                break;
 
             case Node.ENTITY_REFERENCE_NODE:
-              System.out.println("Entity Node");
+              //System.out.println("Entity Node");
               break;
 
             case Node.DOCUMENT_TYPE_NODE:
-              System.out.println("Document Node");
+              //System.out.println("Document Node");
               break;
               
             default:
         }
 
-        for (int j = 0; j<2 *ident; j++) 
-            System.out.print(" ");
-        System.out.println("It has the following Children");
+        //for (int j = 0; j<2 *ident; j++) 
+            //System.out.print(" ");
+        //System.out.println("It has the following Children");
         children = node.getChildNodes();
         if (children != null) {
             for (int i=0; i<children.getLength(); i++) {
                 for (int j = 0; j<ident; j++) 
-                    System.out.print(" ");
-                System.out.print ("Child " + ident + "."+ i + " = ");
+                    //System.out.print(" ");
+                //System.out.print ("Child " + ident + "."+ i + " = ");
                 printNodeType(children.item(i), ident + 1);
             }
-            System.out.println();
+            //System.out.println();
         }
     }
 	
@@ -351,47 +351,47 @@ public class XMLUtils{
     * @param node node to print type of
     * @param ident amount to indent*/
     public static void printNodeType(Node node, int ident) {
-        System.out.print("Node: " + node.getNodeName() + " ");
+        //System.out.print("Node: " + node.getNodeName() + " ");
         switch (node.getNodeType()) {
             case Node.DOCUMENT_NODE:
-                System.out.println("Document Node");
+                //System.out.println("Document Node");
                 break;
        
             case Node.ELEMENT_NODE:
-                System.out.println("Element Node");
-                for (int j = 0; j<2 *ident; j++)
-                    System.out.print(" ");
-                System.out.println("It has the following Children");
+                //System.out.println("Element Node");
+                //for (int j = 0; j<2 *ident; j++)
+                    //System.out.print(" ");
+                //System.out.println("It has the following Children");
                 NodeList children = node.getChildNodes();
                 if (children != null) {
                     for (int i=0; i<children.getLength(); i++) {
                         for (int j = 0; j<ident; j++)
-                            System.out.print(" ");
-                    System.out.print ("Child " + ident + "."+ i + " = ");
+                            //System.out.print(" ");
+                    //System.out.print ("Child " + ident + "."+ i + " = ");
                     printNodeType(children.item(i), ident + 1);
                     }
-                System.out.println();
+                //System.out.println();
                 }
                 break;
       
             case Node.TEXT_NODE:
-                System.out.println("->"+node.getNodeValue().trim()+"<-");
+                //System.out.println("->"+node.getNodeValue().trim()+"<-");
                 break;
       
             case Node.CDATA_SECTION_NODE:
-                System.out.println("CData Node");
+                //System.out.println("CData Node");
                 break;
       
             case Node.PROCESSING_INSTRUCTION_NODE:
-                System.out.println("Proposing Instruction Node");
+                //System.out.println("Proposing Instruction Node");
                 break;
 
             case Node.ENTITY_REFERENCE_NODE:
-                System.out.println("Entity Node");
+                //System.out.println("Entity Node");
                 break;
 
             case Node.DOCUMENT_TYPE_NODE:
-                System.out.println("Document Node");
+                //System.out.println("Document Node");
                 break;
                 
             default:

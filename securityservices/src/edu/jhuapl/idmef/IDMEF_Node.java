@@ -325,7 +325,7 @@ public class IDMEF_Node implements XMLSerializable{
 
       XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
       sezr.serialize(document);
-      System.out.println(buf.getBuffer());
+      //System.out.println(buf.getBuffer());
 
     } catch (Exception e) {e.printStackTrace();}
   }
