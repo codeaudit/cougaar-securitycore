@@ -61,9 +61,11 @@ public class DirectoryKeyStore implements Runnable
 {
   private KeyStore keystore = null;
   private char[] keystorePassword = null;
+  private String keystorePath = null;
 
   private KeyStore caKeystore = null;
   private char[] caKeystorePassword = null;
+  private String caKeystorePath = null;
 
   private String provider_url=null;
   private CertificateFinder certificatefinder=null;
@@ -71,41 +73,46 @@ public class DirectoryKeyStore implements Runnable
   private boolean debug = false;
   private HashMap m = new HashMap();
 
+  // A hash map to store the private keys
   private HashMap privateKeys = new HashMap(89);
+  // A hash map to store public keys
   private HashMap certs = new HashMap(89);
 
   private CAClient caClient = null;
 
-  public DirectoryKeyStore(String ldapURL, InputStream stream, char[] password,
-			   InputStream caStream, char[] caPassword) {
-    this(stream, password, caStream, caPassword);
+  public DirectoryKeyStore(String ldapURL,
+			   InputStream stream, char[] password, String storepath,
+			   InputStream caStream, char[] caPassword, String caStorepath) {
+    this(stream, password, storepath, caStream, caPassword, caStorepath);
     // LDAP certificate directory
     provider_url = ldapURL;
     certificatefinder = new CertificateFinder(provider_url);
   }
 
-  public DirectoryKeyStore(InputStream stream, char[] password,
-			   InputStream caStream, char[] caPassword) {
-    init(stream, password, caStream, caPassword);
+  public DirectoryKeyStore(InputStream stream, char[] password, String storepath,
+			   InputStream caStream, char[] caPassword, String caStorepath) {
+    init(stream, password, storepath, caStream, caPassword, caStorepath);
   }
 
   public void getPublicKey(String DN) {
   }
 
-  private void init(InputStream stream, char[] password,
-		    InputStream caStream, char[] caPassword) {
+  private void init(InputStream stream, char[] password, String storepath,
+		    InputStream caStream, char[] caPassword, String caStorepath) {
     try {
       debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						  "false"))).booleanValue();
 
       // Open Keystore
       keystorePassword = password;
+      keystorePath = storepath;
       keystore = KeyStore.getInstance(KeyStore.getDefaultType());
       keystore.load(stream, password);
 
       // Open CA keystore
       if (caStream != null) {
 	caKeystorePassword = caPassword;
+	caKeystorePath = caStorepath;
 	caKeystore = KeyStore.getInstance(KeyStore.getDefaultType());
 	try {
 	  caKeystore.load(caStream, caPassword);
@@ -155,16 +162,19 @@ public class DirectoryKeyStore implements Runnable
     }
     PrivateKey pk = null;
     try {
+      // First, try with the hash map (cache)
       pk = (PrivateKey) privateKeys.get(name);
       if (pk == null) {
+	// Then try with the key store file
 	pk = (PrivateKey) keystore.getKey(name, keystorePassword);
 	if (pk == null) {
 	  // Try with lower case.
 	  pk = (PrivateKey) keystore.getKey(name.toLowerCase(), keystorePassword);
 	  if (pk == null) {
-	    // Key was not found in keystore either
+	    // Key was not found in keystore either.
 	    if (debug) {
-	      System.out.println("No private key for " + name + " was found in keystore, generating...");
+	      System.out.println("No private key for " + name
+				 + " was found in keystore, generating...");
 	    }
 	    //let's make our own key pair
 	    pk = addKeyPair(name);
@@ -175,7 +185,7 @@ public class DirectoryKeyStore implements Runnable
 	}
       }
     } catch (Exception e) {
-      System.err.println("Failed to get PrivateKey for \""+name+"\": "+e);
+      System.err.println("Failed to get PrivateKey for \"" + name + "\": "+e);
       e.printStackTrace();
     }
     return pk;
@@ -201,14 +211,14 @@ public class DirectoryKeyStore implements Runnable
 
     CertificateStatus certstatus=null;
     try {
-      // First, look in local hash map.
+      // First, look in the local hash map.
       Object o = certs.get(name);
       if(o != null) {
 	certstatus = (CertificateStatus)o;
 	if(lookupLDAP == false &&
 	   certstatus.getCertificateOrigin() == CertificateStatus.CERT_LDAP) {
-	  // Client does not want certificates that have been retrieved from
-	  // the LDAP server.
+	  // The client is requesting to get certificates only from the keystore
+	  // (not those from the LDAP server.
 	}
 	else if(certstatus.isValid()) {
 	  cert = certstatus.getCertificate();
@@ -287,6 +297,7 @@ public class DirectoryKeyStore implements Runnable
         //make sure keystore is updated
         try{
 	  keystore.deleteEntry(alias);
+	  storeKeyStore();
 	  X509Certificate x = (X509Certificate)certificate;
 	  m.remove(x.getSubjectDN());
         } catch(Exception e) {
@@ -363,21 +374,23 @@ public class DirectoryKeyStore implements Runnable
     }
     if(certificateForImport != null) {
 	keystore.setKeyEntry(alias, privatekey, keystorePassword, certificateForImport);
+	storeKeyStore();
     }
-    
-      // Keystore to store key pairs
-      String installpath = System.getProperty("org.cougaar.install.path");
-      String defaultKeystorePath = installpath + File.separatorChar
-	+ "configs" + File.separatorChar + "common"
-	+ File.separatorChar + "keystore";
-      String ksPath = System.getProperty("org.cougaar.security.keystore",
-					 defaultKeystorePath);
-     try{
-         FileOutputStream out = new FileOutputStream(ksPath);
-         keystore.store(out, keystorePassword);
-     }catch(Exception e){
-         System.out.println("Error: can't flush the certificate to the keystore--"+e.getMessage());
-     }
+  }
+
+  /** Store the keystore in permanent storage. Should be called anytime
+      a key is modified, created or deleted. */
+  private void storeKeyStore()
+  {
+    try {
+      FileOutputStream out = new FileOutputStream(keystorePath);
+      keystore.store(out, keystorePassword);
+      out.flush();
+      out.close();
+    } catch(Exception e) {
+      System.out.println("Error: can't flush the certificate to the keystore--"
+			 + e.getMessage());
+    }
   }
 
   private Certificate[] establishCertChain(Certificate certificate,
@@ -482,14 +495,16 @@ public class DirectoryKeyStore implements Runnable
 	certificateReply[k].verify(publickey1);
       }
       catch(Exception exception) {
-	throw new CertificateException("Certificate chain in reply does not verify: " + exception.getMessage());
+	throw new CertificateException("Certificate chain in reply does not verify: "
+				       + exception.getMessage());
       }
     }
     return certificateReply;
   }
 
 
-  private boolean buildChain(X509Certificate x509certificate, Vector vector, Hashtable hashtable)
+  private boolean buildChain(X509Certificate x509certificate, Vector vector,
+			     Hashtable hashtable)
   {
     Principal principal = x509certificate.getSubjectDN();
     Principal principal1 = x509certificate.getIssuerDN();
@@ -584,7 +599,7 @@ public class DirectoryKeyStore implements Runnable
     return keyReply;
   }
 
-  /**add keys to the key ring**/
+  /** Add keys to the key ring **/
   private PrivateKey addKeyPair(String commonName){
     String request = "";
     String reply = "";
@@ -725,6 +740,7 @@ public class DirectoryKeyStore implements Runnable
     }
     return privatekey;
   }
+
   private MessageDigest createDigest(String algorithm, byte[] data)
     throws NoSuchAlgorithmException
   {
@@ -747,7 +763,6 @@ public class DirectoryKeyStore implements Runnable
     return buff.toString();
   }
 
-    
   public String makeKeyPair(String commonName)
     throws Exception 
   {
@@ -772,8 +787,8 @@ public class DirectoryKeyStore implements Runnable
   }
 
   public void doGenKeyPair(String alias, String dname,
-			    String keyAlgName, int keysize, String sigAlgName,
-			    int validity)
+			   String keyAlgName, int keysize, String sigAlgName,
+			   int validity)
     throws Exception
   {
     if(sigAlgName == null)
@@ -797,6 +812,6 @@ public class DirectoryKeyStore implements Runnable
     X509Certificate ax509certificate[] = new X509Certificate[1];
     ax509certificate[0] = certandkeygen.getSelfCertificate(x500name, validity * 24 * 60 * 60);
     keystore.setKeyEntry(alias, privatekey, keystorePassword, ax509certificate);
+    storeKeyStore();
   }
-
 }

@@ -42,6 +42,9 @@ import sun.security.util.ObjectIdentifier;
 
 import com.nai.security.policy.*;
 
+/** Helper class to read the cryptographic service configuration.
+ * 
+ */
 public class ConfParser {
 
   private String configFile = null;

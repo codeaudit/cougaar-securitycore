@@ -97,8 +97,8 @@ final public class KeyRing {
 					       "ldap://localhost");
 
       keystore = new DirectoryKeyStore(provider_url,
-				       kss, ksPass.toCharArray(),
-				       cakss, caksPass.toCharArray());
+				       kss, ksPass.toCharArray(), ksPath,
+				       cakss, caksPass.toCharArray(), caksPath);
       kss.close();
       cakss.close();
 

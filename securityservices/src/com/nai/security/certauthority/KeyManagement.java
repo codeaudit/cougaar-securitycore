@@ -127,7 +127,8 @@ public class KeyManagement
       }
 
       FileInputStream f = new FileInputStream(keystoreFile);
-      caKeyStore = new DirectoryKeyStore(f, caPolicy.keyStorePassword.toCharArray(), null, null);
+      caKeyStore = new DirectoryKeyStore(f, caPolicy.keyStorePassword.toCharArray(),
+					 keystoreFile, null, null, null);
 
       certificateDirectory = new LDAPCert(caPolicy.ldapURL);
     }
