@@ -36,7 +36,7 @@ import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.CertificateRevokedException;
 import org.cougaar.core.security.crypto.CertificateNotTrustedException;
-import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 
 public class CertificateEntry
   implements Serializable
@@ -57,6 +57,12 @@ public class CertificateEntry
   /** The type of the certificate: end entity or trusted certificate
       authority */
   private CertificateType _certificateType=null;
+
+  /** The trust status of this certificate.
+   * When a key pair has been generated but not submitted to a CA yet,
+   * the certificate cannot be used because other parties will not trust
+   * the certificate. */
+  private CertificateTrust _certificateTrust;
 
   public CertificateEntry(X509Certificate cert,
 			  CertificateRevocationStatus status,

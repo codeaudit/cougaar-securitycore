@@ -46,6 +46,7 @@ import org.cougaar.core.component.ServiceRevokedEvent;
 
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.CertificateType;
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.util.CrlUtility;
@@ -53,8 +54,9 @@ import org.cougaar.core.security.services.ldap.MultipleEntryException;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-import org.cougaar.core.security.services.ldap.CertificateRevocationStatus;
+
 import org.cougaar.core.security.services.ldap.LdapEntry;
+
 import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
 import org.cougaar.core.security.policy.CaPolicy;
@@ -191,49 +193,49 @@ public class OpenLdapCertDirectoryServiceImpl
   /** returns certificate associated with the attributes
    */
   public  X509Certificate getCertificate(Attributes attributes) throws CertificateException, NamingException
-  {
+    {
 
-    X509Certificate certificate = null;
-    CertificateFactory cf = CertificateFactory.getInstance("X.509");
-    ByteArrayInputStream bais=null ;
-    boolean isCA=isCAEntry(attributes);
-    Attribute objectclassattribute=null;
+      X509Certificate certificate = null;
+      CertificateFactory cf = CertificateFactory.getInstance("X.509");
+      ByteArrayInputStream bais=null ;
+      boolean isCA=isCAEntry(attributes);
+      Attribute objectclassattribute=null;
 
-    if(isCA) {
-      objectclassattribute=attributes.get(CACERTIFICATE_ATTRIBUTE);
-      byte []cacert=(byte [])objectclassattribute.get();
-      bais = new ByteArrayInputStream(cacert);
-    }
-    else {
-      objectclassattribute=attributes.get(USERCERTIFICATE_ATTRIBUTE);
-      byte []usercert=(byte [])objectclassattribute.get();
-      bais = new ByteArrayInputStream(usercert);
-
-    }
-
-    Collection certs =cf.generateCertificates(bais);
-    Iterator i = certs.iterator();
-    if (i.hasNext()) {
-      certificate = (X509Certificate) i.next();
-    }
-
-    return certificate;
-
-  }
-  public  boolean isCAEntry(Attributes attributes)throws NamingException
-  {
-    Attribute objectattribute=attributes.get("objectclass");
-    boolean isca=false;
-    NamingEnumeration namingenum=objectattribute.getAll();
-    while(namingenum.hasMore()){
-      String value=(String)namingenum.next();
-      if(value.equalsIgnoreCase(OBJECTCLASS_CERTIFICATIONAUTHORITY))  {
-	isca=true;
-	return isca;
+      if(isCA) {
+        objectclassattribute=attributes.get(CACERTIFICATE_ATTRIBUTE);
+        byte []cacert=(byte [])objectclassattribute.get();
+        bais = new ByteArrayInputStream(cacert);
       }
+      else {
+        objectclassattribute=attributes.get(USERCERTIFICATE_ATTRIBUTE);
+        byte []usercert=(byte [])objectclassattribute.get();
+        bais = new ByteArrayInputStream(usercert);
+
+      }
+
+      Collection certs =cf.generateCertificates(bais);
+      Iterator i = certs.iterator();
+      if (i.hasNext()) {
+        certificate = (X509Certificate) i.next();
+      }
+
+      return certificate;
+
     }
-    return isca;
-  }
+  public  boolean isCAEntry(Attributes attributes)throws NamingException
+    {
+      Attribute objectattribute=attributes.get("objectclass");
+      boolean isca=false;
+      NamingEnumeration namingenum=objectattribute.getAll();
+      while(namingenum.hasMore()){
+        String value=(String)namingenum.next();
+        if(value.equalsIgnoreCase(OBJECTCLASS_CERTIFICATIONAUTHORITY))  {
+          isca=true;
+          return isca;
+        }
+      }
+      return isca;
+    }
 
   /** Returns the CRL for the give CA certificate */
   private X509CRL getCRL(Attributes attributes) throws CRLException , NamingException, CertificateException {
@@ -307,40 +309,40 @@ public class OpenLdapCertDirectoryServiceImpl
   }
 
   public X509CRL getCRL(String distingushName)
-  {
-    log.debug("Get CRl called  " );
-    X509CRL crl=null;
-    StringBuffer  filter=new StringBuffer();
-    String searchfilter= parseDN(distingushName);
-    filter.append(searchfilter);
-    NamingEnumeration namingenum= internalSearchWithFilter(filter.toString());
-    SearchResult  result=null;
-    try {
-      if(namingenum!=null) {
-	 log.debug("Get CRl serch result is not null  " );
-	if(namingenum.hasMore()) {
-	  result=(SearchResult)namingenum.next();
-	}
+    {
+      log.debug("Get CRl called  " );
+      X509CRL crl=null;
+      StringBuffer  filter=new StringBuffer();
+      String searchfilter= parseDN(distingushName);
+      filter.append(searchfilter);
+      NamingEnumeration namingenum= internalSearchWithFilter(filter.toString());
+      SearchResult  result=null;
+      try {
+        if(namingenum!=null) {
+          log.debug("Get CRl serch result is not null  " );
+          if(namingenum.hasMore()) {
+            result=(SearchResult)namingenum.next();
+          }
+        }
+        else {
+          log.debug("Returning Get CRl serch result -1 " );
+          return crl;
+        }
       }
-      else {
-	 log.debug("Returning Get CRl serch result -1 " );
-	return crl;
+      catch (NamingException nexp) {
+        if(log.isWarnEnabled()) {
+          log.warn("Could not find CRL entry with filter:"+ filter.toString() + ". Reason: " + nexp);
+        }
+        log.debug("Returning Get CRl serch result -2 " );
+        return null;
       }
-    }
-    catch (NamingException nexp) {
-      if(log.isWarnEnabled()) {
-	log.warn("Could not find CRL entry with filter:"+ filter.toString() + ". Reason: " + nexp);
+      if(result!=null) {
+        crl= getCRL(result);
       }
-      log.debug("Returning Get CRl serch result -2 " );
-      return null;
+      log.debug("Returning Get CRl serch result -3 " );
+      return crl;
+      //return new Hashtable();
     }
-    if(result!=null) {
-      crl= getCRL(result);
-    }
-    log.debug("Returning Get CRl serch result -3 " );
-    return crl;
-    //return new Hashtable();
-  }
 
   /********************************************************************************
    * CertDirectoryServiceCA interface. */
@@ -364,7 +366,7 @@ public class OpenLdapCertDirectoryServiceImpl
 
       // Set unique identifier
       String dn = "uniqueIdentifier=" + CertificateUtility.getUniqueIdentifier(cert);
-	//getDigestAlgorithm(cert) + "-" + getHashValue(cert);
+      //getDigestAlgorithm(cert) + "-" + getHashValue(cert);
       //String dn =  "cn=" + getHashValue(cert);
 
       /* String pem_cert = null;
@@ -382,7 +384,7 @@ public class OpenLdapCertDirectoryServiceImpl
       }
       if (log.isInfoEnabled()) {
 	log.info("Successfully published certificate in LDAP: " + dnname
-	  + " URL: " + getDirectoryServiceURL());
+                 + " URL: " + getDirectoryServiceURL());
       }
       /* }
 	 else {
@@ -398,7 +400,7 @@ public class OpenLdapCertDirectoryServiceImpl
     catch(javax.naming.NamingException ex) {
       if(log.isWarnEnabled()) {
 	log.warn("Unable to publish certificate: " + dnname
-	  + " - Reason: " + ex.toString(), ex);
+                 + " - Reason: " + ex.toString(), ex);
       }
       throw ex;
     }
@@ -494,14 +496,14 @@ public class OpenLdapCertDirectoryServiceImpl
 				   PrivateKey caprivatekey,
 				   String crlsignalg)
     throws NoSuchAlgorithmException,
-	   InvalidKeyException,
-	   CertificateException,
-	   CRLException,
-	   NoSuchProviderException,
-	   SignatureException,
-	   MultipleEntryException,
-	   IOException,
-	   NamingException  {
+    InvalidKeyException,
+    CertificateException,
+    CRLException,
+    NoSuchProviderException,
+    SignatureException,
+    MultipleEntryException,
+    IOException,
+    NamingException  {
 
     if(log.isDebugEnabled()) {
       log.debug(" Binding name for ca : :"+caBindingName);
@@ -567,25 +569,25 @@ public class OpenLdapCertDirectoryServiceImpl
   /** Build a search filter for LDAP based on the distinguished name
    */
   private String parseDN(String aDN)
-  {
-    String filter = "(&";
+    {
+      String filter = "(&";
 
-    StringTokenizer parser = new StringTokenizer(aDN, ",=");
-    while(parser.hasMoreElements()) {
-      String tok1 = parser.nextToken().trim().toLowerCase();
-      String tok2 = parser.nextToken();
-      if (tok1.equalsIgnoreCase("t")) {
-	// Issue: OpenLdap does not recognize "t".
-	tok1 = "title";
+      StringTokenizer parser = new StringTokenizer(aDN, ",=");
+      while(parser.hasMoreElements()) {
+        String tok1 = parser.nextToken().trim().toLowerCase();
+        String tok2 = parser.nextToken();
+        if (tok1.equalsIgnoreCase("t")) {
+          // Issue: OpenLdap does not recognize "t".
+          tok1 = "title";
+        }
+        filter = filter + "(" + tok1 + "=" + tok2 + ")";
       }
-      filter = filter + "(" + tok1 + "=" + tok2 + ")";
+      filter = filter + ")";
+      if (log.isDebugEnabled()) {
+        log.debug("Search filter is " + filter);
+      }
+      return filter;
     }
-    filter = filter + ")";
-    if (log.isDebugEnabled()) {
-      log.debug("Search filter is " + filter);
-    }
-    return filter;
-  }
 
  
 
@@ -702,7 +704,7 @@ public class OpenLdapCertDirectoryServiceImpl
     set.put("serialNumber",
 	    cert.getSerialNumber().toString(16).toUpperCase());
   }
-   public String getLdapURL() {
+  public String getLdapURL() {
     return getDirectoryServiceURL();
   }
 
@@ -713,12 +715,12 @@ public class OpenLdapCertDirectoryServiceImpl
     StringBuffer  filter=new StringBuffer();
     String searchfilter= parseDN(dn);
     filter.append(searchfilter);
-     log.debug("internalSearchWithFilter called in getModifiedTimeStamp of open ldap ");
+    log.debug("internalSearchWithFilter called in getModifiedTimeStamp of open ldap ");
     NamingEnumeration namingenum= internalSearchWithFilter(filter.toString());
     SearchResult  result=null;
     try {
       if(namingenum!=null) {
-	 log.debug("internalSearchWithFilter returned a non null result ");
+        log.debug("internalSearchWithFilter returned a non null result ");
 	if(namingenum.hasMore()) {
 	  result=(SearchResult)namingenum.next();
 	}
@@ -735,7 +737,7 @@ public class OpenLdapCertDirectoryServiceImpl
     }
     if(result!=null) {
       Attributes attributes = result.getAttributes();
-     lastmodified = getLastModifiedTimeStamp(attributes);
+      lastmodified = getLastModifiedTimeStamp(attributes);
     }
     log.debug("getModifiedTimeStamp in open ldap is returning  ");
     return  lastmodified;
@@ -748,7 +750,7 @@ public class OpenLdapCertDirectoryServiceImpl
     objectclassattribute=attributes.get(MODIFIEDTIMESTAMP);
     String modifiedtime=null;
     try {
-     modifiedtime=(String)objectclassattribute.get();
+      modifiedtime=(String)objectclassattribute.get();
     }
     catch(NamingException nexp) {
       log.info(" cannot get last modified time stamp");

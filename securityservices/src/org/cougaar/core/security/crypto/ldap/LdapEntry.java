@@ -30,6 +30,8 @@ import java.io.Serializable;
 import java.security.PublicKey;
 import org.cougaar.core.security.crypto.CertificateType;
 
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
+
 /**
  * A bean which represent a certificate entry in the LDAP server.
  */
@@ -42,16 +44,16 @@ public class LdapEntry implements Serializable
 
   public LdapEntry(X509Certificate cert, String id,
 		   CertificateRevocationStatus status, CertificateType certtype) 
-  {
-    this.cert = cert;
-    this.uniqueIdentifier = id;
-    this.status = status;
-    this.type=certtype;
-  }
+    {
+      this.cert = cert;
+      this.uniqueIdentifier = id;
+      this.status = status;
+      this.type=certtype;
+    }
   
   /** 
-     * Public accessor method for retrieving the actual certificate.
-     */
+   * Public accessor method for retrieving the actual certificate.
+   */
   public X509Certificate getCertificate() { return cert; }
   
   /**
@@ -73,7 +75,7 @@ public class LdapEntry implements Serializable
   public void setStatus(CertificateRevocationStatus status) {
     this.status = status;
   }
-   /**
+  /**
    * Public accessor method for retrieving the certificate type,
    * certificate can be either CA certificate or entity certificate
    */

@@ -40,9 +40,10 @@ import org.cougaar.util.UnaryPredicate;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.CACertDirectoryService;
-import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
+
 import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.naming.CertificateEntry;
 
 public class CACertDirectoryServiceImpl
@@ -61,7 +62,7 @@ public class CACertDirectoryServiceImpl
     BlackboardService bbs = (BlackboardService)
       _serviceBroker.getService(this,
 			       BlackboardService.class,
-			       null);
+                                null);
     if(bbs==null) {
       if (_log.isDebugEnabled()) {
 	_log.debug("Adding service listner for blackboard service :");
@@ -236,7 +237,7 @@ public class CACertDirectoryServiceImpl
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
       if(org.cougaar.core.service.BlackboardService.class.isAssignableFrom(sc)) {
-	  _log.debug("BB Service is now available");
+        _log.debug("BB Service is now available");
 	if(_blackboardService==null){
 	  setBlackboardService();
 	}

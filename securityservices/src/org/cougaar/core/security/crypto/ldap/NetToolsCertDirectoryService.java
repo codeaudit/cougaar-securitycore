@@ -35,7 +35,7 @@ import org.cougaar.core.security.crypto.Base64;
 import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.LdapEntry;
-import org.cougaar.core.security.services.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 
 // Cougaar core services
