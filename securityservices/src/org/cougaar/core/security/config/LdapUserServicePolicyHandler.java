@@ -107,6 +107,8 @@ public class LdapUserServicePolicyHandler extends BaseConfigHandler {
       _policy.enableAttr = getContents();
     } else if (localName.equals("password-attr")) {
       _policy.passwordAttr = getContents();
+    } else if (localName.equals("cert-special-attr")) {
+      _policy.certOkAttr = getContents();
     }
   }
 }

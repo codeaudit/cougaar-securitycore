@@ -255,6 +255,23 @@ public class LdapUserServiceImpl implements LdapUserService {
     editUser(uid, mods);
   }
 
+  public void lockCertificate(String uid) throws NamingException {
+    ModificationItem mods[] = new ModificationItem[1];
+    mods[0] =
+      new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+                           new BasicAttribute(getCertOkAttribute(),"FALSE"));
+    editUser(uid, mods);  
+  }
+
+  public void unlockCertificate(String uid) throws NamingException {
+    ModificationItem mods[] = new ModificationItem[1];
+    mods[0] = 
+      new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+                           new BasicAttribute(getCertOkAttribute(),
+                                              "TRUE"));
+    editUser(uid, mods);  
+  }
+
   private static String toUTCString(long delayMillis) {
     Calendar time = Calendar.getInstance(GMT);
     time.add(time.MINUTE, (int) (delayMillis/60000));
@@ -603,6 +620,10 @@ public class LdapUserServiceImpl implements LdapUserService {
 
   public String getRoleIDAttribute() {
     return _policy.roleRDN;
+  }
+
+  public String getCertOkAttribute() {
+    return _policy.certOkAttr;
   }
 
   public class LdapUserServiceConfigurer 

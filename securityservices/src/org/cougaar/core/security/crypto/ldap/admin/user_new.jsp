@@ -140,6 +140,19 @@ function updateName() {
           <input type="button" value="Enable" onClick="enableUser();">&nbsp;
           <input type="button" value="Disable" onClick="disableUser();">
 <%
+        } else if (field == UserInterface.LDAP_USER_CERTOK) {
+          boolean certOk = false;
+          if (val != null) {
+            certOk = Boolean.valueOf(val.toString()).booleanValue();
+          }
+%>
+          <input type="radio" name="<%=field%>" value="TRUE" <%
+if (certOk) { out.print("CHECKED"); }
+%>>&nbsp;yes&nbsp;
+          <input type="radio" name="<%=field%>" value="FALSE" <%
+if (!certOk) { out.print("CHECKED"); }
+%>>&nbsp;no
+<%
         } else if ("sn".equals(field) || "givenName".equals(field)) {
 %>
           <input type="text" name="<%=field%>" value="<%=val%>" onChange="updateName()">

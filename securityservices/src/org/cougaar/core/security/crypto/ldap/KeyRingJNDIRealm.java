@@ -320,7 +320,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
         setLoginError(LF_USER_DOESNT_EXIST, user);
         return null; // user isn't in the database
       }
-      if (!userDisabled(attrs)) {
+      if (!userDisabled(attrs, true)) {
         return getPrincipal(attrs);
       } else {
         setLoginError(LF_USER_DISABLED, user);
@@ -502,7 +502,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       return false;
     }
 
-    if (userDisabled(attrs)) {
+    if (userDisabled(attrs, false)) {
       setLoginError(LF_USER_DISABLED, username);
       return false;
     }
@@ -541,9 +541,25 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   }
 
   /**
-   * Returns true if the user account has been disabled
+   * Returns true if the user account has been disabled. if the
+   * account password is disabled, but the certIsSpecial field
+   * in the user database is true, then the user is granted access
+   * when the certificate is used.
    */
-  private boolean userDisabled(Attributes attrs) throws NamingException {
+  private boolean userDisabled(Attributes attrs, boolean isCertAuth)
+    throws NamingException {
+    if (isCertAuth) {
+      Attribute attr = attrs.get(_userService.getCertOkAttribute());
+      if (attr != null) {
+        Object attrVal = attr.get();
+        if (attrVal != null) {
+          if (Boolean.valueOf(attrVal.toString()).booleanValue()) {
+            return false; // user is granted special certificate access
+          } 
+        } // end of if (attrVal != null)
+      } // end of if (attr != null)
+    } // end of if (isCertAuth)
+    
     Attribute attr = attrs.get(_userService.getEnableTimeAttribute());
     if (attr != null) {
       Object attrVal = attr.get();

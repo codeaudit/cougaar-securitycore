@@ -92,6 +92,8 @@ class UserInterface {
   public static final String LDAP_USER_ENABLE_TITLE      = "Enabled";
   public static final String LDAP_USER_AUTH              = "cougaarAuthReq";
   public static final String LDAP_USER_AUTH_TITLE        = "Auth Requirement";
+  public static final String LDAP_USER_CERTOK            = "certIsSpecial";
+  public static final String LDAP_USER_CERTOK_TITLE      = "Cert OK for Disabled Account";
   public static final String LDAP_USER_AUTH_VALS[][]     = {
     {"CERT",     "Certificate Only"},
     {"PASSWORD", "Password Only"},
@@ -111,6 +113,7 @@ class UserInterface {
   public static final String LDAP_USER_FIELDS[][] = {
     { LDAP_USER_UID,    LDAP_USER_UID_TITLE    },
     { LDAP_USER_ENABLE, LDAP_USER_ENABLE_TITLE },
+    { LDAP_USER_CERTOK, LDAP_USER_CERTOK_TITLE },
     { LDAP_USER_AUTH,   LDAP_USER_AUTH_TITLE   },
     { "givenName", "First Name" },
     { "sn", "Last Name" },

@@ -44,6 +44,12 @@ public interface LdapUserService
   public String getUserRoleAttribute();
 
   /**
+   * Returns the attribute used to determine whether the certificate
+   * is acceptable even when the password is disabled.
+   */
+  public String getCertOkAttribute();
+
+  /**
    * Returns the user attribute used to check whether certificates,
    * password, either, or both are required to login.
    * <p>

@@ -42,6 +42,7 @@ public class LdapUserServicePolicy extends SecurityPolicy {
   public String authAttr           = "cougaarAuthReq";
   public String enableAttr         = "cougaarAcctEnableTime";
   public String passwordAttr       = "userPassword";
+  public String certOkAttr         = "certIsSpecial";
   public String userObjectClass[]  = DEF_UOC;
   public String roleObjectClass[]  = DEF_ROC;
 
@@ -59,6 +60,7 @@ public class LdapUserServicePolicy extends SecurityPolicy {
                         enableAttr + "," +
                         authAttr + "," +
                         passwordAttr + "," +
+                        certOkAttr + "," +
                         roleAttr + ",[" );
     for (int i = 0; i < userObjectClass.length; i++) {
       if (i != 0) buf.append(',');
