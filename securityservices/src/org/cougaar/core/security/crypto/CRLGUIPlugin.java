@@ -47,6 +47,7 @@ import org.cougaar.core.component.ServiceRevokedEvent;
 
 // Cougaar Security Services
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.crypto.CRLCacheService;
 
 public class CRLGUIPlugin
   extends ComponentPlugin
@@ -64,6 +65,7 @@ public class CRLGUIPlugin
   private javax.swing.JLabel jTimerLabel;
   private String units=new String("Seconds");
 
+  private CRLCacheService crlCacheService=null;
   private KeyRingService keyRing = null;
 
   public CRLGUIPlugin()
@@ -77,6 +79,16 @@ public class CRLGUIPlugin
 	    public void serviceRevoked(ServiceRevokedEvent re) {
 	      if (KeyRingService.class.equals(re.getService()))
 		keyRing  = null;
+	    }
+	  });
+     crlCacheService = (CRLCacheService)
+      getServiceBroker().getService(
+	this,
+	CRLCacheService.class, 
+	new ServiceRevokedListener() {
+	    public void serviceRevoked(ServiceRevokedEvent re) {
+	      if (CRLCacheService.class.equals(re.getService()))
+		crlCacheService = null;
 	    }
 	  });
   }
@@ -216,7 +228,7 @@ public class CRLGUIPlugin
 			
 	sleep_time=sleeptime*1000L*60L*60L;
       }
-    keyRing.setSleeptime(sleep_time);
+    crlCacheService.setSleeptime(sleep_time);
   }
 
   private void jTimerComboBoxactionPerformed(java.awt.event.ActionEvent evt)
