@@ -65,7 +65,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
   private Hashtable trustTable = new Hashtable(20);
 
 
-  protected boolean debug = false;
+  protected boolean dbg = false;
 
     /** Creates new AccessControlPolicyServiceImpl */
   public AccessControlPolicyServiceImpl() {
@@ -77,7 +77,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 
     String db = System.getProperty("org.cougaar.message.transport.debug",
 				   "false");
-    debug = (db.equalsIgnoreCase("true") || (db.indexOf("security")>=0));
+    dbg = (db.equalsIgnoreCase("true") || (db.indexOf("security")>=0));
   }
 
   private void checkOrMakeProxy(String agent){
@@ -88,14 +88,14 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     if(app!=null){
       pp.add(app);
       proxies.add(agent);
-      if(debug) {
+      if(dbg) {
 	System.out.println("Making proxy for agent " + agent);
       }
     }
 
     //if we need to add proxy, there is a good chance we need a new certificate too
     //so check for it
-    if(debug) System.out.println("checking certs for agent " + agent);
+    if(dbg) System.out.println("checking certs for agent " + agent);
     KeyRing.checkOrMakeCert(agent);
 
     return;
@@ -108,7 +108,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     Object obj = h.get(key+":");
     if(obj==null) obj = h.get("DEFAULT:");
     if(obj==null) return null;
-    if(debug) System.out.println("Agent:"+agent+" got criticality:"+obj+" for "+key);
+    if(dbg) System.out.println("Agent:"+agent+" got criticality:"+obj+" for "+key);
 
     TrustSet ts = new TrustSet();
     ts.addAttribute(new TrustAttribute(MissionCriticality.name, obj));
@@ -119,7 +119,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     obj = h.get(key+":");
     if(obj==null) obj = h.get("DEFAULT:");
     if(obj==null) return ts;
-    if(debug) System.out.println("Agent:"+agent+" got integrity:"+obj+" for "+key);
+    if(dbg) System.out.println("Agent:"+agent+" got integrity:"+obj+" for "+key);
     ts.addAttribute(new TrustAttribute(IntegrityAttribute.name, obj));
 
     return ts;
@@ -133,7 +133,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     Object obj = h.get(":"+key);
     if(obj==null) obj = h.get(":DEFAULT");
     if(obj==null) return null;
-    if(debug) System.out.println("Agent:"+agent+" got criticality:"+obj+" for "+key);
+    if(dbg) System.out.println("Agent:"+agent+" got criticality:"+obj+" for "+key);
 
     TrustSet ts = new TrustSet();
     ts.addAttribute(new TrustAttribute(MissionCriticality.name, obj));
@@ -144,7 +144,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     obj = h.get(":"+key);
     if(obj==null) obj = h.get(":DEFAULT");
     if(obj==null) return ts;
-    if(debug) System.out.println("Agent:"+agent+" got integrity:"+obj+" for "+key);
+    if(dbg) System.out.println("Agent:"+agent+" got integrity:"+obj+" for "+key);
     ts.addAttribute(new TrustAttribute(IntegrityAttribute.name, obj));
 
     return ts;
@@ -156,7 +156,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     if(h==null) h = (HashMap)actions.get("DEFAULT");
     if(h==null) return null;
     String r = (String)h.get("Criticality"+level+":");
-    if(debug) System.out.println("Agent:"+agent+" got incoming action:"
+    if(dbg) System.out.println("Agent:"+agent+" got incoming action:"
 				 + r + " for level " + level);
     return r;
   }
@@ -167,7 +167,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     if(h==null) h = (HashMap)actions.get("DEFAULT");
     if(h==null) return null;
     String r = (String)h.get(":"+"Criticality"+level);
-    if(debug) {
+    if(dbg) {
       String s = "Agent:"+agent+" got outgoing action:" +
 	(r == null ? "No policy" : r) + " for level " + level;
       System.out.println(s);
@@ -181,12 +181,12 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     HashMap h = (HashMap)agentActions.get(target);
     if(h == null)h = (HashMap)agentActions.get("DEFAULT");
     if(h == null) {
-      if(debug)System.out.println("No inAgentAction found for " + target);
+      if(dbg)System.out.println("No inAgentAction found for " + target);
       return null;
     }
     String r = (String)h.get("In:" + target);
     if(r == null)r = (String)h.get("In:DEFAULT");
-    if(debug) System.out.println("Agent:"+ target + " got incoming agent action:"+ r +" for "+ source);
+    if(dbg) System.out.println("Agent:"+ target + " got incoming agent action:"+ r +" for "+ source);
     return r;
 
   }
@@ -197,7 +197,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     HashMap h = (HashMap)agentActions.get(source);
     if(h == null)h = (HashMap)agentActions.get("DEFAULT");
     if(h == null) {
-      if(debug)System.out.println("No outAgentAction found for " + source);
+      if(dbg)System.out.println("No outAgentAction found for " + source);
       return null;
     }
     if(false) {
@@ -209,7 +209,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     }
     String r = (String)h.get("Out:" + target);
     if(r == null)r = (String)h.get("Out:DEFAULT");
-    if(debug) System.out.println("Agent:"+ target +" got outgoing agent action:" + r +" for "+
+    if(dbg) System.out.println("Agent:"+ target +" got outgoing agent action:" + r +" for "+
 				 source);
     return r;
   }
@@ -221,12 +221,12 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
       HashMap h = (HashMap)verbs.get(target);
       if(h == null)h = (HashMap)verbs.get("DEFAULT");
       if(h == null) {
-	if(debug)System.out.println("No IN AgentAction found for " + target);
+	if(dbg)System.out.println("No IN AgentAction found for " + target);
 	return null;
       }
       Vector r = (Vector)h.get("In:" + target);
       if(r == null)r = (Vector)h.get("In:DEFAULT");
-      if(debug) {
+      if(dbg) {
 	System.out.print("Agent:"+ target +" got outgoing verbs ( ");
 	for(int i = 0; i < r.size(); i++)
 	  System.out.print(r.get(i).toString() + " ");
@@ -235,7 +235,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
       return r.toArray();
     }
     catch(Exception ex) {
-      if(debug){
+      if(dbg){
 	System.out.println("Warning: bad verb list!");
 	ex.printStackTrace();
       }
@@ -248,10 +248,10 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     HashMap h = (HashMap)verbs.get(source);
     if(h == null)h = (HashMap)verbs.get("DEFAULT");
     if(h == null) {
-      if(debug)System.out.println("No OUT AgentAction found for " + source);
+      if(dbg)System.out.println("No OUT AgentAction found for " + source);
       return null;
     }
-    if(debug) {
+    if(dbg) {
       Iterator keys = h.keySet().iterator();
       System.out.print("Keys for agent " + source + ": ");
       while(keys.hasNext())
@@ -260,7 +260,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     }
     Vector r = (Vector)h.get("Out:" + target);
     if(r == null)r = (Vector)h.get("Out:DEFAULT");
-    if(debug) {
+    if(dbg) {
       System.out.print("Agent:"+ target +" got outgoing verbs ( ");
       for(int i = 0; i < r.size(); i++)
 	System.out.print(r.get(i).toString() + ":"
@@ -285,9 +285,12 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     trustTable.put((Object)uid, (Object)trust);
   }
 
+  /** ***************************************************************************
+   *  AccessPolicyProxy
+   */
   private class AccessPolicyProxy extends GuardRegistration implements AgentEnforcer{
     private String agent;
-    private boolean debug=this.debug;
+    //private boolean debug=this.debug;
     public AccessPolicyProxy(String name) {
       super("org.cougaar.core.security.policy.AccessControlPolicy",
 	    "AccessControlPolicyService");
@@ -311,15 +314,25 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 				     String policyTargetID,
 				     String policyTargetName,
 				     String policyType) {
-      if(policy == null)return;
-      //whom is the policy for?
-      if((!policySubjectName.equals(agent)) && (!agent.equals("DEFAULT"))){
+      if(debug) System.out.println("--updating AccessPolicyProxy for:"
+				   + agent);
+
+      if(policy == null) {
 	if (debug) {
-	  System.out.println("policy not for:"+agent);
+	  System.out.println("AccessPolicyProxy: no policy");
 	}
 	return;
       }
-      if(debug) System.out.println("--updating AccessPolicyProxy for:"+ agent);
+      //whom is the policy for?
+      /*
+      if((!policySubjectName.equals(agent)) && (!agent.equals("DEFAULT"))) {
+	if (debug) {
+	  System.out.println("policy not for:"+agent
+			     + " - Should be for " + policySubjectName);
+	}
+	return;
+      }
+      */
 
       //for each RuleParameter
       RuleParameter[] ruleParameters = policy.getRuleParameters();
