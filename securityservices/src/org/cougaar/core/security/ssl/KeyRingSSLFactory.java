@@ -67,7 +67,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   }
 
   protected KeyRingSSLFactory(SSLContext ctx) {
-    _socketCache = new SSLSocketCache();
+//    _socketCache = new SSLSocketCache();
     _fact = ctx.getSocketFactory();
     _log = LoggerFactory.getInstance().createLogger(KeyRingSSLFactory.class);
   }
