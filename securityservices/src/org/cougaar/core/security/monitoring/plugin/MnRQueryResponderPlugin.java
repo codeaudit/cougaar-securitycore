@@ -116,7 +116,9 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
     if(queryResponse.hasChanged()) {
       Collection responseCollection;
       responseCollection=queryResponse.getChangedCollection();
-      processRemoteQueries(responseCollection);
+      if(!responseCollection.isEmpty()){
+        processRemoteQueries(responseCollection);
+      }
     }
 
   }
@@ -196,9 +198,13 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
             }
           }
         }// end of sub query list is null
+        /*
+          This condition will only happen when MnRQueryResponderPlugin AND pubbisher of MnRLookUp query reside on the same agent. 
+          It is not an error condition hence commenting out the log message 
         else{
-          loggingService.error("Response is null in processRemoteQueries :" +relay.getUID() );
+          loggingService.error(myAddress+ " Cannot find mapping object. It is ok as it is original query  :" +relay.getUID() );
         }
+        */
       }
     }// end while
   }
