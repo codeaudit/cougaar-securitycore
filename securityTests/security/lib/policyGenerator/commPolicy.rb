@@ -35,9 +35,9 @@ class CommPolicy
     @enclaveNodeHash       = Hash.new()
     @run                   = run
     @policyCounter         = 0
-    @allowMultiple         = []
-    @allowSingleSender     = Hash.new()
-    @allowSingleReceiver   = Hash.new()
+
+    @setHashMap            = Hash.new
+    @policies              = []
     @debug                 = false
   end
 
@@ -45,40 +45,37 @@ class CommPolicy
 #
 # Core methods
 #
-  def permit(senders, receivers)
-    if senders.length == 1 then
-      addAllowSingleSender(senders[0], receivers)
-    elsif receivers.length == 1 then
-      addAllowSingleReceiver(receivers[0], senders)
-    else
+  def declareSet(name, members)
+  {
+    if (@setHashMap.keys.include?(name)) then
+      raise "Set with name #{name} has already been declared"
+    end
+    @setHashMap[name] = members
+  }
+
+  def permit(senderSet, receiverSet, name, enclaves = getEnclaves())
       @policyCounter += 1
-      @allowMultiple.push([senders, receivers])
+      if @setHashMap(senderSet) == nil || @setHashMap(receiverSet) == nil
+        raise "Sender (#{senderSet}) or receiver (#{receiverSet}) set not declared"
+      end
+      @policies.push([senderSet, receiverSet, name, enclaves])
     end
   end
 
-  def permitSingle(sender, receiver)
-    if @allowSingleReceiver[receiver] != nil &&
-       @allowSingleReceiver[receiver].include?(sender) then
-      return
-    else 
-      addAllowSingleSender(sender, [receiver])
-    end
+  def policySenders(policy)
+    @setHashMap(policy[0])
   end
 
-  def addAllowSingleSender(sender, receivers)
-    if @allowSingleSender[sender] == nil then
-      @policyCounter += 1
-      @allowSingleSender[sender] = [] 
-    end
-    arrayAdd @allowSingleSender[sender], receivers
+  def policyReceivers(policy)
+    @setHashMap(policy[1])
   end
 
-  def addAllowSingleReceiver(receiver, senders)
-    if @allowSingleReceiver[receiver] == nil then
-      @policyCounter += 1
-      @allowSingleReceiver[receiver] = [] 
-    end
-    arrayAdd @allowSingleReceiver[receiver], senders
+  def policyName(policy)
+    policy[2]
+  end
+
+  def policyEnclaves(policy)
+    policy[3]
   end
 
   def arrayAdd(a1, a2)
@@ -95,34 +92,23 @@ class CommPolicy
   end
 
   def viewPolicy()
-    @allowMultiple.each do |p|
-      puts "Members of [#{p[0].join(', ')}] can talk to members " +
-            "of [#{p[1].join(', ')}]"
-    end
-    @allowSingleSender.each_key do |sender|
-      puts "#{sender} can talk to members " +
-            "of [#{@allowSingleSender[sender].join(', ')}]"
-    end
-    @allowSingleReceiver.each_key do |receiver|
-      puts "Members of [#{@allowSingleReceiver[receiver].join(', ')}]" +
-           " can talk to #{receiver}"
+    @policies.each do |policy|
+      puts "Policy #{policyName(policy)}"
+      puts "Members of #{policySenders(policy)} can talk to " + 
+           "members of #{policyReceivers(policy)}"
+      puts "Destined for enclaves [#{policyEnclaves(policy).join(", ")}]"
+      puts "#{policy[0]} = #{@setHashMap[policy[0]]}"
+      puts "#{policy[1]} = #{@setHashMap[policy[1]]}"
     end
     puts "#{@policyCounter} policies found"
   end
 
   def isMsgAllowed(sender, receiver)
-    @allowMultiple.each do |p|
-      if p[0].include?(sender) && p[1].include?(receiver) then
+    @policies.each do |policy|
+      if policySenders(policy).include?(sender) 
+            && policyReceivers(policy).include?(receiver) then
         return true
       end
-    end
-    if @allowSingleSender[sender] != nil && 
-        @allowSingleSender[sender].include?(receiver) then
-      return true
-    end
-    if @allowSingleReceiver[receiver] != nil &&
-        @allowSingleReceiver[receiver].include?(sender) then
-      return true
     end
     return false
   end
@@ -135,28 +121,23 @@ class CommPolicy
     debug "#{totalAgents} agents found"
 
     allowed = Hash.new()
-    @allowMultiple.each do |p|
-      p[0].each do |agent1|
-        p[1].each do |agent2|
+    @policies.each do |policy|
+      policySenders(policy).each do |agent1|
+        policyReceivers(policy).each do |agent2|
           addAllowed(allowed, agent1, agent2)
         end
       end
     end
-    debug "done with multiple to multiple policies"
-
-    @allowSingleSender.each_key do |sender|
-      @allowSingleSender[sender].each do |receiver|
-        addAllowed(allowed, sender, receiver)
-      end
-    end
-    debug "done with single sender to multiple receivers policies"
-
-    @allowSingleReceiver.each_key do |receiver|
-      @allowSingleReceiver[receiver].each do |sender|
-        addAllowed(allowed, sender, receiver)
-      end
-    end
     calcDensity(allowed, totalAgents)
+    @run.society.each_enclave do |enclave|
+      i = 0
+      @policies.each |policy|
+        if policyEnclaves(policy).include?(enclave) then
+          i += 1
+        end
+      end
+      puts "#{i} policies in enclave #{enclave}"
+    end
   end
 
   def addAllowed(allowed, agent1, agent2)
@@ -190,6 +171,14 @@ class CommPolicy
     debug("----------------------------------------------------")
   end
 
+  def getEnclaves()
+    enclaves = []
+    @run.society.each_enclave do |enclave|
+      enclaves.push(enclave)
+    end
+    enclaves
+  end
+
   def getEnclaveAgents(enclave)
     if (@enclaveHash[enclave] == nil) then
       agents = []
@@ -201,7 +190,6 @@ class CommPolicy
       @enclaveHash[enclave]
     end
   end
-
 
   def getEnclaveNodes(enclave)
     if (@enclaveNodeHash[enclave] == nil) then
@@ -240,6 +228,21 @@ class CommPolicy
     raise "Agent has no node"
   end
 
+  def enclaveNodesName(enclave)
+    "NodesIn#{enclave}"
+  end
+
+  def enclaveAgentsName(enclave)
+    "AgentsIn#{enclave}
+  end
+
+  def commonDecls()
+    @allAgentsName = "AllAgents"
+    @allNodesName  = "AllNodes"
+    declareSet(@allAgentsName, getAgents)
+    declareSet(@allNodesName, getNodes)
+  end
+
 
 #
 # methods supporting allowing various communication
@@ -252,8 +255,9 @@ class CommPolicy
     banner("Allow Name Service")
     nameServers = getNameServers()
     agents = getAgents()
-    permit(nameServers, agents)
-    permit(agents, nameServers)
+    declareSet("NameServers", nameservers)
+    permit("NameServers", @allAgentsName, "Allow Name Service - I")
+    permit(@allAgentsName, "NameServers", "Allow Name Service - II")
   end
 
   def getNameServers()
@@ -281,16 +285,24 @@ class CommPolicy
       debug "working on community #{community.name}"
       specialMembers = getSpecialCommunityAgentsRecursive(community)
       debug "special members = #{specialMembers.join(", ")}"
-      permit(getNodes(), specialMembers)
-      permit(specialMembers, getNodes())
+      specialSetName = "Special#{community.name}Members"
+      declareSet(specialSetName, specialMembers);
+      permit(@AllNodesName, specialSetName, 
+             "All nodes can talk to special community members - I",
+             getCommmunityEnclaves(commmunity))
+      permit(specialSetName, @AllNodesName,
+             "All nodes can talk to special community members - II",
+             getCommmunityEnclaves(commmunity))
 #      getCommunityEnclaves(community).each do |enclave|
 #        permit(getEnclaveNodes(enclave), specialMembers)
 #        permit(specialMembers, getEnclaveNodes(enclave))
 #      end
       members = getMembersRecursive(community)
+      membersName = "#{community.name}Members"
+      declareSet(membersName, members)
       debug "members = #{members.join(", ")}"
-      permit(members, specialMembers)
-      permit(specialMembers, members)
+      permit(membersName, specialSetName)
+      permit(specialSetName, membersName)
     end    
   end
 
@@ -540,8 +552,10 @@ class CommPolicy
       debug "superior = #{superior}"
       subordinates = directlyReportingAll(superior)
       debug "subordinates = #{subordinates.join(',')}"
-      permit([ superior ], subordinates)
-      permit(subordinates, [ superior ])
+      if (! subordinates.empty?) then
+        permit([ superior ], subordinates)
+        permit(subordinates, [ superior ])
+      end
     end
   end
 
@@ -552,37 +566,43 @@ class CommPolicy
     while (i < levelSets.size - 1) do
       permit(levelSets[i], levelSets[i+1])
       permit(levelSets[i+1], levelSets[i])
+      i += 1
     end  
   end
 
-  def calculateLevelSets(levelSets = [["OSD.GOV"]])
+  def calculateLevelSets()
+    levelSets = [["OSD.GOV"]]
     last = levelSets.size - 1
-    debug "last entry = #{last}"
-    found = []
-    i = 0
-    while (i < last) do  # really! - I am not including the last one
-      found += levelSets[i]
-      i += 1
-    end
-    debug "found = [#{found.join(", ")}]"
-    newLevelSet = []
-    levelSets[last].each do |superior|
-      debug "looking at superior #{superior}"
-      if found.include?(superior) then
-        debug "found loop at #{superior}"
-      else 
-        directlyReportingAll(superior).each do |subordinate|
-          if ! newLevelSet.include? subordinate then
-            newLevelSet.push(subordinate)
+    continue = true
+    while continue do
+      found = []
+      i = 0
+      while (i < last) do  # really! - I am not including the last one
+        found += levelSets[i]
+        i += 1
+      end
+      debug "found = [#{found.join(", ")}]"
+      newLevelSet = []
+      levelSets[last].each do |superior|
+        debug "looking at superior #{superior}"
+        if found.include?(superior) then
+          debug "found loop at #{superior}"
+        else 
+          directlyReportingAll(superior).each do |subordinate|
+            if ! newLevelSet.include? subordinate then
+              newLevelSet.push(subordinate)
+            end
           end
         end
       end
-    end
-    debug "newLevelSet = [#{newLevelSet.join(", ")}]"
-    debug "empty = #{newLevelSet.empty?}"
-    if ! newLevelSet.empty? then
-      levelSets += [ newLevelSet ]
-      levelSets = calculateLevelSets(levelSets)
+      debug "newLevelSet = [#{newLevelSet.join(", ")}]"
+      debug "empty = #{newLevelSet.empty?}"
+      if  newLevelSet.empty? then
+        continue = false
+      else
+        levelSets += [ newLevelSet ]
+        last = levelSets.size - 1
+      end
     end
     levelSets
   end
@@ -746,7 +766,7 @@ select distinct role from org_relation;
   def allowTalkToSelf()
     banner("Allow Agents to mumble")
     @run.society.each_agent do |agent|
-      permit(agent.name, agent.name)
+      permitSingle(agent.name, agent.name)
     end
   end
 

@@ -53,7 +53,7 @@ def installPolicies(p)
   tally(p, "community")
   p.allowSecurityManagement()
   tally(p, "Security")
-  p.allowSuperiorSubordinateLinear()
+  p.allowSuperiorSubordinate()
   tally(p, "Subordinates")
   p.allowInterMnR()
   tally(p, "Monitoring")
@@ -80,12 +80,10 @@ Cougaar.new_experiment("Test").run(1) do
 #      load 'debug.rb'
       installPolicies(p)
       puts "#{checkPolicy(run, p)} bad communication paths"
-#     load "debug.rb"
       puts "Density = #{100 * p.density}"
+#      load "debug.rb"
     rescue => ex
       puts "Exception found = #{ex}, trace = #{ex.backtrace().join("\n")}"
     end
   end
 end
-
-
