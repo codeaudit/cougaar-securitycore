@@ -1,6 +1,9 @@
 Keystore password:
 ------------------
 
+New in JDK 1.4:
+===============
+Unlimited strength jurisdiction files must be installed in the JRE
 
 Keystores containing certificates of trusted CAs
 ================================================
