@@ -628,8 +628,8 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       return;
     }
     
-    eventService.event("[STATUS] " + status + "(" +
-                       agentId.toAddress() +
+    eventService.event("[STATUS] " + status 
+                       + "(" + agentId +
                        ") Agent(" +
                        agent.toAddress() +
                        ") DN(" +
