@@ -44,8 +44,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -70,12 +70,18 @@ import java.util.logging.Logger;
 public class AuditLogger {
   private static Map loggers = new HashMap();
   private static boolean auditEnabled = false;
-  private static String auditLogDirectory = System.getProperty("org.cougaar.workspace") + File.separatorChar + "audit";
+  private static String auditLogDirectory = System.getProperty(
+      "org.cougaar.workspace") + File.separatorChar + "audit";
   private static Map roleMap = new HashMap();
   private static Map userMap = new HashMap();
-  private static org.cougaar.util.log.Logger auditLogger =
-  LoggerFactory.getInstance()
-    .createLogger(AuditLogger.class);
+  /** Size limit in bytes of a log file */
+  private static final int LIMIT = 1000000;
+  /** count Number of ouput files to cycle through */
+  private static final int COUNT = 5;
+  /** Whether to append to existing log files */
+  private static final boolean APPEND = false;
+  private static org.cougaar.util.log.Logger auditLogger = LoggerFactory.getInstance()
+                                                                        .createLogger(AuditLogger.class);
 
   /**
    * Check if auditing is enabled and find the auditlogs directory
@@ -86,7 +92,12 @@ public class AuditLogger {
       auditEnabled = true;
     }
 
-    auditLogger.debug("Configuring AuditLogger. Audit enabled: " + auditEnabled);
+    if (auditLogger.isDebugEnabled()) {
+      auditLogger.debug("Configuring AuditLogger. Audit enabled: "
+        + auditEnabled);
+    }
+
+
     if (auditEnabled) {
       str = System.getProperty("org.cougaar.core.security.audit.outputdir");
       if (str != null) {
@@ -97,6 +108,7 @@ public class AuditLogger {
           if (auditLogger.isWarnEnabled()) {
             auditLogger.warn("org.cougaar.workspace not specified");
           }
+
           auditLogDirectory = "";
         } else {
           auditLogDirectory = str + File.separator + "auditlogs"
@@ -134,6 +146,7 @@ public class AuditLogger {
           }
         }
       }
+
       if (auditLogger.isInfoEnabled()) {
         auditLogger.info("Audit logs stored in directory:" + auditLogDirectory);
       }
@@ -155,13 +168,15 @@ public class AuditLogger {
     if (!auditEnabled) {
       return;
     }
+
     Logger logger = Logger.getLogger(resource);
     FileHandler serviceFileHandler = null;
 
     try {
-      String fileName = "Logging-" + System.getProperty("org.cougaar.node.name") + ".txt";
+      String fileName = "Logging-"
+        + System.getProperty("org.cougaar.node.name") + ".txt";
       serviceFileHandler = new FileHandler(auditLogDirectory + resource
-          + fileName);
+          + fileName, LIMIT, COUNT, APPEND);
       serviceFileHandler.setFormatter(new ServiceAuditXMLFormatter());
 
     } catch (SecurityException e) {
@@ -173,6 +188,7 @@ public class AuditLogger {
     if (serviceFileHandler != null) {
       logger.addHandler(serviceFileHandler);
     }
+
     logger.setUseParentHandlers(false);
     logger.setLevel(Level.ALL);
     auditLogger.info(resource + " initialized");
@@ -187,11 +203,14 @@ public class AuditLogger {
     if (!auditEnabled) {
       return;
     }
+
     Logger logger = Logger.getLogger("WebLogger");
     FileHandler webFileHandler = null;
     try {
-      String fileName = "WebLog-" + System.getProperty("org.cougaar.node.name") + ".txt";
-      webFileHandler = new FileHandler(auditLogDirectory + fileName);
+      String fileName = "WebLog-" + System.getProperty("org.cougaar.node.name")
+        + ".txt";
+      webFileHandler = new FileHandler(auditLogDirectory + fileName, LIMIT,
+          COUNT, APPEND);
       webFileHandler.setFormatter(new WebAuditXMLFormatter());
     } catch (SecurityException e) {
       auditLogger.warn("WebLogger" + e.getLocalizedMessage(), e);
@@ -245,6 +264,7 @@ public class AuditLogger {
     if (!auditEnabled) {
       return;
     }
+
     if (loggers.get("WebLogger") == null) {
       createWebLogger();
     }
