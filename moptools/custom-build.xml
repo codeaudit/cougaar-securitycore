@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="Cougaar security utils custom build">
+
+    <!-- ********************************************************************************
+         * Custom build below
+         ******************************************************************************** -->
+    <path id="core.class.path">
+        <!-- Cougaar packages -->
+        <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/log4j.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/core.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/planning.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/util.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/glm.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/servicediscovery.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/aggagent.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/community.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
+        <pathelement location="${securityservices.base}/lib/security/secure_util.jar"/>
+        <pathelement location="${securityservices.base}/lib/security/securityservices.jar"/>
+        <pathelement location="${securityservices.base}/lib/security/idmef.jar"/>
+        <pathelement location="${securityservices.base}/lib/security/secure_monitoring.jar"/>
+    </path>
+
+    <target name="install-reporting">
+      <mkdir dir="${securityservices.staging}/csmart/acme_service/src/plugins/acme_security_reporting"/>
+      <copy
+         todir="${securityservices.staging}/csmart/acme_service/src/plugins/acme_security_reporting">
+        <fileset dir="csmart/plugins/acme_security_reporting"/>
+      </copy>
+      <mkdir dir="${securityservices.staging}/csmart/lib/security/actions"/>
+      <copy file="csmart/plugins/acme_security_reporting/resultParser.rb"
+            todir="${securityservices.staging}/csmart/lib/security/actions"/>
+    </target>
+
+    <target name="custom-install-conf" id="custom.install" depends="install-reporting">
+    </target>
+
+</project>
