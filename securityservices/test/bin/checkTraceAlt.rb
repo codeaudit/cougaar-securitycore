@@ -76,7 +76,7 @@ $okMessages= [
   # In this specific circumstance, this is ok because RMI over SSL was used.
   [$startupDelay, /Could not use protection level: SecureMethodParam: PLAIN null /],
   # Ignorable KAoS warning
-  [$startupDelay, /Guard is already set/],
+  [nil, /Guard is already set/],
   # A node is trying to communicate with the CA in order to submit a certificate
   # signing request (CSR). The CSR is submitted through https.
   # However, the SSL server-side certificate is not valid yet, most likely because it
@@ -137,7 +137,7 @@ $okMessages= [
   [nil, /OldIncarnationAspect/],
 ]
 
- @repeatingErrors = [
+$repeatingErrors = [
    /DeliveryVerificationAspect/,
    /MessageTimeoutAspect/,
    /Failure in communication/,
@@ -148,6 +148,14 @@ $okMessages= [
    /KeyRing.*Missing certificate for.*adding it to request/,
    /RogueThreadScheduler/,
 ]
+
+#
+# Errors that are so bad that we don't want to miss them
+#
+$fatalErrors = [
+   /SuicideService/
+]
+
 
 
 ######################################################################
@@ -193,6 +201,7 @@ end
 
 
 def checkLogs(path)
+  fatals = []
   Dir.glob(File.join(path, "*.log")).each do |file|
     repeats = copyRepeats
     File.open(file) do |fd|
@@ -212,12 +221,24 @@ def checkLogs(path)
               nobadlogs = false
               banner(startTime, file)
             end
+            if isFatal(logmsg) then
+              fatals.push(logmsg)
+            end
             if allowRepeats(logmsg, repeats) then
               puts "\t#{logmsg}"
             end
           end
         end
       end
+    end
+  end
+  if !fatals.empty? then
+    puts "==================================================="
+    puts "***************************************************"
+    puts "FATAL FATAL FATAL FATAL FATAL FATAL FATAL FATAL FATAL FATAL"
+    puts "The following serious errors were found"
+    fatals.each do |msg|
+      puts "\t#{msg}"
     end
   end
 end
@@ -254,9 +275,18 @@ def actuallyOk(startTime, currentTime, logmsg)
   return false
 end
 
+def isFatal(logmsg)
+  $fatalErrors.each do |regexp|
+    if regexp.match(logmsg) then
+      return true
+    end
+  end
+  return false
+end
+
 def copyRepeats()
   repeats = [] 
-  @repeatingErrors.each do |repeatSpec|
+  $repeatingErrors.each do |repeatSpec|
     repeats.push([repeatSpec, $repeatCount])
   end
   repeats
