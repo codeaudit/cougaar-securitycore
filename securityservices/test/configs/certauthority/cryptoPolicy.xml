@@ -67,7 +67,7 @@
     <keystorePassword>CONUS-Ultra*Log</keystorePassword>
 
     <!-- Certificate directory service for certificate storage -->
-    <ldapURL>ldap://pear:389/</ldapURL>
+    <ldapURL>ldap://pear:389/dc=cougaar,dc=org</ldapURL>
 
     <!-- The name of a file where the next serial number is stored -->
     <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
