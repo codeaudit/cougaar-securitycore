@@ -28,14 +28,51 @@ import org.cougaar.core.agent.AgentBinder;
 import org.cougaar.core.agent.AgentManagerForBinder;
 import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.core.security.services.acl.AccessControlPolicyService;
+import org.cougaar.core.mts.MessageAddress;
 
-
-public class AccessAgentBinder extends ServiceFilterBinder {
+public class AccessAgentBinder 
+        extends ServiceFilterBinder 
+        implements AgentBinder {
 
   public  AccessAgentBinder (BinderFactory bf,Object child) {
     super(bf,child);
   }
   
+  /* ********************************************************************************
+   * AgentBinder interface
+   */
+  /**
+   * Get the agent's message address.
+   */
+  public MessageAddress getAgentIdentifier() {
+    AgentBinder ab = (AgentBinder) getChildBinder();
+    MessageAddress ret = ab.getAgentIdentifier();
+    if (log.isDebugEnabled()) {
+      log.debug("Agent "+ret+" wrapper: get agent-id from binder "+ab);
+    }
+    return ret;
+  }
+
+  /**
+   * Obtain direct access to the agent.
+   * <p>
+   * This method may be removed from the binder API due to
+   * security concerns.
+   */
+  public Agent getAgent() {
+    AgentBinder ab = (AgentBinder) getChildBinder();
+    MessageAddress addr = ab.getAgentIdentifier();
+    Agent ret = ab.getAgent();
+    if (log.isDebugEnabled()) {
+      log.debug("Agent "+addr+" wrapper: get agent from binder "+ab);
+    }
+    return ret;
+  }
+  
+  /* ********************************************************************************
+   * End AgentBinder interface
+   */
+
   //child binder
   protected final AgentBinder getAgentBinder() { 
     return (AgentBinder)getChildBinder(); 
