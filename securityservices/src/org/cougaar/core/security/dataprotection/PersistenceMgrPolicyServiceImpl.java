@@ -117,6 +117,12 @@ public class PersistenceMgrPolicyServiceImpl
     _cs = (CommunityService)sb.getService(this, CommunityService.class, null);
     _wps = (WhitePagesService)sb.getService(this, WhitePagesService.class, null);
     _eventService = (EventService)sb.getService(this, EventService.class, null);
+    if (_eventService == null) {
+      if (_log.isInfoEnabled()) {
+        _log.info("Couldn't get Event Service - starting listener...");
+      }
+      sb.addServiceListener(new myServiceListener());
+    }
     NodeIdentificationService nis = (NodeIdentificationService)
       sb.getService(this, NodeIdentificationService.class, null);
     if (nis == null) {
@@ -521,6 +527,25 @@ public class PersistenceMgrPolicyServiceImpl
       else {
         _log.warn("Response failed for " + _agent);
         lookupPMuri(_agent, WP_LOOKUP_RETRY_PERIOD);
+      }
+    }
+  }
+
+  // Maybe this should be merged with the previous ServiceAvailableListener?
+  private class myServiceListener implements ServiceAvailableListener
+  {
+    public void serviceAvailable(ServiceAvailableEvent ae) 
+    {
+      if (ae.getService().equals(EventService.class)) {
+        _eventService
+          = (EventService) ae.getServiceBroker()
+          .getService(this, EventService.class, null);
+        if (_eventService != null) {
+          ae.getServiceBroker().removeServiceListener(this);
+	  if (_log.isDebugEnabled()) {
+	    _log.debug("Got EventService");
+	  }
+        }
       }
     }
   }
