@@ -75,16 +75,21 @@ public interface EncryptionService extends Service {
    * Sets that sending a message from the source needs a signature when
    * using SSL.
    */
-  public void setSendNeedsSignature(String source, String nodePrincipal, 
+  public void setSendNeedsSignature(String source, 
                                     String target);
 
   /**
    * Sets that sending a message from the source does not need a signature
    * when using SSL.
    */
-  public void removeSendNeedsSignature(String source, String sourcePrincipal,
+  public void removeSendNeedsSignature(String source,
                                        String target, 
                                        X509Certificate targetCert);
+
+  /**
+   * Checks that a received message has a valid signature when using SSL.
+   */
+  public boolean getReceiveSignatureValid(String source);
 
   /**
    * Sets that a received message has a valid signature when using
