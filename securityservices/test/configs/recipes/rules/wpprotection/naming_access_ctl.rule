@@ -1,0 +1,16 @@
+#!/usr/bin/ruby
+####################################################
+# Rule to insert Naming Access Control Componnet
+
+wpprotect = "org.cougaar.core.security.services.wp.WPProtectionComponent"
+
+  society.each_node do |node|
+    node.add_component do |c|
+      c.classname = wpprotect
+      c.priority = "HIGH"
+      c.insertionpoint = "Node.AgentManager.Agent.WPProtect"
+    end
+  end
+
+
+
