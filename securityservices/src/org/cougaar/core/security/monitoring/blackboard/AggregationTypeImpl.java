@@ -25,7 +25,7 @@ package org.cougaar.core.security.monitoring.blackboard;
 import java.util.Map;
 
 public class AggregationTypeImpl
-  implements AggregationType
+implements AggregationType,java.io.Serializable
 {
   private String _name;
   private Map _parameters;
