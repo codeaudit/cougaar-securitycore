@@ -93,6 +93,9 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
     try{
       PublicKey key = cert.getPublicKey();
       if (spec==""||spec==null) spec=key.getAlgorithm();
+      if (debug) {
+	System.out.println("Encrypting for " + name + " using " + spec);
+      }
       /*init the cipher*/
       Cipher ci;
       ci=Cipher.getInstance(spec);
@@ -108,20 +111,24 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
   public Object asymmDecrypt(final String name, String spec, SealedObject obj){
     try{
       /*get secretKey*/
-      PrivateKey key = (PrivateKey) AccessController.doPrivileged(new PrivilegedAction() {
-	  public Object run(){
-	    return KeyRing.findPrivateKey(name);
-	  }
-	});
+      PrivateKey key = (PrivateKey)
+	AccessController.doPrivileged(new PrivilegedAction() {
+	    public Object run(){
+	      return KeyRing.findPrivateKey(name);
+	    }
+	  });
       
       if(spec==null||spec=="") spec=key.getAlgorithm(); 
       Cipher ci;
       ci=Cipher.getInstance(spec);
-      ci.init(Cipher.DECRYPT_MODE,key);
+      ci.init(Cipher.DECRYPT_MODE, key);
       return obj.getObject(ci);
     }
     catch(Exception e){
-      e.printStackTrace();
+      if (debug) {
+	System.out.println("Error: cannot recover message. Invalid key?");
+	e.printStackTrace();
+      }
       return null;
     }
   }
@@ -141,42 +148,49 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
     
     public Object symmDecrypt(SecretKey sk, SealedObject obj){
       Object o = null;
-        try{
-              return obj.getObject(sk);
-        }
-	catch(NullPointerException nullexp){
-	  boolean loop = true;
-	  if (debug) {
-	    System.out.println("in symmDecrypt" +nullexp);
-	  }
-	  while(loop){
-	    try{
-	      Thread.sleep(200);
-	      o = obj.getObject(sk);
-	      if (debug) {
-		System.out.println("Workaround to Cougaar core bug. Succeeded");
-	      }
-              return o;
+      if (sk == null) {
+	if (debug) {
+	  System.out.println("Secret key not provided!");
+	}
+	return o;
+      }
+
+      try{
+	return obj.getObject(sk);
+      }
+      catch(NullPointerException nullexp){
+	boolean loop = true;
+	if (debug) {
+	  System.out.println("in symmDecrypt" +nullexp);
+	}
+	while(loop){
+	  try{
+	    Thread.sleep(200);
+	    o = obj.getObject(sk);
+	    if (debug) {
+	      System.out.println("Workaround to Cougaar core bug. Succeeded");
 	    }
-	    catch(NullPointerException null1exp){
-	      if (debug) {
-		System.err.println(
-		  "Workaround to Cougaar core bug (Context not known). Sleeping 200ms then retrying...");
-	      }
-	      //null1exp.printStackTrace();
-	      continue;
+	    return o;
+	  }
+	  catch(NullPointerException null1exp){
+	    if (debug) {
+	      System.err.println(
+				 "Workaround to Cougaar core bug (Context not known). Sleeping 200ms then retrying...");
 	    }
-	    catch(Exception exp1){
-	      exp1.printStackTrace();
-	      continue;
-	      }
+	    //null1exp.printStackTrace();
+	    continue;
 	  }
-	  return null;
+	  catch(Exception exp1){
+	    exp1.printStackTrace();
+	    continue;
 	  }
-        catch(Exception e){
-          e.printStackTrace();
-          return null;
-        }
+	}
+	return null;
+      }
+      catch(Exception e){
+	e.printStackTrace();
+	return null;
+      }
     }
     
 }
