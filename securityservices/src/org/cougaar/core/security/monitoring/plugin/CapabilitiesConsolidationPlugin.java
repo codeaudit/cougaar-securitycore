@@ -256,16 +256,13 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	}
       }
     }
-    destcluster =getDestinationCommunity(myRole);
+    destcluster =getDestinationAddress(myRole);
     if((destcluster ==null) &&(!myRole.equalsIgnoreCase("SecurityMnRManager-Society"))) {
       return true;
     }
     else {
       return false;
     }
-    
-    return true;
-       
   }
 
   /**
@@ -1262,9 +1259,11 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       Collection securitycol=communityService.search(filter);
       Iterator itersecurity=securitycol.iterator();
       MessageAddress  dest=null;
+      String comm = null;
+      Collection societysearchresult = null;
       while(itersecurity.hasNext()) {
 	comm=(String)itersecurity.next();
-	Collection societysearchresult=communityService.searchByRole(comm,destrole);
+	societysearchresult=communityService.searchByRole(comm,destrole);
 	if(societysearchresult.isEmpty()) {
 	  continue;
 	}
@@ -1316,11 +1315,11 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       boolean  tryAgain = true;
       try {
 	  Thread.sleep(18*retryTime);
-	}
-	catch(InterruptedException ix) {
-	  loggingService.error("Was interrupted while delaying the polling of NS sleeping: " + ix);
-	  tryAgain = false;
-	}
+      }
+      catch(InterruptedException ix) {
+	loggingService.error("Was interrupted while delaying the polling of NS sleeping: " + ix);
+	tryAgain = false;
+      }
       
       //boolean neverfalse=true;
       while(tryAgain) {
@@ -1333,9 +1332,6 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	    }
 	    Thread.sleep(retryTime);
 	  }
-	  else {
-	    isMgrSet=tryAgain;
-	  }
 	}
 	catch(InterruptedException ix) {
 	  loggingService.error("Was interrupted while sleeping: " + ix);
@@ -1344,9 +1340,4 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       }
     }
   }
-
-  
-  
-  }
-
-  
+}
