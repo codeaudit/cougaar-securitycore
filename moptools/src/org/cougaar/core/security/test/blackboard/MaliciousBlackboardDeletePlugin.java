@@ -68,6 +68,8 @@ public class MaliciousBlackboardDeletePlugin extends AbstractBlackboardPlugin{
 			getBlackboardService().publishRemove(orgActivity);
 			this.totalRuns++;
 			this.successes++;
+		}else{
+			this.deleteUID = null;
 		}
 		
 	}

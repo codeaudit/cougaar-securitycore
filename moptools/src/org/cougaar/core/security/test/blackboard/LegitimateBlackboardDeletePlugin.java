@@ -29,8 +29,8 @@ package org.cougaar.core.security.test.blackboard;
 
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.util.UID;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
-import org.cougaar.util.UnaryPredicate;
 
 import java.util.Collection;
 import java.util.Enumeration;
@@ -38,75 +38,80 @@ import java.util.Iterator;
 
 
 /**
- * Tries to modify a org activity. Must have query permission for the org
- * activity and not have the modify permission
+ * Should have access to delete and to query OrgActivity objects on the
+ * Blackboard.
  *
  * @author ttschampel
  */
-public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
-  private static final String ACTIVITY_NAME = "MaliciousBlackboardModifyPlugin";
+public class LegitimateBlackboardDeletePlugin extends AbstractBlackboardPlugin {
+  /** Subscription to OrgActivity */
   private IncrementalSubscription orgSubs = null;
-  private UnaryPredicate changedPredicate = new UnaryPredicate() {
-      public boolean execute(Object o) {
-        if (o instanceof OrgActivity) {
-          OrgActivity orgA = (OrgActivity) o;
-          return orgA.getActivityName().equals(ACTIVITY_NAME);
-        }
-
-        return false;
-      }
-    };
+  /** UID of last deleted Org Activity */
+  private UID deleteUID = null;
 
   /**
-   * DOCUMENT ME!
+   * Load component and plugin name
    */
   public void load() {
     super.load();
-    this.setPluginName("MaliciousBlackboardModifyPlugin");
+    this.setPluginName("LegitimateBlackboardDeletePlugin");
   }
 
 
   /**
-   * DOCUMENT ME!
+   * Setup subscription to org activity
    */
   public void setupSubscriptions() {
     super.setupSubscriptions();
-    orgSubs = (IncrementalSubscription) getBlackboardService().subscribe(changedPredicate);
+    orgSubs = (IncrementalSubscription) getBlackboardService().subscribe(this.orgActivityPredicate);
   }
 
 
   /**
-   * DOCUMENT ME!
+   * Process Subscriptions
    */
   public void execute() {
     super.execute();
-    checkModified();
+    checkDeletedActivities();
   }
 
 
-  private void checkModified() {
-    Enumeration enumeration = orgSubs.getChangedList();
-    while (enumeration.hasMoreElements()) {
-      this.successes--;
-      this.failures++;
-      this.createIDMEFEvent(pluginName,
-        "Able to modify OrgActivity on the Blackboard!");
+  /**
+   * Check to confirm we get the deleted notification
+   */
+  private void checkDeletedActivities() {
+    if (deleteUID != null) {
+      boolean foundIt = false;
+      Enumeration enumeration = orgSubs.getRemovedList();
+      while (enumeration.hasMoreElements()) {
+        OrgActivity orgActivity = (OrgActivity) enumeration.nextElement();
+        if (orgActivity.getUID().equals(deleteUID)) {
+          foundIt = true;
+        }
+      }
+
+      if (foundIt == false) {
+        this.failures++;
+        this.successes--;
+        this.createIDMEFEvent(pluginName, "Did not delete org activity");
+      }
     }
   }
 
 
   /**
-   * Try to modify a org activity
+   * Remove org activity
    */
   protected void queryBlackboard() {
-    Collection collection = this.getBlackboardService().query(this.orgActivityPredicate);
+    Collection collection = getBlackboardService().query(this.orgActivityPredicate);
     Iterator iterator = collection.iterator();
     if (iterator.hasNext()) {
-      OrgActivity orgActivity = (OrgActivity) iterator.next();
-      orgActivity.setActivityName(ACTIVITY_NAME);
-      getBlackboardService().publishChange(orgActivity);
+      OrgActivity act = (OrgActivity) iterator.next();
+      this.deleteUID = act.getUID();
       this.totalRuns++;
       this.successes++;
+    } else {
+      this.deleteUID = null;
     }
   }
 }

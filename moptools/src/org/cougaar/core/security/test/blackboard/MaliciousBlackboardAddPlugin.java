@@ -50,7 +50,8 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
       public boolean execute(Object o) {
         if (o instanceof OrgActivity) {
           OrgActivity orgA = (OrgActivity) o;
-          return orgA.getActivityName().equals(MALCICOUS_ADD_ACTIVITY_NAME);
+          return (orgA.getActivityName() != null)
+          && orgA.getActivityName().equals(MALCICOUS_ADD_ACTIVITY_NAME);
         }
 
         return false;
@@ -79,7 +80,8 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
 
 
   /**
-   * checks for newly added org activities using the checkForAddedOrgActivitySubs()
+   * checks for newly added org activities using the
+   * checkForAddedOrgActivitySubs()
    */
   public void execute() {
     super.execute();

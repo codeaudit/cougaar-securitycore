@@ -29,8 +29,8 @@ package org.cougaar.core.security.test.blackboard;
 
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.util.UID;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
-import org.cougaar.util.UnaryPredicate;
 
 import java.util.Collection;
 import java.util.Enumeration;
@@ -38,75 +38,82 @@ import java.util.Iterator;
 
 
 /**
- * Tries to modify a org activity. Must have query permission for the org
- * activity and not have the modify permission
+ * Should have query and modify permission for  OrgActivity blackboard objects.
+ * Just modifies Org Activity Objects and checks to see if they  have been
+ * changed.
  *
  * @author ttschampel
  */
-public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
-  private static final String ACTIVITY_NAME = "MaliciousBlackboardModifyPlugin";
+public class LegitimateBlackboardModifyPlugin extends AbstractBlackboardPlugin {
+  /** Subscription to orgActivity */
   private IncrementalSubscription orgSubs = null;
-  private UnaryPredicate changedPredicate = new UnaryPredicate() {
-      public boolean execute(Object o) {
-        if (o instanceof OrgActivity) {
-          OrgActivity orgA = (OrgActivity) o;
-          return orgA.getActivityName().equals(ACTIVITY_NAME);
-        }
-
-        return false;
-      }
-    };
+  /** Modified org activity uid */
+  private UID modUID = null;
 
   /**
-   * DOCUMENT ME!
+   * Load component
    */
   public void load() {
     super.load();
-    this.setPluginName("MaliciousBlackboardModifyPlugin");
+    this.setPluginName("LegitimateBlackboardModifyPlugin");
   }
 
 
   /**
-   * DOCUMENT ME!
-   */
-  public void setupSubscriptions() {
-    super.setupSubscriptions();
-    orgSubs = (IncrementalSubscription) getBlackboardService().subscribe(changedPredicate);
-  }
-
-
-  /**
-   * DOCUMENT ME!
+   * Process Subscriptions
    */
   public void execute() {
     super.execute();
-    checkModified();
+    checkModOrgActivities();
   }
 
 
-  private void checkModified() {
-    Enumeration enumeration = orgSubs.getChangedList();
-    while (enumeration.hasMoreElements()) {
-      this.successes--;
-      this.failures++;
-      this.createIDMEFEvent(pluginName,
-        "Able to modify OrgActivity on the Blackboard!");
+  /**
+   * Setup subscriptions
+   */
+  public void setupSubscriptions() {
+    super.setupSubscriptions();
+    orgSubs = (IncrementalSubscription) getBlackboardService().subscribe(orgActivityPredicate);
+  }
+
+
+  /**
+   * Modify org activity
+   */
+  protected void queryBlackboard() {
+    Collection collection = getBlackboardService().query(orgActivityPredicate);
+    Iterator iterator = collection.iterator();
+    if (iterator.hasNext()) {
+      OrgActivity orgAct = (OrgActivity) iterator.next();
+      this.modUID = orgAct.getUID();
+      this.totalRuns++;
+      this.successes++;
+    } else {
+      this.modUID = null;
     }
   }
 
 
   /**
-   * Try to modify a org activity
+   * Check to see if we receive the changed org activity
    */
-  protected void queryBlackboard() {
-    Collection collection = this.getBlackboardService().query(this.orgActivityPredicate);
-    Iterator iterator = collection.iterator();
-    if (iterator.hasNext()) {
-      OrgActivity orgActivity = (OrgActivity) iterator.next();
-      orgActivity.setActivityName(ACTIVITY_NAME);
-      getBlackboardService().publishChange(orgActivity);
-      this.totalRuns++;
-      this.successes++;
+  private void checkModOrgActivities() {
+    if (modUID != null) {
+      Enumeration enumeration = orgSubs.getChangedList();
+      boolean changed = false;
+      while (enumeration.hasMoreElements()) {
+        OrgActivity org = (OrgActivity) enumeration.nextElement();
+        if (org.getUID().equals(modUID)) {
+          changed = true;
+        }
+      }
+
+      if (changed == false) {
+        this.createIDMEFEvent(pluginName,
+          "Could not change OrgActivity on blackboard");
+        this.successes--;
+        this.failures++;
+      }
     }
   }
 }
