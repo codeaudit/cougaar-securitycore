@@ -134,4 +134,8 @@ public class CommunityServiceUtil {
     return myCommunity;
   }
 
+  public boolean amIRoot(String agent) {
+    Collection roles = _cs.getEntityRoles(getSecurityCommunity(agent), agent);
+    return (roles.contains("Root") || roles.contains("root"));
+  }
 }
