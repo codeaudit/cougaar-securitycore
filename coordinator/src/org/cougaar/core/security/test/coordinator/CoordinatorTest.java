@@ -130,11 +130,11 @@ public class CoordinatorTest extends AbstractServletComponent {
           String value = (String)values.iterator().next();
 
           // change
-          if (value.equals(ThreatConActionInfo.LOW)) {
-            value = ThreatConActionInfo.HIGH;
+          if (value.equals(ThreatConActionInfo.LOWDiagnosis)) {
+            value = ThreatConActionInfo.HIGHDiagnosis;
           }
           else {
-            value = ThreatConActionInfo.LOW;
+            value = ThreatConActionInfo.LOWDiagnosis;
           }
           values = new HashSet();
           values.add(value);
@@ -146,13 +146,13 @@ public class CoordinatorTest extends AbstractServletComponent {
         }
           
       } else if (action.equals("RMIPolicyAction")) {
-        ThreatConActionInfo info = new ThreatConActionInfo(_communityName, ThreatConActionInfo.LOW);
+        ThreatConActionInfo info = new ThreatConActionInfo(_communityName, ThreatConActionInfo.LOWDiagnosis);
         blackboardService.openTransaction();
         blackboardService.publishAdd(info);        
         blackboardService.closeTransaction();
         msg = "Forcing policy to switch to using RMI within enclave " + _communityName;      
       } else if (action.equals("RMISSLPolicyAction")) {
-        ThreatConActionInfo info = new ThreatConActionInfo(_communityName, ThreatConActionInfo.HIGH);
+        ThreatConActionInfo info = new ThreatConActionInfo(_communityName, ThreatConActionInfo.HIGHDiagnosis);
         blackboardService.openTransaction();
         blackboardService.publishAdd(info);        
         blackboardService.closeTransaction();
