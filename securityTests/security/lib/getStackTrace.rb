@@ -19,7 +19,9 @@ class GetStackTrace < SecurityStressFramework
   def getStack(nodename)
     stacktrace = nil
     begin
+      logInfoMsg "getStack #{nodename}"
       nodeInfo = getJavaPid(nodename)
+      logInfoMsg "getStack after getJavaPid #{nodename}"
       #stacktrace = getStackTraceFromProcFileSystem(nodeInfo.java_pid)
       logInfoMsg "Retrieving stack trace of #{nodename} at #{nodeInfo.node.host.name} - Java PID=#{nodeInfo.java_pid}"
       stacktrace = getStackTraceFromAcme(nodeInfo)
@@ -120,6 +122,27 @@ class GetStackTrace < SecurityStressFramework
     @nodeInfoMap[nodename] = nodeInfo
     logInfoMsg "#{nodeInfo.to_s}"
     return nodeInfo
+  end
+
+  # response should be in the format:
+  #
+  #<message type="chat" to="acme_console@peach/expt-lemon-ASMT-PING-1-1of1">
+  # <thread>JRT_ebede31c4d9bc957372a</thread>
+  # <body>CA-NODE=11963,MGMT-NODE=12062</body>
+  #</message>
+  #
+  # str should be of this format:
+  #
+  # <node>=<java_pid>[, <node>=<java_pid>]+
+  def parsePids(str)
+    #@run.info_message "Response from #{host.name} #{response.body}"
+    pidmap = {}
+    str.split(',').each { |i|
+      i.scan(/(.+)=(.+)/) { |match|
+        pidmap[match[0]] = match[1]
+      }
+    }
+    return pidmap
   end
 
   class NodeProcessInfo
