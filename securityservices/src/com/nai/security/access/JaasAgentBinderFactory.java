@@ -25,6 +25,12 @@ package com.nai.security.access;
 import org.cougaar.core.component.BinderFactorySupport;
 import org.cougaar.core.component.BinderFactoryWrapper;
 
+/*
+ * add following line to the Node.ini file to activate this binder:
+ * Node.AgentManager.Binder = com.nai.security.access.JaasAgentBinderFactory
+ *
+ */
+
 public class JaasAgentBinderFactory extends BinderFactorySupport implements BinderFactoryWrapper {
 
     /** Creates new JaasAgentBinderFactory */

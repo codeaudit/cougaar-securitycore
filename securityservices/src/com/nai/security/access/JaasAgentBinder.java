@@ -32,6 +32,12 @@ import org.cougaar.core.agent.AgentBinder;
 
 import com.nai.security.bootstrap.JaasClient;
 
+/*
+ * add following line to the Node.ini file to activate this binder:
+ * Node.AgentManager.Binder = com.nai.security.access.JaasAgentBinderFactory
+ *
+ */
+
 public class JaasAgentBinder extends BinderWrapper implements AgentManagerForBinder{
 
     /** Creates new JassAgentBinder */
