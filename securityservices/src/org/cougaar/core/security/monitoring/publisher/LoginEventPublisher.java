@@ -161,7 +161,7 @@ public class LoginEventPublisher extends IdmefEventPublisher {
     List classifications = createClassifications();
     String targetIdent = ((Target) targets.get(0)).getIdent();
     List additionalData = createAdditionalData(
-      event.getReasonIdentifier(), targetIdent,
+      event.getReason(), targetIdent,
       event.getDataIdentifier());
     Alert alert = _idmefFactory.createAlert(_sensorInfo, new DetectTime(),
                                             sources, targets,

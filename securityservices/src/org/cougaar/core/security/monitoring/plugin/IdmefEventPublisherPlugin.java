@@ -156,7 +156,13 @@ public class IdmefEventPublisherPlugin
               Address [] addrs = node.getAddresses();
               if (addrs.length != 0) {
                 s.append(':');
-                s.append(addrs[0].getAddress());
+                for (int j = 0; j < addrs.length; j++) {
+                  if (j != 0) {
+                    s.append('|');
+                  }
+                  s.append(addrs[j].getCategory()).append('=');
+                  s.append(addrs[j].getAddress());
+                }
               }
             }
           }
