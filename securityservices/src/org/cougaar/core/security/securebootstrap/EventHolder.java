@@ -77,7 +77,11 @@ public class EventHolder extends Observable  {
     //System.out.println(" No of observers is :"+ this.countObservers());
     //if(!atleastoneObserver)
     //atleastoneObserver=true;
-    if((_instance.countObservers()>0)&&(events.size()>0)){
+    int events_size = 0;
+    synchronize (events) {
+      events_size = events.size();
+    }
+    if((_instance.countObservers()>0)&&(events_size > 0)){
       timer.schedule(new NotifyTask(),delay);
     }
     else {
@@ -95,8 +99,10 @@ public class EventHolder extends Observable  {
   }
   
   public void addEvent(BootstrapEvent o) {
-    ListIterator iter=events.listIterator();
-    iter.add(o);
+    synchronized (events) {
+      ListIterator iter=events.listIterator();
+      iter.add(o);
+    }
     timer.schedule(new NotifyTask(),delay);
   }
   
@@ -111,11 +117,14 @@ public class EventHolder extends Observable  {
     public void run() {
       if(_instance.countObservers()>0)  {
 	ArrayList eventList=new ArrayList();
-        ListIterator iterator=_instance.events.listIterator();
-        while(iterator.hasNext()) {
-          eventList.add((BootstrapEvent)iterator.next());
-          iterator.remove();
+        synchronized (_instance.events) {
+          ListIterator iterator=_instance.events.listIterator();
+          while(iterator.hasNext()) {
+            eventList.add((BootstrapEvent)iterator.next());
+            iterator.remove();
+          }
         }
+        // are the following thread safe?
         _instance.setChanged();
         _instance.notifyObservers(eventList);
       }
