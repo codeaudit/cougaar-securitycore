@@ -56,7 +56,7 @@ import org.apache.log4j.BasicConfigurator;
 
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.policy.builder.PolicyParser;
-import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
+import org.cougaar.core.security.util.webproxy.WebProxyInstaller;
 import org.cougaar.util.log.LoggerFactory;
 import org.cougaar.util.log.Logger;
 
