@@ -177,15 +177,17 @@ public class DataProtectionServiceImpl
 	throws IOException
   {
 
-    String agent = dpsClient.getAgentIdentifier().toAddress();
+    final String agent = dpsClient.getAgentIdentifier().toAddress();
 
     if (log.isDebugEnabled())
       log.debug("getOutputStream for " + agent);
 
     // check if there is key and certificate created for the client
     List certList = null;
-    while ((certList = keyRing.findCert(agent)) == null || certList.size() == 0) {
-      log.debug("no certificate found, waiting ...");
+
+    if (certList == null || certList.size() == 0) {
+      int totalWait = 400000; // the persistence time is 5 minutes
+      int wait_time = 10000;
       try {
         totalWait = Integer.parseInt(System.getProperty(CERT_POLL_TIME,
           new Integer(totalWait).toString()));
@@ -206,13 +208,11 @@ public class DataProtectionServiceImpl
         }
         catch (Exception ex) {}
       }
-      catch (Exception ex) {}
-
-      /*
+    }
+    if (certList == null || certList.size() == 0) {
       CertificateException cx = new CertificateException("No certificate available to sign.");
       publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
       throw new IOException(cx.getMessage());
-      */
     }
     DataProtectionKey dpKey = null;
     try {

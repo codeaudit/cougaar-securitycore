@@ -435,10 +435,10 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
           "to the same value. Someone has modified the header! " +
           header.getSenderName() + " to " + header.getReceiverName();
         _log.warn(message);
-	_log.warn("Header: " + headerBytes.length +
+	_log.warn("Header: " + headerBytes.length + 
 		  "\n" + byteArray2String(headerBytes));
-	_log.warn("Computed with: " + digestSpec +
-		  " -> " + byteArray2String(digestComputed) +
+	_log.warn("Computed: " +
+		  byteArray2String(digestComputed) +
 	  ", compared with read value: " + byteArray2String(digestRead));
         throw new SignatureException(message);
       }
