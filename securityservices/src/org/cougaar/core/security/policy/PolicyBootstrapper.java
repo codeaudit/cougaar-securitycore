@@ -50,10 +50,8 @@ import java.util.Vector;
 
 import kaos.core.util.AttributeMsg;
 import kaos.core.util.PolicyMsg;
+import kaos.core.util.Msg;
 import kaos.core.util.SubjectMsg;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class PolicyBootstrapper 
   implements PolicyBootstrapperService
@@ -63,7 +61,6 @@ public class PolicyBootstrapper
   private ConfigParserService cps;
   private LoggingService log;
   private XMLPolicyCreator xpc;
-  private XStream xstream = new XStream(new DomDriver());
   private static ParsedPolicyFile ppf;
 
   public static final String _damlBootPolicies = "OwlBootPolicyList";
@@ -161,7 +158,7 @@ public class PolicyBootstrapper
         }
         Reader reader = new InputStreamReader(is);
 
-        PolicyMsg policy = (PolicyMsg)xstream.fromXML(reader);
+        PolicyMsg policy = (PolicyMsg)Msg.fromXml(reader);
 
         if (log.isDebugEnabled()) {
           log.debug(".PolicyBootStrapper: retrieved " + policy + 

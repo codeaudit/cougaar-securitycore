@@ -39,6 +39,7 @@ import kaos.core.service.directory.KAoSDirectoryService;
 import kaos.core.util.AttributeMsg;
 import kaos.core.util.KAoSConstants;
 import kaos.core.util.PolicyMsg;
+import kaos.core.util.Msg;
 import kaos.core.util.SubjectMsg;
 import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.ontology.util.RangeIsBasedOnAClass;
@@ -63,17 +64,12 @@ import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
 import org.cougaar.core.security.policy.ontology.UltralogGroupConcepts;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuiteMapping;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
 import com.hp.hpl.jena.ontology.OntClass;
 
 public class PolicyUtils
 {
   private boolean _verbsAlreadyLoaded=false;
   private OntologyConnection _ontology;
-
-  private static XStream xstream = new XStream(new DomDriver());
 
   public PolicyUtils(OntologyConnection ontology)
   {
@@ -234,12 +230,12 @@ public class PolicyUtils
     }
   }
 
-  protected static void writeObjectToXml(String filename, Object o)
+  protected static void writeObjectToXml(String filename, Msg msg)
     throws IOException
   {
     Writer writer = new FileWriter(filename);
     try {
-      xstream.toXML(o, writer);
+      msg.toXml(writer);
     } finally {
       writer.close();
     }
