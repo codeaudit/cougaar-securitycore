@@ -68,6 +68,7 @@ public abstract class OntologyConnection
   implements OntologyInterfaces
 {
   public static boolean _disableChecking = false;
+  private PolicyUtils _pu = null;
   /*
    * For various reasons, this class needs intelligence.  I also
    * provide a convenience method for outsiders to load intelligence.
@@ -75,8 +76,18 @@ public abstract class OntologyConnection
 
   public OntologyConnection()
   {
+    _pu = new PolicyUtils(this);
+    installOntologyConnection();
+  }
+
+  protected void installOntologyConnection()
+  {
     PolicyInformationManager.setOntologyConnection(this);
-    PolicyUtils.setOntologyConnection(this);
+  }
+
+  public PolicyUtils getPolicyUtils()
+  {
+    return _pu;
   }
 
 
