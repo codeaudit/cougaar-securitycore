@@ -73,6 +73,7 @@
         <pathelement location="${cougaar.install.path}/lib/util.jar"/>
         <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
         <pathelement location="${cougaar.install.path}/lib/aggagent.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/community.jar"/>
         <!-- KAoS libraries -->
         <pathelement location="${cougaar.install.path}/lib/kaos.jar"/>
         <pathelement location="${cougaar.install.path}/lib/safe.jar"/>
