@@ -271,8 +271,12 @@ puts agentnames
     puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}" if $VerboseDebugging
 puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
     
-    @hosts.each do |host|
-      doRemoteCmd(host.name, "#{@scriptsdir}/runsnort")
+    begin
+      @hosts.each do |host|
+        doRemoteCmd(host.name, "#{@scriptsdir}/runsnort")
+      end
+    rescue => ex
+      saveAssertion "SecurityMop2.3", "Unable to run snort: #{ex}\n #{ex.backtrace.join("\n")}"
     end
   end
 
