@@ -1,8 +1,5 @@
 
-CIP=ENV["CIP"]
-
-$:.unshift File.join(CIP, 'csmart', 'lib')
-require 'security/actions/parseResults'
+require "acme_security_reporting/resultParser"
 
 module ACME
   module Plugins
@@ -29,7 +26,7 @@ module ACME
       end
 
       def process_archive(archive)
-        puts "Processing an archive #{archive.base_name}"
+        puts "Processing an archive #{archive.base_name} for security"
         begin
           report_security_tests(archive)
           puts "Security log"
