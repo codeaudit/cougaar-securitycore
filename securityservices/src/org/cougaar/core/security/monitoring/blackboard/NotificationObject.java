@@ -27,7 +27,6 @@ import org.cougaar.core.persist.NotPersistable;
 import java.io.Serializable;
 
 
-public class NotificationObject implements NotPersistable
-,Serializable {
+public class NotificationObject implements NotPersistable,Serializable {
   
 }
