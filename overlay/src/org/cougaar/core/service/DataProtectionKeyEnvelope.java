@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2002 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -42,12 +42,13 @@ package org.cougaar.core.service;
  **/
 public interface DataProtectionKeyEnvelope
 {
-  /** Returns the persisted key in this envelope.
+  /** 
+   * Returns the persisted key in this envelope.
    */
   DataProtectionKey getDataProtectionKey();
 
-  /** Saves an updated key to persisted storage.
-   *  
+  /** 
+   * Saves an updated key to persisted storage.
    */
   void setDataProtectionKey(DataProtectionKey pk);
 }

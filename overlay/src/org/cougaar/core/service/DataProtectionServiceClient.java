@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2002 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -31,9 +31,11 @@ import org.cougaar.core.mts.MessageAddress;
 
 public interface DataProtectionServiceClient
 {
-  /** Returns an iterator over a collection of PersistedKeyEnvelopes.
+  /** 
+   * Returns an iterator over a collection of PersistedKeyEnvelopes.
    */
   Iterator iterator();
+
   /**
    * Allows the service to determine the identity of the agent using
    * the service. That identity is used to allow the correct

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2002 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -37,7 +37,8 @@ public interface DataProtectionService
   extends Service
 {
 
-  /** Protects a data stream by signing and/or encrypting the stream.
+  /** 
+   * Protects a data stream by signing and/or encrypting the stream.
    *  The service client should create an output stream to which the
    *  encrypted and/or signed data should be persisted.
    *
@@ -63,10 +64,11 @@ public interface DataProtectionService
    *  @param os  the output stream containing the encrypted and/or signed data
    *  @return    An output stream that the client uses to protect data.
    */
-  public OutputStream getOutputStream(DataProtectionKeyEnvelope pke,
+  OutputStream getOutputStream(DataProtectionKeyEnvelope pke,
 				      OutputStream os);
 
-  /** Unprotects a data stream by verifying and/or decrypting the stream.
+  /** 
+   * Unprotects a data stream by verifying and/or decrypting the stream.
    *
    *  The client should provide a key envelope having the same key
    *  that was used to encrypt the data.
@@ -74,6 +76,7 @@ public interface DataProtectionService
    *  @param is  the input stream containing the encrypted and/or signed data
    *  @return    An input stream containing the un-encrypted and/or verified data.
    */
-  public InputStream getInputStream(DataProtectionKeyEnvelope pke,
+  InputStream getInputStream(DataProtectionKeyEnvelope pke,
 				    InputStream is);
 }
+
