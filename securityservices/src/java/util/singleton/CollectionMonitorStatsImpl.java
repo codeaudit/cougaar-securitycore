@@ -22,10 +22,13 @@ package java.util.singleton;
 
 import java.util.*;
 
-public class CollectionMonitorStatsImpl implements CollectionMonitorStats
+public class CollectionMonitorStatsImpl
+  extends BaseSingleton
+  implements CollectionMonitorStats
 {
-  
   private static CollectionMonitorStats _theInstance;
+
+  private static long _startupTime;
 
   private Map _hashtableStats;
   private Map _arrayListStats;
@@ -37,25 +40,48 @@ public class CollectionMonitorStatsImpl implements CollectionMonitorStats
   private Map _treeMapStats;
   private Map _treeSetStats;
 
-  CollectionMonitorStatsImpl() {
-    _hashtableStats = new WeakHashMap();
-    _arrayListStats = new WeakHashMap();
-    _hashMapStats = new WeakHashMap();
-    _hashSetStats = new WeakHashMap();
-    _identityHashMapStats = new WeakHashMap();
-    _linkedListStats = new WeakHashMap();
-    _weakHashMapStats = new WeakHashMap();
-    _treeMapStats = new WeakHashMap();
-    _treeSetStats = new WeakHashMap();
+  protected CollectionMonitorStatsImpl() {
+    
+    _hashtableStats = new IdentityHashMap();
+    _arrayListStats = new IdentityHashMap();
+    _hashMapStats = new IdentityHashMap();
+    _hashSetStats = new IdentityHashMap();
+    _identityHashMapStats = new IdentityHashMap();
+    _linkedListStats = new IdentityHashMap();
+    _weakHashMapStats = new IdentityHashMap();
+    _treeMapStats = new IdentityHashMap();
+    _treeSetStats = new IdentityHashMap();
+
   }
 
-  public static synchronized CollectionMonitorStats getInstance() {
+  private static long DELAY_AFTER_STARTUP = 100;
 
-    // FIX: TODO
-    _theInstance = (CollectionMonitorStats)
-      BaseSingleton.getInstance(CollectionMonitorStatsImpl.class,
-		  CollectionMonitorStats.class,
-		  _theInstance);
+  public static synchronized CollectionMonitorStats getInstance() {
+    // Ugly hack to handle bootstrap issues.
+    // When this method is invoked for the first time,
+    // many things are not initialized yet.
+    // For example, it is not possible to invoke System.out... methods,
+    // It is not possible to get the ClassLoader, etc; This would cause
+    // a VM initialization error.
+    
+    if (_startupTime == 0) {
+      _startupTime = System.currentTimeMillis();
+    }
+    long now = System.currentTimeMillis();
+    if ( (now - _startupTime) > DELAY_AFTER_STARTUP ) {
+      //System.out.println("****");
+      _theInstance = (CollectionMonitorStats)
+	getInstance(CollectionMonitorStatsImpl.class,
+		    CollectionMonitorStats.class,
+		    _theInstance);
+      //System.out.println("Instance: " + _theInstance);
+    }
+    else {
+      if (_theInstance == null) {
+	_theInstance = new CollectionMonitorStatsImpl();
+      }
+    }
+
     return _theInstance;
   }
 
@@ -70,9 +96,17 @@ public class CollectionMonitorStatsImpl implements CollectionMonitorStats
   }
   public void addHashtable(Hashtable h) {
     synchronized (_hashtableStats) {
+      _p++;
       _hashtableStats.put(h, new Throwable());
     }
+    /*
+    long now = System.currentTimeMillis();
+    if ( (now - _startupTime) > DELAY_AFTER_STARTUP ) {
+      System.out.println("Add Hashtable: " + _p + " - " + this);
+    }
+    */
   }
+  private int _p;
 
   // array list
   public int getNumberOfArrayLists() {

@@ -149,15 +149,15 @@ extends BaseServletComponent
 	"<input type=\"radio\" name=\"collection\" value=\"Hashtable\"/>Hashtable<br/>" +
 	"<input type=\"radio\" name=\"collection\" value=\"HashSet\"/>HashSet<br/>" +
 	"<input type=\"radio\" name=\"collection\" value=\"HashMap\"/>HashMap<br/>" +
-      "<input type=\"radio\" name=\"collection\" value=\"ArrayList\"/>ArrayList<br/>" +
+	"<input type=\"radio\" name=\"collection\" value=\"ArrayList\"/>ArrayList<br/>" +
 	"<input type=\"radio\" name=\"collection\" value=\"IdentityHashMap\"/>IdentityHashMap<br/>" +
-	"<input type=\"radio\" name=\"collection\" value=\"LinkedHashMap\"/>LinkedHashMap<br/>" +
-	"<input type=\"radio\" name=\"collection\" value=\"LinkedHashSet\"/>LinkedHashSet<br/>" +
+	"<input type=\"radio\" name=\"collection\" value=\" LinkedHashMap\"/>LinkedHashMap<br/>" +
+	"<input type=\"radio\" name=\"collection\" value=\" LinkedHashSet\"/>LinkedHashSet<br/>" +
 	"<input type=\"radio\" name=\"collection\" value=\"LinkedList\"/>LinkedList<br/>" +
-	"<input type=\"radio\" name=\"collection\" value=\"Stack\"/>Stack<br/>" +
+	"<input type=\"radio\" name=\"collection\" value=\"Stack\"/> Stack<br/>" +
 	"<input type=\"radio\" name=\"collection\" value=\"TreeMap\"/>TreeMap<br/>" +
 	"<input type=\"radio\" name=\"collection\" value=\"TreeSet\"/>TreeSet<br/>" +
-	"<input type=\"radio\" name=\"collection\" value=\"Vector\"/>Vector<br/>" +
+	"<input type=\"radio\" name=\"collection\" value=\"Vector\"/> Vector<br/>" +
 	"<input type=\"radio\" name=\"collection\" value=\"WeakHashMap\"/>WeakHashMap<br/>"
 	);
       out.println("</td></tr>");
@@ -165,7 +165,7 @@ extends BaseServletComponent
       out.println("</td><td><input name=\"Rows\" type=\"text\" value=\"20\"><br/>");
       out.println("</td></tr>");
       out.println("<tr><td>Number of lines in stack trace:");
-      out.println("</td><td><input name=\"Lines\" type=\"text\" value=\"2\"><br/>");
+      out.println("</td><td><input name=\"Lines\" type=\"text\" value=\"3\"><br/>");
       out.println("</td></tr>");
       out.println("<tr><td><input type=\"submit\" value=\"Submit\"/></td></tr>");
       out.println("</form>");
@@ -192,7 +192,8 @@ extends BaseServletComponent
       */
 
       int n = _util.getNumberOfElements(type);
-      out.println("Number of Elements:" + n + "<br/>");
+      out.println("Number of " + _util.getElementName(type)
+		  + ":" + n + "<br/>");
       List l = _util.getTopElements(type, Math.min(n, rows));
 
       out.println("<tr><th>Stack Trace</th>");
@@ -201,10 +202,18 @@ extends BaseServletComponent
       Iterator it = l.iterator();
       while (it.hasNext()) {
 	Map.Entry s = (Map.Entry) it.next();
+	Object o = s.getKey();
 	out.println("<tr><td>");
 	StackTraceElement ste[] = ((Throwable)s.getValue()).getStackTrace();
-	for (int i = 0 ; i < Math.min(ste.length, lines) ; i++) {
-	  out.println("<font size=\"2\">");
+	/* Skip the first two frames which are not very interesting:
+	 *   CollectionMonitorStatsImpl.addHashtable()
+	 *   MemoryTracker.add()
+	 */
+	int LINES_TO_SKIP = 3;
+
+	out.println("<font size=\"2\">");
+	out.println("<b>" + Integer.toHexString(o.hashCode()) + "</b><br/>");
+	for (int i = LINES_TO_SKIP ; i < Math.min(ste.length, lines + LINES_TO_SKIP) ; i++) {
 	  out.print(ste[i].getClassName() + "." +
 		    ste[i].getMethodName() + "(" +
 		    ste[i].getFileName() + ":" +
@@ -216,7 +225,6 @@ extends BaseServletComponent
 	out.println(_caw.toString().replaceAll("\n", "<br>\n"));
 	*/
 	out.println("</td>");
-	Object o = s.getKey();
 	int size = -1;
 	if (o instanceof Collection) {
 	  size = ((Collection)o).size();

@@ -7,10 +7,6 @@ public class MemoryTracker {
 
   static {
     m = CollectionMonitorStatsImpl.getInstance();
-    try {
-      System.out.println("From MemoryTracker:" + m);
-    }
-    catch (Exception e) {}
   }
   public static void add(Object o) {
     // when MemoryTracker is created it will create m and this function will be

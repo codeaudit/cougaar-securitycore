@@ -39,9 +39,15 @@ public class CollectionUtil {
   public static final int VECTOR              = 12;
   public static final int WEAK_HASH_MAP       = 13;
 
+  private String _names[] = {
+    "Hashtable", "HashSet", "HashMap", "ArrayList",
+    "IdentityHashMap", "LinkedHashMap", "LinkedHashSet",
+    "LinkedList", "Stack", "TreeMap", "TreeSet", "Vectory",
+    "WeakHashMap"};
+
   private CollectionMonitorStats _stats;
   private static CollectionUtil _theInstance;
-
+  
   CollectionUtil() {
     _stats = CollectionMonitorStatsImpl.getInstance();
     System.out.println("From CollectionUtil:" + _stats);
@@ -150,4 +156,9 @@ public class CollectionUtil {
     }
     return l;
   }
+
+  public String getElementName(int type) {
+    return _names[type - 1];
+  }
+
 }
