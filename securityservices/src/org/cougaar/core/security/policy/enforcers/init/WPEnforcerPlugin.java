@@ -81,13 +81,16 @@ public class WPEnforcerPlugin extends ComponentPlugin {
         public void run() {
           boolean interrupt = false;
           while (!interrupt) {
-            String agent = "testBBPolicyAgent";
-            _log.debug("Add is allowed = " +
-                       _wp.isActionAuthorized(agent, agent, "Add"));
-            _log.debug("Remove is allowed = " +
-                       _wp.isActionAuthorized(agent, agent, "Remove"));
-            _log.debug("Change is allowed = " +
-                       _wp.isActionAuthorized(agent, agent, "Change"));
+            String agent1 = "RearEnclaveCrlManager";
+            String agent2 = "testBBPolicyAgent";
+            _log.debug("WPUpdateOk(" + agent1 +", " +  agent1 + ") = "
+                       + _wp.WPUpdateOk(agent1, agent1));
+            _log.debug("WPUpdateOk(" + agent1 +", " +  agent2 + ") = "
+                       + _wp.WPUpdateOk(agent1, agent2));
+            _log.debug("WPForwardOk(" + agent1 +", " +  agent2 + ") = "
+                       + _wp.WPUpdateOk(agent1, agent2));
+            _log.debug("WPLookupOk(" + agent1 + ") = " 
+                       + _wp.WPLookupOk(agent1));
             try {
               Thread.sleep(10000);
             } catch (Exception e) {
