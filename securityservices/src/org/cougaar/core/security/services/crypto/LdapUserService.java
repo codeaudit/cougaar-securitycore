@@ -47,7 +47,8 @@ public interface LdapUserService extends Service {
 
   public NamingEnumeration getRoles(String uid) 
     throws NamingException ;
-  public NamingEnumeration getRoles(String searchText, int maxResults) 
+  public NamingEnumeration getRoles(String searchText, String field,
+                                    int maxResults) 
     throws NamingException ;
   public NamingEnumeration getRoles(int maxResults) 
     throws NamingException ;
@@ -58,6 +59,10 @@ public interface LdapUserService extends Service {
   public void              unassign(String uid, String rid) 
     throws NamingException ;
   public void              addRole(String rid) 
+    throws NamingException ;
+  public void              addRole(String rid, Attributes attrs) 
+    throws NamingException ;
+  public void              editRole(String rid, ModificationItem[] mods) 
     throws NamingException ;
   public void              deleteRole(String rid) 
     throws NamingException ;

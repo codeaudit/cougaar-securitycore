@@ -49,6 +49,8 @@ import org.cougaar.core.security.policy.GuardRegistration;
 import safe.enforcer.NodeEnforcer;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.core.security.policy.LdapUserServicePolicy;
+import org.cougaar.planning.ldm.policy.KeyRuleParameterEntry;
+import org.cougaar.planning.ldm.policy.KeyRuleParameter;
 
 public class LdapUserServiceImpl implements LdapUserService {
 
@@ -71,12 +73,13 @@ public class LdapUserServiceImpl implements LdapUserService {
   protected String            _roleBase    = "dc=roles,dc=cougaar,dc=org";
   protected String            _urdn        = "uid";
   protected String            _rrdn        = "cn";
-  protected String            _uoc         = "inetOrgPerson";
-  protected String            _roc         = "groupOfUniqueNames";
-  protected String            _rattr       = "uniqueMember";
+  protected String[]          _uoc         = {"inetOrgPerson","cougaarAcct"};
+  protected String[]          _roc         = {"organizationalRole"};
+  protected String            _rattr       = "roleOccupant";
 
   protected LdapUserServiceConfigurer _configurer;
 
+  private static final String[] STRING_ARR = new String[1];
   /**
    * Default constructor - initializes the LDAP connection using
    * the guard's policy. If no policy exists, there will be no
@@ -172,12 +175,14 @@ public class LdapUserServiceImpl implements LdapUserService {
                                     int maxResults) throws NamingException {
     return _context.search(_userBase,
                            "(&(" + field + "=" + text + "),(objectClass=" +
-                           _uoc + "))", getControl(maxResults));
+                           _uoc[0] + "))", 
+                           getControl(maxResults));
   }
 
   public NamingEnumeration getUsers(String filter, int maxResults) throws NamingException {
     return _context.search(_userBase, "(&(" + filter + "),(objectClass=" +
-                           _uoc + "))", getControl(maxResults));
+                           _uoc[0] + "))",
+                           getControl(maxResults));
   }
 
   public Attributes        getUser(String uid) throws NamingException {
@@ -188,8 +193,13 @@ public class LdapUserServiceImpl implements LdapUserService {
     _context.modifyAttributes(uid2dn(uid), mods);
   }
 
-  public void              addUser(String uid, Attributes attrs) throws NamingException {
-    attrs.put("objectClass", _uoc);
+  public void              addUser(String uid, Attributes attrs)
+    throws NamingException {
+    Attribute oc = new BasicAttribute("objectClass");
+    for (int i = 0; i < _uoc.length; i++) {
+      oc.add(_uoc[i]);
+    }
+    attrs.put(oc);
     _context.createSubcontext(uid2dn(uid), attrs);
   }
 
@@ -197,7 +207,8 @@ public class LdapUserServiceImpl implements LdapUserService {
     NamingEnumeration ne = getRoles(uid);
     ArrayList roles = new ArrayList();
     while (ne.hasMore()) {
-      Attributes attrs = (Attributes) ne.next();
+      SearchResult res = (SearchResult) ne.next();
+      Attributes attrs = (Attributes) res.getAttributes();
       Attribute roleDN = attrs.get(_rrdn);
       roles.add(roleDN.get().toString());
     }
@@ -213,22 +224,23 @@ public class LdapUserServiceImpl implements LdapUserService {
     throws NamingException {
     return _context.search(_roleBase,
                            "(&(" + _rattr + "=" + uid2dn(uid) +
-                           "),(objectClass=" + _roc + "))",
+                           "),(objectClass=" + _roc[0] + "))",
                            getControl(0));
   }
 
-  public NamingEnumeration getRoles(String searchText, int maxResults) 
+  public NamingEnumeration getRoles(String searchText, String field, 
+                                    int maxResults) 
     throws NamingException {
     return _context.search(_roleBase,
-                           "(&(" + _rrdn + "=" + searchText +
-                           "),(objectClass=" + _roc + "))", 
+                           "(&(" + field + "=" + searchText +
+                           "),(objectClass=" + _roc[0] + "))", 
                            getControl(maxResults));
   }
 
   public NamingEnumeration getRoles(int maxResults) 
     throws NamingException {
     return _context.search(_roleBase,
-                           "(objectClass=" + _roc + ")",
+                           "(objectClass=" + _roc[0] + ")",
                            getControl(maxResults));
   }
 
@@ -240,16 +252,20 @@ public class LdapUserServiceImpl implements LdapUserService {
   public void              assign(String uid, String rid) 
     throws NamingException {
     Attributes attrs = getRole(rid);
-    Attribute  attr  = attrs.get(_rattr);
-    NamingEnumeration ne = attr.getAll();
     String userDN = uid2dn(uid);
-    while (ne.hasMore()) {
-      String dn = ne.next().toString();
-      if (dn != null && dn.equals(userDN)) {
-        ne.close(); // abort, the user's already assigned
-        return;
+    /* don't need to do this since roleOccupant is unsorted
+    Attribute  attr  = attrs.get(_rattr);
+    if (attr != null) {
+      NamingEnumeration ne = attr.getAll();
+      while (ne.hasMore()) {
+        String dn = ne.next().toString();
+        if (dn != null && dn.equals(userDN)) {
+          ne.close(); // abort, the user's already assigned
+          return;
+        }
       }
     }
+    */
     // user's not there, so we should add her
     attrs = new BasicAttributes();
     attrs.put(_rattr, userDN);
@@ -267,11 +283,29 @@ public class LdapUserServiceImpl implements LdapUserService {
     }
   }
 
-  public void              addRole(String rid) 
-    throws NamingException {
-    Attributes attrs = new BasicAttributes();
-    attrs.put("objectClass", _roc);
+  public void              addRole(String rid) throws NamingException {
+    BasicAttributes attrs = new BasicAttributes();
+    Attribute oc = new BasicAttribute("objectClass");
+    for (int i = 0; i < _roc.length; i++) {
+      oc.add(_roc[i]);
+    }
+    attrs.put(oc);
     _context.createSubcontext(rid2dn(rid), attrs);
+  }
+
+  public void              addRole(String rid, Attributes attrs) 
+    throws NamingException {
+    Attribute oc = new BasicAttribute("objectClass");
+    for (int i = 0; i < _roc.length; i++) {
+      oc.add(_roc[i]);
+    }
+    attrs.put(oc);
+    _context.createSubcontext(rid2dn(rid), attrs);
+  }
+
+  public void              editRole(String rid, ModificationItem[] mods)
+    throws NamingException {
+    _context.modifyAttributes(rid2dn(rid), mods);
   }
 
   public void              deleteRole(String rid) 
@@ -325,7 +359,18 @@ public class LdapUserServiceImpl implements LdapUserService {
       RuleParameter[] param = policy.getRuleParameters();
       for (int i = 0; i < param.length; i++) {
         String name  = param[i].getName();
+        String values[] = null;
         String value = param[i].getValue().toString();
+        if (param[i] instanceof KeyRuleParameter) {
+          KeyRuleParameterEntry[] rules = 
+            ((KeyRuleParameter) param[i]).getKeys();
+          if (rules.length > 0) {
+            values = new String[rules.length];
+            for (int j = 0; j < rules.length; j++) {
+              values[j] = rules[j].getValue();
+            }
+          }
+        }
         if (PROP_URL.equals(name)) {
           reset = true;
           _url = value;
@@ -344,9 +389,17 @@ public class LdapUserServiceImpl implements LdapUserService {
         } else if (PROP_RRDN.equals(name)) {
           _rrdn = value;
         } else if (PROP_UOC.equals(name)) {
-          _uoc = value;
+          if (values == null) {
+            _uoc = new String[] {value};
+          } else {
+            _uoc = values;
+          }
         } else if (PROP_ROC.equals(name)) {
-          _roc = value;
+          if (values == null) {
+            _roc = new String[] {value};
+          } else {
+            _roc = values;
+          }
         } else if (PROP_RATTR.equals(name)) {
           _rattr = value;
         } else {
@@ -365,7 +418,6 @@ public class LdapUserServiceImpl implements LdapUserService {
           Hashtable env = new Hashtable();
           setLdapEnvironment(env);
           try {
-            System.out.println("Starting Context: " + env);
             _context = new InitialDirContext(env);
           } catch (NamingException e) {
             System.out.println("LdapUserService: couldn't initialize connection to User LDAP database");
