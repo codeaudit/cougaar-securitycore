@@ -79,7 +79,7 @@ public abstract class SensorPlugin
 extends ComponentPlugin {
 
   private MessageAddress myAddress;
-  private MessageAddress myManagerAddress;
+  protected MessageAddress myManagerAddress;
 
   /**
    * method to obtain the sensor info for the concrete class
