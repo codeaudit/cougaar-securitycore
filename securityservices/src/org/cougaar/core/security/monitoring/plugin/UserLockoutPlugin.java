@@ -485,7 +485,19 @@ public class UserLockoutPlugin extends ResponderPlugin {
       // may receive a add change message later
       return;
     }
-    setupFailureSensor(messageAddress);
+    ServiceBroker        sb           = getBindingSite().getServiceBroker();
+    ThreadService        ts           = (ThreadService)
+      sb.getService(this, ThreadService.class, null);
+
+    final MessageAddress addr = messageAddress;
+    // no nested open transaction problems...
+    ts.getThread(this, new Runnable() {
+        public void run() {
+          setupFailureSensor(addr);
+        }
+      }
+      ).start();
+    sb.releaseService(this, ThreadService.class, ts);
   }
 
   private void setupFailureSensor(MessageAddress managerAddress) {
