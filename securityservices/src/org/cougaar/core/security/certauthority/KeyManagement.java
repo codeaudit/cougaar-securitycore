@@ -365,6 +365,9 @@ public class KeyManagement
 	caOperations.publishCertificate(clientX509,
 					CertificateUtility.EntityCert,null);
       }
+      if (configParser.isCertificateAuthority()) {
+        publishCAinLdap();
+      }
     }
     catch(Exception e) {
       log.error("Unable to process request: ", e);
@@ -402,6 +405,9 @@ public class KeyManagement
 	  }
 	  caOperations.publishCertificate(clientX509,
 					  CertificateUtility.EntityCert,null);
+          if (configParser.isCertificateAuthority()) {
+            publishCAinLdap();
+          }
 	}
       }
     }
@@ -568,6 +574,9 @@ public class KeyManagement
 	  }
 	  caOperations.publishCertificate(clientX509,
 					  CertificateUtility.EntityCert,null);
+          if (configParser.isCertificateAuthority()) {
+            publishCAinLdap();
+          }
 	}
         return new CertificateResponse(PENDING_STATUS_APPROVED, clientX509);
       } catch (Exception e) {
@@ -623,14 +632,14 @@ public class KeyManagement
         status = PENDING_STATUS_PENDING;
 
         pendingCache.
-          addCertificateToList(dirlist[2], 
+          addCertificateToList(dirlist[2],
                                keyRing.getAlias(clientX509), clientX509);
       }
 
       if (status != PENDING_STATUS_APPROVED) {
         clientX509 = null;
       } // end of if (status != PENDING_STATUS_APPROVED)
-      
+
       return new CertificateResponse(status, clientX509);
     } catch (Exception e) {
       log.warn("Unable to process request", e);
