@@ -774,7 +774,7 @@
       *               S E C U R I T Y                        *
       *                                                      *
       ********************************************************-->
-  <Community Name="Enclave1Security-COMM" >
+  <Community Name="RearSecurity-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
@@ -1054,21 +1054,21 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave1CANode" >
+    <Entity Name="REAR-CA-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave1CRLProvider" >
+    <Entity Name="RearEnclaveCrlManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="CrlProvider" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave1PersistenceManager" >
+    <Entity Name="RearEnclavePersistenceManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="PersistenceManager" />
     </Entity>
-    <Entity Name="Enclave1SecurityMnRManager" >
+    <Entity Name="RearEnclaveMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
@@ -1093,11 +1093,11 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="PolicyDomainManager1" >
+    <Entity Name="RearPolicyDomainManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="PolicyDomainManager1Servlet" >
+    <Entity Name="RearPolicyDomainManagerServlet" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1153,12 +1153,12 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="UserAdminAgent1" >
+    <Entity Name="RearUserAdminAgent" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="Enclave2Security-COMM" >
+  <Community Name="FWDSecurity-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
@@ -1390,24 +1390,24 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave2CANode" >
+    <Entity Name="FWD-CA-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave2CRLProvider" >
+    <Entity Name="FwdEnclaveCrlManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="CrlProvider" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave2PersistenceManager" >
+    <Entity Name="FwdEnclavePersistenceManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="PersistenceManager" />
     </Entity>
-    <Entity Name="Enclave2SecurityMnRManager" >
+    <Entity Name="FwdEnclaveMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
-      <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
+      <Attribute ID="Role" Value="Manager" />
     </Entity>
     <Entity Name="Enclave2Sub1Manager" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1449,19 +1449,16 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="PolicyDomainManager2" >
+    <Entity Name="FwdPolicyDomainManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="PolicyDomainManager2Servlet" >
+    <Entity Name="FwdPolicyDomainManagerServlet" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="UserAdminAgent2" >
+    <Entity Name="FwdUserAdminAgent" >
       <Attribute ID="MemberType" Value="Agent" />
-    </Entity>
-    <Entity Name="UserAdminAgent3" >
-      <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
   <Community Name="Enclave2SecuritySub1-COMM" >
@@ -1488,7 +1485,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="Enclave3Security-COMM" >
+  <Community Name="CONUSSecurity-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
@@ -1512,21 +1509,21 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave3CANode" >
+    <Entity Name="CONUS-CA-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave3CRLProvider" >
+    <Entity Name="ConusEnclaveCrlManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="CrlProvider" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave3PersistenceManager" >
+    <Entity Name="ConusEnclavePersistenceManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="PersistenceManager" />
     </Entity>
-    <Entity Name="Enclave3SecurityMnRManager" >
+    <Entity Name="ConusEnclaveMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
@@ -1563,11 +1560,11 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="PolicyDomainManager3" >
+    <Entity Name="ConusPolicyDomainManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="PolicyDomainManager3Servlet" >
+    <Entity Name="ConusPolicyDomainManagerServlet" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1603,7 +1600,7 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="UserAdminAgent3" >
+    <Entity Name="ConusUserAdminAgent" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1616,7 +1613,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="Enclave4Security-COMM" >
+  <Community Name="TRANSSecurity-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
@@ -1648,21 +1645,21 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave4CANode" >
+    <Entity Name="TRANS-CA-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave4CRLProvider" >
+    <Entity Name="TransEnclaveCrlManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="CrlProvider" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave4PersistenceManager" >
+    <Entity Name="TransEnclavePersistenceManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="PersistenceManager" />
     </Entity>
-    <Entity Name="Enclave4SecurityMnRManager" >
+    <Entity Name="TransEnclaveMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
@@ -1691,11 +1688,11 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="PolicyDomainManager4" >
+    <Entity Name="TransPolicyDomainManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="PolicyDomainManager4Servlet" >
+    <Entity Name="TransPolicyDomainManagerServlet" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1730,12 +1727,12 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="UserAdminAgent4" >
+    <Entity Name="TransUserAdminAgent" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="UserDomain1" >
+  <Community Name="Rear" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="REAR-A" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1773,13 +1770,21 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="UserAdminAgent1" >
+    <Entity Name="UserAdminNode" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="ca1ADNode" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="RearUserAdminAgent" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="UserManager" />
     </Entity>
   </Community>
-  <Community Name="UserDomain2" >
+  <Community Name="Fwd" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="FWD-A" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1817,13 +1822,13 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="UserAdminAgent2" >
+    <Entity Name="FwdUserAdminAgent" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="UserManager" />
     </Entity>
   </Community>
-  <Community Name="UserDomain3" >
+  <Community Name="Conus" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="CONUS-CA-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1849,13 +1854,13 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="UserAdminAgent3" >
+    <Entity Name="ConusUserAdminAgent" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="UserManager" />
     </Entity>
   </Community>
-  <Community Name="UserDomain4" >
+  <Community Name="Trans" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="AIR-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1881,7 +1886,7 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="UserAdminAgent4" >
+    <Entity Name="TransUserAdminAgent" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="UserManager" />
