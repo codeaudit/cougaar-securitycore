@@ -1,10 +1,11 @@
 #!/bin/sh
 
-CP=${KAOS_ROOT}/lib/ontologyRepInit.jar
 CP=${KAOS_ROOT}/lib/tools.jar:${CP}
 
 CP=${COUGAAR_INSTALL_PATH}/lib/kaos.jar:${CP}
 
+#CP=${COUGAAR_INSTALL_PATH}/lib/kaos.jar:${CP}
+#
 CP=${COUGAAR_INSTALL_PATH}/sys/antlr.jar:${CP}
 CP=${COUGAAR_INSTALL_PATH}/sys/dl.jar:${CP}
 CP=${COUGAAR_INSTALL_PATH}/sys/icu4j.jar:${CP}
@@ -15,8 +16,9 @@ CP=${COUGAAR_INSTALL_PATH}/sys/jdom.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/jena.jar:${CP}
 CP=${COUGAAR_INSTALL_PATH}/sys/jtp.jar:${CP}
 CP=${COUGAAR_INSTALL_PATH}/sys/mail.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/xerces.jar:${CP}
-
+CP=${COUGAAR_INSTALL_PATH}/sys/xercesImpl.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/xmlParserAPIs.jar:${CP}
+#
 ##
 # The following are needed by any WebProxyInstaller script
 #
@@ -31,4 +33,6 @@ DEFS=-Dorg.cougaar.config.path="${COUGAAR_INSTALL_PATH}/configs/security"
 
 java $DEFS -classpath $CP \
    org.cougaar.core.security.policy.webproxy.WebProxyInstaller \
-   kaos.tools.ontologyJavaMapper.OntologyJavaMapper $1 $2 $3
+   kaos.tools.ontologyJavaMapper.OWLOntologyJavaMapper $1 $2 $3
+
+
