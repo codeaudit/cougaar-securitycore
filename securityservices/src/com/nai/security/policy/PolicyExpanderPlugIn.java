@@ -249,7 +249,7 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
                                 Policy[] policies = policyCreator.getPolicies();
                                 for (int i=0; i<policies.length; i++) {
 				  if (policies[i] instanceof TypedPolicy){
-                                    binderType = (TypedPolicy)policies[i].getType();
+                                    binderType = ((TypedPolicy)policies[i]).getType();
 				    // put the policy object into the attribute table
 				    attributes1.put(POLICY_OBJECT_KEY, policies[i]);
 				    // put the updated table into the cloned message
