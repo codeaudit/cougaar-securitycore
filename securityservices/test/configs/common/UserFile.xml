@@ -20,15 +20,87 @@
     <role>SocietyAdmin</role>
   </user>
   <user>
-    <uid>satan</uid>
-    <password>satan</password>
+    <uid>ulysses</uid>
+    <password>ulysses</password>
     <enableTime>19700101000000Z</enableTime>
     <certOk>true</certOk>
     <auth>EITHER</auth>
-    <givenName>Satan</givenName>
-    <sn>Lucifer</sn>
-    <cn>Beelzebub</cn>
-    <mail>gmount@nai.com</mail>
+    <givenName>Odysseus</givenName>
+    <sn>Ulysses</sn>
+    <cn>Odysseus</cn>
+    <mail>ulysses@ithaca.gov</mail>
+    <role>UserManager</role>
+  </user>
+  <user>
+    <uid>lance</uid>
+    <password>lance</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Lance</givenName>
+    <sn>Armstrong</sn>
+    <cn>Lance Armstrong</cn>
+    <mail>lance@nowhere.com</mail>
+    <role>Logistician</role>
+  </user>
+  <user>
+    <uid>larry</uid>
+    <password>larry</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Larry</givenName>
+    <sn>Tate</sn>
+    <cn>Larry Tate</cn>
+    <mail>larry@nowhere.com</mail>
+    <role>LogisticsViewer</role>
+  </user>
+  <user>
+    <uid>paul</uid>
+    <password>paul</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Paul</givenName>
+    <sn>McCartney</sn>
+    <cn>Paul McCartney</cn>
+    <mail>paul@nowhere.com</mail>
+    <role>PolicyAdministrator</role>
+  </user>
+  <user>
+    <uid>mike</uid>
+    <password>mike</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Mike</givenName>
+    <sn>Wallace</sn>
+    <cn>Mike Wallace</cn>
+    <mail>mike@nowhere.com</mail>
+    <role>MonitorManager</role>
+  </user>
+  <user>
+    <uid>carrie</uid>
+    <password>carrie</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Carrie</givenName>
+    <sn>Fisher</sn>
+    <cn>Carrie Fisher</cn>
+    <mail>carrie@nowhere.com</mail>
+    <role>CAAdministrator</role>
+  </user>
+  <user>
+    <uid>sally</uid>
+    <password>sally</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Sally</givenName>
+    <sn>Field</sn>
+    <cn>Sally Field</cn>
+    <mail>sally@nowhere.com</mail>
     <role>SocietyAdmin</role>
   </user>
   <role>
