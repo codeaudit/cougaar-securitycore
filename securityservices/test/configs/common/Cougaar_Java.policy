@@ -128,6 +128,7 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "glm_log_file", "read";
 
 	permission java.util.PropertyPermission "com.nai.*", "read";
+	permission java.util.PropertyPermission "sun.*", "read";
 
 	// FIX: Required for KAoS. That property should really be renamed to org.cougaar....
 	// permission java.util.PropertyPermission "domainName", "read";
