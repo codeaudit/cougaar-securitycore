@@ -11,7 +11,10 @@ script: $CIP/configs/ping/TransformTemplate.rb
 parameters:
   - run_count: 1
   - society_file: $CIP/configs/ping/MiniPingSociety.rb
-  - layout_file: $CIP/configs/ping/Secure-MiniPing-layout.xml
+# Use other layout files as needed (one, two or four hosts, or create your own)
+#  - layout_file: $CIP/configs/ping/Secure-MiniPing-layout-two-hosts.xml
+#  - layout_file: $CIP/configs/ping/Secure-MiniPing-layout.xml
+  - layout_file: $CIP/configs/ping/Secure-MiniPing-layout-one-host.xml
   
   - rules:
     - $CIP/csmart/config/rules/isat/community_plugin.rule
@@ -34,6 +37,7 @@ parameters:
 #   - $CIP/csmart/config/rules/security/mts/https_mts.rule
     - $CIP/csmart/config/rules/security/mts/sslRMI.rule
     - $CIP/csmart/config/rules/security/naming
+    - ./vm.rules
   - community_rules:
     - $CIP/csmart/config/rules/security/communities
 

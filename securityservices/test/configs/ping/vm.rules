@@ -1,4 +1,4 @@
 
 society.each_node do |node|
-    node.prepend_value_on_parameter("-Dorg.cougaar.config.path", ".")
+    node.prepend_value_on_parameter("-Dorg.cougaar.config.path", "./")
 end

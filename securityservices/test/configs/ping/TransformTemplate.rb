@@ -14,7 +14,8 @@ Cougaar::ExperimentMonitor.enable_stdout
 Cougaar::ExperimentMonitor.enable_logging
 
 host_file = nil
-host_file_name = "default-host-layout-file.xml" 
+#host_file_name = "default-host-layout-file.xml" 
+host_file_name = "single-host-layout-file.xml" 
 
 Cougaar.new_experiment().run(parameters[:run_count]) {
   set_archive_path parameters[:archive_dir]
