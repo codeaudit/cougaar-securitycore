@@ -44,6 +44,7 @@ import javax.crypto.*;
 
 import javax.naming.directory.SearchResult;
 import javax.naming.directory.Attributes;
+import javax.naming.NameAlreadyBoundException;
 import sun.security.pkcs.*;
 import sun.security.x509.*;
 import sun.security.util.*;
@@ -317,7 +318,8 @@ public class KeyManagement
 	 }
 	 catch (Exception e) {
 	   if (log.isWarnEnabled()) {
-	     log.warn("Unable to publish CA certificate to LDAP: " + e);
+             if (!(e instanceof NameAlreadyBoundException))
+              log.warn("Unable to publish CA certificate to LDAP: " + e);
 	   }
 	 }
        }
