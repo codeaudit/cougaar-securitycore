@@ -33,3 +33,7 @@ NOTE:
 If you want to change the policy, go edit the xml policy file, then in above step 5,
 instead of click "Add...", click "Edit"; also click "Edit" in step 7, 
 "<< Deselect <<" the "XML content", and redo the "Import XML", then repeat step 9-12.
+
+NOTE:
+If you restart the society, you need to restart KPAT too, previous instance won't run
+with the new society, this may be fixed later. 
