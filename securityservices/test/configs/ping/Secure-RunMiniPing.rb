@@ -6,8 +6,8 @@ $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist')
 $:.unshift File.join(CIP, 'csmart', 'config', 'lib') 
 
 # Uncomment the following two lines if working in the CSI testbed
-#$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib') 
-#require 'framework/scripting'
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib') 
+require 'framework/scripting'
  
 require 'cougaar/scripting' 
 #require './create_society.rb' 
@@ -86,7 +86,7 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   do_action "SaveCurrentCommunities", "myCommunities.xml" 
 
   # Uncomment the following line if working in the CSI testbed
-  #do_action "SetAcmeUser" 
+  do_action "SetAcmeUser" 
 
   # start jabber 
   # 
