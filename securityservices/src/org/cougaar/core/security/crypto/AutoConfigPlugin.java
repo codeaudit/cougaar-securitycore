@@ -11,9 +11,13 @@ import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.crypto.*;
 
 public class AutoConfigPlugin extends ConfigPlugin {
+  Vector calist = new Vector();
 
-  protected void execute() {
-    Collection l = getParameters();
+  protected void setParameters(Object o) {
+    if (!(o instanceof List)) {
+      throw new IllegalArgumentException("Expecting a List argument to setParameter");
+    }
+    List l = (List) o;
     if (l.size() == 0) {
       System.out.println("No CA assigned!");
     }
@@ -21,9 +25,15 @@ public class AutoConfigPlugin extends ConfigPlugin {
     while (it.hasNext()) {
       String param = (String)it.next();
       System.out.println("Unzip & run CA: " + param);
-      addTrustedPolicy(param);
+      calist.addElement(param);
     }
 
+  }
+
+  protected void execute() {
+    for (int i = 0; i < calist.size(); i++) {
+      addTrustedPolicy((String)calist.elementAt(i));
+    }
   }
 
   /** Need to synchronize because for normal node there could be multiple threads
@@ -52,7 +62,8 @@ public class AutoConfigPlugin extends ConfigPlugin {
     X500Name dname = null;
     try {
       String nodename = NodeInfo.getNodeName();
-      dname = new X500Name(CertificateUtility.getX500DN(nodename,CertificateCache.CERT_TITLE_NODE,
+      dname = new X500Name(CertificateUtility.getX500DN(nodename,
+        CertificateCache.CERT_TITLE_NODE,
         tcp.getCertificateAttributesPolicy()));
     } catch (IOException iox) {}
 
