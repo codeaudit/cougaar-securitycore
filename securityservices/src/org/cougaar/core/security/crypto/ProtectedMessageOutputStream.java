@@ -106,8 +106,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     _source = source.toAddress();
     _target = target.toAddress();
 
-    SecureMethodParam policy = 
-      _cps.getSendPolicy(_source, _target);
+    SecureMethodParam policy = _cps.getSendPolicy(_source, _target);
 
     // secret key encrypted by sender or receiver's certificate
     byte[] senderSecret   = null;
