@@ -242,6 +242,9 @@ grant signedBy "bootstrapper" {
 ////////////////////////////////////////////////////////////
 // Permissions for core infrastructure package.
 grant signedBy "privileged" {
+	// Temporary hack to get around bug with persisting
+ 	permission org.cougaar.core.security.provider.SecurityServicePermission "*";	
+
 	// Temporary until BUG 1264 is fixed:
 	permission java.util.PropertyPermission "*", "read,write";
         permission java.lang.RuntimePermission "getClassLoader";
