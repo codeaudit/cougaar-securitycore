@@ -115,10 +115,10 @@ public class SecureClassLoader
 	      //and exclude from urls if not trusted
 	      certificateVerifier.verify(jf);
 	      verifiedUrls.put(urlc, Boolean.TRUE);
-	      System.out.println(urlc.getPath() + " has been verified");
+	      //System.out.println(urlc.getPath() + " has been verified");
 	    }
 	    catch (Exception e) {
-	      System.out.println(urlc.getPath() + " does not have valid signature");
+	      //System.out.println(urlc.getPath() + " does not have valid signature");
 	      securelog.logJarVerificationError(e);
 	      verifiedUrls.put(urlc, Boolean.FALSE);
 	      c = null;
