@@ -94,9 +94,30 @@ public class CryptoClientPolicy
   public CertificateAttributesPolicy getCertificateAttributesPolicy() {
     return certificateAttributesPolicy;
   }
+  public CertificateAttributesPolicy getCertificateAttributesPolicy(
+    TrustedCaPolicy trustedCaPolicy) {
+    if (trustedCaPolicy != null && trustedCaPolicy.getCertificateAttributesPolicy() != null)
+      return trustedCaPolicy.getCertificateAttributesPolicy();
+
+    return certificateAttributesPolicy;
+  }
+
   public TrustedCaPolicy[] getTrustedCaPolicy() {
     TrustedCaPolicy[] tc = new TrustedCaPolicy[trustedCAs.size()];
     trustedCAs.toArray(tc);
+    return tc;
+  }
+
+  public TrustedCaPolicy[] getIssuerPolicy() {
+    Vector issuers = new Vector();
+    for (int i = 0; i < trustedCAs.size(); i++) {
+      TrustedCaPolicy trustedCaPolicy = (TrustedCaPolicy)trustedCAs.get(i);
+      if (trustedCaPolicy.caURL != null) {
+        issuers.addElement(trustedCaPolicy);
+      }
+    }
+    TrustedCaPolicy[] tc = new TrustedCaPolicy[issuers.size()];
+    issuers.toArray(tc);
     return tc;
   }
 
