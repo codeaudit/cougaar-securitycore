@@ -189,17 +189,25 @@ public class BaseConfigHandler
   }
 
   protected String parseContents(String s) {
+    if (log.isDebugEnabled()) {
+      log.debug("Entering parseContents with " + s);
+      log.debug("String = "+ s);
+    }
     Pattern p_javaprop = Pattern.compile("\\$\\{.*\\}");
-    Pattern p_keyvalue = Pattern.compile("\\$\\[.*\\]");
+    Pattern p_keyvalue = Pattern.compile("\\$\\|.*\\|");
+    //  The following was the old setting but it doesn't work with the 
+    //  new xerces because $[distinguishedName]  is read by the parser as 
+    //  two tokens, $[distinguishedName and ].
+    //    Pattern p_keyvalue = Pattern.compile("\\$\\[.*\\]");
     Matcher matcher = null;
     StringBuffer sb = new StringBuffer();
     boolean result = false;
 
 
     if (replaceJavaProperties) {
-      //if (log.isDebugEnabled()) {
-      //log.debug("Looking up java property pattern in " + s);
-      //}
+      if (log.isDebugEnabled()) {
+        log.debug("Looking up java property pattern in " + s);
+      }
       /* Search for java properties patterns.
      * ${java_property} will be replaced by the value of the java property.
      * For example:
@@ -214,7 +222,9 @@ public class BaseConfigHandler
 	String token = matcher.group();
 	String propertyName = token.substring(2, token.length() - 1);
 	String propertyValue = System.getProperty(propertyName);
-	log.debug("Replacing " + token + " with " + propertyValue);
+        if (log.isDebugEnabled()) {
+          log.debug("Replacing " + token + " with " + propertyValue);
+        }
 	matcher.appendReplacement(sb, propertyValue);
 	result = matcher.find();
       }
@@ -243,7 +253,9 @@ public class BaseConfigHandler
 	String token = matcher.group();
 	String attributeName = token.substring(2, token.length() - 1);
 	String attributeValue = (String) attributeTable.get(attributeName);
-	log.debug("Replacing " + token + " with " + attributeValue);
+        if (log.isDebugEnabled()) {
+          log.debug("Replacing " + token + " with " + attributeValue);
+        }
 	matcher.appendReplacement(sb, attributeValue);
 	result = matcher.find();
       }
@@ -252,7 +264,9 @@ public class BaseConfigHandler
       matcher.appendTail(sb);
       s = sb.toString();
     }
-    
+    if (log.isDebugEnabled()) {
+      log.debug("Returning " + s);
+    }
     return s;
   }
 
