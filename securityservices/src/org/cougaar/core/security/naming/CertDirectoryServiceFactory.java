@@ -38,7 +38,6 @@ public class CertDirectoryServiceFactory {
 
   public CertDirectoryServiceFactory(ServiceBroker serviceBroker) {
     sb = serviceBroker;
-
     serviceCache.put("ldap", new LdapSearchServiceImpl(sb));
   }
 
