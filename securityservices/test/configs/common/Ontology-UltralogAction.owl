@@ -90,6 +90,7 @@
 
 
      <owl:Class rdf:ID="BlackBoardAccess">
+        <owl:disjointWith rdf:resource="#ServletAccess"/>
         <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
         <rdfs:subClassOf>
            <owl:Restriction>
@@ -112,15 +113,39 @@
      </owl:Class>
 
      <owl:Class rdf:ID="WPUpdateSelf">
+       <owl:disjointWith rdf:resource="#ServletAccess"/>
+       <owl:disjointWith rdf:resource="#BlackBoardAccess"/>
        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
+       <rdfs:subClassOf>
+         <owl:Restriction>
+           <owl:onProperty rdf:resource="http://ontology.ihmc.us/Action.owl#performedBy"/>
+           <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent" />
+         </owl:Restriction>
+       </rdfs:subClassOf>
      </owl:Class>
 
      <owl:Class rdf:ID="WPUpdateDelegate">
-       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
+       <owl:disjointWith rdf:resource="#ServletAccess"/>
+       <owl:disjointWith rdf:resource="#BlackBoardAccess"/>
        <owl:disjointWith rdf:resource="#WPUpdateSelf"/>
+       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
+       <rdfs:subClassOf>
+         <owl:Restriction>
+           <owl:onProperty rdf:resource="http://ontology.ihmc.us/Action.owl#performedBy"/>
+           <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent" />
+         </owl:Restriction>
+       </rdfs:subClassOf>
+       <rdfs:subClassOf>
+         <owl:Restriction>
+           <owl:onProperty rdf:resource="#wpAgentEntry"/>
+           <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent" />
+         </owl:Restriction>
+       </rdfs:subClassOf>
      </owl:Class>
 
      <owl:Class rdf:ID="WPUpdate">
+       <owl:disjointWith rdf:resource="#ServletAccess"/>
+       <owl:disjointWith rdf:resource="#BlackBoardAccess"/>
        <owl:unionOf rdf:parseType="Collection">
           <owl:Class rdf:about="#WPUpdateSelf"/>
           <owl:Class rdf:about="#WPUpdateDelegate"/>
@@ -134,6 +159,9 @@
      </owl:Class>
 
      <owl:Class rdf:ID="WPLookup">
+       <owl:disjointWith rdf:resource="#ServletAccess"/>
+       <owl:disjointWith rdf:resource="#BlackBoardAccess"/>
+       <owl:disjointWith rdf:resource="#WPUpdate"/>
        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
        <rdfs:subClassOf>
          <owl:Restriction>
@@ -145,6 +173,10 @@
 
 
      <owl:Class rdf:ID="WPForward">
+       <owl:disjointWith rdf:resource="#ServletAccess"/>
+       <owl:disjointWith rdf:resource="#BlackBoardAccess"/>
+       <owl:disjointWith rdf:resource="#WPUpdate"/>
+       <owl:disjointWith rdf:resource="#WPLookup"/>
        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
        <rdfs:subClassOf>
          <owl:Restriction>
