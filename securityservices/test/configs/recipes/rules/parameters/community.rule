@@ -43,12 +43,36 @@ society.each_enclave do |enclave|
           when "#{enclave.capitalize}RedundantPersistenceManager"
             entity.add_role("PersistenceManager")
           when "#{enclave.capitalize}EnclaveMnRManager"
-            ROOT_COMM_MGRS << agent.name
-            entity.add_role("Manager")
+           # ROOT_COMM_MGRS << agent.name
+            entity.add_role("Member")
           end
         end
       end
     end
+  end
+  society.communities.add("#{enclave}-MnR-SECURITY-COMM") do |community|
+    mgragent = society.agents["#{enclave.capitalize}EnclaveMnRManager"]
+    if mgragent != nil
+      community.add_attribute("CommunityManager", mgragent.node.name)
+    end
+    community.add_attribute("CommunityType", "MnR-Security")
+    society.each_enclave_node(enclave) do |node|
+      community.add_agent(node.name) do |entity|
+        entity.add_role("Member")
+    end
+      node.each_agent do |agent|
+        if(agent.name != "SocietyMnRManager")
+          community.add_agent(agent.name) do |entity|
+            entity.add_role("Member")
+            case agent.name
+              when "#{enclave.capitalize}EnclaveMnRManager"
+                ROOT_COMM_MGRS << agent.name
+                entity.add_role("Manager")
+              end
+            end
+          end
+        end
+      end
   end
 
 =begin  
@@ -96,8 +120,8 @@ society.each_enclave do |enclave|
   
 end # enclaves
 
-society.communities.add("ROOT-SECURITY-COMM") do |community|
-  community.add_attribute("CommunityType", "Security")
+society.communities.add("ROOT-MnR-SECURITY-COMM") do |community|
+  community.add_attribute("CommunityType", "MnR-Security")
   for i in 0...ROOT_COMM_MGRS.length
     agent_name = ROOT_COMM_MGRS[i]
     community.add_agent(agent_name) do |entity|
