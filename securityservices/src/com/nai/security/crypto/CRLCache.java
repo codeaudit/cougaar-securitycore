@@ -43,15 +43,21 @@ import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.cert.CRLException;
 import java.lang.reflect.*;
+
 import com.nai.security.crlextension.x509.extensions.CertificateIssuerExtension;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.util.CryptoDebug;
 
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
+
 
 public class CRLCache implements Runnable
 {
+  private SecurityPropertiesService secprop = null;
+
   private Hashtable crlsCache = new Hashtable(50);
-  private long sleep_time=2000l; 
+  private long sleep_time=60000l; // Check CRL every minute by default
   
   //private boolean debug =false;
   private DirectoryKeyStore keystore=null;
@@ -64,14 +70,26 @@ public class CRLCache implements Runnable
 
   public CRLCache(DirectoryKeyStore dkeystore) 
   {
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties();
+
     this.keystore=dkeystore;
     if(CryptoDebug.crldebug) {
       System.out.println("Crl cache being initialized:::++++++++++");
+    }
+    long poll = 0;
+    try {
+      poll = (Long.valueOf(secprop.getProperty(secprop.CRL_POLLING_PERIOD))).longValue() * 1000;
+    }
+    catch (Exception e) {}
+    if (poll != 0) {
+      setSleepTime(poll);
     }
     Thread td=new Thread(this,"crlthread");
     td.setPriority(Thread.NORM_PRIORITY);
     td.start();
   }
+
   public void add(String dnname)
   {
     if(CryptoDebug.crldebug)
@@ -91,6 +109,9 @@ public class CRLCache implements Runnable
   
   public void setSleepTime(long sleeptime) {
     sleep_time=sleeptime;
+    if (CryptoDebug.debug) {
+      System.out.println("CRL polling interval set to " + (sleep_time / 1000) + "s");
+    }
   }
 
   public long getSleepTime() {

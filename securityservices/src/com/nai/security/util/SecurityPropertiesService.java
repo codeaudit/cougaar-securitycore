@@ -65,6 +65,8 @@ public interface SecurityPropertiesService extends Service
   "org.cougaar.security.keystore";
   public static String BOOTSTRAP_LOGFILE =
   "org.cougaar.core.security.bootstrap.SecurityManagerLogFile";
+  public static String CRL_POLLING_PERIOD =
+  "org.cougaar.core.security.crypto.crlpoll";
 
   public String getProperty(String property);
   public String getProperty(String property, String defaultValue);
