@@ -327,6 +327,10 @@ public class SecureConfigFinder
       "security" + File.separator + 
       "jarconfig" + File.separator +
       System.getProperty("org.cougaar.node.name");
+    File f = new File(s);
+    if (!f.exists()) {
+      f.mkdirs();
+    }
     return s;
   }
 
