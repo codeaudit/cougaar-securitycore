@@ -20,7 +20,7 @@ Cougaar.new_experiment().run(parameters[:run_count]) {
 
   host_file = HOSTS_FILE
   #host = @hostname unless host
-  Dir.glob(File.join(".", "example-hosts-secureMV.xml")).each do |file|
+  Dir.glob(File.join(".", "host-layout-file.xml")).each do |file|
     ts = Cougaar::SocietyBuilder.from_xml_file(file).society
     host_file = file
   end
