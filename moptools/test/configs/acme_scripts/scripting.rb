@@ -48,24 +48,24 @@ module Cougaar
                         end
                 end
                 
-                class AnalyzeSecurityBlackboardResults < Cougaar::Action
-                	def initialize(run)
-                		super(run)
-                		@run = run
-                	end
-                	def perform
-                		begin
-                			@run.society.each_agent(true) do |agent|
-                					#Should only be one analyzer servlet, but we don't know which one
-                					url ="http://#{agent.node.host.host_name}:#{@run.society.cougaar_port}/$#{agent.name}/analyze"
-                					req=Cougaar::Communications::HTTP.get(url)
-                				
-                			end
-                		rescue
-                			raise_failure "Could not do analysis of results"
-                		end
-                	end
-                end
-
+  #              class AnalyzeSecurityBlackboardResults < Cougaar::Action
+  #              	def initialize(run)
+  #              		super(run)
+  #              		@run = run
+  #              	end
+  #              	def perform
+  #              		begin
+  #              			@run.society.each_agent(true) do |agent|
+  #              					#Should only be one analyzer servlet, but we don't know which one
+  #              					url ="http://#{agent.node.host.host_name}:#{@run.society.cougaar_port}/$#{agent.name}/analyze"
+  #              					req=Cougaar::Communications::HTTP.get(url)
+  #              				
+  #              			end
+  #              		rescue
+  #              			raise_failure "Could not do analysis of results"
+  #              		end
+  #              	end
+  #              end
+   
         end
 end
