@@ -51,9 +51,7 @@
         	classname="org.cougaar.ant.CougaarForgePostTask"
         	onerror="report">
           <classpath>
-             <fileset dir="${securityservices.base}/build/lib">
-                <include name="securityinstaller.jar"/>
-             </fileset>
+            <pathelement location="${securityservices.base}/classes"/>
           </classpath>
         </taskdef>
         <property name="ant.contrib.ext.loaded" value="true"/>
@@ -922,6 +920,7 @@
           </if>
           <echo message="Posting ${project.name} to CougaarForge - project [${cougaarforge.project.unixname}]"/>
           <postToCougaarForge url="http://cougaar.org"
+          	    verbose="true"
           	    username="${cougaarforge.username}" password="${cougaarforge.password}"
           	    unixprojectname="${cougaarforge.project.unixname}">
             <prop name="userfile"     value="${overlay.zip.name}"/>
