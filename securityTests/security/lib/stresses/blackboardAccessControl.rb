@@ -6,17 +6,6 @@ class Stress1d < SecurityStressFramework
         @malicioustotal=0
   end
 
-  def postLoadSociety
-    logInfoMsg "Adding BlackboardTestManagerServlet to each agent"
-    classname = 'org.cougaar.core.security.test.blackboard.BlackboardTestManagerServlet'
-    url = '/testBlackboardManager'
-    run.society.each_agent do |agent|
-      agent.add_component do |c|
-        c.classname = classname
-      end
-    end    
-  end
-
   # StartSecurityBlackboardTesting
   def postPublishNextStage
     #Requires Oplan ready

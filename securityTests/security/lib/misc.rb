@@ -407,18 +407,48 @@ def getTestResultFile()
   File.new(filename,"a")
 end
 
+def getTestResultXmlFile()
+  filename = "#{$CIP}/workspace/test/security_test_results.xml"
+  Dir.mkdirs(File.dirname(filename))
+  File.new(filename,"a")
+end
+
 $TestResults = []
 def saveResult(pass, testnum, testname)
   success = "SUCCESS"
   if !pass
     success = "FAILURE"
   end
-  file = getTestResultFile()
-  file.print(success + "\t" + testnum + "\t" + testname + "\n");
-  file.close();
+  saveResultsToFile(pass, success, testnum, testname)
   summary([success, testnum, testname].join("\t"))
   $TestResults << [ pass, testnum, testname ]
 end # saveResult
+
+def saveUnitTestResult(testnum, description)
+  file = getTestResultXmlFile()
+  file.print("<unitTestResult>\n")
+  file.print("  <date>#{Time.now.to_s}</date>\n")
+  file.print("  <testId>#{testnum}</testId>\n")
+  file.print("  <description>#{description}</description>\n")
+  file.print("</unitTestResult>\n")
+  file.close();
+end # saveUnitTestResult
+
+
+def saveResultsToFile(pass, success, testnum, testname)
+  file = getTestResultFile()
+  file.print(success + "\t" + testnum + "\t" + testname + "\n");
+  file.close();
+
+  file = getTestResultXmlFile()
+  file.print("<event>\n")
+  file.print("  <date>#{Time.now.to_s}</date>\n")
+  file.print("  <testId>#{testnum}</testId>\n")
+  file.print("  <success>#{pass}</success>\n")
+  file.print("  <description>#{testname}</description>\n")
+  file.print("</event>\n")
+  file.close();
+end 
 
 def getClasspath
   classpath = []

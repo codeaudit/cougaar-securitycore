@@ -1,8 +1,11 @@
+require "security/lib/cougaarMods"
 
 class Stress5f < SecurityStressFramework
+  def initialize(run)
+    @run = run
+  end
 
   def postConditionalNextOPlanStage
-
     # ##################
     # Authorized servlet
     result = invokeAuthorizedServletsOnEveryAgent
@@ -33,13 +36,18 @@ class Stress5f < SecurityStressFramework
     @numberOfSuccess = 0
     @numberOfAgents = 0
     result = 0.0
-    run.society.each_agent(true) do |agent|
+    @run.society.each_agent(true) do |agent|
+      @numberOfAgents += 1
       goodurl = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/AuthorizedResourceServlet"
-      result = Cougaar::Communications::HTTP.get(goodurl)
+      begin
+        result = Cougaar::Communications::HTTP.get(goodurl)
+      rescue
+	puts "Unable to access #{goodurl}"
+      end
       if result.to_s =~ /TRUE/
         @numberOfSuccess = @numberOfSuccess + 1
       else
-        logWarningMsg "Unexpected response: #{result} at #{goodurl}"
+	saveUnitTestResult('5f', "Unexpected response: #{result} at #{goodurl}" )
       end
     end
     result = 100 * (@numberOfSuccess.to_f / @numberOfAgents.to_f)
@@ -47,20 +55,25 @@ class Stress5f < SecurityStressFramework
     if result.finite?
       result = (result * 100).round.to_f / 100
     end
-    return mop
+    return result
   end
 
   def invokeUnauthorizedServletsOnEveryAgent
     @numberOfSuccess = 0
     @numberOfAgents = 0
     result = 0.0
-    run.society.each_agent(true) do |agent|
+    @run.society.each_agent(true) do |agent|
+      @numberOfAgents += 1
       badurl = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/UnAuthorizedResourceServlet"
-      result = Cougaar::Communications::HTTP.get(badurl)
+      begin
+        result = Cougaar::Communications::HTTP.get(badurl)
+      rescue
+	puts "Unable to access #{goodurl}"
+      end
       if result.to_s =~ /TRUE/
         @numberOfSuccess = @numberOfSuccess + 1
       else
-        logWarningMsg "Unexpected response: #{result} at #{badurl}"
+	saveUnitTestResult('5f', "Unexpected response: #{result} at #{badurl}")
       end
     end
     result = 100 * (@numberOfSuccess.to_f / @numberOfAgents.to_f)
@@ -68,10 +81,7 @@ class Stress5f < SecurityStressFramework
     if result.finite?
       result = (result * 100).round.to_f / 100
     end
-    return mop
+    return result
   end
-e
-  end
-
 end # Stress5f
 

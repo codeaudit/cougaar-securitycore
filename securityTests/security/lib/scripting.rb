@@ -4,7 +4,8 @@ require 'ultralog/scripting'
 #require 'security/scripts/setup_scripting'
 
 require 'security/actions/configFiles'
-require 'security/actions/cond_policy.rb'
+require 'security/actions/inject_stress'
+require 'security/actions/cond_policy'
 
 begin
   require 'security/assessment/scripting'
