@@ -42,7 +42,8 @@ mkdir $COUGAAR_INSTALL_PATH/Manifest
 cp ${realCIP}/lib/*.jar $COUGAAR_INSTALL_PATH/lib
 cp ${realCIP}/sys/*.jar $COUGAAR_INSTALL_PATH/sys
 
-#PATH=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/:$PATH
+PATH=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/:$PATH
+PATH=~/srosset/apache-ant-1.6.1/bin/:$PATH
 #export PATH
 COUGAAR_WORKSPACE=$COUGAAR_INSTALL_PATH/workspace && export COUGAAR_WORKSPACE
 
