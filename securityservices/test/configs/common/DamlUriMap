@@ -1,0 +1,7 @@
+/$*/policyAdmin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#PolicyServlet
+/$*/CA/RevokeCertificateServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
+/$*/CA/CreateCaKeyServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
+/$*/CA/SubmitCaKeyServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
+/$*/CA/ProcessPendingCertServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
+/$*/CA/CaKeyManagement http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
+/$*/useradmin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#CAServlet
