@@ -133,12 +133,16 @@
     </target>
 
     <target name="scp-files-to-testbed">
-      <!-- Step 4, 5 and 6 -->
-      <echo message="Delete CIP on testbed machine..."/>
+      <!-- Step 4, 5 and 6 
+         The remote CIP must be installed with a link, e.g.:
+            mkdir cougaar-B11_2-1201
+            ln -s cougaar-B11_2-1201 cougaar
+        -->
+      <echo message="Remove CIP link on testbed machine..."/>
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="rm -rf ${testbed.cip.dir}"
+	command="rm -f ${testbed.cip.dir}"
         timeout="180000" failonerror="false"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
@@ -146,7 +150,7 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="mkdir -p ${testbed.cip.dir}"
+	command="set cdir = `mktemp -d ${testbed.cip.dir}.XXXX` ; ln -s $cdir ${testbed.cip.dir}"
         timeout="20000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
