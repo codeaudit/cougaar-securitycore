@@ -194,7 +194,7 @@ public class CapabilitiesProcessingPlugin
    */
   protected void execute () {
     // process unallocated tasks
-    loggingService.debug("  execute of Capabilities processing plugin called @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    loggingService.debug("  execute of Capabilities processing plugin called @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+ myAddress.toString());
     updateRelayedCapabilities();
     Event event=null;
     RegistrationAlert registration=null;
@@ -205,7 +205,7 @@ public class CapabilitiesProcessingPlugin
 
     if((list==null)||(list.size()==0)){
       if(loggingService.isDebugEnabled())
-	loggingService.debug("No capabilities object present in capabilities processing plugin : RETURNING !!!!!!!!!!!");
+	loggingService.debug("No capabilities object present in capabilities processing plugin : RETURNING !!!!!!!!!!!"+ myAddress.toString());
       return;
     }
 
@@ -221,7 +221,10 @@ public class CapabilitiesProcessingPlugin
 		
     capabilitiesobject=(CapabilitiesObject)list.get(firstobject);
     Enumeration capabilities_enum = capabilities.getAddedList();
-    Enumeration subordinatecapabilities_enum = subordinatecapabilities.getAddedList();
+    Collection subcol= subordinatecapabilities.getAddedCollection();
+      loggingService.debug(" got collection size for sub is :"+subcol.size());
+    Iterator  subordinatecapabilities_enum=subcol.iterator();
+    //Enumeration subordinatecapabilities_enum = subordinatecapabilities.getAddedList();
     Analyzer analyzer=null;
     String analyzer_id=null;
     /*
@@ -232,6 +235,7 @@ public class CapabilitiesProcessingPlugin
       if(loggingService.isDebugEnabled())
 	loggingService.debug("Event received is  :"+ event.toString() + "\n in agent "+myAddress.toString());
       registration=(RegistrationAlert)event.getEvent();
+      /*
       if(loggingService.isDebugEnabled()) {
 	if(registration!=null) {
 	  loggingService.debug("registration was not null is :"+ registration.toString());
@@ -239,8 +243,9 @@ public class CapabilitiesProcessingPlugin
 	else {
 	  loggingService.debug("registration was  null is :");
 	}
-	loggingService.debug(" registration is :"+ registration.toString());
+	//loggingService.debug(" registration is :"+ registration.toString());
       }
+      */
       analyzer=registration.getAnalyzer();
       analyzer_id=analyzer.getAnalyzerid();
       if(loggingService.isDebugEnabled())
@@ -288,9 +293,11 @@ public class CapabilitiesProcessingPlugin
        Process capabilities received from subordinate agent 
     */
     ConsolidatedCapabilities consolidatedcapabilities;
-    while(subordinatecapabilities_enum.hasMoreElements())  {
-      event=( Event)  subordinatecapabilities_enum.nextElement();
+    while(subordinatecapabilities_enum.hasNext())  {
+      event=( Event)  subordinatecapabilities_enum.next();
       if(event.getSource().equals(myAddress)) {
+	loggingService.debug(" $$$$$ recived event from my source address :"+myAddress.toString()
+			     +" event is :"+event.toString());
 	continue;
       }
       consolidatedcapabilities=(ConsolidatedCapabilities)event.getEvent(); 
@@ -310,12 +317,15 @@ public class CapabilitiesProcessingPlugin
       if(capabilitiesobject.containsKey(analyzer_id)) {
 	if(loggingService.isDebugEnabled())
 	  loggingService.debug(" Agent is already registered :");
+	//System.out.println("Agent is already registered :"); 
 	capabilitiesobject.put(analyzer_id,getRegistrationAlert(consolidatedcapabilities));
 	if(loggingService.isDebugEnabled())
 	  loggingService.debug(" replacing !!!!!!!!!!!!!!! RegistrationAlert foranalyzer id :"+ analyzer_id );
+	//System.out.println(" replacing !!!!!!!!!!!!!!! RegistrationAlert foranalyzer id :"+ analyzer_id );
 	modified=true;
       }
       else {
+	//System.out.println(" Agent is not  registered :" + analyzer_id);
 	capabilitiesobject.put(analyzer_id,getRegistrationAlert(consolidatedcapabilities));
 	loggingService.debug(" Agent is not  registered :" + analyzer_id);
 	modified=true;
@@ -323,6 +333,7 @@ public class CapabilitiesProcessingPlugin
     }
     if(modified) {
       loggingService.debug(" CAPABILITIES object is modified publishing change from agent :"+ myAddress.toString());
+      // System.out.println(" CAPABILITIES object is modified publishing change from agent :"+ myAddress.toString())
       getBlackboardService().publishChange(capabilitiesobject);
     }
 	
