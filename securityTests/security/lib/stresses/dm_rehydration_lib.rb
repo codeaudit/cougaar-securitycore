@@ -35,8 +35,8 @@ class DomainManagerRehydrateReset < SecurityStressFramework
 #
 # Does everything start as I expect?
 #
-    if !checkAudit(node)
-      saveAssertion{@stressid, "No audit? - aborting test")
+    if !(checkAudit(node)) then
+      saveAssertion(@stressid, "No audit? - aborting test")
       saveResult(false, 'xyzzy', "Rehydration test aborted")
     end
 #
@@ -87,14 +87,18 @@ DONE
     saveAssertion(@stressid,  "checking audit on node #{node.name}")
     url = "#{node.uri}/testAuditServlet"
     result = Cougaar::Communications::HTTP.get(url)
-    return result.to_s =~ "TRUE"
+    return (/TRUE/.match(result.to_s) != nil)
   end
 
   def getPolicyManagerNodeFromEnclave(enclave)
     run.society.each_node do |node|
       node.each_facet(:role) do |facet|
         if facet[:role] == $facetManagement
-          return [node,enclave + "PolicyDomainManager"]
+          node.each_agent do |agent|
+            if /PolicyDomainManager/.match(agent.name) then
+              return [node, agent]
+            end
+          end
         end
       end
     end
