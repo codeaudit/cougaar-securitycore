@@ -28,19 +28,15 @@ package org.cougaar.core.security.policy.enforcers.util;
 
 import javax.xml.parsers.DocumentBuilder; 
 import javax.xml.parsers.DocumentBuilderFactory;  
-import javax.xml.parsers.FactoryConfigurationError;  
 import javax.xml.parsers.ParserConfigurationException;
  
-import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
