@@ -50,7 +50,7 @@
            use certificate (CERT), password (PASSWORD), or the default
            of either (EITHER), or both (BOTH). If multiple patterns
            match a url, a union of the restrictions is made. -->
-      <rule requireSSL="true" auth="CERT">
+      <rule requireSSL="false" auth="EITHER">
         <!-- a rule must have at least one uri pattern -->
 	<!-- KPAT, Policy -->
         <pattern>/policyAdmin</pattern>
@@ -59,7 +59,7 @@
       </rule>
     </agent>
 
-    <agent name="UMmrmanager">
+    <agent name="SCmrmanager">
       <rule requireSSL="false" auth="EITHER">
         <pattern>/*</pattern>
         <role>MonitorManager</role>
@@ -132,11 +132,6 @@
         <role>*</role>
       </rule>
 
-      <rule requireSSL="true" auth="CERT">
-        <pattern>/CA/RevokeCertificateServlet</pattern>
-        <role>MnRResponder</role>
-      </rule>
-
       <rule requireSSL="false" auth="EITHER">
         <!-- only let the administrator do write-only stuff -->
         <pattern>/CA/RevokeCertificateServlet</pattern>
@@ -146,6 +141,12 @@
         <pattern>/CA/CaKeyManagement</pattern>
         <role>CAAdministrator</role>
       </rule>
+<!--
+      <rule requireSSL="true" auth="CERT">
+        <pattern>/CA/RevokeCertificateServlet</pattern>
+        <role>MnRResponder</role>
+      </rule>
+-->
 
       <rule requireSSL="false" auth="EITHER">
         <pattern>/move</pattern>
