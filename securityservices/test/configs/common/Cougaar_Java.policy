@@ -476,6 +476,8 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}-", "read, write";
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}", "read, write";
 
+	permission java.io.FilePermission "${/}proc${/}-", "read";
+
 	// "persistence.clear=true" requires the permission to delete files in the
 	// the org.cougaar.workspace/P directory
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}P${/}*", "delete";
