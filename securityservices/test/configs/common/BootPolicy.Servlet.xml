@@ -59,7 +59,7 @@
     </agent>
 
     <agent name="UMmrmanager">
-      <rule>
+      <rule requireSSL="true">
         <pattern>/*</pattern>
         <role>MonitorManager</role>
       </rule>
