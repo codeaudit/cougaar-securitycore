@@ -268,9 +268,9 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}*", "read, write";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}csmart${/}data${/}debug.properties", "read";
 
-	permission java.io.FilePermission "${org.cougaar.workspace.path}${/}*", "read, write";
-	permission java.io.FilePermission "${org.cougaar.workspace.path}${/}-", "read, write";
-	permission java.io.FilePermission "${org.cougaar.workspace.path}${/}", "read, write";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}*", "read, write";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}-", "read, write";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}", "read, write";
 
 	permission java.util.PropertyPermission "com.nai.*", "read";
 	permission java.util.PropertyPermission "sun.*", "read";

@@ -48,7 +48,7 @@ public interface SecurityPropertiesService extends Service
   "SAFE.debug";
 
   public static String COUGAAR_WORKSPACE =
-  "org.cougaar.workspace.path";
+  "org.cougaar.workspace";
 
   public static String BOOTSTRAP_KEYSTORE =
   "org.cougaar.core.security.bootstrap.keystore";

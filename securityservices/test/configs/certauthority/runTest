@@ -156,7 +156,7 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.install.path=${COUGAAR_INSTALL_PAT
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.keystore=keystoreTest"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=${node}"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.crlpoll=600"
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace.path=$COUGAAR_INSTALL_PATH/workspace"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace=$COUGAAR_INSTALL_PATH/workspace"
 # set MYPROPERTIES="$MYPROPERTIES -Djavax.net.debug=all"
 
 if ($?COUGAAR_MYPROP) then
