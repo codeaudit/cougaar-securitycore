@@ -395,12 +395,9 @@ class Main
         ois.close();
       }
     }
-    if (conditionalPolicies != null && !conditionalPolicies.isEmpty()) {
-      System.out.println("Sending Conditional Policies");
-      _ontology.setConditionalPolicies(conditionalPolicies);
-    } else {
-      System.out.println("No conditional policies to send");
-    }
+    System.out.println("Sending Conditional Policies");
+    _ontology.setConditionalPolicies(conditionalPolicies);
+    System.out.println("Conditional Policies Sent");
   }
 
   /**
