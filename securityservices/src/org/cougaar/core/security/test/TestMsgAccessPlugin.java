@@ -29,6 +29,7 @@ import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.MessageTransportService;
+import org.cougaar.planning.ldm.PlanningDomain;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Verb;
@@ -68,7 +69,7 @@ public class TestMsgAccessPlugin extends ComponentPlugin {
     
     Verb verb = Verb.getVerb(theVerb);
     DomainService ds = (DomainService)sb.getService(this, DomainService.class, null);
-    PlanningFactory pf = (PlanningFactory)ds.getFactory(PlanningFactory.class);
+    PlanningFactory pf = (PlanningFactory)ds.getFactory(PlanningDomain.class);
     task = pf.newTask();
     task.setVerb(verb);
   //create the message

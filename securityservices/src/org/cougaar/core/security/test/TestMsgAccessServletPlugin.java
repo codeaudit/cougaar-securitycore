@@ -37,6 +37,7 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.core.service.ServletService;
+import org.cougaar.planning.ldm.PlanningDomain;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Verb;
@@ -73,7 +74,7 @@ public class TestMsgAccessServletPlugin extends ComponentPlugin
     DomainService ds 
       = (DomainService) sb.getService(this, DomainService.class, null);
     log.debug("ds = " + ds + " ds class = " + ds.getClass().getName());
-    pf = (PlanningFactory) ds.getFactory(PlanningFactory.class);
+    pf = (PlanningFactory) ds.getFactory(PlanningDomain.class);
     log.debug("pf = " + pf);
 
     _servletService
