@@ -26,16 +26,31 @@
 
 package org.cougaar.core.security.config.jar;
 
+import java.net.URL;
 import java.io.FilterInputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 public class SecureJarFilterStream
   extends FilterInputStream
 {
+  URL _url = null;
+
+  SecureJarFilterStream(URL u) 
+    throws GeneralSecurityException, IOException {
+    super(u.openStream());
+    _url = u;
+    init();
+  }
+
   SecureJarFilterStream(InputStream in) 
-    throws GeneralSecurityException {
+    throws GeneralSecurityException, IOException {
     super(in);
+    init();
+  }
+
+  private void init() throws GeneralSecurityException, IOException {
     // Unfortunately, we don't know that the signature is
     // correct until we have read the whole stream.
     // So, we read the stream until the end, and we see if we
@@ -45,8 +60,12 @@ public class SecureJarFilterStream
       while ((v = in.read()) != -1);
     }
     catch (Exception e) {
+      String message = "Invalid JAR file";
+      if (_url != null) {
+        message += ": " + _url;
+      }
       GeneralSecurityException gse =
-	new GeneralSecurityException("Invalid JAR file");
+	new GeneralSecurityException(message);
       gse.initCause(e);
       throw gse;
     }

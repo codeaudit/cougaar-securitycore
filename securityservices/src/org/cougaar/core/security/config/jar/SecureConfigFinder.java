@@ -240,7 +240,7 @@ public class SecureConfigFinder
     throws IOException, GeneralSecurityException {
     try {
       // We have to read the file for signature verification.
-      InputStream is = new SecureJarFilterStream(aURL.openStream());
+      InputStream is = new SecureJarFilterStream(aURL);
       is.close();
     }
     catch (GeneralSecurityException e) {
