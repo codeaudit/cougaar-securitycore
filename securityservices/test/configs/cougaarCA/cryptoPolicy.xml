@@ -31,6 +31,7 @@
           <!-- Domain -->
           <domain>dc=cougaar,dc=org</domain>
         </distinguishedName>
+        <nodeIsSigner>false</nodeIsSigner>
         <!-- The key algorithm -->
         <keyAlgName>RSA</keyAlgName>
         <!-- The key size -->
@@ -83,6 +84,11 @@
       <!-- Certificate directory service for certificate storage -->
       <ldapURL>ldap://pear:389/dc=cougaar,dc=org</ldapURL>
       <ldapURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</ldapURL>
+      <ldapURL role="rliao1">ldap://pear:389/dc=rliao1,dc=cougaar,dc=org</ldapURL>
+      <ldapURL role="ychen">ldap://pear:389/dc=ychen,dc=cougaar,dc=org</ldapURL>
+      <ldapURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
+      <ldapURL role="gmount">ldap://pear:389/dc=gmount,dc=cougaar,dc=org</ldapURL>
+      <ldapURL role="mluu">ldap://pear:389/dc=mluu,dc=cougaar,dc=org</ldapURL>
 
       <!-- The type of the certificate directory service.
            Currently, either CougaarOpenLdap or NetTools -->
