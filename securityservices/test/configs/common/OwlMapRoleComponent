@@ -36,6 +36,9 @@ org.cougaar.mlm.plugin.sample.ModifyOrgActivityGUIPlugin http://ontology.ihmc.us
 org.cougaar.mlm.plugin.sample.StrategicTransportProjectorPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityChange
 org.cougaar.mlm.plugin.sample.StrategicTransportProjectorPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityQuery
 org.cougaar.core.security.test.blackboard.LegitimateBlackboardPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityQuery
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAdd
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityChange
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityRemove
 org.cougaar.core.security.test.blackboard.LegitimateBlackboardAddPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityQuery
 org.cougaar.core.security.test.blackboard.LegitimateBlackboardAddPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAdd
 org.cougaar.core.security.test.blackboard.LegitimateBlackboardModifyPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityQuery
