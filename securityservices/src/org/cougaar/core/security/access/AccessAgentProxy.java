@@ -61,6 +61,7 @@ public class AccessAgentProxy
   private ServiceBroker serviceBroker;
   private LoggingService log;
 
+  private static MessageAddress myID = null;
   private static AccessControlPolicyService acps;
   private static boolean debug = false;
   private static int infoLevel = 0;
@@ -75,6 +76,9 @@ public class AccessAgentProxy
     this.object=myobj;
     acps=myacps;
     serviceBroker = sb;
+    
+    if (object instanceof Agent)
+      myID = ((Agent)object).getAgentIdentifier();
 
     log = (LoggingService)
       serviceBroker.getService(this,
@@ -91,6 +95,15 @@ public class AccessAgentProxy
   public void sendMessage(Message message) {
     if(log.isDebugEnabled())
        log.debug(" Send message of access binder called :"+message.toString());
+/*
+    if(myID != null && message.getOriginator() != myID){
+      //not suppose to happen
+      if(log.isWarnEnabled()) {
+        log.warn("Agent " + myID + " is rejecting outgoing message: " + message.toString());
+      }
+      return;
+    }
+*/      
     if(mts!=null) {
        TrustSet[] ts;
       ts = checkOutgoing(message);
@@ -346,7 +359,7 @@ public class AccessAgentProxy
       verbs = acps.getOutgoingVerbs(source, target);
     }
 
-    if( verbs[0].toString()=="NONE" ) {
+    if( verbs[0].toString()=="ALL" ) {
       //if(debug) {
 	//System.out.println("AccessControlProxy: got * verb, so blocking "
 			   //+verb+" for " + source + "->" + target);
