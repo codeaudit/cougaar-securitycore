@@ -53,6 +53,8 @@ import org.cougaar.planning.ldm.policy.KeyRuleParameter;
 import org.cougaar.core.blackboard.SubscriptionWatcher;
 import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityChangeEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
 
 // Cougaar security services
 import org.cougaar.core.security.services.acl.UserService;
@@ -109,7 +111,13 @@ public class AgentUserService implements UserService, BlackboardClient {
     _uidService = (UIDService)
       _serviceBroker.getService(this, UIDService.class, null);
     _source = agent;
-    setCommunityService();
+    CommunityService cs = (CommunityService)
+      _serviceBroker.getService(this, CommunityService.class, null);
+    if (cs == null) {
+      _serviceBroker.addServiceListener(new CommunityServiceListener());
+    } else {
+      setCommunityService(cs);
+    }
 
     _bbs.openTransaction();
     _subscription = (IncrementalSubscription) _bbs.subscribe(MY_RELAYS);
@@ -117,46 +125,43 @@ public class AgentUserService implements UserService, BlackboardClient {
     _bbs.closeTransaction();
   }
 
-  private void setCommunityService() {
-    _communityService = (CommunityService)
-      _serviceBroker.getService(this, CommunityService.class, null);
-    if (_communityService != null) {
-      Collection communities = 
-        _communityService.listParentCommunities(_source.getAddress());
-      if (_log.isDebugEnabled()) {
-        _log.debug("my communities = " + communities);
-      }
-      Iterator iter = communities.iterator();
-      while (iter.hasNext()) {
-        String community = iter.next().toString();
-        Attributes attrs = _communityService.getCommunityAttributes(community);
-        if (attrs != null) {
-          Attribute  attr  = attrs.get("CommunityType");
-          if (attr != null) {
-            try {
-              for (int i = 0; i < attr.size(); i++) {
-                if (COMMUNITY_TYPE.equals(attr.get(i).toString())) {
-                  // do I have the role in this community?
-                  Collection myRoles = 
-                    _communityService.getEntityRoles(community,
-                                                     _source.getAddress());
-                  MessageAddress defaultTarget;
-                  if (myRoles.contains(MANAGER_ROLE)) {
-                    defaultTarget = _source;
-                    if (_log.isDebugEnabled()) {
-                      _log.debug("default target = " + defaultTarget);
-                    }
-                    synchronized (_targets) {
-                      _targets.put(community, defaultTarget);
-                    }
+  private void setCommunityService(CommunityService cs) {
+    _communityService = cs;
+    Collection communities = 
+      _communityService.listParentCommunities(_source.getAddress());
+    if (_log.isDebugEnabled()) {
+      _log.debug("my communities = " + communities);
+    }
+    Iterator iter = communities.iterator();
+    while (iter.hasNext()) {
+      String community = iter.next().toString();
+      Attributes attrs = _communityService.getCommunityAttributes(community);
+      if (attrs != null) {
+        Attribute  attr  = attrs.get("CommunityType");
+        if (attr != null) {
+          try {
+            for (int i = 0; i < attr.size(); i++) {
+              if (COMMUNITY_TYPE.equals(attr.get(i).toString())) {
+                // do I have the role in this community?
+                Collection myRoles = 
+                  _communityService.getEntityRoles(community,
+                                                   _source.getAddress());
+                MessageAddress defaultTarget;
+                if (myRoles.contains(MANAGER_ROLE)) {
+                  defaultTarget = _source;
+                  if (_log.isDebugEnabled()) {
+                    _log.debug("default target = " + defaultTarget);
                   }
-                  _defaultDomain = community;
-                  return;
+                  synchronized (_targets) {
+                    _targets.put(community, defaultTarget);
+                  }
                 }
+                _defaultDomain = community;
+                return;
               }
-            } catch (NamingException e) {
-              // error reading value, so it can't be a Security community
             }
+          } catch (NamingException e) {
+            // error reading value, so it can't be a Security community
           }
         }
       }
@@ -177,9 +182,6 @@ public class AgentUserService implements UserService, BlackboardClient {
   
   private String getDomain(String id) throws UserServiceException {
     int index = id.indexOf("\\");
-    if (_defaultDomain == null) {
-      setCommunityService();
-    }
     if (index == -1) {
       return _defaultDomain;
     }
@@ -556,4 +558,19 @@ public class AgentUserService implements UserService, BlackboardClient {
     return UserEntries.FIELD_CERT_OK;
   }
 
+  private class CommunityServiceListener implements ServiceAvailableListener {
+    public final String COMMUNITY_SERVICE_NAME = 
+      CommunityService.class.getName();
+
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      if (ae.getService().equals(COMMUNITY_SERVICE_NAME)) {
+        CommunityService cs = (CommunityService) ae.getServiceBroker().
+           getService(this, CommunityService.class, null);
+        if (cs != null) {
+          ae.getServiceBroker().removeServiceListener(this);
+          setCommunityService(cs);
+        }
+      }
+    }
+  }
 }
