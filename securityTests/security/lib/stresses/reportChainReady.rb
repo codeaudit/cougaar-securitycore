@@ -68,9 +68,9 @@ class TestReportChainReady < SecurityStressFramework
         end
         logInfoMsg("calling Save results in afterReportChainReady for reportforDuty script")
         if badChains.empty?
-          saveResult false, @stressid, "ReportChainReady failed"
+          saveResult true, @stressid, "ReportChainReady succeeded: all agents have reported for duty."
         else
-          saveResult true, @stressid, "ReportChainReady succeeded"
+          saveResult false, @stressid, "ReportChainReady failure. Not all agents have reported for duty"
         end 
       rescue => ex
         logInfoMsg("error in afterReportChainReady #{ex} #{ex.backtrace.join("\n")}")
