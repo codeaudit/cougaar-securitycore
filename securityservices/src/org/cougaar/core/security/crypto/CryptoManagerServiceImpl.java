@@ -103,6 +103,10 @@ public class CryptoManagerServiceImpl
       keyRing.findCert(name,
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (certList == null || certList.size() == 0) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to verify object. Certificate of " + name
+		 + " does not exist.");
+      }
       throw
 	new CertificateException("Verify. Unable to get certificate for "
 				 + name);
@@ -120,14 +124,22 @@ public class CryptoManagerServiceImpl
 	if (obj.verify(pk,ve)) {
 	  return obj.getObject();
 	} else {
+	  // That's OK. Maybe there is an old certificate which is not
+	  // trusted anymore, but we may have a newer one too.
 	  continue;
 	}
       } catch (Exception e) {
+	// That's OK. Maybe there is an old certificate which is not
+	// trusted anymore, but we may have a newer one too.
 	if (log.isInfoEnabled()) {
 	  log.info("Unable to verify signature", e);
 	}
 	continue;
       }
+    }
+    // No suitable certificate was found.
+    if (log.isWarnEnabled()) {
+      log.warn("Signature verification failed.");
     }
     return null;
   }
@@ -190,11 +202,17 @@ public class CryptoManagerServiceImpl
 	return obj.getObject(ci);
       }
       catch (Exception e) {
-	if (log.isWarnEnabled()) {
-	  log.warn("Cannot recover message. " + e);
+	// That's OK. Maybe there is an old certificate which is not
+	// trusted anymore, but we may have a newer one too.
+	if (log.isInfoEnabled()) {
+	  log.info("Cannot recover message. " + e
+	    + ". Trying with next certificate...");
 	}
 	continue;
       }
+    }
+    if (log.isWarnEnabled()) {
+      log.warn("Cannot recover message. ");
     }
     return null;
   }
@@ -397,7 +415,7 @@ public class CryptoManagerServiceImpl
     List senderList =
       keyRing.findCert(source.toAddress(),
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (senderList.size() == 0) {
+    if (senderList == null || senderList.size() == 0) {
       if (log.isWarnEnabled()) {
 	log.warn("Unable to sign object. Certificate of " + source.toAddress()
 		 + " was not found.");
@@ -442,7 +460,7 @@ public class CryptoManagerServiceImpl
     List receiverList =
       keyRing.findCert(target.toAddress(),
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (receiverList.size() == 0) {
+    if (receiverList == null || receiverList.size() == 0) {
       throw new CertificateException("Unable to find target certificate: " 
 				     + target.toAddress());
     }
@@ -481,7 +499,8 @@ public class CryptoManagerServiceImpl
     SignedObject signedObject = null;
       
     if(log.isDebugEnabled()) {
-      log.debug("Encrypting session key with " + target.toAddress() + " certificate");
+      log.debug("Encrypting session key with "
+		+ target.toAddress() + " certificate");
     }
     // Encrypt session key
     sessionKey = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk);
@@ -507,7 +526,7 @@ public class CryptoManagerServiceImpl
     List senderList =
       keyRing.findCert(source.toAddress(),
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (senderList.size() == 0) {
+    if (senderList == null || senderList.size() == 0) {
       if(log.isErrorEnabled()) {
 	log.error("Unable to find sender certificate: " 
 		  + source.toAddress());
@@ -524,7 +543,7 @@ public class CryptoManagerServiceImpl
     List receiverList =
       keyRing.findCert(target.toAddress(),
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (receiverList.size() == 0) {
+    if (receiverList == null || receiverList.size() == 0) {
       if(log.isErrorEnabled()) {
 	log.error("Unable to find target certificate: " 
 		  + target.toAddress());

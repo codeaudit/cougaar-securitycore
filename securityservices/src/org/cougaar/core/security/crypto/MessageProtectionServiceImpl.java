@@ -104,8 +104,9 @@ public class MessageProtectionServiceImpl
     cps = (CryptoPolicyService)
       serviceBroker.getService(this, CryptoPolicyService.class, null);
     if (cps == null) {
-      log.debug("Unable to get crypto policy service");
-      throw new RuntimeException("MessageProtectionService. No crypto policy service");
+      log.error("Unable to get crypto policy service");
+      throw new
+	RuntimeException("MessageProtectionService. No crypto policy service");
     }
     if (log.isDebugEnabled()) {
       log.debug("Done initializing MessageProtectionServiceImpl");
@@ -141,27 +142,28 @@ public class MessageProtectionServiceImpl
 			      MessageAddress destination)
     throws GeneralSecurityException, IOException
   {
-    if (log.isDebugEnabled()) {
-      log.debug("protectHeader");
-    }
     if (!isInitialized) {
       setPolicyService();
     }
     SecureMethodParam policy =
       cps.getSendPolicy(source.getAddress() + ":"
 			+ destination.getAddress());
+    if (policy == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("protectHeader NOK: " + source.toAddress()
+		 + " -> " + destination.toAddress()
+		 + " (No policy)");
+      }
+      throw new
+	GeneralSecurityException("Could not find message policy between "
+				 + source.getAddress()
+				 + " and " + destination.getAddress());
+    }     
     if (log.isDebugEnabled()) {
-      String method = "Policy ERROR";
-      if (policy != null)
-	method =  policy.getSecureMethodToString();
       log.debug("protectHeader: " + source.toAddress()
 		+ " -> " + destination.toAddress()
-		+ " (" + method + ")");
+		+ " (" + policy.getSecureMethodToString() + ")");
     }
-    if (policy == null) {
-       throw new GeneralSecurityException("Could not find message policy between "
-	+ source.getAddress() + " and " + destination.getAddress());
-    }     
 
     ProtectedObject po =
       encryptService.protectObject(rawData, source, destination, policy);
@@ -191,9 +193,6 @@ public class MessageProtectionServiceImpl
 				MessageAddress destination)
     throws GeneralSecurityException, IOException
   {
-    if (log.isDebugEnabled()) {
-      log.debug("unprotectHeader");
-    }
     if (!isInitialized) {
       setPolicyService();
     }
@@ -201,18 +200,22 @@ public class MessageProtectionServiceImpl
       cps.getReceivePolicy(source.toAddress()
 			   +":"
 			   +destination.toAddress());
+    if (policy == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("unprotectHeader NOK: " + source.toAddress()
+		 + " -> " + destination.toAddress()
+		 + " (No policy)");
+      }
+      throw new
+	GeneralSecurityException("Could not find message policy between "
+				 + source.getAddress()
+				 + " and " + destination.getAddress());
+    }     
     if (log.isDebugEnabled()) {
-      String method = "Policy ERROR";
-      if (policy != null)
-	method =  policy.getSecureMethodToString();
       log.debug("unprotectHeader: " + source.toAddress()
 		+ " -> " + destination.toAddress()
-		+ " (" + method + ")");
+		+ " (" + policy.getSecureMethodToString() + ")");
     }
-    if (policy == null) {
-       throw new GeneralSecurityException("Could not find message policy between "
-	+ source.getAddress() + " and " + destination.getAddress());
-    }     
 
     ByteArrayInputStream bais = new ByteArrayInputStream(rawData);
     ProtectedObject po = null;
@@ -221,6 +224,11 @@ public class MessageProtectionServiceImpl
       po = (ProtectedObject) ois.readObject();
     }
     catch (ClassNotFoundException e) {
+      if (log.isWarnEnabled()) {
+	log.warn("unprotectHeader NOK: " + source.toAddress()
+		 + " -> " + destination.toAddress()
+		 + " (Class not found)");
+      }
       throw new IOException(e.toString());
     }
     Object o =

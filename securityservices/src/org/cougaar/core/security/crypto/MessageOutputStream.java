@@ -130,17 +130,21 @@ public class MessageOutputStream
     throws IOException {
     SecureMethodParam policy =
       cps.getSendPolicy(source.toAddress() + ":"
-			  + target.toAddress());
+			+ target.toAddress());
 
+    if (policy == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("sendOutputStream NOK: " + source.toAddress()
+		 + " -> " + target.toAddress()
+		 + " - No policy");
+      }
+      throw new IOException("Could not find message policy between "
+			    + source.toAddress()
+			    + " and " + target.toAddress());
+    }
     if (log.isDebugEnabled()) {
       log.debug("protectMessage: " + source.toAddress()
 		+ " -> " + target.toAddress());
-    }
-
-    if (policy == null) {
-       throw new IOException("Could not find message policy between "
-			     + source.toAddress()
-			     + " and " + target.toAddress());
     }
 
     ProtectedObject protectedMessage = null;
@@ -152,6 +156,11 @@ public class MessageOutputStream
 			  policy);
     }
     catch (GeneralSecurityException e) {
+      if (log.isWarnEnabled()) {
+	log.warn("sendOutputStream NOK: " + source.toAddress()
+		 + " -> " + target.toAddress()
+		 + e);
+      }
       throw new IOException(e.toString());
     }
     if (log.isDebugEnabled()) {

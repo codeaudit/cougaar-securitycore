@@ -159,6 +159,11 @@ public class MessageInputStream
   private void readInputStream()
     throws IOException {
     if (isClosed) {
+      if (log.isWarnEnabled()) {
+	log.warn("readInputStream NOK: " + source.toAddress()
+		 + " -> " + target.toAddress()
+		 + " - Stream is closed");
+      }
       throw new IOException("InputStream is closed");
     }
     ObjectInputStream ois = new ObjectInputStream(inputStream);
@@ -174,14 +179,26 @@ public class MessageInputStream
       protectedObject = (ProtectedObject) ois.readObject();
     }
     catch (ClassNotFoundException e) {
+      if (log.isWarnEnabled()) {
+	log.warn("readInputStream NOK: " + source.toAddress()
+		 + " -> " + target.toAddress()
+		 + " - Class not found: " + e);
+      }
+      throw new IOException("Unexpected data in the stream:" + e);
     }
 
     SecureMethodParam policy =
       cps.getReceivePolicy(source.toAddress() + ":"
 			   + target.toAddress());
     if (policy == null) {
-       throw new IOException("Could not find message policy between "
-	+ source.toAddress() + " and " + target.toAddress());
+      if (log.isWarnEnabled()) {
+	log.warn("readInputStream NOK: " + source.toAddress()
+		 + " -> " + target.toAddress()
+		 + " - No policy");
+      }
+      throw new IOException("Could not find message policy between "
+			    + source.toAddress()
+			    + " and " + target.toAddress());
     }
     byte[] rawData = null;
     try {
@@ -190,6 +207,11 @@ public class MessageInputStream
 					     protectedObject, policy);
     }
     catch (GeneralSecurityException e) {
+      if (log.isWarnEnabled()) {
+	log.warn("readInputStream NOK: " + source.toAddress()
+		 + " -> " + target.toAddress()
+		 + e);
+      }
       throw new IOException(e.toString());
     }
 
