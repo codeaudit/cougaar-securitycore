@@ -52,3 +52,51 @@ JSSE
 jcert.jar
 jnet.jar 
 jsse.jar 
+
+SUN JCE 1.2.1
+=============
+One difference between JCE 1.2 and 1.2.1 is the fact that providers must be signed by a trusted
+entity.
+The SUN JCE 1.2.1 includes the following files:
+* sunjce_provider
+* US_export_policy
+* local_policy
+* jce_1_2_1.jar
+
+
+Installation instructions for SUN JCE 1.2.1:
+============================================
+* Remove the SUN JCE 1.2 jar file (jce1_2-do.jar) from ${COUGAAR_INSTALL_PATH}/sys.
+* Move or copy the JCE 1.2.1 framework file jce1_2_1.jar and jurisdiction policy files
+  (US_export_policy.jar, and local_policy.jar) to a directory that will be listed on your
+  class path. (Note: All these files must be in the same directory.)
+* Move or copy the "SunJCE" provider file sunjce_provider.jar to another directory
+  that will be listed on your class path. It can be the same as the directory containing
+  the JCE 1.2.1 framework, or a different directory. 
+* The following permission should be granted to the JCE 1.2.1 framework when a security
+  manager is installed:
+      java.security.AllPermission
+
+  For example:
+  grant codeBase "file:/home/mydir/jce1_2_1.jar" {
+    permission java.security.AllPermission;
+  };
+
+* The following permissions should be granted to the "SunJCE" provider
+  (and other JCE providers) when a security manager is installed:
+      java.io.FilePermission to read the jce1_2_1.jar file 
+      java.lang.RuntimePermission to get class protection domains 
+      java.security.SecurityPermission to put (set) provider properties.
+
+  For example:
+   grant codeBase "file:/work/sunjce_provider.jar" {
+    permission java.io.FilePermission
+      "/home/mydir/jce1_2_1.jar", "read";
+    permission java.lang.RuntimePermission 
+      "getProtectionDomain";
+    permission java.security.SecurityPermission
+      "putProviderProperty.SunJCE";
+  };
+
+* Register the "SunJCE" provider. 
+	Security.addProvider(new com.sun.crypto.provider.SunJCE())
