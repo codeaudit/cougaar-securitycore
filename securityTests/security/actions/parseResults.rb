@@ -75,6 +75,7 @@ module Cougaar
      def initialize(run, filename=$defaultSecResultsInputFile)
        super(run)
        @filename = filename
+       Dir.mkdir("#{CIP}/workspace/test/") if !File.exists?("#{CIP}/workspace/test/")
        @rp = ResultParser.new(@filename)
      end
 
