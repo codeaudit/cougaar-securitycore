@@ -206,7 +206,7 @@ public class InitNodePlugin extends ComponentPlugin {
                   "<TITLE>Servlet Mediation Tests</TITLE>\n" + 
                   "</head>\n" + 
                   "<body>\n" + 
-                  "<H1>Servlet Medition Check</H1>\n");
+                  "<H1>Servlet Mediation Check</H1>\n");
         out.print("<p> Reading configuration files DamlTestUris and " +
                   "DamlTestRoles to determine what to test</p>");
 

@@ -263,7 +263,8 @@ public class ServletNodeEnforcer
           } 
           if ((suite.getAuth() & AuthSuite.authPassword) != 0){
             out.print("<li>Password");
-          } else if ((suite.getAuth() & AuthSuite.authNoAuth) != 0) {
+          }
+          if ((suite.getAuth() & AuthSuite.authNoAuth) != 0) {
             out.print("<li>No Authentication Required");
           }
           out.print("</ul>");
