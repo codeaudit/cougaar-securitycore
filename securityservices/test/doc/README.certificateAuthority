@@ -1,0 +1,180 @@
+Certificate Authority HOW-TO
+============================
+
+This guide describes how to install and configure a simple Certificate
+Authority (CA) server for the Cougaar system. The CA provides the following
+services:
+* Support for multiple Certificate Authorities. Each CA has its own key.
+* Web interface to send a certificate signing request (PKCS10 format) to 
+  a certificate authority. The certificate authority is specified by its
+  distinguished name.
+* Web interface to send a signed X.509 certificate.
+* Web interface to view issued certificates.
+* Web interface to revoke a certificate.
+* Web interface to view pending certificate signing requests.
+
+These services are used by Cougaar nodes to generate key pairs
+and send certificate requests to a Certificate Authority.
+
+The certificate authority runs as a Cougaar node.
+
+Note:
+This certification authority is not intended to replace a COTS or GOTS CA.
+In particular, it does not attempt to address all the security issues associated
+with a Certificate Authority. The immediate goal of this service is to greatly
+facilitate software tests in the Ultra*Log program by allowing to easily install
+a Cougaar society without having to manually create certificates and sign them with
+a COTS or GOTS Certificate Authority.
+
+
+Pre-requisite before configuring the CA
+========================================
+1. Install Cougaar
+2. Install NAI's security services module by typing ant install in the top-level directory.
+
+Install and configure the CA
+============================
+1. The CA requires a set of security components and servlets. Two sample ".ini" files
+   are provided in the test/configs/cougaarCA directory.
+2. The CA runs as one Cougaar node with one agent.
+   The caNode.ini file is the Certificate Authority node's ini file.
+   The caAgent.ini file is the Certifificate Authority agent's ini file.
+3. The content of these ini files should not be changed. As other agents in the society,
+   each CA should have a unique name, therefore each node and agent ini file should be
+   unique in the society.
+   If you need only one CA, you can keep the existing caAgent.ini and caNode.ini files.
+   If you need more than one CA, you will need to copy those files and give names of your
+   choice.
+4. Each CA should have its own naming service. In particular, the CA should not register
+   itself with the society's naming service. This can be achieved by creating an alpreg.ini
+   file with the following content and installing every CA on its own machine:
+        [ Registry ]
+        address=localhost
+        alias=AlpFDS
+        port=8010
+5. The cougaarCA directory contains two files that are required by the CA.
+   The "caPolicyTemplate.xml" is a template file which is used by the CA whenever a new
+   CA key is generated.
+   The cryptoPolicy.xml is a policy file which is used to issue certificates.
+   Every CA should have these two files in their startup directory.
+6. The cryptoPolicy.xml file should be before the CA is started. The file contains a
+   <isRootCA> tag which specifies whether the CA is a root CA or not.
+   For example, assume the following CA deployment:
+
+                CA1
+                 |
+                / \
+              CA2 CA3
+   CA1 is the root CA and has a self-signed certificate. CA2 and CA3 have their certificates
+   signed by CA1. The isRootCA value should be true for CA1 and false for CA2 and CA3.
+7. You may also configure the following parameters in the cryptoPolicy.xml file:
+     ou: the organizational unit in which the CA is running
+     o:  the organization in which the CA is running
+     l:  the locality in which the CA is running
+     st: the state in which the CA is running
+     c: the country in which the CA is running
+     validity: the validity of the CA.
+8. It is suggested to create one directory for each CA. Each directory should contain
+   the appropriate .ini, cryptoPolicy.xml and caPolicyTemplate.xml files.
+
+Install and configure the user database policy
+==============================================
+User access control is enforced for each CA operation. The CA should be configured to
+request appropriate user credentials before a critical operation has to be performed.
+The following operations should be performed by a CA administrator only:
+* Issuing certificates
+* Revoking certificates
+* Submitting a CA key to an upper-level CA
+* Processing pending certificate signing requests.
+* Creating a CA key.
+
+Other operations (such as viewing the list of certificates) may be performed by
+any other operator.
+
+The "BootPolicy.Servlet.xml" in the test/configs/common directory provides a default
+policy for the CA. Only the "CAAdministrator" role has access to the critical operations,
+and anybody else can have access to the list of certificates.
+
+The LDAP user database should be configured with at least the "CAAdministrator" role and
+one user with the "CAAdministrator" role.
+
+The "BootPolicy.UserDB.xml" policy file describes the configuration of the LDAP user
+database. The file should be customized to your own environment. In particular,
+the URL of the LDAP directory service must be edited.
+A "BootPolicy.UserDB.TIC.xml" file should have the appropriate values for the TIC. Rename
+the file to BootPolicy.UserDB.xml.
+
+Refer to the test/doc/README.userdb file for more information on how to install
+the user LDAP database, and how to install and configure the user management agent.
+
+The CA access control policy must be configured in two phases:
+1) Initially, the CA should be installed and configured with both HTTP and HTTPS
+   enabled. The CA administrator will configure the CA by using HTTP.
+   This involves creating a CA key, as well as the CA agent, node and host keys.
+   Since HTTP is not secure, this first step of the installation should be done
+   without connecting the CA to the network, at least when the CA is intended to
+   be used in a production environment.
+2) Once the CA, agent, node and host keys have been created, HTTP should be disabled.
+   CA operations should be done by using HTTPS only.
+
+Start the CA and create a CA key
+================================
+1. Go to the CA startup directory.
+2. Start the CA by typing:
+      SecureNode node
+   where node is the CA node .ini file.
+3. Once the CA is started, a CA key should be generated.
+    Open a browser, and go to the CA node main URL. For instance:
+       http://hostname:5570/
+    Follow the following links:
+       * List local agents
+       * caAgent (or the name of the CA agent)
+       * /$caAgent/CA/Index
+    You should get two frames with the left frame providing a list of operations.
+
+4. Follow the "Create CA key" link to create a CA key/. Note that you should have to
+   enter the appropriate user name and password. You should enter the name and password
+   of a user with the CAAdministrator role.
+5. Enter the appropriate information in the form, then click "submit"
+6. The CA must currently be shutdown then restarted before the CA can be used to
+   issue certificates for other agents.
+   Kill the CA agent, then edit the "BootPolicy.Servlet.xml" file to require SSL
+   for the administrative operations.
+
+      <rule requireSSL="true">
+        <!-- only let the administrator do write-only stuff -->
+        <pattern>/CA/RevokeCertificateServlet</pattern>
+        <pattern>/CA/CreateCaKeyServlet</pattern>
+        <pattern>/CA/SubmitCaKeyServlet</pattern>
+        <pattern>/CA/ProcessPendingCertServlet</pattern>
+        <pattern>/CA/CaKeyManagement</pattern>
+        <role>CAAdministrator</role>
+      </rule>
+
+   You may also require HTTPS for other operations if you wish. This can be done
+   by setting the requireSSL attribute for the other non-administrative operations.
+        requireSSL="true"
+
+7. HTTP may also be turned off, if you want to completely disable HTTP. This is done
+   by adding the following property in your Linux.props file:
+      # You can also turn on/off http/s. Turn of by setting the port to -1
+      # Note that HTTPS is off by default, and HTTP is at 8800
+      org.cougaar.lib.web.https.port=-1
+
+8. Restart the CA.
+   Once the CA has finished its initialization sequence, you should have the following
+   files in the $COUGAAR_WORKSPACE/security/keystores/caNode directory:
+   (where caNode is the name of the CA node, which can vary.
+      keystore-caNode     : the keystore containing the private keys of the CA.
+      keystore-CONUS-RSA  : the keystore containing the public keys of the CA.
+      serialNumber.txt    : a file containing the next serial number when issuing
+                            certificates.
+      cryptoPolicy.xml    : the crypto policy file of the CA.
+
+
+9. All the (non root CA) nodes should be configured to trust at least one CA.
+   For instance, if you have configured a root CA, then you can choose to export the
+   CA key from the keystore-CONUS-RSA file, then import it to the node trusted CA
+   keystore file.
+   
+10. When creating a subordinate CA key, click on the "Submit CA key to superior" link.
