@@ -201,7 +201,7 @@ org.cougaar.install.path
 org.cougaar.core.security.useAuthenticatedLoader ---> default value is true
 org.cougaar.core.security.bootstrap.JarVerificationLogFile ---> default value is set to (cougaar_installpath/log/bootstrap/JarVerification_+[nodename]+_currenttime.log
 org.cougaar.core.security.bootstrap.keystore ---> default is null
-    (It is required to set through node script in order to run bootstrap in our case it is set to cougaar_installpath/configs/common/.bootstrap_keystore )
+    (It is required to set through node script in order to run bootstrap in our case it is set to cougaar_installpath/configs/common/bootstrap_keystore )
 org.cougaar.core.security.bootstrap.verifyKeyUsage ---> default value
      is false (used for verifying jar signing capability)
 org.cougaar.core.security.bootstrap.SecurityManagerLogFile ---> default value is set to (cougaar_installpath/log/bootstrap/SecurityManager_+[nodename]+_currenttime.log
