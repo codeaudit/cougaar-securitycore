@@ -1,0 +1,51 @@
+#!/bin/bash
+
+logdir=/var/tcplogs
+
+# exclude ssh, mysql, nfs, jabber, and acme
+normalPortExclusion='!(port 22 or port 3306 or port 2049 or port 5222 or port 9444)'
+# exclude ports 8800-8820
+sourcePortExclusion='(tcp[0]!=34 or (tcp[0]=34 and (tcp[1]<96 or tcp[1]>116)))'
+destPortExclusion='(tcp[2]!=34 or (tcp[2]=34 and (tcp[3]<96 or tcp[3]>116)))'
+
+# restrict to only this computer (the -p option isn't foolproof)
+hostIpaddr=`ifconfig eth0 | grep 'inet ' | cut -d ':' -f 2 | cut -d ' ' -f 1`
+onlyThisHost="(host $hostIpaddr)"
+
+notNIS="!(host 192.168.2.12)"
+
+# capture only tcp data
+filter="tcp and $onlyThisHost and $notNIS and $normalPortExclusion and $sourcePortExclusion and $destPortExclusion"
+
+# don't convert ipaddrs or ports to names, don't put into promiscous mode
+options="-dpl $logdir"
+
+listenInterface="-i eth0"
+
+maxPacketLen="-P 500"
+
+all="$options $listenInterface $maxPacketLen $filter"
+
+echo "snort $all"
+
+killall -9 snort
+rm -rf $logdir
+mkdir $logdir
+snort $all
+Pid="$!"
+
+# now make sure snort doesn't run forever, kill after 120 minutes ...
+let minutenum=1
+let maxminutes=120
+while [ $minutenum -le $maxminutes ]; do
+  ps aux | grep $Pid | grep snort
+  if [ "$?" != "0" ]; then
+    echo "Good.  Snort has been killed, will exit."
+    exit
+  fi
+  sleep 60
+  let minutenum=minutenum+1
+done
+
+echo "killing snort"
+kill $Pid

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "snort started"
+nohup $1/csmart/assessment/security/mop/runsnort-aux >snort.log &

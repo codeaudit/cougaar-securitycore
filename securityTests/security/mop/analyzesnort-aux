@@ -1,0 +1,164 @@
+#!/usr/bin/env ruby
+
+require 'pstore'
+
+$VerboseDebugging = true
+
+# provide a place to store the important information
+class Mop2_3Tuple
+  attr_accessor :name, :files, :encryptedFiles, :synFiles
+
+  def initialize(name)
+    @name = name
+    @files = []
+    @encryptedFiles = []
+    @synFiles = []
+  end
+end
+
+
+
+class AnalyzeSnortData
+  attr_accessor :dirname
+
+  def initialize(dirname="/Users/bmd/Desktop/downloads/snort-2.0.5/cougaarlogs/logs")
+    @dirname = dirname
+    @rexp = /0x[0-9A-F]{4,4}:(( [0-9A-F]{2,2}){1,16}) +(.*)/
+    @appDataPattern = /(([ 0-9A-F]{2,2} ){16,16}) +(.*)/
+    ipaddr = ".*[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}"
+    @ipaddrPattern = /[^ ]* (#{ipaddr}):[^>]*> (#{ipaddr}):([0-9]*)/
+    @searchStrings = [/DLA/,/CA/,/MV/,/RootCA/]
+  end
+
+  def printTuples
+    @tuples.each do |key, value|
+       puts "#{key}: #{value.files.inspect}"
+       puts "        #{value.files.size}, #{value.encryptedFiles.size}, #{value.synFiles.size}"
+    end
+    numEncrypted = numSyn = numFiles = numRealEncrypted = 0
+    @tuples.each do |key, value|
+      filesize = value.files.size
+      synFilesize = value.synFiles.size
+      numSyn += synFilesize
+      if synFilesize > 0
+        numFiles += filesize
+        numRealEncrypted += value.encryptedFiles.size
+        numEncrypted += filesize if value.encryptedFiles.size > 0
+      end
+    end
+puts [numFiles, numRealEncrypted, numEncrypted, numSyn].inspect
+  end
+
+  def analyzeLogs
+    @tuples = {}
+    ipaddrs.each do |ipaddr|
+      connections(ipaddr).each do |connection|
+        shortname = "#{ipaddr}/#{connection}"
+        filename = "#{@dirname}/#{shortname}"
+        tupleName, hasSyn, isEncrypted = fileIsEncrypted?(filename)
+        tuple = @tuples[tupleName]
+        unless tuple
+          tuple = Mop2_3Tuple.new(tupleName)
+          @tuples[tupleName] = tuple
+        end
+        tuple.files << shortname
+        tuple.encryptedFiles << shortname if isEncrypted
+        tuple.synFiles << shortname if isEncrypted
+      end
+    end
+  end
+
+  def ipaddrs
+    dirnames = Dir.entries(@dirname)
+    return dirnames.select {|dir| dir =~ /[0-9]{1,3}\.[0-9]{1,3}\./}
+  end
+
+  def connections(ipaddr)
+    connectionnames = Dir.entries("#{@dirname}/#{ipaddr}")
+    return connectionnames.select {|conn| conn =~ /^TCP:/}
+  end
+
+  def fileIsEncrypted?(filename, maxNumPacketLines=300)
+    packet = ''
+    packetNum = 1
+    tuple, isSynFile, packet = readPacketFile(filename, maxNumPacketLines)
+    break if packet == nil
+    found = true
+    @searchStrings.each do |search|
+      unless packet =~ search
+        found = false
+        break
+      end
+    end
+    return tuple, isSynFile, true if found
+    packetNum += 1
+    return tuple, isSynFile, false
+  end
+
+  def readPacketFile(filename, maxNumLines, quitIfNotSyn=true)
+    text = ""
+    isSynPacket = false
+    numLines = 0
+    tuple = ''
+
+    File.open(filename, "r") do |file|
+      begin
+        ipaddrline = file.readline # header 1
+        m = @ipaddrPattern.match(ipaddrline)
+        unless m
+          msg = "Tcpdump file #{filename} does not start correctly.  Won't count."
+          logInfoMsg msg
+          return tuple, isSynPacket, text
+        end
+        tuple = "#{m[1]}-#{m[2]}-#{m[3]}"
+
+        file.readline # header 2
+        connline = file.readline # header 3
+        isSynPacket = true if connline[0..7] =~ /S/
+        return tuple, false, text unless isSynPacket or !quitIfNotSyn
+
+        while ( (line = file.readline.chomp) != nil)
+          m = @appDataPattern.match(line)
+          next unless m
+          text = "#{text}#{m[3]}"
+          numLines += 1
+          break if numLines > maxNumLines
+        end
+      rescue EOFError
+        #don't worry about it -- just return what we have
+      end
+    end
+    return tuple, isSynPacket, text
+  end
+
+  def storeResult(filename=nil)
+    filename = "#{`hostname -s`.chomp}.tcplog" unless filename
+    db = PStore.new(filename)
+    db.transaction do |db|
+      #db['htmls'] = @info
+      db['tuples'] = @tuples
+      db['numEncrypted'] = @numEncrypted
+      db['numNotEncrypted'] = @numNotEncrypted
+      db.commit
+    end
+    db = nil
+    moveResultFile(filename)
+  end
+
+  def moveResultFile(filename)
+    todir = "#{ARGV[0]}/workspace/security/mops/"
+    puts "moving result file #{filename} to #{todir}" if $VerboseDebugging
+    `chmod a+rwx #{filename}`
+    `mv #{filename} #{todir}`
+  end
+end
+
+
+
+
+dirname = "/var/tcplogs"
+
+a=AnalyzeSnortData.new(dirname)
+a.analyzeLogs
+a.printTuples
+a.storeResult
