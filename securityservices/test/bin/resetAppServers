@@ -6,6 +6,7 @@ foreach i (`cat integmachines`)
 end
 
 wait
+echo "Sleeping for 5 seconds.  If you wish to exit, hit [Ctrl]-C"
 sleep 5
 foreach i (`cat integmachines`)
   echo xterm -sl 50000 -title "$i $CIP" -geometry 60x10 -exec ssh $i "cd $CIP/server/bin;./Server"
