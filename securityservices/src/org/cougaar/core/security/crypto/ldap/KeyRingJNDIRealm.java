@@ -424,10 +424,17 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
     start += _certComponent.length() + 1;
     int end = subjectDN.indexOf(",",start);
+    String user;
     if (end == -1) {
-      return subjectDN.substring(start);
-    } 
-    return subjectDN.substring(start,end);
+      user = subjectDN.substring(start);
+    } else {
+      user = subjectDN.substring(start,end);
+    }
+    int hyphen = user.indexOf("-");
+    if (hyphen != -1) {
+      user = user.substring(0,hyphen) + "\\" + user.substring(hyphen+1);
+    }
+    return user;
   }
 
   /**
