@@ -31,7 +31,8 @@ parameters:
 # Security rules
     - $CIP/csmart/config/rules/security
     - $CIP/csmart/config/rules/security/mts/loopback_protocol.rule
-    - $CIP/csmart/config/rules/security/mts/https_mts.rule
+#   - $CIP/csmart/config/rules/security/mts/https_mts.rule
+    - $CIP/csmart/config/rules/security/mts/sslRMI.rule
     - $CIP/csmart/config/rules/security/naming
   - community_rules:
     - $CIP/csmart/config/rules/security/communities
