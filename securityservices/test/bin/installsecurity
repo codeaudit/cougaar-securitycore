@@ -65,6 +65,15 @@ fi
 
 $ant install
 
+# Darn! ruby is not using the alphabetic order to load rules.
+# Instead it is looping through the files using the creation order.
+# cp works but not ant
+#
+cp test/configs/recipes/rules/*.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security
+cp test/configs/recipes/rules/parameters/security_param_tic.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security
+cp test/configs/recipes/rules/parameters/community.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security/community
+cp test/configs/recipes/rules/parameters/RunSoc.rb.patch $COUGAAR_INSTALL_PATH/csmart/scripts
+
 echo "Zipping files to AS_csi_secserv.zip"
 cd $COUGAAR_INSTALL_PATH
 zip -qr AS_csi_secserv.zip \

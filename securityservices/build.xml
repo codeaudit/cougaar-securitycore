@@ -455,6 +455,7 @@
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/community"/>
         <mkdir dir="${cougaar.install.path}/csmart/scripts"/>
 
+        <!--
         <copy todir="${cougaar.install.path}/csmart/config/rules/security">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
@@ -481,7 +482,7 @@
                 </patternset>
             </fileset>
         </copy>
-
+        -->
         <echo message="+++++ Installed configuration files"/>
     </target>
     
