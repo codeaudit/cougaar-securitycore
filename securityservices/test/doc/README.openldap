@@ -16,6 +16,9 @@ include		/etc/openldap/schema/core.schema
 include		/etc/openldap/schema/java.schema
 schemacheck	off
 
+   As an alternative, you can install the slapd.conf file which is provided
+   in the securityservices/test/configs/certauthority directory.
+
    The second schema file allows us to store java objects directly into the 
    LDAP server. This is very convenient since Ultra*Log is implemented using
    Java. Next, go to the database section of the slapd.conf file, you should
