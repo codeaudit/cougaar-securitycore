@@ -607,7 +607,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
         // inform validity listeners
         CertValidityService validityService = (CertValidityService)
           serviceBroker.getService(this, CertValidityService.class, null);
-        validityService.updateCertificate(cname);
+        validityService.invalidate(cname);
         serviceBroker.releaseService(this, CertValidityService.class, validityService);
 	break;
       }
