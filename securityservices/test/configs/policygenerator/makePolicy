@@ -11,6 +11,8 @@ setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-provider.j
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
 setenv CLASSPATH ${CLASSPATH}:../../../classes
 
+mkdir small-135
+mkdir prototypeSociety
 
 #################################
 # Prototype society configuration

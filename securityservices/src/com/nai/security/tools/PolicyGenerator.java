@@ -46,7 +46,7 @@ public class PolicyGenerator
 
   private String outputfileprefix = null;
   private String templateFile = null;
-  private boolean debug = true;
+  private boolean debug = false;
 
 
   private final String incommingSecureMethod = "IncomingSecureMethod";
@@ -81,6 +81,12 @@ public class PolicyGenerator
   public void parseCommunityFile()
   {
     parseFile(communityConfFile, communities);
+
+    if (debug) {
+      System.out.println("======== Configuration file:");
+      printConfiguration();
+      System.out.println("============================");
+    }
   }
 
   public void parsePolicyFile()
@@ -194,24 +200,28 @@ public class PolicyGenerator
 	if (debug) {
 	  System.out.println("Modifying policy for key=" + key + " - value=" + value);
 	}
-	insertPolicyElements(document, agentList, key, value);
+	insertPolicyElements(document, aCommunity, agentList, key, value);
       }
 
       savePolicy(document, aCommunity);
     }
   }
 
-  public void insertPolicyElements(Document document, ArrayList agentList,
+  public void insertPolicyElements(Document document,
+				   String community,
+				   ArrayList agentList,
 				   String policyElementName,
 				   String policyValue)
   {
     Element rootElement = document.getDocumentElement();
     String rootElementName = rootElement.getNodeName();
 
+    // <Policies> node
     if (!rootElementName.equals("Policies")) {
       throw new IllegalArgumentException("Expecting <Policies>, not "+ rootElementName);
     }
 
+    // <Policy> nodes
     NodeList rootNodeList = rootElement.getChildNodes();
     int nRootNodes = rootNodeList.getLength();
 
@@ -224,13 +234,21 @@ public class PolicyGenerator
       if (!subNoodeName.equals("Policy")) {
 	throw new IllegalArgumentException("Expecting <Policy>, not "+ subNoodeName);
       }
+
+      // Assign a name for the policy
+      Element policyEl = (Element) subNode;
+      policyEl.setAttribute("name", "Policy-" + community);
+
+      // <RuleParam> nodes
       NodeList subNodeList = subNode.getChildNodes();
       int nSubNode = subNodeList.getLength();
+      
       for (int j = 0 ; j < nSubNode ; j++) {
 	Node rule = (Node) subNodeList.item(j);
 	if (!(rule instanceof Element)) {
 	  continue;
 	}
+
 	Element policyElement = (Element) rule;
 	String ruleParamName = policyElement.getNodeName().trim();
 	if (ruleParamName.equals("RuleParam")) {
@@ -240,10 +258,10 @@ public class PolicyGenerator
 	    if (debug) {
 	      System.out.println("Inserting specific policy for " + policyPredicate);
 	    }
+
+	    // <Keyset> nodes
 	    NodeList keysetList = rule.getChildNodes();
 	    int nKeysetList = keysetList.getLength();
-	    // Get first key
-	    // <KeySet value="signAndEncrypt"/>
 	    for (int k = 0 ; k < nKeysetList ; k++) {
 	      Node keyset = keysetList.item(k);
 	      if (!(keyset instanceof Element)) {
@@ -257,7 +275,6 @@ public class PolicyGenerator
 	      ListIterator it = agentList.listIterator();
 	      while (it.hasNext()) {
 		String agentName = (String) it.next();
-		System.out.println("\t" + agentName);
 		String keyValue = "KeyValue";
 		String attr1 = "key";
 		String attr2 = "value";
@@ -343,6 +360,13 @@ public class PolicyGenerator
     String policyTemplate = args[2];
     String outputFilePrefix = args[3];
 
+    System.out.println("===================================================");
+    System.out.println("Creating policies for:");
+    System.out.println("Policy template file:        " + policyTemplate);
+    System.out.println("Community configuration file:" + communityConfFile);
+    System.out.println("Policy file:                 " + policiesFile);
+    System.out.println("Outputfile prefix:           " + outputFilePrefix);
+
     PolicyGenerator pg = new PolicyGenerator();
     pg.setCommunityConfigurationFileName(communityConfFile);
     pg.setPolicyFileName(policiesFile);
@@ -353,9 +377,6 @@ public class PolicyGenerator
     pg.parseCommunityFile();
     pg.parsePolicyFile();
 
-    System.out.println("======== Configuration file:");
-    pg.printConfiguration();
-    System.out.println("============================");
     pg.generatePolicyFiles();
   }
 }
