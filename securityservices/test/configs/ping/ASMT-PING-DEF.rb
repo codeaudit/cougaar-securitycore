@@ -51,6 +51,7 @@ include_scripts:
 # ######################################################
 # Security rules
   - script: $CIP/csmart/lib/security/scripts/build_config_jarfiles.rb
+  - script: $CIP/csmart/lib/security/scripts/build_policies.rb
   - script: $CIP/csmart/lib/security/scripts/setup_acme_user.rb
   - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
     parameters:
