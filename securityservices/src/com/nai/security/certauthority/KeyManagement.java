@@ -150,6 +150,15 @@ public class KeyManagement
       }
       /* When running as part of Cougaar, the KeyRing class is used to store the
        * private keys and the certificates.
+       * The KeyRing class uses the org.cougaar.security.keystore property to
+       * set the location of the node keystore file.
+       * top-level directory: directory where the CA keystore file is stored.
+       * +-+ <node name>
+       *   +-+ conf
+       *     +-- <serial number file>
+       *     +-- <pkcs10Directory>
+       *     +-+ <x509CertDirectory>
+       *       +-- signed X509 certificates
        */
       ConfigFinder configFinder = new ConfigFinder();
       File f = configFinder.locateFile(nodePolicy.CA_keystore);
@@ -157,7 +166,8 @@ public class KeyManagement
 	throw new FileNotFoundException("Unable to locate CA keystore file: "
 					+ nodePolicy.CA_keystore);
       }
-      confDirectoryName = f.getParent();
+      confDirectoryName = f.getParent() + File.separatorChar
+	+ "Crypto" + System.getProperty("org.cougaar.node.name");;
       if (debug) {
 	System.out.println("Configuration Directory: " + confDirectoryName);
       }
@@ -208,6 +218,9 @@ public class KeyManagement
   private void createDirectoryStructure()
     throws IOException
   {
+    if (debug) {
+      System.out.println("Creating directory structure under " + confDirectoryName);
+    }
     File pkcs10dir = new File(pkcs10DirectoryName);
     pkcs10dir.mkdirs();
 

@@ -32,7 +32,7 @@
        The name should be the distinguished name of the X509 certificate -->
   <certificateAuthority name="">
     <!-- The name of a file where the next serial number is stored -->
-    <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
+    <serialNumberFile>SerialNumber_Node</serialNumberFile>
 
     <!-- The name of directory where to store PKCS10 certificate requests -->
     <pkcs10Directory>pkcs10requests</pkcs10Directory>
@@ -67,7 +67,7 @@
     <keystorePassword>CONUS-Ultra*Log</keystorePassword>
 
     <!-- Certificate directory service for certificate storage -->
-    <ldapURL>ldap://yew:389/</ldapURL>
+    <ldapURL>ldap://pear:389/</ldapURL>
 
     <!-- The name of a file where the next serial number is stored -->
     <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
