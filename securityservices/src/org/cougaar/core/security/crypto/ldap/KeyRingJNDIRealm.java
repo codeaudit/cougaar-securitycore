@@ -85,7 +85,6 @@ import org.cougaar.core.node.NodeIdentifier;
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
-import org.cougaar.lib.web.tomcat.AuthValve;
 import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.service.LoggingService;
