@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class AggregatedResponse {
+public class AggregatedResponse implements java.io.Serializable {
 
   private List results;
   
@@ -46,5 +46,23 @@ public class AggregatedResponse {
     }
     List list=new ArrayList();
     return list.iterator();
+  }
+  public String toString() {
+    Iterator iterator=null;
+    StringBuffer buff=new StringBuffer();
+    if(results!=null) {
+      iterator=results.iterator();
+      int counter=1;
+      buff.append(" Consolidated Events in AggregatedResponse :");
+      while(iterator.hasNext()) {
+        buff.append(counter+"\n");
+        buff.append(iterator.next().toString()+"\n");
+        counter++;
+      }
+    }
+    else {
+      buff.append("No Consolidated Events  in AggregatedResponse ");
+    }
+    return buff.toString();
   }
 }
