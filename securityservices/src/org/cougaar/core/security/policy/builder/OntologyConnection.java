@@ -71,32 +71,6 @@ public abstract class OntologyConnection
     PolicyUtils.setOntologyConnection(this);
   }
 
-  public abstract Set getInstancesOf (String conceptName) 
-    throws Exception;
-
-  public abstract Vector getPropertiesApplicableTo (String className)
-    throws ReasoningException ;
-
-  public abstract String getRangeOnPropertyForClass(String className, 
-                                                    String propertyName) 
-    throws ReasoningException;
-
-  public abstract Set getSubClassesOf (String className)
-    throws Exception;
-
-  public abstract void loadOntology (DAMLModel myDAMLModel, 
-                                     boolean recursiveLoad)
-    throws ReasoningException, IOException;
-
-  public abstract boolean testTrue (String statement) 
-    throws ReasoningException;
-
-  public abstract Vector getPolicies() throws IOException;
-
-  public abstract void updatePolicies (List addedPolicies,
-                                       List changedPolicies,
-                                       List removedPolicies) 
-    throws IOException;
 
   public void verifySubClass(String smallSet, 
                              String bigSet)
@@ -135,4 +109,47 @@ public abstract class OntologyConnection
       throw pe;
     }
   }
+
+  /*
+   * Abstract methods
+   */
+
+  public abstract Set getInstancesOf (String conceptName) 
+    throws Exception;
+
+  public abstract Vector getPropertiesApplicableTo (String className)
+    throws ReasoningException ;
+
+  public abstract String getRangeOnPropertyForClass(String className, 
+                                                    String propertyName) 
+    throws ReasoningException;
+
+  public abstract Set getSubClassesOf (String className)
+    throws Exception;
+
+  public abstract boolean testTrue (String statement) 
+    throws ReasoningException;
+
+  /*
+   * Not implemented on the tunnelled ontology
+   */
+
+  public abstract void loadOntology (DAMLModel myDAMLModel, 
+                                     boolean recursiveLoad)
+    throws ReasoningException, IOException;
+
+
+  
+  /*
+   * Abstract methods requiring a domain manager.
+   */
+  public abstract Vector getPolicies() throws IOException;
+
+  public abstract void updatePolicies (List addedPolicies,
+                                       List changedPolicies,
+                                       List removedPolicies) 
+    throws IOException;
+
+  public abstract void setConditionalPolicies(Vector condPols)
+    throws Exception;
 }

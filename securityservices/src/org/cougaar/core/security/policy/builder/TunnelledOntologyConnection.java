@@ -159,6 +159,9 @@ public class TunnelledOntologyConnection extends OntologyConnection
     }
   }
 
+  /*
+   * Not implemented on the tunnelled ontology
+   */
 
   public void loadOntology (DAMLModel myDAMLModel, 
                             boolean recursiveLoad)
@@ -168,7 +171,9 @@ public class TunnelledOntologyConnection extends OntologyConnection
   }
 
 
-
+  /*
+   * Abstract methods requiring a domain manager.
+   */
 
   public Vector getPolicies() 
     throws IOException
@@ -198,6 +203,12 @@ public class TunnelledOntologyConnection extends OntologyConnection
       ioe.initCause(e);
       throw ioe;
     }
+  }
+
+  public void setConditionalPolicies(Vector condPols)
+    throws Exception
+  {
+    _brains.setConditionalPolicies(condPols);
   }
 
 }

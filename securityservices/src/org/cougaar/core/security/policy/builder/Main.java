@@ -29,22 +29,24 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import kaos.core.util.AttributeMsg;
+import kaos.core.util.ConditionalPolicyMsg;
 import kaos.core.util.KAoSConstants;
 import kaos.core.util.Msg;
 import kaos.core.util.PolicyMsg;
 import kaos.core.util.SymbolNotFoundException;
+import kaos.kpat.util.OperatingModeCondition;
 import kaos.ontology.util.RangeIsBasedOnInstances;
 import kaos.ontology.util.ValueNotSet;
 import kaos.policy.information.DAMLPolicyContainer;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 import kaos.policy.util.PolicyBuildingNotCompleted;
 
-
 import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
 
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
-class Main {
+class Main 
+{
   private static WebProxyInstaller   _proxyInstaller;
   private static OntologyConnection  _ontology;
 
@@ -62,6 +64,8 @@ class Main {
   private static final int EXAMINE_CMD = 3;
   private static final int PARSE_CMD   = 4;
 
+  private static final String _conditionName 
+    = "org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY";
 
   private int     _cmd;
   private boolean _quiet;
@@ -101,6 +105,7 @@ class Main {
       } else if (args[counter].equals("commit")) {
         counter++;
         _cmd = COMMIT_CMD;
+        _quiet            = true;
         _useDomainManager = false;
         _cmdLineAuth      = false;
         while (args.length - counter > 4) {
@@ -209,24 +214,29 @@ class Main {
     throws IOException, PolicyCompilerException
   {
     System.out.println("Parsing Policies");
-    List policies = compile(_policyFile);
+    List parsed = compile(_policyFile);
 
     System.out.println("Loading ontologies");
     _ontology = new LocalOntologyConnection();
     System.out.println("Ontologies loaded");
 
     System.out.println("Writing Policies");
-    for(Iterator policyIt = policies.iterator();
-        policyIt.hasNext();) {
-      ParsedPolicy pp = (ParsedPolicy) policyIt.next();
-      if (!_quiet) {
-        System.out.println("Parsed Policy: " + pp.getDescription());
-      }
-      DAMLPolicyBuilderImpl pb = pp.buildPolicy(_ontology);
+    for(Iterator builtPolicyIt = buildUnconditionalPolicies(parsed).iterator();
+        builtPolicyIt.hasNext();) {
+      DAMLPolicyBuilderImpl pb = (DAMLPolicyBuilderImpl) builtPolicyIt.next();
       PolicyUtils.writePolicyMsg(pb);
+    }
       // build again for a new policy id.
-      pb = pp.buildPolicy(_ontology);
+    for(Iterator builtPolicyIt = buildUnconditionalPolicies(parsed).iterator();
+        builtPolicyIt.hasNext();) {
+      DAMLPolicyBuilderImpl pb = (DAMLPolicyBuilderImpl) builtPolicyIt.next();
       PolicyUtils.writePolicyInfo(pb);
+    }
+    Vector builtConditionalPolicies = buildConditionalPolicies(parsed);
+    for(Iterator condpmIt = builtConditionalPolicies.iterator();
+        condpmIt.hasNext();) {
+      ConditionalPolicyMsg condpm = (ConditionalPolicyMsg) condpmIt.next();
+      PolicyUtils.writeObject(getConditionName(condpm) + ".cpmsg", condpm);
     }
   }
 
@@ -234,7 +244,12 @@ class Main {
    * Commits the policies from the _policyFile to the url.
    * Uses the _useDomainManager to determine how the policies are
    * constructed. 
+   *
+   * This function parses the policy file and then calls
+   * commit{Un}conditionalPolicies to build/read the policies and
+   * commit them to the domain manager.
    */
+
   public void commitPolicies()
     throws IOException
   {
@@ -247,39 +262,59 @@ class Main {
         _ontology = new TunnelledOntologyConnection(_url);
       }
       System.out.println("Parsing policies from grammar");
-      List policies = compile(_policyFile);
+      List parsed = compile(_policyFile);
       System.out.println("Policies parsed");
 
-      System.out.println("Constructing New Policy Msgs");
-      List  newPolicies = new Vector();
-      for(Iterator policyIt = policies.iterator();
+      commitUnconditionalPolicies(parsed);
+      commitConditionalPolicies(parsed);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("Error Committing policies");
+    }
+  }
+
+
+  /**
+   * This routine gathers unconditional policies - either from disk or
+   * by building them itself - and then commits them.
+   */
+  public void commitUnconditionalPolicies(List parsed)
+    throws Exception
+  {
+    System.out.println("Constructing New Unconditional Policy Msgs");
+    List   newPolicies         = new Vector();
+
+    if (_useDomainManager) {
+      List builtPolicies = buildUnconditionalPolicies(parsed);
+      for (Iterator builtPolicyIt = builtPolicies.iterator();
+           builtPolicyIt.hasNext();) {
+        DAMLPolicyBuilderImpl pb
+          = (DAMLPolicyBuilderImpl) builtPolicyIt.next();
+        newPolicies.add(PolicyUtils.getPolicyMsg(pb));
+      }
+    } else {
+      for(Iterator policyIt = parsed.iterator();
           policyIt.hasNext();) {
         ParsedPolicy pp = (ParsedPolicy) policyIt.next();
-        if (_useDomainManager) {
-          DAMLPolicyBuilderImpl pb = pp.buildPolicy(_ontology);
-          newPolicies.add(PolicyUtils.getPolicyMsg(pb));
-        } else {
+        if (pp.getConditionalMode() == null) {
           FileInputStream fis = new FileInputStream(pp.getPolicyName() 
                                                     + ".msg");
           ObjectInputStream ois = new ObjectInputStream(fis);
           newPolicies.add((PolicyMsg) ois.readObject());
           ois.close();
-        }
+        } 
       }
-      System.out.println("New Policy Msgs created");
-      System.out.println("Getting Existing Policies from servlet");
-      List oldPolicies = _ontology.getPolicies();
-      List oldPolicyMsgs = new Vector();
-      for (Iterator oldPoliciesIt = oldPolicies.iterator();
-           oldPoliciesIt.hasNext();) {
-        Msg oldPolicy = (Msg) oldPoliciesIt.next();
-        oldPolicyMsgs.add(convertMsgToPolicyMsg(oldPolicy));
-      }
-      updatePolicies(newPolicies, oldPolicyMsgs);
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("Error Committing policies");
     }
+    System.out.println("New Unconditional Policy Msgs created");
+    System.out.println("Getting Existing Policies from servlet");
+    List oldPolicies = _ontology.getPolicies();
+    List oldPolicyMsgs = new Vector();
+    for (Iterator oldPoliciesIt = oldPolicies.iterator();
+         oldPoliciesIt.hasNext();) {
+      Msg oldPolicy = (Msg) oldPoliciesIt.next();
+      oldPolicyMsgs.add(convertMsgToPolicyMsg(oldPolicy));
+    }
+    updatePolicies(newPolicies, oldPolicyMsgs);
   }
 
   /**
@@ -324,9 +359,48 @@ class Main {
       }
     }
 
-    System.out.println("Policies Obtained - committing");
+    System.out.println("Unconditional Policies Obtained - committing");
     _ontology.updatePolicies(addedPolicies, changedPolicies, removedPolicies);
     System.out.println("Policies sent...");
+  }
+
+
+  /**
+   * This function commits conditional policies - either by building
+   * them itself or by obtaining them off of disk.
+   */
+  public void commitConditionalPolicies(List parsed)
+    throws Exception
+  {
+    System.out.println("Obtaining Conditional Policies");
+
+    Vector conditionalPolicies = new Vector();
+
+    if (_useDomainManager) {
+      conditionalPolicies = buildConditionalPolicies(parsed);
+    } else {
+      Set modes = new HashSet();
+      for(Iterator policyIt = parsed.iterator();
+          policyIt.hasNext();) {
+        ParsedPolicy pp = (ParsedPolicy) policyIt.next();
+        if (pp.getConditionalMode() != null) {
+          modes.add(pp.getConditionalMode());
+        }
+      }
+      for (Iterator modesIt = modes.iterator(); modesIt.hasNext(); ) {
+        String mode = (String) modesIt.next();
+        FileInputStream fis = new FileInputStream(mode + ".cpmsg");
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        conditionalPolicies.add((ConditionalPolicyMsg) ois.readObject());
+        ois.close();
+      }
+    }
+    if (conditionalPolicies != null && !conditionalPolicies.isEmpty()) {
+      System.out.println("Sending Conditional Policies");
+      _ontology.setConditionalPolicies(conditionalPolicies);
+    } else {
+      System.out.println("No conditional policies to send");
+    }
   }
 
   /**
@@ -448,6 +522,92 @@ class Main {
                                            "RDF/XML-ABBREV");
       }
     }
+  }
+
+  /**
+   * This routine generates a map from policy condition modes to Lists
+   * of 
+   */
+
+  private List buildUnconditionalPolicies(List parsed)
+    throws PolicyCompilerException
+  {
+    List built = new Vector();
+
+    for (Iterator parsedIt = parsed.iterator();
+         parsedIt.hasNext();) {
+      ParsedPolicy pp = (ParsedPolicy) parsedIt.next();
+      if (pp.getConditionalMode() == null) {
+        if (!_quiet) {
+          System.out.println("Parsed Policy: " + pp.getPolicyName());
+        }
+        built.add(pp.buildPolicy(_ontology));
+      }
+    }
+    return built;
+  }
+
+  /**
+   * This routine generates a Vector of ConditionalPolicyMsgs from a
+   * list of parsed policies.
+   *
+   * I think that the Vector part is important because it is what the 
+   * ConditionalPolicyMsg constructor takes as an argument.
+   */
+  private Vector buildConditionalPolicies(List parsed)
+    throws PolicyCompilerException
+  {
+    Vector condpms = new Vector();
+    try {
+      Map built = new HashMap();
+
+      for (Iterator parsedIt = parsed.iterator();
+           parsedIt.hasNext();) {
+        ParsedPolicy pp    = (ParsedPolicy) parsedIt.next();
+        String       mode  = pp.getConditionalMode();
+
+        if (mode != null) {
+          if (!_quiet) {
+            System.out.println("Parsed Policy: " + pp.getPolicyName());
+          }
+          Vector existingPoliciesForMode = (Vector) built.get(mode);
+          if (existingPoliciesForMode == null) {
+            existingPoliciesForMode = new Vector();
+          }
+          DAMLPolicyBuilderImpl pb = pp.buildPolicy(_ontology);
+          existingPoliciesForMode.add(PolicyUtils.getPolicyMsg(pb));
+          built.put(mode, existingPoliciesForMode);
+        }
+      }
+  
+      for (Iterator modesIt = built.keySet().iterator(); modesIt.hasNext();) {
+        String condition = (String) modesIt.next();
+        ConditionalPolicyMsg condpm
+          = new ConditionalPolicyMsg(new OperatingModeCondition(_conditionName,
+                                                                condition),
+                                     (Vector) built.get(condition));
+        condpms.add(condpm);
+      }
+    } catch (PolicyCompilerException pce) {
+      ;
+    } catch (Exception e) {
+      PolicyCompilerException pce
+        = new PolicyCompilerException("trouble building conditional polcies");
+      pce.initCause(e);
+      throw pce;
+    }
+    return condpms;
+  }
+
+
+  /**
+   * this routine gets the name of a ConditionalPolicyMsg assuming
+   * that the condition part is an OperatingModeCondition object.
+   */
+  private String getConditionName(ConditionalPolicyMsg condpm)
+  {
+    OperatingModeCondition omc=(OperatingModeCondition) condpm.getCondition();
+    return (String) omc.getValue();
   }
 }
 

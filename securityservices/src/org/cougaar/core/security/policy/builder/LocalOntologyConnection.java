@@ -77,6 +77,10 @@ public class LocalOntologyConnection extends OntologyConnection
   }
 
 
+  /*
+   * Implementation of abstract methods from OntologyConnection
+   */
+
   public Vector getPropertiesApplicableTo (String className)
     throws ReasoningException 
   {
@@ -97,13 +101,6 @@ public class LocalOntologyConnection extends OntologyConnection
   }
 
 
-  public void loadOntology (DAMLModel myDAMLModel, 
-                            boolean recursiveLoad)
-    throws ReasoningException, IOException
-  {
-    _brains.loadOntology(myDAMLModel, recursiveLoad);
-  }
-
 
   public Set getSubClassesOf (String className) 
     throws Exception
@@ -117,6 +114,22 @@ public class LocalOntologyConnection extends OntologyConnection
   {
     return _brains.testTrue(statement);
   }
+
+
+  /*
+   * Not implemented on the tunnelled ontology
+   */
+
+  public void loadOntology (DAMLModel myDAMLModel, 
+                            boolean recursiveLoad)
+    throws ReasoningException, IOException
+  {
+    _brains.loadOntology(myDAMLModel, recursiveLoad);
+  }
+
+  /*
+   * the following interfaces cannot be implemented without a domain manager.
+   */
 
   public Vector getPolicies() 
     throws IOException
@@ -132,4 +145,12 @@ public class LocalOntologyConnection extends OntologyConnection
     throw 
       new IOException("Unable to update Policies on remote domain manager");
   }
+
+  public void setConditionalPolicies(Vector condPols)
+    throws Exception
+  {
+    throw new RuntimeException("Unable to update policies on " + 
+                               "remote domain manager");
+  }
+
 }

@@ -175,7 +175,7 @@ public class PolicyUtils
   /*
    * Utility routine to write a single object
    */
-  private static void writeObject(String filename, Object o)
+  protected static void writeObject(String filename, Object o)
     throws IOException
   {
     FileOutputStream fos = new FileOutputStream(filename);
