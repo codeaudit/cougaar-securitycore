@@ -71,6 +71,8 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
     "#{RULES}/isat/root_mobility_plugin.rule",
     "#{RULES}/isat/logging_config_servlet.rule",
     "#{RULES}/isat/community_plugin.rule",
+    "#{RULES}/isat/show_jars.rule",
+    "#{RULES}/isat/tic_env.rule",
 #    "#{RULES}/isat",
     "#{RULES}/security" 
  
