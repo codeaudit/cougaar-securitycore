@@ -19,11 +19,11 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
   - script: $CIP/csmart/lib/security/scripts/parseResults.rb
   - script: $CIP/csmart/lib/security/scripts/security_archives.rb
-  - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
+  - script: $CIP/csmart/lib/security/scripts/cleanup_societyRestore.rb
 ###########################################
   - script: $CIP/csmart/lib/isat/datagrabber_include.rb
   - script: $CIP/csmart/lib/isat/network_shaping.rb
-  - script: $CIP/csmart/lib/robustness/objs/deconfliction.rb
+#  - script: $CIP/csmart/lib/robustness/objs/deconfliction.rb
   - script: $CIP/csmart/assessment/assess/inbound_aggagent_include.rb
   - script: $CIP/csmart/assessment/assess/outofbound_aggagent_include.rb
   - script: $CIP/csmart/assessment/assess/cnccalc_include.rb
