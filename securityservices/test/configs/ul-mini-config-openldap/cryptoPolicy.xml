@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<cryptoConfiguration>
+
+  <!-- Client side -->
+  <nodeConfiguration>
+    <!-- The following parameter must be changed according to the appropriate
+         deployment configuration -->
+    <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
+    <CA_DN>CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US</CA_DN>
+    <CA_keystore>keystoreCA</CA_keystore>
+    <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
+    <!-- Organizational unit -->
+    <ou>CONUS</ou>
+    <!-- Organizational -->
+    <o>DLA</o>
+    <!-- City or Locality -->
+    <l>San Francisco</l>
+    <!-- State -->
+    <st>CA</st>
+    <!-- Country Code -->
+    <c>US</c>
+    <!-- The key algorithm -->
+    <keyAlgName>DSA</keyAlgName>
+    <!-- The key size -->
+    <keysize>1024</keysize>
+    <!-- The signature algorithm -->
+    <sigAlgName>SHA1WithDSA</sigAlgName>
+    <!-- The default validity -->
+    <validity>90</validity>
+  </nodeConfiguration>
+
+
+  <!-- Configuration of Certificate Authority
+       The name should be the distinguished name of the X509 certificate -->
+  <certificateAuthority name="">
+    <!-- The name of a file where the next serial number is stored -->
+    <serialNumberFile>SerialNumber_Node</serialNumberFile>
+
+    <!-- The name of directory where to store PKCS10 certificate requests -->
+    <pkcs10Directory>pkcs10requests</pkcs10Directory>
+
+    <!-- The name of directory where to store signed certificates -->
+    <x509CertDirectory>x509certificates</x509CertDirectory>
+
+    <!-- Policy when issuing certificates -->
+    <clientCertPolicy>
+      <!-- The X509 version number to be created -->
+      <certVersion>0</certVersion>
+
+      <algorithmId>sha1WithDSA_oid</algorithmId>
+
+      <keysize>1024</keysize>
+
+      <!-- How long to certify for -->
+      <certValidity>720</certValidity>
+    </clientCertPolicy>
+  </certificateAuthority>
+
+</cryptoConfiguration>
