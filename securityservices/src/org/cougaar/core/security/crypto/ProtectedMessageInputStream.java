@@ -464,11 +464,13 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     this.in = _cypherIn;
   }
 
-  private void unsignStream(ProtectedMessageHeader header, byte[] headerBytes) 
+  private void unsignStream(ProtectedMessageHeader header, 
+                            byte[] headerBytes) 
     throws CertificateChainException, NoSuchAlgorithmException,
-    CertificateExpiredException, InvalidKeyException, 
-    CertificateNotYetValidException, CertificateRevokedException, IOException,
-    SignatureException {
+           CertificateExpiredException, InvalidKeyException, 
+           CertificateNotYetValidException, CertificateRevokedException, 
+           IOException, SignatureException 
+  {
     if (_log.isInfoEnabled()) {
       _log.info("Still unsigning... (" + _source + " -> " + _target + ")");
     }
@@ -500,19 +502,61 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     // now compare digests
     for (int i = 0; i < digestComputed.length; i++) {
       if (digestComputed[i] != digestRead[i]) {
+        boolean senderSideException = detectSenderDigestException(digestRead);
+        if (senderSideException) {
+          _log.warn("Failed to verify  digest because sender generated exception writing digest");
+        } 
         String message = "The digest of the message header did not compute " +
           "to the same value. Someone has modified the header! " +
           header.getSenderName() + " to " + header.getReceiverName();
-        _log.warn(message);
-	_log.warn("Header: " + headerBytes.length + 
-		  "\n" + byteArray2String(headerBytes));
-	_log.warn("Computed: " +
-		  byteArray2String(digestComputed) +
-	  ", compared with read value: " + byteArray2String(digestRead));
-        throw new SignatureException(message);
+        message += "\nHeader: " + headerBytes.length + 
+                    "\n" + byteArray2String(headerBytes) + 
+                     "\nComputed: " +
+                     byteArray2String(digestComputed) +
+                    ", compared with read value: " + 
+                     byteArray2String(digestRead);
+        if (senderSideException) {
+          if (_log.isInfoEnabled()) {
+            _log.info(message);
+          }
+          throw new IOException(message);
+        } else {
+          if (_log.isWarnEnabled()) {
+            _log.warn(message);
+          }
+          throw new SignatureException(message);
+        }
       }
     }
   }
+
+  // This is a primitive hack to detect the situuation where the
+  // sender generates  an exception writing the digest.  It is not
+  // clear that this is the right way to do things.  Also for now
+  // this routine only detects the exception if it happens before any
+  // bytes of the digest have been written by the sender.  A more
+  // advanced version would detect the exception even if some bytes
+  // have been written.  This version would get the remaining data
+  // from the input stream to reconstruct the data.  It should be
+  // further possible to reconstruct 
+  // the exception by deserializing it - though this would duplicate
+  // data in the senders logs.
+  boolean detectSenderDigestException(byte [] digestRead)
+  {
+    byte [] exceptionPattern = { '{', 's', 'r', 0x00, 0x13, 
+                                 'j', 'a', 'v',  'a',  '.', 
+                                 'i', 'o', '.',
+                                 'I', 'O', 'E', 'x', 'c', 'e' };
+    for (int i = 0; 
+         i < digestRead.length && i < exceptionPattern.length; 
+         i++) {
+      if (exceptionPattern[i] != digestRead[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+                                      
 
   public static String byteArray2String(byte[] arr) {
     StringBuffer buf = new StringBuffer();
