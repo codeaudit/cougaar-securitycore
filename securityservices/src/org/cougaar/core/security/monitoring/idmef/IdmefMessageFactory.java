@@ -402,7 +402,7 @@ final public class IdmefMessageFactory {
         refList.add( analyzer.getAnalyzerid() );
         Agent newAgent = ( Agent )m_agent.clone();
         newAgent.setRefIdents( ( String [] )refList.toArray( new String[ 0 ] ) );
-        dataList.add( createAdditionalData( AGENT_INFO,
+        dataList.add( createAdditionalData( Agent.AGENT_INFO_MEANING,
 					                                  newAgent ) ); 
       } 
       
@@ -1453,7 +1453,6 @@ final public class IdmefMessageFactory {
   private String m_osVersion;
     
   private static String PROCESS_NAME = "org.cougaar.core.node.Node";
-  private static String AGENT_INFO = "agent-info";
     
   private Agent m_agent;
   private IdmefMessageFactory m_idmefMessageFactory;

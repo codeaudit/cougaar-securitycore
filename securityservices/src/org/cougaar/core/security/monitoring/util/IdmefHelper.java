@@ -174,8 +174,8 @@ public class IdmefHelper {
     data.add(m_idmefFactory.createAdditionalData(AdditionalData.STRING,
 		                                             event.getDataIdentifier(),
 			                                           event.getData()));
-    data.add(m_idmefFactory.createAdditionalData("source-agent", sAgent));
-    data.add(m_idmefFactory.createAdditionalData("target-agent", tAgent));
+    data.add(m_idmefFactory.createAdditionalData(Agent.SOURCE_MEANING, sAgent));
+    data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
     // create the alert for this event
     Alert alert = m_idmefFactory.createAlert(m_sensorInfo, 
                                              event.getDetectTime(), 

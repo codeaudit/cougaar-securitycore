@@ -82,14 +82,27 @@ import org.w3c.dom.NamedNodeMap;
  */
 public class Agent implements XMLSerializable, Cloneable {
     
-    public static String COUGAAR_NAMESPACE = "idmef+cougaar";
-    public static String COUGAAR_NAMESPACE_PREFIX = "Cougaar:";
-    public static String ELEMENT_NAME = COUGAAR_NAMESPACE_PREFIX + "Agent";
-    public static String NAME_ATTRIBUTE = COUGAAR_NAMESPACE_PREFIX + "name";
-    public static String CLASS_ATTRIBUTE = COUGAAR_NAMESPACE_PREFIX + "class";
-    public static String DESCRIPTION_ELEMENT = COUGAAR_NAMESPACE_PREFIX + "desciption";
-    public static String LOCATION_ELEMENT = COUGAAR_NAMESPACE_PREFIX + "location";
-    public static String REF_IDENT_ELEMENT = COUGAAR_NAMESPACE_PREFIX + "ref-ident";
+    public final static String COUGAAR_NAMESPACE = "idmef+cougaar";
+    public final static String COUGAAR_NAMESPACE_PREFIX = "Cougaar:";
+    public final static String ELEMENT_NAME = COUGAAR_NAMESPACE_PREFIX + "Agent";
+    public final static String NAME_ATTRIBUTE = COUGAAR_NAMESPACE_PREFIX + "name";
+    public final static String CLASS_ATTRIBUTE = COUGAAR_NAMESPACE_PREFIX + "class";
+    public final static String DESCRIPTION_ELEMENT = COUGAAR_NAMESPACE_PREFIX + "desciption";
+    public final static String LOCATION_ELEMENT = COUGAAR_NAMESPACE_PREFIX + "location";
+    public final static String REF_IDENT_ELEMENT = COUGAAR_NAMESPACE_PREFIX + "ref-ident";
+    
+    /**
+     * The meaning of an AdditionalData describing an agent
+     */
+    public final static String AGENT_INFO_MEANING = "AGENT_INFO";
+    /**
+     * The meaning of an AdditionalData describing the agent that references a source
+     */
+    public final static String SOURCE_MEANING = "SOURCE_AGENT";
+    /**
+     * The meaning of an AdditionalData describing the agent that references a target
+     */
+    public final static String TARGET_MEANING = "TARGET_AGENT";
     
     public Agent()
     {
