@@ -3,9 +3,21 @@ org.cougaar.core.security.monitoring.MESSAGE_FAILURE_RATE <= 25 : PERCEIVED_THRE
 org.cougaar.core.security.monitoring.MESSAGE_FAILURE_RATE in { 26 thru 50 } : PERCEIVED_THREAT_LEVEL = 2;
 org.cougaar.core.security.monitoring.MESSAGE_FAILURE_RATE > 50 : PERCEIVED_THREAT_LEVEL = 3;
 PERCEIVED_THREAT_LEVEL == 1
+    : [agent.PolicyDomainManager1]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
+    : [agent.PolicyDomainManager2]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
+    : [agent.PolicyDomainManager3]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
+    : [agent.PolicyDomainManager4]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
     : org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 10;
 PERCEIVED_THREAT_LEVEL == 2
+    : [agent.PolicyDomainManager1]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
+    : [agent.PolicyDomainManager2]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
+    : [agent.PolicyDomainManager3]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
+    : [agent.PolicyDomainManager4]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
     : org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 5;
 PERCEIVED_THREAT_LEVEL == 3
+    : [agent.PolicyDomainManager1]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH
+    : [agent.PolicyDomainManager2]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH 
+    : [agent.PolicyDomainManager3]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH 
+    : [agent.PolicyDomainManager4]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH 
     : org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 3;
 
