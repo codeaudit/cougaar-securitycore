@@ -23,6 +23,9 @@ package org.cougaar.core.security.monitoring.plugin;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.services.crypto.LdapUserService;
+import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.adaptivity.OperatingMode;
+import org.cougaar.core.blackboard.IncrementalSubscription;
 
 import org.cougaar.lib.aggagent.query.Alert;
 import org.cougaar.lib.aggagent.query.AggregationQuery;
@@ -37,11 +40,13 @@ import org.cougaar.lib.aggagent.util.Enum.UpdateMethod;
 import org.cougaar.lib.aggagent.util.Enum.Language;
 import org.cougaar.lib.aggagent.util.Enum.QueryType;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import javax.naming.NamingException;
 
 /**
@@ -59,6 +64,8 @@ public class UserLockoutPlugin extends ComponentPlugin {
   String _clusters[]           = null;
   private LoggingService  _log;
   private LdapUserService _userService;
+  private IncrementalSubscription _maxLoginFailureSubscription;
+  private IncrementalSubscription _lockoutDurationSubscription;
 
   private static final String[] STR_ARRAY = new String[1];
   private static final String PRED_SCRIPT = 
@@ -84,47 +91,34 @@ public class UserLockoutPlugin extends ComponentPlugin {
     "  return getAlert\n";
 
   private static final String FORMAT_SCRIPT =
-    "from java.lang import System\n" +
+//     "from java.lang import System\n" +
     "from org.cougaar.core.security.crypto.ldap import KeyRingJNDIRealm\n" +
     "from org.cougaar.lib.aggagent.query import ResultSetDataAtom\n" +
     "def encode (out, x):\n" +
     "  added = x.getAddedCollection()\n" +
     "  addTo = out.getAddedList()\n" +
-    "  System.out.println('ok 1')\n" +
     "  if added is None:\n" +
     "    return\n" +
     "  iter = added.iterator()\n" +
-    "  System.out.println('ok 2')\n" +
     "  while iter.hasNext():\n" +
-    "    System.out.println('ok 3')\n" +
     "    failure = iter.next().getEvent()\n" +
     "    user = None\n" +
     "    reason = None\n" +
     "    for target in failure.getTargets():\n" +
-    "      System.out.println('ok 4')\n" +
     "      user = target.getUser()\n" +
     "      if user is not None:\n" +
     "        break\n" +
-    "    System.out.println('ok 5')\n" +
     "    for addData in failure.getAdditionalData():\n" +
-    "      System.out.println('ok 6')\n" +
     "      if addData.getMeaning() == KeyRingJNDIRealm.FAILURE_REASON:\n" +
     "        reason = addData.getAdditionalData()\n" +
     "        break\n" +
-    "    System.out.println('ok 7')\n" +
     "    if user is not None:\n" +
-    "      System.out.println('ok 7.1: ' + reason)\n" +
     "      if reason is not None:\n" +
     "        user = user.getUserIds()[0].getName()\n" +
-    "        System.out.println('ok 7.2: ' + user + ', ' + reason)\n" +
     "        atom = ResultSetDataAtom()\n" +
     "        atom.addIdentifier('user', user)\n" +
     "        atom.addValue('reason', reason)\n" +
-    "        System.out.println('ok 8: ' + user + ', ' + reason)\n" +
     "        addTo.add(atom)\n" +
-    "      System.out.println('ok 9')\n" +
-    "    System.out.println('ok 9.1')\n" +
-    "  System.out.println('ok 10')\n" +
     "def instantiate ():\n" +
     "  return encode\n";
 
@@ -132,6 +126,39 @@ public class UserLockoutPlugin extends ComponentPlugin {
     new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JPYTHON, PRED_SCRIPT);
   private static ScriptSpec FORMAT_SPEC =
     new ScriptSpec(Language.JPYTHON, XmlFormat.INCREMENT, FORMAT_SCRIPT);
+
+  private static final String MAX_LOGIN_FAILURES =
+    "LoginFailureAnalyzerPlugin.MAX_LOGIN_FAILURES";
+  private static final String LOCKOUT_DURATION =
+    "LoginFailureAnalyzerPlugin.LOCKOUT_DURATION";
+
+  private static final UnaryPredicate MAX_LOGIN_FAILURE_PREDICATE =
+    new UnaryPredicate() {
+      public boolean execute(Object o) {
+        if (o instanceof OperatingMode) {
+          OperatingMode om = (OperatingMode) o;
+          String omName = om.getName();
+          if (MAX_LOGIN_FAILURES.equals(omName)) {
+            return true;
+          }
+        }
+        return false;
+      }
+    };
+
+  private static final UnaryPredicate LOCKOUT_DURATION_PREDICATE = 
+    new UnaryPredicate() {
+      public boolean execute(Object o) {
+        if (o instanceof OperatingMode) {
+          OperatingMode om = (OperatingMode) o;
+          String omName = om.getName();
+          if (LOCKOUT_DURATION.equals(omName)) {
+          return true;
+          }
+        }
+        return false;
+      }
+    };
 
   public void setParameter(Object o) {
     if (!(o instanceof List)) {
@@ -144,8 +171,37 @@ public class UserLockoutPlugin extends ComponentPlugin {
 
     List l = (List) o;
 
-    String paramName = "poll interval";
+    String paramName = "clean interval";
     Iterator iter = l.iterator();
+    String param = "";
+    try {
+      param = iter.next().toString();
+      _cleanInterval = Long.parseLong(param) * 1000;
+
+      paramName = "failure memory";
+      param = iter.next().toString();
+      _rememberTime = Long.parseLong(param) * 1000;
+    } catch (NoSuchElementException e) {
+      throw new IllegalArgumentException("You must provide a " +
+                                        paramName +
+                                        " argument");
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Expecting integer for " +
+                                         paramName +
+                                         ". Got (" +
+                                         param + ")");
+    }
+    if (_cleanInterval <= 0 || _rememberTime <= 0) {
+      throw new IllegalArgumentException("You must provide positive " +
+                                         "clean interval and failure memory " +
+                                         "arguments");
+    }
+
+    if (!iter.hasNext()) {
+      throw new IllegalArgumentException("You must provide at least one " +
+                                         "cluster id parameter");
+    }
+
     ArrayList clusters = new ArrayList();
     while (iter.hasNext()) {
       clusters.add(iter.next().toString());
@@ -154,7 +210,12 @@ public class UserLockoutPlugin extends ComponentPlugin {
   }
 
   public void lock(String user) throws NamingException {
-    _userService.disableUser(user, _lockoutTime);
+    _log.debug("locking out user (" + user + ")");
+    if (_lockoutTime < 0) {
+      _userService.disableUser(user);
+    } else {
+      _userService.disableUser(user, _lockoutTime);
+    }
   }
 
   protected AggregationQuery createQuery() {
@@ -188,9 +249,44 @@ public class UserLockoutPlugin extends ComponentPlugin {
       e.printStackTrace();
     }
 //     getBlackboardService().closeTransaction();
+    _maxLoginFailureSubscription = (IncrementalSubscription)blackboard.subscribe(MAX_LOGIN_FAILURE_PREDICATE);
+    _lockoutDurationSubscription = (IncrementalSubscription)blackboard.subscribe(LOCKOUT_DURATION_PREDICATE);
+    
   }
 
   protected void execute() {
+    if (_maxLoginFailureSubscription.hasChanged()) {
+      updateMaxLoginFailures();
+    }
+    if (_lockoutDurationSubscription.hasChanged()) {
+      updateLockoutDuration();
+    }
+  }
+
+  private void updateMaxLoginFailures() {
+    Collection oms = _maxLoginFailureSubscription.getChangedCollection();
+    Iterator i = oms.iterator();
+    OperatingMode om = null;
+    if (oms.size() > 0) {
+      om = (OperatingMode)i.next();
+      _log.debug("Max Login Failures updated to " + om.getValue() + ".");
+      _maxFailures = (int) Double.parseDouble(om.getValue().toString());
+    } else {
+      _log.error("maxLoginFailureSubscription.getChangedCollection() returned collection of size 0!");
+    }
+  }
+
+  private void updateLockoutDuration() {
+    Collection oms = _lockoutDurationSubscription.getChangedCollection();
+    Iterator i = oms.iterator();
+    OperatingMode om = null;
+    if (oms.size() > 0) {
+      om = (OperatingMode)i.next();
+      _log.debug("Lockout Duration updated to " + om.getValue() + " seconds.");
+      _lockoutTime = (long)Double.parseDouble(om.getValue().toString()) * 1000;
+    } else {
+      _log.error("lockoutDurationSubscription.getChangedCollection() returned collection of size 0!");
+    }
   }
 
   private class LoginFailureAlert extends Alert {
@@ -210,12 +306,10 @@ public class UserLockoutPlugin extends ComponentPlugin {
           _log.debug("XML: " + results.toXml());
         } else {
           Iterator atoms = results.getAllAtoms();
-          System.out.println("Got a failure");
           while (atoms.hasNext()) {
             ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
             String user = d.getIdentifier("user").toString();
             String reason = d.getValue("reason").toString();
-            System.out.println("user: " + user + ", reason: " + reason);
             if ("the user has entered the wrong password".equals(reason)) {
               _failures.add(user);
             }
