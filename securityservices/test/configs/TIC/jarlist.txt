@@ -1,0 +1,52 @@
+####################
+#Policy management
+safe.jar
+kaos.jar
+
+####################
+#Core infrastructure
+core.jar
+util.jar
+webserver.jar
+webtomcat.jar
+aggagent.jar
+qos.jar
+quo.jar
+community.jar
+toolkit.jar
+adaptivescalability.jar
+scalability.jar
+
+####################
+# Logistics applications
+albbn.jar
+alsra.jar
+glm.jar
+stoplight.jar
+uiframework.jar
+vishnu.jar
+blackjack.jar
+datagrabber.jar
+
+####################
+# bootstrapper
+bootstrap.jar
+javaiopatch.jar
+securebootstrapper.jar
+
+####################
+# Security services
+CougaarCRLextensions.jar
+securityservices.jar
+overlay.jar
+idmef.jar
+
+####################
+# Other
+csmart.jar
+build.jar
+server.jar (AppServer)
+tutorial.jar
+planserver.jar (PSP stuff)
+contract.jar (Tech Specs)
+manager.jar (tool used to kill nodes)
