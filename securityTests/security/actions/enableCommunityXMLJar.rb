@@ -9,10 +9,15 @@ module Cougaar
 
       def perform
           @communityJar = "#{CIP}/configs/common/communities.xml.jar"
-          run.info_message "Enabling #{@communityJar}"
+          @communityXml = "#{CIP}/configs/common/communities.xml"
+          run.info_message "Enabling #{@communityJar} and #{@communityXml}"
           if !File.exists?("#{@communityJar}")
             File.rename("#{@communityJar}.orig", "#{@communityJar}")
           end
+	  if !File.exists?("#{@communityiXml}")
+            File.rename("#{@communityXml}.orig", "#{@communityXml}")
+          end
+
       end
     end
   end
