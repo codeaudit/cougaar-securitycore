@@ -1283,9 +1283,9 @@ public class SecurityAspect extends StandardAspect
 
           Task task = (Task)directive[i];
 
-          if(!matchOutVerb(task.getDestination().toString(),
+          if(!matchOutVerb(task.getSource().toString(),
 
-                         task.getSource().toString(),
+                         task.getDestination().toString(),
 
                          task.getVerb())) {
             if(removeDirective((DirectiveMessage)msg, i)) return;
