@@ -79,6 +79,48 @@ public class MessageWithTrust extends Message {
     else 
       return null;
   }
+   /**
+     * Public accessor method for the trust set
+     * @return the trust set associated with the encapsulated message
+     */
+    public TrustSet getTrustSet() {
+      if(trustset!=null)
+	return trustset[0];
+      else 
+	return null;
+    }
+
+    /**
+     * Public accessor for an array of trust sets. Used with a Directive
+     * Message payload.
+     * @return an array of trust sets 
+     */
+    public TrustSet[] getTrustSets() { 
+      return trustset; 
+    }
+
+    /**
+     * Public modifier method for a signle trust set.
+     * @return the trust set associates with the encapsulate message
+     */
+    public void setTrustSet(TrustSet set) { 
+	if(this.trustset == null)
+	    this.trustset = new TrustSet[1];
+	this.trustset[0] = set;
+    }
+    
+    /**
+     * Public modifier method for an array of trust sets. This should be
+     * used when the payload is a DirectiveMessage but can be extended to
+     * other types of Messages as well.
+     * @return an array of trust sets for a message with segmented contents
+     */
+    public void setTrustSets(TrustSet set[]) {
+	this.trustset = new TrustSet[set.length];
+	for(int i = 0; i < set.length; i++)
+	    this.trustset[i] = set[i];
+    }
+  
   public void writeExternal(ObjectOutput out) throws IOException {
     if(debug)
       System.out.println(" write external of Message with trust called :");
@@ -121,6 +163,7 @@ public class MessageWithTrust extends Message {
       buf.append("messsage was NULL:");
     return buf.toString();
   }
+  
   
 
 }
