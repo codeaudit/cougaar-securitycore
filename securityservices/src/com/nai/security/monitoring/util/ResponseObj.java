@@ -34,37 +34,35 @@ import org.cougaar.domain.glm.ldm.asset.Organization;
 
 public class ResponseObj implements java.io.Serializable
 {
-    public Organization org;
-    public Vector Sensors;
-    public Vector Analyzers;
-    public String Type;
-    public long unique_id   ;
-    public  ResponseObj( Organization orgn,Vector sensor,Vector analyzer,String type,long id)
-    {
-
-        this.org=orgn;
-        this.Sensors=sensor;
-        this.Analyzers=analyzer;
-        this.Type=type  ;
-        this.unique_id=id;
+  public Organization org;
+  public Vector Sensors;
+  public Vector Analyzers;
+  public String Type;
+  public long unique_id   ;
+  public  ResponseObj( Organization orgn,Vector sensor,Vector analyzer,String type,long id)
+  {
+    
+    this.org=orgn;
+    this.Sensors=sensor;
+    this.Analyzers=analyzer;
+    this.Type=type  ;
+    this.unique_id=id;
+  }
+  public String toString()
+  {
+    StringBuffer buff=new StringBuffer();
+    buff.append("Organization :"+org.getUID().getOwner());
+    buff.append("\n Sensors ---\n");
+    for(int i=0;i<Sensors.size();i++)   {
+      buff.append(i+":"+((Organization)Sensors.elementAt(i)).toString()+"\n");
     }
-    public String toString()
-   {
-       StringBuffer buff=new StringBuffer();
-       buff.append("Organization :"+org.getUID().getOwner());
-       buff.append("\n Sensors ---\n");
-       for(int i=0;i<Sensors.size();i++)
-       {
-           buff.append(i+":"+((Organization)Sensors.elementAt(i)).toString()+"\n");
-       }
-       buff.append("\n Analyzer ---\n");
-       for(int i=0;i<Analyzers.size();i++)
-       {
-           buff.append(i+":"+((Organization)Analyzers.elementAt(i)).toString()+"\n");
-       }
-       return buff.toString();
-
-   }
-
+    buff.append("\n Analyzer ---\n");
+    for(int i=0;i<Analyzers.size();i++)  {
+      buff.append(i+":"+((Organization)Analyzers.elementAt(i)).toString()+"\n");
+    }
+    return buff.toString();
+    
+  }
+  
 }
 

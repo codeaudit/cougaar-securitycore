@@ -37,26 +37,24 @@ public class SendCapabilitiesObj implements java.io.Serializable
   public Organization org;
   public String Type;
   public Vector Services;
-
+  
   public SendCapabilitiesObj(Organization orgn,String ty,Vector Capabilities)
   {
-      this.org=orgn;
-      this.Type=ty;
-      this.Services=Capabilities;
-  
+    this.org=orgn;
+    this.Type=ty;
+    this.Services=Capabilities;
+    
   }
   public String toString()
   {
-      StringBuffer buff=new StringBuffer();
-      buff.append("Organization in send capabilities is ::"+org.toString()+" / ");
-      buff.append("type is :"+Type+" / ");
-      if(Services!=null)
-      {
-      
-        for(int i=0;i<  Services.size();i++)
-            buff.append((String)Services.elementAt(i)+":");
-      }
-      return buff.toString();
+    StringBuffer buff=new StringBuffer();
+    buff.append("Organization in send capabilities is ::"+org.toString()+" / ");
+    buff.append("type is :"+Type+" / ");
+    if(Services!=null)   {
+      for(int i=0;i<  Services.size();i++)
+	buff.append((String)Services.elementAt(i)+":");
+    }
+    return buff.toString();
   }
-
+  
 }

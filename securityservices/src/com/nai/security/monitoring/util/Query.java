@@ -30,11 +30,11 @@ package com.nai.security.monitoring.util;
 
 public class Query implements java.io.Serializable
 {
-    public String Type;
-    public long unique_id;
-    public Query(String type,long id)
-    {
-        this.Type=type;
-        this.unique_id=id;
-    }
+  public String Type;
+  public long unique_id;
+  public Query(String type,long id)
+  {
+    this.Type=type;
+    this.unique_id=id;
+  }
 }

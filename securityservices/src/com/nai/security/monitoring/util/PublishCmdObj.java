@@ -33,14 +33,14 @@ import org.cougaar.domain.glm.ldm.asset.Organization;
 
 public class PublishCmdObj implements java.io.Serializable
 {
-     public String Type;
-     public Organization Analyzer_org;
-
+  public String Type;
+  public Organization Analyzer_org;
+  
+  
+  public PublishCmdObj(String type, Organization analyzer)
+  {
+    this.Type=type;
+    this.Analyzer_org=analyzer;
     
-    public PublishCmdObj(String type, Organization analyzer)
-    {
-        this.Type=type;
-        this.Analyzer_org=analyzer;
-
-    }
+  }
 }

@@ -34,37 +34,35 @@ import org.cougaar.domain.glm.ldm.asset.Organization;
 
 public class SendManagerCapabilitiesObj implements java.io.Serializable
 {
-    public Organization org;
-    public Vector Sensors;
-    public Vector Analyzers;
-    public SendManagerCapabilitiesObj(Organization orgn,Vector Sens,Vector analyz)
-    {
-        this.org=orgn;
-        this.Sensors=Sens;
-        this.Analyzers=analyz;
+  public Organization org;
+  public Vector Sensors;
+  public Vector Analyzers;
+  public SendManagerCapabilitiesObj(Organization orgn,Vector Sens,Vector analyz)
+  {
+    this.org=orgn;
+    this.Sensors=Sens;
+    this.Analyzers=analyz;
+  }
+  public SendManagerCapabilitiesObj()
+  {
+    this.Sensors=new Vector();
+    this.Analyzers=new Vector();
+  }
+  public String toString()
+  {
+    StringBuffer buff=new StringBuffer();
+    buff.append("Organization :"+org.getUID().getOwner());
+    buff.append("\n Sensors ---\n");
+    for(int i=0;i<Sensors.size();i++)   {
+      buff.append(i+":"+(String)Sensors.elementAt(i)+"\n");
     }
-    public SendManagerCapabilitiesObj()
-    {
-        this.Sensors=new Vector();
-         this.Analyzers=new Vector();
+    buff.append("\n Analyzer ---\n");
+    for(int i=0;i<Analyzers.size();i++)  {
+      buff.append(i+":"+(String)Analyzers.elementAt(i)+"\n");
     }
-    public String toString()
-    {
-        StringBuffer buff=new StringBuffer();
-        buff.append("Organization :"+org.getUID().getOwner());
-        buff.append("\n Sensors ---\n");
-        for(int i=0;i<Sensors.size();i++)
-        {
-            buff.append(i+":"+(String)Sensors.elementAt(i)+"\n");
-        }
-        buff.append("\n Analyzer ---\n");
-        for(int i=0;i<Analyzers.size();i++)
-        {
-            buff.append(i+":"+(String)Analyzers.elementAt(i)+"\n");
-        }
-        return buff.toString();
+    return buff.toString();
     
-    }
-
+  }
+  
 }
 

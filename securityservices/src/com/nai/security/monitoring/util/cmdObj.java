@@ -34,14 +34,14 @@ import org.cougaar.domain.glm.ldm.asset.Organization;
 
 public class cmdObj implements java.io.Serializable
 {
-    public String Type;
-    public Organization Sensor_org;
-    public Organization Analyzer_org;
-    public cmdObj(String type,Organization ses,Organization ans)
-    {
-        this.Type=type;
-        this.Sensor_org=ses;
-        this.Analyzer_org=ans;
-
-    }
+  public String Type;
+  public Organization Sensor_org;
+  public Organization Analyzer_org;
+  public cmdObj(String type,Organization ses,Organization ans)
+  {
+    this.Type=type;
+    this.Sensor_org=ses;
+    this.Analyzer_org=ans;
+    
+  }
 }

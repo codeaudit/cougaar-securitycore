@@ -33,13 +33,13 @@ import org.cougaar.domain.glm.ldm.asset.Organization ;
 
 public class QueryTaskObj implements java.io.Serializable
 {
-    public Organization org;
-    public String Type;
-    public long unique_id;
-    public QueryTaskObj(Organization orgn,String type,long id)
-    {
-        this.org=orgn;
-        this.Type=type;
-        this.unique_id=id;
-    }
+  public Organization org;
+  public String Type;
+  public long unique_id;
+  public QueryTaskObj(Organization orgn,String type,long id)
+  {
+    this.org=orgn;
+    this.Type=type;
+    this.unique_id=id;
+  }
 }

@@ -35,10 +35,10 @@ import java.util.Hashtable;
 
 public class RouterTable implements java.io.Serializable
 {
-	public Hashtable routertable;
- 	public RouterTable()
-	{
-		routertable=new Hashtable();
-	}
-
+  public Hashtable routertable;
+  public RouterTable()
+  {
+    routertable=new Hashtable();
+  }
+  
 }

@@ -25,28 +25,28 @@
  * - 
  */
  
- package com.nai.security.monitoring.util;
+package com.nai.security.monitoring.util;
 
- import java.util.Date;
+import java.util.Date;
 
 public class SensorDataObj implements java.io.Serializable
 {
-    public String type;
-    public  Date time;
-    public String data;
-	public String Nodename;
-    public  SensorDataObj( String ty,Date current,String Data)
-    {
-        this.type=ty;
-        this.time=current;
-        this.data=Data;
-	this.Nodename=new String();
-    }
-    public  SensorDataObj( String ty,Date current,String Data,String noden)
-    {
-        this.type=ty;
-        this.time=current;
-        this.data=Data;
-	this.Nodename=noden;
-    }
+  public String type;
+  public  Date time;
+  public String data;
+  public String Nodename;
+  public  SensorDataObj( String ty,Date current,String Data)
+  {
+    this.type=ty;
+    this.time=current;
+    this.data=Data;
+    this.Nodename=new String();
+  }
+  public  SensorDataObj( String ty,Date current,String Data,String noden)
+  {
+    this.type=ty;
+    this.time=current;
+    this.data=Data;
+    this.Nodename=noden;
+  }
 }
