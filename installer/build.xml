@@ -380,12 +380,12 @@
          <case value="7">
            <for list="${module.subordinates}" delimiter="," param="build.module.name">
              <sequential>
-                <copy toDir="${securityservices.base}/../${build.module.name}"
+                <echo message="Copying build.xml file to ${securityservices.base}/../@{build.module.name}"/>
+                <copy toDir="${securityservices.base}/../@{build.module.name}"
                       file="build.xml"/>
                 <cvs cvsRoot="${env.CVSROOT}" cvsRsh="${env.CVS_RSH}"
                       command="-q commit -m 'Updated build.xml file' build.xml"
-                      package="${build.module.name}"
-                      dest="${securityservices.base}/../"
+                      dest="${securityservices.base}/../@{build.module.name}"
                       failonerror="true"/>
              </sequential>
            </for>
