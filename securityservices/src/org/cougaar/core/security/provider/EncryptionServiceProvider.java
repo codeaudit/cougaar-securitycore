@@ -36,23 +36,31 @@ import org.cougaar.util.*;
 import com.nai.security.util.CryptoDebug;
 import com.nai.security.crypto.CryptoManagerServiceImpl;
 import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class EncryptionServiceProvider 
   implements ServiceProvider {
-  static private EncryptionService encryptionService;
-  public Object getService(ServiceBroker sb, 
-			   Object requestor, 
-			   Class serviceClass) {
 
-    KeyRingService keyRing = (KeyRingService)
-      getService(sb,
-		 requestor,
-		 KeyRingService.class);
+  private KeyRingService ksr;
+  static private EncryptionService encryptionService;
+
+  public synchronized Object getService(ServiceBroker sb, 
+					Object requestor, 
+					Class serviceClass) {
+    ksr = (KeyRingService)
+      sb.getService(requestor,
+		    KeyRingService.class,
+		    new ServiceRevokedListener() {
+			public void serviceRevoked(ServiceRevokedEvent re) {
+			  if (KeyRingService.class.equals(re.getService()))
+			    ksr  = null;
+			}
+		      });
 
     if (encryptionService == null) {
-      encryptionService = new CryptoManagerServiceImpl(keyRing);
+      encryptionService = new CryptoManagerServiceImpl(ksr);
     }
     return encryptionService;
   }

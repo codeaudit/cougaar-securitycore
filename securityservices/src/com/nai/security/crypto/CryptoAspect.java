@@ -39,14 +39,14 @@ import org.cougaar.core.agent.ClusterMessage;
 import org.cougaar.core.node.NodeIdentificationService;
 
 // Cougaar security services
-import com.nai.security.access.IntegrityAttribute;
-import com.nai.security.access.MissionCriticality;
-import com.nai.security.access.TrustSet;
-import com.nai.security.access.TrustAttribute;
 import org.cougaar.core.security.policy.AccessControlPolicy;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.acl.trust.*;
+import org.cougaar.core.security.services.acl.*;
+import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.crypto.SecureMethodParam;
 
 /**
  *

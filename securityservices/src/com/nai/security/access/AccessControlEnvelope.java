@@ -21,8 +21,12 @@
  */
 package com.nai.security.access;
 
+// Cougaar core services
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageEnvelope;
+
+// Cougaar security services
+import org.cougaar.core.security.acl.trust.*;
 
 public class AccessControlEnvelope extends MessageEnvelope
 {

@@ -39,8 +39,8 @@ import com.nai.security.certauthority.KeyManagement;
 import com.nai.security.access.AccessControlPolicyServiceImpl;
 import org.cougaar.core.security.crypto.AgentIdentityServiceImpl;
 import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.identity.*;
-import com.nai.security.crypto.CryptoPolicyService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class AccessControlPolicyServiceProvider 
@@ -48,10 +48,11 @@ public class AccessControlPolicyServiceProvider
 {
   private KeyRingService keyRing;
   private SecurityPropertiesService sps;
+  private static AccessControlPolicyService accessControlPolicyService;
 
-  public Object getService(ServiceBroker sb, 
-			   Object requestor, 
-			   Class serviceClass) {
+  public synchronized Object getService(ServiceBroker sb, 
+					Object requestor, 
+					Class serviceClass) {
     // Get keyring service
     keyRing = (KeyRingService)
       sb.getService(requestor,
@@ -73,8 +74,11 @@ public class AccessControlPolicyServiceProvider
 			    sps = null;
 			}
 		      });
-
-    return new AccessControlPolicyServiceImpl(keyRing, sps);
+    if (accessControlPolicyService == null) {
+      accessControlPolicyService =
+	new AccessControlPolicyServiceImpl(keyRing, sps);
+    }
+    return accessControlPolicyService;
   }
   public void releaseService(ServiceBroker sb,
 			     Object requestor,

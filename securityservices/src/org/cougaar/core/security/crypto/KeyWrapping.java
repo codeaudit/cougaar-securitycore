@@ -39,8 +39,8 @@ import java.lang.IllegalArgumentException;
 
 // Cougaar security services
 import com.nai.security.util.CryptoDebug;
-import com.nai.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.services.identity.TransferableIdentity;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 

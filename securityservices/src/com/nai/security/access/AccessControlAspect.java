@@ -41,7 +41,9 @@ import org.cougaar.planning.ldm.plan.Task;
 // Cougaar security services
 import org.cougaar.core.security.policy.AccessControlPolicy;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.acl.trust.*;
 
 /**
  *

@@ -39,7 +39,7 @@ import com.nai.security.certauthority.KeyManagement;
 import org.cougaar.core.security.crypto.AgentIdentityServiceImpl;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.identity.*;
-import com.nai.security.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.acl.*;
 
 public class AgentIdentityServiceProvider 
   implements ServiceProvider {

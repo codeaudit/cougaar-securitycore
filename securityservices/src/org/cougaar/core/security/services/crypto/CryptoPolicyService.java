@@ -20,11 +20,17 @@
  * Created on September 12, 2001, 4:01 PM
  */
 
-package com.nai.security.crypto;
+package org.cougaar.core.security.services.crypto;
 
+// Cougaar core services
 import org.cougaar.core.component.Service;
 
-public interface CryptoPolicyService extends Service {
+// Cougaar security services
+import org.cougaar.core.security.crypto.SecureMethodParam;
+
+public interface CryptoPolicyService
+  extends Service
+{
 
     public SecureMethodParam getSendPolicy(String name);
     public SecureMethodParam getReceivePolicy(String name);

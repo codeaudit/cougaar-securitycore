@@ -40,6 +40,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.crypto.PublicKeyEnvelope;
+import org.cougaar.core.security.crypto.SecureMethodParam;
 
 public class CryptoManagerServiceImpl
   implements EncryptionService

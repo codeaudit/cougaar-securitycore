@@ -1,15 +1,14 @@
 /*
  * <copyright>
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
- *  under sponsorship of the Defense Advanced Research Projects
- *  Agency (DARPA).
- *
+ *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
+ * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- *
+ * 
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
  *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
  *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
@@ -17,27 +16,26 @@
  *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
  *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
- *
  * </copyright>
- *
- * CHANGE RECORD
- * -
+ * Created on September 12, 2001, 10:55 AM
  */
 
-package org.cougaar.core.security.services.crypto;
+package org.cougaar.core.security.crypto;
 
-/**
- * Attributes used for data protection
- */
+import java.io.Serializable;
 
-public class EncryptAttributes {
+public final class SecureMethodParam implements Serializable {
 
-  // Mission criticality attribute
-  public static final int MISSION_CRITICALITY_HIGH = 1;
-  public static final int MISSION_CRITICALITY_LOW = 2;
-
-  int missionCriticality;
-
-  // Trust attributes
+    public static final int PLAIN = 0,
+      SIGN = 1, ENCRYPT = 2, SIGNENCRYPT = 3, USERDEFINED = 4;
+    public int secureMethod;
+    public String symmSpec;
+    public String asymmSpec;
+    public String signSpec;
+//    public String providerName;
+    
+    public SecureMethodParam() {
+        secureMethod = PLAIN;
+    }
 
 }

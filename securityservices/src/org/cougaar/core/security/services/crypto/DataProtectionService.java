@@ -26,11 +26,16 @@
 
 package org.cougaar.core.security.services.crypto;
 
-import org.cougaar.core.component.Service;
 import java.io.Serializable;
 import javax.crypto.SealedObject;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+// Cougaar core services
+import org.cougaar.core.component.Service;
+
+// Cougaar security services
+import org.cougaar.core.security.crypto.EncryptAttributes;
 
 public interface DataProtectionService extends Service {
 

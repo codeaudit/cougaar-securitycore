@@ -35,8 +35,12 @@ import com.nai.security.policy.*;
 import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.crypto.SecureMethodParam;
 
-public class CryptoPolicyServiceImpl implements CryptoPolicyService {
+public class CryptoPolicyServiceImpl
+  implements CryptoPolicyService
+{
 
   private boolean dbg = false;
   private SecurityPropertiesService secprop = null;

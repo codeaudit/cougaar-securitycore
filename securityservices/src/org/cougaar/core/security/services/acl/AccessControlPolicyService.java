@@ -21,9 +21,13 @@
  * Created on September 27, 2001, 3:35 PM
  */
 
-package com.nai.security.access;
+package org.cougaar.core.security.services.acl;
 
+// Cougaar core services
 import org.cougaar.planning.ldm.plan.Verb;
+
+// Cougaar security services
+import org.cougaar.core.security.acl.trust.*;
 
 public interface AccessControlPolicyService {
     TrustSet getIncomingTrust(String agent, String key);

@@ -20,8 +20,8 @@
  * Created on October 22, 2001, 2:02 PM EDT
  */
 
+package org.cougaar.core.security.acl.trust;
 
-package com.nai.security.access;
 
 import java.io.*;
 

@@ -43,6 +43,8 @@ import com.nai.security.policy.*;
 import com.nai.security.crypto.KeyRing;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.acl.AccessControlPolicyService;
+import org.cougaar.core.security.acl.trust.*;
 
 public class AccessControlPolicyServiceImpl
   implements AccessControlPolicyService

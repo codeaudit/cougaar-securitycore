@@ -20,14 +20,11 @@
  * Created on October 22, 2001, 2:02 PM EDT
  */
 
-
-
-
-
 package com.nai.security.access;
 
 import java.util.*;
 
+// Cougaar core services
 import org.cougaar.util.*;
 import org.cougaar.core.blackboard.*;
 import org.cougaar.core.agent.ClusterIdentifier;
@@ -37,11 +34,15 @@ import org.cougaar.core.persist.*;
 import org.cougaar.core.component.*;
 import org.cougaar.planning.ldm.plan.*;
 
+// Cougaar security services
+import org.cougaar.core.security.acl.trust.*;
+
 /**
  * An interface to objects which guard the blackboard. 
  */
-public class BlackboardAccessControlAdaptor implements 
-  BlackboardService, BlackboardServesLogicProvider, BlackboardForAgent
+public class BlackboardAccessControlAdaptor
+  implements BlackboardService, BlackboardServesLogicProvider,
+  BlackboardForAgent
 {
    protected BlackboardClient client;
 

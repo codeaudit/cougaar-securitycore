@@ -31,8 +31,8 @@ import javax.crypto.SecretKey;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
-import com.nai.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.crypto.PublicKeyEnvelope;
+import org.cougaar.core.security.crypto.SecureMethodParam;
 
 /** Service for most common public key cryptographic operations.
  *  Use: cryptographic aspect.

@@ -33,11 +33,11 @@ import java.util.Hashtable;
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
 
+
 // Cougaar security services
 import com.nai.security.util.CryptoDebug;
-import com.nai.security.access.AccessControlPolicyService;
-import com.nai.security.crypto.CryptoPolicyService;
 import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
@@ -51,6 +51,11 @@ public class SecurityServiceProvider
 
   public SecurityServiceProvider() {
     setServiceBroker();
+    registerServices();
+  }
+
+  public SecurityServiceProvider(ServiceBroker sb) {
+    serviceBroker = sb;
     registerServices();
   }
 

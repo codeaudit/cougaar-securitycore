@@ -21,9 +21,7 @@
  */
 
 
-
-
-package com.nai.security.access;
+package org.cougaar.core.security.acl.trust;
 
 import java.io.*;
 

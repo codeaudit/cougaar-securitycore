@@ -21,10 +21,13 @@
  */
 
 
+package org.cougaar.core.security.services.acl;
 
-package com.nai.security.access;
-
+// Cougaar core infrastructure
 import org.cougaar.core.component.*;
+
+// Cougaar security services
+import org.cougaar.core.security.acl.trust.*;
 
 /**
  * An interface to allow Agents and Plugins limited access to the trust 
