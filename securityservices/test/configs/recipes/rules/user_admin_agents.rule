@@ -6,8 +6,12 @@
 caServlet = "org.cougaar.core.security.certauthority.CaServletComponent"
 userService = "org.cougaar.core.security.provider.UserServiceComponent"
 userManager = "org.cougaar.core.security.acl.user.UserManagerPlugin"
+detector = "org.cougaar.core.security.test.UserManagerReadyServlet"
 
 society.each_node do |node|
+  node.add_component { |c|
+    c.classname = detector
+  }
   agentname = ""
   node.each_facet(:role) do |facet|
     if facet[:role] == 'Management'
