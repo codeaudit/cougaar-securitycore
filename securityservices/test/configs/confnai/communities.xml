@@ -26,8 +26,8 @@
     <!-- Parameter values used by Robustness Manager.  Parameters set for
          Entities override these values -->
     <Attribute ID="INITIAL_EXPIRATION"        Value="1200000" />
-    <Attribute ID="ACTIVE_EXPIRATION"         Value="300000" />
-    <Attribute ID="HEALTH_CHECK_EXPIRATION"   Value="30000" />
+    <Attribute ID="ACTIVE_EXPIRATION"         Value="480000" />
+    <Attribute ID="HEALTH_CHECK_EXPIRATION"   Value="1200000" />
     <Attribute ID="DEAD_EXPIRATION"           Value="-1" />
     <Attribute ID="RESTART_EXPIRATION"        Value="180000" />
     <Attribute ID="FAILED_RESTART_EXPIRATION" Value="-1" />
@@ -386,8 +386,8 @@
     <Attribute ID="Manager"                   Value="FWD-A" />
     <Attribute ID="NumberOfAgents"            Value="55" />
     <Attribute ID="INITIAL_EXPIRATION"        Value="1200000" />
-    <Attribute ID="ACTIVE_EXPIRATION"         Value="300000" />
-    <Attribute ID="HEALTH_CHECK_EXPIRATION"   Value="30000" />
+    <Attribute ID="ACTIVE_EXPIRATION"         Value="480000" />
+    <Attribute ID="HEALTH_CHECK_EXPIRATION"   Value="1200000" />
     <Attribute ID="DEAD_EXPIRATION"           Value="-1" />
     <Attribute ID="RESTART_EXPIRATION"        Value="180000" />
     <Attribute ID="FAILED_RESTART_EXPIRATION" Value="-1" />
@@ -675,8 +675,8 @@
     <Attribute ID="Manager"                   Value="CONUS-NODE" />
     <Attribute ID="NumberOfAgents"            Value="4" />
     <Attribute ID="INITIAL_EXPIRATION"        Value="1200000" />
-    <Attribute ID="ACTIVE_EXPIRATION"         Value="300000" />
-    <Attribute ID="HEALTH_CHECK_EXPIRATION"   Value="30000" />
+    <Attribute ID="ACTIVE_EXPIRATION"         Value="480000" />
+    <Attribute ID="HEALTH_CHECK_EXPIRATION"   Value="1200000" />
     <Attribute ID="DEAD_EXPIRATION"           Value="-1" />
     <Attribute ID="RESTART_EXPIRATION"        Value="180000" />
     <Attribute ID="FAILED_RESTART_EXPIRATION" Value="-1" />
@@ -753,10 +753,10 @@
   <Community Name="1AD-TRANS-COMM" >
     <Attribute ID="CommunityType"             Value="Robustness" />
     <Attribute ID="Manager"                   Value="TRANSCOM-NODE" />
-    <Attribute ID="NumberOfAgents"            Value="4" />
+    <Attribute ID="NumberOfAgents"            Value="7" />
     <Attribute ID="INITIAL_EXPIRATION"        Value="1200000" />
-    <Attribute ID="ACTIVE_EXPIRATION"         Value="300000" />
-    <Attribute ID="HEALTH_CHECK_EXPIRATION"   Value="30000" />
+    <Attribute ID="ACTIVE_EXPIRATION"         Value="1200000" />
+    <Attribute ID="HEALTH_CHECK_EXPIRATION"   Value="1200000" />
     <Attribute ID="DEAD_EXPIRATION"           Value="-1" />
     <Attribute ID="RESTART_EXPIRATION"        Value="180000" />
     <Attribute ID="FAILED_RESTART_EXPIRATION" Value="-1" />
@@ -1143,6 +1143,10 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="REAR-CA1-NODE" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
     <Entity Name="RearEnclaveCrlManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="CrlProvider" />
@@ -1199,6 +1203,10 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="REAR-CA-NODE" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="REAR-CA1-NODE" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1481,6 +1489,10 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="FWD-CA1-NODE" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
     <Entity Name="FwdEnclaveCrlManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="CrlProvider" />
@@ -1521,6 +1533,10 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="FWD-CA-NODE" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="FWD-CA1-NODE" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1595,6 +1611,10 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="CONUS-CA-NODE" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="CONUS-CA1-NODE" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1748,6 +1768,10 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="TRANS-CA1-NODE" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
     <Entity Name="TransEnclaveCrlManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="CrlProvider" />
@@ -1803,6 +1827,10 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="TRANS-CA1-NODE" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
     <Entity Name="TRANS-MGMT-NODE" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
@@ -1843,6 +1871,10 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="REAR-CA-NODE" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="REAR-CA1-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1906,6 +1938,10 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="FWD-CA1-NODE" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
     <Entity Name="FWD-D" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
@@ -1943,6 +1979,10 @@
   <Community Name="ConusUserDomainComm" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="CONUS-CA-NODE" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="CONUS-CA1-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1987,6 +2027,10 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="TRANS-CA-NODE" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="TRANS-CA1-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
