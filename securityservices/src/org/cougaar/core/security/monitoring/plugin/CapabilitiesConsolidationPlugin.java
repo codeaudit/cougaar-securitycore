@@ -1323,7 +1323,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  Thread.sleep(18*retryTime);
 	}
 	catch(InterruptedException ix) {
-	  m_log.error("Was interrupted while delaying the polling of NS sleeping: " + ix);
+	  loggingService.error("Was interrupted while delaying the polling of NS sleeping: " + ix);
 	  tryAgain = false;
 	}
       
