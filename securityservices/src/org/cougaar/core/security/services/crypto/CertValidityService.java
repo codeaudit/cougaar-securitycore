@@ -35,5 +35,7 @@ public interface CertValidityService extends Service {
   public void updateCertificate(String commonName);
 
   public void invalidate(String cname);
+
+  public void addInvalidateListener(CertValidityListener listener);
 }
 
