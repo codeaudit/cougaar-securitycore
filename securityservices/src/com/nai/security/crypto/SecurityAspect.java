@@ -1466,6 +1466,7 @@ public class SecurityAspect extends StandardAspect
     private void removeDirective(DirectiveMessage msg, int index) {
 
       Directive[] oldDirective = msg.getDirectives();
+	if(oldDirective.length == 0) return;
 
       Directive[] newDirective = new Directive[oldDirective.length - 1];
 
