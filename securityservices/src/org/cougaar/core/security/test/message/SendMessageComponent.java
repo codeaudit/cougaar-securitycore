@@ -105,11 +105,11 @@ public class SendMessageComponent extends ComponentPlugin {
   protected void execute() {
     if (_relaySub.hasChanged()) {
       Collection added = _relaySub.getAddedCollection();
-      checkRelays(added);
       if (_eventService.isEventEnabled()) {
         sendEvent(added);
         sendEvent(_relaySub.getChangedCollection());
       }
+      checkRelays(added);
     }
   }
 
@@ -120,7 +120,6 @@ public class SendMessageComponent extends ComponentPlugin {
       String mode;
       if (relay.isTarget()) {
         if (relay.getResponse() == null) {
-          // probably will not ever be in here
           mode = "Received";
         } else {
           mode = "Responded";
