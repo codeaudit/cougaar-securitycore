@@ -143,7 +143,10 @@ $okMessages= [
    /Failure in communication/,
    /Connection reset/,
    /Connection refused/,
-   /Unable to get Certifificate entry for DN/
+   /Unable to get Certifificate entry for DN/,
+   /ALDynamicSDClientPlugin.*Unable to generate .* for .*/,
+   /KeyRing.*Missing certificate for.*adding it to request/,
+   /RogueThreadScheduler/,
 ]
 
 
