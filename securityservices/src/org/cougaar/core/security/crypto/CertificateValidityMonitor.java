@@ -125,19 +125,6 @@ public class CertificateValidityMonitor
       schedule(0, waittime);
   }
 
-/*
-  public void run() {
-    while(true) {
-      try {
-	Thread.sleep(sleep_time);
-      }
-      catch(InterruptedException interruptedexp) {
-	if (log.isWarnEnabled()) {
-	  log.warn("Thread interrupted", interruptedexp);
-	}
-      }
-*/
-
   private class ValidityMonitor implements Runnable {
     public void run() {
       Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
@@ -171,20 +158,6 @@ public class CertificateValidityMonitor
     }
   }
 
-/*
-  private void checkExpiry(String commonName) {
-    // if the first certificate is not generated yet, no need to checkExpiry
-    List list = keyRing.findCert(commonName, KeyRingService.LOOKUP_KEYSTORE, false);
-    if (list == null || list.size() == 0) {
-      if (log.isDebugEnabled()) {
-        log.debug("Certificate for " + commonName + " is not generated yet, not checking expiry.");
-      }
-      return;
-    }
-
-    keyRing.checkExpiry(commonName);
-  }
-*/
 
   private class CertRequestMonitor implements Runnable {
     public void run() {
