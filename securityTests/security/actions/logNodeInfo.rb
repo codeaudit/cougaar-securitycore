@@ -8,7 +8,8 @@ module Cougaar
           @args = args
           @nodeInfoMap = {}
           dirname = "#{CIP}/workspace/test"
-          Dir.mkdir("#{dirname}") unless File.stat(dirname).directory?
+          Dir.mkdir("#{CIP}/workspace") unless File.exist?("#{CIP}/workspace")
+          Dir.mkdir("#{dirname}")  unless File.exist?("#{dirname}")
           @filename="#{dirname}/node_info.log"
 	  Cougaar::Actions::Stressors.addStressIds(['processInfo'])
 	  logInfoMsg "Saving process info to #{@filename}"
