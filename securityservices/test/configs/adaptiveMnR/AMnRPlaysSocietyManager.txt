@@ -27,10 +27,32 @@
  * In threat level 3, the preventive measure policy is set to HIGH. Users must provide a certificate
  * to login.
  *
- * 2160 login failures/day == 30 failures/20 minutes
  * 1080 login failures/day == 15 failures/20 minutes
+ * 2160 login failures/day == 30 failures/20 minutes
  */
 
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE >  1080 : PERCEIVED_THREAT_LEVEL = 2;
+
+PERCEIVED_THREAT_LEVEL == 1
+    : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
+    : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 60
+    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_FAILURES
+    : [agent.PolicyDomainManager1]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
+    : [agent.PolicyDomainManager2]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
+    : [agent.PolicyDomainManager3]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
+    : [agent.PolicyDomainManager4]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW;
+PERCEIVED_THREAT_LEVEL == 3
+    : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 3
+    : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 600
+    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES
+    : [agent.PolicyDomainManager1]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH
+    : [agent.PolicyDomainManager2]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH
+    : [agent.PolicyDomainManager3]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH
+    : [agent.PolicyDomainManager4]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH;
+
+
+/*
 org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
 org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE in { 1081 thru 2160 } : PERCEIVED_THREAT_LEVEL = 2;
 org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 2160 : PERCEIVED_THREAT_LEVEL = 3;
@@ -59,6 +81,7 @@ PERCEIVED_THREAT_LEVEL == 3
     : [agent.PolicyDomainManager3]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH
     : [agent.PolicyDomainManager4]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH;
 
+*/
 //org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE <= 100 
 //    : com.telcordia.mode.AdaptiveFilterOperatingModeReportingRate = RAPID;
 //org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE > 100 
