@@ -30,6 +30,8 @@ import java.security.cert.X509Certificate;
 import java.security.PrivilegedAction;
 import java.security.AccessController;
 
+import java.net.SocketException;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -90,7 +92,6 @@ public class  RemotePolicyExceptionAspect
     extends DestinationLinkDelegateImplBase
   {
     DestinationLink _link;
-    int maxDepth = 10;
 
     public RemotePolicyExceptionLink(DestinationLink link)
     {
@@ -107,60 +108,82 @@ public class  RemotePolicyExceptionAspect
       try {
 	return _link.forwardMessage(msg);
       } catch (CommFailureException e) {
-        int depth = 0;
-        for (Throwable inner = e.getCause(); 
-             inner != null; 
-             inner = inner.getCause()) {
-          if (inner instanceof IncorrectProtectionException) {
-            IncorrectProtectionException ipe 
-              = (IncorrectProtectionException) inner;
-            String source = msg.getOriginator().toAddress();
-            String target = msg.getTarget().toAddress();
-            if (ipe.reason() == CryptoPolicyService.CRYPTO_SHOULD_SIGN) {
-              _crypto.setSendNeedsSignature(source, target);
-              if (_log.isDebugEnabled()) {
-                _log.debug("Exception lets me know I should sign messages from " +
-                           source + " to " + target);
-              }
-              return _link.forwardMessage(msg);
-            } // should have CRYPTO_SHOULD_ENCRYPT case...
-            break;
+        Throwable rootCause = getRootCause(e);
+        if (_log.isDebugEnabled()) {
+          _log.debug("working on exception " + e + 
+                     " with root cause " + rootCause);
+        }
+        if (rootCause instanceof IncorrectProtectionException) {
+          IncorrectProtectionException ipe 
+            = (IncorrectProtectionException) rootCause;
+          if (ipe.reason() == CryptoPolicyService.CRYPTO_SHOULD_SIGN) {
+            startSigning(msg);
+            return _link.forwardMessage(msg);
           }
-          if (inner instanceof SenderUsingInvalidCertException) {
-            SenderUsingInvalidCertException suice
-              = (SenderUsingInvalidCertException) inner;
-            X509Certificate cert = suice.getCertificate();
-            // Just refresh the LDAP, it is easier than modifying the certificate
-            // in the cache. Perhaps a performance improvement later?
-            if (_log.isInfoEnabled()) {
-              _log.info("Got a certificate change message from " + 
-                        msg.getOriginator().toAddress());
-            } // end of if (_log.isInfoEnabled())
-        
-            List certs = _keyRing.findCert(msg.getOriginator().toAddress(), 
-                                           KeyRingService.LOOKUP_FORCE_LDAP_REFRESH | 
-                                           KeyRingService.LOOKUP_LDAP | 
-                                           KeyRingService.LOOKUP_KEYSTORE );
-            ProtectedMessageOutputStream.
-              clearCertCache(msg.getTarget().toAddress(),
-                             msg.getOriginator().toAddress());
-            if (_log.isDebugEnabled()) {
-              _log.debug("Got " + certs.size() + " certificates");
-              Iterator iter = certs.iterator();
-              while (iter.hasNext()) {
-                CertificateStatus cs = (CertificateStatus) iter.next();
-                if (cs.getCertificate().equals(cert)) {
-                  _log.debug("The certificate is in the list");
-                  break;
-                } // end of if (cs.getCertificate().equals(cert))
-              } // end of while (iter.hasNext())
-            } // end of if (_log.isDebugEnabled())
-            // retry?
-            break;
-          }
+        } else if (rootCause instanceof SenderUsingInvalidCertException) {
+          SenderUsingInvalidCertException suice
+            = (SenderUsingInvalidCertException) rootCause;
+          updateCerts(msg, suice.getCertificate());
+          throw e;
+        } else if (rootCause instanceof SocketException) {
+          updateCerts(msg, null);
+          startSigning(msg);
+          throw e;
         }
         throw e;
       }
+    }
+
+    private void startSigning(AttributedMessage msg)
+    {
+      String source = msg.getOriginator().toAddress();
+      String target = msg.getTarget().toAddress();
+      _crypto.setSendNeedsSignature(source, target);
+      if (_log.isDebugEnabled()) {
+        _log.debug("Exception lets me know I should sign messages from " +
+                   source + " to " + target);
+      }
+    } 
+
+    private  void updateCerts(AttributedMessage msg, X509Certificate cert)
+    {
+      // Just refresh the LDAP, it is easier than modifying the 
+      // certificate in the cache. Perhaps a performance 
+      // improvement later?
+      if (_log.isInfoEnabled()) {
+        _log.info("Got a certificate change message from " + 
+                  msg.getOriginator().toAddress());
+      }
+        
+      List certs = _keyRing.findCert(msg.getOriginator().toAddress(), 
+                                     KeyRingService.LOOKUP_FORCE_LDAP_REFRESH | 
+                                     KeyRingService.LOOKUP_LDAP | 
+                                     KeyRingService.LOOKUP_KEYSTORE );
+      ProtectedMessageOutputStream.
+        clearCertCache(msg.getTarget().toAddress(),
+                       msg.getOriginator().toAddress());
+      if (_log.isDebugEnabled() && cert != null) {
+        _log.debug("Got " + certs.size() + " certificates");
+        Iterator iter = certs.iterator();
+        while (iter.hasNext()) {
+          CertificateStatus cs = (CertificateStatus) iter.next();
+          if (cs.getCertificate().equals(cert)) {
+            _log.debug("The certificate is in the list");
+            break;
+          } // end of if (cs.getCertificate().equals(cert))
+        } // end of while (iter.hasNext())
+      } // end of if (_log.isDebugEnabled())
+    }
+
+    private Throwable getRootCause(Exception exc)
+    {
+      Throwable root = exc;
+      for (Throwable inner = exc.getCause(); 
+           inner != null; 
+           inner = inner.getCause()) {
+        root = inner;
+      }
+      return root;
     }
   }
 }
