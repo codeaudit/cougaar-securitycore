@@ -1770,7 +1770,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="REAR-USERDOMAIN-COMM" >
+  <Community Name="RearUserDomainComm" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="REAR-A" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1822,7 +1822,7 @@
       <Attribute ID="Role" Value="UserManager" />
     </Entity>
   </Community>
-  <Community Name="FWD-USERDOMAIN-COMM" >
+  <Community Name="FwdUserDomainComm" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="FWD-A" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1866,7 +1866,7 @@
       <Attribute ID="Role" Value="UserManager" />
     </Entity>
   </Community>
-  <Community Name="CONUS-USERDOMAIN-COMM" >
+  <Community Name="ConusUserDomainComm" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="CONUS-CA-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1898,7 +1898,7 @@
       <Attribute ID="Role" Value="UserManager" />
     </Entity>
   </Community>
-  <Community Name="TRANS-USERDOMAIN-COMM" >
+  <Community Name="TransUserDomainComm" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="AIR-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
