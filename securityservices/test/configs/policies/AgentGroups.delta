@@ -23,7 +23,7 @@
 # Declarations Section
 #
 
-PolicyPrefix=%AgentGroups/
+PolicyPrefix=%tests/
 
 Delete EncryptCommunication
 

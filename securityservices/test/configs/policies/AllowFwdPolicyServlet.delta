@@ -1,7 +1,7 @@
 
-PolicyPrefix=%AllowFwdPolicyServlet/
+PolicyPrefix=%tests/
 
-UserRole FwdPolicyAdministrator
+UserRole PolicyAdministrator
 
 Servlet CAReadServlet
 Servlet CertReqServlet
@@ -10,16 +10,16 @@ Servlet RearPolicyServlet
 Delete RequireAudit
 Delete RequireAuditCA
 
-Policy AllowFwdGetsRearPolicy  = [ 
+Policy AllowFwdGetsRearPolicy2  = [ 
   ServletUserAccessTemplate
-  A user in role FwdPolicyAdministrator can access a servlet 
+  A user in role PolicyAdministrator can access a servlet 
   named RearPolicyServlet
 ]
 
-Policy RequireAuditFwdRear = [
+Policy RequireAuditFwdRear2 = [
   AuditTemplate
   Require audit for all accesses to servlet RearPolicyServlet by
-  users in role FwdPolicyAdministrator
+  users in role PolicyAdministrator
 ]
 
 
