@@ -134,10 +134,14 @@ public abstract class AbstractServletComponent extends BaseServletComponent
     this.serviceBroker = this.bindingSite.getServiceBroker();
     this.blackboardService = (BlackboardService) serviceBroker.getService(this,
         BlackboardService.class, null);
-    auditLogger.error("Getting logging service...");
+    if (auditLogger.isDebugEnabled()) {
+      auditLogger.debug("Getting logging service...");
+    }
     this.logging = (LoggingService) serviceBroker.getService(this,
         LoggingService.class, null);
-    auditLogger.error("Logging service:" + logging);
+    if (auditLogger.isDebugEnabled()) {
+      auditLogger.debug("Logging service:" + logging);
+    }
     this.domainService = (DomainService) serviceBroker.getService(this,
         DomainService.class, null);
 
