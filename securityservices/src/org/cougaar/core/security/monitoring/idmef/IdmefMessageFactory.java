@@ -43,6 +43,7 @@ import org.cougaar.core.service.UIDServer;
 
 // Cougaar security services
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import org.cougaar.core.security.util.SystemUtils;
 
 /********************************************************************* 
  * <pre>
