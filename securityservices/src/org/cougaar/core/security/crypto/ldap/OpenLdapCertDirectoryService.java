@@ -969,6 +969,10 @@ public class OpenLdapCertDirectoryService
         // 't' in certificate is 'title' in ldap
         if (ldapAttrib.equals("t"))
           ldapAttrib = "title";
+        else if ("emailaddress".equals(ldapAttrib)) {
+          ldapAttrib = "mail";
+        } // end of else if ("emailaddress".equals(ldapAttrib))
+
 	set.put(ldapAttrib,
 		parser.nextToken());
       }
