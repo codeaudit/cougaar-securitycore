@@ -72,28 +72,38 @@ public class UserFileParser {
   public UserFileParser(UserEntries userCache) {
     _userCache = userCache;
     _domain = _userCache.getDomain();
+    if (_domain == null) {
+      String s = "User domain should not be null";
+      if (_log.isWarnEnabled()) {
+        _log.warn(s);
+      }
+      throw new IllegalArgumentException(s);
+    }
   }
   
   public void readUsers() {
     try {
       InputStream userIs = ConfigFinder.getInstance().open("UserFile.xml");
       if (userIs != null) {
-        System.out.println("Reading users...");
-        _log.info("Reading users from " + userIs);
+        if (_log.isInfoEnabled()) {
+          _log.info("Reading users file...");
+        }
         readUsers(userIs);
       } else {
-        _log.info("UserFile.xml does not exist -- no users or role");
+        if (_log.isInfoEnabled()) {
+          _log.info("UserFile.xml does not exist -- no users or role");
+        }
       }
     } catch (Exception e) {
-      System.out.println("Unable to read user file" + e);
-      _log.warn("Couldn't load users from file: ", e);
+      if (_log.isWarnEnabled()) {
+        _log.warn("Couldn't load users from file: ", e);
+      }
     }
   }
   
   private void printField(PrintStream ps, Map m, String field) {
     Object val = m.get(field);
     if (UserEntries.FIELD_ROLE_LIST.equals(field)) {
-      //System.out.println(val.getClass().getName());
       if (val != null) {
         Iterator it = ((Set)val).iterator();
         while (it.hasNext()) {
@@ -129,7 +139,6 @@ public class UserFileParser {
       _log.warn("Unable to get roles", e);
     }
     if (s != null) {
-      //System.out.println("Found " + s.size() + " roles");
       Iterator it = s.iterator();
       while (it.hasNext()) {
         Map m = null;
@@ -151,11 +160,9 @@ public class UserFileParser {
   
   private void saveUsers(PrintStream ps) {
     Set s = _userCache.getUsers(0);
-    //System.out.println("Found " + s.size() + " users");
     Iterator it = s.iterator();
     while (it.hasNext()) {
       String uid = (String) it.next();
-      //System.out.println("User ID:" + uid);
       Map m = null;
       try {
         m = _userCache.getUser(uid);
@@ -203,6 +210,10 @@ public class UserFileParser {
               _log.warn("No id for user entry");
               continue;
             }
+            if (_log.isDebugEnabled()) {
+              _log.debug("Adding user " + user + " with password:"
+                  + pwd);
+            }
             /*
              * Password is already hashed.
             if (pwd != null) {
@@ -218,7 +229,9 @@ public class UserFileParser {
           } else if ("role".equals(l.getNodeName())) {
             String role = (String) map.get(UserEntries.FIELD_RID);
             if (role == null) {
-              _log.warn("No id for role entry");
+              if (_log.isWarnEnabled()) {
+                _log.warn("No id for role entry");
+              }
               continue;
             }
             _userCache.addRole(role, map);
