@@ -28,16 +28,19 @@ import edu.jhuapl.idmef.CreateTime;
 import edu.jhuapl.idmef.Source;
 import edu.jhuapl.idmef.Target;
 
+import java.io.Serializable;
+
 /**
  * Registration subclasses Alert, and is used to distinguish
  * the difference been an Alert message and a Registration message
  * avoiding the need to determine the message type via the AdditionalData
  * object.
  */
-public class RegistrationAlert extends Alert implements Registration{
+public class RegistrationAlert extends Alert implements Registration,Serializable{
     
-  public static String TYPE = "sensor-registration";
+  private String Type=null;
   private int operation_type=-1;
+  private String AgentName;
   /**
    * Creates a message for a sensor to register its capabilities.
    * Can only be create through IdmefMessageFactory
@@ -47,7 +50,7 @@ public class RegistrationAlert extends Alert implements Registration{
 		     Target []targets,
 		     Classification []capabilities,
 		     AdditionalData []data,
-		     String ident,int operationtype ){
+		     String ident,int operationtype,String type,String agentName){
     super( analyzer, 
 	   new CreateTime(), 
 	   null,  // detection time
@@ -59,6 +62,8 @@ public class RegistrationAlert extends Alert implements Registration{
 	   data, 
 	   ident );
     this.operation_type=operationtype;
+    this.Type=type;
+    this.AgentName=agentName;
   }
     
   /**
@@ -72,5 +77,15 @@ public class RegistrationAlert extends Alert implements Registration{
   
   public int getOperation_type() {
     return operation_type;
+  }
+  public String  getType() {
+    return this.Type;
+  }
+  public void setType(String type) {
+    this.Type=type;
+  }
+  
+    public String  getAgentName() {
+    return this.AgentName;
   }
 }
