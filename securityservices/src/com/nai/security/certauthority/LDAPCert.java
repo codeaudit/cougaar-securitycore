@@ -86,6 +86,8 @@ import com.nai.security.crypto.Base64;
 	}
     }
 
+    public void setDebug(boolean flag) { debug = flag; }
+
     public void setDirContext(DirContext context) {
 	ctx = context;
     }
@@ -205,6 +207,7 @@ import com.nai.security.crypto.Base64;
 	set.put("notbefore_tim" , time.format(cert.getNotBefore()));
 	set.put("notafter_dte", day.format(cert.getNotAfter()));
 	set.put("notafter_tim" , time.format(cert.getNotAfter()));
+	set.put("cert_status", "1");
 	set.put("pem_x509", pem);
 	parseDN(cert.getIssuerDN().getName(), set);
 	if(debug) {
