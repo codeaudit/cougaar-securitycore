@@ -24,7 +24,7 @@
 #
 
 
-PolicyPrefix=%NoOrgActivityAdd/
+PolicyPrefix=%tests/
 
 
 Delete OrgActivityAdd
