@@ -1,4 +1,4 @@
-require 'lib/jar_util'
+require 'security/lib/jar_util'
 
 if ! defined? CIP
   CIP = ENV['CIP']

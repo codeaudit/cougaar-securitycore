@@ -87,8 +87,8 @@ end
 module Cougaar
    module States
      class OPlanReady < Cougaar::State
-       DEFAULT_TIMEOUT = 20.minutes
-       PRIOR_STATES = ["SocietyRunning"]
+#       DEFAULT_TIMEOUT = 20.minutes
+#       PRIOR_STATES = ["SocietyRunning"]
        def process
          while (!@run['OPlan Ready'])
            sleep 10.seconds
@@ -101,6 +101,7 @@ module Cougaar
      end # OPlanReady
 
      class UserManagerReady < Cougaar::State
+=begin
        DEFAULT_TIMEOUT = 45.minutes
        PRIOR_STATES = ["SocietyRunning"]
        DOCUMENTATION = Cougaar.document {
@@ -117,6 +118,7 @@ module Cougaar
            wait_for 'UserManagerReady', 'FooAgent', 10.minutes
          "
        }
+=end
 
        def initialize(run, agent="NCA", path="/userManagerReady", timeout=nil, &block)
          super(run, timeout, &block)
@@ -202,6 +204,7 @@ module Cougaar
       end
 
      class SetAcmeParameters < Cougaar::Action
+=begin
         DOCUMENTATION = Cougaar.document {
           @description = "Invoke ACME cougaar_config servlet to change parameters"
           @parameters = [
@@ -209,6 +212,7 @@ module Cougaar
           ]
           @example = "do_action 'SetAcmeParameters', {'cougaar_install_path' => '$COUGAAR_INSTALL_PATH'}"
         }
+=end
 # Parameters:
 # cougaar_install_path, jvm_path, cmd_prefix, cmd_suffix, cmd_user, tmp_dir
         def initialize(run, args)

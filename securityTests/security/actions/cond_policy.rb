@@ -76,6 +76,7 @@ END_POLICY
 
    module States
      class ConditionalPolicies < Cougaar::State
+=begin
        DEFAULT_TIMEOUT = 45.minutes
        PRIOR_STATES = ["SocietyRunning"]
        DOCUMENTATION = Cougaar.document {
@@ -91,6 +92,7 @@ END_POLICY
            wait_for 'ConditionalPolicies', 'CONUS-REAR', 10.minutes
          "
        }
+=end
 
        def initialize(run, enclave=nil, timeout=nil, &block)
          super(run, timeout, &block)

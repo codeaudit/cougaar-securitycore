@@ -1,12 +1,12 @@
 #!/usr/bin/env /bin/ruby
 
-$LOAD_PATH.unshift "../../lib03"
+$LOAD_PATH.unshift "../.."
 
-require 'lib/web'
-require 'lib/misc'
-require 'lib/doIrb'
+require 'security/lib/web'
+require 'security/lib/misc'
+require 'security/lib/doIrb'
 
-require 'lib/userDomainAux'
+require 'security/lib/userDomainAux'
 
 
 #---------------------------------------------------

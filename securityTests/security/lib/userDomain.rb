@@ -26,7 +26,7 @@
 require 'cougaar/communities'
 require 'ultralog/enclaves'
 require 'singleton'
-require 'lib/userDomainAux'
+require 'security/lib/userDomainAux'
 
 
 

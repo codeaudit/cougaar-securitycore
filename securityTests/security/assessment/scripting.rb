@@ -34,11 +34,13 @@ require 'net/http'
 module Cougaar
   module Actions
     class FreezeAsmtSociety < Cougaar::Action
+=begin
       PRIOR_STATES = ["SocietyRunning"]
       DOCUMENTATION = Cougaar.document {
         @description = "Assessment version of DFreezeSociety society action. Similar to acme action only catches exceptions so that script does not abort."
         @example = "do_action 'FreezeAsmtSociety'"
       }
+=end
       def initialize(run, timeout=nil, &block)
         super(run)
         @timeout = timeout

@@ -19,9 +19,9 @@
 # </copyright>
 #
 
-require 'lib/experimentFramework'
+require 'security/lib/experimentFramework'
 require 'user_admin'
-require 'lib/web'
+require 'security/lib/web'
 
 $AccessServletDomain = "UserDomain1"
 

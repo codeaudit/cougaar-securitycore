@@ -1,6 +1,6 @@
 require 'singleton'
 
-SnortDir = "#{ENV['CIP']}/csmart/assessment/lib/framework"
+SnortDir = "#{ENV['CIP']}/csmart/assessment/lib/security/data"
 NoScore = "0.0  (see details)"
     
 class AbstractSecurityMop

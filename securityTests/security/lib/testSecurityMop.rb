@@ -1,9 +1,9 @@
-$LOAD_PATH.unshift ".."
+$LOAD_PATH.unshift "../.."
 
-require 'lib/mergeMopAnalysis'
-require 'lib/namedCollection'
-require 'lib/securityMop2.4'
-require 'lib/securityMopAnalysis'
+require 'security/lib/mergeMopAnalysis'
+require 'security/lib/namedCollection'
+require 'security/lib/securityMop2.4'
+require 'security/lib/securityMopAnalysis'
 
 #name = '/var/export/archive42/analysis_data/sv022/1073166306/mnt/shared/socVA/workspace/security/mops'
 #name = '/var/export/archive42/analysis_data/sv022/1073138403/mnt/shared/socVA/workspace/security/mops'

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 
-require 'lib/doIrb'
+require 'security/lib/doIrb'
 
 
 startingScript = $0.split('/')[-1]
@@ -13,13 +13,13 @@ if runningThisFile
   $LOAD_PATH.unshift "#{CIP}/csmart/acme_scripting/src/lib"
   $LOAD_PATH.unshift "#{CIP}/csmart/acme_service/src/redist"
   $LOAD_PATH.unshift "../.."
-  require 'lib/scripting'
-  require 'lib/logisticsMop/scripting'
+  require 'security/lib/scripting'
+  require 'security/lib/logisticsMop/scripting'
 end
 
 
 require 'pstore'
-#require 'lib/logisticsMop/scripting'
+#require 'security/lib/logisticsMop/scripting'
 
 MopNamesInDb = %w(blank memory_data disk_data transmission_data
     illegal_user_actions record_user_actions record_user_violations)
@@ -168,8 +168,8 @@ class PostSecurityMopAnalysis
 
 =begin
 # if this section is uncommented, add in:
-#   require 'lib/logisticsMop/mauBaseline'
-#   require 'lib/logisticsMop/mauCharts'
+#   require 'security/lib/logisticsMop/mauBaseline'
+#   require 'security/lib/logisticsMop/mauCharts'
   def convertScores  #(scores)
     charts = []
     1.upto(3) {|n| charts << MauChart.getChart("security2loose")}

@@ -19,7 +19,7 @@
 # </copyright>
 #
 
-require 'lib/scripting'
+require 'security/lib/scripting'
 # more included scripts at the bottom of this file
 
 class SecurityExperimentFramework < ExperimentFramework

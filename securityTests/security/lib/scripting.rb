@@ -1,49 +1,51 @@
 require 'cougaar/scripting'
 require 'ultralog/scripting'
 
-require 'actions/configFiles'
-require 'actions/cond_policy.rb'
+#require 'security/scripts/setup_scripting'
+
+require 'security/actions/configFiles'
+require 'security/actions/cond_policy.rb'
 
 begin
-  require 'assessment/scripting'
+  require 'security/assessment/scripting'
 rescue Exception => e
   puts "error while loading assessment/scripting, will skip ..."
 end
-require 'lib/cougaarMods'
+require 'security/lib/cougaarMods'
 
-require 'lib/doIrb'
-require 'lib/experimentFramework'
+require 'security/lib/doIrb'
+require 'security/lib/experimentFramework'
 
-require 'lib/summary'
-require 'lib/rules'
-require 'lib/web'
-require 'lib/misc'
-require 'lib/webFramework'
-require 'lib/userDomain'
-require 'lib/loadSociety'
-require 'lib/useExperiment'
-require 'lib/checkAllJabberHosts'
-require 'lib/caDomain'
-require 'lib/security'
+require 'security/lib/summary'
+require 'security/lib/rules'
+require 'security/lib/web'
+require 'security/lib/misc'
+require 'security/lib/webFramework'
+require 'security/lib/userDomain'
+require 'security/lib/loadSociety'
+require 'security/lib/useExperiment'
+require 'security/lib/checkAllJabberHosts'
+require 'security/lib/caDomain'
+require 'security/lib/security'
 begin
-  require 'lib/securityMop'
+  require 'security/lib/securityMop'
 rescue LoadError => e
   # globals.rb doesn't exist for security services
   puts "didn't load securityMop.rb"
 end
-require 'lib/securityMopActions'
-require 'lib/mergeMopAnalysis'
-require 'lib/namedCollection'
-# require 'lib/securityMopAnalysis'
+require 'security/lib/securityMopActions'
+require 'security/lib/mergeMopAnalysis'
+require 'security/lib/namedCollection'
+# require 'security/lib/securityMopAnalysis'
 
-require 'lib/dataProtection'
+require 'security/lib/dataProtection'
 
-require 'lib/runSecurity'
+require 'security/lib/runSecurity'
 begin
-  require 'lib/policy_util'
+  require 'security/lib/policy_util'
 rescue Exception
   puts "WARNING:  couldn't load lib/policy_util"
 end
-require 'lib/society_util'
-require 'lib/message_util'
+require 'security/lib/society_util'
+require 'security/lib/message_util'
 

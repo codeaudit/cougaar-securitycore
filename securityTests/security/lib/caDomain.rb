@@ -33,7 +33,7 @@
 # a singleton method, so it only needs to be called.
 
 
-require 'lib/scripting'
+require 'security/lib/scripting'
 require 'singleton'
 
 module Cougaar

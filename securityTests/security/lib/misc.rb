@@ -19,7 +19,7 @@
 # </copyright>
 #
 
-#require 'lib/experimentFramework'
+#require 'security/lib/experimentFramework'
 
 $CIP = ENV['COUGAAR_INSTALL_PATH']
 #$User = ''
