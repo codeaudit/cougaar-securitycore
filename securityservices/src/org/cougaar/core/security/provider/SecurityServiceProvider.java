@@ -47,8 +47,10 @@ public class SecurityServiceProvider
 {
   private ServiceBroker serviceBroker;
   private Hashtable services;
+  private boolean initDone = false;
 
   public SecurityServiceProvider() {
+    setServiceBroker();
     registerServices();
   }
 
@@ -77,7 +79,10 @@ public class SecurityServiceProvider
   public Object getService(ServiceBroker sb, 
 			   Object requestor, 
 			   Class serviceClass) {
-
+    if (CryptoDebug.debug) {
+      System.out.println("Security Service Request: " + requestor.getClass().getName()
+			 + " - " + serviceClass.getName());
+    }
     ServiceProvider servMgr = (ServiceProvider) services.get(serviceClass);
     Service service = (Service) servMgr.getService(sb,
 						   requestor,
@@ -117,9 +122,17 @@ public class SecurityServiceProvider
   /** **********************************************************************
    * Private methods
    */
-  private void setServiceBroker(ServiceBroker sb)
+  private void setServiceBroker()
   {
-    serviceBroker = sb;
+    ServiceBroker sb = getServiceBroker();
+    if (sb == null) {
+      // Install a default broker. This is only for test purposes
+      System.out.println("WARNING: Running in a test environment");
+      serviceBroker = new ServiceBrokerSupport();
+    }
+    else {
+      serviceBroker = sb;
+    }
   }
 
   private void registerServices() {
@@ -129,10 +142,12 @@ public class SecurityServiceProvider
       System.out.println("Registering security services");
     }
 
-    if (serviceBroker == null) {
-      // Install a default broker. This is only for test purposes
-      serviceBroker = new ServiceBrokerSupport();
-    }
+    /* ********************************
+     * Property service
+     */
+    services.put(SecurityPropertiesService.class,
+		 new SecurityPropertiesServiceProvider());
+    serviceBroker.addService(SecurityPropertiesService.class, this);
 
     /* ********************************
      * Encryption services
@@ -178,13 +193,6 @@ public class SecurityServiceProvider
     services.put(CryptoPolicyService.class,
 		 new CryptoPolicyServiceProvider());
     serviceBroker.addService(CryptoPolicyService.class, this); 
-
-    /* ********************************
-     * Property service
-     */
-    services.put(SecurityPropertiesService.class,
-		 new SecurityPropertiesServiceProvider());
-    serviceBroker.addService(SecurityPropertiesService.class, this);
 
   }
 

@@ -104,10 +104,10 @@ final public class KeyRing
         
       }
       param.keystoreStream = new FileInputStream(param.keystorePath);
-      param.standalone = false;
+      param.isCertAuth = false;
       
       // CA keystore parameters
-      confParser = new ConfParser(null, param.standalone);
+      confParser = new ConfParser(null, param.isCertAuth);
       String role = secprop.getProperty(secprop.SECURITY_ROLE); 
       if (role == null && CryptoDebug.debug == true) {
 	System.out.println("Keyring Warning: LDAP role not defined");
@@ -157,7 +157,7 @@ final public class KeyRing
     } catch (Exception e) {
       e.printStackTrace();
     }
-    if (keystore == null || pkcs12 == null && param.standalone == false) {
+    if (keystore == null || pkcs12 == null && param.isCertAuth == false) {
       // Cannot proceed without keystore
       System.err.println("ERROR: Cannot continue secure execution");
       System.err.println("       without cryptographic data files");

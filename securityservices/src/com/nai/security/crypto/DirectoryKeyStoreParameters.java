@@ -45,5 +45,5 @@ public class DirectoryKeyStoreParameters {
   public String caKeystorePath;
 
   // Run within a node or used as utility class by a CA?
-  public boolean standalone;
+  public boolean isCertAuth;
 }

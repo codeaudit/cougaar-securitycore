@@ -24,7 +24,7 @@
  * - 
  */
 
-package com.nai.security.test;
+package com.nai.security.test.crypto;
 
 import java.io.*;
 import java.net.*;
@@ -53,7 +53,7 @@ import sun.misc.BASE64Encoder;
 
 // Cougaar core services
 import org.cougaar.util.ConfigFinder;
-import org.cougaar.core.component.ServiceBrokerSupport;
+import org.cougaar.core.component.*;
 
 // Cougaar Security Services
 import com.nai.security.policy.*;
@@ -69,35 +69,37 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
-public class NodeCryptoSimulation
+public class KeyStoreTest
+  extends ContainerSupport
+  implements ContainerAPI
 {
   private KeyRingService keyRing = null;
+  private ServiceBroker serviceBroker = null;
   private SecurityServiceProvider secProvider = null;
 
-  public NodeCryptoSimulation()
+  public KeyStoreTest()
   {
     secProvider = new SecurityServiceProvider();
+    serviceBroker = secProvider.getServiceBroker();
 
-    keyRing = (KeyRingService)secProvider.getService(null,
-						     this,
-						     KeyRingService.class);
+    keyRing = (KeyRingService)
+      serviceBroker.getService(this,
+			       KeyRingService.class,
+			       new ServiceRevokedListener() {
+				   public void serviceRevoked(ServiceRevokedEvent re) {
+				     if (KeyRingService.class.equals(re.getService()))
+				       keyRing = null;
+				   }
+				 });
   }
 
-  public static void main(String[] args) {
-    NodeCryptoSimulation ncs = new NodeCryptoSimulation();
-    ncs.runTest(args);
-  }
-
-  private void runTest(String[] args)
-  {
+  public void launch(String[] args) {
     String option = args[0];
     String role = args[1];
 
     if (CryptoDebug.debug) {
       System.out.println("Option is : " + option);
     }
-
-    setupCryptoService();
 
     try {
       if (option.equals("-10")) {
@@ -115,13 +117,12 @@ public class NodeCryptoSimulation
     }
   }
 
-//  CryptoSecurityComponent csf;
-
-  private void setupCryptoService()
-  {
-//    csf = new CryptoSecurityComponent();
-//    csf.setServiceBroker(new ServiceBrokerSupport());
-//    csf.initCryptoServices();
+  public void requestStop() {}
+  protected ContainerAPI getContainerProxy() {
+    return null;
+  }
+ protected String specifyContainmentPoint() {
+    return "Node.Security";
   }
 
   private void sendPkcs10Request(String role, String filename)
@@ -232,4 +233,5 @@ public class NodeCryptoSimulation
       e.printStackTrace();      
     }
   }
+
 }

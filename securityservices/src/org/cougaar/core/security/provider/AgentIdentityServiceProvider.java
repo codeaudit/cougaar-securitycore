@@ -43,21 +43,46 @@ import com.nai.security.crypto.CryptoPolicyService;
 
 public class AgentIdentityServiceProvider 
   implements ServiceProvider {
+  private EncryptionService encryptionService;
+  private CryptoPolicyService cps;
+  private KeyRingService keyRing;
+
   public Object getService(ServiceBroker sb, 
 			   Object requestor, 
 			   Class serviceClass) {
-    EncryptionService encryptionService = (EncryptionService)
-      getService(sb,
-		 requestor,
-		 EncryptionService.class);
-    CryptoPolicyService cps = (CryptoPolicyService)
-      getService(sb,
-		 requestor,
-		 CryptoPolicyService.class);
-    KeyRingService keyRing = (KeyRingService)
-      getService(sb,
-		 requestor,
-		 KeyRingService.class);
+    // Get encryption service
+    encryptionService = (EncryptionService)
+      sb.getService(requestor,
+		    EncryptionService.class,
+		    new ServiceRevokedListener() {
+			public void serviceRevoked(ServiceRevokedEvent re) {
+			  if (EncryptionService.class.equals(re.getService()))
+			     encryptionService = null;
+			}
+		      });
+
+    // Get crypto policy service
+    cps = (CryptoPolicyService)
+      sb.getService(requestor,
+		    CryptoPolicyService.class,
+		    new ServiceRevokedListener() {
+			public void serviceRevoked(ServiceRevokedEvent re) {
+			  if (CryptoPolicyService.class.equals(re.getService()))
+			     cps = null;
+			}
+		      });
+
+    // Get keyring service
+    keyRing = (KeyRingService)
+      sb.getService(requestor,
+		    KeyRingService.class,
+		    new ServiceRevokedListener() {
+			public void serviceRevoked(ServiceRevokedEvent re) {
+			  if (KeyRingService.class.equals(re.getService()))
+			    keyRing = null;
+			}
+		      });
+
     return new AgentIdentityServiceImpl(encryptionService,
 					cps,
 					keyRing);

@@ -36,32 +36,45 @@ import org.cougaar.util.*;
 import com.nai.security.util.CryptoDebug;
 import com.nai.security.crypto.KeyRing;
 import com.nai.security.certauthority.KeyManagement;
+import com.nai.security.access.AccessControlPolicyServiceImpl;
 import org.cougaar.core.security.crypto.AgentIdentityServiceImpl;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.identity.*;
 import com.nai.security.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class AccessControlPolicyServiceProvider 
   implements ServiceProvider
 {
+  private KeyRingService keyRing;
+  private SecurityPropertiesService sps;
+
   public Object getService(ServiceBroker sb, 
 			   Object requestor, 
 			   Class serviceClass) {
-    EncryptionService encryptionService = (EncryptionService)
-      getService(sb,
-		 requestor,
-		 EncryptionService.class);
-    CryptoPolicyService cps = (CryptoPolicyService)
-      getService(sb,
-		 requestor,
-		 CryptoPolicyService.class);
-    KeyRingService keyRing = (KeyRingService)
-      getService(sb,
-		 requestor,
-		 KeyRingService.class);
-    return new AgentIdentityServiceImpl(encryptionService,
-					cps,
-					keyRing);
+    // Get keyring service
+    keyRing = (KeyRingService)
+      sb.getService(requestor,
+		    KeyRingService.class,
+		    new ServiceRevokedListener() {
+			public void serviceRevoked(ServiceRevokedEvent re) {
+			  if (KeyRingService.class.equals(re.getService()))
+			    keyRing = null;
+			}
+		      });
+
+    // Get Security Properties service
+    sps = (SecurityPropertiesService)
+      sb.getService(requestor,
+		    SecurityPropertiesService.class,
+		    new ServiceRevokedListener() {
+			public void serviceRevoked(ServiceRevokedEvent re) {
+			  if (SecurityPropertiesService.class.equals(re.getService()))
+			    sps = null;
+			}
+		      });
+
+    return new AccessControlPolicyServiceImpl(keyRing, sps);
   }
   public void releaseService(ServiceBroker sb,
 			     Object requestor,

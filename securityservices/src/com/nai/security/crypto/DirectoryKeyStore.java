@@ -174,7 +174,7 @@ public class DirectoryKeyStore
 	listKeyStoreAlias(caKeystore, param.caKeystorePath);
       }
 
-      if (!param.standalone) {
+      if (!param.isCertAuth) {
 	// We running as part of Cougaar, this class may be used to support
 	// certificate authority services. In that cases, we need CA policy
 	String role = secprop.getProperty(secprop.SECURITY_ROLE);
@@ -196,12 +196,12 @@ public class DirectoryKeyStore
 	defaultSigAlgName = nodePolicy.sigAlgName;
       }
       else {
-	// Standalone
+	// Certificate Authority
       }
 
       // Initialize certificate cache
       initCertCache();
-      if (!param.standalone) {
+      if (!param.isCertAuth) {
 	initCRLCache();
       }
     }
@@ -301,7 +301,7 @@ public class DirectoryKeyStore
 	System.out.println("No private key for " + commonName
 			   + " was found in keystore, generating...");
       }
-      if (!param.standalone) {
+      if (!param.isCertAuth) {
 	//let's make our own key pair
 
 	pk = addKeyPair(commonName, null);
@@ -1020,7 +1020,7 @@ public class DirectoryKeyStore
       if (CryptoDebug.debug) {
 	System.out.println("Certificate is self issued");
       }
-      if (param.standalone) {
+      if (param.isCertAuth) {
 	// If DirectoryKeyStore is used in the context of a Certificate
 	// Authority, then a self-signed certificate is OK.
 	return true;

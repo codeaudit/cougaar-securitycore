@@ -71,8 +71,8 @@ import org.cougaar.core.security.provider.SecurityServiceProvider;
  * The following java properties are necessary:
  * + org.cougaar.security.CA.certpath: set when class used as a standalone CA.
  *     In that case, KeyManagement is instantiated from a servlet.
- *     The property should not be defined if the CA service is instantiated from
- *     Cougaar. 
+ *     The property should not be defined if the CA service is instantiated
+ *     from Cougaar. 
  * + See also com.nai.security.crypto.ConfParser for other required properties. */
 public class KeyManagement implements CertificateManagementService
 {
@@ -98,8 +98,10 @@ public class KeyManagement implements CertificateManagementService
   private String confDirectoryName;
   private CertDirectoryServiceCA caOperations = null;
 
-  private boolean standalone;             /* true if run as a standalone server
-					     false if run within Cougaar */
+  private boolean isCertAuth;             /* true if run as a certificate
+					     authority.
+					     false if run as a Cougaar
+					     node. */
  
   /**  KeyManagement constructor
    * @param aCA_DN       - The distinguished name of the CA
@@ -107,19 +109,19 @@ public class KeyManagement implements CertificateManagementService
    * @param certPath     - The path where all cert requests are stored
    *                       May be null, in which case it reads a java
    *                       property. It should not be null in the case
-   *                       of a standalone certificate authority.
+   *                       of a certificate authority.
    * @param confpath     - The configuration path for the conf parser
    *                       May be null, in which case it reads a java
    *                       property. It should not be null in the case
-   *                       of a standalone certificate authority.
-   * @param isStandalone - true if running as a certificate authority
+   *                       of a certificate authority.
+   * @param isCertAuth   - true if running as a certificate authority
    *                       false if running as a Cougaar node
-   * @param krs          - KeyRing service. Useful only in non-standalone
-   *                       mode.
+   * @param krs          - KeyRing service. Useful only in when running
+   *                       as a Cougaar node.
    */
   public KeyManagement(String aCA_DN, String role,
 		       String certPath, String confpath,
-		       boolean isStandalone,
+		       boolean isCertAuth,
 		       KeyRingService krs) 
     throws Exception
   {
@@ -135,10 +137,10 @@ public class KeyManagement implements CertificateManagementService
       System.out.println(" got ca dn name as :"+caDN);
     }
 
-    standalone = isStandalone;
+    this.isCertAuth = isCertAuth;
     if (CryptoDebug.debug) {
-      if (standalone) {
-	System.out.println("Running as standalone CA");
+      if (isCertAuth) {
+	System.out.println("Running as CA");
       }
       else {
 	System.out.println("Running as Cougaar node");
@@ -148,7 +150,7 @@ public class KeyManagement implements CertificateManagementService
     if (certPath != null) {
       /* The following directory structure will be created automatically
        * (except for the keystore file which must be manually installed)
-       * when running as a standalone CA:
+       * when running as a CA:
        * top-level directory (org.cougaar.security.CA.certpath)
        * +-+ <CA common name>
        *   +-+ conf
@@ -167,7 +169,7 @@ public class KeyManagement implements CertificateManagementService
 	secprop.getProperty("org.cougaar.security.CA.certpath");
     }
  
-    confParser = new ConfParser(confpath, standalone);
+    confParser = new ConfParser(confpath, isCertAuth);
 
     try {
       caPolicy = confParser.readCaPolicy(caDN, role);
@@ -191,7 +193,7 @@ public class KeyManagement implements CertificateManagementService
 
   public void init(String role, KeyRingService krs)
     throws Exception {
-    if(standalone) {
+    if(isCertAuth) {
       String keystoreFile = confDirectoryName + File.separatorChar
 	+ caPolicy.keyStoreFile;
       if (CryptoDebug.debug) {
@@ -203,7 +205,7 @@ public class KeyManagement implements CertificateManagementService
       param.keystoreStream = f;
       param.keystorePassword = caPolicy.keyStorePassword.toCharArray();
       param.keystorePath = keystoreFile;
-      param.standalone = standalone;
+      param.isCertAuth = isCertAuth;
       param.ldapServerUrl= caPolicy.ldapURL;
       param.ldapServerType= caPolicy.ldapType;
       caKeyStore = new DirectoryKeyStore(param);
@@ -329,9 +331,9 @@ public class KeyManagement implements CertificateManagementService
     X509Certificate x509cert;
 
     // Get CA X.509 certificate
-    if (standalone) {
+    if (isCertAuth) {
       if(CryptoDebug.debug) {
-	System.out.println("using stand alone mode ++++++");
+	System.out.println("Runnnig as a certificate authority");
       }
 	
       x509cert = (X509Certificate) caKeyStore.findCert(commonName);
@@ -345,7 +347,7 @@ public class KeyManagement implements CertificateManagementService
   private PrivateKey getPrivateKey(X500Name x500name) {
 
  PrivateKey privateKey=null;
-    if (standalone) {
+    if (isCertAuth) {
       if(CryptoDebug.debug) {
 	System.out.println(" going to look for private key in caKeyStore with x500 name  ::***************************"+x500name );
       }
@@ -362,7 +364,7 @@ public class KeyManagement implements CertificateManagementService
   private PrivateKey getPrivateKey(String commonName)
   {
     PrivateKey privateKey;
-    if (standalone) {
+    if (isCertAuth) {
       if(CryptoDebug.debug) {
 	System.out.println(" going to look for private key in caKeyStore ::***************************"+commonName );
       }
@@ -463,7 +465,7 @@ public class KeyManagement implements CertificateManagementService
 	// Save the X509 reply in a file
 	saveX509Request(clientX509, false);
 
-	if (standalone) {
+	if (isCertAuth) {
 	  // Publish certificate in LDAP directory
 	  if (CryptoDebug.debug) {
 	    System.out.println("Publishing cert to LDAP service");
@@ -582,7 +584,7 @@ public class KeyManagement implements CertificateManagementService
   private void saveX509Request(X509CertImpl clientX509, boolean pending)
     throws IOException, CertificateEncodingException, NoSuchAlgorithmException
   {
-    if (standalone) {
+    if (isCertAuth) {
       if (CryptoDebug.debug) {
 	System.out.println("Saving X509 certificate:");
       }

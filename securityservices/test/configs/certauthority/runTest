@@ -36,7 +36,7 @@ switch (${choice})
 case "1":
     # keystore test
     echo "Running ${choice1} ..."
-    set execclass = com.nai.security.test.NodeCryptoSimulation
+    set execclass = "com.nai.security.test.NodeSimul com.nai.security.test.crypto.KeyStoreTest"
     set args = "-1 ${user} testalias RSA"
     set args = "${args} -10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer"
     set args = "${args} -7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer"
@@ -45,7 +45,7 @@ case "1":
 case "2":
     # PKCS#12 test
     echo "Running ${choice2} ..."
-    set execclass = com.nai.security.test.crypto.AgentMobility
+    set execclass = "com.nai.security.test.NodeSimul com.nai.security.test.crypto.AgentMobility"
     set args = "${node} testalias TEST-TWO-NODE"
     breaksw
 
@@ -88,6 +88,8 @@ set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar:$COUGAAR_INSTALL_PATH/li
 if ( ${execmode} == "2") then
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/securityservices.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/core.jar"
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/kaos.jar"
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/safe.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xml4j.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/log4j.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xerces.jar"
@@ -139,7 +141,8 @@ case "1":
 # With bootstrapper
     java $javaargs \
 	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
-	com.nai.security.bootstrap.SecureBootstrapper ${execclass} $args |& tee runTest.log
+	com.nai.security.bootstrap.SecureBootstrapper \
+	${execclass} $args |& tee runTest.log
     breaksw;
 case "2":
 # No bootstrapper

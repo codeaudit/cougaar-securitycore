@@ -39,6 +39,8 @@ import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class CertificateManagementServiceProvider 
   implements ServiceProvider {
+  private KeyRingService ksr;
+
   public Object getService(ServiceBroker sb, 
 			   Object requestor, 
 			   Class serviceClass) {
@@ -47,16 +49,23 @@ public class CertificateManagementServiceProvider
     String role = null;
     String certPath = null;
     String confPath = null;
-    boolean isStandalone = false;
+    boolean isCertAuth = false;
+    
     // Retrieve KeyRing service
-    KeyRingService ksr = (KeyRingService)getService(sb,
-						    requestor,
-						    KeyRingService.class);
+    ksr = (KeyRingService)
+      sb.getService(requestor,
+		    KeyRingService.class,
+		    new ServiceRevokedListener() {
+			public void serviceRevoked(ServiceRevokedEvent re) {
+			  if (KeyRingService.class.equals(re.getService()))
+			    ksr  = null;
+			}
+		      });
 
     KeyManagement km = null;
     try {
       km =new KeyManagement(certAuthorityDN, role,
-			    certPath, confPath, isStandalone,
+			    certPath, confPath, isCertAuth,
 			    ksr);
     }
     catch (Exception e) {
