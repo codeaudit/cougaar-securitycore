@@ -453,12 +453,9 @@ public class AccessAgentProxy implements MessageTransportService,
     
         if (msg instanceof WPQuery) {
           // first still need to know whether source and target are allowed to talk
-/*
           if (!isMessageDenied(source, target, null, direction)) {
             return checkWPQueryMessage(source, target, (WPQuery)msg);
           }
-*/
-          return isMessageDenied(source, target, null, direction);
         }
         return isMessageDenied(source, target, null, direction);
     }
@@ -478,11 +475,25 @@ public class AccessAgentProxy implements MessageTransportService,
       return false;
     }
 
+/*
     String action = "Add";
     if (wpMsg.getAction() != WPQuery.MODIFY) {
       return false;
     }
     return !_wpEnforcer.isActionAuthorized(agent, agent, action);
+*/
+    if (wpMsg.getAction() == WPQuery.MODIFY) {
+      return !_wpEnforcer.WPUpdateOk(agent, agent);
+    }
+    else if (wpMsg.getAction() == WPQuery.FORWARD) {
+      return !_wpEnforcer.WPForwardOk(agent, target);
+    }
+    else if (wpMsg.getAction() == WPQuery.LOOKUP) {
+      return !_wpEnforcer.WPLookupOk(agent);
+    }
+
+    log.error("Unknown WP action: " + wpMsg.getAction());
+    return true;
   }
 
   private boolean checkDirectiveMessage(String source,
