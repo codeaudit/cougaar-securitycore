@@ -244,7 +244,9 @@ public class CreateCaKeyServlet
     out.println("<td><i>The default time envelope for a certificate to be valid.<br>");
     out.println("The certificate will be valid between this period to the actual time<br>");
     out.println("it is approved by CA, plus the validity period above after its approval.<br>");
-    out.println("Format is the same as validity.<br>");
+    out.println("Format:    <b>a1 y a2 M a3 d a4 h a5 m a6 s</b> ");
+    out.println("where a1...a6 is a number<br>");
+    out.println("y=year, M=month, d=day, h=hour, m=minute, s=second. At least one key is required<br>");
     out.println("</i></td>");
 
     out.println("<tr><td>");
