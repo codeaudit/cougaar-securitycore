@@ -1,0 +1,137 @@
+Introduction
+============
+This document describes the monitoring & response sensors available in the security services.The sensors monitor specific security events and publish IDMEF messages when pre-determined conditions occur.
+
+Information about the IDMEF standard can be found at http://www.ietf.org/html.charters/idwg-charter.html. Note that the IDMEF terminology uses the term "Analyzer" when Cougaar uses the term "sensor".
+
+The sensors available in the security services for Cougaar 9.4.1 are:
+1) Data Protection Sensor
+2) Message Protection Sensor
+3) Java security manager sensor
+4) Jar file signature sensor
+5) Message Access Control sensor
+6) User access control sensor
+
+
+IDMEF attributes
+================
+The security sensors generate IDMEF Alert messages, which have the attributes described below. Refer to the IDMEF document type definition for a complete description of these attributes.
+
+* Analyzer         Identification information for the sensor that
+                   originated the alert.
+* CreateTime       The time the alert was created.
+* DetectTime       The time the event leading up to the alert was detected.
+* AnalyzerTime     The current time on the sensor.
+* Classification   The "name" of the alert, or other information
+                   allowing the manager to determine what it is.
+* Source           The source(s) of the event(s) leading up to the alert.
+                   In general, the source can be viewed as the attacker.
+* Target           The target(s) of the event(s) leading up to the alert.
+                   In general, the target can be viewed as the victim.
+* Assessment       Information about the impact of the event, actions
+                   taken by the sensor in response to it, and the sensor's
+                   confidence in its evaluation.
+* AdditionalData   Information included by the analyzer that does not
+                   fit into the data model.  This may be an atomic piece of data, or
+                   a large amount of data provided through an extension to the IDMEF.
+
+The "analyzer" attributes includes the following information:
+analyzerid         A unique identifier for the analyzer.
+manufacturer       The manufacturer of the analyzer software and/or hardware.
+model              The model name/number of the analyzer software and/or hardware.
+version            The version number of the analyzer software and/or hardware.
+class              The class of analyzer software and/or hardware.
+ostype             Operating system name.
+osversion          Operating system version.
+Node               Information about the host or device on which the
+                   analyzer resides (network address, network name, etc.).
+Process            Information about the process in which the analyzer
+                   is executing.
+
+The "Source" class contains information about the possible source(s) of
+the event(s) that generated an alert.  An event may have more than
+one source (e.g., in a distributed denial of service attack).
+The source attribute contains the following information:
+Node               Information about the host or device that appears to
+                   be causing the events (network address, network name, etc.).
+User               Information about the user that appears to be
+                   causing the event(s).
+Process            Information about the process that appears to be
+                   causing the event(s).
+Service            Information about the network service involved in
+                   the event(s).
+
+
+The Target class contains information about the possible target(s) of
+the event(s) that generated an alert.  An event may have more than
+one target (e.g., in the case of a port sweep).
+The Target attribute contains the following information:
+Node               Information about the host or device at which the
+                   event(s) (network address, network name, etc.) is being directed.
+User               Information about the user at which the event(s) is
+                   being directed.
+Process            Information about the process at which the event(s)
+                   is being directed.
+Service            Information about the network service involved in
+                   the event(s).
+FileList           Information about file(s) involved in the event(s).
+
+
+Security sensors
+================
+
+1) Data Protection Sensor
+-------------------------
+The data protection sensor generates IDMEF Alert messages when the following condition occur:
+* A cryptographic error occurs when blackboard data is persisted or re-hydrated.
+This can occur when:
+- The encrypted data cannot be recovered. Examples include invalid signatures, invalid keys, invalid policy, revoked or expired keys...
+- The blackboard data cannot be encrypted. This could happen because the agent does not have the necessary cryptographic keys, the cryptographic providers do not provide the requested algorithms...
+
+2) Message Protection Sensor
+----------------------------
+The Message Protection sensor generates IDMEF Alert messages when the following condition occur:
+* An incoming or outgoing message does not comply with the cryptographic policy.
+This can occur when:
+- A message does not have the appropriate cryptographic protection (e.g., a plain-text message should have been encrypted),
+- A message was protected using untrusted cryptographic keys (e.g. revoked, expired certificate, certificate chain not trusted, invalid critical X.509 extensions),
+- A message cannot be decrypted because the wrong key was used,
+- A message signature is invalid (e.g., the message has been tampered),
+- Required keys cannot be found,
+- The cryptographic providers do not support the requested operations
+
+3) Java security manager sensor
+-------------------------------
+The Java security manager sensor generates IDMEF Alert messages when the following condition occur:
+* A java security manager exception has been thrown.
+The security manager allows an application to determine, before performing a possibly unsafe or sensitive operation, what the operation is and whether it is being attempted in a security context that allows the operation to be performed. The application can allow or disallow the operation.
+Examples of sensitive operations are access to files, sockets and java properties.
+The exact list of events depends on what Java security policy is in force. The most up-to-date
+version of the Java security policy is in the securityservices/test/configs/common/Cougaar_Java.policy file.
+
+4) Jar file signature sensor
+----------------------------
+The Jar file signature sensor generates IDMEF Alert messages when the following condition occur:
+* The secure bootstrapper detects that a jar file does not have the appropriate signature.
+This may occur when a jar file does not have a signature, when the jar file has been tampered, or when it has been signed with an invalid certificate.
+Note that a node may not be able to start if core jar files do not have the right signature.
+
+5) Message Access Control sensor
+--------------------------------
+The Message Access Control sensor generates IDMEF Alert messages when the following condition occur:
+* An incoming or outgoing message does not comply with the message security policy.
+This may occur when:
+- The policy prevents communication between two agents,
+- The policy prevents specific types of communication to occur. For instance, some agents may accept only directives with a specific verb,
+- The source or target is invalid (e.g, an agent tries to spoof the source or target address)
+
+6) User access control sensor
+-----------------------------
+The User access control sensor generates IDMEF Alert messages when the following condition occur:
+* A user attempts to login with invalid credentials, or a valid user attempts to perform an un-authorized operation.
+This may occur when:
+- The user does not exist,
+- The password or certificate (including smartcard) is invalid,
+- The user account has been disabled,
+- The credentials did not match the policy (e.g. the user provided a password, but a certificate is required),
+- The user did not have the authorization to perform the operation.
