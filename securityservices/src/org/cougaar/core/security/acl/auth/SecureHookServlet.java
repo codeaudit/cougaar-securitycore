@@ -57,21 +57,24 @@ public class SecureHookServlet implements Servlet {
    */
   public void service(ServletRequest req, ServletResponse res) 
     throws ServletException, IOException {
-    Subject subject = new Subject();
+    Principal principal = null;
     if (req instanceof HttpServletRequest) {
-      Principal principal = ((HttpServletRequest) req).getUserPrincipal();
-      if (principal != null) {
-        subject.getPrincipals().add(principal);
-      }
+      principal = ((HttpServletRequest) req).getUserPrincipal();
     }
-    Exception e = (Exception) Subject.doAs(subject,new ServletCall(req,res));
-    if (e != null) {
-      if (e instanceof RuntimeException) {
-        throw (RuntimeException) e;
-      } else if (e instanceof IOException) {
-        throw (IOException) e;
-      } else if (e instanceof ServletException) {
-        throw (ServletException) e;
+    if (principal == null) {
+      _hookServlet.service(req, res);
+    } else {
+      Subject subject = new Subject();
+      subject.getPrincipals().add(principal);
+      Exception e = (Exception) Subject.doAs(subject,new ServletCall(req,res));
+      if (e != null) {
+        if (e instanceof RuntimeException) {
+          throw (RuntimeException) e;
+        } else if (e instanceof IOException) {
+          throw (IOException) e;
+        } else if (e instanceof ServletException) {
+          throw (ServletException) e;
+        }
       }
     }
   }
