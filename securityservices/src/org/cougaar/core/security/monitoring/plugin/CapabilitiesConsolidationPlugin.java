@@ -43,6 +43,7 @@ import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.planning.ldm.plan.*;
 import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
+import org.cougaar.core.service.community.*;
 import org.cougaar.core.mts.*;
 import org.cougaar.core.agent.*;
 import org.cougaar.core.domain.RootFactory;
@@ -86,7 +87,6 @@ class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
   }
 }
 
-//  This code is not required any more 
 class AgentRegistrationPredicate implements UnaryPredicate{
   public boolean execute(Object o) {
     boolean ret = false;
@@ -109,11 +109,11 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 
   // The domainService acts as a provider of domain factory services
   private DomainService domainService = null;
-
+  private CommunityService communityService=null;
   private IncrementalSubscription modifiedcapabilities;
   private IncrementalSubscription capabilitiesRelays;
   private IncrementalSubscription agentRegistrations;
- 
+  
   private int firstobject=0;
   private AttributeBasedAddress mgrAddress;
   private MessageAddress myAddress;
@@ -122,6 +122,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private Object param;  
   private String mgrrole=null;
   private String dest_agent=null;
+  //private String myRole=null;
   /** Holds value of property loggingService. */
   private LoggingService loggingService;  
   
@@ -139,6 +140,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   public DomainService getDomainService() {
     return domainService;
   }
+  
+  public void setCommunityService(CommunityService cs) {
+    //System.out.println(" set community services Servlet component :");
+     this.communityService=cs;
+   }
+   
   
   public void setParameter(Object o){
     this.param=o;
@@ -159,43 +166,32 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     myAddress = getBindingSite().getAgentIdentifier();
     if (loggingService.isDebugEnabled()) {
       loggingService.debug("setupSubscriptions of CapabilitiesConsolidationPlug in called for "
-		+ myAddress.toAddress()); 
+			   + myAddress.toAddress()); 
     }
-    Collection col=getParameters();
-    if (col != null) {
-      if(col.size()>3) {
-        loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called  too many parameters :"
-                             + myAddress.toAddress());  
-      }
-      if(col.size()!=0){
-        String parameters[]=(String[])col.toArray(new String[0]);
-        mgrrole=parameters[0];
-        if(col.size()>1) {
-          dest_community=parameters[1];
-        }
-        if(col.size()>2) {
-          dest_agent=parameters[2];
-          destcluster=new ClusterIdentifier(dest_agent); 
-          if (loggingService.isDebugEnabled()) 
-            loggingService.debug(" destination agent is :###"+dest_agent +" from "+ myAddress.toAddress());
-        }
+    
+    String mySecurityCommunity= getMySecurityCommunity();
+    loggingService.debug(" My security community :"+mySecurityCommunity +" agent name :"+myAddress.toString());  
+    if(mySecurityCommunity==null) {
+      loggingService.error("No Info about My  SecurityCommunity : returning Cannot continue !!!!!!"+myAddress.toString());  
+      return;
+    }
+    else {
+      String myRole=getMyRole(mySecurityCommunity);
+      loggingService.debug(" My Role is  :"+myRole +" agent name :"+myAddress.toString()); 
+      if(!myRole.equalsIgnoreCase("SecurityMnRManager-Society")) {
+	mgrrole="SecurityMnRManager-Society";
+	dest_community=getDestinationCommunity(myRole);
+	if(dest_community==null) {
+	  loggingService.error("Cannot get Destination community in agent  !!!!!!"+myAddress.toString()
+			       +"\nmy Role is "+ myRole+
+			       "\nCannot continue RETURNING !!!!!!!!!!!!!!!");
+	  return;
+	}
+	loggingService.debug(" My destination community is  :"+dest_community +" agent name :"+myAddress.toString());
+	mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);	
+	loggingService.debug("Created  manager address :"+ mgrAddress.toString());
       }
     }
-   
-    // This needs to be converted to make mgrAddress an AttributeBasedAddress.
-    // For now, just send by name.
-    //
-    /*
-      String mgrName = "MRManager";
-      Iterator params = getParameters().iterator();
-      while (params.hasNext()) {
-      String param = (String)params.next();
-      mgrName = param;
-      }
-    */
-    if(dest_community!=null)
-      mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
-   
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate());
     capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe(new ConsolidatedCapabilitiesRelayPredicate());
     agentRegistrations= (IncrementalSubscription)getBlackboardService().subscribe(new AgentRegistrationPredicate());
@@ -206,15 +202,17 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
    * Top level plugin execute loop.  
    */
   protected void execute () {
+    
     // Unwrap subordinate capabilities from new/changed/deleted relays
     loggingService.debug("Update of relay called from :"+myAddress.toAddress());
     updateRelayedCapabilities();
     if (loggingService.isDebugEnabled())
-      loggingService.debug(" Execute of CapabilitiesConsolidation Plugin called !!!!!!!!"+myAddress.toAddress() );
+      loggingService.debug(" Execute of CapabilitiesConsolidation Plugin called !!!!!!!!"
+			   +myAddress.toAddress() );
     DomainService service=getDomainService();
     if(service==null) {
       if (loggingService.isDebugEnabled()) 
-      loggingService.debug(" Got service as null in   CapabilitiesConsolidation Plugin :"+ myAddress.toAddress());
+	loggingService.debug(" Got service as null in   CapabilitiesConsolidation Plugin :"+ myAddress.toAddress());
       return;
     }
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
@@ -224,14 +222,17 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     
     if((list==null)||(list.size()==0)){
       if (loggingService.isDebugEnabled()) 
-	loggingService.debug(" !!!! No modified capabilities currently present  !!!!!!! RETURNING  !!!!!!!!!!!!!!!!");
+	loggingService.debug(" !!!! No modified capabilities currently present  !!!!!!!" +
+			     "RETURNING  !!!!!!!!!!!!!!!!");
       return;
     }
     
     if(list.size()>1) {
-        if (loggingService.isDebugEnabled())
-	  loggingService.debug(" Error Multiple complete capabilities object on blackboard in Capabilities Consolidation plugin !!!!!!!!!!!!!!!!!!! CONFUSION CONFUSION CONFUSION  RETURNIG !!!!!!!:"+myAddress.toAddress() );
-	return;
+      if (loggingService.isDebugEnabled())
+	loggingService.debug(" Error Multiple complete capabilities object on blackboard in Capabilities"+
+			     " Consolidation plugin !!!!!!!!!!!!!!!!!!!"+
+			     " CONFUSION CONFUSION CONFUSION  RETURNIG !!!!!!!:"+myAddress.toAddress() );
+      return;
     }
    
     ConsolidatedCapabilities consCapabilities=null;
@@ -242,6 +243,10 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     RegistrationAlert registration=null;
     Classification consclassifications[]=consCapabilities.getClassifications();
     Classification regclassifications[]=null;
+    Source consSources[]=consCapabilities.getSources();
+    Source regSources[]=null;
+    Target consTargets[]=consCapabilities.getTargets();
+    Target regTargets[]=null;
     Enumeration keys=capabilitiesobject.keys();
     String key=null;
     if(mgrrole!=null) {
@@ -255,29 +260,57 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  //log.debug("consclassifications was null Creating one :"); 
 	  consclassifications=new Classification[regclassifications.length];
 	  System.arraycopy(regclassifications,0,consclassifications,0,regclassifications.length);
-	  printConsolidation(consclassifications," First one added after creating cons obj:");
+	  printConsolidation(consclassifications,"First Classification[] is added to consolidate Classification");
 	}
 	else {
 	  if (loggingService.isDebugEnabled())
-	  loggingService.debug("consclassifications was NOT NULL Consolidating !!!!!!!!!! :"); 
-	  printConsolidation(consclassifications," Already cons obj present before adding new %%%%%%%%%%%%%%%% :");
+	    loggingService.debug("consclassifications was NOT NULL Consolidating !!!!!!!!!! :"); 
+	  printConsolidation(consclassifications," Consolidated Classification before adding :");
 	  consclassifications=getConsolidatedClassification(regclassifications,consclassifications);
-	  printConsolidation(consclassifications," Already cons obj present added new $$$$$$$$$$$$$$$$$$ :");
+	  printConsolidation(consclassifications," Consolidated Classification after adding ::");
 	}
-	    
+	if(consSources==null) {
+	  if(regSources!=null) {
+	    consSources=new Source[regSources.length];
+	    System.arraycopy(regSources,0,consSources,0,regSources.length);
+	  }
+	}
+	else {
+	   if (loggingService.isDebugEnabled())
+	    loggingService.debug("consolidated Sources was NOT NULL Consolidating !!!!!!!!!! :"); 
+	   if(regSources!=null) {
+	     consSources=getConsolidateSources(regSources,consSources);  
+	   }
+	}
+	if(consTargets==null) {
+	  if(regTargets!=null) {
+	    consTargets=new Target[regTargets.length];
+	    System.arraycopy(regTargets,0,consTargets,0,regTargets.length);
+	  }
+	}
+	else {
+	  if (loggingService.isDebugEnabled())
+	    loggingService.debug("consolidated Target was NOT NULL Consolidating !!!!!!!!!! :"); 
+	  if(regTargets!=null) {
+	    consTargets=getConsolidatedTargets(regTargets,consTargets);  
+	  }
+	}
+	
       }
       consCapabilities.setClassifications(consclassifications);
+      consCapabilities.setSources(consSources);
+      consCapabilities.setTargets(consTargets);
       Analyzer analyzer=new Analyzer();
       analyzer.setAnalyzerid(myAddress.toString());
       consCapabilities.setAnalyzer(analyzer);
       consclassifications=consCapabilities.getClassifications();
       printConsolidation(consclassifications," consolidated classification after processing is :");
-       if (loggingService.isDebugEnabled())
-	 loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+mgrAddress.toString()); 
-       addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
+      if (loggingService.isDebugEnabled())
+	loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+mgrAddress.toString()); 
+      addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
     }
     else {
-      loggingService.debug(" It is the Society manager : No need to do any thging with hash table :"+ myAddress.toString());
+      loggingService.debug(" It is the Society manager : No need to do any thing with hash table :"+ myAddress.toString());
     }
     
   }
@@ -354,12 +387,88 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     }
     return consolidate;
   }
+  
+  public Source[] getConsolidateSources(Source[] newSources, Source[] existingSources) {
+    if(newSources==null) {
+      return existingSources;
+    }
+    Vector indexes=new Vector();
+    Source existingSource=null;
+    Source newSource=null;
+    int index=-1;
+    boolean found=false;
+    for(int i=0;i<newSources.length;i++){
+      found=false;
+      newSource=newSources[i];
+      for(int j=0;j<existingSources.length;j++) {
+	existingSource=existingSources[j];
+	if(!existingSource.equals(newSource)) {
+	  continue;
+	}
+	found=true;
+	break;
+      }
+      if(!found) {
+	if (loggingService.isDebugEnabled())
+	  loggingService.debug("Found new Source:");
+	//converttoString(newclas);
+	indexes.add(newSource);
+      }
+    }
+    Source[] consSources=new Source[existingSources.length+indexes.size()];
+    Source source=null;
+    System.arraycopy(existingSources,0,consSources,0,existingSources.length);
+    index=existingSources.length;
+    for(int i=0;i<indexes.size();i++){
+      source = (Source) indexes.elementAt(i);
+      consSources[i+index]=source;
+    }
+    return consSources;
+  }
+  
+  public Target[] getConsolidatedTargets(Target[] newTargets, Target[] existingTargets ) {
+    if(newTargets==null) {
+      return existingTargets;
+    }
+    Vector indexes=new Vector();
+    Target existingTarget=null;
+    Target newTarget=null;
+    int index=-1;
+    boolean found=false;
+    for(int i=0;i<newTargets.length;i++){
+      found=false;
+      newTarget=newTargets[i];
+      for(int j=0;j<existingTargets.length;j++) {
+	existingTarget=existingTargets[j];
+	if(!existingTarget.equals(newTarget)) {
+	  continue;
+	}
+	found=true;
+	break;
+      }
+      if(!found) {
+	if (loggingService.isDebugEnabled())
+	  loggingService.debug("Found new Target:");
+	//converttoString(newclas);
+	indexes.add(newTarget);
+      }
+    }
+    Target[] consTargets=new Target[existingTargets.length+indexes.size()];
+    Target target=null;
+    System.arraycopy(existingTargets,0,consTargets,0,existingTargets.length);
+    index=existingTargets.length;
+    for(int i=0;i<indexes.size();i++){
+      target = (Target) indexes.elementAt(i);
+      consTargets[i+index]=target;
+    }
+    return consTargets;
+  }
 
   public void converttoString(Classification classification) {
     if (loggingService.isDebugEnabled()) {
-	loggingService.debug(" Classification origin :"+classification.getOrigin());
-	loggingService.debug(" Classification Name :"+classification.getName());
-	loggingService.debug(" Classification URL :"+classification.getUrl());
+      loggingService.debug(" Classification origin :"+classification.getOrigin());
+      loggingService.debug(" Classification Name :"+classification.getName());
+      loggingService.debug(" Classification URL :"+classification.getUrl());
     }
   }
   
@@ -379,7 +488,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     if (relay == null) {
       if (loggingService.isDebugEnabled())
 	loggingService.debug(" No relay was present creating one for Event "+ event.toString());
-      relay = factory.newCmrRelay(event, destcluster);
+      relay = factory.newCmrRelay(event, mgrAddress);
+      if (loggingService.isDebugEnabled())
+	loggingService.debug(" No relay was present creating one  "+ relay.toString());
       //relay = factory.newCmrRelay(event, mgrAddress);
       //relay =factory.newCmrRelay(event, new MessageAddress(dest_agent));
       getBlackboardService().publishAdd(relay);
@@ -431,6 +542,89 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       }
     }
   }
+  private String getMySecurityCommunity() {
+    String mySecurityCommunity=null;
+    if(communityService==null) {
+     loggingService.error(" Community Service is null" +myAddress.toString()); 
+    }
+    String filter="(CommunityType=Security)";
+    Collection securitycom=communityService.listParentCommunities(myAddress.toString(),filter);
+    if(!securitycom.isEmpty()) {
+      if(securitycom.size()>1) {
+	loggingService.warn("Belongs to more than one Security Community " +myAddress.toString());  
+	return mySecurityCommunity;
+      }
+      String [] securitycommunity=new String[1];
+      securitycommunity=(String [])securitycom.toArray(new String[1]);
+      mySecurityCommunity=securitycommunity[0];
+    }
+    else {
+      	loggingService.warn("Search  for my Security Community FAILED !!!!" +myAddress.toString()); 
+    }
+    
+    return mySecurityCommunity;
+  }
+  
+  private String getMyRole(String mySecurityCommunity) {
+    String myRole=null;
+    boolean enclavemgr=false;
+    boolean societymgr=false;
+    if(communityService==null) {
+      loggingService.error(" Community Service is null" +myAddress.toString()); 
+    }
+    Collection roles =communityService.getEntityRoles(mySecurityCommunity,myAddress.toString());
+    Iterator iter=roles.iterator();
+    String role;
+    while(iter.hasNext()) {
+      role=(String)iter.next();
+      if(role.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
+	enclavemgr=true;
+      }
+      else if(role.equalsIgnoreCase("SecurityMnRManager-Society")) {
+	societymgr=true;
+      }
+    }
+    if(enclavemgr) {
+      myRole="SecurityMnRManager-Enclave"; 
+    }
+    else if(societymgr) {
+      myRole="SecurityMnRManager-Society";
+    }
+    return myRole;
+    						      
+  }
+  
+  public String getDestinationCommunity(String role) {
+    if(communityService==null) {
+      loggingService.error(" Community Service is null" +myAddress.toString()); 
+    }
+    String destrole=null;
+    if(role.equalsIgnoreCase("member")) {
+      destrole="SecurityMnRManager-Enclave";
+    }
+    else if(role.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
+      destrole="SecurityMnRManager-Society";
+    }
+    String filter="(CommunityType=Security)";
+    Collection securitycol=communityService.search(filter);
+    Iterator itersecurity=securitycol.iterator();
+    String comm=null;
+    while(itersecurity.hasNext()) {
+      comm=(String)itersecurity.next();
+      Collection societysearchresult=communityService.searchByRole(comm,destrole);
+      if(societysearchresult.isEmpty()) {
+	continue;
+      }
+      else {
+	if(societysearchresult.size()>1) {
+	   loggingService.error(" Too many Society Manager " +myAddress.toString());
+	   return null;
+	}
+	break;
+      }
+    }
+    return comm;
+  }
    
   /**
    * Find the previous AgentRegistration Event from this source (if any)
@@ -446,17 +640,17 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   }
   
   public void printhash(CapabilitiesObject cap) {
-     Enumeration keys=cap.keys();
+    Enumeration keys=cap.keys();
     String key=null;
     RegistrationAlert registration=null;
     loggingService.debug(" CAPABILITIES OBJECT IN ADDRESS :"+myAddress.toString());
-     while(keys.hasMoreElements()) {
-	key=(String)keys.nextElement();
-	if (loggingService.isDebugEnabled())
-	  loggingService.debug(" KEY IN CAPABILITIES OBJECT IS :"+key);
-	registration=(RegistrationAlert)cap.get(key);
-	loggingService.debug(" data od reg alert is :"+registration.toString());
-     }
+    while(keys.hasMoreElements()) {
+      key=(String)keys.nextElement();
+      if (loggingService.isDebugEnabled())
+	loggingService.debug(" KEY IN CAPABILITIES OBJECT IS :"+key);
+      registration=(RegistrationAlert)cap.get(key);
+      loggingService.debug(" data of reg alert is :"+registration.toString());
+    }
     
   }
   
