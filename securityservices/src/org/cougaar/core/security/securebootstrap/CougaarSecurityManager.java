@@ -68,7 +68,7 @@ import javax.security.auth.Subject;
 
  **/
 
-public class CougaarSecurityManager extends SecurityManager implements EventHolderinterface
+public class CougaarSecurityManager extends SecurityManager 
 {
   private PrintStream auditlog;
   private int debug = 0;
@@ -124,21 +124,6 @@ public class CougaarSecurityManager extends SecurityManager implements EventHold
      System.out.println(" Event Holder in Cougaar security mananger got loaded by :"+cloader.toString() );
     else 
       System.out.println(" Got class loader null for event holder in security manager  :");
-  }
-
-  public EventHolder getMREventQueue() throws SecurityException {
-    if(eventholder!=null){
-      /* try {
-	checkPermission(new MRBootstrapEventPermission("getEventQueue"));
-      }
-      catch(SecurityException sexp){
-	sexp.printStackTrace();
-	throw( new SecurityException(sexp.getMessage()));
-	}*/
-      System.out.println(" returning event holder:");
-      return eventholder;
-    }
-    return null;
   }
 
 
