@@ -118,18 +118,23 @@ public class CryptoManagerServiceImpl
         this.ciphers.put(spec,list);
       }
     }
-    synchronized (list) {
-    Cipher cipher;
-    } else if (list.size() > 0) {
-      return (Cipher) list.remove(list.size() - 1);
-    } // end of else
     
+    synchronized (list) {
+      if (!list.isEmpty()) {
+        return (Cipher) list.remove(list.size() - 1);
+      }
+    }
     return Cipher.getInstance(spec);
   }
 
-  private synchronized void returnCipher(String spec, Cipher cipher) {
-    ArrayList list = (ArrayList) this.ciphers.get(spec);
-    list.add(cipher);
+  private void returnCipher(String spec, Cipher cipher) {
+    ArrayList list;
+    synchronized (this.ciphers) {
+      list = (ArrayList) this.ciphers.get(spec);
+    }
+    synchronized (list) {
+      list.add(cipher);
+    }
   }
 
   public Object verify(String name, String spec, SignedObject obj)
