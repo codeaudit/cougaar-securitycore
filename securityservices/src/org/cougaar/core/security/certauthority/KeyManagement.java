@@ -257,11 +257,11 @@ public class KeyManagement  implements CertificateManagementService {
 	serviceBroker.getService(this,CACertDirectoryService.class, null);
       
       /*
-      CertDirectoryServiceRequestor cdsr =
+        CertDirectoryServiceRequestor cdsr =
 	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
-                                              caPolicy.ldapPrincipal, caPolicy.ldapCredential,
-					      serviceBroker);
-      caOperations = (CertDirectoryServiceCA)
+        caPolicy.ldapPrincipal, caPolicy.ldapCredential,
+        serviceBroker);
+        caOperations = (CertDirectoryServiceCA)
 	serviceBroker.getService(cdsr, CertDirectoryServiceCA.class, null);
       */
        
@@ -365,9 +365,9 @@ public class KeyManagement  implements CertificateManagementService {
 	}
       }
 /*
-      if (configParser.isCertificateAuthority()) {
-        publishCA();
-      }
+  if (configParser.isCertificateAuthority()) {
+  publishCA();
+  }
 */
     }
     catch(Exception e) {
@@ -407,9 +407,9 @@ public class KeyManagement  implements CertificateManagementService {
 	  publishCertificate(clientX509,
                              CertificateUtility.EntityCert,null);
 /*
-          if (configParser.isCertificateAuthority()) {
-            publishCA();
-          }
+  if (configParser.isCertificateAuthority()) {
+  publishCA();
+  }
 */
 	}
       }
@@ -585,9 +585,9 @@ public class KeyManagement  implements CertificateManagementService {
 	  publishCertificate(clientX509,
                              CertificateUtility.EntityCert,null);
 /*
-          if (configParser.isCertificateAuthority()) {
-            publishCA();
-          }
+  if (configParser.isCertificateAuthority()) {
+  publishCA();
+  }
 */
 	}
         return new CertificateResponse(PENDING_STATUS_APPROVED, clientX509);
@@ -988,7 +988,7 @@ public class KeyManagement  implements CertificateManagementService {
 
 
       //if (log.isDebugEnabled()) {
-        //log.debug("x500: " + caX500IssuerName.getCommonName());
+      //log.debug("x500: " + caX500IssuerName.getCommonName());
       //}
 
       // Get Signature object for certificate authority
@@ -1095,8 +1095,8 @@ public class KeyManagement  implements CertificateManagementService {
 
   
 	
-  	public X509Certificate setX509CertificateFields(PKCS10 clientRequest)
-     throws IOException, CertificateException
+  public X509Certificate setX509CertificateFields(PKCS10 clientRequest)
+    throws IOException, CertificateException
     {
 
       /* Retrieve attributes from the PKCS10 request */
@@ -1332,110 +1332,136 @@ public class KeyManagement  implements CertificateManagementService {
   public int  revokeAgentCertificate(String caDN ,String agentName)
     throws IOException, Exception, CertificateException
     {
-      String filter = "(cn=" + agentName + ")";
-      return _revokeCertificate(caDN, filter);
+      //String filter = "(cn=" + agentName + ")";
+      if (log.isDebugEnabled()){
+        log.debug(" revokeAgentCertificate called for ca dn :"+ caDN + "agent Name : "+agentName);
+      }
+      return _revokeCertificate(caDN, agentName);
     }
 
   
-  private int _revokeCertificate(String caDN, String ldapFilter)
+  private int _revokeCertificate(String caDN, String agentName)
     throws IOException,Exception,CertificateException    {
-    /*  
-    // needs to be rewritten
-     
+     if (log.isDebugEnabled()){
+        log.debug(" _revokeCertificate called for ca dn :"+ caDN + "agent Name : "+agentName);
+      }
     int status=1;
-    X500Name x500name=new X500Name(caDN);
-    List caprivatekeyList = keyRing.findPrivateKey(x500name);
-    PrivateKey caprivatekey = ((PrivateKeyCert)caprivatekeyList.get(0)).getPrivateKey();
-    if(caprivatekey==null) {
-    String msg = "Unable to revoke. Could not find PrivateKey for CA :" + caDN;
-    log.warn(msg);
-    throw new IOException(msg);
+    CACertificateEntry caCertEntry=null;
+    List list=caOperations.findCertByDistinguishedName(caDN);
+    if(list.size()>1) {
+      String msg = "Unable to revoke.Multiple CA CertificateEntry f dor CA DN :" +caDN;
+      log.warn(msg);
+      throw new IOException(msg);
     }
-    try {
-    if(log.isDebugEnabled()) {
-    log.debug("Found private key going to revoke certificate in caOperations :");
+    Iterator iter=list.iterator();
+    caCertEntry=(CACertificateEntry)iter.next();
+    if(caCertEntry==null) {
+      String msg = "Unable to revoke. Could not find CACertificateEntry for CA DN   :" +caDN;
+      log.warn(msg);
+      throw new IOException(msg);
     }
-    String filter=CertificateUtility.parseDNforFilter(caDN);
-    SearchResult caresult=crlOperations.getLdapentry(filter,false);
-    Attributes caAttributes=caresult.getAttributes();
-    String cabindingName=caresult.getName();
-    SearchResult userresult=crlOperations.getLdapentry(ldapFilter,
-    false);
-    Attributes userAttributes=userresult.getAttributes();
-    CertificateRevocationStatus userstatus=
-    crlOperations.getCertificateRevocationStatus(userAttributes);
-    if(userstatus.equals(CertificateRevocationStatus.REVOKED)) {
-    status=-2;
-    return status;
-    }
-    if(crlOperations.isCAEntry(userAttributes)) {
-    status=-3;
-    return status;
-    }
-    String userbindingName=userresult.getName();
-    X509Certificate cacert= crlOperations.getCertificate(caAttributes);
-    X509Certificate usercert=crlOperations.getCertificate(userAttributes);
-    PublicKey capublickey=cacert.getPublicKey();
-
-    Certificate [] certchain=keyRing.buildCertificateChain(usercert);
-    boolean validchain=false;
-    if((certchain!=null)&&(certchain.length>0)) {
-    PublicKey certpk=null;
-    for(int i=0;i<certchain.length;i++) {
-    certpk=((X509Certificate)certchain[i]).getPublicKey();
-    if(!certpk.equals(capublickey)){
-    continue;
+    
+    PrivateKey caprivatekey =null;
+    if(caCertEntry instanceof CACertificateEntry) {
+      X500Name x500name=new X500Name(caDN);
+      List caprivatekeyList = keyRing.findPrivateKey(x500name);
+      caprivatekey = ((PrivateKeyCert)caprivatekeyList.get(0)).getPrivateKey();
+      if(caprivatekey==null) {
+        String msg = "Unable to revoke. Could not find PrivateKey for CA :" + caDN;
+        log.warn(msg);
+        throw new IOException(msg);
+      }
     }
     else {
-    validchain=true;
-    break;
+      throw new Exception("Not a CACertificateEntry:");
     }
+    List certlist=caOperations.findCertByCN(agentName);
+    if(list.isEmpty()) {
+      String msg = "Unable to revoke. Could not find certificates for agent :" +agentName ;
+      log.warn(msg);
+      throw new IOException(msg);
     }
+    Iterator certiterator=certlist.iterator();
+    CertificateEntry userCertEntry=null;
+    boolean modified =false;
+    while(certiterator.hasNext()) {
+      userCertEntry=(CertificateEntry)certiterator.next();
+      try {
+        if(log.isDebugEnabled()) {
+          log.debug("Found private key going to revoke certificate in _revokeAgentCertificate :");
+        }
+        CertificateRevocationStatus userstatus=userCertEntry.getCertificateRevocationStatus();
+        if(userstatus.equals(CertificateRevocationStatus.REVOKED)) {
+          status=-2;
+          return status;
+        }
+        X509Certificate caCert= caCertEntry.getCertificate();
+        X509Certificate userCert=userCertEntry.getCertificate();
+        PublicKey capublickey=caCert.getPublicKey();
+        Certificate [] certchain=keyRing.buildCertificateChain(userCert);
+        boolean validchain=false;
+        if((certchain!=null)&&(certchain.length>0)) {
+          PublicKey certpk=null;
+          for(int i=0;i<certchain.length;i++) {
+            certpk=((X509Certificate)certchain[i]).getPublicKey();
+            if(!certpk.equals(capublickey)){
+              continue;
+            }
+            else {
+              validchain=true;
+              break;
+            }
+          }
+        }
+        if(validchain) {
+          X509Certificate issuercertificate = null;
+          issuercertificate = CertificateUtility.getX509Certificate(certchain[1]);
+          X509CRL newCrl=null;
+          X509CRL oldCrl=caCertEntry.getCRL();
+          newCrl= CrlUtility.createCRL(caCert,oldCrl,userCert,issuercertificate, caprivatekey,
+                                       caPolicy.CRLalgorithmId.getName());
+          caCertEntry.setCRL(newCrl);
+          userCertEntry.setCertificateRevocationStatus(CertificateRevocationStatus.REVOKED);
+          caOperations.publishCertificate(userCertEntry);
+          modified=true;
+          
+        }
+        else {
+          if(modified) {
+            publishModifiedCRL(caCertEntry);
+          }
+          String msg = "CA with DN name  : "
+            + caCert.getSubjectDN().getName()
+            +" cannot revoke user certificate with dn name : "
+            + userCert.getSubjectDN().getName() + ". Chain is not valid. ";
+          log.warn(msg);
+          throw new CertificateException(msg);
+        }
+        
+      }
+      catch (Exception exp) {
+        /* if an exception occours already modified crl list should be published 
+         */
+        if(modified) {
+          publishModifiedCRL(caCertEntry);
+        }
+        String msg = "Unable to revoke key for agent : " + agentName
+          + ". Reason:" + exp;
+        log.warn(msg, exp);
+        throw exp;
+        
+      }
     }
-    if(validchain) {
-    boolean ret =
-    crlOperations.revokeCertificate(cabindingName,
-    userbindingName,
-    caprivatekey,
-    caPolicy.CRLalgorithmId.getName());
-    if (ret == false) {
-    // Unable to revoke certificate
-    log.warn("Unable to revoke certificate. ldapFilter:" + ldapFilter);
-    return -1;
-    }
-    }
-    else {
-    String msg = "CA with DN name  : "
-    + cacert.getSubjectDN().getName()
-    +" cannot revoke user certificate with dn name : "
-    + usercert.getSubjectDN().getName() + ". Chain is not valid. ldapFilter:"
-    + ldapFilter;
-    log.warn(msg);
-    throw new CertificateException(msg);
-    }
-    //caOperations.revokeCertificate(CADN,UseruniqueIdentifier,
-    //caprivatekey,caPolicy.CRLalgorithmId.getName());
-    }
-    catch (MultipleEntryException miop) {
-    String msg = "Found multiple entries. ldapFilter:" + ldapFilter + ". Reason: " + miop.getMessage();
-    log.warn(msg, miop);
-    throw new IOException(msg);
-    }
-    catch (Exception exp) {
-    String msg = "Unable to revoke key. ldapFilter: " + ldapFilter
-    + ". Reason:" + exp;
-    log.warn(msg, exp);
-    throw exp;
+    if(modified) {
+      publishModifiedCRL(caCertEntry);
     }
     return status;
-    //gInteger serialNumber = cert.getSerialNumber();
-    //te currentDate = new Date();
-    //09CRLEntryImpl crlentry = new X509CRLEntryImpl(serialNumber, currentDate);
+  }
 
-    //Operations.publishCRLentry((X509CRLEntry)crlentry);
-
-    */
-    return 0;
+  private void publishModifiedCRL(CACertificateEntry caCertEntry)throws Exception  {
+    caOperations.publishCertificate(caCertEntry);
+    keyRing.publishCertificate(caCertEntry);
+    
   }
  
 }
