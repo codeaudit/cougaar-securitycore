@@ -703,7 +703,10 @@ final public class CertificateCache implements CertificateCacheService  {
                         + certEntry.getCertificateTrust());
             }
             // Update type
-            aCertEntry.setCertificateType(certEntry.getCertificateType());
+            // should keep the cert type, this fixes a bug in subordinate CA
+            // which needs another CA to sign its cert, the replacing cert
+            // status is using entity cert as type
+            //aCertEntry.setCertificateType(certEntry.getCertificateType());
             // Update trust.
             aCertEntry.setCertificateTrust(certEntry.getCertificateTrust());
             // Update certificate (the signature may have changed)
