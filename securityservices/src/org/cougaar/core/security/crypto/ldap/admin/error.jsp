@@ -36,7 +36,7 @@
   Exception e = (Exception) request.getAttribute("exception");
   if (e != null) {
 %>
-Exception when exceuting command:
+Exception when executing command:
 <pre>
 <%
     e.printStackTrace(new java.io.PrintWriter(out));
