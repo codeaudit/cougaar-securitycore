@@ -151,28 +151,27 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   public static final Classification LOGINFAILURE = 
     new Classification(IdmefClassifications.LOGIN_FAILURE, "", Classification.VENDOR_SPECIFIC);
 
-  protected static final AdditionalData REASONS[][] = {
-    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "user does not exist")},
-    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "database error")},
-    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "user certificate is invalid")},
-    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "invalid subject in user certificate")},
-    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "the user account has been disabled")},
-    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "the password for the user is null in the database")},
-    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "the user has entered the wrong password")},
-    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "dual authentication user names are different")},
-    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "requires user certificate")},
-    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                        "does not have required role")}
-  };
+  public static final String FAILURE_REASONS[] = {
+    "USER_DOES_NOT_EXIST",
+    "DATABASE_ERROR",
+    "INVALID_USER_CERTIFICATE",
+    "INVALID_SUBJECT",
+    "DISABLED_ACCOUNT",
+    "NULL_DB_PASSWORD",
+    "WRONG_PASSWORD",
+    "CONFLICTING_PRINCIPALS",
+    "CERTIFICATE_REQUIRED",
+    "INSUFFICIENT_PRIVILEGES"};
+
+  protected static final AdditionalData REASONS[][] = 
+    new AdditionalData[FAILURE_REASONS.length][1];
+
+  static {
+    for (int i = 0; i < FAILURE_REASONS.length; i++) {
+      REASONS[i][0] = new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
+                                         FAILURE_REASONS[i]);
+    } // end of for (int i = 0; i < FAILURE_REASONS.length; i++)
+  }
 
   /** 
    * Default constructor. Uses <code>LdapUserService</code>
@@ -665,7 +664,6 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
     ArrayList cfs = new ArrayList();
     cfs.add(LOGINFAILURE);
-    DetectTime dt = new DetectTime();
     Alert alert = _idmefFactory.createAlert(_sensor, new DetectTime(),
                                             null, null, cfs, null);
     
