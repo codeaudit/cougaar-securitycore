@@ -3,7 +3,7 @@
   <policy name="MessageAccessControl Policy" type="org.cougaar.core.security.policy.AccessControlPolicy">
     <AccessControlPolicy>
 	<!-- whom this policy is for -->
-	<Name>DisallowedCommunication</Name>
+	<Name>DisallowedCommunication-COMM</Name>
 	
 	<!-- one of AGENT,COMMUNITY,or SOCIETY -->
 	<Type>COMMUNITY</Type>
@@ -38,10 +38,10 @@
 		<ActionParty>DEFAULT</ActionParty>
 		<Action>ACCEPT</Action> 
 	</AgentAction> 
-	<AgentAction>
-		<ActionParty>DisallowedCommunication</ActionParty>
-		<Action>SET_ASIDE</Action> 
-	</AgentAction> 
+	<ComAgentAction>
+		<ActionCommunity>DisallowedCommunication-COMM</ActionCommunity>
+		<ComAction>SET_ASIDE</ComAction> 
+	</ComAgentAction> 
 	
 	<!-- the verb allow to be passed, also accepts ALL or NONE -->
 	<VerbFilter>
