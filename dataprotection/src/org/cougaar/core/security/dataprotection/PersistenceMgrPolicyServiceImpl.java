@@ -173,9 +173,16 @@ public class PersistenceMgrPolicyServiceImpl
   }
   */
 
+  static String _todo = System.getProperty("org.cougaar.core.security.dataprotection.communityTest");
   private void addCommunityListener() {
     if (_log.isDebugEnabled()) {
       _log.debug("addCommunityListener");
+    }
+
+    // scenario 1: do not add listener 
+    if (_todo != null && _todo.equals("1")) {
+      _log.warn("DataProtection community request turned off.");
+      return;
     }
 
     _cs.addListener(new CommunityChangeListener() {
@@ -184,6 +191,11 @@ public class PersistenceMgrPolicyServiceImpl
       }
 
       public void communityChanged(CommunityChangeEvent event) {
+        if (_todo != null && _todo.equals("2")) {
+          _log.warn("DataProtection community request handling off.");
+          return;
+        }
+
         Community community = event.getCommunity();
         try {
           Attributes attrs = community.getAttributes();
