@@ -1944,7 +1944,7 @@ public class DirectoryKeyStore
     List certificateList = null;
     try{
       certificateList = findCert(dname.getCommonName(), LOOKUP_KEYSTORE);
-      if(certificateList != null) {
+      if(certificateList != null && certificateList.size() != 0) {
 	return;
       }
     }
