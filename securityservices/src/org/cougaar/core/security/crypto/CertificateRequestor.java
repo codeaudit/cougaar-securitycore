@@ -459,7 +459,7 @@ public class CertificateRequestor {
 		cacheservice.saveCertificateInTrustedKeyStore((X509Certificate)cacheservice.getCertificate(alias),
 							      alias);
 	      }
-	      return privatekey;
+	      //return privatekey;
 	    }
 	  }
 	  // else send the request again
@@ -468,57 +468,63 @@ public class CertificateRequestor {
 	  alias = makeKeyPair(dname, true, certAttribPolicy);
 	}
 
-	// does it need to be submitted to somewhere else to handle?
-	if (cryptoClientPolicy.isRootCA()) {
-	  if (log.isDebugEnabled()) {
-	    log.debug("creating root CA.");
-	  }
+        if (privatekey == null) {
+          // does it need to be submitted to somewhere else to handle?
+          if (cryptoClientPolicy.isRootCA()) {
+            if (log.isDebugEnabled()) {
+              log.debug("creating root CA.");
+            }
 
-	  if(cacheservice!=null){
-	    // Save the certificate in the trusted CA keystore
-	    cacheservice.saveCertificateInTrustedKeyStore((X509Certificate)
-							  cacheservice.getCertificate(alias),
-							  alias);
-	    privatekey = cacheservice.getKey(alias);
-            CertificateManagementService km = (CertificateManagementService)
-              serviceBroker.getService(new CertificateManagementServiceClientImpl
-                                       (dname.toString()),
-                                       CertificateManagementService.class,
-                                       null); 
-            X509CRL crl=CrlUtility.createEmptyCrl(dname.toString(),
-                                                  privatekey,
-                                                  cryptoClientPolicy.getCertificateAttributesPolicy().sigAlgName);
-            String modifiedtime=DateUtil.getCurrentUTC();
-            CACertificateEntry caCertEntry=new CACertificateEntry((X509Certificate)
-                                                             cacheservice.getCertificate(alias), 
-                                                             CertificateRevocationStatus.VALID,
-                                                             CertificateType.CERT_TYPE_CA,
-                                                             crl,
-                                                             modifiedtime);
-            km.publishCertificate(caCertEntry);
-            
-	  }
-	}
-	// else submit to upper level CA
-	else {
-	  String request =
-	    generateSigningCertificateRequest((X509Certificate)
-					      cacheservice.getCertificate(alias),
-					      alias);
-	  if (log.isDebugEnabled()) {
-	    log.debug("Sending PKCS10 request to root CA to sign this CA.");
-	  }
-	  TrustedCaPolicy [] tc = cryptoClientPolicy.getIssuerPolicy();
-	  String reply = sendPKCS(request, "PKCS10", tc[0]);
-	  privatekey = processPkcs7Reply(alias, reply);
-	  if (privatekey != null){
-	    if(cacheservice!=null){
-	      cacheservice.saveCertificateInTrustedKeyStore((X509Certificate)
-							    cacheservice.getCertificate(alias),
-							    alias);
-	    }
-	  }
-	}
+            if(cacheservice!=null){
+              // Save the certificate in the trusted CA keystore
+              cacheservice.saveCertificateInTrustedKeyStore((X509Certificate)
+                                                            cacheservice.getCertificate(alias),
+                                                            alias);
+              privatekey = cacheservice.getKey(alias);
+            }
+          }
+          // else submit to upper level CA
+          else {
+            String request =
+              generateSigningCertificateRequest((X509Certificate)
+                                                cacheservice.getCertificate(alias),
+                                                alias);
+            if (log.isDebugEnabled()) {
+              log.debug("Sending PKCS10 request to root CA to sign this CA.");
+            }
+            TrustedCaPolicy [] tc = cryptoClientPolicy.getIssuerPolicy();
+            String reply = sendPKCS(request, "PKCS10", tc[0]);
+            privatekey = processPkcs7Reply(alias, reply);
+            if (privatekey != null){
+              if(cacheservice!=null){
+                cacheservice.saveCertificateInTrustedKeyStore((X509Certificate)
+                                                              cacheservice.getCertificate(alias),
+                                                              alias);
+              }
+            }
+          }
+        }
+
+        if (privatekey != null) {
+          CertificateManagementService km = (CertificateManagementService)
+            serviceBroker.getService(new CertificateManagementServiceClientImpl
+                                     (dname.toString()),
+                                     CertificateManagementService.class,
+                                     null);
+          X509CRL crl=CrlUtility.createEmptyCrl(dname.toString(),
+                                                privatekey,
+                                                cryptoClientPolicy.getCertificateAttributesPolicy().sigAlgName);
+          String modifiedtime=DateUtil.getCurrentUTC();
+          CACertificateEntry caCertEntry=new CACertificateEntry((X509Certificate)
+                                                           cacheservice.getCertificate(alias),
+                                                           CertificateRevocationStatus.VALID,
+                                                           CertificateType.CERT_TYPE_CA,
+                                                           crl,
+                                                           modifiedtime);
+          km.publishCertificate(caCertEntry);
+
+        }
+
       } catch (Exception e) {
 	e.printStackTrace();
 	if (log.isDebugEnabled()) {
