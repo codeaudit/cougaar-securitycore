@@ -7,6 +7,8 @@
 package com.cougaarsoftware.nettool;
 
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
@@ -47,8 +49,19 @@ public class GraphRenderer extends JPanel {
 	}
 	
 	private void initGuiComponents() {
+		GridBagLayout gridBag = new GridBagLayout();
+		setLayout(gridBag);
+		GridBagConstraints c = new GridBagConstraints();
+		
+		c.fill = GridBagConstraints.NORTH;
 		m_commandPanel = new JPanel();
+		gridBag.setConstraints(m_commandPanel, c);
+		add(m_commandPanel);
+
+		c.fill = GridBagConstraints.SOUTH;
 		m_graphPanel = new JPanel();
+		gridBag.setConstraints(m_graphPanel, c);
+		add(m_graphPanel);
 		
 		Class[] combos = getCombos();
 		final JComboBox jcb = new JComboBox(combos);
@@ -72,9 +85,6 @@ public class GraphRenderer extends JPanel {
 			}
 		});
 		m_commandPanel.add(jcb);
-
-		add(jcb);
-		//add(m_graphPanel);
 	}
 	
 	private void setGraphLayout() {
@@ -96,8 +106,8 @@ public class GraphRenderer extends JPanel {
 		}
 		m_graphDraw = new GraphDraw(m_graph);
 		setGraphLayout();
-		removeAll();
-		add(m_graphDraw);
+		m_graphPanel.removeAll();
+		m_graphPanel.add(m_graphDraw);
 	}
 
 	/**
