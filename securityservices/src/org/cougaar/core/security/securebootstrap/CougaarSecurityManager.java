@@ -126,7 +126,13 @@ public class CougaarSecurityManager extends SecurityManager
       System.out.println(" Got class loader null for event holder in security manager  :");
     */
   }
-
+   
+  public EventHolder getMREventQueue() throws SecurityException {
+    if(eventholder!=null){
+      return eventholder;
+    }
+    return null;
+  }
 
   /** throws a security exception if the requested access, specified by
       the given permission, is not permitted based on the security
