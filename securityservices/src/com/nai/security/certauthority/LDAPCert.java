@@ -91,6 +91,7 @@ import com.nai.security.crypto.Base64;
     }
 
     public void pulish2Ldap(X509Certificate ca) {
+	set = new BasicAttributes(true);
 	objectclass = new BasicAttribute("objectclass");
 	objectclass.add("xuda_certifcate");
 	set.put(objectclass);	
@@ -99,6 +100,7 @@ import com.nai.security.crypto.Base64;
 
     public void publish2Ldap(X509Certificate client, X509Certificate signator)
     {
+	set = new BasicAttributes(true);
 	objectclass = new BasicAttribute("objectclass");
 	objectclass.add("xuda_certifcate");
 	set.put(objectclass);	
@@ -122,12 +124,14 @@ import com.nai.security.crypto.Base64;
 
     public LDAPCert(String filename) {
 	X509Certificate cert = loadCert(filename);
+	set = new BasicAttributes(true);
 	objectclass.add("xuda_ca");
 	set.put(objectclass);	
 	init(cert, cert);
     }
 
     public LDAPCert(X509Certificate cert) {
+	set = new BasicAttributes(true);
 	objectclass.add("xuda_ca");
 	set.put(objectclass);	
 	init(cert, cert);
@@ -136,12 +140,14 @@ import com.nai.security.crypto.Base64;
     public LDAPCert(String certFile, String caFile) {
 	X509Certificate cert = loadCert(certFile);
 	X509Certificate ca = loadCert(caFile);
+	set = new BasicAttributes(true);
 	objectclass.add("xuda_certifcate");
 	set.put(objectclass);	
 	init(cert, ca);
     }
 
     public LDAPCert(X509Certificate cert, X509Certificate ca) {
+	set = new BasicAttributes(true);
 	objectclass.add("xuda_certificate");
 	set.put(objectclass);	
 	init(cert, ca);
