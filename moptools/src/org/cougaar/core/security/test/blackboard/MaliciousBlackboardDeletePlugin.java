@@ -45,57 +45,6 @@ import java.util.Iterator;
  * @author ttschampel
  */
 public class MaliciousBlackboardDeletePlugin extends AbstractBlackboardPlugin {
-  private UID deleteUID = null;
-  private IncrementalSubscription orgSubs;
-
-  /**
-   * Execute
-   */
-  public void execute() {
-    super.execute();
-    if(!this.wasAwakened()){
-        checkDeletedActivies();
-    }
-  }
-
-
-  /**
-   * DOCUMENT ME!
-   */
-  public void setupSubscriptions() {
-    super.setupSubscriptions();
-    orgSubs = (IncrementalSubscription) getBlackboardService().subscribe(this.orgActivityPredicate);
-  }
-
-
-  private void checkDeletedActivies() {
-      this.totalRuns++;
-      Enumeration enum = orgSubs.getRemovedList();
-      boolean foundIt = false;
-      while (enum.hasMoreElements()) {
-        OrgActivity orgAct = (OrgActivity) enum.nextElement();
-        if (orgAct.getUID().equals(deleteUID)) {
-          foundIt = true;
-          break;
-        }
-      }
-
-      if (foundIt) {
-        if (logging.isWarnEnabled()) {
-          logging.warn("Was Able to delete an OrgActivity!");
-        }
-
-        this.failures++;
-        this.createIDMEFEvent(pluginName, "Was able to delete a OrgActivity from the Blackboard");
-      } else {
-        if (logging.isDebugEnabled()) {
-          logging.debug("Was NOT Able to delete an OrgActivity!");
-        }
-
-        this.successes++;
-      }
-  }
-
 
   /**
    * Load plugin
@@ -113,22 +62,21 @@ public class MaliciousBlackboardDeletePlugin extends AbstractBlackboardPlugin {
     Collection collection = getBlackboardService().query(this.orgActivityPredicate);
     Iterator iterator = collection.iterator();
     if (iterator.hasNext()) {
+      this.totalRuns++;
       OrgActivity orgActivity = (OrgActivity) iterator.next();
-      this.deleteUID = orgActivity.getUID();
       try {
 	getBlackboardService().publishRemove(orgActivity);
 	if (logging.isWarnEnabled()) {
 	  logging.warn("Could publishRemove OrgActivity - This plugin should NOT have the permission");
 	}
+        this.failures++;
       }
       catch (SecurityException e) {
 	if (logging.isInfoEnabled()) {
 	  logging.info("Unable to publishRemove OrgActivity - This is what we expected");
 	}
+	this.successes++;
       }
-
-    } else {
-      this.deleteUID = null;
     }
   }
 }

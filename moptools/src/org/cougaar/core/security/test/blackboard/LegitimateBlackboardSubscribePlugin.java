@@ -114,7 +114,14 @@ public class LegitimateBlackboardSubscribePlugin extends AbstractBlackboardPlugi
     if (iterator.hasNext()) {
       OrgActivity orgActivity = (OrgActivity) iterator.next();
       orgActivity.setActivityName(ACTIVITY_NAME);
-      getBlackboardService().publishChange(orgActivity);
+      try {
+	getBlackboardService().publishChange(orgActivity);
+      }
+      catch (SecurityException e) {
+        if (logging.isWarnEnabled()) {
+          logging.warn("queryBlackboard: unable to modify OrgActivity");
+        }
+      }
       this.modId = orgActivity.getUID();
       this.totalRuns++;
 

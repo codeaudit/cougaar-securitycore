@@ -223,16 +223,20 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
       writer.write("Experiment Name, Start Time, End Time, Successes, Failures, Total Tries, Agent Name, Plugin name");
 
       writer.write("\n");
-      writer.write(expName + "," + startTime.toString() + "," + endTime.toString() + "," + successes + "," + failures + "," + totalRuns + "," + this.getAgentIdentifier().getAddress() + "," + pluginName);
+      String s = expName + "," + startTime.toString() + "," +
+	endTime.toString() + "," + successes + "," + failures + "," +
+	totalRuns + "," + this.getAgentIdentifier().getAddress() + "," +
+	pluginName;
+      writer.write(s);
 
-
+      if (logging.isDebugEnabled()) {
+	logging.debug(s);
+      }
       writer.close();
-
-
     } catch (Exception e) {
       if (logging.isErrorEnabled()) {
-        logging.error("error dumping test results to csv file: " + filename, e);
-
+        logging.error("error dumping test results to csv file: "
+		      + filename, e);
       }
     }
   }

@@ -111,7 +111,15 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
       OrgActivity orgActivity = (OrgActivity) iterator.next();
       orgActivity.setActivityName(ACTIVITY_NAME);
       this.modId = orgActivity.getUID();
-      getBlackboardService().publishChange(orgActivity);
+      this.totalRuns++;
+      try {
+	getBlackboardService().publishChange(orgActivity);
+        this.failures++;
+        this.createIDMEFEvent(pluginName, "Able to publishChange OrgActivity");
+      }
+      catch (SecurityException e) {
+        this.successes++;
+      }
     } else {
       this.modId = null;
 

@@ -58,6 +58,12 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
   /** Subscription to OrgActivityStatus objects */
   private IncrementalSubscription orgStatusSubscription;
 
+  protected UnaryPredicate orgActivityStatusPredicate = new UnaryPredicate() {
+    public boolean execute(Object o) {
+      return (o instanceof OrgActivityStatus);
+    }
+  };
+
   /**
    * DOCUMENT ME!
    */
@@ -73,10 +79,9 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
   }
 
   /**
-   * Query for org activities and produce idmef event when  org activities
-   * should be present, but can't get any through querying the blacboard
+   * Process subscriptions
    */
-  protected void queryBlackboard() {
+  public void execute() {
     Enumeration enum = orgStatusSubscription.getAddedList();
     if (enum.hasMoreElements()) {
       if (logging.isDebugEnabled()) {
@@ -88,10 +93,23 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
       // Now that we tested, remove the OrgActivity.
       publishRemoveOrgActivity(oas);
     }
-    else {
+
+    super.execute();
+  }
+
+  /**
+   * Query for org activities and produce idmef event when  org activities
+   * should be present, but can't get any through querying the blacboard
+   */
+  protected void queryBlackboard() {
+    Enumeration enum = orgStatusSubscription.getAddedList();
+    if (!enum.hasMoreElements()) {
       // We did not add a fake orgactivity object on the blackboard.
       // That does not mean there is necessarily one already.
       // We might have to add one.
+      if (logging.isDebugEnabled()) {
+	logging.debug("No new element in orgStatusSubscription.getAddedList");
+      }
       queryOrgActivity(false);
     }
   }
@@ -126,6 +144,9 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
       // Create and publishAdd an orgActivityStatus object,
       // so next time we will check the object and remove it from the
       // blackboard.
+      if (logging.isDebugEnabled()) {
+	logging.debug("Publish OrgActivityStatus");
+      }
       OrgActivityStatus oas = new OrgActivityStatus(oa);
       getBlackboardService().publishAdd(oas);
     }
@@ -140,7 +161,7 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
 
   private void queryOrgActivity(boolean expectOrgActivity) {
     if (logging.isDebugEnabled()) {
-      logging.debug("queryOrgActivity");
+      logging.debug("queryOrgActivity: " + expectOrgActivity);
     }
     Collection orgActivities =
       getBlackboardService().query(this.orgActivityPredicate);
@@ -193,9 +214,4 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
     }
   }
 
-  protected UnaryPredicate orgActivityStatusPredicate = new UnaryPredicate() {
-    public boolean execute(Object o) {
-      return (o instanceof OrgActivityStatus);
-    }
-  };
 }

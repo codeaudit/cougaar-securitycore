@@ -55,25 +55,34 @@ public class MaliciousBlackboardPredicatePlugin extends AbstractBlackboardPlugin
   };
 
   private UnaryPredicate moreEvilPredicate = new UnaryPredicate() {
-    public boolean execute(Object o) {
-      Object obj = o;
-      boolean bol = false;
-
+    public boolean execute(Object obj) {
       if (obj instanceof OrgActivity) {
-        obj = null;
-        totalRuns++;
-        failures++;
-	if (_log.isWarnEnabled()) {
-	  _log.warn("Able to get OrgActivity in predicate");
-	}
-        createIDMEFEvent(pluginName, "Able to get OrgActivity in predicate");
-        bol = true;
+	canModifyOrgActivityObject((OrgActivity) obj);
+	return true;
       }
-
-
-      return bol;
+      return false;
     }
   };
+
+  private boolean canModifyOrgActivityObject(OrgActivity oa) {
+    totalRuns++;
+    try {
+      oa.setActivityName("MaliciousPluginActivityName");
+      failures++;
+      if (_log.isWarnEnabled()) {
+	_log.warn("Able to get OrgActivity in predicate");
+      }
+      createIDMEFEvent(pluginName, "Able to get OrgActivity in predicate");
+      return true;
+    }
+    catch (SecurityException e) {
+      if (_log.isDebugEnabled()) {
+	_log.debug("Unable to access OrgActivity in predicate");
+      }
+      successes++;
+      return false;
+    }
+  }
 
   /**
    * DOCUMENT ME!
@@ -88,28 +97,30 @@ public class MaliciousBlackboardPredicatePlugin extends AbstractBlackboardPlugin
    * Try all of the evil queries
    */
   protected void queryBlackboard() {
+    /*
+      This is going to take too much time to execute
+
     Collection coll1 = getBlackboardService().query(evilPredicate);
     this.totalRuns++;
     boolean gotOrgActivity = false;
     Iterator iterator = coll1.iterator();
     while (iterator.hasNext()) {
-      if (iterator.next() instanceof OrgActivity) {
-        gotOrgActivity = true;
-        break;
+      Object o = iterator.next();
+      if (o instanceof OrgActivity) {
+	OrgActivity oa = (OrgActivity) o;
+	if (canModifyOrgActivityObject(oa)) {
+	  if (_log.isWarnEnabled()) {
+	    _log.warn("Got an OrgActivity from predicate");
+	  }
+	  this.failures++;
+	  this.createIDMEFEvent(pluginName,
+				"Got an OrgActivity from predicate");
+	} else {
+	  this.successes++;
+	}
       }
     }
-
-    if (gotOrgActivity) {
-      if (_log.isWarnEnabled()) {
-	_log.warn("Got an OrgActivity from predicate");
-      }
-      this.failures++;
-      this.createIDMEFEvent(pluginName, "Got an OrgActivity from predicate");
-    } else {
-      this.successes++;
-
-    }
-
+    */
     Collection coll2 = getBlackboardService().query(moreEvilPredicate);
   }
 }
