@@ -3,9 +3,11 @@
 # enclave_security_mnr_mgrs.rule
 # Adds EnclaveMnRManagers complete agent recipe
 
+require 'framework/common_security_rules'
+
 society.each_node do |node|
   node.each_facet(:role) do |facet|
-    if facet[:role] == 'Management'
+    if facet[:role] == $facetManagement
       enclave = node.host.get_facet(:enclave)
       agentname = enclave[0..0] + enclave[1..enclave.length].downcase + "EnclaveMnRManager"
 

@@ -1,13 +1,14 @@
 #!/usr/bin/ruby
 # enclave_sub_security_managers.rule
 
+require 'framework/common_security_rules'
 
 society.each_node do |node|
   agentname = ""
   enclave = ""
 
   node.each_facet(:role) do |facet|
-    if facet[:role] == 'SubManagement'
+    if facet[:role] == $facetSubManagement
       facetval = node.host.get_facet(:enclave)
       enclave = facetval[0..0] + facetval[1..facetval.length].downcase
       break

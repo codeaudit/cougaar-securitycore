@@ -2,10 +2,12 @@
 ####################################################
 # enclave_crl_providers.rule
 
+require 'framework/common_security_rules'
+
 society.each_node do |node|
   agentname = ""
   node.each_facet(:role) do |facet|
-    if facet[:role] == 'Management'
+    if facet[:role] == $facetManagement
        enclave = node.host.get_facet(:enclave)
        agentname = enclave[0..0] + enclave[1..enclave.length].downcase + "EnclaveCrlManager"
        node.add_agent(agentname) do |agent|

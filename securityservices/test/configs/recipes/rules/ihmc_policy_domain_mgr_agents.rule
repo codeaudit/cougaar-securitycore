@@ -3,9 +3,11 @@
 # ihmc_policy_domain_mgr_agents.rule
 # Adds PolicyDomainManagers 
 
+require 'framework/common_security_rules'
+
 society.each_node do |node|
   node.each_facet(:role) do |facet|
-    if facet[:role] == 'Management'
+    if facet[:role] == $facetManagement
       facetval = node.host.get_facet(:enclave)
       enclave = facetval[0..0] + facetval[1..facetval.length].downcase 
       agentname = enclave + "PolicyDomainManager"

@@ -3,6 +3,8 @@
 # Adds UserAdminAgents
 #
 
+require 'framework/common_security_rules'
+
 caServlet = "org.cougaar.core.security.certauthority.CaServletComponent"
 userService = "org.cougaar.core.security.provider.UserServiceComponent"
 userManager = "org.cougaar.core.security.acl.user.UserManagerPlugin"
@@ -14,7 +16,7 @@ society.each_node do |node|
   }
   agentname = ""
   node.each_facet(:role) do |facet|
-    if facet[:role] == 'Management'
+    if facet[:role] == $facetManagement
        enclave = node.host.get_facet(:enclave)
        agentname = enclave[0..0] + enclave[1..enclave.length].downcase + "UserAdminAgent"
       node.add_agent(agentname) do |agent|

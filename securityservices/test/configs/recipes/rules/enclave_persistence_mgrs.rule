@@ -2,10 +2,12 @@
 ####################################################
 # enclave_persistence_mgrs.rule
 
+require 'framework/common_security_rules'
+
 society.each_node do |node|
   agentname = ""
   node.each_facet(:role) do |facet|
-    if facet[:role] == 'Management'
+    if facet[:role] == $facetManagement
       facetval = node.host.get_facet(:enclave)
       agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "EnclavePersistenceManager"
       node.add_agent(agentname) do |agent|

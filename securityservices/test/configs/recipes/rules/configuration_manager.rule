@@ -2,9 +2,11 @@
 # appropriate plugin(s).  Also, the ConfigurationManagerInitPlugin's 
 # parameters are populated with the agent and node configuration used
 # as the ground truth for the configuration manager.  The "role" facet
-# is extracted from nodes to look for "role" = "Management" and added to the 
+# is extracted from nodes to look for "role" = "$facetManagement" and added to the 
 # plugin parameters.  Also the "cm_role"
 # facet is extracted from agents and added to the plugin parameters.
+
+require 'framework/common_security_rules'
 
 #agent role list
 agentlist =[]
@@ -27,9 +29,9 @@ end
 society.each_node do |node|
         if node.has_facet?("role")
                 facet=node.get_facet("role")
-                if facet=="Management"
+                if facet==$facetManagement
                         #puts "#{node.name} has management role"
-                        nodelist.concat ["node,#{node.name}=Management"]
+                        nodelist.concat ["node,#{node.name}=#{$facetManagement}"]
                 end
         end
 end

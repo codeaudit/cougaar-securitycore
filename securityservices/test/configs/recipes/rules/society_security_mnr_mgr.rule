@@ -3,9 +3,11 @@
 # society_security_mnr_mgr.rule
 # Adds SocietyMnRManager complete agent recipe
 
+require 'framework/common_security_rules'
+
 society.each_node do |node|
   node.each_facet(:role) do |facet|
-    if facet[:role] == 'RootManagement'
+    if facet[:role] == $facetRootManagement
       agentname = "SocietyMnRManager"
 
       node.add_agent(agentname) do |agent|

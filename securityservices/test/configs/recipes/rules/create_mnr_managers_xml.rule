@@ -12,7 +12,7 @@ $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 require 'cougaar/communities'
 require 'ultralog/enclaves'
 require 'framework/jar_util'
-
+require 'framework/common_security_rules'
 
 opentag = "<QUERY-MnRMANAGER>"
 closetag = "</QUERY-MnRMANAGER>"
@@ -25,7 +25,7 @@ file = File.open("#{CIP}/configs/security/mnr_managers.xml" ,"w") { |file|
   file << "\n"
   society.each_node do |node|
     node.each_facet(:role) do |facet|
-      if facet[:role] == "RootManagement"
+      if facet[:role] == $facetRootManagement
         agentname = "SocietyMnRManager"
         file << mgrtag
         file << "\"#{agentname}\""
@@ -34,7 +34,7 @@ file = File.open("#{CIP}/configs/security/mnr_managers.xml" ,"w") { |file|
         file << attclostag 
         file << "\n"
       end
-      if facet[:role] == 'Management'
+      if facet[:role] == $facetManagement
        enclave = node.host.get_facet(:enclave)
        agentname = enclave[0..0] + enclave[1..enclave.length].downcase + "EnclaveMnRManager"  
        file << mgrtag
