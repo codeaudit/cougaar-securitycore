@@ -551,6 +551,99 @@ public class KeyManagement
     return reply;
   }
 
+  /**
+   * Create a certificate from the PKCS10 request and sign it if
+   * it has been approved.
+   *
+   * @param pkcs10 The request to use for signing
+   * @return The status and certificate if it has been approved.
+   */
+  public synchronized CertificateResponse processPkcs10Request(PKCS10 req) {
+    if (!caPolicy.requirePending) {
+      try {
+       	X509CertImpl clientX509 = signX509Certificate(req);
+
+	// Save the X509 reply in a file
+	saveX509Request(clientX509, false);
+
+	if (configParser.isCertificateAuthority()) {
+	  // Publish certificate in LDAP directory
+	  if (log.isDebugEnabled()) {
+	    log.debug("Publishing cert to LDAP service");
+	  }
+	  caOperations.publishCertificate(clientX509,
+					  CertificateUtility.EntityCert,null);
+	}
+        return new CertificateResponse(PENDING_STATUS_APPROVED, clientX509);
+      } catch (Exception e) {
+        log.error("Unable to process request: " + e);
+        log.debug("exception trace", e);
+        return null;
+      }
+    }
+
+    // Pending request
+    try {
+      if (log.isDebugEnabled()) {
+	log.debug("processPkcs10Request");
+      }
+      String [] dirlist = new String[3];
+      dirlist[1] = nodeConfiguration.getX509DirectoryName(caDN);
+      dirlist[2] = nodeConfiguration.getPendingDirectoryName(caDN);
+      dirlist[0] = nodeConfiguration.getDeniedDirectoryName(caDN);
+
+      X509CertImpl clientX509 = signX509Certificate(req);
+      /* Richard - don't reply yet, otherwise the client installs
+       * those certs to keystore
+       * Richard -- reply with a status plus the certificate
+       * status -
+       * 1. success if the certificate is enclosed
+       * 2. pending if no certificate and the certificate is saved to
+       * the pending/  directory
+       * 3. denied if no certificate and the certificate is saved to
+       * the denied/  directory
+       * 4. if the request has never been issued
+       */
+      PendingCertCache pendingCache =
+        PendingCertCache.getPendingCache(caPolicy, this);
+
+      X509CertImpl prevCert = null;
+      PublicKey clientPubkey = clientX509.getPublicKey();
+      int status = 0;
+      for (; status < dirlist.length; status++) {
+        prevCert = (X509CertImpl)
+          pendingCache.getCertificate(dirlist[status], clientPubkey);
+        if (prevCert != null)
+          break;
+      }
+
+      if (log.isDebugEnabled()) {
+        log.debug("Certificate status is: " + status);
+      }
+
+      if (status == PENDING_STATUS_NEW) {
+        // Save the X509 reply in a file
+        saveX509Request(clientX509, true);
+        // from here process as pending
+        status = PENDING_STATUS_PENDING;
+
+        pendingCache.
+          addCertificateToList(dirlist[2], 
+                               keyRing.getAlias(clientX509), clientX509);
+      }
+
+      if (status != PENDING_STATUS_APPROVED) {
+        clientX509 = null;
+      } // end of if (status != PENDING_STATUS_APPROVED)
+      
+      return new CertificateResponse(status, clientX509);
+    } catch (Exception e) {
+      log.debug("Unable to process request", e);
+    }
+
+    return null;
+  }
+
   private void saveX509Request(X509CertImpl clientX509, boolean pending)
     throws IOException, CertificateEncodingException, NoSuchAlgorithmException
   {

@@ -46,8 +46,9 @@ import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
 import org.cougaar.core.security.crypto.ldap.LdapEntry;
 import org.cougaar.core.security.certauthority.*;
 import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.crypto.Base64;
 
-public class CertificateDetailsServlet extends  HttpServlet
+public class DownloadCertificateServlet extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
@@ -59,7 +60,7 @@ public class CertificateDetailsServlet extends  HttpServlet
   protected boolean debug = false;
 
   private SecurityServletSupport support;
-  public CertificateDetailsServlet(SecurityServletSupport support) {
+  public DownloadCertificateServlet(SecurityServletSupport support) {
     this.support = support;
     log = (LoggingService)
       support.getServiceBroker().getService(this,
@@ -73,17 +74,17 @@ public class CertificateDetailsServlet extends  HttpServlet
 						"false"))).booleanValue();
   }
 
-  public void doPost (HttpServletRequest  req, HttpServletResponse res)
+  public void service (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
     
-    res.setContentType("Text/HTML");
     String distinguishedName=null;
     String role=null;
     String cadnname=null;
 
     PrintWriter out=res.getWriter();
 
+    res.setContentType("text/html");
     if (log.isDebugEnabled()) {
       //log.debug("getContextPath:" + req.getContextPath());
       log.debug("getPathInfo:" + req.getPathInfo());
@@ -93,18 +94,14 @@ public class CertificateDetailsServlet extends  HttpServlet
     }
 
     distinguishedName=req.getParameter("distinguishedName");
-    role=req.getParameter("role");
     cadnname=req.getParameter("cadnname");
     if (log.isDebugEnabled()) {
       log.debug("CertificateDetailsServlet. Search DN="
 			 + distinguishedName
-			 + " - role: " + role
 			 + " - cadnname: " + cadnname);
     }
     if((cadnname==null)||(cadnname=="")) {
       out.print("Error in dn name ");
-      out.flush();
-      out.close();
       return;
     }
     try {
@@ -117,18 +114,13 @@ public class CertificateDetailsServlet extends  HttpServlet
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
 				       caPolicy.ldapType, caPolicy.ldapURL,
 				       support.getServiceBroker());
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       out.print("Unable to read policy file: " + e);
-      out.flush();
-      out.close();
       return;
     }
     
     if((distinguishedName==null)||(distinguishedName=="")) {
       out.print("Error in distinguishedName ");
-      out.flush();
-      out.close();
       return;
     }
  
@@ -136,84 +128,101 @@ public class CertificateDetailsServlet extends  HttpServlet
     LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
     if(ldapentries==null || ldapentries.length == 0) {
       out.println("Error: no such certificate in LDAP ");
-      out.flush();
-      out.close();
       return;
     }
     if (ldapentries.length != 1) {
       out.println("Error: there are multiple certificates with the same UID");
-      out.flush();
-      out.close();
       return;
     }
     
     X509Certificate  certimpl;
+    byte[] encoded;
+    char[] b64;
     try {
       certimpl=ldapentries[0].getCertificate();
-    }
-    catch (Exception exp) {
+      encoded = certimpl.getEncoded();
+      b64 = Base64.encode(encoded);
+    } catch (Exception exp) {
       out.println("error-----------  "+exp.toString());
-      out.flush();
-      out.close();
       return;
     }
 
-    String uri = req.getRequestURI();
-    String certRevokeUri = uri.substring(0, uri.lastIndexOf('/')) + "/RevokeCertificateServlet";
-    String downloadCertUri = null;
-    if (DownloadCertificateServlet.isCA(certimpl.getSubjectDN().getName()) || 
-        DownloadCertificateServlet.isUser(certimpl.getSubjectDN().getName())) {
-      downloadCertUri = "DownloadCertificateServlet";
-    } 
-    
-    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
-    out.println("<html>");
-    out.println("<head>");
-    out.println("<title>Certificate details </title>");
-    out.println("</head>");
-    out.println("<body>");
-    out.println("<H2> Certificate Details</H2><BR>");
-    out.println("<form name=\"revoke\" action=\"" +
-		certRevokeUri + "\" method=\"post\">");
-    out.println("<input type=\"hidden\" name=\"distinguishedName\" value=\""
-		+ ldapentries[0].getUniqueIdentifier()+"\">");
-    if((role==null)||(role=="")) {
-      if (log.isWarnEnabled()) {
-	log.warn("got role as null or empty in certificate details:::::++++");
-      }
-    }
-    else {
-      out.println("<input type=\"hidden\" name=\"role\" value=\""+role+"\">");
-    }
-    out.println("<input type=\"hidden\" name=\"cadnname\" value=\""+cadnname+"\">");
+    if (isCA(certimpl.getSubjectDN().getName())) {
+      res.setContentType("application/x-x509-ca-cert");
+      res.setHeader("Content-Disposition","inline; filename=\"ca.cer\"");
+    } else {
+      res.setContentType("application/x-x509-user-cert");
+      res.setHeader("Content-Disposition","inline; filename=\"user.cer\"");
+    } // end of else
 
-    CertificateUtility.printCertificateDetails(out, certimpl);
-
-    out.println("<input type=\"submit\" value=\"Revoke Certificate \">");
-    out.println("</form>");
-    if (downloadCertUri != null) {
-      out.println("<form name=\"revoke\" action=\"" +
-                  downloadCertUri + "\" method=\"post\">");
-      out.println("<input type=\"hidden\" name=\"distinguishedName\" value=\""
-                  + ldapentries[0].getUniqueIdentifier()+"\">");
-      out.println("<input type=\"hidden\" name=\"cadnname\" value=\""+
-                  cadnname+"\">");
-      out.println("<input type=\"submit\" value=\"Install Certificate \">");
-      out.println("</form>");
-    } // end of if (downloadCertUri != null)
-    
-    out.println("</body></html>");
-    out.flush();
-    out.close();
+    out.println("-----BEGIN CERTIFICATE-----");
+    out.println(new String(b64));
+    out.println("-----END CERTIFICATE-----");
   }
 
-  protected void doGet(HttpServletRequest req,HttpServletResponse res)
-    throws ServletException, IOException  {
-    
+  public static boolean isCA(String dn) {
+    StringTokenizer tok = new StringTokenizer(dn,",=",true);
+    boolean first = true;
+    try {
+      while (tok.hasMoreTokens()) {
+        if (first) {
+          first = false; // first doesn't have a ',' in front
+        } else {
+          if (!(",".equals(tok.nextToken()))) {
+            // bad dn -- expecting ','
+            return false;
+          } // end of if (!(",".equals(tok.nextToken())))
+        } // !first
+        String name = tok.nextToken().trim();
+        if (!("=".equals(tok.nextToken()))) {
+          // bad dn -- expecting '='
+          return false;
+        } // end of if (!("=".equals(tok.nextToken())))
+        String value = tok.nextToken();
+        if (name.equalsIgnoreCase("t")) {
+          return (value.equalsIgnoreCase("ca"));
+        } // end of if (name.equalsIgnoreCase("t"))
+      } // end of while (tok.hasMoreTokens())
+    } catch (NoSuchElementException e) {
+      // invalid dn
+    } // end of try-catch
+    return false;
   }
-  
+
+  public static boolean isUser(String dn) {
+    StringTokenizer tok = new StringTokenizer(dn,",=",true);
+    boolean first = true;
+    String sep;
+    try {
+      while (tok.hasMoreTokens()) {
+        if (first) {
+          first = false; // first doesn't have a ',' in front
+        } else {
+          sep = tok.nextToken();
+          if (!(",".equals(sep))) {
+            // bad dn -- expecting ','
+            return false;
+          } // end of if (!(",".equals(tok.nextToken())))
+        } // !first
+        String name = tok.nextToken().trim();
+        sep = tok.nextToken();
+        if (!("=".equals(sep))) {
+          //bad dn -- expecting '='
+          return false;
+        } // end of if (!("=".equals(tok.nextToken())))
+        String value = tok.nextToken();
+        if (name.equalsIgnoreCase("t")) {
+          return (value.equalsIgnoreCase("user"));
+        } // end of if (name.equalsIgnoreCase("t"))
+      } // end of while (tok.hasMoreTokens())
+    } catch (NoSuchElementException e) {
+      // invalid dn
+    } // end of try-catch
+    return false;
+  }
+
   public String getServletInfo()  {
-    return("Displaying details of certificate with give hash map");
+    return("Downloads the certificate to the browser");
   }
   
 }

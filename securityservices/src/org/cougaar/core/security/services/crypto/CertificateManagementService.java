@@ -46,6 +46,7 @@ import sun.security.x509.X509CertImpl;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
+import org.cougaar.core.security.certauthority.CertificateResponse;
 
 public interface CertificateManagementService
   extends Service
@@ -60,6 +61,8 @@ public interface CertificateManagementService
     throws javax.naming.NamingException;
 
   public String processPkcs10Request(InputStream request, boolean replyInHtml);
+
+  public CertificateResponse processPkcs10Request(PKCS10 request);
 
   public ArrayList getSigningRequests(InputStream reader)
     throws FileNotFoundException, IOException, SignatureException,

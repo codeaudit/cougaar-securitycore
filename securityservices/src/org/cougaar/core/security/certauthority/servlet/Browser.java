@@ -64,6 +64,9 @@ public class Browser
     // Certificate Signing requests
     out.println("<p><a href=\"" + path + "/CertificateSigningRequest\" target=\"mainwin\" >");
     out.println("<big><font color=\"blue\"><b>Request Certificate</b></big></a>");
+    // Browser Certificate Signing requests
+    out.println("<p><a href=\"" + path + "/BrowserSigningRequest\" target=\"mainwin\" >");
+    out.println("<big><font color=\"blue\"><b>Request Browser Certificate</b></big></a>");
     // Certificate List
     out.println("<p><a href=\"" + path + "/CertificateList\" target=\"mainwin\" >");
     out.println("<big><font color=\"blue\"><b>Certificate List</b></big></a>");
