@@ -54,13 +54,22 @@ import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
+import org.cougaar.glm.ldm.oplan.TimeSpan;
+import org.cougaar.glm.ldm.oplan.OrgActivityImpl;
+import org.cougaar.glm.ldm.oplan.OplanFactory;
+import org.cougaar.glm.ldm.plan.GeolocLocation;
+import org.cougaar.glm.ldm.plan.GeolocLocationImpl;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewPrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.PrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.planning.ldm.measure.Latitude;
+import org.cougaar.planning.ldm.measure.Longitude;
 import org.cougaar.util.DynamicUnaryPredicate;
 import org.cougaar.util.UnaryPredicate;
 
@@ -592,5 +601,39 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
       getBlackboardService().signalClientActivity();
       getBlackboardService().closeTransactionDontReset();
     }
+  }
+
+  protected OrgActivity createOrgActivity(String activityName,
+					  String activityType) {
+    if (logging.isDebugEnabled()) {
+      logging.debug("Generate OrgActivity object");
+    }
+    OrgActivityImpl oa = OplanFactory.newOrgActivity(pluginName,
+						 uidService.nextUID());
+    oa.setActivityName(activityName);
+    oa.setActivityType(activityType);
+    oa.setOrgID("FakeOrgId");
+    oa.setOrgActivityId(uidService.nextUID());
+    oa.setOpTempo("fakeOrgTempo");
+    oa.setTimeSpan(new TimeSpan(new Date(), 1, 10));
+    oa.setGeoLoc(new GeolocLocationImpl(new Latitude("10.0 degrees"),
+					new Longitude("10.0 degrees"),
+					"fakeGeoLoc"));
+    oa.setUID(uidService.nextUID());
+
+    MessageAddress ma = null;
+    AgentIdentificationService ais = (AgentIdentificationService)
+      getServiceBroker().getService(this, AgentIdentificationService.class, null);
+    if(ais != null) {
+      ma = ais.getMessageAddress(); 
+      getServiceBroker().releaseService(this, AgentIdentificationService.class, ais);
+    }
+    else {
+      if (logging.isWarnEnabled()) {
+	logging.warn("Unable to get AgentIdentificationService");
+      }
+    }
+    ((OrgActivityImpl)oa).setOwner(ma);
+    return oa;
   }
 }

@@ -163,23 +163,7 @@ public class LegitimateBlackboardSubscribePlugin extends AbstractBlackboardPlugi
     if (logging.isDebugEnabled()) {
       logging.debug("publishAddOrgActivity");
     }
-    OrgActivity oa = OplanFactory.newOrgActivity(pluginName, uidService.nextUID());
-    oa.setActivityName(ACTIVITY_NAME);
-    oa.setActivityType(ACTIVITY_TYPE);
-    oa.setUID(uidService.nextUID());
-    MessageAddress ma = null;
-    AgentIdentificationService ais = (AgentIdentificationService)
-      getServiceBroker().getService(this, AgentIdentificationService.class, null);
-    if(ais != null) {
-      ma = ais.getMessageAddress(); 
-      getServiceBroker().releaseService(this, AgentIdentificationService.class, ais);
-    }
-    else {
-      if (logging.isWarnEnabled()) {
-	logging.warn("Unable to get AgentIdentificationService");
-      }
-    }
-    ((OrgActivityImpl)oa).setOwner(ma);
+    OrgActivity oa = createOrgActivity(ACTIVITY_NAME, ACTIVITY_TYPE);
 
     try {
       this.totalRuns++;

@@ -114,29 +114,15 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
     }
   }
 
+  private static final String ACTIVITY_NAME = "LegitimateBlackboardPlugingActivityName";
+  private static final String ACTIVITY_TYPE = "LegitimateBlackboardPlugingActivityType";
+
   private void publishAddOrgActivity() {
     if (logging.isDebugEnabled()) {
       logging.debug("publishAddOrgActivity");
     }
-    OrgActivity oa = OplanFactory.newOrgActivity(pluginName, uidService.nextUID());
-    oa.setActivityName("LegitimateBlackboardPlugingActivityName");
-    oa.setActivityType("LegitimateBlackboardPlugingActivityType");
-    oa.setUID(uidService.nextUID());
-    MessageAddress ma = null;
-    AgentIdentificationService ais = (AgentIdentificationService)
-      getServiceBroker().getService(this, AgentIdentificationService.class, null);
-    if(ais != null) {
-      ma = ais.getMessageAddress(); 
-      getServiceBroker().releaseService(this, AgentIdentificationService.class, ais);
-    }
-    else {
-      if (logging.isWarnEnabled()) {
-	logging.warn("Unable to get AgentIdentificationService");
-      }
-    }
-    ((OrgActivityImpl)oa).setOwner(ma);
+    OrgActivity oa = createOrgActivity(ACTIVITY_NAME, ACTIVITY_TYPE);
     this.addUID = oa.getUID();
-
     try {
       this.totalRuns++;
       getBlackboardService().publishAdd(oa);
