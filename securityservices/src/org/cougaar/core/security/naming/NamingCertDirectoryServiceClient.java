@@ -185,41 +185,61 @@ public class NamingCertDirectoryServiceClient {
         }
       }
     }
+
+    List dnList = new ArrayList();
+    List certList = new ArrayList();
     if (entry == null) {
       if (log.isDebugEnabled()) {
         log.debug("Creating new NamingCertEntry to update naming");
       }
-      entry = new NamingCertEntry();
+      dnList.add(dname);
+      certList.add(certEntry);
     }
-    entry.addEntry(dname, certEntry, true);
-    updateCert(cname, entry);
+    else {
+      dnList = entry.getDNList();
+      if (!dnList.contains(dname)) {
+        dnList.add(dname);
+      }
 
-    return true;
-  }
+      certList = entry.getEntries();
+      boolean found = false;
+      PublicKey pubKey = certEntry.getCertificate().getPublicKey();
+      for (int i = 0; i < certList.size(); i++) {
+        CertificateEntry acertEntry = (CertificateEntry)certList.get(i);
+        if (acertEntry.getCertificate().getPublicKey().equals(pubKey)) {
+        // duplicate entry
+          certList.set(i, certEntry);
+          found = true;
+        }
+        break;
+      }
+      if (!found) {
+        certList.add(certEntry);
+      }
+    }
 
-  // for now when an identity starts it will overwrite the original
-  // naming service entry (the entry it updated at last start)
-  public void updateCert(String cname, Cert entry) throws Exception {
-    if(cname==null){
-      log.error(" cname is NULL  in updateCert:");
+    entry = new NamingCertEntry(dnList, certList);
+    //entry.addEntry(dname, certEntry, true);
+
+    if (ael == null) {
+      URI certURI =
+        URI.create("cert://"+cname);
+      ael =
+        new AddressEntry(
+          cname,
+          Application.getApplication("topology"),
+          certURI,
+          entry,
+          Long.MAX_VALUE);
     }
-     if(entry==null) {
-      log.error(" entry is NULL in updateCert:");
-    }
-    URI certURI =
-      URI.create("cert://"+cname);
-    AddressEntry certEntry =
-      new AddressEntry(
-        cname,
-        Application.getApplication("topology"),
-        certURI,
-        entry,
-        Long.MAX_VALUE);
-    whitePagesService.rebind(certEntry);
+
+    whitePagesService.rebind(ael);
 
     if (log.isDebugEnabled()) {
       log.debug("Successfully updated naming: " + cname);
     }
+
+    return true;
   }
 
   private class NamingServiceAvailableListener implements ServiceAvailableListener {

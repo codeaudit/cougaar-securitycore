@@ -43,10 +43,15 @@ final public class NamingCertEntry extends Cert
    * It is also up to the retrieve function to verify cert validity.
    */
   //Hashtable certList = new Hashtable();
+  /*
   ArrayList certList = new ArrayList();
   ArrayList dnList = new ArrayList();
   CertificateType certType = CertificateType.CERT_TYPE_END_ENTITY;
+  */
+  List certList;
+  List dnList;
 
+  /*
   public void addEntry(String dname, CertificateEntry certEntry, boolean overwrite) {
     if (!dnList.contains(dname)) {
       dnList.add(dname);
@@ -63,6 +68,16 @@ final public class NamingCertEntry extends Cert
       }
     }
     certList.add(certEntry);
+  }
+  */
+
+  // make white page entry immutable
+  public NamingCertEntry(List dnlist, List certlist) {
+    if (dnlist == null || certlist == null)
+      throw new RuntimeException("DN or Cert list is NULL");
+
+    dnList = dnlist;
+    certList = certlist;
   }
 
   public List getEntries() {
