@@ -63,9 +63,18 @@ tar cf security.tar \
 	sys/jdom.jar
 
 cp security.tar ${startupdir}
-
-echo "\n"
-echo "Untar the file security.tar under $COUGAAR_INSTALL_PATH"
-#cd ${realCIP}
-#tar xvf ${startupdir}/security.tar
 rm -rf ${tmpdir}
+
+echo 
+echo 
+echo 'This script has generated a file named "security.tar" in the current directory'
+echo 'Untar the file security.tar under $COUGAAR_INSTALL_PATH'
+echo
+echo -n 'Do you want to untar the file to $COUGAAR_INSTALL_PATH (y/n)? '
+read reply
+
+if [ ${reply} == "y" ]; then
+	echo "Extracting security.tar to ${realCIP}"
+	cd ${realCIP}
+	tar xf ${startupdir}/security.tar
+fi
