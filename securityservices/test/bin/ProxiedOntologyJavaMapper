@@ -32,7 +32,7 @@ DEFS=-Dorg.cougaar.config.path="${COUGAAR_INSTALL_PATH}/configs/security"
 
 
 java $DEFS -classpath $CP \
-   org.cougaar.core.security.policy.webproxy.WebProxyInstaller \
+   org.cougaar.core.security.util.webproxy.WebProxyInstaller \
    kaos.tools.ontologyJavaMapper.OWLOntologyJavaMapper $1 $2 $3
 
 

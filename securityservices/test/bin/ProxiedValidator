@@ -29,5 +29,5 @@ CP=${COUGAAR_INSTALL_PATH}/lib/securityservices.jar:${CP}:
 DEFS=-Dorg.cougaar.config.path="${COUGAAR_INSTALL_PATH}/configs/security"
 
 java $DEFS -classpath $CP \
-   org.cougaar.core.security.policy.webproxy.WebProxyInstaller \
+   org.cougaar.core.security.util.webproxy.WebProxyInstaller \
    org.daml.validator.Validator  $*
