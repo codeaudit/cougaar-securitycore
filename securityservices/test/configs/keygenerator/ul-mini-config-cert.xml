@@ -1,0 +1,484 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<society title="UL-MINI-CONFIG">
+    <title>Certificate Definition for joshua</title>
+    <date>06-05-2001</date>
+    <author>Sebastien Rosset</author>
+
+    <!-- NCA Domain Manager node -->
+    <keystorefile>
+       <storepass>ul-NCADomainManager</storepass>
+       <keystore>keystore-NCADomainManager</keystore>
+
+       <trustedCA>
+          <alias>ROOT-CA-CONUS</alias>
+          <file>ROOT-CA-CONUS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-THEATER</alias>
+          <file>ROOT-CA-THEATER.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-MILITARY-LOGISTICS</alias>
+          <file>ROOT-CA-MILITARY-LOGISTICS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-COMMERCIAL-LOGISTICS</alias>
+          <file>ROOT-CA-COMMERCIAL-LOGISTICS.cer</file>
+       </trustedCA>
+
+       <key>
+          <alias>NCADomainManager</alias>
+          <keypass>ul-NCADomainManager</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>2048</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=NCADomainManager, O=CONUS, OU=NCA, L=Washington DC, S=DC, C=US</dname>
+       </key>
+
+       <!-- node key -->
+       <key>
+          <alias>TEST-NODE-NCADomainManager</alias>
+          <keypass>ul-NCADomainManager</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>2048</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=TEST-NODE-NCADomainManager, O=CONUS, OU=NCA, L=Washington DC, S=DC, C=US</dname>
+       </key>
+    </keystorefile>
+
+    <!-- NCA node -->
+    <keystorefile>
+       <storepass>ul-dogwood</storepass>
+       <keystore>keystore-NCA</keystore>
+
+       <trustedCA>
+          <alias>ROOT-CA-CONUS</alias>
+          <file>ROOT-CA-CONUS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-THEATER</alias>
+          <file>ROOT-CA-THEATER.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-MILITARY-LOGISTICS</alias>
+          <file>ROOT-CA-MILITARY-LOGISTICS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-COMMERCIAL-LOGISTICS</alias>
+          <file>ROOT-CA-COMMERCIAL-LOGISTICS.cer</file>
+       </trustedCA>
+
+       <key>
+          <alias>NCA</alias>
+          <keypass>ul-dogwood</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>2048</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=NCA, O=CONUS, OU=NCA, L=Washington DC, S=DC, C=US</dname>
+       </key>
+
+       <!-- node key -->
+       <key>
+          <alias>TEST-NODE-NCA</alias>
+          <keypass>ul-dogwood</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>2048</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=TEST-NODE-NCA, O=CONUS, OU=NCA, L=Washington DC, S=DC, C=US</dname>
+       </key>
+    </keystorefile>
+
+    <!-- HQ node -->
+    <keystorefile>
+       <storepass>ul-joshua</storepass>
+       <keystore>keystore-HQ</keystore>
+
+       <trustedCA>
+          <alias>ROOT-CA-CONUS</alias>
+          <file>ROOT-CA-CONUS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-THEATER</alias>
+          <file>ROOT-CA-THEATER.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-MILITARY-LOGISTICS</alias>
+          <file>ROOT-CA-MILITARY-LOGISTICS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-COMMERCIAL-LOGISTICS</alias>
+          <file>ROOT-CA-COMMERCIAL-LOGISTICS.cer</file>
+       </trustedCA>
+
+       <key>
+          <alias>HEADQUARTERS</alias>
+          <keypass>ul-joshua</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=HEADQUARTERS, O=CONUS, OU=HEADQUARTERS, L=Washington DC, S=DC, C=US</dname>
+       </key>
+       <key>
+          <alias>M-R-YellowPage</alias>
+          <keypass>ul-joshua</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=M-R-YellowPage, O=CONUS, OU=M-R-YellowPage, L=Washington DC, S=DC, C=US</dname>
+       </key>
+       <key>
+          <alias>DLAHQ</alias>
+          <keypass>ul-joshua</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=DLAHQ, O=CONUS, OU=DLAHQ, L=Washington DC, S=DC, C=US</dname>
+       </key>
+       <key>
+          <alias>CENTCOM-HHC</alias>
+          <keypass>ul-joshua</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=CENTCOM-HHC, O=CONUS, OU=CENTCOM-HHC, L=Washington DC, S=DC, C=US</dname>
+       </key>
+       <key>
+          <alias>JTF-HHC</alias>
+          <keypass>ul-joshua</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=JTF-HHC, O=CONUS, OU=JTF-HHC, L=Washington DC, S=DC, C=US</dname>
+       </key>
+       <key>
+          <alias>DFSP</alias>
+          <keypass>ul-joshua</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=DFSP, O=CONUS, OU=DFSP, L=Washington DC, S=DC, C=US</dname>
+       </key>
+       <key>
+          <alias>3ID-HHC</alias>
+          <keypass>ul-joshua</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=3ID-HHC, O=CONUS, OU=3ID-HHC, L=Washington DC, S=DC, C=US</dname>
+       </key>
+       <key>
+          <alias>TRANSCOM</alias>
+          <keypass>ul-joshua</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=TRANSCOM, O=CONUS, OU=TRANSCOM, L=Washington DC, S=DC, C=US</dname>
+       </key>
+
+       <!-- node key -->
+       <key>
+          <alias>TEST-NODE-HQ</alias>
+          <keypass>ul-joshua</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>2048</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=TEST-NODE-HQ, O=CONUS, OU=HQ, L=Washington DC, S=DC, C=US</dname>
+       </key>
+    </keystorefile>
+
+    <!-- 2nd Brigade node -->
+    <keystorefile>
+       <storepass>ul-redwood</storepass>
+       <keystore>keystore-2nd-Brigade</keystore>
+
+       <trustedCA>
+          <alias>ROOT-CA-CONUS</alias>
+          <file>ROOT-CA-CONUS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-THEATER</alias>
+          <file>ROOT-CA-THEATER.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-COMMERCIAL-LOGISTICS</alias>
+          <file>ROOT-CA-COMMERCIAL-LOGISTICS.cer</file>
+       </trustedCA>
+
+       <key>
+          <alias>2nd-BRIGADE</alias>
+          <keypass>ul-redwood</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=2nd-BRIGADE, O=THEATER, OU=2nd-BRIGADE, L=Austin, S=TX, C=US</dname>
+       </key>
+       <key>
+          <alias>3-DISCOM-HHC</alias>
+          <keypass>ul-redwood</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=3-DISCOM-HHC, O=THEATER, OU=3-DISCOM-HHC, L=Austin, S=TX, C=US</dname>
+       </key>
+       <key>
+          <alias>703-MSB</alias>
+          <keypass>ul-redwood</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=703-MSB, O=THEATER, OU=3-DISCOM-HHC, L=Austin, S=TX, C=US</dname>
+       </key>
+       <key>
+          <alias>2-BDE-3ID-HHC</alias>
+          <keypass>ul-redwood</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=2-BDE-3ID-HHC, O=THEATER, OU=2-BDE-3ID-HHC, L=Austin, S=TX, C=US</dname>
+       </key>
+       <key>
+          <alias>2-7-INFBN</alias>
+          <keypass>ul-redwood</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=2-7-INFBN, O=THEATER, OU=2-BDE-3ID-HHC, L=Austin, S=TX, C=US</dname>
+       </key>
+       <key>
+          <alias>3-FSB</alias>
+          <keypass>ul-redwood</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=3-FSB, O=THEATER, OU=2-BDE-3ID-HHC, L=Austin, S=TX, C=US</dname>
+       </key>
+
+       <!-- node key -->
+       <key>
+          <alias>TEST-NODE-2nd-Brigade</alias>
+          <keypass>ul-redwood</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>2048</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=TEST-NODE-2nd-Brigade, O=THEATER, OU=2nd-Brigade, L=Austin, S=TX, C=US</dname>
+       </key>
+    </keystorefile>
+
+    <!-- 3rd Brigade node -->
+    <keystorefile>
+       <storepass>ul-maple</storepass>
+       <keystore>keystore-3rd-Brigade</keystore>
+
+       <trustedCA>
+          <alias>ROOT-CA-CONUS</alias>
+          <file>ROOT-CA-CONUS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-THEATER</alias>
+          <file>ROOT-CA-THEATER.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-COMMERCIAL-LOGISTICS</alias>
+          <file>ROOT-CA-COMMERCIAL-LOGISTICS.cer</file>
+       </trustedCA>
+
+       <key>
+          <alias>3rd-BRIGADE</alias>
+          <keypass>ul-maple</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=3rd-BRIGADE, O=THEATER, OU=3rd-BRIGADE, L=Austin, S=TX, C=US</dname>
+       </key>
+       <key>
+          <alias>3-69-ARBN</alias>
+          <keypass>ul-maple</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=3-69-ARBN, O=THEATER, OU=2-BDE-3ID-HHC, L=Austin, S=TX, C=US</dname>
+       </key>
+       <key>
+          <alias>3-BDE-2ID-HHC</alias>
+          <keypass>ul-maple</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=3-BDE-2ID-HHC, O=THEATER, OU=3-BDE-2ID-HHC, L=Austin, S=TX, C=US</dname>
+       </key>
+       <key>
+          <alias>296-SPTBN</alias>
+          <keypass>ul-maple</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=296-SPTBN, O=THEATER, OU=3-BDE-2ID-HHC, L=Austin, S=TX, C=US</dname>
+       </key>
+
+       <!-- node key -->
+       <key>
+          <alias>TEST-NODE-3rd-Brigade</alias>
+          <keypass>ul-maple</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>2048</keysize>
+          <signingAuthority>ROOT-CA-THEATER</signingAuthority>
+          <dname>CN=TEST-NODE-3rd-Brigade, O=THEATER, OU=3rd-Brigade, L=Austin, S=TX, C=US</dname>
+       </key>
+    </keystorefile>
+
+    <!-- Support node -->
+    <keystorefile>
+       <storepass>ul-fir</storepass>
+       <keystore>keystore-Support</keystore>
+
+       <trustedCA>
+          <alias>ROOT-CA-CONUS</alias>
+          <file>ROOT-CA-CONUS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-MILITARY-LOGISTICS</alias>
+          <file>ROOT-CA-MILITARY-LOGISTICS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-COMMERCIAL-LOGISTICS</alias>
+          <file>ROOT-CA-COMMERCIAL-LOGISTICS.cer</file>
+       </trustedCA>
+
+       <key>
+          <alias>MILITARY-LOGISTICS</alias>
+          <keypass>ul-fir</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-MILITARY-LOGISTICS</signingAuthority>
+          <dname>CN=MILITARY-LOGISTICS, O=MILITARY LOGISTICS, OU=24-SPTGP-HHC, L=Los Angeles, S=CA, C=US</dname>
+       </key>
+       <key>
+          <alias>24-SPTGP-HHC</alias>
+          <keypass>ul-fir</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-MILITARY-LOGISTICS</signingAuthority>
+          <dname>CN=24-SPTGP-HHC, O=MILITARY LOGISTICS, OU=24-SPTGP-HHC, L=Los Angeles, S=CA, C=US</dname>
+       </key>
+       <key>
+          <alias>10-TCBN-HHC</alias>
+          <keypass>ul-fir</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-MILITARY-LOGISTICS</signingAuthority>
+          <dname>CN=10-TCBN-HHC, O=MILITARY LOGISTICS, OU=24-SPTGP-HHC, L=Los Angeles, S=CA, C=US</dname>
+       </key>
+       <key>
+          <alias>553-CSB-HHD</alias>
+          <keypass>ul-fir</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-MILITARY-LOGISTICS</signingAuthority>
+          <dname>CN=553-CSB-HHD, O=MILITARY LOGISTICS, OU=24-SPTGP-HHC, L=Los Angeles, S=CA, C=US</dname>
+       </key>
+       <key>
+          <alias>24-CSB-HHD</alias>
+          <keypass>ul-fir</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-MILITARY-LOGISTICS</signingAuthority>
+          <dname>CN=24-CSB-HHD, O=MILITARY LOGISTICS, OU=24-SPTGP-HHC, L=Los Angeles, S=CA, C=US</dname>
+       </key>
+       <key>
+          <alias>110-QMCO-POLSPLY</alias>
+          <keypass>ul-fir</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-MILITARY-LOGISTICS</signingAuthority>
+          <dname>CN=110-QMCO-POLSPLY, O=MILITARY LOGISTICS, OU=24-SPTGP-HHC, L=Los Angeles, S=CA, C=US</dname>
+       </key>
+
+       <!-- node key -->
+       <key>
+          <alias>TEST-NODE-Support</alias>
+          <keypass>ul-fir</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-MILITARY-LOGISTICS</signingAuthority>
+          <dname>CN=TEST-NODE-Support, O=MILITARY LOGISTICS, OU=Support, L=Austin, S=TX, C=US</dname>
+       </key>
+    </keystorefile>
+
+    <!-- Commercial Air node -->
+    <keystorefile>
+       <storepass>ul-manzanita</storepass>
+       <keystore>keystore-Commercial-Air</keystore>
+
+       <trustedCA>
+          <alias>ROOT-CA-CONUS</alias>
+          <file>ROOT-CA-CONUS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-COMMERCIAL-LOGISTICS</alias>
+          <file>ROOT-CA-COMMERCIAL-LOGISTICS.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-THEATER</alias>
+          <file>ROOT-CA-THEATER.cer</file>
+       </trustedCA>
+       <trustedCA>
+          <alias>ROOT-CA-MILITARY-LOGISTICS</alias>
+          <file>ROOT-CA-MILITARY-LOGISTICS.cer</file>
+       </trustedCA>
+
+       <key>
+          <alias>ALPHA-AIRLINES</alias>
+          <keypass>ul-manzanita</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-COMMERCIAL-LOGISTICS</signingAuthority>
+          <dname>CN=ALPHA-AIRLINES, O=ALPHA AIRLINES, OU=TRANSPORT, L=San Francisco, S=CA, C=US</dname>
+       </key>
+
+       <!-- node key -->
+       <key>
+          <alias>TEST-NODE-Commercial-Air</alias>
+          <keypass>ul-manzanita</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>1024</keysize>
+          <signingAuthority>ROOT-CA-COMMERCIAL-LOGISTICS</signingAuthority>
+          <dname>CN=TEST-NODE-Commercial-Air, O=ALPHA AIRLINES, OU=TRANSPORT, L=San Francisco, S=CA, C=US</dname>
+       </key>
+    </keystorefile>
+</society>
+
+
