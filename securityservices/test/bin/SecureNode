@@ -243,10 +243,6 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.http.port=${httpport}"
 #set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.port=${httpsport}"
 #set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory"
 
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.web.keystore=tomcatKeystore"
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.web.keypass=changeit"
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.web.keystore=../securityservices/test/configs/demo/minitest/tomcatKeystore"
-
 #################################
 
 if ($?COUGAAR_MYPROP) then
@@ -293,7 +289,7 @@ endif
 # Logger
 rm -f $node.log
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.log4j.appender.A1.File=$node.log"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=$node.log"
 
 set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
 
