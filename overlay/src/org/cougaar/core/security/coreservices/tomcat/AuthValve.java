@@ -30,6 +30,9 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 
 import org.apache.catalina.Valve;
+import org.apache.catalina.valves.ValveBase;
+import org.apache.catalina.Contained;
+import org.apache.catalina.Container;
 import org.apache.catalina.ValveContext;
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
@@ -53,11 +56,12 @@ import org.apache.catalina.Response;
  *
  * @author George Mount <gmount@nai.com>
  */
-public class AuthValve implements Valve {
+public class AuthValve implements Valve, Contained {
 
   private static final String PROP_DISABLE = "org.cougaar.core.security.coreservices.tomcat.disableAuth";
-  private String _authClass  = "org.cougaar.core.security.crypto.acl.auth.DualAuthenticator";
-  private Valve _authValve = null;
+  private String _authClass  = "org.cougaar.core.security.acl.auth.DualAuthenticator";
+  private ValveBase _authValve = null;
+  private Container _container = null;
 
   /** 
    * Default constructor.
@@ -69,7 +73,7 @@ public class AuthValve implements Valve {
   /**
    * returns the DualAuthenticator Valve if it is available.
    */
-  public Valve getValve() {
+  public ValveBase getValve() {
     return _authValve;
   }
 
@@ -77,7 +81,7 @@ public class AuthValve implements Valve {
     if (!Boolean.getBoolean(PROP_DISABLE)) {
       try {
         Class c = Class.forName(_authClass);
-        _authValve = (Valve) c.newInstance();
+        _authValve = (ValveBase) c.newInstance();
       } catch (ClassNotFoundException e) {
         if (log) {
           System.out.println("Error: could not find class " + _authClass);
@@ -189,5 +193,25 @@ public class AuthValve implements Valve {
       }
     } 
     return null;
+  }
+
+  /**
+   * Sets the context container
+   */
+  public void setContainer(Container container) {
+    if (_authValve != null) {
+      _authValve.setContainer(container);
+    } 
+    _container = container;
+  }
+
+  /**
+   * Returns the context container
+   */
+  public Container getContainer() {
+    if (_authValve != null) {
+      return _authValve.getContainer();
+    }
+    return _container;
   }
 }
