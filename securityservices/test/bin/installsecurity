@@ -7,6 +7,12 @@
 
 # This file should be run from the top directory in the securityservices module.
 
+#
+# FIXME - TEMPORARY!
+#
+rm -f ${COUGAAR_INSTALL_PATH}/sys/xerces.jar
+
+
 realCIP=$COUGAAR_INSTALL_PATH
 startupdir=`pwd`
 tmpdir=`mktemp -d /tmp/cip.XXXXXX`
