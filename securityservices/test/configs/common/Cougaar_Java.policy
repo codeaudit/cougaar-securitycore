@@ -225,6 +225,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
         permission org.cougaar.core.security.crypto.KeyRingPermission "getKeyStore";
  	permission org.cougaar.core.security.provider.SecurityServicePermission "*";
 	permission org.cougaar.core.security.access.AccessPermission "org.cougaar.core.service.MessageTransportService";
+	permission javax.security.auth.AuthPermission "setReadOnly";
 };
 
 ////////////////////////////////////////////////////////////
