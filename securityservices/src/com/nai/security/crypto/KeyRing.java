@@ -165,11 +165,11 @@ final public class KeyRing {
     return keystore.findPrivateKey(commonName);
   }
 
-  public static Certificate findCert(Principal p) {
+  public static synchronized Certificate findCert(Principal p) {
     return keystore.findCert(p);
   }
 
-  public static Certificate findCert(String commonName) {
+  public static synchronized Certificate findCert(String commonName) {
     return keystore.findCert(commonName);
   }
 
