@@ -15,9 +15,7 @@ Cougaar::ExperimentMonitor.enable_logging
 
 include Cougaar
 
-
-
-class CommPolicy
+class CommPolicies
 
   def initialize(run)
     @dbUser                = "society_config"
@@ -35,8 +33,8 @@ class CommPolicy
     @enclaveNodeHash       = Hash.new()
     @run                   = run
 
-    @setHashMap            = Hash.new
     @policies              = []
+    @setDefinitions        = Hash.new
     @mumbleFlag            = false
     @debug                 = false
   end
@@ -45,28 +43,33 @@ class CommPolicy
 #
 # Core methods
 #
-  def declareSet(name, members)
-  {
-    if (@setHashMap.keys.include?(name)) then
-      raise "Set with name #{name} has already been declared"
-    end
-    @setHashMap[name] = members
-  }
 
-  def permit(senderSet, receiverSet, name, enclaves = getEnclaves())
-      if @setHashMap(senderSet) == nil || @setHashMap(receiverSet) == nil
-        raise "Sender (#{senderSet}) or receiver (#{receiverSet}) set not declared"
-      end
-      @policies.push([senderSet, receiverSet, name, enclaves])
-    end
+  def translateSet(setName)
+    @setDefinitions[setName]
   end
 
+  def declareSet(setName, setMembers)
+    if (@setDefinitions.keys.include?(setName)) then
+      raise "Set with name #{setName} has already been declared"
+    end
+    @setDefinitions[setName] = setMembers
+  end
+
+  def permit(senderSet, receiverSet, name, enclaves = getEnclaves())
+    if translateSet(senderSet) == nil || 
+       translateSet(receiverSet) == nil
+      raise "Sender (#{senderSet}) or receiver (#{receiverSet}) set not declared"
+    end
+    @policies.push([senderSet, receiverSet, name, enclaves])
+  end
+
+
   def policySenders(policy)
-    @setHashMap(policy[0])
+    translateSet(policy[0])
   end
 
   def policyReceivers(policy)
-    @setHashMap(policy[1])
+    translateSet(policy[1])
   end
 
   def policyName(policy)
@@ -87,7 +90,7 @@ class CommPolicy
   end
 
   def policyCount()
-    @policies.size + @mumbleFlag ? 1 : 0
+    @policies.size + (@mumbleFlag ? 1 : 0)
   end
 
   def viewPolicy()
@@ -96,8 +99,8 @@ class CommPolicy
       puts "Members of #{policySenders(policy)} can talk to " + 
            "members of #{policyReceivers(policy)}"
       puts "Destined for enclaves [#{policyEnclaves(policy).join(", ")}]"
-      puts "#{policy[0]} = #{@setHashMap[policy[0]]}"
-      puts "#{policy[1]} = #{@setHashMap[policy[1]]}"
+      puts "#{policy[0]} = #{translateSet(policy[0])}"
+      puts "#{policy[1]} = #{translateSet(policy[1])}"
     end
     if @mumbleFlag then
       puts "Agents can talk to themselves"
@@ -110,15 +113,62 @@ class CommPolicy
       return true
     end
     @policies.each do |policy|
-      if policySenders(policy).include?(sender) 
-            && policyReceivers(policy).include?(receiver) then
+      if policySenders(policy).include?(sender) && policyReceivers(policy).include?(receiver) then
         return true
       end
     end
     return false
   end
 
+  def writePolicies(filename)
+    @run.society.each_enclave do |enclave|
+      debug "writing to enclave #{enclave}"
+      File.open("#{filename}-#{enclave}", "w+") do |file|
+        debug "writing file #{file}"
+        file.write("PolicyPrefix=%URPolicy\n\n")
+        @run.society.each_agent(true) do |agent|
+          file.write("Agent \"#{agent.name}\"\n")
+        end
+        file.write("\n")
+        @setDefinitions.keys.each do |name|
+          debug "Inserting group definition #{name}"
+          file.write("AgentGroup \"#{name}\" = {")
+          if (!translateSet(name).empty?) then
+            file.write("\"#{translateSet(name).join("\",\n\t\"")}\"")
+          end
+          file.write("}\n\n")
+        end
+        file.write("Delete AllowCommunication\n")
+        @policies.each do |policy|
+          if policyEnclaves(policy).include?(enclave) then
+            debug "Writing policy #{policyName(policy)}"
+            file.write("Policy \"#{policyName(policy)}\" = [\n" +
+                       "\tMessageAuthTemplate\n" +
+                       "\tAllow messages from members of " +
+                       "$AgentsInGroup##{policy[0]}" +
+                       " to members of " +
+                       "$AgentsInGroup##{policy[1]}\n" +
+                       "]\n\n")
+          end
+        end
+      end
+    end
+  end
+
+
   def density()
+    @run.society.each_enclave do |enclave|
+      i = 0
+      @policies.each do |policy|
+        if policyEnclaves(policy).include?(enclave) then
+          i += 1
+        end
+      end
+      if @mumbleFlag then
+        i += 1
+      end
+      puts "#{i} policies in enclave #{enclave}"
+    end
     totalAgents = 0
     @run.society.each_agent do |agent|
       totalAgents += 1
@@ -134,19 +184,8 @@ class CommPolicy
       end
     end
     calcDensity(allowed, totalAgents)
-    @run.society.each_enclave do |enclave|
-      i = 0
-      @policies.each |policy|
-        if policyEnclaves(policy).include?(enclave) then
-          i += 1
-        end
-      end
-      if @mumbleFlag then
-        i += 1
-      end
-      puts "#{i} policies in enclave #{enclave}"
-    end
   end
+
 
   def addAllowed(allowed, agent1, agent2)
     if allowed[agent1] == nil then
@@ -248,7 +287,7 @@ class CommPolicy
   end
 
   def enclaveAgentsName(enclave)
-    "AgentsIn#{enclave}
+    "AgentsIn#{enclave}"
   end
 
   def commonDecls()
@@ -275,9 +314,9 @@ class CommPolicy
     nameServers = getNameServers()
     agents = getAgents()
     @NameServersName = "NameServers"
-    declareSet(@NameServersName, nameservers)
-    permit(@NameServersName, @allAgentsName, "Allow Name Service - I")
-    permit(@allAgentsName, @NameServersName, "Allow Name Service - II")
+    declareSet(@NameServersName, nameServers)
+    permit(@NameServersName, @allAgentsName, "AllowNameService-I")
+    permit(@allAgentsName, @NameServersName, "AllowNameService-II")
   end
 
   def getNameServers()
@@ -306,24 +345,29 @@ class CommPolicy
       specialMembers = getSpecialCommunityAgentsRecursive(community)
       debug "special members = #{specialMembers.join(", ")}"
       specialSetName = "Special#{community.name}Members"
-      declareSet(specialSetName, specialMembers);
-      permit(@allNodesName, specialSetName, 
-             "All nodes can talk to special community members of #{community.name} - I",
-             getCommmunityEnclaves(commmunity))
-      permit(specialSetName, @allNodesName,
-             "All nodes can talk to special community members of #{community.name} - II",
-             getCommmunityEnclaves(commmunity))
+      if (!specialMembers.empty?) then
+        declareSet(specialSetName, specialMembers);
+        permit(@allNodesName, specialSetName, 
+               "Special#{community.name}Policy-I",
+               getCommunityEnclaves(community))
+        permit(specialSetName, @allNodesName,
+               "Special#{community.name}Policy-II",
+               getCommunityEnclaves(community))
+      else 
+        return
+      end
       members = getMembersRecursive(community)
       membersName = "#{community.name}Members"
-      declareSet(membersName, members)
-      debug "members = #{members.join(", ")}"
-      permit(membersName, specialSetName, 
-             "Members/Special Members of #{community.name} - I",
-             getCommunityEnclaves(community)
-      permit(specialSetName, membersName,
-             "Members/Special Members of #{community.name} - II",
-             getCommunityEnclaves(community)
-
+      if (!members.empty?) then
+        declareSet(membersName, members)
+        debug "members = #{members.join(", ")}"
+        permit(membersName, specialSetName, 
+               "#{community.name}Policy-I",
+               getCommunityEnclaves(community))
+        permit(specialSetName, membersName,
+               "#{community.name}Policy-II",
+               getCommunityEnclaves(community))
+      end
     end    
   end
 
@@ -349,6 +393,8 @@ class CommPolicy
       end
       debug("found agent")
       if !enclaves.include?(agent.host.enclave) then
+        debug("Added new enclave  #{agent.host.enclave} " +
+              "because of #{agent.name}")
         enclaves.push(agent.host.enclave)
       end
       debug("bottom of entities loop")
@@ -501,13 +547,13 @@ class CommPolicy
     banner("Allow Security")
     @run.society.each_enclave() do |enclave|
       securityAgents = getSecurityAgents(enclave)
-      securityAgentsName = "SecurityAgents"
-      declareAgents(#{enclave}SecurityAgentsName, securityAgents)
+      securityAgentsName = "#{enclave}SecurityAgents"
+      declareSet(securityAgentsName, securityAgents)
       permit(enclaveAgentsName(enclave), securityAgentsName,
-             "AllowSecurityManagement - II",
+             "AllowSecurityManagement-I",
              [ enclave ])
-      permit(securityAgentsName, , enclaveAgentsName(enclave),
-             "AllowSecurityManagement - II",
+      permit(securityAgentsName, enclaveAgentsName(enclave),
+             "AllowSecurityManagement-II",
              [ enclave ])
     end
   end
@@ -579,17 +625,23 @@ class CommPolicy
     @run.society.each_agent(true) do |agent|
       superior = agent.name
       debug "superior = #{superior}"
-      subordinates = directlyReportingAll(superior)
+      allAgent = getAgents()
+      subordinates = []
+      directlyReportingAll(superior).each do |subordinate|
+        if allAgent.include?(subordinate) then
+          subordinates.push(subordinate)
+        end
+      end
       debug "subordinates = #{subordinates.join(',')}"
       if (! subordinates.empty?) then
         declareSet(namedAgent(superior), [superior])
-        suborindatesName = "SubordinatesOf#{superior}"
+        subordinatesName = "SubordinatesOf#{superior}"
         declareSet(subordinatesName, subordinates)
         permit(namedAgent(superior), subordinatesName,
-               "#{superior}TalksToSubordinates - I",
+               "#{superior}TalksToSubordinates-I",
                [ agent.host.enclave ])
         permit(subordinatesName, namedAgent(superior),
-               "#{superior}TalksToSubordinates - II",
+               "#{superior}TalksToSubordinates-II",
                [ agent.host.enclave ])
       end
     end
@@ -728,8 +780,10 @@ select distinct role from org_relation;
         debug "the agents in #{clients} can talk to the agents in #{servers}"
         clientsName = "#{providerType}Clients"
         serversName = "#{providerType}Servers"
-        permit(clientsName, serversName, "#{providerType}Comm - I")
-        permit(serversName, clientsName, "#{providerType}Comm - II")
+        declareSet(clientsName, clients)
+        declareSet(serversName, servers)
+        permit(clientsName, serversName, "#{providerType}Comm-I")
+        permit(serversName, clientsName, "#{providerType}Comm-II")
       end
     end
   end
@@ -770,8 +824,7 @@ select distinct role from org_relation;
           providesMap[providerType] = []
         end
         agent.each_facet do |facet|
-          if facet[:role] != nil &&
-             stripProviderTypeSuffix(facet[:role]) == providerType then
+          if facet[:role] != nil && stripProviderTypeSuffix(facet[:role]) == providerType then
             providesMap[providerType].push(agent.name)
           end
         end
