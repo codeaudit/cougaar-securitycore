@@ -2,7 +2,7 @@
 
 <!--***************************************************************************
 
-$Id: idmef-message.html.xsl,v 1.1 2002-04-24 18:42:31 srosset Exp $
+$Id: idmef-message.html.xsl,v 1.2 2002-04-25 01:38:25 srosset Exp $
 
 idmef-message.html.xsl
 Version 0.50
@@ -81,8 +81,8 @@ TO DO:
 		<table border="1" cellpadding="10">
 		<tr>
 			<td><b><i>Alert ID</i></b></td>
-			<td><b><i>Impact</i></b></td>
-			<td><b><i>Date/Time</i></b></td>
+			<td><b><i>Assessment</i></b></td>
+			<td><b><i>Create Time</i></b></td>
 			<td><b><i>Analyzer</i></b></td>
 			<td><b><i>Classification</i></b></td>
 			<td><b><i>Source</i></b></td>
@@ -90,16 +90,19 @@ TO DO:
 			<td><b><i>Specific Alerts</i></b></td>
 		</tr>
 
-		<xsl:for-each select="IDMEF-Message/Alert[@alertid and @impact]">
+		<xsl:text>foo</xsl:text>
+		<xsl:for-each select="IDMEF-Message/Alert">
 
 		<!-- sort Alerts by date and time -->
 		<xsl:sort order="ascending" select="Time/date" />
 		<xsl:sort order="ascending" select="Time/time" />
 
+		<xsl:text>foo1</xsl:text>
+
 		<tr>
-			<td><xsl:value-of select="@alertid" /></td>
-			<td><xsl:value-of select="@impact" /></td>
-			<td><xsl:apply-templates select="Time" /></td>
+			<td><xsl:value-of select="@ident" /></td>
+			<td><xsl:apply-templates select="Assessment" /></td>
+			<td><xsl:apply-templates select="CreateTime" /></td>
 			<td><xsl:apply-templates select="Analyzer" /></td>
 			<td><xsl:apply-templates select="Classification" /></td>
 			<td><xsl:apply-templates select="Source" /></td>
@@ -121,7 +124,7 @@ TO DO:
 	</xsl:template>
 
 	
-	<xsl:template match="Time[ntpstamp and date and time]">
+	<xsl:template match="CreateTime[ntpstamp and date and time]">
 		<p>
 		<xsl:text>Sent: </xsl:text>
 		<xsl:value-of select="date" />
@@ -336,6 +339,51 @@ TO DO:
                 </ul>
         </xsl:template>
 
+	<xsl:template match="Assessment">
+		<xsl:text>Assessment:</xsl:text>
+		<ul>
+		<xsl:for-each select="Impact">
+			<li>
+			<xsl:apply-templates select="." />
+			</li>
+		</xsl:for-each>
+
+		<xsl:for-each select="Action">
+			<li>
+			<xsl:apply-templates select="." />
+			</li>
+		</xsl:for-each>
+
+		<xsl:for-each select="Confidence">
+			<li>
+			<xsl:apply-templates select="." />
+			</li>
+		</xsl:for-each>
+
+		</ul>
+	</xsl:template>
+
+	<xsl:template match="Impact[severity and completion]">
+		<p>
+		<xsl:text>Severity: </xsl:text>
+		<xsl:value-of select="@severity" />
+		<xsl:text>Completion: </xsl:text>
+		<xsl:value-of select="@completion" />
+
+		</p>
+	</xsl:template>
+	<xsl:template match="Action[actioncat]">
+		<p>
+		<xsl:text>Category: </xsl:text>
+		<xsl:value-of select="@actioncat" />
+		</p>
+	</xsl:template>
+	<xsl:template match="Confidence[rating]">
+		<p>
+		<xsl:text>Rating: </xsl:text>
+		<xsl:value-of select="@rating" />
+		</p>
+	</xsl:template>
 
 	<xsl:template match="Classification[name and url]">
 		<p>
@@ -658,13 +706,13 @@ TO DO:
 			</li>
 		</xsl:if>
 
-                <xsl:if test="alertid">
+                <xsl:if test="ident">
                         <li>
 
 			<xsl:text>Alert ID:</xsl:text>
 
 			<ul>
-			<xsl:for-each select="alertid">
+			<xsl:for-each select="ident">
 				<li>
 				<xsl:value-of select="." />
 				</li>
@@ -710,7 +758,7 @@ TO DO:
 	</xsl:template>
 
 
-	<xsl:template match="CorrelationAlert[alertid]">
+	<xsl:template match="CorrelationAlert[ident]">
 		<p>
 		<xsl:text>Correlation Alert:</xsl:text>
 		<ul>
@@ -719,7 +767,7 @@ TO DO:
 
 		<ul>
 
-		<xsl:for-each select="alertid">
+		<xsl:for-each select="ident">
 			<li>
 			<xsl:value-of select="." />
 			</li>
