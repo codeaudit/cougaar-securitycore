@@ -136,8 +136,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
   protected void setupSubscriptions() {
     loggingService = (LoggingService)getBindingSite().getServiceBroker().getService
       (this, LoggingService.class, null);
-    
-    
+        
     /*QueryMapping mapping=new QueryMapping();
       getBlackboardService().publishAdd(mapping);
     */
@@ -164,46 +163,108 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	mgrrole="SecurityMnRManager-Society";
       }
     }
-    /*
-      System.out.println("setupSubscriptions of MnRQueryReceiverPlugin called :"+ myAddress.toString());
-      Collection col=getParameters();
-      if(col.size()>1) {
-      loggingService.debug("setupSubscriptions of MnRQueryReceiverPlugin called  too many parameters from:"
-      + myAddress.toString()); 
-      }
-      if(col.size()!=0){
-      String params[]=new String[1];
-      String parameters[]=(String[])col.toArray(new String[0]);
-      mgrrole=parameters[0];
-      }
-    */
+    
     capabilitiesobject= (IncrementalSubscription)getBlackboardService().subscribe
       (new CapabilitiesObjectPredicate());
     queryRelays= (IncrementalSubscription)getBlackboardService().subscribe
       (new QueryRelayPredicate());
     querymapping= (IncrementalSubscription)getBlackboardService().subscribe
-       (new QueryMappingPredicate());
+      (new QueryMappingPredicate());
     
   }
   
   protected void execute () {
     MRAgentLookUp agentlookupquery;
+    // The list of this M&R manager agent capabilities.
     CapabilitiesObject capabilities=null;
+    // An iterator through a list of MRAgentLookUp.
     Iterator relayiterator=null;
     boolean capabilitiesChanged=false;
-    if ((capabilitiesobject == null) || (queryRelays == null) || (querymapping == null)) {
+    if ((capabilitiesobject == null) || (queryRelays == null)
+	|| (querymapping == null)) {
       return;
     }
-    loggingService.debug("Execute of mnRQueryreceiver called :"+  myAddress.toString());
-    if(queryRelays.hasChanged()) {
-      loggingService.debug("At least one MnRLookupQuery has changed. My agent is"
-			   +  myAddress.toString());
+    loggingService.debug("Execute of mnRQueryreceiver called :"
+			 + myAddress.toString());
+    if((capabilitiesobject.hasChanged()) && (queryRelays.hasChanged())) {
+      loggingService.debug("Capabilities & Query both have changed :");
       Collection  capabilitiesobj_col=capabilitiesobject.getChangedCollection();
       if( capabilitiesobj_col.isEmpty()) {
-	loggingService.debug("Changed collection is empty for capabilities object: getting complete collection ");
-	// look up query relays that require constant updates
+	loggingService.debug("Changed collection is empty though capabilitiesobject.hasChanged in execute  returned true ");
+	loggingService.debug("Changed collection is empty going to get the complete collection ");
 	capabilitiesobj_col=capabilitiesobject.getCollection();
+	capabilitiesChanged=false;
+       
       }
+      else {
+	capabilitiesChanged=true;
+      }
+      ArrayList list=new ArrayList(capabilitiesobj_col);
+      if((list==null)||(list.size()==0)) {
+	if(loggingService.isDebugEnabled()) {
+	  loggingService.debug("Got capabilities object change but the list is empty returning"
+			       + myAddress.toString());
+	}
+	return;
+      }
+      if(list.size()>1) {
+	if(loggingService.isErrorEnabled()) {
+	  loggingService.error("Multiple capabilities object on blackboard. Agent is:"
+			       + myAddress.toString());
+	}
+	return;
+      }
+      // capabilities may be null if no sensor has registered yet.
+      capabilities=(CapabilitiesObject)list.get(firstobject);
+      if(capabilitiesChanged) {
+	loggingService.debug(" Capabilities have changed getting the complete Query collection:");
+	relayiterator = queryRelays.getCollection().iterator();
+      }
+      else {
+	Collection coll= queryRelays.getAddedCollection();
+	if(coll.isEmpty()) {
+	  loggingService.debug(" Capabilities & Query  has changed but the changed collection returns empty :returning:");
+	  return;
+	}
+	relayiterator = coll.iterator();
+	loggingService.debug("Number of new MnRLookupQuery:" +coll.size()); 
+       
+      }
+    } 
+    else if(capabilitiesobject.hasChanged()) {
+      // New capability registration objects have been received
+      loggingService.debug(" Capabilities has changed :");
+      Collection  capabilitiesobj_col=capabilitiesobject.getChangedCollection();
+      if( capabilitiesobj_col.isEmpty()) {
+	loggingService.info("Changed collection is empty though capabilitiesobject.hasChanged returned true ");
+	return ;
+      }
+      ArrayList list=new ArrayList(capabilitiesobj_col);
+      if((list==null)||(list.size()==0)){ 
+	if(loggingService.isDebugEnabled()){
+	  loggingService.debug("Got capabilities object change but the list is empty returning"
+			       + myAddress.toString());
+	}
+	return;
+      }
+      if(list.size()>1) {
+	if(loggingService.isErrorEnabled()) {
+	  loggingService.error("Multiple capabilities object on blackboard. Agent is:"
+			       + myAddress.toString());
+	}
+	return;
+      }
+      capabilitiesChanged=true;
+      loggingService.debug("Capabilities object has changed so getting all query relays");
+      // capabilities may be null if no sensor has registered yet.
+      capabilities=(CapabilitiesObject)list.get(firstobject);
+      relayiterator = queryRelays.getCollection().iterator();
+    }
+    else if(queryRelays.hasChanged()) {
+      // New MnRLookup queries have been received
+      loggingService.debug("At least one MnRLookupQuery has changed. My agent is"
+			   +  myAddress.toString());
+      Collection  capabilitiesobj_col=capabilitiesobject.getCollection();
       ArrayList list=new ArrayList(capabilitiesobj_col);
       if((list==null)||(list.size()==0)){
 	if(loggingService.isDebugEnabled()) {
@@ -224,39 +285,18 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       loggingService.debug("Number of new MnRLookupQuery:" +coll.size()); 
       
     }
-    if(capabilitiesobject.hasChanged()) {
-      capabilitiesChanged=true;
-      Collection  capabilitiesobj_col=capabilitiesobject.getChangedCollection();
-      if( capabilitiesobj_col.isEmpty()) {
-	loggingService.info("Changed collection is empty though capabilitiesobject.hasChanged returned true ");
-	return ;
-      }
-      ArrayList list=new ArrayList(capabilitiesobj_col);
-      if((list==null)||(list.size()==0)){
-	if(loggingService.isDebugEnabled()){
-	  loggingService.debug("Got capabilities object change but the list is empty returning"
-			       + myAddress.toString());
-	}
-	return;
-      }
-      if(list.size()>1) {
-	if(loggingService.isErrorEnabled()) {
-	  loggingService.error("Multiple capabilities object on blackboard. Agent is:"
-			       + myAddress.toString());
-	}
-	return;
-      }
-      loggingService.debug("Capabilities object has changed so getting all query relays");
-      // capabilities may be null if no sensor has registered yet.
-      capabilities=(CapabilitiesObject)list.get(firstobject);
-      relayiterator = queryRelays.getCollection().iterator();
-    }
     updateRelayedQuery(relayiterator,capabilities,capabilitiesChanged);
   }
   
   
-  
-  private void updateRelayedQuery(Iterator iter,CapabilitiesObject capabilities ,
+  /**
+   * Process MnRLookupQuery queries.
+   * @param iter - An iterator through the list of MRAgentLookUp collection
+   * @param capabilities - The capabilites of this M&R manager agent
+   *                       and its subordinates.
+   * @param capabilitieschanged - true if the capabilities have changed.
+   */
+  private void updateRelayedQuery(Iterator iter,CapabilitiesObject capabilities,
 				  boolean capabilitieschanged ) {
     if((iter==null)||(capabilities==null)) {
       loggingService.debug("Either capabilities or iterator is null");
@@ -266,54 +306,90 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     QueryMapping mapping=null;
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
     loggingService.debug("updateRelayedQuery called :"+  myAddress.toString());
+    printhash(capabilities);
+    if(capabilitieschanged) {
+      loggingService.debug("Execute is called with new Capabilities");
+    }
+    else {
+      loggingService.debug("Execute is called with new Query");
+    }
+    
     CmrRelay relay;
-   
+    boolean newquery=false;
     while (iter.hasNext()) {
+      newquery=false;
+      mapping=null;
       relay = (CmrRelay)iter.next();
       Collection queryMappingCollection=querymapping.getCollection();
       if(relay.getContent() instanceof MRAgentLookUp) {
 	agentlookupquery=(MRAgentLookUp)relay.getContent();
 	if(agentlookupquery==null) {
-	  loggingService.warn(" Contents of the relay is null:"+relay.toString()); 
-	}
-	if(!agentlookupquery.updates) {
-	  loggingService.debug("Got relay without update "+agentlookupquery.toString());
+	  loggingService.warn("Contents of the relay is null:"+relay.toString());
 	  continue;
 	}
+	if(!agentlookupquery.updates) {
+	  loggingService.debug("Got relay without update "
+			       +agentlookupquery.toString());
+	  continue;
+	}
+	if (loggingService.isDebugEnabled()) {
+	  loggingService.debug("Receive Query at agent:"+myAddress.toString()+ 
+			       " Query is "+agentlookupquery.toString());  
+	}
 	boolean isqueryoriginator= isRelayQueryOriginator(relay.getUID(),queryMappingCollection);
+	boolean issubquery=isRelaySubQuery(relay.getUID(),queryMappingCollection);
 	if(capabilitieschanged) {
 	  loggingService.debug("New capabilities have come in and going to iterate through all relay and provide up date :");
 	  if(isqueryoriginator){
+	    loggingService.debug("Current relay is the originator of query:"+ relay.toString());
 	    mapping=findQueryMappingFromBB(relay.getUID(),queryMappingCollection) ;
 	    if(mapping!=null) {
+	      loggingService.debug("Removing if any mappingand relay objects  :");
 	      removeRelay(mapping);
 	      mapping.setQueryList(null);
 	      mapping.setResultPublished(false);
 	    }
-	    if (loggingService.isDebugEnabled())
-	      loggingService.debug("Printing receive relay which is not local"
-				   +agentlookupquery.toString());
-	    //agentlookupquery=(MRAgentLookUp)relay.getContent();
-	    if (loggingService.isDebugEnabled()) {
-	      loggingService.debug("Receive Query at agent:"+myAddress.toString()+ 
-				   " Query is "+agentlookupquery.toString());  
-	      loggingService.debug("Trying to find if there are any enclave manager :");
+	    else {
+	      loggingService.debug("Query Originator wa true but mapping object is null :");
 	    }
 	  }
-	  else {
-	    /* current relay is not the originator so we will continue with the next relay . */
+	  else if(issubquery) {
+	    loggingService.debug("Relay query is a sub query going to continue with next query relay:");
 	    continue;
+	  }
+	  else {
+	    /*Received a new query relay 
+	     */
+	    loggingService.debug("Relay query is a new  query :"); 
+	    newquery=true;
+	  }
+	}
+	else {
+	  if(isqueryoriginator) {
+	    loggingService.debug(" ERROR !!!!!!!!!!!!!! some how reading the comple query relay ");
+	  }
+	  loggingService.debug("Not change capabilities but could be new original query /subquery:");
+	  if(issubquery) {
+	    loggingService.debug("Relay query is a sub query going to continue with next query relay:");
+	    continue;
+	  }
+	  else {
+	    loggingService.debug("Relay query is a new  query :" + relay.toString()); 
+	    newquery=true;
 	  }
 	}
       }
       else {
 	/*
 	  Not an instance or MRAgentLookUp contine with te next relay.  */
+	loggingService.debug("Current relay is not instance of MnRAgentLookup:"
+			     + relay.toString());
 	continue;
       }
       if(capabilitieschanged) {
-	loggingService.debug("Going to search again For persiated query ");
+	loggingService.debug("Going to search again For persisted query ");
       }
+      
       List response= findAgent(agentlookupquery, capabilities, false);
       if (loggingService.isDebugEnabled()) {
 	loggingService.debug("Found response for enclave manager and size of response :"
@@ -321,7 +397,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       }
       if(!response.isEmpty()) {
 	if (loggingService.isDebugEnabled()) {
-	  loggingService.debug("MnRQueryReceiver plugin  Creating new relays :"
+	  loggingService.debug("MnRQueryReceiver plugin  Creating new relays:"
 			       + myAddress.toString());
 	}
 	Iterator response_iterator=response.iterator();
@@ -338,12 +414,17 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	  reg=(RegistrationAlert)capabilities.get(key);
 	  dest_address=new ClusterIdentifier(key);
 	  if (loggingService.isDebugEnabled()) {
-	    loggingService.debug("Destination address for relay is :"+dest_address.toString());
+	    loggingService.debug("Destination address for Sub Query relay is :"
+				 +dest_address.toString());
 	  }
 	  CmrRelay forwardedrelay = null;
 	  forwardedrelay = factory.newCmrRelay(agentlookupquery, dest_address);
 	  relay_uid_list.add(new OutStandingQuery(forwardedrelay.getUID()));
 	  getBlackboardService().publishAdd(forwardedrelay);
+	  if (loggingService.isDebugEnabled()) {
+	    loggingService.debug(" Sub Query relay is :"
+				 +forwardedrelay.toString());
+	  }
 	  modified=true;
 	}
 	if(modified) {
@@ -351,11 +432,24 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	    loggingService.debug("Creating new Mapping query Object:");
 	  }
 	  if((mapping!=null)&&(mapping.getRelayUID().equals(relay.getUID()))) {
+	    if (loggingService.isDebugEnabled()) {
+	      loggingService.debug("Mapping query Object is not null && relay uid equals mapping uid:");
+	    }
 	    mapping.setQueryList(relay_uid_list);
 	    getBlackboardService().publishChange(mapping);
 	  }
 	  else {
 	    mapping=new QueryMapping(relay.getUID(), relay_uid_list);
+	    getBlackboardService().publishAdd(mapping);
+	  }
+	}
+      }
+      else {
+	if(newquery) {
+	  if(myRole.equalsIgnoreCase("SecurityMnRManager-Society")) {
+	    loggingService.debug("Creating QueryMapping object for new relay :"
+				 + relay.toString());
+	    mapping=new QueryMapping(relay.getUID(), null);
 	    getBlackboardService().publishAdd(mapping);
 	  }
 	}
@@ -371,6 +465,8 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	if (loggingService.isDebugEnabled()) {
 	  loggingService.debug("No Local agents are present with the capabilities. Returning");
 	}
+	relay.updateResponse(relay.getSource(),new MRAgentLookUpReply( new ArrayList()));
+	getBlackboardService().publishChange(relay);
 	return;
       }
       if (loggingService.isDebugEnabled()) {
@@ -389,35 +485,36 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	relay_uid_list.add(dest_address);
       }
       if (loggingService.isDebugEnabled()) {
-	loggingService.debug("Update response is being done :"+relay.getSource().toString() );
+	loggingService.debug("Update response is being done for source :"+relay.getSource().toString() );
+	loggingService.debug("Update response is being done for relay :"+relay.toString());
       }
       relay.updateResponse(relay.getSource(),new MRAgentLookUpReply( relay_uid_list));
       getBlackboardService().publishChange(relay);
     }
     
-      // Changed relays
-      /*
-	Currently not handling any relay change for relays that are not locally created    
-	System.out.println("Changed relays of receiver plugin going to be executed:");
-	Collection qcol= queryRelays.getChangedCollection();
-	System.out.println("coll size in reci plugin is :"+qcol.size());
+    // Changed relays
+    /*
+      Currently not handling any relay change for relays that are not locally created    
+      System.out.println("Changed relays of receiver plugin going to be executed:");
+      Collection qcol= queryRelays.getChangedCollection();
+      System.out.println("coll size in reci plugin is :"+qcol.size());
     
-	iter = queryRelays.getChangedCollection().iterator();
-	while (iter.hasNext()) {
-	relay = (CmrRelay)iter.next();
-	if (!relay.getSource().equals(myAddress)) {
+      iter = queryRelays.getChangedCollection().iterator();
+      while (iter.hasNext()) {
+      relay = (CmrRelay)iter.next();
+      if (!relay.getSource().equals(myAddress)) {
 	  
-	Event oldCapabilities = findEventFrom(relay.getSource());
-	if (oldCapabilities != null)
-	getBlackboardService().publishRemove(oldCapabilities);
-	loggingService.debug("printing replaced  relay which is not local:=========>"
-	+relay.getContent().toString());
-	getBlackboardService().publishAdd(relay.getContent());
-	}
+      Event oldCapabilities = findEventFrom(relay.getSource());
+      if (oldCapabilities != null)
+      getBlackboardService().publishRemove(oldCapabilities);
+      loggingService.debug("printing replaced  relay which is not local:=========>"
+      +relay.getContent().toString());
+      getBlackboardService().publishAdd(relay.getContent());
+      }
  
-	}
-      */
-      // Removed relays
+      }
+    */
+    // Removed relays
     Iterator removediter =queryRelays.getRemovedCollection().iterator();
     while (removediter.hasNext()) {
       relay = (CmrRelay)removediter.next();
@@ -431,25 +528,25 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
   }
   
   private void removeRelay(QueryMapping mapping) {
-     if(mapping==null) {
-       return;
-     } 
-     ArrayList list=mapping.getQueryList();
-     if(list==null) {
-       return;
-     }
-     if(list.isEmpty()) {
-       return;
-     }
-     OutStandingQuery outstandingquery;
-     CmrRelay relay=null;
-     for(int i=0;i<list.size();i++) {
-       outstandingquery=(OutStandingQuery)list.get(i);
-       relay=findCmrRelay(outstandingquery.getUID());
-       if((relay!=null)&&(relay.getSource().equals(myAddress))) {
-	 getBlackboardService().publishRemove(relay); 
-       }
-     }
+    if(mapping==null) {
+      return;
+    } 
+    ArrayList list=mapping.getQueryList();
+    if(list==null) {
+      return;
+    }
+    if(list.isEmpty()) {
+      return;
+    }
+    OutStandingQuery outstandingquery;
+    CmrRelay relay=null;
+    for(int i=0;i<list.size();i++) {
+      outstandingquery=(OutStandingQuery)list.get(i);
+      relay=findCmrRelay(outstandingquery.getUID());
+      if((relay!=null)&&(relay.getSource().equals(myAddress))) {
+	getBlackboardService().publishRemove(relay); 
+      }
+    }
   }
   
   public CmrRelay  findCmrRelay (UID key) {
@@ -526,7 +623,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       
     }
     else if((role==null)&&(community!=null) ) {
-       loggingService.debug("Searching with  community Only :");
+      loggingService.debug("Searching with  community Only :");
       commagents=(ArrayList)searchByCommunity(community); 
     }
     loggingService.debug("Printing result of community and role combination :");
@@ -544,32 +641,37 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     loggingService.debug("Size of result with classification is " +classagents.size() );
     
     /*
-    for(int i=0;i<classagents.size();i++) {
+      for(int i=0;i<classagents.size();i++) {
       loggingService.debug("classification result at i:"+i +" agent is :"+(String)classagents.get(i));  
-    }
+      }
     */
     sourceagents=(ArrayList)searchBySource(querySource,caps,sensors);
     loggingService.debug("Size of result with source  is :" +sourceagents.size() );
     /*for(int i=0;i<sourceagents.size();i++) {
       loggingService.debug("source  result at i:"+i +" agent is :"+(String)classagents.get(i));  
-    }
+      }
     */
     targetagents=(ArrayList)searchByTarget(queryTarget,caps,sensors);
     loggingService.debug("Size of result with target is :" +targetagents.size() );
-    for(int i=0;i<targetagents.size();i++) {
-      loggingService.debug("Target result at i:"+i +" agent is :"+(String)targetagents.get(i));  
-    }
+    /* for(int i=0;i<targetagents.size();i++) {
+       loggingService.debug("Target result at i:"+i +" agent is :"+(String)targetagents.get(i));  
+       }
+    */
     //loggingService.debug("Size of result with target is :" +targetagents.size() );
     sourceofAttackAgents=(ArrayList)searchBySourceOfAttack(sourceOfAttack,caps,sensors);
     loggingService.debug("Size of result with source of ATTACK  is :" +sourceofAttackAgents.size() );
-    for(int i=0;i<sourceofAttackAgents.size();i++) {
+    /*
+      for(int i=0;i<sourceofAttackAgents.size();i++) {
       loggingService.debug("sourceofAttackAgents result at i:"+i +" agent is :"+(String)sourceofAttackAgents.get(i));  
-    }
+      }
+    */
     targetofAttackAgents=(ArrayList)searchByTargetOfAttack(targetOfAttack,caps,sensors);
     loggingService.debug("Size of result with target of ATTACK  is :" +targetofAttackAgents.size() );
-    for(int i=0;i<targetofAttackAgents.size();i++) {
+    /*
+      for(int i=0;i<targetofAttackAgents.size();i++) {
       loggingService.debug("targetofAttackAgents result at i:"+i +" agent is :"+(String)targetofAttackAgents.get(i));  
-    }
+      }
+    */
     if(((community!=null) || (role!=null))&& (commagents.isEmpty())) {
       loggingService.debug(" Community Rol combination is empty :");
       commonAgents=new ArrayList();
@@ -577,75 +679,53 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     else {
       boolean iscomagentset=false;
       if((community!=null) || (role!=null)) {
-	 iscomagentset=true;
+	iscomagentset=true;
       }
-      if(queryClassification!=null) {
-	loggingService.debug("Query for classification was not null:");
-	if(!iscomagentset) {
-	  commonAgents=classagents;
-	  iscomagentset=true;
-	}
-	else 
-	  commonAgents=(ArrayList)findCommanAgents(commagents,classagents);
+      //if(queryClassification!=null) {
+      //loggingService.debug("Query for classification was not null:");
+      if(!iscomagentset) {
+	commonAgents=classagents;
+	iscomagentset=true;
       }
-      if(querySource!=null) {
-	loggingService.debug("Query for Source was not null:");
-	if(!iscomagentset) {
-	  commonAgents=sourceagents;
-	  iscomagentset=true;
-	}
-	else
-	  commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceagents);
+      else 
+	commonAgents=(ArrayList)findCommanAgents(commagents,classagents);
+      //}
+      //if(querySource!=null) {
+      //loggingService.debug("Query for Source was not null:");
+      if(!iscomagentset) {
+	commonAgents=sourceagents;
+	iscomagentset=true;
       }
-      if(queryTarget!=null){
-	loggingService.debug("Query for Target  was not null:");
-	if(!iscomagentset) {
-	  commonAgents=targetagents;
-	  iscomagentset=true;
-	}
-	else 
-	  commonAgents=(ArrayList)findCommanAgents(commonAgents,targetagents);
+      else
+	commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceagents);
+      //}
+      //if(queryTarget!=null){
+      //loggingService.debug("Query for Target  was not null:");
+      if(!iscomagentset) {
+	commonAgents=targetagents;
+	iscomagentset=true;
       }
-      if(sourceOfAttack!=null) {
-	loggingService.debug("Query for SourceOf Attack  was not null:");
-	if(!iscomagentset) {
-	  commonAgents=sourceofAttackAgents;
-	  iscomagentset=true;
-	}
-	else 
-	  commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceofAttackAgents);
-	
+      else 
+	commonAgents=(ArrayList)findCommanAgents(commonAgents,targetagents);
+      //}
+      //if(sourceOfAttack!=null) {
+      //loggingService.debug("Query for SourceOf Attack  was not null:");
+      if(!iscomagentset) {
+	commonAgents=sourceofAttackAgents;
+	iscomagentset=true;
       }
-      if(targetOfAttack!=null) {
-	loggingService.debug("Query for targetOfAttack was not null:");
-	if(!iscomagentset) {
-	  commonAgents=targetofAttackAgents;
-	  iscomagentset=true;
-	}
-	else 
-	  commonAgents=(ArrayList)findCommanAgents(commonAgents,targetofAttackAgents);
+      else 
+	commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceofAttackAgents);
+      //}
+      //if(targetOfAttack!=null) {
+      //loggingService.debug("Query for targetOfAttack was not null:");
+      if(!iscomagentset) {
+	commonAgents=targetofAttackAgents;
+	iscomagentset=true;
       }
-      /*
-      if((queryClassification!=null) || (querySource!=null) || (queryTarget!=null) || (sourceOfAttack!=null) ||(targetOfAttack!=null)) {
-	loggingService.debug("Either queryClassification querySource queryTarget is not null");
-	if(!classagents.isEmpty()|| !sourceagents.isEmpty()||!targetagents.isEmpty() || !sourceofAttackAgents.isEmpty() || !targetofAttackAgents.isEmpty()) {
-	  loggingService.debug("Either queryClassification querySource queryTarget is notresult is not Empty");
-	  commonAgents=(ArrayList)findCommanAgents(commagents,classagents);
-	  commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceagents);
-	  commonAgents=(ArrayList)findCommanAgents(commonAgents,targetagents);	
-	  commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceofAttackAgents);
-	  commonAgents=(ArrayList)findCommanAgents(commonAgents,targetofAttackAgents);
-	}
-	else {
-	   loggingService.debug("Either queryClassification querySource queryTarget is notresult is EMPTY  Empty");
-	  commonAgents=new ArrayList();
-	}
-      }
-      else {
-	 loggingService.debug("Either queryClassification querySource queryTarget is NULL");
-	commonAgents=commagents;
-      }
-      */
+      else 
+	commonAgents=(ArrayList)findCommanAgents(commonAgents,targetofAttackAgents);
+      //}
     }
     loggingService.debug("Printing result of query:" + sensors);
     for(int i=0;i<commonAgents.size();i++) {
@@ -659,12 +739,12 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
   public List findCommanAgents(List list1,List list2) {
     ArrayList commonList=new ArrayList();
     /*
-    if(list1.isEmpty()) {
+      if(list1.isEmpty()) {
       return list2;
-    }
-    if(list2.isEmpty()){
+      }
+      if(list2.isEmpty()){
       return list1;
-    }
+      }
     */
     Iterator iter=list1.iterator();
     String agentname;
@@ -683,12 +763,15 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     Enumeration keys=caps.keys();
     RegistrationAlert reg;
     ArrayList agentlist=new ArrayList();
-    if(searchClassification==null) {
+    /*if(searchClassification==null) {
       return agentlist;
-    }
+      }
+    */
     if (loggingService.isDebugEnabled()) {
-      loggingService.debug("In find agent FUNCTION  query is :"+searchClassification.getName()+
-			   "Origin  "+searchClassification.getOrigin() );
+      if(searchClassification!=null){
+	loggingService.debug("In find agent FUNCTION  query is :"+searchClassification.getName()+
+			     "Origin  "+searchClassification.getOrigin() );
+      }
     }
     while(keys.hasMoreElements()) {
       key=(String)keys.nextElement();
@@ -699,6 +782,25 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       Classification [] classifications=reg.getClassifications();
       if(classifications==null) {
 	return agentlist;
+      }
+      if(searchClassification==null) {
+	loggingService.debug("got search classification as null will return all sensors :");
+	if(sensors) {
+	  if((reg.getType().equals(IdmefMessageFactory.SensorType))){
+	    loggingService.debug("Analyzer id is :"+ reg.getAgentName());
+	    loggingService.debug("Adding sensor key when classification is null :"+key);
+	    agentlist.add(reg.getAgentName());
+	  }
+	}
+	else {
+	  loggingService.debug("Looking for Security  manager when classification is null :");
+	  if((reg.getType().equals( IdmefMessageFactory.EnclaveMgrType))||
+	     (reg.getType().equals( IdmefMessageFactory.SocietyMgrType))) {
+	    loggingService.debug("Adding security manager  key when classification is null :"+key);
+	    agentlist.add(key);
+	  }
+	}
+	continue;
       }
       if(isClassificationPresent(searchClassification,classifications)) {
 	loggingService.debug("Got calssification equal:" + key);
@@ -729,11 +831,13 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     RegistrationAlert reg;
     Source [] sources=null;
     ArrayList agentlist=new ArrayList();
-    if(searchSource==null) {
+    /*
+      if(searchSource==null) {
       return agentlist;
-    }
+      }
+    */
     if (loggingService.isDebugEnabled()) {
-      loggingService.debug("In  searchBySources FUNCTION  query is :"+searchSource.toString());
+      loggingService.debug("In  searchBySources FUNCTION  query is :"+searchSource);
     }
     while(keys.hasMoreElements()) {
       key=(String)keys.nextElement();
@@ -742,8 +846,26 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	loggingService.debug(" in capabilities object : Key is "+ key );
       }
       sources=reg.getSources();
+      if(searchSource==null) {
+	if(sensors) {
+	  loggingService.debug("Looking for sensors agents when query source is null :");
+	  if((reg.getType().equals(IdmefMessageFactory.SensorType))){
+	    loggingService.debug(" adding sensor key when query source is null :"+key);
+	    agentlist.add(reg.getAgentName());
+	  }
+	}
+	else {
+	  loggingService.debug("Looking for Security  managerwhen query source is null :");
+	  if((reg.getType().equals( IdmefMessageFactory.EnclaveMgrType))||
+	     (reg.getType().equals( IdmefMessageFactory.SocietyMgrType))) {
+	    loggingService.debug("adding security manager  key when query source is null :"+key);
+	    agentlist.add(key);
+	  }
+	}
+	continue;
+      }
       if(sources==null) {
-	 return agentlist;
+	return agentlist;
       }
       if(isSourceORTargetPresent(searchSource,sources)) {
 	loggingService.debug("Got source equal:" + reg.getType());
@@ -775,11 +897,12 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     RegistrationAlert reg;
     Target [] targets=null;
     ArrayList agentlist=new ArrayList();
-    if(searchTarget==null) {
-       return agentlist;
-    }
+    /*if(searchTarget==null) {
+      return agentlist;
+      }
+    */
     if (loggingService.isDebugEnabled()) {
-      loggingService.debug(" in  searchByTargets FUNCTION  query is :"+searchTarget.toString());
+      loggingService.debug(" in  searchByTargets FUNCTION  query is :"+searchTarget);
     }
     while(keys.hasMoreElements()) {
       key=(String)keys.nextElement();
@@ -788,9 +911,27 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	loggingService.debug(" in capabilities object : Key is "+ key );
       }
       targets=reg.getTargets();
-      if(targets==null) {
-	 return agentlist;
+      if(searchTarget==null) {
+	if(sensors) {
+	  loggingService.debug("Looking for sensors agents when query target is null:");
+	  if((reg.getType().equals(IdmefMessageFactory.SensorType))){
+	    loggingService.debug(" adding sensor key when query target is null :"+key);
+	    agentlist.add(reg.getAgentName());
+	  }
+	}
+	else {
+	  loggingService.debug("Looking for Security  manager when query target is null:");
+	  if((reg.getType().equals( IdmefMessageFactory.EnclaveMgrType))||
+	     (reg.getType().equals( IdmefMessageFactory.SocietyMgrType))) {
+	    loggingService.debug("Adding security manager  key when query target is null :"+key);
+	    agentlist.add(key);
+	  }
+	}
+	continue;
       }
+      if(targets==null) {
+	return agentlist;
+      } 
       if(isSourceORTargetPresent(searchTarget,targets)) {
 	loggingService.debug(" Got source equal:" + reg.getType());
 	if(sensors) {
@@ -822,9 +963,10 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     AdditionalData [] additionaldatas=null;
     AdditionalData data=null;
     ArrayList agentlist=new ArrayList();
-    if(agentname==null) {
+    /*if(agentname==null) {
       return agentlist;
-    }
+      }
+    */
     if (loggingService.isDebugEnabled()) {
       loggingService.debug(" in  searchBySourcesofattack  FUNCTION  query is :"+agentname);
     }
@@ -836,8 +978,26 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       }
       sources=reg.getSources();
       additionaldatas=reg.getAdditionalData();
+      if(agentname==null) {
+	if(sensors) {
+	  loggingService.debug("Looking for sensors agents when source of attack is null  :");
+	  if((reg.getType().equals(IdmefMessageFactory.SensorType))){
+	    loggingService.debug(" adding sensor key when source of attack is null:"+key);
+	    agentlist.add(reg.getAgentName());
+	  }
+	}
+	else {
+	  loggingService.debug("Looking for Security  managerwhen source of attack is null :");
+	  if((reg.getType().equals( IdmefMessageFactory.EnclaveMgrType))||
+	     (reg.getType().equals( IdmefMessageFactory.SocietyMgrType))) {
+	    loggingService.debug(" adding security manager  keywhen source of attack is null  :"+key);
+	    agentlist.add(key);
+	  }
+	}
+	continue;
+      }
       if(sources==null) {
-	 return agentlist;
+	return agentlist;
       }
       if(additionaldatas==null) {
 	return agentlist;
@@ -901,9 +1061,10 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     AdditionalData [] additionaldatas=null;
     AdditionalData data=null;
     ArrayList agentlist=new ArrayList();
-    if(agentname==null) {
+    /*if(agentname==null) {
       return agentlist;
-    }
+      }
+    */
     if (loggingService.isDebugEnabled()) {
       loggingService.debug(" in  searchByTargetofattack  FUNCTION  query is :"+agentname);
     }
@@ -915,8 +1076,26 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       }
       targets=reg.getTargets();
       additionaldatas=reg.getAdditionalData();
+      if(agentname==null) {
+	if(sensors) {
+	  loggingService.debug("Looking for sensors agents when target of attack is null  :");
+	  if((reg.getType().equals(IdmefMessageFactory.SensorType))){
+	    loggingService.debug(" adding sensor key when target of attack is null :"+key);
+	    agentlist.add(reg.getAgentName());
+	  }
+	}
+	else {
+	  loggingService.debug("Looking for Security  manager when target of attack is null :");
+	  if((reg.getType().equals( IdmefMessageFactory.EnclaveMgrType))||
+	     (reg.getType().equals( IdmefMessageFactory.SocietyMgrType))) {
+	    loggingService.debug("Adding security manager  key when target of attack is null:"+key);
+	    agentlist.add(key);
+	  }
+	}
+	continue;
+      }
       if(targets==null) {
-	 return agentlist;
+	return agentlist;
       }
       if(additionaldatas==null) {
 	return agentlist;
@@ -1022,7 +1201,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       myRole="SecurityMnRManager-Society";
     }
     if(enclavemgr && societymgr) {
-       myRole="SecurityMnRManager-Society"; 
+      myRole="SecurityMnRManager-Society"; 
     }
     return myRole;
     						      
@@ -1034,8 +1213,8 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       return list;
     }
     if(community==null) {
-       loggingService.error("Community is null in searchByCommunity " +myAddress.toString()); 
-       return list;
+      loggingService.error("Community is null in searchByCommunity " +myAddress.toString()); 
+      return list;
     }
     CommunityRoster roster=communityService.getRoster(community);
     Collection agents=roster.getMemberAgents();
@@ -1055,8 +1234,8 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       return list;
     }
     if(role==null) {
-       loggingService.error(" Role  is null in searchByRole " +myAddress.toString()); 
-       return list;
+      loggingService.error(" Role  is null in searchByRole " +myAddress.toString()); 
+      return list;
     }
     Collection communities =communityService.listAllCommunities();
     Iterator iter=communities.iterator();
@@ -1110,7 +1289,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     for(int i=0;i<classificationList.length;i++) {
       currentclassification=classificationList[i];
       /*loggingService.debug("current classification :"+ classificationtoString(currentclassification));
-      loggingService.debug("query classification :"+ classificationtoString(queryclassification));
+	loggingService.debug("query classification :"+ classificationtoString(queryclassification));
       */
       if(areClassificationsEqual(currentclassification,queryclassification)){
 	isclassification=true;
@@ -1122,7 +1301,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
   
   public boolean isSourceORTargetPresent(Object inquery,Object[] inObjectArray) {
     boolean ispresent=false;
-   loggingService.debug("Size of source or target is :"+ inObjectArray.length);
+    loggingService.debug("Size of source or target is :"+ inObjectArray.length);
     for(int i=0;i<inObjectArray.length;i++) {
       if(areSourceORTargetEqual(inObjectArray[i],inquery)){
 	ispresent=true;
@@ -1142,7 +1321,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     boolean serviceequal=false;
     boolean processequal=false;
     if(!(((existing instanceof Source) && (inquery instanceof Source))||
-       ((existing instanceof Target) && (inquery instanceof Target)))) {
+	 ((existing instanceof Target) && (inquery instanceof Target)))) {
       return equal;
     }
     IDMEF_Node existingNode=null;
@@ -1275,7 +1454,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       userequal=true;
     }
     else if(queryUser==null){
-       userequal=true;
+      userequal=true;
     }
     
     if((existingService!=null)&&(queryService!=null)){
@@ -1334,7 +1513,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       serviceequal=true;
     }
     else if(queryService==null) {
-       serviceequal=true;
+      serviceequal=true;
     }
     
     if((existingProcess!=null)&&(queryProcess!=null)){
@@ -1355,7 +1534,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       if(queryName==null) {
 	processNameequal=true;
       }
-       if((existingName!=null) &&(queryName!=null)) {
+      if((existingName!=null) &&(queryName!=null)) {
 	if(existingName.trim().equals(queryName.trim())) {
 	  processNameequal=true;
 	}
@@ -1370,7 +1549,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       processequal=true;
     }
     else if(queryProcess==null) {
-       processequal=true;
+      processequal=true;
     }
     if( nodeequal &&  userequal &&  serviceequal &&  processequal) {
       loggingService.debug("Either source or target is equal  :");
@@ -1380,42 +1559,42 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
      
   }
  
-    public boolean containsUserId(UserId inUserId, UserId [] arrayUserId) {
-      boolean contains=false;
-      UserId userid;
-      if(inUserId==null) {
-	return contains;
-      }
-      boolean nameequal=false;
-      boolean numberequal=false;
-      if(arrayUserId!=null) {
-	for(int i=0;i<arrayUserId.length;i++) {
-	  userid=arrayUserId[i];
-	  String inName=inUserId.getName();
-	  String name=userid.getName();
-	  Integer innumber=inUserId.getNumber();
-	  Integer number=userid.getNumber();
-	  if((inName!=null)&& (name!=null)) {
-	    if(inName.trim().equals(name.trim())) {
-	      nameequal=true;
-	    }
-	  }
-	  if((innumber!=null)&&(number!=null)) {
-	    if(innumber.intValue()==number.intValue()) {
-	      numberequal=true;
-	    }
-	  }
-	  if(nameequal && numberequal) {
-	    contains=true;
-	    return contains;
-	  }
-	    
-	}
-      }
+  public boolean containsUserId(UserId inUserId, UserId [] arrayUserId) {
+    boolean contains=false;
+    UserId userid;
+    if(inUserId==null) {
       return contains;
     }
+    boolean nameequal=false;
+    boolean numberequal=false;
+    if(arrayUserId!=null) {
+      for(int i=0;i<arrayUserId.length;i++) {
+	userid=arrayUserId[i];
+	String inName=inUserId.getName();
+	String name=userid.getName();
+	Integer innumber=inUserId.getNumber();
+	Integer number=userid.getNumber();
+	if((inName!=null)&& (name!=null)) {
+	  if(inName.trim().equals(name.trim())) {
+	    nameequal=true;
+	  }
+	}
+	if((innumber!=null)&&(number!=null)) {
+	  if(innumber.intValue()==number.intValue()) {
+	    numberequal=true;
+	  }
+	}
+	if(nameequal && numberequal) {
+	  contains=true;
+	  return contains;
+	}
+	    
+      }
+    }
+    return contains;
+  }
     
-   public boolean containsAddress(Address anAddress, Address [] arrayAddress) {
+  public boolean containsAddress(Address anAddress, Address [] arrayAddress) {
     boolean contains=false;
     Address address;
     if(anAddress==null) {
@@ -1461,7 +1640,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     QueryMapping querymapping=null;
     if(!queryMappingCol.isEmpty()){
       if (loggingService.isDebugEnabled()) {
-	loggingService.debug("Going to find if this relay is originator of query :"); 
+	loggingService.debug("Going to find if this relay id is originator of query :"); 
       }
       Iterator iter=queryMappingCol.iterator();
       while(iter.hasNext()) {
@@ -1473,6 +1652,41 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       }
     }
     return isoriginator;
+  }
+  
+  public boolean isRelaySubQuery(UID givenUID, Collection queryMappingCol ) {
+    QueryMapping foundqMapping=null;
+    ArrayList relayList;
+    OutStandingQuery outstandingq;
+    boolean issubquery=false;
+    //QueryMapping tempqMapping;
+    if(!queryMappingCol.isEmpty()){
+      if (loggingService.isDebugEnabled()) {
+	loggingService.debug("Going to find uid from list of Query mapping Objects on bb"+queryMappingCol.size()); 
+      }
+      Iterator iter=queryMappingCol.iterator();
+      while(iter.hasNext()) {
+	foundqMapping=(QueryMapping)iter.next();
+	relayList=foundqMapping.getQueryList();
+	if(relayList==null) {
+	  return false;
+	}
+	for(int i=0;i<relayList.size();i++) {
+	  outstandingq=(OutStandingQuery)relayList.get(i);
+	  if(outstandingq.getUID().equals(givenUID)) {
+	    if (loggingService.isDebugEnabled()) {
+	      loggingService.debug(" Found given uid :"+ givenUID +" in object with UID :"+outstandingq.getUID());
+	    }
+	    issubquery=true;
+	    return issubquery;
+	  }
+	}
+      }
+    } 
+    else {
+      return issubquery;
+    }
+    return issubquery;
   }
   
   public QueryMapping findQueryMappingFromBB(UID givenUID, Collection queryMappingCol ) {
@@ -1487,7 +1701,13 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       Iterator iter=queryMappingCol.iterator();
       while(iter.hasNext()) {
 	foundqMapping=(QueryMapping)iter.next();
+	if(foundqMapping.getRelayUID().equals(givenUID)) {
+	  return foundqMapping;
+	}
 	relayList=foundqMapping.getQueryList();
+	if(relayList==null) {
+	  return null;
+	}
 	for(int i=0;i<relayList.size();i++) {
 	  outstandingq=(OutStandingQuery)relayList.get(i);
 	  if(outstandingq.getUID().equals(givenUID)) {
@@ -1505,21 +1725,21 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     }
     return null;
   }
-   public void printhash(CapabilitiesObject cap) {
-      Enumeration keys=cap.keys();
-      String key=null;
-      RegistrationAlert registration=null;
-      loggingService.debug(" CAPABILITIES OBJECT IN ADDRESS :"+myAddress.toString());
-      while(keys.hasMoreElements()) {
-	key=(String)keys.nextElement();
-	if (loggingService.isDebugEnabled()) {
-	  loggingService.debug(" KEY IN CAPABILITIES OBJECT IS :"+key);
-	}
-	registration=(RegistrationAlert)cap.get(key);
-	loggingService.debug(" data of  alert is :"+registration.toString());
+  public void printhash(CapabilitiesObject cap) {
+    Enumeration keys=cap.keys();
+    String key=null;
+    RegistrationAlert registration=null;
+    loggingService.debug(" CAPABILITIES OBJECT IN ADDRESS :"+myAddress.toString());
+    while(keys.hasMoreElements()) {
+      key=(String)keys.nextElement();
+      if (loggingService.isDebugEnabled()) {
+	loggingService.debug(" KEY IN CAPABILITIES OBJECT IS :"+key);
       }
-    
+      registration=(RegistrationAlert)cap.get(key);
+      loggingService.debug(" data of  alert is :"+registration.toString());
     }
+    
+  }
   
    
 }

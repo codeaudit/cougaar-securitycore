@@ -33,6 +33,7 @@ import java.io.Serializable;
 
 public class QueryMapping implements Publishable, Serializable {
   private ArrayList queryList;
+  private ArrayList localsensors;
   private UID relay_uid;
   private boolean alreadypublished=false;  
   public QueryMapping (UID id, ArrayList query) {
@@ -60,5 +61,12 @@ public class QueryMapping implements Publishable, Serializable {
   } 
   public boolean isResultPublished() {
     return alreadypublished;
+  }
+  public ArrayList getLocalSensors() {
+    return localsensors;
+  }
+  
+  public void setLocalSensors(ArrayList sensorlist){
+    this.localsensors=sensorlist;
   }
 }
