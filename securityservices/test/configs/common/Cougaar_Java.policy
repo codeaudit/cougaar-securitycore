@@ -148,6 +148,11 @@ grant signedBy "privileged" {
 	// "Cougaar" properies that can be read
 	permission java.util.PropertyPermission "org.cougaar.*", "read";
 
+	///////////////////////////////////////////////////
+	// Package access permissions
+	permission java.lang.RuntimePermission "accessClassInPackage.sun";
+
+	///////////////////////////////////////////////////
 	// This permission is needed by the AgentManager to associate a JAAS
 	// subject with an agent when it starts an agent.
 	permission javax.security.auth.AuthPermission "modifyPrincipals";
