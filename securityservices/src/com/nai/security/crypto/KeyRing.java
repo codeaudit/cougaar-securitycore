@@ -200,7 +200,7 @@ final public class KeyRing {
     return keystore.getCRL();
   }
 
-  public void checkOrMakeCert(String name)
+  public static void checkOrMakeCert(String name)
   {
       keystore.checkOrMakeCert(name);
       return;
