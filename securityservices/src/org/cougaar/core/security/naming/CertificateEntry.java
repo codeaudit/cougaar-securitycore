@@ -58,12 +58,6 @@ public class CertificateEntry
       authority */
   private CertificateType _certificateType=null;
 
-  /** The trust status of this certificate.
-   * When a key pair has been generated but not submitted to a CA yet,
-   * the certificate cannot be used because other parties will not trust
-   * the certificate. */
-  private CertificateTrust _certificateTrust;
-
   public CertificateEntry(X509Certificate cert,
 			  CertificateRevocationStatus status,
 			  CertificateType certtype)
@@ -84,7 +78,7 @@ public class CertificateEntry
    */
   public X509Certificate getCertificate() { return _certificate; }
 
-  /** 
+  /**
    * Set the certificate
    */
   public void setCertificate(X509Certificate c) {
@@ -152,13 +146,6 @@ public class CertificateEntry
       certTrust = CertificateTrust.CERT_TRUST_CA_SIGNED;
     }
     return certTrust;
-  }
-
-  public void setCertificateTrust(CertificateTrust trust) {
-    if (trust.equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)) {
-      setCertificateRevocationStatus(CertificateRevocationStatus.REVOKED);
-    }
-    _certificateTrust = trust;
   }
 
 

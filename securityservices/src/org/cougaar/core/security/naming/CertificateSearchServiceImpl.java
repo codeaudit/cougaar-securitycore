@@ -72,6 +72,12 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
     try {
       AddressEntry ael = whitePagesService.get(cname,
         Application.getApplication("topology"), "cert");
+      if (ael == null) {
+        if (log.isDebugEnabled()) {
+          log.debug("Unable to find cert entry in naming: " + cname);
+        }
+        return l;
+      }
       Cert cert = ael.getCert();
       if (cert == Cert.PROXY) {
         // go to contact the agent with attribute cert provider
