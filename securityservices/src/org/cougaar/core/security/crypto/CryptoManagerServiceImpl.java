@@ -161,7 +161,6 @@ public class CryptoManagerServiceImpl
       throw new IllegalArgumentException("Signed object with " + name
 					 + " key is null. Unable to verify signature");
     }
-
     // need to find all certs with the name signed by multiple CAs
     List nameList = keyRing.findDNFromNS(name);
 
@@ -203,7 +202,8 @@ public class CryptoManagerServiceImpl
 	log.warn((String) signatureIssues.get(i));
       }
     }
-    return null;
+    throw new NoValidKeyException("Unable to get certificate of "
+                                  + name);
   }
 
   private Object verify(List certList, SignedObject obj, boolean expiredOk, ArrayList signatureIssues) 
@@ -260,7 +260,6 @@ public class CryptoManagerServiceImpl
 	continue;
       }
     }
-    
     return null;
   }
 
@@ -598,6 +597,22 @@ public class CryptoManagerServiceImpl
       Hashtable certTable = keyRing.findCertPairFromNS(source.toAddress(), target.toAddress());
       X509Certificate sender = (X509Certificate)certTable.get(source.toAddress());
       X509Certificate receiver = (X509Certificate)certTable.get(target.toAddress());
+      if (sender == null) {
+	String msg = "Cannot create session key. Sender certificate not found: "
+	  + source.toAddress();
+	if (log.isWarnEnabled()) {
+	  log.warn(msg);
+	}
+	throw new CertificateException(msg);
+      }
+      if (receiver == null) {
+	String msg = "Cannot create session key. Receiver certificate not found: "
+	  + target.toAddress();
+	if (log.isWarnEnabled()) {
+	  log.warn(msg);
+	}
+	throw new CertificateException(msg);
+      }
       if (so == null || !so.receiverCert.equals(receiver) || 
           !so.senderCert.equals(sender)) {
 	/*generate the secret key*/
@@ -609,11 +624,6 @@ public class CryptoManagerServiceImpl
 	kg.init(random);
 	SecretKey sk = kg.generateKey();
 
-	// Find target & receiver certificates
-        /*
-	X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
-	X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
-        */
 
 	// Encrypt session key
 	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
