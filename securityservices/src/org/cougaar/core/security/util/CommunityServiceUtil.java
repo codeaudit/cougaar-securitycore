@@ -166,6 +166,12 @@ public class CommunityServiceUtil {
     Community myCommunity = getSecurityCommunity(agent);
     String role = "Root";
     String filter = "(Role=" + role +")";
+    if (myCommunity == null) {
+      if (_log.isWarnEnabled()) {
+	_log.warn(agent + " is not part of any security community");
+      }
+      return false;
+    }
     Set entities = myCommunity.search(filter, Community.AGENTS_ONLY);
     Iterator it = entities.iterator();
     while (it.hasNext()) {
