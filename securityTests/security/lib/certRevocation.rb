@@ -134,9 +134,9 @@ class CertRevocation
     port = getParameter(node, /http.port/, nil)
     #url = "http://#{node.host.name}:#{port}/$#{node.name}/MakeCertificateServlet"
     url = "#{node.uri}/$#{node.name}/MakeCertificateServlet"
-    puts "agent uri returned ---> #{agent.uri}"
-    puts "node uri returned ---> #{node.uri}"
-    saveAssertion("Stress5k104", "setCAExpirationAttrib #{url}")
+    #puts "agent uri returned ---> #{agent.uri}"
+    #puts "node uri returned ---> #{node.uri}"
+    saveAssertion("Stress5k104", "setCAExpirationAttrib #{url} - agent uri: #{agent.uri} node uri: #{node.uri}")
     params = ["identifier=#{agent.name}"]
     saveAssertion("Stress5k104", "Invoking #{url} #{params}")
     response = postHtml(url, params)
