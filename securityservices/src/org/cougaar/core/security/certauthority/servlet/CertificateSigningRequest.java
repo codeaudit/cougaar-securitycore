@@ -81,7 +81,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.25 $
+ * @version $Revision: 1.26 $
  */
 public class CertificateSigningRequest extends HttpServlet implements BlackboardClient {
   private CertificateManagementService signer;
@@ -151,7 +151,7 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
   public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
     String pkcs = null;
     String type = null;
-    String CA_DN_name = null;
+    final String CA_DN_name = (String) req.getParameter("dnname");
 
 
     //String domain = null;
@@ -165,7 +165,6 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
 
     //res.setContentType("text/html");
     //  PrintWriter out=res.getWriter();
-    CA_DN_name = (String) req.getParameter("dnname");
 
     try {
       //domain = CertificateUtility.getX500Domain(CA_DN_name, true, ',', true);
@@ -185,7 +184,12 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
              aDomain = domain;
            }
          */
-        signer = (CertificateManagementService) support.getServiceBroker().getService(new CertificateManagementServiceClientImpl(CA_DN_name), CertificateManagementService.class, null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run() {
+            signer = (CertificateManagementService) support.getServiceBroker().getService(new CertificateManagementServiceClientImpl(CA_DN_name), CertificateManagementService.class, null);
+            return null;
+          }
+        });
         requirePending = configParser.getCaPolicy(CA_DN_name).requirePending;
         if(log.isDebugEnabled()){
         	log.debug("Use Configuration Manager:" + requirePending);
