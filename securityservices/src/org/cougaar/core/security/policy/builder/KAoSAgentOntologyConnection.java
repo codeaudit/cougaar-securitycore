@@ -27,6 +27,7 @@
 package org.cougaar.core.security.policy.builder;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -38,6 +39,8 @@ import kaos.core.service.directory.KAoSAgentDirectoryServiceProxy;
 import kaos.ontology.util.QueryFailure;
 import kaos.ontology.util.SerializableOntModelImpl;
 import kaos.ontology.management.UnknownConceptException;
+
+import com.hp.hpl.jena.ontology.OntClass;
 
 /**
  * This class represents a connection to the reasoner (the ontology
@@ -100,7 +103,18 @@ public class KAoSAgentOntologyConnection extends OntologyConnection
                               String className)
     throws ReasoningException
   {
-    throw new ReasoningException("declareInstance unsupported");
+    //    try {
+    //      SerializableOntModelImpl model = new SerializableOntModelImpl();
+    //      OntClass ontCl = model.createClass(className);
+    //      model.createIndividual(instanceName, ontCl);
+      // model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
+    //      loadOntology(model, false);
+    //    } catch (IOException ioe) {
+    //      ReasoningException re = new ReasoningException("" + ioe);
+    //      re.initCause(ioe);
+    //      throw re;
+    //    }
+    //    throw new ReasoningException("declareInstance unsupported");
   }
 
 
@@ -120,7 +134,13 @@ public class KAoSAgentOntologyConnection extends OntologyConnection
                             boolean                    recursiveLoad)
     throws ReasoningException, IOException
   {
-    throw new ReasoningException("loadOntology unsupported");
+    try {
+      _kds.loadOntology(myOntModel, new Boolean(recursiveLoad));
+    } catch (DirectoryFailure df) {
+      IOException ioe = new IOException("" + df);
+      ioe.initCause(df);
+      throw ioe;
+    }
   }
 
   public Set getSuperPropertiesOf (String propertyName)
