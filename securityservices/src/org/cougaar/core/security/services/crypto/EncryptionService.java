@@ -48,6 +48,15 @@ import javax.crypto.SecretKey;
  */
 public interface EncryptionService extends Service {
 
+
+  /**
+   * Returns the Principal that signed the data over the recent socket 
+   * connection.  Used when receiving a message and the underlying mechanism
+   * is RMI/SSL.
+   */
+  public String getRemotePrincipal();
+
+
   /**
    * Returns whether or not the send needs a signature when encryption
    * is available.
@@ -66,13 +75,15 @@ public interface EncryptionService extends Service {
    * Sets that sending a message from the source needs a signature when
    * using SSL.
    */
-  public void setSendNeedsSignature(String source, String target);
+  public void setSendNeedsSignature(String source, String nodePrincipal, 
+                                    String target);
 
   /**
    * Sets that sending a message from the source does not need a signature
    * when using SSL.
    */
-  public void removeSendNeedsSignature(String source, String target, 
+  public void removeSendNeedsSignature(String source, String sourcePrincipal,
+                                       String target, 
                                        X509Certificate targetCert);
 
   /**
