@@ -26,32 +26,43 @@ package org.cougaar.core.security.policy;
 import java.util.Properties;
 import java.io.File;
 
+// Cougaar core services
 import org.cougaar.util.ConfigFinder;
+import org.cougaar.core.component.ServiceBroker;
 
+// Cougaar security services
 import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.PolicyBootstrapperService;
 import org.cougaar.core.security.config.ConfigParserServiceImpl;
 
-public class PolicyBootstrapper {
+public class PolicyBootstrapper 
+  implements PolicyBootstrapperService
+{
 
-  static private ConfigParserService cps;
-  static private boolean debug = false;
+  private ServiceBroker serviceBroker;
+  private ConfigParserService cps;
+  private boolean debug = false;
 
   static String PolicyPath =
     System.getProperty("org.cougaar.core.security.BootPolicy",
 		       "BootPolicy.ldm.xml");
   
-  public PolicyBootstrapper(ConfigParserService s){
+  public PolicyBootstrapper(ServiceBroker sb) {
+    serviceBroker = sb;
     debug = System.getProperty("org.cougaar.core.security.policy.debug",
 			       "false").equalsIgnoreCase("true");
 
     if (debug) {
       System.out.println("Initializing Policy bootstrapper");
     }
+
+    cps = (ConfigParserService)
+      serviceBroker.getService(this,
+			       ConfigParserService.class,null);
     
     //absolutely required.
-    if (!(s instanceof ConfigParserService))
+    if (cps == null)
       throw new RuntimeException("PolicyBootstrapper failed to get ConfigParserService.");
-    cps = s;
   }
   
   public SecurityPolicy[] getBootPolicy(Class type)
@@ -61,14 +72,4 @@ public class PolicyBootstrapper {
     }
     return cps.getSecurityPolicies(type);
   }
-
-  public static void main(String[] args) {
-    try{
-    ConfigParserService  c = new ConfigParserServiceImpl();
-    PolicyBootstrapper p = new PolicyBootstrapper(c);
-    p.getBootPolicy(Class.forName("org.cougaar.core.security.policy.CryptoPolicy"));
-    }catch(Exception e){
-      e.printStackTrace();
-    }
-  }  
 }

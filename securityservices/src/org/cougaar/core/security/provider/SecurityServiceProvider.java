@@ -220,6 +220,10 @@ public class SecurityServiceProvider
     /* ********************************
      * Policy services
      */
+    services.put(PolicyBootstrapperService.class,
+		 new PolicyBootstrapperServiceProvider());
+    serviceBroker.addService(PolicyBootstrapperService.class, this);
+
     services.put(AccessControlPolicyService.class,
 		 new AccessControlPolicyServiceProvider());
     serviceBroker.addService(AccessControlPolicyService.class, this);

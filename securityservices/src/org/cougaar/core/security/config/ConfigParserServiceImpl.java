@@ -203,13 +203,6 @@ public class ConfigParserServiceImpl
   public void parsePolicy(InputStream policy) {
     if (CryptoDebug.debug) {
       System.out.println("Reading policy object");
-      /*
-      try {
-	throw new RuntimeException();
-      } catch (Exception e) {
-	e.printStackTrace();
-      }
-      */
     }
     try {
       // Parse the file...
