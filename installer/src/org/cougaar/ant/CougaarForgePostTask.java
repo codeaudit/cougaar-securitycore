@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,11 +102,11 @@ public class CougaarForgePostTask
         cougaarBranch = m.group(2);
       }
       Property p5 = new Property("release_notes",
-          "This release contains a snapshot build of the security services. "
-          + "Snapshots are not for production use and are not guaranteed to be working at any "
-          + "particular point in time, and are only intended for those wishing to help with "
-          + "development or alpha testing. This release contains security code from the [" +
-          securityBranch + "] branch built against the [" + cougaarBranch + "] Cougaar SE branch.");
+          "This release contains a snapshot build of the security services.\n"
+          + "Snapshots are not for production use and are not guaranteed to be working at any\n"
+          + "particular point in time, and are only intended for those wishing to help with\n"
+          + "development or alpha testing. This release contains security code from the\n"
+          + "[" + securityBranch + "] branch built against the [" + cougaarBranch + "] Cougaar SE branch.");
       addConfiguredProp(p5);
       Property p7 = new Property("submit", "Release File");
       addConfiguredProp(p7);
@@ -118,7 +119,7 @@ public class CougaarForgePostTask
         uploadNewFile();
       }
     }
-    catch (IOException e) {
+    catch (Exception e) {
       throw new BuildException("Unable to POST data", e);
     }
   }
@@ -206,7 +207,7 @@ public class CougaarForgePostTask
       "&uploaded_notes=" + URLEncoder.encode ("", "UTF-8") +
       "&release_notes=" + URLEncoder.encode ((String)props.get("release_notes"), "UTF-8") +
       "&release_changes=" + URLEncoder.encode ("", "UTF-8") +
-      "&preformatted=" + URLEncoder.encode ("1", "UTF-8") +
+      "&preformatted=" + URLEncoder.encode ("2", "UTF-8") +
       "&submit=" + URLEncoder.encode ("Submit/Refresh", "UTF-8");
     
     printout.writeBytes (content);
@@ -268,8 +269,10 @@ public class CougaarForgePostTask
     String str;
     // File Released: You May Choose To Edit the Release Now
     boolean fileReleased = false;
+    StringBuffer sb = new StringBuffer();
     while (null != ((str = br.readLine())))
     {
+      sb.append(str);
       if (str.indexOf("File Released") > -1) {
         fileReleased = true;
       }
@@ -277,6 +280,9 @@ public class CougaarForgePostTask
     }
     br.close ();
     if (!fileReleased) {
+      if (verbose) {
+        System.out.println(sb.toString());
+      }
       throw new RuntimeException("Unable to release file");
     }
     else {
@@ -472,12 +478,14 @@ public class CougaarForgePostTask
       return file_id;
     }
     file_id_searched = true;
-    if (verbose) {
-      System.out.println("getFileId");
-    }
     String userfile = (String) props.get("userfile");
     if (userfile == null) {
       throw new RuntimeException("Userfile not specified");
+    }
+    File f = new File(userfile);
+    userfile = f.getName();
+    if (verbose) {
+      System.out.println("getFileId: " + userfile);
     }
     if (getReleaseId() == null) {
       // There is no release. Go no further.
@@ -496,7 +504,7 @@ public class CougaarForgePostTask
     // Release pattern
     // <a href="shownotes.php?release_id=95">secureboostrap-HEAD-HEAD</a>
     String filePattern = "<a href=\"/frs/clickthru\\.php\\?file_id=(\\d+)" +
-      "&filename=" + userfile + "&group_id=" + getGroupId();
+      "&filename=\\Q" + userfile + "\\E&group_id=" + getGroupId();
     Pattern fPattern = Pattern.compile(filePattern);
 
     String releasePattern = "<a href=\"shownotes\\.php\\?release_id=(\\d+)";
@@ -577,13 +585,15 @@ public class CougaarForgePostTask
   // http://cougaar.org/frs/admin/editrelease.php?group_id=51&package_id=45&release_id=94
   
   private void deleteReleaseFile() throws IOException {
-    if (verbose) {
-      System.out.println("##### deleteReleaseFile");
-    }
     // The file to be deleted
     String userfile = (String) props.get("userfile");
     if (userfile == null) {
       throw new RuntimeException("Userfile not specified");
+    }
+    File f = new File(userfile);
+    userfile = f.getName();
+    if (verbose) {
+      System.out.println("deleteReleaseFile: " + userfile);
     }
     if (getReleaseId() == null || getFileId() == null) {
       // The file does not exist yet. No need to delete it.
@@ -683,6 +693,30 @@ public class CougaarForgePostTask
     this.url = url;
   }
   
+  /**
+   * @return Returns the unixprojectname.
+   */
+  public String getUnixprojectname() {
+    return unixprojectname;
+  }
+  /**
+   * @param projectname The unixprojectname to set.
+   */
+  public void setUnixprojectname(String unixprojectname) {
+    this.unixprojectname = unixprojectname;
+  }
+  /**
+   * @return Returns the verbose.
+   */
+  public boolean getVerbose() {
+    return verbose;
+  }
+  /**
+   * @param verbose The verbose to set.
+   */
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
+  }
   /*
   <post to="${cougaarforge.post.url}"
     verbose="true">
@@ -708,6 +742,7 @@ public class CougaarForgePostTask
       hp.setPassword("ski123");
       hp.setUrl("http://cougaar.org");
       hp.setUsername("srosset");
+      hp.setVerbose(true);
       hp.setUnixprojectname("securebootstrap");
       Property p1 = new Property("userfile", fileName);
       hp.addConfiguredProp(p1);
@@ -725,28 +760,4 @@ public class CougaarForgePostTask
     }
   }
 
-  /**
-   * @return Returns the unixprojectname.
-   */
-  public String getUnixprojectname() {
-    return unixprojectname;
-  }
-  /**
-   * @param projectname The unixprojectname to set.
-   */
-  public void setUnixprojectname(String unixprojectname) {
-    this.unixprojectname = unixprojectname;
-  }
-  /**
-   * @return Returns the verbose.
-   */
-  public boolean getVerbose() {
-    return verbose;
-  }
-  /**
-   * @param verbose The verbose to set.
-   */
-  public void setVerbose(boolean verbose) {
-    this.verbose = verbose;
-  }
 }

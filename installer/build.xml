@@ -856,7 +856,7 @@
        	  <isset property="cougaar.branch.name"/>
         </and>
         <then>
-            <property name="overlay.zip.name" value="${project.name}-${anthill.branch.name}-${cougaar.branch.name}.zip"/>
+            <property name="overlay.zip.name" value="${project.name}-SNAPSHOT-${anthill.branch.name}-${cougaar.branch.name}.zip"/>
             <move file="${project.name}.zip" tofile="${overlay.zip.name}"/>
         </then>
       </if>
