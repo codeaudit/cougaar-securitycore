@@ -16,7 +16,23 @@ society.each_agent(true) do |agent|
   include_array.each{ |targetagent|
     if agent.name == targetagent
       agent.add_component do |c|
-	c.classname = queryPlugin
+		c.classname = queryPlugin
+    	c.add_argument("TIMERINTERVAL=60000")
+      end
+      agent.add_component do |c|
+		c.classname = addPlugin
+    	c.add_argument("TIMERINTERVAL=60000")
+      end
+      agent.add_component do |c|
+		c.classname = modifyPlugin
+    	c.add_argument("TIMERINTERVAL=60000")
+      end
+      agent.add_component do |c|
+		c.classname = deletePlugin
+    	c.add_argument("TIMERINTERVAL=60000")
+      end
+      agent.add_component do |c|
+		c.classname = predicatePlugin
     	c.add_argument("TIMERINTERVAL=60000")
       end
       agent.add_component do |c|
