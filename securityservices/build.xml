@@ -284,9 +284,6 @@
             file="${securityservices.configs}/tomcat4/server.xml"/>    
         <copy todir="${cougaar.install.path}/webtomcat/data/webapps/ROOT/WEB-INF"
             file="${securityservices.configs}/tomcat4/web.xml"/>
-        <exec executable="test/bin/chooseBootPolicy.sh" os="Linux">
-            <arg line="${cougaar.install.path}/configs/security"/>
-        </exec>
         <echo message="+++++ Installed configuration files"/>
     </target>
     
