@@ -39,7 +39,8 @@ import java.io.Serializable;
  */
 public interface ConsolidatedEvent extends Serializable, Publishable
 {
-  public UID getparentUID();
+  public UID getParentUID();
+  public UID getOriginatorUID();
   public IDMEF_Message getEvent();
   public MessageAddress getSource();
   
