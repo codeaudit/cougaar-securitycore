@@ -9,8 +9,11 @@
 
 require 'security/lib/scripting'
 require 'security/lib/securityMops'
+require 'security/lib/SecurityMop2_4'
+require 'security/lib/SecurityMop2_5'
+require 'security/lib/SecurityMop2_6'
 
-insert_after :society_running do
+insert_after :after_stage_1 do
   # MOP 2.1: blackboard access control
   do_action  "InjectStress", "SecurityMop21", "setup"
 end
@@ -27,13 +30,13 @@ insert_after :after_stage_1 do
   do_action  "InjectStress", "SecurityMop23", "calculate"
 
   # MOP 2.4: unauthorized user actions
-  do_action  "InjectStress", "SecurityMop24", "calculate"
+  do_action  "InjectStress", "SecurityMop2_4", "calculate"
 
   # MOP 2.5: user action audit
-  do_action  "InjectStress", "SecurityMop25", "calculate"
+  do_action  "InjectStress", "SecurityMop2_5", "calculate"
 
   # MOP 2.5: IDMEF events
-  do_action  "InjectStress", "SecurityMop26", "calculate"
+  do_action  "InjectStress", "SecurityMop2_6", "calculate"
 
 end
 
