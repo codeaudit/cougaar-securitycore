@@ -249,7 +249,16 @@ public class PersistenceMgrPolicyServiceImpl
 	URI uri = entry.getURI();
 	String servletUrl = uri + PM_SERVLET_URI;
 	// get all DNs associated with this agent
-	Collection dns = _keyRing.findDNFromNS(agent);
+	Collection dns = null;
+        try {
+          dns = _keyRing.findDNFromNS(agent);
+        }
+        catch (Exception iox) {
+          if (_log.isDebugEnabled()) {
+            _log.debug("Failed to get PM name " + agent);
+          }
+          return;
+        }
 	Iterator i = dns.iterator();
 	while(i.hasNext()) {
 	  X500Name name = (X500Name)i.next();
