@@ -36,6 +36,12 @@ package org.cougaar.core.security.test.blackboard;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.cougaar.core.util.UID;
+import org.cougaar.glm.ldm.oplan.OplanFactory;
+import org.cougaar.glm.ldm.oplan.OrgActivity;
+import org.cougaar.glm.ldm.oplan.OrgActivityImpl;
+import org.cougaar.core.service.UIDService;
+
 
 /**
  * DOCUMENT ME!
@@ -43,6 +49,8 @@ import java.util.Iterator;
  * @author ttschampel
  */
 public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
+  private UIDService uidService;
+
   /**
    * DOCUMENT ME!
    */
@@ -51,7 +59,15 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
     setPluginName("LegitimateBlackboardPlugin");
   }
 
-
+  /**
+   * set uid service
+   *
+   * @param service UIDService
+   */
+  public void setUIDService(UIDService service) {
+    uidService = service;
+  }
+  
   /**
    * Query for org activities and produce idmef event when  org activities
    * should be present, but can't get any through querying the blacboard
@@ -64,9 +80,44 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
       //success	
       this.successes++;
     } else {
-      //failure
-      this.failures++;
-      this.createIDMEFEvent(pluginName, "Can't access OrgActivity object");
+      // Try to add OrgActivity objects to the blackboard
+      UID oplanId = uidService.nextUID();
+      OrgActivity oa = OplanFactory.newOrgActivity("foobarActivityType",
+						   "foobarActivityName",
+						   "foobarOrgId", 
+						   oplanId);
+      try {
+	this.totalRuns++;
+	getBlackboardService().publishAdd(oa);
+	this.successes++;
+      }
+      catch (Exception e) {
+	if (logging.isWarnEnabled()) {
+	  logging.warn("Unable to publishAdd OrgActivity!");
+	}
+	this.failures++;
+	this.createIDMEFEvent(pluginName, "Can't access OrgActivity object");
+      }
+      // Try again
+      orgActivities = getBlackboardService().query(this.orgActivityPredicate);
+      iter = orgActivities.iterator();
+      if (!iter.hasNext()) {
+	//failure
+	this.failures++;
+	this.createIDMEFEvent(pluginName, "Can't access OrgActivity object");
+      }
+      try {
+	this.totalRuns++;
+	getBlackboardService().publishRemove(oa);
+	this.successes++;
+      }
+      catch (Exception e) {
+	if (logging.isWarnEnabled()) {
+	  logging.warn("Unable to publishRemove OrgActivity!");
+	}
+	this.failures++;
+	this.createIDMEFEvent(pluginName, "Can't access OrgActivity object");
+      }
     }
   }
 }
