@@ -60,7 +60,7 @@
     </agent>
 
     <agent name="UMmrmanager">
-      <rule requireSSL="true">
+      <rule requireSSL="false">
         <pattern>/*</pattern>
         <role>MonitorManager</role>
       </rule>
@@ -76,7 +76,7 @@
     </agent>
 
     <agent name="AGG-Agent">
-      <rule requireSSL="true" auth="CERT">
+      <rule requireSSL="false" auth="EITHER">
         <pattern>/aggregator</pattern>
         <pattern>/aggregatorkeepalive</pattern>
         <role>Logistician</role>
@@ -90,7 +90,7 @@
         <role>UserManager</role>
       </rule>
 
-      <rule requireSSL="true" auth="CERT">
+      <rule requireSSL="false" auth="EITHER">
 	<!-- Data grabber application -->
         <pattern>/datagatherer</pattern>
 
@@ -101,7 +101,7 @@
         <role>LogisticsViewer</role>
       </rule>
 
-      <rule requireSSL="true" auth="EITHER">
+      <rule requireSSL="false" auth="EITHER">
 	<!-- Used by the data grabber -->
         <pattern>/hierarchy</pattern>
         <role>Logistician</role>
