@@ -27,10 +27,11 @@ import org.cougaar.core.util.UID;
 
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.io.Serializable;
 
 
 
-public class QueryMapping implements Publishable {
+public class QueryMapping implements Publishable, Serializable {
   private ArrayList queryList;
   private UID relay_uid;
   
