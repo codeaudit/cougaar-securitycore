@@ -61,7 +61,7 @@ public class CryptoManagerServiceImpl
    *  The hashtable key is an MessageAddressPair
    *  The hashtable value is a SealedObject (the encrypted session key)
    */
-  private Hashtable sessionKeys;
+  private HashMap sessionKeys;
 
 
   public CryptoManagerServiceImpl(KeyRingService aKeyRing, ServiceBroker sb) {
@@ -70,7 +70,7 @@ public class CryptoManagerServiceImpl
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
-    sessionKeys = new Hashtable();
+    sessionKeys = new HashMap();
   }
 
   public SignedObject sign(final String name,
@@ -526,29 +526,43 @@ public class CryptoManagerServiceImpl
     X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
 
     /* Have we already generated a session key for this pair of agents? */
+/*
     MessageAddressPair mp = new MessageAddressPair(source.toAddress(), target.toAddress(),
 						   sender, receiver);
-    SessionKeySet so = (SessionKeySet) sessionKeys.get(mp);
-    if (so == null) {
-      /*generate the secret key*/
-      int i = policy.symmSpec.indexOf("/");
-      String a;
-      a =  i > 0 ? policy.symmSpec.substring(0,i) : policy.symmSpec;
-      SecureRandom random = new SecureRandom();
-      KeyGenerator kg = KeyGenerator.getInstance(a);
-      kg.init(random);
-      SecretKey sk = kg.generateKey();
+*/
+    HashMap targets;
 
-      // Encrypt session key
-      SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
-      SealedObject secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk, sender);
-      so = new SessionKeySet(secretSender, secret, sk);
-      sessionKeys.put(mp, so);
+    synchronized (sessionKeys) {
+      targets = (HashMap) sessionKeys.get(source.toAddress());
+      if (targets == null) {
+	targets = new HashMap();
+	sessionKeys.put(source.toAddress(), targets);
+      }
     }
-    else {
-      skeyHit++;
+
+    synchronized (targets) {
+      SessionKeySet so = (SessionKeySet) targets.get(target.toAddress());
+      if (so == null) {
+	/*generate the secret key*/
+	int i = policy.symmSpec.indexOf("/");
+	String a;
+	a =  i > 0 ? policy.symmSpec.substring(0,i) : policy.symmSpec;
+	SecureRandom random = new SecureRandom();
+	KeyGenerator kg = KeyGenerator.getInstance(a);
+	kg.init(random);
+	SecretKey sk = kg.generateKey();
+
+	// Encrypt session key
+	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
+	SealedObject secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk, sender);
+	so = new SessionKeySet(secretSender, secret, sk, secret, secretSender);
+	targets.put(target.toAddress(), so);
+      }
+      else {
+	skeyHit++;
+      }
+      return so;
     }
-    return so;
   }
 
   private PublicKeyEnvelope encrypt(Serializable object,
@@ -633,55 +647,73 @@ public class CryptoManagerServiceImpl
 				 SecureMethodParam policy)
     throws GeneralSecurityException, IOException {
     SecretKey sk = null;
+
     keyTry++;
     if (keyTry != 0 && ((keyTry % 50) == 0)) {
       log.debug("decrypt try: " + keyTry + " hit: " + keyHit);
     }
 
-    MessageAddressPair mp = null;
+//     MessageAddressPair mp = null;
     X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
     X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
 
-    mp = new MessageAddressPair(source.toAddress(), target.toAddress(),
-                                                   sender, receiver);
-    SessionKeySet so = (SessionKeySet) sessionKeys.get(mp);
-    if (so != null) {
-      keyHit++;
-      sk = so.secretKey;
-    }
-    if (sk != null) {
-      return sk;
+//     mp = new MessageAddressPair(source.toAddress(), target.toAddress(),
+// 				sender, receiver);
+    HashMap targets;
+
+    synchronized (sessionKeys) {
+      targets = (HashMap) sessionKeys.get(source.toAddress());
+      if (targets == null) {
+	targets = new HashMap();
+	sessionKeys.put(source.toAddress(), targets);
+      }
     }
 
-    /* The object was encrypted for a remote agent. However,
-     * the remote agent may not be able to process that message, and
-     * the source agent wants to get the object back.
-     * There could be multiple reasons why the remote agent
-     * did not process the object: the infrastructure was
-     * not able to send the message, the remote agent did
-     * not accept the message, etc.
-     */
-    if (envelope.getEncryptedSymmetricKey() == null) {
-      log.warn("EncryptedSymmetricKey of receiver null");
-    }
-    sk = (SecretKey)
-      asymmDecrypt(target.toAddress(), policy.asymmSpec,
-		   envelope.getEncryptedSymmetricKey());
-    if (sk == null) {
-      // Try with the source address
-      if (envelope.getEncryptedSymmetricKeySender() == null) {
-        log.warn("EncryptedSymmetricKey of sender null");
+    synchronized (targets) {
+      SessionKeySet so = (SessionKeySet) targets.get(target.toAddress());
+      if (so != null) {
+	keyHit++;
+	if (!so.receiverSecretKey.equals(envelope.getEncryptedSymmetricKey()) &&
+	    !so.senderSecretKey.equals(envelope.getEncryptedSymmetricKey())) {
+	  so = null; // The key used is actually different - reset it.
+	} else {
+	  sk = so.secretKey;
+	}
+      }
+      if (sk != null) {
+	return sk;
+      }
+
+      /* The object was encrypted for a remote agent. However,
+       * the remote agent may not be able to process that message, and
+       * the source agent wants to get the object back.
+       * There could be multiple reasons why the remote agent
+       * did not process the object: the infrastructure was
+       * not able to send the message, the remote agent did
+       * not accept the message, etc.
+       */
+      if (envelope.getEncryptedSymmetricKey() == null) {
+	log.warn("EncryptedSymmetricKey of receiver null");
       }
       sk = (SecretKey)
-	asymmDecrypt(source.toAddress(), policy.asymmSpec,
-		     envelope.getEncryptedSymmetricKeySender());
-    }
+	asymmDecrypt(target.toAddress(), policy.asymmSpec,
+		     envelope.getEncryptedSymmetricKey());
+      if (sk == null) {
+	// Try with the source address
+	if (envelope.getEncryptedSymmetricKeySender() == null) {
+	  log.warn("EncryptedSymmetricKey of sender null");
+	}
+	sk = (SecretKey)
+	  asymmDecrypt(source.toAddress(), policy.asymmSpec,
+		       envelope.getEncryptedSymmetricKeySender());
+      }
 
-    if (sk != null && sender != null && receiver != null) {
-      SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
-      SealedObject secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk, sender);
-      SessionKeySet sks = new SessionKeySet(secretSender, secret, sk);
-      sessionKeys.put(mp, sks);
+      if (sk != null && sender != null && receiver != null) {
+	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
+	SealedObject secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk, sender);
+	SessionKeySet sks = new SessionKeySet(secretSender, secret, sk, secret, secretSender);
+	targets.put(target.toAddress(), sks);
+      }
     }
     return sk;
   }
@@ -1051,73 +1083,20 @@ public class CryptoManagerServiceImpl
     }
   }//getProtection
 
-  private class MessageAddressPair
-  {
-    private String source;
-    private String target;
-    private X509Certificate sender;
-    private X509Certificate receiver;
-    private String hashString;
-
-    public MessageAddressPair(String src, String tgt,
-			      X509Certificate snd,
-			      X509Certificate rcv) {
-      if (src == null || tgt == null || snd == null || rcv == null) {
-	throw new IllegalArgumentException("One of the parameters is null");
-      }
-      source = src;
-      target = tgt;
-      sender = snd;
-      receiver = rcv;
-      hashString = src + tgt;
-    }
-
-    public boolean equals(Object o) {
-      MessageAddressPair mp = null;
-      if (!(o instanceof MessageAddressPair)) {
-	return false;
-      }
-      else {
-	mp = (MessageAddressPair) o;
-      }
-
-      if (mp.source.equals(source)
-	  && mp.target.equals(target)
-          && mp.sender == sender
-          && mp.receiver == receiver) {
-          /**
-           * NOTE: This is assuming there should be only one instance of
-           * a certificate in cert cache, and therefore improves performance
-           * by doing comparison by reference. If the assumption is not true
-           * the encryption will fail and agents will not be able to communicate.
-           */
-          /*
-	  && mp.sender.equals(sender)
-	  && mp.receiver.equals(receiver)) {
-          */
-	return true;
-      }
-      return false;
-    }
-
-    public int hashCode() {
-      return hashString.hashCode();
-    }
-
-    public String toString() {
-      return "source=" + source + ", target=" + target + ", sender: " + sender + ", receiver: " + receiver;
-    }
-  }
-
   private class SessionKeySet {
-    public SessionKeySet(SealedObject snd, SealedObject rcv, SecretKey sk) {
+    public SessionKeySet(SealedObject snd, SealedObject rcv, SecretKey sk, 
+			 SealedObject eskReceiver, SealedObject eskSender) {
       sender = snd;
       receiver = rcv;
       secretKey = sk;
+      senderSecretKey = eskSender;
+      receiverSecretKey = eskReceiver;
     }
 
     public SealedObject sender;
     public SealedObject receiver;
     public SecretKey secretKey;
+    public SealedObject senderSecretKey;
+    public SealedObject receiverSecretKey;
   }
 }
