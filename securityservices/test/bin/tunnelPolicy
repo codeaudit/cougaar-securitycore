@@ -1,0 +1,37 @@
+#!/bin/sh
+
+host1=${1:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+host2=${2:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+host3=${3:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+host4=${4:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+host5=${5:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+remote=${6:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+jabber=${7:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+
+echo Port Mapping:
+echo "So this script is getting stretched a little!"
+echo " Policy"
+echo "      ${host1}:8800 --> localhost:8800"
+echo "      ${host1}:9800 --> localhost:9800"
+echo " CA"
+echo "      ${host2}:8810 --> localhost:8810"
+echo "      ${host2}:9810 --> localhost:9810"
+echo " Root CA"
+echo "      ${host3}:8820 --> localhost:8820"
+echo "      ${host3}:9820 --> localhost:9820"
+echo " Second CA"
+echo "      ${host4}:8840 --> localhost:8840"
+echo "      ${host4}:9840 --> localhost:9840"
+echo " Worker"
+echo "      ${host5}:8800 --> localhost:18800"
+echo "      ${host5}:9800 --> localhost:19800"
+echo "	Jabber host = ${jabber} but connect through localhost:5222"
+echo "		(needs right client)"
+echo "Leave ssh connection open for duration of the tunnel"
+ssh -L 8800:${host1}:8800 -L 9800:${host1}:9800 \
+    -L 8810:${host2}:8810 -L 9810:${host2}:9810 \
+    -L 8820:${host3}:8820 -L 9820:${host3}:9820 \
+    -L 8840:${host4}:8840 -L 9840:${host4}:9840 \
+    -L 18800:${host5}:8800 -L 19800:${host5}:9800 \
+    -L 5222:${jabber}:5222 \
+        ${remote}
