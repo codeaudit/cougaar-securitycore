@@ -31,7 +31,7 @@ import java.lang.*;
 // Cougaar core services
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
-
+import org.cougaar.core.service.LoggingService;
 // Cougaar security services
 import org.cougaar.core.security.crypto.CRLCache;
 import org.cougaar.core.security.services.crypto.*;
@@ -44,10 +44,35 @@ public class  CRLCacheServiceProvider
   extends BaseSecurityServiceProvider  {
  
   static private CRLCacheService crlCacheService;
+  private BindingSite bindingSite=null;
+  private LoggingService log=null;
   
-  public  CRLCacheServiceProvider(ServiceBroker sb, String community) {
+  public  CRLCacheServiceProvider(ServiceBroker sb, String community, BindingSite bs) {
     super(sb, community);
+    bindingSite=bs;
+    log = (LoggingService) sb.getService(this,
+					 LoggingService.class, null);
+    log.debug("Creating an instance of crl cache in Constructor of CRLCacheServiceProvider :");
+    createCRLcache(sb);
   }
+
+public void createCRLcache(ServiceBroker sb ) {
+  if (crlCacheService == null) {
+    try {
+      crlCacheService = new CRLCache(sb,bindingSite);
+    }
+    catch (Exception e) {
+      boolean exec =
+	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
+      if (exec == true) {
+	log.warn("Unable to initialize CRL Cache Service: ", e);
+      }
+      else {
+	log.info("Unable to initialize CRL Cache Service: " + e);
+      }
+    }
+  }
+}
 
   /**
    * Get a service.
@@ -62,7 +87,7 @@ public class  CRLCacheServiceProvider
     // Implemented as a singleton service
     if (crlCacheService == null) {
       try {
-	crlCacheService = new CRLCache(sb);
+	crlCacheService = new CRLCache(sb,bindingSite);
       }
       catch (Exception e) {
 	boolean exec =
