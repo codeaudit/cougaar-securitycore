@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.certauthority.servlet;
@@ -39,25 +39,28 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
-import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
+//import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.naming.*;
 import org.cougaar.core.security.certauthority.*;
 import org.cougaar.core.security.services.util.*;
+/*
 import org.cougaar.core.security.services.ldap.MultipleEntryException;
 import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+*/
 import org.cougaar.core.security.crypto.Base64;
 
 public class DownloadCertificateServlet extends  HttpServlet
 {
-  private ConfigParserService configParser = null;
+  //private ConfigParserService configParser = null;
   private LoggingService log;
 
-  private CertDirectoryServiceClient certificateFinder=null;
-  private CaPolicy caPolicy = null;            // the policy of the CA
-  
+  //private CertDirectoryServiceClient certificateFinder=null;
+  private CACertDirectoryService search;
+  //private CaPolicy caPolicy = null;            // the policy of the CA
+
   private SecurityServletSupport support;
   public DownloadCertificateServlet(SecurityServletSupport support) {
     this.support = support;
@@ -73,7 +76,7 @@ public class DownloadCertificateServlet extends  HttpServlet
   public void service (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
-    
+
     String distinguishedName=null;
     String role=null;
     String cadnname=null;
@@ -98,6 +101,7 @@ public class DownloadCertificateServlet extends  HttpServlet
       res.getWriter().print("Error in dn name ");
       return;
     }
+    /*
     try {
       configParser = (ConfigParserService)
 	support.getServiceBroker().getService(this,
@@ -115,28 +119,39 @@ public class DownloadCertificateServlet extends  HttpServlet
       res.getWriter().print("Unable to read policy file: " + e);
       return;
     }
-    
+    */
+    CertDirServiceRequestor cdsr =
+      new CertDirServiceRequestor(support.getServiceBroker(), cadnname);
+    search = (CACertDirectoryService)
+      support.getServiceBroker().getService(cdsr, CACertDirectoryService.class, null);
+
     if((distinguishedName==null)||(distinguishedName=="")) {
       res.getWriter().print("Error in distinguishedName ");
       return;
     }
- 
+
+    /*
     String filter = "(uniqueIdentifier=" +distinguishedName + ")";
     LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
     if(ldapentries==null || ldapentries.length == 0) {
+    */
+    List l = search.findCertByIdentifier(distinguishedName);
+    if (l == null || l.size() == 0) {
       res.getWriter().println("Error: no such certificate in LDAP ");
       return;
     }
-    if (ldapentries.length != 1) {
+    if (l.size() != 1) {
+    //if (ldapentries.length != 1) {
       res.getWriter().println("Error: there are multiple certificates with the same UID");
       return;
     }
-    
+
     X509Certificate  certimpl;
     byte[] encoded;
     char[] b64;
     try {
-      certimpl=ldapentries[0].getCertificate();
+      //certimpl=ldapentries[0].getCertificate();
+      certimpl=((CertificateEntry)l.get(0)).getCertificate();
       encoded = certimpl.getEncoded();
       b64 = Base64.encode(encoded);
     } catch (Exception exp) {
@@ -163,6 +178,8 @@ public class DownloadCertificateServlet extends  HttpServlet
   }
 
   public static boolean isCA(String dn) {
+    return CertificateUtility.findAttribute(dn, "t").equals(CertificateCache.CERT_TITLE_CA);
+  /*
     StringTokenizer tok = new StringTokenizer(dn,",=",true);
     boolean first = true;
     try {
@@ -189,9 +206,12 @@ public class DownloadCertificateServlet extends  HttpServlet
       // invalid dn
     } // end of try-catch
     return false;
+    */
   }
 
   public static boolean isUser(String dn) {
+    return CertificateUtility.findAttribute(dn, "t").equals(CertificateCache.CERT_TITLE_USER);
+  /*
     StringTokenizer tok = new StringTokenizer(dn,",=",true);
     boolean first = true;
     String sep;
@@ -221,10 +241,11 @@ public class DownloadCertificateServlet extends  HttpServlet
       // invalid dn
     } // end of try-catch
     return false;
+    */
   }
 
   public String getServletInfo()  {
     return("Downloads the certificate to the browser");
   }
-  
+
 }

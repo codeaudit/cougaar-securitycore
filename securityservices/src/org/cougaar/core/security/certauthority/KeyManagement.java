@@ -234,7 +234,8 @@ public class KeyManagement
 
       CertDirectoryServiceRequestor cdsr =
 	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
-					      serviceBroker, caDN);
+                                              caPolicy.ldapPrincipal, caPolicy.ldapCredential,
+					      serviceBroker);
       caOperations = (CertDirectoryServiceCA)
 	serviceBroker.getService(cdsr, CertDirectoryServiceCA.class, null);
 

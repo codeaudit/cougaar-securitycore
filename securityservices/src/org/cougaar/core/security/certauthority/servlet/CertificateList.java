@@ -39,13 +39,14 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
-import org.cougaar.core.security.crypto.CertificateUtility;
-//import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
+import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.services.util.*;
-//import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-//import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-//import org.cougaar.core.security.services.ldap.LdapEntry;
+/*
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+import org.cougaar.core.security.services.ldap.LdapEntry;
+*/
 import org.cougaar.core.security.certauthority.*;
 import org.cougaar.core.security.naming.*;
 
@@ -56,9 +57,9 @@ public class CertificateList
   private ConfigParserService configParser = null;
 
   private X500Name[] caDNs = null;
-  private CaPolicy caPolicy = null;            // the policy of the CA
+  //private CaPolicy caPolicy = null;            // the policy of the CA
   //private CertDirectoryServiceClient certificateFinder=null;
-  private CertificateSearchService search;
+  private CACertDirectoryService search;
   private LoggingService log;
 
   private SecurityServletSupport support;
@@ -102,20 +103,15 @@ public class CertificateList
       return;
     }
 
+    /*
     try {
       caPolicy = configParser.getCaPolicy(cadnname);
 
-      /*
       CertDirectoryServiceRequestor cdsr =
 	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
 					      support.getServiceBroker(), cadnname);
       certificateFinder = (CertDirectoryServiceClient)
 	support.getServiceBroker().getService(cdsr, CertDirectoryServiceClient.class, null);
-        */
-      search = (CertificateSearchService)
-        support.getServiceBroker().getService(this,
-                                                      CertificateSearchService.class,
-                                                      null);
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);
@@ -123,6 +119,11 @@ public class CertificateList
       out.close();
       return;
     }
+    */
+    CertDirServiceRequestor cdsr =
+      new CertDirServiceRequestor(support.getServiceBroker(), cadnname);
+    search = (CACertDirectoryService)
+      support.getServiceBroker().getService(cdsr, CACertDirectoryService.class, null);
 
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
@@ -135,7 +136,7 @@ public class CertificateList
     out.println("<body>");
     out.println("<H2>Certificate List</H2>");
     out.println("<H3>Issuer: " + cadnname + "</H3>");
-    out.println("<H3>LDAP:   " + caPolicy.ldapURL + "</H3>");
+    //out.println("<H3>LDAP:   " + caPolicy.ldapURL + "</H3>");
 
     /*
     String filter = "(cn=*)";
