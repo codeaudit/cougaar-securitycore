@@ -570,11 +570,11 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
 
                       System.out.println("\n\nTHERE ARE " + policies.length + " POLICIES");
 
-                      OutputStream os = 
+                      //OutputStream os = 
 
-                          new FileOutputStream(System.getProperty("org.cougaar.install.path") + "/TEST_XML"); 
+                      //    new FileOutputStream(System.getProperty("org.cougaar.install.path") + "/TEST_XML"); 
 
-                      PrintStream out = new PrintStream(os);
+                      PrintStream out = new PrintStream(System.out);
 
                       DOMWriter xmlwriter = new DOMWriter(out);
 
