@@ -171,6 +171,12 @@ public final class SSLServiceComponent
         Object paramValues[] = {jaasSSLFactory};
         m.invoke(null, paramValues);
       }
+      catch (NoClassDefFoundError e) {
+        // Don't load the AXIS component. That's ok if AXIS is not enabled.
+        if (log.isInfoEnabled()) {
+          log.info("AxisSSLSocketFactory not enabled");
+        }
+      }
       catch (ClassNotFoundException e) {
         // Don't load the AXIS component. That's ok if AXIS is not enabled.
         if (log.isInfoEnabled()) {
