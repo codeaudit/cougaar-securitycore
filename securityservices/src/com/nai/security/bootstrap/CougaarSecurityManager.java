@@ -86,8 +86,8 @@ public class CougaarSecurityManager extends SecurityManager
     Calendar rightNow = Calendar.getInstance();
     String curTime = rightNow.get(Calendar.YEAR) + "-" +
       rightNow.get(Calendar.MONTH) + "-" +
-      rightNow.get(Calendar.DAY_OF_MONTH) + ":" +
-      rightNow.get(Calendar.HOUR_OF_DAY) + ":" +
+      rightNow.get(Calendar.DAY_OF_MONTH) + "-" +
+      rightNow.get(Calendar.HOUR_OF_DAY) + "-" +
       rightNow.get(Calendar.MINUTE);
     String defaultLogName =
       System.getProperty("org.cougaar.install.path", "") +
@@ -119,7 +119,7 @@ public class CougaarSecurityManager extends SecurityManager
   public void checkPermission(Permission perm) {
     try {
       // Check that nobody except the KeyRing can read the
-      // org.cougaar.security.keystore.password properties
+      // com.nai.security.keystore.password properties
       // When Jaas will be patched and fixed, we will have a better solution.
       // This is a temporary solution.
       if (perm instanceof java.util.PropertyPermission) {

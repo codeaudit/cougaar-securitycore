@@ -38,6 +38,7 @@ import java.security.Signature;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.MessageDigest;
+import java.math.BigInteger;
 
 import sun.security.pkcs.*;
 import sun.security.x509.*;
@@ -72,6 +73,10 @@ public class KeyManagement
   private String pkcs10DirectoryName;
   private String confDirectoryName;
 
+  private LDAPCert certificateDirectory = null;
+  private boolean standalone;                  /* true if run as a standalone server
+						  false if run within Cougaar */
+
   public KeyManagement(String aCA_DN) 
     throws Exception{
     caDN = aCA_DN;
@@ -88,6 +93,7 @@ public class KeyManagement
     String caCommonName = caX500Name.getCommonName();
     String certpath = System.getProperty("org.cougaar.security.CA.certpath");
     if (certpath != null) {
+      standalone = true;
       if (debug) {
 	System.out.println("Running as standalone CA");
       }
@@ -103,8 +109,20 @@ public class KeyManagement
        */
       String topLevelDirectory = certpath + File.separatorChar + caCommonName;
       confDirectoryName = topLevelDirectory +  File.separatorChar + "conf";
+
+      // Open keystore file
+      String keystoreFile = confDirectoryName + File.separatorChar + caPolicy.keyStoreFile;
+      if (debug) {
+	System.out.println("CA keystore: " + keystoreFile);
+      }
+
+      FileInputStream f = new FileInputStream(keystoreFile);
+      caKeyStore = new DirectoryKeyStore(f, caPolicy.keyStorePassword.toCharArray(), null, null);
+
+      certificateDirectory = new LDAPCert();
     }
     else {
+      standalone = false;
       if (debug) {
 	System.out.println("Running in Cougaar environment");
       }
@@ -125,19 +143,36 @@ public class KeyManagement
     // Create directory structure if it hasn't been created yet.
     createDirectoryStructure();
 
-    // Open keystore file
-    // TODO
-    String keystoreFile = confDirectoryName + File.separatorChar + caPolicy.keyStoreFile;
-    if (debug) {
-      System.out.println("CA keystore: " + keystoreFile);
-    }
-    FileInputStream f = new FileInputStream(keystoreFile);
-    caKeyStore = new DirectoryKeyStore(f, caPolicy.keyStorePassword.toCharArray(), null, null);
+    caX509cert = getCert(caPolicy.alias);
+
+  }
+
+  private X509Certificate getCert(String alias)
+  {
+    X509Certificate x509cert;
 
     // Get CA X.509 certificate
-    // TODO
-    caX509cert = (X509Certificate) caKeyStore.getCert(caPolicy.alias);
+    if (standalone) {
+      x509cert = (X509Certificate) caKeyStore.getCert(alias);
+    }
+    else {
+      // Use Keyring
+      x509cert = (X509Certificate) KeyRing.getCert(alias);
+    }
+    return x509cert;
+  }
 
+  private PrivateKey getPrivateKey(String alias)
+  {
+    PrivateKey privateKey;
+    if (standalone) {
+      privateKey = caKeyStore.getPrivateKey(alias);
+    }
+    else {
+      // Use KeyRing
+       privateKey = KeyRing.getPrivateKey(alias);
+    }
+    return privateKey;
   }
 
   private void createDirectoryStructure()
@@ -179,7 +214,7 @@ public class KeyManagement
 	saveX509Request(clientX509);
 
 	// Publish certificate in LDAP directory
-	publish2Ldap(clientX509);
+	certificateDirectory.publish2Ldap(clientX509, caX509cert);
       }
     }
     catch(Exception e) {
@@ -204,8 +239,13 @@ public class KeyManagement
 	// Save the X509 reply in a file
 	saveX509Request(clientX509);
 
-	// Publish certificate in LDAP directory
-	publish2Ldap(clientX509);
+	if (standalone) {
+	  // Publish certificate in LDAP directory
+	  if (debug) {
+	    System.out.println("Publishing cert to LDAP service");
+	  }
+	  certificateDirectory.publish2Ldap(clientX509, caX509cert);
+	}
       }
     }
     catch (Exception e) {
@@ -259,12 +299,6 @@ public class KeyManagement
     base64encode(out, clientX509.getEncoded(), PKCS7HEADER, PKCS7TRAILER);
 
     out.close();
-  }
-
-  private void publish2Ldap(X509Certificate clientX509)
-    throws IOException
-  {
-    X500Name clientX500Name = new X500Name(clientX509.getSubjectDN().toString()); 
   }
 
   public void printPkcs7Request(String filename)
@@ -510,7 +544,7 @@ public class KeyManagement
     }
 
     // Get Signature object for certificate authority
-    PrivateKey caPrivateKey = caKeyStore.getPrivateKey(caPolicy.alias);
+    PrivateKey caPrivateKey = getPrivateKey(caPolicy.alias);
     Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
     // caSignature.initSign(caPrivateKey);
 
@@ -777,6 +811,19 @@ public class KeyManagement
     return clientCertificate;
   }
 
+  public void createCertificateRevocationList()
+  {
+  }
+
+  public void revokeCertificate(X509Certificate cert)
+  {
+    BigInteger serialNumber = cert.getSerialNumber();
+    Date currentDate = new Date();
+    X509CRLEntryImpl crlentry = new X509CRLEntryImpl(serialNumber, currentDate);
+
+    certificateDirectory.publishCRLentry(crlentry);
+  }
+
   public static void main(String[] args) {
     String option = args[0];
 
@@ -817,6 +864,7 @@ public class KeyManagement
       e.printStackTrace();      
     }
   }
+
 }
 
 

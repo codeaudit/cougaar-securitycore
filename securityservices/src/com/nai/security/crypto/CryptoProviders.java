@@ -78,7 +78,7 @@ public class CryptoProviders {
 
     Document doc = null;
     try {
-      doc = configFinder.parseXMLConfigFile(f.getPath());
+      doc = configFinder.parseXMLConfigFile(cryptoProvidersProperty);
     }
     catch (java.io.IOException e) {
       System.out.println("Unable to parse " + f.getPath() + " file");

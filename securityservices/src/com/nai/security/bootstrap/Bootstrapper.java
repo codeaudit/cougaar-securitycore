@@ -252,8 +252,8 @@ public class Bootstrapper
     Calendar rightNow = Calendar.getInstance();
     String curTime = rightNow.get(Calendar.YEAR) + "-" +
       rightNow.get(Calendar.MONTH) + "-" +
-      rightNow.get(Calendar.DAY_OF_MONTH) + ":" +
-      rightNow.get(Calendar.HOUR_OF_DAY) + ":" +
+      rightNow.get(Calendar.DAY_OF_MONTH) + "-" +
+      rightNow.get(Calendar.HOUR_OF_DAY) + "-" +
       rightNow.get(Calendar.MINUTE);
 
     String defaultLogName =

@@ -52,6 +52,7 @@ import java.util.Vector;
 import java.security.MessageDigest;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.cert.X509CRLEntry;
 import java.security.Principal;
 
 import java.text.SimpleDateFormat;
@@ -344,4 +345,7 @@ public class LDAPCert //extends LdapContext
 	}
 
     }
+
+  void publishCRLentry(X509CRLEntry crlEntry) {
+  }
 }
