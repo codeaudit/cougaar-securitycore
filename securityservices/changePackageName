@@ -9,16 +9,25 @@ rm -rf test/doc/API/
 
 echo ' ++++++ Search and replace com.nai -> org/cougaar'
 # Java files
-find src -name '*.java' -exec sarep 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
-find src -name '*.java' -exec sarep 'com.nai.security' 'org.cougaar.core.security' {} \;
+find src -name '*.java' -exec sarep 'com\.nai\.security\.bootstrap' 'org\.cougaar\.core\.security\.securebootstrap' {} \;
+find src -name '*.java' -exec sarep 'com\.nai\.security' 'org\.cougaar\.core\.security' {} \;
+
+find src -name '*.java' -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/core/security/securebootstrap' {} \;
+find src -name '*.java' -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
 
 # Configuration files
-find test -exec sarep 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
-find test -exec sarep 'com.nai.security' 'org.cougaar.core.security' {} \;
+find test -exec sarep 'com\.nai\.security\.bootstrap' 'org\.cougaar\.core\.security\.securebootstrap' {} \;
+find test -exec sarep 'com\.nai\.security' 'org\.cougaar\.core\.security' {} \;
+
+find test -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/core/security/securebootstrap' {} \;
+find test -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
 
 # Makefiles
-find . -name 'Makefile*' -exec sarep 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
-find . -name 'Makefile*' -exec sarep 'com.nai.security' 'org.cougaar.core.security' {} \;
+find . -name 'Makefile*' -exec sarep 'com\.nai\.security\.bootstrap' 'org\.cougaar\.core\.security\.securebootstrap' {} \;
+find . -name 'Makefile*' -exec sarep 'com\.nai\.security' 'org\.cougaar\.core\.security' {} \;
+
+find . -name 'Makefile*' -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/core/security/securebootstrap' {} \;
+find . -name 'Makefile*' -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
 
 echo '############################################'
 echo ' ++++++ Moving com directory to org/cougaar'
