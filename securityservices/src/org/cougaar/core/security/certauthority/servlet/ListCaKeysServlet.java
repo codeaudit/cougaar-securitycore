@@ -40,11 +40,9 @@ import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.CertificateStatus;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
+import org.cougaar.core.security.crypto.*;
 
 import org.cougaar.core.security.certauthority.*;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.crypto.*;
@@ -124,7 +122,12 @@ extends  HttpServlet
       List certList = keyRingService.findCert(cn, KeyRingService.LOOKUP_KEYSTORE);
       Iterator it = certList.iterator();
       while (it.hasNext()) {
-	X509Certificate c = ((CertificateStatus)it.next()).getCertificate();
+        CertificateStatus cs = (CertificateStatus)it.next();
+	X509Certificate c = cs.getCertificate();
+
+        // not every cert on CA is a CA cert
+        if (cs.getCertificateType() != CertificateType.CERT_TYPE_CA)
+          continue;
 
 	log.debug("alias=" + a + " - cn=" + cn);
 	if (c != null) {
