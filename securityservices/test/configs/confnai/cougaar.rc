@@ -43,6 +43,21 @@ org.cougaar.configuration.database=jdbc:mysql://mango/cougaar1041
 org.cougaar.configuration.user=ultralog
 org.cougaar.configuration.password=ul-password
 
+# ref config db
+org.cougaar.refconfig.database=jdbc:mysql://mango/cougaar104
+org.cougaar.refconfig.user=ultralog
+org.cougaar.refconfig.password=ul-password
+
+# oplan db
+org.cougaar.oplan.database=jdbc:mysql://mango/cougaar104
+org.cougaar.oplan.user=ultralog
+org.cougaar.oplan.password=ul-password
+
+# fcs db
+fcs.database=jdbc:mysql://mango/cougaar104
+fcs.database.user=ultralog
+fcs.database.password=ul-password
+
 # datagrabber database configuration
 # On the next line, DATAGRABBER_DBNAME is typically "Grabber" but can be anything you like.
 org.cougaar.domain.mlm.ui.grabber.config.DBConfig.connectionURL=jdbc:mysql://mango/cougaar1041
