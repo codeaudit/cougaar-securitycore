@@ -1,28 +1,28 @@
 #!/bin/sh
 
-CP=${COUGAAR_INSTALL_PATH}/lib/antlr.jar
-CP=${COUGAAR_INSTALL_PATH}/lib/dl.jar:$CP
-CP=${COUGAAR_INSTALL_PATH}/lib/iw.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/lib/icu4j.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/lib/jakarta-oro-2.0.5.jar:$CP
-CP=${COUGAAR_INSTALL_PATH}/lib/jdom.jar:$CP
-CP=${COUGAAR_INSTALL_PATH}/lib/jena.jar:$CP
-CP=${COUGAAR_INSTALL_PATH}/lib/jtp.jar:$CP
 
+CP=${COUGAAR_INSTALL_PATH}/sys/antlr.jar
+CP=${COUGAAR_INSTALL_PATH}/sys/dl.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/iw.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/jakarta-oro-2.0.5.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/jdom.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/jena.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/jtp.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/icu4j.jar:${CP}
 CP=${COUGAAR_INSTALL_PATH}/sys/xerces.jar:${CP}
 
 #
 # The following are needed by any WebProxyInstaller script
 #
+CP=${COUGAAR_INSTALL_PATH}/lib/bootstrap.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/lib/securityservices.jar:${CP}
 CP=${COUGAAR_INSTALL_PATH}/lib/util.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/log4j.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/tomcat_40.jar:$CP
-CP=${COUGAAR_INSTALL_PATH}/lib/securityservices.jar:${CP}:
 
 DEFS=-Dorg.cougaar.config.path="${COUGAAR_INSTALL_PATH}/configs/security"
 
-echo $CP
 java $DEFS -classpath $CP \
    org.cougaar.core.security.policy.webproxy.WebProxyInstaller \
    jtp.ui.DamlQueryAnswerer
