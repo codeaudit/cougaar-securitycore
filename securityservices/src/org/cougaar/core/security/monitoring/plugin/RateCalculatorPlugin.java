@@ -164,6 +164,10 @@ public class RateCalculatorPlugin extends ComponentPlugin {
           IDMEF_Message msg = ((Event) o).getEvent();
           if (msg instanceof Alert) {
             Alert alert = (Alert) msg;
+            if (alert.getAssessment() != null) {
+              return false; // never look at assessment alerts
+            } // end of if (alert.getAssessment() != null)
+            
             Classification cs[] = alert.getClassifications();
             if (cs != null) {
               for (int i = 0; i < cs.length; i++) {
@@ -358,8 +362,10 @@ public class RateCalculatorPlugin extends ComponentPlugin {
      */
     private void reportRate(int messageCount) {
       int rate = (int) (messageCount * SECONDSPERDAY / _window);
-      _log.debug(_conditionName + " = " + rate +
-                 " " + _classification + "/day");
+      if (_log.isDebugEnabled()) {
+        _log.debug(_conditionName + " = " + rate +
+                   " " + _classification + "/day");
+      } // end of if (_log.isDebugEnabled())
 
       boolean add = false;
       if (_rate == null) {
