@@ -56,7 +56,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.security.auth.Subject;
 
-import org.cougaar.core.security.securebootstrap.StringPrincipal;
+import org.cougaar.core.security.auth.StringPrincipal;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.crypto.DirectoryKeyStore;
