@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.w3c.dom.Node;
 
@@ -186,7 +187,9 @@ final public class IdmefMessageFactory {
             catch( UnknownHostException uhe ){
                 // what should we do here?
             }
-            Address addresses[] = { createAddress( ip, null, Address.IPV4_ADDR ) };
+            
+            List addressList = new ArrayList();
+            addressList.add( createAddress( ip, null, Address.IPV4_ADDR ) );
             m_agentId = ( ( ClusterServesPlugin)ldm ).getClusterIdentifier();
             m_uidServer = ( ( ClusterContext )ldm ).getUIDServer();
             /*
@@ -205,7 +208,7 @@ final public class IdmefMessageFactory {
              */
             
             m_node = createNode( System.getProperty( ArgTableIfc.NAME_KEY ),
-                                 addresses );    // get the node info from the LDMServesPlugin ( name and address )
+                                 addressList );    // get the node info from the LDMServesPlugin ( name and address )
             agentName = m_agentId.toString();
             agentAddress = createAddress( m_agentId.getAddress(), null, Address.URL_ADDR );
         }
@@ -232,10 +235,9 @@ final public class IdmefMessageFactory {
         * The Address class is  used to represent network, hardware, and
         * application addresses.
         */
-        Address address_list[] = {
-            new Address( "1.1.1.1", null, null, null, null, null),
-            new Address( "0x0987beaf",   null, null, Address.IPV4_ADDR_HEX,
-                         null, null) };
+        Address address_list[] = 
+            { new Address( "1.1.1.1", null, null, null, null, null ),
+              new Address( "0x0987beaf",   null, null, Address.IPV4_ADDR_HEX, null, null ) };
 
        /** Make a Node object for the current host
         * The Node  class is used to identify hosts and other network devices
@@ -403,10 +405,11 @@ final public class IdmefMessageFactory {
         AdditionalData data[] = ( AdditionalData [] )dataList.toArray();
         
         return createAlert( createAnalyzer( sensor ),
-                            sources,
-                            targets,
-                            classifications,
-                            data );  // should we generated unique id for messages?
+                            detectTime,
+                            sourceList,
+                            targetList,
+                            classificationList,
+                            dataList );  // should we generated unique id for messages?
       }
       return new Alert();
     }
@@ -430,7 +433,6 @@ final public class IdmefMessageFactory {
                                             List targetList ){
         // get all the info from the sensor for capability registration
         if( sensor instanceof SensorInfo ){ 
-          int len = events.length;
           // temporary until JavaIDMEF is converted using dynamic lists
           Classification capabilities[] = ( Classification [] )classficationList.toArray();
           Target targets[] = ( Target [] )targetList.toArray();
@@ -483,7 +485,7 @@ final public class IdmefMessageFactory {
         if( sensor instanceof SensorInfo ){
             // temporary until JavaIDMEF is converted using dynamic lists
             AdditionalData data[] = ( AdditionalData [] )dataList.toArray();
-            return createHeartBeat( createAnalyzer( sensor ), data );
+            return createHeartBeat( createAnalyzer( sensor ), dataList );
         }
         return new Heartbeat();
     }
@@ -710,12 +712,12 @@ final public class IdmefMessageFactory {
      /**
      * Factory method to create a FileList
      *
-     * @param files information about an individual file, as indicated
-     *               by the files' "category" and "fstype" attributes 
+     * @param fileList list of files targeted in this event
      *
      * @return a FileList object
      */
-    public FileList createFileList( IDMEF_File []files ){
+    public FileList createFileList( List fileList ){
+        IDMEF_File files[] = ( IDMEF_File [] )fileList.toArray();
         return new FileList( files );
     }
     
@@ -888,7 +890,7 @@ final public class IdmefMessageFactory {
      * @return an IDMEF_File object
      */
     public IDMEF_File createFile( File file, 
-                                  List fileAccesseList,
+                                  List fileAccessList,
                                   List linkageList, 
                                   Inode inode, 
                                   String category,
@@ -1241,7 +1243,7 @@ final public class IdmefMessageFactory {
      * @return a new Agent
      */
     public Agent createAgent(){
-        Agent newAgent = m_agent.clone();    
+        Agent newAgent = ( Agent )m_agent.cloneAgent();    
         return newAgent;
     }
     

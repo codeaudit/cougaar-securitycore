@@ -227,7 +227,7 @@ public class Agent implements XMLSerializable {
 	    return agentNode;
     }
    
-    public Agent clone(){
+    public Agent cloneAgent(){
         Agent newAgent = new Agent( m_name, 
                                     m_description, 
                                     m_location, 
@@ -235,7 +235,7 @@ public class Agent implements XMLSerializable {
                                     m_refIdents );
         return newAgent;
     }
-
+  
     public String toTaggedString(){
         // initialize to 500B
         StringBuffer sb = new StringBuffer( 500 );
