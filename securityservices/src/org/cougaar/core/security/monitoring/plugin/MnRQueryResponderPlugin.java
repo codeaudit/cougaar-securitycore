@@ -59,7 +59,7 @@ class QueryRespondRelayPredicate implements  UnaryPredicate{
     boolean ret = false;
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
-      ret = ( relay.getContent() instanceof MRAgentLookUp );
+      ret =(( relay.getContent() instanceof MRAgentLookUp )&&( relay.getResponse() instanceof MRAgentLookUpReply ));
     }
     return ret;
   }
@@ -158,6 +158,9 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
 	    }
 	    mapping=findQueryMappingFromBB(relay.getUID(),querymapping_col);
 	    if(mapping!=null) {
+	      if(mapping.isResultPublished()) {
+		continue;
+	      }
 	      ArrayList list=mapping.getQueryList(); 
 	      OutStandingQuery outstandingquery;
 	      boolean modified=true;
@@ -218,6 +221,9 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
       Iterator iter=queryMappingCol.iterator();
       while(iter.hasNext()) {
 	foundqMapping=(QueryMapping)iter.next();
+	if(foundqMapping.getRelayUID().equals(givenUID)) {
+	  return foundqMapping;
+	}
 	relayList=foundqMapping.getQueryList();
 	for(int i=0;i<relayList.size();i++) {
 	  outstandingq=(OutStandingQuery)relayList.get(i);
@@ -286,6 +292,7 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
 	}
       }
       reply=new MRAgentLookUpReply(agentList);
+      map.setResultPublished(true);
       relay.updateResponse(relay.getSource(),reply);
       getBlackboardService().publishChange(relay);
       getBlackboardService().publishChange(map);
