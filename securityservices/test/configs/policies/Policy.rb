@@ -5,9 +5,15 @@ $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib')
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist') 
 $:.unshift File.join(CIP, 'csmart', 'config', 'lib') 
 
-# Uncomment the following two lines if working in the CSI testbed
-#$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib') 
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib') 
+
+# Uncomment the following line if working in the CSI testbed
+# I haven't yet fixed the problem that this depends on linux postgres.so
 #require 'framework/scripting'
+
+require 'cougaar/scripting'
+require 'framework/cougaarMods'
+require 'framework/cond_policy'
  
 require 'cougaar/scripting' 
 require 'cougaar/communities' 
@@ -101,6 +107,8 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "CleanupSociety" 
  
   do_action "StartSociety" 
+
+  do_action "PublishConditionalPolicies"
  
   # however long you want to run 
 #  do_action "Sleep", 40.minutes 
