@@ -20,8 +20,9 @@ find src test ./Makefile* -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/
 find src test ./Makefile* -exec sarep 'com/nai/security/monitoring' 'org/cougaar/core/security/oldmonitoring' {} \;
 find src test ./Makefile* -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
 
-# update Makefiles
+# Update Makefiles
 sarep -m '*/bootstrap' '*/*bootstrap' Makefile*
+sarep -m 'org/cougaar/core/security org/cougaar/core/security' 'org/cougaar/core/security' Makefile*
 
 echo '############################################'
 echo ' ++++++ Moving com directory to org/cougaar'
