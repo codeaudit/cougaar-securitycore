@@ -59,7 +59,7 @@ public class CertificateSearchServiceImpl
     log = (LoggingService)
       sb.getService(this, LoggingService.class,
                     null);
-    
+
   }
 
   public List findDNFromNS(String cname) {
@@ -75,12 +75,13 @@ public class CertificateSearchServiceImpl
       return l;
     }
     try {
-      AddressEntry ael = whitePagesService.get(cname,
-					       WhitePagesUtil.WP_CERTIFICATE_TYPE);
+      AddressEntry ael = fetchCertEntry(cname);
+      //AddressEntry ael = whitePagesService.refresh(cname, WhitePagesUtil.WP_CERTIFICATE_TYPE,1);
       if (ael == null) {
         if (log.isDebugEnabled()) {
           log.debug("Unable to find cert entry in naming: " + cname);
         }
+
         return l;
       }
       Cert cert = ael.getCert();
@@ -154,12 +155,13 @@ public class CertificateSearchServiceImpl
     try {
       String cname = dname.getCommonName();
       CertificateStatus cs = null;
-      AddressEntry ael = whitePagesService.get(cname,
-					       WhitePagesUtil.WP_CERTIFICATE_TYPE);
+      //AddressEntry ael = whitePagesService.get(cname,WhitePagesUtil.WP_CERTIFICATE_TYPE,1);
+      AddressEntry ael = fetchCertEntry(cname);
       if (ael == null) {
         if (log.isDebugEnabled()) {
           log.debug("Unable to find cert entry in naming: " + cname);
         }
+
         return l;
       }
 
@@ -252,5 +254,63 @@ public class CertificateSearchServiceImpl
   public CertDirectoryService getCertDirectoryService(String scheme) {
     return fac.getCertDirectoryService(scheme);
   }
+
+  private AddressEntry fetchCertEntry(final String cname)
+    throws Exception
+  {
+    // look up cache
+    /*
+    Response r = whitePagesService.submit(
+      new Request.Get(Request.CACHE_ONLY,
+        cname, WhitePagesUtil.WP_CERTIFICATE_TYPE));
+    AddressEntry ael = ((Response.Get)r).getAddressEntry();
+    if (ael != null) {
+      if (log.isDebugEnabled()) {
+        log.debug("Found entry " + cname);
+      }
+      return ael;
+    }
+    */
+
+    /** Callback to handle White page response.
+     */
+    Callback callback = new Callback() {
+      /** Handle a WhitePagesService response. */
+      public void execute(Response res) {
+        if (res.isSuccess()) {
+          if (log.isDebugEnabled()) {
+            log.debug("Got response back in callback for " + cname);
+          }
+          //wpCache.put(cname, ((Response.Get)res).getAddressEntry());
+        }
+        else {
+          if (log.isDebugEnabled()) {
+            log.debug("Got no response back for " + cname + " res: " + res);
+          }
+        }
+      }
+    };
+    Response r = whitePagesService.submit(
+      new Request.Get(Request.NONE,
+        cname, WhitePagesUtil.WP_CERTIFICATE_TYPE)/*, callback*/);
+    if (r.waitForIsAvailable(1)) {
+      if (r.isSuccess()) {
+        if (log.isDebugEnabled()) {
+          log.debug("Found entry " + cname);
+        }
+        return ((Response.Get)r).getAddressEntry();
+      }
+      else if (r.isTimeout()) {
+      }
+      else {
+        throw r.getException();
+      }
+    }
+
+    //return (AddressEntry)wpCache.get(cname);
+    return null;
+  }
+
+  //Hashtable wpCache = new Hashtable();
 
 }
