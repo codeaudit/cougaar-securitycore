@@ -25,26 +25,21 @@
 
 package org.cougaar.core.security.handoff;
 
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.servlet.BaseServletComponent;
-
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.servlet.BaseServletComponent;
 
 public class LeaveCommunityPlugin extends BaseServletComponent {
   private CommunityService cs;
