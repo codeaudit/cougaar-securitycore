@@ -112,6 +112,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     return _isRoot;
   } 
 
+/*
   protected Community getMySecurityCommunity() {   
     Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
     if(mySecurityCommunity==null) {
@@ -119,6 +120,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     }
     return mySecurityCommunity;
   }
+*/
   
   /**
    * @param query

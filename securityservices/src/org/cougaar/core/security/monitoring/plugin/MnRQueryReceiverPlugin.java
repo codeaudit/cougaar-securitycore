@@ -146,6 +146,7 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
           + myAddress.toString());
     }
     
+/*
     Community mySecurityCommunity = getMySecurityCommunity();
     if (loggingService.isDebugEnabled()) {
       String communityName = null;
@@ -159,7 +160,8 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
       loggingService.error("No Info about My SecurityCommunity"+myAddress.toString());  
       return;
     }
-    
+ */
+   
     capabilitiesobject= (IncrementalSubscription)getBlackboardService().subscribe
       (new CapabilitiesObjectPredicate());
 

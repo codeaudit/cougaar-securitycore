@@ -147,7 +147,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   private Object param;
   
   private MessageAddress mgrAddress;
-  private Community mySecurityCommunity=null;
+//  private Community mySecurityCommunity=null;
   
   private CommunityServiceUtil _csu;
   
@@ -188,6 +188,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     _csu = new CommunityServiceUtil(getServiceBroker());
     loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called :"
         + myAddress.toString()); 
+/*
     mySecurityCommunity = getMySecurityCommunity();
     if(mySecurityCommunity==null) {
       loggingService.error("No Info about My  SecurityCommunity in " +
@@ -199,6 +200,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       loggingService.debug(" My security community :"+mySecurityCommunity.getName()
 			   +" agent name :"+myAddress.toString());
     }
+*/
    
     Collection capabilitiescollection = getBlackboardService().query(new CompleteCapabilitiesPredicate());
     if(capabilitiescollection.isEmpty()){
@@ -613,6 +615,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     return null;
   }
    
+/*
   private Community getMySecurityCommunity() {
     Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
     if(mySecurityCommunity==null) {
@@ -621,6 +624,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     return mySecurityCommunity; 
     
   }
+*/
 
   public RegistrationAlert getRegistrationAlert(ConsolidatedCapabilities cons) {
     DomainService service=getDomainService();

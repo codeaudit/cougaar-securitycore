@@ -135,7 +135,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private IncrementalSubscription capabilitiesRelays;
   private IncrementalSubscription agentRegistrations;
   private IncrementalSubscription notification;
-  private Community mySecurityCommunity=null;
+//  private Community mySecurityCommunity=null;
   
   private MessageAddress myAddress;
   private MessageAddress _managerAddress;
@@ -175,7 +175,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 
     myAddress = getAgentIdentifier();
     _csu = new CommunityServiceUtil(getServiceBroker());
-    mySecurityCommunity = getMySecurityCommunity();
+//    mySecurityCommunity = getMySecurityCommunity();
 
     if (loggingService.isDebugEnabled()) {
       loggingService.debug("setupSubscriptions of CapabilitiesConsolidationPlugin called for "
@@ -192,6 +192,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   
 
   public void setManagerAddress(MessageAddress mgrAddress) {
+/*
     if(mySecurityCommunity == null) {
       loggingService.error("Agent '" + myAddress +
 			   "' does not belong to a security community. " +
@@ -200,6 +201,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     }
     loggingService.debug("My security community : " + mySecurityCommunity.getName()
 			 + " agent name : "+ myAddress.toString());  
+*/
     
     _managerAddress = mgrAddress;
   
@@ -1128,6 +1130,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     }
   }
   
+/*
   private Community getMySecurityCommunity() {
     Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
     if(mySecurityCommunity==null) {
@@ -1135,7 +1138,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     }
     return mySecurityCommunity;
   }
-  
+ */ 
   
   /**
    * Find the previous AgentRegistration Event from this source (if any)
