@@ -44,3 +44,6 @@ ProxiedOntologyJavaMapper \
 
 ProxiedOntologyJavaMapper \
       http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml   . ${PKG}
+
+ProxiedOntologyJavaMapper \
+      http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml . ${PKG}
