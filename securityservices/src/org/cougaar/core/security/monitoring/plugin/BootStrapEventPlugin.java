@@ -178,7 +178,8 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
 	//System.out.println(" Got event after reconstruction :"+event.toString());
       }
       else {
-	System.out.println(" Got event as null in update of event Service :");
+        if(log.isDebugEnabled()) 
+          log.debug(" Got event as null in update of event Service :");
       }
     }
     if(!events.isEmpty()) {
@@ -193,11 +194,11 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     dservice=getDomainService();
     // bbservice=(BlackboardService)serviceBroker.getService(this,BlackboardService.class,null);
     if(bbservice==null) {
-      System.out.println(" error cannot get BlackBoard Service:");
+      log.error(" error cannot get BlackBoard Service:");
     }
     // domainservice=(DomainService)serviceBroker.getService(this,DomainService.class,null);
     if(dservice==null) {
-       System.out.println(" error cannot get domain service Going to loose all events :");
+       log.error(" error cannot get domain service Going to loose all events :");
     }
     CmrFactory factory=(CmrFactory)dservice.getFactory("cmr");
     IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
@@ -302,7 +303,8 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
       Class [] param={Observer.class};
       method=ob.getClass().getMethod("register",param);
       Object oobj=null;
-      System.out.println(" observer being passed is :"+this.toString());
+      if(log.isDebugEnabled())
+        log.debug(" observer being passed is :"+this.toString());
       Object[] argss={this};
       oobj=method.invoke(ob,argss);
     }
@@ -318,12 +320,12 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     BlackboardService bbservice=getBlackboardService();
     DomainService dservice=getDomainService();
     if(bbservice==null) {
-      System.out.println(" error cannot get BlackBoard Service:");
+      log.error(" error cannot get BlackBoard Service:");
       return;
     }
     //domainservice=(DomainService)serviceBroker.getService(this,DomainService.class,null);
     if(dservice==null) {
-       System.out.println(" error cannot get domain service Going to loose all events :");
+       log.error(" error cannot get domain service Going to loose all events :");
        return;
     }
     CmrFactory factory=(CmrFactory)dservice.getFactory("cmr");
@@ -339,7 +341,8 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
       imessage.createRegistrationAlert(this,
 				       capabilities,IdmefMessageFactory.newregistration,IdmefMessageFactory.SensorType);
      NewEvent event=factory.newEvent(reg);
-     System.out.println(" going to publish capabilities in event Service  :");
+      if(log.isDebugEnabled())
+        log.debug(" going to publish capabilities in event Service  :");
     CmrRelay  relay ;
     relay= factory.newCmrRelay(event,mgrAddress);
     //relay= factory.newCmrRelay(event,destcluster);

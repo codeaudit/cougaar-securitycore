@@ -314,7 +314,8 @@ public class CapabilitiesProcessingPlugin
 	Not sure what to get .. Should we do ClusterIdentifier.toString() or ClusterIdentifier.toAddress()
       */
       String agent_id= event.getSource().toAddress();
-      System.out.println(" got agent id as :===============================>"+ agent_id);
+      if(loggingService.isDebugEnabled())      
+        loggingService.debug(" got agent id as :===============================>"+ agent_id);
       /*
 	Consolidating capabilities from subordinate agent 
       */
@@ -573,7 +574,5 @@ public class CapabilitiesProcessingPlugin
     }
     return ralert;
   }
-
- 
 
 }

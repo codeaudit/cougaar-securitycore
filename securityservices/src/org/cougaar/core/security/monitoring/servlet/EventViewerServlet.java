@@ -116,7 +116,7 @@ public class EventViewerServlet
     while (it.hasNext()) {
       IDMEF_Message msg = ((Event)it.next()).getEvent();
       document = msg.toString();
-      System.out.println("IDMEF message:\n" + document);
+      //System.out.println("IDMEF message:\n" + document);
       processMessage(out, msg);
     }
     out.println("</body></html>");
