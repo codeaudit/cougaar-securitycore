@@ -43,7 +43,7 @@ echo $COUGAAR_SECURITY_SERVICES
 echo $COUGAARCLASSES
 echo $TOMCAT_HOME
 
-setenv PATH:${PATH}:${JAVA_HOME}
+setenv PATH ${PATH}:${JAVA_HOME}
 
 if(! $?COUGAAR_INSTALL_PATH) then
    echo provide cougaar install path
@@ -65,7 +65,8 @@ echo evertthing required is there
 
 
 
-tar -cvf $TOMCAT_HOME/webapps/servlet.tar $COUGAAR_SECURITY_SERVICES/test/configs/servlet/CA
+cd $COUGAAR_SECURITY_SERVICES/test/configs/servlet/
+tar -cvf $TOMCAT_HOME/webapps/servlet.tar --exclude=CVS CA
 
 # stop tomcat server
 /etc/rc.d/init.d/tomcat4 stop

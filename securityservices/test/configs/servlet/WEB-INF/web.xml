@@ -40,7 +40,7 @@
 	certrequest
         </servlet-name>
         <url-pattern>
-            /CertSign
+            /CA
         </url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -48,7 +48,7 @@
 	test
         </servlet-name>
         <url-pattern>
-            /CertSign
+            /CA
         </url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -56,7 +56,7 @@
 	certlist
         </servlet-name>
         <url-pattern>
-            /CertSign
+            /CA
         </url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -64,7 +64,7 @@
 	certdetails
         </servlet-name>
         <url-pattern>
-            /CertSign
+            /CA
         </url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -72,7 +72,7 @@
 	revokecertificate
         </servlet-name>
         <url-pattern>
-            /CertSign
+            /CA
         </url-pattern>
     </servlet-mapping>
 
