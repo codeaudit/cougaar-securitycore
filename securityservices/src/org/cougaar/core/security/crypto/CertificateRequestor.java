@@ -81,7 +81,6 @@ import org.cougaar.core.security.util.CrlUtility;
 import org.cougaar.core.security.util.DateUtil;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.service.LoggingService;
-import org.w3c.rdf.syntax.SerializationException;
 
 import sun.misc.BASE64Encoder;
 import sun.security.pkcs.PKCS10;
@@ -94,7 +93,7 @@ import sun.security.x509.X509CertImpl;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  */
 public class CertificateRequestor {
   private ServiceBroker serviceBroker;
@@ -787,7 +786,6 @@ synchronized (_pkcsLock) {
    * @throws InvalidKeyException DOCUMENT ME!
    * @throws KeyStoreException DOCUMENT ME!
    * @throws UnrecoverableKeyException DOCUMENT ME!
-   * @throws SerializationException DOCUMENT ME!
    */
   public String[] generateSigningCertificateRequestForAgent(
     X509Certificate certificate, String signerAlias)
