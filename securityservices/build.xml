@@ -217,6 +217,7 @@
                       common/DamlBootPolicyList,
                       common/DamlBlackboardObjectMap,
                       common/DamlUriMap,
+                      common/DamlUserRoleMap,
                       common/RoleComponentMap,
                       common/RoleAgentMap,
                       common/RoleUriMap,
