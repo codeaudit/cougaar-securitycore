@@ -245,10 +245,10 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.http.port=${httpport}"
 # set MYPROPERTIES="$MYPROPERTIES -Djavax.net.debug=ssl"
 
 # setup for RMI over SSL
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol"
+# set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol"
 
 # setup for Naming over SSL
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.naming.useSSL=true"
+# set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.naming.useSSL=true"
 
 #################################
 
