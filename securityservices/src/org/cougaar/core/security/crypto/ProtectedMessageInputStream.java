@@ -106,6 +106,10 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       throw new MessageDumpedException("Message was dropped");
     }
     ProtectedMessageHeader header = bytesToHeader(headerBytes);
+    if (_log.isDebugEnabled()) {
+      _log.debug("Receiving message with header: " + header);
+      _log.debug("encrypted socket = " + _encryptedSocket);
+    }
     setAddresses(header, source, target);
     SecureMethodParam headerPolicy = header.getPolicy();
     // check the policy
@@ -121,6 +125,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
         _log.debug("Policy mismatch for message from " + _source + 
                    " to " + _target + " for policy " + headerPolicy);
       }
+
       if (encryptedSocket && 
           headerPolicy.secureMethod == headerPolicy.PLAIN) {
         sendSignatureValid(false); // please send me the signature next time
@@ -306,6 +311,9 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       : new DataInputStream(stream);
 
     int bytes = din.readInt();
+    if (_log.isDebugEnabled()) {
+      _log.debug("reading header with " + bytes + " bytes");
+    }
     byte[] buf = new byte[bytes];
     din.readFully(buf);
     this.in = din;
