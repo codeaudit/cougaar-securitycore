@@ -610,7 +610,12 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   }
    
   private String getMySecurityCommunity() {
-    return _csu.getSecurityCommunity(myAddress.toString());
+    String mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
+    if(mySecurityCommunity==null) {
+      loggingService.warn(" Canot get my role as Manager in any Security Community  :"+myAddress.toString() );
+    }
+    return mySecurityCommunity; 
+    
   }
 
   public RegistrationAlert getRegistrationAlert(ConsolidatedCapabilities cons) {
