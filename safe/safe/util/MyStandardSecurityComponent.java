@@ -46,8 +46,14 @@ public final class MyStandardSecurityComponent
 
   protected Object guard = null;
   protected BindingSite bindingSite = null;
+  private Object param = null;
 
   public MyStandardSecurityComponent() {
+  }
+
+  public void setParameter(Object o) {
+    System.out.println("Parameter: " + o.getClass().getName());
+    param = o;
   }
 
   public void setBindingSite(BindingSite bs) {
