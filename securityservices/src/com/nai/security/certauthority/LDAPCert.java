@@ -86,9 +86,23 @@ import com.nai.security.crypto.Base64;
 	}
     }
 
-    private void publish2Ldap(X509Certificate client, X509Certificate signator)
+    public void setDirContext(DirContext context) {
+	ctx = context;
+    }
+
+    public void pulish2Ldap(X509Certificate ca) {
+	objectclass = new BasicAttribute("objectclass");
+	objectclass.add("xuda_certifcate");
+	set.put(objectclass);	
+	init(ca, ca);
+    }
+
+    public void publish2Ldap(X509Certificate client, X509Certificate signator)
     {
-	
+	objectclass = new BasicAttribute("objectclass");
+	objectclass.add("xuda_certifcate");
+	set.put(objectclass);	
+	init(client, signator);
     }
 
     public static X509Certificate loadCert(String fileName) {
@@ -122,6 +136,8 @@ import com.nai.security.crypto.Base64;
     public LDAPCert(String certFile, String caFile) {
 	X509Certificate cert = loadCert(certFile);
 	X509Certificate ca = loadCert(caFile);
+	objectclass.add("xuda_certifcate");
+	set.put(objectclass);	
 	init(cert, ca);
     }
 
@@ -226,9 +242,9 @@ import com.nai.security.crypto.Base64;
     }
 
 
-    public void put(DirContext context) {
+    public void put() {
 	try {
-	    context.createSubcontext(dn, set);
+	    ctx.createSubcontext(dn, set);
 	}
 	catch(Exception ex) {
 	    ex.printStackTrace();
@@ -254,8 +270,8 @@ import com.nai.security.crypto.Base64;
 	if(debug)System.out.println("Initial context is " + 
 				    env.get(Context.PROVIDER_URL));
 	try {
-	    ctx = new InitialDirContext(env);
-	    //lcert.put(ctx); 
+	    lcert.setDirContext(new InitialDirContext(env));
+	    //lcert.put(); 
 	}
 	catch(Exception ex) {
 	    if(debug)ex.printStackTrace();
