@@ -469,3 +469,28 @@ def getClasspath
   }
   classpath
 end
+
+# find the first agent in a non-management node
+def findAttackAgent(run)
+    run.society.each_node do |node|
+      mgmtComp = false
+      node.each_facet(:role) do |facet|
+        if facet[:role] == $facetManagement ||
+           facet[:role] == $facetSubManagement ||
+           facet[:role] == $facetRootManagement ||
+           facet[:role] == 'RootCertificateAuthority' ||
+           facet[:role] == 'CertificateAuthority' ||
+           facet[:role] == 'RedundantCertificateAuthority' ||
+           facet[:role] == 'AR-Management'
+          mgmtComp = true
+          break 
+        end 
+      end
+      if mgmtComp == false
+        node.each_agent do |agent|
+          # get the first agent from this non-management node
+          return agent
+        end 
+      end # if securityComp == false
+    end # run.society.each_node
+end
