@@ -56,10 +56,12 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
    * Returns the default SSL server socket factory.
    */
   public synchronized static ServerSocketFactory getDefault() {
+  /*
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
       security.checkPermission(new KeyRingPermission("KeyRingSSLServerFactory.getDefault"));
     }
+    */
 
     if (_default == null) {
       if (_sslcontext == null) {
