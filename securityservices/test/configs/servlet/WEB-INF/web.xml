@@ -34,6 +34,20 @@
         <servlet-name>revokecertificate</servlet-name>
         <servlet-class>com.nai.security.certauthority.RevokeCertificateServlet</servlet-class>
     </servlet>
+    <servlet>
+	<servlet-name>pendingcert</servlet-name>
+        <servlet-class>com.nai.security.certauthority.PendingCertificateServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>pendingdetail</servlet-name>
+        <servlet-class>com.nai.security.certauthority.PendingCertDetailsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>processpending</servlet-name>
+        <servlet-class>com.nai.security.certauthority.ProcessPendingCertServlet</servlet-class>
+    </servlet>
+
+
 
     <servlet-mapping>
         <servlet-name>
@@ -75,6 +89,40 @@
             /CA_APP_DIR
         </url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>
+        revokecertificate
+        </servlet-name>
+        <url-pattern>
+            /CA_APP_DIR
+        </url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>
+        pendingcert
+        </servlet-name>
+        <url-pattern>
+            /CA_APP_DIR
+        </url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>
+        pendingdetail
+        </servlet-name>
+        <url-pattern>
+            /CA_APP_DIR
+        </url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>
+        processpending
+        </servlet-name>
+        <url-pattern>
+            /CA_APP_DIR
+        </url-pattern>
+    </servlet-mapping>
+
+
 
 
 </web-app>

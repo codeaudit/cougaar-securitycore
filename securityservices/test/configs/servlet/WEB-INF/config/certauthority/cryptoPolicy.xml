@@ -35,6 +35,12 @@
     <!-- The name of directory where to store signed certificates -->
     <x509CertDirectory>x509certificates</x509CertDirectory>
 
+    <!-- The name of directory where to store the pending certificates, after it is approved it will be moved to the certificate storage directory for approved certificates (ie. x509CertDirectory) -->
+    <CertPendingDirectory>pending</CertPendingDirectory>
+
+    <!-- The name of directory where to store the denial certificates, this directory should be periodicly cleaned -->
+    <CertDeniedDirectory>denied</CertDeniedDirectory>
+
     <!-- Policy when issuing certificates -->
     <clientCertPolicy>
       <!-- The X509 version number to be created -->
@@ -48,6 +54,8 @@
 
       <!-- How long to certify for. -->
       <certValidity>6 M</certValidity>
+
+      <requirePending>true</requirePending>
     </clientCertPolicy>
   </certificateAuthority>
 
@@ -83,6 +91,12 @@
     <!-- The name of directory where to store signed certificates -->
     <x509CertDirectory>x509certificates</x509CertDirectory>
 
+    <!-- The name of directory where to store the pending certificates, after it is approved it will be moved to the certificate storage directory for approved certificates (ie. x509CertDirectory) -->
+    <CertPendingDirectory>pending</CertPendingDirectory>
+
+    <!-- The name of directory where to store the denial certificates, this directory should be periodicly cleaned -->
+    <CertDeniedDirectory>denied</CertDeniedDirectory>
+
     <!-- Policy when issuing certificates -->
     <clientCertPolicy>
       <!-- The X509 version number to be created -->
@@ -97,6 +111,8 @@
       <!-- How long to certify for.
            Six months by default. -->
       <certValidity>6 M</certValidity>
+
+      <requirePending>true</requirePending>
     </clientCertPolicy>
   </certificateAuthority>
 
