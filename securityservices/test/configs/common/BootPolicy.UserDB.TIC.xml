@@ -34,7 +34,7 @@
     <ldap-password>secret</ldap-password>
 
     <!-- The dn under which users are stored -->
-    <user-dn>dc=cougaar,dc=org</user-dn>
+    <user-dn>dc=users,dc=cougaar,dc=org</user-dn>
 
     <!-- The dn under which roles are stored -->
     <role-dn>dc=roles,dc=cougaar,dc=org</role-dn>
@@ -63,6 +63,7 @@
     <!-- Define one or more objectClass that is used when creating user
          entries -->
     <user-object-class>inetOrgPerson</user-object-class>
+    <user-object-class>organizationalPerson</user-object-class>
     <user-object-class>cougaarAcct</user-object-class>
 
     <!-- Define one or more objectClass that is used when creating role
