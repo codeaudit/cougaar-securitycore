@@ -15,7 +15,7 @@ import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cougaar.core.security.test.AbstractServletComponent;
+import org.cougaar.core.security.servlet.AbstractServletComponent;
 import org.cougaar.glm.ldm.asset.Organization;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.asset.ClusterPG;

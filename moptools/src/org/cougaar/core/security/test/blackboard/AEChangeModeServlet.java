@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cougaar.core.adaptivity.OperatingMode;
 import org.cougaar.core.security.test.*;
+import org.cougaar.core.security.servlet.AbstractServletComponent;
 import org.cougaar.util.UnaryPredicate;
 
 

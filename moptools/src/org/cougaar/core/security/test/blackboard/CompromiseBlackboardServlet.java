@@ -38,7 +38,7 @@ import org.cougaar.core.node.NodeIdentificationService;
 import org.cougaar.core.security.monitoring.event.BlackboardFailureEvent;
 import org.cougaar.core.security.monitoring.plugin.BlackboardCompromiseSensorPlugin;
 import org.cougaar.core.security.monitoring.plugin.CompromiseBlackboard;
-import org.cougaar.core.security.test.AbstractServletComponent;
+import org.cougaar.core.security.servlet.AbstractServletComponent;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.core.security.util.NodeInfo;

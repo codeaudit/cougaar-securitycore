@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.io.PrintWriter;
 import java.io.IOException;
 
-import org.cougaar.core.security.test.AbstractServletComponent;
+import org.cougaar.core.security.servlet.AbstractServletComponent;
 
 public class CrlMessageBinderServlet
   extends AbstractServletComponent

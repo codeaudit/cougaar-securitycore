@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cougaar.core.security.test.*;
+import org.cougaar.core.security.servlet.AbstractServletComponent;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.DBConnectionPool;
 import org.cougaar.util.UnaryPredicate;
