@@ -417,8 +417,11 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       certstatus = (CertificateStatus) certList.get(0);
     }
     else {
-      if(log.isWarnEnabled())
-	log.warn("No valid certificate for: "+distingushname);
+      List certlist = cacheService.getCertificates(name);
+      if(certList == null || certlist.size()== 0) {
+        if(log.isInfoEnabled())
+          log.info("No certificate in Cert Cache  for: "+distingushname);
+      }
       return;
     }
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
