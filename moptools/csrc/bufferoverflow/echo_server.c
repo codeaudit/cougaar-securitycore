@@ -55,6 +55,7 @@ int main(void)
 
   char buf1[MAX_BUF];
   char buf2[MAX_BUF];
+  char buf3[MAX_BUF];
   int length = 0;
 
   char cmd[MAX_BUF];
@@ -105,41 +106,73 @@ int main(void)
 
       // Receive length of first packet
       uint32_t packet_length = 0;
+      int size_to_read = 0;
+
       if ((length = recv(new_fd, (char*) &packet_length, sizeof(packet_length), 0))
 	  != sizeof(packet_length)) {
-	perror("receive length");
+	printf("Error receiving length");
 	exit(0);
       }
 
-      printf("server: got connection from %s - Going to read %d bytes\n",
+      printf("server: got connection from %s - Going to read %d bytes - ",
 	     inet_ntoa(their_addr.sin_addr), ntohl(packet_length));
       // Receive first packet. In the exploit, this will contain
       // The NOPs and RET values
-      if ((length = recv(new_fd, buf1, ntohl(packet_length), 0)) !=
-	  ntohl(packet_length)) {
-	perror("receive");
-	exit(0);
+      size_to_read = 0;
+      while (size_to_read < ntohl(packet_length)) {
+	if ((length = recv(new_fd, buf1 + size_to_read,
+			   ntohl(packet_length) - size_to_read, 0)) < 0) {
+	  printf("Error receiving first packet: %d", length);
+	  exit(0);
+	}
+	printf("Read %d bytes - strlen=%d\n",
+	       length, strlen(buf1));
+	size_to_read += length;
       }
-      printf("server: Read %d bytes - strlen=%d\n",
-	     length, strlen(buf1));
 
       // Receive length of second packet
       if ((length = recv(new_fd, (char*) &packet_length, sizeof(packet_length), 0))
 	  != sizeof(packet_length)) {
-	perror("receive length");
+	printf("Error receiving length of second packet");
 	exit(0);
       }
-      printf("server: Going to read %d bytes\n",
+      printf("server: Going to read %d bytes - ",
 	     ntohl(packet_length));
      // Receive second packet. In the exploit, this will contain
       // the exploit code.
-      if ((length = recv(new_fd, buf2, ntohl(packet_length), 0)) !=
-	  ntohl(packet_length)) {
-	perror("receive");
+      size_to_read = 0;
+      while (size_to_read < ntohl(packet_length)) {
+	if ((length = recv(new_fd, buf2 + size_to_read,
+			   ntohl(packet_length) - size_to_read, 0)) < 0) {
+	  printf("Error receving second packet: %d", length);
+	  exit(0);
+	}
+	printf("Read %d bytes - strlen=%d\n",
+	       length, strlen(buf2));
+	size_to_read += length;
+      }
+
+     // Receive length of third packet
+      if ((length = recv(new_fd, (char*) &packet_length, sizeof(packet_length), 0))
+	  != sizeof(packet_length)) {
+	printf("Error receiving length of third packet");
 	exit(0);
       }
-      printf("server: Read %d bytes - strlen=%d\n",
-	     length, strlen(buf2));
+      printf("server: Going to read %d bytes - ",
+	     ntohl(packet_length));
+      // Receive third packet. In the exploit, this will contain
+      // the name of a program to be invoked.
+      size_to_read = 0;
+      while (size_to_read < ntohl(packet_length)) {
+	if ((length = recv(new_fd, buf3 + size_to_read,
+			   ntohl(packet_length) - size_to_read, 0)) < 0) {
+	  printf("Error receiving third packet: %d", length);
+	  exit(0);
+	}
+	printf("Read %d bytes - strlen=%d\n",
+	       length, strlen(buf3));
+ 	size_to_read += length;
+     }
 
       if (send(new_fd, buf1, length, 0) == -1)
 	perror("send");
@@ -161,7 +194,9 @@ int main(void)
       strcat(cmd, buf1);
       strcat(cmd, " ");
       strcat(cmd, buf2);
-      printf("%s\n", cmd);
+      strcat(cmd, " ");
+      strcat(cmd, buf3);
+      //printf("%s\n", cmd);
       int ret = system(cmd);
 
       printf("Called vulnerable program. Status code: %d\n", ret);

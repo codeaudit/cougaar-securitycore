@@ -40,7 +40,7 @@ echo_server:	echo_server.c
 	$(CC) $(CFLAGS) $? $(LDFLAGS) -o $@
 
 clean:
-	rm -f vulnerable echo_client echo_server exploit4 attacker test1 *~
+	rm -f temp-* vulnerable echo_client echo_server exploit4 attacker test1 *~
 
 .PHONY:	clean all
 
