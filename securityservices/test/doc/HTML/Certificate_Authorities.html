@@ -1,0 +1,823 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:st1="urn:schemas-microsoft-com:office:smarttags"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="README.certificateAuthority_files/filelist.xml">
+<title>Certificate Authority HOW-TO</title>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="State"/>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="City"/>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="place"/>
+<!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:Zoom>150</w:Zoom>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]--><!--[if !mso]><object
+ classid="clsid:38481807-CA0E-42D2-BF39-B33AF135CC4D" id=ieooui></object>
+<style>
+st1\:*{behavior:url(#ieooui) }
+</style>
+<![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:1627421319 -2147483648 8 0 66047 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{mso-style-noshow:yes;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	background:navy;
+	font-size:12.0pt;
+	font-family:Tahoma;
+	mso-fareast-font-family:"Times New Roman";}
+p
+	{mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:423957352;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-2099851428 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l0:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1
+	{mso-list-id:432288506;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1123671680 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l1:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2
+	{mso-list-id:516189538;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-703148888 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l2:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3
+	{mso-list-id:555512082;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-2197842 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l3:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l4
+	{mso-list-id:862013888;
+	mso-list-type:hybrid;
+	mso-list-template-ids:51519620 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l4:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5
+	{mso-list-id:885414575;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1810698294 67698703 -29867152 67698703 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l5:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level2
+	{mso-level-text:"%2\)";
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level3
+	{mso-level-tab-stop:117.0pt;
+	mso-level-number-position:left;
+	margin-left:117.0pt;
+	text-indent:-.25in;}
+@list l6
+	{mso-list-id:955331663;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1340832326 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l6:level1
+	{mso-level-start-at:5;
+	mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+@list l7
+	{mso-list-id:1220751683;
+	mso-list-template-ids:-767671062;}
+@list l7:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l7:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level5
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level6
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:3.0in;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l7:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:4.5in;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l8
+	{mso-list-id:1434473588;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1129058166 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l8:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l9
+	{mso-list-id:1580824882;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-767671062 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l9:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10
+	{mso-list-id:1599408177;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-44273622 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l10:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11
+	{mso-list-id:1921254209;
+	mso-list-type:hybrid;
+	mso-list-template-ids:576871180 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l11:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]-->
+<meta name=Template content="C:\Program Files\Microsoft Office\Office\html.dot">
+</head>
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<p style='mso-outline-level:1'><b style='mso-bidi-font-weight:normal'><span
+style='font-size:24.0pt'>Certificate Authority HOW-TO<o:p></o:p></span></b></p>
+
+<p><span style='font-size:10.0pt'>This guide describes how to install and
+configure a simple Certificate Authority (CA) server for the Cougaar system.
+The CA provides the following services:<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Support for
+multiple Certificate Authorities. Each CA has its own key.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Web interface to
+send a certificate signing request (PKCS10 format) to a certificate authority.
+The certificate authority is specified by its distinguished name.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Web interface to
+send a signed X.509 certificate.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Web interface to
+view issued certificates.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Web interface to
+revoke a certificate.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Web interface to
+view pending certificate signing requests.<o:p></o:p></span></p>
+
+<p><span style='font-size:10.0pt'>These services are used by Cougaar nodes to
+generate key pairs and send certificate requests to a Certificate Authority. The
+certificate authority runs as a Cougaar node.<o:p></o:p></span></p>
+
+<p><span style='font-size:10.0pt'>Note:<o:p></o:p></span></p>
+
+<p><span style='font-size:10.0pt'>This certification authority is not intended
+to replace a COTS or </span><st1:place><st1:City><span style='font-size:10.0pt'>GOTS</span></st1:City><span
+ style='font-size:10.0pt'> </span><st1:State><span style='font-size:10.0pt'>CA</span></st1:State></st1:place><span
+style='font-size:10.0pt'>. In particular, it does not attempt to address all
+the security issues associated with a Certificate Authority. The immediate goal
+of this service is to greatly facilitate software tests in the Ultra*Log
+program by allowing to easily install a Cougaar society without having to
+manually create certificates and sign them with a COTS or GOTS Certificate
+Authority.<o:p></o:p></span></p>
+
+<p style='mso-outline-level:1'><b style='mso-bidi-font-weight:normal'><u><span
+style='font-size:10.0pt'>Pre-requisite before configuring the CA<o:p></o:p></span></u></b></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l5 level1 lfo4;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Install Cougaar<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l5 level1 lfo4;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Install <span
+class=SpellE>NAI's</span> security services module by typing ant install in the
+top-level directory.<o:p></o:p></span></p>
+
+<p><b style='mso-bidi-font-weight:normal'><u><span style='font-size:10.0pt'>Install
+and configure the CA<o:p></o:p></span></u></b></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l9 level1 lfo6;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>The CA requires a
+set of security components and <span class=SpellE>servlets</span>. Two sample
+&quot;.<span class=SpellE>ini</span>&quot; files are provided in the test/<span
+class=SpellE>configs/cougaarCA</span> directory.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l9 level1 lfo6;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>The CA runs as
+one Cougaar node with one agent. The caNode.ini file is the Certificate
+Authority node's <span class=SpellE>ini</span> file. The caAgent.ini file is
+the <span class=SpellE>Certifificate</span> Authority agent's <span
+class=SpellE>ini</span> file.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l9 level1 lfo6;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>The content of
+these <span class=SpellE>ini</span> files should not be changed. As other
+agents in the society, each CA should have a unique name, therefore each node
+and agent <span class=SpellE>ini</span> file should be unique in the society. If
+you need only one CA, you can keep the existing caAgent.ini and caNode.ini
+files. If you need more than one CA, you will need to copy those files and give
+names of your choice.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l9 level1 lfo6;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Each CA should
+have its own naming service. In particular, the CA should not register itself
+with the society's naming service. This can be achieved by creating an
+alpreg.ini file with the following content and installing every CA on its own
+machine:<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt;
+font-family:"Courier New"'>[ Registry</span></span><span style='font-size:10.0pt;
+font-family:"Courier New"'> ]<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt;
+font-family:"Courier New"'>address=</span></span><span class=SpellE><span
+style='font-size:10.0pt;font-family:"Courier New"'>localhost</span></span><span
+style='font-size:10.0pt;font-family:"Courier New"'><o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt;
+font-family:"Courier New"'>alias=</span></span><span class=SpellE><span
+style='font-size:10.0pt;font-family:"Courier New"'>AlpFDS</span></span><span
+style='font-size:10.0pt;font-family:"Courier New"'><o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt;
+font-family:"Courier New"'>port=</span></span><span style='font-size:10.0pt;
+font-family:"Courier New"'>8010</span><span style='font-size:10.0pt'><o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l9 level1 lfo6;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>The <span
+class=SpellE>cougaarCA</span> directory contains <span class=GramE>two <span
+style='mso-spacerun:yes'> </span>files</span> that are required by the CA. The
+&quot;<span class=SpellE>caPolicyTemplate.xml</span>&quot; is a template file
+which is used by the CA whenever a new CA key is generated. The <span
+class=SpellE>cryptoPolicy.xml</span> is a policy file which is used to issue certificates.
+Every CA should have these two files in their startup directory.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l9 level1 lfo6;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>The <span
+class=SpellE>cryptoPolicy.xml</span> file contains a &lt;<span class=SpellE>isRootCA</span>&gt;
+tag which specifies whether the CA is a root CA or not. For example, assume the
+following CA deployment:<o:p></o:p></span></p>
+
+<p style='margin-left:1.0in;mso-outline-level:1'><span style='font-size:10.0pt;
+font-family:"Courier New"'><span style='mso-spacerun:yes'> </span><span
+style='mso-spacerun:yes'> </span>CA1<o:p></o:p></span></p>
+
+<p style='margin-left:1.0in'><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'> </span><span style='mso-spacerun:yes'> </span><span
+style='mso-spacerun:yes'> </span>|<o:p></o:p></span></p>
+
+<p style='margin-left:1.0in'><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>  </span>/ \<o:p></o:p></span></p>
+
+<p style='margin-left:1.0in;mso-outline-level:1'><span style='font-size:10.0pt;
+font-family:"Courier New"'>CA2 CA3<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>CA1 is the root CA
+and has a self-signed certificate. CA2 and CA3 have their certificates signed
+by CA1. The <span class=SpellE>isRootCA</span> value should be true for CA1 and
+false for CA2 and CA3. The <span class=SpellE>cryptoPolicy.xml</span> file must
+include the URL of the root CA. Example for a subordinate CA policy, the <span
+class=SpellE>trustedCA</span> specifies which CA this CA's keys should sent to <span
+class=SpellE>to</span> be signed.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;<span
+class=SpellE><span class=GramE>trustedCA</span></span>&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;<span
+class=SpellE>CA_alias</span>&gt;NCA_CA&lt;/<span class=SpellE>CA_alias</span>&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;CA_DN&gt;CN=NCA_CA,
+OU=CONUS, O=DLA, L=</span><st1:City><st1:place><span style='font-size:10.0pt;
+  font-family:"Courier New"'>San Francisco</span></st1:place></st1:City><span
+style='font-size:10.0pt;font-family:"Courier New"'>, ST=CA, C=US,
+T=ca&lt;/CA_DN&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;CA_URL
+role=&quot;rliao1&quot;&gt;http://yew:5556/$caAgent/CA/CertificateSigningRequest&lt;/CA_URL&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;<span
+class=SpellE>CertDirectoryURL</span> role=&quot;rliao1&quot;&gt;ldap<span
+class=GramE>:/</span>/yew:389/dc=rliao1,dc=cougaar,dc=org&lt;/CertDirectoryURL&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;<span
+class=SpellE>CertDirectoryType</span>&gt;<span class=SpellE>CougaarOpenLdap</span>&lt;/<span
+class=SpellE>CertDirectoryType</span>&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;/<span
+class=SpellE>trustedCA</span>&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>The <span
+class=SpellE>trustedCA</span> tag is commented out in the default <span
+class=SpellE>cryptoPolicy.xml</span> because the default CA is root CA.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l9 level1 lfo6;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>You may also
+configure the following parameters in the <span class=SpellE>cryptoPolicy.xml</span>
+file:<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=SpellE><span class=GramE><span
+style='font-size:10.0pt'>ou</span></span></span><span style='font-size:10.0pt'>:
+the organizational unit in which the CA is running<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt'>o</span></span><span
+style='font-size:10.0pt'>: the organization in which the CA is running<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt'>l</span></span><span
+style='font-size:10.0pt'>: the locality in which the CA is running<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=SpellE><span class=GramE><span
+style='font-size:10.0pt'>st</span></span></span><span style='font-size:10.0pt'>:
+the state in which the CA is running<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt'>c</span></span><span
+style='font-size:10.0pt'>: the country in which the CA is running<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt'>validity</span></span><span
+style='font-size:10.0pt'>: the validity of the CA.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l9 level1 lfo6;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>It is suggested
+to create one directory for each CA. Each directory should contain the appropriate
+.<span class=SpellE>ini</span>, <span class=SpellE>cryptoPolicy.xml</span> and <span
+class=SpellE>caPolicyTemplate.xml</span> files.<o:p></o:p></span></p>
+
+<p><b style='mso-bidi-font-weight:normal'><u><span style='font-size:10.0pt'>Install
+and configure the user database policy<o:p></o:p></span></u></b></p>
+
+<p><span style='font-size:10.0pt'>User access control is enforced for each CA
+operation. The CA should be configured to request appropriate user credentials
+before a critical operation has to be performed. The following operations
+should be performed by a CA administrator only:<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Issuing
+certificates<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Revoking
+certificates<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Submitting a CA
+key to an upper-level CA<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Processing
+pending certificate signing requests.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo2;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt;
+font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Creating a CA
+key.<o:p></o:p></span></p>
+
+<p><span style='font-size:10.0pt'>Other operations (such as viewing the list of
+certificates) may be performed by any other operator.<o:p></o:p></span></p>
+
+<p><span style='font-size:10.0pt'>The &quot;<span class=SpellE>BootPolicy.Servlet.xml</span>&quot;
+in the test/<span class=SpellE>configs</span>/common directory provides a
+default policy for the CA. Only the &quot;<span class=SpellE>CAAdministrator</span>&quot;
+role has access to the critical operations, and anybody else can have access to
+the list of certificates.<o:p></o:p></span></p>
+
+<p><span style='font-size:10.0pt'>The LDAP user database should be configured
+with at least the &quot;<span class=SpellE>CAAdministrator</span>&quot; <span
+class=GramE>role <span style='mso-spacerun:yes'> </span>and</span> one user
+with the &quot;<span class=SpellE>CAAdministrator</span>&quot; role.<o:p></o:p></span></p>
+
+<p><span style='font-size:10.0pt'>The &quot;<span class=SpellE>BootPolicy.UserDB.xml</span>&quot;
+policy file describes the configuration of the LDAP user database. The file
+should be customized to your own environment. In particular, the URL of the
+LDAP directory service must be edited.<o:p></o:p></span></p>
+
+<p><span style='font-size:10.0pt'>A &quot;<span class=SpellE>BootPolicy.UserDB.TIC.xml</span>&quot;
+file should have the appropriate values for the TIC. Rename the file to <span
+class=SpellE>BootPolicy.UserDB.xml</span>. Refer to the test/doc/<span
+class=SpellE>README.userdb</span> file for more information on how to install the
+user LDAP database, and how to install and configure the user management agent.<o:p></o:p></span></p>
+
+<p><span style='font-size:10.0pt'>The CA access control policy must be
+configured in two phases:<o:p></o:p></span></p>
+
+<p style='margin-left:1.0in;text-indent:-.25in;mso-outline-level:1;mso-list:
+l5 level2 lfo4;tab-stops:list 1.0in'><![if !supportLists]><span
+style='font-size:10.0pt'><span style='mso-list:Ignore'>1)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+style='font-size:10.0pt'>Initially, the CA should be installed and configured
+with both HTTP and HTTPS enabled. The CA administrator will configure the CA by
+using HTTP. This involves creating a CA key, as well as the CA agent, node and
+host keys. Since HTTP is not secure, this first step of the installation should
+be done without connecting the CA to the network, at least when the CA is
+intended to be used in a production environment.<o:p></o:p></span></p>
+
+<p style='margin-left:1.0in;text-indent:-.25in;mso-outline-level:1;mso-list:
+l5 level2 lfo4;tab-stops:list 1.0in'><![if !supportLists]><span
+style='font-size:10.0pt'><span style='mso-list:Ignore'>2)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+style='font-size:10.0pt'>Once the CA, agent, node and host keys have been
+created, HTTP should be disabled. CA operations should be done by using HTTPS
+only.<o:p></o:p></span></p>
+
+<p style='mso-outline-level:1'><b style='mso-bidi-font-weight:normal'><u><span
+style='font-size:10.0pt'>Start the CA and create a CA key<o:p></o:p></span></u></b></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo10;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Go to the CA
+startup directory.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo10;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Start the CA by
+typing:<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=SpellE><span style='font-size:10.0pt;
+font-family:"Courier New"'>SecureNode</span></span><span style='font-size:10.0pt;
+font-family:"Courier New"'> node<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt'>where</span></span><span
+style='font-size:10.0pt'> node is the CA node .<span class=SpellE>ini</span>
+file.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo10;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Once the CA is
+started, a CA key should be generated.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>Open a browser, and
+go to the CA node main URL. For instance:<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>http://hostname:5570/<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>Follow the following
+links:<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>* List local agents<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>* <span
+class=SpellE><span class=GramE>caAgent</span></span> (or the name of the CA agent)<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>* /$<span
+class=SpellE>caAgent</span>/CA/Index<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>You should get two
+frames with the left frame providing a list of operations.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo10;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Follow the &quot;</span><st1:place><st1:City><span
+  style='font-size:10.0pt'>Create</span></st1:City><span style='font-size:10.0pt'>
+ </span><st1:State><span style='font-size:10.0pt'>CA</span></st1:State></st1:place><span
+style='font-size:10.0pt'> key&quot; link to create a CA key/. Note that you
+should have to enter the appropriate user name and password. You should enter
+the name and password of a user with the <span class=SpellE>CAAdministrator</span>
+role.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo10;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Enter the
+appropriate information in the form, then click &quot;submit&quot;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo10;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>The CA must
+currently be shutdown then restarted before the CA can be used to issue
+certificates for other agents.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>Kill the CA agent, <span
+class=GramE>then</span> edit the &quot;<span class=SpellE>BootPolicy.Servlet.xml</span>&quot;
+file to require SSL for the administrative operations.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;rule
+<span class=SpellE>requireSSL</span>=&quot;true&quot;&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt;
+font-family:"Courier New"'>&lt;!--</span></span><span style='font-size:10.0pt;
+font-family:"Courier New"'> only let the administrator do write-only stuff
+--&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;<span
+class=GramE>pattern</span>&gt;/CA/<span class=SpellE>RevokeCertificateServlet</span>&lt;/pattern&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;<span
+class=GramE>pattern</span>&gt;/CA/<span class=SpellE>CreateCaKeyServlet</span>&lt;/pattern&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;<span
+class=GramE>pattern</span>&gt;/CA/<span class=SpellE>SubmitCaKeyServlet</span>&lt;/pattern&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;<span
+class=GramE>pattern</span>&gt;/CA/<span class=SpellE>ProcessPendingCertServlet</span>&lt;/pattern&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;<span
+class=GramE>pattern</span>&gt;/CA/<span class=SpellE>CaKeyManagement</span>&lt;/pattern&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;<span
+class=GramE>role&gt;</span><span class=SpellE>CAAdministrator</span>&lt;/role&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt;font-family:"Courier New"'>&lt;/rule&gt;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>You may also require
+HTTPS for other operations if you wish. This can be done by setting the <span
+class=SpellE>requireSSL</span> attribute for the other non-administrative
+operations.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=SpellE><span class=GramE><span
+style='font-size:10.0pt'>requireSSL</span></span></span><span style='font-size:
+10.0pt'>=&quot;true&quot;<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo10;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>HTTP may also be
+turned off, if you want to completely disable HTTP. This is done by adding the
+following property in your <span class=SpellE>Linux.props</span> file:<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'># <span class=GramE>You</span>
+can also turn on/off http/s. Turn of by setting the port to -1<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'># Note that HTTPS is
+off by default, and HTTP is at 8800<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=SpellE><span style='font-size:10.0pt'>org.cougaar.lib.web.https.port</span></span><span
+style='font-size:10.0pt'>=-1<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo10;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>Restart the CA.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>Once the CA has
+finished its initialization sequence, you should have the following files in
+the $COUGAAR_WORKSPACE/security/<span class=SpellE>keystores/caNode</span>
+directory:<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>(<span class=GramE>where</span>
+<span class=SpellE>caNode</span> is the name of the CA node, which can vary.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=SpellE><span style='font-size:10.0pt'>keystore-<span
+class=GramE>caNode</span></span></span><span class=GramE><span
+style='font-size:10.0pt'> :</span></span><span style='font-size:10.0pt'> the <span
+class=SpellE>keystore</span> containing the private keys of the CA.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=SpellE><span style='font-size:10.0pt'>keystore</span></span><span
+style='font-size:10.0pt'>-CONUS-<span class=GramE>RSA :</span> the <span
+class=SpellE>keystore</span> containing the public keys of the CA.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=GramE><span style='font-size:10.0pt'>serialNumber.txt
+:</span></span><span style='font-size:10.0pt'> a file containing the next
+serial number when issuing certificates.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span class=SpellE><span class=GramE><span
+style='font-size:10.0pt'>cryptoPolicy.xml</span></span></span><span
+class=GramE><span style='font-size:10.0pt'> :</span></span><span
+style='font-size:10.0pt'> the crypto policy file of the CA.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo10;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>All the (non root
+CA) nodes should be configured to trust at least one CA.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>For instance, if you
+have configured a root CA, then you can choose to export the CA key from the <span
+class=SpellE>keystore</span>-CONUS-RSA file, <span class=GramE>then</span>
+import it to the node trusted CA <span class=SpellE>keystore</span> file.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo10;
+tab-stops:list .5in'><![if !supportLists]><span style='font-size:10.0pt'><span
+style='mso-list:Ignore'>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-size:10.0pt'>When creating a
+subordinate CA key:<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>The upper level CA
+certificate should be imported into subordinate CA trust store. This can be
+done after starting the subordinate CA and then shutting it down, so that the
+directory structures including the trust store are created.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>A certificate
+signing request is sent to the upper level CA automatically after the
+subordinate key has been generated, so you don't need to click on &quot;submit
+CA key&quot;.<o:p></o:p></span></p>
+
+<p style='margin-left:.5in'><span style='font-size:10.0pt'>The &quot;</span><st1:place><st1:City><span
+  style='font-size:10.0pt'>Submit</span></st1:City><span style='font-size:10.0pt'>
+ </span><st1:State><span style='font-size:10.0pt'>CA</span></st1:State></st1:place><span
+style='font-size:10.0pt'> key to superior&quot; and &quot;list subordinate CA
+keys&quot; links are currently not available. Currently when a subordinate CA
+certificate request to upper level CA is pending or for any reason does not
+receive a certificate reply the request will be sent again when the CA
+restarts. In the future the <br>
+&quot;</span><st1:place><st1:City><span style='font-size:10.0pt'>Submit</span></st1:City><span
+ style='font-size:10.0pt'> </span><st1:State><span style='font-size:10.0pt'>CA</span></st1:State></st1:place><span
+style='font-size:10.0pt'> key to superior&quot; link will list all CA keys that
+have been generated but have not yet been approved by upper level CA.<o:p></o:p></span></p>
+
+</div>
+
+</body>
+
+</html>

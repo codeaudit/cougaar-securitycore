@@ -1,0 +1,3047 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="README.config_files/filelist.xml">
+<title>This README file explains how to configure the security services</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Sebastien Rosset</o:Author>
+  <o:LastAuthor>Sebastien Rosset</o:LastAuthor>
+  <o:Revision>67</o:Revision>
+  <o:TotalTime>218</o:TotalTime>
+  <o:Created>2003-02-28T16:34:00Z</o:Created>
+  <o:LastSaved>2003-03-01T00:48:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>3903</o:Words>
+  <o:Characters>22248</o:Characters>
+  <o:Company>Network Associates, Inc.</o:Company>
+  <o:Lines>185</o:Lines>
+  <o:Paragraphs>52</o:Paragraphs>
+  <o:CharactersWithSpaces>26099</o:CharactersWithSpaces>
+  <o:Version>10.3501</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:Zoom>150</w:Zoom>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:UpdateStylesOnOpen/>
+  <w:DefaultTableStyle Number="155">Table Theme</w:DefaultTableStyle>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]-->
+<link rel=Stylesheet type="text/css" media=all href="stylesheets/color0.css">
+<link rel=Stylesheet type="text/css" media=all href="stylesheets/color1.css">
+<link rel=Stylesheet type="text/css" media=all href="stylesheets/graph0.css">
+<link rel=Stylesheet type="text/css" media=all href="stylesheets/graph1.css">
+<link rel=Stylesheet type="text/css" media=all title=UltraLogStyle
+href="stylesheets/theme.css">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:1627421319 -2147483648 8 0 66047 0;}
+@font-face
+	{font-family:"Trebuchet MS";
+	panose-1:2 11 6 3 2 2 2 2 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:647 0 0 0 159 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-style:italic;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:13.0pt;
+	font-family:Arial;}
+h4
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:4;
+	font-size:14.0pt;
+	font-family:"Times New Roman";}
+h5
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:5;
+	font-size:13.0pt;
+	font-family:Arial;
+	mso-bidi-font-family:"Times New Roman";
+	font-style:italic;}
+h6
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:6;
+	font-size:11.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+	{mso-style-update:auto;
+	mso-style-noshow:yes;
+	mso-style-next:Normal;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{mso-style-noshow:yes;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	background:navy;
+	font-size:10.0pt;
+	font-family:Tahoma;
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{mso-style-link:"Plain Text Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	mso-fareast-font-family:"Times New Roman";}
+span.PlainTextChar
+	{mso-style-name:"Plain Text Char";
+	mso-style-link:"Plain Text";
+	mso-ansi-font-size:12.0pt;
+	mso-bidi-font-size:12.0pt;
+	font-family:"Courier New";
+	mso-ascii-font-family:"Courier New";
+	mso-hansi-font-family:"Courier New";
+	mso-bidi-font-family:"Courier New";
+	color:black;
+	mso-ansi-language:EN-US;
+	mso-fareast-language:EN-US;
+	mso-bidi-language:AR-SA;}
+p.mstheme-label, li.mstheme-label, div.mstheme-label
+	{mso-style-name:mstheme-label;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.mstheme-bannertxt, li.mstheme-bannertxt, div.mstheme-bannertxt
+	{mso-style-name:mstheme-bannertxt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:4.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.mstheme-horiz-navtxt, li.mstheme-horiz-navtxt, div.mstheme-horiz-navtxt
+	{mso-style-name:mstheme-horiz-navtxt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.mstheme-vert-navtxt, li.mstheme-vert-navtxt, div.mstheme-vert-navtxt
+	{mso-style-name:mstheme-vert-navtxt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.mstheme-navtxthome, li.mstheme-navtxthome, div.mstheme-navtxthome
+	{mso-style-name:mstheme-navtxthome;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.mstheme-navtxtup, li.mstheme-navtxtup, div.mstheme-navtxtup
+	{mso-style-name:mstheme-navtxtup;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.mstheme-navtxtprev, li.mstheme-navtxtprev, div.mstheme-navtxtprev
+	{mso-style-name:mstheme-navtxtprev;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.mstheme-navtxtnext, li.mstheme-navtxtnext, div.mstheme-navtxtnext
+	{mso-style-name:mstheme-navtxtnext;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.mstheme-topbar-font, li.mstheme-topbar-font, div.mstheme-topbar-font
+	{mso-style-name:mstheme-topbar-font;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-main, li.ms-main, div.ms-main
+	{mso-style-name:ms-main;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-bannerframe, li.ms-bannerframe, div.ms-bannerframe
+	{mso-style-name:ms-bannerframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-banner, li.ms-banner, div.ms-banner
+	{mso-style-name:ms-banner;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-navframe, li.ms-navframe, div.ms-navframe
+	{mso-style-name:ms-navframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-verticaldots, li.ms-verticaldots, div.ms-verticaldots
+	{mso-style-name:ms-verticaldots;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-titlearea, li.ms-titlearea, div.ms-titlearea
+	{mso-style-name:ms-titlearea;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-titleareaframe, li.ms-titleareaframe, div.ms-titleareaframe
+	{mso-style-name:ms-titleareaframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-pagetitle, li.ms-pagetitle, div.ms-pagetitle
+	{mso-style-name:ms-pagetitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:14.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-announcementtitle, li.ms-announcementtitle, div.ms-announcementtitle
+	{mso-style-name:ms-announcementtitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-formlabel, li.ms-formlabel, div.ms-formlabel
+	{mso-style-name:ms-formlabel;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-formbody, li.ms-formbody, div.ms-formbody
+	{mso-style-name:ms-formbody;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-formdescription, li.ms-formdescription, div.ms-formdescription
+	{mso-style-name:ms-formdescription;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-radiotext, li.ms-radiotext, div.ms-radiotext
+	{mso-style-name:ms-radiotext;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-searchbox, li.ms-searchbox, div.ms-searchbox
+	{mso-style-name:ms-searchbox;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-input, li.ms-input, div.ms-input
+	{mso-style-name:ms-input;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-long, li.ms-long, div.ms-long
+	{mso-style-name:ms-long;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-wvsel, li.ms-wvsel, div.ms-wvsel
+	{mso-style-name:ms-wvsel;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-selected, li.ms-selected, div.ms-selected
+	{mso-style-name:ms-selected;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-descriptiontext, li.ms-descriptiontext, div.ms-descriptiontext
+	{mso-style-name:ms-descriptiontext;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-toolbar, li.ms-toolbar, div.ms-toolbar
+	{mso-style-name:ms-toolbar;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-separator, li.ms-separator, div.ms-separator
+	{mso-style-name:ms-separator;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-authoringcontrols, li.ms-authoringcontrols, div.ms-authoringcontrols
+	{mso-style-name:ms-authoringcontrols;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-sectionheader, li.ms-sectionheader, div.ms-sectionheader
+	{mso-style-name:ms-sectionheader;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-sectionline, li.ms-sectionline, div.ms-sectionline
+	{mso-style-name:ms-sectionline;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-propertysheet, li.ms-propertysheet, div.ms-propertysheet
+	{mso-style-name:ms-propertysheet;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-discussiontitle, li.ms-discussiontitle, div.ms-discussiontitle
+	{mso-style-name:ms-discussiontitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-vh, li.ms-vh, div.ms-vh
+	{mso-style-name:ms-vh;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-vb, li.ms-vb, div.ms-vb
+	{mso-style-name:ms-vb;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-homepagetitle, li.ms-homepagetitle, div.ms-homepagetitle
+	{mso-style-name:ms-homepagetitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:11.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-addnew, li.ms-addnew, div.ms-addnew
+	{mso-style-name:ms-addnew;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.ms-cal, li.ms-cal, div.ms-cal
+	{mso-style-name:ms-cal;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caltop, li.ms-caltop, div.ms-caltop
+	{mso-style-name:ms-caltop;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calhead, li.ms-calhead, div.ms-calhead
+	{mso-style-name:ms-calhead;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:16.0pt;
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caldow, li.ms-caldow, div.ms-caldow
+	{mso-style-name:ms-caldow;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calmid, li.ms-calmid, div.ms-calmid
+	{mso-style-name:ms-calmid;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calspacer, li.ms-calspacer, div.ms-calspacer
+	{mso-style-name:ms-calspacer;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calbot, li.ms-calbot, div.ms-calbot
+	{mso-style-name:ms-calbot;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-appt, li.ms-appt, div.ms-appt
+	{mso-style-name:ms-appt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caldowdown, li.ms-caldowdown, div.ms-caldowdown
+	{mso-style-name:ms-caldowdown;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caldown, li.ms-caldown, div.ms-caldown
+	{mso-style-name:ms-caldown;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-datepickeriframe, li.ms-datepickeriframe, div.ms-datepickeriframe
+	{mso-style-name:ms-datepickeriframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-datepicker, li.ms-datepicker, div.ms-datepicker
+	{mso-style-name:ms-datepicker;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpdow, li.ms-dpdow, div.ms-dpdow
+	{mso-style-name:ms-dpdow;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpday, li.ms-dpday, div.ms-dpday
+	{mso-style-name:ms-dpday;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpselectedday, li.ms-dpselectedday, div.ms-dpselectedday
+	{mso-style-name:ms-dpselectedday;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpnonmonth, li.ms-dpnonmonth, div.ms-dpnonmonth
+	{mso-style-name:ms-dpnonmonth;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dphead, li.ms-dphead, div.ms-dphead
+	{mso-style-name:ms-dphead;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpfoot, li.ms-dpfoot, div.ms-dpfoot
+	{mso-style-name:ms-dpfoot;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+span.Hyperlink1
+	{mso-style-name:Hyperlink1;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#330066;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink1
+	{mso-style-name:FollowedHyperlink1;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#330066;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink2
+	{mso-style-name:FollowedHyperlink2;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#666699;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:underline;
+	text-underline:single;
+	text-decoration:none underline;
+	text-line-through:none;}
+span.Hyperlink2
+	{mso-style-name:Hyperlink2;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#009999;
+	text-decoration:underline;
+	text-underline:single;}
+span.FollowedHyperlink3
+	{mso-style-name:FollowedHyperlink3;
+	color:#666699;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink4
+	{mso-style-name:FollowedHyperlink4;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#666699;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink5
+	{mso-style-name:FollowedHyperlink5;
+	color:#666699;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 65.95pt 1.0in 65.95pt;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:809789278;
+	mso-list-template-ids:67698721;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F076;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l0:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	margin-left:.5in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l0:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l0:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	margin-left:1.0in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l0:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A8;
+	mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l0:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	margin-left:1.5in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l0:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.75in;
+	mso-level-number-position:left;
+	margin-left:1.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l0:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	margin-left:2.0in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l0:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A8;
+	mso-level-tab-stop:2.25in;
+	mso-level-number-position:left;
+	margin-left:2.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l1
+	{mso-list-id:1223103561;
+	mso-list-template-ids:-1133857422;}
+@list l2
+	{mso-list-id:2046363028;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1642167622 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l2:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	color:windowtext;}
+table.MsoTableGrid
+	{mso-style-name:"Table Grid";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	border:solid windowtext 1.0pt;
+	mso-border-alt:solid windowtext .5pt;
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-border-insideh:.5pt solid windowtext;
+	mso-border-insidev:.5pt solid windowtext;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+table.MsoTableTheme
+	{mso-style-name:"Table Theme";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	border:solid #669999 1.0pt;
+	mso-border-alt:solid #669999 .5pt;
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-border-insideh:.5pt solid #669999;
+	mso-border-insidev:.5pt solid #669999;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="2050"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body bgcolor=white background="stylesheets/netbkgnd.gif" lang=EN-US link=blue
+vlink=purple style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<p class=MsoNormal><span style='color:black'>This document explains how to
+configure the security services. Either CSMART or .INI configuration files may
+be used to configure the security services.<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoToc1 style='tab-stops:right dotted 479.6pt'><!--[if supportFields]><span
+style='font-family:"Times New Roman";color:black'><span style='mso-element:
+field-begin'></span><span style='mso-spacerun:yes'> </span>TOC \o
+&quot;1-3&quot; \n \h \z \u <span style='mso-element:field-separator'></span></span><![endif]--><span
+class=MsoHyperlink><span style='mso-no-proof:yes'><a href="#_Toc34207511">Node Agent
+configuration</a></span></span><span style='font-family:"Times New Roman";
+color:black;mso-no-proof:yes'><o:p></o:p></span></p>
+
+<p class=MsoToc1 style='tab-stops:right dotted 479.6pt'><span
+class=MsoHyperlink><span style='mso-no-proof:yes'><a href="#_Toc34207512">Policy
+Domain Manager Agent</a></span></span><span style='font-family:"Times New Roman";
+color:black;mso-no-proof:yes'><o:p></o:p></span></p>
+
+<p class=MsoToc1 style='tab-stops:right dotted 479.6pt'><span
+class=MsoHyperlink><span style='mso-no-proof:yes'><a href="#_Toc34207513">Policy
+manager node</a></span></span><span style='font-family:"Times New Roman";
+color:black;mso-no-proof:yes'><o:p></o:p></span></p>
+
+<p class=MsoToc1 style='tab-stops:right dotted 479.6pt'><span
+class=MsoHyperlink><span style='mso-no-proof:yes'><a href="#_Toc34207514">Society
+and Enclave M&amp;R Manager Agents</a></span></span><span style='font-family:
+"Times New Roman";color:black;mso-no-proof:yes'><o:p></o:p></span></p>
+
+<p class=MsoToc1 style='tab-stops:right dotted 479.6pt'><span
+class=MsoHyperlink><span style='mso-no-proof:yes'><a href="#_Toc34207515">Monitoring
+&amp; Response sensors</a></span></span><span style='font-family:"Times New Roman";
+color:black;mso-no-proof:yes'><o:p></o:p></span></p>
+
+<p class=MsoToc1 style='tab-stops:right dotted 479.6pt'><span
+class=MsoHyperlink><span style='mso-no-proof:yes'><a href="#_Toc34207516">Monitoring
+&amp; Response Data Colletors</a></span></span><span style='font-family:"Times New Roman";
+color:black;mso-no-proof:yes'><o:p></o:p></span></p>
+
+<p class=MsoToc1 style='tab-stops:right dotted 479.6pt'><span
+class=MsoHyperlink><span style='mso-no-proof:yes'><a href="#_Toc34207517">Monitoring
+&amp; Response Analyzers</a></span></span><span style='font-family:"Times New Roman";
+color:black;mso-no-proof:yes'><o:p></o:p></span></p>
+
+<p class=MsoToc1 style='tab-stops:right dotted 479.6pt'><span
+class=MsoHyperlink><span style='mso-no-proof:yes'><a href="#_Toc34207518">Monitoring
+&amp; Response Responders</a></span></span><span style='font-family:"Times New Roman";
+color:black;mso-no-proof:yes'><o:p></o:p></span></p>
+
+<p class=MsoToc1 style='tab-stops:right dotted 479.6pt'><span
+class=MsoHyperlink><span style='mso-no-proof:yes'><a href="#_Toc34207519">Smart-Cards</a></span></span><span
+style='font-family:"Times New Roman";color:black;mso-no-proof:yes'><o:p></o:p></span></p>
+
+<p class=MsoPlainText><!--[if supportFields]><span style='font-family:"Times New Roman";
+color:black'><span style='mso-element:field-end'></span></span><![endif]--><span
+style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+
+<h1><a name="_Toc34207511">Node Agent configuration</a></h1>
+
+<p class=MsoNormal><span style='color:black'>Every node must have the following
+components:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>The <span
+class=SpellE>KAoS</span> guard component registers itself to the policy domain
+manager, and receives the security policies from the policy domain manager. The
+policies are then propagated to the policy enforcers running on that node. It
+must run on every node. The guard takes the name of its policy manager agent as
+a <span class=GramE>parameter</span>.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>The Security component
+factory component is responsible for initializing and registering the security
+services. It must run on every node. The security component factory takes one
+parameter, which must be set to the name of the security community in which the
+node agent is running.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>The JAAS agent binder
+component executes every agent in a separate user context. The component must
+run on every node.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>The <span
+class=SpellE>AccessAgentBinderFactory</span> is a binder to the message
+transport service. It controls what messages can be sent or received.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>The <span
+class=SpellE>BlackboardServiceFilter</span> is a binder to the blackboard
+service. It currently passes all the calls transparently to the blackboard
+service.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>Aspects: the <span
+class=SpellE>MessageProtectionAspect</span> should be included if inter-agent
+messages shall be encrypted. The <span class=SpellE>MessageProtectionService</span>
+should be closest to the base implementation, <span class=SpellE>ie</span>,
+first in the composition order.<span style='mso-spacerun:yes'>  </span>So it
+should also be first in the <span class=SpellE>ini</span> file, just as it
+would be first in the -D aspects option and first in the CSMART graphical
+display.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>Policy viewer: The
+policy viewer allows you to view the policies in effect at a particular node.
+To view the policies, use a browser and go to the /<span class=SpellE>policyViewer</span>
+<span class=SpellE>servlet</span>.<o:p></o:p></span></p>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoPlainText><a name="OLE_LINK3"><b style='mso-bidi-font-weight:normal'><u><span
+style='font-family:"Times New Roman";color:black'>Security Components
+configuration</span></u></b></a><span style='mso-bookmark:OLE_LINK3'><span
+style='font-family:"Times New Roman";color:black'><br>
+</span></span><span class=GramE><span style='font-family:"Times New Roman";
+color:black'>Important</span></span><span style='font-family:"Times New Roman";
+color:black'>: It is critical to put the <span class=SpellE>SAFESecurityComponent</span>
+BEFORE the <span class=SpellE>SecurityComponentFactory</span>. Those two
+recipes should be first in the list of recipes.<br>
+<br>
+<span class=SpellE>Node.AgentManager.Agent.SecurityComponent</span>(HIGH)=<span
+class=SpellE>safe.util.SAFESecurityComponent</span>(<span class=SpellE>myPolicyManagerAgent</span>)<br>
+<span class=SpellE>Node.AgentManager.Agent.SecurityComponent</span>(HIGH)=<span
+class=SpellE>org.cougaar.core.security.provider.SecurityComponentFactory</span>(Enclave-2)<br>
+<span class=SpellE>Node.AgentManager.Binder</span>(BINDER) = <span
+class=SpellE>org.cougaar.core.security.access.JaasAgentBinderFactory</span><br>
+<span class=SpellE>Node.AgentManager.Binder</span>(BINDER) = <span
+class=SpellE>org.cougaar.core.security.access.AccessAgentBinderFactory</span><br>
+<span class=SpellE>Node.AgentManager.Binder</span>(BINDER) = <span
+class=SpellE>org.cougaar.core.security.access.BlackboardServiceFilter</span><br>
+<span class=SpellE>Node.AgentManager.Agent.MessageTransport.Aspect</span>(INTERNAL)
+= <span class=SpellE>org.cougaar.core.mts.MessageProtectionAspect</span><br>
+<span class=SpellE>Node.AgentManager.Agent.Plugin</span> = <span class=SpellE>safe.guard.PolicyViewerServletComponent</span>
+<br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u>Recipes<o:p></o:p></u></b></span></p>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 width="97%"
+ style='width:97.18%;border-collapse:collapse;border:none;mso-border-alt:solid black .5pt;
+ mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
+ .5pt solid black;mso-border-insidev:.5pt solid black'>
+ <tr style='mso-yfti-irow:0'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  mso-border-alt:solid black .5pt;background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><a name="OLE_LINK2"><b style='mso-bidi-font-weight:
+  normal'><span style='font-family:"Times New Roman";color:black'>Component<o:p></o:p></span></b></a></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK2'></span>
+  <td width=276 valign=top style='width:207.35pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK2'><b
+  style='mso-bidi-font-weight:normal'><span style='font-family:"Times New Roman";
+  color:black'>Recipe Name<o:p></o:p></span></b></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK2'></span>
+  <td width=227 valign=top style='width:170.55pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK2'><b
+  style='mso-bidi-font-weight:normal'><span style='font-family:"Times New Roman";
+  color:black'>Comments<o:p></o:p></span></b></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK2'></span>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK2'><span
+  class=SpellE><span style='font-family:"Times New Roman";color:black'>KAoS</span></span></span><span
+  style='mso-bookmark:OLE_LINK2'><span style='font-family:"Times New Roman";
+  color:black'> guard<o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK2'></span>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK2'><span
+  style='font-family:"Times New Roman";color:black'>Enclave1SafeGuardComponent-export.sql<br>
+  Enclave2SafeGuardComponent-export.sql<br>
+  Enclave3SafeGuardComponent-export.sql<br>
+  Enclave4SafeGuardComponent-export.sql<o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK2'></span>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'><span
+  style='mso-bookmark:OLE_LINK2'></span>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK2'><span
+  style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK2'></span>
+ </tr>
+ <tr style='mso-yfti-irow:2'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'>Security
+  component factory<o:p></o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'>SecurityComponentFactoryEnclave1-export.sql<br>
+  SecurityComponentFactoryEnclave2-export.sql<br>
+  SecurityComponentFactoryEnclave3-export.sql<br>
+  SecurityComponentFactoryEnclave4-export.sql<o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:3'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'>JAAS
+  agent binder<o:p></o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black'>NAIJaasBinder-export.sql</span></span><span style='font-family:
+  "Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:4'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'>Message
+  Access binder<o:p></o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black'>NAIAccessMessageBinder-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:5'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'>Blackboard
+  binder<o:p></o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black'>NAIBlackboardBinder-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:6'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black'>MessageProtection</span></span><span style='font-family:"Times New Roman";
+  color:black'> Aspect<o:p></o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black'>NAIMessageProtectionAspect-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:7;mso-yfti-lastrow:yes'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><a name="OLE_LINK1"><span style='font-family:"Times New Roman";
+  color:black'>Policy viewer<o:p></o:p></span></a></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK1'></span>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK1'><span
+  class=SpellE><span style='font-family:"Times New Roman";color:black'>IHMCPolicyViewerPlugin-export.sql</span></span></span><span
+  style='mso-bookmark:OLE_LINK1'><span style='font-family:"Times New Roman";
+  color:black'><o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK1'></span>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'><span
+  style='mso-bookmark:OLE_LINK1'></span>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK1'><span
+  style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK1'></span>
+ </tr>
+</table>
+
+<span style='mso-bookmark:OLE_LINK1'></span>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'>Note:
+The <span class=SpellE>IHMCSecurityComponent-export.sql</span> recipe is
+obsolete.<br>
+<br>
+</span><b><span style='font-size:16.0pt;font-family:Arial;color:black;
+mso-font-kerning:16.0pt'>User Management Agent<br>
+</span></b><span style='font-family:"Times New Roman";color:black'>The user
+management agent is responsible for managing users.<br>
+Start by reading the <span class=SpellE>README.userdb</span> file.<br>
+Create a user admin agent. For instance, create the &quot;<span class=SpellE>UserAdminAgent</span>&quot;
+agent. The user admin agent can be created using an <span class=SpellE>AgentInsertionRecipe</span>
+recipe.<br>
+Add the <span class=SpellE>UserAdminServlet</span> to the user admin agent.
+This can be done by creating a <span class=SpellE>SpecificInsertionRecipe</span>
+recipe.<br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u>Security Components configuration<br>
+</u></b><span class=SpellE>plugin</span> = <span class=SpellE><span
+class=GramE>org.cougaar.core.security.certauthority.CaServletComponent</span></span><span
+class=GramE>(</span><span class=SpellE>org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet</span>,
+/<span class=SpellE>useradmin</span>)<br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u>Recipes<o:p></o:p></u></b></span></p>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 width="97%"
+ style='width:97.18%;border-collapse:collapse;border:none;mso-border-alt:solid black .5pt;
+ mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
+ .5pt solid black;mso-border-insidev:.5pt solid black'>
+ <tr style='mso-yfti-irow:0'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  mso-border-alt:solid black .5pt;background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Component<o:p></o:p></span></b></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Recipe Name<o:p></o:p></span></b></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Comments<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'>User
+  admin agent<o:p></o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black'>UserAdminAgent-export.sql</span></span><span style='font-family:
+  "Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:2;mso-yfti-lastrow:yes'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black'>UserAdminAgents-export.sql</span></span><span style='font-family:
+  "Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'>one
+  user admin agent for each enclave:<o:p></o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<h1><a name="_Toc34207512">Policy Domain Manager Agent</a></h1>
+
+<p class=MsoNormal><span style='color:black'>The policy domain manager is
+responsible for managing the policy of a security domain. The policy domain
+manager consists of two agents:<o:p></o:p></span></p>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='color:black;mso-list:l2 level1 lfo5;tab-stops:list .5in'>The
+     <span class=SpellE>PolicyManager</span> agent. The agent manages the
+     policies for a particular policy domain.<o:p></o:p></li>
+ <li class=MsoNormal style='color:black;mso-list:l2 level1 lfo5;tab-stops:list .5in'>The
+     <span class=SpellE>PolicyManagerServlet</span> agent. The <span
+     class=SpellE>PolicyAdminServletComponent</span> should no longer be part
+     of the <span class=SpellE>PolicyManager</span> agent, but rather it should
+     be part of a separate agent.<o:p></o:p></li>
+</ol>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='color:black'>Component
+Parameters<span class=GramE>:</span><br>
+The <span class=SpellE>PolicyManager</span> agent consists of multiple <span
+class=SpellE>plugins</span>. The name of the policy domain is specified as a
+parameter to the <span class=SpellE>DomainManagerPlugin</span> <span
+class=SpellE>plugin</span>. The <span class=SpellE>PolicyManagerServlet</span> <span
+class=GramE>components takes</span> the name of its policy manager agent as a
+parameter. The guarded node (which runs on every node) takes the name of its
+policy manager agent.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='color:black'><o:p>&nbsp;</o:p></span></p>
+
+<h1><a name="_Toc34207513">Policy manager node</a></h1>
+
+<p class=MsoNormal><span style='color:black'>All the node entries described in
+the &quot;Node configuration&quot; section should also be added.<br>
+cluster = <span class=SpellE>PolicyManager</span><br>
+cluster = <span class=SpellE>PolicyManagerServlet</span><br>
+<br>
+Policy manager agent<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.servlet.SimpleServletComponent</span>(<span
+class=SpellE>org.cougaar.planning.servlet.PlanViewServlet</span>, /tasks)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>safe.policyManager.DomainManagerPlugin</span>(<span
+class=SpellE>MyDomain</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>safe.policyManager.ConditionMonitorPlugin</span><br>
+<span class=SpellE>plugin</span> = <span class=SpellE>safe.policyManager.SetOperatingModeServletComponent</span><br>
+# NAI Policy Expander <span class=SpellE>Plugin</span><br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.policy.PolicyExpanderPlugin</span><br>
+# Inter-agent operating mode <span class=SpellE>plugin</span><br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.adaptivity.OperatingModePolicyManager</span><br>
+<br>
+Policy manager <span class=SpellE>Servlet</span> agent<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>safe.policyManager.PolicyAdminServletComponent</span>(<span
+class=SpellE>myPolicyManagerAgent</span>)<br>
+<b style='mso-bidi-font-weight:normal'><br>
+</b><u>Agent Recipes<br style='mso-special-character:line-break'>
+<![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
+<![endif]><o:p></o:p></u></span></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 width="97%"
+ style='width:97.18%;border-collapse:collapse;border:none;mso-border-alt:solid black .5pt;
+ mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
+ .5pt solid black;mso-border-insidev:.5pt solid black'>
+ <tr style='mso-yfti-irow:0'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  mso-border-alt:solid black .5pt;background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><a name="OLE_LINK4"><b style='mso-bidi-font-weight:
+  normal'><span style='font-family:"Times New Roman";color:black'>Component<o:p></o:p></span></b></a></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK4'></span>
+  <td width=276 valign=top style='width:207.35pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK4'><b
+  style='mso-bidi-font-weight:normal'><span style='font-family:"Times New Roman";
+  color:black'>Recipe Name<o:p></o:p></span></b></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK4'></span>
+  <td width=227 valign=top style='width:170.55pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK4'><b
+  style='mso-bidi-font-weight:normal'><span style='font-family:"Times New Roman";
+  color:black'>Comments<o:p></o:p></span></b></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK4'></span>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK4'><span
+  style='font-family:"Times New Roman";color:black'>User admin agent<o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK4'></span>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK4'><span
+  class=SpellE><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>IHMCPolicyDomainManagerAgent-export.sql</span></span></span><span
+  style='mso-bookmark:OLE_LINK4'><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'><br>
+  <span class=SpellE>IHMCPolicyDomainManagerServletAgent-export.sql</span></span></span><span
+  style='mso-bookmark:OLE_LINK4'><span style='font-family:"Times New Roman";
+  color:black'><o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK4'></span>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'><span
+  style='mso-bookmark:OLE_LINK4'></span>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK4'><span
+  style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK4'></span>
+ </tr>
+ <tr style='mso-yfti-irow:2;mso-yfti-lastrow:yes'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><span style='mso-bookmark:OLE_LINK4'></span>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK4'><span
+  style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK4'></span>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK4'><span
+  class=SpellE><span style='font-family:"Times New Roman";color:black'>IHMCPolicyDomainManagerAgents-export.sql</span></span></span><span
+  style='mso-bookmark:OLE_LINK4'><span style='font-family:"Times New Roman";
+  color:black'><o:p></o:p></span></span></p>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK4'><span
+  class=SpellE><span style='font-family:"Times New Roman";color:black'>IHMCPolicyDomainManagerServletAgents-export.sql</span></span></span><span
+  style='mso-bookmark:OLE_LINK4'><span style='font-family:"Times New Roman";
+  color:black'><o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK4'></span>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK4'><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'>Or,
+  one policy manager (e.g. two agents) for each enclave:</span></span><span
+  style='mso-bookmark:OLE_LINK4'><span style='font-family:"Times New Roman";
+  color:black'><o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK4'></span>
+ </tr>
+</table>
+
+<span style='mso-bookmark:OLE_LINK4'></span>
+
+<h1><a name="_Toc34207514">Society and Enclave M&amp;R Manager Agents</a></h1>
+
+<p class=MsoNormal><span style='color:black'>The society manager and the
+enclave managers have the same configuration except for the name of the file
+containing the <span class=SpellE>adaptivity</span> plays. Each enclave should
+have one enclave security manager agent.<br>
+Create one recipe for each enclave security manager agent. <br>
+The society and enclave M&amp;R managers should have the following components:<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>The M&amp;R sensors
+(like any other node),<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>The M&amp;R data
+collectors<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>The M&amp;R analyzers<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>The M&amp;R manager <span
+class=SpellE>plugins</span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>The <span
+class=SpellE>adaptivity</span> engine <span class=SpellE>plugins</span><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='color:black'>Security Components configuration<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='color:black'># M&amp;R <span class=SpellE>plugins</span><br>
+plugin=org.cougaar.core.security.monitoring.plugin.CapabilitiesProcessingPlugin<br>
+plugin=org.cougaar.core.security.monitoring.plugin.CapabilitiesConsolidationPlugin<br>
+plugin=org.cougaar.core.security.monitoring.plugin.MnRQueryReceiverPlugin<br>
+plugin=org.cougaar.core.security.monitoring.plugin.MnRQueryResponderPlugin<br>
+<br>
+# <span class=SpellE>Adaptivity</span> engine <span class=SpellE>plugins</span><br>
+# All <span class=SpellE>plugins</span> below are required except for the <span
+class=SpellE>AEViewerServlet</span>.<br>
+# However, if you want to view the conditions and operating modes then you'll
+need the<br>
+# <span class=SpellE>AEViewerServlet</span><br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.servlet.BlackboardServletComponent</span>(<span
+class=SpellE>org.cougaar.core.adaptivity.AEViewerServlet</span>, /<span
+class=SpellE>aeviewer</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.adaptivity.AdaptivityEngine</span><br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.adaptivity.ConditionServiceProvider</span><br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.adaptivity.OperatingModeServiceProvider</span><br>
+# For the society manager:<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.adaptivity.PlaybookManager</span>(AMnRPlaysSocietyManager.txt)<br>
+<br>
+# For the enclave manager:<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.adaptivity.PlaybookManager</span>(AMnRPlaysEnclave.txt)<br>
+<br>
+</span><u><span style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:
+bold'>Agent Recipes<br style='mso-special-character:line-break'>
+<![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
+<![endif]><b><o:p></o:p></b></span></u></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 width="97%"
+ style='width:97.18%;border-collapse:collapse;border:none;mso-border-alt:solid black .5pt;
+ mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
+ .5pt solid black;mso-border-insidev:.5pt solid black'>
+ <tr style='mso-yfti-irow:0'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  mso-border-alt:solid black .5pt;background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><a name="OLE_LINK5"><b style='mso-bidi-font-weight:
+  normal'><span style='font-family:"Times New Roman";color:black'>Component<o:p></o:p></span></b></a></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK5'></span>
+  <td width=276 valign=top style='width:207.35pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK5'><b
+  style='mso-bidi-font-weight:normal'><span style='font-family:"Times New Roman";
+  color:black'>Recipe Name<o:p></o:p></span></b></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK5'></span>
+  <td width=227 valign=top style='width:170.55pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK5'><b
+  style='mso-bidi-font-weight:normal'><span style='font-family:"Times New Roman";
+  color:black'>Comments<o:p></o:p></span></b></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK5'></span>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK5'><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'>Society
+  Manager</span></span><span style='mso-bookmark:OLE_LINK5'><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK5'></span>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK5'><span
+  class=SpellE><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>SocietySecurityMnRManager-export.sql</span></span></span><span
+  style='mso-bookmark:OLE_LINK5'><span style='font-family:"Times New Roman";
+  color:black'><o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK5'></span>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'><span
+  style='mso-bookmark:OLE_LINK5'></span>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK5'><span
+  style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK5'></span>
+ </tr>
+ <tr style='mso-yfti-irow:2;mso-yfti-lastrow:yes'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK5'><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'>Enclave
+  Managers</span></span><span style='mso-bookmark:OLE_LINK5'><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK5'></span>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK5'><span
+  class=SpellE><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>EnclaveSecurityMnRManagers-export.sql</span></span></span><span
+  style='mso-bookmark:OLE_LINK5'><span style='font-family:"Times New Roman";
+  color:black'><o:p></o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK5'></span>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'><span
+  style='mso-bookmark:OLE_LINK5'></span>
+  <p class=MsoPlainText><span style='mso-bookmark:OLE_LINK5'><span
+  style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></span></p>
+  </td>
+  <span style='mso-bookmark:OLE_LINK5'></span>
+ </tr>
+</table>
+
+<span style='mso-bookmark:OLE_LINK5'></span>
+
+<p class=MsoNormal><span style='color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span class=SpellE><span style='color:black'>Plugin</span></span><span
+style='color:black'> Recipes<br style='mso-special-character:line-break'>
+<![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
+<![endif]><o:p></o:p></span></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 width="97%"
+ style='width:97.18%;border-collapse:collapse;border:none;mso-border-alt:solid black .5pt;
+ mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
+ .5pt solid black;mso-border-insidev:.5pt solid black'>
+ <tr style='mso-yfti-irow:0'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  mso-border-alt:solid black .5pt;background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Component<o:p></o:p></span></b></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Recipe Name<o:p></o:p></span></b></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Comments<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>CapabilitiesProcessingPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>NAICapProcessPlugin-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'> <o:p></o:p></span></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:2'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>CapabilitiesConsolidationPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>NAICapConsolidatePlugin-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'> <o:p></o:p></span></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:3'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRQueryReceiverPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRQueryReceiverPlugin-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'> <o:p></o:p></span></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:4'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRQueryResponderPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRQueryResponderPlugin-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:5'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>AdaptivityEngine</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRAdaptivityEngine-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:6'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>ConditionServiceProvider</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRConditionServiceProvider-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:7'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>OperatingModeServiceProvider</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnROperatingModeServiceProvider-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:8'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>PlaybookManager</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'>
+  (society)<o:p></o:p></span></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRPlaybookManagerSociety-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:9'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>PlaybookManager</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'>
+  (enclave)<o:p></o:p></span></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRPlaybookManagerEnclave-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:10;mso-yfti-lastrow:yes'>
+  <td width=186 valign=top style='width:139.8pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>AE viewer <span class=SpellE>servlet</span><o:p></o:p></span></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRAEViewerServlet-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=200 valign=top style='width:149.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span class=PlainTextChar><span style='font-size:12.0pt;
+font-family:"Times New Roman";mso-bidi-font-family:"Courier New"'><o:p>&nbsp;</o:p></span></span></p>
+
+<p class=MsoNormal><span class=PlainTextChar><span style='font-size:12.0pt;
+font-family:"Times New Roman";mso-bidi-font-family:"Courier New"'>Note: The </span></span><span
+class=SpellE><span class=PlainTextChar><span style='font-size:12.0pt'>MnRPlaybookManager-export.sql</span></span></span><span
+class=PlainTextChar><span style='font-size:12.0pt;font-family:"Times New Roman";
+mso-bidi-font-family:"Courier New"'> recipe is now obsolete.<o:p></o:p></span></span></p>
+
+<p class=MsoNormal><span class=PlainTextChar><span style='font-size:12.0pt;
+font-family:"Times New Roman";mso-bidi-font-family:"Courier New"'><o:p>&nbsp;</o:p></span></span></p>
+
+<h1><a name="_Toc34207515">Monitoring &amp; Response sensors</a></h1>
+
+<p class=MsoNormal><span style='color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='color:black'>Sensors monitor <span
+class=SpellE>monitor</span> the system and generate IDMEF events when
+exceptional conditions occur. For instance, a sensor may generate an IDMEF
+event when an <span class=SpellE>intrustion</span> has been detected.
+Currently, the following events may be generated<span class=GramE>:</span><br>
+Java security manager events<br>
+Jar file signature failures events<br>
+Login failure events<br>
+Message protection failure events<br>
+Message access control events<br>
+Data protection events<br>
+<br>
+<span style='mso-bidi-font-weight:bold'>Events of type 1) and 2) are handled by
+the <span class=SpellE>BootStrapEventPlugin</span> <span class=SpellE>plugin</span>.<br>
+Events of type 3) are handled by the <span class=SpellE>LoginFailureSensor</span>
+<span class=SpellE>plugin</span><br>
+Events of type 4) and 5) are handled by the <span class=SpellE>MessageFailureSensor</span>
+<span class=SpellE>plugin</span><br>
+Events of type 6) are handled by the <span class=SpellE>DataProtectionSensor</span>
+<span class=SpellE>plugin</span><br>
+These <span class=SpellE>plugins</span> should be included in all node agents.
+They should not be installed on agents<br>
+that are not node agents.<br>
+<br>
+In addition, all sensors require an IDMEF event factory, which is provided by
+the <br>
+<span class=SpellE>SecurityDomain</span> component.<br>
+<br>
+<u>Security Components configuration<br>
+</u>This <span class=SpellE>Plugin</span> services remote subscription
+requests.<span style='mso-spacerun:yes'>  </span>It sends data back to an
+aggregation <br>
+as requested.<span style='mso-spacerun:yes'>  </span>It depends on the presence
+of the <span class=SpellE>AggDomain</span>. See <span class=SpellE>AggAgent</span>
+<span class=SpellE>plugin</span> configuration<br>
+in the &quot;Monitoring &amp; Response Data <span class=SpellE>Colletors</span>&quot;
+section below.<br>
+<span class=SpellE><span class=GramE>plugin</span></span> = <span class=SpellE>org.cougaar.lib.aggagent.plugin.RemoteSubscriptionPlugin</span><br>
+<br>
+<br>
+The NAI sensors are configured as follow:<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.monitoring.plugin.BootStrapEventPlugin</span><br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.monitoring.plugin.MessageFailureSensor</span><br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.monitoring.plugin.LoginFailureSensor</span><br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.monitoring.plugin.DataProtectionSensor</span><br>
+<br>
+<u>Recipes<br style='mso-special-character:line-break'>
+<![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
+<![endif]></u></span></span><span style='font-size:24.0pt;color:black;
+mso-font-kerning:16.0pt'><o:p></o:p></span></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 width="97%"
+ style='width:97.18%;border-collapse:collapse;border:none;mso-border-alt:solid black .5pt;
+ mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
+ .5pt solid black;mso-border-insidev:.5pt solid black'>
+ <tr style='mso-yfti-irow:0'>
+  <td width=162 valign=top style='width:121.3pt;border:solid black 1.0pt;
+  mso-border-alt:solid black .5pt;background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Component<o:p></o:p></span></b></p>
+  </td>
+  <td width=258 valign=top style='width:193.5pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Recipe Name<o:p></o:p></span></b></p>
+  </td>
+  <td width=203 valign=top style='width:152.35pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Comments<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=162 valign=top style='width:121.3pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>RemoteSubscriptionPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=258 valign=top style='width:193.5pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>AGG-<span class=SpellE>RemoteSubscription-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=203 valign=top style='width:152.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:2'>
+  <td width=162 valign=top style='width:121.3pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>BootStrap</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'>
+  Event <span class=SpellE>Plugin</span></span><span style='font-family:"Times New Roman";
+  color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=258 valign=top style='width:193.5pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnR-BootStrapEventPlugin.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=203 valign=top style='width:152.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:3'>
+  <td width=162 valign=top style='width:121.3pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>Login Failure sensor<o:p></o:p></span></p>
+  </td>
+  <td width=258 valign=top style='width:193.5pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnR-LoginFailureSensor.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=203 valign=top style='width:152.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:4'>
+  <td width=162 valign=top style='width:121.3pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>Message Failure Sensor<o:p></o:p></span></p>
+  </td>
+  <td width=258 valign=top style='width:193.5pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnR-MessageFailureSensor.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=203 valign=top style='width:152.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:5'>
+  <td width=162 valign=top style='width:121.3pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>Data Protection Sensor<o:p></o:p></span></p>
+  </td>
+  <td width=258 valign=top style='width:193.5pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnR-DataProtectionSensor.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=203 valign=top style='width:152.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:6;mso-yfti-lastrow:yes'>
+  <td width=162 valign=top style='width:121.3pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>Security Domain Component<o:p></o:p></span></p>
+  </td>
+  <td width=258 valign=top style='width:193.5pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>SecurityDomainAddition-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'><o:p></o:p></span></p>
+  </td>
+  <td width=203 valign=top style='width:152.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span style='color:black'>Note: the <span class=SpellE>BootStrap</span>
+Event <span class=SpellE>Plugin</span> does not require parameters anymore.<br>
+Therefore, the MnR-BootStrapEventPlugin0.sql ... MnR-BootStrapEventPlugin4.sql <span
+class=GramE>are</span> obsolete.<o:p></o:p></span></p>
+
+<h1><a name="_Toc34207516">Monitoring &amp; Response Data </a><span
+class=SpellE><span style='mso-bookmark:_Toc34207516'>Colletors</span></span><span
+style='mso-bookmark:_Toc34207516'></span></h1>
+
+<p class=MsoNormal><span style='color:black'>Sensors publish IDMEF events to
+their local blackboard. Those events may then be collected<br>
+by other agents for further <span class=SpellE>analyzis</span>. For instance,
+data may be collected from various<br>
+sensors to correlate the events.<br>
+<br>
+Events may be collected by a variety of components:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>Adaptive filters,
+which collect data based on various parameters such as the <span class=SpellE>threatcon</span>
+level.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span class=SpellE><span style='color:black'>EventQueryPlugin</span></span><span
+style='color:black'>. In most cases, analyzers rely on the adaptive filters to
+collect the events, but they may also be configured to use a simple collection
+mechanism.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;
+tab-stops:list .25in'><![if !supportLists]><span style='font-family:Wingdings;
+mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings;color:black'><span
+style='mso-list:Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='color:black'>Security Console. The
+security console may collect data from various sensors and display the events
+on the console.<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='color:black'>The data collectors use the <span
+class=SpellE>AggAgent</span> mechanism to collect IDMEF events. Both the
+requestor<br>
+and the sensors need to be configured to enable <span class=SpellE>AggAgent</span>.<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='color:black'><br>
+The <span class=SpellE>AggAgent</span> mechanism requires the <span
+class=SpellE>AlertPlugin</span> and the <span class=SpellE>AggregationPlugin</span>
+<span class=SpellE>plugins</span> on the<br>
+requestor side. The <span class=SpellE>RemoteSubscriptionPlugin</span> must be
+installed on every agent where a sensor is running.<br>
+Note that since sensors are generally configured to run on every node, sensors
+are also<br>
+installed on data collector nodes. Therefore, the data collectors have three <span
+class=SpellE>plugins</span>.<br>
+<br>
+The <span class=SpellE>EventQueryPlugin</span> is a simple data collector
+component. It queries for IDMEF messages<br>
+and keeps an updated list of Sensors with the capability. All events are copied
+to the<br>
+blackboard. Note that the <span class=SpellE>EventQueryPlugin</span> publishes
+the IDMEF events as if they had been generated by a<br>
+sensor <span class=SpellE>runnig</span> on that agent.<br>
+<br>
+The <span class=SpellE>EventQueryPlugin</span> takes the following parameters<span
+class=GramE>:</span><br>
+Parameter 1: String - The agent name of the Society Security Manager.<br>
+Parameter 2: String - A <span class=SpellE>UnaryPredicate</span> class that
+selects the IDMEF messages.<br>
+Parameter 3: String - A class name that supports the <span class=SpellE>QueryClassificationProvicer</span>
+interface.<br>
+<span style='mso-spacerun:yes'>                      </span>A single class may
+support both parameter 2 and 3, in which case<br>
+<span style='mso-spacerun:yes'>                      </span>parameter 3 does
+not have to be specified.<br>
+<br>
+<u>Security Components configuration<br>
+</u><span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.lib.aggagent.plugin.AggregationPlugin</span><br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.lib.aggagent.plugin.AlertPlugin</span><br>
+<br>
+<span class=GramE>Below</span> are two examples of <span class=SpellE>EventQueryPlugin</span>
+configuration.<br>
+The first <span class=SpellE>plugin</span> is configured to collect login
+failure events. It should be installed on the<br>
+society security manager.<br>
+<span class=SpellE><span class=GramE>plugin</span></span> = <span class=SpellE>org.cougaar.core.security.monitoring.plugin.EventQueryPlugin</span>(SocietySecurityMnRManager,org.cougaar.core.security.monitoring.plugin.AllLoginFailures)<br>
+<br>
+The second <span class=SpellE>plugin</span> is configured to collect message
+failure events. It should be installed on every<br>
+enclave security manager.<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.monitoring.plugin.EventQueryPlugin</span>(Enclave1SecurityMnRManager,org.cougaar.core.security.monitoring.plugin.AllMessageFailures)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.monitoring.plugin.EventQueryPlugin</span>(Enclave2SecurityMnRManager,org.cougaar.core.security.monitoring.plugin.AllMessageFailures)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.monitoring.plugin.EventQueryPlugin</span>(Enclave3SecurityMnRManager,org.cougaar.core.security.monitoring.plugin.AllMessageFailures)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.monitoring.plugin.EventQueryPlugin</span>(Enclave4SecurityMnRManager,org.cougaar.core.security.monitoring.plugin.AllMessageFailures)<br>
+<br>
+<u>Recipes<br style='mso-special-character:line-break'>
+<![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
+<![endif]></u><o:p></o:p></span></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 width="97%"
+ style='width:97.18%;margin-left:5.4pt;border-collapse:collapse;border:none;
+ mso-border-alt:solid black .5pt;mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;
+ mso-border-insideh:.5pt solid black;mso-border-insidev:.5pt solid black'>
+ <tr style='mso-yfti-irow:0'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  mso-border-alt:solid black .5pt;background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Component<o:p></o:p></span></b></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Recipe Name<o:p></o:p></span></b></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Comments<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>AggregationPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>AGG-<span class=SpellE>AggregationPlugin-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:2'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>AlertPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black;
+  mso-bidi-font-weight:bold'>AGG-<span class=SpellE>AlertPlugin-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:3'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>EventQueryPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'>
+  (society mgr)</span><span style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnREventQueryPluginLoginFailures-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
+  <td width=119 valign=top style='width:89.25pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>EventQueryPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'>
+  (enclave mgr)</span><span style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=276 valign=top style='width:207.35pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnREventQueryPluginMessageFailures-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=227 valign=top style='width:170.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<h1><a name="_Toc34207517">Monitoring &amp; Response Analyzers</a></h1>
+
+<p class=MsoNormal><span style='color:black'>Analyzers analyze data from
+various IDMEF sources. For instance, analyzers may correlate<br>
+data from multiple sensors and trigger alerts when a threshold has been
+reached. The <span class=SpellE>RateCalculatorPlugin</span> has been built to
+compute the rate at which IDMEF from a given<br>
+type have been received. This analyzer is used to compute the login failure
+rate and<br>
+the message failure rate.<br>
+The <span class=SpellE>RateCalculatorPlugin</span> queries for IDMEF messages
+and creates a condition from the results.<br>
+The arguments to the <span class=SpellE>plugin</span> component in the .<span
+class=SpellE>ini</span> file determine how rates are generated<span
+class=GramE>:</span><br>
+Parameter 1: Integer -<span style='mso-spacerun:yes'>  </span>Poll interval in
+seconds. Determines how often the rate is recalculated.<br>
+Parameter 2: Integer <span class=GramE>-<span style='mso-spacerun:yes'> 
+</span>Window</span> for IDMEF messages to be gathered over to determine the
+rate.<br>
+<span style='mso-spacerun:yes'>                        </span>The value is <span
+class=GramE>a duration</span> in seconds.<br>
+Parameter 3: <span class=GramE>String<span style='mso-spacerun:yes'>  </span>-</span><span
+style='mso-spacerun:yes'>  </span>The IDMEF message classification to examine.<br>
+Parameter 3: <span class=GramE>String<span style='mso-spacerun:yes'>  </span>-</span><span
+style='mso-spacerun:yes'>  </span>The name of the condition to post to the
+blackboard<br>
+<br>
+<u>Security Components configuration<br>
+</u>The login rate <span class=SpellE>plugin</span> should be installed on the
+society security manager.<br>
+<span class=SpellE><span class=GramE>plugin</span></span> = <span class=SpellE>org.cougaar.core.security.monitorin.plugin.RateCalculatorPlugin</span>(20,60,org.cougaar.core.security.monitoring.LOGIN_FAILURE,org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE)<br>
+<br>
+The message rate <span class=SpellE>plugin</span> should be installed on every
+enclave security manager.<br>
+<span class=SpellE><span class=GramE>plugin</span></span> = <span class=SpellE>org.cougaar.core.security.monitorin.plugin.RateCalculatorPlugin</span>(20,60,org.cougaar.core.security.monitoring.MESSAGE_FAILURE,org.cougaar.core.security.monitoring.MESSAGE_FAILURE_RATE)<br>
+<br>
+<u>Recipes<br style='mso-special-character:line-break'>
+<![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
+<![endif]><o:p></o:p></u></span></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 width="97%"
+ style='width:97.18%;margin-left:5.4pt;border-collapse:collapse;border:none;
+ mso-border-alt:solid black .5pt;mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;
+ mso-border-insideh:.5pt solid black;mso-border-insidev:.5pt solid black'>
+ <tr style='mso-yfti-irow:0'>
+  <td width=135 valign=top style='width:101.3pt;border:solid black 1.0pt;
+  mso-border-alt:solid black .5pt;background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Component<o:p></o:p></span></b></p>
+  </td>
+  <td width=275 valign=top style='width:206.3pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Recipe Name<o:p></o:p></span></b></p>
+  </td>
+  <td width=213 valign=top style='width:159.55pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Comments<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=135 valign=top style='width:101.3pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>RateCalculatorPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'>
+  (login)</span><span style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=275 valign=top style='width:206.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRRateCalculatorPluginLoginFailures-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=213 valign=top style='width:159.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:2;mso-yfti-lastrow:yes'>
+  <td width=135 valign=top style='width:101.3pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>RateCalculatorPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black;mso-bidi-font-weight:bold'>
+  (messages)</span><span style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=275 valign=top style='width:206.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRRateCalculatorPluginMessageFailures-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=213 valign=top style='width:159.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<h1><a name="_Toc34207518">Monitoring &amp; Response Responders</a></h1>
+
+<p class=MsoNormal><span style='color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='color:black'>Responders monitor the system and
+respond to intrusions. There are currently two responders.<br>
+<br>
+The <span class=SpellE>UserLockoutPlugin</span> queries login failures and will
+lockout users who have failed to login too many times. The values for maximum
+login failures and lockout duration are retrieved from Operating Modes driven
+by the <span class=SpellE>adaptivity</span> engine.<br>
+The <span class=SpellE>UserLockoutPlugin</span> needs to collect data from all
+login failure sensors in a particular domain. Therefore, it requires the <span
+class=SpellE>AggAgent</span> <span class=SpellE>plugins</span> described in the
+&quot;Monitoring &amp; Response Data <span class=SpellE>Colletors</span>&quot;
+section, as well as one data collector <span class=SpellE>plugin</span>. For
+instance, it may be configured to use the <span class=SpellE>EventQueryPlugin</span>.<br>
+<br>
+The <span class=SpellE>CertificateRevokerPlugin</span> responds to message
+failures by revoking agents that send too many<br>
+messages that do not comply with the policy.<br>
+<br>
+The <span class=SpellE>UserLockoutPlugin</span> and <span class=SpellE>CertificateRevokerPlugin</span>
+take three parameters<span class=GramE>:</span><br>
+Parameter 1: Integer - The duration to wait (in seconds) between checking the
+login failures<br>
+for deletion.<br>
+Parameter 2: Integer - The amount of time to keep the login failures before
+deleting it.<br>
+Parameter 3: <span class=GramE>String<span style='mso-spacerun:yes'>  </span>-</span>
+The operating mode name of the responder.<br>
+<br>
+<u>Security Components configuration<br>
+</u><span class=GramE>The</span> user lockout <span class=SpellE>plugin</span>
+should be added to the society security manager.<br>
+<span class=SpellE><span class=GramE>plugin</span></span> = <span class=SpellE>org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin</span>(600,86400,
+<span class=SpellE>org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES</span>)<br>
+<br>
+<br>
+The <span class=SpellE>CertificateRevokerPlugin</span> is responsible for
+revoking agent certificates when the number<br>
+of messages that do not comply with the policy exceeds some threshold. <br>
+<span class=SpellE><span class=GramE>plugin</span></span> =
+org.cougaar.core.security.monitoring.plugin.CertificateRevokerPlugin(600,86400,
+<span class=SpellE>org.cougaar.core.security.monitoring.MAX_MESSAGE_FAILURES</span>)<br>
+<br>
+<u>Recipes<br style='mso-special-character:line-break'>
+<![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
+<![endif]><o:p></o:p></u></span></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 width="97%"
+ style='width:97.18%;margin-left:5.4pt;border-collapse:collapse;border:none;
+ mso-border-alt:solid black .5pt;mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;
+ mso-border-insideh:.5pt solid black;mso-border-insidev:.5pt solid black'>
+ <tr style='mso-yfti-irow:0'>
+  <td width=135 valign=top style='width:101.3pt;border:solid black 1.0pt;
+  mso-border-alt:solid black .5pt;background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Component<o:p></o:p></span></b></p>
+  </td>
+  <td width=275 valign=top style='width:206.3pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Recipe Name<o:p></o:p></span></b></p>
+  </td>
+  <td width=213 valign=top style='width:159.55pt;border:solid black 1.0pt;
+  border-left:none;mso-border-left-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  background:yellow;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><span
+  style='font-family:"Times New Roman";color:black'>Comments<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=135 valign=top style='width:101.3pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>UserLockoutPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=275 valign=top style='width:206.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRUserLockoutPlugin-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=213 valign=top style='width:159.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:2;mso-yfti-lastrow:yes'>
+  <td width=135 valign=top style='width:101.3pt;border:solid black 1.0pt;
+  border-top:none;mso-border-top-alt:solid black .5pt;mso-border-alt:solid black .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>CertificateRevokerPlugin</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=275 valign=top style='width:206.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman";
+  color:black;mso-bidi-font-weight:bold'>MnRCertificateRevokerPlugin-export.sql</span></span><span
+  style='font-family:"Times New Roman";color:black'><o:p></o:p></span></p>
+  </td>
+  <td width=213 valign=top style='width:159.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  mso-border-top-alt:solid black .5pt;mso-border-left-alt:solid black .5pt;
+  mso-border-alt:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoPlainText><span style='font-family:"Times New Roman";color:black'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<h1><a name="_Toc34207519">Smart-Cards</a></h1>
+
+<p class=MsoNormal><span style='color:black'>Verify that the following <span
+class=SpellE>rpms</span> are installed on Linux. If not, install them. These <span
+class=SpellE>rpms</span> provide USB support.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l0 level1 lfo2;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings;color:black'><span style='mso-list:
+Ignore'>v<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style='font-family:"Times New Roman";
+color:black'>Smart-cards may be used for user authentication. They may also be
+used to store <span class=SpellE>keystore</span> passwords. The <span
+class=SpellE>BootPolicy.crypto.xml</span> file must be edited to specify that
+the <span class=SpellE>keystore</span> password should be stored in the
+smart-card.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-bottom:12.0pt'><b><span style='font-size:
+16.0pt;font-family:Arial;color:black;mso-font-kerning:16.0pt'>Policy files<br>
+</span></b><span style='font-family:"Times New Roman";color:black'>* <span
+class=SpellE>BootPolicy.DataProtection.xml</span><span class=GramE>:</span><br>
+This file describes how the persisted blackboard data is protected. When persistence
+is enabled<span class=GramE>,</span><br>
+blackboard data can be saved to a file system or a database. The persistence <span
+class=GramE>services uses</span><br>
+the data protection service to sign and/or encrypt the data.<br>
+<br>
+* <span class=SpellE>BootPolicyMsgAccess.xml</span><br>
+<span class=GramE>This</span> file describes what access control is performed
+on incoming and outgoing messages.<br>
+Every message sent and received by an agent has to go through our message
+access control binder<span class=GramE>,</span><br>
+which may reject messages depending on the policy parameters.<br>
+<br>
+* <span class=SpellE><span class=GramE>cryptoPolicy.xml</span></span><br>
+This file describes the list of Certificate authorities that a given node is
+trusting.<br>
+It also defines certificate parameters when a node is issuing certificates for
+the agents.<br>
+<br>
+* <span class=SpellE>BootPolicyServlet.xml</span><br>
+This file describes user authentication and authorization policy parameters.<br>
+It defines the user authentication requirements (e.g. SSL is required) and the <span
+class=SpellE>servlet</span><br>
+authorization (e.g. Role X can access <span class=SpellE>serlvet</span> Y).<br>
+<br>
+* <span class=SpellE>BootPolicyCrypto.xml</span><br>
+This file describes what crypto is applied to incoming and outgoing messages.
+For instance<span class=GramE>,</span><br>
+all outgoing messages may be signed and encrypted.<br>
+<br>
+* <span class=SpellE>UserDB.xml</span><br>
+This file describes parameters to access the user database<br>
+<br>
+<br>
+</span><b><span style='font-size:16.0pt;font-family:Arial;color:black;
+mso-font-kerning:16.0pt'>Certificate Authority<br>
+</span></b><span style='font-family:"Times New Roman";color:black'>Certificate
+authorities should always run in the before other nodes are started.<br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u>Security Components configuration<br>
+</u></b><br>
+# Presentation<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(<span
+class=SpellE>org.cougaar.core.security.certauthority.servlet.Index</span>,
+/CA/Index)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(<span
+class=SpellE>org.cougaar.core.security.certauthority.servlet.Browser</span>, /CA/Browser)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(<span
+class=SpellE>org.cougaar.core.security.certauthority.servlet.Main</span>,
+/CA/Main)<br>
+<br>
+# Client certificate management<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(<span
+class=SpellE>org.cougaar.core.security.certauthority.servlet.CaKeyManagement</span>,
+/CA/<span class=SpellE>CaKeyManagement</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(org.cougaar.core.security.certauthority.servlet.CertificateDetailsServlet,
+/CA/<span class=SpellE>CertificateDetailsServlet</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(org.cougaar.core.security.certauthority.servlet.DownloadCertificateServlet,
+/CA/<span class=SpellE>DownloadCertificateServlet</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(<span
+class=SpellE>org.cougaar.core.security.certauthority.servlet.CertificateList</span>,
+/CA/<span class=SpellE>CertificateList</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(org.cougaar.core.security.certauthority.servlet.CertificateSigningRequest,
+/CA/<span class=SpellE>CertificateSigningRequest</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(org.cougaar.core.security.certauthority.servlet.BrowserSigningRequest,
+/CA/<span class=SpellE>BrowserSigningRequest</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(org.cougaar.core.security.certauthority.servlet.PendingCertDetailsServlet,
+/CA/<span class=SpellE>PendingCertDetailsServlet</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(org.cougaar.core.security.certauthority.servlet.PendingCertificateServlet,
+/CA/<span class=SpellE>PendingCertificateServlet</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(org.cougaar.core.security.certauthority.servlet.ProcessPendingCertServlet,
+/CA/<span class=SpellE>ProcessPendingCertServlet</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(org.cougaar.core.security.certauthority.servlet.RevokeCertificateServlet,
+/CA/<span class=SpellE>RevokeCertificateServlet</span>)<br>
+<br>
+# CA key management<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(org.cougaar.core.security.certauthority.servlet.CreateCaKeyServlet,
+/CA/<span class=SpellE>CreateCaKeyServlet</span>)<br>
+<span class=SpellE>plugin</span> = <span class=SpellE>org.cougaar.core.security.certauthority.CaServletComponent</span>(org.cougaar.core.security.certauthority.servlet.ListCaKeysServlet,
+/CA/<span class=SpellE>ListCaKeysServlet</span>)<br>
+<br>
+<br>
+The following is an example configuration that includes one root CA and four
+subordinate <span class=SpellE>CAs</span>.<br>
+<b style='mso-bidi-font-weight:normal'><u>Root CA:<br>
+</u></b>DN:<span style='mso-spacerun:yes'>           </span><span class=SpellE>cn</span>=1AD-CA,
+<span class=SpellE>ou</span>=CONUS, o=DLA, l=Santa Clara, <span class=SpellE>st</span>=CA,
+c=US<br>
+Agent name:<span style='mso-spacerun:yes'>   </span>ca1ADAgent<br>
+Node name:<span style='mso-spacerun:yes'>    </span>ca1ADNode<br>
+CSR:<span style='mso-spacerun:yes'>         
+</span>http://yew:5561/$ca1ADAgent/CA/CertificateSigningRequest<br>
+LDAP:<span style='mso-spacerun:yes'>         </span>ldap://yew:389/dc=1adCA,dc=<span
+class=SpellE>cougaar,dc</span>=org<br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u>Subordinate CA 1:<br>
+</u></b>DN:<span style='mso-spacerun:yes'>           </span><span class=SpellE>cn</span>=1AD-Enclave1-CA,
+<span class=SpellE>ou</span>=CONUS, o=DLA, l=Santa Clara, <span class=SpellE>st</span>=CA,
+c=US<br>
+Agent name:<span style='mso-spacerun:yes'>   </span>ca1ADEnclave1Agent<br>
+Node name:<span style='mso-spacerun:yes'>    </span>ca1ADEnclave1Node<br>
+CSR:<span style='mso-spacerun:yes'>         
+</span>http://juniper:5561/$ca1AEnclave1DAgent/CA/CertificateSigningRequest<br>
+LDAP:<span style='mso-spacerun:yes'>       </span><span
+style='mso-spacerun:yes'>  </span>ldap://yew:389/dc=1adEnclave1CA,dc=<span
+class=SpellE>cougaar,dc</span>=org<br>
+Enclave name: 1AD-Enclave1<br>
+<span style='mso-spacerun:yes'> </span><br>
+<b style='mso-bidi-font-weight:normal'><u>Subordinate CA 2:<br>
+</u></b>DN:<span style='mso-spacerun:yes'>           </span><span class=SpellE>cn</span>=1AD-Enclave2-CA,
+<span class=SpellE>ou</span>=CONUS, o=DLA, l=Santa Clara, <span class=SpellE>st</span>=CA,
+c=US<br>
+Agent name:<span style='mso-spacerun:yes'>   </span>ca1ADEnclave2Agent<br>
+Node name:<span style='mso-spacerun:yes'>    </span>ca1ADEnclave2Node<br>
+CSR:<span style='mso-spacerun:yes'>          </span>http://maple:5561/$ca1ADEnclave2Agent/CA/CertificateSigningRequest<br>
+LDAP:<span style='mso-spacerun:yes'>        
+</span>ldap://yew:389/dc=1adEnclave2CA,dc=<span class=SpellE>cougaar,dc</span>=org<br>
+Enclave name: 1AD-Enclave2<br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u>Subordinate CA 3:<br>
+</u></b>DN:<span style='mso-spacerun:yes'>           </span><span class=SpellE>cn</span>=1AD-Enclave3-CA,
+<span class=SpellE>ou</span>=CONUS, o=DLA, l=Santa Clara, <span class=SpellE>st</span>=CA,
+c=US<br>
+Agent name:<span style='mso-spacerun:yes'>   </span>ca1ADEnclave3Agent<br>
+Node name:<span style='mso-spacerun:yes'>    </span>ca1ADEnclave3Node<br>
+CSR:<span style='mso-spacerun:yes'>         
+</span>http://maple:5561/$ca1ADEnclave3Agent/CA/CertificateSigningRequest<br>
+LDAP:<span style='mso-spacerun:yes'>        
+</span>ldap://yew:389/dc=1adEnclave3CA,dc=<span class=SpellE>cougaar,dc</span>=org<br>
+Enclave name: 1AD-Enclave3<br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u>Subordinate CA 4:<br>
+</u></b>DN:<span style='mso-spacerun:yes'>           </span><span class=SpellE>cn</span>=1AD-Enclave4-CA,
+<span class=SpellE>ou</span>=CONUS, o=DLA, l=Santa Clara, <span class=SpellE>st</span>=CA,
+c=US<br>
+Agent name:<span style='mso-spacerun:yes'>   </span>ca1ADEnclave4Agent<br>
+Node name:<span style='mso-spacerun:yes'>    </span>ca1ADEnclave4Node<br>
+CSR:<span style='mso-spacerun:yes'>         
+</span>http://maple:5561/$ca1ADEnclave4Agent/CA/CertificateSigningRequest<br>
+LDAP:<span style='mso-spacerun:yes'>         </span>ldap://yew:389/dc=1adEnclave4CA,dc=<span
+class=SpellE>cougaar,dc</span>=org<br>
+Enclave name: 1AD-Enclave3<br>
+<br>
+</span><b><span style='font-size:16.0pt;font-family:Arial;color:black;
+mso-font-kerning:16.0pt'>Other recipes<br>
+</span></b><span class=SpellE><span style='font-family:"Times New Roman";
+color:black'>Telcordia</span></span><span style='font-family:"Times New Roman";
+color:black'> adaptive filters:<br>
+<span class=SpellE>TelcordiaAdaptiveFilterPlugin-export.sql</span><br>
+<span class=SpellE>TelcordiaEventAccumulatorPlugin-export.sql</span><br>
+<span class=SpellE>TelcordiaTranslatorPlugin-export.sql</span><br>
+<br>
+University of Memphis M&amp;R manager:<br>
+<span class=SpellE>UMmrmManagerAgent-export.sql</span><br>
+<br>
+</span><b><span style='font-size:16.0pt;font-family:Arial;color:black;
+mso-font-kerning:16.0pt'>Community Configuration<br>
+</span></b><span style='font-family:"Times New Roman";color:black'>This section
+describes the additional communities and agents that must be added to the<br>
+configuration.<br>
+<br>
+We use the following convention<span class=GramE>:</span><br>
+Community-name<br>
+<span style='mso-spacerun:yes'>  </span>Node-name<br>
+<span style='mso-spacerun:yes'>    </span>Agent-name<br style='mso-special-character:
+line-break'>
+<![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
+<![endif]><o:p></o:p></span></p>
+
+<div style='border:none;border-top:solid windowtext 1.0pt;mso-border-top-alt:
+solid windowtext .5pt;padding:1.0pt 0in 0in 0in'>
+
+<p class=MsoPlainText style='margin-bottom:12.0pt;border:none;mso-border-top-alt:
+solid windowtext .5pt;padding:0in;mso-padding-alt:1.0pt 0in 0in 0in'><span
+style='font-family:"Times New Roman";color:black'>Security-Mgmt-COMM<br>
+<span style='mso-spacerun:yes'>  </span>SOCIETY-SECURITY<br>
+<span style='mso-spacerun:yes'>    </span><span class=SpellE>SocietySecurityMnRManager</span><span
+style='mso-spacerun:yes'>           </span>Roles: <span class=SpellE>SecurityMnRManager</span>-Society<br>
+<span style='mso-spacerun:yes'>    </span><span class=SpellE>PolicyDomainManager</span><br>
+<span style='mso-spacerun:yes'>    </span><span class=SpellE>PolicyDomainManagerServlet</span><br>
+<span style='mso-spacerun:yes'>  </span>USERADMIN-NODE<br>
+<span style='mso-spacerun:yes'>    </span><span class=SpellE>UserAdminAgent</span><br>
+<br>
+<span style='mso-spacerun:yes'>  </span>Other agents:<br>
+<span style='mso-spacerun:yes'>  </span>(these agents are part of the
+Security-Mgmt-COMM but they run on<br>
+<span style='mso-spacerun:yes'>  </span>a node which is part of an enclave)<br>
+<span style='mso-spacerun:yes'>    </span>Enclave1SecurityMnRManager<br>
+<span style='mso-spacerun:yes'>    </span>Enclave2SecurityMnRManager<br>
+<span style='mso-spacerun:yes'>    </span>Enclave3SecurityMnRManager<br>
+<span style='mso-spacerun:yes'>    </span>Enclave4SecurityMnRManager<br>
+<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager1<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager1Servlet<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager2<br>
+<span style='mso-spacerun:yes'> </span><span style='mso-spacerun:yes'>  
+</span>PolicyDomainManager2Servlet<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager3<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager3Servlet<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager4<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager4Servlet<br>
+<br>
+<span style='mso-spacerun:yes'>    </span>UserAdminAgent1<br>
+<span style='mso-spacerun:yes'>    </span>UserAdminAgent2<br>
+<span style='mso-spacerun:yes'>    </span>UserAdminAgent3<br>
+<span style='mso-spacerun:yes'>    </span>UserAdminAgent4<br>
+<br>
+<br>
+Enclave1Security-COMM<br>
+<span style='mso-spacerun:yes'>  </span>ENCLAVE1-MANAGEMENT<br>
+<span style='mso-spacerun:yes'>    </span>Enclave1SecurityMnRManager<span
+style='mso-spacerun:yes'>          </span>Roles: <span class=SpellE>SecurityMnRManager</span>-Enclave<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager1<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager1Servlet<br>
+<span style='mso-spacerun:yes'>    </span>UserAdminAgent1<br>
+<br>
+Enclave2Security-COMM<br>
+<span style='mso-spacerun:yes'>  </span>ENCLAVE2-MANAGEMENT<br>
+<span style='mso-spacerun:yes'>    </span>Enclave2SecurityMnRManager<span
+style='mso-spacerun:yes'>          </span>Roles: <span class=SpellE>SecurityMnRManager</span>-Enclave<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager2<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager2Servlet<br>
+<span style='mso-spacerun:yes'>    </span>UserAdminAgent2<br>
+<br>
+Enclave3Security-COMM<br>
+<span style='mso-spacerun:yes'>  </span>ENCLAVE3-MANAGEMENT<br>
+<span style='mso-spacerun:yes'>    </span>Enclave3SecurityMnRManager<span
+style='mso-spacerun:yes'>          </span>Roles: <span class=SpellE>SecurityMnRManager</span>-Enclave<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager3<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager3Servlet<br>
+<span style='mso-spacerun:yes'>    </span>UserAdminAgent3<br>
+<br>
+Enclave4Security-COMM<br>
+<span style='mso-spacerun:yes'>  </span>ENCLAVE4-MANAGEMENT<span
+style='mso-spacerun:yes'>  </span><br>
+<span style='mso-spacerun:yes'>    </span>Enclave4SecurityMnRManager<span
+style='mso-spacerun:yes'>          </span>Roles: <span class=SpellE>SecurityMnRManager</span>-Enclave<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager4<br>
+<span style='mso-spacerun:yes'>    </span>PolicyDomainManager4Servlet<br>
+<span style='mso-spacerun:yes'>    </span>UserAdminAgent4<o:p></o:p></span></p>
+
+</div>
+
+</div>
+
+</body>
+
+</html>

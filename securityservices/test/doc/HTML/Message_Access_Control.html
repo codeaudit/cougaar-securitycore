@@ -1,0 +1,271 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="README.access-control_files/filelist.xml">
+<title>This file documents the access control policy implemented in the NAI
+Labs </title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Sebastien Rosset</o:Author>
+  <o:LastAuthor>Sebastien Rosset</o:LastAuthor>
+  <o:Revision>3</o:Revision>
+  <o:TotalTime>3</o:TotalTime>
+  <o:Created>2003-02-28T02:10:00Z</o:Created>
+  <o:LastSaved>2003-02-28T02:12:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>622</o:Words>
+  <o:Characters>3552</o:Characters>
+  <o:Company>Network Associates, Inc.</o:Company>
+  <o:Lines>29</o:Lines>
+  <o:Paragraphs>8</o:Paragraphs>
+  <o:CharactersWithSpaces>4166</o:CharactersWithSpaces>
+  <o:Version>10.3501</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:Zoom>150</w:Zoom>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:1627421319 -2147483648 8 0 66047 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{mso-style-noshow:yes;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	background:navy;
+	font-size:10.0pt;
+	font-family:Tahoma;
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	mso-fareast-font-family:"Times New Roman";}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 65.95pt 1.0in 65.95pt;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]-->
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<p class=MsoPlainText><span style='font-family:"Times New Roman"'>This file
+documents the access control policy implemented in the NAI Labs security
+services packages.<br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u>Policy Overview<br>
+</u></b>Access control policy rules have two main <span class=GramE>function</span>:
+to perform actions (i.e. quarantine or accept messages) and to assign degrees
+of trust to messages and their contents. Access control policy is specified
+using standard COUGAAR policy <span class=SpellE>rulesets</span>. In functional
+languages, the actions to be performed resemble rules while the trust level
+assignment rules would be considered facts.<br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u>Implementation<br>
+</u></b>An <span class=SpellE>AccessControlPoilcy</span> instance contains a
+set of policies which can be retrieved by name. The current implementation
+supports the following case sensitive named types:<span style='mso-tab-count:
+1'>             </span><br>
+</span><br>
+<span style='mso-tab-count:1'>      </span><span class=SpellE>IncomingMessageCriticality</span><span
+style='mso-tab-count:1'>    </span><span class=SpellE>OutgoingMessageCriticality</span><br>
+<span style='mso-tab-count:1'>      </span><span class=SpellE>IncomingMessageIntegrity</span><span
+style='mso-tab-count:1'>      </span><span class=SpellE>OutgoingMessageIntegrity</span><br>
+<span style='mso-tab-count:1'>      </span><span class=SpellE>IncomingVerb</span><span
+style='mso-tab-count:3'>                  </span><span class=SpellE>OutgoingVerb</span><br>
+<span style='mso-tab-count:1'>      </span><span class=SpellE>IncomingMessageAction</span><span
+style='mso-tab-count:2'>         </span><span class=SpellE>OutgoingMessageAction</span><br>
+<span style='mso-tab-count:1'>      </span><span class=SpellE>IncomingAgentAction</span><span
+style='mso-tab-count:2'>           </span><span class=SpellE>OutgoingAgentAction</span><br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u><span style='font-family:"Times New Roman"'>Assignment
+Rules<br>
+</span></u></b><span class=SpellE><span style='font-family:"Times New Roman"'>Assigment</span></span><span
+style='font-family:"Times New Roman"'> rules for a single agent or node should
+be placed in a single XML. If the following XML rule were placed in a file
+called &quot;TRANSCOM-ThreatCon2-Policy.ldm.xml&quot;, then this rule should
+applied by the security aspect only when the <span class=SpellE>ThreatCon</span>
+level is 2.<br>
+<br>
+</span><span style='mso-spacerun:yes'>    </span>&lt;!--Incoming message trust <span
+class=SpellE>attribut</span> assignment of criticality--&gt;<br>
+<span style='mso-spacerun:yes'>    </span>&lt;<span class=SpellE>RuleParam</span>
+name=&quot;<span class=SpellE>IncomingMessageCriticality</span>&quot;&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;!--The default value is 3--&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;<span class=SpellE>KeySet</span>
+value=&quot;3&quot;&gt;<br>
+<span style='mso-tab-count:1'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;3-69-ARBN&quot; value=&quot;2&quot;&gt;<br>
+<span style='mso-tab-count:1'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;Alpha-Airlines&quot; value=&quot;4&quot;&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;/<span class=SpellE>KeySet</span>&gt;<br>
+<span style='mso-spacerun:yes'>    </span>&lt;/<span class=SpellE>RuleParam</span>&gt;<br>
+<br>
+<span style='font-family:"Times New Roman"'>This rule says <span class=GramE>that
+incoming messages</span> (and their contents) originating at 3-69-ARBN should
+have a criticality level set to 2 while message from Alpha-Airlines should have
+a criticality of 4. The enforcement will use the default value of 3 if the
+message originator has no specific rules which match it.<br>
+<br>
+<b style='mso-bidi-font-weight:normal'><u>Action Rules<br>
+</u></b>Action rules can have Incoming or Outgoing pre-fixed rules for the
+following categories: <span class=SpellE>MessageAction</span>, <span
+class=SpellE>AgentAction</span>, and Verb. The verb rules apply specifically to
+<span class=SpellE>DirectiveMessages</span> which contain an array of Tasks.
+Each task is must explicitly match in order for any action rules to apply. For
+example, all <span class=GramE>task</span> which match the verb Transport are
+processed by the action rules. <br>
+Here is an XML <span class=SpellE>ruleset</span> example:<br>
+<br>
+</span><span style='mso-spacerun:yes'>  </span>&lt;<span class=SpellE>RuleParam</span>
+name=&quot;<span class=SpellE>IncomingVerb</span>&quot;&gt;<br>
+<span style='mso-spacerun:yes'>    </span>&lt;<span class=SpellE>KeySet</span>
+value=&quot;Transport&quot;&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;3-69-ARBN&quot; value=&quot;<span class=SpellE>Transport<span
+class=GramE>:AssetTransfer</span></span>&quot;/&gt;<br>
+<span style='mso-spacerun:yes'>    </span>&lt;/<span class=SpellE>KeySet</span>&gt;<br>
+<span style='mso-spacerun:yes'>  </span>&lt;/<span class=SpellE>RuleParam</span>&gt;<br>
+<br>
+<span style='font-family:"Times New Roman"'>This rule states that only
+Transport tasks will be monitored by default, but Transport and <span
+class=SpellE>AssetTransfer</span> tasks which originated at 3-69-ARBN will be
+applied to the action rule enforcement.<br>
+<br>
+<span class=SpellE>MessageAction</span> rules apply to trust attribute level
+while <span class=SpellE>AgentAction</span> rules to a message source and
+destination. In the case of the <span class=SpellE>DirectiveMesaage</span> each
+individual directive is processed by the action rules. If a directive is to be
+set aside, it is removed from the <span class=SpellE>DirectiveMessage</span>. <br>
+<br>
+<span class=SpellE><b style='mso-bidi-font-weight:normal'><u>MessageAction</u></b></span><b
+style='mso-bidi-font-weight:normal'><u> Example<br>
+</u></b>Here is an example of a general message action for incoming messages:<br>
+<br>
+</span><span style='mso-spacerun:yes'>  </span>&lt;<span class=SpellE>RuleParam</span>
+name=&quot;<span class=SpellE>IncomingMessageAction</span>&quot;&gt;<br>
+<span style='mso-spacerun:yes'>    </span>&lt;<span class=SpellE>KeySet</span>
+value=&quot;&quot;&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;Criticality0&quot; value=&quot;<span class=SpellE>SetAside</span>&quot;
+/&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;Criticality1&quot; value=&quot;<span class=SpellE>SetAside</span>&quot;
+/&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;Criticality2&quot; value=&quot;<span class=SpellE>AcceptMessage</span>&quot;
+/&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;Criticality3&quot; value=&quot;<span class=SpellE>AcceptMessage</span>&quot;
+/&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;Criticality4&quot; value=&quot;<span class=SpellE>AcceptMessage</span>&quot;
+/&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;Criticality5&quot; value=&quot;<span class=SpellE>AcceptMessage</span>&quot;
+/&gt;<br>
+<span style='mso-spacerun:yes'>    </span>&lt;/<span class=SpellE>KeySet</span>&gt;<br>
+<span style='mso-spacerun:yes'>  </span>&lt;/<span class=SpellE>RuleParam</span>&gt;<br>
+<br>
+<span style='font-family:"Times New Roman"'>Each <span class=SpellE>KeyValue</span>
+tag has a key-value pair. Currently supported values are <span class=SpellE>SetAside</span>
+and <span class=SpellE>AcceptMessage</span>. The key &quot;Criticality4&quot;
+is used to match a <span class=SpellE>MissionCriticality</span> attribute with
+a value of 4. This entire rule says to set aside messages with a criticality
+level 0-1 and to accept message with criticality levels between the <span
+class=GramE>range</span> of 2-5. <br>
+<br>
+<span class=SpellE><b style='mso-bidi-font-weight:normal'><u>AgentAction</u></b></span><b
+style='mso-bidi-font-weight:normal'><u> Example<br>
+</u></b>Here is an example of an <span class=SpellE>AgentAgent</span> rule:<br>
+</span><br>
+<span style='mso-spacerun:yes'>  </span>&lt;<span class=SpellE>RuleParam</span>
+name=&quot;<span class=SpellE>OutgoingAgentAction</span>&quot;&gt;<br>
+<span style='mso-spacerun:yes'>    </span>&lt;<span class=SpellE>KeySet</span>
+value=&quot;<span class=SpellE>AcceptMessage</span>&quot;&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;3-69-ARBN&quot; value=&quot;<span class=SpellE>SetAside</span>&quot;
+/&gt;<br>
+<span style='mso-spacerun:yes'>      </span>&lt;<span class=SpellE>KeyValue</span>
+key=&quot;2-7-INFBN&quot; value=&quot;<span class=SpellE>SetAside</span>&quot;
+/&gt;<br>
+<span style='mso-spacerun:yes'>    </span>&lt;/<span class=SpellE>KeySet</span>&gt;<br>
+<span style='mso-spacerun:yes'>  </span>&lt;/<span class=SpellE>RuleParam</span>&gt;<br>
+<br>
+<span style='font-family:"Times New Roman"'>This rule states that outgoing
+messages destined for 3-69-ARBN or 2-7-INFBN should be set aside. All other
+messages should be allowed to be sent via the <span class=SpellE>MessageTransportService</span>.<br>
+<o:p>&nbsp;</o:p></span></p>
+
+</div>
+
+</body>
+
+</html>

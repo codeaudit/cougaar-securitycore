@@ -1,0 +1,713 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:dt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta name="Microsoft Theme 2.00" content="Network 011">
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="README.install_files/filelist.xml">
+<title>This file contains instructions for building and installing the security
+services</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:LastAuthor>Sebastien Rosset</o:LastAuthor>
+  <o:Revision>5</o:Revision>
+  <o:TotalTime>5</o:TotalTime>
+  <o:Created>2003-02-28T18:08:00Z</o:Created>
+  <o:LastSaved>2003-02-28T22:34:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>537</o:Words>
+  <o:Characters>3066</o:Characters>
+  <o:Company>Network Associates, Inc.</o:Company>
+  <o:Lines>25</o:Lines>
+  <o:Paragraphs>7</o:Paragraphs>
+  <o:CharactersWithSpaces>3596</o:CharactersWithSpaces>
+  <o:Version>10.3501</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:DefaultTableStyle Number="155">Table Theme</w:DefaultTableStyle>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+@font-face
+	{font-family:"Trebuchet MS";
+	panose-1:2 11 6 3 2 2 2 2 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:647 0 0 0 159 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-fareast-font-family:"Times New Roman";
+	mso-hansi-font-family:"Trebuchet MS";
+	mso-bidi-font-family:"Times New Roman";
+	color:black;}
+h1
+	{mso-style-link:"Heading 1 Char";
+	mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:24.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:black;
+	mso-font-kerning:16.0pt;
+	font-weight:normal;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:18.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:black;
+	font-weight:normal;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:14.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:black;
+	font-weight:normal;}
+h4
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:4;
+	font-size:12.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	mso-bidi-font-family:"Times New Roman";
+	color:black;
+	font-weight:normal;}
+h5
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:5;
+	font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	color:black;
+	font-weight:normal;}
+h6
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:6;
+	font-size:8.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	mso-bidi-font-family:"Times New Roman";
+	color:black;
+	font-weight:normal;}
+a:link, span.MsoHyperlink
+	{color:#0066CC;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:#999999;
+	text-decoration:underline;
+	text-underline:single;}
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:"Courier New";
+	mso-fareast-font-family:"Times New Roman";
+	mso-hansi-font-family:"Courier New";
+	mso-bidi-font-family:"Courier New";
+	color:black;}
+span.Heading1Char
+	{mso-style-name:"Heading 1 Char";
+	mso-style-link:"Heading 1";
+	mso-ansi-font-size:24.0pt;
+	mso-bidi-font-size:24.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	mso-bidi-font-family:Arial;
+	color:black;
+	mso-font-kerning:16.0pt;
+	mso-ansi-language:EN-US;
+	mso-fareast-language:EN-US;
+	mso-bidi-language:AR-SA;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 65.95pt 1.0in 65.95pt;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:159195511;
+	mso-list-template-ids:-976741088;}
+@list l0:level1
+	{mso-level-number-format:image;
+	list-style-image:url("README.install_files/image002.gif");
+	mso-level-text:\F076;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l0:level2
+	{mso-level-number-format:image;
+	list-style-image:url("README.install_files/image003.gif");
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	margin-left:.5in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l0:level3
+	{mso-level-number-format:image;
+	list-style-image:url("README.install_files/image004.gif");
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l0:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	margin-left:1.0in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l0:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A8;
+	mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l0:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	margin-left:1.5in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l0:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.75in;
+	mso-level-number-position:left;
+	margin-left:1.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l0:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	margin-left:2.0in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l0:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A8;
+	mso-level-tab-stop:2.25in;
+	mso-level-number-position:left;
+	margin-left:2.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l1
+	{mso-list-id:433403990;
+	mso-list-template-ids:-976741088;}
+@list l1:level1
+	{mso-level-number-format:image;
+	list-style-image:url("README.install_files/image002.gif");
+	mso-level-text:\F076;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l1:level2
+	{mso-level-number-format:image;
+	list-style-image:url("README.install_files/image003.gif");
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	margin-left:.5in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l1:level3
+	{mso-level-number-format:image;
+	list-style-image:url("README.install_files/image004.gif");
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l1:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	margin-left:1.0in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l1:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A8;
+	mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l1:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	margin-left:1.5in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l1:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.75in;
+	mso-level-number-position:left;
+	margin-left:1.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l1:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	margin-left:2.0in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l1:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A8;
+	mso-level-tab-stop:2.25in;
+	mso-level-number-position:left;
+	margin-left:2.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l2
+	{mso-list-id:1550265920;
+	mso-list-template-ids:-976741088;}
+@list l2:level1
+	{mso-level-number-format:image;
+	list-style-image:url("README.install_files/image002.gif");
+	mso-level-text:\F076;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l2:level2
+	{mso-level-number-format:image;
+	list-style-image:url("README.install_files/image003.gif");
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	margin-left:.5in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l2:level3
+	{mso-level-number-format:image;
+	list-style-image:url("README.install_files/image004.gif");
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l2:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	margin-left:1.0in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l2:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A8;
+	mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l2:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	margin-left:1.5in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l2:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.75in;
+	mso-level-number-position:left;
+	margin-left:1.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l2:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	margin-left:2.0in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l2:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A8;
+	mso-level-tab-stop:2.25in;
+	mso-level-number-position:left;
+	margin-left:2.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+table.MsoTableTheme
+	{mso-style-name:"Table Theme";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	border:solid #669999 1.0pt;
+	mso-border-alt:solid #669999 .5pt;
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-border-insideh:.5pt solid #669999;
+	mso-border-insidev:.5pt solid #669999;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="2050"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body bgcolor=white background="README.install_files/image001.gif" lang=EN-US
+link="#0066CC" vlink="#999999" style='tab-interval:.5in'>
+<!--[if gte mso 9]><xml>
+ <v:background id="_x0000_s1025" o:bwmode="white" o:targetscreensize="800,600">
+  <v:fill src="README.install_files/image001.gif" o:title="netbkgnd" type="frame"/>
+ </v:background></xml><![endif]-->
+
+<div class=Section1>
+
+<p class=MsoPlainText style='margin-bottom:12.0pt'><span style='font-family:
+"Times New Roman"'>This file contains instructions for building and installing
+the security services.<br>
+<br>
+</span><span class=Heading1Char><span style='font-size:24.0pt'>Requirements<br>
+</span></span><span class=GramE><span style='font-family:"Times New Roman"'>Running</span></span><span
+style='font-family:"Times New Roman"'> a security-enhanced Cougaar society
+requires:<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l2 level1 lfo1;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings'><span style='mso-list:Ignore'><img
+width=15 height=13 src="README.install_files/image002.gif" alt="*"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+style='font-family:"Times New Roman"'>Cougaar version 9.4.1<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l2 level1 lfo1;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings'><span style='mso-list:Ignore'><img
+width=15 height=13 src="README.install_files/image002.gif" alt="*"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+style='font-family:"Times New Roman"'>JDK or JRE version 1.4<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l2 level1 lfo1;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings'><span style='mso-list:Ignore'><img
+width=15 height=13 src="README.install_files/image002.gif" alt="*"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+style='font-family:"Times New Roman"'>ANT version 1.5 or higher<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-bottom:12.0pt'><span class=Heading1Char><span
+style='font-size:24.0pt'>Directory structure<br>
+</span></span><span class=GramE><span style='font-family:"Times New Roman"'>The</span></span><span
+style='font-family:"Times New Roman"'> <span class=SpellE>securityservices</span>
+module has the following directory structure:<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l1 level1 lfo3;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings'><span style='mso-list:Ignore'><img
+width=15 height=13 src="README.install_files/image002.gif" alt="*"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+style='font-family:"Times New Roman"'>top-level directory - contains a <span
+class=SpellE>Makefile</span> used to build the security services<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l1 level1 lfo3;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings'><span style='mso-list:Ignore'><img
+width=15 height=13 src="README.install_files/image002.gif" alt="*"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+class=SpellE><span style='font-family:"Times New Roman"'>src</span></span><span
+style='font-family:"Times New Roman"'><span style='mso-tab-count:1'>  </span>-
+contains the source code for the security services<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l1 level1 lfo3;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings'><span style='mso-list:Ignore'><img
+width=15 height=13 src="README.install_files/image002.gif" alt="*"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+class=GramE><span style='font-family:"Times New Roman"'>sys</span></span><span
+style='font-family:"Times New Roman"'> - contains the additional jar files
+required for security and <span class=SpellE>KAoS</span> policy integration.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l1 level1 lfo3;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings'><span style='mso-list:Ignore'><img
+width=15 height=13 src="README.install_files/image002.gif" alt="*"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+style='font-family:"Times New Roman"'>test/bin - additional scripts to build
+and run a society:<br>
+<span class=SpellE>SecureNode</span>: run a security-enhanced Cougaar <span
+class=SpellE>society,</span><o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l1 level1 lfo3;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings'><span style='mso-list:Ignore'><img
+width=15 height=13 src="README.install_files/image002.gif" alt="*"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+style='font-family:"Times New Roman"'>test/<span class=SpellE>configs</span>/demo
+- to contain all the scripts for launching a sample <span class=SpellE>society</span><o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l1 level1 lfo3;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings'><span style='mso-list:Ignore'><img
+width=15 height=13 src="README.install_files/image002.gif" alt="*"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+class=GramE><span style='font-family:"Times New Roman"'>test/<span
+class=SpellE>configs</span>/common</span></span><span style='font-family:"Times New Roman"'>
+- Contains essential files that should be shared by all Cougaar configurations.<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-top:0in;margin-right:0in;margin-bottom:
+12.0pt;margin-left:.25in;text-indent:-.25in;mso-list:l1 level1 lfo3;tab-stops:
+list .25in'><![if !supportLists]><span style='font-family:Wingdings;mso-fareast-font-family:
+Wingdings;mso-bidi-font-family:Wingdings'><span style='mso-list:Ignore'><img
+width=15 height=13 src="README.install_files/image002.gif" alt="*"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+style='font-family:"Times New Roman"'>test/doc - documentation for the <span
+class=SpellE>securityservices</span> module<o:p></o:p></span></p>
+
+<p class=MsoPlainText style='margin-bottom:12.0pt'><span style='font-family:
+"Times New Roman"'><br>
+</span><span class=Heading1Char><span style='font-size:24.0pt'>Compiling and
+building JAR files<br>
+</span></span><span style='font-family:"Times New Roman"'>1. Set the CVSROOT to
+point to NAI Labs <span class=SpellE>cvs</span> module<span class=GramE>:</span><br>
+<br>
+<span class=SpellE>setenv</span> CVSROOT :<span class=SpellE>ext:user@cvs.utralog.net:/cvs/security/nai</span>
+# for <span class=SpellE>tcsh</span> or <span class=SpellE>csh</span> shell
+users<br>
+export CVSROOT=:<span class=SpellE>ext:user@cvs.utralog.net:/cvs/security/nai</span>
+# for bash shell users<br>
+<br>
+2. Unpack the security services distribution and go to the top level of the <br>
+<span style='mso-spacerun:yes'>   </span>source code tree. From <span
+class=SpellE>cvs</span> type the following:<br>
+<br>
+<span style='mso-spacerun:yes'>       </span><span class=SpellE>cvs</span> co <span
+class=SpellE>securityservices</span><br>
+<br>
+3. Run the ant script<br>
+<span style='mso-spacerun:yes'>       </span><span class=SpellE>cd</span> <span
+class=SpellE>securityservices</span><br>
+<span style='mso-spacerun:yes'>       </span>ant install<br>
+<br>
+</span><span class=Heading1Char><span style='font-size:24.0pt'>Jar files<br>
+</span></span><span style='font-family:"Times New Roman"'>The security services
+are separated into the following Java archives:<br>
+<span class=SpellE>CougaarCRLextensions.jar</span>: A jar file for issuing
+indirect <span class=SpellE>CRLs</span>.<br>
+<span class=SpellE>idmef.jar</span>:<span
+style='mso-spacerun:yes'>                </span>An implementation of the IDMEF
+standard<br>
+<span class=SpellE>securebootstrapper.jar</span>:<span
+style='mso-spacerun:yes'>   </span>Contains classes necessary to initialize a
+security<br>
+<span style='mso-spacerun:yes'>                          </span>enhanced
+Ultra*Log node.<br>
+<span class=SpellE>securityservices.jar</span>:<span
+style='mso-spacerun:yes'>     </span>The <span class=SpellE>securityservices.jar</span>
+archive contains the cryptographic,<br>
+<span style='mso-spacerun:yes'>                          </span>access control,
+and monitoring &amp; response services.<br>
+<br>
+</span><span class=Heading1Char><span style='font-size:24.0pt'>Configuration<br>
+</span></span><span style='font-family:"Times New Roman"'>A security-enhanced
+society should be configured and executed using CSMART. CSMART recipes for the
+security services have been checked in under the test/<span class=SpellE>configs</span>/recipes
+directory.<br>
+<br>
+1) Installing and configuring Cougaar and CSMART<br>
+<span class=GramE>Follow</span> the instructions provided in the core
+distribution to install and configure CSMART.<br>
+<br>
+2) Importing security services recipes to the <span class=SpellE>MySQL</span>
+database.<br>
+All CSMART recipes should be imported in the <span class=SpellE>MySQL</span>
+database.<br>
+The &quot;<span class=SpellE>recipesimport.csh</span>&quot; script under the
+test/<span class=SpellE>configs</span>/recipes directory imports all the<br>
+recipes.<br>
+<br>
+3) Import the community configuration.<br>
+Import the <span class=SpellE>community_attribute.csv</span> and <span
+class=SpellE>community_entity_attribute.csv</span> files to the <span
+class=SpellE>MySQL</span><br>
+database. This can be done by:<br>
+<span style='mso-spacerun:yes'>   </span>a) copying the .<span class=SpellE>csv</span>
+files to <span class=SpellE><span class=GramE>th</span></span> $CIP/<span
+class=SpellE>csmart/data/database/scripts/mysql</span> directory<br>
+<span style='mso-spacerun:yes'>   </span>b) executing the <span class=SpellE>load_communities.bat</span>
+script. Note that the <span class=SpellE>load_communities.sh</span><br>
+<span style='mso-spacerun:yes'>      </span>script seems to be broken.<br>
+<br>
+4) Configuring CSMART for a specific society.<br>
+Create a new experiment such as the full 1ad or the small 1ad society.<br>
+Import the security services recipes in your experiment as described in the <span
+class=SpellE>README.config</span> file.<br>
+<br>
+5) Install and configure a CA.<br>
+At least one Certificate Authority should be installed. Follow the instructions
+provided in<br>
+the <span class=SpellE>README.certificateAuthority</span> file.<br>
+<br>
+6) Run the society.<br>
+Use the CSMART society experiment controller to run the society.<br>
+<br>
+</span><span class=Heading1Char><span style='font-size:24.0pt'>Running a
+security-enhanced node standalone<br>
+</span></span><span style='font-family:"Times New Roman"'>A security-enhanced
+node is executed by using the following script:<br>
+<br>
+<span style='mso-tab-count:1'>            </span>test/bin/<span class=SpellE>SecureNode</span>
+&lt;options&gt;<br>
+<br>
+where &lt;options&gt; are the same command-line arguments as for the Node
+script.<br>
+This script sets environment variables specific to the security services<br>
+and executes the <span class=SpellE>boostrapper</span>, which launches the
+node.<o:p></o:p></span></p>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,164 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="README.adaptivity_files/filelist.xml">
+<title>Adaptivity M&amp;R:</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:LastAuthor>Sebastien Rosset</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>0</o:TotalTime>
+  <o:Created>2003-02-28T02:13:00Z</o:Created>
+  <o:LastSaved>2003-02-28T02:13:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>306</o:Words>
+  <o:Characters>1747</o:Characters>
+  <o:Company>Network Associates, Inc.</o:Company>
+  <o:Lines>14</o:Lines>
+  <o:Paragraphs>4</o:Paragraphs>
+  <o:CharactersWithSpaces>2049</o:CharactersWithSpaces>
+  <o:Version>10.3501</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	mso-fareast-font-family:"Times New Roman";}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 65.95pt 1.0in 65.95pt;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]-->
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<p class=MsoPlainText><span class=SpellE><b style='mso-bidi-font-weight:normal'><u><span
+style='font-family:"Times New Roman"'>Adaptivity</span></u></b></span><b
+style='mso-bidi-font-weight:normal'><u><span style='font-family:"Times New Roman"'>
+M&amp;R:<br>
+</span></u></b><span style='font-family:"Times New Roman"'><br>
+In order to use the <span class=SpellE>adaptivity</span> engine, the following <span
+class=SpellE>plugins</span> will need to be loaded:<br>
+<br>
+<span class=SpellE>org.cougaar.core.adaptivity.AdaptivityEngine</span><br>
+<span class=SpellE>org.cougaar.core.adaptivity.ConditionServiceProvider</span><br>
+<span class=SpellE>org.cougaar.core.adaptivity.OperatingModeServiceProvider</span><br>
+<span class=SpellE>org.cougaar.core.adaptivity.PlaybookManager</span>(&lt;plays
+file&gt;)<br>
+<br>
+If your plays contain operating modes that can be remotely constrained, you
+must include the<br>
+<span class=SpellE>plugin</span> on the remote agent:<br>
+<br>
+<span class=SpellE>org.cougaar.core.adaptivity.OperatingModePolicyManager</span><br>
+<br>
+For example, if Agent A contains the <span class=SpellE>adaptivity</span>
+engine and plays that <span class=SpellE>contrains</span> an operating mode in
+Agent B then Agent B should contain the <span class=SpellE>OperatingModePolicyManager</span>
+<span class=SpellE>plugin</span>.<br>
+<br>
+An optional <span class=SpellE>servlet</span> is available to view <span
+class=SpellE>adaptivity</span> objects (conditions and operating<br>
+modes) and edit operating mode policies.<span style='mso-spacerun:yes'> 
+</span>Include the following <span class=SpellE>plugin</span> in your agent <span
+class=SpellE>ini</span> file:<br>
+<span class=SpellE>org.cougaar.core.servlet.BlackboardServletComponent</span>(<span
+class=SpellE>org.cougaar.core.adaptivity.AEViewerServlet</span>, /<span
+class=SpellE>aeviewer</span>)<br>
+<br>
+AMnRPlays.txt specifies the plays for the Adaptive M&amp;R agent.<span
+style='mso-spacerun:yes'>  </span>To set remote operating modes,<br>
+use [agent.&lt;agent name&gt;] <span class=SpellE>preceeding</span> the
+operating mode name.<span style='mso-spacerun:yes'>  </span>For example, <br>
+[<span class=SpellE>agent.MyAgent</span>]<span class=SpellE>org.cougaar.core.security.monitoring.MY_OPERATING_MODE</span>
+= 1.<span style='mso-spacerun:yes'>  </span>This will causes an <br>
+<span class=SpellE>InterAgentOperationModePolicy</span> to be created and sent
+to <span class=SpellE>MyAgent</span> agent. The <br>
+<span class=SpellE>OperatingModePolicyManager</span> in <span class=SpellE>MyAgent</span>
+will apply the constraint, 1, to MY_OPERATING_MODE. If all<br>
+components reside in the same agent, then [agent.&lt;agent name&gt;] should not
+<span class=SpellE>preceed</span> the operating <br>
+mode name.<span style='mso-spacerun:yes'>  </span>NOTE: &quot;agent&quot; in
+the brackets IS CASE SENSATIVE.<br>
+<br>
+To run the test <span class=SpellE>AdaptiveMnR</span> agent type 'Node <span
+class=SpellE>AdaptiveNode</span>'.<span style='mso-spacerun:yes'> 
+</span>Access <br>
+http://localhost:8800/$AdaptiveMnR/aeviewer to view the conditions and
+operating modes.<span style='mso-spacerun:yes'>  </span>Refresh<br>
+the browser every 10 <span class=SpellE>secs</span> and the conditions should
+change.<span style='mso-spacerun:yes'>  </span>When plays are selected the
+operating<br>
+modes should also change.<br>
+<br>
+The plays are written to with the following assumptions:<br>
+1. The Agent name of the Policy Manager is &quot;<span class=SpellE>DomainManager</span>&quot;.<span
+style='mso-spacerun:yes'>  </span>If it is different, change the plays to<br>
+reflect the Policy Manager agent name.<span style='mso-spacerun:yes'>  </span><br>
+<o:p>&nbsp;</o:p></span></p>
+
+</div>
+
+</body>
+
+</html>
