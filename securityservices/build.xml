@@ -65,7 +65,7 @@
         <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
         <pathelement location="${cougaar.install.path}/sys/silk.jar"/>
         <pathelement location="${cougaar.install.path}/sys/xercesImpl.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/xmlParserAPIs.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/xml-apis.jar"/>
         <!-- don't point to the signed version of jasper-runtime.jar or the jspc task will puke! -->
         <pathelement location="${securityservices.base}/build/jasper/lib/jasper-runtime.jar"/>
         <pathelement location="${securityservices.base}/build/jasper/lib/jasper-compiler.jar"/>
@@ -89,6 +89,7 @@
         <pathelement location="${cougaar.install.path}/lib/aggagent.jar"/>
         <pathelement location="${cougaar.install.path}/lib/community.jar"/>
         <pathelement location="${cougaar.install.path}/lib/planning.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/servicediscovery.jar"/>
         <pathelement location="${cougaar.install.path}/lib/webtomcat.jar"/>
         <pathelement location="${cougaar.install.path}/lib/yp.jar"/>
         <!-- KAoS libraries -->
