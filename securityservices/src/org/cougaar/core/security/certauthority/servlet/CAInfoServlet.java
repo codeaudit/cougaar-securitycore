@@ -35,9 +35,11 @@ import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.util.NodeInfo;
+import org.cougaar.core.security.util.Duration;
 import org.cougaar.core.service.LoggingService;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.ObjectOutputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
