@@ -154,34 +154,34 @@ public class KeyManagement
     // Create directory structure if it hasn't been created yet.
     createDirectoryStructure();
 
-    caX509cert = getCert(caPolicy.alias);
+    caX509cert = findCert(caPolicy.caCommonName);
 
   }
 
-  private X509Certificate getCert(String alias)
+  private X509Certificate findCert(String commonName)
   {
     X509Certificate x509cert;
 
     // Get CA X.509 certificate
     if (standalone) {
-      x509cert = (X509Certificate) caKeyStore.getCert(alias);
+      x509cert = (X509Certificate) caKeyStore.findCert(commonName);
     }
     else {
       // Use Keyring
-      x509cert = (X509Certificate) KeyRing.getCert(alias);
+      x509cert = (X509Certificate) KeyRing.findCert(commonName);
     }
     return x509cert;
   }
 
-  private PrivateKey getPrivateKey(String alias)
+  private PrivateKey getPrivateKey(String commonName)
   {
     PrivateKey privateKey;
     if (standalone) {
-      privateKey = caKeyStore.getPrivateKey(alias);
+      privateKey = caKeyStore.findPrivateKey(commonName);
     }
     else {
       // Use KeyRing
-       privateKey = KeyRing.getPrivateKey(alias);
+       privateKey = KeyRing.findPrivateKey(commonName);
     }
     return privateKey;
   }
@@ -555,7 +555,7 @@ public class KeyManagement
     }
 
     // Get Signature object for certificate authority
-    PrivateKey caPrivateKey = getPrivateKey(caPolicy.alias);
+    PrivateKey caPrivateKey = getPrivateKey(caPolicy.caCommonName);
     Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
     // caSignature.initSign(caPrivateKey);
 
@@ -875,9 +875,10 @@ public class KeyManagement
 	// km.printPkcs7Request(args[1]);
       }
       else if (option.equals("-1")) {
-	System.out.println("Using keyring" );
-	PrivateKey pk = KeyRing.getPrivateKey(args[1]);
-	Certificate c = KeyRing.getCert(args[1]);
+	System.out.println("Search private key for " + args[1]);
+	PrivateKey pk = KeyRing.findPrivateKey(args[1]);
+	System.out.println("Search cert for " + args[1]);
+	Certificate c = KeyRing.findCert(args[1]);
 	System.out.println("Certificate is : " + c);
       }
     } catch (Exception e) {
