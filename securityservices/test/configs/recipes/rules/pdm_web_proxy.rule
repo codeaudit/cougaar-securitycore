@@ -1,0 +1,12 @@
+####################################################
+# Rule to insert JaasAgentBinder
+
+plugin = "org.cougaar.core.security.policy.webproxy.WebProxySecurityComponent"
+
+society.each_node do |node|
+  node.add_component do |c|
+      c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+      c.classname = plugin
+  end
+end
+
