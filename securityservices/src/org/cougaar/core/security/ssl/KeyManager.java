@@ -40,6 +40,7 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import javax.net.ssl.X509KeyManager;
+import java.security.cert.CertificateException;
 
 public class KeyManager implements X509KeyManager, CertValidityListener {
   protected KeyRingService keyRing = null;
@@ -96,6 +97,26 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
   }
 
   public synchronized void updateKeystore() {
+    if (keyRing == null) return;
+
+    if (nodex509 != null) {
+      // just do check trust if there is already a certificate
+      // avoid switching to a new certificate that is not neccessary
+      // which will cause SSL session to be reset
+      try {
+        keyRing.checkCertificateTrust(nodex509);
+        if (log.isInfoEnabled()) {
+          log.info("updateKeystore - certificate " + nodealias + " still valid, not switching to new certificate. ");
+        }
+
+        return;
+      } catch (CertificateException cex) {
+        if (log.isInfoEnabled()) {
+          log.info("updateKeystore - certificate " + nodealias + " no longer valid: " + cex);
+        }
+      }
+    }
+
     // is the nodeinfo way of retrieving nodename from system property appropriate?
     nodename = getName();
 
@@ -104,9 +125,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     // use DirectoryKeyStore's functions (it assumes there is only one matching
     // between commonName and cert/alias)
     
-    if(keyRing!=null) {
-      nodealias =  keyRing.findAlias(nodename);
-    }
+    nodealias =  keyRing.findAlias(nodename);
     if (log.isDebugEnabled()) {
       log.debug("updateKeystore - Node name: " + nodename +
 		" - Node alias: " + nodealias);
@@ -140,6 +159,13 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 	s = s + certChain[0];
       }
       log.info(s);
+/*
+      try {
+        throw new Throwable();
+      } catch (Throwable t) {
+        log.info("Stack ", t);
+      }
+*/
     }
   }
 
