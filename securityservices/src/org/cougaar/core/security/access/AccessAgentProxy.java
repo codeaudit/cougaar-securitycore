@@ -501,6 +501,12 @@ public class AccessAgentProxy
         }
       }
     }
+
+    if (newLen == 0) {
+      // We've stripped the entire thing. Don't send this message.
+      return true;
+    }
+
     if (newLen != len) {
       Directive newDirectives[] = new Directive[newLen];
       int j = 0;
