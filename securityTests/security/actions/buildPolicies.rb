@@ -162,7 +162,6 @@ END
 
 
 END
-          file.write("/\\$.*/policyAdmin PolicyServlet\n")
           run.society.each_agent do |agent|
             agent.each_facet(:role) do |facet|
               if facet[:role] == $facetPolicyServletManagerAgent then
@@ -171,6 +170,7 @@ END
               end
             end
           end
+          file.write("/\\$.*/policyAdmin PolicyServlet\n")
           file.write("/\\$.*/.* OtherServlets\n")
           file.write("/.* OtherServlets\n")
         }
