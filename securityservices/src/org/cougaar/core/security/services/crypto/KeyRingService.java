@@ -88,6 +88,9 @@ public interface KeyRingService extends Service {
   public long getSleeptime();
   public void setSleeptime(long sleeptime);
 
+  public void removeEntry(String commonName);
+  public void setKeyEntry(PrivateKey key, X509Certificate cert);
+
   public byte[] protectPrivateKey(PrivateKey privKey,
 				  Certificate cert,
 				  PrivateKey signerPrivKey,
