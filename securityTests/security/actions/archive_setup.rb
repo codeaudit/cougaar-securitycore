@@ -8,6 +8,7 @@ module Cougaar
 	  "#{CIP}/workspace",
 	  "#{CIP}/workspace/auditlogs",
 	  "#{CIP}/workspace/test",
+	  "#{CIP}/workspace/test/stacktraces",
 	  "#{CIP}/workspace/security",
 	  "#{CIP}/workspace/security/keystores",
 	  "#{CIP}/workspace/security/mopresults",
