@@ -135,18 +135,18 @@ public class CryptoManagerServiceImpl
 
     while (it.hasNext()) {
       try {
-	java.security.cert.Certificate c =
-	  ((CertificateStatus)it.next()).getCertificate();
+        CertificateStatus cs = (CertificateStatus)it.next();
+	java.security.cert.Certificate c = cs.getCertificate();
     // filter out those non valid certificates first
-    //        System.out.println("Cert: " + c + " : " + new Date());
         if (expiredOk) {
           try {
             keyRing.checkCertificateTrust((X509Certificate)c);
           } catch (CertificateException ce) {
             if (!(ce instanceof CertificateExpiredException))
               continue;
+            if (log.isDebugEnabled())
+              log.debug("Certificate has expired." + cs.getCertificateAlias());
           }
-            System.out.println("Certificate has expired.");
         }
 
 	PublicKey pk = c.getPublicKey();
