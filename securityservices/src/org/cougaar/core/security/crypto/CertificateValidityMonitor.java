@@ -51,6 +51,7 @@ public class CertificateValidityMonitor
   static Hashtable certListeners = new Hashtable();
   static List validityListeners = new ArrayList();
   static List availListeners = new ArrayList();
+  static List invalidatedNames = new ArrayList();
 
   long sleep_time = 60L * 60L * 1000L; // checking every hour
 
@@ -141,6 +142,11 @@ public class CertificateValidityMonitor
         String commonName = (String)enum.nextElement();
         if (!commonName.equals(NodeInfo.getNodeName())) {
           //checkValidity(commonName);
+
+          if (isInvalidated(commonName)) {
+            log.warn(commonName + " has been revoked, not generating request to renew certificate");
+            return;
+          }
           keyRing.checkExpiry(commonName);
         }
       }
@@ -167,8 +173,14 @@ public class CertificateValidityMonitor
         validityListeners.get(i);
       listener.invalidate(commonName);
     }
+
+    certListeners.remove(commonName);
+    invalidatedNames.add(commonName);
   }
 
+  public boolean isInvalidated(String commonName) {
+    return invalidatedNames.contains(commonName);
+  }
 
   public void updateCertificate(String commonName) {
     for (int i = 0; i < availListeners.size(); i++) {
