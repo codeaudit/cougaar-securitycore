@@ -47,6 +47,11 @@ import org.cougaar.core.component.ServiceRevokedEvent;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.crypto.MultipleEntryException;
 import org.cougaar.core.security.crlextension.x509.extensions.*;
 
@@ -58,10 +63,12 @@ public class OpenLdapCertDirectoryService
   public static final String revoked="3";
 
   private KeyRingService ksr;
+  private ConfigParserService configParser;
 
-  public OpenLdapCertDirectoryService(String aURL, ServiceBroker sb)
+  public OpenLdapCertDirectoryService(String aURL, ServiceBroker sb,
+				      String caDN)
   {
-    super(aURL, sb);
+    super(aURL, sb, caDN);
 
     // Retrieve KeyRing service
     ksr = (KeyRingService)
@@ -89,10 +96,38 @@ public class OpenLdapCertDirectoryService
       return;
     }
     try {
-      // TODO: secure authentication.
-      context.addToEnvironment(Context.SECURITY_PRINCIPAL,
-			       "cn=manager, dc=cougaar, dc=org");
-      context.addToEnvironment(Context.SECURITY_CREDENTIALS, "secret");
+      String ldapPrincipal = null;
+      String ldapCredential = null;
+      configParser = (ConfigParserService)
+        serviceBroker.getService(this,
+		    ConfigParserService.class,
+		    null);
+
+      if (!configParser.isCertificateAuthority()) {
+	SecurityPolicy[] sp =
+	  configParser.getSecurityPolicies(CryptoClientPolicy.class);
+	CryptoClientPolicy cryptoClientPolicy =
+	  (CryptoClientPolicy) sp[0];
+	ldapPrincipal = cryptoClientPolicy.getTrustedCaPolicy()[0].certDirectoryPrincipal;
+	ldapCredential = cryptoClientPolicy.getTrustedCaPolicy()[0].certDirectoryCredential;
+      }
+      else {
+	CaPolicy caPolicy = configParser.getCaPolicy(caDistinguishedName);
+	if (caPolicy == null) {
+	  log.error("Unable to get CA policy");
+	}
+	else {
+	  ldapPrincipal = caPolicy.ldapPrincipal;
+	  ldapCredential = caPolicy.ldapCredential;
+	}
+      }
+      if (log.isDebugEnabled()) {
+	log.debug("About to connect to LDAP using " + ldapPrincipal
+		  + " principal");
+      }
+      context.addToEnvironment(Context.SECURITY_PRINCIPAL, ldapPrincipal);
+      context.addToEnvironment(Context.SECURITY_CREDENTIALS, ldapCredential);
+
       if (bURL != aURL) { // can compare with != since it is assigned above
 	  createDcObjects(dn);
 	  // reset the context to point to the child
@@ -398,7 +433,7 @@ public class OpenLdapCertDirectoryService
     return status;
   }
 
-  public X509CRL  getCRL(String distingushName)
+  public X509CRL getCRL(String distingushName)
   {
     X509CRL crl=null;
     StringBuffer  filter=new StringBuffer();
@@ -417,9 +452,8 @@ public class OpenLdapCertDirectoryService
       }
     }
     catch (NamingException nexp) {
-      if(log.isDebugEnabled()) {
-	log.debug("could not find entry with filter in getCRL(String distingushName) function of OpenLdap  :"+ filter.toString());
-	nexp.printStackTrace();
+      if(log.isWarnEnabled()) {
+	log.warn("Could not find CRL entry with filter:"+ filter.toString() + ". Reason: " + nexp);
       }
       return null;
     }
@@ -438,6 +472,11 @@ public class OpenLdapCertDirectoryService
 				 int type,
 				 PrivateKey privatekey)
     throws javax.naming.NamingException {
+    if (!initializationOK) {
+      String msg = "Unable to publish Certificate. Root cause:" + rootCauseMsg;
+      log.error(msg);
+      throw new RuntimeException(msg);
+    }
     Attributes set = new BasicAttributes(true);
     String dnname = cert.getSubjectDN().getName();
     if(log.isDebugEnabled()) {
@@ -812,32 +851,26 @@ public class OpenLdapCertDirectoryService
     ModificationItem mit[]=new ModificationItem[1];
     ModificationItem miti=new ModificationItem(DirContext.REPLACE_ATTRIBUTE,attr1);
     mit[0]=miti;
-    if(log.isDebugEnabled())
+    if(log.isDebugEnabled()) {
       log.debug("going to modify attribute in OpenLdap for user binding name :"+ bindingname_revokedcert);
+    }
     context.modifyAttributes(bindingname_revokedcert,mit);
     byte[] crldata=crl.getEncoded();
     if(log.isDebugEnabled()) {
-      log.debug("!!!!!!!!!!!!!!!!!!!! Recreating crl from byte data before updating LDAP !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-      log.debug("");
-       log.debug("");
-        log.debug("");
-	 log.debug("");
-      X509CRL crl1=null;
-       CertificateFactory cf = CertificateFactory.getInstance("X.509");
-       ByteArrayInputStream bais=null ;
-       // byte []cacert=(byte [])objectclassattribute.get();
-       bais = new ByteArrayInputStream(crldata);
-       Collection crls =cf.generateCRLs(bais);
-       Iterator i = crls.iterator();
-       if (i.hasNext()) {
-	 crl1 = (X509CRL) i.next();
-       }
-       log.debug(" recreated cRL is :"+crl1.toString());
-        log.debug("!!!!!!!!!!!!!!!!!!!! Recreation of crl from byte data before updating LDAP  over !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-	 log.debug("");
-       log.debug("");
-        log.debug("");
-	 log.debug("");
+      log.debug("Recreating crl from byte data before updating LDAP");
+    }
+    X509CRL crl1=null;
+    CertificateFactory cf = CertificateFactory.getInstance("X.509");
+    ByteArrayInputStream bais=null ;
+    // byte []cacert=(byte [])objectclassattribute.get();
+    bais = new ByteArrayInputStream(crldata);
+    Collection crls =cf.generateCRLs(bais);
+    Iterator i = crls.iterator();
+    if (i.hasNext()) {
+      crl1 = (X509CRL) i.next();
+    }
+    if(log.isDebugEnabled()) {
+      log.debug("Recreation of crl from byte data before updating LDAP over: " + crl1.toString());
     }
 
     attr1=new BasicAttribute( CERTIFICATEREVOCATIONLIST_ATTRIBUTE,crldata);
@@ -897,12 +930,7 @@ public class OpenLdapCertDirectoryService
 		s3 = s1;
 	      }
 	    if(log.isDebugEnabled()) {
-	      log.debug(" ");
-	       log.debug(" ");
-	        log.debug(" ");
-	      log.debug("!!!!!!!!!!!!!!!!  got extension :"+s3);
-	       log.debug(" ");
-	        log.debug(" ");
+	      log.debug("Got extension :"+s3);
 	    }
 	    extensions.set(s3,ext);
 

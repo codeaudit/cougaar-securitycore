@@ -258,6 +258,7 @@ final public class KeyRing
         CaPolicy capolicy=configParser.getCaPolicy(caDN);
         param.ldapServerUrl =capolicy.ldapURL;
         param.ldapServerType =capolicy.ldapType;
+	param.defaultCaDn = caDN;
       }
     }
     

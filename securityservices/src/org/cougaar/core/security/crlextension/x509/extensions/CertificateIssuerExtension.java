@@ -53,7 +53,6 @@ public class CertificateIssuerExtension extends Extension
       super.extensionValue = null;
       return;
     }
-    System.out.println(" in encode of CertificateIssuerExtension");
     DerOutputStream deroutputstream = new DerOutputStream();
     try {
       issuerName.encode(deroutputstream);

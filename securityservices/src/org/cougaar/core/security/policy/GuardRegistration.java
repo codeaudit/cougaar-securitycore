@@ -135,10 +135,10 @@ public abstract class GuardRegistration
     throws EnforcerRegistrationException {
     //GuardRetriever guardRetriever;
 
-    if (log.isDebugEnabled() == true) {
+    if (log.isInfoEnabled() == true) {
       // Register the policy enforcer with the guard.
-      log.debug("Registering PolicyEnforcer " +
-		getName() + " to KAoS guard for " + getPolicyType());
+      log.info("Registering PolicyEnforcer " +
+	       getName() + " to KAoS guard for " + getPolicyType());
     }
 
     // Make sure policy type has been set
@@ -168,10 +168,10 @@ public abstract class GuardRegistration
 				  List policies)
   //throws PolicyMessageException
   {
-    if (log.isDebugEnabled()) {
-      log.debug("GuardRegistration. Received " +
-		policies.size() + " policy messages. Type="
-		+ updateType);
+    if (log.isInfoEnabled()) {
+      log.info("GuardRegistration. Received " +
+	       policies.size() + " policy messages. Type="
+	       + updateType);
     }
 
     Iterator it = policies.iterator();
@@ -205,17 +205,17 @@ public abstract class GuardRegistration
     policyDescription = (String) aMsg.getDescription();
     policyType =        (String) aMsg.getType();
  
-    if (log.isDebugEnabled()) {
-      log.debug("Policy Message: " + aMsg.toString());
-      log.debug("policyID:" + policyID);
-      log.debug("policyName:" + policyName);
-      log.debug("policyDescription:" + policyDescription);
-      log.debug("policyScope:" + policyScope);
-      log.debug("policySubjectID:" + policySubjectID);
-      log.debug("policySubjectName:" + policySubjectName);
-      log.debug("policyTargetID:" + policyTargetID);
-      log.debug("policyTargetName:" + policyTargetName);
-      log.debug("policyType:" + policyType);
+    if (log.isInfoEnabled()) {
+      log.info("Policy Message: " + aMsg.toString());
+      log.info("policyID:" + policyID);
+      log.info("policyName:" + policyName);
+      log.info("policyDescription:" + policyDescription);
+      log.info("policyScope:" + policyScope);
+      log.info("policySubjectID:" + policySubjectID);
+      log.info("policySubjectName:" + policySubjectName);
+      log.info("policyTargetID:" + policyTargetID);
+      log.info("policyTargetName:" + policyTargetName);
+      log.info("policyType:" + policyType);
     }
 
     if (attributes == null) {
@@ -233,8 +233,8 @@ public abstract class GuardRegistration
       String attrName = attrMsg.getName();
       Object attrValue = attrMsg.getValue();
 
-      if (log.isDebugEnabled()) {
-	log.debug("Attr: " + attrName + " - Attr class:"
+      if (log.isInfoEnabled()) {
+	log.info("Attr: " + attrName + " - Attr class:"
 		  + attrValue.getClass().getName());
       }
 
@@ -286,8 +286,8 @@ public abstract class GuardRegistration
 				  String policyTargetName,
 				  String policyType)
   {
-    if (log.isDebugEnabled()) {
-      log.debug("policyTypeInMessage:" + attribute);
+    if (log.isInfoEnabled()) {
+      log.info("policyTypeInMessage:" + attribute);
     }
     if(attribute instanceof SecurityPolicy) {
       SecurityPolicy policy = (SecurityPolicy) attribute;
@@ -326,6 +326,9 @@ public abstract class GuardRegistration
 				String policyTargetName,
 				String policyType)
   {
+    if (log.isInfoEnabled()) {
+      log.info("Received XML policy");
+    }
     if (!(attribute instanceof Document)) return;
     Document doc = (Document) attribute;
     Class pt = null;

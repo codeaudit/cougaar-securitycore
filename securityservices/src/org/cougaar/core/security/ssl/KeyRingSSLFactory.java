@@ -85,11 +85,10 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
       if (_ctx == null) {
 	RuntimeException e = new RuntimeException("SSL Context is null");
 	if (_log != null) {
-	  _log.error("SSL Context is null", e);
+	  _log.error("SSL Context is null. Crypto service not initialized properly", e);
 	}
 	else {
-	  System.err.println("SSL Context is null");
-	  e.printStackTrace();
+	  System.err.println("SSL Context is null. Crypto service not initialized properly");
 	}
         throw e;
       }

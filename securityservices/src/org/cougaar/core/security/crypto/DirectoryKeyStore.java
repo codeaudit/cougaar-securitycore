@@ -162,11 +162,13 @@ public class DirectoryKeyStore
     // LDAP certificate directory
     if (_initializing) {
       _initializing = false;
+      
       certificateFinder =
         CertDirectoryServiceFactory.
         getCertDirectoryServiceClientInstance(param.ldapServerType,
                                               param.ldapServerUrl,
-                                              param.serviceBroker);
+                                              param.serviceBroker,
+					      param.defaultCaDn);
       if(certificateFinder == null) {
         if (!param.isCertAuth) {
           if (log.isErrorEnabled()) {
@@ -664,7 +666,7 @@ public class DirectoryKeyStore
    */
   public void installPkcs7Reply(String alias, InputStream inputstream)
     throws CertificateException, KeyStoreException, NoSuchAlgorithmException,
-	   UnrecoverableKeyException
+    UnrecoverableKeyException, IOException
   {
 
     SecurityManager security = System.getSecurityManager();
@@ -2844,7 +2846,8 @@ public class DirectoryKeyStore
     for (int i = 0; i < tc.length; i++) {
       if (cname.equals(tc[i].caDN)) {
         return CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-          tc[i].certDirectoryType, tc[i].certDirectoryUrl, param.serviceBroker);
+          tc[i].certDirectoryType, tc[i].certDirectoryUrl, param.serviceBroker,
+	  tc[i].caDN);
       }
     }
     return null;
@@ -2868,7 +2871,7 @@ public class DirectoryKeyStore
   */
 
   /**
-   * Check whether the certificate comes from the local CA
+   * Return an LDAP certificate finder where the X.509 certificate of the entity can be found.
    */
   public CertDirectoryServiceClient getCertDirectoryServiceClient(String cname) {
     String cdUrl = null;
@@ -2899,7 +2902,7 @@ public class DirectoryKeyStore
         if (cdType != null && cdUrl != null) {
 	  CertDirectoryServiceClient cdsc =
 	    CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-	      cdType.intValue(), cdUrl, param.serviceBroker);
+	      cdType.intValue(), cdUrl, param.serviceBroker, param.defaultCaDn);
           return cdsc;
 	}
       }

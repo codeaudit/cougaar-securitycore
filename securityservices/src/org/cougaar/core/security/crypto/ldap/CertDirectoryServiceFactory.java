@@ -33,7 +33,8 @@ public class CertDirectoryServiceFactory
   //private static boolean log.isDebugEnabled() = false;
 
   public static CertDirectoryServiceClient getCertDirectoryServiceClientInstance(
-					      int serverType, String serverUrl, ServiceBroker sb)
+    int serverType, String serverUrl, ServiceBroker sb,
+    String caDN)
   {
     LoggingService log = (LoggingService)
       sb.getService(new CertDirectoryServiceFactory(),
@@ -41,10 +42,10 @@ public class CertDirectoryServiceFactory
     CertDirectoryServiceClient ldapClient = null;
     switch (serverType) {
     case TrustedCaPolicy.COUGAAR_OPENLDAP:
-      ldapClient = new OpenLdapCertDirectoryService(serverUrl, sb);
+      ldapClient = new OpenLdapCertDirectoryService(serverUrl, sb, caDN);
       break;
     case TrustedCaPolicy.NETTOOLS:
-      ldapClient = new NetToolsCertDirectoryService(serverUrl, sb);
+      ldapClient = new NetToolsCertDirectoryService(serverUrl, sb, caDN);
       break;
     default:
       if (log.isWarnEnabled()) {
@@ -56,7 +57,8 @@ public class CertDirectoryServiceFactory
 
   public static CertDirectoryServiceCA getCertDirectoryServiceCAInstance(
 					      int serverType, String serverUrl,
-					      ServiceBroker sb)
+					      ServiceBroker sb,
+					      String caDN)
   {
     CertDirectoryServiceCA instance = null;
     LoggingService log = (LoggingService)
@@ -65,7 +67,7 @@ public class CertDirectoryServiceFactory
 
     switch (serverType) {
     case TrustedCaPolicy.COUGAAR_OPENLDAP:
-      instance = new OpenLdapCertDirectoryService(serverUrl, sb);
+      instance = new OpenLdapCertDirectoryService(serverUrl, sb, caDN);
       break;
     default:
       // Net Tools does not support CA functions programmatically.

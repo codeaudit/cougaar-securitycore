@@ -50,6 +50,9 @@ public class DirectoryKeyStoreParameters {
   // Run within a node or used as utility class by a CA?
   public boolean isCertAuth;
 
+  /** The default CA distinguished name. */
+  public String defaultCaDn;
+
   /** Used to get services that DirectoryService needs
    */
   public ServiceBroker serviceBroker;

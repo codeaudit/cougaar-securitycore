@@ -293,7 +293,7 @@ public class CougaarSecurityManager extends SecurityManager
 
       if (pd != null) {
 	cs = pd.getCodeSource();
-	if (cs != null) {
+	if (cs != null && cs.getLocation() != null) {
 	  location = cs.getLocation().toString();
 	}
       }

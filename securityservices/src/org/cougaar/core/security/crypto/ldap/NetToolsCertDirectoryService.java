@@ -42,10 +42,10 @@ public class NetToolsCertDirectoryService extends CertDirectoryService
   implements CertDirectoryServiceClient
 {
 
-  public NetToolsCertDirectoryService(String aURL, ServiceBroker sb) 
+  public NetToolsCertDirectoryService(String aURL, ServiceBroker sb, String caDN) 
     throws IllegalArgumentException
   {
-    super(aURL, sb);
+    super(aURL, sb, caDN);
   }
 
   public LdapEntry getCertificate(SearchResult result) {

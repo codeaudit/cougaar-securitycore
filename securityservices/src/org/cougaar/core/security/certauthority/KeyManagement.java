@@ -221,7 +221,7 @@ public class KeyManagement
       }
       caOperations =
 	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
-	  caPolicy.ldapType, caPolicy.ldapURL, serviceBroker);
+	  caPolicy.ldapType, caPolicy.ldapURL, serviceBroker, caDN);
       if (caOperations == null) {
 	throw new RuntimeException("Unable to communicate with LDAP server");
       }

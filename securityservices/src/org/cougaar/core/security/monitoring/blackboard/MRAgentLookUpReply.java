@@ -109,5 +109,4 @@ public class MRAgentLookUpReply implements XMLSerializable  {
     return buff.toString();
   }
   
-
 }

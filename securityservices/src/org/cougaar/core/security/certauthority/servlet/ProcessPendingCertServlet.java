@@ -105,7 +105,8 @@ public class ProcessPendingCertServlet extends  HttpServlet
       caOperations =
 	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
 				       caPolicy.ldapType, caPolicy.ldapURL,
-				       support.getServiceBroker());
+				       support.getServiceBroker(),
+				       cadnname);
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);

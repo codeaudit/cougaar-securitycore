@@ -116,8 +116,8 @@ public class PendingCertDetailsServlet extends  HttpServlet
     
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-				       caPolicy.ldapType, caPolicy.ldapURL,
-				       support.getServiceBroker());
+	  caPolicy.ldapType, caPolicy.ldapURL,
+	  support.getServiceBroker(), cadnname);
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);

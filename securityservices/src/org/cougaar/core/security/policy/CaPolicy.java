@@ -79,6 +79,16 @@ public class CaPolicy
    */
   public String ldapURL;
 
+  /** The principal used to establish a connection with the certificate
+   *  directory service.
+   */
+  public String ldapPrincipal;
+
+  /** The credential used to establish a connection with the certificate
+   *  directory service.
+   */
+  public String ldapCredential;
+
   /** The type of LDAP directory where all certificates are published.
    */
   public int ldapType;

@@ -62,15 +62,22 @@ public abstract class CertDirectoryService
     "com.sun.jndi.ldap.LdapCtxFactory";
   protected ServiceBroker serviceBroker;
   protected LoggingService log;
+  /** The reason why the connection to the LDAP server was not successful */
+  protected String rootCauseMsg;
 
   //protected boolean log.isDebugEnabled() = false;
 
+  protected String caDistinguishedName;
+
   /** Creates new CertDirectoryService */
 
-  public CertDirectoryService(String aURL, ServiceBroker sb) 
+  public CertDirectoryService(String aURL, ServiceBroker sb, 
+			      String caDN)
     throws IllegalArgumentException
   {
     serviceBroker = sb;
+    caDistinguishedName = caDN;
+
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
@@ -96,6 +103,7 @@ public abstract class CertDirectoryService
       String host;
       if (slashIndex == -1) slashIndex = aURL.length();
       if (colonIndex == -1 || colonIndex > slashIndex) {
+	String oldURL = aURL;
         // there is no default port -- change the default
         // port to 636 for ldaps
         if (slashIndex == 0) {
@@ -104,8 +112,10 @@ public abstract class CertDirectoryService
         } else {
           host = aURL.substring(8,slashIndex);
         }
-        aURL = "ldap://" + host + ":636" + 
-          aURL.substring(slashIndex);
+        aURL = "ldap://" + host + ":636" + aURL.substring(slashIndex);
+	if (log.isWarnEnabled()) {
+	  log.warn("No default port has been set. original URL: " + oldURL + ". New URL: " + aURL);
+	}
       } else {
         aURL = "ldap://" + aURL.substring(8);
       }
@@ -132,11 +142,11 @@ public abstract class CertDirectoryService
       initializationOK = true;
     }
     catch(NamingException nexp) {
+      rootCauseMsg = "Unable to connect to LDAP server: "
+	+ ldapServerUrl
+	+ ". Reason: " + nexp + ". Using local keystore only.";
       if (log.isWarnEnabled()) {
-	log.warn("Warning:can't connect to LDAP server: "
-		 + ldapServerUrl);
-	log.warn("Reason: " + nexp + ". Use local keystore only.");
-	//nexp.printStackTrace();
+	log.warn(rootCauseMsg, nexp);
       }
     }
   }
@@ -203,12 +213,11 @@ public abstract class CertDirectoryService
 	results=context.search(ldapServerUrl, filter, constraints);
       }
     }
-    catch(NamingException searchexp) {
-      log.debug("search failed");
-      searchexp.printStackTrace();
-    }
     catch(Exception exp) {
-      exp.printStackTrace();
+      if (log.isInfoEnabled()) {
+	log.info("Search failed for filter:" + filter + ". Ldap URL:" +
+		 ldapServerUrl + ". Reason: " + exp);
+      }
     }
     if(log.isDebugEnabled()) {
       log.debug("returning results for filter :"+filter);

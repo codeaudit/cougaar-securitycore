@@ -48,6 +48,16 @@ public class TrustedCaPolicy {
    */ 
   public String certDirectoryUrl;
 
+  /** The principal used to establish a connection with the certificate
+   *  directory service.
+   */
+  public String certDirectoryPrincipal;
+
+  /** The credential used to establish a connection with the certificate
+   *  directory service.
+   */
+  public String certDirectoryCredential;
+
   /** The type of certificate directory service
    *  (See below for a list of currently supported values)
    */

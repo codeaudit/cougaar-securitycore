@@ -242,6 +242,10 @@ public class ConfigParserServiceImpl
     if (log.isDebugEnabled()) {
       log.debug("Requesting CA policy for " + aDN);
     }
+    if (aDN == null) {
+      log.error("CA distinguished name is null", new Throwable());
+      return null;
+    }
     try {
       SecurityPolicy[] policy = getSecurityPolicies(CaPolicy.class);
       X500Name x500Name = null;

@@ -233,13 +233,21 @@ public class CRLCache implements Runnable
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
     crlIssuerPublickey=crlIssuerCert.getPublicKey();
     if(certificateFinder== null) {
-      if(log.isDebugEnabled())
-	log.debug(" Error !!!!! No  certificateFinder present in Directory keystore in update CRL :"+distingushname);
+      if(log.isWarnEnabled())
+	log.warn("No certificateFinder present in Directory keystore in update CRL :"+distingushname);
     }
-    crl=certificateFinder.getCRL(distingushname);
+    try {
+      crl=certificateFinder.getCRL(distingushname);
+    }
+    catch (Exception e) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to get CRL for " + distingushname + ". Will retry later");
+      }
+      return;
+    }
     if(crl==null) {
-      if(log.isDebugEnabled()) {
-	log.debug("Warning !!!!  No crl present for :"+distingushname);
+      if(log.isWarnEnabled()) {
+	log.warn("No crl present for:"+distingushname + ". Will retry later");
       }
       return;
     }

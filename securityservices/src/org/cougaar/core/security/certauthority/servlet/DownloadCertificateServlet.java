@@ -110,8 +110,8 @@ public class DownloadCertificateServlet extends  HttpServlet
       caPolicy = configParser.getCaPolicy(cadnname);
       certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-				       caPolicy.ldapType, caPolicy.ldapURL,
-				       support.getServiceBroker());
+	  caPolicy.ldapType, caPolicy.ldapURL,
+	  support.getServiceBroker(), cadnname);
     } catch (Exception e) {
       res.getWriter().print("Unable to read policy file: " + e);
       return;

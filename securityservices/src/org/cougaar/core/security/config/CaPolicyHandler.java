@@ -68,6 +68,8 @@ public class CaPolicyHandler
   private static final String CA_DN_ELEMENT               = "distinguishedName";
   private static final String CA_LDAP_URL_ELEMENT         = "ldapURL";
   private static final String CA_LDAP_TYPE_ELEMENT        = "ldapType";
+  private static final String CA_LDAP_PRINCIPAL_ELEMENT   = "ldapPrincipal";
+  private static final String CA_LDAP_CREDENTIAL_ELEMENT  = "ldapCredential";
 
   private static final String CA_CERTVERSION_ELEMENT      = "certVersion";
   private static final String CA_ALGORITHMID_ELEMENT      = "algorithmId";
@@ -137,10 +139,16 @@ public class CaPolicyHandler
     */
 
     // Certificate Directory Service
-    if (localName.equals(CA_LDAP_URL_ELEMENT)) {
+    else if (localName.equals(CA_LDAP_URL_ELEMENT)) {
       caPolicy.ldapURL = getContents();
     }
-    if (localName.equals(CA_LDAP_TYPE_ELEMENT)) {
+    else if (localName.equals(CA_LDAP_PRINCIPAL_ELEMENT)) {
+      caPolicy.ldapPrincipal = getContents();
+    }
+    else if (localName.equals(CA_LDAP_CREDENTIAL_ELEMENT)) {
+      caPolicy.ldapCredential = getContents();
+    }
+    else if (localName.equals(CA_LDAP_TYPE_ELEMENT)) {
       String type = getContents();
       if (type != null) {
 	if (type.equalsIgnoreCase("NetTools")) {
@@ -158,10 +166,10 @@ public class CaPolicyHandler
     }
 
     // Certificate Policy
-    if (localName.equals(CA_CERTVERSION_ELEMENT)) {
+    else if (localName.equals(CA_CERTVERSION_ELEMENT)) {
       caPolicy.certVersion = Integer.valueOf(getContents()).intValue();
     }
-    if (localName.equals(CA_ALGORITHMID_ELEMENT)) {
+    else if (localName.equals(CA_ALGORITHMID_ELEMENT)) {
       /** Acceptable algorithm ID:
        *  md2WithRSAEncryption_oid
        *  md5WithRSAEncryption_oid
@@ -187,7 +195,7 @@ public class CaPolicyHandler
       }
     }
 
-    if (localName.equals(CA_CRL_ALGORITHMID_ELEMENT)) {
+    else if (localName.equals(CA_CRL_ALGORITHMID_ELEMENT)) {
       String crlalgIdString = getContents();
       Field crlalgIdField = null;
       try {
@@ -202,26 +210,26 @@ public class CaPolicyHandler
 	log.error("Cannot parse CRL algorithm");
       }
     }
-    if (localName.equals(CA_KEYSIZE_ELEMENT)) {
+    else if (localName.equals(CA_KEYSIZE_ELEMENT)) {
       caPolicy.keySize = Integer.valueOf(getContents()).intValue();
     }
-    if (localName.equals(CA_CERTVALIDITY_ELEMENT)) {
+    else if (localName.equals(CA_CERTVALIDITY_ELEMENT)) {
       Duration duration = new Duration(serviceBroker);
       duration.parse(getContents());
       caPolicy.howLong = duration.getDuration();
     }
-    if (localName.equals(CA_TIMEENVELOPE_ELEMENT)) {
+    else if (localName.equals(CA_TIMEENVELOPE_ELEMENT)) {
       Duration duration = new Duration(serviceBroker);
       duration.parse(getContents());
       caPolicy.timeEnvelope = duration.getDuration();
     }
-    if (localName.equals(CA_REQUIREPENDING_ELEMENT)) {
+    else if (localName.equals(CA_REQUIREPENDING_ELEMENT)) {
       String strPending = getContents();
       caPolicy.requirePending = false;
       if (strPending != null && strPending.equals("true"))
 	caPolicy.requirePending = true;
     }
-    if (localName.equals(CA_NODE_IS_SIGNER_ELEMENT)) {
+    else if (localName.equals(CA_NODE_IS_SIGNER_ELEMENT)) {
       String val = getContents();
       caPolicy.nodeIsSigner = false;
       if (val.equalsIgnoreCase("true")) {
