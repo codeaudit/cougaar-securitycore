@@ -78,7 +78,7 @@ public class EventHolder extends Observable  {
     //if(!atleastoneObserver)
     //atleastoneObserver=true;
     int events_size = 0;
-    synchronize (events) {
+    synchronized (events) {
       events_size = events.size();
     }
     if((_instance.countObservers()>0)&&(events_size > 0)){
