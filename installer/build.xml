@@ -327,10 +327,18 @@
     <!-- Check out (or update if module has already been checked out) a security services module
          The name of the module should be provided in the "build.module.name" property. -->
     <target name="update-module">
-       <property name="cvs.command" value="-Q checkout"/>
-       <available file="${securityservices.base}/../${build.module.name}" type="dir"
-                  property="cvs.command" value="-q update -d">
-       </available>
+       <if>
+          <available file="${securityservices.base}/../${build.module.name}" type="dir"/>
+          <then>
+            <!-- Module has been checked out. Update module.
+                 TODO: handle tags. -->
+            <property name="cvs.command" value="-q update -d"/>
+          </then>
+          <else>
+            <!-- Module has not been checked out. Check out module -->
+            <property name="cvs.command" value="-Q checkout"/>
+          </else>
+       </if>
        <echo message="Updating or checking out: ${securityservices.base}/../${build.module.name}"/>
        <cvs cvsRoot="${env.CVSROOT}" cvsRsh="${env.CVS_RSH}"
             command="${cvs.command}" package="${build.module.name}"
@@ -378,13 +386,30 @@
            <antcall target="install"/>
          </case>
          <case value="7">
+           <for list="${module.build.list}" delimiter="," param="build.module.name">
+             <sequential>
+               <ant antfile="build.xml"
+                    dir="${securityservices.base}/../@{build.module.name}"
+                    inheritAll="false"
+                    target="clean">
+               </ant>
+             </sequential>
+           </for>
+         </case>
+         <case value="8">
+           <input message="Enter commit message:" addproperty="commit.message"/>
+           <cvs cvsRoot="${env.CVSROOT}" cvsRsh="${env.CVS_RSH}"
+                command="-q commit -m '${commit.message}' build.xml"
+                dest="${securityservices.base}"
+                failonerror="true">
+           </cvs>
            <for list="${module.subordinates}" delimiter="," param="build.module.name">
              <sequential>
                 <echo message="Copying build.xml file to ${securityservices.base}/../@{build.module.name}"/>
                 <copy toDir="${securityservices.base}/../@{build.module.name}"
                       file="build.xml"/>
                 <cvs cvsRoot="${env.CVSROOT}" cvsRsh="${env.CVS_RSH}"
-                      command="-q commit -m 'Updated build.xml file' build.xml"
+                      command="-q commit -m '${commit.message}' build.xml"
                       dest="${securityservices.base}/../@{build.module.name}"
                       failonerror="true"/>
              </sequential>
@@ -423,14 +448,15 @@
        <echo level="info" message="4: Update and build the modules listed above."/>
        <echo level="info" message="5: Update, build and install the modules listed above."/>
        <echo level="info" message="6: Build and install current module (${current.module.name}) only."/>
+       <echo level="info" message="7: Invoke 'ant clean' on all modules listed above."/>
        <if>
          <equals arg1="installer" arg2="${current.module.name}"/>
          <then>
-           <echo level="info" message="7: Copy and commit build.xml to all other modules"/>
-           <input message="Enter your choice:" validargs="1,2,3,4,5,6,7" addproperty="build.choice"/>
+           <echo level="info" message="8: Copy and commit build.xml to all other modules"/>
+           <input message="Enter your choice:" validargs="1,2,3,4,5,6,7,8" addproperty="build.choice"/>
          </then>
          <else>
-           <input message="Enter your choice:" validargs="1,2,3,4,5,6" addproperty="build.choice"/>
+           <input message="Enter your choice:" validargs="1,2,3,4,5,6,7" addproperty="build.choice"/>
          </else>
        </if>
        <antcall target="process-interactive-command"/>
@@ -452,8 +478,13 @@
     <!-- Delete the ant-generated and $CIP/workspace directory -->
     <target name="clean">
         <echo message="+++++ Cleaning environment"/>
-        <delete dir="${securityservices.classes}" includeEmptyDirs="true" quiet="true"/>
-        <delete dir="${securityservices.output}" includeEmptyDirs="true" quiet="true"/>
+        <delete dir="${securityservices.classes}"  includeEmptyDirs="true" quiet="true"/>
+        <delete dir="${securityservices.output}"   includeEmptyDirs="true" quiet="true"/>
+        <delete dir="${securityservices.regress}"  includeEmptyDirs="true" quiet="true"/>
+        <delete dir="${securityservices.staging}"  includeEmptyDirs="true" quiet="true"/>
+        <delete quiet="true">
+            <fileset dir="${securityservices.base}" includes="*.zip"/>
+        </delete>
         <delete dir="${cougaar.workspace}" includeEmptyDirs="true" quiet="true"/>
         <echo message="+++++ Cleaned environment"/>
     </target>
