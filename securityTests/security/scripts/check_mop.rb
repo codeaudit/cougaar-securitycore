@@ -8,12 +8,20 @@
 #
 
 require 'security/lib/scripting'
+require 'security/lib/stresses/blackboardAccessControl'
 
 insert_after :society_running do
-  do_action "InitiateSecurityMopCollection"
+  do_action  "InjectStress", "Stress1d", "postPublishNextStage"
+end
 
-  do_action "StopSecurityMopCollection"
-  do_action "SendSecurityMopRequest"
+insert_after :after_stage_1 do
+  do_action  "InjectStress", "Stress1d", "preSocietyQuiesced"
+  do_action  "InjectStress", "Stress1d", "compileResults"
+
+#  do_action "InitiateSecurityMopCollection"
+
+#  do_action "StopSecurityMopCollection"
+#  do_action "SendSecurityMopRequest"
 
 end
 

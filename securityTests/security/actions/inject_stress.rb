@@ -3,15 +3,32 @@ module Cougaar
   module Actions
 
     class Stressors 
-      @@stresses = Hash.new;
+      # A hash map indexed by #{className}
+      # Value is the instance of the stress class
+
+      @@stressMap = Hash.new
+      # A hash map indexed by #{className}.#{methodName}
+      # Value is boolean: true means scheduled stress should go on.
+      #                   false means scheduled stress should be stopped.
+      @@stressesState = Hash.new
+
       def Stressors.setRunState(className, methodName, runstate)
 	#logInfoMsg "setRunState: #{className}.#{methodName}"
-	@@stresses["#{className}.#{methodName}"] = runstate
+	@@stressesState["#{className}.#{methodName}"] = runstate
       end
 
       def Stressors.getRunState(stressorClass, methodName)
-	ret =  @@stresses["#{stressorClass}.#{methodName}"]
+	ret =  @@stressesState["#{stressorClass}.#{methodName}"]
 	#logInfoMsg "getRunState: #{ret}"
+	return ret
+      end
+
+      def Stressors.getStressInstance(stressorClass, run) 
+	ret =  @@stressMap[stressorClass]
+	if (ret == nil) 
+	  ret = eval("#{stressorClass}.new(run)")
+	  @@stressMap[stressorClass] = ret
+	end
 	return ret
       end
     end
@@ -21,7 +38,7 @@ module Cougaar
      def initialize(run, className, methodName, delay=5.minute)
 	super(run)
 	begin
-	  @stressor = eval("#{className}.new(run)")
+	  @stressor = Stressors.getStressInstance(className, run)
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
 	  logWarningMsg "Unable to start stress: #{className}" + ex
@@ -54,7 +71,7 @@ module Cougaar
      def initialize(run, className, methodName, delay=5.minute, interval=2.minute)
 	super(run)
 	begin
-	  @stressor = eval("#{className}.new(run)")
+	  @stressor = Stressors.getStressInstance(className, run)
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
 	  logWarningMsg "Unable to start stress: #{className}" + ex

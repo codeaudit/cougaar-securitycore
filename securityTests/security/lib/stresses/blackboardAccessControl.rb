@@ -1,19 +1,18 @@
 class Stress1d < SecurityStressFramework
-  def initialize
+  def initialize(run)
         @legitsuccesses = 0
         @malicioussuccesses=0
         @legittotal=0
         @malicioustotal=0
+        @run = run
   end
 
   # StartSecurityBlackboardTesting
   def postPublishNextStage
     #Requires Oplan ready
     begin
-     logInfoMsg "Waiting 10 minutes for blackboard access control"
-     sleep 10.minutes
-      run.society.each_agent(true) do |agent|
-        url = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=start&exp=#{run.name}"
+      @run.society.each_agent(true) do |agent|
+        url = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=start&exp=#{@run.name}"
         #puts "starting testBlackboardManager #{url}"
         result = Cougaar::Communications::HTTP.get(url)
       end
@@ -25,8 +24,8 @@ class Stress1d < SecurityStressFramework
   # StopSecurityBlackboardTesting
   def preSocietyQuiesced
     begin
-      run.society.each_agent(true) do |agent|
-        url ="http://#{agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=end&exp=#{run.name}"
+      @run.society.each_agent(true) do |agent|
+        url ="http://#{agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=end&exp=#{@run.name}"
         #puts url
         req=Cougaar::Communications::HTTP.get(url)
       end #end each agent
@@ -49,7 +48,7 @@ class Stress1d < SecurityStressFramework
   #Compile Results
   def compileResults
     mop = 0.0
-    expname=run.name
+    expname=@run.name
     resultsdirectory = "#{ENV['COUGAAR_INSTALL_PATH']}/workspace/security/blackboardresults"
     files = Dir["#{resultsdirectory}/*csv"]
     files.each{ |file|
