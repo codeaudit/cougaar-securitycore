@@ -130,8 +130,9 @@ def replaceFileInJar(jarFile, replacementFile)
     `jar xf #{jarFile} -C #{jarFile} #{targetFile}`
   else
 #    puts "the file wasn't found, so using #{baseFilename}"
-    targetFile = "#{jarDir}/#{baseFilename}"
+    targetFile = baseFilename
   end
+  targetFile = "#{jarDir}/#{targetFile}"
   File.cp(replacementFile, targetFile)
 #  puts "running jar -uMf #{jarFile} -C #{jarDir} ."
   results = `jar -uMf #{jarFile} -C #{jarDir} .`
