@@ -60,20 +60,20 @@ public class DataProtectionInputStream extends FilterInputStream {
   private DataProtectionDigestObject dobj = null;
 
   private SecretKey skey = null;
-  private byte[] _byteBuf = new byte[40000];
+    private byte[] _byteBuf = new byte[40000];
   private ByteArrayInputStream _buf = new ByteArrayInputStream(_byteBuf, 0, 0);
-  private boolean _isClosed = false;
-  private DigestInputStream _digest = null;
+    private boolean _isClosed = false;
+    private DigestInputStream _digest = null;
   private boolean debug = false;
-  private boolean _eof = false;
+    private boolean _eof = false;
 
   // used to publish data failures
   private EventPublisher eventPublisher;
 
   public DataProtectionInputStream(InputStream is,
-                                   DataProtectionKeyEnvelope pke,
-                                   String agent,
-                                   ServiceBroker sb)
+    DataProtectionKeyEnvelope pke,
+    String agent,
+    ServiceBroker sb)
     throws GeneralSecurityException, IOException {
     super(is);
 
@@ -84,7 +84,7 @@ public class DataProtectionInputStream extends FilterInputStream {
 			       EncryptionService.class,
 			       null);
     if (encryptionService == null) {
-      throw new RuntimeException("Encryption service not available");
+       throw new RuntimeException("Encryption service not available");
     }
 
     log = (LoggingService)
@@ -108,7 +108,7 @@ public class DataProtectionInputStream extends FilterInputStream {
     }
 
     if (policy.secureMethod == SecureMethodParam.ENCRYPT
-        || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+      || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
       //ci=Cipher.getInstance(policy.symmSpec);
       try {
         ci=encryptionService.getCipher(policy.symmSpec);
@@ -130,105 +130,105 @@ public class DataProtectionInputStream extends FilterInputStream {
     }
   }
 
-  public int read() throws IOException {
-    if (_eof) {
-      return -1;
+    public int read() throws IOException {
+	if (_eof) {
+	    return -1;
+	}
+	if (_buf.available() == 0) {
+	    refillBuf();
+	}
+	return _buf.read();
     }
-    if (_buf.available() == 0) {
-      refillBuf();
-    }
-    return _buf.read();
-  }
 
-  public int read(byte[] b, int off, int len) throws IOException {
-    if (_eof) {
-      return -1;
+    public int read(byte[] b, int off, int len) throws IOException {
+	if (_eof) {
+	    return -1;
+	}
+	if (_buf.available() == 0) {
+	    refillBuf();
+	}
+	return _buf.read(b, off, len);
     }
-    if (_buf.available() == 0) {
-      refillBuf();
+
+    public int read(byte[] b) throws IOException {
+	return read(b, 0, b.length);
     }
-    return _buf.read(b, off, len);
-  }
 
-  public int read(byte[] b) throws IOException {
-    return read(b, 0, b.length);
-  }
-
-  public synchronized void refillBuf() throws IOException {
-    if (_buf.available() == 0 && !_eof) {
-      int len = ((DataInputStream) this.in).readInt();
-      if (len == 0) {
-        _eof = true;
-        return;
-      }
-      if (_byteBuf.length < len) {
-        _byteBuf = new byte[len];
-      }
+    public synchronized void refillBuf() throws IOException {
+	if (_buf.available() == 0 && !_eof) {
+	    int len = ((DataInputStream) this.in).readInt();
+	    if (len == 0) {
+		_eof = true;
+		return;
+	    }
+	    if (_byteBuf.length < len) {
+		_byteBuf = new byte[len];
+	    }
 	    
-      if (debug) {
-        log.debug("reading " + len + " bytes");
-      }
-      ((DataInputStream)this.in).readFully(_byteBuf, 0, len);
-      _buf = new ByteArrayInputStream(_byteBuf, 0, len);
+	    if (log.isDebugEnabled()) {
+		log.debug("reading " + len + " bytes");
+	    }
+	    ((DataInputStream)this.in).readFully(_byteBuf, 0, len);
+	    _buf = new ByteArrayInputStream(_byteBuf, 0, len);
+	}
     }
-  }
 
-  public int available() throws IOException {
-    return _buf.available();
-  }
+    public int available() throws IOException {
+	return _buf.available();
+    }
     
-  public boolean markSupported() {
-    return false;
-  }
+    public boolean markSupported() {
+	return false;
+    }
 
-  public synchronized void close() throws IOException {
-    // read until the end of file
-    if (_isClosed) {
-      return;
+    public synchronized void close() throws IOException {
+	// read until the end of file
+	if (_isClosed) {
+	    return;
+	}
+	while (read() != -1) {
+	}
+	byte[] digest = _digest.getMessageDigest().digest();
+	// now read the digest:
+	int sigLen = ((DataInputStream) this.in).readInt();
+	if (digest.length != sigLen) {
+	    if (log.isDebugEnabled()) {
+		log.debug("digest length = " + digest.length +
+			  ", but reading digest of length " +
+			  sigLen);
+	    }
+	    IOException iox = new IOException("Digest does not match");
+	    publishDataFailure(DataFailureEvent.VERIFY_DIGEST_FAILURE, iox.toString());
+	    throw iox;
+	}
+	byte[] check = new byte[sigLen];
+	((DataInputStream) this.in).readFully(check);
+	for (int i = 0; i < sigLen; i++) {
+	    if (check[i] != digest[i]) {
+		if (log.isDebugEnabled()) {
+		    log.debug("digest comparison does not match in byte " + i +
+			      " out of " + sigLen);
+		}
+		IOException iox = new IOException("Digest does not match");
+		publishDataFailure(DataFailureEvent.VERIFY_DIGEST_FAILURE, iox.toString());
+		throw iox;
+	    }
+	}
+	_isClosed = true;
+	super.close();
+	if (ci != null) {
+	    encryptionService.returnCipher(policy.symmSpec, ci);
+	    ci = null;
+	}
+	this.in = null;
     }
-    while (read() != -1) {
-    }
-    byte[] digest = _digest.getMessageDigest().digest();
-    // now read the digest:
-    int sigLen = ((DataInputStream) this.in).readInt();
-    if (digest.length != sigLen) {
-      if (debug) {
-        log.debug("digest length = " + digest.length +
-                  ", but reading digest of length " +
-                  sigLen);
-      }
-      IOException iox = new IOException("Digest does not match");
-      publishDataFailure(DataFailureEvent.VERIFY_DIGEST_FAILURE, iox.toString());
-      throw iox;
-    }
-    byte[] check = new byte[sigLen];
-    ((DataInputStream) this.in).readFully(check);
-    for (int i = 0; i < sigLen; i++) {
-      if (check[i] != digest[i]) {
-        if (debug) {
-          log.debug("digest comparison does not match in byte " + i +
-                    " out of " + sigLen);
-        }
-        IOException iox = new IOException("Digest does not match");
-        publishDataFailure(DataFailureEvent.VERIFY_DIGEST_FAILURE, iox.toString());
-        throw iox;
-      }
-    }
-    _isClosed = true;
-    super.close();
-    if (ci != null) {
-      encryptionService.returnCipher(policy.symmSpec, ci);
-      ci = null;
-    }
-    this.in = null;
-  }
 
 
   private SecretKey getSecretKey()
     throws GeneralSecurityException
   {
     return (SecretKey)encryptionService.asymmDecrypt(agent,
-                                                     policy.asymmSpec, (SealedObject)dpKey.getObject());
+        policy.asymmSpec, (SealedObject)dpKey.getObject());
   }
 
   public void addPublisher(EventPublisher publisher) {
@@ -237,7 +237,7 @@ public class DataProtectionInputStream extends FilterInputStream {
     }
   }
 
-  /**
+   /**
    * publish a data protection failure idmef alert
    */
   private void publishDataFailure(String reason, String data) {
