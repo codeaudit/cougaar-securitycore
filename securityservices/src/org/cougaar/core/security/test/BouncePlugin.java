@@ -150,7 +150,9 @@ public class BouncePlugin extends ComponentPlugin {
 
     List l = (List) o;
     _id          = l.remove(0).toString();
-    _destination =  new ClusterIdentifier(l.remove(0).toString());
+    if (l.size() != 0) {
+      _destination =  new ClusterIdentifier(l.remove(0).toString());
+    }
     if (l.size() != 0) {
       _sendCount = Integer.parseInt(l.remove(0).toString());
     } // end of else
@@ -173,7 +175,15 @@ public class BouncePlugin extends ComponentPlugin {
         
         bbs.publishRemove(cmr);
         Object o = cmr.getUID();
-        CmrRelay relay = (CmrRelay) _cmrFactory.newCmrRelay(o, _destination);
+
+	MessageAddress ci = null;
+	if (_destination != null) {
+	  ci = _destination;
+	}
+	else {
+	  ci = cmr.getSource();
+	}
+	CmrRelay relay = (CmrRelay) _cmrFactory.newCmrRelay(o, ci);
         _sent.put(relay.getUID(), relay);
         bbs.publishAdd(relay);
       } // end of while (added.hasMoreElements())
@@ -195,12 +205,14 @@ public class BouncePlugin extends ComponentPlugin {
     DomainService        ds           = getDomainService(); 
     _cmrFactory                        = (CmrFactory) ds.getFactory("cmr");
 
-    for (int i = 0; i < _sendCount; i++) {
-      UID uid = new UID(_id, i);
-      CmrRelay relay = _cmrFactory.newCmrRelay(uid, _destination);
-      _sent.put(relay.getUID(), relay);
-      bbs.publishAdd(relay);
-    } // end of for (int i = 0; i < _sent.length; i++)
+    if (_destination != null) {
+      for (int i = 0; i < _sendCount; i++) {
+	UID uid = new UID(_id, i);
+	CmrRelay relay = _cmrFactory.newCmrRelay(uid, _destination);
+	_sent.put(relay.getUID(), relay);
+	bbs.publishAdd(relay);
+      } // end of for (int i = 0; i < _sent.length; i++)
+    }
   }
 
 }
