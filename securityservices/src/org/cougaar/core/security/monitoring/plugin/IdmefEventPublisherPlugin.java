@@ -42,6 +42,7 @@ import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.IDMEF_Message;
 import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.Address;
 import edu.jhuapl.idmef.IDMEF_Node;
 import edu.jhuapl.idmef.AdditionalData;
@@ -58,6 +59,15 @@ public class IdmefEventPublisherPlugin
    */
   class IdemfEventPredicate implements UnaryPredicate{
     public boolean execute(Object o) {
+      if (o instanceof Event) {
+        IDMEF_Message msg = ((Event) o).getEvent();
+        if (msg instanceof Registration ||
+            msg instanceof AgentRegistration) {
+          return false;
+        }
+        return (msg instanceof Alert);
+      }
+      /*
       if (o instanceof Event ) {
 	Event e=(Event)o;
 	IDMEF_Message msg=e.getEvent();
@@ -75,6 +85,7 @@ public class IdmefEventPublisherPlugin
           }
         }
       }
+      */
       return false;
     }
   }
@@ -97,25 +108,77 @@ public class IdmefEventPublisherPlugin
     Iterator eventiterator = eventcollection.iterator();
     if (_eventService.isEventEnabled()) {
       while(eventiterator.hasNext()) {
-	Alert event=(Alert)eventiterator.next();
-        String s = "[STATUS] ";// + event.toString();
+	Event foo=(Event)eventiterator.next();
+        Alert event = (Alert) foo.getEvent();
+// 	Alert event=(Alert)eventiterator.next();
+        StringBuffer s = new StringBuffer("[STATUS] IDMEF(");
+        s.append(agentId.toAddress()).append(')');
+
+        Classification cs[] = event.getClassifications();
+        if (cs != null && cs.length != 0) {
+          s.append(" Classification(");
+          for (int i = 0; i < cs.length; i++) {
+            if (i != 0) {
+              s.append(',');
+            }
+            s.append(cs[i].getName());
+          }
+          s.append(')');
+        }
         Source [] srcs = event.getSources();
-        if (srcs.length != 0) {
-          IDMEF_Node node = srcs[0].getNode();         
-          Address [] addrs = node.getAddresses();
-          if (addrs.length != 0) {
-            s += "(Source " + addrs[0].getAddress() + ") ";
+        if (srcs != null && srcs.length != 0) {
+          s.append(" Source(");
+          for (int i = 0; i < srcs.length; i++) {
+            if (i != 0) {
+              s.append(',');
+            }
+            s.append(srcs[i].getIdent());
+            IDMEF_Node node = srcs[i].getNode();
+            if (node != null) {
+              Address [] addrs = node.getAddresses();
+              if (addrs.length != 0) {
+                s.append(':');
+                s.append(addrs[0].getAddress());
+              }
+            }
+          }
+          s.append(')');
+        }
+
+        Target [] tgts = event.getTargets();
+        if (tgts != null && tgts.length != 0) {
+          s.append(" Target(");
+          for (int i = 0; i < tgts.length; i++) {
+            if (i != 0) {
+              s.append(',');
+            }
+            s.append(tgts[i].getIdent());
+            IDMEF_Node node = tgts[i].getNode(); 
+            if (node != null) {
+              Address [] addrs = node.getAddresses();
+              if (addrs.length != 0) {
+                s.append(':');
+                s.append(addrs[0].getAddress());
+              }
+            }
+          }
+          s.append(')');
+        }
+        
+        AdditionalData [] data = event.getAdditionalData();
+        if (data != null && data.length != 0) {
+          s.append(" AdditionalData(");
+          for (int i = 0; i < data.length; i++) {
+            if (i != 0) {
+              s.append(',');
+            }
+            s.append(data[i].getMeaning());
+            s.append(':');
+            s.append(data[i].getAdditionalData());
           }
         }
-                
-        AdditionalData [] data = event.getAdditionalData();
-        s += "(AdditionalData";
-        for (int i = 0; i < data.length; i++) {
-          s += " " + data[i].getMeaning() + ",";
-          s += data[i].getAdditionalData();
-        }
-        s += ")";
-        _eventService.event(s);
+        s.append(')');
+        _eventService.event(s.toString());
       }
     }
   }
