@@ -386,6 +386,7 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
       newratecalculator.setLoggingService(loggingService);
       newratecalculator.setUID(queryrelay.getUID());
       newratecalculator.setDomainService(getDomainService());
+      newratecalculator.setAddress(myAddress);
       ts.schedule(newratecalculator,0,(long)newratecalculator._timewindow);
     }// end of  while(iter.hasNext())
     
