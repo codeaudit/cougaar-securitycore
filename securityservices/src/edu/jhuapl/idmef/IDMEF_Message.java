@@ -89,7 +89,10 @@ public abstract class IDMEF_Message implements XMLSerializable {
 
     /**The current location of the idmef DTD File*/
     protected static String dtdFileLocation = null;
+    
+    private static String PUBLIC_ID = "-//IETF//DTD RFC XXXX IDMEF v1.0//EN";
 
+   
     //getters and setters
     public static void setVersion (String vers){
 	    version = vers;
@@ -187,8 +190,13 @@ public abstract class IDMEF_Message implements XMLSerializable {
 	      Document document = toXML(); 
   	    StringWriter buf=new StringWriter();
 	      OutputFormat of = new OutputFormat(document, "UTF-8", true);
-	      of.setDoctype("-//IETF//DTD RFC XXXX IDMEF v1.0//EN", getDtdFileLocation());
-	    
+             
+	      if(getDtdFileLocation() != null) {
+	        of.setDoctype(null, getDtdFileLocation());
+              }
+              else {
+	        of.setDoctype(PUBLIC_ID, null);
+	      } 
 	      //of.getOmitDocumentType();
 	      XMLSerializer sezr = new XMLSerializer (buf , of);
 	      sezr.serialize(document);
