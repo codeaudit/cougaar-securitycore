@@ -110,6 +110,8 @@ public class DualAuthenticator extends ValveBase {
 
     HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
     HttpServletResponse hres = (HttpServletResponse) request.getResponse();
+    boolean certInvoked;
+    boolean passInvoked;
 
     // expand the "*" agent identifier -- can't think of another place
     // to get all agent names and this works.
@@ -131,6 +133,8 @@ public class DualAuthenticator extends ValveBase {
       }
     }
 
+    certInvoked = (dummyValveContext.getInvokeCount() > 0);
+    dummyValveContext.resetInvokeCount();
     int totalConstraint = pathConstraint | userConstraint;
 
     if (totalConstraint == CONST_NONE || certPrincipal == null || 
@@ -145,10 +149,11 @@ public class DualAuthenticator extends ValveBase {
       }
     }
 
+    passInvoked = (dummyValveContext.getInvokeCount() > 0);
     Realm realm = _context.getRealm();
 
     if (authOk(certPrincipal, passPrincipal, totalConstraint, 
-               dummyValveContext.getInvokeCount(), hres, realm)) {
+               certInvoked, passInvoked, hres, realm)) {
       context.invokeNext(request,response);
     } else if (certPrincipal == null) {
       try {
@@ -212,10 +217,17 @@ public class DualAuthenticator extends ValveBase {
   private static boolean authOk(Principal certPrincipal,
                                 Principal passPrincipal,
                                 int totalConstraint,
-                                int invokeCount,
+                                boolean certInvoked,
+                                boolean passInvoked,
                                 HttpServletResponse hres,
                                 Realm realm) 
     throws ServletException, IOException {
+//     System.out.println("certPrincipal:   " + certPrincipal);
+//     System.out.println("passPrincipal:   " + passPrincipal);
+//     System.out.println("totalConstraint: " + totalConstraint);
+//     System.out.println("certInvoked:     " + certInvoked);
+//     System.out.println("passInvoked:     " + passInvoked);
+
     if (certPrincipal != null && passPrincipal != null &&
         !certPrincipal.getName().equals(passPrincipal.getName())) {
       // the certificate and password authorization credentials
@@ -230,11 +242,12 @@ public class DualAuthenticator extends ValveBase {
                                 passPrincipal.getName() );
       }
       return false;
-    } else if ( invokeCount > 1 ||
-                ((totalConstraint & CONST_PASSWORD) == 0 &&
-                 invokeCount > 0) ) {
+    } else if ( ( certInvoked && passInvoked ) ||
+                ( passInvoked && (totalConstraint & CONST_CERT) == 0 ) ||
+                ( certInvoked && (totalConstraint & CONST_PASSWORD) == 0 ) ) {
       // ok, there is no role requirement so no authentication is
       // necessary.
+//       System.out.println("no requirement");
       return true;
     } else if ( (totalConstraint & CONST_PASSWORD) != 0 &&
                 passPrincipal == null) {
@@ -254,19 +267,21 @@ public class DualAuthenticator extends ValveBase {
                                   passPrincipal.getName() );
         }
         return false;
-      } else if (invokeCount == 0) {
+      } else if (!certInvoked && !passInvoked) {
         hres.sendError(hres.SC_UNAUTHORIZED,
                        "You do not have the required role to access this URL");
         return false;
       } else {
+//         System.out.println("user is granted");
         return true; // user is granted access
       }
-    } else if (invokeCount == 0) {
+    } else if (!certInvoked && !passInvoked) {
       // nobody authenticated this user and therefore we must deny them
       // the password authentication has already given a response.
       return false;
     } else {
       // authentication is accepted
+//       System.out.println("user auth is accepted");
       return true;
     }
   }
@@ -508,6 +523,9 @@ public class DualAuthenticator extends ValveBase {
     }
     public void invokeNext(Request request, Response response) {
       _invoked++;
+    }
+    public void resetInvokeCount() {
+      _invoked = 0;
     }
 
     public int getInvokeCount() {
