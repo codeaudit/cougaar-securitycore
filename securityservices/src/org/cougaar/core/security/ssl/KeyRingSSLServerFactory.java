@@ -36,6 +36,12 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
 
   SSLServerSocketFactory ssocfac;
 
+  boolean needAuth = false;
+
+  public void setNeedClientAuth(boolean needAuth) {
+    this.needAuth = needAuth;
+  }
+
   protected KeyRingSSLServerFactory(SSLContext sslcontext) {
     ssocfac = sslcontext.getServerSocketFactory();
   }
@@ -109,8 +115,11 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   }
 
   private ServerSocket applySocketConstraints(ServerSocket soc) {
+    if (needAuth)
+      ((SSLServerSocket)soc).setNeedClientAuth(true);
+    else
     // default is want client authentication
-    ((SSLServerSocket)soc).setWantClientAuth(true);
+      ((SSLServerSocket)soc).setWantClientAuth(true);
     return soc;
   }
 
