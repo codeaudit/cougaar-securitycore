@@ -199,49 +199,27 @@ public class ServletNodeEnforcer
 	}
     }
 
-    private void testOld(PrintWriter out)
-	throws IOException, UnknownConceptException
-    {
-	Set targetsWeak = new HashSet();
-	String person    = (String) _people.get(0);
-	TargetInstanceDescription targetWeak = 
-	    new TargetInstanceDescription(UltralogActionConcepts._usedProtectionLevel_, _authWeak);
-	if (! targetsWeak.add(targetWeak)) {
-	    out.print("<p>Could not make list of targets - exiting...</p>");
-	    return;
-	}
-	ActionInstanceDescription actionWeak = 
-	    new ActionInstanceDescription(_enforcedActionType, 
-					  person,
-					  targetsWeak);
-	out.print("<p>Testing isActionAuthorized...</p>");
-	out.print("<p>Communications from " + person + " are ");
-	if (_guard.isActionAuthorized(actionWeak)) {
-	    out.print("Allowed");
-	} else {
-	    out.print("Disallowed");
-	}
-	out.print(" if authentication is weak</p>");
+    /**
+     ************************************************************************
+     *  Test Code
+     */
 
-	Set targetsStrong = new HashSet();
-	TargetInstanceDescription targetStrong = 
-	    new TargetInstanceDescription(UltralogActionConcepts._usedProtectionLevel_, _authStrong);
-	if (! targetsStrong.add(targetStrong)) {
-	    out.print("<p>Could not make list of targets - exiting...</p>");
-	    return;
+    public void testTiming(PrintWriter out)
+    {
+	Set roles = new HashSet();
+	roles.add(HardWired.ulRoles[0]);
+	roles.add(HardWired.ulRoles[1]);
+	out.print("<p><b>Timing Check</b></p>");
+
+	int     count   = 2000;
+	long start = System.currentTimeMillis();
+	for (int i = 0; i < count; i++) {
+	    ;
 	}
-	ActionInstanceDescription actionStrong = 
-	    new ActionInstanceDescription(_enforcedActionType, 
-					  person,
-					  targetsStrong);
-	out.print("<p>Testing isActionAuthorized...</p>");
-	out.print("<p>Communications from " + person + " are ");
-	if (_guard.isActionAuthorized(actionStrong)) {
-	    out.print("Allowed");
-	} else {
-	    out.print("Disallowed");
-	}
-	out.print(" if authentication is strong</p>");
+	long duration = System.currentTimeMillis() - start;
+	out.print("<p>" + count + " calls mediated in " 
+		  + duration + " milliseconds.</p>");
+	out.print("<p>Last call returned the following results: </p>");
     }
 
     /**

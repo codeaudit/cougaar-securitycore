@@ -131,23 +131,24 @@ public class InitNodePlugin extends ComponentPlugin {
       public void doGet(HttpServletRequest req,
 			HttpServletResponse res) throws IOException 
       {
-	  _log.info("Doing Get...");
+	  _log.info("TestMessageMediationServlet: Doing Get...");
 	  try {
 	      PrintWriter out = res.getWriter();
 	      out.print("<html>\n" + 
 			"<head>\n" + 
-			"<TITLE>Test Enforcer Servlet</TITLE>\n" + 
+			"<TITLE>Message Passing Mediation Tests</TITLE>\n" + 
 			"</head>\n" + 
 			"<body>\n" + 
-			"<H1>Hello</H1>\n" + 
-			"<P>Loading this page runs a test on the Enforcer</P>\n");
+			"<H1>Message Passing Mediation Check</H1>\n");
 	      _msgEnf.testEnforcer(out);
 	      out.print("</P>\n" + 
 			"</body>\n" +
 			"</html>\n");
 	  } catch (UnknownConceptException e) {
 	      e.printStackTrace();
-	      throw new IOException("Problem with Enforcer");
+	      IOException newe = new IOException("Problem with Enforcer");
+	      newe.initCause(e);
+	      throw newe;
 	  }
       }
   }
@@ -171,19 +172,54 @@ public class InitNodePlugin extends ComponentPlugin {
 	      PrintWriter out = res.getWriter();
 	      out.print("<html>\n" + 
 			"<head>\n" + 
-			"<TITLE>Test Enforcer Servlet</TITLE>\n" + 
+			"<TITLE>Servlet Medition Tests</[TITLE>\n" + 
 			"</head>\n" + 
 			"<body>\n" + 
-			"<H1>Hello</H1>\n" + 
-			"<P>Loading this page runs a test on the Enforcer</P>\n");
+			"<H1>Servlet Medition Check</H1>\n");
 	      _servletEnf.testEnforcer(out);
 	      out.print("</P>\n" + 
 			"</body>\n" +
 			"</html>\n");
 	  } catch (UnknownConceptException e) {
 	      e.printStackTrace();
-	      throw new IOException("Problem with Enforcer");
+	      IOException newe = new IOException("Problem with Enforcer");
+	      newe.initCause(e);
+	      throw newe;
 	  }
       }
   }
+
+    /*
+     * An extremely simple servlet for some basic testing.
+     */
+  private class TestMediationPerformanceServlet extends HttpServlet 
+  {
+      
+      /*
+       * This function writes some initial introductory html before
+       * calling the DummyNodeEnforcer for a test and some print
+       * statements.  Then the function wraps up the html page.
+       */
+      public void doGet(HttpServletRequest req,
+			HttpServletResponse res) throws IOException 
+      {
+	  _log.info("Doing Get...");
+	  {
+	      PrintWriter out = res.getWriter();
+	      out.print("<html>\n" + 
+			"<head>\n" + 
+			"<TITLE>Medition Performance Tests</[TITLE>\n" + 
+			"</head>\n" + 
+			"<body>\n" + 
+			"<H1>Timing Medition Routines</H1>\n");
+	      _servletEnf.testTiming(out);
+	      _msgEnf.testTiming(out);
+	      out.print("</P>\n" + 
+			"</body>\n" +
+			"</html>\n");
+	  }
+      }
+  }
+
+
 }

@@ -225,11 +225,12 @@ public class ULMessageNodeEnforcer
 	}
     }
 
-    private void testTiming(PrintWriter out,
-			    String sender,
-			    String receiver,
-			    String verb)
+    public void testTiming(PrintWriter out)
     {
+	String sender   = (String) HardWired.agents[0];
+	String receiver = (String) HardWired.agents[0];
+	String verb     = "GetLogSupport";
+
 	out.print("<p><b>Timing Check</b></p>");
 	out.print("<p>Timing the two mediation calls required to determine " +
 		  "if and how to send a " + verb + " message from " + 
@@ -275,10 +276,10 @@ public class ULMessageNodeEnforcer
         throws IOException, UnknownConceptException
     {
 	out.print("<p><b>Semantic Matchers Check</b></p>");
-	for (int i = 0; i < _agents.size(); i++) {
-	    for (int j = 0; j < _agents.size(); j++) {
-		String sender    = (String) _agents.get(i);
-		String receiver  = (String) _agents.get(j);
+	for (int i = 0; i < HardWired.agents.length; i++) {
+	    for (int j = 0; j < HardWired.agents.length; j++) {
+		String sender    = HardWired.agents[i];
+		String receiver  = HardWired.agents[j];
 		out.print("<p>Allowed cypher suites from " + sender
 			  + " to " + receiver + "</p>");
 		Set suites = getAllowedCypherSuites(sender,"##" + receiver);
@@ -300,10 +301,6 @@ public class ULMessageNodeEnforcer
 		testIsActionAuthorized(out, sender, receiver, "GetLogSupport");
 	    }
 	}
-	testTiming(out, 
-		   (String) _agents.get(0),
-		   (String) _agents.get(0),
-		   "GetLogSupport");
     }
 
     //George's interfaces...
