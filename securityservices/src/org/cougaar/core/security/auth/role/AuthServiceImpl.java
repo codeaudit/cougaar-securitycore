@@ -249,7 +249,9 @@ public class AuthServiceImpl
   }
   
   public List getPermissions(ProtectionDomain domain) {
-    _log.debug("In Blackboard getPermissions function");
+    if (_log.isDebugEnabled()) {
+      _log.debug("In Blackboard getPermissions function");
+    }
     RoleExecutionContext rec = getExecutionContextFromDomain(domain);
     if (rec == null && _log.isDebugEnabled()) {
       _log.debug("domain which has no RoleExecutionContext");
