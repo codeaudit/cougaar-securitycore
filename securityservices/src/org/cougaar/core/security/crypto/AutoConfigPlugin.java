@@ -24,7 +24,7 @@ public class AutoConfigPlugin extends ConfigPlugin {
     Iterator it = l.iterator();
     while (it.hasNext()) {
       String param = (String)it.next();
-      log.debug("Unzip & run CA: " + param);
+      //log.debug("Unzip & run CA: " + param);
       calist.addElement(param);
     }
 
