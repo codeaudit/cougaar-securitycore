@@ -257,7 +257,7 @@ public class CougaarSecurityManager extends SecurityManager
 	    catch (IOException ioexp) {
 	      ioexp.printStackTrace();
 	    }
-	    printStackTrace(e, stack);
+	    printStackTrace(e, stack, perm);
 	    //e.printStackTrace(auditlog);
 	    auditlog.print("</stack></securityManagerAlarm></securityEvent>\n");
 	    return null; // nothing to return
@@ -270,11 +270,15 @@ public class CougaarSecurityManager extends SecurityManager
     }
   }
 
-  private void printStackTrace(Exception e, Class[] stack) {
+  private void printStackTrace(Exception e, Class[] stack, Permission perm) {
     StackTraceElement[] ste = e.getStackTrace();
     ProtectionDomain pd = null;
     CodeSource cs = null;
     int j = 0;
+    boolean canDo = true;
+    boolean isFirstExceptionDone = false;
+
+    // Loop through all stack elements and display information about each class
     for (int i = 0 ; i < ste.length ; i++) {
       String className = stack[j].getName();
       String location = "";
@@ -283,6 +287,7 @@ public class CougaarSecurityManager extends SecurityManager
 	// The class array does not have the same number of elements as in the StackTraceElement
 	// We need to find a match
 	pd = stack[j].getProtectionDomain();
+	canDo = hasPrivileges(pd, perm);
 	j++;
       }
 
@@ -292,12 +297,25 @@ public class CougaarSecurityManager extends SecurityManager
 	  location = cs.getLocation().toString();
 	}
       }
-      auditlog.println("at " + ste[i].getClassName()
-		       + "." + ste[i].getMethodName()
-		       + "(" + ste[i].getFileName()
-		       + ":" + ste[i].getLineNumber()
-		       + ")"
-		       + " - " + location);
+      String logString = "at " + ste[i].getClassName()
+	+ "." + ste[i].getMethodName()
+	+ "(" + ste[i].getFileName()
+	+ ":" + ste[i].getLineNumber()
+	+ ")"
+	+ " - " + location
+	+ (canDo ? " (OK)" : " (NOK)");
+      if (!canDo && !isFirstExceptionDone) {
+	logString = logString + "\n" + pd.toString();
+	isFirstExceptionDone = true;
+      }
+      auditlog.println(logString);
     }
+  }
+
+  private boolean hasPrivileges(ProtectionDomain pd, Permission perm) {
+    if (pd != null &&  !pd.implies(perm)) {
+      return false;
+    }
+    return true;
   }
 }

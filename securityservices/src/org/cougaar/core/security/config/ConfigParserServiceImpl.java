@@ -73,6 +73,9 @@ public class ConfigParserServiceImpl
   private XMLReader parser;
   private ConfigParserHandler handler;
 
+  // Are we executing within a node or as a standalone application?
+  private boolean isNode;
+
   public ConfigParserServiceImpl(ServiceBroker sb, String community) {
     serviceBroker = sb;
     mySecurityCommunity = community;
@@ -84,10 +87,37 @@ public class ConfigParserServiceImpl
 			       SecurityPropertiesService.class,
 			       null);
 
+    isNode =
+      Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
+
     // Add workspace/security/keystores/$nodeName directory to the search path
     String nodeName = secprop.getProperty("org.cougaar.node.name");
+    if (nodeName == null) {
+      if (isNode) {
+	// The node name property should always be set when running as a Cougaar node.
+	log.error("org.cougaar.node.name property has not been set");
+      }
+      else {
+	// When running a standalone application, it is ok not to have the workspace property set,
+	// but then SSL is not possible.
+	log.warn("org.cougaar.node.name property has not been set. Cannot use SSL");
+      }
+    }
+
     String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
     log.debug("Cougaar workspace is :" + cougaarWsp);
+    if (cougaarWsp == null) {
+      if (isNode) {
+	// The org.cougaar.workspace property should always be set when running as a Cougaar node.
+	log.error(secprop.COUGAAR_WORKSPACE + " property has not been set");
+      }
+      else {
+	// When running a standalone application, it is ok not to have the workspace property set,
+	// but then SSL is not possible.
+	log.warn(secprop.COUGAAR_WORKSPACE + " property has not been set. Cannot use SSL");
+      }
+    }
+
     String topDirectory = cougaarWsp + File.separatorChar + "security"
       + File.separatorChar + "keystores" + File.separatorChar;
     String nodeDirectory = topDirectory + nodeName;
@@ -126,7 +156,12 @@ public class ConfigParserServiceImpl
 
     File f = confFinder.locateFile(filename);
     if (f == null) {
-      log.fatal("Unable to get list of policy files. Install the BootPolicyList.ini file");
+      if (isNode) {
+	log.fatal("Unable to get list of policy files. Install the BootPolicyList.ini file");
+      }
+      else {
+	log.warn("Unable to get list of policy files. Cannot use SSL");
+      }
       throw new
 	RuntimeException("Unable to get list of policy files. Install the BootPolicyList.ini file");
     }
@@ -252,9 +287,7 @@ public class ConfigParserServiceImpl
     }
     catch (Exception e) {
       // This is OK for standalone applications, but not for nodes.
-      boolean exec =
-	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
-      if (exec == true) {
+      if (isNode == true) {
 	log.warn("Unable to parse policy:" + e);
       }
       else {

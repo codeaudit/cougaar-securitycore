@@ -101,6 +101,10 @@ public class UserAuthenticatorImpl
 	if (serviceBroker == null) {
 	  serviceBroker = secProvider.getServiceBroker();
 	}
+	if (log == null) {
+	  log = (LoggingService)
+	    serviceBroker.getService(this, LoggingService.class, null);
+	}
         KeyRingService keyRing = (KeyRingService)
                                           secProvider.getService(serviceBroker,
                                                          this,
@@ -112,9 +116,11 @@ public class UserAuthenticatorImpl
                                                    UserSSLService.class);
 
         // handler for certificates
-        KeyRingUserAuthImpl certhandler = new KeyRingUserAuthImpl(keyRing.getKeyStore());
-        registerHandler(certhandler);
-        userservice.setAuthHandler(certhandler);
+	if (keyRing != null) {
+	  KeyRingUserAuthImpl certhandler = new KeyRingUserAuthImpl(keyRing.getKeyStore());
+	  registerHandler(certhandler);
+	  userservice.setAuthHandler(certhandler);
+	}
       }
     } catch (Exception ex) {
       log.warn("Unable to initialize UserAuthenticatorImpl:" + ex);

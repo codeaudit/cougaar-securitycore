@@ -219,7 +219,8 @@ final public class KeyRing
 	  }
 	}
 	else {
-	  log.error("CA keystore unavailable. At least one CA certificate should be included");
+	  log.error("CA keystore (" + param.caKeystorePath +
+		    ") unavailable. At least one CA certificate should be included");
 	}
       }
     }
