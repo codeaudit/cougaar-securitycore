@@ -482,6 +482,15 @@ Policy #{policies.push("AllowRegistration").last()} = [
 
   $Actor.owl#Agent
  ]
+
+Policy #{policies.push("AllowCommunityAccess").last()} = [
+  GenericTemplate
+  Priority = 2,
+  $Actor.owl#Agent is  authorized to perform
+  $Ultralog/UltralogAction.owl#CommunityAction
+ ]
+
+
 END
 }
 
