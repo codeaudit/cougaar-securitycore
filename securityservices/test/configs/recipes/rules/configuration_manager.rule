@@ -12,8 +12,8 @@ agentlist =[]
 nodelist =[]
 #list of agents to include the Configuration Manager in
 include_array=["caAgent"]
-CMInitPlugin="org.cougaar.core.security.cm.ConfigurationManagerInitPlugin"
-CMMessagePlugin="org.cougaar.core.security.cm.ConfigurationManagerMessagePlugin"
+theCMInitPlugin="org.cougaar.core.security.cm.ConfigurationManagerInitPlugin"
+theCMMessagePlugin="org.cougaar.core.security.cm.ConfigurationManagerMessagePlugin"
 
 
 society.each_agent(true) do |agent|
@@ -39,7 +39,7 @@ society.each_agent(true) do |agent|
                 #puts "#{targetagent}"
                 if agent.name ==targetagent
                         agent.add_component do |c|
-                                c.classname=CMInitPlugin
+                                c.classname=theCMInitPlugin
                                 agentlist.each{ |facet|
                                         c.add_argument(facet)
                                 }
@@ -48,7 +48,7 @@ society.each_agent(true) do |agent|
                                 }
                         end
                         agent.add_component do |c|
-                        	c.classname=CMMessagePlugin
+                        	c.classname=theCMMessagePlugin
                         	
                         end
                 end
