@@ -46,6 +46,7 @@ import org.cougaar.core.security.services.crypto.ServletPolicyService;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 import org.cougaar.planning.ldm.policy.KeyRuleParameterEntry;
 import org.cougaar.planning.ldm.policy.KeyRuleParameter;
+import org.cougaar.planning.ldm.policy.LongRuleParameter;
 import org.cougaar.core.security.acl.auth.DualAuthenticator;
 
 public class ServletPolicyEnforcer 
@@ -55,6 +56,7 @@ public class ServletPolicyEnforcer
   public  static final String ALLOW_ROLE            = "allow-role";
   public  static final String DENY_ROLE             = "deny-role";
   public  static final String SET_AUTH_CONSTRAINT   = "auth-constraint";
+  public  static final String SET_LOGIN_FAILURE_SLEEP_TIME = "login-failure-sleep";
 
   private static final String STR_ARRAY[]           = new String[1];
 
@@ -63,6 +65,7 @@ public class ServletPolicyEnforcer
 
   HashMap _roles       = new HashMap();
   HashMap _constraints = new HashMap();
+  long    _sleepTime   = 1000;
 
   public ServletPolicyEnforcer() {
     super("org.cougaar.core.security.policy.ServletPolicy",
@@ -103,6 +106,7 @@ public class ServletPolicyEnforcer
       iter.remove();
       _daValve.setAuthConstraint(path,constraint);
     }
+    _daValve.setLoginFailureSleepTime(_sleepTime);
   }
   
   private SecurityConstraint getSecurityConstraint(String path) {
@@ -186,6 +190,14 @@ public class ServletPolicyEnforcer
     }
   }
 
+  public synchronized void setLoginSleepTime(long sleepTime) {
+    if (_daValve == null) {
+      _sleepTime = sleepTime;
+    } else {
+      _daValve.setLoginFailureSleepTime(sleepTime);
+    }
+  }
+
   public synchronized String[] getRoles(String path) {
     HashSet roles = new HashSet();
     if (_context == null) {
@@ -253,11 +265,15 @@ public class ServletPolicyEnforcer
     // what is the policy change?
     RuleParameter[] param = policy.getRuleParameters();
     for (int i = 0; i < param.length; i++) {
-      if (param[i] instanceof KeyRuleParameter) {
+      String name  = param[i].getName();
+      if (param[i] instanceof LongRuleParameter) {
+        if (SET_LOGIN_FAILURE_SLEEP_TIME.equals(name)) {
+          _sleepTime = (((Long)param[i].getValue()).longValue());
+        }
+      } else if (param[i] instanceof KeyRuleParameter) {
         KeyRuleParameter krp = (KeyRuleParameter) param[i];
-        String name  = krp.getName();
-        String agent = krp.getValue().toString();
         KeyRuleParameterEntry entry[] = krp.getKeys();
+        String agent = krp.getValue().toString();
         if (entry != null) {
           for (int j = 0; j < entry.length; j++) {
             String val = entry[j].getValue();
@@ -276,7 +292,7 @@ public class ServletPolicyEnforcer
               removeRole(path,val);
             } else if (SET_AUTH_CONSTRAINT.equals(name)) {
               setAuthConstraint(path,val);
-            }
+            } 
           }
         }
       }
