@@ -31,6 +31,8 @@ import java.lang.reflect.Proxy;
 
 public class BaseSingleton
 {
+  private static final Logger _logger = Logger.getInstance();
+
   /**
    * Helper method to instantiate a "true" singleton.
    * The singleton is instantiated once per VM, even if there
@@ -82,15 +84,47 @@ public class BaseSingleton
 	  throw new RuntimeException("Unable to instantiate class: "
 				     + singletonClass.getName(), e);
 	}
-	if (instance.getClass().isInstance(interfaceClass)) {
+	/* Do a sanity check to verify that the proxy actually
+	 * implements the desired interface.
+	 * Normally, this would be done by doing the following:
+	 if (instance.getClass().isInstance(interfaceClass)) {
+	 theInstance = instance;
+	 }
+	 This works on Linux but not Windows. I would think the Windows
+	 implementation is correct since the class has been loaded
+	 by a different class loader.
+	 The code below is not really necessary but it helps for
+	 debugging.
+	*/
+	Class[] intf = instance.getClass().getInterfaces();
+	boolean isImplemented = false;
+	if (intf != null) {
+	  for (int i = 0 ; i < intf.length ; i++) {
+	    if (interfaceClass.getName().equals(intf[i].getName())) {
+	      isImplemented = true;
+	      break;
+	    }
+	  }
+	}
+	if (isImplemented) {
 	  theInstance = instance;
 	}
 	else {
+	  String s = "Interfaces implemented by " +
+	    instance.getClass().getName() + ":";
+	  if (intf != null) {
+	    for (int i = 0 ; i < intf.length ; i++) {
+	      s = s + " " + intf[i].getName();
+	    }
+	  }
+	  if (_logger.isWarnEnabled()) {
+	    _logger.warn(s);
+	  }
 	  // Error. The instance should implement interfaceClass
 	  throw new RuntimeException("Error: "
 				     + instance.getClass().getName()
 				     + " does not implement "
-				     + interfaceClass.getName());
+				     + interfaceClass.getName() + " - " + s);
 	}
       } else {
 	// We're in the root classloader, so the instance we have here
@@ -99,8 +133,12 @@ public class BaseSingleton
 	  theInstance = singletonClass.newInstance();
 	}
 	catch (Exception e) {
-	  throw new RuntimeException("Unable to instantiate class: "
-				     + singletonClass.getName(), e);
+	  String s = "Unable to instantiate class: "
+	    + singletonClass.getName();
+	  if (_logger.isWarnEnabled()) {
+	    _logger.warn(s);
+	  }
+	  throw new RuntimeException(s, e);
 	}
       }
     }
