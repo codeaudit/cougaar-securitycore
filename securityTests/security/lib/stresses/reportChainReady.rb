@@ -73,7 +73,6 @@ class TestReportChainReady < SecurityStressFramework
           saveResult true, @stressid, "ReportChainReady succeeded"
         end 
       rescue => ex
-#        puts "error in afterReportChainReady"
         logInfoMsg("error in afterReportChainReady #{ex} #{ex.backtrace.join("\n")}")
         saveAssertion @stressid, "Exception = #{ex}\n #{ex.backtrace.join("\n")}"
       end
@@ -82,14 +81,22 @@ class TestReportChainReady < SecurityStressFramework
 
   def getBadChains stack
     superior  = stack.last
+    puts "Working on #{superior}"
     expected  = @expectedSubordinates[superior]
     found     = @foundSubordinates[superior]
+    if found then
+      puts "found subordinates #{found.join(" ")}"
+    else 
+      puts "no subordinates found"
+    end
     badChains = []
     if expected == nil || expected.empty?
       return badChains
     end
     expected.each do |expectedSub|
+      puts "Looking at expected subordinate #{expectedSub}"
       if ((found == nil) || (! found.include? expectedSub))
+        puts "subordinate did not report"
         newStack     = stack.clone.push expectedSub
         newBadChains = getBadChains newStack
         if newBadChains.empty?
@@ -118,6 +125,10 @@ class TestReportChainReady < SecurityStressFramework
           @foundSubordinates[superior] = []
         end
         @foundSubordinates[superior].push(subordinate)
+#        if superior == "OSD.GOV" then
+#          puts("subordinate = #{subordinate}")
+#          puts(line)
+#        end
       end
     end
   end
@@ -130,9 +141,14 @@ class TestReportChainReady < SecurityStressFramework
       end
     end
     puts("getting ready to calculate bad chains")
-    getBadChains(['OSD.GOV']).each do |chain|
-      puts("Found bad chain ending at #{chain.last}")
-      puts("Chain = " + chain.join(' -> '))
+    badChains = getBadChains(['OSD.GOV'])
+    if badChains.empty? then
+      puts "Everybody reported"
+    else
+      badChains.each do |chain|
+        puts("Found bad chain ending at #{chain.last}")
+        puts("Chain = " + chain.join(' -> '))
+      end
     end
   end
 end
