@@ -28,11 +28,17 @@
 package org.cougaar.core.security.test.blackboard;
 
 
+import java.net.InetAddress;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cougaar.core.node.NodeIdentificationService;
+import org.cougaar.core.security.monitoring.event.BlackboardFailureEvent;
+import org.cougaar.core.security.monitoring.plugin.BlackboardCompromiseSensorPlugin;
 import org.cougaar.core.security.monitoring.plugin.CompromiseBlackboard;
 import org.cougaar.core.security.test.AbstractServletComponent;
+import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.UIDService;
 
 
@@ -40,11 +46,9 @@ import org.cougaar.core.service.UIDService;
  * Just simulates an sensor detecting a blackboard compromise and then
  * publishing a compromise object to the Blackboard. The only url parameter
  * is <i>scope<i> which is the scope of the compromise, either Agent, Node or Host
- *
- * @author ttschampel
- * @version $Revision: 1.4 $
  */
 public class CompromiseBlackboardServlet extends AbstractServletComponent {
+  private static final String pluginName = "CompromiseBlackboardServlet";
   private static final String SCOPE_PARAM="scope";
   /**
    * Path to servlet
@@ -52,9 +56,12 @@ public class CompromiseBlackboardServlet extends AbstractServletComponent {
    * @return path to Servlet
    */
   protected String getPath() {
+  	
     return "/compromiseBlackboard";
+    
   }
-
+	
+	
 
   /**
    * Just publish a compromise object to the blackboard
@@ -64,24 +71,44 @@ public class CompromiseBlackboardServlet extends AbstractServletComponent {
    */
   protected void execute(HttpServletRequest request, HttpServletResponse response) {
     UIDService uidService = (UIDService) this.serviceBroker.getService(this, UIDService.class, null);
-
-    //create BlackboardCompromise Object
-    CompromiseBlackboard cb = new CompromiseBlackboard();
-    cb.setTimestamp(System.currentTimeMillis());
-    cb.setUID(uidService.nextUID());
-    String scope = request.getParameter(SCOPE_PARAM);
-    if(scope==null || scope.trim().length()==0){
-    	if(logging.isWarnEnabled()){
-    		logging.warn("No compromise scope in url query string, using agent scope!");
+	try{
+    	//create BlackboardCompromise Object
+    	String scope = request.getParameter(SCOPE_PARAM);
+    	if(scope==null || scope.trim().length()==0){
+    		if(logging.isWarnEnabled()){
+    			logging.warn("No compromise scope in url query string, using agent scope!");
+    		}
+    		scope = CompromiseBlackboard.AGENT_COMPROMISE_TYPE;
     	}
-    	scope = CompromiseBlackboard.AGENT_COMPROMISE_TYPE;
-    }
-    cb.setCompromiseType(scope);
-    this.blackboardService.openTransaction();
-    this.blackboardService.publishAdd(cb);
-    this.blackboardService.closeTransaction();
-    if (logging.isDebugEnabled()) {
-      logging.debug("Published CompromiseBlackboard Object");
+    
+    
+  		AgentIdentificationService agentIdService = (AgentIdentificationService)this.serviceBroker.getService(this,AgentIdentificationService.class, null);
+	
+  		String data="";
+  		data=data + "scope=" + scope;
+		data=data+",compromise timestamp=" + System.currentTimeMillis();
+  		data=data+",sourceAgent=" + agentIdService.getMessageAddress().getAddress();
+  		NodeIdentificationService nodeIdService = (NodeIdentificationService)this.serviceBroker.getService(this,NodeIdentificationService.class, null);
+		  String nodeName = nodeIdService.getMessageAddress().getAddress();
+  		data=data+",sourceNode="+nodeName;
+  		InetAddress inetAddress = InetAddress.getLocalHost();
+  		String hostName = inetAddress.getHostName();
+  		data=data+",sourceHost=" + hostName;
+	
+		BlackboardFailureEvent event = new BlackboardFailureEvent(agentIdService.getMessageAddress().getAddress(),agentIdService.getMessageAddress().getAddress(),"reason" ,
+		"reasonId", data, "compromisedata");
+     	BlackboardCompromiseSensorPlugin.publishEvent(event);
+    
+   
+    	if (logging.isDebugEnabled()) {
+      	logging.debug("Published CompromiseBlackboard Object");
+    	}
+	}catch(Exception e){
+    	if(logging.isErrorEnabled()){
+    		logging.error("Error reporting blackboardCompromise");
+    	}
     }
   }
 }
+  
+
