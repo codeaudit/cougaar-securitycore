@@ -36,7 +36,7 @@ import org.cougaar.core.component.Service;
 // Cougaar security services
 import org.cougaar.core.security.naming.CertificateEntry;
 
-public interface CACertDirectoryService 
+public interface CACertDirectoryService
   extends Service
 {
   /**
@@ -66,4 +66,6 @@ public interface CACertDirectoryService
    * Publish a certificate (managed by a CA) in the blackboard
    */
   void publishCertificate(CertificateEntry certEntry);
+
+  void refreshBlackboard();
 }
