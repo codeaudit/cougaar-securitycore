@@ -166,6 +166,11 @@
                 </patternset>
             </fileset>
         </copy>
+
+        <copy todir="${securityservices.staging}/configs/security-tutorial">
+            <fileset dir="${securityservices.configs}/security-tutorial"/>
+        </copy>
+
         <copy todir="${securityservices.staging}/webtomcat/data/conf"
             file="${securityservices.configs}/tomcat4/server.xml"/>    
         <copy todir="${securityservices.staging}/webtomcat/data/webapps/ROOT/WEB-INF"
