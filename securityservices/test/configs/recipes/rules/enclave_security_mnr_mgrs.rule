@@ -17,7 +17,6 @@ society.each_node do |node|
   if enclave != ""
     agentname = enclave + "EnclaveMnRManager"
   end
-
   if agentname != ""
     node.add_agent(agentname) do |agent|
       agent.add_component do |c|
@@ -30,8 +29,18 @@ society.each_node do |node|
         c.classname = "org.cougaar.core.security.monitoring.plugin.MnRQueryReceiverPlugin"
       end
       agent.add_component do |c|
+        c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggQueryReceiverPlugin"
+      end
+      agent.add_component do |c|
+        c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggResponseAggregator"
+      end
+      agent.add_component do |c|
+        c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggSendRemoteResponse"
+      end
+      agent.add_component do |c|
         c.classname = "org.cougaar.core.security.monitoring.plugin.MnRQueryResponderPlugin"
       end
+
       agent.add_component do |c|
         c.classname = "org.cougaar.core.security.monitoring.plugin.RateCalculatorPlugin"
         c.add_argument("20")

@@ -28,6 +28,17 @@ society.each_node do |node|
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.plugin.MnRQueryReceiverPlugin"
         end
+
+        agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggQueryReceiverPlugin"
+        end
+        agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggResponseAggregator"
+        end
+        agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggSendRemoteResponse"
+        end
+
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.plugin.MnRQueryResponderPlugin"
         end

@@ -24,6 +24,16 @@ society.each_node do |node|
       end
       agent.add_component do |c|
         c.classname = "org.cougaar.core.security.monitoring.plugin.MnRQueryReceiverPlugin"
+        c.add_argument("root")
+      end
+      agent.add_component do |c|
+        c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggQueryReceiverPlugin"
+      end
+      agent.add_component do |c|
+        c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggResponseAggregator"
+      end
+      agent.add_component do |c|
+        c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggSendRemoteResponse"
       end
       agent.add_component do |c|
         c.classname = "org.cougaar.core.security.monitoring.plugin.MnRQueryResponderPlugin"
