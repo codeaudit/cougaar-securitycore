@@ -323,7 +323,21 @@ society.each_host do |host|
     #java.Xnoagent
     #java.Djava.compiler=NONE
     #java.Xrunjdwp:transport=dt_socket,server=y,address=9999
-    
+   
+    # SSL debug
+    # The property value must include the string "ssl" followed by one or more of the following modifiers:
+    # record -- enable per-record tracing
+    # handshake -- print each handshake message
+    # keygen -- print key generation data
+    # session -- print session activity
+    # defaultctx -- print default SSL initialization
+    # sslctx -- print SSLContext tracing
+    # sessioncache -- print session cache tracing
+    # keymanager -- print key manager tracing
+    # trustmanager -- print trust manager tracing 
+    # The special value "all" is equivalent to setting all of the above modifiers
+    #node.override_parameter("-Djavax.net.debug", "ssl,record,handshake,keygen,session,verbose,plaintext")
+ 
     # END DEBUG properties
     # ########################################################
     
