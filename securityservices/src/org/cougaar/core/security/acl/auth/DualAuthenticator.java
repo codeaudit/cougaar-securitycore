@@ -58,6 +58,8 @@ import org.apache.catalina.authenticator.DigestAuthenticator;
 import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.connector.HttpResponseWrapper;
 
+
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.lib.web.tomcat.SecureRealm;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
@@ -67,9 +69,10 @@ import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
 import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
 
 public class DualAuthenticator extends ValveBase {
-  static final byte AUTH_NONE     = 0x00;
-  static final byte AUTH_PASSWORD = 0x01;
-  static final byte AUTH_CERT     = 0x02;
+  static final byte AUTH_NONE     = CypherSuiteWithAuth.authNoAuth;
+  static final byte AUTH_PASSWORD = CypherSuiteWithAuth.authPassword;
+  static final byte AUTH_CERT     = CypherSuiteWithAuth.authCertificate;
+  static final byte AUTH_NEVER    = 3;
 
   private static ResourceBundle _authenticators = null;
   private ServletNodeEnforcer _enforcer;
@@ -81,6 +84,9 @@ public class DualAuthenticator extends ValveBase {
   HashMap           _starConstraints = new HashMap();
   long              _failSleep   = 1000;
   long              _sessionLife = 60000;
+  ServiceBroker     _serviceBroker;
+  LoggingService    _log;
+
   public static final String DAML_PROPERTY = 
     "org.cougaar.core.security.policy.enforcers.servlet.useDaml";
   private static final boolean USE_DAML = Boolean.getBoolean(DAML_PROPERTY);
@@ -95,27 +101,44 @@ public class DualAuthenticator extends ValveBase {
 
   public DualAuthenticator(AuthenticatorBase primaryAuth,
                            AuthenticatorBase secondaryAuth) {
-    setPrimaryAuthenticator(primaryAuth);
-    setSecondaryAuthenticator(secondaryAuth);
-    ServletPolicyServiceProvider.setDualAuthenticator(this);
+    try {
+      setPrimaryAuthenticator(primaryAuth);
+      setSecondaryAuthenticator(secondaryAuth);
+      ServletPolicyServiceProvider.setDualAuthenticator(this);
+    } catch (Exception e) {
+      _log.error("Error starting Servlet Authenticator", e);
+    }
   }
 
   public void setServiceBroker(ServiceBroker sb) {
-    if (USE_DAML && _enforcer == null) {
-      _enforcer = new ServletNodeEnforcer(sb);
-      _enforcer.registerEnforcer();
+    _serviceBroker = sb;
+    _log = (LoggingService) sb.getService(this, LoggingService.class, null);
+  }
+
+  private void initNodeEnforcer() {
+    try {
+      if (USE_DAML && _enforcer == null && _serviceBroker != null) {
+        ServletNodeEnforcer enforcer = new ServletNodeEnforcer(_serviceBroker);
+        enforcer.registerEnforcer();
+        _enforcer = enforcer;
+      }
+    } catch (Exception e) {
+      _log.warn("Error registerring Servlet Node Enforcer", e);
     }
   }
 
   /**
    * Valve callback. First check the primary authentication method
-   * and if not authenticated, call the secondary authentication method.
+ggggg   * and if not authenticated, call the secondary authentication method.
    */
   public void invoke(Request request, Response response,
                      ValveContext context) 
     throws IOException, ServletException {
+
     setContainer();
-//     System.out.println("Going through Dual Authenticator");
+    initNodeEnforcer();
+
+    _log.debug("Going through Dual Authenticator");
     // If this is not an HTTP request, do nothing
     if (!(request instanceof HttpRequest) ||
         !(response instanceof HttpResponse)) {
@@ -127,7 +150,7 @@ public class DualAuthenticator extends ValveBase {
       context.invokeNext(request, response);
       return;
     }
-
+    try {
     HttpRequest hrequest = (HttpRequest) request;
     HttpResponse hresponse = (HttpResponse) response;
     HttpServletRequest  hsrequest  = (HttpServletRequest) request.getRequest();
@@ -141,11 +164,13 @@ public class DualAuthenticator extends ValveBase {
     CypherSuiteWithAuth authReq = 
       getAuthRequirements(hsrequest.getRequestURI(), cipher);
 
-//     System.out.println("cipher = " + cipher);
+    if (_log.isDebugEnabled()) {
+      _log.debug("cipher = " + cipher);
+    }
     // determine if we need to redirect to HTTPS
     if (!hsrequest.isSecure() && 
         needHttps(hsrequest, cipher, authReq)) {
-//       System.out.println("moving over to https");
+      _log.debug("moving over to https");
       redirectToHttps(hrequest, hresponse, hsrequest, hsresponse);
       return;
     }
@@ -155,10 +180,18 @@ public class DualAuthenticator extends ValveBase {
       getURIAuthRequirement(hsrequest.getRequestURI(), cipher, authReq);
     byte userAuthLevel;
 
-//     System.out.println("URI requires " + uriAuthLevel);
+    if (_log.isDebugEnabled()) {
+      _log.debug("URI requires " + uriAuthLevel);
+    }
+    if (uriAuthLevel == AUTH_NEVER) {
+      _log.debug("no user may access this servlet");
+      hsresponse.sendError(HttpServletResponse.SC_FORBIDDEN,
+                           hsrequest.getRequestURI());
+      return;
+    }
     if (uriAuthLevel == AUTH_NONE) {
       // no authentication requirement
-//       System.out.println("no authorization.. invoking servlet");
+      _log.debug("no authorization.. invoking servlet");
       context.invokeNext(request, response);
       return;
     }
@@ -167,31 +200,40 @@ public class DualAuthenticator extends ValveBase {
     Principal principal =  getCachedPrincipal(hrequest, hsrequest);
     userAuthLevel = getAuthLevel(hsrequest.getAuthType());
 
-//     System.out.println("User auth level: " + userAuthLevel);
+    if (_log.isDebugEnabled()) {
+      _log.debug("User auth level: " + userAuthLevel);
+    }
     if (principal == null || userAuthLevel < uriAuthLevel) {
       // The authentication level is not enough. 
-//       System.out.println("Authenticate the user");
+      _log.debug("Authenticate the user");
       principal = authenticate(hrequest, hresponse, 
                                hsrequest, hsresponse, uriAuthLevel);
-//       System.out.println("Authenticated the user: " + principal);
+      if (_log.isDebugEnabled()) {
+        _log.debug("Authenticated the user: " + principal);
+      }
       if (principal == null) {
         failSleep();
         return; // couldn't authenticate
       }
       userAuthLevel = getAuthLevel(hsrequest.getAuthType());
     }
-//     System.out.println("User auth level: " + userAuthLevel);
+    if (_log.isDebugEnabled()) {
+      _log.debug("User auth level: " + userAuthLevel);
+    }
     // we're authenticate, now check the roles
     if (rolesOk(cipher, userAuthLevel, 
                 (CougaarPrincipal) principal, hsrequest)) {
-//       System.out.println("roles are good... invoking servlet");
+      _log.debug("roles are good... invoking servlet");
       // authorization is ok
       context.invokeNext(request, response);
     } else {
       failSleep();
-//       System.out.println("roles are bad... returning error");
+      _log.debug("roles are bad... returning error");
       hsresponse.sendError(HttpServletResponse.SC_FORBIDDEN,
                            hsrequest.getRequestURI());
+    }
+    } catch (Throwable t) {
+      t.printStackTrace();
     }
   }
 
@@ -230,6 +272,22 @@ public class DualAuthenticator extends ValveBase {
   protected boolean rolesOk(String cipher, byte userAuthLevel,
                             CougaarPrincipal principal,
                             HttpServletRequest req) {
+    if (USE_DAML) {
+      CypherSuiteWithAuth c = new CypherSuiteWithAuth(cipher,
+                                                      "none",
+                                                      "none",
+                                                      userAuthLevel);
+      
+      String roles[] = principal.getRoles();
+      HashSet roleSet = new HashSet();
+      for (int i = 0; i < roles.length; i++) {
+        roleSet.add(roles[i]);
+      }
+      return _enforcer.isActionAuthorized(roleSet, 
+                                          uriToPath(req.getRequestURI()),
+                                          c);
+                                          
+    }
     SecurityConstraint constraint = findConstraint(req.getRequestURI());
     if (constraint == null) {
       return true;
@@ -306,23 +364,35 @@ public class DualAuthenticator extends ValveBase {
 
   protected byte getURIAuthRequirement(String path, String cipher, 
                                        CypherSuiteWithAuth cwa) {
-    if (USE_DAML) {
-      return (byte) cwa.getAuth();
-    }
     byte constraint = 0;
+    if (USE_DAML) {
+      if (cwa == null) {
+        // don't bother authenticating when you already know you can't reach it
+        return AUTH_NEVER; 
+      }
+      constraint = (byte) cwa.getAuth();
+      if (_log.isDebugEnabled()) {
+        _log.debug("using URI constraint: " + constraint);
+      }
+      return constraint;
+    }
     HashMap checkAgainst = _constraints;
     do {
       Iterator iter = checkAgainst.entrySet().iterator(); 
       while (iter.hasNext()) {
         Map.Entry entry = (Map.Entry) iter.next();
         String wildPath = (String) entry.getKey();
-//         System.out.println("Checking " + path + " against " + wildPath);
+        if (_log.isDebugEnabled()) {
+          _log.debug("Checking " + path + " against " + wildPath);
+        }
         boolean match = checkMatch(path, wildPath);
         
         if (match) {
           String type = (String) entry.getValue();
           constraint = getAuthLevel(type);
-//           System.out.println("constraint = " + constraint + " from " + type);
+          if (_log.isDebugEnabled()) {
+            _log.debug("constraint = " + constraint + " from " + type);
+          }
           if (constraint == AUTH_CERT) {
             return constraint;
           }
@@ -342,10 +412,31 @@ public class DualAuthenticator extends ValveBase {
     } while (true);
   }
 
+  private static String uriToPath(String uri) {
+    if (!uri.startsWith("/$")) {
+      return uri;
+    }
+    int index = uri.indexOf("/", 2);
+    if (index == -1) { 
+      return uri;
+    }
+    return uri.substring(index);
+  }
+
   private CypherSuiteWithAuth getAuthRequirements(String uri, String cipher) {
     if (USE_DAML) {
-      Set reqs = _enforcer.whichCypherSuiteWithAuth(uri);
-      return (CypherSuiteWithAuth) reqs.iterator().next();
+      Set reqs = _enforcer.whichCypherSuiteWithAuth(uriToPath(uri));
+      if (reqs == null) {
+        return null;
+      }
+      Iterator iter = reqs.iterator();
+      while (iter.hasNext()) {
+        CypherSuiteWithAuth cs = (CypherSuiteWithAuth) iter.next();
+        if (cipher.equals(cs.getSymmetric())) {
+          // FIXME! I don't know what cipher is
+          return cs;
+        }
+      }
     }
     return null;
   }
@@ -353,6 +444,9 @@ public class DualAuthenticator extends ValveBase {
   protected boolean needHttps(HttpServletRequest req, String cipher, 
                               CypherSuiteWithAuth cwa) {
     if (USE_DAML) {
+      if (cwa == null) {
+        return true;
+      }
       int authReq = cwa.getAuth();
       return (authReq != cwa.authPassword && authReq != cwa.authNoAuth);
     }
@@ -445,6 +539,7 @@ public class DualAuthenticator extends ValveBase {
       // first try SSL authentication
       boolean authed = authenticate(_primaryAuth,req, sslResponse);
       if (!authed) {
+        _log.debug("Could not authenticate with SSL");
         // not CERT authed
         if (uriAuthLevel == AUTH_CERT) {
           return null; // returned error already
@@ -452,7 +547,10 @@ public class DualAuthenticator extends ValveBase {
 
         // try password
         authed = authenticate(_secondaryAuth, req, resp);
-        if (authed) {
+        if (!authed) {
+          _log.debug("Could not authenticate with password");
+        } else {
+          _log.debug("Authenticated with password");
           // check the user requirements
           CougaarPrincipal principal = 
             (CougaarPrincipal) hreq.getUserPrincipal();
@@ -622,11 +720,13 @@ public class DualAuthenticator extends ValveBase {
                                 Object[] certError,
                                 Object[] passError) 
     throws ServletException, IOException {
-//     System.out.println("certPrincipal:   " + certPrincipal);
-//     System.out.println("passPrincipal:   " + passPrincipal);
-//     System.out.println("totalConstraint: " + totalConstraint);
-//     System.out.println("certInvoked:     " + certInvoked);
-//     System.out.println("passInvoked:     " + passInvoked);
+          if (_log.isDebugEnabled()) {
+//     _log.debug("certPrincipal:   " + certPrincipal);
+//     _log.debug("passPrincipal:   " + passPrincipal);
+//     _log.debug("totalConstraint: " + totalConstraint);
+//     _log.debug("certInvoked:     " + certInvoked);
+//     _log.debug("passInvoked:     " + passInvoked);
+}
 
     if (certPrincipal != null && passPrincipal != null &&
         !certPrincipal.getName().equals(passPrincipal.getName())) {
@@ -646,7 +746,7 @@ public class DualAuthenticator extends ValveBase {
                 ( certInvoked && (totalConstraint & CONST_PASSWORD) == 0 ) ) {
       // ok, there is no role requirement so no authentication is
       // necessary.
-//       System.out.println("no requirement");
+//       _log.debug("no requirement");
       return true;
     } else if ( (totalConstraint & CONST_PASSWORD) != 0 &&
                 passPrincipal == null) {
@@ -681,7 +781,7 @@ public class DualAuthenticator extends ValveBase {
                            remoteAddr, serverPort, protocol, url);
         return false;
       } else {
-//         System.out.println("user is granted");
+//         _log.debug("user is granted");
         return true; // user is granted access
       }
     } else if (!certInvoked && !passInvoked) {
@@ -710,7 +810,7 @@ public class DualAuthenticator extends ValveBase {
       return false;
     } else {
       // authentication is accepted
-//       System.out.println("user auth is accepted");
+//       _log.debug("user auth is accepted");
       return true;
     }
   }

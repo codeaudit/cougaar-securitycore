@@ -33,5 +33,22 @@ public class CypherSuiteWithAuth extends CypherSuite
     }
 
     public int getAuth() { return _auth; }
+
+  public String toString() {
+    return super.toString() + ", auth = " + _auth;
+  }
+
+  public int hashCode() {
+    int hash = super.hashCode();
+    return hash + _auth;
+  }
+
+  public boolean equals(Object obj) {
+    if (super.equals(obj) && obj instanceof CypherSuiteWithAuth) {
+      CypherSuiteWithAuth c = (CypherSuiteWithAuth) obj;
+      return _auth == c._auth;
+    }
+    return false;
+  }
 }
 

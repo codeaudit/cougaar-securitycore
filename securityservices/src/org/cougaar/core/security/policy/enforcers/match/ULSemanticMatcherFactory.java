@@ -187,25 +187,34 @@ public class ULSemanticMatcherFactory
         boolean someMatch     = false;
         boolean someDontMatch = false;
 
-        String role
+        String policyRole
           = className.substring(personPrefix.length());
         for (Iterator personIt = instances.iterator(); 
              personIt.hasNext();) {
           String person = (String) personIt.next();
           person = removeHashChar(person);
 
-          Set roles = UserDatabase.getRoles(person);
+          Set userRoles = UserDatabase.getRoles(person);
+          Set userRolesStripped = new HashSet();
+          for (Iterator userRolesIt = userRoles.iterator();
+               userRolesIt.hasNext();) {
+            String userRole = (String) userRolesIt.next();
+            
+            userRolesStripped.add(userRole
+                                  .substring(userRole.indexOf('\\') + 1));
+          }
           if (_log.isDebugEnabled()) {
             _log.debug("matchSemantically: Roles for person, " 
                        + person + " = ");
-            for(Iterator rolesIt = roles.iterator();
-                rolesIt.hasNext();) {
-              _log.debug("Role: " + rolesIt.next());
+            for(Iterator userRolesIt = userRolesStripped.iterator();
+                userRolesIt.hasNext();) {
+              _log.debug("Role: " + userRolesIt.next());
             }
             _log.debug("matchSemantically: contains role, "
-                       + role + "?");
+                       + policyRole + "?");
           }
-          if (roles.contains(role)) {
+
+          if (userRolesStripped.contains(policyRole)) {
             _log.debug("matchSemantically: yes");
             someMatch = true;
           } else {

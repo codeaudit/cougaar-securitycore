@@ -44,4 +44,41 @@ public class CypherSuite {
    * vector of strings.
    */
   public String getChecksum()    { return _checksum;   }
+
+  public String toString() {
+    return "CypherSuite: symmetric = " + _symmetric + 
+      ", asymmetric = " + _assymetric + 
+      ", checksum = " + _checksum;
+  }
+
+  public int hashCode() {
+    int hash = 0;
+    if (_symmetric != null) {
+      hash = _symmetric.hashCode();
+    }
+    if (_assymetric != null) {
+      hash ^= _assymetric.hashCode();
+    }
+    if (_checksum != null) {
+      hash ^= _checksum.hashCode();
+    }
+    return hash;
+  }
+
+  public boolean equals(Object obj) {
+    if (obj instanceof CypherSuite) {
+      CypherSuite c = (CypherSuite) obj;
+      return (eq(c._symmetric, _symmetric) &&
+              eq(c._assymetric, _assymetric) &&
+              eq(c._checksum, _checksum));
+    }
+    return false;
+  }
+    
+  private static boolean eq(String one, String two) {
+    if (one == null || two == null) {
+      return one == two;
+    }
+    return one.equals(two);
+  }
 }

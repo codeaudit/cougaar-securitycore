@@ -1,2 +1,2 @@
 http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction BootPolicyHighCrypto.msg
-
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction BootServletPolicy.sbj

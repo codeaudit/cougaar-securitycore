@@ -5,6 +5,8 @@ import java.util.*;
 import org.cougaar.core.security.policy.enforcers.ontology.*;
 import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
 import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 import kaos.ontology.repository.TargetInstanceDescription;
 
@@ -38,6 +40,14 @@ public class HardWired {
   public final static String [] ulRoles
     = {"Administrator", "Guest", "General"};
 
+  private static LoggingService _log;
+
+  public static void setServiceBroker(ServiceBroker sb) {
+    if (_log == null) {
+      _log = (LoggingService) sb.getService( new HardWired(),
+                                             LoggingService.class, null );
+    }
+  }
 
   /**
    * There will need to ultimately be a mechanism that grabs roles
@@ -74,12 +84,20 @@ public class HardWired {
   public final static Map uriMap;
   static {
     uriMap = new HashMap();
-    uriMap.put("http://www.policy.super.com/$EnclaveEight/Policy",
+    uriMap.put("/policyAdmin",
                EntityInstancesConcepts.EntityInstancesDamlURL
                +  "PolicyServlet");
-    uriMap.put("http://www.CAisUS.com/$EnclaveThree/CA",
-               EntityInstancesConcepts.EntityInstancesDamlURL
-               +  "CAServlet");
+
+
+    // CA servlet
+    String caServlet = EntityInstancesConcepts.EntityInstancesDamlURL +
+      "CAServlet";
+    uriMap.put("/CA/RevokeCertificateServlet", caServlet);
+    uriMap.put("/CA/CreateCaKeyServlet", caServlet);
+    uriMap.put("/CA/SubmitCaKeyServlet", caServlet);
+    uriMap.put("/CA/ProcessPendingCertServlet", caServlet);
+    uriMap.put("/CA/CaKeyManagement", caServlet);
+    uriMap.put("/useradmin", caServlet);
   }
 
   /**
@@ -118,11 +136,11 @@ public class HardWired {
     weakCrypto = new HashSet();
 	
     weakCrypto.add(new CypherSuite("DES",
-                                   "None",
-                                   "None"));
-    weakCrypto.add(new CypherSuite("Plaintext",
-                                   "None",
-                                   "None"));
+                                   "none",
+                                   "none"));
+    weakCrypto.add(new CypherSuite("plain",
+                                   "none",
+                                   "none"));
   }
 
   public static final Set weakCryptoWithAuth;
@@ -131,18 +149,18 @@ public class HardWired {
 	
     weakCryptoWithAuth.add(
               new CypherSuiteWithAuth("DES",
-                                      "None",
-                                      "None",
+                                      "none",
+                                      "none",
                                       CypherSuiteWithAuth.authPassword));
     weakCryptoWithAuth.add(
-              new CypherSuiteWithAuth("Plaintext",
-                                      "None",
-                                      "None",
+              new CypherSuiteWithAuth("plain",
+                                      "none",
+                                      "none",
                                       CypherSuiteWithAuth.authPassword));
     weakCryptoWithAuth.add(
-              new CypherSuiteWithAuth("Plaintext",
-                                      "None",
-                                      "None",
+              new CypherSuiteWithAuth("plain",
+                                      "none",
+                                      "none",
                                       CypherSuiteWithAuth.authNoAuth));
   }
 
@@ -256,11 +274,17 @@ public class HardWired {
   public static boolean addCypherSuiteWithAuthTarget(Set targets, 
                                                      CypherSuiteWithAuth c)
   {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Trying to add targets for cipher suite: " + c);
+    }
     boolean weak   = weakCryptoWithAuth.contains(c);
     boolean strong = nsaApprovedWithAuth.contains(c);
 
-    if (weak && strong) { return true; } 
-    else if (weak) {
+    if (weak && strong) { 
+      _log.debug("Both weak and strong. No target needed.");
+      return true; 
+    } else if (weak) {
+      _log.debug("Adding weak auth target.");
       Set weakAuth = new HashSet();
       weakAuth.add((Object) (EntityInstancesConcepts.EntityInstancesDamlURL
                              + "Weak"));
@@ -270,6 +294,7 @@ public class HardWired {
                             weakAuth));
       return true;
     } else if (strong) {
+      _log.debug("Adding strong auth target.");
       Set strongAuth = new HashSet();
       strongAuth.add(
                      (Object) (EntityInstancesConcepts.EntityInstancesDamlURL
@@ -280,6 +305,7 @@ public class HardWired {
                             strongAuth));
       return true;
     } else {
+      _log.debug("Unknown auth target.");
       return false;
     }
 

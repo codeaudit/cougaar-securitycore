@@ -84,6 +84,8 @@ public class ServletNodeEnforcer
    *
    */
   public ServletNodeEnforcer(ServiceBroker sb) {
+    // FIXME!!
+    HardWired.setServiceBroker(sb);
     _sb = sb;
     _log = (LoggingService) 
       _sb.getService(this, LoggingService.class, null);

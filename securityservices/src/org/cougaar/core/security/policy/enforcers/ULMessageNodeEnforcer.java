@@ -82,6 +82,8 @@ public class ULMessageNodeEnforcer
   public ULMessageNodeEnforcer(ServiceBroker sb, List agents)
   {
     try {
+      // FIXME!!
+      HardWired.setServiceBroker(sb);
       _sb = sb;
       _agents=agents;
       _log = (LoggingService) 

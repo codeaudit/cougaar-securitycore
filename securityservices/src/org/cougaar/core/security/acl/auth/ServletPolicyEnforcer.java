@@ -77,6 +77,8 @@ public class ServletPolicyEnforcer
   long                _sleepTime = 1000;
   long                _sessionLife;
   HashSet             _agents = new HashSet();
+  private static final boolean USE_DAML = 
+    Boolean.getBoolean(DualAuthenticator.DAML_PROPERTY);
 
   public ServletPolicyEnforcer(ServiceBroker sb) {
     _serviceBroker = sb;
@@ -308,6 +310,9 @@ public class ServletPolicyEnforcer
                                      String policyTargetID,
                                      String policyTargetName,
                                      String policyType) {
+      if (USE_DAML) {
+        log.info("Ignoring XML Servlet Policy -- using DAML");
+      }
       if (policyIn == null || !(policyIn instanceof ServletPolicy)) {
         return;
       }
