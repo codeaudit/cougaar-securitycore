@@ -128,7 +128,7 @@ class ResultParser
 
     outputMissingTests(outputFile, @experimentMissingTests, "experimentTestList",
 	["  <!-- Contains tests that were configured for this run.\n",
-	 "       Results should have been reported but were not. -->\n",
+	 "       Results should have been reported but were not.\n",
 	 "       This could be caused by a scripting error or a society error -->\n"])
 
     outputFile << "</securityResults>\n"
