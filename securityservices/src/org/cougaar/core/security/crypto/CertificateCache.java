@@ -44,11 +44,21 @@ import java.net.*;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.SchedulerService;
+import org.cougaar.core.service.AlarmService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.service.EventService;
+
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceAvailableEvent;
-
+import org.cougaar.core.blackboard.BlackboardClient;
+import org.cougaar.core.blackboard.SubscriberException;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.thread.Schedulable;
 // Cougaar security services
 import org.cougaar.core.security.ssl.KeyRingSSLFactory;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
@@ -56,6 +66,7 @@ import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.ssl.*;
+import org.cougaar.core.security.crypto.blackboard.InUseDNObject;
 
 import org.cougaar.core.security.util.*;
 
@@ -73,7 +84,7 @@ import org.cougaar.core.security.util.*;
  *    issued certificate first.
  */
 
-final public class CertificateCache implements CertificateCacheService  {
+final public class CertificateCache implements CertificateCacheService, BlackboardClient  {
 
   /** A hashtable that contains a cache of all the certificates (including valid and non valid certs)
    *  The hashtable key is a Principal.
@@ -112,8 +123,15 @@ final public class CertificateCache implements CertificateCacheService  {
    */
   private NameMapping nameMapping;
   private CryptoClientPolicy cachecryptoClientPolicy;
-  private CRLCacheServiceAvailableListener crlCacheServiceAvailable=null;
+  private MyServiceAvailableListener serviceAvailableListener =null;
   private CRLCacheService _crlCacheService;
+  protected String blackboardClientName;
+  private BlackboardService _blackboardService=null;
+  private AlarmService _alarmService =null;
+  private ThreadService _threadService=null;
+  private boolean initPublishDN=false;
+  private EventService   _eventService;
+  private MessageAddress myAddress;
    
 /** Cache to store strings containing revoked certificate DN, issuer DN, and serial number,
  * The certificate being revoked may not be in cert cache.
@@ -143,7 +161,41 @@ final public class CertificateCache implements CertificateCacheService  {
 			       ConfigParserService.class,
 			       null);
     nameMapping = new NameMapping(serviceBroker);
+    _alarmService= (AlarmService)serviceBroker.getService(this,
+                                                          AlarmService.class,
+                                                          null);
+    _threadService= (ThreadService)serviceBroker.getService(this,
+                                                            ThreadService.class,
+                                                            null);
+    _blackboardService = (BlackboardService)serviceBroker.getService(this,
+                                                                     BlackboardService.class,
+                                                                     null);
+    if(_blackboardService == null) {
+      if(log.isDebugEnabled()) {
+        log.debug(" BB Service is NULL in int of Certificate cache :");
+      }
+    }
+    _crlCacheService = (CRLCacheService)serviceBroker.getService(this,
+                                                                 CRLCacheService.class,
+                                                                 null);
+    _eventService = (EventService)serviceBroker.getService(this,
+                                                           EventService.class,
+                                                           null);
+    AgentIdentificationService ais = (AgentIdentificationService)
+      serviceBroker.getService(this, AgentIdentificationService.class, null);
+    if (ais != null) {
+      myAddress = ais.getMessageAddress();
+      serviceBroker.releaseService(this, AgentIdentificationService.class,
+                                   ais);
+    }
     
+    if(((_crlCacheService==null) || (_blackboardService==null) || 
+        (_threadService==null)   || (_eventService == null)) &&
+       (serviceAvailableListener==null)) {
+      serviceAvailableListener=new MyServiceAvailableListener();
+      serviceBroker.addServiceListener(serviceAvailableListener);
+    }
+        
     if (secprop == null) {
       throw new RuntimeException("unable to get security properties service");
     }
@@ -299,18 +351,7 @@ final public class CertificateCache implements CertificateCacheService  {
       log.debug("Secure message CA keystore: path="
 		+ param.caKeystorePath);
     }
-    _crlCacheService = (CRLCacheService)
-      serviceBroker.getService(this,
-			       CRLCacheService.class,
-			       null);
-    if((_crlCacheService==null) &&(crlCacheServiceAvailable==null)){
-      if(log.isDebugEnabled()) {
-        log.debug(" Adding CRLCacheServiceAvailableListener in int of Certificate cache :");
-      }
-      crlCacheServiceAvailable=new CRLCacheServiceAvailableListener();
-      serviceBroker.addServiceListener(crlCacheServiceAvailable);
-    }
-      
+             
     try {
       // Open Keystore
       keystore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -359,7 +400,8 @@ final public class CertificateCache implements CertificateCacheService  {
 	log.warn("Unable to close CA keystore:" + e);
 	throw new RuntimeException("Unable to close CA keystore:" + e);
       }
-    } 
+    }
+    
     
   }
 
@@ -841,23 +883,32 @@ final public class CertificateCache implements CertificateCacheService  {
       }
       ret = addCertStatus(list, certEntry, null);
       certsCache.put(principal.getName(), list);
-      if(_crlCacheService!=null) {
-        if(certEntry.getCertificateType()==CertificateType.CERT_TYPE_CA) {
+      if(certEntry.getCertificateType()==CertificateType.CERT_TYPE_CA) {
+        if(_blackboardService!=null) {
+          if(log.isDebugEnabled()) {
+            log.debug("Calling publishDNtoBB for DN :" +principal.getName() );
+          }
+          publishDNtoBB(principal.getName());
+        }
+        if(_crlCacheService!=null) {
           _crlCacheService.addToCRLCache(cert.getSubjectDN().getName());
           log.debug("Update CRL Cache with DN :"+ cert.getSubjectDN().getName());
         }
-      }
-      else {
-        log.debug("CRL Cache Service is NULL in addCertificate(CertificateStatus certEntry) .. cannot update CRL cache with DN:"+
-                 cert.getSubjectDN().getName()); 
-        if(crlCacheServiceAvailable==null) {
-          log.debug("Adding CRL cache Service Listner :");
-          crlCacheServiceAvailable=new CRLCacheServiceAvailableListener();
-          serviceBroker.addServiceListener(crlCacheServiceAvailable);
-        } 
+        else {
+          log.debug("CRL Cache Service is NULL in addCertificate(CertificateStatus certEntry) .. cannot update CRL cache with DN:"+
+                    cert.getSubjectDN().getName()); 
+          if(serviceAvailableListener==null) {
+            log.debug("Adding CRL cache Service Listner :");
+            serviceAvailableListener=new MyServiceAvailableListener();
+            serviceBroker.addServiceListener(serviceAvailableListener);
+          } 
         
-      }
-    }
+        }// end of else
+        if (_eventService != null && _eventService.isEventEnabled()) {
+          sendEvent(cert.getSubjectDN().getName());
+        }
+      }// end of if(certEntry.getCertificateType()==CertificateType.CERT_TYPE_CA)
+    }// end of if(certEntry != null)
     return ret;
   }
 
@@ -1263,23 +1314,27 @@ final public class CertificateCache implements CertificateCacheService  {
     certstatus = addCertificate(certstatus);
     // Update Common Name to DN hashtable
     nameMapping.addName(certstatus);
-    
-    if(certType == CertificateType.CERT_TYPE_CA) {
+    /*
+      there is no need to update CRL Cache as it is already being done in 
+      addCertificate method 
+      -- Rakesh 
+      
+      if(certType == CertificateType.CERT_TYPE_CA) {
       if(_crlCacheService!=null) {
-        log.debug("Adding to  CRL cache dn:"+certificate.getSubjectDN().getName());
-        _crlCacheService.addToCRLCache(certificate.getSubjectDN().getName());
+      log.debug("Adding to  CRL cache dn:"+certificate.getSubjectDN().getName());
+      _crlCacheService.addToCRLCache(certificate.getSubjectDN().getName());
       }
       else {
-        log.debug ("CRL cache Service is NULL in addKeyToCache method  . Unable to update CRL cache for dn:"
-                 +certificate.getSubjectDN().getName());
-        if(crlCacheServiceAvailable==null) {
-          log.debug("Adding CRL cache Service Listner :");
-          crlCacheServiceAvailable=new CRLCacheServiceAvailableListener();
-          serviceBroker.addServiceListener(crlCacheServiceAvailable);
-        }
+      log.debug ("CRL cache Service is NULL in addKeyToCache method  . Unable to update CRL cache for dn:"
+      +certificate.getSubjectDN().getName());
+      if(serviceAvailableListener==null) {
+      log.debug("Adding CRL cache Service Listner :");
+      serviceAvailableListener=new MyServiceAvailableListener();
+      serviceBroker.addServiceListener(serviceAvailableListener);
       }
-    }
-    
+      }
+      }
+    */
     if (key != null) {
       if (log.isDebugEnabled()) {
 	log.debug("add Private Key from keystore");
@@ -1396,16 +1451,20 @@ final public class CertificateCache implements CertificateCacheService  {
     if (log.isDebugEnabled()) {
       log.debug("Update sslCert status in hash map: " + dname);
     }
-    if(certType == CertificateType.CERT_TYPE_CA ) {
+    /*
+      there is no need to add the certificate to CRL Cache here as it will be done in 
+      addCertificate
+      -- Rakesh
+      if(certType == CertificateType.CERT_TYPE_CA ) {
       if(_crlCacheService!=null) {
-        _crlCacheService.addToCRLCache(dname);
+      _crlCacheService.addToCRLCache(dname);
       }
       else {
-        log.warn("Unable to add ssl certificate to CRL Cache as cl Cache service is null:"+dname); 
+      log.warn("Unable to add ssl certificate to CRL Cache as CRL Cache service is null:"+dname); 
       }
-
-      
-    }
+     
+      }
+    */
     addCertificate(certstatus);
     nameMapping.addName(certstatus);
   }
@@ -1651,9 +1710,110 @@ final public class CertificateCache implements CertificateCacheService  {
     return param.caKeystorePath;
   }
 
+  public void publishDNtoBB( String dname) {
+   
+    if(log.isDebugEnabled()) {
+      log.debug(" publishDNstoBB(dname ) ");
+    } 
+    if((_threadService ==null) || (_blackboardService ==null) || (dname == null)) {
+      if(log.isDebugEnabled()) {
+        log.debug(" In publishDNstoBB(dname ) either blackboard service or thread service  or dn name is null ");
+      }
+      return;
+    }
+    final String dnName=dname;
+    Schedulable dnPublisherThread = _threadService.getThread(CertificateCache.this, new Runnable( ) {
+        public void run(){
+          _blackboardService.openTransaction();
+          _blackboardService.publishAdd(new InUseDNObject(dnName));
+          try {
+            _blackboardService.closeTransaction() ;
+          }
+          catch(SubscriberException subexep) {
+            log.warn(" Unable to publish  in InUseDNObject :"+ subexep.getMessage());
+            return;
+          }
+        }
+      },"DNPublisherThread");
+    dnPublisherThread.start();
+  }
+ 
+  public void createEvents() {
+    if(log.isDebugEnabled()) {
+      log.debug(" createevents called from MyServiceAvailableListener");
+    }
+    _eventService = (EventService)serviceBroker.getService(this,
+                                                           EventService.class,
+                                                           null);
+    if (_eventService == null || !_eventService.isEventEnabled()) {
+      return;
+    }
+    Enumeration e = certsCache.keys();
+    while (e.hasMoreElements()) {
+      String name = (String) e.nextElement();
+      List list = (List) certsCache.get(name);
+      ListIterator it = list.listIterator();
+      while (it.hasNext()) {
+        CertificateStatus cs = (CertificateStatus) it.next();
+        if(cs!=null) {
+          if(cs.getCertificateType()==CertificateType.CERT_TYPE_CA){
+            X509Certificate cert=cs.getCertificate();
+            if(cert!=null) {
+              sendEvent(cert.getSubjectDN().getName());
+              break;
+            }
+            else {
+              log.warn("get certifcate with cs returned null for dn increateEvents  ="+name);
+            }
+          }
+        }
+      }
+    }
+  }
+  public void publishDNstoBB(){
+    if(log.isDebugEnabled()) {
+      log.debug(" publishDNstoBB called from MyServiceAvailableListener");
+    }
+    _threadService= (ThreadService)serviceBroker.getService(this,
+                                                            ThreadService.class,
+                                                            null);
+    _blackboardService = (BlackboardService)serviceBroker.getService(this,
+                                                                     BlackboardService.class,
+                                                                     null);
+    if((_threadService!=null)&&(_blackboardService != null) && (!initPublishDN)){
+      Enumeration e = certsCache.keys();
+      while (e.hasMoreElements()) {
+        String name = (String) e.nextElement();
+        List list = (List) certsCache.get(name);
+        ListIterator it = list.listIterator();
+        while (it.hasNext()) {
+          CertificateStatus cs = (CertificateStatus) it.next();
+          if(cs!=null) {
+            if(cs.getCertificateType()==CertificateType.CERT_TYPE_CA){
+              X509Certificate cert=cs.getCertificate();
+              if(cert!=null) {
+                publishDNtoBB(cert.getSubjectDN().getName());
+                break;
+              }
+              else {
+                log.warn("get certifcate with cs returned null for dn ="+name);
+              }
+            }
+          }
+          else {
+            log.warn("Certificate Status is null for :"+ name);
+          }
+        }//end of  while (it.hasNext())
+      }//end of  while (e.hasMoreElements())
+       
+      initPublishDN =true; 
+
+    }// end of if((_threadService!=null)&&(_blackboardService != null) && (!initPublishDN))
+  }
+
   public void updateCRLCache()  {
     
-    log.debug(" UpdateCRLCache called from CRLCacheServiceAvailableListener");
+    log.debug(" UpdateCRLCache called from MyServiceAvailableListener");
     if (_crlCacheService == null) {
       _crlCacheService=(CRLCacheService)
         serviceBroker.getService(this, CRLCacheService.class, null);
@@ -1672,13 +1832,14 @@ final public class CertificateCache implements CertificateCacheService  {
               X509Certificate cert=cs.getCertificate();
               if(cert!=null) {
                 _crlCacheService.addToCRLCache(cert.getSubjectDN().getName());
+                break;
               }
               else {
                 log.warn("get certifcate with cs returned null for dn ="+name);
               }
             }
             else {
-            log.warn("CRL cache is null.. though CRLCacheServiceAvailableListener was called :");
+              log.warn("CRL cache is null.. though MyServiceAvailableListener was called :");
             }
           }
         }
@@ -1689,15 +1850,88 @@ final public class CertificateCache implements CertificateCacheService  {
     }
   }
 
-  private class CRLCacheServiceAvailableListener implements ServiceAvailableListener{
+  public synchronized String getBlackboardClientName() {
+    
+    if (blackboardClientName == null) {
+      StringBuffer buf = new StringBuffer();
+      buf.append(getClass().getName());
+      blackboardClientName = buf.toString();
+    }
+    return blackboardClientName;
+  }
+
+  public long currentTimeMillis() {
+    if(_alarmService == null) {
+      _alarmService= (AlarmService)serviceBroker.getService(this,
+                                                            AlarmService.class,
+                                                            null);
+    }
+    if (_alarmService != null)
+      return _alarmService.currentTimeMillis();
+    else
+      return System.currentTimeMillis();
+  }
+
+  public void setEventService(EventService service) {
+    _eventService = service;
+  }
+
+  private void sendEvent(String dn) {
+    if((_eventService == null) || (!_eventService.isEventEnabled()) || (myAddress ==null)) {
+      return;
+    }
+    
+    _eventService.event("[STATUS] CADNAddToCertificateCache(" +
+                        myAddress.toAddress() +
+                        ") DN(" +
+                        dn +
+                        ")");
+
+  }
+
+  private class MyServiceAvailableListener implements ServiceAvailableListener{
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
+      if(log.isDebugEnabled()) {
+        log.debug(" MyServiceAvailableListener listener called for service :"+ sc.getName());
+      }
       if( CRLCacheService.class.isAssignableFrom(sc)) {
 	log.info("CRL Cache Service is available now in Certificate Cache going to call updateCRLCache");
-	updateCRLCache();	
+        if(_crlCacheService == null) {
+          updateCRLCache();	
+        }
+      }
+      if(BlackboardService.class.isAssignableFrom(sc)) {
+        log.info("Black board Service is available now in Certificate Cache going to publish used CA DNS ");
+        if(_blackboardService == null) {
+          publishDNstoBB();
+        }
+      }
+      if(ThreadService.class.isAssignableFrom(sc)) {
+        log.info("Thread Service is available now in Certificate Cache going to publish used CA DNS ");
+        if(_threadService == null) {
+          publishDNstoBB();
+        }
+      }
+      if(EventService.class.isAssignableFrom(sc)) {
+        log.info("Event Service is available now in Certificate Cache going to publish used CA DNS ");
+        if(_eventService == null) {
+          createEvents();
+        }
+      }
+      if ( (sc == AgentIdentificationService.class) &&(myAddress==null) ) {
+	log.info(" AgentIdentification Service is available now in Certificate Cache");
+        AgentIdentificationService ais = (AgentIdentificationService)
+          serviceBroker.getService(this, AgentIdentificationService.class, null);
+        if(ais!=null){
+          myAddress = ais.getMessageAddress();
+          createEvents();
+        }
+        serviceBroker.releaseService(this, AgentIdentificationService.class, ais);
       }
     }
   }
+  
   
 
 }
