@@ -119,6 +119,7 @@ $okMessages= [
 
   # This is part of another exception - maybe i misnamed this class
   [nil, /^\s*at org.cougaar.core.security.crypto.RemotePolicyExceptionAspect/],
+  [nil, /ALCommBasedRegistrationPlugin - .*: updateRegisterTaskDisposition.. leaving confidence at 1.0 after rehydration even though reregistration is not complete./],
   ############################################################
   # Possible issues
   ###########################################################
@@ -147,6 +148,9 @@ $repeatingErrors = [
    /ALDynamicSDClientPlugin.*Unable to generate .* for .*/,
    /KeyRing.*Missing certificate for.*adding it to request/,
    /RogueThreadScheduler/,
+   /isSelfPropelled - found task /,
+   /.*VishnuPlugin - .*VishnuPlugin - unexpected : there already is a task .* in table with key .* it was .*/,
+   /WARN  - LineagePlugin - .* has Lineage: UID=.*, type=.*, list=.*, schedule=/,
 ]
 
 #
@@ -162,7 +166,7 @@ $fatalErrors = [
 # Code Section
 #
 
-$repeatCount = 5
+$repeatCount = 3
 
 #
 # a class to facilitate lazy evaluation of Time.local
