@@ -43,33 +43,31 @@ import java.security.cert.CertificateException;
 
 
 /**
- /**
- * Service for YP servers and clients to use 
- * 	for protecting and verifying  YP 
- * 	messages
+ * Service for YP servers and clients to use  for protecting and verifying  YP
+ * messages
  *
- * @author ttschampel 
+ * @author ttschampel
  */
 public interface YellowPagesProtectionService extends Service {
-    /**
-     * Signs the request and wraps the request with the certificate chain used
-     * for signing
-     *
-     * @param agent - The agent making the request
-     * @param message - the yellow page message
-     *
-     * @return the wraped request object
-     */
-    public ProtectedRequest protectMessage(String agent, YPMessage message)
-        throws CertificateException, GeneralSecurityException;
+  /**
+   * Signs the request and wraps the request with the certificate chain used
+   * for signing
+   *
+   * @param agent - The agent making the request
+   * @param message - the yellow page message
+   *
+   * @return the wraped request object
+   */
+  public ProtectedRequest protectMessage(String agent, YPMessage message)
+    throws CertificateException, GeneralSecurityException;
 
 
-    /**
-     * Installs and verifies the signing certificate
-     *
-     * @param agent - The agent making the request
-     * @param request - the request object
-     */
-    public void verfifyMessage(String agent, ProtectedRequest request)
-        throws CertificateException;
+  /**
+   * Installs and verifies the signing certificate
+   *
+   * @param agent - The agent making the request
+   * @param request - the request object
+   */
+  public void verfifyMessage(String agent, ProtectedRequest request)
+    throws CertificateException;
 }

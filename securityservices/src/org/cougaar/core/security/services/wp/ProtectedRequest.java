@@ -24,6 +24,7 @@
  * -
  */
 
+
 package org.cougaar.core.security.services.wp;
 
 
@@ -38,56 +39,56 @@ import java.security.cert.X509Certificate;
  * @author mabrams
  */
 public class ProtectedRequest {
-    private X509Certificate[] certificateChain = null;
-    private SignedObject signedObject = null;
+  private X509Certificate[] certificateChain = null;
+  private SignedObject signedObject = null;
 
-    /**
-     * Creates a new <code>ProtectRequest</code> object
-     *
-     * @param chain - the certificate chain
-     * @param signed - the signed object
-     */
-    public ProtectedRequest(X509Certificate[] chain, SignedObject signed) {
-        this.certificateChain = chain;
-        this.signedObject = signed;
-    }
+  /**
+   * Creates a new <code>ProtectRequest</code> object
+   *
+   * @param chain - the certificate chain
+   * @param signed - the signed object
+   */
+  public ProtectedRequest(X509Certificate[] chain, SignedObject signed) {
+    this.certificateChain = chain;
+    this.signedObject = signed;
+  }
 
-    /**
-     * Gets the certificate chain for the signed object
-     *
-     * @return the <code>X509Certificate</code> chain
-     */
-    public X509Certificate[] getCertificateChain() {
-        return certificateChain;
-    }
-
-
-    /**
-     * Sets the <code>X509Certificate</code> chain
-     *
-     * @param certChain - the certificate chain for the signed object
-     */
-    public void setCertificateChain(X509Certificate[] certChain) {
-        this.certificateChain = certChain;
-    }
+  /**
+   * Gets the certificate chain for the signed object
+   *
+   * @return the <code>X509Certificate</code> chain
+   */
+  public X509Certificate[] getCertificateChain() {
+    return certificateChain;
+  }
 
 
-    /**
-     * Gets the signed object
-     *
-     * @return the <code>SignedObject</code>
-     */
-    public SignedObject getSignedObject() {
-        return signedObject;
-    }
+  /**
+   * Sets the <code>X509Certificate</code> chain
+   *
+   * @param certChain - the certificate chain for the signed object
+   */
+  public void setCertificateChain(X509Certificate[] certChain) {
+    this.certificateChain = certChain;
+  }
 
 
-    /**
-     * Sets the signed object for this class
-     *
-     * @param signedObj
-     */
-    public void setSignedObject(SignedObject signedObj) {
-        this.signedObject = signedObj;
-    }
+  /**
+   * Gets the signed object
+   *
+   * @return the <code>SignedObject</code>
+   */
+  public SignedObject getSignedObject() {
+    return signedObject;
+  }
+
+
+  /**
+   * Sets the signed object for this class
+   *
+   * @param signedObj
+   */
+  public void setSignedObject(SignedObject signedObj) {
+    this.signedObject = signedObj;
+  }
 }

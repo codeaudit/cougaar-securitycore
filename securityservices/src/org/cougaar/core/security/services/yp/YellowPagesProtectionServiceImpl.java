@@ -60,101 +60,101 @@ import java.util.List;
  * @author ttschampel
  */
 public class YellowPagesProtectionServiceImpl
-    implements YellowPagesProtectionService {
-    private static final String NAME = "YellowPagesProtectionServiceImpl";
-    private ServiceBroker serviceBroker = null;
-    private LoggingService log = null;
-    private EncryptionService encryptService = null;
-    private CertificateCacheService csrv = null;
-    private KeyRingService keyRingService = null;
-    private SecureMethodParam policy = null;
+  implements YellowPagesProtectionService {
+  private static final String NAME = "YellowPagesProtectionServiceImpl";
+  private ServiceBroker serviceBroker = null;
+  private LoggingService log = null;
+  private EncryptionService encryptService = null;
+  private CertificateCacheService csrv = null;
+  private KeyRingService keyRingService = null;
+  private SecureMethodParam policy = null;
 
-    /**
-     * Creates a new YellowPagesProtectionServiceImpl object.
-     *
-     * @param sb ServiceBroker
-     */
-    public YellowPagesProtectionServiceImpl(ServiceBroker sb) {
-        serviceBroker = sb;
-        log = (LoggingService) serviceBroker.getService(this,
-                LoggingService.class, null);
-        encryptService = (EncryptionService) serviceBroker.getService(this,
-                EncryptionService.class, null);
-        csrv = (CertificateCacheService) serviceBroker.getService(this,
-                CertificateCacheService.class, null);
-        keyRingService = (KeyRingService) serviceBroker.getService(this,
-                KeyRingService.class, null);
-        policy = new SecureMethodParam();
-        if (log.isDebugEnabled()) {
-            log.debug(NAME + " instantiated");
-        }
+  /**
+   * Creates a new YellowPagesProtectionServiceImpl object.
+   *
+   * @param sb ServiceBroker
+   */
+  public YellowPagesProtectionServiceImpl(ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService) serviceBroker.getService(this, LoggingService.class,
+        null);
+    encryptService = (EncryptionService) serviceBroker.getService(this,
+        EncryptionService.class, null);
+    csrv = (CertificateCacheService) serviceBroker.getService(this,
+        CertificateCacheService.class, null);
+    keyRingService = (KeyRingService) serviceBroker.getService(this,
+        KeyRingService.class, null);
+    policy = new SecureMethodParam();
+    if (log.isDebugEnabled()) {
+      log.debug(NAME + " instantiated");
+    }
+  }
+
+  /**
+   * Create a ProtectedRequest for a YPMessage
+   *
+   * @param agent Name of the requesting Agent
+   * @param message The Yellow Pages Message
+   *
+   * @return ProtectedRequest
+   *
+   * @throws CertificateException CertificationException
+   * @throws GeneralSecurityException GeneralSecurityException
+   */
+  public ProtectedRequest protectMessage(String agent, YPMessage message)
+    throws CertificateException, GeneralSecurityException {
+    List certList = keyRingService.findCert(agent,
+        KeyRingService.LOOKUP_KEYSTORE);
+    if ((certList == null) || !(certList.size() > 0)) {
+      throw new CertificateException(
+        "No certificate available for encrypting or signing: " + agent);
     }
 
-    /**
-     * Create a ProtectedRequest for a YPMessage
-     *
-     * @param agent Name of the requesting Agent
-     * @param message The Yellow Pages Message
-     *
-     * @return ProtectedRequest
-     *
-     * @throws CertificateException CertificationException
-     * @throws GeneralSecurityException GeneralSecurityException
-     */
-    public ProtectedRequest protectMessage(String agent, YPMessage message)
-        throws CertificateException, GeneralSecurityException {
-        List certList = keyRingService.findCert(agent,
-                KeyRingService.LOOKUP_KEYSTORE);
-        if ((certList == null) || !(certList.size() > 0)) {
-            throw new CertificateException(
-                "No certificate available for encrypting or signing: " + agent);
-        }
-
-        CertificateStatus cs = (CertificateStatus) certList.get(0);
-        X509Certificate agentCert = (X509Certificate) cs.getCertificate();
-        X509Certificate[] certChain = keyRingService.buildCertificateChain(agentCert);
+    CertificateStatus cs = (CertificateStatus) certList.get(0);
+    X509Certificate agentCert = (X509Certificate) cs.getCertificate();
+    X509Certificate[] certChain = keyRingService.buildCertificateChain(agentCert);
 
 
-        SignedObject signedObj = null;
+    SignedObject signedObj = null;
 
-        try {
-            signedObj = encryptService.sign(agent, policy.signSpec, message);
-        } catch (GeneralSecurityException e) {
-            throw new GeneralSecurityException(NAME + " " + e.getMessage());
-        } catch (IOException e) {
-            if (log.isWarnEnabled()) {
-                log.warn(NAME + " IOException: " + e);
-            }
+    try {
+      signedObj = encryptService.sign(agent, policy.signSpec, message);
+    } catch (GeneralSecurityException e) {
+      throw new GeneralSecurityException(NAME + " " + e.getMessage());
+    } catch (IOException e) {
+      if (log.isWarnEnabled()) {
+        log.warn(NAME + " IOException: " + e);
+      }
 
-            throw new GeneralSecurityException(NAME + " " + e.getMessage());
-        }
-
-        return new ProtectedRequest(certChain, signedObj);
+      throw new GeneralSecurityException(NAME + " " + e.getMessage());
     }
 
+    return new ProtectedRequest(certChain, signedObj);
+  }
 
-    /**
-     * Verify the Yellow Page Message is valid
-     *
-     * @param agent requesting agent
-     * @param request ProtectedRequest containing  requesting agent's
-     *        certificate information and the  YPMessage
-     *
-     * @throws CertificateException Exception when invalid YPMessage sent
-     */
-    public void verfifyMessage(String agent, ProtectedRequest request)
-        throws CertificateException {
-        X509Certificate[] certChain = request.getCertificateChain();
-        for (int i = certChain.length - 1; i == 0; i--) {
-            keyRingService.checkCertificateTrust(certChain[i]);
-            csrv.addSSLCertificateToCache(certChain[i]);
-        }
 
-        Object signedObj = encryptService.verify(agent, policy.signSpec,
-                request.getSignedObject());
-        if (signedObj == null) {
-            throw new CertificateException(
-                "message not signed with trusted agent certificate");
-        }
+  /**
+   * Verify the Yellow Page Message is valid
+   *
+   * @param agent requesting agent
+   * @param request ProtectedRequest containing  requesting agent's certificate
+   *        information and the  YPMessage
+   *
+   * @throws CertificateException Exception when invalid YPMessage sent
+   */
+  public void verfifyMessage(String agent, ProtectedRequest request)
+    throws CertificateException {
+    X509Certificate[] certChain = request.getCertificateChain();
+    for (int i = certChain.length - 1; i == 0; i--) {
+      keyRingService.checkCertificateTrust(certChain[i]);
+      csrv.addSSLCertificateToCache(certChain[i]);
     }
+
+    Object signedObj = encryptService.verify(agent, policy.signSpec,
+        request.getSignedObject());
+    if (signedObj == null) {
+      throw new CertificateException(
+        "message not signed with trusted agent certificate");
+    }
+  }
 }

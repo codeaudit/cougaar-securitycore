@@ -28,11 +28,11 @@
 package org.cougaar.core.security.services.wp;
 
 
-import java.security.GeneralSecurityException;
-import java.security.cert.CertificateException;
-
 import org.cougaar.core.component.Service;
 import org.cougaar.core.service.wp.Request;
+
+import java.security.GeneralSecurityException;
+import java.security.cert.CertificateException;
 
 
 /**
@@ -42,25 +42,25 @@ import org.cougaar.core.service.wp.Request;
  * @author mabrams
  */
 public interface WhitePagesProtectionService extends Service {
-    /**
-     * Signs the request and wraps the request with the certificate chain used
-     * for signing
-     *
-     * @param agent - The agent making the request
-     * @param request - the request object
-     *
-     * @return the wraped request object
-     */
-    public ProtectedRequest protectRequest(String agent, Request request)
-        throws CertificateException, GeneralSecurityException;
+  /**
+   * Signs the request and wraps the request with the certificate chain used
+   * for signing
+   *
+   * @param agent - The agent making the request
+   * @param request - the request object
+   *
+   * @return the wraped request object
+   */
+  public ProtectedRequest protectRequest(String agent, Request request)
+    throws CertificateException, GeneralSecurityException;
 
 
-    /**
-     * Installs and verifies the signing certificate
-     *
-     * @param agent - The agent making the request
-     * @param request - the request object
-     */
-    public void verfifyRequest(String agent, ProtectedRequest request)
-        throws CertificateException;
+  /**
+   * Installs and verifies the signing certificate
+   *
+   * @param agent - The agent making the request
+   * @param request - the request object
+   */
+  public void verfifyRequest(String agent, ProtectedRequest request)
+    throws CertificateException;
 }
