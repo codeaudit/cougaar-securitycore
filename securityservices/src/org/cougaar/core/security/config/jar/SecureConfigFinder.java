@@ -113,6 +113,9 @@ public class SecureConfigFinder
   
   public InputStream open(String aURL)
     throws IOException {
+    if (_logger.isInfoEnabled()) {
+      _logger.info("Opening " + aURL);
+    }
     return super.open(aURL);
     /*
     Turn the following code to identify components that do not
@@ -193,6 +196,9 @@ public class SecureConfigFinder
    */
   protected void verifyJarFile(JarFile aJarFile)
     throws GeneralSecurityException {
+    if (_logger.isInfoEnabled()) {
+      _logger.info("Verify JarFile " + aJarFile.getName());
+    }
     if (!acceptUnsignedJarFiles()) {
       //do certificate verification, throw an exception
       //and exclude from urls if not trusted
@@ -254,6 +260,9 @@ public class SecureConfigFinder
    */
   protected void verifyInputStream(URL aURL)
     throws IOException, GeneralSecurityException {
+    if (_logger.isInfoEnabled()) {
+      _logger.info("Verify InputStream " + aURL);
+    }
     try {
       // We have to read the file for signature verification.
       InputStream is = new SecureJarFilterStream(aURL);
