@@ -29,7 +29,7 @@ parameters:
 
     - $CIP/csmart/lib/security/rules
     - $CIP/csmart/config/rules/security/mop
-    - $CIP/csmart/config/rules/security/testCollectData
+#    - $CIP/csmart/config/rules/security/testCollectData
 
    # ###
    # Redundant CA and persistence managers
@@ -73,6 +73,7 @@ include_scripts:
     parameters:
       - calculate_mop_label: after_stage_1
       - postCalculate_mop_label: before_stage_2 
+  - script: $CIP/csmart/lib/security/scripts/dm_rehydration_stress.rb
   - script: $CIP/csmart/lib/security/scripts/parseResults.rb
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
     parameters:
