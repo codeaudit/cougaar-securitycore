@@ -40,6 +40,10 @@ import org.cougaar.core.service.identity.*;
 import org.cougaar.core.service.DataProtectionService;
 import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.node.NodeControlService;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.plugin.LDMService;
+import org.cougaar.core.domain.LDMServesPlugin;
 
 // Cougaar overlay
 import org.cougaar.core.security.coreservices.crypto.*;
@@ -236,6 +240,18 @@ public class SecurityServiceProvider
     services.put(CertificateManagementService.class, newSP);
     rootServiceBroker.addService(CertificateManagementService.class, newSP);
 
+
+    /* Starting Certificate Cache  service */
+    newSP = new CertificateCacheServiceProvider(serviceBroker, mySecurityCommunity);
+    services.put(CertificateCacheService.class, newSP);
+    rootServiceBroker.addService(CertificateCacheService.class, newSP);
+     
+    /* Starting CRL Cache  service */
+    newSP = new CRLCacheServiceProvider(serviceBroker, mySecurityCommunity);
+    services.put(CRLCacheService.class, newSP);
+    rootServiceBroker.addService(CRLCacheService.class, newSP);
+
+
     /* Key lookup service */
     newSP = new KeyRingServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(KeyRingService.class, newSP);
@@ -312,6 +328,7 @@ public class SecurityServiceProvider
       // in the functions the permission will be checked.
       rootServiceBroker.getService(this, SSLService.class, null);
 
+           
       KeyRingService krs = 
         (KeyRingService) rootServiceBroker.getService(this, 
                                                       KeyRingService.class,
@@ -352,5 +369,47 @@ public class SecurityServiceProvider
 	krs.getDirectoryKeyStore().finishInitialization();
       }
     }
+    LDMService ldms =null;
+    if(serviceBroker.hasService
+       (org.cougaar.core.plugin.LDMService.class)){
+      ldms = (LDMService)	rootServiceBroker.getService(this, LDMService.class, null);
+      log.info("LDM Service is available initially in Security Service Provider ");
+      if(ldms!=null){
+	LDMServesPlugin ldm=ldms.getLDM();
+	newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
+	services.put(CrlManagementService.class, newSP);
+	rootServiceBroker.addService(CrlManagementService.class, newSP);    
+      }
+    }
+    else {
+      log.debug("Registering  LDMServiceAvailableListener ");
+      serviceBroker.addServiceListener(new LDMServiceAvailableListener ());
+    }
+   
   }
+  
+  private class LDMServiceAvailableListener implements ServiceAvailableListener
+  {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      LDMService ldms=null;
+       ServiceProvider newSP = null;
+      Class sc = ae.getService();
+      if( org.cougaar.core.plugin.LDMService.class.isAssignableFrom(sc)) {
+	ldms = (LDMService) serviceBroker.getService(this, LDMService.class, null);
+	log.info("LDM Service is available now in Security Service provider ");
+	if(ldms!=null){
+	  LDMServesPlugin ldm=ldms.getLDM();
+	  newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
+	  services.put(CrlManagementService.class, newSP);
+	  rootServiceBroker.addService(CrlManagementService.class, newSP);    
+	  log.info("Added  CrlManagementService service  ");
+	}
+	else {
+	  log.info("LDM Service is null in LDMServiceAvailableListener  ");
+	}
+      }
+      
+    }
+  } 
 }
+
