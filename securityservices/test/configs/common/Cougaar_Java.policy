@@ -138,6 +138,16 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "glm_output_stream", "read";
 	permission java.util.PropertyPermission "glm_log_file", "read";
 	permission java.util.PropertyPermission "SAFE.debug", "read";
+	// for Cougaar > 8.6.1
+	permission java.util.PropertyPermission "jaxp.debug", "read";
+	permission java.util.PropertyPermission "driver.postgresql", "read";
+
+	// Vishnu permissions
+	permission java.util.PropertyPermission "UTILPlugInAdapter.showParameters", "read";
+	permission java.util.PropertyPermission "blackjack_output_stream", "read";
+	permission java.util.PropertyPermission "GroundVishnuPlugIn.MAX_DISTANCE", "read";
+	permission java.util.PropertyPermission "vishnu.Scheduler.debug", "read";
+	permission java.util.PropertyPermission "glmtrans.plugins.GroundVishnuPlugIn.complainAboutMissingMovabilityPG", "read"; 
 
 	permission java.util.PropertyPermission "com.nai.*", "read";
 	permission java.util.PropertyPermission "sun.*", "read";
@@ -406,4 +416,5 @@ grant {
 	permission com.nai.security.crypto.KeyRingPermission "installPkcs7Reply";
 	permission com.nai.security.crypto.KeyRingPermission "readPrivateKey";
 	permission java.security.SecurityPermission "printIdentity";
+
 };

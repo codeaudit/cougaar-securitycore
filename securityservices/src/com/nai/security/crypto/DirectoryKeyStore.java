@@ -910,16 +910,20 @@ public class DirectoryKeyStore implements Runnable
 	reply = caClient.signPKCS(request, nodex509.getSubjectDN().getName());
       }
     } catch (Exception e) {
-      System.out.println("Unable to create key: " + commonName + " - Reason:" + e);
-      e.printStackTrace();
+      if (debug) {
+	System.out.println("Unable to create key: " + commonName + " - Reason:" + e);
+	e.printStackTrace();
+      }
     }
     if (alias != null) {
       try{ 
 	installPkcs7Reply(alias, new ByteArrayInputStream(reply.getBytes()));
 	privatekey = (PrivateKey) keystore.getKey(alias, keystorePassword);
       } catch(Exception e) {
-	System.err.println("Error: can't get certificate for " + commonName);
-	e.printStackTrace();
+	if (debug) {
+	  System.err.println("Error: can't get certificate for " + commonName);
+	  e.printStackTrace();
+	}
       }
     }
     return privatekey;
