@@ -41,7 +41,7 @@ java.Xbootclasspath/p=/mnt/shared/integ/lib/javaiopatch.jar
 # java.class.path=/mnt/shared/integ/lib/bootstrap.jar
 # However, the Jython interpreter requires the JAR files
 # referenced from Python be on the "real" classpath.
-java.class.path=/mnt/shared/integ/lib/CougaarCRLextensions.jar
+#java.class.path=/mnt/shared/integ/lib/CougaarCRLextensions.jar
 #java.class.path=/mnt/shared/integ/lib/idmef.jar:/mnt/shared/integ/lib/core.jar:/mnt/shared/integ/lib/securityservices.jar:/mnt/shared/integ/lib/aggagent.jar:/mnt/shared/integ/lib/CougaarCRLextensions.jar
 
 
@@ -57,8 +57,8 @@ java.class.path=/mnt/shared/integ/lib/CougaarCRLextensions.jar
 # Here we override the default configuration path to include both
 # the "common" directory and "GLMTrans" directory.
 #org.cougaar.config.path="/mnt/shared/integ/configs/common\;/mnt/shared/integ/configs/glmtrans\;"
-#org.cougaar.config.path="/mnt/shared/integ/configs/security;/mnt/shared/integ/configs/common;/mnt/shared/integ/configs/glmtrans;"
-org.cougaar.config.path=".;/mnt/shared/integ/configs/security;"
+org.cougaar.config.path="/mnt/shared/integ/configs/security;/mnt/shared/integ/configs/common;/mnt/shared/integ/configs/glmtrans;"
+#org.cougaar.config.path=".;/mnt/shared/integ/configs/security;"
 
 # Some standard memory settings.
 #
@@ -114,7 +114,7 @@ org.cougaar.safe.domainName=TestDomain
 # Naming service over SSL.
 # True to enable naming service over SSL.
 # The certificates need to be createdd first before this feature is turned on.
-org.cougaar.core.naming.useSSL=false
+#org.cougaar.core.naming.useSSL=false
 
 # MTS RMI over SSL
 # The certificates need to be createdd first before this feature is turned on.
@@ -123,7 +123,7 @@ org.cougaar.core.naming.useSSL=false
 # You can also turn on/off http/s. Turn of by setting the port to -1
 # Note that HTTPS is off by default, and HTTP is at 8800
 # HTTP port number
-org.cougaar.lib.web.http.port=5557
+org.cougaar.lib.web.http.port=8800
 
 # HTTPS port number
 # Comment out the following two lines if you don't want HTTPS
@@ -240,3 +240,4 @@ org.cougaar.message.transport.debug=security
 # END DEBUG properties
 # ########################################################
 
+class9.max.parts=5

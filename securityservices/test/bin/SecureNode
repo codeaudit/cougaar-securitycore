@@ -42,7 +42,7 @@ if ($user eq 'ychen') {
 
 @convertFrom = ( '/mnt/shared/integ',
                  'asmt',
-                 '5557',
+                 '8800',
                  '6557',
                  '\$HOSTNAME.log',
                  '\$HOSTNAME',
