@@ -1881,7 +1881,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       return;
     }
     
-    _eventService.event("[STATUS] CADNAddToCertificateCache(" +
+    _eventService.event("[STATUS] CADNAddedToCertCache(" +
                         myAddress.toAddress() +
                         ") DN(" +
                         dn +
