@@ -396,21 +396,30 @@ public class DataProtectionServiceImpl
                                               /*target*/null,
                                               keyCollection,
                                               keyRing.findCertChain(agentCert));
-
-          DataProtectionKeyImpl newKey = (DataProtectionKeyImpl)sendKeyUnlockRequest(cp, req);
-          if (dpKey != null) {
-            SealedObject responseObj = (SealedObject)newKey.getObject();
-            if (responseObj != null) {
-              skey = (SecretKey)encryptionService.asymmDecrypt(
-                            agent,
-                            newKey.getSecureMethod().asymmSpec,
-                            responseObj);
-            }
+          PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
+          // start the threads
+          HttpRequestThread [] ts = new HttpRequestThread[pmp.length];
+          for (int i = 0; i < pmp.length; i++) {
+            ts[i] = new HttpRequestThread(req, pmp[i], agent);
+            ts[i].start();
           }
-          else {
-            if (log.isDebugEnabled()) {
-              log.debug("Cannot get response from persistence manager.");
+
+          // timeout while checking results
+          long timeout = 60000;
+          while (skey == null && timeout > 0) {
+            for (int i = 0; i < ts.length; i++) {
+              if (ts[i]._skey != null) {
+                skey = ts[i]._skey;
+                break;
+              }
             }
+            Thread.currentThread().sleep(1000);
+            timeout -= 1000;
+            /*
+            if (log.isDebugEnabled()) {
+              log.debug("Time remaining: " + timeout);
+            }
+            */
           }
 
           if (skey == null) {
@@ -421,7 +430,7 @@ public class DataProtectionServiceImpl
           }
           else {
             if (log.isDebugEnabled()) {
-              log.debug("Re-encrypting Data Protection secret key.");
+              log.debug("Re-encrypting Data Protection secret key for: " + agent);
             }
 
             // reuse old signer if it exists
@@ -471,39 +480,73 @@ public class DataProtectionServiceImpl
       }
   }
 
-  private Object sendKeyUnlockRequest(CryptoPolicy cp,
-                                      DataProtectionKeyUnlockRequest req) {
-    try {
-      PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
+  class HttpRequestThread extends Thread {
+    SecretKey _skey;
+    DataProtectionKeyUnlockRequest _req;
+    PersistenceManagerPolicy _pmp;
+    String _agent;
 
-      URL url = new URL(pmp[0].pmUrl);
-      HttpURLConnection huc = (HttpURLConnection)url.openConnection();
-      // Don't follow redirects automatically.
-      huc.setInstanceFollowRedirects(false);
-      // Let the system know that we want to do output
-      huc.setDoOutput(true);
-      // Let the system know that we want to do input
-      huc.setDoInput(true);
-      // No caching, we want the real thing
-      huc.setUseCaches(false);
-      // Specify the content type
-      huc.setRequestProperty("Content-Type",
-			     "application/x-www-form-urlencoded");
-      huc.setRequestMethod("POST");
-      ObjectOutputStream out = new ObjectOutputStream(huc.getOutputStream());
-      out.writeObject(req);
-
-      out.flush();
-      out.close();
-
-      ObjectInputStream in = new ObjectInputStream(huc.getInputStream());
-      req = (DataProtectionKeyUnlockRequest)in.readObject();
-      in.close();
-
-    } catch(Exception e) {
-      log.warn("Unable to send keyUnlock request to persistence manager.", e);
+    HttpRequestThread(DataProtectionKeyUnlockRequest req,
+                      PersistenceManagerPolicy pmp,
+                      String agent) {
+      _req = req;
+      _pmp = pmp;
+      _agent = agent;
     }
-    return req.getResponse();
+
+    public void run() {
+      try {
+        if (log.isDebugEnabled()) {
+          log.debug("Sending recovery msg to " + _pmp.pmUrl);
+        }
+
+        URL url = new URL(_pmp.pmUrl);
+        HttpURLConnection huc = (HttpURLConnection)url.openConnection();
+        // Don't follow redirects automatically.
+        huc.setInstanceFollowRedirects(false);
+        // Let the system know that we want to do output
+        huc.setDoOutput(true);
+        // Let the system know that we want to do input
+        huc.setDoInput(true);
+        // No caching, we want the real thing
+        huc.setUseCaches(false);
+        // Specify the content type
+        huc.setRequestProperty("Content-Type",
+                               "application/x-www-form-urlencoded");
+        huc.setRequestMethod("POST");
+        ObjectOutputStream out = new ObjectOutputStream(huc.getOutputStream());
+        out.writeObject(_req);
+
+        out.flush();
+        out.close();
+
+        ObjectInputStream in = new ObjectInputStream(huc.getInputStream());
+        _req = (DataProtectionKeyUnlockRequest)in.readObject();
+        in.close();
+
+        DataProtectionKeyImpl newKey = (DataProtectionKeyImpl)_req.getResponse();
+        if (newKey != null) {
+          SealedObject responseObj = (SealedObject)newKey.getObject();
+          if (responseObj != null) {
+            _skey = (SecretKey)encryptionService.asymmDecrypt(
+                          _agent,
+                          newKey.getSecureMethod().asymmSpec,
+                          responseObj);
+            if (log.isDebugEnabled()) {
+              log.debug("Secretkey recovered from " + _pmp.pmDN);
+            }
+          }
+        }
+        else {
+          if (log.isDebugEnabled()) {
+            log.debug("Persistence manager returns with no response.");
+          }
+        }
+
+      } catch(Exception e) {
+        log.warn("Unable to send keyUnlock request to persistence manager.", e);
+      }
+    }
 
   }
 
