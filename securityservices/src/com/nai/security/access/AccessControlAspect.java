@@ -102,7 +102,7 @@ public class AccessControlAspect extends StandardAspect
     //if(oldDirective.length == 0) return;
     if(oldDirective.length == 1){
       msg.setDirectives(new Directive[0]);
-      if(debug)System.out.println("removing last directive.");
+      if(debug)System.out.println("WARNING: removing last directive.");
       return true;
     }
     
@@ -117,7 +117,7 @@ public class AccessControlAspect extends StandardAspect
     }
     msg.setDirectives(newDirective);
     
-    if(debug)System.out.println("AccessControlAspect: removed IN directive " +
+    if(debug)System.out.println("WARNING: removed IN directive " +
 				index);
     return false;
   }//removeDirective
@@ -139,7 +139,7 @@ public class AccessControlAspect extends StandardAspect
       for(int i = 0; i < len; i++) {
 	if (debug) {
 	  System.out.println("Directive[" + i + "]:"
-			     + directive.getClass().toString());
+			     + directive[i].getClass().toString());
 	}
 	if(!(directive[i] instanceof Task))
 	  continue;
@@ -161,9 +161,13 @@ public class AccessControlAspect extends StandardAspect
 	}
       }
     }
+    else if (msg instanceof SAFE.Comm.SAFEMessage) {
+      // Silently ignore these messages
+    }
     else {
       if (debug) {
-	System.out.println("Warning: unexpected message");
+	System.out.println("Warning: unexpected message. Message Class:"
+			   + msg.getClass().getName());
       }
     }
   }
@@ -175,17 +179,17 @@ public class AccessControlAspect extends StandardAspect
 
     if (direction) {
       // Incoming message
-      verbs = acps.getIncomingVerbs(target, source);
+      verbs = acps.getIncomingVerbs(source, target);
     }
     else {
       // Outgoing message
-      verbs = acps.getOutgoingVerbs(target, source);
+      verbs = acps.getOutgoingVerbs(source, target);
     }
 
     if( verbs[0].toString()=="*" ) {
       if(debug) {
 	System.out.println("AccessControlAspect: got * verb, so blocking "
-			   +verb+" for " + source);
+			   +verb+" for " + source + "->" + target);
       }
       return true;
     }
@@ -240,13 +244,13 @@ public class AccessControlAspect extends StandardAspect
   /** ***************************************************
    *  SecurityEnvelope
    */
-  private static class SecurityEnvelope extends MessageEnvelope
+  private static class AccessSecurityEnvelope extends MessageEnvelope
   {
     //for access control
     private TrustSet[] set = null;
     private Message message = null;
         
-    SecurityEnvelope(Message m, TrustSet[] ts) 
+    AccessSecurityEnvelope(Message m, TrustSet[] ts) 
       throws RuntimeException
     {
       //we don't want m to be the contend, so just make a null one.
@@ -307,8 +311,7 @@ public class AccessControlAspect extends StandardAspect
       TrustSet policySet;
       try {
 	policySet = acps.getIncomingTrust
-	  (msg.getTarget().toString(), 
-	   msg.getOriginator().toString());
+	  (msg.getOriginator().toString(), msg.getTarget().toString());
       }
       catch(Exception ex) {
 	System.out.println("Warning: no msg incoming trust for type = "
@@ -331,8 +334,8 @@ public class AccessControlAspect extends StandardAspect
 	}
 	for(int i = 0; i < directive.length; i++) {
 	  policy = acps.getIncomingTrust
-	    (directive[i].getDestination().toString(),
-	     directive[i].getSource().toString());
+	    (directive[i].getSource().toString(),
+	     directive[i].getDestination().toString());
 	  if(set[i+1] == null){
 	    set[i+1] = policy; //new TrustSet();
 	  }else{
@@ -352,13 +355,15 @@ public class AccessControlAspect extends StandardAspect
 
       try {
 	action = acps.getIncomingAgentAction
-	  (msg.getTarget().toString(), msg.getOriginator().toString());
+	  (msg.getOriginator().toString(), msg.getTarget().toString());
       }
       catch(Exception ex) {
-	System.out.println("Warning: no access control for message type " + msg.getClass());
+	System.out.println("Warning: no access control for message type "
+			   + msg.getClass());
 	return true;
       }
-      if(debug)System.out.println("AccessControlAspect: action(in) = " + action);
+      if(debug)System.out.println("AccessControlAspect: action(in) = "
+				  + action);
       if(action == null)
 	return true;
       if(msg instanceof DirectiveMessage)
@@ -380,8 +385,7 @@ public class AccessControlAspect extends StandardAspect
 				    + i);
 	Task task = (Task)directive[i];
 	action = acps.getIncomingAgentAction
-	  (task.getDestination().toString(), 
-	   task.getSource().toString());
+	  (task.getSource().toString(), task.getDestination().toString());
 	if(action == null)
 	  continue;
 	if(action.equals(AccessControlPolicy.SET_ASIDE)){
@@ -399,13 +403,17 @@ public class AccessControlAspect extends StandardAspect
       String action;
       try {
 	action = acps.getIncomingAction
-	  (msg.getTarget().toString(), (String)t.getAttribute(MissionCriticality.name).getValue());
+	  (msg.getTarget().toString(),
+	   (String)t.getAttribute(MissionCriticality.name).getValue());
       }
       catch(Exception ex) {
 	System.out.println("Warning: no access control for message" + msg);
 	return true;
       }
-      if(debug)System.out.println("AccessControlAspect: message action(in) = " + action);
+      if(debug) {
+	System.out.println("AccessControlAspect: action(in) = "
+			   + action);
+      }
       if(action == null)
 	return true;
       return (!action.equals(AccessControlPolicy.SET_ASIDE));
@@ -414,6 +422,7 @@ public class AccessControlAspect extends StandardAspect
 
   /** ***************************************************
    *  SecureDestinationLink
+   *  Handle outgoing messages
    */
   private class SecureDestinationLink 
     extends DestinationLinkDelegateImplBase 
@@ -434,13 +443,17 @@ public class AccessControlAspect extends StandardAspect
 	
       if(ts==null) {
 	if(debug) {
-	  System.out.println("Rejecting outgoing message: " + 
+	  System.out.println("Warning: rejecting outgoing message: " + 
 			     ((message != null)? message.toString():
 			      "Null Message"));
 	}
 	return;		// the message is rejected so we abort here
       }
-      link.forwardMessage(message);
+      AccessSecurityEnvelope se;
+      se = new AccessSecurityEnvelope(message, ts);
+
+      link.forwardMessage(se);
+
       // Do not catch non-security related exceptions.
       // It is up to the caller to figure out what to do.
     }
@@ -524,12 +537,20 @@ public class AccessControlAspect extends StandardAspect
 	  (msg.getOriginator().toString(), msg.getTarget().toString());
       }
       catch(Exception ex) {
-	System.out.println("Warning: no access control for message type " + msg.getClass());
+	System.out.println("Warning: no access control for message type "
+			   + msg.getClass());
 	return true;
       }
-      if(debug)System.out.println("AccessControlAspect: action(out) = " + action);
-      if(action == null)
-	return true;
+      if(action == null) {
+	if(debug) {
+	  System.out.println("AccessControlAspect: no action(out) set");
+	}
+ 	return true;
+      }
+
+      if(debug) {
+	System.out.println("AccessControlAspect: action(out) = " + action);
+      }
       if(msg instanceof DirectiveMessage)
 	return outgoingAgentAction((DirectiveMessage)msg) &
 	  action.equals(AccessControlPolicy.ACCEPT);
@@ -573,7 +594,8 @@ public class AccessControlAspect extends StandardAspect
       String act;
       try {
 	act = acps.getOutgoingAction
-	  (msg.getOriginator().toString(), (String)trust.getAttribute(MissionCriticality.name).getValue());
+	  (msg.getOriginator().toString(),
+	   (String)trust.getAttribute(MissionCriticality.name).getValue());
       }
       catch(Exception ex) {
 	ex.printStackTrace();
@@ -581,15 +603,23 @@ public class AccessControlAspect extends StandardAspect
             
 	return true;
       }
-      if(debug)System.out.println("AccessControlAspect: message action(out) = " + act);
-      if(act == null)
+      if(act == null) {
+	if(debug) {
+	  System.out.println("AccessControlAspect: No action(out) set");
+	}
 	return true;
+      }
+      if(debug) {
+	System.out.println("AccessControlAspect: action(out) = " + act);
+      }
+
       return (!act.equals(AccessControlPolicy.SET_ASIDE));
     }
   }
 
   /** ***************************************************
-     *  SecurityDeliver
+     *  SecurityDeliver.
+     *  Handle incoming messages.
      */
   private class SecureDeliverer extends MessageDelivererDelegateImplBase {
 
@@ -600,33 +630,36 @@ public class AccessControlAspect extends StandardAspect
     public void deliverMessage(Message m, MessageAddress dest) 
       throws MisdeliveredMessageException
     {
-      try {
-	if (m instanceof SecurityEnvelope ) {
-	  SecurityEnvelope se = (SecurityEnvelope)m;
-	  if (se == null) {
-	    if(debug) {
-	      System.out.println("Unable to deliver message (msg is null) to " + dest);
-	    }
-	    throw new MisdeliveredMessageException(m);
+      if (m instanceof AccessSecurityEnvelope ) {
+	AccessSecurityEnvelope se = (AccessSecurityEnvelope)m;
+	if (se == null) {
+	  if(debug) {
+	    System.out.println("WARNING: message to " + dest
+			       + " not delivered (null msg)");
 	  }
-	  Message contents = se.getContents();
-	  if(contents == null) {
-	    if(debug) {
-	      System.out.println("Rejecting incoming message: "
-				 + se.toString());
-	    }
-	    return;
-	  }else{
-	    //System.out.println("________delivering this:"+contents+" to:"+dest+"using:"+deliverer);
+	  throw new MisdeliveredMessageException(m);
+	}
+	Message contents = se.getContents();
+	if(contents == null) {
+	  if(debug) {
+	    System.out.println("WARNING: Rejecting incoming message: "
+			       + se.toString());
+	  }
+	  return;
+	}else{
 	    deliverer.deliverMessage(contents, dest);
 	  }
-	} else {
-	  System.err.println("Warning: Not a SecurityEnvelope: " + m);
-	  deliverer.deliverMessage(m, dest);
-	}
-      } catch (Exception e) {
-	System.out.println("Unable to unsecure message: " + m + ". Reason: " + e.getMessage());
-	e.printStackTrace();
+      } else {
+	/* Incoming messages should always be wrapped in a
+	 * SecurityEnvelope. This allows the cryptographic service
+	 * to verify that the incoming message satisfies the
+	 * cryptographic policy.
+	 * If an incoming message is not wrapped in a security
+	 * envelope, then we discard the message.
+	 */
+	System.err.println("Error: Not an AccessSecurityEnvelope: " + m);
+	return;
+	//deliverer.deliverMessage(m, dest);
       }
     }
   }
