@@ -224,4 +224,13 @@ public class ConfigParserHandler
     }
     return s;
   }
+
+  public void addSecurityPolicy(SecurityPolicy policy) {
+    securityPolicies.add(policy);
+  }
+
+  /** Policy has been changed, needs to update storage - e.g. CryptoClientPolicy
+   */
+  public void updateSecurityPolicy(SecurityPolicy policy) {
+  }
 }

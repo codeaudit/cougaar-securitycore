@@ -188,9 +188,9 @@ public class ConfigParserServiceImpl
         ioexp.printStackTrace();
       }
     }
-    
+
   }
-  
+
   /** Find a boot policy file
    *  First, search in the workspace.
    *  Second, search using ConfigFinder.
@@ -369,5 +369,13 @@ public class ConfigParserServiceImpl
 	set.add(aRole);
       }
     }
+  }
+
+  public void addSecurityPolicy(SecurityPolicy policy) {
+    handler.addSecurityPolicy(policy);
+  }
+
+  public void updateSecurityPolicy(SecurityPolicy policy) {
+    handler.updateSecurityPolicy(policy);
   }
 }
