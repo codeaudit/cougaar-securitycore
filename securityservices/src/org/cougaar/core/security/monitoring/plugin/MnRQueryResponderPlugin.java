@@ -225,6 +225,9 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
 	  return foundqMapping;
 	}
 	relayList=foundqMapping.getQueryList();
+	if(relayList==null) {
+	  return null;
+	}
 	for(int i=0;i<relayList.size();i++) {
 	  outstandingq=(OutStandingQuery)relayList.get(i);
 	  if(outstandingq.getUID().equals(givenUID)) {
