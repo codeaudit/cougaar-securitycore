@@ -29,14 +29,18 @@ import org.cougaar.core.security.policy.CryptoPolicy;
 public interface CryptoPolicyService
   extends Service
 {
+  public static final int CRYPTO_POLICY_VALID       = 0;
+  public static final int CRYPTO_SHOULD_SIGN        = 1;
+  public static final int CRYPTO_SHOULD_ENCRYPT     = 2;
+  public static final int CRYPTO_UNAVAILABLE        = 3;
 
-  public SecureMethodParam getSendPolicy(String source, String target);
+  SecureMethodParam getSendPolicy(String source, String target);
   public SecureMethodParam getReceivePolicy(String source, String target);
 
-  public boolean isReceivePolicyValid(String source, String target, 
-                                      SecureMethodParam policy,
-                                      boolean ignoreEncryption,
-                                      boolean ignoreSignature);
+  public int isReceivePolicyValid(String source, String target, 
+                                  SecureMethodParam policy,
+                                  boolean ignoreEncryption,
+                                  boolean ignoreSignature);
 //   public CipherSuite getSendPolicies(String source, String target);
 //   public CipherSuite getReceivePolicies(String source, String target);
   /*
