@@ -60,10 +60,16 @@ public abstract class CertDirectoryService
   public static final String AUTHORITYREVOCATIONLIST_ATTRIBUTE ="authorityRevocationList;binary";
   public static final String OBJECTCLASS_CERTIFICATIONAUTHORITY ="certificationAuthority";
   public static final String OBJECTCLASS_INETORGPERSON ="inetOrgPerson";
+  public static final String MODIFIEDTIMESTAMP ="modifyTimestamp";
+  public static final String [] returnAttributes= {"o","serialNumber","info","authorityRevocationList;binary","userCertificate;binary","ou",
+						   "l","certificateRevocationList;binary","objectClass","cACertificate;binary"
+						   ,"c","cn","title","uniqueIdentifier","st","createTimestamp","modifyTimestamp"};
   protected static final int MAX_RETRIES = 5;
   protected static final int RETRY_TIMEOUT = 100;
 
   protected String ldapServerUrl;
+  
+  protected int ldaptype;
   /* protected DirContext context;
   protected DirContext initialContext;
   */
@@ -193,6 +199,7 @@ public abstract class CertDirectoryService
       if (log.isDebugEnabled()) {
 	log.debug("Creating Directory Service for " + url);
       }
+      
       if (url != null) {
 	// Create a subcontext in LDAP if it does not exist.
 	int slash = url.lastIndexOf("/");
@@ -230,10 +237,14 @@ public abstract class CertDirectoryService
 	throw new
 	  IllegalArgumentException("Directory Service URL not specified.");
       }
+      ldaptype=requestor.getCertDirectoryType();
     }
 
   public String getDirectoryServiceURL() {
     return ldapServerUrl;
+  }
+  public int getDirectoryServiceType() {
+    return ldaptype;
   }
     
   /**
@@ -457,7 +468,9 @@ public abstract class CertDirectoryService
       }
       NamingEnumeration results=null;
       SearchControls constraints=new SearchControls();
+      
       constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+      constraints.setReturningAttributes(returnAttributes);
       if (log.isDebugEnabled()) {
 	log.debug("Filter provided for search:" + filter);
 	log.debug("LDAP server url:" + ldapServerUrl);
