@@ -30,16 +30,9 @@ import java.io.*;
 import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
-import java.security.cert.X509Certificate;
-import sun.security.x509.*;
 
-import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
-import org.cougaar.core.security.certauthority.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+// Cougaar security services
+import org.cougaar.core.security.certauthority.SecurityServletSupport;
 
 public class Browser
   extends HttpServlet
@@ -79,12 +72,8 @@ public class Browser
     out.println("<BLOCKQUOTE style=\"MARGIN-RIGHT: 0px\">");
     out.println("<p><a href=\"" + path + "/CreateCaKeyServlet\" target=\"mainwin\" >");
     out.println("<big><font color=\"blue\"><b>Create CA key</b></big></a></p>");
-    out.println("<p><a href=\"" + path + "/SubmitCaKeyServlet\" target=\"mainwin\" >");
-    out.println("<big><font color=\"blue\"><b>Submit CA key to superior</b></big></a></p>");
     out.println("<p><a href=\"" + path + "/ListCaKeysServlet\" target=\"mainwin\" >");
     out.println("<big><font color=\"blue\"><b>List CA keys</b></big></a></p>");
-    out.println("<p><a href=\"" + path + "/ListSubordCaServlet\" target=\"mainwin\" >");
-    out.println("<big><font color=\"blue\"><b>List CA subordinate keys</b></big></a></p>");
     out.println("</BLOCKQUOTE><p></body></html>");
     out.flush();
     out.close();

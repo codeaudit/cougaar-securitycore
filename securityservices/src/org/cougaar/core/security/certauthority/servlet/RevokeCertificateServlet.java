@@ -41,15 +41,14 @@ import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceCA;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
 import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.MultipleEntryException;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
+import org.cougaar.core.security.services.ldap.MultipleEntryException;
+import org.cougaar.core.security.services.ldap.LdapEntry;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.certauthority.*;
 
 public class RevokeCertificateServlet

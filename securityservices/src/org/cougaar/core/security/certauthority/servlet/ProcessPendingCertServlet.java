@@ -34,23 +34,23 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
 // Cougaar security services
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceCA;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
+import org.cougaar.core.security.crypto.NodeConfiguration;
+import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
 import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.services.ldap.LdapEntry;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.certauthority.*;
 
 public class ProcessPendingCertServlet extends  HttpServlet
 {
-  private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
   private NodeConfiguration nodeConfiguration;
   private CertDirectoryServiceCA caOperations=null;
-  protected boolean debug = false;
   private SecurityServletSupport support;
 
   public ProcessPendingCertServlet(SecurityServletSupport support) {
@@ -59,10 +59,6 @@ public class ProcessPendingCertServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    secprop = support.getSecurityProperties(this);
-
-    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
-						"false"))).booleanValue();
     configParser = (ConfigParserService)
       support.getServiceBroker().getService(this,
 					    ConfigParserService.class,
@@ -102,11 +98,12 @@ public class ProcessPendingCertServlet extends  HttpServlet
       caPolicy = configParser.getCaPolicy(cadnname);
       nodeConfiguration = new NodeConfiguration(cadnname,
 						support.getServiceBroker());
-      caOperations =
-	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
-				       caPolicy.ldapType, caPolicy.ldapURL,
-				       support.getServiceBroker(),
-				       cadnname);
+
+      CertDirectoryServiceRequestor cdsr =
+	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
+					      support.getServiceBroker(), cadnname);
+      caOperations = (CertDirectoryServiceCA)
+	support.getServiceBroker().getService(cdsr, CertDirectoryServiceCA.class, null);
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);

@@ -41,24 +41,23 @@ import org.cougaar.core.component.ServiceBroker;
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
+import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
 import org.cougaar.core.security.certauthority.*;
 import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.services.ldap.MultipleEntryException;
+import org.cougaar.core.security.services.ldap.LdapEntry;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.crypto.Base64;
 
 public class DownloadCertificateServlet extends  HttpServlet
 {
-  private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
   private LoggingService log;
 
   private CertDirectoryServiceClient certificateFinder=null;
   private CaPolicy caPolicy = null;            // the policy of the CA
   
-  protected boolean debug = false;
-
   private SecurityServletSupport support;
   public DownloadCertificateServlet(SecurityServletSupport support) {
     this.support = support;
@@ -69,9 +68,6 @@ public class DownloadCertificateServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    secprop = support.getSecurityProperties(this);
-    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
-						"false"))).booleanValue();
   }
 
   public void service (HttpServletRequest  req, HttpServletResponse res)
@@ -108,10 +104,13 @@ public class DownloadCertificateServlet extends  HttpServlet
 					      ConfigParserService.class,
 					      null);
       caPolicy = configParser.getCaPolicy(cadnname);
-      certificateFinder = 
-	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-	  caPolicy.ldapType, caPolicy.ldapURL,
-	  support.getServiceBroker(), cadnname);
+
+      CertDirectoryServiceRequestor cdsr =
+	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
+					      support.getServiceBroker(), cadnname);
+      certificateFinder = (CertDirectoryServiceClient)
+	support.getServiceBroker().getService(cdsr, CertDirectoryServiceClient.class, null);
+
     } catch (Exception e) {
       res.getWriter().print("Unable to read policy file: " + e);
       return;

@@ -34,7 +34,13 @@ import javax.naming.directory.*;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
+// Cougaar security services
 import org.cougaar.core.security.crypto.Base64;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+import org.cougaar.core.security.services.ldap.LdapEntry;
+import org.cougaar.core.security.services.ldap.MultipleEntryException;
+import org.cougaar.core.security.services.ldap.MaxConnectionRetryException;
+import org.cougaar.core.security.services.util.ConfigParserService;
 
 /** RFCs that are applicable to LDAP:
  *  - RFC 2256: A summary of X.500 user schema for LDAPv3
@@ -54,9 +60,13 @@ public abstract class CertDirectoryService
   public static final String AUTHORITYREVOCATIONLIST_ATTRIBUTE ="authorityRevocationList;binary";
   public static final String OBJECTCLASS_CERTIFICATIONAUTHORITY ="certificationAuthority";
   public static final String OBJECTCLASS_INETORGPERSON ="inetOrgPerson";
+  protected static final int MAX_RETRIES = 5;
+  protected static final int RETRY_TIMEOUT = 100;
+
   protected String ldapServerUrl;
-  protected DirContext context;
+  /* protected DirContext context;
   protected DirContext initialContext;
+  */
   protected boolean initializationOK = false;
   protected static String CONTEXT_FACTORY = 
     "com.sun.jndi.ldap.LdapCtxFactory";
@@ -64,92 +74,336 @@ public abstract class CertDirectoryService
   protected LoggingService log;
   /** The reason why the connection to the LDAP server was not successful */
   protected String rootCauseMsg;
+  private boolean useSSL = false;
 
   //protected boolean log.isDebugEnabled() = false;
 
-  protected String caDistinguishedName;
+//protected String caDistinguishedName;
+//private boolean connectionClosed = true;
+//private Object connectionLock = new Object();
+  protected  ContextHolder contextHolder;
+  protected Object _contextLock = new Object();
 
-  /** Creates new CertDirectoryService */
-
-  public CertDirectoryService(String aURL, ServiceBroker sb, 
-			      String caDN)
-    throws IllegalArgumentException
-  {
-    serviceBroker = sb;
-    caDistinguishedName = caDN;
-
-    log = (LoggingService)
-      serviceBroker.getService(this,
-			       LoggingService.class, null);
-    if (log.isDebugEnabled()) {
-      log.debug("Creating Directory Service for " + aURL);
+  protected  class ContextHolder {
+    /** Time after which LDAP connection is automatically closed. */
+    private int _timeToSleep = 10 * 1000; 
+    protected DirContext _context;
+    private boolean _connectionClosed = true;
+    private CloseConnectionTask _closeConnectionTask = new CloseConnectionTask();
+    private Timer _timer = new Timer();
+    private Hashtable _config;
+ 
+    private class CloseConnectionTask extends TimerTask {
+      public void run() {
+	try {
+	  synchronized(_contextLock) {
+	    _context.close();  
+	    _connectionClosed = true;
+	  }
+	}
+	catch(Exception e) {
+	  log.warn("Error occurred in ConnectionTimer" + e.getMessage());
+	}
+      }
     }
-    if (aURL != null) {
-      setDirectoryServiceURL(aURL);
+
+    public ContextHolder(Hashtable config) {
+      _config = config;
     }
-    else {
-      throw new
-	IllegalArgumentException("Directory Service URL not specified.");
+
+    public DirContext getContext()
+      throws javax.naming.NamingException {
+      synchronized(_contextLock) {
+	if(_connectionClosed) {
+	  _context = null;
+	  String cause = null;
+	  int i;
+	  if (log.isDebugEnabled()) {
+	    Enumeration enum = _config.keys();
+	    log.debug("Connecting to LDAP using following parameters:");
+	    while (enum.hasMoreElements()) {
+	      String key = (String)enum.nextElement();
+	      log.debug(key + "=" + _config.get(key));
+	    }
+	  }
+	  for (i = 0 ; i < MAX_RETRIES ; i++) {
+	    try {
+	      _context = new InitialDirContext(_config);
+	      log.debug("Created context");
+	      break;
+	    }
+	    catch (javax.naming.NamingSecurityException e) {
+	      log.warn("Unable to connect to LDAP: " + ldapServerUrl + ":" + e);
+	      throw e;
+	    }
+	    catch (javax.naming.NameNotFoundException e) {
+	      log.warn("Unable to connect to LDAP: " + ldapServerUrl + ":" + e);
+	      throw e;
+	    }
+	    catch (javax.naming.NamingException e) {
+	      log.info("Unable to connect to LDAP: " + ldapServerUrl + ". Will retry later in"
+		       + RETRY_TIMEOUT + "ms");
+	      cause = e.getMessage();
+	      try {
+		Thread.sleep(RETRY_TIMEOUT);
+	      }
+	      catch (InterruptedException exp) {
+		log.error("Was interrupted while sleeping:" + exp);
+		return null;
+	      }
+	    } // for()
+	    if (_context == null) {
+	      throw new MaxConnectionRetryException("Unable to connect to LDAP " + ldapServerUrl + " after "
+						    + (i + 1) + " attempts. Cause:" + cause);
+	    }
+
+	    try {
+	      _timer.schedule(_closeConnectionTask, _timeToSleep);
+	    }
+	    catch (Exception e) {
+	      log.error("Unable to schedule close connection task:" + e);
+	      return null;
+	    }
+	    _connectionClosed = false;
+	  }
+	} // if (_connectionClosed)
+	return _context;
+      }
     }
   }
+  
+  /** Creates new CertDirectoryService */
+  public CertDirectoryService(CertDirectoryServiceRequestor requestor, ServiceBroker sb)
+    throws javax.naming.NamingException
+    {
+      serviceBroker = sb;
+      Hashtable env=null;
+      log = (LoggingService)
+	serviceBroker.getService(this,
+				 LoggingService.class, null);
 
-  public void setDirectoryServiceURL(String aURL)
-  {
-    boolean useSSL = false;
-    if (aURL.startsWith("ldaps://")) {
+      ConfigParserService configParser = (ConfigParserService)
+	serviceBroker.getService(this,
+				 ConfigParserService.class, null);
+
+      if(requestor == null) {
+	throw new IllegalArgumentException("CertDirectoryServiceRequestor is null!");
+      }
+      String url = requestor.getCertDirectoryUrl();
+      if (log.isDebugEnabled()) {
+	log.debug("Creating Directory Service for " + url);
+      }
+      if (url != null) {
+	int slash = url.lastIndexOf("/");
+	String dn = null;
+	if(slash != -1) {
+	  dn = url.substring(slash + 1);
+	}
+	setDirectoryServiceURL(url);
+	env=initDirectoryService(requestor.getCertDirectoryPrincipal(),
+				 requestor.getCertDirectoryCredential());
+	if(!env.isEmpty()){
+	  contextHolder = new ContextHolder(env);
+	  try {
+            synchronized(_contextLock) {
+	      DirContext context = contextHolder.getContext();
+	      initializationOK=true;
+            }
+	  }
+	  catch(NameNotFoundException nfe) {
+	    // Create a subcontext in LDAP if it does not exist.
+	    if (configParser.isCertificateAuthority() && (ldapServerUrl != url)) {
+	      createDcObjects(dn);
+	      setDirectoryServiceURL(requestor.getCertDirectoryUrl());
+	      env=initDirectoryService(requestor.getCertDirectoryPrincipal(),
+				       requestor.getCertDirectoryCredential()); 
+              try {
+                synchronized(_contextLock) {  
+	          DirContext context = contextHolder.getContext();
+	          initializationOK=true; 
+                }
+              }
+              catch(NamingException ne) {
+                log.error("Unable to create ldap context: " + ne.getMessage());
+              }
+	    }
+	  }
+	}
+      }
+      else {
+	throw new
+	  IllegalArgumentException("Directory Service URL not specified.");
+      }
+    }
+    
+  /**
+   * Construct a URL to the LDAP certificate directory.
+   * ldap://host:port/dccomponents
+   * Example:
+   *   ldap://pear:389/dc=csmart2, dc=cougaar, dc=org
+   */
+  protected void  setDirectoryServiceURL(String aURL) {
+    int slash = aURL.lastIndexOf("/");
+    //String dn = null;
+    String bURL = aURL;
+
+    /*
+    if (slash != -1) {
+      //dn   = aURL.substring(slash+1);
+      bURL = aURL.substring(0,slash + 1);
+    }
+    */
+    if (bURL.startsWith("ldaps://")) {
       useSSL = true;
-      int colonIndex = aURL.indexOf(":",8);
-      int slashIndex = aURL.indexOf("/",8);
+      int colonIndex = bURL.indexOf(":",8);
+      int slashIndex = bURL.indexOf("/",8);
       String host;
-      if (slashIndex == -1) slashIndex = aURL.length();
+      if (slashIndex == -1) slashIndex = bURL.length();
       if (colonIndex == -1 || colonIndex > slashIndex) {
-	String oldURL = aURL;
-        // there is no default port -- change the default
-        // port to 636 for ldaps
-        if (slashIndex == 0) {
-          // there is no host either -- use 0.0.0.0 as host
-          host = "0.0.0.0";
-        } else {
-          host = aURL.substring(8,slashIndex);
-        }
-        aURL = "ldap://" + host + ":636" + aURL.substring(slashIndex);
+	String oldURL = bURL;
+	// there is no default port -- change the default
+	// port to 636 for ldaps
+	if (slashIndex == 0) {
+	  // there is no host either -- use 0.0.0.0 as host
+	  host = "0.0.0.0";
+	} else {
+	  host = bURL.substring(8,slashIndex);
+	}
+	bURL = "ldap://" + host + ":636" + bURL.substring(slashIndex);
 	if (log.isWarnEnabled()) {
-	  log.warn("No default port has been set. original URL: " + oldURL + ". New URL: " + aURL);
+	  log.warn("No default port has been set. original URL: " + oldURL + ". New URL: " + bURL);
 	}
       } else {
-        aURL = "ldap://" + aURL.substring(8);
+	bURL = "ldap://" + bURL.substring(8);
       }
     }
-    ldapServerUrl = aURL;
-    initializationOK = false;
-    if (log.isDebugEnabled()) {
-      log.debug("Using LDAP certificate directory: "
-			 + ldapServerUrl);
-    }
-
-    try {
-      Hashtable env = new Hashtable();
-      env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
-      env.put(Context.PROVIDER_URL, ldapServerUrl);
-      if (useSSL) {
-        env.put(Context.SECURITY_PROTOCOL, "ssl");
-        env.put("java.naming.ldap.factory.socket", 
-                "org.cougaar.core.security.ssl.KeyRingSSLFactory");
-      }
+    ldapServerUrl=bURL;
       
-      context=new InitialDirContext(env);
-      initialContext = context;
-      initializationOK = true;
+  }
+    
+  protected Hashtable  initDirectoryService(String principal, String credentials) {
+    Hashtable env = new Hashtable();
+    env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
+    env.put(Context.PROVIDER_URL,ldapServerUrl);
+    if (useSSL) {
+      env.put(Context.SECURITY_PROTOCOL, "ssl");
+      env.put("java.naming.ldap.factory.socket", 
+	      "org.cougaar.core.security.ssl.KeyRingSSLFactory");
     }
-    catch(NamingException nexp) {
-      rootCauseMsg = "Unable to connect to LDAP server: "
-	+ ldapServerUrl
-	+ ". Reason: " + nexp + ". Using local keystore only.";
-      if (log.isWarnEnabled()) {
-	log.warn(rootCauseMsg, nexp);
+    if((principal!=null)&&(credentials!=null)) {
+      env.put(Context.SECURITY_PRINCIPAL, principal);
+      env.put(Context.SECURITY_CREDENTIALS, credentials);
+    }
+    return env;
+  }
+
+
+  private void createDcObjects(String dn) 
+    throws NamingException {
+    if (dn == null) return;
+    ArrayList names = new ArrayList();
+    ArrayList vals  = new ArrayList();
+    ArrayList dns   = new ArrayList();
+    int commaIndex = -1;
+    do {
+      dns.add(dn.substring(commaIndex+1));
+      int eqIndex = dn.indexOf("=", commaIndex);
+      names.add(dn.substring(commaIndex+1, eqIndex));
+      commaIndex = dn.indexOf(",", commaIndex+1);
+      if (commaIndex == -1) {
+	vals.add(dn.substring(eqIndex+1));
+      } else {
+	vals.add(dn.substring(eqIndex+1, commaIndex));
+      }
+    } while (commaIndex != -1);
+   
+    int firstAvailable = -1;
+    
+    synchronized(_contextLock) {
+      DirContext context = null;
+      try {
+	context = contextHolder.getContext();
+      }
+      catch (NamingException e) {
+	log.warn("Unable to create the LDAP subcontext for " + dn + ". Reason: " + e);
+	throw e;
+      }
+      for (int i = 0; i < dns.size() && firstAvailable == -1; i++) {
+	try {
+	  // check if the object exists:
+       
+	  Attributes attrs =null;
+	  attrs= context.getAttributes((String) dns.get(i));
+	  if (attrs != null) {
+	    firstAvailable = i;
+	  }
+	} catch (NamingException e) {
+	  // doesn't exist
+	  log.warn("Unable to get the DNS attributes:" + e);
+	}
+      }
+   
+      if (firstAvailable == -1) {
+	firstAvailable = dns.size();
+      }
+   
+      for (int i = firstAvailable - 1; i >= 0; i--) {
+	if (log.isInfoEnabled()) {
+	  log.info("CA dn " + dns.get(i) + 
+		   " does not exist. Creating...");
+	}
+	BasicAttributes ba = new BasicAttributes();
+	Attribute objClass = new BasicAttribute("objectClass","dcObject");
+	objClass.add("organization");
+	ba.put(objClass);
+     
+	String name = (String) names.get(i);
+	String val  = (String) vals.get(i);
+	ba.put(name,val);
+	ba.put("o", "UltraLog");
+	ba.put("description", "Certificates");
+	try {
+	  context.createSubcontext((String) dns.get(i), ba);
+	}
+	catch (NamingException e) {
+	  if (log.isWarnEnabled()) {
+	    log.warn("Could not create dn " + dns.get(i));
+	  }
+	}
       }
     }
   }
+ 
+/*
+   for (int i = 0 ; i < MAX_RETRIES ; i++) {
+      try {
+	Hashtable env = new Hashtable();
+	env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
+	env.put(Context.PROVIDER_URL, ldapServerUrl);
+	if (useSSL) {
+	  env.put(Context.SECURITY_PROTOCOL, "ssl");
+	  env.put("java.naming.ldap.factory.socket", 
+		  "org.cougaar.core.security.ssl.KeyRingSSLFactory");
+	}
+      
+	context=new InitialDirContext(env);
+
+	initialContext = context;
+	initializationOK = true;
+	break;
+      }
+      catch(NamingException nexp) {
+	rootCauseMsg = "Unable to connect to LDAP server: "
+	  + ldapServerUrl
+	  + ". Reason: " + nexp + ". Using local keystore only.";
+	if (log.isWarnEnabled()) {
+	  log.warn(rootCauseMsg, nexp);
+	}
+      }
+    }
+  }
+*/
+ 
 
   /** Return all the certificates that have a given common name.
    * It is up to the caller to verify the validity of the certificate. */
@@ -159,71 +413,81 @@ public abstract class CertDirectoryService
   }
 
   public synchronized LdapEntry[] searchWithFilter(String filter)
-  {
-    if(log.isDebugEnabled()) {
-      log.debug("Search with filter called & filter is "+filter);
+    {
+      if(log.isDebugEnabled()) {
+	log.debug("Search with filter called & filter is "+filter);
+      }
+      NamingEnumeration search_results = internalSearchWithFilter(filter);
+      ArrayList certList = new ArrayList();
+      LdapEntry[] certs = new LdapEntry[0];
+
+      while((search_results!=null) && (search_results.hasMoreElements())) {
+	SearchResult result = null;
+	try {
+	  result = (SearchResult)search_results.next();
+	}
+	catch (NamingException e) {
+	  continue;
+	}
+	LdapEntry ldapEntry = null;
+
+	// Retrieve the certificate.
+	ldapEntry = getCertificate(result);
+
+	if (ldapEntry == null) {
+	  continue;
+	}
+	if (log.isDebugEnabled()) {
+	  log.debug("Certificate status: "
+		    + ldapEntry.getStatus()
+		    + " - uid: " + ldapEntry.getUniqueIdentifier());
+	}
+	certList.add(ldapEntry);
+      }
+      return (LdapEntry[]) certList.toArray(certs);
     }
-    NamingEnumeration search_results = internalSearchWithFilter(filter);
-    ArrayList certList = new ArrayList();
-    LdapEntry[] certs = new LdapEntry[0];
 
-    while((search_results!=null) && (search_results.hasMoreElements())) {
-      SearchResult result = null;
-      try {
-	result = (SearchResult)search_results.next();
-      }
-      catch (NamingException e) {
-	continue;
-      }
-      LdapEntry ldapEntry = null;
 
-      // Retrieve the certificate.
-      ldapEntry = getCertificate(result);
-
-      if (ldapEntry == null) {
-	continue;
+  public NamingEnumeration internalSearchWithFilter(String filter)
+    {
+      if (!isInitialized()) {
+	if(log.isDebugEnabled())
+	  log.debug(" Ldap is not init");
+	return null;
       }
+      NamingEnumeration results=null;
+      SearchControls constraints=new SearchControls();
+      constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
       if (log.isDebugEnabled()) {
-	log.debug("Certificate status: "
-			   + ldapEntry.getStatus()
-			   + " - uid: " + ldapEntry.getUniqueIdentifier());
+	log.debug("Filter provided for search:" + filter);
+	log.debug("LDAP server url:" + ldapServerUrl);
       }
-      certList.add(ldapEntry);
-    }
-    return (LdapEntry[]) certList.toArray(certs);
-  }
-
-
-  public  NamingEnumeration internalSearchWithFilter(String filter)
-  {
-    if (!isInitialized()) {
-      if(log.isDebugEnabled())
-      log.debug(" Ldap is not init");
-      return null;
-    }
-    NamingEnumeration results=null;
-    SearchControls constraints=new SearchControls();
-    constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-    if (log.isDebugEnabled()) {
-      log.debug("Filter provided for search:" + filter);
-      log.debug("LDAP server url:" + ldapServerUrl);
-    }
-    try {
-      if (context != null) {
-	results=context.search(ldapServerUrl, filter, constraints);
+      synchronized(_contextLock) {
+	DirContext context = null;
+	try {
+	  context = contextHolder.getContext();
+	}
+	catch (NamingException e) {
+	  log.warn("Unable to lookup in LDAP:" + filter + ". Reason: " + e);
+	  return null;
+	}
+	try {
+	  if (context != null) {
+	    results=context.search(ldapServerUrl, filter, constraints);
+	  }
+	}
+	catch(Exception exp) {
+	  if (log.isInfoEnabled()) {
+	    log.info("Search failed for filter:" + filter + ". Ldap URL:" +
+		     ldapServerUrl + ". Reason: " + exp);
+	  }
+	}
       }
-    }
-    catch(Exception exp) {
-      if (log.isInfoEnabled()) {
-	log.info("Search failed for filter:" + filter + ". Ldap URL:" +
-		 ldapServerUrl + ". Reason: " + exp);
+      if(log.isDebugEnabled()) {
+	log.debug("returning results for filter :"+filter);
       }
-    }
-    if(log.isDebugEnabled()) {
-      log.debug("returning results for filter :"+filter);
-    }
-    return results;
-  }
+      return results;
+    } 
 
   /** Should be implemented by a class specialized for a particular
    *  Certificate Directory Service. */
@@ -303,23 +567,31 @@ public abstract class CertDirectoryService
     return cert;
   }
 
-  public void getContexts() {
+  /** Dump the LDAP context.
+   */
+  public void dumpContexts() {
     try {
-      String name = initialContext.getNameInNamespace();
-      log.debug("Directory (" + name + ") contains:");
-      NamingEnumeration list = initialContext.list("");
+      synchronized(_contextLock) {
+	DirContext context = contextHolder.getContext();
+	String name = null;
+	name=context.getNameInNamespace();
+	log.debug("Directory (" + name + ") contains:");
+	NamingEnumeration list = context.list("");
+      
+	//NamingEnumeration list1 = initialContext.search("", null);
 
-      //NamingEnumeration list1 = initialContext.search("", null);
-
-      while (list.hasMore()) {
-	NameClassPair nc = (NameClassPair)list.next();
-	log.debug(nc.toString());
+	while (list.hasMore()) {
+	  NameClassPair nc = (NameClassPair)list.next();
+	  log.debug(nc.toString());
+	}
       }
     }
     catch (Exception e) {
       log.debug("Exception: " + e);
-      e.printStackTrace();
     }
   }
 
+  public String toString() {
+    return "LdapURL: " + ldapServerUrl;
+  }
 }

@@ -113,7 +113,7 @@ public class CryptoManagerServiceImpl
     ArrayList list;
     cipherTry++;
     if (cipherTry != 0 && ((cipherTry % 100) == 0)) {
-      System.out.println("cipher try: " + cipherTry + " hit: " + cipherHit + " return: " + cipherReturn);
+      log.debug("cipher try: " + cipherTry + " hit: " + cipherHit + " return: " + cipherReturn);
     }
 
     synchronized (this.ciphers) {
@@ -519,7 +519,7 @@ public class CryptoManagerServiceImpl
     throws GeneralSecurityException, IOException {
     skeyTry++;
     if (skeyTry != 0 && ((skeyTry % 50) == 0)) {
-      System.out.println("encrypt key try: " + skeyTry + " hit: " + skeyHit);
+      log.debug("encrypt key try: " + skeyTry + " hit: " + skeyHit);
     }
     // Find target & receiver certificates
     X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
@@ -635,7 +635,7 @@ public class CryptoManagerServiceImpl
     SecretKey sk = null;
     keyTry++;
     if (keyTry != 0 && ((keyTry % 50) == 0)) {
-      System.out.println("decrypt try: " + keyTry + " hit: " + keyHit);
+      log.debug("decrypt try: " + keyTry + " hit: " + keyHit);
     }
 
     MessageAddressPair mp = null;

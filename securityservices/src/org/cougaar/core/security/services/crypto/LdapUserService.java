@@ -29,7 +29,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
-public interface LdapUserService extends Service {
+public interface LdapUserService
+  extends Service
+{
 
   /**
    * Returns the user attribute used for comparing passwords

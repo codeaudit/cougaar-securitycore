@@ -30,25 +30,18 @@ import java.io.*;
 import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
-import java.security.cert.X509Certificate;
-import sun.security.x509.*;
 
-import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
-import org.cougaar.core.security.certauthority.*;
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.services.crypto.*;
+// Cougaar security services
+import org.cougaar.core.security.certauthority.SecurityServletSupport;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.util.ConfigParserService;
 
-public class Main extends  HttpServlet
+public class Main
+  extends HttpServlet
 {
-  private SecurityPropertiesService secprop = null;
   private SecurityServletSupport support;
   private ConfigParserService configParser = null;
   private KeyRingService keyRingService= null;
-  protected boolean debug = false;
 
   public Main(SecurityServletSupport support) {
     this.support = support;
@@ -57,9 +50,6 @@ public class Main extends  HttpServlet
   public void init(ServletConfig config)
     throws ServletException
   {
-    secprop = support.getSecurityProperties(this);
-    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
-						"false"))).booleanValue();
     keyRingService = (KeyRingService)
       support.getServiceBroker().getService(this,
 					    KeyRingService.class,

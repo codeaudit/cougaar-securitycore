@@ -36,18 +36,16 @@ import sun.security.x509.*;
 
 // Cougaar security services
 import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.services.ldap.LdapEntry;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.certauthority.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class CaKeyManagement
   extends HttpServlet
 {
-  private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
 
   private CaPolicy caPolicy = null;            // the policy of the CA
@@ -59,7 +57,6 @@ public class CaKeyManagement
 
   public void init(ServletConfig config) throws ServletException
   {
-    secprop = support.getSecurityProperties(this);
     configParser = (ConfigParserService)
       support.getServiceBroker().getService(this,
 					    ConfigParserService.class,

@@ -33,19 +33,24 @@ import java.security.cert.CertificateException;
 
 import org.cougaar.core.security.crypto.Base64;
 import org.cougaar.core.security.crypto.CertificateType;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.LdapEntry;
+import org.cougaar.core.security.services.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
-public class NetToolsCertDirectoryService extends CertDirectoryService
+public class NetToolsCertDirectoryService
+  extends CertDirectoryService
   implements CertDirectoryServiceClient
 {
 
-  public NetToolsCertDirectoryService(String aURL, ServiceBroker sb, String caDN) 
-    throws IllegalArgumentException
+  public NetToolsCertDirectoryService(CertDirectoryServiceRequestor requestor, ServiceBroker sb) 
+    throws javax.naming.NamingException
   {
-    super(aURL, sb, caDN);
+    super(requestor, sb);
   }
 
   public LdapEntry getCertificate(SearchResult result) {
@@ -80,7 +85,7 @@ public class NetToolsCertDirectoryService extends CertDirectoryService
       certificate=(X509Certificate)certfactory.generateCertificate(instream);
     }
     catch (Exception exp) {
-      exp.printStackTrace();
+      log.warn("Unable to get certificate: " + exp);
     }
     if (certificate != null) {
       ldapEntry = new LdapEntry(certificate, uniqueIdentifier, status,CertificateType.CERT_TYPE_END_ENTITY);

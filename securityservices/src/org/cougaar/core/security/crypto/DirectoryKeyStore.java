@@ -64,12 +64,12 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
-import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.ssl.KeyManager;
@@ -162,34 +162,6 @@ public class DirectoryKeyStore
     // LDAP certificate directory
     if (_initializing) {
       _initializing = false;
-      
-      certificateFinder =
-        CertDirectoryServiceFactory.
-        getCertDirectoryServiceClientInstance(param.ldapServerType,
-                                              param.ldapServerUrl,
-                                              param.serviceBroker,
-					      param.defaultCaDn);
-      if(certificateFinder == null) {
-        if (!param.isCertAuth) {
-          if (log.isErrorEnabled()) {
-            log.error("Could  not get certificate finder from factory");
-          }
-          throw new RuntimeException("Could  not get certificate finder from factory");
-        } else {
-          if (log.isInfoEnabled()) {
-            log.info("CA: LDAP directory service not set yet.");
-          }
-        }
-      }
-      // initCertCache may has already been updating crl
-      // in case of root CA cert in trusted store while direct
-      // CA is not, direct CA will be added to crlCache when
-      // node cert trust is checked
-      crlCache=new CRLCache(this, param.serviceBroker);
-
-      if (!param.isCertAuth) {
-	initCRLCache();
-      }
 
       Iterator iter = _initKeyManager.iterator();
       while (iter.hasNext()) {
@@ -211,7 +183,6 @@ public class DirectoryKeyStore
     this.log = (LoggingService)
       param.serviceBroker.getService(this,
 				     LoggingService.class, null);
-
     try {
       // Open Keystore
       keystore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -260,12 +231,41 @@ public class DirectoryKeyStore
 	log.warn("DirectoryKeystore warning: Role not defined");
       }
 
+
+      // initCertCache may has already been updating crl
+      // in case of root CA cert in trusted store while direct
+      // CA is not, direct CA will be added to crlCache when
+      // node cert trust is checked
+      crlCache=new CRLCache(this, param.serviceBroker);
+
+      if (!param.isCertAuth) {
+	initCRLCache();
+      }
+      
+      CertDirectoryServiceRequestor cdsr =
+	new CertDirectoryServiceRequestorImpl(param.ldapServerUrl, param.ldapServerType,
+					      param.serviceBroker, param.defaultCaDn);
+      certificateFinder = (CertDirectoryServiceClient)
+	param.serviceBroker.getService(cdsr, CertDirectoryServiceClient.class, null);
+      if(certificateFinder == null) {
+	if (!param.isCertAuth) {
+	  if (log.isErrorEnabled()) {
+	    log.error("Could  not get certificate finder from factory");
+	  }
+	  throw new RuntimeException("Could  not get certificate finder from factory");
+	} else {
+	  if (log.isInfoEnabled()) {
+	    log.info("CA: LDAP directory service not set yet.");
+	  }
+	}
+      }
+
       // Initialize certificate cache
       initCertCache();
 
     }
     catch (Exception e) {
-      log.error("Unable to initialize DirectoryKeystore: " + e);
+      log.error("Unable to initialize DirectoryKeystore: ", e);
     }
 
     certCache.printbigIntCache();
@@ -531,7 +531,7 @@ public class DirectoryKeyStore
     }
     else {
       if (log.isWarnEnabled()) {
-	log.warn("Certificate finder is null. Unable to perform the search: " + filter);
+	log.warn("Certificate finder is null. Unable to perform the search: " + filter, new Throwable());
       }
     }
     if(certs==null) {
@@ -1362,14 +1362,16 @@ public class DirectoryKeyStore
       String cname = x509certificate.getSubjectDN().getName();
       String ctype = CertificateUtility.findAttribute(cname, "t");
       certFinder = certificateFinder;
-      if (ctype != null && (ctype.equals(CERT_TITLE_AGENT)))
+      if (ctype != null && (ctype.equals(CERT_TITLE_AGENT))) {
         // all other types should not have cross CA communication
         // for SSL the mechanism is different, the protocol handshake
         // requires the peer to supply the chain.
         certFinder = getCertDirectoryServiceClient(
           CertificateUtility.findAttribute(cname, "cn"));
-      else
+      }
+      else {
         certFinder = certificateFinder;
+      }
     }
 
     boolean ret = internalBuildChain(x509certificate, vector, false, certFinder);
@@ -2450,14 +2452,13 @@ public class DirectoryKeyStore
             publishCAToLdap(caDNs[0].getName());
           }
         }
-
         return;
       }
     }
     catch(Exception e){
       log.warn("Can't locate the certificate for:"
 	       + dname.toString()
-	       +"--"+e+".generating new one...");
+	       +". Reason:"+e+". Generating new one...", e);
     }
     if (log.isDebugEnabled()) {
       log.debug("checkOrMakeCert: creating key for "
@@ -2788,21 +2789,33 @@ public class DirectoryKeyStore
   public void updateNS(String commonName) {
     try {
       updateNS(new X500Name(getX500DN(commonName)));
-    } catch (Exception ex) {}
+    } catch (Exception ex) {
+      log.warn("Unable to register LDAP URL to naming service for " + commonName + ". Reason:" + ex);
+    }
   }
 
+  /**
+   * Adding LDAP URL entry in the naming service.
+   */
   public void updateNS(X500Name x500Name) {
     // check whether cert exist and whether it is agent
     String dname = x500Name.toString();
     String title = CertificateUtility.findAttribute(dname, "t");
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug("updateNS: " + dname);
-
-    if (title == null || (!title.equals(CERT_TITLE_AGENT)))
+    }
+    if (title == null ||
+	!(title.equals(CERT_TITLE_AGENT) ||
+	  title.equals(CERT_TITLE_NODE) ||
+	  title.equals(CERT_TITLE_SERVER))) {
+      log.info("Not registering LDAP URL to naming service. Wrong title. DN:" + dname);
       return;
+    }
     List certificateList = findCert(x500Name);
-    if (certificateList == null || certificateList.size() == 0)
+    if (certificateList == null || certificateList.size() == 0) {
+      log.warn("Not registering LDAP URL to naming service. Cannot find certificate. DN:" + dname);
       return;
+    }
     try {
       if (namingSrv == null)
         namingSrv = (NamingService)
@@ -2810,74 +2823,87 @@ public class DirectoryKeyStore
                                    NamingService.class,
                                    null);
       if (namingSrv == null) {
+	log.warn("Cannot get naming service. Unable to register LDAP URL for " + dname);
         throw new NamingException("Cannot get naming service");
       }
 
       DirContext ctx = ensureCertContext();
       BasicAttributes attributes = new BasicAttributes();
-      if (title.equals(CERT_TITLE_AGENT)) {
+      if (title.equals(CERT_TITLE_AGENT) ||
+	  title.equals(CERT_TITLE_NODE) ||
+	  title.equals(CERT_TITLE_SERVER)) {
         attributes.put(CDTYPE_ATTR, new Integer(param.ldapServerType));
         attributes.put(CDURL_ATTR, param.ldapServerUrl);
       }
       // for CA should put the ca policy LDAP
-      else {
+      else if(title.equals(CERT_TITLE_CA)) {
         CaPolicy caPolicy = configParser.getCaPolicy(dname);
         attributes.put(CDTYPE_ATTR, new Integer(caPolicy.ldapType));
         attributes.put(CDURL_ATTR, caPolicy.ldapURL);
       }
+      else {
+	log.info("Unable to register LDAP URL for " + dname + ". Wrong title");
+      }
       String value = x500Name.getCommonName().toLowerCase();
       ctx.rebind(value, value, attributes);
 
-      if (log.isDebugEnabled())
+      if (log.isDebugEnabled()) {
         log.debug("successfully update: " + value + " attrib: " + attributes + " in NS");
+      }
 
     } catch (Exception nx) {
-      if (log.isDebugEnabled())
-        log.warn(
-          "Cannot update "+dname+
-          " ldap in naming." + nx.toString());
+      if (log.isWarnEnabled()) {
+        log.warn("Cannot update "+dname+ " ldap in naming." + nx.toString(), nx);
+      }
     }
 
     //log.warn("Cannot update agent ldap in naming.");
   }
 
+  /** Retrieve the certificate directory service associated with a specified CA.
+   *  A node running as a certificate authority can support multiple CA keys.
+   *  Each CA has its own LDAP server.
+   */
   public CertDirectoryServiceClient getCACertDirServiceClient(String cname) {
     TrustedCaPolicy[] tc = cryptoClientPolicy.getTrustedCaPolicy();
     for (int i = 0; i < tc.length; i++) {
       if (cname.equals(tc[i].caDN)) {
-        return CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-          tc[i].certDirectoryType, tc[i].certDirectoryUrl, param.serviceBroker,
-	  tc[i].caDN);
+
+	CertDirectoryServiceRequestor cdsr =
+	  new CertDirectoryServiceRequestorImpl(tc[i].certDirectoryUrl, tc[i].certDirectoryType,
+						param.serviceBroker, tc[i].caDN);
+	CertDirectoryServiceClient cf = (CertDirectoryServiceClient)
+	  param.serviceBroker.getService(cdsr, CertDirectoryServiceClient.class, null);
+        return cf;
       }
     }
     return null;
   }
 
-  /*
-  // Cache LDAP connections
-  private CertDirectoryServiceClient getCertFinder(int type, String url) {
-    String key = url + type;
-    CertDirectoryServiceClient certFinder = (CertDirectoryServiceClient)
-      certFinderList.get(key);
-    if (certFinder == null) {
-      synchronized (certFinderList) {
-        certFinder = CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-            type, url, param.serviceBroker);
-        certFinderList.put(key, certFinder);
-      }
-    }
-    return certFinder;
-  }
-  */
-
   /**
-   * Return an LDAP certificate finder where the X.509 certificate of the entity can be found.
+   * Return an LDAP certificate directory where the X.509 certificate of the entity can be found.
+   * A Cougaar society can include multiple Certificate Authorities.
+   * When two agents A and B communicate, their certificates may not have been signed by the same CA.
+   * Therefore, the certificates may be in two different certificate directory services.
+   * When A wants to communicate with B, it needs to:
+   *  1) Find the certificate directory where it can find B's certificate.
+   *  2) Lookup B's certificate in that certificate directory.
+   * Step 1 is performed by looking up the LDAP url in the naming service. The LDAP url is in the
+   * naming service because B has registered the URL of its certificate directory service when
+   * B was started.
    */
   public CertDirectoryServiceClient getCertDirectoryServiceClient(String cname) {
+    if (log.isDebugEnabled()) {
+      log.debug("Looking up certificate finder for " + cname);
+    }
     String cdUrl = null;
     if (cname.equals(NodeInfo.getNodeName()) || cname.equals(getHostName())) {
+      if (log.isDebugEnabled()) {
+	log.debug("Returing default certificateFinder:" + certificateFinder);
+      }
       return certificateFinder;
     }
+
     if (namingSrv == null) {
       namingSrv = (NamingService)
 	param.serviceBroker.getService(this,
@@ -2885,6 +2911,9 @@ public class DirectoryKeyStore
 				       null);
     }
     if (namingSrv == null) {
+      if (log.isInfoEnabled()) {
+	log.info("Unable to find naming service. Returning " + certificateFinder);
+      }
       return certificateFinder;
     }
 
@@ -2900,10 +2929,18 @@ public class DirectoryKeyStore
         Integer cdType = (Integer)getAttribute(attrib, CDTYPE_ATTR);
         cdUrl = (String)getAttribute(attrib, CDURL_ATTR);
         if (cdType != null && cdUrl != null) {
-	  CertDirectoryServiceClient cdsc =
-	    CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-	      cdType.intValue(), cdUrl, param.serviceBroker, param.defaultCaDn);
+
+	  CertDirectoryServiceRequestor cdsr =
+	    new CertDirectoryServiceRequestorImpl(cdUrl, cdType.intValue(),
+						  param.serviceBroker, param.defaultCaDn);
+	  CertDirectoryServiceClient cdsc = (CertDirectoryServiceClient)
+	    param.serviceBroker.getService(cdsr, CertDirectoryServiceClient.class, null);
           return cdsc;
+	}
+      }
+      else {
+	if (log.isWarnEnabled()) {
+	  log.warn("Unable to find attributes in NS for " + cname);
 	}
       }
     } catch (Exception nx) {
@@ -2915,6 +2952,8 @@ public class DirectoryKeyStore
       else {
 	// We are trying to lookup an agent's certificate, but the agent
 	// hasn't registered yet in the naming service.
+        if (log.isInfoEnabled())
+          log.info("Unable to get certificate finder for " + cname + ". Reason:" + nx);
       }
     }
     // default
@@ -2923,17 +2962,25 @@ public class DirectoryKeyStore
 
   private DirContext ensureCertContext()
     throws NamingException {
+    // First, get the Naming service root context
     DirContext ctx = namingSrv.getRootContext();
     try {
+      // Try to to get the /Certificate subcontext
       ctx = (DirContext) ctx.lookup(CERT_DIR);
     } catch (NamingException ne) {
+      // If nobody has registered yet for the /Certificate subcontext,
+      // create it.
+      if (log.isInfoEnabled()) {
+	log.info("Creating " + CERT_DIR + " subcontext in the naming service");
+      }
       ctx = (DirContext)
         ctx.createSubcontext(CERT_DIR, new BasicAttributes());
     } catch (Exception e) {
-      NamingException x =
-        new NamingException(
-            "Unable to access name-server");
+      NamingException x = new NamingException("Unable to access name-server");
       x.setRootCause(e);
+      if (log.isWarnEnabled()) {
+	log.warn(x.getMessage());
+      }
       throw x;
     }
     return ctx;
@@ -3039,3 +3086,5 @@ public class DirectoryKeyStore
   }
   */
 }
+
+

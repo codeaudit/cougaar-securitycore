@@ -40,11 +40,11 @@ import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
+import org.cougaar.core.security.crypto.CertificateStatus;
+
 import org.cougaar.core.security.certauthority.*;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.crypto.*;

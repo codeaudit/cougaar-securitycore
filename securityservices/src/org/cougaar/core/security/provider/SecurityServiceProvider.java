@@ -48,6 +48,7 @@ import org.cougaar.core.logging.LoggingServiceProvider;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.services.ldap.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.provider.SecurityServicePermission;
 import org.cougaar.core.security.util.*;
@@ -144,7 +145,7 @@ public class SecurityServiceProvider
     if (service == null) {
       if (log.isWarnEnabled()) {
 	log.warn("Service not registered: " + serviceClass.getName()
-	  + " Requestor:" + requestor.getClass().getName());
+	  + " Requestor:" + requestor.getClass().getName(), new Throwable());
       }
     }
     return service;
@@ -279,6 +280,15 @@ public class SecurityServiceProvider
     /* ********************************
      * Encryption services
      */
+    /* Certificate Directory lookup services */
+    services.put(CertDirectoryServiceClient.class,
+		 new CertDirectoryServiceProvider());
+    rootServiceBroker.addService(CertDirectoryServiceClient.class, this);
+
+    services.put(CertDirectoryServiceCA.class,
+		 new CertDirectoryServiceProvider());
+    rootServiceBroker.addService(CertDirectoryServiceCA.class, this);
+
     /* Certificate Management service */
     services.put(CertificateManagementService.class,
                  new CertificateManagementServiceProvider());
@@ -288,6 +298,7 @@ public class SecurityServiceProvider
     services.put(KeyRingService.class, new KeyRingServiceProvider());
     rootServiceBroker.addService(KeyRingService.class, this);
 
+    /* Certificate validity service */
     services.put(CertValidityService.class,
                  new CertValidityServiceProvider());
     rootServiceBroker.addService(CertValidityService.class, this);

@@ -24,38 +24,19 @@
  * - 
  */
 
-package org.cougaar.core.security.certauthority.servlet;
+package org.cougaar.core.security.services.ldap;
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import java.security.cert.*;
 
-// Cougaar security services
-import org.cougaar.core.security.certauthority.SecurityServletSupport;
-
-public class Index extends  HttpServlet
+public class MultipleEntryException
+  extends Exception
 {
-  private SecurityServletSupport support;
-  public Index(SecurityServletSupport support) {
-    this.support = support;
-  }
- 
-  protected void doGet(HttpServletRequest req,HttpServletResponse res)
-    throws ServletException, IOException  {
-    PrintWriter out=res.getWriter();
-    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
-    out.println("<html><head><title>Cougaar Certificate Authority</title></head>");
-    out.println("<FRAMESET COLS=\"25%,75%\">");
-    out.println("<FRAME name=\"nav\" SRC=\"Browser\">");
-    out.println("<FRAME name=\"mainwin\" SRC=\"Main\">");
-    out.println("</FRAMESET></html>");
-    out.flush();
-    out.close();
-  }
-  
-  public String getServletInfo()  {
-    return("Certificate Authority home");
+  public String message;
+  // public CertificateTrust cause;
+
+  public MultipleEntryException (String aMsg) {
+    message = aMsg;
+    //cause = aCause;
   }
   
 }

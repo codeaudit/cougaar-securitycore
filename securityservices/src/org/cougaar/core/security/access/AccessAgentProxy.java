@@ -523,6 +523,10 @@ public class AccessAgentProxy
     if(msgSet == null){
       msgSet = makeLowestTrust();
     }
+    if (policySet == null || policySet.keySet() == null) {
+      // TODO WHAT TO DO HERE?
+      return;
+    }
     Iterator keys = policySet.keySet().iterator();
     while(keys.hasNext()) {
       String type = (String)keys.next();
@@ -598,7 +602,7 @@ public class AccessAgentProxy
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
 	log.warn("No access control for message type "
-			 + msg.getClass() + ". reason:" + ex.getMessage());
+		 + msg.getClass() + ". reason:" + ex);
       }
       return true;
     }
@@ -662,16 +666,29 @@ public class AccessAgentProxy
   private boolean outgoingMessageAction(Message msg, TrustSet trust) {
     String act;
     
+    if (msg == null || msg.getOriginator() == null
+      || trust == null) {
+      // TODO: WHAT TO DO HERE???
+      return true;
+    }
     try {
       String msgOrigin = msg.getOriginator().toString();
       TrustAttribute mc = trust.getAttribute(MissionCriticality.name); 
+      if (mc == null) {
+	// TODO: WHAT TO DO HERE
+	return true;
+      }
       Object v = mc.getValue();
+      if (v == null) {
+	// TODO: WHAT TO DO HERE
+	return true;
+      }
       act = acps.getOutgoingAction(msgOrigin, v.toString());
     }
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
         log.warn("no access control for msg " + 
-        msg + ". reason:" + ex.getMessage());
+		 msg + ". reason:" + ex);
       }
       return true;
     }
@@ -752,7 +769,7 @@ public class AccessAgentProxy
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
         log.warn("No access control for message type "
-		 + msg.getClass() + ". reason:" + ex.getMessage());
+		 + msg.getClass() + ". reason:" + ex);
       }
       return true;
     }
@@ -803,16 +820,28 @@ public class AccessAgentProxy
 	
   private boolean incomingMessageAction(Message msg, TrustSet trust) {
     String action;
+    if (msg == null || trust == null) {
+      // TODO: WHAT TO DO HERE????
+      return true;
+    }
     try {
       TrustAttribute mc = trust.getAttribute(MissionCriticality.name); 
+      if (mc == null) {
+	// TODO: WHAT TO DO HERE????
+	return true;
+      }
       Object v = mc.getValue();
+      if (v == null) {
+	// TODO: WHAT TO DO HERE????
+	return true;
+      }
       action = 
         acps.getIncomingAction(msg.getTarget().toString(), v.toString());
     }
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
         log.warn("No access control for message: " + 
-        msg + ". reason:" + ex.getMessage());
+        msg + ". reason:" + ex);
       }
       return true;
     }

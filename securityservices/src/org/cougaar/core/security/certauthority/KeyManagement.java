@@ -61,12 +61,20 @@ import org.cougaar.core.component.ServiceRevokedEvent;
 
 // Cougaar Security Services
 import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceCA;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.crypto.NodeConfiguration;
+import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.CertificateType;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
+import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.Base64;
+import org.cougaar.core.security.crypto.DirectoryKeyStore;
+import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
 
+import org.cougaar.core.security.services.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
+import org.cougaar.core.security.services.ldap.MultipleEntryException;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.*;
@@ -219,9 +227,13 @@ public class KeyManagement
 	}
 	throw new RuntimeException("Unable to get CA policy");
       }
-      caOperations =
-	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
-	  caPolicy.ldapType, caPolicy.ldapURL, serviceBroker, caDN);
+
+      CertDirectoryServiceRequestor cdsr =
+	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
+					      serviceBroker, caDN);
+      caOperations = (CertDirectoryServiceCA)
+	serviceBroker.getService(cdsr, CertDirectoryServiceCA.class, null);
+
       if (caOperations == null) {
 	throw new RuntimeException("Unable to communicate with LDAP server");
       }

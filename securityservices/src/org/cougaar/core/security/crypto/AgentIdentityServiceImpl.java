@@ -158,6 +158,7 @@ public class AgentIdentityServiceImpl
     // has to keep track of for rules that deal with all agents.
     ServletPolicyServiceProvider.addAgent(requestorAddress.toAddress());
     if (transferableIdentity != null) {
+      // Complete agent mobility
       completeTransfer(transferableIdentity);
     }
     else {
@@ -181,7 +182,8 @@ public class AgentIdentityServiceImpl
       }
       else {
 	keyRing.checkOrMakeCert(requestorAddress.toAddress());
-        keyRing.updateNS(requestorAddress.toAddress());
+	// Update entry in naming service
+	keyRing.updateNS(requestorAddress.toAddress());
         cvs.addValidityListener(
           new AgentValidityListener(requestorAddress.toAddress()));
       }

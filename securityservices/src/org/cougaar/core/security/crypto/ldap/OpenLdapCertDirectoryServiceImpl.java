@@ -48,104 +48,30 @@ import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.ldap.MultipleEntryException;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+import org.cougaar.core.security.services.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.policy.TrustedCaPolicy;
-import org.cougaar.core.security.crypto.MultipleEntryException;
 import org.cougaar.core.security.crlextension.x509.extensions.*;
 
-public class OpenLdapCertDirectoryService
+public class OpenLdapCertDirectoryServiceImpl
   extends CertDirectoryService
   implements CertDirectoryServiceClient, CertDirectoryServiceCA
 {
   public static final String issuingdpointname="IssuingDistibutionPoint";
   public static final String revoked="3";
 
-  private KeyRingService ksr;
   private ConfigParserService configParser;
 
-  public OpenLdapCertDirectoryService(String aURL, ServiceBroker sb,
-				      String caDN)
-  {
-    super(aURL, sb, caDN);
-
-    // Retrieve KeyRing service
-    ksr = (KeyRingService)
-      sb.getService(this,
-		    KeyRingService.class,
-		    new ServiceRevokedListener() {
-			public void serviceRevoked(ServiceRevokedEvent re) {
-			  if (KeyRingService.class.equals(re.getService()))
-			    ksr  = null;
-			}
-		      });
-
-  }
-
-  public void setDirectoryServiceURL(String aURL) {
-    int slash = aURL.lastIndexOf("/");
-    String dn = null;
-    String bURL = aURL;
-    if (slash != -1) {
-      dn   = aURL.substring(slash+1);
-      bURL = aURL.substring(0,slash + 1);
-    }
-    super.setDirectoryServiceURL(bURL);
-    if (!initializationOK) {
-      return;
-    }
-    try {
-      String ldapPrincipal = null;
-      String ldapCredential = null;
-      configParser = (ConfigParserService)
-        serviceBroker.getService(this,
-		    ConfigParserService.class,
-		    null);
-
-      if (!configParser.isCertificateAuthority()) {
-	SecurityPolicy[] sp =
-	  configParser.getSecurityPolicies(CryptoClientPolicy.class);
-	CryptoClientPolicy cryptoClientPolicy =
-	  (CryptoClientPolicy) sp[0];
-	ldapPrincipal = cryptoClientPolicy.getTrustedCaPolicy()[0].certDirectoryPrincipal;
-	ldapCredential = cryptoClientPolicy.getTrustedCaPolicy()[0].certDirectoryCredential;
-      }
-      else {
-	CaPolicy caPolicy = configParser.getCaPolicy(caDistinguishedName);
-	if (caPolicy == null) {
-	  log.info("Unable to get CA policy");
-	}
-	else {
-	  ldapPrincipal = caPolicy.ldapPrincipal;
-	  ldapCredential = caPolicy.ldapCredential;
-	}
-      }
-      if (log.isDebugEnabled()) {
-	log.debug("About to connect to LDAP using " + ldapPrincipal
-		  + " principal");
-      }
-      context.addToEnvironment(Context.SECURITY_PRINCIPAL, ldapPrincipal);
-      context.addToEnvironment(Context.SECURITY_CREDENTIALS, ldapCredential);
-
-      if (bURL != aURL) { // can compare with != since it is assigned above
-	  createDcObjects(dn);
-	  // reset the context to point to the child
-	  context.close();
-	  context = null;
-	  super.setDirectoryServiceURL(aURL);
-	  // in case we've reset the context, we also need to
-	  // reset the password
-	  context.addToEnvironment(Context.SECURITY_PRINCIPAL,
-				   "cn=manager, dc=cougaar, dc=org");
-	  context.addToEnvironment(Context.SECURITY_CREDENTIALS, "secret");
-      }
-    }
-    catch (Exception e) {
-      if (log.isDebugEnabled()) {
-	log.debug("Unable to set directory service URL: " + e);
-      }
-    }
+  public OpenLdapCertDirectoryServiceImpl(CertDirectoryServiceRequestor requestor, ServiceBroker sb)
+    throws javax.naming.NamingException {
+    super(requestor, sb);
   }
 
   private static String[] breakURL(String url) {
@@ -160,69 +86,7 @@ public class OpenLdapCertDirectoryService
     return new String[] {url, component};
   }
 
-    private void createDcObjects(String dn) {
-	if (dn == null) return;
-	ArrayList names = new ArrayList();
-	ArrayList vals  = new ArrayList();
-	ArrayList dns   = new ArrayList();
-	int commaIndex = -1;
-	do {
-	    dns.add(dn.substring(commaIndex+1));
-	    int eqIndex = dn.indexOf("=", commaIndex);
-	    names.add(dn.substring(commaIndex+1, eqIndex));
-	    commaIndex = dn.indexOf(",", commaIndex+1);
-	    if (commaIndex == -1) {
-		vals.add(dn.substring(eqIndex+1));
-	    } else {
-		vals.add(dn.substring(eqIndex+1, commaIndex));
-	    }
-	} while (commaIndex != -1);
-
-	int firstAvailable = -1;
-
-	for (int i = 0; i < dns.size() && firstAvailable == -1; i++) {
-	    try {
-		// check if the object exists:
-		Attributes attrs = context.getAttributes((String) dns.get(i));
-		if (attrs != null) {
-		    firstAvailable = i;
-		}
-	    } catch (NamingException e) {
-		// doesn't exist
-	    }
-	}
-
-	if (firstAvailable == -1) {
-	    firstAvailable = dns.size();
-	}
-	
-	for (int i = firstAvailable - 1; i >= 0; i--) {
-	    if (log.isInfoEnabled()) {
-		log.info("CA dn " + dns.get(i) + 
-			 " does not exist. Creating...");
-	    }
-	    BasicAttributes ba = new BasicAttributes();
-	    Attribute objClass = new BasicAttribute("objectClass","dcObject");
-	    objClass.add("organization");
-	    ba.put(objClass);
-
-	    String name = (String) names.get(i);
-	    String val  = (String) vals.get(i);
-	    ba.put(name,val);
-	    ba.put("o", "UltraLog");
-	    ba.put("description", "Certificates");
-	    try {
-		context.createSubcontext((String) dns.get(i), ba);
-	    } catch (NamingException e) {
-		if (log.isWarnEnabled()) {
-		    log.warn("Could not create dn " + dns.get(i));
-		}
-	    }
-	}
-    }
-
-  public X509CRL getCRL(SearchResult result)
-  {
+  public X509CRL getCRL(SearchResult result) {
     String bindingName = result.getName();
     X509CRL crl = null;
     // Retrieve attributes for that certificate.
@@ -258,6 +122,7 @@ public class OpenLdapCertDirectoryService
   /** Get a certificate given a SearchResult */
   public LdapEntry getCertificate(SearchResult result) {
     String bindingName = result.getName();
+    
     X509Certificate certificate = null;
     LdapEntry ldapEntry = null;
     String uniqueIdentifier = null;
@@ -266,20 +131,28 @@ public class OpenLdapCertDirectoryService
     // Retrieve attributes for that certificate.
     Attributes attributes = result.getAttributes();
     boolean isCA =false;
-
+    synchronized(_contextLock) {
+      DirContext context = null;
+      try {
+	context = contextHolder.getContext();
+      }
+      catch (javax.naming.NamingException e) {
+	log.warn("Unable to get certificate:" + e);
+      }
+      if (log.isDebugEnabled()) {
+	log.debug("Context is:" + context);
+      }
+    }
     // Check the revocation status of that certificate.
     status = getCertificateRevocationStatus(attributes);
-
+    
     uniqueIdentifier = getUniqueIdentifier(attributes);
-
+    
     if (log.isDebugEnabled()) {
       log.debug("look up:" + bindingName);
     }
 
     try {
-      if (log.isDebugEnabled()) {
-	log.debug("Context is:" + context.toString());
-      }
       isCA= isCAEntry(attributes);
       /*
 	Attributes attributes1=context.getAttributes(bindingName);
@@ -488,7 +361,7 @@ public class OpenLdapCertDirectoryService
       String dn = "uniqueIdentifier=" +
 	getDigestAlgorithm(cert) + "-" + getHashValue(cert);
       //String dn =  "cn=" + getHashValue(cert);
-
+      
       /* String pem_cert = null;
 	 pem_cert =
 	 CertificateUtility.base64encode(cert.getEncoded(),
@@ -498,7 +371,10 @@ public class OpenLdapCertDirectoryService
 	 log.debug("About to publish LDAP entry:" + set.toString());
 	 }*/
       // if(type==CertificateUtility.CACert) {
-      context.createSubcontext(dn,set);
+      synchronized (_contextLock) {
+	DirContext context = contextHolder.getContext();
+	context.createSubcontext(dn,set);
+      }
       /* }
 	 else {
 	 context.bind(dn, pem_cert, set);
@@ -513,7 +389,7 @@ public class OpenLdapCertDirectoryService
     catch(javax.naming.NamingException ex) {
       if(log.isWarnEnabled()) {
 	log.warn("Unable to publish certificate: " + dnname
-	  + " - Reason: " + ex.toString());
+	  + " - Reason: " + ex.toString(), ex);
       }
       throw ex;
     }
@@ -622,8 +498,16 @@ public class OpenLdapCertDirectoryService
       log.debug(" Binding name for ca : :"+caBindingName);
       log.debug(" Binding name for user : :"+userBindingName);
     }
-    Attributes caAttributes=context.getAttributes(caBindingName);
-    Attributes userAttributes=context.getAttributes(userBindingName);
+
+    Attributes caAttributes=null;
+    Attributes userAttributes=null;
+    
+    synchronized(_contextLock) {
+      DirContext context = contextHolder.getContext();
+      caAttributes= context.getAttributes(caBindingName);
+      userAttributes=context.getAttributes(userBindingName);
+    }
+
     X509CRL crl=null;
     crl= getCRL(caAttributes);
 
@@ -659,6 +543,13 @@ public class OpenLdapCertDirectoryService
 
     X509Certificate issuercertificate = null;
     try {
+      KeyRingService ksr;
+      // Retrieve KeyRing service
+      ksr = (KeyRingService)
+	serviceBroker.getService(this,
+				 KeyRingService.class,
+				 null);
+
       X509Certificate[] certChain = ksr.checkCertificateTrust(userCert);
       if (certChain.length > 1) {
 	issuercertificate = certChain[1];
@@ -853,34 +744,38 @@ public class OpenLdapCertDirectoryService
     if(log.isDebugEnabled()) {
       log.debug("going to modify attribute in OpenLdap for user binding name :"+ bindingname_revokedcert);
     }
-    context.modifyAttributes(bindingname_revokedcert,mit);
-    byte[] crldata=crl.getEncoded();
-    if(log.isDebugEnabled()) {
-      log.debug("Recreating crl from byte data before updating LDAP");
-    }
-    X509CRL crl1=null;
-    CertificateFactory cf = CertificateFactory.getInstance("X.509");
-    ByteArrayInputStream bais=null ;
-    // byte []cacert=(byte [])objectclassattribute.get();
-    bais = new ByteArrayInputStream(crldata);
-    Collection crls =cf.generateCRLs(bais);
-    Iterator i = crls.iterator();
-    if (i.hasNext()) {
-      crl1 = (X509CRL) i.next();
-    }
-    if(log.isDebugEnabled()) {
-      log.debug("Recreation of crl from byte data before updating LDAP over: " + crl1.toString());
-    }
+    synchronized(_contextLock) {
+      DirContext context = contextHolder.getContext(); 
+      context.modifyAttributes(bindingname_revokedcert,mit);
 
-    attr1=new BasicAttribute( CERTIFICATEREVOCATIONLIST_ATTRIBUTE,crldata);
-    mit=new ModificationItem[1];
-    miti=new ModificationItem(DirContext.REPLACE_ATTRIBUTE,attr1);
-    mit[0]=miti;
-    if(log.isDebugEnabled()) {
-      log.debug("going to modify attribute in OpenLdap  for CA "+bindingname );
-      log.debug("$$$$$ new crl is :"+crl.toString());
+      byte[] crldata=crl.getEncoded();
+      if(log.isDebugEnabled()) {
+	log.debug("Recreating crl from byte data before updating LDAP");
+      }
+      X509CRL crl1=null;
+      CertificateFactory cf = CertificateFactory.getInstance("X.509");
+      ByteArrayInputStream bais=null ;
+      // byte []cacert=(byte [])objectclassattribute.get();
+      bais = new ByteArrayInputStream(crldata);
+      Collection crls =cf.generateCRLs(bais);
+      Iterator i = crls.iterator();
+      if (i.hasNext()) {
+	crl1 = (X509CRL) i.next();
+      }
+      if(log.isDebugEnabled()) {
+	log.debug("Recreation of crl from byte data before updating LDAP over: " + crl1.toString());
+      }
+
+      attr1=new BasicAttribute( CERTIFICATEREVOCATIONLIST_ATTRIBUTE,crldata);
+      mit=new ModificationItem[1];
+      miti=new ModificationItem(DirContext.REPLACE_ATTRIBUTE,attr1);
+      mit[0]=miti;
+      if(log.isDebugEnabled()) {
+	log.debug("going to modify attribute in OpenLdap  for CA "+bindingname );
+	log.debug("new crl is :"+crl.toString());
+      }
+      context.modifyAttributes(bindingname,mit);
     }
-    context.modifyAttributes(bindingname,mit);
   }
 
   public CRLExtensions getExtensions(X509CRL crl) throws IOException {

@@ -39,21 +39,22 @@ import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
+import org.cougaar.core.security.crypto.NodeConfiguration;
+import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
+import org.cougaar.core.security.services.ldap.LdapEntry;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.certauthority.*;
 
-public class PendingCertDetailsServlet extends  HttpServlet
+public class PendingCertDetailsServlet
+  extends HttpServlet
 {
-  private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
   private NodeConfiguration nodeConfiguration;
   private CertDirectoryServiceClient certificateFinder=null;
   private CaPolicy caPolicy = null;            // the policy of the CA
-  protected boolean debug = false;
   private SecurityServletSupport support;
   private LoggingService log;
 
@@ -66,10 +67,6 @@ public class PendingCertDetailsServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    secprop = support.getSecurityProperties(this);
-
-    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
-						"false"))).booleanValue();
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -83,7 +80,7 @@ public class PendingCertDetailsServlet extends  HttpServlet
 
     PrintWriter out=res.getWriter();
 
-    if (debug) {
+    if (log.isDebugEnabled()) {
       //log.debug("getContextPath:" + req.getContextPath());
       log.debug("getPathInfo:" + req.getPathInfo());
       log.debug("getPathTranslated:" + req.getPathTranslated());
@@ -114,10 +111,12 @@ public class PendingCertDetailsServlet extends  HttpServlet
       nodeConfiguration = new NodeConfiguration(cadnname,
 						support.getServiceBroker());
     
-      certificateFinder =
-	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-	  caPolicy.ldapType, caPolicy.ldapURL,
-	  support.getServiceBroker(), cadnname);
+      CertDirectoryServiceRequestor cdsr =
+	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
+					      support.getServiceBroker(), cadnname);
+      certificateFinder = (CertDirectoryServiceClient)
+	support.getServiceBroker().getService(cdsr, CertDirectoryServiceClient.class, null);
+
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);

@@ -50,7 +50,7 @@ import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.crlextension.x509.extensions.*;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
@@ -139,33 +139,35 @@ public class CRLCache implements Runnable
 
   /** Lookup Certificate Revocation Lists */
   public void run() {
+    Thread td=Thread.currentThread();
+    td.setPriority(Thread.MIN_PRIORITY);
     while(true) {
       if(log.isDebugEnabled())
 	log.debug("**************** CRL CACHE THREAD IS RUNNING ***********************************");
+      try {
+	Thread.sleep(sleep_time);
+      }
+      catch(InterruptedException interruptedexp) {
+	interruptedexp.printStackTrace();
+      }
+
       String dnname=null;
       Enumeration enumkeys =crlsCache.keys();
       for(;enumkeys.hasMoreElements();) {
 	dnname=(String)enumkeys.nextElement();
 	updateCRLCache(dnname);
       }
-      Thread td=Thread.currentThread();
-
-      td.setPriority(Thread.MIN_PRIORITY);
       enumkeys=crlsCache.keys();
       for(;enumkeys.hasMoreElements();) {
 	dnname=(String)enumkeys.nextElement();
-	if(dnname!=null)
+	if(dnname!=null) {
 	  updateCRLInCertCache(dnname);
-	else {
-	  if(log.isDebugEnabled())
-	    log.debug("Warning !!! dn name is null in thread of crl cache :");
 	}
-      }
-      try {
-	Thread.sleep(sleep_time);
-      }
-      catch(InterruptedException interruptedexp) {
-	interruptedexp.printStackTrace();
+	else {
+	  if(log.isWarnEnabled()) {
+	    log.warn("Dn name is null in thread of crl cache :");
+	  }
+	}
       }
     }
   }
@@ -206,9 +208,13 @@ public class CRLCache implements Runnable
       name =  new X500Name(distingushname);
     }
     catch(Exception exp) {
-      exp.printStackTrace();
+      log.error("Unable to get CA name:" + distingushname);
     }
-
+    
+    if (keystore.certCache == null) {
+      log.info("Certificate cache not initialized yet");
+      return;
+    }
     ArrayList certList = keystore.certCache.getValidCertificates(name);
     CertificateStatus certstatus = null;
     if (certList != null && certList.size() != 0) {
@@ -246,8 +252,8 @@ public class CRLCache implements Runnable
       return;
     }
     if(crl==null) {
-      if(log.isWarnEnabled()) {
-	log.warn("No crl present for:"+distingushname + ". Will retry later");
+      if(log.isInfoEnabled()) {
+	log.info("No crl present for:"+distingushname + ". Will retry later");
       }
       return;
     }

@@ -57,13 +57,14 @@ import org.cougaar.core.component.*;
 
 // Cougaar Security Services
 import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceCA;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
-import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
+import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.KeyCertGenerator;
 
+import org.cougaar.core.security.services.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
 import org.cougaar.core.security.services.crypto.KeyRingService;

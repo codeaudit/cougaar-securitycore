@@ -29,7 +29,7 @@ import java.util.Date;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 
 public class CertificateStatus
 {
