@@ -105,6 +105,14 @@ public class AgentUserService implements UserService, BlackboardClient {
       setCommunityService(cs);
     }
 
+    if (_bbs != null) {
+      startSubscription();
+    } else {
+      _serviceBroker.addServiceListener(new BlackboardServiceListener());
+    }
+  }
+
+  private void startSubscription() {
     _bbs.openTransaction();
     _subscription = (IncrementalSubscription) _bbs.subscribe(MY_RELAYS);
     _bbs.registerInterest(WATCHER);
@@ -577,6 +585,19 @@ public class AgentUserService implements UserService, BlackboardClient {
         if (cs != null) {
           ae.getServiceBroker().removeServiceListener(this);
           setCommunityService(cs);
+        }
+      }
+    }
+  }
+
+  private class BlackboardServiceListener implements ServiceAvailableListener {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      if (ae.getService().equals(BlackboardService.class)) {
+        _bbs = (BlackboardService) ae.getServiceBroker().
+           getService(this, BlackboardService.class, null);
+        if (_bbs != null) {
+          ae.getServiceBroker().removeServiceListener(this);
+          startSubscription();
         }
       }
     }
