@@ -76,9 +76,7 @@ public class EventViewerServlet
       if (o instanceof Event)  {
 	Event event= (Event)o;
 	IDMEF_Message msg = event.getEvent();
-	if(msg instanceof Registration){
-	  return true;
-	}
+	return true;
       }
       return false;
     }

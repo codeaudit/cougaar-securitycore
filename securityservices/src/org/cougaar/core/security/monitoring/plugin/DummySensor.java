@@ -27,8 +27,6 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.StateModelException ;
 import java.util.Enumeration;
-import org.cougaar.planning.ldm.plan.*;
-import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
 import edu.jhuapl.idmef.*;
 import org.cougaar.core.security.monitoring.blackboard.*;
@@ -86,25 +84,64 @@ public class DummySensor
     System.out.println(" going to publish capabilities :");
     getBlackboardService().publishAdd(event);
     System.out.println("Success in publishing  capabilities :");
+
+    /* ---------------------------------------------------------------- */
+    System.out.println("Publishing sensor Event :");
+    Address source_address_list[] =
+    {new Address("10.1.1.1", null, null, null, null, null),
+     new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX,
+		 null, null)};
+    IDMEF_Node source_node = new IDMEF_Node("locationA",
+					    "attackerA",
+					    source_address_list, 
+					    "id01", 
+					    IDMEF_Node.DNS);
+    Source source = imessage.createSource(source_node, Source.YES);
+    Source []sources = new Source[1];
+    sources[0] = source;
+
+    Address target_address_list[] =
+    {new Address("10.1.1.1", null, null, null, null, null),
+     new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX,
+		 null, null)};
+    IDMEF_Node target_node = new IDMEF_Node("locationB",
+					    "victimB",
+					    target_address_list, 
+					    "id02", 
+					    IDMEF_Node.DNS);
+    Target target = imessage.createTarget(target_node, Source.NO);
+    Target []targets = new Target[1];
+    targets[0] = target;
+
+    Classification classification =
+      imessage.createClassification("cougaar_signature_exception",
+				    "http://www.cougaar.org",
+				    Classification.VENDOR_SPECIFIC);
+    Classification []classifications = new Classification[1];
+    classifications[0] = classification;
+    AdditionalData []data = null;
+    Alert alert = imessage.createAlert(this, sources, targets, classifications, data);
+    Event e = factory.newEvent(alert);
+    getBlackboardService().publishAdd(e);
   }
 
   /* ***********************************************************************
    * SensorInfo implementation
    */
   public String getName(){
-    return "<sensor-name>";
+    return "DummySensor";
   }
   public String getManufacturer(){
-    return "<manufacturer>";
+    return "NAI Labs";
   }
   public String getModel(){
-    return "<model>";
+    return "Cougaar";
   }
   public String getVersion(){
-    return "<version>";
+    return "01";
   }
   public String getAnalyzerClass(){
-    return "<class>";
+    return "Security Analyzer";
   }
        
   protected void execute () {
