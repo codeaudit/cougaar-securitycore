@@ -1,0 +1,44 @@
+####################################################
+# enclave_safeguard_component.rule
+
+enclave = nil
+
+compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
+
+society.each_node do |node|
+  if node.name =~ /.*REAR.*/ or node.name == "Enclave1CANode"
+	or node.name == "REAR-MGMT-NODE"
+    enclave = "1"
+  elsif node.name =~ /.*FWD.*/ or node.name == "Enclave2CANode"
+	or node.name == "FWD-MGMT-NODE"
+      enclave = "2"
+  elsif node.name == "NCA-NODE"
+	or node.name == "CONUS-NODE"
+	or node.name == "ROOT-CA-NODE"
+	or node.name == "Enclave3CANode"
+	or node.name == "CONUS-MGMT-NODE"
+    enclave = "3"
+  elsif node.name =~ /.*TRANS.*/ or node.name == "AIR-NODE"
+	or node.name == "SEA-NODE" or node.name == "Enclave4CANode"
+	or node.name == "TRANS-MGMT-NODE"
+    enclave = "4"
+  end
+
+  # Add the KAoS guard
+  node.agent.add_component do |c|
+    c.name = "safe.util.SAFESecurityComponentEnclave" + enclave
+    c.classname = "safe.util.SAFESecurityComponent"
+    c.priority = "HIGH"
+    c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+    c.add_argument("PolicyDomainManager" + enclave)
+    c.add_argument("PolicyDomainManager" + enclave + "Domain")
+  end
+
+  # Add the security component factory
+  node.agent.add_component do |c|
+    c.classname = compFactory
+    c.priority = "HIGH"
+    c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+    c.add_argument("Enclave" + enclave + "Security-COMM")
+  end
+end
