@@ -504,6 +504,14 @@
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/redundancy"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/testCollectData"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/wpprotection"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/base"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/monitoring"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/crypto"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/jaas"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/debug"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/accesscontrol"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/misc"/>
         <mkdir dir="${cougaar.install.path}/csmart/scripts"/>
 
         <copy todir="${cougaar.install.path}/csmart/config/rules/security/robustness">
@@ -534,6 +542,104 @@
                 </patternset>
             </fileset>
         </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/base">
+            <fileset dir="${securityservices.configs}/recipes/rules">
+                <patternset>
+                    <include name="A05-security_param.rule"/>
+                    <include name="A10-enclave_node_agent_components.rule"/>
+                    <include name="A14-pdm_web_proxy.rule"/>
+                    <include name="ihmc_policy_domain_mgr_agents.rule"/>
+                    <include name="ihmc_policy_domain_mgr_servlet_agents.rule"/>
+                    <include name="loopback_protocol.rule"/>
+                    <include name="policy_boot_policy_list.rule"/>
+                    <include name="policy_init_agent_plugin.rule"/>
+                    <include name="policy_init_node_plugin.rule"/>
+                    <include name="policy_uri_map.rule"/>
+                    <include name="policy_user_role_map.rule"/>
+                    <include name="z99-commit_jar_changes.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/crypto">
+            <fileset dir="${securityservices.configs}/recipes/rules">
+                <patternset>
+                    <include name="A12-certificate_bootstrapper_enclaves.rule"/>
+                    <include name="A12-enclave_ca_config_component.rule"/>
+                    <include name="A25-certificate_check_aspect.rule"/>
+                    <include name="A26-msg_protection_aspect.rule"/>
+                    <include name="A30-certificate_authorities.rule"/>
+                    <include name="enclave_crl_providers.rule"/>
+                    <include name="enclave_persistence_mgrs.rule"/>
+                    <include name="name_server_cert_servlet.rule"/>
+                    <include name="persistence_relay.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/monitoring">
+            <fileset dir="${securityservices.configs}/recipes/rules">
+                <patternset>
+                    <include name="A27-security_domain_addition.rule"/>
+                    <include name="A31-create_root_managment_facet.rule"/>
+                    <include name="AGG-AggregationPlugin.rule"/>
+                    <include name="AGG-AlertPlugin.rule"/>
+                    <include name="AGG-RemoteSubscriptionPlugin.rule"/>
+                    <include name="blackboard_compromise.rule"/>
+                    <include name="create_mnr_managers_xml.rule"/>
+                    <include name="enclave_security_mnr_mgrs.rule"/>
+                    <include name="enclave_sub_security_managers.rule"/>
+                    <include name="mnr_bootstrap_event_plugin.rule"/>
+                    <include name="mnr_certificate_revoker_plugin.rule"/>
+                    <include name="mnr_compromise.rule"/>
+                    <include name="mnr_data_protection_sensor.rule"/>
+                    <include name="mnr_event_viewer_servlet.rule"/>
+                    <include name="mnr_IdmefEventPublisher.rule"/>
+                    <include name="mnr_login_failure.rule"/>
+                    <include name="mnr_message_failure.rule"/>
+                    <include name="mnr_plays.rule"/>
+                    <include name="mnr_threatcon_servlet.rule"/>
+                    <include name="mnr_user_lockout_plugin.rule"/>
+                    <include name="society_security_mnr_mgr.rule"/>
+                    <include name="threatcon_level_reporter.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/jaas">
+            <fileset dir="${securityservices.configs}/recipes/rules">
+                <patternset>
+                    <include name="A20-jaas_agent_binder.rule"/>
+                    <include name="A22-jaas_plugin_binder.rule"/>
+                    <include name="A22-plugin_service_filter.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/accesscontrol">
+            <fileset dir="${securityservices.configs}/recipes/rules">
+                <patternset>
+                    <include name="A26-msg_access_ctl_binder.rule"/>
+                    <include name="eventService-access-ctr-binder.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/debug">
+            <fileset dir="${securityservices.configs}/recipes/rules">
+                <patternset>
+                    <include name="AdaptivityEngineViewer.rule"/>
+                    <include name="community_viewer_servlet.rule"/>
+                    <include name="data_protection_view_plugin.rule"/>
+                    <include name="ihmc_policy_viewer.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/misc">
+            <fileset dir="${securityservices.configs}/recipes/rules">
+                <patternset>
+                    <include name="configuration_manager.rule"/>
+                    <include name="user_admin_agents.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+
         <!--
         <copy todir="${cougaar.install.path}/csmart/config/rules/security">
             <fileset dir="${securityservices.configs}/recipes/rules">
