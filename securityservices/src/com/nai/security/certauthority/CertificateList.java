@@ -43,12 +43,12 @@ public class CertificateList extends  HttpServlet
         {
                 StringBuffer sb=new StringBuffer();
                 LdapEntry ldapentry=null;
-                sb.append("<table align=\"center\">\n");
+                sb.append("<table align=\"center\" boder=\"2\">\n");
                 sb.append("<TR><TH> DN-Certificate </TH><TH> Status </TH><TH> DN-Signed By </TH></TR>\n");
                 for(Enumeration enum =ldapentryvector.elements();enum.hasMoreElements();)
                 {
                         ldapentry=(LdapEntry)enum.nextElement();
-                        sb.append("<TR><TD><a Href=\"../certdetails?hash="+ldapentry.getHash() +"\">"+ldapentry.getCertificate().getSubjectDN().getName()+"</a><TD>\n");
+                        sb.append("<TR><TD><a Href=\"../certdetails?hash="+ldapentry.getHash() +"\">"+ldapentry.getCertificate().getSubjectDN().getName()+"</a></TD>\n");
                         sb.append("<TD>"+ldapentry.getStatus()+"</TD>\n" );
                         sb.append("<TD>"+ldapentry.getCertificate().getIssuerDN().getName()+"</TD></TR>\n");
 
