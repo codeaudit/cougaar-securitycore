@@ -230,6 +230,10 @@
             depends="jar-securityservices, check-policiesUptodate"
             unless="policiesUptodate">
       <echo message="++++++ Building boot policies"/>
+      <copy todir="${cougaar.install.path}/configs/security">
+        <fileset dir="${securityservices.configs}/common"
+                 includes="Ontology-*.daml" />
+      </copy>
       <java classname="org.cougaar.core.security.policy.builder.Main" 
             fork="true"
             dir="${securityservices.configs}/common">
@@ -372,7 +376,7 @@
     </target>
     
     <!-- install config files -->
-    <target name="install-conf" depends="install-cougaarCA, install-daml">
+    <target name="install-conf" depends="install-cougaarCA, install-daml, build-bootpolicies">
         <echo message="+++++ Installing configuration files"/>
 	<mkdir dir="${cougaar.install.path}/configs/security"/>
         <!--
