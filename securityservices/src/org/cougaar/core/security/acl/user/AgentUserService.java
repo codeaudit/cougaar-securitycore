@@ -215,6 +215,10 @@ public class AgentUserService implements UserService, BlackboardClient {
 	
       }
       Attributes attrs = _communityService.getCommunityAttributes(community);
+      if (_log.isDebugEnabled()) {
+        _log.debug("Attributes for Community (" + community + "): " +
+                   attrs);
+      }
       if (attrs != null) {
         Attribute  attr  = attrs.get("CommunityType");
         if (attr != null) {
