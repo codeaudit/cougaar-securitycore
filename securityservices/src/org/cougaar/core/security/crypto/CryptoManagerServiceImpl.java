@@ -558,13 +558,13 @@ public class CryptoManagerServiceImpl
       if (gse instanceof CertificateException) {
         if (log.isDebugEnabled()) {
           log.debug("Unable to protect object: " + source.toAddress()
-                   + " -> " + target.toAddress() + " - policy=" + method);
+                   + " -> " + target.toAddress() + " - policy=" + method, gse);
         }
       }
       else {
         if (log.isWarnEnabled()) {
           log.warn("Unable to protect object: " + source.toAddress()
-                   + " -> " + target.toAddress() + " - policy=" + method);
+                   + " -> " + target.toAddress() + " - policy=" + method, gse);
         }
       }
       throw gse;
@@ -1381,13 +1381,8 @@ public class CryptoManagerServiceImpl
     // Since this is demo-ware, we are not encrypting those messages.
     // The "(MTS)" part is the only ugly part -- GM
 
-    if (encryptedSocket || target.endsWith("(MTS)")) {
+    if (encryptedSocket) {
       removeEncrypt(policy); // no need for double-encryption
-    }
-
-    if (source.startsWith("(MTS)")) {
-      // FIXME!! should check the source principal also
-      policy.secureMethod = policy.PLAIN;
     }
 
     if (policy.secureMethod == policy.SIGN && encryptedSocket && 
@@ -1419,6 +1414,27 @@ public class CryptoManagerServiceImpl
       }
     }
     return newPolicies;
+  }
+
+  private boolean ignoreSignature(boolean encryptedSocket,
+                                  Object link,
+                                  String source,
+                                  String target) {
+
+    // Hack because you might want to MTS yourself a message...
+    if (source.equals(target)) {
+      return true;
+    }
+
+    if (encryptedSocket && link != null) {
+      Set sentSet = getSentSet(link);
+      synchronized (sentSet) {
+        if (sentSet.contains(source)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private void setSent(String source, Object link) {
@@ -1587,14 +1603,20 @@ public class CryptoManagerServiceImpl
       _sender = sourceName;
 
       // check the policy
-      Collection policies = 
-        cps.getReceivePolicies(sourceName, targetName);
-
-      policies = modifyPolicies(policies, encryptedSocket,
-                                link, sourceName, targetName);
+      boolean ignoreSignature = ignoreSignature(encryptedSocket, link,
+                                                sourceName, targetName);
       SecureMethodParam headerPolicy = header.getPolicy();
+      boolean goodPolicy = cps.isReceivePolicyValid(sourceName, targetName,
+                                                    headerPolicy,
+                                                    encryptedSocket,
+                                                    ignoreSignature);
 
-      checkPolicy(policies, headerPolicy, sourceName, targetName);
+      if (!goodPolicy) {
+        String message = "Policy mismatch. Could not find matching policy" +
+          "for received message policy " + headerPolicy;
+        log.debug(message);
+        throw new GeneralSecurityException(message);
+      }
       if (log.isDebugEnabled()) {
         log.debug("InputStream using policy: " + headerPolicy);
       }
@@ -1671,45 +1693,6 @@ public class CryptoManagerServiceImpl
       }
     }
 
-    private void checkPolicy(Collection policies,
-                             SecureMethodParam headerPolicy,
-                             String source, String target) 
-      throws GeneralSecurityException {
-      Iterator iter = policies.iterator();
-      boolean headSign = 
-        headerPolicy.secureMethod == SecureMethodParam.SIGN ||
-        headerPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT;
-      boolean headEncrypt = 
-        headerPolicy.secureMethod == SecureMethodParam.ENCRYPT ||
-        headerPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT;
-
-      while (iter.hasNext()) {
-        SecureMethodParam policy = (SecureMethodParam) iter.next();
-        boolean sign = policy.secureMethod == policy.SIGN ||
-          policy.secureMethod == policy.SIGNENCRYPT;
-        boolean encrypt = policy.secureMethod == policy.ENCRYPT ||
-          policy.secureMethod == policy.SIGNENCRYPT;
-
-        if (sign && !headSign ||
-            encrypt && !headEncrypt) {
-          // encryption/sign requirements differ
-          continue;
-        }
-        if ((sign && !policy.signSpec.equals(headerPolicy.signSpec)) ||
-            (encrypt && 
-             (!policy.asymmSpec.equals(headerPolicy.asymmSpec) ||
-              !policy.symmSpec.equals(headerPolicy.symmSpec)))) {
-          // encryption/signature specs differ
-          continue;
-        }
-        return; // found one
-      }
-      String message = "Policy mismatch. Could not find matching policy for " +
-        "received message policy " + headerPolicy;
-      log.debug(message);
-      throw new GeneralSecurityException(message);
-    }
-    
     private void decryptStream(ProtectedMessageHeader header, 
                                String targetName) 
       throws GeneralSecurityException, IOException {

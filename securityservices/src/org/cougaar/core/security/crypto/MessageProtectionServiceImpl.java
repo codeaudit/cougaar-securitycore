@@ -202,8 +202,8 @@ public class MessageProtectionServiceImpl
 			      MessageAddress target)
     throws GeneralSecurityException, IOException
   {
-//     return protectHeader(rawData, null, null, source, target, null);
-    return rawData;
+//      return protectHeader(rawData, null, null, source, target, null);
+     return rawData;
   }
 
   /**
@@ -248,8 +248,9 @@ public class MessageProtectionServiceImpl
     // The advance message clock uses an unsupported address type.
     // Since this is demo-ware, we are not encrypting those messages.
     if (targetName.endsWith("(MTS)")) {
-	log.info("Incoming postmaster message. Skipping encryption");
-	return rawData;
+      targetName = targetName.substring(0, targetName.length() - 5);
+      targetNode = MessageAddress.getMessageAddress(targetName);
+      log.info("Incoming postmaster message. Protecting with node key");
     }
 
     if (!isInitialized) {
@@ -257,6 +258,9 @@ public class MessageProtectionServiceImpl
     }
     
     SecureMethodParam policy = cps.getSendPolicy(sourceName, targetName);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    oos.writeObject(policy);
 
     if (policy == null) {
       if (log.isWarnEnabled()) {
@@ -288,13 +292,10 @@ public class MessageProtectionServiceImpl
                 " for agents " + sourceAgent + " -> " + targetAgent +
                 " (" + policy + ")");
     }
-    ByteArrayOutputStream baos = null;
     try {
       ProtectedObject po =
         encryptService.protectObject(rawData, sourceNode, targetNode, policy);
-      baos = new ByteArrayOutputStream();
   
-      ObjectOutputStream oos = new ObjectOutputStream(baos);
       oos.writeObject(po);
   
       if (log.isDebugEnabled()) {
@@ -402,8 +403,8 @@ public class MessageProtectionServiceImpl
 				MessageAddress target)
     throws GeneralSecurityException, IOException
   {
-//     return unprotectHeader(rawData, null, null, source, target, null);
-    return rawData;
+//      return unprotectHeader(rawData, null, null, source, target, null);
+     return rawData;
   }
 
   /**
@@ -433,24 +434,42 @@ public class MessageProtectionServiceImpl
     // The advance message clock uses an unsupported address type.
     // Since this is demo-ware, we are not encrypting those messages.
     if (targetName.endsWith("(MTS)")) {
-	log.info("Incoming postmaster message. Skipping encryption");
-	return rawData;
+      targetName = targetName.substring(0, targetName.length() - 5);
+      targetNode = MessageAddress.getMessageAddress(targetName);
+      log.info("Incoming postmaster message. Protecting with node key");
     }
 
     if (!isInitialized) {
       setPolicyService();
     }
 
-    Collection policies = cps.getReceivePolicies(sourceName, targetName);
+    ByteArrayInputStream bais = new ByteArrayInputStream(rawData);
+    ObjectInputStream ois = new ObjectInputStream(bais);
 
-    if (policies.isEmpty()) {
+    SecureMethodParam policy;
+    try {
+      policy = (SecureMethodParam) ois.readObject();
+    } catch (Exception e) {
       if (log.isWarnEnabled()) {
         log.warn("unprotectHeader " + sourceName +
-                 " -> " + targetName +
-                 " (No policy)");
+                 " -> " + targetName + " could not read policy", e);
+      }
+      throw new GeneralSecurityException("Could read policy for message " +
+                                          "between " +
+                                          sourceName + " and " + targetName +
+                                         ": " + e.getMessage());
+    }
+
+    if (policy == null ||
+        !cps.isReceivePolicyValid(sourceName, targetName, 
+                                 policy, false, false)) {
+      if (log.isWarnEnabled()) {
+        log.warn("unprotectHeader " + sourceName +
+                 " -> " + targetName + " policy " + policy +
+                 " not allowed");
       }
       GeneralSecurityException gse = 
-        new GeneralSecurityException("Could not find message policy between " +
+        new GeneralSecurityException("Could not use policy between " +
                                      sourceName + " and " + targetName);
       publishMessageFailure(sourceName, targetName,
                             MessageFailureEvent.INVALID_POLICY, 
@@ -460,13 +479,11 @@ public class MessageProtectionServiceImpl
 
     if (log.isDebugEnabled()) {
       log.debug("unprotectHeader: " + sourceName + " -> " + targetName +
-                " (" + policies + ")");
+                " (" + policy + ")");
     }
 
-    ByteArrayInputStream bais = new ByteArrayInputStream(rawData);
     ProtectedObject po = null;
     try {
-      ObjectInputStream ois = new ObjectInputStream(bais);
       po = (ProtectedObject) ois.readObject();
     } catch (ClassNotFoundException e) {
       if (log.isWarnEnabled()) {
@@ -475,25 +492,16 @@ public class MessageProtectionServiceImpl
       }
       throw new IOException("Can't unprotect header: " + e.getMessage());
     }
-    Object o = null;
-    Iterator iter = policies.iterator();
-    DecryptSecretKeyException dske = null;
-    GeneralSecurityException  gse  = null;
-    while (iter.hasNext()) {
-      SecureMethodParam policy = (SecureMethodParam) iter.next();
-      try {
-        o = encryptService.unprotectObject(sourceNode, targetNode, po, policy);
-        if (log.isDebugEnabled()) {
-          log.debug("unprotectHeader OK: " + sourceName + " -> " + targetName);
-        }
-        return (byte[]) o;
-      } catch(DecryptSecretKeyException e) {
-        dske = e;
-      } catch(GeneralSecurityException e) {
-        gse = e;
+    try {
+      byte[] b = (byte[])
+        encryptService.unprotectObject(sourceNode, targetNode, po, policy);
+      if (log.isDebugEnabled()) {
+        log.debug("unprotectHeader OK: " + sourceName + " -> " + targetName);
       }
-    }
-    if (dske != null) {
+      return b;
+    } catch (ClassCastException e) {
+      throw new IOException("Found the wrong type of object in stream: " + e);
+    } catch(DecryptSecretKeyException e) {
       // send the new certificate to the server
       AttributedMessage msg = getCertificateMessage(sourceNode, targetNode);
       if (msg != null) {
@@ -511,13 +519,11 @@ public class MessageProtectionServiceImpl
         }
       }
       
-      throw new RetryWithNewCertificateException(dske.getMessage());
+      throw new RetryWithNewCertificateException(e.getMessage());
+    } catch(GeneralSecurityException e) {
+      publishMessageFailure(sourceName, targetName, e);
+      throw e;
     }
-    if (gse != null) {
-      publishMessageFailure(sourceName, targetName, gse);
-      throw gse;
-    }
-    throw new RuntimeException("Should never get here");
   }
 
   private boolean isEncrypted(MessageAttributes attrs) {

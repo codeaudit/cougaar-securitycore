@@ -1,7 +1,7 @@
 package org.cougaar.core.security.policy.enforcers;
 
 import org.cougaar.core.security.policy.enforcers.ontology.*;
-import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
+import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
 
 import java.io.IOException;
@@ -83,11 +83,11 @@ public class ULMessageNodeEnforcer
   {
     try {
       // FIXME!!
-      HardWired.setServiceBroker(sb);
       _sb = sb;
       _agents=agents;
       _log = (LoggingService) 
         _sb.getService(this, LoggingService.class, null);
+      HardWired.setServiceBroker(sb);
       _log.debug("Creating Community Service Proxy");
       if (!_sb.hasService(CommunityService.class)) {
         _log.fatal("Community service is missing");
@@ -247,11 +247,11 @@ public class ULMessageNodeEnforcer
               "if and how to send a " + verb + " message from " + 
               sender + " to " + receiver + ".</p>");
     boolean allowed = false;
-    Set     suites  = null;
+    CipherSuite suites  = null;
     int     count   = 2000;
     long start = System.currentTimeMillis();
     for (int i = 0; i < count; i++) {
-      suites  = getAllowedCypherSuites(sender,
+      suites  = getAllowedCipherSuites(sender,
                                        // "##" + 
                                        receiver);       
       allowed = isActionAuthorized(sender, 
@@ -262,20 +262,26 @@ public class ULMessageNodeEnforcer
     out.print("<p>" + count + " calls mediated in " 
               + duration + " milliseconds.</p>");
     out.print("<p>Last call returned the following results: ");
-    out.print("<p>Allowed cypher suites:</p>");
-    if (suites == null || suites.size() ==0) { 
+    out.print("<p>Allowed cipher suites:</p>");
+    if (suites == null || !suites.isCipherAvailable()) { 
       out.print("<p>None</p>");
     } else {
-      int counter = 0;
-      for (Iterator suitesIt=suites.iterator(); 
-           suitesIt.hasNext();) {
-        CypherSuite c = (CypherSuite) suitesIt.next();
-        out.print("<p>Suite " + (counter++) + ":<ul>");
-        out.print("<li>Symmetric = " + c.getSymmetric());
-        out.print("<li>Asymmetric = " + c.getAsymmetric());
-        out.print("<li>Checksum = " + c.getChecksum());
-        out.print("</ul>");
+      Iterator iter = suites.getSymmetric().iterator();
+      out.println("<p>Symmetric Algorithms:<ul>");
+      while (iter.hasNext()) {
+        out.println("<li> " + iter.next());
       }
+      out.println("</ul><p>Asymmetric Algorithms:<ul>");
+      iter = suites.getAsymmetric().iterator();
+      while (iter.hasNext()) {
+        out.println("<li> " + iter.next());
+      }
+      out.println("</ul><p>Signature Algorithms:<ul>");
+      iter = suites.getSignature().iterator();
+      while (iter.hasNext()) {
+        out.println("<li> " + iter.next());
+      }
+      out.println("</ul>");
     }
     out.print("<p>Message ");
     if (allowed) { out.print("allowed</p>"); } 
@@ -295,24 +301,30 @@ public class ULMessageNodeEnforcer
       for (int j = 0; j < HardWired.agents.length; j++) {
         String sender    = HardWired.agents[i];
         String receiver  = HardWired.agents[j];
-        out.print("<p>Allowed cypher suites from " + sender
+        out.print("<p>Allowed cipher suites from " + sender
                   + " to " + receiver + "</p>");
-        Set suites = getAllowedCypherSuites(sender,
-                                            // "##" + 
-                                            receiver);
-        if (suites == null || suites.size() ==0) { 
+        CipherSuite suites = getAllowedCipherSuites(sender,
+                                                    // "##" + 
+                                                    receiver);
+        if (suites == null || !suites.isCipherAvailable()) { 
           out.print("<p>None</p>");
         } else {
-          int counter = 0;
-          for (Iterator suitesIt=suites.iterator(); 
-               suitesIt.hasNext();) {
-            CypherSuite c = (CypherSuite) suitesIt.next();
-            out.print("<p>Suite " + (counter++) + ":<ul>");
-            out.print("<li>Symmetric = " + c.getSymmetric());
-            out.print("<li>Asymmetric = " + c.getAsymmetric());
-            out.print("<li>Checksum = " + c.getChecksum());
-            out.print("</ul>");
+          Iterator iter = suites.getSymmetric().iterator();
+          out.println("<p>Symmetric Algorithms:<ul>");
+          while (iter.hasNext()) {
+            out.println("<li> " + iter.next());
           }
+          out.println("</ul><p>Asymmetric Algorithms:<ul>");
+          iter = suites.getAsymmetric().iterator();
+          while (iter.hasNext()) {
+            out.println("<li> " + iter.next());
+          }
+          out.println("</ul><p>Signature Algorithms:<ul>");
+          iter = suites.getSignature().iterator();
+          while (iter.hasNext()) {
+            out.println("<li> " + iter.next());
+          }
+          out.println("</ul>");
         }
         testIsActionAuthorized(out, sender, receiver, "GetWater");
         testIsActionAuthorized(out, sender, receiver, "GetLogSupport");
@@ -372,18 +384,18 @@ public class ULMessageNodeEnforcer
   }
 
   /**
-   * This function determines the CypherSuite to use in the message.  For 
-   * now it returns a set of CypherSuites but this is probably not
+   * This function determines the CipherSuite to use in the message.  For 
+   * now it returns a set of CipherSuites but this is probably not
    * realistic and will change. 
    *
    * At the point this query is made, the caller has forgotten the verb 
-   * that was used in the message and needs to determine the cypher suite 
+   * that was used in the message and needs to determine the cipher suite 
    * to use.
    */
-  public Set getAllowedCypherSuites(String sender,
+  public CipherSuite getAllowedCipherSuites(String sender,
                              String receiver) {
     if (_log.isDebugEnabled()) {
-      _log.debug("Called getAllowedCypherSuites for " + sender + " to " +
+      _log.debug("Called getAllowedCipherSuites for " + sender + " to " +
                  receiver);
     }
     Set targets = new HashSet();

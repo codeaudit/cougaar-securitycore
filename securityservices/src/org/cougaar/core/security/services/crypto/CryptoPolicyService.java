@@ -30,6 +30,7 @@ import org.cougaar.core.component.Service;
 // Cougaar security services
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.policy.CryptoPolicy;
+import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 
 public interface CryptoPolicyService
   extends Service
@@ -37,9 +38,13 @@ public interface CryptoPolicyService
 
   public SecureMethodParam getSendPolicy(String source, String target);
   public SecureMethodParam getReceivePolicy(String source, String target);
-  
-  public Collection getSendPolicies(String source, String target);
-  public Collection getReceivePolicies(String source, String target);
+
+  public boolean isReceivePolicyValid(String source, String target, 
+                                      SecureMethodParam policy,
+                                      boolean ignoreEncryption,
+                                      boolean ignoreSignature);
+//   public CipherSuite getSendPolicies(String source, String target);
+//   public CipherSuite getReceivePolicies(String source, String target);
   /*
     public CryptoPolicy getIncomingPolicy(String target);
     public CryptoPolicy getOutgoingPolicy(String source);

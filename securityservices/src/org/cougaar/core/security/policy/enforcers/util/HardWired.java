@@ -3,8 +3,8 @@ package org.cougaar.core.security.policy.enforcers.util;
 import java.util.*;
 
 import org.cougaar.core.security.policy.enforcers.ontology.*;
-import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
-import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
+import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
+import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
@@ -18,6 +18,55 @@ import kaos.ontology.repository.TargetInstanceDescription;
  * it.
  */
 public class HardWired {
+
+  /**
+   * Ontology name for very weak crypto
+   */
+  public static final String WEAK_CRYPTO = 
+    EntityInstancesConcepts.EntityInstancesDamlURL + "WeakProtection";
+
+  /**
+   * Ontology name for secret crypto
+   */
+  public static final String SECRET_CRYPTO = 
+    EntityInstancesConcepts.EntityInstancesDamlURL + "SecretProtection";
+
+  /**
+   * Ontology name for strong crypto
+   */
+  public static final String STRONG_CRYPTO = 
+    EntityInstancesConcepts.EntityInstancesDamlURL + "NSAApprovedProtection";
+
+  /**
+   * Ontology name for authorization with no credentials and weak protection
+   */
+  public static final String NO_AUTH = 
+    EntityInstancesConcepts.EntityInstancesDamlURL + "NoAuth";
+
+  /**
+   * Ontology name for authorization with no credentials and strong protection
+   */
+  public static final String NO_AUTH_SSL = 
+    EntityInstancesConcepts.EntityInstancesDamlURL + "NoAuthSSL";
+
+  /**
+   * Ontology name for authorization with password and weak protection
+   */
+  public static final String PASSWORD_AUTH = 
+    EntityInstancesConcepts.EntityInstancesDamlURL + "Password";
+
+  /**
+   * Ontology name for authorization with password and strong protection
+   */
+  public static final String PASSWORD_AUTH_SSL = 
+    EntityInstancesConcepts.EntityInstancesDamlURL + "PasswordSSL";
+
+  /**
+   * Ontology name for authorization with certificate and strong protection
+   */
+  public static final String CERT_AUTH_SSL = 
+    EntityInstancesConcepts.EntityInstancesDamlURL + "CertificateSSL";
+
   /**
    * The string of users is so that the Servlet Enforcer can say
    * that he has some actors that he is enforcing policy for.  This
@@ -114,100 +163,94 @@ public class HardWired {
    * can use to relate the ontology names for crypto schemes to the
    * real names.
    */
-  public static final Set nsaApproved;
+  public static final AuthSuite noAuth =
+    new AuthSuite(null,
+                  AuthSuite.authNoAuth);
+
+  public static final AuthSuite sslNoAuth =
+    new AuthSuite(SSLCipherSuites.STRONG_SUITES,
+                  AuthSuite.authNoAuth);
+
+  public static final AuthSuite passwordAuth =
+    new AuthSuite(null,
+                  AuthSuite.authPassword);
+
+  public static final AuthSuite sslPasswordAuth =
+    new AuthSuite(SSLCipherSuites.STRONG_SUITES,
+                  AuthSuite.authPassword);
+
+  public static final AuthSuite certAuth =
+    new AuthSuite(SSLCipherSuites.STRONG_SUITES,
+                  AuthSuite.authCertificate);
+
   static {
-    nsaApproved = new HashSet();
-    nsaApproved.add(new CypherSuite("3DES","RSA","MD5"));
+    noAuth.getSSL().add("plain");
+    passwordAuth.getSSL().add("plain");
   }
 
-  public static final Set nsaApprovedWithAuth;
+  public static final CipherSuite nsaApproved;
   static {
-    nsaApprovedWithAuth = new HashSet();
-    nsaApprovedWithAuth.add( new CypherSuiteWithAuth("3DES",
-                                                     "RSA",
-                                                     "MD5",
-                                                     CypherSuiteWithAuth
-                                                     .authCertificate));
+    nsaApproved = new CipherSuite();
+    nsaApproved.addSymmetric("DESede");
+    nsaApproved.addAsymmetric("RSA");
+    nsaApproved.addSignature("MD5withRSA");
   }
 
-  public static final Set secretCrypto;
+  public static final CipherSuite secretCrypto;
   static {
-    secretCrypto = new HashSet();
-    secretCrypto.add(new CypherSuite("DES","RSA","MD5"));
-  }
-
-
-  public static final Set weakCrypto;
-  static {
-    weakCrypto = new HashSet();
-	
-    weakCrypto.add(new CypherSuite("DES",
-                                   "none",
-                                   "none"));
-    weakCrypto.add(new CypherSuite("plain",
-                                   "none",
-                                   "none"));
-  }
-
-  public static final Set weakCryptoWithAuth;
-  static {
-    weakCryptoWithAuth = new HashSet();
-	
-    weakCryptoWithAuth.add(
-              new CypherSuiteWithAuth("DES",
-                                      "none",
-                                      "none",
-                                      CypherSuiteWithAuth.authPassword));
-    weakCryptoWithAuth.add(
-              new CypherSuiteWithAuth("plain",
-                                      "none",
-                                      "none",
-                                      CypherSuiteWithAuth.authPassword));
-    weakCryptoWithAuth.add(
-              new CypherSuiteWithAuth("plain",
-                                      "none",
-                                      "none",
-                                      CypherSuiteWithAuth.authNoAuth));
+    secretCrypto = new CipherSuite();
+    secretCrypto.addSymmetric("DES");
+    secretCrypto.addAsymmetric("RSA");
+    secretCrypto.addSignature("MD5withRSA");
   }
 
 
-  public final static Set ulCiphersFromKAoSProtectionLevel(Set ciphers)
+  public static final CipherSuite weakCrypto;
+  static {
+    weakCrypto = new CipherSuite();
+    weakCrypto.addSymmetric("DES");
+    weakCrypto.addSymmetric("plain");
+    weakCrypto.addAsymmetric("none");
+    weakCrypto.addSignature("none");
+  }
+
+  
+  public final static CipherSuite ulCiphersFromKAoSProtectionLevel(Set ciphers)
   {
-    Set ulCiphers = new HashSet();
+    CipherSuite cs = new CipherSuite();
     for(Iterator cipherIt = ciphers.iterator(); cipherIt.hasNext();) {
       String cipher = (String) cipherIt.next();
-      if (cipher.equals(EntityInstancesConcepts.EntityInstancesDamlURL
-                        + "WeakProtection") ) {
-        ulCiphers.addAll(weakCrypto);
-      } else if (cipher.equals(EntityInstancesConcepts.EntityInstancesDamlURL
-                               + "NSAApprovedProtection")) {
-        ulCiphers.addAll(nsaApproved);
-      } else if (cipher.equals(EntityInstancesConcepts.EntityInstancesDamlURL
-                               + "SecretProtection")) {
-        ulCiphers.addAll(secretCrypto);
+      if (cipher.equals(WEAK_CRYPTO) ) {
+        cs.addAll(weakCrypto);
+      } else if (cipher.equals(STRONG_CRYPTO)) {
+        cs.addAll(nsaApproved);
+      } else if (cipher.equals(SECRET_CRYPTO)) {
+        cs.addAll(secretCrypto);
       } else {
         continue;  // I guess he is getting less than he wanted...
       }
     }
-    return ulCiphers;
+    return cs;
   }
 
-  public final static Set ulCiphersWithAuthFromKAoSAuthLevel(Set ciphers)
+  public final static AuthSuite ulAuthSuiteFromKAoSAuthLevel(Set ciphers)
   {
-    Set ulCiphers = new HashSet();
+    AuthSuite as = new AuthSuite();
     for(Iterator cipherIt = ciphers.iterator(); cipherIt.hasNext();) {
       String cipher = (String) cipherIt.next();
-      if (cipher.equals(EntityInstancesConcepts.EntityInstancesDamlURL
-                        + "Weak") ) {
-        ulCiphers.addAll(weakCryptoWithAuth);
-      } else if (cipher.equals(EntityInstancesConcepts.EntityInstancesDamlURL
-                               + "NSAApproved")) {
-        ulCiphers.addAll(nsaApprovedWithAuth);
-      } else {
-        continue;  // I guess he is getting less than he wanted...
+      if (cipher.equals(NO_AUTH)) {
+        as.addAll(noAuth);
+      } else if (cipher.equals(NO_AUTH_SSL)) {
+        as.addAll(sslNoAuth);
+      } else if (cipher.equals(PASSWORD_AUTH)) {
+        as.addAll(passwordAuth);
+      } else if (cipher.equals(PASSWORD_AUTH_SSL)) {
+        as.addAll(sslPasswordAuth);
+      } else if (cipher.equals(CERT_AUTH_SSL)) {
+        as.addAll(certAuth);
       }
     }
-    return ulCiphers;
+    return as;
   }
 
   /**
@@ -281,43 +324,36 @@ public class HardWired {
    * This matching of the real cryptographic concepts with the
    * ontology concepts will take some work.
    */
-  public static boolean addCypherSuiteWithAuthTarget(Set targets, 
-                                                     CypherSuiteWithAuth c)
+  public static boolean addAuthSuiteTarget(Set targets, 
+                                           String sslCipher,
+                                           int authLevel)
   {
     if (_log.isDebugEnabled()) {
-      _log.debug("Trying to add targets for cipher suite: " + c);
+      _log.debug("Trying to add targets for cipher suite: " + 
+                 sslCipher);
     }
-    boolean weak   = weakCryptoWithAuth.contains(c);
-    boolean strong = nsaApprovedWithAuth.contains(c);
-
-    if (weak && strong) { 
-      _log.debug("Both weak and strong. No target needed.");
-      return true; 
-    } else if (weak) {
-      _log.debug("Adding weak auth target.");
-      Set weakAuth = new HashSet();
-      weakAuth.add((Object) (EntityInstancesConcepts.EntityInstancesDamlURL
-                             + "Weak"));
-      targets.add(
-                  new TargetInstanceDescription(
-                            UltralogActionConcepts._usedAuthenticationLevel_,
-                            weakAuth));
-      return true;
-    } else if (strong) {
-      _log.debug("Adding strong auth target.");
-      Set strongAuth = new HashSet();
-      strongAuth.add(
-                     (Object) (EntityInstancesConcepts.EntityInstancesDamlURL
-                               + "NSAApproved"));
-      targets.add(
-                  new TargetInstanceDescription(
-                            UltralogActionConcepts._usedAuthenticationLevel_,
-                            strongAuth));
-      return true;
+    String auth;
+    if (certAuth.contains(sslCipher, authLevel)) {
+      auth = CERT_AUTH_SSL;
+    } else if (sslPasswordAuth.contains(sslCipher, authLevel)) {
+      auth = PASSWORD_AUTH_SSL;
+    } else if (passwordAuth.contains(sslCipher, authLevel)) {
+      auth = PASSWORD_AUTH;
+    } else if (sslNoAuth.contains(sslCipher, authLevel)) {
+      auth = NO_AUTH_SSL;
+    } else if (noAuth.contains(sslCipher, authLevel)) {
+      auth = NO_AUTH;
     } else {
-      _log.debug("Unknown auth target.");
       return false;
     }
 
+    Set authSet = Collections.singleton(auth);
+    if (_log.isDebugEnabled()) {
+      _log.debug("Adding to auth target: " + auth);
+    }
+    targets.add( new TargetInstanceDescription( UltralogActionConcepts.
+                                                _usedAuthenticationLevel_,
+                                                authSet ) );
+    return true;
   }
 }

@@ -66,13 +66,13 @@ import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
-import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
+import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
 
 public class DualAuthenticator extends ValveBase {
-  static final byte AUTH_NONE     = CypherSuiteWithAuth.authNoAuth;
-  static final byte AUTH_PASSWORD = CypherSuiteWithAuth.authPassword;
-  static final byte AUTH_CERT     = CypherSuiteWithAuth.authCertificate;
-  static final byte AUTH_NEVER    = 3;
+  static final byte AUTH_NONE     = AuthSuite.authNoAuth;
+  static final byte AUTH_PASSWORD = AuthSuite.authPassword;
+  static final byte AUTH_CERT     = AuthSuite.authCertificate;
+  static final byte AUTH_NEVER    = AuthSuite.authInvalid;
 
   private static ResourceBundle _authenticators = null;
   private ServletNodeEnforcer _enforcer;
@@ -129,7 +129,7 @@ public class DualAuthenticator extends ValveBase {
 
   /**
    * Valve callback. First check the primary authentication method
-ggggg   * and if not authenticated, call the secondary authentication method.
+   * and if not authenticated, call the secondary authentication method.
    */
   public void invoke(Request request, Response response,
                      ValveContext context) 
@@ -161,7 +161,7 @@ ggggg   * and if not authenticated, call the secondary authentication method.
 
     // this is only for DAML (efficiency -- only ask once and use in
     // two calls...)
-    CypherSuiteWithAuth authReq = 
+    AuthSuite authReq = 
       getAuthRequirements(hsrequest.getRequestURI(), cipher);
 
     if (_log.isDebugEnabled()) {
@@ -273,20 +273,14 @@ ggggg   * and if not authenticated, call the secondary authentication method.
                             CougaarPrincipal principal,
                             HttpServletRequest req) {
     if (USE_DAML) {
-      CypherSuiteWithAuth c = new CypherSuiteWithAuth(cipher,
-                                                      "none",
-                                                      "none",
-                                                      userAuthLevel);
-      
       String roles[] = principal.getRoles();
       HashSet roleSet = new HashSet();
       for (int i = 0; i < roles.length; i++) {
         roleSet.add(roles[i]);
       }
       return _enforcer.isActionAuthorized(roleSet, 
-//                                           uriToPath(req.getRequestURI()),
                                           req.getRequestURI(),
-                                          c);
+                                          cipher, userAuthLevel);
                                           
     }
     SecurityConstraint constraint = findConstraint(req.getRequestURI());
@@ -364,7 +358,7 @@ ggggg   * and if not authenticated, call the secondary authentication method.
   }
 
   protected byte getURIAuthRequirement(String path, String cipher, 
-                                       CypherSuiteWithAuth cwa) {
+                                       AuthSuite cwa) {
     byte constraint = 0;
     if (USE_DAML) {
       if (cwa == null) {
@@ -424,27 +418,15 @@ ggggg   * and if not authenticated, call the secondary authentication method.
     return uri.substring(index);
   }
   */
-  private CypherSuiteWithAuth getAuthRequirements(String uri, String cipher) {
+  private AuthSuite getAuthRequirements(String uri, String cipher) {
     if (USE_DAML) {
-      Set reqs = _enforcer.whichCypherSuiteWithAuth(uri);
-//       Set reqs = _enforcer.whichCypherSuiteWithAuth(uriToPath(uri));
-      if (reqs == null) {
-        return null;
-      }
-      Iterator iter = reqs.iterator();
-      while (iter.hasNext()) {
-        CypherSuiteWithAuth cs = (CypherSuiteWithAuth) iter.next();
-        if (cipher.equals(cs.getSymmetric())) {
-          // FIXME! I don't know what cipher is
-          return cs;
-        }
-      }
+      return _enforcer.whichAuthSuite(uri);
     }
     return null;
   }
 
   protected boolean needHttps(HttpServletRequest req, String cipher, 
-                              CypherSuiteWithAuth cwa) {
+                              AuthSuite cwa) {
     if (USE_DAML) {
       if (cwa == null) {
         return true;

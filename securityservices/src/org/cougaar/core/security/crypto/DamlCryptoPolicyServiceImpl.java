@@ -27,8 +27,7 @@ import java.io.*;
 import java.util.*;
 
 import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
-import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
-import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
+import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.security.policy.CryptoPolicy;
@@ -63,24 +62,23 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
     return getDamlPolicy(source, target); // no direction
   }
 
-  public Collection getSendPolicies(String source, String target) {
+  public CipherSuite getSendPolicies(String source, String target) {
     if (_log.isDebugEnabled()) {
       _log.debug("Called getSendPolicies for " + source + " to " + target);
     }
     initDaml();
     Collection c = new LinkedList();
     
-    Set allowed = _enforcer.getAllowedCypherSuites(source, target);
-    if (allowed != null) {
-      Iterator iter = allowed.iterator();
-      while (iter.hasNext()) {
-        c.add(convertPolicy((CypherSuite) iter.next()));
-      }
+    return _enforcer.getAllowedCipherSuites(source, target);
+    /*
+    Iterator iter = allowed.iterator();
+    while (iter.hasNext()) {
+      c.add(convertPolicy((CipherSuite) iter.next()));
     }
-    return c;
+    return c;*/
   }
 
-  public Collection getReceivePolicies(String source, String target) {
+  public CipherSuite getReceivePolicies(String source, String target) {
     return getSendPolicies(source, target);
   }
 
@@ -88,21 +86,85 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
     return _legacy.getDataProtectionPolicy(source);
   }
 
-  private SecureMethodParam convertPolicy(CypherSuite cs) {
+  public boolean isReceivePolicyValid(String source, String target,
+                                      SecureMethodParam policy,
+                                      boolean ignoreEncryption,
+                                      boolean ignoreSignature) {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Called isReceivePolicyValid for " + source +
+                 " to " + target +
+                 ", policy = " + policy + ", ignoreEncryption = " +
+                 ignoreEncryption + ", ignoreSignature = " + ignoreSignature);
+    }
+    initDaml();
+    CipherSuite cs = _enforcer.getAllowedCipherSuites(source, target);
+
+    if (_log.isDebugEnabled()) {
+      _log.debug("Comparing against cipher suite: " + cs);
+    }
+    if (!cs.isCipherAvailable()) {
+      return false;
+    }
+
+    if (!ignoreEncryption) {
+      boolean encrypt = policy.secureMethod == policy.ENCRYPT ||
+        policy.secureMethod == policy.SIGNENCRYPT;
+      if (encrypt) {
+        if (policy.symmSpec == null ||
+            policy.asymmSpec == null ||
+            !cs.getSymmetric().contains(policy.symmSpec) ||
+            !cs.getAsymmetric().contains(policy.asymmSpec)) {
+          return false;
+        }
+      } else {
+        if (cs.getSymmetric().contains("plain")) {
+          return false;
+        }
+      }
+    }
+    if (!ignoreSignature) {
+      boolean sign = policy.secureMethod == policy.SIGN ||
+        policy.secureMethod == policy.SIGNENCRYPT;
+
+      if (sign) {
+        if (policy.signSpec == null ||
+            !cs.getSignature().contains(policy.signSpec)) {
+          return false;
+        }
+      } else {
+        if (cs.getSignature().contains("none")) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Chooses the no encryption or signature if available. Otherwises
+   * it chooses a semi-random cipher and signature algorithm from those
+   * available.
+   */ 
+  public static SecureMethodParam convertPolicy(CipherSuite cs) {
+    if (!cs.isCipherAvailable()) {
+      return null;
+    }
+
     SecureMethodParam policy = new SecureMethodParam();
     boolean encrypt = true;
     boolean sign = true;
 
-    String symmetric = cs.getSymmetric();
-    String hash = cs.getChecksum();
-
-    if (symmetric == null || "plain".equals(symmetric)) {
+    if (cs.getSymmetric().contains("plain")) {
       encrypt = false;
     }
-    if (hash == null || "plain".equals(hash)) {
+
+    if (cs.getSignature().contains("none")) {
       sign = false;
     }
+
     if (encrypt) {
+      policy.symmSpec = (String) cs.getSymmetric().iterator().next();
+      policy.asymmSpec = (String) cs.getAsymmetric().iterator().next();
       if (sign) {
         policy.secureMethod = policy.SIGNENCRYPT;
       } else {
@@ -113,22 +175,16 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
     } else {
       policy.secureMethod = policy.PLAIN;
     }
-    policy.symmSpec = cs.getSymmetric();
-    policy.asymmSpec = cs.getAsymmetric();
-    policy.signSpec = cs.getChecksum() + "With" + cs.getAsymmetric();
+
+    if (sign) {
+      policy.signSpec = (String) cs.getSignature().iterator().next();
+    }
+
     return policy;
   }
 
   private SecureMethodParam getDamlPolicy(String source, String target) {
-    Set allowed = _enforcer.getAllowedCypherSuites(source, target);
-    if (allowed.isEmpty()) {
-      _log.warn("No valid encryption algorithm from " + source +
-                " to " + target);
-      return null;
-    }
-    // FIXME!!
-    // don't know how to choose the best one, so just choose the first
-    CypherSuite cs = (CypherSuite) allowed.iterator().next();
+    CipherSuite cs = _enforcer.getAllowedCipherSuites(source, target);
     return convertPolicy(cs);
   }
 

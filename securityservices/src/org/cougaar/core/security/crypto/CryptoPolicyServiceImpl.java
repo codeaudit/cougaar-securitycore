@@ -178,12 +178,51 @@ public class CryptoPolicyServiceImpl
       return smp;
     }
 
-  public Collection getSendPolicies(String source, String target) {
-    return Collections.singletonList(getSendPolicy(source, target));
-  }
+  public boolean isReceivePolicyValid(String source, String target,
+                                      SecureMethodParam policy,
+                                      boolean ignoreEncryption,
+                                      boolean ignoreSignature) {
+    if(log.isDebugEnabled()) {
+      log.debug("isReceivePolicyValid for " + source + " to " + target +
+                ", policy = " + policy);
+    }
+    SecureMethodParam realPolicy = getReceivePolicy(source, target);
+    if (!ignoreSignature) {
+      boolean realSign = 
+        realPolicy.secureMethod == policy.SIGNENCRYPT ||
+        realPolicy.secureMethod == policy.SIGN;
 
-  public Collection getReceivePolicies(String source, String target) {
-    return Collections.singletonList(getReceivePolicy(source, target));
+      boolean sign = 
+        policy.secureMethod == policy.SIGNENCRYPT ||
+        policy.secureMethod == policy.SIGN;
+
+      if (realSign) {
+        if (!sign || policy.signSpec == null || 
+            !policy.signSpec.equals(realPolicy.signSpec)) {
+          return false;
+        }
+      }
+    }
+
+    if (!ignoreEncryption) {
+      boolean realEncrypt = 
+        realPolicy.secureMethod == policy.SIGNENCRYPT ||
+        realPolicy.secureMethod == policy.ENCRYPT;
+
+      boolean encrypt = 
+        policy.secureMethod == policy.SIGNENCRYPT ||
+        policy.secureMethod == policy.ENCRYPT;
+
+      if (realEncrypt) {
+        if (!encrypt || policy.symmSpec == null || 
+            !policy.symmSpec.equals(realPolicy.symmSpec) ||
+            policy.asymmSpec == null ||
+            !policy.asymmSpec.equals(realPolicy.asymmSpec)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
     public CryptoPolicy getIncomingPolicy(String target) {

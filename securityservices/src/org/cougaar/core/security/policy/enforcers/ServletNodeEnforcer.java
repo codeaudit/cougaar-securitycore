@@ -1,8 +1,8 @@
 package org.cougaar.core.security.policy.enforcers;
 
 import org.cougaar.core.security.policy.enforcers.ontology.*;
-import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
-import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
+import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
+import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
 import org.cougaar.core.security.policy.enforcers.util.DAMLMapping;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
@@ -222,6 +222,18 @@ public class ServletNodeEnforcer
    */
 
 
+  private static int minAuth(int auth) {
+    int authLevel = AuthSuite.authInvalid;
+    if ((auth & AuthSuite.authNoAuth) != 0) {
+      authLevel = AuthSuite.authNoAuth;
+    } else if ((auth & AuthSuite.authPassword) != 0) {
+      authLevel = AuthSuite.authPassword;
+    } else if ((auth & AuthSuite.authCertificate) != 0) {
+      authLevel = AuthSuite.authCertificate;
+    }
+    return authLevel;
+  }
+
   /** 
    * Broken for now...
    */
@@ -243,15 +255,16 @@ public class ServletNodeEnforcer
     }
 
     boolean firstStepOnly = false;
-    CypherSuiteWithAuth cypher = null;
-    Set cyphers = whichCypherSuiteWithAuth(uri);
-    if (cyphers == null || cyphers.size() == 0) {
+    String cipher = null;
+    AuthSuite ciphers = whichAuthSuite(uri);
+    int authLevel = minAuth(ciphers.getAuth());
+    if (ciphers == null || ciphers.getSSL().size() == 0) {
       firstStepOnly = true;
-      out.print("<p>No cyphers found: only doing the first step</p>");
+      out.print("<p>No ciphers found: only doing the first step</p>");
     } else {
-      for (Iterator cyphersIt = cyphers.iterator();
-           cyphersIt.hasNext();) {
-        cypher = (CypherSuiteWithAuth) cyphersIt.next();
+      for (Iterator ciphersIt = ciphers.getSSL().iterator();
+           ciphersIt.hasNext();) {
+        cipher = (String) ciphersIt.next();
         break;
       }
     }
@@ -260,30 +273,32 @@ public class ServletNodeEnforcer
     int     count   = 2000;
     long start = System.currentTimeMillis();
     for (int i = 0; i < count; i++) {
-      cyphers = whichCypherSuiteWithAuth(uri);
+      ciphers = whichAuthSuite(uri);
       if (!firstStepOnly) {
-        allowed=isActionAuthorized(roles, uri, cypher);
+        allowed=isActionAuthorized(roles, uri, cipher, authLevel);
       }
     }
     long duration = System.currentTimeMillis() - start;
     out.print("<p>" + count + " calls mediated in " 
               + duration + " milliseconds.</p>");
     out.print("<p>Last call returned the following results: </p>");
-    if (cyphers == null || cyphers.size() == 0) {
+    if (ciphers == null || ciphers.getSSL().size() == 0) {
       out.print("<p>No user is allowed access</p>");
     } else {
       out.print("<p>Is user in roles " + role1 + " and " + role2 +
                 " using cipher suite <ul>");
-      out.print("<li>Symmetric = " + cypher.getSymmetric());
-      out.print("<li>Asymmetric = " + cypher.getAsymmetric());
-      out.print("<li>Checksum = " + cypher.getChecksum());
+      out.print("<li>SSL Ciphers = " + ciphers.getSSL());
+//       out.print("<li>Symmetric = " + ciphers.getSymmetric());
+//       out.print("<li>Asymmetric = " + ciphers.getAsymmetric());
+//       out.print("<li>Checksum = " + ciphers.getSignature());
       out.print("<li>");
-      if (cypher.getAuth() == CypherSuiteWithAuth.authCertificate) {
+      if ((ciphers.getAuth() & AuthSuite.authCertificate) != 0) {
         out.print("Certificate");
-      } else if (cypher.getAuth() 
-                 == CypherSuiteWithAuth.authPassword){
+      } 
+      if ((ciphers.getAuth() & AuthSuite.authPassword) != 0){
         out.print("Password");
-      } else if (cypher.getAuth() == CypherSuiteWithAuth.authNoAuth) {
+      } 
+      if ((ciphers.getAuth() & AuthSuite.authNoAuth) != 0) {
         out.print("No Authentication Required");
       }
       out.print("</ul>");
@@ -309,39 +324,42 @@ public class ServletNodeEnforcer
       String uri = (String) uriIt.next();
       out.print("<p><b>--------------------------------------</b></p>");
       out.print("<p>Unknown user is attempting access to " + uri);
-      Set cypherSuites = whichCypherSuiteWithAuth(uri);
-      if (cypherSuites == null || cypherSuites.size() == 0) {
+      AuthSuite cipherSuites = whichAuthSuite(uri);
+      if (cipherSuites == null || cipherSuites.getSSL().size() == 0 ||
+          cipherSuites.getAuth() == cipherSuites.authInvalid) {
         out.print("<p>Permission denied " + 
                   "without even determining the user</p>");
       } else {
-        for (Iterator cypherIt = cypherSuites.iterator();
-             cypherIt.hasNext();) {
-          CypherSuiteWithAuth suite
-            = (CypherSuiteWithAuth) cypherIt.next();
+//         for (Iterator cipherIt = cipherSuites.iterator();
+//              cipherIt.hasNext();) {
+        AuthSuite suite = cipherSuites;
+//             = (CipherSuiteWithAuth) cipherIt.next();
           out.print("<p>Mediation says enforcer can use:</p><ul>");
-          out.print("<li>Symmetric = " + suite.getSymmetric());
-          out.print("<li>Asymmetric = " + suite.getAsymmetric());
-          out.print("<li>Checksum = " + suite.getChecksum());
-          out.print("<li>");
-          if (suite.getAuth() == CypherSuiteWithAuth.authCertificate) {
-            out.print("Certificate");
-          } else if (suite.getAuth() 
-                     == CypherSuiteWithAuth.authPassword){
-            out.print("Password");
-          } else if (suite.getAuth() == CypherSuiteWithAuth.authNoAuth) {
-            out.print("No Authentication Required");
+          out.print("<li>Ciphers = " + suite.getSSL());
+//           out.print("<li>Symmetric = " + suite.getSymmetric());
+//           out.print("<li>Asymmetric = " + suite.getAsymmetric());
+//           out.print("<li>Signature = " + suite.getSignature());
+          if ((suite.getAuth() & AuthSuite.authCertificate) != 0) {
+            out.print("<li>Certificate");
+          } 
+          if ((suite.getAuth() & AuthSuite.authPassword) != 0){
+            out.print("<li>Password");
+          } else if ((suite.getAuth() & AuthSuite.authNoAuth) != 0) {
+            out.print("<li>No Authentication Required");
           }
           out.print("</ul>");
           out.print("<p>Now we find out who the user is.</p>");
 
           int roleCount = HardWired.ulRoles.length;
+          String sslCipher = (String) suite.getSSL().iterator().next();
+          int authLevel = minAuth(suite.getAuth());
           for (int i = 0; i < roleCount; i++) {
             String role1 = HardWired.ulRoles[i];
             HashSet roleSet = new HashSet();
             roleSet.add(role1);
             out.print("<p>A user in role " + role1 + " is ");
             _log.debug("..servlet...testEnforcer: <p>A user in role " + role1 + " is ");
-            if (isActionAuthorized(roleSet, uri, suite)) {
+            if (isActionAuthorized(roleSet, uri, sslCipher, authLevel)) {
               out.print("allowed.</p>");
               _log.debug("..servlet...testEnforcer: allowed.</p>");
             } else {
@@ -355,7 +373,7 @@ public class ServletNodeEnforcer
               roleSet.add(role2);
               out.print("<p>A user in role " + role1 + " and "
                         + role2 + " is ");
-              if (isActionAuthorized(roleSet, uri, suite)) {
+              if (isActionAuthorized(roleSet, uri, sslCipher, authLevel)) {
                 out.print("allowed.</p>");
                 _log.debug("..servlet...testEnforcer: allowed.</p>");
               } else {
@@ -364,7 +382,7 @@ public class ServletNodeEnforcer
               }
             }
           }
-        }
+//         }
         out.print("<p><b>--------------------------------------</b></p>");
       }
     }
@@ -375,7 +393,7 @@ public class ServletNodeEnforcer
   /**
    * This method checks the policy and recommends an
    * authentication method for a user attempting to use a servlet -
-   * given by the uri - using a particular cypher suite.
+   * given by the uri - using a particular cipher suite.
    * 
    * This method will return an authentication method that will work
    * for some user in some role.  Since the user is not known at
@@ -383,10 +401,10 @@ public class ServletNodeEnforcer
    * method will work for all users.  The method will return one of
    * the values
    * <ul>
-   *     <li> CypherSuiteWithAuth.authCertificate
-   *     <li> CypherSuiteWithAuth.authPassword
-   *     <li> CypherSuiteWithAuth.authNoAuth
-   *     <li> CypherSuiteWithAuth.authInvalid     (when no authentication method
+   *     <li> CipherSuiteWithAuth.authCertificate
+   *     <li> CipherSuiteWithAuth.authPassword
+   *     <li> CipherSuiteWithAuth.authNoAuth
+   *     <li> CipherSuiteWithAuth.authInvalid     (when no authentication method
    *                                       will make the call valid)
    * </ul>
    *
@@ -403,11 +421,11 @@ public class ServletNodeEnforcer
    * This is a non-optimal situation that highlights the issues
    * involved in writing templates.  A better written template
    * scheme would not be able to express policies that correlate
-   * cypher suites with users.
+   * cipher suites with users.
    */
-  public Set whichCypherSuiteWithAuth(String uri) 
+  public AuthSuite whichAuthSuite(String uri) 
   {
-    _log.debug("Entering whichCypherSuiteWithAuth");
+    _log.debug("Entering whichAuthSuite");
     
     String kaosuri = (String) _uriMap.ulUriToKAoSUri(uri);
     if (kaosuri == null) {
@@ -430,12 +448,12 @@ public class ServletNodeEnforcer
                                     targets);
     action.removeProperty(ActionConcepts._performedBy_);
     action.removeAllActorInstances();
-    Set cypherSuites = 
+    Set cipherSuites = 
       _guard.getAllowableValuesForActionSingleTim(
                   UltralogActionConcepts._usedAuthenticationLevel_,
                   action,
                   HardWired.usedAuthenticationLevelValues);
-    return HardWired.ulCiphersWithAuthFromKAoSAuthLevel(cypherSuites);
+    return HardWired.ulAuthSuiteFromKAoSAuthLevel(cipherSuites);
   }
 
   /**
@@ -445,7 +463,7 @@ public class ServletNodeEnforcer
    * @param roles - a set of Strings representing roles to which the
    *      user belongs 
    * @param uri - the uri that the user is trying to access
-   * @param c - the cyphersuite and authentication mode that the
+   * @param c - the ciphersuite and authentication mode that the
    *      communication engine is 
    *      using.  
    * 
@@ -454,7 +472,8 @@ public class ServletNodeEnforcer
    */
   public boolean isActionAuthorized(Set roles, 
                                     String uri, 
-                                    CypherSuiteWithAuth c) 
+                                    String sslCipher,
+                                    int authLevel) 
   {
     String kaosuri = (String) _uriMap.ulUriToKAoSUri(uri);
     if (kaosuri == null) {
@@ -472,7 +491,7 @@ public class ServletNodeEnforcer
                  "exiting with failure...");
       return false;
     }
-    if (!HardWired.addCypherSuiteWithAuthTarget(targets, c)) {
+    if (!HardWired.addAuthSuiteTarget(targets, sslCipher, authLevel)) {
       return false;
     }
     ActionInstanceDescription action = 
