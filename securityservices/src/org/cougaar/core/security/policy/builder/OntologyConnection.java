@@ -21,6 +21,8 @@
 
 package org.cougaar.core.security.policy.builder;
 
+import com.hp.hpl.jena.daml.DAMLModel;
+
 import java.io.*;
 import java.util.*;
 
@@ -32,7 +34,6 @@ import kaos.ontology.repository.OntologyRepository;
 import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.ontology.util.JTPStringFormatUtils;
 import kaos.ontology.util.ValueNotSet;
-
 
 
 public abstract class OntologyConnection
@@ -60,6 +61,14 @@ public abstract class OntologyConnection
 
   public abstract Set getSubClassesOf (String className)
     throws Exception;
+
+  public abstract Set getResourcesWithValueForProperty (String property, 
+                                                        String value)
+    throws ReasoningException;
+
+  public abstract void loadOntology (DAMLModel myDAMLModel, 
+                                     boolean recursiveLoad)
+    throws ReasoningException, IOException;
 
   public abstract boolean testTrue (String statement) 
     throws ReasoningException;

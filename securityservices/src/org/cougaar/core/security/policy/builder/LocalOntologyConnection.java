@@ -26,6 +26,8 @@ import antlr.Token;
 import java.io.*;
 import java.util.*;
 
+import com.hp.hpl.jena.daml.DAMLModel;
+
 import jtp.ReasoningException;
 
 import kaos.ontology.DefaultOntologies;
@@ -59,6 +61,7 @@ public class LocalOntologyConnection extends OntologyConnection
         _brains.loadOntology
           ("http://ontology.coginst.uwf.edu/Ultralog/UltralogOntologies.daml",
            true);
+        PolicyUtils.autoGenerateGroups(null);
       } catch (Exception e) {
         // If you need to be smart but have no brains you are screwed.
         e.printStackTrace();
@@ -86,6 +89,21 @@ public class LocalOntologyConnection extends OntologyConnection
   {
     return _brains.getRangeOnPropertyForClass(className,propertyName);
   }
+
+  public Set getResourcesWithValueForProperty (String property, String value)
+    throws ReasoningException
+  {
+    return _brains.getResourcesWithValueForProperty(property,value);
+  }
+
+
+  public void loadOntology (DAMLModel myDAMLModel, 
+                            boolean recursiveLoad)
+    throws ReasoningException, IOException
+  {
+    _brains.loadOntology(myDAMLModel, recursiveLoad);
+  }
+
 
   public Set getSubClassesOf (String className) 
     throws Exception

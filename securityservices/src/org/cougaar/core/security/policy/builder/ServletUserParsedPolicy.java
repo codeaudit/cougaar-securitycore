@@ -45,16 +45,17 @@ public class ServletUserParsedPolicy extends ParsedPolicy
     super(policyName, 
           modality ? 2 : 3,
           modality,
-          org.cougaar.core.security.policy.enforcers.ontology.jena.
-                    ActorClassesConcepts.ActorClassesDamlURL
-                + userRole,
+          //          org.cougaar.core.security.policy.enforcers.ontology.jena.
+          //        ActorClassesConcepts.ActorClassesDamlURL +
+          PolicyUtils.personActorClassPrefix + userRole,
            org.cougaar.core.security.policy.enforcers.ontology.jena.
           ActionConcepts._AccessAction_);
     _description = "A user in role " + userRole + (modality? " can":" cannot")
                          + "  access a servlet named " + servletName;
-    _userClass = org.cougaar.core.security.policy.enforcers.ontology.jena.
-                    ActorClassesConcepts.ActorClassesDamlURL
-                 + userRole;
+    _userClass = PolicyUtils.personActorClassPrefix + userRole;
+    // _userClass = org.cougaar.core.security.policy.enforcers.ontology.jena.
+    //              ActorClassesConcepts.ActorClassesDamlURL
+    //           + userRole;
     _servletInstance = 
       org.cougaar.core.security.policy.enforcers.ontology.jena.
       EntityInstancesConcepts.EntityInstancesDamlURL

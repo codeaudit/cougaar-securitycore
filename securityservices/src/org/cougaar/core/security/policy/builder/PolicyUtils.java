@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.*;
 
+import kaos.core.service.directory.KAoSDirectoryService;
 import kaos.core.util.AttributeMsg;
 import kaos.core.util.KAoSConstants;
 import kaos.core.util.PolicyMsg;
@@ -20,9 +21,14 @@ import kaos.policy.information.PolicyInformation;
 import kaos.policy.information.PolicyInformationManager;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
+import org.cougaar.core.security.policy.enforcers.ontology.jena.*;
+
 public class PolicyUtils
 {
   public static OntologyConnection _ontology;
+
+  public static final String personActorClassPrefix 
+    = "http://ontology.coginst.uwf.eud/Ultralog/UsersInRole#";
 
   public static void setOntologyConnection(OntologyConnection ontology)
   {
@@ -142,4 +148,58 @@ public class PolicyUtils
       oos.close(); 
     }
   }
+
+  public static void autoGenerateGroups(KAoSDirectoryService kds)
+    throws Exception
+  {
+    String ulRoleGroupJena = UltralogGroupConcepts._Role_;
+    String ulRoleGroupJtp
+      = JTPStringFormatUtils.convertStringToJTPFormat(ulRoleGroupJena);
+    String ulRoleGroupInstanceJena
+      = GroupInstancesConcepts.GroupInstancesDamlURL;
+
+
+    try {
+      Set userRoles;
+      if (kds != null) {
+        userRoles = kds.getIndividualTargets(ulRoleGroupJtp);
+      } else {
+        userRoles = _ontology.getResourcesWithValueForProperty
+                                           (kaos.ontology.RDFConcepts._type_, 
+                                            ulRoleGroupJtp); 
+      }
+      for (Iterator userRolesIt = userRoles.iterator();
+           userRolesIt.hasNext();) {
+        String userRole = (String) userRolesIt.next();
+        userRole = 
+          JTPStringFormatUtils.convertJTPFormatToString(userRole);
+        String shortRole = userRole
+
+        if (shortRole.startsWith(ulRoleGroupInstanceJena) 
+            && shortRole.endsWith("Role")) {
+          shortRole = shortRole.substring(ulRoleGroupInstanceJena.length(), 
+                                        shortRole.length()-4);
+        } else {
+          continue;
+        }
+        String myClassName = personActorClassPrefix + shortRole;
+        KAoSClassBuilderImpl classBuilder
+          = new KAoSClassBuilderImpl(myClassName);
+
+        classBuilder.addBaseClass(kaos.ontology.jena.ActorConcepts._Person_);
+        classBuilder.addRequiredValueOnProperty(kaos.ontology.jena.GroupConcepts._isMemberOf_, 
+                                                userRole);
+						
+          // Load the class into the JTP context
+        if (kds != null) {
+          kds.loadOntology(classBuilder.getDAMLClass(), false);
+        } else {
+          _ontology.loadOntology(classBuilder.getDAMLClass(), false);
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
 }

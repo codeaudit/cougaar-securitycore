@@ -26,6 +26,8 @@ import antlr.Token;
 import java.io.*;
 import java.util.*;
 
+import com.hp.hpl.jena.daml.DAMLModel;
+
 import jtp.ReasoningException;
 
 import kaos.kpat.tunnel.TunnelClient;
@@ -125,6 +127,24 @@ public class TunnelledOntologyConnection extends OntologyConnection
       throw re;
     }
   }
+
+
+  public Set getResourcesWithValueForProperty (String property, String value)
+    throws ReasoningException
+  {
+    throw new RuntimeException
+      ("getResourcesWithValueForProperty not implemented");
+  }
+
+  public void loadOntology (DAMLModel myDAMLModel, 
+                                     boolean recursiveLoad)
+    throws ReasoningException, IOException
+  {
+    throw new RuntimeException("loadOntology (for models) not implemented");
+  }
+
+
+
 
   public Vector getPolicies() 
     throws IOException
