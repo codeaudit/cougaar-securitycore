@@ -125,7 +125,7 @@ public class DataProtectionServiceImpl
 
   private DataProtectionKey createDataProtectionKey(String agent)
     throws GeneralSecurityException, IOException {
-    SecureMethodParam policy = cps.getSendPolicy(agent);
+    SecureMethodParam policy = cps.getSendPolicy(agent, agent);
     if (policy == null)
        throw new RuntimeException("Could not find data protection policy for " + agent);
 
