@@ -109,7 +109,7 @@ public class ConfigParserServiceImpl
     // Set the ContentHandler...
     handler = new ConfigParserHandler(parser, role, serviceBroker, mySecurityCommunity);
     parser.setContentHandler(handler);
-
+/*
     setConfigurationFile("cryptoPolicy.xml");
     setConfigurationFile("BootPolicy.MsgAccess.xml");
     setConfigurationFile("BootPolicy.Servlet.xml");
@@ -117,8 +117,43 @@ public class ConfigParserServiceImpl
     setConfigurationFile("BootPolicy.BBFilter.xml");
     setConfigurationFile("BootPolicy.DataProtection.xml");
     setConfigurationFile("BootPolicy.Crypto.xml");
+ */
+    processBootPolicyFiles("BootPolicyList.ini");
   }
 
+  //read in boot policy file list
+  private void processBootPolicyFiles(String filename){
+
+    File f = confFinder.locateFile(filename);
+    try {
+      FileReader filereader=new FileReader(f);
+      BufferedReader buffreader=new BufferedReader(filereader);
+      String linedata=new String();
+
+      while((linedata=buffreader.readLine())!=null) {
+        linedata.trim();
+        if(linedata.startsWith("#")) {
+          continue;
+        }
+        //not empty line
+        if(linedata.length() > 1) setConfigurationFile(linedata);
+      }
+    }
+    catch(FileNotFoundException fnotfoundexp) {
+      if (log.isErrorEnabled()) {
+        log.error("Unable to find boot policy configuration file " + fnotfoundexp);
+        fnotfoundexp.printStackTrace();
+      }
+    }
+    catch(IOException ioexp) {
+      if (log.isErrorEnabled()) {
+        log.error("Unable to read boot policy configuration file " + ioexp);
+        ioexp.printStackTrace();
+      }
+    }
+    
+  }
+  
   /** Find a boot policy file
    *  First, search in the workspace.
    *  Second, search using ConfigFinder.
