@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 require 'cougaar/communities'
 require 'ultralog/enclaves'
 
@@ -20,6 +21,7 @@ ROOT_COMM_MGRS = ["SocietyMnRManager", "RearEnclaveMnRManager",
                   "FwdEnclaveMnRManager", "ConusEnclaveMnRManager",
                   "TransEnclaveMnRManager"]
 society.communities.add("ROOT-SECURITY-COMM") do |community|
+  community.add_attribute("Manager", society.agents[ROOT_COMM_MGRS[0]].node.name)
   community.add_attribute("CommunityType", "Security")
   for i in 0...ROOT_COMM_MGRS.length
     agent_name = ROOT_COMM_MGRS[i]
@@ -38,6 +40,10 @@ society.each_enclave do |enclave|
 
   # BUILD CORE COMMUNITIES
   society.communities.add("#{enclave}-SECURITY-COMM") do |community|
+    mgragent = society.agents["#{enclave.capitalize}EnclaveMnRManager"]
+    if mgragent != nil
+      community.add_attribute("Manager", mgragent.node.name)
+    end
     community.add_attribute("CommunityType", "Security")
     society.each_enclave_node(enclave) do |node|
       community.add_agent(node.name) do |entity|
@@ -63,6 +69,10 @@ society.each_enclave do |enclave|
   if SUB_COMM[enclave] != nil
     SUB_COMM[enclave].each_index do |index|
       society.communities.add("#{enclave}-SECURITY-SUB#{index+1}-COMM") do |community|
+        mgragent = society.agents["Enclave#{COMMS.index(enclave)+1}Sub#{index+1}Manager"]
+        if mgragent != nil
+          community.add_attribute("Manager", mgragent.node.name)
+        end
         community.add_attribute("CommunityType", "Security")
         community.add_agent("Enclave#{COMMS.index(enclave)+1}Sub#{index+1}Manager") do |entity|
           entity.add_role("Member")
@@ -78,6 +88,10 @@ society.each_enclave do |enclave|
   # BUILD USERDOMAIN COMMUNITIES
   society.communities.add("#{enclave.capitalize}UserDomainComm") do |community|
     community.add_attribute("CommunityType", "User")
+    mgragent = society.agents["#{enclave.capitalize}UserAdminAgent"]
+    if mgragent != nil
+      community.add_attribute("Manager", mgragent.node.name)
+    end
     society.each_enclave_node(enclave) do |node|
      # community.add_entity(node.name, "Agent") do |entity|
      #   entity.add_role("Member")
