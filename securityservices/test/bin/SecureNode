@@ -79,6 +79,9 @@ set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.co
 # Debug property for the monitoring & response service
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.oldmonitoringdebug=true"
 
+# Enable user authentication using security services
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.coreservices.tomcat.enableAuth=true"
+
 # The java.security.debug property can be used to debug the
 # Security Manager.
 # Acceptable values: all, access, jar, policy, scl, stack, domain, failure
