@@ -1270,23 +1270,71 @@ public class DirectoryKeyStore
 	reply = caClient.sendPKCS(request, "PKCS10");
       } else {
 	// check if node cert exist
-	// Don't lookup in LDAP, the key should be in the local keystore
 	if (CryptoDebug.debug) {
 	  System.out.println("Searching node key: " + nodeName);
 	}
-	X509Certificate nodex509 = findCert(nodeName, LOOKUP_KEYSTORE);
+	nodex509 = findCert(nodeName, LOOKUP_KEYSTORE | LOOKUP_LDAP);
 	if(nodex509 == null) {
-	  //we don't have a node key pair, so make it
-	  if (CryptoDebug.debug) {
-	    System.out.println("Recursively creating key pair for node: " + nodeName);
-	  }
-	  addKeyPair(nodeName, null);
-	  if (CryptoDebug.debug) {
-	    System.out.println("Node key created: " + nodeName);
-	  }
+          // Richard -- not in LDAP or local keystore
+          // might be still pending or denied
+          // check with CA, if nothing found then create new key pair
+          // if still pending or denied, return null
+          if (CryptoDebug.debug) {
+            System.out.println("Node certificate not found, checking pending status.");
+          }
+          String nodeAlias = findAlias(nodeName);
+          if (nodeAlias != null) {
+            request =
+              generateSigningCertificateRequest((X509Certificate)
+                                                keystore.getCertificate(nodeAlias),
+                                                nodeAlias);
+            if (CryptoDebug.debug) {
+              System.out.println("Sending PKCS10 request to CA");
+            }
+            reply = caClient.sendPKCS(request, "PKCS10");
+            // check status
+            String strStat = "status=";
+            int statindex = reply.indexOf(strStat);
+            if (statindex >= 0) {
+              // in the pending mode
+              if (debug) {
+                System.out.println("Certificate in pending mode.");
+              }
+              statindex += strStat.length();
+              int status = Integer.parseInt(reply.substring(statindex, statindex + 1));
+              if (debug) {
+                System.out.println("pending status is: " + reply.substring(statindex, statindex + 1));
+              }
+              if (status == KeyManagement.PENDING_STATUS_PENDING) {
+                System.out.println("Certificate is pending for approval.");
+              }
+              else if (status == KeyManagement.PENDING_STATUS_DENIED) {
+                System.out.println("Certificate is denied by CA.");
+              }
+              // else approved, why not certificate in the LDAP?
+
+              return null;
+            }
+            else {
+              // get back the reply right away
+              if (processPkcs7Reply(nodeName, nodeAlias, reply) == null)
+                return null;
+            }
+          }
+          else {
+          
+            //we don't have a node key pair, so make it
+            if (CryptoDebug.debug) {
+              System.out.println("Recursively creating key pair for node: " + nodeName);
+            }
+            addKeyPair(nodeName, null);
+            if (CryptoDebug.debug) {
+              System.out.println("Node key created: " + nodeName);
+            }
+          }
 	}
-	// The Node key should exist now (we may have just added it
-	// recursively).
+
+	// The Node key should exist now 
 	if (CryptoDebug.debug) {
 	  System.out.println("Searching node key again: " + nodeName);
 	}
@@ -1331,24 +1379,41 @@ public class DirectoryKeyStore
 	e.printStackTrace();
       }
     }
+
     if (alias != null) {
-      try{ 
-	installPkcs7Reply(alias, new ByteArrayInputStream(reply.getBytes()));
-	privatekey = (PrivateKey) keystore.getKey(alias, param.keystorePassword);
-      } catch (java.security.cert.CertificateNotYetValidException e) {
-	if (CryptoDebug.debug) {
-	  Date d = new Date();
-	  System.err.println("Error: Certificate not yet valid for:"
-			     + commonName
-			     + " (" + e + ")"
-			     + " Current date is " + d.toString());
-	  e.printStackTrace();
-	}
-      } catch(Exception e) {
-	if (CryptoDebug.debug) {
-	  System.err.println("Error: can't get certificate for " + commonName);
-	  e.printStackTrace();
-	}
+      privatekey = processPkcs7Reply(commonName, alias, reply);
+    }
+    return privatekey;
+  }
+
+  private PrivateKey processPkcs7Reply(String commonName, String alias, String reply) {
+    PrivateKey privatekey = null;
+    // Richard -- check whether pending
+    String strStat = "status=";
+    int statindex = reply.indexOf(strStat);
+    if (statindex >= 0) {
+      if (debug) {
+        System.out.println("processPkcs7Reply: certificate in pending mode. ");
+      }
+      return null;
+    }
+
+    try{
+      installPkcs7Reply(alias, new ByteArrayInputStream(reply.getBytes()));
+      privatekey = (PrivateKey) keystore.getKey(alias, param.keystorePassword);
+    } catch (java.security.cert.CertificateNotYetValidException e) {
+      if (debug) {
+        Date d = new Date();
+        System.err.println("Error: Certificate not yet valid for:"
+                           + commonName
+                           + " (" + e + ")"
+                           + " Current date is " + d.toString());
+        e.printStackTrace();
+      }
+    } catch(Exception e) {
+      if (debug) {
+        System.err.println("Error: can't get certificate for " + commonName);
+        e.printStackTrace();
       }
     }
     return privatekey;
