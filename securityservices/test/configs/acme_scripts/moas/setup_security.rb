@@ -12,6 +12,7 @@ $:.unshift File.join(CIP, 'csmart', 'assessment', 'scripts')
 
 require 'framework/scripting'
 require 'cougaar/scripting'
+require 'framework/configFiles'
 
 insert_before :setup_run do
   do_action "BuildConfigJarFiles"
