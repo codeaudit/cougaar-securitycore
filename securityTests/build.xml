@@ -29,6 +29,9 @@ ARCHIVE_TIME=${build.time}
 	<copy todir="staging/Manifest">
 		<fileset dir="Manifest"/>
 	</copy>
+	<copy todir="staging/csmart/lib/security">
+		<fileset dir="security"/>
+	</copy>
 	<zip zipfile="${zip}">
 		<fileset dir="staging"/>
 	</zip>
