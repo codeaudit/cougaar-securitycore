@@ -48,6 +48,7 @@ import sun.security.x509.X509CertImpl;
 // Cougaar core services
 import org.cougaar.core.component.Service;
 import org.cougaar.core.security.certauthority.CertificateResponse;
+import org.cougaar.core.security.naming.CertificateEntry;
 
 public interface CertificateManagementService
   extends Service
@@ -60,7 +61,7 @@ public interface CertificateManagementService
 
   public void publishCertificate(X509Certificate clientX509,int type, PrivateKey privateKey);
     
-  
+  public void publishCertificate(CertificateEntry certEntry);
 
   public String processPkcs10Request(InputStream request, boolean replyInHtml);
 
