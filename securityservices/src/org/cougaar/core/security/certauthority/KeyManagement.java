@@ -1206,8 +1206,6 @@ public class KeyManagement
       X509Certificate cacert= caOperations.getCertificate(caAttributes);
       X509Certificate usercert=caOperations.getCertificate(userAttributes);
       PublicKey capublickey=cacert.getPublicKey();
-      boolean validchain=true;
-      /*
       Certificate [] certchain=keyRing.checkCertificateTrust(usercert);
       boolean validchain=false;
       if((certchain!=null)&&(certchain.length>0)) {
@@ -1223,7 +1221,6 @@ public class KeyManagement
 	  }
 	}
       }
-      */
       if(validchain) {
 	boolean ret =
 	  caOperations.revokeCertificate(cabindingName,
