@@ -1,337 +1,212 @@
-#!/bin/csh -f
-
-# Environment variables
-# COUGAAR_INSTALL_PATH = the head of the alp install.
-# COUGAAR3RDPARTY = a directory containing 3rd party jar files
-#
-# COUGAAR bootstrapping classpath will be:
-#  $COUGAAR_DEV_PATH	if defined
-#  $COUGAAR_INSTALL_PATH/lib/core.jar
-#
-# once running, jar files will be searched for in (in order):
-#  -Dorg.cougaar.class.path 	like classpath
-#  $CLASSPATH		(alp bootstrapping path from above)
-#  $COUGAAR_INSTALL_PATH/lib/*
-#  $COUGAAR_INSTALL_PATH/plugins/*
-#  -Dorg.cougaar.system.path=$COUGAAR3RDPARTY
-#  $COUGAAR_INSTALL_PATH/sys/*
-#
-
-if (! $?COUGAAR_USE_PERSISTENCE) then
-	set usePersistence=false
-else
-	set usePersistence=${COUGAAR_USE_PERSISTENCE}
-endif
-
-####################################################################
-# Setting useBootstrapper to true will enable the use of the boostrapper.
-# In particular, the bootstrapper supports the Java security manager
-# and the JAR file signature verifier.
-set useBootstrapper=true
-
-# Setting useJaas to true will enable the use of component
-# execution using multiple subjects. This can be used by
-# the security manager for accountability and dynamic
-# policies. However, a bug in JDK 1.3 prevents from using
-# this feature properly. The bug has been fixed in JDK 1.4
-set useJaas=false
-
-# Use of the cryptographic aspect
-# We have to turn it off until Cougaar 9.2 supports us
-set useCryptoAspect=false
-
-# Setting useGuardedNode to true will run this node as a KAoS
-# guarded node.
-set useGuardedNode=true
-
-####################################################################
-
-set COUGAAR_WORKSPACE=$COUGAAR_INSTALL_PATH/workspace
-
-# set COUGAAR_INSTALL_PATH=/alpine/demo98
-if (! $?COUGAAR3RDPARTY) then
-    setenv COUGAAR3RDPARTY /opt/cougaar-jars
-endif
-
-if ( "$useBootstrapper" == "true") then
-	set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrap.jar:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar
-	set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/CougaarCRLextensions.jar"
-	
-else
-	set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/core.jar:$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar
-	set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/CougaarCRLextensions.jar"
-endif
-
-if ($?COUGAAR_DEV_PATH) then
-    set LIBPATHS = "${COUGAAR_DEV_PATH}:$LIBPATHS"
-endif
-
-# domains are now usually defined by the config file LDMDomains.ini.
-# But you may still use properties if you wish.
-#set MYDOMAINS="-Dorg.cougaar.domain.alp=org.cougaar.domain.glm.GLMDomain"
-set MYDOMAINS=""
-set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.agent.startTime=08/10/2005 -Dorg.cougaar.planning.ldm.lps.ComplainingLP.level=0"
-# -Dorg.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol -Dorg.cougaar.core.naming.useSSL=true"
-
-##########################################################
-# add paths for ConfigFinder to locate configuration files
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.config.path=${COUGAAR_INSTALL_PATH}/configs/security;"
-
-# ########################################################
-# DEBUG properties
-
-# Debug property for the monitoring & response service
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.oldmonitoringdebug=true"
-
-# Enable user authentication using security services
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.tomcat.enableAuth=true"
-
-# The java.security.debug property can be used to debug the
-# Security Manager.
-# Acceptable values: all, access, jar, policy, scl, stack, domain, failure
-#set MYPROPERTIES="$MYPROPERTIES -Djava.security.debug=all"
-
-# Used to show bootstrapper debugging information
-# In particular, it will show information about the JAR file signature
-# verification process.
-# Acceptable values: true, shout, false
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.bootstrap.Bootstrapper.loud=false"
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.policydebug=all"
-
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=true"
-
-# Enable Jaas trace debugging
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.jaasDebug=true"
-
-# Print crypto-related debug information about the security aspect
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
-
-# Print transport-related debug information about the security aspect
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
-
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.debug=true"
-
-# END DEBUG properties
-# ########################################################
-
-
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace=$COUGAAR_WORKSPACE"
-# Name of configuration file for cryptographic service provider
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
-
-# Role to take when making LDAP requests
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
-
-# ########################################################
-if ( "$useBootstrapper" == "true") then
-
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.bootstrap.class=org.cougaar.core.security.securebootstrap.SecureBootstrapper"
-
-        # The following property defines the keystore filename. It is used by
-	# the authenticated class loader (to verify that jar files have been
-	# signed using trusted certificate(s), and by the security manager,
-	# which reads the Java policy file and creates protection domains
-	# associated with certificates.
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrap.keystore=$COUGAAR_INSTALL_PATH/configs/common/bootstrap_keystore"
-
-
-	# The following property defines the logfile name of the Security Manager.
-	# Use the default log file name, constructed in the code, which includes
-	# the name of the node and the date when the security manager was started.
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrap.SecurityManagerLogFile=$COUGAAR_INSTALL_PATH/log/bootstrap/SecurityManager.log"
-
-	# The java.security.policy property defines the name of the Java policy file,
-	# which is used by the Security Manager.
-	# Warning!!! Use JAR files ONLY when using this policy file.
-	# If directories containing .class files are included in the CLASSPATH,
-	# the .class files will not have sufficient privileges to be executed.
-	set MYPROPERTIES="$MYPROPERTIES -Djava.security.policy=$COUGAAR_INSTALL_PATH/configs/common/Cougaar_Java.policy"
-
-	# Use this policy file instead to disable all Security Manager access
-	# control checks.
-	#set MYPROPERTIES="$MYPROPERTIES -Djava.security.policy=$COUGAAR_INSTALL_PATH/configs/common/Cougaar_AllPermission.policy"
-
-	# The java.security.manager property defines the name of the
-	# security manager. This is deprecated. Use the useSecurityManager
-	# property instead.
-	#set MYPROPERTIES="$MYPROPERTIES -Djava.security.manager=org.cougaar.core.security.bootstrap.CougaarSecurityManager"
-
-	# The following property can be set to false to disable the security Manager
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useSecurityManager=true"
-	
-	# This property specifies whether to use the authenticated class loader or
-	# the legacy class loader.
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useAuthenticatedLoader=true"
-
-else
-	#
-	# No bootstrapper
-	#
-    	# The following property can be set to false to disable the security Manager
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useSecurityManager=false"
-
-	# This property specifies whether to use the authenticated class loader or
-	# the legacy class loader. Use legacy class loader
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useAuthenticatedLoader=false"
-
-endif
-
-# This property is used to set the interval (in seconds) at which CRLs are checked
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.crlpoll=600"
-
-if ( "$useJaas" == "true") then
-	# Enable/disable use of component execution using multiple subjects.
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useJaas=true"
-endif
-if ( "$useCryptoAspect" == "true") then
-	# Fully-qualified class name of the security aspect
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=org.cougaar.core.security.crypto.CryptoAspect,org.cougaar.core.security.access.AccessControlAspect"
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=org.cougaar.core.mts.MessageProtectionAspect"
-
-endif
-
-if ( "$useGuardedNode" == "true") then
-	# In the future, we need to store the name of the domain manager in a configuration
-	# file.
-	# org.cougaar.domain.manager: Name of the agent where the domain Manager is running
-	# domainName:                 The name of the domain. Right now, should be the same
-	# as org.cougaar.domain.manager.
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.Domain=NCADomain"
-endif
-
-if ( "$usePersistence" == "true") then
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.enable=true"
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.lazy=false"
-endif
-
-# #####################
-# Servlet properties
-switch ( ${USER} )
-case 'ychen':
-	set httpport=5558
-	set httpsport=6558
-	breaksw
-case 'srosset':
-	set httpport=5561
-	set httpsport=6561
-	breaksw
-case 'rliao1':
-	set httpport=5556
-	set httpsport=6556
-	breaksw
-case 'gmount':
-	set httpport=5557
-	set httpsport=6557
-	breaksw
-case 'rtripath':
-	set httpport=5560
-	set httpsport=6560
-	breaksw
-case 'mluu':
-	set httpport=5555
-	set httpsport=6555
-	breaksw
-case 'asmt':
-	set httpport=8800
-	set httpsport=8888
-	breaksw
-default:
-	@echo "WARNING: Setting HTTP port to default port number. You should edit SecureNode"
-	set httpport=8800
-	set httpsport=9800
-        breaksw
-endsw
-
-# Comment out following line if you don't want HTTP
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.http.port=${httpport}"
-
-# setup for running tomcat https
-# set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.port=${httpsport}"
-# set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory"
-# set MYPROPERTIES="$MYPROPERTIES -Djavax.net.debug=ssl"
-
-# setup for RMI over SSL
-# set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol"
-
-# setup for Naming over SSL
-# set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.naming.useSSL=true"
-
-#################################
-
-if ($?COUGAAR_MYPROP) then
-    set MYPROPERTIES="$MYPROPERTIES $COUGAAR_MYPROP"
-endif
-
-set MYMEMORY=""
-
-set node = $argv[1]
-set rest="$argv[2-]"
-if ( "$node" == "" ) then
-  set node="Clusters"
-endif
-
-if ( "$node" == "admin" ) then
-    set args="-c -r -n Administrator -p 8000 $rest"
-    set MYMEMORY="-Djava.compiler=NONE"
-else 
-    set args="-n $node -c $rest"
-    # arguments to adjust (defaults are given)
-    # -Xmx64m	      # max java heap
-    # -Xms3m	      # min (initial) java heap
-    # -Xmaxf0.6       # max heap free percent
-    # -Xminf0.35      # min heap free percent
-    # -Xmaxe4m        # max heap expansion increment
-    # -Xmine1m	      # min heap expansion increment
-    # -Xoss400k       # per-thread *java* stack size
-    set MYMEMORY="-Xmx768m -Xms64m -Xmaxf0.9 -Xminf0.1 -Xoss128k"
-    #set MYMEMORY="-Xmx300m -Xms100m"
-endif
-
-set osargs=""
-set os=`uname`
-if ("$os" == "Linux") then
-    # No green threads in jdk 1.3.1
-    # set osargs="-green"
-    # set some system runtime limits
-    limit stacksize 16m    #up from 8m
-    limit coredumpsize 0   #down from 1g
-    #turn this on to enable inprise JIT
-    #setenv JAVA_COMPILER javacomp
-endif
-
-# Logger
-rm -f $node.log
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=$node.log"
-
-set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
-
-# See java.lang.System.java on why the bootstrapper needs to be on the bootclasspath
-# New security manager class is not on bootstrap classpath.
-# Cause policy to get initialized before we install the new
-# security manager, in order to prevent infinite loops when
-# trying to initialize the policy (which usually involves
-# accessing some security and/or system properties, which in turn
-# calls the installed security manager's checkPermission method
-# which will loop infinitely if there is a non-system class
-# (in this case: the new security manager class) on the stack).
-
-set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar"
-set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/lib/bootstrap.jar"
-set javaargs="$javaargs -Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar"
-
-#set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.message.isLogging=true -Djava.rmi.server.logCalls=true -Dsun.rmi.server.exceptionTrace=true -Dsun.rmi.transport.tcp.readTimeout=150000 "
-#set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.nameserver.verbosity=20"
-
-
-if ($?COUGAAR_DEV_PATH) then
-    echo java $javaargs org.cougaar.core.node.Node $args
-endif
-
-
-# exec instead of eval
-if ( "$useBootstrapper" == "true") then
-	exec java $javaargs org.cougaar.bootstrap.Bootstrapper org.cougaar.core.node.Node $args
-else
-	exec java $javaargs org.cougaar.core.node.Node $args
-endif
+#!/usr/bin/perl
+
+$cip  = $ENV{'COUGAAR_INSTALL_PATH'};
+$user = $ENV{'USER'};
+$node = shift;
+$host = `/bin/uname -n`;
+chomp $host;
+#print "$host\n";
+
+if ($user eq 'ychen') {
+  $httpport=5558;
+  $httpsport=6558;
+} elsif ($user eq 'srosset') {
+  $httpport=5561;
+  $httpsport=6561;
+} elsif ($user eq 'rliao1') {
+  $httpport=5556;
+  $httpsport=6556;
+} elsif ($user eq 'gmount') {
+  $httpport=5557;
+  $httpsport=6557;
+} elsif ($user eq 'rtripath') {
+  $httpport=5560;
+  $httpsport=6560;
+} elsif ($user eq 'mluu') {
+  $httpport=5555;
+  $httpsport=6555;
+} elsif ($user eq 'asmt') {
+  $httpport=8800;
+  $httpsport=8888;
+} else {
+  print STDERR "WARNING: Setting HTTP port to default port number. You should edit SecureNode\n";
+  $httpport=8800;
+  $httpsport=9800;
+}
+
+@convertFrom = ( '/mnt/shared/integ92',
+                 'asmt',
+                 '5557',
+                 '6557',
+                 '\$HOSTNAME.log',
+                 '\$HOSTNAME',
+                 '\\\\\\\\',
+                 '\\\\',
+                 '--BACKSLASH--'
+               );
+
+@convertTo =   ( $cip,
+                 $user,
+                 $httpport,
+                 $httpsport,
+                 "$node.log",
+                 "$host",
+                 '--BACKSLASH--',
+                 '',
+                 '\\\\'
+               );
+
+$propFile = findPropertiesFile();
+
+#print "Using properties file: $propFile\n";
+
+# Found the properties file. Now read it
+
+@commandLine = readPropertiesFile($propFile);
+
+push @commandLine, ("org.cougaar.core.node.Node", "-n", $node, "-c");
+push @commandLine, @ARGV;
+
+#print "@commandLine\n";
+
+system(@commandLine);
+# Subroutines
+
+# Find the location of the properties file
+sub findPropertiesFile {
+  my @propFileLocations = ( "./Linux.props",
+                            "$cip/csmart/bin/Linux.props",
+                            "$cip/configs/security/Linux.props",
+                            "$cip/configs/common/Linux.props" );
+
+  for ($i = 0; $i <= $#propFileLocations ; $i++) {
+    if ( -f $propFileLocations[$i] ) {
+      return $propFileLocations[$i];
+    }
+  }
+
+  die "Could not find javaprops.txt or Linux.props";
+}
+
+# Read the hash from the properties file
+sub readPropertiesFile {
+  my $file = shift;
+  local *FH;
+  open (FH, $file) || die "Couldn't read file $file";
+  $javaBin = "java";
+
+  while (<FH>) {
+    chomp;
+    s/^ +//;
+    if (/^\#/) {
+      # this is a comment line -- ignore it
+    } elsif (/.+/) {
+      # this is a properties line. split it:
+      ($name, $value) = split /=/;
+      $value = customizeProperty($value);
+      if ($name =~ /^env\./) {
+        $name = substr $name, 4;
+        $ENV{$name} = $value;
+      } elsif ($name eq 'java.jvm.program') {
+        $javaBin = $value;
+      } elsif ($name eq 'java.class.name') {
+        $className = $value;
+      } else {
+        push @line, makeProperty($name, $value);
+      }
+#      print "$name = $value\n";
+    }
+  }
+
+  if (defined $className) {
+    return $javaBin, @line, $className;
+  } else {
+    return $javaBin, @line;
+  }
+}
+
+sub makeProperty {
+  my %javaFlags = (
+                   'java.jar' => 'jar',
+                   'java.class.path' => 'classpath'
+                  );
+  my %javaEquals = (
+                    'java.heap.min' => 'Xms',
+                    'java.heap.max' => 'Xmx',
+                    'java.stack.size' => 'Xss'
+                  );
+  my %javaCP = (
+                'java.Xbootclasspath' => 'Xbootclasspath',
+                'java.Xbootclasspath/a' => 'Xbootclasspath/a',
+                'java.Xbootclasspath/p' => 'Xbootclasspath/p'
+               );
+  my ($name, $value) = @_;
+  if ($name =~ /java\./) {
+    if ($name eq 'java.jvm.mode') {
+      if ($value eq 'client' || $value eq "server") {
+        @options = ("-$value");
+      } elsif ($value ne 'hotspot') {
+        print STDERR "Don't know how to handle java.jvm.mode=$value -- using hotspot\n";
+      }
+    } elsif ($name eq 'java.jvm.green') {
+      print STDERR "There are no green threads for Linux. Using system threads.\n";
+    } else {
+      if (defined $javaFlags{$name}) {
+        @options = ("-$javaFlags{$name}", $value);
+      } elsif (defined $javaEquals{$name}) {
+        @options = ("-$javaEquals{$name}=$value");
+      } elsif (defined $javaCP{$name}) {
+        @options = ("-$javaCP{$name}:$value");
+      } else {
+        $name = substr $name, 5;
+        if (defined $value) {
+          @options = ("-$name=$value");
+        } else {
+          @options = ("-$name");
+        }
+      }
+    }
+  } else {
+    @options = ("-D$name=$value");
+  }
+  return @options;
+}
+# Customize the properties for the current user
+
+sub customizeProperty {
+  my $prop = shift;
+  my $i;
+
+  # strip trailing white space, and quotes around values
+  $prop =~ s/( |\t)+$//;
+  if ($prop =~ /^\".*\"$/) {
+    $prop =~ s/^\"//;
+    $prop =~ s/\"$//;
+  }
+#  print "before conversion: $prop\n";
+  for ($i = 0 ; $i <= $#convertFrom; $i++) {
+    $prop =~ s/$convertFrom[$i]/$convertTo[$i]/g;
+#    print "converting from: $convertFrom[$i] to $convertTo[$i]\n";
+  }
+#  print "after conversion: $prop\n";
+  return $prop;
+}
+
+sub createCommandLine {
+  (%props, @keys, %flags, $javaBin, $className) = @ARG;
+  my @line = ( $javaBin );
+  foreach $flagKey (keys %flags) {
+    $value = $flags{$flagKey};
+    push @line, $flagKey;
+    if (defined $value && $value ne "") {
+      push @line, $value;
+    }
+  }
+  foreach $key (@keys) {
+    push @line, "-$key=$props{$key}";
+  }
+  if (defined $className && $className ne "") {
+    push @line, $className;
+  }
+  return @line;
+}
