@@ -52,7 +52,6 @@ if ( "$useBootstrapper" == "true") then
 else
 	set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/core.jar:$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar
 endif
-set LIBPATHS="${LIBPATHS}:$COUGAAR_INSTALL_PATH/sys/jaas.jar" 
 
 if ($?COUGAAR_DEV_PATH) then
     set LIBPATHS = "${COUGAAR_DEV_PATH}:$LIBPATHS"
@@ -216,7 +215,8 @@ set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.nameserver.verbosity=20"
 
 if ( "$usePersistence" == "true") then
-    set javaargs="-Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar $javaargs"
+    set javaargs="-Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar \
+    -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar $javaargs"
 endif
 
 if ($?COUGAAR_DEV_PATH) then
