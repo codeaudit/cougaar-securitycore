@@ -7,8 +7,8 @@ string.split("\n").each { |x|
   # PID   USER     PRI   NI SIZE RSS  SHARE STAT %CPU %MEM  TIME  COMMAND
   # 18359 asmt      17   0  163M 163M 33096 S     2.5  8.0   5:28 java
 
-  topPattern1 = " *([0-9]*) *([a-zA-Z0-9_]*) *([0-9]*) *([0-9]*) *([0-9]*[KMG]?) *([0-9]*[KMG]?) *([0-9]*).*"
-  topPattern2 = " *([a-zA-Z0-9_]*) *([0-9]*\.[0-9]*) *([0-9]*\.[0-9]*) *([0-9]*:[0-9]*) *([a-zA-Z0-9_]*).*"
+  topPattern1 = " *([0-9]*) *([a-zA-Z0-9_]*) *([0-9]*) *([0-9]*) *([0-9]*\.?[0-9]*[KMG]?) *([0-9]*\.?[0-9]*[KMG]?) *([0-9]*).*"
+  topPattern2 = " *([a-zA-Z0-9_]*) *([0-9]*\.?[0-9]*) *([0-9]*\.?[0-9]*) *([0-9]*:[0-9]*) *([a-zA-Z0-9_]*).*"
   pid  =   x.gsub(/#{topPattern1}/, '\1').rjust(5)
   user  =  x.gsub(/#{topPattern1}/, '\2')
   pSizeString  = x.gsub(/#{topPattern1}/, '\5')
@@ -24,28 +24,36 @@ string.split("\n").each { |x|
   time   = x2.gsub(/#{topPattern2}/, '\4').rjust(5)
   command= x2.gsub(/#{topPattern2}/, '\5')
 
-  pSizePattern = "([0-9]*)([KMG]?)"
-  psize = pSizeString.gsub(/#{pSizePattern}/, '\1').to_i
-  unit = pSizeString.gsub(/#{pSizePattern}/, '\2')
-  if unit == 'M'
-    psize = psize * 1024
-  elsif unit == 'G'
-    psize = psize * 1024 * 1024
+  pSizePattern = "([0-9]*\.?[0-9]*)"
+  pSize = pSizeString.sub(/#{pSizePattern}/, '\1')
+  unitI = pSizeString.index(/[KMG]/)
+  unit =""
+  if unitI != nil
+    unit = pSizeString.slice(unitI, pSizeString.size)
   end
-  psizeString = psize.to_s.rjust(10)
+  pSizeF = pSize.to_f
+  if unit == 'M'
+    pSizeF = pSizeF * 1024
+  elsif unit == 'G'
+    pSizeF = pSizeF * 1024 * 1024
+  end
+  #puts "#{pSizeString} - #{pSizeF} - #{unit}"
+  pSizeString = pSizeF.to_i.to_s.rjust(10)
   psCommand = "ps -p #{pid} -o cmd --no-headers"
   cmd=`#{psCommand}`
 
   # The command-line looks like:
   #   java -Dorg.cougaar.node.name=1-1-CAVSQDN-NODE -Dorg.cougaar.core.agent.startTime
+  foundNodeName = true
   if cmd.index("name") == nil
     nodeName = "__NO_NODE_INFO__"
+    foundNodeName = false
   else
-    nodeName = cmd.gsub(/.*name=(.*) -Dorg.*/, '\1')
+    nodeName = cmd.gsub(/.*name=(.*) -Dorg.*/, '\1').strip
   end
-  
   if nodeName.strip.empty?
     nodeName = "__NO_NODE_INFO__"
+    foundNodeName = false
   end
   nodeName = nodeName.ljust(27)
 
@@ -53,7 +61,7 @@ string.split("\n").each { |x|
   hostName = `hostname`
   psTime = "#{Time.new.to_f}".ljust(16)
 
-  s = "#{hostName} #{psTime} #{nodeName} #{pid} #{user} #{psizeString} #{stat} #{cpu} #{mem} #{time} #{command}".gsub(/\n/, '')
+  s = "#{hostName} #{psTime} #{nodeName} #{pid} #{user} #{pSizeString} #{stat} #{cpu} #{mem} #{time} #{command}".gsub(/\n/, '')
   puts s
 }
 
