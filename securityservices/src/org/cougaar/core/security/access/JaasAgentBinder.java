@@ -100,13 +100,15 @@ public class JaasAgentBinder
   } 
 
   public void load() {
+    ServiceBroker sb = getServiceBroker();
     AgentIdentificationService ais = (AgentIdentificationService)
-      getServiceBroker().getService(this, AgentIdentificationService.class, null);
+      sb.getService(this, AgentIdentificationService.class, null);
     if(ais == null) {
       _agent = getAgentIdentifier();
     }
     else {
       _agent = ais.getMessageAddress(); 
+      sb.releaseService(this, AgentIdentificationService.class, ais);
     }
     JaasClient jc = new JaasClient();
     jc.doAs(getAgentName(),
@@ -136,5 +138,8 @@ public class JaasAgentBinder
                   return null;
                 }
               }, false);
+    if(_log instanceof LoggingService) {
+      getServiceBroker().releaseService(this, LoggingService.class, _log);
+    }
   }
 }

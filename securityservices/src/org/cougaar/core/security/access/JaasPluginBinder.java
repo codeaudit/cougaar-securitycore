@@ -104,6 +104,8 @@ public class JaasPluginBinder
                 }
               }, true);
      _scs.resetExecutionContext();
+     sb.releaseService(this, AgentIdentificationService.class, ais);
+     sb.releaseService(this, AuthorizationService.class, as);
   }
 
    
@@ -122,5 +124,10 @@ public class JaasPluginBinder
                 }
               }, false);
     _scs.resetExecutionContext();
+    ServiceBroker sb = getServiceBroker();
+    sb.releaseService(this, SecurityContextService.class, _scs);
+    if(_log instanceof LoggingService) {
+      sb.releaseService(this, LoggingService.class, _log); 
+    }
   }
 }
