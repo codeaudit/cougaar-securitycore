@@ -20,9 +20,9 @@
 /$AGG-Agent/aggregatorkeepalive AggegatorServlets
 # 
 # temporarily turn these off for ACME
-#/$NCA/glsinit NCAServlets
-#/$NCA/glsreply NCAServlets
-#/$NCA/editOplan NCAServlets
+/$NCA/glsinit NCAServlets
+/$NCA/glsreply NCAServlets
+/$NCA/editOplan NCAServlets
 # 
 /$SCmrmanager/* SCmrmanagerServlets
 #
