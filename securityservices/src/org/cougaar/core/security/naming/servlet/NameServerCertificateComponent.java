@@ -52,6 +52,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NameServerCertificateComponent extends ComponentPlugin {
   private static Logger log;
@@ -112,9 +114,22 @@ public class NameServerCertificateComponent extends ComponentPlugin {
     // check whether this is a name server
     String nameString = "org.cougaar.name.server";
     String nameserver = System.getProperty(nameString, null);
+    if (log.isDebugEnabled()) {
+      log.debug("org.cougaar.name.server property is " + nameserver);
+    }
     if (nameserver == null) {
       log.warn("There is no property for name server, will NOT try to get name server certificate.");
       return;
+    }
+    // Pattern example:
+    // agent@host:port_number
+    Pattern pattern = Pattern.compile("(.+)(@?)(.*)(:?)(\\d*)");
+    Matcher matcher = pattern.matcher(nameserver);
+    if (!matcher.find()) {
+      if (log.isErrorEnabled()) {
+	log.error("Unexpected name server property: " + nameserver
+	  + ". Has the format changed?");
+      }
     }
 
     int i = 2;
@@ -129,7 +144,8 @@ public class NameServerCertificateComponent extends ComponentPlugin {
       }
 
       if (log.isDebugEnabled()) {
-        log.debug("Name server is " + agent + ":" + nameserver);
+        log.debug("Name server is " + agent + ":" + nameserver + " Localhost:"
+	  + NodeInfo.getHostName());
       }
       if (NodeInfo.getHostName().equals(nameserver)) {
         _isNameServer = true;  
@@ -141,7 +157,14 @@ public class NameServerCertificateComponent extends ComponentPlugin {
           new NameServerCertificate(agent, null));
       }
       else {
-        _pendingCache.put(agent, agent);
+	if (agent == null) {
+	  if (log.isErrorEnabled()) {
+	    log.error("Cannot add null to pending cache", new Throwable());
+	  }
+	}
+	else {
+	  _pendingCache.put(agent, agent);
+	}
       }
 
       nameserver = System.getProperty(nameString + ".WP-" + i, null);
