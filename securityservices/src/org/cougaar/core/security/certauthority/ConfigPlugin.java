@@ -196,7 +196,19 @@ public class ConfigPlugin
 
     public CARequestThread(String param) {
       String cahost = param.substring(0, param.indexOf(':'));
-      String caagent = param.substring(param.indexOf(':')+1, param.length());
+      int agentindex = param.indexOf(':');
+      String caagent = param.substring(agentindex+1, param.length());
+
+      // if httpport param is given use it
+      int portindex = caagent.indexOf(':');
+      if (portindex != -1) {
+        portindex += agentindex + 1;
+        caagent = param.substring(agentindex+1, portindex);
+        httpport = param.substring(portindex + 1, param.lastIndexOf(':'));
+        httpsport = param.substring(param.lastIndexOf(':')+1, param.length());
+        log.debug("agent: " + caagent + " / " + httpport + " / " + httpsport);
+      }
+
       infoURL = "http://" + cahost + ":" +
         httpport + "/$" + caagent + cryptoClientPolicy.getInfoURL();
       if (httpsport == null || httpsport.equals("-1")) {
