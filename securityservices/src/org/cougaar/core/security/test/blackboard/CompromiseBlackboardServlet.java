@@ -32,6 +32,7 @@ import java.net.InetAddress;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 
 import org.cougaar.core.node.NodeIdentificationService;
 import org.cougaar.core.security.monitoring.event.BlackboardFailureEvent;
@@ -40,6 +41,7 @@ import org.cougaar.core.security.monitoring.plugin.CompromiseBlackboard;
 import org.cougaar.core.security.test.AbstractServletComponent;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.UIDService;
+import org.cougaar.core.security.util.NodeInfo;
 
 
 /**
@@ -71,7 +73,10 @@ public class CompromiseBlackboardServlet extends AbstractServletComponent {
    */
   protected void execute(HttpServletRequest request, HttpServletResponse response) {
     UIDService uidService = (UIDService) this.serviceBroker.getService(this, UIDService.class, null);
-	try{
+    try{
+  	AgentIdentificationService agentIdService = (AgentIdentificationService)this.serviceBroker.getService(this,AgentIdentificationService.class, null);
+        String agent = agentIdService.getMessageAddress().getAddress();
+	
     	//create BlackboardCompromise Object
     	String scope = request.getParameter(SCOPE_PARAM);
     	if(scope==null || scope.trim().length()==0){
@@ -79,34 +84,33 @@ public class CompromiseBlackboardServlet extends AbstractServletComponent {
     			logging.warn("No compromise scope in url query string, using agent scope!");
     		}
     		scope = CompromiseBlackboard.AGENT_COMPROMISE_TYPE;
-    	}
-    
-    
-  		AgentIdentificationService agentIdService = (AgentIdentificationService)this.serviceBroker.getService(this,AgentIdentificationService.class, null);
+        }
+
+	String data="";
+	data=data + "scope=" + scope;
+        data=data+",compromise timestamp=" + System.currentTimeMillis();
+  	data=data+",sourceAgent=" + agent;
+	String nodeName = NodeInfo.getNodeName();
+  	data=data+",sourceNode="+nodeName;
+  	String hostName = NodeInfo.getHostName();
+  	data=data+",sourceHost=" + hostName;
 	
-  		String data="";
-  		data=data + "scope=" + scope;
-		data=data+",compromise timestamp=" + System.currentTimeMillis();
-  		data=data+",sourceAgent=" + agentIdService.getMessageAddress().getAddress();
-  		NodeIdentificationService nodeIdService = (NodeIdentificationService)this.serviceBroker.getService(this,NodeIdentificationService.class, null);
-		  String nodeName = nodeIdService.getMessageAddress().getAddress();
-  		data=data+",sourceNode="+nodeName;
-  		InetAddress inetAddress = InetAddress.getLocalHost();
-  		String hostName = inetAddress.getHostName();
-  		data=data+",sourceHost=" + hostName;
-	
-		BlackboardFailureEvent event = new BlackboardFailureEvent(agentIdService.getMessageAddress().getAddress(),agentIdService.getMessageAddress().getAddress(),"reason" ,
+	BlackboardFailureEvent event = 
+          new BlackboardFailureEvent(agent,agent,"reason",
 		"reasonId", data, "compromisedata");
      	BlackboardCompromiseSensorPlugin.publishEvent(event);
     
    
-    	if (logging.isDebugEnabled()) {
-      	logging.debug("Published CompromiseBlackboard Object");
-    	}
-	}catch(Exception e){
-    	if(logging.isErrorEnabled()){
-    		logging.error("Error reporting blackboardCompromise");
-    	}
+      String msg = "Published CompromiseBlackboard Object for " + agent;
+    PrintWriter out = response.getWriter();
+    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+    out.println("<html>");
+    out.println(msg);
+    out.println("</html>");
+    out.flush();
+    out.close();
+    }catch(Exception e){
+    	logging.error("Error reporting blackboardCompromise " + e.toString());
     }
   }
 }
