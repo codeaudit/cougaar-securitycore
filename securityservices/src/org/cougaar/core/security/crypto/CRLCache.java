@@ -30,6 +30,12 @@ import java.io.*;
 import java.util.*;
 import java.math.BigInteger;
 import java.security.cert.*;
+import java.security.KeyStore;
+import java.security.KeyException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.InvalidKeyException;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -47,54 +53,208 @@ import java.lang.reflect.*;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.util.ConfigFinder;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.BlackboardQueryService;
+import org.cougaar.core.blackboard.BlackboardClient;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
 
 // Cougaar security services
 import org.cougaar.core.security.crlextension.x509.extensions.*;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.crypto.*;
+import  org.cougaar.core.security.crypto.crl.blackboard.*;
+import org.cougaar.core.security.policy.*;
+import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.util.*;
 
-public class CRLCache implements Runnable
+final public class CRLCache implements Runnable,CRLCacheService
 {
   private SecurityPropertiesService secprop = null;
-
+  private DirectoryKeyStoreParameters param;
+  private KeyStore caKeystore = null; 
   private Hashtable crlsCache = new Hashtable(50);
   private long sleep_time=60000l; // Check CRL every minute by default
 
   //private boolean debug =false;
-  private DirectoryKeyStore keystore=null;
-  private CertificateCache certcache=null;
-  private CertDirectoryServiceClient certFinder;
+  //private DirectoryKeyStore keystore=null;
+  //private CertificateCache certcache=null;
+  //private CertDirectoryServiceClient certFinder;
   private ServiceBroker serviceBroker;
   private LoggingService log;
+  private ConfigParserService configParser = null; 
+  private NodeConfiguration nodeConfiguration;
+  private boolean bbservicefirsttime=false;
 
   /** How long do we wait before retrying to send a certificate signing
    * request to a certificate authority? */
   private long crlrefresh = 10;
+  private BlackboardService blackboardService=null;
 
-  public CRLCache(DirectoryKeyStore dkeystore, ServiceBroker sb)
-  {
-    serviceBroker = sb;
-    log = (LoggingService)
-      serviceBroker.getService(this,
-			       LoggingService.class, null);
+  public CRLCache(ServiceBroker sb)
+    {
+      serviceBroker = sb;
+      log = (LoggingService)
+	serviceBroker.getService(this,
+				 LoggingService.class, null);
 
-    secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this,
-			       SecurityPropertiesService.class, null);
+      secprop = (SecurityPropertiesService)
+	serviceBroker.getService(this,
+				 SecurityPropertiesService.class, null);
 
-    this.keystore=dkeystore;
-    if(log.isDebugEnabled()) {
-      log.debug("Crl cache being initialized:::++++++++++");
+      //this.keystore=dkeystore;
+      if(log.isDebugEnabled()) {
+	log.debug("Crl cache being initialized:::++++++++++");
+      }
+      long poll = 0;
+      try {
+	poll = (Long.valueOf(secprop.getProperty(secprop.CRL_POLLING_PERIOD))).longValue() * 1000;
+      }
+      catch (Exception e) {}
+      if (poll != 0) {
+	setSleepTime(poll);
+      }
+      configParser = (ConfigParserService)
+	serviceBroker.getService(this,
+				 ConfigParserService.class,
+				 null);
+      if (secprop == null) {
+	throw new RuntimeException("unable to get security properties service");
+      }
+      if (configParser == null) {
+	throw new RuntimeException("unable to get config parser service");
+      }
+      SecurityPolicy[] sp =
+	configParser.getSecurityPolicies(CryptoClientPolicy.class);
+
+      CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
+    
+      if (cryptoClientPolicy == null
+	  || cryptoClientPolicy.getCertificateAttributesPolicy() == null) {
+	// This is OK for standalone applications if they don't plan to use
+	// certificates for authentication, but it's not OK for nodes
+	boolean exec =
+	  Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
+	if (exec == true) {
+	  log.warn("Unable to get crypto Client policy");
+	}
+	else {
+	  log.info("Unable to get crypto Client policy");
+	}
+	throw new RuntimeException("Unable to get crypto Client policy");
+      }
+      param = new DirectoryKeyStoreParameters();
+      String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
+      nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
+      //param.keystorePath = nodeConfiguration.getNodeDirectory()
+      // + cryptoClientPolicy.getKeystoreName();
+       param.isCertAuth = configParser.isCertificateAuthority();
+       TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
+       if (trustedCaPolicy.length > 0) {
+	 param.ldapServerUrl = trustedCaPolicy[0].certDirectoryUrl;
+	 param.ldapServerType = trustedCaPolicy[0].certDirectoryType;
+	 log.warn("trustedCaPolicy:" +	param.ldapServerUrl + 	param.ldapServerType);
+       }
+       if(param.isCertAuth) {
+	 X500Name [] caDNs=configParser.getCaDNs();
+	 if (caDNs.length > 0) {
+	   String caDN=caDNs[0].getName();
+	   CaPolicy capolicy=configParser.getCaPolicy(caDN);
+	   param.ldapServerUrl =capolicy.ldapURL;
+	   param.ldapServerType =capolicy.ldapType;
+	   param.defaultCaDn = caDN;
+	 }
+       }
+       log.warn("trustedCaPolicy:" +	param.ldapServerUrl + 	param.ldapServerType); 
+       if(! param.isCertAuth) {
+	// CA keystore parameters
+	ConfigFinder configFinder = ConfigFinder.getInstance();
+	param.caKeystorePath = nodeConfiguration.getNodeDirectory()
+	  + cryptoClientPolicy.getTrustedCaKeystoreName();
+	param.caKeystorePassword =
+	  cryptoClientPolicy.getTrustedCaKeystorePassword().toCharArray();
+	if (log.isDebugEnabled()) {
+	  log.debug("CA keystorePath=" + param.caKeystorePath);
+	}
+	File cafile = new File(param.caKeystorePath);
+	if (!cafile.exists()) {
+	  if (log.isInfoEnabled()) {
+	    log.info(param.caKeystorePath +
+		     "Trusted CA keystore does not exist. in "
+		     + param.caKeystorePath + ". Trying with configFinder");
+	  }
+	  File cafile2 = configFinder.locateFile(cryptoClientPolicy.getTrustedCaKeystoreName());
+	  if (cafile2 != null) {
+	    param.caKeystorePath = cafile2.getPath();
+	  }
+	  else {
+	    if (param.isCertAuth) {
+	      if (log.isInfoEnabled()) {
+		log.info(param.caKeystorePath +
+			 " Trusted CA keystore does not exist. Creating...");
+	      }
+	      try {
+		KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
+		FileOutputStream fos = new FileOutputStream(param.caKeystorePath);
+		k.load(null, param.caKeystorePassword);
+		k.store(fos, param.caKeystorePassword);
+		fos.close();
+	      }
+	      catch (Exception e) {
+		log.warn("Unable to create CA keystore:" + e);
+		throw new RuntimeException("Unable to create CA keystore:" + e);
+	      }
+	    }
+	    else {
+	      log.error("CA keystore (" + param.caKeystorePath +
+			") unavailable. At least one CA certificate should be included");
+	    }
+	  }
+	}
+	  
+	try {
+	  param.caKeystoreStream = new FileInputStream(param.caKeystorePath);
+	}
+	catch (Exception e) {
+	  if (log.isWarnEnabled()) {
+	    log.warn("Warning: Could not open CA keystore ("
+		     + param.caKeystorePath + "):" + e);
+	  }
+	  param.caKeystoreStream = null;
+	  param.caKeystorePath = null;
+	  param.caKeystorePassword = null;
+	}
+	try {
+	  if (param.caKeystoreStream != null) {
+	    caKeystore = KeyStore.getInstance(KeyStore.getDefaultType());
+	    try {
+	      caKeystore.load(param.caKeystoreStream, param.caKeystorePassword);
+	    } catch (Exception e) {
+	      // Unable to use CA keystore. Do not use it
+	      caKeystore = null;
+	      param.caKeystorePassword = null;
+	    }
+	  }
+      
+	}
+	catch (Exception e) {
+	  log.error("Unable to initialize Certificate Cache : ", e);
+	}
+	if (param.caKeystoreStream != null) {
+	  try {
+	    param.caKeystoreStream.close();
+	  }
+	  catch (Exception e) {
+	    log.warn("Unable to close CA keystore:" + e);
+	    throw new RuntimeException("Unable to close CA keystore:" + e);
+	  }
+	}
+	initCRLCache();
+      }
+     
+      
     }
-    long poll = 0;
-    try {
-      poll = (Long.valueOf(secprop.getProperty(secprop.CRL_POLLING_PERIOD))).longValue() * 1000;
-    }
-    catch (Exception e) {}
-    if (poll != 0) {
-      setSleepTime(poll);
-    }
-  }
 
   public void startThread() {
     Thread td=new Thread(this,"crlthread");
@@ -102,22 +262,51 @@ public class CRLCache implements Runnable
     td.start();
   }
 
-  public void add(String dnname)
-  {
-    if(log.isDebugEnabled())
-      log.debug(" dn name being added ::+++++++++++++++"+ dnname);
+  public void addToCRLCache(String dnname,String ldapURL,int ldapType)
+    {	
+      log.debug("addToCRLCache::+++++++++++++++"+ dnname + ldapURL +ldapType);
+      if(log.isDebugEnabled())
+	log.debug(" dn name being added ::+++++++++++++++"+ dnname);
 
-    CRLWrapper wrapper=null;
-    if(!entryExists(dnname)) {
-      wrapper=new CRLWrapper(dnname);//,certcache);
-      crlsCache.put(dnname,wrapper);
-    }
-    else {
-      if(log.isDebugEnabled()) {
-	log.debug("Warning !!! Entry already exists for dnname :" +dnname);
+      CRLWrapper wrapper=null;
+      if(!entryExists(dnname)) {
+	wrapper=new CRLWrapper(dnname,ldapURL,ldapType);//,certcache);
+	crlsCache.put(dnname,wrapper);
+	
+	BlackboardService bbService = (BlackboardService) serviceBroker.getService(
+	  this,
+	  BlackboardService.class,
+	  null);
+	if(bbService==null) {
+	  serviceBroker.addServiceListener(new BlackboardServiceAvailableListener());
+	  log.debug("BlackBoard service is not availabel  now will try later!!!");
+	  /*Iterator iter= serviceBroker.getCurrentServiceClasses();
+	  Class cs=null;
+	  log.debug("List of service available are :");
+	  while(iter.hasNext()){
+	    cs=(Class)iter.next();
+	    log.debug(cs.getName());
+	  }
+	  */
+	  /*  serviceBroker.addServiceListener(new BlackboardServiceAvailableListener());
+	  log.debug("BlackBoard service is not avilabel  now will try later!!!!!!!");
+	  */
+	}
+	CRLRegistration crlreg=new CRLRegistration (dnname,ldapURL,ldapType);
+	if(blackboardService!=null) {
+	blackboardService.openTransaction();
+	log.debug("!!! Publishing to BB "+crlreg.toString() );
+	  
+	blackboardService.publishAdd(crlreg);
+	blackboardService.closeTransaction();
+	}
+      }
+      else {
+	if(log.isDebugEnabled()) {
+	  log.debug("Warning !!! Entry already exists for dnname :" +dnname);
+	}
       }
     }
-  }
 
   public void setSleepTime(long sleeptime) {
     sleep_time=sleeptime;
@@ -131,9 +320,9 @@ public class CRLCache implements Runnable
   }
 
   private boolean entryExists(String dnname)
-  {
-    return crlsCache.containsKey(dnname);
-  }
+    {
+      return crlsCache.containsKey(dnname);
+    }
 
   /** Lookup Certificate Revocation Lists */
   public void run() {
@@ -142,13 +331,21 @@ public class CRLCache implements Runnable
     while(true) {
       if(log.isDebugEnabled())
 	log.debug("**************** CRL CACHE THREAD IS RUNNING ***********************************");
+      /*
+      Iterator iter= serviceBroker.getCurrentServiceClasses();
+      Class cs=null;
+      log.debug("List of service available are :");
+      while(iter.hasNext()){
+	cs=(Class)iter.next();
+	log.debug(cs.getName());
+      }
+      */
       try {
 	Thread.sleep(sleep_time);
       }
       catch(InterruptedException interruptedexp) {
 	interruptedexp.printStackTrace();
       }
-
       String dnname=null;
       Enumeration enumkeys =crlsCache.keys();
       for(;enumkeys.hasMoreElements();) {
@@ -193,6 +390,100 @@ public class CRLCache implements Runnable
     }
 
   }
+  public void updateCRLCache(CRLWrapper wrapperFromDirectory) {
+
+    String distingushname=wrapperFromDirectory.getDN();
+    log.debug("Update CRLCache called from Response plugin:");
+    if(log.isDebugEnabled()) {
+      log.debug(" Updating crl cache for :"+distingushname);
+    }
+    X509CRL crl=null;
+    CRLWrapper wrapper=null;
+    PublicKey crlIssuerPublickey =null;
+    X509Certificate crlIssuerCert=null;
+    X500Name name =null;
+    crl=wrapperFromDirectory.getCRL();
+    try {
+      name =  new X500Name(distingushname);
+    }
+    catch(Exception exp) {
+      log.error("Unable to get CA name: " + distingushname);
+    }
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
+    KeyRingService keyRingService=(KeyRingService)
+      serviceBroker.getService(this,
+			       KeyRingService.class,
+			       null);
+
+    if(keyRingService==null) {
+      log.warn("Unable to get  Ring Service in updateCRLCache");
+      return;
+    }
+    List certList = keyRingService.getValidCertificates(name);
+    CertificateStatus certstatus = null;
+    if (certList != null && certList.size() != 0) {
+      // For now, get the first certificate
+      certstatus = (CertificateStatus) certList.get(0);
+    }
+    else {
+      if(log.isWarnEnabled())
+	log.warn("No valid certificate for: "+distingushname);
+      return;
+    }
+    crlIssuerCert=(X509Certificate)certstatus.getCertificate();
+    crlIssuerPublickey=crlIssuerCert.getPublicKey();
+    try {
+      crl.verify(crlIssuerPublickey);
+    }
+    catch (NoSuchAlgorithmException  noSuchAlgorithmException) {
+      noSuchAlgorithmException.printStackTrace();
+      return ;
+    }
+    catch (InvalidKeyException invalidKeyException ) {
+      invalidKeyException.printStackTrace();
+      return ;
+    }
+    catch (NoSuchProviderException noSuchProviderException ){
+      noSuchProviderException.printStackTrace();
+      return ;
+    }
+    catch (SignatureException  signatureException ) {
+      signatureException.printStackTrace();
+      return ;
+    }
+    catch (CRLException cRLException ) {
+      cRLException.printStackTrace();
+      return ;
+    }
+    try {
+      if(keyRingService!=null) {
+	keyRingService.checkCertificateTrust(crlIssuerCert);
+      }
+      else {
+	log.warn("Unable to check certificate trust as keyring service is null");
+      }
+    }
+    catch(Exception exp) {
+      exp.printStackTrace();
+      return;
+    }
+    if(crl!=null) {
+      wrapper=(CRLWrapper) crlsCache.get(distingushname);
+      try {
+	wrapper.setCRL(crl.getEncoded());
+      }
+      catch(Exception exp) {
+	log.warn("Unable to set crl in cache for :"+distingushname +exp.getMessage());
+      }
+      wrapper.setLastModifiedTimestamp(wrapperFromDirectory.getLastModifiedTimestamp());
+      crlsCache.put(distingushname,wrapper);
+      updateCRLInCertCache(distingushname);
+    }
+    
+  }
 
   /**
    */
@@ -211,12 +502,20 @@ public class CRLCache implements Runnable
     catch(Exception exp) {
       log.error("Unable to get CA name: " + distingushname);
     }
-    
-    if (keystore.certCache == null) {
-      log.info("Certificate cache not initialized yet");
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
+    KeyRingService keyRingService=(KeyRingService)
+      serviceBroker.getService(this,
+			       KeyRingService.class,
+			       null);
+
+    if(keyRingService==null) {
+      log.warn("Unable to get  Ring Service in updateCRLCache");
       return;
     }
-    List certList = keystore.certCache.getValidCertificates(name);
+    List certList = keyRingService.getValidCertificates(name);
     CertificateStatus certstatus = null;
     if (certList != null && certList.size() != 0) {
       // For now, get the first certificate
@@ -228,8 +527,13 @@ public class CRLCache implements Runnable
       return;
     }
 
+    
     // check whether it is specified in the policy
-    CertDirectoryServiceClient certificateFinder = keystore.getCACertDirServiceClient(distingushname);
+    CertDirectoryServiceClient certificateFinder =null;
+    if(keyRingService!=null) {
+      certificateFinder=keyRingService.getCACertDirServiceClient(distingushname);
+    }
+    
     // check whether it is found in trust chain
     if (certificateFinder == null) {
       certificateFinder = certstatus.getCertFinder();
@@ -238,14 +542,14 @@ public class CRLCache implements Runnable
     }
     // pretty much not found, check it is in the naming service
 /*
-    if (certificateFinder == null) {
-      try {
-	certificateFinder = keystore.getCertDirectoryServiceClient(distingushname);
-      }
-      catch (Exception e) {
-	log.warn("Unable to get certificatels finder");
-      }
-    }
+  if (certificateFinder == null) {
+  try {
+  certificateFinder = keystore.getCertDirectoryServiceClient(distingushname);
+  }
+  catch (Exception e) {
+  log.warn("Unable to get certificatels finder");
+  }
+  }
 */
 
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
@@ -293,7 +597,12 @@ public class CRLCache implements Runnable
       return ;
     }
     try {
-      keystore.checkCertificateTrust(crlIssuerCert);
+      if(keyRingService!=null) {
+	keyRingService.checkCertificateTrust(crlIssuerCert);
+      }
+      else {
+	log.warn("Unable to check certificate trust as keyring service is null");
+      }
     }
     catch(Exception exp) {
       exp.printStackTrace();
@@ -301,7 +610,12 @@ public class CRLCache implements Runnable
     }
     if(crl!=null) {
       wrapper=(CRLWrapper) crlsCache.get(distingushname);
-      wrapper.setCRL(crl);
+      try {
+	wrapper.setCRL(crl.getEncoded());
+      }
+      catch(Exception exp) {
+	log.warn("Unable to encode crl in CRL cache :"+ distingushname + " message :"+exp.getMessage());
+      }
       crlsCache.put(distingushname,wrapper);
     }
 
@@ -409,56 +723,196 @@ public class CRLCache implements Runnable
 
       //keystore.certCache.printbigIntCache();
     }
-
-    // need to store the revoked cert information even though
-    // we may not have received the cert yet. Otherwise there
-    // is a time window for a revoked cert to get into the 
-    // system. 
-    keystore.certCache.addToRevokedCache(actualIssuerDN, bigint);
-
-    subjectDN=keystore.certCache.getDN(crlkey);
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
+    
+    if(cacheservice==null) {
+      log.warn("Unable to get Certificate cache Service in updateCRLEntryInCertCache");
+    }
+    subjectDN=null;
+    if(cacheservice!=null) {
+      subjectDN=cacheservice.getDN(crlkey);
+      // need to store the revoked cert information even though
+      // we may not have received the cert yet. Otherwise there
+      // is a time window for a revoked cert to get into the 
+      // system.  
+      cacheservice.addToRevokedCache(actualIssuerDN, bigint);
+    }
     if(subjectDN==null) {
-
       return;
     }
-    if(log.isDebugEnabled())
+    if(log.isDebugEnabled()) {
       log.debug(" Got the dn for the revoked cert in CRL Caches updateCRLEntryInCertCache :"+subjectDN);
-    keystore.certCache.revokeStatus(bigint,actualIssuerDN,subjectDN);
+    }
+    if(cacheservice!=null) {
+      cacheservice.revokeStatus(bigint,actualIssuerDN,subjectDN);
+    }
+    else {
+      log.warn("Unable to revoke status in certificate Cache as  Certificate cache Service is null");
+    }
 
   }
 
   public void setSleeptime(long sleeptime)
-  {
-    // Check security permissions
-    SecurityManager security = System.getSecurityManager();
-    if (security != null) {
-      security.checkPermission(new KeyRingPermission("writeCrlparam"));
+    {
+      // Check security permissions
+      SecurityManager security = System.getSecurityManager();
+      if (security != null) {
+	security.checkPermission(new KeyRingPermission("writeCrlparam"));
+      }
+      sleep_time=sleeptime;
     }
-    sleep_time=sleeptime;
-  }
 
   public long getSleeptime()
-  {
-    return sleep_time;
-  }
+    {
+      return sleep_time;
+    }
 
   public CRLWrapper getCRL(String dnname)
-  {
-    return null;
-  }
-  public boolean isCertificateInCRL(X509Certificate subjectCertificate, String IssuerDN)
-  {
-    boolean incrl=false;
-    CRLWrapper crlwrapper=null;
-    X509CRL crl=null;
-    if(entryExists(IssuerDN)) {
-      crlwrapper=(CRLWrapper)crlsCache.get(IssuerDN);
-      crl=crlwrapper.getCRL();
-
+    {
+      return null;
     }
-    return incrl;
+  public boolean isCertificateInCRL(X509Certificate subjectCertificate, String IssuerDN)
+    {
+      boolean incrl=false;
+      CRLWrapper crlwrapper=null;
+      X509CRL crl=null;
+      if(entryExists(IssuerDN)) {
+	crlwrapper=(CRLWrapper)crlsCache.get(IssuerDN);
+	crl=crlwrapper.getCRL();
+
+      }
+      return incrl;
+    }
+  private void initCRLCache(){
+    try {
+      if(caKeystore != null && caKeystore.size() > 0) {
+	if (log.isDebugEnabled()) {
+	  log.debug("++++++ Initializing CRL Cache");
+	}
+	// Build a hash table that indexes keys in the CA keystore by DN
+	initCRLCacheFromKeystore(caKeystore, param.caKeystorePassword);
+	this.startThread();
+      }
+      else {
+	log.debug(" Initializing CRL Cache  caKeystore == null ||  caKeystore.size() > 0");
+      }
+    }
+    catch (KeyStoreException e) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to access CA keystore: " + e);
+      }
+    }
+  }
+  
+  private void initCRLCacheFromKeystore(KeyStore aKeystore, char[] password)
+    throws KeyStoreException {
+    String s=null;
+    X509Certificate certificate=null;
+    String dnname=null;
+    log.debug("initCRLCacheFromKeystore called :");
+     KeyRingService keyRingService=(KeyRingService)
+      serviceBroker.getService(this,
+			       KeyRingService.class,
+			       null);
+
+    if(keyRingService==null) {
+      log.error("Unable to get  Ring Service in initCRLCacheFromKeystore CRL cache cannot be initilized ");
+      return;
+    }
+    for(Enumeration enumeration = aKeystore.aliases(); enumeration.hasMoreElements(); ) {
+      s = (String)enumeration.nextElement();
+      certificate =(X509Certificate) aKeystore.getCertificate(s);
+      dnname=certificate.getSubjectDN().getName();
+      CertDirectoryServiceClient dirServiceClient= keyRingService.getCACertDirServiceClient(dnname);
+      if(dirServiceClient!=null) {
+	 log.debug("Adding Dn to CRL Cache  " + dnname + dirServiceClient.getDirectoryServiceURL()
+		   +dirServiceClient.getDirectoryServiceType()) ;
+	 addToCRLCache(dnname,dirServiceClient.getDirectoryServiceURL(),dirServiceClient.getDirectoryServiceType());
+      }
+      else {
+	log.debug("Adding Dn to CRL Cache  " + dnname + param.ldapServerUrl+param.ldapServerType) ;
+	addToCRLCache(dnname,param.ldapServerUrl,param.ldapServerType);
+      }
+    }
+  }
+
+  
+  public String getLastModifiedTime(String dnname){
+    String timestamp=null;
+    if(entryExists(dnname)) {
+      CRLWrapper wrapper=null;
+      wrapper=(CRLWrapper) crlsCache.get(dnname);
+      timestamp=wrapper.getLastModifiedTimestamp();
+    }
+    return timestamp;   
+  }
+/*
+  public void setCRLinCache(CRLWrapper wrapper) {
+    String dn=wrapper.getDN();
+    X509CRL crl=wrapper.getCRL();
+    
+  }
+*/
+
+  public void  setBlackboardService (BlackboardService bbs) {
+    if(blackboardService==null ){
+      log.debug("Setting BB Service is in CRLCache ");
+      blackboardService=bbs;
+      bbservicefirsttime=true;
+      Enumeration enum=crlsCache.keys();
+      String key=null;
+      CRLWrapper wrapper=null;
+      CRLRegistration crlreg=null;
+      blackboardService.openTransaction();
+      while(enum.hasMoreElements()) {
+	key=(String)enum.nextElement();
+	wrapper=(CRLWrapper) crlsCache.get(key);
+	  crlreg=new CRLRegistration (wrapper.getDN(),wrapper.getCertDirectoryURL(),
+				      wrapper.getCertDirectoryType());
+	  log.debug("Publishing CRL Registration in CRLCache ");
+	  blackboardService.publishAdd(crlreg);
+	  //blackboardService.closeTransaction();
+      }
+      blackboardService.closeTransaction();
+    }
   }
 
 
+   private class BlackboardServiceAvailableListener implements ServiceAvailableListener
+  {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      BlackboardService bbs=null;
+      
+     // ServiceProvider newSP = null;
+      Class sc = ae.getService();
+      log.debug("BB Service listener is called  in CRLCache "+ sc.getName());
+      if(  org.cougaar.core.service.BlackboardService.class.isAssignableFrom(sc)) {
+	blackboardService = (BlackboardService) serviceBroker.getService(this,BlackboardService.class, null);
+	log.debug("BB Service is available now in CRLCache ");
+      }
+      if(bbs!=null && !bbservicefirsttime ){
+	bbservicefirsttime=true;
+	Enumeration enum=crlsCache.keys();
+	String key=null;
+	CRLWrapper wrapper=null;
+	CRLRegistration crlreg=null;
+	bbs.openTransaction();
+	while(enum.hasMoreElements()) {
+	  key=(String)enum.nextElement();
+	  wrapper=(CRLWrapper) crlsCache.get(key);
+	  crlreg=new CRLRegistration (wrapper.getDN(),wrapper.getCertDirectoryURL(),
+				      wrapper.getCertDirectoryType());
+	  bbs.publishAdd(crlreg);
+	  //blackboardService.closeTransaction();
+	}
+	bbs.closeTransaction();
+      }
+      
+    }
+  } 
 }
+
 
