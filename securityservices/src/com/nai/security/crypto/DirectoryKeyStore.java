@@ -616,19 +616,28 @@ public class DirectoryKeyStore
     if(certificateForImport != null) {
 	setKeyEntry(alias, privatekey, certificateForImport);
 	// The reply contains a certificate chain and it is valid
-	CertificateStatus certstatus =
-	  new CertificateStatus(certificateForImport[0], true,
-				CertificateOrigin.CERT_ORI_KEYSTORE,
-				CertificateType.CERT_TYPE_END_ENTITY,
-				CertificateTrust.CERT_TRUST_CA_SIGNED, alias);
-	if (CryptoDebug.debug) {
-	  System.out.println("Update cert status in hash map");
-	}
-	certCache.addCertificate(certstatus);
-	certCache.addPrivateKey(privatekey, certstatus);
-
+        addCertificateToCache(alias, certificateForImport[0], privatekey);
     }
    }
+
+  /**
+   * When used in user application, the privatekey is password protected,
+   * this function is used as generic fuction to add certificate to cache.
+   */
+  public void addCertificateToCache(String alias,
+                                    X509Certificate importCert,
+                                    PrivateKey privatekey) {
+    CertificateStatus certstatus =
+      new CertificateStatus(importCert, true,
+                            CertificateOrigin.CERT_ORI_KEYSTORE,
+                            CertificateType.CERT_TYPE_END_ENTITY,
+                            CertificateTrust.CERT_TRUST_CA_SIGNED, alias);
+    if (CryptoDebug.debug) {
+      System.out.println("Update cert status in hash map");
+    }
+    certCache.addCertificate(certstatus);
+    certCache.addPrivateKey(privatekey, certstatus);
+  }
 
   private String getCommonName(X509Certificate x509)
   {
@@ -1065,8 +1074,8 @@ public class DirectoryKeyStore
     if(principal.equals(principal1)) {
       // Self-signed certificate
       vector.addElement(x509certificate);
-      CertificateStatus cs = (CertificateStatus)list1.get(0);
-      //  ((list1 == null) ? null : list1.get(0));
+      CertificateStatus cs = (CertificateStatus)
+        ((list1 == null) ? null : list1.get(0));
 
       if (cs != null && cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
 	// This is a trusted certificate authority.
@@ -2069,6 +2078,25 @@ public class DirectoryKeyStore
     return baos.toString();
   }
 
+  public X509Certificate[] getTrustedIssuers() {
+    ArrayList list = new ArrayList();
+    try {
+      for (Enumeration e = caKeystore.aliases(); e.hasMoreElements(); ) {
+        String alias = (String)e.nextElement();
+        X509Certificate cert = (X509Certificate)caKeystore.getCertificate(alias);
+        list.add(cert);
+      }
+    } catch (Exception e) {
+      System.err.println("Error: can't get the certificates from truststore.");
+      e.printStackTrace();
+    }
+
+    X509Certificate[] trustedcerts = new X509Certificate[list.size()];
+    for (int i = 0; i < list.size(); i++)
+      trustedcerts[i] = (X509Certificate)list.get(i);
+    return trustedcerts;
+  }
+  
   private void saveCertificateInTrustedKeyStore(X509Certificate aCertificate,
 						String alias) {
     if (CryptoDebug.debug) {
