@@ -512,6 +512,7 @@ public class CommunityServiceUtil {
         if (_log.isDebugEnabled()) {
           _log.debug("not a security community: " + community.getName());
         }
+	_semaphore.release();
         return;
       }
       if (_log.isDebugEnabled()) {
@@ -538,6 +539,7 @@ public class CommunityServiceUtil {
       if (_log.isDebugEnabled()) {
         _log.debug(_agent + " is not any of the managers");
       }
+      _semaphore.release();
     }
 
     public String getCommunityName() {
