@@ -63,6 +63,16 @@
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="HealthMonitor" />
     </Entity>
+    <Entity Name="REAR-XNODE1" >
+      <Attribute ID="EntityType" Value="Node" />
+      <Attribute ID="Role" Value="Member" />
+      <Attribute ID="Role" Value="HealthMonitor" />
+    </Entity>
+    <Entity Name="REAR-XNODE2" >
+      <Attribute ID="EntityType" Value="Node" />
+      <Attribute ID="Role" Value="Member" />
+      <Attribute ID="Role" Value="HealthMonitor" />
+    </Entity>
     <!-- Node REAR-A -->
     <Entity Name="NATO" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -364,6 +374,7 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+
   </Community>
   <!--********************************************************
       *                                                      *
@@ -413,6 +424,16 @@
       <Attribute ID="Role" Value="HealthMonitor" />
     </Entity>
     <Entity Name="FWD-F" >
+      <Attribute ID="EntityType" Value="Node" />
+      <Attribute ID="Role" Value="Member" />
+      <Attribute ID="Role" Value="HealthMonitor" />
+    </Entity>
+    <Entity Name="FWD-XNODE1" >
+      <Attribute ID="EntityType" Value="Node" />
+      <Attribute ID="Role" Value="Member" />
+      <Attribute ID="Role" Value="HealthMonitor" />
+    </Entity>
+    <Entity Name="FWD-XNODE2" >
       <Attribute ID="EntityType" Value="Node" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="HealthMonitor" />
@@ -651,7 +672,7 @@
       ********************************************************-->
   <Community Name="1AD-CONUS-COMM" >
     <Attribute ID="CommunityType"             Value="Robustness" />
-    <Attribute ID="Manager"                   Value="NCA-NODE" />
+    <Attribute ID="Manager"                   Value="CONUS-NODE" />
     <Attribute ID="NumberOfAgents"            Value="4" />
     <Attribute ID="INITIAL_EXPIRATION"        Value="1200000" />
     <Attribute ID="ACTIVE_EXPIRATION"         Value="300000" />
@@ -682,6 +703,11 @@
       <Attribute ID="Role" Value="HealthMonitor" />
     </Entity>
     <Entity Name="PLAN-NODE" >
+      <Attribute ID="EntityType" Value="Node" />
+      <Attribute ID="Role" Value="Member" />
+      <Attribute ID="Role" Value="HealthMonitor" />
+    </Entity>
+    <Entity Name="CONUS-XNODE1" >
       <Attribute ID="EntityType" Value="Node" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="HealthMonitor" />
@@ -766,6 +792,11 @@
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="HealthMonitor" />
     </Entity>
+    <Entity Name="TRANS-XNODE1" >
+      <Attribute ID="EntityType" Value="Node" />
+      <Attribute ID="Role" Value="Member" />
+      <Attribute ID="Role" Value="HealthMonitor" />
+    </Entity>
     <!-- Node TRANSCOM-NODE -->
     <Entity Name="TRANSCOM" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -830,7 +861,6 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-
   <Community Name="REAR-SECURITY-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="1-27-FABN" >
@@ -1188,6 +1218,14 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="REAR-XNODE1" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="REAR-XNODE2" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
     <Entity Name="REAR-MGMT-NODE" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
@@ -1470,7 +1508,15 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="FWD-A" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
     <Entity Name="FWD-B" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="FWD-C" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1491,6 +1537,14 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="FWD-G" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="FWD-XNODE1" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="FWD-XNODE2" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1552,7 +1606,11 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="CONUS-CA-NODE" >
+    <Entity Name="CONUS-NODE" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="CONUS-XNODE1" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1647,6 +1705,18 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="DLAHQ" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="FORSCOM" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="OSC" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
   </Community>
   <Community Name="CONUS-SECURITY-SUB1-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
@@ -1662,10 +1732,6 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="CONUS-NODE" >
-      <Attribute ID="MemberType" Value="Agent" />
-      <Attribute ID="Role" Value="Member" />
-    </Entity>
     <Entity Name="CONUSGround" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
@@ -1674,11 +1740,7 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="DLAHQ" >
-      <Attribute ID="MemberType" Value="Agent" />
-      <Attribute ID="Role" Value="Member" />
-    </Entity>
-    <Entity Name="ENCLAVE4-MANAGEMENT" >
+    <Entity Name="TRANS-MGMT-NODE" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1701,10 +1763,6 @@
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="FORSCOM" >
-      <Attribute ID="MemberType" Value="Agent" />
-      <Attribute ID="Role" Value="Member" />
-    </Entity>
     <Entity Name="FULL_1AD_a" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
@@ -1714,10 +1772,6 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="GlobalSea" >
-      <Attribute ID="MemberType" Value="Agent" />
-      <Attribute ID="Role" Value="Member" />
-    </Entity>
-    <Entity Name="OSC" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1769,6 +1823,10 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="TRANS-XNODE1" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
   </Community>
   <Community Name="RearUserDomainComm" >
     <Attribute ID="CommunityType" Value="User" />
@@ -1801,6 +1859,14 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="REAR-G" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="REAR-XNODE1" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="REAR-XNODE2" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1856,6 +1922,14 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="FWD-XNODE1" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="FWD-XNODE2" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
     <Entity Name="FWD-MGMT-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
@@ -1880,15 +1954,15 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="CONUSTRANS-NODE" >
-      <Attribute ID="EntityType" Value="Agent" />
-      <Attribute ID="Role" Value="Member" />
-    </Entity>
     <Entity Name="NCA-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="ROOT-CA-NODE" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="CONUS-XNODE1" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1928,6 +2002,14 @@
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="UserManager" />
+    </Entity>
+    <Entity Name="CONUSTRANS-NODE" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
+    <Entity Name="TRANS-XNODE1" >
+      <Attribute ID="EntityType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
 </Communities>
