@@ -418,6 +418,7 @@ public class UserAdminServlet extends HttpServlet {
     // now do the password field
     String pwd = req.getParameter(UserInterface.LDAP_USER_PASSWORD);
     if (pwd != null && pwd.length() != 0) {
+      pwd = KeyRingJNDIRealm.encryptPassword(uid, pwd);
       attrs.put(UserInterface.LDAP_USER_PASSWORD, pwd.getBytes());
     }
     _userService.addUser(uid, attrs);
