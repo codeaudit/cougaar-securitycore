@@ -5,6 +5,9 @@
   <policy name="Crypto Client Policy" type = "cryptoClientPolicy">
     <cryptoClientPolicy>
       <isCertificateAuthority>true</isCertificateAuthority>
+      <!-- If false this CA needs to send its CA certificate to trustedCA to
+	   be signed. -->
+      <isRootCA>true</isRootCA>
       <keystoreFileName>keystore-${org.cougaar.node.name}</keystoreFileName>
       <keystorePassword>keystorePassword</keystorePassword>
       <trustedCAs>
