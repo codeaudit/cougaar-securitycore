@@ -92,7 +92,7 @@
                        - cougaar.branch.name is the name of the cougaar branch against which the module was built.
                  -->
                 <echo message="Retrieving @{build.module.name} ZIP file..."/>
-                <get src="${webdav.url}/@{build.module.name}-${project.branch.name}-${cougaar.branch.name}"
+                <get src="${webdav.url}/@{build.module.name}-${project.branch.name}-${cougaar.branch.name}.zip"
                      dest="${overlays.directory.name}/@{build.module.name}-${project.branch.name}-${cougaar.branch.name}.zip"/>
              </sequential>
           </for>
