@@ -44,6 +44,12 @@ public class CertificateStatus
    * certificate authority. */
   private Date lastTimeSigningRequest;
 
+  /** The trust status of this certificate.
+   * When a key pair has been generated but not submitted to a CA yet,
+   * the certificate cannot be used because other parties will not trust
+   * the certificate. */
+  private CertificateTrust _certificateTrust;
+
   public CertificateStatus(X509Certificate cert,
 			   CertificateOrigin origin,
 			   CertificateRevocationStatus status,
@@ -77,6 +83,16 @@ public class CertificateStatus
 
   public Date getPKCS10Date() {
     return lastTimeSigningRequest;
+  }
+
+  // must return the right trust which is passed in from the constructor here
+  // CertificateEntry only determines trust by revoke status
+  public CertificateTrust getCertificateTrust() {
+    return _certificateTrust;
+  }
+
+  public void setCertificateTrust(CertificateTrust trust) {
+    _certificateTrust = trust;
   }
 
   public String toString()
