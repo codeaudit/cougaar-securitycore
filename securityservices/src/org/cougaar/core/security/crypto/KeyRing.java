@@ -1323,7 +1323,7 @@ final public class KeyRing  implements KeyRingService  {
     // is it successful?
     //if (!found) {
     if (certTable.get(source) == null || certTable.get(target) == null) {
-      String errMsg = "Can not find matching cert with same trust. " +
+      String errMsg = "Cannot find matching cert with same trust. " +
         "source: " + certTable.get(source) + " vs target: " + certTable.get(target);
       if (log.isDebugEnabled()) {
         log.debug(errMsg);
