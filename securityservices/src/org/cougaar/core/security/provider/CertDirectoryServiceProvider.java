@@ -46,9 +46,12 @@ public class CertDirectoryServiceProvider
 {
   private Hashtable ldapConnectionPool = new Hashtable();
   private static CACertDirectoryService caOperations = null;
+  private ServiceBroker serviceBroker;
 
   public CertDirectoryServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
+
+    serviceBroker = sb;
   }
 
   ///////////////////////////////////////
@@ -95,7 +98,7 @@ public class CertDirectoryServiceProvider
     }
     else if (serviceClass.equals(CACertDirectoryService.class)) {
       if (caOperations == null) {
-        caOperations = new CACertDirectoryServiceImpl(sb);
+        caOperations = new CACertDirectoryServiceImpl(serviceBroker);
       }
       theService = caOperations;
     }
