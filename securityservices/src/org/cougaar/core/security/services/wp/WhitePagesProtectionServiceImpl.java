@@ -35,7 +35,6 @@ import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.wp.Request;
 import org.cougaar.util.log.Logger;
 
 import java.io.IOException;
@@ -68,7 +67,7 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
   /**
    * Creates a new WhitePagesProtectionServiceImpl object.
    *
-   * @param sb DOCUMENT ME!
+   * @param sb the <code>ServiceBroker</code>
    */
   public WhitePagesProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
@@ -91,11 +90,8 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
    *
    * @return the wraped request object
    *
-   * @throws CertificateException DOCUMENT ME!
-   * @throws GeneralSecurityException DOCUMENT ME!
-   *
-   * @see org.cougaar.core.security.services.wp.WhitePagesProtectionService#protectMessage(java.lang.String,
-   *      java.lang.Object)
+   * @throws CertificateException
+   * @throws GeneralSecurityException
    */
   public Wrapper wrap(String name, Object object) throws CertificateException, GeneralSecurityException {
     List certList = keyRingService.findCert(name, KeyRingService.LOOKUP_KEYSTORE);
@@ -112,10 +108,10 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
 
 
     try {
-      Serializable serialableObject;
-      if (object instanceof Request) {
-        serialableObject = (Serializable) object;
-        signedObj = encryptService.sign(name, policy.signSpec, serialableObject);
+      Serializable serializableObject;
+      if (object instanceof Serializable) {
+        serializableObject = (Serializable) object;
+        signedObj = encryptService.sign(name, policy.signSpec, serializableObject);
       } else {
         if (log.isWarnEnabled()) {
           log.warn(WhitePagesProtectionServiceImpl.NAME + " Object not serialable, cannot be signed");
@@ -143,10 +139,7 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
    *
    * @return the object if the siganature is valid
    *
-   * @throws CertificateException DOCUMENT ME!
-   *
-   * @see org.cougaar.core.security.services.wp.WhitePagesProtectionService#verfifyMessage(java.lang.String,
-   *      org.cougaar.core.security.util.ProtectedRequest)
+   * @throws CertificateException
    */
   public Object unwrap(String name, Wrapper wrap) throws CertificateException {
     X509Certificate[] certChain = wrap.getCertificateChain();
