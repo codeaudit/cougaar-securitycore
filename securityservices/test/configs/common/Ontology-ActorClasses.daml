@@ -97,6 +97,45 @@
             </daml:Restriction>
         </rdfs:subClassOf>
     </daml:Class>
+    <daml:Class rdf:ID="RearPolicyAdministrator">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#RearPolicyAdministratorRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="FwdPolicyAdministrator">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#FwdPolicyAdministratorRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ConusPolicyAdministrator">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#ConusPolicyAdministratorRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="TransPolicyAdministrator">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#TransPolicyAdministratorRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
 
     <daml:Class rdf:ID="UserManager">
         <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>

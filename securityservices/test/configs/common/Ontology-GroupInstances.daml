@@ -26,6 +26,10 @@
     <ultralogGroup:Role rdf:ID="LogisticianRole"/>
     <ultralogGroup:Role rdf:ID="LogisticsViewerRole"/>
     <ultralogGroup:Role rdf:ID="MonitorManagerRole"/>
+    <ultralogGroup:Role rdf:ID="RearPolicyAdministratorRole"/>
+    <ultralogGroup:Role rdf:ID="FwdPolicyAdministratorRole"/>
+    <ultralogGroup:Role rdf:ID="ConusPolicyAdministratorRole"/>
+    <ultralogGroup:Role rdf:ID="TransPolicyAdministratorRole"/>
     <ultralogGroup:Role rdf:ID="PolicyAdministratorRole"/>
     <ultralogGroup:Role rdf:ID="UserManagerRole"/>
     <ultralogGroup:Role rdf:ID="SocietyAdminRole"/>
