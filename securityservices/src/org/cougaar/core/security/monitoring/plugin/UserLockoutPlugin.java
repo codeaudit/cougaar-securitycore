@@ -432,13 +432,15 @@ public class UserLockoutPlugin extends ResponderPlugin {
     CommunityResponseListener crl = new CommunityResponseListener() {
     	public void getResponse(CommunityResponse resp) {
     	  Object response = resp.getContent();
-    	  if (!(response instanceof Set)) {
-    	    String errorString = "Unexpected community response class:"
-    	      + response.getClass().getName() + " - Should be a Set";
-    	    _log.error(errorString);
-    	    throw new RuntimeException(errorString);
-    	  }
-          configureCommunity((Set)response);
+          if (response != null) {
+            if (!(response instanceof Set)) {
+              String errorString = "Unexpected community response class:"
+                + response.getClass().getName() + " - Should be a Set";
+              _log.error(errorString);
+              throw new RuntimeException(errorString);
+            }
+            configureCommunity((Set)response);
+          }
     	}
       };
 
