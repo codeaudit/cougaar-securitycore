@@ -1,0 +1,51 @@
+#
+# This file serves two functions.  First for any verb listed in this
+# file, the Ultralog verb, x, will be mapped to the string 
+#
+#  http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl + x
+#
+# Secondly, each of the verbs in this list will be declared in the
+# ontology as a verb.
+#
+GetWater
+AccountForSupply
+Arm
+AssessReadiness
+BulkEstimate
+DetermineRequirements
+EstablishMissionRequirements
+Execute
+Fuel
+GenerateAEF
+GenerateProjections
+GetLogSupport
+Idle
+Inform
+Load
+Maintain
+MaintainInventory
+Manage
+PrepareForTransport
+ProduceWater
+ProjectWithdraw
+ProvideFood
+ProvideWater
+QuartermasterHandling
+ReportForDuty
+ReportForService
+ReportReadiness
+RequestMaintenanceSupport
+Supply
+ProjectSupply
+SupplyAircraft
+SupplyFood
+SupplyStatusInquiry
+SupplyWater
+SupportRequest
+Transit
+Transport
+TransportAlert
+TransportationMission
+Unload
+UserInput
+Withdraw

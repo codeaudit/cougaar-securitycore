@@ -1,0 +1,33 @@
+<?xml version='1.0'?>
+<!--OWL Language, version 08/2003-->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns="http://ontology.ihmc.us/Ultralog/UltralogActor.owl#">
+    
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo>
+            $ http://ontology.ihmc.us/Ultralog/Names/ActorClasses.owl $
+        </owl:versionInfo>
+        <rdfs:comment>
+            An ontology created by Timothy Redmond (tredmond@cougaarsoftware.com) using emacs
+        </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Group.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Actor.owl"/>
+    </owl:Ontology>
+
+<!-- Section with property definitions--> 
+
+    <owl:ObjectProperty rdf:ID="roleOfPlugin">
+        <rdfs:domain rdf:resource="#UltralogPlugins"/> 
+        <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#PlugInRoles"/> 
+    </owl:ObjectProperty>
+
+<!-- Section with class definitions--> 
+
+    <owl:Class rdf:ID="UltralogPlugins">
+       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Actor.owl#SoftwareActor"/>
+       <owl:disjointWith rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent"/>
+    </owl:Class>
+
+</rdf:RDF>

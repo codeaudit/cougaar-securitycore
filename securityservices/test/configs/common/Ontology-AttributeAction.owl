@@ -1,0 +1,61 @@
+<?xml version='1.0'?>
+<!--OWL Language, version 08/2003-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+          xmlns:owl="http://www.w3.org/2002/07/owl#" 
+         xmlns="http://ontology.ihmc.us/AttributeAction.owl#">
+    
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo>
+            $ http://ontology.ihmc.us/AttributeAction.owl $
+        </owl:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Action.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Actor.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Attribute.owl"/>
+    </owl:Ontology>
+
+<!-- Section with property definitions--> 
+
+    <owl:ObjectProperty rdf:ID="accessedAttribute">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#accessedEntity"/>
+        <rdfs:domain rdf:resource="#AccessAttributeAction"/> 
+        <rdfs:range rdf:resource="http://ontology.ihmc.us/Attribute.owl#Attribute"/> 
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="touchedEntity">
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#accessedEntity"/>
+        <rdfs:domain rdf:resource="#ChangeAttributeAction"/> 
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="changedAttribute">
+        <rdfs:subPropertyOf rdf:resource="#accessedAttribute"/>
+        <rdfs:domain rdf:resource="#ChangeAttributeAction"/>  
+    </owl:ObjectProperty>
+
+    <owl:DatatypeProperty rdf:ID="hasNewValue">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#hasContext"/>
+        <rdfs:domain rdf:resource="#ChangeAttributeAction"/>
+    </owl:DatatypeProperty>
+
+<!-- Section with class definitions--> 
+
+    <owl:Class rdf:ID="AccessAttributeAction">
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#AccessAction"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="ChangeAttributeAction">
+        <rdfs:subClassOf rdf:resource="#AccessAttributeAction"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="DiscloseAttributeAction">
+        <rdfs:subClassOf rdf:resource="#AccessAttributeAction"/>
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#CommunicationAction"/>
+    </owl:Class>
+
+</rdf:RDF>

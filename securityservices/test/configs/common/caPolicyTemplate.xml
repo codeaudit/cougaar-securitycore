@@ -1,12 +1,11 @@
   <!-- Configuration of Certificate Authority
        The name should be the distinguished name of the X509 certificate -->
   <policy name="CertAuthority" type="certificateAuthorityPolicy">
-    <certificateAuthority name="$[distinguishedName]">
-      <!-- Alias of CA private key in the keystore (RSA encryption) -->
-      <distinguishedName>$[distinguishedName]</distinguishedName>
-      <!-- Certificate directory service for certificate storage -->
-      <ldapURL>$[ldapURL]</ldapURL>
-
+    <certificateAuthority name="$|distinguishedName|">
+      <!-- distinuishedName = Alias of CA private key in the keystore (RSA encryption) -->
+      <distinguishedName>$|distinguishedName|</distinguishedName>
+      <!-- ldapURL = Certificate directory service for certificate storage -->
+      <ldapURL></ldapURL>
       <ldapPrincipal>cn=manager, dc=cougaar, dc=org</ldapPrincipal>
       <ldapCredential>secret</ldapCredential>
 

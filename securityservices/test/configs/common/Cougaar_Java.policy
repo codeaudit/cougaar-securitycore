@@ -414,9 +414,13 @@ grant signedBy "privileged" {
 	// Allows to listen on un-privileged ports
 	permission java.net.SocketPermission "localhost:1024-", "listen";
 	// Allows to listen on un-privileged ports
-	permission java.net.SocketPermission "*:1024-", "accept";
+        //   The []'s indicate ipv6 addresses - many systems don't need this
+        permission java.net.SocketPermission "*:1024-", "accept";
+	permission java.net.SocketPermission "[*]:1024-", "accept";
 	// Allows to establish a connection to any remote host
+        //   The []'s indicate ipv6 addresses - many systems don't need this
 	permission java.net.SocketPermission "*:1-", "connect,resolve";
+	permission java.net.SocketPermission "[*]:1-", "connect,resolve";
 
 	/////////////////////////////////////////////////
 	// System properties that are not granted by the default Java policy
@@ -703,7 +707,9 @@ grant signedBy "unprivileged" {
 	// should probably be specifically defined for PSPs and LDMs.
 	permission java.net.SocketPermission "localhost:1024-", "listen";
 	// Allows to listen on un-privileged ports
+        //   The []'s indicate ipv6 addresses - many systems don't need this
 	permission java.net.SocketPermission "*:1024-", "accept,connect";
+	permission java.net.SocketPermission "[*]:1024-", "accept,connect";
 
 	/////////////////////////////////////////////////
 	// AWT Permissions

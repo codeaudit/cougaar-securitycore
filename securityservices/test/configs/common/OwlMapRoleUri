@@ -12,8 +12,8 @@
 #
 # The ROLE format is of the follow:
 #
-# http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#<role-name>
+# http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#<role-name>
 #
-/$*/tasks http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAllRole
-/$*/editOplan http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAllRole
-/$testBBPolicyAgent/OrgActivityAdd http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAddRole
+/$*/tasks http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAllRole
+/$*/editOplan http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAllRole
+/$testBBPolicyAgent/OrgActivityAdd http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAddRole

@@ -1,0 +1,90 @@
+# Component-Role mapping is used by the Blackboard Authorization components.
+# Component-Role mapping format:
+#
+# <COMPONENT> <ROLE>
+#
+# The COMPONENT format MUST be one of the two:
+#
+#   org.cougaar.core.security - all classes under this package
+#   org.cougaar.core.security.plugins.AnalyzeFailures - only this class
+#
+# The ROLE format is of the follow:
+#
+# http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#<role-name>
+#
+
+
+safe.policyManager.PolicyAdminServletComponent http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#PolicyServletRole
+
+#org.cougaar http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryNoReadRole
+org.cougaar.logistics.plugin.strattrans.StrategicTransportProjectorPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAddRole
+org.cougaar.logistics.plugin.strattrans.StrategicTransportProjectorPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.glm.plugins.projection.SupplyProjectionPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole 
+org.cougaar.logistics.plugin.demand.DemandForecastPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.logistics.plugin.inventory.LogisticsOPlanPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityChangeRole
+org.cougaar.logistics.plugin.inventory.LogisticsOPlanPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.glm.plugins.projection.SupplyProjectionPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole 
+org.cougaar.mlm.construction.ConstructionProjectionPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.mlm.construction.ConstructionInventoryPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole 
+org.cougaar.glm.plugins.OplanObserverPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.mlm.construction.DTConstructionExpanderPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.mlm.plugin.ldm.GetOplanPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole 
+org.cougaar.mlm.plugin.ldm.GetOplanPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityRemoveRole
+org.cougaar.mlm.plugin.ldm.OplanReaderPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAllRole
+org.cougaar.mlm.plugin.ldm.SQLOplanPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAllRole
+org.cougaar.mlm.plugin.sample.ModifyOrgActivityGUIPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole 
+org.cougaar.mlm.plugin.sample.ModifyOrgActivityGUIPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityChangeRole
+org.cougaar.mlm.plugin.sample.StrategicTransportProjectorPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityChangeRole
+org.cougaar.mlm.plugin.sample.StrategicTransportProjectorPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardAddPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardAddPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAddRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardModifyPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardModifyPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityChangeRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardDeletePlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardDeletePlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityRemoveRole
+org.cougaar.core.security.test.blackboard.BlackboardTestManagerServlet http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAllRole
+org.cougaar.core.security.test.blackboard.MaliciousBlackboardDeletePlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.MaliciousBlackboardModifyPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.MaliciousBlackboardAddPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardSubscribePlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+#org.cougaar.core.security.test.OrgActivityAddTest http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAddRole
+#org.cougaar.core.security.test.OrgActivityAddTest http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+#org.cougaar.core.security.test.OrgActivityChangeTest http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityChangeRole
+#org.cougaar.core.security.test.OrgActivityChangeTest http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+#org.cougaar.core.security.test.OrgActivityRemoveTest http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityRemoveRole
+#org.cougaar.core.security.test.OrgActivityRemoveTest http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+
+# Beth says this component is needed
+org.cougaar.logistics.plugin.demand.DemandGeneratorPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+# Beth says this component is needed
+org.cougaar.logistics.plugin.inventory.InventoryPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+
+#This one should not need:
+org.cougaar.logistics.ldm.MEIPrototypeProvider http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+# Do not know about those components:
+org.cougaar.servicediscovery.plugin.MatchmakerStubPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.servicediscovery.plugin.LineagePlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.mlm.plugin.generic.GenericTablePlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.mlm.plugin.organization.OrgReportPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.mlm.plugin.organization.GLSExpanderPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+
+org.cougaar.logistics.plugin.servicediscovery.ALRegistrationPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+#  (needed by the super class)
+org.cougaar.logistics.plugin.servicediscovery.ALProviderPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+#  (needed by the super class)
+org.cougaar.logistics.plugin.servicediscovery.ALDynamicSDClientPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+#  (needed by the super class)
+
+org.cougaar.logistics.plugin.policy.LogisticsPolicyManagerPlugin  http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+
+org.cougaar.mlm.plugin.organization.GLSAllocatorPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.tools.csmart.plugins.oplan.OPlanDetector http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.mlm.plugin.generic.PropagationPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.lib.aggagent.plugin.RemoteSubscriptionPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.core.mobility.service.RedirectMovePlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+org.cougaar.logistics.ldm.ClassIConsumerPrototypeProvider http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+
+# Components that have a broken predicate:
+org.cougaar.community.CommunityPlugin http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityQueryRole
+

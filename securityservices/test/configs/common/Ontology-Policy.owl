@@ -1,0 +1,141 @@
+<?xml version='1.0'?>
+<!--OWL Language, version 08/2003-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+          xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns="http://ontology.ihmc.us/Policy.owl#">
+    
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo>
+            $ http://ontology.ihmc.us/Policy.owl $
+        </owl:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Action.owl"/>
+    </owl:Ontology>
+
+<!--Section with property definitions--> 
+
+    <owl:DatatypeProperty rdf:ID="hasName">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/> 
+    </owl:DatatypeProperty>
+
+    <owl:ObjectProperty rdf:ID="controls">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="condition">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="trigger">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#PosObligationPolicy"/>
+        <rdfs:range>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdfs:Class rdf:about="http://www.w3.org/2002/07/owl#Class"/>
+                    <owl:Class rdf:about="http://ontology.ihmc.us/Action.owl#Action"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:range>
+    </owl:ObjectProperty>
+        
+    <owl:ObjectProperty rdf:ID="hasSiteOfEnforcement">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="#SiteOfEnforcement"/>
+    </owl:ObjectProperty>
+
+    <owl:DatatypeProperty rdf:ID="hasPriority">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:ID="hasUpdateTimeStamp">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:ID="hasDescription">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/> 
+    </owl:DatatypeProperty>
+
+<!--Section with class definitions--> 
+
+    <owl:Class rdf:ID="Policy"/>
+    
+    <owl:Class rdf:ID="AuthorizationPolicy">
+        <rdfs:subClassOf rdf:resource="#Policy"/>
+    </owl:Class>
+    
+    <owl:Class rdf:ID="ObligationPolicy">
+        <rdfs:subClassOf rdf:resource="#Policy"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#Policy">
+        <owl:unionOf rdf:parseType="Collection">
+            <owl:Class rdf:about="#AuthorizationPolicy"/> 
+            <owl:Class rdf:about="#ObligationPolicy"/> 
+        </owl:unionOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="PosAuthorizationPolicy">
+        <rdfs:subClassOf rdf:resource="#AuthorizationPolicy"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="NegAuthorizationPolicy">
+        <rdfs:subClassOf rdf:resource="#AuthorizationPolicy"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#AuthorizationPolicy">
+        <owl:unionOf rdf:parseType="Collection">
+            <owl:Class rdf:about="#PosAuthorizationPolicy"/> 
+            <owl:Class rdf:about="#NegAuthorizationPolicy"/> 
+        </owl:unionOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="PosObligationPolicy">
+        <rdfs:subClassOf rdf:resource="#ObligationPolicy"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="NegObligationPolicy">
+        <rdfs:subClassOf rdf:resource="#ObligationPolicy"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#ObligationPolicy">
+        <owl:unionOf rdf:parseType="Collection">
+            <owl:Class rdf:about="#PosObligationPolicy"/> 
+            <owl:Class rdf:about="#NegObligationPolicy"/> 
+        </owl:unionOf>
+    </owl:Class>
+
+    <SiteOfEnforcement rdf:ID="ActorSite"/>
+    <SiteOfEnforcement rdf:ID="TargetSite"/>
+    <SiteOfEnforcement rdf:ID="AnySite"/>
+
+    <owl:Class rdf:ID="SiteOfEnforcement">
+        <owl:oneOf rdf:parseType="Collection">
+            <SiteOfEnforcement rdf:about="#ActorSite"/>
+            <SiteOfEnforcement rdf:about="#TargetSite"/>
+            <SiteOfEnforcement rdf:about="#AnySite"/>
+        </owl:oneOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="ConflictedPolicies">
+        <rdfs:subClassOf rdf:resource="#Policy"/>
+    </owl:Class>
+
+</rdf:RDF>

@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+<!--OWL Language, version 08/2003-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+          xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns="http://ontology.ihmc.us/Message.owl#">
+    
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo>
+            $ http://ontology.ihmc.us/Message.owl $
+        </owl:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+    </owl:Ontology>
+
+<!--Section with property definitions--> 
+
+
+<!--Section with class definitions--> 
+
+    <owl:Class rdf:ID="Message"/>
+  
+</rdf:RDF>

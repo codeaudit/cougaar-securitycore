@@ -1,0 +1,53 @@
+<?xml version='1.0'?>
+<!--OWL Language, version 08/2003-->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+	 xmlns:group="http://ontology.ihmc.us/Group.owl#"
+	 xmlns:ultralogEntity="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#"
+         xmlns="http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#">
+    
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo>
+            $ http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl $
+        </owl:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl"/>
+    </owl:Ontology>
+
+    <ultralogEntity:AuthenticationLevel rdf:ID="NoAuth"/>
+    <ultralogEntity:AuthenticationLevel rdf:ID="NoAuthSSL"/>
+    <ultralogEntity:AuthenticationLevel rdf:ID="Password"/>
+    <ultralogEntity:AuthenticationLevel rdf:ID="PasswordSSL"/>
+    <ultralogEntity:AuthenticationLevel rdf:ID="CertificateSSL"/>
+ 
+    <ultralogEntity:AuditLevel rdf:ID="NoAudit"/>
+
+    <ultralogEntity:ProtectionLevel rdf:ID="NSAApprovedProtection"/>
+    <ultralogEntity:ProtectionLevel rdf:ID="SecretProtection"/>
+    <ultralogEntity:ProtectionLevel rdf:ID="WeakProtection"/>
+
+
+    <!--           ****Temporary Hack****                             -->
+    <!--Sadly this file is scanned by a method that is looking for    -->
+    <!--strings to match the following declarations.  This routine is -->
+    <!--not very intelligent.  So be careful with formatting.         -->
+
+
+    <ultralogEntity:ULContentValue rdf:ID="NoVerb"/>
+    <ultralogEntity:ULContentValue rdf:ID="OtherVerb"/>
+
+    <ultralogEntity:BlackBoardObjects rdf:ID="otherBlackboardObjects"/>
+
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessAdd" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessRemove" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessChange" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessQuery" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessRead" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessWrite" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessCreate" />
+
+
+</rdf:RDF>

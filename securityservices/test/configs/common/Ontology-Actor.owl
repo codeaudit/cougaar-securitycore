@@ -1,0 +1,122 @@
+<?xml version='1.0'?>
+<!--OWL Language, version 08/2003-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+          xmlns:owl="http://www.w3.org/2002/07/owl#" 
+         xmlns="http://ontology.ihmc.us/Actor.owl#">
+    
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo>
+            $ http://ontology.ihmc.us/Actor.owl $
+        </owl:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Entity.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Place.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Group.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Action.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Policy.owl"/>
+    </owl:Ontology>
+
+<!--Section with property definitions--> 
+
+    <owl:DatatypeProperty rdf:ID="hasName">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Actor"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/> 
+    </owl:DatatypeProperty>
+
+    <owl:ObjectProperty rdf:ID="guards">
+        <rdfs:domain rdf:resource="#Guard"/>
+        <rdfs:range rdf:resource="#Agent"/> 
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="isGuarded">
+        <owl:inverseOf rdf:resource="#guards"/>
+        <rdfs:domain rdf:resource="#Agent"/>
+        <rdfs:range rdf:resource="#Guard"/> 
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="capableOfPerforming">
+        <rdfs:domain rdf:resource="#Actor"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2002/07/owl#Class"/> 
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="controlledBy">
+        <rdfs:domain rdf:resource="#Actor"/>
+        <rdfs:range rdf:resource="http://ontology.ihmc.us/Policy.owl#Policy"/> 
+    </owl:ObjectProperty>
+
+<!--Section with class definitions--> 
+
+    <owl:Class rdf:ID="Actor">
+        <rdfs:comment>
+            It is an entiry capable of performing (initiating) an action; because of that it is a subject of policies.
+        </rdfs:comment>
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#Entity"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="NaturalActor">
+        <rdfs:subClassOf rdf:resource="#Actor"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://ontology.ihmc.us/Place.owl#hasPlace"/>
+                <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Place.owl#PhysicalPlace"/>
+             </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Person">
+        <rdfs:subClassOf rdf:resource="#NaturalActor"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Human">
+        <rdfs:subClassOf rdf:resource="#Person"/>
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#PhysicalEntity"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="ArtificialActor">
+        <rdfs:subClassOf rdf:resource="#Actor"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="HardwareActor">
+        <rdfs:subClassOf rdf:resource="#ArtificialActor"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://ontology.ihmc.us/Place.owl#hasPlace"/>
+                <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Place.owl#PhysicalPlace"/>
+             </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Robot">
+        <rdfs:subClassOf rdf:resource="#HardwareActor"/>
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#PhysicalEntity"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="SoftwareActor">
+        <rdfs:subClassOf rdf:resource="#ArtificialActor"/>
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#ComputingEntity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://ontology.ihmc.us/Place.owl#hasPlace"/>
+                <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Place.owl#ComputationalPlace"/>
+             </owl:Restriction>
+         </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Agent">
+        <rdfs:subClassOf rdf:resource="#SoftwareActor"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Guard">
+        <rdfs:subClassOf rdf:resource="#SoftwareActor"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="DomainManager">
+        <rdfs:subClassOf rdf:resource="#SoftwareActor"/>
+    </owl:Class>
+
+</rdf:RDF>

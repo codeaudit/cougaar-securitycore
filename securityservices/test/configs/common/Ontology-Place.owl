@@ -1,0 +1,140 @@
+<?xml version='1.0'?>
+<!--OWL Language, version 08/2003-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+          xmlns:owl="http://www.w3.org/2002/07/owl#" 
+         xmlns="http://ontolgy.coginst.uwf.edu/Place.owl#">
+    
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo>
+            $ http://ontolgy.coginst.uwf.edu/Place.owl $
+        </owl:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Group.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Entity.owl"/>
+    </owl:Ontology>
+
+<!--Section with property definitions--> 
+
+    <owl:TransitiveProperty rdf:ID="encompasses">
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Group.owl#hasMember"/>
+        <rdfs:domain rdf:resource="#Place"/>
+        <rdfs:range rdf:resource="#Place"/> 
+    </owl:TransitiveProperty>
+
+    <owl:TransitiveProperty rdf:ID="isEncompassedBy">
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Group.owl#isMemberOf"/>
+        <owl:inverseOf rdf:resource="#encompasses"/>
+        <rdfs:domain rdf:resource="#Place"/>
+        <rdfs:range rdf:resource="#Place"/> 
+    </owl:TransitiveProperty>
+
+    <owl:ObjectProperty rdf:ID="connects">
+        <rdfs:domain rdf:resource="#Link"/>
+        <rdfs:range rdf:resource="#Place"/> 
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="hasAddress">
+        <rdfs:domain rdf:resource="#Place"/>
+        <rdfs:range rdf:resource="#Address"/> 
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="hasPlace">
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Group.owl#isMemberOf"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdfs:domain rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+        <rdfs:range rdf:resource="#Place"/> 
+    </owl:ObjectProperty>
+
+<!--Section with class definitions--> 
+
+    <owl:Class rdf:ID="Place">
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Group.owl#Group"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Address">
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#LogicalEntity"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Link">
+        <rdfs:subClassOf rdf:resource="#Place"/>
+        <rdfs:subClassOf>
+            <owl:Restriction owl:cardinality="2">
+                <owl:onProperty rdf:resource="#connects"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="ComputationalPlace">
+        <rdfs:subClassOf rdf:resource="#Place"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="UnknownComputationalPlace">
+        <rdfs:subClassOf rdf:resource="#ComputationalPlace"/>
+    </owl:Class>
+    
+    <owl:Class rdf:ID="Host">
+        <rdfs:subClassOf rdf:resource="#ComputationalPlace"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#encompasses"/>
+                <owl:allValuesFrom>
+                    <owl:Class>
+                        <owl:unionOf rdf:parseType="Collection">
+                            <owl:Class rdf:about="#SystemEnvironmentGroup"/> 
+                            <owl:Class rdf:about="#SystemEnvironment"/> 
+                            <owl:Class rdf:about="#VirtualMachineGroup"/> 
+                            <owl:Class rdf:about="#VirtualMachine"/> 
+                            <owl:Class rdf:about="#ContainerGroup"/>
+                            <owl:Class rdf:about="#Container"/>
+                        </owl:unionOf>
+                    </owl:Class>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="SystemEnvironment">
+        <rdfs:subClassOf rdf:resource="#ComputationalPlace"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#encompasses"/>
+                <owl:allValuesFrom>
+                    <owl:Class>
+                        <owl:unionOf rdf:parseType="Collection">
+                            <owl:Class rdf:about="#VirtualMachineGroup"/> 
+                            <owl:Class rdf:about="#VirtualMachine"/> 
+                            <owl:Class rdf:about="#ContainerGroup"/>
+                            <owl:Class rdf:about="#Container"/>
+                        </owl:unionOf>
+                    </owl:Class>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="VirtualMachine">
+        <rdfs:subClassOf rdf:resource="#ComputationalPlace"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#encompasses"/>
+                <owl:allValuesFrom>
+                    <owl:Class>
+                        <owl:unionOf rdf:parseType="Collection">
+                            <owl:Class rdf:about="#ContainerGroup"/>
+                            <owl:Class rdf:about="#Container"/>
+                        </owl:unionOf>
+                    </owl:Class>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Container">
+        <rdfs:subClassOf rdf:resource="#ComputationalPlace"/>
+    </owl:Class>
+   
+</rdf:RDF>

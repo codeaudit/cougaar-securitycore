@@ -192,6 +192,12 @@ java.Djava.security.policy=/mnt/shared/integ/configs/security/Cougaar_Java.polic
 # Use Java security manager
 org.cougaar.core.security.useSecurityManager=true
 
+#
+# needed by the new jena
+#
+java.io.tmpdir=$COUGAAR_INSTALL_PATH/workspace
+
+
 # This property specifies whether to use the authenticated class loader or
 # the legacy class loader
 org.cougaar.core.security.useAuthenticatedLoader=true
