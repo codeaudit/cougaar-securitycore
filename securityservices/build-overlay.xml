@@ -88,13 +88,14 @@
 			</fileset>
 			<fileset dir="${configs}/common">
 				<include name="*"/>
+					<exclude name="**/Linux.props"/>
 			</fileset>
 		</copy>
 		<copy todir="staging/configs">
 			<fileset dir="${configs}">
 				<patternset>
 					<include name="small-135/*"/>
-					<exclude name="**/CVS/**"/>
+					<exclude name="**/CVS/**,**/Linux.props"/>
 				</patternset>
 			</fileset>
 		</copy>
