@@ -149,8 +149,17 @@ recipeQueryForTestSensorAgent=\
     AND C.COMPONENT_NAME = 'TestSensorAgent'
 
 # AGG-Agent query and NOT AGG-agent Query
+# The society security manager and the enclave security managers are also agg-agents
 recipeQueryAGGAgent=\
- SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME='AGG-Agent'
+  SELECT C.COMPONENT_ALIB_ID \
+  FROM alib_component C, asb_component_hierarchy H \
+  WHERE (C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID like '%SecurityMnRManager' \
+          AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+          AND H.ASSEMBLY_ID :assembly_match:) \
+         OR ( COMPONENT_TYPE = 'agent' AND COMPONENT_NAME='AGG-Agent' )
+
+#recipeQueryAGGAgent=\
+# SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME='AGG-Agent'
 
 # Both "Agg-agent" and the UofM manager are aggregators
 # The old query was excluding the security managers. However, they also have sensors, so they need to be
