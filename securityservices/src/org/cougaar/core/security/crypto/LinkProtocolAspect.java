@@ -26,11 +26,14 @@
 
 package org.cougaar.core.security.crypto;
 
+import java.security.PrivilegedAction;
+import java.security.AccessController;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.mts.base.DestinationLink;
 import org.cougaar.mts.base.DestinationLinkDelegateImplBase;
-import org.cougaar.mts.base.LoopbackLinkProtocol;
-import org.cougaar.mts.std.SSLRMILinkProtocol;
 import org.cougaar.mts.base.RMILinkProtocol;
 import org.cougaar.mts.base.StandardAspect;
 import org.cougaar.mts.std.AttributedMessage;
@@ -50,11 +53,29 @@ import org.cougaar.mts.std.AttributedMessage;
 public class LinkProtocolAspect
   extends StandardAspect
 {
+  private static final String HTTP_PROTOCOL
+    = "org.cougaar.core.security.mts.HTTPLinkProtocol";
+  private static final int COST_DELTA = 2000;
   private LoggingService _log;
+  private CryptoPolicyService _cps;
+
+
   public void load() {
     super.load();
-    _log = (LoggingService)
-      getServiceBroker().getService(this, LoggingService.class, null);
+    final ServiceBroker sb = getServiceBroker();
+    _log = (LoggingService) sb.getService(this, LoggingService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          _cps = (CryptoPolicyService) 
+            sb.getService(this, CryptoPolicyService.class, null);
+          return null;
+        }
+      });
+    if (_cps == null) {
+      _log.error("Unable to get crypto policy service");
+      throw new RuntimeException("No crypto policy service");
+    }
+    _log.debug("load completed");
   }
 
   public Object getDelegate(Object delegatee, Class type) {
@@ -64,19 +85,6 @@ public class LinkProtocolAspect
     }
     if (type == DestinationLink.class) {
       DestinationLink link = (DestinationLink) delegatee;
-      return new ProtectedDestinationLink(link);
-    } else {
-      return null;
-    }
-  }
-
-  public Object getReverseDelegate(Object object, Class type) {
-    if (_log.isDebugEnabled()) {
-      _log.debug("ReverseDelegate " + object
-                 + " type " + type.getName());
-    }
-    if (type == DestinationLink.class) {
-      DestinationLink link = (DestinationLink) object;
       return new ProtectedDestinationLink(link);
     } else {
       return null;
@@ -97,45 +105,30 @@ public class LinkProtocolAspect
      * given message via the associated transport. Only called during
      * processing of messages in DestinationQueueImpl. */
     public int cost(AttributedMessage message) {
-      int ret = 0;
-      boolean drop = false;
-      String targetAddress = message.getTarget().toAddress();
-      String originatorAddress = message.getOriginator().toAddress();
-
-      if (super.getProtocolClass().equals(LoopbackLinkProtocol.class)) {
-        ret = super.cost(message);
-      }
-      else if (super.getProtocolClass().equals(RMILinkProtocol.class)) {
-        // check policy
-      }      
-      else if (super.getProtocolClass().equals(SSLRMILinkProtocol.class)) {
-      }
-      else {
-        // HTTP?
-        ret = super.cost(message);
+      if (!super.getProtocolClass().equals(RMILinkProtocol.class)
+          && !super.getProtocolClass().getName().equals(HTTP_PROTOCOL)) {
+        return super.cost(message);
       }
 
+      int cost = super.cost(message);
+      if (cost == Integer.MAX_VALUE) { return cost; }
+
+      String source = message.getOriginator().toAddress();
+      String target = message.getTarget().toAddress();
+
+      SecureMethodParam smp = _cps.getSendPolicy(source, target);
       if (_log.isDebugEnabled()) {
-        String s = " ["
-          + originatorAddress + " -> "
-          + targetAddress + "  - cost: " + ret
-          + " - " + super.getProtocolClass().getName() + "]";
-        if (drop == true) {
-          s = "Dropping " + message + s;
-        }
-        else {
-          if (ret == Integer.MAX_VALUE) {
-            s = super.getProtocolClass().getName() +
-              " cannot send message to " + targetAddress;
-          }
-          else {
-            s = "OK" + s;
-          }
-        }
-        _log.debug(s);
+        _log.debug("Policy = " + smp);
       }
-      return ret;
-    }
 
+      if (smp.secureMethod != SecureMethodParam.PLAIN) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Boosting cost by " + COST_DELTA);
+        }
+        return cost + COST_DELTA;
+      } else {
+        return cost;
+      }
+    }      
   }
 }
