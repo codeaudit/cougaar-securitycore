@@ -74,11 +74,6 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
   //private EventHolder eventholder=null;
   private Condition sensorCondition;
   private int numberOfEvents = 0;
-  private OperatingMode dummyOP = null;
-  private static final String DUMMY_OP =
-    "org.cougaar.core.security.monitoring.DUMMY_OP";
-  private static final OMCRangeList DUMMY_OP_RANGE =
-      new OMCRangeList(new OMCThruRange(1.0, Double.MAX_VALUE ));
   private SensorInfo m_sensorInfo;
   private final  String[] CLASSIFICATIONS = {IdmefClassifications.SECURITY_MANAGER_EXCEPTION,IdmefClassifications.JAR_VERIFICATION_FAILURE};
   private boolean openTransaction=false; 
@@ -89,23 +84,11 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
     // For test purposes
     
     super.setupSubscriptions();
-    /* Fix for nested open transaction
-       openTransaction=true;
-     */
     sensorCondition = new BootstrapEventCondition(numberOfEvents);
     m_blackboard.publishAdd(sensorCondition);
 
     registerforEvents();
    
-    // Dummy operating mode
-    dummyOP = new OperatingModeImpl(DUMMY_OP, 
-				    DUMMY_OP_RANGE, 
-				    new Double(5));
-    m_blackboard.publishAdd(dummyOP);
-    /*
-      Fix for nested open transaction
-      openTransaction=false;
-    */
   }
   
   protected void execute() {
