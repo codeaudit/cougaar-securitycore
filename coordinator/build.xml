@@ -125,20 +125,17 @@
         <echo message="+++++ Built jar files"/>
     </target>
 
-<!-- 
     <target name="jar-configs">
         <echo message="+++++ Building configuration jar files"/>
         <jar jarfile="${securityservices.classes}/configs_${project.name}.jar" 
             basedir="${securityservices.configs}"
-            includes="security/*.xml,
-          	   security/*.dtd,
-        	   security/*.conf"/>
+            includes="coordinator/AgentCompromise/*.xml,
+        	   coordinator/ThreatCon/*.xml"/>
         <echo message="+++++ Built configuration jar files"/>
     </target>
--->
     
     <!-- sign security services -->
-    <target name="sign-jars" depends="jar-securityservices">
+    <target name="sign-jars" depends="jar-securityservices, jar-configs">
         <echo message="+++++ Signing jar files"/>
         <signjar jar="${securityservices.classes}/${project.name}.jar" alias="securitymodule"
             signedjar="${securityservices.signed}/${project.name}.jar"
@@ -147,12 +144,10 @@
         <signjar jar="${securityservices.signed}/${project.name}.jar" alias="privileged"
             keystore="${securityservices.configs}/sign-jars/signingCA_keystore"
             storepass="keystore" verbose="false"/>
-    <!--	
         <signjar jar="${securityservices.classes}/configs_${project.name}.jar" alias="privileged" 
             signedjar="${securityservices.signed}/configs_${project.name}.jar"
             keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
-    -->
         <echo message="+++++ Signed jar files"/>
     </target>
     
@@ -176,18 +171,18 @@
     <target name="install-conf" depends="install-signed-jars">
         <echo message="+++++ Generating ZIP files"/>
   	    <mkdir dir="${securityservices.staging}/Manifest"/>
-<!--
      	<mkdir dir="${securityservices.staging}/configs/security"/>
-        <copy todir="${securityservices.staging}/configs/security">
+<!--
+        <copy todir="${securityservices.staging}/configs">
           <fileset dir="${securityservices.configs}/security">
              <patternset>
                 <include name="*"/>
              </patternset>
           </fileset>
         </copy>
+-->
         <copy file="${securityservices.signed}/configs_${project.name}.jar" 
           todir="${securityservices.staging}/configs/security"/>
--->
   	<mkdir dir="${securityservices.staging}/csmart/config/rules/security/coordinator"/>
         <copy todir="${securityservices.staging}/csmart/config/rules/security/coordinator">
             <fileset dir="${securityservices.configs}/rules">
