@@ -13,6 +13,9 @@ ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -f ${COUGAAR_SECURITY_SERVICES}/t
 
 rm -f $COUGAAR_INSTALL_PATH/configs/small-135/keystore-*
 rm -rf $COUGAAR_INSTALL_PATH/configs/small-135/Crypto-*
-rm -rf $COUGAAR_INSTALL_PATH/workspace
+
+# Remove node keystores (except CA keystore)
+rm -rf $COUGAAR_INSTALL_PATH/workspace/security/keystores/I*
+rm -rf $COUGAAR_INSTALL_PATH/workspace/security/keystores/T*
 
 cp $COUGAAR_INSTALL_PATH/configs/common/BootPolicy-plain.ldm.xml $COUGAAR_INSTALL_PATH/configs/common/BootPolicy.ldm.xml

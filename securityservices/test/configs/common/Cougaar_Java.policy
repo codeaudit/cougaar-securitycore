@@ -262,6 +262,7 @@ grant signedBy "privileged" {
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.provider";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.net";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.misc";
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.beans.infos";
 
 
 	///////////////////////////////////////////////////
