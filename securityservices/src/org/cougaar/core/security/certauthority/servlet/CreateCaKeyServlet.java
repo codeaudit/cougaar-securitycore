@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.certauthority.servlet;
@@ -96,6 +96,7 @@ public class CreateCaKeyServlet
     String validity = (String)req.getParameter("Validity");
     String requirePending = (String)req.getParameter("RequirePending");
     String keySize = (String)req.getParameter("KeySize");
+    String nodeIsSigner = (String)req.getParameter("nodeIsSigner");
 
     String caDN = "cn=" + caCN
       + ", ou=" + caOU
@@ -115,6 +116,7 @@ public class CreateCaKeyServlet
     attributeTable.put("keysize", keySize);
     attributeTable.put("validity", validity);
     attributeTable.put("requirePending", requirePending);
+    attributeTable.put("nodeIsSigner", nodeIsSigner);
 
     PrintWriter out=res.getWriter();
     try {
@@ -163,8 +165,8 @@ public class CreateCaKeyServlet
     PolicyHandler ph = new PolicyHandler(configParser);
     ph.addCaPolicy(attributeTable);
   }
-  
-  private void doCaForm(HttpServletRequest req,HttpServletResponse res) 
+
+  private void doCaForm(HttpServletRequest req,HttpServletResponse res)
     throws ServletException, IOException  {
     res.setContentType("Text/HTML");
     PrintWriter out=res.getWriter();
@@ -233,6 +235,12 @@ public class CreateCaKeyServlet
     out.println("WARNING: \"false\" should be used for test purposes only");
     out.println("</i></td>");
 
+    out.println("<tr><td>");
+    out.println("Node is signer:</td><td><input name=\"nodeIsSigner\" type=\"text\" value=\"true\"></td>");
+    out.println("<td><i>true: the administrator allows node to sign agent certificates.<br>");
+    out.println("false: Agent certificates are signed by the CA.");
+    out.println("</i></td>");
+
     out.println("<br></tr><br>");
 
     out.println("<br><input type=\"submit\">&nbsp;&nbsp;&nbsp;");
@@ -262,9 +270,9 @@ public class CreateCaKeyServlet
       doCaForm(req, res);
     }
   }
-  
+
   public String getServletInfo()  {
     return("Generate a CA key");
   }
-  
+
 }
