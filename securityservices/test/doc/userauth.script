@@ -1,0 +1,58 @@
+#!/bin/tcsh
+
+# the path where the lib and sys files located, also to create workspace files
+# default to COUGAAR_INSTALL_PATH here
+set APP_INSTALL_PATH=$COUGAAR_INSTALL_PATH
+
+# enter the application name here
+set node="your application name"
+
+##########################################
+
+# required files
+set APPLIBPATHS="${APP_INSTALL_PATH}/lib/core.jar"
+set APPLIBPATHS="${APPLIBPATHS}:${APP_INSTALL_PATH}/lib/util.jar"
+set APPLIBPATHS="${APPLIBPATHS}:${APP_INSTALL_PATH}/lib/bootstrap.jar:$APP_INSTALL_PATH/lib/securebootstrapper.jar"
+set APPLIBPATHS="${APPLIBPATHS}:${APP_INSTALL_PATH}/lib/CougaarCRLextensions.jar"
+set APPLIBPATHS="${APPLIBPATHS}:${APP_INSTALL_PATH}/lib/securityservices.jar"
+set APPLIBPATHS="${APPLIBPATHS}:${APP_INSTALL_PATH}/sys/log4j.jar"
+set APPLIBPATHS="${APPLIBPATHS}:${APP_INSTALL_PATH}/sys/xerces.jar"
+set APPLIBPATHS="${APPLIBPATHS}:${APP_INSTALL_PATH}/sys/ibmpkcs.jar"
+set APPLIBPATHS="${APPLIBPATHS}:${APP_INSTALL_PATH}/sys/servlet.jar"
+
+# environment parameters
+set MYDOMAINS=""
+if (! $?COUGAAR3RDPARTY) then
+    setenv COUGAAR3RDPARTY /opt/cougaar-jars
+endif
+
+set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$APP_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.cluster.startTime=08/10/2005 -Dorg.cougaar.domain.planning.ldm.lps.ComplainingLP.level=0 -Dorg.cougaar.core.cluster.SharedPlugInManager.watching=false"
+# cryptoPolicy file, default is the local directory
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
+# workspace to create directory to store keystore, default below
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace=$APP_INSTALL_PATH/workspace"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=$node"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.standalone=true"
+
+# Logger
+# Logger is turnt off, it can be turnt on for debugging
+# rm -f $node.log
+# set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
+# set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=${node}.log"
+
+set MYMEMORY=""
+
+set javaargs="$MYPROPERTIES $MYMEMORY -classpath ${APPLIBPATHS} "
+
+
+# Application initialization
+set execclass="YourExecClass[full path]"
+set args='Your application arguments'
+
+# Keystore password is modifiable, need to be the same as
+# specified in cryptoPolicy.xml above.
+exec java $javaargs \
+	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
+	${execclass} $args
+
