@@ -91,6 +91,11 @@ public class JaasPluginBinder
     }
     _scs = (SecurityContextService)
       sb.getService(this, SecurityContextService.class, null);
+    if (_scs == null) {
+      if (_log.isErrorEnabled()) {
+        _log.error("Unable to get SecurityContextService");
+      }
+    }
     AgentIdentificationService ais = (AgentIdentificationService)
       sb.getService(this, AgentIdentificationService.class, null);
     _agent = ais.getMessageAddress();
