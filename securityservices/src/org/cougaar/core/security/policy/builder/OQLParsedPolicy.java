@@ -35,6 +35,7 @@ import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.ontology.vocabulary.ActionConcepts;
 import kaos.ontology.vocabulary.ActorConcepts;
+import kaos.ontology.vocabulary.PolicyConstants;
 import kaos.policy.util.KAoSPolicyBuilderImpl;
 
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
@@ -47,14 +48,16 @@ public class OQLParsedPolicy
 {
   String   _userClass;
   String   _privilege;
-  Set      _dataSources;
+  Set      _dataSets;
+  String   _dataSource;
 
   public OQLParsedPolicy(String  policyName,
                           int     priority,
                           boolean modality,
                           String  userRole,
                           String  privilege,
-                          Set     dataSources)
+                          Set     dataSets,
+                          String  dataSource)
     throws PolicyCompilerException
   {
     super(policyName, 
@@ -65,22 +68,23 @@ public class OQLParsedPolicy
 
     _description = (modality ? "Allow" : "Deny") + 
                      " users in the role " + userRole + " access to the " +
-                     (dataSources.size() ==1 ? "data source " : "data sources ");
-    _dataSources = new HashSet();
+                     (dataSets.size() ==1 ? "data set " : "data sets ");
+    _dataSets = new HashSet();
     boolean firstTime = true;
-    for (Iterator dataIt = dataSources.iterator();
+    for (Iterator dataIt = dataSets.iterator();
          dataIt.hasNext();) {
-      String dataSource = (String) dataIt.next();
+      String dataSet = (String) dataIt.next();
       if (firstTime) {
         firstTime = false;
       } else {
         _description = _description + ", ";
       }
-      _description = _description + dataSource;
-      _dataSources.add(ULOntologyNames.oqlDataSourcePrefix + dataSource);
+      _description = _description + dataSet;
+      _dataSets.add(ULOntologyNames.oqlDataSetPrefix + dataSet);
     }
     _userClass   = ULOntologyNames.oqlRolePrefix + userRole;
     _privilege   = ULOntologyNames.oqlPrivPrefix + privilege;
+    _dataSource  = ULOntologyNames.oqlDataSourcePrefix + dataSource;
   }
 
 
@@ -91,22 +95,30 @@ public class OQLParsedPolicy
       ontology.verifyInstanceOf(_userClass, ActorConcepts.Person());
       ontology.verifyInstanceOf(_privilege, 
                                  UltralogEntityConcepts.OQLPrivilege);
-      for (Iterator dataIt = _dataSources.iterator(); dataIt.hasNext();) {
+      for (Iterator dataIt = _dataSets.iterator(); dataIt.hasNext();) {
         String data = (String) dataIt.next();
-        ontology.verifyInstanceOf(data, UltralogEntityConcepts.OQLDataSource);
+        ontology.verifyInstanceOf(data, UltralogEntityConcepts.OQLDataSet);
       }
+      ontology.verifyInstanceOf(_dataSource, 
+                                UltralogEntityConcepts.OQLDataSource);
 
       initiateBuildPolicy(ontology);
 
       _controls.addPropertyRangeInstance(
                             UltralogActionConcepts.oqlHasPrivilege,
                             _privilege);
-      for (Iterator dataIt = _dataSources.iterator(); dataIt.hasNext();) {
+      for (Iterator dataIt = _dataSets.iterator(); dataIt.hasNext();) {
         String data = (String) dataIt.next();
         _controls.addPropertyRangeInstance(
-                           UltralogActionConcepts.oqlHasDataSource,
-                           data);
+                           UltralogActionConcepts.oqlHasDataSet,
+                           data,
+                           getAuthModality() ? 
+                           PolicyConstants._toClassRestriction :
+                           PolicyConstants._hasClassRestriction);
       }
+      _controls.addPropertyRangeInstance(
+                           UltralogActionConcepts.oqlHasDataSource,
+                           _dataSource);
 
       return _pb;
     } catch (RangeIsBasedOnAClass e) {
