@@ -108,9 +108,8 @@ public class CrlRelay
     return SimpleRelayFactory.INSTANCE;
   }
 
-  public int updateResponse(
-      MessageAddress t, Object response) {
-    // assert response != null
+  public int updateResponse( MessageAddress t, Object response) {
+    
     if (!(response.equals(this.response))) {
       this.response = response;
       return Relay.RESPONSE_CHANGE;
