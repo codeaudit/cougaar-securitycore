@@ -73,6 +73,7 @@ import edu.jhuapl.idmef.AdditionalData;
 // Cougaar security infrastructure
 import org.cougaar.core.security.acl.auth.DualAuthenticator;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
+import org.cougaar.core.security.monitoring.idmef.Agent;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
@@ -651,6 +652,86 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     return (_idmefFactory != null);
   }
 
+  private List createClassifications() {
+    ArrayList cfs = new ArrayList();
+    cfs.add(LOGINFAILURE);
+    return cfs;
+  }
+
+  private List createSources(String remoteAddr) {
+    List addrs = new ArrayList();
+    Address addr = _idmefFactory.createAddress( remoteAddr, null,
+                                                Address.IPV4_ADDR );
+    addrs.add(addr);
+    IDMEF_Node node = _idmefFactory.createNode( null, addrs );
+
+    Source src = _idmefFactory.createSource(node, null, null, null, null);
+
+    List srcs = new ArrayList();
+    srcs.add(src);
+    return srcs;
+  }
+
+  private List createTargets(String url, int serverPort, String protocol,
+                             String userName1, String userName2) {
+    IDMEF_Node node = _idmefFactory.getNodeInfo();
+    List addrs = new ArrayList();
+    if (node.getAddresses() != null) {
+      Address[] a = node.getAddresses();
+      for (int i = 0; i < a.length; i++) {
+        addrs.add(a[i]);
+      } // end of for (int i = 0; i < a.length; i++)
+    }
+
+    addrs.add(_idmefFactory.createAddress(url, null, Address.URL_ADDR));
+    
+    node = _idmefFactory.createNode(node.getName(), addrs);
+
+    IDMEF_Process process = _idmefFactory.getProcessInfo();
+    Service service = _idmefFactory.createService("Cougaar Web Server", 
+                                                  new Integer(serverPort),
+                                                  protocol);
+      
+    User user = null;
+    List uids = new ArrayList();
+    if (userName1 != null) {
+      uids.add(_idmefFactory.createUserId( userName1 ));
+    }
+    if (userName2 != null) {
+      uids.add(_idmefFactory.createUserId( userName2 ));
+    }
+    if (uids.size() > 0) {
+      user = _idmefFactory.createUser( uids );
+    }
+    Target target = _idmefFactory.createTarget(node, user, process, service,
+                                               null, null);
+    List targets = new ArrayList();
+    targets.add(target);
+    return targets;
+  }
+  
+  private List createAdditionalData(int failureType, String targetIdent) {
+    Agent agentinfo = _idmefFactory.getAgentInfo();
+    String [] ref=null;
+    if (agentinfo.getRefIdents()!=null) {
+      String[] originalref=agentinfo.getRefIdents();
+      ref=new String[originalref.length+1];
+      System.arraycopy(originalref,0,ref,0,originalref.length);
+      ref[originalref.length] = targetIdent;
+    } else {
+      ref=new String[1];
+      ref[0] = targetIdent;
+    }
+    agentinfo.setRefIdents(ref);
+
+    AdditionalData additionalData = 
+      _idmefFactory.createAdditionalData(Agent.TARGET_MEANING, agentinfo);
+    List addData = new ArrayList();
+    addData.add(REASONS[failureType]);
+    addData.add(additionalData);
+    return addData;
+  }
+
   public void alertLoginFailure(int failureType, String userName1, 
                                 String userName2, String remoteAddr,
                                 int serverPort, String protocol,
@@ -662,69 +743,18 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
                          userName2);
       return; // can't alert without IDMEF factory
     }
-    ArrayList cfs = new ArrayList();
-    cfs.add(LOGINFAILURE);
+
+    List sources = createSources(remoteAddr);
+    List targets = createTargets(url, serverPort, protocol,
+                                 userName1, userName2);
+    List classifications = createClassifications();
+    String targetIdent = ((Target) targets.get(0)).getIdent();
+    List additionalData = createAdditionalData(failureType, targetIdent);
     Alert alert = _idmefFactory.createAlert(_sensor, new DetectTime(),
-                                            null, null, cfs, null);
+                                            sources, targets,
+                                            classifications,
+                                            additionalData);
     
-    alert.setAdditionalData(REASONS[failureType]);
-
-    // set the source
-    Source src = new Source();
-    Address addr = new Address();
-    addr.setAddress(remoteAddr);
-    IDMEF_Node node = new IDMEF_Node();
-    node.setAddresses(new Address[] { addr });
-    src.setNode(node);
-    alert.setSources(new Source[] { src });
-
-    // set the target
-    node = _idmefFactory.getNodeInfo();
-    Address addrs[];
-    if (node.getAddresses() != null) {
-      addrs = new Address[node.getAddresses().length + 1];
-      System.arraycopy(node.getAddresses(), 0, addrs, 0, addrs.length - 1);
-    } else {
-      addrs = new Address[1];
-    } // end of else
-    addrs[addrs.length - 1] = new Address(url, null, null,
-                                          Address.URL_ADDR, null, null);
-    
-    node = new IDMEF_Node(node.getLocation(), node.getName(),
-                          addrs, node.getIdent(),
-                          node.getCategory());
-
-    IDMEF_Process process = _idmefFactory.getProcessInfo();
-    Service service = new Service("Cougaar Web Server", 
-                                  new Integer(serverPort),
-                                  null, protocol, null);
-      
-    User user = null;
-    UserId uid1 = null;
-    UserId uid2 = null;
-    int uidCount = 0;
-    if (userName1 != null) {
-      uid1 = new UserId( userName1, null, null, UserId.TARGET_USER );
-      uidCount++;
-    }
-    if (userName2 != null) {
-      uid2 = new UserId( userName2, null, null, UserId.TARGET_USER );
-      uidCount++;
-    }
-    if (uidCount > 0) {
-      UserId uids[] = new UserId[uidCount];
-      if (uid2 != null) {
-        uids[--uidCount] = uid2;
-      }
-      if (uid1 != null) {
-        uids[--uidCount] = uid1;
-      }
-      user = new User( uids, null, User.UNKNOWN );
-    }
-    Target t = new Target(node, user, process, service, null, null,
-                          Target.UNKNOWN, null);
-      alert.setTargets( new Target[] {t} );
-
     NewEvent event = _cmrFactory.newEvent(alert);
     
     try {
