@@ -425,21 +425,23 @@ oqlSimplePolicy [String pn]
 returns [ParsedPolicy pp]
 throws PolicyCompilerException
 { boolean m;
-  String userSpec = null;
+  String userSpec;
+  String priv;
   Set dataSets;
+  String dataSource;
   pp = null; }
     : "Priority" EQ priority:INT COMMA  
       userSpec=oqlUser m=servletUserAccessModality 
-        priv:TOKEN "the" "sets" dataSets=tokenList 
-        "in" dataSource:TOKEN
+        priv=oqlPriv dataSets=oqlDataSets
+        dataSource=oqlDataSource
         {pp = new OQLParsedPolicy(
                 pn,
                 ParsedPolicyFile.identifierToInt(priority),
                 m,
                 userSpec,
-                ParsedPolicyFile.tokenToText(priv),
+                priv,
                 dataSets,
-                ParsedPolicyFile.tokenToText(dataSource));
+                dataSource);
             }
     ;
 
@@ -450,7 +452,29 @@ returns [String userSpec]
     | "A" "user" "in" "role" r:TOKEN 
         { userSpec = ParsedPolicyFile.tokenToText(r); }
     ;
+oqlPriv
+returns [String priv]
+{ priv = null; }
+   :  "access" 
+   | "have" privToken:TOKEN "access" "to"
+        { priv = ParsedPolicyFile.tokenToText(privToken); }
+   ;
 
+oqlDataSets
+returns [Set dataSets]
+{ dataSets = null; }
+   : "any" "data" "set" "in"
+   | "the" "sets" dataSets=tokenList "in"
+   ;
+
+
+oqlDataSource
+returns [String dataSource]
+{ dataSource = null; }
+   : "any" "data" "source"
+   | "the" "data" "source" src:TOKEN 
+        { dataSource = ParsedPolicyFile.tokenToText(src); }
+   ;
 
 /*
  * tokenList is used to represent a list of tokens.  It returns a set
