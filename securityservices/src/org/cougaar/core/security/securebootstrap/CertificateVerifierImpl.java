@@ -319,7 +319,7 @@ public class CertificateVerifierImpl
     throws CertificateExpiredException,
     CertificateNotYetValidException {
     boolean istrusted =false;
-    //  certificate.checkValidity();
+    certificate.checkValidity();
     istrusted=true;
     return istrusted;
   }  
