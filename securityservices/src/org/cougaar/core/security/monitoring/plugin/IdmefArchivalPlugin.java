@@ -48,7 +48,7 @@ import java.util.Collection;
 import java.util.Calendar;
 import java.util.Date;
 
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.File;
 import java.io.ObjectOutputStream;
 import java.io.InvalidClassException;
@@ -65,7 +65,8 @@ public class IdmefArchivalPlugin extends ComponentPlugin {
   private int _cacheSize = 100;
   private LinkedList _cache;
   private String topDir;
-  private String nodeName;
+  private String agentName;
+  private FileWriter output=null;
   
   class BBIdmefEventPredicate implements UnaryPredicate{
     public boolean execute(Object o) {
@@ -93,16 +94,31 @@ public class IdmefArchivalPlugin extends ComponentPlugin {
     _secprop = (SecurityPropertiesService) getBindingSite().getServiceBroker().getService
       (this,SecurityPropertiesService.class, null);
     createTopDirStructure();
-    
+    File f= createArchiveFile();
+    try {
+      if(f!=null){
+        output=new FileWriter(f,true);
+      }
+      else {
+        if (_log.isWarnEnabled()) {
+          _log.warn("Cannot create Archival file for Agent  "+ agentName);
+        }
+      }
+    }
+    catch (IOException ioexception) {
+      if (_log.isWarnEnabled()) {
+        _log.warn("Cannot create IO Stream for "+ agentName +" : " +ioexception.getMessage() );
+      }
+    }
   }
 
   private void createTopDirStructure (){
     if(_secprop!=null) {
       //nodeName =  _secprop.getProperty("org.cougaar.node.name");
       MessageAddress myAddress = getAgentIdentifier();
+      agentName= myAddress.toString() ;
       String cougaarws  = _secprop.getProperty(_secprop.COUGAAR_WORKSPACE);
-      topDir= cougaarws + File.separatorChar + "security" + File.separatorChar + "IdmefEvent_Archival" + 
-        File.separatorChar + myAddress.toString() ;
+      topDir= cougaarws + File.separatorChar + "security" + File.separatorChar + "IdmefEvent_Archival"  ;
       File archivaldir = new File(topDir);
       if (!archivaldir.exists()) {
         archivaldir.mkdirs();
@@ -148,34 +164,38 @@ public class IdmefArchivalPlugin extends ComponentPlugin {
   }
 
   private void removeAndArchive() throws IOException,FileNotFoundException {
-    File file=createArchiveFile();
+    /*File file=createArchiveFile();*/
     int noItems = _cache.size()- _cacheSize;
-    Object event=null;
-    List archivelist= new ArrayList();
-    for (int i=0;i<noItems;i++) {
-      event= _cache.removeFirst();
-      archivelist.add(event);
-      getBlackboardService().publishRemove(event);
-    }
-    if(file!=null){
-      ObjectOutputStream  output=new ObjectOutputStream(new FileOutputStream(file));
-      output.writeObject(archivelist);
-      output.flush();
-      output.close();
-    }
-    else {
-      if (_log.isWarnEnabled()) {
-        _log.warn("Cannot archive Idmef Events. Could not create  archive file ");
-      }
-    }
-    
-    
+    Event event=null;
+     if (_log.isDebugEnabled()) {
+       _log.debug("Archiving IDMEF Events . Total of " + noItems + " Archived" + 
+         " current cache size  " +_cache.size() + "Cache upper limit "+ _cacheSize );
+     }
+     //List archivelist= new ArrayList();
+     if(output!=null){
+       String eventsAsString=null;
+       for (int i=0;i<noItems;i++) {
+         event=(Event) _cache.removeFirst();
+         eventsAsString =event.getEvent().toString();
+        /* if (_log.isDebugEnabled()) {
+           _log.debug(" Writing event :"+ eventsAsString);
+         }*/
+         output.write(eventsAsString,0,eventsAsString.length());
+         getBlackboardService().publishRemove(event);
+       }
+       output.flush();
+     }
+     else{
+       if (_log.isWarnEnabled()) {
+         _log.warn("Cannot archive Idmef Events.Output stream is null  for Agent  "+ agentName );
+       }
+     }
   }
 
   private File createArchiveFile() {
     Calendar cal= Calendar.getInstance();
     Date date=cal.getTime();
-    String filename= topDir + File.separatorChar + nodeName+"-"+date.toString();
+    String filename= topDir + File.separatorChar + agentName;
     File f= new File(filename); 
     return f;
   }
