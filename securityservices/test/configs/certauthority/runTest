@@ -6,14 +6,15 @@ set node = "TEST-ONE-NODE"
 
 ###########################################
 # Choose one of the following exec classes:
-set choice1="1: Keystore  - generate keys, send keys to CA and store result in keystore"
-set choice2="2: PKCS#12   - wrap private key in a PKCS#12 envelope"
-set choice3="3: JAAS      - simulate three security contexts (node/agent/PlugIn)"
-set choice4="4: Hashtable - Test hashtables"
-set choice5="5: Log4j     - Test log4j security capabilities"
-set choice6="6: IDMEF     - Test JavaIDMEF library"
-set choice7="7: SSL       - Test SSL service"
-set choice8="8: LDAP      - Test LDAP service"
+set choice1="1: Keystore   - generate keys, send keys to CA and store result in keystore"
+set choice2="2: PKCS#12    - wrap private key in a PKCS#12 envelope"
+set choice3="3: JAAS       - simulate three security contexts (node/agent/PlugIn)"
+set choice4="4: Hashtable  - Test hashtables"
+set choice5="5: Log4j      - Test log4j security capabilities"
+set choice6="6: IDMEF      - Test JavaIDMEF library"
+set choice7="7: SSL        - Test SSL service"
+set choice8="8: LDAP       - Test LDAP service"
+set choice9="9: SAX Writer - Read an XML file and output XML using SAX"
 
 echo "Select test:"
 echo "  ${choice1}"
@@ -24,7 +25,8 @@ echo "  ${choice5}"
 echo "  ${choice6}"
 echo "  ${choice7}"
 echo "  ${choice8}"
-echo "Enter your choice: [1, 2, 3, 4, 5, 6, 7, 8]"
+echo "  ${choice9}"
+echo "Enter your choice: [1, 2, 3, 4, 5, 6, 7, 8, 9]"
 
 set choice=$<
 
@@ -94,6 +96,13 @@ case "8":
     set execclass = com.nai.security.test.crypto.LdapTest
     set args = "ldap://pear:389/dc=srosset,dc=cougaar,dc=org"
     #set args = "ldap://pear:389/"
+    breaksw
+
+case "9":
+    # SAX test
+    echo "Running ${choice9} ..."
+    set execclass = org.cougaar.core.security.config.ConfigWriter
+    set args = "-n -v -s -f personal.xml "
     breaksw
 
 default:
