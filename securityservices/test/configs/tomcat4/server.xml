@@ -23,7 +23,7 @@
 
       <!-- Turn on memory realm. We will later be moving to the JNDIRealm
       -->
-      <Realm className="org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm"/> 
+      <Realm className="org.cougaar.core.security.coreservices.tomcat.SecureRealm"/> 
 
       <!-- set up the host. For cougaar there is only a single host -->
       <Host name="DEFAULT" appBase="webapps" unpackWARs="true">
@@ -34,7 +34,7 @@
 
         <!-- set up the default Context -->
         <Context path="" docBase="ROOT" workDir="work"
-         className="org.cougaar.core.security.acl.auth.PolicyEnforcerServletContext">
+         className="org.cougaar.core.security.coreservices.tomcat.SecureContext">
 <!--
         <Context path="" docBase="ROOT" workDir="work">
 -->
@@ -54,7 +54,7 @@
            <Valve className="org.apache.catalina.valves.CertificatesValve"/>
 <!--
 -->
-           <Valve className="org.cougaar.core.security.acl.auth.DualAuthenticator"
+           <Valve className="org.cougaar.core.security.coreservices.tomcat.AuthValve"
                   realmName="Cougaar" authMethod="BASIC"/>
 
         </Context>

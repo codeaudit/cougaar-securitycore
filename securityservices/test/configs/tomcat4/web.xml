@@ -17,7 +17,7 @@
     <!-- load the hook for Cougaar ServletService delegation -->
     <servlet>
         <servlet-name>cougaar</servlet-name>
-        <servlet-class>org.cougaar.core.security.acl.auth.SecureHookServlet</servlet-class>
+        <servlet-class>org.cougaar.core.security.coreservices.tomcat.HookServletFront</servlet-class>
         <init-param>
           <param-name>servletClass</param-name>
           <param-value>org.cougaar.lib.web.tomcat.HookServlet</param-value>
