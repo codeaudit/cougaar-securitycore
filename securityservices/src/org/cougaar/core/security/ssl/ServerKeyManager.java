@@ -54,8 +54,8 @@ public final class ServerKeyManager
     }
   }
 
-  /*
   public synchronized void updateKeystore() {
+  /*
     // find the valid hostname, get key alias and server certificate
     // use nodealias to set server alias which is the hostname
     String hostname = getName();
@@ -71,12 +71,27 @@ public final class ServerKeyManager
       nodex509 = ((CertificateStatus)nodex509List.get(0)).getCertificate();
     }
     nodealias = keystore.findAlias(hostname);
+    */
+    super.updateKeystore();
+
+    // no valid certificate? Use self signed cert
+    if (nodealias != null && privatekey == null) {
+      try {
+        nodex509 = (X509Certificate)keystore.getKeyStore().getCertificate(nodealias);
+        // No need to get private key, it is not required to
+        // start server, only cert and trusted chain are.
+        //privatekey = (PrivateKey)keystore.getKeyStore().getKey(nodealias, new char[] {});
+        certChain = new X509Certificate [] {nodex509};
+      } catch (Exception kex) {
+        if (log.isDebugEnabled())
+          log.debug("Cannot retrieve server's self-signed cert. " + kex);
+      }
+    }
 
     if (log.isDebugEnabled())
       log.debug("WeberserverSSLContext:KeyManager: nodealias is " + nodealias
 			 + " and nodex509 is " + nodex509);
   }
-  */
 
   public String chooseClientAlias(String keyType, Principal[] issuers, Socket socket) {
     // server application has no client alias
