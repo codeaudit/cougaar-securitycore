@@ -80,7 +80,19 @@ public class ConfigParserServiceImpl
       serviceBroker.getService(this,
 			       SecurityPropertiesService.class,
 			       null);
-    confFinder = ConfigFinder.getInstance();
+
+    // Add workspace/security/keystores/$nodeName directory to the search path
+    String nodeName = secprop.getProperty("org.cougaar.node.name");
+    String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
+    log.debug("Cougaar workspace is :" + cougaarWsp);
+    String topDirectory = cougaarWsp + File.separatorChar + "security"
+      + File.separatorChar + "keystores" + File.separatorChar;
+    String nodeDirectory = topDirectory + nodeName;
+
+    String searchPath = nodeDirectory + ";"
+      + System.getProperty("org.cougaar.config.path");
+    log.debug("Search path is set to: " + searchPath);
+    confFinder = new ConfigFinder(searchPath);
 
     try {
       // Create SAX 2 parser...
@@ -103,22 +115,6 @@ public class ConfigParserServiceImpl
     setConfigurationFile("BootPolicy.BBFilter.xml");
   }
 
-  public File findWorkspacePolicyPath(String policyfilename) {
-    String nodeName = secprop.getProperty("org.cougaar.node.name");
-
-    String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
-    log.debug("Cougaar workspace is :" + cougaarWsp);
-
-    String topDirectory = cougaarWsp + File.separatorChar + "security"
-      + File.separatorChar + "keystores" + File.separatorChar;
-
-    String nodeDirectory = topDirectory + nodeName + File.separatorChar;
-
-    String configFile = nodeDirectory + policyfilename;
-
-    return new File(configFile);
-  }
-
   /** Find a boot policy file
    *  First, search in the workspace.
    *  Second, search using ConfigFinder.
@@ -126,23 +122,16 @@ public class ConfigParserServiceImpl
   public File findPolicyFile(String policyfilename) {
     File f = null;
 
-    // 1) Search using the workspace
-    f = findWorkspacePolicyPath(policyfilename);
-
-    if (!f.exists()) {
-      // 2) Search using the config finder.
-
-      f = confFinder.locateFile(policyfilename);
-
-      if (f == null) {
-	if (log.isErrorEnabled()) {
-	  // Cannot proceed without policy
-	  log.error("Cannot continue secure execution without policy");
-	  log.error("Could not find configuration file: "
-		    + policyfilename);
-	}
-	throw new RuntimeException("No policy available");
+    // Search using the config finder.
+    f = confFinder.locateFile(policyfilename);
+    if (f == null) {
+      if (log.isErrorEnabled()) {
+	// Cannot proceed without policy
+	log.error("Cannot continue secure execution without policy");
+	log.error("Could not find configuration file: "
+		  + policyfilename);
       }
+      throw new RuntimeException("No policy available");
     }
     if(log.isDebugEnabled()) {
       log.debug("Policy file:" + f.getPath());
