@@ -78,6 +78,13 @@ public class AccessControlPolicyServiceProvider
       accessControlPolicyService =
 	new AccessControlPolicyServiceImpl(keyRing, sps);
     }
+    if (CryptoDebug.debug) {
+      System.out.println("AC policy Service Request: "
+			 + requestor.getClass().getName()
+			 + " - " + serviceClass.getName()
+			 + " - service: " + accessControlPolicyService);
+    }
+
     return accessControlPolicyService;
   }
   public void releaseService(ServiceBroker sb,

@@ -89,10 +89,18 @@ public class SecurityServiceProvider
 			 + requestor.getClass().getName()
 			 + " - " + serviceClass.getName());
     }
-    ServiceProvider servMgr = (ServiceProvider) services.get(serviceClass);
-    Service service = (Service) servMgr.getService(sb,
-						   requestor,
-						   serviceClass);
+    ServiceProvider servMgr = null;
+    Service service = null;
+    try {
+      servMgr = (ServiceProvider) services.get(serviceClass);
+      service = (Service) servMgr.getService(sb,
+					     requestor,
+					     serviceClass);
+    }
+    catch (Exception e) {
+      System.out.println("Unable to get service request");
+      e.printStackTrace();
+    }
     return service;
   }
   

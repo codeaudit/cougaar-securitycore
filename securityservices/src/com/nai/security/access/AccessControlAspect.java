@@ -87,12 +87,13 @@ public class AccessControlAspect extends StandardAspect
 	  serviceBroker.getService(this,
 				   AccessControlPolicyService.class, null);
 	if (acps == null) {
-	  System.out.println("Unable to get Access Control Policy service");
-	  throw new RuntimeException("Access Control Aspect. No policy service");
+	  throw new RuntimeException("Access Crl Aspect. No policy service");
 	}
       }
       catch(Exception e){
-	System.out.println("ACL: Unable to get access control policy service");
+	System.out.println("ACL: Unable to get access control policy service:"
+	  + e);
+	e.printStackTrace();
 	throw new RuntimeException("Access Control Aspect:"
 				   +e.toString());
       }

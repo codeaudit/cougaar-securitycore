@@ -25,11 +25,14 @@ package org.cougaar.core.security.services.acl;
 
 // Cougaar core services
 import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.core.component.Service;
 
 // Cougaar security services
 import org.cougaar.core.security.acl.trust.*;
 
-public interface AccessControlPolicyService {
+public interface AccessControlPolicyService 
+  extends Service
+{
     TrustSet getIncomingTrust(String agent, String key);
     TrustSet getOutgoingTrust(String agent, String key);
     String getIncomingAction(String agent, String level);
