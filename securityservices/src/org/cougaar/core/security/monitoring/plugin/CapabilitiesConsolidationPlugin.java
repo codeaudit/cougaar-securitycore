@@ -146,7 +146,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   /** Holds value of property loggingService. */
   private LoggingService loggingService;
   private boolean readcollection=false;
-  private boolean isMgrset=false;
+  Object mylock=new Object();
+  // private boolean isMgrset=false;
   
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -244,7 +245,13 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       return true;
     }
     else {
-      myRole=getMyRole(mySecurityCommunity);
+      
+      synchronized(mylock){
+	myRole=getMyRole(mySecurityCommunity);
+      }
+      if(myRole == null) {
+	return true;
+      }
       loggingService.debug(" My Role is  :"+myRole +" agent name :"+myAddress.toString());
       if((myRole.equalsIgnoreCase("member"))||(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave"))) {
 	if(myRole.equalsIgnoreCase("member")) {
@@ -252,7 +259,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  loggingService.error("It is is in the right agent then modify community information");
 	}
 	if(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave")){
-	  mgrrole="SecurityMnRManager-Society";
+	  synchronized(mylock) {
+	    mgrrole="SecurityMnRManager-Society";
+	  }
 	}
       }
     }
@@ -270,21 +279,20 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
    */
   protected void execute () {
     
-    if((destcluster ==null) &&(!myRole.equalsIgnoreCase("SecurityMnRManager-Society"))) {
-      loggingService.warn(" Destination address is not set for agent:"+myAddress.toAddress()); 
-      return ;
-    }
-    
+    updateRelayedCapabilities();
 // Unwrap subordinate capabilities from new/changed/deleted relays
     loggingService.debug("Update of relay called from :"+myAddress.toAddress());
-    if((myRole==null) && (mySecurityCommunity==null)) {
+    if((myRole==null) || (mySecurityCommunity==null)) {
       loggingService.debug("Error Cannot continue -- as  myRole/mySecurityCommunity is null at "+ myAddress.toString());
       loggingService.debug("RETURNING from execute method:");
       return;
     }
+    if((mgrrole ==null) &&(myRole==null)) {
+      return;
+    }
    
-       updateRelayedCapabilities();
-       if (loggingService.isDebugEnabled())
+    //dateRelayedCapabilities();
+    if (loggingService.isDebugEnabled())
        loggingService.debug(" Execute of CapabilitiesConsolidation Plugin called"
 			    +myAddress.toAddress() );
        DomainService service=getDomainService();
@@ -342,7 +350,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
        AdditionalData regAddData[]=null;
        Enumeration keys=capabilitiesobject.keys();
        String key=null;
-       if(mgrrole!=null) {
+       if((mgrrole!=null)&&(myRole!=null))  {
 	 while(keys.hasMoreElements()) {
 	   key=(String)keys.nextElement();
 	   if (loggingService.isDebugEnabled())
@@ -1132,8 +1140,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	}
       }
       if (relay == null) {
-	if (loggingService.isDebugEnabled())
+	if (loggingService.isDebugEnabled()) {
 	  loggingService.debug(" No relay was present creating one for Event "+ event.toString());
+	}
 	relay = factory.newCmrRelay(event, destcluster);
 	//relay = factory.newCmrRelay(event, mgrAddress);
 	if (loggingService.isDebugEnabled())
@@ -1230,16 +1239,18 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  societymgr=true;
 	}
       }
-      if(enclavemgr) {
-	myRole="SecurityMnRManager-Enclave"; 
+      synchronized(mylock) {
+	if(enclavemgr) {
+	  myRole="SecurityMnRManager-Enclave"; 
+	}
+	if(societymgr) {
+	  myRole="SecurityMnRManager-Society";
+	}
+	if(enclavemgr && societymgr) {
+	  loggingService.debug("Got role both as society manager and enclave:");
+	  myRole="SecurityMnRManager-Society";
+	} 
       }
-      if(societymgr) {
-	myRole="SecurityMnRManager-Society";
-      }
-      if(enclavemgr && societymgr) {
-	loggingService.debug("Got role both as society manager and enclave:");
-	myRole="SecurityMnRManager-Society";
-      } 
       return myRole;
     						      
     }
