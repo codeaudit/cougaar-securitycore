@@ -22,17 +22,13 @@
        verbosity="0" timestamp="true" prefix="webtomcat" directory="logs"/>
 
       <!-- Turn on memory realm. We will later be moving to the JNDIRealm
+      -->
       <Realm className="org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm" 
        connectionURL="ldaps://chump/"
-       roleBase="dc=roles,dc=nai,dc=com"
        roleName="cn"
-       roleSearch="(uniqueMember={0})"
-       roleSubtree="false"
        userPassword="userPassword"
-       userPattern="cn={0},dc=nai,dc=com" 
-       certAuth="CN"
+       certComponent="CN"
        debug="-1" /> 
-      -->
 
       <!-- set up the host. For cougaar there is only a single host -->
       <Host name="DEFAULT" appBase="webapps" unpackWARs="true">
@@ -42,12 +38,12 @@
         <DefaultContext cookies="true" crossContext="false" reloadable="true"/>
 
         <!-- set up the default Context -->
-<!--
         <Context path="" docBase="ROOT" workDir="work"
          className="org.cougaar.core.security.acl.auth.PolicyEnforcerServletContext">
--->
+<!--
         <Context path="" docBase="ROOT" workDir="work">
-
+-->
+ 
           <!-- Create a session manager. I don't like the seeding mechanism
                which seems to rely on a seed within the server.xml file as
                opposed to using the /dev/urandom in Tomcat 3.3. It might
@@ -62,9 +58,9 @@
 
            <Valve className="org.apache.catalina.valves.CertificatesValve"/>
 <!--
+-->
            <Valve className="org.cougaar.core.security.acl.auth.DualAuthenticator"
                   realmName="Cougaar" authMethod="BASIC"/>
--->
 
         </Context>
 
