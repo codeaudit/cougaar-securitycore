@@ -27,7 +27,7 @@ public class CMTestServlet extends AbstractServletComponent{
 	 * Get Path to the Servlet
 	 */
 	protected String getPath() {
-		return "/testCM";
+		return "/testCMServlet";
 	}
 
 /**

@@ -1,7 +1,7 @@
 CM TEST:
 Add the CMTestServlet and CMTestPlugin to an agent.
 
-Go to the CMTestServlet using /CMTestServlet?node=moveToNode url pattern
+Go to the CMTestServlet using /testCMServlet?node=moveToNode url pattern
 
 The CMTestPlugin will ask the CMService to verify that the agent can be put on the moveToNode.  
 
