@@ -40,7 +40,7 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
   private KeyRingService _keyRing;
   private LoggingService _log;
   
-  public static SendQueue getSendQueue() {
+  static SendQueue getSendQueue() {
     return _sendQ;
   }
 
@@ -54,7 +54,8 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
 
   public Object getDelegate(Object delegatee, Class type) {
     if (type == SendQueue.class) {
-      _sendQ = (SendQueue) delegatee;
+      _sendQ = new CertificateSendQueueDelegate((SendQueue) delegatee);
+      return _sendQ;
     } 
     
     return super.getDelegate(delegatee, type);
@@ -110,6 +111,17 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
         // deliver other messages as normal
         return super.deliverMessage(msg);
       } 
+    }
+  }
+
+  public static class CertificateSendQueueDelegate 
+    extends SendQueueDelegateImplBase {
+    public CertificateSendQueueDelegate(SendQueue queue) {
+      super(queue);
+    }
+    
+    public synchronized void sendMessage(AttributedMessage msg) {
+      super.sendMessage(msg);
     }
   }
 }
