@@ -230,6 +230,10 @@ public class SecurityServiceProvider
 		 new CryptoPolicyServiceProvider());
     serviceBroker.addService(CryptoPolicyService.class, this);
 
+    services.put(ServletPolicyService.class,
+		 new ServletPolicyServiceProvider());
+    serviceBroker.addService(ServletPolicyService.class, this);
+
     /* ********************************
      * SSL services
      */
