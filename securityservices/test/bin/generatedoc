@@ -6,4 +6,9 @@ source ${COUGAAR_SECURITY_SERVICES}/test/bin/setparam
 
 find src -name '*.java' > /tmp/filelist.tmp
 
+rm -f doc/javadoc.tar.gz 
 javadoc -classpath ${CLASSPATH} -d doc @/tmp/filelist.tmp
+
+cd doc
+tar cvfz javadoc.tar.gz *.html *.css edu org package-list
+rm -rf *.html *.css edu org package-list
