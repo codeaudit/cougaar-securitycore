@@ -216,16 +216,13 @@ public abstract class IDMEF_Message implements XMLSerializable {
 	      } 
 	      //of.getOmitDocumentType();
 	      XMLSerializer sezr = new XMLSerializer (buf , of);
-	      synchronized(sezr) {
-  	      sezr.setOutputFormat(of);
-	        sezr.setOutputCharStream(buf);
-            /*  
+	          /*  
               if(getEntityDtdFileLocation() != null) {
                 sezr.externalEntityDecl("x-cougaar", null, getEntityDtdFileLocation());
               }
              */ 
-	        sezr.serialize(document);
-	      }
+	      sezr.serialize(document);
+	     
 	      return buf.toString();
 	    }
 	    catch (Exception e){
