@@ -13,7 +13,7 @@
             <OneTimeCost>
                 <CPU intensity="MEDIUM" />
                 <Memory intensity="MEDIUM" />
-                <Time duration="120000" />
+                <Time duration="900000" />
             </OneTimeCost>
         </Transition>
     </Action>

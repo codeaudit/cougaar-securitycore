@@ -5,7 +5,8 @@
 <SensorType name="org.cougaar.core.security.coordinator.AgentCompromiseDiagnosis" 
             sensesAssetType="Agent"
             sensesStateDimension="Compromise" 
-            sensorLatency="10000">
+            sensorLatency="10000"
+            reportingPolicy="ALWAYS_CURRENT" >
     <PotentialDiagnoses>
         <Diagnosis name="Severe" />
         <Diagnosis name="None" defaultValue="TRUE" />
