@@ -264,7 +264,7 @@
         <!-- this is done before signing so I need an explicit path -->
         <classpath 
            path="${securityservices.base}/classes/securityservices.jar" />
-        <arg line="build --quiet --info DamlBootPolicyList" />
+        <arg line="build --quiet --info --checkDepth DamlBootPolicyList" />
       </java>
       <touch 
          file="${securityservices.configs}/common/DamlBootPoliciesCompleted" />
