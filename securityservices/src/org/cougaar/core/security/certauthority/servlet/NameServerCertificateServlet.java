@@ -91,9 +91,9 @@ public class NameServerCertificateServlet extends HttpServlet {
           if (log.isDebugEnabled()) {
             log.debug("checking whether we have " + names[i]);
           }
-          X509Certificate [] cert = (X509Certificate [])/*_certCache.get(names[i]);*/
+          NameServerCertificate nameCert = (NameServerCertificate)
             NameServerCertificateComponent.getNameServerCert(names[i]);
-          if (cert == null) {
+          if (nameCert == null) {
             if (log.isDebugEnabled()) {
               log.debug("Did not find a cert for " + names[i]);
             }
@@ -105,7 +105,7 @@ public class NameServerCertificateServlet extends HttpServlet {
 	      log.debug("Found a cert for " + names[i]);
 	    }
 	  }
-          certs[i] = new NameServerCertificate(names[i], cert);
+          certs[i] = nameCert;
         }
 
         ObjectOutputStream oos = new ObjectOutputStream(res.getOutputStream());
@@ -119,12 +119,12 @@ public class NameServerCertificateServlet extends HttpServlet {
 	  log.debug("received name server cert from " + nc);
         }
         //_certCache.put(nc.nameserver, nc.cert);
-        NameServerCertificateComponent.addToNameCertCache(nc.nameserver, nc.certChain);
+        NameServerCertificateComponent.addToNameCertCache(nc);
         CertificateCacheService cacheservice = (CertificateCacheService)
           support.getServiceBroker().getService(this,
                              CertificateCacheService.class, null);
-        for (int i = 0; i < nc.certChain.length; i++) {
-          cacheservice.addSSLCertificateToCache(nc.certChain[i]);
+        for (int i = 0; i < nc.getCertChain().length; i++) {
+          cacheservice.addSSLCertificateToCache(nc.getCertChain()[i]);
         }
         support.getServiceBroker().releaseService(this,
           CertificateCacheService.class, cacheservice);
