@@ -7,6 +7,7 @@ $:.unshift File.join(CIP, 'csmart', 'lib')
 require 'cougaar/scripting'
 require 'ultralog/scripting'
 require 'cougaar/communities' 
+require 'security/actions/policyGeneration.rb'
 require 'security/scripts/setup_scripting'
 require 'security/lib/common_security_rules'
 require "#{DATASET}/Sending.rb"
@@ -45,30 +46,28 @@ def tally(p, s)
   end
 end
 
-
-def installPolicies(p)
-  p.commonDecls()
-  p.communityDecls()
-  p.allowNameService()
-  tally(p,"name service")
-  p.allowSpecialCommunity()
-  tally(p, "community")
-  p.allowRestartCommunityNodesTalk()
-  tally(p, "Robustness (Nodes)")
-  p.allowHealthMonitoring()
-  tally(p, "Health Monitoring")
-  p.allowSecurityManagement()
-  tally(p, "Security")
-  p.allowSuperiorSubordinate()
-  tally(p, "Subordinates")
-  p.allowInterMnR()
-  tally(p, "Monitoring")
-  p.allowServiceProviders()
-  tally(p, "Service")
-  p.allowTalkToSelf()
-  tally(p, "Mumble")
-  p.policyCount()
+def irb(b)
+  prompt = "-> "
+  while TRUE
+    print prompt
+    output = nil
+    begin
+      input = $stdin.gets()
+      if input == nil then
+        break
+      end
+      puts eval(input, b)
+    rescue => exception
+      puts("#{exception} #{exception.backtrace.join("\n")}")
+    end
+    puts output
+  end
+  puts "Continuing..."
 end
+
+Cougaar::ExperimentMonitor.enable_stdout
+Cougaar::ExperimentMonitor.enable_logging
+
 
 Cougaar.new_experiment("Test").run(1) do
   do_action "LoadSocietyFromScript",  "#{DATASET}/mySociety.rb"
@@ -79,15 +78,19 @@ Cougaar.new_experiment("Test").run(1) do
   end
 #  do_action "LoadCommunitiesFromXML", "#{DATASET}/myCommunity.xml"
   do_action "SaveCurrentCommunities", "#{DATASET}/mySaveCommunity.xml" 
-
   do_action "GenericAction" do |run|
     begin 
-      p = CommPolicies.new(run)
-#      load 'debug.rb'
-      installPolicies(p)
-      load "debug.rb"
+      irb(binding)
+      p = buildInitialUrPolicies(run,
+                                 "society_config",
+                                 "localhost",
+                                 "s0c0nfig",
+                                 "cougaar104")
       puts "#{checkPolicy(run, p)} bad communication paths"
-      puts "Density = #{100 * p.density}%"
+      p.wellDefined?
+      irb(binding)
+      #load "debug.rb"
+      #puts "Density = #{100 * p.density}%"
       p.writePolicies("#{DATASET}/policies")
     rescue => ex
       puts "Exception found = #{ex}, trace = #{ex.backtrace().join("\n")}"
