@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# This script will copy the local $CIP to a remote $CIP.
+#
+# USAGE: ./copyCIP [user@]<host>
+#
+DEST=$1
+TARFILE=/tmp/cip.tgz
+
+if [ "$DEST" = "" ]; then
+  echo "Usage: copyCIP [user@]<host>"
+else
+# tar $CIP
+echo "tarring ${CIP}"
+tar cfz $TARFILE --directory $CIP .
+echo "copying ${TARFILE} to ${DEST}"
+scp $TARFILE $DEST:$TARFILE
+echo "unzipping ${TARFILE} on ${DEST}:${TARFILE}"
+ssh $1 tar xfz ${TARFILE} --directory '${CIP}'
+# removing remote tar file
+#
+# NOTE: i don't know why, but i get an error if i put this the rm command
+# after the tar command.  so i'm running this as a seperate ssh command.
+echo "removing remote ${TARFILE}"
+ssh $1 rm -f ${TARFILE}
+# removing local tar file
+echo "removing local ${TARFILE}"
+rm $TARFILE 
+fi
