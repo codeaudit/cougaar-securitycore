@@ -8,7 +8,7 @@
 
 <!ELEMENT blackboard-policy  (read-only-rule*,select-method-rule*)>
 
-<!ELEMENT read-only-rule (pattern+,default-privilege?,write-role*,read-role*,denied-role*)>
+<!ELEMENT read-only-rule (pattern+,write-role*,read-role*,denied-role*)>
 <!ATTLIST read-only-rule agent CDATA #REQUIRED>
 <!ATTLIST read-only-rule default-privilege (read|write|denied) "denied">
 
@@ -37,7 +37,6 @@
     </read-only-rule>
     <read-only-rule agent="*">
       <pattern>/tasks</pattern>
-      <default-privilege>read</default-privilege>
       <denied-role>MoveAgent</denied-role>
     </read-only-rule>
     <select-method-rule agent="*">
