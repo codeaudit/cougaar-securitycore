@@ -60,15 +60,17 @@ society.each_enclave do |enclave|
   end
   
   # BUILD SUB<N> COMMUNITIES
-  SUB_COMM[enclave].each_index do |index|
-    society.communities.add("#{enclave}-SECURITY-SUB#{index+1}-COMM") do |community|
-      community.add_attribute("CommunityType", "Security")
-      community.add_agent("Enclave#{COMMS.index(enclave)+1}Sub#{index+1}Manager") do |entity|
-        entity.add_role("Member")
-        entity.add_role("Manager")
-      end
-      SUB_COMM[enclave][index].each do |agent|
-        community.add_agent(agent) { |entity| entity.add_role("Member") }
+  if SUB_COMM[enclave] != nil
+    SUB_COMM[enclave].each_index do |index|
+      society.communities.add("#{enclave}-SECURITY-SUB#{index+1}-COMM") do |community|
+        community.add_attribute("CommunityType", "Security")
+        community.add_agent("Enclave#{COMMS.index(enclave)+1}Sub#{index+1}Manager") do |entity|
+          entity.add_role("Member")
+          entity.add_role("Manager")
+        end
+        SUB_COMM[enclave][index].each do |agent|
+          community.add_agent(agent) { |entity| entity.add_role("Member") }
+        end
       end
     end
   end
