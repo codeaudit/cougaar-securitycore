@@ -650,14 +650,14 @@ public class AccessAgentProxy
     
     try {
       String msgOrigin = msg.getOriginator().toString();
-      Integer mc = (Integer)trust.getAttribute(MissionCriticality.name).getValue();
-      String level = "Criticality" + mc.toString();
-      act = acps.getOutgoingAction(msgOrigin, level);
+      TrustAttribute mc = trust.getAttribute(MissionCriticality.name); 
+      Object v = mc.getValue();
+      act = acps.getOutgoingAction(msgOrigin, v.toString());
     }
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
-        log.warn("AccessControlProxy: no access control for msg"
-			 + msg);
+        log.warn("no access control for msg " + 
+        msg + ". reason:" + ex.getMessage());
       }
       return true;
     }
@@ -787,16 +787,18 @@ public class AccessAgentProxy
     return true;
   }
 	
-  private boolean incomingMessageAction(Message msg, TrustSet trustSet) {
+  private boolean incomingMessageAction(Message msg, TrustSet trust) {
     String action;
     try {
-      Integer mc = (Integer)trustSet.getAttribute(MissionCriticality.name).getValue();
-      String level = "Criticality" + mc.toString();
-      action = acps.getIncomingAction(msg.getTarget().toString(), level);
+      TrustAttribute mc = trust.getAttribute(MissionCriticality.name); 
+      Object v = mc.getValue();
+      action = 
+        acps.getIncomingAction(msg.getTarget().toString(), v.toString());
     }
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
-        log.warn("No access control for message: " + msg + ". reason:" + ex.getMessage());
+        log.warn("No access control for message: " + 
+        msg + ". reason:" + ex.getMessage());
       }
       return true;
     }
@@ -830,8 +832,10 @@ public class AccessAgentProxy
   
   private TrustSet makeLowestTrust(){
     TrustSet ts = new TrustSet();
-    MissionCriticality mc = new MissionCriticality(1);
+    //range 1-5, 3 is default
+    MissionCriticality mc = new MissionCriticality(3);
     ts.addAttribute(mc);
+    //range 1-10, set to lowest.
     IntegrityAttribute ia = new IntegrityAttribute(1);
     ts.addAttribute(ia);
     return ts;
