@@ -6,6 +6,9 @@
 # If there is any modification in enclave_security_mnr_mgrs/society_security_mnr_mgr it should be reflected 
 # in this script too
 
+CIP = ENV['CIP']
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
 require 'cougaar/communities'
 require 'ultralog/enclaves'
 require 'framework/jar_util'
