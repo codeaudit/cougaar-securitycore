@@ -51,7 +51,8 @@ file = File.open("#{CIP}/configs/security/mnr_managers.xml" ,"w") { |file|
  file << closetag
  file << "\n"
 }
-replaceFileInJar("#{CIP}/configs/security/securityservices_config.jar","#{CIP}/configs/security/mnr_managers.xml")
+configJar="#{CIP}/configs/security/securityservices_config.jar"
+replaceFileInJar(configJar,"#{CIP}/configs/security/mnr_managers.xml")
 
 signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
                     "privileged")
