@@ -163,7 +163,7 @@ final public class KeyRing
 	if (cafile2 != null) {
 	  param.caKeystorePath = cafile2.getPath();
 	}
-	else {
+	else if (param.isCertAuth) {
 	  if (CryptoDebug.debug) {
 	    System.out.println(param.caKeystorePath +
 			       " Trusted CA keystore does not exist. Creating...");

@@ -70,7 +70,7 @@ public class PendingCertDetailsServlet extends  HttpServlet
     res.setContentType("Text/HTML");
 
     String alias=null;
-    String role=null;
+    //String role=null;
     String cadnname=null;
 
     PrintWriter out=res.getWriter();
@@ -84,12 +84,11 @@ public class PendingCertDetailsServlet extends  HttpServlet
     }
 
     alias=req.getParameter("alias");
-    role=req.getParameter("role");
+    //role=req.getParameter("role");
     cadnname=req.getParameter("cadnname");
     if (debug) {
       System.out.println("PendingCertDetailsServlet. Search alias="
 			 + alias
-			 + " - role: " + role
 			 + " - cadnname: " + cadnname);
     }
     if((cadnname==null)||(cadnname=="")) {
@@ -129,7 +128,7 @@ public class PendingCertDetailsServlet extends  HttpServlet
 
       PendingCertCache pendingCache =
 	PendingCertCache.getPendingCache(cadnname,
-					 role, support.getServiceBroker());
+					 support.getServiceBroker());
       certimpl = (X509Certificate)pendingCache.getCertificate(
         nodeConfiguration.getPendingDirectoryName(cadnname), alias);
     }
@@ -154,6 +153,7 @@ public class PendingCertDetailsServlet extends  HttpServlet
 		certApprovalUri + "\" method=\"post\">");
     out.println("<input type=\"hidden\" name=\"alias\" value=\""
 		+ alias+"\">");
+    /*
     if((role==null)||(role=="")) {
       if (debug) {
 	System.out.println("got role as null or empty in certificate details:::::++++");
@@ -162,34 +162,13 @@ public class PendingCertDetailsServlet extends  HttpServlet
     else {
       out.println("<input type=\"hidden\" name=\"role\" value=\""+role+"\">");
     }
+    */
     out.println("<input type=\"hidden\" name=\"cadnname\" value=\""+cadnname+"\">");
     out.println("<p>");
     out.println("<p>");
-    out.println("<b>Version&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getVersion());
-    out.println("<br>");
-    out.println("<b>Subject&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSubjectDN().getName());
-    out.println("<br>");
-    out.println("<b>Signature Algorithm &nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSigAlgName()+ ",<b>&nbsp;OID&nbsp; :</b>"+certimpl.getSigAlgOID());
-    out.println("<br>");
-    out.println("<b>Key&nbsp;&nbsp;&nbsp;:</b>"
-		+ CertificateUtility.toHexinHTML(certimpl.getPublicKey().getEncoded()));
-    out.println("<br>");
-    out.println("<b>Validity&nbsp;&nbsp;&nbsp;:</b>");
-    out.println("<br>");
-    out.println("<b>&nbsp;&nbsp;&nbsp;From &nbsp;:</b>"+certimpl.getNotBefore().toString());
-    out.println("<br>");
-    out.println("<b>&nbsp;&nbsp;&nbsp;To &nbsp;:</b>"+certimpl.getNotAfter().toString());
-    out.println("<br>");
-    out.println("<b>Issuer&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getIssuerDN().getName());
-    out.println("<br>");
-    out.println("<b>Serial No &nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSerialNumber());
-    out.println("<br>");
-    out.println("<b>Algorithm&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getPublicKey().getAlgorithm());
-    out.println("<br>");
-    out.println("<b>Signature &nbsp;&nbsp;&nbsp;:</b>"
-		+ CertificateUtility.toHexinHTML(certimpl.getSignature()));
-    out.println("<br>");
-    out.println("<br>");
+
+    CertificateUtility.printCertificateDetails(out, certimpl);
+   
     out.println("<br>");
     out.println("<input type=\"submit\" name=\"actiontype\" value=\"Approve Certificate \">");
     out.println("<input type=\"submit\" name=\"actiontype\" value=\"Deny Certificate \">");

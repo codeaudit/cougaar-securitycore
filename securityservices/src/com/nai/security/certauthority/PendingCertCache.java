@@ -62,10 +62,10 @@ public class PendingCertCache
   // singleton
   // only started once
   public synchronized static PendingCertCache getPendingCache(
-    String cadnname, String role, ServiceBroker sb) {
+    String cadnname, ServiceBroker sb) {
     if (thisCache == null) {
       try {
-        thisCache = new PendingCertCache(cadnname, role, sb);
+        thisCache = new PendingCertCache(cadnname, sb);
       }
       catch (Exception e) {
         System.out.println("Error creating PendingCertCache: " + e.toString());
@@ -74,8 +74,7 @@ public class PendingCertCache
     return thisCache;
   }
 
-  private PendingCertCache(String cadnname, String role,
-			   ServiceBroker sb) 
+  private PendingCertCache(String cadnname, ServiceBroker sb) 
     throws Exception {
     serviceBroker = sb;
     configParser = (ConfigParserService)
@@ -93,8 +92,7 @@ public class PendingCertCache
     }
     catch (Exception e) {
       throw new Exception("Unable to read policy for DN="
-			  + cadnname + ". Role="
-                          + role + " - " + e );
+			  + cadnname + " - " + e );
     }
     init();
   }
@@ -162,8 +160,9 @@ public class PendingCertCache
     ArrayList filelist = getCertFileList(certsubdir);
     for (int i = 0; i < filelist.size(); i++) {
       ArrayList certs = getCertFromFileList(certsubdir, (String)filelist.get(i));
-      for (int j = 0; j < certs.size(); j++)
+      for (int j = 0; j < certs.size(); j++) {
         certtable.put(filelist.get(i), certs.get(j));
+      }
     }
     return certtable;
   }
@@ -177,6 +176,9 @@ public class PendingCertCache
 
   // using public key as key
   public Certificate getCertificate(String whichstate, PublicKey publicKey) {
+    if (CryptoDebug.debug) {
+      System.out.println("looking up key in " + whichstate);
+    }
     Hashtable certtable = (Hashtable)get(whichstate);
     if (certtable == null)
       return null;
@@ -186,10 +188,23 @@ public class PendingCertCache
       System.out.println("getting cert with pub key: ");
     }
 
+    System.out.println("Looking public key:\n" + publicKey.toString());
+
     for (Enumeration en = certtable.elements(); en.hasMoreElements(); ) {
       Certificate certimpl = (Certificate)en.nextElement();
-      if (pubkeyValue.equals(new String(certimpl.getPublicKey().getEncoded())))
-        return certimpl;
+      if (CryptoDebug.debug) {
+	System.out.println("Certificate in hash map:\n"
+			   + certimpl.getPublicKey().toString() );
+      }
+      if (publicKey.equals(certimpl.getPublicKey())) {
+	if (CryptoDebug.debug) {
+	 System.out.println("Found a match");
+       }
+       return certimpl;
+      }
+    }
+    if (CryptoDebug.debug) {
+      System.out.println("Found no match");
     }
     return null;
   }
@@ -231,6 +246,9 @@ public class PendingCertCache
   public ArrayList getCertFileList(String certdir) {
     ArrayList ar = new ArrayList();
     File f = new File(certdir);
+    if (CryptoDebug.debug) {
+      System.out.println("Looking up certificates in " + certdir);
+    }
     if (f.exists()) {
       File [] certfiles = f.listFiles();
       for (int i = 0; i < certfiles.length; i++) {
@@ -243,6 +261,9 @@ public class PendingCertCache
         }
 
       }
+    }
+    if (CryptoDebug.debug) {
+      System.out.println("Found " + ar.size() + " certificates in " + certdir);
     }
     return ar;
   }

@@ -49,7 +49,7 @@ public class CertificateList extends  HttpServlet
   private ConfigParserService configParser = null;
 
   private X500Name[] caDNs = null;
-  private String[] domains = null;
+  //private String[] domains = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
   private CertDirectoryServiceClient certificateFinder=null;
   protected boolean debug = false;
@@ -71,7 +71,7 @@ public class CertificateList extends  HttpServlet
 					      ConfigParserService.class,
 					      null);
       caDNs = configParser.getCaDNs();
-      domains = configParser.getRoles();
+      //domains = configParser.getRoles();
     }
     catch (Exception e) {
       System.out.println("Unable to initialize servlet:" + e);
@@ -82,13 +82,13 @@ public class CertificateList extends  HttpServlet
     throws ServletException,IOException
   {
     PrintWriter out=res.getWriter();
-    String domain=null;
+    //String domain=null;
     String cadnname=null;
 
     cadnname =(String)req.getParameter("cadnname");
-    domain =(String)req.getParameter("domain");
+    //domain =(String)req.getParameter("domain");
     if (debug) {
-      System.out.println(cadnname + " - " + domain);
+      System.out.println(cadnname);
     }
     if((cadnname==null)||( cadnname=="")) {
       out.print("Error ---Unknown  type CA dn name :");
@@ -133,16 +133,16 @@ public class CertificateList extends  HttpServlet
     String certDetailsUri = uri.substring(0, uri.lastIndexOf('/'))
       + "/CertificateDetailsServlet";
 
-
+    /*
     if((domain==null)||(domain=="")) {
       domain = null;
     }
     if (debug) {
       System.out.println("calling create table will domain:" + domain);
     }
+    */
     out.println(createtable(ldapentries,
-			    cadnname, domain,
-			    certDetailsUri));
+			    cadnname, certDetailsUri));
     out.println("</body></html>");
     out.flush();
     out.close();
@@ -169,7 +169,8 @@ public class CertificateList extends  HttpServlet
       out.println("<form action=\"\" method =\"post\">");
       out.println("<tr ><td colspan=\"3\">");
       // Domain
-      out.println("Name space: <select id=\"domain\" name=\"domain\">");
+      //out.println("Name space: <select id=\"domain\" name=\"domain\">");
+      /*
       if (domains != null) {
 	for (int i = 0 ; i < domains.length ; i++) {
 	  out.println("<option value=\"" + domains[i] + "\">" 
@@ -178,6 +179,7 @@ public class CertificateList extends  HttpServlet
       }
       else {
       }
+      */
       out.println("</select>");
       
       //out.println("Domain <input name=\"domain\" type=\"text\" value=\"\">");
@@ -208,11 +210,11 @@ public class CertificateList extends  HttpServlet
   
   public String getServletInfo()
   {
-    return("List all certificate specified by domain and CAS dn name");
+    return("List all certificate specified by CAS dn name");
   }
 
   public String createtable(LdapEntry[] ldapentries, String cadnname,
-			    String domain, String certDetailUri)
+			    String certDetailUri)
   {
     StringBuffer sb=new StringBuffer();
     sb.append("<table align=\"center\" border=\"2\">\n");
@@ -226,7 +228,7 @@ public class CertificateList extends  HttpServlet
 		+ ldapentries[i].getUniqueIdentifier()+"\">");
       sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
 		+ cadnname + "\">");
-      sb.append("<input type=\"hidden\" name=\"domain\" value=\"" + domain + "\">");
+      //sb.append("<input type=\"hidden\" name=\"domain\" value=\"" + domain + "\">");
       sb.append("<a Href=\"javascript:submitme(document.form"
 		+ i +")\">"
 		+ ldapentries[i].getCertDN()

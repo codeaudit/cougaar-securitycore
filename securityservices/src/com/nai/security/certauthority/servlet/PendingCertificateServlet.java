@@ -48,7 +48,7 @@ public class PendingCertificateServlet extends  HttpServlet
   private ConfigParserService configParser = null;
 
   private X500Name[] caDNs = null;
-  private String[] roles = null;
+  //private String[] roles = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
   private NodeConfiguration nodeConfiguration;
   private CertDirectoryServiceClient certificateFinder=null;
@@ -70,20 +70,20 @@ public class PendingCertificateServlet extends  HttpServlet
 					    ConfigParserService.class,
 					    null);
     caDNs = configParser.getCaDNs();
-    roles = configParser.getRoles();
+    //roles = configParser.getRoles();
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
     PrintWriter out=res.getWriter();
-    String role=null;
+    //String role=null;
     String cadnname=null;
 
     cadnname =(String)req.getParameter("cadnname");
-    role =(String)req.getParameter("role");
+    //role =(String)req.getParameter("role");
     if (debug) {
-      System.out.println(cadnname + " - " + role);
+      System.out.println(cadnname);
     }
     if((cadnname==null)||( cadnname=="")) {
       out.print("Error ---Unknown  type CA dn name :");
@@ -125,19 +125,19 @@ public class PendingCertificateServlet extends  HttpServlet
     String uri = req.getRequestURI();
     String certDetailsUri = uri.substring(0, uri.lastIndexOf('/')) + "/PendingCertDetailsServlet";
 
+    /*
     if (role == "")
       role = null;
     if (debug) {
       System.out.println("calling create table will role:" + role);
     }
+    */
 
     PendingCertCache pendingCache =
-      PendingCertCache.getPendingCache(cadnname, role, support.getServiceBroker());
+      PendingCertCache.getPendingCache(cadnname, support.getServiceBroker());
     Hashtable certtable =
       (Hashtable)pendingCache.get(nodeConfiguration.getPendingDirectoryName(cadnname));
-    out.println(createtable(certtable,
-                            cadnname, role,
-                            certDetailsUri));
+    out.println(createtable(certtable, cadnname, certDetailsUri));
 
     out.println("</body></html>");
     out.flush();
@@ -165,7 +165,8 @@ public class PendingCertificateServlet extends  HttpServlet
       out.println("<form action=\"\" method =\"post\">");
       out.println("<tr ><td colspan=\"3\">");
       // Role
-      out.println("Name space: <select id=\"role\" name=\"role\">");
+      //out.println("Name space: <select id=\"role\" name=\"role\">");
+      /*
       if (roles != null) {
 	for (int i = 0 ; i < roles.length ; i++) {
 	  out.println("<option value=\"" + roles[i] + "\">"
@@ -174,6 +175,7 @@ public class PendingCertificateServlet extends  HttpServlet
       }
       else {
       }
+      */
       out.println("</select>");
 
       //out.println("Role <input name=\"role\" type=\"text\" value=\"\">");
@@ -204,10 +206,10 @@ public class PendingCertificateServlet extends  HttpServlet
 
   public String getServletInfo()
   {
-    return("List all certificates pending specified by role and CAS dn name");
+    return("List all certificates pending specified by CAS dn name");
   }
 
-  public String createtable(Hashtable pendingcerts, String cadnname, String role, String certDetailUri)
+  public String createtable(Hashtable pendingcerts, String cadnname, String certDetailUri)
   {
     StringBuffer sb=new StringBuffer();
     sb.append("<table align=\"center\" border=\"2\">\n");
@@ -224,7 +226,7 @@ public class PendingCertificateServlet extends  HttpServlet
 		+ alias +"\">");
       sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
 		+ cadnname + "\">");
-      sb.append("<input type=\"hidden\" name=\"role\" value=\"" + role + "\">");
+      //sb.append("<input type=\"hidden\" name=\"role\" value=\"" + role + "\">");
       sb.append("<a Href=\"javascript:submitme(document.form"
 		+ i +")\">"
 		+ ClientX509.getSubjectDN().getName()

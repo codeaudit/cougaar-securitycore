@@ -33,7 +33,11 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 import sun.security.pkcs.*;
 import sun.security.x509.*;
+import java.security.MessageDigest;
+
+// Cougaar security services
 import com.nai.security.util.CryptoDebug;
+
 public class CertificateUtility {
   //private static boolean debug = false;
 
@@ -279,4 +283,62 @@ public class CertificateUtility {
     return domain;
   }
 
+  public static void printCertificateDetails(PrintWriter out, X509Certificate  certimpl) {
+    out.println("<b>Version&nbsp;&nbsp;&nbsp;:</b>"
+		+certimpl.getVersion());
+    out.println("<br>");
+    out.println("<b>Subject&nbsp;&nbsp;&nbsp;:</b>"
+		+certimpl.getSubjectDN().getName());
+    out.println("<br>");
+    out.println("<b>Signature Algorithm &nbsp;&nbsp;&nbsp;:</b>"
+		+certimpl.getSigAlgName()
+		+",<b>&nbsp;OID&nbsp; :</b>"+certimpl.getSigAlgOID());
+    out.println("<br>");
+    out.println("<b>Public Key&nbsp;&nbsp;&nbsp;:</b><PRE>"
+		+CertificateUtility.toHexinHTML(certimpl.getPublicKey().getEncoded()) + "</PRE>");
+    out.println("<br>");
+    out.println("<b>Validity &nbsp;&nbsp;:</b>");
+    out.println("<br>");
+    out.println("<b>&nbsp;&nbsp;From &nbsp;:</b>"
+		+certimpl.getNotBefore().toString());
+    out.println("<br>");
+    out.println("<b>&nbsp &nbsp;To &nbsp;:</b>"
+		+certimpl.getNotAfter().toString());
+    out.println("<br>");
+    out.println("<b>Issuer &nbsp;&nbsp;:</b>"
+		+certimpl.getIssuerDN().getName());
+    out.println("<br>");
+    out.println("<b>Serial No &nbsp;&nbsp;:</b>"
+		+certimpl.getSerialNumber());
+    out.println("<br>");
+    out.println("<b>Algorithm &nbsp;&nbsp;:</b>"
+		+certimpl.getPublicKey().getAlgorithm());
+    out.println("<br>");
+    out.println("<b>Signature &nbsp;&nbsp;:</b><PRE>"
+		+ CertificateUtility.toHexinHTML(certimpl.getSignature())
+		+ "</PRE>");
+    out.println("<br>");
+    // Fingerprint
+    out.println("<b>MD5 fingerprint &nbsp;&nbsp;:</b><PRE>"
+		+ getCertFingerPrint("MD5", certimpl)
+		+ "</PRE>");
+    out.println("<b>SHA1 fingerprint &nbsp;&nbsp;:</b><PRE>"
+		+ getCertFingerPrint("SHA1", certimpl)
+		+ "</PRE>");
+    out.println("<br>");
+  }
+
+  private static String getCertFingerPrint(String s, Certificate certificate) {
+    try {
+      byte abyte0[] = certificate.getEncoded();
+      MessageDigest messagedigest = MessageDigest.getInstance(s);
+      byte abyte1[] = messagedigest.digest(abyte0);
+      return CertificateUtility.toHexinHTML(abyte1);
+    }
+    catch (Exception  e) {
+      System.out.println("Unable to compute certificate fingerprint");
+      return "Unable to compute fingerprint";
+    }
+  }
+ 
 }

@@ -75,7 +75,7 @@ public class ProcessPendingCertServlet extends  HttpServlet
     PrintWriter out=res.getWriter();
     res.setContentType("Text/HTML");
     String alias=req.getParameter("alias");
-    String role=req.getParameter("role");
+    //String role=req.getParameter("role");
     String cadnname=req.getParameter("cadnname");
     out.println("<html>");
     out.println("<script language=\"javascript\">");
@@ -120,7 +120,7 @@ public class ProcessPendingCertServlet extends  HttpServlet
       try {
         //certimpl=ldapentries[0].getCertificate();
         PendingCertCache pendingCache =
-	  PendingCertCache.getPendingCache(cadnname, role, support.getServiceBroker());
+	  PendingCertCache.getPendingCache(cadnname, support.getServiceBroker());
         certimpl = (X509Certificate)
           pendingCache.getCertificate(nodeConfiguration.getPendingDirectoryName(cadnname),
 				      alias);
@@ -154,21 +154,21 @@ public class ProcessPendingCertServlet extends  HttpServlet
     }
     String uri = req.getRequestURI();
     String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/PendingCertificateServlet";
-    out.println(appendForm(certlistUri,cadnname,role));
+    out.println(appendForm(certlistUri,cadnname));
 
     out.println("</body>");
     out.println("</html>");
 
   }
-  private String appendForm(String posturl, String caDNName, String role) {
+  private String appendForm(String posturl, String caDNName) {
     
     StringBuffer sb=new StringBuffer();
      sb.append("<form name=\"certlist\" action=\"" +posturl
 	       + "\" method=\"post\">");
      sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
 		+caDNName + "\">");
-     sb.append("<input type=\"hidden\" name=\"role\" value=\""
-	       + role + "\">");
+     //sb.append("<input type=\"hidden\" name=\"role\" value=\""
+     //       + role + "\">");
      sb.append("<a Href=\"javascript:submitme(document.certlist)\">"
 		+ "Back to List "+"</a></form>");
      return sb.toString();

@@ -67,7 +67,7 @@ public class CertificateSigningRequest
     String pkcs=null;
     String type=null;
     String CA_DN_name=null;
-    String domain = null;
+    //String domain = null;
 
     String data;
 
@@ -82,64 +82,66 @@ public class CertificateSigningRequest
     CA_DN_name =(String)req.getParameter("dnname");
 
     try {
-    domain = CertificateUtility.getX500Domain(CA_DN_name, true, ',', true);
-    byte [] bytedata=null;
+      //domain = CertificateUtility.getX500Domain(CA_DN_name, true, ',', true);
+      byte [] bytedata=null;
     
-    if(( CA_DN_name==null)||( CA_DN_name=="")) {
-      printstream.print("Error ---Unknown  type CA dn name :");
-      printstream.flush();
-      printstream.close();
-      return;
-    }
-    try  {
-      String aDomain = null;
-      if( (domain != null) && (domain != ""))  {
-	aDomain = domain;
+      if(( CA_DN_name==null)||( CA_DN_name=="")) {
+	printstream.print("Error ---Unknown  type CA dn name :");
+	printstream.flush();
+	printstream.close();
+	return;
       }
-      signer = support.getCertificateManagementService();
-      signer.setParameters(CA_DN_name);
-    }
-    catch (Exception exp)  {
-      printstream.print("Error ---" + exp.toString());
-      printstream.flush();
-      printstream.close();
-      return;
-    }
-
-    type=req.getParameter("pkcs");
-    if((type==null)||(type==""))  {
-      printstream.print("Error --- Unknown pkcs type:");
-      printstream.flush();
-      printstream.close();
-      return;
-    }
-    pkcs=(String)req.getParameter("pkcsdata");
-    try  {
-      if(type.equalsIgnoreCase("pkcs7"))  {
-	bytedata=pkcs.getBytes();
-	bytestream=new ByteArrayInputStream(bytedata);
-	signer.processX509Request(printstream,(InputStream)bytestream);
+      try  {
+	/*
+	String aDomain = null;
+	if( (domain != null) && (domain != ""))  {
+	  aDomain = domain;
+	}
+	*/
+	signer = support.getCertificateManagementService();
+	signer.setParameters(CA_DN_name);
+      }
+      catch (Exception exp)  {
+	printstream.print("Error ---" + exp.toString());
+	printstream.flush();
+	printstream.close();
+	return;
+      }
+      
+      type=req.getParameter("pkcs");
+      if((type==null)||(type==""))  {
+	printstream.print("Error --- Unknown pkcs type:");
+	printstream.flush();
+	printstream.close();
+	return;
+      }
+      pkcs=(String)req.getParameter("pkcsdata");
+      try  {
+	if(type.equalsIgnoreCase("pkcs7"))  {
+	  bytedata=pkcs.getBytes();
+	  bytestream=new ByteArrayInputStream(bytedata);
+	  signer.processX509Request(printstream,(InputStream)bytestream);
+	  
+	}
+	else if(type.equalsIgnoreCase("pkcs10"))  {
+	  bytedata=pkcs.getBytes();
+	  bytestream=new ByteArrayInputStream(bytedata);
+	  signer.processPkcs10Request(printstream,(InputStream)bytestream);
+	}
+	else  {
+	  printstream.print("Error ----Got a wrong parameter for type"+type);
+	}
+      }
+      catch (Exception  exp)  {
+	printstream.print("Error ------"+exp.toString());
+	printstream.flush();
+	printstream.close();
 	
       }
-      else if(type.equalsIgnoreCase("pkcs10"))  {
-	bytedata=pkcs.getBytes();
-	bytestream=new ByteArrayInputStream(bytedata);
-	signer.processPkcs10Request(printstream,(InputStream)bytestream);
+      finally  {
+	printstream.flush();
+	printstream.close();
       }
-      else  {
-	printstream.print("Error ----Got a wrong parameter for type"+type);
-      }
-    }
-    catch (Exception  exp)  {
-      printstream.print("Error ------"+exp.toString());
-      printstream.flush();
-      printstream.close();
-
-    }
-    finally  {
-      printstream.flush();
-      printstream.close();
-    }
     }
     catch (Exception e1) {
       printstream.print("Error ------"+e1.toString());
@@ -161,6 +163,7 @@ public class CertificateSigningRequest
 
     res.setContentType("Text/HTML");
     PrintWriter out=res.getWriter();
+
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
     out.println("<head>");
@@ -170,9 +173,9 @@ public class CertificateSigningRequest
     out.println("<H2> Certificate Signing Request</H2>");
     out.println("<table>");
     out.println("<form action=\"\" method =\"post\">");
-    out.println("<tr ><td colspan=\"3\">");
-    out.println("Domain : <input name=\"domain\" type=\"text\" value=\"\">");
-    out.println(" <br> <br></td></tr>");
+    //out.println("<tr ><td colspan=\"3\">");
+    //out.println("Domain : <input name=\"domain\" type=\"text\" value=\"\">");
+    //out.println(" <br> <br></td></tr>");
     out.println("<tr ><td colspan=\"3\">");
     out.println("DN for CA <input name=\"dnname\" type=\"text\" value=\"\">");
     out.println(" <br> <br></td></tr>");

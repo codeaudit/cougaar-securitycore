@@ -1513,22 +1513,23 @@ public class DirectoryKeyStore
         int statindex = reply.indexOf(strStat);
         if (statindex >= 0) {
           // in the pending mode
-          if (CryptoDebug.debug) {
-            System.out.println("Certificate in pending mode.");
-          }
           statindex += strStat.length();
           int status = Integer.parseInt(reply.substring(statindex,
                                                         statindex + 1));
           if (CryptoDebug.debug) {
-            System.out.println("pending status is: "
-                               + reply.substring(statindex,
-                                                 statindex + 1));
-          }
-          if (status == KeyManagement.PENDING_STATUS_PENDING) {
-            System.out.println("Certificate is pending for approval.");
-          }
-          else if (status == KeyManagement.PENDING_STATUS_DENIED) {
-            System.out.println("Certificate is denied by CA.");
+	    switch (status) {
+	    case KeyManagement.PENDING_STATUS_PENDING:
+	      System.out.println("Certificate is pending for approval.");
+	      break;
+	    case KeyManagement.PENDING_STATUS_DENIED:
+	      System.out.println("Certificate is denied by CA.");
+	      break;
+	    case KeyManagement.PENDING_STATUS_APPROVED:
+	      System.out.println("Certificate is approved by CA.");
+	      break;
+	    default:
+	      System.out.println("Unknown certificate status:" + status);
+	    }
           }
           // else approved, why not certificate in the LDAP?
 

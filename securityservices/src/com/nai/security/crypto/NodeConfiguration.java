@@ -62,10 +62,14 @@ public class NodeConfiguration
 
   public void createDomainDirectories(String aDomain)
     throws IOException {
+
+    /*
     String domainDir = nodeDirectory +
       CertificateUtility.getX500Domain(aDomain,
 				       false,
 				       File.separatorChar, false) + File.separatorChar;
+    */
+    String domainDir = nodeDirectory;
 
     String x509DirectoryName =  domainDir + "x509certificates" + File.separatorChar;
     String pkcs10DirectoryName = domainDir + "pkcs10requests" + File.separatorChar;
