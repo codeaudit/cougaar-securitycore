@@ -26,9 +26,9 @@
 
 package org.cougaar.core.security.crypto;
 
-import org.cougaar.core.mts.MessageAddress;
-
 import java.security.cert.X509Certificate;
+
+import org.cougaar.core.mts.MessageAddress;
 
 public class PublicKeyEnvelope
   extends ProtectedObject
