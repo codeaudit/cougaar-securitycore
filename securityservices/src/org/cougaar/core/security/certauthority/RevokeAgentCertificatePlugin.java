@@ -38,9 +38,10 @@ import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.UnaryPredicate;
-
+import org.cougaar.core.service.ThreadService;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.TimerTask;
 
 
 /**
@@ -137,8 +138,11 @@ public class RevokeAgentCertificatePlugin extends ComponentPlugin {
                 logging.debug("CertificateManagementService  is null");
               }
             }
-
-            keymanagement.revokeAgentCertificate(caDN, agentName);
+            
+            //keymanagement.revokeAgentCertificate(caDN, agentName);
+            RevokeTask revokeTask = new RevokeTask(caDN, agentName, keymanagement);
+            ThreadService threadService = (ThreadService)this.getServiceBroker().getService(this, ThreadService.class, null);
+            threadService.schedule(revokeTask,1);
           } catch (MultipleEntryException mee) {
             if (logging.isErrorEnabled()) {
               logging.error("Multiple entry found for : " + mee.getMessage());
@@ -166,5 +170,23 @@ public class RevokeAgentCertificatePlugin extends ComponentPlugin {
     public String getCaDN() {
       return caDN;
     }
+  }
+  
+  private class RevokeTask extends TimerTask{
+  	String caDn = null;
+  	String agentName = null;
+  	CertificateManagementService keymanagement  = null;
+  	 public RevokeTask(String caDn,  String agentName, CertificateManagementService keymanagement){
+  	 	this.caDn = caDn;
+  	 	this.agentName = agentName;	
+  	 	this.keymanagement = keymanagement;
+  	 }
+  	  public void run(){
+  	  			if(logging.isDebugEnabled()){
+  	  				logging.debug("Revoking agent cert:" + agentName);
+  	  			}
+				keymanagement.revokeAgentCertificate(caDn, agentName);
+  	  	
+  	  }
   }
 }
