@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataGrabber>
+ <Verbosity>Normal</Verbosity>
+ <ControllerMaxThreads>20</ControllerMaxThreads>
+ <WebServerConfig>
+  <Port>7000</Port>
+  <DocumentRoot>datagrabberContent</DocumentRoot>
+  <Timeout>10000</Timeout>
+  <CommandRefresh>1</CommandRefresh>
+  <ViewRefresh>120</ViewRefresh>
+  <CompletionPSP>
+   <URLConnection>
+    <Protocol>https</Protocol>
+    <Host>yew</Host>
+    <Port>6591</Port>
+    <ClusterName>TRANSCOM</ClusterName>
+    <Package></Package>
+    <PspID>completion</PspID>
+    <UseXML>N</UseXML>
+   </URLConnection>
+  </CompletionPSP>
+ </WebServerConfig>
+ <DBConfig>
+<!-- that these lines are commented out means we are getting these values from cougaar.rc -->
+<!-- can override by un-commenting  -->
+<!--
+-->
+  <User>ultralog</User>
+  <Password>ul-password</Password>
+  <DriverClass>org.gjt.mm.mysql.Driver</DriverClass>
+  <ConnectionURL>jdbc:mysql://mango/cougaar941</ConnectionURL>
+  <Syntax>MySQL</Syntax>
+ </DBConfig>
+ <HierarchyPSP Society="Tops">
+  <Cluster>TRANSCOM</Cluster>
+  <URLConnection>
+   <Protocol>https</Protocol>
+   <Host>yew</Host>
+   <Port>6591</Port>
+   <ClusterName>TRANSCOM</ClusterName>
+   <Package></Package>
+   <PspID>hierarchy</PspID>
+   <UseXML>N</UseXML>
+   <ThisFileInstead></ThisFileInstead>
+  </URLConnection>
+ </HierarchyPSP>
+ <HierarchyPSP Society="Demand" 
+               VirtualRoot="HigherAuthority" 
+               VirtualRootName="Higher Authority">
+  <Cluster>USEUCOM</Cluster>
+  <URLConnection>
+   <Protocol>https</Protocol>
+   <Host>yew</Host>
+   <Port>6591</Port>
+   <ClusterName>USEUCOM</ClusterName>
+   <Package></Package>
+   <PspID>hierarchy</PspID>
+   <UseXML>N</UseXML>
+   <ThisFileInstead></ThisFileInstead>
+  </URLConnection>
+ </HierarchyPSP>
+ <DataGathererPSP>
+  <URLConnection>
+   <Protocol>https</Protocol>
+   <Host>yew</Host>
+   <Port>6591</Port>
+   <ClusterName>USEUCOM</ClusterName>
+   <Package></Package>
+   <PspID>datagatherer</PspID>
+   <UseXML>N</UseXML>
+   <ThisFileInstead></ThisFileInstead>
+  </URLConnection>
+  <IncludeTransitLegs>Y</IncludeTransitLegs>
+ </DataGathererPSP>
+ <DerivedTablesConfig>
+  <FirstLegTable>false</FirstLegTable>
+  <RollupTable>true</RollupTable>
+  <CargoTypeTable>true</CargoTypeTable>
+  <CargoInstanceTable>false</CargoInstanceTable>
+  <CargoLegTable>true</CargoLegTable>
+  <CarrierTypeTable>true</CarrierTypeTable>
+  <CarrierInstanceTable>true</CarrierInstanceTable>
+ </DerivedTablesConfig>
+</DataGrabber>
+
+
