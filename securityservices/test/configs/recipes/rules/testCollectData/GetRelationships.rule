@@ -5,6 +5,9 @@ File.open("/tmp/relations.sql", "w") do |sqlFile|
   sqlFile.puts "create table if not exists csi_subordinates"
   sqlFile.puts "     (subordinate varchar(150), superior varchar(150));"
   sqlFile.puts "delete from csi_subordinates;"
+  sqlFile.puts "create table if not exists csi_enclave"
+  sqlFile.puts "     (agent varchar(150), enclave varchar(150));"
+  sqlFile.puts "delete from csi_enclave;"
 
   society.each_agent(true) do |agent|
     facetval = agent.get_facet(:superior_org_id)
@@ -13,5 +16,18 @@ File.open("/tmp/relations.sql", "w") do |sqlFile|
       sqlFile.puts "   values ('#{agent.name}', '#{facetval}');"
     end  
   end
+  society.each_node do |node|
+    enclave = node.host.get_facet(:enclave)
+    if enclave != nil
+      sqlFile.puts "insert into csi_enclave (agent, enclave) "
+      sqlFile.puts "   values ('#{node.name}', '#{enclave}');"
+      node.each_agent do |agent|
+        sqlFile.puts "insert into csi_enclave (agent, enclave) "
+        sqlFile.puts "   values ('#{agent.name}', '#{enclave}');"
+      end
+    end  
+  end
+
+
 end
 `cat /tmp/relations.sql | mysql -h cougaar-db -u society_config -ps0c0nfig`
