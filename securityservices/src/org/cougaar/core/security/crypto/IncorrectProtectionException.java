@@ -21,35 +21,46 @@
 
 
 package org.cougaar.core.security.crypto;
+
 import java.security.cert.X509Certificate;
+
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 
 public class IncorrectProtectionException 
   extends Exception
   implements java.io.Serializable {
 
-  private SecureMethodParam _policy = null;
+  private int _policyValidity = CryptoPolicyService.CRYPTO_POLICY_VALID;
   private X509Certificate   _cert = null;
 
-  public IncorrectProtectionException(SecureMethodParam policy) {
-    _policy = policy;
+  public IncorrectProtectionException(int policyValidity) {
+    _policyValidity = policyValidity;
   }
 
   public IncorrectProtectionException(X509Certificate cert) {
     _cert = cert;
   }
 
-  public SecureMethodParam getPolicy() {
-    return _policy;
-  }
+  //  public SecureMethodParam getPolicy() {
+  //    return _policy;
+  //  }
 
   public X509Certificate getCertificate() {
     return _cert;
   }
 
   public String getMessage() {
-    if (_policy != null) {
-      return "Incoming message does not satisfy cryptographic policy: " + _policy;
+    if (_policyValidity == CryptoPolicyService.CRYPTO_SHOULD_SIGN) {
+      return "Sender should be signing, Probable cause = new ssl credentials or policy mismatch";
+    } else if (_policyValidity == CryptoPolicyService.CRYPTO_SHOULD_ENCRYPT) {
+      return "Sender should be encrypting, Probable cause = policy mismatch";
+    } else if (_policyValidity == CryptoPolicyService.CRYPTO_UNAVAILABLE) {
+      return "Policy requires unavailable encryption scheme.";
+    } else if (_policyValidity != CryptoPolicyService.CRYPTO_POLICY_VALID) {
+      return "Unknown policy exception (see CryptoPolicyService.java) - " 
+        + _policyValidity;
     }
+
     if (_cert != null) {
       return "Private key for certificate could not be found: " +
         _cert.getSubjectDN().getName();
