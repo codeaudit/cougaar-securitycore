@@ -137,7 +137,8 @@
       <echo message="Copying zip file to testbed machine..."/>
       <scp file="cougaar-test.zip"
            todir="${testbed.user.name}@${testbed.operator.host}:${testbed.cip.dir}"
-           keyfile="${user.home}/.ssh/id_dsa"/>
+           keyfile="${user.home}/.ssh/id_dsa"
+           passphrase=""/>
 
       <echo message="Unzip ZIP file on testbed machine..."/>
       <sshexec host="${testbed.operator.host}"
@@ -172,7 +173,8 @@
     <target name="retrieve-output-files">
       <scp file="${testbed.user.name}@${testbed.operator.host}:${testbed.cip.dir}/workspace/log4jlogs/*.log"
            todir="${analysis.directory.name}"
-           keyfile="${user.home}/.ssh/id_dsa"/>
+           keyfile="${user.home}/.ssh/id_dsa"
+           passphrase=""/>
     </target>
 </project>
 
