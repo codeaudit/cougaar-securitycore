@@ -33,8 +33,8 @@ import javax.net.ServerSocketFactory;
 
 public interface WebserverIdentityService extends Service {
   /**
-   * This function should be called at Tomcat startup, it will
-   * perform the following:
+   * This function should be called at Tomcat startup.
+   * It will perform the following:
    *
    * 1. check whether there is a certificate for tomcat server, if not get one
    * 2. check whether the server cert has expired, if so get one
@@ -49,6 +49,7 @@ public interface WebserverIdentityService extends Service {
    * but the creation of SSLServerSocket will find no cert in keystore and will fail.
    *
    */
+
   ServerSocketFactory getWebServerSocketFactory();
 
   /**

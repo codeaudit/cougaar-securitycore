@@ -383,7 +383,7 @@ final public class KeyRing
     return certSet;
   }
 
-  public PrivateKey[] getPrivateKeys(String cougaarName) {
+  public PrivateKey[] getPrivateKeys(Principal principal) {
     PrivateKey[] keySet = null;
     return keySet;
   }

@@ -62,7 +62,7 @@ public class LdapEntry implements Serializable
 
   /**
    * Public accessor method for retrieving the status of a certificate,
-   * where 1 means valid, 2 means ???, and  3 means revoked
+   * where 1 means valid, and  3 means revoked
    */
   public CertificateRevocationStatus getStatus() { return status; }
 

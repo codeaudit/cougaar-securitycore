@@ -39,7 +39,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
  * for the KeyManager and TrustManager. The Node certificates are
  * used for client authentication if client authentication is requested.
  *
- * @see CertDirectoryService
+ * @see org.cougaar.core.security.crypto.ldap.CertDirectoryService
  * @author George Mount <gmount@nai.com>
  */
 public class KeyRingSSLFactory extends SSLSocketFactory {
@@ -63,7 +63,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * InitialDirContext to get the <code>SocketFactory</code> object from the
    * class.
    *
-   * @see init
+   * @see #init
    */
   public synchronized static SocketFactory getDefault() {
     if (_default == null) {
@@ -85,7 +85,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory
    */
   public Socket createSocket() throws IOException {
     return _fact.createSocket();
@@ -94,7 +94,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory
    */
   public Socket createSocket(Socket sock, String host, int port,
                              boolean autoClose) throws IOException {
@@ -104,7 +104,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory
    */
   public Socket createSocket(InetAddress host, int port) throws IOException {
     return _fact.createSocket(host,port);
@@ -113,7 +113,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory
    */
   public Socket createSocket(InetAddress host, int port,
                              InetAddress localAddress, int localPort)
@@ -124,7 +124,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory
    */
   public Socket createSocket(String host, int port) throws IOException {
     return _fact.createSocket(host,port);
@@ -133,7 +133,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory
    */
   public Socket createSocket(String host, int port,
                              InetAddress localAddress, int localPort)
@@ -144,7 +144,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   /**
    * Returns the default cipher suites
    *
-   * @see javax.net.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory
    */
   public String[] getDefaultCipherSuites() {
     return _fact.getDefaultCipherSuites();
@@ -153,7 +153,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   /**
    * Returns the supported cipher suites
    *
-   * @see javax.net.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory
    */
   public String[] getSupportedCipherSuites() {
     return _fact.getSupportedCipherSuites();
@@ -163,7 +163,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * Initializes the class so that the SocketFactory
    * so that it uses the KeyRingService provided
    *
-   * @see getDefault
+   * @see #getDefault
    */
   public synchronized static void init(SSLContext ctx) {
     if (_ctx == null)

@@ -146,8 +146,9 @@ public class KeyRingJNDIRealm extends RealmBase {
  
   /**
    * Set the certificate subject's domain component to be used in
-   * case the subject is not to be used. certComponent can be
-   * <code>null</code> or empty string to use the full subject dn.
+   * case the subject is not to be used.
+   * The certComponent parameter can be <code>null</code>
+   * or empty string to use the full subject dn.
    */
   public void setCertComponent(String certComponent) {
     if (certComponent != null && certComponent.length() == 0) {
@@ -234,7 +235,7 @@ public class KeyRingJNDIRealm extends RealmBase {
    * user name given
    *
    * @param username The user to establish as the Principal
-   * @returns A <code>GenericPrincipal</code> associated with the
+   * @return A <code>GenericPrincipal</code> associated with the
    * user, having the roles assigned to that user.
    */
   protected Principal getPrincipal(String username) {

@@ -57,7 +57,7 @@ public class BlackboardObject implements Serializable
     /**
      * Public accessor method for the trust attribute container
      * 
-     * @return 
+     * @return A set of Trust
      */
     public TrustSet getTrustSet()
     {

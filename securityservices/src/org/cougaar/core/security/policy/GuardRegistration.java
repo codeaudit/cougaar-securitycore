@@ -143,8 +143,8 @@ public abstract class GuardRegistration
    *    (Enforcer is the interface exposed by enforcers to the guard).
    * @param updateType can be one of SET_POLICIES, ADD_POLICIES,
    *                   CHANGE_POLICIES or REMOVE_POLICIES
-   @ @param policies a list of kaos.core.util.PolicyMsg objects
-  **/
+   * @param policies a list of kaos.core.util.PolicyMsg objects
+   **/
 
   public void receivePolicyUpdate(String updateType,
 				  List policies)

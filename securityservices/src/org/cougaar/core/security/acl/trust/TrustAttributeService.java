@@ -50,7 +50,7 @@ public class TrustAttributeService
 
     /**
      * Blackboard object tuples.
-     * @see org.cougaar.core.security.access.BlackboardObject
+     * @see org.cougaar.core.security.acl.trust.BlackboardObject
      */
     protected Hashtable tuples = new Hashtable();
 

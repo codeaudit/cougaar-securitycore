@@ -44,10 +44,10 @@ import org.apache.xml.serialize.*;
 import org.apache.xerces.parsers.*;
 import java.math.*;
 
-/** This class represents an abstract IDMEF Message. it is also used to create
-    messages from XML documents or strings.
-    See Section 5.2.1 of the IDMEF internet-draft for more info.
-*/
+/** This class represents an abstract IDMEF Message.
+ *  It is also used to create messages from XML documents or strings.
+ *  See Section 5.2.1 of the IDMEF internet-draft for more info.
+ */
 
 public abstract class IDMEF_Message implements XMLSerializable{
 

@@ -48,7 +48,6 @@ public class IntegrityAttribute extends TrustAttribute implements Comparable, Se
 
     /**
      * Create a new integrity attribute with the specified value.
-     * @see #IntegrityLevel(Integer)
      */
     public IntegrityAttribute(int level)
     {
@@ -57,7 +56,6 @@ public class IntegrityAttribute extends TrustAttribute implements Comparable, Se
 
     /**
      * Create a new integrity attribute from the specified String.
-     * @see #IntegrityLevel(Integer)
      */
     public IntegrityAttribute(String level)
     {
@@ -66,7 +64,6 @@ public class IntegrityAttribute extends TrustAttribute implements Comparable, Se
 
     /**
      * Copy constructor
-     * @see #IntegrityLevel(Integer)
      */
     public IntegrityAttribute(IntegrityAttribute old)
     {

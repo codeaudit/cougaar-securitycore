@@ -183,9 +183,10 @@ public class CertificateVerifier {
     return certificates;
   }
   
-  /** Get a chain of X.509 certificates from .DSA file in the META-INF 
+  /** Get a chain of X509 certificates from a DSA file in the META-INF 
    *  directory of the given jar file.
-   * .DSA file is generated when jar file is signed using jarsigner tool */
+   *  The DSA file is generated when jar file is signed using jarsigner tool
+   */
   protected X509Certificate[] retrieveCertificateChain(JarFile jf, JarEntry dsa)
     throws FileNotFoundException, IOException, CertificateException {
     if (dsa != null && jf != null) {

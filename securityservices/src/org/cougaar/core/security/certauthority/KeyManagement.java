@@ -318,7 +318,8 @@ public class KeyManagement
     }
   }
 
-  /** Process a PKCS10 request:
+  /** Process a PKCS10 request.
+   * This method does the following:
    * - Get a list of certificate signing requests.
    * - Sign each request with the CA private key.
    * - Save each signed certificate in a local file system.

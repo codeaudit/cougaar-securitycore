@@ -397,7 +397,7 @@ public class MonitoringManager extends SimplePlugin
    * 
    * @param cmdtasklist
    *               Enumeration on Collection of newly added  "Start_Publishing_ui" Task
-   * @see org.cougaar.core.security.oldmonitoring.Util.cmdObj
+   * @see org.cougaar.core.security.oldmonitoring.util.cmdObj
    */
   
   protected void process_cmdTask(Enumeration cmdtasklist)

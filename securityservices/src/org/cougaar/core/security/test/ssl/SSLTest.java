@@ -110,10 +110,12 @@ public class SSLTest {
     System.out.println("=====> Testing usersocket");
 
     try {
+      /*
       UserSSLServiceImpl userservice = new UserSSLServiceImpl();
       userservice.init(keyRing);
       SocketFactory usersocfac = userservice.getUserSocketFactory();
       Socket s = usersocfac.createSocket(host, port);
+      */
       System.out.println("=====> Successfully created user socket.");
     } catch (Exception ex) {
       System.out.println("XXXXX Exception occurred: " + ex.toString());

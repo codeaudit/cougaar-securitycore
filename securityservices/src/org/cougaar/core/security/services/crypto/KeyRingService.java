@@ -41,14 +41,19 @@ import org.cougaar.core.component.Service;
 // Cougaar Security Services
 import org.cougaar.core.security.crypto.*;
 
-/** Low-level service to retrieve certificates
+/** Low-level service to retrieve certificates and private keys
  */
 public interface KeyRingService extends Service {
 
-  /** Support for multiple certificates per entity
+  /** Get an array of certificates associated with a given entity.
+   *  @param principal
    */
-  X509Certificate[] getCertificates(Principal p);
-  PrivateKey[] getPrivateKeys(String commonName);
+  X509Certificate[] getCertificates(Principal principal);
+
+  /** Get an array of private keys associated with a given entity.
+   *  @param principal
+   */
+  PrivateKey[] getPrivateKeys(Principal principal);
 
   /** ******************************
    *  Methods to access public keys

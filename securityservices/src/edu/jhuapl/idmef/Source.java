@@ -43,9 +43,9 @@ import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import java.math.*;
 
-/** This class represents the source of the current alert, i.e. the attacker.
-    See Section 5.2.4.3 of the IDMEF internet-draft for more info.
-*/
+/** This class represents the source of the current alert, ie the attacker.
+ *   See Section 5.2.4.3 of the IDMEF internet-draft for more info.
+ */
 public class Source implements XMLSerializable{
 
     protected IDMEF_Node node;

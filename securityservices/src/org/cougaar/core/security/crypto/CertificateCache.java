@@ -186,7 +186,8 @@ public class CertificateCache
     return reply;
   }
 
-  /** Return an ArrayList of certificates which:
+  /** Returns an ArrayList of valid certificates.
+   * The certificates:
    * 1) have not been revoked.
    * 2) have a "notBefore" date in the past.
    * 3) have not expired
