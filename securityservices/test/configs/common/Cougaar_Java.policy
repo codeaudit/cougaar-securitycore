@@ -33,43 +33,43 @@
 
 ////////////////////////////////////////////////////////////
 // Keystore location
-keystore "${org.cougaar.core.security.bootstrap.keystore}";
+keystore "file:${org.cougaar.core.security.bootstrap.keystore}";
 
 ////////////////////////////////////////////////////////////
 // Standard extensions get all permissions by default
 
-grant codeBase "file:${java.home}/lib/ext/*" {
+grant codeBase "file:${java.home}${/}lib${/}ext${/}*" {
 	permission java.security.AllPermission;
 };
 
 // SUN JCE cryptographic framework
-grant codeBase "file:${org.cougaar.install.path}/sys/jce1_2_1.jar" {
+grant codeBase "file:${org.cougaar.install.path}${/}sys${/}jce1_2_1.jar" {
 	// Refer to SUN Java Cryptography Extension (JCE) 1.2.1
 	// documentation for a description of the following permissions.
 	permission java.security.AllPermission;
 };
 
 // SUN JCE cryptographic provider
-grant codeBase "file:${org.cougaar.install.path}/sys/sunjce_provider.jar" {
+grant codeBase "file:${org.cougaar.install.path}${/}sys${/}sunjce_provider.jar" {
 	// Refer to SUN Java Cryptography Extension (JCE) 1.2.1
 	// documentation for a description of the following permissions.
-	permission java.io.FilePermission "${org.cougaar.install.path}/sys/jce1_2_1.jar", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}jce1_2_1.jar", "read";
 	permission java.lang.RuntimePermission "getProtectionDomain";
 	permission java.security.SecurityPermission "putProviderProperty.SunJCE";
 };
 
-//grant codeBase "file:${org.cougaar.install.path}/sys/jaas.jar" {
+//grant codeBase "file:${org.cougaar.install.path}${/}sys${/}jaas.jar" {
 //	permission java.security.AllPermission;
 //};
 
 // FIX: do we want to grant all permissions to all the JAR files in the sys path?
-grant codeBase "file:${org.cougaar.install.path}/sys/*" {
+grant codeBase "file:${org.cougaar.install.path}${/}sys${/}*" {
 	permission java.security.AllPermission;
 };
 
 ////////////////////////////////////////////////////////////
 // Permissions for bootstrapper package.
-//grant codeBase "file:${org.cougaar.install.path}/lib/bootstrapper.jar" {
+//grant codeBase "file:${org.cougaar.install.path}${/}lib${/}bootstrapper.jar" {
 grant signedBy "bootstrapper" { 
 	// AllPermission grants all permissions in the JDK 1.3,
 	// but not the JAAS permissions. Therefore, JAAS permissions
@@ -84,11 +84,11 @@ grant signedBy "bootstrapper" {
 	permission javax.security.auth.AuthPermission "getPolicy";
 };
 
-grant codeBase "file:${org.cougaar.install.path}/lib/core.jar" signedBy "privileged" {
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "privileged" {
 	permission java.util.PropertyPermission "*", "read, write";
 };
 
-grant codeBase "file:${org.cougaar.install.path}/lib/securityservices.jar" signedBy "privileged" { 
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar" signedBy "privileged" { 
 	permission com.nai.security.crypto.KeyRingPermission "readPrivateKey";
 	permission com.nai.security.crypto.KeyRingPermission "installPkcs7Reply";
 };
@@ -172,7 +172,9 @@ grant signedBy "privileged" {
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.pkcs";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.util";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.provider";
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.net";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.misc";
+
 
 	///////////////////////////////////////////////////
 	// This permission is needed by the AgentManager to associate a JAAS
