@@ -45,6 +45,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
+import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 
@@ -72,8 +73,9 @@ public class AuditLogger {
   private static String auditLogDirectory = "";
   private static Map roleMap = new HashMap();
   private static Map userMap = new HashMap();
-  private static org.cougaar.util.log.Logger auditLogger = LoggerFactory.getInstance()
-                                                                        .createLogger(AuditLogger.class);
+  private static org.cougaar.util.log.Logger auditLogger =
+  LoggerFactory.getInstance()
+    .createLogger(AuditLogger.class);
 
   /**
    * Check if auditing is enabled and find the auditlogs directory
@@ -84,6 +86,7 @@ public class AuditLogger {
       auditEnabled = true;
     }
 
+    auditLogger.debug("Configuring AuditLogger. Audit enabled:" + auditEnabled);
     if (auditEnabled) {
       str = System.getProperty("org.cougaar.core.security.audit.outputdir");
       if (str != null) {
@@ -158,19 +161,17 @@ public class AuditLogger {
       serviceFileHandler.setFormatter(new ServiceAuditXMLFormatter());
 
     } catch (SecurityException e) {
-      logger.warning(resource + e.getLocalizedMessage());
-      e.printStackTrace();
+      auditLogger.warn(resource + e.getLocalizedMessage(), e);
     } catch (IOException e) {
-      logger.warning(resource + e.getLocalizedMessage());
-      e.printStackTrace();
+      auditLogger.warn(resource + e.getLocalizedMessage(), e);
     }
 
     if (serviceFileHandler != null) {
       logger.addHandler(serviceFileHandler);
     }
-
+    logger.setUseParentHandlers(false);
     logger.setLevel(Level.ALL);
-    logger.info(resource + " initialized");
+    auditLogger.info(resource + " initialized");
     loggers.put(resource, "TRUE");
   }
 
@@ -185,19 +186,18 @@ public class AuditLogger {
       webFileHandler = new FileHandler(auditLogDirectory + "WebLog.txt");
       webFileHandler.setFormatter(new WebAuditXMLFormatter());
     } catch (SecurityException e) {
-      logger.warning("WebLogger" + e.getLocalizedMessage());
-      e.printStackTrace();
+      auditLogger.warn("WebLogger" + e.getLocalizedMessage(), e);
     } catch (IOException e) {
-      logger.warning("WebLogger" + e.getLocalizedMessage());
-      e.printStackTrace();
+      auditLogger.warn("WebLogger" + e.getLocalizedMessage(), e);
     }
 
     if (webFileHandler != null) {
       logger.addHandler(webFileHandler);
     }
 
+    logger.setUseParentHandlers(false);
     logger.setLevel(Level.ALL);
-    logger.info("WebLogger initialized");
+    auditLogger.info("WebLogger initialized");
     loggers.put("WebLogger", "TRUE");
 
   }
