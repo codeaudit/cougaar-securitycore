@@ -1,747 +1,1 @@
-<html xmlns:o="urn:schemas-microsoft-com:office:office"
-xmlns:w="urn:schemas-microsoft-com:office:word"
-xmlns="http://www.w3.org/TR/REC-html40">
-
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
-<meta name=ProgId content=Word.Document>
-<meta name=Generator content="Microsoft Word 10">
-<meta name=Originator content="Microsoft Word 10">
-<link rel=File-List href="Policy_Daml_files/filelist.xml">
-<title>Policy Management - DAML expansion</title>
-<!--[if gte mso 9]><xml>
- <o:DocumentProperties>
-  <o:Author>Sebastien Rosset</o:Author>
-  <o:Template>Normal</o:Template>
-  <o:LastAuthor>Timothy Redmond</o:LastAuthor>
-  <o:Revision>20</o:Revision>
-  <o:TotalTime>190</o:TotalTime>
-  <o:Created>2003-02-28T16:01:00Z</o:Created>
-  <o:LastSaved>2003-07-14T20:43:00Z</o:LastSaved>
-  <o:Pages>1</o:Pages>
-  <o:Words>501</o:Words>
-  <o:Characters>2862</o:Characters>
-  <o:Company>Network Associates, Inc.</o:Company>
-  <o:Lines>23</o:Lines>
-  <o:Paragraphs>6</o:Paragraphs>
-  <o:CharactersWithSpaces>3357</o:CharactersWithSpaces>
-  <o:Version>10.2625</o:Version>
- </o:DocumentProperties>
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <w:WordDocument>
-  <w:Zoom>125</w:Zoom>
-  <w:SpellingState>Clean</w:SpellingState>
-  <w:GrammarState>Clean</w:GrammarState>
-  <w:Compatibility>
-   <w:BreakWrappedTables/>
-   <w:SnapToGridInCell/>
-   <w:WrapTextWithPunct/>
-   <w:UseAsianBreakRules/>
-  </w:Compatibility>
-  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
- </w:WordDocument>
-</xml><![endif]-->
-<style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:Wingdings;
-	panose-1:5 0 0 0 0 0 0 0 0 0;
-	mso-font-charset:2;
-	mso-generic-font-family:auto;
-	mso-font-pitch:variable;
-	mso-font-signature:0 268435456 0 0 -2147483648 0;}
-@font-face
-	{font-family:Tahoma;
-	panose-1:2 11 6 4 3 5 4 4 2 4;
-	mso-font-charset:0;
-	mso-generic-font-family:swiss;
-	mso-font-pitch:variable;
-	mso-font-signature:1627421319 -2147483648 8 0 66047 0;}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0in;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:10.0pt;
-	font-family:Arial;
-	mso-fareast-font-family:"Times New Roman";
-	mso-bidi-font-family:"Times New Roman";}
-p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
-	{mso-style-noshow:yes;
-	margin:0in;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	background:navy;
-	font-size:10.0pt;
-	font-family:Tahoma;
-	mso-fareast-font-family:"Times New Roman";}
-p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
-	{margin:0in;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:10.0pt;
-	font-family:"Courier New";
-	mso-fareast-font-family:"Times New Roman";}
-span.SpellE
-	{mso-style-name:"";
-	mso-spl-e:yes;}
-span.GramE
-	{mso-style-name:"";
-	mso-gram-e:yes;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 65.95pt 1.0in 65.95pt;
-	mso-header-margin:.5in;
-	mso-footer-margin:.5in;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
- /* List Definitions */
- @list l0
-	{mso-list-id:75135073;
-	mso-list-type:hybrid;
-	mso-list-template-ids:64097764 67698691 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l0:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:o;
-	mso-level-tab-stop:.25in;
-	mso-level-number-position:left;
-	margin-left:.25in;
-	text-indent:-.25in;
-	font-family:"Courier New";}
-@list l1
-	{mso-list-id:246892441;
-	mso-list-type:hybrid;
-	mso-list-template-ids:1539711874 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l1:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:\F0B7;
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	font-family:Symbol;}
-@list l2
-	{mso-list-id:376009076;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-1451454624 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l2:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:\F0B7;
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	font-family:Symbol;}
-@list l2:level2
-	{mso-level-number-format:bullet;
-	mso-level-text:o;
-	mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	font-family:"Courier New";}
-@list l3
-	{mso-list-id:407189590;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-1312542012 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
-@list l3:level1
-	{mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level2
-	{mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level3
-	{mso-level-tab-stop:1.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level4
-	{mso-level-tab-stop:2.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level5
-	{mso-level-tab-stop:2.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level6
-	{mso-level-tab-stop:3.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level7
-	{mso-level-tab-stop:3.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level8
-	{mso-level-tab-stop:4.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level9
-	{mso-level-tab-stop:4.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l4
-	{mso-list-id:506213707;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-2020291352 67698691 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l4:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:o;
-	mso-level-tab-stop:.25in;
-	mso-level-number-position:left;
-	margin-left:.25in;
-	text-indent:-.25in;
-	font-family:"Courier New";}
-@list l5
-	{mso-list-id:551815357;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-660290766 67698691 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l5:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:o;
-	mso-level-tab-stop:.25in;
-	mso-level-number-position:left;
-	margin-left:.25in;
-	text-indent:-.25in;
-	font-family:"Courier New";}
-@list l6
-	{mso-list-id:743721216;
-	mso-list-type:hybrid;
-	mso-list-template-ids:2139777514 67698691 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l6:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:o;
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	font-family:"Courier New";}
-@list l7
-	{mso-list-id:796989960;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-1040272186 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
-@list l7:level1
-	{mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l7:level2
-	{mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l7:level3
-	{mso-level-tab-stop:1.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l7:level4
-	{mso-level-tab-stop:2.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l7:level5
-	{mso-level-tab-stop:2.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l7:level6
-	{mso-level-tab-stop:3.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l7:level7
-	{mso-level-tab-stop:3.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l7:level8
-	{mso-level-tab-stop:4.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l7:level9
-	{mso-level-tab-stop:4.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l8
-	{mso-list-id:868877326;
-	mso-list-type:hybrid;
-	mso-list-template-ids:1303812042 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
-@list l8:level1
-	{mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l8:level2
-	{mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l8:level3
-	{mso-level-tab-stop:1.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l8:level4
-	{mso-level-tab-stop:2.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l8:level5
-	{mso-level-tab-stop:2.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l8:level6
-	{mso-level-tab-stop:3.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l8:level7
-	{mso-level-tab-stop:3.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l8:level8
-	{mso-level-tab-stop:4.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l8:level9
-	{mso-level-tab-stop:4.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l9
-	{mso-list-id:955914770;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-1683578342 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l9:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:\F0B7;
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	font-family:Symbol;}
-@list l10
-	{mso-list-id:1201088106;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-404443370 67698691 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l10:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:o;
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	font-family:"Courier New";}
-@list l11
-	{mso-list-id:1227572410;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-1738618570 67698691 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l11:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:o;
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	font-family:"Courier New";}
-@list l12
-	{mso-list-id:1551385696;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-1740615428 67698691 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l12:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:o;
-	mso-level-tab-stop:.25in;
-	mso-level-number-position:left;
-	margin-left:.25in;
-	text-indent:-.25in;
-	font-family:"Courier New";}
-ol
-	{margin-bottom:0in;}
-ul
-	{margin-bottom:0in;}
--->
-</style>
-<!--[if gte mso 10]>
-<style>
- /* Style Definitions */
- table.MsoNormalTable
-	{mso-style-name:"Table Normal";
-	mso-tstyle-rowband-size:0;
-	mso-tstyle-colband-size:0;
-	mso-style-noshow:yes;
-	mso-style-parent:"";
-	mso-padding-alt:0in 5.4pt 0in 5.4pt;
-	mso-para-margin:0in;
-	mso-para-margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:10.0pt;
-	font-family:"Times New Roman";}
-</style>
-<![endif]-->
-</head>
-
-<body lang=EN-US style='tab-interval:.5in'>
-
-<div class=Section1>
-
-<p class=MsoPlainText style='mso-outline-level:1'><span style='font-size:24.0pt;
-font-family:"Times New Roman"'>DAML Policy Management<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><u><span
-style='font-family:"Times New Roman"'>Flags on which policy expansion depends:<o:p></o:p></span></u></b></p>
-
-<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><u><span
-style='font-family:"Times New Roman"'><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></span></u></b></p>
-
-<p class=MsoPlainText><span class=SpellE><i style='mso-bidi-font-style:normal'><span
-style='font-family:"Times New Roman"'>Servlet</span></i></span><i
-style='mso-bidi-font-style:normal'><span style='font-family:"Times New Roman"'>
-Access Control<o:p></o:p></span></i></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman"'>Servlet</span></span><span
-style='font-family:"Times New Roman"'> access control is responsible for making
-decisions about whether a user <span class=GramE>should <span
-style='mso-spacerun:yes'> </span>be</span> allowed to access a <span
-class=SpellE>servlet</span> <o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>org.cougaar.core.security.policy.enforcers.servlet.useDaml</span></span><span
-style='font-family:"Times New Roman"'>=true<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'>This
-flag enables <span class=SpellE>daml</span> policy enforcement mechanisms <o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>org.cougaar.lib.web.tomcat.enableAuth</span></span><span
-style='font-family:"Times New Roman"'>=true<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>org.cougaar.lib.web.https.port</span></span><span
-style='font-family:"Times New Roman"'>=6557<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span style='font-family:"Times New Roman"'>org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>???<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><i style='mso-bidi-font-style:normal'><span
-style='font-family:"Times New Roman"'>Message Passing Access Control<o:p></o:p></span></i></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo16;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>org.cougaar.core.security.policy.enforcers.crypto.useDaml</span></span><span
-style='font-family:"Times New Roman"'>=true<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo16;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>org.cougaar.core.security.policy.enforcers.access.useDaml</span></span><span
-style='font-family:"Times New Roman"'>=true<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><i style='mso-bidi-font-style:normal'><span
-style='font-family:"Times New Roman"'>BlackBoard</span></i></span><i
-style='mso-bidi-font-style:normal'><span style='font-family:"Times New Roman"'>
-Access Control<o:p></o:p></span></i></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>org.cougaar.core.security.policy.auth.role.useDaml</span></span><span
-style='font-family:"Times New Roman"'>=true<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>org.cougaar.core.security.policy.auth.role.useAccessCaching</span></span><span
-style='font-family:"Times New Roman"'>=true<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>org.cougaar.core.security.access.efficientBBS</span></span><span
-style='font-family:"Times New Roman"'>=true<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><i style='mso-bidi-font-style:normal'><span
-style='font-family:"Times New Roman"'>Other<o:p></o:p></span></i></p>
-
-<p class=MsoPlainText><span class=SpellE><span style='font-family:"Times New Roman"'>safe.guard.NodeGuard.createPolicies</span></span><span
-style='font-family:"Times New Roman"'>=false<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><br>
-<b style='mso-bidi-font-weight:normal'><u>Configuration Files<o:p></o:p></u></b></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'>Add the
-ontology files….<o:p></o:p></span></p>
-
-<p class=MsoPlainText><i style='mso-bidi-font-style:normal'><span
-style='font-family:"Times New Roman"'>Boot Policies<o:p></o:p></span></i></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>DamlBootPolicyList</span></span><span style='font-family:
-"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>Describe
-the grammar<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>Constructs
-the policy through the command <span class=SpellE>policyUtil</span> build <span
-class=SpellE>DamlBootPolicyList</span><o:p></o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><i style='mso-bidi-font-style:normal'><span
-style='font-family:"Times New Roman"'>Servlet</span></i></span><i
-style='mso-bidi-font-style:normal'><span style='font-family:"Times New Roman"'>
-Access Control<o:p></o:p></span></i></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>DamlUriMap</span></span><span style='font-family:"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>DamlUserRoleMap</span></span><span style='font-family:"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span style='font-family:"Times New Roman"'>Updating
-user roles in the <span class=SpellE>ontologies</span><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>To
-make a user role available to policy management, it must appear in the policy <span
-class=SpellE>ontologies</span>.<span style='mso-spacerun:yes'>  </span>There
-are two relevant ontology files for this operation: <span
-style='mso-spacerun:yes'> </span>Ontology-<span class=SpellE>ActorClasses.daml</span>
-and Ontology-<span class=SpellE>GroupInstances.daml</span>.<span
-style='mso-spacerun:yes'>  </span>These two files need to be updated in
-parallel.<span style='mso-spacerun:yes'>  </span>For example, if one is adding
-a <span class=SpellE>CAAdministrator</span> role, then one must add the
-following to <span class=SpellE>Ongology-GroupInstances.daml</span>:<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'>&lt;<span
-class=SpellE>ultralogGroup<span class=GramE>:Role</span></span> <span
-class=SpellE>rdf:ID</span>=&quot;<span class=SpellE>CAAdministratorRole</span>&quot;/&gt;<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in'><span class=GramE><span
-style='font-family:"Times New Roman"'>and</span></span><span style='font-family:
-"Times New Roman"'> the following to Ontology-<span class=SpellE>ActorClasses.daml</span>:<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'>&lt;<span
-class=SpellE>daml<span class=GramE>:Class</span></span> <span class=SpellE>rdf:ID</span>=&quot;<span
-class=SpellE>CAAdministrator</span>&quot;&gt;<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><span
-style='mso-spacerun:yes'>    </span>&lt;<span class=SpellE><span class=GramE>rdfs:</span>subClassOf</span>
-rdf:resource=&quot;http://ontology.coginst.uwf.edu/Actor.daml#Person&quot;/&gt;<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><span
-style='mso-spacerun:yes'>    </span>&lt;<span class=SpellE><span class=GramE>rdfs:</span>subClassOf</span>&gt;<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><span
-style='mso-spacerun:yes'>        </span>&lt;<span class=SpellE><span
-class=GramE>daml:</span>Restriction</span>&gt;<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><span
-style='mso-spacerun:yes'>            </span>&lt;<span class=SpellE><span
-class=GramE>daml:</span>onProperty</span> rdf:resource=&quot;http://ontology.coginst.uwf.edu/Group.daml#isMemberOf&quot;/&gt;<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><span
-style='mso-spacerun:yes'>            </span>&lt;<span class=SpellE><span
-class=GramE>daml:</span>hasValue</span>
-rdf:resource=&quot;http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#CAAdministratorRole&quot;/&gt;<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><span
-style='mso-spacerun:yes'>        </span>&lt;/<span class=SpellE>daml<span
-class=GramE>:Restriction</span></span>&gt;<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><span
-style='mso-spacerun:yes'>    </span>&lt;/<span class=SpellE>rdfs<span
-class=GramE>:subClassOf</span></span>&gt;<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'>&lt;/<span
-class=SpellE>daml<span class=GramE>:Class</span></span>&gt;<o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>UserFile.xml</span></span><span style='font-family:"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>Communities.xml</span></span><span style='font-family:"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.25in'><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><i style='mso-bidi-font-style:normal'><span
-style='font-family:"Times New Roman"'>Message Passing Access Control<o:p></o:p></span></i></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><i style='mso-bidi-font-style:normal'><span
-style='font-family:"Times New Roman"'>Blackboard Access Control<o:p></o:p></span></i></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>DamlBlackboardObjectMap</span></span><span style='font-family:
-"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>RoleUriMap</span></span><span style='font-family:"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>RoleComponentMap</span></span><span style='font-family:"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>RoleAgentMap</span></span><span style='font-family:"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><i style='mso-bidi-font-style:normal'><span
-style='font-family:"Times New Roman"'>Testing<o:p></o:p></span></i></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>DamlTestAgents</span></span><span style='font-family:"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>DamlTestRoles</span></span><span style='font-family:"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo8;
-tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=SpellE><span style='font-family:
-"Times New Roman"'>DamlTestUris</span></span><span style='font-family:"Times New Roman"'><o:p></o:p></span></p>
-
-<p class=MsoPlainText style='margin-left:.25in'><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><u><span
-style='font-family:"Times New Roman"'>Loaded Components<o:p></o:p></span></u></b></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><span class=GramE><span
-style='font-family:"Times New Roman"'>Node.AgentManager.Agent.SecurityComponent</span></span></span><span
-class=GramE><span style='font-family:"Times New Roman"'>(</span></span><span
-style='font-family:"Times New Roman"'>HIGH)=org.cougaar.core.security.policy.webproxy.WebProxySecurityComponent()<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><span class=GramE><span
-style='font-family:"Times New Roman"'>Node.AgentManager.Agent.SecurityComponent</span></span></span><span
-class=GramE><span style='font-family:"Times New Roman"'>(</span></span><span
-style='font-family:"Times New Roman"'>HIGH)=<span class=SpellE>safe.util.SAFESecurityComponent</span>(<span
-class=SpellE>EnclaveOnePolicyManager</span>, <span class=SpellE>EnclaveOne</span>)<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><span class=GramE><span
-style='font-family:"Times New Roman"'>Node.AgentManager.Agent.SecurityComponent</span></span></span><span
-class=GramE><span style='font-family:"Times New Roman"'>(</span></span><span
-style='font-family:"Times New Roman"'>HIGH)=<span class=SpellE>org.cougaar.core.security.provider.SecurityComponentFactory</span>(community)<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><span class=GramE><span
-style='font-family:"Times New Roman"'>Node.AgentManager.Agent.SecurityComponent</span></span></span><span
-class=GramE><span style='font-family:"Times New Roman"'>(</span></span><span
-style='font-family:"Times New Roman"'>HIGH)=<span class=SpellE>org.cougaar.core.security.crypto.AutoConfigPlugin</span>(eucalyptus:ca1ADAgent)<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><span class=GramE><span
-style='font-family:"Times New Roman"'>Node.AgentManager.Agent.MessageTransport.Aspect</span></span></span><span
-class=GramE><span style='font-family:"Times New Roman"'>(</span></span><span
-style='font-family:"Times New Roman"'>INTERNAL) =<span class=SpellE>org.cougaar.core.security.crypto.MessageProtectionAspectImpl</span><o:p></o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><span class=GramE><span
-style='font-family:"Times New Roman"'>Node.AgentManager.Agent.PluginManager.Binder</span></span></span><span
-class=GramE><span style='font-family:"Times New Roman"'>(</span></span><span
-style='font-family:"Times New Roman"'>BINDER) = <span class=SpellE>org.cougaar.core.security.access.PluginServiceFilter</span><o:p></o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><span class=GramE><span
-style='font-family:"Times New Roman"'>Node.AgentManager.Binder</span></span></span><span
-class=GramE><span style='font-family:"Times New Roman"'>(</span></span><span
-style='font-family:"Times New Roman"'>BINDER)=<span class=SpellE>org.cougaar.core.security.access.AccessAgentBinderFactory</span><o:p></o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><span class=GramE><span
-style='font-family:"Times New Roman"'>plugin</span></span></span><span
-style='font-family:"Times New Roman"'> =<span class=SpellE>org.cougaar.core.security.policy.enforcers.init.InitAgentPlugin</span>()<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span class=SpellE><span class=GramE><span
-style='font-family:"Times New Roman"'>plugin</span></span></span><span
-style='font-family:"Times New Roman"'> = <span class=SpellE>org.cougaar.community.CommunityPlugin</span><o:p></o:p></span></p>
-
-<p class=MsoPlainText><span class=GramE><span style='font-family:"Times New Roman"'>plugin=</span></span><span
-style='font-family:"Times New Roman"'>org.cougaar.core.security.policy.enforcers.init.InitNodePlugin()<o:p></o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'><u><span
-style='font-family:"Times New Roman"'>Command Line Tools<o:p></o:p></span></u></b></p>
-
-<p class=MsoPlainText><span style='font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
-
-</div>
-
-</body>
-
-</html>
+<html xmlns:v="urn:schemas-microsoft-com:vml"xmlns:o="urn:schemas-microsoft-com:office:office"xmlns:w="urn:schemas-microsoft-com:office:word"xmlns="http://www.w3.org/TR/REC-html40"><head><meta name=Title content="Policy Management - DAML expansion"><meta name=Keywords content=""><meta http-equiv=Content-Type content="text/html; charset=windows-1252"><meta name=ProgId content=Word.Document><meta name=Generator content="Microsoft Word 10"><meta name=Originator content="Microsoft Word 10"><link rel=File-List href="Policy_Daml_files/filelist.xml"><title>Policy Management - DAML expansion</title><!--[if gte mso 9]><xml> <o:DocumentProperties>  <o:Author>Sebastien Rosset</o:Author>  <o:Template>Normal</o:Template>  <o:LastAuthor>Timothy Redmond</o:LastAuthor>  <o:Revision>2</o:Revision>  <o:Created>2003-07-17T22:37:00Z</o:Created>  <o:LastSaved>2003-07-17T22:37:00Z</o:LastSaved>  <o:Pages>3</o:Pages>  <o:Words>608</o:Words>  <o:Characters>3470</o:Characters>  <o:Company>Network Associates, Inc.</o:Company>  <o:Lines>28</o:Lines>  <o:Paragraphs>6</o:Paragraphs>  <o:CharactersWithSpaces>4261</o:CharactersWithSpaces>  <o:Version>10.1316</o:Version> </o:DocumentProperties></xml><![endif]--><!--[if gte mso 9]><xml> <w:WordDocument>  <w:Zoom>150</w:Zoom>  <w:Compatibility>   <w:BreakWrappedTables/>   <w:SnapToGridInCell/>   <w:WrapTextWithPunct/>   <w:UseAsianBreakRules/>  </w:Compatibility>  <w:SpellingState>Clean</w:SpellingState>  <w:GrammarState>Clean</w:GrammarState>  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel> </w:WordDocument></xml><![endif]--><style><!--p.MSONORMAL	{mso-bidi-font-family:"Times New Roman";}li.MSONORMAL	{mso-bidi-font-family:"Times New Roman";}div.MSONORMAL	{mso-bidi-font-family:"Times New Roman";}p.MSODOCUMENTMAP	{mso-style-noshow:yes;}li.MSODOCUMENTMAP	{mso-style-noshow:yes;}div.MSODOCUMENTMAP	{mso-style-noshow:yes;}span.SPELLE	{mso-spl-e:yes;}span.GRAME	{mso-gram-e:yes;} /* Font Definitions */@font-face	{font-family:"Times New Roman";	panose-1:0 2 2 6 3 5 4 5 2 3;	mso-font-charset:0;	mso-generic-font-family:auto;	mso-font-pitch:variable;	mso-font-signature:50331648 0 0 0 1 0;}@font-face	{font-family:Arial;	panose-1:0 2 11 6 4 2 2 2 2 2;	mso-font-charset:0;	mso-generic-font-family:auto;	mso-font-pitch:variable;	mso-font-signature:50331648 0 0 0 1 0;}@font-face	{font-family:"Courier New";	panose-1:0 2 7 3 9 2 2 5 2 4;	mso-font-charset:0;	mso-generic-font-family:auto;	mso-font-pitch:variable;	mso-font-signature:50331648 0 0 0 1 0;}@font-face	{font-family:Tahoma;	panose-1:0 2 11 6 4 3 5 4 4 2;	mso-font-charset:0;	mso-generic-font-family:auto;	mso-font-pitch:variable;	mso-font-signature:50331648 0 0 0 1 0;} /* Style Definitions */p.MsoNormal, li.MsoNormal, div.MsoNormal	{mso-style-parent:"";	margin:0in;	margin-bottom:.0001pt;	mso-pagination:widow-orphan;	font-size:10.0pt;	font-family:Arial;}p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap	{margin:0in;	margin-bottom:.0001pt;	mso-pagination:widow-orphan;	background:navy;	font-size:10.0pt;	font-family:Tahoma;}p.MsoPlainText, li.MsoPlainText, div.MsoPlainText	{margin:0in;	margin-bottom:.0001pt;	mso-pagination:widow-orphan;	font-size:10.0pt;	font-family:"Courier New";}@page Section1	{size:8.5in 11.0in;	margin:1.0in 65.95pt 1.0in 65.95pt;	mso-header-margin:.5in;	mso-footer-margin:.5in;	mso-paper-source:0;}div.Section1	{page:Section1;} /* List Definitions */@list l0	{mso-list-id:246892441;	mso-list-type:hybrid;	mso-list-template-ids:1539711874 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}@list l0:level1	{mso-level-number-format:bullet;	mso-level-text:\F0B7;	mso-level-tab-stop:.5in;	mso-level-number-position:left;	text-indent:-.25in;	font-family:Symbol;}@list l1	{mso-list-id:376009076;	mso-list-type:hybrid;	mso-list-template-ids:-1451454624 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}@list l1:level1	{mso-level-number-format:bullet;	mso-level-text:\F0B7;	mso-level-tab-stop:.5in;	mso-level-number-position:left;	text-indent:-.25in;	font-family:Symbol;}@list l1:level2	{mso-level-number-format:bullet;	mso-level-text:o;	mso-level-tab-stop:1.0in;	mso-level-number-position:left;	text-indent:-.25in;	font-family:"Courier New";}ol	{margin-bottom:0in;}ul	{margin-bottom:0in;}--></style><!--[if gte mso 9]><xml> <o:shapedefaults v:ext="edit" spidmax="1027"/></xml><![endif]--><!--[if gte mso 9]><xml> <o:shapelayout v:ext="edit">  <o:idmap v:ext="edit" data="1"/> </o:shapelayout></xml><![endif]--></head><body bgcolor=white lang=EN-US style='tab-interval:.5in'><div class=Section1><p class=MsoPlainText style='mso-outline-level:1'><span style='font-size:24.0pt;font-family:"Times New Roman"'>DAML Policy Management<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><bstyle='mso-bidi-font-weight:normal'><u>Flags on which policy expansion depends:<o:p></o:p></u></b></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><bstyle='mso-bidi-font-weight:normal'>&nbsp;<u><o:p></o:p></u></b></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><istyle='mso-bidi-font-style:normal'>Servlet Access Control<o:p></o:p></i></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>Servletaccess control is responsible for making decisions about whether a usershould<span style="mso-spacerun: yes">&nbsp; </span>be allowed to access aservlet <o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>org.cougaar.core.security.policy.enforcers.servlet.useDaml=true<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'>Thisflag enables daml policy enforcement mechanisms <o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>org.cougaar.lib.web.tomcat.enableAuth=true<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>org.cougaar.lib.web.https.port=6557<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>???<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><istyle='mso-bidi-font-style:normal'>Message Passing Access Control<o:p></o:p></i></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>org.cougaar.core.security.policy.enforcers.crypto.useDaml=true<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>org.cougaar.core.security.policy.enforcers.access.useDaml=true<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><istyle='mso-bidi-font-style:normal'>BlackBoard Access Control<o:p></o:p></i></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>org.cougaar.core.security.policy.auth.role.useDaml=true<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>org.cougaar.core.security.policy.auth.role.useAccessCaching=true<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>org.cougaar.core.security.access.efficientBBS=true<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><istyle='mso-bidi-font-style:normal'>Other<o:p></o:p></i></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>safe.guard.NodeGuard.createPolicies=false<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><br><b style='mso-bidi-font-weight:normal'><u>Configuration Files<o:p></o:p></u></b></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>Add theontology files….<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><istyle='mso-bidi-font-style:normal'>Boot Policies<o:p></o:p></i></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'><b>DamlBootPolicyList<o:p></o:p></b></span></p><p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>Describethe grammar<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>Constructsthe policy through the command policyUtil build DamlBootPolicyList<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><istyle='mso-bidi-font-style:normal'>Servlet Access Control<o:p></o:p></i></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'><b>DamlUriMap</b></span><spanstyle='font-family:"Times New Roman"'> and <b>Ontology-EntityInstances.daml</b></span><spanstyle='font-family:"Times New Roman"'><o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>Thesetwo configuration files are used to control the relationship between the namesof servlets that are understood by the policy and<span style="mso-spacerun:yes">&nbsp; </span>the names of servlets that are used by the policy engine.<spanstyle="mso-spacerun: yes">&nbsp; </span>A new name for a servlet is introducedinto the policy engine by adding a line of the following form to the file <b>Ontology-EntityInstances.daml</b></span><spanstyle='font-family:"Times New Roman"'>:<o:p></o:p></span></p><p class=MsoPlainText align=center style='margin-left:.5in;text-align:center'><spanstyle='font-family:"Times New Roman"'>&lt;ultralogEntity:Servletrdf:ID=&quot;CAReadServlet&quot;/&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>The<b>DamlUriMap</b></span><span style='font-family:"Times New Roman"'> file mapsUltralog names for servlets to the names used by the policy management system. <spanstyle="mso-spacerun: yes">&nbsp;</span>Each line in this file is either acomment (if it starts with #) or a pair of strings separated by a space.<spanstyle="mso-spacerun: yes">&nbsp; </span>A typical entry in this file looks like<o:p></o:p></span></p><p class=MsoPlainText align=center style='margin-left:.5in;text-align:center'><spanstyle='font-family:"Times New Roman"'>/$*/CA/Index CAReadServlet<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'><b>DamlUserRoleMap,Ontology-GroupInstances.daml, Ontology-ActorClasses.daml<o:p></o:p></b></span></p><p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>Thesethree files are used to managing the relationship between the names of <o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>Updatinguser roles in the ontologies<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>Tomake a user role available to policy management, it must appear in the policyontologies.<span style="mso-spacerun: yes">&nbsp; </span>There are two relevantontology files for this operation:<span style="mso-spacerun: yes">&nbsp;</span>Ontology-ActorClasses.daml and.<span style="mso-spacerun: yes">&nbsp;</span>These two files need to be updated in parallel.<spanstyle="mso-spacerun: yes">&nbsp; </span>For example, if one is adding a CAAdministratorrole, then one must add the following to Ongology-GroupInstances.daml:<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'>&lt;ultralogGroup:Rolerdf:ID=&quot;CAAdministratorRole&quot;/&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in'><span style='font-family:"Times New Roman"'>andthe following to Ontology-ActorClasses.daml:<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'>&lt;daml:Classrdf:ID=&quot;CAAdministrator&quot;&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><spanstyle="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; </span>&lt;rdfs:subClassOfrdf:resource=&quot;http://ontology.coginst.uwf.edu/Actor.daml#Person&quot;/&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><spanstyle="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; </span>&lt;rdfs:subClassOf&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><spanstyle="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&lt;daml:Restriction&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><spanstyle="mso-spacerun:yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&lt;daml:onPropertyrdf:resource=&quot;http://ontology.coginst.uwf.edu/Group.daml#isMemberOf&quot;/&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><spanstyle="mso-spacerun:yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&lt;daml:hasValue rdf:resource=&quot;http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#CAAdministratorRole&quot;/&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><spanstyle="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&lt;/daml:Restriction&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'><spanstyle="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; </span>&lt;/rdfs:subClassOf&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:1.0in'><span style='font-family:"Times New Roman"'>&lt;/daml:Class&gt;<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>UserFile.xml<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>Communities.xml<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.25in'><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><istyle='mso-bidi-font-style:normal'>Message Passing Access Control<o:p></o:p></i></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><istyle='mso-bidi-font-style:normal'>Blackboard Access Control<o:p></o:p></i></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>DamlBlackboardObjectMap<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>RoleUriMap<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>RoleComponentMap<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>RoleAgentMap<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><istyle='mso-bidi-font-style:normal'>Testing<o:p></o:p></i></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>DamlTestAgents<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>DamlTestRoles<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.5in;text-indent:-.25in;mso-list:l1 level1 lfo2;tab-stops:list .5in'><![if !supportLists]><span style='font-family:Symbol'>·<spanstyle='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]><span style='font-family:"Times New Roman"'>DamlTestUris<o:p></o:p></span></p><p class=MsoPlainText style='margin-left:.25in'><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><bstyle='mso-bidi-font-weight:normal'><u>Loaded Components<o:p></o:p></u></b></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>Node.AgentManager.Agent.SecurityComponent(HIGH)=org.cougaar.core.security.policy.webproxy.WebProxySecurityComponent()<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>Node.AgentManager.Agent.SecurityComponent(HIGH)=safe.util.SAFESecurityComponent(EnclaveOnePolicyManager,EnclaveOne)<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>Node.AgentManager.Agent.SecurityComponent(HIGH)=org.cougaar.core.security.provider.SecurityComponentFactory(community)<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>Node.AgentManager.Agent.SecurityComponent(HIGH)=org.cougaar.core.security.crypto.AutoConfigPlugin(eucalyptus:ca1ADAgent)<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>Node.AgentManager.Agent.MessageTransport.Aspect(INTERNAL)=org.cougaar.core.security.crypto.MessageProtectionAspectImpl<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>Node.AgentManager.Agent.PluginManager.Binder(BINDER)= org.cougaar.core.security.access.PluginServiceFilter<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>Node.AgentManager.Binder(BINDER)=org.cougaar.core.security.access.AccessAgentBinderFactory<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>plugin=org.cougaar.core.security.policy.enforcers.init.InitAgentPlugin()<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>plugin = org.cougaar.community.CommunityPlugin<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>plugin=org.cougaar.core.security.policy.enforcers.init.InitNodePlugin()<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'><bstyle='mso-bidi-font-weight:normal'><u>Command Line Tools<o:p></o:p></u></b></span></p><p class=MsoPlainText><span style='font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p></div></body></html>
