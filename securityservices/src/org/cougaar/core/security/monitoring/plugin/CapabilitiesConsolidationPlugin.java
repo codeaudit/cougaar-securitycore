@@ -62,10 +62,15 @@ import org.cougaar.core.security.monitoring.blackboard.*;
 
 
 class ModifiedCapabilitiesPredicate implements UnaryPredicate{
+  LoggingService log=null;
+  public ModifiedCapabilitiesPredicate(LoggingService ls) {
+    log=ls;
+  }
   public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof CapabilitiesObject ) {
-      return true;
+      log.debug(" Capabilities Object True :");
+            return true;
     }
     return ret;
   }
@@ -73,6 +78,10 @@ class ModifiedCapabilitiesPredicate implements UnaryPredicate{
 
 
 class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
+  LoggingService log=null;
+  public ConsolidatedCapabilitiesRelayPredicate(LoggingService ls) {
+    log=ls;
+  }
   public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof CmrRelay ) {
@@ -82,21 +91,28 @@ class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
 	ret = (event.getEvent() instanceof AgentRegistration);
       }
       else {
+	 log.debug(" ConsolidatedCapabilitiesRelayPredicate:" + ret);
 	return ret;
       }
     }
+    log.debug(" ConsolidatedCapabilitiesRelayPredicate:" + ret);
     return ret;
   }
 }
 
 
 class AgentRegistrationPredicate implements UnaryPredicate{
+  LoggingService log=null;
+  public AgentRegistrationPredicate(LoggingService ls) {
+    log=ls;
+  }
   public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof Event ) {
       Event e=(Event)o;
       IDMEF_Message msg=e.getEvent();
       if(msg instanceof AgentRegistration){
+	log.debug(" AgentRegistrationPredicate: True" );	
 	return true;
       }
     }
@@ -127,7 +143,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private String dest_agent=null;
   private String myRole=null;
   /** Holds value of property loggingService. */
-  private LoggingService loggingService;  
+  private LoggingService loggingService;
+  private boolean readcollection=false;
   
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -203,9 +220,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	loggingService.debug("Created  manager address :"+ mgrAddress.toString());
       }
     }
-    modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate());
-    capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe(new ConsolidatedCapabilitiesRelayPredicate());
-    agentRegistrations= (IncrementalSubscription)getBlackboardService().subscribe(new AgentRegistrationPredicate());
+    modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate(loggingService));
+    capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe(new ConsolidatedCapabilitiesRelayPredicate(loggingService));
+    agentRegistrations= (IncrementalSubscription)getBlackboardService().subscribe(new AgentRegistrationPredicate(loggingService));
   }
 
 
@@ -236,16 +253,23 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
        //Event event=null;
        IdmefMessageFactory idmeffactory=factory.getIdmefMessageFactory();
        Collection  modifiedcapabilities_col=modifiedcapabilities.getChangedCollection();
-       ArrayList list=new ArrayList(modifiedcapabilities_col);
+       if(!readcollection) {
+	 if(( modifiedcapabilities_col==null)||( modifiedcapabilities_col.size()==0)){
+	   modifiedcapabilities_col=modifiedcapabilities.getCollection();
+	   readcollection=true;
+	 }
+	 
+       }
+       //ArrayList list=new ArrayList(modifiedcapabilities_col);
     
-       if((list==null)||(list.size()==0)){
+       if(( modifiedcapabilities_col==null)||( modifiedcapabilities_col.size()==0)){
 	 if (loggingService.isDebugEnabled()) 
 	   loggingService.debug(" No modified capabilities currently present" +
 				"RETURNING !");
 	 return;
        }
     
-       if(list.size()>1) {
+       if(modifiedcapabilities_col.size()>1) {
 	 if (loggingService.isDebugEnabled())
 	   loggingService.debug(" Error Multiple complete capabilities object on blackboard in Capabilities"+
 				" Consolidation plugin !!!!!!!!!!!!!!!!!!!"+
@@ -255,7 +279,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
    
        ConsolidatedCapabilities consCapabilities=null;
        CapabilitiesObject capabilitiesobject=null;
-       capabilitiesobject=(CapabilitiesObject )list.get(firstobject);
+       Iterator iter= modifiedcapabilities_col.iterator();
+       while (iter.hasNext()) {
+	 capabilitiesobject=(CapabilitiesObject )iter.next();
+	 break;
+       }
+       //capabilitiesobject=(CapabilitiesObject )list.get(firstobject);
        printhash(capabilitiesobject);
        consCapabilities=createConsolidatedCapabilities();
        RegistrationAlert registration=null;
