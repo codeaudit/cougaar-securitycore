@@ -81,6 +81,7 @@ public class PersistenceMgrPolicyServiceImpl
   public PersistenceMgrPolicyServiceImpl(ServiceBroker sb, String community) {
     _log = (LoggingService)sb.getService(this, LoggingService.class, null);
     _keyRing = (KeyRingService)sb.getService(this, KeyRingService.class, null);
+    // TODO: add service listeners since these services may not be available
     _cs = (CommunityService)sb.getService(this, CommunityService.class, null);
     _wps = (WhitePagesService)sb.getService(this, WhitePagesService.class, null);
     _myCommunity = community;
@@ -145,6 +146,12 @@ public class PersistenceMgrPolicyServiceImpl
 
     public void run() {
       // get a list of all security communities
+      if(_cs == null || _wps == null) {
+        if(_debug) {
+          _log.debug("community service or white pages service is null!");
+        }
+        return;
+      }
       Iterator communities = _cs.search("(CommunityType=Security)").iterator();
       while(communities.hasNext()) {
         String community = (String)communities.next();
