@@ -7,8 +7,8 @@ set node = "TEST-ONE-NODE"
 ###########################################
 # Choose one of the following exec classes:
 set choice1="1: Keystore - generate keys, send keys to CA and store result in keystore"
-set choice2="2: PKCS#12 - wrap private key in a PKCS#12 envelope"
-set choice3="3: JAAS - simulate three security contexts (node/agent/PlugIn)"
+set choice2="2: PKCS#12  - wrap private key in a PKCS#12 envelope"
+set choice3="3: JAAS     - simulate three security contexts (node/agent/PlugIn)"
 echo "Select test:"
 echo "  ${choice1}"
 echo "  ${choice2}"
