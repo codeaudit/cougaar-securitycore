@@ -32,7 +32,8 @@ class SecurityMop21 < AbstractSecurityMop
     #Requires Oplan ready
     @nextAgent = nil
     begin
-      @run.society.each_agent(true) do |agent|
+      @run.society.each_node do |node|
+        agent = node.agent
         @nextAgent = agent
 #        url = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=start&exp=#{@run.name}"
         url = "#{agent.uri}/testBlackboardManager?do=start&exp=#{@run.name}"
@@ -57,7 +58,8 @@ class SecurityMop21 < AbstractSecurityMop
 
   def shutdown
     begin
-      run.society.each_agent(true) do |agent|
+      run.society.each_node do |node|
+        agent = node.agent
         url ="http://#{agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=end&exp=#{run.name}"
 #        url ="#{agent.uri}/testBlackboardManager?do=end&exp=#{run.name}"
 #        puts "ending testBlackboardManager #{url}" if $VerboseDebugging
