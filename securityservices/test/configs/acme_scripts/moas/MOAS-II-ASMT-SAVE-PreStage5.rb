@@ -42,18 +42,16 @@ parameters:
 # Robustness rules
 #    - $CIP/csmart/config/rules/robustness/manager.rule
 #    - $CIP/csmart/config/rules/robustness/uc1
-#    - $CIP/csmart/config/rules/robustness/uc7
 #    - $CIP/csmart/config/rules/robustness/uc9
+#    - $CIP/csmart/config/rules/robustness/uc7
 #    - $CIP/csmart/config/rules/robustness/UC3
 #    - $CIP/csmart/config/rules/metrics/basic
 #    - $CIP/csmart/config/rules/metrics/sensors
 #    - $CIP/csmart/config/rules/metrics/serialization/metrics-only-serialization.rule
 #    - $CIP/csmart/config/rules/metrics/rss/tic
 
-#    - $CIP/csmart/config/rules/robustness/uc1/aruc1.rule
 #    - $CIP/csmart/config/rules/robustness/uc1/debug/mic.rule
 #    - $CIP/csmart/config/rules/robustness/uc1/tuning/collect_stats.rule
-#    - $CIP/csmart/config/rules/robustness/uc9/deconfliction.rule
 # ############################################################
   - community_rules:
     - $CIP/csmart/config/rules/security/communities
@@ -85,11 +83,7 @@ include_scripts:
 
 # ############################################################
 # Robustness include scripts
-# setup_robustness.rb is not found with the isat update_cougaar,
-# need to copy it from old builds
-# This script needs to be included to have robustness defenses unleash,
-# otherwise there is no use adding robustness
-#  - script: setup_robustness.rb
+#  - script: $CIP/csmart/lib/robustness/objs/deconfliction.rb
 #  - script: $CIP/csmart/lib/isat/network_shaping.rb
 #  - script: $CIP/csmart/lib/isat/datagrabber_include.rb
 ###########################################
