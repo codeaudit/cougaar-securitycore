@@ -41,6 +41,7 @@
     <!-- The classes directory for output classes and jar files -->
     <property name="securityservices.classes" value="classes"/>
     <property name="securityservices.jsp" value="classes/jsp"/>
+    <property name="securityservices.policy" value="classes/policy"/>
     <!-- The output directory for signed jar files -->
     <property name="securityservices.signed" value="${securityservices.classes}${file.separator}signed"/>
     <!-- The base directories where the java source files are located -->
@@ -162,6 +163,7 @@
     	<echo message="Initializing ${project.description} build..."/>
         <mkdir dir="${securityservices.classes}"/>
         <mkdir dir="${securityservices.jsp}"/>
+        <mkdir dir="${securityservices.policy}"/>
         <mkdir dir="${securityservices.signed}"/>
         <mkdir dir="${securityservices.docdir}"/>
 
@@ -204,7 +206,7 @@
     <target name="check-policyParserUptodate">
       <uptodate property="policyParserUptodate"
                 srcfile="${securityservices.src}/org/cougaar/core/security/policy/builder/policyGrammar.g"
-                targetfile="${securityservices.src}/org/cougaar/core/security/policy/builder/PolicyParser.java" 
+                targetfile="${securityservices.policy}/org/cougaar/core/security/policy/builder/PolicyParser.java" 
                 />
     </target>
 
@@ -214,10 +216,13 @@
       -->
     <target name="build-policyparser" depends="init, check-policyParserUptodate"
             unless="policyParserUptodate" >
+      <mkdir dir="${securityservices.policy}/org/cougaar/core/security/policy/builder"/>
+      <copy file="${securityservices.src}/org/cougaar/core/security/policy/builder/policyGrammar.g"
+    	toDir="${securityservices.policy}/org/cougaar/core/security/policy/builder"/>
       <java classname="antlr.Tool"
             fork="true"
             failonerror="true"
-            dir="${securityservices.src}/org/cougaar/core/security/policy/builder"
+            dir="${securityservices.policy}/org/cougaar/core/security/policy/builder"
             classpathref="core.class.path" >
         <arg value="policyGrammar.g" />
       </java>
@@ -231,6 +236,7 @@
             source="1.4">
           <src path="${securityservices.src}"/>
           <src path="${securityservices.jsp}"/>
+          <src path="${securityservices.policy}"/>
           <include name="org/cougaar/core/security/**"/>
       	</javac>
         <echo message="+++++ Built ${project.description}"/>
@@ -722,45 +728,6 @@
         </jspc>
     </target>
 
-    <target name="check-policiesUptodate">
-      <uptodate property="policiesUptodate"
-                targetfile="${securityservices.configs}/common/OwlBootPoliciesCompleted" >
-        <srcfiles dir="${securityservices.configs}/common"
-                  includes="OwlBootPolicyList, Ontology-*.owl" />
-        <srcfiles dir="${securityservices.lib}"
-                  includes="kaos.jar" />
-      </uptodate>
-    </target>
-
-    <target name="build-boot-policies" 
-            depends="jar-securityservices, check-policiesUptodate"
-            unless="policiesUptodate">
-     <echo message="+++++ Removing old boot policies"/>
-     <delete>
-        <fileset dir="${securityservices.configs}/common"
-                 includes="OwlBootPolicy*.info, OwlBootPolicy*.msg" />
-     </delete>
-     <echo message="++++++ Copying ontologies" />
-      <copy todir="${securityservices.staging}/configs/security">
-        <fileset dir="${securityservices.configs}/common"
-                 includes="Ontology-*.owl" />
-      </copy>
-      <echo message="++++++ Building boot policies"/>
-      <java classname="org.cougaar.core.security.policy.builder.Main" 
-            fork="true"
-            failonerror="true"
-            dir="${securityservices.configs}/common">
-        <classpath refid="core.class.path" />
-        <!-- this is done before signing so I need an explicit path -->
-        <classpath 
-           path="${securityservices.base}/classes/securityservices.jar" />
-        <arg line="build --quiet --info --checkDepth OwlBootPolicyList" />
-      </java>
-      <touch 
-         file="${securityservices.configs}/common/OwlBootPoliciesCompleted" />
-    </target>
-
-
     <!-- The ALL target only compiles, jar, and sign jars -->
     <target name="all" depends="install-conf">
         <tstamp>
@@ -796,6 +763,11 @@
     	-->
     	<antCall target="update-dependency">
     		<param name="dependency.module.name" value="securityutils"/>
+    		<param name="dependency.module.jar" value="secure_utils.jar"/>
+    	</antCall>
+    	<antCall target="update-dependency">
+    		<param name="dependency.module.name" value="securebootstrap"/>
+    		<param name="dependency.module.jar" value="secure_bootstrapper.jar"/>
     	</antCall>
     </target>
 	<target name="update-dependency">
@@ -804,7 +776,17 @@
         	file="${securityservices.base}../${dependency.module.name}" type="dir"/>
 	   <cvs cvsRoot="${env.CVSROOT}" command="${cvs.command.module}"
 	           dest="${securityservices.base}../${dependency.module.name}"/>
+	   <ant antfile="build.xml"
+	   	    dir="${securityservices.base}../${dependency.module.name}"
+	   	    inheritAll="false"
+	   	    target="with-depend-update">
+	   </ant>
+	   <copy file="${securityservices.base}../${dependency.module.name}/classes/signed/${dependency.module.jar}"
+		    toDir="${securityservices.base}/lib/security">
+	   </copy>
     </target>
+    <!-- use 'ant with-update' to update repository executing the ALL target -->
+    <target name="with-depend-update" depends="update-dependencies, all"/>
 		
     <!-- use 'ant with-update' to update repository executing the ALL target -->
     <target name="with-update" depends="cvs-update, all"/>
