@@ -24,6 +24,7 @@
 package org.cougaar.core.security.acl.auth;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.audit.AuditLogger;
 import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
@@ -39,7 +40,9 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.security.AccessController;
 import java.security.Principal;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -96,6 +99,10 @@ public class DualAuthenticator extends ValveBase {
     "org.cougaar.core.security.policy.enforcers.servlet.useDaml";
   private static final boolean USE_DAML = Boolean.getBoolean(DAML_PROPERTY);
 
+  // To Do: Put this in AuditLogger.java and reference from there.
+  public static final String AUDIT_PROPERTY="org.cougaar.core.security.audit";
+  private static final boolean USE_AUDIT = Boolean.getBoolean(AUDIT_PROPERTY);
+
   public DualAuthenticator() {
     this(new SSLAuthenticator(), new BasicAuthenticator());
   }
@@ -129,6 +136,7 @@ public class DualAuthenticator extends ValveBase {
         enforcer.registerEnforcer();
         _log.debug("Done registering ServletNodeEnforcer");
         _enforcer = enforcer;
+        SecureHookServlet.setEnforcer(_enforcer);
       }
       return true;
     } catch (Exception e) {
@@ -206,8 +214,11 @@ public class DualAuthenticator extends ValveBase {
       return;
     }
     if (uriAuthLevel == AUTH_NONE) {
-      // no authentication requirement
+      // no authentication requirement  --  audit and invoke
       _log.debug("no authorization.. invoking servlet");
+      if (auditReqd(hsrequest.getRequestURI())) {
+        doAudit(hsrequest);
+      }
       context.invokeNext(request, response);
       return;
     }
@@ -240,7 +251,13 @@ public class DualAuthenticator extends ValveBase {
     if (rolesOk(cipher, userAuthLevel, 
                 (CougaarPrincipal) principal, hsrequest)) {
       _log.debug("roles are good... invoking servlet");
-      // authorization is ok
+      // authorization is ok -- audit and invoke
+      if (auditReqd(cipher, 
+                    userAuthLevel, 
+                    (CougaarPrincipal) principal, 
+                    hsrequest)) {
+        doAudit(hsrequest);
+      }
       context.invokeNext(request, response);
     } else {
       alertAuthorizationFailure(hsrequest, principal);
@@ -309,6 +326,10 @@ public class DualAuthenticator extends ValveBase {
       HashSet roleSet = new HashSet();
       for (int i = 0; i < roles.length; i++) {
         roleSet.add(roles[i]);
+      }
+      if (_log.isDebugEnabled()) {
+        _log.debug("Checking authorization for " + req 
+                   + " with servlet name " + req.getRequestURI());
       }
       return _enforcer.isActionAuthorized(roleSet, 
                                           req.getRequestURI(),
@@ -657,6 +678,157 @@ public class DualAuthenticator extends ValveBase {
     }
     return null;
   }
+
+  /*-------------------------------------------------------------
+   * Audit functions 
+   */
+
+  /**
+   * Determine whether an audit is required if I only know the uri (e.g. the 
+   * servlet access has been allowed and no authentication is going to be 
+   * used.)
+   *
+   * This function checks USE_AUDIT so extra mediation is avoided if possible.
+   */
+  protected boolean auditReqd(String uri)
+  {
+    if (!USE_AUDIT) {
+      return false;
+    } else if (USE_DAML) {
+      _log.debug("Using DAML to determine if audit is required");
+      return _enforcer.auditRequired(uri);
+    } else {
+      return true;
+    }
+  }
+
+
+  /**
+   * Determine whether an audit is required if I have full information about
+   * the user making the call.  This function is very similar to rolesOk.
+   *
+   * This function checks USE_AUDIT so extra mediation is avoided if possible.
+   */
+  protected boolean auditReqd(String cipher, 
+                              byte userAuthLevel,
+                              CougaarPrincipal principal,
+                              HttpServletRequest req) 
+  {
+    if (!USE_AUDIT) {
+      return false;
+    } else if  (USE_DAML) {
+      String roles[] = principal.getRoles();
+      HashSet roleSet = new HashSet();
+      for (int i = 0; i < roles.length; i++) {
+        roleSet.add(roles[i]);
+      }
+      if (_log.isDebugEnabled()) {
+        _log.debug("Checking audit requirement for " + req 
+                   + " with servlet name " + req.getRequestURI());
+      }
+      return _enforcer.auditRequired(roleSet, 
+                                     req.getRequestURI(),
+                                     cipher,
+                                     userAuthLevel);
+                                          
+    } else {
+      return true;
+    }
+  }
+
+  protected void doAudit(final HttpServletRequest hsrequest)
+  {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Doing audit for " + hsrequest + " with servlet name " +
+                 getServletName(hsrequest) + " and agent name " +
+                 getAgentName(hsrequest));
+    }
+    //log access to Resource
+    AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          AuditLogger.logWebEvent(hsrequest, 
+                                  getServletName(hsrequest), 
+                                  getAgentName(hsrequest));
+          return null;
+        }
+      });
+  }
+
+  /*
+   * These two functions used to live in SecureHookServlet.java
+   */
+
+  /**
+   * Get the agent name from the servlet request
+   * A Cougaar URL looks like this:
+   *   http://<hostname>:<port_number>/$<agent_name>/<servlet_name>
+   */
+  private String getAgentName(HttpServletRequest hreq) {
+    if (hreq == null) {
+      return null;
+    }
+    String urlString = hreq.getRequestURI();
+    if (urlString == null || urlString.length() == 0) {
+      return null;
+    }
+    if (urlString.charAt(0) != '/') {
+      _log.warn("Error parsing URL. Unexpected character: " + urlString);
+      return null;
+    }
+    urlString = urlString.substring(1, urlString.length());
+    int last = urlString.indexOf('/');
+    if (last == -1) {
+      last = urlString.length();
+    }
+    urlString = urlString.substring(0, last);
+    int first = urlString.indexOf('$');
+    if (first == -1) {
+      return null;
+    }
+    return urlString.substring(first+1, last);
+  }
+
+  /**
+   * Get the servlet name from the servlet request
+   * A Cougaar URL looks like this:
+   *   http://<hostname>:<port_number>/$<agent_name>/<servlet_name>
+   */
+  private String getServletName(HttpServletRequest hreq) {
+    if (hreq == null) {
+      return null;
+    }
+    String urlString = hreq.getRequestURI();
+    if (urlString == null || urlString.length() == 0) {
+      return null;
+    }
+    if (urlString.charAt(0) != '/') {
+      _log.warn("Error parsing URL. Unexpected character: " + urlString);
+      return null;
+    }
+    if (urlString.length() == 1) {
+      return urlString;
+    }
+    else if (urlString.charAt(1) == '$') {
+      int first = urlString.indexOf('/', 1);
+      if (first == -1) {
+	return null;
+      }
+      else {
+	return urlString.substring(first, urlString.length());
+      }
+    }
+    else {
+      return urlString.substring(1, urlString.length());
+    }
+  }
+
+
+
+  /*
+   * End of Audit functions 
+   *------------------------------------------------------------- 
+   */
+
 
   /**
    * Valve callback. First check the primary authentication method
