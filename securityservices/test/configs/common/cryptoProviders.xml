@@ -13,6 +13,9 @@
   <securityProvider class="com.sun.crypto.provider.SunJCE">
   </securityProvider>
 
+  <securityProvider class="com.sun.net.ssl.internal.ssl.Provider">
+  </securityProvider>
+
   <!-- Early access Cryptix provider.
        JCE compatible -->
   <securityProvider class="cryptix.jce.provider.CryptixCrypto">

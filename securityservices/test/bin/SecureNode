@@ -99,7 +99,7 @@ if ( "$useBootstrapper" == "true") then
 	# The java.security.debug property can be used to debug the
 	# Security Manager.
 	# Acceptable values: all, access, jar, policy, scl, stack, domain, failure
-	#set MYPROPERTIES="$MYPROPERTIES -Djava.security.debug=access"
+	#set MYPROPERTIES="$MYPROPERTIES -Djava.security.debug=all"
 
 	# Used to show bootstrapper debugging information
 	# In particular, it will show information about the JAR file signature
@@ -211,12 +211,13 @@ if ("$os" == "Linux") then
 endif
 
 set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.message.transport.debug=true"
+set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar"
+
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.message.isLogging=true -Djava.rmi.server.logCalls=true -Dsun.rmi.server.exceptionTrace=true -Dsun.rmi.transport.tcp.readTimeout=150000 "
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.nameserver.verbosity=20"
 
 if ( "$usePersistence" == "true") then
-    set javaargs="-Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar \
-    -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar $javaargs"
+    set javaargs="-Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar $javaargs"
 endif
 
 if ($?COUGAAR_DEV_PATH) then

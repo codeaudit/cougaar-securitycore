@@ -7,4 +7,4 @@ rm -rf ${COUGAAR_SECURITY_SERVICES}/test/configs/ul-mini-config/*.log
 rm -rf ${COUGAAR_SECURITY_SERVICES}/test/configs/ul-mini-config-ldap/*.log
 
 
-./launch-society
+./launch-society $*

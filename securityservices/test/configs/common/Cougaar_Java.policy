@@ -69,7 +69,8 @@ grant codeBase "file:${org.cougaar.install.path}/sys/*" {
 
 ////////////////////////////////////////////////////////////
 // Permissions for bootstrapper package.
-grant signedBy "bootstrapper" {
+//grant codeBase "file:${org.cougaar.install.path}/lib/bootstrapper.jar" {
+grant signedBy "bootstrapper" { 
 	// AllPermission grants all permissions in the JDK 1.3,
 	// but not the JAAS permissions. Therefore, JAAS permissions
 	// must be set additionally.
@@ -192,6 +193,7 @@ grant signedBy "privileged" {
 	// be moved in the bootstrapper. We need to fix
 	// this in a future release.
 	permission java.security.SecurityPermission "insertProvider.SunJCE";
+	permission java.security.SecurityPermission "insertProvider.SunJSSE";
 	permission java.security.SecurityPermission "insertProvider.CryptixCrypto";
 	permission java.security.SecurityPermission "insertProvider.Cryptix";
 	permission java.security.SecurityPermission "insertProvider.DSTC";

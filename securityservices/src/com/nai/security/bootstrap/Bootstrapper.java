@@ -125,7 +125,7 @@ public class Bootstrapper
       }
       System.setSecurityManager(new CougaarSecurityManager(nodeName));
     }
-    
+
     // Launch application
     System.arraycopy(args, 1, launchArgs, 0, launchArgs.length);
     launch(args[0], launchArgs);
@@ -367,6 +367,10 @@ public class Bootstrapper
 
     for (int i=0; i<files.length; i++) {
       try {
+	if (files[i].getCanonicalPath().endsWith("jaas.jar")) {
+	  // JAAS must be in the bootclass path, not in the classpath
+	  continue;
+	}
         l.add(new CodeArchive(newURL("file:"+files[i].getCanonicalPath()), signatureRequired));
       } catch (Exception e) {
         e.printStackTrace();
@@ -386,6 +390,7 @@ public class Bootstrapper
     for (int i=0; i<files.size(); i++) {
       try {
         String n = (String) files.get(i);
+
         if (!isJar(n) && !n.endsWith(sep)) {
           n = n + sep;
         }

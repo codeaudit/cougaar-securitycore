@@ -38,6 +38,8 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.security.AccessController;
 import java.security.AccessControlContext;
+import java.security.PermissionCollection;
+import java.security.ProtectionDomain;
 
 // Needed to retrieve the subject associated with an accessController context
 import javax.security.auth.Subject;
@@ -139,6 +141,7 @@ public class CougaarSecurityManager extends SecurityManager
 	  }
 	}
       }
+
       super.checkPermission(perm);
 
     } catch (SecurityException e) {
@@ -151,6 +154,17 @@ public class CougaarSecurityManager extends SecurityManager
       throw (new SecurityException(e.getMessage()));
     }
   }
+
+  /** Display policy information about a particular class
+   */
+  private void printPolicy(Class c)
+  {
+    ProtectionDomain pd = c.getProtectionDomain();
+    PermissionCollection pc = pd.getPermissions();
+    System.out.println("Class: " + c.getName() + "Protection Domain: " + pd.toString());
+    System.out.println("Permissions: " + pc.toString());
+  }
+
   /** Log information about a permission failure.
    **/
   private void logPermissionFailure(Permission perm, SecurityException e, boolean displaySubject) {
