@@ -1398,6 +1398,8 @@ public class DirectoryKeyStore
       }
       return null;
     }
+    if (reply.length() == 0)
+      return null;
 
     try{
       installPkcs7Reply(alias, new ByteArrayInputStream(reply.getBytes()));
