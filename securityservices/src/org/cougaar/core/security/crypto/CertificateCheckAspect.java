@@ -28,11 +28,13 @@ import org.cougaar.core.mts.DestinationLink;
 import org.cougaar.core.mts.DestinationLinkDelegateImplBase;
 import org.cougaar.core.mts.StandardAspect;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.LoopbackLinkProtocol;
 import org.cougaar.core.service.LoggingService;
 
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Intercept the "cost()" call to each of the LinkProtocol's.
@@ -54,6 +56,11 @@ public class CertificateCheckAspect
 {
   private KeyRingService _keyRing;
   private LoggingService _log;
+  /**
+   * Specifies if the aspect should block local loop messages when there is no
+   * valid certificate.
+   */
+  private boolean        _checkLocalMessages = true;
 
   public void load() {
     super.load();
@@ -76,7 +83,8 @@ public class CertificateCheckAspect
       return null;
     }
   }
- */
+  */
+
   public Object getReverseDelegate(Object object, Class type) {
     if (_log.isDebugEnabled()) {
       _log.debug("ReverseDelegate " + object
@@ -106,34 +114,78 @@ public class CertificateCheckAspect
      * processing of messages in DestinationQueueImpl. */
     public int cost(AttributedMessage message) {
       int ret = 0;
+      boolean drop = false;
+
       // Get address of target and lookup white pages to see if
       // certificate exists.
       String targetAddress = message.getTarget().toAddress();
+      String originatorAddress = message.getOriginator().toAddress();
 
-      List certs = null;
-      int nbcerts = 0;
+      int nbcertsTarget = 0;
+      int nbcertsOriginator = 0;
       try {
-	certs = _keyRing.findCert(targetAddress);
+	List certsTarget = _keyRing.findCert(targetAddress);
+	List certsOriginator = _keyRing.findCert(originatorAddress);
+	// findCert looks up in the cache but does not go to the naming
+	// service if it is not in the cache. We should ask the KeyRingService 
+	// to actually go to the naming service and find the certificates, if any.
+	// This is what the findCertPairFromNS() function does.
+	// The certificate will not be returned immediately, but at least we have
+	// a chance to get the certificate the next time CertificateCheckAspect
+	// is invoked for the same message.
+	// There is no need to do it for the originator, as it is a local
+	// certificate.
+	if (certsTarget == null || certsTarget.size() == 0) {
+	  _keyRing.findCertPairFromNS(targetAddress, targetAddress);
+	}
+	else {
+	  nbcertsTarget = certsTarget.size();
+	}
+
+	if (certsOriginator == null || certsOriginator.size() == 0) {
+	  _keyRing.findCertPairFromNS(targetAddress, targetAddress);
+	}
+	else {
+	  nbcertsOriginator = certsOriginator.size();
+	}
       }
       catch (Exception e) {
-        // Nothing to do
+	if (_log.isDebugEnabled()) {
+	  _log.debug("Certificate not found yet:" + e);
+	}
       }
-
-      if (certs == null || certs.size() == 0) {
-	ret = Integer.MAX_VALUE; // infinity
+      if (nbcertsTarget == 0 || nbcertsOriginator == 0) {
+	if (super.getProtocolClass().equals(LoopbackLinkProtocol.class)
+	    && !_checkLocalMessages) {
+	  // Do not drop if this is a local message.
+	  ret = super.cost(message);
+	}
+	else {
+	  ret = Integer.MAX_VALUE; // infinity
+	  drop = true;
+	}
       }
       else {
 	ret = super.cost(message);
-        nbcerts = certs.size();
       }
       if (_log.isDebugEnabled()) {
-	_log.debug("Cost for " + targetAddress
-		  + " is " + ret + " - " + nbcerts
-                  + " certificates found - "
-                  + super.getProtocolClass().getName());
-	if (ret == Integer.MAX_VALUE) {
-	  _log.debug("Dropping: " + message);
+	String s = " ["
+	  + originatorAddress + " (" + nbcertsOriginator + " certs) -> "
+	  + targetAddress + " (" + nbcertsTarget + " certs) - cost: " + ret
+	  + " - " + super.getProtocolClass().getName() + "]";
+	if (drop == true) {
+	  s = "Dropping " + message + s;
 	}
+	else {
+	  if (ret == Integer.MAX_VALUE) {
+	    s = super.getProtocolClass().getName() +
+	      " cannot send message to " + targetAddress;
+	  }
+	  else {
+	    s = "OK" + s;
+	  }
+	}
+	_log.debug(s);
       }
       return ret;
     }
