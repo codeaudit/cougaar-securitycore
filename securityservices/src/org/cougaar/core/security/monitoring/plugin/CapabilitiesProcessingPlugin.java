@@ -25,6 +25,7 @@ package org.cougaar.core.security.monitoring.plugin;
 import java.util.Enumeration;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.Iterator;
@@ -682,28 +683,49 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
       
     RegistrationAlert ralert= null;
+    
+    if(cons == null) {
+       loggingService.info("ConsolidatedCapabilities is null!");
+       return null;
+    } 
+    List sources = null;
+    List targets = null;
+    List classifications = null;
+    List data = null;
+    if(cons.getSources() != null) {
+      sources = Arrays.asList(cons.getSources());
+    }
+    if(cons.getTargets() != null) {
+      targets = Arrays.asList(cons.getTargets());
+    }
+    if(cons.getClassifications() != null) {
+      classifications = Arrays.asList(cons.getClassifications());
+    }
+    if(cons.getAdditionalData() != null) {
+      data = Arrays.asList(cons.getAdditionalData());
+    }
+
     if(mgrrole!=null) {
       ralert=imessage.createRegistrationAlert(cons.getAnalyzer(),
-					      Arrays.asList(cons.getSources()),
-					      Arrays.asList(cons.getTargets()),
-					      Arrays.asList(cons.getClassifications()),
-					      Arrays.asList(cons.getAdditionalData()),
+					      sources,
+					      targets,
+					      classifications,
+					      data,
 					      IdmefMessageFactory.newregistration,
 					      IdmefMessageFactory.EnclaveMgrType,
 					      cons.getAgentName());
     }
     else {
       ralert=imessage.createRegistrationAlert(cons.getAnalyzer(),
-					      Arrays.asList(cons.getSources()),
-					      Arrays.asList(cons.getTargets()),
-					      Arrays.asList(cons.getClassifications()),
-					      Arrays.asList(cons.getAdditionalData()),
+					      sources,
+					      targets,
+					      classifications,
+					      data,
 					      IdmefMessageFactory.newregistration,
 					      IdmefMessageFactory.SocietyMgrType,
 					      cons.getAgentName());
     }
     return ralert;
   }
- 
 
 }
