@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<policies>
+<policy name="CertAuthority" type="certificateAuthorityPolicy">
+    <certificateAuthority name="cn=CONUS, ou=NAI Laboratories, o=NAI, l=Santa Clara, st=CA, c=US">
+      <!-- Alias of CA private key in the keystore (RSA encryption) -->
+      <distinguishedName>cn=CONUS, ou=NAI Laboratories, o=NAI, l=Santa Clara, st=CA, c=US</distinguishedName>
+      <!-- Certificate directory service for certificate storage -->
+      <ldapURL>ldap://pear:389/dc=srosset, dc=cougaar, dc=org</ldapURL>
+
+      <!-- The type of the certificate directory service.
+           Currently, either CougaarOpenLdap or NetTools -->
+      <ldapType>CougaarOpenLdap</ldapType>
+
+      <!-- Policy when issuing certificates -->
+      <clientCertPolicy>
+        <!-- The X509 version number to be created -->
+        <certVersion>2</certVersion>
+        <nodeIsSigner>true</nodeIsSigner>
+        <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
+        <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
+        <keysize>1024</keysize>
+        <!-- How long to certify for. -->
+        <certValidity>1 y</certValidity>
+        <requirePending>false</requirePending>
+      </clientCertPolicy>
+    </certificateAuthority>
+  </policy>
+
+  <policy name="Crypto Client Policy" type="cryptoClientPolicy">
+    <cryptoClientPolicy>
+      <isCertificateAuthority>true</isCertificateAuthority>
+      <keystoreFileName>keystore-${org.cougaar.node.name}</keystoreFileName>
+      <keystorePassword>keystorePassword</keystorePassword>
+      <trustedCAs>
+        <!-- Name of keystore where to find private key of CA -->
+        <CA_keystore>keystore-CONUS-RSA</CA_keystore>
+        <!-- Password of keystore where to find private key of CA -->
+        <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
+      </trustedCAs>
+
+      <certificateAttributes>
+        <distinguishedName>
+          <!-- Organizational unit -->
+          <ou>CONUS</ou>
+          <!-- Organizational -->
+          <o>DLA</o>
+          <!-- City or Locality -->
+          <l>San Francisco</l>
+          <!-- State -->
+          <st>CA</st>
+          <!-- Country Code -->
+          <c>US</c>
+          <!-- Domain -->
+          <domain>dc=cougaar,dc=org</domain>
+        </distinguishedName>
+        <nodeIsSigner>false</nodeIsSigner>
+        <!-- The key algorithm -->
+        <keyAlgName>RSA</keyAlgName>
+        <!-- The key size -->
+        <keysize>1024</keysize>
+        <!-- The signature algorithm -->
+        <sigAlgName>SHA1WithRSA</sigAlgName>
+        <!-- The validity of self-signed certificates.
+             This value is overriden when the CA signs the certificate. -->
+        <validity>10 y</validity>
+      </certificateAttributes>
+
+    </cryptoClientPolicy>
+  </policy>
+
+</policies>
