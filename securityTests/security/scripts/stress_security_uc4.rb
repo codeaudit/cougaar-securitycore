@@ -8,32 +8,27 @@ require 'security/lib/stresses/jar_files.rb'
 
 insert_after :setup_run do
   do_action "InjectStress", "Stress4a50", "buildConfigFile"
-  do_action "InjectStress", "Stress4a51", "buildConfigFile"
-  do_action "InjectStress", "Stress4a52", "buildConfigFile"
-  do_action "InjectStress", "Stress4a53", "buildConfigFile"
-  do_action "InjectStress", "Stress4a201", "buildConfigFile"
-end
-
-insert_before :wait_for_initialization do
-  do_action "InjectStress", "Stress4a50", "postLoadSociety"
   do_action "InjectStress", "Stress4a50", "preConditionalStartSociety"
-
-  do_action "InjectStress", "Stress4a51", "postLoadSociety"
+  do_action "InjectStress", "Stress4a51", "buildConfigFile"
   do_action "InjectStress", "Stress4a51", "preConditionalStartSociety"
-
-  do_action "InjectStress", "Stress4a52", "postLoadSociety"
+  do_action "InjectStress", "Stress4a52", "buildConfigFile"
   do_action "InjectStress", "Stress4a52", "preConditionalStartSociety"
-
-  do_action "InjectStress", "Stress4a53", "postLoadSociety"
+  do_action "InjectStress", "Stress4a53", "buildConfigFile"
   do_action "InjectStress", "Stress4a53", "preConditionalStartSociety"
-
-  do_action "InjectStress", "Stress4a201", "postLoadSociety"
+  do_action "InjectStress", "Stress4a201", "buildConfigFile"
   do_action "InjectStress", "Stress4a201", "preConditionalStartSociety"
-
   do_action "InjectStress", "Stress4a60", "preConditionalStartSociety"
   do_action "InjectStress", "Stress4a61", "preConditionalStartSociety"
   do_action "InjectStress", "Stress4a62", "preConditionalStartSociety"
   do_action "InjectStress", "Stress4a63", "preConditionalStartSociety"
+end
+
+insert_before :wait_for_initialization do
+  do_action "InjectStress", "Stress4a50", "postLoadSociety"
+  do_action "InjectStress", "Stress4a51", "postLoadSociety"
+  do_action "InjectStress", "Stress4a52", "postLoadSociety"
+  do_action "InjectStress", "Stress4a53", "postLoadSociety"
+  do_action "InjectStress", "Stress4a201", "postLoadSociety"
 end
 
 insert_before :society_running do
