@@ -158,7 +158,7 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="cd ${testbed.cip.dir} ; unzip cougaar-test.zip"
+	command="cd ${testbed.cip.dir} ; unzip -q cougaar-test.zip"
         timeout="60000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
@@ -174,7 +174,7 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="sh -c 'cd ${testbed.cip.dir} ; for f in *.zip ; do unzip -o $f ; done ; for f in *.tar.gz ; do tar xvfz $f ; done ;'"
+	command="sh -c 'cd ${testbed.cip.dir} ; for f in *.zip ; do unzip -q -o $f ; done ; for f in *.tar.gz ; do tar xfz $f ; done ;'"
         timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
@@ -207,6 +207,25 @@
 	command="ruby ${testbed.cip.dir}/operator/security/checkTraceAlt.rb"
         timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
+
+      <exec dir="${analysis.directory.name}" executable="tail" outputproperty="test.result">
+         <arg line="-n 1"/>
+      </exec>
+      <!-- The last line should be:
+              <testResult>SUCCESS</testResult>
+      -->
+      <condition property="test.isSuccess">
+         <contains string="${test.result}" substring="<testResult>SUCCESS</testResult>"/>
+      </condition>
+      <if>
+        <isset property="test.isSuccess"/>
+        <then>
+          <fail message="Test succeeded"/>
+        </then>
+        <else>
+          <fail message="Test failed"/>
+        </else>
+      </if>
     </target>
 
     <target name="retrieve-output-files">
