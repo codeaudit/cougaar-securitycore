@@ -826,7 +826,7 @@ try {
     } catch (Exception e) {
       if (log.isWarnEnabled()) {
         log.warn("Unable to get private key of " +
-                 cert + " -- dn is not well formed.");
+                 cert + " -- dn is not well formed.", e);
       }
     }
     return null;
