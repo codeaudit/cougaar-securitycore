@@ -21,7 +21,9 @@ class PolicyWaiter
     @run = run
     @node = node
     @found = false
-#    @run.info_message("Starting wait for policy commit at #{node}")
+    if $VerboseDebugging then
+      @run.info_message("Starting wait for policy commit at #{node}")
+    end
     @thread = 
       Thread.new() do
       begin 
@@ -47,11 +49,15 @@ class PolicyWaiter
       sleep 1
     end
     if (@found) then
-#      @run.info_message("waited #{t} seconds for the policy")
+      if ($VerboseDebugging) then
+        @run.info_message("waited #{t} seconds for the policy")
+      end
       return true
     else
       Thread.kill(@thread)
-#      @run.info_message("Policy did not propagate")
+      if ($VerboseDebugging) then
+        @run.info_message("Policy did not propagate")
+      end
       return false
     end
   end      
@@ -169,7 +175,7 @@ $policyLock = Hash.new
 
 def getPolicyLock(enclave)
   mutex = nil
-  puts "will try to get policy lock" if $VerboseDebugging
+  run.info_message "will try to get policy lock" if $VerboseDebugging
   $policyLockLock.synchronize {
     puts "GOT policy lock" if $VerboseDebugging
     mutex = $policyLock[enclave]
@@ -187,7 +193,7 @@ def loadBootPolicies(enclave)
   mutex = getPolicyLock(enclave)
   mutex.synchronize {
     policyDir = getPolicyDir()
-    puts "load the boot policies -- we haven't done any delta yet" if $VerboseDebugging
+    run.info_message "load the boot policies -- we haven't done any delta yet" if $VerboseDebugging
     pw = PolicyWaiter.new(run, run.society.agents[manager].node.name)
     bootPolicyFile = File.join(policyDir, "OwlBootPolicyList")
     result = commitPolicy(host, port, manager, "commit --dm", bootPolicyFile)
