@@ -766,11 +766,12 @@ public class AccessAgentProxy
       }
       return true;
     }
-    if(log.isWarnEnabled()) {
-      log.warn("AccessControlProxy: action(in) = " + action);
+    if(log.isDebugEnabled()) {
+      log.debug("AccessControlProxy: action(in) = " + action);
     }
-    if(action == null)
+    if(action == null) {
       return true;
+    }
     return (!action.equals(AccessControlPolicy.SET_ASIDE));
   }
   

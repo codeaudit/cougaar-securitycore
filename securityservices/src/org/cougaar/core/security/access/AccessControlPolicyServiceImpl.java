@@ -188,7 +188,7 @@ public class AccessControlPolicyServiceImpl
     AccessPolicyProxy app = new AccessPolicyProxy(agent, serviceBroker);
 
     if(app!=null){
-//      pp.add(app);
+      // pp.add(app);
       proxies.add(agent);
       if(log.isDebugEnabled()) {
 	log.debug("Making proxy for agent " + agent);
@@ -197,12 +197,16 @@ public class AccessControlPolicyServiceImpl
 
     // If we need to add proxy, there is a good chance we need
     // a new certificate too so check for it.
-    if(log.isDebugEnabled()) log.debug("checking certs for agent " + agent);
+    /*
+    if(log.isDebugEnabled()) {
+      log.debug("checking certs for agent " + agent);
+    }
     try{
       keyRing.checkOrMakeCert(agent);
     }catch(Exception e){
       log.debug("Error checking certs for agent" + agent);
     }
+    */
 
     return;
   }//checkOrMakeProxy

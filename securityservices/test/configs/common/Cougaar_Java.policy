@@ -247,8 +247,9 @@ grant signedBy "privileged" {
  	permission org.cougaar.core.security.provider.SecurityServicePermission "*";	
 	// Temporary until BUG 1264 is fixed:
 	permission java.util.PropertyPermission "*", "read,write";
-        permission java.lang.RuntimePermission "getClassLoader";
-	permission java.lang.RuntimePermission "createClassLoader";
+
+        //permission java.lang.RuntimePermission "getClassLoader";
+	//permission java.lang.RuntimePermission "createClassLoader";
 
 	////////////////////////////////////////////////////
 	// "standard" properies that can be read by anyone

@@ -2859,24 +2859,24 @@ public class DirectoryKeyStore
    */
   public CertDirectoryServiceClient getCertDirectoryServiceClient(String cname) {
     String cdUrl = null;
-    try {
-      if (cname.equals(NodeInfo.getNodeName()) || cname.equals(getHostName())) {
-        return certificateFinder;
-      }
+    if (cname.equals(NodeInfo.getNodeName()) || cname.equals(getHostName())) {
+      return certificateFinder;
+    }
+    if (namingSrv == null) {
+      namingSrv = (NamingService)
+	param.serviceBroker.getService(this,
+				       NamingService.class,
+				       null);
+    }
+    if (namingSrv == null) {
+      return certificateFinder;
+    }
 
-      if (namingSrv == null) {
-        namingSrv = (NamingService)
-          param.serviceBroker.getService(this,
-					 NamingService.class,
-					 null);
-      }
-      if (namingSrv == null) {
-        return certificateFinder;
-      }
-        /*
+    /*
       InitialDirContext ctx = namingSrv.getRootContext();
       String key = NameSupport.AGENT_DIR + NS.DirSeparator + cname;
-      */
+    */
+    try {
       DirContext ctx = ensureCertContext();
       String key = cname.toLowerCase();
       BasicAttributes attrib = (BasicAttributes)ctx.getAttributes(key);
@@ -2888,8 +2888,9 @@ public class DirectoryKeyStore
         Integer cdType = (Integer)getAttribute(attrib, CDTYPE_ATTR);
         cdUrl = (String)getAttribute(attrib, CDURL_ATTR);
         if (cdType != null && cdUrl != null) {
-	  CertDirectoryServiceClient cdsc = CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-            cdType.intValue(), cdUrl, param.serviceBroker);
+	  CertDirectoryServiceClient cdsc =
+	    CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
+	      cdType.intValue(), cdUrl, param.serviceBroker);
           return cdsc;
 	}
       }
@@ -2908,7 +2909,8 @@ public class DirectoryKeyStore
     return certificateFinder;
   }
 
-  private DirContext ensureCertContext() throws NamingException {
+  private DirContext ensureCertContext()
+    throws NamingException {
     DirContext ctx = namingSrv.getRootContext();
     try {
       ctx = (DirContext) ctx.lookup(CERT_DIR);

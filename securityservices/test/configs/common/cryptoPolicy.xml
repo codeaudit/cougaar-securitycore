@@ -59,7 +59,7 @@
           <CA_URL role="asmt" securitycommunity="Enclave4Security-COMM">http://u169:8800/$enclave4CAAgent/CA/CertificateSigningRequest</CA_URL>
 
           <CA_URL role="csmart1">http://maple:5571/$caAgent/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="csmart2">http://maple:5575/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="csmart2">https://maple:5575/$caAgent/CA/CertificateSigningRequest</CA_URL>
 
           <!-- Certificate directory service for certificate storage -->
           <CertDirectoryURL>ldap://yew:389/dc=cougaar,dc=org</CertDirectoryURL>
@@ -87,7 +87,7 @@
           <CertDirectoryURL role="asmt" securitycommunity="Enclave4Security-COMM">ldap://u169:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
 
           <CertDirectoryURL role="csmart1">ldap://pear/dc=csmart1,dc=cougaar,dc=org</CertDirectoryURL>
-          <CertDirectoryURL role="csmart2">ldap://pear/dc=csmart2,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="csmart2">ldaps://pear/dc=csmart2,dc=cougaar,dc=org</CertDirectoryURL>
 
           <!-- The type of the certificate directory service.
                Currently, either CougaarOpenLdap or NetTools -->

@@ -17,4 +17,4 @@ Transcom
 
 M&R Security Managers
 ---------------------
-In the full 1AD society configuration, there is only one society M&R manager and one security console M&R manager.
+In the full 1AD society configuration, there is only one society M&R manager and one security console M&R manager. The security officer would not be able to monitor the system if one of those two agents died. However, 
