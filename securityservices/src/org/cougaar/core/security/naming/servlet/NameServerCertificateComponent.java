@@ -141,7 +141,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
           new NameServerCertificate(agent, null));
       }
       else {
-        _pendingCache.add(new NameServerCertificate(agent, null));
+        _pendingCache.add(agent);
       }
 
       nameserver = System.getProperty(nameString + ".WP-" + i, null);
@@ -351,11 +351,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
       if (_pendingCache.size() != 0) {
         try {
           String [] names = new String[_pendingCache.size()];
-          for (int i = 0; i < _pendingCache.size(); i++) {
-            NameServerCertificate nameCert = (NameServerCertificate)
-              _pendingCache.get(i);
-            names[i] = nameCert.getServer();
-          }
+          _pendingCache.toArray(names);
 
           ObjectInputStream ois = new ObjectInputStream(
             new ServletRequestUtil().sendRequest(certURL, names, _period));
@@ -374,7 +370,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
 
               // the returning array should be listed at the same sequence as 
               // the sending array
-              _pendingCache.remove(i);
+              _pendingCache.remove(certs[i].getServer());
               _certCache.put(certs[i].getServer(), certs[i]);
               // this is not SSL certificate but we borrow it
               for (int j = 0; j < certs[i].getCertChain().length; j++) {
