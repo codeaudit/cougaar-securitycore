@@ -261,7 +261,7 @@ public class ServletNodeEnforcer
       out.print("<p>Is user in roles " + role1 + " and " + role2 +
                 " using cipher suite <ul>");
       out.print("<li>Symmetric = " + cypher.getSymmetric());
-      out.print("<li>Assymmetric = " + cypher.getAssymmetric());
+      out.print("<li>Asymmetric = " + cypher.getAsymmetric());
       out.print("<li>Checksum = " + cypher.getChecksum());
       out.print("<li>");
       if (cypher.getAuth() == CypherSuiteWithAuth.authCertificate) {
@@ -303,7 +303,7 @@ public class ServletNodeEnforcer
             = (CypherSuiteWithAuth) cypherIt.next();
           out.print("<p>Mediation says enforcer can use:</p><ul>");
           out.print("<li>Symmetric = " + suite.getSymmetric());
-          out.print("<li>Assymmetric = " + suite.getAssymmetric());
+          out.print("<li>Asymmetric = " + suite.getAsymmetric());
           out.print("<li>Checksum = " + suite.getChecksum());
           out.print("<li>");
           if (suite.getAuth() == CypherSuiteWithAuth.authCertificate) {
