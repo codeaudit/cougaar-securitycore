@@ -3,11 +3,17 @@
 #setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/lib/securityservices.jar
 setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/sys/jdom.jar
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/xerces.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
 setenv CLASSPATH ${CLASSPATH}:../../../classes
 
 java \
+	-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
 	-Dorg.cougaar.security.keystore=signingCA_keystore \
 	-Dorg.cougaar.security.keystore.password=keystore \
+	-Dorg.cougaar.security.cakeystore.password="Ultra*Log" \
 	-Dorg.cougaar.security.crypto.config=cryptoPolicy.xml \
+	-Dorg.cougaar.security.CA.certpath=${COUGAAR_SECURITY_SERVICES}/test/configs/certauthority \
 	com.nai.security.certauthority.KeyManagement  \
-	certSignReq-ROOT-CA-CONUS-3ID-HHC.cer
+	-10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer
+	#-7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer
+
