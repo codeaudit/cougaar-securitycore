@@ -95,31 +95,26 @@ public final class UserPasswordAuthenticator extends Authenticator
   private static final String DUMMY_VALUE = "DUMMY";
 
   public PasswordAuthentication getPasswordAuthentication() {
-    synchronized (tidList) {
-      Thread thread = Thread.currentThread();
-      if (_pa != null && (!tidList.containsKey(thread))) {
-	// this thread hasn't tried the cached password, yet
-	tidList.put(thread, DUMMY_VALUE);
-	return _pa; 
-      }
-      if (handler != null) {
-	// getting a new password, clear the list
-	tidList.clear();
-	tidList.put(thread, DUMMY_VALUE);
+    if (handler != null) {
+      synchronized (tidList) {
+        if (handler instanceof BasicAuthHandler) {
+          Thread thread = Thread.currentThread();
+          if (_pa != null && (!tidList.containsKey(thread))) {
+          // this thread hasn't tried the cached password, yet
+	    tidList.put(thread, DUMMY_VALUE);
+	    return _pa; 
+	  }
+	  // getting a new password, clear the list
+	  tidList.clear();
+	  tidList.put(thread, DUMMY_VALUE);
+        }
         try {
-	  /*
-	    String url = "protocol: " + getRequestingProtocol() +
-	    " site: " + getRequestingSite() +
-	    " host: " + getRequestingHost() +
-	    " port: " + getRequestingPort() +
-	    " prompt: " + getRequestingPrompt() +
-	    " scheme: " + getRequestingScheme();
-          */
           String url = getRequestingProtocol() + "://" + getRequestingHost()
             + ":" + getRequestingPort() + "/";
 
           handler.setRequestingURL(url);
           handler.authenticateUser(handler.getUserName());
+	  return _pa;
         } catch (Exception ex) {
           ex.printStackTrace();
         }
@@ -128,6 +123,6 @@ public final class UserPasswordAuthenticator extends Authenticator
 
     // should have a table of password authentication based on
     // host, port, protocol, etc
-    return _pa;
+    return null;
   }
 }
