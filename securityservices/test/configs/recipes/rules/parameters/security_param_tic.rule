@@ -175,6 +175,11 @@ society.each_host do |host|
     # The certificates need to be createdd first before this feature is turned on.
     #
     node.override_parameter("-Dorg.cougaar.core.naming.useSSL", "true")
+
+    # system properties to timeout white pages "/$" lookups:
+    node.override_parameter("-Dorg.cougaar.lib.web.list.timeout", "5000")
+    # system properties to timeout white pages "/agents" listing lookups:
+    node.override_parameter("-Dorg.cougaar.lib.web.redirect.timeout", "5000")
    
     # MTS RMI over SSL
     # The certificates need to be created first before this feature is turned on.
