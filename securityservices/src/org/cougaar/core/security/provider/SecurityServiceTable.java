@@ -40,7 +40,7 @@ public class SecurityServiceTable
     log = aLog;
   }
 
-  public Object put(Object service, Object provider) {
+  public synchronized Object put(Object service, Object provider) {
     if (log.isDebugEnabled()) {
      log.debug("Adding service " + ((Class)service).getName());
     }
