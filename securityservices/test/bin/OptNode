@@ -1,0 +1,230 @@
+#!/usr/bin/perl
+
+$cip  = $ENV{'COUGAAR_INSTALL_PATH'};
+$user = $ENV{'USER'};
+$node = shift;
+$host = `/bin/uname -n`;
+chomp $host;
+#print "$host\n";
+
+if ($user eq 'ychen') {
+  $httpport=5558;
+  $httpsport=6558;
+} elsif ($user eq 'srosset') {
+  $httpport=5561;
+  $httpsport=6561;
+} elsif ($user eq 'rliao1') {
+  $httpport=5556;
+  $httpsport=6556;
+} elsif ($user eq 'gmount') {
+  $httpport=5557;
+  $httpsport=6557;
+} elsif ($user eq 'rtripath') {
+  $httpport=5560;
+  $httpsport=6560;
+} elsif ($user eq 'mluu') {
+  $httpport=5555;
+  $httpsport=6555;
+} elsif ($user eq 'sri') {
+  $httpport=5553;
+  $httpsport=6553;
+} elsif ($user eq 'asmt') {
+  $httpport=8800;
+  $httpsport=8888;
+} elsif ($user eq 'junittest') {
+  $httpport=5570;
+  $httpsport=6670;
+} else {
+  print STDERR "WARNING: Setting HTTP port to default port number. You should edit SecureNode\n";
+  $httpport=8800;
+  $httpsport=9800;
+}
+
+@convertFrom = ( '/mnt/shared/integ',
+                 'asmt',
+                 '8800',
+                 '6557',
+                 '\$HOSTNAME.log',
+                 '\$HOSTNAME',
+                 '\\\\\\\\',
+                 '\\\\',
+                 '--BACKSLASH--'
+               );
+
+@convertTo =   ( $cip,
+                 $user,
+                 $httpport,
+                 $httpsport,
+                 "$node.html",
+                 "$host",
+                 '--BACKSLASH--',
+                 '',
+                 '\\\\'
+               );
+
+$propFile = findPropertiesFile();
+
+#print "Using properties file: $propFile\n";
+
+# Found the properties file. Now read it
+
+@commandLine = readPropertiesFile($propFile);
+
+push @commandLine, ("org.cougaar.core.node.Node", "-n", $node, "-c");
+push @commandLine, @ARGV;
+
+if ( ! -d "$cip/workspace/log4jlogs" ) {
+  mkdir "$cip/workspace", 0777;
+  mkdir "$cip/workspace/log4jlogs", 0777;
+} elsif ( -f "$cip/workspace/log4jlogs/$node.html" ) {
+  unlink "$cip/workspace/log4jlogs/$node.html";
+}
+
+#print "@commandLine\n";
+
+system(@commandLine);
+# Subroutines
+
+# Find the location of the properties file
+sub findPropertiesFile {
+  my @propFileLocations = ( "./Linux.props",
+                            "$cip/csmart/bin/Linux.props",
+                            "$cip/configs/security/Linux.props",
+                            "$cip/configs/common/Linux.props" );
+
+  for ($i = 0; $i <= $#propFileLocations ; $i++) {
+    if ( -f $propFileLocations[$i] ) {
+      return $propFileLocations[$i];
+    }
+  }
+
+  die "Could not find javaprops.txt or Linux.props";
+}
+
+# Read the hash from the properties file
+sub readPropertiesFile {
+  my $file = shift;
+  local *FH;
+  open (FH, $file) || die "Couldn't read file $file";
+  $javaBin = "java";
+
+  $ENV{"LD_LIBRARY_PATH"} = "/home/u/gmount/dump/OptimizeitSuiteDemo/lib/";
+  push @line, makeProperty("java.Xrunpri:filter","/tmp/OptimizeIt.filter");
+  push @line, makeProperty("AUDIT","jni");
+  push @line, makeProperty("java.Xbootclasspath/a","/home/u/gmount/dump/OptimizeitSuiteDemo/lib/oibcp.jar");
+  push @line, makeProperty("java.class.path","/home/u/gmount/dump/OptimizeitSuiteDemo/lib/optit.jar");
+  while (<FH>) {
+    chomp;
+    s/^ +//;
+    if (/^\#/) {
+      # this is a comment line -- ignore it
+    } elsif (/.+/) {
+      # this is a properties line. split it:
+      ($name, $value) = split /=/;
+      $value = customizeProperty($value);
+      if ($name =~ /^env\./) {
+        $name = substr $name, 4;
+        $ENV{$name} = $value;
+      } elsif ($name eq 'java.jvm.program') {
+        $javaBin = $value;
+      } elsif ($name eq 'java.class.name') {
+        $className = $value;
+      } else {
+        push @line, makeProperty($name, $value);
+      }
+#      print "$name = $value\n";
+    }
+  }
+
+  if (defined $className) {
+    return $javaBin, @line, "intuitive.audit.Audit", "-port", "36444", "-dllpath", "/home/u/gmount/dump/OptimizeitSuiteDemo/lib/green/", $className;
+  } else {
+    return $javaBin, @line, "intuitive.audit.Audit", "-port", "36444", "-dllpath", "/home/u/gmount/dump/OptimizeitSuiteDemo/lib/green/";
+  }
+}
+
+sub makeProperty {
+  my %javaFlags = (
+                   'java.jar' => 'jar',
+                   'java.class.path' => 'classpath'
+                  );
+  my %javaEquals = (
+                    'java.heap.min' => 'Xms',
+                    'java.heap.max' => 'Xmx',
+                    'java.stack.size' => 'Xss'
+                  );
+  my %javaCP = (
+                'java.Xbootclasspath' => 'Xbootclasspath',
+                'java.Xbootclasspath/a' => 'Xbootclasspath/a',
+                'java.Xbootclasspath/p' => 'Xbootclasspath/p'
+               );
+  my ($name, $value) = @_;
+  if ($name =~ /java\./) {
+    if ($name eq 'java.jvm.mode') {
+      if ($value eq 'client' || $value eq "server") {
+        @options = ("-$value");
+      } elsif ($value ne 'hotspot') {
+        print STDERR "Don't know how to handle java.jvm.mode=$value -- using hotspot\n";
+      }
+    } elsif ($name eq 'java.jvm.green') {
+      print STDERR "There are no green threads for Linux. Using system threads.\n";
+    } else {
+      if (defined $javaFlags{$name}) {
+        @options = ("-$javaFlags{$name}", $value);
+      } elsif (defined $javaEquals{$name}) {
+        @options = ("-$javaEquals{$name}=$value");
+      } elsif (defined $javaCP{$name}) {
+        @options = ("-$javaCP{$name}:$value");
+      } else {
+        $name = substr $name, 5;
+        if (defined $value) {
+          @options = ("-$name=$value");
+        } else {
+          @options = ("-$name");
+        }
+      }
+    }
+  } else {
+    @options = ("-D$name=$value");
+  }
+  return @options;
+}
+# Customize the properties for the current user
+
+sub customizeProperty {
+  my $prop = shift;
+  my $i;
+
+  # strip trailing white space, and quotes around values
+  $prop =~ s/( |\t)+$//;
+  if ($prop =~ /^\".*\"$/) {
+    $prop =~ s/^\"//;
+    $prop =~ s/\"$//;
+  }
+#  print "before conversion: $prop\n";
+  for ($i = 0 ; $i <= $#convertFrom; $i++) {
+    $prop =~ s/$convertFrom[$i]/$convertTo[$i]/g;
+#    print "converting from: $convertFrom[$i] to $convertTo[$i]\n";
+  }
+#  print "after conversion: $prop\n";
+  return $prop;
+}
+
+sub createCommandLine {
+  (%props, @keys, %flags, $javaBin, $className) = @ARG;
+  my @line = ( $javaBin );
+  foreach $flagKey (keys %flags) {
+    $value = $flags{$flagKey};
+    push @line, $flagKey;
+    if (defined $value && $value ne "") {
+      push @line, $value;
+    }
+  }
+  foreach $key (@keys) {
+    push @line, "-$key=$props{$key}";
+  }
+  if (defined $className && $className ne "") {
+    push @line, $className;
+  }
+  return @line;
+}
