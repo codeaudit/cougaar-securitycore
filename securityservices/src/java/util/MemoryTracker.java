@@ -1,14 +1,23 @@
 package java.util;
 
+import java.util.singleton.*;
+
 public class MemoryTracker {
-  static CollectionMonitorStats m = CollectionMonitorStats.getInstance();
+  static CollectionMonitorStats m;
+
+  static {
+    m = CollectionMonitorStatsImpl.getInstance();
+    try {
+      System.out.println("From MemoryTracker:" + m);
+    }
+    catch (Exception e) {}
+  }
   public static void add(Object o) {
     // when MemoryTracker is created it will create m and this function will be
     // called with m null.
     if (m == null) {
       return;
     }
-
     if (o instanceof ArrayList) {
       m.addArrayList((ArrayList)o);
     }
@@ -35,9 +44,6 @@ public class MemoryTracker {
     }
     else if (o instanceof TreeSet) {
       m.addTreeSet((TreeSet)o);
-    }
-    else if (o instanceof Vector) {
-      m.addVector((Vector)o);
     }
 /*
     if (o instanceof AbstractList) {

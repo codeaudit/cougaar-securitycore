@@ -21,12 +21,12 @@
 package org.cougaar.core.security.test.memory;
 
 import org.cougaar.core.servlet.BaseServletComponent;
-
-
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.CharArrayWriter;
 import java.util.*;
+import java.util.singleton.CollectionMonitorStats;
+import java.util.singleton.CollectionMonitorStatsImpl;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -44,7 +44,7 @@ extends BaseServletComponent
 
   public void load() {
     super.load();
-    _stats = CollectionMonitorStats.getInstance();
+    _stats = CollectionMonitorStatsImpl.getInstance();
     _util = CollectionUtil.getInstance();
   }
 
@@ -181,6 +181,7 @@ extends BaseServletComponent
     public void printElementsStats(PrintWriter out, int rows,
 				   int lines, int type) {
       
+      /*
       for (int i = 0 ; i < 100 ;  i++) {
 	Hashtable h = new Hashtable();
 	for (int j = 0 ; j < i ; j++) {
@@ -188,9 +189,10 @@ extends BaseServletComponent
 	}
 	_stats.addHashtable(h);
       }
+      */
 
       int n = _util.getNumberOfElements(type);
-      out.println("Number of Hashtable:" + n + "<br/>");
+      out.println("Number of Elements:" + n + "<br/>");
       List l = _util.getTopElements(type, Math.min(n, rows));
 
       out.println("<tr><th>Stack Trace</th>");

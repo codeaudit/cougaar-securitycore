@@ -21,6 +21,8 @@
 package org.cougaar.core.security.test.memory;
 
 import java.util.List;
+import java.util.singleton.CollectionMonitorStats;
+import java.util.singleton.CollectionMonitorStatsImpl;
 
 public class CollectionUtil {
   public static final int HASH_TABLE          = 1;
@@ -41,7 +43,8 @@ public class CollectionUtil {
   private static CollectionUtil _theInstance;
 
   CollectionUtil() {
-    _stats = CollectionMonitorStats.getInstance();
+    _stats = CollectionMonitorStatsImpl.getInstance();
+    System.out.println("From CollectionUtil:" + _stats);
   }
 
   public static synchronized CollectionUtil getInstance() {

@@ -100,6 +100,7 @@ zip -qr AS_csi_secserv.zip \
 	lib/safe.jar \
 	lib/securebootstrapper.jar \
 	lib/securityservices.jar \
+	lib/javautil.jar \
 	operator/runallparallel \
 	operator/printProcessInfo.rb \
 	webtomcat/data/conf/server.xml \
