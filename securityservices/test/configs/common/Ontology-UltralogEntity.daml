@@ -47,7 +47,7 @@
         <rdfs:subClassOf rdf:resource="#UltralogEntity"/>
     </daml:Class>
 
-    <daml:Class rdf:ID="BlackBoardAccessModes">
+    <daml:Class rdf:ID="BlackBoardAccessMode">
         <rdfs:subClassOf rdf:resource="#UltralogEntity"/>
     </daml:Class>
 
@@ -62,7 +62,7 @@
             <daml:Class rdf:about="#ULContentValue" />
             <daml:Class rdf:about="#AuthenticationLevel" />
             <daml:Class rdf:about="#PlugInRoles" />
-            <daml:Class rdf:about="#BlackBoardAccessModes" />
+            <daml:Class rdf:about="#BlackBoardAccessMode" />
             <daml:Class rdf:about="#BlackBoardObjects" />
         </daml:disjointUnionOf>
     </daml:Class>
