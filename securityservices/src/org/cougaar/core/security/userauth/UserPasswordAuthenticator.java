@@ -78,8 +78,6 @@ public final class UserPasswordAuthenticator extends Authenticator
   */
 
   public PasswordAuthentication getPasswordAuthentication() {
-    if (log.isDebugEnabled())
-      log.debug("password? " + _pa + " : " + handler);
     //if (_pa == null && handler != null && trial < 3) {
     if (handler != null) {
       try {
@@ -89,8 +87,6 @@ public final class UserPasswordAuthenticator extends Authenticator
 
     // should have a table of password authentication based on
     // host, port, protocol, etc
-    if (log.isDebugEnabled())
-      log.debug("password: " + _pa);
     return _pa;
   }
 }
