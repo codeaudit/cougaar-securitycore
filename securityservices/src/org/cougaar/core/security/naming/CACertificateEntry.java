@@ -42,8 +42,6 @@ public class CACertificateEntry extends CertificateEntry
   private byte []derEncodedCRL=null;
   private String lastModifiedTime;
  
-  public CACertificateEntry() {
-  }
   public CACertificateEntry(X509Certificate cert,
                             CertificateRevocationStatus status, 
                             CertificateType certtype, X509CRL crl,
