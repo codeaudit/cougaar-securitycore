@@ -84,7 +84,6 @@ public class CACertDirectoryServiceImpl
     if (_log.isDebugEnabled()) {
       _log.debug("Publish certificate: " + cert.toString());
     }
-    String uid = CertificateUtility.getUniqueIdentifier(cert);
     // Assume the certificate is valid if we publish it.
     CertificateRevocationStatus certStatus = CertificateRevocationStatus.VALID;
     CertificateType certType = null;
@@ -95,7 +94,7 @@ public class CACertDirectoryServiceImpl
     default:
       certType = CertificateType.CERT_TYPE_END_ENTITY;
     }
-    CertificateEntry certEntry = new CertificateEntry(cert, uid,
+    CertificateEntry certEntry = new CertificateEntry(cert,
 						      certStatus, certType);
     publishCertificate(certEntry);
   }

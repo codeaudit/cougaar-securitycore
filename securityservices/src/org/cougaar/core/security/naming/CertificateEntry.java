@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -26,81 +26,174 @@
 
 package org.cougaar.core.security.naming;
 
-import java.util.*;
-import java.security.cert.*;
-import sun.security.x509.*;
 import java.io.Serializable;
+import java.security.cert.X509Certificate;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.CertificateExpiredException;
 
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.crypto.ldap.*;
+import org.cougaar.core.security.crypto.CertificateTrust;
+import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.CertificateType;
+import org.cougaar.core.security.crypto.CertificateRevokedException;
+import org.cougaar.core.security.crypto.CertificateNotTrustedException;
+import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
 
 public class CertificateEntry
   implements Serializable
 {
-  private X509Certificate cert;
-  private X509Certificate [] certChain;
-  private String uniqueIdentifier;
-  private CertificateRevocationStatus status;
-  private CertificateType type=null;
+  /** The X.509 certificate */
+  private X509Certificate _certificate;
 
-  public CertificateEntry(X509Certificate cert, String id,
-		   CertificateRevocationStatus status, CertificateType certtype)
+  /** The X.509 certificate chain */
+  private X509Certificate [] _certificateChain;
+
+  /* A unique identifier for the certificate */
+  private String _uniqueIdentifier;
+
+  /** The status of the certificate: valid, revoked, or unknown
+   */
+  private CertificateRevocationStatus _certificateStatus;
+
+  /** The type of the certificate: end entity or trusted certificate
+      authority */
+  private CertificateType _certificateType=null;
+
+  /** The trust status of this certificate.
+   * When a key pair has been generated but not submitted to a CA yet,
+   * the certificate cannot be used because other parties will not trust
+   * the certificate. */
+  private CertificateTrust _certificateTrust;
+
+  public CertificateEntry(X509Certificate cert,
+			  CertificateRevocationStatus status,
+			  CertificateType certtype)
   {
-    this.cert = cert;
-    this.uniqueIdentifier = id;
-    this.status = status;
-    this.type=certtype;
-    certChain = new X509Certificate [] {cert};
+    if (cert == null) {
+      throw new IllegalArgumentException("Null certificate");
+    }
+
+    _certificate = cert;
+    _uniqueIdentifier = CertificateUtility.getUniqueIdentifier(cert);
+    _certificateStatus = status;
+    _certificateType = certtype;
+    _certificateChain = new X509Certificate [] {cert};
   }
 
   /**
-     * Public accessor method for retrieving the actual certificate.
-     */
-  public X509Certificate getCertificate() { return cert; }
+   * Public accessor method for retrieving the actual certificate.
+   */
+  public X509Certificate getCertificate() { return _certificate; }
+
+  /** 
+   * Set the certificate
+   */
+  public void setCertificate(X509Certificate c) {
+    _certificate = c;
+  }
 
   /**
    * Public accessor method for retrieving the unique hash used for indexing
    * by the LDAP server.
    */
-  public String getUniqueIdentifier() { return uniqueIdentifier; }
+  public String getUniqueIdentifier() { return _uniqueIdentifier; }
 
   /**
    * Public accessor method for retrieving the status of a certificate,
    * where 1 means valid, and  3 means revoked
    */
-  public CertificateRevocationStatus getStatus() { return status; }
+  public CertificateRevocationStatus getCertificateRevocationStatus() {
+    return _certificateStatus;
+  }
+  public void setCertificateRevocationStatus(CertificateRevocationStatus status) {
+    _certificateStatus = status;
+  }
+
+  public boolean isValid() {
+    if (getCertificateRevocationStatus().equals(CertificateRevocationStatus.VALID)) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 
   /**
    * Public modifier method for changing the status of this certificate
    * entry in the LDAP server.
    */
   public void setStatus(CertificateRevocationStatus status) {
-    this.status = status;
+    _certificateStatus = status;
   }
    /**
    * Public accessor method for retrieving the certificate type,
    * certificate can be either CA certificate or entity certificate
    */
   public CertificateType getCertificateType() {
-    return type;
+    return _certificateType;
+  }
+  public void setCertificateType(CertificateType type) {
+    _certificateType = type;
   }
 
   public X509Certificate [] getCertificateChain() {
-    return certChain;
+    return _certificateChain;
   }
 
   public void setCertificateChain(X509Certificate [] certs) {
-    certChain = certs;
+    _certificateChain = certs;
   }
 
   public CertificateTrust getCertificateTrust() {
     CertificateTrust certTrust = CertificateTrust.CERT_TRUST_UNKNOWN;
-    if(getStatus().equals(CertificateRevocationStatus.REVOKED)) {
+    if(getCertificateRevocationStatus().equals(CertificateRevocationStatus.REVOKED)) {
       certTrust = CertificateTrust.CERT_TRUST_REVOKED_CERT;
     }
-    if(getStatus().equals(CertificateRevocationStatus.VALID)) {
+    if(getCertificateRevocationStatus().equals(CertificateRevocationStatus.VALID)) {
       certTrust = CertificateTrust.CERT_TRUST_CA_SIGNED;
     }
     return certTrust;
+  }
+
+  public void setCertificateTrust(CertificateTrust trust) {
+    if (trust.equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)) {
+      setCertificateRevocationStatus(CertificateRevocationStatus.REVOKED);
+    }
+    _certificateTrust = trust;
+  }
+
+
+  /** Check the validity of the certificate.
+   */
+  public void checkCertificateValidity()
+    throws CertificateExpiredException,
+    CertificateNotYetValidException,
+    CertificateRevokedException,
+    CertificateNotTrustedException
+  {
+    if (getCertificateTrust() == CertificateTrust.CERT_TRUST_CA_SIGNED ||
+	getCertificateTrust() == CertificateTrust.CERT_TRUST_CA_CERT) {
+      // The certificate is trusted. Check revocation, expiration date
+      // and "not before" date.
+      if (isValid()) {
+	X509Certificate c = getCertificate();
+	c.checkValidity();
+	// 1- Certificate can be used now ("not before" date is not in the future)
+	// 2- Certificate has not expired ("not after" date is not in the past)
+      }
+      else {
+	throw new CertificateRevokedException("Certificate has been revoked");
+      }
+    }
+    else {
+      if(getCertificateTrust() == CertificateTrust. CERT_TRUST_REVOKED_CERT) {
+	//certificateIsValid=false;
+	throw new CertificateRevokedException("Certificate not trusted:"+
+      				       getCertificateTrust());
+      }
+      else {
+	throw new CertificateNotTrustedException("Certificate not trusted:",
+      				       getCertificateTrust());
+      }
+    }
   }
 }

@@ -53,6 +53,7 @@ import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
 import org.cougaar.core.security.util.*;
 
 /** A hash table to store certificates from keystore, caKeystore and
@@ -536,8 +537,7 @@ final public class CertificateCache implements CertificateCacheService
       BigInteger certserialno=c1.getSerialNumber();
       if((issuername.equals(issuerDN))&&(certserialno.equals(serialno))){
 	found=true;
-	aCertEntry.setCertificateTrust( CertificateTrust. CERT_TRUST_REVOKED_CERT);
-	aCertEntry.setValidity(false);
+	aCertEntry.setCertificateTrust( CertificateTrust.CERT_TRUST_REVOKED_CERT);
 
 	// Give the opportunity to invalidate existing or future sessions that
 	// currently use this certificate.
@@ -617,7 +617,6 @@ final public class CertificateCache implements CertificateCacheService
           if (!cs.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)) {
             if (revoked) {
               cs.setCertificateTrust(CertificateTrust.CERT_TRUST_REVOKED_CERT);
-              cs.setValidity(false);
             }
           }
           else {
@@ -1419,10 +1418,11 @@ final public class CertificateCache implements CertificateCacheService
       log.warn("Unable to get certificate from keystore: " + e);
     }
     certstatus =
-      new CertificateStatus(certificate, true,
+      new CertificateStatus(certificate,
 			    CertificateOrigin.CERT_ORI_KEYSTORE,
+			    CertificateRevocationStatus.VALID,
 			    certType,
-			    trust, alias, serviceBroker);
+			    trust, alias);
     // Update certificate cache
     if (log.isDebugEnabled()) {
       log.debug("addCertificate from keystore");
@@ -1513,11 +1513,11 @@ final public class CertificateCache implements CertificateCacheService
                                     X509Certificate importCert,
                                     PrivateKey privatekey) {
     CertificateStatus certstatus =
-      new CertificateStatus(importCert, true,
+      new CertificateStatus(importCert,
                             CertificateOrigin.CERT_ORI_KEYSTORE,
+			    CertificateRevocationStatus.VALID,
                             CertificateType.CERT_TYPE_END_ENTITY,
-                            CertificateTrust.CERT_TRUST_CA_SIGNED, alias,
-			    serviceBroker);
+                            CertificateTrust.CERT_TRUST_CA_SIGNED, alias);
     if (log.isDebugEnabled()) {
       log.debug("Update cert status in hash map. AddPrivateKey");
     }
@@ -1541,11 +1541,11 @@ final public class CertificateCache implements CertificateCacheService
     if (title != null && title.equals(CERT_TITLE_CA))
       certType = CertificateType.CERT_TYPE_CA;
     CertificateStatus certstatus =
-      new CertificateStatus(sslCert, true,
+      new CertificateStatus(sslCert,
                             CertificateOrigin.CERT_ORI_SSL,
+			    CertificateRevocationStatus.VALID,
                             certType,
-                            CertificateTrust.CERT_TRUST_CA_SIGNED, null,
-                            serviceBroker);
+                            CertificateTrust.CERT_TRUST_CA_SIGNED, null);
     if (log.isDebugEnabled()) {
       log.debug("Update sslCert status in hash map.");
     }

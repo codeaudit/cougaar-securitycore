@@ -50,6 +50,7 @@ import org.cougaar.core.component.ServiceBroker;
 // Cougaar security services
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
 
 public class PrivateKeyPKCS12
 {
@@ -487,11 +488,12 @@ public class PrivateKeyPKCS12
 	  }
 	}
 	CertificateStatus cs =
-	  new CertificateStatus((X509Certificate)certs[i], true,
+	  new CertificateStatus((X509Certificate)certs[i],
 				CertificateOrigin.CERT_ORI_PKCS12,
+				CertificateRevocationStatus.VALID,
 				CertificateType.CERT_TYPE_END_ENTITY,
 				CertificateTrust.CERT_TRUST_CA_SIGNED,
-				null, serviceBroker);
+				null);
 	if (log.isDebugEnabled()) {
 	  log.debug("Private key in PKCS#12 envelope is trusted");
 	}

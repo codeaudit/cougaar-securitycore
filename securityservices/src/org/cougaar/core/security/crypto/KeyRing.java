@@ -57,6 +57,7 @@ import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.crypto.*;
 //import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.ssl.KeyManager;
@@ -938,7 +939,6 @@ final public class KeyRing  implements KeyRingService  {
             log.warn("One of signers in chain has been revoked.");
           }
           cs.setCertificateTrust( CertificateTrust. CERT_TRUST_REVOKED_CERT);
-          cs.setValidity(false);
         }
       }
 
@@ -2247,21 +2247,21 @@ final public class KeyRing  implements KeyRingService  {
 
 	  if(entry.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)) {
           // now can truly set certificate validity
-	    certstatus = new CertificateStatus(certificate,false,
+	    certstatus = new CertificateStatus(certificate,
 					       CertificateOrigin.CERT_ORI_LDAP,
+					       CertificateRevocationStatus.REVOKED,
 					       entry.getCertificateType(),
 					       CertificateTrust.CERT_TRUST_REVOKED_CERT,
-					       null,
-					       serviceBroker);
+					       null);
 	    // certstatus.setValidity(false);
 	  }
 	  else {
-	    certstatus = new CertificateStatus(certificate, true,
+	    certstatus = new CertificateStatus(certificate,
 					       CertificateOrigin.CERT_ORI_LDAP,
+					       CertificateRevocationStatus.VALID,
 					       entry.getCertificateType(),
 					       CertificateTrust.CERT_TRUST_CA_SIGNED,
-					       null,
-					       serviceBroker);
+					       null);
 	  }
           certstatus.setCertificateChain(entry.getCertificateChain());
 
@@ -2309,11 +2309,12 @@ final public class KeyRing  implements KeyRingService  {
 	    log.warn("Certificate in chain is not yet valid. "
 		     + x500Name + " - " + e);
 	  }
-	  certstatus = new CertificateStatus(entry.getCertificate(), true,
+	  certstatus = new CertificateStatus(entry.getCertificate(),
 					     CertificateOrigin.CERT_ORI_LDAP,
+					     CertificateRevocationStatus.VALID,
 					     entry.getCertificateType(),
 					     CertificateTrust.CERT_TRUST_CA_SIGNED,
-					     null, serviceBroker);
+					     null);
           certstatus.setCertificateChain(entry.getCertificateChain());
 	  if (log.isDebugEnabled()) {
 	    log.debug("Updating cert cache with cert entry:" + x500Name);

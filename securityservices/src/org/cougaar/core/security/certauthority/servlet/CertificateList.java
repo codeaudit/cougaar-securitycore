@@ -257,7 +257,7 @@ public class CertificateList
 		+ i +")\">"
 		+ cert.getSubjectDN().getName()
 		+"</a></form></TD>\n");
-      sb.append("<TD>"+entry.getStatus()+"</TD>\n" );
+      sb.append("<TD>"+entry.getCertificateRevocationStatus()+"</TD>\n" );
       sb.append("<TD>"+cert.getIssuerDN().getName()
 		+"</TD></TR>\n");
     }

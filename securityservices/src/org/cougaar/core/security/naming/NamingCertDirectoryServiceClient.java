@@ -85,7 +85,6 @@ public class NamingCertDirectoryServiceClient {
     CertificateStatus cs = (CertificateStatus)l.get(0);
     NamingCertEntry entry = new NamingCertEntry();
     CertificateEntry certEntry = new CertificateEntry(cs.getCertificate(),
-        CertificateUtility.getUniqueIdentifier(cs.getCertificate()),
         // of course the cert is trusted by local node, otherwise not valid
         CertificateRevocationStatus.VALID,
         cs.getCertificateType());

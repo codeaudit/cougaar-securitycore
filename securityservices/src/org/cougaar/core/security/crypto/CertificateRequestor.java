@@ -52,6 +52,7 @@ import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
+import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import  org.cougaar.core.security.certauthority.KeyManagement;
 
@@ -1026,11 +1027,11 @@ public class CertificateRequestor {
 	  certificateTrust= CertificateTrust.CERT_TRUST_SELF_SIGNED;
     }
     CertificateStatus certstatus =
-      new CertificateStatus(ax509certificate[0], true,
+      new CertificateStatus(ax509certificate[0],
 			    CertificateOrigin.CERT_ORI_KEYSTORE,
+			    CertificateRevocationStatus.VALID,
 			    certificateType,
-			    certificateTrust, alias,
-			    serviceBroker);
+			    certificateTrust, alias);
     certstatus.setPKCS10Date(new Date());
     if (log.isDebugEnabled()) {
       log.debug("doGenKeyPair: add Private Key");
