@@ -1,0 +1,10 @@
+####################################################
+# Rule to insert the RunCodeServlet
+# At All Agents:
+
+society.each_agent(true) do |agent|
+  agent.add_component { |c|
+    c.classname =  "org.cougaar.core.security.test.RunCodeServlet"
+  }
+end
+
