@@ -184,7 +184,7 @@ public class PolicyBootstrapper
     return new Vector();
   }
   
-  public PolicyMsg getBootPolicy(Class type)
+  public synchronized PolicyMsg getBootPolicy(Class type)
   {
     if (log.isDebugEnabled()) {
       log.debug("getBootPolicy: " + type.getName());
@@ -245,6 +245,9 @@ public class PolicyBootstrapper
         policyMsg.setAttribute(attribMsg);
       }
     } 
+    if (log.isDebugEnabled()) {
+      log.debug("getBootPolicy -- done! " + type.getName());
+    }
     return policyMsg;
   }
 }
