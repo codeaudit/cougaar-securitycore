@@ -1,0 +1,16 @@
+#!/usr/bin/ruby
+####################################################
+# Rule to insert the threatcon monitor servlet to every M&R manager
+
+plugin = "org.cougaar.core.security.monitoring.servlet.ThreatConMonitorServlet"
+servlet = "org.cougaar.core.servlet.SimpleServletComponent"
+
+society.each_agent() do |agent|
+  if agent.name =~ /EnclaveMnRManager/
+    agent.add_component do |c|
+      c.classname = servlet
+      c.add_argument(plugin)
+      c.add_argument("/threatConMonitor")
+    end
+  end
+end

@@ -30,14 +30,22 @@ if !(@mnrPlaysCompleted)
     end
     @mnrPlaysWrittenOnce = true
     playclause = "
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 :
+    PERCEIVED_THREAT_LEVEL = LOW;
+
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  :
+   PERCEIVED_THREAT_LEVEL = HIGH;
 "
     if (robustness)
       playclause = "
-(org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL == LOW) : PERCEIVED_THREAT_LEVEL = 1;
-(org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL != LOW) : PERCEIVED_THREAT_LEVEL = 2;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080 : PERCEIVED_THREAT_LEVEL = 2;
+(org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL == LOW) :
+     PERCEIVED_THREAT_LEVEL = LOW;
+
+(org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL != LOW) :
+     PERCEIVED_THREAT_LEVEL = HIGH;
+
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080 :
+     PERCEIVED_THREAT_LEVEL = HIGH;
 "
     end
 
@@ -80,16 +88,20 @@ org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080 : PERCEIVED_THREA
 
 #{playclause}
 
-PERCEIVED_THREAT_LEVEL == 1
+PERCEIVED_THREAT_LEVEL == LOW
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 60
-    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_FAILURES
+    : org.cougaar.core.security.monitoring.PERCEIVED_THREAT_LEVEL = "LOW"
     : [agent.#{enclave.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW;
-PERCEIVED_THREAT_LEVEL == 2
+//    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_FAILURES
+
+PERCEIVED_THREAT_LEVEL == HIGH
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 3
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 600
-    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES
+    : org.cougaar.core.security.monitoring.PERCEIVED_THREAT_LEVEL = "HIGH"
+//    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES
     : [agent.#{enclave.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH;
+
 //org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE <= 100
 //    : com.telcordia.mode.AdaptiveFilterOperatingModeReportingRate = RAPID;
 //org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE > 100
@@ -112,11 +124,14 @@ org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080 : PERCEIVED_THREA
 PERCEIVED_THREAT_LEVEL == 1
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 60
-    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_FAILURES;
+    : org.cougaar.core.security.monitoring.PERCEIVED_THREAT_LEVEL = LOW;
+//    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_FAILURES;
+
 PERCEIVED_THREAT_LEVEL == 2
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 3
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 600
-    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES;
+    : org.cougaar.core.security.monitoring.PERCEIVED_THREAT_LEVEL = HIGH;
+//    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES;
 
 END
     }

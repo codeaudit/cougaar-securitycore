@@ -5,11 +5,13 @@
 
 userLockout = "org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin"
 
-if(!society.agents["SocietyMnRManager"].nil?)	
-   society.agents["SocietyMnRManager"].add_component do |c|
+society.each_agent() do |agent|
+  if agent.name =~ /EnclaveMnRManager/
+    agent.add_component do |c|
       c.classname = userLockout
       c.add_argument("600")
       c.add_argument("86400")
       c.add_argument("org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES")
-   end
+    end
+  end
 end
