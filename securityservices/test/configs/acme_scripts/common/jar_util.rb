@@ -78,12 +78,11 @@ end
 @jar_lock = Mutex.new
 
 def createJarConfig(configName, configContents = 'config file text')
-  File.open("#{$CIP}/configs/security#{configName}", "w") { |file|
+  File.open("#{$CIP}/configs/security/#{configName}", "w") { |file|
     file.print(configContents)
   }
   jarName = "#{$CIP}/configs/security/#{configName}.jar"
-  createJar(configName, jarName)
-  jarName
+  createJar(configName, jarName, "#{$CIP}/configs/security")
 end
 
 def createComponentJar(componentName, componentContents = nil)
@@ -111,7 +110,7 @@ COMPONENT
   return jarFile
 end
 
-def replaceFileInJar(jarFile, replacementFile)
+def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
 #  puts "replacing #{replacementFile} in #{jarFile}"
   jarDir = "/tmp/jarDir-#{File.basename(jarFile)}"
   Dir.mkdirs(jarDir)
@@ -124,6 +123,7 @@ def replaceFileInJar(jarFile, replacementFile)
       break
     end
   }
+#  puts "========================"
   if targetFile != nil
 #    puts "found file: #{targetFile}"
     `cd #{jarDir} && jar xf #{jarFile} #{targetFile}`
@@ -131,11 +131,16 @@ def replaceFileInJar(jarFile, replacementFile)
 #    puts "the file wasn't found, so using #{baseFilename}"
     targetFile = baseFilename
   end
-  `cd #{jarDir} && jar xf #{jarFile} META-INF`
-  targetFile = "#{jarDir}/#{targetFile}"
-  File.cp(replacementFile, targetFile)
-#  puts "running jar -uMf #{jarFile} -C #{jarDir} ."
-  results = `jar -uf #{jarFile} -m #{jarDir}/META-INF/MANIFEST.MF -C #{jarDir} .`
+  option = "uf"
+  if (keepManifest)
+    `cd #{jarDir} && jar xf #{jarFile} META-INF/MANIFEST.MF`
+#    puts `ls -l #{jarDir}/META-INF/MANIFEST.MF`
+    option = "umf #{jarDir}/META-INF/MANIFEST.MF"
+  end
+  File.cp(replacementFile, File.join(jarDir, targetFile) )
+#  puts "jar #{option} #{jarFile} -C #{jarDir} #{targetFile}"
+  results = `jar #{option} #{jarFile} -C #{jarDir} #{targetFile}`
 #  puts "result from jar: #{results}"
+#  puts "========================"
   File.rm_all(jarDir)
 end
