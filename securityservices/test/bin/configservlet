@@ -103,14 +103,14 @@ cp $COUGAAR_INSTALL_PATH/sys/xerces.jar $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF
 cd  $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/classes
 
 jar -xvf $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/securityservices.jar \
-        com/nai/security/certauthority/CertificateSigningRequest.class \
-        com/nai/security/certauthority/CertificateList.class \
-        com/nai/security/certauthority/CertificateDetailsServlet.class \
-        com/nai/security/certauthority/RevokeCertificateServlet.class \
-        com/nai/security/certauthority/ProcessPendingCertServlet.class \
-        com/nai/security/certauthority/PendingCertificateServlet.class \
-        com/nai/security/certauthority/PendingCertDetailsServlet.class \
-        com/nai/security/certauthority/PendingCertCache.class 
+        org/cougaar/core/security/certauthority/CertificateSigningRequest.class \
+        org/cougaar/core/security/certauthority/CertificateList.class \
+        org/cougaar/core/security/certauthority/CertificateDetailsServlet.class \
+        org/cougaar/core/security/certauthority/RevokeCertificateServlet.class \
+        org/cougaar/core/security/certauthority/ProcessPendingCertServlet.class \
+        org/cougaar/core/security/certauthority/PendingCertificateServlet.class \
+        org/cougaar/core/security/certauthority/PendingCertDetailsServlet.class \
+        org/cougaar/core/security/certauthority/PendingCertCache.class 
 
 
 cd  ${TOMCAT_HOME}/webapps/${APP_HOME}

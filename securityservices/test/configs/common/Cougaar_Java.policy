@@ -139,8 +139,8 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "p
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar" signedBy "privileged" { 
-	permission com.nai.security.crypto.KeyRingPermission "readPrivateKey";
-	permission com.nai.security.crypto.KeyRingPermission "installPkcs7Reply";
+	permission org.cougaar.core.security.crypto.KeyRingPermission "readPrivateKey";
+	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
 };
 
 ////////////////////////////////////////////////////////////
@@ -526,8 +526,8 @@ grant {
 	//permission java.util.PropertyPermission "*", "read, write";
 
 	// FIX
-	permission com.nai.security.crypto.KeyRingPermission "installPkcs7Reply";
-	permission com.nai.security.crypto.KeyRingPermission "readPrivateKey";
+	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
+	permission org.cougaar.core.security.crypto.KeyRingPermission "readPrivateKey";
 	permission java.security.SecurityPermission "printIdentity";
 
 };

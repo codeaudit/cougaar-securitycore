@@ -16,15 +16,15 @@ Additional PSPs loaded by PSP Launcher
 <object type="java.util.Vector">
 
 	<element type="org.cougaar.lib.planserver.NamedPSP">
-		<Classname>com.nai.security.monitoring.ui.PSP_Search</Classname>
+		<Classname>org.cougaar.core.security.oldmonitoring.ui.PSP_Search</Classname>
 		<PSPName>/Search.PSP</PSPName>
 	</element>
 	<element type="org.cougaar.lib.planserver.NamedPSP">
-		<Classname>com.nai.security.monitoring.ui.PSP_AnalyzerList</Classname>
+		<Classname>org.cougaar.core.security.oldmonitoring.ui.PSP_AnalyzerList</Classname>
 		<PSPName>/AnalyzerList.PSP</PSPName>
 	</element>
 	<element type="org.cougaar.lib.planserver.NamedPSP">
-		<Classname>com.nai.security.monitoring.ui.PSP_Assign</Classname>
+		<Classname>org.cougaar.core.security.oldmonitoring.ui.PSP_Assign</Classname>
 		<PSPName>/Publish.PSP</PSPName>
 	</element>
 

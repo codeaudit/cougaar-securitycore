@@ -75,7 +75,7 @@ set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.co
 # DEBUG properties
 
 # Debug property for the monitoring & response service
-set MYPROPERTIES="$MYPROPERTIES -Dcom.nai.security.monitoringdebug=true"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.oldmonitoringdebug=true"
 
 # The java.security.debug property can be used to debug the
 # Security Manager.
@@ -175,7 +175,7 @@ if ( "$useJaas" == "true") then
 endif
 if ( "$useCryptoAspect" == "true") then
 	# Fully-qualified class name of the security aspect
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=com.nai.security.crypto.CryptoAspect,com.nai.security.access.AccessControlAspect"
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=org.cougaar.core.security.crypto.CryptoAspect,org.cougaar.core.security.access.AccessControlAspect"
 
 
 endif
@@ -300,7 +300,7 @@ if ( "$useBootstrapper" == "true") then
 	#echo $****************************
 	#echo $javaargs
 	#echo $****************************
-	exec java $javaargs com.nai.security.bootstrap.SecureBootstrapper org.cougaar.core.node.Node $args
+	exec java $javaargs org.cougaar.core.security.securebootstrap.SecureBootstrapper org.cougaar.core.node.Node $args
 else
 	exec java $javaargs org.cougaar.core.node.Node $args
 endif

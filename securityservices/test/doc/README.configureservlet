@@ -73,7 +73,7 @@ Procedure to configure servlet for Security services
 
 8. Copy CertificateSigningRequest.class, CertificateDetailsServlet.class,
    CertificateList.class, RevokeCertificateServlet.class into the certauthority directory under 
-   Tomcat_home/webapps/CA/WEB-INF/classes/com/nai/security/certauthority.
+   Tomcat_home/webapps/CA/WEB-INF/classes/org/cougaar/core/security/certauthority.
    The classes directory only contains the servlet class and all the other helper
    classes required by the servlet should be put in lib directory 
    under Tomcat_home/webapps/CA/WEB-INF/.
@@ -129,7 +129,7 @@ Procedure to configure servlet for Security services
     <!-- Define servlets that are included in the example application -->
     <servlet>
         <servlet-name>certrequest</servlet-name>
-        <servlet-class>com.nai.security.certauthority.CertificateSigningRequest</servlet-class>
+        <servlet-class>org.cougaar.core.security.certauthority.CertificateSigningRequest</servlet-class>
     </servlet>
     <servlet>
         <servlet-mapping>

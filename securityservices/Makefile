@@ -59,18 +59,18 @@ jar: build-classes
 # Build secure bootstrapper 
 	@echo +++++++ Building securebootstrapper.jar
 	cd ${COUGAARCLASSES}; \
-	jar cf ${COUGAARCLASSES}/securebootstrapper.jar com/nai/security/bootstrap
+	jar cf ${COUGAARCLASSES}/securebootstrapper.jar org/cougaar/core/security/securebootstrap
 	@echo +++++++ Done Building securebootstrapper.jar
 
 # Build security services
 	@echo +++++++ Building securityservices.jar
 	cd ${COUGAARCLASSES}; \
 	jar cf ${COUGAARCLASSES}/securityservices.jar \
-		`find org/cougaar/core/security com/nai/security -maxdepth 1 -mindepth 1 -type d -not -path '*/bootstrap'` 
+		`find org/cougaar/core/security -maxdepth 1 -mindepth 1 -type d -not -path '*/*bootstrap'` 
 	@echo +++++++ Done Building securityservices.jar
 	@echo +++++++ Bulding jar for extensions
 	  cd ${COUGAARCLASSES}; \
-        jar cf ${COUGAARCLASSES}/CougaarCRLextensions.jar  com/nai/security/crlextension
+        jar cf ${COUGAARCLASSES}/CougaarCRLextensions.jar  org/cougaar/core/security/crlextension
 
 # Build idmef library
 	@echo +++++++ Building idmef.jar

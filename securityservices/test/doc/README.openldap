@@ -103,14 +103,14 @@ Before running the examples below make sure your $CLASSPATH is set include the $
 
 Listing the contexts of a directory:
 
-java com.nai.security.certauthority.LDAPCert list "ldap://yew:389/dc=cougaar,dc=org"
+java org.cougaar.core.security.certauthority.LDAPCert list "ldap://yew:389/dc=cougaar,dc=org"
 
 Removing a certificate from the directory:
 
-java com.nai.security.certauthority.LDAPCert remove "ldap://yew:389/dc=cougaar,dc=org" cn=69fe38e2af8910d646d43e1666901133
+java org.cougaar.core.security.certauthority.LDAPCert remove "ldap://yew:389/dc=cougaar,dc=org" cn=69fe38e2af8910d646d43e1666901133
 
 Adding certificates to the directory:
 
-java com.nai.security.certauthority.LDAPCert put "ldap://yew:389/dc=cougaar,dc=org" ~/tools/certificates/CaSignedCertificates/SignedReq-ROOT-CA-CONUS-TEST-NODE-NCA.cer ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer
+java org.cougaar.core.security.certauthority.LDAPCert put "ldap://yew:389/dc=cougaar,dc=org" ~/tools/certificates/CaSignedCertificates/SignedReq-ROOT-CA-CONUS-TEST-NODE-NCA.cer ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer
 
-java com.nai.security.certauthority.LDAPCert put "ldap://yew:389/dc=cougaar,dc=org" ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer
+java org.cougaar.core.security.certauthority.LDAPCert put "ldap://yew:389/dc=cougaar,dc=org" ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer

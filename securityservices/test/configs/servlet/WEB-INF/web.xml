@@ -10,7 +10,7 @@
 
     <servlet>
         <servlet-name>certrequest</servlet-name>
-        <servlet-class>com.nai.security.certauthority.CertificateSigningRequest</servlet-class>
+        <servlet-class>org.cougaar.core.security.certauthority.CertificateSigningRequest</servlet-class>
 	<!--- initial parameter -->
 	<init-param>
 	<param-name>configfile</param-name>
@@ -20,31 +20,31 @@
     </servlet>
     <servlet>
         <servlet-name>certlist</servlet-name>
-        <servlet-class>com.nai.security.certauthority.CertificateList</servlet-class>
+        <servlet-class>org.cougaar.core.security.certauthority.CertificateList</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>test</servlet-name>
-        <servlet-class>com.nai.security.certauthority.Propertytester</servlet-class>
+        <servlet-class>org.cougaar.core.security.certauthority.Propertytester</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>certdetails</servlet-name>
-        <servlet-class>com.nai.security.certauthority.CertificateDetailsServlet</servlet-class>
+        <servlet-class>org.cougaar.core.security.certauthority.CertificateDetailsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>revokecertificate</servlet-name>
-        <servlet-class>com.nai.security.certauthority.RevokeCertificateServlet</servlet-class>
+        <servlet-class>org.cougaar.core.security.certauthority.RevokeCertificateServlet</servlet-class>
     </servlet>
     <servlet>
 	<servlet-name>pendingcert</servlet-name>
-        <servlet-class>com.nai.security.certauthority.PendingCertificateServlet</servlet-class>
+        <servlet-class>org.cougaar.core.security.certauthority.PendingCertificateServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>pendingdetail</servlet-name>
-        <servlet-class>com.nai.security.certauthority.PendingCertDetailsServlet</servlet-class>
+        <servlet-class>org.cougaar.core.security.certauthority.PendingCertDetailsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>processpending</servlet-name>
-        <servlet-class>com.nai.security.certauthority.ProcessPendingCertServlet</servlet-class>
+        <servlet-class>org.cougaar.core.security.certauthority.ProcessPendingCertServlet</servlet-class>
     </servlet>
 
 

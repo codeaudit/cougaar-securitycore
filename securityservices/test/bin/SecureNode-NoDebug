@@ -140,7 +140,7 @@ if ( "$useJaas" == "true") then
 endif
 if ( "$useCryptoAspect" == "true") then
 	# Fully-qualified class name of the security aspect
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=com.nai.security.crypto.SecurityAspect"
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=org.cougaar.core.security.crypto.SecurityAspect"
 	# Print transport-related debug information about the security aspect
 	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
 
@@ -231,7 +231,7 @@ endif
 # exec instead of eval
 if ( "$useBootstrapper" == "true") then
 	#exec java $javaargs org.cougaar.core.security.bootstrap.Bootstrapper org.cougaar.core.society.Node $args
-	exec java $javaargs com.nai.security.bootstrap.Bootstrapper org.cougaar.core.society.Node $args
+	exec java $javaargs org.cougaar.core.security.securebootstrap.Bootstrapper org.cougaar.core.society.Node $args
 else
 	exec java $javaargs org.cougaar.core.society.Node $args
 endif

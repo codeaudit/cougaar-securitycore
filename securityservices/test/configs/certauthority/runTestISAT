@@ -21,7 +21,7 @@ java \
 	-Dorg.cougaar.core.node.name=TEST3ID-HHC \
 	-Dorg.cougaar.core.security.crypto.debug=true \
 	-Dorg.cougaar.security.role=isat \
-	com.nai.security.certauthority.KeyManagement  \
+	org.cougaar.core.security.certauthority.KeyManagement  \
 	-1 isat testalias
 	#-10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer
 	#-7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer

@@ -30,8 +30,8 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.loud=sh
 	-Dorg.cougaar.security.role=rtripath\
 	-Dorg.cougaar.core.security.bootstrap.useAuthenticatedLoader=true\
 	-Dorg.cougaar.core.security.bootstrap.useSecurityManager=true\
-	com.nai.security.bootstrap.Bootstrapper  \
-	com.nai.security.test.jnditest
+	org.cougaar.core.security.securebootstrap.Bootstrapper  \
+	org.cougaar.core.security.test.jnditest
 
 exit
 # Certificate authority simulation

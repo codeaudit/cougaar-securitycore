@@ -16,7 +16,7 @@ Additional PSPs loaded by PSP Launcher
 <object type="java.util.Vector">
 
 	<element type="org.cougaar.lib.planserver.NamedPSP">
-		<Classname>com.nai.security.monitoring.ui.PSP_Threat</Classname>
+		<Classname>org.cougaar.core.security.oldmonitoring.ui.PSP_Threat</Classname>
 		<PSPName>/Threats.PSP</PSPName>
 	</element>
 	

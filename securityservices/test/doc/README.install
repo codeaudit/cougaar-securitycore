@@ -395,4 +395,4 @@ org.cougaar.core.security.policy.debug ---> default is false
 org.cougaar.core.security.crypto.debug ----> default is false
 org.cougaar.core.security.crypto.cryptoProvidersFile ---> default value is "cryptoProviders.xml"
 org.cougaar.security.ldapserver ---> default value is  "ldap://localhost"
-com.nai.security.monitoringdebug ---> default value is false
+org.cougaar.core.security.oldmonitoringdebug ---> default value is false
