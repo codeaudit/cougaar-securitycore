@@ -200,16 +200,7 @@ public class EventViewerServlet
 
       // Additional Data
       AdditionalData[] additionalData = alert.getAdditionalData();
-      value = "";
-      if (additionalData != null) {
-        for(int i = 0 ; i < additionalData.length ; i++) {
-          if (additionalData[i] != null) {
-            value = value + additionalData[i].toString() + "<br/>";
-          }
-        }
-      }
-      out.print("<td>" + value + "</td>");
-
+      outputAdditionalData(out, additionalData);
     }
     // Heatbeat
     else if (msg instanceof Heartbeat) {
@@ -235,20 +226,27 @@ public class EventViewerServlet
 
       // Additional Data
       AdditionalData[] additionalData = heartbeat.getAdditionalData();
-      value = "";
-      if (additionalData != null) {
-        for(int i = 0 ; i < additionalData.length ; i++) {
-          if (additionalData[i] != null) {
-            value = value + additionalData[i].toString() + "<br/>";
-          }
-        }
-      }
-      out.print("<td>" + value + "</td>");
+      outputAdditionalData(out, additionalData);
     }
     else {
       out.print("Unknow Event");
     }
     out.print("</tr>");
+  }
+
+  private void outputAdditionalData(PrintWriter out,
+                        AdditionalData[] additionalData) {
+    String value = "";
+    if (additionalData != null) {
+      for(int i = 0 ; i < additionalData.length ; i++) {
+        if (additionalData[i] != null) {
+          value = value + additionalData[i].getType() + "/" +
+                     additionalData[i].getMeaning() + "/" +
+                     additionalData[i].getAdditionalData() + "<br/>";
+        }
+      }
+    }
+    out.print("<td>" + value + "</td>");
   }
 
   private void printNode(PrintWriter out, IDMEF_Node n) {
