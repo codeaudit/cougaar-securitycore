@@ -220,8 +220,8 @@ public class JaasSSLFactory extends SSLSocketFactory {
       AccessController.doPrivileged(new GetSubject(acc));
     Set set = null;
     if (subject == null) {
-      if (_log.isErrorEnabled()) {
-        _log.error("Unable to retrieve Subject data");
+      if (_log.isInfoEnabled()) {
+        _log.info("Unable to retrieve Subject data");
       }
       set = new HashSet(0);
     }
