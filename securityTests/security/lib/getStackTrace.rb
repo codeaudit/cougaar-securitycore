@@ -23,7 +23,7 @@ class GetStackTrace < SecurityStressFramework
       nodeInfo = getJavaPid(nodename)
       #logInfoMsg "getStack after getJavaPid #{nodename}"
       #stacktrace = getStackTraceFromProcFileSystem(nodeInfo.java_pid)
-      logInfoMsg "Retrieving stack trace of #{nodename} at #{nodeInfo.node.host.name} - Java PID=#{nodeInfo.java_pid} PID=#{nodeInfo.node_pid}"
+      #logInfoMsg "Retrieving stack trace of #{nodename} at #{nodeInfo.node.host.name} - Java PID=#{nodeInfo.java_pid} PID=#{nodeInfo.node_pid}"
       stacktrace = getStackTraceFromAcme(nodeInfo)
       logfile = "#{@stackbasedir}/stack-#{nodename}-#{nodeInfo.java_pid}.#{@stackTraceId}.log"
       f = File.new(logfile, "w");
@@ -42,7 +42,7 @@ class GetStackTrace < SecurityStressFramework
     pid = nodeInfo.node_pid
     response = @run.comms.new_message(host).set_body("command[stdio]#{pid}").request(30)
     if response != nil
-      puts "STDIO #{response.body}"
+      #puts "STDIO #{response.body}"
       if response.body =~ /Unregistered/
         # It was already registered, and we unregistered. Turn it back on
         response = @run.comms.new_message(host).set_body("command[stdio]#{pid}").request(30)
@@ -111,7 +111,7 @@ class GetStackTrace < SecurityStressFramework
       end
       response = @run.comms.new_message(host).set_body("command[list_xml_nodes]").request(60)
       if (response != nil)
-        logInfoMsg "Retrieving XML node pid: #{response}"
+        #logInfoMsg "Retrieving XML node pid: #{response}"
         parseNodePids(response.body).each { |node, pid|
           if (node == nodename)
             nodeInfo.node_pid = pid
@@ -121,7 +121,7 @@ class GetStackTrace < SecurityStressFramework
       end
     end
     @nodeInfoMap[nodename] = nodeInfo
-    logInfoMsg "#{nodeInfo.to_s}"
+    #logInfoMsg "#{nodeInfo.to_s}"
     return nodeInfo
   end
 
