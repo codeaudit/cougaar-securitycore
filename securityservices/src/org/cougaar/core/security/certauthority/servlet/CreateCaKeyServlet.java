@@ -36,6 +36,7 @@ import javax.security.auth.x500.X500Principal;
 
 // Overlay
 import org.cougaar.core.security.coreservices.identity.*;
+import org.cougaar.core.service.AgentIdentityService;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;

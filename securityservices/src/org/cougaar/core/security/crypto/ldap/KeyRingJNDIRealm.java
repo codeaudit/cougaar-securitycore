@@ -73,14 +73,17 @@ import org.cougaar.core.security.monitoring.blackboard.NewEvent;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 
+// Cougaar core infrastructure
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.AgentIdentityService;
+import org.cougaar.core.node.NodeIdentificationService;
+import org.cougaar.core.node.NodeIdentifier;
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
 
 // Cougaar Overlay
-import org.cougaar.core.security.coreservices.identity.AgentIdentityService;
 import org.cougaar.core.security.coreservices.identity.PendingRequestException;
 import org.cougaar.core.security.coreservices.identity.IdentityDeniedException;
 
@@ -170,10 +173,16 @@ public class KeyRingJNDIRealm extends RealmBase {
       
       AgentIdentityService ais = (AgentIdentityService)
         _nodeServiceBroker.getService(this, AgentIdentityService.class, null);
+
+      NodeIdentificationService nis = (NodeIdentificationService)
+        _nodeServiceBroker.getService(this, NodeIdentificationService.class, null);
+      if (nis == null) {
+	throw new RuntimeException("Unable to get NodeIdentification service");
+      }
       if (ais != null) {
         // force a certificate for the node
         try {
-          ais.CreateCryptographicIdentity(NodeInfo.getNodeName(), null);
+          ais.CreateCryptographicIdentity(nis.getNodeIdentifier(), null);
         } catch (PendingRequestException e) {
           // well, can't use it, but no biggy
         } catch (IdentityDeniedException e) {

@@ -42,9 +42,11 @@ import sun.security.x509.*;
 // Cougaar core infrastructure
 import org.cougaar.core.component.ServiceBrokerSupport;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
 
 // Overlay
 import org.cougaar.core.security.coreservices.identity.*;
+import org.cougaar.core.service.AgentIdentityService;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -82,11 +84,11 @@ public class AgentIdentityServiceImpl
 
   }
 
-  public void CreateCryptographicIdentity(String agentName,
+  public void CreateCryptographicIdentity(MessageAddress agent,
 					  RevocationCallBack clientCallBack)
     throws PendingRequestException,
     IdentityDeniedException {
-    keyRing.checkOrMakeCert(agentName);
+    keyRing.checkOrMakeCert(agent.getAddress());
   }
 
   public void CreateCryptographicIdentity(Principal p,
@@ -102,12 +104,12 @@ public class AgentIdentityServiceImpl
     }
   }
 
-  public void HoldCryptographicIdentity(String agentName) {
+  public void HoldCryptographicIdentity(MessageAddress agent) {
     throw new RuntimeException("Feature not yet implemented");
   }
 
 
-  public void RevokeCryptographicIdentity(String agentName) {
+  public void RevokeCryptographicIdentity(MessageAddress agent) {
     throw new RuntimeException("Feature not yet implemented");
   }
 
@@ -117,9 +119,9 @@ public class AgentIdentityServiceImpl
    *  @param signerCert     The certificate of the signer
    *  @param rcvrCert       The certificate of the intended receiver
    */
-  public TransferableIdentity initiateTransfer(String agent,
-					       String sourceAgent,
-					       String targetAgent)
+  public TransferableIdentity initiateTransfer(MessageAddress agent,
+					       MessageAddress sourceAgent,
+					       MessageAddress targetAgent)
   {
 
     /* Three steps:
@@ -132,34 +134,35 @@ public class AgentIdentityServiceImpl
 
     /* Step 1 */
     if (CryptoDebug.debug) {
-      System.out.println("Initiating key transfer of " + agent
-			 + " from " + sourceAgent
-			 + " to " + targetAgent);
+      System.out.println("Initiating key transfer of " + agent.getAddress()
+			 + " from " + sourceAgent.getAddress()
+			 + " to " + targetAgent.getAddress());
     }
     SecureMethodParam policy;
 
-    policy = cps.getSendPolicy(sourceAgent+":"+targetAgent);
+    policy = cps.getSendPolicy(sourceAgent.getAddress() + ":"
+			       + targetAgent.getAddress());
     if (policy == null) {
        throw new RuntimeException("Could not find message policy between "
-	+ sourceAgent + " and " + targetAgent);
+	+ sourceAgent.getAddress() + " and " + targetAgent.getAddress());
     }     
 
     // Retrieve keys of the agent
-    List agentPrivKeyList = keyRing.findPrivateKey(agent);
+    List agentPrivKeyList = keyRing.findPrivateKey(agent.getAddress());
 
     if (agentPrivKeyList.size() == 0) {
       throw new RuntimeException("Could not find private keys for "
-	+ agent);
+	+ agent.getAddress());
     }
     PrivateKey[] privKey = new PrivateKey[agentPrivKeyList.size()];
     for (int i = 0 ; i < agentPrivKeyList.size() ; i++) {
       privKey[i] = ((PrivateKeyCert)(agentPrivKeyList.get(i))).getPrivateKey();
     }
 
-    List agentCertList = keyRing.findCert(agent);
+    List agentCertList = keyRing.findCert(agent.getAddress());
     if (agentCertList.size() == 0) {
       throw new RuntimeException("Could not find certificates for "
-	+ agent);
+	+ agent.getAddress());
     }
     X509Certificate[] cert = new X509Certificate[agentCertList.size()];
     for (int i = 0 ; i < agentCertList.size() ; i++) {
@@ -170,7 +173,8 @@ public class AgentIdentityServiceImpl
 
     PublicKeyEnvelope envelope =
       encryptionService.signAndEncrypt(keySet,
-				       sourceAgent, targetAgent,
+				       sourceAgent.getAddress(),
+				       targetAgent.getAddress(),
 				       policy);
     KeyIdentity keyIdentity =
       new KeyIdentity(envelope.getSender(),
@@ -179,7 +183,7 @@ public class AgentIdentityServiceImpl
 		      envelope.getEncryptedObject());
 
     /* Step 2 & 3 */
-    keyRing.removeEntry(agent);
+    keyRing.removeEntry(agent.getAddress());
 
     return keyIdentity;
   }
@@ -190,8 +194,8 @@ public class AgentIdentityServiceImpl
    * @param rcvrCert       The certificate of the receiver
    */
   public void completeTransfer(TransferableIdentity identity,
-				 String sourceAgent,
-				 String targetAgent)
+			       MessageAddress sourceAgent,
+			       MessageAddress targetAgent)
   {
     /* 1 - Extract the keys from the envelope.
      * 2 - Install keys in the local keystore.
@@ -199,12 +203,15 @@ public class AgentIdentityServiceImpl
 
     /* Step 1 */
     if (CryptoDebug.debug) {
-      System.out.println("Completing key transfer from " + sourceAgent
-			 + " to " + targetAgent);
+      System.out.println("Completing key transfer from "
+			 + sourceAgent.getAddress()
+			 + " to " + targetAgent.getAddress());
     }
 
     SecureMethodParam policy =
-      cps.getReceivePolicy(sourceAgent+":"+targetAgent);
+      cps.getReceivePolicy(sourceAgent.getAddress()
+			   +":"
+			   +targetAgent.getAddress());
 
     KeySet keySet = null;
 
@@ -218,7 +225,8 @@ public class AgentIdentityServiceImpl
       if (CryptoDebug.debug) {
 	System.out.println("Decrypting KeyIdentity");
       }
-      Object o = encryptionService.decryptAndVerify(sourceAgent, targetAgent,
+      Object o = encryptionService.decryptAndVerify(sourceAgent.getAddress(),
+						    targetAgent.getAddress(),
 						    keyIdentity, policy);
 
       if (CryptoDebug.debug) {

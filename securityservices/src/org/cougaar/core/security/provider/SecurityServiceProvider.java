@@ -32,7 +32,8 @@ import java.util.Hashtable;
 // Cougaar core services
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
-
+import org.cougaar.core.service.AgentIdentityService;
+import org.cougaar.core.service.DataProtectionService;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;

@@ -43,6 +43,7 @@ import org.cougaar.core.mts.*;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.domain.RootFactory;
+import org.cougaar.core.service.AgentIdentityService;
 
 // Cougaar security services
 import org.cougaar.core.security.services.identity.*;
@@ -122,11 +123,8 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
   }
 
   private void initiateTransfer() {
-    String agent = thisAgentID.toAddress();
-    String source = thisNodeID.toAddress();
-    String target = toNodeID.toAddress();
     TransferableIdentity ti =
-      aiService.initiateTransfer(agent, source, target);
+      aiService.initiateTransfer(thisAgentID, thisNodeID, toNodeID);
 
     // create the move-message
     MoveCryptoMessage moveMsg = 
@@ -150,7 +148,8 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
       System.out.println("Received Transferable identity from "
 			 + source + " to " + target);
       aiService.completeTransfer(m.getTransferableIdentity(),
-				 source, target);
+				 msg.getOriginator(),
+				 msg.getTarget());
     }
   }
 

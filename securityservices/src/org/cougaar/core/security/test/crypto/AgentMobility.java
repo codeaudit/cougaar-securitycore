@@ -42,9 +42,14 @@ import java.security.spec.InvalidKeySpecException;
 import com.ibm.security.pkcs12.PKCS12PFX;
 import com.ibm.security.pkcs8.PrivateKeyInfo;
 import com.ibm.security.pkcsutil.PKCSException;
-import org.cougaar.core.security.util.CryptoDebug;
+
+// Cougaar core infrastructure
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.AgentIdentityService;
+import org.cougaar.core.security.coreservices.identity.TransferableIdentity;
 
 // Cougaar Security Services
+import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.crypto.KeyRing;
 import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.crypto.KeySet;
@@ -52,10 +57,6 @@ import org.cougaar.core.security.crypto.KeyWrapping;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
-
-// Cougaar overlay
-import org.cougaar.core.security.coreservices.identity.TransferableIdentity;
-import org.cougaar.core.security.coreservices.identity.AgentIdentityService;
 
 public class AgentMobility
 {
@@ -90,21 +91,24 @@ public class AgentMobility
     String pkcs12Alias = args[1];
     String receiverAlias = args[2];
 
+    MessageAddress agent = new MessageAddress(pkcs12Alias);
+    MessageAddress signer = new MessageAddress(signerAlias);
+    MessageAddress receiver = new MessageAddress(receiverAlias);
 
     if (CryptoDebug.debug) {
       System.out.println("======== Wrapping key");
     }
     TransferableIdentity identity =
-      agentIdentity.initiateTransfer(pkcs12Alias,
-				     signerAlias,
-				     receiverAlias);
+      agentIdentity.initiateTransfer(agent,
+				     signer,
+				     receiver);
     if (CryptoDebug.debug) {
       System.out.println("======== Unwrapping key");
     }
     KeySet keySet = null;
     agentIdentity.completeTransfer(identity,
-				   signerAlias,
-				   receiverAlias);
+				   signer,
+				   receiver);
   }
 
   public void testAgentMobilityWithPkcs12(String[] args) {
