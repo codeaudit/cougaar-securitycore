@@ -108,11 +108,21 @@ public class CertificateCache
     ArrayList validCerts = new ArrayList();
     ListIterator it = v.listIterator();
 
+    // return the cert with the longest notafter day first
+    // most modules will use the cert
+    long notafter = 0L;
+
     while (it.hasNext()) {
       CertificateStatus cs = (CertificateStatus) it.next();
       boolean isTrustedAndValid = checkCertificate(cs);
       if (isTrustedAndValid) {
-	validCerts.add(cs);
+        long certtime = cs.getCertificate().getNotAfter().getTime();
+        if (certtime > notafter) {
+          notafter = certtime;
+          validCerts.add(0, cs);
+        }
+        else
+	  validCerts.add(cs);
       }
     }
     return validCerts;
@@ -311,7 +321,7 @@ public class CertificateCache
 		it.add(certEntry);
 	      }
 	      if (log.isDebugEnabled()) {
-		log.debug(" (insert before index=" + it.nextIndex() 
+		log.debug(" (insert before index=" + it.nextIndex()
 			  + " - size="
 			  + list.size() + ")");
 	      }
@@ -360,11 +370,11 @@ public class CertificateCache
 	updateBigInt2Dn(cert);
       }
       else {
-	if(log.isInfoEnabled())
-	  log.info("Certificate is not trusted yet trust="
+	if(log.isWarnEnabled())
+	  log.warn("Certificate is not trusted yet trust="
 		   + certEntry.getCertificateTrust());
       }
-    
+
       ArrayList list = (ArrayList)certsCache.get(principal);
       if (list == null) {
 	list = new ArrayList();
