@@ -105,7 +105,7 @@ public class CougaarSecurityManager extends SecurityManager
     type= BootstrapEvent.SecurityAlarm;
     eventholder= EventHolder.getInstance();
     //System.out.println(" Event Holder in Cougaar security mananger got loaded by :"+eventholder.getClass().getClassLoader().toString() );
-    System.out.println("Instance of Event holder in Cougaar security Manger :"+eventholder.toString());
+    //System.out.println("Instance of Event holder in Cougaar security Manger :"+eventholder.toString());
     try {
       auditlog = new PrintStream(new FileOutputStream(auditlogname));
       auditlog.print("<logtime>"+DateFormat.getDateInstance().format(new Date())
@@ -120,10 +120,11 @@ public class CougaarSecurityManager extends SecurityManager
       System.out.println("Cougaar Security Manager. Logging to " + auditlogname);
     }
     ClassLoader cloader=eventholder.getClass().getClassLoader();
-    if(cloader!=null)
+    /* if(cloader!=null)
      System.out.println(" Event Holder in Cougaar security mananger got loaded by :"+cloader.toString() );
     else 
       System.out.println(" Got class loader null for event holder in security manager  :");
+    */
   }
 
 
