@@ -3052,8 +3052,6 @@ public class DirectoryKeyStore
                                null);
 
     if (namingSrv == null) {
-      if (log.isWarnEnabled())
-        log.warn("Cannot get naming service.");
       throw new NamingException("Cannot get naming service");
     }
 
