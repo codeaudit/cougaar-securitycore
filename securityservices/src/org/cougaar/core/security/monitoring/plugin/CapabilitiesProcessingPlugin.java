@@ -292,8 +292,11 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     while(capabilities_enum.hasMoreElements()) {
       event=( Event)  capabilities_enum.nextElement();
       if(loggingService.isDebugEnabled()) {
+        /*
       	loggingService.debug("Event received is  :"+ event.toString() 
             + "\n in agent "+myAddress.toString());
+        */
+        loggingService.debug("Event received in agent "+myAddress.toString());
       }
       registration=(RegistrationAlert)event.getEvent();
       analyzer=registration.getAnalyzer();
