@@ -38,10 +38,12 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 
+import java.io.Serializable;
+
 /** This interface representes the ability to convert the implementing 
     object into XML.*/
 
-public interface XMLSerializable {
+public interface XMLSerializable extends Serializable {
 
     /**This method will convert this object to XML format.
        @param parent the parent document to create the XML in relation to
