@@ -40,6 +40,8 @@ import org.cougaar.core.security.monitoring.plugin.BlackboardCompromiseSensorPlu
 import org.cougaar.core.security.monitoring.plugin.CompromiseBlackboard;
 import org.cougaar.core.security.servlet.AbstractServletComponent;
 import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.blackboard.BlackboardAlert;
+import org.cougaar.core.blackboard.BlackboardAlertRelay;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.util.Duration;
@@ -143,9 +145,17 @@ public class CompromiseBlackboardServlet extends AbstractServletComponent {
 	BlackboardFailureEvent event = 
           new BlackboardFailureEvent(agent,agent,"reason",
 		"reasonId", data, "compromisedata");
-     	BlackboardCompromiseSensorPlugin.publishEvent(event);
-    
-   
+//     	BlackboardCompromiseSensorPlugin.publishEvent(event);
+
+    BlackboardAlert alert = new BlackboardAlert("CompromiseBlackboardServlet",
+      timestamp, agentIdService.getMessageAddress(), agentIdService.getMessageAddress(), "agent compromise");
+    BlackboardAlertRelay relay = new BlackboardAlertRelay(uidService.nextUID(), 
+      agentIdService.getMessageAddress(), agentIdService.getMessageAddress(), alert);
+    blackboardService.openTransaction();
+    blackboardService.publishAdd(relay);
+    blackboardService.closeTransaction();
+  
+ 
       String msg = "Published CompromiseBlackboard Object for " + agent;
     PrintWriter out = response.getWriter();
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
