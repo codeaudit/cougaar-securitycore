@@ -103,12 +103,11 @@ COMPONENT
   File.open(javaFile, "w") { |file|
     file.print(componentContents)
   }
-  jarDir = "/tmp/jar-#{componentName}"
   classpath = getClasspath
-  `javac -d #{jarDir} -classpath #{classpath.join(':')} -d #{dir} #{javaFile}`
+  `javac -classpath #{classpath.join(':')} -d #{dir} #{javaFile}`
   jarFile = "#{$CIP}/lib/#{componentName}.jar"
-  createJar("*", jarFile, jarDir)
-  File.rm_all(jarDir)
+  createJar(".", jarFile, dir)
+  File.rm_all(dir)
   return jarFile
 end
 
