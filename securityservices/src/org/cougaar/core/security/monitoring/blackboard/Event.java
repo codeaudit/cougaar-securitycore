@@ -23,8 +23,6 @@ package org.cougaar.core.security.monitoring.blackboard;
 
 import edu.jhuapl.idmef.IDMEF_Message;
 
-import org.cougaar.core.util.UniqueObject;
-
 /** Event interface
  *  Monitoring & Response sensors use Event objects to signal
  *  that something happened. Event objects should be published
@@ -35,16 +33,18 @@ import org.cougaar.core.util.UniqueObject;
  *  an EventTransfer directly.
  *  
  */
-public interface Event extends CmrObject {
+public interface Event extends CmrObject 
+{
 
   /**
    * Retrieve the IDMEF message (alert or heartbeat)
    */
-  public IDMEF_Message getMessage();
+  public IDMEF_Message getEvent();
 
   /**
    * Set the IDMEF message
    * @param aMessage - The IDMEF message (alert or heartbeat)
    */
-  public void setMessage(IDMEF_Message aMessage);
+  public void setEvent(IDMEF_Message aMessage);
+
 }

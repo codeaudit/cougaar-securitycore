@@ -23,29 +23,64 @@ package org.cougaar.core.security.monitoring.blackboard;
 
 import edu.jhuapl.idmef.IDMEF_Message;
 
+// Cougaar core services
 import org.cougaar.core.util.UniqueObject;
+import org.cougaar.core.util.UID;
+import org.cougaar.core.blackboard.Publishable;
 
 /** Event implementation
- **/
+ */
 public class EventImpl
-  extends UniqueObjectImpl
-  implements Event
+  implements Event, UniqueObject, Publishable
 {
   private IDMEF_Message theMessage = null;
+  private UID myUID;
 
   public EventImpl(IDMEF_Message aMessage)
   {
     theMessage = aMessage;
   }
 
-  public void setMessage(IDMEF_Message aMessage)
+  /** ******************************************************************
+   *  Event interface
+   */
+  public void setEvent(IDMEF_Message aMessage)
   {
     theMessage = aMessage;
   }
 
-  public IDMEF_Message getMessage()
+  public IDMEF_Message getEvent()
   {
     return theMessage;
   }
 
+  /** ******************************************************************
+   *  UniqueObject interface
+   */
+
+  /**
+   * setUID - set uid for the object
+   *
+   * @param uid UID assigned to object
+   */
+  public void setUID(UID uid) {
+    myUID = uid;
+  }
+  
+  /**
+   * getUID - get uid for the object
+   *
+   * @return UID assigned to object
+   */
+  public UID getUID() { 
+    return myUID;
+  }
+
+  /** ******************************************************************
+   *  Publishable interface
+   */
+
+  public boolean isPersistable() {
+    return true;
+  }
 }

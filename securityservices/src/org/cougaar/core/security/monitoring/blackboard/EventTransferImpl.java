@@ -23,16 +23,20 @@ package org.cougaar.core.security.monitoring.blackboard;
 
 import edu.jhuapl.idmef.IDMEF_Message;
 
+// Cougaar core services
+import org.cougaar.core.util.UniqueObject;
 import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.core.util.UID;
+import org.cougaar.core.blackboard.Publishable;
 
 /** EventTransferImpl
  */
 public class EventTransferImpl 
-  extends UniqueObjectImpl
-  implements EventTransfer
+  implements EventTransfer, UniqueObject, Publishable
 {
 
+  private UID myUID;
   private Event theEvent;
   private Asset assigneeAsset;
   private ClusterIdentifier assignerCluster;
@@ -50,6 +54,10 @@ public class EventTransferImpl
     setAssignor(from);
   }
 
+  /** ******************************************************************
+   *  EventTransfer interface
+   */
+
   /** Returns a Monitoring & Response Event.
    * This Event is being assigned to an agent for use.
    *
@@ -58,6 +66,11 @@ public class EventTransferImpl
 		
   public Event getEvent() {
     return theEvent;
+  }
+
+  private void setEvent(Event aEvent)
+  {
+    theEvent = aEvent;
   }
  	
   /** Returns the Asset to which the asset is being assigned.
@@ -91,11 +104,36 @@ public class EventTransferImpl
   private void setAssignor(ClusterIdentifier aCluster) {
     assignerCluster = aCluster;
   }
+  /** ******************************************************************
+   *  UniqueObject interface
+   */
 
-  private void setEvent(Event aEvent)
-  {
-    theEvent = aEvent;
+  /**
+   * setUID - set uid for the object
+   *
+   * @param uid UID assigned to object
+   */
+  public void setUID(UID uid) {
+    myUID = uid;
   }
+  
+  /**
+   * getUID - get uid for the object
+   *
+   * @return UID assigned to object
+   */
+  public UID getUID() { 
+    return myUID;
+  }
+
+  /** ******************************************************************
+   *  Publishable interface
+   */
+
+  public boolean isPersistable() {
+    return true;
+  }
+
 }
 
 

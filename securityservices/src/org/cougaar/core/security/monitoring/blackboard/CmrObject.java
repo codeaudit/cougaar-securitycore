@@ -21,10 +21,7 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import org.cougaar.core.util.UniqueObject;
-
-
 /** Cougaar Monitoring & Response base Object interface
  **/
-public interface CmrObject extends UniqueObject {
+public interface CmrObject {
 }
