@@ -12,18 +12,18 @@
 org.cougaar.core.naming.useSSL=false
 #org.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol
 
-org.cougaar.core.security.bootstrap.keystore=__CIP__/cougaar/configs/common/bootstrap_keystore
+org.cougaar.core.security.bootstrap.keystore=__CIP__/configs/common/bootstrap_keystore
 org.cougaar.core.logging.log4j.appender.SECURITY.File=$HOST.log
 
 # Add the secure bootstrapper to the bootstrap class path
 # This is needed because of a bug in the SDK 1.4.
 # Internal Java runtime classes can create infinite recursive calls
-java.Xbootclasspath/a=__CIP__/cougaar/lib/securebootstrapper.jar:__CIP__/cougaar/lib/bootstrap.jar
+java.Xbootclasspath/a=__CIP__/lib/securebootstrapper.jar:__CIP__/lib/bootstrap.jar
 
 # Set the class path for starting the Node, which uses ":" separators.
 #
 # Typically only bootstrap.jar needs to be in here.
-java.class.path=__CIP__/cougaar/lib/CougaarCRLextensions.jar
+java.class.path=__CIP__/lib/CougaarCRLextensions.jar
 
 # Aspects
 # Do we need to add something here?
@@ -51,7 +51,7 @@ org.cougaar.bootstrap.class=org.cougaar.core.security.securebootstrap.SecureBoot
 # Warning!!! Use JAR files ONLY when using this policy file.
 # If directories containing .class files are included in the CLASSPATH,
 # the .class files will not have sufficient privileges to be executed.
-#java.security.policy=__CIP__/cougaar/configs/common/Cougaar_Java.policy
+#java.security.policy=__CIP__/configs/common/Cougaar_Java.policy
 
 # User Java security manager
 org.cougaar.core.security.useSecurityManager=true
