@@ -58,6 +58,15 @@ public class DataProtectionKeyImpl
     certificateChain = certChain;
   }
 
+  public boolean equals(DataProtectionKeyImpl key) {
+    if (!getObject().equals(key.getObject()))
+      return false;
+    X509Certificate [] certChain = key.getCertificateChain();
+    if (certificateChain.length == 0 || certChain.length == 0)
+      return false;
+    return certificateChain[0].equals(certChain[0]);
+  }
+
   public String getDigestAlg() {
     return digestAlgSpec;
   }
