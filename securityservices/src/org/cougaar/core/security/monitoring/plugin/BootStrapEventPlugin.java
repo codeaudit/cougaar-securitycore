@@ -137,6 +137,10 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
 	mgrrole="SecurityMnRManager-Enclave";
 	dest_community=mySecurityCommunity;
       }
+      if((myRole.equalsIgnoreCase("SecurityMnRManager-Enclave")) &&(this instanceof SensorInfo)) {
+	mgrrole="SecurityMnRManager-Enclave";
+	dest_community=mySecurityCommunity;
+      }
       log.debug(" My destination community is  :"+dest_community +" agent name :"+myAddress.toString());
       if(mgrrole!=null) {
 	mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
@@ -451,15 +455,15 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     						      
   }
   
-  public String getDestinationCommunity(String role) {
+  public String getDestinationCommunity(String myrole) {
     if(communityService==null) {
       log.error(" Community Service is null" +myAddress.toString()); 
     }
     String destrole=null;
-    if(role.equalsIgnoreCase("member")) {
+    if(myrole.equalsIgnoreCase("member")) {
       destrole="SecurityMnRManager-Enclave";
     }
-    else if(role.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
+    else if(myrole.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
       destrole="SecurityMnRManager-Society";
     }
     String filter="(CommunityType=Security)";
