@@ -137,7 +137,7 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
         }// end if(relay!=null)
         else {
           if(loggingService.isInfoEnabled()){
-            loggingService.info("ERROR in findCmrRelay function"+ mapping.getRelayUID()); 
+            loggingService.info("Cannot find CmrRelay must have been deleted by Receiver plugin "+ mapping.getRelayUID()); 
           }
         }
       }// end if(mapping.getRelayUID()!=null)
