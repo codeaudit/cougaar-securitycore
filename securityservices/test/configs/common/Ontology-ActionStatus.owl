@@ -1,0 +1,97 @@
+<?xml version='1.0'?>
+<!--OWL Language, version 08/2003-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:owl="http://www.w3.org/2002/07/owl#" 
+         xmlns="http://ontology.ihmc.us/ActionStatus.owl#">
+    
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo>
+            $ http://ontology.ihmc.us/ActionStatus.owl $
+        </owl:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Entity.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Policy.owl"/>
+        <owl:imports rdf:resource="http://www.isi.edu/~pan/damltime/time-entry.owl"/>
+    </owl:Ontology>
+
+<!--Section with property definitions-->
+
+    <owl:ObjectProperty rdf:ID="hasStatus">
+        <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/>
+        <rdfs:range rdf:resource="#ActionStatus"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="involvedPolicy">
+        <rdfs:domain rdf:resource="#ActionPolicyStatus"/>
+        <rdfs:range rdf:resource="http://ontology.ihmc.us/Policy.owl#Policy"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="hasDeadlineToStart">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/>
+        <rdfs:range rdf:resource="http://www.isi.edu/~pan/damltime/time-entry.owl#InstantThing"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="hasDeadlineToFinish">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/>
+        <rdfs:range rdf:resource="http://www.isi.edu/~pan/damltime/time-entry.owl#InstantThing"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="hasBeenTrigerredBy">
+        <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/>
+        <rdfs:range rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="hasRelationToTrigger">
+        <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/>
+        <rdfs:range rdf:resource="http://ontology.ihmc.us/Policy.owl#ObligationConstraint"/>
+    </owl:ObjectProperty>
+
+<!--Section with class definitions-->
+
+    <owl:Class rdf:ID="ActionStatus">
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#LogicalEntity"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Planned">
+        <rdfs:subClassOf rdf:resource="#ActionStatus"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Started">
+        <rdfs:subClassOf rdf:resource="#ActionStatus"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Aborted">
+        <rdfs:subClassOf rdf:resource="#ActionStatus"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Completed">
+        <rdfs:subClassOf rdf:resource="#ActionStatus"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Failure">
+        <rdfs:subClassOf rdf:resource="#ActionStatus"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="ActionPolicyStatus">
+        <rdfs:subClassOf rdf:resource="#ActionStatus"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Authorized">
+        <rdfs:subClassOf rdf:resource="#ActionPolicyStatus"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Forbiden">
+        <rdfs:subClassOf rdf:resource="#ActionPolicyStatus"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Obliged">
+        <rdfs:subClassOf rdf:resource="#ActionPolicyStatus"/>
+    </owl:Class>
+    
+</rdf:RDF>

@@ -21,21 +21,21 @@
 
     <owl:ObjectProperty rdf:ID="usedAuthenticationLevel">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/> 
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#hasObjectContext"/> 
         <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#AuthenticationLevel"/> 
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="usedAuditLevel">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/> 
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#hasObjectContext"/> 
         <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#AuditLevel"/> 
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="usedProtectionLevel">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#hasObjectContext"/>
         <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#EncryptedCommunicationAction"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#ProtectionLevel"/> 
     </owl:ObjectProperty>
@@ -48,36 +48,35 @@
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="hasSubject">
-        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#hasObjectContext"/>
         <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#CommunicationAction"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#ULContentValue"/> 
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="blackBoardAccessObject">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#hasObjectContext"/>
         <rdfs:domain rdf:resource="#BlackBoardAccess"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#BlackBoardObjects"/> 
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="blackBoardAccessMode">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#hasObjectContext"/>
         <rdfs:domain rdf:resource="#BlackBoardAccess"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#BlackBoardAccessMode"/> 
     </owl:ObjectProperty>
 
-
     <owl:ObjectProperty rdf:ID="wpAgentEntry">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#hasObjectContext"/>
         <rdfs:domain rdf:resource="#WPUpdateSelf"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent"/>
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="forwardTo">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#hasObjectContext"/>
         <rdfs:domain rdf:resource="#WPForward"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent"/>
     </owl:ObjectProperty>
@@ -87,7 +86,6 @@
      <owl:Class rdf:ID="ServletAccess">
         <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#AccessAction"/>
      </owl:Class>
-
 
      <owl:Class rdf:ID="BlackBoardAccess">
         <owl:disjointWith rdf:resource="#ServletAccess"/>

@@ -27,10 +27,15 @@
         <owl:inverseOf rdf:resource="#hasAttribute"/>
     </owl:ObjectProperty> 
 
-    <rdf:Property rdf:ID="hasValue">
+    <owl:ObjectProperty rdf:ID="hasObjectValue">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="#Attribute"/>
-    </rdf:Property>
+    </owl:ObjectProperty>
+
+    <owl:DatatypeProperty rdf:ID="hasDataValue">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="#Attribute"/>
+    </owl:DatatypeProperty>
 
 <!--Section with class definitions--> 
 

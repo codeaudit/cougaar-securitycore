@@ -16,20 +16,20 @@
 
             core KAoS ontologies.
         </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Entity.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Place.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Group.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Place.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Group.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Actor.owl"/>
         <owl:imports rdf:resource="http://ontology.ihmc.us/Action.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/ActionStatus.owl"/>
         <owl:imports rdf:resource="http://ontology.ihmc.us/Message.owl"/>
         <owl:imports rdf:resource="http://ontology.ihmc.us/Attribute.owl"/>
         <owl:imports rdf:resource="http://ontology.ihmc.us/DomainManagementAction.owl"/>
         <owl:imports rdf:resource="http://ontology.ihmc.us/PolicyAction.owl"/>
-        <owl:imports rdf:resource="http://ontology.ihmc.us/Actor.owl"/>
         <owl:imports rdf:resource="http://ontology.ihmc.us/AttributeAction.owl"/>
         <owl:imports rdf:resource="http://ontology.ihmc.us/Policy.owl"/>
-        <owl:imports rdf:resource="http://ontology.ihmc.us/Place.owl"/>
-        <owl:imports rdf:resource="http://ontology.ihmc.us/Entity.owl"/>
-        <owl:imports rdf:resource="http://ontology.ihmc.us/Group.owl"/>
-        <owl:imports rdf:resource="http://ontology.ihmc.us/Place.owl"/>
-        <owl:imports rdf:resource="http://ontology.ihmc.us/Entity.owl"/>
-        <owl:imports rdf:resource="http://ontology.ihmc.us/Group.owl"/>
     </owl:Ontology>
 
 </rdf:RDF>

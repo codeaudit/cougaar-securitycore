@@ -3,7 +3,7 @@
 
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
-          xmlns:owl="http://www.w3.org/2002/07/owl#" 
+         xmlns:owl="http://www.w3.org/2002/07/owl#" 
          xmlns="http://ontology.ihmc.us/Action.owl#">
     
     <owl:Ontology rdf:about="">
@@ -13,6 +13,7 @@
         <rdfs:comment>
             An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
         </rdfs:comment>
+        <owl:imports rdf:resource="http://www.isi.edu/~pan/damltime/time-entry.owl"/>
         <owl:imports rdf:resource="http://ontology.ihmc.us/Group.owl"/>
         <owl:imports rdf:resource="http://ontology.ihmc.us/Actor.owl"/>
         <owl:imports rdf:resource="http://ontology.ihmc.us/Entity.owl"/>
@@ -23,36 +24,47 @@
 
 <!--Section with property definitions-->
 
+    <owl:DatatypeProperty rdf:ID="hasDataContext">
+        <rdfs:domain rdf:resource="#Action"/>
+    </owl:DatatypeProperty >
+
+    <owl:ObjectProperty rdf:ID="hasObjectContext">
+        <rdfs:domain rdf:resource="#Action"/>
+        <rdfs:range rdf:resource="#Target"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="hasContext">
+        <owl:equivalentProperty rdf:resource="#hasObjectContext"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="performedOn">
+        <owl:equivalentProperty rdf:resource="#hasObjectContext"/>
+    </owl:ObjectProperty>
+
+
+    <owl:DatatypeProperty rdf:ID="hasBeginTime">
+        <rdfs:subPropertyOf rdf:resource="#hasDataContext"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="#Action"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"/>
+    </owl:DatatypeProperty>
+
+
     <owl:ObjectProperty rdf:ID="performedBy">
+        <rdfs:subPropertyOf rdf:resource="#hasObjectContext"/>
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="#Action"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Actor.owl#Actor"/>
     </owl:ObjectProperty>
-
-    <rdf:Property rdf:ID="hasContext">
-        <rdfs:domain rdf:resource="#Action"/>
-    </rdf:Property>
-
-    <owl:ObjectProperty rdf:ID="performedOn">
-        <rdfs:subPropertyOf rdf:resource="#hasContext"/>
-        <rdfs:domain rdf:resource="#Action"/>
-        <rdfs:range rdf:resource="#Target"/>
-    </owl:ObjectProperty>
        
-    <owl:DatatypeProperty rdf:ID="hasBeginTime">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="#Action"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/> 
-    </owl:DatatypeProperty>
-
     <owl:ObjectProperty rdf:ID="carriesMessage">
-        <rdfs:subPropertyOf rdf:resource="#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="#hasObjectContext"/>
         <rdfs:domain rdf:resource="#CommunicationAction"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Message.owl#Message"/>
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="hasPartner">
-        <rdfs:subPropertyOf rdf:resource="#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="#hasObjectContext"/>
         <rdfs:domain rdf:resource="#CommunicationAction"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Actor.owl#Actor"/>
     </owl:ObjectProperty>
@@ -71,20 +83,20 @@
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="replyTo">
-        <rdfs:subPropertyOf rdf:resource="#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="#hasObjectContext"/>
         <rdfs:domain rdf:resource="#ResponseAction"/>
         <rdfs:range rdf:resource="#RequestAction"/>
     </owl:ObjectProperty>
         
     <owl:ObjectProperty rdf:ID="movingTo">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="#hasObjectContext"/>
         <rdfs:domain rdf:resource="#MobilityAction"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Place.owl#Place"/>
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="accessedEntity">
-        <rdfs:subPropertyOf rdf:resource="#performedOn"/>
+        <rdfs:subPropertyOf rdf:resource="#hasObjectContext"/>
         <rdfs:domain rdf:resource="#AccessAction"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Entity.owl#Entity"/>
     </owl:ObjectProperty>
@@ -96,6 +108,7 @@
     </owl:Class>
 
     <owl:Class rdf:ID="Action">
+        <rdfs:subClassOf rdf:resource="http://www.isi.edu/~pan/damltime/time-entry.owl#IntervalEvent"/>
         <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#LogicalEntity"/>
     </owl:Class>
 

@@ -32,11 +32,6 @@
         <rdfs:range rdf:resource="#Entity"/> 
     </owl:ObjectProperty>
 
-    <owl:ObjectProperty rdf:ID="isTargetForAction">
-        <rdfs:domain rdf:resource="#Entity"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2002/07/owl#Class"/> 
-    </owl:ObjectProperty>
-    
     <owl:DatatypeProperty rdf:ID="hasMaxDuration">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="#DurationLimitedEntity"/>
@@ -63,7 +58,10 @@
 
 <!--Section with class definitions--> 
 
-    <owl:Class rdf:ID="Entity">
+    <owl:Class rdf:ID="Entity"/>
+
+     <owl:Class rdf:ID="Resource">
+        <rdfs:subClassOf rdf:resource="#Entity"/>
     </owl:Class>
 
     <owl:Class rdf:ID="PhysicalEntity">

@@ -3,12 +3,12 @@
 
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
-          xmlns:owl="http://www.w3.org/2002/07/owl#" 
-         xmlns="http://ontolgy.coginst.uwf.edu/Place.owl#">
+         xmlns:owl="http://www.w3.org/2002/07/owl#" 
+         xmlns="http://ontology.ihmc.us/Place.owl#">
     
     <owl:Ontology rdf:about="">
         <owl:versionInfo>
-            $ http://ontolgy.coginst.uwf.edu/Place.owl $
+            $ http://ontology.ihmc.us/Place.owl $
         </owl:versionInfo>
         <rdfs:comment>
             An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).

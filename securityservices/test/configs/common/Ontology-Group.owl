@@ -19,10 +19,10 @@
 
 <!--Section with property definitions--> 
 
-    <owl:TransitiveProperty rdf:ID="hasMember">
+    <owl:ObjectProperty rdf:ID="hasMember">
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Entity.owl#hasPart"/>
         <rdfs:domain rdf:resource="#Group"/>
-    </owl:TransitiveProperty>
+    </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="isMemberOf">
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Entity.owl#isPartOf"/>
@@ -36,23 +36,23 @@
         <rdfs:range rdf:resource="#Group"/>
     </owl:TransitiveProperty>
 
-    <owl:ObjectProperty rdf:ID="isSubGroupOf">
+    <owl:TransitiveProperty rdf:ID="isSubGroupOf">
         <rdfs:subPropertyOf rdf:resource="#isMemberOf"/>
         <owl:inverseOf rdf:resource="#hasSubGroup"/>
         <rdfs:domain rdf:resource="#Group"/>
         <rdfs:range rdf:resource="#Group"/> 
-    </owl:ObjectProperty>
-
-    <owl:TransitiveProperty rdf:ID="hasDomainMember">
-        <rdfs:subPropertyOf rdf:resource="#hasMember"/>
-        <rdfs:domain rdf:resource="#Domain"/>
     </owl:TransitiveProperty>
 
-    <owl:TransitiveProperty rdf:ID="isDomainMemberOf">
+    <owl:ObjectProperty rdf:ID="hasDomainMember">
+        <rdfs:subPropertyOf rdf:resource="#hasMember"/>
+        <rdfs:domain rdf:resource="#Domain"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="isDomainMemberOf">
         <rdfs:subPropertyOf rdf:resource="#isMemberOf"/>
         <owl:inverseOf rdf:resource="#hasDomainMember"/>
         <rdfs:range rdf:resource="#Domain"/> 
-    </owl:TransitiveProperty>
+    </owl:ObjectProperty>
 
     <owl:TransitiveProperty rdf:ID="hasSubDomain">
         <rdfs:subPropertyOf rdf:resource="#hasSubGroup"/>
@@ -69,16 +69,16 @@
         <rdfs:range rdf:resource="#Domain"/> 
     </owl:TransitiveProperty>
 
-    <owl:TransitiveProperty rdf:ID="hasTeamMember">
+    <owl:ObjectProperty rdf:ID="hasTeamMember">
         <rdfs:subPropertyOf rdf:resource="#hasMember"/>
         <rdfs:domain rdf:resource="#Team"/>
-    </owl:TransitiveProperty>
+    </owl:ObjectProperty>
 
-    <owl:TransitiveProperty rdf:ID="isTeamMemberOf">
+    <owl:ObjectProperty rdf:ID="isTeamMemberOf">
         <rdfs:subPropertyOf rdf:resource="#isMemberOf"/>
         <owl:inverseOf rdf:resource="#hasDomainMember"/>
         <rdfs:range rdf:resource="#Team"/> 
-    </owl:TransitiveProperty>
+    </owl:ObjectProperty>
 
    <owl:TransitiveProperty rdf:ID="hasSubTeam">
         <rdfs:subPropertyOf rdf:resource="#hasSubDomain"/>
