@@ -1,0 +1,40 @@
+####################################################
+# enclave_ca_config_component.rule
+
+cahost = nil
+society.each_node do |node|
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'RootCertificateAuthority'
+      cahost = node.host.name 
+    end
+  end
+end
+
+if cahost != nil
+  society.each_node do |node|
+    node.each_facet(:role) do |facet|
+      if facet[:role] == 'RedundantCertificateAuthority'
+         facetval = node.host.get_facet(:enclave)
+         enclave = facetval[0..0] + facetval[1..facetval.length].downcase + "1"
+    
+         if enclave != nil
+           arg = 'CN=' + enclave + 'EnclaveCA, OU=' + enclave + 'Enclave' \
+             ', O=DLA, L=MV, ST=CA, C=US, T=ca'
+           node.agent.add_component do |c|
+             c.name = enclave + "EnclaveCaConfigPlugin"
+             c.classname = "org.cougaar.core.security.certauthority.ConfigPlugin"
+             c.priority = "HIGH"
+             c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+             c.add_argument(arg)
+             c.add_argument("")
+             #  1st arg: host name where CA is running
+             #  2nd arg: Name of CA agent
+             #  3rd arg: HTTP port number of CA
+             #  4th arg: HTTPs port number of CA
+             c.add_argument(cahost + ":RootCaManager:8820:9820")
+           end
+        end
+      end
+    end
+  end
+end
