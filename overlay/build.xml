@@ -73,7 +73,7 @@
         <echo message="Build started at ${currentTime}"/>
     </target>
 
-    <target name="init" depends="install-build-jars">
+    <target name="init">
         <mkdir dir="${overlay.classes}"/>
         <mkdir dir="${overlay.signed}"/>
         <mkdir dir="${overlay.docdir}"/>
@@ -119,20 +119,6 @@
         <copy file="${overlay.classes}/overlay.jar" 
             todir="${cougaar.install.path}/lib"/>
         <echo message="+++++ Installed jar files"/>
-    </target>
-    
-    <!-- install build depended jars -->
-    <target name="install-build-jars">
-        <echo message="+++++ Installing jar files"/>
-        <copy todir="${cougaar.install.path}/sys">
-            <fileset dir="${overlay.sys}">
-                <include name="*.jar"/>
-            </fileset>
-        </copy>
-        <copy todir="${cougaar.install.path}/lib">
-            <fileset dir="${overlay.lib}" includes="*.jar"/>
-        </copy>
-        <echo message="+++++ Installed jar files"/>        
     </target>
     
     <!-- The ALL target only compiles, jar, and sign jars -->
