@@ -193,7 +193,6 @@ if ( "$useGuardedNode" == "true") then
 	# domainName:                 The name of the domain. Right now, should be the same
 	# as org.cougaar.domain.manager.
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.Domain=NCADomain"
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.Component=safe.util.MyStandardSecurityComponent,org.cougaar.core.security.provider.SecurityComponentFactory"
 endif
 
 if ( "$usePersistence" == "true") then
