@@ -50,6 +50,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.AttributeConstants;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.ProtectedInputStream;
@@ -320,10 +321,12 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       }
     }
     SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
-    if (sendQ != null) {
-      AttributedMessage amsg = 
-        new AttributedMessage(msg);
+    Long inc = MessageProtectionAspectImpl.getIncarnation();
+    if (sendQ != null && inc != null) {
+      AttributedMessage amsg = new AttributedMessage(msg);
+
       amsg.setContentsId(_random.nextInt());
+      amsg.setAttribute(AttributeConstants.INCARNATION_ATTRIBUTE, inc);
       sendQ.sendMessage(amsg);
       if (_log.isDebugEnabled()) {
         _log.debug("Sent message: " + amsg);

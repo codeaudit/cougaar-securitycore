@@ -30,7 +30,11 @@ import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 import java.security.PrivilegedAction;
 import java.security.AccessController;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
 
+import org.cougaar.core.agent.TopologyService;
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.SimpleMessageAttributes;
 import org.cougaar.core.security.services.crypto.EncryptionService;
@@ -48,6 +52,8 @@ import org.cougaar.mts.std.MessageProtectionAspect;
 public class MessageProtectionAspectImpl extends MessageProtectionAspect {
 // public class MessageProtectionAspectImpl extends StandardAspect {
   private static SendQueue _sendQ;
+  private static Long      _incarnation_no;
+  private TopologyService _ts;
   private KeyRingService _keyRing;
   private LoggingService _log;
   private EncryptionService _crypto;
@@ -71,19 +77,36 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
     return _sendQ;
   }
 
+  static  Long getIncarnation()
+  {
+    return _incarnation_no;
+  }
+
+
   public void load() {
     super.load();
+    _log = (LoggingService)
+      getServiceBroker().getService(this, LoggingService.class, null);
     AccessController.doPrivileged(new PrivilegedAction() {
       public Object run() {
         _keyRing = (KeyRingService)
            getServiceBroker().getService(this, KeyRingService.class, null);
         _crypto = (EncryptionService)
            getServiceBroker().getService(this, EncryptionService.class, null);
+        _ts = (TopologyService) 
+          getServiceBroker().getService(this, TopologyService.class, null);
+        if (_ts != null) {
+          _incarnation_no = new Long(_ts.getIncarnationNumber());
+          getServiceBroker().releaseService(this, TopologyService.class, _ts);
+        } else {
+          if (_log.isInfoEnabled()) {
+            _log.info("No incarnation number available yet");
+          }
+          getServiceBroker().addServiceListener(new TopologyServiceAvailableListener());
+        }
         return null;
       }
     });
-    _log = (LoggingService)
-      getServiceBroker().getService(this, LoggingService.class, null);
   }
 
   public Object getDelegate(Object delegatee, Class type) {
@@ -142,6 +165,31 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
         // deliver other messages as normal
         return super.deliverMessage(msg);
       } 
+    }
+  }
+
+  private class TopologyServiceAvailableListener
+    implements ServiceAvailableListener
+  {
+    public void serviceAvailable(ServiceAvailableEvent sae)
+    {
+      ServiceBroker sb = sae.getServiceBroker();
+      Class         sc = sae.getService();
+      if (TopologyService.class.isAssignableFrom(sc)) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Getting toplogy service");
+        }
+        TopologyService tps = (TopologyService)
+            sb.getService(this, TopologyService.class, null);
+        if (tps != null) {
+          _incarnation_no = new Long(tps.getIncarnationNumber());
+          if (_log.isInfoEnabled()) {
+            _log.info("Incarnation number available");
+          }
+          sb.releaseService(this, TopologyService.class, tps);
+          sb.removeServiceListener(this);
+        }
+      }
     }
   }
 }

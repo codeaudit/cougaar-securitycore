@@ -503,7 +503,9 @@ public class MessageProtectionServiceImpl
         AttributedMessage msg = getCertificateMessage(sourceNode, _localNode);
         if (msg != null) {
           SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
-          if (sendQ != null) {
+          Long inc = MessageProtectionAspectImpl.getIncarnation();
+          if (sendQ != null && inc != null) {
+            msg.setAttribute(AttributeConstants.INCARNATION_ATTRIBUTE, inc);
             sendQ.sendMessage(msg);
             if (log.isInfoEnabled()) {
               log.info("Requesting that " + sourceName + " use new certificate");
@@ -692,7 +694,9 @@ public class MessageProtectionServiceImpl
       AttributedMessage msg = getCertificateMessage(source, destination);
       if (msg != null) {
         SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
-        if (sendQ != null) {
+        Long inc = MessageProtectionAspectImpl.getIncarnation();
+        if (sendQ != null && inc != null) {
+          msg.setAttribute(AttributeConstants.INCARNATION_ATTRIBUTE, inc);
           sendQ.sendMessage(msg);
           if (log.isInfoEnabled()) {
             log.info("Requesting that " + source + " use new certificate");
