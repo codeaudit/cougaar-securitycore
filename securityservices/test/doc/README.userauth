@@ -1,0 +1,177 @@
+Introduction 
+
+         User authentication from NAI supports client side certificate 
+         authentication and HTTP password authentication. It provides 
+         SSL communication with remote server, and it provides SSL client 
+         authentication by unlocking user certificate from keystore. It 
+         also enable HTTP(S) password authentication for a user application. 
+
+         During the integration in August, agents will be configured so that 
+         HTTP connections will require user authentication. HTTP will be 
+         disabled and HTTPS will be enabled. In addition, Tomcat will require 
+         the user to provide appropriate credentials. For instance, a user 
+         will have to provide a login ID/password, a certificate or a smart 
+         card. This means standalone applications communicating with servlets 
+         will have to support HTTPS and credential handlers. Standalone 
+         applications will NOT work if they are not modified to support user 
+         authentication. 
+
+         1. User authentication mechanism in detail 
+
+         We identify two basic authentication schemes, certificate 
+         authentication and password authentication. They are registered 
+         to a service org.cougaar.core.security.userauth.UserAuthenticator. 
+         The service will prompt user for username/userid or password, for each 
+         authentication scheme, either at application startup or when needed. 
+
+         Http password authentication will not occur until connection to a 
+         website is attended, the website will send authentication request 
+         and decide whether the password is correct). 
+
+         Certificate authentication can be done at startup/login time because 
+         the password to unlock certificate can be verified locally against 
+         local keystore. 
+
+         User application can add in its own authentication scheme by 
+         registering the authentication scheme to UserAuthenticator. 
+         For example, user can develop alternative UI to replace default 
+         BasicAuthHandler and have the password authentication 
+         (UserPasswordAuthentication) goes through the custom authentication 
+         handler by setting it to be the listener. Another example is when 
+         smart card authenticator is available, it will be registered as 
+         a new authentication scheme, and the user SSL service will be 
+         listening to the smart card authenticator for user certificate. 
+
+         HTTPS support is transparent to user application, there is no programming 
+         needed to support HTTPS. The user application should allow user the 
+         flexibility of specifying the protocol (HTTP or HTTPS) and port. 
+
+         When the code uses any HttpURLConnection based classes to connect to a 
+         remote host through HTTP (URL, URLConnection, etc), it will uses the 
+         SSLServerSocketFactory from HttpURLConnection to handle HTTPS connection. 
+         User authentication sets HttpURLConnection to use its custom socket 
+         factory and handles all the https connection for the user application. 
+
+         HTTP password authentication is similar, user authentication will set 
+         itself as the authenticator for password authentication, and all password 
+         authentication in JDK that uses Authenticator class will use user 
+         authentication as the authentication provider. 
+
+         2. Code changes needed. 
+
+         The following code must be called once at application startup. 
+         This code initializes the security library. 
+
+         Class cls =
+         Class.forName("org.cougaar.core.security.userauth.UserAuthenticatorImpl"); 
+         cls.newInstance(); 
+
+         We currently support one user per application instance. Each user 
+         must launch one instance of the application. 
+
+
+         3. Environment setting changes needed. 
+
+         The file userauth.script includes library paths and environment 
+         parameters needed to run user authentication. The settings in 
+         the file need to be integrated to the user application's settings. 
+
+         The file userauth.tar includes the directory structure for the 
+         class files and config files. The file needs to be extracted and 
+         the path $APP_INSTALL_PATH should point to the extracted path (cougaar). 
+
+         If cougaar is installed, the $APP_INSTALL_PATH can point to 
+         $COUGAAR_INSTALL_PATH. 
+
+         4. Configuration needed to run user authentication. 
+
+         cryptoPolicy.xml - this file is located in /cougaar/configs/common 
+         in userauth.tar. This file is used to configure keystore and truststore. 
+                 keystoreFileName - local keystore filename, this file will be 
+                         located at /cougaar/workspace/security/keystores/$node/. 
+                         It will be created automatically if it does not exist when 
+                         user authentication is started. 
+                 keystorePassword - local keystore password, this parameter should 
+                         be changed to a confidential password. 
+                 CA_keystore - truststore filename. This file should locate at the 
+                         same directory as where the userauth.script starting script 
+                         is run. 
+                 CA_keystorePassword - truststore password, this parameter should 
+                         be changed to a confidential password. 
+                 trustedCA - these parameters specifies which CA (alias and common name) to trust, 
+                         where to get certificates issued by this CA (LDAP). These parameters need to 
+                         be set to your CA's specifications. 
+
+         Truststore configuration - if SSL/HTTPS is to be used, server authentication is required. The CA
+         which 
+                 issues certificate to tomcat servers needs to have its certificate present in the truststore. 
+                 Therefore, either the tomcat servers' certificates or the CA certificate needs to be imported to 
+                 the truststore whose filename is specified in CA_keystore above. 
+
+         Keystore configuration - servlet application will require user authentication for access privileges. 
+                 Therefore user key pair needs to be generated and stored in the user keystore which is specified 
+                 above as keystoreFilename. User certificate request should be generated and sent to CA to 
+                 obtain a user certificate. 
+                 The user certificate then should be imported into user keystore. 
+
+         Step detail of the certificate configuration process is as follows: 
+         . use keytool to generate a certificate in <keystore>, <keystore> is located 
+                 in the $APP_INSTALL_PATH/workspace/.../keystores/$node/keystore-user 
+                 keytool -keygen -alias <userid> -keystore <keystore> ... 
+                 The keystore password is set in
+         $APP_INSTALL_PATH/configs/common/cryptoPolicy.xml 
+                 (keystorePassword) 
+         . use keytool to generate a certificate request 
+                 keytool -certreq -alias <userid> -keystore <keystore> -file <userid>.req
+         ... 
+                 Set the keypass param to enter a password to protect the key. (the keypass 
+                 will be the password to enter in user certificate authentication prompt.) 
+         . go to cougaar CA, copy and paste the content of <userid>.req into the 
+                 request field in the request page, choose pkcs10 and enter the correct 
+                 DN for the CA. The CA will display a page with the signed user certificate.
+
+         . copy the content of the user certificate to a file <userid>.crt 
+         . import the certificate into <keystore> 
+                 keytool -import -alias <userid> -keystore <keystore> -file <userid>.crt ...
+
+         . import the CA certificate to the trusted store. 
+                 keytool -import -alias <ca-alias> -keystore <truststore> -file <ca>.crt ...
+
+                 The ca-alias should be the same as specified as CA_alias in
+         cryptoPolicy.xml. 
+                 The truststore is the CA_keystore as specified above. 
+                 
+         5. Configuration needed for HTTPS and password authentication 
+
+         HTTPS - HTTPS needs to be enable from the server side. If the server is a
+         Cougaar 
+                 node, it needs to be enabled by setting the following in the startup script
+
+                 ($CIP/bin/Node): 
+                 org.cougaar.lib.web.https.port={your Cougaar https port} 
+                
+         org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory
+
+                 For non-Cougaar, see server.xml for tomcat. 
+                 
+                 On the user application side, change the original http and port to use
+         https 
+                 and the https port. 
+
+         Password authentication - The link below explains the detail: 
+                 http://jakarta.apache.org/tomcat/tomcat-4.0-doc/realm-howto.html 
+                 Choose the BASIC authentication scheme for now. Digest will be available in
+
+                 the future. 
+                 
+                 There is nothing needed to be done on the user side. 
+
+         The certificate authentication can be tested at the TIC. Certificate
+         authentication 
+         requires the installation of a certificate authority (CA). Since it takes time
+         to 
+         install a CA, it will be easier to test your application directly at the TIC.
+         We will 
+         help you to setup your application during your visit at the TIC. 
+
+         Note that password authentication does not require a CA. 
