@@ -150,7 +150,10 @@ grant signedBy "privileged" {
 
 	///////////////////////////////////////////////////
 	// Package access permissions
-	permission java.lang.RuntimePermission "accessClassInPackage.sun";
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.x509";
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.pkcs";
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.util";
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.provider";
 
 	///////////////////////////////////////////////////
 	// This permission is needed by the AgentManager to associate a JAAS
