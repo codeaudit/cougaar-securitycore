@@ -92,11 +92,21 @@ public class ConsolidatedEventImpl implements ConsolidatedEvent
    */
 
   public String toString() {
+    StringBuffer buff=new StringBuffer("Consolidated Event : \n");
+    if(theAgent!=null){
+      buff.append(" Source :"+ theAgent+"\n");
+    }
+    if(parentUID!=null) {
+       buff.append(" Parent id :"+ parentUID+"\n");
+    }
     String s = null;
     if (theMessage != null) {
       s = theMessage.toString();
+      buff.append("Message : "+ s+ "\n");
     }
-    return s;
+
+
+    return buff.toString();
   }
   
   public String getDocument() {
