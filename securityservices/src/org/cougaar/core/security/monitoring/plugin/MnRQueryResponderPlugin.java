@@ -134,7 +134,9 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
           processLocalSensors(capObj,relay);
         }// end if(relay!=null)
         else {
-          loggingService.error("ERROR in findCmrRelay function"+ mapping.getRelayUID()); 
+          if(loggingService.isInfoEnabled()){
+            loggingService.info("ERROR in findCmrRelay function"+ mapping.getRelayUID()); 
+          }
         }
       }// end if(mapping.getRelayUID()!=null)
     }// end while
