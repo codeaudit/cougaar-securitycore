@@ -1,7 +1,7 @@
 package org.cougaar.core.security.policy.enforcers.init;
 
-import dummy.enforcers.ServletNodeEnforcer;
-import dummy.enforcers.ULMessageNodeEnforcer;
+import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
+import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -1,6 +1,6 @@
 package org.cougaar.core.security.policy.enforcers.init;
 
-import dummy.enforcers.SampleAgentEnforcer;
+import org.cougaar.core.security.policy.enforcers.SampleAgentEnforcer;
 
 import java.io.IOException;
 import java.io.PrintWriter;

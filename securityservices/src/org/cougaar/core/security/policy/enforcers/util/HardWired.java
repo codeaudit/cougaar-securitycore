@@ -2,9 +2,9 @@ package org.cougaar.core.security.policy.enforcers.util;
 
 import java.util.*;
 
-import dummy.ontology.*;
-import dummy.util.CypherSuite;
-import dummy.util.CypherSuiteWithAuth;
+import org.cougaar.core.security.policy.enforcers.ontology.*;
+import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
+import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
 
 import kaos.ontology.repository.TargetInstanceDescription;
 
@@ -44,9 +44,7 @@ public class HardWired {
 
     public final static String kaosRoleFromRole(String role)
     {
-	return 
-	    dummy.ontology.ActorClassesConcepts.ActorClassesDamlURL
-	    + role;
+	return ActorClassesConcepts.ActorClassesDamlURL + role;
     }
 
     /**

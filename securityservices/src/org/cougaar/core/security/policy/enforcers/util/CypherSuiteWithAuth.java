@@ -1,6 +1,6 @@
 package org.cougaar.core.security.policy.enforcers.util;
 
-import dummy.util.CypherSuite;
+import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
 
 import java.util.*;
 
