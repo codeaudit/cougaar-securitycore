@@ -125,7 +125,7 @@ class Security3c2 < SecurityStressFramework
     # Now, revoke the agent.
     result = @certRevocation.revokeAgent(agent)
     saveResult(result, "Stress5k104",
-               "revoke an agent through administrator: #{agent}")
+               "revoke an agent through administrator: #{agent.name}")
 
     #@dest_agent = @certRevocation.selectAgent
     @dest_agent = getValidDestAgent()
