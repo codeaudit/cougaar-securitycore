@@ -18,6 +18,7 @@ for machine in $MACHINES; do
 done
 }
 
-invoke_remote "killall -9 java ; /etc/init.d/acme stop"
+invoke_remote "killall -9 java ; /etc/init.d/acme stop ; killall -9 ruby"
 sleep 1
 invoke_remote "/etc/init.d/acme start"
+invoke_remote "rm -f /tmp/*.xml ; rm -f /tmp/*.sig ; rm -f /tmp/*.jar ; rm -f /tmp/*.sql"
