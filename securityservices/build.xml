@@ -57,6 +57,7 @@
         <pathelement location="${cougaar.install.path}/sys/ibmpkcs.jar"/>
         <pathelement location="${cougaar.install.path}/sys/idmef.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jpython.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/jtp.jar"/>
         <pathelement location="${cougaar.install.path}/sys/xerces.jar"/>
         <!-- don't point to the signed version of jasper-runtime.jar or the jspc task will puke! -->
         <pathelement location="${securityservices.base}/build/jasper/lib/jasper-runtime.jar"/>
