@@ -57,7 +57,7 @@ insert_after :after_stage_1 do
 #  do_action  "InjectStress", "SecurityMop2_6", "calculate"
 
   # MOP 2.3: encrypted messages
-#  do_action "Sleep", 3.minutes
+#  do_action "WaitForCalculationCompletion"
 #  do_action "InjectStress", "SecurityMop23", "postCalculate"
 
 end
