@@ -99,6 +99,7 @@ public class ConfigParserServiceImpl
     setConfigurationFile("BootPolicy.Crypto.xml");
     setConfigurationFile("BootPolicy.MsgAccess.xml");
     setConfigurationFile("BootPolicy.Servlet.xml");
+    setConfigurationFile("BootPolicy.UserDB.xml");
   }
 
   public File findWorkspacePolicyPath(String policyfilename) {

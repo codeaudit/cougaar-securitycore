@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<policy name="User Database Policy" type="org.cougaar.core.security.policy.LdapUserServicePolicy">
+  <user-db-config>
+    <!-- the ldap url for the user database -->
+    <ldap-url>ldap://tea:3890</ldap-url>
+
+    <!-- The user allowed to write to the ldap database. Only the
+         user admin agent and M&R agents should be given this. -->
+    <ldap-user>cn=Manager,dc=cougaar,dc=org</ldap-user>
+    <ldap-password>secret</ldap-password>
+
+    <!-- The dn under which users are stored -->
+    <user-dn>dc=cougaar,dc=org</user-dn>
+
+    <!-- The dn under which roles are stored -->
+    <role-dn>dc=roles,dc=cougaar,dc=org</role-dn>
+
+    <!-- The attribute that distinguishes users -->
+    <user-rdn>uid</user-rdn>
+
+    <!-- The attribute that distinguishes roles -->
+    <role-rdn>cn</role-rdn>
+
+    <!-- The attribute in the role to store the user dn's who have that
+         role -->
+    <role-attribute>roleOccupant</role-attribute>
+
+    <!-- The attribute in the user that contains the authentication
+         requirement -->
+    <auth-attribute>cougaarAuthReq</auth-attribute>
+
+    <!-- The attribute in the user that contains the time when the user
+         is enabled -->
+    <enable-attribute>cougaarAcctEnableTime</enable-attribute>
+
+    <!-- The attribute in the user account that contains the password -->
+    <password-attribute>userPassword</password-attribute>
+
+    <!-- Define one or more objectClass that is used when creating user
+         entries -->
+    <user-object-class>inetOrgPerson</user-object-class>
+    <user-object-class>cougaarAcct</user-object-class>
+
+    <!-- Define one or more objectClass that is used when creating role
+         entries -->
+    <role-object-class>organizationalRole</role-object-class>
+  </user-db-config>
+</policy>

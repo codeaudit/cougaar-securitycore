@@ -46,6 +46,7 @@ public class ConfigParserHandler
   // Handler delegates
   private CryptoClientPolicyHandler cryptoClientHandler;
   private ServletPolicyHandler servletHandler;
+  private LdapUserServicePolicyHandler userdbHandler;
   private CaPolicyHandler caPolicyHandler;
   private CryptoPolicyHandler cryptoPolicyHandler;
   private MsgAccessPolicyHandler msgAccessPolicyHandler;
@@ -71,6 +72,7 @@ public class ConfigParserHandler
 
     cryptoClientHandler = new CryptoClientPolicyHandler(serviceBroker);
     servletHandler = new ServletPolicyHandler(serviceBroker);
+    userdbHandler = new LdapUserServicePolicyHandler(serviceBroker);
     caPolicyHandler = new CaPolicyHandler(serviceBroker);
     cryptoPolicyHandler = new CryptoPolicyHandler(serviceBroker);
     msgAccessPolicyHandler = new MsgAccessPolicyHandler(serviceBroker);
@@ -155,6 +157,13 @@ public class ConfigParserHandler
 	servletHandler.collectPolicy(parser, this,
                                      role, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = servletHandler.getSecurityPolicy();
+	newSecPolicy.setName(attr.getValue("name"));
+	securityPolicies.add(newSecPolicy);
+      }
+      else if (policyType.equals("org.cougaar.core.security.policy.LdapUserServicePolicy")) {
+	userdbHandler.collectPolicy(parser, this,
+                                    role, POLICY_ELEMENT);
+	SecurityPolicy newSecPolicy = userdbHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
       }

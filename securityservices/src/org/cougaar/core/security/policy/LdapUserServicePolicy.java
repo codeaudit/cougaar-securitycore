@@ -26,8 +26,49 @@
 
 package org.cougaar.core.security.policy;
 
-public class LdapUserServicePolicy extends TypedPolicy {
-  public LdapUserServicePolicy() {
-    super("org.cougaar.core.security.policy.LdapUserServicePolicy");
+public class LdapUserServicePolicy extends SecurityPolicy {
+  private final static String DEF_UOC[] = { "inetOrgPerson", "cougaarAcct" };
+  private final static String DEF_ROC[] = { "organizationalRole" };
+  
+  public String ldapUrl            = "ldap:///";
+  public String ldapUser           = null;;
+  public String ldapPassword       = null;;
+  public String userDN             = "dc=users,dc=cougaar,dc=org";
+  public String roleDN             = "dc=roles,dc=cougaar,dc=org";
+  public String userRDN            = "uid";
+  public String roleRDN            = "cn";
+  public String roleAttr           = "roleOccupant";
+  public String authAttr           = "cougaarAuthReq";
+  public String enableAttr         = "cougaarAcctEnableTime";
+  public String passwordAttr       = "userPassword";
+  public String userObjectClass[]  = DEF_UOC;
+  public String roleObjectClass[]  = DEF_ROC;
+
+  public String toString() {
+    StringBuffer buf = 
+      new StringBuffer( "LdapUserServicePolicy(" + ldapUrl + "," +
+                        ldapUser + "," +
+                        (ldapPassword==null ?
+                         "null":
+                         "*** not displayed ***") + "," +
+                        userDN + "," +
+                        roleDN + "," +
+                        userRDN + "," +
+                        roleRDN + "," +
+                        enableAttr + "," +
+                        authAttr + "," +
+                        passwordAttr + "," +
+                        roleAttr + ",[" );
+    for (int i = 0; i < userObjectClass.length; i++) {
+      if (i != 0) buf.append(',');
+      buf.append(userObjectClass[i]);
+    }
+    buf.append("],[");
+    for (int i = 0; i < roleObjectClass.length; i++) {
+      if (i != 0) buf.append(',');
+      buf.append(roleObjectClass[i]);
+    }
+    buf.append("])");
+    return buf.toString();
   }
 }
