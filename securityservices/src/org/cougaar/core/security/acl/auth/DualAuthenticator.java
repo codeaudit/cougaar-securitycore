@@ -194,10 +194,8 @@ public class DualAuthenticator extends ValveBase {
           for (int j = 0; j < patterns.length; j++) {
             if (!patterns[j].startsWith("/$")) {
               if (patterns[j].startsWith("/")) {
-                                   patterns[j]);
                 scnNew.addPattern("/$" + uri + patterns[j]);
               } else {
-                                   "/" + patterns[j]);
                 scnNew.addPattern("/$" + uri + "/" + patterns[j]);
               }
             }
