@@ -21,7 +21,10 @@ ROOT_COMM_MGRS = ["SocietyMnRManager", "RearEnclaveMnRManager",
                   "FwdEnclaveMnRManager", "ConusEnclaveMnRManager",
                   "TransEnclaveMnRManager"]
 society.communities.add("ROOT-SECURITY-COMM") do |community|
-  community.add_attribute("Manager", society.agents[ROOT_COMM_MGRS[0]].node.name)
+  if (society.agents[ROOT_COMM_MGRS[0]] != nil)
+    # Add manager role to the society manager
+    community.add_attribute("Manager", society.agents[ROOT_COMM_MGRS[0]].node.name)
+  end
   community.add_attribute("CommunityType", "Security")
   for i in 0...ROOT_COMM_MGRS.length
     agent_name = ROOT_COMM_MGRS[i]
