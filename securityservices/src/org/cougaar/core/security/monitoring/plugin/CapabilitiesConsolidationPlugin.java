@@ -273,7 +273,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     }
     else {
       if(destcluster!=null) {
-	 getBlackboardService().publishAdd(new NotificationObject());
+	getBlackboardService().openTransaction();
+	getBlackboardService().publishAdd(new NotificationObject());
+	getBlackboardService().closeTransaction(); 
 	return false;
       }
       else {
