@@ -39,7 +39,8 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.util.ServletRequestUtil;
-import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -52,7 +53,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class NameServerCertificateComponent extends ComponentPlugin {
-  private LoggingService log;
+  private static Logger log;
   private CertificateCacheService cacheservice;
 
   private boolean _isNameServer = false;
@@ -67,11 +68,19 @@ public class NameServerCertificateComponent extends ComponentPlugin {
 
   private CryptoClientPolicy cryptoClientPolicy;
 
+  static {
+    log = LoggerFactory.getInstance().
+      createLogger(NameServerCertificateComponent.class);
+  }
+
   public static Object getNameServerCert(String nameserver) {
     return _certCache.get(nameserver);
   }
 
   public static void addToNameCertCache(String nameserver, X509Certificate [] certs) {
+    if (log.isDebugEnabled()) {
+      log.debug("Adding certs for " + nameserver);
+    }
     _certCache.put(nameserver, certs);
     _submitList.add(nameserver);
   }
@@ -82,12 +91,6 @@ public class NameServerCertificateComponent extends ComponentPlugin {
 
   public void load() {
     super.load();
-
-    log = (LoggingService)
-        getServiceBroker().getService(this,
-                             LoggingService.class, null);
-
-
     cacheservice = (CertificateCacheService)
         getServiceBroker().getService(this,
                              CertificateCacheService.class, null);
