@@ -215,6 +215,12 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
                 remoteConsolidatedEvent=new RemoteConsolidatedEvent(remoteResponse);
                 if(loggingService.isDebugEnabled()) {
                   loggingService.debug(" publishing REMOTE Consolidated : "+remoteConsolidatedEvent.toString());
+                  if(remoteConsolidatedEvent.getSource()!=null){
+                   loggingService.debug(" Source REMOTE Consolidated : "+remoteConsolidatedEvent.getSource().toString()); 
+                  }
+                  else {
+                     loggingService.debug(" Source of REMOTE Consolidated is NULL : ");
+                  }
                 }
                 bbs.publishAdd(remoteConsolidatedEvent);
               }
