@@ -1064,6 +1064,10 @@ final public class KeyRing  implements KeyRingService  {
 
       List certList = internalFindCert(dname, lookupType, validOnly);
 
+      if (certList == null) {
+	return certificateList;
+      }
+
       Iterator it = certList.iterator();
       CertificateStatus certstatus=null;
       while (it.hasNext()) {
