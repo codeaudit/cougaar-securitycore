@@ -67,8 +67,8 @@ class TestReportChainReady < SecurityStressFramework
   def afterReportChainReady
     if ! checkBlackBoardCollectorPlugin then
       logInfoMsg("BlackBoardCollectorPlugin not installed")
-      logInfoMsg("Report Chain Ready script exiting...")
-      logInfoMsg("Command line report chain ready won't work either")
+      logInfoMsg("Script for testing Report Chain Ready status exiting...")
+      logInfoMsg("Command line report chain ready tester won't work either")
       return
     end
     Thread.fork do
