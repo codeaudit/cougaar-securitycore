@@ -18,7 +18,7 @@ DISCOM-1-AD-COMM,CommunityType,Domain
 DIVARTY-1-AD-COMM,CommunityType,Domain
 NCA-COMM,CommunityType,Domain
 TRANSCOM-COMM,CommunityType,Domain
-Security-Mgmt-COMM,CommunityType,Security
+Security-Mgmt-COMM,CommunityType,SecurityMgmt
 Enclave1Security-COMM,CommunityType,Security
 Enclave2Security-COMM,CommunityType,Security
 Enclave3Security-COMM,CommunityType,Security
