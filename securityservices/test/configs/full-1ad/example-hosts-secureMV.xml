@@ -21,27 +21,35 @@
   </host> 
 <!-- hosts for ul -->
   <!-- ROOT CA -->
-  <!-- CONUS CA -->
-  <!-- DLASCOM --> 
-
-  <host name='birch'> 
+  <host name='plum'> 
     <facet service="acme"/> 
   </host> 
-  <!-- TRANS CA -->
+  <!-- CONUS CA -->
   <host name='yew'> 
     <facet service="acme"/> 
   </host> 
-  <host name='eucalyptus'> 
-    <facet service="acme"/> 
-  </host> 
-  <!-- TRANS REDUNDANT CA -->
+  <!-- CONUS REDUNDANT CA -->
   <host name='manzanita'> 
     <facet service="acme"/> 
   </host> 
-  <!-- CONUS TRANSCOM -->
+  <!-- OSD.GOV -->
+  <host name='balboa'> 
+    <facet service="acme"/> 
+  </host> 
   <!-- AMMOS TRANSCOM -->
-  <!-- REAR CA -->
   <host name='mango'> 
+    <facet service="acme"/> 
+  </host> 
+  <!-- CONUS TRANSCOM -->
+  <host name='lemon'> 
+    <facet service="acme"/> 
+  </host> 
+  <!-- EURO TRANSCOM -->
+  <host name='apricot'> 
+    <facet service="acme"/> 
+  </host> 
+  <!-- REAR CA -->
+  <host name='tea'> 
     <facet service="acme"/> 
   </host> 
   <!-- REAR REDUNDANT CA -->
@@ -53,47 +61,57 @@
     <facet service="acme"/> 
   </host> 
   <!-- REAR B -->
-  <host name='pear'> 
+  <host name='eucalyptus'> 
     <facet service="acme"/> 
   </host> 
   <!-- REAR C -->
-  <host name='tea'> 
+  <host name='birch'> 
     <facet service="acme"/> 
   </host> 
-  
-  <host name='cypress'> 
+  <!-- 1-AD-DIVSUP CA --> 
+  <host name='pear'> 
     <facet service="acme"/> 
   </host> 
-  <!-- CONUS REDUNDANT CA -->
+  <!-- 1-AD-DIVSUP REDUNDANT CA --> 
   <host name='fir'> 
     <facet service="acme"/> 
   </host> 
-  <host name='rose'> 
+  <!-- 1-AD-DIVSUP -->
+  <host name='cypress'> 
     <facet service="acme"/> 
-  </host>
-  <!-- OSD.GOV -->
+  </host> 
 
+  <!-- ul2 -->
+  <!-- 1-AD-DIV CA -->
   <host name='almond'>
     <facet service="acme"/>
   </host>
+  <!-- 1-AD-DIV RCA -->
   <host name='cedar'>
     <facet service="acme"/>
   </host>
+  <!-- 1-AD -->
   <host name='citrus'>
     <facet service="acme"/>
   </host>
+  <!-- 123-MSB -->
   <host name='beech'>
     <facet service="acme"/>
   </host>
+  <!-- 1-AD-BDES CA -->
   <host name='cherry'>
     <facet service="acme"/>
   </host>
+  <!-- 1-AD-BDES RCA -->
   <host name='olive'>
     <facet service="acme"/>
   </host>
+  <!-- 1-AD-BDES -->
   <host name='hemlock'>
     <facet service="acme"/>
   </host>
+
+  <!-- MACHINES FOR USE -->
   <host name='pecan'>
     <facet service="acme"/>
   </host>
@@ -101,5 +119,14 @@
     <facet service="acme"/>
   </host>
 
+  <!-- MACHINES FOR PING -->
+  <!-- TRANS CA -->
+  <!-- TRANS REDUNDANT CA -->
+  <host name='corn'> 
+    <facet service="acme"/> 
+  </host>
+  <host name='rose'> 
+    <facet service="acme"/> 
+  </host>
 </society> 
 
