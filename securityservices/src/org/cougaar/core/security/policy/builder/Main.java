@@ -721,10 +721,10 @@ class Main
          parsedIt.hasNext();) {
       ParsedPolicy pp = (ParsedPolicy) parsedIt.next();
       if (pp.getConditionalMode() == null) {
-        if (!_quiet) {
-          System.out.println("Parsed Policy: " + pp.getPolicyName());
-        }
         built.add(pp.buildPolicy(_ontology));
+        if (!_quiet) {
+          System.out.println("Built Policy: " + pp.getPolicyName());
+        }
       }
     }
     return built;
