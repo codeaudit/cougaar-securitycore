@@ -1,0 +1,51 @@
+<?xml version='1.0'?>
+<society name='MiniPing-layout' 
+  xmlns:xsi='http:/www.w3.org/2001/XMLSchema-instance' 
+  xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'> 
+  <host name='HOST1'> 
+    <facet enclave='Conus'/> 
+    <node name='CONUS-MGMT-NODE'> 
+      <facet role="AS-Management"/> 
+    </node> 
+    <node name='CONUS-ROOT-MGMT-NODE'> 
+      <facet role="AS-RootManagement"/> 
+    </node> 
+  </host> 
+  <host name='HOST3'>
+    <facet enclave='Conus'/> 
+    <node name='ROOT-CA-NODE'> 
+    <!--  <facet role="jswat"/> --> 
+     <!-- <facet role="ejp"/> -->
+      <facet role="NameServer"/> 
+      <facet role="RootCertificateAuthority"/> 
+    </node> 
+    <node name='CONUS-CA-NODE'> 
+      <facet role="CertificateAuthority"/> 
+    </node> 
+  </host>
+  <host name='HOST2'> 
+    <facet enclave='Transcom'/> 
+    <node name='TRANSCOM-CA-NODE'>
+      <facet role="CertificateAuthority"/>
+    </node>
+    <node name='TRANSCOM-MGMT-NODE'>
+      <facet role="AS-Management"/>
+    </node>
+  </host> 
+  <host name='HOST4'>
+    <facet enclave='Transcom'/> 
+    <node name='NodeA'>
+      <!-- <facet role="optimizeIt"/> -->
+      <agent name='AgentA'>
+        <facet org_id='OSD.GOV'/>
+      </agent>
+    </node>
+  </host>
+  <host name='HOST5'>
+    <facet enclave='Conus'/>
+    <node name='NodeB'>
+      <agent name='AgentB'/>
+    </node>
+  </host>
+</society>
+
