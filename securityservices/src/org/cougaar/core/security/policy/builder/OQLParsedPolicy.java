@@ -63,28 +63,49 @@ public class OQLParsedPolicy
     super(policyName, 
           priority,
           modality,
+          userRole == null ? 
+          ActorConcepts.Person : 
           ULOntologyNames.oqlRolePrefix + userRole,
           UltralogActionConcepts.OQLAction);
 
-    _description = (modality ? "Allow" : "Deny") + 
-                     " users in the role " + userRole + " access to the " +
-                     (dataSets.size() ==1 ? "data set " : "data sets ");
-    _dataSets = new HashSet();
-    boolean firstTime = true;
-    for (Iterator dataIt = dataSets.iterator();
-         dataIt.hasNext();) {
-      String dataSet = (String) dataIt.next();
-      if (firstTime) {
-        firstTime = false;
-      } else {
-        _description = _description + ", ";
-      }
-      _description = _description + dataSet;
-      _dataSets.add(ULOntologyNames.oqlDataSetPrefix + dataSet);
+    _description = (modality ? "Allow" : "Deny");
+    if (userRole == null) {
+      _description = _description + " Any user";
+    } else {
+      _description = _description + " users in the role" + userRole;
     }
-    _userClass   = ULOntologyNames.oqlRolePrefix + userRole;
-    _privilege   = ULOntologyNames.oqlPrivPrefix + privilege;
-    _dataSource  = ULOntologyNames.oqlDataSourcePrefix + dataSource;
+    _description = _description + (privilege == null ? " any": privilege) +
+      " access to";
+    if (dataSets == null) {
+      _description = _description + " any";
+      _dataSets = null;
+    } else {
+      _description = _description+
+        (dataSets.size() ==1 ? "data set " : "data sets ");
+      _dataSets = new HashSet();
+      boolean firstTime = true;
+      for (Iterator dataIt = dataSets.iterator();
+           dataIt.hasNext();) {
+        String dataSet = (String) dataIt.next();
+        if (firstTime) {
+          firstTime = false;
+        } else {
+          _description = _description + ", ";
+        }
+        _description = _description + dataSet;
+        _dataSets.add(ULOntologyNames.oqlDataSetPrefix + dataSet);
+      }
+    }
+    if (privilege == null) {
+      _privilege = null;
+    } else {
+      _privilege   = ULOntologyNames.oqlPrivPrefix + privilege;
+    }
+    if (dataSource == null) {
+      _dataSource = null;
+    } else {
+      _dataSource  = ULOntologyNames.oqlDataSourcePrefix + dataSource;
+    }
   }
 
 
@@ -92,34 +113,44 @@ public class OQLParsedPolicy
     throws PolicyCompilerException
   {
     try {
-      ontology.verifyInstanceOf(_userClass, ActorConcepts.Person());
-      ontology.verifyInstanceOf(_privilege, 
-                                 UltralogEntityConcepts.OQLPrivilege);
-      for (Iterator dataIt = _dataSets.iterator(); dataIt.hasNext();) {
-        String data = (String) dataIt.next();
-        ontology.verifyInstanceOf(data, UltralogEntityConcepts.OQLDataSet);
+      if (_privilege != null) {
+        ontology.verifyInstanceOf(_privilege, 
+                                  UltralogEntityConcepts.OQLPrivilege);
       }
-      ontology.verifyInstanceOf(_dataSource, 
-                                UltralogEntityConcepts.OQLDataSource);
+      if (_dataSets != null) {
+        for (Iterator dataIt = _dataSets.iterator(); dataIt.hasNext();) {
+          String data = (String) dataIt.next();
+          ontology.verifyInstanceOf(data, UltralogEntityConcepts.OQLDataSet);
+        }
+      }
+      if (_dataSource != null) {
+        ontology.verifyInstanceOf(_dataSource, 
+                                  UltralogEntityConcepts.OQLDataSource);
+      }
 
       initiateBuildPolicy(ontology);
 
-      _controls.addPropertyRangeInstance(
-                            UltralogActionConcepts.oqlHasPrivilege,
-                            _privilege);
-      for (Iterator dataIt = _dataSets.iterator(); dataIt.hasNext();) {
-        String data = (String) dataIt.next();
+      if (_privilege != null) {
         _controls.addPropertyRangeInstance(
+                               UltralogActionConcepts.oqlHasPrivilege,
+                               _privilege);
+      }
+      if (_dataSets != null) {
+        for (Iterator dataIt = _dataSets.iterator(); dataIt.hasNext();) {
+          String data = (String) dataIt.next();
+          _controls.addPropertyRangeInstance(
                            UltralogActionConcepts.oqlHasDataSet,
                            data,
                            getAuthModality() ? 
                            PolicyConstants._toClassRestriction :
                            PolicyConstants._hasClassRestriction);
+        }
       }
-      _controls.addPropertyRangeInstance(
+      if (_dataSource != null) {
+        _controls.addPropertyRangeInstance(
                            UltralogActionConcepts.oqlHasDataSource,
                            _dataSource);
-
+      }
       return _pb;
     } catch (RangeIsBasedOnAClass e) {
       throw new PolicyCompilerException(e);
