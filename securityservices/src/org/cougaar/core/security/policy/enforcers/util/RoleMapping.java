@@ -77,7 +77,7 @@ public class RoleMapping extends StringPairMapping {
   private void initializeAgent() {
     try {
       _log.debug("loading agent/role mappings...");
-      _componentMap = loadMap("RoleAgentMap");
+      _agentMap = loadMap("RoleAgentMap");
     } catch (IOException e) {
       _log.error("IOException reading agent -> role configuration file", e);
     }
