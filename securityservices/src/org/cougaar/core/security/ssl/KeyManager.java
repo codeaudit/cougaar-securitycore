@@ -103,7 +103,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     // get the last valid certificate
     // use DirectoryKeyStore's functions (it assumes there is only one matching
     // between commonName and cert/alias)
-   
+    
     if(keyRing!=null) {
       nodealias =  keyRing.findAlias(nodename);
     }
@@ -114,30 +114,31 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 
       return;
     }
-    
-    List certList = keyRing.findCert(nodename, KeyRingService.LOOKUP_KEYSTORE);
-    if (certList != null && certList.size() > 0) {
-      nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
-      log.debug("update nodex509: " + nodex509);
+    updateCertAndKey();
 
-      nodealias = ((CertificateStatus)certList.get(0)).getCertificateAlias();
-      if (nodealias == null) {       
-        throw new RuntimeException("No alias for certificate entry " + nodename);
-      }
-
-      privatekey = findPrivateKey(nodealias);
-      certChain = findCertificateChain(nodealias);
-    }
-
-    if (log.isInfoEnabled()) {
+    if (log.isDebugEnabled()) {
       String s = "SSLContext:KeyManager: node name: " + nodename
 	+ " - nodealias is " + nodealias
 	+ " and nodex509 is " + nodex509 + " - cert Chain: ";
       if (certChain != null) {
 	s = s + certChain[0];
       }
-      log.info(s);
+      log.debug(s);
     }
+  }
+
+  protected boolean updateCertAndKey() {
+    String nodename = getName();
+    List certList = keyRing.findCert(nodename, KeyRingService.LOOKUP_KEYSTORE);
+    if (certList != null && certList.size() > 0) {
+      nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
+      log.debug("update nodex509: " + nodex509);
+
+      privatekey = findPrivateKey(nodealias);
+      certChain = findCertificateChain(nodealias);
+      return true;
+    }
+    return false;
   }
 
   /**  Choose an alias to authenticate the client side of a secure socket
