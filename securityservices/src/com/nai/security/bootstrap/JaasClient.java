@@ -31,6 +31,7 @@ import java.security.Principal;
 import java.util.Iterator;
 import java.security.PrivilegedAction;
 import java.security.AccessController;
+import java.security.AccessControlContext;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
@@ -44,13 +45,42 @@ public class JaasClient {
     }
   }
 
-  public static Subject createSubject(String name) {
+  private void addChainedPrincipal(Subject subject, Principal newPrincipal)
+  {
+    if (subject == null) {
+      throw new IllegalArgumentException("Subject cannot be null");
+    }
+
+    ChainedPrincipal  cp = new ChainedPrincipal();
+
+    // Find out if there is a chained principal in the current
+    // security context.
+    AccessControlContext acc = AccessController.getContext();
+    Subject subj = Subject.getSubject(acc);
+    if (subj != null) {
+      Iterator it = subj.getPrincipals().iterator(); 
+      Principal p = null;
+      while (it.hasNext()) {
+	p = (Principal) it.next();
+	if (p instanceof ChainedPrincipal) {
+	  cp.addChainedPrincipals(((ChainedPrincipal)p).getChain());
+	  break;
+	}
+      }
+    }
+    cp.addPrincipal(newPrincipal);
+    subject.getPrincipals().add(cp);
+  }
+
+  private Subject createSubject(String name) {
     final Subject s = new Subject();
 
     // Adding the cluster identifier string as a principal
     // We could also add certificate credentials at this point.
-    Principal p = new StringPrincipal(name);
-    s.getPrincipals().add(p);
+    Principal namePrincipal = new StringPrincipal(name);
+    s.getPrincipals().add(namePrincipal);
+
+    addChainedPrincipal(s, namePrincipal);
 
     // Modifications (additions and removals) to this Subject's Principal
     // Set and credential Sets will be disallowed. The destroy operation
@@ -64,7 +94,7 @@ public class JaasClient {
     return s;
   }
 
-  public static Object doAs(Subject subj, java.security.PrivilegedAction action) {
+  private Object doAs(Subject subj, java.security.PrivilegedAction action) {
     Object o = null;
     if (debug > 0) {
       System.out.print("Principals: ");
@@ -92,7 +122,8 @@ public class JaasClient {
     return o;
   }
 
-  public static Object doAs(Subject subj, java.security.PrivilegedExceptionAction action)
+  private Object doAs(Subject subj,
+		     java.security.PrivilegedExceptionAction action)
     throws Exception {
     Object o = null;
 
@@ -151,14 +182,28 @@ public class JaasClient {
 	}
       });
   **/
-  public static Object doAs(String agentName, java.security.PrivilegedAction action) {
+  public Object doAs(String agentName,
+		     java.security.PrivilegedAction action) {
     Subject subj = createSubject(agentName);
     return doAs(subj, action);
   }
 
-  public static Object doAs(String agentName, java.security.PrivilegedExceptionAction action)
+  public Object doAs(String agentName,
+		     java.security.PrivilegedExceptionAction action)
     throws Exception {
     Subject subj = createSubject(agentName);
     return doAs(subj, action);
   }
+
+  public static void printPrincipals() {
+    AccessControlContext acc = AccessController.getContext();
+    Subject subj = Subject.getSubject(acc);
+    if (subj != null) {
+      Iterator it = subj.getPrincipals().iterator(); 
+      while (it.hasNext()) {
+	System.out.println(it.next());
+      }
+    }
+  }
+
 }

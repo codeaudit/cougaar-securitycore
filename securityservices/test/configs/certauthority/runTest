@@ -6,16 +6,44 @@ set node = "TEST-ONE-NODE"
 
 ###########################################
 # Choose one of the following exec classes:
+set choice1="1: Keystore - generate keys, send keys to CA and store result in keystore"
+set choice2="2: PKCS#12 - wrap private key in a PKCS#12 envelope"
+set choice3="3: JAAS - simulate three security contexts (node/agent/PlugIn)"
+echo "Select test:"
+echo "  ${choice1}"
+echo "  ${choice2}"
+echo "  ${choice3}"
+echo "Enter your choice: [1, 2, 3]"
 
-# PKCS#12 test
-#set execclass = com.nai.security.crypto.PrivateKeyPKCS12
-#set args = "${node} testalias TEST-TWO-NODE"
+set choice=$<
+switch (${choice})
+case "1":
+    # keystore test
+    echo "Running ${choice1} ..."
+    set execclass = com.nai.security.certauthority.KeyManagement
+    set args = "-1 srosset testalias RSA"
+    set args = "${args} -10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer"
+    set args = "${args} -7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer"
+    breaksw
 
-# keystore test
-set execclass = com.nai.security.certauthority.KeyManagement
-set args = "-1 srosset testalias RSA"
-#set args = "${args} -10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer"
-#set args = "${args} -7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer"
+case "2":
+    # PKCS#12 test
+    echo "Running ${choice2} ..."
+    set execclass = com.nai.security.crypto.PrivateKeyPKCS12
+    set args = "${node} testalias TEST-TWO-NODE"
+    breaksw
+
+case "3":
+    # JAAS test
+    echo "Running ${choice3} ..."
+    set execclass = com.nai.security.test.jaas.Node
+    set args = "${node}"
+    breaksw
+
+default:
+    echo "Invalid choice"
+    exit
+endsw
 
 ##########################################
 set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar
@@ -35,6 +63,7 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=com.nai.
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
 
+##################
 # debug properties
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.society.bootstrapper.loud=false"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.policydebug=false"
@@ -42,7 +71,6 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=false"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=false"
 
-###############33
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH}"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.keystore=keystoreTest"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=${node}"
