@@ -40,13 +40,14 @@ import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.crypto.ldap.*;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.util.*;
 
 public class NamingCertDirectoryServiceClient {
   LoggingService log;
   ServiceBroker sb;
   WhitePagesService whitePagesService;
-  KeyRingService keyRingService;
-  //Hashtable certCache = new Hashtable();
+  Hashtable certCache = new Hashtable();
+  boolean nodeupdated = false;
 
   /**
    * This class only handles updating cert directly to naming
@@ -81,6 +82,33 @@ public class NamingCertDirectoryServiceClient {
       throw new Exception("Cannot get white page service.");
     }
 
+    if (log.isDebugEnabled()) {
+      log.debug("updating NS for " + dname);
+    }
+
+    // node cert need to be there before anything else can be published
+    if (!nodeupdated) {
+      if (!cname.equals(NodeInfo.getNodeName())) {
+        if (log.isDebugEnabled()) {
+          log.debug("storing " + dname + " before node cert registers to naming");
+        }
+
+        certCache.put(dname, certEntry);
+        return false;
+      }
+      else {
+        nodeupdated = true;
+
+        synchronized (certCache) {
+          for (Iterator it = certCache.values().iterator(); it.hasNext(); ) {
+            CertificateEntry cachedEntry = (CertificateEntry)it.next();
+            updateCert(cachedEntry);
+          }
+        }
+        certCache.clear();
+      }
+    }
+
     AddressEntry ael = whitePagesService.get(cname,
       Application.getApplication("topology"), "cert");
     if (ael != null) {
@@ -105,6 +133,7 @@ public class NamingCertDirectoryServiceClient {
     }
     entry.addEntry(dname, certEntry);
     updateCert(cname, entry);
+
     return true;
   }
 
@@ -162,15 +191,7 @@ public class NamingCertDirectoryServiceClient {
 
   // for now when an identity starts it will overwrite the original
   // naming service entry (the entry it updated at last start)
-  public void updateCert(String cname, Cert entry) throws Exception {
-    if (whitePagesService == null) {
-      whitePagesService = (WhitePagesService)
-        sb.getService(this, WhitePagesService.class, null);
-    }
-    if (whitePagesService == null) {
-      throw new Exception("Cannot get white page service.");
-    }
-
+  private void updateCert(String cname, Cert entry) throws Exception {
     URI certURI =
       URI.create("cert://"+cname);
     AddressEntry certEntry =
