@@ -102,7 +102,27 @@ public class DataProtectionInputStream extends FilterInputStream {
   public int read()
     throws IOException
   {
-    return read(new byte[1], 0, 1);
+    int result = theis.read();
+
+    // getting next chunk of data
+    if (result == -1) {
+      try {
+        theis.close();
+        theis = processStream(in);
+        if (theis == null) {
+          // create empty stream so that other calls won't
+          // get null pointer
+          theis = new ByteArrayInputStream(new byte[] {});
+          return -1;
+        }
+
+        result = theis.read();
+      } catch (GeneralSecurityException gse) {
+        throw new IOException(gse.toString());
+      }
+    }
+
+    return result;
   }
 
   public void close()

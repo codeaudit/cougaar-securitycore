@@ -262,7 +262,6 @@ public class DataProtectionServiceImpl
     ofname = ofname.substring(0, ofname.lastIndexOf("/")) + "/" + agent + ".data";
     System.out.println("reading file: " + ofname);
     return new FileInputStream(new File(ofname));
-    */
     InputStream in = new DataProtectionInputStream(is, pke, agent, serviceBroker);
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     byte [] bytes = new byte[2000];
@@ -273,6 +272,8 @@ public class DataProtectionServiceImpl
       bos.write(bytes, 0, result);
     }
     return new ByteArrayInputStream(bos.toByteArray());
+	*/
+    return new DataProtectionInputStream(is, pke, agent, serviceBroker);
   }
 
   public void release() {
