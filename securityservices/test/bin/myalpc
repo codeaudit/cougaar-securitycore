@@ -44,10 +44,11 @@ setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xml4j.jar
 
 alpc $*
 
-echo ++++++ Creating RMI stub files
-cd $cougaarsubdir/src/core/src
-rmic -d ${COUGAARCLASSES} org.cougaar.core.mts.MTImpl \
-	org.cougaar.core.naming.NSImpl \
-	org.cougaar.core.society.ExternalNodeControllerImpl
-cd -
+# No longer neeed because we don't recompile all of core.jar
+#echo ++++++ Creating RMI stub files
+#cd $cougaarsubdir/src/core/src
+#rmic -d ${COUGAARCLASSES} org.cougaar.core.mts.MTImpl \
+#	org.cougaar.core.naming.NSImpl \
+#	org.cougaar.core.society.ExternalNodeControllerImpl
+#cd -
 
