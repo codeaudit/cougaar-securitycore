@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -60,6 +60,11 @@ public class BrowserSigningRequest
   private ConfigParserService configParser = null;
   private LoggingService log;
   private X500Name[] caDNs = null;
+
+  private static final int BROWSER_NETSCAPE_DEFAULT   = 1;
+  private static final int BROWSER_EXPLORER_DEFAULT   = 2;
+  private static final int BROWSER_EXPLORER_5         = 3;
+  private static final int BROWSER_EXPLORER_6         = 4;
 
   public BrowserSigningRequest(SecurityServletSupport support) {
     if (support == null) {
@@ -151,7 +156,7 @@ public class BrowserSigningRequest
   }
 
   private void sendCertResponse(CertificateResponse cr, HttpServletResponse resp,
-                                boolean isIE) 
+                                int browserType) 
     throws IOException, CertificateEncodingException {
     boolean multipart = false;
     long boundary = System.currentTimeMillis();
@@ -166,20 +171,28 @@ public class BrowserSigningRequest
       certBuf.append("\n-----END CERTIFICATE-----\n");
       String textCert = certBuf.toString();
       resp.reset();
-      if (!isIE) {
+      switch (browserType) {
+      case BROWSER_EXPLORER_5:
+      case BROWSER_EXPLORER_6:
+      case BROWSER_EXPLORER_DEFAULT:
+        resp.setContentType("application/x-x509-user-cert");
+        resp.setHeader("Content-Disposition","inline; filename=\"user.cer\"");
+	break;
+      case BROWSER_NETSCAPE_DEFAULT:
+      default:
         resp.setContentType("multipart/x-mixed-replace;boundary=" + boundary);
         out.println("--" + boundary);
         out.println("Content-type: application/x-x509-user-cert");
         out.println("Content-length: " + textCert.length());
         out.println();
-      } else {
-        resp.setContentType("application/x-x509-user-cert");
-        resp.setHeader("Content-Disposition","inline; filename=\"user.cer\"");
-      } // end of else
+      } // end of switch
       out.print(textCert);
-      if (isIE) {
+      switch (browserType) {
+      case BROWSER_EXPLORER_5:
+      case BROWSER_EXPLORER_6:
+      case BROWSER_EXPLORER_DEFAULT:
         return;
-      } // end of if (isIE)
+      }
       out.println("--" +boundary);
       out.println("Content-type: text/html");
       out.println();
@@ -228,6 +241,7 @@ public class BrowserSigningRequest
     if (log.isDebugEnabled()) {
       log.debug("Received a browser certificate signing request");
     }
+    int browserType = getBrowserType(req.getHeader("user-agent"));
     String base64PubKey = req.getParameter("SPKAC");
     String userId = req.getParameter("userid");
     String email = req.getParameter("email");
@@ -274,7 +288,8 @@ public class BrowserSigningRequest
       try  {
         CertificateResponse certResp = signer.processPkcs10Request(certReq);
 
-        sendCertResponse(certResp, res, base64PubKey == null);
+        //sendCertResponse(certResp, res, base64PubKey == null);
+	sendCertResponse(certResp, res, browserType);
       }
       catch (Exception  exp)  {
         log.debug("Caught an exception when trying to sign: ", exp);
@@ -288,9 +303,27 @@ public class BrowserSigningRequest
     }
   }
 
+  private int getBrowserType(String userAgent) {
+    int browserType = BROWSER_NETSCAPE_DEFAULT;
+    if (userAgent != null) {
+      if (userAgent.indexOf("MSIE 6") != -1)
+	browserType = BROWSER_EXPLORER_6;
+      else if (userAgent.indexOf("MSIE 5") != -1)
+	browserType = BROWSER_EXPLORER_5;
+      else if (userAgent.indexOf("MSIE") != -1)
+	browserType = BROWSER_EXPLORER_DEFAULT;
+    }
+    log.debug("Browser type:" + browserType);
+    return browserType;
+  }
+
   protected void doGet(HttpServletRequest req,
 		       HttpServletResponse res)
     throws ServletException, IOException  {
+    Enumeration en = req.getParameterNames();
+    while (en.hasMoreElements()) {
+      log.debug("Param name:" + (String) en.nextElement());
+    }
     if (req.getParameter("vbscript") != null) {
       vbScript(res);
       return;
@@ -304,31 +337,44 @@ public class BrowserSigningRequest
       log.debug("query:" + req.getQueryString());
     }
 
-    String userAgent = req.getHeader("user-agent");
-    boolean isIE = (userAgent != null &&
-                    userAgent.indexOf("MSIE") != -1);
-
+    int browserType = getBrowserType(req.getHeader("user-agent"));
     res.setContentType("text/html");
     PrintWriter out=res.getWriter();
 
     out.println("<html>");
     out.println("<head>");
-    out.println("<title>Browser Signing Request </title>");
+    out.println("<title>Certificate Manager</title>");
     String onSubmit = "";
-    if (isIE) {
+    switch (browserType) {
+    case BROWSER_EXPLORER_5:
+    case BROWSER_EXPLORER_6:
+    case BROWSER_EXPLORER_DEFAULT:
       out.println("<script type=\"text/vbscript\" src=\"BrowserSigningRequest?vbscript=true\"></script>");
       onSubmit = "onSubmit=\"myenroll.CreateP10()\"";
-    } // end of if (isIE)
+    } // end of switch
     
     out.println("</head>");
     out.println("<body>");
-    out.println("<H2>Browser Signing Request</H2>");
-    if (isIE) {
+    out.println("<H2>Manual User Enrollment</H2>");
+    out.println("Use this form to submit a request for a personal certificate. After you click the "
+		+ "submit button, your request will be submitted to the Certificate Authority.</br>"
+		+ "When the certificate authority has approved your request, you will be able "
+		+ "to install your certificate in your browser</br>"
+		+ "and use it as a client certificate or to send and receive encrypted e-mail.</br>");
+    switch (browserType) {
+    case BROWSER_EXPLORER_5:
+    case BROWSER_EXPLORER_DEFAULT:
       out.println("<object classid=\"clsid:43F8F289-7A20-11D0-8F06-00C04FC295E1\" " +
                   "codebase=\"file:///WINDOWS/SYSTEM32/xenroll.dll\" id=\"cenroll\">" +
                   "This isn't internet explorer! You can't create a certificate " + 
                   "with this browser</object>");
-    } // end of if (isIE)
+      break;
+    case BROWSER_EXPLORER_6:
+      out.println("<object classid=\"clsid:127698E4-E730-4E5C-A2b1-21490A70C8A1\" " +
+                  "codebase=\"xenroll.dll\" id=\"cenroll\">" +
+                  "This isn't internet explorer! You can't create a certificate " + 
+                  "with this browser</object>");
+    } // end of switch
     out.println("<form name=\"MyForm\" id=\"MyForm\" action=\"BrowserSigningRequest\" method =\"post\" " + onSubmit + ">");
     out.println("<table>");
     out.println("<tr><td align=right>");
@@ -346,28 +392,36 @@ public class BrowserSigningRequest
     out.println("<tr><td align=right>E-mail</td><td align=left><input type=text name=email></td></tr>");
     out.println("<tr><td align=right>");
     long challenge = (long)(Math.random() * Long.MAX_VALUE);
-    if (isIE) {
+    switch (browserType) {
+    case BROWSER_EXPLORER_5:
+    case BROWSER_EXPLORER_6:
+    case BROWSER_EXPLORER_DEFAULT:
       out.print("Cryptographic Service Provider</td><td align=left>" +
                 "<select name=cspName id=cspName></select>" + 
                 "<input type=hidden name=pkcsdata>" + 
                 "<input type=hidden name=pkcs value=pkcs10>" + 
                 "<input type=hidden name=replyformat value=html>");
-    } else {
+      break;
+    default:
       out.print("Select the key size:</td><td align=left><keygen name=SPKAC challenge=");
       out.print(challenge);
       out.println(">");      
-    } // end of if (isIE)else
+    } // end of switch
     out.println("</td></tr>");
-    if (!isIE) {
+    switch (browserType) {
+    case BROWSER_NETSCAPE_DEFAULT:
       out.println("<tr><td colspan=2>Please note that the Schlumberger " +
                   "<b>smart cards only support 1024 bit keys</b>, so please " +
                   "select 1024 bits if you are using a smart card.</td></tr>");
-    } // end of if (!isIE)
+    } // end of switch
     out.println("<tr><td align=right><input type=\"submit\" value=\"Get Certificate\">");
     out.println("<td align=left><input type=\"reset\"></td></tr>");
     out.println("</table>");
     out.println("<input type=hidden name=challenge value=" + challenge + ">");
-    if (isIE) {
+    switch (browserType) {
+    case BROWSER_EXPLORER_5:
+    case BROWSER_EXPLORER_6:
+    case BROWSER_EXPLORER_DEFAULT:
       out.println("<script type=\"text/vbscript\">");
       out.println("<!--");
       out.println("Set myenroll=new Enroll");
@@ -387,7 +441,7 @@ public class BrowserSigningRequest
   private void vbScript(HttpServletResponse resp) throws IOException {
     resp.setContentType("text/vbscript");
     PrintWriter out = resp.getWriter();
-    
+    log.debug("vbScript()");
     out.print("Option Explicit\n" +
               "\n" +
               "Class Enroll\n" +
