@@ -676,11 +676,11 @@ public class SecurityAspect extends StandardAspect
                 }
                 return;
             }else{
-                System.out.println("________delivering this:"+contents+" to:"+dest+"using:"+deliverer);
+                //System.out.println("________delivering this:"+contents+" to:"+dest+"using:"+deliverer);
                 deliverer.deliverMessage(contents, dest);
             }
         } else {
-            //System.err.println("Warning: Not a SecurityEnvelope: " + m);
+            System.err.println("Warning: Not a SecurityEnvelope: " + m);
             deliverer.deliverMessage(m, dest);
         }
       } catch (Exception e) {
