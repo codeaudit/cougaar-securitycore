@@ -46,7 +46,7 @@ public class NameMapping {
   }
 
   public void addName(CertificateStatus certStatus) {
-    X509Certificate cert = (X509Certificate) certStatus.getCertificate();
+    X509Certificate cert = certStatus.getCertificate();
     // Retrieve the distinguished name, which is used as a key in
     // the certificate cache.
     Principal principal = cert.getSubjectDN();

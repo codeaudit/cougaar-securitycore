@@ -61,7 +61,6 @@ public class CertificateUtility {
       }
       
       // Print DN
-      X500Name x500Name = new X500Name(x509certimpl.getSubjectDN().toString());
       if (CryptoDebug.debug) {
 	System.out.println("DN: " + x509certimpl.getSubjectDN().toString());
       }

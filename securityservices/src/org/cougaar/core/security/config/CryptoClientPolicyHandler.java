@@ -42,9 +42,7 @@ public class CryptoClientPolicyHandler
   private TrustedCaPolicy currentTrustedCa;
   private CertificateAttributesPolicy currentCertAttr;
 
-  private static final String POLICY_ELEMENT = "policy";
   private static final String IS_CERT_AUTH_ELEMENT = "isCertificateAuthority";
-  private static final String TRUSTED_CAS_ELEMENT          = "trustedCAs";
   private static final String CA_KEYSTORE_ELEMENT          = "CA_keystore";
   private static final String CA_KEYSTORE_PASSWORD_ELEMENT = "CA_keystorePassword";
 
@@ -60,7 +58,6 @@ public class CryptoClientPolicyHandler
   private static final String CERT_DIRECTORY_TYPE_ELEMENT = "CertDirectoryType";
   // Certificate Attributes
   private static final String CERTIFICATE_ATTR_ELEMENT = "certificateAttributes";
-  private static final String DN_ELEMENT               = "distinguishedName";
   private static final String OU_ELEMENT           = "ou";
   private static final String O_ELEMENT            = "o";
   private static final String L_ELEMENT            = "l";

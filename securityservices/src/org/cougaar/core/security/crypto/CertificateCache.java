@@ -62,7 +62,7 @@ public class CertificateCache
 
   /** How long do we wait before retrying to send a certificate signing
    * request to a certificate authority? */
-  private long pkcs10MinInterval = 10;
+  //private long pkcs10MinInterval = 10;
 
   /** A cross-reference to the directory key store. Used to make PKCS#10
    * requests to the CA as needed. */
@@ -151,7 +151,7 @@ public class CertificateCache
     while (it.hasNext()) {
       CertificateStatus aCertEntry = null;
       aCertEntry = (CertificateStatus) it.next();
-      X509Certificate c1 =(X509Certificate) aCertEntry.getCertificate();
+      X509Certificate c1 = aCertEntry.getCertificate();
       String issuername=c1.getIssuerDN().getName();
       BigInteger certserialno=c1.getSerialNumber();
       if((issuername.equals(issuerDN))&&(certserialno.equals(serialno))){
@@ -182,7 +182,7 @@ public class CertificateCache
     throws SecurityException
   {
     if(certEntry != null) {
-      X509Certificate cert = (X509Certificate) certEntry.getCertificate();
+      X509Certificate cert = certEntry.getCertificate();
       // Retrieve the distinguished name, which is used as a key in
       // the certificate cache.
       Principal principal = cert.getSubjectDN();
@@ -332,7 +332,7 @@ public class CertificateCache
   public void addCertificate(CertificateStatus certEntry)
   {
     if(certEntry != null) {
-      X509Certificate cert = (X509Certificate) certEntry.getCertificate();
+      X509Certificate cert = certEntry.getCertificate();
       // Retrieve the distinguished name, which is used as a key in
       // the certificate cache.
       Principal principal = cert.getSubjectDN();

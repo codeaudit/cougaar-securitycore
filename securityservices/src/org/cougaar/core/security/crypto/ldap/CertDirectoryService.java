@@ -291,7 +291,7 @@ public abstract class CertDirectoryService
       System.out.println("Directory (" + name + ") contains:");
       NamingEnumeration list = initialContext.list("");
 
-      NamingEnumeration list1 = initialContext.search("", null);
+      //NamingEnumeration list1 = initialContext.search("", null);
 
       while (list.hasMore()) {
 	NameClassPair nc = (NameClassPair)list.next();

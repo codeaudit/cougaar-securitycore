@@ -27,10 +27,6 @@ import java.util.*;
 import java.security.*;
 
 public class AlgorithmParam {
-  private static final String SHA1 = "SHA-1";
-  private static final String MD5 = "MD5";
-  private static final String MD2 = "MD2";
-
   private static ArrayList hashList = new ArrayList();
 
   static

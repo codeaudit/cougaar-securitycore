@@ -363,8 +363,7 @@ public class OpenLdapCertDirectoryService
   public SearchResult getLdapentry(String searchfilter,boolean uniqueid) throws MultipleEntryException, IOException  {
 
     StringBuffer  filter=new StringBuffer();
-    X500Name x500name= null;
-    String cn=null;
+
     if(!uniqueid) {
       filter.append(searchfilter);
     }
@@ -425,7 +424,6 @@ public class OpenLdapCertDirectoryService
     }
   }
   public void dump (SearchResult result) throws NamingException {
-    String bindingName = result.getName();
     Attributes answer = result.getAttributes();
     for (NamingEnumeration ae = answer.getAll(); ae.hasMore();)
       {

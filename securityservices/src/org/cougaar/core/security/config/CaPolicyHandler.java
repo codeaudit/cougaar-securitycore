@@ -58,16 +58,7 @@ public class CaPolicyHandler
 
   private static final String POLICY_ELEMENT = "policy";
 
-  private static final String CA_ELEMENT                  = "certificateAuthority";
-
   private static final String CA_DN_ELEMENT               = "distinguishedName";
-
-  private static final String CA_SERIAL_ELEMENT           = "serialNumberFile";
-  private static final String CA_PKCS10_ELEMENT           = "pkcs10Directory";
-  private static final String CA_X509_ELEMENT             = "x509CertDirectory";
-  private static final String CA_PENDING_ELEMENT          = "CertPendingDirectory";
-  private static final String CA_DENIED_ELEMENT           = "CertDeniedDirectory";
-
   private static final String CA_LDAP_URL_ELEMENT         = "ldapURL";
   private static final String CA_LDAP_TYPE_ELEMENT        = "ldapType";
 

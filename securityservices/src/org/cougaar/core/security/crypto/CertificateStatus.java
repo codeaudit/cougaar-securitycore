@@ -100,7 +100,7 @@ public class CertificateStatus
       // The certificate is trusted. Check revocation, expiration date
       // and "not before" date.
       if (isValid()) {
-	X509Certificate c = (X509Certificate) getCertificate();
+	X509Certificate c = getCertificate();
 	c.checkValidity();
 	// 1- Certificate can be used now ("not before" date is not in the future)
 	// 2- Certificate has not expired ("not after" date is not in the past)
