@@ -35,6 +35,7 @@ import java.security.PrivateKey;
 
 import sun.security.pkcs.*;
 import sun.security.x509.*;
+import sun.security.x509.AlgorithmId;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;

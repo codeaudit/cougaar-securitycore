@@ -59,7 +59,7 @@ public class CertDirectoryServiceRequestorImpl
     if (log == null) {
       log = (LoggingService) sb.getService(this, LoggingService.class, null);
     }
-
+    log.debug(" ldap url is :"+ url +"ldap type is :"+type);
     try {
       ConfigParserService configParser = (ConfigParserService)
         sb.getService(this, ConfigParserService.class, null);
