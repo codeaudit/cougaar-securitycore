@@ -6,7 +6,7 @@ include Cougaar
 HOSTS_FILE = Ultralog::OperatorUtils::HostManager.new.get_hosts_file
 #puts "Host file #{HOSTS_FILE}"
 
-CIP = ENV['CIP']
+#CIP = ENV['CIP']
 $:.unshift File.join(CIP, 'csmart', 'lib')
 require 'security/actions/buildHostFile'
 require 'security/actions/build_config_files'
