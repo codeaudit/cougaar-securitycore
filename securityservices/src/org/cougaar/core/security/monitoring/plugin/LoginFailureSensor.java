@@ -159,15 +159,11 @@ public class LoginFailureSensor extends ComponentPlugin {
       String community = iter.next().toString();
       Attributes attrs = cs.getCommunityAttributes(community);
       boolean isSecurityCommunity = false;
-      System.out.println("Checking attributes for " + community + ": " +
-                         attrs);
       if (attrs != null) {
         Attribute  attr  = attrs.get("CommunityType");
-        System.out.println("CommunityTypes = " + attr);
         if (attr != null) {
           try {
             for (int i = 0; !isSecurityCommunity && i < attr.size(); i++) {
-              System.out.println("CommunityType = " + attr.get(i));
               if ("Security".equals(attr.get(i).toString())) {
                 isSecurityCommunity = true;
               }
