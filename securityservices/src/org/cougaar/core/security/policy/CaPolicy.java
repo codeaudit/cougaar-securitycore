@@ -158,9 +158,9 @@ public class CaPolicy
     Element caPolicyNode = parent.createElement("certificateAuthority");
     Node node = null;
     // ca dn
-    if(caDN != null) {
+    if(caDnName != null) {
       node = parent.createElement(CaPolicyHandler.CA_DN_ELEMENT);
-      node.appendChild(parent.createTextNode(caDN));
+      node.appendChild(parent.createTextNode(caDnName.getName()));
       caPolicyNode.appendChild(node);
     }
     // ldap url
