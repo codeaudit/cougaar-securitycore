@@ -5,6 +5,7 @@
   <nodeConfiguration>
     <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</CA_DN>
     <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
+    <CA_URL role="rliao1">http://yew:8080/CAnew/servlet/certrequest</CA_URL>
     <CA_URL role="srosset">http://pear:8080/CA_srosset/servlet/certrequest</CA_URL>
     <CA_URL role="isat">http://u041e:8080/CA/servlet/certrequest</CA_URL>
     <CA_keystore>keystoreNCA_CA</CA_keystore>
@@ -17,6 +18,7 @@
     <CertDirectoryURL role="rtripath">ldap://yew:389/dc=rtripath,dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</CertDirectoryURL>
 
     <!-- The type of the certificate directory service.
          Currently, either CougaarOpenLdap or NetTools -->

@@ -84,6 +84,7 @@ if ( ${execmode} == "2") then
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xerces.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xmlparserv2.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/ibmpkcs.jar"
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/jce1_2_1.jar"
 endif
 
 if (! $?COUGAAR3RDPARTY) then
