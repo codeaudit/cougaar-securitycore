@@ -132,7 +132,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
   private boolean _crlRegistered = false;
   private boolean _createdCRLBlackboard=false;
   private boolean _crlcacheInitilized=false;
-  private boolean enableCRLUpdates = true;
+  private String enableCRLUpdates=  System.getProperty("org.cougaar.core.security.enableCRL");
   private final Object _blackboardLock = new Object();
 
  
@@ -235,7 +235,10 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     if(cacheService!=null){
       initCRLCacheFromKeystore();
     }
-    enableCRLUpdates=  Boolean.valueOf(System.getProperty("org.cougaar.core.security.enableCRL","true")).booleanValue();
+
+    if (enableCRLUpdates != null) {
+      log.warn("enableCRLUpdates for community service test set to " + enableCRLUpdates);
+    }
   }
 
   public void startThread() {
@@ -942,7 +945,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     final Vector crlrelays=crls;
     Schedulable crlThread = threadService.getThread(CRLCache.this, new Runnable( ) {
         public void run(){
-          if(enableCRLUpdates){
+          //if(enableCRLUpdates){
             synchronized (_blackboardLock){
               blackboardService.openTransaction();
               for(int i=0;i<crlrelays.size();i++) {
@@ -963,7 +966,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
               }
             }
             _crlRegistered=true;
-          }
+          //}
         }
       },"CRLPushRegistrationThread");
     crlThread.start();
@@ -1082,8 +1085,15 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     final CommunityServiceUtil csu = 
       new CommunityServiceUtil(serviceBroker);
 
+    if (enableCRLUpdates != null && enableCRLUpdates.equals("1")) {
+      return;
+    }
     CommunityServiceUtilListener csul = new CommunityServiceUtilListener() {
         public void getResponse(Set resp) {
+          if (enableCRLUpdates != null && enableCRLUpdates.equals("2")) {
+            return;
+          }
+
           log.debug(" call back for community is called :" + resp );
           setMySecurityCommunity((Set)resp);
           csu.releaseServices();
