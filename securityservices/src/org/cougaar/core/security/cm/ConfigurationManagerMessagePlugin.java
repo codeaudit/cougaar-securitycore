@@ -46,7 +46,7 @@ import java.util.Iterator;
  * configuration is on the blackboard
  *
  * @author ttschampel
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class ConfigurationManagerMessagePlugin extends ComponentPlugin {
   private static final String PLUGIN_NAME = "ConfigurationManagerMessagePlugin";
@@ -145,6 +145,14 @@ public class ConfigurationManagerMessagePlugin extends ComponentPlugin {
         	}
         }
         
+      }else{
+      	//if node configuration does not exist both are
+      	//low security so allow it
+      	HashMap nodeMap = sc.getNodeConfigurations();
+      	Object nodeObj = nodeMap.get(node);
+      	if(nodeObj==null){
+      		valid = true;
+      	}
       }
 
       response = new VerifyResponse(valid);
