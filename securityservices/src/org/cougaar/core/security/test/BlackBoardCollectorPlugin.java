@@ -167,13 +167,8 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
          added.hasMoreElements();) {
       ReportChainReadyRelay rcr = (ReportChainReadyRelay) added.nextElement();
       if (rcr != null) {
-        MessageAddress target = null;
-        for (Iterator targetsIt = rcr.getTargets().iterator();
-             targetsIt.hasNext();) {
-          target = (MessageAddress) targetsIt.next();
-        }
         _log.debug("Interception: ReportChainReady : " +
-                   rcr.getSource() + " : " + target);
+                   rcr.getSource() + " : " + _agentName);
       }
     }
   }
