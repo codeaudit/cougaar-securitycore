@@ -85,9 +85,9 @@ public class MnRResponseViewerComponent
     path=(String)l.get(0);
   }
   public void setAgentIdentificationService(AgentIdentificationService ais) {
-    if (ais != null) {
-      this.ais = ais;
-      agentId = ais.getMessageAddress();
+    this.ais = ais;
+    if(ais!=null) {
+      agentId=ais.getMessageAddress();
     }
   }
 
@@ -107,6 +107,9 @@ public class MnRResponseViewerComponent
   }
   
   protected Servlet createServlet() {
+    if(ais!=null) {
+      agentId = ais.getMessageAddress(); 
+    }
     return new QueryResponseViewerServlet();
   }
 
