@@ -119,42 +119,42 @@ public class CertificateRequestor {
 					       boolean isCACert,
 					       TrustedCaPolicy trustedCaPolicy) {
 
-      String request = "";
-      String reply = "";
-      CertificateCacheService cacheservice=(CertificateCacheService)
-	serviceBroker.getService(this,
-				 CertificateCacheService.class,
-				 null);
-      KeyRingService keyRing=(KeyRingService)
-	serviceBroker.getService(this,
-				 KeyRingService.class,
-				 null);
+    String request = "";
+    String reply = "";
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+                               CertificateCacheService.class,
+                               null);
+    KeyRingService keyRing=(KeyRingService)
+      serviceBroker.getService(this,
+                               KeyRingService.class,
+                               null);
 
-      if(cacheservice==null) {
-	log.warn("Unable to get Certificate Cache in  addKeyPair");
-      }
+    if(cacheservice==null) {
+      log.warn("Unable to get Certificate Cache in  addKeyPair");
+    }
 
-      //is node?
-      String nodeName = NodeInfo.getNodeName();
-      String commonName = null;
-      if(cacheservice!=null){
-	commonName = cacheservice.getCommonName(dname);
-      }
+    //is node?
+    String nodeName = NodeInfo.getNodeName();
+    String commonName = null;
+    if(cacheservice!=null){
+      commonName = cacheservice.getCommonName(dname);
+    }
 
-      if (log.isDebugEnabled()) {
-	log.debug("Creating key pair for "
-		  + dname + " - Node name:" + nodeName
-		  + " - Common Name=" + commonName);
-      }
+    if (log.isDebugEnabled()) {
+      log.debug("Creating key pair for "
+                + dname + " - Node name:" + nodeName
+                + " - Common Name=" + commonName);
+    }
 
-      if (nodeName == null) {
-	if (log.isErrorEnabled()) {
-	  log.error("Cannot get node name");
-	}
-	return null;
+    if (nodeName == null) {
+      if (log.isErrorEnabled()) {
+        log.error("Cannot get node name");
       }
-      String alias = null;
-      PrivateKey privatekey = null;
+      return null;
+    }
+    String alias = null;
+    PrivateKey privatekey = null;
 
     /**
      * Handle CA cert
@@ -239,9 +239,9 @@ public class CertificateRequestor {
 	}
 	List nodex509List = null;
 	if(keyRing!=null) {
-	   nodex509List =keyRing.findCert(nodex500name,
-		   KeyRingService.LOOKUP_KEYSTORE,
-				     true);
+          nodex509List =keyRing.findCert(nodex500name,
+                                         KeyRingService.LOOKUP_KEYSTORE,
+                                         true);
 	}
 	X509Certificate nodex509 = null;
 	if (nodex509List.size() > 0) {
@@ -309,7 +309,7 @@ public class CertificateRequestor {
       serviceBroker.getService(this,
 			       CertificateCacheService.class,
 			       null);
-     KeyRingService keyRing=(KeyRingService)
+    KeyRingService keyRing=(KeyRingService)
       serviceBroker.getService(this,
 			       KeyRingService.class,
 			       null);
@@ -395,7 +395,7 @@ public class CertificateRequestor {
       serviceBroker.getService(this,
 			       CertificateCacheService.class,
 			       null);
-     KeyRingService keyRing=(KeyRingService)
+    KeyRingService keyRing=(KeyRingService)
       serviceBroker.getService(this,
 			       KeyRingService.class,
 			       null);
@@ -422,10 +422,10 @@ public class CertificateRequestor {
 
 	  /*
 	    No need tp parse dn as Search should be able to do this and publish the certificate to certCache
-	  //String filter = "(cn=" + dname.getCommonName() + ")";
-	  String filter =CertificateUtility. parseDN(dname.getName());
-	  // there should be only one upper level CA, for now
-	  */
+            //String filter = "(cn=" + dname.getCommonName() + ")";
+            String filter =CertificateUtility. parseDN(dname.getName());
+            // there should be only one upper level CA, for now
+            */
           X500Name x500signer = new X500Name(cryptoClientPolicy.getIssuerPolicy()[0].caDN);
 	  keyRing.findCert(x500signer);
 
@@ -443,7 +443,7 @@ public class CertificateRequestor {
 	    // look it up from keystore, if found in LDAP should have installed it
 	    List keyList = null;
 	    if(keyRing!=null) {
-	       keyList=keyRing.getValidPrivateKeys(dname);
+              keyList=keyRing.getValidPrivateKeys(dname);
 	    }
 	    if (keyList != null && keyList.size() != 0)
 	      privatekey = ((PrivateKeyCert)keyList.get(0)).getPrivateKey();
@@ -451,7 +451,7 @@ public class CertificateRequestor {
 	      CertificateStatus cs = ((PrivateKeyCert)keyList.get(0)).getCertificateStatus();
 	      X509Certificate [] certForImport = null;
 	      if(keyRing!=null) {
-		 certForImport =establishCertChain(certificate, cs.getCertificate());
+                certForImport =establishCertChain(certificate, cs.getCertificate());
 	      }
 	      if(cacheservice!=null) {
 		cacheservice.setKeyEntry(alias, privatekey, certForImport);
@@ -513,7 +513,7 @@ public class CertificateRequestor {
   }
 
 
-   /** Generate a PKCS10 request from a public key */
+  /** Generate a PKCS10 request from a public key */
   public String generateSigningCertificateRequest(X509Certificate certificate,
 						  String signerAlias)
     throws IOException, SignatureException, NoSuchAlgorithmException, InvalidKeyException,
@@ -580,7 +580,7 @@ public class CertificateRequestor {
     return request;
   }
 
-    private String sendPKCS(String request, String pkcs, TrustedCaPolicy trustedCaPolicy) {
+  private String sendPKCS(String request, String pkcs, TrustedCaPolicy trustedCaPolicy) {
     String reply = "";
 
     if (log.isDebugEnabled()) {
@@ -644,7 +644,7 @@ public class CertificateRequestor {
   }
 
 
-   private PrivateKey processPkcs7Reply(String alias, String reply) {
+  private PrivateKey processPkcs7Reply(String alias, String reply) {
 
     PrivateKey privatekey = null;
     CertificateCacheService cacheservice=(CertificateCacheService)
@@ -689,7 +689,7 @@ public class CertificateRequestor {
       }
     }
     return privatekey;
-   }
+  }
 
   /** Install a PKCS7 reply received from a certificate authority
    */
@@ -740,69 +740,69 @@ public class CertificateRequestor {
     throws CertificateException, KeyStoreException,
     NoSuchAlgorithmException, UnrecoverableKeyException  {
 
-      X509Certificate certificateForImport[];
-      CertificateCacheService cacheservice=(CertificateCacheService)
-	serviceBroker.getService(this,
-				 CertificateCacheService.class,
-				 null);
-      if(cacheservice==null) {
-	log.warn("Unable to get Certificate cache service in installCertificate:");
-      }
-
-      X509Certificate certificate =null;
-      PrivateKey privatekey = null;
-      if(cacheservice!=null) {
-	certificate=cacheservice.getCertificate(alias);
-	privatekey =cacheservice.getKey(alias);
-      }
-
-      if(certificate == null) {
-	log.error(alias + " has no certificate. Cannot install certificate signed by CA.");
-	throw new CertificateException(alias + " has no certificate");
-      }
-      if(privatekey==null) {
-	log.error(alias + " has no Private key . Cannot install certificate signed by CA.");
-	throw new CertificateException(alias + " has no Private Key ");
-      }
-
-      if(certificateChain.length == 1) {
-	// There is no certificate chain.
-	// We have to construct the chain first.
-	if (log.isDebugEnabled()) {
-	  log.debug("Certificate for alias :"+ alias
-		    +"does not contain chain");
-	}
-	certificateForImport = establishCertChain(certificate,
-						  certificateChain[0]);
-	if (log.isDebugEnabled()) {
-	  if(certificateForImport==null) {
-	    log.debug("certificate for import is null:");
-	  }
-	  log.debug(" successfullly established chain");
-	}
-      }
-      else {
-	// The PKCS7 reply contains the certificate chain.
-	// Validate the chain before proceeding.
-	certificateForImport = validateReply(alias,
-					     certificate, certificateChain);
-      }
-      if(certificateForImport != null) {
-	if(cacheservice!=null){
-	  cacheservice.setKeyEntry(alias, privatekey, certificateForImport);
-	  log.debug(" adding certificate to certificate cache:"+ alias);
-	  // The reply contains a certificate chain and it is valid
-	  cacheservice.addCertificateToCache(alias, certificateForImport[0], privatekey);
-	}
-      }
-
+    X509Certificate certificateForImport[];
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+                               CertificateCacheService.class,
+                               null);
+    if(cacheservice==null) {
+      log.warn("Unable to get Certificate cache service in installCertificate:");
     }
 
+    X509Certificate certificate =null;
+    PrivateKey privatekey = null;
+    if(cacheservice!=null) {
+      certificate=cacheservice.getCertificate(alias);
+      privatekey =cacheservice.getKey(alias);
+    }
 
-   /** */
+    if(certificate == null) {
+      log.error(alias + " has no certificate. Cannot install certificate signed by CA.");
+      throw new CertificateException(alias + " has no certificate");
+    }
+    if(privatekey==null) {
+      log.error(alias + " has no Private key . Cannot install certificate signed by CA.");
+      throw new CertificateException(alias + " has no Private Key ");
+    }
+
+    if(certificateChain.length == 1) {
+      // There is no certificate chain.
+      // We have to construct the chain first.
+      if (log.isDebugEnabled()) {
+        log.debug("Certificate for alias :"+ alias
+                  +"does not contain chain");
+      }
+      certificateForImport = establishCertChain(certificate,
+                                                certificateChain[0]);
+      if (log.isDebugEnabled()) {
+        if(certificateForImport==null) {
+          log.debug("certificate for import is null:");
+        }
+        log.debug(" successfullly established chain");
+      }
+    }
+    else {
+      // The PKCS7 reply contains the certificate chain.
+      // Validate the chain before proceeding.
+      certificateForImport = validateReply(alias,
+                                           certificate, certificateChain);
+    }
+    if(certificateForImport != null) {
+      if(cacheservice!=null){
+        cacheservice.setKeyEntry(alias, privatekey, certificateForImport);
+        log.debug(" adding certificate to certificate cache:"+ alias);
+        // The reply contains a certificate chain and it is valid
+        cacheservice.addCertificateToCache(alias, certificateForImport[0], privatekey);
+      }
+    }
+
+  }
+
+
+  /** */
   public X509Certificate[] validateReply(String alias,
-					  X509Certificate certificate,
-					  X509Certificate certificateReply[])
+                                         X509Certificate certificate,
+                                         X509Certificate certificateReply[])
     throws CertificateException  {
     java.security.PublicKey publickey = certificate.getPublicKey();
     int i;
@@ -958,9 +958,9 @@ public class CertificateRequestor {
     String sigAlgName = certAttribPolicy.sigAlgName;
     long howLong = certAttribPolicy.howLong;
     CertificateCacheService cacheservice=(CertificateCacheService)
-	serviceBroker.getService(this,
-				 CertificateCacheService.class,
-				 null);
+      serviceBroker.getService(this,
+                               CertificateCacheService.class,
+                               null);
 
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in doGenKeyPair");
@@ -1019,11 +1019,11 @@ public class CertificateRequestor {
     }
     else {
       // This is a certificate authority, so the CA is trusting itself.
-	certificateType= CertificateType.CERT_TYPE_CA;
-	if (cryptoClientPolicy.isRootCA())
-	  certificateTrust= CertificateTrust.CERT_TRUST_CA_CERT;
-	else
-	  certificateTrust= CertificateTrust.CERT_TRUST_SELF_SIGNED;
+      certificateType= CertificateType.CERT_TYPE_CA;
+      if (cryptoClientPolicy.isRootCA())
+        certificateTrust= CertificateTrust.CERT_TRUST_CA_CERT;
+      else
+        certificateTrust= CertificateTrust.CERT_TRUST_SELF_SIGNED;
     }
     CertificateStatus certstatus =
       new CertificateStatus(ax509certificate[0],
@@ -1080,38 +1080,38 @@ public class CertificateRequestor {
       List nodex509List=null;
       if(keyRing!=null){
 	nodex509List =keyRing.findCert(nodex500name,
-				   KeyRingService.LOOKUP_KEYSTORE,
-				   true);
+                                       KeyRingService.LOOKUP_KEYSTORE,
+                                       true);
       }
       if (nodex509List.size() > 0) {
 	nodex509 = ((CertificateStatus)nodex509List.get(0)).getCertificate();
       }
       if(nodex509 == null) {
 	// maybe approved and in LDAP?
-	 if(keyRing!=null){
-	   nodex509List = keyRing.findCert(nodex500name, KeyRingService.LOOKUP_LDAP, true);
-	 }
-	 if (nodex509List.size() > 0) {
-	   nodex509 = ((CertificateStatus)nodex509List.get(0)).getCertificate();
-	 }
-	 if (nodex509 != null) {
-	   // install the certificate into keystore
+        if(keyRing!=null){
+          nodex509List = keyRing.findCert(nodex500name, KeyRingService.LOOKUP_LDAP, true);
+        }
+        if (nodex509List.size() > 0) {
+          nodex509 = ((CertificateStatus)nodex509List.get(0)).getCertificate();
+        }
+        if (nodex509 != null) {
+          // install the certificate into keystore
 
-	   X509Certificate certificate = null;
-	   if(cacheservice!=null) {
-	     certificate=cacheservice.getCertificate(nodeAlias);
-	   }
+          X509Certificate certificate = null;
+          if(cacheservice!=null) {
+            certificate=cacheservice.getCertificate(nodeAlias);
+          }
 
-	   if (certificate == null) {
-	     throw new CertificateException(nodeAlias + "has no certificate.");
-	   }
-	   X509Certificate [] certForImport = establishCertChain(certificate, nodex509);
-	   if (nodeprivatekey != null){
-	     if(cacheservice!=null) {
-	       cacheservice.setKeyEntry(nodeAlias, nodeprivatekey, certForImport);
-	     }
-	   }
-	 }
+          if (certificate == null) {
+            throw new CertificateException(nodeAlias + "has no certificate.");
+          }
+          X509Certificate [] certForImport = establishCertChain(certificate, nodex509);
+          if (nodeprivatekey != null){
+            if(cacheservice!=null) {
+              cacheservice.setKeyEntry(nodeAlias, nodeprivatekey, certForImport);
+            }
+          }
+        }
       }
 
       if(nodex509 == null) {
@@ -1128,7 +1128,7 @@ public class CertificateRequestor {
 	  cert=cacheservice.getCertificate(nodeAlias);
 	}
 	request =  generateSigningCertificateRequest(cert,
-					    nodeAlias);
+                                                     nodeAlias);
 	if (log.isDebugEnabled()) {
 	  log.debug("Sending PKCS10 request to CA");
 	}
