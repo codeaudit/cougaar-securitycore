@@ -29,6 +29,7 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def loadSocietyData
+    logInfoMsg("calling loadSocietyData for report for Duty")
     @run.society.each_agent(true) do |agent|
       facetval = agent.get_facet(:superior_org_id)
       if facetval != nil
@@ -50,6 +51,7 @@ class TestReportChainReady < SecurityStressFramework
 
   def afterReportChainReady
     Thread.fork do
+      logInfoMsg("calling afterReportChainReady for reportforDuty script")
       begin
         badChains=[]
         4.times do
@@ -64,6 +66,7 @@ class TestReportChainReady < SecurityStressFramework
             end
           end
         end
+        logInfoMsg("calling Save results in afterReportChainReady for reportforDuty script")
         if badChains.empty?
           saveResult false, stressid, "ReportChainReady failed"
         else
