@@ -63,7 +63,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -94,7 +94,9 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
   }
 
   private UnaryPredicate dataProtectionPredicate(
-    final DataProtectionKeyCollection keyCollection, final String agentName) {
+    final DataProtectionKeyCollection keyCollection, 
+    final byte [] digest,
+    final String agentName) {
     return new UnaryPredicate() {
       public boolean execute(Object o) {
         if(o instanceof DataProtectionKeyContainer){
@@ -106,28 +108,9 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
 
 if (log.isDebugEnabled()) {
   log.debug("Found agent " + agentName + ", " + container.getTimestamp());
-}
-          DataProtectionKeyImpl keyImpl = (DataProtectionKeyImpl)
-            keyCollection.get(0);
-          try {
-            MessageDigest dg1 = MessageDigest.getInstance(keyImpl.getDigestAlg());
-            dg1.update(keyCollection.getSignature());
-
-            byte [] digest = dg1.digest();
-
-if (log.isDebugEnabled()) {
-  byte [] sig = keyCollection.getSignature();
-  log.debug("signature ");
-  printBytes(sig, 0, 10, log);
-
   log.debug("timestamp " + container.getTimestamp());
 }
-            return MessageDigest.isEqual(digest, container.getKey());
-          } catch (Exception ex) {
-            if (log.isWarnEnabled()) {
-              log.warn("Unable to get digest: ", ex); 
-            }
-          }
+          return MessageDigest.isEqual(digest, container.getKey());
         }
         return false;
       }
@@ -192,17 +175,37 @@ if (log.isDebugEnabled()) {
       return;
     }
 
+    if (keyCollection.getSignature() == null) {
+      log.warn("A request dataprotection key does not have signature, the agent is probably compromised.");
+      return;
+    }
+
+    MessageDigest dg1 = null;
+    try {
+      dg1 = MessageDigest.getInstance(keyImpl.getDigestAlg());
+      dg1.update(keyCollection.getSignature());
+if (log.isDebugEnabled()) {
+  byte [] sig = keyCollection.getSignature();
+  log.debug("signature ");
+  printBytes(sig, 0, 10, log);
+}
+    } catch (Exception ex) {
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get digest: ", ex); 
+      }
+      return;
+    }
     //TODO Is this in the right place 
     //check if exists on blackboard, if not return b/c invalid snap shot
     bbs.openTransaction();
     
-    Collection results = bbs.query(dataProtectionPredicate(keyCollection, agentName));
+    Collection results = bbs.query(dataProtectionPredicate(keyCollection, dg1.digest(), agentName));
     bbs.closeTransaction();
     if (results.size() == 0) {
       if (log.isWarnEnabled()) {
         log.warn("A request dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
       }
-//      return;
+      return;
     }
     else if (results.size() != 1) {
       if (log.isWarnEnabled()) {
