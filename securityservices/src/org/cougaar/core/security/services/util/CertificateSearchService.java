@@ -35,6 +35,4 @@ import org.cougaar.core.component.Service;
 public interface CertificateSearchService extends Service {
   List findCert(X500Name dname);
   List findDNFromNS(String cname);
-  List findCert();
-  List findCertByIdentifier(String uniqueIdentifier);
 }
