@@ -45,6 +45,8 @@ public class EventAgentProxy implements EventService {
   private MessageAddress myID = null;
   private LinkedList myqueue=null; 
   protected long    _pollInterval    = 6L;
+
+  private final int THRESHOLD_SIZE_RAISE_WARNING = 1000;
  
   private Schedulable eventPublisherThread=null;
   private ThreadService threadService= null;;
@@ -130,7 +132,12 @@ public class EventAgentProxy implements EventService {
          if(log.isDebugEnabled()) {
            log.debug(" Starting  CougaarEvent publishing  in EventAgentproxy");
          }
-         myEventService.event("CougaarEventPublisherThread --  QUEUE SIZE "+ myqueue.size());
+         if(log.isWarnEnabled()) {
+           if(myqueue.size() > THRESHOLD_SIZE_RAISE_WARNING) {
+             log.warn("EventService binder queue size getting too big:" + myqueue.size());
+           }
+         }
+         //myEventService.event("CougaarEventPublisherThread --  QUEUE SIZE "+ myqueue.size());
         synchronized(myqueue) {
           try {
             event=(CougaarEvent)myqueue.removeFirst();
