@@ -65,7 +65,7 @@ public class ServletPolicyEnforcer
     super("org.cougaar.core.security.policy.ServletPolicy",
           "ServletPolicyService");
     try {
-      //registerEnforcer();
+      registerEnforcer();
     } catch (Exception ex) {
       // FIXME: Shouldn't just let this drop, I think
       ex.printStackTrace();
