@@ -47,7 +47,6 @@ import javax.naming.*;
 
 // Cougaar core infrastructure
 import org.cougaar.util.ConfigFinder;
-import org.cougaar.core.naming.*;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
 //import org.cougaar.core.service.NamingService;

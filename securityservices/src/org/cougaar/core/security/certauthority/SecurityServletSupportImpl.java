@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -35,7 +35,6 @@ import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.NamingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
@@ -55,8 +54,7 @@ public class SecurityServletSupportImpl
 				    MessageAddress agentId,
 				    BlackboardQueryService blackboard,
 				    ServiceBroker sb,
-				    LoggingService log,
-				    NamingService ns) {
+				    LoggingService log) {
     super(path, agentId, blackboard, log);
     //super(path, agentId, blackboard, ns, log);
     serviceBroker = sb;

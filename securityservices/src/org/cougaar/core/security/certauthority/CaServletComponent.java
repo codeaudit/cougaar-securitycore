@@ -41,7 +41,6 @@ import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.NamingService;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.*;
@@ -169,14 +168,11 @@ public class CaServletComponent
           "Unable to obtain blackboard service");
     }
     
-    NamingService ns = (NamingService)
-      serviceBroker.getService(this, NamingService.class, null);
     support = new SecurityServletSupportImpl(getPath(),
 					     agentId,
 					     blackboardQueryService,
 					     serviceBroker,
-					     log, 
-					     ns);
+					     log);
 
     super.load();
   }

@@ -79,7 +79,7 @@ extends BaseServletComponent implements BlackboardClient  {
   private BlackboardService blackboard;
   private DomainService ds;
   private CommunityService cs;
-  private NamingService ns;
+  //private NamingService ns;
   private String path;
 
   public void load() {

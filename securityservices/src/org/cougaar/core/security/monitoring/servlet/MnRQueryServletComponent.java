@@ -69,7 +69,7 @@ public class MnRQueryServletComponent
   private BlackboardService blackboard;
   private DomainService ds;
   private CommunityService cs;
-  private NamingService ns;
+  //private NamingService ns;
   private String path;
 
   public void load() {
@@ -101,11 +101,13 @@ public class MnRQueryServletComponent
      System.out.println(" set community services call for Servlet component :");
      this.cs=cs;
    }
+  /*
   public void setNamingService(NamingService ns) {
      System.out.println(" set  Naming services call for Servlet component :");
      this.ns=ns;
   }
-  
+  */
+
   protected Servlet createServlet() {
     return new QueryServlet();
   }
