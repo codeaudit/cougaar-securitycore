@@ -1,0 +1,32 @@
+<society name='MiniPing-layout' 
+  xmlns:xsi='http:/www.w3.org/2001/XMLSchema-instance' 
+  xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'> 
+  <host name='BlackHole.local.'> 
+    <facet enclave='Rear'/> 
+    <node name='RearPolicyManagerNode'> 
+      <facet role="AS-RootManagement"/> 
+      <facet role="AS-Management"/> 
+    </node> 
+    <node name='RearEnclaveCaNode'> 
+      <facet role="CertificateAuthority"/>
+      <agent name='testBounceTwo' />
+    </node>
+    <node name='RootCaNode'>
+      <facet role="RootCertificateAuthority"/> 
+    </node>
+  </host>
+  <host name='Europa.local.'>
+    <facet enclave='Rear'/> 
+    <node name='SecondCA'>
+      <facet role="CertificateAuthority"/>
+      <facet role="RedundantCertificateAuthority"/>
+    </node>
+    <node name='RearWorkerNode'> 
+      <facet role="NameServer"/> 
+      <agent name='testBounceOne'/>
+      <agent name='testBBPolicyAgent'/>
+      <agent name='FwdUserAdminAgent'/>
+    </node> 
+  </host> 
+</society>
+
