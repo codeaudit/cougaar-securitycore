@@ -85,6 +85,7 @@ final public class KeyRing  implements KeyRingService  {
   private ConfigParserService configParser = null;
   private NodeConfiguration nodeConfiguration;
   private LoggingService log;
+  private CertificateCacheService cacheservice=null;
   /*
     private boolean isCertAuth=false;
     private boolean isRootCA=false;
@@ -118,15 +119,15 @@ final public class KeyRing  implements KeyRingService  {
   static {
     try {
       /*  NOTE: the following commented code is not compatible with versions before jdk1.4.1_02.
-      OIDMap.addAttribute("org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension"
-			  ,"2.5.29.28","x509.info.extensions.IssuingDistibutionPoint");
-      OIDMap.addAttribute("org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension"
-			  ,"2.5.29.29","x509.info.extensions.CertificateIssuer");
+          OIDMap.addAttribute("org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension"
+          ,"2.5.29.28","x509.info.extensions.IssuingDistibutionPoint");
+          OIDMap.addAttribute("org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension"
+          ,"2.5.29.29","x509.info.extensions.CertificateIssuer");
       */
       OIDMap.addAttribute("x509.info.extensions.IssuingDistibutionPoint", "2.5.29.28",
-	      IssuingDistributionPointExtension.class);
+                          IssuingDistributionPointExtension.class);
       OIDMap.addAttribute("x509.info.extensions.CertificateIssuer", "2.5.29.29",
-        CertificateIssuerExtension.class);
+                          CertificateIssuerExtension.class);
 
     }
     catch(CertificateException certexp) {
@@ -238,6 +239,13 @@ final public class KeyRing  implements KeyRingService  {
     */
 
     //search=new SearchServiceImpl(searchParam,serviceBroker);
+    cacheservice=(CertificateCacheService)serviceBroker.getService(this,
+                                                                   CertificateCacheService.class,
+                                                                   null);
+    if(cacheservice==null) {
+      log.warn("Cache service is null in init of KeyRing Service");
+    }
+    
     search = (CertificateSearchService) serviceBroker.getService(this,
                                                                  CertificateSearchService.class,
                                                                  null);
@@ -259,6 +267,13 @@ final public class KeyRing  implements KeyRingService  {
     }
     setCertificateTrustInCache();
 
+    // Now start CACertDirectoryService
+    // update CA cert information from blackboard, and update naming service
+    if (isCertAuth) {
+      CACertDirectoryService caOperations = (CACertDirectoryService)
+	serviceBroker.getService(this,CACertDirectoryService.class, null);
+      serviceBroker.releaseService(this, CACertDirectoryService.class, caOperations);
+    }
   }
 
   public synchronized void setKeyManager(KeyManager km) {
@@ -298,11 +313,6 @@ final public class KeyRing  implements KeyRingService  {
     if (log.isDebugEnabled()) {
       log.debug("Checking certificate trust called ");
     }
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-                               CertificateCacheService.class,
-                               null);
-
     Enumeration e = null;
     if( cacheservice!=null){
       e=cacheservice.getKeysInCache();
@@ -374,9 +384,6 @@ final public class KeyRing  implements KeyRingService  {
 				     X500Name name, Hashtable selfsignedCAs) {
     boolean isTrusted = false; // Raise a warning if there is no trusted cert for that entity.
 
-    CertificateCacheService caches =(CertificateCacheService) serviceBroker.getService(this,
-										       CertificateCacheService.class,
-										       null);
     try {
       X509Certificate[] certs = checkCertificateTrust(certificate);
       // Could establish a certificate chain. Certificate is trusted.
@@ -386,8 +393,8 @@ final public class KeyRing  implements KeyRingService  {
       }
       cs.setCertificateTrust(CertificateTrust.CERT_TRUST_CA_SIGNED);
       cs.setCertificateChain(certs);
-      if(caches!=null){
-	caches.updateBigInt2Dn(certificate, true);
+      if(cacheservice!=null){
+	cacheservice.updateBigInt2Dn(certificate, true);
       }
       isTrusted = true;
     }
@@ -406,7 +413,7 @@ final public class KeyRing  implements KeyRingService  {
 	  // We are a subordinate CA
 	  if (cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
 	    // should this be moved to after initialization?
-            String cn = caches.getCommonName(name);
+            String cn = cacheservice.getCommonName(name);
             selfsignedCAs.put(cn, cn);
 	  }
 	}
@@ -448,11 +455,6 @@ final public class KeyRing  implements KeyRingService  {
     throws CertificateChainException, CertificateExpiredException,
     CertificateNotYetValidException, CertificateRevokedException
     {
-      CertificateCacheService cacheservice=(CertificateCacheService)
-	serviceBroker.getService(this,
-                                 CertificateCacheService.class,
-                                 null);
-
       if(cacheservice==null) {
 	log.warn("Unable to get Certificate Cache service in checkCertificateTrust :");
       }
@@ -543,11 +545,6 @@ final public class KeyRing  implements KeyRingService  {
         }
         // need to check whether one of the cert in the chain is revoked
         if (!isValidated) {
-          CertificateCacheService cacheservice=(CertificateCacheService)
-            serviceBroker.getService(this,
-                                     CertificateCacheService.class,
-                                     null);
-
           if (cacheservice.checkRevokedCache(acertificate[i])) {
             throw new CertificateRevokedException("Certificate is revoked: "
                                                   + acertificate[i].getSubjectDN().getName());
@@ -606,11 +603,7 @@ final public class KeyRing  implements KeyRingService  {
     if (log.isDebugEnabled()) {
       log.debug("Build chain: " + principal.getName());
     }
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
-
+    
     if(cacheservice==null) {
       log.warn("Unable to get Certificate Cache service :");
     }
@@ -745,10 +738,6 @@ final public class KeyRing  implements KeyRingService  {
   public List findPrivateKey(String cougaarName, boolean validOnly) {
 
     // getX500DN only works for agent/node/server, does not work for CA and user
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
     if(cacheservice==null) {
       log.warn(" Unable to get Certificate Cache service in findPrivateKey");
       return null;
@@ -786,11 +775,6 @@ final public class KeyRing  implements KeyRingService  {
     if (log.isDebugEnabled()) {
       log.debug("get Private key for " + x500Name + ". ValidOnly=" + validOnly);
     }
-
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
     if(cacheservice==null) {
       log.error(" Unabale to get Certificate cache service in findPrivateKey:");
     }
@@ -824,10 +808,6 @@ final public class KeyRing  implements KeyRingService  {
 
 
   public List getValidPrivateKeys(X500Name x500Name) {
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
     if(cacheservice==null) {
       log.warn("CertificateCacheService is null in getValidPrivateKeys");
       return null;
@@ -987,10 +967,6 @@ final public class KeyRing  implements KeyRingService  {
     {
 
       ArrayList certificateList = new ArrayList(0);
-      CertificateCacheService cacheservice=(CertificateCacheService)
-        serviceBroker.getService(this,
-                                 CertificateCacheService.class,
-                                 null);
       if(cacheservice==null) {
         log.warn(" Unable to get Certificate cache service in findCert");
         return null;
@@ -1071,11 +1047,6 @@ final public class KeyRing  implements KeyRingService  {
 				int lookupType,
 				boolean validOnly) {
     // Search in the local hash map.
-
-    CertificateCacheService cacheservice=(CertificateCacheService)serviceBroker.getService(this,
-                                                                                           CertificateCacheService.class,
-                                                                                           null);
-
     if(cacheservice==null) {
       log.error(" Unable to get Certificate cache service in internalFindCert");
 
@@ -1165,36 +1136,29 @@ final public class KeyRing  implements KeyRingService  {
    */
   public List findCert(String cougaarName,
 		       int lookupType, boolean validOnly) {
-    if(log.isDebugEnabled())
+    if(log.isDebugEnabled()){
       log.debug("Looking for cougaar name " + cougaarName
 		+ " type = " + lookupType);
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-                               CertificateCacheService.class,
-                               null);
+    }
     if(cacheservice==null) {
       log.warn(" Unable to get Certificate Cache service in findCert");
       return null;
     }
-
+    
     // This function does not work for normal node for multiple CA
     // if uses default certificate attribute
     //if (cryptoClientPolicy.isCertificateAuthority()) {
-      List nameList = cacheservice.getX500NameFromNameMapping(cougaarName);
-      if (nameList != null && nameList.size() > 0) {
-	List certList = new ArrayList();
-        for (int i = 0; i < nameList.size(); i++) {
-          X500Name dname = (X500Name)nameList.get(i);
-          certList.addAll(findCert(dname, lookupType, validOnly));
-	}
-	return certList;
+    List nameList = cacheservice.getX500NameFromNameMapping(cougaarName);
+    if (nameList != null && nameList.size() > 0) {
+      List certList = new ArrayList();
+      for (int i = 0; i < nameList.size(); i++) {
+        X500Name dname = (X500Name)nameList.get(i);
+        certList.addAll(findCert(dname, lookupType, validOnly));
       }
-      // else no cert has been created
-      return null;
-      /*
+      return certList;   
     }
-    return findCert(CertificateUtility.getX500Name(getX500DN(cougaarName)), lookupType, validOnly);
-    */
+    // else no cert has been created
+    return null;
   }
 
   public Hashtable findCertPairFromNS(String source, String target)
@@ -1465,11 +1429,6 @@ final public class KeyRing  implements KeyRingService  {
       checkOrMakeCert(dname, false, null);
       return;
     }
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
-
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in checkOrMakeCert");
     }
@@ -1483,7 +1442,6 @@ final public class KeyRing  implements KeyRingService  {
     // create a dummy host key so that https server can be started
     if (commonName.equals(NodeInfo.getHostName())) {
       try {
-
         CertificateAttributesPolicy cap = cryptoClientPolicy.getCertificateAttributesPolicy();
         X500Name dname = null;
 	dname = new X500Name(CertificateUtility.getX500DN(commonName,title, cap));
@@ -1529,11 +1487,6 @@ final public class KeyRing  implements KeyRingService  {
       log.debug("CheckOrMakeCert: " + dname.toString() );
 
     }
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
-
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in checkOrMakeCert");
     }
@@ -1562,14 +1515,14 @@ final public class KeyRing  implements KeyRingService  {
 	}
 
         if (commonname!=null && commonname.equals(NodeInfo.getNodeName())) {
-        /* This functionality will be performed in KeyManagement
-          CA only needs to be updated to NS
-          if (cryptoClientPolicy.isCertificateAuthority()) {
-            X500Name [] caDNs = configParser.getCaDNs();
-            if (caDNs.length != 0) {
-              publishCAToLdap(caDNs[0].getName());
-            }
-          }
+          /* This functionality will be performed in KeyManagement
+             CA only needs to be updated to NS
+             if (cryptoClientPolicy.isCertificateAuthority()) {
+             X500Name [] caDNs = configParser.getCaDNs();
+             if (caDNs.length != 0) {
+             publishCAToLdap(caDNs[0].getName());
+             }
+             }
           */
           updateNS(dname);
           handleRequestedIdentities(trustedCaPolicy);
@@ -1602,6 +1555,9 @@ final public class KeyRing  implements KeyRingService  {
                                  CertValidityService.class,
                                  null);
       validityService.updateCertificate(commonname);
+      serviceBroker.releaseService(this,
+                                   CertValidityService.class,
+                                   validityService);
 
       // only do it for node cert, otherwise will have infinite loop here
       if (commonname.equals(NodeInfo.getNodeName())) {
@@ -1641,10 +1597,7 @@ final public class KeyRing  implements KeyRingService  {
   }
 
   public String findAlias(String commonName) {
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
+    
     if(cacheservice==null) {
       log.warn(" Unabale to get Certificate cache service in findAlias");
     }
@@ -1652,18 +1605,18 @@ final public class KeyRing  implements KeyRingService  {
   }
 
 
-    /*
-      this method needs to be modifed inoder to incorporate
-      publishing CA to wp/yp or ldap
-  private void publishCAToLdap(String caDN) {
-      CertificateManagementService km = (CertificateManagementService)
-      param.serviceBroker.getService(
-      new CertificateManagementServiceClientImpl(caDN),
-      CertificateManagementService.class,
-      null);
-      if (log.isDebugEnabled())
-      log.debug("adding CA certificate to LDAP: " + caDN);
-  }
+  /*
+    this method needs to be modifed inoder to incorporate
+    publishing CA to wp/yp or ldap
+    private void publishCAToLdap(String caDN) {
+    CertificateManagementService km = (CertificateManagementService)
+    param.serviceBroker.getService(
+    new CertificateManagementServiceClientImpl(caDN),
+    CertificateManagementService.class,
+    null);
+    if (log.isDebugEnabled())
+    log.debug("adding CA certificate to LDAP: " + caDN);
+    }
   */
 
 
@@ -1681,15 +1634,12 @@ final public class KeyRing  implements KeyRingService  {
 
 
   public List getValidCertificates(X500Name x500Name)  {
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
+   
     if(cacheservice==null) {
       log.warn("CertificateCacheService is null in getValidCertificates");
       return null;
     }
-
+    
     List allCertificates = cacheservice.getCertificates(x500Name);
     if (allCertificates == null || allCertificates.size() == 0) {
       return null;
@@ -1722,11 +1672,7 @@ final public class KeyRing  implements KeyRingService  {
 
   public String getAlias(X509Certificate clientX509) {
     String alias = null;
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
-
+    
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in getAlias");
     }
@@ -1898,11 +1844,6 @@ final public class KeyRing  implements KeyRingService  {
 
   public void updateNS(String commonName) {
 
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
-
     if(cacheservice==null){
       log.warn("Unable to get cache service in updateNS.. Will not be able to update "+
 	       "x500name in namemapping:");
@@ -1926,7 +1867,13 @@ final public class KeyRing  implements KeyRingService  {
     }
   }
 
-
+  public void updateNS(CertificateEntry certEntry) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("updateNS(CertEntry ) called: " + certEntry.toString());
+    }
+    namingService.updateCert(certEntry);
+    
+  }
   /**
    * Adding LDAP URL entry in the naming service.
    */
@@ -1936,27 +1883,35 @@ final public class KeyRing  implements KeyRingService  {
     }
 
 // check whether cert exist and whether it is agent
-
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
-
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in updateNS");
     }
 
-    List certificateList = findCert(x500Name);
+    List certificateList = findCert(x500Name, KeyRingService.LOOKUP_KEYSTORE,true );
     if (certificateList == null || certificateList.size() == 0) {
       log.warn("Not registering LDAP URL to naming service. Cannot find certificate. DN:" + x500Name);
       return;
     }
     try {
       CertificateStatus cs = (CertificateStatus)certificateList.get(0);
-      CertificateEntry certEntry = new CertificateEntry(cs.getCertificate(),
-                                                        // of course the cert is trusted by local node, otherwise not valid
-                                                        CertificateRevocationStatus.VALID,
-                                                        cs.getCertificateType());
+      CertificateEntry certEntry=null;
+      if( cs.getCertificateType()==CertificateType.CERT_TYPE_CA) {
+         log.warn("Received cert in UpdateNS is "+cs.getCertificate().getSubjectDN().getName());
+        //don't do any thing  just return 
+        /* 
+           certEntry = new CertificateEntry(cs.getCertificate(),
+           // of course the cert is trusted by local node, otherwise not valid
+           CertificateRevocationStatus.VALID,
+           cs.getCertificateType());
+        */
+        return;
+      }
+      else {
+        certEntry = new CertificateEntry(cs.getCertificate(),
+                                         // of course the cert is trusted by local node, otherwise not valid
+                                         CertificateRevocationStatus.VALID,
+                                         cs.getCertificateType());
+      }
       certEntry.setCertificateChain(cs.getCertificateChain());
       namingService.updateCert(certEntry);
 
@@ -2063,10 +2018,6 @@ final public class KeyRing  implements KeyRingService  {
 
 
   public String getX500DN(String commonName) {
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-                               CertificateCacheService.class,
-                               null);
     String title=CertificateCache.getTitle(commonName);
     return CertificateUtility.getX500DN(commonName,title, cryptoClientPolicy.getCertificateAttributesPolicy());
   }
@@ -2074,9 +2025,6 @@ final public class KeyRing  implements KeyRingService  {
 
   public void setKeyEntry(PrivateKey key, X509Certificate cert) {
 
-    CertificateCacheService cacheservice=(CertificateCacheService)serviceBroker.getService(this,
-                                                                                           CertificateCacheService.class,
-                                                                                           null);
     if(cacheservice==null) {
       log.warn(" Unabale to get Certificate cache service in setKeyEntry");
     }
@@ -2119,10 +2067,7 @@ final public class KeyRing  implements KeyRingService  {
     }
 
     String alias = findAlias(commonName);
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-                               CertificateCacheService.class,
-                               null);
+    
     if(cacheservice==null) {
       log.warn(" Unabale to get Certificate cache service in removeEntry");
     }
@@ -2204,11 +2149,6 @@ final public class KeyRing  implements KeyRingService  {
           log.info("Failed to lookup certificate for " + x500Name);
         }
       }
-
-      CertificateCacheService cacheservice=(CertificateCacheService)
-        serviceBroker.getService(this,
-                                 CertificateCacheService.class,
-                                 null);
       CRLCacheService crlCacheservice=(CRLCacheService)
         serviceBroker.getService(this,
                                  CRLCacheService.class,
@@ -2271,7 +2211,7 @@ final public class KeyRing  implements KeyRingService  {
 	    }
 
 	    if(crlCacheservice!=null) {
-              crlCacheservice.addToCRLCache(certificate.getSubjectDN().getName(), null, 0);
+              crlCacheservice.addToCRLCache(certificate.getSubjectDN().getName());
 	    }
 	    else {
 	      log.warn(" Uable to add CA to CRL Cache as CRL Cache service is null" +
@@ -2285,7 +2225,7 @@ final public class KeyRing  implements KeyRingService  {
           if (System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
             if (log.isDebugEnabled()) {
               log.debug("Found non trusted cert in cert directory! "
-                       + x500Name + " - " + e);
+                        + x500Name + " - " + e);
             }
           }
           else {
@@ -2332,13 +2272,12 @@ final public class KeyRing  implements KeyRingService  {
 	  }
 	}
       }
+      serviceBroker.releaseService(this,
+                                   CRLCacheService.class,
+                                   crlCacheservice);
     }
 
   public List getX500NameFromNameMapping(String name) {
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
     if(cacheservice==null) {
       log.warn(" Unable to get Certificate Cache service in findPrivateKey");
       return null;
