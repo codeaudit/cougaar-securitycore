@@ -246,6 +246,10 @@ public class SecurityServiceProvider
     services.put(CertificateSearchService.class, newSP);
     rootServiceBroker.addService(CertificateSearchService.class, newSP);
 
+    newSP = new CertificateSearchServiceProvider(serviceBroker, mySecurityCommunity);
+    services.put(CACertDirectoryService.class, newSP);
+    rootServiceBroker.addService(CACertDirectoryService.class, newSP);
+
     /* Certificate Management service */
     newSP = new CertificateManagementServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertificateManagementService.class, newSP);

@@ -30,9 +30,40 @@ import sun.security.x509.*;
 import java.util.*;
 import java.security.PrivateKey;
 
-public interface CACertDirectoryService {
-  List findCert();
-  List findCertByIdentifier(String uniqueIdentifier);
+// Cougaar core infrastructure
+import org.cougaar.core.component.Service;
+
+// Cougaar security services
+import org.cougaar.core.security.naming.CertificateEntry;
+
+public interface CACertDirectoryService 
+  extends Service
+{
+  /**
+   * Return a list of all the certificates managed by the CA, including the CA itself.
+   */
+  List getAllCertificates();
+
+  /**
+   * Find a certificate given its unique identifier.
+   * @param identifier - The unique identifier of the certificate to look for.
+   */
+  CertificateEntry findCertByIdentifier(String uniqueIdentifier);
+
+  /**
+   * Find a list of certificates matching a distinguished name.
+   * @param identifier - The distinguished name of the certificate to look for.
+   */
+  List findCertByDistinguishedName(String distinguishedName);
+
+  /**
+   * Publish a certificate (managed by a CA) in the blackboard
+   */
   void publishCertificate(X509Certificate clientX509,
-    int certType, PrivateKey pk);
+			  int certType, PrivateKey pk);
+
+  /**
+   * Publish a certificate (managed by a CA) in the blackboard
+   */
+  void publishCertificate(CertificateEntry certEntry);
 }

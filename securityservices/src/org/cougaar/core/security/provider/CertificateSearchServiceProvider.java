@@ -34,11 +34,14 @@ import org.cougaar.core.component.ServiceBroker;
 // Cougaar security services
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.naming.*;
+import org.cougaar.core.security.crypto.blackboard.CACertDirectoryServiceImpl;
+import org.cougaar.core.security.naming.CertificateEntry;
 
 public class CertificateSearchServiceProvider
   extends BaseSecurityServiceProvider {
 
-  static private CertificateSearchServiceImpl service = null;
+  static private CertificateSearchService _searchService = null;
+  static private CACertDirectoryService _caService = null;
 
   public CertificateSearchServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
@@ -54,18 +57,33 @@ public class CertificateSearchServiceProvider
   protected Service getInternalService(ServiceBroker sb,
 				       Object requestor,
 				       Class serviceClass) {
+    Service serv = null;
 
-    if (service != null)
-      return service;
-
-    try {
-      service = new CertificateSearchServiceImpl(sb, new CertDirectoryServiceFactory(sb));
+    if (serviceClass.equals(CertificateSearchService.class)) {
+      if (_searchService != null) {
+	serv = _searchService;
+      }
+      try {
+	_searchService = new CertificateSearchServiceImpl(sb, new CertDirectoryServiceFactory(sb));
+	serv = _searchService;
+      }
+      catch (Exception e) {
+	log.debug("Failed to initialize CertificateSearchServiceImpl! " + e.toString(), e);
+      }
     }
-    catch (Exception e) {
-      log.debug("Failed to initialize CertificateSearchServiceImpl! " + e.toString());
-      e.printStackTrace();
+    else if (serviceClass.equals(CACertDirectoryService.class)) {
+      if (_caService != null) {
+	serv = _caService;
+      }
+      try {
+	_caService = new CACertDirectoryServiceImpl(sb);
+	serv = _caService;
+      }
+      catch (Exception e) {
+	log.debug("Failed to initialize CACertDirectoryService! " + e.toString(), e);
+      }
     }
-    return service;
+    return serv;
   }
 
   /** Release a service.

@@ -146,7 +146,7 @@ public class CertificateDetailsServlet
     if(ldapentries==null || ldapentries.length == 0) {
       out.println("Error: no such certificate in LDAP ");
       */
-    List l = search.findCertByIdentifier(distinguishedName);
+    List l = search.findCertByDistinguishedName(distinguishedName);
     if (l == null || l.size() == 0) {
       out.println("Error: no such certificate in cert directory ");
       out.flush();

@@ -143,7 +143,7 @@ public class CertificateList
     LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
     out.println("<H3>" + ldapentries.length + " entries</H3>");
     */
-    List l = search.findCert();
+    List l = search.getAllCertificates();
     out.println("<H3>" + l.size() + " entries</H3>");
 
     out.println("<table>");

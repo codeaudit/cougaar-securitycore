@@ -135,7 +135,7 @@ public class DownloadCertificateServlet extends  HttpServlet
     LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
     if(ldapentries==null || ldapentries.length == 0) {
     */
-    List l = search.findCertByIdentifier(distinguishedName);
+    List l = search.findCertByDistinguishedName(distinguishedName);
     if (l == null || l.size() == 0) {
       res.getWriter().println("Error: no such certificate in LDAP ");
       return;
