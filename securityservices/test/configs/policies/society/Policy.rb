@@ -13,6 +13,9 @@ require 'cougaar/scripting'
 require 'cougaar/communities' 
 require 'cougaar/experiment'
 
+require 'security/actions/cond_policy'
+require 'security/actions/configFiles'
+require 'security/actions/saveEvents'
 require 'security/lib/cougaarMods'
 require 'security/actions/configFiles'
 require 'security/actions/cond_policy'
@@ -61,6 +64,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
     "#{RULES}/robustness",
     "#{RULES}/security",
     "#{RULES}/security/communities",
+    "#{RULES}/security/mop",
     "#{RULES}/security/robustness"
 
   # optional: save the society to an XML file for easy debugging 
@@ -78,12 +82,12 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "BuildConfigJarFiles"
   do_action "DeployCommunitiesFile" 
 
-  do_action "SaveAcmeEvents"
-
   do_action "StartSociety" 
   do_action "Sleep", 30.seconds 
-#  do_action "SetPoliciesTest"
+  do_action "WaitForUserManagerReady"
+  
   do_action "InitDM"
+  do_action "DomainManagerRehydrateReset"
   do_action "Sleep", 40.seconds
 }
 

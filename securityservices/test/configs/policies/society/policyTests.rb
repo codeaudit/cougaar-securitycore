@@ -37,55 +37,117 @@ module Cougaar
       def perform
         run.society.each_enclave { |enclave|
           ::Cougaar.logger.info "Publishing conditional policy to #{enclave} policy domain manager"
-          bootPoliciesLoaded(enclave)
+          ensureBootPoliciesLoaded(enclave)
         }
       end
     end # InitDM
 
-
-   class SetPoliciesTest < Cougaar::Action
+    class DomainManagerRehydrateReset < Cougaar::Action
       def initialize(run)
-	 super(run)
+        @run = run
+        super(run)
       end
-
+    
       def perform
         begin
-          setPoliciesExperiment("Rear", "RearEnclaveCaNode")
-        rescue
-          run.info_message $!
-          run.info_message $!.backtrace.join("\n")
+          enclave = getAnEnclave()
+          node    = getNonManagementNode(enclave)
+          setPoliciesExperiment(enclave, node)
+        rescue => ex
+          @run.info_message("Exception occured = #{ex}, #{ex.backtrace.join("\n")}")
         end
       end
-
+    
       def setPoliciesExperiment(enclave, node)
-        policyNode = getPolicyManagerNodeFromEnclave(enclave)
-        otherNode  = run.society.nodes[node]
-        run.info_message "policy node = #{policyNode.name}"
-        run.info_message "other node = #{otherNode.name}"
-        run.info_message "killing #{otherNode.name}"
-        run['node_controller'].stop_node(otherNode)
-        run.info_message "sending relay and installing policies"
-        bootPoliciesLoaded(enclave)
-        run.info_message "sleeping for persistence..."
-        sleep(7*60)
-        run.info_message "killing policy manager node (#{policyNode.name})"
-        run['node_controller'].stop_node(policyNode)
-        run.info_message "restarting node #{otherNode.name}"
-        run['node_controller'].restart_node(self, otherNode)
+    #
+    #   Initialization of parameters
+    #
+        failed = false
+        policyNode, domainManager = getPolicyManagerNodeFromEnclave(enclave)
+        @run.info_message("policy node = #{policyNode.name}")
+        @run.info_message("other node = #{node.name}")
+        # audit should happen as part of the bootstrap policy
+    #
+    # Does everything start as I expect?
+    #
+        if !(checkAudit(node)) then
+          @run.info_message("No audit? - aborting test")
+        end
+    #
+    # Kill the node, distribute policies, kill policy node, restart node
+    #
+        @run.info_message("killing #{node.name}")
+        run['node_controller'].stop_node(node)
+        @run.info_message( "sending relay and installing policies")
+        deltaPolicy(enclave, <<DONE)
+          Delete RequireAudit
+DONE
+        persistUri = domainManager.uri+"/persistenceMetrics?submit=PersistNow"
+        @run.info_message("uri = #{persistUri}")
+        Cougaar::Communications::HTTP.get(persistUri)
         sleep(30)
-        run.info_message "restarting domain manager node (#{policyNode.name})"
+    # now audit is turned off and should not happen.      
+        if checkAudit(policyNode)
+          @run.info_message( "Audit?? commit policies failed - aborting")
+          @run.info_message("Rehydration policy aborted")
+        end
+        @run.info_message( "killing policy manager node (#{policyNode.name})")
+        run['node_controller'].stop_node(policyNode)
+        @run.info_message( "restarting node #{node.name}")
+        run['node_controller'].restart_node(self, node)
+        sleep(30)
+        @run.info_message( "restarting domain manager node (#{policyNode.name})")
         run['node_controller'].restart_node(self, policyNode)
+        sleep(30)
+    # audit should fail here also  - this is the real test
+        if checkAudit(node)
+          @run.info_message("Rehydration test failed - audit should not occur")
+        else 
+          @run.info_message( "Rehydration test succeeded")
+        end
+        @run.info_message( "restoring audit policy")
+        deltaPolicy(enclave, <<DONE)
+          PolicyPrefix=%RestoredPolicy
+          Policy RequireAudit = [
+             AuditTemplate
+             Require audit for all accesses to all servlets
+          ]
+DONE
       end
-
+    
+      def checkAudit(node)
+        @run.info_message("checking audit on node #{node.name}")
+        url = "#{node.uri}/testAuditServlet"
+        result = Cougaar::Communications::HTTP.get(url)
+        return (/TRUE/.match(result.to_s) != nil)
+      end
+    
       def getPolicyManagerNodeFromEnclave(enclave)
         run.society.each_node do |node|
           node.each_facet(:role) do |facet|
             if facet[:role] == $facetManagement
-              return node
+              node.each_agent do |agent|
+                if /PolicyDomainManager/.match(agent.name) then
+                  return [node, agent]
+                end
+              end
             end
           end
         end
       end
+    
+      def getAnEnclave()
+        run.society.each_enclave do |enclave|
+          return enclave
+        end
+      end
+    
+      def getNonManagementNode(enclave)
+        return run.society.nodes["RearWorkerNode"]
+      end
     end
+    
+
+
   end
 end
