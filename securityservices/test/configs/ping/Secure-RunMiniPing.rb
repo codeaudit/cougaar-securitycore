@@ -96,7 +96,7 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   do_action "StartSociety" 
  
   # however long you want to run 
-  do_action "Sleep", 8.minutes 
+  do_action "Sleep", 40.minutes 
  
   do_action "StopSociety" 
   do_action "StopCommunications" 
