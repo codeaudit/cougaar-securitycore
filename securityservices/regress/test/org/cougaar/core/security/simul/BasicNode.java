@@ -98,7 +98,7 @@ public class BasicNode
       System.out.println("BaseBootstrapper.createClassLoader");
     }
     URL urls[] = (URL[]) l.toArray(new URL[l.size()]);
-    return new BaseClassLoader(urls, loudness);
+    return new BaseClassLoader(urls);
   }
  
   protected List computeURLs() {

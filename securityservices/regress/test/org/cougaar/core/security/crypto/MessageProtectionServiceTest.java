@@ -36,6 +36,7 @@ import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.mts.ProtectedOutputStream;
 import org.cougaar.core.mts.SimpleMessageAddress;
+import org.cougaar.core.mts.SimpleMessageAttributes;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.service.MessageProtectionService;
 
@@ -84,11 +85,13 @@ public class MessageProtectionServiceTest
     String header = "Source:" + source + " - Target:" + destination;
     byte[] rawData = header.getBytes();
     byte[] encryptedHeader = null;
-    byte[] decryptedHeader = null;
+    MessageAttributes decryptedHeader = null;
 
     // Encrypt header
+    SimpleMessageAttributes ma = new SimpleMessageAttributes();
+    ma.addValue("foo", rawData);
     try {
-      encryptedHeader = mps.protectHeader(rawData,
+      encryptedHeader = mps.protectHeader(ma,
 					  source,
 					  destination);
     }
@@ -110,7 +113,7 @@ public class MessageProtectionServiceTest
       Assert.assertTrue("Exception while trying to decrypt header:"
 			+ e.toString(), false);
     }
-    String newHeader = new String (decryptedHeader);
+    String newHeader = new String ((byte[])decryptedHeader.getAttribute("foo"));
     Assert.assertNotNull("Deccrypted Header is null", decryptedHeader);
 
     // Original header and (encrypted then decrypted) header should be equal.

@@ -34,8 +34,6 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.services.util.PolicyBootstrapperService;
 import org.cougaar.core.service.MessageTransportService;
 
-import safe.guard.NodeGuard;
-
 /**
  * "default" security manager for integration work.
  * Supports old properties org.cougaar.core.security.manager and org.cougaar.manager for
@@ -93,8 +91,8 @@ public final class GuardFactory
 
 	String policyManagerUIC = "UniqueID";
 	ServiceBroker rootServiceBroker = serviceBroker;
-	guard = new NodeGuard(policyManagerUIC, dmId, serviceBroker,
-			      rootServiceBroker);
+	//guard = new NodeGuard(policyManagerUIC, dmId, serviceBroker,
+	//		      rootServiceBroker);
         
         System.out.println("Initializing Guard.");
 	boolean isInitialized = false; // ((NodeGuard)guard).initialize(dmId, );
