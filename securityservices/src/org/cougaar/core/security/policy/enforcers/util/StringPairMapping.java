@@ -75,7 +75,9 @@ public class StringPairMapping {
   private List loadPairs(String filename)
     throws IOException
   {
-    _log.debug(".loadPairs Initilizing String Pair mapping using " + filename);
+    if (_log.isDebugEnabled()) {
+      _log.debug(".loadPairs Initilizing String Pair mapping using " + filename);
+    }
 
     List mapping = new Vector();
     File policyFile = null;
@@ -99,8 +101,10 @@ public class StringPairMapping {
       String mappingIn = line.substring(0,spacePt);
       String mappingOut = line.substring(spacePt+1);
 
-      _log.debug(".loadPairs: mapping item " + mappingIn +
-                " to item " + mappingOut);
+      if (_log.isDebugEnabled()) {
+        _log.debug(".loadPairs: mapping item " + mappingIn +
+                   " to item " + mappingOut);
+      }
 
       if (mappingOut == null)
         continue;
@@ -108,8 +112,10 @@ public class StringPairMapping {
       mapping.add(new StringPair(mappingIn, mappingOut.trim()));
     }
     damlReader.close();
-    _log.debug(".loadPairs: Finished Reading daml policies file " 
-              + filename);
+    if (_log.isDebugEnabled()) {
+      _log.debug(".loadPairs: Finished Reading daml policies file " 
+                 + filename);
+    }
     return mapping;
   }
 
