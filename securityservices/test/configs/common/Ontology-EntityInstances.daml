@@ -56,9 +56,11 @@
     <!--Sadly this file is scanned by a method that is looking for    -->
     <!--strings to match the following declarations.  This routine is -->
     <!--not very intelligent.  So be careful with formatting.         -->
-
+    
+    <!-- Start with Two special cases -->
     <ultralogEntity:ULContentValue rdf:ID="NoVerb"/>
-<!-- is GetWater really a verb? -->
+    <ultralogEntity:ULContentValue rdf:ID="OtherVerb"/>
+
     <ultralogEntity:ULContentValue rdf:ID="GetWater"/>
     <ultralogEntity:ULContentValue rdf:ID="AccountForSupply"/>
     <ultralogEntity:ULContentValue rdf:ID="Arm"/>
