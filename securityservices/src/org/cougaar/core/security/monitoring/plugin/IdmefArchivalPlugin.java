@@ -38,11 +38,12 @@ import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import edu.jhuapl.idmef.IDMEF_Message;
 import edu.jhuapl.idmef.Alert;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Collection;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -61,7 +62,7 @@ public class IdmefArchivalPlugin extends ComponentPlugin {
   private IncrementalSubscription _idmefevents;
   private LoggingService _log;
   private int _cacheSize = 100;
-  private List _cache;
+  private LinkedList _cache;
   private String topDir;
   private String nodeName;
   
@@ -87,7 +88,7 @@ public class IdmefArchivalPlugin extends ComponentPlugin {
     }
     _idmefevents = (IncrementalSubscription)
       getBlackboardService().subscribe(new BBIdmefEventPredicate());
-    _cache =new ArrayList();
+    _cache = new LinkedList();
     _secprop = (SecurityPropertiesService) getBindingSite().getServiceBroker().getService
       (this,SecurityPropertiesService.class, null);
     createTopDirStructure();
@@ -119,11 +120,11 @@ public class IdmefArchivalPlugin extends ComponentPlugin {
       while (eventiterator.hasNext()){
         Event event=(Event)eventiterator.next();
         _cache.add(event);
-        getBlackboardService().publishRemove(event);
+        //getBlackboardService().publishRemove(event);
       }
       if(_cache.size()>_cacheSize){
         try {
-          archiveEvents();
+          removeAndArchive();
         }
         catch (FileNotFoundException fNotFoundexception){
           if (_log.isWarnEnabled()) {
@@ -145,8 +146,14 @@ public class IdmefArchivalPlugin extends ComponentPlugin {
     }
   }
 
-  private void archiveEvents() throws IOException,FileNotFoundException {
+  private void removeAndArchive() throws IOException,FileNotFoundException {
     File file=createArchiveFile();
+    int noItems = _cache.size()- _cacheSize;
+    Object event=null;
+    for (int i=0;i<noItems;i++) {
+      event= _cache.removeFirst();
+      getBlackboardService().publishRemove(event);
+    }
     if(file!=null){
       ObjectOutputStream  output=new ObjectOutputStream(new FileOutputStream(file));
       output.writeObject(_cache);
