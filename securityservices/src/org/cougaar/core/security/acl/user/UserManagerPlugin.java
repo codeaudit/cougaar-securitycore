@@ -149,19 +149,6 @@ public class UserManagerPlugin extends ComponentPlugin {
    * Register this sensor's capabilities
    */
   protected void setupSubscriptions() {
-    CommunityService cs = (CommunityService)
-      getServiceBroker().getService(this, CommunityService.class, null);
-    AgentIdentificationService ais = (AgentIdentificationService)
-      getServiceBroker().getService(this, AgentIdentificationService.class,
-                                    null);
-    if (cs == null || ais == null) {
-      getServiceBroker().addServiceListener(new MyServiceListener(ais, cs));
-    } else {
-      setDomain(cs, ais);
-      getServiceBroker().releaseService(this, CommunityService.class, cs);
-      getServiceBroker().releaseService(this, AgentIdentificationService.class,
-                                        ais);
-    }
     BlackboardService bbs = getBlackboardService();
     Collection entries = bbs.query(USER_ENTRIES);
     if (entries.size() != 0) {
@@ -178,6 +165,20 @@ public class UserManagerPlugin extends ComponentPlugin {
       _userCache = new UserEntries(uidService.nextUID());
       getBlackboardService().publishAdd(_userCache);
 
+    }
+
+    CommunityService cs = (CommunityService)
+      getServiceBroker().getService(this, CommunityService.class, null);
+    AgentIdentificationService ais = (AgentIdentificationService)
+      getServiceBroker().getService(this, AgentIdentificationService.class,
+                                    null);
+    if (cs == null || ais == null) {
+      getServiceBroker().addServiceListener(new MyServiceListener(ais, cs));
+    } else {
+      setDomain(cs, ais);
+      getServiceBroker().releaseService(this, CommunityService.class, cs);
+      getServiceBroker().releaseService(this, AgentIdentificationService.class,
+                                        ais);
     }
     _relaySub = (IncrementalSubscription) 
       getBlackboardService().subscribe(CAS_TARGETS);
