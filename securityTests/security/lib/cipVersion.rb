@@ -10,6 +10,7 @@ if $cip_version == nil
     $cip_version = "HEAD"
     $cip_version_major = "HEAD"
     $cip_version_minor = "HEAD"
+    $cip_version_b11_4_or_above = true
   else
     File.open("/tmp/Manifest/core.version") do |fd|
       fd.each_line do |line|
