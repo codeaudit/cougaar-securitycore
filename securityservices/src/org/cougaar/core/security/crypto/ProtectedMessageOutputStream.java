@@ -199,7 +199,8 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
   private void getCertificates(SecureMethodParam policy) 
     throws NoKeyAvailableException, CertificateException, IOException,
     NoSuchAlgorithmException {
-    Hashtable certTable;
+
+    CertEntry certEntry;
 
     if (policy.secureMethod == policy.PLAIN) {
       return; // don't need any certificates for plain text communication
@@ -207,17 +208,25 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
 
     synchronized (_certCache) {
       String name = _source + ':' + _target;
-      certTable = (Hashtable) _certCache.get(name);
-      if (certTable == null) {
-        certTable = _keyRing.findCertPairFromNS(_source, _target);
-        if (certTable != null && certTable.size() < 2) {
-          _certCache.put(name, certTable);
-        }
+      certEntry = (CertEntry) _certCache.get(name);
+      if (certEntry == null) {
+        certEntry = new CertEntry();
+        _certCache.put(name, certEntry);
       }
     }
 
-    _targetCert = (X509Certificate) certTable.get(_target);
-    _sourceCert = (X509Certificate) certTable.get(_source);
+    synchronized (certEntry) {
+      if (certEntry.source == null || certEntry.target == null) {
+        Hashtable certs = _keyRing.findCertPairFromNS(_source, _target);
+        if (certs != null && certs.size() < 2) {
+          certEntry.source = (X509Certificate) certs.get(_source);
+          certEntry.target = (X509Certificate) certs.get(_target);
+        }
+      }
+      _targetCert = certEntry.source;
+      _sourceCert = certEntry.target;
+    }
+
     if (_sourceCert == null || _targetCert == null) {
       // send a message to receiver that this message is bad:
       if (_sourceCert == null && _log.isDebugEnabled()) {
@@ -373,5 +382,10 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     }
     digestSpec = signatureSpec.substring(0,withIndex);
     return MessageDigest.getInstance(digestSpec);
+  }
+
+  private static class CertEntry {
+    public X509Certificate source;
+    public X509Certificate target;
   }
 }
