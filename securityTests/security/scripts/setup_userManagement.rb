@@ -9,6 +9,9 @@ description: special initialization for security
 require 'security/lib/scripting'
 
 insert_before :wait_for_initialization do
+  # We set the agent name parameter to "nil", which instructs the
+  # action to look for the agent that has "org_id" facet == "OSD.GOV"
+  # This makes it easier to run the stresses with the PING society.
   wait_for  "UserManagerReady", nil, "/userManagerReady", 60.minutes
 end
 
