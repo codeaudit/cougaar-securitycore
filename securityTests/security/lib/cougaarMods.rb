@@ -176,6 +176,7 @@ module Cougaar
             response, result = http.get("/cougaar_config");
 #            puts "result = #{result}"
             fields = parseFields(result)
+            fields["cougaar_install_path"]=ENV["CIP"]
             fields["cmd_user"] = user
 #            fields["tmp_dir"] = "/tmp"
 #            fields["tmp_dir"] = "/tmp/acme-#{user}"
