@@ -31,10 +31,10 @@ UNLOCK TABLES;
 
 
 LOCK TABLES asb_agent WRITE;
-INSERT INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager','Enclave1PersistenceManager',0.000000000000000000000000000000,'Enclave1PersistenceManager');
-INSERT INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager','Enclave2PersistenceManager',0.000000000000000000000000000000,'Enclave2PersistenceManager');
-INSERT INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager','Enclave3PersistenceManager',0.000000000000000000000000000000,'Enclave3PersistenceManager');
-INSERT INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager','Enclave4PersistenceManager',0.000000000000000000000000000000,'Enclave4PersistenceManager');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager','Enclave1PersistenceManager',0.000000000000000000000000000000,'Enclave1PersistenceManager');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager','Enclave2PersistenceManager',0.000000000000000000000000000000,'Enclave2PersistenceManager');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager','Enclave3PersistenceManager',0.000000000000000000000000000000,'Enclave3PersistenceManager');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager','Enclave4PersistenceManager',0.000000000000000000000000000000,'Enclave4PersistenceManager');
 UNLOCK TABLES;
 
 --
@@ -59,7 +59,7 @@ UNLOCK TABLES;
 
 
 LOCK TABLES asb_assembly WRITE;
-INSERT INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0001-EnclavePersistenceManagers','RCP','EnclavePersistenceManagers');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0001-EnclavePersistenceManagers','RCP','EnclavePersistenceManagers');
 UNLOCK TABLES;
 
 --
@@ -68,18 +68,18 @@ UNLOCK TABLES;
 
 
 LOCK TABLES asb_component_arg WRITE;
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager','Enclave2PersistenceManager',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','/KeyRecoveryServlet',2.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager','Enclave3PersistenceManager',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','/KeyRecoveryServlet',2.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager','Enclave4PersistenceManager',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','/KeyRecoveryServlet',2.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager','Enclave1PersistenceManager',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','/KeyRecoveryServlet',2.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager','Enclave2PersistenceManager',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','/KeyRecoveryServlet',2.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager','Enclave3PersistenceManager',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','/KeyRecoveryServlet',2.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager','Enclave4PersistenceManager',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','/KeyRecoveryServlet',2.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager','Enclave1PersistenceManager',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','/KeyRecoveryServlet',2.000000000000000000000000000000);
 UNLOCK TABLES;
 
 --
@@ -88,18 +88,18 @@ UNLOCK TABLES;
 
 
 LOCK TABLES asb_component_hierarchy WRITE;
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager','EnclavePersistenceManagers','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager|org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin','Enclave2PersistenceManager','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','Enclave2PersistenceManager','COMPONENT',1.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager','EnclavePersistenceManagers','COMPONENT',1.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager|org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin','Enclave3PersistenceManager','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','Enclave3PersistenceManager','COMPONENT',1.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager','EnclavePersistenceManagers','COMPONENT',2.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager|org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin','Enclave4PersistenceManager','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','Enclave4PersistenceManager','COMPONENT',1.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager','EnclavePersistenceManagers','COMPONENT',3.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager|org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin','Enclave1PersistenceManager','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','Enclave1PersistenceManager','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager','EnclavePersistenceManagers','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager|org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin','Enclave2PersistenceManager','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave2PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','Enclave2PersistenceManager','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager','EnclavePersistenceManagers','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager|org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin','Enclave3PersistenceManager','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave3PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','Enclave3PersistenceManager','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager','EnclavePersistenceManagers','COMPONENT',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager|org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin','Enclave4PersistenceManager','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave4PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','Enclave4PersistenceManager','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager','EnclavePersistenceManagers','COMPONENT',3.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager|org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin','Enclave1PersistenceManager','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-EnclavePersistenceManagers','Enclave1PersistenceManager|org.cougaar.core.servlet.SimpleServletComponent','Enclave1PersistenceManager','COMPONENT',1.000000000000000000000000000000);
 UNLOCK TABLES;
 
 --
