@@ -87,8 +87,8 @@ public class CAInfoServlet
 					    null);
     List l = krs.findCert(caDN, KeyRingService.LOOKUP_KEYSTORE, true);
     if (l == null || l.size() == 0) {
-      if (log.isWarnEnabled()) {
-        log.warn("Cannot find CA certificate " + caDN + " but CA key has already generated.");
+      if (log.isDebugEnabled()) {
+        log.debug("Cannot find CA certificate " + caDN + " but CA key is being generated.");
       }
       return null;
     }
