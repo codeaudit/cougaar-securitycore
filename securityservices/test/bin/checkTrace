@@ -1,1 +1,1 @@
-grep -i "exception\|not\|bad\|null\|warning\|wrong\|false" *.log
+grep -i "exception\|not \|bad\|null\|warning\|wrong\|false\|error\|unexpected" *.log
