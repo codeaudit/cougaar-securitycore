@@ -36,7 +36,7 @@ import org.cougaar.core.cluster.ClusterIdentifier;
 import org.cougaar.core.cluster.IncrementalSubscription;
 import org.cougaar.core.plugin.SimplePlugIn;
 import org.cougaar.core.society.UID;
-import org.cougaar.core.security.crypto.PublicKeyRing;
+import com.nai.security.crypto.PublicKeyRing;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
