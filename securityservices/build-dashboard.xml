@@ -1,4 +1,10 @@
 <project name="build-dashboard" default="build" basedir=".">
+
+  <path id="junit.class.path">
+    <path refid="core.class.path"/>
+    <pathelement location="${securityservices.classes}/junitTests.jar"/>
+  </path>
+
   <target name="init">
       <tstamp/>
   </target>
@@ -17,7 +23,7 @@
 
   <property name="build"   value="${jwsdp.home}/webapps/regress/dashboard/build" />
 
-  <property name="username"   value="junittest" />
+  <property name="username"   value="administrator" />
   <property name="password"   value="Ultra*Log" />
   <property name="hostname"   value="cypress" />
 
@@ -42,6 +48,7 @@
    	description="Create build directories.">
     <mkdir dir="${build}" />
     <mkdir dir="${build}/junitreport" />
+    <mkdir dir="${build}/results" />
     <mkdir dir="${build}/WEB-INF" />
     <mkdir dir="${build}/WEB-INF/classes" />
   </target>
@@ -70,18 +77,32 @@
   </target>
 
   <target name="clean" description="Delete compiled files">
-     <delete>
-        <fileset  dir="${build}"/>
+     <delete quiet="true">
+        <fileset dir="${build}/results"/>
+     </delete>
+     <delete quiet="true">
+        <fileset dir="${build}"/>
      </delete>
   </target>
 
-  <target name="build" depends="prepare" 
+  <target name="build" depends="clean, prepare" 
      description="Compile app Java files and copy HTML and JSP pages" >
-    <javac srcdir="${securityservices.regress}/dashboard/src" destdir="${build}/WEB-INF/classes"
+    <javac classpathref="junit.class.path"
+           srcdir="${securityservices.regress}/dashboard/src"
+           destdir="${build}/WEB-INF/classes"
            debug="true">
     	<include name="**/*.java" />
-     	<classpath refid="classpath"/>
     </javac>
+    <copy todir="${build}/WEB-INF/classes">
+      <fileset dir="${securityservices.classes}">
+        <include name="test/**/*.class" />
+      </fileset>
+    </copy>
+    <unzip src="${cougaar.install.path}/sys/junit.jar" dest="${build}/WEB-INF/classes">
+      <patternset>
+        <include name="**/*.class"/>
+      </patternset>
+    </unzip>
     <copy todir="${build}">
       <fileset dir="${securityservices.regress}/dashboard/web">
         <include name="*.html" />
@@ -95,16 +116,39 @@
       <fileset dir="${securityservices.results}">
         <include name="**/*" />
       </fileset>
+      <fileset dir="${cougaar.workspace}/log4jlogs/">
+        <include name="**/*.log" />
+      </fileset>
     </copy>
     <replace file="${build}/java.props" token="/replace_me/" value="${build}/results">
     </replace>
   </target>
 
   <target name="make-jar" depends="build">
-     <jar jarfile="${build}/WEB-INF/dashboard.jar">
+     <jar jarfile="${securityservices.classes}/dashboard.jar">
         <fileset dir="${build}/WEB-INF/classes"
                  includes="**/*.class"/>
      </jar>
+  </target>
+
+  <!-- sign jar file -->
+  <target name="sign-dashboard-jar" depends="make-jar">
+      <signjar jar="${securityservices.classes}/dashboard.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/dashboard.jar"
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+    </target>
+
+  <target name="make-war-file" depends="sign-dashboard-jar">
+    <war destfile="${build}/dashboard.war" webxml="${securityservices.regress}/dashboard/dashboard-web.xml">
+      <fileset dir="${securityservices.regress}/dashboard/web"/>
+      <lib dir="${securityservices.signed}">
+        <include name="*.jar"/>
+      </lib>
+      <classes dir="build/main"/>
+      <zipfileset dir="src/graphics/images/gifs" 
+              prefix="images"/>
+      </war>
   </target>
 
 </project>

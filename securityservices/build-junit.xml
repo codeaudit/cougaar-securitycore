@@ -8,20 +8,28 @@
      2) jakarta-ant-1.4.1-optional.jar
 -->
 
-<project basedir="." default="run-node-tests-with-report" name="Ultra*Log/securityservices/junit">
+<project basedir="." default="run-node-tests" name="Ultra*Log/securityservices/junit">
 
     <property name="junit.test.result.path" value="${securityservices.results}/${junit.test.desc}"/>
 
+    <target name="clean-junit">
+      <delete quiet="true" dir="${securityservices.results}"/>
+      <delete>
+        <fileset dir="${cougaar.workspace}/log4jlogs" includes="**/*"/>
+      </delete>
+    </target>
+
     <target name="init-junit">
       <mkdir dir="${cougaar.workspace}/security/keystores/JUNIT-TEST-NODE"/>
-      <!-- Remove old results -->
-      <delete dir="${junit.test.result.path}"/>
-      <!-- Create output directory for Junit test -->
       <mkdir dir="${junit.test.result.path}"/>
+      <!-- Use loggingConfig that logs only above the WARN level -->
+      <copy file="${securityservices.regress}/config/nodeTest/loggingConfig.conf" 
+            todir="${cougaar.install.path}/configs/security">
+      </copy>
     </target>
 
     <!-- Build the Junit test package -->
-    <target name="build-junit-tests" depends="init-junit">
+    <target name="build-junit-tests">
         <echo message="+++++ Building Junit tests"/>
         <javac classpathref="securityservices.class.path" debug="true" 
             deprecation="true" destdir="${securityservices.classes}"
@@ -44,9 +52,19 @@
         </jar>
     </target>
 
+    <!-- sign jar file -->
+    <target name="sign-junit-jar" depends="jar-junit-tests">
+        <signjar jar="${securityservices.classes}/junitTests.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/junitTests.jar"
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+    </target>
+
     <!-- install junit files -->
-    <target name="install-junit-tests">
+    <target name="install-junit-tests" depends="sign-junit-jar">
         <echo message="+++++ Installing Junit test files"/>
+        <copy file="${securityservices.signed}/junitTests.jar" 
+            todir="${cougaar.install.path}/lib"/>
         <copy todir="${cougaar.workspace}/security/keystores/JUNIT-TEST-NODE">
             <fileset dir="${securityservices.regress}/config">
                 <include name="keystore-JUNIT-TEST-NODE"/>
@@ -56,9 +74,10 @@
     </target>
  
     <!-- Run the Junit nodes --> 
-    <target name="run-node-tests" depends="jar-junit-tests">
+    <target name="run-node-tests" depends="init-junit">
+       <echo message="Running test: ${junit.test.desc}" />
        <junit fork="yes" printsummary="yes" dir="${securityservices.base}"
-              timeout="600000" showoutput="yes">
+              timeout="600000">
           <sysproperty key="org.cougaar.install.path" value="${cougaar.install.path}"/>
           <sysproperty key="org.cougaar.workspace" value="${cougaar.workspace}"/>
           <sysproperty key="org.cougaar.securityservices.configs" value="${securityservices.configs}"/>
@@ -78,10 +97,12 @@
              </fileset>
              <fileset dir="${cougaar.install.path}/sys">
                 <include name="xerces.jar" />
+                <include name="httpunit.jar" />
+                <include name="Tidy.jar" />
              </fileset>
           </classpath>
 
-	  <test name="test.org.cougaar.core.security.simul.NodeServerTest"
+	  <test name="test.org.cougaar.core.security.simul.NodeServerSuite"
                 haltonfailure="no" haltonerror="no"
                 todir="${junit.test.result.path}" outfile="TEST-results" >
 	    <formatter type="xml" />
@@ -90,18 +111,21 @@
     </target>
 
     <!-- Generate dashboard"-->
-    <target name="dashboard">
-       <ant antfile="build-dashboard.xml" dir="." target="clean">
+    <target name="dashboard" depends="make-report">
+       <ant antfile="build-dashboard.xml" dir="." target="clean"
+            inheritRefs="true">
        </ant>
-       <ant antfile="build-dashboard.xml" dir="." target="build">
+       <ant antfile="build-dashboard.xml" dir="." target="build"
+            inheritRefs="true">
        </ant>
        <!-- Should do a "install" instead of "reload" the very first time -->
-       <ant antfile="build-dashboard.xml" dir="." target="reload">
+       <ant antfile="build-dashboard.xml" dir="." target="reload"
+            inheritRefs="true">
        </ant>
     </target>
 
     <!-- Generate a report of the individual report files"-->
-    <target name="run-node-tests-with-report" depends="run-node-tests">
+    <target name="make-report">
       <junitreport todir="${securityservices.results}">
          <fileset dir="${securityservices.results}">
             <include name="**/TEST-*.xml"/>
@@ -118,7 +142,7 @@
           <sysproperty key="org.cougaar.core.security.crypto.debug" value="true"/>
 	  <sysproperty key="org.cougaar.core.security.policy.debug" value="true"/>
           <sysproperty key="org.cougaar.node.name" value="JUNIT-TEST-NODE"/>
-          <sysproperty key="org.cougaar.security.role" value="JunitTest"/>
+          <sysproperty key="org.cougaar.security.role" value="junittest"/>
           <sysproperty key="org.cougaar.core.security.Domain" value="NCADomain"/>
           <classpath>
              <fileset dir="${securityservices.classes}">

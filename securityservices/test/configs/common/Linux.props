@@ -9,6 +9,7 @@
 #
 # Note that some symbols, such as ";", must be encoded ("\;")
 
+
 # Set the Cougaar install path.
 org.cougaar.install.path=/mnt/shared/integ92
 

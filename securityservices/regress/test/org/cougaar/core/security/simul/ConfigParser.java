@@ -59,7 +59,7 @@ public class ConfigParser
   }
 
   public NodeConfiguration parseNodeConfiguration() {
-    NodeConfiguration nc = new NodeConfiguration("");
+    NodeConfiguration nc = new NodeConfiguration();
     try {
       FileInputStream fis = new FileInputStream(configFile);
 

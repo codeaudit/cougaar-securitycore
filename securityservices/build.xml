@@ -65,6 +65,8 @@
         <pathelement location="${cougaar.install.path}/lib/webserver.jar"/>
         <!-- JUNIT libraries -->
         <pathelement location="${cougaar.install.path}/sys/junit.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/httpunit.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/Tidy.jar"/>
         <!-- Overlay packages -->
         <pathelement location="${cougaar.install.path}/lib/overlay.jar"/>
         <!-- Cougaar packages -->
@@ -448,6 +450,9 @@
           <fileset  dir="${securityservices.configs}/demo" includes="*.log"/>
         </delete>
         <delete verbose="true">
+          <fileset  dir="${cougaar.workspace}/log4jlogs" includes="*.log"/>
+        </delete>
+        <delete verbose="true">
           <fileset  dir="${securityservices.configs}/cougaarCA" includes="*.log"/>
         </delete>
         <delete verbose="true">
@@ -509,16 +514,48 @@
         
     <!-- Junit tests -->
     <target name="junit" depends="clean-log, build-securityservices">
-       <ant antfile="build-junit.xml" dir="." target="run-node-tests-with-report" inheritRefs="true">
+       <!-- Clean up everything -->
+       <ant antfile="build-junit.xml" dir="." target="clean-junit" inheritRefs="true">
+       </ant>
+       <!-- Build Junit -->
+       <ant antfile="build-junit.xml" dir="." target="install-junit-tests" inheritRefs="true">
+       </ant>
+
+       <!-- Run the experiments -->
+       <ant description="Test 1: Start a CA from scratch"
+            antfile="build-junit.xml" dir="." target="run-node-tests" inheritRefs="true">
           <property name="junit.test.desc"   value="CaStandaloneFromScratch"/>
           <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandaloneFromScratch.xml"/>
        </ant>
-       <ant antfile="build-junit.xml" dir="." target="run-node-tests-with-report" inheritRefs="true">
-          <property name="junit.test.desc"   value="CaStandalone"/>
-          <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandalone.xml"/>
+<!--
+-->
+
+       <ant description="Test 2: Restart the CA after test 1. Create a CA key by invoking a web client"
+          antfile="build-junit.xml" dir="." target="run-node-tests" inheritRefs="true">
+         <property name="junit.test.desc"   value="CaStandaloneCreateKey"/>
+         <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandaloneCreateKey.xml"/>
        </ant>
-       <!-- Update dashbaord -->
-       <ant antfile="build-dashboard.xml" dir="." target="dashboard">
+
+       <ant description="Test 3: Restart the CA after test 2"
+          antfile="build-junit.xml" dir="." target="run-node-tests" inheritRefs="true">
+         <property name="junit.test.desc"   value="CaStandaloneRestart"/>
+         <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandalone.xml"/>
+       </ant>
+       <ant description="Test 4: Start the small 135 society"
+            antfile="build-junit.xml" dir="." target="run-node-tests" inheritRefs="true">
+         <property name="junit.test.desc"   value="small-135"/>
+         <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/Small-135.xml"/>
+       </ant>
+
+       <!-- Update dashboard -->
+       <antcall target="dashboard">
+       </antcall>
+    </target>
+
+    <!-- Update dashboard -->
+    <target name="dashboard">
+       <ant antfile="build-junit.xml" dir="." target="dashboard"
+            inheritRefs="true">
        </ant>
     </target>
  </project>

@@ -89,7 +89,7 @@ public class ConfigHandler
 
     if (localName.equals(NODE_TEST)) {
       System.out.println("New nodeTest");
-      currentNodeConf = new NodeConfiguration("");
+      currentNodeConf = new NodeConfiguration();
 
       // Set top-level directory
       File f1 = new File(System.getProperty("org.cougaar.securityservices.base"));
