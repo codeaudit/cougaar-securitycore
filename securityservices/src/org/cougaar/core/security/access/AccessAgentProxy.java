@@ -126,17 +126,6 @@ public class AccessAgentProxy
 		 +message.toString());
     }
     
-    //check to see if any node agent is involved.
-    if(nodeList.contains(message.getOriginator().toString())||
-        nodeList.contains(message.getTarget().toString())){
-      //no wrapping with trust
-      mts.sendMessage(message);
-      if(log.isDebugEnabled()){
-	log.debug("no wrapping with trust for node agent." + message);
-      }
-      return;
-    }
-
     if(myID != null && !message.getOriginator().equals(myID)){
       //not suppose to happen
       publishMessageFailure(message.getOriginator().toString(),
@@ -151,9 +140,24 @@ public class AccessAgentProxy
     }
       
     if(mts!=null) {
+      checkOutVerbs(message);
+      /*
+       *TODO: the following "if" test is a big kludge, due to the fact
+       *node agents can have binders, so we are making exceptions--no 
+       *wrapping with TrustSet--for node agents. Once Bugzilla #2103
+       *is addressed remember to take this out.
+       */
+      if(nodeList.contains(message.getTarget().toString())){
+        //no wrapping with trust
+        mts.sendMessage(message);
+        if(log.isDebugEnabled()){
+          log.debug("no wrapping with trust for node agent." + message);
+        }
+        return;
+      }
+      
       TrustSet[] ts;
       ts = checkOutgoing(message);
-      checkOutVerbs(message);
 	
       if(ts==null) {
 	if(log.isWarnEnabled()) {
@@ -279,18 +283,20 @@ public class AccessAgentProxy
       // Check verb of incoming message
       checkInVerbs(contents);
 
-      if(tset == null) {
-	mtc.receiveMessage(contents);
-	if(log.isDebugEnabled()) {
-	  log.debug("receiving Message from Access Agent proxy");
-	}
-	return;
-      }
       // Update TrustSet of incoming message
       // The sender is allowed to provide a TrustSet, but the receiver
       // does not necessarily trust the sender. The receiver needs to
       // update the TrustSet to reflet its view of the TrustSet.
-      incomingTrust(contents, tset);
+      if(!incomingTrust(contents, tset)){
+	publishMessageFailure(m.getOriginator().toString(),
+			      m.getTarget().toString(),
+			      MessageFailureEvent.INVALID_MESSAGE_CONTENTS,
+			      m.toString());
+	if(log.isWarnEnabled()) {
+	  log.warn("Rejecting incoming messagewithtrust. trust invalid."
+		   + m.toString());
+      }
+      }
 
       String failureIfOccurred = null;
       if(!incomingMessageAction(contents, tset[0])) {
@@ -329,17 +335,32 @@ public class AccessAgentProxy
       //check to see if any node agent is involved.
       if(nodeList.contains(m.getOriginator().toString())||
           nodeList.contains(m.getTarget().toString())){
-	//no wrapping with trust
-	mtc.receiveMessage(m);
-	if(log.isDebugEnabled()){
-	  log.debug("handling no wrapping with trust for node agent." + m);
-	}
-	return;
-      } else {
-        if (log.isWarnEnabled()) {
-          log.warn("Dropping message. It should be wrapped in a MessageWithTrust: "
-             + m.toString(), new Throwable());
+        //no wrapping with trust
+        mtc.receiveMessage(m);
+        if(log.isDebugEnabled()){
+          log.debug("handling no wrapping with trust for node agent." + m);
         }
+      return;
+      } else {
+        if (log.isDebugEnabled()) {
+          log.debug("Wrapping trust, it is not wrapped in a MessageWithTrust: "
+             + m.toString());
+        }
+        TrustSet[] ts = null;
+        if(m instanceof DirectiveMessage){
+          Directive directive[] = 
+            ((DirectiveMessage)m).getDirectives();
+          int len = directive.length;
+
+          for(int i = 0; i < len; i++) {
+            ts[i] = makeLowestTrust();
+          }
+        }
+        else{
+          ts[0] = makeLowestTrust();
+        }
+        MessageWithTrust newMessage = new MessageWithTrust(m, ts);
+        receiveMessage(newMessage);
         return;
       }
     }
@@ -479,6 +500,9 @@ public class AccessAgentProxy
   }
 
   private void compare(TrustSet msgSet, TrustSet policySet) {
+    if(msgSet == null){
+      msgSet = makeLowestTrust();
+    }
     Iterator keys = policySet.keySet().iterator();
     while(keys.hasNext()) {
       String type = (String)keys.next();
@@ -647,7 +671,7 @@ public class AccessAgentProxy
     checkMessage(msg, true);
   }
 
-  private void incomingTrust(Message msg, TrustSet[] set) {
+  private boolean incomingTrust(Message msg, TrustSet[] set) {
     TrustSet policySet;
     try {
       policySet = acps.getIncomingTrust
@@ -658,17 +682,20 @@ public class AccessAgentProxy
         log.warn("No msg incoming trust for type = "
 		 + msg.getClass());  
       }
-      return;
+      return false;
     }
     if(policySet!=null) {
+      //for non-directive messages set length is 1.
       compare(set[0], policySet);
     }
+    
+    //for directive messages it's more complicated.
     if(msg instanceof DirectiveMessage) {
       Directive directive[] = ((DirectiveMessage)msg).getDirectives();
       TrustSet policy;
       
       if (directive==null) {
-	return;
+	return false;
       }
       if (set.length < directive.length+1) {
 	for (int j = 0; j < directive.length - set.length + 1; j++){
@@ -692,6 +719,7 @@ public class AccessAgentProxy
 	}
       }
     }
+    return true;
   }
 	
   private boolean incomingAgentAction(Message msg) {
@@ -767,7 +795,7 @@ public class AccessAgentProxy
       return true;
     }
     if(log.isDebugEnabled()) {
-      log.debug("AccessControlProxy: action(in) = " + action);
+      log.debug("action(in) = " + action);
     }
     if(action == null) {
       return true;
@@ -792,5 +820,14 @@ public class AccessAgentProxy
         log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
     }  
+  }
+  
+  private TrustSet makeLowestTrust(){
+    TrustSet ts = new TrustSet();
+    MissionCriticality mc = new MissionCriticality(1);
+    ts.addAttribute(mc);
+    IntegrityAttribute ia = new IntegrityAttribute(1);
+    ts.addAttribute(ia);
+    return ts;
   }
 }
