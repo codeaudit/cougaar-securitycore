@@ -26,14 +26,16 @@ package org.cougaar.core.security.acl.auth;
 import java.io.IOException;
 import java.security.Principal;
 import java.security.PrivilegedAction;
-import javax.security.auth.Subject;
 
+import javax.security.auth.Subject;
 import javax.servlet.Servlet;
-import javax.servlet.ServletException;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+
+import org.cougaar.core.security.audit.AuditLogger;
 
 /**
  * This class is designed to run the entire servlet service() as
@@ -70,6 +72,7 @@ public class SecureHookServlet implements Servlet {
       subject.getPrincipals().add(new URIPrincipal(hreq.getRequestURI()));
     }
     Exception e = (Exception) Subject.doAs(subject,new ServletCall(req,res));
+   
     if (e != null) {
       if (e instanceof RuntimeException) {
         throw (RuntimeException) e;
@@ -78,6 +81,19 @@ public class SecureHookServlet implements Servlet {
       } else if (e instanceof ServletException) {
         throw (ServletException) e;
       }
+    }else if(req instanceof HttpServletRequest){
+    	//log successfull access to Resource
+    	String urlString = ((HttpServletRequest)req).getRequestURI();
+    	String agent = null;
+    	String servlet=null;
+    	if(urlString!=null){
+    		//trim leading /
+    		urlString = urlString.substring(1, urlString.length());
+    		agent=urlString.substring(urlString.indexOf("$")+1, urlString.indexOf("/"));
+    		servlet=urlString.substring(urlString.lastIndexOf("/")+1, urlString.length());
+    	}
+    	AuditLogger.logWebEvent((HttpServletRequest)req,servlet,agent);
+    	
     }
   }
 
