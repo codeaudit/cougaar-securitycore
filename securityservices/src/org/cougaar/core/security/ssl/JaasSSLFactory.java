@@ -184,7 +184,7 @@ public class JaasSSLFactory extends SSLSocketFactory {
         // create keymanager and trust manager
         UserKeyManager km = new UserKeyManager(_krs, _sb);
         List l = _dirKeystore.findPrivateKey(name);
-        if (l.isEmpty()) {
+        if (l == null || l.isEmpty()) {
           _log.info("Couldn't find private key for " + name + 
                     " when creating SSLSocketFactory");
 	  name = "-- no client certificate -- ";
@@ -199,7 +199,7 @@ public class JaasSSLFactory extends SSLSocketFactory {
 
 	  l = _dirKeystore.findCert(name, KeyRingService.LOOKUP_LDAP | 
 				    KeyRingService.LOOKUP_KEYSTORE);
-	  if (l.isEmpty()) {
+	  if (l == null || l.isEmpty()) {
 	    _log.warn("Couldn't find certificate for " + name + 
 		      " when creating SSLSocketFactory");
 	  } else {
