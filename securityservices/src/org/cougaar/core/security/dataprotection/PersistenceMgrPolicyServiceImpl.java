@@ -76,8 +76,6 @@ public class PersistenceMgrPolicyServiceImpl
   // list of persistence manager policies
   private List _policies;
   private List _agents;
-  // debug flag
-  private boolean _debug;
 
   // this is the uri of the persistence manager key recovery servlet
   private static String PM_SERVLET_URI = "/KeyRecoveryServlet";
@@ -104,7 +102,7 @@ public class PersistenceMgrPolicyServiceImpl
     _myCommunity = community;
     _policies = new ArrayList();
     _agents = new ArrayList();
-    _debug = _log.isDebugEnabled();
+    
     // default to every 2 mins (120 secs)
     long period = 120000;
     try {
@@ -171,7 +169,7 @@ public class PersistenceMgrPolicyServiceImpl
   }
 
   private void addPolicy(PersistenceManagerPolicy policy) {
-    if(_debug) {
+    if(_log.isDebugEnabled()) {
       _log.debug("adding PersistenceManagerPolicy: " + policy);
     }
     synchronized(_policies) {
@@ -237,7 +235,7 @@ public class PersistenceMgrPolicyServiceImpl
 	try {
 	  // look up the agent's info in the white pages
 	  entry = _wps.get(agent, WhitePagesUtil.WP_HTTP_TYPE);
-	  if(_debug) {
+	  if(_log.isDebugEnabled()) {
 	    _log.debug("address entry = " + entry);
 	  }
 	}
@@ -248,7 +246,7 @@ public class PersistenceMgrPolicyServiceImpl
 	  return;
 	}
 	if (entry == null) {
-	  if(_debug) {
+	  if(_log.isDebugEnabled()) {
 	    _log.debug("address entry is null for : " + agent);
 	  }
 	  return;
@@ -283,7 +281,7 @@ public class PersistenceMgrPolicyServiceImpl
     public void run() {
       // get a list of all security communities
       if(_cs == null || _wps == null) {
-        if(_debug) {
+        if(_log.isDebugEnabled()) {
           _log.debug("community service or white pages service is null!");
         }
         return;

@@ -131,7 +131,6 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
                        Classification.VENDOR_SPECIFIC);
 
   private final SensorInfo _analyzer = new CRResponder();
-  private boolean _debug = false;
 
   /**
    * The predicate indicating that we should retrieve all new
@@ -167,7 +166,6 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
 
   protected void setupSubscriptions() {
     super.setupSubscriptions();
-    _debug = _log.isDebugEnabled();
     _serviceBroker = (ServiceBroker)getServiceBroker();
     _keyRing = (KeyRingService)_serviceBroker.getService(this,
 			                                                   KeyRingService.class,
@@ -187,7 +185,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
    */
   protected void action(String culprit) throws Exception {
     String message = null;
-    if(_debug) {
+    if(_log.isDebugEnabled()) {
       _log.debug("revoking certificate of agent(" + culprit + ")");
     }
        // get the ca dn and the unique id of the agent's certificate
@@ -210,7 +208,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     while(certs.hasNext()) {
       CertificateStatus status = (CertificateStatus)certs.next();
       X509Certificate cert = status.getCertificate();
-      if(_debug) {
+      if(_log.isDebugEnabled()) {
         _log.debug("Found certificate dn = " + cert.getSubjectDN().getName());
       }
       X509Certificate []certChain = _keyRing.findCertChain(cert);
@@ -219,12 +217,12 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
         caDN = getCADN(certChain);
 
         if(caDN != null) {
-          if(_debug) {
+          if(_log.isDebugEnabled()) {
             _log.debug("CA DN: " + caDN);
           }
           // send request to RevokeCertificateServlet
           reply = sendRevokeCertRequest(culprit, caDN);
-          if(_debug) {
+          if(_log.isDebugEnabled()) {
             _log.debug("Revoke certificate request reply:\n" + reply);
           }
         }
@@ -251,7 +249,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     Source s = null;
     Agent sAgent = null;
 
-    if(_debug) {
+    if(_log.isDebugEnabled()) {
       _log.debug("publishing assessment: " + IdmefAssessments.CERTIFICATE_REVOKED);
     }
     // create source information for the IDMEF event
@@ -347,7 +345,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     // construct the revoke certificate servlet url
     revokeCertServletURL = caURL.substring(0, caURL.lastIndexOf('/')) +
       REVOKE_CERT_SERVLET_URI;
-    if(_debug) {
+    if(_log.isDebugEnabled()) {
       _log.debug("Sending revoke certificate request to: " + revokeCertServletURL);
     }
     try {
@@ -377,7 +375,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     }
     catch(Exception e) {
       _log.warn("Unable to send revoke certificate request to CA: " + e);
-      if(_debug) {
+      if(_log.isDebugEnabled()) {
         e.printStackTrace();
       }
       throw e;
@@ -511,7 +509,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       if(isSecurityManagerLocal(cs, community.getName(), agentName)) {
         // sensor is located in same agent as the enclave security manager
         // therefore we should publish the capabilities to local blackboard
-        if(_debug) {
+        if(_log.isDebugEnabled()) {
           _log.debug("Publishing sensor capabilities to local blackboard.");
         }
         bbs.publishAdd(regEvent);
@@ -523,7 +521,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
           AttributeBasedAddress.getAttributeBasedAddress(community.getName(),
 							 "Role", _managerRole);
         CmrRelay relay = _cmrFactory.newCmrRelay(regEvent, messageAddress);
-        if(_debug) {
+        if(_log.isDebugEnabled()) {
           _log.debug("Sending sensor capabilities to community '" +
                       community.getName() + "'" + ", role '" + _managerRole + "'.");
         }
@@ -560,7 +558,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
                 if(isSecurityManagerLocal(cs, community.getName(), agentName)) {
                   // sensor is located in same agent as the enclave security manager
                   // therefore we should publish the capabilities to local blackboard
-                  if(_debug) {
+                  if(_log.isDebugEnabled()) {
                     _log.debug("Publishing sensor capabilities to local blackboard.");
                   }
 		  bbs.openTransaction();
@@ -575,7 +573,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
                     AttributeBasedAddress.getAttributeBasedAddress(community.getName(),
                                                                    "Role", _managerRole);
                   CmrRelay relay = _cmrFactory.newCmrRelay(regEvent, messageAddress);
-                  if(_debug) {
+                  if(_log.isDebugEnabled()) {
                     _log.debug("Sending sensor capabilities to community '" +
                                 community.getName() + "'" + ", role '" + _managerRole + "'.");
                   }

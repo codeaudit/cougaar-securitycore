@@ -43,7 +43,7 @@ class SecureServiceProxy {
   SecurityContextService _scs;
   LoggingService _log;
   //Object _requestor;
-  boolean _debug = false;
+  
   public static final String EFFICIENT_PROPERTY = 
     "org.cougaar.core.security.access.efficientBBS";
   public static final boolean EFFICIENT = 
@@ -56,7 +56,6 @@ class SecureServiceProxy {
     _log = (LoggingService)
       sb.getService(this, LoggingService.class, null);  
 //    _requestor = requestor;
-    _debug = _log.isDebugEnabled();
   }
   // this method can be overwritten, but please ensure that super.releaseServices()
   // is called
@@ -88,7 +87,7 @@ class SecureServiceProxy {
         comp = ((RoleExecutionContext)ec).getComponent();
       }
       try {
-        if(_debug) {
+        if(_log.isDebugEnabled()) {
           _log.debug("checking query permission: [" + comp + ", " + object + "]");
         }
         _scs.setExecutionContext(ec);

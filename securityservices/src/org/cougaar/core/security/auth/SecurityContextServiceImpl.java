@@ -27,10 +27,10 @@ package org.cougaar.core.security.auth;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
 // security services imports
+import org.cougaar.core.security.acl.auth.URIPrincipal;
 import org.cougaar.core.security.auth.ExecutionPrincipal;
 import org.cougaar.core.security.services.auth.SecurityContextService;
 // java imports 
-import java.lang.reflect.Method;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.Principal;
@@ -52,16 +52,13 @@ public final class SecurityContextServiceImpl
   //private Object _requestor;
   // current mapping between an object and an security context stack
   private HashMap _contextMap = new HashMap();
-  // logging flags  
-  private boolean _debug = false;
   
   public SecurityContextServiceImpl(ServiceBroker sb) {
     _serviceBroker = sb;
     _log = (LoggingService)
       _serviceBroker.getService(this, LoggingService.class, null);
-    _debug = _log.isDebugEnabled();
   }
-  
+
   /**
    * Set the security context for the current thread.
    *
@@ -145,14 +142,14 @@ public final class SecurityContextServiceImpl
       // and keep the old security context 
       Stack es = (Stack)_contextMap.get(o);
       if(es == null) {
-        if(_debug) {
+        if(_log.isDebugEnabled()) {
           _log.debug("creating stack for " + o);
         }
         es = new Stack();
         _contextMap.put(o, es); 
       }
       es.push(context);
-      if(_debug) {
+      if(_log.isDebugEnabled()) {
         _log.debug("pushed (" + o + ", " + context + ") onto stack"); 
         _log.debug("stack size: " + es.size());
       }
@@ -165,7 +162,7 @@ public final class SecurityContextServiceImpl
       if(es != null) {
         try {
           context = (ExecutionContext)es.pop();
-          if(_debug) {
+          if(_log.isDebugEnabled()) {
             _log.debug("reset security context for: " +  o);
             _log.debug("stack size: " +  es.size());
           }
@@ -188,7 +185,7 @@ public final class SecurityContextServiceImpl
         }
       }
       catch(EmptyStackException ese) {
-        if(_debug) {
+        if(_log.isDebugEnabled()) {
           _log.debug("execution stack is empty for: " + o);
         }
       }
@@ -196,14 +193,14 @@ public final class SecurityContextServiceImpl
     // don't know if we should do this?
     // if we don't, it means that we get a null context, and will deny all request
     if(context == null) {
-      if(_debug) {
+      if(_log.isDebugEnabled()) {
         _log.debug("no security context for " + o + ", getting JAAS context.");
       }
       context = getExecutionContextFromJaas();  // obtain context from Jaas
       // return null if no ExecutionPrincipal in subject 
     }     
    
-    if(_debug) {
+    if(_log.isDebugEnabled()) {
       _log.debug("got security context (" + o + ", " + context + ")");
     }
     return context; 

@@ -153,7 +153,7 @@ class BlackboardServiceDelegate extends SecureServiceProxy
       SecurityManager sm = System.getSecurityManager();
       if(sm != null) {
         String className = getClassName(o);
-        if(_debug) {
+        if(_log.isDebugEnabled()) {
           _log.debug("checking permission for '" +
                      perm + "' on object " + className);
         }
