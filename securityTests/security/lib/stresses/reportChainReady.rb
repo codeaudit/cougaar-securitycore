@@ -14,7 +14,7 @@ class TestReportChainReady < SecurityStressFramework
     @run = run
     @expectedSubordinates = Hash.new
     @foundSubordinates    = Hash.new
-    @stressid = "ReportChainReady Detector"
+    @stressid = "ReportChainReady_Detector"
   end
 
   def getStressIds
@@ -74,12 +74,8 @@ class TestReportChainReady < SecurityStressFramework
         end 
       rescue => ex
 #        puts "error in afterReportChainReady"
-        logInfoMsg("error in afterReportChainReady")
-#        puts "#{e.class}: #{e.message}"
-        logInfoMsg("#{e.class}: #{e.message}")
-#        puts e.backtrace.join("\n")
-        logInfoMsg(e.backtrace.join("\n"))
-        saveAssertion stressid, "Exception = #{ex}\n #{ex.backtrace.join('\n')}"
+        logInfoMsg("error in afterReportChainReady #{ex} #{ex.backtrace.join("\n")}")
+        saveAssertion stressid, "Exception = #{ex}\n #{ex.backtrace.join("\n")}"
       end
     end
   end
