@@ -345,14 +345,6 @@ public class AuthServiceImpl
       return true;
     }
     ActionPermission ap = (ActionPermission) p;
-
-    int firstPolicyUpdateCounter = _guard.getPolicyUpdateCount();
-    if (ec.cachedIsAuthorized(p.getName(),
-                              p.getActions(),
-                              firstPolicyUpdateCounter)) {
-      return true;
-    }
-
     // get the classname of the object
     // e.g. org.cougaar.core.adaptivity.OperatingModeImpl
     String object     = p.getName();
@@ -362,12 +354,20 @@ public class AuthServiceImpl
     // e.g. add
     String actions [] = ap.getActionList();
 
-    if (_log.isDebugEnabled()) {
-        _log.debug("Actions = " + actions);
+
+    int firstPolicyUpdateCounter = _guard.getPolicyUpdateCount();
+    if (ec.cachedIsAuthorized(object,
+                              actions,
+                              firstPolicyUpdateCounter)) {
+      return true;
     }
+
     if (_log.isDebugEnabled()) {
-      _log.debug("authorize plugin(" + ec + ") for (" + actions + 
-                 ", " + object + ")");
+      _log.debug("authorize plugin(" + ec + ") for actions (");
+      for (int i = 0; i < actions.length; i++) { 
+        _log.debug(actions[i] + " ");
+      }
+      _log.debug(") and object " + object);
     }
     for (int i = 0; i < actions.length; i++) {
       String action = actions[i];
@@ -382,8 +382,8 @@ public class AuthServiceImpl
     }
     int secondPolicyUpdateCounter = _guard.getPolicyUpdateCount();
     if (firstPolicyUpdateCounter == secondPolicyUpdateCounter) {
-      ec.updateCachedAuthorization(ap.getName(), 
-                                   ap.getActions(),
+      ec.updateCachedAuthorization(object, 
+                                   actions,
                                    secondPolicyUpdateCounter);
     }
     return true;
