@@ -54,6 +54,11 @@ society.each_node do |node|
   if agentname != ""
     node.add_agent(agentname) do |agent|
       agent.add_facet({"catype" => role})
+      # The CA agent should not be restarted. Robustness of the PM
+      # is not supported by the standard robustness restart mechanism.
+      # This facet is used by the robustness manager
+      agent.add_facet({"Restartable" => 'false'})
+
       agent.add_component do |c|
 	c.classname = caServletComponentClass
 	c.add_argument(index)
