@@ -73,8 +73,26 @@ public class CertificateFinder
       try {
 	SearchResult result = (SearchResult)search_results.next();
 	LdapEntry entry = client.getLdapEntry(result.getName());
-	if(entry.getStatus().trim().equals("3"))continue;
-	
+	if (entry != null) {
+	  String status = entry.getStatus();
+	  if (status != null) {
+	    if(status.trim().equals("3"))continue;
+	  }
+	  else {
+	    if (debug) {
+	      System.out.println("CertificateFinder. Unable to get certificate status for"
+				 + commonName);
+	    }
+	    continue;
+	  }
+	}
+	else {
+	  if (debug) {
+	    System.out.println("CertificateFinder. Could not get LDAP entry for "
+			       + commonName);
+	  }
+	  continue;
+	}
 	certificate = entry.getCertificate();
 	//verify CA signiture
 	Principal issuer = certificate.getIssuerDN();

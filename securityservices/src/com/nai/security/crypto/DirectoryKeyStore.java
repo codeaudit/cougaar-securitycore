@@ -236,8 +236,10 @@ public class DirectoryKeyStore implements Runnable
        *   + the key was generated, but we couldn't get it signed from the CA
        */
     } catch (Exception e) {
-      System.err.println("Failed to get PrivateKey for \"" + commonName + "\": "+e);
-      e.printStackTrace();
+      if (debug) {
+	System.err.println("Failed to get PrivateKey for \"" + commonName + "\": "+e);
+	e.printStackTrace();
+      }
     }
     return pk;
   }
@@ -317,7 +319,9 @@ public class DirectoryKeyStore implements Runnable
 	    }
 	  }	
 	  else {
-	    System.err.println("Failed to get Certificate for " + commonName);
+	    if (debug) {
+	      System.err.println("Failed to get Certificate for " + commonName);
+	    }
 	  }
 	}
       }
@@ -335,8 +339,10 @@ public class DirectoryKeyStore implements Runnable
 	}
       }	
       else {
-	System.err.println("Failed to get Certificate for \""
-			   + commonName + "\": " + e);
+	if (debug) {
+	  System.err.println("Failed to get Certificate for \""
+			     + commonName + "\": " + e);
+	}
       }
     }
     return cert;

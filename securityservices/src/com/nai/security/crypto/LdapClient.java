@@ -151,8 +151,10 @@ public class LdapClient
       entry = (LdapEntry)context.lookup(name);
     }
     catch(Exception ex) {
-      if(debug)ex.printStackTrace();
-      System.out.print("Unable to fetch ldap entry for " + name);
+      if(debug) {
+	System.out.print("Unable to fetch ldap entry for " + name);
+	ex.printStackTrace();
+      }
     }
     return entry;
   }

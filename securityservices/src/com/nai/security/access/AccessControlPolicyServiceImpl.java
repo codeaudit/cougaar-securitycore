@@ -76,7 +76,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
         }
 
 	String db = System.getProperty("org.cougaar.message.transport.debug",
-				       "true");
+				       "false");
 	debug = (db.equalsIgnoreCase("true") || (db.indexOf("security")>=0));
     }
 
@@ -88,7 +88,9 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
         if(app!=null){
             pp.add(app);
             proxies.add(agent);
-            if(debug)System.out.println("Making proxy for agent " + agent);
+            if(debug) {
+	      System.out.println("Making proxy for agent " + agent);
+	    }
         }
         
         //if we need to add proxy, there is a good chance we need a new certificate too
@@ -305,8 +307,10 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 	if(policy == null)return;
         //whom is the policy for?
         if((policySubjectName!=agent) && (agent!="DEFAULT")) {
+	  if (debug) {
             System.out.println("policy not for:"+agent);
-            return;
+	  }
+	  return;
         }
         if(debug) System.out.println("--updating AccessPolicyProxy for:"+ agent);
         
