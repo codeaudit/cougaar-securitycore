@@ -8,32 +8,17 @@ rm -rf classes/*
 rm -rf test/doc/API/
 
 echo ' ++++++ Search and replace com.nai -> org/cougaar'
-# Java files
-find src -name '*.java' -exec sarep -m 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
-find src -name '*.java' -exec sarep -m 'com.nai.security.monitoring' 'org.cougaar.core.security.oldmonitoring' {} \;
-find src -name '*.java' -exec sarep -m 'com.nai.security' 'org.cougaar.core.security' {} \;
+# Files to modify:
+#  - Java files
+#  - Configuration files
+#  - Makefiles
+find src test ./Makefile* -exec sarep -m 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
+find src test ./Makefile* -exec sarep -m 'com.nai.security.monitoring' 'org.cougaar.core.security.oldmonitoring' {} \;
+find src test ./Makefile* -exec sarep -m 'com.nai.security' 'org.cougaar.core.security' {} \;
 
-find src -name '*.java' -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/core/security/securebootstrap' {} \;
-find src -name '*.java' -exec sarep 'com/nai/security/monitoring' 'org/cougaar/core/security/oldmonitoring' {} \;
-find src -name '*.java' -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
-
-# Configuration files
-find test -exec sarep -m 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
-find test -exec sarep -m 'com.nai.security.monitoring' 'org.cougaar.core.security.oldmonitoring' {} \;
-find test -exec sarep -m 'com.nai.security' 'org.cougaar.core.security' {} \;
-
-find test -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/core/security/securebootstrap' {} \;
-find test -exec sarep 'com/nai/security/monitoring' 'org/cougaar/core/security/oldmonitoring' {} \;
-find test -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
-
-# Makefiles
-find . -name 'Makefile*' -exec sarep -m 'com.nai.security.bootstrap' 'org.cougaar.core.security.securebootstrap' {} \;
-find . -name 'Makefile*' -exec sarep -m 'com.nai.security.monitoring' 'org.cougaar.core.security.oldmonitoring' {} \;
-find . -name 'Makefile*' -exec sarep -m 'com.nai.security' 'org.cougaar.core.security' {} \;
-
-find . -name 'Makefile*' -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/core/security/securebootstrap' {} \;
-find . -name 'Makefile*' -exec sarep 'com/nai/security/monitoring' 'org/cougaar/core/security/oldmonitoring' {} \;
-find . -name 'Makefile*' -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
+find src test ./Makefile* -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/core/security/securebootstrap' {} \;
+find src test ./Makefile* -exec sarep 'com/nai/security/monitoring' 'org/cougaar/core/security/oldmonitoring' {} \;
+find src test ./Makefile* -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
 
 echo '############################################'
 echo ' ++++++ Moving com directory to org/cougaar'
@@ -48,10 +33,13 @@ mv src/com/nai/security/bootstrap/ src/org/cougaar/core/security/securebootstrap
 mv src/com/nai/security/monitoring/ src/org/cougaar/core/security/oldmonitoring
 
 # Move com directory to org directory
-mv src/com/nai/security/ src/org/cougaar/core
+mv src/com/nai/security/* src/org/cougaar/core/security
 
 # Remove any remaining directory under com
 rm -rf src/com
+
+# Remove '.sarep filesA
+find . -name '*.sarep' -exec rm -f {} \;
 
 echo ' ++++++ Done'
 echo '############################################'
