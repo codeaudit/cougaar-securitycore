@@ -25,7 +25,7 @@
  */
 
 
-package org.cougaar.core.security.access;
+package org.cougaar.core.security.services.wp;
 
 
 import org.cougaar.core.component.BindingSite;
@@ -34,21 +34,19 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.node.NodeControlService;
-import org.cougaar.core.security.services.wp.WhitePagesProtectionService;
 import org.cougaar.core.security.services.wp.WhitePagesProtectionServiceImpl;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.wp.WhitePagesProtectionService;
 import org.cougaar.util.GenericStateModelAdapter;
 
 
 /**
- * Advertives the <code>WhitePagesProtectionService</code> in the root <code>ServiceBroker</code>
- * 
- * Add to each node using:
- * 
+ * Advertives the <code>WhitePagesProtectionService</code> in the root
+ * <code>ServiceBroker</code>  Add to each node using:
  * Node.AgentManager.Agent.WPProtect(HIGH) =
- *  	org.cougaar.core.security.access.WPProtectionComponent
- * 
+ * org.cougaar.core.security.access.WPProtectionComponent
+ *
  * @author mabrams
  */
 public class WPProtectionComponent extends GenericStateModelAdapter implements Component {
@@ -80,10 +78,11 @@ public class WPProtectionComponent extends GenericStateModelAdapter implements C
 
 
   /**
-   * Advertises the <code>WhitePagesProtectionService</code> in the root <code>ServiceBroker</code>
-   * since the WPServer can be configured to run in a regular agent instead of the NodeAgent.
-   * 
-   * @throws RuntimeException 
+   * Advertises the <code>WhitePagesProtectionService</code> in the root
+   * <code>ServiceBroker</code> since the WPServer can be configured to run in
+   * a regular agent instead of the NodeAgent.
+   *
+   * @throws RuntimeException
    */
   public void load() {
     super.load();
