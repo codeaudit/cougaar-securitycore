@@ -55,6 +55,12 @@ import edu.jhuapl.idmef.IDMEF_Message;
 import edu.jhuapl.idmef.IDMEF_Node;
 import edu.jhuapl.idmef.Source;
 import edu.jhuapl.idmef.Target;
+import edu.jhuapl.idmef.XMLUtils;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  *  Use the TraX interface to perform a transformation.
@@ -241,8 +247,22 @@ public class EventViewerServlet
       for(int i = 0 ; i < additionalData.length ; i++) {
         if (additionalData[i] != null) {
           value = value + additionalData[i].getType() + "/" +
-                     additionalData[i].getMeaning() + "/" +
-                     additionalData[i].getAdditionalData() + "<br/>";
+                     additionalData[i].getMeaning();
+          if (!AdditionalData.XML.equals(additionalData[i].getType())) {
+             value += "/" + additionalData[i].getAdditionalData() + "<br/>";
+          } else {
+             try {
+               DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+               DocumentBuilder builder = factory.newDocumentBuilder();
+               Document document = builder.newDocument();
+               additionalData[i].getXMLData().convertToXML(document);
+               value += XMLUtils.doc2String(document);
+             }
+             catch (Exception e) {
+               value += "Unable to retrieve XML data: " + e;
+               e.printStackTrace(out);
+             }
+          }
         }
       }
     }
