@@ -26,35 +26,23 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import javax.crypto.*;
-import java.security.*;
 import java.io.*;
-import java.util.*;
 
-// overlay
-import org.cougaar.core.service.*;
+public class DataProtectionDigestObject implements Serializable {
 
-// Security Services
-import org.cougaar.core.security.crypto.*;
+  byte [] digest;
+  int encryptedSize;
 
-/**
- * This key is to be put into storage by client.
- * It can be stored in plain text because all its important variables
- *  are protected.
- * - SecretKey is the actual secret key asymmEncrypt with agent key
- */
-public class DataProtectionKeyImpl extends ProtectedObject
-  implements DataProtectionKey {
-  private String digestAlgSpec;
-
-  public DataProtectionKeyImpl(SealedObject secretKey,
-      String digestAlg, SecureMethodParam policy) {
-    super(policy, secretKey);
-    digestAlgSpec = digestAlg;
+  public DataProtectionDigestObject(byte [] digest, int size) {
+    this.digest = digest;
+    encryptedSize = size;
   }
 
-  public String getDigestAlg() {
-    return digestAlgSpec;
+  public byte [] getDigest() {
+    return digest;
   }
 
+  public int getEncryptedSize() {
+    return encryptedSize;
+  }
 }

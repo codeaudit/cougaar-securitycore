@@ -120,7 +120,7 @@ public class DataProtectionServiceImpl
     }
     // check whether key needs to be replaced
 
-    return new DataProtectionOutputStream(os, dpKey, agent, serviceBroker);
+    return new DataProtectionOutputStream(os, pke, agent, serviceBroker);
   }
 
   private DataProtectionKey createDataProtectionKey(String agent)
@@ -136,6 +136,63 @@ public class DataProtectionServiceImpl
     SealedObject skeyobj = encryptionService.asymmEncrypt(agent,
       policy.asymmSpec, sk);
     return new DataProtectionKeyImpl(skeyobj, digestAlg, policy);
+  }
+
+  public void reprotectClient(DataProtectionServiceClient client, PrivateKey oldkey)
+    throws GeneralSecurityException
+  {
+    String agent = dpsClient.getAgentIdentifier().toAddress();
+    Iterator keys = client.iterator();
+    while (keys.hasNext()) {
+      try {
+        DataProtectionKeyEnvelope pke = (DataProtectionKeyEnvelope)
+          keys.next();
+
+        DataProtectionKeyImpl dpKey = (DataProtectionKeyImpl)pke.getDataProtectionKey();
+        if (dpKey == null)
+          continue;
+
+        String spec = dpKey.getSecureMethod().asymmSpec;
+
+        List keyList = null;
+        if (oldkey != null) {
+          keyList = new Vector();
+          keyList.add(oldkey);
+        }
+        else
+          keyList = keyRing.findPrivateKey(agent);
+        if (keyList == null || keyList.size() == 0)
+          throw new GeneralSecurityException("No private key available to decrypt");
+
+        Iterator it = keyList.iterator();
+        SecretKey skey = null;
+
+        SealedObject obj = (SealedObject)dpKey.getObject();
+        while (it.hasNext()) {
+          PrivateKey key = ((PrivateKeyCert)it.next()).getPrivateKey();
+          if(spec==null||spec=="")
+            spec=key.getAlgorithm();
+          try {
+            Cipher ci=Cipher.getInstance(spec);
+            ci.init(Cipher.DECRYPT_MODE, key);
+            skey = (SecretKey)obj.getObject(ci);
+          }
+          catch (Exception e) {
+            continue;
+          }
+        }
+
+        if (skey == null) {
+          // no key available to decrypt
+          continue;
+        }
+
+        obj = encryptionService.asymmEncrypt(agent, spec, skey);
+        pke.setDataProtectionKey(
+          new DataProtectionKeyImpl(obj, dpKey.getDigestAlg(), dpKey.getSecureMethod()));
+      } catch (IOException ioe) {
+      }
+    }
   }
 
   public InputStream getInputStream(DataProtectionKeyEnvelope pke,
@@ -154,7 +211,7 @@ public class DataProtectionServiceImpl
       throw new GeneralSecurityException("No DataProtectionKey found.");
     }
 
-    return new DataProtectionInputStream(is, dpKey, agent, serviceBroker);
+    return new DataProtectionInputStream(is, pke, agent, serviceBroker);
   }
 
   public void release() {

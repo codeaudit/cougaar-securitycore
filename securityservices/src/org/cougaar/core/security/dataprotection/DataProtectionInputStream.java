@@ -48,13 +48,18 @@ public class DataProtectionInputStream extends FilterInputStream {
   private ServiceBroker serviceBroker;
   private EncryptionService encryptionService;
 
-  private DataProtectionKeyImpl finalKey;
+  private DataProtectionKeyImpl dpKey;
   private String agent;
 
-  private InputStream plainStream;
+  private MessageDigest md = null;
+  private Cipher ci = null;
+  private SecureMethodParam policy = null;
+
+  private InputStream theis = null;
+  private static int skiplimit = 2000;
 
   public DataProtectionInputStream(InputStream is,
-    DataProtectionKey dpkey, String agent, ServiceBroker sb)
+    DataProtectionKeyEnvelope keyEnv, String agent, ServiceBroker sb)
     throws GeneralSecurityException, IOException {
     super(is);
 
@@ -72,62 +77,117 @@ public class DataProtectionInputStream extends FilterInputStream {
       serviceBroker.getService(this,
 			       LoggingService.class, null);
 
-    finalKey = (DataProtectionKeyImpl)dpkey;
+    dpKey = (DataProtectionKeyImpl)keyEnv.getDataProtectionKey();
+    policy = dpKey.getSecureMethod();
+
     this.agent = agent;
 
-    plainStream = processStream(is);
+    theis = processStream(is);
   }
 
   public int available()
     throws IOException
   {
-    return plainStream.available();
+    // for cipher stream this does not seem to be returning anything
+    return theis.available();
   }
 
   public int read()
     throws IOException
   {
-    return plainStream.read();
+    return read(new byte[1], 0, 1);
   }
 
   public void close()
     throws IOException
   {
     // clean up?
-    plainStream.close();
     super.close();
   }
 
   public void mark(int readlimit) {
-    plainStream.mark(readlimit);
+    theis.mark(readlimit);
   }
 
   public boolean markSupported() {
-    return plainStream.markSupported();
+    return theis.markSupported();
   }
 
   public long skip(long n)
     throws IOException
   {
-    return plainStream.skip(n);
+    // do not support skip if it is a cipher stream
+    long skiplen = 0L;
+    while (n > 0) {
+      int result = read(null, 0, skiplimit);
+      if (result == -1)
+        break;
+      n -= result;
+      skiplen += result;
+    }
+    return skiplen;
   }
 
   public void reset()
     throws IOException
   {
-    plainStream.reset();
+    theis.reset();
   }
 
   public int read(byte [] bytes)
     throws IOException
   {
-    return plainStream.read(bytes);
+    return read(bytes, 0, bytes.length);
   }
 
   public int read(byte [] bytes, int offset, int len)
     throws IOException
   {
-    return plainStream.read(bytes, offset, len);
+    // this function does not attempt to read all the len data
+    // but will read til the end of the current chunk, then
+    // the next read will handle the rest
+
+    int result = theis.read(bytes, offset, len);
+
+    // getting next chunk of data
+    if (result == -1) {
+      try {
+        theis.close();
+        theis = processStream(in);
+        if (theis == null) {
+          // create empty stream so that other calls won't
+          // get null pointer
+          theis = new ByteArrayInputStream(new byte[] {});
+          return -1;
+        }
+
+        result = theis.read(bytes, offset, len);
+      } catch (GeneralSecurityException gse) {
+        throw new IOException(gse.toString());
+      }
+    }
+
+    return result;
+  }
+
+  private void initStream()
+    throws GeneralSecurityException
+  {
+    md = MessageDigest.getInstance(dpKey.getDigestAlg());
+    if (policy.secureMethod == SecureMethodParam.ENCRYPT
+      || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+      // unprotect key
+      SecretKey skey = getSecretKey();
+      ci=Cipher.getInstance(policy.symmSpec);
+      ci.init(Cipher.DECRYPT_MODE,skey);
+    }
+  }
+
+  private SecretKey getSecretKey()
+    throws CertificateException
+  {
+    return (SecretKey)encryptionService.asymmDecrypt(agent,
+        policy.asymmSpec, (SealedObject)dpKey.getObject());
   }
 
   /**
@@ -145,166 +205,64 @@ public class DataProtectionInputStream extends FilterInputStream {
   private InputStream processStream(InputStream is)
     throws IOException, GeneralSecurityException
   {
-    MessageDigest md = null;
-    ByteArrayOutputStream plainbytes = new ByteArrayOutputStream();
-    ByteArrayOutputStream extrabytes = new ByteArrayOutputStream();
+    if (is.available() == 0)
+      return null;
+
+    initStream();
     byte [] rbytes = new byte[2000];
 
-    byte [] prefix = DataProtectionOutputStream.strPrefix.getBytes();
-    while (is.available() > 0) {
-      // get encrypted stream
-      InputStream encryptedStream = getEncryptedStream(is, extrabytes, prefix);
-      // get signed object
-      SignedObject sobj = getSignedObject(is, extrabytes);
+    /*
+    int read = is.read(rbytes, 0, DataProtectionOutputStream.strPrefix.length());
+    System.out.println("Read:" + new String(rbytes, 0, read));
+    */
 
-      // verify signed object
-      DataProtectionKeyImpl dpKey = null;
-      try {
-        dpKey = (DataProtectionKeyImpl)sobj.getObject();
-      } catch (Exception ex) {
-        throw new IOException("Cannot get object.");
+    DataProtectionDigestObject dobj = (DataProtectionDigestObject)getSignedObject(is);
+
+    int totalBytes = dobj.getEncryptedSize();
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+    while (totalBytes > 0) {
+      int result = (totalBytes > rbytes.length) ? rbytes.length : totalBytes;
+      result = is.read(rbytes, 0, result);
+
+      if (result == -1) {
+        throw new IOException("Unexpected end of file");
       }
-      SecureMethodParam policy = dpKey.getSecureMethod();
-      encryptionService.verify(agent, policy.signSpec, sobj);
-
-      // get digest stream
-      if (md == null)
-        md = MessageDigest.getInstance(dpKey.getDigestAlg());
-      DigestInputStream dis = new DigestInputStream(encryptedStream, md);
-      FilterInputStream theis = dis;
-
-      // decrypt stream
-      if (policy.secureMethod == SecureMethodParam.ENCRYPT
-        || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
-        // unprotect key
-        SecretKey skey = (SecretKey)encryptionService.asymmDecrypt(agent,
-          policy.asymmSpec, dpKey.getSecretKey());
-        Cipher ci=Cipher.getInstance(policy.symmSpec);
-        ci.init(Cipher.DECRYPT_MODE,skey);
-        theis = new CipherInputStream(theis, ci);
-      }
-      while (true) {
-        int result = theis.read(rbytes);
-        if (result == -1)
-          break;
-        plainbytes.write(rbytes, 0, result);
-      }
-
-      // update md and compare with encrypted stream digest
-      md = dis.getMessageDigest();
-      if (!MessageDigest.isEqual(md.digest(), dpKey.getDigest()))
-        throw new GeneralSecurityException("Digest does not match.");
+      totalBytes -= result;
+      bos.write(rbytes, 0, result);
     }
 
-    // update dpkey
-    //finalKey.setDigest(md.digest());
-    return new ByteArrayInputStream(plainbytes.toByteArray(), 0, plainbytes.size());
+    InputStream dis = new ByteArrayInputStream(bos.toByteArray());
+    if (ci != null)
+      dis = new CipherInputStream(dis, ci);
+    // get digest stream
+    dis = new DigestInputStream(dis, md);
+
+    /*
+    byte [] bout = bos.toByteArray();
+    return new ByteArrayInputStream(bout, 0, bout.length);
+    */
+    return dis;
   }
 
-  private SignedObject getSignedObject(InputStream is, ByteArrayOutputStream extrabytes)
-    throws IOException
+  private Object getSignedObject(InputStream is)
+    throws IOException, GeneralSecurityException
   {
-    encrypt = false;
-    byte [] postfix = DataProtectionOutputStream.strPostfix.getBytes();
-    InputStream sis = getEncryptedStream(is, extrabytes, postfix);
-    ObjectInputStream ois = new ObjectInputStream(sis);
-    SignedObject sobj = null;
+    // verify signed object
     try {
-      sobj = (SignedObject)ois.readObject();
-    } catch (Exception ex) {
-      throw new IOException("Cannot retrieve signed object");
+      ObjectInputStream ois = new ObjectInputStream(is);
+      SealedObject sealedObj = (SealedObject)ois.readObject();
+      //System.out.println("signedObject: " + sealedObj);
+      SecretKey skey = getSecretKey();
+      SignedObject sobj = (SignedObject)
+        encryptionService.symmDecrypt(skey, sealedObj);
+      Object obj = encryptionService.verify(agent, policy.signSpec, sobj);
+      if (obj == null)
+        throw new GeneralSecurityException("Cannot verify signature.");
+      return obj;
+    } catch (ClassNotFoundException ex) {
+      throw new IOException("Cannot retrieve object" + ex.toString());
     }
-    return sobj;
-  }
-
-  boolean encrypt = true;
-
-  private InputStream getEncryptedStream(InputStream is, ByteArrayOutputStream extrabytes, byte [] prefix)
-    throws IOException
-  {
-    // array to read bytes
-    byte [] rbytes = new byte[2000];
-    // array to hold bytes read
-    ByteArrayOutputStream barray = new ByteArrayOutputStream();
-
-    // get the extra bytes
-    byte [] exbytes = extrabytes.toByteArray();
-    for (int i = 0; i < exbytes.length; i++)
-      rbytes[i] = exbytes[i];
-
-    // result of the current read, num of bytes read or -1 if failed
-    int result = exbytes.length;
-
-    int carryover = 0;
-    while (true) {
-      if (carryover != 0) {
-        int limit = prefix.length - carryover;
-        int j = 0;
-        for (; j < limit; j++) {
-          if (prefix[j + carryover] != rbytes[j])
-            break;
-        }
-        if (j != limit) {
-          extrabytes.write(rbytes, limit, result - limit);
-          break;
-        }
-        else {
-          // dont lose those carryover bytes
-          barray.write(prefix, 0, carryover);
-        }
-      }
-
-      // read the signature
-      int sstart = findSignature(rbytes, 0, result, prefix);
-      carryover = 0;
-      if (sstart != -1) {
-        int sgap = result - sstart;
-        // handle boundary condition
-        if (sgap < prefix.length)
-          carryover = prefix.length - sgap;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        bos.write(rbytes, sstart, (carryover == 0) ? prefix.length : sgap);
-        //System.out.println("signature: " + new String(bos.toByteArray()));
-      }
-      //System.out.println("read: " + result + " : " + sstart + " : " + carryover);
-
-      barray.write(rbytes, 0, ((sstart == -1) ? result : sstart));
-
-      if (sstart != -1 && carryover == 0) {
-        extrabytes.reset();
-        int offset = sstart + prefix.length;
-        extrabytes.write(rbytes, offset, result - offset);
-        break;
-      }
-
-      result = is.read(rbytes);
-      if (result == -1)
-        throw new IOException("Unexpected end of file for encrypted stream.");
-    }
-
-    // pack up the stream and return
-
-    return new ByteArrayInputStream(barray.toByteArray(), 0, barray.size());
-  }
-
-  private int findSignature(byte [] rbytes, int start, int end, byte [] signature) {
-    for (int i = start; i < end; i++) {
-      if (rbytes[i] != signature[0])
-        continue;
-
-      // check array out of bounce
-      int limit = end - i;
-      if (limit > signature.length)
-        limit = signature.length;
-      int j = 1;
-      for (; j < limit; j++)
-        if (signature[j] != rbytes[i + j])
-          break;
-
-      if (j == limit)
-        return i;
-    }
-    return -1;
   }
 
   public static String testFileName;
