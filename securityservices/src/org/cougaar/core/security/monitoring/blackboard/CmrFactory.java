@@ -39,7 +39,7 @@ import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 
 public class CmrFactory
-  implements Factory
+implements Factory
 {
   protected MessageAddress selfClusterId;
   protected UIDServer myUIDServer;
@@ -80,15 +80,19 @@ public class CmrFactory
 
   public NewEvent newEvent(IDMEF_Message aMessage) {
     return new EventImpl(getNextUID(),
-        selfClusterId,
-        aMessage);
+                         selfClusterId,
+                         aMessage);
+  }
+  
+  public ConsolidatedEvent newConsolidatedEvent(UID parentUID,MessageAddress source,IDMEF_Message aMessage) {
+    return new ConsolidatedEventImpl(parentUID,source,aMessage);
   }
  
   public NewEventTransfer newEventTransfer(Event event,
-      Asset target) {
+                                           Asset target) {
     return new EventTransferImpl(getNextUID(),
-        target,
-        event);
+                                 target,
+                                 event);
   }
   public IdmefMessageFactory getIdmefMessageFactory(){
     return idmefmessagefactory;
@@ -110,11 +114,40 @@ public class CmrFactory
    * @param wantDetails 
    * @param dest     The target of the query
    */
-  public CmrRelay newDrillDownQueryRelay(AggregationQuery query,
+  /*
+    This method is currently commented as there is a bug in the Agg Query mechanism 
+    till then we will use the following method
+    public CmrRelay newDrillDownQueryRelay(String query,
+    AggregationType aggType,
+    boolean wantDetails,
+    MessageAddress dest)
+
+    public CmrRelay newDrillDownQueryRelay(AggregationQuery query,
+    AggregationType aggType,
+    boolean wantDetails,
+    MessageAddress dest) {
+    AggregationDrillDownQuery aggquery=new AggregationDrillDownQuery(query ,aggType);
+    CmrRelay relay = new CmrRelay(getNextUID(), selfClusterId, dest, aggquery, null);
+    return relay;
+    
+    }
+  */
+  public CmrRelay newDrillDownQueryRelay(UID originatorUID,String query,
 					 AggregationType aggType,
 					 boolean wantDetails,
 					 MessageAddress dest) {
-    CmrRelay relay = null;
+    AggregationDrillDownQuery aggquery=new AggregationDrillDownQuery(originatorUID,query ,aggType);
+    CmrRelay relay = new CmrRelay(getNextUID(), selfClusterId, dest, aggquery, null);
     return relay;
+    
+  }
+  public CmrRelay newDrillDownQueryRelay(String query,
+					 AggregationType aggType,
+					 boolean wantDetails,
+					 MessageAddress dest) {
+    AggregationDrillDownQuery aggquery=new AggregationDrillDownQuery(query ,aggType);
+    CmrRelay relay = new CmrRelay(getNextUID(), selfClusterId, dest, aggquery, null);
+    return relay;
+    
   }
 }
