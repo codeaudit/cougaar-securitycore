@@ -39,7 +39,7 @@ module Cougaar
           signingKeystore="#{cip}/operator/security/signingCA_keystore"
           f1 = "#{directory}/#{fileName}"
           cmd = "jarsigner -keystore #{PathUtility.fixPath(signingKeystore)} -storepass keystore #{PathUtility.fixPath(f1)} privileged"
-          #puts cmd
+          #puts "Signing JAR file: #{cmd}"
           system(cmd)
           #File.rename(fileName, "#{directory}
 

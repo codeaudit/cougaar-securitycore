@@ -71,7 +71,9 @@ def createJar(contents_file, jar_file, jar_dir = nil)
   else
     arg = ""
   end
-  `jar cf #{PathUtility.fixPath(jar_file)} #{arg} #{PathUtility.fixPath(contents_file)}`
+  cmd = "jar cf #{PathUtility.fixPath(jar_file)} #{arg} -C #{PathUtility.fixPath(contents_file)} \\."
+  #puts "Invoking #{cmd}"
+  system(cmd)
   jar_file
 end
 
@@ -121,7 +123,9 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
   #puts "replacing #{replacementFile} in #{jarFile}"
   jarDir = "#{Dir::tmpdir}/jarDir-#{File.basename(jarFile)}"
   Dir.mkdirs(jarDir)
-  files = `jar tf #{PathUtility.fixPath(jarFile)}`.split
+  cmd = "jar tf #{PathUtility.fixPath(jarFile)}"
+  #puts "Invoking #{cmd}"
+  files = `#{cmd}`.split
   baseFilename = File.basename(replacementFile)
   targetFile = nil
   files.each { |file|
@@ -133,21 +137,27 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
 #  puts "========================"
   if targetFile != nil
     #puts "found file: #{targetFile}"
-    `cd #{PathUtility.fixPath(jarDir)} && jar xf #{PathUtility.fixPath(jarFile)} #{PathUtility.fixPath(targetFile)} 2&>1`
+    cmd = "cd #{PathUtility.fixPath(jarDir)} && jar xf #{PathUtility.fixPath(jarFile)} #{PathUtility.fixPath(targetFile)} 2&>1"
+    #puts "Invoking #{cmd}"
+    `#{cmd}`
   else
 #    puts "the file wasn't found, so using #{baseFilename}"
     targetFile = baseFilename
   end
   option = "uf"
   if (keepManifest)
-    `cd #{PathUtility.fixPath(jarDir)} && jar xf #{PathUtility.fixPath(jarFile)} META-INF/MANIFEST.MF 2&>1`
+    cmd = "cd #{PathUtility.fixPath(jarDir)} && jar xf #{PathUtility.fixPath(jarFile)} META-INF/MANIFEST.MF 2&>1"
+    #puts "Invoking #{cmd}"
+    `#{cmd}`
 #    puts `ls -l #{jarDir}/META-INF/MANIFEST.MF`
     option = "umf #{PathUtility.fixPath(jarDir)}/META-INF/MANIFEST.MF"
   end
 #  puts "Copying #{replacementFile} to #{File.join(jarDir, targetFile)}"
   File.cp(replacementFile, File.join(jarDir, targetFile) )
 #  puts "jar #{option} #{jarFile} -C #{jarDir} #{targetFile}"
-  results = `jar #{option} #{PathUtility.fixPath(jarFile)} -C #{PathUtility.fixPath(jarDir)} #{PathUtility.fixPath(targetFile)} 2&>1`
+  cmd = "jar #{option} #{PathUtility.fixPath(jarFile)} -C #{PathUtility.fixPath(jarDir)} #{PathUtility.fixPath(targetFile)} 2&>1"
+  #puts "Invoking #{cmd}"
+  results = `#{cmd}`
 #  puts "result from jar: #{results}"
 #  puts "========================"
   File.rm_all(jarDir)
@@ -189,11 +199,13 @@ def rebuildTempDir()
 
   if ($tmpFilesDeleted) then
     if ($jarCreated) then                     # get them from the latest jar file
-#      puts "cd #{$jarDir} && jar xvf #{$jarFile}"
-      `cd #{PathUtility.fixPath($jarDir)} && jar xvf #{PathUtility.fixPath($jarFile)}`
+      cmd = "cd #{PathUtility.fixPath($jarDir)} && jar xvf #{PathUtility.fixPath($jarFile)}"
+      #puts "Invoking #{cmd}"
+      `#{cmd}`
     else                                      # get them from the reference file
-#      puts "cd #{$jarDir} && jar xvf #{$referenceJarFile}"
-      `cd #{PathUtility.fixPath($jarDir)} && jar xvf #{PathUtility.fixPath($jarFile)}`
+      cmd = "cd #{PathUtility.fixPath($jarDir)} && jar xvf #{PathUtility.fixPath($jarFile)}"
+      #puts "Invoking #{cmd}"
+      `#{cmd}`
     end
   end
   $tmpFilesDeleted = false
@@ -228,8 +240,9 @@ def commitConfigChanges()
     return nil
   end
   rebuildTempDir()
-  #puts "cd #{$jarDir} && jar cf #{$jarFile} ."
-  `cd #{PathUtility.fixPath($jarDir)} && jar cf #{PathUtility.fixPath($jarFile)} .`
+  cmd = "jar cf #{PathUtility.fixPath($jarFile)} -C #{PathUtility.fixPath($jarDir)} \\."
+  #puts "Invoking: #{cmd}"
+  `#{cmd}`
   $jarCreated=true
 
   #puts "Signing JAR file: #{$jarFile}"

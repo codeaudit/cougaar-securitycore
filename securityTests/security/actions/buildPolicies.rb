@@ -60,7 +60,7 @@ module Cougaar
         rescue
           # its ok - problems on the next one aren't.
         end
-        result = `cd #{PathUtility.fixPath(@stagingdir)} && jar cf #{PathUtility.fixPath(jarFile)} .`
+        result = `jar cf #{PathUtility.fixPath(jarFile)} -C #{PathUtility.fixPath(@stagingdir)} \\.`
          #puts "result of jar = #{result}"
         result = `jarsigner -keystore #{PathUtility.fixPath(signingKeystore)} -storepass keystore #{PathUtility.fixPath(jarFile)} privileged`
          #puts "result of jarsigner = #{result}"

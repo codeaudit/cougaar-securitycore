@@ -62,14 +62,16 @@ module Cougaar
         rescue
           # its ok - problems on the next one aren't.
         end
-        result = `cd #{PathUtility.fixPath(@stagingdir)} && jar cf #{PathUtility.fixPath(jarFile)} .`
-        # puts "result of jar = #{result}"
+        cmd = "jar -cf #{PathUtility.fixPath(jarFile)} -C #{PathUtility.fixPath(@stagingdir)} \\."
+        #puts "Jar user file: #{cmd}"
+        result = system(cmd)
+        #puts "result of jar = #{result}"
         result = `jarsigner -keystore #{PathUtility.fixPath(signingKeystore)} -storepass keystore #{PathUtility.fixPath(jarFile)} privileged`
         # puts "result of jarsigner = #{result}"
       end # def packageAndSignJar
 
       def deleteStagingDir
-        `rm -rf #{@stagingdir}`
+        #`rm -rf #{@stagingdir}`
       end # def deleteStagingDir
 
     end

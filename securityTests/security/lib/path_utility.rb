@@ -21,7 +21,7 @@ class PathUtility
   def PathUtility.fixPath(arg)
     PathUtility.init
     if @@isWindows
-      arg = `cygpath -wl #{arg}`.strip
+      arg = `cygpath -w #{arg}`.strip
       #puts "Converted: #{arg}"
     end
     arg
