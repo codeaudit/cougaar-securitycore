@@ -1,3 +1,2 @@
-#!/bin/sh
-ls -al
-echo "This is a bad configuration file" > "temp-`date +%b-%d-%X`" 
+
+./echo_client localhost $RET $EGG

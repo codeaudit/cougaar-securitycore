@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
   struct hostent *he;
   struct sockaddr_in their_addr; // connector's address information 
 
-  if (argc != 3) {
-    fprintf(stderr,"usage: echo_client hostname string\n");
+  if (argc != 4) {
+    fprintf(stderr,"usage: echo_client hostname echo_string environment_string\n");
     exit(1);
   }
 
@@ -50,7 +50,27 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
-  if (send(sockfd, argv[2], strlen(argv[2]), 0) == -1)
+  char * buf1 = argv[2];
+  int buf1len = strlen(buf1);
+  uint32_t length = htonl(buf1len);
+  // Send length
+  if (send(sockfd, (char*) &length, sizeof(length), 0) == -1)
+    perror("send");
+
+  // Send string
+  printf("Sending %d bytes\n", buf1len);
+  if (send(sockfd, buf1, buf1len, 0) == -1)
+    perror("send");
+
+  char * buf2 = argv[3];
+  int buf2len = strlen(buf2);
+  length = htonl(buf2len);
+  // Send length
+  if (send(sockfd, (char*) &length, sizeof(length), 0) == -1)
+    perror("send");
+
+  printf("Sending %d bytes\n", buf2len);
+  if (send(sockfd, buf2, buf2len, 0) == -1)
     perror("send");
 
   if ((numbytes=recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {

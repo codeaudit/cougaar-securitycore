@@ -53,10 +53,11 @@ int main(void)
   struct sigaction sa;
   int yes=1;
 
-  char buf[MAX_BUF];
+  char buf1[MAX_BUF];
+  char buf2[MAX_BUF];
   int length = 0;
 
-  char smallbuf[SMALL_BUF];
+  char cmd[MAX_BUF];
 
   if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     perror("socket");
@@ -102,18 +103,68 @@ int main(void)
     if (!fork()) { // this is the child process
       close(sockfd); // child doesn't need the listener
 
-      if ((length = recv(new_fd, buf, MAX_BUF, 0)) == -1) {
+      // Receive length of first packet
+      uint32_t packet_length = 0;
+      if ((length = recv(new_fd, (char*) &packet_length, sizeof(packet_length), 0))
+	  != sizeof(packet_length)) {
+	perror("receive length");
+	exit(0);
+      }
+
+      printf("server: got connection from %s - Going to read %d bytes\n",
+	     inet_ntoa(their_addr.sin_addr), ntohl(packet_length));
+      // Receive first packet. In the exploit, this will contain
+      // The NOPs and RET values
+      if ((length = recv(new_fd, buf1, ntohl(packet_length), 0)) !=
+	  ntohl(packet_length)) {
 	perror("receive");
 	exit(0);
       }
-      printf("server: got connection from %s - Received %d bytes\n",
-	     inet_ntoa(their_addr.sin_addr), length);
+      printf("server: Read %d bytes - strlen=%d\n",
+	     length, strlen(buf1));
 
-      strcpy(smallbuf, buf);
+      // Receive length of second packet
+      if ((length = recv(new_fd, (char*) &packet_length, sizeof(packet_length), 0))
+	  != sizeof(packet_length)) {
+	perror("receive length");
+	exit(0);
+      }
+      printf("server: Going to read %d bytes\n",
+	     ntohl(packet_length));
+     // Receive second packet. In the exploit, this will contain
+      // the exploit code.
+      if ((length = recv(new_fd, buf2, ntohl(packet_length), 0)) !=
+	  ntohl(packet_length)) {
+	perror("receive");
+	exit(0);
+      }
+      printf("server: Read %d bytes - strlen=%d\n",
+	     length, strlen(buf2));
 
-      if (send(new_fd, buf, length, 0) == -1)
+      if (send(new_fd, buf1, length, 0) == -1)
 	perror("send");
       close(new_fd);
+
+      // Invoke vulnerable program
+      char *program = "./vulnerable";
+
+      /*
+      char * environment[] = { buf2, NULL };
+
+      printf("Calling vulnerable program.\n");
+      int ret = execle(program,
+		       "vulnerable", buf1, "< remote_attack_script.sh", NULL,
+		       environment);
+
+      */
+      strcpy(cmd, "./invoke_vulnerable.sh ");
+      strcat(cmd, buf1);
+      strcat(cmd, " ");
+      strcat(cmd, buf2);
+      printf("%s\n", cmd);
+      int ret = system(cmd);
+
+      printf("Called vulnerable program. Status code: %d\n", ret);
       exit(0);
     }
     close(new_fd);  // parent doesn't need this
