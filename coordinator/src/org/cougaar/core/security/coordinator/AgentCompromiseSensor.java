@@ -146,7 +146,8 @@ public class AgentCompromiseSensor extends ComponentPlugin
           setupRole(agents);
         }
       };
-      _csu.getCommunityAgent(CommunityServiceUtil.MONITORING_SECURITY_COMMUNITY_TYPE, 
+//      _csu.getCommunityAgent(CommunityServiceUtil.MONITORING_SECURITY_COMMUNITY_TYPE, 
+      _csu.getCommunityAgent(CommunityServiceUtil.ROBUSTNESS_COMMUNITY_TYPE, 
         CommunityServiceUtil.MEMBER_ROLE, csu, true);
     }
 
