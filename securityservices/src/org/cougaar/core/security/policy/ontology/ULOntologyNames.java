@@ -24,6 +24,8 @@
  */ 
 package org.cougaar.core.security.policy.ontology;
 
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+
 public class ULOntologyNames
 {
   public static String agentPrefix = "urn:Agent#";
@@ -45,4 +47,8 @@ public class ULOntologyNames
     = "http://ontology.ihmc.us/Ultralog/BlackboardObject#";
 
   public static String communityPrefix = "urn:Community#";
+
+  // fix this...
+  public static String cipherPrefix
+    = EntityInstancesConcepts.EntityInstancesOwlURL();
 }
