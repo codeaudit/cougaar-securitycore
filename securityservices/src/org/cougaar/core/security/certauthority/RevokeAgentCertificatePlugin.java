@@ -185,7 +185,13 @@ public class RevokeAgentCertificatePlugin extends ComponentPlugin {
   	  			if(logging.isDebugEnabled()){
   	  				logging.debug("Revoking agent cert:" + agentName);
   	  			}
-				keymanagement.revokeAgentCertificate(caDn, agentName);
+  	  			try{
+					keymanagement.revokeAgentCertificate(caDn, agentName);
+  	  			}catch(Exception e){
+  	  				if(logging.isErrorEnabled()){
+  	  					logging.error("Error revoking agent cert",e);
+  	  				}
+  	  			}
   	  	
   	  }
   }
