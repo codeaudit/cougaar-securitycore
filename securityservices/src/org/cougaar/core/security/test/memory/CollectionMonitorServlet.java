@@ -24,7 +24,9 @@ import org.cougaar.core.servlet.BaseServletComponent;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.CharArrayWriter;
+import java.io.ByteArrayOutputStream;
 import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.singleton.CollectionMonitorStats;
 import java.util.singleton.CollectionMonitorStatsImpl;
@@ -38,6 +40,8 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.beans.XMLEncoder;
+
 public class CollectionMonitorServlet 
 extends BaseServletComponent 
 {
@@ -47,18 +51,25 @@ extends BaseServletComponent
   private CollectionMonitorStats _stats;
   private EntityStats _entityStats;
 
-  // Values of servlet parameters
+  // Names of servlet parameters
+  private static final String REQ_GET_REQUEST_TYPE = "req";
+
+  // Values for REQ_GET_REQUEST_TYPE
+  private static final String REQ_VIEW_OBJECT = "viewObject";
   private static final String REQ_TYPE_AGENT = "agent";
   private static final String REQ_TYPE_COMPONENT = "component";
   private static final String REQ_TYPE_GLOBAL = "global";
 
-  // Names of servlet parameters
-  private static final String REQ_GET_REQUEST_TYPE = "req";
+  // Name of other servlet parameters
   private static final String REQ_ROWS = "Rows";
   private static final String REQ_LINES = "Lines";
   private static final String REQ_AGENT_NAME = "agent";
   private static final String REQ_COMPONENT_NAME = "component";
   private static final String REQ_COLLECTION = "collection";
+  private static final String REQ_OBJECT_REF = "objectMap";
+
+  // Session attribute names
+  private static final String REQ_OBJECT_MAP = "objectRef";
 
   private static final int DEFAULT_ROWS = 20;
   private static final int DEFAULT_LINES = 3;
@@ -125,7 +136,7 @@ extends BaseServletComponent
       }
       else {
 	printDetailedStats(out, rows, lines, collectionType,
-			   queryType, agentName);
+			   queryType, agentName, req);
       }
       out.println("</body></html>");
       out.flush();
@@ -147,13 +158,13 @@ extends BaseServletComponent
     private void printDetailedStats(PrintWriter out,
 				    int rows, int lines,
 				    String collectionType,
-				    int queryType,
-				    String agentName) {
+				    int queryType, String agentName,
+				    HttpServletRequest req) {
       try {
 	out.println("<table align=\"center\" border=\"2\">");
 
 	printElementsStats(out, rows, lines, collectionType,
-			   queryType, agentName);
+			   queryType, agentName, req);
 	out.println("</table>");
 
       }
@@ -208,7 +219,7 @@ extends BaseServletComponent
 	  agentName = null;
 	}
 	printDetailedStats(out, rows, lines, collectionType,
-			   EntityStats.QUERY_AGENT, agentName);
+			   EntityStats.QUERY_AGENT, agentName, req);
       }
     }
 
@@ -432,7 +443,11 @@ extends BaseServletComponent
 	}
 	else if (requestType != null &&
 		 requestType.equals(REQ_TYPE_COMPONENT)) {
-	    printComponentStats(out, req);
+	  printComponentStats(out, req);
+	}
+	else if (requestType != null &&
+		 requestType.equals(REQ_VIEW_OBJECT)) {
+	  displayObjectContent(out, req);
 	}
 	else {
 	  printGlobalStats(out, req);
@@ -448,12 +463,66 @@ extends BaseServletComponent
       out.close();
     }
 
+    public void displayObjectContent(PrintWriter out,
+				     HttpServletRequest req) {
+      HttpSession hsession = req.getSession();
+      if (hsession == null) {
+	out.println("Error: cannot find HttpSession");
+	return;
+      }
+      Map objectreferences = (Map) hsession.getAttribute(REQ_OBJECT_MAP);
+      if (objectreferences == null) {
+	out.println("Error: cannot find Map of object references");
+	return;
+      }
+      String objectHash = req.getParameter(REQ_OBJECT_REF);
+      if (objectHash == null) {
+	out.println("Error: should provide object hash");
+	return;
+      }
+      Reference o = (WeakReference) objectreferences.get(objectHash);
+      if (o != null) {
+	Object referent = o.get();
+	if (referent == null) {
+	  out.println("Object has been reclaimed");
+	  return;
+	}
+	out.println("Object " +
+		    Integer.toHexString(referent.hashCode())
+		    + " - Class: " + referent.getClass().getName()
+		    + "<br/>");
+	/*
+	ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	XMLEncoder encoder = new XMLEncoder(bos);
+	encoder.writeObject(referent);
+	encoder.close();
+	try {
+	  out.println(bos.toString("UTF-8") + "<br/>");
+	}
+	catch (java.io.UnsupportedEncodingException ex) {
+	  out.println("Unsupported encoding<br/>");
+	}
+	try {
+	  bos.close();
+	}
+	catch (IOException e) {}
+	*/
+	String s = referent.toString();
+	s.replaceAll("\n", "<br/>");
+
+	out.println("Object.toString():<br/>" + s);
+      }
+      else {
+ 	out.println("Cannot find object with hash: " + objectHash);
+      }
+    }
+
     /**
      */
     public void printElementsStats(PrintWriter out, int rows,
 				   int lines, String collectionType,
-				   int queryType,
-				   String agentName) {
+				   int queryType, String agentName,
+				   HttpServletRequest req) {
 
       EntityStats es = _entityStats.getEntityStats(collectionType);
       List l = null;
@@ -472,6 +541,10 @@ extends BaseServletComponent
       out.println("</tr>");
 
       if (l != null) {
+	HttpSession hsession = req.getSession();
+	Map objectreferences = new HashMap();
+	hsession.setAttribute(REQ_OBJECT_MAP, objectreferences);
+
 	Iterator it = l.iterator();
 	while (it.hasNext()) {
 	  Map.Entry s = (Map.Entry) it.next();
@@ -493,7 +566,13 @@ extends BaseServletComponent
 		      ste[i].getFileName() + ":" +
 		      ste[i].getLineNumber() + ")");
 	    if (i == LINES_TO_SKIP) {
-	      out.print("<b>" + Integer.toHexString(o.hashCode()) + "</b>");
+	      objectreferences.put(Integer.toHexString(o.hashCode()),
+				   new WeakReference(o));
+	      out.println("  -   <a href=\"" + req.getRequestURI()
+			  + "?" + REQ_GET_REQUEST_TYPE + "=" + REQ_VIEW_OBJECT
+			  + "&" + REQ_OBJECT_REF + "=" + Integer.toHexString(o.hashCode())
+			  + "\"><b>" + Integer.toHexString(o.hashCode())
+			  + "</b></a>");
 	    }
 	    out.print("<br/>");
 	  }
