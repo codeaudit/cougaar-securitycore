@@ -277,7 +277,7 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
         try {
           x500name = new X500Name((String)o);
           if (cname.equals(x500name.getCommonName())) {
-            allAgents.add((List)v);
+            allAgents.addAll((List)v);
           }
         } catch (IOException iox) {}
       }
