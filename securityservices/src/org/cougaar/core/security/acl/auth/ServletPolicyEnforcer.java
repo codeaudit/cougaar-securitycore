@@ -367,7 +367,10 @@ public class ServletPolicyEnforcer
         constraint.addCollection(sc);
         constraints.add(constraint);
       }
-      setAuthConstraints(authConstraints,starAuthConstraints);
+      if (!roles.contains("*")) {
+        // anyone can login to these, so don't make a constraint
+        setAuthConstraints(authConstraints,starAuthConstraints);
+      }
       setSecurityConstraints(constraints,roles);
     }
   }
