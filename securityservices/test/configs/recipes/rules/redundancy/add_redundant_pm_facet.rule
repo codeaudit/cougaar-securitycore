@@ -4,10 +4,13 @@
 
 society.each_node do |node|
   node.each_facet(:role) do |facet|
-    if facet[:role] == 'RedundantPersistenceManager'
+    if facet[:role] == 'CertificateAuthority'
       pmhost = node.host
-      pmhost.add_node("REDUNDANT-#{node.name}") do |redundant_node|
-        redundant_node.add_facet("role" => "Redundant#{facet[:role]}")
+      facetval = node.host.get_facet(:enclave)
+      pmnodeName = "REDUNDANT-#{facetval}-PM-NODE"
+
+      pmhost.add_node(pmnodeName) do |redundant_node|
+        redundant_node.add_facet("role" => "RedundantPersistenceManager")
       end
     end
   end
