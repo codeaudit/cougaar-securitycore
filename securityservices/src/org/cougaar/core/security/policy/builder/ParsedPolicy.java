@@ -262,7 +262,9 @@ public abstract class ParsedPolicy
         for (Iterator instanceIt = instances.iterator();
              instanceIt.hasNext(); ) {
           String instance = (String) instanceIt.next();
-          _controls.addPropertyRangeInstance(target.getProperty(), instance);
+          _controls.addPropertyRangeInstance(target.getProperty(), 
+                                             instance,
+                                             target.getRestrictionType());
         }
       } else {
         _controls.setPropertyRangeClass(target.getProperty(), 
