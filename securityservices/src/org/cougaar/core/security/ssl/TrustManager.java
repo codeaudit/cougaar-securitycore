@@ -27,6 +27,7 @@ package org.cougaar.core.security.ssl;
 
 import org.cougaar.core.security.crypto.CertificateRevokedException;
 import java.security.cert.CertificateExpiredException;
+import org.cougaar.core.security.crypto.CertificateChainException;
 import sun.security.x509.X500Name;
 
 import org.cougaar.core.component.ServiceBroker;
@@ -223,6 +224,9 @@ public class TrustManager implements X509TrustManager {
       }
       else if (e instanceof CertificateExpiredException) {
         event("CertificateExpired", chain[0].getSubjectDN().getName());
+      }
+      else if (e instanceof CertificateChainException) {
+        event("CertificateChainUntrusted", chain[0].getSubjectDN().getName());
       }
 
       throw new CertificateException("Failed to build chain.");
