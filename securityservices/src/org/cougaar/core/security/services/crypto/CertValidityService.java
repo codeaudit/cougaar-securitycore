@@ -44,5 +44,8 @@ public interface CertValidityService extends Service {
 // only listens when a cert becomes available, does not check make the cert if it is not available. there is a possibility that the agent is NOT local
 // used for name server certificate update
   public void addAvailabilityListener(CertValidityListener listener);
+
+// check if the (local) agent has been revoked
+  public boolean isInvalidated(String commonName);
 }
 
