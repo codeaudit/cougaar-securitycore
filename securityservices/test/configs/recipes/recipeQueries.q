@@ -1344,3 +1344,19 @@ recipeQueryFBSensorAgents_ByName=\
     AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match: \
     AND AC.COMPONENT_NAME in ('47-FSB', '123-MSB', '1-6-INFBN')
+
+
+# PolicyDomain Manager support
+# Get the node where the policy domain manager is running
+recipeQueryEnclaveDomainManagerNode=\
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE (AC.COMPONENT_TYPE='node') \
+    AND (COMPONENT_NAME='FWD-A' OR \
+	 COMPONENT_NAME='FWD-B' OR \
+	 COMPONENT_NAME='PolicyDomainManager3Node' OR \
+	 COMPONENT_NAME='REAR-B') \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+         H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
