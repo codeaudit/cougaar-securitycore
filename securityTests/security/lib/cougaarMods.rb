@@ -138,8 +138,8 @@ module Cougaar
              }
            }
            if @agent == nil
-             puts "Using #{@agent} to check for UserManagerReady"
              @agent = firstAgent
+             puts "Using #{@agent} to check for UserManagerReady"
            end
          end
          @run.info_message "Waiting for #{@agent} to be ready for user access"
