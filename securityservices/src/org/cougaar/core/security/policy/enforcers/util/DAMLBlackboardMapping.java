@@ -52,7 +52,7 @@ public class DAMLBlackboardMapping extends StringPairMapping {
   public static final String otherBlackboardObjectDAML = 
     org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL
-    + "otherBlackboardObjects"
+    + "otherBlackboardObjects";
   private boolean _initialized = false;
   private List _objectMap;
 
