@@ -70,6 +70,9 @@ public class AccessAgentBinder
       //AgentIdentificationService ais = (AgentIdentificationService)
         //sb.getService(this, AgentIdentificationService.class, null);
       agentAddress = MessageAddress.getMessageAddress(getComponentDescription().getName()); 
+      if (log.isDebugEnabled()) {
+        log.debug("Creating AccessAgentServiceBroker for " + agentAddress);
+      }
     }
    
     /* ******************************************************************************************

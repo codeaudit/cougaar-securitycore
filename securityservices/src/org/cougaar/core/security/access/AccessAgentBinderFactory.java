@@ -22,34 +22,47 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceFilter;
 
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
 public class AccessAgentBinderFactory extends ServiceFilter
 {
-  
+  private static Logger _log;
+ 
+  static {
+    _log = LoggerFactory.getInstance().createLogger(AccessAgentBinderFactory.class);
+    if (_log.isDebugEnabled()) {
+      _log.debug("Loading " + AccessAgentBinderFactory.class.getName());
+    }
+  }
+
+  public AccessAgentBinderFactory() {
+    super();
+    if (_log.isDebugEnabled()) {
+      _log.debug("Constructing " + getClass().getName());
+    }
+  }
+ 
   protected Class getBinderClass(Object child) {
+    if (_log.isDebugEnabled()) {
+      _log.debug("getBinderClass: " + child.getClass().getName());
+    }
     return AccessAgentBinder.class;
   }
   
-  public void setParameter(Object o) {}
+  public void setParameter(Object o) {
+    if (_log.isDebugEnabled()) {
+      _log.debug("setParameter: " + o);
+    }
+  }
   
   public int getPriority() {
     return NORM_PRIORITY; 
   }
 }
-
-
-
 
