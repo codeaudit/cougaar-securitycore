@@ -156,16 +156,24 @@
       </rule>
       <!-- For Rovers Managers to control and modify rovers -->
       <!-- Perhaps this should be moved to a specific agent? -->
+
+      <!--
+      /Rover/ui servlet moved out from access control. It is not in the 2002 assessment.
       <rule requireSSL="false" auth="EITHER">
         <pattern>/Rover/ui</pattern>
         <role>RoverManager</role>
       </rule>
+      -->
+
       <!-- Allow only rovers to install code and communicate directly
            with other rovers -->
+      <!--
+      /Rover/messageChallenge servlet moved out from access control. It is not in the 2002 assessment.
       <rule requireSSL="false" auth="EITHER">
         <pattern>/Rover/messageChallenge</pattern>
         <role>Rover</role>
       </rule>
+      -->
 
       <!-- use this rule to test the blackboard filter policies
       <rule requireSSL="false" auth="EITHER">
