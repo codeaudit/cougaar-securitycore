@@ -96,11 +96,12 @@ public class UserAdminServlet extends HttpServlet {
       getService(this, UserService.class, null);
     if (_userService == null) {
       support.getServiceBroker().addServiceListener(new UserServiceListener());
+    } else {
+      UserInterface.setAttributes(_userService);
     }
     if (JspFactory.getDefaultFactory() == null) {
       JspFactory.setDefaultFactory(new org.apache.jasper.runtime.JspFactoryImpl());
     }
-    UserInterface.setAttributes(_userService);
   }
 
   public void init(ServletConfig config) throws ServletException {
@@ -473,6 +474,7 @@ public class UserAdminServlet extends HttpServlet {
         _userService = (UserService) ae.getServiceBroker().
            getService(this, UserService.class, null);
         if (_userService != null) {
+          UserInterface.setAttributes(_userService);
           ae.getServiceBroker().removeServiceListener(this);
         }
       }
