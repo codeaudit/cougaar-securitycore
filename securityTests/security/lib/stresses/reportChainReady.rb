@@ -49,20 +49,28 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def afterReportChainReady
-    badChains = getBadChains ["OSD.GOV"]
-    if badChains.empty?
-      saveResult true, stressid, "ReportChainReady Achieved"
-    else
-      saveResult false, stressid, "ReportChainReady failed"
-      badChains.each do |chain|
-        saveAssertion stressid, 
-                      "ReportChainReady failed at subordinate #{chain.last}"
-        explanation = "Subordinate chain = "
-        chain.each do |agent|
-          explanation += "#{agent} -> "
+    Thread.fork do
+      begin
+        badChains=[]
+        4.times do
+          sleep(5.minutes)
+          badChains = getBadChains ["OSD.GOV"]
+          if !(badChains.empty?)
+            badChains.each do |chain|
+              saveAssertion stressid, 
+                            "ReportChainReady failed at subordinate #{chain.last}"
+              explanation = "Subordinate chain = #{chain.join("->")}"
+              saveAssertion stressid, explanation
+            end
+          end
         end
-        explanation += "All good below"
-        saveAssertion stressid, explanation
+        if badChains.empty?
+          saveResult false, stressid, "ReportChainReady failed"
+        else
+          saveResult true, stressid, "ReportChainReady succeeded"
+        end 
+    rescue => ex
+        saveAssertion stressid, "Exception = #{ex}\n #{ex.backtrace.join('\n')}"
       end
     end
   end
@@ -121,4 +129,3 @@ class TestReportChainReady < SecurityStressFramework
     end
   end
 end
-
