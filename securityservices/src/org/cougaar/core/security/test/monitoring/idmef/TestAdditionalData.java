@@ -41,6 +41,7 @@ import org.apache.xml.serialize.XMLSerializer;
 // idmef package
 import edu.jhuapl.idmef.AdditionalData;
 import edu.jhuapl.idmef.Address;
+import edu.jhuapl.idmef.XMLSerializable;
 import edu.jhuapl.idmef.XMLUtils;
 
 // cougaar package
@@ -64,12 +65,13 @@ public class TestAdditionalData extends TestIdmef {
     }
     public AdditionalData createAdditionalData(){
         Agent agent = m_agentTester.createAgent();
-        return m_msgFactory.createAdditionalData( AdditionalData.XML,
-                                                  MEANING,
-                                                  agent.toTaggedString() );
+        return m_msgFactory.createAdditionalData( MEANING,
+                                                  agent );
     }
     public void compare( AdditionalData ad1, AdditionalData ad2 ){
-       if( !( ad1.getType().equals( ad2.getType() ) ) ){
+       String type1 = ad1.getType();
+       String type2 = ad2.getType();
+       if( !( type1.equals( type2 ) ) ){
             System.out.println( "Additional Data type is inconsistent!" );
             System.out.println( "AdditionalData1.type = " + ad1.getType() );
             System.out.println( "AdditionalData2.type = " + ad2.getType() );
@@ -79,7 +81,19 @@ public class TestAdditionalData extends TestIdmef {
             System.out.println( "AdditionalData1.meaning = " + ad1.getMeaning() );
             System.out.println( "AdditionalData2.meaning = " + ad2.getMeaning() );
         }
-        if( !( ad1.getAdditionalData().equals( ad2.getAdditionalData() ) ) ){
+        if( type1.equals( type2 ) && type1.equals( AdditionalData.XML ) ){
+            XMLSerializable xmlData1 = ad1.getXMLData();
+            XMLSerializable xmlData2 = ad2.getXMLData();
+            if( ( xmlData1 instanceof Agent ) && ( xmlData2 instanceof Agent ) ){
+              m_agentTester.compare( ( Agent )xmlData1, ( Agent )xmlData2 );
+            }
+            else {
+              System.out.println( "Additional XML Data type is inconsistent!" );
+              System.out.println( "AdditionalData1.xmlData type = " + xmlData1.getClass().getName() );
+              System.out.println( "AdditionalData2.xmlData type = " + xmlData2.getClass().getName() );    
+            }
+        }
+        else if( !( ad1.getAdditionalData().equals( ad2.getAdditionalData() ) ) ){
             System.out.println( "Additional Data data is inconsistent!" );
             System.out.println( "AdditionalData1.data = " + ad1.getAdditionalData() );
             System.out.println( "AdditionalData2.data = " + ad2.getAdditionalData() );
