@@ -18,4 +18,5 @@ ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -f ${COUGAAR_SECURITY_SERVICES}/t
 rm -rf $COUGAAR_INSTALL_PATH/workspace/security/keystores/I*
 rm -rf $COUGAAR_INSTALL_PATH/workspace/security/keystores/T*
 
-cp $COUGAAR_INSTALL_PATH/configs/common/BootPolicy-plain.ldm.xml $COUGAAR_INSTALL_PATH/configs/common/BootPolicy.ldm.xml
+# The following line is no longer necessary. Was used when the society had to be run in plain text mode to generate keys.
+#cp $COUGAAR_INSTALL_PATH/configs/common/BootPolicy-plain.ldm.xml $COUGAAR_INSTALL_PATH/configs/common/BootPolicy.ldm.xml

@@ -206,34 +206,46 @@ endif
 # Servlet properties
 switch ( ${USER} )
 case 'ychen':
-	set servletport=5558	
+	set httpport=5558
+	set httpsport=6558
 	breaksw
 case 'srosset':
-	set servletport=5561	
+	set httpport=5561
+	set httpsport=6561
 	breaksw
 case 'rliao1':
-	set servletport=5556	
+	set httpport=5556
+	set httpsport=6556
 	breaksw
 case 'gmount':
-	set servletport=5557	
+	set httpport=5557
+	set httpsport=6557
 	breaksw
 case 'rtripath':
-	set servletport=5560	
+	set httpport=5560
+	set httpsport=6560
 	breaksw
 case 'mluu':
-	set servletport=5555
+	set httpport=5555
+	set httpsport=6555
 	breaksw
 default:
 	@echo "WARNING: Setting HTTP port to default port number. You should edit SecureNode"
-	set servletport=8800	
+	set httpport=8800
+	set httpsport=9800
         breaksw
 endsw
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.http.port=${servletport}"
+
+# Comment out following line if you don't want HTTP
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.http.port=${httpport}"
 
 # setup for running tomcat https
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.port=8400"
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.web.keystore=../securityservices/test/configs/demo/minitest/tomcatKeystore"
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.web.keypass=changeit"
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.port=${httpsport}"
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory"
+
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.web.keystore=tomcatKeystore"
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.web.keypass=changeit"
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.web.keystore=../securityservices/test/configs/demo/minitest/tomcatKeystore"
 
 #################################
 
