@@ -4,7 +4,25 @@
   <!-- Client side -->
   <nodeConfiguration>
     <CA_DN>CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US</CA_DN>
-    <CA_URL>http://yew:8080/CA/servlet/x509</CA_URL>
+    <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
+    <!-- Organizational unit -->
+    <ou>CONUS</ou>
+    <!-- Organizational -->
+    <o>DLA</o>
+    <!-- City or Locality -->
+    <l>San Francisco</l>
+    <!-- State -->
+    <st>CA</st>
+    <!-- Country Code -->
+    <c>US</c>
+    <!-- The key algorithm -->
+    <keyAlgName>DSA</keyAlgName>
+    <!-- The key size -->
+    <keysize>1024</keysize>
+    <!-- The signature algorithm -->
+    <sigAlgName>SHA1WithDSA</sigAlgName>
+    <!-- The default validity -->
+    <validity>90</validity>
   </nodeConfiguration>
 
   <!-- Configuration of Certificate Authority
@@ -20,7 +38,7 @@
     <keystorePassword>CONUS-Ultra*Log</keystorePassword>
 
     <!-- Certificate directory service for certificate storage -->
-    <ldapURL>ldap://yew:389</ldapURL>
+    <ldapURL>ldap://yew:389/</ldapURL>
 
     <!-- The name of a file where the next serial number is stored -->
     <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>

@@ -9,11 +9,14 @@ setenv CLASSPATH ${CLASSPATH}:../../../classes
 java \
 	-Dorg.cougaar.security.CA.certpath=${COUGAAR_SECURITY_SERVICES}/test/configs/certauthority \
 	-Dorg.cougaar.security.crypto.config=cryptoPolicy.xml \
+	-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
+	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
+	-Dorg.cougaar.security.keystore=keystoreTest \
+	-Dorg.cougaar.node.name=3ID-HHC \
+	-Dorg.cougaar.core.security.crypto.debug=true \
 	com.nai.security.certauthority.KeyManagement  \
-	-10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer
+	-1 testalias
+	#-10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer
 	#-7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer
 
-	#-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
-	#-Dorg.cougaar.security.keystore=signingCA_keystore \
-	#-Dorg.cougaar.security.keystore.password=keystore \
 	#-Dorg.cougaar.security.cakeystore.password="Ultra*Log" \
