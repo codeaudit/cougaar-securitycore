@@ -1,0 +1,8 @@
+#!/bin/tcsh
+
+set hosts = ( apple pear olive fig cypress )
+foreach host ($hosts)
+	echo -n Removing java processes from $host . . .
+	ssh $host "killall -w -KILL java"
+	echo "[done]"
+end

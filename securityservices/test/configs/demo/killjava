@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# killjava        Kill all java programs
+#
+#
+
+# Source function library.
+. ~srosset/demo/functions
+
+killproc java
+

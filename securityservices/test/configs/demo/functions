@@ -1,0 +1,355 @@
+#!/bin/sh
+#
+# functions	This file contains functions to be used by most or all
+#		shell scripts in the /etc/init.d directory.
+#
+# Version:	@(#) /etc/init.d/functions 1.01 26-Oct-1993
+#
+# Author:	Miquel van Smoorenburg, <miquels@drinkel.nl.mugnet.org>
+# Hacked by:    Greg Galloway and Marc Ewing
+#
+
+# First set up a default search path.
+export PATH="/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin"
+
+# Get a sane screen width
+[ -z "$COLUMNS" ] && COLUMNS=80
+
+# Read in our configuration
+if [ -z "$BOOTUP" ]; then
+  if [ -f /etc/sysconfig/init ]; then
+      . /etc/sysconfig/init
+  else
+    # This all seem confusing? Look in /etc/sysconfig/init,
+    # or in /usr/doc/initscripts-*/sysconfig.txt
+    BOOTUP=color
+    RES_COL=60
+    MOVE_TO_COL="echo -en \\033[${RES_COL}G"
+    SETCOLOR_SUCCESS="echo -en \\033[1;32m"
+    SETCOLOR_FAILURE="echo -en \\033[1;31m"
+    SETCOLOR_WARNING="echo -en \\033[1;33m"
+    SETCOLOR_NORMAL="echo -en \\033[0;39m"
+    LOGLEVEL=1
+  fi
+  if [ -x /sbin/consoletype ]; then
+    if [ "`consoletype`" = "serial" ]; then
+      BOOTUP=serial
+      MOVE_TO_COL=
+      SETCOLOR_SUCCESS=
+      SETCOLOR_FAILURE=
+      SETCOLOR_WARNING=
+      SETCOLOR_NORMAL=
+    fi
+  fi
+fi
+
+if [ "$BOOTUP" != "verbose" ]; then
+   INITLOG_ARGS="-q"
+else
+   INITLOG_ARGS=
+fi
+
+# Check if $pid (could be plural) are running
+checkpid() {
+	while [ "$1" ]; do
+	   [ -d /proc/$1 ] && return 0
+	   shift
+	done
+	return 1
+}
+	
+
+# A function to start a program.
+daemon() {
+	# Test syntax.
+	gotbase=
+	user=
+	nicelevel=0
+	while [ "$1" != "${1##-}" -o "$1" != "${1##+}" ]; do 
+	  case $1 in
+	    '')    echo '$0: Usage: daemon [+/-nicelevel] {program}'
+	           return 1;;
+	    --check)
+	           shift
+		   base=$1
+		   gotbase="yes"
+		   shift
+		   ;;
+	    --user)
+	    	   shift
+		   daemon_user=$1
+		   shift
+		   ;;
+	    -*|+*) nicelevel=$1
+	           shift
+		   ;;
+	     *)    nicelevel=0
+	     	   ;;
+	  esac
+	done
+
+        # Save basename.
+        [ -z $gotbase ] && base=`basename $1`
+
+        # See if it's already running.
+        pidlist=`pidofproc $1`
+	
+	pid=
+	for apid in $pidlist ; do
+	   [ -d /proc/$apid ] && pid="$pid $apid"
+	done
+	
+	[ -n "$pid" ] && return
+
+	# make sure it doesn't core dump anywhere; while this could mask
+	# problems with the daemon, it also closes some security problems
+	ulimit -S -c 0 >/dev/null 2>&1
+	
+	# Echo daemon
+        [ "$BOOTUP" = "verbose" ] && echo -n " $base"
+
+	# And start it up.
+	if [ -z "$daemon_user" ]; then 
+	   nice -n $nicelevel initlog $INITLOG_ARGS -c "$*" && success "$base startup" || failure "$base startup"
+	else
+	   nice -n $nicelevel initlog $INITLOG_ARGS -c "su $daemon_user -c \"$*\"" && success "$base startup" || failure "$base startup"
+	fi
+}
+
+# A function to stop a program.
+killproc() {
+	RC=0
+	# Test syntax.
+	if [ $# = 0 ]; then
+		echo "Usage: killproc {program} [signal]"
+		return 1
+	fi
+
+	notset=0
+	# check for second arg to be kill level
+	if [ "$2" != "" ] ; then
+		killlevel=$2
+	else
+		notset=1
+		killlevel="-9"
+	fi
+
+        # Save basename.
+        base=`basename $1`
+
+        # Find pid.
+        pidlist=`pidofproc $1`
+	
+	pid=
+	for apid in $pidlist ; do
+	   [ -d /proc/$apid ] && pid="$pid $apid"
+	done
+
+        # Kill it.
+        if [ "$pid" != "" ] ; then
+                [ $BOOTUP = "verbose" ] && echo -n "$base "
+		if [ "$notset" = "1" ] ; then
+		       if checkpid $pid 2>&1; then
+			   # TERM first, then KILL if not dead
+			   kill -TERM $pid
+			   usleep 100000
+			   if checkpid $pid >/dev/null 2>&1 ; then
+				sleep 1
+				if checkpid $pid >/dev/null 2>&1 ; then
+				        sleep 3
+					if checkpid $pid >/dev/null 2>&1 ; then
+					   kill -KILL $pid
+					   usleep 100000
+					fi
+				fi
+			   fi
+		        fi
+			checkpid $pid >/dev/null 2>&1
+			RC=$?
+			[ $RC -eq 0 ] && failure "$base shutdown" || success "$base shutdown"
+			RC=$((! $RC))
+		# use specified level only
+		else
+		        if checkpid $pid >/dev/null 2>&1; then
+	                	kill $killlevel $pid
+				RC=$?
+				[ $RC -eq 0 ] && success "$base $killlevel" || failure "$base $killlevel"
+			fi
+		fi
+	else
+	    failure "$base shutdown"
+	fi
+
+        # Remove pid file if any.
+	if [ "$notset" = "1" ]; then
+            rm -f /var/run/$base.pid
+	fi
+	return $RC
+}
+
+# A function to find the pid of a program.
+pidofproc() {
+	base=`basename $1`
+
+	# Test syntax.
+	if [ $# = 0 ] ; then
+		echo "Usage: pidofproc {program}"
+		return 1
+	fi
+
+	# First try "/var/run/*.pid" files
+	if [ -f /var/run/${base}.pid ] ; then
+	        pid=`cat /var/run/${base}.pid | { read foo ; echo $foo ; }`
+	        if [ "$pid" != "" ] ; then
+	                echo $pid
+	                return 0
+	        fi
+	fi
+
+	# Next try "pidof"
+	pid=`pidof -o $$ -o $PPID -o %PPID -x ${base}`
+	if [ "$pid" != "" ] ; then
+	        echo $pid
+	        return 0
+	fi
+}
+
+status() {
+	base=`basename $1`
+
+	# Test syntax.
+	if [ $# = 0 ] ; then
+		echo "Usage: status {program}"
+		return 1
+	fi
+
+	# First try "pidof"
+	pid=`pidof -o $$ -o $PPID -o %PPID -x ${base}`
+	if [ "$pid" != "" ] ; then
+	        echo "${base} (pid $pid) is running..."
+	        return 0
+	fi
+
+	# Next try "/var/run/*.pid" files
+	if [ -f /var/run/${base}.pid ] ; then
+	        pid=`cat /var/run/${base}.pid | { read foo ; echo $foo ; }`
+	        if [ "$pid" != "" ] ; then
+	                echo "${base} dead but pid file exists"
+	                return 1
+	        fi
+	fi
+	# See if /var/lock/subsys/${base} exists
+	if [ -f /var/lock/subsys/${base} ]; then
+		echo "${base} dead but subsys locked"
+		return 2
+	fi
+	echo "${base} is stopped"
+	return 3
+}
+
+echo_success() {
+  [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+  echo -n "[  "
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_SUCCESS
+  echo -n "OK"
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+  echo -n "  ]"
+  echo -ne "\r"
+  return 0
+}
+
+echo_failure() {
+  [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+  echo -n "["
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_FAILURE
+  echo -n "No Java process to kill"
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+  echo -n "]"
+  echo -ne "\r"
+  return 1
+}
+
+echo_passed() {
+  [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+  echo -n "["
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_WARNING
+  echo -n "PASSED"
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+  echo -n "]"
+  echo -ne "\r"
+  return 1
+}
+
+# Log that something succeeded
+success() {
+  if [ -z "$IN_INITLOG" ]; then
+     initlog $INITLOG_ARGS -n $0 -s "$1" -e 1
+  else
+     # silly hack to avoid EPIPE killing rc.sysinit
+     trap "" SIGPIPE
+     echo "$INITLOG_ARGS -n $0 -s \"$1\" -e 1" >&21
+     trap - SIGPIPE
+  fi
+  [ "$BOOTUP" != "verbose" ] && echo_success
+  return 0
+}
+
+# Log that something failed
+failure() {
+  rc=$?
+  if [ -z "$IN_INITLOG" ]; then
+     initlog $INITLOG_ARGS -n $0 -s "$1" -e 2
+  else
+     trap "" SIGPIPE
+     echo "$INITLOG_ARGS -n $0 -s \"$1\" -e 2" >&21
+     trap - SIGPIPE
+  fi
+  [ "$BOOTUP" != "verbose" ] && echo_failure
+  return $rc
+}
+
+# Log that something passed, but may have had errors. Useful for fsck
+passed() {
+  rc=$?
+  if [ -z "$IN_INITLOG" ]; then
+     initlog $INITLOG_ARGS -n $0 -s "$1" -e 1
+  else
+     trap "" SIGPIPE
+     echo "$INITLOG_ARGS -n $0 -s \"$1\" -e 1" >&21
+     trap - SIGPIPE
+  fi
+  [ "$BOOTUP" != "verbose" ] && echo_passed
+  return $rc
+}  
+
+# Run some action. Log its output.
+action() {
+  STRING=$1
+  echo -n "$STRING "
+  shift
+  initlog $INITLOG_ARGS -c "$*" && success "$STRING" || failure "$STRING"
+  rc=$?
+  echo
+  return $rc
+}
+
+# Confirm whether we really want to run this service
+confirm() {
+  echo -n "Start service $1 (Y)es/(N)o/(C)ontinue? [Y] "
+  read answer
+  case $answer in
+    y|Y|"")
+      return 0
+    ;;
+    c|C)
+      return 2
+    ;;
+    n|N)
+      return 1
+    ;;
+    *)
+      confirm $1
+      return $?
+    ;;
+    esac
+}

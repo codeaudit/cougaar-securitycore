@@ -1,0 +1,1 @@
+setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=${COUGAAR_INSTALL_PATH}/configs/ul-mini-config/keystore-Commercial-Air -Dorg.cougaar.security.keystore.password=ul-manzanita -DdomainManagerId=NCADomainManager -DdomainName=NCADomainManager"

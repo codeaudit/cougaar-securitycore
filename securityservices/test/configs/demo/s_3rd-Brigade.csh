@@ -1,0 +1,1 @@
+setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=${COUGAAR_INSTALL_PATH}/configs/ul-mini-config/keystore-3rd-Brigade -Dorg.cougaar.security.keystore.password=ul-maple -DdomainManagerId=NCADomainManager -DdomainName=NCADomainManager"

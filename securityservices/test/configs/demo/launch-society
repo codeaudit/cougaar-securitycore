@@ -1,0 +1,45 @@
+#!/bin/tcsh
+
+# Usage:
+# launch-society [configuration file] [use ssh-agent: true|false]
+
+if ( $# > 0 )  then
+    set configurationFile="$argv[1]"
+endif
+
+if ( ! $?configurationFile ) then
+    set configurationFile=ul-mini-config.conf
+endif
+if ( "$configurationFile" == "true" || "$configurationFile" == "false" ) then
+    set use_ssh_agent=$configurationFile
+    set configurationFile=ul-mini-config.conf
+endif
+echo "Using configuration File: " $configurationFile
+
+if ( $# > 1)  then
+    set use_ssh_agent="$argv[2]"
+endif
+if ( ! $?use_ssh_agent ) then
+    set use_ssh_agent=false
+endif
+
+echo "Use ssh_agent:            " $use_ssh_agent
+
+if ( "$use_ssh_agent" == "true" ) then
+  eval `ssh-agent`
+  ssh-add
+endif
+
+awk -f launchNode.awk $configurationFile
+
+echo "Type [ENTER] to terminate the society"
+echo $<
+
+awk -f killNodes.awk $configurationFile
+
+#netscape http://fir:5555/alpine/demo/TASKS.PSP &
+
+if ( "$use_ssh_agent" == "true" ) then
+  wait
+  ssh-agent -k
+endif

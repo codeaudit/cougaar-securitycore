@@ -1,0 +1,31 @@
+#!/bin/tcsh
+ 
+setenv COUGAAR_KAOS_DM_ID 		NCADomainManager
+setenv COUGAAR_KAOS_DM_NAME 		NCADomainManager
+
+set PSP_PORT_NUMBER=5600
+set DM_HOST=fir
+
+echo "Starting KPAT tool ..."
+ 
+foreach jar (`ls ${COUGAAR_INSTALL_PATH}/lib/*.jar`)
+        if (! $?CLASSPATH) then
+                setenv CLASSPATH "$jar"
+        else
+                setenv CLASSPATH "${CLASSPATH}:$jar"
+        endif
+ 
+end
+foreach jar (`ls ${COUGAAR_INSTALL_PATH}/sys/*.jar`)
+       setenv CLASSPATH "${CLASSPATH}:$jar"
+end
+ 
+set DomainManager=${COUGAAR_KAOS_DM_ID}
+set MYPSP=http://${DM_HOST}:${PSP_PORT_NUMBER}/\$${DomainManager}/PolicyAdministrator.PSP\?
+#echo "trying ${MYPSP}"
+ 
+set javaargs="-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH}"
+set args="${MYPSP}"
+ 
+exec `echo java "$javaargs KAoS.KPAT.applet.KPATAppletMain $args"`
+

@@ -1,0 +1,3 @@
+#!/bin/tcsh
+
+ssh -l ${USER} $1 /usr/bin/killall -w -KILL java

@@ -1,0 +1,18 @@
+#!/usr/bin/tcsh
+
+eval `ssh-agent -c`
+ssh-add
+rxvt -geometry 66x14 -sb -si -sl 1000 -title manzanita -name manzanita -e start-ssh-manzanita &
+#echo $<
+rxvt -geometry 66x14 -sb -si -sl 1000 -title joshua    -name joshua    -e start-ssh-joshua &
+#echo $<
+rxvt -geometry 66x14 -sb -si -sl 1000 -title fir       -name fir       -e start-ssh-fir &
+#echo $<
+rxvt -geometry 66x14 -sb -si -sl 1000 -title redwood   -name redwood   -e start-ssh-redwood &
+#echo $<
+rxvt -geometry 66x14 -sb -si -sl 1000 -title maple     -name maple     -e start-ssh-maple &
+#echo $<
+rxvt -geometry 66x14 -sb -si -sl 1000 -title dogwood   -name dogwood   -e start-ssh-dogwood &
+
+wait
+ssh-agent -k

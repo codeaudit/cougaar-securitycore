@@ -1,0 +1,1 @@
+setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=${COUGAAR_INSTALL_PATH}/configs/ul-mini-config/keystore-Support -Dorg.cougaar.security.keystore.password=ul-fir -DdomainManagerId=NCADomainManager -DdomainName=NCADomainManager"
