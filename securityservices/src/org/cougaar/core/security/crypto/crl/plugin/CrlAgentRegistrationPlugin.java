@@ -46,10 +46,14 @@ import org.cougaar.core.service.community.*;
 import org.cougaar.core.security.crypto.crl.blackboard.*;
 import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
 import org.cougaar.core.security.crypto.CRLWrapper;
+import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.naming.CACertificateEntry;
+
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.util.DateUtil;
+import org.cougaar.core.security.services.util.CertificateSearchService;
 
 
 public class CrlAgentRegistrationPlugin extends ComponentPlugin {
@@ -63,7 +67,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 
   /** The number of seconds between crl updates */
   protected long    _pollInterval    = 60000l;
-
+  
   class CRLAgentRegistrationPredicate implements UnaryPredicate{
     public boolean execute(Object o) {
       boolean ret = false;
@@ -96,7 +100,36 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
   public DomainService getDomainService() {
     return domainService;
   }
-
+  
+  public void setParameter(Object o) {
+    if (!(o instanceof List)) {
+      throw new IllegalArgumentException("Expecting a List parameter " +
+                                         "instead of " + 
+                                         ( (o == null)
+                                           ? "null" 
+                                           : o.getClass().getName() ));
+    }
+    List l = (List) o;
+    
+    String paramName = "CRL Provider poll interval";
+    Iterator iter = l.iterator();
+    String param = new String();
+    try {
+      param = iter.next().toString();
+      _pollInterval = (Integer.parseInt(param.trim()))*1000l;
+    }
+    catch (NoSuchElementException e) {
+      throw new IllegalArgumentException("You must provide a " +
+                                         paramName +
+                                         " argument");
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Expecting integer for " +
+                                         paramName +
+                                         ". Got (" +
+                                         param + ")");
+    }
+   
+  }
 
   protected void setupSubscriptions() {
 
@@ -119,7 +152,10 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       (new CRLRegistrationTablePredicate());
     crlagentregistration=(IncrementalSubscription)getBlackboardService().subscribe
       (new CRLAgentRegistrationPredicate());
-    /* Thread td=new Thread(new CRLUpdate(),"CRL-Agent Reg thread");
+
+    loggingService.debug("CRL Provider Poll time set to:"+(_pollInterval/1000));
+    
+     /* Thread td=new Thread(new CRLUpdate(),"CRL-Agent Reg thread");
        td.start();
     */
     ThreadService ts = (ThreadService) getServiceBroker().
@@ -165,7 +201,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       //Vector listMessageAddress=null;
       // synchronized(regtable) {
       if(regtable.containsKey(regagentObject.dnName)) {
-	loggingService.debug("reg table contains key "+ regagentObject.dnName);
+	loggingService.debug("reg table contains key "+ regagentObject.toString());
 	regobject=(CrlRegistrationObject)regtable.get(regagentObject.dnName);
 	try {
 	  loggingService.debug("Adding Agent :" + crlrelay.getSource() +"for Dn:"+regagentObject.dnName);
@@ -176,23 +212,26 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	}
 	byte[] encodedcrl= null;
 	try{
-	  regobject.getCRL().getEncoded();
+          if((regobject.getCRL()!=null)&&(regobject.getModifiedTimeStamp()!=null)){
+            encodedcrl= regobject.getCRL().getEncoded();
+          }
 	}
 	catch(java.security.cert.CRLException crlexp) {
 	  loggingService.error("Unable to encode crl :" + crlexp.getMessage());
 	}
-	crlrelay.updateResponse(crlrelay.getSource(),
-				new CRLWrapper(regobject.dnName,encodedcrl,regobject.getModifiedTimeStamp()));
-	getBlackboardService().publishChange(crlrelay);
-	loggingService.debug("Updating response after first time registration :"+crlrelay.getSource().toString());
+        if(regobject.getModifiedTimeStamp()!=null) {
+          crlrelay.updateResponse(crlrelay.getSource(),
+                                  new CRLWrapper(regobject.dnName,encodedcrl,regobject.getModifiedTimeStamp()));
+          getBlackboardService().publishChange(crlrelay);
+         loggingService.debug("Updating response after first time registration :"+crlrelay.getSource().toString()); 
+        }
+	
 	modified=true;
       }
       else {
 	loggingService.debug("Adding agent to CRL registration table :"+regagentObject.toString() +"::"
 			     +crlrelay.getSource());
-	regobject=new CrlRegistrationObject(regagentObject.dnName,
-					    regagentObject.ldapURL,
-					    regagentObject.ldapType);
+	regobject=new CrlRegistrationObject(regagentObject.dnName);
 	try {
 	  regobject.addAgent(crlrelay.getSource());
 	}
@@ -220,11 +259,11 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     public CRLUpdate () {
     }
 
-
     public void run() {
       Date time = new Date(System.currentTimeMillis());
       loggingService.debug("CRL agent registartion Thread  has started : "+time.toString());
       BlackboardService bbs = getBlackboardService();
+      
       Collection regCollection=null;
       Iterator regTableiterator=null;
       CrlRegistrationTable regtable=null;
@@ -241,6 +280,12 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	regtable=(CrlRegistrationTable)regTableiterator.next();
 	break;
       }
+      CertificateSearchService searchService=(CertificateSearchService)getBindingSite().getServiceBroker()
+        .getService(this, CertificateSearchService.class, null);
+      if(searchService==null) {
+        loggingService.warn(" Unable to get CRL as Search Service is NULL:");
+        return;
+      }
       Set regset=regtable.keySet();
       Iterator keyiterator=regset.iterator();
       String key=null;
@@ -251,10 +296,109 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	key=(String)keyiterator.next();
 	regObject=(CrlRegistrationObject)regtable.get(key);
 	loggingService.debug(" Registration Object in CRL registration Table is :"+ regObject.toString());
+        String modifiedTimestamp=null;
+	X509CRL crl=null;
+        List certList=searchService.findCert(CertificateUtility.getX500Name(regObject.dnName));
+        if(certList.size()>0) {
+          loggingService.debug(" List size returned after search for :"+regObject.dnName +
+                               " size-"+certList.size());
+          Iterator certEntryIterator=certList.iterator();
+          Object certEntryObject=null;
+          CACertificateEntry caCertEntry=null;
+          byte[] encodedCRL=null;
+          while(certEntryIterator.hasNext()) {
+            certEntryObject=certEntryIterator.next();
+            if(certEntryObject instanceof CACertificateEntry) {
+              caCertEntry=(CACertificateEntry)certEntryObject;
+              encodedCRL=caCertEntry.getEncodedCRL();
+              loggingService.debug("Getting the modified time stamp for :"+ regObject.dnName);
+              modifiedTimestamp=caCertEntry.getLastModifiedTimeStamp();
+              loggingService.debug("Modified time stamp for :"+ regObject.dnName);
+              if(regObject.getModifiedTimeStamp()!=null) { 
+                 loggingService.debug("Reg object modified stamp was NOT null");
+                 Date lastmodified=DateUtil.getDateFromUTC(regObject.getModifiedTimeStamp());
+                 Date currentLastmodified=DateUtil.getDateFromUTC(modifiedTimestamp);
+                 loggingService.debug("Modified time stamp in CRL registration table :"+regObject.getModifiedTimeStamp()
+                                      + "date format :"+lastmodified.toString() );
+                 loggingService.debug("Modified time stamp in Ldap  :"+modifiedTimestamp
+                                      + "date format :"+currentLastmodified.toString() );
+                 if(currentLastmodified.after(lastmodified)){
+                   loggingService.debug("Ldap entry has been modified:");
+                   regObject.setModifiedTime(modifiedTimestamp);
+                   if(encodedCRL!=null) {
+                     regObject.setCRL(encodedCRL);
+                     modified=true;
 
-	if(regObject.getModifiedTimeStamp()!=null){
-	}
+                   }// end of if(encodedCRL!=null) 
+                   else {
+                     loggingService.error("Unable to get CRL for DN:"+regObject.dnName); 
+                   }
+                  
+                 }//end if(currentLastmodified.after(lastmodified))
+                 
+              }// end of if(regObject.getModifiedTimeStamp()!=null)
+              else {
+                loggingService.debug("Reg object modified stamp was null setting it to  :"+modifiedTimestamp);
+                if(encodedCRL!=null) {
+                  regObject.setModifiedTime(modifiedTimestamp);
+                  regObject.setCRL(encodedCRL);
+                  modified=true;
+                  
+                }// end of if(encodedCRL!=null) 
+                else {
+                  loggingService.error("Unable to get CRL for DN:"+regObject.dnName); 
+                }
+              }
+              if(modified) {
+                Vector messageAddress=regObject.getRegisteredAgents();
+                CrlRelay crlrelay=null;
+                for(int i=0;i<messageAddress.size();i++){
+                  MessageAddress agent=(MessageAddress)messageAddress.elementAt(i);
+                  crlrelay=getAgentrelay(agent,regObject.dnName);
+                  if(crlrelay!=null) {
+                    try{
+                      crlrelay.updateResponse(crlrelay.getSource(),
+                                              new CRLWrapper(regObject.dnName,encodedCRL,modifiedTimestamp));
+                      bbs.publishChange(crlrelay);
+                      loggingService.debug("Updating response  :"+agent.toString());
+                      loggingService.debug("Updating response  :"+crlrelay.toString());
+                    }
+                    catch(Exception exp) {
+                      loggingService.warn("Unable to send updated CRL to agent :"+agent.toString()+ exp.getMessage());
+                    }
+                  }
+                  else {
+                    loggingService.warn("Unable to send updated CRL to agent :"+agent.toString());
+                  }
+                }//end of For loop
+                
+                regtable.put(regObject.dnName,regObject);
+                bbs.publishChange(regtable);
+                loggingService.debug("published crl reg table after modifying timestamp or crl ");
+              }//end if (modified)
+            }//end if(certEntryObject instanceof CACertifcteEntry)
+            else {
+              loggingService.warn("List returned by search service contaians object"+
+                                   "of type other than CA Cert Entry :"+ regObject.dnName);
+              loggingService.warn("received object in search list is :"+
+                                  certEntryObject.getClass().getName());
+            }
+          }//end of while 
+          
+        }// end of if(certList.szie()>0)
+        else {
+          loggingService.warn(" unable to get Certifificate entry for DN :"+ regObject.dnName);
+          
+        }
+      }
+      bbs.closeTransaction();
+      loggingService.debug("CRL agent registartion Thread  has finished:");
 
+    }
+     
+
+    /*
+	This is the old implementation which would poll the Ldap for crl
 	CertDirectoryServiceClient directoryclient=getDirectoryService(regObject.dnName,
 								       regObject.ldapUrl,
 								       regObject.ldapType);
@@ -329,6 +473,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       loggingService.debug("CRL agent registartion Thread  has finished:");
 
     }
+*/
 
 
     private void dump(X509CRL currentcrl, X509CRL oldcrl) {
