@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.certauthority.servlet;
@@ -88,7 +88,7 @@ public class ListCaKeysServlet
     throws ServletException,IOException
   {
   }
-  
+
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
     throws ServletException, IOException  {
     res.setContentType("text/html");
@@ -102,9 +102,8 @@ public class ListCaKeysServlet
     out.println("<H2>CA Keys List</H2>");
     out.println("<table>");
     out.println("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
-    
 
- log.warn("Unable to get Certificate cache Service in processPkcs7Reply");
+
     Enumeration aliases = null;
     if(cacheService!=null) {
      aliases= cacheService.getAliasList();
@@ -114,11 +113,11 @@ public class ListCaKeysServlet
       out.flush();
       out.close();
       return ;
-    
+
     }
     out.println("<table align=\"center\" border=\"2\">\n");
     out.println("<TR><TH> DN-Certificate </TH><TH> DN-Signed By </TH></TR>\n");
-    
+
     while (aliases.hasMoreElements()) {
       String a = (String)aliases.nextElement();
       String cn = cacheService.getCommonName(a);
@@ -139,11 +138,11 @@ public class ListCaKeysServlet
     out.println("</table>");
     out.flush();
     out.close();
-    
+
   }
-  
+
   public String getServletInfo()  {
     return("Generate a CA key");
   }
-  
+
 }
