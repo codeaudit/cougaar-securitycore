@@ -41,6 +41,10 @@ import org.cougaar.core.security.constants.IdmefClassifications;
 import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.IDMEF_Message;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Address;
+import edu.jhuapl.idmef.IDMEF_Node;
+import edu.jhuapl.idmef.AdditionalData;
 
 public class IdmefEventPublisherPlugin
   extends ComponentPlugin
@@ -97,8 +101,8 @@ public class IdmefEventPublisherPlugin
         String s = "[STATUS] ";// + event.toString();
         Source [] srcs = event.getSources();
         if (srcs.length != 0) {
-          IDMEF_Node node = srcs[0];         
-          Address [] addrs = node.getAddress();
+          IDMEF_Node node = srcs[0].getNode();         
+          Address [] addrs = node.getAddresses();
           if (addrs.length != 0) {
             s += "(Source " + addrs[0].getAddress() + ") ";
           }
@@ -107,7 +111,7 @@ public class IdmefEventPublisherPlugin
         AdditionalData [] data = event.getAdditionalData();
         s += "(AdditionalData";
         for (int i = 0; i < data.length; i++) {
-          s += " " + data[i].getMeaning + ",";
+          s += " " + data[i].getMeaning() + ",";
           s += data[i].getAdditionalData();
         }
         s += ")";
