@@ -62,7 +62,7 @@ public class CAClient {
     String reply = "";
     try {
       if (debug) {
-	System.out.println("Sending PKCS10 request to " + policy.CA_URL);
+	System.out.println("Sending " + request + " request to " + policy.CA_URL);
 	System.out.println("DN= " + policy.CA_DN);
       }
       URL url = new URL(policy.CA_URL);
@@ -86,32 +86,41 @@ public class CAClient {
       out.close();
 
       BufferedReader in = new BufferedReader(new InputStreamReader(huc.getInputStream()));
-      String input;
-      while((input = in.readLine()) != null)
-	reply = reply + input;
+      int len = 2000;     // Size of a read operation
+      char [] cbuf = new char[len];
+      while (in.ready()) {
+	int read = in.read(cbuf, 0, len);
+	reply = reply + new String(cbuf, 0, read);
+      }
       in.close();
       if (debug) {
 	System.out.println("Reply: " + reply);
       }
  
     } catch(Exception e) {
-      System.err.println("Error: sending PKCS request to CA failed--" + e.getMessage());
+      System.err.println("Error: sending PKCS request to CA failed--"
+			 + e.getMessage());
       e.printStackTrace();
     }
     return reply;
   }
         
-  public String signPKCS(String request, String nodeName){
+  public String signPKCS(String request, String nodeDN){
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try{
-      KeyManagement km = new KeyManagement(nodeName);
+      if (debug) {
+	System.out.println("Signing PKCS10 request with node");
+      }
+      KeyManagement km = new KeyManagement(nodeDN);
       X509Certificate[] cf = km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
       PrintStream ps = new PrintStream(baos);
-      km.base64EncodeCertificates(ps,cf);
+      km.base64EncodeCertificates(ps, cf);
       //get the output to the CA
-      String reply = sendPKCS(baos.toString(), "PKCS7");
+      String reply = sendPKCS("PKCS7", baos.toString());
     }catch(Exception e){
-      System.err.println("Error: can't get the certificate signed--" + e.getMessage());
+      System.err.println("Error: can't get the certificate signed--"
+			 + e.getMessage());
+      e.printStackTrace();
     }    
     return baos.toString();
   }

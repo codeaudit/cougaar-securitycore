@@ -45,6 +45,8 @@ import sun.security.pkcs.*;
 
 import org.cougaar.util.ConfigFinder;
 import com.nai.security.certauthority.CAClient;
+import com.nai.security.policy.NodePolicy;
+
 //import com.nai.security.certauthority.KeyManagement;
 
 /** A common holder for Security keystore information and functionality
@@ -54,6 +56,7 @@ final public class KeyRing {
   // keystore stores private keys and well-know public keys
   private static DirectoryKeyStore keystore;
   private static boolean debug = false;
+  private static ConfParser confParser = null;
 
   static {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
@@ -81,10 +84,22 @@ final public class KeyRing {
       FileInputStream kss = new FileInputStream(ksPath);
 
       // CA keystore parameters
-      String caksPass = System.getProperty("org.cougaar.security.cakeystore.password",
+      confParser = new ConfParser();
+      NodePolicy nodePolicy = confParser.readNodePolicy();
+      ConfigFinder configFinder = new ConfigFinder();
+      File f = configFinder.locateFile(nodePolicy.CA_keystore);
+      String caksPass = null;
+      String caksPath = null;
+      if (f != null) {
+	caksPath = f.getPath();
+	caksPass = nodePolicy.CA_keystorePassword;
+      }
+
+      /*caksPass = System.getProperty("org.cougaar.security.cakeystore.password",
 					   "alpalp");
-      String caksPath = System.getProperty("org.cougaar.security.cakeystore",
+       caksPath = System.getProperty("org.cougaar.security.cakeystore",
 					   defaultCaKeystorePath);
+      */
       FileInputStream cakss = null;
       try {
 	cakss = new FileInputStream(caksPath);

@@ -33,6 +33,8 @@ public class NodePolicy {
   // Client policy
   public String CA_DN = null;
   public String CA_URL = null;
+  public String CA_keystore = null;
+  public String CA_keystorePassword = null;
 
   public String ou = null;
   public String o = null;

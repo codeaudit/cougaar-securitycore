@@ -5,6 +5,8 @@
   <nodeConfiguration>
     <CA_DN>CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US</CA_DN>
     <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
+    <CA_keystore>keystoreCA</CA_keystore>
+    <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
     <!-- Organizational unit -->
     <ou>CONUS</ou>
     <!-- Organizational -->
@@ -24,6 +26,33 @@
     <!-- The default validity -->
     <validity>90</validity>
   </nodeConfiguration>
+
+
+  <!-- Configuration of Certificate Authority
+       The name should be the distinguished name of the X509 certificate -->
+  <certificateAuthority name="">
+    <!-- The name of a file where the next serial number is stored -->
+    <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
+
+    <!-- The name of directory where to store PKCS10 certificate requests -->
+    <pkcs10Directory>pkcs10requests</pkcs10Directory>
+
+    <!-- The name of directory where to store signed certificates -->
+    <x509CertDirectory>x509certificates</x509CertDirectory>
+
+    <!-- Policy when issuing certificates -->
+    <clientCertPolicy>
+      <!-- The X509 version number to be created -->
+      <certVersion>0</certVersion>
+
+      <algorithmId>sha1WithDSA_oid</algorithmId>
+
+      <keysize>1024</keysize>
+
+      <!-- How long to certify for -->
+      <certValidity>720</certValidity>
+    </clientCertPolicy>
+  </certificateAuthority>
 
   <!-- Configuration of Certificate Authority
        The name should be the distinguished name of the X509 certificate -->

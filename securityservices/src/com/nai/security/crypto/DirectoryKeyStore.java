@@ -27,14 +27,7 @@
 package com.nai.security.crypto;
 
 import java.io.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.util.ArrayList;
-import java.util.Vector;
-import java.util.Properties;
-import java.util.Collection;
+import java.util.*;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -128,25 +121,31 @@ public class DirectoryKeyStore implements Runnable
 	  caKeystorePassword = null;
 	}
       }
-
-      Enumeration alias = keystore.aliases();
-      if (debug) System.out.println("Keystore contains:");
-
-      while (alias.hasMoreElements()) {
-	try {
-	  //build up the hashMap
-	  String a = (String)alias.nextElement();
-	  X509Certificate x=(X509Certificate)keystore.getCertificate(a);
-	  m.put(x.getSubjectDN(), a);
-	  if (debug) System.out.println("  " + a);
-	} catch(Exception e) {
-	  //e.printStackTrace();
-	}
+      if (debug) {
+	listKeyStoreAlias(keystore, keystorePath);
+	listKeyStoreAlias(caKeystore, caKeystorePath);
       }
-
       caClient = new CAClient();
 
     } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void listKeyStoreAlias(KeyStore ks, String path) {
+    try {
+      Enumeration alias = ks.aliases();
+
+      System.out.println("Keystore " + path + " contains:");
+      while (alias.hasMoreElements()) {
+	//build up the hashMap
+	String a = (String)alias.nextElement();
+	X509Certificate x=(X509Certificate)ks.getCertificate(a);
+	m.put(x.getSubjectDN(), a);
+	System.out.println("  " + a);
+      }
+    } catch(Exception e) {
+      System.out.println(e);
       e.printStackTrace();
     }
   }
@@ -174,13 +173,22 @@ public class DirectoryKeyStore implements Runnable
     try {
       // First, try with the hash map (cache)
       pk = (PrivateKey) privateKeysAlias.get(commonName);
+      if (pk != null && debug) {
+	System.out.println("Found private key in hash map");
+      }
       if (pk == null && alias != null) {
 	// Then try with the key store file
 	pk = (PrivateKey) keystore.getKey(alias, keystorePassword);
+	if (debug) {
+	  System.out.println("Found private key in keystore");
+	}
       }
       if (pk == null && alias != null) {
 	// Try with lower case.
 	pk = (PrivateKey) keystore.getKey(alias.toLowerCase(), keystorePassword);
+	if (debug) {
+	  System.out.println("Found private key in keystore");
+	}
       }
       if (pk == null) {
 	// Key was not found in keystore either.
@@ -349,7 +357,8 @@ public class DirectoryKeyStore implements Runnable
   /** Install a PKCS7 reply received from a certificate authority
    */
   public void installPkcs7Reply(String alias, InputStream inputstream)
-    throws CertificateException, KeyStoreException
+    throws CertificateException, KeyStoreException, NoSuchAlgorithmException,
+	   UnrecoverableKeyException
   {
 
     SecurityManager security = System.getSecurityManager();
@@ -361,7 +370,7 @@ public class DirectoryKeyStore implements Runnable
       System.out.println("installPkcs7Reply for " + alias);
     }
     CertificateFactory cf = CertificateFactory.getInstance("X509");
-    PrivateKey privatekey = findPrivateKey(alias);
+    PrivateKey privatekey = (PrivateKey) keystore.getKey(alias, keystorePassword);
     Certificate certificate = keystore.getCertificate(alias);
     if(certificate == null) {
       throw new CertificateException(alias + " has no certificate");
@@ -371,7 +380,12 @@ public class DirectoryKeyStore implements Runnable
     if(collection.isEmpty()) {
       throw new CertificateException("Reply has no certificate");
     }
-
+    if (debug) {
+      Iterator it = collection.iterator();
+      while (it.hasNext()) {
+	System.out.println( ((Certificate)it.next()).toString() );
+      }
+    }
     Certificate certificateReply[] = (Certificate[])collection.toArray();
     Certificate certificateForImport[];
 
@@ -713,24 +727,26 @@ public class DirectoryKeyStore implements Runnable
 	reply = caClient.sendPKCS(request, "PKCS10");
       } else {
 	// check if node cert exist
-	if(findCert(nodeName) == null) {
+	X509Certificate nodex509 = (X509Certificate) findCert(nodeName);
+	if(nodex509 == null) {
 	  //we don't have a node key pair, so make it
 	  if (debug) {
 	    System.out.println("Recursively creating key pair for node: " + nodeName);
 	  }
 	  addKeyPair(nodeName);
-	} else {
-	  // Node key exists
-	  if (debug) {
-	    System.out.println("Creating key pair for agent: " + commonName);
-	  }
-	  alias = makeKeyPair(commonName);
-	  // Generate a pkcs10 request, then sign it with node's key
-	  //String nodeAlias = findAlias(nodeName);
-	  request = generateSigningCertificateRequest(keystore.getCertificate(alias), alias);
-	
-	  reply = caClient.signPKCS(request, nodeName);
 	}
+	nodex509 = (X509Certificate) findCert(nodeName);
+	// Node key should exist now
+	if (debug) {
+	  System.out.println("Creating key pair for agent: " + commonName);
+	}
+	alias = makeKeyPair(commonName);
+	// Generate a pkcs10 request, then sign it with node's key
+	//String nodeAlias = findAlias(nodeName);
+	request = generateSigningCertificateRequest(keystore.getCertificate(alias), alias);
+	// Sign PKCS10 request with node key and send agent cert to CA
+
+	reply = caClient.signPKCS(request, nodex509.getSubjectDN().getName());
       }
     } catch (Exception e) {
       System.out.println("Unable to create key: " + commonName + " - Reason:" + e);
@@ -754,7 +770,7 @@ public class DirectoryKeyStore implements Runnable
     try {
       String alg = "MD5"; // TODO: make this dynamic
       MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
-      byte [] digest = md.digest();
+      byte[] digest = md.digest();
       
       String prefix = getCommonName(clientX509);
       alias = prefix + "-" + toHex(digest);
@@ -808,8 +824,13 @@ public class DirectoryKeyStore implements Runnable
       }
     }
     if (debug) {
-      System.out.println("CommonName to Alias Hash map contains:"
-			 + commonName2alias.toString());
+      Set st = commonName2alias.keySet();
+      Iterator it = st.iterator();
+      System.out.println("CommonName to Alias Hash map contains:");
+      while (it.hasNext()) {
+	String cn = (String) it.next();
+	System.out.println("cn=" + cn + " <-> " + commonName2alias.get(cn));
+      }
     }
   }
 
@@ -875,7 +896,8 @@ public class DirectoryKeyStore implements Runnable
     }
     X500Name dname = new X500Name(commonName,
 				  policy.ou, policy.o, policy.l, policy.st, policy.c);
-    doGenKeyPair(alias, dname.getName(), policy.keyAlgName, policy.keysize, policy.sigAlgName,
+    doGenKeyPair(alias, dname.getName(), policy.keyAlgName,
+		 policy.keysize, policy.sigAlgName,
 		 policy.validity);
     return alias;
   }
@@ -899,13 +921,12 @@ public class DirectoryKeyStore implements Runnable
     if (debug) {
       System.out.println("Generating " + keysize + " bit " + keyAlgName
 			 + " key pair and " + "self-signed certificate (" + sigAlgName + ")");
-      System.out.println("\tfor: " + x500name);
+      System.out.println("\tfor: " + x500name + " - alias:" + alias);
     }
     certandkeygen.generate(keysize);
     PrivateKey privatekey = certandkeygen.getPrivateKey();
     X509Certificate ax509certificate[] = new X509Certificate[1];
     ax509certificate[0] = certandkeygen.getSelfCertificate(x500name, validity * 24 * 60 * 60);
     setKeyEntry(alias, privatekey, ax509certificate);
-    storeKeyStore();
   }
 }

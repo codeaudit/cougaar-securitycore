@@ -71,6 +71,7 @@ public class KeyManagement
   private String x509directory = null;
   private ConfParser confParser = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
+  private NodePolicy nodePolicy = null;            // the policy of the Node
   private DirectoryKeyStore caKeyStore = null; // the keystore where the CA private key is stored
   private String caDN = null;                  // the distinguished name of the CA
   private X509Certificate caX509cert = null;   // the X.509 certificate of the CA
@@ -131,9 +132,19 @@ public class KeyManagement
 					 keystoreFile, null, null, null);
 
       certificateDirectory = new LDAPCert(caPolicy.ldapURL);
+
     }
     else {
       standalone = false;
+
+      try {
+	caPolicy = confParser.readCaPolicy("");
+      }
+      catch (Exception e) {
+	throw new Exception("Unable to read policy" + e);
+      }
+
+      nodePolicy = confParser.readNodePolicy();
       if (debug) {
 	System.out.println("Running in Cougaar environment");
       }
@@ -141,20 +152,28 @@ public class KeyManagement
        * private keys and the certificates.
        */
       ConfigFinder configFinder = new ConfigFinder();
-      File f = configFinder.locateFile(caPolicy.keyStoreFile);
+      File f = configFinder.locateFile(nodePolicy.CA_keystore);
       if (f == null) {
-	throw new FileNotFoundException("Unable to locate CA keystore file");
+	throw new FileNotFoundException("Unable to locate CA keystore file: "
+					+ nodePolicy.CA_keystore);
       }
-      confDirectoryName = f.getPath();
-    }
+      confDirectoryName = f.getParent();
+      if (debug) {
+	System.out.println("Configuration Directory: " + confDirectoryName);
+      }
 
+    }
+    //caX509cert = findCert(caPolicy.caCommonName);
+    caX509cert = findCert(caX500Name.getCommonName());
+    x509DirectoryName =  confDirectoryName + File.separatorChar + "x509certificates";
+    pkcs10DirectoryName = confDirectoryName +  File.separatorChar + "pkcs10requests";
+    /*
     x509DirectoryName =  confDirectoryName + File.separatorChar + caPolicy.x509CertDirectory;
     pkcs10DirectoryName = confDirectoryName +  File.separatorChar + caPolicy.pkcs10Directory;
-
+    */
     // Create directory structure if it hasn't been created yet.
     createDirectoryStructure();
 
-    caX509cert = findCert(caPolicy.caCommonName);
 
   }
 
@@ -306,13 +325,18 @@ public class KeyManagement
   private void saveX509Request(X509CertImpl clientX509)
     throws IOException, CertificateEncodingException, NoSuchAlgorithmException
   {
-    String alias = caKeyStore.getAlias(clientX509);
-    File f = new File(x509DirectoryName + File.separatorChar + alias);
-    f.createNewFile();
-    PrintStream out = new PrintStream(new FileOutputStream(f));
-    base64encode(out, clientX509.getEncoded(), PKCS7HEADER, PKCS7TRAILER);
+    if (standalone) {
+      if (debug) {
+	System.out.println("Saving X509 certificate:");
+      }
+      String alias = caKeyStore.getAlias(clientX509);
+      File f = new File(x509DirectoryName + File.separatorChar + alias);
+      f.createNewFile();
+      PrintStream out = new PrintStream(new FileOutputStream(f));
+      base64encode(out, clientX509.getEncoded(), PKCS7HEADER, PKCS7TRAILER);
 
-    out.close();
+      out.close();
+    }
   }
 
   public void printPkcs7Request(String filename)
@@ -566,7 +590,7 @@ public class KeyManagement
     }
 
     // Get Signature object for certificate authority
-    PrivateKey caPrivateKey = getPrivateKey(caPolicy.caCommonName);
+    PrivateKey caPrivateKey = getPrivateKey(caX500Name.getCommonName());
     Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
     // caSignature.initSign(caPrivateKey);
 
@@ -888,6 +912,8 @@ public class KeyManagement
       else if (option.equals("-1")) {
 	System.out.println("Search private key for " + args[1]);
 	PrivateKey pk = KeyRing.findPrivateKey(args[1]);
+	System.out.println(" ========================================");
+	System.out.println(" ========================================");
 	System.out.println("Search cert for " + args[1]);
 	Certificate c = KeyRing.findCert(args[1]);
 	System.out.println("Certificate is : " + c);

@@ -49,6 +49,7 @@ public class ConfParser {
 
   private String configFile = null;
   private Document configDoc = null;
+  private boolean debug = true;
 
   public ConfParser() {
     init();
@@ -94,6 +95,8 @@ public class ConfParser {
   public static final String NODE_SIGALGNAME_ELEMENT   = "sigAlgName";
   public static final String NODE_KEYSIZE_ELEMENT      = "keysize";
   public static final String NODE_VALIDITY_ELEMENT     = "validity";
+  public static final String NODE_CA_KEYSTORE_ELEMENT  = "CA_keystore";
+  public static final String NODE_CA_KEYSTORE_PWD_ELEMENT  = "CA_keystorePassword";
 
   // CA policy
   public static final String CA_POLICY_ELEMENT         = "certificateAuthority";
@@ -122,17 +125,23 @@ public class ConfParser {
   public NodePolicy readNodePolicy()
     throws NoSuchFieldException, IllegalAccessException
   {
+    if (debug) {
+      System.out.println("Readind node policy");
+    }
     Element nodePolicyElement = configDoc.getRootElement().getChild(NODE_POLICY_ELEMENT);
     NodePolicy nodePolicy = new NodePolicy();
 
     nodePolicy.CA_DN = nodePolicyElement.getChildText(NODE_CA_DN_ELEMENT);
     nodePolicy.CA_URL = nodePolicyElement.getChildText(NODE_CA_URL_ELEMENT);
+    nodePolicy.CA_keystore = nodePolicyElement.getChildText(NODE_CA_KEYSTORE_ELEMENT);
+    nodePolicy.CA_keystorePassword = nodePolicyElement.getChildText(NODE_CA_KEYSTORE_PWD_ELEMENT);
 
     nodePolicy.ou = nodePolicyElement.getChildText(NODE_OU_ELEMENT);
     nodePolicy.o = nodePolicyElement.getChildText(NODE_O_ELEMENT);
     nodePolicy.l = nodePolicyElement.getChildText(NODE_L_ELEMENT);
     nodePolicy.st = nodePolicyElement.getChildText(NODE_ST_ELEMENT);
     nodePolicy.c = nodePolicyElement.getChildText(NODE_C_ELEMENT);
+
 
     nodePolicy.keyAlgName = nodePolicyElement.getChildText(NODE_KEYALGNAME_ELEMENT);
     nodePolicy.sigAlgName = nodePolicyElement.getChildText(NODE_SIGALGNAME_ELEMENT);
@@ -145,6 +154,9 @@ public class ConfParser {
     throws MalformedURLException, NoSuchFieldException, IllegalAccessException,
 	   IOException
   {
+    if (debug) {
+      System.out.println("Readind CA policy");
+    }
     X500Name dn = new X500Name(caDistinguishedName);
 
     List conf = configDoc.getRootElement().getChildren(CA_POLICY_ELEMENT);
