@@ -40,8 +40,8 @@ public class DataProtectionServiceProvider
   }
 */
 
-  public DataProtectionServiceProvider() {
-    super();
+  public DataProtectionServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
   }
 
   /**

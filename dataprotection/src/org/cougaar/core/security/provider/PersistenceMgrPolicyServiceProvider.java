@@ -36,7 +36,6 @@ public class PersistenceMgrPolicyServiceProvider
 {
   // singleton 
   private PersistenceMgrPolicyService _instance;
-  private ServiceBroker _serviceBroker;
 
 /*
   static {
@@ -44,20 +43,11 @@ public class PersistenceMgrPolicyServiceProvider
     SecurityServiceProviderCache.put(thisProvider.getClass().getName(), thisProvider);
   }
 */
-
-  public PersistenceMgrPolicyServiceProvider() {
-    super();
-  }
   
   public PersistenceMgrPolicyServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
-    init(sb, community);
-  }
-  
-  public void init(ServiceBroker sb, String community) {
-    _serviceBroker = sb;
     if(_instance == null) {
-      _instance = new PersistenceMgrPolicyServiceImpl(_serviceBroker);
+      _instance = new PersistenceMgrPolicyServiceImpl(serviceBroker);
     }
   }
 
