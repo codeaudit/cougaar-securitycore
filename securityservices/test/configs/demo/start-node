@@ -29,4 +29,5 @@ echo cd $confdirectory
 cd $confdirectory
 echo "$COUGAAR_SECURITY_SERVICES/test/bin/SecureNode ${configfile} >& ${logfile}"
 $COUGAAR_SECURITY_SERVICES/test/bin/SecureNode ${configfile} >& ${logfile}
+#$COUGAAR_INSTALL_PATH/bin/Node ${configfile} >& ${logfile}
 

@@ -9,7 +9,7 @@ CLASSPATH = ${COUGAARCLASSES}
 #  $*      - Current target without extension
 #  $<      - Current dependency
 
-all: jar signjar 
+all: jar signjar install
 
 clean:
 	@echo +++++++ Removing jarfiles
