@@ -295,9 +295,11 @@ public class SecurityServiceProvider
       rootServiceBroker.addService(EncryptionService.class, this);
 
       /* Data protection service */
+	/*
       services.put(DataProtectionService.class,
                    new DataProtectionServiceProvider());
       rootServiceBroker.addService(DataProtectionService.class, this);
+*/
 
       /* Message protection service */
       services.put(MessageProtectionService.class,
