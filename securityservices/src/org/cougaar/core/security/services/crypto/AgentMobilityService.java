@@ -36,6 +36,12 @@ public interface AgentMobilityService extends Service {
    *  - Wrap agent key pair and protect it with remote node public key
    *  - Revoke agent key (remote node must create a new key)
    *
+   * Issues/comments:
+   * - Is there a way to identify entities without using strings?
+   * - The agent mobility service has some specific requirements
+   *   (see security framework document), therefore the identity service
+   *   cannot be used to move an agent.
+   *
    * @param agentName        the name of the agent to be moved
    * @param targetNodeAgent  the name of the remote node agent
    * @return an encrypted object that should be sent to the remote
