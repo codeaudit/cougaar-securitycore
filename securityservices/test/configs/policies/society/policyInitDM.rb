@@ -8,10 +8,7 @@ module Cougaar
         def perform
           run.society.each_enclave { |enclave|
             ::Cougaar.logger.info "Publishing conditional policy to #{enclave} policy domain manager"
-            deltaPolicy(enclave, <<END_POLICY)
-PolicyPrefix=%InitPolicy/
-
-END_POLICY
+            bootPoliciesLoaded(enclave)
           }
         end
       end # InitDM
