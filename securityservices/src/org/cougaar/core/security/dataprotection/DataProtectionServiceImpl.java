@@ -233,6 +233,11 @@ public class DataProtectionServiceImpl
     //SecureMethodParam policy =
     //cps.getSendPolicy(agent, agent);
     CryptoPolicy cp = (CryptoPolicy)cps.getDataProtectionPolicy(agent);
+    if (cp == null) {
+      String err = "Unable to get Data Protection policy for " + agent;
+      log.error(err);
+      throw new RuntimeException(err);
+    }
     SecureMethodParam policy = cp.getSecureMethodParam(agent);
 
     if (policy == null) {
