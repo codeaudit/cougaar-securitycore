@@ -11,6 +11,7 @@
 # turn this on after you've created the certificates
 org.cougaar.core.naming.useSSL=false
 #org.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol
+org.cougaar.workspace=__CIP__/workspace
 
 org.cougaar.core.security.bootstrap.keystore=__CIP__/configs/common/bootstrap_keystore
 org.cougaar.core.logging.log4j.appender.SECURITY.File=$HOST.log
@@ -51,7 +52,7 @@ org.cougaar.bootstrap.class=org.cougaar.core.security.securebootstrap.SecureBoot
 # Warning!!! Use JAR files ONLY when using this policy file.
 # If directories containing .class files are included in the CLASSPATH,
 # the .class files will not have sufficient privileges to be executed.
-#java.security.policy=__CIP__/configs/common/Cougaar_Java.policy
+java.Djava.security.policy=__CIP__/configs/common/Cougaar_Java.policy
 
 # User Java security manager
 org.cougaar.core.security.useSecurityManager=true
@@ -74,11 +75,11 @@ org.cougaar.core.security.Domain=NCADomain
 # Note that HTTPS is off by default, and HTTP is at 8800
 # HTTP port number
 # Comment out following line if you don't want HTTP
-org.cougaar.lib.web.http.port=5561
+org.cougaar.lib.web.http.port=5557
 
 # HTTPS port number
 # Comment out following line if you don't want HTTPS
-org.cougaar.lib.web.https.port=6561
+org.cougaar.lib.web.https.port=6557
 org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory
 
 # Logging
