@@ -242,6 +242,7 @@ final public class CRLCache
             !mySecurityCommunities.isEmpty()) {
 	  Iterator it = mySecurityCommunities.iterator();
           synchronized (_blackboardLock) {
+            try {
           blackboardService.openTransaction();
 	  while (it.hasNext()) {
 	    Community community = (Community) it.next();
@@ -257,7 +258,9 @@ final public class CRLCache
             }
             blackboardService.publishAdd(crlregrelay);
           }
+            } finally {
           blackboardService.closeTransaction();
+            }
           }
         } else {
           if (log.isDebugEnabled()) {
@@ -787,6 +790,7 @@ final public class CRLCache
 	Iterator it = mySecurityCommunities.iterator();
 
         synchronized (_blackboardLock) {
+          try {
         blackboardService.openTransaction();
 	while (it.hasNext()) {
           Community community = (Community) it.next();
@@ -800,7 +804,9 @@ final public class CRLCache
           log.debug(" CRL relay is being published :"+ crlregrelay.toString());
           blackboardService.publishAdd(crlregrelay);
         }
+          } finally {
         blackboardService.closeTransaction();
+          }
         }
       }
     }
@@ -1186,6 +1192,7 @@ final public class CRLCache
 
     protected void precycle() {
       log.debug("precycle called in CrlCacheBlackboardComponent"+getBlackboardClientName() ); 
+      synchronized (_blackboardLock) {
       try {
 	blackboard.openTransaction();
 	setupSubscriptions();
@@ -1199,10 +1206,12 @@ final public class CRLCache
       } finally {
 	blackboard.closeTransaction();
       }
+      }
     }      
   
     protected void cycle() {
       // do stuff
+      synchronized (_blackboardLock) {
       try {
 	blackboard.openTransaction();
 	if (shouldExecute()) {
@@ -1213,6 +1222,7 @@ final public class CRLCache
 	t.printStackTrace();
       } finally {
 	blackboard.closeTransaction();
+      }
       }
     }
   
