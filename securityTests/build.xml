@@ -23,6 +23,9 @@ ARCHIVE_TIME=${build.time}
 	<copy todir="staging/csmart/assessment/scripts/">
 		<fileset dir="scripts03"/>
 	</copy>
+	<copy todir="staging/csmart/assessment/assess/">
+		<fileset dir="assess03"/>
+	</copy>
 	<copy todir="staging/Manifest">
 		<fileset dir="Manifest"/>
 	</copy>
