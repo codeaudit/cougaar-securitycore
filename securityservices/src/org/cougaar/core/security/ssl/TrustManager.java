@@ -102,7 +102,7 @@ public class TrustManager implements X509TrustManager {
     // since node configuration has only one CA, the issues will only
     // be one CA and the node itself
     if (CryptoDebug.debug)
-      System.out.println("getAcceptedIssuers.");
+      System.out.println("getAcceptedIssuers." + issuers.length);
     return issuers;
   }
 }
