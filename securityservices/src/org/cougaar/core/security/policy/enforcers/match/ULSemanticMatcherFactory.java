@@ -102,7 +102,9 @@ public class ULSemanticMatcherFactory
       String actor = (String) instance;
       actor     = removeHashChar(actor);
       className = removeHashChar(className);
-      if (className.startsWith(communityPrefix)) {
+      if (className.equals(kaos.ontology.jena.ActorConcepts._Agent_)) {
+        return !UserDatabase.isUser(actor);
+      } else if (className.startsWith(communityPrefix)) {
         ensureCommunityServicePresent();
 
         String community 
@@ -118,9 +120,10 @@ public class ULSemanticMatcherFactory
         } else {
           return UserDatabase.getRoles(actor).contains(role);
         }
-      } else {
-        return false;
+      } else if (className.equals(kaos.ontology.jena.ActorConcepts._Person_)) {
+        return UserDatabase.isUser((String) instance);
       }
+      return false;
     }
 
     public int matchSemantically(String className, Set instances)
@@ -135,112 +138,170 @@ public class ULSemanticMatcherFactory
           _log.debug(".ULSemanticMatcher: " + instance);
         }
       }
-      className = removeHashChar(className);
-      if (className.equals(kaos.ontology.jena.ActorConcepts._Agent_)) {
-	  return KAoSProperty._ALL_INST_PRESENT;
-      } else if (className.startsWith(communityPrefix)) {
-        ensureCommunityServicePresent();
-        boolean someMatch     = false;
-        boolean someDontMatch = false;
-
-        String community 
-          = className.substring(communityPrefix.length());
-        for (Iterator agentIt = instances.iterator(); 
-             agentIt.hasNext();) {
-          String agent = (String) agentIt.next();
-          agent = removeHashChar(agent);
-
-          Collection communities = getCommunitiesFromAgent(agent);
-
-          _log.debug("matchSemantically: Communities for agent, " 
-                     + agent + " = ");
-          for(Iterator communitiesIt = communities.iterator();
-              communitiesIt.hasNext();) {
-            _log.debug("Community: " + communitiesIt.next());
-          }
-          _log.debug("matchSemantically: contains community, "
-                     + community + "?");
-          if (communities.contains(community)) {
-            _log.debug("matchSemantically: yes");
-            someMatch = true;
-          } else {
-            _log.debug("matchSemantically: no");
-            someDontMatch = true;
-          }
-          if (someMatch && someDontMatch) {
-            _log.debug("matchSemantically: return partial match");
-            return 1;  // a partial match
-          }
-        }
-        // can't have both someMatch and someDontMatch
-        _log.debug("matchSemantically: someMatch = " + someMatch);
-        _log.debug("matchSemantically: someDontMatch = " + 
-                   someDontMatch);
-        if (someMatch) {
-          return KAoSProperty._ALL_INST_PRESENT;
-        } else if (someDontMatch) {
-          return KAoSProperty._NO_INST_PRESENT;
+      boolean someMatch     = false;
+      boolean someDontMatch = false;
+      for (Iterator actorIt = instances.iterator(); 
+           actorIt.hasNext();) {
+        Object actor = (String) actorIt.next();
+        if (matchSemantically(className, actor)) {
+          _log.debug("ULSemanticMatcher: found match of " + className +
+                     " and " + actor);
+          someMatch = true;
         } else {
-          return KAoSProperty._ALL_INST_PRESENT;
+          _log.debug("ULSemanticMatcher: found non-match of " + className +
+                     " and " + actor);
+          someDontMatch = true;
         }
-      } else if ((className.startsWith(personPrefix))) {
-        boolean someMatch     = false;
-        boolean someDontMatch = false;
-
-        String policyRole
-          = className.substring(personPrefix.length());
-        for (Iterator personIt = instances.iterator(); 
-             personIt.hasNext();) {
-          String person = (String) personIt.next();
-          person = removeHashChar(person);
-
-          Set userRoles = UserDatabase.getRoles(person);
-          Set userRolesStripped = new HashSet();
-          for (Iterator userRolesIt = userRoles.iterator();
-               userRolesIt.hasNext();) {
-            String userRole = (String) userRolesIt.next();
-            
-            userRolesStripped.add(userRole
-                                  .substring(userRole.indexOf('\\') + 1));
-          }
-          if (_log.isDebugEnabled()) {
-            _log.debug("matchSemantically: Roles for person, " 
-                       + person + " = ");
-            for(Iterator userRolesIt = userRolesStripped.iterator();
-                userRolesIt.hasNext();) {
-              _log.debug("Role: " + userRolesIt.next());
-            }
-            _log.debug("matchSemantically: contains role, "
-                       + policyRole + "?");
-          }
-
-          if (userRolesStripped.contains(policyRole)) {
-            _log.debug("matchSemantically: yes");
-            someMatch = true;
-          } else {
-            _log.debug("matchSemantically: no");
-            someDontMatch = true;
-          }
-          if (someMatch && someDontMatch) {
-            _log.debug("matchSemantically: return partial match");
-            return 1;  // a partial match
-          }
-        }
-        // can't have both someMatch and someDontMatch
-        _log.debug("matchSemantically: someMatch = " + someMatch);
-        _log.debug("matchSemantically: someDontMatch = " + 
-                   someDontMatch);
-        if (someMatch) {
-          return KAoSProperty._ALL_INST_PRESENT;
-        } else if (someDontMatch) {
-          return KAoSProperty._NO_INST_PRESENT;
-        } else {
-          return KAoSProperty._ALL_INST_PRESENT;
-        }      
-      } else {
+      }
+      if (someMatch && someDontMatch) {
+        return 1;
+      } else if (someMatch) {
+        return KAoSProperty._ALL_INST_PRESENT;
+      } else if (someDontMatch) {
         return KAoSProperty._NO_INST_PRESENT;
+      } else {
+        return KAoSProperty._ALL_INST_PRESENT;
       }
     }
+
+    //      /*******************Generic Agent********************/
+    //      className = removeHashChar(className);
+    //      if (className.equals(kaos.ontology.jena.ActorConcepts._Agent_)) {
+    //	  return KAoSProperty._ALL_INST_PRESENT;
+    //      } else if (className.startsWith(communityPrefix)) {
+    //        ensureCommunityServicePresent();
+    //        boolean someMatch     = false;
+    //        boolean someDontMatch = false;
+    //
+    //        String community 
+    //          = className.substring(communityPrefix.length());
+    //        for (Iterator agentIt = instances.iterator(); 
+    //             agentIt.hasNext();) {
+    //          String agent = (String) agentIt.next();
+    //          agent = removeHashChar(agent);
+    //
+    //          Collection communities = getCommunitiesFromAgent(agent);
+    //
+    //          _log.debug("matchSemantically: Communities for agent, " 
+    //                     + agent + " = ");
+    //          for(Iterator communitiesIt = communities.iterator();
+    //              communitiesIt.hasNext();) {
+    //            _log.debug("Community: " + communitiesIt.next());
+    //          }
+    //          _log.debug("matchSemantically: contains community, "
+    //                     + community + "?");
+    //          if (communities.contains(community)) {
+    //            _log.debug("matchSemantically: yes");
+    //            someMatch = true;
+    //          } else {
+    //            _log.debug("matchSemantically: no");
+    //            someDontMatch = true;
+    //          }
+    //          if (someMatch && someDontMatch) {
+    //            _log.debug("matchSemantically: return partial match");
+    //            return 1;  // a partial match
+    //          }
+    //        }
+    //        // can't have both someMatch and someDontMatch
+    //        _log.debug("matchSemantically: someMatch = " + someMatch);
+    //        _log.debug("matchSemantically: someDontMatch = " + 
+    //                   someDontMatch);
+    //        if (someMatch) {
+    //          return KAoSProperty._ALL_INST_PRESENT;
+    //        } else if (someDontMatch) {
+    //          return KAoSProperty._NO_INST_PRESENT;
+    //        } else {
+    //          return KAoSProperty._ALL_INST_PRESENT;
+    //        }
+    //      } else if ((className.startsWith(personPrefix))) {
+    //        boolean someMatch     = false;
+    //        boolean someDontMatch = false;
+    //
+    //        String policyRole
+    //          = className.substring(personPrefix.length());
+    //        for (Iterator personIt = instances.iterator(); 
+    //             personIt.hasNext();) {
+    //          String person = (String) personIt.next();
+    //          person = removeHashChar(person);
+    //
+    //          Set userRoles = UserDatabase.getRoles(person);
+    //          Set userRolesStripped = new HashSet();
+    //          for (Iterator userRolesIt = userRoles.iterator();
+    //               userRolesIt.hasNext();) {
+    //            String userRole = (String) userRolesIt.next();
+    //            
+    //            userRolesStripped.add(userRole
+    //                                  .substring(userRole.indexOf('\\') + 1));
+    //          }
+    //          if (_log.isDebugEnabled()) {
+    //            _log.debug("matchSemantically: Roles for person, " 
+    //                       + person + " = ");
+    //            for(Iterator userRolesIt = userRolesStripped.iterator();
+    //                userRolesIt.hasNext();) {
+    //              _log.debug("Role: " + userRolesIt.next());
+    //            }
+    //            _log.debug("matchSemantically: contains role, "
+    //                       + policyRole + "?");
+    //          }
+    //
+    //          if (userRolesStripped.contains(policyRole)) {
+    //            _log.debug("matchSemantically: yes");
+    //            someMatch = true;
+    //          } else {
+    //            _log.debug("matchSemantically: no");
+    //            someDontMatch = true;
+    //          }
+    //          if (someMatch && someDontMatch) {
+    //            _log.debug("matchSemantically: return partial match");
+    //            return 1;  // a partial match
+    //          }
+    //        }
+    //        // can't have both someMatch and someDontMatch
+    //        _log.debug("matchSemantically: someMatch = " + someMatch);
+    //        _log.debug("matchSemantically: someDontMatch = " + 
+    //                   someDontMatch);
+    //        if (someMatch) {
+    //          return KAoSProperty._ALL_INST_PRESENT;
+    //        } else if (someDontMatch) {
+    //          return KAoSProperty._NO_INST_PRESENT;
+    //        } else {
+    //          return KAoSProperty._ALL_INST_PRESENT;
+    //        }      
+    //      } else if (className.equals(kaos.ontology.jena.ActorConcepts._Person_)) {
+    //        boolean someMatch     = false;
+    //        boolean someDontMatch = false;
+    //
+    //        for (Iterator personIt = instances.iterator(); 
+    //             personIt.hasNext();) {
+    //          String person = (String) personIt.next();
+    //          person = removeHashChar(person);
+    //
+    //          if (UserDatabase.isUser(person)) {
+    //            _log.debug("matchSemantically: yes");
+    //            someMatch = true;
+    //          } else {
+    //            _log.debug("matchSemantically: no");
+    //            someDontMatch = true;
+    //          }
+    //          if (someMatch && someDontMatch) {
+    //            _log.debug("matchSemantically: return partial match");
+    //            return 1;  // a partial match
+    //          }
+    //        }
+    //        // can't have both someMatch and someDontMatch
+    //        _log.debug("matchSemantically: someMatch = " + someMatch);
+    //        _log.debug("matchSemantically: someDontMatch = " + 
+    //                   someDontMatch);
+    //        if (someMatch) {
+    //          return KAoSProperty._ALL_INST_PRESENT;
+    //        } else if (someDontMatch) {
+    //          return KAoSProperty._NO_INST_PRESENT;
+    //        } else {
+    //          return KAoSProperty._ALL_INST_PRESENT;
+    //        }      
+    //      } else {
+    //        return KAoSProperty._NO_INST_PRESENT;
+    //      }
 
     private Collection getCommunitiesFromAgent(String agent)
     {
@@ -256,6 +317,7 @@ public class ULSemanticMatcherFactory
       } else {
         communities = (Collection) cached;
       }
+      _log.debug("Returning " + communities + " for " + agent);
       return communities;
     }
   }
