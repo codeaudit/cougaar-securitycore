@@ -102,8 +102,25 @@ public class CommunityServiceUtil {
    *
    * @return the message address of the m&r security manager
    */
-  public void findSecurityManager(CommunityServiceUtilListener listener) {
-    getCommunityAgent(SECURITY_COMMUNITY_TYPE, MANAGER_ROLE, listener);
+  public void findSecurityManager(final CommunityServiceUtilListener listener) {
+    if(_log.isDebugEnabled()) {
+      _log.debug("findSecurityManager called for agent : "+_agent);
+    }
+    CommunityServiceUtilListener myListener =
+      new CommunityServiceUtilListener() {
+        public void getResponse(Set communities) {
+          if(_log.isDebugEnabled()) {
+            _log.debug("Agent "+ _agent+" Got Response in myListener of findSecurityManager :"+communities);
+            
+          }
+          Community comm = (Community) communities.iterator().next();
+          getAgentsInCommunity(comm.getName(), MANAGER_ROLE, listener);
+        }
+      };
+    if(_log.isDebugEnabled()) {
+      _log.debug("calling getCommunityNoRole from  findSecurityManager for agent : "+_agent);
+    }
+    getCommunityNoRole(SECURITY_COMMUNITY_TYPE, MANAGER_ROLE, myListener);
   }
 
   public boolean isRoot(Community community) {
@@ -111,8 +128,12 @@ public class CommunityServiceUtil {
     return !set.isEmpty();
   }
   
-  public boolean hasRole(Community community, String role) {
-    Set set = community.search("(Role=" + role + ")",
+  public boolean hasRole(Community community, String role, boolean contains) {
+    String filter = "(Role=" + role + ")";
+    if (!contains) {
+      filter = "(!" + filter + ")";
+    }
+    Set set = community.search(filter,
                                Community.AGENTS_ONLY);
     Iterator iter = set.iterator();
     while (iter.hasNext()) {
@@ -124,12 +145,12 @@ public class CommunityServiceUtil {
     return false;
   }
 
-  public Set withRole(Collection communities, String role) {
+  public Set withRole(Collection communities, String role, boolean contains) {
     Set commSet = new HashSet();
     Iterator iter = communities.iterator();
     while (iter.hasNext()) {
       Community community = (Community) iter.next();
-      if (hasRole(community, role)) {
+      if (hasRole(community, role, contains)) {
         commSet.add(community);
       }
     }
@@ -140,7 +161,70 @@ public class CommunityServiceUtil {
    * Retrieves all security communities for which this agent is a member
    */
   public void getSecurityCommunities(CommunityServiceUtilListener listener) {
+    if(_log.isDebugEnabled()) {
+      _log.debug("getSecurityCommunities called for agent : "+_agent);
+    }
     getCommunity(SECURITY_COMMUNITY_TYPE, MEMBER_ROLE, listener);
+  }
+
+  /**
+   * Retrieves all communities for which this agent is a member and
+   * does not have the given role.
+   */
+  public void getCommunityNoRole(String communityType, String notRole,
+                                 CommunityServiceUtilListener listener) {
+    if(_log.isDebugEnabled()) {
+      _log.debug("getCommunityNoRole called for agent : "+_agent);
+    }
+    if (_log.isDebugEnabled()) {
+      _log.debug("Agent "+ _agent+ "In getCommunityNoRole () Looking for community of type " + communityType +
+                 " for which " + _agent + " does not have role " + notRole);
+    }
+
+    final TimerTask tt =
+      new WarnTimerTask(_agent + 
+                        " searching for not role (" + notRole +
+                        ") in community " +
+                        "type (" + communityType + ")",
+                        _agent + 
+                        " found not role (" + notRole  + 
+                        ") in community type (" + 
+                        communityType + ")");
+    CommunityChangeListener   ccl = 
+      new GetCommunity(listener, tt, communityType, notRole, false);
+    CommunityResponseListener crl = 
+      new ResultListener(listener, tt, ccl, notRole, false);
+    String filter = "(CommunityType=" + communityType + ")";
+    _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
+                            COMMUNITY_WARNING_TIMEOUT);
+    if (_log.isDebugEnabled()) {
+      _log.debug("In agent :"+ _agent +" Doing Communities only search in  getCommunityNoRole with filter :"+ filter);
+      _log.debug(" Result listener in  getCommunityNoRole is :"+ crl);
+    }
+    Collection communities = 
+      _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
+   
+    if (communities != null) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Agent "+ _agent+"Got immediate response for community of type: " + 
+                   communityType + " in getCommunityNoRole"  );
+      }
+      Set commSet = withRole(communities, notRole, false);
+      if (!commSet.isEmpty()) {
+        tt.cancel();
+        listener.getResponse(commSet);
+        return;
+      }
+      if(_log.isDebugEnabled()){
+        _log.debug("Adding Listener getCommunityNoRole with not role : "+ notRole + "Listener is :"+ ccl); 
+      }
+      _cs.addListener(ccl);
+    } 
+    if (_log.isDebugEnabled()) {
+      _log.debug("Agent "+ _agent+"Waiting for callback ... In getCommunityNoRole ()"+ 
+                 "Looking for community of type " + communityType +
+                 " for which " + _agent + " does not have role " + notRole);
+    }
   }
 
   /**
@@ -158,6 +242,9 @@ public class CommunityServiceUtil {
    */
   public void getCommunity(String communityType, 
                            CommunityServiceUtilListener listener) {
+    if(_log.isDebugEnabled()) {
+      _log.debug("getCommunity called for agent : "+_agent);
+    }
     getCommunity(communityType, MEMBER_ROLE, listener);
   }
 
@@ -180,9 +267,8 @@ public class CommunityServiceUtil {
                            String role, 
                            CommunityServiceUtilListener listener) {
     if (_log.isDebugEnabled()) {
-      _log.debug("Looking for community of type " + communityType);
+      _log.debug("Agent "+ _agent+" In getCommunity () Looking for community of type " + communityType);
     }
-
     final TimerTask tt =
       new WarnTimerTask(_agent + 
                         " searching for role (" + role + ") in community " +
@@ -191,30 +277,37 @@ public class CommunityServiceUtil {
                         " found role (" + role  + ") in community type (" + 
                         communityType + ")");
     CommunityChangeListener   ccl = 
-      new GetCommunity(listener, tt, communityType, role);
+      new GetCommunity(listener, tt, communityType, role, true);
     CommunityResponseListener crl = 
-      new ResultListener(listener, tt, ccl, role);
+      new ResultListener(listener, tt, ccl, role,true);
     String filter = "(CommunityType=" + communityType + ")";
     _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
                             COMMUNITY_WARNING_TIMEOUT);
+    if (_log.isDebugEnabled()) {
+      _log.debug("In agent :"+ _agent +" Doing Communities only search in  getCommunity with filter :"+ filter);
+      _log.debug(" Result listener in  getCommunity :"+ crl);
+    }
     Collection communities = 
       _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
 
     if (communities != null) {
       if (_log.isDebugEnabled()) {
-        _log.debug("Got immediate response for community of type: " + 
+        _log.debug("Agent "+ _agent+"Got immediate response for community of type: " + 
                    communityType);
       }
-      Set commSet = withRole(communities, role);
+      Set commSet = withRole(communities, role, true);
       if (!commSet.isEmpty()) {
         tt.cancel();
         listener.getResponse(commSet);
         return;
       }
+      if(_log.isDebugEnabled()){
+        _log.debug("Adding Listener getCommunity with :"+ role + "Listener is :"+ ccl); 
+      }
       _cs.addListener(ccl);
     } 
     if (_log.isDebugEnabled()) {
-      _log.debug("Waiting for callback searching for community of type " +
+      _log.debug("Agent "+ _agent+"Waiting for callback searching for community of type " +
                  communityType);
     }
   }
@@ -237,7 +330,7 @@ public class CommunityServiceUtil {
                                 String role,
                                 CommunityServiceUtilListener listener) {
     if (_log.isDebugEnabled()) {
-      _log.debug("Looking for agent in community of type " + communityType +
+      _log.debug("Agent "+ _agent+" In getCommunityAgent Looking for agent in community of type " + communityType +
                  " with a role of " + role);
     }
 
@@ -255,21 +348,33 @@ public class CommunityServiceUtil {
       ")(Role=" + role +"))";
     _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
                             COMMUNITY_WARNING_TIMEOUT);
+    if(_log.isDebugEnabled()){
+      _log.debug("In agent :"+ _agent +" Doing Agents only search in  getCommunityAgent with filter :"+ filter);
+      _log.debug(" Result listener in  getCommunityAgent is :"+ crl);
+    }
     Collection agents = 
       _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
 
     if (agents != null) {
       tt.cancel();
       if (_log.isDebugEnabled()) {
-        _log.debug("Got immediate response when looking for agents in role (" +
+        _log.debug("Agent "+ _agent+" getCommunityAgent() Got immediate response when looking for agents in role (" +
                    role + ") in my communities of type (" +
-                   communityType + ")");
+                   communityType + ")" +"   Response   :"+ agents );
       }
-      HashSet set = new HashSet(agents);
-      listener.getResponse(set);
+      if (agents.isEmpty()) {
+        if(_log.isDebugEnabled()){
+          _log.debug("Adding Listener getCommunityAgent with :"+ role + "Listener is :"+ ccl); 
+        }
+        _cs.addListener(ccl);
+      } else {
+        HashSet set = new HashSet(agents);
+        listener.getResponse(set);
+        tt.cancel();
+      }
     } else {
       if (_log.isDebugEnabled()) {
-        _log.debug("Waiting for callback searching for agent in " +
+        _log.debug("Agent "+ _agent+ "Waiting for callback searching for agent in " +
                    "community of type (" + communityType + ") having role (" + 
                    role + ")");
       }
@@ -291,8 +396,8 @@ public class CommunityServiceUtil {
   public Set getAgents(String communityName, 
                        String role, long timeout) {
     if (_log.isDebugEnabled()) {
-      _log.debug("Looking for agent in community (" + communityName +
-                 ") with a role of (" + role + ")");
+      _log.debug("Agent "+ _agent+"In getAgents Looking for agent in community (" + communityName +
+                 ") with a role of (" + role + ")"); 
     }
 
     final Status status = new Status();
@@ -302,10 +407,10 @@ public class CommunityServiceUtil {
         public void getResponse(CommunityResponse resp) {
           Object response = resp.getContent();
           if (_log.isDebugEnabled()) {
-            _log.debug("got response in callback: " + response);
+            _log.debug("Agent "+ _agent+"got response in callback: " + response);
           }
           if (!(response instanceof Set)) {
-            String errorString = "Unexpected community response class:"
+            String errorString = "Agent "+ _agent+"Unexpected community response class:"
               + response.getClass().getName() + " - Should be a Community";
             _log.error(errorString);
             throw new RuntimeException(errorString);
@@ -314,16 +419,18 @@ public class CommunityServiceUtil {
           s.release();
         }
       };
-
     String filter = "(Role=" + role +")";
+    if(_log.isDebugEnabled()){
+      _log.debug("In agent :"+ _agent +" Doing Agents only search in  getAgents with filter :"+ filter);
+      _log.debug(" Result listener in  getAgents is :"+ crl);
+    }
     Collection agents = 
       _cs.searchCommunity(communityName, filter, true, 
                           Community.AGENTS_ONLY, crl);
-
     if (agents != null) {
       if (_log.isDebugEnabled()) {
-        _log.debug("Got immediate response when looking for agents in role (" +
-                   role + ") in community (" + communityName + ")");
+        _log.debug("Agent "+ _agent+" getAgents() Got immediate response when looking for agents in role (" +
+                   role + ") in community (" + communityName + ")" +  "   Response :  "+ agents);
       }
       HashSet set = new HashSet(agents);
       return set;
@@ -352,7 +459,8 @@ public class CommunityServiceUtil {
   public void getAgents(String communityName, String role, 
                         final CommunityServiceUtilListener listener) {
     if (_log.isDebugEnabled()) {
-      _log.debug("Looking for agent in community (" + communityName +
+      _log.debug("Agent "+ _agent+" In  getAgents(String communityName, String role,"+ 
+                 "final CommunityServiceUtilListener listener )Looking for agent in community (" + communityName +
                  ") with a role of (" + role + ")");
     }
 
@@ -366,7 +474,7 @@ public class CommunityServiceUtil {
         public void getResponse(CommunityResponse resp) {
           Object response = resp.getContent();
           if (_log.isDebugEnabled()) {
-            _log.debug("got response in callback: " + response);
+            _log.debug("Agent "+ _agent+"got response in callback get Agents (communityName,role,listener) : " + response);
           }
           if (!(response instanceof Set)) {
             String errorString = "Unexpected community response class:"
@@ -375,27 +483,120 @@ public class CommunityServiceUtil {
             throw new RuntimeException(errorString);
           }
           tt.cancel();
+          if(_log.isDebugEnabled()) {
+            _log.debug("received response in call back of crl for get Agents (communityName,role,listener) :"
+                       + response);
+          }
           listener.getResponse((Set) response);
         }
       };
 
     String filter = "(Role=" + role +")";
-      _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
-                              COMMUNITY_WARNING_TIMEOUT);
+    _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
+                            COMMUNITY_WARNING_TIMEOUT);
+    if(_log.isDebugEnabled()){
+      _log.debug("In agent :"+ _agent +" Doing Agents only search in  getAgents with filter :"+ filter);
+      _log.debug(" Community listener  in  getAgents is :"+ crl);
+    } 
     Collection agents = 
       _cs.searchCommunity(communityName, filter, true, 
                           Community.AGENTS_ONLY, crl);
 
     if (agents != null) {
-      tt.cancel();
-      if (_log.isDebugEnabled()) {
-        _log.debug("Got immediate response when looking for agents in role (" +
-                   role + ") in community (" + communityName + ")");
+      if(_log.isDebugEnabled()) {
+        _log.debug("Agent "+ _agent+" getAgents Got immediate Response in getAgents when looking for agents in role  (" +
+                   role + ") in community (" + communityName + ")" + "Response :"+ agents);
       }
+      tt.cancel();
       HashSet set = new HashSet(agents);
       listener.getResponse(set);
     }
   }
+
+
+  /**
+   * Searches the community of the given name that
+   * and returns agents with the given role that belong to that community.
+   * If the information isn't available CommunityChange listener is added,
+   * <tt>null is never returned </tt> is returned. 
+   *
+   * @param communityName The name of community to search
+   * @param role          The role of the agent(s) to return
+   * @param callback      Listener that receives the results of the search
+   */
+  public void getAgentsInCommunity(String communityName, String role, 
+                                   final CommunityServiceUtilListener listener) {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Agent "+ _agent+"In getAgentsInCommunity(String communityName, String role,"+ 
+                 "final CommunityServiceUtilListener listener)Looking for agent in community (" + communityName +
+                 ") with a role of (" + role + ")");
+    }
+
+    final TimerTask tt =
+      new WarnTimerTask(_agent + " searching for agent of role (" + role +
+                        ") in community (" + communityName + ") in getAgentsInCommunity ",
+                        _agent + " found agent of role (" + role +
+  
+                        ") in community (" + communityName + ")");
+    /*
+      CommunityResponseListener ccrl = new CommunityResponseListener() {
+      public void getResponse(CommunityResponse resp) {
+      Object response = resp.getContent();
+      if (_log.isDebugEnabled()) {
+      _log.debug("Agent "+ _agent+"got response in callback getAgentsInCommunity(communityName,role,listener) : " + response);
+      }
+      if (!(response instanceof Set)) {
+      String errorString = "Unexpected community response class:"
+      + response.getClass().getName() + " - Should be a Community";
+      _log.error(errorString);
+      throw new RuntimeException(errorString);
+      }
+      tt.cancel();
+      if(_log.isDebugEnabled()) {
+      _log.debug("received response in call back of crl for getAgentsInCommunity(communityName,role,listener) :"
+      + response);
+      }
+      listener.getResponse((Set) response);
+      }
+      };
+    */
+    CommunityChangeListener   ccl =  new GetAgentInCommunity (listener, tt, communityName, role);
+    CommunityResponseListener crl =  new ResultListener(listener, tt, ccl, role,true);
+    String filter = "(Role=" + role +")";
+    _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
+                            COMMUNITY_WARNING_TIMEOUT);
+    if(_log.isDebugEnabled()){
+      _log.debug("In agent :"+ _agent +" Doing Agents only search in  getAgentsInCommunity with filter :"+ filter);
+      _log.debug(" Result listener in  getAgentsInCommunity is :"+ crl);
+    }  
+    Collection agents = 
+      _cs.searchCommunity(communityName, filter, true, 
+                          Community.AGENTS_ONLY, crl);
+
+    if (agents != null) {
+      if(_log.isDebugEnabled()) {
+        _log.debug("Agent "+ _agent+" getAgentsInCommunity Got immediate Response in getAgents when looking for agents in role  (" +
+                   role + ") in community (" + communityName + ")" + "Response :"+ agents);
+      }
+      if(agents.isEmpty()) {
+        if(_log.isDebugEnabled()) {
+          _log.debug("Agent "+ _agent+" Got immediate Response  in getAgents as EMPTY ADDING CRL WAITING for CALL BACK.. "); 
+          _log.debug(" ADDING Listener getAgentsInCommunity role :" + role + "Listener :" + ccl);
+        }
+        
+        _cs.addListener(ccl);
+      } else {
+        tt.cancel();
+        if (_log.isDebugEnabled()) {
+          _log.debug("Agent "+ _agent+" getAgentsInCommunity Got immediate response when looking for agents in role (" +
+                     role + ") in community (" + communityName + ")" + "Response :"+ agents);
+        }
+        HashSet set = new HashSet(agents);
+        listener.getResponse(set);
+      }
+    }
+  }
+  
 
   /**
    * Retrieves the security community for which this agent has the role
@@ -404,8 +605,10 @@ public class CommunityServiceUtil {
    * @param listener Callback receives at least one security community
    *                 in its getResponse.
    */
-  public void 
-    getManagedSecurityCommunity(CommunityServiceUtilListener listener) {
+  public void  getManagedSecurityCommunity(CommunityServiceUtilListener listener) {
+    if(_log.isDebugEnabled()) {
+      _log.debug(" getManagedSecurityCommunity called for :"+_agent);
+    }
     getCommunity(SECURITY_COMMUNITY_TYPE, MANAGER_ROLE, listener);
   }
 
@@ -422,7 +625,7 @@ public class CommunityServiceUtil {
           Iterator iter = set.iterator();
           while (iter.hasNext()) {
             Community community = (Community) iter.next();
-            if (hasRole(community, MANAGER_ROOT)) {
+            if (hasRole(community, MANAGER_ROOT, true)) {
               listener.getResponse(set);
               return;
             }
@@ -437,13 +640,13 @@ public class CommunityServiceUtil {
     boolean contains=false;
     if(set==null) { 
       if (_log.isDebugEnabled()) {
-        _log.debug( "returning as set is NULL");
+        _log.debug("Agent "+ _agent+ " returning as set is NULL");
       }
       return contains;
     }
     if(set.isEmpty()) {
       if (_log.isDebugEnabled()) {
-        _log.debug( "returning as set is EMPTY");
+        _log.debug("Agent "+ _agent+ " returning as set is EMPTY");
       }
       return contains;
     }
@@ -452,11 +655,11 @@ public class CommunityServiceUtil {
     while(iter.hasNext()){
       entity=(Entity)iter.next();
       if (_log.isDebugEnabled()) {
-        _log.debug( "comparing : "+ entity.getName() + " with "+ agent);
+        _log.debug( "Agent "+ _agent+ "comparing : "+ entity.getName() + " with "+ agent);
       }
       if(entity.getName().trim().equals(agent)) {
         if (_log.isDebugEnabled()) {
-          _log.debug(" Found : "+ entity.getName().trim() + " EQUALS" + agent);
+          _log.debug("Agent "+ _agent+ " Found : "+ entity.getName().trim() + " EQUALS" + agent);
         }
         contains=true;
         return contains; 
@@ -468,6 +671,19 @@ public class CommunityServiceUtil {
     public Object value;
   }
 
+  private void printCommunityInfo(Community community) {
+    if(_log.isDebugEnabled()) {
+      _log.debug("Printing Community info for community :"+ community.getName());
+      Collection entities=community.getEntities();
+      Iterator iter=entities.iterator();
+      Entity entity=null;
+      while(iter.hasNext()){
+        entity=(Entity)iter.next();
+        _log.debug("Entity -->"+entity.getName());
+        _log.debug(entity.toXml());
+      }
+    }
+  }
   private static boolean isCommunityType(Community community, String type) {
     try {
       Attributes attrs = community.getAttributes();
@@ -493,19 +709,35 @@ public class CommunityServiceUtil {
     private CommunityServiceUtilListener _listener;
     private TimerTask                    _timerTask;
     private boolean                      _allDone;
+    private boolean                      _containsRole;
 
     public GetCommunity(CommunityServiceUtilListener listener, 
                         TimerTask timerTask,
                         String communityType,
-                        String role) {
+                        String role,
+                        boolean containsRole) {
       _communityType = communityType;
       _role          = role;
       _listener      = listener;
       _timerTask     = timerTask;
+      _containsRole  = containsRole;
     }
 
     public void communityChanged(CommunityChangeEvent event) {
+      if (_log.isDebugEnabled()) {
+        _log.debug(" communityChanged is called for agent : "+_agent +" in GetCommunity CommunityChangeListener" + this);
+        if(_containsRole){
+          _log.debug(" where community Type( "+_communityType+" ) and role is ( "+_role+ " )"); 
+        }
+        else {
+          _log.debug(" where community Type( "+_communityType+" ) and role is NOT ( "+_role+ " )"); 
+        }
+      }
+      
       if (_allDone) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Removing communityChanged listener for agent : "+ _agent +" in GetCommunity CommunityChangeListener");
+        }
         _cs.removeListener(this);
         return;
       }
@@ -515,34 +747,44 @@ public class CommunityServiceUtil {
           event.getType() != event.ADD_ENTITY) {
         return; // not a change we care about
       }
-
       Community community = event.getCommunity();
       if (!isCommunityType(community, _communityType)) {
         if (_log.isDebugEnabled()) {
-          _log.debug(community.getName() + " is not of type " + 
+          _log.debug("Agent "+ _agent+ " "+community.getName() + " is not of type " + 
                      _communityType);
         }
         return;
       }
 
       if (_log.isDebugEnabled()) {
-        _log.debug("community change: " + 
+        _log.debug(" Change Info for Agent "+ _agent+ " community change: " + 
                    event.getChangeTypeAsString(event.getType()) +
                    ", " +
                    event.getWhatChanged());
       }
-
-      if (hasRole(community, _role)) {
+      printCommunityInfo(community);
+      if (hasRole(community, _role, _containsRole)) {
         // found it!
         _allDone = true;
         _timerTask.cancel();
         _cs.removeListener(this);
+        if (_log.isDebugEnabled()) {
+          _log.debug(" Setting response for agent : "+_agent +" in GetCommunity CommunityChangeListener ");
+          if(_containsRole){
+            _log.debug(" where community Type( "+_communityType+" ) and role is ( "+_role+ " )"); 
+          }
+          else {
+            _log.debug(" where community Type( "+_communityType+" ) and role is NOT ( "+_role+ " )"); 
+          }
+          _log.debug(" Response is : "+ community);
+        }
         _listener.getResponse(Collections.singleton(community));
         return;
       }
       if (_log.isDebugEnabled()) {
         _log.debug(_agent + " does not have role (" + _role + 
                    ") in community (" + community.getName() + ")");
+        _log.debug(" Waiting for response for agent : "+_agent +" in GetCommunity CommunityChangeListener ");
       }
     }
 
@@ -569,7 +811,13 @@ public class CommunityServiceUtil {
     }
 
     public void communityChanged(CommunityChangeEvent event) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("communityChanged called for agent : "+ _agent +" in GetAgent CommunityChangeListener" + this );
+      }
       if (_allDone) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Removing communityChanged listener for agent : "+ _agent +" in GetAgent CommunityChangeListener");
+        }
         _cs.removeListener(this);
         return;
       }
@@ -579,30 +827,30 @@ public class CommunityServiceUtil {
           event.getType() != event.ADD_ENTITY) {
         return; // not a change we care about
       }
-
       Community community = event.getCommunity();
       if (!isCommunityType(community, _communityType)) {
         if (_log.isDebugEnabled()) {
-          _log.debug(community.getName() + " is not of type " + 
+          _log.debug("Agent "+ _agent+" " +community.getName() + " is not of type " + 
                      _communityType);
         }
         return;
       }
-
       if (_log.isDebugEnabled()) {
-        _log.debug("community change: " + 
+        _log.debug(" Change Info for Agent "+ _agent+" community change: " + 
                    event.getChangeTypeAsString(event.getType()) +
                    ", " +
                    event.getWhatChanged());
+        // printCommunityInfo(community);
       }
-
+      printCommunityInfo(community);
       // Now while I understand that if the CommunityService is telling
       // me about this community, I must be a member, I don't trust it.
       // I'll check the membership.
-      if (!hasRole(community, MEMBER_ROLE)) {
+      if (!hasRole(community, MEMBER_ROLE, true)) {
         if (_log.isDebugEnabled()) {
           _log.debug(_agent + " is not really part of (" + 
                      community.getName() + ") yet");
+          _log.debug("Waiting for Response for agent : "+ _agent +" in GetAgent CommunityChangeListener");
         }
         return;
       }
@@ -610,15 +858,21 @@ public class CommunityServiceUtil {
                                  Community.AGENTS_ONLY);
       if (set.isEmpty()) {
         if (_log.isDebugEnabled()) {
-          _log.debug("There are no members of role (" + _role +
+          _log.debug("Agent "+ _agent+ " There are no members of role (" + _role +
                      ") in community (" + 
                      community.getName() + ") yet");
+          _log.debug("Waiting for Response for agent : "+ _agent +" in GetAgent CommunityChangeListener");
         }
         return;
       }
       _timerTask.cancel();
       _allDone = true;
       _cs.removeListener(this);
+      if (_log.isDebugEnabled()) {
+        _log.debug("Receive response  for agent : "+ _agent +"in GetAgent CommunityChangeListener");
+        _log.debug("Response is : "+set); 
+         
+      }
       _listener.getResponse(set);
     }
 
@@ -689,6 +943,10 @@ public class CommunityServiceUtil {
       }
       return sb.toString();
     }
+
+    public String getWarning(){
+      return _warning;
+    }
   }
 
   private class ResultListener implements CommunityResponseListener {
@@ -696,44 +954,67 @@ public class CommunityServiceUtil {
     CommunityServiceUtilListener _listener;
     CommunityChangeListener      _changeListener;
     String                       _role;
+    boolean                      _containsRole;
 
     public ResultListener(CommunityServiceUtilListener listener,
                           TimerTask warningTask,
                           CommunityChangeListener changeListener) {
-      _tt = warningTask;
-      _listener = listener;
-      _changeListener = changeListener;
+      this(listener, warningTask, changeListener, null, false);
     }
 
     public ResultListener(CommunityServiceUtilListener listener,
                           TimerTask warningTask,
                           CommunityChangeListener changeListener,
-                          String role) {
+                          String role, boolean containsRole) {
       _tt = warningTask;
       _listener = listener;
       _changeListener = changeListener;
       _role = role;
+      _containsRole = containsRole;
     }
 
     public void getResponse(CommunityResponse resp) {
+      if(_log.isDebugEnabled()) {
+        _log.debug (" Result listener called :"+ this);
+      }
       if (resp.getStatus() == resp.SUCCESS) {
         Object response = resp.getContent();
 
         if (!(response instanceof Set)) {
-          String errorString = "Unexpected community response class:"
+          String errorString = "Agent "+ _agent+ " Unexpected community response class:"
             + response.getClass().getName() + " - Should be a Set";
           _log.error(errorString);
           throw new RuntimeException(errorString);
         }
         Set set = (Set) response;
         if (_role != null) {
-          set = withRole(set, _role);
+          set = withRole(set, _role, _containsRole);
         }
         if (!set.isEmpty()) {
+          if(_log.isDebugEnabled()) {
+            _log.debug("Received Response in Result Listener------- :");
+            _log.debug(((WarnTimerTask)_tt).getWarning());
+            if(_containsRole) {
+              _log.debug(" For role :"+_role);
+            }
+            else {
+              _log.debug(" When role is not :"+_role);
+            }
+          }
           _listener.getResponse(set);
           _tt.cancel();
           return;
         }
+      }
+      if(_log.isDebugEnabled()) {
+        _log.debug(((WarnTimerTask)_tt).getWarning());
+        if(_containsRole) {
+          _log.debug(" For role :"+_role);
+        }
+        else {
+          _log.debug(" When role is not :"+_role);
+        }
+        _log.debug("Adding Listener in Result Listener :"+_changeListener);  
       }
 
       // didn't find any appropriate community... start a listener
@@ -741,4 +1022,95 @@ public class CommunityServiceUtil {
     }
 
   }
+   
+  private class GetAgentInCommunity implements CommunityChangeListener {
+    private String                       _communityName;
+    private CommunityServiceUtilListener _listener;
+    private TimerTask                    _timerTask;
+    private String                       _role;
+    private boolean                      _allDone;
+
+    public GetAgentInCommunity(CommunityServiceUtilListener listener, 
+                               TimerTask timerTask,
+                               String communityName,
+                               String role) {
+      _communityName = communityName;
+      _listener = listener;
+      _timerTask = timerTask;
+      _role = role;
+    }
+
+    public void communityChanged(CommunityChangeEvent event) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("communityChanged called for agent : "+ _agent +" in GetAgentInCommunity CommunityChangeListener" + this);
+      }
+      if (_allDone) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Removing communityChanged listener for agent : "+ _agent +" in GetAgentInCommunity CommunityChangeListener");
+        }
+        _cs.removeListener(this);
+        return;
+      }
+      if (event.getType() != event.ADD_COMMUNITY &&
+          event.getType() != event.ENTITY_ATTRIBUTES_CHANGED &&
+          event.getType() != event.COMMUNITY_ATTRIBUTES_CHANGED &&
+          event.getType() != event.ADD_ENTITY) {
+        return; // not a change we care about
+      }
+
+      Community community = event.getCommunity();
+      if (!isCommunityType(community,CommunityServiceUtil.SECURITY_COMMUNITY_TYPE)) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Agent "+ _agent+" " +community.getName() + " is not of type " + 
+                     CommunityServiceUtil.SECURITY_COMMUNITY_TYPE);
+          _log.debug("Waiting for response in agent : "+_agent + " in GetAgentInCommunity CommunityChangeListener");
+        }
+        return;
+      }
+
+      if (_log.isDebugEnabled()) {
+        _log.debug(" Change Info for Agent "+ _agent+" community change: " + 
+                   event.getChangeTypeAsString(event.getType()) +
+                   ", " +
+                   event.getWhatChanged());
+      }
+      printCommunityInfo(community);
+      // Now while I understand that if the CommunityService is telling
+      // me about this community, I must be a member, I don't trust it.
+      // I'll check the membership.
+      /*
+        if (!hasRole(community,_role, true)) {
+        if (_log.isDebugEnabled()) {
+        _log.debug(_agent + " is not really part of (" + 
+        community.getName() + ") yet");
+        _log.debug("Waiting for response in agent : "+_agent + " in GetAgentInCommunity CommunityChangeListener");
+        }
+        return;
+        }
+      */
+      Set set = community.search("(Role=" + _role + ")", 
+                                 Community.AGENTS_ONLY);
+      if (set.isEmpty()) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Agent "+ _agent+ " There are no members of role (" + _role +
+                     ") in community (" + 
+                     community.getName() + ") yet");
+          _log.debug("Waiting for response in agent : "+_agent + " in GetAgentInCommunity CommunityChangeListener");
+        }
+        return;
+      }
+      _timerTask.cancel();
+      if(_log.isDebugEnabled()) {
+        _log.debug("Received  response in agent : "+_agent + " in GetAgentInCommunity CommunityChangeListener");
+        _log.debug("Response : "+set);
+      }  
+      _allDone = true;
+      _cs.removeListener(this);
+      _listener.getResponse(set);
+    }
+    public String getCommunityName() {
+      return null; // all MY communities
+    }
+  }
+ 
 }
