@@ -58,6 +58,11 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.component.Component;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.SchedulerService;
+import org.cougaar.core.service.AlarmService;
+import org.cougaar.core.service.DomainService;
 import org.cougaar.core.thread.Schedulable;
 //import org.cougaar.core.component.BindingSite;
 import org.cougaar.util.ConfigFinder;
@@ -133,6 +138,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
   private boolean _createdCRLBlackboard=false;
   private boolean _crlcacheInitilized=false;
   private final Object _blackboardLock = new Object();
+
  
   
   public CRLCache(ServiceBroker sb){
@@ -1005,7 +1011,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
             _mySecurityCommunities.add(community.getName());
             addedCommunities.add(community.getName());
             /*
-            publishCRLRegistrationToAddedCommunity(community.getName());
+              publishCRLRegistrationToAddedCommunity(community.getName());
             */
           }
         }
@@ -1013,8 +1019,8 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
     }
     if((newCommunity)) {
       if(log.isDebugEnabled()) {
-          log.debug(" New Community is added in setmySecurityCommunity  :" +_crlRegistered );
-        }
+        log.debug(" New Community is added in setmySecurityCommunity  :" +_crlRegistered );
+      }
       if(_crlRegistered){
         for(int i=0; i<addedCommunities.size();i++) {
           publishCRLRegistrationToAddedCommunity((String)addedCommunities.elementAt(i));
@@ -1105,6 +1111,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
       } else if (( sc == BlackboardService.class )&& (blackboardService==null )) {
         blackboardService = (BlackboardService)
           sb.getService(CRLCache.this, BlackboardService.class, null);
+        if(log.isDebugEnabled()) {
+          log.debug(" Got BB Service in CRL Cache from Service Listener ");
+        }
         settingServices=true;
       } else if (( sc == CrlManagementService.class )&&(crlMgmtService==null)) {
         crlMgmtService=(CrlManagementService)
@@ -1124,7 +1133,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
         _communityService = (CommunityService)
           serviceBroker.getService(CRLCache.this,
                                    CommunityService.class, null);
-         settingServices=true;
+        settingServices=true;
       }
       //log.info(" Got Called in Service Listner for "+ sc.getName());
       if(settingServices) {
@@ -1211,11 +1220,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
 	  log.debug("Received response for crl update but response was null:");
 	}
       }
-    }
 
+    }
   }
 }
-
-
 
 
