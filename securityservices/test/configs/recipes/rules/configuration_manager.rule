@@ -19,7 +19,7 @@ agentlist =[]
 #node role list
 nodelist =[]
 #list of agents to include the Configuration Manager in
-include_array=["caAgent"]
+include_array=["RootCaManager"]
 theCMInitPlugin="org.cougaar.core.security.cm.ConfigurationManagerInitPlugin"
 theCMMessagePlugin="org.cougaar.core.security.cm.ConfigurationManagerMessagePlugin"
 
