@@ -1,7 +1,7 @@
 =begin experiment
 
-name: MOAS-II-Save
-description: MOAS-II save pre-Stage5
+name: MOAS-II-AS-Save
+description: MOAS-II-AS save pre-Stage5
 script: $CIP/csmart/lib/isat/OPBaselineTemplate-ExtOplan.rb
 parameters:
   - run_count: 1
