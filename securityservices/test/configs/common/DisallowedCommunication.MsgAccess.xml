@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+  <policy name="MessageAccessControl Policy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+    <AccessControlPolicy>
+	<!-- whom this policy is for -->
+	<Name>DisallowedCommunication</Name>
+	
+	<!-- one of AGENT,COMMUNITY,or SOCIETY -->
+	<Type>COMMUNITY</Type>
+	
+	<!-- one of INCOMING, OUTGOING, or BOTH -->
+	<Direction>BOTH</Direction>
+	
+	<!-- action on message criticality, either ACCEPT or SET_ASIDE -->
+	<MessageAction>
+		<CriticalityLevel>Criticality0</CriticalityLevel>
+		<MsgAction>SET_ASIDE</MsgAction> 
+	</MessageAction> 
+	<MessageAction>
+		<CriticalityLevel>Criticality1</CriticalityLevel>
+		<MsgAction>SET_ASIDE</MsgAction> 
+	</MessageAction> 
+	<MessageAction>
+		<CriticalityLevel>Criticality2</CriticalityLevel>
+		<MsgAction>ACCEPT</MsgAction> 
+	</MessageAction> 
+	<MessageAction>
+		<CriticalityLevel>Criticality3</CriticalityLevel>
+		<MsgAction>ACCEPT</MsgAction> 
+	</MessageAction> 
+	<MessageAction>
+		<CriticalityLevel>Criticality4</CriticalityLevel>
+		<MsgAction>ACCEPT</MsgAction> 
+	</MessageAction> 
+
+	<!-- either ACCEPT or SET_ASIDE -->
+	<AgentAction>
+		<ActionParty>DEFAULT</ActionParty>
+		<Action>ACCEPT</Action> 
+	</AgentAction> 
+	<AgentAction>
+		<ActionParty>DisallowedCommunication</ActionParty>
+		<Action>SET_ASIDE</Action> 
+	</AgentAction> 
+	
+	<!-- the verb allow to be passed, also accepts ALL or NONE -->
+	<VerbFilter>
+		<FilterParty>DEFAULT</FilterParty>
+		<Verb>ALL</Verb>
+	</VerbFilter>
+	<!--VerbFilter>
+		<FilterParty>TRANSCOM</FilterParty>
+		<Verb>GetLogSupport</Verb>
+	</VerbFilter-->
+
+	<MessageIntegrity>
+		<MsgParty>DEFAULT</MsgParty>
+		<Integrity>Integrity3</Integrity>
+	</MessageIntegrity>
+
+	<MessageCriticality>
+		<CritParty>DEFAULT</CritParty>
+		<Criticality>Criticality3</Criticality>
+	</MessageCriticality>
+
+    </AccessControlPolicy >
+  </policy>
