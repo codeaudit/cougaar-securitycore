@@ -590,14 +590,22 @@ public class OpenLdapCertDirectoryService
 	  log.debug("Extension was null creating new extension ");
 	  extensions=new CRLExtensions();
 	}
+	log.debug( " ** extension was not null  :"+extensions.toString());
 	idpext=new  IssuingDistributionPointExtension (false,false,true);
 	extensions.set(idpext.getName(),idpext);
 	log.debug( " Issuing point extension created is :"+extensions.toString());
       }
       //CRLExtensions crlext=new CRLExtensions();//CertificateIssuerExtension
+      log.debug(" Going to create x500 name :"+ userCert.getIssuerDN().getName());
       X500Name username=new X500Name(userCert.getIssuerDN().getName());
-      GeneralNames gns=new GeneralNames();
+      log.debug(" Success in creating x500 name  :"+ username.toString()+ "class loader name is :"+
+		username.getClass().getClassLoader());
+      CougaarGeneralNames gns=	new  CougaarGeneralNames();
+      log.debug(" Success in creating GeneralNames  :"+ "class loader name is :"+gns.getClass().getClassLoader());
+      log.debug(" before adding x500 name  GeneralNames  :");
       gns.add(username);
+      CertificateIssuerExtension cie=new CertificateIssuerExtension();
+      log.debug("certificateext  class was loader by:"+ cie.getClass().getClassLoader());
       CertificateIssuerExtension certificateext=new  CertificateIssuerExtension(gns);
       CRLExtensions crlentryext =new CRLExtensions();
       log.debug(" going to set extension with name :"+certificateext.getName());
