@@ -182,7 +182,7 @@ public class DataProtectionServiceImpl
     while ((certList = keyRing.findCert(agent)) == null || certList.size() == 0) {
       log.debug("no certificate found, waiting ...");
       try {
-        Thread.currentThread.sleep(10000);
+        Thread.currentThread().sleep(10000);
       }
       catch (Exception ex) {}
 
