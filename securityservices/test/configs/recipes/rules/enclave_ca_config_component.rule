@@ -3,26 +3,21 @@
 
 enclaves = 1..4  # there are 4 enclaves...do this once per enclave
 society.each_node do |node|
-  arg = nil
+  enclave = nil
   if node.name == 'REAR-CA-NODE'
-    # Enclave 1
-    arg = 'CN=Enclave1_CA\, OU=Enclave1\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca'
-
+    enclave = "1"
   elsif node.name == 'FWD-CA-NODE'
-    # Enclave 2
-    arg = 'CN=Enclave2_CA\, OU=Enclave2\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca'
-
+    enclave = "3"
   elsif node.name == 'CONUS-CA-NODE'
-    # Enclave 3
-    arg = 'CN=Enclave3_CA\, OU=Enclave3\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca'
-
+    enclave = "3"
   elsif node.name == 'TRANS-CA-NODE'
-    # Enclave 4
-    arg = 'CN=Enclave4_CA\, OU=Enclave4\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca'
+    enclave = "4"
   end
-
-  if arg != nil
+  if enclave != nil
+    arg = 'CN=Enclave' + enclave + '_CA\, OU=Enclave' + enclave + \
+          '\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca'
     node.agent.add_component do |c|
+      c.name = "Enclave" + enclave + "CaConfigPlugin"
       c.classname = "org.cougaar.core.security.certauthority.ConfigPlugin"
       c.priority = "HIGH"
       c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
