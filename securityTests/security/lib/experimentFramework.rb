@@ -73,6 +73,16 @@ require 'cougaar/scripting'
 require 'ultralog/scripting'
 require 'timeout'
 
+def setMyRun(run)
+  if ($myRun == nil)
+    $myRun = run
+  end
+end
+
+def run()
+  return $myRun
+end
+
 class ExperimentFramework
   include Cougaar
   include UltraLog
