@@ -31,11 +31,13 @@ public class CollectionMonitorStatsImpl
   public static long DELAY_AFTER_STARTUP = 100;
 
   private static CollectionMonitorStats _theInstance;
-  private static long _startupTime;
-  private static EntityStats _entityStats;
+  private static long                   _startupTime;
+  private static EntityStats            _entityStats;
+  private static Map                    _threadRecursivityStatus;
 
   protected CollectionMonitorStatsImpl() {
     //_entityStats = new EntityStats(null);
+    _threadRecursivityStatus = new HashMap(false);
   }
 
   public static synchronized CollectionMonitorStats getInstance() {
@@ -74,9 +76,15 @@ public class CollectionMonitorStatsImpl
   private void addElement(Object o, Class c) {
     long now = System.currentTimeMillis();
     if ( (now - _startupTime) > DELAY_AFTER_STARTUP ) {
-      if (isRecursive()) {
+      Boolean isRecursive = (Boolean)
+	_threadRecursivityStatus.get(Thread.currentThread());
+      if (isRecursive == Boolean.TRUE) {
+	System.out.println("Recursive call!");
+	Throwable t = new Throwable();
+	t.printStackTrace();
 	return;
       }
+     _threadRecursivityStatus.put(Thread.currentThread(), Boolean.TRUE);
 
       if (_entityStats == null) {
 	_entityStats = new EntityStats(null);
@@ -85,19 +93,24 @@ public class CollectionMonitorStatsImpl
       if (es != null) {
 	es.addCollection(o);
       }
-      /*
-      else {
-	System.out.println("Error: unable to find EntityStats for " +
-	  o.getClass().getName());
-      }
-      */
+      _threadRecursivityStatus.put(Thread.currentThread(), Boolean.FALSE);
     }
   }
 
   private boolean isRecursive() {
+    Boolean isRecursive = (Boolean)
+      _threadRecursivityStatus.get(Thread.currentThread());
+    if (isRecursive == Boolean.TRUE) {
+      return true;
+    }
+    else {
+      return false;
+    }
     // Check recursion. Can we find a better way?
+    /*
     Throwable t = new Throwable();
     StackTraceElement ste[] = t.getStackTrace();
+    */
     // Frame [0] should be CollectionMonitorStatsImpl.isRecursive
     // Frame [1] should be CollectionMonitorStatsImpl.addElement
     // Frame [2] should be CollectionMonitorStatsImpl.add... (e.g. Hashtable)
@@ -111,12 +124,15 @@ public class CollectionMonitorStatsImpl
       }
     }
     */
+    /*
     if (ste.length > 1000) {
       // Really hacky, but it works faster than above.
       System.out.println("Call is recursive:");
       t.printStackTrace();
+      return true;
     }
     return false;
+    */
   }
 
   public void addHashtable(Hashtable h) {
@@ -150,7 +166,7 @@ public class CollectionMonitorStatsImpl
     addElement(m, WeakHashMap.class);
   }
   public void addVector(Vector v) {
-//    addElement(v, Vector.class);
+    addElement(v, Vector.class);
   }
   public void addArrays(Arrays a) {
     addElement(a, Arrays.class);
