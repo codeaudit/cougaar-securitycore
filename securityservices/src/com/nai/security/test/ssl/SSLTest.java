@@ -33,7 +33,7 @@ import com.nai.security.crypto.*;
 import org.cougaar.core.component.*;
 
 public class SSLTest {
-  SSLService sslservice;
+  SSLServiceImpl sslservice;
   String host = "localhost";
   int port = 8900;
 
@@ -56,7 +56,8 @@ public class SSLTest {
 						     KeyRingService.class);
 
     try {
-      sslservice = SSLServiceImpl.getInstance(keyRing);
+      sslservice = new SSLServiceImpl();
+      sslservice.init(keyRing);
 
       System.out.println("=====> Successfully created SSLService.");
     } catch (Exception e) {
@@ -81,8 +82,8 @@ public class SSLTest {
       OutputStream os = s.getOutputStream();
       PrintWriter writer = new PrintWriter(os);
       writer.println("Hello");
-      os.flush();
-      os.close();
+      writer.flush();
+      writer.close();
 
       System.out.println("=====> Receiving server stream.");
       InputStream is = s.getInputStream();
@@ -110,7 +111,7 @@ public class SSLTest {
         SSLServerSocket ss = (SSLServerSocket)
           sslservice.getServerSocketFactory().createServerSocket(port);
         SSLSocket s = (SSLSocket)ss.accept();
-        s.startHandshake();
+        //s.startHandshake();
 
         InputStream is = s.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
@@ -124,8 +125,8 @@ public class SSLTest {
         OutputStream out = s.getOutputStream();
         PrintWriter writer = new PrintWriter(out);
         writer.println(textbuffer.toString());
-        out.flush();
-        out.close();
+        writer.flush();
+        writer.close();
 
         System.out.println("=====> Received socket request, responding.");
 
