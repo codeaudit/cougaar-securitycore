@@ -68,6 +68,15 @@ public class AgentCompromiseActuator extends ComponentPlugin
     }
   };
 
+  private UnaryPredicate sensorPred = new UnaryPredicate() {
+    public boolean execute(Object o) {
+      if (o instanceof AgentCompromiseInfo) {
+        return ((AgentCompromiseInfo)o).getType().equals(AgentCompromiseInfo.SENSOR);
+      }
+      return false;
+    }
+  };
+
   public void load() {
     super.load();
 
@@ -134,6 +143,19 @@ public class AgentCompromiseActuator extends ComponentPlugin
             blackboard.publishAdd(action.getCompromiseInfo());      
           }
           // else do nothing
+          else {
+            String agent = action.getAssetName();
+            Iterator it = blackboard.query(sensorPred).iterator();
+            while (it.hasNext()) {
+              AgentCompromiseInfo info = (AgentCompromiseInfo)it.next();
+              if (info.getSourceAgent().equals(agent)) {
+                if (log.isDebugEnabled()) {
+                  log.debug("Removing info for " + agent);
+                }
+                blackboard.publishRemove(info);
+              }
+            }
+          }
         }
       }
     }

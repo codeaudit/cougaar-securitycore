@@ -127,7 +127,7 @@ public class AgentCompromiseSensor extends ComponentPlugin
           log.error("Illegal value = "+info.getDiagnosis(), e);
         }
 
-        blackboard.publishRemove(info);
+//        blackboard.publishRemove(info);
 
       }
         

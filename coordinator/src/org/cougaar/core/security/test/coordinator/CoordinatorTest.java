@@ -62,6 +62,7 @@ public class CoordinatorTest extends AbstractServletComponent {
 
   protected void setupSubscriptions() {
     _csu = new CommunityServiceUtil(serviceBroker);
+    init();
   }
 
   protected void execute(HttpServletRequest request, HttpServletResponse response) {
@@ -92,6 +93,8 @@ public class CoordinatorTest extends AbstractServletComponent {
 
         out.println("</select><br><br>");
         out.println("Specify compromised agent: <input name=\"compromisedAgent\" type=\"text\" value=\"\"><br><br>");
+        out.println("node: <input name=\"compromisedNode\" type=\"text\" value=\"\"><br><br>");
+        out.println("host: <input name=\"compromisedHost\" type=\"text\" value=\"\"><br><br>");
         out.println("<br><input type=\"submit\">&nbsp;&nbsp;&nbsp;");
 
         out.println("<input type=\"reset\">");
@@ -156,6 +159,8 @@ public class CoordinatorTest extends AbstractServletComponent {
         msg = "Forcing policy to switch to using RMI over SSL within enclave " + _communityName;      
       } else if (action.equals("CompromiseAction")) {
         String agent = request.getParameter("compromisedAgent");
+        String node = request.getParameter("compromisedNode");
+        String host = request.getParameter("compromisedHost");
         if (agent == null || agent.length() == 0) {
           msg += "no agent specified";
         }
@@ -178,6 +183,11 @@ public class CoordinatorTest extends AbstractServletComponent {
             String value = AgentCompromiseAction.RESTART;
             Set values = new HashSet();
             values.add(value);
+
+            AgentCompromiseInfo info = new AgentCompromiseInfo(AgentCompromiseInfo.SENSOR,
+              System.currentTimeMillis(), agent, node, host, AgentCompromiseInfo.SEVERE);
+            compromiseAction.setCompromiseInfo(info);
+
             compromiseAction.setPermittedValues(values);
             blackboardService.openTransaction();
             blackboardService.publishChange(compromiseAction);

@@ -79,8 +79,11 @@
         <pathelement location="${cougaar.install.path}/sys/concurrent.jar"/>
 
         <!-- Security packages -->
+<!--
         <pathelement location="${securityservices.base}/lib/security/secure_util.jar"/>
         <pathelement location="${securityservices.base}/lib/security/securityservices.jar"/>
+-->
+        <pathelement location="${cougaar.install.path}/lib/secure_util.jar"/>
     </path>
 
     <target name="tstamp">
@@ -172,8 +175,8 @@
     <!-- install files -->
     <target name="install-conf" depends="install-signed-jars">
         <echo message="+++++ Generating ZIP files"/>
-<!--
   	    <mkdir dir="${securityservices.staging}/Manifest"/>
+<!--
      	<mkdir dir="${securityservices.staging}/configs/security"/>
   	    <mkdir dir="${securityservices.staging}/csmart/config/rules/security"/>
         <copy todir="${securityservices.staging}/configs/security">
@@ -185,6 +188,7 @@
         </copy>
         <copy file="${securityservices.signed}/configs_${project.name}.jar" 
           todir="${securityservices.staging}/configs/security"/>
+-->
         <copy todir="${securityservices.staging}/csmart/config/rules/security/">
             <fileset dir="${securityservices.configs}/rules">
                 <patternset>
@@ -197,7 +201,6 @@
         </tstamp>
     	<echo message="Built ${zipTime}"
     	   file="${securityservices.staging}/Manifest/${project.name}.txt"/>
--->
      	<echo message="#### Building Zip file"/>
 		<zip zipfile="${project.name}.zip" basedir="staging"
 		     filesonly="false"/>	
