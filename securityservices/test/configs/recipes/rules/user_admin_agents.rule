@@ -8,83 +8,38 @@ caServlet = "org.cougaar.core.security.certauthority.CaServletComponent"
 userService = "org.cougaar.core.security.provider.UserServiceComponent"
 userManager = "org.cougaar.core.security.act.user.UserManagerPlugin"
 
+society.each_node do |node|
+  agentname = ""
+  if node.name == "FWD-MGMT-NODE"
+    agentname = "UserAdminAgent1"
+  elsif node.name == "REAR-MGMT-NODE"
+      agentname = "UserAdminAgent2"
+  elsif node.name == "CONUS-MGMT-NODE"
+    agentname = "UserAdminAgent3"
+  elsif node.name == "TRANS-MGMT-NODE"
+    agentname = "UserAdminAgent4"
+  end
 
-node = nil
-society.each_node {|n| node = n}
-node.add_agent("UserAdminAgent1") do |agent|
-  agent.add_component do |c|
+  if agentname != ""
+    node.add_agent(agentname) do |agent|
+      agent.add_component do |c|
 	c.classname = orgDataPlugin
-  end
-  agent.add_component do |c|
+      end
+      agent.add_component do |c|
 	c.classname = orgReportPlugin
-  end
-  agent.add_component do |c|
+      end
+      agent.add_component do |c|
 	c.classname = caServlet
 	c.add_argument("org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet")
 	c.add_argument("/useradmin")
-  end
-  agent.add_component do |c|
+      end
+      agent.add_component do |c|
 	c.classname = userService 
-  end
-  agent.add_component do |c|
+      end
+      agent.add_component do |c|
 	c.classname = userManager
-  end
-end
-node.add_agent("UserAdminAgent2") do |agent|
-  agent.add_component do |c|
-	c.classname = orgDataPlugin
-  end
-  agent.add_component do |c|
-	c.classname = orgReportPlugin
-  end
-  agent.add_component do |c|
-	c.classname = caServlet
-	c.add_argument("org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet")
-	c.add_argument("/useradmin")
-  end
-  agent.add_component do |c|
-	c.classname = userService 
-  end
-  agent.add_component do |c|
-	c.classname = userManager
-  end
-end
-  node.add_agent("UserAdminAgent3") do |agent|
-  agent.add_component do |c|
-	c.classname = orgDataPlugin
-  end
-  agent.add_component do |c|
-	c.classname = orgReportPlugin
-  end
-  agent.add_component do |c|
-	c.classname = caServlet
-	c.add_argument("org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet")
-	c.add_argument("/useradmin")
-  end
-  agent.add_component do |c|
-	c.classname = userService 
-  end
-  agent.add_component do |c|
-	c.classname = userManager
-  end
-end
-  node.add_agent("UserAdminAgent4") do |agent|
-  agent.add_component do |c|
-	c.classname = orgDataPlugin
-  end
-  agent.add_component do |c|
-	c.classname = orgReportPlugin
-  end
-  agent.add_component do |c|
-	c.classname = caServlet
-	c.add_argument("org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet")
-	c.add_argument("/useradmin")
-  end
-  agent.add_component do |c|
-	c.classname = userService 
-  end
-  agent.add_component do |c|
-	c.classname = userManager
+      end
+    end
   end
 end
 
