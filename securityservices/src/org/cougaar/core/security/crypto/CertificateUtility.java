@@ -373,4 +373,15 @@ public class CertificateUtility {
     }
     return title;
   }
+  
+   public static  X500Name getX500Name(String dname) {
+    try {
+      return new X500Name(dname);
+    }
+    catch (IOException iox) {
+         
+    }
+    return null;
+  }
+  
 }
