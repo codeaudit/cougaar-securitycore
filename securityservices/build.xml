@@ -451,6 +451,13 @@
                 </patternset>
             </fileset>
         </copy>
+        <copy todir="${cougaar.install.path}/csmart/scripts/definitions">
+            <fileset dir="${securityservices.configs}/acme_scripts/moas">
+                <patternset>
+                    <include name="*.rb"/>
+                </patternset>
+            </fileset>
+        </copy>
         <copy file="${securityservices.base}/test/bin/createJarConfigFiles" 
             todir="${cougaar.install.path}/configs/security/bin"/>
         <copy file="${securityservices.configs}/sign-jars/signingCA_keystore" 
