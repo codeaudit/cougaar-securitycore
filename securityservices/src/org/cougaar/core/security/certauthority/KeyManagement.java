@@ -672,20 +672,20 @@ public class KeyManagement
       sbuf = sbuf + s;
 
       // Find header
-      ind_start = findLine(sbuf,CertificateUtility.PKCS10HEADER, 0);
+      ind_start = findLine(sbuf,CertificateUtility.PKCS10HEADER_ARR, 0);
       if (ind_start == -1) {
         // No header was found
         break;
       }
 
       // Find trailer
-      ind_end = findLine(sbuf,CertificateUtility.PKCS10TRAILER, ind_start);
+      ind_end = findLine(sbuf,CertificateUtility.PKCS10TRAILER_ARR, ind_start);
       if (ind_end == -1) {
 	// No trailer was found. Maybe we didn't read enough data?
 	// Try to read more data.
 	continue;
       }
-      ind_stop = sbuf.indexOf(CertificateUtility.PKCS10TRAILER[0], ind_start);
+      ind_stop = sbuf.indexOf(CertificateUtility.PKCS10TRAILER_ARR[0], ind_start);
 
       // Extract Base-64 encoded request and remove request from sbuf
       String base64pkcs = sbuf.substring(ind_start,ind_stop);
