@@ -37,6 +37,8 @@ import sun.security.util.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.cougaar.core.security.policy.CertificateAttributesPolicy;
+import java.security.cert.CertificateEncodingException;
+
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
 
@@ -461,5 +463,13 @@ public class CertificateUtility {
     return hash;
   }
 
+  public static X509Certificate getX509Certificate(Certificate cert) throws 
+    CertificateEncodingException,CertificateException, IOException {
+    InputStream inStream = new ByteArrayInputStream(cert.getEncoded());
+    CertificateFactory cf = CertificateFactory.getInstance("X.509");
+    X509Certificate x509cert = (X509Certificate)cf.generateCertificate(inStream);
+    inStream.close();
+    return x509cert;
+  }
 
 }
