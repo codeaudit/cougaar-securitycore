@@ -404,4 +404,5 @@ grant {
 	// FIX
 	permission com.nai.security.crypto.KeyRingPermission "installPkcs7Reply";
 	permission com.nai.security.crypto.KeyRingPermission "readPrivateKey";
+	permission java.security.SecurityPermission "printIdentity";
 };

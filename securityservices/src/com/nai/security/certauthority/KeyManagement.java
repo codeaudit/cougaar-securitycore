@@ -172,7 +172,7 @@ public class KeyManagement
 					+ nodePolicy.CA_keystore);
       }
       confDirectoryName = f.getParent() + File.separatorChar
-	+ "Crypto" + System.getProperty("org.cougaar.node.name");;
+	+ "Crypto" + System.getProperty("org.cougaar.core.society.Node.name");;
       if (debug) {
 	System.out.println("Configuration Directory: " + confDirectoryName);
       }
