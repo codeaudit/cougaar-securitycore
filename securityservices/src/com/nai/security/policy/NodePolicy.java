@@ -47,6 +47,6 @@ public class NodePolicy {
 
   public String keyAlgName = null;
   public int keysize = 0;
-  public int validity = 0;
+  public long howLong = 0;
   public String sigAlgName = null;
 };

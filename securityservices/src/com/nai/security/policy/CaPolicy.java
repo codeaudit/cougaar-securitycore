@@ -43,5 +43,5 @@ public class CaPolicy {
   public int certVersion = 0;
   public AlgorithmId algorithmId = null;
   public int keySize = 0;
-  public int howLong = 0;
+  public long howLong = 0;
 };
