@@ -45,6 +45,9 @@ public class QueryMapping implements Publishable, Serializable {
   }
   
   public ArrayList getQueryList() {
+    if(queryList==null) {
+      return new ArrayList();
+    }
     return this.queryList;
   }
   
