@@ -159,15 +159,8 @@ public class TunnelledOntologyConnection extends OntologyConnection
   }
 
 
-  public Set getResourcesWithValueForProperty (String property, String value)
-    throws ReasoningException
-  {
-    throw new RuntimeException
-      ("getResourcesWithValueForProperty not implemented");
-  }
-
   public void loadOntology (DAMLModel myDAMLModel, 
-                                     boolean recursiveLoad)
+                            boolean recursiveLoad)
     throws ReasoningException, IOException
   {
     throw new RuntimeException("loadOntology (for models) not implemented");

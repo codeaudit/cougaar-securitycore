@@ -129,8 +129,6 @@ class Main {
     System.out.println("" + (counter++) + ". build {--quiet} policiesFile");
     System.out.println("\tTo build policies from a grammar");
     System.out.println("\tThe --quiet options supresses messages");
-    System.out.println("" + (counter++) + ". jtp");
-    System.out.println("\tTo run a loaded version of jtp");
     System.out.println("" + (counter++) + ". commit {--dm} "
                        + "{--auth username password} " +
                        "host port agent policiesFile");
@@ -168,9 +166,6 @@ class Main {
     case BUILD_CMD:
       buildPolicies();
       break;
-    case JTP_CMD:
-      runJTP();
-      break;
     case COMMIT_CMD:
       commitPolicies();
       break;
@@ -205,22 +200,6 @@ class Main {
       pb = pp.buildPolicy(_ontology);
       PolicyUtils.writePolicyInfo(pb);
     }
-  }
-
-  /**
-   * Runs a command line version of JTP where all the ontologies are
-   * already loaded.
-   *
-   * Doesn't work yet...
-   */
-  public void runJTP()
-    throws Exception
-  {
-    String [] args = {};
-    System.out.println("Loading ontologies");
-    _ontology = new LocalOntologyConnection();
-    System.out.println("Ontologies loaded");
-    jtp.ui.DamlQueryAnswerer.main(args);
   }
 
   /**

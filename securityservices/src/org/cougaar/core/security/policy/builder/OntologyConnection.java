@@ -62,10 +62,6 @@ public abstract class OntologyConnection
   public abstract Set getSubClassesOf (String className)
     throws Exception;
 
-  public abstract Set getResourcesWithValueForProperty (String property, 
-                                                        String value)
-    throws ReasoningException;
-
   public abstract void loadOntology (DAMLModel myDAMLModel, 
                                      boolean recursiveLoad)
     throws ReasoningException, IOException;

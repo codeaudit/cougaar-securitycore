@@ -27,6 +27,8 @@ public class PolicyUtils
 {
   public static OntologyConnection _ontology;
 
+  public static final String pluginsInRoleClassPrefix
+    = "http://ontology.coginst.uwf.edu/Ultralog/PluginsInRole#";
   public static final String personActorClassPrefix 
     = "http://ontology.coginst.uwf.edu/Ultralog/UsersInRole#";
 
@@ -152,19 +154,46 @@ public class PolicyUtils
   public static void autoGenerateGroups(KAoSDirectoryService kds)
     throws Exception
   {
+    generateUserActorClasses(kds);
+    generateBlackboardActorClasses(kds);
+  }
+
+  /**
+   * This function
+   * <ul>
+   * <li> gets all instances of the class 
+   *        http://ontology.coginst.uwf.edu/Ultralog/UltralogGroup.daml#Role
+   * <li> checks to see if they are in the ontology 
+   *       http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml
+   * <li> checks to see if they end in the string "Role"
+   * <li> if so creates an actor class consisting of all the actors
+   *      in this role
+   * </ul> 
+   * 
+   * The namespace used for the actors needs to be exported so that
+   * it can be used by the semantic matcher.
+   *
+   * The generate*ActorClasses() functions are very similar to one
+   * another but a common function would be very complex.  Fix?
+   * 
+   * A small hack in OntologyRepository.getAllNamespaces() ensures
+   * that theses namespaces show up in KPAT.
+   */
+  public static void generateUserActorClasses(KAoSDirectoryService kds)
+  {
     String ulRoleGroupJena = UltralogGroupConcepts._Role_;
     String ulRoleGroupJtp
       = JTPStringFormatUtils.convertStringToJTPFormat(ulRoleGroupJena);
     String ulRoleGroupInstanceJena
       = GroupInstancesConcepts.GroupInstancesDamlURL;
 
-
     try {
       Set userRoles;
       if (kds != null) {
         userRoles = kds.getIndividualTargets(ulRoleGroupJtp);
       } else {
-        userRoles = _ontology.getResourcesWithValueForProperty
+        LocalOntologyConnection ont = (LocalOntologyConnection) _ontology;
+        userRoles = ont.getResourcesWithValueForProperty
                                            (kaos.ontology.RDFConcepts._type_, 
                                             ulRoleGroupJtp); 
       }
@@ -201,5 +230,78 @@ public class PolicyUtils
       e.printStackTrace();
     }
   }
+
+  /**
+   * This function
+   * <ul>
+   * <li> gets all instances of the class 
+   *  http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#PlugInRoles
+   * <li> checks to see if they are in the ontology 
+   *       http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml
+   * <li> checks to see if they end in the string "Role"
+   * <li> if so creates an actor class consisting of all the actors
+   *      in this role
+   * </ul> 
+   * 
+   * The namespace used for the actors needs to be exported so that
+   * it can be used by the semantic matcher.
+   *
+   * The generate*ActorClasses() functions are very similar to one
+   * another but a common function would be very complex.
+   * 
+   * A small hack in OntologyRepository.getAllNamespaces() ensures
+   * that theses namespaces show up in KPAT.
+   */
+  public static void generateBlackboardActorClasses(KAoSDirectoryService kds)
+  {
+    String ulRoleGroupJena = UltralogEntityConcepts._PlugInRoles_;
+    String ulRoleGroupJtp
+      = JTPStringFormatUtils.convertStringToJTPFormat(ulRoleGroupJena);
+    String ulRoleGroupInstanceJena 
+      = EntityInstancesConcepts.EntityInstancesDamlURL;
+
+    try {
+      Set bbRoles;
+      if (kds != null) {
+        bbRoles = kds.getIndividualTargets(ulRoleGroupJtp);
+      } else {
+        LocalOntologyConnection ont = (LocalOntologyConnection) _ontology;
+        bbRoles = ont.getResourcesWithValueForProperty
+                                           (kaos.ontology.RDFConcepts._type_, 
+                                            ulRoleGroupJtp); 
+      }
+      for (Iterator bbRolesIt = bbRoles.iterator();
+           bbRolesIt.hasNext();) {
+        String bbRole = (String) bbRolesIt.next();
+        bbRole = JTPStringFormatUtils.convertJTPFormatToString(bbRole);
+        String shortRole = bbRole;
+
+        if (shortRole.startsWith(ulRoleGroupInstanceJena) 
+            && shortRole.endsWith("Role")) {
+          shortRole = shortRole.substring(ulRoleGroupInstanceJena.length(), 
+                                        shortRole.length()-4);
+        } else {
+          continue;
+        }
+        String myClassName = pluginsInRoleClassPrefix + shortRole;
+        KAoSClassBuilderImpl classBuilder 
+          = new KAoSClassBuilderImpl(myClassName);
+
+        classBuilder.addBaseClass(UltralogActorConcepts._UltralogPlugins_);
+        classBuilder.addRequiredValueOnProperty(UltralogActorConcepts._roleOfPlugin_,
+                                                bbRole);
+						
+          // Load the class into the JTP context
+        if (kds != null) {
+          kds.loadOntology(classBuilder.getDAMLClass(), false);
+        } else {
+          _ontology.loadOntology(classBuilder.getDAMLClass(), false);
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
 
 }
