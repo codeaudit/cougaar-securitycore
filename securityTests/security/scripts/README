@@ -1,0 +1,26 @@
+
+The files in this directory are included from the experiment scripts:
+
+* setup_scripting.rb: should be the first script to be included before any
+   other security include script.
+   Has a list of "require" that load required libraries.
+
+* setup_society_ping.rb: actions specific to the PING society
+
+* setup_society_1000_ua.rb: actions specific to the 1000 UA society
+
+* Basic security tests that verify the security services are working properly.
+    For example:
+      - check_wp.rb
+      - check_certs.rb
+    All security tests are included in the check_all_basic_tests.rb, so the 
+    experiment file does not have to list all the basic tests.
+
+* Stresses are grouped per security use case.
+    - stress_security_uc1.rb
+    - stress_security_uc2.rb
+    ...
+
+   Every UC script may include other scripts that perform specific actions, such
+   as doing a bad login failure, using a bad certificate, etc.
+  

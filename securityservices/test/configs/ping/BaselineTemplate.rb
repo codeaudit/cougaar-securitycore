@@ -18,14 +18,14 @@ Cougaar.new_experiment().run(parameters[:run_count]) {
   # on the TIC machines this can be replaced with the "HOSTS_FILE" 
   # rule, which looks in the operator directory.  The code below 
   # will work in a stand-alone ACME setup. 
-  HOSTS_FILE = nil 
+  host_file = nil 
   host = @hostname unless host 
   Dir.glob(File.join(".", "example-hosts-secureMV.xml")).each do |file| 
     ts = Cougaar::SocietyBuilder.from_xml_file(file).society 
-    HOSTS_FILE = file 
+    host_file = file 
   end 
   
-  do_action "LayoutSociety", parameters[:layout_file], HOSTS_FILE
+  do_action "LayoutSociety", parameters[:layout_file], host_file
 
   do_action "TransformSociety", false, *parameters[:rules]
   if (!parameters[:community_rules].nil?)
@@ -61,10 +61,10 @@ at :setup_run
 
 at :wait_for_initialization
 
+at :society_running
+
   # however long you want to run 
   do_action "Sleep", 40.minutes 
-  
-at :society_running
   
   do_action "StopSociety"
   

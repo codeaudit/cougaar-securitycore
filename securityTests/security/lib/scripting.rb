@@ -41,11 +41,7 @@ require 'security/lib/namedCollection'
 require 'security/lib/dataProtection'
 
 require 'security/lib/runSecurity'
-begin
-  require 'security/lib/policy_util'
-rescue Exception
-  puts "WARNING:  couldn't load lib/policy_util"
-end
+require 'security/lib/policy_util'
 require 'security/lib/society_util'
 require 'security/lib/message_util'
 

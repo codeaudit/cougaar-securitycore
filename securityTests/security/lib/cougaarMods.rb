@@ -1,9 +1,5 @@
 require "cgi"
-begin
-  require 'lib/policy_util'
-rescue Exception
-  puts "WARNING:  couldn't load lib/policy_util"
-end
+require 'security/lib/policy_util'
 
 # The section contains the additions or modifications to the existing ACME environment.
 

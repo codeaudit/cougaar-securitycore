@@ -19,14 +19,14 @@
 # </copyright>
 #
 
-require 'assessment/setup'
-require 'assessment/cnccalc'
-require 'assessment/pertubations'
-require 'assessment/stressors'
-require 'assessment/network'
-require 'assessment/analysis'
-require 'assessment/aggagent_queries'
-require 'assessment/agent_msg_rate'
+require 'security/assessment/setup'
+require 'security/assessment/cnccalc'
+require 'security/assessment/pertubations'
+require 'security/assessment/stressors'
+require 'security/assessment/network'
+require 'security/assessment/analysis'
+require 'security/assessment/aggagent_queries'
+require 'security/assessment/agent_msg_rate'
 
 require 'uri'
 require 'net/http'

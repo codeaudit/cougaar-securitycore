@@ -27,7 +27,10 @@ include_scripts:
 #  - script: clearPnLogs.rb
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
   - script: setup_ping.rb
-  - script: $CIP/csmart/lib/security/scripts/setup_security.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_society_ping.rb
+  - script: $CIP/csmart/lib/security/scripts/build_config_jarfiles.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_acme_user.rb
+  - script: $CIP/csmart/lib/security/scripts/check_wp.rb
 #  - script: setup_robustness.rb
 #  - script: network_shaping.rb
 #  - script: cnccalc_include.rb

@@ -6,11 +6,7 @@ description: special initialization for security
 
 =end
 
-CIP = ENV['CIP']
-
-$:.unshift File.join(CIP, 'csmart', 'lib', 'security')
-
-require 'lib/scripting'
+require 'security/lib/scripting'
 
 insert_before :setup_run do
   do_action "SetAcmeUser"
