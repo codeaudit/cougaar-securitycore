@@ -28,7 +28,9 @@ package org.cougaar.core.security.securebootstrap;
 
 import org.cougaar.bootstrap.XURLClassLoader;
 
+import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
@@ -91,9 +93,34 @@ extends XURLClassLoader
     if (_logger.isDebugEnabled()) {
       _logger.debug("Bootstrapper URLs: ");
       for (int i=0; i<urls.length; i++) {
-	_logger.debug("\t"+urls[i]);
+	_logger.debug("\t"+urls[i] + " - Protocol:" + urls[i].getProtocol());
       }
     }
+    /* Do not use caches by default.
+    * sun.net.www.protocol.jar.JarFileFactory maintains a static cache of
+    * all JarFiles. So all JarFiles would be strongly referenced by the
+    * Java runtime environment. The cache grows and can never shrink.
+    * The only way to prevent Jar files to get into the cache is to invoke
+    * URLConnection.setDefaultUseCaches(false).
+    * The interface is really weird. It should be a static method, but it
+    * is not.
+    */
+    /*
+    Commented out for now. The VM core classes have another reference to
+    the JarFiles anyway, so executing the code below wouldn't help anyway.
+    for (int i = 0 ; i < urls.length ; i++) {
+      try {
+        URLConnection myUrl = urls[i].openConnection();
+        // setDefaultUseCaches is in fact a static field, but the method
+        // is not static. We need to find at least one connection that
+        // succeeds.
+        myUrl.setDefaultUseCaches(false);
+        System.out.println("setDefaultUseCaches set to false");
+        break;
+      }
+      catch (IOException e) {}
+    }
+    */
   }
   /*
    */
