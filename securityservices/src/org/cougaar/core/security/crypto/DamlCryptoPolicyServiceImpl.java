@@ -39,18 +39,22 @@ import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuiteMapping;
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.network.NetworkConfigurationService;
 import org.cougaar.core.service.LoggingService;
 
 public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
-  private ULMessageNodeEnforcer   _enforcer;
-  private LoggingService          _log;
-  private CryptoPolicyServiceImpl _legacy;
-  private ServiceBroker           _serviceBroker;
-  private CipherSuite             _defaultCipherSuite;
+  private ULMessageNodeEnforcer        _enforcer;
+  private LoggingService               _log;
+  private CryptoPolicyServiceImpl      _legacy;
+  private ServiceBroker                _serviceBroker;
+  private CipherSuite                  _defaultCipherSuite;
+  private NetworkConfigurationService  _ncs;
 
   public DamlCryptoPolicyServiceImpl(ServiceBroker sb) 
   {
     _log = (LoggingService) sb.getService(this, LoggingService.class, null);
+    _ncs = (NetworkConfigurationService)
+      sb.getService(this, NetworkConfigurationService.class, null);
     _legacy = new CryptoPolicyServiceImpl(sb);
     _serviceBroker = sb;
 
@@ -84,12 +88,12 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
 
   public SecureMethodParam getSendPolicy(String source, String target) {
     initDaml();
-    return getDamlPolicy(source, target); // no direction
+    return getDamlPolicy(source, target, true);
   }
 
   public SecureMethodParam getReceivePolicy(String source, String target) {
     initDaml();
-    return getDamlPolicy(source, target); // no direction
+    return getDamlPolicy(source, target, false);
   }
 
   public CryptoPolicy getDataProtectionPolicy(String source) {
@@ -107,13 +111,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
                  ignoreEncryption + ", ignoreSignature = " + ignoreSignature);
     }
     initDaml();
-    CipherSuite cs = null;
-    if (_enforcer != null) {
-      cs = _enforcer.getAllowedCipherSuites(source, target);
-    }
-    else {
-      cs = _defaultCipherSuite;
-    }
+    CipherSuite cs = getAllowedCipherSuites(source, target, false);
     if (_log.isDebugEnabled()) {
       _log.debug("Comparing against cipher suite: " + cs);
     }
@@ -194,13 +192,34 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
     return policy;
   }
 
-  private SecureMethodParam getDamlPolicy(String source, String target) {
+  private CipherSuite getAllowedCipherSuites(String source,
+                                             String target,
+                                             boolean sending)
+  {
+    CipherSuite cs = _defaultCipherSuite;
     if (_enforcer != null) {
-      CipherSuite cs = _enforcer.getAllowedCipherSuites(source, target);
-      return convertPolicy(cs);
+      cs = _enforcer.getAllowedCipherSuites(source, target);
     }
-    else {
-      return convertPolicy(_defaultCipherSuite);
+    if (_ncs == null) {
+      return cs;
     }
+    int condition = _ncs.connectionAttributes(sending? target : source);
+    if (_log.isDebugEnabled()) {
+      _log.debug("Condition = " + condition);
+      _log.debug("Cipher suite was " + cs);
+    }
+    CipherSuite condcs = cs.getConditionalCipherSuite(condition);
+    if (_log.isDebugEnabled()) {
+      _log.debug("Conditional cipher suite = " + condcs);
+    }
+    if (condcs == null) { return cs; }
+    else { return condcs; }
+  }
+
+  private SecureMethodParam getDamlPolicy(String source, 
+                                          String target,
+                                          boolean sending)
+  {
+    return convertPolicy(getAllowedCipherSuites(source, target, sending));
   }
 }  
