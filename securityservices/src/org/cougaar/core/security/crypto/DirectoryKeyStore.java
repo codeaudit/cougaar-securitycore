@@ -3235,15 +3235,22 @@ public class DirectoryKeyStore
     DirContext ctx = namingSrv.getRootContext();
     try {
       // Try to to get the /Certificate subcontext
-      ctx = (DirContext) ctx.lookup(CERT_DIR);
-    } catch (NamingException ne) {
-      // If nobody has registered yet for the /Certificate subcontext,
-      // create it.
-      if (log.isInfoEnabled()) {
-	log.info("Creating " + CERT_DIR + " subcontext in the naming service");
+      try {
+        ctx = (DirContext) ctx.lookup(CERT_DIR);
+      } catch (NamingException ne) {
+        // If nobody has registered yet for the /Certificate subcontext,
+        // create it.
+        if (log.isInfoEnabled()) {
+          log.info("Creating " + CERT_DIR + " subcontext in the naming service");
+        }
+        try {
+          ctx = (DirContext)
+            ctx.createSubcontext(CERT_DIR, new BasicAttributes());
+        } catch (NameAlreadyBoundException nbex) {
+          // concurrency issue, context may be created already
+          ctx = (DirContext) ctx.lookup(CERT_DIR);
+        }
       }
-      ctx = (DirContext)
-        ctx.createSubcontext(CERT_DIR, new BasicAttributes());
     } catch (Exception e) {
       NamingException x = new NamingException("Unable to access name-server");
       x.setRootCause(e);
