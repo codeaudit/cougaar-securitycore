@@ -59,9 +59,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
    * Opens a tunnelled connection (through the policy servlet) to the
    * KAoSDirectoryService.  
    */
-  public TunnelledOntologyConnection(String uri, 
-                                     Map declarations, 
-                                     Map agentGroupMap)
+  public TunnelledOntologyConnection(String uri)
     throws IOException
   {
     super();
@@ -70,8 +68,6 @@ public class TunnelledOntologyConnection extends OntologyConnection
       SecurityServiceProvider secprov   = new SecurityServiceProvider();
       userAuth.init(secprov);
       _brains = new TunnelClient(uri);
-      PolicyUtils.verbsLoaded();
-      PolicyUtils.autoGenerateGroups(declarations, agentGroupMap);
     } catch (Exception e) {
       IOException ioe =  new IOException("Could not tunnel to client: " + uri);
       ioe.initCause(e);
@@ -87,9 +83,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
    */
   public TunnelledOntologyConnection(String  uri, 
                                      String  user,
-                                     char [] password,
-                                     Map declarations,
-                                     Map agentGroupMap)
+                                     char [] password)
     throws IOException
   {
     super();
@@ -99,7 +93,6 @@ public class TunnelledOntologyConnection extends OntologyConnection
       userAuth.init(secprov);
       userAuth.authenticateWithPassword(user, password);
       _brains = new TunnelClient(uri);
-      PolicyUtils.autoGenerateGroups(declarations, agentGroupMap);
     } catch (Exception e) {
       IOException ioe =  new IOException("Could not tunnel to client: " + uri);
       ioe.initCause(e);

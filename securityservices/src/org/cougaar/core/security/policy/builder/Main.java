@@ -72,7 +72,8 @@ class Main
   private static final int JTP_CMD     = 1;
   private static final int COMMIT_CMD  = 2;
   private static final int EXAMINE_CMD = 3;
-  private static final int PARSE_CMD   = 4;
+  private static final int GET_CMD     = 4;
+  private static final int PARSE_CMD   = 5;
 
   private static final String _conditionName 
     = "org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY";
@@ -140,30 +141,17 @@ class Main
         counter++; 
         _cmd = JTP_CMD;
       } else if (args[counter].equals("commit") || 
-                 args[counter].equals("setpolicies") ||
-                 args[counter].equals("addpolicies")) {
-        _setPolicies      = !(args[counter].equals("addpolicies"));
+                 args[counter].equals("setpolicies")) {
         counter++;
         _cmd = COMMIT_CMD;
-        _quiet            = true;
-        _useDomainManager = false;
-        _cmdLineAuth      = false;
-        while (args.length - counter > 4) {
-          if (args[counter].equals("--dm")) {
-            counter++;
-            _useDomainManager = true;
-          } else if (args[counter].equals("--auth")) {
-            counter++;
-            _cmdLineAuth     = true;
-            _cmdLineUser     = args[counter++];
-            _cmdLinePassword = args[counter++].toCharArray();
-          } else {
-            usage();
-          }
-        }
-        _url = "http://" + args[counter++] + ":" + args[counter++] + 
-          "/$" + args[counter++] + "/policyAdmin";
-        System.out.println("_url = " + _url);
+        _setPolicies = true;
+        counter = getConnectionArgs(args, counter);
+        _policyFile = args[counter++];
+      } else if (args[counter].equals("addpolicies")) {
+        counter++;
+        _cmd = COMMIT_CMD;
+        _setPolicies = false;
+        counter = getConnectionArgs(args, counter);
         _policyFile = args[counter++];
       } else if (args[counter].equals("examine")) {
         counter++;
@@ -173,6 +161,10 @@ class Main
         counter++;
         _cmd = PARSE_CMD;
         _policyFile = args[counter++];
+      } else if (args[counter].equals("get")) {
+        counter++;
+        _cmd = GET_CMD;
+        counter = getConnectionArgs(args, counter);
       } else {
         usage();
       }
@@ -180,8 +172,35 @@ class Main
         usage();
       }
     } catch (IndexOutOfBoundsException e) {
+      System.out.println("Too many arguments");
       usage();
     }
+  }
+
+  public int getConnectionArgs(String [] args, int counter)
+  {
+    _quiet            = true;
+    _useDomainManager = false;
+    _cmdLineAuth      = false;
+    while (args.length - counter > 3) {
+      if (args[counter].equals("--dm")) {
+        counter++;
+        _useDomainManager = true;
+      } else if (args[counter].equals("--auth")) {
+        counter++;
+        _cmdLineAuth     = true;
+        _cmdLineUser     = args[counter++];
+        _cmdLinePassword = args[counter++].toCharArray();
+      } else {
+        break;
+      }
+    }
+    String hostname = args[counter++];
+    String port     = args[counter++];
+    String agent    = args[counter++];
+    _url = "http://" + hostname + ":" + port + "/$" + agent + "/policyAdmin";
+    System.out.println("_url = " + _url);
+    return counter;
   }
 
   public static void usage()
@@ -213,6 +232,9 @@ class Main
     System.out.println("\tagent = agent running the servlet");
     System.out.println("\tpoliciesFile = policies to commit");
     System.out.println("" + (counter++) + ". examine policyFile");
+    System.out.println("" + (counter++) + ". get {--auth username password} "
+                          + "host port agent");
+    System.out.println("\tDownloads the policies from the domain manager");
     System.out.println("" + (counter++) + ". parse policyFile");
     System.out.println("\tParse only for debugging purposes");
     System.out.println("");
@@ -256,6 +278,9 @@ class Main
     case EXAMINE_CMD:
       examinePolicyFile();
       break;
+    case GET_CMD:
+      downloadPolicies();
+      break;
     case PARSE_CMD:
       compile(_policyFile);
       break;
@@ -264,6 +289,20 @@ class Main
     }
     System.exit(0);
   }
+
+  public void connectDomainManager()
+    throws IOException
+  {
+    if (_cmdLineAuth) {
+      _ontology = new TunnelledOntologyConnection(_url,
+                                                  _cmdLineUser,
+                                                  _cmdLinePassword);
+
+    } else {
+      _ontology = new TunnelledOntologyConnection(_url);
+    }
+  }
+
 
   /** 
    * Set the reasoning depth
@@ -376,17 +415,10 @@ class Main
       List deletePolicies = parsed.getDeletedList();
       List parsedPolicies = parsed.policies();
       System.out.println("Connecting to domain manager & loading declarations");
-      if (_cmdLineAuth) {
-        _ontology = new TunnelledOntologyConnection(_url,
-                                                    _cmdLineUser,
-                                                    _cmdLinePassword,
-                                                    parsed.declarations(),
-                                                    parsed.agentGroupMap());
-      } else {
-        _ontology = new TunnelledOntologyConnection(_url, 
-                                                    parsed.declarations(),
-                                                    parsed.agentGroupMap());
-      }
+      connectDomainManager();
+      PolicyUtils.verbsLoaded();
+      PolicyUtils.autoGenerateGroups(parsed.declarations(), 
+                                     parsed.agentGroupMap());
 
       commitUnconditionalPolicies(parsedPolicies, deletePolicies);
       commitConditionalPolicies(parsedPolicies);
@@ -759,6 +791,26 @@ class Main
   {
     OperatingModeCondition omc=(OperatingModeCondition) condpm.getCondition();
     return (String) omc.getValue();
+  }
+
+  private void downloadPolicies()
+    throws IOException
+  {
+    try {
+      connectDomainManager();
+      List policies = _ontology.getPolicies();
+      for (Iterator policiesIt = policies.iterator(); 
+           policiesIt.hasNext();) {
+        PolicyMsg policy = convertMsgToPolicyMsg((Msg) policiesIt.next());
+        String name = policy.getName();
+        System.out.println("Policy " + name + " found");
+        PolicyUtils.writeObject(name + ".msg", policy);
+      }
+    } catch (SymbolNotFoundException snfe) {
+      IOException ioe = new IOException("Symbol not found");
+      ioe.initCause(snfe);
+      throw ioe;
+    }
   }
 }
 
