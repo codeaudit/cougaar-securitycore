@@ -63,9 +63,11 @@ import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.ssl.KeyManager;
 import org.cougaar.core.security.naming.*;
 
+import org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension;
+import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
+
 /** A common holder for Security keystore information and functionality
  */
-
 final public class KeyRing  implements KeyRingService  {
   // keystore stores private keys and well-know public keys
   // private DirectoryKeyStore directoryKeystore;
@@ -115,10 +117,16 @@ final public class KeyRing  implements KeyRingService  {
 
   static {
     try {
+      /*  NOTE: the following commented code is not compatible with versions before jdk1.4.1_02.
       OIDMap.addAttribute("org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension"
 			  ,"2.5.29.28","x509.info.extensions.IssuingDistibutionPoint");
       OIDMap.addAttribute("org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension"
 			  ,"2.5.29.29","x509.info.extensions.CertificateIssuer");
+      */
+      OIDMap.addAttribute("x509.info.extensions.IssuingDistibutionPoint", "2.5.29.28",
+	      IssuingDistributionPointExtension.class);
+      OIDMap.addAttribute("x509.info.extensions.CertificateIssuer", "2.5.29.29",
+        CertificateIssuerExtension.class);
 
     }
     catch(CertificateException certexp) {
