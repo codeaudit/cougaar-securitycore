@@ -323,6 +323,13 @@ Running the ul-mini-config society
       rm -rf $COUGAAR_INSTALL_PATH/log/bootstrap/*
     The launch-society-clean scripts removes these files and then launches
     launch-society.
+ 
+14. Note: The society may not start if jar files are in the JRE extension
+    directory, especially if these jar files contain classes with the same
+    fully-qualified names as jar files in the COUGAAR_INSTALL_PATH/sys
+    directory. The jar file verifier prevents this, otherwise a malicious
+    jar file could be introduced in the system and attempt to override
+    existing legitimate classes.
 
 The launch-society script launches multiple nodes from one single
 command. The options are the following:
