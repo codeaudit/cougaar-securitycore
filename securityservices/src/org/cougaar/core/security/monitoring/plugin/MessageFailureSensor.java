@@ -74,7 +74,7 @@ import java.util.List;
  * plugin = org.cougaar.core.security.monitoring.plugin.MessageFailureSensor
  * </pre>
  * The plugin also takes an optional parameter indicating the role
- * of the security manager to report to. The default is "SecurityMnRManager".
+ * of the security manager to report to. The default is "SecurityMnRManager-Enclave".
  * The communities that the capabilities are sent to are all the ones that
  * this sensor belongs to.
  */
@@ -237,5 +237,5 @@ public class MessageFailureSensor extends ComponentPlugin {
   private LoggingService m_log;
   private CmrFactory m_cmrFactory;
   private IdmefMessageFactory m_idmefFactory;
-  private String m_managerRole = "SecurityMnRManager"; // default value
+  private String m_managerRole = "SecurityMnRManager-Enclave"; // default value
 }
