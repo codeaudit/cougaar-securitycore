@@ -2,8 +2,8 @@
 module Cougaar
         module Actions
                 #Requires Oplan ready
-                class StartTesting < Cougaar::Action
-                        PRIOR_STATES=["GLSReady"]
+                class StartSecurityBlackboardTesting < Cougaar::Action
+#                        PRIOR_STATES=["GLSReady"]
 
                         def initialize(run)
                                 super(run)
@@ -29,8 +29,8 @@ module Cougaar
                         end
                 end
                 #Require planning is complete
-                class StopTesting < Cougaar::Action
-                        PRIOR_STATES=["PlanningComplete"]
+                class StopSecurityBlackboardTesting < Cougaar::Action
+#                        PRIOR_STATES=["PlanningComplete"]
                         def initialize(run)
                                 super(run)
                                 @run = run
@@ -48,7 +48,7 @@ module Cougaar
                         end
                 end
                 
-                class AnalyzeResults < Cougaar::Action
+                class AnalyzeSecurityBlackboardResults < Cougaar::Action
                 	def initialize(run)
                 		super(run)
                 		@run = run

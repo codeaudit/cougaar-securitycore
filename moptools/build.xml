@@ -138,6 +138,8 @@
         <echo message="+++++ Installing signed jar files"/>
         <copy file="${moptools.signed}/mopblackboard.jar" 
             todir="${cougaar.install.path}/lib"/>
+        <copy file="${moptools.lib}/csiutil-1.0.jar" 
+            todir="${cougaar.install.path}/lib"/>
         <echo message="+++++ Installed signed jar files"/>
     </target>
 

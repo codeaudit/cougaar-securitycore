@@ -12,7 +12,7 @@ society.each_agent(true) do |agent|
     if agent.name == targetagent
       agent.add_component do |c|
 	c.classname = plugin
-    	c.add_argument("TIMERINTERVAL=10000")
+    	c.add_argument("TIMERINTERVAL=60000")
     	c.add_argument("DATABASEURL=jdbc:mysql://localhost/TestResults")
     	c.add_argument("DRIVER=org.gjt.mm.mysql.Driver")
     	c.add_argument("USERNAME=test")

@@ -280,8 +280,18 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
    * Initialize Analyzer Database for this run
    */
   private void initAnalyzerDatabase() {
-    File dumpDirFile = new File(dumpDir);
-    dumpDirFile.mkdirs();
+    try {
+      File dumpDirFile = new File(dumpDir);
+      if (!dumpDirFile.mkdirs()) {
+	if (logging.isWarnEnabled()) {
+	  logging.warn("Unable to create dump directory:");
+	}
+      }
+    }
+    catch (Exception e) {
+     if (logging.isWarnEnabled()) {
+       logging.warn("Unable to create dump directory:" + e);
+    }
   }
 
 
