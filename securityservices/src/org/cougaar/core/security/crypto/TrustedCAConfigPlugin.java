@@ -46,18 +46,6 @@ public class TrustedCAConfigPlugin extends ConfigPlugin {
   /** Need to synchronize because for normal node there could be multiple threads
    */
   protected synchronized void checkOrMakeIdentity(CAInfo info, String requestURL) {
-    // check whether already received the policy
-    TrustedCaPolicy [] tc = cryptoClientPolicy.getIssuerPolicy();
-    boolean newPolicy = true;
-    for (int i = 0; i < tc.length; i++) {
-      if (tc[i].caDN.equals(info.caPolicy.caDN)) {
-        newPolicy = false;
-        break;
-      }
-    }
-    if (newPolicy) {
-      saveTrustedCert(info);
-    }
-
   }
+
 }

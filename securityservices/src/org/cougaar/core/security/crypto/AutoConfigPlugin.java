@@ -54,6 +54,7 @@ public class AutoConfigPlugin extends ConfigPlugin {
     if (newPolicy) {
       setCAInfo(info, requestURL);
     }
+
     TrustedCaPolicy tcp = info.caPolicy;
 
     // request certificates from the particular CA that has started

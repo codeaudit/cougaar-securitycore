@@ -304,7 +304,13 @@ public class ConfigPlugin
           CAInfo info = (CAInfo)ois.readObject();
           ois.close();
 
+          // save trusted CA first, if backup CA use a delay to request certs
+          saveTrustedCert(info);
+          // there is a TrustedCAConfigPlugin that only installs trusted cert and policy
           if (!isPrimaryCA) {
+            if (log.isInfoEnabled()) {
+              log.info("Start delay from requesting cert from backup CA: " + infoURL);
+            }
             try {
               long timeLeft = delayRequest + pollStart - System.currentTimeMillis();
               if (timeLeft > 0) {
@@ -344,8 +350,6 @@ public class ConfigPlugin
       tc.setCertificateAttributesPolicy(null);
     }
     cryptoClientPolicy.addTrustedCaPolicy(tc);
-    saveTrustedCert(info);
-    // there is a TrustedCAConfigPlugin that only installs trusted cert and policy
     if (log.isDebugEnabled()) {
       log.debug("Saving CryptoClientPolicy to file.");
     }
