@@ -295,7 +295,7 @@ public class MnRResponseViewerComponent
 	}
 	relayList=foundqMapping.getQueryList();
 	if(relayList==null) {
-	  return null;
+	  continue;
 	}
 	for(int i=0;i<relayList.size();i++) {
 	  outstandingq=(OutStandingQuery)relayList.get(i);
