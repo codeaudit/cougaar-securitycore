@@ -65,13 +65,25 @@ at :wait_for_initialization
 at :society_running
 
   # Give some time to run the stresses
+  # 1K society would do the initial planning phase here
   do_action "Sleep", 10.minutes 
 
 at :after_stage_1
+  # 1K society would be quiesced here
 
   # however long you want to run 
   do_action "Sleep", 30.minutes 
   
+  # 1K society would advance time here
+at :before_stage_2
+at :during_stage_2
+  do_action "Sleep", 1.minutes 
+at :after_stage_2
+
+at :before_stage_3
+at :before_stage_4
+at :during_stages_3_4
+
   do_action "StopSociety"
   
 at :society_stopped
