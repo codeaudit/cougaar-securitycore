@@ -31,7 +31,9 @@ import org.cougaar.core.security.ssl.ui.*;
 import org.cougaar.core.security.provider.*;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.component.*;
+import org.cougaar.core.service.LoggingService;
 
 /**
  * This is the default implementation of UserAuthenticator
@@ -56,6 +58,7 @@ public class UserAuthenticatorImpl
   protected Vector selectedHandlers = new Vector();
   protected String username = null;
   ServiceBroker serviceBroker;
+  protected LoggingService log=null;
 
   public UserAuthenticatorImpl(String username) {
     this.username = username;
@@ -72,9 +75,19 @@ public class UserAuthenticatorImpl
 	  serviceBroker.getService(this, KeyRingService.class, null);
         UserSSLService userservice = (UserSSLService)
 	  serviceBroker.getService(this, UserSSLService.class, null);
-
+	 log = (LoggingService)
+	   serviceBroker.getService(this,
+				    LoggingService.class, null);
+	 CertificateCacheService cacheservice=(CertificateCacheService)
+	   serviceBroker.getService(this,
+				   CertificateCacheService.class,
+				    null);
+	 
+	if(cacheservice==null) {
+	  log.warn("Unable to get Certificate cache Service in init of UserAuthenticatorImpl");
+	}
         // handler for certificates
-        KeyRingUserAuthImpl certhandler = new KeyRingUserAuthImpl(keyRing.getKeyStore());
+        KeyRingUserAuthImpl certhandler = new KeyRingUserAuthImpl(cacheservice);
         registerHandler(certhandler);
         userservice.setAuthHandler(certhandler);
       }
