@@ -27,10 +27,11 @@
 
 package org.cougaar.core.security.policy.daml;
 
-import safe.util.UnexpandedPolicyUpdate;
 import java.util.List;
+import java.io.Serializable;
+import safe.util.UnexpandedPolicyUpdate;
 
-public class DamlPolicyExpansion {
+public class DamlPolicyExpansion implements Serializable {
   private int _expansionNum;
   private List _locators, _policies;
   private String _updateType;
