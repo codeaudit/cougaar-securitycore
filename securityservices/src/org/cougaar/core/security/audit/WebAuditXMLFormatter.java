@@ -84,6 +84,7 @@ public class WebAuditXMLFormatter extends XMLFormatter {
                         messageBuffer.append("\n<servlet>" + token
                             + "</servlet>");
                         break;
+                    
                 }
 
                 i++;
