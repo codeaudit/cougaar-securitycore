@@ -19,12 +19,47 @@ def newTest(run, name)
 end
 
 
+
+def irb(b)
+  prompt = "ruby-> "
+  while TRUE
+    print prompt
+    output = nil
+    begin
+      input = $stdin.gets()
+      if input == nil || input == "quit\n" then
+        break
+      end
+      puts eval(input, b)
+    rescue => exception
+      puts("#{exception} #{exception.backtrace.join("\n")}")
+    end
+    puts output
+  end
+  puts "Continuing..."
+end
+
 module Cougaar
   module Actions
 
 ########################################################################
 # Utility Classes
 ########################################################################
+
+    class Irb < Cougaar::Action
+      def initialize(run)
+        super(run)
+        @run = run
+      end
+
+      def perform
+        @run.info_message("Primitive Ruby prompt - one line per command")
+        @run.info_message("@run contains the run variable")
+        @run.info_message("Type ^D or quit to exit")
+        irb(binding)
+      end
+    end
+
 
 
     class WaitForUserManagerReady < Cougaar::Action
@@ -56,15 +91,6 @@ module Cougaar
       end
     end 
 
-    class InitDM < Cougaar::Action
-      def perform
-        run.society.each_enclave { |enclave|
-          ::Cougaar.logger.info "Publishing conditional policy to #{enclave} policy domain manager"
-          loadBootPolicies(enclave)
-        }
-      end
-    end # InitDM
-
 
 ########################################################################
 #   Beginnining of test actions
@@ -75,9 +101,8 @@ module Cougaar
 #---------------------------------Test----------------------------------
     class DomainManagerRehydrateReset < Cougaar::Action
       def initialize(run)
-        @run = run
-        @reviveTimeout = 90.seconds
         super(run)
+        @run = run
       end
     
       def perform
@@ -109,10 +134,14 @@ module Cougaar
           return
         end
     #
-    # Kill the node, distribute policies, kill policy node, restart node
+    # Kill the node
     #
         @run.info_message("killing #{node.name}")
         @run['node_controller'].stop_node(node)
+
+    #
+    # Distribute policies, Persist, and Kill Policy Node
+    #
         pw = PolicyWaiter.new(@run, policyNode.name)
         @run.info_message( "installing no audit policy")
         deltaPolicy(enclave, <<DONE)
@@ -129,6 +158,10 @@ DONE
         end
         @run.info_message( "killing policy manager node (#{policyNode.name})")
         @run['node_controller'].stop_node(policyNode)
+
+    #
+    # Restart node
+    #
         @run.info_message( "restarting node #{node.name}")
         @run['node_controller'].restart_node(self, node)
         if !(checkAudit(web, node)) then
@@ -137,14 +170,23 @@ DONE
           @run.info_message("Test failed")
           return
         end
-   # the two sleeps that follow are to allow the node to wake up.  Using a 
-   # policy waiter to detect the policy doesn't work because there can be 
-   # multiple policy updates as enforcers wake up.
-        sleep @reviveTimeout
+
+    #
+    # Check results
+    #
+        pw =  PolicyWaiter.new(@run, node.name)
    # now revive the domain manager
         @run.info_message( "restarting domain manager node (#{policyNode.name})")
         @run['node_controller'].restart_node(self, policyNode)
-        sleep @reviveTimeout
+        @run.info_message"Waiting for first rehydrated policy on #{node.name}"
+        if (!pw.wait(120)) then
+          @run.info_message("Rehydrated policies did not commit to #{node.name}")
+          @run.info_message("Audit test failed")
+        end
+        waitTime=90.seconds
+        @run.info_message("First rehydrated policy received")
+        @run.info_message("Waiting an additional #{waitTime} for the rest")
+        sleep waitTime
     # audit should fail here also  - this is the real test
         if (checkAudit(web, node))
           @run.info_message("Rehydration test failed - audit should not occur")
@@ -153,6 +195,10 @@ DONE
           $policyPassedCount += 1
           @run.info_message( "Rehydration test succeeded")
         end
+
+     # 
+     # Restore everything
+     #
         ps = PolicyWaiter.new(@run, node.name)
         @run.info_message( "restoring audit policy")
         pw = PolicyWaiter.new(@run, policyNode.name)
@@ -362,95 +408,44 @@ DONE
     end # CommunicationTest01
 
 
+
 #---------------------------------End Test------------------------------
 
 #---------------------------------Test----------------------------------
-
     class CommunicationTest02 < Cougaar::Action
       def initialize(run)
-        super(run)
         @run = run
-        @enclave = "Rear"
         @agentName1 = "testBounceOne"
         @agentName2 = "testBounceTwo"
-        @msgPingTimeout = 20.seconds
         @web = SRIWeb.new()
       end
 
-      def initUris
-        @sendUri = 
-           "#{@agent1.uri}/message/send?address=#{@agentName2}&Send=Submit"
-        @checkUri = "#{@agent1.uri}/message/list"
-        @deleteUri = "#{@agent1.uri}/message/delete?uid="
+      def initSocietyVars
+        @agent1 = nil
+        @agent2 = nil
+        @run.society.each_agent do |agent|
+          if (agent.name == @agentName1) then
+            @agent1 = agent
+          end
+          if (agent.name == @agentName2) then
+            @agent2 = agent
+          end
+        end
+        @sendUri = "#{@agent1.uri}/message/sendVerb/Sending"
       end
 
-      def clearRelays
-        regexp=Regexp.compile"#{@agentName1}\/([0-9]+)[^0-9]"
-        relays = @web.getHtml(@checkUri).body
-        while m = regexp.match(relays) do
-          #puts m
-          #puts m[1]
-          @web.getHtml("#{@deleteUri}#{@agentName1}/#{m[1]}")
-          relays = @web.getHtml(@checkUri).body
-        end
+
+      def perform()
       end
 
-      def checkSend
-        clearRelays
-        @web.getHtml(@sendUri)
-        sleep(@msgPingTimeout)
-        result = @web.getHtml(@checkUri).body
-        !(result.include?("no response"))
+      def sendMessage()
+        #f = File.new("RearPolicyManagerNode.log", File::RDONLY)
+        #p = f.pos
+        #f.seek(0,IO::SEEK_END)
+        #f.seek(p,IO::SEEK_SET)
+        @web.postHtml(@sendUri, ["address=#{agent2.name}", "verb=GetWater"])
       end
-
-      def perform
-        newTest(@run, "Comm Test 01")
-        @agent1 = @run.society.agents[@agentName1]
-        @agent2 = @run.society.agents[@agentName2]
-        initUris
-        clearRelays
-        @run.info_message("Attempting to send message")
-        if (checkSend) then
-          @run.info_message("Message sent and ack received")
-        else
-          @run.info_message("Should be able to talk - test failed")
-          return
-        end
-        pw1 = PolicyWaiter.new(@run, @agent1.node.name)
-        pw2 = PolicyWaiter.new(@run, @agent2.node.name)
-        @run.info_message("Inserting policy preventing  communication")
-        deltaPolicy(@enclave, <<DONE)
-          Agent #{@agentName1}
-          Agent #{@agentName2}
-
-          Policy StopCommunication = [ 
-            GenericTemplate
-            Priority = 3,
-            %urn:Agent##{@agentName1} is not authorized to perform
-            $Action.owl#EncryptedCommunicationAction  
-            as long as
-            the value of $Action.owl#hasDestination
-            is a subset of the set { %urn:Agent##{@agentName2} }
-          ]
-DONE
-        if (!pw1.wait(200) || !pw2.wait(120)) then
-          @run.info_message("no  policy received - test failed")
-          return
-        end
-        @run.info_message("Attempting to send another message")
-        if (checkSend) then
-          @run.info_message("message should not have been received - test failed")
-          return
-        end
-        $policyPassedCount += 1
-        @run.info_message("Test succeeded - restoring policies")
-        deltaPolicy(@enclave, <<DONE)
-          Delete StopCommunication
-DONE
-
-      end
-    end # CommunicationTest01
-
+    end
 
 #---------------------------------End Test------------------------------
 
