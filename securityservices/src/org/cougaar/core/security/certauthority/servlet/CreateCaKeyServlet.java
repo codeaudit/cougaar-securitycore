@@ -240,7 +240,7 @@ public class CreateCaKeyServlet
     out.println("</i></td></tr>");
 
     out.println("<tr><td>");
-    out.println("Time envelope:</td><td><input name=\"timeEnvelope\" type=\"text\" value=\"true\"></td>");
+    out.println("Time envelope:</td><td><input name=\"timeEnvelope\" type=\"text\" value=\"\"></td>");
     out.println("<td><i>The default time envelope for a certificate to be valid.<br>");
     out.println("The certificate will be valid between this period to the actual time<br>");
     out.println("it is approved by CA, plus the validity period above after its approval.<br>");
