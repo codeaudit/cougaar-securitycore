@@ -143,4 +143,8 @@ public interface KeyRingService extends Service {
   List getX500NameFromNameMapping(String name);
 
   void addToIgnoredList(String cname) throws Exception;
+
+  public KeyManager getClientSSLKeyManager()
+    throws IllegalStateException;
+
 }

@@ -42,6 +42,8 @@ import org.cougaar.core.security.services.util.CertificateSearchService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.ssl.KeyManager;
+import org.cougaar.core.security.ssl.ServerKeyManager;
+import org.cougaar.core.security.ssl.UserKeyManager;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
@@ -2436,7 +2438,25 @@ try {
     }
 
     throw new GeneralSecurityException("Requesting to ignore unrecognized agent " + cname);
-  }  
+  }
+
+  public KeyManager getClientSSLKeyManager()
+    throws IllegalStateException
+  {
+    KeyManager clientSSLkm = null;
+    for (Iterator kmIt = _initKeyManager.iterator(); kmIt.hasNext();) {
+      KeyManager km = (KeyManager) kmIt.next();
+      if (km instanceof UserKeyManager || km instanceof ServerKeyManager) {
+        continue;
+      } else if (clientSSLkm == null) {
+        clientSSLkm = km;
+      } else {
+        throw new IllegalStateException("More than one possibility for " +
+                                        "the ssl client key manager");
+      }
+    }
+    return clientSSLkm;
+  }
 
 }
 
