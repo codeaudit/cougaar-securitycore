@@ -29,6 +29,7 @@
 +
    do_action "SaveCurrentSociety", "mySociety.xml"
 +  do_action "SaveCurrentCommunities", "myCommunities.xml"
++  do_action "DeployCommunitiesFile"
 +
    do_action "StartJabberCommunications"
    do_action "VerifyHosts"
