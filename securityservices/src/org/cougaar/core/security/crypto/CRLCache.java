@@ -470,6 +470,12 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
     if(crl!=null) {
       wrapper=(CRLWrapper) crlsCache.get(distingushname);
+      if(wrapper == null){
+        if(log.isDebugEnabled()) {
+          log.debug("Got a CRL update from CRL Manager Agent . It must be starting from rehydration ");
+        }
+        wrapper =new CRLWrapper(distingushname);
+      }
       try {
 	wrapper.setCRL(crl.getEncoded());
       }
