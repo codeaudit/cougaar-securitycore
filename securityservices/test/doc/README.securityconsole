@@ -8,5 +8,5 @@ jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingC
 
 5.) Copy the securityconsole directory from ${COUGAAR_SECURITY_SERVICES}/test/bin/ to $COUGAAR_INSTALL_PATH/bin/ 
 
- 
+ Note COUGAAR_SECURITY_SERVICES environment variable must be set and NAI securityservice must be installed . 
  
