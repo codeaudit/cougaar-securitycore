@@ -386,6 +386,9 @@ public class KeyManagement  implements CertificateManagementService {
     else {
       log.debug(" CA key store is empty ::");
     }
+    serviceBroker.releaseService(this,
+                                 CertificateCacheService.class,
+                                 cacheservice); 
   }
 
   public synchronized void processX509Request(PrintStream out,
