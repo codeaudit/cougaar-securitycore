@@ -394,15 +394,19 @@ public class MnrCompromisePlugin extends ComponentPlugin {
                         ArrayList caDnList = (ArrayList) theTask.getPrepositionalPhrase(CompromiseBlackboard.CA_DN_PREP)
                                                                 .getIndirectObject();
                         String caDn = (String) caDnList.get(0);
-
+						String caAgent = caURL.substring(caURL.indexOf("$")+1, caURL.length());
+						caAgent = caAgent.substring(0, caAgent.indexOf("/"));
+						
                         String revokeCertServletURL = caURL.substring(0,
                                 caURL.lastIndexOf('/'))
                             + "/RevokeCertificateServlet";
                         
+                        
                         if (logging.isDebugEnabled()) {
                             logging.debug(revokeCertServletURL);
+                            logging.debug("Compromised Agent's CA:" + caAgent);
                         }
-
+/**
                         try {
                             URL url = new URL(revokeCertServletURL);
                             HttpURLConnection huc = (HttpURLConnection) url
@@ -446,14 +450,14 @@ public class MnrCompromisePlugin extends ComponentPlugin {
                             if (logging.isErrorEnabled()) {
                                 logging.error("Error revoking cert", e);
                             }
-                        }
-                        /*
-                         *  MessageAddress target = MessageAddress
+                        }*/
+                        
+                          MessageAddress target = MessageAddress
                                    .getMessageAddress(caAgent);
                                    SharedDataRelay relay = new SharedDataRelay(uidService
                                            .nextUID(), source, target, theTask, null);
                                    getBlackboardService().publishAdd(relay);
-                         */
+                        
                     }
                 }
             }
