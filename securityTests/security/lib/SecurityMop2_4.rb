@@ -690,8 +690,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
       remoteFwdAdmin = 'ConusUserDomainComm\\R'
       fwdAdminFromConus2 = 'ConusUserDomainComm\FwdPolicyAdminFromConus'
       conusAdmin = 'ConusPolicyAdmin'
-      rearPolicyAgent = @run.society.agents['RearPolicyDomainManager']
-      transPolicyAgent = @run.society.agents['TransPolicyDomainManager']
+      rearPolicyAgent = run.society.agents['RearPolicyDomainManager']
+      transPolicyAgent = run.society.agents['TransPolicyDomainManager']
     end
     tests = [
       ['Basic',    osdgovAgent,    cAndPLog,    cAndPLog,    servlet,    200,    '1A101',     '',                           'SecurityMop2.5'],
