@@ -166,9 +166,7 @@ public class PolicyExpanderPlugin
 	log.debug("Expanding policy message: " + policyMsg);
       }
 
-      // get the attributes of the policy
-      Vector attributes = policyMsg.getAttributes();
-
+/***---doesn't seem necessary at this point
       Document xmlContent = null;
       for (int i=0; i<attributes.size(); i++) {
 	AttributeMsg attrMsg = (AttributeMsg) attributes.elementAt(i);
@@ -208,7 +206,7 @@ public class PolicyExpanderPlugin
 	  }                   
 	}
       }
-    }
+*/    }
   private IncrementalSubscription _ucpm;
   private IncrementalSubscription _upu;
   
