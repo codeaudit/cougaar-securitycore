@@ -30,3 +30,16 @@ class SecurityStressFramework < StressFramework
     @run = run
   end
 end
+
+class PingSociety 
+  @@ping=FALSE
+    
+  def PingSociety.setPingSociety
+    @@ping =TRUE
+  end
+
+  def PingSociety.isPingSociety
+    @@ping 
+  end
+
+end
