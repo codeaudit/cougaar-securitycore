@@ -32,6 +32,9 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.service.ThreadService;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -40,7 +43,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class CertificateValidityMonitor
-  implements CertValidityService, Runnable {
+  implements CertValidityService/*, Runnable*/ {
   KeyRingService keyRing = null;
   SecurityPropertiesService secprop = null;
   LoggingService log = null;
@@ -74,11 +77,35 @@ public class CertificateValidityMonitor
     if (poll != 0) {
       sleep_time = poll;
     }
+/*
     Thread td=new Thread(this,"validitythread");
     td.setPriority(Thread.NORM_PRIORITY);
     td.start();
+*/
+    ThreadService threadService = (ThreadService)
+      serviceBroker.getService(this, ThreadService.class, null);
+    if (threadService == null) {
+      serviceBroker.addServiceListener(new ServiceAvailableListener() {
+        public void serviceAvailable(ServiceAvailableEvent ae) {
+          if (ae.getService() == ThreadService.class) {
+            ThreadService threadsrv = (ThreadService)
+              ae.getServiceBroker().getService(this, ThreadService.class, null);
+            startThread(threadsrv);
+          }
+        }
+      });
+    }
+    else {
+      startThread(threadService);
+    }
   }
 
+  public void startThread(ThreadService threadService) {
+    threadService.getThread(this, new ValidityMonitor()).
+      schedule(0, sleep_time);
+  }
+
+/*
   public void run() {
     while(true) {
       try {
@@ -89,6 +116,11 @@ public class CertificateValidityMonitor
 	  log.warn("Thread interrupted", interruptedexp);
 	}
       }
+*/
+
+  private class ValidityMonitor implements Runnable {
+    public void run() {
+      Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
       if(log.isDebugEnabled()) {
 	log.debug("**************** CertificateValidity THREAD IS RUNNING ***********************************");
@@ -96,7 +128,8 @@ public class CertificateValidityMonitor
 
       if (keyRing == null) {
 	log.warn("Unable to update certificate. KeyRing service is null");
-	continue;
+	//continue;
+        return;
       }
 
       Vector list = new Vector();
