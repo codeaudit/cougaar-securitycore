@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -112,7 +112,8 @@ public class JarFileHandler implements CertValidityListener {
         }
         return true;
       } catch (Exception iox) {
-        log.warn("Exception in signing jar file: " + file.getPath());
+        log.warn("Exception in signing jar file: " + file.getPath()
+	  + " - " + iox);
       }
     }
     else {
