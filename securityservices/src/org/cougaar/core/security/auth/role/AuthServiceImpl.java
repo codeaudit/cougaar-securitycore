@@ -240,7 +240,7 @@ public class AuthServiceImpl
     } else {
       if (_log.isWarnEnabled()) {
         _log.warn("No execution context available at mediation time" +
-                  " - is this ok?");
+                  " - is this ok?", new Exception());
       }
       return true;
     }

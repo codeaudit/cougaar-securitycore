@@ -49,6 +49,13 @@ public class TrustManager implements X509TrustManager {
   private ServiceBroker serviceBroker;
   private LoggingService log;
   protected CertificateCacheService cacheservice = null;
+  protected boolean skipTrustCheck = false;
+
+  public TrustManager(KeyRingService krs, ServiceBroker sb, 
+                      boolean skipTrustCheck) {
+    this(krs, sb);
+    this.skipTrustCheck = true;
+  }
 
   public TrustManager(KeyRingService krs, ServiceBroker sb) {
     serviceBroker = sb;
@@ -99,6 +106,13 @@ public class TrustManager implements X509TrustManager {
   public void checkClientTrusted(X509Certificate[] chain, String authType)
     throws CertificateException
   {
+    if (skipTrustCheck) {
+      if (log.isDebugEnabled()) {
+        log.debug("Skipping certificate trust check: " + chain);
+      }
+      return;
+    }
+
     // check whether client is user or node
     if (chain == null || chain.length == 0) {
       log.warn("checkClientTrusted: No certificate present");

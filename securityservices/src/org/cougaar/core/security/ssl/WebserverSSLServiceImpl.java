@@ -54,7 +54,7 @@ public class WebserverSSLServiceImpl
 
     // create keymanager and trust manager
     km = new ServerKeyManager(krs, serviceBroker);
-    tm = new ServerTrustManager(krs, serviceBroker);
+    tm = new ServerTrustManager(krs, serviceBroker, true);
 
     context.init(new KeyManager[] {km}, new TrustManager[] {tm}, null);
 

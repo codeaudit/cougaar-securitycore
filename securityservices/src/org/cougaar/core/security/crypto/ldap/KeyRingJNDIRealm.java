@@ -34,6 +34,7 @@ import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
 import org.cougaar.core.security.monitoring.plugin.LoginFailureSensor;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.acl.UserServiceException;
+import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.service.LoggingService;
 
 import java.security.MessageDigest;
@@ -49,7 +50,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.Collections;
 
+import javax.servlet.http.HttpServletRequest;
 import org.apache.catalina.realm.RealmBase;
 
 /**
@@ -82,10 +85,13 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
   private static final DateFormat LDAP_TIME =
     new SimpleDateFormat("yyyyMMddHHmmss'Z'");
+  private static final Principal BAD_CERT_USER = 
+    new CougaarPrincipal(null, null, null, HttpServletRequest.CLIENT_CERT_AUTH);
   private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
 
   private String                     _certComponent = "CN";
   private UserService                _userService;
+  private KeyRingService             _keyRingService;
 
   /*
   private static BlackboardService   _blackboardService;
@@ -122,6 +128,12 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       if (_userService == null) {
         _serviceBroker.addServiceListener(new UserServiceListener());
       }
+      _keyRingService = (KeyRingService) _serviceBroker.
+        getService(this, KeyRingService.class, null);
+      if (_keyRingService == null) {
+        _serviceBroker.addServiceListener(new KeyRingServiceListener());
+      }
+
     }
     if (log == null) {
       log = (LoggingService)
@@ -237,8 +249,16 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       // don't log this -- there aren't any certificates and that's ok
       return null;
     }
-
+    
     // Check the validity of each certificate in the chain
+    try {
+      _keyRingService.checkCertificateTrust(certs);
+    } catch (Exception e) {
+      if (debug >= 2) super.log("  Validity exception", e);
+      setLoginError(LF_CERTIFICATE_INVALID, null, e);
+      return BAD_CERT_USER;
+    }
+    /*
     for (int i = 0; i < certs.length; i++) {
       try {
         certs[i].checkValidity();
@@ -248,14 +268,14 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
         return null;
       }
     }
-
+    */
     String userdn = certs[0].getSubjectDN().getName();
 
     String user = getUserName(userdn);
     if (user == null) {
       // certificate is bad, bad, bad!
       setLoginError(LF_BAD_CERTIFICATE_SUBJECT, userdn, null);
-      return null;
+      return BAD_CERT_USER;
     }
 
     try {
@@ -263,7 +283,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       Map attrs = _userService.getUser(user);
       if (attrs == null) {
         setLoginError(LF_USER_DOESNT_EXIST, user, null);
-        return null; // user isn't in the database
+        return BAD_CERT_USER; // user isn't in the database
       }
       if (!userDisabled(attrs, true)) {
         return getPrincipal(attrs);
@@ -774,12 +794,23 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   }
 
   private class UserServiceListener implements ServiceAvailableListener {
-    public final String USER_SERVICE_NAME = UserService.class.getName();
     public void serviceAvailable(ServiceAvailableEvent ae) {
-      if (ae.getService().equals(USER_SERVICE_NAME)) {
+      if (ae.getService().equals(UserService.class)) {
         _userService = (UserService) ae.getServiceBroker().
            getService(this, UserService.class, null);
         if (_userService != null) {
+          ae.getServiceBroker().removeServiceListener(this);
+        }
+      }
+    }
+  }
+
+  private class KeyRingServiceListener implements ServiceAvailableListener {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      if (ae.getService().equals(KeyRingService.class)) {
+        _keyRingService = (KeyRingService) ae.getServiceBroker().
+           getService(this, KeyRingService.class, null);
+        if (_keyRingService != null) {
           ae.getServiceBroker().removeServiceListener(this);
         }
       }

@@ -259,11 +259,18 @@ public class DualAuthenticator extends ValveBase {
       }
       context.invokeNext(request, response);
     } else {
-      alertAuthorizationFailure(hsrequest, principal);
+      String message = hsrequest.getRequestURI();
+      if (principal != null && principal.getName() == null) {
+        // this is a bad user certificate. No need to
+        // publish another IDMEF
+        message = "The user certificate is invalid";
+      } else {
+        alertAuthorizationFailure(hsrequest, principal);
+      }
       failSleep();
       _log.debug("roles are bad... returning error");
       hsresponse.sendError(HttpServletResponse.SC_FORBIDDEN,
-                           hsrequest.getRequestURI());
+                           message);
     }
     } catch (Throwable t) {
       t.printStackTrace();

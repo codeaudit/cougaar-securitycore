@@ -37,6 +37,11 @@ public class ServerTrustManager
     super(krs, sb);
   }
 
+  public ServerTrustManager(KeyRingService krs, ServiceBroker sb, 
+                            boolean skipTrustCheck) {
+    super(krs, sb, skipTrustCheck);
+  }
+
   public void checkServerTrusted(X509Certificate[] chain, String authType)
     throws CertificateException
   {
