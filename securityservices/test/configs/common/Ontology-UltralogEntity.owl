@@ -59,6 +59,14 @@
         <rdfs:subClassOf rdf:resource="#UltralogEntity"/>
     </owl:Class>
 
+    <owl:Class rdf:ID="WPAccessType">
+      <owl:oneOf rdf:parseType="Collection">
+        <WPAccessType rdf:about="#WPAdd"/>
+        <WPAccessType rdf:about="#WPRemove"/>
+        <WPAccessType rdf:about="#WPChange"/>
+      </owl:oneOf>
+    </owl:Class>
+
     <owl:Class rdf:about="#UltralogEntity">
         <owl:unionOf rdf:parseType="Collection">
             <owl:Class rdf:about="#Servlet"/> 
