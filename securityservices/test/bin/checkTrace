@@ -1,0 +1,1 @@
+grep -i "exception\|not\|bad\|null\|warning\|wrong\|false" *.log
