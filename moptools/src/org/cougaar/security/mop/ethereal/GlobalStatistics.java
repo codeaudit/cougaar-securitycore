@@ -116,7 +116,7 @@ public class GlobalStatistics {
 
      "Encrypted frames: " + _totalEncryptedFrames +
       " ("  + getRatio(_totalEncryptedFrames, _totalMopFrames) + "%)" + 
-      " - Unencrypted frames: " + _totalUnexpectedUnencryptedFrames +
+      " - Unexpected clear-text frames: " + _totalUnexpectedUnencryptedFrames +
       " ("  + getRatio(_totalUnexpectedUnencryptedFrames, _totalMopFrames) + "%)" + 
       " - Total frames: " + _totalMopFrames +
 

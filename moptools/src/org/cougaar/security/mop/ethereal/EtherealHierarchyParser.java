@@ -69,8 +69,8 @@ public class EtherealHierarchyParser
   private void displayProtocolHierarchy() { 
     ProtocolHierarchyFrame ph =
       new ProtocolHierarchyFrame(_protocolHierarchyTree);
-    ph.displayFrame();
     ph.displayGlobalStatistics(_statistics);
+    ph.displayFrame();
  }
 
   public EtherealHierarchyParser() {
@@ -203,7 +203,8 @@ public class EtherealHierarchyParser
 	_statistics.setTotalUnencryptedBytes(_statistics.getTotalUnencryptedBytes() + bytes);
 	_statistics.setTotalUnencryptedFrames(_statistics.getTotalUnencryptedFrames() + frames);
       }
-      if (ps.getProtocolPolicy().isOk() == Boolean.FALSE) {
+      if (ps.getProtocolPolicy().isOk() == Boolean.FALSE ||
+	  ps.getProtocolPolicy().isOk() == null) {
 	if (ps.getProtocolPolicy().isEncrypted() == Boolean.TRUE) {
 	  // This should not happen.
 	  _log.error("Protocol marked as encrypted and policy says it's not OK");

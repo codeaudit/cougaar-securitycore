@@ -1,21 +1,31 @@
 #!/bin/sh
 
 # Executable
-exec="tethereal"
+curdir=`pwd`
+exec="./tethereal"
+
+which ${exec} >& /dev/null
+if [ $? != 0 ]; then
+  # Try in local directory
+  exec="./tethereal"
+fi
 
 # Stop writing to a capture file after value seconds have elapsed.
-duration=60
+#duration=-a duration:60
 
 # Capture file
-capture_file=capture.cap
+capture_file="/tmp/capture.cap"
+
+# Filter
+filter="'!(tcp port 22)'"
 
 # Display packet summary while dumping packets
-display_packets=-S
-${exec} -a duration:${duration} ${display_packets} -w ${capture_file}
+#options=-S
 
-# Display statistics.
-# Create Protocol Hierarchy Statistics listing both number of frames and bytes.
-#${exec} -r ${capture_file} -q -z io,phs
+# Don't display the continuous count of packets captured that is normally shown
+# when saving a capture to a file; instead, just display, at the end of the capture,
+# a count of packets captured.
+options="${options} -q"
+options="${duration} ${options}"
 
-# Create a table that lists all conversations that could be seen in the capture.
-#${exec} -q -r ${capture_file} -z io,users,tcpip
+eval "${exec} -f ${filter} ${options} -w ${capture_file}"

@@ -33,6 +33,7 @@ import javax.swing.JFrame;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JTree;
+import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -109,6 +110,10 @@ public class ProtocolHierarchyFrame
       TreePath tp = new TreePath(path);
       tree.getTree().expandPath(tp);
     }
+
+    // Change width of first column
+    TableColumn tc = tree.getColumn("Name");
+    tc.setPreferredWidth(250);
 
     //Create the HTML viewing pane.
     _detailPane = new JEditorPane();
