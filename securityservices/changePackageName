@@ -27,7 +27,7 @@ echo '############################################'
 echo ' ++++++ Moving com directory to org/cougaar'
 # Remove 'CVS' directory under src/com
 find src/com/ -depth -name CVS -type d -exec rm -rf {} \;
-find src/org/cougaar/core/security/securebootstrap/ -depth -name CVS -type d -exec rm -rf {} \;
+#find src/org/cougaar/core/security/securebootstrap/ -depth -name CVS -type d -exec rm -rf {} \;
 
 # Move bootstrap directory to securebootstrap
 mv -f src/com/nai/security/bootstrap/ src/org/cougaar/core/security/securebootstrap
@@ -37,16 +37,18 @@ mv -f src/com/nai/security/monitoring/ src/org/cougaar/core/security/oldmonitori
 
 # Move crypto directory to crypto
 mv src/com/nai/security/crypto/ldap src/org/cougaar/core/security/crypto/ldap
-mv src/com/nai/security/crypto/*.java src/org/cougaar/core/security/crypto
+mv src/com/nai/security/crypto/*.java --target-directory=src/org/cougaar/core/security/crypto
+rm -f src/com/nai/security/crypto
 
 # Move policy directory to policy
-mv src/com/nai/security/policy/*.java src/org/cougaar/core/security/policy
+mv src/com/nai/security/policy/*.java --target-directory=src/org/cougaar/core/security/policy
+rm -f src/com/nai/security/policy
 
 # Move com directory to org directory
 mv -f src/com/nai/security/* src/org/cougaar/core/security
 
 # Remove any remaining directory under com
-rm -rf src/com
+#rm -rf src/com
 
 # Remove '.sarep filesA
 find . -name '*.sarep' -exec rm -f {} \;
