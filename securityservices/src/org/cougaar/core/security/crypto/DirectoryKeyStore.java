@@ -409,6 +409,7 @@ public class DirectoryKeyStore
    * LOOKUP_LDAP set: Lookup in LDAP directory service.
    * LOOKUP_KEYSTORE: Lookup in keystore file.
    * LOOKUP_FORCE_LDAP_REFRESH: Force a new lookup in the LDAP service.
+   * LOOKUP_SSL: Lookup certificates retrieved during an SSL handshake.
    * @return A list of CertificateStatus
   */
   public List findCert(String commonName,
@@ -505,7 +506,8 @@ public class DirectoryKeyStore
     while (it.hasNext()) {
       certstatus = (CertificateStatus) it.next();
       if((lookupType & KeyRingService.LOOKUP_LDAP) != 0 &&
-	 certstatus.getCertificateOrigin() == CertificateOrigin.CERT_ORI_LDAP) {
+	 (certstatus.getCertificateOrigin() == CertificateOrigin.CERT_ORI_LDAP
+	  || certstatus.getCertificateOrigin() == CertificateOrigin.CERT_ORI_SSL)) {
 	// The caller accepts certificates from LDAP.
 	certificateList.add(certstatus);
       }
@@ -514,6 +516,7 @@ public class DirectoryKeyStore
 	// The caller accepts certificates from the keystore.
 	certificateList.add(certstatus);
       }
+
       if (log.isDebugEnabled()) {
 	log.debug("DirectoryKeyStore.findCert: " + commonName
 		  + " - Cert origin: " + certstatus.getCertificateOrigin());
@@ -561,7 +564,7 @@ public class DirectoryKeyStore
       if (certs.length == 0) {
 	if (log.isWarnEnabled()) {
 	  log.warn("Failed to lookup certificate for " + filter + " in LDAP:"
-		   + url);
+		   + url, new Throwable());
 	}
       }
     }
@@ -841,6 +844,7 @@ public class DirectoryKeyStore
   /**
    * When used in user application, the privatekey is password protected,
    * this function is used as generic fuction to add certificate to cache.
+   * This method should be called when installing a new key to the physical keystore.
    */
   public void addCertificateToCache(String alias,
                                     X509Certificate importCert,
@@ -857,6 +861,40 @@ public class DirectoryKeyStore
     certCache.addCertificate(certstatus);
     certCache.addPrivateKey(privatekey, certstatus);
     // Update Common Name to DN hashtable
+    nameMapping.addName(certstatus);
+  }
+
+  public void addSSLCertificateToCache(X509Certificate sslCert) {
+    X500Name x500name = null;
+    String dname = sslCert.getSubjectDN().getName();
+    try {
+      x500name = new X500Name(dname);
+    } catch (IOException iox) {
+      if (log.isWarnEnabled()) {
+        log.warn("Failed to create X500Name: " + dname);
+      }
+      return;
+    }
+    List certList = certCache.getCertificates(x500name);
+    // if found don't add it again
+    if (certList != null && certList.size() != 0) {
+      return;
+    }
+
+    String title = CertificateUtility.findAttribute(dname, "t");
+    CertificateType certType = CertificateType.CERT_TYPE_END_ENTITY;
+    if (title != null && title.equals(CERT_TITLE_CA))
+      certType = CertificateType.CERT_TYPE_CA;
+    CertificateStatus certstatus =
+      new CertificateStatus(sslCert, true,
+                            CertificateOrigin.CERT_ORI_SSL,
+                            certType,
+                            CertificateTrust.CERT_TRUST_CA_SIGNED, null,
+                            param.serviceBroker);
+    if (log.isDebugEnabled()) {
+      log.debug("Update sslCert status in hash map.");
+    }
+    certCache.addCertificate(certstatus);
     nameMapping.addName(certstatus);
   }
 
@@ -3204,6 +3242,7 @@ public class DirectoryKeyStore
     }
   }
   */
+
 }
 
 

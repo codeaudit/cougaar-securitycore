@@ -147,20 +147,32 @@ public class TrustManager implements X509TrustManager {
   private void checkChainTrust(X509Certificate[] chain)
     throws CertificateException
   {
-    // check whether cert is valid, then build the chain
-    boolean isTrusted = false;
-    for (int i = 0; i < chain.length; i++) {
-      try {
-        keystore.checkCertificateTrust(chain[i]);
-        isTrusted = true;
-        break;
-      } catch (CertificateChainException ccex) {
-        // only catch chain exception, if cannot build the chain,
-        // then check if there is a trusted cert in the available chain
+    // Check the certificate trust of every certificate backwards from the top.
+    // We do this because we may not have all the intermediate CAs, and we
+    // may not be able to retrieve these certificates through LDAP.
+    // Going backwards allows to add the certificates in the cache, one at a time.
+    if (chain == null || chain.length == 0) {
+      throw new CertificateException("Certificate chain does not contain a certificate");
+    }
+    try {
+      for (int i = (chain.length - 1) ; i >= 0 ; i--) {
+	keystore.checkCertificateTrust(chain[i]);
+	// Add the first certificate in the chain if it was not already in the cache.
+	if (log.isDebugEnabled()) {
+	  log.debug("Checked trust of " + chain[i].getSubjectDN().getName()
+		    + ". Adding cert to the cache");
+	}
+	keystore.addSSLCertificateToCache(chain[i]);
       }
     }
-    if (!isTrusted)
+    catch (Exception e) {
+      if (log.isWarnEnabled()) {
+	log.warn("Failed to verify certificate: "
+		 + chain[0].getSubjectDN().getName()
+		 + ". Reason: " + e);
+      }
       throw new CertificateException("Failed to build chain.");
+    }
   }
 
 

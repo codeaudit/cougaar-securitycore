@@ -143,10 +143,13 @@ public interface KeyRingService extends Service {
 
   X509Certificate[] buildCertificateChain(X509Certificate certificate);
 
-  public String getCaKeyStorePath();
-  public String getKeyStorePath();
+  String getCaKeyStorePath();
+  String getKeyStorePath();
 
-  public boolean checkExpiry(String commonName);
-  public void updateNS(String commonName);
-  public void updateNS(X500Name x500name);
+  boolean checkExpiry(String commonName);
+  void updateNS(String commonName);
+  void updateNS(X500Name x500name);
+
+  void addSSLCertificateToCache(X509Certificate cert);
+
 }

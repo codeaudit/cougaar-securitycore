@@ -557,5 +557,9 @@ final public class KeyRing
   public void updateNS(X500Name x500name) {
     directoryKeystore.updateNS(x500name);
   }
+
+  public void addSSLCertificateToCache(X509Certificate cert) {
+    directoryKeystore.addSSLCertificateToCache(cert);
+  }
 }
 
