@@ -67,11 +67,11 @@ public class SecureHookServlet implements Servlet {
     Exception e = (Exception) Subject.doAs(subject,new ServletCall(req,res));
     if (e != null) {
       if (e instanceof RuntimeException) {
-        throw (RuntimeException) e.fillInStackTrace();
+        throw (RuntimeException) e;
       } else if (e instanceof IOException) {
-        throw (IOException) e.fillInStackTrace();
+        throw (IOException) e;
       } else if (e instanceof ServletException) {
-        throw (ServletException) e.fillInStackTrace();
+        throw (ServletException) e;
       }
     }
   }
