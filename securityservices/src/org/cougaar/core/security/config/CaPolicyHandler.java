@@ -63,22 +63,22 @@ public class CaPolicyHandler
     super.collectPolicy(parser, parent, topLevelTag);
   }
 
-  private static final String POLICY_ELEMENT = "policy";
+  public static final String POLICY_ELEMENT = "policy";
 
-  private static final String CA_DN_ELEMENT               = "distinguishedName";
-  private static final String CA_LDAP_URL_ELEMENT         = "ldapURL";
-  private static final String CA_LDAP_TYPE_ELEMENT        = "ldapType";
-  private static final String CA_LDAP_PRINCIPAL_ELEMENT   = "ldapPrincipal";
-  private static final String CA_LDAP_CREDENTIAL_ELEMENT  = "ldapCredential";
+  public static final String CA_DN_ELEMENT               = "distinguishedName";
+  public static final String CA_LDAP_URL_ELEMENT         = "ldapURL";
+  public static final String CA_LDAP_TYPE_ELEMENT        = "ldapType";
+  public static final String CA_LDAP_PRINCIPAL_ELEMENT   = "ldapPrincipal";
+  public static final String CA_LDAP_CREDENTIAL_ELEMENT  = "ldapCredential";
 
-  private static final String CA_CERTVERSION_ELEMENT      = "certVersion";
-  private static final String CA_ALGORITHMID_ELEMENT      = "algorithmId";
-  private static final String CA_CRL_ALGORITHMID_ELEMENT  = "crlalgorithmId";
-  private static final String CA_KEYSIZE_ELEMENT          = "keysize";
-  private static final String CA_CERTVALIDITY_ELEMENT     = "certValidity";
-  private static final String CA_TIMEENVELOPE_ELEMENT     = "timeEnvelope";
-  private static final String CA_REQUIREPENDING_ELEMENT   = "requirePending";
-  private static final String CA_NODE_IS_SIGNER_ELEMENT   = "nodeIsSigner";
+  public static final String CA_CERTVERSION_ELEMENT      = "certVersion";
+  public static final String CA_ALGORITHMID_ELEMENT      = "algorithmId";
+  public static final String CA_CRL_ALGORITHMID_ELEMENT  = "crlalgorithmId";
+  public static final String CA_KEYSIZE_ELEMENT          = "keysize";
+  public static final String CA_CERTVALIDITY_ELEMENT     = "certValidity";
+  public static final String CA_TIMEENVELOPE_ELEMENT     = "timeEnvelope";
+  public static final String CA_REQUIREPENDING_ELEMENT   = "requirePending";
+  public static final String CA_NODE_IS_SIGNER_ELEMENT   = "nodeIsSigner";
 
   public void startElement( String namespaceURI,
 			    String localName,
@@ -182,6 +182,7 @@ public class CaPolicyHandler
       String algIdString = getContents();
       Class algIdClass = AlgorithmId.class;
       Field algIdField = null;
+      caPolicy.algIdString = algIdString;
       try {
 	algIdField = AlgorithmId.class.getDeclaredField(algIdString);
 	caPolicy.algorithmId =
@@ -198,6 +199,7 @@ public class CaPolicyHandler
     else if (localName.equals(CA_CRL_ALGORITHMID_ELEMENT)) {
       String crlalgIdString = getContents();
       Field crlalgIdField = null;
+      caPolicy.crlAlgIdString = crlalgIdString;
       try {
 	crlalgIdField = AlgorithmId.class.getDeclaredField(crlalgIdString);
 	caPolicy.CRLalgorithmId =
@@ -215,13 +217,17 @@ public class CaPolicyHandler
     }
     else if (localName.equals(CA_CERTVALIDITY_ELEMENT)) {
       Duration duration = new Duration(serviceBroker);
-      duration.parse(getContents());
+      String content = getContents();
+      duration.parse(content);
       caPolicy.howLong = duration.getDuration();
+      caPolicy.validity = content;
     }
     else if (localName.equals(CA_TIMEENVELOPE_ELEMENT)) {
       Duration duration = new Duration(serviceBroker);
-      duration.parse(getContents());
+      String content = getContents();
+      duration.parse(content);
       caPolicy.timeEnvelope = duration.getDuration();
+      caPolicy.timeEnvelopeString = content;
     }
     else if (localName.equals(CA_REQUIREPENDING_ELEMENT)) {
       String strPending = getContents();

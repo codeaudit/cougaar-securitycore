@@ -26,16 +26,10 @@
 
 package org.cougaar.core.security.config;
 
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
-import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import java.io.*;
 import java.util.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -70,8 +64,8 @@ public class CryptoClientPolicyHandler
   public static final String CERT_DIRECTORY_TYPE_ELEMENT = "CertDirectoryType";
   public static final String CERT_DIRECTORY_PRINCIPAL_ELEMENT = "CertDirectorySecurityPrincipal";
   public static final String CERT_DIRECTORY_CREDENTIAL_ELEMENT = "CertDirectorySecurityCredential";
-  private static final String CA_INFOURL_ELEMENT          = "CA_infoURL";
-  private static final String CA_REQUESTURL_ELEMENT          = "CA_requestURL";
+  public static final String CA_INFOURL_ELEMENT          = "CA_infoURL";
+  public static final String CA_REQUESTURL_ELEMENT          = "CA_requestURL";
 
   // Certificate Attributes
   public static final String CERTIFICATE_ATTR_ELEMENT = "certificateAttributes";
@@ -89,28 +83,8 @@ public class CryptoClientPolicyHandler
   public static final String ENVELOPE_ELEMENT     = "timeEnvelope";
   public static final String NODE_IS_SIGNER_ELEMENT = "nodeIsSigner";
 
-  // name of the crypto client policy file for this node.  should be of the form
-  // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
-  private String cryptoPolicyFileName;
-
   public CryptoClientPolicyHandler(ServiceBroker sb) {
     super(sb);
-   if(sb != null) {
-    // construct the crypto client policy file name.  should be of the form
-    // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
-    SecurityPropertiesService sps = (SecurityPropertiesService)
-      sb.getService(this, SecurityPropertiesService.class, null);
-    String nodeName = sps.getProperty("org.cougaar.node.name");
-    String cougaarWsp = sps.getProperty(sps.COUGAAR_WORKSPACE);
-    String topDirectory = cougaarWsp + File.separatorChar + "security"
-      + File.separatorChar + "keystores" + File.separatorChar;
-    String nodeDirectory = topDirectory + nodeName;
-    cryptoPolicyFileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
-    sb.releaseService(this, SecurityPropertiesService.class, sps);
-    }
-    else {
-      cryptoPolicyFileName = "/home/mluu/UL/cougaar/workspace/security/keystores/testNode/cryptoPolicy.xml"; 
-    }
   }
 
   public void collectPolicy(XMLReader parser,
@@ -307,67 +281,6 @@ public class CryptoClientPolicyHandler
       String value = getContents();
       cryptoClientPolicy.setRequestURL(value);
     }
-  }
-  
-  // this should only be package level access
-  public void updatePolicy(CryptoClientPolicy policy) 
-    throws PolicyUpdateException {
-    /*
-    if(policy != cryptoClientPolicy) {
-      throw new CryptoPolicyUpdateException("CryptoClientPolicy does not match internal CryptoClientPolicy"); 
-    }
-    */
-    log.debug("updating crypto client policy");
-    saveCryptoClientPolicy(policy); 
-  }
-  
-  private void saveCryptoClientPolicy(CryptoClientPolicy policy) 
-    throws PolicyUpdateException {
-    String newPolicyFileName = cryptoPolicyFileName + ".new";
-    File newPolicyFile = new File(newPolicyFileName);
-    File policyFile = new File(cryptoPolicyFileName);
-    try {
-      if(newPolicyFile.exists()) {
-        newPolicyFile.delete();
-        log.debug("removing previous " + newPolicyFileName);
-      }
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      Document updatedPolicy = builder.newDocument(); // the xml file to write
-      Element root = updatedPolicy.createElement("policies");
-      Element policyNode = updatedPolicy.createElement("policy");
-      policyNode.setAttribute("name", policy.getName());
-      policyNode.setAttribute("type", "cryptoClientPolicy");
-      policyNode.appendChild(policy.convertToXML(updatedPolicy));
-      root.appendChild(policyNode);
-      updatedPolicy.appendChild(root);
-   
-      FileOutputStream fos = new FileOutputStream(newPolicyFile);
-      OutputFormat of = new OutputFormat(updatedPolicy, "US-ASCII", true);
-      // no line wrapping
-      of.setLineWidth(0);
-      // indent 2 spaces
-      of.setIndent(2);
-      XMLSerializer xs = new XMLSerializer(fos, of);
-      xs.serialize(updatedPolicy);
-      fos.flush();
-      fos.close();
-    }
-    catch(Exception e) {
-      throw new PolicyUpdateException(e);
-    }
-    // the file exist remove the old cryptoPolicy.xml
-    if(policyFile.exists()) {
-      if(!policyFile.delete()) {
-        throw new PolicyUpdateException("Unable to remove " + cryptoPolicyFileName);
-      }
-      log.debug("removed previous " + cryptoPolicyFileName);
-    }
-    // rename the updated temp file to cryptoPolicy.xml
-    if(!newPolicyFile.renameTo(policyFile)) {
-      throw new PolicyUpdateException("Unable to rename " + newPolicyFileName);
-    }
-    log.debug("Saved crypto client policy " + cryptoPolicyFileName);
   }
 }
 

@@ -207,6 +207,12 @@ public class CryptoClientPolicy
     node.appendChild(parent.createTextNode((new Boolean(isCertificateAuthority)).toString()));
     ccPolicyNode.appendChild(node);
     
+    // if this is a cert authority set the isRootCA element
+    if(isCertificateAuthority) {
+      node = parent.createElement(CryptoClientPolicyHandler.IS_ROOT_CA_ELEMENT);    
+      node.appendChild(parent.createTextNode((new Boolean(isRootCA)).toString()));
+      ccPolicyNode.appendChild(node);  
+    }
     if(keystoreName != null) {
       // keystore file name
       node = parent.createElement(CryptoClientPolicyHandler.KEYSTORE_FILE_ELEMENT);    
@@ -225,9 +231,9 @@ public class CryptoClientPolicy
     node.appendChild(parent.createTextNode((new Boolean(useSmartCard)).toString()));
     ccPolicyNode.appendChild(node);
     */
+    // begin trusted CAs
     // iterator the vector of trusted CAs
     node = parent.createElement("trustedCAs");
-    // trusted CAs inner nodes
     Node innerNode = null;
     if(trustedCaKeystoreName != null) {
       // CA keystore
@@ -241,6 +247,19 @@ public class CryptoClientPolicy
       innerNode.appendChild(parent.createTextNode(trustedCaKeystorePassword));
       node.appendChild(innerNode);
     }
+    if(infoURL != null) {
+      // CA info url for unzip and run
+      innerNode = parent.createElement(CryptoClientPolicyHandler.CA_INFOURL_ELEMENT);
+      innerNode.appendChild(parent.createTextNode(infoURL));
+      node.appendChild(innerNode);
+    }
+    if(infoURL != null) {
+      // CA request url for unzip and run
+      innerNode = parent.createElement(CryptoClientPolicyHandler.CA_REQUESTURL_ELEMENT);
+      innerNode.appendChild(parent.createTextNode(requestURL));
+      node.appendChild(innerNode);
+    }
+    
     // iterator through the trusted CAs
     Iterator i = trustedCAs.iterator();
     while(i.hasNext()) {
@@ -248,10 +267,13 @@ public class CryptoClientPolicy
       node.appendChild(tcp.convertToXML(parent));
     }
     ccPolicyNode.appendChild(node);
+    // end trustedCAs
+
     if(certificateAttributesPolicy != null) {
       // certificate attributes
       ccPolicyNode.appendChild(certificateAttributesPolicy.convertToXML(parent));
     }
+    
     return ccPolicyNode;
   }
 };

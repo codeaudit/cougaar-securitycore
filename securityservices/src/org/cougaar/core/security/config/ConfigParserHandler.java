@@ -26,10 +26,17 @@
 
 package org.cougaar.core.security.config;
 
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import java.io.*;
 import java.util.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import java.lang.reflect.Array;
 
 // Cougaar core services
@@ -39,6 +46,7 @@ import org.cougaar.core.component.ServiceBroker;
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class ConfigParserHandler
   extends BaseConfigHandler
@@ -62,6 +70,10 @@ public class ConfigParserHandler
   private ArrayList securityPolicies;
 
   private static final String POLICY_ELEMENT = "policy";
+
+  // name of the crypto client policy file for this node.  should be of the form
+  // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
+  private String cryptoPolicyFileName;
 
   // Constructor with XML Parser...
   ConfigParserHandler(XMLReader parser, String role,
@@ -105,6 +117,17 @@ public class ConfigParserHandler
     msgAccessPolicyHandler.setSecurityCommunity(mySecurityCommunity);
 
     securityPolicies = new ArrayList();
+    // construct the crypto client policy file name.  should be of the form
+    // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
+    SecurityPropertiesService sps = (SecurityPropertiesService)
+      sb.getService(this, SecurityPropertiesService.class, null);
+    String nodeName = sps.getProperty("org.cougaar.node.name");
+    String cougaarWsp = sps.getProperty(sps.COUGAAR_WORKSPACE);
+    String topDirectory = cougaarWsp + File.separatorChar + "security"
+      + File.separatorChar + "keystores" + File.separatorChar;
+    String nodeDirectory = topDirectory + nodeName;
+    cryptoPolicyFileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
+    sb.releaseService(this, SecurityPropertiesService.class, sps);
   }
 
   public SecurityPolicy[] getSecurityPolicies() {
@@ -224,7 +247,12 @@ public class ConfigParserHandler
     }
     return s;
   }
+
+  public void addSecurityPolicy(SecurityPolicy policy) {
+    securityPolicies.add(policy);
+  }
   
+  // package level access
   void updateSecurityPolicy(SecurityPolicy policy) 
     throws PolicyUpdateException {
     if(policy == null) {
@@ -232,15 +260,75 @@ public class ConfigParserHandler
     }
     if(policy instanceof CryptoClientPolicy) {
       CryptoClientPolicy ccp = (CryptoClientPolicy)policy;
-      cryptoClientHandler.updatePolicy(ccp); 
+      saveCryptoClientPolicy(ccp);
     }
     else {
       throw new
         PolicyUpdateException(policy.getName() + " updates not supported.");
     }
   }
-
-  public void addSecurityPolicy(SecurityPolicy policy) {
-    securityPolicies.add(policy);
+  
+  private void saveCryptoClientPolicy(CryptoClientPolicy policy) 
+    throws PolicyUpdateException {
+    String newPolicyFileName = cryptoPolicyFileName + ".new";
+    File newPolicyFile = new File(newPolicyFileName);
+    File policyFile = new File(cryptoPolicyFileName);
+    try {
+      if(newPolicyFile.exists()) {
+        newPolicyFile.delete();
+        log.debug("removing previous " + newPolicyFileName);
+      }
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document updatedPolicy = builder.newDocument(); // the xml file to write
+      Element root = updatedPolicy.createElement("policies");
+      Element policyNode = updatedPolicy.createElement(POLICY_ELEMENT);
+      // crypto client policy
+      policyNode.setAttribute("name", policy.getName());
+      policyNode.setAttribute("type", "cryptoClientPolicy");
+      policyNode.appendChild(policy.convertToXML(updatedPolicy));
+      root.appendChild(policyNode);
+      // end crypto client policy
+      // ca policy
+      if(policy.isCertificateAuthority()) {
+        SecurityPolicy[] caPolicies = getSecurityPolicies(CaPolicy.class);
+        // assuming only one ca policy per node
+        CaPolicy caPolicy = (CaPolicy)caPolicies[0];
+        policyNode = updatedPolicy.createElement(POLICY_ELEMENT);
+        policyNode.setAttribute("name", caPolicy.getName());
+        policyNode.setAttribute("type", "certificateAuthorityPolicy");
+        policyNode.appendChild(caPolicy.convertToXML(updatedPolicy));
+        root.appendChild(policyNode);
+      }
+      // end ca policy
+      
+      updatedPolicy.appendChild(root);
+   
+      FileOutputStream fos = new FileOutputStream(newPolicyFile);
+      OutputFormat of = new OutputFormat(updatedPolicy, "US-ASCII", true);
+      // no line wrapping
+      of.setLineWidth(0);
+      // indent 2 spaces
+      of.setIndent(2);
+      XMLSerializer xs = new XMLSerializer(fos, of);
+      xs.serialize(updatedPolicy);
+      fos.flush();
+      fos.close();
+    }
+    catch(Exception e) {
+      throw new PolicyUpdateException(e);
+    }
+    // the file exist remove the old cryptoPolicy.xml
+    if(policyFile.exists()) {
+      if(!policyFile.delete()) {
+        throw new PolicyUpdateException("Unable to remove " + cryptoPolicyFileName);
+      }
+      log.debug("removed previous " + cryptoPolicyFileName);
+    }
+    // rename the updated temp file to cryptoPolicy.xml
+    if(!newPolicyFile.renameTo(policyFile)) {
+      throw new PolicyUpdateException("Unable to rename " + newPolicyFileName);
+    }
+    log.debug("Saved crypto client policy " + cryptoPolicyFileName);
   }
 }
