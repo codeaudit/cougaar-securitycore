@@ -4,3 +4,14 @@
 if !(defined?($MTS_PROTOCOL)) then
    $MTS_PROTOCOL = "RMI"
 end
+
+rmiLinkProtocol = "org.cougaar.mts.base.RMILinkProtocol"
+protocolInsertion = "Node.AgentManager.Agent.MessageTransport.Component"
+
+# comment out the following small section to remove SSLRMILinkProtocol
+society.each_node do |node_agent|
+  node_agent.add_component do |c|
+    c.classname = rmiLinkProtocol
+    c.insertionpoint = protocolInsertion
+  end
+end
