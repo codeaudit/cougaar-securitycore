@@ -9,6 +9,11 @@
      <agent name='testBBPolicyAgent' 
             class='org.cougaar.core.agent.SimpleAgent'>
         <component
+          name='org.cougaar.core.security.policy.enforcers.init.WPEnforcerPlugin'
+          class='org.cougaar.core.security.policy.enforcers.init.WPEnforcerPlugin'
+          priority='COMPONENT'
+          insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'/>
+        <component
           name='org.cougaar.core.security.test.OrgActivityRemoveTest'
           class='org.cougaar.core.security.test.OrgActivityRemoveTest'
           priority='COMPONENT'
