@@ -85,11 +85,6 @@ public class ServletPolicyServiceProvider
     }
   }
 
-  public static Manager getManager(Manager manager) {
-    init();
-    return _servletPolicyService.getManager(manager);
-  }
-
   /**
    * Get a service.
    * @param sb a Service Broker
