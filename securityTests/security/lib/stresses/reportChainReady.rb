@@ -12,9 +12,11 @@ class TestReportChainReady < SecurityStressFramework
   def initialize(run)
     super(run)
     @run = run
-    @expectedSubordinates = Hash.new
-    @foundSubordinates    = Hash.new
+    @expectedSubordinates   = Hash.new
+    @foundSubordinatesCount = Hash.new
+    @foundSubordinates      = Hash.new
     @stressid = "ReportChainReady_Detector"
+    @cmdline  = false
   end
 
   def getStressIds
@@ -49,28 +51,33 @@ class TestReportChainReady < SecurityStressFramework
     end
   end
 
+  def addFoundSubordinate(subordinate, superior)
+    if (@foundSubordinatesCount[[subordinate, superior]] == nil) then
+      @foundSubordinatesCount[[subordinate, superior]] = 0
+    end
+    @foundSubordinatesCount[[subordinate, superior]] += 1
+    if (@foundSubordinatesCount[[subordinate, superior]] == 2) then
+      if (@foundSubordinates[superior] == nil)
+        @foundSubordinates[superior] = []
+      end
+      @foundSubordinates[superior].push(subordinate)
+    end
+  end
+
   def afterReportChainReady
     Thread.fork do
       logInfoMsg("calling afterReportChainReady for reportforDuty script")
       begin
-        badChains=[]
+        success = true
         4.times do
           sleep(5.minutes)
-          badChains = getBadChains ["OSD.GOV"]
-          if !(badChains.empty?)
-            badChains.each do |chain|
-              saveAssertion @stressid, 
-                            "ReportChainReady failed at subordinate #{chain.last}"
-              explanation = "Subordinate chain = #{chain.join("->")}"
-              saveAssertion @stressid, explanation
-            end
-          end
+          success = generateReport()
         end
         logInfoMsg("calling Save results in afterReportChainReady for reportforDuty script")
-        if badChains.empty?
-          saveResult true, @stressid, "ReportChainReady succeeded: all agents have reported for duty."
+        if success then
+          saveResult true, @stressid, "ReportChainReady succeeded - all agents reported for duty"
         else
-          saveResult false, @stressid, "ReportChainReady failure. Not all agents have reported for duty"
+          saveResult false, @stressid, "ReportChainReady failed - some agents did not report for duty"
         end 
       rescue => ex
         logInfoMsg("error in afterReportChainReady #{ex} #{ex.backtrace.join("\n")}")
@@ -84,19 +91,25 @@ class TestReportChainReady < SecurityStressFramework
     puts "Working on #{superior}"
     expected  = @expectedSubordinates[superior]
     found     = @foundSubordinates[superior]
-    if found then
-      puts "found subordinates #{found.join(" ")}"
-    else 
-      puts "no subordinates found"
+    if @cmdline then
+      if found then
+        puts "found subordinates #{found.join(" ")}"
+      else 
+        puts "no subordinates found"
+      end
     end
     badChains = []
     if expected == nil || expected.empty?
       return badChains
     end
     expected.each do |expectedSub|
-      puts "Looking at expected subordinate #{expectedSub}"
+      if @cmdline then
+        puts "Looking at expected subordinate #{expectedSub}"
+      end
       if ((found == nil) || (! found.include? expectedSub))
-        puts "subordinate did not report"
+        if @cmdline then
+          puts "subordinate did not report"
+        end
         newStack     = stack.clone.push expectedSub
         newBadChains = getBadChains newStack
         if newBadChains.empty?
@@ -121,19 +134,17 @@ class TestReportChainReady < SecurityStressFramework
       superior    = parsed.to_a[2].split(" ").last
       role        = parsed.to_a[3]
       if role == "Subordinate"
-        if (@foundSubordinates[superior] == nil)
-          @foundSubordinates[superior] = []
-        end
-        @foundSubordinates[superior].push(subordinate)
-#        if superior == "OSD.GOV" then
-#          puts("subordinate = #{subordinate}")
-#          puts(line)
-#        end
+        addFoundSubordinate(subordinate, superior)
+#       if superior == "OSD.GOV" then
+#         puts("subordinate = #{subordinate}")
+#         puts(line)
+#       end
       end
     end
   end
 
   def processEventsFromFile
+    @cmdline = true
     filename = File.join(ENV["CIP"], "workspace", "test", "acme_events.log")
     File.open(filename) do |file|
       file.readlines.each do |line|
@@ -141,14 +152,33 @@ class TestReportChainReady < SecurityStressFramework
       end
     end
     puts("getting ready to calculate bad chains")
-    badChains = getBadChains(['OSD.GOV'])
-    if badChains.empty? then
-      puts "Everybody reported"
-    else
+    generateReport()
+  end
+
+  def generateReport()
+    badChains = getBadChains ["OSD.GOV"]
+    if !(badChains.empty?)
       badChains.each do |chain|
-        puts("Found bad chain ending at #{chain.last}")
-        puts("Chain = " + chain.join(' -> '))
+        print "ReportChainReady failed at subordinate #{chain.last}"
+        explanation = "Subordinate chain = #{chain.join("->")}"
+        print explanation
       end
+    end
+    @foundSubordinatesCount.each do |pair, count|
+      if count == 1 then
+        subordinate, superior = pair
+        print "#{subordinate} reported for duty but #{superior} did not receive the report"
+      end
+    end
+    badChains.empty?
+  end
+
+  def print(msg)
+    if @cmdline then
+      puts(msg)
+    else
+      saveAssertion @stressid, msg
     end
   end
 end
+
