@@ -668,35 +668,44 @@ public class AccessAgentProxy
     
     if (msg == null || msg.getOriginator() == null
       || trust == null) {
-      // TODO: WHAT TO DO HERE???
-      return true;
+      // can't go on, drop the message.
+      if(log.isWarnEnabled()) {
+        log.warn("invalid input to outgoingMessageAction " + msg );
+      }
+      return false;
     }
     try {
       String msgOrigin = msg.getOriginator().toString();
       TrustAttribute mc = trust.getAttribute(MissionCriticality.name); 
       if (mc == null) {
-	// TODO: WHAT TO DO HERE
-	return true;
+        // can't go on, drop the message.
+        if(log.isWarnEnabled()) {
+          log.warn("can't find MissionCriticality in outgoing message. " + msg );
+        }
+        return false;
       }
       Object v = mc.getValue();
       if (v == null) {
-	// TODO: WHAT TO DO HERE
-	return true;
+        // can't go on, drop the message.
+        if(log.isWarnEnabled()) {
+          log.warn("can't find MissionCriticality in outgoing message. " + msg );
+        }
+        return false;
       }
       act = acps.getOutgoingAction(msgOrigin, v.toString());
     }
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
         log.warn("no access control for msg " + 
-		 msg + ". reason:" + ex);
+          msg + ". reason:" + ex);
       }
-      return true;
+      return false;
     }
     if(act == null) {
-      if(log.isDebugEnabled()) {
-        log.debug("AccessControlProxy: No action(out) set");
+      if(log.isWarnEnabled()) {
+        log.warn("No action(out) set for the message: " + msg);
       }
-      return true;
+      return false;
     }
     if(log.isDebugEnabled()) {
       log.debug("AccessControlProxy: action(out) = " + act);
@@ -821,19 +830,28 @@ public class AccessAgentProxy
   private boolean incomingMessageAction(Message msg, TrustSet trust) {
     String action;
     if (msg == null || trust == null) {
-      // TODO: WHAT TO DO HERE????
-      return true;
+      // can't go on, drop the message.
+      if(log.isWarnEnabled()) {
+        log.warn("invalid input to incomingMessageAction " + msg );
+      }
+      return false;
     }
     try {
       TrustAttribute mc = trust.getAttribute(MissionCriticality.name); 
       if (mc == null) {
-	// TODO: WHAT TO DO HERE????
-	return true;
+        // can't go on, drop the message.
+        if(log.isWarnEnabled()) {
+          log.warn("can't find MissionCriticality in imcoming message. " + msg );
+        }
+        return false;
       }
       Object v = mc.getValue();
       if (v == null) {
-	// TODO: WHAT TO DO HERE????
-	return true;
+        // can't go on, drop the message.
+        if(log.isWarnEnabled()) {
+          log.warn("can't find MissionCriticality in imcoming message. " + msg );
+        }
+        return false;
       }
       action = 
         acps.getIncomingAction(msg.getTarget().toString(), v.toString());
@@ -843,13 +861,16 @@ public class AccessAgentProxy
         log.warn("No access control for message: " + 
         msg + ". reason:" + ex);
       }
-      return true;
+      return false;
     }
     if(log.isDebugEnabled()) {
       log.debug("action(in) = " + action);
     }
     if(action == null) {
-      return true;
+      if(log.isWarnEnabled()) {
+        log.warn("No action(in) set for the message:" + msg);
+      }
+      return false;
     }
     return (!action.equals(AccessControlPolicy.SET_ASIDE));
   }
