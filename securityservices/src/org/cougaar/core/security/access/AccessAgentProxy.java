@@ -72,7 +72,7 @@ public class AccessAgentProxy
   private static EventPublisher eventPublisher = null;
   private MessageAddress myID = null;
   private AccessControlPolicyService acps;
-  private Set nodeList = null;
+  private Set agentList = null;
   private TopologyReaderService toporead = null;
   
   public AccessAgentProxy (MessageTransportService mymts,
@@ -101,8 +101,12 @@ public class AccessAgentProxy
       sb.getService(this, TopologyReaderService.class, null);
     
     if(toporead!=null) {
-      Thread t = new updateNodeList();
+      Thread t = new updateAgentList();
       t.run();
+    }else{
+      if(log.isErrorEnabled()) {
+        log.error("can't find topology service for " + myID.toAddress());
+      }
     }
     
     if(log.isDebugEnabled()) {
@@ -110,12 +114,12 @@ public class AccessAgentProxy
     }
   }
   
-  private class updateNodeList extends Thread{
+  private class updateAgentList extends Thread{
     public void run(){
-      nodeList = toporead.getAll(TopologyReaderService.NODE); 
+      agentList = toporead.getAll(TopologyReaderService.AGENT); 
       if(log.isDebugEnabled()) {
-        log.debug("updated NodeList, now contains: " 
-            + nodeList.size() + " nodes.");
+        log.debug("updated AgentList, now contains: " 
+            + agentList.size() + " agents.");
       }
       try{
         sleep(30000);
@@ -179,7 +183,7 @@ public class AccessAgentProxy
        *is addressed remember to take this out.
        */
       String target = message.getTarget().toString();
-      if(nodeList.contains(target)){
+      if(!agentList.contains(target)){
         //isNode agent, no wrapping with trust
         mts.sendMessage(message);
         if(log.isDebugEnabled()){
@@ -280,7 +284,8 @@ public class AccessAgentProxy
   
   public void receiveMessage(Message m)  {
     if(mtc == null) {
-      log.warn("Message Transport Client is null");
+      log.warn("Message Transport Client is null when receiving: " 
+          + m + " on the agent:" + myID);
       return;
     }
     if(log.isInfoEnabled()) {
