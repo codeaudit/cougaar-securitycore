@@ -114,12 +114,10 @@ public class PluginServiceFilter extends ServiceFilter {
       // here's where we catch the service request for Blackboard and proxy the
       // returned service.  See FilteringServiceBroker for more options.
       protected Object getServiceProxy(Object service, Class serviceClass, Object client) {
-        /*
         if (service instanceof BlackboardService) {
           return new BlackboardServiceProxy((BlackboardService) service, client);
         } 
-        */
-        if(service instanceof SchedulerService) {
+        else if(service instanceof SchedulerService) {
           return new SchedulerServiceProxy(_scs, (SchedulerService) service, client); 
         }
         else if(service instanceof ServletService) {
@@ -316,114 +314,131 @@ public class PluginServiceFilter extends ServiceFilter {
     }
   }
   
+ 
   // this class is a proxy for the blackboard service which audits subscription
   // requests.
-  private static class BlackboardServiceProxy implements BlackboardService {
-    private BlackboardService _bs;
-    private Object _client;
+  private static class BlackboardServiceProxy extends BlackboardServiceDelegate {
+    private final Object client;
     public BlackboardServiceProxy(BlackboardService bs, Object client) {
-       _bs = bs;
-      _client = client;
+      super(bs);
+      this.client=client;
     }
     public Subscriber getSubscriber() { 
-      return _bs.getSubscriber();
-    }
-    public Subscription subscribe(Subscription s) {
-      return _bs.subscribe(s);
+      System.err.println("Warning: "+client+" is calling BlackboardService.getSubscriber()!");
+      return super.getSubscriber();
     }
     public Subscription subscribe(UnaryPredicate isMember) { 
-      return _bs.subscribe(isMember); 
+      System.err.println("BlackboardService.subscribe("+isMember+") called by: "+client);
+      return super.subscribe(isMember); 
+    }
+  }
+
+  // dumb delegate, could be promoted to a reusable public class
+  private static class BlackboardServiceDelegate implements BlackboardService {
+    private final BlackboardService bs;
+    public BlackboardServiceDelegate(BlackboardService bs) {
+      this.bs = bs;
+    }
+    public Subscriber getSubscriber() { 
+      return bs.getSubscriber();
+    }
+    public Subscription subscribe(UnaryPredicate isMember) { 
+      return bs.subscribe(isMember); 
     }
     public Subscription subscribe(UnaryPredicate isMember, Collection realCollection) {
-      return _bs.subscribe(isMember, realCollection);
+      return bs.subscribe(isMember, realCollection);
     }
     public Subscription subscribe(UnaryPredicate isMember, boolean isIncremental) {
-      return _bs.subscribe(isMember, isIncremental);
+      return bs.subscribe(isMember, isIncremental);
     }
     public Subscription subscribe(UnaryPredicate isMember, Collection realCollection, boolean isIncremental) {
-      return _bs.subscribe(isMember, realCollection, isIncremental);
+      return bs.subscribe(isMember, realCollection, isIncremental);
+    }
+    public Subscription subscribe(Subscription subscription) {
+      return bs.subscribe(subscription);
     }
     public Collection query(UnaryPredicate isMember) {
-      return _bs.query(isMember);
+      return bs.query(isMember);
     }
     public void unsubscribe(Subscription subscription) {
-      _bs.unsubscribe(subscription);
+      bs.unsubscribe(subscription);
     }
     public int getSubscriptionCount() {
-      return _bs.getSubscriptionCount();
+      return bs.getSubscriptionCount();
     }
     public int getSubscriptionSize() {
-      return _bs.getSubscriptionSize();
+      return bs.getSubscriptionSize();
     }
     public int getPublishAddedCount() {
-      return _bs.getPublishAddedCount();
+      return bs.getPublishAddedCount();
     }
     public int getPublishChangedCount() {
-      return _bs.getPublishChangedCount();
+      return bs.getPublishChangedCount();
     }
     public int getPublishRemovedCount() {
-      return _bs.getPublishRemovedCount();
+      return bs.getPublishRemovedCount();
     }
     public boolean haveCollectionsChanged() {
-      return _bs.haveCollectionsChanged();
+      return bs.haveCollectionsChanged();
     }
     public void publishAdd(Object o) {
-      _bs.publishAdd(o);
+      bs.publishAdd(o);
     }
     public void publishRemove(Object o) {
-      _bs.publishRemove(o);
+      bs.publishRemove(o);
     }
     public void publishChange(Object o) {
-      _bs.publishChange(o);
+      bs.publishChange(o);
     }
     public void publishChange(Object o, Collection changes) {
-      _bs.publishChange(o,changes);
+      bs.publishChange(o,changes);
     }
     public void openTransaction() {
-      _bs.openTransaction();
+      bs.openTransaction();
     }
     public boolean tryOpenTransaction() {
-      return _bs.tryOpenTransaction();
+      return bs.tryOpenTransaction();
     }
     public void closeTransaction() throws SubscriberException {
-      _bs.closeTransaction();
+      bs.closeTransaction();
     }
+    public void closeTransactionDontReset() throws SubscriberException {
+      bs.closeTransactionDontReset();
+    }
+    /** @deprecated Use {@link #closeTransactionDontReset closeTransactionDontReset}
+     **/
     public void closeTransaction(boolean resetp) throws SubscriberException {
-      // Method is deprecated.
-      _bs.closeTransactionDontReset();
-    }
-    public void closeTransactionDontReset() {
-      _bs.closeTransactionDontReset();
+      bs.closeTransaction(resetp);
     }
     public boolean isTransactionOpen() {
-      return _bs.isTransactionOpen();
+      return bs.isTransactionOpen();
     }
     public void signalClientActivity() {
-      _bs.signalClientActivity();
+      bs.signalClientActivity();
     }
     public SubscriptionWatcher registerInterest(SubscriptionWatcher w) {
-      return _bs.registerInterest(w);
+      return bs.registerInterest(w);
     }
     public SubscriptionWatcher registerInterest() {
-      return _bs.registerInterest();
+      return bs.registerInterest();
     }
     public void unregisterInterest(SubscriptionWatcher w) throws SubscriberException {
-      _bs.unregisterInterest(w);
+      bs.unregisterInterest(w);
     }
     public void setShouldBePersisted(boolean value) {
-      _bs.setShouldBePersisted(value);
+      bs.setShouldBePersisted(value);
     }
     public boolean shouldBePersisted() {
-      return _bs.shouldBePersisted();
+      return bs.shouldBePersisted();
     }
     public void persistNow() throws org.cougaar.core.persist.PersistenceNotEnabledException {
-      _bs.persistNow();
+      bs.persistNow();
     }
     public boolean didRehydrate() {
-      return _bs.didRehydrate();
+      return bs.didRehydrate();
     }
     public Persistence getPersistence() {
-      return _bs.getPersistence();
+      return bs.getPersistence();
     }
   }
 
