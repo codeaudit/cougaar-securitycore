@@ -66,6 +66,10 @@ public class CAInfoServlet
     log = (LoggingService)
       support.getServiceBroker().getService(this,
 			       LoggingService.class, null);
+	String autoconfig = System.getProperty("org.cougaar.core.autoconfig", "false");
+	if (!autoconfig.equals("true")) {
+	   throw new RuntimeException("This servlet should not be loaded except for unzip & run.");
+	}
   }
 
   public void init(ServletConfig config) throws ServletException
@@ -126,6 +130,7 @@ public class CAInfoServlet
     SecurityPolicy[] sp =
       configParser.getSecurityPolicies(CryptoClientPolicy.class);
     CryptoClientPolicy ccp = (CryptoClientPolicy) sp[0];
+    
     TrustedCaPolicy tc = new TrustedCaPolicy();
     tc.caDN = caDN.toString();
 
@@ -147,7 +152,55 @@ public class CAInfoServlet
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
-    try {
+	// if no parameter, returns the whole TrustedCaPolicy, otherwise it is actually a set function
+   // for test script usage
+   String howLong = req.getParameter("howLong");
+   // need to set time envelope to 0
+   if (howLong != null) {
+   		String response = "";
+   		String caDn = req.getParameter("cadn");
+   		if (caDn == null) {
+			X500Name [] caDns = configParser.getCaDNs();   
+			if (caDns.length != 0) {
+				caDn = caDns[0].getName();	
+			}
+		}
+   		CaPolicy caPolicy = configParser.getCaPolicy(caDn);
+   		if (caPolicy != null) {
+			String timeEnvelope = req.getParameter("timeEnvelope");
+   			try {
+   				Duration duration = new Duration(support.getServiceBroker());
+				duration.parse(howLong);
+   				caPolicy.howLong = duration.getDuration();
+   				if (log.isDebugEnabled()) {
+   					log.debug("Duration is set to " + caPolicy.howLong);
+   				}
+   				caPolicy.validity = howLong;
+   				if (timeEnvelope == null) {
+   					timeEnvelope = "1 s";
+   				}
+   				caPolicy.timeEnvelopeString = timeEnvelope;
+   				duration.parse(timeEnvelope);
+   				caPolicy.timeEnvelope = duration.getDuration();
+   				
+   				response = "Changed validity to " + caPolicy.validity + ", timeEnvelope to " + caPolicy.timeEnvelopeString
+   					+ " for " + caDn;
+   			} catch (Exception ex) {
+   				response = "Exception in processing " + howLong + " or " + timeEnvelope;
+   			}
+   		}
+   		else {
+   			response = "No such caDn " + caDn;
+   		}
+   		PrintWriter out = res.getWriter();
+   		out.print(response);
+   		out.flush();
+   		out.close();
+   		
+   		return;
+   }
+    
+   try {
       synchronized (this) {
         if (_info == null) {
           _info = getCAInfo();
@@ -174,6 +227,37 @@ public class CAInfoServlet
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
     throws ServletException, IOException
   {
+  	PrintWriter out = res.getWriter();
+	out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+	 out.println("<html>");
+	 out.println("<head>");
+	 out.println("<title>CA info request </title>");
+	 out.println("</head>");
+	 out.println("<body>");
+	 out.println("<H2> CA info request</H2>");
+	 out.println("<table>");
+	 out.println("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
+  	out.println("This servlet handles post, and will only be loaded for unzip & run:<br>\n");
+  	out.println("1. If no parameter is supplied, TrustedCaPolicy and CA certificate chain are returned.<br>\n");
+  	out.println("2. If cadn and howLong parameters are supplied, CA policy will be set to the new validity value,<br>\n");
+  	out.println("  optionally timeEnvelope can be supplied to specify value for timeEnvelop field of CA policy.<br>\n");
+  	X500Name [] caDNs = configParser.getCaDNs();
+//  	out.println("DN for CA: <input name=\"cadn\" type=\"text\" value=\"\"><br>");
+	out.println("Select CA: <select id=\"cadn\" name=\"cadn\">");
+	 for (int i = 0 ; i < caDNs.length ; i++) {
+	   out.println("<option value=\"" + caDNs[i].toString() + "\">" 
+		   + caDNs[i].toString() + "</option>");
+	 }
+	 out.println("</select><br>");
+	out.println("<br>how Long .e.g. 1a d, 2a m, 3a s: <input name=\"howLong\" type=\"text\" value=\"1 s\"><br>");
+	out.println("timeEnvelope, same format as how long: <input name=\"timeEnvelope\" type=\"text\" value=\"1 s\"><br>");
+	out.println("<br><input type=\"submit\">&nbsp;&nbsp;&nbsp;");
+	out.println("<input type=\"reset\">");
+	out.println("</form>");
+	out.println("</body></html>");
+  	out.flush();
+  	out.close();
+  	return;
   }
 
   public String getServletInfo()
