@@ -20,6 +20,24 @@
     <role>SocietyAdmin</role>
   </user>
   <user>
+    <uid>mbarger</uid>
+    <password>mbarger</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Mark</givenName>
+    <sn>Barger</sn>
+    <cn>Mark Barger</cn>
+    <mail>mbarger@bbn.com</mail>
+    <role>UserManager</role>
+    <role>Logistician</role>
+    <role>LogisticsViewer</role>
+    <role>PolicyAdministrator</role>
+    <role>MonitorManager</role>
+    <role>CAAdministrator</role>
+    <role>SocietyAdmin</role>
+  </user>
+  <user>
     <uid>ulysses</uid>
     <password>ulysses</password>
     <enableTime>19700101000000Z</enableTime>

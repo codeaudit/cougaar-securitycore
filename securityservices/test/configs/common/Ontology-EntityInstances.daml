@@ -127,19 +127,92 @@
           </daml:Restriction>
        </rdfs:subClassOf>
     </daml:Class>
+    
+    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityAddRole" />
+    <daml:Class rdf:ID="PluginsInRoleOrgActivityAddRole">  <!-- temporary hack until templates arrive -->
+       <rdfs:subClassOf 
+          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
+       <rdfs:subClassOf>
+          <daml:Restriction>
+             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
+             <daml:hasValue rdf:resource="OrgActivityAddRole" />
+          </daml:Restriction>
+       </rdfs:subClassOf>
+    </daml:Class>
+    
+    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityQueryRole" />
+    <daml:Class rdf:ID="PluginsInRoleOrgActivityQueryRole">  <!-- temporary hack until templates arrive -->
+       <rdfs:subClassOf 
+          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
+       <rdfs:subClassOf>
+          <daml:Restriction>
+             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
+             <daml:hasValue rdf:resource="OrgActivityQueryRole" />
+          </daml:Restriction>
+       </rdfs:subClassOf>
+    </daml:Class>
+    
+    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityQueryNoReadRole" />
+    <daml:Class rdf:ID="PluginsInRoleOrgActivityQueryNoReadRole">  <!-- temporary hack until templates arrive -->
+       <rdfs:subClassOf 
+          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
+       <rdfs:subClassOf>
+          <daml:Restriction>
+             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
+             <daml:hasValue rdf:resource="OrgActivityQueryNoReadRole" />
+          </daml:Restriction>
+       </rdfs:subClassOf>
+    </daml:Class>
 
+    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityChangeRole" />
+    <daml:Class rdf:ID="PluginsInRoleOrgActivityChangeRole">  <!-- temporary hack until templates arrive -->
+       <rdfs:subClassOf 
+          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
+       <rdfs:subClassOf>
+          <daml:Restriction>
+             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
+             <daml:hasValue rdf:resource="OrgActivityChangeRole" />
+          </daml:Restriction>
+       </rdfs:subClassOf>
+    </daml:Class>
 
+    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityRemoveRole" />
+    <daml:Class rdf:ID="PluginsInRoleOrgActivityRemoveRole">  <!-- temporary hack until templates arrive -->
+       <rdfs:subClassOf 
+          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
+       <rdfs:subClassOf>
+          <daml:Restriction>
+             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
+             <daml:hasValue rdf:resource="OrgActivityRemoveRole" />
+          </daml:Restriction>
+       </rdfs:subClassOf>
+    </daml:Class>
+    
+    
+    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityAllRole" />
+    <daml:Class rdf:ID="PluginsInRoleOrgActivityAllRole">  <!-- temporary hack until templates arrive -->
+       <rdfs:subClassOf 
+          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
+       <rdfs:subClassOf>
+          <daml:Restriction>
+             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
+             <daml:hasValue rdf:resource="OrgActivityAllRole" />
+          </daml:Restriction>
+       </rdfs:subClassOf>
+    </daml:Class>
+    
     <daml:Class rdf:ID="BlackboardObjects">
        <rdfs:subClassOf 
          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackboardObjects" />
        <daml:oneOf rdf:parseType="daml:collection">
           <ultralogEntity:BlackBoardObjects rdf:ID="BlackboardOpPlanObject" />
           <ultralogEntity:BlackBoardObjects rdf:ID="SafeRelay" />
-
+          <ultralogEntity:BlackBoardObjects rdf:ID="OrgActivity" />
           <!-- this last one should not appear in DamlBlackboardObjectMap -->
           <ultralogEntity:BlackBoardObjects rdf:ID="otherBlackboardObjects" />
        </daml:oneOf>
     </daml:Class>
+
 
     <!--
     <daml:Class rdf:ID="OtherBlackBoardObjects">

@@ -6,8 +6,20 @@ http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction DamlBoo
 #Temporary Policies
 #http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyTempEnableServlet.info
 #
-#Temporary? Blackboard policy
+# Blackboard policy for accessing all objects except OrgActivity
 http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyAllowBlackboard.info
+# Blackboard policy for adding an OrgActivity
+http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityAdd.info
+# Blackboard policy for changing an OrgActivity
+http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityChange.info
+# Blackboard policy for querying an OrgActivity, but not read it
+http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityQueryNoRead.info
+# Blackboard policy for querying an OrgActivity
+http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityQuery.info
+# Blackboard policy for removing an OrgActivity
+http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityRemove.info
+# Blackboard policy for adding, changing, querying, and removing an OrgActivity
+http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityAll.info
 #
 # Allow access to unrestricted servlets 
 # Restricted servlets are all servlets except other servlets, caread
