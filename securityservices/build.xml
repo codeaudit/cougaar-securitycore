@@ -164,12 +164,14 @@
           <classpath>
              <fileset dir="${securityservices.classes}">
                 <include name="securityservices.jar" />
+                <include name="securebootstrapper.jar" />
                 <include name="idmef.jar" />
                 <include name="junitTests.jar" />
              </fileset>
              <fileset dir="${cougaar.install.path}/lib">
                 <include name="overlay.jar" />
                 <include name="core.jar" />
+                <include name="bootstrap.jar" />
                 <include name="util.jar" />
                 <include name="webtomcat.jar" />
                 <include name="webserver.jar" />

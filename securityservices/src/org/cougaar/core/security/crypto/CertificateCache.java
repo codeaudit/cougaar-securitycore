@@ -123,7 +123,7 @@ public class CertificateCache
   }
 
   /** Return all the certificates associated with a given distinguished name */
-  private ArrayList getCertificates(X500Name x500Name)
+  public ArrayList getCertificates(X500Name x500Name)
   {
     if (x500Name == null) {
       throw new IllegalArgumentException("getCertificate: Argument is null");
@@ -353,7 +353,7 @@ public class CertificateCache
       }
       else {
 	if(CryptoDebug.debug)
-	  System.out.println("Certificate is not trusted yet:::::");
+	  System.out.println("Certificate is not trusted yet");
       }
     
       ArrayList list = (ArrayList)certsCache.get(principal);
@@ -361,6 +361,8 @@ public class CertificateCache
 	list = new ArrayList();
       }
 
+      if(CryptoDebug.debug)
+	System.out.println("CertificateCache.addCertificate");
       addCertStatus(list, certEntry, null);
       certsCache.put(principal, list);
     }
@@ -448,7 +450,9 @@ public class CertificateCache
       list = new ArrayList();
     }
 
-    addCertStatus(list, certEntry, privatekey);
+    if(CryptoDebug.debug)
+      System.out.println("CertificateCache.addPrivateKey");
+     addCertStatus(list, certEntry, privatekey);
 
     privateKeyCache.put(principal, list);
   }
@@ -558,16 +562,23 @@ public class CertificateCache
 	 * signing request to the CA. If the certificate has a matching private key,
 	 * then it is considered a local entity.
 	 */
+	if (CryptoDebug.debug) {
+	  System.out.println("checkCertificate. Certificate is self-signed");
+	}
       }
       else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
 	// Try to find out certificate trust
 	if (CryptoDebug.debug) {
-	  System.out.println("Certificate trust is unknown");
+	  System.out.println("checkCertificate. Certificate trust is unknown");
 	}
 	isTrustedAndValid = false;
       }
       else {
 	// Otherwise, certificate is not trusted.
+	if (CryptoDebug.debug) {
+	  System.out.println("checkCertificate. Not trusted. Cause="
+	    + e.cause);
+	}
 	isTrustedAndValid = false;
       }
       // TODO: mechanism by which one can send a message to a remote entity

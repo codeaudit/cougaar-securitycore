@@ -646,7 +646,7 @@ public class DirectoryKeyStore
                             CertificateType.CERT_TYPE_END_ENTITY,
                             CertificateTrust.CERT_TRUST_CA_SIGNED, alias);
     if (CryptoDebug.debug) {
-      System.out.println("Update cert status in hash map");
+      System.out.println("Update cert status in hash map. AddPrivateKey");
     }
     certCache.addCertificate(certstatus);
     certCache.addPrivateKey(privatekey, certstatus);
@@ -923,11 +923,14 @@ public class DirectoryKeyStore
      *   signed by a CA. That is, we need to establish a certificate
      *   chain before granting the trust.
      */
+    if (CryptoDebug.debug) {
+      System.out.println("++++++ Checking certificate trust");
+    }
     Enumeration e = certCache.getKeysInCache();
     while (e.hasMoreElements()) {
       X500Name name = (X500Name) e.nextElement();
 
-      ArrayList list = certCache.getValidCertificates(name);
+      ArrayList list = certCache.getCertificates(name);
       ListIterator it = list.listIterator();
       if (CryptoDebug.debug) {
 	System.out.println("-- Checking certificates validity for: " + name);
@@ -1024,6 +1027,9 @@ public class DirectoryKeyStore
 				certType,
 				trust, s);
 	// Update certificate cache
+	if (CryptoDebug.debug) {
+	  System.out.println("addCertificate from keystore");
+	}
 	certCache.addCertificate(certstatus);
 	// Update Common Name to DN hashtable
 	nameMapping.addName(certstatus);
@@ -1032,6 +1038,9 @@ public class DirectoryKeyStore
 	try {
 	  PrivateKey key = (PrivateKey) aKeystore.getKey(s, password);
 	  if (key != null) {
+	    if (CryptoDebug.debug) {
+	      System.out.println("add Private Key from keystore");
+	    }
 	    certCache.addPrivateKey(key, certstatus);
 	  }
 	}
@@ -1920,6 +1929,9 @@ public class DirectoryKeyStore
 			    certificateType,
 			    certificateTrust, alias);
       certstatus.setPKCS10Date(new Date());
+      if (CryptoDebug.debug) {
+	System.out.println("doGenKeyPair: add Private Key");
+      }
       certCache.addCertificate(certstatus);
       certCache.addPrivateKey(privatekey, certstatus);
       // Update Common Name to DN hashtable
@@ -2129,6 +2141,10 @@ public class DirectoryKeyStore
 
       // Set the key entry in the keystore.
       setKeyEntry(alias, pk, certChain);
+
+      if (CryptoDebug.debug) {
+	System.out.println("installPkcs12Envelope: add Private Key");
+      }
 
       // Update the certificate cache
       certCache.addCertificate(cs);
