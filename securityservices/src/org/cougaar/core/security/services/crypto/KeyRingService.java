@@ -40,6 +40,7 @@ import org.cougaar.core.component.Service;
 
 // Cougaar Security Services
 import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 
 /** Low-level service to retrieve certificates and private keys
@@ -95,15 +96,15 @@ public interface KeyRingService extends Service {
   /**
    */
   DirectoryKeyStore getDirectoryKeyStore();
-  
+
   // Enumeration getAliasList();
   /**
    * @return A list of PrivateKeyCert
    */
- 
+
   List findPrivateKey(String commonName);
   List findPrivateKey(String commonName, boolean validOnly);
-  
+
   /**
    * @return A list of PrivateKeyCert
    */
@@ -116,11 +117,12 @@ public interface KeyRingService extends Service {
    */
   void checkOrMakeCert(String name);
   void checkOrMakeCert(X500Name dname, boolean isCACert);
+  void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy tc);
   Vector getCRL();
   /* long getSleeptime();
   void setSleeptime(long sleeptime);
   */
-  
+
   byte[] protectPrivateKey(List privKey,
 			   List cert,
 			   PrivateKey signerPrivKey,
