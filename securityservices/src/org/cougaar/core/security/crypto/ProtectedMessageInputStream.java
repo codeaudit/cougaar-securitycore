@@ -44,9 +44,10 @@ import org.cougaar.core.security.util.NullOutputStream;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
-import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+//import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
+import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
 
 class ProtectedMessageInputStream extends ProtectedInputStream {
   private boolean                _eom;
@@ -61,7 +62,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
   private OnTopCipherInputStream _cypherIn;
   private SignatureInputStream   _signature;
-  private EventPublisher         _eventPublisher;
+  //private EventPublisher         _eventPublisher;
 
   private static LoggingService      _log;
   private static KeyRingService      _keyRing;
@@ -73,14 +74,12 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
                                      MessageAddress source,
                                      MessageAddress target,
                                      boolean encryptedSocket,
-                                     ServiceBroker sb,
-                                     EventPublisher publisher) 
+                                     ServiceBroker sb)
     throws GeneralSecurityException, IncorrectProtectionException, 
     IOException {
 
     super(null);
     init(sb);
-    _eventPublisher = publisher;
 
     if (_log.isDebugEnabled()) {
       _log.debug(source + " -> " + target + 
@@ -161,6 +160,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
                                      String reason, String data) {
     FailureEvent event = 
       new MessageFailureEvent(source, target, reason, data);
+    /*
     if (_eventPublisher != null) {
       _eventPublisher.publishEvent(event); 
     } else {
@@ -168,7 +168,9 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
         _log.debug("EventPublisher uninitialized, " +
                    "unable to publish event:\n" + event);
       }
-    }  
+    }
+    */
+    MessageFailureSensor.publishEvent(event);  
   }
 
   /* **********************************************************************
@@ -243,7 +245,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       ProtectionLevelMessage pmsg = 
         new ProtectionLevelMessage(source, target, cert);
       sendProtectionMessage(pmsg);
-    } catch (CertificateException e) {
+    } catch (Exception e) {
       if (_log.isWarnEnabled()) {
         _log.warn("Can't send a message to " + _source + 
                   " to say that a new certificate is necessary: " +

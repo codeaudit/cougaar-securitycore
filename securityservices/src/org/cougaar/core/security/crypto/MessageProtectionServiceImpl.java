@@ -70,6 +70,7 @@ import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
 import org.cougaar.core.security.policy.CryptoPolicy;
 import org.cougaar.core.security.ssl.KeyRingSSLServerFactory;
 
@@ -93,7 +94,7 @@ public class MessageProtectionServiceImpl
   private LoggingService log;
   private boolean isInitialized = false;
   // event publisher to publish message failure
-  private EventPublisher eventPublisher = null;
+  //private EventPublisher eventPublisher = null;
   private MessageFormat exceptionFormat = new MessageFormat("{0} -");
   private MessageAddress _localNode = null;
   private static final String MPA_CLASSNAME = 
@@ -148,12 +149,14 @@ public class MessageProtectionServiceImpl
     _localNode = nis.getMessageAddress();
   }
 
+  /*
   // method used to initialize event publisher
   public synchronized void addPublisher(EventPublisher publisher) {
     if(eventPublisher == null) {
       eventPublisher = publisher;
     }
   }
+  */
   
   private synchronized void setPolicyService() {
     // Retrieve policy service
@@ -191,8 +194,8 @@ public class MessageProtectionServiceImpl
       msg.setAttribute(MessageProtectionAspectImpl.NEW_CERT, certificate);
       msg.setContentsId(certificate.hashCode());
       return msg;
-    } catch (CertificateException e) {
-      log.error("Couldn't find certificate for " + destAddr +
+    } catch (Exception e) {
+      log.warn("Couldn't find certificate for " + destAddr +
                 ", can't respond with a valid certificate.");
       return null;
     } // end of try-catch
@@ -800,9 +803,12 @@ public class MessageProtectionServiceImpl
                                                    destination.toString(),
                                                    reason,
                                                    e.toString());
+      /*
       if (eventPublisher != null) {
         eventPublisher.publishEvent(event);
       }
+      */
+      MessageFailureSensor.publishEvent(event);
       throw new IOException(reason);
 //     } catch (Exception e) {
 //       log.debug("Caught unexpected Exception", e);
@@ -868,8 +874,7 @@ public class MessageProtectionServiceImpl
     boolean encryptedSocket = isEncrypted(attrs);
     try {
       return new ProtectedMessageInputStream(is, source, destination,
-                                             encryptedSocket, serviceBroker,
-                                             eventPublisher);
+                                             encryptedSocket, serviceBroker);
     } catch (IncorrectProtectionException e) {
       // The stream has already reported the error. Just throw
       // an IOException
@@ -890,9 +895,12 @@ public class MessageProtectionServiceImpl
                                                    destination.toString(),
                                                    reason,
                                                    e.toString());
+      /*
       if (eventPublisher != null) {
         eventPublisher.publishEvent(event);
       }
+      */
+      MessageFailureSensor.publishEvent(event);
       throw new IOException(reason);
     } catch (MessageDumpedException e) {
       if (log.isInfoEnabled()) {
@@ -915,6 +923,7 @@ public class MessageProtectionServiceImpl
                                                  target,
                                                  reason,
                                                  data);
+    /*
     if(eventPublisher != null) {
       eventPublisher.publishEvent(event); 
     }
@@ -922,7 +931,9 @@ public class MessageProtectionServiceImpl
       if(log.isDebugEnabled()) {
         log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
-    }  
+    } 
+    */
+    MessageFailureSensor.publishEvent(event); 
   }
   
   private void publishMessageFailure(String source, String target,
