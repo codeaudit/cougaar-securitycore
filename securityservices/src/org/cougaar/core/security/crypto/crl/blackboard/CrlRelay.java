@@ -42,7 +42,7 @@ public class CrlRelay
   private Object content;
   private Object response;
 
-  private transient Set _targets;
+  private Set _targets;
 
   /**
    * @param content initial content
