@@ -32,7 +32,6 @@ import java.util.Vector;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.UserSSLService;
 import org.cougaar.core.security.ssl.ui.AuthSchemeDialog;
 import org.cougaar.core.service.LoggingService;
@@ -73,8 +72,6 @@ public class UserAuthenticatorImpl
     try {
       if (secProvider != null) {
         serviceBroker = secProvider.getServiceBroker();
-        KeyRingService keyRing = (KeyRingService)
-	  serviceBroker.getService(this, KeyRingService.class, null);
         UserSSLService userservice = (UserSSLService)
 	  serviceBroker.getService(this, UserSSLService.class, null);
 	 log = (LoggingService)

@@ -48,7 +48,6 @@ import org.cougaar.core.security.policy.AccessControlPolicy;
 import org.cougaar.core.security.policy.GuardRegistration;
 import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.services.acl.AccessControlPolicyService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.planning.ldm.policy.Policy;
@@ -60,7 +59,6 @@ import safe.enforcer.AgentEnforcer;
 public class AccessControlPolicyServiceImpl
   implements AccessControlPolicyService
 {
-  private transient SecurityPropertiesService secprop = null;
   private transient Logger log;
   private transient CommunityService _commu;
   private transient ServiceBroker serviceBroker;
@@ -83,11 +81,6 @@ public class AccessControlPolicyServiceImpl
    */
   public AccessControlPolicyServiceImpl(ServiceBroker sb, String name) {
     serviceBroker = sb;
-    // Get Security Properties service
-    secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this,
-		    SecurityPropertiesService.class,
-		    null);
 
     log = (LoggingService)
       serviceBroker.getService(this,
@@ -513,7 +506,6 @@ public class AccessControlPolicyServiceImpl
       }//switch
       //update community list
       if(_commu!=null) acp.setCommunityService(_commu);
-      return;
     }
     
     public String getAgentName() {

@@ -36,12 +36,10 @@ import org.cougaar.core.service.AlarmService;
 class AlarmServiceProxy extends SecureServiceProxy 
   implements AlarmService {
   private transient final AlarmService _as;
-  private transient final Object _requestor;
   
   public AlarmServiceProxy(AlarmService as, Object requestor, ServiceBroker sb) {
     super(sb);
     _as = as;
-    _requestor = requestor;
   }
   
   public void addAlarm(Alarm alarm) {

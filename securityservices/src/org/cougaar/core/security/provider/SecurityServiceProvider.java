@@ -62,7 +62,6 @@ import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
 import org.cougaar.core.security.services.util.PolicyBootstrapperService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.ssl.JaasSSLFactory;
-import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DataProtectionService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.MessageProtectionService;
@@ -505,7 +504,6 @@ public class SecurityServiceProvider
   }
   private class BBServiceAvailableListener implements ServiceAvailableListener {
     public void serviceAvailable(ServiceAvailableEvent ae) {
-      BlackboardService bbs=null;
       //ServiceProvider newSP = null;
       Class sc = ae.getService();
       if( org.cougaar.core.service.BlackboardService.class.isAssignableFrom(sc)) {

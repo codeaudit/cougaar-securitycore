@@ -196,7 +196,11 @@ public class SecureConfigFinder
     try {
       br.close();
     }
-    catch (IOException e) {}
+    catch (IOException e) {
+      if (_logger.isWarnEnabled()) {
+        _logger.warn("Unable to close Exception list file");
+      }
+    }
   }
 
   /**

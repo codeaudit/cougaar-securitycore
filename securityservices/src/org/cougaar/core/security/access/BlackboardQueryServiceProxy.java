@@ -37,13 +37,11 @@ import org.cougaar.util.UnaryPredicate;
 class BlackboardQueryServiceProxy extends SecureServiceProxy 
   implements BlackboardQueryService {
   private transient BlackboardQueryService _bqs;
-  private transient final Object _requestor;
   
   public BlackboardQueryServiceProxy(BlackboardQueryService bqs, 
                                      Object requestor, ServiceBroker sb) {
     super(sb);
     _bqs = bqs;
-    _requestor = requestor;
   }
   
   public Collection query(UnaryPredicate predicate) {

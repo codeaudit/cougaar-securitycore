@@ -66,7 +66,6 @@ class ServletServiceProxy extends SecureServiceProxy
     _ss = ss;
     _as = (AuthorizationService)
       sb.getService(this, AuthorizationService.class, null);
-    //_requestor = requestor;  
     // get the name of the agent
     AgentIdentificationService ais = (AgentIdentificationService)
       sb.getService(this, AgentIdentificationService.class, null);

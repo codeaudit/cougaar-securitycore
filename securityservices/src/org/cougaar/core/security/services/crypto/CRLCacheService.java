@@ -26,14 +26,11 @@
 
 package org.cougaar.core.security.services.crypto;
 
-import java.security.cert.X509Certificate;
-
 import org.cougaar.core.component.Service;
 
 /** Low-level service to update and retrive certificates and private keys from the Certificate Cache 
  */
 public interface CRLCacheService extends Service {
-  boolean isCertificateInCRL(X509Certificate subjectCertificate, String IssuerDN);
   void addToCRLCache(String dnname);
   long getSleeptime();
   void setSleeptime(long sleeptime);

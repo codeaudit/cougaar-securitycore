@@ -102,7 +102,7 @@ public class CRLGUIPlugin
     frame.addWindowListener(new java.awt.event.WindowAdapter(){
 	public void windowClosing(java.awt.event.WindowEvent evt) 
 	{
-	  exitWindow(evt);
+	  exitWindow();
 	}
       });
         
@@ -119,7 +119,7 @@ public class CRLGUIPlugin
     jCrlButton.addMouseListener(new java.awt.event.MouseAdapter() {
 	public void mouseClicked(java.awt.event.MouseEvent evt) 
 	{
-	  jCrlButtonMouseClicked(evt);
+	  jCrlButtonMouseClicked();
 	}
       });
     jListPanel.add(jCrlButton);
@@ -142,7 +142,7 @@ public class CRLGUIPlugin
     jTimerButton.addMouseListener(new java.awt.event.MouseAdapter() {
 	public void mouseClicked(java.awt.event.MouseEvent evt) 
 	{
-	  jTimerButtonMouseClicked(evt);
+	  jTimerButtonMouseClicked();
 	}
       });
     jTimerPanel.add(jTimerButton);
@@ -150,7 +150,7 @@ public class CRLGUIPlugin
     jTimerComboBox.addActionListener(new java.awt.event.ActionListener() {
 	public void actionPerformed(java.awt.event.ActionEvent evt) 
 	{
-	  jTimerComboBoxactionPerformed(evt);
+	  jTimerComboBoxactionPerformed();
 	}
       });
     jTimerPanel.add(jTimerComboBox);
@@ -181,7 +181,7 @@ public class CRLGUIPlugin
     return "CRLGUIPlugin";
   }
 
-  private void jTimerButtonMouseClicked(java.awt.event.MouseEvent evt) 
+  private void jTimerButtonMouseClicked() 
   {
     long sleep_time=1000L;
     int sleeptime=0;
@@ -212,13 +212,13 @@ public class CRLGUIPlugin
     crlCacheService.setSleeptime(sleep_time);
   }
 
-  private void jTimerComboBoxactionPerformed(java.awt.event.ActionEvent evt)
+  private void jTimerComboBoxactionPerformed()
   {
 
     units=(String)jTimerComboBox.getSelectedItem();
   }
 
-  private void jCrlButtonMouseClicked(java.awt.event.MouseEvent evt) 
+  private void jCrlButtonMouseClicked() 
   {
     //Vector crllist=keyRing.getCRL();
     // the keyRing function does not do anything and has been removed
@@ -229,7 +229,7 @@ public class CRLGUIPlugin
 
  
   /** Exit the Application */
-  private void exitWindow(java.awt.event.WindowEvent evt) 
+  private void exitWindow() 
   {
   }
 

@@ -152,9 +152,6 @@ public class CrlUtility {
 	    Extension  ext = (Extension)constructor.newInstance(aobj);
 	    extensions.set(s1,ext);
 	  }
-	  else {
-            //throw new IOException (" Cannot create Extension for oid :"+oid);
-	  }
 	}
 	catch (Exception exp) {
           continue;

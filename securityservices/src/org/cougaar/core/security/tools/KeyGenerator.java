@@ -53,7 +53,6 @@ public class KeyGenerator {
   private static Logger _log;
 
   private SecurityServiceProvider secProvider = null;
-  private ConfigParserService configParser = null;
 
   static {
     _log = LoggerFactory.getInstance().createLogger("KeyGenerator");
@@ -350,7 +349,6 @@ public class KeyGenerator {
 						  String keyStorePasswd) {
     String alias = getChildText(element, "alias");
     String keypass = getChildText(element, "keypass");
-    String dname = getChildText(element, "dname");
     String signingAuthority = getChildText(element, "signingAuthority");
 
     List genKeyCom = new ArrayList();

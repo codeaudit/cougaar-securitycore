@@ -64,8 +64,9 @@ public class XMLPolicyCreator {
     if (policies != null) {
       System.out.println("there are " + policies.length + " policies");
     }
-    else
+    else {
       System.out.println("Couldn't parse file");
+    }
   }
 
   /** This constructor will be called from
@@ -138,19 +139,12 @@ public class XMLPolicyCreator {
     if (requestedType == null) {
       requestedType = "";
     }
-    if (debug) {
-      //System.out.println("XMLPolicyCreator: Request for policy of type "
-			 //+ requestedType);
-    }
     Element root = doc.getDocumentElement();
     Vector policyVector = new Vector();
     Policy[] pols = null;
     if( root != null && root.getNodeName().equals( "Policies" )){
       NodeList nlist = root.getChildNodes();
       int nlength = nlist.getLength();
-      if (debug) {
-	//System.out.println("Policy has " + nlength + " Child Nodes");
-      }
       for (int i=0; i<nlength; i++) {
 	Node policyNode = nlist.item(i);
         if (policyNode == null) {
@@ -164,17 +158,11 @@ public class XMLPolicyCreator {
         if (policyType == null) {
           continue;
         }
-	if (debug) {
-	  //System.out.println("XMLPolicyCreator: node type: " + policyType);
-	}
 	if (policyNode.getNodeType() == Node.ELEMENT_NODE
 	    && policyType.equals(requestedType)) {
 	  Policy p = getPolicy(policyNode);
 	  if (p != null){
 	    policyVector.addElement(p);
-	    if (debug) {
-	      //System.out.println("XMLPolicyCreator: Adding new policy");
-	    }
 	  }
 	}
       }
@@ -195,10 +183,6 @@ public class XMLPolicyCreator {
       p = (TypedPolicy) o;
       p.setName(policyName);
       p.setType(policyType);
-      if (debug) {
-	//System.out.println("POLICY.NAME IS: " + p.getName());
-	//System.out.println("POLICY.TYPE IS: " + p.getType());
-      }
       UID uid = new UID(owner, count++);
       p.setUID(uid);
       MessageAddress ci = MessageAddress.getMessageAddress(owner);
@@ -217,9 +201,6 @@ public class XMLPolicyCreator {
   public Policy getPolicy(Node policyNode) {
     Policy p = null;
 
-    if (debug) {
-      //System.out.println("Policy node name:" + policyNode.getNodeName());
-    }
     if( policyNode.getNodeName().equals( "Policy" )){
 
       String policyName = policyNode.getAttributes().getNamedItem("name").getNodeValue();
@@ -229,9 +210,6 @@ public class XMLPolicyCreator {
 
       NodeList nlist = policyNode.getChildNodes();
       int nlength = nlist.getLength();
-      if (debug) {
-	//System.out.println("Policy has " + nlength + " Child Nodes");
-      }
       for (int i=0; i<nlength; i++) {
 	Node ruleParamNode = nlist.item(i);
 	if (ruleParamNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -239,11 +217,6 @@ public class XMLPolicyCreator {
 	    RuleParameter rp = parseRuleParamNode((Element) ruleParamNode);
 	    if (rp != null)
 	      p.Add(rp);
-	  }
-	  else {
-	    if (debug) {
-	      //System.out.println(ruleParamNode.getNodeName());
-	    }
 	  }
 	}
       }
@@ -266,10 +239,6 @@ public class XMLPolicyCreator {
 
     try {
       String nodeType = child.getNodeName();
-      if (debug) {
-	//System.out.print("ParamName " + paramName
-			 //+ " paramType " + nodeType + " ");
-      }
       
       if (nodeType.equals("Integer")) {
         String stringval = child.getAttributes().getNamedItem("value").getNodeValue();
@@ -280,10 +249,6 @@ public class XMLPolicyCreator {
         int max = Integer.valueOf(stringval).intValue();
         IntegerRuleParameter irp = 
           new IntegerRuleParameter(paramName, min, max);
-        if (debug) {
-	  //System.out.println("new IntegerRuleParameter(" + paramName 
-			     //+ ", " + min  +", " + max + ")" );
-	}
         
         try {
           irp.setValue(val);
@@ -322,10 +287,6 @@ public class XMLPolicyCreator {
         long max = Long.valueOf(stringval).longValue();
         LongRuleParameter lrp = 
           new LongRuleParameter(paramName, min, max);
-        if (debug) {
-	  //System.out.println("new LongRuleParameter(" + paramName 
-			    // + ", " + min  +", " + max + ")" );
-	}
         
         try {
           lrp.setValue(val);
@@ -339,10 +300,6 @@ public class XMLPolicyCreator {
         
         StringRuleParameter srp 
           = new StringRuleParameter(paramName);
-        if (debug) {
-	  //System.out.println("new StringRuleParameter(" + paramName + ")" +
-			     //"  value=" + stringval);
-	}
         
         try {
           srp.setValue(stringval);
@@ -407,10 +364,6 @@ public class XMLPolicyCreator {
 	
         EnumerationRuleParameter erp = 
           new EnumerationRuleParameter(paramName, enumOptions);
-        if (debug) {
-	  //System.out.println("new EnumerationRuleParameter(" + paramName 
-			     //+ enumOptions +")" );
-	}
         
         try {
           erp.setValue(stringval);
@@ -423,9 +376,6 @@ public class XMLPolicyCreator {
       } else if (nodeType.equals("KeySet")) {
 	String default_value = 
           child.getAttributes().getNamedItem("value").getNodeValue();
-	if (debug) {
-	  //System.out.println("Default:" + default_value);
-	}
 	// Read the children, stuff them in an array
 	NodeList nlist = child.getChildNodes();
 	int nlength = nlist.getLength();
@@ -436,9 +386,6 @@ public class XMLPolicyCreator {
             continue;
           String key = keyNode.getAttributes().getNamedItem("key").getNodeValue();
           String value = keyNode.getAttributes().getNamedItem("value").getNodeValue();
-	  if (debug) {
-	    //System.out.println("<key=" + key + ", value=" + value);
-	  }
           keyVector.addElement(new KeyRuleParameterEntry(key, value));
 	}
 	KeyRuleParameterEntry []keys = 
@@ -484,9 +431,6 @@ public class XMLPolicyCreator {
               }
               break;
             default:
-              if (debug) {
-		//System.out.println("Node type: " + valNode.getNodeType());
-	      }
             }
           }
           if (value == null) {

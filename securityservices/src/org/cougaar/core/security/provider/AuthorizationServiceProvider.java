@@ -49,7 +49,6 @@ public class AuthorizationServiceProvider
     _instance = new AuthServiceImpl(sb);
     PrivilegedAction setService = new PrivilegedAction() {
         public Object run() {
-          SecurityManager sm = System.getSecurityManager();
           try {
             ObjectContextUtil.setAuthorizationService(_instance);
           } catch (Exception e) {

@@ -33,12 +33,10 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
-import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public class CertificateManagementServiceProvider 
   extends BaseSecurityServiceProvider
 {
-  private KeyRingService ksr;
   private Hashtable cmsTable;
 
   public CertificateManagementServiceProvider(ServiceBroker sb, String community) {

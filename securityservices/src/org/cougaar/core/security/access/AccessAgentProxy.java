@@ -663,6 +663,7 @@ public class AccessAgentProxy implements MessageTransportService,
         return true;
     }
 
+    /*
     private TrustSet[] checkOutgoing(Message msg) {
         if (msg == null) {
             return null;
@@ -683,7 +684,7 @@ public class AccessAgentProxy implements MessageTransportService,
         }
         return trust;
     }
-
+*/
     private void compare(TrustSet msgSet, TrustSet policySet) {
         if (msgSet == null) {
             msgSet = makeLowestTrust();

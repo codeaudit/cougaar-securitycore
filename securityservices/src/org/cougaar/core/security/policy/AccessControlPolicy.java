@@ -80,12 +80,11 @@ public class AccessControlPolicy
   }
   public void setAgentAction(String key, Object value){
     agtActions.put(key, value);
-    return;
   }
+
   public void setComAgentAction(String key, Object value){
     agtActionsCom.put(key, value);
     commList.put(key,null); //put in null for now, fill in setCommunityService.
-    return;
   }
 
   //lookup community name
@@ -110,7 +109,6 @@ public class AccessControlPolicy
   }
   public void setMsgAction(String key, Object value){
     msgActions.put(key, value);
-    return;
   }
   
   private HashMap integrity = new HashMap();
@@ -130,12 +128,10 @@ public class AccessControlPolicy
   }
   public void setIntegrity(String key, Object value){
     integrity.put(key, value);
-    return;
   }
   public void setComIntegrity(String key, Object value){
     integrityCom.put(key, value);
     commList.put(key,null); //put in null for now, fill in setCommunityService.
-    return;
   }
 
   private HashMap verbs = new HashMap();
@@ -155,12 +151,10 @@ public class AccessControlPolicy
   }
   public void setVerbs(String key, Object value){
     verbs.put(key, value);
-    return;
   }
   public void setComVerbs(String key, Object value){
     verbsCom.put(key, value);
     commList.put(key,null); //put in null for now, fill in setCommunityService.
-    return;
   }
 
   private HashMap criticality = new HashMap();
@@ -180,12 +174,10 @@ public class AccessControlPolicy
   }
   public void setCriticality(String key, Object value){
     criticality.put(key, value);
-    return;
   }
   public void setComCriticality(String key, Object value){
     criticalityCom.put(key, value);
     commList.put(key,null); //put in null for now, fill in setCommunityService.
-    return;
   }
 
   public void setCommunityService(CommunityService cs){
@@ -223,5 +215,4 @@ public class AccessControlPolicy
         " DIRECTION:" + Direction 
   ;
   }
-
 }

@@ -43,13 +43,11 @@ import org.cougaar.util.UnaryPredicate;
 class BlackboardMetricsServiceProxy extends SecureServiceProxy 
   implements BlackboardMetricsService {
   private transient BlackboardMetricsService _bms;
-  private transient final Object _requestor;
   
   public BlackboardMetricsServiceProxy(BlackboardMetricsService bms, 
                                        Object requestor, ServiceBroker sb) {
     super(sb);
     _bms = bms;
-    _requestor = requestor;
   }
   
   public int getBlackboardCount() {

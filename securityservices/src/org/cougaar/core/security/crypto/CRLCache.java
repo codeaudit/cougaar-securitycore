@@ -148,6 +148,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       poll = (Long.valueOf(secprop.getProperty(SecurityPropertiesService.CRL_POLLING_PERIOD))).longValue() * 1000;
     } catch (Exception e) {
       // poll will be == 0, so ok.
+      if (log.isDebugEnabled()) {
+        log.debug("poll will be == 0, so ok");
+      }
     }
     if (poll > 0) {
       setSleepTime(poll);
@@ -180,7 +183,6 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       throw new RuntimeException("Unable to get crypto Client policy");
     }
 
-    String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
     cacheService = (CertificateCacheService)
       serviceBroker.getService(this, CertificateCacheService.class, null);
     keyRingService = (KeyRingService)
@@ -807,18 +809,6 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     return null;
   }
 
-  public boolean isCertificateInCRL(X509Certificate subjectCertificate, String IssuerDN){
-    boolean incrl=false;
-    CRLWrapper crlwrapper=null;
-    X509CRL crl=null;
-    if(entryExists(IssuerDN)) {
-      crlwrapper=(CRLWrapper)crlsCache.get(IssuerDN);
-      crl=crlwrapper.getCRL();
-
-    }
-    return incrl;
-  }
-
   private void initCRLCacheFromKeystore(){
     //String s=null;
     X509Certificate certificate=null;
@@ -1331,7 +1321,6 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         log.debug("Size of changed Crlrelay collection is :"+ responsecollection.size());
       }
       resiterator=responsecollection.iterator();
-      boolean responsemodified=false;
       while(resiterator.hasNext()) {
         responserelay=(CrlRelay)resiterator.next();
         log.debug("Received response :"+ responserelay.toString());

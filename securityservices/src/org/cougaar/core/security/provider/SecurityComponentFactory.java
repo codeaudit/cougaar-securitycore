@@ -73,8 +73,6 @@ public final class SecurityComponentFactory
   public void load() {
     super.load();
     setLoggingService();
-    final ServiceBroker sb = bindingSite.getServiceBroker();
-    SecurityServiceProvider ssp = new SecurityServiceProvider(sb, mySecurityCommunity);
   }
 
   public void setState(Object loadState) {}
@@ -83,7 +81,6 @@ public final class SecurityComponentFactory
   public synchronized void unload() {
     super.unload();
     // unload services in reverse order of "load()"
-    ServiceBroker sb = bindingSite.getServiceBroker();
     // release services
   }
 }

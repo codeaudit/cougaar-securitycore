@@ -45,12 +45,10 @@ import org.cougaar.core.thread.Schedulable;
 class ThreadServiceProxy extends SecureServiceProxy 
   implements ThreadService {
   private final ThreadService _ts;
-  private final Object _requestor;
   
   public ThreadServiceProxy(ThreadService ts, Object requestor, ServiceBroker sb) {
     super(sb);
     _ts = ts;
-    _requestor = requestor;
   }
   public Schedulable getThread(Object consumer, Runnable runnable) {
     Runnable sr = new SecureRunnable(runnable, _scs.getExecutionContext());
