@@ -121,7 +121,7 @@ public class PersistenceMgrPolicyServiceImpl
       if (_log.isInfoEnabled()) {
         _log.info("Couldn't get Event Service - starting listener...");
       }
-      sb.addServiceListener(new myServiceListener());
+      sb.addServiceListener(new EventServiceListener());
     }
     NodeIdentificationService nis = (NodeIdentificationService)
       sb.getService(this, NodeIdentificationService.class, null);
@@ -531,8 +531,8 @@ public class PersistenceMgrPolicyServiceImpl
     }
   }
 
-  // Maybe this should be merged with the previous ServiceAvailableListener?
-  private class myServiceListener implements ServiceAvailableListener
+
+  private class EventServiceListener implements ServiceAvailableListener
   {
     public void serviceAvailable(ServiceAvailableEvent ae) 
     {
