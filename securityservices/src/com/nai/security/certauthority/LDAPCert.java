@@ -28,6 +28,7 @@
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.math.BigInteger;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -45,10 +46,12 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.InitialLdapContext;
 
 import java.util.Hashtable;
+import java.util.StringTokenizer;
 
 import java.security.MessageDigest;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.Principal;
 
 import java.text.SimpleDateFormat;
 
@@ -62,14 +65,15 @@ import com.nai.security.crypto.Base64;
     private static boolean debug = true;
 
     protected static DirContext ctx;
+    protected static MessageDigest md5;
+
     protected String dn;
     protected Attributes set = new BasicAttributes(true);
     protected Attribute objectclass = new BasicAttribute("objectclass");
     protected Attribute ouSet = new BasicAttribute("ou");
     
     protected X509Certificate cert;
-    protected static MessageDigest md5;
-
+    
     protected static SimpleDateFormat day = new SimpleDateFormat("yyyyMMdd");
     protected static SimpleDateFormat time = new SimpleDateFormat("hhmmss");
 
@@ -78,8 +82,13 @@ import com.nai.security.crypto.Base64;
 	    md5 = MessageDigest.getInstance("MD5");
 	}
 	catch(Exception ex) {
-	    if(debug)ex.printStackTrace();
+	    ex.printStackTrace();
 	}
+    }
+
+    private void publish2Ldap(X509Certificate client, X509Certificate signator)
+    {
+	
     }
 
     public static X509Certificate loadCert(String fileName) {
@@ -99,50 +108,82 @@ import com.nai.security.crypto.Base64;
 
     public LDAPCert(String filename) {
 	X509Certificate cert = loadCert(filename);
-	
-	if(debug) {
-	    System.out.println("Serial no. = " +  cert.getSerialNumber());
-	    System.out.println("notbefore_dte="+day.format(cert.getNotBefore()));
-	    System.out.println("notbefore_tim" +time.format(cert.getNotBefore()));
-	    System.out.println("notafter_dte="+day.format(cert.getNotAfter()));
-	    System.out.println("notafter_tim" +time.format(cert.getNotAfter()));
-	}
+	objectclass.add("xuda_certificate");
+	init(cert, cert);
+
+	System.out.println("Loaded certificate with dn = " + dn);
+	set.put(objectclass);	
+	formatAttributes(set);
     }
 
-    protected byte[] md5hash(byte[] data) {
+    
+    protected String toHex(byte[] data) {
+	StringBuffer buff = new StringBuffer();
+	for(int i = 0; i < data.length; i++) {
+	    String digit = Integer.toHexString(data[i] & 0x00ff);
+	    if(digit.length() < 2)buff.append("0");
+	    buff.append(digit);
+	}
+	return buff.toString();
+    }
+
+    protected byte[] hash(byte[] data, MessageDigest engine) {
 	byte digest[];
 
-	md5.reset();
-	md5.update(data);
-	digest = md5.digest();
-	md5.reset();
+	engine.reset();
+	engine.update(data);
+	digest = engine.digest();
+	engine.reset();
 	return digest;
     }
 
-    public void init(X509Certificate cert, X509Certificate issuer) {
-	String md5hash;
-
+    protected void init(X509Certificate cert, X509Certificate issuer) {
+	MessageDigest certDigest, issuerDigest;
+	byte[] hash = null, ca_hash = null; // md & ca_md5 attribs for NetTools
+	byte[] der = null, ca_der = null;   // der encoded certificates
+	// Use the prefix of the signature algorithm for creating a DN
+	String digestAlg = cert.getSigAlgName().substring(0,3);
+	String caDigestAlg = issuer.getSigAlgName().substring(0,3);
 	try { 
-	    md5hash = new String(Base64.encode(md5hash(cert.getEncoded())));
+	    //certDigest = MessageDigest.getInstance("MD5");
+	    //issuerDigest = MessageDigest.getInstance("MD5");
+	    certDigest = MessageDigest.getInstance(digestAlg);
+	    issuerDigest = MessageDigest.getInstance(caDigestAlg);
+	    der = cert.getTBSCertificate();
+	    ca_der = issuer.getTBSCertificate();
 	}
 	catch(Exception ex) {
 	    if(debug)ex.printStackTrace();
+	    return;
 	}
+	String pem = new String(Base64.encode(der));
+	hash = hash(der, certDigest);
+	ca_hash = hash(ca_der, issuerDigest);
 
-	objectclass.add("xuda_certificate");
-	dn = "md5=" + 
-	set.put("md5", "md5");
-	set.put("ca_md5", "md5");
-	set.put("serial_no", "md5");
-	set.put("cn", "Foo");
-	set.put("Serial no. = ", cert.getSerialNumber());
-	set.put("notbefore_dte=", day.format(cert.getNotBefore()));
+        dn = digestAlg + "=" +  toHex(hash);
+	set.put("md5", toHex(hash));
+	set.put("ca_md5", toHex(ca_hash));
+	set.put("serial_no",
+		cert.getSerialNumber().toString(16).toUpperCase());
+	set.put("notbefore_dte", day.format(cert.getNotBefore()));
 	set.put("notbefore_tim" , time.format(cert.getNotBefore()));
-	set.put("notafter_dte=", day.format(cert.getNotAfter()));
+	set.put("notafter_dte", day.format(cert.getNotAfter()));
 	set.put("notafter_tim" , time.format(cert.getNotAfter()));
+	parseDN(cert.getIssuerDN().getName(), set);
     }
 
-    public void put() { }
+    public void parseDN(String dn, Attributes attribs) { 
+	StringTokenizer parser = new StringTokenizer(dn, ",=");
+	while(parser.hasMoreElements()) {
+	    try {
+		attribs.put(parser.nextToken().trim().toLowerCase(), 
+			    parser.nextToken());
+	    }
+	    catch(Exception ex) {
+		if(debug)ex.printStackTrace();
+	    }
+	}
+    }
 
     /**
      * Generic method to format the Attributes. Displays all the multiple 
@@ -155,9 +196,9 @@ import com.nai.security.crypto.Base64;
 	try {
 	    for (NamingEnumeration enum = attrs.getAll(); enum.hasMore();) {
 		Attribute attrib = (Attribute)enum.next();
-		System.out.println("ATTRIBUTE :" + attrib.getID());
+		System.out.print("ATTRIBUTE :" + attrib.getID());
 		for (NamingEnumeration e = attrib.getAll();e.hasMore();)
-		    System.out.println("\t\t = " + e.next());
+		    System.out.println(" = " + e.next());
 	    }
 	    
 	} catch (Exception e) {
