@@ -41,7 +41,7 @@ import org.cougaar.core.security.services.util.SecurityPropertiesService;
 public class LdapUserServiceProvider
   implements ServiceProvider {
 
-  static private LdapUserService  _service = null;
+  private LdapUserService  _service = null;
 
   public synchronized Object getService(ServiceBroker sb,
                                         Object requestor,
@@ -50,7 +50,6 @@ public class LdapUserServiceProvider
     if (_service == null) {
       try {
         _service = new LdapUserServiceImpl();
-        KeyRingJNDIRealm.setDefaultLdapUserService(_service);
       } catch (NamingException ex) {
         // FIXME: This should probably log somewhere
         System.out.println("Couldn't create LdapUserService");

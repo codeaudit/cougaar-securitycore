@@ -43,7 +43,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.cougaar.core.security.services.crypto.LdapUserService;
-
+import org.cougaar.core.component.ServiceBroker;
 
 /**
  * A Realm extension for Tomcat 4.0 that uses SSL to talk to
@@ -75,7 +75,7 @@ import org.cougaar.core.security.services.crypto.LdapUserService;
  * @author George Mount <gmount@nai.com>
  */
 public class KeyRingJNDIRealm extends RealmBase {
-  private static LdapUserService _defaultUserService;
+  private static ServiceBroker _nodeServiceBroker;
   private LdapUserService _userService;
   private String          _certComponent;
   private String          _passwordAttr;
@@ -86,7 +86,8 @@ public class KeyRingJNDIRealm extends RealmBase {
    * given in the setDefaultLdapUserService call.
    */
   public KeyRingJNDIRealm() {
-    _userService = _defaultUserService;
+    _userService = (LdapUserService) _nodeServiceBroker.
+      getService(this, LdapUserService.class, null);
   }
 
   /** 
@@ -98,11 +99,10 @@ public class KeyRingJNDIRealm extends RealmBase {
   }
 
   /**
-   * Sets the default LdapUserService that this class uses when
-   * the default constructor is called.
+   * Sets the default LdapUserService using the node service broker
    */
-  public static void setDefaultLdapUserService(LdapUserService defaultService) {
-    _defaultUserService = defaultService;
+  public static void setNodeServiceBroker(ServiceBroker sb) {
+    _nodeServiceBroker = sb;
   }
 
   /**
