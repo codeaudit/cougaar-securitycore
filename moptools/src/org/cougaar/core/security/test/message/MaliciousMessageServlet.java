@@ -39,7 +39,7 @@ import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
  */
 public class MaliciousMessageServlet extends AdvancedSimpleServletComponent {
     /** the malicious verb */
-    public static final String VERB = "MaliciousTestVerb";
+    public String VERB = null;
     private static UnaryPredicate orginizationPredicate = new UnaryPredicate() {
             public boolean execute(Object o) {
                 if (o instanceof Organization) {
@@ -71,9 +71,15 @@ public class MaliciousMessageServlet extends AdvancedSimpleServletComponent {
         Collection parameters = getParameters();
         Iterator iter = parameters.iterator();
         String address = "";
-        if (iter.hasNext()) {
-            address = (String) iter.next();
-        }
+		int index=0;
+	   while (iter.hasNext()) {
+		   if(index==0){
+			   address = (String) iter.next();
+		   }else{
+			   VERB=(String)iter.next();
+		   }
+		   index++;
+	   }
 
 
         if (!address.equals("")) {

@@ -9,8 +9,7 @@
 package org.cougaar.core.security.test.message;
 
 
-import java.util.Collection;
-import java.util.Iterator;
+import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +27,8 @@ import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.util.UnaryPredicate;
 
-import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
+import java.util.Collection;
+import java.util.Iterator;
 
 
 /**
@@ -38,8 +38,6 @@ import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
  * @author mabrams
  */
 public class LegitimateMessageServlet extends AdvancedSimpleServletComponent {
-    /** the legitimate verb */
-    public static final String VERB = "LegitimateTestVerb";
     private static UnaryPredicate orginizationPredicate = new UnaryPredicate() {
             public boolean execute(Object o) {
                 if (o instanceof Organization) {
@@ -49,6 +47,9 @@ public class LegitimateMessageServlet extends AdvancedSimpleServletComponent {
                 return false;
             }
         };
+
+    /** the legitimate verb */
+    public String VERB = null;
 
     /**
      * returns the path for the servlet
@@ -64,15 +65,22 @@ public class LegitimateMessageServlet extends AdvancedSimpleServletComponent {
      * attempts to allocate a task to another agent.  This allocation causes a
      * message to be sent to the servlet.
      *
-     * @param arg0 
-     * @param arg1 
+     * @param arg0
+     * @param arg1
      */
     protected void execute(HttpServletRequest arg0, HttpServletResponse arg1) {
         Collection parameters = getParameters();
         Iterator iter = parameters.iterator();
         String address = "";
-        if (iter.hasNext()) {
-            address = (String) iter.next();
+        int index = 0;
+        while (iter.hasNext()) {
+            if (index == 0) {
+                address = (String) iter.next();
+            } else {
+                VERB = (String) iter.next();
+            }
+
+            index++;
         }
 
         if (!address.equals("")) {
