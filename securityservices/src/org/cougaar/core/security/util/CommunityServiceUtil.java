@@ -65,6 +65,15 @@ public class CommunityServiceUtil {
     _sb.releaseService(this, LoggingService.class, _log);
   }
 
+  /**
+   * Number of seconds to wait until we check whether we have
+   * a response from the community service. It's hard to know
+   * when we should have a response. This value is used only
+   * to help with debugging, e.g. if we timeout, then we dump
+   * a warning in the logger.
+   */
+  public static final long COMMUNITY_WARNING_TIMEOUT = 300 * 1000;
+
   public static final String SECURITY_COMMUNITY_TYPE = "Security";
   private static final String MANAGER_ROLE = "Manager";
 

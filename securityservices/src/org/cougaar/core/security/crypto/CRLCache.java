@@ -63,6 +63,7 @@ import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.SchedulerService;
 import org.cougaar.core.service.AlarmService;
+import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
@@ -111,7 +112,8 @@ final public class CRLCache
   private CommunityService _communityService;
   private ConfigParserService configParser = null; 
   private NodeConfiguration nodeConfiguration;
-  
+  private ThreadService _threadService;
+
   protected String blackboardClientName;
   protected AlarmService alarmService;
   
@@ -218,7 +220,7 @@ final public class CRLCache
       }
     }
   }
-  
+
   public void startThread() {
     Thread td=new Thread(this,"crlthread");
     td.setPriority(Thread.NORM_PRIORITY);
@@ -835,7 +837,7 @@ final public class CRLCache
   private void setMySecurityCommunity(Collection c) {
     _mySecurityCommunities = c;
     if (_mySecurityCommunities.isEmpty()) {
-      log.warn("Agent is NOT part of ANY SECURITY COMMUNITY:" +
+      log.info("Security community information not found yet :" +
                myAddress);
     } else if (log.isDebugEnabled()) {
       log.debug("Agent " + myAddress + " security communities: " +
@@ -893,9 +895,27 @@ final public class CRLCache
     if (myAddress != null && blackboardService != null) {
       startCrlPoll();
     }
-        
+    if (_threadService != null) {
+      _threadService.scheduleAtFixedRate(
+	new CommunityTimerTask(), 0L,
+	CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT);
+    }
   }
   
+  private class CommunityTimerTask extends TimerTask {
+    private long count;
+    public void run() {
+      count++;
+      if (log.isWarnEnabled() && (_mySecurityCommunities == null || 
+				  _mySecurityCommunities.isEmpty())) {
+	log.warn("Agent is not part of any community: " + myAddress
+		 + " - " + count + " checks so far - Timeout=" +
+		 CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT / 1000
+		 + "s");
+      }
+    }
+  }
+
   private class GetCommunities implements CommunityResponseListener {
     public void getResponse(CommunityResponse response) {
       Object resp = response.getContent();
@@ -964,6 +984,9 @@ final public class CRLCache
       } else if ( sc == CrlManagementService.class ) {
         crlMgmtService=(CrlManagementService)
           sb.getService(CRLCache.this, CrlManagementService.class, null);
+      } else if ( sc == ThreadService.class) {
+	_threadService = (ThreadService)
+	  sb.getService(this, ThreadService.class, null);
       } else if ( sc == CommunityService.class ) {
         _communityService = (CommunityService)
           serviceBroker.getService(CRLCache.this, 
