@@ -179,7 +179,7 @@ public class CertificateDetailsServlet extends  HttpServlet
 		+ ldapentries[0].getUniqueIdentifier()+"\">");
     if((role==null)||(role=="")) {
       if (log.isWarnEnabled()) {
-	log.warn("got role as null or empty in certificate details:::::++++");
+	log.warn("got role as null or empty in certificate details");
       }
     }
     else {

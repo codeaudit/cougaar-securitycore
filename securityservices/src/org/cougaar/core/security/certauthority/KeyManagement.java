@@ -1280,7 +1280,7 @@ public class KeyManagement
       //caprivatekey,caPolicy.CRLalgorithmId.getName());
     }
     catch (MultipleEntryException miop) {
-      String msg = "Found multiple entries. ldapFilter:" + ldapFilter;
+      String msg = "Found multiple entries. ldapFilter:" + ldapFilter + ". Reason: " + miop.getMessage();
       log.warn(msg, miop);
       throw new IOException(msg);
     }

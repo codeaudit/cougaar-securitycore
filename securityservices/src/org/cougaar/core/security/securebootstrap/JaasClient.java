@@ -229,7 +229,7 @@ public class JaasClient {
   private Object doAs(Subject subj, java.security.PrivilegedAction action, boolean displaySubject) {
     Object o = null;
 
-    if (debug > 0 && displaySubject) {
+    if ((debug > 0) && displaySubject) {
       printPrincipalsInSubject(subj);
     }
 
@@ -255,7 +255,7 @@ public class JaasClient {
     throws Exception {
     Object o = null;
 
-    if (debug > 0 && displaySubject) {
+    if ((debug > 0) && displaySubject) {
       printPrincipalsInSubject(subj);
     }
     
@@ -270,7 +270,7 @@ public class JaasClient {
      */
     o = Subject.doAs(subj, action);
 
-    if (debug > 0 && displaySubject) {
+    if ((debug > 0) && displaySubject) {
       System.out.println("JaasClient. doAs done ");
     }
     return o;

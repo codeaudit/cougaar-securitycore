@@ -41,9 +41,12 @@ import javax.naming.NamingException;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceRevokedListener;
+import org.cougaar.core.component.ServiceRevokedEvent;
 
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.CertificateType;
+import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.crypto.MultipleEntryException;
 import org.cougaar.core.security.crlextension.x509.extensions.*;
 
@@ -54,9 +57,23 @@ public class OpenLdapCertDirectoryService
   public static final String issuingdpointname="IssuingDistibutionPoint";
   public static final String revoked="3";
 
+  private KeyRingService ksr;
+
   public OpenLdapCertDirectoryService(String aURL, ServiceBroker sb)
   {
     super(aURL, sb);
+
+    // Retrieve KeyRing service
+    ksr = (KeyRingService)
+      sb.getService(this,
+		    KeyRingService.class,
+		    new ServiceRevokedListener() {
+			public void serviceRevoked(ServiceRevokedEvent re) {
+			  if (KeyRingService.class.equals(re.getService()))
+			    ksr  = null;
+			}
+		      });
+
   }
 
   public void setDirectoryServiceURL(String aURL) {
@@ -485,11 +502,12 @@ public class OpenLdapCertDirectoryService
     try {
       if(namingenum!=null) {
 	for(;namingenum.hasMore();) {
-	  if(log.isDebugEnabled())
-	    log.debug(" inside for loop of  get ldap entry :");
+	  if(log.isDebugEnabled()) {
+	    log.debug("Inside for loop of  get ldap entry :");
+	  }
 	  result=(SearchResult)namingenum.next();
 	  dump(result);
-	  log.debug("result is " +result.toString());
+	  log.debug("Result is " +result.toString());
 	  attributes =result.getAttributes();
 	  CertificateRevocationStatus status=
 	    getCertificateRevocationStatus(attributes);
@@ -505,16 +523,20 @@ public class OpenLdapCertDirectoryService
 	  }
 	}
 	// result=(SearchResult)namingenum.next();
-	if(log.isDebugEnabled()) {
-	  log.debug("Search results: "
-		    + filter.toString() + "  is :"
-		    + activeentry.size()
-		    + " result is :"
-		    + (result == null ? null : result.toString()));
+	String resultMsg = null;
+	if(log.isDebugEnabled() || activeentry.size()>1) {
+	  resultMsg = "Search results: "
+	    + filter.toString() + "  is :"
+	    + activeentry.size()
+	    + " result is :"
+	    + (result == null ? null : result.toString());
+	  log.debug(resultMsg);
 	}
 	if(activeentry.size()>1) {
-	  throw new MultipleEntryException("Found multiple active entries for filter : "
-					   +filter.toString());
+	  String msg = "Found " + activeentry.size() + " active entries: "
+	    + resultMsg;
+	  log.info(msg);
+	  //throw new MultipleEntryException(msg);
 	}
 	if (result == null && !activeentry.isEmpty()){
 	  result=(SearchResult)activeentry.elementAt(0);
@@ -529,6 +551,7 @@ public class OpenLdapCertDirectoryService
     }
     return result;
   }
+
   public void dump (SearchResult result)
     throws NamingException {
     Attributes answer = result.getAttributes();
@@ -596,6 +619,22 @@ public class OpenLdapCertDirectoryService
     X509CRLEntry[] crlentryarray=new X509CRLEntry[crlentrys.size()+1];
     crlentrys.copyInto(crlentryarray);
 
+    X509Certificate issuercertificate = null;
+    try {
+      X509Certificate[] certChain = ksr.checkCertificateTrust(userCert);
+      if (certChain.length > 1) {
+	issuercertificate = certChain[1];
+      }
+      else {
+	log.error("Certificate chain cannot be constructed.");
+      }
+    }
+    catch (Exception e) {
+      log.warn("Unable to build certificate chain of certificate to be revoked");
+      return false;
+    }
+
+    /*
     String issuerdn=userCert.getIssuerDN().getName();
     String filterforIssuer=parseDN(issuerdn);
     SearchResult issuerresult=getLdapentry(filterforIssuer,false);
@@ -625,6 +664,8 @@ public class OpenLdapCertDirectoryService
       }
       return false;
     }
+    */
+
     PublicKey issuerPublicKey=issuercertificate.getPublicKey();
     String userDN=userCert.getSubjectDN().getName();
     CRLExtensions  extensions=null;
@@ -683,22 +724,20 @@ public class OpenLdapCertDirectoryService
 	  log.debug("Extension was null creating new extension ");
 	  extensions=new CRLExtensions();
 	}
-	log.debug( " ** extension was not null  :"+extensions.toString());
+	log.debug("Extension was not null  :"+extensions.toString());
 	idpext=new  IssuingDistributionPointExtension (false,false,true);
 	extensions.set(idpext.getName(),idpext);
 	log.debug( " Issuing point extension created is :"+extensions.toString());
       }
       //CRLExtensions crlext=new CRLExtensions();//CertificateIssuerExtension
-      log.debug(" Going to create x500 name :"+ userCert.getIssuerDN().getName());
+      log.debug("Going to create x500 name :"+ userCert.getIssuerDN().getName());
       X500Name username=new X500Name(userCert.getIssuerDN().getName());
-      log.debug(" Success in creating x500 name  :"+ username.toString()+ "class loader name is :"+
-		username.getClass().getClassLoader());
+      log.debug("Success in creating x500 name  :"+ username.toString());
       CougaarGeneralNames gns=	new  CougaarGeneralNames();
-      log.debug(" Success in creating GeneralNames  :"+ "class loader name is :"+gns.getClass().getClassLoader());
-      log.debug(" before adding x500 name  GeneralNames  :");
+      log.debug("Success in creating GeneralNames");
+      log.debug("before adding x500 name  GeneralNames");
       gns.add(username);
       CertificateIssuerExtension cie=new CertificateIssuerExtension();
-      log.debug("certificateext  class was loader by:"+ cie.getClass().getClassLoader());
       CertificateIssuerExtension certificateext=new  CertificateIssuerExtension(gns);
       CRLExtensions crlentryext =new CRLExtensions();
       log.debug(" going to set extension with name :"+certificateext.getName());
