@@ -454,11 +454,17 @@ public class AccessAgentProxy
     }
 
     if(verb == null || verbs.length == 0) {
+      if(log.isDebugEnabled()){
+	log.debug("Unable to find verb:" + verb + " in policy:" + verbs);
+      }
       return false;		// we have no policy so return
     }
 
     if( verbs[0].toString()=="ALL" ) {
-      return false;
+      if(log.isDebugEnabled()){
+	log.debug("ALL are kept.");
+      }
+      return false;  //all allowed, no removal.
     }
 
     boolean remove = true;
@@ -469,16 +475,24 @@ public class AccessAgentProxy
       }
       catch(Exception e) {
         //probably a cast error, quietly skip
-	log.info("Unable to match verbs:" + e);
+	if(log.isDebugEnabled()){
+	  log.debug("Unable to construct verbs from policy:" + e.getMessage());
+	}
       }
       if (v==null) {
 	continue;
       }
       if(verb.equals(v)) {
-	remove = false;
+	remove = false;  // we don't want to remove the ones found.
+	if(log.isDebugEnabled()){
+	  log.debug("found verb to keep:" + v + " for " + source + "->" + target);
+	}
       }
     }
-    return remove;		// we don't want to remove the ones found. 
+    if(remove && log.isDebugEnabled()){
+      log.debug("found unwanted verb:" + verb + " for " + source + "->" + target);
+    }
+    return remove;		 
   }
   
   private TrustSet[] checkOutgoing(Message msg) {

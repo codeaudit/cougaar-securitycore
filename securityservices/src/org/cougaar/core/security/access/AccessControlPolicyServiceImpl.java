@@ -323,9 +323,11 @@ public class AccessControlPolicyServiceImpl
     if(log.isDebugEnabled()) {
       log.debug("Msg OUT:" + source + "->" + target
 		       +". Verbs:");
-      for(int i = 0; i < r.size(); i++)
-      log.debug(r.get(i).toString() + ":"
+      if(r!=null){
+	for(int i = 0; i < r.size(); i++)
+	  log.debug(r.get(i).toString() + ":"
 			 + r.get(i).getClass().getName() + " ");
+      }
     }
     Verb[] verbs = new Verb[r.size()];
     try {
