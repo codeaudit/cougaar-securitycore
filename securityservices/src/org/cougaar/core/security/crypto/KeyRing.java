@@ -424,5 +424,9 @@ final public class KeyRing
   public void updateNS(String commonName) {
     keystore.updateNS(commonName);
   }
+
+  public void updateNS(X500Name x500name) {
+    keystore.updateNS(x500name);
+  }
 }
 
