@@ -40,13 +40,14 @@ def checkPolicy(run, p)
 end
 
 def tally(p, s)
-  if true
-    puts "#{s}: Count = #{p.policyCount}, Density = #{p.density}"
+  if false
+    puts "#{s}: Count = #{p.policyCount}, Density = #{100 * p.density}%"
   end
 end
 
 
 def installPolicies(p)
+  p.commonDecls()
   p.allowNameService()
   tally(p,"name service")
   p.allowSpecialCommunity()
@@ -76,11 +77,12 @@ Cougaar.new_experiment("Test").run(1) do
 
   do_action "GenericAction" do |run|
     begin 
-      p = CommPolicy.new(run)
+      p = CommPolicies.new(run)
 #      load 'debug.rb'
       installPolicies(p)
       puts "#{checkPolicy(run, p)} bad communication paths"
-      puts "Density = #{100 * p.density}"
+      puts "Density = #{100 * p.density}%"
+      p.writePolicies("#{DATASET}/policies")
 #      load "debug.rb"
     rescue => ex
       puts "Exception found = #{ex}, trace = #{ex.backtrace().join("\n")}"
