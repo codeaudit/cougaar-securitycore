@@ -60,23 +60,31 @@ public class KeyManagement
   }
 
   public static void main(String[] args) {
-    BufferedReader pkcs10stream = null;
-    String pkcs10filename = args[0];
-    PKCS10 pkcs10Request = null;
-    PrintStream dbgout = new PrintStream(System.out);
-    String CAsigner = "bootstrapper";
+    String option = args[0];
     KeyManagement km = new KeyManagement();
 
-    ArrayList pkcs7Certificates = new ArrayList();
-    try {
-      ArrayList pkcs10req = km.getSigningRequest(pkcs10filename);
-      for (int i = 0 ; i < pkcs10req.size() ; i++) {
-	pkcs7Certificates.add(km.signX509Certificate((PKCS10)pkcs10req.get(i), CAsigner));
+    if (option.equals("-10")) {
+      BufferedReader pkcs10stream = null;
+      PrintStream dbgout = new PrintStream(System.out);
+      String pkcs10filename = args[1];
+      PKCS10 pkcs10Request = null;
+      String CAsigner = "bootstrapper";
+
+      ArrayList pkcs7Certificates = new ArrayList();
+      try {
+	ArrayList pkcs10req = km.getSigningRequest(pkcs10filename);
+	for (int i = 0 ; i < pkcs10req.size() ; i++) {
+	  pkcs7Certificates.add(km.signX509Certificate((PKCS10)pkcs10req.get(i), CAsigner));
+	}
       }
+      catch (Exception e) {
+	System.out.println("Exception: " + e);
+	e.printStackTrace();
+      }
+
     }
-    catch (Exception e) {
-      System.out.println("Exception: " + e);
-      e.printStackTrace();
+    else if (option.equals("-7")) {
+      km.printPkcs7Request(args[1]);
     }
   }
   public ArrayList getSigningRequest(String filename)
@@ -88,6 +96,19 @@ public class KeyManagement
     }
     BufferedReader is = new BufferedReader(new FileReader(filename));
     return getSigningRequest(is);
+  }
+
+  public void printPkcs7Request(String filename)
+  {
+    try {
+      FileInputStream is = new FileInputStream(filename);
+      PKCS7 pkcs7 = new PKCS7(is);
+      System.out.println("PKCS7: " + pkcs7);
+    }
+    catch (Exception e) {
+      System.out.println("Exception: " + e);
+      e.printStackTrace();
+    }
   }
 
   /**

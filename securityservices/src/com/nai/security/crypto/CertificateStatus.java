@@ -36,15 +36,22 @@ public class CertificateStatus
   /** Creates new CertificateStatus */
   private java.security.cert.Certificate certificate = null;
   private boolean isValid = true;
+  private int certificateOrigin;
+  
+  /** Possible values for certificateOrigin */
+  public static final int CERT_KEYSTORE = 1;
+  public static final int CERT_LDAP = 2;
 
-  public CertificateStatus(java.security.cert.Certificate cert, boolean status) {
+  public CertificateStatus(java.security.cert.Certificate cert, boolean status, int origin) {
     certificate = cert;
     isValid = status;
   }
 
+  /*
   public CertificateStatus(Certificate cert) {
     certificate = cert;
   }
+  */
 
   public java.security.cert.Certificate getCertificate() {
     return certificate;
@@ -52,5 +59,9 @@ public class CertificateStatus
 
   public boolean isValid() {
     return isValid;
+  }
+
+  public int getCertificateOrigin() {
+    return certificateOrigin;
   }
 }
