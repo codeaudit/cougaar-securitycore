@@ -31,7 +31,7 @@ import java.io.*;
 import java.net.*;
 import java.lang.*;
 
-import org.cougaar.core.security.securebootstrap.JaasClient;
+import org.cougaar.core.security.auth.JaasClient;
 
 public class Plugin
 {
