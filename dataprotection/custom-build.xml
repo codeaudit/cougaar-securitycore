@@ -14,6 +14,8 @@
         <pathelement location="${cougaar.install.path}/lib/mtsstd.jar"/>
         <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
         <pathelement location="${cougaar.install.path}/sys/concurrent.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/planning.jar"/>
+	<pathelement location="${securityservices.base}/lib/security/secure_util.jar"/>
     </path>
 
 </project>
