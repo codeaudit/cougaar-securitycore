@@ -34,17 +34,17 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.Service;
 
 // Cougaar security services
-import org.cougaar.core.security.services.crypto.LdapUserService;
-import org.cougaar.core.security.crypto.ldap.LdapUserServiceImpl;
+import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.security.acl.user.LdapUserServiceImpl;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
-public class LdapUserServiceProvider
+public class UserServiceProvider
   extends BaseSecurityServiceProvider
 {
-  private LdapUserService  _service = null;
+  private UserService  _service = null;
 
-  public LdapUserServiceProvider(ServiceBroker sb, String community) {
+  public UserServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
   }
 
