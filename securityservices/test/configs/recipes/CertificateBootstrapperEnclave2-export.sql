@@ -114,7 +114,7 @@ REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VAL
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0010CertificateBootstrapperEnclave2','Number of Arguments',0.000000000000000000000000000000,'1');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0010CertificateBootstrapperEnclave2','Target Component Selection Query',1.000000000000000000000000000000,'recipeQueryEnclave2NodeAgentsExceptCA');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0010CertificateBootstrapperEnclave2','Type of Insertion',5.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0010CertificateBootstrapperEnclave2','Value 1',4.000000000000000000000000000000,'chestnut:Enclave2CA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0010CertificateBootstrapperEnclave2','Value 1',4.000000000000000000000000000000,'pear:Enclave2CA');
 UNLOCK TABLES;
 
 --
