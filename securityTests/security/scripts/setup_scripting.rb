@@ -8,3 +8,4 @@ CIP = ENV['CIP']
 $:.unshift File.join(CIP, 'csmart', 'lib')
 # $: << File.join('~', 'UL', 'automation')   # CVS
 # $: << File.join(CIP, 'csmart', 'lib')      # cougaar lib
+

@@ -10,15 +10,21 @@
       <facet role="NameServer"/> 
       <facet role="RootCertificateAuthority"/> 
     </node> 
+  </host> 
+  <host name='HOST2'> 
+    <facet enclave='Conus'/> 
     <node name='CA-NODE'> 
       <facet role="CertificateAuthority"/> 
     </node> 
+  </host> 
+  <host name='HOST3'> 
+    <facet enclave='Conus'/> 
     <node name='MGMT-NODE'> 
       <facet role="AS-Management"/> 
       <facet role="AS-RootManagement"/> 
     </node> 
   </host> 
-  <host name='HOST2'> 
+  <host name='HOST4'> 
     <facet enclave='Conus'/> 
     <node name='NodeA'> 
       <!-- <facet role="optimizeIt"/> -->
@@ -26,6 +32,9 @@
         <facet org_id='OSD.GOV'/> 
       </agent>
     </node> 
+  </host> 
+  <host name='HOST5'> 
+    <facet enclave='Conus'/> 
     <node name='NodeB'> 
       <agent name='AgentB'/> 
     </node> 

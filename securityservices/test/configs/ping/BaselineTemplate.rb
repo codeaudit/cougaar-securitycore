@@ -4,7 +4,7 @@ require 'ultralog/scripting'
 include Cougaar
 
 HOSTS_FILE = Ultralog::OperatorUtils::HostManager.new.get_hosts_file
-puts "Host file #{HOSTS_FILE}"
+#puts "Host file #{HOSTS_FILE}"
 
 Cougaar::ExperimentMonitor.enable_stdout
 Cougaar::ExperimentMonitor.enable_logging
@@ -21,6 +21,8 @@ Cougaar.new_experiment().run(parameters[:run_count]) {
   # will work in a stand-alone ACME setup. 
   host_file = HOSTS_FILE
   #host = @hostname unless host 
+at :build_host_file
+
   Dir.glob(File.join(".", "example-hosts-secureMV.xml")).each do |file| 
     ts = Cougaar::SocietyBuilder.from_xml_file(file).society 
     host_file = file 
