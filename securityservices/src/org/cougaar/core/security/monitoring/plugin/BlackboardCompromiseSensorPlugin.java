@@ -110,7 +110,9 @@ public class BlackboardCompromiseSensorPlugin extends SensorPlugin {
      */
     public static void publishEvent(BlackboardFailureEvent event) {
         String data = event.getData();
-
+	   if(logging.isDebugEnabled()){
+	   		logging.debug("PublishAgentCompromiseEvent");
+	   }
         //data = data + ",manager=" + myManagerAddress.getAddress();
         //BlackboardFailureEvent bEvent = new BlackboardFailreEvent(event.getSource(), event.getTarget(), event.getReason(), event.getReasonIdentifier(), data,event.getDataIdentifier());
         publishEvent(BlackboardCompromiseSensorPlugin.class, event);
@@ -158,6 +160,9 @@ public class BlackboardCompromiseSensorPlugin extends SensorPlugin {
         Enumeration enumeration = this.compromiseSubs.getAddedList();
         while (enumeration.hasMoreElements()) {
             Event event = (Event) enumeration.nextElement();
+            if(logging.isDebugEnabled()){
+            	logging.debug("PublishSharedRelayEvent");
+            }
             if (!(this.getAgentIdentifier().equals(this.myManagerAddress))) {
                 SharedDataRelay relay = new SharedDataRelay(uidService.nextUID(),
                         this.getAgentIdentifier(), myManagerAddress, event, null);
