@@ -224,7 +224,11 @@ public class CryptoManagerServiceImpl
           nameList = keyRing.getX500NameFromNameMapping(name);
         }
         else {
-          nameList = keyRing.findDNFromNS(name);
+          try {
+            nameList = keyRing.findDNFromNS(name);
+          } catch (IOException iox) {
+            continue;
+          }
         }
 
         for (int i = 0; i < nameList.size(); i++) {
