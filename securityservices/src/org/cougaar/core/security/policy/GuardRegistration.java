@@ -189,6 +189,7 @@ public abstract class GuardRegistration
     policyID =          (String) aMsg.getId();
     policyName =        (String) aMsg.getName();
     policyDescription = (String) aMsg.getDescription();
+    policyType =        (String) aMsg.getType();
  
     if (log.isDebugEnabled()) {
       log.debug("Policy Message: " + aMsg.toString());
