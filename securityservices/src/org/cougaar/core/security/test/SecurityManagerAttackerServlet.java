@@ -37,24 +37,18 @@ import sun.security.x509.*;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
-import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.certauthority.*;
+import org.cougaar.core.servlet.SimpleServletSupport;
 
 public class SecurityManagerAttackerServlet
   extends  HttpServlet
 {
   private LoggingService log;
 
-  private SecurityServletSupport support;
-  public SecurityManagerAttackerServlet(SecurityServletSupport support) {
+  private SimpleServletSupport support;
+
+  public void setSimpleServletSupport(SimpleServletSupport support) {
     this.support = support;
-    log = (LoggingService)
-      support.getServiceBroker().getService(this,
-			       LoggingService.class, null);
+    log = (LoggingService) support.getLog();
   }
 
   public void init(ServletConfig config)
@@ -62,17 +56,17 @@ public class SecurityManagerAttackerServlet
   {
   }
 
-  public void doPost (HttpServletRequest  req, HttpServletResponse res)
+  public void doPost (HttpServletRequest req, HttpServletResponse res)
     throws ServletException,IOException
   {
     PrintWriter out=res.getWriter();
-
     String results = "";
     File f = null;
     boolean done = false;
+    String fileName = "/etc/passwd";
     try {
       // Try to access a resource with having appropriate privileges
-      f = new File("/etc/passwd");
+      f = new File(fileName);
       done = f.delete();
       if (done) {
 	results = " File was successfully deleted";
@@ -93,10 +87,8 @@ public class SecurityManagerAttackerServlet
     out.println("{ form.submit()}</script>");
     out.println("</head>");
     out.println("<body>");
-    out.println("<H2>Java Security Manager attacke</H2>");
-
-    out.println("Results: " + results);
-
+    out.println("<H2>Java security manager exception generator</H2>");
+    out.println("Results: " + fileName + ":" + results);
     out.println("</body></html>");
     out.flush();
     out.close();
@@ -107,27 +99,21 @@ public class SecurityManagerAttackerServlet
   {
     res.setContentType("Text/HTML");
     PrintWriter out=res.getWriter();
+    String uri=req.getRequestURI();
+
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
     out.println("<head>");
-    out.println("<title>Certificate List from Ldap </title>");
+    out.println("<title>Java security manager exception generator</title>");
     out.println("</head>");
     out.println("<body>");
-    out.println("<H2>Certificate List</H2>");
+    out.println("<H2>Java security manager exception generator</H2>");
 
-    out.println("<table>");
-    out.println("<form action=\"\" method =\"post\">");
-    out.println("<tr ><td colspan=\"3\">");
-    out.println("</select>");
-      
-    // Table separators
-    out.println(" <br> <br></td></tr>");
-    out.println("<tr ><td colspan=\"3\">");
-      
-    out.println(" <br> <br></td></tr>");
-    out.println("</tr><tr><td></td><td><br><input type=\"submit\">&nbsp;&nbsp;&nbsp;");
-    out.println("<input type=\"reset\"></td><td></td></tr>");
-    out.println("</form></table>");
+    out.println("<form action=\"" + uri + "\" method =\"post\">");
+    out.println("Click on submit to generate a security manager exception &nbsp;");
+    out.println("<input type=\"submit\">&nbsp;");
+    out.println("<input type=\"reset\">");
+    out.println("</form>");
 
     out.println("</body></html>");
     out.flush();

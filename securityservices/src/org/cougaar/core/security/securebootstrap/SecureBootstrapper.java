@@ -106,9 +106,10 @@ public class SecureBootstrapper
       jc.doAs(node,
 	      new java.security.PrivilegedExceptionAction() {
 		  public Object run() {
-		    System.out.println("Node being loaded: "
-				       + node
-				       + " security context is:");
+		    if (loudness > 0) {
+		      System.out.println("Node being loaded: " + node
+					 + " security context is:");
+		    }
 		    JaasClient.printPrincipals();
 		    SecureBootstrapper.super.launchMain(cl, classname, args);
 		    return null;
@@ -152,10 +153,12 @@ public class SecureBootstrapper
     if (loudness>0) {
       System.out.println("SecureBootstrapper.createClassLoader");
     }
+    removeBootClasses(l);
     URL urls[] = (URL[]) l.toArray(new URL[l.size()]);
 
     boolean useAuthenticatedLoader =
-      (Boolean.valueOf(System.getProperty("org.cougaar.core.security.useAuthenticatedLoader", "true"))).booleanValue();
+      (Boolean.valueOf(System.getProperty("org.cougaar.core.security.useAuthenticatedLoader",
+					  "true"))).booleanValue();
 
     if (useAuthenticatedLoader == true) {
       if (loudness > 0) {

@@ -1551,7 +1551,12 @@ public class DirectoryKeyStore
       if (param.isCertAuth && cryptoClientPolicy.isRootCA()) {
 	// If DirectoryKeyStore is used in the context of a Certificate
 	// Authority, then a self-signed certificate is OK.
-	return true;
+        // Self-signed certificate should only be valid if it is type CA
+        String title = CertificateUtility.findAttribute(principalSigner.getName(), "t");
+        if (title != null && !title.equals(CERT_TITLE_CA))
+          return false;
+
+        return true;
       }
       else {
 	return signedByAtLeastOneCA;

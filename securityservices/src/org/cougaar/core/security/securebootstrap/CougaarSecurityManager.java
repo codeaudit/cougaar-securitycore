@@ -29,14 +29,16 @@ package org.cougaar.core.security.securebootstrap;
 // Cougaar overlay
 import org.cougaar.core.security.constants.IdmefClassifications;
 
-import java.io.*;
-import java.net.*;
-import java.lang.*;
 import java.text.DateFormat;
+import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.ArrayList;
 import java.security.Permission;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
@@ -108,8 +110,6 @@ public class CougaarSecurityManager
 			 defaultLogName);
     type= IdmefClassifications.SECURITY_MANAGER_EXCEPTION;
     eventholder= EventHolder.getInstance();
-    //System.out.println(" Event Holder in Cougaar security mananger got loaded by :"+eventholder.getClass().getClassLoader().toString() );
-    //System.out.println("Instance of Event holder in Cougaar security Manger :"+eventholder.toString());
     try {
       auditlog = new PrintStream(new FileOutputStream(auditlogname));
       auditlog.print("<logtime>"+DateFormat.getDateInstance().format(new Date())
@@ -124,11 +124,6 @@ public class CougaarSecurityManager
       System.out.println("Cougaar Security Manager. Logging to " + auditlogname);
     }
     ClassLoader cloader=eventholder.getClass().getClassLoader();
-    /* if(cloader!=null)
-     System.out.println(" Event Holder in Cougaar security mananger got loaded by :"+cloader.toString() );
-    else 
-      System.out.println(" Got class loader null for event holder in security manager  :");
-    */
   }
    
   public EventHolder getMREventQueue() throws SecurityException {
@@ -145,6 +140,28 @@ public class CougaarSecurityManager
       Machine Error, Internal Error
   */
   public void checkPermission(Permission perm) {
+    /* Get the current execution stack as an array of classes.
+     * Note that the array returned by getClassContext() may not
+     * have the same length as the array of classes returned by
+     * Throwable.getStackTrace() for the security exception thrown by this method.
+     * In general, Throwable.getStackTrace() has all the classes from getClassContext()
+     * AND additional classes from the JRE, because this method is calling
+     * super.checkPermission().
+     * However, the stack returned by Throwable.getStackTrace() may not have all the
+     * stack frames. Some JVMs are allowed to omit one or more stack frames.
+     *
+     * Example:
+     * java.security.AccessControlContext.checkPermission()
+     * java.security.AccessController.checkPermission()
+     * java.lang.SecurityManager.checkPermission()
+     * org.cougaar.core.security.securebootstrap.CougaarSecurityManager.checkPermission()
+     * ...
+     * Stack bottom
+     *
+     * getClassContext() will return an array containing everything between
+     * Stack bottom and CougaarSecurityManager.
+     *
+     */
     Class[] stack = getClassContext();
     try {
       
@@ -216,10 +233,10 @@ public class CougaarSecurityManager
 				    final Class[] stack,
 				    final boolean displaySubject) {
     try {
-      System.out.println("Checking permissions for " + perm + " - Exception:"+ e);
+      //System.out.println("Logging permission failure for " + perm + " - Exception:"+ e);
 
-    // Could be used to report checkPermission failures to a Monitoring & Response
-    // Plugin.
+      // Could be used to report checkPermission failures to a Monitoring & Response
+      // Plugin.
       final String curTime = DateFormat.getDateInstance().format(new Date());
       final AccessControlContext acc = AccessController.getContext();
       final Vector principals=new Vector();
@@ -227,7 +244,7 @@ public class CougaarSecurityManager
 	  public Object run() {
 	    auditlog.print("<securityEvent><securityManagerAlarm><time>"
 			   + curTime + "</time><perm>" + perm + "</perm>\n");
-	     // Retrieve the subject associated with the current access controller context
+	    // Retrieve the subject associated with the current access controller context
 	    // See JaasClient to see how to report subject information when logging
 	    // security exceptions.
 	    
@@ -254,11 +271,13 @@ public class CougaarSecurityManager
 	      else {
 		eventholder.addEvent(
 		  new BootstrapEvent(type,Calendar.getInstance().getTime(),
-				     (Principal[])principals.toArray(new Principal[0]),outstream.toString()));
+				     (Principal[])principals.toArray(new Principal[0]),
+				     outstream.toString()));
 	      }
 	    }
 	    catch (Exception e) {
 	      auditlog.print("<IDMEF>Unable to publish IDMEF event. Reason:" + e + "<IDMEF>");
+	      e.printStackTrace(auditlog);
 	    }
 
 	    auditlog.print("<stack>\n");
@@ -281,46 +300,142 @@ public class CougaarSecurityManager
     }
   }
 
-  private void printStackTrace(Exception e, Class[] stack, Permission perm) {
-    StackTraceElement[] ste = e.getStackTrace();
-    ProtectionDomain pd = null;
-    CodeSource cs = null;
-    int j = 0;
-    boolean canDo = true;
+  /** Print the stack trace
+   * In addition to what the VM usually prints (method name, file name, line number) when
+   * an exception is thrown, this method attempts to print the jar file and whether
+   * the jar file had the privilege to perform the operation.
+   * Not all VMs return the same information, so this may not work on all VMs.
+   */
+  private void printStackTrace(Exception secexp, Class[] stack, Permission perm) {
+    StackTraceElement[] ste = secexp.getStackTrace();
+
+    // First, build a list of StackTraceElement and Class.
+    // The class array does not have the same number of elements as in the StackTraceElement
+    ArrayList stackElements = new ArrayList(ste.length);
+    int stackIndex = stack.length - 1;
+    int stackTraceIndex = ste.length - 1;
+    boolean modifyStackIndex;
+    boolean isNative;
+
+    while ((stackIndex >= 0) && (stackTraceIndex >= 0)) {
+      StackElementAndClass element = new StackElementAndClass();
+      element.canDo = null;
+      modifyStackIndex = false;
+      isNative = false;
+      if ((stackTraceIndex >= 0) && ste[stackTraceIndex].isNativeMethod()) {
+	isNative = true;
+      }
+      if ((stackIndex >= 0) && !isNative) {
+	// The SUN VM does not include native methods in the getStackContext()
+	element.stackClassElement = stack[stackIndex];
+	element.protectionDomain = element.stackClassElement.getProtectionDomain();
+	element.canDo = Boolean.valueOf(hasPrivileges(element.protectionDomain, perm));
+	modifyStackIndex = true;
+      }	
+      if (stackTraceIndex >= 0) {
+	if ((stackIndex < 0) ||
+	    isNative ||
+	    ((stackIndex >= 0) &&
+	     ste[stackTraceIndex].getClassName().equals(stack[stackIndex].getName()))) {
+	  // Some frames may be missing in the Throwable.getStackElements(),
+	  // according to the Java doc.
+	  element.stackTraceElement = ste[stackTraceIndex];
+	  stackTraceIndex--;
+	}
+      }
+      if ((stackIndex >= 0) && modifyStackIndex) {
+	stackIndex--;
+      }
+
+      stackElements.add(0, element);
+    }
+
+    boolean logProtectionDomain = false;
     boolean isFirstExceptionDone = false;
 
     // Loop through all stack elements and display information about each class
-    for (int i = 0 ; i < ste.length ; i++) {
-      String className = stack[j].getName();
-      String location = "";
-
-      if (ste[i].getClassName().equals(className)) {
-	// The class array does not have the same number of elements as in the StackTraceElement
-	// We need to find a match
-	pd = stack[j].getProtectionDomain();
-	canDo = hasPrivileges(pd, perm);
-	j++;
-      }
-
-      if (pd != null) {
-	cs = pd.getCodeSource();
-	if (cs != null && cs.getLocation() != null) {
-	  location = cs.getLocation().toString();
-	}
-      }
-      String logString = "at " + ste[i].getClassName()
-	+ "." + ste[i].getMethodName()
-	+ "(" + ste[i].getFileName()
-	+ ":" + ste[i].getLineNumber()
-	+ ")"
-	+ " - " + location
-	+ (canDo ? " (OK)" : " (NOK)");
-      if (!canDo && !isFirstExceptionDone) {
-	logString = logString + "\n" + pd.toString();
+    Iterator it = stackElements.iterator();
+    while (it.hasNext()) {
+      StackElementAndClass element = (StackElementAndClass) it.next();
+      logProtectionDomain = false;
+      if (element.canDo == Boolean.FALSE && !isFirstExceptionDone) {
 	isFirstExceptionDone = true;
+	logProtectionDomain = true;
       }
-      auditlog.println(logString);
+      logStackElement(element, logProtectionDomain);
     }
+    /*
+    auditlog.print("\n");
+    auditlog.print("\n");
+    secexp.printStackTrace(auditlog);
+
+    auditlog.print("\n");
+    auditlog.print("\n");
+    for (int i = 0 ; i < stack.length ; i++) {
+      auditlog.print(stack[i].getName() + "\n");
+    }
+    */
+  }
+
+  private void logStackElement(StackElementAndClass stackElement,
+			       boolean logProtectionDomain) {
+    String classUrl = "unknown location";
+    if (stackElement.protectionDomain != null) {
+      CodeSource cs = stackElement.protectionDomain.getCodeSource();
+      if (cs != null && cs.getLocation() != null) {
+	classUrl = cs.getLocation().toString();
+      }
+    }
+
+    String className = "";
+    String methodName = "";
+    String fileName = "";
+    int lineNumber = 0;
+    boolean isNative = false;
+
+    if (stackElement.stackClassElement != null) {
+      className = stackElement.stackClassElement.getName();
+      if (stackElement.stackTraceElement != null &&
+	  !className.equals(stackElement.stackTraceElement.getClassName())) {
+	System.err.println("Security Manager: Inconsistent stack frames");
+      }
+    }
+    if (stackElement.stackTraceElement != null) {
+      className = stackElement.stackTraceElement.getClassName();
+      methodName = stackElement.stackTraceElement.getMethodName();
+      fileName = stackElement.stackTraceElement.getFileName();
+      lineNumber = stackElement.stackTraceElement.getLineNumber();
+      isNative = stackElement.stackTraceElement.isNativeMethod();
+    }
+
+    String logString = "at " + className;
+    if (stackElement.stackTraceElement != null) {
+      logString = logString + "." + methodName;
+      if (isNative) {
+	logString = logString + "(Native method)";
+      }
+      else {
+	logString = logString + "(" + fileName
+	  + ":" + lineNumber
+	  + ")";
+      }
+    }
+    logString = logString + "\n     from " + classUrl + " ";
+
+    if (stackElement.canDo == null) {
+      logString = logString + "(??)";
+    }
+    else if (stackElement.canDo == Boolean.TRUE) {
+      logString = logString + "(OK)";
+    }
+    else {
+      logString = logString + "(NOK)";
+    }
+
+    if (logProtectionDomain && stackElement.protectionDomain != null) {
+      logString = logString + "\n" + stackElement.protectionDomain.toString();
+    }
+    auditlog.println(logString);
   }
 
   private boolean hasPrivileges(ProtectionDomain pd, Permission perm) {
@@ -328,5 +443,12 @@ public class CougaarSecurityManager
       return false;
     }
     return true;
+  }
+
+  private class StackElementAndClass {
+    public StackTraceElement stackTraceElement;
+    public Class stackClassElement;
+    public Boolean canDo = null;
+    public ProtectionDomain protectionDomain = null;
   }
 }

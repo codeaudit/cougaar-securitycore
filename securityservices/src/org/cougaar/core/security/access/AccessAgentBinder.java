@@ -22,7 +22,10 @@
 
 package org.cougaar.core.security.access;
 
-import org.cougaar.core.component.*;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceFilterBinder;
+import org.cougaar.core.component.BinderFactory;
+import org.cougaar.core.component.ContainerAPI;
 import org.cougaar.core.agent.Agent;
 import org.cougaar.core.agent.AgentBinder;
 import org.cougaar.core.agent.AgentManagerForBinder;
@@ -125,10 +128,17 @@ public class AccessAgentBinder
     public AccessAgentServiceBroker(ServiceBroker sb) {
       super(sb);
     }
-    
+   
+    /* ******************************************************************************************
+     * BEGIN AgentManagerForBinder Interface
+     * ******************************************************************************************/
     public String getName(){
       return getAgentIdentifier().toString();
     }
+
+    /* ******************************************************************************************
+     * BEGIN FilteringServiceBroker
+     * ******************************************************************************************/
 
     protected Object getServiceProxy(Object service, Class serviceclass, Object client)  {
       if(service instanceof MessageTransportService) {
@@ -160,5 +170,26 @@ public class AccessAgentBinder
       }
       return null;
     }
+
+    public void releaseService(Object requestor, Class serviceClass, Object service) {
+      if (log.isDebugEnabled()) {
+	log.debug("releaseService. requestor:" + requestor
+	  + " service: " + service + " serviceClass: " +  serviceClass);
+      }
+      super.releaseService(requestor, serviceClass, service);
+    }
+
+    /** 
+     * Called to release the AccessAgentProxy previously constructed by the binder.
+     * This method is called before the real service is released.
+     **/
+    protected void releaseServiceProxy(Object serviceProxy, Object service, Class serviceClass) {
+      if (log.isDebugEnabled()) {
+	log.debug("releaseServiceProxy. serviceProxy:" + serviceProxy
+	  + " service: " + service + " serviceClass: " +  serviceClass);
+      }
+      super.releaseServiceProxy(serviceProxy, service, serviceClass);
+    }
+
   }
 }

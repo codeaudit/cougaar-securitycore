@@ -228,8 +228,11 @@ public class CRLCache implements Runnable
     // check whether it is specified in the policy
     CertDirectoryServiceClient certificateFinder = keystore.getCACertDirServiceClient(distingushname);
     // check whether it is found in trust chain
-    if (certificateFinder == null)
+    if (certificateFinder == null) {
       certificateFinder = certstatus.getCertFinder();
+      if (log.isDebugEnabled())
+        log.debug("Get cert finder from status: " + certificateFinder);
+    }
     // pretty much not found, check it is in the naming service
     if (certificateFinder == null) {
       try {

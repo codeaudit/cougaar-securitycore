@@ -355,6 +355,14 @@ public class AgentIdentityServiceImpl
     /* Step 3 */
     keyRing.removeEntry(requestorAddress.toAddress());
 
+    // Enable this only if BUG 2251 has been fixed
+    if (log.isDebugEnabled()) {
+      log.debug("Delete keys from cache: "
+		+ requestorAddress.toAddress());
+    }
+    // Remove entry from certificate cache
+    keyRing.removeEntryFromCache(requestorAddress.toAddress());
+
     if (log.isDebugEnabled()) {
       log.debug("Successfully returning KeyIdentity for " + requestorAddress.toAddress());
     }

@@ -26,15 +26,21 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.io.*;
-import java.net.*;
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.zip.*;
-import java.util.jar.*;
-import java.security.*;
-import java.security.cert.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.Arrays;
+import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.Provider;
+import java.security.Security;
 
+// Cougaar core services
 import org.cougaar.bootstrap.Bootstrapper;
 
 public class BaseBootstrapper
@@ -155,11 +161,13 @@ public class BaseBootstrapper
   protected void createJarVerificationLog() {
   }
 
-  protected ClassLoader createClassLoader(List l) {
+  protected ClassLoader createClassLoader(List urlList) {
     if (loudness>0) {
       System.out.println("BaseBootstrapper.createClassLoader");
     }
-    URL urls[] = (URL[]) l.toArray(new URL[l.size()]);
+    removeBootClasses(urlList);
+
+    URL urls[] = (URL[]) urlList.toArray(new URL[urlList.size()]);
     return new BaseClassLoader(urls, loudness);
   }
 
@@ -254,4 +262,47 @@ public class BaseBootstrapper
     }
   }
 
+  /** Remove bootstrap jar files from the list of URLs.
+   * The list of URLs constructed by looking in the $CIP/lib and $CIP/sys
+   * directories may contain jar files which are already part of the boot class path.
+   * These jar files should be loaded by the system class loader directly.
+   * Here, we remove the boot jar files from the list.
+   */
+  protected void removeBootClasses(List urlList) {
+    String bootclassPathProp = System.getProperty("sun.boot.class.path");
+    if (loudness > 0) {
+      System.out.println("Boot Class Path:" + bootclassPathProp);
+    }
+    StringTokenizer st = new StringTokenizer(bootclassPathProp, ":");
+    ArrayList bootclassPath = new ArrayList();
+    while(st.hasMoreElements()) {
+      String s = st.nextToken();
+      try {
+	// Need to resolve symbolic names
+	URL url = new URL("file", "", (new File(s)).getCanonicalPath());
+	bootclassPath.add(url);
+      }
+      catch (Exception ex) {
+	System.out.println("Unable to parse " + s + " url.");
+      }
+    }
+
+    // Now, go through the list of URLs and remove the URLs which were
+    // already specified in the boot class path.
+    Iterator it = urlList.iterator();
+    while (it.hasNext()) {
+      URL aUrl = (URL) it.next();
+      Iterator listIt = bootclassPath.iterator();
+      while (listIt.hasNext()) {
+	URL bootUrlElement = (URL) listIt.next();
+	if (bootUrlElement.equals(aUrl)) {
+	  // Don't add the bootclass URLs
+	  if (loudness > 0) {
+	    System.out.println("Removing " + aUrl.toString() + " from URL list");
+	  }
+	  it.remove();
+	}
+      }
+    }
+  }
 }
