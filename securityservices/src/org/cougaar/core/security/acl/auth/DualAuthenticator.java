@@ -68,6 +68,7 @@ public class DualAuthenticator extends ValveBase {
   LoginConfig       _loginConfig = new LoginConfig();
   Context           _context     = null;
   HashMap           _constraints = new HashMap();
+  long              _failSleep   = 1000;
 
   public DualAuthenticator() {
     this(new SSLAuthenticator(), new BasicAuthenticator());
@@ -141,6 +142,12 @@ public class DualAuthenticator extends ValveBase {
                dummyValveContext.getInvokeCount(), hres, realm)) {
 //       System.out.println("Going to invoke the next valve");
       context.invokeNext(request,response);
+    } else if (certPrincipal == null) {
+      try {
+        Thread.sleep(_failSleep);
+      } catch (InterruptedException e) {
+        // no sweat
+      }
     }
   }
 
@@ -162,7 +169,7 @@ public class DualAuthenticator extends ValveBase {
         KeyRingJNDIRealm krjr = (KeyRingJNDIRealm) realm;
         krjr.alertLoginFailure( krjr.LF_USER_MISMATCH, 
                                 certPrincipal.getName(),
-                                passPrincipal.getName());
+                                passPrincipal.getName() );
       }
       return false;
     } else if ( invokeCount > 1 ||
@@ -183,6 +190,12 @@ public class DualAuthenticator extends ValveBase {
       hres.sendError(hres.SC_UNAUTHORIZED,
                      "You must provide a client certificate in order " +
                      "to access this URL");
+
+      if (realm instanceof KeyRingJNDIRealm) {
+        KeyRingJNDIRealm krjr = (KeyRingJNDIRealm) realm;
+        krjr.alertLoginFailure( krjr.LF_REQUIRES_CERT, 
+                                passPrincipal.getName() );
+      }
       return false;
     } else if (passPrincipal == null && certPrincipal == null) {
       // authentication is required, but we've already sent the
@@ -224,6 +237,13 @@ public class DualAuthenticator extends ValveBase {
     } else {
       _constraints.put(path,type);
     }
+  }
+
+  /**
+   * Sets the time to sleep when a user has a login failure.
+   */
+  public synchronized void setLoginFailureSleepTime(long sleepTime) {
+    _failSleep = sleepTime;
   }
   
   private static int convertConstraint(String constraint) {
