@@ -1,0 +1,8 @@
+#Addes the AuditTestServlet to each agent in a society
+
+plugin = "org.cougaar.core.security.test.audit.AuditTestServlet"
+society.each_agent(true) do |agent|
+  agent.add_component do |c|
+    c.classname = plugin
+  end
+end
