@@ -2,7 +2,7 @@
 
 <!DOCTYPE SensorType SYSTEM "SensorTypeDTD.dtd" >
 
-<SensorType name="org.cougaar.coordinator.security.AgentCompromiseDiagnosis" 
+<SensorType name="org.cougaar.core.security.coordinator.AgentCompromiseDiagnosis" 
             sensesAssetType="Agent"
             sensesStateDimension="Compromise" 
             sensorLatency="10000">

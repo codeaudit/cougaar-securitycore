@@ -2,7 +2,7 @@
 
 <!DOCTYPE ActuatorType SYSTEM "ActuatorTypeDTD.dtd">
 
-<ActuatorType name="org.cougaar.coordinator.security.AgentCompromiseAction" 
+<ActuatorType name="org.cougaar.core.security.coordinator.AgentCompromiseAction" 
               affectsAssetType="Agent" 
               affectsStateDimension="Compromise" 
               actionType="CORRECTIVE">
