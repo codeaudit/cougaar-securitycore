@@ -53,6 +53,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import sun.security.x509.X500Name;
 import java.util.Date;
+import java.util.ArrayList;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -77,7 +78,9 @@ public class DataProtectionOutputStream extends FilterOutputStream {
    * buffer size, when reached will flush to output stream
    */
   private static int buffersize = 30000;
-  private ByteArrayOutputStream bos = new ByteArrayOutputStream((int)(buffersize * 1.2));
+//  private ByteArrayOutputStream bos = new ByteArrayOutputStream((int)(buffersize * 1.2));
+  private ByteArrayOutputStream bos = getStream();
+  private static ArrayList streams = new ArrayList();
 
   // used to publish data failures
   private EventPublisher eventPublisher;
@@ -269,6 +272,8 @@ public class DataProtectionOutputStream extends FilterOutputStream {
       encryptionService.returnCipher(policy.symmSpec, ci);
       ci = null;
     }
+    returnStream(bos);
+
     this.out = null;
 
     DataProtectionStatus.addOutputStatus(
@@ -313,4 +318,20 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     DataProtectionSensor.publishEvent(event);
   }
 
+  private static ByteArrayOutputStream getStream() {
+    synchronized (streams) {
+      if (!streams.isEmpty()) {
+        return (ByteArrayOutputStream) streams.remove(streams.size() - 1);
+      }
+    }
+
+    return new ByteArrayOutputStream((int)(buffersize * 1.2));
+  }
+
+  private static void returnStream(ByteArrayOutputStream stream) {
+    stream.reset();
+    synchronized (streams) {
+      streams.add(stream);
+    }
+  }
 }
