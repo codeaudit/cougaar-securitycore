@@ -2,25 +2,26 @@
 require 'cougaar/communities'
 require 'ultralog/enclaves'
 
-COMMS = ["REAR", "FWD", "CONUS", "TRANS"]
-SUB_COMM = {"REAR"=>	[
-                      ], 
-            "FWD"=>		[ 
-                        ["FWD-A"], #Sub1 
-                        ["FWD-C"]  #Sub2
-                      ],
-            "CONUS"=>	[
-                        [] #Sub1
-                      ],
-            "TRANS"=> [
-                      ]
-           }
+if (!defined? COMMS)||(!defined? SUB_COMM)||(!defined? ROOT_COMM_MGRS) then 
+  COMMS = ["REAR", "FWD", "CONUS", "TRANS"]
+  SUB_COMM = {"REAR"=>	[
+                        ], 
+              "FWD"=>		[ 
+                          ["FWD-A"], #Sub1 
+                          ["FWD-C"]  #Sub2
+                        ],
+              "CONUS"=>	[
+                          [] #Sub1
+                        ],
+              "TRANS"=> [
+                        ]
+             }
            
-# BUILD ROOT COMMUNITY
-ROOT_COMM_MGRS = ["SocietyMnRManager"]
-
-society.each_enclave do |e|
-  enclave = e.capitalize
+  # BUILD ROOT COMMUNITY
+  ROOT_COMM_MGRS = ["SocietyMnRManager"]
+end
+society.each_enclave do |enclave|
+  enclaveInCap = enclave.capitalize
 
   # BUILD CORE COMMUNITIES
 
@@ -29,7 +30,7 @@ society.each_enclave do |e|
   society.each_agent do |ag|
     e1 = ag.node.host.get_facet(:enclave).capitalize
     ag.each_facet do |f|
-      if f[:role] == $facetMonitoringManagerAgent && e1 == enclave
+      if f[:role] == $facetMonitoringManagerAgent && e1 == enclaveInCap
         monitoringManagerAgent = ag
         break
       end
@@ -39,7 +40,7 @@ society.each_enclave do |e|
     end
   end
 
-  society.communities.add("#{enclave}-SECURITY-COMM") do |community|
+  society.communities.add("#{enclaveInCap}-SECURITY-COMM") do |community|
     # Set the M&R manager as the community manager
     if monitoringManagerAgent != nil
       community.add_attribute("CommunityManager", monitoringManagerAgent.name)
@@ -71,7 +72,7 @@ society.each_enclave do |e|
     end
   end
 
-  society.communities.add("#{enclave}-MnR-SECURITY-COMM") do |community|
+  society.communities.add("#{enclaveInCap}-MnR-SECURITY-COMM") do |community|
     if monitoringManagerAgent != nil
       community.add_attribute("CommunityManager", monitoringManagerAgent.name)
     end
@@ -99,19 +100,19 @@ society.each_enclave do |e|
 
 =begin  
   # BUILD SUB<N> COMMUNITIES
-  if SUB_COMM[enclave] != nil
-    SUB_COMM[enclave].each_index do |index|
-      society.communities.add("#{enclave}-SECURITY-SUB#{index+1}-COMM") do |community|
-        mgragent = society.agents["Enclave#{COMMS.index(enclave)+1}Sub#{index+1}Manager"]
+  if SUB_COMM[enclaveInCap] != nil
+    SUB_COMM[enclaveInCap].each_index do |index|
+      society.communities.add("#{enclaveInCap}-SECURITY-SUB#{index+1}-COMM") do |community|
+        mgragent = society.agents["EnclaveInCap#{COMMS.index(enclaveInCap)+1}Sub#{index+1}Manager"]
         if mgragent != nil
           community.add_attribute("CommunityManager", mgragent.name)
         end
         community.add_attribute("CommunityType", "Security")
-        community.add_agent("Enclave#{COMMS.index(enclave)+1}Sub#{index+1}Manager") do |entity|
+        community.add_agent("Enclave#{COMMS.index(enclaveInCap)+1}Sub#{index+1}Manager") do |entity|
           entity.add_role("Member")
           entity.add_role("Manager")
         end
-        SUB_COMM[enclave][index].each do |agent|
+        SUB_COMM[enclaveInCap][index].each do |agent|
           community.add_agent(agent) { |entity| entity.add_role("Member") }
         end
       end
@@ -124,7 +125,7 @@ society.each_enclave do |e|
   society.each_agent do |ag|
     e1 = ag.node.host.get_facet(:enclave).capitalize
     ag.each_facet do |f|
-      if f[:role] == $facetUserManagerAgent && e1 == enclave
+      if f[:role] == $facetUserManagerAgent && e1 == enclaveInCap
         userManagerAgent = ag
         break
       end
