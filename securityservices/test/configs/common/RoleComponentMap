@@ -14,6 +14,7 @@
 #
 
 safe.policyManager.PolicyAdminServletComponent http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#PolicyServletRole
+
 #org.cougaar http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryNoReadRole
 org.cougaar.glm.plugins.projection.SupplyProjectionPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole 
 org.cougaar.logistics.plugin.demand.DemandForecastPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
@@ -30,9 +31,15 @@ org.cougaar.mlm.plugin.ldm.OplanReaderPlugin http://ontology.coginst.uwf.edu/Ult
 org.cougaar.mlm.plugin.ldm.SQLOplanPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAllRole
 org.cougaar.mlm.plugin.sample.ModifyOrgActivityGUIPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole 
 org.cougaar.mlm.plugin.sample.ModifyOrgActivityGUIPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityChangeRole
-org.cougaar.mlm.plugin.sample.StrategicTransportProjectorPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityWriteRole
+org.cougaar.mlm.plugin.sample.StrategicTransportProjectorPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityChangeRole
 org.cougaar.mlm.plugin.sample.StrategicTransportProjectorPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
 org.cougaar.core.security.test.blackboard.LegitimateBlackboardPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardAddPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardAddPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAddRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardModifyPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardModifyPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityChangeRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardDeletePlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+org.cougaar.core.security.test.blackboard.LegitimateBlackboardDeletePlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityRemoveRole
 org.cougaar.core.security.test.blackboard.BlackboardTestManagerServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAllRole
 #org.cougaar.core.security.test.OrgActivityAddTest http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAddRole
 #org.cougaar.core.security.test.OrgActivityAddTest http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
