@@ -42,6 +42,14 @@
 #
 
 #
+# The policy prefix is prepended to each of the policy names.  It can
+# be used - if desired - to arrange that built policies reside in a
+# subdirectory.
+#
+PolicyPrefix=%DamlBootPolicy
+
+
+#
 # The mapping file for the following KAoS policy names is DamlUserRoleMap.
 #
 
@@ -136,7 +144,7 @@ BlackBoardObject OrgActivity
 #     necessary. 
 #
 
-Policy DamlBootPolicyAllowCommunication = [ 
+Policy AllowCommunication = [ 
    GenericTemplate
    Priority = 2,
    $Actor.daml#Agent is authorized to perform
@@ -145,7 +153,7 @@ Policy DamlBootPolicyAllowCommunication = [
     is a subset of the set $Actor.daml#Agent
 ]
 
-Policy DamlBootPolicyEncryptCommunication = [ 
+Policy EncryptCommunication = [ 
    GenericTemplate
    Priority = 3,
    $Actor.daml#Agent is not authorized to perform
@@ -160,7 +168,7 @@ Policy DamlBootPolicyEncryptCommunication = [
 # Blackboard policies
 #
 
-Policy DamlBootPolicyAllowBlackboard = [ 
+Policy AllowBlackboard = [ 
    GenericTemplate
    Priority = 2,
    $Ultralog/UltralogActor.daml#UltralogPlugins is authorized to perform
@@ -170,29 +178,29 @@ Policy DamlBootPolicyAllowBlackboard = [
      { $Ultralog/Names/EntityInstances.daml#OrgActivity }
 ]
 
-Policy DamlBootPolicyOrgActivityAdd = [
+Policy OrgActivityAdd = [
    BlackboardTemplate
    A PlugIn in the role OrgActivityAdd can Add objects of type OrgActivity
 ]
 
-Policy DamlBootPolicyOrgActivityChange = [
+Policy OrgActivityChange = [
    BlackboardTemplate
    A PlugIn in the role OrgActivityChange can Change, Query objects
    of type OrgActivity
 ]
 
-Policy DamlBootPolicyOrgActivityQuery = [
+Policy OrgActivityQuery = [
    BlackboardTemplate
    A PlugIn in the role OrgActivityQuery can Query objects of type OrgActivity
 ]
 
-Policy DamlBootPolicyOrgActivityRemove = [
+Policy OrgActivityRemove = [
    BlackboardTemplate
    A PlugIn in the role OrgActivityRemove can Remove, Query objects 
    of type OrgActivity
 ]
 
-Policy DamlBootPolicyOrgActivityAll = [
+Policy OrgActivityAll = [
    BlackboardTemplate
    A PlugIn in the role OrgActivityAll can Add, Change, Query, Remove
    objects of type OrgActivity
@@ -230,7 +238,7 @@ Policy DamlBootPolicyOrgActivityAll = [
 #     efficient mechanism would not need this assumption.
 #
 
-Policy DamlBootPolicyUnrestServlet = [ 
+Policy UnrestServlet = [ 
    GenericTemplate
    Priority = 2,
    $Actor.daml#Person is authorized to perform
@@ -241,173 +249,191 @@ Policy DamlBootPolicyUnrestServlet = [
                              $Ultralog/Names/EntityInstances.daml#CertReqServlet }
 ]
 
+#
+# Only require audit on CAReadServlet and CertReqServlet because
+#  1. this is a common event so it allows people to see audit
+#  2. I can turn on other audits in other audit experiments.
+#
+Policy RequireAudit = [ 
+   GenericTemplate
+   Priority = 3,
+   $Actor.daml#Person is not authorized to perform
+   $Action.daml#AccessAction as long as
+    the value of $Ultralog/UltralogAction.daml#usedAuditLevel
+    is a subset of the set { $Ultralog/Names/EntityInstances.daml#NoAudit }
+                       and
+    the value of $Ultralog/UltralogAction.daml#accessedServlet is a
+    subset of the set { $Ultralog/Names/EntityInstances.daml#CAReadServlet
+                        $Ultralog/Names/EntityInstances.daml#CertReqServlet }
+]
 
-Policy DamlBootPolicyPolicyServletRear  = [ 
+
+Policy PolicyServletRear  = [ 
   ServletUserAccessTemplate
   A user in role RearPolicyAdministrator can access a servlet 
   named RearPolicyServlet
 ]
 
-Policy DamlBootPolicyPolicyServletRearAuth  = [ 
+Policy PolicyServletRearAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named RearPolicyServlet
 ]
 
-Policy DamlBootPolicyPolicyServletFwd  = [ 
+Policy PolicyServletFwd  = [ 
   ServletUserAccessTemplate
   A user in role FwdPolicyAdministrator can access a servlet 
   named FwdPolicyServlet
 ]
 
-Policy  DamlBootPolicyPolicyServletFwdAuth = [ 
+Policy  PolicyServletFwdAuth = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named FwdPolicyServlet
 ]
 
 
-Policy DamlBootPolicyPolicyServletConus  = [ 
+Policy PolicyServletConus  = [ 
   ServletUserAccessTemplate
   A user in role ConusPolicyAdministrator can access a servlet 
   named ConusPolicyServlet
 ]
 
-Policy DamlBootPolicyPolicyServletConusAuth  = [ 
+Policy PolicyServletConusAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named ConusPolicyServlet
 ]
 
 
-Policy DamlBootPolicyPolicyServletTrans  = [ 
+Policy PolicyServletTrans  = [ 
   ServletUserAccessTemplate
   A user in role TransPolicyAdministrator can access a servlet 
   named TransPolicyServlet
 ]
 
-Policy DamlBootPolicyPolicyServletTransAuth  = [ 
+Policy PolicyServletTransAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named TransPolicyServlet
 ]
 
-Policy DamlBootPolicySCmrManager  = [ 
+Policy SCmrManager  = [ 
   ServletUserAccessTemplate
   A user in role MonitorManager can access a servlet named SCmrmanagerServlets
 ]
 
-Policy DamlBootPolicySCmrManagerAuth  = [ 
+Policy SCmrManagerAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named SCmrmanagerServlets
 ]
 
-Policy DamlBootPolicyNCAServlet = [
+Policy NCAServlet = [
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named NCAServlets
 ]
 
-Policy DamlBootPolicyNCAServletAuth  = [ 
+Policy NCAServletAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named NCAServlets
 ]
 
-Policy DamlBootPolicyLogisticianAgg = [
+Policy LogisticianAgg = [
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named AggegatorServlets
 ]
 
-Policy DamlBootPolicyLogisticianAggAuth  = [ 
+Policy LogisticianAggAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named AggegatorServlets
 ]
 
-Policy DamlBootPolicyLogisticianViewAgg = [
+Policy LogisticianViewAgg = [
   ServletUserAccessTemplate
   A user in role LogisticsViewer can access a servlet named AggegatorServlets
 ]
 
-Policy DamlBootPolicyLogisticianViewAggAuth  = [ 
+Policy LogisticianViewAggAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named AggegatorServlets
 ]
 
-Policy DamlBootPolicyUserAdminServlets = [
+Policy UserAdminServlets = [
   ServletUserAccessTemplate
   A user in role UserManager can access a servlet named UserManagerServlets
 ]
 
-Policy DamlBootPolicyUserAdminServletsAuth  = [ 
+Policy UserAdminServletsAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named UserManagerServlets
 ]
 
-Policy DamlBootPolicyLogisticianInventory = [
+Policy LogisticianInventory = [
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named LogInventoryServlet
 ]
 
-Policy DamlBootPolicyLogisticianInventoryAuth  = [ 
+Policy LogisticianInventoryAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named LogInventoryServlet
 ]
 
-Policy DamlBootPolicyLogisticsViewerInventory = [
+Policy LogisticsViewerInventory = [
   ServletUserAccessTemplate
   A user in role LogisticsViewer can access a servlet named LogInventoryServlet
 ]
 
-Policy DamlBootPolicyLogisticsViewerInventoryAuth  = [ 
+Policy LogisticsViewerInventoryAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named LogInventoryServlet
 ]
 
-Policy DamlBootPolicyLogisticianHierarchy = [
+Policy LogisticianHierarchy = [
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named HierarchyServlet
 ]
 
-Policy DamlBootPolicyLogisticianHierarchyAuth  = [ 
+Policy LogisticianHierarchyAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named HierarchyServlet
 ]
 
-Policy DamlBootPolicyLogisticsViewerHierarchy  = [
+Policy LogisticsViewerHierarchy  = [
   ServletUserAccessTemplate
   A user in role LogisticsViewer can access a servlet named HierarchyServlet
 ]
 
-Policy DamlBootPolicyLogisticsViewerHierarchyAuth  = [ 
+Policy LogisticsViewerHierarchyAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named HierarchyServlet
 ]
 
-Policy DamlBootPolicyCertWrite  = [
+Policy CertWrite  = [
   ServletUserAccessTemplate
   A user in role CAAdministrator can access a servlet named CAWriteServlet
 ]
 
-Policy DamlBootPolicyCertWriteAuth  = [ 
+Policy CertWriteAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named CAWriteServlet
 ]
 
-Policy DamlBootPolicySocietyAdmin = [
+Policy SocietyAdmin = [
   ServletUserAccessTemplate
   A user in role SocietyAdmin can access a servlet named SocietyAdminServlet
 ]
 
-Policy DamlBootPolicySocietyAdminAuth  = [ 
+Policy SocietyAdminAuth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named SocietyAdminServlet
