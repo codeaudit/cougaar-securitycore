@@ -328,7 +328,7 @@ public class CommunityServiceUtil {
     if(_log.isDebugEnabled()){
       _log.debug("Adding Listener getCommunityWithUpdates with :"+ role + "Listener is :"+ ccl); 
     }
-    //_cs.addListener(ccl);
+    _cs.addListener(ccl);
     Collection communities = 
       _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
     
