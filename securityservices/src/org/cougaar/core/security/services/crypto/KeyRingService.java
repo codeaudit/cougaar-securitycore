@@ -80,7 +80,7 @@ public interface KeyRingService extends Service {
    */
   X509Certificate[] findCertChain(X509Certificate c);
 
-  String getCommonName(String alias);
+  // String getCommonName(String alias);
 
   /** ******************************
    *  Methods to access private keys
@@ -90,24 +90,26 @@ public interface KeyRingService extends Service {
 
   /**
    */
-  KeyStore getKeyStore();
+  //KeyStore getKeyStore();
 
   /**
    */
   DirectoryKeyStore getDirectoryKeyStore();
-
+  
+  // Enumeration getAliasList();
   /**
    * @return A list of PrivateKeyCert
    */
+ 
   List findPrivateKey(String commonName);
   List findPrivateKey(String commonName, boolean validOnly);
-
+  
   /**
    * @return A list of PrivateKeyCert
    */
   List findPrivateKey(X500Name x500name);
 
-  Enumeration getAliasList();
+  // Enumeration getAliasList();
 
   /** ******************************
    *  TODO: Remove these methods
@@ -115,12 +117,10 @@ public interface KeyRingService extends Service {
   void checkOrMakeCert(String name);
   void checkOrMakeCert(X500Name dname, boolean isCACert);
   Vector getCRL();
-  long getSleeptime();
+  /* long getSleeptime();
   void setSleeptime(long sleeptime);
-
-  void removeEntry(String commonName);
-  void setKeyEntry(PrivateKey key, X509Certificate cert);
-
+  */
+  
   byte[] protectPrivateKey(List privKey,
 			   List cert,
 			   PrivateKey signerPrivKey,
@@ -144,13 +144,20 @@ public interface KeyRingService extends Service {
 
   X509Certificate[] buildCertificateChain(X509Certificate certificate);
 
-  String getCaKeyStorePath();
-  String getKeyStorePath();
+  //String getCaKeyStorePath();
+  //String getKeyStorePath();
 
   boolean checkExpiry(String commonName);
   void updateNS(String commonName);
   void updateNS(X500Name x500name);
+  // String getCommonName(String alias);
 
-  void addSSLCertificateToCache(X509Certificate cert);
-  void removeEntryFromCache(String commonName);
+  void removeEntry(String commonName);
+  //void addSSLCertificateToCache(X509Certificate cert);
+  //void removeEntryFromCache(String commonName);
+  void setKeyEntry(PrivateKey key, X509Certificate cert);
+  CertDirectoryServiceClient getCACertDirServiceClient(String dname);
+  boolean checkCertificate(CertificateStatus cs,
+			   boolean buildChain, boolean changeStatus);
+  List getValidCertificates(X500Name x500Name);
 }
