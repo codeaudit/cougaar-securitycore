@@ -447,7 +447,7 @@ public class CryptoManagerServiceImpl
       	po = signAndEncrypt(object, source, target, policy);
       	break;
       default:
-	throw new GeneralSecurityException("Invalid policy");
+	throw new GeneralSecurityException("Invalid policy:" + policy.getSecureMethodToString());
       }
     }
     catch (GeneralSecurityException gse) {
@@ -522,7 +522,7 @@ public class CryptoManagerServiceImpl
       				     policy);
       	break;
       default:
-	      throw new GeneralSecurityException("Invalid policy");
+	      throw new GeneralSecurityException("Invalid policy:" + policy.getSecureMethodToString());
       }
     }
     catch (GeneralSecurityException gse) {
