@@ -26,7 +26,7 @@ CP=${COUGAAR_INSTALL_PATH}/lib/util.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/log4j.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/tomcat_40.jar:$CP
 
-DEFS=-Dorg.cougaar.config.path="${COUGAAR_INSTALL_PATH}/configs/security"
+DEFS="-Xmx512m -Dorg.cougaar.config.path=${COUGAAR_INSTALL_PATH}/configs/security"
 DEFS="${DEFS} -Dlog4j.configuration=${COUGAAR_INSTALL_PATH}/configs/common/loggingConfig.conf"
 #DEFS="${DEFS} -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=9999"
 
