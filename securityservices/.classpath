@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="classes/jsp"/>
+	<classpathentry kind="src" path="classes/policy"/>
 	<classpathentry kind="src" path="regress/dashboard/src"/>
 	<classpathentry excluding="dashboard/src/" kind="src" path="regress"/>
 	<classpathentry kind="lib" path="build/jasper/lib/jasper-compiler.jar"/>
 	<classpathentry kind="lib" path="sys/dl.jar"/>
-	<classpathentry kind="lib" path="lib/overlay.jar"/>
 	<classpathentry kind="lib" path="sys/iw.jar"/>
 	<classpathentry kind="lib" path="sys/mail.jar"/>
 	<classpathentry kind="lib" path="sys/jdom.jar"/>
-	<classpathentry kind="lib" path="sys/jakarta-oro-2.0.5.jar"/>
 	<classpathentry kind="lib" path="sys/jpcsc.jar"/>
 	<classpathentry kind="lib" path="lib/safe.jar"/>
 	<classpathentry kind="lib" path="build/junit/lib/junit.jar"/>
 	<classpathentry kind="lib" path="sys/polCert.jar"/>
 	<classpathentry kind="lib" path="sys/jas.jar"/>
 	<classpathentry kind="lib" path="build/jasper/lib/servlet.jar"/>
-	<classpathentry kind="lib" path="sys/httpunit.jar"/>
 	<classpathentry kind="lib" path="test/configs/TIC/chatterbox.jar"/>
 	<classpathentry kind="lib" path="sys/ibmpkcs.jar"/>
 	<classpathentry kind="lib" path="sys/jasper-runtime.jar"/>
@@ -24,7 +23,6 @@
 	<classpathentry kind="lib" path="sys/jtp.jar"/>
 	<classpathentry kind="lib" path="lib/kaos.jar"/>
 	<classpathentry kind="lib" path="build/jasper/lib/jasper-runtime.jar"/>
-	<classpathentry kind="lib" path="sys/antlr.jar"/>
 	<classpathentry kind="lib" path="sys/ontologyRepInit.jar"/>
 	<classpathentry kind="lib" path="sys/commons-logging.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -32,5 +30,6 @@
 	<classpathentry kind="src" path="profilersrc"/>
 	<classpathentry kind="lib" path="lib/security/secure_bootstrapper.jar"/>
 	<classpathentry kind="lib" path="lib/security/secure_util.jar"/>
-	<classpathentry kind="output" path="classes"/>
+	<classpathentry kind="lib" path="build/lib/httpunit.jar"/>
+	<classpathentry kind="output" path="tmp1"/>
 </classpath>
