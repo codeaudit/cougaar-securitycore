@@ -248,12 +248,9 @@ public class UserLockoutPlugin extends ComponentPlugin {
     List targets = new ArrayList();
     targets.add(t);
 
-    List assessment = new ArrayList();
-    assessment.add(USER_LOCKOUT_ASSESSMENT);
-
     Alert alert = _idmefFactory.createAlert(_sensor, new DetectTime(),
                                             null, targets, cfs, null);
-    
+    alert.setAssessment(USER_LOCKOUT_ASSESSMENT);    
     NewEvent event = _cmrFactory.newEvent(alert);
 
     getBlackboardService().publishAdd(event);
@@ -313,10 +310,6 @@ public class UserLockoutPlugin extends ComponentPlugin {
                                          "clean interval and failure memory " +
                                          "arguments");
     }
-    if (iter.hasNext()) {
-      _managerRole = (String) iter.next();
-    } // end of if (iter.hasNext())
-    
   }
 
   /**
