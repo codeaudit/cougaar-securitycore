@@ -1,0 +1,22 @@
+#!/bin/sh
+
+hostA=${1:?Usage hostA hostB remoteConnectionPoint JabberHost}
+hostB=${2:?Usage hostA hostB remoteConnectionPoint JabberHost}
+remote=${3:?Usage hostA hostB remoteConnectionPoint JabberHost}
+jabber=${4:?Usage hostA hostB remoteConnectionPoint JabberHost}
+
+echo Port Mapping:
+echo "	${hostA} ports map to localhost"
+echo "		e.g. ${hostA}:8810  --> localhost:8810"
+echo "		e.g. ${hostA}:9444  --> localhost:9444"
+echo "	${hostB} ports map to localhost with port #+10000"
+echo "		e.g. ${hostB}:8800  --> localhost:18800"
+echo "		e.g. ${hostB}:9444  --> localhost:19444"
+echo "	Jabber host = ${jabber} but connect through localhost:5222"
+echo "		(needs right client)"
+echo "Leave ssh connection open for duration of the tunnel"
+ssh -L 8810:${hostA}:8810 -L 8820:${hostA}:8820 -L 8802:${hostA}:8802 \
+    -L18800:${hostB}:8800 -L 18801:${hostB}:8801 -L 18802:${hostB}:8802 \
+    -L 18803:${hostB}:8803 -L 18804:${hostB}:8804 -L 18805:${hostB}:8805 \
+    -L 5222:${jabber}:5222 -L 9444:${hostA}:9444 -L 19444:${hostB}:9444 \
+        ${remote}
