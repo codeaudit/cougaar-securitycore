@@ -52,6 +52,8 @@ import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.core.wp.resolver.WPQuery;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public abstract class AccessAgentProxy implements MessageTransportService,
   MessageTransportClient, MessageAccess {
@@ -71,7 +73,7 @@ public abstract class AccessAgentProxy implements MessageTransportService,
   protected transient PolicyService           policyService;
 
   protected transient WPEnforcer              _wpEnforcer = null;
-
+  
   public AccessAgentProxy(MessageTransportService mymts, Object myobj,
                           PolicyService ps, ServiceBroker sb ) {
     this.mts = mymts;
@@ -114,7 +116,60 @@ public abstract class AccessAgentProxy implements MessageTransportService,
    * BEGIN MessageTransportService implementation
    */
 
- 
+  /**
+   * Send a message to the Message transport layer.
+   * 
+   * @param message -
+   *          The message to send.
+   */
+  public void sendMessage( Message message ) {
+    if (log.isDebugEnabled()) {
+      log.debug("SendMessage: " + message.toString());
+    }
+
+    if (myID != null && !message.getOriginator().equals(myID)) {
+      //not suppose to happen
+      publishMessageFailure(message.getOriginator().toString(), message
+                            .getTarget().toString(), MessageFailureEvent.INCONSISTENT_IDENTIFIER,
+                            message.toString());
+      if (log.isWarnEnabled()) {
+        log.warn("Agent " + myID + " is rejecting outgoing message: "
+                 + message.toString());
+      }
+      return;
+    }
+
+    if (mts != null) {
+      boolean tossMessage = checkOutVerbs(message);
+      if (tossMessage) {
+        if (log.isWarnEnabled()) {
+          log.warn("Rejecting outgoing message: " + message);
+        }
+        // message failure notifications are done in checkMessage()
+        return;
+      }
+
+      /*
+       * TODO: the following "if" test is a big kludge, due to the fact
+       * node agents can have binders, so we are making exceptions--no
+       * wrapping with TrustSet--for node agents. Once Bugzilla #2103 is
+       * addressed remember to take this out.
+       * 
+       * REMOVED for 10.2 port - mluu
+       */
+      /*
+       * TrustSet[] ts; ts = checkOutgoing(message);
+       * 
+       * if(ts==null) { if(log.isWarnEnabled()) { log.warn("Rejecting
+       * outgoing message: " + message); } return; // the message is
+       * rejected so we abort here } MessageWithTrust mwt; mwt = new
+       * MessageWithTrust(message, ts); mts.sendMessage(mwt);
+       * if(log.isDebugEnabled()) { log.debug("DONE sending Message from
+       * Access Agent proxy" +mwt.toString()); }
+       */
+      mts.sendMessage(message);
+    }//if(mts!=null)
+  }
 
   public void registerClient( MessageTransportClient client ) {
     if (log.isDebugEnabled()) {
@@ -178,6 +233,9 @@ public abstract class AccessAgentProxy implements MessageTransportService,
    * END MessageTransportService implementation
    */
 
+  /***************************************************************************
+   * BEGIN MessageTransportClient implementation
+   */
   public MessageAddress getMessageAddress() {
     MessageAddress messageaddress = null;
     if (mtc != null) {
@@ -190,8 +248,43 @@ public abstract class AccessAgentProxy implements MessageTransportService,
     return (mtc == null ? 0 : mtc.getIncarnationNumber());
   }
 
-  
+  public void receiveMessage( final Message m ) {
+    if (mtc == null) {
+      log.warn("Message Transport Client is null for: " + m + " on the agent:"
+               + myID);
+      return;
+    }
+    if (log.isDebugEnabled()) {
+      log.debug("receiveMessage: " + getMessageAddress().toString() + " : "
+               + m.toString());
+    }
+    /**
+     * In older version of AccessAgent proxy which use to be in org.cougaar.core.security.access 
+     * Receive message method has if(true) and else. Else will never get executed but it was there. 
+     * In the else block of code it would check if the message was 
+     * wrapped in MessageWithTrust and it would check the trust but since i'm not sure if that part 
+     * is used or not.   
+     */
+    //if (true) {
+    // Check verb of incoming message
+    boolean tossMessage = checkInVerbs(m);
 
+    if (tossMessage) {
+      if (log.isWarnEnabled()) {
+        log.warn("Rejecting incoming message: " + m);
+      }
+      // message failure notifications are done in checkMessage()
+      return;
+    }
+    
+    // Receive message
+    mtc.receiveMessage(m);
+    //}
+  }
+  /***************************************************************************
+   * END MessageTransportClient implementation
+   */
+  
   abstract boolean isMessageDenied( String source, String target, String verb,
                                     boolean direction );
  
@@ -429,96 +522,7 @@ public abstract class AccessAgentProxy implements MessageTransportService,
   protected boolean checkOutVerbs(Message msg) {
     return checkMessage(msg, false);
   }
-  
-  public void receiveMessage( Message m ) {
-    if (mtc == null) {
-      log.warn("Message Transport Client is null for: " + m + " on the agent:"
-               + myID);
-      return;
-    }
-    if (log.isDebugEnabled()) {
-      log.debug("receiveMessage: " + getMessageAddress().toString() + " : "
-               + m.toString());
-    }
-    /**
-     * In older version of AccessAgent proxy which use to be in org.cougaar.core.security.access 
-     * Receive message method has if(true) and else. Else will never get executed but it was there. 
-     * In the else block of code it would check if the message was 
-     * wrapped in MessageWithTrust and it would check the trust but since i'm not sure if that part 
-     * is used or not.   
-     */
-    //if (true) {
-    // Check verb of incoming message
-    boolean tossMessage = checkInVerbs(m);
-
-    if (tossMessage) {
-      if (log.isWarnEnabled()) {
-        log.warn("Rejecting incoming message: " + m);
-      }
-      // message failure notifications are done in checkMessage()
-      return;
-    }
-
-    mtc.receiveMessage(m);
-    //}
-
-  }
-   
-  /**
-   * Send a message to the Message transport layer.
-   * 
-   * @param message -
-   *          The message to send.
-   */
-  public void sendMessage( Message message ) {
-    if (log.isDebugEnabled()) {
-      log.debug("SendMessage: " + message.toString());
-    }
-
-    if (myID != null && !message.getOriginator().equals(myID)) {
-      //not suppose to happen
-      publishMessageFailure(message.getOriginator().toString(), message
-                            .getTarget().toString(), MessageFailureEvent.INCONSISTENT_IDENTIFIER,
-                            message.toString());
-      if (log.isWarnEnabled()) {
-        log.warn("Agent " + myID + " is rejecting outgoing message: "
-                 + message.toString());
-      }
-      return;
-    }
-
-    if (mts != null) {
-      boolean tossMessage = checkOutVerbs(message);
-      if (tossMessage) {
-        if (log.isWarnEnabled()) {
-          log.warn("Rejecting outgoing message: " + message);
-        }
-        // message failure notifications are done in checkMessage()
-        return;
-      }
-
-      /*
-       * TODO: the following "if" test is a big kludge, due to the fact
-       * node agents can have binders, so we are making exceptions--no
-       * wrapping with TrustSet--for node agents. Once Bugzilla #2103 is
-       * addressed remember to take this out.
-       * 
-       * REMOVED for 10.2 port - mluu
-       */
-      /*
-       * TrustSet[] ts; ts = checkOutgoing(message);
-       * 
-       * if(ts==null) { if(log.isWarnEnabled()) { log.warn("Rejecting
-       * outgoing message: " + message); } return; // the message is
-       * rejected so we abort here } MessageWithTrust mwt; mwt = new
-       * MessageWithTrust(message, ts); mts.sendMessage(mwt);
-       * if(log.isDebugEnabled()) { log.debug("DONE sending Message from
-       * Access Agent proxy" +mwt.toString()); }
-       */
-      mts.sendMessage(message);
-    }//if(mts!=null)
-  }
-  
+       
   public String getName(){
     return this.myID.toString();
   }
