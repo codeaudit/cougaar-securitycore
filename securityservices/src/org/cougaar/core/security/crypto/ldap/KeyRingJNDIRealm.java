@@ -706,20 +706,14 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
 
     NewEvent event = _cmrFactory.newEvent(alert);
-
-    boolean close = true;
+    
     try {
-      close = _blackboardService.tryOpenTransaction();
-    } catch (Exception e) {
-      close = false;
-    }
-    try {
+      _blackboardService.openTransaction();
       _blackboardService.publishAdd(event);
-      if (close) {
-        _blackboardService.closeTransaction();
-      }
-   } catch (Exception e) {
-   }
+      _blackboardService.closeTransaction();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   public long currentTimeMillis() { return System.currentTimeMillis(); }
