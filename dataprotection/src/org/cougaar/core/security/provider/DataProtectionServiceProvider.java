@@ -33,13 +33,6 @@ import org.cougaar.core.security.dataprotection.DataProtectionServiceImpl;
 public class DataProtectionServiceProvider
   extends BaseSecurityServiceProvider
 {
-/*
-  static {
-    DataProtectionServiceProvider thisProvider = new DataProtectionServiceProvider();
-    SecurityServiceProviderCache.put(thisProvider.getClass().getName(), thisProvider);
-  }
-*/
-
   public DataProtectionServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
   }
