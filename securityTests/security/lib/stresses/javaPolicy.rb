@@ -1,5 +1,9 @@
 require "security/lib/cougaarMods"
 
+#
+# Actions invoked from stress_security_uc5.rb script
+#
+
 class Stress5f < SecurityStressFramework
   def initialize(run)
     @run = run
