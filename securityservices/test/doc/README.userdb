@@ -96,9 +96,10 @@ security ssf=128
 5. Add the root entries to the LDAP server using slapadd. You will need
    to be root to do this:
 
-slapadd -l userroot.ldif
+slapadd -l userdb.ldif
 
-   Where userroot.ldif contains:
+   Where userdb.ldif is located in securityservices/test/data/full1AD.
+   You may also create your own, with a minimum ldif file containing:
 
 # Base for all user searches
 dn: dc=cougaar, dc=org
@@ -127,11 +128,15 @@ description: Role Database
 
 /usr/libexec/slapd -h ldaps:///
 
-6. Modify the policy to use your new user ldap server.
+6. Modify the BootPolicy.ldm.xml to use your new user ldap server. If you
+   have not included any users who belong to the UserManager in step 4,
+   you should ensure that the useradmin servlet isn't blocked by the policy.
+   If you have used the full1AD userdb.ldif file, two users are granted
+   that role: george/george and amarinea/amarinea.
 
 7. Add the user administration servlet to your agent ini file:
 
-plugin = org.cougaar.core.security.certauthority.CaServletComponent(org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet, /user_admin)
+plugin = org.cougaar.core.security.certauthority.CaServletComponent(org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet, /useradmin)
 
 8. Start your Node using SecureNode and point it to your agent's user_admin
    servlet. You should be able to add roles, add users, and assign roles
