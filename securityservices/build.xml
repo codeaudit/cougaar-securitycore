@@ -249,6 +249,23 @@
             storepass="keystore" verbose="false"/>
         <echo message="+++++ Signed jar files"/>
     </target>
+
+    <!-- install Cougaar CA -->
+    <target name="install-cougaarCA" depends="sign-jars">
+        <echo message="+++++ Installing Cougaar CA"/>
+        <mkdir dir="${cougaar.install.path}/configs/cougaarCA"/>
+        <copy todir="${cougaar.install.path}/configs/cougaarCA">
+            <fileset dir="${securityservices.configs}/cougaarCA">
+                <include name="*"/>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/configs/cougaarCA">
+            <fileset dir="${securityservices.base}/test/bin">
+                <include name="SecureNode"/>
+            </fileset>
+        </copy>
+        <echo message="+++++ Installed Cougaar CA"/>
+    </target>
     
     <!-- install security services -->
     <target name="install-signed-jars" depends="sign-jars">
@@ -293,7 +310,7 @@
     </target>
     
     <!-- install config files -->
-    <target name="install-conf">
+    <target name="install-conf" depends="install-cougaarCA">
         <echo message="+++++ Installing configuration files"/>
         <copy todir="${cougaar.install.path}/configs">
             <fileset dir="${securityservices.configs}">
