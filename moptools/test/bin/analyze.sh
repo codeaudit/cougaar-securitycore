@@ -2,7 +2,7 @@
 
 # Executable
 curdir=`pwd`
-exec="./tethereal"
+exec="tethereal"
 
 which ${exec} >& /dev/null
 if [ $? != 0 ]; then
