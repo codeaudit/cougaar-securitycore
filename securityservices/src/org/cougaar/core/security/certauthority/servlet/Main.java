@@ -41,7 +41,7 @@ public class Main
   extends HttpServlet
 {
   private SecurityServletSupport support;
-  private ConfigParserService configParser = null;
+  //private ConfigParserService configParser = null;
   private KeyRingService keyRingService= null;
   private CertificateCacheService  cacheService=null;
 

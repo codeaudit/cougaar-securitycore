@@ -78,7 +78,7 @@ public class DownloadCertificateServlet extends  HttpServlet
   {
 
     String distinguishedName=null;
-    String role=null;
+    //String role=null;
     String cadnname=null;
 
     res.setContentType("text/html");

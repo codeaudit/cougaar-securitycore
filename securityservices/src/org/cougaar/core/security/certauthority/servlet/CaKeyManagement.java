@@ -45,7 +45,7 @@ import org.cougaar.core.security.certauthority.*;
 public class CaKeyManagement  extends HttpServlet {
   private ConfigParserService configParser = null;
 
-  private CaPolicy caPolicy = null;            // the policy of the CA
+  //private CaPolicy caPolicy = null;            // the policy of the CA
 
   private SecurityServletSupport support;
   public CaKeyManagement(SecurityServletSupport support) {

@@ -53,8 +53,8 @@ public class PolicyGenerator
 
   private static Logger _log;
 
-  private final String incommingSecureMethod = "IncomingSecureMethod";
-  private final String outgoingSecureMethod = "OutgoingSecureMethod";
+  //private final String incommingSecureMethod = "IncomingSecureMethod";
+  //private final String outgoingSecureMethod = "OutgoingSecureMethod";
 
   static {
     _log = LoggerFactory.getInstance().createLogger("PolicyGenerator");

@@ -47,7 +47,7 @@ public class SecurityServletSupportImpl
   implements SecurityServletSupport
 {
   private SecurityPropertiesService securityPropertiesService;
-  private CertificateManagementService certificateManagementService;
+  //private CertificateManagementService certificateManagementService;
   private ServiceBroker serviceBroker;
   //private NamingService ns;
   

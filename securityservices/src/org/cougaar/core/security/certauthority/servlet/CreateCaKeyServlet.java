@@ -133,6 +133,7 @@ public class CreateCaKeyServlet
     attributeTable.put("nodeIsSigner", nodeIsSigner);
 
     PrintWriter out=res.getWriter();
+    /*
     try {
       X500Name dname = new X500Name(caDN);
     }
@@ -143,6 +144,7 @@ public class CreateCaKeyServlet
       out.close();
       return;
     }
+    */
 
     X500Principal p = new X500Principal(caDN);
     agentIdentity = (AgentIdentityService)

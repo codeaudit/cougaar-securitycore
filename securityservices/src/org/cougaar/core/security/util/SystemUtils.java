@@ -79,7 +79,8 @@ public class SystemUtils {
   public static String getJavaHome(){
     return System.getProperty( "java.home" ); 
   }
-  
+
+  /*  
     private static String CLASS_PATH = "java.class.path";
     private static String PATH = "java.path";
     private static String RUNTIME_NAME = "java.runtime.name";
@@ -100,6 +101,7 @@ public class SystemUtils {
     private static String JAVA_HOME = "java.home";
     private static String JAVA_VERSION = "java.version";
     private static String BOOT_CLASS_PATH = "sun.boot.class.path";
+  */
 
   /*
     private String listOfProperties[] = { CLASS_PATH,

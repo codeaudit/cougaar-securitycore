@@ -74,8 +74,8 @@ public class CaServletComponent
       serviceBroker.getService(this,
 					    ConfigParserService.class,
 					    null);
-    SecurityPolicy[] sp =
-      configParser.getSecurityPolicies(CryptoClientPolicy.class);
+    //SecurityPolicy[] sp =
+    //  configParser.getSecurityPolicies(CryptoClientPolicy.class);
     //CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
   }
 

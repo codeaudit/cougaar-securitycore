@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -467,6 +467,7 @@ public class DualAuthenticator extends ValveBase {
     return uri.substring(index);
   }
   */
+
   private AuthSuite getAuthRequirements(String uri, String cipher) {
     if (USE_DAML) {
       return _enforcer.whichAuthSuite(uri);

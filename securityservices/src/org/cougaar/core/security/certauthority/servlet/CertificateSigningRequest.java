@@ -92,7 +92,7 @@ public class CertificateSigningRequest
     String CA_DN_name=null;
     //String domain = null;
 
-    String data;
+    //String data;
 
     if (log.isDebugEnabled()) {
       log.debug("Received a certificate signing request");

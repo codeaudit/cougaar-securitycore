@@ -70,11 +70,11 @@ public class CommunityServiceUtil {
    */
   public void findSecurityManager(String entity,
 				  final CommunityServiceUtilListener listener) {
-    MessageAddress myManager = null;
-    Iterator c = null;
-    String community = null;
-    Collection managers = null;
-    Collection communities = null;
+    //MessageAddress myManager = null;
+    //Iterator c = null;
+    //String community = null;
+    //Collection managers = null;
+    //Collection communities = null;
 
     CommunityResponseListener crl = new CommunityResponseListener() {
 	public void getResponse(CommunityResponse response) {
@@ -132,7 +132,7 @@ public class CommunityServiceUtil {
     else {
       _log.debug("multiple security communities for " + agent);  
       Iterator it = communities.iterator();
-      Collection members = null;
+      //Collection members = null;
       filter = "(& (CommunityType=Security) (Role=" + MANAGER_ROLE +") )";
       while(it.hasNext()) {
 	Community community = (Community)it.next();

@@ -51,7 +51,7 @@ public class ListCaKeysServlet
 extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
-  private ConfigParserService configParser = null;
+  //private ConfigParserService configParser = null;
   private KeyRingService keyRingService= null;
   private CertificateCacheService cacheService=null;
   private LoggingService log;

@@ -102,7 +102,7 @@ public class PendingCertificateServlet extends  HttpServlet
     //out.println("<H3>LDAP:   " + caPolicy.ldapURL + "</H3>");
 
     out.println("<table>");
-    String filter = "(cn=*)";
+    //String filter = "(cn=*)";
 
     String uri = req.getRequestURI();
     String certDetailsUri = uri.substring(0, uri.lastIndexOf('/')) + "/PendingCertDetailsServlet";

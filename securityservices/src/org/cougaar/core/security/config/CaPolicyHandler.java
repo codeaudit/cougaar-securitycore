@@ -180,7 +180,7 @@ public class CaPolicyHandler
        *  sha1WithDSA_oid
        */
       String algIdString = getContents();
-      Class algIdClass = AlgorithmId.class;
+      //Class algIdClass = AlgorithmId.class;
       Field algIdField = null;
       caPolicy.algIdString = algIdString;
       try {

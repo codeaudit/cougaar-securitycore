@@ -146,7 +146,7 @@ public class BrowserSigningRequest
     } // end of if (spki.tag != 48)
     
     PublicKey pubKey = X509Key.parse(spki.data.getDerValue());
-    AlgorithmId algorithmid = AlgorithmId.get(pubKey.getAlgorithm());
+    //AlgorithmId algorithmid = AlgorithmId.get(pubKey.getAlgorithm());
     
     // FIXME: I should verify the signature, but I'm a little lazy right now
 //     String challenge = spki.data.getIA5String();

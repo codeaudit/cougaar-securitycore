@@ -245,12 +245,12 @@ public class KeyGenerator {
   public void iterateKey(Element element,
 				String keyStoreName,
 				String keyStorePasswd) {
-    String alias = getChildText(element, "alias");
-    String keypass = getChildText(element, "keypass");
-    String keyalg = getChildText(element, "keyalg");
-    String sigalg = getChildText(element, "sigalg");
-    String keysize = getChildText(element, "keysize");
-    String dname = getChildText(element, "dname");
+    // String alias = getChildText(element, "alias");
+    //String keypass = getChildText(element, "keypass");
+    //String keyalg = getChildText(element, "keyalg");
+    //String sigalg = getChildText(element, "sigalg");
+    //String keysize = getChildText(element, "keysize");
+    //String dname = getChildText(element, "dname");
 
   }
 

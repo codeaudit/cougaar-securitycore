@@ -295,7 +295,7 @@ extends HttpServlet
         }
       */
       Enumeration enum = context.getAttributeNames();
-      for(;enum.hasMoreElements();)
+      while(enum.hasMoreElements())
         {
           String propname=(String)enum.nextElement();
           out.println(" Got propert name :"+propname);

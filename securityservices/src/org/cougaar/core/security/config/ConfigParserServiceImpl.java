@@ -62,7 +62,7 @@ public class ConfigParserServiceImpl
 {
   private SecurityPropertiesService secprop = null;
   private ConfigFinder confFinder;
-  private boolean isCertAuthority = false;
+  //private boolean isCertAuthority = false;
   private String role;
   private ServiceBroker serviceBroker;
   private LoggingService log;

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -160,7 +160,7 @@ public class PendingCertCache
     if (certtable == null)
       return null;
 
-    String pubkeyValue = new String(publicKey.getEncoded());
+    //String pubkeyValue = new String(publicKey.getEncoded());
     if (log.isDebugEnabled()) {
       log.debug("getting cert with pub key: ");
     }
@@ -253,8 +253,14 @@ public class PendingCertCache
       certlist = signer.readX509Certificates(certfile.getPath());
     }
     catch(CertificateException certificateexception) {
+      if (log.isInfoEnabled()) {
+	log.info("Certificate Exception: " + certificateexception);
+      }
     }
     catch(IOException ioexception1) {
+      if (log.isInfoEnabled()) {
+	log.info("IO exception: " + ioexception1);
+      }
     }
     catch(Exception e) {
       log.error("Exception when loading certificate from file: "

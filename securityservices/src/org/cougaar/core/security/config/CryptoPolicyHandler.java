@@ -52,7 +52,7 @@ public class CryptoPolicyHandler
   private static final String ISA_ELEMENT = "SymmetricAlgorithm";
   private static final String IAA_ELEMENT = "AsymmetricAlgorithm";
   private static final String IS_ELEMENT = "SigningAlgorithm";
-  private static final String PMS_ELEMENT = "PersistenceManagers";
+  //private static final String PMS_ELEMENT = "PersistenceManagers";
   private static final String PM_ELEMENT = "PersistenceManager";
   private static final String PMTYPE_ELEMENT = "PMType";
   private static final String PMURL_ELEMENT = "PM_URL";

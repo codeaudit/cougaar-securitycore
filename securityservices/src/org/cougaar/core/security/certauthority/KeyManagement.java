@@ -944,7 +944,7 @@ public class KeyManagement  implements CertificateManagementService {
     NoSuchProviderException
     {
       // Get X500 name of Certificate authority
-      SignerInfo si = null;
+      //SignerInfo si = null;
       if (caX509cert == null) {
         if (log.isWarnEnabled()) {
           X500Name name = clientRequest.getSubjectName();
@@ -974,9 +974,9 @@ public class KeyManagement  implements CertificateManagementService {
         throw new CertificateException("Certificate is not authorized to sign.");
 
 
-      if (log.isDebugEnabled()) {
+      //if (log.isDebugEnabled()) {
         //log.debug("x500: " + caX500IssuerName.getCommonName());
-      }
+      //}
 
       // Get Signature object for certificate authority
       List caPrivateKeyList = keyRing.findPrivateKey(caX500Name);
@@ -990,7 +990,7 @@ public class KeyManagement  implements CertificateManagementService {
       Signature caSignature = Signature.getInstance("SHA1withRSA");
       // caSignature.initSign(caPrivateKey);
 
-      X500Signer caX500signer = new X500Signer(caSignature, caX500Name);
+      //X500Signer caX500signer = new X500Signer(caSignature, caX500Name);
 
       /**
        * Client certificate attributes

@@ -139,7 +139,7 @@ public class CrlUtility {
   public static X509CRL createEmptyCrl(String caDN, PrivateKey privatekey,String algorithm) throws 
     CRLException,NoSuchAlgorithmException, 
     InvalidKeyException, NoSuchProviderException, SignatureException ,IOException{
-    X509CRLEntry [] crlentry=new X509CRLEntry[1];
+    //X509CRLEntry [] crlentry=new X509CRLEntry[1];
     X500Name name=new X500Name(caDN);
     Calendar c = Calendar.getInstance();
     Date current=c.getTime();
@@ -172,7 +172,7 @@ public class CrlUtility {
     Vector crlentrys =new Vector();
     if((crlentryset!=null)&&(!crlentryset.isEmpty())) {
       Iterator i=crlentryset.iterator();
-      for(;i.hasNext();) {
+      while (i.hasNext()) {
 	crlentry=(X509CRLEntry)i.next();
 	crlentrys.add(crlentry);
       }
@@ -184,7 +184,7 @@ public class CrlUtility {
     crlentrys.copyInto(crlentryarray);
     
     PublicKey issuerPublicKey=clientIssuerCert.getPublicKey();
-    String userDN=clientCert.getSubjectDN().getName();
+    //String userDN=clientCert.getSubjectDN().getName();
     CRLExtensions  extensions=null;
     X509CRLEntryImpl crlentryimpl=null;
     try {
@@ -234,7 +234,7 @@ public class CrlUtility {
       X500Name username=new X500Name(clientCert.getIssuerDN().getName());
       CougaarGeneralNames gns=	new  CougaarGeneralNames();
       gns.add(username);
-      CertificateIssuerExtension cie=new CertificateIssuerExtension();
+      //CertificateIssuerExtension cie=new CertificateIssuerExtension();
       CertificateIssuerExtension certificateext=new  CertificateIssuerExtension(gns);
       CRLExtensions crlentryext =new CRLExtensions();
       crlentryext.set(certificateext.getName(),certificateext);
