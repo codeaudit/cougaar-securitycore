@@ -30,7 +30,7 @@ public class UserAliasPwdDialog extends JDialog {
   JPanel jPanel11 = new JPanel();
   JPanel jPanel12 = new JPanel();
   JPanel jPanel13 = new JPanel();
-  JTextField pwdField = new JTextField();
+  JPasswordField pwdField = new JPasswordField();
   JTextField aliasField = new JTextField();
 
   public UserAliasPwdDialog() {
@@ -119,8 +119,8 @@ public class UserAliasPwdDialog extends JDialog {
     return aliasField.getText();
   }
 
-  public String getPwd() {
-    return pwdField.getText();
+  public char[] getPwd() {
+    return pwdField.getPassword();
   }
 
   boolean isOk = false;
