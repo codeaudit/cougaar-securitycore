@@ -753,17 +753,23 @@ final public class KeyRing  implements KeyRingService  {
       log.warn(" Unable to get Certificate Cache service in findPrivateKey");
       return null;
     }
-    if (cryptoClientPolicy.isCertificateAuthority()) {
+
+//    if (cryptoClientPolicy.isCertificateAuthority()) {
       List nameList = cacheservice.getX500NameFromNameMapping(cougaarName);
       if (nameList != null && nameList.size()> 0) {
-	X500Name dname = (X500Name)nameList.get(0);
-	return findPrivateKey(dname, validOnly);
+	List certList = new ArrayList();
+	for (int i = 0; i < nameList.size(); i++) {
+	  X500Name dname = (X500Name)nameList.get(i);
+	  certList.addAll(findPrivateKey(dname, validOnly));
+	}
+	return certList;
       }
       // else no cert has been created
       return null;
+/*
     }
     return findPrivateKey(CertificateUtility.getX500Name( getX500DN(cougaarName)), validOnly);
-
+*/
   }
 
   public List findPrivateKey(X500Name x500name) {
@@ -1176,8 +1182,12 @@ final public class KeyRing  implements KeyRingService  {
     //if (cryptoClientPolicy.isCertificateAuthority()) {
       List nameList = cacheservice.getX500NameFromNameMapping(cougaarName);
       if (nameList != null && nameList.size() > 0) {
-        X500Name dname = (X500Name)nameList.get(0);
-        return findCert(dname, lookupType, validOnly);
+	List certList = new ArrayList();
+        for (int i = 0; i < nameList.size(); i++) {
+          X500Name dname = (X500Name)nameList.get(i);
+          certList.addAll(findCert(dname, lookupType, validOnly));
+	}
+	return certList;
       }
       // else no cert has been created
       return null;
