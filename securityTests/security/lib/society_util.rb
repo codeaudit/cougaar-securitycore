@@ -1,22 +1,28 @@
 require "security/lib/cougaarMods"
 require 'security/lib/getStackTrace'
 
+# This is set to false before StopSociety, so we don't see a bunch
+# of "connection refused" messages after StopSociety
+$performWpcheck = true
+
 def getRegisteredAgents
   nameServers = run.society.name_servers
   result = nil
   loop = true
   i = 0
   while (loop)
-  nameServers.each { |nameServer|
-    uri = "#{nameServer.uri}/agents?suffix=.&format=html&depth=-1&size=-1&time=50000&sorted=true&split=true"
-    result, url = Cougaar::Communications::HTTP.get(uri)
-    break if result != nil
-  }
-  if (i > 5 || result != nil) 
-     loop = false;
-  else
-    sleep 5.seconds
-  end
+    nameServers.each { |nameServer|
+      uri = "#{nameServer.uri}/agents?suffix=.&format=html&depth=-1&size=-1&time=50000&sorted=true&split=true"
+      if ($performWpcheck)
+        result, url = Cougaar::Communications::HTTP.get(uri)
+        break if result != nil
+      end
+    }
+    if (i > 5 || result != nil || !$performWpcheck) 
+       loop = false;
+    else
+      sleep 5.seconds
+    end
   end
   return [] if result == nil
   re = /<a\s+href\s*=\s*"\/\$([^\/]*)\/list"\s*>[^<]*</
@@ -49,7 +55,7 @@ def testAgentRegistrations(interval = 5.minutes, delay = 5.minutes)
 #    puts expected.join("\n")
 #    puts "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
       loop = true
-      while (loop)
+      while (loop && $performWpcheck)
         #logInfoMsg "getRegisteredAgents"
         registered = getRegisteredAgents
         missing = expected - registered
@@ -132,6 +138,15 @@ module Cougaar
         }
       end # perform
     end # CorrectURLs
+
+    class StopTestWPRegistration < Cougaar::Action
+      def initialize(run)
+        super(run)
+      end
+      def perform
+        $performWpcheck = false
+      end
+    end
 
     class TestWPRegistration < Cougaar::Action
       def initialize(run, interval = 5.minutes, delay = 20.minutes)
