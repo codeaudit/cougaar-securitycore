@@ -214,7 +214,7 @@ class SecurityMop23 < AbstractSecurityMop
     super(run)
     @name = "2.3"
     @descript = "Percentage of sensitive data elements transmitted between computers that were available to an unauthorized entity"
-    @logfilename = #{ENV['CIP']}/workspace/security/data/snort.log
+    @logfilename = "#{ENV['CIP']}/workspace/security/data/snort.log"
     Dir.mkdir(@logfilename) unless File.exist?(@logfilename) 
     #aFile = File.new(@logfilename, File::RDWR | File::APPEND | File::CREAT)
     #afile.close
