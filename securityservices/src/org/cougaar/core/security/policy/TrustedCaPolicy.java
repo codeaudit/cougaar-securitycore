@@ -32,7 +32,7 @@ import java.net.*;
 public class TrustedCaPolicy {
   /** The alias of the certificate of a trusted CA in the keystore
    */
-  public String caAlias;
+  //public String caAlias;
 
   /** The distinguished name of the trusted CA
    */
@@ -58,8 +58,7 @@ public class TrustedCaPolicy {
   static public final int COUGAAR_OPENLDAP = 2;
 
   public String toString() {
-    return "caAlias=" + caAlias
-      + " - caDN=" + caDN
+    return  " - caDN=" + caDN
       + " - caURL=" + caURL
       + " - certDirectoryURL=" + certDirectoryUrl
       + " - certDirectoryType=" + certDirectoryType;

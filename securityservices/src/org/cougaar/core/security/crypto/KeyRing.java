@@ -346,6 +346,20 @@ final public class KeyRing
     return c;
   }
 
+  public X509Certificate findFirstAvailableCert(String name)
+    throws CertificateException {
+    List certList =
+      findCert(name, KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
+    if (certList == null || certList.size() == 0) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to find certificate of " + name);
+      }
+      throw new CertificateException("Unable to find certificate: " + name);
+    }
+    X509Certificate cert = ((CertificateStatus)certList.get(0)).getCertificate();
+    return cert;
+  }
+
   public synchronized X509Certificate[] findCertChain(X509Certificate c)
   {
     X509Certificate[] chain = null;

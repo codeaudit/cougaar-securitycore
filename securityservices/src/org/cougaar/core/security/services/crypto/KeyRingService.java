@@ -61,6 +61,9 @@ public interface KeyRingService extends Service {
    */
   List findCert(String commonName);
 
+  X509Certificate findFirstAvailableCert(String name)
+    throws CertificateException;
+
   public static final int LOOKUP_LDAP               = 1;
   public static final int LOOKUP_KEYSTORE           = 2;
   public static final int LOOKUP_FORCE_LDAP_REFRESH = 4;

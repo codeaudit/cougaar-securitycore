@@ -56,8 +56,29 @@ import org.cougaar.core.service.LoggingService;
 
 public class CertificateCache
 {
+  /** A hashtable that contains a cache of all the certificates (including valid and non valid certs)
+   *  The hashtable key is a Principal.
+   *  The hashtable value is a List of CertificateStatus
+   */
   private Hashtable certsCache = new Hashtable(50);
+
+  /** A hashtable that contains a cache of all the private keys (including valid and non valid private keys)
+   *  The hashtable key is a Principal.
+   *  The hashtable value is a List of PrivateKeyCert (which contains CertificateStatus and PrivateKey)
+   */
   private Hashtable privateKeyCache = new Hashtable(50);
+
+  /** A hashtable that contains a cache of all currently valid certificates.
+   *  The hashtable key is a Principal.
+   *  The hashtable value is a List of CertificateStatus
+   */
+  private Hashtable certsCacheValid = new Hashtable(50);
+
+  /** A hashtable that contains a cache of all currently valid private keys.
+   *  The hashtable key is a Principal.
+   *  The hashtable value is a List of PrivateKeyCert (which contains CertificateStatus and PrivateKey)
+   */
+  private Hashtable privateKeyCacheValid = new Hashtable(50);
 
   private Hashtable bigint2dn=new Hashtable(50);
   //private boolean debug = false;
@@ -150,7 +171,14 @@ public class CertificateCache
     if (x500Name == null) {
       throw new IllegalArgumentException("getCertificate: Argument is null");
     }
-    ArrayList list = (ArrayList) certsCache.get(x500Name);
+    ArrayList list = null;
+    try {
+      list = (ArrayList) certsCache.get(x500Name);
+    }
+    catch (Exception e) {
+      log.warn("Unable to get list of certificates from cache for "
+	       + x500Name.toString() + ". Reason:" + e);
+    }
     return list;
   }
 

@@ -167,8 +167,9 @@ public class DirectoryKeyStore
 	param.serviceBroker);
     if(certificateFinder == null) {
       if (!param.isCertAuth) {
-	if (log.isErrorEnabled())
+	if (log.isErrorEnabled()) {
 	  log.error("Could  not get certificate finder from factory");
+	}
 	throw new RuntimeException("Could  not get certificate finder from factory");
       }
       else {
@@ -215,9 +216,8 @@ public class DirectoryKeyStore
 
       } catch(Exception e) {
 	if (log.isErrorEnabled()) {
-	  log.error("Can't start CA client--"+e.getMessage());
+	  log.error("Can't start CA client: "+e.getMessage());
 	}
-	e.printStackTrace();
       }
 
       // We running as part of Cougaar, this class may be used to support
@@ -240,7 +240,7 @@ public class DirectoryKeyStore
       }
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.error("Unable to initialize DirectoryKeystore: " + e);
     }
 
     certCache.printbigIntCache();
@@ -254,7 +254,7 @@ public class DirectoryKeyStore
       alias =keystore.aliases();
     }
     catch (Exception exp) {
-      exp.printStackTrace();
+      log.warn("Unable to get alias list: " + exp);
       return null;
     }
     return alias;
@@ -268,8 +268,7 @@ public class DirectoryKeyStore
       cn=getCommonName(cert);
     }
     catch (Exception exp) {
-      exp.printStackTrace();
-      cn=null;
+      log.warn("Unable to get common name for " + alias + ". Reason:" + exp);
     }
     return cn;
 
@@ -292,8 +291,7 @@ public class DirectoryKeyStore
       }
     }
     catch(Exception e) {
-      log.debug(e.toString());
-      e.printStackTrace();
+      log.warn("Unable to list keystore alias:" + e.toString());
     }
   }
 
@@ -484,8 +482,9 @@ public class DirectoryKeyStore
    */
   private void lookupCertInLDAP(String filter, CertDirectoryServiceClient certFinder)
   {
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug(" lookupCertInLDAP of Directory keystore called :");
+    }
     LdapEntry[] certs = null;
     CertificateStatus certstatus=null;
     // Look in certificate directory service
@@ -535,12 +534,13 @@ public class DirectoryKeyStore
           for (int j = 0; j < certList.size(); j++) {
             CertificateStatus cs = (CertificateStatus)certList.get(j);
             if (cs.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)) {
-              if (log.isDebugEnabled())
+              if (log.isDebugEnabled()) {
                 log.debug("Revoked cert in cache found.");
-
+	      }
               if (cs.getCertificate().getPublicKey().equals(publickey)) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()) {
                   log.debug("Cert from LDAP is already in cache, status REVOKED");
+		}
                 isRevoked = true;
                 break;
               }
@@ -591,6 +591,7 @@ public class DirectoryKeyStore
 	  log.warn("Found non trusted cert in LDAP directory! "
 		   + filter + " - " + e);
 	}
+	e.printStackTrace();
       }
       catch (CertificateExpiredException e) {
 	// The certificate is trusted but it has expired.
@@ -647,6 +648,7 @@ public class DirectoryKeyStore
 
     Collection collection = cf.generateCertificates(inputstream);
     if(collection.isEmpty()) {
+      log.warn("Reply for " + alias + " has no certificate");
       throw new CertificateException("Reply has no certificate");
     }
     if (log.isDebugEnabled()) {
@@ -691,6 +693,9 @@ public class DirectoryKeyStore
 	}
       }
     }
+    else {
+      log.warn("Certificate chain is null");
+    }
   }
 
   public void installCertificate(String alias,
@@ -706,6 +711,7 @@ public class DirectoryKeyStore
       keystore.getKey(alias, param.keystorePassword);
 
     if(certificate == null) {
+      log.error(alias + " has no certificate. Cannot install certificate signed by CA.");
       throw new CertificateException(alias + " has no certificate");
     }
 
@@ -714,7 +720,7 @@ public class DirectoryKeyStore
       // We have to construct the chain first.
       if (log.isDebugEnabled()) {
 	log.debug("Certificate for alias :"+ alias
-			   +"does not contain chain");
+		  +"does not contain chain");
       }
       certificateForImport = establishCertChain(certificate,
 						certificateChain[0]);
@@ -925,15 +931,23 @@ public class DirectoryKeyStore
 					       X509Certificate certificateReply)
     throws CertificateException, KeyStoreException
   {
+    if (certificate == null) {
+      log.error("establishCertChain: null certificate");
+    }
+    if (certificateReply == null) {
+      log.error("establishCertChain: null certificate reply");
+    }
     if(certificate != null) {
       java.security.PublicKey publickey = certificate.getPublicKey();
       java.security.PublicKey publickey1 = certificateReply.getPublicKey();
       if(!publickey.equals(publickey1)) {
 	String s = "Public keys in reply and keystore don't match";
+	log.warn(s);
 	throw new CertificateException(s);
       }
       if(certificateReply.equals(certificate)) {
 	String s1 = "Certificate reply and certificate in keystore are identical";
+	log.debug(s1);
 	throw new CertificateException(s1);
       }
     }
@@ -974,15 +988,17 @@ public class DirectoryKeyStore
               keyusage = (KeyUsageExtension)((X509CertImpl)acertificate[i]).get(s);
             }
           } catch (Exception ex) {
-            if (log.isErrorEnabled())
-              log.error("Exception in getKeyUsage: "
-                + ex.toString());
+            if (log.isErrorEnabled()) {
+              log.error("Exception in getKeyUsage: " + ex.toString());
+	    }
           }
           if (keyusage == null
-            || keyusage.getBits().length < KeyManagement.KEYUSAGE_CERT_SIGN_BIT
-            || !keyusage.getBits()[KeyManagement.KEYUSAGE_CERT_SIGN_BIT])
+	      || keyusage.getBits().length < KeyManagement.KEYUSAGE_CERT_SIGN_BIT
+	      || !keyusage.getBits()[KeyManagement.KEYUSAGE_CERT_SIGN_BIT]) {
+	    log.warn("Certificate does not have signing capability.");
             throw new CertificateChainException("Certificate does not have signing capability.",
-              CertificateTrust.CERT_TRUST_NOT_TRUSTED);
+						CertificateTrust.CERT_TRUST_NOT_TRUSTED);
+	  }
         }
 	i++;
       }
@@ -1138,7 +1154,6 @@ public class DirectoryKeyStore
 	  if(log.isInfoEnabled()) {
 	    log.info(" certificate is revoked for dn ="
 		     +((X509Certificate)certificate).getSubjectDN().getName());
-	    //certrevoked.printStackTrace();
 	  }
 	}
       } // END while(it.hasNext())
@@ -1222,6 +1237,7 @@ public class DirectoryKeyStore
 	  }
 	}
 	catch (Exception e) {
+	  log.warn("Unable to update private keystore");
 	}
       }
     }
@@ -1243,8 +1259,9 @@ public class DirectoryKeyStore
     }
 
     if(i == certificateReply.length) {
-      throw new CertificateException("Certificate reply does not contain public key for <"
-				     + alias + ">");
+      String s = "Certificate reply does not contain public key for <" + alias + ">";
+      log.warn(s);
+      throw new CertificateException(s);
     }
 
     X509Certificate certificate1 = certificateReply[0];
@@ -1264,8 +1281,10 @@ public class DirectoryKeyStore
 	break;
       }
 
-      if(l == certificateReply.length)
+      if(l == certificateReply.length) {
+	log.warn("Incomplete certificate chain in reply for " + alias);
 	throw new CertificateException("Incomplete certificate chain in reply");
+      }
     }
 
     for(int k = 0; k < certificateReply.length - 1; k++) {
@@ -1274,6 +1293,8 @@ public class DirectoryKeyStore
 	certificateReply[k].verify(publickey1);
       }
       catch(Exception exception) {
+	log.warn("Certificate chain in reply does not verify: "
+		 + exception.getMessage());
 	throw new CertificateException("Certificate chain in reply does not verify: "
 				       + exception.getMessage());
       }
@@ -1333,8 +1354,9 @@ public class DirectoryKeyStore
     try {
       x500NameSigner = new X500Name(principalSigner.getName());
     } catch(Exception e) {
-      if (log.isWarnEnabled())
+      if (log.isWarnEnabled()) {
 	log.warn("Unable to get X500 name - " + e);
+      }
     }
 
     ArrayList listSigner = certCache.getCertificates(x500NameSigner);
@@ -1414,7 +1436,6 @@ public class DirectoryKeyStore
 			     + exception + " - "
 			     + x509certificate1
                              + " - " + cs.getCertificateAlias());
-	  //exception.printStackTrace();
 	}
 	continue;
       }
@@ -1622,8 +1643,9 @@ public class DirectoryKeyStore
         if (keyAlias != null) {
           alias = keyAlias;
           // lookup upper level CA's LDAP
-          if (log.isDebugEnabled())
+          if (log.isDebugEnabled()) {
             log.debug("CA key already created, check upper level CA LDAP");
+	  }
 
           String filter = "(cn=" + dname.getCommonName() + ")";
           CertDirectoryServiceClient certFinder =
@@ -1682,9 +1704,7 @@ public class DirectoryKeyStore
         }
       } catch (Exception e) {
         if (log.isDebugEnabled()) {
-          log.warn("Unable to create key: " + dname
-                             + " - Reason:" + e);
-          e.printStackTrace();
+          log.warn("Unable to create key: " + dname + " - Reason:" + e);
         }
       }
 
@@ -1698,9 +1718,9 @@ public class DirectoryKeyStore
     try {
       X500Name [] caDNs = configParser.getCaDNs();
       if (caDNs.length == 0) {
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
           log.debug("No CA key created yet, the certificate can not be created.");
-
+	}
         return null;
       }
 
@@ -1709,12 +1729,13 @@ public class DirectoryKeyStore
       if (!cryptoClientPolicy.isRootCA()) {
         List certList = certCache.getValidCertificates(configParser.getCaDNs()[0]);
         if (certList == null || certList.size() == 0) {
-          if (log.isDebugEnabled())
+          if (log.isDebugEnabled()) {
             log.debug("CA key created but is not approved by upper level CA yet.");
-
+	  }
           String caAlias = findAlias(configParser.getCaDNs()[0].getCommonName());
-          if (log.isDebugEnabled())
+          if (log.isDebugEnabled()) {
             log.debug("CA alias: " + caAlias);
+	  }
           addCAKeyPair(configParser.getCaDNs()[0], caAlias);
           return null;
         }
@@ -1732,8 +1753,9 @@ public class DirectoryKeyStore
           new CertificateManagementServiceClientImpl(caDN),
           CertificateManagementService.class,
           null);
-      if (log.isDebugEnabled())
+      if (log.isDebugEnabled()) {
         log.debug("Signing certificate locally with " + caDN);
+      }
       X509CertImpl certImpl = km.signX509Certificate(
         generatePKCS10Request((X509Certificate)
                               keystore.getCertificate(alias),
@@ -1747,9 +1769,7 @@ public class DirectoryKeyStore
       privatekey = (PrivateKey)keystore.getKey(alias, param.keystorePassword);
     } catch (Exception e) {
       if (log.isDebugEnabled()) {
-        log.warn("Unable to create key: " + dname
-                           + " - Reason:" + e);
-        e.printStackTrace();
+        log.warn("Unable to create key: " + dname + " - Reason:" + e);
       }
     }
     return privatekey;
@@ -1910,9 +1930,7 @@ public class DirectoryKeyStore
       }
     } catch (Exception e) {
       if (log.isErrorEnabled()) {
-	log.error("Unable to create key: " + dname
-		  + " - Reason:" + e);
-	e.printStackTrace();
+	log.error("Unable to create key: " + dname + " - Reason:" + e);
       }
     }
 
@@ -2050,12 +2068,10 @@ public class DirectoryKeyStore
 		  + alias
 		  + " (" + e + ")"
 		  + " Current date is " + d.toString());
-        //e.printStackTrace();
       }
     } catch(Exception e) {
       if (log.isWarnEnabled()) {
-        log.warn("Error: can't get certificate for " + alias + " Reason: " + e);
-        //e.printStackTrace();
+        log.warn("Can't get certificate for " + alias + " Reason: " + e);
       }
     }
     return privatekey;
@@ -2074,7 +2090,6 @@ public class DirectoryKeyStore
     }
     catch (Exception e) {
       log.error("Unable to get alias: " + e);
-      e.printStackTrace();
     }
     return alias;
   }
@@ -2099,7 +2114,7 @@ public class DirectoryKeyStore
 	findCert(a, KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP);
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.warn("Unable to find certificate for " + p.toString() + ". Reason:" + e);
     }
     return certificateList;
   }
@@ -2111,7 +2126,7 @@ public class DirectoryKeyStore
 	findCert(name, KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP);
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.warn("Unable to find certificate for " + name + ". Reason:" + e);
     }
     return certificateList;
   }
@@ -2129,7 +2144,6 @@ public class DirectoryKeyStore
 	}
 	catch (Exception e) {
 	  log.error("Unable to initialize commonName2alias:" + e);
-	  e.printStackTrace();
 	}
       }
     }
@@ -2159,7 +2173,6 @@ public class DirectoryKeyStore
 	}
 	catch (Exception e) {
 	  log.debug("Unable to find cert:"+ e);
-	  e.printStackTrace();
 	}
       }
     }
@@ -2218,8 +2231,7 @@ public class DirectoryKeyStore
 	}
       }
     } catch(Exception e) {
-      log.error(e.toString());
-      e.printStackTrace();
+      log.error("Unable to get next alias:" + e.toString());
     }
     alias = alias + nextIndex;
     if (log.isDebugEnabled()) {
@@ -2396,7 +2408,6 @@ public class DirectoryKeyStore
       log.warn("Can't locate the certificate for:"
 	       + dname.toString()
 	       +"--"+e+".generating new one...");
-      e.printStackTrace();
     }
     if (log.isDebugEnabled()) {
       log.debug("checkOrMakeCert: creating key for "
@@ -2589,59 +2600,63 @@ public class DirectoryKeyStore
   }
 
   private String sendPKCS(String request, String pkcs) {
-      String reply = "";
-      try {
-	TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
-	if (log.isDebugEnabled()) {
-	  log.debug("Sending request to "
-		    + trustedCaPolicy[0].caURL
-		    + ", DN= "
-		    + trustedCaPolicy[0].caDN);
-	}
-	URL url = new URL(trustedCaPolicy[0].caURL);
-	HttpURLConnection huc = (HttpURLConnection)url.openConnection();
-	// Don't follow redirects automatically.
-	huc.setInstanceFollowRedirects(false);
-	// Let the system know that we want to do output
-	huc.setDoOutput(true);
-	// Let the system know that we want to do input
-	huc.setDoInput(true);
-	// No caching, we want the real thing
-	huc.setUseCaches(false);
-	// Specify the content type
-	huc.setRequestProperty("Content-Type",
-			       "application/x-www-form-urlencoded");
-	huc.setRequestMethod("POST");
-	PrintWriter out = new PrintWriter(huc.getOutputStream());
-	String content = "pkcs=" + URLEncoder.encode(pkcs, "UTF-8");
-	content = content + "&role=" + URLEncoder.encode(role, "UTF-8");
-	content = content + "&dnname="
-	  + URLEncoder.encode(trustedCaPolicy[0].caDN, "UTF-8");
-	content = content + "&pkcsdata=" + URLEncoder.encode(request, "UTF-8");
-	out.println(content);
-	out.flush();
-	out.close();
+    String reply = "";
 
-	BufferedReader in =
-	  new BufferedReader(new InputStreamReader(huc.getInputStream()));
-	int len = 2000;     // Size of a read operation
-	char [] cbuf = new char[len];
-	while (in.ready()) {
-	  int read = in.read(cbuf, 0, len);
-	  reply = reply + new String(cbuf, 0, read);
-	}
-	in.close();
-        reply = URLDecoder.decode(reply, "UTF-8");
-	if (log.isDebugEnabled()) {
-	  log.debug("Reply: " + reply);
-	}
+    if (cryptoClientPolicy == null) {
+      log.error("sendPKCS: cryptoClientPolicy is null");
+      throw new RuntimeException("sendPKCS: cryptoClientPolicy is null");
+    }
 
-      } catch(Exception e) {
-	log.warn("Error: sending PKCS request to CA failed--"
-		 + e.getMessage());
-	e.printStackTrace();
+    TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
+    if (log.isDebugEnabled()) {
+      log.debug("Sending request to " + trustedCaPolicy[0].caURL
+		+ ", DN= " + trustedCaPolicy[0].caDN);
+    }
+
+    try {
+      URL url = new URL(trustedCaPolicy[0].caURL);
+      HttpURLConnection huc = (HttpURLConnection)url.openConnection();
+      // Don't follow redirects automatically.
+      huc.setInstanceFollowRedirects(false);
+      // Let the system know that we want to do output
+      huc.setDoOutput(true);
+      // Let the system know that we want to do input
+      huc.setDoInput(true);
+      // No caching, we want the real thing
+      huc.setUseCaches(false);
+      // Specify the content type
+      huc.setRequestProperty("Content-Type",
+			     "application/x-www-form-urlencoded");
+      huc.setRequestMethod("POST");
+      PrintWriter out = new PrintWriter(huc.getOutputStream());
+      String content = "pkcs=" + URLEncoder.encode(pkcs, "UTF-8");
+      content = content + "&role=" + URLEncoder.encode(role, "UTF-8");
+      content = content + "&dnname="
+	+ URLEncoder.encode(trustedCaPolicy[0].caDN, "UTF-8");
+      content = content + "&pkcsdata=" + URLEncoder.encode(request, "UTF-8");
+      out.println(content);
+      out.flush();
+      out.close();
+
+      BufferedReader in =
+	new BufferedReader(new InputStreamReader(huc.getInputStream()));
+      int len = 2000;     // Size of a read operation
+      char [] cbuf = new char[len];
+      while (in.ready()) {
+	int read = in.read(cbuf, 0, len);
+	reply = reply + new String(cbuf, 0, read);
+      }
+      in.close();
+      reply = URLDecoder.decode(reply, "UTF-8");
+      if (log.isDebugEnabled()) {
+	log.debug("Reply: " + reply);
       }
 
+    } catch(Exception e) {
+      log.warn("Unable to send PKCS request to CA. CA URL:" + trustedCaPolicy[0].caURL
+	       + " . CA DN:" + trustedCaPolicy[0].caDN + e.getMessage());
+    }
+      
     return reply;
   }
 
@@ -2663,9 +2678,8 @@ public class DirectoryKeyStore
       String req = baos.toString();
       String reply = sendPKCS(req, "PKCS7");
     } catch(Exception e) {
-      log.warn("Can't get the certificate signed--"
+      log.warn("Can't get the certificate signed: "
 	       + e.getMessage());
-      e.printStackTrace();
     }
     return baos.toString();
   }
@@ -2680,7 +2694,6 @@ public class DirectoryKeyStore
       }
     } catch (Exception e) {
       log.warn("Error: can't get the certificates from truststore. " + e.toString());
-      //e.printStackTrace();
     }
 
     X509Certificate[] trustedcerts = new X509Certificate[list.size()];
@@ -2724,7 +2737,7 @@ public class DirectoryKeyStore
       try {
         hostName = InetAddress.getLocalHost().getHostName();
       } catch (UnknownHostException ex) {
-        ex.printStackTrace();
+	System.err.println("Unable to get my host name: " + ex.toString());
       }
     }
     return hostName;

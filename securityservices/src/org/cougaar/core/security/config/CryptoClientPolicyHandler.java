@@ -58,7 +58,6 @@ public class CryptoClientPolicyHandler
   // Trusted Ca attributes
   private static final String TRUSTED_CA_ELEMENT          = "trustedCA";
   private static final String CA_URL_ELEMENT              = "CA_URL";
-  private static final String CA_ALIAS_ELEMENT            = "CA_alias";
   private static final String CA_DN_ELEMENT               = "CA_DN";
   private static final String CERT_DIRECTORY_URL_ELEMENT  = "CertDirectoryURL";
   private static final String CERT_DIRECTORY_TYPE_ELEMENT = "CertDirectoryType";
@@ -162,9 +161,11 @@ public class CryptoClientPolicyHandler
     }
 
     // trusted CA
+    /*
     if (localName.equals(CA_ALIAS_ELEMENT)) {
       currentTrustedCa.caAlias = getContents();
     }
+    */
     if (localName.equals(CA_URL_ELEMENT)) {
       currentTrustedCa.caURL = getContents();
     }

@@ -92,7 +92,7 @@ public class ConfigParserServiceImpl
 
     // Add workspace/security/keystores/$nodeName directory to the search path
     String nodeName = secprop.getProperty("org.cougaar.node.name");
-    if (nodeName == null) {
+    if (nodeName == null || nodeName.length() == 0) {
       if (isNode) {
 	// The node name property should always be set when running as a Cougaar node.
 	log.error("org.cougaar.node.name property has not been set");
@@ -106,7 +106,7 @@ public class ConfigParserServiceImpl
 
     String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
     log.debug("Cougaar workspace is :" + cougaarWsp);
-    if (cougaarWsp == null) {
+    if (cougaarWsp == null || cougaarWsp.length() == 0) {
       if (isNode) {
 	// The org.cougaar.workspace property should always be set when running as a Cougaar node.
 	log.error(secprop.COUGAAR_WORKSPACE + " property has not been set");

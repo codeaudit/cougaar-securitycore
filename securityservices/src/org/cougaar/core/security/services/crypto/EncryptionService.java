@@ -90,7 +90,8 @@ public interface EncryptionService extends Service {
    */
   public SealedObject asymmEncrypt(String targetName,
 				   String cipherAlgSpec,
-				   Serializable object)
+				   Serializable object,
+				   java.security.cert.Certificate cert)
     throws GeneralSecurityException, IOException;
 
   /** Decrypt an encrypted object using public-key encryption.

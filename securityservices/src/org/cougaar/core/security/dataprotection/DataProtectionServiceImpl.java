@@ -150,8 +150,10 @@ public class DataProtectionServiceImpl
     KeyGenerator kg = KeyGenerator.getInstance(keygenAlg);
     kg.init(random);
     SecretKey sk = kg.generateKey();
+    X509Certificate agentCert = keyRing.findFirstAvailableCert(agent);
+
     SealedObject skeyobj = encryptionService.asymmEncrypt(agent,
-      policy.asymmSpec, sk);
+      policy.asymmSpec, sk, agentCert);
     return new DataProtectionKeyImpl(skeyobj, digestAlg, policy);
   }
 
@@ -235,7 +237,10 @@ public class DataProtectionServiceImpl
 
         if (log.isDebugEnabled())
           log.debug("Re-encrypting Data Protection secret key.");
-        obj = encryptionService.asymmEncrypt(agent, spec, skey);
+
+	X509Certificate agentCert = keyRing.findFirstAvailableCert(agent);
+
+        obj = encryptionService.asymmEncrypt(agent, spec, skey, agentCert);
         pke.setDataProtectionKey(
           new DataProtectionKeyImpl(obj, dpKey.getDigestAlg(), dpKey.getSecureMethod()));
       } catch (IOException ioe) {

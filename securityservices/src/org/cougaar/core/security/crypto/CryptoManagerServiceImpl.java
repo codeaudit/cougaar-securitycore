@@ -54,12 +54,22 @@ public class CryptoManagerServiceImpl
   private ServiceBroker serviceBroker;
   private LoggingService log;
 
+  /** A hashtable that contains encrypted session keys.
+   *  The session keys may be used for multiple messages instead of having to generate and encrypt
+   *  the secret key every time a message is sent.
+   *  The hashtable key is an MessageAddressPair
+   *  The hashtable value is a SealedObject (the encrypted session key)
+   */
+  private Hashtable sessionKeys;
+
+
   public CryptoManagerServiceImpl(KeyRingService aKeyRing, ServiceBroker sb) {
     keyRing = aKeyRing;
     serviceBroker = sb;
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
+    sessionKeys = new Hashtable();
   }
   
   public SignedObject sign(final String name,
@@ -164,24 +174,16 @@ public class CryptoManagerServiceImpl
     return null;
   }
 
-  public SealedObject asymmEncrypt(String name, String spec, Serializable obj)
+  public SealedObject asymmEncrypt(String name, String spec, Serializable obj,
+				   java.security.cert.Certificate cert)
     throws GeneralSecurityException, IOException {
     /*encrypt the secretekey with receiver's public key*/
 
-    List certList =
-      keyRing.findCert(name,
-		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (certList == null || certList.size() == 0) {
-      if (log.isWarnEnabled()) {
-	log.warn("Unable to encrypt object with public key. Certificate of " + name
-	  + " was not found.");
-      }
-      throw new CertificateException("asymmEncrypt. Unable to get certificate for " + name);
-    }
-    java.security.cert.Certificate cert =
-      ((CertificateStatus)certList.get(0)).getCertificate();
     PublicKey key = cert.getPublicKey();
-    if (spec==""||spec==null) spec=key.getAlgorithm();
+
+    if (spec==""||spec==null) {
+      spec=key.getAlgorithm();
+    }
     if (log.isDebugEnabled()) {
       log.debug("Encrypting for " + name + " using " + spec);
     }
@@ -434,19 +436,7 @@ public class CryptoManagerServiceImpl
 			 + " -> " + target.toAddress());
     }
     // Find source certificate
-    List senderList =
-      keyRing.findCert(source.toAddress(),
-		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (senderList == null || senderList.size() == 0) {
-      if (log.isWarnEnabled()) {
-	log.warn("Unable to sign object. Certificate of " + source.toAddress()
-		 + " was not found.");
-      }
-      throw new CertificateException("Unable to find sender certificate: "
-				     + source.toAddress());
-    }
-    X509Certificate sender = ((CertificateStatus)senderList.get(0)).getCertificate();
-
+    X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
     SignedObject signedObject = sign(source.toAddress(), policy.signSpec, object);
 
     PublicKeyEnvelope pke =
@@ -465,28 +455,39 @@ public class CryptoManagerServiceImpl
     }
     PublicKeyEnvelope pke = null;
 
-    /*generate the secret key*/
-    int i = policy.symmSpec.indexOf("/");
-    String a;
-    a =  i > 0 ? policy.symmSpec.substring(0,i) : policy.symmSpec;
-    SecureRandom random = new SecureRandom();
-    KeyGenerator kg = KeyGenerator.getInstance(a);
-    kg.init(random);
-    SecretKey sk = kg.generateKey();
-    // Encrypt session key
-    SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk);
-    SealedObject secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk);
+    // Find target & receiver certificates
+    X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
+    X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
 
-    SealedObject sealedMsg = symmEncrypt(sk, policy.symmSpec, object);
-    // Find target certificate
-    List receiverList =
-      keyRing.findCert(target.toAddress(),
-		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (receiverList == null || receiverList.size() == 0) {
-      throw new CertificateException("Unable to find target certificate: "
-				     + target.toAddress());
+    /* Have we already generated a session key for this pair of agents? */
+    MessageAddressPair mp = new MessageAddressPair(source.toAddress(), target.toAddress(),
+						   sender, receiver);
+    SessionKeySet so = (SessionKeySet) sessionKeys.get(mp);
+    SealedObject secret = null;
+    SealedObject secretSender = null;
+    SecretKey sk = null;
+    if (so == null) {
+      /*generate the secret key*/
+      int i = policy.symmSpec.indexOf("/");
+      String a;
+      a =  i > 0 ? policy.symmSpec.substring(0,i) : policy.symmSpec;
+      SecureRandom random = new SecureRandom();
+      KeyGenerator kg = KeyGenerator.getInstance(a);
+      kg.init(random);
+      sk = kg.generateKey();
+
+      // Encrypt session key
+      secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
+      secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk, sender);
+      SessionKeySet sks = new SessionKeySet(secretSender, secret, sk);
+      sessionKeys.put(mp, sks);
     }
-    X509Certificate receiver = ((CertificateStatus)receiverList.get(0)).getCertificate();
+    else {
+      secret = so.receiver;
+      secretSender = so.sender;
+      sk = so.secretKey;
+    }
+    SealedObject sealedMsg = symmEncrypt(sk, policy.symmSpec, object);
 
     pke = new PublicKeyEnvelope(null, receiver, policy, secret, secretSender, sealedMsg);
     return pke;
@@ -524,10 +525,14 @@ public class CryptoManagerServiceImpl
       log.debug("Encrypting session key with "
 		+ target.toAddress() + " certificate");
     }
+    // Find source & target certificate
+    X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
+    X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
+
     // Encrypt session key
-    sessionKey = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk);
+    sessionKey = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
     // Encrypt session key with sender key
-    sessionKeySender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk);
+    sessionKeySender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk, sender);
 
     if(log.isDebugEnabled()) {
       log.debug("Signing object with " + source.toAddress() + " key");
@@ -542,39 +547,8 @@ public class CryptoManagerServiceImpl
     sealedObject = symmEncrypt(sk, policy.symmSpec, signedObject);
 
     if(log.isDebugEnabled()) {
-      log.debug("Looking up source certificate");
+      log.debug("Looking up source & target certificate");
     }
-    // Find source certificate
-    List senderList =
-      keyRing.findCert(source.toAddress(),
-		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (senderList == null || senderList.size() == 0) {
-      if(log.isErrorEnabled()) {
-	log.error("Unable to find sender certificate: "
-		  + source.toAddress());
-      }
-      throw new CertificateException("Unable to find sender certificate: "
-				 + source.toAddress());
-    }
-    X509Certificate sender = ((CertificateStatus)senderList.get(0)).getCertificate();
-
-    if(log.isDebugEnabled()) {
-      log.debug("Looking up target certificate");
-    }
-    // Find target certificate
-    List receiverList =
-      keyRing.findCert(target.toAddress(),
-		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (receiverList == null || receiverList.size() == 0) {
-      if(log.isErrorEnabled()) {
-	log.error("Unable to find target certificate: "
-		  + target.toAddress());
-      }
-      throw new CertificateException("Unable to find target certificate: "
-				 + target.toAddress());
-    }
-    X509Certificate receiver =
-      ((CertificateStatus)receiverList.get(0)).getCertificate();
 
     if(log.isDebugEnabled()) {
       log.debug("Creating secure envelope");
@@ -603,11 +577,17 @@ public class CryptoManagerServiceImpl
      * not able to send the message, the remote agent did
      * not accept the message, etc.
      */
+    if (envelope.getEncryptedSymmetricKey() == null) {
+      log.warn("EncryptedSymmetricKey of receiver null");
+    }
     sk = (SecretKey)
       asymmDecrypt(target.toAddress(), policy.asymmSpec,
 		   envelope.getEncryptedSymmetricKey());
     if (sk == null) {
       // Try with the source address
+      if (envelope.getEncryptedSymmetricKeySender() == null) {
+        log.warn("EncryptedSymmetricKey of sender null");
+      }
       sk = (SecretKey)
 	asymmDecrypt(source.toAddress(), policy.asymmSpec,
 		     envelope.getEncryptedSymmetricKeySender());
@@ -633,7 +613,8 @@ public class CryptoManagerServiceImpl
     SecretKey sk = getSecretKey(source, target, envelope, policy);
     if (sk == null) {
       if (log.isErrorEnabled()) {
-        log.error("Error: unable to retrieve secret key");
+        log.error("DecryptAndVerify: unable to retrieve secret key. Msg:" + source.toAddress()
+		  + " -> " + target.toAddress());
       }
       throw new GeneralSecurityException("can't get secret key.");
     }
@@ -962,6 +943,53 @@ public class CryptoManagerServiceImpl
       throw gse;
     }
   }//getProtection
-  
-}
 
+  private class MessageAddressPair
+  {
+    private String source;
+    private String target;
+    private X509Certificate sender;
+    private X509Certificate receiver;
+
+    public MessageAddressPair(String src, String tgt,
+			      X509Certificate snd,
+			      X509Certificate rcv) {
+      if (src == null || tgt == null || snd == null || rcv == null) {
+	throw new IllegalArgumentException("One of the parameters is null");
+      }
+      source = src;
+      target = tgt;
+      sender = snd;
+      receiver = rcv;
+    }
+
+    public boolean equals(Object o) {
+      MessageAddressPair mp = null;
+      if (!(o instanceof MessageAddressPair)) {
+	return false;
+      }
+      else {
+	mp = (MessageAddressPair) o;
+      }
+      if (mp.source.equals(source)
+	  && mp.target.equals(target)
+	  && mp.sender.equals(sender)
+	  && mp.receiver.equals(receiver)) {
+	return true;
+      }
+      return false;
+    }
+  }
+  
+  private class SessionKeySet {
+    public SessionKeySet(SealedObject snd, SealedObject rcv, SecretKey sk) {
+      sender = snd;
+      receiver = rcv;
+      secretKey = sk;
+    }
+
+    public SealedObject sender;
+    public SealedObject receiver;
+    public SecretKey secretKey;
+  }
+}

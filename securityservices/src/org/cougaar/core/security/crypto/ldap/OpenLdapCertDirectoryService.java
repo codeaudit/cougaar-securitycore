@@ -450,8 +450,8 @@ public class OpenLdapCertDirectoryService
 	 }*/
     }
     catch(javax.naming.NameAlreadyBoundException nameexp) {
-      if(log.isErrorEnabled()) {
-	log.error("PublishCertificate: Name already exists: " +dnname);
+      if(log.isInfoEnabled()) {
+	log.info("PublishCertificate: Name already exists: " +dnname);
       }
       throw nameexp;
     }
