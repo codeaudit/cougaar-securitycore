@@ -27,14 +27,41 @@
 package org.cougaar.core.security.services.crypto;
 
 import java.lang.*;
-import java.security.PrivateKey;
-import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.security.Principal;
 import org.cougaar.core.component.Service;
 
-/** Low-level service to retrieve private keys.
- *  Very few selected clients can access this service directly.
+/** Low-level service to retrieve certificates
  */
-public interface PrivateKeyRingService extends Service {
+public interface KeyRingService extends Service {
+
+  /** ******************************
+   *  Methods to access public keys
+   */
+
+  /** 
+   */
+  public Certificate findCert(Principal p);
+
+  /** 
+   */
+  public Certificate findCert(String commonName);
+
+  /**
+   */
+  public Certificate findCert(String commonName, int lookupType);
+
+  /**
+   */
+  public X509Certificate[] findCertChain(X509Certificate c);
+
+
+  /** ******************************
+   *  Methods to access private keys
+   *  Very few selected clients can access this service directly.
+   *  These methods are controlled by the security manager.
+   */
 
   /** 
    */
