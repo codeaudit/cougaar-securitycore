@@ -24,20 +24,14 @@
  * -
  */
 
+
 package org.cougaar.core.security.certauthority.servlet;
 
-import org.cougaar.core.security.certauthority.KeyManagement;
-import org.cougaar.core.security.certauthority.SecurityServletSupport;
-import org.cougaar.core.security.services.crypto.CertificateManagementService;
-import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
-import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.service.LoggingService;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import sun.misc.BASE64Decoder;
+
+import sun.security.pkcs.PKCS10;
+import sun.security.x509.X500Name;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -45,135 +39,212 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import sun.security.x509.X500Name;
+import org.cougaar.core.blackboard.BlackboardClient;
+import org.cougaar.core.security.certauthority.KeyManagement;
+import org.cougaar.core.security.certauthority.SecurityServletSupport;
+import org.cougaar.core.security.cm.CMMessage;
+import org.cougaar.core.security.cm.message.VerifyAgentAddRequest;
+import org.cougaar.core.security.cm.message.VerifyResponse;
+import org.cougaar.core.security.cm.relay.SharedDataRelay;
+import org.cougaar.core.security.cm.service.CMService;
+import org.cougaar.core.security.cm.service.CMServiceProvider;
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.UnaryPredicate;
 
-public class CertificateSigningRequest
-  extends  HttpServlet
-{
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.SignedObject;
+import java.security.cert.X509Certificate;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+
+/**
+ * DOCUMENT ME!
+ *
+ * @author $author$
+ * @version $Revision: 1.19 $
+ */
+public class CertificateSigningRequest extends HttpServlet implements BlackboardClient {
   private CertificateManagementService signer;
   private SecurityServletSupport support;
   private ConfigParserService configParser = null;
   private LoggingService log;
   private X500Name[] caDNs = null;
+  private Map nodeCertMap = new HashMap();
+  private BlackboardService blackboardService = null;
 
+  /**
+   * Creates a new CertificateSigningRequest object.
+   *
+   * @param support DOCUMENT ME!
+   *
+   * @throws IllegalArgumentException DOCUMENT ME!
+   */
   public CertificateSigningRequest(SecurityServletSupport support) {
     if (support == null) {
       throw new IllegalArgumentException("Support services null");
     }
+
     this.support = support;
-    log = (LoggingService)
-	support.getServiceBroker().getService(this,
-	LoggingService.class, null);
+    log = (LoggingService) support.getServiceBroker().getService(this, LoggingService.class, null);
   }
 
-  public void init(ServletConfig config) throws ServletException
-  {
+  /**
+   * DOCUMENT ME!
+   *
+   * @param config DOCUMENT ME!
+   *
+   * @throws ServletException DOCUMENT ME!
+   */
+  public void init(ServletConfig config) throws ServletException {
     super.init(config);
     try {
-      configParser = (ConfigParserService)
-	support.getServiceBroker().getService(this,
-					      ConfigParserService.class,
-					      null);
-    }
-    catch (RuntimeException e) {
+      configParser = (ConfigParserService) support.getServiceBroker().getService(this, ConfigParserService.class, null);
+      blackboardService = (BlackboardService) support.getServiceBroker().getService(this, BlackboardService.class, null);
+    } catch (RuntimeException e) {
       if (log.isErrorEnabled()) {
-	log.error("Unable to initialize servlet: " + e.toString());
-	e.printStackTrace();
+        log.error("Unable to initialize servlet: " + e.toString());
+        e.printStackTrace();
       }
+
       throw e;
     }
   }
 
-  public void doPost (HttpServletRequest req, HttpServletResponse res)
-    throws ServletException,IOException
-  {
-    String pkcs=null;
-    String type=null;
-    String CA_DN_name=null;
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @param req DOCUMENT ME!
+   * @param res DOCUMENT ME!
+   *
+   * @throws ServletException DOCUMENT ME!
+   * @throws IOException DOCUMENT ME!
+   */
+  public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    String pkcs = null;
+    String type = null;
+    String CA_DN_name = null;
+
+
     //String domain = null;
-
     //String data;
-
     if (log.isDebugEnabled()) {
       log.debug("Received a certificate signing request");
     }
-    ByteArrayInputStream bytestream=null;
-    PrintStream printstream=new PrintStream(res.getOutputStream());
+
+    ByteArrayInputStream bytestream = null;
+    PrintStream printstream = new PrintStream(res.getOutputStream());
 
     //res.setContentType("text/html");
     //  PrintWriter out=res.getWriter();
-    CA_DN_name =(String)req.getParameter("dnname");
+    CA_DN_name = (String) req.getParameter("dnname");
 
     try {
       //domain = CertificateUtility.getX500Domain(CA_DN_name, true, ',', true);
-      byte [] bytedata=null;
+      byte[] bytedata = null;
 
-      if(( CA_DN_name==null)||( CA_DN_name=="")) {
-	printstream.print("Error ---Unknown  type CA dn name :");
-	printstream.flush();
-	printstream.close();
-	return;
+      if ((CA_DN_name == null) || (CA_DN_name == "")) {
+        printstream.print("Error ---Unknown  type CA dn name :");
+        printstream.flush();
+        printstream.close();
+        return;
       }
-      try  {
-	/*
-	String aDomain = null;
-	if( (domain != null) && (domain != ""))  {
-	  aDomain = domain;
-	}
-	*/
-	signer =
-	  (CertificateManagementService)support.getServiceBroker().getService(
-	    new CertificateManagementServiceClientImpl(CA_DN_name),
-	    CertificateManagementService.class, null);
+
+      try {
+        /*
+           String aDomain = null;
+           if( (domain != null) && (domain != ""))  {
+             aDomain = domain;
+           }
+         */
+        signer = (CertificateManagementService) support.getServiceBroker().getService(new CertificateManagementServiceClientImpl(CA_DN_name), CertificateManagementService.class, null);
+      } catch (Exception exp) {
+        printstream.print("Error ---" + exp.toString());
+        printstream.flush();
+        printstream.close();
+        return;
       }
-      catch (Exception exp)  {
-	printstream.print("Error ---" + exp.toString());
-	printstream.flush();
-	printstream.close();
-	return;
-      }
+
       if (signer == null) {
-	printstream.print("Error --- Unable to get CertificateManagementService for"
-			  + CA_DN_name);
-	printstream.flush();
-	printstream.close();
-	return;
+        printstream.print("Error --- Unable to get CertificateManagementService for" + CA_DN_name);
+        printstream.flush();
+        printstream.close();
+        return;
       }
 
-      type=req.getParameter("pkcs");
-      if((type==null)||(type==""))  {
-	printstream.print("Error --- Unknown pkcs type:");
-	printstream.flush();
-	printstream.close();
-	return;
+      type = req.getParameter("pkcs");
+      if ((type == null) || (type == "")) {
+        printstream.print("Error --- Unknown pkcs type:");
+        printstream.flush();
+        printstream.close();
+        return;
       }
-      pkcs=(String)req.getParameter("pkcsdata");
 
-      String replyformat = (String)req.getParameter("replyformat");
-      if (replyformat == null)
+      pkcs = (String) req.getParameter("pkcsdata");
+
+      String replyformat = (String) req.getParameter("replyformat");
+      if (replyformat == null) {
         replyformat = "text";
+      }
 
       boolean replyhtml = replyformat.equalsIgnoreCase("html");
-      if (replyhtml)
+      if (replyhtml) {
         printstream.println("<html>");
-      log.debug("Replying with " + replyformat);
+      }
 
-      try  {
-	if(type.equalsIgnoreCase("pkcs7"))  {
-	  bytedata=pkcs.getBytes();
-	  bytestream=new ByteArrayInputStream(bytedata);
-	  signer.processX509Request(printstream,(InputStream)bytestream);
+      if (log.isDebugEnabled()) {
+        log.debug("Replying with " + replyformat);
+      }
 
-	}
-	else if(type.equalsIgnoreCase("pkcs10"))  {
-	  bytedata=pkcs.getBytes();
-	  bytestream=new ByteArrayInputStream(bytedata);
+
+      try {
+        if (type.equalsIgnoreCase("pkcs7")) {
+          bytedata = pkcs.getBytes();
+          bytestream = new ByteArrayInputStream(bytedata);
+          signer.processX509Request(printstream, (InputStream) bytestream);
+
+        } else if (type.equalsIgnoreCase("pkcs10")) {
+          bytedata = pkcs.getBytes();
+          bytestream = new ByteArrayInputStream(bytedata);
+          boolean agentRequest = this.isTypeRequest(CertificateCache.CERT_TITLE_AGENT, pkcs, signer);
+          boolean nodeRequest = this.isTypeRequest(CertificateCache.CERT_TITLE_NODE, pkcs, signer);
+          if (log.isDebugEnabled()) {
+            log.debug("Agent Request:" + agentRequest + "  , Node request:" + nodeRequest);
+          }
 
           if (replyhtml) {
-            String reply = signer.processPkcs10Request(
-              (InputStream)bytestream, true);
+            String reply = null;
+            if (agentRequest) {
+              reply = this.processSignRequestForAgent(req, signer, true);
+            } else {
+              reply = signer.processPkcs10Request((InputStream) bytestream, true);
+            }
 
-            log.debug("reply: " + reply);
 
             // is it pending? then display pending msg
             String strStat = "status=";
@@ -181,54 +252,74 @@ public class CertificateSigningRequest
             if (statindex >= 0) {
               // in the pending mode
               statindex += strStat.length();
-              int status = Integer.parseInt(reply.substring(statindex,
-                                                            statindex + 1));
+              int status = Integer.parseInt(reply.substring(statindex, statindex + 1));
               switch (status) {
-	      case KeyManagement.PENDING_STATUS_PENDING:
-		printstream.println("Certificate is pending for approval.");
-		break;
-	      case KeyManagement.PENDING_STATUS_DENIED:
-		printstream.println("Certificate is denied by CA.");
-		break;
-	      default:
-		printstream.println("Unknown certificate status:" + status);
+                case KeyManagement.PENDING_STATUS_PENDING:
+                  printstream.println("Certificate is pending for approval.");
+                  break;
+                case KeyManagement.PENDING_STATUS_DENIED:
+                  printstream.println("Certificate is denied by CA.");
+                  break;
+                default:
+                  printstream.println("Unknown certificate status:" + status);
               }
-            }
-            else {
+            } else {
               printstream.print(reply);
             }
+          } else {
+            String reply = null;
+            if (agentRequest) {
+              reply = this.processSignRequestForAgent(req, signer, false);
+            } else {
+              reply = signer.processPkcs10Request((InputStream) bytestream, false);
+
+              if (log.isDebugEnabled()) {
+                log.debug("Reply:" + reply);
+              }
+
+              if (nodeRequest) {
+                this.processSignedNodeCert(pkcs, signer);
+              }
+            }
+
+            printstream.print(reply);
           }
-          else {
-            String reply = signer.processPkcs10Request(
-	      (InputStream)bytestream, false);
-	    printstream.print(reply);
-	  }
-	}
-	else  {
-	  printstream.print("Error ----Got a wrong parameter for type"+type);
-	}
-        if (replyhtml)
+        } else {
+          printstream.print("Error ----Got a wrong parameter for type" + type);
+        }
+
+        if (replyhtml) {
           printstream.println("</html>");
+        }
+      } catch (Exception exp) {
+        if (log.isDebugEnabled()) {
+          log.debug("Caught an exception when trying to sign: ", exp);
+        }
+
+
+        printstream.print("Error ------" + exp.toString());
+      } finally {
+        printstream.flush();
+        printstream.close();
       }
-      catch (Exception  exp)  {
-        log.debug("Caught an exception when trying to sign: ", exp);
-	printstream.print("Error ------"+exp.toString());
-      }
-      finally  {
-	printstream.flush();
-	printstream.close();
-      }
-    }
-    catch (Exception e1) {
-      printstream.print("Error ------"+e1.toString());
+    } catch (Exception e1) {
+      printstream.print("Error ------" + e1.toString());
       printstream.flush();
       printstream.close();
     }
   }
 
-  protected void doGet(HttpServletRequest req,
-		       HttpServletResponse res)
-    throws ServletException, IOException  {
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @param req DOCUMENT ME!
+   * @param res DOCUMENT ME!
+   *
+   * @throws ServletException DOCUMENT ME!
+   * @throws IOException DOCUMENT ME!
+   */
+  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
     if (log.isDebugEnabled()) {
       log.debug("+++++ Certificate signing request: ");
       log.debug("method:" + req.getMethod());
@@ -238,7 +329,7 @@ public class CertificateSigningRequest
     }
 
     res.setContentType("text/html");
-    PrintWriter out=res.getWriter();
+    PrintWriter out = res.getWriter();
 
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
@@ -257,10 +348,10 @@ public class CertificateSigningRequest
     // CA
     caDNs = configParser.getCaDNs();
     out.println("Select CA: <select id=\"dnname\" name=\"dnname\">");
-    for (int i = 0 ; i < caDNs.length ; i++) {
-      out.println("<option value=\"" + caDNs[i].toString() + "\">" 
-		  + caDNs[i].toString() + "</option>");
+    for (int i = 0; i < caDNs.length; i++) {
+      out.println("<option value=\"" + caDNs[i].toString() + "\">" + caDNs[i].toString() + "</option>");
     }
+
     out.println("</select>");
 
     //out.println("DN for CA <input name=\"dnname\" type=\"text\" value=\"\">");
@@ -283,18 +374,320 @@ public class CertificateSigningRequest
     out.close();
   }
 
-  public String getServletInfo()
-  {
-    return("Accepts signing request and returns signed certificate");
+
+  /**
+   * Process sign request for an agent. If the node signature is verified,  a
+   * CMRequest is sent to the CM Agent
+   *
+   * @param req
+   * @param signer DOCUMENT ME!
+   *
+   * @return
+   */
+  private String processSignRequestForAgent(HttpServletRequest req, CertificateManagementService signer, boolean html) {
+    String reply = "status=";
+    int status = KeyManagement.PENDING_STATUS_PENDING;
+    String nodeSignature = req.getParameter("nodeSignature");
+    String nodeName = req.getParameter("node");
+    String agent = "";
+    String pkcs = (String) req.getParameter("pkcsdata");
+    String agentName = this.getCNFromRequest(pkcs, signer);
+    try {
+      SignedObject signedObject = null;
+      if ((nodeSignature == null) || (nodeName == null)) {
+        status = KeyManagement.PENDING_STATUS_DENIED;
+      } else {
+        String decoded = "";
+        BASE64Decoder decoder = new BASE64Decoder();
+        ByteArrayOutputStream decodedStream = new ByteArrayOutputStream();
+        decoder.decodeBuffer(new ByteArrayInputStream(nodeSignature.getBytes()), decodedStream);
+        byte[] objectData = decodedStream.toByteArray();
+        ByteArrayInputStream bais = new ByteArrayInputStream(objectData);
+        ObjectInputStream in = null;
+        try {
+          // stream closed in the finally
+          in = new ObjectInputStream(bais);
+          signedObject = (SignedObject) in.readObject();
+
+        } catch (ClassNotFoundException ex) {
+          if (log.isErrorEnabled()) {
+            log.error("Error deserializing signed object", ex);
+          }
+        } catch (IOException ex) {
+        } finally {
+          try {
+            if (in != null) {
+              in.close();
+            }
+          } catch (IOException ex) {
+            // ignore
+          }
+        }
+
+        //Verify signed Object
+        if (log.isDebugEnabled()) {
+          log.debug("Getting Node:" + nodeName + " from local cache");
+        }
+
+        X509Certificate nodeCert = (X509Certificate) this.nodeCertMap.get(nodeName.trim());
+
+
+        if (nodeCert != null) {
+          PublicKey publicKey = nodeCert.getPublicKey(); //MD5WithRSA
+          Signature signature = Signature.getInstance("SHA1withRSA");
+          if (signedObject.verify(publicKey, signature)) {
+            //Query blackboard
+            blackboardService.openTransaction();
+            Collection cmResponses = blackboardService.query(cmResponsePredicate(nodeName.trim(), agentName));
+            if (cmResponses.size() == 0) {
+              if (log.isDebugEnabled()) {
+                log.debug("No CM Responses for this agent(" + agentName + ") request");
+              }
+            } else {
+              Iterator responses = cmResponses.iterator();
+              while (responses.hasNext()) {
+                SharedDataRelay sdr = (SharedDataRelay) responses.next();
+                CMMessage responseMessage = (CMMessage) sdr.getResponse();
+                VerifyResponse response = (VerifyResponse) responseMessage.getResponse();
+                blackboardService.publishRemove(sdr);
+                if (response.getValidRequest()==false) {
+                  if (log.isDebugEnabled()) {
+                    log.debug("Found invalid reply for " + agentName + " from CM");
+                  }
+
+                  status = KeyManagement.PENDING_STATUS_DENIED;
+                } else {
+                  byte[] bytedata = pkcs.getBytes();
+                  ByteArrayInputStream bytestream = new ByteArrayInputStream(bytedata);
+                  blackboardService.closeTransaction();
+                  if (log.isDebugEnabled()) {
+                    log.debug("Found valid reply for " + agentName + " from CM");
+                  }
+
+                  return signer.processPkcs10Request((InputStream) bytestream, html);
+                }
+              }
+            }
+
+            blackboardService.closeTransaction();
+
+
+          } else {
+            if (log.isDebugEnabled()) {
+              log.debug("Signed object not valid");
+            }
+
+            status = KeyManagement.PENDING_STATUS_DENIED;
+          }
+        } else {
+          if (log.isWarnEnabled()) {
+            log.warn("Could not find Node Cert to verify agent sign request");
+          }
+        }
+      }
+    } catch (Exception exception) {
+      if (log.isErrorEnabled()) {
+        log.error("Error processing agent request for signing", exception);
+      }
+    }
+
+    //get signed object
+    reply = reply + status;
+
+    if (status == KeyManagement.PENDING_STATUS_PENDING) {
+      if (log.isDebugEnabled()) {
+        log.debug("Sending CMRequest to Configuration Manager for " + agentName + " to be added to " + nodeName);
+      }
+
+      CMService cmService = (CMService) support.getServiceBroker().getService(this, CMService.class, null);
+      if (cmService == null) {
+        support.getServiceBroker().addService(CMService.class, new CMServiceProvider(support.getServiceBroker()));
+      }
+
+      cmService = (CMService) support.getServiceBroker().getService(this, CMService.class, null);
+      VerifyAgentAddRequest cmRequest = new VerifyAgentAddRequest(nodeName.trim(), agentName);
+      blackboardService.openTransaction();
+      cmService.sendMessage(cmRequest, blackboardService);
+      blackboardService.closeTransaction();
+    }
+
+    return reply;
   }
 
-  private class CertificateManagementServiceClientImpl
-    implements CertificateManagementServiceClient
-  {
+
+  /**
+   * Unary Predicate for getting Configuration Manager data on blackboard for
+   * an agent sign request
+   *
+   * @param node
+   * @param agent
+   *
+   * @return
+   */
+  private UnaryPredicate cmResponsePredicate(final String node, final String agent) {
+    return new UnaryPredicate() {
+        public boolean execute(Object o) {
+          if (o instanceof SharedDataRelay) {
+            SharedDataRelay sdr = (SharedDataRelay) o;
+            if (sdr.getContent() instanceof CMMessage && sdr.getResponse() instanceof CMMessage) {
+              CMMessage response = (CMMessage) sdr.getResponse();
+              CMMessage request = (CMMessage) sdr.getContent();
+              if (request.getRequest() instanceof VerifyAgentAddRequest) {
+                VerifyAgentAddRequest vaar = (VerifyAgentAddRequest) request.getRequest();
+                if ((agent != null) && (node != null) && (vaar.getAgent() != null) && (vaar.getAddToNode() != null)) {
+                  return (response != null) && vaar.getAgent().equals(agent) && vaar.getAddToNode().equals(node);
+                }
+              }
+
+              return true;
+            }
+          }
+
+          return false;
+        }
+      };
+  }
+
+
+  /**
+   * Whether PKCS10 Request is for a type of component
+   *
+   * @param type Type constant for a certificate type
+   * @param request Original PKCS10 String
+   * @param signer CertificateManagementService
+   *
+   * @return If request is for a specified type of component
+   */
+  private boolean isTypeRequest(String type, String request, CertificateManagementService signer) {
+    boolean isType = false;
+    try {
+      byte[] bytedata = request.getBytes();
+      ByteArrayInputStream bytestream = new ByteArrayInputStream(bytedata);
+      ArrayList requests = signer.getSigningRequests(bytestream);
+      for (int i = 0; i < requests.size(); i++) {
+        PKCS10 pkcs10Request = (PKCS10) requests.get(i);
+        String title = CertificateUtility.findAttribute(pkcs10Request.getSubjectName().getName(), "t");
+        if ((title != null) && title.equals(type)) {
+          isType = true;
+          break;
+
+        }
+      }
+    } catch (Exception e) {
+      if (log.isErrorEnabled()) {
+        log.error("Error checking type of signing request", e);
+      }
+    }
+
+    return isType;
+  }
+
+
+  private String getCNFromRequest(String request, CertificateManagementService signer) {
+    String name = null;
+    byte[] bytedata = request.getBytes();
+    ByteArrayInputStream bytestream = new ByteArrayInputStream(bytedata);
+    ArrayList requests = null;
+    try {
+      requests = signer.getSigningRequests(bytestream);
+    } catch (Exception e) {
+      if (log.isErrorEnabled()) {
+        log.error("Error getting CN from request", e);
+
+      }
+
+      return name;
+    }
+
+    for (int i = 0; i < requests.size(); i++) {
+      PKCS10 pkcs10Request = (PKCS10) requests.get(i);
+      try {
+        return pkcs10Request.getSubjectName().getCommonName();
+      } catch (Exception e) {
+        if (log.isErrorEnabled()) {
+          log.error("Error getting CN from request", e);
+        }
+      }
+    }
+
+    return name;
+  }
+
+
+  /**
+   * Add the signed node certificate to the local node cert cache
+   *
+   * @param request The original PCK10 Request
+   * @param signer CertificateManagementService
+   */
+  private void processSignedNodeCert(String request, CertificateManagementService signer) {
+    
+
+    try {
+      byte[] bytedata = request.getBytes();
+      ByteArrayInputStream bytestream = new ByteArrayInputStream(bytedata);
+      ArrayList requests = signer.getSigningRequests(bytestream);
+
+      // Loop through each request and sign it.
+      Iterator iter = requests.iterator();
+      while (iter.hasNext()) {
+        PKCS10 req = (PKCS10) iter.next();
+        X509Certificate cert = (X509Certificate) signer.signX509Certificate(req);
+        //add to local cache
+        if (log.isDebugEnabled()) {
+          log.debug("Adding Cert to cache:" + req.getSubjectName().getCommonName());
+        }
+
+        this.nodeCertMap.put(req.getSubjectName().getCommonName().trim(), cert);
+
+
+      }
+    } catch (Exception e) {
+      if (log.isErrorEnabled()) {
+        log.error("Error adding node cert to local cache", e);
+      }
+    }
+  }
+
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @return DOCUMENT ME!
+   */
+  public String getServletInfo() {
+    return ("Accepts signing request and returns signed certificate");
+  }
+
+
+  /**
+   * Blank implementation for Blackboard Client
+   *
+   * @return DOCUMENT ME!
+   */
+  public String getBlackboardClientName() {
+    // TODO Auto-generated method stub
+    return this.getClass().getName();
+  }
+
+
+  /**
+   * Blank implementation for Blackboard Client
+   *
+   * @return DOCUMENT ME!
+   */
+  public long currentTimeMillis() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  private class CertificateManagementServiceClientImpl implements CertificateManagementServiceClient {
     private String caDN;
+
     public CertificateManagementServiceClientImpl(String aCaDN) {
       caDN = aCaDN;
     }
+
     public String getCaDN() {
       return caDN;
     }
