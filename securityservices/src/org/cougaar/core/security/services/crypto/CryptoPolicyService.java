@@ -38,6 +38,6 @@ public interface CryptoPolicyService
 
     public CryptoPolicy getIncomingPolicy(String target);
     public CryptoPolicy getOutgoingPolicy(String source);
-    public SecureMethodParam getDataProtectionPolicy(String source);
+    public CryptoPolicy getDataProtectionPolicy(String source);
 }
 
