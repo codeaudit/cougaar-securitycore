@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -54,7 +54,7 @@ import java.lang.reflect.*;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.Component;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.BindingSite;
+//import org.cougaar.core.component.BindingSite;
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.AgentIdentificationService;
@@ -62,6 +62,7 @@ import org.cougaar.core.service.SchedulerService;
 import org.cougaar.core.service.AlarmService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.blackboard.BlackboardClientComponent;
@@ -87,7 +88,9 @@ import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.util.*;
 
-final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient {
+final public class CRLCache
+  implements Runnable, CRLCacheService, BlackboardClient
+{
 
   private SecurityPropertiesService secprop = null;
   private DirectoryKeyStoreParameters param;
@@ -109,18 +112,18 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
   private BlackboardService blackboardService=null;
   private CrlManagementService crlMgmtService=null;
   private IncrementalSubscription crlresponse;
-  private BindingSite bindingSite=null;
+//  private BindingSite bindingSite=null;
   private CrlCacheBlackboardComponent crlBlackboardComponent=null;
   private CertificateCacheService cacheservice=null;
   private KeyRingService keyRingService=null;
   
-  private List mySecurityCommunities=null;
+  private Collection mySecurityCommunities=null;
   private final String CRL_Provider_Role="CrlProvider";
   private MessageAddress myAddress;
  
-  public CRLCache(ServiceBroker sb,BindingSite bs ){
+  public CRLCache(ServiceBroker sb){
     serviceBroker = sb;
-    bindingSite=bs;
+    //bindingSite=bs;
     log = (LoggingService)serviceBroker.getService(this,
                                                    LoggingService.class,
                                                    null);
@@ -206,10 +209,14 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
       
     }
     if(myAddress!=null) {
-      CommunityService cs = (CommunityService)serviceBroker.getService(this, CommunityService.class, null);
+      CommunityService cs = (CommunityService)
+	serviceBroker.getService(this,
+				 CommunityService.class, null);
       if(cs !=null) {
-        CommunityServiceUtil communityServiceUtil=new CommunityServiceUtil(serviceBroker);
-        mySecurityCommunities=communityServiceUtil.getAllSecurityCommunity(myAddress.toString());
+        CommunityServiceUtil communityServiceUtil = 
+	  new CommunityServiceUtil(serviceBroker);
+        mySecurityCommunities=
+	  communityServiceUtil.getParentSecurityCommunities(myAddress.toString());
       }
       else {
         log.debug(" adding service listner for Community Service :");
@@ -238,10 +245,13 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
         AttributeBasedAddress aba=null;
         CrlRelay crlregrelay=null;
         if((mySecurityCommunities!=null)&&(mySecurityCommunities.size()>0)) {
-          for(int i=0;i<mySecurityCommunities.size();i++){
-            aba=AttributeBasedAddress.getAttributeBasedAddress((String)mySecurityCommunities.get(i),
-                                                               "Role",
-                                                               CRL_Provider_Role); 
+	  Iterator it = mySecurityCommunities.iterator();
+	  while (it.hasNext()) {
+	    Community community = (Community) it.next();
+            aba=AttributeBasedAddress.
+	      getAttributeBasedAddress(community.getName(),
+				       "Role",
+				       CRL_Provider_Role); 
             crlregrelay=crlMgmtService.newCrlRelay(crlagentregistartion,
                                                    aba);
             log.debug(" CRL relay is being published :"+ crlregrelay.toString());
@@ -800,11 +810,13 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
 						     wrapper.getCertDirectoryType());
       AttributeBasedAddress aba=null;
       if((mySecurityCommunities!=null)&&(mySecurityCommunities.size()>0) ){
-        for(int i=0;i<mySecurityCommunities.size();i++){
-          
-          aba=AttributeBasedAddress.getAttributeBasedAddress((String)mySecurityCommunities.get(i),
-                                                             "Role",
-                                                             CRL_Provider_Role);
+	Iterator it = mySecurityCommunities.iterator();
+	while (it.hasNext()) {
+          Community community = (Community) it.next();
+          aba=AttributeBasedAddress.
+	    getAttributeBasedAddress(community.getName(),
+				     "Role",
+				     CRL_Provider_Role);
           
           crlregrelay=crlMgmtService.newCrlRelay(crlagentregistartion,
                                                  aba);
@@ -829,7 +841,7 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
       CommunityService  cs = (CommunityService)serviceBroker.getService(this, CommunityService.class, null);
       if(cs!=null) {
         CommunityServiceUtil communityServiceUtil=new CommunityServiceUtil(serviceBroker);
-        mySecurityCommunities=communityServiceUtil.getAllSecurityCommunity(myAddress.toString());
+        mySecurityCommunities=communityServiceUtil.getParentSecurityCommunities(myAddress.toString());
       }
       if(mySecurityCommunities.size()<1) {
         log.warn(" Agent is NOT part of ANY SECURITY COMMUNITY:"+myAddress.toString());
@@ -846,7 +858,7 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
       CommunityService  cs = (CommunityService)serviceBroker.getService(this, CommunityService.class, null);
       if(cs!=null) {
         CommunityServiceUtil communityServiceUtil=new CommunityServiceUtil(serviceBroker);
-        mySecurityCommunities=communityServiceUtil.getAllSecurityCommunity(myAddress.toString());
+        mySecurityCommunities=communityServiceUtil.getParentSecurityCommunities(myAddress.toString());
         if((crlMgmtService!=null)&& (blackboardService!=null)
            && (mySecurityCommunities.size()>0)){
           log.debug("publishCrlRregistration called :"); 
@@ -901,8 +913,8 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
     
     if(blackboardService!=null) {
       crlBlackboardComponent=new CrlCacheBlackboardComponent();
-      crlBlackboardComponent.setBindingSite(bindingSite);
-      log.debug(" Service broker from binding site :"+bindingSite.getServiceBroker().toString());
+      //crlBlackboardComponent.setBindingSite(bindingSite);
+      //log.debug(" Service broker from binding site :"+bindingSite.getServiceBroker().toString());
       //crlBlackboardComponent.setParameters(null);
       crlBlackboardComponent.setSchedulerService(schedulerService );
       crlBlackboardComponent.setBlackboardService(blackboardService);
@@ -930,7 +942,7 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
         CommunityService cs = (CommunityService)serviceBroker.getService(this, CommunityService.class, null);
         if(cs !=null) {
           CommunityServiceUtil communityServiceUtil=new CommunityServiceUtil(serviceBroker);
-          mySecurityCommunities=communityServiceUtil.getAllSecurityCommunity(myAddress.toString());
+          mySecurityCommunities=communityServiceUtil.getParentSecurityCommunities(myAddress.toString());
         }
         else {
           log.debug(" Community service is null in setBB service");
@@ -1045,8 +1057,9 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
     }
   }
 
-  private class CrlCacheBlackboardComponent extends org.cougaar.util.GenericStateModelAdapter
-  implements Component, BlackboardClient  {
+  private class CrlCacheBlackboardComponent
+    extends org.cougaar.util.GenericStateModelAdapter
+    implements Component, BlackboardClient  {
     
     private IncrementalSubscription crlresponse;
     private Object parameter = null;
@@ -1057,7 +1070,7 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
     
     protected String blackboardClientName;
     
-    private BindingSite bindingSite;
+    //private BindingSite bindingSite;
     private ServiceBroker serviceBroker;
     
     private TriggerModel tm;
@@ -1106,18 +1119,20 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
     /**
      * Binding site is set by reflection at creation-time.
      */
+    /*
     public void setBindingSite(BindingSite bs) {
       bindingSite = bs;
       serviceBroker = bindingSite.getServiceBroker();
     }
-
+    */
     /**
      * Get the binding site, for subclass use.
      */
+/*
     protected BindingSite getBindingSite() {
       return bindingSite;
     }
-  
+*/
     /** 
      * Get the ServiceBroker, for subclass use.
      */

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -147,7 +147,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   private Object param;
   
   private MessageAddress mgrAddress;
-  private String mySecurityCommunity=null;
+  private Community mySecurityCommunity=null;
   
   private CommunityServiceUtil _csu;
   
@@ -189,11 +189,15 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called :"
         + myAddress.toString()); 
     mySecurityCommunity = getMySecurityCommunity();
-    loggingService.debug(" My security community :"+mySecurityCommunity +" agent name :"+myAddress.toString());  
     if(mySecurityCommunity==null) {
-      loggingService.error("No Info about My  SecurityCommunity in CapabilitiesProcessingPlugin"+
-          " : Cannot send messaged  !!!!!!"+myAddress.toString());  
+      loggingService.error("No Info about My  SecurityCommunity in " +
+			   "CapabilitiesProcessingPlugin"+
+			   " : Cannot send messaged!"+myAddress.toString());  
       // return;
+    }
+    else {
+      loggingService.debug(" My security community :"+mySecurityCommunity.getName()
+			   +" agent name :"+myAddress.toString());
     }
    
     Collection capabilitiescollection = getBlackboardService().query(new CompleteCapabilitiesPredicate());
@@ -609,8 +613,8 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     return null;
   }
    
-  private String getMySecurityCommunity() {
-    String mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
+  private Community getMySecurityCommunity() {
+    Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
     if(mySecurityCommunity==null) {
       loggingService.warn(" Canot get my role as Manager in any Security Community  :"+myAddress.toString() );
     }

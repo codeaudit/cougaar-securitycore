@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -56,10 +56,13 @@ public class JaasAgentBinder
   public JaasAgentBinder(BinderFactory bf, Object child) {
     super(bf,child);
   }
-  public void setLoggingService(LoggingService log) {
+  private void setLoggingService(LoggingService log) {
     _log = log;
     if(_log == null) {
       _log = LoggerFactory.getInstance().createLogger(this);
+      if (_log == null) {
+	throw new RuntimeException("Unable to get LoggingService");
+      }
     }
   }
   public String toString() {
@@ -101,6 +104,8 @@ public class JaasAgentBinder
 
   public void load() {
     ServiceBroker sb = getServiceBroker();
+    setLoggingService((LoggingService)
+      sb.getService(this, LoggingService.class, null));
     AgentIdentificationService ais = (AgentIdentificationService)
       sb.getService(this, AgentIdentificationService.class, null);
     if(ais == null) {
@@ -114,8 +119,10 @@ public class JaasAgentBinder
     jc.doAs(getAgentName(),
             new java.security.PrivilegedAction() {
                 public Object run() {
-                  _log.debug("Agent manager is loading: "
-			    + getAgentName());
+		  if (_log.isDebugEnabled()) {
+		    _log.debug("Agent manager is loading: "
+			       + getAgentName());
+		  }
                   JaasClient.printPrincipals();
                   doLoad();
                   return null;
@@ -129,8 +136,10 @@ public class JaasAgentBinder
     jc.doAs(getAgentName(),
             new java.security.PrivilegedAction() {
                 public Object run() {
-                  _log.debug("Agent manager is starting: "
-			    + getAgentName());
+		  if (_log.isDebugEnabled()) {
+		    _log.debug("Agent manager is starting: "
+			       + getAgentName());
+		  }
                   doStart();
                   return null;
                 }

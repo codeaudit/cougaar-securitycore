@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -33,15 +33,19 @@ import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceListener;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.service.wp.AddressEntry;
-import org.cougaar.core.service.wp.Application;
 import org.cougaar.core.service.wp.WhitePagesService;
 
 // security services
 import org.cougaar.core.security.policy.PersistenceManagerPolicy;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
+import org.cougaar.core.security.services.util.WhitePagesUtil;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 // java
@@ -196,6 +200,67 @@ public class PersistenceMgrPolicyServiceImpl
       _agents = new ArrayList();
     }
 
+    private void searchPersistenceManagers() {
+      CommunityResponseListener crl = new CommunityResponseListener() {
+	  public void getResponse(CommunityResponse response) {
+	    if (!(response instanceof Set)) {
+	      String errorString = "Unexpected community response class:"
+		+ response.getClass().getName() + " - Should be a Set";
+	      _log.error(errorString);
+	      throw new RuntimeException(errorString);
+	    }
+	    Iterator it = ((Set)response).iterator();
+	    while (it.hasNext()) {
+	      processPersistenceMgrEntry((Entity) it.next());
+	    }
+	  }
+	};
+
+      String filter = "(& (CommunityType=Security) (Role=" + PM_ROLE +") )";
+      _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
+    }
+
+    private void processPersistenceMgrEntry(Entity manager) {
+      String agent = manager.getName();
+      if(!_agents.contains(agent)) {
+	AddressEntry entry = null;
+	try {
+	  // look up the agent's info in the white pages
+	  entry = _wps.get(agent, WhitePagesUtil.WP_HTTP_TYPE);
+	  if(_debug) {
+	    _log.debug("address entry = " + entry);
+	  }
+	}
+	catch(Exception e) {
+	  // if an error occurs ignore this persistence manager
+	  _log.error("unable to get " + agent +
+		     " info from the white pages.", e);
+	  return;
+	}
+	if (entry == null) {
+	  if(_debug) {
+	    _log.debug("address entry is null for : " + agent);
+	  }
+	  return;
+	}
+
+	// construct the url for this persistence manager
+	URI uri = entry.getURI();
+	String servletUrl = uri + PM_SERVLET_URI;
+	// get all DNs associated with this agent
+	Collection dns = _keyRing.findDNFromNS(agent);
+	Iterator i = dns.iterator();
+	while(i.hasNext()) {
+	  X500Name name = (X500Name)i.next();
+	  addPolicy(createPolicy(servletUrl, name.getName()));
+	}
+	// only add the agent if haven't already
+	if(dns.size() > 0) {
+	  _agents.add(agent);
+	}
+      } // if(!_agents.contains(pm))
+    }
+
     public void run() {
       // get a list of all security communities
       if(_cs == null || _wps == null) {
@@ -204,55 +269,7 @@ public class PersistenceMgrPolicyServiceImpl
         }
         return;
       }
-      Iterator communities = _cs.search("(CommunityType=Security)").iterator();
-      while(communities.hasNext()) {
-        String community = (String)communities.next();
-        // get all persistence manager in community
-        Iterator pms = _cs.searchByRole(community, PM_ROLE).iterator();
-        while(pms.hasNext()) {
-          MessageAddress addr = (MessageAddress)pms.next();
-          String agent = addr.toString();
-          if(!_agents.contains(agent)) {
-            AddressEntry entry = null;
-            try {
-              // look up the agent's info in the white pages
-              entry = _wps.get(agent,
-                               Application.getApplication("servlet"),
-                               "http");
-              if(_debug) {
-                _log.debug("address entry = " + entry);
-              }
-            }
-            catch(Exception e) {
-              // if an error occurs ignore this persistence manager
-              _log.error("unable to get " + agent + " info from the white pages.");
-              e.printStackTrace();
-              continue;
-            }
-            if (entry == null) {
-              if(_debug) {
-                _log.debug("address entry is null for : " + agent);
-              }
-              continue;
-            }
-
-            // construct the url for this persistence manager
-            URI uri = entry.getAddress();
-            String servletUrl = uri + PM_SERVLET_URI;
-            // get all DNs associated with this agent
-            Collection dns = _keyRing.findDNFromNS(agent);
-            Iterator i = dns.iterator();
-            while(i.hasNext()) {
-              X500Name name = (X500Name)i.next();
-              addPolicy(createPolicy(servletUrl, name.getName()));
-            }
-            // only add the agent if haven't already
-            if(dns.size() > 0) {
-              _agents.add(agent);
-            }
-          } // if(!_agents.contains(pm))
-        } // while(pms.hasNext())
-      } // while(communities.hasNext())
+      searchPersistenceManagers();
     } // public void run()
   } // class PersistenceMgrSearchTask
 }

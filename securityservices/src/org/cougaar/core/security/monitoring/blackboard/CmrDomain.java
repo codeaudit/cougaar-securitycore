@@ -24,9 +24,9 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.cougaar.core.domain.DomainAdapter;
-import org.cougaar.core.domain.DomainBindingSite;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.BindingSite;
 
 import org.cougaar.planning.service.LDMService;
 /**
@@ -57,7 +57,7 @@ public class CmrDomain extends DomainAdapter {
   }
 
   protected void loadFactory() {
-    DomainBindingSite bindingSite = (DomainBindingSite) getBindingSite();
+    BindingSite bindingSite = getBindingSite();
 
     if (bindingSite == null) {
       throw new RuntimeException("Binding site for the Cmr domain has not be set.\n" +

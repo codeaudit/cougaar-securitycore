@@ -1,6 +1,6 @@
 /**
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,6 @@ import java.util.Collection;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityRoster;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
@@ -59,7 +58,7 @@ public class AccessControlPolicyServiceImpl
 {
   private SecurityPropertiesService secprop = null;
   private Logger log;
-  private CommunityService commu;
+  private CommunityService _commu;
   private ServiceBroker serviceBroker;
   private ServiceListener _communitySL;
 
@@ -92,9 +91,9 @@ public class AccessControlPolicyServiceImpl
     if(log == null) {
       log = LoggerFactory.getInstance().createLogger(this);
     } 
-    commu = (CommunityService)
+    _commu = (CommunityService)
       serviceBroker.getService(this, CommunityService.class, null);
-    if(commu == null) {
+    if(_commu == null) {
       if(log.isDebugEnabled()){
         log.debug("Can't get community Service. Registering as service listener");
       } 
@@ -102,7 +101,7 @@ public class AccessControlPolicyServiceImpl
           public void serviceAvailable(ServiceAvailableEvent ae) {
             if(ae.getService() == CommunityService.class) {
               log.debug("community service is now available");
-              commu = (CommunityService)
+              _commu = (CommunityService)
                 ae.getServiceBroker().getService(this, CommunityService.class, null);
                 removeServiceListener();
             }
@@ -368,6 +367,19 @@ public class AccessControlPolicyServiceImpl
 		  + agent);
     }
 
+    private class PolicyMessage {
+      SecurityPolicy policy;
+      String policyID;
+      String policyName;
+      String policyDescription;
+      String policyScope;
+      String policySubjectID;
+      String policySubjectName;
+      String policyTargetID;
+      String policyTargetName;
+      String policyType;
+    }
+
     public void receivePolicyMessage(SecurityPolicy policy,
 				     String policyID,
 				     String policyName,
@@ -410,8 +422,13 @@ public class AccessControlPolicyServiceImpl
         }
         break;
       case  AccessControlPolicy.COMMUNITY:
-        if (commu == null) return;
-        Collection c = commu.listEntities(acp.Name);
+        if (_commu == null) return;
+	log.warn("Communities no longer supported");
+	/*
+	CommunityResponseListener crl = new CommunityResponseListener();
+	_commu.searchCommunity(acp.Name, filter, false,
+			       CommunityService.AGENT, crl);
+        Collection c = _commu.listEntities(acp.Name);
         if(c.contains(agent)){
           if(acp.Direction == AccessControlPolicy.INCOMING){
             commu_in = acp;
@@ -428,9 +445,11 @@ public class AccessControlPolicyServiceImpl
           }
           return;
         }
+	*/
         
         //expand community to a list of agents
-/*        CommunityRoster cr = commu.getRoster(acp.Name);
+	/*
+	CommunityRoster cr = commu.getRoster(acp.Name);
         if(cr == null ){
           //community doesn't exist.
           if(log.isWarnEnabled()){
@@ -465,7 +484,7 @@ public class AccessControlPolicyServiceImpl
           }
           return;
       }
-*/
+	*/
         break;
       case  AccessControlPolicy.SOCIETY:
         if(acp.Direction == AccessControlPolicy.INCOMING){
@@ -476,9 +495,9 @@ public class AccessControlPolicyServiceImpl
           acp_in = acp;
           acp_out = acp;
         }
-     }//switch
+      }//switch
       //update community list
-      if(commu!=null) acp.setCommunityService(commu);
+      if(_commu!=null) acp.setCommunityService(_commu);
       return;
     }
     

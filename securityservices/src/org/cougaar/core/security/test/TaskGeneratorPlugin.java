@@ -66,7 +66,7 @@ public class TaskGeneratorPlugin extends ComponentPlugin
     }
 
     protected NewTask createTask() {
-	Verb verb = new Verb(theVerb);
+	Verb verb = Verb.getVerb(theVerb);
         DomainService ds = (DomainService)
          sb.getService(this, DomainService.class, null);
         PlanningFactory pf = (PlanningFactory)ds.getFactory(PlanningFactory.class);

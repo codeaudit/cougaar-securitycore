@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 1997-2003  Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,6 @@ import org.cougaar.util.*;
 import org.cougaar.planning.servlet.*;
 import org.cougaar.core.service.*;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.wp.AddressEntry;
 import org.cougaar.core.service.wp.WhitePagesService;
 
 import org.apache.xerces.dom.DocumentImpl;

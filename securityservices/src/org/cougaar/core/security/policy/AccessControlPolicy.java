@@ -29,16 +29,22 @@ package org.cougaar.core.security.policy;
 import java.util.HashMap;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.ArrayList;
 
 //cougaar services
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 
 /**
  * Access control policy class instance and policy contstants. The constants
  * are specific to access control policy. An instance should have a specific 
  * target agent (or possibly community).
  */
-public class AccessControlPolicy extends SecurityPolicy {
+public class AccessControlPolicy
+  extends SecurityPolicy {
 
   /**
    * to whom this policy is applied to.
@@ -187,9 +193,27 @@ public class AccessControlPolicy extends SecurityPolicy {
     //fill community info
     Iterator iter = commList.keySet().iterator();
     while(iter.hasNext()){
-      String comName = (String)iter.next();
-      Collection c = cs.listEntities(comName);
-      commList.put(comName, c);
+      final String comName = (String)iter.next();
+
+      // TODO: This is very inefficient
+      CommunityResponseListener crl = new CommunityResponseListener() {
+	  public void getResponse(CommunityResponse response) {
+	    if (!(response instanceof Community)) {
+	      String errorString = "Unexpected community response class:"
+		+ response.getClass().getName() + " - Should be a Community";
+	      throw new RuntimeException(errorString);
+	    }
+	    Collection entities = ((Community)response).getEntities();
+	    Collection entityNames = new ArrayList(entities.size());
+	    Iterator it = entities.iterator();
+	    while (it.hasNext()) {
+	      entityNames.add(((Entity) it.next()).getName());
+	    }
+	    commList.put(comName, entityNames);
+	  }
+	};
+      cs.getCommunity(comName, -1, crl);
+
     }
   }
   

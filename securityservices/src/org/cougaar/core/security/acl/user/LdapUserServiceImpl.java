@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -47,6 +47,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.directory.AttributeModificationException;
 
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
@@ -62,7 +64,11 @@ import org.cougaar.core.security.policy.GuardRegistration;
 import org.cougaar.core.security.policy.LdapUserServicePolicy;
 import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceAvailableEvent;
@@ -150,11 +156,41 @@ public class LdapUserServiceImpl implements UserService {
     }
 
   }
+
+  private class Status {
+    public Object value;
+  }
+
   private void setDefaultDomain(CommunityService cs, String agent) {
+
+    final Status status = new Status();
+    final Semaphore s = new Semaphore(0);
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Set";
+	    _log.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  status.value = (Set) response;
+	  s.release();
+	}
+      };
+    // TODO: do this truly asynchronously.
     String filter = "(CommunityType=" + AgentUserService.COMMUNITY_TYPE + ")";
-    Collection communities = cs.listParentCommunities(agent, filter);
+    cs.searchCommunity(null, filter, true,
+		       Community.COMMUNITIES_ONLY, crl);
+    try {
+      s.acquire();
+    } catch (InterruptedException ie) {
+      _log.error("Error in searchByCommunity:", ie);
+    }
+
+    Collection communities=(Set)status.value;
     if (!communities.isEmpty()) {
-      _defaultDomain = communities.iterator().next().toString();
+      Community c = (Community) communities.iterator().next();
+      _defaultDomain = c.getName();
     }
   }
 

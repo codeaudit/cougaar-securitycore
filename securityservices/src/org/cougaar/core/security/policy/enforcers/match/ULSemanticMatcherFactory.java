@@ -27,9 +27,18 @@ import kaos.ontology.matching.*;
 import kaos.ontology.jena.ActionConcepts;
 import kaos.policy.information.KAoSProperty;
 
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+
+// Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
+
 import org.cougaar.core.security.policy.enforcers.ontology.ActorClassesConcepts;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 
@@ -335,17 +344,41 @@ public class ULSemanticMatcherFactory
     //        return KAoSProperty._NO_INST_PRESENT;
     //      }
 
+    private class Status
+    {
+      public Collection communities;
+    }
+
     private Collection getCommunitiesFromAgent(String agent)
     {
-      Collection communities;
+      Collection communities  = null;
       Object     cached;
 
       if ((cached = _communityCache.get(agent)) == null) {
-        communities = _communityService.listParentCommunities(agent);
-        if (communities == null) {
-          communities = new HashSet();
-        }
-        _communityCache.put(agent, communities);
+
+	// TODO. Resolve community membership in the policy update call.
+
+	final Semaphore s = new Semaphore(0);
+	final Status status = new Status();
+	CommunityResponseListener crl = new CommunityResponseListener() {
+	    public void getResponse(CommunityResponse response) {
+	      if (!(response instanceof Set)) {
+		String errorString = "Unexpected community response class:"
+		  + response.getClass().getName() + " - Should be a Set";
+		_log.error(errorString);
+		throw new RuntimeException(errorString);
+	      }
+	      status.communities = new HashSet((Set)response);
+	      s.release();
+	    }
+	  };
+	_communityService.getParentCommunities(true, crl);
+	try {
+	  s.acquire();
+	  _communityCache.put(agent, status.communities);
+	} catch (InterruptedException ie) {
+	  _log.error("Error in getCommunitiesFromAgent:", ie);
+	}
       } else {
         communities = (Collection) cached;
       }

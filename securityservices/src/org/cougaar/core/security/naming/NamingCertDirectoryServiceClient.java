@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -170,7 +170,7 @@ public class NamingCertDirectoryServiceClient {
     }
 
     AddressEntry ael = whitePagesService.get(cname,
-                                             Application.getApplication("topology"), "cert");
+					     WhitePagesUtil.WP_CERTIFICATE_TYPE);
     if (ael != null) {
       Cert cert = ael.getCert();
       if (cert instanceof NamingCertEntry) {
@@ -222,15 +222,12 @@ public class NamingCertDirectoryServiceClient {
     //entry.addEntry(dname, certEntry, true);
 
     if (ael == null) {
-      URI certURI =
-        URI.create("cert://"+cname);
-      ael =
-        new AddressEntry(
-          cname,
-          Application.getApplication("topology"),
-          certURI,
-          entry,
-          Long.MAX_VALUE);
+      URI certURI = URI.create("cert://"+cname);
+      ael = AddressEntry.getAddressEntry(
+	cname,
+	WhitePagesUtil.WP_CERTIFICATE_TYPE,
+	certURI,
+	entry);
     }
 
     whitePagesService.rebind(ael);
@@ -251,6 +248,4 @@ public class NamingCertDirectoryServiceClient {
       }
     }
   }
-
-
 }

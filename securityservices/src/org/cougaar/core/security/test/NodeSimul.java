@@ -30,8 +30,6 @@ import org.cougaar.core.component.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class NodeSimul
-  extends ContainerSupport
-  implements ContainerAPI
 {
   private SecurityServiceProvider secProvider = null;
 
@@ -65,31 +63,10 @@ public class NodeSimul
       argv[0] = args;
 
       Object theObject = realnode.newInstance();
-      super.add(theObject);
       main.invoke(theObject, argv);
     } catch (Exception e) {
       System.err.println("Failed to launch "+classname+": ");
       e.printStackTrace();
     }
   }
-
-  protected ComponentFactory specifyComponentFactory() {
-    return super.specifyComponentFactory();
-  }
-  protected String specifyContainmentPoint() {
-    return "Node";
-  }
-  protected ServiceBroker specifyChildServiceBroker() {
-    // Nobody above us so we have a plain old ServiceBroker
-    return new ServiceBrokerSupport();
-  }
-  protected ServiceBroker specifyChildContext() {
-    return new ServiceBrokerSupport();
-  }
-  protected ContainerAPI getContainerProxy() {
-    return null;
-  }
-
-  public void requestStop() {}
-
 }

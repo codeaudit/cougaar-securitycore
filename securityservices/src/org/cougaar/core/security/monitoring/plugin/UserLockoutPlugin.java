@@ -23,7 +23,11 @@ package org.cougaar.core.security.monitoring.plugin;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.component.ServiceBroker;
@@ -35,6 +39,7 @@ import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.OMCThruRange;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.mts.MessageAddress;
+
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
@@ -74,6 +79,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
@@ -278,7 +284,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
       _lockoutTime = ((Number) _lockoutDurationOM.getValue()).longValue() * 1000;
     } // end of else
     
-    setupFailureSensor();
+    setupCommunity();
   }
   
    /**
@@ -366,8 +372,44 @@ public class UserLockoutPlugin extends ResponderPlugin {
     cfs.add(LOGIN_FAILURE);
     return cfs;
   }
+
+  private void setupCommunity() {
+    ServiceBroker        sb           = getBindingSite().getServiceBroker();
+    CommunityService     cs           = (CommunityService)
+      sb.getService(this, CommunityService.class,null);
+    if (cs == null) {
+      _log.error("You must have CommunityPlugin in this agent for the UserLockoutPlugin to work");
+    } // end of if (cs == null)
+
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Set";
+	    _log.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  Iterator it = ((Set)response).iterator();
+	  MessageAddress messageAddress = null;
+	  while (it.hasNext()) {
+	    Community community = (Community) it.next();
+	    messageAddress = AttributeBasedAddress.
+	      getAttributeBasedAddress(community.getName(),
+				       "Role", _managerRole, null);
+	    break;
+	  }
+	  if (messageAddress == null) {
+	    _log.warn("This agent does not belong to any community. Login failures won't be reported.");
+	  }
+	  setupFailureSensor(messageAddress);
+	}
+      };
+
+    String filter = "(CommunityType=Security)";
+    cs.searchCommunity(null, filter, false, Community.COMMUNITIES_ONLY, crl);
+  }
   
-  private void setupFailureSensor() {
+  private void setupFailureSensor(MessageAddress managerAddress) {
     BlackboardService    bbs          = getBlackboardService();
     ServiceBroker        sb           = getBindingSite().getServiceBroker();
     AgentIdentificationService ais    = (AgentIdentificationService)
@@ -382,13 +424,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
     } // end of if (!c.isEmpty())
     
     _log.info("No rehydration - publishing sensor capabilities");
-    CommunityService     cs           = (CommunityService)
-      sb.getService(this, CommunityService.class,null);
 
-    if (cs == null) {
-      _log.error("You must have CommunityPlugin in this agent for the UserLockoutPlugin to work");
-    } // end of if (cs == null)
-    
     List capabilities = new ArrayList();
     capabilities.add(KeyRingJNDIRealm.LOGINFAILURE);
       
@@ -401,42 +437,12 @@ public class UserLockoutPlugin extends ResponderPlugin {
                                              agentName);
     
     NewEvent regEvent = _cmrFactory.newEvent(reg);
-    Collection communities = cs.listParentCommunities(agentName);
-    Iterator iter = communities.iterator();
-    boolean addedOne = false;
-    while (iter.hasNext()) {
-      String community = iter.next().toString();
-      Attributes attrs = cs.getCommunityAttributes(community);
-      boolean isSecurityCommunity = false;
-      if (attrs != null) {
-        Attribute  attr  = attrs.get("CommunityType");
-        if (attr != null) {
-          try {
-            for (int i = 0; !isSecurityCommunity && i < attr.size(); i++) {
-              if ("Security".equals(attr.get(i).toString())) {
-                isSecurityCommunity = true;
-              }
-            }
-          } catch (NamingException e) {
-            // error reading value, so it can't be a Security community
-          }
-        }
-      }
-      if (isSecurityCommunity) {
-        AttributeBasedAddress messageAddress = 
-          AttributeBasedAddress.getAttributeBasedAddress(community, "Role", _managerRole);
-        CmrRelay relay = _cmrFactory.newCmrRelay(regEvent, messageAddress);
-        if (_log.isInfoEnabled()) {
-          _log.info("Sending sensor capabilities to community '" + 
-                    community + "'");
-        }
-        bbs.publishAdd(relay);
-        addedOne = true;
-      }
+    CmrRelay relay = _cmrFactory.newCmrRelay(regEvent, managerAddress);
+    if (_log.isInfoEnabled()) {
+      _log.info("Sending sensor capabilities to manager '" + 
+		managerAddress + "'");
     }
-    if (!addedOne) {
-      _log.warn("This agent does not belong to any community. Login failures won't be reported.");
-    }
+    bbs.publishAdd(relay);
   }
  
  

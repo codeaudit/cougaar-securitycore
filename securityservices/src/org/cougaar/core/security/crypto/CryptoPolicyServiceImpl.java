@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -355,6 +355,8 @@ public class CryptoPolicyServiceImpl
         break;
       case  CryptoPolicy.COMMUNITY:
         if (commu == null) return;
+	log.warn("Communities no longer supported");
+	/*
         Collection c = commu.listEntities(cp.Name);
         Iterator iter = c.iterator();
         while(iter.hasNext()){
@@ -368,6 +370,7 @@ public class CryptoPolicyServiceImpl
             outgoing_c.put(name, cp);
           }
         }
+	*/
         break;
       case  CryptoPolicy.SOCIETY:
         log.debug("CryptoPolicy for SOCIETY: " + cp.Direction);
@@ -466,6 +469,8 @@ public class CryptoPolicyServiceImpl
         break;
       case  CryptoPolicy.COMMUNITY:
         if (commu == null) return;
+	log.warn("Communities no longer supported");
+	/*
         Collection c = commu.listEntities(cp.Name);
         Iterator iter = c.iterator();
         while(iter.hasNext()){
@@ -474,6 +479,7 @@ public class CryptoPolicyServiceImpl
             dataprot_c.put(name, cp);
           }
         }
+	*/
         break;
       case  CryptoPolicy.SOCIETY:
         log.debug("CryptoPolicy for SOCIETY: " + cp.Direction);

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,11 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.*;
-import org.cougaar.core.service.community.*;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.util.UID;
 import org.cougaar.util.UnaryPredicate;
 
@@ -43,7 +47,10 @@ import java.util.Enumeration;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.Iterator;
+
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
 public abstract class MnRQueryBase extends ComponentPlugin {
   protected DomainService domainService;
@@ -105,8 +112,8 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     return _isRoot;
   } 
 
-  protected String getMySecurityCommunity() {   
-    String mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
+  protected Community getMySecurityCommunity() {   
+    Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
     if(mySecurityCommunity==null) {
       loggingService.warn(" Canot get my role as Manager in any Security Community :"+myAddress.toString() );
     }
@@ -652,6 +659,10 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     // return new ArrayList();
   }
 
+  private class Status {
+    public Object value;
+  }
+
   protected List searchByCommunity (String community) {
     ArrayList list=new ArrayList();
     if(communityService==null) {
@@ -662,8 +673,30 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       //loggingService.error("Community is null in searchByCommunity " +myAddress.toString()); 
       return list;
     }
-    CommunityRoster roster=communityService.getRoster(community);
-    Collection agents=roster.getMemberAgents();
+
+    final Status status = new Status();
+    final Semaphore s = new Semaphore(0);
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Community)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Community";
+	    loggingService.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  status.value = (Community) response;
+	  s.release();
+	}
+      };
+    // TODO: do this truly asynchronously.
+    communityService.getCommunity(community, -1, crl);
+    try {
+      s.acquire();
+    } catch (InterruptedException ie) {
+      loggingService.error("Error in searchByCommunity:", ie);
+    }
+
+    Collection agents=((Community)status.value).getEntities();
     Iterator agentiter=agents.iterator();
     MessageAddress agent;
     while(agentiter.hasNext()) {
@@ -673,6 +706,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     
     return list;
   }
+
   protected List searchByRole(String role) {
     ArrayList list=new ArrayList();
     if(communityService==null) {
@@ -683,16 +717,42 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       loggingService.error(" Role  is null in searchByRole " +myAddress.toString()); 
       return list;
     }
-    Collection communities =communityService.listAllCommunities();
-    Iterator iter=communities.iterator();
-    String community;
+    
+    // This used to be:
+    //     Collection communities =communityService.listAllCommunities();
+    // However, listAllCommunities is no longer supported.
+    loggingService.warn("Query with empty community is no longer supported."
+      + " The community must be specified in the security console.");
+
+    final Status status = new Status();
+    final Semaphore s = new Semaphore(0);
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Set";
+	    loggingService.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  status.value = (Set) response;
+	  s.release();
+	}
+      };
+    // TODO: do this truly asynchronously.
+    String filter = "(Role=" + role + ")";
+    communityService.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
+    try {
+      s.acquire();
+    } catch (InterruptedException ie) {
+      loggingService.error("Error in searchByCommunity:", ie);
+    }
+
+    Collection agents=(Set)status.value;
+
+    Iterator iter=agents.iterator();
     while(iter.hasNext()) {
-      community=(String)iter.next();
-      Collection searchresult=communityService.searchByRole(community,role);
-      Iterator roleiter=searchresult.iterator();
-      while(roleiter.hasNext()) {
-        list.add((String)roleiter.next());
-      }	
+      Entity entity = (Entity)iter.next();
+      list.add(entity.getName());
     }
     return list; 
      
@@ -711,10 +771,38 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       loggingService.error(" Role  is null in searchByCommunityAndRole " +myAddress.toString()); 
       return list;
     }
-    Collection searchresult=communityService.searchByRole(community,role);
-    Iterator roleiter=searchresult.iterator();
+
+    final Status status = new Status();
+    final Semaphore s = new Semaphore(0);
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Set";
+	    loggingService.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  status.value = (Set) response;
+	  s.release();
+	}
+      };
+    // TODO: do this truly asynchronously.
+    String filter = "(Role=" + role + ")";
+    communityService.searchCommunity(community, filter, true,
+				     Community.AGENTS_ONLY, crl);
+    try {
+      s.acquire();
+    } catch (InterruptedException ie) {
+      loggingService.error("Error in searchByCommunity:", ie);
+    }
+
+    Collection agents=(Set)status.value;
+
+    //Collection searchresult=communityService.searchByRole(community,role);
+    Iterator roleiter=agents.iterator();
     while(roleiter.hasNext()) {
-      list.add((String)roleiter.next());
+      Entity entity = (Entity) roleiter.next();
+      list.add(entity.getName());
     }	
     return list;
   }

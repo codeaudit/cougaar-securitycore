@@ -44,12 +44,12 @@ public class  CRLCacheServiceProvider
   extends BaseSecurityServiceProvider  {
  
   static private CRLCacheService crlCacheService;
-  private BindingSite bindingSite=null;
+  //private BindingSite bindingSite=null;
   private LoggingService log=null;
   
-  public  CRLCacheServiceProvider(ServiceBroker sb, String community, BindingSite bs) {
+  public CRLCacheServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
-    bindingSite=bs;
+    //bindingSite=bs;
     log = (LoggingService) sb.getService(this,
 					 LoggingService.class, null);
     log.debug("Creating an instance of crl cache in Constructor of CRLCacheServiceProvider :");
@@ -59,7 +59,7 @@ public class  CRLCacheServiceProvider
 public void createCRLcache(ServiceBroker sb ) {
   if (crlCacheService == null) {
     try {
-      crlCacheService = new CRLCache(sb,bindingSite);
+      crlCacheService = new CRLCache(sb);
     }
     catch (Exception e) {
       boolean exec =
@@ -87,7 +87,7 @@ public void createCRLcache(ServiceBroker sb ) {
     // Implemented as a singleton service
     if (crlCacheService == null) {
       try {
-	crlCacheService = new CRLCache(sb,bindingSite);
+	crlCacheService = new CRLCache(sb);
       }
       catch (Exception e) {
 	boolean exec =

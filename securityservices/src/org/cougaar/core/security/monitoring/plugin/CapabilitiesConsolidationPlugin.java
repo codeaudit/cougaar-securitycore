@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.Vector;
 import java.util.Iterator;
 import java.util.TimerTask;
+import java.util.Set;
+import java.util.Iterator;
 
 import edu.jhuapl.idmef.*;
 
@@ -42,7 +44,7 @@ import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.StateModelException ;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.planning.ldm.plan.*;
-import org.cougaar.planning.ldm.asset.*;
+//import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
 import org.cougaar.core.service.community.*;
 import org.cougaar.core.mts.*;
@@ -60,6 +62,7 @@ import org.cougaar.core.security.monitoring.blackboard.CapabilitiesObject;
 import org.cougaar.core.security.monitoring.idmef.*;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
 
 class ModifiedCapabilitiesPredicate implements UnaryPredicate{
   LoggingService log=null;
@@ -69,7 +72,7 @@ class ModifiedCapabilitiesPredicate implements UnaryPredicate{
   public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof CapabilitiesObject ) {
-      log.debug(" Capabilities Object True :");
+      log.debug("Capabilities Object True :");
       return true;
     }
     return ret;
@@ -132,10 +135,10 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private IncrementalSubscription capabilitiesRelays;
   private IncrementalSubscription agentRegistrations;
   private IncrementalSubscription notification;
-  private String mySecurityCommunity=null;
+  private Community mySecurityCommunity=null;
   
   private MessageAddress myAddress;
-  private MessageAddress destcluster;
+  private MessageAddress _managerAddress;
   
   /** Holds value of property loggingService. */
   private LoggingService loggingService;
@@ -179,9 +182,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
           + myAddress.toAddress()); 
     }
     if(!_csu.amIRoot( myAddress.toAddress())) {
-      ThreadService ts = (ThreadService)getBindingSite(). getServiceBroker().
-        getService(this, ThreadService.class, null);
-      ts.schedule(new ManagerRegistrationTask(), 0, _pollInterval );
+      registerManager();
     }
         
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate(loggingService));
@@ -190,25 +191,24 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   }
   
 
-  public boolean setManagerAddress() {
-    loggingService.debug(" My security community : " + mySecurityCommunity + " agent name : "+ myAddress.toString());  
+  public void setManagerAddress(MessageAddress mgrAddress) {
     if(mySecurityCommunity == null) {
-      loggingService.error("Agent '" + myAddress + "' does not belong to a security community.  This component should only be included in an M&R Security Manager agent");  
-      return false;
+      loggingService.error("Agent '" + myAddress +
+			   "' does not belong to a security community. " +
+			   "This component should only be included in an M&R Security Manager agent");  
+      return;
     }
+    loggingService.debug("My security community : " + mySecurityCommunity.getName()
+			 + " agent name : "+ myAddress.toString());  
     
-    destcluster = _csu.findSecurityManager(myAddress.toString());
+    _managerAddress = mgrAddress;
   
-    if(destcluster!=null) {
-      loggingService.debug("Found security manager('" + destcluster + "') for manager('" + myAddress + "')");
+    if(_managerAddress!=null) {
+      loggingService.debug("Found security manager('" + _managerAddress + "') for manager('" + myAddress + "')");
       getBlackboardService().openTransaction();
       loggingService.info("Publishing notification object :");
       getBlackboardService().publishAdd(new NotificationObject());
       getBlackboardService().closeTransaction(); 
-      return false;
-    }
-    else {
-      return true;
     }
   }
 
@@ -221,7 +221,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     // Unwrap subordinate capabilities from new/changed/deleted relays
     loggingService.debug("Update of relay called from :"+myAddress.toAddress());
    
-    if(destcluster == null) {
+    if(_managerAddress == null) {
       return; 
     }
      
@@ -723,9 +723,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
           consclassifications=consCapabilities.getClassifications();
           //printConsolidation(consclassifications," consolidated classification after processing is :");
           if (loggingService.isDebugEnabled()) {
-            loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+destcluster.toString()); 
+            loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+_managerAddress.toString()); 
           }
-          if(destcluster!=null) {
+          if(_managerAddress!=null) {
             addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
           }
         }
@@ -1070,12 +1070,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       if (loggingService.isDebugEnabled()) {
         loggingService.debug(" No relay was present creating one for Event "+ event.toString());
       }
-      relay = factory.newCmrRelay(event, destcluster);
+      relay = factory.newCmrRelay(event, _managerAddress);
       if (loggingService.isDebugEnabled()) {
         loggingService.debug(" No relay was present creating one  "+ relay.toString());
       }
-      if(destcluster!=null) {
-        loggingService.info(" Creating relay to :"+ destcluster.toString());
+      if(_managerAddress!=null) {
+        loggingService.info(" Creating relay to :"+ _managerAddress.toString());
         getBlackboardService().publishAdd(relay);
       }
     } else {
@@ -1128,13 +1128,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     }
   }
   
-  private String getMySecurityCommunity() {
-    String mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
+  private Community getMySecurityCommunity() {
+    Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
     if(mySecurityCommunity==null) {
       loggingService.warn(" Canot get my role as Manager in any Security Community  :"+myAddress.toString() );
     }
     return mySecurityCommunity;
-   
   }
   
   
@@ -1166,30 +1165,26 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     
   }
 
-  class ManagerRegistrationTask extends TimerTask {
-    int RETRY_TIME = 10 * 1000;
-    int retryTime = RETRY_TIME;
-    int counter = 1;
-    boolean  tryAgain = true;
+  private void registerManager() {
+    CommunityServiceUtilListener listener = new CommunityServiceUtilListener() {
+	public void getResponse(Set entities) {
+	  Iterator it = entities.iterator();
+	  if (entities.size() == 0) {
+	    loggingService.warn("Could not find a security manager");
+	  }
+	  else if (entities.size() > 1) {
+	    loggingService.warn("Found more than one security manager");
+	  }
+	  else {
+	    Entity entity = (Entity) it.next();
+	    MessageAddress addr = MessageAddress.
+	      getMessageAddress(entity.getName());
+	    setManagerAddress(addr);
+	    _csu.releaseServices();
+	  }
+	}
+      };
+    _csu.findSecurityManager(myAddress.toString(), listener);
+  }
 
-    public void run() {
-      //boolean neverfalse=true;
-      if(tryAgain) {
-        loggingService.debug("Trying to register counter: " + counter++);
-        tryAgain = setManagerAddress();
-	/* this doesn't help at all
-        if(counter<6) {
-          _pollInterval=counter*RETRY_TIME;
-        }
-	*/
-        if(!tryAgain){
-          this.cancel();
-          _csu.releaseServices();
-        }
-      } else {
-	  loggingService.warn("Running ManagerRegistrationTask even though " +
-			      "tryAgain is false and task is cancelled");
-      }
-    } // public void run()
-  } // class ManagerRegistrationTask
- }// class CapabilitiesConsolidationPlugin
+}// class CapabilitiesConsolidationPlugin

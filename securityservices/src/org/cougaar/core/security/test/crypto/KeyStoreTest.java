@@ -72,8 +72,6 @@ import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class KeyStoreTest
-  extends ContainerSupport
-  implements ContainerAPI
 {
   private KeyRingService keyRing = null;
   private ServiceBroker serviceBroker = null;
@@ -112,14 +110,6 @@ public class KeyStoreTest
       System.out.println("Exception: " + e);
       e.printStackTrace();      
     }
-  }
-
-  public void requestStop() {}
-  protected ContainerAPI getContainerProxy() {
-    return null;
-  }
- protected String specifyContainmentPoint() {
-    return "Node.Security";
   }
 
   private void sendPkcs10Request(String role, String filename)

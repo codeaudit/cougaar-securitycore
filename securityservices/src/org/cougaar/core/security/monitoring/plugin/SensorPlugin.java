@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2002 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -32,7 +32,11 @@ import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.multicast.AttributeBasedAddress;
@@ -55,6 +59,7 @@ import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
 
 // JavaIDMEF classes
 import edu.jhuapl.idmef.Alert;
@@ -72,6 +77,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimerTask;
+import java.util.Set;
 
 /**
  * abstract sensor class that registers the capabilities of the sensor
@@ -84,7 +90,10 @@ import java.util.TimerTask;
  * subclass setupSubscription must call super.setupSubscription inorder
  * for the registration to take place.
  */
-public abstract class SensorPlugin extends ComponentPlugin {
+public abstract class SensorPlugin
+  extends ComponentPlugin {
+
+  private MessageAddress myAddress;
   
   /**
    * method to obtain the sensor info for the concrete class
@@ -149,7 +158,7 @@ public abstract class SensorPlugin extends ComponentPlugin {
    * Register this sensor's capabilities
    */
   protected void setupSubscriptions() {
-    
+    myAddress = getAgentIdentifier();
     m_blackboard = getBlackboardService();
     ServiceBroker sb = getBindingSite().getServiceBroker();
     AgentIdentificationService ais    = (AgentIdentificationService)
@@ -162,8 +171,11 @@ public abstract class SensorPlugin extends ComponentPlugin {
     }
     m_csu = new CommunityServiceUtil(sb);
     // register this sensor's capabilities
+    getSecurityManager();
+    /*
     Thread th=new Thread(new RegistrationTask());
     th.start();
+    */
     //registerCapabilities(cs, m_agent);
   }  
   
@@ -173,36 +185,56 @@ public abstract class SensorPlugin extends ComponentPlugin {
   protected void execute(){
   }
   
+  private void getSecurityManager() {
+    CommunityServiceUtilListener listener = new CommunityServiceUtilListener() {
+	public void getResponse(Set entities) {
+	  Iterator it = entities.iterator();
+	  if (entities.size() == 0) {
+	    m_log.warn("Could not find a security manager");
+	  }
+	  else if (entities.size() > 1) {
+	    m_log.warn("Found more than one security manager");
+	  }
+	  else {
+	    Entity entity = (Entity) it.next();
+	    MessageAddress addr = MessageAddress.
+	      getMessageAddress(entity.getName());
+	    // Now register capabilities
+	    registerCapabilities(addr);
+	  }
+	}
+      };
+    m_csu.findSecurityManager(myAddress.toString(), listener);
+  }
+
   /**
    * register the capabilities of the sensor
    */
-  private boolean registerCapabilities(String agentName){
+  private void registerCapabilities(MessageAddress myManager){
     List capabilities = new ArrayList();
     List targets = null;
     List sources=null;
     List data = null;
    
-    if(m_cs == null) {
-      return true;
-    }
-    MessageAddress myManager = m_csu.findSecurityManager(agentName); 
     if(myManager == null) {
       // manager may not have been initialize yet
-      return true; 
+      return; 
     }
     // if agent is the target then add the necessary information to the registration
     if(agentIsTarget()) {
       List tRefList = new ArrayList(1);
       targets = new ArrayList(1);
       data = new ArrayList(1);
-      Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
+      Address tAddr = m_idmefFactory.createAddress(myManager.toString(),
+						   null, Address.URL_ADDR);
       Target t = m_idmefFactory.createTarget(null, null, null, null, null, null);
       // add the target ident to the reference ident list
       tRefList.add(t.getIdent());
       targets.add(t);
       // since there isn't a data model for cougaar Agents, the Agent object is
       // added to the AdditionalData of an IDMEF message
-      Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
+      Agent tAgent = m_idmefFactory.createAgent(myManager.toString(),
+						null, null, tAddr, tRefList);
       data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
     }
     if(agentIsSource()) {
@@ -211,14 +243,16 @@ public abstract class SensorPlugin extends ComponentPlugin {
       if(data==null) {
         data = new ArrayList(1);
       }
-      Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
+      Address tAddr = m_idmefFactory.createAddress(myManager.toString(),
+						   null, Address.URL_ADDR);
       Source s = m_idmefFactory.createSource(null, null, null, null, null);
       // add the target ident to the reference ident list
       tRefList.add(s.getIdent());
       sources.add(s);
       // since there isn't a data model for cougaar Agents, the Agent object is
       // added to the AdditionalData of an IDMEF message
-      Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
+      Agent tAgent = m_idmefFactory.createAgent(myManager.toString(),
+						null, null, tAddr, tRefList);
       data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
     }
     
@@ -233,11 +267,11 @@ public abstract class SensorPlugin extends ComponentPlugin {
     Collection c = 
       m_blackboard.query(new RegistrationPredicate(getSensorInfo(), 
                                                    targets, capabilities,
-                                                   data, agentName));
+                                                   data, myManager.toString()));
     m_blackboard.closeTransaction();
     if (!c.isEmpty()) {
       m_log.info("Rehydrating - no need to publish sensor capabilities");
-      return false; // this is rehydrated and we've already registered
+      return; // this is rehydrated and we've already registered
     } // end of if (!c.isEmpty())
 
     m_log.info("No rehydration - publishing sensor capabilities");
@@ -249,7 +283,7 @@ public abstract class SensorPlugin extends ComponentPlugin {
                                               data,
                                               m_idmefFactory.newregistration,
                                               m_idmefFactory.SensorType,
-                                              agentName);
+                                              myManager.toString());
     NewEvent regEvent = m_cmrFactory.newEvent(reg);
     
     CmrRelay regRelay = m_cmrFactory.newCmrRelay(regEvent, myManager);
@@ -262,29 +296,71 @@ public abstract class SensorPlugin extends ComponentPlugin {
       sb.releaseService(this,CommunityService.class,m_cs);
       m_cs=null;
     }
-    return false;
+    return;
   }
 
-    
+  private class Semaphore {
+    private int _available;
+    public Semaphore(int max_available) {
+      _available = max_available;
+    }
+    public synchronized int add() {
+      return _available++;
+    }
+    public synchronized int remove() {
+      return _available--;
+    }
+  }
+
   private void printCommunityInfo(CommunityService cs, Collection communities) {
     Iterator c = communities.iterator();
+    final StringBuffer sb = new StringBuffer();
+    final Semaphore communityNumber = new Semaphore(communities.size());
+
     while(c.hasNext()) {
-      String community = (String)c.next();
-      m_log.debug("### community = " + community);
-      Collection agents = cs.searchByRole(community, m_managerRole);
-      Iterator i = agents.iterator();
-      while(i.hasNext()) {
-        m_log.debug("##### SearchByRole: " + i.next()); 
-      }
+      final String communityName = (String)c.next();
+      CommunityResponseListener crl = new CommunityResponseListener() {
+	  public void getResponse(CommunityResponse response) {
+	    if (!(response instanceof Set)) {
+	      String errorString = "Unexpected community response class:"
+		+ response.getClass().getName() + " - Should be a Set";
+		m_log.error(errorString);
+	      throw new RuntimeException(errorString);
+	    }
+	    Iterator it = ((Set)response).iterator();
+	    while (it.hasNext()) {
+	      Entity entity = (Entity) it.next();
+	      sb.append("Manager for ").append(communityName).
+		append(":").append(entity.getName()).append("\n");
+	    }
+	    int available = communityNumber.remove();
+	    if (available == 0) {
+	      // We have all the answers
+	      m_log.debug(sb.toString());
+	    }
+	  }
+	};
+      cs.searchCommunity(communityName,
+			 "(Role=" + m_managerRole + ")",
+			 false, // not a recursive search
+			 Community.AGENTS_ONLY,
+			 crl);
     }
   }
 
   /**
    * method used to determine if the plugin is located in the same
    * agent as the enclave security manager
+   * @deprecated
    */
-  private boolean isSecurityManagerLocal(CommunityService cs, String community, String agentName) {
-    Collection agents = cs.searchByRole(community, m_managerRole);
+  private boolean isSecurityManagerLocal(CommunityService cs,
+					 String community,
+					 String agentName) {
+
+    Collection agents = null;
+    // TODO: This method is not used anymore, but it would have to
+    // be fixed if used again.
+    //Collection agents = cs.searchByRole(community, m_managerRole);
     Iterator i = agents.iterator();
     
     while(i.hasNext()) {
@@ -296,6 +372,7 @@ public abstract class SensorPlugin extends ComponentPlugin {
     return false;
   }
 
+  /*
   class RegistrationTask extends TimerTask {
     int RETRY_TIME = 10 * 1000;
     int retryTime = RETRY_TIME;
@@ -332,7 +409,8 @@ public abstract class SensorPlugin extends ComponentPlugin {
     } // public void run()
   } // class RegistrationTask
   
- 
+  */
+
   private static class RegistrationPredicate implements UnaryPredicate {
     private String _agent;
     private List _targets;

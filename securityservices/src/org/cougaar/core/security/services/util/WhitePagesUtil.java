@@ -26,22 +26,12 @@
 
 package org.cougaar.core.security.services.util;
 
-import java.util.*;
-import sun.security.x509.*;
-
-// Cougaar core infrastructure
-import org.cougaar.core.component.Service;
-
-public interface CertificateSearchService
-extends Service
+public interface WhitePagesUtil
 {
-
-  List findDNFromNS(String cname);
-
-  /**
-   * Find a list of certificates matching a distinguished name.
-   * @param identifier - The distinguished name of the certificate to look for.
+  /** White pages types used by the security services
    */
-  List findCert(X500Name dname);
+  public static final String WP_CERTIFICATE_TYPE    = "certificate";
+  public static final String WP_HTTP_TYPE           = "http";
+  public static final String WP_HTTPS_TYPE          = "https";
 
 }

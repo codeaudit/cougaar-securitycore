@@ -34,9 +34,6 @@ import org.cougaar.core.logging.LoggingServiceProvider;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceBrokerSupport;
 import org.cougaar.core.component.ServiceProvider;
-import org.cougaar.core.component.ContainerSupport;
-import org.cougaar.core.component.ContainerAPI;
-import org.cougaar.core.component.StateObject;
 import org.cougaar.core.service.identity.*;
 import org.cougaar.core.service.DataProtectionService;
 import org.cougaar.core.service.MessageProtectionService;
@@ -63,9 +60,6 @@ import org.cougaar.core.security.provider.SecurityServicePermission;
 import org.cougaar.core.security.ssl.JaasSSLFactory;
 
 public class SecurityServiceProvider
-  extends ContainerSupport
-  implements ContainerAPI, StateObject
-
 {
   /** The name of the community of type SecurityCommunity. */
   private String mySecurityCommunity;
@@ -82,76 +76,26 @@ public class SecurityServiceProvider
   private ServiceBroker _rootServiceBrokerProxy;
 
   public SecurityServiceProvider() {
-    setServiceBroker();
-    registerServices();
+    ServiceBroker sb = new ServiceBrokerSupport();
+    init(sb, null);
   }
 
   public SecurityServiceProvider(ServiceBroker sb, String community) {
-    serviceBroker = sb;
-    mySecurityCommunity = community;
-    registerServices();
-  }
-
-
-  /** **********************************************************************
-   * StateModel Interface
-   */
-
-    // Return a (serializable) snapshot that can be used to
-    // reconstitute the state later.
-  public Object getState() {
-    // TBD
-    return null;
-  }
-
-  // Reconstitute from the previously returned snapshot.
-  public void setState(Object state) {
-  }
-
-  /** **********************************************************************
-   * End StateModel Interface
-   */
-
-  /** **********************************************************************
-   * BindingSite Interface
-   */
-  public void requestStop() {
-  }
-
-  public ContainerAPI getContainerProxy() {
-    return this;
-  }
-
-  // We're not using this yet but leave it in anyway.
-  protected String specifyContainmentPoint() {
-    return "Node.SecurityServiceProvider";
+    init(sb, community);
   }
 
   public ServiceBroker getServiceBroker() {
-    // if for testing purpose this function will return null by base class
-    ServiceBroker sb = super.getServiceBroker();
-    return (sb == null) ? serviceBroker : sb;
+    return serviceBroker;
   }
-
-  /** **********************************************************************
-   * End BindingSite Interface
-   */
-
 
   /** **********************************************************************
    * Private methods
    */
-  private void setServiceBroker()
-  {
-    ServiceBroker sb = getServiceBroker();
-    if (sb == null) {
-      // Install a default broker.
-      serviceBroker = new ServiceBrokerSupport();
-    }
-    else {
-      serviceBroker = sb;
-    }
 
+  private void init(ServiceBroker sb, String community) {
+    serviceBroker = sb;
+    mySecurityCommunity = community;
+    registerServices();
   }
 
   private void registerServices() {
@@ -286,7 +230,7 @@ public class SecurityServiceProvider
 
 /* Starting CRL Cache  service */
     log.debug("Service broker passed to CRLCacheServiceProvider is :"+serviceBroker.toString());
-    newSP = new CRLCacheServiceProvider(serviceBroker, mySecurityCommunity,this);
+    newSP = new CRLCacheServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CRLCacheService.class, newSP);
     rootServiceBroker.addService(CRLCacheService.class, newSP);
     /*CRLCacheService crlCacheService=(CRLCacheService)serviceBroker.getService(this,

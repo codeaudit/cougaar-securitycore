@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -35,7 +35,11 @@ import javax.naming.directory.*;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 import org.cougaar.multicast.AttributeBasedAddress;
 
 import org.cougaar.core.mts.SimpleMessageAddress;
@@ -55,6 +59,8 @@ import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityChangeEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceAvailableEvent;
+
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
 // Cougaar security services
 import org.cougaar.core.security.services.acl.UserService;
@@ -127,46 +133,64 @@ public class AgentUserService implements UserService, BlackboardClient {
 
   private void setCommunityService(CommunityService cs) {
     _communityService = cs;
-    Collection communities = 
-      _communityService.listParentCommunities(_source.getAddress());
-    if (_log.isDebugEnabled()) {
-      _log.debug("my communities = " + communities);
-    }
+
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Set";
+	    throw new RuntimeException(errorString);
+	  }
+	  Collection communities = (Set)response;
+	  if (_log.isDebugEnabled()) {
+	    _log.debug("my communities = " + communities);
+	  }
+	  setupRole(communities);
+	}
+      };
+    String filter = "(CommunityType=" + COMMUNITY_TYPE + ")";
+    _communityService.searchCommunity(null, filter, true,
+				      Community.COMMUNITIES_ONLY, crl);
+  }
+
+  private void setupRole(Collection communities) {
     Iterator iter = communities.iterator();
     while (iter.hasNext()) {
-      String community = iter.next().toString();
-      Attributes attrs = _communityService.getCommunityAttributes(community);
+      Community community = (Community)iter.next();
+      String communityName = community.getName();
+      /*
+      Attributes attrs = c.getAttributes();
       if (attrs != null) {
         Attribute  attr  = attrs.get("CommunityType");
         if (attr != null) {
-          try {
-            for (int i = 0; i < attr.size(); i++) {
-              if (COMMUNITY_TYPE.equals(attr.get(i).toString())) {
-                // do I have the role in this community?
-                Collection myRoles = 
-                  _communityService.getEntityRoles(community,
-                                                   _source.getAddress());
-                MessageAddress defaultTarget;
-                if (myRoles.contains(MANAGER_ROLE)) {
-                  defaultTarget = _source;
-                  if (_log.isDebugEnabled()) {
-                    _log.debug("default target = " + defaultTarget);
-                  }
-                  synchronized (_targets) {
-                    _targets.put(community, defaultTarget);
-                  }
-                }
-                _defaultDomain = community;
-                return;
-              }
-            }
-          } catch (NamingException e) {
-            // error reading value, so it can't be a Security community
-          }
-        }
+	try {
+	for (int i = 0; i < attr.size(); i++) {
+	if (COMMUNITY_TYPE.equals(attr.get(i).toString())) {
+
+      // do I have the role in this community?
+      Collection myRoles = 
+	_communityService.getEntityRoles(community,
+					 _source.getAddress());
+      if (myRoles.contains(MANAGER_ROLE)) {
+      */
+      String filter = "(Role=" + MANAGER_ROLE + ")";
+      Set mgrAgents = community.search(filter, Community.AGENTS_ONLY);
+      Iterator it = mgrAgents.iterator();
+      while (it.hasNext()) {
+	Entity entity = (Entity) it.next();
+	if (entity.getName().equals(_source.toString())) {
+	  MessageAddress defaultTarget = _source;
+	  if (_log.isDebugEnabled()) {
+	    _log.debug("default target = " + defaultTarget);
+	  }
+	  synchronized (_targets) {
+	    _targets.put(communityName, defaultTarget);
+	  }
+	}
+	_defaultDomain = communityName;
+	return;
       }
     }
-    _log.warn("Could not find default 'User' community");
   }
 
   public long currentTimeMillis() {
@@ -193,16 +217,16 @@ public class AgentUserService implements UserService, BlackboardClient {
     return findTargetAgent(getDomain(id));
   }
 
-  private MessageAddress findTargetAgent(String community) 
+  private MessageAddress findTargetAgent(String communityName) 
     throws UserServiceException {
-    if (community == null) {
+    if (communityName == null) {
       String message = "The user has no domain and there " +
         "is no default for this agent.";
       _log.debug(message);
       throw new UserServiceException(message);
     }
     synchronized (_targets) {
-      MessageAddress target = (MessageAddress) _targets.get(community);
+      MessageAddress target = (MessageAddress) _targets.get(communityName);
       if (target != null) {
         return target;
       }
@@ -214,14 +238,37 @@ public class AgentUserService implements UserService, BlackboardClient {
 	throw new UserServiceException(message);
 	
       }
-      if (!_communityService.communityExists(community)) {
-        String message = "The user has no community named " + community;
+
+      final Status status = new Status();
+      final Semaphore s = new Semaphore(0);
+      CommunityResponseListener crl = new CommunityResponseListener() {
+	  public void getResponse(CommunityResponse response) {
+	    if (!(response instanceof Community)) {
+	      String errorString = "Unexpected community response class:"
+		+ response.getClass().getName() + " - Should be a Community";
+	      _log.error(errorString);
+	      throw new RuntimeException(errorString);
+	    }
+	    status.value = (Community) response;
+	    s.release();
+	  }
+	};
+      // TODO: do this truly asynchronously.
+      _communityService.getCommunity(communityName, -1, crl);
+      try {
+	s.acquire();
+      } catch (InterruptedException ie) {
+	_log.error("Error in searchByCommunity:", ie);
+      }
+      Community community = (Community) status.value;
+      if (community == null) {
+        String message = "The user has no community named " + communityName;
         _log.debug(message);
         throw new UserServiceException(message);
       }
-      Attributes attrs = _communityService.getCommunityAttributes(community);
+      Attributes attrs = community.getAttributes();
       if (_log.isDebugEnabled()) {
-        _log.debug("Attributes for Community (" + community + "): " +
+        _log.debug("Attributes for Community (" + communityName + "): " +
                    attrs);
       }
       if (attrs != null) {
@@ -232,19 +279,20 @@ public class AgentUserService implements UserService, BlackboardClient {
               if (COMMUNITY_TYPE.equals(attr.get(i).toString())) {
                 // this is the right type of community.
                 // find an agent with that role
-                Collection mgr =
-                  _communityService.searchByRole(community, MANAGER_ROLE);
+		String filter = "(Role="  + MANAGER_ROLE + ")";
+                Collection mgr = community.search(filter, Community.AGENTS_ONLY);
                 if (mgr.size() != 1) {
                   String message = "Could not find user manager for domain '" +
-                    community + "'.";
+                    communityName + "'.";
                   _log.info(message);
                   throw new UserServiceException(message);
                 }
-                target = (MessageAddress) mgr.iterator().next();
+		Entity entity = (Entity) mgr.iterator().next();
+                target = MessageAddress.getMessageAddress(entity.getName());
                 if (_log.isDebugEnabled()) {
-                  _log.debug("Found manager for " + community + ": " + target);
+                  _log.debug("Found manager for " + communityName + ": " + target);
                 }
-                _targets.put(community, target);
+                _targets.put(communityName, target);
                 return target;
               }
             }
@@ -254,9 +302,13 @@ public class AgentUserService implements UserService, BlackboardClient {
         }
       }
     }
-    String message = "Unknown community: " + community;
+    String message = "Unknown community: " + communityName;
     _log.info(message);
     throw new UserServiceException(message);
+  }
+
+  private class Status {
+    public Object value;
   }
 
   private String getId(String id) {

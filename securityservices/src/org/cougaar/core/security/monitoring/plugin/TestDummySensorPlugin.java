@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,11 @@ import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.planning.ldm.plan.*;
 import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
-import org.cougaar.core.service.community.*;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
 
@@ -62,7 +66,7 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
   private String dest_community=null;
   private Object param;
   private String dest_agent;
-  
+  private String _mySecurityCommunity;
     
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -104,18 +108,23 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
       log.debug(" Got service as null in Test Dummy Sensor  :");
       return;
     }
-    String mySecurityCommunity= getMySecurityCommunity();
-    log.debug(" TestDummy sensor My security community :"+mySecurityCommunity +" agent name :"+myAddress.toString());  
-    if(mySecurityCommunity==null) {
-      log.error("No Info about My  SecurityCommunity : returning Cannot continue !!!!!!"+myAddress.toString());  
+    requestCommunityServiceInfo();
+  }
+
+  private void postSetup() {
+    log.debug(" TestDummy sensor My security community :"
+	      + _mySecurityCommunity +" agent name :"+myAddress.toString());  
+    if(_mySecurityCommunity==null) {
+      log.error("No Info about My  SecurityCommunity : returning Cannot continue !"
+		+myAddress.toString());  
       return;
     }
     else {
-      String myRole=getMyRole(mySecurityCommunity);
+      String myRole=getMyRole(_mySecurityCommunity);
       log.debug(" My Role is  :"+myRole +" agent name :"+myAddress.toString()); 
       if(myRole.equalsIgnoreCase("Member")) {
 	mgrrole="SecurityMnRManager-Enclave";
-	dest_community=mySecurityCommunity;
+	dest_community=_mySecurityCommunity;
       }
       /*
       else if(myRole.equalsIgnoreCase("SecurityMnRManager-Society")) ) {
@@ -129,10 +138,12 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
 	}
       }
       */
-      log.debug(" My destination community is  :"+dest_community +" agent name :"+myAddress.toString());
-      mgrAddress=AttributeBasedAddress.getAttributeBasedAddress(dest_community,"Role",mgrrole);
+      log.debug(" My destination community is  :"+dest_community
+		+ " agent name :"+myAddress.toString());
+      mgrAddress=AttributeBasedAddress.
+	getAttributeBasedAddress(dest_community,"Role",mgrrole);
       //mgrAddress=MessageAddress.getMessageAddress("Tiny1ADEnclaveSecurityManager");
-      log.debug("###############$$$$$$$$$$$$$$$$$$$$$$$$$$#######$$$$$$$$$$$$$$$$$$$$$########################################################################################################################## Created  manager address :"+ mgrAddress.toString());
+      log.debug("Created  manager address :"+ mgrAddress.toString());
     }
     
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
@@ -286,27 +297,38 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     // process unallocated tasks
   }
   
-   private String getMySecurityCommunity() {
-    String mySecurityCommunity=null;
+  private void requestCommunityServiceInfo() {
     if(communityService==null) {
      log.error(" Community Service is null" +myAddress.toString()); 
     }
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Set";
+	    log.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  if ( ((Set)response).size() > 1) {
+	    log.warn("This agent belongs to more than one security community");
+	  }
+	  else {
+	    Iterator it = ((Set)response).iterator();
+	    while (it.hasNext()) {
+	      Community community = (Community) it.next();
+	      _mySecurityCommunity = community.getName();
+	      postSetup();
+	      break;
+	    }
+	  }
+	}
+      };
+
+    // Request security community.
     String filter="(CommunityType=Security)";
-    Collection securitycom=communityService.listParentCommunities(myAddress.toString(),filter);
-    if(!securitycom.isEmpty()) {
-      if(securitycom.size()>1) {
-	log.warn("Belongs to more than one Security Community " +myAddress.toString());  
-	return mySecurityCommunity;
-      }
-      String [] securitycommunity=new String[1];
-      securitycommunity=(String [])securitycom.toArray(new String[1]);
-      mySecurityCommunity=securitycommunity[0];
-    }
-    else {
-      	log.warn("Search  for my Security Community FAILED !!!!" +myAddress.toString()); 
-    }
-    
-    return mySecurityCommunity;
+    communityService.searchCommunity(null, filter, false, Community.COMMUNITIES_ONLY, crl);
+
+
   }
   
   private String getMyRole(String mySecurityCommunity) {
@@ -317,7 +339,8 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     if(communityService==null) {
       log.error(" Community Service is null" +myAddress.toString()); 
     }
-    Collection roles =communityService.getEntityRoles(mySecurityCommunity,myAddress.toString());
+    Collection roles = null;
+    // communityService.getEntityRoles(mySecurityCommunity,myAddress.toString());
     Iterator iter=roles.iterator();
     String role;
     while(iter.hasNext()) {
@@ -360,12 +383,12 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
       destrole="SecurityMnRManager-Society";
     }
     String filter="(CommunityType=Security)";
-    Collection securitycol=communityService.search(filter);
+    Collection securitycol= null; //communityService.search(filter);
     Iterator itersecurity=securitycol.iterator();
     String comm=null;
     while(itersecurity.hasNext()) {
       comm=(String)itersecurity.next();
-      Collection societysearchresult=communityService.searchByRole(comm,destrole);
+      Collection societysearchresult= null;//communityService.searchByRole(comm,destrole);
       if(societysearchresult.isEmpty()) {
 	continue;
       }

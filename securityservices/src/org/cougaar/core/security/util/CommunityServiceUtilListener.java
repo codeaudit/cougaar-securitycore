@@ -1,15 +1,14 @@
 /*
  * <copyright>
  *  Copyright 1997-2003 Cougaar Software, Inc.
- *  under sponsorship of the Defense Advanced Research Projects
- *  Agency (DARPA).
+ *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
  *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
  *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
  *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
@@ -17,31 +16,19 @@
  *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
  *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
- *
  * </copyright>
- *
- * CHANGE RECORD
- * -
  */
+package org.cougaar.core.security.util;
 
-package org.cougaar.core.security.services.util;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 
-import java.util.*;
-import sun.security.x509.*;
+import java.util.Set;
 
-// Cougaar core infrastructure
-import org.cougaar.core.component.Service;
-
-public interface CertificateSearchService
-extends Service
+public interface CommunityServiceUtilListener
 {
-
-  List findDNFromNS(String cname);
-
-  /**
-   * Find a list of certificates matching a distinguished name.
-   * @param identifier - The distinguished name of the certificate to look for.
-   */
-  List findCert(X500Name dname);
-
+  public void getResponse(Set response);
 }

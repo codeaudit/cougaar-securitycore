@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -146,9 +146,13 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
           + myAddress.toString());
     }
     
-    String mySecurityCommunity = getMySecurityCommunity();
+    Community mySecurityCommunity = getMySecurityCommunity();
     if (loggingService.isDebugEnabled()) {
-      loggingService.debug("My security community :"+mySecurityCommunity
+      String communityName = null;
+      if (mySecurityCommunity != null) {
+	communityName = mySecurityCommunity.getName();
+      }
+      loggingService.debug("My security community :" + communityName
           +" agent name :"+myAddress.toString());  
     }
     if(mySecurityCommunity == null) {
@@ -396,6 +400,7 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     }
   }
   
+  /*
   private boolean isSecurityCommunity(String communityName) {
     boolean securitycommunity=false;
     if(communityService==null) {
@@ -414,7 +419,7 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     }
     return securitycommunity; 
   }
-
+  */
 
   private class AllMyRelayPredicate implements UnaryPredicate {
     public boolean execute(Object o) {

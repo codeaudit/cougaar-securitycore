@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -119,6 +119,9 @@ public class ConfigPlugin
 
     if (caDN != null && caDN.length() != 0) {
       try {
+	if (log.isDebugEnabled()) {
+	  log.debug("Generating key for:" + caDN);
+	}
         X500Name dname = new X500Name(caDN);
         List list = cacheservice.getCertificates(dname);
         if (list != null && list.size() != 0) {
@@ -170,7 +173,12 @@ public class ConfigPlugin
 
     try {
       caDN = (String)it.next();
-      ldapURL = (String)it.next();
+      if (it.hasNext()) {
+	ldapURL = (String)it.next();
+      }
+      else {
+	ldapURL = "";
+      }
     } catch (Exception ex) {
       throw new RuntimeException("Parameter incorrect: " + caDN + " : " + ldapURL);
     }
@@ -189,7 +197,8 @@ public class ConfigPlugin
     t.start();
   }
 
-  class CARequestThread extends Thread {
+  class CARequestThread
+    extends Thread {
     String infoURL;
     String requestURL;
     int waittime = 5000;

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -25,13 +25,16 @@ import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.multicast.AttributeBasedAddress;
 
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.CertificateUtility;
-//import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
 import org.cougaar.core.security.monitoring.blackboard.Event;
@@ -62,6 +65,8 @@ import edu.jhuapl.idmef.Confidence;
 import edu.jhuapl.idmef.DetectTime;
 import edu.jhuapl.idmef.XMLSerializable;
 
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -77,6 +82,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.HashMap;
 
 /**
@@ -446,8 +452,34 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
                                               _idmefFactory.SensorType,
                                               agentName);
     NewEvent regEvent = _cmrFactory.newEvent(reg);
-    // get the list of communities that this agent belongs where CommunityType is Security
-    Collection communities = cs.listParentCommunities(agentName, "(CommunityType=Security)"); 
+    // get the list of communities that this agent belongs where
+    // CommunityType is Security
+
+    final Status status = new Status();
+    final Semaphore s = new Semaphore(0);
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Set";
+	    _log.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  status.value = (Set) response;
+	  s.release();
+	}
+      };
+    // TODO: do this truly asynchronously.
+    String filter = "(CommunityType=Security)";
+    cs.searchCommunity(null, filter, true,
+		       Community.COMMUNITIES_ONLY, crl);
+    try {
+      s.acquire();
+    } catch (InterruptedException ie) {
+      _log.error("Error in searchByCommunity:", ie);
+    }
+
+    Collection communities = (Set)status.value;
     Iterator iter = communities.iterator();
     
     if (communities.size() == 0) {
@@ -459,8 +491,8 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     }
     
     while(iter.hasNext()) {
-      String community = iter.next().toString();
-      if(isSecurityManagerLocal(cs, community, agentName)) {
+      Community community = (Community)iter.next();
+      if(isSecurityManagerLocal(cs, community.getName(), agentName)) {
         // sensor is located in same agent as the enclave security manager
         // therefore we should publish the capabilities to local blackboard
         if(_debug) {
@@ -472,23 +504,54 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
         // send the capability registeration to agents with in this community
         // that has the role specified by _managerRole
         AttributeBasedAddress messageAddress = 
-          AttributeBasedAddress.getAttributeBasedAddress(community, "Role", _managerRole);
+          AttributeBasedAddress.getAttributeBasedAddress(community.getName(),
+							 "Role", _managerRole);
         CmrRelay relay = _cmrFactory.newCmrRelay(regEvent, messageAddress);
         if(_debug) {
           _log.debug("Sending sensor capabilities to community '" + 
-                      community + "'" + ", role '" + _managerRole + "'.");
+                      community.getName() + "'" + ", role '" + _managerRole + "'.");
         }
         bbs.publishAdd(relay);
       }  
     }
   }
-  
+
+  private class Status {
+    public Object value;
+  }
+
   /**
    * method used to determine if the message failure plugin is located in the same
    * agent as the enclave security manager
    */
-  private boolean isSecurityManagerLocal(CommunityService cs, String community, String agentName) {
-    Collection agents = cs.searchByRole(community, _managerRole);
+  private boolean isSecurityManagerLocal(CommunityService cs,
+					 String community, String agentName) {
+
+    final Status status = new Status();
+    final Semaphore s = new Semaphore(0);
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Community";
+	    _log.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  status.value = (Set) response;
+	  s.release();
+	}
+      };
+    // TODO: do this truly asynchronously.
+    String filter = "(Role=" + _managerRole + ")";
+    cs.searchCommunity(community, filter, true,
+		       Community.AGENTS_ONLY, crl);
+    try {
+      s.acquire();
+    } catch (InterruptedException ie) {
+      _log.error("Error in searchByCommunity:", ie);
+    }
+
+    Collection agents=(Set)status.value;
     Iterator i = agents.iterator();
     
     while(i.hasNext()) {

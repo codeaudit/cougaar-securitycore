@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,14 +24,19 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
+
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-
-
+import java.util.Set;
 
 /**
  * Utility methods for the CommunityService
@@ -54,119 +59,149 @@ public class CommunityServiceUtil {
     _sb.releaseService(this, CommunityService.class, _cs);
     _sb.releaseService(this, LoggingService.class, _log);
   }
-  
+
+  private static final String MANAGER_ROLE = "Manager";
+
   /**
-   * determine the m&r security manager for a given entity
+   * determine the m&r security managers for a given entity
    *
    * @param entity the agent or community
    * @return the message address of the m&r security manager
    */
-  public MessageAddress findSecurityManager(String entity) {
+  public void findSecurityManager(String entity,
+				  final CommunityServiceUtilListener listener) {
     MessageAddress myManager = null;
     Iterator c = null;
     String community = null;
     Collection managers = null;
     Collection communities = null;
-    
-    if(entity == null) {
-      throw new IllegalArgumentException("String entity is null");
+
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Set";
+	    _log.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  listener.getResponse((Set)response);
+	}
+      };
+
+    String filter = "(& (CommunityType=Security) (Role=" + MANAGER_ROLE +") )";
+    _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
+  }
+
+  public Community getSecurityCommunity(String agent) {
+    Community myCommunity = null;
+     _log.debug("Find security community for " + agent);
+
+    final Status status = new Status();
+    final Semaphore s = new Semaphore(0);
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Set";
+	    _log.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  status.value = response;
+	  s.release();
+	}
+      };
+    // TODO: do this truly asynchronously.
+    String filter = "(CommunityType=Security)";
+    _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
+
+    Collection communities = null;
+    try {
+      s.acquire();
+      communities = (Set) status.value;
+    } catch (InterruptedException ie) {
+      _log.error("Error in searchByCommunity:", ie);
     }
-    
-    communities = _cs.listParentCommunities(entity, "(CommunityType=Security)");    
-    // base case
-    if(communities == null || communities.isEmpty()) {
+
+    if(communities.isEmpty()) {
+      _log.debug(agent + " does not belong to any security community"); 
       return null;
     }
-    
-    c = communities.iterator();
-    while(c.hasNext()) {
-      community = (String)c.next();
-      _log.debug("searching for a security manager in community('" + community + "')");
-      managers = _cs.searchByRole(community, "Manager");
-      // ensure manager exist and manager is not the current entity
-      if(!managers.isEmpty()) {
-        // should only have one manager per component
-        Iterator m = managers.iterator();
-        MessageAddress manager = null;
-        while(m.hasNext()) {
-          myManager = (MessageAddress)m.next();
-          if(!entity.equals(myManager.toString())) {
-            // found a manager in this community
-            return myManager;
-          }
-        }
-      }
-
-      // try to find the manager in the community's parent communities since
-      // communities can be nested and can be members of other communities
-      _log.debug("searching for security manager in community('" + community + "') parent communities");
-      // need to traverse the community hierarchy
-      myManager = findSecurityManager(community);
-      if(myManager != null) {
-        return myManager; 
-      }
-    } // while(e.hasNext())
-    // no security manager for this agent or community
-    return null;
-  }
-  
-  public String getSecurityCommunity(String agent) {
-    String myCommunity = null;
-     _log.debug("Find security community for " + agent);
-    Collection communities = _cs.listParentCommunities(agent, "(CommunityType=Security)");
-    if(!communities.isEmpty()) {
-      if(communities.size() == 1) {
-        myCommunity = (String)communities.iterator().next();  
-      }
-      else {
-        _log.debug("multiple security communities for " + agent);  
-        Iterator c = communities.iterator();
-        Collection members = null;
-        while(c.hasNext()) {
-          String community = (String)c.next();
-          Collection roles = _cs.getEntityRoles(community, agent);
-          if(!roles.isEmpty() && roles.contains("Manager")) {
-            myCommunity = community;
-            break;   
-          }
-        }
-      }
+    if(communities.size() == 1) {
+      myCommunity = (Community)communities.iterator().next();  
     }
     else {
-       _log.debug(agent + " does not belong to any security community"); 
+      _log.debug("multiple security communities for " + agent);  
+      Iterator it = communities.iterator();
+      Collection members = null;
+      filter = "(& (CommunityType=Security) (Role=" + MANAGER_ROLE +") )";
+      while(it.hasNext()) {
+	Community community = (Community)it.next();
+	Set entities = community.search(filter, Community.AGENTS_ONLY);
+	Iterator it2 = entities.iterator();
+	while (it2.hasNext()) {
+	  Entity ent = (Entity)it2.next();
+	  if (agent.equals(ent.getName())) {
+	    myCommunity = community;
+	    break;
+	  }
+	}
+	if (myCommunity != null) {
+	  break;
+	}
+      }
     }
-    _log.debug("returning security community '" + myCommunity + "'");
+    _log.debug("returning security community '" + myCommunity.getName() + "'");
     return myCommunity;
   }
 
   public boolean amIRoot(String agent) {
-    Collection roles = _cs.getEntityRoles(getSecurityCommunity(agent), agent);
-    return (roles.contains("Root") || roles.contains("root"));
+    Community myCommunity = getSecurityCommunity(agent);
+    String role = "Root";
+    String filter = "(Role=" + role +")";
+    Set entities = myCommunity.search(filter, Community.AGENTS_ONLY);
+    Iterator it = entities.iterator();
+    while (it.hasNext()) {
+      Entity entity = (Entity) it.next();
+      if (entity.getName().equals(agent)) {
+	return true;
+      }
+    }
+    return false;
   }
-  public List getAllSecurityCommunity(String agent) {
-    String myCommunity = null;
-    ArrayList list=new ArrayList(); 
-     _log.debug("Find security community for " + agent);
-    Collection communities = _cs.listParentCommunities(agent, "(CommunityType=Security)");
-    if(!communities.isEmpty()) {
-      if(communities.size() == 1) {
-        list.add((String)communities.iterator().next());  
-      }
-      else {
-        _log.debug("multiple security communities for " + agent);  
-        Iterator c = communities.iterator();
-        Collection members = null;
-        while(c.hasNext()) {
-          String community = (String)c.next();
-          list.add(community);
-          Collection roles = _cs.getEntityRoles(community, agent);
-        }
-      }
+
+  public Collection getParentSecurityCommunities(String agent) {
+    _log.debug("Find security community for " + agent);
+
+    final Status status = new Status();
+    final Semaphore s = new Semaphore(0);
+    CommunityResponseListener crl = new CommunityResponseListener() {
+	public void getResponse(CommunityResponse response) {
+	  if (!(response instanceof Set)) {
+	    String errorString = "Unexpected community response class:"
+	      + response.getClass().getName() + " - Should be a Set";
+	    _log.error(errorString);
+	    throw new RuntimeException(errorString);
+	  }
+	  status.value = response;
+	  s.release();
+	}
+      };
+    // TODO: do this truly asynchronously.
+    String filter = "(CommunityType=Security)";
+    _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
+
+    Collection communities = null;
+    try {
+      s.acquire();
+      communities = (Set) status.value;
+    } catch (InterruptedException ie) {
+      _log.error("Error in searchByCommunity:", ie);
     }
-    else {
-      _log.debug(agent + " does not belong to any security community"); 
-    }
-    _log.debug("returning security community '" + list.size() + "'");
-    return list;
+    return communities;
   } 
+
+  private class Status {
+    public Object value;
+  }
+
 }

@@ -66,7 +66,7 @@ public class TestMsgAccessPlugin extends ComponentPlugin {
     theTarget = (String) ((params.toArray())[0]);
     theVerb = (String) ((params.toArray())[1]);
     
-    Verb verb = new Verb(theVerb);
+    Verb verb = Verb.getVerb(theVerb);
     DomainService ds = (DomainService)sb.getService(this, DomainService.class, null);
     PlanningFactory pf = (PlanningFactory)ds.getFactory(PlanningFactory.class);
     task = pf.newTask();

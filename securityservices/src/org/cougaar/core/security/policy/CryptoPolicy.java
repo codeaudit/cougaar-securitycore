@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Inc
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -31,8 +31,14 @@ import java.util.Vector;
 import java.util.Collection;
 import java.util.Iterator;
 
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+
 import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.Entity;
 
 public class CryptoPolicy extends SecurityPolicy {
   /**
@@ -264,12 +270,38 @@ public class CryptoPolicy extends SecurityPolicy {
     return smp;
   }
 
+  private class Status {
+    public Object value;
+  }
+
   public void setCommunityService(CommunityService cs){
     //fill community info
     Iterator iter = commList.keySet().iterator();
     while(iter.hasNext()){
       String comName = (String)iter.next();
-      Collection c = cs.listEntities(comName);
+
+      final Status status = new Status();
+      final Semaphore s = new Semaphore(0);
+      CommunityResponseListener crl = new CommunityResponseListener() {
+	  public void getResponse(CommunityResponse response) {
+	    if (!(response instanceof Community)) {
+	      String errorString = "Unexpected community response class:"
+		+ response.getClass().getName() + " - Should be a Community";
+	      throw new RuntimeException(errorString);
+	    }
+	    status.value = (Community) response;
+	    s.release();
+	  }
+	};
+      // TODO: do this truly asynchronously.
+      cs.getCommunity(comName, -1, crl);
+      try {
+	s.acquire();
+      } catch (InterruptedException ie) {
+	throw new RuntimeException("Error in searchByCommunity:", ie);
+      }
+      Community community = (Community) status.value;
+      Collection c = community.getEntities();
       commList.put(comName, c);
     }
   }

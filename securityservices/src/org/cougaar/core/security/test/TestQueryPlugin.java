@@ -182,6 +182,9 @@ public class TestQueryPlugin extends ComponentPlugin {
     if(communityService==null) {
       return null;
     }
+    /*
+      The community service has deprecated the methods used here.
+
     communitycol=communityService.listAllCommunities();
     Iterator iter=communitycol.iterator();
     String communityname=null;
@@ -200,6 +203,7 @@ public class TestQueryPlugin extends ComponentPlugin {
       agent= (MessageAddress[])agentcol.toArray(new SimpleMessageAddress[1]);
       societymgr=agent[0];
     }
+    */
     return societymgr;     
   }
   

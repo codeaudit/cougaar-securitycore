@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -42,7 +42,9 @@ import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.*;
 
-public class CertificateSearchServiceImpl implements CertificateSearchService {
+public class CertificateSearchServiceImpl
+  implements CertificateSearchService
+{
   private LoggingService log;
   private ServiceBroker sb;
   private WhitePagesService whitePagesService;
@@ -74,7 +76,7 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
     }
     try {
       AddressEntry ael = whitePagesService.get(cname,
-                                               Application.getApplication("topology"), "cert");
+					       WhitePagesUtil.WP_CERTIFICATE_TYPE);
       if (ael == null) {
         if (log.isDebugEnabled()) {
           log.debug("Unable to find cert entry in naming: " + cname);
@@ -153,7 +155,7 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
       String cname = dname.getCommonName();
       CertificateStatus cs = null;
       AddressEntry ael = whitePagesService.get(cname,
-                                               Application.getApplication("topology"), "cert");
+					       WhitePagesUtil.WP_CERTIFICATE_TYPE);
       if (ael == null) {
         if (log.isDebugEnabled()) {
           log.debug("Unable to find cert entry in naming: " + cname);

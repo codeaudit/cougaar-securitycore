@@ -33,7 +33,9 @@ import org.cougaar.core.service.wp.*;
 
 import org.cougaar.core.security.crypto.*;
 
-final public class IndirectCertEntry extends Cert {
+final public class IndirectCertEntry
+  extends Cert
+{
   Hashtable dnlist = new Hashtable();
 
   public IndirectCertEntry() {
