@@ -60,6 +60,16 @@ import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.User;
 import edu.jhuapl.idmef.UserId;
 
+class CapabilitiesObjectPredicate implements UnaryPredicate{
+  public boolean execute(Object o) {
+    boolean ret = false;
+    if (o instanceof CapabilitiesObject ) {
+      return true;
+    }
+    return ret;
+  }
+}
+
 public abstract class MnRQueryBase extends ComponentPlugin {
   protected DomainService domainService;
   protected CommunityService communityService;
@@ -320,14 +330,16 @@ public abstract class MnRQueryBase extends ComponentPlugin {
   
   private Collection findCommanAgents(Collection list1, Collection list2) {
     HashSet common = new HashSet(list1);
-    if(loggingService.isDebugEnabled()) {
-      loggingService.debug(" Agents before findCommanAgents in list 1 is :"+ list1);
+    /*
+      if(loggingService.isDebugEnabled()) {
+      //loggingService.debug(" Agents before findCommanAgents in list 1 is :"+ list1);
       Iterator iter=common.iterator();
       if(iter.hasNext()){
-        loggingService.debug(" Trying to find out if elements in first list is string:"+(String)iter.next());
+      //loggingService.debug(" Trying to find out if elements in first list is string:"+(String)iter.next());
       }
-      loggingService.debug(" Agents before findCommanAgents in list 2 is :"+ list1);
-    }
+      //loggingService.debug(" Agents before findCommanAgents in list 2 is :"+ list1);
+      }
+    */
     common.retainAll(list2);
     return common;
   }
@@ -1108,13 +1120,10 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     return contains;
   }
   
-  protected boolean isRelayQueryOriginator(UID givenUID, Collection queryMappingCol ) {
+  public static  boolean isRelayQueryOriginator(UID givenUID, Collection queryMappingCol ) {
     boolean isoriginator=false;
     QueryMapping querymapping=null;
     if(!queryMappingCol.isEmpty()){
-      if (loggingService.isDebugEnabled()) {
-        //loggingService.debug("Going to find if this relay id is originator of query :"); 
-      }
       Iterator iter=queryMappingCol.iterator();
       while(iter.hasNext()) {
         querymapping=(QueryMapping)iter.next();
@@ -1127,16 +1136,13 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     return isoriginator;
   }
   
-  protected boolean isRelaySubQuery(UID givenUID, Collection queryMappingCol ) {
+  public static boolean isRelaySubQuery(UID givenUID, Collection queryMappingCol ) {
     QueryMapping foundqMapping=null;
     ArrayList relayList;
     OutStandingQuery outstandingq;
     boolean issubquery=false;
     //QueryMapping tempqMapping;
     if(!queryMappingCol.isEmpty()){
-      if (loggingService.isDebugEnabled()) {
-        //loggingService.debug("Going to find uid from list of Query mapping Objects on bb"+queryMappingCol.size()); 
-      }
       Iterator iter=queryMappingCol.iterator();
       while(iter.hasNext()) {
         foundqMapping=(QueryMapping)iter.next();
@@ -1147,9 +1153,6 @@ public abstract class MnRQueryBase extends ComponentPlugin {
         for(int i=0;i<relayList.size();i++) {
           outstandingq=(OutStandingQuery)relayList.get(i);
           if(outstandingq.getUID().equals(givenUID)) {
-            if (loggingService.isDebugEnabled()) {
-              //loggingService.debug(" Found given uid :"+ givenUID +" in object with UID :"+outstandingq.getUID());
-            }
             issubquery=true;
             return issubquery;
           }
@@ -1162,7 +1165,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     return issubquery;
   }
   
-  protected QueryMapping findQueryMappingFromBB(UID givenUID, Collection queryMappingCol ) {
+  public static QueryMapping findQueryMappingFromBB(UID givenUID, Collection queryMappingCol ) {
     QueryMapping foundqMapping=null;
     ArrayList relayList;
     OutStandingQuery outstandingq;  
@@ -1216,13 +1219,15 @@ public abstract class MnRQueryBase extends ComponentPlugin {
         public boolean execute(Object o) {
           if (o instanceof CmrRelay) {
             CmrRelay relay = (CmrRelay)o;
-            return ((relay.getUID().equals(fKey)) &&
-                    (relay.getContent() instanceof MRAgentLookUp));
+            return ((relay.getUID().equals(fKey)) &&(relay.getContent() instanceof MRAgentLookUp));
           }
           return false;
         }
       });
     if(!relays.isEmpty()) {
+      if( loggingService.isDebugEnabled()) {
+        loggingService.debug(" size for query of relay with MRAgentLookUp and relay id "+key.toString()+"size :"+ relays.size());  
+      }
       relay = (CmrRelay)relays.iterator().next();
     }
     return relay;
