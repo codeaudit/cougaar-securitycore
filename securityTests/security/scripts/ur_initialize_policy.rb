@@ -1,4 +1,5 @@
 
+$:.unshift File.join(CIP, 'csmart', 'lib')
 
 require 'security/actions/policyGeneration.rb'
 
