@@ -1,2 +1,2 @@
-"daml1.daml"   "BootPolicy.UserDB.xml"
-"UC1T1C.daml"  "Uc1TC1.xml"
+"UC1TC1-midlevel.daml"   "BootPolicy.UserDB.xml"
+"UC1TC1.daml"  "UC1TC1.xml"
