@@ -55,17 +55,18 @@ class SecurityMop2_5 < AbstractSecurityMop
           total = SecurityMop2_4.instance.numLoggableActions
           if total == 0
             if @numAccessAttempts == 0
-              @summary = "There weren't any access attempts."
+              @summary1 = "There weren't any access attempts."
             else
-              @summary = "There weren't any access attempts which needed to be logged."
+              @summary1 = "There weren't any access attempts which needed to be logged."
             end
           else
             # note: these two values are swapped, but are fixed on the analysis side
-            @summary = "There were #{total} servlet access attempts,#{logged} were correct.\n"
+            @summary1 = "There were #{total} servlet access attempts,#{logged} were correct.\n"
           end
           @raw = SecurityMop2_4.instance.raw5
           @info = SecurityMop2_4.instance.html5
-          @summary <<"<BR> Score :#{@score}</BR>\n" 
+          @summary = "SecurityMop2.5( User action audit )\n<BR> Score :#{@score}</BR>\n" 
+          @summary << "#{@summary1} \n"
           #@summary << "#{@info}"
           success = false
           if (@score == 100.0)
