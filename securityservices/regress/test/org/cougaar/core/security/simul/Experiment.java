@@ -40,6 +40,7 @@ public class Experiment
 {
   // Configuration
   private String experimentName;
+  private String experimentDescription;
   private String junitResultLink;
   private Vector nodeConfList;
   private OperationConf preOperation;
@@ -50,17 +51,26 @@ public class Experiment
   /** The date & time at which the experiment was started. */
   private Date startDate;
   private SerializableTestResult testResult;
-  
+
+  /** An array of files that contain the RMI server output. */
+  private ArrayList rmiServerLogs;
+  private String logFilesUrls; 
+
   public Experiment() {
     nodeConfList = new Vector();
     startDate = new Date();
     analyzisDate = new Date();
+    rmiServerLogs = new ArrayList();
   }
 
   //////////////////////////////////////////////////////
   // GET methods
   public String getExperimentName() {
     return experimentName;
+  }
+
+  public String getExperimentDescription() {
+    return experimentDescription;
   }
 
   public Vector getNodeConfiguration() {
@@ -83,6 +93,9 @@ public class Experiment
   // SET methods
   public void setExperimentName(String name) {
     experimentName = name;
+  }
+  public void setExperimentDescription(String desc) {
+    experimentDescription = desc;
   }
     
   public void addNodeConfiguration(NodeConfiguration nc) {
@@ -120,8 +133,41 @@ public class Experiment
   public void setJunitResultLink(String link) {
     junitResultLink = link;
   }
+  public void addRmiServerLogFile(File f) {
+    rmiServerLogs.add(f);
+  }
+
+  public String getLogFilesUrls() {
+    String s = "";
+    try {
+      for (int i = 0 ; i < rmiServerLogs.size() ; i++) {
+	File f = (File) rmiServerLogs.get(i);
+        s = s + makeLink("results/" + experimentName
+            + "/" + f.getName()) + "<br>";
+      }
+    }
+    catch (Exception e) {}
+    logFilesUrls = s;
+    return logFilesUrls;
+  }
 
   ///////////////////////////////////////////////////////////////
+
+  private String makeLink(String path) {
+    String link = "";
+    try {
+      link = path;
+      if (!link.startsWith("/")) {
+	link = "/" + link;
+      }
+      link = "." + link;
+      File f = new File(path);
+      link = "<a href=\"" + link + "\">" + f.getName() + "</a>";
+    }
+    catch (Exception e) {}
+    return link;
+  }
+
   public String toString() {
     String s = "Experiment name: " + experimentName + "\n";
 

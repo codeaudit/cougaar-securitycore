@@ -45,6 +45,14 @@ public class NodeServerTest
 
   public NodeServerTest(String name) {
     super(name);
+
+    resultPath = System.getProperty("junit.test.result.path");
+    System.out.println("Result path: " + resultPath);
+    Assert.assertNotNull("Unable to get test output path. Set junit.test.result.path",
+			 resultPath);
+    resultPath = NodeServerSuite.getCanonicalPath(resultPath);
+    System.out.println("Result path: " + resultPath);
+
   }
 
   public void setNodeConfiguration(NodeConfiguration tcc) {
@@ -84,11 +92,6 @@ public class NodeServerTest
   }
 
   public void setUp() {
-    resultPath = System.getProperty("junit.test.result.path");
-    Assert.assertNotNull("Unable to get test output path. Set junit.test.result.path",
-			 resultPath);
-    resultPath = NodeServerSuite.getCanonicalPath(resultPath);
-
   }
 
   public void testRunNode() {
@@ -105,6 +108,16 @@ public class NodeServerTest
   }
 
   private Thread runRemoteNode(NodeConfiguration tcc) {
+    String nodeResultPath = resultPath + File.separator + tcc.getNodeName();
+    try {
+      File f = new File(nodeResultPath);
+      System.out.println("Creating output directory: " + nodeResultPath);
+      f.mkdir();
+    } catch (Exception e) { 
+      e.printStackTrace();
+      Assert.fail("Unable to create output directory: " + nodeResultPath);
+    }
+
     RemoteNode rn = new RemoteNode(tcc, nodeTestResult, this);
     rn.start();
     return rn;
@@ -151,7 +164,7 @@ public class NodeServerTest
 
       } catch (Exception e) { 
 	e.printStackTrace();
-	testResult.addFailure(test, new AssertionFailedError("Unable to start node: " + e));
+	testResult.addFailure(test, new AssertionFailedError("RMI request startNode() failed: " + e));
       } catch (AssertionFailedError e) {
 	testResult.addFailure(test, e);
       }

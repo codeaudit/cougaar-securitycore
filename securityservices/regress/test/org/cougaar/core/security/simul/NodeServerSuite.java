@@ -64,7 +64,9 @@ public class NodeServerSuite
     resultPath = System.getProperty("junit.test.result.path");
     Assert.assertNotNull("Unable to get test output path. Set junit.test.result.path",
 			 resultPath);
+    System.out.println("Result path: " + resultPath);
     resultPath = getCanonicalPath(resultPath);
+    System.out.println("Result path: " + resultPath);
 
     userName = System.getProperty("user.name");
     Assert.assertNotNull("Unable to get user name", userName);
@@ -72,19 +74,25 @@ public class NodeServerSuite
     configFileName = System.getProperty("junit.config.file");
     Assert.assertNotNull("Unable to get junit.config.file", configFileName);
 
-    experimentMapper = new ExperimentMapper();
-    experiment = (Experiment) experimentMapper.fromXML(configFileName);
+    try {
+      experimentMapper = new ExperimentMapper();
+      System.out.println("Parsing " + configFileName);
+      experiment = (Experiment) experimentMapper.fromXML(configFileName);
 
-    // Set link to result file
-    File f = new File(resultPath);
-    String link = "<a href=\"./results/" + f.getName() + "/TEST-results.xml\">TEST-results.xml</a>";
-    experiment.setJunitResultLink(link);
+      // Set link to result file
+      File f = new File(resultPath);
+      String link = "<a href=\"./results/" + f.getName() + "/TEST-results.xml\">TEST-results.xml</a>";
+      experiment.setJunitResultLink(link);
 
-    experiment.setTestResult(experimentTestResult);
-    startRmiServers();
-    // Save experiment to file
-    saveExperiment(experiment);
-
+      experiment.setTestResult(experimentTestResult);
+      startRmiServers();
+      // Save experiment to file
+      saveExperiment(experiment);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      Assert.fail("Error during Test suite setUp: " + e);
+    }
   }
 
   public void tearDown() {
@@ -306,7 +314,7 @@ public class NodeServerSuite
     }
     try {
       // Give the remote RMI servers some time to start...
-      Thread.sleep(4000);
+      Thread.sleep(10000);
     }
     catch (Exception e) {}
 
@@ -315,27 +323,31 @@ public class NodeServerSuite
     while (keys.hasMoreElements()) {
       String hostName = (String) keys.nextElement();
       RmiServerInfo rsi = (RmiServerInfo) hostList.get(hostName);
-      rsi.remoteControl = getRemoteControl(hostName, rsi.rmiPort);
+
+      rsi.remoteControl = null;
+      try {
+	rsi.remoteControl = getRemoteControl(hostName, rsi.rmiPort);
+      }
+      catch (Exception e) {
+	System.out.println("Unable to get remote RMI server on " + hostName + " - Reason: " + e);
+      }
+      if (rsi.remoteControl == null) {
+	Assert.fail("Could not create RMI server on " + hostName);
+      }
     }
   }
 
-  private RemoteControl getRemoteControl(String hostName, int rmiPort) {
+  private RemoteControl getRemoteControl(String hostName, int rmiPort)
+    throws java.rmi.RemoteException, java.rmi.NotBoundException {
     RemoteControl nodeServer = null;
 
-    try {
-      Registry registry = LocateRegistry.getRegistry(hostName, rmiPort);
-      String list[] = registry.list();
-      System.out.println("Registered objects in " + hostName + " registry: ");
-      for (int i = 0 ; i < list.length ; i++) {
-	System.out.println(list[i]);
-      }
-      nodeServer = (RemoteControl)registry.lookup("NodeServer");
-      Assert.assertNotNull("Could not create Remote NodeServer", nodeServer);
+    Registry registry = LocateRegistry.getRegistry(hostName, rmiPort);
+    String list[] = registry.list();
+    System.out.println("Registered objects in " + hostName + " registry: ");
+    for (int i = 0 ; i < list.length ; i++) {
+      System.out.println(list[i]);
     }
-    catch (Exception e) {
-      System.out.println("Unable to get remote control server");
-      Assert.fail("Unable to get remote control server: " + e);
-    }
+    nodeServer = (RemoteControl)registry.lookup("NodeServer");
     return nodeServer;
   }
 
@@ -346,6 +358,34 @@ public class NodeServerSuite
 
     Runtime thisApp = Runtime.getRuntime();
     Process nodeApp = null;
+
+    // First, try to figure out if an older version of the RMI server is running.
+    // If so, kill it and restart it.
+
+    RemoteControl nodeServer = null;
+    try {
+      nodeServer =
+	(RemoteControl) getRemoteControl(tcc.getHostName(), tcc.getRmiRegistryPort());
+    }
+    catch (Exception e) {
+      System.out.println("No server running on " + tcc.getHostName() + ". Will start it");
+    }
+
+    if (nodeServer != null) {
+      // Kill the RMI server
+      System.out.println("Killing old remote RMI server on " + tcc.getHostName());
+      try {
+	if (nodeServer != null) {
+	  nodeServer.killServer();
+	}
+	// Give some time for the process to die
+	Thread.sleep(2000);
+      }
+      catch (Exception e) {
+	e.printStackTrace();
+	Assert.fail("Unable to kill old RMI server on" + tcc.getHostName() + ": " + e);
+      }
+    }
 
     classPath = System.getProperty("org.cougaar.securityservices.classes");
     Assert.assertNotNull("Unable to get org.cougaar.securityservices.classes", classPath);
@@ -363,9 +403,15 @@ public class NodeServerSuite
     String jarFile2 = getCanonicalPath(System.getProperty("org.cougaar.install.path")
 						       + File.separator
 						       + "sys" + File.separator + "junit.jar");
+    String jarFile3 = getCanonicalPath(System.getProperty("org.cougaar.install.path")
+						       + File.separator
+						       + "sys" + File.separator + "httpunit.jar");
+    String jarFile4 = getCanonicalPath(System.getProperty("org.cougaar.install.path")
+						       + File.separator
+						       + "sys" + File.separator + "Tidy.jar");
     String commandLine = "/usr/bin/ssh " + tcc.getHostName()
       + " " + System.getProperty("java.home") + File.separator + "bin" + File.separator
-      + "java -classpath " + jarFile1 + ":" + jarFile2;
+      + "java -classpath " + jarFile1 + ":" + jarFile2 + ":" + jarFile3 + ":" + jarFile4;
 
     Properties props = System.getProperties();
     // Override some properties
@@ -373,24 +419,17 @@ public class NodeServerSuite
     props.put("java.security.policy",
 	      getCanonicalPath(junitConfigPath + File.separator + "JavaPolicy.conf"));
     props.put("org.cougaar.junit.config.path",
-	      getCanonicalPath(userDir + File.separator
-			       + System.getProperty("org.cougaar.junit.config.path")));
+	      getCanonicalPath(System.getProperty("org.cougaar.junit.config.path")));
     props.put("junit.test.result.path",
-	      getCanonicalPath(userDir + File.separator
-			       + System.getProperty("org.cougaar.securityservices.base")
-			       + File.separator + System.getProperty("junit.test.result.path")));
+	      getCanonicalPath(System.getProperty("junit.test.result.path")));
     props.put("org.cougaar.securityservices.configs",
-	      getCanonicalPath(userDir + File.separator
-			       + System.getProperty("org.cougaar.securityservices.configs")));
+	      getCanonicalPath(System.getProperty("org.cougaar.securityservices.configs")));
     props.put("org.cougaar.securityservices.base",
-	      getCanonicalPath(userDir + File.separator
-			       + System.getProperty("org.cougaar.securityservices.base")));
+	      getCanonicalPath(System.getProperty("org.cougaar.securityservices.base")));
     props.put("org.cougaar.securityservices.classes",
-	      getCanonicalPath(userDir + File.separator
-			       + System.getProperty("org.cougaar.securityservices.classes")));
+	      getCanonicalPath(System.getProperty("org.cougaar.securityservices.classes")));
     props.put("org.cougaar.securityservices.regress",
-	      getCanonicalPath(userDir + File.separator
-			       + System.getProperty("org.cougaar.securityservices.regress")));
+	      getCanonicalPath(System.getProperty("org.cougaar.securityservices.regress")));
 
     Enumeration enum = props.propertyNames();
     while (enum.hasMoreElements()) {
@@ -414,21 +453,26 @@ public class NodeServerSuite
       + " test.org.cougaar.core.security.simul.NodeServer "
       + tcc.getRmiRegistryPort() + "";
 
+    tcc.setResultPath(getCanonicalPath(System.getProperty("junit.test.result.path")));
+    String logfile = getCanonicalPath(System.getProperty("org.cougaar.workspace") + File.separator +
+				      "log4jlogs" + File.separator + tcc.getExperimentName() + File.separator
+				      + tcc.getNodeName() +  File.separator + "log4j.log");
+    File logf = new File(logfile);
+    File parent = logf.getParentFile();
+    parent.mkdirs();
+    tcc.setLog4jLogFile(logfile);
+
     try {
       System.out.println("Executing RMI server on " + rsi.hostName);
       System.out.println(commandLine + '\n');
       nodeApp = thisApp.exec(commandLine);
-
       rsi.rmiServerProcess = nodeApp;
 
-      String nodeResultPath = resultPath + File.separator + tcc.getNodeName();
-      File f = new File(nodeResultPath);
-      f.mkdir();
-
-      ProcessGobbler pg = new ProcessGobbler(nodeResultPath,
+      ProcessGobbler pg = new ProcessGobbler(resultPath,
 					     "ssh-" + tcc.getHostName(), nodeApp);
       pg.dumpProcessStream();
-      tcc.setRmiServerLogFiles(pg.getErrFile(), pg.getOutFile());
+      experiment.addRmiServerLogFile(pg.getErrFile());
+      experiment.addRmiServerLogFile(pg.getOutFile());
 
       ProcessMonitor pm = new ProcessMonitor(nodeApp, experimentTestResult, this);
       pm.start();
@@ -497,9 +541,9 @@ public class NodeServerSuite
 	if (nodeApp.exitValue() != 0) {
 	  testResult.addFailure(test, new AssertionFailedError("RMI process return value not null"));
 	}
-      } catch (Exception e) { 
+      } catch (InterruptedException e) { 
 	e.printStackTrace();
-	testResult.addFailure(test, new AssertionFailedError("Unable to start node: " + e));
+	testResult.addFailure(test, new AssertionFailedError("This thread has been interrupted unexpectedly:" + e));
       } catch (AssertionFailedError e) {
 	testResult.addFailure(test, e);
       }

@@ -47,7 +47,6 @@ public class NodeServer
   public NodeServer()
     throws java.rmi.RemoteException {
     super();
-    propertyFile = new PropertyFile();
   }
 
   public void killServer()
@@ -75,6 +74,8 @@ public class NodeServer
     System.out.println("NodeServer.startNode");
     String args[] = tcc.getNodeArguments();
 
+    propertyFile = new PropertyFile();
+
     if (tcc.getNodeName() == null || tcc.getNodeName().equals("")) {
       return;
     }
@@ -100,10 +101,8 @@ public class NodeServer
     // Add java properties
 
     propertyFile.getProperties().add(propertyFile.getMainClassName());
-    //properties.add("org.cougaar.core.node.Node");
-    //properties.add("-n");
-    //properties.add(nodeName);
-    //properties.add("-c");
+
+    // Add arguments
     for (int i = 0 ; i < args.length ; i++) {
       propertyFile.getProperties().add(args[i]);
     }
@@ -120,7 +119,9 @@ public class NodeServer
     Process nodeApp = null;
     try {
       // Run Pre operation
-      tcc.getPreOperation().invokeMethod(null);
+      if (tcc.getPreOperation() != null) {
+	tcc.getPreOperation().invokeMethod(null);
+      }
 
       //System.out.println(commandLine);
       for (int i = 0 ; i < propertyFile.getEnvironmentVariables().length ; i++) {
@@ -139,7 +140,7 @@ public class NodeServer
 	new NodeTimeoutController(nodeApp, tcc);
       ntc.start();
 
-      String nodeResultPath = resultPath + File.separator + tcc.getNodeName();
+      String nodeResultPath = NodeServerSuite.getCanonicalPath(resultPath + File.separator + tcc.getNodeName());
       ProcessGobbler pg = new ProcessGobbler(nodeResultPath, tcc.getNodeName(), nodeApp);
       pg.dumpProcessStream();
 
@@ -175,7 +176,7 @@ public class NodeServer
     }
     catch (Exception e) {
       e.printStackTrace();
-      Assert.fail("Unable to start node: " + e);
+      Assert.fail("RMI server unable to start node: " + e);
     }
   }
 
@@ -241,9 +242,12 @@ public class NodeServer
 	theNode.destroy();
       
 	// Run Post operation
-	ncc.getPostOperation().invokeMethod(null);
+	if (ncc.getPostOperation() != null) {
+	  ncc.getPostOperation().invokeMethod(null);
+	}
       }
       catch (Exception e) {
+	e.printStackTrace();
 	System.out.println("Error: " + e);
 	assertionFailure =  new AssertionFailedError("Error during node cleanup: " + e);
       }

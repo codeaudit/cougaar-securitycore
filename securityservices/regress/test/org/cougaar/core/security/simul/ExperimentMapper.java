@@ -48,6 +48,8 @@ public class ExperimentMapper
   private String junitConfigPath;
   private String userName;
 
+  private Properties props;
+
   public ExperimentMapper() {
     junitConfigPath = System.getProperty("org.cougaar.junit.config.path");
     Assert.assertNotNull("Unable to get org.cougaar.junit.config.path", junitConfigPath);
@@ -56,6 +58,9 @@ public class ExperimentMapper
     Assert.assertNotNull("Unable to get user name", userName);
     
     replaceJavaProperties(true);
+
+    PropertyFile pf = new PropertyFile();
+    props = pf.readCustomPropertiesFile();
   }
 
   public Object getMappedObject() {
@@ -109,9 +114,10 @@ public class ExperimentMapper
 			     String localName,
 			     String qName,
 			     Attributes attr ) {
-	  String name = attr.getValue("name");
-	  SaxMapperLog.trace("Setting experiment name");
-	  target.setExperimentName(name);
+	  String desc = parseContents(attr.getValue("description"));
+	  SaxMapperLog.trace("Setting experiment description");
+	  target.setExperimentDescription(desc);
+	  target.setExperimentName(System.getProperty("junit.test.desc"));
 	}
       };
     // Set tracking relationships...
@@ -126,7 +132,7 @@ public class ExperimentMapper
 			     String qName,
 			     Attributes attr ) {
 	  // Capture the node name...
-	  String nodeName = attr.getValue("name");
+	  String nodeName = parseContents(attr.getValue("name"));
 	  currentNodeConf = new NodeConfiguration();
 	  currentNodeConf.setNodeName(nodeName);
 
@@ -175,8 +181,11 @@ public class ExperimentMapper
 			     String localName,
 			     String qName,
 			     Attributes attr ) {
-	  currentNodeConf = (NodeConfiguration) stack.peek();
+	  currentNodeConf = (NodeConfiguration) stack.pop();
+	  Experiment temp = (Experiment) stack.peek();
+          stack.push(currentNodeConf);
 
+          currentNodeConf.setExperimentName(temp.getExperimentName());
 	  // Log a trace message...
 	  SaxMapperLog.trace( "Creating node configuration item: " + localName );
 	}
@@ -238,8 +247,8 @@ public class ExperimentMapper
 			     String qName,
 			     Attributes attr ) {
 	  currentNodeConf = (NodeConfiguration) stack.peek();
-	  String key = attr.getValue("name");
-	  String value = attr.getValue("value");
+	  String key = parseContents(attr.getValue("name"));
+	  String value = parseContents(attr.getValue("value"));
 	  currentNodeConf.addAdditionalVmProperties(key, value);
 	}
       };
@@ -254,7 +263,7 @@ public class ExperimentMapper
 			     String localName,
 			     String qName,
 			     Attributes attr ) {
-	  String opType = attr.getValue("type");
+	  String opType = parseContents(attr.getValue("type"));
 	  currentOp = new OperationConf(opType);
 
 	  // The parent can be an Experiment or a NodeConfiguration
@@ -347,69 +356,81 @@ public class ExperimentMapper
   public void setAttributeTable(Hashtable hash) {
     attributeTable = hash;
   }
+
   protected String parseContents(String s) {
-    Pattern p_javaprop = Pattern.compile("\\$\\{.*\\}");
-    Pattern p_keyvalue = Pattern.compile("\\$\\[.*\\]");
+    Pattern p_javaprop = Pattern.compile("\\$\\{[a-zA-Z\\.]*\\}");
+    Pattern p_keyvalue = Pattern.compile("\\$\\[[a-zA-Z\\.]*\\]");
     Matcher matcher = null;
     StringBuffer sb = new StringBuffer();
     boolean result = false;
 
-
-    if (replaceJavaProperties) {
-      //if (log.isDebugEnabled()) {
-      //log.debug("Looking up java property pattern in " + s);
-      //}
-      /* Search for java properties patterns.
-     * ${java_property} will be replaced by the value of the java property.
-     * For example:
-     *   ${org.cougaar.node.name} will be replaced by the value
-     *   of the org.cougaar.node.name java property.
-     */
-
-      PropertyFile pf = new PropertyFile();
-      Properties props = pf.readCustomPropertiesFile();
+    //System.out.println("Parsing " + s);
+    if (s == null) {
+      return s;
+    }
+    try {
+      if (replaceJavaProperties) {
+	//if (log.isDebugEnabled()) {
+	//log.debug("Looking up java property pattern in " + s);
+	//}
+	/* Search for java properties patterns.
+	 * ${java_property} will be replaced by the value of the java property.
+	 * For example:
+	 *   ${org.cougaar.node.name} will be replaced by the value
+	 *   of the org.cougaar.node.name java property.
+	 */
   
-      matcher = p_javaprop.matcher(s);
-      result = matcher.find();
-      // Loop through and create a new String 
-      // with the replacements
-      while(result) {
-	String token = matcher.group();
-	String propertyName = token.substring(2, token.length() - 1);
-	String propertyValue = props.getProperty(propertyName);
-	matcher.appendReplacement(sb, propertyValue);
+	matcher = p_javaprop.matcher(s);
 	result = matcher.find();
+	// Loop through and create a new String 
+	// with the replacements
+	while(result) {
+	  String token = matcher.group();
+	  String propertyName = token.substring(2, token.length() - 1);
+	  String propertyValue = props.getProperty(propertyName);
+	  if (propertyValue == null) {
+	    propertyValue = "";
+	    Assert.fail("Property " + propertyName + " should be set");
+	  }
+	  matcher.appendReplacement(sb, propertyValue);
+	  result = matcher.find();
+	}
+	// Add the last segment of input to 
+	// the new String
+	matcher.appendTail(sb);
+	s = sb.toString();
       }
-      // Add the last segment of input to 
-      // the new String
-      matcher.appendTail(sb);
-      s = sb.toString();
-    }
 
-    if (attributeTable != null && replaceAttributes) {
-      /* Replace attributes with their value.
-       * $[attribute] will be replaced by the value of the attribute.
-       * For example:
-       *   ${attr1} will be replaced by the value
-       *   of the attr1 attribute.
-       */
-      sb.setLength(0);
-      matcher = p_keyvalue.matcher(s);
-      result = matcher.find();
-      // Loop through and create a new String 
-      // with the replacements
-      while(result) {
-	String token = matcher.group();
-	String attributeName = token.substring(2, token.length() - 1);
-	String attributeValue = (String) attributeTable.get(attributeName);
-	matcher.appendReplacement(sb, attributeValue);
+      if (attributeTable != null && replaceAttributes) {
+	/* Replace attributes with their value.
+	 * $[attribute] will be replaced by the value of the attribute.
+	 * For example:
+	 *   ${attr1} will be replaced by the value
+	 *   of the attr1 attribute.
+	 */
+	sb.setLength(0);
+	matcher = p_keyvalue.matcher(s);
 	result = matcher.find();
+	// Loop through and create a new String 
+	// with the replacements
+	while(result) {
+	  String token = matcher.group();
+	  String attributeName = token.substring(2, token.length() - 1);
+	  String attributeValue = (String) attributeTable.get(attributeName);
+	  matcher.appendReplacement(sb, attributeValue);
+	  result = matcher.find();
+	}
+	// Add the last segment of input to 
+	// the new String
+	matcher.appendTail(sb);
+	s = sb.toString();
       }
-      // Add the last segment of input to 
-      // the new String
-      matcher.appendTail(sb);
-      s = sb.toString();
     }
+    catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("Error parsing string " + s + " - " + e);
+    }
+    //System.out.println("Parsed String: " + s);
     
     return s;
   }

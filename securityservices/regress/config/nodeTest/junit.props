@@ -15,9 +15,16 @@ junit.host.hostA=cypress
 junit.host.hostB=tea
 junit.host.hostC=yew
 junit.host.hostD=fig
-junit.host.hostE=apple
+junit.host.hostE=mango
+junit.host.hostF=apple
+junit.host.hostG=pear
 
 
 # The HTTP port number used by Tomcat (should match the value defined in userparameter.conf)
 junit.http.port=5570
+
+
+# The user name of the CA administrator
+junit.ca.user.name=sebastien
+junit.ca.user.password=sebastien
 

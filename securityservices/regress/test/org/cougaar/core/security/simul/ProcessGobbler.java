@@ -77,8 +77,12 @@ public class ProcessGobbler
       nodeAppErr.start();
     }
     catch (Exception e) {
-      e.printStackTrace();
-      Assert.fail("Unable to start node: " + e);
+      ByteArrayOutputStream bo = new ByteArrayOutputStream();
+      PrintStream ps = new PrintStream(bo);
+      e.printStackTrace(ps);
+      Assert.fail("Unable to log stdout/stderr: " + e + "\n"
+	+ bo.toString() + "\nStdout log file: "
+		  + experimentOutLogFile.getPath());
     }
   }
 

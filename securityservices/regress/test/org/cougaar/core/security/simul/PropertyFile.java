@@ -39,8 +39,12 @@ public class PropertyFile
   /** Environment variables when launching a node. */
   private String environmentVariables[];
 
+  /** A hasbtable that describes whether a java property has already been set or not. */
+  private Hashtable propertyStatus;
+
   public PropertyFile() {
     properties = new ArrayList();
+    propertyStatus = new Hashtable();
 
     cip = System.getProperty("org.cougaar.install.path");
     Assert.assertNotNull("Unable to get COUGAAR_INSTALL_PATH", cip);
@@ -145,6 +149,10 @@ public class PropertyFile
 	  mainClassName = propertyValue;
 	}
 	else {
+	  if (property.equals("org.cougaar.core.logging.log4j.appender.SECURITY.File")) {
+	    // Override Log4j configuration file
+	    propertyValue = tcc.getLog4jLogFile();
+	  }
 	  StringTokenizer st1 = new StringTokenizer(makeProperty(property, propertyValue, tcc));
 	  while (st1.hasMoreTokens()) {
 	    String arg = st1.nextToken();
@@ -152,7 +160,7 @@ public class PropertyFile
 	  }
 	}
       }
-      // Now, override Linux.props values with properties in the XML experiment file
+      // Now, add properties defined in the XML experiment file
       Properties props = tcc.getAdditionalVmProperties();
       Enumeration enum = props.propertyNames();
       while (enum.hasMoreElements()) {
@@ -164,6 +172,7 @@ public class PropertyFile
 	  properties.add(arg);
 	}
       }
+
     }
     catch(FileNotFoundException fnotfoundexp) {
       Assert.fail("User parameter configuration file not found");

@@ -6,7 +6,7 @@
      * Start the CA.
 -->
 
-<experiment name="CA from scratch">
+<experiment description="Runs a CA from scratch">
   <!-- Operations to perform before the experiment -->
   <operation type="before">
     <class></class>

@@ -139,9 +139,9 @@
        <td valign="top">
        <%=(new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss")).format(exp.getAnalyzisDate()) %>
        </td>
-       <td valign="top"> </td>
+       <td valign="top">.</td>
        <td valign="top"><%=exp.getJunitResultLink()%></td>
-       <td valign="top"> </td>
+       <td valign="top"><%=exp.getLogFilesUrls()%></td>
        </tr>
 <%
       /////////////////////////////////////
@@ -150,7 +150,7 @@
         NodeConfiguration nc = (NodeConfiguration) nodeConfList.get(j);
 %>
        <tr>
-       <td valign="top"><%=String.valueOf(nc.getNodeName())%></td>
+       <td valign="top"><%=(nc.getNodeName() + "<br>Host=" + nc.getHostName())%></td>
        <td valign="top" bgcolor=
 <%     if (nc.getErrors() > 0) { %>
        "#ff0000"
@@ -177,7 +177,7 @@
          <%=String.valueOf(nc.getCompletionTime())%>
        </td>
 
-       <td valign="top"> </td>
+       <td valign="top">.</td>
 
        <td valign="top">
          <%=nc.getLogFilesUrls()%>

@@ -5,7 +5,15 @@
      * Start the CA.
 -->
 
-<experiment name="CA key generation">
+<!-- Note on Java properties:
+   A node is started with the following Java properties set:
+   1) Properties in the "Linux.props" file are read.
+   2) Properties defined in the Linux.props file may be overriden by properties defined in this file.
+   3) Finally, properties defined in this file may be overriden by properties defined in
+      the "junit.props" file. Also, properties defined in this file may reference properties defined
+      in the "junit.props" file.
+-->
+<experiment description="Runs a CA and generate a key">
   <!-- Operations to perform before the experiment -->
   <operation type="before">
     <class></class>
@@ -49,30 +57,32 @@
      </operation>
    </nodeTest>
 
-   <nodeTest name="CA web client">
-    <nodeDescription>A web client simulating a CA administrator. The client attempts to create a new CA key
-    </nodeDescription>
-
+   <nodeTest name="CA_web_client">
     <!-- Properties that override those found in the Linux.props file -->
     <property name="junit.web.topLevelPageUrl" value="http://${junit.host.hostA}:${junit.http.port}"/>
     <property name="junit.web.isFirstInstallation" value="true"/>
+    <property name="junit.ca.user.name" value="${junit.ca.user.name}"/>
+    <property name="junit.ca.user.password" value="${junit.ca.user.password}"/>
 
+    <nodeDescription>A web client simulating a CA administrator. The client attempts to create a new CA key.</nodeDescription>
     <!-- How long to wait (in seconds) before starting this node -->
     <howLongBeforeStart>30</howLongBeforeStart>
     <!-- The maximum amount of time the node is allowed to run -->
     <maxExecTime>60</maxExecTime>
     <!-- The host where the node is supposed to run -->
-    <hostName>${junit.host.hostA}</hostName>
+    <hostName>${junit.host.hostB}</hostName>
     <!-- The node startup directory -->
     <nodeStartupDirectory>${org.cougaar.securityservices.configs}/cougaarCA</nodeStartupDirectory>
     <!-- The name of the file containing java properties -->
     <propertyFile>Linux.props</propertyFile>
     <!-- Command line arguments when starting the node -->
-    <nodeArguments></nodeArguments>
+    <nodeArguments>test.org.cougaar.core.security.nodetests.CaWebClient webClient</nodeArguments>
     <!-- Operations to perform before the node is started -->
-    <operation type="before">
+    <operation type="after">
+      <!-- At that point, the CA has generated its keys.
+           The nodes need to have the certificate of the CA in order to trust it. -->
       <class>test.org.cougaar.core.security.nodetests.CaWebClient</class>
-      <method>testCreateCaKey</method>
+      <method>installCaCertificateKeystore</method>
       <argument></argument>
     </operation>
    </nodeTest>

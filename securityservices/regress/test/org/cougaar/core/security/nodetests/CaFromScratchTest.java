@@ -62,21 +62,15 @@ public class CaFromScratchTest
     File file = new File(path);
     System.out.println("Removing files under " + path);
 
-    //removeRecursively(file);
-    
-    path = System.getProperty("org.cougaar.workspace")
-      + File.separator + "log4jlogs" + File.separator + nodeName + ".log";
-    file = new File(path);
-
-    System.out.println("Removing file: " + path);
-    //file.delete();
+    removeRecursively(file);
   }
 
   /** Remove a folder and subfolders
    */
   private void removeRecursively(File file) {
     if (file.isFile()) {
-      file.delete();
+      boolean isDeleted = file.delete();
+      System.out.println("Deleting file " + file.getPath() + ": " + isDeleted);
       return;
     }
     else if (file.isDirectory()) {
@@ -84,6 +78,9 @@ public class CaFromScratchTest
       for (int i = 0 ; i < files.length ; i++) {
 	removeRecursively(files[i]);
       }
+      // Now remove the directory
+      boolean isDeleted = file.delete();
+      System.out.println("Deleting directory " + file.getPath() + ": " + isDeleted);
     }
   }
 }

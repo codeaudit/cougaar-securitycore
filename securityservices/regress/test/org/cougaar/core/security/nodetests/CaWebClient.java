@@ -37,30 +37,42 @@ import org.w3c.dom.Document.*;
 
 public class CaWebClient
 {
-  /** The URL of the CA, e.g. http://cypress:8080
-   */
+  /** The URL of the CA, e.g. http://cypress:8080 */
   private String topLevelPageUrl;
 
-  /** The URL to create a CA key, e.g. http://cypress:8080
-   */
+  /** The URL to create a CA key, e.g. http://cypress:8080  */
   private String caCreateKeyUrl;
 
-  /** The URL to list all the agents, e.g. http://cypress:8080/agents?scope=all
-   */
+  /** The URL to list all the agents, e.g. http://cypress:8080/agents?scope=all  */
   private String agentListUrl;
 
-  /** The URL that points to the index, e.g. http://cypress:8080/$caAgent/CA/Index
-   */
+  /** The URL that points to the index, e.g. http://cypress:8080/$caAgent/CA/Index  */
   private String caIndexUrl;
 
-  /** The URL that points to the Main window, e.g. http://cypress:8080/$caAgent/CA/Main
-   */
+  /** The URL that points to the Main window, e.g. http://cypress:8080/$caAgent/CA/Main.  */
   private String caMainUrl;
+
+  /** The URL that points to the CA keys window, e.g. http://cypress:8080/$caAgent/CA/ListCaKeysServlet.  */
+  private String caListCaUrl;
 
   /** True if this is the first CA installation (that is, the keystore does
    *  not have a keystore yet).
    */
   private boolean isFirstInstallation;
+
+
+  private String cnValue = "JUNIT CA";
+  private String ouValue = "NAI Labs";
+  private String oValue = "Network Associates";
+  private String lValue = "Santa Clara";
+  private String stValue = "California";
+  private String cValue = "USA";
+  private String lDAPurlValue = "ldap://pear:389/dc=junittest,dc=cougaar,dc=org";
+  private String validityValue = "1 y";
+  private String timeEnvelopeValue = "1 h";
+  private String keySizeValue = "1024";
+  private String requirePendingValue = "false";
+  private String nodeIsSignerValue = "true";
 
   public CaWebClient() {
     init();
@@ -82,8 +94,18 @@ public class CaWebClient
     agentListUrl = topLevelPageUrl + "agents?scope=all";
     caIndexUrl = topLevelPageUrl + "$caAgent/CA/Index";
     caMainUrl = topLevelPageUrl + "$caAgent/CA/Main";
+    caListCaUrl = topLevelPageUrl + "$caAgent/CA/ListCaKeysServlet";
   }
 
+
+  public static void main(String args[]) {
+    CaWebClient client = new CaWebClient();
+    client.testCreateCaKey("foo");
+  }
+
+  public void installCaCertificateKeystore(String arg) {
+    
+  }
 
   public void testCreateCaKey(String arg) {
     // Check top-level page
@@ -128,6 +150,18 @@ public class CaWebClient
     }
 
     checkCreateCaForm(caCreateKeyUrl);
+
+    // Check caListCaUrl page
+    String e6[] = {
+      "<title>CA Keys List</title>",
+      "<TR><TH> DN-Certificate </TH><TH> DN-Signed By </TH></TR>",
+      "TD>CN=" + cnValue + ", OU=" + ouValue + ", O=" + oValue + ", L=" + lValue
+        + ", ST=" + stValue + ", C=" + cValue + ", T=ca</TD>",
+      "<TD>CN=caAgent, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US, T=agent</TD>",
+      "<TD>CN=caNode, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US, T=node</TD>"
+    };
+    checkStringsWebResponse(caListCaUrl, e6, null);
+
   }
 
   private void checkStringsWebResponse(WebResponse resp,
@@ -138,23 +172,30 @@ public class CaWebClient
      * the above sequence is so common, it can be abbreviated to:
      */
 
-    String responseHtml = resp.toString();
-    // Check that the response contains the strings we expect
-    if (expectedStrings != null) {
-      for (int i = 0 ; i < expectedStrings.length ; i++) {
-	if (responseHtml.indexOf(expectedStrings[i]) == -1) {
-	  Assert.fail("Web response does not contain: " + expectedStrings[i]);
+    try {
+      String responseHtml = resp.getText();
+      // Check that the response contains the strings we expect
+      if (expectedStrings != null) {
+	for (int i = 0 ; i < expectedStrings.length ; i++) {
+	  if (responseHtml.indexOf(expectedStrings[i]) == -1) {
+	    System.err.println("Error: Unexpected page content:\n" + resp.getText());
+	    Assert.fail("Web response does not contain: " + expectedStrings[i]);
+	  }
 	}
       }
+
+      if (failureStrings != null) {
+	for (int i = 0 ; i < failureStrings.length ; i++) {
+	  if (responseHtml.indexOf(failureStrings[i]) != -1) {
+	    System.err.println("Error: Unexpected page content:\n" + resp.getText());
+	    Assert.fail("Web response contains: " + failureStrings[i]);
+	  }
+	}
+      }
+    } catch (Exception e) {
+      Assert.fail("Unable to get Web Response: " + e);
     }
 
-    if (failureStrings != null) {
-      for (int i = 0 ; i < failureStrings.length ; i++) {
-	if (responseHtml.indexOf(failureStrings[i]) != -1) {
-	  Assert.fail("Web response contains: " + failureStrings[i]);
-	}
-      }
-    }
   }
 
   /**
@@ -182,14 +223,34 @@ public class CaWebClient
       Assert.fail("Unable to get response for " + url + " Reason: " + e);
     }
     checkStringsWebResponse(resp, expectedStrings, failureStrings);
+    System.out.println("Checking URL: " + url + ": OK");
   }
 
   private void checkCreateCaForm(String url) {
     WebConversation wc = new WebConversation();
     WebRequest     req = new GetMethodWebRequest(url);
     WebResponse   resp = null;
+
     try {
+      // User authentication is required, so this should throw an exception.
       resp = wc.getResponse( req );
+    }
+    catch (AuthorizationRequiredException e) {
+      System.out.println("Authentication is required: " + e.getAuthenticationScheme());
+      // Try again with appropriate credentials
+      String userName = System.getProperty("junit.ca.user.name");
+      Assert.assertNotNull("junit.ca.user.name property should be set", userName);
+      String password = System.getProperty("junit.ca.user.password");
+      Assert.assertNotNull("junit.ca.user.password property should be set", password);
+
+      wc.setAuthorization(userName, password);
+      try {
+	resp = wc.getResponse(req);
+	System.out.println("Authentication succeeded.");
+      }
+      catch (Exception e1) {
+	Assert.fail("Unable to get response for " + url + " Reason: " + e1);
+      }
     }
     catch (Exception e) {
       Assert.fail("Unable to get response for " + url + " Reason: " + e);
@@ -207,18 +268,18 @@ public class CaWebClient
     WebRequest request = form.getRequest();
 
     // Set parameters
-    request.setParameter( "CN", "JUNIT CA" );
-    request.setParameter( "OU", "NAI Labs" );
-    request.setParameter( "O", "Network Associates" );
-    request.setParameter( "L", "Santa Clara" );
-    request.setParameter( "ST", "California" );
-    request.setParameter( "C", "USA" );
-    request.setParameter( "LDAPurl", "ldap://pear:389/dc=junittest,dc=cougaar,dc=org" );
-    request.setParameter( "Validity", "1 y" );
-    request.setParameter( "timeEnvelope", "1 h" );
-    request.setParameter( "KeySize", "1024" );
-    request.setParameter( "RequirePending", "false" );
-    request.setParameter( "nodeIsSigner", "true" );
+    request.setParameter( "CN", cnValue );
+    request.setParameter( "OU", ouValue );
+    request.setParameter( "O", oValue );
+    request.setParameter( "L", lValue );
+    request.setParameter( "ST", stValue );
+    request.setParameter( "C", cValue );
+    request.setParameter( "LDAPurl", lDAPurlValue );
+    request.setParameter( "Validity", validityValue );
+    request.setParameter( "timeEnvelope", timeEnvelopeValue );
+    request.setParameter( "KeySize", keySizeValue );
+    request.setParameter( "RequirePending", requirePendingValue );
+    request.setParameter( "nodeIsSigner", nodeIsSignerValue );
 
     WebResponse response = null;
     try {
@@ -229,7 +290,8 @@ public class CaWebClient
     }
     String e1[] = {
       "<H2>CA key generation</H2>",
-      "CA key generation CA key has been generated.<br><br>",
+      "CA key generation",
+      "CA key has been generated.<br><br>",
       "CA certificate has been stored in:<br>",
       "CA private key has been stored in:<br>"
     };

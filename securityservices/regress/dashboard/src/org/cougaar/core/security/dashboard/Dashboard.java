@@ -30,6 +30,8 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 import java.text.*;
+import junit.framework.*;
+import junit.extensions.ExceptionTestCase;
 
 import test.org.cougaar.core.security.simul.*;
 
@@ -167,12 +169,20 @@ public class Dashboard
   private void analyzeExperiments() {
     for (int i = 0 ; i < subdirectories.length ; i++) {
       File f = new File(subdirectories[i], "experiment.dat");
-      experiments.add(loadExperiment(f));
+      Experiment e = loadExperiment(f);
+      if (e != null) {
+	experiments.add(e);
+      }
     }
     Comparator comparator = new Comparator() {
 	public int compare(Object o1, Object o2) {
 	  Experiment e1 = (Experiment) o1;
 	  Experiment e2 = (Experiment) o2;
+	  if (e1 == null || e2 == null
+	      || e1.getStartDate() == null || e2.getStartDate() == null) {
+	    // not defined
+	    return -1;
+	  }
 	  return (e1.getStartDate().compareTo(e2.getStartDate()));
 	}
       };
@@ -191,6 +201,16 @@ public class Dashboard
     catch (Exception e) {
       System.out.println("Unable to load experiment:" + e);
       e.printStackTrace();
+
+      // Create a dummy experiment to show that there was a problem loading the file.
+      exp = new Experiment();
+      exp.setAnalyzisDate(new Date());
+      exp.setExperimentName(f.getParentFile().getName());
+      SerializableTestResult tr = new SerializableTestResult();
+      tr.addError(new ExceptionTestCase("Unable to load experiment", e.getClass()), e);
+      exp.setTestResult(tr);
+      String link = "<a href=\"./results/" + f.getParentFile().getName() + "/TEST-results.xml\">TEST-results.xml</a>";
+      exp.setJunitResultLink(link);
     }
     return exp;
   }

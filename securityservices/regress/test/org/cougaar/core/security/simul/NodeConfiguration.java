@@ -42,6 +42,9 @@ public class NodeConfiguration
   /** The file containing the java properties for the node. */
   private String propertyFile;
 
+  /** The name of the experiment */
+  private String experimentName;
+
   /** The command-line arguments when starting the node. */
   private String nodeArguments[];
 
@@ -84,8 +87,9 @@ public class NodeConfiguration
   private String logFilesUrls;
   private SerializableTestResult testResult;
 
-  private File rmiServerStdErr;
-  private File rmiServerStdOut;
+  /** The directory where results are stored. */
+  private String resultPath;
+  private String log4jLogFile;
 
   public NodeConfiguration() {
     properties = new Properties();
@@ -141,6 +145,9 @@ public class NodeConfiguration
   public int getRmiRegistryPort() {
     return rmiRegistryPort;
   }
+  public String getExperimentName() {
+    return experimentName;
+  }
 
   ///////////////////////////////////////////////////////
   // Results GET methods
@@ -159,19 +166,16 @@ public class NodeConfiguration
   public Date getAnalyzisDate() {
     return analyzisDate;
   }
-  private String makeLink(String topDirectory, String fullPath) {
+  private String makeLink(String path, String name) {
     String link = "";
     try {
-      topDirectory = NodeServerSuite.getCanonicalPath(topDirectory + "/regress");
-      fullPath = NodeServerSuite.getCanonicalPath(fullPath);
-
-      link = fullPath.substring(topDirectory.length());
+      link = path;
       if (!link.startsWith("/")) {
 	link = "/" + link;
       }
       link = "." + link;
-      File f = new File(fullPath);
-      link = "<a href=\"" + link + "\">" + f.getName() + "</a>";
+      File f = new File(path);
+      link = "<a href=\"" + link + "\">" + name + "</a>";
     }
     catch (Exception e) {}
     return link;
@@ -180,11 +184,20 @@ public class NodeConfiguration
   public String getLogFilesUrls() {
     String s = "";
     try {
-      String parent = rmiServerStdErr.getParent();
-      s = s + makeLink(topLevelDirectory, parent + "/NODE-" + getNodeName() + "-out.log");
-      s = s + "<br>" + makeLink(topLevelDirectory, parent + "/NODE-" + getNodeName() + "-err.log");
-      s = s + "<br>" + makeLink(topLevelDirectory, rmiServerStdErr.getCanonicalPath());
-      s = s + "<br>" + makeLink(topLevelDirectory, rmiServerStdOut.getCanonicalPath());
+      String fileName = "results/" + experimentName + "/" +
+	getNodeName() + "/NODE-" + getNodeName() + "-out.log";
+      File file = new File(fileName);
+      s = s + makeLink(fileName, file.getName());
+
+      fileName = "results/" + experimentName + "/" +
+	getNodeName() + "/NODE-" + getNodeName() + "-err.log";
+      file = new File(fileName);
+      s = s + "<br>" + makeLink(fileName, file.getName());
+      
+      fileName = "results/" + experimentName + "/" +
+	getNodeName() + "/log4j.log";
+      file = new File(fileName);
+      s = s + "<br>" + makeLink(fileName, file.getName());
     }
     catch (Exception e) {}
     logFilesUrls = s;
@@ -192,6 +205,13 @@ public class NodeConfiguration
   }
   public SerializableTestResult getTestResult() {
     return testResult;
+  }
+
+  public String getResultPath() {
+    return resultPath;
+  }
+  public String getLog4jLogFile() {
+    return log4jLogFile;
   }
 
   //////////////////////////////////////////////////////
@@ -204,6 +224,9 @@ public class NodeConfiguration
   }
   public void setTopLevelDirectory(String dir) {
     topLevelDirectory = dir;
+  }
+  public void setExperimentName(String name) {
+    experimentName = name;
   }
   public void setNodeStartupDirectoryName(String dir) {
     nodeDirectoryName = dir;
@@ -262,9 +285,11 @@ public class NodeConfiguration
   public void setTestResult(SerializableTestResult tr) {
     testResult = tr;
   }
-  public void setRmiServerLogFiles(File stderr, File stdout) {
-    rmiServerStdErr = stderr;
-    rmiServerStdOut = stdout;
+  public void setResultPath(String path) {
+    resultPath = path;
+  }
+  public void setLog4jLogFile(String path) {
+    log4jLogFile = path;
   }
 
   ///////////////////////////////////////////////////////
