@@ -1,6 +1,22 @@
 ####################################################
 # certificate_bootstrapper_enclaves.rule
 
+fwdCaHost = nil
+rearCaHost = nil
+conusCaHost = nil
+transCaHost = nil
+society.each_node do |node|
+  if node.name == 'FWD-CA-NODE'
+    fwdCaHost = node.host.name 
+  elsif node.name == 'REAR-CA-NODE'
+    rearCaHost = node.host.name 
+  elsif node.name == 'CONUS-CA-NODE'
+    conusCaHost = node.host.name 
+  elsif node.name == 'TRANS-CA-NODE'
+    transCaHost = node.host.name 
+  end
+end
+
 society.each_node do |node|
   # Some of the  ** and node.name != ** tests are not necessary
   # but it's helpful to remember that the component should not
@@ -9,25 +25,25 @@ society.each_node do |node|
   if (node.name =~ /.*REAR.*/) \
 	and node.name != 'REAR-CA-NODE'
     # node agents in enclave 1
-    arg = "sb040:Enclave1CA"
+    arg = rearCaHost + ":Enclave1CA"
 
   elsif (node.name =~ /.*FWD.*/) \
 	and node.name != 'FWD-CA-NODE'
     # node agents in enclave 2
-    arg = "sb039:Enclave2CA"
+    arg = fwdCaHost + ":Enclave2CA"
 
   elsif (node.name == "NCA-NODE" \
 	 or node.name == "CONUS-NODE") \
 	and node.name != 'CONUS-CA-NODE'
     # node agents in enclave 3
-    arg = "sb041:Enclave3CA"
+    arg = conusCaHost + ":Enclave3CA"
 
   elsif (node.name =~ /.*TRANS.*/ \
 	 or node.name == "AIR-NODE" \
 	 or node.name == "SEA-NODE") \
 	and node.name != 'TRANS-CA-NODE'
     # node agents in enclave 4
-    arg = "sb043:Enclave4CA"
+    arg = transCaHost + ":Enclave4CA"
   end
 
   if arg != nil

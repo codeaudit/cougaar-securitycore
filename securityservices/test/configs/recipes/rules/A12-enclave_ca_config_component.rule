@@ -1,29 +1,37 @@
 ####################################################
 # enclave_ca_config_component.rule
 
-enclaves = 1..4  # there are 4 enclaves...do this once per enclave
+cahost = nil
 society.each_node do |node|
-  enclave = nil
-  if node.name == 'REAR-CA-NODE'
-    enclave = "1"
-  elsif node.name == 'FWD-CA-NODE'
-    enclave = "3"
-  elsif node.name == 'CONUS-CA-NODE'
-    enclave = "3"
-  elsif node.name == 'TRANS-CA-NODE'
-    enclave = "4"
+  if node.name == 'ROOT-CA-NODE'
+    cahost = node.host.name 
   end
-  if enclave != nil
-    arg = 'CN=Enclave' + enclave + '_CA, OU=Enclave' + enclave + \
-          ', O=DLA, L=MV, ST=CA, C=US, T=ca'
-    node.agent.add_component do |c|
-      c.name = "Enclave" + enclave + "CaConfigPlugin"
-      c.classname = "org.cougaar.core.security.certauthority.ConfigPlugin"
-      c.priority = "HIGH"
-      c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-      c.add_argument(arg)
-      c.add_argument("")
-      c.add_argument("sb023:RootCA")
+end
+
+if cahost != nil
+  society.each_node do |node|
+    enclave = nil
+    if node.name == 'REAR-CA-NODE'
+      enclave = "1"
+    elsif node.name == 'FWD-CA-NODE'
+      enclave = "3"
+    elsif node.name == 'CONUS-CA-NODE'
+      enclave = "3"
+    elsif node.name == 'TRANS-CA-NODE'
+      enclave = "4"
+    end
+    if enclave != nil
+      arg = 'CN=Enclave' + enclave + '_CA, OU=Enclave' + enclave + \
+            ', O=DLA, L=MV, ST=CA, C=US, T=ca'
+      node.agent.add_component do |c|
+        c.name = "Enclave" + enclave + "CaConfigPlugin"
+        c.classname = "org.cougaar.core.security.certauthority.ConfigPlugin"
+        c.priority = "HIGH"
+        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+        c.add_argument(arg)
+        c.add_argument("")
+        c.add_argument(cahost + ":RootCA")
+      end
     end
   end
 end
