@@ -46,33 +46,4 @@
     </cryptoClientPolicy>
   </policy>
 
-  <javaproperties>
-     <property>
-        <name>org.cougaar.workspace</name>
-        <value>${cougaar.install.path}${/}workspace${/}</value>
-     </property>
-     <property>
-     <!-- CA_CERTPATH -->
-        <name>org.cougaar.security.CA.certpath</name>
-        <value>config/certauthority</value>
-     </property>
-     <property>
-     <!-- CRYPTO_CONFIG -->
-        <name>org.cougaar.security.crypto.config</name>
-        <value>config/certauthority/cryptoPolicy.xml</value>
-     </property>
-     <property>
-        <name>org.cougaar.security.keystore.password</name>
-        <value>Ultra*Log</value>
-     </property>
-     <property>
-        <name>org.cougaar.security.keystore</name>
-        <value>keystoreTest</value>
-     </property>
-     <property>
-        <name>org.cougaar.core.security.crypto.debug</name>
-        <value>true</value>
-     </property>
-  </javaproperties>
-
 </policies>
