@@ -50,14 +50,8 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
     } else {
       //failure
       this.failures++;
-      this.createIDMEFEvent(new LegitAnalyzer(),"Can't access OrgActivity object");
+      this.createIDMEFEvent(pluginName,"Can't access OrgActivity object");
     }
   }
 
-  public class LegitAnalyzer extends Analyzer implements Serializable {
-    public LegitAnalyzer() {
-      this.setAnalyzerid(pluginName);
-
-    }
-  }
 }

@@ -31,6 +31,7 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
@@ -293,8 +294,8 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     try {
       File dumpDirFile = new File(dumpDir);
       if (!dumpDirFile.mkdirs()) {
-			if (logging.isWarnEnabled()) {
-	  			logging.warn("Unable to create dump directory:");
+			if (logging.isInfoEnabled()) {
+	  			logging.info("Unable to create dump directory:" + dumpDir);
 			}
       }
     }
@@ -428,7 +429,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
    *
    * @param a DOCUMENT ME!
    */
-  protected void createIDMEFEvent(Analyzer a, String classification) {
+  protected void createIDMEFEvent(final String sensorName, String classification) {
     DetectTime detectTime = new DetectTime();
     detectTime.setIdmefDate(new java.util.Date());
     CmrFactory cmrFactory = (CmrFactory) this.domainService.getFactory(
@@ -437,6 +438,14 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     Classification c = (Classification)cmrFactory.getIdmefMessageFactory().createClassification(
     	classification, null);
     classifications.add(c);
+    Analyzer a = cmrFactory.getIdmefMessageFactory().createAnalyzer(
+      new SensorInfo() {
+	public String getName() { return sensorName; }
+	public String getManufacturer() { return "CSI"; }
+	public String getModel() { return "BlackboardTool"; }
+	public String getVersion() { return "1.0"; }
+	public String getAnalyzerClass() { return "BlackboardAccessControlPlugin"; }
+      });
     Alert alert = cmrFactory.getIdmefMessageFactory().createAlert(a,
 								  detectTime, null, null, classifications, null);
     if (logging.isInfoEnabled()) {

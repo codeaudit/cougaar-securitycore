@@ -51,7 +51,7 @@ public class MaliciousBlackboardPlugin extends AbstractBlackboardPlugin {
                     + orgActivities.size() + " org activities");
             }
 
-            this.createIDMEFEvent(new MaliciousBlackboardPluginAnalyzer(), "Was able to access OrgActivity object");
+            this.createIDMEFEvent(pluginName, "Was able to access OrgActivity object");
             this.totalRuns++;
             this.failures++;
         }else{
@@ -60,12 +60,5 @@ public class MaliciousBlackboardPlugin extends AbstractBlackboardPlugin {
 
        
 
-    }
-
-    public class MaliciousBlackboardPluginAnalyzer extends Analyzer implements Serializable {
-        public MaliciousBlackboardPluginAnalyzer() {
-            this.setAnalyzerid(pluginName);
-
-        }
     }
 }
