@@ -129,6 +129,7 @@ final public class CRLCache
   private CertificateCacheService cacheservice=null;
   private KeyRingService keyRingService=null;
   
+  private Object _mySecurityCommunitiesLock = new Object();
   private Set _mySecurityCommunities = null;
   private final String CRL_Provider_Role="CrlProvider";
   private MessageAddress myAddress;
@@ -145,7 +146,7 @@ final public class CRLCache
                                                                   SecurityPropertiesService.class, 
                                                                   null);
     //this.keystore=dkeystore;
-    log.debug("Crl cache being initialized  ++++++++++");
+    log.debug("Crl cache being initialized");
     long poll = 0;
     try {
       poll = (Long.valueOf(secprop.getProperty(secprop.CRL_POLLING_PERIOD))).longValue() * 1000;
@@ -243,36 +244,38 @@ final public class CRLCache
         AttributeBasedAddress aba = null;
         CrlRelay crlregrelay = null;
 
-        if (_mySecurityCommunities != null && 
-            !_mySecurityCommunities.isEmpty()) {
-	  Iterator it = _mySecurityCommunities.iterator();
-          synchronized (_blackboardLock) {
-            try {
-          blackboardService.openTransaction();
-	  while (it.hasNext()) {
-	    Community community = (Community) it.next();
-            aba=AttributeBasedAddress.
-	      getAttributeBasedAddress(community.getName(),
-				       "Role",
-				       CRL_Provider_Role); 
-            crlregrelay=crlMgmtService.newCrlRelay(crlagentregistartion,
-                                                   aba);
-            if (log.isDebugEnabled()) {
-              log.debug(" CRL relay is being published :" +
-                        crlregrelay.toString());
-            }
-            blackboardService.publishAdd(crlregrelay);
-          }
-            } finally {
-          blackboardService.closeTransaction();
-            }
-          }
-        } else {
-          if (log.isDebugEnabled()) {
-            log.debug("No info about my security community " + 
-                      myAddress.toString()); 
-          }
-        }
+	synchronized(_mySecurityCommunitiesLock) {
+	  if (_mySecurityCommunities != null && 
+	      !_mySecurityCommunities.isEmpty()) {
+	    Iterator it = _mySecurityCommunities.iterator();
+	    synchronized (_blackboardLock) {
+	      try {
+		blackboardService.openTransaction();
+		while (it.hasNext()) {
+		  Community community = (Community) it.next();
+		  aba=AttributeBasedAddress.
+		    getAttributeBasedAddress(community.getName(),
+					     "Role",
+					     CRL_Provider_Role); 
+		  crlregrelay=crlMgmtService.newCrlRelay(crlagentregistartion,
+							 aba);
+		  if (log.isDebugEnabled()) {
+		    log.debug(" CRL relay is being published :" +
+			      crlregrelay.toString());
+		  }
+		  blackboardService.publishAdd(crlregrelay);
+		}
+	      } finally {
+		blackboardService.closeTransaction();
+	      }
+	    }
+	  } else {
+	    if (log.isDebugEnabled()) {
+	      log.debug("No info about my security community " + 
+			myAddress.toString()); 
+	    }
+	  }
+	}
       } else {
         log.debug("blackboardService / crlMgmtService is NULL:");
       }
@@ -791,28 +794,32 @@ final public class CRLCache
                                  wrapper.getCertDirectoryType());
       AttributeBasedAddress aba=null;
 
-      if (_mySecurityCommunities != null && !_mySecurityCommunities.isEmpty()) {
-	Iterator it = _mySecurityCommunities.iterator();
-
-        synchronized (_blackboardLock) {
-          try {
-        blackboardService.openTransaction();
-	while (it.hasNext()) {
-          Community community = (Community) it.next();
-          aba=AttributeBasedAddress.
-	    getAttributeBasedAddress(community.getName(),
-				     "Role",
-				     CRL_Provider_Role);
+      synchronized (_mySecurityCommunitiesLock) {
+	if (_mySecurityCommunities != null &&
+	    !_mySecurityCommunities.isEmpty()) {
+	  Iterator it = _mySecurityCommunities.iterator();
+	  
+	  synchronized (_blackboardLock) {
+	    try {
+	      blackboardService.openTransaction();
+	      while (it.hasNext()) {
+		Community community = (Community) it.next();
+		aba=AttributeBasedAddress.
+		  getAttributeBasedAddress(community.getName(),
+					   "Role",
+					   CRL_Provider_Role);
           
-          crlregrelay=crlMgmtService.newCrlRelay(crlagentregistartion,
-                                                 aba);
-          log.debug(" CRL relay is being published :"+ crlregrelay.toString());
-          blackboardService.publishAdd(crlregrelay);
-        }
-          } finally {
-	    blackboardService.closeTransaction();
-          }
-        }
+		crlregrelay=crlMgmtService.newCrlRelay(crlagentregistartion,
+						       aba);
+		log.debug(" CRL relay is being published :"
+			  + crlregrelay.toString());
+		blackboardService.publishAdd(crlregrelay);
+	      }
+	    } finally {
+	      blackboardService.closeTransaction();
+	    }
+	  }
+	}
       }
     }
   }
@@ -836,13 +843,15 @@ final public class CRLCache
   }
 
   private void setMySecurityCommunity(Set c) {
-    _mySecurityCommunities = c;
-    if (_mySecurityCommunities.isEmpty()) {
-      log.info("Security community information not found yet :" +
-               myAddress);
-    } else if (log.isDebugEnabled()) {
-      log.debug("Agent " + myAddress + " security communities: " +
-                _mySecurityCommunities);
+    synchronized (_mySecurityCommunitiesLock) {
+      _mySecurityCommunities = c;
+      if (_mySecurityCommunities.isEmpty()) {
+	log.info("Security community information not found yet :" +
+		 myAddress);
+      } else if (log.isDebugEnabled()) {
+	log.debug("Agent " + myAddress + " security communities: " +
+		  _mySecurityCommunities);
+      }
     }
   }
 
@@ -884,14 +893,16 @@ final public class CRLCache
   }
 
   private synchronized void setServices() {
-    if (_communityService != null &&
-        _mySecurityCommunities == null && !_listening) {
-      setSecurityCommunity();
-    }
-    if (!_crlRegistered && 
-        crlMgmtService != null && blackboardService != null &&
-        _mySecurityCommunities != null) {
-      publishCrlRegistration();
+    synchronized (_mySecurityCommunitiesLock) {
+      if (_communityService != null &&
+	  _mySecurityCommunities == null && !_listening) {
+	setSecurityCommunity();
+      }
+      if (!_crlRegistered && 
+	  crlMgmtService != null && blackboardService != null &&
+	  _mySecurityCommunities != null) {
+	publishCrlRegistration();
+      }
     }
     if (myAddress != null && blackboardService != null) {
       startCrlPoll();
@@ -899,7 +910,7 @@ final public class CRLCache
     if (_threadService != null && _communityTimerTask == null) {
       _communityTimerTask = new CommunityTimerTask();
       _threadService.scheduleAtFixedRate(
-	_communityTimerTask, 0L,
+	_communityTimerTask, CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT,
 	CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT);
     }
   }
@@ -908,12 +919,14 @@ final public class CRLCache
     private long count;
     public void run() {
       count++;
-      if (log.isWarnEnabled() && (_mySecurityCommunities == null || 
-				  _mySecurityCommunities.isEmpty())) {
-	log.warn("Agent is not part of any community: " + myAddress
-		 + " - " + count + " checks so far - Timeout=" +
-		 CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT / 1000
-		 + "s");
+      synchronized (_mySecurityCommunitiesLock) {
+	if (log.isWarnEnabled() && (_mySecurityCommunities == null || 
+				    _mySecurityCommunities.isEmpty())) {
+	  log.warn("Agent is not part of any community: " + myAddress
+		   + " - " + count + " checks so far - Timeout=" +
+		   CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT / 1000
+		   + "s");
+	}
       }
     }
   }
@@ -948,12 +961,23 @@ final public class CRLCache
 		log.info("Adding security community: " +
 		  community.getName());
 	      }
-	      synchronized (_mySecurityCommunities) {
-		if (log.isDebugEnabled()) {
-		  log.debug("Community collection class: " +
-		    _mySecurityCommunities.getClass().getName());
+	      synchronized (_mySecurityCommunitiesLock) {
+		Iterator it = _mySecurityCommunities.iterator();
+		Set com = new HashSet();
+		while (it.hasNext()) {
+		  Community c = (Community)it.next();
+		  if (c.getName().equals(community.getName())) {
+		    // The community already exists
+		    if (log.isDebugEnabled()) {
+		      log.debug(community.getName() +
+				" community already in the set. Will update");
+		    }
+		    it.remove();
+		  }
 		}
-		_mySecurityCommunities.add(community);
+		com.addAll(_mySecurityCommunities);
+		com.add(community);
+		_mySecurityCommunities = com;
 	      }
 	    }
 	  }
