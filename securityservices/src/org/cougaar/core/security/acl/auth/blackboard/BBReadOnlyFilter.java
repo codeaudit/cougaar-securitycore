@@ -115,6 +115,11 @@ public class BBReadOnlyFilter extends BlackboardFilter {
       }
     }
 
+    public void closeTransactionDontReset() {
+      checkWrite("closeTransaction");
+      _bbs.closeTransactionDontReset();
+    }
+
     public void closeTransaction() {
       checkWrite("closeTransaction");
       _bbs.closeTransaction();
@@ -133,6 +138,11 @@ public class BBReadOnlyFilter extends BlackboardFilter {
     public Persistence getPersistence() {
       checkWrite("getPersistence");
       return _bbs.getPersistence();
+    }
+
+    public Subscription subscribe(Subscription s) {
+      checkWrite("subscribe");
+      return _bbs.subscribe(s);
     }
 
     public Subscription subscribe(UnaryPredicate isMember) {
