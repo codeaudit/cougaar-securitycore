@@ -248,7 +248,8 @@ class Main
     List          ppolicies = parsed.policies();
 
     System.out.println("Loading ontologies");
-    _ontology = new LocalOntologyConnection(parsed.declarations());
+    _ontology = new LocalOntologyConnection(parsed.declarations(), 
+                                            parsed.agentGroupMap());
     System.out.println("Ontologies loaded");
 
     System.out.println("Writing Policies");
@@ -295,10 +296,12 @@ class Main
         _ontology = new TunnelledOntologyConnection(_url,
                                                     _cmdLineUser,
                                                     _cmdLinePassword,
-                                                    parsed.declarations());
+                                                    parsed.declarations(),
+                                                    parsed.agentGroupMap());
       } else {
         _ontology = new TunnelledOntologyConnection(_url, 
-                                                    parsed.declarations());
+                                                    parsed.declarations(),
+                                                    parsed.agentGroupMap());
       }
 
       commitUnconditionalPolicies(parsedPolicies, deletePolicies);
