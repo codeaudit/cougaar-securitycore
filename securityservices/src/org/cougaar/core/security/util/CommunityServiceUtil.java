@@ -1183,6 +1183,7 @@ public class CommunityServiceUtil {
     CommunityChangeListener      _changeListener;
     String                       _role;
     boolean                      _containsRole;
+    boolean                      _answered = false;
 
     public ResultListener(CommunityServiceUtilListener listener,
                           WarnSchedulable warningTask,
@@ -1219,7 +1220,12 @@ public class CommunityServiceUtil {
       _containsRole = containsRole;
     }
 
-    public void getResponse(CommunityResponse resp) {
+    public synchronized void getResponse(CommunityResponse resp) {
+      if (!_answered) {
+        _answered = true;
+      } else {
+        return;
+      }
       if(_log.isDebugEnabled()) {
         _log.debug ("Result listener called :"+ this + " - Status: " +
                     resp.getStatusAsString());
@@ -1302,7 +1308,7 @@ public class CommunityServiceUtil {
       _role = role;
     }
 
-    public void communityChanged(CommunityChangeEvent event) {
+    public synchronized void communityChanged(CommunityChangeEvent event) {
       if (_log.isDebugEnabled()) {
         _log.debug("communityChanged called for agent : "+ _agent +" in GetAgentInCommunity CommunityChangeListener" + this);
       }
