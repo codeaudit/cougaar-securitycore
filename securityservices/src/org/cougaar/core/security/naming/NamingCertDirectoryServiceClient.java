@@ -35,6 +35,8 @@ import java.util.*;
 import org.cougaar.core.service.wp.*;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
 
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.crypto.ldap.*;
@@ -60,11 +62,10 @@ public class NamingCertDirectoryServiceClient {
 			       LoggingService.class,
 			       null);
 
-    // to poll naming if naming service does not handle updating objects
-    /*
-    NamingMonitorThread t = new NamingMonitorThread();
-    t.start();
-    */
+    if (log.isDebugEnabled()) {
+      log.debug("Adding service listner for naming service :");
+    }
+    sb.addServiceListener(new NamingServiceAvailableListener());
   }
 
   public boolean updateCert(CertificateEntry certEntry) throws Exception {
@@ -72,9 +73,8 @@ public class NamingCertDirectoryServiceClient {
     String dname = c.getSubjectDN().getName();
     String cname = new X500Name(dname).getCommonName();
 
-    NamingCertEntry entry = null;
-
     // node cert need to be there before anything else can be published
+
     if (!nodeupdated) {
       if (!cname.equals(NodeInfo.getNodeName())) {
         if (log.isDebugEnabled()) {
@@ -91,27 +91,67 @@ public class NamingCertDirectoryServiceClient {
         if (log.isDebugEnabled()) {
           log.debug("updating other cert entries now node cert is created.");
         }
-        synchronized (certCache) {
-          for (Iterator it = certCache.values().iterator(); it.hasNext(); ) {
-            CertificateEntry cachedEntry = (CertificateEntry)it.next();
-            if (log.isDebugEnabled()) {
-              log.debug("updating " + cachedEntry.getCertificate().getSubjectDN()
-                + " after node cert updated in naming.");
-            }
-            updateCert(cachedEntry);
-          }
-        }
-        certCache.clear();
+        updateCertEntryFromCache();
       }
     }
-
     if (whitePagesService == null) {
-      whitePagesService = (WhitePagesService)
-        sb.getService(this, WhitePagesService.class, null);
+      if (log.isDebugEnabled()) {
+        log.debug("Naming service is not yet available, storing to cache.");
+      }
+      certCache.put(dname, certEntry);
+      return false;
+    }
+
+    return updateCertEntry(certEntry);
+  }
+
+  private void setNamingService() {
+    whitePagesService = (WhitePagesService)
+      sb.getService(this, WhitePagesService.class, null);
+
+    updateCertEntryFromCache();
+  }
+
+  private void updateCertEntryFromCache() {
+    if (!nodeupdated) {
+      if (log.isDebugEnabled()) {
+        log.debug("update cert from cache: need to wait until node is enabled");
+      }
+      return;
     }
     if (whitePagesService == null) {
+      if (log.isDebugEnabled()) {
+        log.debug("update cert from cache: need to wait until white pages is available");
+      }
+      return;
+    }
+
+    synchronized (certCache) {
+      for (Iterator it = certCache.values().iterator(); it.hasNext(); ) {
+        CertificateEntry cachedEntry = (CertificateEntry)it.next();
+        if (log.isDebugEnabled()) {
+          log.debug("updating " + cachedEntry.getCertificate().getSubjectDN()
+            + " after node cert updated in naming.");
+        }
+        try {
+          updateCertEntry(cachedEntry);
+        } catch (Exception ex) {
+          log.warn("Failed to update naming: " + ex);
+        }
+      }
+    }
+    certCache.clear();
+  }
+
+  private boolean updateCertEntry(CertificateEntry certEntry) throws Exception {
+    X509Certificate c = (X509Certificate)certEntry.getCertificate();
+    String dname = c.getSubjectDN().getName();
+    String cname = new X500Name(dname).getCommonName();
+    NamingCertEntry entry = null;
+
+    if (whitePagesService == null) {
       log.warn("Cannot get white page service.");
-      return false;
+      throw new Exception("Naming service is not available yet.");
     }
 
     if (log.isDebugEnabled()) {
@@ -146,58 +186,6 @@ public class NamingCertDirectoryServiceClient {
     return true;
   }
 
-  /*
-  public void updateNS(X500Name dname) {
-    synchronized (this) {
-      if (!connected) {
-        certCache.put(dname.getName(), dname);
-      }
-      else {
-        try {
-          updateCert(dname);
-        } catch (Exception ex) {
-          if (log.isWarnEnabled()) {
-            log.warn("Unable to update naming with naming started. ", ex);
-          }
-        }
-      }
-    }
-  }
-
-  boolean connected = false;
-  class NamingMonitorThread extends Thread {
-
-    public void run() {
-      // try to update the first cert until successful
-      while (true) {
-        synchronized (NamingCertDirectoryServiceClient.this) {
-          for (Iterator it = certCache.entrySet().iterator(); it.hasNext(); ) {
-            X500Name dname = (X500Name)it.next();
-            try {
-              if (!updateCert(dname)) {
-                break;
-              }
-              connected = true;
-
-            } catch (Exception ex) {
-              if (log.isDebugEnabled()) {
-                log.debug("Unable to update naming: " + ex);
-              }
-            }
-          }
-        }
-
-        try {
-          Thread.sleep(1000);
-        }
-        catch(InterruptedException interruptedexp) {
-          interruptedexp.printStackTrace();
-        }
-      }
-    }
-  }
-  */
-
   // for now when an identity starts it will overwrite the original
   // naming service entry (the entry it updated at last start)
   public void updateCert(String cname, Cert entry) throws Exception {
@@ -216,5 +204,16 @@ public class NamingCertDirectoryServiceClient {
       log.debug("Successfully updated naming: " + cname);
     }
   }
+
+  private class NamingServiceAvailableListener implements ServiceAvailableListener {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      Class sc = ae.getService();
+      if(org.cougaar.core.service.wp.WhitePagesService.class.isAssignableFrom(sc)) {
+	log.debug("BB Service is now available");
+        setNamingService();
+      }
+    }
+  }
+
 
 }
