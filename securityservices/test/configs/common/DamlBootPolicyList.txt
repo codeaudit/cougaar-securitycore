@@ -1,4 +1,147 @@
 
+Policy DamlBootPolicyAllowCommunication = [ 
+   Priority = 2,
+   $Actor.daml#Agent is authorized to perform
+   $Action.daml#EncryptedCommunicationAction as long as {
+    the value of $Action.daml#hasDestination
+    is a subset of the set $Actor.daml#Agent
+  }
+]
+
+Policy DamlBootPolicyEncryptCommunication = [ 
+   Priority = 3,
+   $Actor.daml#Agent is not authorized to perform
+   $Action.daml#EncryptedCommunicationAction as long as {
+    the value of $Ultralog/UltralogAction.daml#usedProtectionLevel
+    is a subset of the complement of the set
+     { $Ultralog/Names/EntityInstances.daml#NSAApprovedProtection }
+ }
+]
+
+
+Policy DamlBootPolicyAllowBlackboard = [ 
+   Priority = 2,
+   $Ultralog/UltralogActor.daml#UltralogPlugins is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess as long as {
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the complement of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }
+ }
+]
+
+Policy DamlBootPolicyOrgActivityAdd = [
+   Priority = 2,
+   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityAddRole 
+   is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess
+   as long as {
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+                      and
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessAdd
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRead
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessWrite
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessCreate }
+ }
+]
+
+Policy DamlBootPolicyOrgActivityChange = [
+   Priority = 2,
+   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityChangeRole 
+   is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess
+   as long as {
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+                      and
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessChange
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRead
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessWrite }
+ }
+]
+
+Policy DamlBootPolicyOrgActivityQuery = [
+   Priority = 2,
+   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityQueryRole 
+   is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess
+   as long as {
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+                      and
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessQuery
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRead }
+ }
+]
+
+Policy DamlBootPolicyOrgActivityRemove = [
+   Priority = 2,
+   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityQueryRole 
+   is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess
+   as long as {
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+                      and
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRemove }
+ }
+]
+
+
+Policy DamlBootPolicyOrgActivityRemove = [
+   Priority = 2,
+   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityAllRole 
+   is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess
+   as long as {
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+  }
+]
+
+
+Policy DamlBootPolicyUnrestServlet = [ 
+   Priority = 2,
+   $Actor.daml#Person is authorized to perform
+   $Action.daml#AccessAction as long as {
+    the value of $Ultralog/UltralogAction.daml#accessedServlet
+    is a subset of the set { $Ultralog/Names/EntityInstances.daml#OtherServlets 
+                             $Ultralog/Names/EntityInstances.daml#CAReadServlet 
+                             $Ultralog/Names/EntityInstances.daml#CertReqServlet }
+  }
+]
+
+Policy DamlBootPolicyServletRestAuth = [ 
+   Priority = 3,
+   $Actor.daml#Person is not authorized to perform
+   $Action.daml#AccessAction as long as {
+    the value of $Ultralog/UltralogAction.daml#accessedServlet
+    is a subset of the complement of the set 
+       { $Ultralog/Names/EntityInstances.daml#OtherServlets
+         $Ultralog/Names/EntityInstances.daml#CAReadServlet 
+         $Ultralog/Names/EntityInstances.daml#CertReqServlet }
+                       and
+    the value of $Ultralog/UltralogAction.daml#usedAuthenticationLevel
+    is a subset of the set
+       { $Ultralog/Names/EntityInstances.daml#NoAuth
+         $Ultralog/Names/EntityInstances.daml#NoAuthSSL }
+  }
+]
+
+
 Policy DamlBootPolicyPolicyServlet  = [ 
   A user in role PolicyAdministrator can access a servlet named PolicyServlet
 ]
