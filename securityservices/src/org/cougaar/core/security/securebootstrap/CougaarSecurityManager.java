@@ -40,6 +40,7 @@ import java.security.AccessController;
 import java.security.AccessControlContext;
 import java.security.PermissionCollection;
 import java.security.ProtectionDomain;
+import java.security.CodeSource;
 
 // Needed to retrieve the subject associated with an accessController context
 import javax.security.auth.Subject;
@@ -120,7 +121,9 @@ public class CougaarSecurityManager extends SecurityManager
       Machine Error, Internal Error
   */
   public void checkPermission(Permission perm) {
+    Class[] stack = getClassContext();
     try {
+      
       // Check that nobody except the KeyRing can read the
       // org.cougaar.core.security.keystore.password properties
       // When Jaas will be patched and fixed, we will have a better solution.
@@ -144,7 +147,6 @@ public class CougaarSecurityManager extends SecurityManager
 	  }
 	}
       }
-      Class[] stack = getClassContext();
       if (stack.length > 1000) {
 	// New security manager class is not on bootstrap classpath.
 	// Cause policy to get initialized before we install the new
@@ -167,7 +169,7 @@ public class CougaarSecurityManager extends SecurityManager
 	super.checkPermission(perm);
       }
     } catch (SecurityException e) {
-      logPermissionFailure(perm, e, true);
+      logPermissionFailure(perm, e, stack, true);
       throw (new SecurityException(e.getMessage()));
     }
   }
@@ -186,6 +188,7 @@ public class CougaarSecurityManager extends SecurityManager
    **/
   private void logPermissionFailure(final Permission perm,
 				    final SecurityException e,
+				    final Class[] stack,
 				    final boolean displaySubject) {
     try {
       System.out.println("Checking permissions for " + perm + " - Exception:"+ e);
@@ -214,7 +217,8 @@ public class CougaarSecurityManager extends SecurityManager
 	    }
 
 	    auditlog.print("<stack>\n");
-	    e.printStackTrace(auditlog);
+	    printStackTrace(e, stack);
+	    //e.printStackTrace(auditlog);
 	    auditlog.print("</stack></securityManagerAlarm></securityEvent>\n");
 
 	    return null; // nothing to return
@@ -224,6 +228,37 @@ public class CougaarSecurityManager extends SecurityManager
     catch (Exception ex) {
       System.out.println("Unable to log failure");
       ex.printStackTrace();
+    }
+  }
+
+  private void printStackTrace(Exception e, Class[] stack) {
+    StackTraceElement[] ste = e.getStackTrace();
+    ProtectionDomain pd = null;
+    CodeSource cs = null;
+    int j = 0;
+    for (int i = 0 ; i < ste.length ; i++) {
+      String className = stack[j].getName();
+      String location = "";
+
+      if (ste[i].getClassName().equals(className)) {
+	// The class array does not have the same number of elements as in the StackTraceElement
+	// We need to find a match
+	pd = stack[j].getProtectionDomain();
+	j++;
+      }
+
+      if (pd != null) {
+	cs = pd.getCodeSource();
+	if (cs != null) {
+	  location = cs.getLocation().toString();
+	}
+      }
+      auditlog.println("at " + ste[i].getClassName()
+		       + "." + ste[i].getMethodName()
+		       + "(" + ste[i].getFileName()
+		       + ":" + ste[i].getLineNumber()
+		       + ")"
+		       + " - " + location);
     }
   }
 }
