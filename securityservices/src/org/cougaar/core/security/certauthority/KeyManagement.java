@@ -243,7 +243,7 @@ public class KeyManagement
 	log.debug("Running in Cougaar environment");
       }
     }
-    
+
     if (log.isDebugEnabled()) {
       log.debug("Got Ca policy "+ caPolicy.toString());
     }
@@ -792,6 +792,10 @@ public class KeyManagement
   }
 
   public final static int KEYUSAGE_CERT_SIGN_BIT = 5;
+
+  public void publishCertificate(X509Certificate clientX509) {
+    caOperations.publishCertificate(clientX509,CertificateUtility.EntityCert,null);
+  }
 
   /** Sign a PKCS10 certificate signing request with a CA key
    */
