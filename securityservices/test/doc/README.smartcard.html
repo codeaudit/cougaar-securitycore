@@ -1,175 +1,234 @@
-This README covers how to install the Schlumberger smart card reader,
-install a user certificate on it and use that certificate to authenticate
-to secured Cougaar Servlets. It also covers how to install the keystore
-password applet on Linux servers.
+  <html>
+    <head>
+      <title>Cougaar Smart Card README</title>
+    </head>
+    <body>
+      <h1>Cougaar Smart Card README</h1>
+      <p>
+        This README covers how to install the Schlumberger smart card reader,
+        install a user certificate on it and use that certificate to 
+        authenticate to secured Cougaar Servlets. It also covers how to
+        install the keystore password applet on Linux servers.
+      </p>
 
-SMART CARD BROWSER SUPPORT
-==========================
+      <h2>Smart Card Browser Support</h2>
+      <ol>
+        <li>
+          Install the Schlumberger software from the driver CD onto your
+          Windows machine. If you are using Windows NT, you will not be able
+          to use the USB Schlumberger smart card reader. Find a Windows 2000,
+          XP, 98, or ME machine to install it on.
+        </li>
+        <li>
+          Plug the smart card reader into the USB port on your Windows box. It
+          should recognize it and ask to install the drivers that already exist
+          on the machine.
+        </li>
 
-1) Install the Schlumberger software from the driver CD onto your
-   Windows machine. If you are using Windows NT, you will not be able
-   to use the USB Schlumberger smart card reader. Find a Windows 2000,
-   XP, 98, or ME machine to install it on.
+        <li>
+          If you plan on using the Netscape browser, select the
+          <code>Schlumberger Smart Cards and Terminals</code> -> 
+          <code>PKCS11 Enable</code> -> <code>Enable PKCS11 for Netscape</code>
+          from the Start menu. This should install the PKCS11 module into
+          your Netscape browser. If it doesn't work, you will need to do it
+          manually:
 
-2) Plug the smart card reader into the USB port on your Windows box. It
-   should recognize it and ask to install the drivers that already exist
-   on the machine.
+          <h3>Version 4.x</h3>
+          <ol type="A">
+            <li>Open the Netscape browser.</li>
+            <li>Click on the "Security" lock icon at the top of 
+              the window.</li>
+            <li>Select "Cryptographic Modules."</li>
+            <li>Select "Add"</li>
+            <li>Enter a name like "Smart Card" into the "Module Name" 
+              field.</li>
+            <li>Enter the location of slbck.dll into the "Module File" field. 
+              It is located at 
+              D:\Program&nbsp;Files\Schlumberger\Smart&nbsp;Cards&nbsp;and&nbsp;Terminals\Cyberflex&nbsp;Access&nbsp;Kits\v4
+              on my computer.</li>
+            <li>Select Ok.</li>
+          </ol>
 
-3) If you plan on using the Netscape browser, select the Schlumberger Smart
-   Cards and Terminals -> PKCS11 Enable -> Enable PKCS11 for Netscape
-   from the Start menu. This should install the PKCS11 module into
-   your Netscape browser. If it doesn't work, you will need to do it manually:
+          <h3>Version 6+</h3>
+          <ol type="A">
+            <li>Open the Netscape browser.</li>
+            <li>Select Edit->Preferences->Privacy&nbsp;and&nbsp;Security->Certificates</li>
+            <li>Click on "Manage Security Devices." </li>
+            <li>Select "Load."</li>
+            <li>Enter a name like "Smart Card" into the "Module Name" 
+              field.</li>
+            <li>Browse and find the "slbck.dll" into the "Module File" field. 
+              It is located at 
+              D:\Program&nbsp;Files\Schlumberger\Smart&nbsp;Cards&nbsp;and&nbsp;Terminals\Cyberflex&nbsp;Access&nbsp;Kits\v4
+              on my computer.</li>
+            <li>Select Ok.</li>
+          </ol>
 
-    Version 4.x
-    -----------
-    A) Open the Netscape browser.
-    B) Click on the "Security" lock icon at the top of the window. 
-    C) Select "Cryptographic Modules"
-    D) Select "Add"
-    E) Enter a name like "Smart Card" into the "Module Name" field.
-    F) Enter the location of slbck.dll into the "Module File" field. It is
-       located at D:\Program Files\Schlumberger\Smart Cards and Terminals\
-                  Cyberflex Access Kits\v4 on my computer
-    G) Select Ok.
+          <li>
+            Insert a card into the card reader.
+          </li>
 
-    Version 6+
-    ----------
-    A) Open the Netscape browser.
-    B) Select Edit->Preferences->Privacy and Security->Certificates
-    C) Click on "Manage Security Devices"
-    D) Select "Load"
-    E) Enter a name like "Smart Card" into the "Module Name" field.
-    F) Browse and find the "slbck.dll" into the "Module File" field. It is
-       located at D:\Program Files\Schlumberger\Smart Cards and Terminals\
-                  Cyberflex Access Kits\v4 on my computer
-    G) Select Ok.
+          <li>
+            Start the COVE Admin tool from the start button by traversing
+            Schlumber Smart Cards and Terminals->Cyberflex Access SDK 4.2->
+            COVE Admin Tool 4.2
+          </li>
 
-4) Insert a card into the card reader.
+          <li>
+            Select the "Schlumberger Reflex USB" and then click "Connect" to
+            connect to the card.
+          </li>
 
-5) Start the COVE Admin tool from the start button by traversing
-   Schlumber Smart Cards and Terminals->Cyberflex Access SDK 4.2->
-   COVE Admin Tool 4.2
+          <li>
+            Choose the cryptography support:
+            <ul type="disc">
+              <li>If you will be using only Microsoft IE,
+                select "Microsoft.cpf"</li>
+              <li>If you will be using only Netscape, 
+                select "Netscape.cpf"</li>
+              <li>If you will be using both Netscape and IE, select 
+                "Microsoft_interop_Netscape.cpf"</li>
+            </ul>
+          </li>
 
-6) Select the "Schlumberger Reflex USB" and then click "Connect" to
-   connect to the card.
+          <li>
+            Personalize the card: Modify the card label the User PIN.
+            You may make the PIN things any alphanumeric (policy can be
+            modified in the advanced section)
+          </li>
+          <li>
+            Click on "Select Keys..." and open COVE.ksf and then choose
+            "Cyberflex Access Developer 32K"
+          </li>
+          <li>
+            Click on "Personalize" and the card is now ready to load a
+            certificate.
+          </li>
+          <li>
+            Go to the CA using your browser. Select 
+            "Request Browser Certificate."
+          </li>
+          <li>
+            Enter the user id for the user to be granted access. This is the
+            same user id given when you created the user in the User Admin.
+            If you are using Netscape, select "1024" for the key size. If you
+            are using IE, select "Schlumberger Cryptographic Service Provider"
+            for the cryptographic service provider. Select "Get Certificate."
+          </li>
+          <li>
+            If you set up your CA so that it doesn't require manual input,
+            the certificate will be installed into your smart card (requiring
+            the PIN you gave in step 12). If you require a manual approval of
+            the certificate, you must first approve the certificate, then view
+            the certificate and click on "Install Certificate" to download it
+            into your browser. 
 
-7) Choose the cryptography support:
+            Note that the user can also install a CA certificate this way
+            also and they will never be prompted with that annoying
+            "invalid certificate" error.
+          </li>
+          <li>
+            Connect to the SSL port of your Cougaar service. You should be
+            able to select the new certificate (or it may be done for you
+            automatically) and it will recognize you as the user in the
+            smart card.
+          </li>
+      </ol>
 
-   o If you will be using only Microsoft IE, select "Microsoft.cpf"
-   o If you will be using only Netscape, select "Netscape.cpf"
-   o If you will be using both Netscape and IE, select 
-     "Microsoft_interop_Netscape.cpf"
+      <h2>Smart Card Keystore Password Applet</h2>
+      <ol>
+        <li>
+          Compile and install the smart card libraries and software:
+          <pre>
+cd securityservices/test/configs/smartcard
+tar xzf pcsc-lite-1.1.1.tar.gz
+tar xzf slb_rfUSB-drv-0.9.0.tar.gz
+tar xzf jpcsc.tar.gz
+tar xZf java_card_kit-2_1_1-unix.tar.Z
 
-8) Personalize the card: Modify the card label the User PIN. You may make
-   the PIN things any alphanumeric (policy can be modified in the
-   advanced section)
+cd pcsc-lite-1.1.1
+./configure
+make
+sudo make install
+cd ../slb_rfUSB
+make
+sudo mkdir -p /usr/local/pcsc/drivers/
+sudo make install
+cd ../jpcsc
+make
+sudo cp libjpcsc.so /usr/local/lib
+          </pre>
+        </li>
+        <li>
+          If you want to compile the applet, you must install java 1.3.1.
+          If you do not want to compile the applet, skip to step #6.
+        </li>
+        <li>
+          Copy the contents from the Schlumberger's CAPmaker/ directory, point
+          your classpath to include the .jars and export files:
+          <pre>
+mv "$CAPmaker/Export Files" $CAPmaker/Export_Files"
+cp jc211/bin/*.jar $CAPmaker
+setenv CLASSPATH `echo $CAPmaker/*.jar $CAPmaker/Export_Files | sed -e 's/ /:/g'`
+          </pre>
+        </li>
+        <li>
+          Compile the PasswordApplet.
+          <pre>
+javac -d . PasswordApplet.java
+          </pre>
+        </li>
+        <li>    
+          Create the .cap file from the .class file:
+          <pre>
+java com.sun.javacard.converter.Converter -exportpath "$CAPmaker/Export_Files" -out CAP -d . \
+ -applet 0x00:0x01:0x02:0x03:0x04:0x05 PasswordApplet org.cougaar.javacard.demo 0x01:0x02:0x03:0x04:0x05 1.0
 
-9) Click on "Select Keys..." and open COVE.ksf and then choose
-   "Cyberflex Access Developer 32K"
-
-10) Click on "Personalize" and the card is now ready to load a certificate.
-
-11) Go to the CA using your browser. Select "Request Browser Certificate."
-
-12) Enter the user id for the user to be granted access. This is the
-    same user id given when you created the user in the User Admin.
-    If you are using Netscape, select "1024" for the key size. If you
-    are using IE, select "Schlumberger Cryptographic Service Provider"
-    for the cryptographic service provider. Select "Get Certificate."
-
-13) If you set up your CA so that it doesn't require manual input,
-    the certificate will be installed into your smart card (requiring
-    the PIN you gave in step 12). If you require a manual approval of
-    the certificate, you must first approve the certificate, then view
-    the certificate and click on "Install Certificate" to download it
-    into your browser*. 
-
-    * Note that the user can also install a CA certificate this way also and
-      they will never be prompted with that annoying "invalid certificate"
-      error.
-
-14) Connect to the SSL port of your Cougaar service. You should be able to
-    select the new certificate (or it may be done for you automatically) and
-    it will recognize you as the user in the smart card.
-
-
-SMART CARD KEYSTORE PASSWORD APPLET
-===================================
-
-1) Compile and install the smart card libraries and software:
-
-    cd securityservices/test/configs/smartcard
-    tar xzf pcsc-lite-1.1.1.tar.gz
-    tar xzf slb_rfUSB-drv-0.9.0.tar.gz
-    tar xzf jpcsc.tar.gz
-    tar xZf java_card_kit-2_1_1-unix.tar.Z
-
-    cd pcsc-lite-1.1.1
-    ./configure
-    make
-    sudo make install
-    cd ../slb_rfUSB
-    make
-    sudo mkdir -p /usr/local/pcsc/drivers/
-    sudo make install
-    cd ../jpcsc
-    make
-    sudo cp libjpcsc.so /usr/local/lib
-    
-2) If you want to compile the applet, you must install java 1.3.1.
-   If you do not want to compile the applet, skip to step #6.
-
-3) Copy the contents from the Schlumberger's CAPmaker/ directory, point
-   your classpath to include the .jars and export files:
-
-   mv "$CAPmaker/Export Files" $CAPmaker/Export_Files"
-   cp jc211/bin/*.jar $CAPmaker
-   setenv CLASSPATH `echo $CAPmaker/*.jar $CAPmaker/Export_Files | \
-                     sed -e 's/ /:/g'`
-   
-4) Compile the PasswordApplet.
-
-   javac -d . PasswordApplet.java
-
-5) Create the .cap file from the .class file:
-   
-   java com.sun.javacard.converter.Converter -exportpath \
-     "$CAPmaker/Export_Files" -out CAP -d . \
-     -applet 0x00:0x01:0x02:0x03:0x04:0x05 PasswordApplet \
-     org.cougaar.javacard.demo 0x01:0x02:0x03:0x04:0x05 1.0
-
-   java com.slb.javacard.jctools.Cap.makecap \
-     org/cougaar/javacard/demo/javacard/demo.cap
-
-6) Use the Schlumberger's toolkit software to install the new demo.cap file.
-   The AID is 0102030405
-
-7) Create an application instance. Use the applet id 000102030405 and
-   size of 1000 bytes.
-
-8) Plug the USB card reader into your Linux server.
-
-9) Set the LD_LIBRARY_PATH to point to /usr/local/lib, which has
-   all the pcsc libraries:
-
-   setenv LD_LIBRARY_PATH /usr/local/lib
-
-10) Restart the pcscd daemon:
-
-   killall -9 pcscd
-   rm -rf /usr/pcsc
-   /usr/local/sbin/pcscd
-
-   If you want to see the communication between to and from the card, add
-   a parameter '-d stdout' to the pcscd command line.
-
-11) Modify the cryptoPolicy.xml file to tell the server to use the smart card
-    for the keystore password. Add the following line under the
-    "cryptoClientPolicy."
-
-    <keystoreUseSmartCard/>
-
-12) The keystore password is created and stored into the smart card
-    automatically. Therefore, you must not have a keystore before 
-    starting the server. In otherwords, delete any keystore for this
-    node. Then start the server as usual.
+java com.slb.javacard.jctools.Cap.makecap org/cougaar/javacard/demo/javacard/demo.cap
+          </pre>
+        </li>
+        <li>    
+          Use the Schlumberger's toolkit software to install the new demo.cap
+          file. The AID is 0102030405.
+        </li>
+        <li>    
+          Create an application instance. Use the applet id 000102030405 and
+          size of 1000 bytes.
+        </li>
+        <li>
+          Plug the USB card reader into your Linux server.
+        </li>
+        <li>
+          Set the <code>LD_LIBRARY_PATH</code> to point to /usr/local/lib,
+          which has all the pcsc libraries:
+          <pre>
+setenv LD_LIBRARY_PATH /usr/local/lib
+          </pre>
+        </li>
+        <li>
+          Restart the pcscd daemon:
+          <pre>
+killall -9 pcscd
+rm -rf /usr/pcsc
+/usr/local/sbin/pcscd
+          </pre>
+          If you want to see the communication between to and from the
+          card, add a parameter '-d stdout' to the pcscd command line.
+        </li>
+        <li>    
+          Modify the cryptoPolicy.xml file to tell the server to
+          use the smart card for the keystore password. Add the
+          following line under the "cryptoClientPolicy."
+          <p>
+            &lt;keystoreUseSmartCard/&gt;
+          </p>
+        </li>
+        <li>    
+          The keystore password is created and stored into the smart card
+          automatically. Therefore, you must not have a keystore before 
+          starting the server. In otherwords, delete any keystore for this
+          node. Then start the server as usual.
+        </li>
+      </ol>
+    </body>
+  </html>
