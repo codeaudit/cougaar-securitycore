@@ -92,12 +92,6 @@ $okMessages= [
   # However, there is no guarantee that the M&R plugin will be started before the
   # adaptivity engine. Eventually, the plugin will be loaded and publish the condition
   [$startupDelay, /No Condition named/],
-  #
-  # Caused by ProtectionLevel message that bypasses the MTS
-  #
-  [$startupDelay, /MTImpl - No incarnation number in message/],
-  [$startupDelay, /MTImpl - message type/],
-  [$startupDelay, /MTImpl - message object/],
  
   # ############################################################### 
   # Robustness messages
@@ -148,6 +142,7 @@ $repeatingErrors = [
    /ALDynamicSDClientPlugin.*Unable to generate .* for .*/,
    /KeyRing.*Missing certificate for.*adding it to request/,
    /RogueThreadScheduler/,
+   /CrlAgentRegistrationPlugin - Unable to send updated CRL to agent :/,
    /isSelfPropelled - found task /,
    /.*VishnuPlugin - .*VishnuPlugin - unexpected : there already is a task .* in table with key .* it was .*/,
    /WARN  - LineagePlugin - .* has Lineage: UID=.*, type=.*, list=.*, schedule=/,
