@@ -55,7 +55,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private SecureMethodParam policy;
   private DataProtectionKeyImpl dpKey;
   private Cipher ci;
-  
+
   public static final String strPrefix = "--SIGNATUREBEGIN--";
   public static final String strPostfix = "--SIGNATUREEND--";
 
@@ -67,7 +67,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private OutputStream theos = null;
   private int totalBytes = 0;
   private boolean debug = false;
-  
+
   // used to publish data failures
   private EventPublisher eventPublisher;
 
@@ -94,19 +94,15 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     }
     this.agent = agent;
 
-    dpKey = (DataProtectionKeyImpl)pke.getDataProtectionKey();
-    if (dpKey == null) {
-      GeneralSecurityException gsx = 
-        new GeneralSecurityException("No data protection key present.");
-      publishDataFailure(DataFailureEvent.NO_KEYS, gsx.toString());
-      throw gsx;
-    }
+    DataProtectionKeyCollection keyCollection =
+      (DataProtectionKeyCollection)pke.getDataProtectionKey();
+    dpKey = (DataProtectionKeyImpl)keyCollection.get(0);
     policy = dpKey.getSecureMethod();
     String digestAlg = dpKey.getDigestAlg();
 
     // encrypt stream
     theos = bos;
-    
+
     if (policy.secureMethod == SecureMethodParam.ENCRYPT
       || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
       // unprotect key
@@ -121,7 +117,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
       }
       catch(GeneralSecurityException gsx) {
         publishDataFailure(failureIfOccurred, gsx.toString());
-        throw gsx; 
+        throw gsx;
       }
       ci.init(Cipher.ENCRYPT_MODE,skey);
       theos = new CipherOutputStream(theos, ci);
@@ -163,24 +159,24 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     ObjectOutputStream oos = null;
     try {
       theos.close();
-  
+
       // use this as a marker
       oos = new ObjectOutputStream(out);
       oos.writeInt(bos.size());
       oos.writeInt(genDigest ? 1 : 0);
       oos.flush();
-  
+
       bos.writeTo(out);
       bos.reset();
     }
     catch(IOException iox) {
       publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-      throw iox; 
+      throw iox;
     }
     if (genDigest) {
       // generate digest and sign
       MessageDigest md = ((DigestOutputStream)theos).getMessageDigest();
-      String failureIfOccurred = DataFailureEvent.UNKNOWN_FAILURE;  
+      String failureIfOccurred = DataFailureEvent.UNKNOWN_FAILURE;
       try {
         Serializable sobj = new DataProtectionDigestObject(md.digest(), totalBytes);
         if (policy.secureMethod == SecureMethodParam.SIGN
@@ -198,7 +194,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
         oos = new ObjectOutputStream(out);
         oos.writeObject(sobj);
         oos.flush();
-      } 
+      }
       catch (GeneralSecurityException gsx) {
         publishDataFailure(failureIfOccurred, gsx.toString());
         throw new IOException("Cannot sign digest: " + gsx.toString());
@@ -220,7 +216,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     }
     catch(IOException iox) {
       publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-      throw iox;   
+      throw iox;
     }
   }
 
@@ -232,7 +228,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     }
     catch(IOException iox) {
       publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-      throw iox;   
+      throw iox;
     }
     if (bos.size() > buffersize)
       flushToOutput(false);
@@ -245,13 +241,13 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   public static void setBufferSize(int size) {
     buffersize = size;
   }
-  
+
   public void addPublisher(EventPublisher publisher) {
     if(eventPublisher == null) {
-      eventPublisher = publisher; 
+      eventPublisher = publisher;
     }
   }
-  
+
    /**
    * publish a data protection failure idmef alert
    */
@@ -261,12 +257,12 @@ public class DataProtectionOutputStream extends FilterOutputStream {
                                               reason,
                                               data);
     if(eventPublisher != null) {
-      eventPublisher.publishEvent(event); 
+      eventPublisher.publishEvent(event);
     }
     else {
       if(debug) {
         log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
-    }  
+    }
   }
 }
