@@ -98,6 +98,7 @@ public class SecureClassLoader  extends BaseClassLoader{
               //do certificate verification, throw an exception
               //and exclude from urls if not trusted
               certificateVerifier.verify(jf);
+	      jf.close();
               verifiedUrls.put(urlForClass, Boolean.TRUE);
             }
             catch (Exception e) {
