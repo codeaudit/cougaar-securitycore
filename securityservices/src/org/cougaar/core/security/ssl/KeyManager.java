@@ -36,12 +36,10 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.crypto.DirectoryKeyStore;
-import org.cougaar.core.security.crypto.PrivateKeyCert;
-import org.cougaar.core.security.crypto.CertificateStatus;
-import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.services.crypto.*;
 
-public class KeyManager implements X509KeyManager {
+public class KeyManager implements X509KeyManager, CertValidityListener {
   protected KeyRingService keyRing = null;
   protected DirectoryKeyStore keystore = null;
   protected String nodealias = null;
@@ -71,8 +69,13 @@ public class KeyManager implements X509KeyManager {
     */
 
     keystore = keyRing.getDirectoryKeyStore();
-    if (!(this instanceof UserKeyManager))
+    if (!(this instanceof UserKeyManager)) {
       keyRing.checkOrMakeCert(getName());
+      CertValidityService cvs = (CertValidityService)
+        serviceBroker.getService(this,
+                                 CertValidityService.class, null);
+      cvs.addValidityListener(this);
+    }
 
     // get nodename, nodealias, and node certificate
     updateKeystore();
@@ -94,6 +97,7 @@ public class KeyManager implements X509KeyManager {
     List certList = keyRing.findCert(nodename);
     if (certList != null && certList.size() > 0) {
       nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
+      log.debug("update nodex509: " + nodex509);
     }
   }
 
@@ -189,6 +193,10 @@ public class KeyManager implements X509KeyManager {
 
   public String getName() {
     return NodeInfo.getNodeName();
+  }
+
+  public void updateCertificate() {
+    updateKeystore();
   }
 
 }
