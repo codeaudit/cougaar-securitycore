@@ -128,13 +128,15 @@ public class MessageReaderAspect extends StandardAspect {
                        String additionalInfo)
   {
     Event  e        = new Event(sender, receiver, type);
-    if (!existingEvents.contains(e)) {
-      log.debug("Interception: message :" + sender + " : -> : " +
-                    receiver + ": type : " + type);
-      if (additionalInfo != null) {
-        log.debug(additionalInfo);
+    synchronized (existingEvents) {
+      if (!existingEvents.contains(e)) {
+        log.debug("Interception: message :" + sender + " : -> : " +
+                      receiver + ": type : " + type);
+        if (additionalInfo != null) {
+          log.debug(additionalInfo);
+        }
+        existingEvents.add(e);
       }
-      existingEvents.add(e);
     }
   }
 
