@@ -32,27 +32,27 @@ public interface ServletPolicyService
   extends Service
 {
   /**
-   * returns a list of roles allowed to access the given agent through
+   * returns a list of roles allowed to access the given path through
    * the servlet.
    *
-   * @param agent The agent ID for which the roles list is requested.
+   * @param path The path to search for roles.
    */
-  public String[] getRoles(String agent);
+  public String[] getRoles(String path);
 
   /**
-   * Adds an allowed role for a given agent
+   * Adds an allowed role for a given path
    *
-   * @param agent The agent ID that is allowing access
+   * @param path  The path that is allowing access
    * @param role  The role name to allow
    */
-  public void     addRole(String agent, String role);
+  public void     addRole(String path, String role);
 
   /**
-   * Removes access by a role to a given agent
+   * Removes access by a role to a given path added with addRole
    *
-   * @param agent The agent ID to remove access from
-   * @param role  The role name to remove
+   * @param path The path to remove access from
+   * @param role The role name to remove
    */
-  public void     removeRole(String agent, String role);
+  public void     removeRole(String path, String role);
 }
 
