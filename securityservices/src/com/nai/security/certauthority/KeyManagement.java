@@ -252,7 +252,8 @@ public class KeyManagement
     MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
     byte [] digest = md.digest();
 
-    String filePrefix = "x509-";
+    X500Name clientX500Name = new X500Name(clientX509.getSubjectDN().toString());
+    String filePrefix = clientX500Name.getCommonName() + "-";
     File f = new File(x509DirectoryName + File.separatorChar + filePrefix + toHex(digest));
 
     f.createNewFile();
