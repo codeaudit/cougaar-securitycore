@@ -129,6 +129,12 @@ public class SecurityServiceProvider
     return "Node.SecurityServiceProvider";
   }
 
+  public ServiceBroker getServiceBroker() {
+    // if for testing purpose this function will return null by base class
+    ServiceBroker sb = super.getServiceBroker();
+    return (sb == null) ? serviceBroker : sb;
+  }
+
   /** **********************************************************************
    * End BindingSite Interface
    */
