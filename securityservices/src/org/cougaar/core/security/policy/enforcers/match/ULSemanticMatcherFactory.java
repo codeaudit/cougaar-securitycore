@@ -186,14 +186,16 @@ public class ULSemanticMatcherFactory
 		    person = removeHashChar(person);
 
                     Set roles = UserDatabase.getRoles(person);
-		    _log.debug("matchSemantically: Roles for person, " 
-			       + person + " = ");
-		    for(Iterator rolesIt = roles.iterator();
-			rolesIt.hasNext();) {
-			_log.debug("Role: " + rolesIt.next());
+		    if (_log.isDebugEnabled()) {
+			_log.debug("matchSemantically: Roles for person, " 
+				   + person + " = ");
+			for(Iterator rolesIt = roles.iterator();
+			    rolesIt.hasNext();) {
+			    _log.debug("Role: " + rolesIt.next());
+			}
+			_log.debug("matchSemantically: contains role, "
+				   + role + "?");
 		    }
-		    _log.debug("matchSemantically: contains role, "
-			       + role + "?");
 		    if (roles.contains(role)) {
 			_log.debug("matchSemantically: yes");
 			someMatch = true;

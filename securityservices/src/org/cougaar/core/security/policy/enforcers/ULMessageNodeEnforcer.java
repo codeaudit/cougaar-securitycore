@@ -218,6 +218,19 @@ public class ULMessageNodeEnforcer
 	    for (int j = 0; j < _agents.size(); j++) {
 		String sender    = (String) _agents.get(i);
 		String receiver  = (String) _agents.get(j);
+		out.print("<p>Allowed cypher suites:</p>");
+		Set suites = getAllowedCypherSuites(sender,"##" + receiver);
+		int counter = 0;
+		for (Iterator suitesIt=suites.iterator(); 
+		     suitesIt.hasNext();) {
+		    CypherSuite c = (CypherSuite) suitesIt.next();
+		    out.print("<p>Suite " + (counter++) + ":<ul>");
+		    out.print("<li>Symmetric = " + c.getSymmetric());
+		    out.print("<li>Assymmetric = " + c.getAssymmetric());
+		    out.print("<li>Checksum = " + c.getChecksum());
+		    out.print("</ul>");
+		}
+
 		testIsActionAuthorized(out, sender, receiver, "GetWater");
 		testIsActionAuthorized(out, sender, receiver, "GetLogSupport");
 	    }
@@ -236,17 +249,6 @@ public class ULMessageNodeEnforcer
 	    out.print("<p>yes</p>");
 	} else {
 	    out.print("<p>no</p>");
-	}
-	out.print("<p>Allowed cypher suites:</p>");
-	Set suites = getAllowedCypherSuites(sender,"##" + receiver);
-	int counter = 0;
-	for (Iterator suitesIt=suites.iterator(); suitesIt.hasNext();) {
-	    CypherSuite c = (CypherSuite) suitesIt.next();
-	    out.print("<p>Suite " + (counter++) + ":<ul>");
-	    out.print("<li>Symmetric = " + c.getSymmetric());
-	    out.print("<li>Assymmetric = " + c.getAssymmetric());
-	    out.print("<li>Checksum = " + c.getChecksum());
-	    out.print("</ul>");
 	}
     }
 

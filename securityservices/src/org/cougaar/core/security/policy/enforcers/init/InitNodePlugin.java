@@ -41,8 +41,10 @@ public class InitNodePlugin extends ComponentPlugin {
   private ULMessageNodeEnforcer  _msgEnf;
 
   private ServletService servletService;
-  private Servlet _servlet;
-  private final String _servletPath = "/TestEnforcerServlet";
+  private Servlet _messageServlet;
+  private final String _messageServletPath = "/TestMessageMediationServlet";
+  private Servlet _servletServlet;
+  private final String _servletServletPath = "/TestServletMediationServlet";
 
 
     /*
@@ -77,15 +79,18 @@ public class InitNodePlugin extends ComponentPlugin {
 	_msgEnf.registerEnforcer();
 
 	// Construct the servlet - throw away code for Ultralog
-	_servlet = new TestEnforcerServlet();
+	_messageServlet = new TestMessageMediationServlet();
+	_servletServlet = new TestServletMediationServlet();
+
 	servletService = (ServletService)
 	    sb.getService(this,
 			  ServletService.class,
 			  null);
 	if (servletService == null) {
-	    throw new RuntimeException("Unable to obtain ServletService");
+	    throw new IllegalStateException("Unable to obtain ServletService");
 	}
-	servletService.register(_servletPath, _servlet);
+	servletService.register(_messageServletPath, _messageServlet);
+	servletService.register(_servletServletPath, _servletServlet);
 
 	//	getDirService(sb);
     } catch (Exception e) {
@@ -115,7 +120,42 @@ public class InitNodePlugin extends ComponentPlugin {
     /*
      * An extremely simple servlet for some basic testing.
      */
-  private class TestEnforcerServlet extends HttpServlet 
+  private class TestMessageMediationServlet extends HttpServlet 
+  {
+      
+      /*
+       * This function writes some initial introductory html before
+       * calling the DummyNodeEnforcer for a test and some print
+       * statements.  Then the function wraps up the html page.
+       */
+      public void doGet(HttpServletRequest req,
+			HttpServletResponse res) throws IOException 
+      {
+	  _log.info("Doing Get...");
+	  try {
+	      PrintWriter out = res.getWriter();
+	      out.print("<html>\n" + 
+			"<head>\n" + 
+			"<TITLE>Test Enforcer Servlet</TITLE>\n" + 
+			"</head>\n" + 
+			"<body>\n" + 
+			"<H1>Hello</H1>\n" + 
+			"<P>Loading this page runs a test on the Enforcer</P>\n");
+	      _msgEnf.testEnforcer(out);
+	      out.print("</P>\n" + 
+			"</body>\n" +
+			"</html>\n");
+	  } catch (UnknownConceptException e) {
+	      e.printStackTrace();
+	      throw new IOException("Problem with Enforcer");
+	  }
+      }
+  }
+
+    /*
+     * An extremely simple servlet for some basic testing.
+     */
+  private class TestServletMediationServlet extends HttpServlet 
   {
       
       /*
@@ -137,7 +177,6 @@ public class InitNodePlugin extends ComponentPlugin {
 			"<H1>Hello</H1>\n" + 
 			"<P>Loading this page runs a test on the Enforcer</P>\n");
 	      _servletEnf.testEnforcer(out);
-	      _msgEnf.testEnforcer(out);
 	      out.print("</P>\n" + 
 			"</body>\n" +
 			"</html>\n");

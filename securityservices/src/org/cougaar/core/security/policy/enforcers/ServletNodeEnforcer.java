@@ -251,7 +251,59 @@ public class ServletNodeEnforcer
     public void testEnforcer(PrintWriter out) 
 	throws IOException, UnknownConceptException
     {
-	testOld(out);
+	out.print("<p><b>Servlet Test</b></p>");
+	Set uris = HardWired.uriMap.keySet();
+	for (Iterator uriIt = uris.iterator();
+	     uriIt.hasNext();) {
+	    String uri = (String) uriIt.next();
+	    out.print("<p><b>--------------------------------------</b></p>");
+	    out.print("<p>Unknown user is attempting access to " + uri);
+	    Set cypherSuites = whichCypherSuiteWithAuth(uri);
+	    for (Iterator cypherIt = cypherSuites.iterator();
+		 cypherIt.hasNext();) {
+		CypherSuiteWithAuth suite
+		    = (CypherSuiteWithAuth) cypherIt.next();
+		out.print("<p>Mediation says enforcer can use:</p><ul>");
+		out.print("<li>Symmetric = " + suite.getSymmetric());
+		out.print("<li>Assymmetric = " + suite.getAssymmetric());
+		out.print("<li>Checksum = " + suite.getChecksum());
+		out.print("<li>");
+		if (suite.getAuth() == CypherSuiteWithAuth.authCertificate) {
+		    out.print("Certificate");
+		} else if (suite.getAuth() 
+			   == CypherSuiteWithAuth.authPassword){
+		    out.print("Password");
+		} else if (suite.getAuth() == CypherSuiteWithAuth.authNoAuth) {
+		    out.print("No Authentication Required");
+		}
+		out.print("</ul>");
+		out.print("<p>Now we find out who the user is.</p>");
+		int roleCount = HardWired.ulRoles.length;
+		for (int i = 0; i < roleCount; i++) {
+		    String role1 = HardWired.ulRoles[i];
+		    HashSet roleSet = new HashSet();
+		    roleSet.add(role1);
+		    out.print("<p>A user in role " + role1 + " is ");
+		    if (isActionAuthorized(roleSet, uri, suite)) {
+			out.print("allowed.</p>");
+		    } else {
+			out.print("disallowed.</p>");
+		    }
+		    for (int j = i+1; j < roleCount; j++) {
+			String role2 = HardWired.ulRoles[j];
+			roleSet.add(role2);
+			out.print("<p>A user in role " + role1 + " and "
+				  + role2 + " is ");
+			if (isActionAuthorized(roleSet, uri, suite)) {
+			    out.print("allowed.</p>");
+			} else {
+			    out.print("disallowed.</p>");
+			}
+		    }
+		}
+	    }
+	    out.print("<p><b>--------------------------------------</b></p>");
+	}
     }
 
     // George's Interfaces...
@@ -289,21 +341,21 @@ public class ServletNodeEnforcer
      * scheme would not be able to express policies that correlate
      * cypher suites with users.
      */
-    public int whichAuthenticationMethod(String uri, CypherSuite c) 
+    public Set whichCypherSuiteWithAuth(String uri) 
     {
 	String kaosuri = (String) HardWired.uriMap.get(uri);
 	if (kaosuri == null) {
-	    return CypherSuiteWithAuth.authInvalid;
+	    return null;
 	}
 
 	Set targets = new HashSet();
 	if (!targets.add(
 	       new TargetInstanceDescription
-		       (UltralogActionConcepts._hasSubject_, 
+		       (UltralogActionConcepts._accessedServlet_, 
 		        kaosuri))) {
 	    _log.debug("Could not make list of targets - " +
 		       "exiting with failure...");
-	    return CypherSuiteWithAuth.authInvalid;
+	    return null;
 	}
 	ActionInstanceDescription action = 
 	    new ActionInstanceDescription(_enforcedActionType,
@@ -316,7 +368,7 @@ public class ServletNodeEnforcer
 		  UltralogActionConcepts._usedAuthenticationLevel_,
 		  action,
 		  HardWired.usedAuthenticationLevelValues);
-	return CypherSuiteWithAuth.authPassword;
+	return HardWired.ulCiphersWithAuthFromKAoSAuthLevel(cypherSuites);
     }
 
     /**
@@ -335,21 +387,23 @@ public class ServletNodeEnforcer
      */
     public boolean isActionAuthorized(Set roles, 
 				      String uri, 
-				      CypherSuiteWithAuth c) {
+				      CypherSuiteWithAuth c) 
+    {
 	String kaosuri = (String) HardWired.uriMap.get(uri);
 	if (kaosuri == null) {
 	    return false;
 	}
 
-	Set kaosroles = new HashSet();
-	for (Iterator roleIt = roles.iterator(); roleIt.hasNext();) {
-	    kaosroles.add(HardWired.kaosRoleFromRole((String) roleIt.next()));
-	}
+	//	Set kaosroles = new HashSet();
+	//	for (Iterator roleIt = roles.iterator(); roleIt.hasNext();) {
+	//	    kaosroles.add(HardWired.kaosRoleFromRole((String) roleIt.next()));
+	//	}
+	String user = UserDatabase.login(roles);
 	
 	Set targets = new HashSet();
 	if ( !targets.add(
 	        new TargetInstanceDescription
-		        (UltralogActionConcepts._hasSubject_, 
+		        (UltralogActionConcepts._accessedServlet_, 
 		         kaosuri)) ) {
 	    _log.debug("Could not make list of targets - " +
 		       "exiting with failure...");
@@ -360,73 +414,16 @@ public class ServletNodeEnforcer
 	}
 	ActionInstanceDescription action = 
 	    new ActionInstanceDescription(_enforcedActionType,
-					  UserDatabase.anybody(),  
+					  user,  
 					  targets);
 	KAoSProperty userProp = action.getProperty(ActionConcepts._performedBy_);
 	try {
-	    return _guard.isActionAuthorized(action);
+	    boolean result = _guard.isActionAuthorized(action);
+	    UserDatabase.logout(user);
+	    return result;
 	} catch (Throwable th) {
 	    th.printStackTrace();
 	    return false;
 	}
     }
-
-    /**
-     * This function is called after a failed access attempt to see if
-     * there is a choice of cyphersuite that would have achieved a
-     * better result.
-     *
-     * @param roles - a set of Strings representing the roles the user
-     * belongs to
-     *
-     * @param uri - the uri of the servlet being accessed.
-     *
-     * @returns a set of CypherSuitesWithAuth (cyphersuites and
-     * authentication modes) indicating what
-     * would have allowed the login.  A null return indicates failure.
-     */
-    public Set allowedCypherSuites(Set roles,
-				   String uri) 
-    {
-
-	String kaosuri = (String) HardWired.uriMap.get(uri);
-	if (kaosuri == null) {
-	    return null;
-	}
-
-	Set kaosroles = new HashSet();
-	for (Iterator roleIt = roles.iterator(); roleIt.hasNext();) {
-	    kaosroles.add(HardWired.kaosRoleFromRole((String) roleIt.next()));
-	}
-	String user = UserDatabase.login(kaosroles);
-
-	Set    targets = new HashSet();
-	if (!targets.add(
-	       new TargetInstanceDescription
-		       (UltralogActionConcepts._hasSubject_, 
-		        kaosuri))) {
-	    _log.debug("Could not make list of targets - " +
-		       "exiting with failure...");
-	    return null;
-	}
-	ActionInstanceDescription action = 
-	    new ActionInstanceDescription(_enforcedActionType,
-					  user,  
-					  targets);
-	KAoSProperty userProp = action.getProperty(ActionConcepts._performedBy_);
-	Set authlevels = 
-	    _guard.getAllowableValuesForActionSingleTim(
-		  UltralogActionConcepts._usedAuthenticationLevel_,
-		  action,
-		  HardWired.usedAuthenticationLevelValues);
-	Set suites = new HashSet();
-	for (Iterator authlevelIt = authlevels.iterator(); 
-	     authlevelIt.hasNext();) {
-	    suites.addAll((Collection)
-			     (HardWired.usedAuthenticationLevelMap
-			      .get((String) authlevelIt.next())));
-	}
-	return suites;
-    }
-
 }

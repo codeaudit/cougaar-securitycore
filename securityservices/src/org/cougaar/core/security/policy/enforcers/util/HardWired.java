@@ -35,6 +35,10 @@ public class HardWired {
 	= {"EnclaveOneWorkerA", "EnclaveOneWorkerB", "EnclaveOneWorkerC",
 	   "EnclaveOneWorkerD", "EnclaveOneWorkerE"};
 
+    public final static String [] ulRoles
+	= {"Administrator", "Guest", "General"};
+
+
     /**
      * There will need to ultimately be a mechanism that grabs roles
      * from the system.  It could be that this will ultimately be in
@@ -156,6 +160,24 @@ public class HardWired {
 	    } else if (cipher.equals(EntityInstancesConcepts.EntityInstancesDamlURL
 				     + "SecretProtection")) {
 		ulCiphers.addAll(secretCrypto);
+	    } else {
+		continue;  // I guess he is getting less than he wanted...
+	    }
+	}
+	return ulCiphers;
+    }
+
+    public final static Set ulCiphersWithAuthFromKAoSAuthLevel(Set ciphers)
+    {
+	Set ulCiphers = new HashSet();
+	for(Iterator cipherIt = ciphers.iterator(); cipherIt.hasNext();) {
+	    String cipher = (String) cipherIt.next();
+	    if (cipher.equals(EntityInstancesConcepts.EntityInstancesDamlURL
+			      + "Weak") ) {
+		ulCiphers.addAll(weakCryptoWithAuth);
+	    } else if (cipher.equals(EntityInstancesConcepts.EntityInstancesDamlURL
+				     + "NSAApproved")) {
+		ulCiphers.addAll(nsaApprovedWithAuth);
 	    } else {
 		continue;  // I guess he is getting less than he wanted...
 	    }
