@@ -457,13 +457,21 @@ public class KeyManagement
   private synchronized int getNextSerialNumber(String filename)
     throws FileNotFoundException, IOException
   {
-    File fserial = new File(confDirectoryName + File.separatorChar + filename);
+    String serialNbFileName = confDirectoryName + File.separatorChar + filename;
+    if (debug) {
+      System.out.println("Serial Number file name: " + serialNbFileName);
+    }
+    File fserial = new File(serialNbFileName);
     FileWriter fOutSerial = null;
     int nextSerialNumber = 0;
     String serialNbString = null;
 
-    if (fserial == null) {
-      fserial = new File(filename);
+    if (!fserial.exists()) {
+      if (debug) {
+	System.out.println("Serial Number file (" + serialNbFileName + 
+			   ") does not exists. Creating...");
+      }
+      fserial = new File(serialNbFileName);
       try {
 	fserial.createNewFile();
 	fOutSerial = new FileWriter(fserial);
@@ -514,7 +522,7 @@ public class KeyManagement
     }
 
     // Get Signature object for certificate authority
-    PrivateKey caPrivateKey = KeyRing.getPrivateKey(caPolicy.alias);
+    PrivateKey caPrivateKey = caKeyStore.getPrivateKey(caPolicy.alias);
     Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
     // caSignature.initSign(caPrivateKey);
 

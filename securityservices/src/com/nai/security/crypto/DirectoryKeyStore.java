@@ -49,7 +49,8 @@ import sun.security.pkcs.*;
 import org.cougaar.util.ConfigFinder;
 import com.nai.security.certauthority.CAClient;
 
-public class DirectoryKeyStore {
+public class DirectoryKeyStore implements Runnable
+{
   private KeyStore keystore = null;
   private char[] keystorePassword = null;
 
@@ -84,6 +85,9 @@ public class DirectoryKeyStore {
   private void init(InputStream stream, char[] password,
 		    InputStream caStream, char[] caPassword) {
     try {
+      debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						  "false"))).booleanValue();
+
       // Open Keystore
       keystorePassword = password;
       keystore = KeyStore.getInstance(KeyStore.getDefaultType());

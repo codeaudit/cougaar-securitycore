@@ -3,8 +3,8 @@
 
   <!-- Client side -->
   <nodeConfiguration>
-    <CA_DN>CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US</CaDistinguishedName>
-    <CA_URL>http://yew:8080/CA/servlet/x509</CaURL>
+    <CA_DN>CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US</CA_DN>
+    <CA_URL>http://yew:8080/CA/servlet/x509</CA_URL>
   </nodeConfiguration>
 
   <!-- Configuration of Certificate Authority
