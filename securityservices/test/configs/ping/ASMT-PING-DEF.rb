@@ -46,7 +46,6 @@ parameters:
 #    - $CIP/csmart/config/rules/security/ruleset/signConfig
 
 #    - $CIP/csmart/lib/security/rules
-#    - $CIP/csmart/config/rules/security/mop
 #    - $CIP/csmart/config/rules/security/testCollectData
 
    # ###
@@ -81,22 +80,10 @@ include_scripts:
   # check_wp.rb should be before setup_society_ping.rb
 #  - script: $CIP/csmart/lib/security/scripts/check_wp.rb
   - script: $CIP/csmart/lib/security/scripts/setup_society_ping.rb
-#  - script: $CIP/csmart/lib/security/scripts/revoke_agent_and_node_cert.rb
-#  - script: $CIP/csmart/lib/security/scripts/stress_security_uc1.rb
-#  - script: $CIP/csmart/lib/security/scripts/stress_security_uc3.rb
-#  - script: $CIP/csmart/lib/security/scripts/stress_security_uc4.rb
-#  - script: $CIP/csmart/lib/security/scripts/stress_security_uc5.rb
-#  - script: $CIP/csmart/lib/security/scripts/threatcon_level_change.rb
-#  - script: $CIP/csmart/lib/security/scripts/invalid_community_request.rb
-#  - script: $CIP/csmart/lib/security/scripts/check_mop.rb
-#    parameters:
-#      - calculate_mop_label: after_stage_1
-#      - postCalculate_mop_label: before_stage_2 
-#  - script: $CIP/csmart/lib/security/scripts/dm_rehydration_stress.rb
-  - script: $CIP/csmart/lib/security/scripts/parseResults.rb
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
     parameters:
       - cleanup_label: transformed_society
+  - script: $CIP/csmart/lib/security/scripts/parseResults.rb
 # ######################################################
 #  - script: $CIP/csmart/lib/robustness/objs/deconfliction.rb
 #  - script: network_shaping.rb
