@@ -26,11 +26,13 @@ import edu.uci.ics.jung.io.PajekNetFile;
  */
 public class GraphFileHandler {
 
-
+	private SocietyModel m_societyModel;
+	
 	/**
 	 * @param theGraphFile
 	 */
-	public Graph openGraphFile(File theGraphFile) {
+	public void openGraphFile(File theGraphFile, SocietyModel sm) {
+		m_societyModel = sm;
 		String fileName = theGraphFile.getPath();
 		Graph theGraph = null;	
 		
@@ -40,7 +42,7 @@ public class GraphFileHandler {
 				BufferedReader br =
 					new BufferedReader(new FileReader(theGraphFile));
 				PajekNetFile pnf = new PajekNetFile();
-				theGraph = pnf.load(br);
+				m_societyModel.setGraph(pnf.load(br));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -49,19 +51,17 @@ public class GraphFileHandler {
 			// A GraphXML file
 			GraphMLFile gmf = new GraphMLFile();
 			try {
-				theGraph = gmf.load(new FileInputStream(theGraphFile));
+				m_societyModel.setGraph(gmf.load(new FileInputStream(theGraphFile)));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
 		}
 		else if (fileName.endsWith(".log")) {
 			// Parse log files and save as Graph.
-			LogParser lp = new LogParser();
+			LogParser lp = new LogParser(m_societyModel);
 			String names[] = { fileName };
 			lp.parseCougaarLogFiles(names);
-			theGraph = lp.getGraph();
 		}
-		return theGraph;
 	}
 	
 }

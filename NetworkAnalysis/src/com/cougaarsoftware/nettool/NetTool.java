@@ -18,8 +18,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JMenuBar;
 import javax.swing.KeyStroke;
 
-import edu.uci.ics.jung.graph.Graph;
-
 /**
  * @author srosset
  *
@@ -31,14 +29,28 @@ public class NetTool extends JFrame {
 	private JMenuBar         m_menu;
 	private GraphFileHandler m_graphFileHandler;
 	private GraphRenderer    m_graphRenderer;
-
+	private SocietyModel     m_societyModel;
+	
+	private static final String MENU_FILE = "File";
 	private static final String MENU_ITEM_OPEN = "Open";
 	private static final String MENU_ITEM_CLOSE = "Close";
 	private static final String MENU_ITEM_DISPLAY_NODE_NAME = "Display Node Name";
-	private static final String MENU_FILE = "File";
 	
+	private static final String MENU_COMMAND = "Commands";
+	private static final String MENU_ITEM_DISPLAY_SELECTED_NODE_NAMES = "Display names of selected agents";
+	private static final String MENU_ITEM_HIGHLIGHT_SELECTED_NODES = "Highlight selected agents";
+	private static final String MENU_ITEM_DISPLAY_ALL_NODES = "Display all agents";
+	private static final String MENU_ITEM_REMOVE_SELECTED_NODES = "Remove selected nodes";
+
+	private static final String MENU_ITEM_DISPLAY_NODE_RELATIONSHIPS = "Display relationships of selected agent";
+
+	private static final String MENU_ITEM_HIGHLIGHT_SELECTED_TYPES = "Highlight selected message types";
+	private static final String MENU_ITEM_DISPLAY_ALL_TYPES = "Display all message types";
+	private static final String MENU_ITEM_REMOVE_SELECTED_TYPES = "Remove selected message types";
+
 	public NetTool() {
 		m_graphFileHandler = new GraphFileHandler();
+		m_societyModel = new SocietyModelImpl();
 		initUiComponents();
 	}
 
@@ -52,7 +64,7 @@ public class NetTool extends JFrame {
 			}
 		});
 		
-		m_graphRenderer = new GraphRenderer(this);
+		m_graphRenderer = new GraphRenderer(this, m_societyModel);
 		getContentPane().add(m_graphRenderer);
 
 		m_menu = new JMenuBar();
@@ -90,7 +102,93 @@ public class NetTool extends JFrame {
 				}			
 			}
 		});
-				
+
+		// Command menu
+		// node display
+		JMenu commandMenu = new JMenu(MENU_COMMAND);
+		commandMenu.setMnemonic(KeyEvent.VK_C);
+		m_menu.add(commandMenu);
+		addMenuItem(MENU_ITEM_DISPLAY_SELECTED_NODE_NAMES, 0, 0, commandMenu,
+				new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem source = (JMenuItem)(e.getSource());
+				if (source.getText().equals(MENU_ITEM_DISPLAY_SELECTED_NODE_NAMES)) {
+					m_graphRenderer.displaySelectedNodeNames();
+				}			
+			}
+		});
+		addMenuItem(MENU_ITEM_HIGHLIGHT_SELECTED_NODES, 0, 0, commandMenu,
+				new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem source = (JMenuItem)(e.getSource());
+				if (source.getText().equals(MENU_ITEM_HIGHLIGHT_SELECTED_NODES)) {
+					m_graphRenderer.highlightSelectedNodes();
+				}			
+			}
+		});
+		
+		
+		addMenuItem(MENU_ITEM_DISPLAY_ALL_NODES, 0, 0, commandMenu,
+				new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem source = (JMenuItem)(e.getSource());
+				if (source.getText().equals(MENU_ITEM_DISPLAY_ALL_NODES)) {
+					m_graphRenderer.displayAllNodes();
+				}			
+			}
+		});
+		
+		addMenuItem(MENU_ITEM_REMOVE_SELECTED_NODES, 0, 0, commandMenu,
+				new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem source = (JMenuItem)(e.getSource());
+				if (source.getText().equals(MENU_ITEM_REMOVE_SELECTED_NODES)) {
+					m_graphRenderer.removeSelectedNodes();
+				}			
+			}
+		});
+		commandMenu.addSeparator();
+		
+		addMenuItem(MENU_ITEM_HIGHLIGHT_SELECTED_TYPES, 0, 0, commandMenu,
+				new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem source = (JMenuItem)(e.getSource());
+				if (source.getText().equals(MENU_ITEM_HIGHLIGHT_SELECTED_TYPES)) {
+					m_graphRenderer.highlightSelectedTypes();
+				}			
+			}
+		});
+		addMenuItem(MENU_ITEM_DISPLAY_ALL_TYPES, 0, 0, commandMenu,
+				new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem source = (JMenuItem)(e.getSource());
+				if (source.getText().equals(MENU_ITEM_DISPLAY_ALL_TYPES)) {
+					m_graphRenderer.displayAllTypes();
+				}			
+			}
+		});
+			
+		addMenuItem(MENU_ITEM_REMOVE_SELECTED_TYPES, 0, 0, commandMenu,
+				new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem source = (JMenuItem)(e.getSource());
+				if (source.getText().equals(MENU_ITEM_REMOVE_SELECTED_TYPES)) {
+					m_graphRenderer.removeSelectedTypes();
+				}			
+			}
+		});
+		
+		commandMenu.addSeparator();
+		addMenuItem(MENU_ITEM_DISPLAY_NODE_RELATIONSHIPS, 0, 0, commandMenu,
+				new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem source = (JMenuItem)(e.getSource());
+				if (source.getText().equals(MENU_ITEM_DISPLAY_NODE_RELATIONSHIPS)) {
+					m_graphRenderer.displayNodeRelationships();
+				}			
+			}
+		});
+		
 		setJMenuBar(m_menu);
 		pack();
 		
@@ -128,8 +226,8 @@ public class NetTool extends JFrame {
 
 	public void openAndDisplayGraph(File theGraphFile) {
 		if (theGraphFile != null && theGraphFile.exists()) {
-			Graph g = m_graphFileHandler.openGraphFile(theGraphFile);
-			m_graphRenderer.displayGraph(g);
+			m_graphFileHandler.openGraphFile(theGraphFile, m_societyModel);
+			m_graphRenderer.displayPanel();
 			pack();
 		}
 	}

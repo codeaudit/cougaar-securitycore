@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-package com.cougaarsoftware.nettool.parsers;
+package com.cougaarsoftware.nettool;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -27,9 +27,12 @@ public class CougaarEdge {
 		df.setLenient(true);
 	}
 	
-	public CougaarEdge(String initialTime, String sourceAgent, String destinationAgent, String type) throws ParseException {
-		//System.out.println(df.format(new Date()));
-		m_initialTime = df.parse(initialTime);
+	public CougaarEdge(String initialTime, String sourceAgent, String destinationAgent, String type) {
+		try {
+			//System.out.println(df.format(new Date()));
+			m_initialTime = df.parse(initialTime);
+		} catch (ParseException e) {
+		}
 		m_sourceAgent = sourceAgent;
 		m_destinationAgent = destinationAgent;
 		m_messageType = type;
