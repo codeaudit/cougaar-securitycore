@@ -1,0 +1,16 @@
+#!/bin/sh
+
+#not in anymore:
+# oak fir 
+MACHINES="maple manzanita hemlock almond redwood juniper pear tea mango rose yew plum peach cypress fig eucalyptus apricot chestnut lemon birch"
+
+for machine in $MACHINES; do
+  mname=
+  if [ ${#machine} -lt 7 ]; then
+    mname="${machine}:	";
+  else
+    mname="$machine:";
+  fi
+  echo -n "${mname}	"
+  ssh $machine $*
+done
