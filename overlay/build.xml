@@ -192,6 +192,14 @@
         <echo message="    tar-docs - tar and zip the javadocs"/>
         <echo message="    help - print out the usage message"/>
     </target>
+
+		<target name="create_cougaar_overlay">
+			<mkdir dir="staging/lib"/>
+			<antcall target="all"/>
+			<move file="${overlay.classes}/overlay.jar" toDir="staging/lib"/>
+			<zip zipfile="Security_nai_overlay_overlay.zip" basedir="staging"/>
+			<delete dir="staging"/>
+		</target>
         
 </project>
 <!-- End Ultra*Log/overlay ant build script -->
