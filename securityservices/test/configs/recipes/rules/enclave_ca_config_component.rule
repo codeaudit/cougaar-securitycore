@@ -14,8 +14,8 @@ society.each_node do |node|
     enclave = "4"
   end
   if enclave != nil
-    arg = 'CN=Enclave' + enclave + '_CA\, OU=Enclave' + enclave + \
-          '\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca'
+    arg = 'CN=Enclave' + enclave + '_CA, OU=Enclave' + enclave + \
+          ', O=DLA, L=MV, ST=CA, C=US, T=ca'
     node.agent.add_component do |c|
       c.name = "Enclave" + enclave + "CaConfigPlugin"
       c.classname = "org.cougaar.core.security.certauthority.ConfigPlugin"
