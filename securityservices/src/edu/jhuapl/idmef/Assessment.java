@@ -97,7 +97,13 @@ public class Assessment implements XMLSerializable {
 	            m_confidence = new Confidence( childNode );	            
 	        }
 	    }
-	    m_actions = ( Action [] )actionList.toArray();
+	    int size = actionList.size();
+	    if( size > 0 ){ 
+	        m_actions = new Action[ size ];
+	        for( int i = 0; i < size; i++ ){
+	            m_actions[ i ] = ( Action )actionList.get( i );
+            }
+        }
     }
     
     public Impact getImpact(){

@@ -40,6 +40,10 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.io.StringWriter;
+
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 
 /**This class provides a set of utilities for XML*/
 public class XMLUtils{
@@ -199,53 +203,6 @@ public class XMLUtils{
         return null;
     }
 
-    /**Returns the node Integer value specified by node name.
-     * @param start the parent of the node we are looking for.
-     * @param tagName the string name of the child we are looking for.*/
-    public static Integer GetNodeIntegerValueForName( Node start, String tagName ){
-        Integer value = null;
-        try {
-            Node node = GetNodeForName( start, tagName );
-            if( node != null ){
-                value = new Integer( node.getNodeValue() );
-            }
-        }
-        catch( NumberFormatException nfe ){
-            nfe.printStackTrace();
-        }
-        return value;
-    }
-    
-    /**Returns the node String value specified by node name.
-     * @param start the parent of the node we are looking for.
-     * @param tagName the string name of the child we are looking for.*/
-    public static String GetNodeStringValueForName( Node start, String tagName ){
-        String value = null;
-        Node node = GetNodeForName( start, tagName );
-        if( node != null ){
-            value = node.getNodeValue();
-        }
-        return value;
-    }
-
-    /**Returns the node Date value specified by node name.
-     * @param start the parent of the node we are looking for.
-     * @param tagName the string name of the child we are looking for.*/
-    public static Date GetNodeDateValueForName( Node start, String tagName ){
-        Date value = null;
-        try {
-            Node node = GetNodeForName( start, tagName );
-            if( node != null ){
-                DateFormat dateFormat = DateFormat.getDateTimeInstance();
-                value = dateFormat.parse( node.getNodeValue() );
-            }
-        }
-        catch( ParseException pe ){
-            pe.printStackTrace();
-        }
-        return value;
-    }
-
     /**returns the type of document represented
     * @param d document to get the type of
     * @return string representing type of document*/
@@ -273,6 +230,7 @@ public class XMLUtils{
         Node firstChild = children.item(0);
         if (firstChild.getNodeType() != Node.TEXT_NODE){
 	    System.out.println("XMLUtils: Node is not a text node");
+  	    System.out.println("XMLUtils: Node = " + firstChild.getNodeName() + ", Parent Node = " + node.getNodeName() );
             return null;
 	}
         String stringToReturn = firstChild.getNodeValue().trim();
@@ -283,7 +241,26 @@ public class XMLUtils{
         else
             return stringToReturn;
     }
+    
+    /**
+     * Prints the XML document to standard out
+     *
+     * @param document an xml document
+     */
+    static public void printDocument( Document document ){
+        try{
+            StringWriter buf = new StringWriter();
 
+	        XMLSerializer sezr = new XMLSerializer( buf , new OutputFormat( document, "UTF-8", true) );
+	        sezr.serialize( document );
+	        System.out.println( "XMLUtils: printDocument()....." );
+	        System.out.println( buf.getBuffer() );
+	    }
+	    catch( Exception e ){
+	        e.printStackTrace();
+	    }
+    }
+	
 
     /* Main method to test this beast */
 

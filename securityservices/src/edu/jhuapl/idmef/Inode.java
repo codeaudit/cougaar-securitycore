@@ -138,7 +138,8 @@ public class Inode implements XMLSerializable {
         
         if( changeTimeNode != null ){
             try{
-                m_changeTime = formatter.parse( changeTimeNode.getNodeValue() );
+                String dateStr = XMLUtils.getAssociatedString( changeTimeNode );
+                m_changeTime = formatter.parse( dateStr );
             }
             catch( ParseException pe ){
                 pe.printStackTrace();
@@ -149,14 +150,21 @@ public class Inode implements XMLSerializable {
             ( majorDeviceNode != null ) &&
             ( minorDeviceNode != null ) ){
             
-            m_number = new Integer( numberNode.getNodeValue() );
-            m_majorDevice = new Integer( majorDeviceNode.getNodeValue() );
-            m_minorDevice = new Integer( minorDeviceNode.getNodeValue() );
+            String number = XMLUtils.getAssociatedString( numberNode );
+            String majorDevice = XMLUtils.getAssociatedString( majorDeviceNode );
+            String minorDevice = XMLUtils.getAssociatedString( minorDeviceNode );
+            
+            m_number = new Integer( number );
+            m_majorDevice = new Integer( majorDevice );
+            m_minorDevice = new Integer( minorDevice );
         }
         else if( ( cMajorDeviceNode != null ) && 
                  ( cMinorDeviceNode != null ) ){
-            m_majorDevice = new Integer( cMajorDeviceNode.getNodeValue() );
-            m_minorDevice = new Integer( cMinorDeviceNode.getNodeValue() );        
+            
+            String cMajorDevice = XMLUtils.getAssociatedString( cMajorDeviceNode );
+            String cMinorDevice = XMLUtils.getAssociatedString( cMinorDeviceNode );
+            m_cMajorDevice = new Integer( cMajorDevice );
+            m_cMinorDevice = new Integer( cMinorDevice );        
         }
     }
     

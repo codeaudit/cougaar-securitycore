@@ -75,7 +75,14 @@ public class FileList implements XMLSerializable {
          		fileList.add( new IDMEF_File( child ) );
 	        }
 	    }
-	    m_files = ( IDMEF_File [] )fileList.toArray();
+	    
+	    int size = fileList.size();
+	    if( size > 0 ){ 
+	        m_files = new IDMEF_File[ size ];
+	        for( int i = 0; i < size; i++ ){
+	            m_files[ i ] = ( IDMEF_File )fileList.get( i );
+            }
+        }
     }
      
     public IDMEF_File []getFiles(){

@@ -133,8 +133,7 @@ public class Impact implements XMLSerializable {
     }
     
     public Impact( Node node ){
-        Node impactNode = XMLUtils.GetNodeForName( node, ELEMENT_NAME );
-        NamedNodeMap attributes = impactNode.getAttributes();
+        NamedNodeMap attributes = node.getAttributes();
         
         Node attribute = attributes.getNamedItem( ATTRIBUTE_SEVERITY );
         if( attribute != null ){
@@ -148,7 +147,7 @@ public class Impact implements XMLSerializable {
         if( attribute != null ){
             m_type = attribute.getNodeValue();
         }
-        m_description = impactNode.getNodeValue();
+        m_description = XMLUtils.getAssociatedString( node );
     }
     
     public String getSeverity(){

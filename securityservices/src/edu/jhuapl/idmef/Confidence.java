@@ -109,18 +109,22 @@ public class Confidence implements XMLSerializable {
     }
     
     public Confidence( Node node ){
-        Node confidenceNode = XMLUtils.GetNodeForName( node, ELEMENT_NAME );
-        NamedNodeMap attributes = confidenceNode.getAttributes();
+        NamedNodeMap attributes = node.getAttributes();
         
         Node attribute = attributes.getNamedItem( ATTRIBUTE_RATING );
         if( attribute != null ){
             m_rating = attribute.getNodeValue();
         }
-        try {
-            m_numeric = new Float( confidenceNode.getNodeValue() );
-        }
-        catch( NumberFormatException nfe ){
-            // do we care?  
+        if( m_rating.equals( NUMERIC ) ){
+           try {
+                String numeric = XMLUtils.getAssociatedString( node );
+                if( numeric != null ){
+                    m_numeric = new Float( numeric );
+                }
+            }
+            catch( NumberFormatException nfe ){
+                // do we care?  
+            }
         }
     }
     

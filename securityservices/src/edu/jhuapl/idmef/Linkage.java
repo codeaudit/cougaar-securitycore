@@ -139,8 +139,14 @@ public class Linkage implements XMLSerializable {
     }
     
     public Linkage( Node node ){
-        m_name = XMLUtils.GetNodeStringValueForName( node, CHILD_ELEMENT_NAME );
-        m_path = XMLUtils.GetNodeStringValueForName( node, CHILD_ELEMENT_PATH );
+        Node nameNode = XMLUtils.GetNodeForName( node, CHILD_ELEMENT_NAME );
+        Node pathNode = XMLUtils.GetNodeForName( node, CHILD_ELEMENT_PATH );
+        if( nameNode != null ){
+            m_name = XMLUtils.getAssociatedString( nameNode );
+        }
+        if( pathNode != null ){
+            m_path = XMLUtils.getAssociatedString( pathNode );
+        }
         Node fileNode = XMLUtils.GetNodeForName( node, IDMEF_File.ELEMENT_NAME );
         if( fileNode != null ){
             m_file = new IDMEF_File( fileNode );

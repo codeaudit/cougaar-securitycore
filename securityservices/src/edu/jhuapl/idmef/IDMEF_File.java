@@ -216,22 +216,27 @@ public class IDMEF_File implements XMLSerializable {
     
     public IDMEF_File( Node node ){
         
+        String nodeValue = null;
         SimpleDateFormat formatter = 
                 new SimpleDateFormat ("yyyy-MM-dd'T'hh:mm:ss'Z'");
         
         Node nameNode =  XMLUtils.GetNodeForName( node, CHILD_ELEMENT_NAME );
-	    if( nameNode != null ){
-	        m_name = nameNode.getNodeValue();
-        }
         Node pathNode =  XMLUtils.GetNodeForName( node, CHILD_ELEMENT_PATH );
+        
+	    if( nameNode != null ){
+	        // System.out.println( "IDMEF_File setting name" );
+	        m_name = XMLUtils.getAssociatedString( nameNode );
+        }
 	    if( pathNode != null ){
-	        m_path = pathNode.getNodeValue();
+	        // System.out.println( "IDMEF_File setting path" );
+	        m_path = XMLUtils.getAssociatedString( pathNode );
         }
         Node cTimeNode =  XMLUtils.GetNodeForName( node, 
                 CHILD_ELEMENT_CREATE_TIME );
 	    if( cTimeNode != null ){
 	        try{
-	            m_createTime = formatter.parse( cTimeNode.getNodeValue() );
+	            nodeValue = XMLUtils.getAssociatedString( cTimeNode );
+	            m_createTime = formatter.parse( nodeValue );
             }
             catch( ParseException pe ){
                 pe.printStackTrace();
@@ -241,7 +246,8 @@ public class IDMEF_File implements XMLSerializable {
                 CHILD_ELEMENT_MODIFY_TIME );
 	    if( mTimeNode != null ){
 	        try{
-	            m_modifyTime = formatter.parse( mTimeNode.getNodeValue() );
+	            nodeValue = XMLUtils.getAssociatedString( mTimeNode );
+	            m_modifyTime = formatter.parse( nodeValue );
             }
             catch( ParseException pe ){
                 pe.printStackTrace();
@@ -251,7 +257,8 @@ public class IDMEF_File implements XMLSerializable {
                 CHILD_ELEMENT_ACCESS_TIME );
 	    if( aTimeNode != null ){
 	        try{
-	            m_accessTime = formatter.parse( aTimeNode.getNodeValue() );
+	            nodeValue = XMLUtils.getAssociatedString( aTimeNode );
+	            m_accessTime = formatter.parse( nodeValue );
             }
             catch( ParseException pe ){
                 pe.printStackTrace();
@@ -260,12 +267,14 @@ public class IDMEF_File implements XMLSerializable {
         Node dataSizeNode = XMLUtils.GetNodeForName( node, 
                 CHILD_ELEMENT_DATA_SIZE );
         if( dataSizeNode != null ){
-            m_dataSize = new Integer( dataSizeNode.getNodeValue() );
+            nodeValue = XMLUtils.getAssociatedString( dataSizeNode ); 
+            m_dataSize = new Integer( nodeValue );
         }
         Node diskSizeNode = XMLUtils.GetNodeForName( node, 
                 CHILD_ELEMENT_DISK_SIZE );
         if( diskSizeNode != null ){
-            m_diskSize = new Integer( diskSizeNode.getNodeValue() );
+            nodeValue = XMLUtils.getAssociatedString( diskSizeNode ); 
+            m_diskSize = new Integer( nodeValue );
         }
 
         Node inodeNode = XMLUtils.GetNodeForName( node, 
@@ -278,7 +287,7 @@ public class IDMEF_File implements XMLSerializable {
     	ArrayList fileAccesses = new ArrayList();
     	ArrayList linkages = new ArrayList();
 
-    	for (int i=0; i<children.getLength(); i++){
+    	for (int i = 0; i < children.getLength(); i++ ){
     	    Node child = children.item(i);
     	    if( child.getNodeName().equals( FileAccess.ELEMENT_NAME ) ){
          		fileAccesses.add( new FileAccess( child ) );
@@ -288,9 +297,21 @@ public class IDMEF_File implements XMLSerializable {
 	        }
 	    }
 
-        // TODO: change since toArray is slow due to System.arraycopy()
-        m_fileAccesses = ( FileAccess [] )fileAccesses.toArray();
-        m_linkages = ( Linkage [] )linkages.toArray();
+        
+        int size = fileAccesses.size();
+        if( size > 0 ){
+            m_fileAccesses = new FileAccess[ size ];
+            for( int i = 0; i < size; i++ ){
+                m_fileAccesses[ i ] = ( FileAccess )fileAccesses.get( i );
+            }    
+        }
+        size = linkages.size();
+        if( size > 0 ){
+            m_linkages = new Linkage[ size ];
+            for( int i = 0; i < size; i++ ){
+                m_linkages[ i ] = ( Linkage )linkages.get( i );
+            }
+        }
         
         // get the attributes
     	NamedNodeMap nnm = node.getAttributes();
@@ -299,11 +320,11 @@ public class IDMEF_File implements XMLSerializable {
     	if(attr != null){
     	    m_ident = attr.getNodeValue();
         }
-        node = nnm.getNamedItem( ATTRIBUTE_CATEGORY );
+        attr = nnm.getNamedItem( ATTRIBUTE_CATEGORY );
         if(attr != null){
     	    m_category = attr.getNodeValue();
         }
-        node = nnm.getNamedItem( ATTRIBUTE_FSTYPE );
+        attr = nnm.getNamedItem( ATTRIBUTE_FSTYPE );
         if(attr != null){
     	    m_fstype = attr.getNodeValue();
         }

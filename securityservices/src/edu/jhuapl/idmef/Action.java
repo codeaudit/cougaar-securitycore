@@ -86,19 +86,20 @@ public class Action implements XMLSerializable {
     }
     
     public Action( String category, String description ){
-        m_category = category;
+        if( category != null ){
+            m_category = category;
+        }
         m_description = description;    
     }
     
     public Action( Node node ){
-        Node actionNode = XMLUtils.GetNodeForName( node, ELEMENT_NAME );
-        NamedNodeMap attributes = actionNode.getAttributes();
+        NamedNodeMap attributes = node.getAttributes();
         
         Node attribute = attributes.getNamedItem( ATTRIBUTE_CATEGORY );
         if( attribute != null ){
             m_category = attribute.getNodeValue();
         }
-        m_description = actionNode.getNodeValue();
+        m_description = XMLUtils.getAssociatedString( node );
     }
     
     public String getCategory(){

@@ -86,14 +86,27 @@ public class FileAccess implements XMLSerializable {
     
     public FileAccess( Node node ){
         Node userIdNode = XMLUtils.GetNodeForName( node, UserId.ELEMENT_NAME );
-        m_userId = new UserId( userIdNode );
+        if( userIdNode != null ){
+            m_userId = new UserId( userIdNode );
+        }
+        
         NodeList childList = node.getChildNodes();
         int len = childList.getLength();
         ArrayList permissions = new ArrayList();
         for( int i = 0; i < len; i++ ){
-            permissions.add( childList.item( i ).getNodeValue() );
+            Node child = childList.item( i );
+            if( child.getNodeName().equals( CHILD_ELEMENT_PERMISSION ) ){
+                permissions.add( XMLUtils.getAssociatedString( child ) );
+            }
         }
-        m_permissions = ( String [] )permissions.toArray();
+        
+        int size = permissions.size();
+        if( size > 0 ){
+            m_permissions = new String[ size ];
+            for( int i = 0; i < size; i++ ){
+                m_permissions[ i ] = ( String )permissions.get( i );
+            }
+        }
     }
     
     public UserId getUserId(){

@@ -59,7 +59,6 @@ public class AdditionalData implements XMLSerializable{
     //element data
 
     protected String additionalData;
-    protected XMLSerializable xmlData;
 
     //constants
 
@@ -94,13 +93,6 @@ public class AdditionalData implements XMLSerializable{
     public void setAdditionalData(String inAdditionalData){
 	additionalData = inAdditionalData;
     }
-
-    public XMLSerializable getXMLData(){
-        return xmlData;
-    }
-    public void setXMLData( XMLSerializable inXMLData ){
-        xmlData = inXMLData;
-    }
     
     /**Copies arguments into corresponding fields.
       */
@@ -109,15 +101,13 @@ public class AdditionalData implements XMLSerializable{
 	type = inType;
 	meaning = inMeaning;
 	additionalData = inAdditionalData;
-    }
-    
-    /**
-     * constructor for creating additional xml data
-     */
-    public AdditionalData( XMLSerializable inXMLData, String inMeaning ){
-        type = XML;
-        meaning = inMeaning;
-        xmlData = inXMLData;
+	    try{
+	        documentBuilder =
+	            DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        }
+        catch( Exception e ){
+            e.printStackTrace();
+        }
     }
     
     /**Creates an object with all fields null.
@@ -144,10 +134,10 @@ public class AdditionalData implements XMLSerializable{
 	else meaning = null;
 
     if (type != null && type.equals(this.XML)){
-	    //read in xml additional data
-	    // extract class name from element name Cougaar:Agent
-	    // create instance of that class
-    } else {
+	    // read in xml tag additional data as a string
+	    additionalData = inNode.getFirstChild().toString();
+    }
+    else {
 	    additionalData = XMLUtils.getAssociatedString(inNode);
     }
 
@@ -163,12 +153,27 @@ public class AdditionalData implements XMLSerializable{
 	if(meaning != null)
 	    additionalDataNode.setAttribute("meaning", meaning);
 
-    if( type.equals( XML ) && xmlData != null ){
-        additionalDataNode.appendChild( xmlData.convertToXML( parent ) );
+    if( additionalData != null ){
+        if( type.equals( XML ) ){
+            try{
+                // read the xml tag additional data 
+                InputStream stream = 
+                    new ByteArrayInputStream( additionalData.getBytes() );
+                Document doc = documentBuilder.parse( stream );
+                // get the document root from the complex xml data
+                Node node = doc.getFirstChild();
+                // import the node first before appending it to the additionalData nodeS
+                additionalDataNode.appendChild( parent.importNode( node, true ) );
+            }
+            catch( Exception e ){
+                e.printStackTrace();
+            }
+        }
+        else{
+	        additionalDataNode.appendChild( parent.createTextNode( additionalData ) );
+        }
     }
-    else{
-	    additionalDataNode.appendChild(parent.createTextNode(additionalData));
-    }
+    
 	return additionalDataNode;
     }
     /** Method used to test this object...probably should not be called otherwise.
@@ -199,4 +204,6 @@ public class AdditionalData implements XMLSerializable{
 
 	} catch (Exception e) {e.printStackTrace();}
     }
+    private static DocumentBuilder documentBuilder;
+
 }

@@ -67,6 +67,10 @@ public class Address implements XMLSerializable{
 
     //constants
     public static final String ELEMENT_NAME    = "Address";
+    public static final String ATTRIBUTE_CATEGORY = "category";
+    public static final String CHILD_ELEMENT_ADDRESS = "address";
+    public static final String CHILD_ELEMENT_NETMASK = "netmask";
+    
     public static final String UNKNOWN         = "unknown";
     public static final String ATM             = "atm";
     public static final String E_MAIL          = "e-mail";
