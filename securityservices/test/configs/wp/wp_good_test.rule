@@ -1,0 +1,9 @@
+society.each_agent do |agent|
+	agent.add_component do |c|
+		c.classname="org.cougaar.core.security.test.wp.WPTestPlugin
+		c.add_argument("BAD")
+	end
+	agent.add_component do |c|
+	    c.classname="org.cougaar.core.security.test.wp.WPTestServlet"
+	end
+end 
