@@ -254,19 +254,12 @@ Policy UnrestServlet = [
 #  1. this is a common event so it allows people to see audit
 #  2. I can turn on other audits in other audit experiments.
 #
-Policy RequireAudit = [ 
-   GenericTemplate
-   Priority = 3,
-   $Actor.daml#Person is not authorized to perform
-   $Action.daml#AccessAction as long as
-    the value of $Ultralog/UltralogAction.daml#usedAuditLevel
-    is a subset of the set { $Ultralog/Names/EntityInstances.daml#NoAudit }
-                       and
-    the value of $Ultralog/UltralogAction.daml#accessedServlet is a
-    subset of the set { $Ultralog/Names/EntityInstances.daml#CAReadServlet
-                        $Ultralog/Names/EntityInstances.daml#CertReqServlet }
-]
 
+Policy RequireAudit = [
+   AuditTemplate
+   Require audit for all accesses to servlet CAReadServlet,
+   CertReqServlet
+]
 
 Policy PolicyServletRear  = [ 
   ServletUserAccessTemplate
