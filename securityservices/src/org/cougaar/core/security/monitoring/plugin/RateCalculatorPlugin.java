@@ -61,6 +61,7 @@ import org.cougaar.core.agent.ClusterIdentifier;
 
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
@@ -162,6 +163,9 @@ public class RateCalculatorPlugin extends ComponentPlugin {
       public boolean execute(Object o) {
         if (o instanceof Event) {
           IDMEF_Message msg = ((Event) o).getEvent();
+          if (msg instanceof RegistrationAlert) {
+            return false;
+          }
           if (msg instanceof Alert) {
             Alert alert = (Alert) msg;
             if (alert.getAssessment() != null) {
