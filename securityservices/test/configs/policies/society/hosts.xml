@@ -14,7 +14,7 @@
     <facet service="acme"/> 
   </host> 
 
-  <host name='europa.local.'>
+  <host name='europa.local'>
     <facet service='acme'/>
   </host>
 

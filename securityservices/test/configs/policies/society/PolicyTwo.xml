@@ -22,32 +22,6 @@
            priority='COMPONENT'
            insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'/>
      </agent>
-     <agent name='FwdUserAdminAgent'>
-        <component
-           name='org.cougaar.core.security.certauthority.CaServletComponent'
-           class='org.cougaar.core.security.certauthority.CaServletComponent'
-           priority='COMPONENT'
-           insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
-          <argument>
-            org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet
-          </argument>
-          <argument>
-            /useradmin
-          </argument>
-        </component>
-        <component
-           name='org.cougaar.core.security.provider.UserServiceComponent()'
-           class='org.cougaar.core.security.provider.UserServiceComponent'
-           priority='COMPONENT'
-           insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
-        </component>
-        <component
-           name='org.cougaar.core.security.acl.user.UserManagerPlugin()'
-           class='org.cougaar.core.security.acl.user.UserManagerPlugin'
-           priority='COMPONENT'
-           insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
-        </component>
-      </agent>
     </node>
   </host>
 </society>

@@ -1,0 +1,17 @@
+#!/usr/bin/ruby
+####################################################
+
+if ! defined? CIP
+  CIP = ENV['COUGAAR_INSTALL_PATH']
+end
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
+require 'security/lib/common_security_rules'
+
+society.each_node do |node|
+  node.each_facet(:role) do |facet|
+    if facet[:role] == $facetManagement
+      node.add_parameter("-Xrunhprof:file=/Users/redmond/profile,cpu=samples,depth=5")
+    end
+  end
+end

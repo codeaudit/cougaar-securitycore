@@ -1,0 +1,29 @@
+This society depends on the following overlays
+
+	BBN commons
+	BBN ulconfigs (for 2003 integration)
+	SRI automation	
+	ISAT plugins
+	ISAT Acme (ASMT03)
+	ISAT ConfigRules
+	TICEnvironment OPlan overlay (w/o attacks)
+        CSI securityservices
+        CSI moptools
+
+I am not sure that this is a minimal list.  With these overlays and
+after setting up hosts.xml, this society should simply run.  When the
+script (Policy.rb) completes the society is running and the domain
+manager has been initialized with the boot policies.
+
+The purpose of this society is to support testing of policies.  The
+policies directory above has some policies that work with this
+society.  The rules directory below is collecting a set of rules that
+can be used with this society for some purpose.  These rules all have
+disadvantages that mean that it does not make sense to always include
+them.  For example, the BlackboardParam rule will allow some
+additional blackboard access tests but will considerably slow down the
+system.
+
+More docuumentation can be found in the securityservices/test/doc
+directory.
+

@@ -1,0 +1,44 @@
+#!/usr/bin/ruby
+####################################################
+# Adds UserAdminAgents
+#
+
+if ! defined? CIP
+  CIP = ENV['COUGAAR_INSTALL_PATH']
+end
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
+require 'security/lib/common_security_rules'
+
+caServlet = "org.cougaar.core.security.certauthority.CaServletComponent"
+userService = "org.cougaar.core.security.provider.UserServiceComponent"
+userManager = "org.cougaar.core.security.acl.user.UserManagerPlugin"
+
+society.each_node do |node|
+  agentname = ""
+  if node.name == "RearWorkerNode"
+    agentname = "FwdUserAdminAgent"
+    node.add_agent(agentname) do |agent|
+      agent.add_component do |c|
+        c.classname = caServlet
+	c.add_argument("org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet")
+	c.add_argument("/useradmin")
+      end
+      agent.add_component do |c|
+	c.classname = userService 
+      end
+      agent.add_component do |c|
+	c.classname = userManager
+      end
+    end
+  end
+end
+
+society.communities.add("FwdUserDomainComm") do |community|
+  community.add_attribute("CommunityType", "User")
+  community.add_attribute("CommunityManager", "FwdUserAdminAgent")
+  community.add_agent("FwdUserAdminAgent") do |entity|
+    entity.add_role("Member")
+    entity.add_role("UserManager")
+  end
+end

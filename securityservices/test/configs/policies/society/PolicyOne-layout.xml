@@ -6,6 +6,7 @@
     <node name='RearPolicyManagerNode'> 
       <facet role="AS-RootManagement"/> 
       <facet role="AS-Management"/> 
+      <!-- <facet role="jswat"/> -->
     </node> 
   <!--
   </host>

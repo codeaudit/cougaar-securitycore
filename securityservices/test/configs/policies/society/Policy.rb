@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+
 CIP = ENV['CIP'] 
 RULES = File.join(CIP, 'csmart','config','rules') 
  
@@ -5,11 +7,6 @@ $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib')
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist') 
 $:.unshift File.join(CIP, 'csmart', 'config', 'lib') 
 $:.unshift File.join(CIP, 'csmart', 'lib')
-
-
-# Uncomment the following line if working in the CSI testbed
-# I haven't yet fixed the problem that this depends on linux postgres.so
-#require 'framework/scripting'
 
 
 require 'cougaar/scripting' 
@@ -33,7 +30,9 @@ Cougaar::ExperimentMonitor.enable_logging
  
 Cougaar.new_experiment("Policy-Test").run(1) { 
 
-  layout_file="PolicyTwo"
+  layout_file="PolicyOne"
+#  layout_file="PolicyTwo"
+
  
   # read the basic society definition 
   # 
@@ -56,6 +55,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "TransformSociety", false, 
     ".",
     "#{RULES}/isat",
+    "#{RULES}/robustness",
     "#{RULES}/security",
     "#{RULES}/security/communities",
     "#{RULES}/security/robustness"
@@ -77,12 +77,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "StartSociety" 
 
   do_action "Sleep", 30.seconds 
-  do_action "InitDM"
- 
-  # however long you want to run 
-#  do_action "Sleep", 40.minutes 
- 
-#  do_action "StopSociety" 
-#  do_action "StopCommunications" 
-} 
+  do_action "WaitForUserManagerReady"
+#  do_action "InitDM"
+}
 
