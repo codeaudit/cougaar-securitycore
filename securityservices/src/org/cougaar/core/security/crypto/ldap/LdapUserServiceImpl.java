@@ -28,7 +28,11 @@ package org.cougaar.core.security.crypto.ldap;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Calendar;
+import java.util.TimeZone;
 import java.net.SocketException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -87,6 +91,8 @@ public class LdapUserServiceImpl implements LdapUserService {
   protected String            _enableAttr  = "cougaarAcctEnableTime";
 
   private static final int MAX_RETRIES = 3;
+  private static final DateFormat DF=new SimpleDateFormat("yyyyMMddHHmmss'Z'");
+  private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
 
   protected LdapUserServiceConfigurer _configurer;
 
@@ -250,6 +256,41 @@ public class LdapUserServiceImpl implements LdapUserService {
     } catch (NamingException ne) {
       // ignore it... this is in the middle of another call, anyway
     }
+  }
+
+  public void disableUser(String uid) throws NamingException {
+    ModificationItem mods[] = new ModificationItem[1];
+    mods[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
+                                   new BasicAttribute(getEnableTimeAttribute()));
+    editUser(uid, mods);
+  }
+
+  private static String toUTCString(long delayMillis) {
+    Calendar time = Calendar.getInstance(GMT);
+    time.add(time.MINUTE, (int) (delayMillis/60000));
+    time.add(time.MILLISECOND, (int) (delayMillis % 60000));
+    return DF.format(time.getTime());
+  }
+
+  public void disableUser(String uid, long milliseconds) 
+    throws NamingException {
+    ModificationItem mods[] = new ModificationItem[1];
+    String enableTime = toUTCString(milliseconds);
+    mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+                                   new BasicAttribute(getEnableTimeAttribute(),
+                                                      enableTime));
+    editUser(uid, mods);
+  }
+
+  public void enableUser(String uid) 
+    throws NamingException {
+    ModificationItem mods[] = new ModificationItem[1];
+    String enableTime = toUTCString(-600000);
+    mods[0] = 
+      new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+                           new BasicAttribute(getEnableTimeAttribute(),
+                                              enableTime));
+    editUser(uid, mods);
   }
 
   public NamingEnumeration getUsers(String text, String field,

@@ -83,6 +83,39 @@ public interface LdapUserService extends Service {
   public String getRoleIDAttribute();
 
   /**
+   * Disables a user by removing a value from the enable time
+   * attribute in the LDAP user database.
+   *
+   * @param uid The unique user identifier of the user to disable
+   * @throw javax.naming.NamingException Whenever the uid does not
+   *        exist or the enable time attribute value is already empty.
+   *        Also if there is no write access to the user account specified.
+   */
+  public void disableUser(String uid) throws NamingException;
+
+  /**
+   * Disables a user for the given amount of time
+   *
+   * @param uid The unique user identifier of the user to disable
+   * @param milliseconds The amount of time to disable the user in
+   *        milliseconds.
+   * @throw javax.naming.NamingException Whenever the uid does not
+   *        exist or if there is no write access to the user account specified.
+   */
+  public void disableUser(String uid, long milliseconds) 
+    throws NamingException;
+
+  /**
+   * Enables a user who has been disabled
+   *
+   * @param uid The unique user identifier of the user to enable
+   * @throw javax.naming.NamingException Whenever the uid does not
+   *        exist or if there is no write access to the user account specified.
+   */
+  public void enableUser(String uid) 
+    throws NamingException;
+
+  /**
    * Returns a <code>NamingEnumeration</code> containing
    * <code>SearchResult</code>s. You must close the NamingEnumeration
    * if you don't traverse the entire thing.
