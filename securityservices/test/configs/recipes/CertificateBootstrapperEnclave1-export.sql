@@ -101,7 +101,7 @@ UNLOCK TABLES;
 
 LOCK TABLES lib_mod_recipe WRITE;
 REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','CertificateBootstrapperEnclave1','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1CertificateBootstrapperEnclave1','CertificateBootstrapperEnclave1','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','CertificateBootstrapperEnclave1','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
 UNLOCK TABLES;
 
 --
@@ -116,13 +116,13 @@ REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VAL
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','Target Component Selection Query',4.000000000000000000000000000000,'recipeQueryEnclave1NodeAgentsExceptCA');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','Type of Insertion',5.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','Value 1',2.000000000000000000000000000000,'eucalyptus:Enclave1CA');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1CertificateBootstrapperEnclave1','Class Name',0.000000000000000000000000000000,'org.cougaar.core.security.crypto.AutoConfigPlugin');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1CertificateBootstrapperEnclave1','Component Name',3.000000000000000000000000000000,'org.cougaar.core.security.crypto.AutoConfigPlugin');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1CertificateBootstrapperEnclave1','Component Priority',1.000000000000000000000000000000,'HIGH');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1CertificateBootstrapperEnclave1','Number of Arguments',6.000000000000000000000000000000,'1');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1CertificateBootstrapperEnclave1','Target Component Selection Query',4.000000000000000000000000000000,'recipeQueryEnclave1NodeAgentsExceptCA');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1CertificateBootstrapperEnclave1','Type of Insertion',5.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1CertificateBootstrapperEnclave1','Value 1',2.000000000000000000000000000000,'apricot:Enclave1CA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','Class Name',0.000000000000000000000000000000,'org.cougaar.core.security.crypto.AutoConfigPlugin');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','Component Name',3.000000000000000000000000000000,'org.cougaar.core.security.crypto.AutoConfigPlugin');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','Component Priority',1.000000000000000000000000000000,'HIGH');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','Number of Arguments',6.000000000000000000000000000000,'1');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','Target Component Selection Query',4.000000000000000000000000000000,'recipeQueryEnclave1NodeAgentsExceptCA');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','Type of Insertion',5.000000000000000000000000000000,'Node.AgentManager.Agent.SecurityComponent');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0009CertificateBootstrapperEnclave1','Value 1',2.000000000000000000000000000000,'apricot:Enclave1CA');
 UNLOCK TABLES;
 
 --
