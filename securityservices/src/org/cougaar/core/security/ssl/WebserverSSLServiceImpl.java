@@ -51,11 +51,15 @@ public class WebserverSSLServiceImpl
     tm = new ServerTrustManager(krs);
 
     context.init(new KeyManager[] {km}, new TrustManager[] {tm}, null);
+
     srvcontext = context;
+
+    // get property for webserver socket factory if to make this
+    // flexible for any webservers
+    WebtomcatSSLServerFactory.init(this);
 
     if (CryptoDebug.debug)
       System.out.println("Successfully created Webserver SSLContext.");
-
   }
 
   public ServerSocketFactory getWebServerSocketFactory() {
