@@ -24,7 +24,7 @@
  * - 
  */
 
-//package com.nai.security.certauthority;
+package com.nai.security.certauthority;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
