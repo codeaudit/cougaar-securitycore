@@ -26,16 +26,26 @@ public class CollectionMonitorStats
 {
   
   private static CollectionMonitorStats _theInstance;
-  private List _hashtableStats;
-  private List _arrayListStats;
-  private List _hashMapStats;
-  private List _hashSetStats;
+  private Map _hashtableStats;
+  private Map _arrayListStats;
+  private Map _hashMapStats;
+  private Map _hashSetStats;
+  private Map _identityHashMapStats;
+  private Map _linkedListStats;
+  private Map _weakHashMapStats;
+  private Map _treeMapStats;
+  private Map _treeSetStats;
 
   CollectionMonitorStats() {
-    _hashtableStats = new ArrayList();
-    _arrayListStats = new ArrayList();
-    _hashMapStats = new ArrayList();
-    _hashSetStats = new ArrayList();
+    _hashtableStats = new WeakHashMap();
+    _arrayListStats = new WeakHashMap();
+    _hashMapStats = new WeakHashMap();
+    _hashSetStats = new WeakHashMap();
+    _identityHashMapStats = new WeakHashMap();
+    _linkedListStats = new WeakHashMap();
+    _weakHashMapStats = new WeakHashMap();
+    _treeMapStats = new WeakHashMap();
+    _treeSetStats = new WeakHashMap();
   }
 
   public static synchronized CollectionMonitorStats getInstance() {
@@ -45,50 +55,170 @@ public class CollectionMonitorStats
     return _theInstance;
   }
 
+  // hashtables
   public int getNumberOfHashtables() {
     return _hashtableStats.size();
   }
   public List getTopHashtables(int topNumber) {
-    Collections.sort(_hashtableStats, new HashtableSizeComparator());
-    return _hashtableStats.subList(0, topNumber);
+    List l = new ArrayList(_hashtableStats.entrySet());
+    Collections.sort(l, new HashtableSizeComparator());
+    return l.subList(0, topNumber);
   }
   public void addHashtable(Hashtable h) {
     synchronized (_hashtableStats) {
-      _hashtableStats.add(new HashtableStats(new Throwable(), h));
+      _hashtableStats.put(h, new Throwable());
     }
   }
 
-  public static class HashtableStats
-    implements Stats
+  // array list
+  public int getNumberOfArrayLists() {
+    return _arrayListStats.size();
+  }
+  public List getTopArrayLists(int topNumber) {
+    List l = new ArrayList(_arrayListStats.entrySet());
+    Collections.sort(l, new ListSizeComparator());
+    return l.subList(0, topNumber);
+  }
+  public void addArrayList(ArrayList l) {
+    synchronized (_arrayListStats) {
+      _arrayListStats.put(l, new Throwable());
+    }
+  }
+
+  // hash map
+  public int getNumberOfHashMaps() {
+    return _hashMapStats.size();
+  }
+  public List getTopHashMaps(int topNumber) {
+    List l = new ArrayList(_hashMapStats.entrySet());
+    Collections.sort(l, new MapSizeComparator());
+    return l.subList(0, topNumber);
+  }
+  public void addHashMap(HashMap m) {
+    synchronized (_hashMapStats) {
+      _hashMapStats.put(m, new Throwable());
+    }
+  }
+
+  // hash set
+  public int getNumberOfHashSets() {
+    return _hashSetStats.size();
+  }
+  public List getTopHashSets(int topNumber) {
+    List l = new ArrayList(_hashSetStats.entrySet());
+    Collections.sort(l, new SetSizeComparator());
+    return l.subList(0, topNumber);
+  }
+  public void addHashSet(HashSet s) {
+    synchronized (_hashSetStats) {
+      _hashSetStats.put(s, new Throwable());
+    }
+  }
+
+  // tree map
+  public int getNumberOfTreeMaps() {
+    return _treeMapStats.size();
+  }
+  public List getTopTreeMaps(int topNumber) {
+    List l = new ArrayList(_treeMapStats.entrySet());
+    Collections.sort(l, new MapSizeComparator());
+    return l.subList(0, topNumber);
+  }
+  public void addTreeMap(TreeMap m) {
+    synchronized (_treeMapStats) {
+      _treeMapStats.put(m, new Throwable());
+    }
+  }
+
+  // tree set
+  public int getNumberOfTreeSets() {
+    return _treeSetStats.size();
+  }
+  public List getTopTreeSets(int topNumber) {
+    List l = new ArrayList(_treeSetStats.entrySet());
+    Collections.sort(l, new SetSizeComparator());
+    return l.subList(0, topNumber);
+  }
+  public void addTreeSet(TreeSet s) {
+    synchronized (_treeSetStats) {
+      _treeSetStats.put(s, new Throwable());
+    }
+  }
+
+  // linked list
+  public int getNumberOfLinkedLists() {
+    return _linkedListStats.size();
+  }
+  public List getTopLinkedLists(int topNumber) {
+    List l = new ArrayList(_linkedListStats.entrySet());
+    Collections.sort(l, new ListSizeComparator());
+    return l.subList(0, topNumber);
+  }
+  public void addLinkedList(LinkedList l) {
+    synchronized (_linkedListStats) {
+      _linkedListStats.put(l, new Throwable());
+    }
+  }
+
+  // weak hash map
+  public int getNumberOfWeakHashMaps() {
+    return _weakHashMapStats.size();
+  }
+  public List getTopWeakHashMaps(int topNumber) {
+    List l = new ArrayList(_weakHashMapStats.entrySet());
+    Collections.sort(l, new MapSizeComparator());
+    return l.subList(0, topNumber);
+  }
+  public void addWeakHashMap(WeakHashMap m) {
+    synchronized (_weakHashMapStats) {
+      _weakHashMapStats.put(m, new Throwable());
+    }
+  }
+
+  // identity hash map
+  public int getNumberOfIdentityHashMaps() {
+    return _identityHashMapStats.size();
+  }
+  public List getTopIdentityHashMaps(int topNumber) {
+    List l = new ArrayList(_identityHashMapStats.entrySet());
+    Collections.sort(l, new MapSizeComparator());
+    return l.subList(0, topNumber);
+  }
+  public void addIdentityHashMap(IdentityHashMap m) {
+    synchronized (_identityHashMapStats) {
+      _identityHashMapStats.put(m, new Throwable());
+    }
+  }
+
+  // comparators
+  public class ListSizeComparator implements Comparator
   {
-    private Throwable _t;
-    private Hashtable _h;
-
-    public HashtableStats(Throwable t, Hashtable h) {
-      _t = t;
-      _h = h;
+    public int compare(Object o1, Object o2) {
+      return ((List) ((Map.Entry) o2).getKey()).size() -
+	     ((List) ((Map.Entry) o1).getKey()).size();
     }
-
-    public Throwable getThrowable() {
-      return _t;
+  }
+  public class MapSizeComparator implements Comparator
+  {
+    public int compare(Object o1, Object o2) {
+      return ((Map) ((Map.Entry) o2).getKey()).size() -
+	     ((Map) ((Map.Entry) o1).getKey()).size();
     }
-    public Object getCollection() {
-      return _h;
+  }
+  public class SetSizeComparator implements Comparator
+  {
+    public int compare(Object o1, Object o2) {
+      return ((Set) ((Map.Entry) o2).getKey()).size() -
+	     ((Set) ((Map.Entry) o1).getKey()).size();
     }
   }
 
   public class HashtableSizeComparator implements Comparator
   {
     public int compare(Object o1, Object o2) {
-      if (!(o1 instanceof HashtableStats) || !(o2 instanceof HashtableStats)) {
-	throw new ClassCastException("Not the right type");
-      }
-      Hashtable h1 = (Hashtable) ((HashtableStats)o1).getCollection();
-      Hashtable h2 = (Hashtable) ((HashtableStats)o2).getCollection();
-      Integer i1 = new Integer(h1.size());
-      Integer i2 = new Integer(h2.size());
-      return (i2.compareTo(i1));
+      return ((Hashtable) ((Map.Entry) o2).getKey()).size() -
+	     ((Hashtable) ((Map.Entry) o1).getKey()).size();
     }
- 
   }
+
 }

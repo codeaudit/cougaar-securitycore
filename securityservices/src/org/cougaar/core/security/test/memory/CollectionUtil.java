@@ -58,16 +58,16 @@ public class CollectionUtil {
       ret = _stats.getNumberOfHashtables();
       break;
     case HASH_SET:
-      //ret = _stats.getNumberOfHashSets();
+      ret = _stats.getNumberOfHashSets();
       break;
     case HASH_MAP:
-      //ret = _stats.getNumberOfHashMaps();
+      ret = _stats.getNumberOfHashMaps();
       break;
     case ARRAY_LIST:
-      //ret = _stats.getNumberOfArrayLists();
+      ret = _stats.getNumberOfArrayLists();
       break;
     case IDENTITY_HASH_MAP:
-      //ret = _stats.getNumberOfIdentityHashMaps();
+      ret = _stats.getNumberOfIdentityHashMaps();
       break;
     case LINKED_HASH_MAP:
       //ret = _stats.getNumberOfLinkedHashMaps();
@@ -76,22 +76,22 @@ public class CollectionUtil {
       //ret = _stats.getNumberOfLinkedHashSets();
       break;
     case LINKED_LIST:
-      //ret = _stats.getNumberOfLinkedLists();
+      ret = _stats.getNumberOfLinkedLists();
       break;
     case STACK:
       //ret = _stats.getNumberOfStacks();
       break;
     case TREE_MAP:
-      //ret = _stats.getNumberOfTreeMaps();
+      ret = _stats.getNumberOfTreeMaps();
       break;
     case TREE_SET:
-      //ret = _stats.getNumberOfTreeSets();
+      ret = _stats.getNumberOfTreeSets();
       break;
     case VECTOR:
       //ret = _stats.getNumberOfVectors();
       break;
     case WEAK_HASH_MAP:
-      //ret = _stats.getNumberOfWeakHashMaps();
+      ret = _stats.getNumberOfWeakHashMaps();
       break;
     default:
       ret = -1;
@@ -107,16 +107,16 @@ public class CollectionUtil {
       l = _stats.getTopHashtables(top);
       break;
     case HASH_SET:
-      //l = _stats.getTopHashSets(top);
+      l = _stats.getTopHashSets(top);
       break;
     case HASH_MAP:
-      //l = _stats.getTopHashMaps(top);
+      l = _stats.getTopHashMaps(top);
       break;
     case ARRAY_LIST:
-      //l = _stats.getTopArrayLists(top);
+      l = _stats.getTopArrayLists(top);
       break;
     case IDENTITY_HASH_MAP:
-      //l = _stats.getTopIdentityHashMaps(top);
+      l = _stats.getTopIdentityHashMaps(top);
       break;
     case LINKED_HASH_MAP:
       //l = _stats.getTopLinkedHashMaps(top);
@@ -125,22 +125,22 @@ public class CollectionUtil {
       //l = _stats.getTopLinkedHashSets(top);
       break;
     case LINKED_LIST:
-      //l = _stats.getTopLinkedLists(top);
+      l = _stats.getTopLinkedLists(top);
       break;
     case STACK:
       //l = _stats.getTopStacks(top);
       break;
     case TREE_MAP:
-      //l = _stats.getTopTreeMaps(top);
+      l = _stats.getTopTreeMaps(top);
       break;
     case TREE_SET:
-      //l = _stats.getTopTreeSets(top);
+      l = _stats.getTopTreeSets(top);
       break;
     case VECTOR:
       //l = _stats.getTopVectors(top);
       break;
     case WEAK_HASH_MAP:
-      //l = _stats.getTopWeakHashMaps(top);
+      l = _stats.getTopWeakHashMaps(top);
       break;
     default:
       l = null;

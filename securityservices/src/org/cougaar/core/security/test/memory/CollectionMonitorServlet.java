@@ -141,11 +141,10 @@ extends BaseServletComponent
       out.println("</head>");
       out.println("<body>");
       out.println("<H2>Collection Monitor Stats</H2>");
-      
+      out.println("<table border=\"2\">");      
       out.println("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
 
-      out.println("<table border=\"2\">");
-      out.println("<tr>");
+      out.println("<tr><td>");
       out.println(
 	"<input type=\"radio\" name=\"collection\" value=\"Hashtable\"/>Hashtable<br/>" +
 	"<input type=\"radio\" name=\"collection\" value=\"HashSet\"/>HashSet<br/>" +
@@ -161,16 +160,16 @@ extends BaseServletComponent
 	"<input type=\"radio\" name=\"collection\" value=\"Vector\"/>Vector<br/>" +
 	"<input type=\"radio\" name=\"collection\" value=\"WeakHashMap\"/>WeakHashMap<br/>"
 	);
-      out.println("</tr>");
+      out.println("</td></tr>");
       out.println("<tr><td>Number of rows:");
       out.println("</td><td><input name=\"Rows\" type=\"text\" value=\"20\"><br/>");
-      out.println("</tr>");
+      out.println("</td></tr>");
       out.println("<tr><td>Number of lines in stack trace:");
       out.println("</td><td><input name=\"Lines\" type=\"text\" value=\"2\"><br/>");
-      out.println("</tr>");
-      out.println("<tr><input type=\"submit\" value=\"Submit\"/></tr>");
-      out.println("</table>");
+      out.println("</td></tr>");
+      out.println("<tr><td><input type=\"submit\" value=\"Submit\"/></td></tr>");
       out.println("</form>");
+      out.println("</table>");
       out.println("</body></html>");
       out.flush();
       out.close();
@@ -193,16 +192,17 @@ extends BaseServletComponent
       int n = _util.getNumberOfElements(type);
       out.println("Number of Hashtable:" + n + "<br/>");
       List l = _util.getTopElements(type, Math.min(n, rows));
-      
+
       out.println("<tr><th>Stack Trace</th>");
       out.println("<th>Size</th></tr>");
 
       Iterator it = l.iterator();
       while (it.hasNext()) {
-	Stats s = (Stats) it.next();
+	Map.Entry s = (Map.Entry) it.next();
 	out.println("<tr><td>");
-	StackTraceElement ste[] = s.getThrowable().getStackTrace();
+	StackTraceElement ste[] = ((Throwable)s.getValue()).getStackTrace();
 	for (int i = 0 ; i < Math.min(ste.length, lines) ; i++) {
+	  out.println("<font size=\"2\">");
 	  out.print(ste[i].getClassName() + "." +
 		    ste[i].getMethodName() + "(" +
 		    ste[i].getFileName() + ":" +
@@ -214,7 +214,7 @@ extends BaseServletComponent
 	out.println(_caw.toString().replaceAll("\n", "<br>\n"));
 	*/
 	out.println("</td>");
-	Object o = s.getCollection();
+	Object o = s.getKey();
 	int size = -1;
 	if (o instanceof Collection) {
 	  size = ((Collection)o).size();
