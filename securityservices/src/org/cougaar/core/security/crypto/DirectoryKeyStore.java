@@ -116,7 +116,7 @@ public class DirectoryKeyStore
    * key has not been generated yet. Key will be generated and cache
    * will be cleared after CA key has been generated.
    */
-  private Hashtable caCertList = new Hashtable();
+  private Hashtable requestedIdentities = new Hashtable();
 
   /* Update OIDMap to include IssuingDistribution Point Extension &
    * Certificate Issuer Extension
@@ -1543,24 +1543,13 @@ public class DirectoryKeyStore
 	if (log.isDebugEnabled()) {
 	  log.debug("No CA key created yet, the certificate can not be created.");
 	}
-	String commonname=null;
-	if(cacheservice!=null) {
-	  commonname=cacheservice.getCommonName(dname);
-	}
-	if (commonname.equals(NodeInfo.getHostName())) {
-	  if (log.isDebugEnabled())
-	    log.debug("Creating self signed host key");
-	  makeKeyPair(dname, false, certAttribPolicy);
-	}
-
-        // store DNs so that there is no need to restart CA to generate all the certs
-        caCertList.put(dname.toString(), (keyAlias == null) ? "" : keyAlias);
-
+	/*
         if (cacheservice.getCommonName(dname).equals(NodeInfo.getHostName())) {
           if (log.isDebugEnabled())
             log.debug("Creating self signed host key");
           makeKeyPair(dname, false, certAttribPolicy);
         }
+	*/
         return null;
       }
       String caDN = configParser.getCaDNs()[0].getName();
@@ -1693,29 +1682,7 @@ public class DirectoryKeyStore
       return addCAKeyPair(dname, keyAlias);
     }
     else if (param.isCertAuth) {
-      privatekey = addKeyPairOnCA(dname, keyAlias);
-
-      // if it is successful, finish the ones that has been delayed for
-      // CA key generation
-      if (privatekey != null) {
-        // get rid of the one that has already been generated
-        caCertList.remove(dname.toString());
-
-        for (Enumeration en = caCertList.keys(); en.hasMoreElements(); ) {
-          String certdname = (String)en.nextElement();
-          keyAlias = (String)caCertList.get(certdname);
-
-          if (keyAlias == "")
-            keyAlias = null;
-          dname = CertificateUtility.getX500Name(certdname);
-          if (dname == null)
-            continue;
-          if (addKeyPairOnCA(dname, keyAlias) != null) {
-            caCertList.remove(certdname);
-          }
-        }
-      }
-      return privatekey;
+      return addKeyPairOnCA(dname, keyAlias);
     }
 
       try {
@@ -1833,7 +1800,7 @@ public class DirectoryKeyStore
 	}
       } catch (Exception e) {
 	if (log.isErrorEnabled()) {
-	  log.error("Unable to create key in addKeyPair: " + dname + " - Reason:" + e, new Throwable());
+	  log.error("Unable to create key in addKeyPair: " + dname + " - Reason:", e);
 	}
       }
 
@@ -2353,6 +2320,44 @@ public class DirectoryKeyStore
     // go through all the trusted policies
     // more than one certificate may be acquired
     TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getIssuerPolicy();
+
+    // this only happens in unzip & run, originally there is no trusted CA policy
+    if (System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
+      requestedIdentities.put(commonName, commonName);
+      if (log.isDebugEnabled()) {
+        log.debug("saving " + commonName + " to requested identity cache.");
+      }
+    }
+
+    // create a dummy host key so that https server can be started
+    if (commonName.equals(NodeInfo.getHostName())) {
+      try {
+        CertificateCacheService cacheservice=(CertificateCacheService)
+          param.serviceBroker.getService(this,
+                                         CertificateCacheService.class,
+                                         null);
+
+        if(cacheservice==null) {
+          log.warn("Unable to get Certificate cache Service in checkOrMakeCert");
+        }
+        CertificateAttributesPolicy cap = cryptoClientPolicy.getCertificateAttributesPolicy();
+        X500Name dname = null;
+        dname = new X500Name(getX500DN(commonName, cap));
+
+        // only do this if there is no host key present
+        if (cacheservice.findAlias(dname) == null) {
+          if (log.isDebugEnabled()) {
+            log.debug("Creating self signed host key");
+          }
+          makeKeyPair(dname, false, cap);
+        }
+      } catch (Exception ex) {
+        if (log.isWarnEnabled()) {
+          log.warn("Failed to create host key. " + ex);
+        }
+      }
+    }
+
     for (int i = 0; i < trustedCaPolicy.length; i++) {
       X500Name dname = CertificateUtility.getX500Name(getX500DN
 						      (commonName,
@@ -2419,12 +2424,15 @@ public class DirectoryKeyStore
 	  log.debug("common name in checkOrMakeCert is :NULL");
 	}
 	  
-	if (param.isCertAuth &&(commonname!=null && commonname.equals(NodeInfo.getNodeName()))) {
-	  X500Name [] caDNs = configParser.getCaDNs();
-	  if (caDNs.length != 0) {
-	    publishCAToLdap(caDNs[0].getName());
-	  }
-	}
+        if (commonname!=null && commonname.equals(NodeInfo.getNodeName())) {
+          if (param.isCertAuth) {
+            X500Name [] caDNs = configParser.getCaDNs();
+            if (caDNs.length != 0) {
+              publishCAToLdap(caDNs[0].getName());
+            }
+          }
+          handleRequestedIdentities(trustedCaPolicy);
+        }
 	return;
       }
       else {
@@ -2442,8 +2450,43 @@ public class DirectoryKeyStore
 		+ dname.toString());
     }
     //we'll have to make one
-    addKeyPair(dname, null, isCACert, trustedCaPolicy);
+    PrivateKey privatekey = addKeyPair(dname, null, isCACert, trustedCaPolicy);
+    if (privatekey != null) {
+      String commonname=cacheservice.getCommonName(dname);
+      // only do it for node cert, otherwise will have infinite loop here
+      if (commonname.equals(NodeInfo.getNodeName())) {
+        handleRequestedIdentities(trustedCaPolicy);
+      }
+    }
   }
+
+  private void handleRequestedIdentities(TrustedCaPolicy trustedCaPolicy) {
+    // for unzip & run
+    // after grabbing CA info from CA, plugin will request node
+    // certificate
+      // flag for unzip & run
+    if (System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
+      for (Enumeration en = requestedIdentities.keys(); en.hasMoreElements(); ) {
+        String cname = (String)en.nextElement();
+        // no need to do dname again
+        if (cname.equals(NodeInfo.getNodeName())) {
+          continue;
+        }
+        X500Name dname = null;
+        try {
+          dname = new X500Name(getX500DN(cname,
+            trustedCaPolicy.getCertificateAttributesPolicy()));
+        } catch (IOException iox) {}
+
+        if (log.isDebugEnabled()) {
+          log.debug("processing cert request for " + cname + " : " + dname);
+        }
+
+        checkOrMakeCert(dname, false, trustedCaPolicy);
+      }
+    }
+  }
+
 /*
   public void setSleeptime(long sleeptime)
   {
@@ -3322,7 +3365,7 @@ public class DirectoryKeyStore
     return getX500DN(commonName, cryptoClientPolicy.getCertificateAttributesPolicy());
   }
 
-  public String getX500DN(String commonName, CertificateAttributesPolicy certAttribPolicy) {
+  public static String getX500DN(String commonName, CertificateAttributesPolicy certAttribPolicy) {
     String dn = "cn=" + commonName
       + ", ou=" + certAttribPolicy.ou
       + ",o=" + certAttribPolicy.o
