@@ -84,14 +84,14 @@ implements Factory
                          aMessage);
   }
   
-  public ConsolidatedEvent newConsolidatedEvent(UID parentUID,MessageAddress source,IDMEF_Message aMessage) {
-    return new ConsolidatedEventImpl(parentUID,source,aMessage);
+  public ConsolidatedEvent newConsolidatedEvent(MessageAddress source,IDMEF_Message aMessage) {
+    return new ConsolidatedEventImpl(source,aMessage);
   }
   public ConsolidatedEvent newConsolidatedEvent(ConsolidatedEvent event ) {
-    return new ConsolidatedEventImpl(event.getparentUID(),event.getSource(),event.getEvent());
+    return new ConsolidatedEventImpl(event.getSource(),event.getEvent());
   }
    public ConsolidatedEvent newConsolidatedEvent(RemoteConsolidatedEvent event ) {
-    return new ConsolidatedEventImpl(event.getparentUID(),event.getSource(),event.getEvent());
+    return new ConsolidatedEventImpl(event.getSource(),event.getEvent());
   }
  
   public NewEventTransfer newEventTransfer(Event event,
