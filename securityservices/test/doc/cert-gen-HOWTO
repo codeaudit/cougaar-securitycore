@@ -1,0 +1,75 @@
+1. Edit an xml file for configuring the key generation process for a society, 
+   starting with a society tag, in this example, the ul-mini-config society is
+   used.
+
+<society title="UL-MINI-CONFIG">
+.
+.
+.
+1a. For each node create a keystare file, supplying the file name and password
+
+<keystorefile>
+       <storepass>the-actual-password-NCADomainManager</storepass>
+       <keystore>keystore-NCADomainManager</keystore>
+
+.
+.
+.
+1b. For each CA and certificate add a block similar to the following:
+
+ <trustedCA>
+          <alias>ROOT-CA-CONUS</alias>
+          <file>ROOT-CA-CONUS.cer</file>
+       </trustedCA>
+.
+.
+.
+1c. The folowing block generates a key for the NCADomainManager agent.
+ Cryptographic services requires that each node and agent within that node have
+ a signed certificate and key pair. Add a similar element block for each
+<key>
+          <alias>NCADomainManager</alias>
+          <keypass>ul-NCADomainManager</keypass>
+          <keyalg>RSA</keyalg>
+          <sigalg>MD5withRSA</sigalg>
+          <keysize>2048</keysize>
+          <signingAuthority>ROOT-CA-CONUS</signingAuthority>
+          <dname>CN=NCADomainManager, O=CONUS, OU=NCA, L=Washington DC, S=DC, C=US</dname>
+       </key>
+.
+.
+.
+
+1d. End the keystore block for the node. Each node requiring cyrptographic services should have a <keystorefile> element in the XML file.
+    </keystorefile>
+.
+.
+.
+1f. End the society tag:
+<society>
+
+
+2. Generate key pairs and certificate signing requests. The private key for 
+   each node is securely stored in the corresponding key store. Certificate 
+   requests are stored in individual files--since these are public keys, they
+   do not need to be immediately in the key store.
+
+./run-genkey ul-mini-config-cert.xml -genkey 
+
+3. Submit certificate request to the certificate authority (CA) for signing. CA
+   certificates at the root level are self-signed. Non-root CA's should have a
+   certificate chain of 1 or more certificates which should lead to a self-
+   signed certificate. 
+
+4. Import the signed certificates into the keystores. 
+
+./run-genkey ul-mini-config-cert.xml -importsigned
+
+5. Import all public keys into each keystore.
+
+./run-genkey ul-mini-config-cert.xml -importpub
+
+6. The keystores have now been fully populated and need to be installed into 
+   the directory containing the society's configuration files. For example, the
+   ul-mini-config keystores need to be placed in the 
+   configs/common/ul-mini-config directory.
