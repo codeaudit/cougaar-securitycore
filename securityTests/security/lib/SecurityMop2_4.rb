@@ -143,12 +143,13 @@ class  SecurityMop2_4 < AbstractSecurityMop
         maxWaitTime = 30.minutes
         sleepTime=60.seconds
         while ((SecurityMop2_4.instance.getPerformDone == false) && (totalWaitTime < maxWaitTime))
-          logInfoMsg "Sleeping in Calculate of SecurityMop2.4 . Already slept for #{totalWaitTime}"
+          logInfoMsg "Sleeping in Calculate of SecurityMop2.4 . Already slept for #{totalWaitTime}" if totalWaitTime > 0
           sleep(sleepTime) # sleep
           totalWaitTime += sleepTime
         end
         if((totalWaitTime >= maxWaitTime) && (SecurityMop2_4.instance.getPerformDone == false))
           @summary = "MOP 2.4 did not complete."
+          logInfoMsg "Security MOPs 2.4-2.6 did not complete."
           saveResult(false, "SecurityMop2.4", "Timeout tests incomplete") 
           saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done Result failed ")
           return

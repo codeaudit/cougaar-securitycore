@@ -71,12 +71,14 @@ module Cougaar
     # Action which runs the six security mops every five minutes
     class InitiateSecurityMopCollection < Cougaar::Action
       attr_accessor :mops, :frequency, :thread
+
       def initialize(run, frequency=3.minutes)
         super(run)
         Cougaar.setRun(run)
         AbstractSecurityMop.halt = false
         @frequency = frequency
         @thread = nil
+        run['SecurityIsInitiated'] = false
         UserClass.clearCache
       end
 
@@ -89,8 +91,20 @@ module Cougaar
       def halted?
         return self.class.halted?
       end
-      
+
       def perform
+        # run initiate in it's own thread so that other actions can get underway.
+        Thread.fork do
+          begin
+            performAction
+          rescue Exception => e
+            logErrorMsg "Error in InitiateSecurityMops: #{e.class}, #{e.message}"
+            logErrorMsg e.backtrace.join("\n")
+          end
+        end
+      end
+
+      def performAction
         # give a little more time for the CA and user domain agents to get ready.
         sleep 2.minutes unless $WasRunning
 
@@ -142,6 +156,8 @@ module Cougaar
           end
         end
         puts "security mops thread now completed" if $VerboseDebugging
+        run['SecurityIsInitiated'] = true
+        AbstractSecurityMop.finished(InitiateSecurityMopCollection)
       end
       
       # These are the policies needed by all the mops
@@ -168,10 +184,15 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
 
     class StopSecurityMopCollection < Cougaar::Action
       def perform
+        unless AbstractSecurityMop.waitForCompletion(InitiateSecurityMopCollection)
+          logErrorMsg "Aborting StopSecurityMopCollection"
+          return nil
+        end
         `rm -rf #{SecurityMopDir}` if File.exists?(SecurityMopDir)
         Dir.mkdirs(SecurityMopDir)
         `chmod a+rwx #{SecurityMopDir}`
         logInfoMsg "Halting security MOPs" if $VerboseDebugging
+
         mops = run['mops']
         InitiateSecurityMopCollection.halt
         sleep 1.minutes
@@ -185,6 +206,7 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
           end
         end
         sleep 1.minutes
+        AbstractSecurityMop.finished(StopSecurityMopCollection)
       end
     end
 
@@ -194,6 +216,16 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
     class SendSecurityMopRequest < Cougaar::Action
       def perform
         logInfoMsg "Pre-processing security MOPs" if $VerboseDebugging
+        # if InitiateSecurityMopCollection didn't complete, StopSecurityMopCollection would
+        # have aborted and there is no reason to sit through a long timeout period.
+        unless AbstractSecurityMop.waitForCompletion(InitiateSecurityMopCollection, 1.minute)
+          logErrorMsg "Aborting SendSecurityMopRequest"
+          return nil
+        end
+        unless AbstractSecurityMop.waitForCompletion(StopSecurityMopCollection)
+          logErrorMsg "Aborting SendSecurityMopRequest"
+          return nil
+        end
         mops = run['mops']
         result = ''
         mops.each do |mop|
@@ -249,6 +281,7 @@ end
 html = ''
 puts html if $VerboseDebugging
 puts (mops.collect {|mop| mop.score}).inspect if $VerboseDebugging
+        AbstractSecurityMop.finished(SendSecurityMopRequest)
         return html
       end
 

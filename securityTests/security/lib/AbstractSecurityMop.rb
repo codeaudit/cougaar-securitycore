@@ -3,6 +3,29 @@ require 'security/lib/security'
 
 class AbstractSecurityMop < SecurityStressFramework
   attr_accessor :date, :runid, :name, :descript, :score, :info, :isCalculationDone, :raw, :summary, :supportingData
+
+  @@completed = []
+
+  def self.finished(anObject)
+    @@completed << anObject
+  end
+  def self.completed
+    return @@completed
+  end
+  def self.waitForCompletion(completedName, maxTime=30.minutes)
+    # returns true if completedName comes in before maxTime
+    startTime = Time.now
+    sleepTime = 30.seconds
+    until @@completed.member?(completedName) do
+      if startTime+maxTime < Time.now
+        logInfoMsg "Timeout exceeded waiting for #{completedName}"
+        return false
+      end
+      sleep sleepTime
+    end
+    return true
+  end
+
   @@halt = false
   def self.getHalt
     return @@halt

@@ -30,8 +30,6 @@ require 'security/lib/userDomainAux'
 require 'security/lib/experimentFramework'
 
 
-
-
 module Cougaar
 
   module Actions
