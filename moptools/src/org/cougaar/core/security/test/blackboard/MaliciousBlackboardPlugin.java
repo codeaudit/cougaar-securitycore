@@ -14,10 +14,7 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import java.io.Serializable;
 import java.util.Collection;
-
-import edu.jhuapl.idmef.Analyzer;
 
 
 /**
