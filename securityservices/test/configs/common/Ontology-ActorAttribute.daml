@@ -36,7 +36,7 @@
 <!--Section with class definitions--> 
 
     <daml:Class rdf:ID="Attribute">
-        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml#ComputingEntity"/>
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml#LogicalEntity"/>
     </daml:Class>
 
 </rdf:RDF>
