@@ -3,13 +3,13 @@
 
 enclave = nil
 society.each_node do |node|
-  if node.name ~= /.*REAR.*/ or node.name == "Enclave1CANode"
+  if node.name =~ /.*REAR.*/ or node.name == "Enclave1CANode"
     enclave = "1"
-  elsif node.name ~= /.*FWD.*/ or node.name == "Enclave2CANode"
+  elsif node.name =~ /.*FWD.*/ or node.name == "Enclave2CANode"
       enclave = "2"
   elsif node.name == "NCA-NODE" or node.name == "CONUS-NODE" or node.name == "Enclave3CANode"
     enclave = "3"
-  elsif node.name ~= /.*TRANS.*/ or node.name == "AIR-NODE" or node.name == "SEA-NODE" or node.name == "Enclave4CANode"
+  elsif node.name =~ /.*TRANS.*/ or node.name == "AIR-NODE" or node.name == "SEA-NODE" or node.name == "Enclave4CANode"
     enclave = "4"
   end
   node.agent.add_component do |c|

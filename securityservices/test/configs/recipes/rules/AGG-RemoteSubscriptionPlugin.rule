@@ -2,7 +2,7 @@
 # AGG-RemoteSubscriptionPlugin.rule
 
 society.each_agent(true) do |agent|
-  if not agent.name ='AGG-Agent' and not agent.name="UMmrmanager"
+  if agent.name !='AGG-Agent' and agent.name != 'UMmrmanager'
     agent.add_component do |c|
       c.classname = "org.cougaar.lib.aggagent.plugin.RemoteSubscriptionPlugin"
     end
