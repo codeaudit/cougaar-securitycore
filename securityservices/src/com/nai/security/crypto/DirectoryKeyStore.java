@@ -41,10 +41,13 @@ import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Principal;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.*;
 import java.security.KeyPair;
 
 import sun.security.pkcs.*;
+import sun.security.x509.*;
 
 import org.cougaar.util.ConfigFinder;
 import com.nai.security.certauthority.CAClient;
@@ -559,5 +562,40 @@ public class DirectoryKeyStore implements Runnable
     }
     return;
   }
-  
+
+  public String getAlias(X509Certificate clientX509) 
+    throws CertificateEncodingException, NoSuchAlgorithmException, IOException {
+    String alg = "MD5"; // TODO: make this dynamic
+    MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
+    byte [] digest = md.digest();
+    
+    X500Name clientX500Name = new X500Name(clientX509.getSubjectDN().toString());
+    String prefix = clientX500Name.getCommonName();
+    String alias = prefix + "-" + toHex(digest);
+
+    return alias;
+  }
+
+  private MessageDigest createDigest(String algorithm, byte[] data)
+    throws NoSuchAlgorithmException
+  {
+    MessageDigest md = MessageDigest.getInstance(algorithm);
+
+    // Create a digest
+    md.reset();
+    md.update(data);
+    md.digest();
+    return md;
+  }
+    
+  private String toHex(byte[] data) {
+    StringBuffer buff = new StringBuffer();
+    for(int i = 0; i < data.length; i++) {
+      String digit = Integer.toHexString(data[i] & 0x00ff);
+      if(digit.length() < 2)buff.append("0");
+      buff.append(digit);
+    }
+    return buff.toString();
+  }
+
 }
