@@ -465,7 +465,6 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
         phrases.add(npp6);
         newtask.setPrepositionalPhrases(phrases.elements());
         getBlackboardService().publishAdd(newtask);
-
       } else if (status.equals(BlackboardTestManagerServlet.END_TESTING)) {
         this.stopTesting = true;
         this.endTime = new Date();

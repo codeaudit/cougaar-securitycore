@@ -74,7 +74,21 @@ public class BlackboardTestManagerServlet extends AbstractServletComponent {
   public static final String STATUS = "STATUS";
   /** DOCUMENT ME! */
   public static final String EXP_NAME_PREP = "EXP_NAME";
-
+  
+  protected UnaryPredicate testingPredicate = new UnaryPredicate() {
+    public boolean execute(Object o) {
+      if (o instanceof Task) {
+        Task t = (Task) o;
+        String verb = t.getVerb().toString();
+        if (BlackboardTestManagerServlet.VERB.equals(verb) ||
+            AnalyzerServlet.VERB.equals(verb)) {
+          return true;
+        }
+      }
+      return false;
+    }
+  };
+  
   /* (non-Javadoc)
    * @see com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent#getPath()
    */
@@ -82,25 +96,35 @@ public class BlackboardTestManagerServlet extends AbstractServletComponent {
     // TODO Auto-generated method stub
     return "/testBlackboardManager";
   }
-
-
+  
+  
   /* (non-Javadoc)
    * @see com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent#execute(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
   protected void execute(HttpServletRequest request,
-    HttpServletResponse response) {
+      HttpServletResponse response) {
     // TODO Auto-generated method stub
     String doParam = request.getParameter(DO_PARAM);
     String expParam = request.getParameter(EXP_PARAM);
     if (logging.isDebugEnabled()) {
       logging.debug("BlackboardTestManagerServlet: " + doParam + " - "
-        + expParam);
+          + expParam);
     }
-
-    if (doParam != null && !(doParam.equals("isReady"))) {
+    if (doParam != null  && !(doParam.equals("removeTasks"))) {
+      // Remove all TASKS - Otherwise CncCalc won't be happy
+      blackboardService.openTransaction();
+      Collection c = blackboardService.query(testingPredicate);
+      Iterator it = c.iterator();
+      while (it.hasNext()) {
+        Task t = (Task) it.next();
+        blackboardService.publishRemove(t);
+      }
+      blackboardService.closeTransaction();
+    }
+    else if (doParam != null && !(doParam.equals("isReady"))) {
       blackboardService.openTransaction();
       PlanningFactory pf = (PlanningFactory) domainService.getFactory(
-          "planning");
+      "planning");
       NewTask task = pf.newTask();
       task.setVerb(Verb.getVerb(VERB));
       Vector phrases = new Vector();
@@ -108,88 +132,88 @@ public class BlackboardTestManagerServlet extends AbstractServletComponent {
       npp.setIndirectObject(doParam);
       npp.setPreposition(STATUS);
       phrases.add(npp);
-
+      
       NewPrepositionalPhrase expp = pf.newPrepositionalPhrase();
       expp.setPreposition(EXP_NAME_PREP);
       expp.setIndirectObject(expParam);
       phrases.add(expp);
-
+      
       task.setPrepositionalPhrases(phrases.elements());
-
+      
       blackboardService.publishAdd(task);
       blackboardService.closeTransaction();
-
+      
     }else if(doParam!=null && doParam.equals("isReady")){
-    	if(logging.isDebugEnabled()){
-    		logging.debug("Checking if org activies ready");
-    	}
-    	blackboardService.openTransaction();
-    	Collection c= blackboardService.query(new UnaryPredicate(){
-    		public boolean execute(Object o){
-    			return o instanceof OrgActivity;
-    		}
-    	});
-	blackboardService.closeTransaction();
-
-	PrintWriter out = null;
-	try {
-	  out = response.getWriter();
-	} catch (IOException e) {
-	  if(logging.isErrorEnabled()){
-	    logging.error("Error writing ready result",e);
-	  }
-	}
-    	
-    	if(c.size()>0){
-    		out.println("TRUE");	
-    	
-    	}else{
-    		out.println("FALSE");
-    	}
-    	out.close();
+      if(logging.isDebugEnabled()){
+        logging.debug("Checking if org activies ready");
+      }
+      blackboardService.openTransaction();
+      Collection c= blackboardService.query(new UnaryPredicate(){
+        public boolean execute(Object o){
+          return o instanceof OrgActivity;
+        }
+      });
+      blackboardService.closeTransaction();
+      
+      PrintWriter out = null;
+      try {
+        out = response.getWriter();
+      } catch (IOException e) {
+        if(logging.isErrorEnabled()){
+          logging.error("Error writing ready result",e);
+        }
+      }
+      
+      if(c.size()>0){
+        out.println("TRUE");	
+        
+      }else{
+        out.println("FALSE");
+      }
+      out.close();
     }
     else {
       // Status for real user invoking servlet
       if(logging.isDebugEnabled()){
-	logging.debug("blackboard test status");
+        logging.debug("blackboard test status");
       }
       blackboardService.openTransaction();
       Collection c= blackboardService.query(new UnaryPredicate(){
-	  public boolean execute(Object o) {
-	    boolean ret = false;
-	    if (o instanceof Task) {
-	      Task t = (Task) o;
-	      if (t.getVerb().equals(Verb.getVerb(VERB))) {
-		ret = true;
-	      }
-	    }
-	    return ret;
-	  }
-    	});
+        public boolean execute(Object o) {
+          boolean ret = false;
+          if (o instanceof Task) {
+            Task t = (Task) o;
+            if (t.getVerb().equals(Verb.getVerb(VERB))) {
+              ret = true;
+            }
+          }
+          return ret;
+        }
+      });
       blackboardService.closeTransaction();
       PrintWriter out = null;
       try {
-	out = response.getWriter();
-	Iterator it = c.iterator();
-	out.println("Blackboard check status - List of requests tasks on the blackboard:");
-	for (int i = 0 ; it.hasNext() ; i++) {
-	  Task t = (Task) it.next();
-	  out.println("Request " + i);
-	  Enumeration phrases = t.getPrepositionalPhrases();
-	  while (phrases.hasMoreElements()) {
-	    PrepositionalPhrase pp = (PrepositionalPhrase)phrases.nextElement();
-	    out.println("  Indirect object: " + pp.getIndirectObject());
-	  }
-	}
+        out = response.getWriter();
+        Iterator it = c.iterator();
+        out.println("Blackboard check status - List of requests tasks on the blackboard:");
+        for (int i = 0 ; it.hasNext() ; i++) {
+          Task t = (Task) it.next();
+          out.println("Request " + i);
+          Enumeration phrases = t.getPrepositionalPhrases();
+          while (phrases.hasMoreElements()) {
+            PrepositionalPhrase pp = (PrepositionalPhrase)phrases.nextElement();
+            out.println("  Indirect object: " + pp.getIndirectObject());
+          }
+        }
       } catch (IOException e) {
-	if(logging.isErrorEnabled()){
-	  logging.error("Error writing ready result",e);
-	}
+        if(logging.isErrorEnabled()){
+          logging.error("Error writing ready result",e);
+        }
       }
       finally {
-	if (out != null) {
-	  out.close();
-	}
+        if (out != null) {
+          out.close();
+        }
       }
     }
   }
