@@ -26,7 +26,7 @@ import java.util.List;
 
 public class MRAgentLookUpReply {
 
-  public List AgentList;
+  private  List AgentList;
 
   /**
    * Constructor for MRAgentLookUpReply
@@ -35,6 +35,9 @@ public class MRAgentLookUpReply {
   public MRAgentLookUpReply (List responseAgentList) {
     this.AgentList=responseAgentList;
   }
-
+  
+  public List getAgentList() {
+    return this.AgentList;
+  }
 
 }
