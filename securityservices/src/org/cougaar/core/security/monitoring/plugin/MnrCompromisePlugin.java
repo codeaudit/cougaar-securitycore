@@ -48,6 +48,12 @@ import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.planning.ldm.plan.Workflow;
 import org.cougaar.util.UnaryPredicate;
 
+import org.cougaar.core.mobility.AbstractTicket;
+import org.cougaar.core.mobility.RemoveTicket;
+import org.cougaar.core.mobility.ldm.AgentControl;
+import org.cougaar.core.mobility.ldm.MobilityFactory;
+import org.cougaar.core.util.UID;
+
 import java.io.PrintWriter;
 
 import java.net.HttpURLConnection;
@@ -127,6 +133,8 @@ public class MnrCompromisePlugin extends ComponentPlugin {
     private UIDService uidService = null;
     /** Domain Service */
     private DomainService domainService = null;
+    private MobilityFactory mobilityFactory;
+
     /** Logging Service */
     private LoggingService logging = null;
     /** Predicate to evenets */
@@ -220,6 +228,13 @@ public class MnrCompromisePlugin extends ComponentPlugin {
                 DomainService.class, null);
         this.uidService = (UIDService) this.getServiceBroker().getService(this,
                 UIDService.class, null);
+      if (domainService != null) {
+        mobilityFactory =
+          (MobilityFactory) domainService.getFactory("mobility");
+      }
+      else {
+        logging.warn("Cannot get mobility factory! Will not be able to remove compromised agent!");
+      }
     }
 
 
@@ -537,6 +552,13 @@ public class MnrCompromisePlugin extends ComponentPlugin {
                     }
 
                     agentsToBeRevoked.add(sourceAgent);
+
+                    if (mobilityFactory != null) {
+                      if (logging.isDebugEnabled()) {
+                        logging.debug("removing " + sourceAgent + " on " + sourceNode);
+                      }
+                      removeAgent(sourceAgent, sourceNode);
+                    }
                 } else if (scope.equals(
                         CompromiseBlackboard.NODE_COMPROMISE_TYPE)) {
                     if (logging.isDebugEnabled()) {
@@ -667,4 +689,43 @@ public class MnrCompromisePlugin extends ComponentPlugin {
 
         return cryptoClientPolicy;
     }
+
+  private AgentControl createAgentControl(
+      UID ownerUID,
+      MessageAddress target,
+      AbstractTicket ticket) {
+    if (mobilityFactory == null) {
+      throw new RuntimeException(
+          "Mobility factory (and domain) not enabled");
+    }
+    AgentControl ac =
+      mobilityFactory.createAgentControl(
+          ownerUID, target, ticket);
+    return ac;
+  }
+
+  private void addAgentControl(AgentControl ac) {
+    try {
+      getBlackboardService().openTransaction();
+      getBlackboardService().publishAdd(ac);
+    } finally {
+      getBlackboardService().closeTransactionDontReset();
+    }
+  }
+
+
+  private void removeAgent(String agentName, String nodeName) {
+    MessageAddress mobileAgentAddr = 
+      MessageAddress.getMessageAddress(agentName);
+    MessageAddress destNodeAddr =
+      MessageAddress.getMessageAddress(nodeName);
+    AbstractTicket ticket =
+              new RemoveTicket(
+                  null,
+                  mobileAgentAddr,
+                  destNodeAddr);
+    AgentControl ac = createAgentControl(
+              null, destNodeAddr, ticket);
+    addAgentControl(ac);
+  }
 }
