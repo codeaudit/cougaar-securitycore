@@ -62,11 +62,11 @@ import com.nai.security.crypto.*;
 public class KeyManagement
 {
   private static boolean debug = true;
-  private static final String PKCS10HEADER  = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-  private static final String PKCS10TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
+  public static final String PKCS10HEADER  = "-----BEGIN NEW CERTIFICATE REQUEST-----";
+  public static final String PKCS10TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
 
-  private static final String PKCS7HEADER   = "-----BEGIN CERTIFICATE-----";
-  private static final String PKCS7TRAILER  = "-----END CERTIFICATE-----";
+  public static final String PKCS7HEADER   = "-----BEGIN CERTIFICATE-----";
+  public static final String PKCS7TRAILER  = "-----END CERTIFICATE-----";
   private String topLevelDirectory = null;
   private String x509directory = null;
   private ConfParser confParser = null;

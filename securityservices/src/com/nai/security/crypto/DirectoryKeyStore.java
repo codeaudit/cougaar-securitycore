@@ -56,6 +56,7 @@ import sun.security.x509.*;
 
 import org.cougaar.util.ConfigFinder;
 import com.nai.security.certauthority.CAClient;
+import com.nai.security.certauthority.KeyManagement;
 import com.nai.security.policy.NodePolicy;
 
 public class DirectoryKeyStore implements Runnable
@@ -651,7 +652,8 @@ public class DirectoryKeyStore implements Runnable
     byte der[] = request.getEncoded();
     System.out.println("generateSigningCertificateRequest. der size:" + der.length);
     char base64req[] = Base64.encode(der);
-    String reply = new String(base64req);
+    String reply = KeyManagement.PKCS10HEADER
+      + new String(base64req) + KeyManagement.PKCS10TRAILER;
     return reply;
   }
 
