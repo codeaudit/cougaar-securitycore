@@ -22,6 +22,7 @@
 package org.cougaar.core.security.policy.enforcers;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
@@ -55,8 +56,9 @@ public class WPEnforcer
   private ServiceBroker _sb;
   protected LoggingService _log;
 
-  private final String _enforcedActionType 
-    = UltralogActionConcepts.WPUpdateSelf();
+  /*
+   * These are going away.
+   */
 
   public static final String WPAddAccess    = "Add";
   public static final String WPRemoveAccess = "Remove";
@@ -71,7 +73,10 @@ public class WPEnforcer
   public Vector getControlledActionClasses()
   {
     Vector result = new Vector();
-    result.add(_enforcedActionType);
+    result.add(UltralogActionConcepts.WPUpdateSelf());
+    result.add(UltralogActionConcepts.WPUpdateDelegate());
+    result.add(UltralogActionConcepts.WPForward());
+    result.add(UltralogActionConcepts.WPLookup());
     return result;
   }
 
@@ -116,10 +121,14 @@ public class WPEnforcer
       _log.fatal("Cannot continue without guard", new Throwable());
       throw new RuntimeException("Cannot continue without guard");
     }
-    if (!_guard.registerEnforcer(this, _enforcedActionType, new Vector())) {
-      _sb.releaseService(this, EnforcerManagerService.class, _guard);
-      _log.fatal("Could not register with the Enforcer Manager Service");
-      throw new RuntimeException("Cannot register with Enforcer Manager Service");
+    for (Iterator ActionTypeIt = getControlledActionClasses().iterator();
+         ActionTypeIt.hasNext();) {
+      String actionType = (String) ActionTypeIt.next();
+      if (!_guard.registerEnforcer(this, actionType, new Vector())) {
+        _sb.releaseService(this, EnforcerManagerService.class, _guard);
+        _log.fatal("Could not register with the Enforcer Manager Service");
+        throw new RuntimeException("Cannot register with Enforcer Manager Service");
+      }
     }
   }
 
@@ -138,47 +147,80 @@ public class WPEnforcer
                                     String agentEntry,
                                     String action)
   {
-    // for the time being...
-    // later this will be under control of policy.
-    if (!agent.equals(agentEntry)) {
-      return false;
-    }
-    if (_log.isDebugEnabled()) {
-      _log.debug("Called isActionAuthorized for " + agent + 
-                 " doing " + action + " on the blackboard");
-    }
-    if (!(action.equals(WPAddAccess) || 
-          action.equals(WPRemoveAccess) ||
-          action.equals(WPChangeAccess))) {
-      _log.warn("Invalid action type for enforcer " + action);
-      _log.warn("Denying access to agent " + agent);
-      return false;
-    }
-    String kaosAgent  = ULOntologyNames.agentPrefix + agent;
-    String kaosAction = UltralogEntityConcepts.UltralogEntityOwlURL() 
-                                  + "WP" + action;
+    return true;
+  }
 
+  public boolean WPUpdateOk(String performingAgent,
+                            String actedOnAgent)
+  {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Called WPUpdateOk for " + performingAgent + " and " + actedOnAgent);
+    }
+    String actionType = null;
+    Set targets = new HashSet();
+    if (performingAgent == actedOnAgent) {
+      actionType = UltralogActionConcepts.WPUpdateSelf();
+    } else {
+      actionType = UltralogActionConcepts.WPUpdateDelegate();
+      targets.add(new TargetInstanceDescription(
+                           UltralogActionConcepts.wpAgentEntry(),
+                           ULOntologyNames.agentPrefix + actedOnAgent));
+    }
+    ActionInstanceDescription aid = 
+      new ActionInstanceDescription(actionType, 
+                                    ULOntologyNames.agentPrefix + performingAgent,
+                                    targets);
+    return isActionAuthorized("White pages update", aid);
+  }
+
+
+  public boolean WPForwardOk(String forwardingAgent,
+                             String forwardedAgent)
+  {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Called WPForwardOk for " + forwardingAgent + 
+                 " and " + forwardedAgent);
+    }
     Set targets = new HashSet();
     targets.add(new TargetInstanceDescription(
-                      UltralogActionConcepts.wpAccessType(), 
-                      kaosAction));
+                           UltralogActionConcepts.WPForward(),
+                           ULOntologyNames.agentPrefix + forwardedAgent));
     ActionInstanceDescription aid = 
-      new ActionInstanceDescription(_enforcedActionType,
-                                    kaosAgent,
+      new ActionInstanceDescription(UltralogActionConcepts.WPForward(),
+                                    ULOntologyNames.agentPrefix + forwardingAgent,
                                     targets);
-    ActionPermission ap = new ActionPermission("White pages " + action, 
-                                               aid);
+    return isActionAuthorized("White pages forward", aid);
+  }
+
+
+  public boolean WPLookupOk(String agent)
+  {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Called WPLookupOk for " + agent);
+    }
+    Set targets = new HashSet();
+    ActionInstanceDescription aid = 
+      new ActionInstanceDescription(UltralogActionConcepts.WPLookup(),
+                                    ULOntologyNames.agentPrefix + agent,
+                                    targets);
+    return isActionAuthorized("White Pages Lookup Action", aid);
+  }
+
+  private boolean isActionAuthorized(String desc, 
+                                      ActionInstanceDescription aid)
+  {
+    ActionPermission ap = new ActionPermission(desc, aid);
     try {
       _guard.checkPermission(ap, null);
       return true;
     } catch (ServiceFailure sf) {
       _log.error("Something is broken so permission is denied for action "
-                       + aid);
+                        + aid);
       _log.error("Guard error = " + sf);
       return false;
     } catch (KAoSSecurityException sec) {
-      if (_log.isDebugEnabled()) {
-        _log.debug("Permission denied for action " + aid);
+      if (_log.isWarnEnabled()) {
+        _log.warn("Permission denied for action " + aid);
       }
       return false;
     }
