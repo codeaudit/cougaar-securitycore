@@ -134,7 +134,7 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
             }
           } catch (Exception e) {
             _log.warn("Can't remove signature requirement for agent pair " +
-                      target + ", " + source + ": " + e.getMessage());
+                      target + ", " + source + ": " + e, e);
           }
         }
         MessageAttributes meta = new SimpleMessageAttributes();
