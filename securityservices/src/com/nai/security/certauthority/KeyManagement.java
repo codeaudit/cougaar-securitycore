@@ -534,7 +534,7 @@ public class KeyManagement
       // 3. denied if no certificate and the certificate is saved to the denied
       //  directory
       // 4. if the request has never been issued
-        PendingCertCache pendingCache = PendingCertCache.getPendingCache(caDN, null);
+        PendingCertCache pendingCache = PendingCertCache.getPendingCache(caPolicy, this);
 
         X509CertImpl prevCert = null;
         PublicKey clientPubkey = clientX509.getPublicKey();
