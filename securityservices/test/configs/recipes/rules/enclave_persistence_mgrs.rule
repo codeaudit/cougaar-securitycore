@@ -16,6 +16,11 @@ society.each_node do |node|
       facetval = node.host.get_facet(:enclave)
       agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "EnclavePersistenceManager"
       node.add_agent(agentname) do |agent|
+        # The PM agent should not be restarted. Robustness of the PM
+        # is not supported by the standard robustness restart mechanism.
+        # This facet is used by the robustness manager
+        agent.add_facet({"Restartable" => 'false'})
+
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin"
         end
