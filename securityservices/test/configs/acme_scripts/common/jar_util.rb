@@ -1,7 +1,48 @@
-require 'framework/misc'
-require 'framework/message_util'
 require 'thread'
 
+if defined? File.rm_all == nil
+  # copied from misc so it isn't required in security services
+  class File
+    def self.rm_all(entry)
+      stat = nil
+      begin
+        stat = File.stat(entry)
+      rescue
+        return nil
+      end
+      if stat.directory?
+        Dir.foreach(entry) { |file|
+          if (file != "." && file != "..")
+            rm_all(File.join(entry,file))
+          end
+        }
+        Dir.unlink(entry)
+      else
+        File.unlink(entry)
+      end
+    end
+
+    def self.cp(fromFile, toFile)
+      begin
+        if File.stat(toFile).directory?
+          to = File.join(toFile, File.basename(fromFile))
+        end
+      rescue
+        # don't worry about it if the file doesn't exist
+      end
+      File.open(fromFile, "r") { |from|
+        File.open(toFile, "w") { |to|
+          while (!from.eof?)
+            buf = from.read(1000)
+            if (buf != nil)
+              to.write(buf)
+            end
+          end
+        }
+      }
+    end # cp
+  end # File
+end
 def createJar(contents_file, jar_file)
   `jar cf #{jar_file} #{contents_file}`
   jar_file
