@@ -11,22 +11,29 @@ conusCaHost1 = nil
 transCaHost1 = nil
 
 society.each_node do |node|
-  if node.name == 'REAR-CA-NODE'
-    rearCaHost = node.host.name 
-  elsif node.name == 'FWD-CA-NODE'
-    fwdCaHost = node.host.name 
-  elsif node.name == 'CONUS-CA-NODE'
-    conusCaHost = node.host.name 
-  elsif node.name == 'TRANS-CA-NODE'
-    transCaHost = node.host.name 
-  elsif node.name == 'REAR-CA1-NODE'
-    rearCaHost1 = node.host.name 
-  elsif node.name == 'FWD-CA1-NODE'
-    fwdCaHost1 = node.host.name 
-  elsif node.name == 'CONUS-CA1-NODE'
-    conusCaHost1 = node.host.name 
-  elsif node.name == 'TRANS-CA1-NODE'
-    transCaHost1 = node.host.name 
+  node.each_facet(:role) do |facet|
+    enclave = node.host.get_facet(:enclave)
+    if facet[:role] == 'CertificateAuthority'
+      if enclave == 'REAR'
+        rearCaHost = node.host.name 
+      elsif enclave == 'FWD'
+        fwdCaHost = node.host.name 
+      elsif enclave == 'CONUS'
+        conusCaHost = node.host.name 
+      elsif enclave == 'TRANS'
+        transCaHost = node.host.name
+      end
+    elsif facet[:role] == 'RedundantCertificateAuthority' 
+      if enclave == 'REAR'
+        rearCaHost1 = node.host.name 
+      elsif enclave == 'FWD'
+        fwdCaHost1 = node.host.name 
+      elsif enclave == 'CONUS'
+        conusCaHost1 = node.host.name 
+      elsif enclave == 'TRANS'
+        transCaHost1 = node.host.name 
+      end
+    end
   end
 end
 
@@ -34,61 +41,59 @@ caHttpPort = "8810"
 caHttpsPort = "9810"
 
 society.each_node do |node|
-  # Some of the  ** and node.name != ** tests are not necessary
-  # but it's helpful to remember that the component should not
-  # go in the CA node.
+  enclave = nil
   arg = nil
   arg1 = nil
-  if (node.name =~ /.*REAR.*/) \
-	and node.name != 'REAR-CA-NODE' \
-        and node.name != 'REAR-CA1-NODE'
-    # node agents in REAR enclave
-    arg = rearCaHost + ":RearEnclaveCaManager"
-    if rearCaHost1 != nil
-      arg1 = rearCaHost1 + ":RearEnclaveCa1Manager"
-    end
-  elsif (node.name =~ /.*FWD.*/) \
-	and node.name != 'FWD-CA-NODE' \
-        and node.name != 'FWD-CA1-NODE'
-    # node agents in FWD enclave
-    arg = fwdCaHost + ":FwdEnclaveCaManager"
-    if fwdCaHost1 != nil
-      arg1 = fwdCaHost1 + ":FwdEnclaveCa1Manager"
-    end
-  elsif (node.name == "NCA-NODE" \
-	 or node.name == "CONUS-NODE" \
-	 or node.name == "CONUS-MGMT-NODE") \
-        and node.name != 'CONUS-CA-NODE' \
-	and node.name != 'CONUS-CA1-NODE'
-    # node agents in CONUS enclave
-    arg = conusCaHost + ":ConusEnclaveCaManager"
-    if conusCaHost1 != nil
-      arg1 = conusCaHost1 + ":ConusEnclaveCa1Manager"
-    end
-  elsif (node.name =~ /.*TRANS.*/ \
-	 or node.name == "AIR-NODE" \
-	 or node.name == "SEA-NODE") \
-        and node.name != 'TRANS-CA-NODE' \
-	and node.name != 'TRANS-CA1-NODE'
-    # node agents in TRANS enclave
-    arg = transCaHost + ":TransEnclaveCaManager"
-    if transCaHost1 != nil
-      arg1 = transCaHost1 + ":TransEnclaveCa1Manager"
+  certAuthority = false
+  
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'RootCertificateAuthority' \
+     or facet[:role] == 'CertificateAuthority' \
+     or facet[:role] == 'RedundantCertificateAuthority'
+      certAuthority = true
     end
   end
 
-  if arg != nil
-    arg = arg + ":" + caHttpPort + ":" + caHttpsPort
-    if arg1 != nil
-      arg1 = arg1 + ":" + caHttpPort + ":" + caHttpsPort
+  if not certAuthority
+
+    facetval = node.host.get_facet(:enclave)
+    enclave = facetval[0..0] + facetval[1..facetval.length].downcase
+
+    if enclave == 'Rear'
+      arg = rearCaHost + ":RearEnclaveCaManager"
+      if rearCaHost1 != nil
+        arg1 = rearCaHost1 + ":RearEnclaveCa1Manager"
+      end
+    elsif enclave == 'Fwd'
+      arg = fwdCaHost + ":FwdEnclaveCaManager"
+      if fwdCaHost1 != nil
+        arg1 = fwdCaHost1 + ":FwdEnclaveCa1Manager"
+      end
+    elsif enclave == 'Conus'
+      arg = conusCaHost + ":ConusEnclaveCaManager"
+      if conusCaHost1 != nil
+        arg1 = conusCaHost1 + ":ConusEnclaveCa1Manager"
+      end
+    elsif enclave == 'Trans'
+      arg = transCaHost + ":TransEnclaveCaManager"
+      if transCaHost1 != nil
+        arg1 = transCaHost1 + ":TransEnclaveCa1Manager"
+      end
     end
-    node.agent.add_component do |c|
-      c.classname = "org.cougaar.core.security.crypto.AutoConfigPlugin"
-      c.priority = "HIGH"
-      c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-      c.add_argument(arg)
-      if (arg1 != nil)
-        c.add_argument(arg1)
+   
+    if arg != nil
+      arg = arg + ":" + caHttpPort + ":" + caHttpsPort
+      if arg1 != nil
+        arg1 = arg1 + ":" + caHttpPort + ":" + caHttpsPort
+      end
+      node.agent.add_component do |c|
+        c.classname = "org.cougaar.core.security.crypto.AutoConfigPlugin"
+        c.priority = "HIGH"
+        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+        c.add_argument(arg)
+        if (arg1 != nil)
+          c.add_argument(arg1)
+        end
       end
     end
   end
