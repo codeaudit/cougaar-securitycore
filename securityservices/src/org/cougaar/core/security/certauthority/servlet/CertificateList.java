@@ -119,11 +119,11 @@ public class CertificateList
       out.close();
       return;
     }
-    */
     CertDirServiceRequestor cdsr =
       new CertDirServiceRequestor(support.getServiceBroker(), cadnname);
+    */
     search = (CACertDirectoryService)
-      support.getServiceBroker().getService(cdsr, CACertDirectoryService.class, null);
+      support.getServiceBroker().getService(this, CACertDirectoryService.class, null);
 
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
