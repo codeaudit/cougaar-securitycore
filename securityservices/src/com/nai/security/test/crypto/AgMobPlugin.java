@@ -40,12 +40,17 @@ import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.core.mts.*;
+import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.domain.RootFactory;
 
 // Cougaar security services
 import org.cougaar.core.security.services.identity.*;
 
 public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin 
 {
+  private static final String moveCryptoVerb = "MoveCrypto";
+
   private AgentIdentityService aiService;
   private NodeIdentifier thisNodeID;
   private NodeIdentifier toNodeID;
@@ -58,7 +63,6 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
   /** The name of the window */
   private String frame_label;
   private ActionListener button_listener;
-  private ActionListener text_listener;
   private String button_label;
 
   // Swing components
@@ -67,7 +71,6 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
 
   public void setupSubscriptions()
   {
-
     // get our agent's ID
     thisAgentID = getBindingSite().getAgentIdentifier();
 
@@ -93,61 +96,60 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
 
     button_listener = new ActionListener() {
 	public void actionPerformed(ActionEvent e) {
+
+	  targetNode = textField.getText();
+	  // parse the destination node ID
+	  toNodeID = new NodeIdentifier(targetNode);
+	  System.out.println("Setting target Node to " + targetNode);
+
 	  if (targetNode != null) {
 	    initiateTransfer();
+	  }
+	  else {
+	    System.out.println("Target agent not specified");
 	  }
 	}
       };
 
-    text_listener = new ActionListener() {
-	public void actionPerformed(ActionEvent evt) {
-	  targetNode = textField.getText();
-	  // parse the destination node ID
-	  toNodeID = new NodeIdentifier(targetNode);
-	}
-      };
-
     initTransport();
-    frame_label = "Agent mobility test";
+    frame_label = "Agent mobility test" + thisNodeID.toAddress()
+      + "/" + thisAgentID.toAddress();
     button_label = "Bundle keys";
     createGUI();
   }
 
   private void initiateTransfer() {
     String agent = thisAgentID.toAddress();
-    String sourceAgent = thisNodeID.toAddress();
-    String targetAgent = toNodeID.toAddress();
+    String source = thisNodeID.toAddress();
+    String target = toNodeID.toAddress();
     TransferableIdentity ti =
-      aiService.initiateTransfer(agent, sourceAgent, targetAgent);
+      aiService.initiateTransfer(agent, source, target);
 
+    // create the move-message
     MoveCryptoMessage moveMsg = 
       new MoveCryptoMessage(
-	thisNodeID,  // tell my node
+	thisNodeID,
 	toNodeID,
 	ti);
-    System.out.println("Node "+thisNodeID+" sending "+moveMsg);
     mts.sendMessage(moveMsg);
-  }
-
-  private void completeTransfer(Message msg) {
-    System.out.println("Received Message: " + msg);
-    if (!(msg instanceof MoveCryptoMessage)) {
-      System.out.println("ERROR: not a MoveCryptoMessage");
-      return;
-    }
-    MoveCryptoMessage cmsg = (MoveCryptoMessage) msg;
-    TransferableIdentity ti = cmsg.getTransferableIdentity();
-
-    String sourceAgent = cmsg.getOriginator().toAddress();
-    String targetAgent = thisNodeID.toAddress();
-    aiService.completeTransfer(ti, sourceAgent, targetAgent);
   }
 
   public void execute()
   {
-    //    System.out.println("ReportCreatorPlugin.execute...");
   }
 
+  private void completeTransfer(Message msg) {
+    System.out.println("Received a message: " + msg.getClass().getName());
+    if (msg instanceof MoveCryptoMessage) {
+      String source = msg.getOriginator().toAddress();
+      String target = msg.getTarget().toAddress();
+      MoveCryptoMessage m = (MoveCryptoMessage) msg;
+      System.out.println("Received Transferable identity from "
+			 + source + " to " + target);
+      aiService.completeTransfer(m.getTransferableIdentity(),
+				 source, target);
+    }
+  }
 
   /**
    * Create a simple free-floating GUI button with a label
@@ -156,19 +158,39 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
   {
     JFrame frame = new JFrame(frame_label);
     frame.getContentPane().setLayout(new FlowLayout());
-    JPanel panel = new JPanel();
+
+    JPanel labelPane = new JPanel();
+    labelPane.setLayout(new GridLayout(0, 1));
+    JLabel targetLabel = new JLabel("Target Node ");
+    labelPane.add(targetLabel);
+    JLabel buttonLabel = new JLabel("");
+    labelPane.add(buttonLabel);
+
+    // Layout the text fields in a panel
+    JPanel fieldPane = new JPanel();
+    fieldPane.setLayout(new GridLayout(0, 1));
+
     // Create the button
     button = new JButton(button_label);
     textField = new JTextField(30);
 
     // Register a listener for the button
     button.addActionListener(button_listener);
-    textField.addActionListener(text_listener);
+    //textField.addActionListener(text_listener);
 
-    panel.add(button);
-    panel.add(textField);
+    fieldPane.add(textField);
+    fieldPane.add(button);
 
-    frame.getContentPane().add("Center", panel);
+    //Put the panels in another panel, labels on left,
+    //text fields on right
+    JPanel contentPane = new JPanel();
+    contentPane.setBorder(BorderFactory.createEmptyBorder(20, 20,
+                                                      20, 20));
+    contentPane.setLayout(new BorderLayout());
+    contentPane.add(labelPane, BorderLayout.CENTER);
+    contentPane.add(fieldPane, BorderLayout.EAST);
+
+    frame.getContentPane().add("Center", contentPane);
     frame.pack();
     frame.setVisible(true);
   }
@@ -195,4 +217,5 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
 	"Unable to get message transport service");
     }
   }
+
 }

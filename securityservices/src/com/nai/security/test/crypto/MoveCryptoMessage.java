@@ -30,6 +30,7 @@ package com.nai.security.test.crypto;
 import org.cougaar.core.agent.*;
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.node.*;
 
 // Cougaar security services
 import org.cougaar.core.security.services.identity.*;
@@ -44,6 +45,9 @@ public class MoveCryptoMessage
     MessageAddress aTarget,
     TransferableIdentity ti) {
     super(aSource, aTarget);
+
+    System.out.println("Creating message from " + aSource.toAddress()
+		       + " to " + aTarget.toAddress());
     this.ti = ti;
   }
 
