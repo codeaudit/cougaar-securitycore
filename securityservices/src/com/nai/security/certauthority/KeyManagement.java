@@ -40,6 +40,7 @@ import java.security.PublicKey;
 import sun.security.pkcs.*;
 import sun.security.x509.*;
 import sun.security.util.*;
+import sun.security.provider.*;
 
 import com.nai.security.policy.*;
 import com.nai.security.crypto.*;
@@ -102,7 +103,29 @@ public class KeyManagement
   {
     try {
       FileInputStream is = new FileInputStream(filename);
-      PKCS7 pkcs7 = new PKCS7(is);
+      X509Factory x509factory = new X509Factory();
+      Collection c = x509factory.engineGenerateCertificates(is);
+      System.out.println(c);
+      //BufferedReader is = new BufferedReader(new FileReader(filename));
+      //printPkcs7Request(is);
+   }
+    catch (Exception e) {
+      System.out.println("Exception: " + e);
+      e.printStackTrace();
+    }
+  }
+  public void printPkcs7Request(BufferedReader bufreader)
+  {
+    try {
+      int len = 200;     // Size of a read operation
+      char [] cbuf = new char[len];
+      String sbuf = null;
+      while (bufreader.ready()) {
+	bufreader.read(cbuf, 0, len);
+	sbuf = sbuf + new String(cbuf);
+      }
+      byte der[] = Base64.decode(sbuf.toCharArray());
+      PKCS7 pkcs7 = new PKCS7(der);
       System.out.println("PKCS7: " + pkcs7);
     }
     catch (Exception e) {
@@ -299,6 +322,13 @@ public class KeyManagement
     if (debug) {
       System.out.println("After signing: " + clientCertificate.toString());
     }
+    ByteArrayOutputStream ds = new ByteArrayOutputStream();
+    clientCertificate.encode(ds);
+
+    ByteArrayInputStream is = new ByteArrayInputStream( ds.toByteArray());
+    X509Factory x509factory = new X509Factory();
+    Collection c = x509factory.engineGenerateCertificates(is);
+    System.out.println(c);
 
     // Create the PKCS7 request
     pkcs7Certificate = new PKCS7(clientCertificate.getEncoded());
@@ -310,7 +340,7 @@ public class KeyManagement
     return pkcs7Certificate;
    }
 
-  public void buildPKCS7() {
+  public void buildPKCS7(CertificateX509Key signedCertificate) {
     AlgorithmId[] digestAlgorithmIds;
     ContentInfo contentInfo;
     X509Certificate[] x509certificate;

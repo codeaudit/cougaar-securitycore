@@ -37,8 +37,11 @@ import java.util.Collection;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Principal;
 import java.security.cert.*;
+
+import sun.security.pkcs.*;
 
 /** A common holder for Security keystore information and functionality
  **/
@@ -510,6 +513,12 @@ final public class KeyRing implements Runnable {
       }
     }
     return false;
+  }
+
+  /** Generate a PKCS10 request from a public key */
+  public byte[] generateSigningCertificateRequest(PublicKey key) {
+    PKCS10 request = new PKCS10(key);
+    return request.getEncoded();
   }
 }
 
