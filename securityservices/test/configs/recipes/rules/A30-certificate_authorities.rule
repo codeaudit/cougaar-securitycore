@@ -38,17 +38,21 @@ caInfoServlet = "/CA/CAInfoServlet"
  
 society.each_node do |node|
   agentname = ""
+  role = ""
   node.each_facet(:role) do |facet|
     if facet[:role] == 'RootCertificateAuthority'
       agentname = "RootCaManager"  
+      role = facet[:role]
     elsif facet[:role] == 'CertificateAuthority'
       facetval = node.host.get_facet(:enclave)
-      agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "EnclaveCaManager"
+      agentname = facetval.capitalize + "EnclaveCaManager"
+      role = facet[:role]
     end
   end
 
   if agentname != ""
     node.add_agent(agentname) do |agent|
+      agent.add_facet({"catype" => role})
       agent.add_component do |c|
 	c.classname = caServletComponentClass
 	c.add_argument(index)

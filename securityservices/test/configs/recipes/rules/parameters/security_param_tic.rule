@@ -346,6 +346,11 @@ end
 
 society.each_node do |node|
  node.each_facet(:role) do |facet|
+  # We need to specify the HTTP and HTTPS port number for
+  # every CA (root and subordinate CAs). This is useful when
+  # more than one node is running on a host, otherwise Tomcat
+  # would select a dynamically allocated port number.
+  #
   # should move the rundant stuff out to another rule
    if facet[:role] == 'CertificateAuthority' \
    or facet[:role] == 'RedundantCertificateAuthority'
@@ -365,5 +370,14 @@ society.each_node do |node|
     # The certificates need to be createdd first before this feature is turned on.
     node.override_parameter("-Dorg.cougaar.lib.web.https.port", "#{httpsport}")
   end
+
+  if facet[:role] == 'RootCertificateAuthority' 
+    httpport = 8820
+    httpsport = 9820
+    node.override_parameter("-Dorg.cougaar.lib.web.http.port", "#{httpport}")
+    node.override_parameter("-Dorg.cougaar.lib.web.https.port", "#{httpsport}")
+  end
+
  end
 end
+

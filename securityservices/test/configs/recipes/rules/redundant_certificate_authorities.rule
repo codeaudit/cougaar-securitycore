@@ -43,6 +43,7 @@ society.each_node do |node|
       agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "EnclaveCa1Manager"
       if agentname != ""
         node.add_agent(agentname) do |agent|
+	  agent.add_facet({"catype" => facet[:role]})
           agent.add_component do |c|
           	c.classname = caServletComponentClass
           	c.add_argument(index)

@@ -32,7 +32,7 @@ if cahost != nil
              #  2nd arg: Name of CA agent
              #  3rd arg: HTTP port number of CA
              #  4th arg: HTTPs port number of CA
-             c.add_argument(cahost + ":RootCaManager:8800:9800")
+             c.add_argument(cahost + ":RootCaManager:8820:9820")
           end
         end
       end

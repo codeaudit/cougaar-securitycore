@@ -2,45 +2,6 @@
 ####################################################
 # certificate_bootstrapper_enclaves.rule
 
-fwdCaHost = nil
-rearCaHost = nil
-conusCaHost = nil
-transCaHost = nil
-fwdCaHost1 = nil
-rearCaHost1 = nil
-conusCaHost1 = nil
-transCaHost1 = nil
-
-society.each_node do |node|
-  node.each_facet(:role) do |facet|
-    enclave = node.host.get_facet(:enclave)
-    if facet[:role] == 'CertificateAuthority'
-      if enclave == 'REAR'
-        rearCaHost = node.host.name 
-      elsif enclave == 'FWD'
-        fwdCaHost = node.host.name 
-      elsif enclave == 'CONUS'
-        conusCaHost = node.host.name 
-      elsif enclave == 'TRANS'
-        transCaHost = node.host.name
-      end
-    elsif facet[:role] == 'RedundantCertificateAuthority' 
-      if enclave == 'REAR'
-        rearCaHost1 = node.host.name 
-      elsif enclave == 'FWD'
-        fwdCaHost1 = node.host.name 
-      elsif enclave == 'CONUS'
-        conusCaHost1 = node.host.name 
-      elsif enclave == 'TRANS'
-        transCaHost1 = node.host.name 
-      end
-    end
-  end
-end
-
-caHttpPort = "8810"
-caHttpsPort = "9810"
-
 society.each_node do |node|
   enclave = nil
   arg = nil
@@ -58,40 +19,43 @@ society.each_node do |node|
   if not certAuthority
 
     facetval = node.host.get_facet(:enclave)
-    enclave = facetval[0..0] + facetval[1..facetval.length].downcase
+    enclave = facetval.capitalize
+    caAgent = nil
+    redundantCa = nil
 
-    if enclave == 'Rear'
-      arg = rearCaHost + ":RearEnclaveCaManager"
-      if rearCaHost1 != nil
-        arg1 = rearCaHost1 + ":RearEnclaveCa1Manager"
+    society.each_agent { |agent|
+      if (agent.node.host.get_facet(:enclave) == node.host.get_facet(:enclave))
+	agent.each_facet("catype") { |caFacet|
+	  if caFacet["catype"] == "CertificateAuthority"
+	    caAgent = agent
+	  end
+	  if caFacet["catype"] == "RedundantCertificateAuthority"
+	    redundantCa = agent
+	  end
+	  if redundantCa != nil && caAgent != nil
+	    break
+	  end
+	}
       end
-    elsif enclave == 'Fwd'
-      arg = fwdCaHost + ":FwdEnclaveCaManager"
-      if fwdCaHost1 != nil
-        arg1 = fwdCaHost1 + ":FwdEnclaveCa1Manager"
-      end
-    elsif enclave == 'Conus'
-      arg = conusCaHost + ":ConusEnclaveCaManager"
-      if conusCaHost1 != nil
-        arg1 = conusCaHost1 + ":ConusEnclaveCa1Manager"
-      end
-    elsif enclave == 'Trans'
-      arg = transCaHost + ":TransEnclaveCaManager"
-      if transCaHost1 != nil
-        arg1 = transCaHost1 + ":TransEnclaveCa1Manager"
-      end
+    }
+
+    if caAgent != nil
+      arg = "#{caAgent.node.host.name}:#{caAgent.name}:" +
+            "#{caAgent.node.cougaar_port}:#{caAgent.node.secure_cougaar_port}"
+    end
+    if redundantCa != nil
+      arg1 = "#{redundantCa.node.host.name}:#{redundantCa.name}:" +
+             "#{redundantCa.node.cougaar_port}:#{redundantCa.node.secure_cougaar_port}"
     end
    
-    if arg != nil
-      arg = arg + ":" + caHttpPort + ":" + caHttpsPort
-      if arg1 != nil
-        arg1 = arg1 + ":" + caHttpPort + ":" + caHttpsPort
-      end
+    if arg != nil || arg1 != nil
       node.agent.add_component do |c|
         c.classname = "org.cougaar.core.security.crypto.AutoConfigPlugin"
         c.priority = "HIGH"
         c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-        c.add_argument(arg)
+        if (arg != nil)
+          c.add_argument(arg)
+        end
         if (arg1 != nil)
           c.add_argument(arg1)
         end
