@@ -101,6 +101,16 @@ public class CAInfoServlet
       }
     }
 
+    // cert request will use https, so need to wait til server cert has
+    // been approved
+    l = krs.findCert(NodeInfo.getHostName(), KeyRingService.LOOKUP_KEYSTORE, true);
+    if (l == null || l.size() == 0) {
+      if (log.isWarnEnabled()) {
+        log.warn("Host cert has not been signed by CA yet.");
+      }
+      return null;
+    }
+
     if (log.isDebugEnabled()) {
       log.debug("replying with CA info.");
     }
