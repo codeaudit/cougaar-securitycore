@@ -368,7 +368,7 @@ final public class KeyRing
     return c;
   }
 
-  public synchronized Hashtable findCertPairFromNS(String source, String target)
+  public Hashtable findCertPairFromNS(String source, String target)
     throws CertificateException {
     return directoryKeystore.findCertPairFromNS(source, target);
   }
