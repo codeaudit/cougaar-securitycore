@@ -80,7 +80,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 	debug = (db.equalsIgnoreCase("true") || (db.indexOf("security")>=0));
     }
 
-    private void checkOrMakeProxy(String agent, boolean checkCert){
+    private void checkOrMakeProxy(String agent){
         if(proxies.contains(agent)) return;
         
         AccessPolicyProxy app = new AccessPolicyProxy(agent);
@@ -90,17 +90,16 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
             proxies.add(agent);
             if(debug)System.out.println("Making proxy for agent " + agent);
         }
-        if(checkCert){
-            //if we need to add proxy, there is a good chance we need a new certificate too
-            //so check for it
-            if(debug) System.out.println("checking certs for agent " + agent);
-            KeyRing.checkOrMakeCert(agent);
-        }
+        
+        //if we need to add proxy, there is a good chance we need a new certificate too
+        //so check for it
+        if(debug) System.out.println("checking certs for agent " + agent);
+        KeyRing.checkOrMakeCert(agent);
 
         return;
     }
     public synchronized TrustSet getIncomingTrust(String agent, String key) {
-        checkOrMakeProxy(agent, false);
+        checkOrMakeProxy(agent);
         HashMap h = (HashMap)crits.get(agent);
         if(h==null) h = (HashMap)crits.get("DEFAULT");
         if(h==null) return null;
@@ -125,7 +124,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     }
     
     public synchronized TrustSet getOutgoingTrust(String agent, String key) {
-        checkOrMakeProxy(agent,false);
+        checkOrMakeProxy(agent);
         HashMap h = (HashMap)crits.get(agent);
         if(h==null) h = (HashMap)crits.get("DEFAULT");
         if(h==null) return null;
@@ -150,7 +149,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     }
     
     public synchronized String getIncomingAction(String agent, String level){
-        checkOrMakeProxy(agent, true);
+        checkOrMakeProxy(agent);
         HashMap h = (HashMap)actions.get(agent);
         if(h==null) h = (HashMap)actions.get("DEFAULT");
         if(h==null) return null;
@@ -160,7 +159,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     }
     
     public synchronized String getOutgoingAction(String agent, String level){
-        checkOrMakeProxy(agent,true);
+        checkOrMakeProxy(agent);
         HashMap h = (HashMap)actions.get(agent);
         if(h==null) h = (HashMap)actions.get("DEFAULT");
         if(h==null) return null;
@@ -171,7 +170,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 
     public synchronized String getIncomingAgentAction(String target, 
 						     String source) {
-	checkOrMakeProxy(target, false);
+	checkOrMakeProxy(target);
 	HashMap h = (HashMap)agentActions.get(target);
 	if(h == null)h = (HashMap)agentActions.get("DEFAULT");
 	if(h == null) {
@@ -187,7 +186,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 
     public synchronized String getOutgoingAgentAction(String source, 
 						      String target) {
-	checkOrMakeProxy(source,false);
+	checkOrMakeProxy(source);
 	HashMap h = (HashMap)agentActions.get(source);
 	if(h == null)h = (HashMap)agentActions.get("DEFAULT");
 	if(h == null) {
@@ -210,7 +209,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 
 
     public synchronized Object[] getIncomingVerbs(String target, String source) {
-	checkOrMakeProxy(target,false);
+	checkOrMakeProxy(target);
 	try{
 	HashMap h = (HashMap)verbs.get(target);
 	if(h == null)h = (HashMap)verbs.get("DEFAULT");
@@ -238,7 +237,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     }
 
     public synchronized Object[] getOutgoingVerbs(String source, String target) {
-	checkOrMakeProxy(source,false);
+	checkOrMakeProxy(source);
 	HashMap h = (HashMap)verbs.get(source);
 	if(h == null)h = (HashMap)verbs.get("DEFAULT");
 	if(h == null) {

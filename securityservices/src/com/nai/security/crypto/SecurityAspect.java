@@ -374,7 +374,6 @@ public class SecurityAspect extends StandardAspect
 	//return true;
       String action;
 	try {
-            System.out.println("C-incoming:"+msg);
             action = acps.getIncomingAction
 		    (msg.getTarget().toString(), (String)t.getAttribute(MissionCriticality.name).getValue());
 	}
@@ -642,7 +641,6 @@ public class SecurityAspect extends StandardAspect
 	//return true;
       String act;
 	try {
-		System.out.println("C-outgoing:" + msg);
                 act = acps.getOutgoingAction
 		    (msg.getOriginator().toString(), (String)trust.getAttribute(MissionCriticality.name).getValue());
 	}
