@@ -164,6 +164,7 @@ public class SSLCipherSuites {
   public static final String TLS_DHE_DSS_WITH_RC4_128_SHA =
     "TLS_DHE_DSS_WITH_RC4_128_SHA";
 
+
   // SSL v2.0 cipher suites.
 
   public static final String SSL_CK_RC4_128_WITH_MD5 =
@@ -180,6 +181,12 @@ public class SSLCipherSuites {
     "SSL_CK_DES_64_CBC_WITH_MD5";
   public static final String SSL_CK_DES_192_EDE3_CBC_WITH_MD5 =
     "SSL_CK_DES_192_EDE3_CBC_WITH_MD5";
+
+
+  // How is this sorted
+  public static final String TLS_DHE_RSA_WITH_AES_128_CBC_SHA = 
+    "TLS_DHE_RSA_WITH_AES_128_CBC_SHA";
+
 
   private static final Set _weak   = new HashSet();
   private static final Set _strong = new HashSet();
@@ -261,7 +268,8 @@ public class SSLCipherSuites {
     SSL_CK_RC4_128_WITH_MD5,
     SSL_CK_RC2_128_CBC_WITH_MD5,
     SSL_CK_IDEA_128_CBC_WITH_MD5,
-    SSL_CK_DES_192_EDE3_CBC_WITH_MD5
+    SSL_CK_DES_192_EDE3_CBC_WITH_MD5,
+    TLS_DHE_RSA_WITH_AES_128_CBC_SHA
   };
 
   public static final String[] ALL = {
@@ -333,7 +341,8 @@ public class SSLCipherSuites {
     SSL_CK_RC2_128_CBC_EXPORT40_WITH_MD5,
     SSL_CK_IDEA_128_CBC_WITH_MD5,
     SSL_CK_DES_64_CBC_WITH_MD5,
-    SSL_CK_DES_192_EDE3_CBC_WITH_MD5
+    SSL_CK_DES_192_EDE3_CBC_WITH_MD5,
+    TLS_DHE_RSA_WITH_AES_128_CBC_SHA
   };
   
   static {
