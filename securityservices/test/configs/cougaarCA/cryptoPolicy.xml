@@ -40,7 +40,7 @@
         <sigAlgName>SHA1WithRSA</sigAlgName>
         <!-- The validity of self-signed certificates.
              This value is overriden when the CA signs the certificate. -->
-        <validity>1 M</validity>
+        <validity>10 y</validity>
       </certificateAttributes>
 
     </cryptoClientPolicy>
