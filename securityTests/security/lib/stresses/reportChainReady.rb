@@ -1,5 +1,6 @@
-
-CIP=ENV['CIP']
+if ! defined? CIP
+  CIP=ENV['CIP']
+end
 
 $:.unshift File.join(CIP, 'csmart', 'lib')
 
@@ -64,6 +65,12 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def afterReportChainReady
+    if ! checkBlackBoardCollectorPlugin then
+      logInfoMsg("BlackBoardCollectorPlugin not installed")
+      logInfoMsg("Report Chain Ready script exiting...")
+      logInfoMsg("Command line tool still viable.")
+      return
+    end
     Thread.fork do
       logInfoMsg("calling afterReportChainReady for reportforDuty script") if $VerboseDebugging
       begin
@@ -94,9 +101,9 @@ class TestReportChainReady < SecurityStressFramework
     found     = @foundSubordinates[superior]
     if @cmdline then
       if found then
-        puts "found subordinates #{found.join(" ")}"
+        puts "These subordinates reported: #{found.join(" ")}"
       else 
-        puts "no subordinates found"
+        puts "No subordinates reported"
       end
     end
     badChains = []
@@ -128,20 +135,13 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def parseLine(line)
-#    regexp = /Interception: ReportForDuty with role : <(.*)> : <(.*)> : (.*)/
     regexp = /Interception: ReportChainReady : (.*) : (.*)$/
     parsed = regexp.match(line)
     if parsed != nil
       subordinate = parsed.to_a[1].split(" ").last
       superior    = parsed.to_a[0].split(" ").last
-#      role        = parsed.to_a[3]
-#      if role == "Subordinate"
       if (!(subordinate == superior)) then
         addFoundSubordinate(subordinate, superior)
-#        if superior == "OSD.GOV" then
-#          puts("subordinate = #{subordinate}")
-#          puts(line)
-#        end
       end
     end
   end
@@ -154,6 +154,14 @@ class TestReportChainReady < SecurityStressFramework
         parseLine(line)
       end
     end
+    if (@foundSubordinates.empty?) then
+      puts("No subordinates appear to have reported.  This could mean:")
+      puts("\t1. no subordinates reported")
+      puts("\t2. The BlackBoardCollectorPlugin is missing")
+      puts("\t\tUse the rule ServiceContractPlugin.rule")
+      puts("\t3. Events aren't finding their way into acme_events.log")
+      exit(-1)
+    end    
     puts("getting ready to calculate bad chains")
     generateReport()
   end
@@ -173,6 +181,23 @@ class TestReportChainReady < SecurityStressFramework
       print "All agents reported for duty"
     end
     badChains.empty?
+  end
+
+  def checkBlackBoardCollectorPlugin ()
+    scPlugin = "org.cougaar.core.security.test.BlackBoardCollectorPlugin"
+    @run.society.each_agent do |agent|
+      #puts "Looking at agent #{agent.name}"
+      #puts "target plugin name = #{scPlugin}"
+      agent.each_component do |component|
+        #puts "looking at component #{component.classname}"
+        if component.classname == scPlugin then
+          #puts "Found the component!"
+          return true
+        end
+      end
+      break
+    end
+    return false
   end
 
   def print(msg)
