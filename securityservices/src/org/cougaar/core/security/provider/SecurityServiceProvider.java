@@ -299,9 +299,12 @@ public class SecurityServiceProvider
       rootServiceBroker.addService(EncryptionService.class, this);
 
       /* Data protection service */
+      /* turn off the data protection service. It seems to 
+         be causing us problems by being too slow or something...
       services.put(DataProtectionService.class,
                    new DataProtectionServiceProvider());
       rootServiceBroker.addService(DataProtectionService.class, this);
+      */
 
       /* Message protection service */
       services.put(MessageProtectionService.class,
