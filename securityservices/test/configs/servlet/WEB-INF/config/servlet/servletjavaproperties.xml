@@ -5,11 +5,11 @@
     <author>Rakesh</author>
 <servletjavaproperties>
         <propertyname>org.cougaar.security.CA.certpath</propertyname>
-        <propertyvalue>/var/tomcat4/webapps/CA/WEB-INF/config/certauthority</propertyvalue>
+        <propertyvalue>TOMCAT_DIR/webapps/CA_APP_DIR/WEB-INF/config/certauthority</propertyvalue>
 </servletjavaproperties>
 <servletjavaproperties>
         <propertyname>org.cougaar.security.crypto.config</propertyname>
-        <propertyvalue>/var/tomcat4/webapps/CA/WEB-INF/config/certauthority/cryptoPolicy.xml</propertyvalue>
+        <propertyvalue>TOMCAT_DIR/webapps/CA_APP_DIR/WEB-INF/config/certauthority/cryptoPolicy.xml</propertyvalue>
 </servletjavaproperties>
 <servletjavaproperties>
         <propertyname>org.cougaar.security.keystore.password</propertyname>
