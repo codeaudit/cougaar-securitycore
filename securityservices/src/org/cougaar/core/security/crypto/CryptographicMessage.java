@@ -35,7 +35,6 @@ import java.security.PrivateKey;
 
 import sun.security.pkcs.*;
 import sun.security.x509.*;
-import sun.security.util.BigInt;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -220,8 +219,7 @@ public class CryptographicMessage
     // Initialize the signer info (PKCS#7 CMS)
     // TODO: should it be subject DN or issuer DN?
     X500Name signerName = (X500Name)signerCertificate.getSubjectDN();
-    java.math.BigInteger biginteger = signerCertificate.getSerialNumber();
-    BigInt signerSerialNumber = new BigInt(biginteger);
+    java.math.BigInteger signerSerialNumber = signerCertificate.getSerialNumber();
 
     digestAlgorithms = new AlgorithmId[1];
     digestAlgorithms[0] = signerDigestAlgorithmId;

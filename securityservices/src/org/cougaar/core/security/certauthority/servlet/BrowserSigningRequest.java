@@ -32,6 +32,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.security.*;
 import java.security.cert.*;
+import java.math.BigInteger;
 import sun.security.x509.*;
 import sun.security.util.*;
 import sun.security.pkcs.*;
@@ -485,7 +486,11 @@ public class BrowserSigningRequest
       _subject = subject;
     }
 
-    public static PKCS10 createPKCS10(String b64) throws IOException, SignatureException, NoSuchAlgorithmException {
+    /**
+     * Create a PKCS10 object from a Base-64 encoded Certificate Signing Request.
+     */
+    public static PKCS10 createPKCS10(String b64)
+      throws IOException, SignatureException, NoSuchAlgorithmException {
       byte bytes[] = Base64.decode(b64.toCharArray());
       DerInputStream derinputstream = new DerInputStream(bytes);
       DerValue adervalue[] = derinputstream.getSequence(3);
@@ -494,9 +499,10 @@ public class BrowserSigningRequest
       bytes = adervalue[0].toByteArray();
       AlgorithmId algorithmid = AlgorithmId.parse(adervalue[1]);
       byte sig[] = adervalue[2].getBitString();
-      BigInt bigint = adervalue[0].data.getInteger();
-      if(bigint.toInt() != 0)
+      BigInteger bigint = adervalue[0].data.getBigInteger();
+      if(bigint.intValue() != 0) {
         throw new IllegalArgumentException("not PKCS #10 v1");
+      }
 
       X500Name subject = new X500Name(adervalue[0].data);
       PublicKey pubKey = X509Key.parse(adervalue[0].data.getDerValue());
