@@ -70,7 +70,7 @@ public class CommunityServiceUtil {
   public static final String MEMBER_ROLE = "Member";
   private static final String ROLE_FILTER = "(Role=" + MANAGER_ROLE +")";
   private static final String ROLE_MEMBER_FILTER = "(Role=" + MEMBER_ROLE +")";
-  private static final String ROOT_FILTER = "(&(Role=" + MANAGER_ROLE +")" +
+  private static final String ROOT_FILTER = "(&(Role=" + MANAGER_ROOT +")" +
   "(Role=" + MANAGER_ROOT + "))";
 
   
@@ -242,7 +242,7 @@ public class CommunityServiceUtil {
                  " for which " + _agent + " does not have role " + notRole);
     }
   }
-   /**
+  /**
    * Retrieves the communities that the current agent belongs to.
    * If the current agent does not belong to any community of the
    * given type, the callback is called every time agent is added to 
@@ -256,7 +256,7 @@ public class CommunityServiceUtil {
    *                 of the lookup.
    */
   public void getCommunityWithUpdates(String communityType, 
-                           CommunityServiceUtilListener listener) {
+                                      CommunityServiceUtilListener listener) {
     if(_log.isDebugEnabled()) {
       _log.debug("getCommunity called for agent : "+_agent);
     }
@@ -280,8 +280,8 @@ public class CommunityServiceUtil {
    *                 of the lookup.
    */
   public void getCommunityWithUpdates(String communityType, 
-                           String role, 
-                           CommunityServiceUtilListener listener) {
+                                      String role, 
+                                      CommunityServiceUtilListener listener) {
     if (_log.isDebugEnabled()) {
       _log.debug("Agent "+ _agent+" In getCommunityWithUpdates () Looking for community of type " + communityType);
     }
@@ -908,10 +908,10 @@ public class CommunityServiceUtil {
     private boolean                      _containsRole;
 
     public GetCommunityWithUpdates(CommunityServiceUtilListener listener, 
-                        WarnSchedulable timerTask,
-                        String communityType,
-                        String role,
-                        boolean containsRole) {
+                                   WarnSchedulable timerTask,
+                                   String communityType,
+                                   String role,
+                                   boolean containsRole) {
       _communityType = communityType;
       _role          = role;
       _listener      = listener;
@@ -1220,7 +1220,7 @@ public class CommunityServiceUtil {
     public void getResponse(CommunityResponse resp) {
       if(_log.isDebugEnabled()) {
         _log.debug ("Result listener called :"+ this + " - Status: " +
-	  resp.getStatusAsString());
+                    resp.getStatusAsString());
       }
       if (resp.getStatus() == resp.SUCCESS) {
         Object response = resp.getContent();
@@ -1317,8 +1317,22 @@ public class CommunityServiceUtil {
           event.getType() != event.ADD_ENTITY) {
         return; // not a change we care about
       }
-
       Community community = event.getCommunity();
+      if(_communityName!=null){
+        if(!(community.getName().equals(_communityName))){
+          if (_log.isDebugEnabled()) {
+            _log.debug("Agent "+ _agent+" " +community.getName() + " is not the community  .We are looking for " +_communityName);
+            _log.debug("Waiting for response in agent : "+_agent + " in GetAgentInCommunity CommunityChangeListener when community name are not same ");
+          }
+          return;
+        }
+      }
+      else {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Agent "+ _agent+ "community :  " +community.getName() + " Passed Communityname is null:");
+        }
+      }
+      
       if (!isCommunityType(community,CommunityServiceUtil.SECURITY_COMMUNITY_TYPE)) {
         if (_log.isDebugEnabled()) {
           _log.debug("Agent "+ _agent+" " +community.getName() + " is not of type " + 
@@ -1335,6 +1349,7 @@ public class CommunityServiceUtil {
                    event.getWhatChanged());
       }
       printCommunityInfo(community);
+      
       // Now while I understand that if the CommunityService is telling
       // me about this community, I must be a member, I don't trust it.
       // I'll check the membership.
