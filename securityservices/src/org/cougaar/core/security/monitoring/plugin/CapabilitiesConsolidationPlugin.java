@@ -23,21 +23,6 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.StateModelException ;
-import org.cougaar.planning.ldm.plan.*;
-import org.cougaar.planning.ldm.asset.*;
-import org.cougaar.core.service.*;
-import org.cougaar.core.security.monitoring.blackboard.NewEvent;
-import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.domain.RootFactory;
-import org.cougaar.core.domain.Factory;
-import org.cougaar.core.security.monitoring.blackboard.CmrObject;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.idmef.*;
-
 import java.util.Enumeration;
 import java.util.Collection;
 import java.util.ArrayList;
@@ -46,6 +31,24 @@ import java.util.Vector;
 
 import edu.jhuapl.idmef.*;
 
+// Cougaar core services
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.util.UnaryPredicate;
+import org.cougaar.util.StateModelException ;
+import org.cougaar.planning.ldm.plan.*;
+import org.cougaar.planning.ldm.asset.*;
+import org.cougaar.core.service.*;
+import org.cougaar.core.domain.RootFactory;
+import org.cougaar.core.domain.Factory;
+
+// Cougaar security services
+import org.cougaar.core.security.monitoring.blackboard.NewEvent;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.blackboard.CmrObject;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.blackboard.CapabilitiesObject;
+import org.cougaar.core.security.monitoring.idmef.*;
 
 class ModifiedCapabilitiesPredicate implements UnaryPredicate{
   public boolean execute(Object o) {
@@ -57,7 +60,6 @@ class ModifiedCapabilitiesPredicate implements UnaryPredicate{
     return ret;
   }
 }
-
 
 /**
  *

@@ -50,7 +50,4 @@ public class TestDummySensor implements SensorInfo {
   public String getAnalyzerClass(){
     return "<class>";
   }
-      
-
-
 }
