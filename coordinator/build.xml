@@ -178,7 +178,6 @@
   	    <mkdir dir="${securityservices.staging}/Manifest"/>
 <!--
      	<mkdir dir="${securityservices.staging}/configs/security"/>
-  	    <mkdir dir="${securityservices.staging}/csmart/config/rules/security"/>
         <copy todir="${securityservices.staging}/configs/security">
           <fileset dir="${securityservices.configs}/security">
              <patternset>
@@ -189,7 +188,8 @@
         <copy file="${securityservices.signed}/configs_${project.name}.jar" 
           todir="${securityservices.staging}/configs/security"/>
 -->
-        <copy todir="${securityservices.staging}/csmart/config/rules/security/">
+  	<mkdir dir="${securityservices.staging}/csmart/config/rules/security/coordinator"/>
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/coordinator">
             <fileset dir="${securityservices.configs}/rules">
                 <patternset>
                     <include name="*.rule"/>
