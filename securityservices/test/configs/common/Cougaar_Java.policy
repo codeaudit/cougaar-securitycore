@@ -97,6 +97,9 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webserver.jar" signed
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
         permission java.util.PropertyPermission "java.protocol.handler.pkgs", "read,write";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.SecurityPropertiesService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.ConfigParserService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.KeyRingService";
 };
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webtomcat.jar" signedBy "privileged" {
         permission java.security.SecurityPermission "getPolicy";
@@ -118,12 +121,38 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "p
 	permission java.util.PropertyPermission "*", "read, write";
         permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
         permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLServerFactory.getDefault";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.SecurityPropertiesService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.PolicyBootstrapperService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.service.identity.AgentIdentityService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.ConfigParserService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.SSLService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.KeyRingService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.EncryptionService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertValidityService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CryptoPolicyService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.service.DataProtectionService";
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}util.jar" signedBy "privileged" {
         permission java.security.SecurityPermission "getPolicy";
         permission java.lang.RuntimePermission "getClassLoader";
 	permission java.lang.RuntimePermission "createClassLoader";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.SecurityPropertiesService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.PolicyBootstrapperService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.ConfigParserService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.service.identity.AgentIdentityService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.SSLService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.KeyRingService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.EncryptionService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertValidityService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CryptoPolicyService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.service.DataProtectionService";
+};
+
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}safe.jar" signedBy "privileged" {
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.SecurityPropertiesService";	
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.PolicyBootstrapperService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.ConfigParserService";
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}sys${/}quoSumo.jar" signedBy "privileged" {
@@ -144,6 +173,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
 	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
         permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
         permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLServerFactory.getDefault";
+ 	permission org.cougaar.core.security.provider.SecurityServicePermission "*";	
 };
 
 ////////////////////////////////////////////////////////////
