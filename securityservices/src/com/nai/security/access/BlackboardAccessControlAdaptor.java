@@ -238,4 +238,12 @@ public class BlackboardAccessControlAdaptor implements
 	return null;		// this will break but we need it to compile
 	//return service.getPersistence();
     }    
+
+    //
+    // This method in the BlackboardForAgent interface is new in 8.6.2.
+    // This is a stub implementation.
+    //
+    public void restartAgent(ClusterIdentifier cid) {
+        System.err.println("WARNING: com.nai.security.access.BlackboardAccessControlAdapter.restartAgent() not implemented. cid="+cid);
+    }
 }
