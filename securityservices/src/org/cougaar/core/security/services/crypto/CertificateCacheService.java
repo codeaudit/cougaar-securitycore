@@ -105,4 +105,5 @@ public interface CertificateCacheService extends Service {
   boolean checkRevokedCache(X509Certificate certificate);
   void addToRevokedCache(String issuerDN, BigInteger serialno) ;
   void addTrustListener(TrustManager tm);
+  void event(String evt);
 }

@@ -1901,6 +1901,13 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 
   }
 
+  public void event(String evt) {
+    if(_eventService == null || !_eventService.isEventEnabled()) {
+      return;
+    }
+    _eventService.event(evt);
+  }
+
   private class MyServiceAvailableListener implements ServiceAvailableListener{
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
