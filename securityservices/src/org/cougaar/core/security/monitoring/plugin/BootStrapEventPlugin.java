@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.Iterator;
 import java.util.Date;
+import java.util.Collection;
 import java.lang.reflect.*;
 import java.security.Principal;
 
@@ -44,9 +45,12 @@ import org.cougaar.core.agent.*;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceAvailableListener;
 */
+
+import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.service.LoggingService;
 
 import org.cougaar.core.security.securebootstrap.CougaarSecurityManager;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
@@ -62,6 +66,14 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
   
   private EventHolder eventholder=null;
   private DomainService domainService = null;
+  private String mgrrole=null;
+  private AttributeBasedAddress mgrAddress;
+  private String sensor_name=null;
+  private String dest_community=null;
+  private Object param;
+  private ClusterIdentifier destcluster;
+  private String dest_agent;
+  private LoggingService log; 
 
   public void setDomainService(DomainService aDomainService) {
     domainService = aDomainService;
@@ -73,7 +85,14 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
   public DomainService getDomainService() {
     return domainService;
   }
+  
+   public void setParameter(Object o){
+    this.param=o;
+  }
 
+  public java.util.Collection getParameters() {
+    return (Collection)param;
+  }
 
   /**
    * subscribe to
@@ -85,7 +104,29 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
       System.out.println(" Unusual error either bbservice or domain service is null:");
       
     }
+     log = (LoggingService)
+      getBindingSite().getServiceBroker().getService(this,
+	LoggingService.class, null);
+     Collection col=getParameters();
+     if(col.size()>3) {
+      log.debug("setupSubscriptions of TestDummy sensorPlugin called  too many parameters :"); 
+    }
+    if(col.size()!=0){
+      String params[]=new String[1];
+      String parameters[]=(String[])col.toArray(new String[0]);
+      mgrrole=parameters[0];
+      if(col.size()>1)
+	sensor_name=parameters[1];
+      if(col.size()>2)
+      dest_community=parameters[2];
+      if(col.size()>3){
+	dest_agent=parameters[3];
+	destcluster=new ClusterIdentifier(dest_agent);
+      }
+    }
     //System.out.println(" Going to register with event Holder from  setupSubscriptions ===========>: This is Event Service:");
+    if( dest_community!=null)
+      mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
     registercapabilities();
     registerforEvents();
    
@@ -230,10 +271,10 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
       ob=method.invoke(sm,args);
       Class [] param={Observer.class};
       method=ob.getClass().getMethod("register",param);
-       Object oobj=null;
-       System.out.println(" observer being passed is :"+this.toString());
-       Object[] argss={this};
-       oobj=method.invoke(ob,argss);
+      Object oobj=null;
+      System.out.println(" observer being passed is :"+this.toString());
+      Object[] argss={this};
+      oobj=method.invoke(ob,argss);
     }
      catch(Exception iexp) {
      iexp.printStackTrace();
@@ -269,7 +310,11 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
 				       capabilities,IdmefMessageFactory.newregistration,IdmefMessageFactory.SensorType);
      NewEvent event=factory.newEvent(reg);
      System.out.println(" going to publish capabilities in event Service  :");
-    bbservice.publishAdd(event); 
+    CmrRelay  relay ;
+    relay= factory.newCmrRelay(event,mgrAddress);
+    //relay= factory.newCmrRelay(event,destcluster);
+    //getBlackboardService().publishAdd(relay);
+    bbservice.publishAdd(relay); 
     
   }
    public String getName(){
@@ -288,4 +333,5 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     return "Security Analyzer";
   }
 
+   
 }
