@@ -37,10 +37,12 @@ import org.cougaar.util.UnaryPredicate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
+import java.util.Map;
+import java.util.HashMap;
 
 class QueryRespondRelayPredicate implements  UnaryPredicate{
   MessageAddress myAddress;
@@ -52,9 +54,8 @@ class QueryRespondRelayPredicate implements  UnaryPredicate{
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
       ret = ((relay.getSource().equals(myAddress)) &&
-          (relay.getContent() instanceof MRAgentLookUp) &&
-          (relay.getResponse() instanceof MRAgentLookUpReply)
-             );
+             (relay.getContent() instanceof MRAgentLookUp) &&
+             (relay.getResponse() instanceof MRAgentLookUpReply));
     }
     return ret;
   }
@@ -84,7 +85,8 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
   
   private IncrementalSubscription queryResponse;
   private IncrementalSubscription querymapping;
-  
+  private final Map latestCallBack = Collections.synchronizedMap(new HashMap());
+
   protected synchronized void setupSubscriptions() {
   
     super.setupSubscriptions();
@@ -100,9 +102,9 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
     Collection addedQueryMappingCollection;
     if(querymapping.hasChanged()) {
       addedQueryMappingCollection=querymapping.getAddedCollection();
-      if(addedQueryMappingCollection.size()>0) {
+      if(!addedQueryMappingCollection.isEmpty()) {
         CapabilitiesObject capObj = null;
-        Collection capabilitiesCollection =getBlackboardService().query( new CapObjPredicate());
+        Collection capabilitiesCollection = getBlackboardService().query( new CapObjPredicate());
         Iterator i = capabilitiesCollection.iterator();
         // there should only be one capabilities object
         if(i.hasNext()) {
@@ -129,13 +131,11 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
       if(mapping.getRelayUID()!=null) {
         relay=findCmrRelay(mapping.getRelayUID());
         if(relay!=null) {
-          if(!relay.getSource().equals(myAddress)){
-            processLocalSensors(capObj,relay);
-          }
-          else {
-            loggingService.error("ERROR in mapping or findCmrRelay function");  
-          }
-        }// end if(relay!=null) 
+          processLocalSensors(capObj,relay);
+        }// end if(relay!=null)
+        else {
+          loggingService.error("ERROR in findCmrRelay function"+ mapping.getRelayUID()); 
+        }
       }// end if(mapping.getRelayUID()!=null)
     }// end while
     
@@ -149,6 +149,12 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
     QueryMapping mapping;
     while(iter.hasNext()) {
       relay=(CmrRelay) iter.next();
+      if(isRelayQueryOriginator(relay.getUID(),queryMapCollection)){
+        if(loggingService.isDebugEnabled()) {
+          loggingService.debug(" Got Local query :"+relay.getUID()); 
+        }
+        continue;
+      }
       if(relay.getResponse() != null) {
         if (loggingService.isDebugEnabled()) {
           loggingService.debug(" Going to look for query mapping object with UID :"+ relay.getUID());
@@ -207,6 +213,21 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
           String key=null;
           RegistrationAlert reg;
           MessageAddress dest_address;
+          if(latestCallBack.containsKey(relay.getUID())) {
+            FindAgentCallback callback=(FindAgentCallback )latestCallBack.get(relay.getUID());
+            if(!this.equals(callback)) {
+              if (loggingService.isDebugEnabled()) {
+                loggingService.debug(" Call Back of FindAgentCallback is not current . Ignoring call back");
+              }
+              return ;
+            }
+          }
+          else {
+            if (loggingService.isDebugEnabled()) {
+              loggingService.debug(myAddress + " In responder relay uid is not in list of active call back list" +relay.getUID());  
+            }
+            return;
+          }
           if(res.isEmpty()) {
             if (loggingService.isDebugEnabled()) {
               loggingService.debug("No Local agents are present with the capabilities. Returning");
@@ -238,6 +259,10 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
           getBlackboardService().publishChange(relay); 
         }
       };
+    if (loggingService.isDebugEnabled()) {
+      loggingService.debug( myAddress +" In responder Plugin Adding latest callback id for relay "+relay.getUID() + " callback id is :"+fac );  
+    }
+    latestCallBack.put(relay.getUID(),fac);  
     findAgent(query,capObj,true, fac);
     
   }
@@ -301,15 +326,15 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
           }
           else {
             loggingService.error("Lookup query marked as completed, but at least one response is null. "
-                + "Subquery:" + response_relay.toString()
-                + ". Original query:" + relay.toString());
+                                 + "Subquery:" + response_relay.toString()
+                                 + ". Original query:" + relay.toString());
           }
         }
         else {
 	  
           if (loggingService.isDebugEnabled())
             loggingService.debug(" Could not find UID:"+ outstandingquery.getUID()+
-                "in Update response of agent :"+myAddress.toString());
+                                 "in Update response of agent :"+myAddress.toString());
         }
       }
       // there is a possibility that the current relay contains a response
