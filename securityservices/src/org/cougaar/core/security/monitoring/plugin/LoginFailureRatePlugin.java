@@ -70,26 +70,6 @@ import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.util.UnaryPredicate;
 
-import org.cougaar.lib.aggagent.query.AlertDescriptor;
-import org.cougaar.lib.aggagent.query.AggregationQuery;
-import org.cougaar.lib.aggagent.query.QueryResultAdapter;
-import org.cougaar.lib.aggagent.query.ResultSetDataAtom;
-import org.cougaar.lib.aggagent.query.ScriptSpec;
-import org.cougaar.lib.aggagent.query.AggregationResultSet;
-
-import org.cougaar.lib.aggagent.session.UpdateDelta;
-import org.cougaar.lib.aggagent.session.SessionManager;
-import org.cougaar.lib.aggagent.session.XMLEncoder;
-import org.cougaar.lib.aggagent.session.SubscriptionAccess;
-import org.cougaar.lib.aggagent.session.IncrementFormat;
-
-import org.cougaar.lib.aggagent.util.Enum.QueryType;
-import org.cougaar.lib.aggagent.util.Enum.Language;
-import org.cougaar.lib.aggagent.util.Enum.AggType;
-import org.cougaar.lib.aggagent.util.Enum.ScriptType;
-import org.cougaar.lib.aggagent.util.Enum.UpdateMethod;
-import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
-
 /**
  * Queries for LOGINFAILURE IDMEF messages and creates a LOGIN_FAILURE_RATE
  * condition from the results. The arguments to the plugin
@@ -109,21 +89,16 @@ import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
  * <pre>
  * [ Plugins ]
  * plugin = org.cougaar.core.servlet.SimpleServletComponent(org.cougaar.planning.servlet.PlanViewServlet, /tasks)
- * plugin = org.cougaar.core.security.monitorin.plugin.LoginFailureRatePlugin(20,60,SocietySecurityManager)
+ * plugin = org.cougaar.core.security.monitorin.plugin.LoginFailureRatePlugin(20,60)
+ * plugin = org.cougaar.core.security.monitoring.plugin.LoginFailureQueryPlugin(SocietySecurityManager)
  * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
  * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
  * </pre>
  *
  * @author George Mount <gmount@nai.com>
  */
-public class LoginFailureRatePlugin extends LoginFailureQueryPluginBase {
+public class LoginFailureRatePlugin extends ComponentPlugin {
   final static long SECONDSPERDAY = 60 * 60 * 24;
-
-  /** predicate script for the aggregation query */
-  /** format script for the aggregation query */
-  private static final ScriptSpec FORMAT_SPEC =
-    new ScriptSpec(Language.JAVA,  XmlFormat.INCREMENT,
-                   FormatLoginFailure.class.getName());
 
   /** 
    * The number of seconds that the poll can be delayed before there
@@ -160,11 +135,35 @@ public class LoginFailureRatePlugin extends LoginFailureQueryPluginBase {
   protected long   _startTime       = System.currentTimeMillis();
 
   /**
-   * The Agent name to make a request to for Login Failure sensor
-   * names
+   * Subscription to the login failures on the local blackboard
    */
-  protected String _socSecMgrAgent  = null;
+  protected IncrementalSubscription _loginFailureQuery;
 
+  /**
+   * The predicate indicating that we should retrieve all new
+   * login failures
+   */
+  private static final UnaryPredicate LOGIN_FAILURES_PREDICATE = 
+    new UnaryPredicate() {
+      public boolean execute(Object o) {
+        if (o instanceof Event) {
+          IDMEF_Message msg = ((Event) o).getEvent();
+          if (msg instanceof Alert) {
+            Alert alert = (Alert) msg;
+            Classification cs[] = alert.getClassifications();
+            if (cs != null) {
+              for (int i = 0; i < cs.length; i++) {
+                if (KeyRingJNDIRealm.LOGIN_FAILURE_ID.equals(cs[i].getName())) {
+                  return true;
+                }
+              }
+            }
+          }
+        }
+        return false;
+      }
+    };
+    
   /**
    * Gets the poll interval (seconds between LOGIN_FAILURE_RATE updates)
    * and window (the number of seconds over which the LOGIN_FAILURE_RATE
@@ -192,9 +191,6 @@ public class LoginFailureRatePlugin extends LoginFailureQueryPluginBase {
       param = iter.next().toString();
       _window = Integer.parseInt(param);
       
-      paramName = "society security manager agent name";
-      param = iter.next().toString();
-      _socSecMgrAgent = param;
     } catch (NoSuchElementException e) {
       throw new IllegalArgumentException("You must provide a " +
                                         paramName +
@@ -217,21 +213,7 @@ public class LoginFailureRatePlugin extends LoginFailureQueryPluginBase {
   }
 
   /**
-   * Returns the society security manager agent name
-   */
-  protected String getSocietySecurityManagerAgent() {
-    return _socSecMgrAgent;
-  }
-
-  /**
-   * returns the format ScriptSpec used in the AggregationQuery
-   */
-  protected ScriptSpec getFormatScriptSpec() {
-    return FORMAT_SPEC;
-  }
-
-  /**
-   * Sets up the AggregationQuery and login failure rate task for
+   * Sets up the login failure rate task for
    * updating the rate at the interval specified in the configuartion
    * parameters. 
    */
@@ -239,7 +221,8 @@ public class LoginFailureRatePlugin extends LoginFailureQueryPluginBase {
     _log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
 
-    super.setupSubscriptions();
+    _loginFailureQuery = (IncrementalSubscription)
+      getBlackboardService().subscribe(LOGIN_FAILURES_PREDICATE);
 
     ThreadService ts = (ThreadService) getServiceBroker().
       getService(this, ThreadService.class, null);
@@ -248,23 +231,16 @@ public class LoginFailureRatePlugin extends LoginFailureQueryPluginBase {
   }
 
   /**
-   * Uses Aggregation query results to update the login failure count for
+   * Counts the number of LOGINFAILURE's and updates the count for
    * the current second.
    */
-  protected void processLoginFailure(QueryResultAdapter queryResult) {
-    long now = System.currentTimeMillis();
+  public void execute() {
+    if (_loginFailureQuery.hasChanged()) {
+      long now = System.currentTimeMillis();
 
-    AggregationResultSet results = queryResult.getResultSet();
-    if (results.exceptionThrown()) {
-      _log.error("Exception when executing query: " + results.getExceptionSummary());
-      _log.debug("XML: " + results.toXml());
-    } else {
-      Iterator atoms = results.getAllAtoms();
-      int count = 0;
-      while (atoms.hasNext()) {
-        ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
-        count += Integer.parseInt(d.getValue("delta").toString());
-      }
+      Collection added = _loginFailureQuery.getAddedCollection();
+      int count = added.size();
+
       synchronized (_failures) {
         _failures[(int)((now - _startTime)/1000)%_failures.length] += count;
         _totalFailures += count;
@@ -301,24 +277,6 @@ public class LoginFailureRatePlugin extends LoginFailureQueryPluginBase {
 
     public void setRate(int rate) {
       _rate = new Double((double) rate);
-    }
-  }
-
-  /**
-   * This class is used internally for the Aggregation Query predicate
-   * and formatting. Much easier than using Jython when the queries
-   * are static.
-   */
-  public static class FormatLoginFailure implements IncrementFormat {
-    /**
-     * IncrementFormat API requires this. Formats the updates into
-     * ResultSetDataAtoms so that we can read them in the QueryResultAdapter
-     */
-    public void encode(UpdateDelta out, SubscriptionAccess sacc) {
-      ResultSetDataAtom atom = new ResultSetDataAtom();
-      atom.addIdentifier("LoginFailureCount", "Results");
-      atom.addValue("delta", String.valueOf(sacc.getAddedCollection().size()));
-      out.getAddedList().add(atom);
     }
   }
 

@@ -43,23 +43,6 @@ import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 
-import org.cougaar.lib.aggagent.query.AggregationQuery;
-import org.cougaar.lib.aggagent.query.ScriptSpec;
-import org.cougaar.lib.aggagent.query.QueryResultAdapter;
-import org.cougaar.lib.aggagent.query.AggregationResultSet;
-import org.cougaar.lib.aggagent.query.ResultSetDataAtom;
-
-import org.cougaar.lib.aggagent.session.UpdateDelta;
-import org.cougaar.lib.aggagent.session.SubscriptionAccess;
-import org.cougaar.lib.aggagent.session.IncrementFormat;
-
-import org.cougaar.lib.aggagent.util.Enum.ScriptType;
-import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
-import org.cougaar.lib.aggagent.util.Enum.UpdateMethod;
-import org.cougaar.lib.aggagent.util.Enum.Language;
-import org.cougaar.lib.aggagent.util.Enum.QueryType;
-import org.cougaar.lib.aggagent.util.Enum.Language;
-
 import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.IDMEF_Message;
@@ -86,7 +69,8 @@ import javax.naming.NamingException;
  * Operating Modes driven by the adaptivity engine.
  * Add these lines to your agent:
  * <pre>
- * plugin = org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin(600,86400,SocietySecurityManager)
+ * plugin = org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin(600,86400)
+ * plugin = org.cougaar.core.security.monitoring.plugin.LoginFailureQueryPlugin(SocietySecurityManager)
  * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
  * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
  * </pre>
@@ -95,7 +79,7 @@ import javax.naming.NamingException;
  * keep the login failures before deleting it. SocietySecurityManager is
  * the agent name of the society security manager.
  */
-public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
+public class UserLockoutPlugin extends ComponentPlugin {
   int  _maxFailures   = 3;
   long _cleanInterval = 1000 * 60 * 10;      // 10 minutes
   long _rememberTime  = 1000 * 60 * 60;      // 1 hour
@@ -111,11 +95,43 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
   private OperatingMode _lockoutDurationOM = null;
 
   /**
-   * The Agent name to make a request to for Login Failure sensor
-   * names
+   * Subscription to the login failures on the local blackboard
    */
-  protected String _socSecMgrAgent  = null;
+  protected IncrementalSubscription _loginFailureQuery;
 
+  /**
+   * The predicate indicating that we should retrieve all new
+   * login failures
+   */
+  private static final UnaryPredicate LOGIN_FAILURES_PREDICATE = 
+    new UnaryPredicate() {
+      public boolean execute(Object o) {
+        if (o instanceof Event) {
+          IDMEF_Message msg = ((Event) o).getEvent();
+          if (msg instanceof Alert) {
+            Alert alert = (Alert) msg;
+            Classification cs[] = alert.getClassifications();
+            if (cs != null) {
+              for (int i = 0; i < cs.length; i++) {
+                if (KeyRingJNDIRealm.LOGIN_FAILURE_ID.equals(cs[i].getName())) {
+                  AdditionalData ad[] = alert.getAdditionalData();
+                  if (ad != null) {
+                    for (int j = 0; j < ad.length; j++) {
+                      if (KeyRingJNDIRealm.FAILURE_REASON.equals(ad[j].getMeaning())) {
+                        return ("the user has entered the wrong password".equals(ad[j].getAdditionalData()));
+                      }
+                    }
+                  }
+                  return false;
+                }
+              }
+            }
+          }
+        }
+        return false;
+      }
+    };
+    
   /**
    * For OperatingModes value range
    */
@@ -134,10 +150,6 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
    */
   private static final OMCRangeList LOCKOUT_DURATION_RANGE =
       new OMCRangeList(LD_VALUES);
-
-  private static ScriptSpec FORMAT_SPEC =
-    new ScriptSpec(Language.JAVA, XmlFormat.INCREMENT, 
-                   FormatLoginFailure.class.getName());
 
   private static final String MAX_LOGIN_FAILURES =
     "org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES";
@@ -199,10 +211,6 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
       paramName = "failure memory";
       param = iter.next().toString();
       _rememberTime = Long.parseLong(param) * 1000;
-      
-      paramName = "society security manager agent name";
-      param = iter.next().toString();
-      _socSecMgrAgent = param;
     } catch (NoSuchElementException e) {
       throw new IllegalArgumentException("You must provide a " +
                                         paramName +
@@ -221,20 +229,6 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
   }
 
   /**
-   * Returns the society security manager agent name
-   */
-  protected String getSocietySecurityManagerAgent() {
-    return _socSecMgrAgent;
-  }
-
-  /**
-   * returns the format ScriptSpec used in the AggregationQuery
-   */
-  protected ScriptSpec getFormatScriptSpec() {
-    return FORMAT_SPEC;
-  }
-
-  /**
    * Lockout a given user for the lockout duration
    */
   public void lock(String user) throws NamingException {
@@ -250,12 +244,12 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
     _log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
     
-    super.setupSubscriptions();
-
     _userService = (LdapUserService)
 	getServiceBroker().getService(this, LdapUserService.class, null);
     BlackboardService blackboard = getBlackboardService();
 
+    _loginFailureQuery = (IncrementalSubscription)
+      blackboard.subscribe(LOGIN_FAILURES_PREDICATE);
     _maxLoginFailureSubscription = (IncrementalSubscription)
       blackboard.subscribe(MAX_LOGIN_FAILURE_PREDICATE);
     _lockoutDurationSubscription = (IncrementalSubscription)
@@ -279,12 +273,14 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
   }
 
   public void execute() {
-    super.execute();
     if (_maxLoginFailureSubscription.hasChanged()) {
       updateMaxLoginFailures();
     }
     if (_lockoutDurationSubscription.hasChanged()) {
       updateLockoutDuration();
+    }
+    if (_loginFailureQuery.hasChanged()) {
+      processLoginFailure();
     }
   }
 
@@ -296,8 +292,6 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
       om = (OperatingMode)i.next();
       _log.debug("Max Login Failures updated to " + om.getValue() + ".");
       _maxFailures = (int) Double.parseDouble(om.getValue().toString());
-    } else {
-      _log.error("maxLoginFailureSubscription.getChangedCollection() returned collection of size 0!");
     }
   }
 
@@ -309,29 +303,28 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
       om = (OperatingMode)i.next();
       _log.debug("Lockout Duration updated to " + om.getValue() + " seconds.");
       _lockoutTime = (long)Double.parseDouble(om.getValue().toString()) * 1000;
-    } else {
-      _log.error("lockoutDurationSubscription.getChangedCollection() returned collection of size 0!");
     }
   }
 
   /**
-   * Uses Aggregation query results to update the login failure count for
-   * the current user and potentially lock him out.
+   * Process a new login failure IDMEF event.
    */
-  protected void processLoginFailure(QueryResultAdapter queryResult) {
-    AggregationResultSet results = queryResult.getResultSet();
-    if (results.exceptionThrown()) {
-      _log.error("Exception when executing query: " + results.getExceptionSummary());
-      _log.debug("XML: " + results.toXml());
-    } else {
-      Iterator atoms = results.getAllAtoms();
-      int count = 0;
-      while (atoms.hasNext()) {
-        ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
-        String user = d.getIdentifier("user").toString();
-        String reason = d.getValue("reason").toString();
-        if ("the user has entered the wrong password".equals(reason)) {
-          _failures.add(user);
+  private void processLoginFailure() {
+    Enumeration iter = _loginFailureQuery.getAddedList();
+
+    while (iter.hasMoreElements()) {
+      Event e = (Event) iter.nextElement();
+      Alert alert = (Alert) e.getEvent();
+      Target ts[] = alert.getTargets();
+      for (int i = 0; i < ts.length; i++) {
+        User user = ts[i].getUser();
+        if (user != null) {
+          UserId uids[] = user.getUserIds();
+          if (uids != null) {
+            for (int j = 0 ; j < uids.length; j++) {
+              _failures.add(uids[j].getName());
+            }
+          }
         }
       }
     }
@@ -390,50 +383,4 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
     int  failureCount = 0;
     long lastFailure;
   }
-
-  public static class FormatLoginFailure implements IncrementFormat {
-    // IncrementFormat API
-    public void encode(UpdateDelta out, SubscriptionAccess sacc) {
-      Collection added = sacc.getAddedCollection();
-      Collection addTo = out.getAddedList();
-      
-      if (added == null) {
-        return;
-      }
-      Iterator iter = added.iterator();
-      while (iter.hasNext()) {
-        Alert          failure   = (Alert) ((Event)iter.next()).getEvent();
-        String         user      = null;
-        String         reason    = null;
-        Target         targets[] = failure.getTargets();
-        AdditionalData addData[] = failure.getAdditionalData();
-
-        if (targets == null || addData == null) {
-          continue; // skip this guy
-        }
-        for (int i = 0; i < targets.length && user == null; i++) {
-          User u = targets[i].getUser();
-          if (u != null) {
-            UserId uids[] = u.getUserIds();
-            if (uids != null) {
-              user = uids[0].getName();
-            }
-          }
-        }
-        for (int i = 0; i < addData.length && reason == null; i++) {
-          String meaning = addData[i].getMeaning();
-          if (KeyRingJNDIRealm.FAILURE_REASON.equals(meaning)) {
-            reason = addData[i].getAdditionalData();
-          }
-        }
-        if (user != null && reason != null) {
-          ResultSetDataAtom atom = new ResultSetDataAtom();
-          atom.addIdentifier("user", user);
-          atom.addValue("reason", reason);
-          addTo.add(atom);
-        }
-      }
-    }
-  }
-
 }

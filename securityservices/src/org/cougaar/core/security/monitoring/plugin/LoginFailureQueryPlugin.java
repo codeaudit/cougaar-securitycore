@@ -30,6 +30,8 @@ import java.util.Enumeration;
 import java.util.Collection;
 
 import java.io.Serializable;
+import java.io.StringReader;
+import java.io.IOException;
 
 import edu.jhuapl.idmef.IDMEFTime;
 import edu.jhuapl.idmef.Classification;
@@ -46,6 +48,7 @@ import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.community.CommunityService;
 
+import org.cougaar.core.util.UID;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
@@ -55,14 +58,17 @@ import org.cougaar.core.agent.ClusterIdentifier;
 
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
+import org.cougaar.core.security.monitoring.blackboard.EventImpl;
 
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.util.ConfigFinder;
 
 import org.cougaar.lib.aggagent.query.AlertDescriptor;
 import org.cougaar.lib.aggagent.query.AggregationQuery;
@@ -84,18 +90,44 @@ import org.cougaar.lib.aggagent.util.Enum.ScriptType;
 import org.cougaar.lib.aggagent.util.Enum.UpdateMethod;
 import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.w3c.dom.Document;
+
+
 
 /**
- * Base class for UserLockoutPlugin and LoginFailureRatePlugin
- * which both have the duties of querying Login Failures and updating
- * the queries with new sensor lists when more come online.
+ * This class queries for LOGINFAILURE IDMEF messages and keeps
+ * an updated list of Senors with the capability. All query results
+ * are placed on the blackboard. Use this plugin with the
+ * LoginFailureRatePlugin and UserLockoutPlugin. Use the following
+ * in your .ini file:
+ * <pre>
+ * plugin = org.cougaar.core.security.monitoring.plugin.LoginFailureQueryPlugin(SocietySecurityManager)
+ * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
+ * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
+ * </pre>
+ * SocietySecurityManager is the name of the Society Security Manager agent.
  */
-public abstract class LoginFailureQueryPluginBase extends ComponentPlugin {
+public class LoginFailureQueryPlugin extends ComponentPlugin {
+
+  private LoggingService  _log;
+
+  /** the current agent's name */
+  private String _agentName;
 
   /** predicate script for the aggregation query */
   private static final ScriptSpec PRED_SPEC =
     new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JAVA, 
                    AllLoginFailuresPredicate.class.getName());
+
+  /** format script for the aggregation query */
+  private static final ScriptSpec FORMAT_SPEC =
+    new ScriptSpec(Language.JAVA, XmlFormat.INCREMENT, 
+                   FormatLoginFailure.class.getName());
 
   /** Aggregation query subscription */
   protected IncrementalSubscription _loginFailureQuery;
@@ -121,6 +153,18 @@ public abstract class LoginFailureQueryPluginBase extends ComponentPlugin {
   private boolean _queryPublished = false;
 
   /**
+   * Society security manager agent. Default to "SocietySecurityManager".
+   * This value can be set in the parameter.
+   */
+  private String _societySecurityManager = "SocietySecurityManager";
+
+  /**
+   * For parsing Alert events
+   */
+  private DocumentBuilderFactory _parserFactory = 
+    DocumentBuilderFactory.newInstance();
+
+  /**
    * Sensor update predicate
    */
   private static final UnaryPredicate SENSORS_PREDICATE = 
@@ -144,7 +188,6 @@ public abstract class LoginFailureQueryPluginBase extends ComponentPlugin {
     new UnaryPredicate() {
       public boolean execute(Object o) {
         return (o == _queryAdapter);
-//         return (o instanceof QueryResultAdapter);
       }
     };
 
@@ -163,11 +206,6 @@ public abstract class LoginFailureQueryPluginBase extends ComponentPlugin {
   }
 
   /**
-   * Must return the name of the society security manager agent
-   */
-  protected abstract String getSocietySecurityManagerAgent();
-
-  /**
    * creates the AggregationQuery for use in searching for login failure
    * IDMEF messages
    */
@@ -175,30 +213,41 @@ public abstract class LoginFailureQueryPluginBase extends ComponentPlugin {
     AggregationQuery aq = new AggregationQuery(QueryType.PERSISTENT);
     aq.setName("Login Failure Rate Query");
     aq.setUpdateMethod(UpdateMethod.PUSH);
-    aq.setPredicateSpec(getPredicateScriptSpec());
-    aq.setFormatSpec(getFormatScriptSpec());
+    aq.setPredicateSpec(PRED_SPEC);
+    aq.setFormatSpec(FORMAT_SPEC);
     return aq;
   }
   
-  /**
-   * Returns the predicate spec used when querying for login failures
-   * (creating the aggregation query). Expected to be overridden by
-   * subclasses -- this one returns true for all login failure IDMEF
-   * messages.
-   */
-  protected ScriptSpec getPredicateScriptSpec() {
-    return PRED_SPEC;
-  }
+  public void setParameter(Object o) {
+    if (!(o instanceof List)) {
+      throw new IllegalArgumentException("Expecting a List parameter " +
+                                         "instead of " + 
+                                         ( (o == null)
+                                           ? "null" 
+                                           : o.getClass().getName() ));
+    }
 
-  /**
-   * Should return the Aggregation Query format ScriptSpec
-   */
-  protected abstract ScriptSpec getFormatScriptSpec();
+    List l = (List) o;
+
+    if (l.size() >= 1) {
+      _societySecurityManager = (String) l.get(0);
+      if (_log == null && getServiceBroker() != null) {
+        _log = (LoggingService)
+          getServiceBroker().getService(this, LoggingService.class, null);
+      }
+      if (_log != null) {
+        _log.info("Setting security manager agent name to " + _societySecurityManager);
+      }
+    }
+  }
 
   /**
    * Sets up the AggregationQuery and login failure subscriptions.
    */
   protected void setupSubscriptions() {
+    _log = (LoggingService)
+	getServiceBroker().getService(this, LoggingService.class, null);
+    
     AggregationQuery aq = createQuery();
     _queryAdapter = new QueryResultAdapter(aq);
 
@@ -209,13 +258,15 @@ public abstract class LoginFailureQueryPluginBase extends ComponentPlugin {
     DomainService        ds           = getDomainService(); 
     CmrFactory           cmrFactory   = (CmrFactory) ds.getFactory("cmr");
     IdmefMessageFactory  imessage     = cmrFactory.getIdmefMessageFactory();
+    _agentName = ((AgentIdentificationService)
+                  sb.getService(this, AgentIdentificationService.class, null)).getName();
 
     Classification classification = 
       imessage.createClassification("LOGINFAILURE", null);
     MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, 
-                                              classification,null,null);
+                                              classification, null, null );
     ClusterIdentifier destination = 
-      new ClusterIdentifier(getSocietySecurityManagerAgent());
+      new ClusterIdentifier(_societySecurityManager);
     CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
 
     _sensors = (IncrementalSubscription) 
@@ -240,9 +291,39 @@ public abstract class LoginFailureQueryPluginBase extends ComponentPlugin {
   }
 
   /**
-   * Processes a new login failure
+   * Copy the login failure to the blackboard
    */
-  protected abstract void processLoginFailure(QueryResultAdapter queryResult);
+  protected void processLoginFailure(QueryResultAdapter queryResult) {
+    AggregationResultSet results = queryResult.getResultSet();
+    if (results.exceptionThrown()) {
+      _log.error("Exception when executing query: " + results.getExceptionSummary());
+      _log.debug("XML: " + results.toXml());
+    } else {
+      Iterator atoms = results.getAllAtoms();
+      BlackboardService bbs = getBlackboardService();
+      DocumentBuilder parser;
+      try {
+        parser = _parserFactory.newDocumentBuilder();
+      } catch (ParserConfigurationException e) {
+        _log.error("Can't parse any events. The parser factory isn't configured properly.");
+        _log.debug("Configuration error.", e);
+        return;
+      }
+      while (atoms.hasNext()) {
+        ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
+        String owner = d.getIdentifier("owner").toString();
+        String id = d.getIdentifier("id").toString();
+        String source = d.getValue("source").toString();
+        String xml = d.getValue("event").toString();
+
+        Event event = new EventImpl(new UID(owner,Long.parseLong(id)),
+                                    new ClusterIdentifier(source),
+                                    IDMEF_Message.createMessage(xml));
+          
+        bbs.publishAdd(event);
+      }
+    }
+  }
 
   /**
    * Updates the Aggregation Query to use the changed sensor capabilities list
@@ -281,26 +362,35 @@ public abstract class LoginFailureQueryPluginBase extends ComponentPlugin {
      * objects that we're interested in on the remote Blackboard.
      */
     public boolean execute(Object obj) {
-      if (!(obj instanceof Event)) {
-        return false;
-      }
-      Event event = (Event) obj;
-      IDMEF_Message msg = event.getEvent();
-      if (!(msg instanceof Alert)) {
-        return false;
-      }
-      Alert alert = (Alert) msg;
-      if (alert.getDetectTime() == null) {
-        return false;
-      }
-      Classification[] classifications = alert.getClassifications();
-      for (int i = 0; i < classifications.length; i++) {
-        if (KeyRingJNDIRealm.LOGIN_FAILURE_ID.
-            equals(classifications[i].getName())) {
-          return true;
-        }
-      }
-      return false;
+      return (obj instanceof Event);
     }
   }
+
+  public static class FormatLoginFailure implements IncrementFormat {
+    // IncrementFormat API
+    public void encode(UpdateDelta out, SubscriptionAccess sacc) {
+      Collection addTo = out.getAddedList();
+      Collection added = sacc.getAddedCollection();
+      out.setReplacement(true);
+
+      if (added == null) {
+        return;
+      }
+
+      Iterator iter = added.iterator();
+      ConfigFinder cf = new ConfigFinder();
+      IDMEF_Message.setDtdFileLocation(cf.locateFile("idmef-message.dtd").toString());
+      while (iter.hasNext()) {
+        Event event = (Event) iter.next();
+        ResultSetDataAtom da = new ResultSetDataAtom();
+        UID uid = event.getUID();
+        da.addIdentifier("owner", uid.getOwner());
+        da.addIdentifier("id", String.valueOf(uid.getId()));
+        da.addValue("source", event.getSource().toAddress());
+        da.addValue("event", event.getEvent().toString());
+        addTo.add(da);
+      }
+    }
+  }
+
 }
