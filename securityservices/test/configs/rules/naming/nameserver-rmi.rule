@@ -141,7 +141,7 @@ if !addrs.empty?
       
       ns_alias = aliases[idx]
       addr = addrs[idx]
-      puts "#{ns_alias}"
+      puts "#{ns_alias}" if debug
       if ns_alias.length > 0
 	name2 = "-D#{prop_server}.#{ns_alias}"
         node.override_parameter(name, "#{ns_alias}@")
