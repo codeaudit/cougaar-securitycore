@@ -30,9 +30,10 @@ public class VerbBuilder
   public final static String  kaosVerbFromVerb(String verb)
   {
     if (verb == null) {
-      verb = "OtherVerb";
+      verb = EntityInstancesConcepts.NoVerb();
+    } else {    
+      verb = EntityInstancesConcepts.EntityInstancesOwlURL() + verb;
     }
-    verb = EntityInstancesConcepts.EntityInstancesOwlURL() + verb;
     if (hasSubjectValues().contains(verb)) {
       return verb;
     } else { 

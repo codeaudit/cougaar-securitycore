@@ -63,10 +63,6 @@ public class ULMessageNodeEnforcer
 
   private final String _enforcedActionType 
     = ActionConcepts.EncryptedCommunicationAction();
-  private final String _verbGetLogSupport = 
-    EntityInstancesConcepts.EntityInstancesOwlURL() + "GetLogSupport";
-  private final String _verbGetWater = 
-    EntityInstancesConcepts.EntityInstancesOwlURL() + "GetWater";
 
   private List                   _agents;
   private EnforcerManagerService _guard;
@@ -318,8 +314,10 @@ public class ULMessageNodeEnforcer
       allowed=false;
     }
     if (!allowed & _log.isErrorEnabled()) {
-      _log.error("isActionAllowed returns false - permission denied");
+      _log.error("Verb not allowed - permission denied");
       _log.error("AID = " + action);
+      _log.error("Verb = " + kaosVerb);
+      _log.error("Allowed verbs = " + verbs);
     }
     _log.debug("end of isactionauthorized: kaosverb = " + kaosVerb);
     _log.debug("end of isactionauthorized: verbs = " + verbs);
