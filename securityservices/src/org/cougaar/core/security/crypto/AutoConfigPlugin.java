@@ -1,0 +1,61 @@
+package org.cougaar.core.security.crypto;
+
+import java.util.*;
+import java.io.*;
+import sun.security.x509.*;
+
+import org.cougaar.core.security.certauthority.servlet.CAInfo;
+import org.cougaar.core.security.certauthority.ConfigPlugin;
+import org.cougaar.core.security.policy.*;
+import org.cougaar.core.security.util.NodeInfo;
+import org.cougaar.core.security.crypto.*;
+
+public class AutoConfigPlugin extends ConfigPlugin {
+
+  protected void execute() {
+    Collection l = getParameters();
+    if (l.size() == 0) {
+      System.out.println("No CA assigned!");
+    }
+    Iterator it = l.iterator();
+    while (it.hasNext()) {
+      String param = (String)it.next();
+      System.out.println("Unzip & run CA: " + param);
+      addTrustedPolicy(param);
+    }
+
+  }
+
+  /** Need to synchronize because for normal node there could be multiple threads
+   *  changing cryptoClientPolicy as well as requesting certificates
+   */
+  protected synchronized void checkOrMakeIdentity(CAInfo info, String requestURL) {
+    // check whether already received the policy
+    TrustedCaPolicy [] tc = cryptoClientPolicy.getIssuerPolicy();
+    boolean newPolicy = true;
+    for (int i = 0; i < tc.length; i++) {
+      if (tc[i].caDN.equals(info.caPolicy.caDN)) {
+        newPolicy = false;
+        break;
+      }
+    }
+    if (newPolicy) {
+      setCAInfo(info, requestURL);
+    }
+    TrustedCaPolicy tcp = info.caPolicy;
+
+    // request certificates from the particular CA that has started
+    // the certificate may have been created
+    if (log.isDebugEnabled()) {
+      log.debug("CA " + info.caPolicy.caDN + " started, sending requests.");
+    }
+    X500Name dname = null;
+    try {
+      String nodename = NodeInfo.getNodeName();
+      dname = new X500Name(DirectoryKeyStore.getX500DN(nodename,
+        tcp.getCertificateAttributesPolicy()));
+    } catch (IOException iox) {}
+
+    keyRingService.checkOrMakeCert(dname, false, tcp);
+  }
+}
