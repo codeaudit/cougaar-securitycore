@@ -1,0 +1,14 @@
+#!/usr/bin/ruby
+####################################################
+
+loopbackLinkProtocol = "org.cougaar.core.mts.LoopbackLinkProtocol"
+protocolInsertion = "Node.AgentManager.Agent.MessageTransport.Component"
+
+# comment out the following small section to remove LoopbackLinkProtocol
+society.each_node do |node_agent|
+  node_agent.add_component do |c|
+    c.classname = loopbackLinkProtocol
+    c.insertionpoint = protocolInsertion
+  end
+end
+
