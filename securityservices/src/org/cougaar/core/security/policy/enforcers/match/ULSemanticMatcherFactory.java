@@ -113,12 +113,23 @@ public class ULSemanticMatcherFactory
 
         return communities.contains(community);
       } else if (className.startsWith(personPrefix)) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Dealing with a person");
+        }
         String role 
           = className.substring(personPrefix.length());
+        if (_log.isDebugEnabled()) {
+          _log.debug("Matching with the role " + role);
+        }
+        
         if (actor.equals(UserDatabase.anybody())) {
           return true;     /* questionable */
         } else {
-          return UserDatabase.getRoles(actor).contains(role);
+          Set roles = UserDatabase.getRoles(actor);
+          if (_log.isDebugEnabled()) {
+            _log.debug("Found roles " + roles + "for actor " + actor);
+          }
+          return roles.contains(role);
         }
       } else if (className.equals(kaos.ontology.jena.ActorConcepts._Person_)) {
         return UserDatabase.isUser((String) instance);
