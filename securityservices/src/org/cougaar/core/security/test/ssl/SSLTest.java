@@ -27,7 +27,10 @@ import java.io.*;
 import javax.net.ssl.*;
 import javax.net.*;
 
+import javax.swing.*;
+
 import org.cougaar.core.security.ssl.*;
+import org.cougaar.core.security.userauth.*;
 import org.cougaar.core.security.provider.*;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.crypto.*;
@@ -35,31 +38,47 @@ import org.cougaar.core.component.*;
 
 public class SSLTest {
   SSLServiceImpl sslservice;
-  KeyRingService keyRing;
+  SecurityServiceProvider secProvider;
+
   String host = "localhost";
-  int port = 8900;
+  int port = 8080;
 
   public static void main(String[] args) {
-    SSLTest test = new SSLTest();
-    if (test.createService() != null) {
-      test.testSocket();
+
+    try {
+      SSLTest test = new SSLTest();
+      test.createService();
+
+      //test.testSocket();
 
       test.testUserSocket();
+
+      test.testPasswordAuth();
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 
   public SSLTest() {
   }
 
-  public SSLService createService() {
-    SecurityServiceProvider secProvider = new SecurityServiceProvider();
+  public void createService() throws Exception {
+    secProvider = new SecurityServiceProvider();
 
-    ServiceBroker serviceBroker = secProvider.getServiceBroker();
-    keyRing = (KeyRingService)secProvider.getService(serviceBroker,
-						     this,
-						     KeyRingService.class);
+    UserAuthenticatorImpl ua = new UserAuthenticatorImpl("test");
+    ua.init(secProvider);
+    ua.authenticateUser();
 
+  }
+
+
+  public void testSocket() {
     try {
+      ServiceBroker serviceBroker = secProvider.getServiceBroker();
+      KeyRingService keyRing = (KeyRingService)
+                                        secProvider.getService(serviceBroker,
+                                                       this,
+                                                       KeyRingService.class);
       sslservice = new SSLServiceImpl();
       sslservice.init(keyRing);
 
@@ -68,12 +87,6 @@ public class SSLTest {
       System.out.println("XXXXX SSLService exception occurred.");
       e.printStackTrace();
     }
-
-    return sslservice;
-  }
-
-
-  public void testSocket() {
     System.out.println("=====> Testing SSL client and server sockets.");
     try {
       ServerThread st = new ServerThread();
@@ -110,12 +123,26 @@ public class SSLTest {
     System.out.println("=====> Testing usersocket");
 
     try {
-      /*
-      UserSSLServiceImpl userservice = new UserSSLServiceImpl();
-      userservice.init(keyRing);
+      ServiceBroker serviceBroker = secProvider.getServiceBroker();
+      UserSSLService userservice = (UserSSLService)
+                                        secProvider.getService(serviceBroker,
+                                                 this,
+                                                 UserSSLService.class);
       SocketFactory usersocfac = userservice.getUserSocketFactory();
-      Socket s = usersocfac.createSocket(host, port);
-      */
+      String hostname = DirectoryKeyStore.getHostName();
+      int hostport = 8400;
+      System.out.println("Connecting to: " + hostname + " : " + hostport);
+      //Socket s = usersocfac.createSocket(hostname, hostport);
+      String path = "https://" + hostname + ":" + hostport + "/";
+      URL url = new URL(path);
+      BufferedReader in = new BufferedReader(
+        new InputStreamReader(url.openStream()));
+      String inputLine = "";
+      while ((inputLine = in.readLine()) != null) {
+        System.out.println(inputLine);
+      }
+      in.close();
+
       System.out.println("=====> Successfully created user socket.");
     } catch (Exception ex) {
       System.out.println("XXXXX Exception occurred: " + ex.toString());
@@ -123,7 +150,26 @@ public class SSLTest {
     }
   }
 
+  public void testPasswordAuth() {
+    try {
+      String path = JOptionPane.showInputDialog(
+        "Enter the url to test: ");
 
+      //HttpURLConnection.setDefaultAllowUserInteraction(true);
+      URL url = new URL(path);
+      BufferedReader in = new BufferedReader(
+        new InputStreamReader(url.openStream()));
+      String inputLine = "";
+      while ((inputLine = in.readLine()) != null) {
+        System.out.println(inputLine);
+      }
+      in.close();
+
+    } catch (Exception ex) {
+      System.out.println("XXXXX Exception occurred: " + ex.toString());
+      ex.printStackTrace();
+    }
+  }
 
   class ServerThread extends Thread {
 
