@@ -162,7 +162,7 @@ public class LoginFailureAnalyzerPlugin extends ServiceUserPlugin {
     super(requiredServices);
   }
 
-  public void setupSubscriptions() {
+  protected void setupSubscriptions() {
     String poll = getParameters().iterator().next().toString();
     LoginFailureRateCondition failureRate =
       new LoginFailureRateCondition(FAILURE_RATE, failureRateRange, new Double(0));
@@ -184,7 +184,7 @@ public class LoginFailureAnalyzerPlugin extends ServiceUserPlugin {
     lockoutDurationSubscription = (IncrementalSubscription)blackboard.subscribe(lockoutDurationPredicate);
     blackboard.publishAdd(maxLoginFailureOM);
     blackboard.publishAdd(lockoutDurationOM);
-    if (haveServices()) startTimer(TIME_CONSTANT);
+    if (haveServices()) resetTimer(TIME_CONSTANT);
   }
 
   /**
@@ -205,14 +205,14 @@ public class LoginFailureAnalyzerPlugin extends ServiceUserPlugin {
     return false;
   }
 
-  public void execute() {
+  protected void execute() {
     if (haveServices()) {
       if (timerExpired()) {
         // the timer went off, update the login failure rate and lockout rate
         cancelTimer();
         updateLoginFailureRate();
         updatelockoutRate();
-        startTimer(TIME_CONSTANT);
+        resetTimer(TIME_CONSTANT);
       }
       else {
         // one of our subscriptions caused execute() to be invoked
