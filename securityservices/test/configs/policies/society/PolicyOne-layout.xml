@@ -22,7 +22,6 @@
       <facet role="NameServer"/> 
       <agent name='testBounceOne'/>
       <agent name='testBBPolicyAgent'/>
-      <agent name='FwdUserAdminAgent'/>
     </node> 
   </host> 
 </society>
