@@ -25,6 +25,8 @@
 
 package org.cougaar.core.security.ssl;
 
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.X509Certificate;
@@ -245,9 +247,11 @@ public class TrustManager implements X509TrustManager {
       throw new CertificateException("Certificate chain does not contain a certificate");
     }
     CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          return serviceBroker.getService(this, CertificateCacheService.class, null);
+         }
+      });
    
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in checkChainTrust");

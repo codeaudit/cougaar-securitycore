@@ -27,6 +27,8 @@
 package org.cougaar.core.security.crypto;
 
 import java.io.IOException;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.Principal;
@@ -2307,9 +2309,11 @@ try {
         }
       }
       CRLCacheService crlCacheservice=(CRLCacheService)
-        serviceBroker.getService(this,
-                                 CRLCacheService.class,
-                                 null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run() {
+            return serviceBroker.getService(this, CRLCacheService.class, null);
+          }
+        });
       for (int i = 0 ; i < certs.size() ; i++) {
 	// Since the certificate comes from an LDAP server, it should be trusted
 	// (because only a CA should publish certificates to the directory service,
