@@ -24,7 +24,6 @@ def irb(b)
   prompt = "ruby-> "
   while TRUE
     print prompt
-    output = nil
     begin
       input = $stdin.gets()
       if input == nil || input == "quit\n" then
@@ -34,7 +33,6 @@ def irb(b)
     rescue => exception
       puts("#{exception} #{exception.backtrace.join("\n")}")
     end
-    puts output
   end
   puts "Continuing..."
 end
@@ -144,9 +142,9 @@ module Cougaar
     #
         pw = PolicyWaiter.new(@run, policyNode.name)
         @run.info_message( "installing no audit policy")
-        deltaPolicy(enclave, <<DONE)
+        deltaPolicy(enclave, <<-DONE)
           Delete RequireAudit
-DONE
+        DONE
         persistUri = domainManager.uri+"/persistenceMetrics?submit=PersistNow"
         @run.info_message("uri = #{persistUri}")
         Cougaar::Communications::HTTP.get(persistUri)
@@ -185,7 +183,7 @@ DONE
         end
         waitTime=90.seconds
         @run.info_message("First rehydrated policy received")
-        @run.info_message("Waiting an additional #{waitTime} for the rest")
+        @run.info_message("Waiting an additional #{waitTime} seconds for the rest")
         sleep waitTime
     # audit should fail here also  - this is the real test
         if (checkAudit(web, node))
@@ -202,13 +200,13 @@ DONE
         ps = PolicyWaiter.new(@run, node.name)
         @run.info_message( "restoring audit policy")
         pw = PolicyWaiter.new(@run, policyNode.name)
-        deltaPolicy(enclave, <<DONE)
+        deltaPolicy(enclave, <<-DONE)
           PolicyPrefix=%RestoredPolicy
           Policy RequireAudit = [
              AuditTemplate
              Require audit for all accesses to all servlets
           ]
-DONE
+        DONE
         pw.wait(240)
       end
     
@@ -281,9 +279,9 @@ DONE
         end
         pw = PolicyWaiter.new(@run, testAgent.node.name)
         @run.info_message("Removing society admin auth policy")
-        deltaPolicy(enclave, <<DONE)
+        deltaPolicy(enclave, <<-DONE)
           Delete "SocietyAdminAuth"
-DONE
+        DONE
         pw.wait(60)
         @run.info_message("Trying again")
         result = 
@@ -298,13 +296,13 @@ DONE
         @run.info_message("test succeeded")
         pw = PolicyWaiter.new(@run, testAgent.node.name)
         @run.info_message("Restoring society admin auth policy")
-        deltaPolicy(enclave, <<DONE)
+        deltaPolicy(enclave, <<-DONE)
           Policy RestoredSocietyAdminAuth  = [ 
             ServletAuthenticationTemplate
             All users must use Password, PasswordSSL, CertificateSSL
             authentication when accessing the servlet named SocietyAdminServlet
           ]
-DONE
+        DONE
         pw.wait(60)
       end
 
@@ -375,7 +373,7 @@ DONE
         pw1 = PolicyWaiter.new(@run, @agent1.node.name)
         pw2 = PolicyWaiter.new(@run, @agent2.node.name)
         @run.info_message("Inserting policy preventing  communication")
-        deltaPolicy(@enclave, <<DONE)
+        deltaPolicy(@enclave, <<-DONE)
           Agent #{@agentName1}
           Agent #{@agentName2}
 
@@ -388,7 +386,7 @@ DONE
             the value of $Action.owl#hasDestination
             is a subset of the set { %urn:Agent##{@agentName2} }
           ]
-DONE
+        DONE
         if (!pw1.wait(200) || !pw2.wait(120)) then
           @run.info_message("no  policy received - test failed")
           return
@@ -400,9 +398,9 @@ DONE
         end
         $policyPassedCount += 1
         @run.info_message("Test succeeded - restoring policies")
-        deltaPolicy(@enclave, <<DONE)
+        deltaPolicy(@enclave, <<-DONE)
           Delete StopCommunication
-DONE
+        DONE
 
       end
     end # CommunicationTest01
@@ -414,9 +412,13 @@ DONE
 #---------------------------------Test----------------------------------
     class CommunicationTest02 < Cougaar::Action
       def initialize(run)
+        super(run)
         @run = run
         @agentName1 = "testBounceOne"
         @agentName2 = "testBounceTwo"
+        @verb1      = "Arm"
+        @verb2      = "GetWater"
+        @timeout    = 15
         @web = SRIWeb.new()
       end
 
@@ -431,19 +433,71 @@ DONE
             @agent2 = agent
           end
         end
+        @enclave = @agent1.host.enclave
         @sendUri = "#{@agent1.uri}/message/sendVerb/Sending"
+        @receiveUri = "#{@agent2.uri}/message/receiveVerb"
       end
 
 
       def perform()
+        newTest(@run, "Verb Policy Test")
+        initSocietyVars
+        @run.info_message("Sending message from #{@agentName1} to " +
+                          "#{@agentName2} with verb #{@verb1}")
+        sendVerb(@verb1)
+        @run.info_message("Checking  if message was received...")
+        sleep(@timeout)
+        if (!checkVerb(@verb1)) then
+          @run.info_message("should be able to send message")
+          @run.info_message("test failed")
+          return
+        end
+        @run.info_message("    ... received")
+        @run.info_message("Adding policy denying verb #{@verb2}")
+        pw = PolicyWaiter.new(@run, @agent1.node.name)
+        deltaPolicy(@enclave, <<-EndVerbPolicy)
+          PolicyPrefix=%tests/
+
+          Policy NoGetWater = [ 
+            GenericTemplate
+            Priority = 3,
+            $Actor.owl#Agent is not authorized to perform
+            $Action.owl#EncryptedCommunicationAction  
+            as long as
+            the value of $Ultralog/UltralogAction.owl#hasSubject
+            is a subset of the set 
+            { $Ultralog/Names/EntityInstances.owl##{@verb2} }
+          ]
+        EndVerbPolicy
+        if (!pw.wait(120)) then
+          @run.info_message("test failed")
+          return
+        end
+        @run.info_message("Policy committed")
+        @run.info_message("Sending message with verb #{@verb2}")
+        sendVerb(@verb2)
+        @run.info_message("Checking if message was received...")
+        sleep(@timeout)
+        if (checkVerb(@verb2)) then
+          @run.info_message("should not be able to send message")
+          return
+        end
+        @run.info_message(" ...not received")
+        @run.info_message("Test passed - restoring policies")
+        deltaPolicy(@enclave, <<-RestorePolicy)
+          Delete NoGetWater
+        RestorePolicy
+        $policyPassedCount += 1
       end
 
-      def sendMessage()
-        #f = File.new("RearPolicyManagerNode.log", File::RDONLY)
-        #p = f.pos
-        #f.seek(0,IO::SEEK_END)
-        #f.seek(p,IO::SEEK_SET)
-        @web.postHtml(@sendUri, ["address=#{agent2.name}", "verb=GetWater"])
+
+      def sendVerb(verb)
+        @web.postHtml(@sendUri, ["address=#{@agent2.name}", "verb=#{verb}"])
+      end
+
+      def checkVerb(verb)
+        result = @web.getHtml(@receiveUri).body
+        result.include?("Task received with verb #{verb}")
       end
     end
 
@@ -492,9 +546,9 @@ DONE
         end
         pw = PolicyWaiter.new(@run, @testAgent.node.name)
         @run.info_message("Removing policy allowing Add access to OrgActivity objects")
-        deltaPolicy(enclave, <<DONE)
+        deltaPolicy(enclave, <<-DONE)
           Delete OrgActivityAdd
-DONE
+        DONE
         pw.wait(60)
         if (checkBB(web)) then
           @run.info_message("Add access to OrgActivity object still allowed")
@@ -505,13 +559,13 @@ DONE
         @run.info_message("Test succeeded")
         pw = PolicyWaiter.new(@run, @testAgent.node.name)
         @run.info_message("Restoring policies")
-        deltaPolicy(enclave, <<DONE)
+        deltaPolicy(enclave, <<-DONE)
           Policy OrgActivityAdd = [
             BlackboardTemplate
             A PlugIn in the role OrgActivityAdd can Add objects 
             of type OrgActivity
           ]
-DONE
+        DONE
         pw.wait(60)
       end
     end # BlackboardTest
@@ -544,14 +598,14 @@ DONE
         @sendUri = 
            "#{@agent1.uri}/message/send?address=#{@agentName2}&Send=Submit"
         pw = PolicyWaiter.new(@run, "testBounceOne")
-        deltaPolicy(enclave, <<DONE)
+        deltaPolicy(enclave, <<-DONE)
           Delete EncryptCommunication
           Policy testEncryptCommunication = [
             MessageEncryptionTemplate
             Require SecretProtection on all messages from members of 
             $Actor.owl#Agent to members of $Actor.owl#Agent
           ]
-DONE
+        DONE
         pw.wait(60)
         @web.getHtml(@sendUri)
       end
