@@ -48,7 +48,7 @@ import java.util.Iterator;
 public class JaasAgentBinder
   extends BinderWrapper
 {
-  private ServiceBroker _serviceBroker;
+  //private ServiceBroker _serviceBroker;
   private Logger _log;
   private MessageAddress _agent;
 

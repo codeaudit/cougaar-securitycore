@@ -69,7 +69,7 @@ public class UserRoles {
     Subject subject = (Subject) 
       AccessController.doPrivileged(new GetSubject(acc));
 
-    ArrayList roles = new ArrayList();
+    //ArrayList roles = new ArrayList();
     if (subject != null) {
       Set principals = subject.getPrincipals(GenericPrincipal.class);
       Iterator i = principals.iterator();

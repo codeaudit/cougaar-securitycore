@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -587,7 +587,8 @@ public class AccessAgentProxy
     }
     return true;
   }
-  
+
+  /*
   private TrustSet[] checkOutgoing(Message msg) {
     if(msg == null) {
       return null;
@@ -611,6 +612,7 @@ public class AccessAgentProxy
     }
     return trust;
   }
+  */
 
   private void compare(TrustSet msgSet, TrustSet policySet) {
     if(msgSet == null){
@@ -670,7 +672,8 @@ public class AccessAgentProxy
 	  set[i+1] = policy;
 	} else {
 	  if(directive[i] instanceof Task) {
-	    Task task = (Task)directive[i];
+	    // TODO: This must be broken
+	    //Task task = (Task)directive[i];
 	    set[i+1] = policy;
 	  } else {
 	    compare(set[i+1], policy);
@@ -850,7 +853,8 @@ public class AccessAgentProxy
 	  set[i+1] = policy; //new TrustSet();
 	} else {
 	  if(directive[i] instanceof Task) {
-	    Task task = (Task)directive[i];
+	    // TODO: this must be broken
+	    //Task task = (Task)directive[i];
 	    set[i+1] = policy;
 	  } else {
 	    compare(set[i+1], policy);

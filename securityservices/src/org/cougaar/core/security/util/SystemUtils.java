@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2002 Network Associates
+ *  Copyright 1997-2003 Cougaar Software
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -100,7 +100,8 @@ public class SystemUtils {
     private static String JAVA_HOME = "java.home";
     private static String JAVA_VERSION = "java.version";
     private static String BOOT_CLASS_PATH = "sun.boot.class.path";
-    
+
+  /*
     private String listOfProperties[] = { CLASS_PATH,
                                           PATH,
                                           RUNTIME_NAME,
@@ -122,6 +123,6 @@ public class SystemUtils {
                                           JAVA_VERSION,
                                           BOOT_CLASS_PATH };
 
-  
+  */
 
 }
