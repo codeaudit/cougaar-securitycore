@@ -166,7 +166,7 @@ public class CertificateSigningRequest extends  HttpServlet
     out.println("<table>");
     out.println("<form action=\"\" method =\"post\">");
     out.println("<tr ><td colspan=\"3\">");
-    out.println("DN for CA <input name=\"role\" type=\"text\" value=\"\">");
+    out.println("Role : <input name=\"role\" type=\"text\" value=\"\">");
     out.println(" <br> <br></td></tr>");
     out.println("<tr ><td colspan=\"3\">");
     out.println("DN for CA <input name=\"dnname\" type=\"text\" value=\"\">");
