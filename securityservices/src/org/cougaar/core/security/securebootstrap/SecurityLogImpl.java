@@ -38,8 +38,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SecurityLogImpl
-  extends BaseSingleton
-  implements SecurityLog
+extends BaseSingleton
+implements SecurityLog
 {
   private PrintStream _log;
   private EventHolder _eventholder=null;
@@ -49,13 +49,13 @@ public class SecurityLogImpl
    * cougaar classification name prefix
    */
   private final static String COUGAAR_PREFIX =
-    "org.cougaar.core.security.monitoring.";
+  "org.cougaar.core.security.monitoring.";
 
   /**
    * jar verification failure
    */
   private final static String JAR_VERIFICATION_FAILURE = 
-    COUGAAR_PREFIX + "JAR_VERIFICATION_FAILURE";
+  COUGAAR_PREFIX + "JAR_VERIFICATION_FAILURE";
 
   /** The set of URLs that cannot be used because of security issues.
    */
@@ -64,10 +64,10 @@ public class SecurityLogImpl
   private static final Logger _logger = Logger.getInstance();
 
   protected SecurityLogImpl()
-  {
-    _type=JAR_VERIFICATION_FAILURE;
-    _eventholder=EventHolder.getInstance();
-  }
+    {
+      _type=JAR_VERIFICATION_FAILURE;
+      _eventholder=EventHolder.getInstance();
+    }
   
   private static SecurityLog _jarVerificationLog;
 
@@ -82,6 +82,7 @@ public class SecurityLogImpl
   public void createLogFile(String nodeName) {
 
     // Get name of the log file
+    
     String sep =  System.getProperty("file.separator", "/");
     // Since multiple nodes may run on the same machine, we need
     // to make sure two nodes will not write to the same log file.
@@ -107,8 +108,8 @@ public class SecurityLogImpl
     try {
       _log = new PrintStream(new FileOutputStream(logname));
       _log.print("<logtime>"+
-		DateFormat.getDateInstance().format(new Date())+
-		"</logtime>\n");
+                 DateFormat.getDateInstance().format(new Date())+
+                 "</logtime>\n");
       _log.print("<nodeName>"+nodeName+"</nodeName>\n");
     }
     catch (IOException e) {
@@ -126,12 +127,10 @@ public class SecurityLogImpl
     if (!_badUrls.contains(url)) {
       logException(e);
       if (url != null) {
-	_badUrls.add(url);
+       	_badUrls.add(url);
       }
     }
-    else {
-      // Do not log. The event has already been logged.
-    }
+    // Do not log. The event has already been logged.
   }
 
   private void logException(Exception e) {
