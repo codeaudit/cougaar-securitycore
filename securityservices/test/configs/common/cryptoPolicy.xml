@@ -7,6 +7,7 @@
          deployment configuration -->
     <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
     <CA_URL role="srosset">http://pear:8080/CAnew/servlet/certrequest</CA_URL>
+    <CA_URL role="rtripath">http://pear:8080/CAnew_rtripath/servlet/certrequest</CA_URL>
     <CA_URL role="isat">http://u041e:8080/CA/servlet/certrequest</CA_URL>
     <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</CA_DN>
     <CA_keystore>keystoreNCA_CA</CA_keystore>
@@ -16,7 +17,7 @@
     <CertDirectoryURL>ldap://yew:389/dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="ychen">ldap://yew:389/dc=ychen,dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</CertDirectoryURL>
-    <CertDirectoryURL role="rtripath">ldap://yew:389/dc=rtripath,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</CertDirectoryURL>
@@ -66,6 +67,8 @@
 
       <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
 
+
+      <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
       <keysize>1024</keysize>
 
       <!-- How long to certify for. This is the validity of a certificate
