@@ -28,6 +28,13 @@
 package org.cougaar.core.security.services.wp;
 
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.SignedObject;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.List;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.SecureMethodParam;
@@ -37,15 +44,6 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.wp.Request;
 import org.cougaar.util.log.Logger;
-
-import java.io.IOException;
-
-import java.security.GeneralSecurityException;
-import java.security.SignedObject;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-
-import java.util.List;
 
 
 /**
@@ -146,7 +144,7 @@ public class WhitePagesProtectionServiceImpl
    * @see org.cougaar.core.security.services.wp.WhitePagesProtectionService#verfifyMessage(java.lang.String,
    *      org.cougaar.core.security.util.ProtectedRequest)
    */
-  public void verfifyRequest(String agent, ProtectedRequest request)
+  public void verifyRequest(String agent, ProtectedRequest request)
     throws CertificateException {
     X509Certificate[] certChain = request.getCertificateChain();
     for (int i = certChain.length - 1; i == 0; i--) {

@@ -28,11 +28,11 @@
 package org.cougaar.core.security.services.wp;
 
 
-import org.cougaar.core.component.Service;
-import org.cougaar.core.service.wp.Request;
-
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
+
+import org.cougaar.core.component.Service;
+import org.cougaar.core.service.wp.Request;
 
 
 /**
@@ -61,6 +61,6 @@ public interface WhitePagesProtectionService extends Service {
    * @param agent - The agent making the request
    * @param request - the request object
    */
-  public void verfifyRequest(String agent, ProtectedRequest request)
+  public void verifyRequest(String agent, ProtectedRequest request)
     throws CertificateException;
 }
