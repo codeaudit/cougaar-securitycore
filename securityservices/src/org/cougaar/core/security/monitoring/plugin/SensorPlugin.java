@@ -3,25 +3,25 @@
  *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 package org.cougaar.core.security.monitoring.plugin;
 
@@ -60,6 +60,8 @@ import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.security.util.CommunityServiceUtilListener;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 
 // JavaIDMEF classes
 import edu.jhuapl.idmef.Alert;
@@ -78,6 +80,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.Set;
+import java.util.Hashtable;
 
 /**
  * abstract sensor class that registers the capabilities of the sensor
@@ -94,15 +97,15 @@ public abstract class SensorPlugin
   extends ComponentPlugin {
 
   private MessageAddress myAddress;
-  
+
   /**
    * method to obtain the sensor info for the concrete class
-   */  
+   */
   protected abstract SensorInfo getSensorInfo();
   /**
    * method to obtain the list of classification the sensor is capable of
    * detecting
-   */ 
+   */
   protected abstract String []getClassifications();
   /**
    * method to determine if the agent, the plugin is running in, is the target
@@ -114,13 +117,13 @@ public abstract class SensorPlugin
    * of attacks
    */
   protected abstract boolean agentIsSource();
-  
+
   public void setDomainService(DomainService aDomainService) {
     m_domainService = aDomainService;
     m_log = (LoggingService) getServiceBroker().
       getService(this, LoggingService.class, null);
   }
- 
+
   /**
    * Used by the binding utility through reflection to get my DomainService
    */
@@ -136,14 +139,14 @@ public abstract class SensorPlugin
   public CommunityService getCommunityService() {
     return this.m_cs;
   }
-  
+
   public void setParameter(Object o){
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List argument to setParameter");
     }
     List l = (List) o;
     if (l.size() > 1) {
-      m_log.warn("Unexpected number of parameters given. Expecting 1, got " + 
+      m_log.warn("Unexpected number of parameters given. Expecting 1, got " +
                  l.size());
     }
     if (l.size() > 0) {
@@ -153,7 +156,7 @@ public abstract class SensorPlugin
       }
     }
   }
-  
+
   /**
    * Register this sensor's capabilities
    */
@@ -177,14 +180,14 @@ public abstract class SensorPlugin
     th.start();
     */
     //registerCapabilities(cs, m_agent);
-  }  
-  
+  }
+
   /**
    * doesn't do anything
    */
   protected void execute(){
   }
-  
+
   private void getSecurityManager() {
     CommunityServiceUtilListener listener = new CommunityServiceUtilListener() {
 	public void getResponse(Set entities) {
@@ -215,10 +218,10 @@ public abstract class SensorPlugin
     List targets = null;
     List sources=null;
     List data = null;
-   
+
     if(myManager == null) {
       // manager may not have been initialize yet
-      return; 
+      return;
     }
     // if agent is the target then add the necessary information to the registration
     if(agentIsTarget()) {
@@ -255,17 +258,17 @@ public abstract class SensorPlugin
 						null, null, tAddr, tRefList);
       data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
     }
-    
+
     String []classifications = getClassifications();
     for(int i = 0; i < classifications.length; i++) {
-      Classification classification = 
+      Classification classification =
         m_idmefFactory.createClassification(classifications[i], null);
       capabilities.add(classification);
-    }  
+    }
 
     m_blackboard.openTransaction();
-    Collection c = 
-      m_blackboard.query(new RegistrationPredicate(getSensorInfo(), 
+    Collection c =
+      m_blackboard.query(new RegistrationPredicate(getSensorInfo(),
                                                    targets, capabilities,
                                                    data, myManager.toString()));
     m_blackboard.closeTransaction();
@@ -275,8 +278,8 @@ public abstract class SensorPlugin
     } // end of if (!c.isEmpty())
 
     m_log.info("No rehydration - publishing sensor capabilities");
-    RegistrationAlert reg = 
-      m_idmefFactory.createRegistrationAlert( getSensorInfo(), 
+    RegistrationAlert reg =
+      m_idmefFactory.createRegistrationAlert( getSensorInfo(),
                                               null,
                                               targets,
                                               capabilities,
@@ -285,7 +288,7 @@ public abstract class SensorPlugin
                                               m_idmefFactory.SensorType,
                                               myManager.toString());
     NewEvent regEvent = m_cmrFactory.newEvent(reg);
-    
+
     CmrRelay regRelay = m_cmrFactory.newCmrRelay(regEvent, myManager);
     m_blackboard.openTransaction();
     m_blackboard.publishAdd(regRelay);
@@ -363,7 +366,7 @@ public abstract class SensorPlugin
     // be fixed if used again.
     //Collection agents = cs.searchByRole(community, m_managerRole);
     Iterator i = agents.iterator();
-    
+
     while(i.hasNext()) {
       MessageAddress addr = (MessageAddress)i.next();
       if(addr.toString().equals(agentName)) {
@@ -388,13 +391,13 @@ public abstract class SensorPlugin
         m_log.error("Was interrupted while delaying the polling of NS sleeping: " + ix);
         tryAgain = false;
       }
-      
+
       while(tryAgain) {
         m_log.debug("Trying to register counter: " + counter++);
         tryAgain = registerCapabilities( m_agent);
         try {
           if(tryAgain) {
-            if(counter < 6) { 
+            if(counter < 6) {
               retryTime=counter* RETRY_TIME;
             }
             Thread.sleep(retryTime);
@@ -409,7 +412,7 @@ public abstract class SensorPlugin
       m_csu.releaseServices();
     } // public void run()
   } // class RegistrationTask
-  
+
   */
 
   private static class RegistrationPredicate implements UnaryPredicate {
@@ -481,7 +484,7 @@ public abstract class SensorPlugin
               arrayEquals(r.getAdditionalData(),_data) &&
               arrayEquals(r.getTargets(),_targets) &&
               ((r.getAnalyzer() == null && _sensor.getModel() == null) ||
-               (r.getAnalyzer() != null && 
+               (r.getAnalyzer() != null &&
                 r.getAnalyzer().equals(_sensor.getModel()))));
     }
   }
@@ -495,4 +498,54 @@ public abstract class SensorPlugin
   protected IdmefMessageFactory m_idmefFactory;
   protected String m_agent;
   protected String m_managerRole = "Manager"; // default value
+  protected static Hashtable m_eventCache = new Hashtable();
+  protected EventPublisher m_publisher;
+
+  protected void publishIDMEFEvent() {
+    List events = null;
+    synchronized (m_eventCache) {
+      Object o = m_eventCache.get(getClass());
+      if (o != null && o instanceof List) {
+        events = (List)o;
+      }
+      m_eventCache.put(getClass(), m_publisher);
+    }
+    if (events != null) {
+      if (m_log.isDebugEnabled()) {
+        m_log.debug("publishIDMEFEvent: " + events.size() + " pending.");
+      }
+      m_publisher.publishEvents(events);
+    }
+  }
+
+  public static void publishEvent(Class cl, FailureEvent event) {
+    EventPublisher publisher = null;
+    List events = null;
+
+    Object o = m_eventCache.get(cl);
+
+    if (o != null) {
+      if (o instanceof EventPublisher) {
+        publisher = (EventPublisher)o;
+      }
+      else if (o instanceof List) {
+        events = (List)o;
+      }
+    }
+
+    if (publisher != null) {
+      publisher.publishEvent(event);
+    }
+    else {
+      if (events == null) {
+        events = new ArrayList();
+      }
+      events.add(event);
+      m_eventCache.put(cl, events);
+    }
+  }
+
+  public static int getCacheSize() {
+    return m_eventCache.size();
+  }
 }
