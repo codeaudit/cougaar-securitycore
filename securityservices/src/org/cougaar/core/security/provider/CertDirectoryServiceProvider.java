@@ -45,6 +45,7 @@ public class CertDirectoryServiceProvider
   extends BaseSecurityServiceProvider
 {
   private Hashtable ldapConnectionPool = new Hashtable();
+  private static CACertDirectoryService caOperations = null;
 
   public CertDirectoryServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
@@ -93,7 +94,10 @@ public class CertDirectoryServiceProvider
       theService = getCertDirectoryServiceCAInstance(certRequestor, sb);
     }
     else if (serviceClass.equals(CACertDirectoryService.class)) {
-      theService = new CACertDirectoryServiceImpl(sb);
+      if (caOperations == null) {
+        caOperations = new CACertDirectoryServiceImpl(sb);
+      }
+      theService = caOperations;
     }
     else {
       log.error("Unsupported service:" + serviceClass.getName());
