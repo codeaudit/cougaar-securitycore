@@ -19,6 +19,37 @@
 # </copyright>
 #
 
+Servlet AggegatorServlets
+Servlet NCAServlets
+Servlet SCmrmanagerServlets
+Servlet DataGrabberServlet
+Servlet CertReqServlet
+Servlet CAReadServlet
+Servlet CAWriteServlet
+Servlet HierarchyServlet
+Servlet LogInventoryServlet
+Servlet RearPolicyServlet
+Servlet FwdPolicyServlet
+Servlet ConusPolicyServlet
+Servlet TransPolicyServlet
+Servlet PolicyServlet
+Servlet SocietyAdminServlet
+Servlet UserManagerServlets
+Servlet OtherServlets
+
+PlugInRole OpPlanPlugInRole
+PlugInRole PolicyServletRole
+PlugInRole OrgActivityAddRole
+PlugInRole OrgActivityQueryRole
+PlugInRole OrgActivityQueryNoReadRole
+PlugInRole OrgActivityChangeRole
+PlugInRole OrgActivityRemoveRole
+PlugInRole OrgActivityAllRole
+
+BlackBoardObject BlackboardOpPlanObject
+BlackBoardObject SafeRelay
+BlackBoardObject OrgActivity
+
 Policy DamlBootPolicyAllowCommunication = [ 
    GenericTemplate
    Priority = 2,
