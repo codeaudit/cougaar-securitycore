@@ -1,0 +1,60 @@
+#!/bin/tcsh
+
+# This script may be used when upgrading to a new Cougaar version.
+# When Cougaar is shipped with a new database (either data or schema modification),
+# this script should be run to create the CSMART and domain databases, and
+# import the data into the local database.
+
+#############################################
+# Configuration. You can edit those variables
+set version=10_2_0
+set db_1ad=cougaar${version}
+set db_csmart=csmart${version}
+set db_password=ultralog
+set db_user=root
+
+# Source location for the community files
+set community_file_attr=${CIP}/csmart/data/database/csv/community_attribute.csv
+set community_file_entity=${CIP}/csmart/data/database/csv/community_entity_attribute.csv
+
+# Domain data file (from ZIP file)
+set db_sql_file=1ad_domain_data_dump.sql
+
+#############################################
+# Script. 
+echo "Note: You must execute this script on the database server (probably mango)"
+echo "Existing databases on server:"
+mysqlshow
+
+echo "The following database will be removed and recreated if you continue:"
+echo "1: ${db_1ad}"
+echo "2: ${db_csmart}"
+
+echo "Press enter to continue or CTRL-C to stop the script now"
+set reply=$<
+
+echo "Dropping ${db_1ad}"
+mysqladmin drop ${db_1ad} -u ${db_user} --password=${db_password}
+echo "Dropping ${db_csmart}"
+mysqladmin drop ${db_csmart} -u ${db_user} --password=${db_password}
+
+echo "Creating ${db_1ad}"
+mysqladmin create ${db_1ad} -u ${db_user} --password=${db_password}
+echo "Creating ${db_csmart}"
+mysqladmin create ${db_csmart} -u ${db_user} --password=${db_password}
+
+echo "Loading database"
+${CIP}/csmart/data/database/scripts/mysql/load_1ad_mysql.sh ${db_user} ${db_password} ${db_csmart}
+echo "Loading communities"
+/bin/cp -f ${community_file_attr} ${CIP}/csmart/data/database/scripts/mysql
+/bin/cp -f ${community_file_entity} ${CIP}/csmart/data/database/scripts/mysql
+# ${CIP}/csmart/data/database/scripts/mysql/load_communities.sh ${db_user} ${db_password} ${db_csmart}
+
+echo "Unzip  1AD database"
+rm -f /tmp/${db_sql_file}
+unzip -q ${CIP}/csmart/data/database/Domain-MySQL.ZIP -d /tmp
+# The ZIP file should contain the 1ad_domain_data_dump.sql file.
+
+echo "Loading 1ad_domain_data_dump.sql to database"
+mysql -D ${db_1ad} -p${db_password} -u ${db_user} < /tmp/${db_sql_file}
+
