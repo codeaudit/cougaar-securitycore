@@ -100,7 +100,12 @@ public class KeyGenerator {
       return null;
     }
     // Get first element
-    return nodes.item(0).getFirstChild().getNodeValue();
+    String val = null;
+    Node child = nodes.item(0).getFirstChild();
+    if (child != null) {
+      val = child.getNodeValue();
+    }
+    return val;
   }
 
   public static void iterateKeyStore(Element element, int action) {
