@@ -101,7 +101,8 @@ public class DataProtectionInputStream extends FilterInputStream {
       ci=encryptionService.getCipher(policy.symmSpec);
     }
 
-    System.out.println("Opening inputStream: " + agent + " : " + new Date());
+    if (log.isDebugEnabled())
+      log.debug("Opening inputStream: " + agent + " : " + new Date());
     theis = processStream(is);
   }
 
@@ -142,7 +143,8 @@ public class DataProtectionInputStream extends FilterInputStream {
     throws IOException
   {
     // clean up?
-    System.out.println("Closing inputStream " + new Date());
+    if (log.isDebugEnabled())
+      log.debug("Closing inputStream " + new Date());
 
     verifyDigest();
     if (ci != null)

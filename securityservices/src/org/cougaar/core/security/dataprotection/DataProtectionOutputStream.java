@@ -105,7 +105,8 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     MessageDigest md = MessageDigest.getInstance(digestAlg);
     theos = new DigestOutputStream(theos, md);
 
-    System.out.println("Opening output stream " + agent + " : " + new Date());
+    if (log.isDebugEnabled())
+      log.debug("Opening output stream " + agent + " : " + new Date());
   }
 
   private SecretKey getSecretKey()
@@ -116,7 +117,8 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   }
 
   public void close() throws IOException {
-    System.out.println("Closing output stream " + agent + " : " + new Date());
+    if (log.isDebugEnabled())
+      log.debug("Closing output stream " + agent + " : " + new Date());
     flushToOutput(true);
 
     if (ci != null)
