@@ -91,17 +91,27 @@ public class IdmefEventPublisherPlugin
   protected void execute () {
     Collection eventcollection = _idmefevents.getAddedCollection();
     Iterator eventiterator = eventcollection.iterator();
-    Object event = null;
     if (_eventService.isEventEnabled()) {
       while(eventiterator.hasNext()) {
-	event=(Object)eventiterator.next();
-	if (event.toString() == null) {
-	  _log.warn("Unable to publish Cougaar event");
-	}
-	else {
-	  String s = "[STATUS] " + event.toString();
-	  _eventService.event(s);
-	}
+	Alert event=(Alert)eventiterator.next();
+        String s = "[STATUS] ";// + event.toString();
+        Source [] srcs = event.getSources();
+        if (srcs.length != 0) {
+          IDMEF_Node node = srcs[0];         
+          Address [] addrs = node.getAddress();
+          if (addrs.length != 0) {
+            s += "(Source " + addrs[0].getAddress() + ") ";
+          }
+        }
+                
+        AdditionalData [] data = event.getAdditionalData();
+        s += "(AdditionalData";
+        for (int i = 0; i < data.length; i++) {
+          s += " " + data[i].getMeaning + ",";
+          s += data[i].getAdditionalData();
+        }
+        s += ")";
+        _eventService.event(s);
       }
     }
   }
