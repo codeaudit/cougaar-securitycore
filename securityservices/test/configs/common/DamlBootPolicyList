@@ -1,7 +1,22 @@
-http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction DamlBootPolicyAllowEncryptedMessaging.sbj
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyPolicyAdmin.sbj
+# Allow communication
+http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction DamlBootPolicyAllowCommunication.sbj
+# Encrypt communication
+http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction DamlBootPolicyEncryptCommunication.sbj
+# Allow access to unrestricted servlets
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyUnrestServlet.sbj
+# Require a password or a certificate for restricted servlets.
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyRestServlet.sbj
+# Allow PolicyAdministrator to access the PolicyServlet
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyServlet.sbj
+# Allow MonitorManager users to access SCmrmanager servlets
 http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicySCmrManager.sbj
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyAGGAgentLogistician.sbj
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyAGGAgentLogisticsViewer.sbj
+# Allow Logisticians to access NCA servlets
 http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyNCAServlet.sbj
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicySCmrManager.sbj
+# Allow Logisticians to access aggregator servlets
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianAgg.sbj
+# Allow LogisticianViews to access aggregator servlets
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianViewAgg.msg
+# Allow UserManagers to access useradmin servlets.
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyUserAdminServlets.sbj
+# Allow Logistician to access Data Grabber servlets.
+

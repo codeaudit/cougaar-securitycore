@@ -30,6 +30,8 @@
     <ultralogEntity:Servlet rdf:ID="SCmrmanagerServlets"/>
 
     <!-- Servlets that can be handled by a variety of agents-->
+    <ultralogEntity:Servlet rdf:ID="DataGrabberServlet"/>
+    <ultralogEntity:Servlet rdf:ID="CertReqServlet"/>
     <ultralogEntity:Servlet rdf:ID="CAReadServlet"/>
     <ultralogEntity:Servlet rdf:ID="CAWriteServlet"/>
     <ultralogEntity:Servlet rdf:ID="HierarchyServlet"/>
@@ -44,8 +46,6 @@
     <ultralogEntity:AuthenticationLevel rdf:ID="Password"/>
     <ultralogEntity:AuthenticationLevel rdf:ID="PasswordSSL"/>
     <ultralogEntity:AuthenticationLevel rdf:ID="CertificateSSL"/>
-    <ultralogEntity:AuthenticationLevel rdf:ID="Weak"/>
-    <ultralogEntity:AuthenticationLevel rdf:ID="NSAApproved"/>
  
     <ultralogEntity:ProtectionLevel rdf:ID="NSAApprovedProtection"/>
     <ultralogEntity:ProtectionLevel rdf:ID="TopSecretProtection"/>

@@ -8,3 +8,6 @@
 /$baz/policyAdmin
 /$baz/topology
 /$baz/useradmin
+/$baz/log_inventory
+/$baz/CertificateSigningRequest
+/$localhost/foobar
