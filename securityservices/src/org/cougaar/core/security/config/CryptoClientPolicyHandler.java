@@ -93,7 +93,6 @@ public class CryptoClientPolicyHandler
 
   public CryptoClientPolicyHandler(ServiceBroker sb) {
     super(sb);
-    if(sb != null) {
     // construct the crypto client policy file name.  should be of the form
     // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
     SecurityPropertiesService sps = (SecurityPropertiesService)
@@ -105,10 +104,6 @@ public class CryptoClientPolicyHandler
     String nodeDirectory = topDirectory + nodeName;
     cryptoPolicyFileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
     sb.releaseService(this, SecurityPropertiesService.class, sps);
-    }
-    else {
-      cryptoPolicyFileName = "/home/mluu/UL/cougaar/workspace/security/keystores/testNode/cryptoPolicy.xml"; 
-    }
   }
 
   public void collectPolicy(XMLReader parser,
