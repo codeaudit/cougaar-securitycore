@@ -92,6 +92,7 @@ final public class KeyRing {
         KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
         FileOutputStream fos = new FileOutputStream(ksPath);
         k.store(fos, ksPass.toCharArray());
+        fos.close();
         //try again
         try{
             kss = new FileInputStream(ksPath);
