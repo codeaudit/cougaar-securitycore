@@ -1,7 +1,7 @@
 =begin experiment
 
-name: MOAS-II-RESTORE-Basline
-description: MOAS-II-preStage5-Restore-Baseline
+name: MOAS-II-AS-RESTORE-Basline
+description: MOAS-II-AS-preStage5-Restore-Baseline
 script: $CIP/csmart/lib/isat/OPRestoreTemplate.rb
 parameters:
   - run_count: 1
