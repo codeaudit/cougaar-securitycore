@@ -6,7 +6,7 @@ $:.unshift File.join(ENV['CIP'], 'csmart', 'acme_scripting', 'src', 'lib')
 require 'cougaar/scripting'
 require 'ultralog/scripting'
 
-MaxTime= 10 * 60 # time in seconds
+MaxTime= 2 * 60 # time in seconds
 threads = []
 Ultralog::OperatorUtils::HostManager.new.load_society.each_service_host("acme") do |host|
   threads << Thread.fork do
