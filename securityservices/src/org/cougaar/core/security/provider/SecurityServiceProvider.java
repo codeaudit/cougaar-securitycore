@@ -27,6 +27,7 @@
 package org.cougaar.core.security.provider;
 
 // Cougaar core services
+import org.cougaar.community.CommunityProtectionService;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
@@ -253,6 +254,12 @@ public class SecurityServiceProvider
     newSP = new CertValidityServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertValidityService.class, newSP);
     rootServiceBroker.addService(CertValidityService.class, newSP);
+
+    log.error("installing the community protection service");
+    /* Community Protection Service */
+    newSP = new CommunityProtectionServiceProvider(serviceBroker, mySecurityCommunity);
+    services.put(CommunityProtectionService.class, newSP);
+    rootServiceBroker.addService(CommunityProtectionService.class, newSP);
 
     if (isExecutedWithinNode) {
       
