@@ -1181,7 +1181,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
   public CmrRelay findCmrRelay(UID key) {
     CmrRelay relay = null;
     final UID fKey = key;
-    Collection allrelays = getBlackboardService().query( new UnaryPredicate() {
+    Collection relays = getBlackboardService().query( new UnaryPredicate() {
         public boolean execute(Object o) {
           if (o instanceof CmrRelay) {
             CmrRelay relay = (CmrRelay)o;
@@ -1191,14 +1191,10 @@ public abstract class MnRQueryBase extends ComponentPlugin {
           return false;
         }
       });
-    Iterator iter =allrelays.iterator();
-    while(iter.hasNext()) {
-      relay=(CmrRelay)iter.next();
-      if(relay.getUID().equals(key)) {
-        return relay;
-      }
+    if(!relays.isEmpty()) {
+      relay = (CmrRelay)relays.iterator().next();
     }
-    return null;
+    return relay;
   } 
   
 }
