@@ -68,6 +68,8 @@ public class DirectoryKeyStore implements Runnable
   private boolean debug = false;
   private HashMap m = new HashMap();
 
+  private boolean standalone = false;
+
   // A hash map to store the private keys, indexed with common name
   private HashMap privateKeysAlias = new HashMap(89);
 
@@ -81,24 +83,28 @@ public class DirectoryKeyStore implements Runnable
 
   public DirectoryKeyStore(String ldapURL,
 			   InputStream stream, char[] password, String storepath,
-			   InputStream caStream, char[] caPassword, String caStorepath) {
-    this(stream, password, storepath, caStream, caPassword, caStorepath);
+			   InputStream caStream, char[] caPassword, String caStorepath,
+			   boolean standalone) {
+    this(stream, password, storepath, caStream, caPassword, caStorepath, standalone);
     // LDAP certificate directory
     provider_url = ldapURL;
     certificatefinder = new CertificateFinder(provider_url);
   }
 
   public DirectoryKeyStore(InputStream stream, char[] password, String storepath,
-			   InputStream caStream, char[] caPassword, String caStorepath) {
-    init(stream, password, storepath, caStream, caPassword, caStorepath);
+			   InputStream caStream, char[] caPassword, String caStorepath,
+			   boolean standalone) {
+    init(stream, password, storepath, caStream, caPassword, caStorepath, standalone);
   }
 
   private void init(InputStream stream, char[] password, String storepath,
-		    InputStream caStream, char[] caPassword, String caStorepath) {
+		    InputStream caStream, char[] caPassword, String caStorepath,
+		    boolean standaloneValue) {
     try {
       debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						  "false"))).booleanValue();
 
+      standalone = standaloneValue;
       // Open Keystore
       keystorePassword = password;
       keystorePath = storepath;
@@ -125,7 +131,12 @@ public class DirectoryKeyStore implements Runnable
 	listKeyStoreAlias(keystore, keystorePath);
 	listKeyStoreAlias(caKeystore, caKeystorePath);
       }
-      caClient = new CAClient();
+
+      if (!standalone) {
+	// We running as part of Cougaar, this class may be used to support
+	// certificate authority services. In that cases, we need CA policy
+	caClient = new CAClient();
+      }
 
     } catch (Exception e) {
       e.printStackTrace();

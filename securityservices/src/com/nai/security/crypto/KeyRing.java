@@ -149,7 +149,7 @@ final public class KeyRing {
 
       keystore = new DirectoryKeyStore(provider_url,
 				       kss, ksPass.toCharArray(), ksPath,
-				       cakss, caksPass.toCharArray(), caksPath);
+				       cakss, caksPass.toCharArray(), caksPath, false);
       if (kss != null) {
 	kss.close();
       }
