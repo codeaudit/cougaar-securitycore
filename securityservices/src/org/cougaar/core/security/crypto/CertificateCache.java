@@ -40,6 +40,7 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.math.BigInteger;
 import sun.security.x509.*;
+import java.net.*;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -241,7 +242,7 @@ final public class CertificateCache implements CertificateCacheService
     }
     try {
       param.keystoreStream = new FileInputStream(param.keystorePath);
-      param.isCertAuth = configParser.isCertificateAuthority();
+      //param.isCertAuth = configParser.isCertificateAuthority();
     }
     catch (Exception e) {
       log.warn("Unable to open keystore:" + e);
@@ -270,11 +271,17 @@ final public class CertificateCache implements CertificateCacheService
 	param.caKeystorePath = cafile2.getPath();
       }
       else {
+      /**
+       * Create trusted keystore anyway, if no trusted cert is installed
+       * later then this node simply cannot do anything
+       * */
+       /*
         if (param.isCertAuth ||
           System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
-	  if (log.isInfoEnabled()) {
-	    log.info(param.caKeystorePath +
-		     " Trusted CA keystore does not exist. Creating...");
+          */
+          if (log.isWarnEnabled()) {
+            log.warn(param.caKeystorePath +
+                     " Trusted CA keystore does not exist. Creating...");
 	  }
 	  try {
 	    KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -287,11 +294,13 @@ final public class CertificateCache implements CertificateCacheService
 	    log.warn("Unable to create CA keystore:" + e);
 	    throw new RuntimeException("Unable to create CA keystore:" + e);
 	  }
+	/*
 	}
 	else {
 	  log.error("CA keystore (" + param.caKeystorePath +
 		    ") unavailable. At least one CA certificate should be included");
 	}
+	*/
       }
     }
 
@@ -1352,7 +1361,8 @@ final public class CertificateCache implements CertificateCacheService
 	cs.setCertificateTrust(CertificateTrust.CERT_TRUST_SELF_SIGNED);
 
 	// is CA certificate created but pending?
-	if (!cachecryptoClientPolicy.isRootCA() && param.isCertAuth) {
+        if (!cachecryptoClientPolicy.isRootCA() &&
+          cachecryptoClientPolicy.isCertificateAuthority()) {
 	  // We are a subordinate CA
 	  if (cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
 	    // should this be moved to after initialization?
