@@ -104,6 +104,12 @@ final public class KeyRing
 	configParser.getSecurityPolicies(CryptoClientPolicy.class);
       CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
 
+      if (cryptoClientPolicy == null || cryptoClientPolicy.getCertificateAttributesPolicy() == null) {
+	// This is OK for standalone applications if they don't plan to use
+	// certificates for authentication, but it's not OK for nodes
+	log.warn("Unable to get crypto Client policy");
+	throw new RuntimeException("Unable to get crypto Client policy");
+      }
       // Keystore to store key pairs
       param = new DirectoryKeyStoreParameters();
       param.serviceBroker = serviceBroker;
@@ -119,6 +125,7 @@ final public class KeyRing
 	secprop.getProperty(secprop.KEYSTORE_PATH,
 			     defaultKeystorePath);
       */
+
       String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
       nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
       param.keystorePath = nodeConfiguration.getNodeDirectory()
@@ -236,8 +243,7 @@ final public class KeyRing
     }
     if (keystore == null || pkcs12 == null && param.isCertAuth == false) {
       // Cannot proceed without keystore
-      System.err.println("ERROR: Cannot continue secure execution");
-      System.err.println("       without cryptographic data files");
+      log.error("Cannot continue secure execution without cryptographic data files");
       throw new RuntimeException("No cryptographic keystores");
     }
   }

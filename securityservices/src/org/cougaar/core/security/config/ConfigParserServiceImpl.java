@@ -251,7 +251,8 @@ public class ConfigParserServiceImpl
       }
     }
     catch ( Exception e ) {
-      e.printStackTrace();
+      // This is OK for standalone applications, but not for nodes.
+      log.warn("Unable to parse policy:" + e);
     }
   }
 

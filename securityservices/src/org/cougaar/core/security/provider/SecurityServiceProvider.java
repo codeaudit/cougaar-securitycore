@@ -134,9 +134,8 @@ public class SecurityServiceProvider
     }
     catch (Exception e) {
       if (log.isWarnEnabled()) {
-	log.warn("Unable to get service request");
+	log.warn("Unable to get service request for " + serviceClass.getName() + ": " + e);
       }
-      e.printStackTrace();
     }
     if (service == null) {
       if (log.isWarnEnabled()) {

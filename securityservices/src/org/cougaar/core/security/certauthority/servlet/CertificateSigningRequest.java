@@ -132,6 +132,13 @@ public class CertificateSigningRequest
 	printstream.close();
 	return;
       }
+      if (signer == null) {
+	printstream.print("Error --- Unable to get CertificateManagementService for"
+			  + CA_DN_name);
+	printstream.flush();
+	printstream.close();
+	return;
+      }
 
       type=req.getParameter("pkcs");
       if((type==null)||(type==""))  {

@@ -31,6 +31,7 @@ import java.lang.*;
 // Cougaar core services
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
+import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.crypto.KeyRing;
@@ -54,7 +55,14 @@ public class KeyRingServiceProvider
 					 Class serviceClass) {
     // Implemented as a singleton service
     if (keyRingService == null) {
-      keyRingService = new KeyRing(sb);
+      try {
+	keyRingService = new KeyRing(sb);
+      }
+      catch (Exception e) {
+	LoggingService log = (LoggingService)
+	  sb.getService(this, LoggingService.class, null);
+	log.warn("Unable to initialize KeyRingService: " + e);
+      }
     }
     return keyRingService;
   }
