@@ -1,0 +1,105 @@
+#!/usr/bin/ruby
+####################################################
+# create the AMnRPlaysSocietyManager.txt
+# it requires enclave info to accomplish its task
+
+if ! defined? CIP
+  CIP = ENV['CIP']
+end
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
+require 'cougaar/communities'
+require 'ultralog/enclaves'
+require 'framework/jar_util'
+require 'framework/common_security_rules'
+
+if !(@damlUriMapCompleted)
+  @damlUriMapCompleted = true
+  enclave_list = []
+  society.each_enclave { |enclave|
+    enclave_list << enclave;
+  }
+
+  damlFile = "#{CIP}/configs/security/DamlUriMap"
+  configJar = "#{CIP}/configs/security/securityservices_config.jar"
+  file = File.open(damlFile ,"w") { |file|
+    file.write <<END
+#
+# This file is an interim solution until we decide how this really
+# should be done.
+#
+# This file has the form:
+#    (Ultra*Log Policy Pattern) Space (KAoS Name)
+# The Ultra*Log Policy Pattern has the same syntax as the ones in the
+# xml policies.  This is a very rigid pattern - the method that reads
+# this file has no smarts.
+#
+# When edditing this file you need to be sure that each KAoS name in
+# this file also appears in the Ontology-EntityInstances.daml file as
+# a ultralogEntity:Servlet.
+#
+# Start with the servlets that are specific to a particular agent.
+# Some how it seems if we know the agent then the pattern is more
+# specific.
+#
+#commented out because of FreezeSociety
+#/\$AGG-Agent/aggregator AggegatorServlets
+#/\$AGG-Agent/aggregatorkeepalive AggegatorServlets
+# 
+# temporarily turn these off for ACME
+/\$NCA/glsinit NCAServlets
+/\$NCA/glsreply NCAServlets
+/\$NCA/editOplan NCAServlets
+# 
+/\$SCmrmanager/.* SCmrmanagerServlets
+#
+# Servlets with no particular agent.
+#
+#  datagatherer is not included so the automated tests work...
+#/\$.*/datagatherer DataGrabberServlet
+#/\$.*/log_inventory DataGrabberServlet
+#
+/\$.*/CA/CertificateSigningRequest CertReqServlet
+/\$.*/CA/BrowserSigningRequest CertReqServlet
+#
+/\$.*/CA/Index CAReadServlet
+/\$.*/CA/Browser CAReadServlet
+/\$.*/CA/Main CAReadServlet
+/\$.*/CA/CertificateList CAReadServlet
+/\$.*/CA/CertificateDetailsServlet CAReadServlet
+/\$.*/CA/DownloadCertificateServlet CAReadServlet
+/\$.*/CA/PendingCertificateServlet CAReadServlet
+/\$.*/CA/PendingCertDetailsServlet CAReadServlet
+/\$.*/CA/ListCaKeysServlet CAReadServlet
+/\$.*/CA/ListSubordCaServlet CAReadServlet
+# 
+/\$.*/CA/RevokeCertificateServlet CAWriteServlet
+/\$.*/CA/CreateCaKeyServlet CAWriteServlet
+/\$.*/CA/SubmitCaKeyServlet CAWriteServlet
+/\$.*/CA/ProcessPendingCertServlet CAWriteServlet
+/\$.*/CA/CaKeyManagement CAWriteServlet
+#
+#/\$.*/hierarchy HierarchyServlet
+# commented out because of FreezeSociety
+#/\$.*/log_inventory LogInventoryServlet
+#
+#{enclave_list.collect {|e| "/\$#{e.capitalize}PolicyDomainManagerServlet/policyAdmin #{e.capitalize}PolicyServlet"}.join("\n")}
+/\$.*/policyAdmin PolicyServlet
+
+#
+/\$.*/move SocietyAdminServlet
+/\$.*/load SocietyAdminServlet
+/\$.*/topology SocietyAdminServlet
+#
+/\$.*/useradmin UserManagerServlets
+#
+/\$.*/.* OtherServlets
+/.* OtherServlets
+
+END
+  }
+  replaceFileInJar(configJar, damlFile)
+
+  signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
+                      "privileged")
+end 

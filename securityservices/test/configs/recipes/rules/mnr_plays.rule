@@ -1,0 +1,84 @@
+#!/usr/bin/ruby
+####################################################
+# create the AMnRPlaysSocietyManager.txt
+# it requires enclave info to accomplish its task
+
+if ! defined? CIP
+  CIP = ENV['CIP']
+end
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
+require 'cougaar/communities'
+require 'ultralog/enclaves'
+require 'framework/jar_util'
+require 'framework/common_security_rules'
+
+if !(@mnrPlaysCompleted)
+  @mnrPlaysCompleted = true
+  enclave_list = []
+  society.each_enclave { |enclave|
+    enclave_list << enclave;
+  }
+
+  playsFile = "#{CIP}/configs/security/AMnRPlaysSocietyManager.txt"
+  configJar = "#{CIP}/configs/security/securityservices_config.jar"
+  file = File.open(playsFile ,"w") { |file|
+    file.write <<END
+//
+// Society level play book
+//
+
+/* This playbook is used to evaluate the perceived threat level of a society and take actions
+ * when the threat level changes. The perceived threat level depends on how many login failures
+ * occur in a period of time.
+ *
+ * Every T1 seconds, the loging failure analyzer evaluates the number of login failures over the
+ * past T2 seconds. The analyzer aggregates all the login failures from all users.
+ * The current login failure analyzer recipe is setup with T1=20 seconds and T2=20 minutes.
+ *
+ * When the rate of login failures crosses a threshold, the perceived threat level changes and
+ * the preventive measure policy may change. The login failure analyzer always returns the login
+ * failure rate in number of failures per day, regardless of the settings of T1 and T2.
+ * Currently, this playbook file defines three perceived threat levels (1, 2 and 3).
+ *
+ * In every threat level, each user is allowed R login attempts before that user is locked out
+ * for L seconds. For example, in threat level 1, user mbarger is allowed 10 login failures before
+ * the mbarger account is locked out for 60 seconds. After 60 seconds, the mbarger user can try
+ * to login again.
+ * If the lockout duration is set to -1 (as in threat level 3), then the user is locked out
+ * until an administrator unlocks the account.
+ *
+ * In threat level 1 and 2, the preventive measure policy is set to LOW. This mode allows users
+ * to login using either a password or a certificate.
+ * In threat level 3, the preventive measure policy is set to HIGH. Users must provide a certificate
+ * to login.
+ *
+ * 1080 login failures/day == 15 failures/20 minutes
+ * 2160 login failures/day == 30 failures/20 minutes
+ */
+
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE >  1080 : PERCEIVED_THREAT_LEVEL = 2;
+
+PERCEIVED_THREAT_LEVEL == 1
+    : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
+    : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 60
+    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_FAILURES
+#{enclave_list.collect {|e| "    : [agent.#{e.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW"}.join("\n")};
+PERCEIVED_THREAT_LEVEL == 2
+    : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 3
+    : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 600
+    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES
+#{enclave_list.collect {|e| "    : [agent.#{e.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH"}.join("\n")};
+//org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE <= 100
+//    : com.telcordia.mode.AdaptiveFilterOperatingModeReportingRate = RAPID;
+//org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE > 100
+//    : com.telcordia.mode.AdaptiveFilterOperatingModeReportingRate = MODERATE;
+
+END
+  }
+  replaceFileInJar(configJar, playsFile)
+
+  signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
+                      "privileged")
+end 

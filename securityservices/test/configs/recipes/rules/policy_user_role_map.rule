@@ -1,0 +1,45 @@
+#!/usr/bin/ruby
+####################################################
+# create the AMnRPlaysSocietyManager.txt
+# it requires enclave info to accomplish its task
+
+if ! defined? CIP
+  CIP = ENV['CIP']
+end
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
+require 'cougaar/communities'
+require 'ultralog/enclaves'
+require 'framework/jar_util'
+require 'framework/common_security_rules'
+
+if !(@damlUserMapCompleted)
+  @damlUserMapCompleted = true
+  enclave_list = []
+  society.each_enclave { |enclave|
+    enclave_list << enclave;
+  }
+
+  damlFile = "#{CIP}/configs/security/DamlUserRoleMap"
+  configJar = "#{CIP}/configs/security/securityservices_config.jar"
+  file = File.open(damlFile ,"w") { |file|
+    file.write <<END
+.*\\Administrator Administrator
+.*\\CAAdministrator CAAdministrator
+.*\\General General
+.*\\Guest Guest
+.*\\Logistician Logistician
+.*\\LogisticsViewer LogisticsViewer
+.*\\MonitorManager MonitorManager
+#{enclave_list.collect {|e| "#{e.capitalize}UserDomainComm\\PolicyAdministrator #{e.capitalize}PolicyAdministrator"}.join("\n")}
+.*\\PolicyAdministrator PolicyAdministrator
+.*\\UserManager UserManager
+.*\\SocietyAdmin SocietyAdmin
+
+END
+  }
+  replaceFileInJar(configJar, damlFile)
+
+  signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
+                      "privileged")
+end 
