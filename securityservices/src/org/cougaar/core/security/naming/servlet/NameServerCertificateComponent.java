@@ -28,6 +28,7 @@ package org.cougaar.core.security.naming.servlet;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.cert.X509Certificate;
@@ -159,17 +160,46 @@ public class NameServerCertificateComponent extends ComponentPlugin {
 
         if (log.isDebugEnabled()) {
           log.debug("NamingServer AddressEntry: " + entry);
+          if (entry != null) {
+            log.debug("NamingServer entryType = " + entry.getType());
+          }
         }
       
         // we should match all local WP binds that aren't of type alias.
         // this could be -HTTP, -HTTPS, -RMI_REG
-        if(!entry.getType().equals("alias")) {
+        if (entry.getType().equals("-RMI_REG")) {
+          URI uri = entry.getURI();
+          String path = uri.getPath();
+          if (log.isDebugEnabled()) {
+            log.debug("path = " + path);
+          }
+          if (path == null) {
+            if (log.isErrorEnabled()) {
+              log.error("Cannot add null to pending cache", new Throwable());
+            }
+          } else {
+            String agent = path.substring(1);
+            if (getAgentIdentifier().toString().equals(agent)) {
+              if (log.isDebugEnabled()) {
+                log.debug("I am a nameserver");
+              }
+              _isNameServer = true; 
+              _nameservers.put(agent, new NameServerCertificate(agent, null));
+            } else {
+              if (log.isDebugEnabled()) {
+                log.debug("Putting agent = " + agent + " into cache");
+              }
+              _pendingCache.put(agent, agent);
+            }
+          }
+        } else if (!entry.getType().equals("alias")) {
         
           String host = entry.getURI().getHost();
           String agent = entry.getName(); 
           if (log.isDebugEnabled()) {
-            log.debug("Name server is " + agent + ":" + host + " Localhost:"
-                      + NodeInfo.getHostName());
+            log.debug("Name server is: agent = " + agent 
+                      + " host = " + host);
+            log.debug("NodeInfo.getHostName = " + NodeInfo.getHostName());
           }
           //if (NodeInfo.getNodeName().equals(agent)) {
           if (getAgentIdentifier().toString().equals(agent)) {
@@ -182,8 +212,10 @@ public class NameServerCertificateComponent extends ComponentPlugin {
               if (log.isErrorEnabled()) {
                 log.error("Cannot add null to pending cache", new Throwable());
               }
-            }
-            else {
+            } else {
+              if (log.isDebugEnabled()) {
+                log.debug("Putting agent = " + agent + " into cache");
+              }
               _pendingCache.put(agent, agent);
             }
           }
