@@ -1,0 +1,12 @@
+#!/usr/bin/ruby
+####################################################
+# PolicyInitAgentPlugin
+
+
+scPlugin = "org.cougaar.core.security.test.ServiceContractReaderPlugin"
+
+society.each_agent(true) do |agent|
+  agent.add_component do |c|
+    c.classname = scPlugin
+  end
+end
