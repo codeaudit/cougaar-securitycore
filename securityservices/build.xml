@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Ant build script for Ultra*Log securityservices. Run 'ant' in the  
+     $COUGAAR_SECURITY_SERVICES directory with no arguments to build and
+     install security services.  Use "ant cvs-update" to update local 
+     repository before building and installing security services. To
+     generate javadocs run "ant javadocs".  To tar and zip the javadocs
+     run "ant tar-docs". Include "-v" with ant for verbose mode.  -->
+
+<project basedir="." default="all" name="Ultra*Log/securityservices">
+  
+    <!-- prefix for all environment variables -->
+    <property environment="env"/>
+    <property name="cougaar.install.path" value="${env.COUGAAR_INSTALL_PATH}"/>
+    <property name="securityservices.base" value="${env.COUGAAR_SECURITY_SERVICES}"/>
+    <property name="securityservices.sys" value="${securityservices.base}/sys"/>
+    <property name="securityservices.lib" value="${securityservices.base}/lib"/>
+    <property name="securityservices.docdir" value="${securityservices.base}/doc"/>
+    <property name="securityservices.configs" value="${securityservices.base}/test/configs"/> 
+    <!-- The classes directory for output classes and jar files -->
+    <property name="securityservices.classes" value="${env.COUGAARCLASSES}"/>
+    <!-- The base directories where the java source files are located -->
+    <property name="securityservices.src" value="${securityservices.base}/src"/>
+
+    <path id="securityservices.class.path">    
+        <!-- Cougaar 3rd party support packages -->
+        <pathelement location="${cougaar.install.path}/sys/jasper-runtime.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/log4j.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/silk.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/ibmpkcs.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/idmef.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/jpython.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/xerces.jar"/>
+        <!-- Tomcat libraries -->
+        <pathelement location="${cougaar.install.path}/sys/tomcat_40.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/webserver.jar"/>
+        <!-- Cougaar packages -->
+        <pathelement location="${cougaar.install.path}/lib/build.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/glm.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/planserver.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/core.jar"/>
+        <!-- KAoS libraries -->
+        <pathelement location="${cougaar.install.path}/sys/mail.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/kaos.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/safe.jar"/>
+    </path>
+    
+    <target name="init" depends="install-jars">
+        <mkdir dir="${securityservices.classes}"/>
+        <mkdir dir="${securityservices.docdir}"/>
+    </target>
+    
+    <!-- Build the JavaIDMEF library -->
+    <target name="build-idmef" depends="init">
+        <echo message="+++++ Building JavaIDMEF"/>
+        <javac classpathref="securityservices.class.path" debug="true" depend="true" 
+            deprecation="true" destdir="${securityservices.classes}" 
+            includes="edu/jhuapl/idmef/*.java" srcdir="${securityservices.src}"/>
+        <echo message="+++++ Built JavaIDMEF"/>
+    </target>
+    
+    <!-- Build the org.cougaar.core.security package -->
+    <target name="build-securityservices" depends="init, build-idmef">
+        <echo message="+++++ Building security services"/>
+        <javac classpathref="securityservices.class.path" debug="true" depend="true" 
+            deprecation="true" destdir="${securityservices.classes}" 
+            includes="org/cougaar/core/security/**" srcdir="${securityservices.src}"/>
+        <echo message="+++++ Built security services"/>
+    </target>
+    
+    <!-- jar JavaIDMEF -->
+    <target name="jar-idmef" depends="build-idmef">
+        <jar jarfile="${securityservices.classes}/idmef.jar">
+            <fileset dir="${securityservices.classes}"
+                includes="edu/jhuapl/idmef/*.class"/>
+            <fileset dir="${securityservices.src}" includes="edu/jhuapl/idmef/*.dtd"/>
+        </jar>
+    </target>
+    
+    <!-- jar security services -->
+    <target name="jar-securityservices" depends="build-securityservices">
+        <echo message="+++++ Building jar files"/>
+        <jar jarfile="${securityservices.classes}/bootstrapper.jar" 
+            basedir="${securityservices.classes}" update="true"
+            includes="org/cougaar/core/security/bootstrap/*.class"/>
+        <jar jarfile="${securityservices.classes}/securebootstrapper.jar" 
+            basedir="${securityservices.classes}" update="true"
+            includes="org/cougaar/core/security/securebootstrap/*.class"/>
+        <jar jarfile="${securityservices.classes}/securityservices.jar"
+            basedir="${securityservices.classes}" update="true"
+            includes="org/cougaar/core/security/**/*.class"
+            excludes="org/cougaar/core/security/*bootstrap/**,
+                      org/cougaar/core/security/**/test/**,
+                      org/cougaar/core/security/oldmonitoring/**"/>
+        <jar jarfile="${securityservices.classes}/CougaarCRLextensions.jar"
+            basedir="${securityservices.classes}" update="true"
+            includes="org/cougaar/core/security/crlextension/*.class"/>
+        <echo message="+++++ Built jar files"/>
+    </target>
+    
+    <!-- sign security services -->
+    <target name="sign-jars" depends="jar-idmef, jar-securityservices">
+        <echo message="+++++ Signing jar files"/>
+        <signjar jar="${securityservices.classes}/bootstrapper.jar" alias="bootstrapper" 
+            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
+            storepass="keystore" verbose="true"/>
+        <signjar jar="${securityservices.classes}/securebootstrapper.jar" alias="bootstrapper" 
+            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
+            storepass="keystore" verbose="true"/>
+        <signjar jar="${securityservices.classes}/securityservices.jar" alias="privileged" 
+            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
+            storepass="keystore" verbose="true"/>
+        <signjar jar="${securityservices.classes}/CougaarCRLextensions.jar" alias="privileged" 
+            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
+            storepass="keystore" verbose="true"/>
+        <signjar jar="${securityservices.classes}/idmef.jar" alias="privileged" 
+            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
+            storepass="keystore" verbose="true"/>
+        <echo message="+++++ Signed jar files"/>
+    </target>
+    
+    <!-- install security services -->
+    <target name="install-signed-jars" depends="sign-jars">
+        <echo message="+++++ Installing jar files"/>
+        <copy file="${securityservices.classes}/bootstrapper.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <copy file="${securityservices.classes}/securebootstrapper.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <copy file="${securityservices.classes}/securityservices.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <copy file="${securityservices.classes}/CougaarCRLextensions.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <copy file="${securityservices.classes}/idmef.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <echo message="+++++ Installed jar files"/>
+    </target>
+    
+    <target name="install-jars">
+        <echo message="+++++ Installing jar files"/>
+        <copy todir="${cougaar.install.path}/sys">
+            <fileset dir="${securityservices.sys}" includes="*.jar"/>
+        </copy>
+        <copy todir="${cougaar.install.path}/lib">
+            <fileset dir="${securityservices.lib}" includes="*.jar"/>
+        </copy>
+        <echo message="+++++ Installed jar files"/>        
+    </target>
+    
+    <!-- install config files -->
+    <target name="install-conf">
+        <echo message="+++++ Installing configuration files"/>
+        <copy todir="${cougaar.install.path}/configs">
+            <fileset dir="${securityservices.configs}">
+                <patternset>
+                    <include name="common/*"/>
+                    <include name="small-135/*"/>
+                    <exclude name="**/CVS/**"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/webtomcat/data/conf"
+            file="${securityservices.configs}/tomcat4/server.xml"/>    
+        <copy todir="${cougaar.install.path}/webtomcat/data/webapps/ROOT/WEB-INF"
+            file="${securityservices.configs}/tomcat4/web.xml"/>
+        <echo message="+++++ Installed configuration files"/>
+    </target>
+    
+    <target name="confnai">
+        <copy todir="${cougaar.install.path}/configs/small-135"
+            file="${securityservice.configs}/mysql/cougaar.rc"/>
+    </target>
+    
+    <!-- create log directories -->
+    <target name="create-log-dirs">
+        <echo message="+++++ Creating log directories"/>
+        <delete dir="${cougaar.install.path}/log" includeEmptyDirs="true" quiet="true"/>
+        <delete file="${cougaar.install.path}/sys/tomcat_33.jar" verbose="true"/>
+        <mkdir dir="${cougaar.install.path}/log/bootstrap"/>
+        <mkdir dir="${cougaar.install.path}/log/core"/>
+        <mkdir dir="${cougaar.install.path}/log/plugin"/>
+        <echo message="+++++ Created log directories"/>
+    </target>
+
+    <!-- The ALL target does not include cvs-update and javadoc -->
+    <target name="all" depends="init, install-conf, install-signed-jars, create-log-dirs">
+        <echo message="Ultra*Log/securityservices Build Complete"/>
+        <echo message="***** Don't forget to run 'ant confnai' *****"/>
+        <echo message="***** DO NOT FORGET to modify the alpreg.ini file *****"/>
+    </target>
+    
+    <!-- Updating repository before building -->
+    <target name="cvs-update">
+      <cvs cvsRoot="${env.CVSROOT}" command="update -d"/>
+    </target>
+    
+    <!-- use 'ant with-update' to update repository before building security services -->
+    <target name="with-update" depends="cvs-update, all"/>
+    
+    <!-- create javadocs for security services and JavaIDMEF -->
+    <target name="javadocs" depends="init" description="Build security services and idmef javadocs">
+        <echo message="Creating JavaDocs for security services and JavaIDMEF"/>
+        <delete file="${securityservices.docdir}/javadoc.tar.gz" verbose="true"/>
+        <javadoc classpathref="securityservices.class.path" destdir="${securityservices.docdir}"
+            windowtitle="Ultra*Log/securityservices API" sourcepath="${securityservices.src}" 
+            packagenames="edu.jhuapl.idmef.*, org.cougaar.core.security.*" 
+            excludepackagenames="org.cougaar.core.security.oldmonitoring.*, 
+                                 org.cougaar.core.security.test.*"
+            author="true" version="true"/>
+        <echo message="Created JavaDocs for security services and JavaIDMEF"/>
+    </target>
+	
+	  <!-- tar up javadoc and delete all files -->
+	  <target name="tar-docs" depends="javadocs">
+        <tar tarfile="${securityservices.docdir}/javadoc.tar" basedir="${securityservices.docdir}"
+            includes="*.html, *.css, edu/*, org/*" 
+            includesfile="${securityservices.docdir}/package-list"/>
+        <gzip zipfile="${securityservices.docdir}/javadoc.tar.gz" 
+            src="${securityservices.docdir}/javadoc.tar"/>
+        <delete file="${securityservices.docdir}/javadoc.tar" verbose="true"/>
+        <delete includeEmptyDirs="true">
+            <fileset dir="${securityservices.docdir}">
+                <patternset>
+                    <include name="**/**"/>
+                    <exclude name="**/*.gz"/>
+                </patternset>
+            </fileset>
+        </delete>
+    </target>
+    
+    <!-- Delete the edu, com, and org class directories, and jar files -->
+    <target name="clean">
+        <echo message="+++++ Cleaning build environment"/>
+        <delete dir="${securityservices.classes}/edu" includeEmptyDirs="true" quiet="true"/>
+        <delete dir="${securityservices.classes}/com" includeEmptyDirs="true" quiet="true"/>
+        <delete dir="${securityservices.classes}/org" includeEmptyDirs="true" quiet="true"/>
+        <delete file="${securityservices.classes}/bootstrapper.jar" verbose="true"/>
+        <delete file="${securityservices.classes}/securebootstrapper.jar" verbose="true"/>
+        <delete file="${securityservices.classes}/securityservices.jar" verbose="true"/>
+        <delete file="${securityservices.classes}/CougaarCRLextensions.jar" verbose="true"/>
+        <delete file="${securityservices.classes}/idmef.jar" verbose="true"/>
+        <echo message="+++++ Cleaned build environment"/>
+    </target>
+    
+</project>
+<!-- End Ultra*Log/securityservices ant build script -->
