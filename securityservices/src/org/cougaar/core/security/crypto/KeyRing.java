@@ -92,158 +92,198 @@ final public class KeyRing
       throw new RuntimeException("unable to get config parser service");
     }
 
-    try {
-      String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
+    String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
 
-      String role =
-	secprop.getProperty(secprop.SECURITY_ROLE);
-      if (role == null && log.isWarnEnabled() == true) {
-	log.warn("Keyring Warning: LDAP role not defined");
-      }
-      SecurityPolicy[] sp =
-	configParser.getSecurityPolicies(CryptoClientPolicy.class);
-      CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
+    String role =
+      secprop.getProperty(secprop.SECURITY_ROLE);
+    if (role == null && log.isInfoEnabled() == true) {
+      log.info("Role is not defined");
+    }
+    SecurityPolicy[] sp =
+      configParser.getSecurityPolicies(CryptoClientPolicy.class);
+    CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
 
-      if (cryptoClientPolicy == null || cryptoClientPolicy.getCertificateAttributesPolicy() == null) {
-	// This is OK for standalone applications if they don't plan to use
-	// certificates for authentication, but it's not OK for nodes
+    if (cryptoClientPolicy == null
+	|| cryptoClientPolicy.getCertificateAttributesPolicy() == null) {
+      // This is OK for standalone applications if they don't plan to use
+      // certificates for authentication, but it's not OK for nodes
+      boolean exec =
+	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
+      if (exec == true) {
 	log.warn("Unable to get crypto Client policy");
-	throw new RuntimeException("Unable to get crypto Client policy");
       }
-      // Keystore to store key pairs
-      param = new DirectoryKeyStoreParameters();
-      param.serviceBroker = serviceBroker;
+      else {
+	log.info("Unable to get crypto Client policy");
+      }
+      throw new RuntimeException("Unable to get crypto Client policy");
+    }
+    // Keystore to store key pairs
+    param = new DirectoryKeyStoreParameters();
+    param.serviceBroker = serviceBroker;
 
-      /*
+    /*
       String defaultKeystorePath = installpath + File.separatorChar
-	+ "configs" + File.separatorChar + "common"
-	+ File.separatorChar + "keystore";
+      + "configs" + File.separatorChar + "common"
+      + File.separatorChar + "keystore";
       param.keystorePassword =
-	secprop.getProperty(secprop.KEYSTORE_PASSWORD,
-			   "alpalp").toCharArray();
+      secprop.getProperty(secprop.KEYSTORE_PASSWORD,
+      "alpalp").toCharArray();
       param.keystorePath =
-	secprop.getProperty(secprop.KEYSTORE_PATH,
-			     defaultKeystorePath);
-      */
+      secprop.getProperty(secprop.KEYSTORE_PATH,
+      defaultKeystorePath);
+    */
 
-      String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
-      nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
-      param.keystorePath = nodeConfiguration.getNodeDirectory()
-	+ cryptoClientPolicy.getKeystoreName();
-      log.debug("going to use smart card: " + cryptoClientPolicy.getUseSmartCard());
-      if (cryptoClientPolicy.getUseSmartCard()) {
-        try {
-          param.keystorePassword = 
-            SmartCardApplet.getKeystorePassword(cryptoClientPolicy.getKeystorePassword(),
-                                                log);
+    String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
+    nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
+    param.keystorePath = nodeConfiguration.getNodeDirectory()
+      + cryptoClientPolicy.getKeystoreName();
+    log.debug("going to use smart card: " + cryptoClientPolicy.getUseSmartCard());
+    if (cryptoClientPolicy.getUseSmartCard()) {
+      try {
+	param.keystorePassword = 
+	  SmartCardApplet.getKeystorePassword(cryptoClientPolicy.getKeystorePassword(),
+					      log);
           
-        } catch (RuntimeException e) {
-          log.error("Couldn't talk to the keystore");
-          throw e;
-        }
-      } else {
-        param.keystorePassword = cryptoClientPolicy.getKeystorePassword().toCharArray();
-      } // end of else
-
-      File file = new File(param.keystorePath);
-      if (!file.exists()){
-	if (log.isInfoEnabled()) {
-	  log.info(param.keystorePath +
-		   " keystore does not exist. Creating...");
-	}
-        KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
-        FileOutputStream fos = new FileOutputStream(param.keystorePath);
-	k.load(null, param.keystorePassword);
-        k.store(fos, param.keystorePassword);
-	fos.close();
-
+      } catch (RuntimeException e) {
+	log.error("Couldn't talk to the keystore");
+	throw e;
       }
+    } else {
+      param.keystorePassword = cryptoClientPolicy.getKeystorePassword().toCharArray();
+    } // end of else
+
+    File file = new File(param.keystorePath);
+    if (!file.exists()){
+      if (log.isInfoEnabled()) {
+	log.info(param.keystorePath +
+		 " keystore does not exist. Creating...");
+      }
+      try {
+	KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
+	FileOutputStream fos = new FileOutputStream(param.keystorePath);
+	k.load(null, param.keystorePassword);
+	k.store(fos, param.keystorePassword);
+	fos.close();
+      }
+      catch (Exception e) {
+	log.warn("Unable to get keystore:" + e);
+	throw new RuntimeException("Unable to get keystore:" + e);
+      }
+    }
+    try {
       param.keystoreStream = new FileInputStream(param.keystorePath);
       param.isCertAuth = configParser.isCertificateAuthority();
+    }
+    catch (Exception e) {
+      log.warn("Unable to open keystore:" + e);
+      throw new RuntimeException("Unable to open keystore:" + e);
+    }
 
-      // CA keystore parameters
-      ConfigFinder configFinder = ConfigFinder.getInstance();
-      param.caKeystorePath = nodeConfiguration.getNodeDirectory()
-	+ cryptoClientPolicy.getTrustedCaKeystoreName();
-      param.caKeystorePassword =
-	cryptoClientPolicy.getTrustedCaKeystorePassword().toCharArray();
+    // CA keystore parameters
+    ConfigFinder configFinder = ConfigFinder.getInstance();
+    param.caKeystorePath = nodeConfiguration.getNodeDirectory()
+      + cryptoClientPolicy.getTrustedCaKeystoreName();
+    param.caKeystorePassword =
+      cryptoClientPolicy.getTrustedCaKeystorePassword().toCharArray();
 
-      if (log.isDebugEnabled()) {
-	log.debug("CA keystorePath=" + param.caKeystorePath);
+    if (log.isDebugEnabled()) {
+      log.debug("CA keystorePath=" + param.caKeystorePath);
+    }
+    File cafile = new File(param.caKeystorePath);
+    if (!cafile.exists()) {
+      if (log.isInfoEnabled()) {
+	log.info(param.caKeystorePath +
+		 "Trusted CA keystore does not exist. in "
+		 + param.caKeystorePath + ". Trying with configFinder");
       }
-      File cafile = new File(param.caKeystorePath);
-      if (!cafile.exists()) {
-	if (log.isInfoEnabled()) {
-	  log.info(param.caKeystorePath +
-			     "Trusted CA keystore does not exist. in "
-			     + param.caKeystorePath + ". Trying with configFinder");
-	}
-	File cafile2 = configFinder.locateFile(cryptoClientPolicy.getTrustedCaKeystoreName());
-	if (cafile2 != null) {
-	  param.caKeystorePath = cafile2.getPath();
-	}
-	else {
-	  if (param.isCertAuth) {
-	    if (log.isInfoEnabled()) {
-	      log.info(param.caKeystorePath +
-		       " Trusted CA keystore does not exist. Creating...");
-	    }
+      File cafile2 = configFinder.locateFile(cryptoClientPolicy.getTrustedCaKeystoreName());
+      if (cafile2 != null) {
+	param.caKeystorePath = cafile2.getPath();
+      }
+      else {
+	if (param.isCertAuth) {
+	  if (log.isInfoEnabled()) {
+	    log.info(param.caKeystorePath +
+		     " Trusted CA keystore does not exist. Creating...");
+	  }
+	  try {
 	    KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
 	    FileOutputStream fos = new FileOutputStream(param.caKeystorePath);
 	    k.load(null, param.caKeystorePassword);
 	    k.store(fos, param.caKeystorePassword);
 	    fos.close();
 	  }
-	  else {
-	    log.error("CA keystore unavailable. At least one CA certificate should be included");
+	  catch (Exception e) {
+	    log.warn("Unable to create CA keystore:" + e);
+	    throw new RuntimeException("Unable to create CA keystore:" + e);
 	  }
 	}
-      }
-
-      try {
-	param.caKeystoreStream = new FileInputStream(param.caKeystorePath);
-      }
-      catch (Exception e) {
-	if (log.isWarnEnabled()) {
-	  log.warn("Warning: Could not open CA keystore ("
-		    + param.caKeystorePath + "):" + e);
+	else {
+	  log.error("CA keystore unavailable. At least one CA certificate should be included");
 	}
-	param.caKeystoreStream = null;
-	param.caKeystorePath = null;
-	param.caKeystorePassword = null;
       }
-
-      if (log.isDebugEnabled()) {
-	log.debug("Secure message keystore: path="
-		  + param.keystorePath);
-	log.debug("Secure message CA keystore: path="
-		  + param.caKeystorePath);
+    }
+    
+    try {
+      param.caKeystoreStream = new FileInputStream(param.caKeystorePath);
+    }
+    catch (Exception e) {
+      if (log.isWarnEnabled()) {
+	log.warn("Warning: Could not open CA keystore ("
+		 + param.caKeystorePath + "):" + e);
       }
+      param.caKeystoreStream = null;
+      param.caKeystorePath = null;
+      param.caKeystorePassword = null;
+    }
 
-      // LDAP certificate directory
-      TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
-      if (trustedCaPolicy.length > 0) {
-	param.ldapServerUrl = trustedCaPolicy[0].certDirectoryUrl;
-	param.ldapServerType = trustedCaPolicy[0].certDirectoryType;
-      }
+    if (log.isDebugEnabled()) {
+      log.debug("Secure message keystore: path="
+		+ param.keystorePath);
+      log.debug("Secure message CA keystore: path="
+		+ param.caKeystorePath);
+    }
 
-      keystore = new DirectoryKeyStore(param);
+    // LDAP certificate directory
+    TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
+    if (trustedCaPolicy.length > 0) {
+      param.ldapServerUrl = trustedCaPolicy[0].certDirectoryUrl;
+      param.ldapServerType = trustedCaPolicy[0].certDirectoryType;
+    }
 
-      if (param.keystoreStream != null) {
+    keystore = new DirectoryKeyStore(param);
+
+    if (param.keystoreStream != null) {
+      try {
 	param.keystoreStream.close();
       }
-      if (param.caKeystoreStream != null) {
+      catch (Exception e) {
+	log.warn("Unable to close keystore:" + e);
+	throw new RuntimeException("Unable to close keystore:" + e);
+      }
+    }
+    if (param.caKeystoreStream != null) {
+      try {
 	param.caKeystoreStream.close();
       }
-
-      pkcs12 = new PrivateKeyPKCS12(keystore, serviceBroker);
-
-    } catch (Exception e) {
-      e.printStackTrace();
+      catch (Exception e) {
+	log.warn("Unable to close CA keystore:" + e);
+	throw new RuntimeException("Unable to close CA keystore:" + e);
+      }
     }
+
+    pkcs12 = new PrivateKeyPKCS12(keystore, serviceBroker);
+
     if (keystore == null || pkcs12 == null && param.isCertAuth == false) {
       // Cannot proceed without keystore
-      log.error("Cannot continue secure execution without cryptographic data files");
+      boolean exec =
+	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
+      if (exec == true) {
+	log.error("Cannot continue secure execution without cryptographic data files");
+      }
+      else {
+	log.info("Cryptographic keystores are missing");
+      }
       throw new RuntimeException("No cryptographic keystores");
     }
   }

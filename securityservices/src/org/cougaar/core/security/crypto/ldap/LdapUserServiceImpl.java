@@ -77,6 +77,7 @@ public class LdapUserServiceImpl implements LdapUserService {
   private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
 
   private ServiceBroker _serviceBroker;
+  private ServiceBroker _nodeServiceBroker;
   private LoggingService _log;
 
   protected LdapUserServiceConfigurer _configurer;
@@ -86,11 +87,12 @@ public class LdapUserServiceImpl implements LdapUserService {
    * the guard's policy. If no policy exists, there will be no
    * connection to the user database.
    */
-  public LdapUserServiceImpl(ServiceBroker sb) {
+  public LdapUserServiceImpl(ServiceBroker sb, ServiceBroker nsb) {
     _serviceBroker = sb;
+    _nodeServiceBroker = nsb;
     _log = (LoggingService)
       _serviceBroker.getService(this, LoggingService.class, null);
-    _configurer = new LdapUserServiceConfigurer(sb);
+    _configurer = new LdapUserServiceConfigurer(_nodeServiceBroker);
   }
 
   /**
