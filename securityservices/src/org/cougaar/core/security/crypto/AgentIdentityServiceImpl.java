@@ -36,7 +36,7 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.node.NodeAgent;
 import org.cougaar.core.node.NodeIdentificationService;
-import org.cougaar.core.security.certauthority.servlet.CAIdentityClientImpl;
+import org.cougaar.core.security.certauthority.CAIdentityClientImpl;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 import org.cougaar.core.security.services.crypto.CertValidityService;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
