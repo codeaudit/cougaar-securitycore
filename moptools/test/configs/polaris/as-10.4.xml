@@ -24,17 +24,12 @@ This configuration will run FULL-TRANS with:
                 manifest="ticenvironment-overlay-oplan.txt"/>
     <overlay file="isat_plugins_HEAD_B10_4_5.zip" branch="HEAD"
                 manifest="isat-csmart-overlay-plugins.txt" />
-    <!-- The manifest file is not included
-         in the current zip file -->
     <overlay file="isat_acme_HEAD_B10_4_5.zip" branch="HEAD"
                 manifest="isat-csmart-overlay-acme.txt" />
     <overlay file="bbn_commons_HEAD_B10_4_5.zip" branch="HEAD"
                 manifest="bbn_commons.txt" />
     <overlay file="AS_csi_secserv_HEAD_B10_4_5.zip" branch="HEAD" 
                 manifest="AS_csi_secserv.txt" />
-
-    <!-- The manifest file is not included
-         in the current zip file -->
     <overlay file="AS_csi_mop_secserv_HEAD_B10_4_5.zip" branch="HEAD" 
                 manifest="AS_csi_mop_secserv.txt" />
     <overlay file="AS_umem_HEAD_B10_4_5.zip" branch="HEAD" 
