@@ -123,7 +123,7 @@ function updateName() {
           <td><%=title%></td>
           <td>
 <%
-        if (field == UserInterface.LDAP_USER_AUTH) {
+        if (field.equals(UserInterface.LDAP_USER_AUTH)) {
           if ("".equals(val)) val = UserInterface.LDAP_USER_AUTH_VALS[UserInterface.LDAP_USER_AUTH_DEFAULT_VAL][0];
 %>
             <select name="<%=field%>">
@@ -140,13 +140,13 @@ function updateName() {
 <%      } %>
             </select>
 <%
-        } else if (field == UserInterface.LDAP_USER_ENABLE) {
+        } else if (field.equals(UserInterface.LDAP_USER_ENABLE)) {
 %>
           <input type="text" name="<%=field%>" value="<%=val%>">&nbsp;&nbsp;
           <input type="button" value="Enable" onClick="enableUser();">&nbsp;
           <input type="button" value="Disable" onClick="disableUser();">
 <%
-        } else if (field == UserInterface.LDAP_USER_CERTOK) {
+        } else if (field.equals(UserInterface.LDAP_USER_CERTOK)) {
           boolean certOk = false;
           if (val != null) {
             certOk = Boolean.valueOf(val.toString()).booleanValue();

@@ -66,7 +66,7 @@ function deleteCheck() {
       String field   = UserInterface.LDAP_USER_FIELDS[i][0];
       Object val     = user.get(field);
       if (val == null) val = "";
-      if (field == UserInterface.LDAP_USER_ENABLE) {
+      if (field.equals(UserInterface.LDAP_USER_ENABLE)) {
         String str = val.toString();
         Calendar now = null;
         now = Calendar.getInstance(TimeZone.getTimeZone("GMT"));

@@ -26,6 +26,8 @@
 
 package org.cougaar.core.security.crypto.ldap.admin;
 
+import org.cougaar.core.security.services.acl.UserService;
+
 /**
  * This class is only for keeping the attributes names used to pass
  * values between servlet and jsp.
@@ -78,21 +80,21 @@ class UserInterface {
   public static final String ROLES                       = "roles";
 
   // LDAP attributes:
-  public static final String LDAP_ROLE_RDN               = "cn";
+  public static String LDAP_ROLE_RDN               = "cn";
   public static final String LDAP_ROLE_RDN_TITLE         = "Role Name";
   public static final String LDAP_ROLE_USER_RDN          = "roleOccupant";
   public static final String LDAP_ROLE_USER_RDN_TITLE    = "Users";
 
-  public static final String LDAP_USER_UID               = "uid";
+  public static String LDAP_USER_UID               = "uid";
   public static final String LDAP_USER_UID_TITLE         = "User ID";
-  public static final String LDAP_USER_PASSWORD          = "userPassword";
+  public static String LDAP_USER_PASSWORD          = "userPassword";
   public static final String LDAP_USER_PASSWORD_TITLE1   = "Password";
   public static final String LDAP_USER_PASSWORD_TITLE2   = "Repeat Password";
-  public static final String LDAP_USER_ENABLE            = "cougaarAcctEnableTime";
+  public static String LDAP_USER_ENABLE            = "cougaarAcctEnableTime";
   public static final String LDAP_USER_ENABLE_TITLE      = "Enabled";
-  public static final String LDAP_USER_AUTH              = "cougaarAuthReq";
+  public static String LDAP_USER_AUTH              = "cougaarAuthReq";
   public static final String LDAP_USER_AUTH_TITLE        = "Auth Requirement";
-  public static final String LDAP_USER_CERTOK            = "certIsSpecial";
+  public static String LDAP_USER_CERTOK            = "certIsSpecial";
   public static final String LDAP_USER_CERTOK_TITLE      = "Cert OK for Disabled Account";
   public static final String LDAP_USER_AUTH_VALS[][]     = {
     {"CERT",     "Certificate Only"},
@@ -102,13 +104,13 @@ class UserInterface {
   };
   public static final int LDAP_USER_AUTH_DEFAULT_VAL     = 3; // either
 
-  public static final String LDAP_SEARCH_FIELDS[][] = {
+  public static String LDAP_SEARCH_FIELDS[][] = {
     { LDAP_USER_UID, LDAP_USER_UID_TITLE },
     { "cn", "Name" },
     { "mail", "Email Address" }
   };
 
-  public static final String LDAP_USER_FIELDS[][] = {
+  public static String LDAP_USER_FIELDS[][] = {
     { LDAP_USER_UID,    LDAP_USER_UID_TITLE    },
     { LDAP_USER_ENABLE, LDAP_USER_ENABLE_TITLE },
     { LDAP_USER_CERTOK, LDAP_USER_CERTOK_TITLE },
@@ -132,14 +134,40 @@ class UserInterface {
 //     { "facsimileTelephoneNumber", "Fax #" }
   };
 
-  public static final String LDAP_ROLE_SEARCH_FIELDS[][] = {
+  public static String LDAP_ROLE_SEARCH_FIELDS[][] = {
     { LDAP_ROLE_RDN, LDAP_ROLE_RDN_TITLE },
     { "description", "Description" }
   };
 
-  public static final String LDAP_ROLE_FIELDS[][] = {
+  public static String LDAP_ROLE_FIELDS[][] = {
     { LDAP_ROLE_RDN, LDAP_ROLE_RDN_TITLE },
     { "description", "Description" }
 //     { LDAP_ROLE_USER_RDN, LDAP_ROLE_USER_RDN_TITLE }
   };
+
+  static void setAttributes(UserService userService) {
+    LDAP_ROLE_RDN = userService.getRoleIDAttribute();
+    LDAP_USER_UID = userService.getUserIDAttribute();
+    LDAP_USER_PASSWORD = userService.getPasswordAttribute();
+    LDAP_USER_ENABLE = userService.getEnableTimeAttribute();
+    LDAP_USER_AUTH = userService.getAuthFieldsAttribute();
+    LDAP_USER_CERTOK = userService.getCertOkAttribute();
+
+    LDAP_USER_FIELDS = new String[][] {
+      { LDAP_USER_UID,    LDAP_USER_UID_TITLE    },
+      { LDAP_USER_ENABLE, LDAP_USER_ENABLE_TITLE },
+      { LDAP_USER_CERTOK, LDAP_USER_CERTOK_TITLE },
+      { LDAP_USER_AUTH,   LDAP_USER_AUTH_TITLE   },
+      { "givenName", "First Name" },
+      { "sn", "Last Name" },
+      { "cn", "Name" },
+      { "mail", "Email Address" }
+    };
+
+    LDAP_ROLE_FIELDS = new String[][] {
+      { LDAP_ROLE_RDN, LDAP_ROLE_RDN_TITLE },
+      { "description", "Description" }
+    };
+  }
+
 }

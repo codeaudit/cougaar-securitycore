@@ -112,7 +112,7 @@ import org.cougaar.core.security.constants.IdmefClassifications;
  */
 public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
-  private static ServiceBroker _nodeServiceBroker;
+  private static ServiceBroker _serviceBroker;
   private static String        _realmName = "Cougaar";
   private LoggingService log;
 
@@ -162,19 +162,19 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    * given in the setDefaultLdapUserService call.
    */
   public KeyRingJNDIRealm() {
-    init();
   }
 
   private synchronized boolean init() {
-    if (_nodeServiceBroker == null) {
-      return false;
-    }
-    log = (LoggingService)
-      _nodeServiceBroker.getService(this,
-			       LoggingService.class, null);
     if (_userService == null) {
-      _userService = (UserService) _nodeServiceBroker.
+      if (_serviceBroker == null) {
+        return false;
+      }
+      _userService = (UserService) _serviceBroker.
         getService(this, UserService.class, null);
+    }
+    if (log == null) {
+      log = (LoggingService)
+        _serviceBroker.getService(this, LoggingService.class, null);
     }
     return true;
   }
@@ -183,7 +183,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    * Sets the default UserService using the node service broker
    */
   public static void setNodeServiceBroker(ServiceBroker sb) {
-    _nodeServiceBroker = sb;
+    _serviceBroker = sb;
   }
 
   /**
@@ -251,7 +251,6 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    * if the credentials match the database or <code>null</code> otherwise.
    */
   public Principal authenticate(String username, String credentials) {
-//     log.debug("Authenticating " + username + " with " + credentials);
     if (!init() || username == null || credentials == null) {
       // don't alert that there was no credentials -- that happens
       // under normal opera1tion
@@ -436,24 +435,18 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     String username = null;
     String authFields = "EITHER";
     if (_userService == null) return null;
-    try {
-      username = (String) userAttr.get(_userService.getUserIDAttribute());
-      String authAttr = (String) 
-        userAttr.get(_userService.getAuthFieldsAttribute());
-      if (authAttr != null) {
-        authFields = authAttr;
-      }
-      Set roles = _userService.getRoles(username);
-//       log.debug("Got roles for " + username);
-      return new CougaarPrincipal(this, username, new ArrayList(roles), 
-                                  authFields);
-    } catch (UserServiceException e) {
-      if (username != null) {
-        return new CougaarPrincipal(this, username, null, authFields);
-      }
-      setLoginError(LF_LDAP_ERROR, username);
+    username = (String) userAttr.get(_userService.getUserIDAttribute());
+    String authAttr = (String) 
+      userAttr.get(_userService.getAuthFieldsAttribute());
+    if (authAttr != null) {
+      authFields = authAttr;
     }
-    return null;
+    Set roles = (Set) userAttr.get(_userService.getRoleListAttribute());
+    if (log.isDebugEnabled()) {
+      log.debug("Got roles for " + username + ": " + roles);
+    }
+    return new CougaarPrincipal(this, username, new ArrayList(roles), 
+                                authFields);
   }
 
   /**

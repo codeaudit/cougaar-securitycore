@@ -64,14 +64,14 @@
 	<!-- KPAT, Policy -->
         <pattern>/policyAdmin</pattern>
         <!-- a rule must have at least one role -->
-        <role>PolicyAdministrator</role>
+        <role>CSI\PolicyAdministrator</role>
       </rule>
     </agent>
 
     <agent name="SCmrmanager">
       <rule requireSSL="false" auth="EITHER">
         <pattern>/*</pattern>
-        <role>MonitorManager</role>
+        <role>CSI\MonitorManager</role>
       </rule>
     </agent>
 
@@ -80,7 +80,7 @@
         <pattern>/glsinit</pattern>
         <pattern>/glsreply</pattern>
         <pattern>/editOplan</pattern>
-        <role>Logistician</role>
+        <role>CSI\Logistician</role>
       </rule>
     </agent>
 
@@ -88,15 +88,15 @@
       <rule requireSSL="false" auth="EITHER">
         <pattern>/aggregator</pattern>
         <pattern>/aggregatorkeepalive</pattern>
-        <role>Logistician</role>
-        <role>LogisticsViewer</role>
+        <role>CSI\Logistician</role>
+        <role>CSI\LogisticsViewer</role>
       </rule>
     </agent>
 
     <agent name="*">
       <rule requireSSL="false" auth="EITHER">
         <pattern>/useradmin</pattern>
-        <role>UserManager</role>
+        <role>CSI\UserManager</role>
       </rule>
 
       <rule requireSSL="false" auth="EITHER">
@@ -109,15 +109,15 @@
         <!-- al-inventory standalone application -->
         <pattern>/log_inventory</pattern>
 
-        <role>Logistician</role>
-        <role>LogisticsViewer</role>
+        <role>CSI\Logistician</role>
+        <role>CSI\LogisticsViewer</role>
       </rule>
 
       <rule requireSSL="false" auth="EITHER">
 	<!-- Used by the data grabber -->
         <pattern>/hierarchy</pattern>
-        <role>Logistician</role>
-        <role>LogisticsViewer</role>
+        <role>CSI\Logistician</role>
+        <role>CSI\LogisticsViewer</role>
       </rule>
 
       <rule requireSSL="false" auth="EITHER">
@@ -151,7 +151,7 @@
         <pattern>/CA/SubmitCaKeyServlet</pattern>
         <pattern>/CA/ProcessPendingCertServlet</pattern>
         <pattern>/CA/CaKeyManagement</pattern>
-        <role>CAAdministrator</role>
+        <role>CSI\CAAdministrator</role>
       </rule>
 <!--
       <rule requireSSL="true" auth="CERT">
@@ -164,7 +164,7 @@
         <pattern>/move</pattern>
         <pattern>/load</pattern>
         <pattern>/topology</pattern>
-        <role>SocietyAdmin</role>
+        <role>CSI\SocietyAdmin</role>
       </rule>
       <!-- For Rovers Managers to control and modify rovers -->
       <!-- Perhaps this should be moved to a specific agent? -->

@@ -218,6 +218,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
         permission javax.security.auth.AuthPermission "getSubject";
         permission java.lang.RuntimePermission "getClassLoader";
 	permission java.lang.RuntimePermission "createClassLoader";
+	permission javax.security.auth.AuthPermission "setReadOnly";
 	permission org.cougaar.core.security.crypto.KeyRingPermission "readPrivateKey";
 	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
         permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
@@ -225,7 +226,11 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
         permission org.cougaar.core.security.crypto.KeyRingPermission "getKeyStore";
  	permission org.cougaar.core.security.provider.SecurityServicePermission "*";
 	permission org.cougaar.core.security.access.AccessPermission "org.cougaar.core.service.MessageTransportService";
-	permission javax.security.auth.AuthPermission "setReadOnly";
+
+	permission java.io.FilePermission "${/}usr${/}java${/}*", "read";
+	permission java.io.FilePermission "${/}usr${/}java${/}-", "read";
+	permission java.io.FilePermission "${/}usr${/}java${/}", "read";
+        permission java.lang.RuntimePermission "accessClassInPackage.sun.tools.javac";
 };
 
 ////////////////////////////////////////////////////////////
@@ -259,6 +264,8 @@ grant signedBy "privileged" {
 	// Temporary until BUG 1264 is fixed:
 	permission java.util.PropertyPermission "*", "read,write";
 
+        permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.server";
+        permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.transport";
         //permission java.lang.RuntimePermission "getClassLoader";
 	//permission java.lang.RuntimePermission "createClassLoader";
 
@@ -374,7 +381,7 @@ grant signedBy "privileged" {
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.net";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.misc";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.beans.infos";
-        permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.server";
+
 
 	///////////////////////////////////////////////////
 	// This permission is needed by the AgentManager to associate a JAAS
@@ -512,6 +519,8 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}log4jlogs/${/}*", "delete";
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}log4jlogs/${/}-", "delete";
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}log4jlogs/${/}", "delete";
+
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}", "read";
 
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}*", "read";

@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<userdata>
+  <user>
+    <uid>george</uid>
+    <password>george</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>George</givenName>
+    <sn>Mount</sn>
+    <cn>George Mount</cn>
+    <mail>gmount@nai.com</mail>
+    <role>UserManager</role>
+    <role>Logistician</role>
+    <role>LogisticsViewer</role>
+    <role>PolicyAdministrator</role>
+    <role>MonitorManager</role>
+    <role>CAAdministrator</role>
+    <role>SocietyAdmin</role>
+  </user>
+  <role>
+    <rid>UserManager</rid>
+  </role>
+  <role>
+    <rid>Logistician</rid>
+  </role>
+  <role>
+    <rid>LogisticsViewer</rid>
+  </role>
+  <role>
+    <rid>PolicyAdministrator</rid>
+  </role>
+  <role>
+    <rid>MonitorManager</rid>
+  </role>
+  <role>
+    <rid>CAAdministrator</rid>
+  </role>
+  <role>
+    <rid>SocietyAdmin</rid>
+  </role>
+</userdata>

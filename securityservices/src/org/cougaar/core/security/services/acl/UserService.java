@@ -38,11 +38,6 @@ public interface UserService
   public String getPasswordAttribute();
 
   /**
-   * Returns the role attribute used to insert a user into a role
-   */
-  public String getUserRoleAttribute();
-
-  /**
    * Returns the attribute used to determine whether the certificate
    * is acceptable even when the password is disabled.
    */
@@ -90,6 +85,13 @@ public interface UserService
   public String getRoleIDAttribute();
 
   /**
+   * Returns the role list attribute. This attribute, when used
+   * with roles, contains all sub-roles. When used with users,
+   * contains the roles the the user belongs to.
+   */
+  public String getRoleListAttribute();
+
+  /**
    * Disables a user by removing a value from the enable time
    * attribute in the LDAP user database.
    *
@@ -130,19 +132,8 @@ public interface UserService
    * @param maxResults The maximum number of results to return. Use
    *                   zero (0) to return all results.
    */
-  public Set getUsers(String searchText, String field,
-                             int maxResults) 
-    throws UserServiceException ;
-
-  /**
-   * Returns a <code>Set</code> containing
-   * <code>String</code>s of user ids. 
-   *
-   * @param filter A complete LDAP search filter.
-   * @param maxResults The maximum number of results to return. Use
-   *                   zero (0) to return all results.
-   */
-  public Set getUsers(String filter, int maxResults)
+  public Set getUsers(String domain, String searchText, String field,
+                      int maxResults) 
     throws UserServiceException ;
 
   /**
@@ -201,8 +192,8 @@ public interface UserService
    * @param maxResults The maximum number of results to return. Use
    *                   zero (0) to return all results.
    */
-  public Set getRoles(String searchText, String field,
-                                    int maxResults) 
+  public Set getRoles(String domain, String searchText, String field,
+                      int maxResults) 
     throws UserServiceException ;
 
   /**
@@ -213,7 +204,7 @@ public interface UserService
    * @param maxResults The maximum number of results to return. Use
    *                   zero (0) to return all results.
    */
-  public Set getRoles(int maxResults) 
+  public Set getRoles(String domain, int maxResults) 
     throws UserServiceException ;
 
   /**

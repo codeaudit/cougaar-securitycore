@@ -360,9 +360,9 @@ public class SecurityServiceProvider
       /* ********************************
        * LDAP user administration
        */
-      newSP = new UserServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(UserService.class, newSP);
-      rootServiceBroker.addService(UserService.class, newSP);
+      newSP = new UserServiceProvider(rootServiceBroker);
+      serviceBroker.addService(UserService.class, newSP);
+
       org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.
         setNodeServiceBroker(serviceBroker);
     }

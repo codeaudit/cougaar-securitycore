@@ -25,16 +25,8 @@
  */
 package org.cougaar.core.security.acl.user;
 
-import java.util.Hashtable;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Calendar;
-import java.util.TimeZone;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.TreeSet;
-import java.util.Map;
+import java.util.*;
+import java.lang.ref.*;
 import java.net.SocketException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -69,6 +61,9 @@ import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.policy.GuardRegistration;
 import org.cougaar.core.security.policy.LdapUserServicePolicy;
 import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.mts.MessageAddress;
 
 // KAoS
 import safe.enforcer.NodeEnforcer;
@@ -76,15 +71,14 @@ import safe.enforcer.NodeEnforcer;
 public class LdapUserServiceImpl implements UserService {
 
   protected InitialDirContext _context     = null;
-  protected LdapUserServicePolicy _policy  = new LdapUserServicePolicy();
 
   private static final int MAX_RETRIES = 3;
   private static final DateFormat DF=new SimpleDateFormat("yyyyMMddHHmmss'Z'");
   private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
 
   private ServiceBroker _serviceBroker;
-  private ServiceBroker _nodeServiceBroker;
   private LoggingService _log;
+  private String _defaultDomain;
   private final String[] USER_ATTRIBUTES = new String[] {
     "uid", "userPassword", "cn", "mail", "cougaarAcctEnableTime", 
     "cougaarAuthReq", "certIsSpecial", "sn", "givenName"
@@ -93,20 +87,25 @@ public class LdapUserServiceImpl implements UserService {
   private final String[] ROLE_ATTRIBUTES = new String[] {
     "cn", "description"
   };
+  private final String ROLE_LIST_ATTR = "roles";
 
-  protected LdapUserServiceConfigurer _configurer;
+  private static LdapUserServiceConfigurer _configurer;
+  private static LdapUserServicePolicy _policy  = new LdapUserServicePolicy();
+
+  public static void setRootServiceBroker(ServiceBroker root) {
+    _configurer = new LdapUserServiceConfigurer(root);
+  }
 
   /**
    * Default constructor - initializes the LDAP connection using
    * the guard's policy. If no policy exists, there will be no
    * connection to the user database.
    */
-  public LdapUserServiceImpl(ServiceBroker sb, ServiceBroker nsb) {
+  public LdapUserServiceImpl(ServiceBroker sb, MessageAddress agent) {
     _serviceBroker = sb;
-    _nodeServiceBroker = nsb;
     _log = (LoggingService)
       _serviceBroker.getService(this, LoggingService.class, null);
-    _configurer = new LdapUserServiceConfigurer(_nodeServiceBroker);
+    setDefaultDomain(sb, agent);
   }
 
   /**
@@ -135,6 +134,34 @@ public class LdapUserServiceImpl implements UserService {
     }
     if (_policy.ldapPassword != null) {
       env.put(Context.SECURITY_CREDENTIALS,_policy.ldapPassword);
+    }
+  }
+
+  private void setDefaultDomain(ServiceBroker sb, MessageAddress address) {
+    String agent = address.getAddress();
+    CommunityService cs = (CommunityService)
+      sb.getService(this, CommunityService.class, null);
+    Collection communities = 
+      cs.listParentCommunities(agent);
+    Iterator iter = communities.iterator();
+    while (iter.hasNext()) {
+      String community = iter.next().toString();
+      Attributes attrs = cs.getCommunityAttributes(community);
+      if (attrs != null) {
+        Attribute  attr  = attrs.get("CommunityType");
+        if (attr != null) {
+          try {
+            for (int i = 0; i < attr.size(); i++) {
+              if (AgentUserService.COMMUNITY_TYPE.equals(attr.get(i).toString())) {
+                _defaultDomain = community;
+                return;
+              }
+            }
+          } catch (NamingException e) {
+            // error reading value, so it can't be a Security community
+          }
+        }
+      }
     }
   }
 
@@ -186,23 +213,37 @@ public class LdapUserServiceImpl implements UserService {
     return _policy.roleRDN + "=" + rid + dc + _policy.roleDN;
   }
 
-  private String dn2rid(String dn) {
-    String subdn = dn.substring(0, dn.length() - _policy.roleDN.length() - 1);
+  private static String dn2id(String dn, String base) {
+    dn = dn.substring(0, dn.length() - base.length() - 1);
     int indexCm = dn.indexOf(",");
     String dc = "";
     if (indexCm > 0) {
       int indexEq = dn.indexOf("=", indexCm);
       dc = dn.substring(indexEq + 1) + "\\";
       dn = dn.substring(0,indexCm);
+    } else {
+      indexCm = dn.length();
     }
     int indexEq = dn.indexOf("=");
-    return dn.substring(indexEq+1, indexCm);
+    return dc + dn.substring(indexEq+1, indexCm);
+  }
+
+  private String dn2rid(String dn) {
+    return dn2id(dn, _policy.roleDN);
   }
 
   private String dn2uid(String dn) {
-    int indexEq = dn.indexOf("=");
-    int indexCm = dn.indexOf(",");
-    return dn.substring(indexEq+1, indexCm);
+    return dn2id(dn, _policy.userDN);
+  }
+
+  private Set dn2rid(Set ids) {
+    Iterator iter = ids.iterator();
+    Set newSet = new HashSet();
+    while (iter.hasNext()) {
+      String id = (String) iter.next();
+      newSet.add(dn2id(id, _policy.roleDN));
+    }
+    return newSet;
   }
 
   private SearchControls getControl(int maxResults) {
@@ -346,21 +387,29 @@ public class LdapUserServiceImpl implements UserService {
     editUser(uid, null, map, null);
   }
 
-  private Set searchUsers(String filter, int maxResults) 
+  private Set searchUsers(String domain, String filter, int maxResults) 
     throws UserServiceException {
     checkContext();
     for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
       try {
+        String dn;
+        String base = "";
+        if (domain == null) {
+          dn = _policy.userDN;
+        } else {
+          dn = "dc=" + domain + "," + _policy.userDN;
+          base = domain + "\\";
+        }
         NamingEnumeration en = 
-          _context.search(_policy.userDN, filter,
+          _context.search(dn, filter,
                           getControl(maxResults, new String[]{_policy.userRDN}));
-        Set set = new TreeSet();
+        Set set = new HashSet();
         while (en.hasMore()) {
           SearchResult sr = (SearchResult) en.next();
           Attributes attrs = sr.getAttributes();
           Attribute uidAttr = attrs.get(_policy.userRDN);
           if (uidAttr != null && uidAttr.size() > 0) {
-            set.add(uidAttr.get());
+            set.add(base + uidAttr.get());
           }
         }
         return set;
@@ -374,19 +423,13 @@ public class LdapUserServiceImpl implements UserService {
     return null;  // it will never get here
   }
 
-  public Set getUsers(String text, String field,
+  public Set getUsers(String domain, String text, String field,
                       int maxResults) throws UserServiceException {
-    return searchUsers("(&(" + field + "=" + text + "),(objectClass=" +
+    return searchUsers(domain, "(&(" + field + "=" + text + "),(objectClass=" +
                        _policy.userObjectClass[0] + "))", maxResults);
   }
 
-  public Set getUsers(String filter, int maxResults)
-    throws UserServiceException {
-    return searchUsers("(&(" + filter + "),(objectClass=" +
-                       _policy.userObjectClass[0] + "))", maxResults);
-  }
-
-  private Map createMap(Attributes attrs, String[] keys) 
+  private Map createMap(Attributes attrs, String[] keys, String id) 
     throws NamingException {
     if (attrs == null) {
       return null;
@@ -396,7 +439,11 @@ public class LdapUserServiceImpl implements UserService {
     for (int i = 0; i < keys.length; i++) {
       Attribute attr = attrs.get(keys[i]);
       if (attr != null && attr.size() != 0) {
-        map.put(keys[i], attr.get());
+        Object val = attr.get();
+        if (i == 0) { // id attribute needs to be adjusted
+          val = id; // just use the one used in the search
+        }
+        map.put(keys[i], val);
       }
     }
     return map;
@@ -407,7 +454,12 @@ public class LdapUserServiceImpl implements UserService {
     for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
       try {
         Attributes attrs = _context.getAttributes(uid2dn(uid));
-        return createMap(attrs, USER_ATTRIBUTES);
+        Map rv = createMap(attrs, USER_ATTRIBUTES, uid);
+        Set roles = getRoles(uid);
+        if (roles != null) {
+          rv.put(ROLE_LIST_ATTR, roles);
+        }
+        return rv;
       } catch (NamingException ne) {
         if (tryCount + 1 == MAX_RETRIES) throw new UserServiceException(ne);
         if (ne instanceof CommunicationException) resetContext();
@@ -459,9 +511,6 @@ public class LdapUserServiceImpl implements UserService {
     ModificationItem mods[] = createMods(added, edited, deleted);
     for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
       try {
-        for (int i = 0; i < mods.length; i++) {
-          System.out.println("mod: " + mods[i]);
-        }
         _context.modifyAttributes(uid2dn(uid), mods);
         return;
       } catch (NamingException ne) {
@@ -531,14 +580,21 @@ public class LdapUserServiceImpl implements UserService {
     }
   }
 
-  private Set searchRoles(String filter, int maxResults) 
+  private Set searchRoles(String domain, String filter, int maxResults) 
     throws UserServiceException {
     checkContext();
     for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
       try {
+        String dn;
+        String base = "";
+        if (domain == null) {
+          dn = _policy.roleDN;
+        } else {
+          dn = "dc=" + domain + "," + _policy.roleDN;
+          base = domain + "\\";
+        }
         NamingEnumeration en = 
-          _context.search(_policy.roleDN,
-                          filter,
+          _context.search(dn, filter,
                           getControl(0, new String[] {_policy.roleRDN}));
         Set set = new TreeSet();
         while (en.hasMore()) {
@@ -546,7 +602,7 @@ public class LdapUserServiceImpl implements UserService {
           Attributes attrs = sr.getAttributes();
           Attribute ridAttr = attrs.get(_policy.roleRDN);
           if (ridAttr != null && ridAttr.size() > 0) {
-            set.add(ridAttr.get());
+            set.add(base + ridAttr.get());
           }
         }
         return set;
@@ -562,20 +618,23 @@ public class LdapUserServiceImpl implements UserService {
 
   public Set getRoles(String uid) 
     throws UserServiceException {
-    return searchRoles("(&(" + _policy.roleAttr + "=" + uid2dn(uid) +
+    return searchRoles(null,
+                       "(&(" + _policy.roleAttr + "=" + uid2dn(uid) +
                        "),(objectClass=" + 
                        _policy.roleObjectClass[0] + "))", 0);
   }
 
-  public Set getRoles(String searchText, String field, int maxResults) 
+  public Set getRoles(String domain, String searchText, 
+                      String field, int maxResults) 
     throws UserServiceException {
-    return searchRoles("(&(" + field + "=" + searchText +
+    return searchRoles(domain, "(&(" + field + "=" + searchText +
                        "),(objectClass=" +
                        _policy.roleObjectClass[0] + "))", maxResults);
   }
 
-  public Set getRoles(int maxResults) throws UserServiceException {
-    return searchRoles("(objectClass=" + 
+  public Set getRoles(String domain, int maxResults) 
+    throws UserServiceException {
+    return searchRoles(domain, "(objectClass=" + 
                        _policy.roleObjectClass[0] + ")", maxResults);
   }
 
@@ -583,7 +642,13 @@ public class LdapUserServiceImpl implements UserService {
     checkContext();
     for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
       try {
-        return createMap(_context.getAttributes(rid2dn(rid)), ROLE_ATTRIBUTES);
+        Map rv = createMap(_context.getAttributes(rid2dn(rid)), 
+                           ROLE_ATTRIBUTES, rid);
+        Set roles = getContainedRoles(rid);
+        if (roles != null) {
+          rv.put(ROLE_LIST_ATTR, roles);
+        }
+        return rv;
       } catch (NamingException ne) {
         if (tryCount + 1 == MAX_RETRIES) throw new UserServiceException(ne);
         if (ne instanceof CommunicationException) resetContext();
@@ -698,7 +763,7 @@ public class LdapUserServiceImpl implements UserService {
     for (int i = 0; i < rids.length; i++) {
       expandRoles(rid2dn(rids[i]), roles);
     }
-    return roles;
+    return dn2rid(roles);
   }
 
   private Set getContainedRids(String rid) throws UserServiceException {
@@ -813,6 +878,10 @@ public class LdapUserServiceImpl implements UserService {
     }
   }
 
+  public String getRoleListAttribute() {
+    return ROLE_LIST_ATTR;
+  }
+
   public String  getPasswordAttribute() {
     return _policy.passwordAttr;
   }
@@ -858,18 +927,25 @@ public class LdapUserServiceImpl implements UserService {
     ROLE_ATTRIBUTES[1] = "description";
   }
 
-  public class LdapUserServiceConfigurer 
-    extends GuardRegistration
-    implements NodeEnforcer {
+  private static class LdapUserServiceConfigurer 
+    extends GuardRegistration implements NodeEnforcer {
+    private LoggingService log;
+    private LinkedList _callBacks = new LinkedList();
+
     public LdapUserServiceConfigurer(ServiceBroker sb) {
       super(LdapUserServicePolicy.class.getName(), "LdapUserService",
 	    sb);
       try {
+        log = (LoggingService) sb.getService(this, LoggingService.class, null);
         registerEnforcer();
       } catch (Exception ex) {
         // FIXME: Shouldn't just let this drop, I think
 	log.warn("Unable to register LdapUserServiceConfigurer policy enforcer", ex);
       }
+    }
+
+    public void addService(LdapUserServiceImpl service) {
+      _callBacks.add(new WeakReference(service));
     }
 
     public void receivePolicyMessage(Policy policy,
@@ -884,6 +960,7 @@ public class LdapUserServiceImpl implements UserService {
                                      String policyType) {
       log.warn("receivePolicyMessage(Policy,... ) should not be called");
     }
+
     /**
      * Merges an existing policy with a new policy.
      * @param policy the new policy to be added
@@ -902,16 +979,24 @@ public class LdapUserServiceImpl implements UserService {
         return;
       }
 
-      if (_log.isDebugEnabled()) {
-        _log.debug("Received policy message");
-        _log.debug(policy.toString());
+      if (log.isDebugEnabled()) {
+        log.debug("Received policy message");
+        log.debug(policy.toString());
       }
 
       _policy = (LdapUserServicePolicy) policy;
-      setUserAttributes();
-      setRoleAttributes();
-
-      resetContext();
+      Iterator iter = _callBacks.iterator();
+      while (iter.hasNext()) {
+        Reference ref = (Reference) iter.next();
+        LdapUserServiceImpl ldap = (LdapUserServiceImpl) ref.get();
+        if (ldap == null) {
+          iter.remove();
+        } else {
+          ldap.setUserAttributes();
+          ldap.setRoleAttributes();
+          ldap.resetContext();
+        }
+      }
     }
   }
 }

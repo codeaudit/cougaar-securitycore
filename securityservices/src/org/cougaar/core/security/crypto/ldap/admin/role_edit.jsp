@@ -62,12 +62,12 @@ function cancelAction() {
       String field   = UserInterface.LDAP_ROLE_FIELDS[i][0];
       Object val = role.get(field);
       if (val == null) val = "";
-      if (field != UserInterface.LDAP_ROLE_USER_RDN) {
+      if (!field.equals(UserInterface.LDAP_ROLE_USER_RDN)) {
 %>
         <tr>
           <td><%=title%></td>
           <td><%
-        if (field == UserInterface.LDAP_ROLE_RDN) {
+        if (field.equals(UserInterface.LDAP_ROLE_RDN)) {
 %>
             <%=val%>
 <%

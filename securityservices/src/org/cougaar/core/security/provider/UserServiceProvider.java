@@ -26,26 +26,41 @@
 
 package org.cougaar.core.security.provider;
 
+import java.util.*;
 import javax.naming.NamingException;
 
 // Cougaar core infrastructure
 import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.Service;
+import org.cougaar.core.service.AgentIdentificationService;
+
 
 // Cougaar security services
 import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.security.acl.user.AgentUserService;
 import org.cougaar.core.security.acl.user.LdapUserServiceImpl;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.security.acl.user.AgentUserService;
+import org.cougaar.core.mts.MessageAddress;
 
-public class UserServiceProvider
-  extends BaseSecurityServiceProvider
+
+public class UserServiceProvider implements ServiceProvider
 {
-  private UserService  _service = null;
+  private static final boolean AGENT_SERVICE = !Boolean.getBoolean("org.cougaar.core.security.provider.UserService.ldap");
+  private UserService       _service;
+  private MessageAddress    _agent;
 
-  public UserServiceProvider(ServiceBroker sb, String community) {
-    super(sb, community);
+  public UserServiceProvider(MessageAddress agent) {
+    _agent = agent;
+  }
+
+  public UserServiceProvider(ServiceBroker root) {
+    if (!AGENT_SERVICE) {
+      LdapUserServiceImpl.setRootServiceBroker(root);
+    }
   }
 
   /**
@@ -55,12 +70,20 @@ public class UserServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  protected synchronized Service getInternalService(ServiceBroker sb,
-						    Object requestor,
-						    Class serviceClass) {
-
+  public synchronized Object getService(ServiceBroker sb,
+                                        Object requestor,
+                                        Class serviceClass) {
     if (_service == null) {
-      _service = new LdapUserServiceImpl(sb, serviceBroker);
+      if (_agent == null) {
+        AgentIdentificationService ais = (AgentIdentificationService)
+          sb.getService(this, AgentIdentificationService.class, null);
+        _agent = ais.getMessageAddress();
+      }
+      if (AGENT_SERVICE) {
+        _service = new AgentUserService(sb, _agent);
+      } else {
+        _service = new LdapUserServiceImpl(sb, _agent);
+      }
     }
     return _service;
   }
@@ -71,9 +94,9 @@ public class UserServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  protected void releaseInternalService(ServiceBroker sb,
-					Object requestor,
-					Class serviceClass,
-					Object service) {
+  public synchronized void releaseService(ServiceBroker sb,
+                                             Object requestor,
+                                             Class serviceClass,
+                                             Object service) {
   }
 }

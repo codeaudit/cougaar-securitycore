@@ -16,4 +16,92 @@
 <!ATTLIST Attribute Value CDATA #REQUIRED>
 ]>
 <Communities>
+  <Community Name="CSI">
+    <Attribute ID="CommunityManager" Value=""/>
+    <Attribute ID="CommunityType"    Value="User"/>
+    <Entity Name="UserAdminNode">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="TestNode">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="UserAdmin">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+      <Attribute ID="Role"         Value="UserManager" />
+    </Entity>
+    <Entity Name="UserAdmin2">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+  </Community>
+  <Community Name="SocietySecurity">
+    <!-- If CommunityManager attribute is not empty only the agents listed
+         are permitted to write to this community context. -->
+    <Attribute ID="CommunityManager" Value=""/>
+    <Attribute ID="CommunityType"    Value="Security"/>
+    <Entity Name="SocietySecurityManagerNode">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="SocietySecurityManager">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+      <Attribute ID="Role"         Value="SecurityMnRManager-Society" />
+      <Attribute ID="Role"         Value="SecurityMnRManager-Enclave" />
+    </Entity>
+  </Community>
+  <Community Name="Test-Enclave">
+    <!-- If CommunityManager attribute is not empty only the agents listed
+         are permitted to write to this community context. -->
+    <Attribute ID="CommunityManager" Value=""/>
+    <Attribute ID="CommunityType"    Value="Security"/>
+    <Entity Name="PolicyManagerNode">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="PolicyManager">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="PolicyManagerServlet">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="Analyzer">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="AnalyzerNode">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="caAgent">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="caNode">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="SensorNode">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="TestEnclaveSecurityManager">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+      <Attribute ID="Role"         Value="SecurityMnRManager-Enclave" />
+    </Entity>
+    <Entity Name="TestEnclaveSecurityManagerNode">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+    <Entity Name="UserAdminAgent">
+      <Attribute ID="EntityType"   Value="Agent"  />
+      <Attribute ID="Role"         Value="Member" />
+    </Entity>
+  </Community>
 </Communities>

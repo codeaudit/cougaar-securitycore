@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.util.UnaryPredicate;
 
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.acl.UserServiceException;
@@ -94,6 +95,7 @@ public class UserAdminServlet extends HttpServlet {
     if (JspFactory.getDefaultFactory() == null) {
       JspFactory.setDefaultFactory(new org.apache.jasper.runtime.JspFactoryImpl());
     }
+    UserInterface.setAttributes(_userService);
   }
 
   public void init(ServletConfig config) throws ServletException {
@@ -217,10 +219,10 @@ public class UserAdminServlet extends HttpServlet {
     Set results = null;
     HttpServlet fwdServlet;
     if (searchUsers) {
-      results = _userService.getUsers(searchTerm, searchOn, max);
+      results = _userService.getUsers(null, searchTerm, searchOn, max);
       fwdServlet = _search_users;
     } else {
-      results = _userService.getRoles(searchTerm, searchOn, max);
+      results = _userService.getRoles(null, searchTerm, searchOn, max);
       fwdServlet = _search_roles;
     }
     req.setAttribute(UserInterface.SEARCH_RESULTS, results);
@@ -243,7 +245,7 @@ public class UserAdminServlet extends HttpServlet {
         req.setAttribute(UserInterface.ROLE_RESULTS, roles);
       }
       if (getAllRoles) {
-        roles = _userService.getRoles(0);
+        roles = _userService.getRoles(null, 0);
         req.setAttribute(UserInterface.ALL_ROLES, roles);
       }
     }
@@ -403,7 +405,7 @@ public class UserAdminServlet extends HttpServlet {
         attrs.put(field, val);
       }
     }
-    
+
     _userService.addRole(rid, attrs);
     gotoViewRole(req, resp,rid);
   }
