@@ -242,31 +242,32 @@ public class EventViewerServlet
 
   private void outputAdditionalData(PrintWriter out,
                         AdditionalData[] additionalData) {
-    String value = "";
+    StringBuffer value = new StringBuffer();
     if (additionalData != null) {
       for(int i = 0 ; i < additionalData.length ; i++) {
         if (additionalData[i] != null) {
-          value = value + additionalData[i].getType() + "/" +
-                     additionalData[i].getMeaning();
+          value.append( additionalData[i].getType() + "/" +
+                         additionalData[i].getMeaning());
           if (!AdditionalData.XML.equals(additionalData[i].getType())) {
-             value += "/" + additionalData[i].getAdditionalData() + "<br/>";
+             value.append("/" + additionalData[i].getAdditionalData() + "<br/>");
           } else {
-             try {
+            try {
                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                DocumentBuilder builder = factory.newDocumentBuilder();
                Document document = builder.newDocument();
-               additionalData[i].getXMLData().convertToXML(document);
-               value += XMLUtils.doc2String(document);
-             }
-             catch (Exception e) {
-               value += "Unable to retrieve XML data: " + e;
-               e.printStackTrace(out);
-             }
+               Node node=additionalData[i].getXMLData().convertToXML(document);
+               document.appendChild(node);
+               value.append(XMLUtils.doc2String(document));
+            }
+            catch (Exception e) {
+              value .append("Unable to retrieve XML data: " + e);
+              e.printStackTrace(out);
+            }
           }
         }
       }
     }
-    out.print("<td>" + value + "</td>");
+    out.print("<td>" + value.toString() + "</td>");
   }
 
   private void printNode(PrintWriter out, IDMEF_Node n) {
