@@ -7,6 +7,9 @@ Servlet CAReadServlet
 Servlet CertReqServlet
 Servlet RearPolicyServlet
 
+Delete RequireAudit
+Delete RequireAuditCA
+
 Policy AllowFwdGetsRearPolicy  = [ 
   ServletUserAccessTemplate
   A user in role FwdPolicyAdministrator can access a servlet 

@@ -1,0 +1,11 @@
+
+PolicyPrefix=%AuditCA/
+
+Delete RequireAudit
+Delete RequireAuditFwdRear
+
+Policy RequireAuditCA = [
+   AuditTemplate
+   Require audit for all accesses to servlet CAReadServlet,
+   CertReqServlet, CAWriteServlet
+]

@@ -1,0 +1,9 @@
+
+PolicyPrefix=%DenyFwdPolicyServletOne/
+
+
+Policy DenyFwdGetsRearPolicy  = [ 
+  ServletUserAccessTemplate
+  A user in role FwdPolicyAdministrator cannot access a servlet 
+  named RearPolicyServlet
+]
