@@ -45,6 +45,7 @@ public class TestObjectSizePlugin extends AbstractServletComponent {
 
     private final UnaryPredicate countObjPredicate = new UnaryPredicate() {
       public boolean execute(Object o) {
+//        return (o instanceof BlackboardTestObject);
         return true;
       }
     };
@@ -71,12 +72,14 @@ public class TestObjectSizePlugin extends AbstractServletComponent {
         AgentIdentificationService ais = (AgentIdentificationService)
           serviceBroker.getService(this, AgentIdentificationService.class, null);
         _agent = ais.getMessageAddress().toAddress();
-        serviceBroker.releaseService(this, AgentIdentificationService.class, null);
+        serviceBroker.releaseService(this, AgentIdentificationService.class, ais);
 
         int sleepTime = Integer.parseInt(queryInterval);  
 
         threadService.getThread(this, new CountBBObjs()).
           schedule(0,sleepTime);
+        serviceBroker.releaseService(this, ThreadService.class, threadService);
+
       }
 
     } catch (Exception ex) {
@@ -98,9 +101,38 @@ public class TestObjectSizePlugin extends AbstractServletComponent {
         return;
       }
 */
+
+
+      Hashtable pathList = new Hashtable();
+      Iterator it = c.iterator();
+      while (it.hasNext()) {
+        String cls = it.next().getClass().getName();
+        PathIndex index = (PathIndex)pathList.get(cls);
+        if (index == null) {
+          pathList.put(cls, new PathIndex(cls));
+        }
+        else {
+          index.occurance++;
+        }
+      }
+         
       if (logging.isInfoEnabled()) {
         logging.info("Number of Objects in " + _agent + "'s blackboard: " + c.size());
+        int total = 0;
+        for (Enumeration en = pathList.elements(); en.hasMoreElements() && total < 50; total++) {
+          PathIndex index = (PathIndex)en.nextElement();
+          logging.info(index._cls + " => " + index.occurance);
+        }
       }
+    }
+  }
+
+  class PathIndex {
+    String _cls;
+    int occurance = 1;
+
+    PathIndex(String cls) {
+      _cls = cls;
     }
   }
 
@@ -125,10 +157,9 @@ public class TestObjectSizePlugin extends AbstractServletComponent {
         out.println("<H2> Object type </H2>");
         out.println("<form action=\"" + request.getRequestURI() + "\" method =\"post\">");
         out.println("object type: <input name=\"type\" type=\"text\" value=\"java.lang.Integer\"><br><br>");
-        out.println("count: <input name=\"count\" type=\"text\" value=\"100000\"><br><br>");
-        out.println("hashtables: <input name=\"hash\" type=\"text\" value=\"0\"><br><br>");
-//        out.println("publishNow: <input name=\"publish\" type=\"text\" value=\"false\"><br><br>");
-        out.println("persistNow: <input name=\"persist\" type=\"text\" value=\"false\"><br><br>");
+        out.println("count: <input name=\"count\" type=\"text\" value=\"100,1000,10000,100000\"><br><br>");
+        out.println("list: <input name=\"list\" type=\"text\" value=\"100,1000,3000,5000\"><br><br>");
+        out.println("persistTime: <input name=\"persist\" type=\"text\" value=\"2\">m<br><br>");
         out.println("<br><input type=\"submit\">&nbsp;&nbsp;&nbsp;");
 
         out.println("<input type=\"reset\">");
@@ -148,64 +179,15 @@ public class TestObjectSizePlugin extends AbstractServletComponent {
       out.println("<html>");
 
       String type = request.getParameter("type");
-      int count = Integer.parseInt(request.getParameter("count"));
-      int hash = Integer.parseInt(request.getParameter("hash"));
-      boolean doPersist = request.getParameter("persist").equals("true");
-//      boolean doPublish = request.getParameter("publish").equals("true");
-
-      int totalobj = 0;
-      Class cls = Class.forName(type);
-      try {
-        if (count != 0) {          
-//          _objCache.clear();
-          if (hash == 0) { 
-            for (int i = 0; i < count; i++) {
-              //Object o = cls.newInstance();
-              Object o = new Integer(1);
-              _objCache.add(o);
-              totalobj++;
-            }
-          }
-          else {
-            for (int list = 0; list < hash; list++) {
-              List table = new ArrayList();
-//              _objCache.add(table);
-              for (int i = 0; i < count; i++) {
-                Object o = new Integer(1);
-                table.add(o);
-                totalobj++;
-              }
-              blackboardService.openTransaction();
-              blackboardService.publishAdd(table);
-              blackboardService.closeTransaction();
-            }
-          }
-          if (logging.isInfoEnabled()) {
-            logging.info("total of " + totalobj + " generated");
-          }
-        }
-/*
-        else if (doPublish) {
-          blackboardService.openTransaction();
-          Iterator it = _objCache.iterator();
-          while (it.hasNext()) {
-            blackboardService.publishAdd(it.next());
-          }
-          if (logging.isInfoEnabled()) {
-            logging.info("total of " + _objCache.size() + " published");
-          }
-          blackboardService.closeTransaction();
-        }
-*/
-        else if (doPersist) { 
-          blackboardService.persistNow();
-          if (logging.isInfoEnabled()) {
-            logging.info("total of " + _objCache.size() + " persisted");
-          }
-        }
-
-      } catch (Exception ex) {
-        logging.error("Exception ", ex);
+      String countString = request.getParameter("count");
+      String listString = request.getParameter("list");
+      int persistTime = Integer.parseInt(request.getParameter("persist")) * 60000;
+      ThreadService threadService=(ThreadService)
+        serviceBroker.getService(this,ThreadService.class, null);
+      if (threadService != null) {
+        threadService.getThread(this, new PublishTest(countString, listString, persistTime)).
+          schedule(0,1);
+        serviceBroker.releaseService(this, ThreadService.class, threadService);
       }
 
       out.println("</html>");
@@ -216,4 +198,79 @@ public class TestObjectSizePlugin extends AbstractServletComponent {
     }  
   }
 
+  private class PublishTest implements Runnable {
+    String countString;
+    String listString;
+    int persistTime;
+    PublishTest(String cs, String ls, int pt) {
+      countString = cs;
+      listString = ls;
+      persistTime = pt;
+    }
+
+    public void run() {
+      try {
+      List countList = getListFromString(countString);
+      List listList = getListFromString(listString);
+        Iterator ilist = listList.iterator();
+        while (ilist.hasNext()) {
+          int lsize = ((Integer)ilist.next()).intValue();
+          int csize;
+          Iterator iCount = countList.iterator();
+          while (iCount.hasNext()) {
+            if (logging.isInfoEnabled()) {
+              logging.info("waiting " + persistTime + " before publishing");
+            }
+
+            csize = ((Integer)iCount.next()).intValue();
+            publishList(lsize, csize);
+
+            Thread.currentThread().sleep(persistTime);
+            blackboardService.persistNow();
+            if (logging.isInfoEnabled()) {
+              logging.info("total of " + lsize + " of size " + csize + " persisted");
+            }
+
+          }
+        }
+      } catch (Exception ex) {
+        logging.error("Exception ", ex);
+      }
+    }
+  }
+
+  private List getListFromString(String str) throws Exception {
+    List l = new ArrayList();
+    int start = 0;
+    int index = 0;
+    while (index != -1) {
+      index = str.indexOf(',', start);
+      if (index == -1) {
+        break;
+      }
+      l.add(new Integer(Integer.parseInt(str.substring(start, index))));
+      start = index + 1;
+    }
+    l.add(new Integer(Integer.parseInt(str.substring(start, str.length()))));
+    return l;
+  }
+
+  private void publishList(int lsize, int csize) {
+    int total = 0;
+        for (int i = 0; i < lsize; i++) {
+          List table = new BlackboardTestObject();
+
+          for (int count = 0; count < csize; count++) {
+            Object o = new Integer(count);
+            table.add(o);
+          }
+          blackboardService.openTransaction();
+          blackboardService.publishAdd(table);
+          total++;
+          blackboardService.closeTransaction();
+        }
+          if (logging.isInfoEnabled()) {
+            logging.info("total of " + lsize + " of size " + csize + " generated, " + total + " published.");
+          }
+  }
 }
