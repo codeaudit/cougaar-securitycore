@@ -106,6 +106,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * @see javax.net.ssl.SSLSocketFactory#createSocket()
    */
   public Socket createSocket() throws IOException {
+    if (_log.isInfoEnabled()) {
+      _log.debug("Creating Client socket");
+    }
     Socket socket = _fact.createSocket();
     updateSocketCache(socket);
     return socket;
@@ -119,6 +122,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    */
   public Socket createSocket(Socket sock, String host, int port,
                              boolean autoClose) throws IOException {
+    if (_log.isInfoEnabled()) {
+      _log.debug("Creating Client socket to " + host + ":" + port);
+    }
     Socket socket = _fact.createSocket(sock,host,port,autoClose);
     updateSocketCache(socket);
     return socket;
@@ -131,6 +137,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * @see javax.net.ssl.SSLSocketFactory#createSocket(InetAddress, int)
    */
   public Socket createSocket(InetAddress host, int port) throws IOException {
+    if (_log.isInfoEnabled()) {
+      _log.debug("Creating Client socket to " + host + ":" + port);
+    }
     Socket socket = _fact.createSocket(host,port);
     updateSocketCache(socket);
     return socket;
@@ -145,6 +154,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   public Socket createSocket(InetAddress host, int port,
                              InetAddress localAddress, int localPort)
     throws IOException {
+    if (_log.isInfoEnabled()) {
+      _log.debug("Creating Client socket to " + host + ":" + port);
+    }
     Socket socket = _fact.createSocket(host,port,localAddress,localPort);
     updateSocketCache(socket);
     return socket;
@@ -157,6 +169,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * @see javax.net.ssl.SSLSocketFactory#createSocket(String, int)
    */
   public Socket createSocket(String host, int port) throws IOException {
+    if (_log.isInfoEnabled()) {
+      _log.debug("Creating Client socket to " + host + ":" + port);
+    }
     Socket socket = _fact.createSocket(host,port);
     updateSocketCache(socket);
     return socket;
@@ -171,17 +186,22 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   public Socket createSocket(String host, int port,
                              InetAddress localAddress, int localPort)
     throws IOException {
+    if (_log.isInfoEnabled()) {
+      _log.debug("Creating Client socket to " + host + ":" + port);
+    }
     Socket socket = _fact.createSocket(host,port,localAddress,localPort);
     updateSocketCache(socket);
     return socket;
 //     return new DebugSSLSocket(_fact.createSocket(host,port,localAddress,localPort));
   }
 
-  private void updateSocketCache(Socket socket) {
+  private void updateSocketCache(Socket socket) 
+    throws IOException
+  {
     SSLSession session = null;
     // Adding a timeout to try to resolve bug 13600.
     // https://bugs.ultralog.net/show_bug.cgi?id=13600
-    socket.setSoTimeout(5 * 60 * 1000);
+    //    socket.setSoTimeout(5 * 60 * 1000);
 
     if (socket instanceof SSLSocket) {
       session = ((SSLSocket)socket).getSession();
