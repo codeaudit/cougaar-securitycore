@@ -41,7 +41,7 @@ java.Xbootclasspath/p=/mnt/shared/integ/lib/javaiopatch.jar
 # java.class.path=/mnt/shared/integ/lib/bootstrap.jar
 # However, the Jython interpreter requires the JAR files
 # referenced from Python be on the "real" classpath.
-#java.class.path=/mnt/shared/integ/lib/CougaarCRLextensions.jar
+java.class.path=/mnt/shared/integ/lib/CougaarCRLextensions.jar
 #java.class.path=/mnt/shared/integ/lib/idmef.jar:/mnt/shared/integ/lib/core.jar:/mnt/shared/integ/lib/securityservices.jar:/mnt/shared/integ/lib/aggagent.jar:/mnt/shared/integ/lib/CougaarCRLextensions.jar
 
 
@@ -57,7 +57,7 @@ java.Xbootclasspath/p=/mnt/shared/integ/lib/javaiopatch.jar
 # Here we override the default configuration path to include both
 # the "common" directory and "GLMTrans" directory.
 #org.cougaar.config.path="/mnt/shared/integ/configs/common\;/mnt/shared/integ/configs/glmtrans\;"
-org.cougaar.config.path="/mnt/shared/integ/configs/security;/mnt/shared/integ/configs/common;/mnt/shared/integ/configs/glmtrans;"
+org.cougaar.config.path=".;/mnt/shared/integ/configs/security;/mnt/shared/integ/configs/common;/mnt/shared/integ/configs/glmtrans;"
 #org.cougaar.config.path=".;/mnt/shared/integ/configs/security;"
 
 # Some standard memory settings.
