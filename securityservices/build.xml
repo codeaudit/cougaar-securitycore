@@ -208,6 +208,7 @@
         </jar>
     </target>
     
+                      <!-- org/cougaar/core/security/**/test/**, -->
     <!-- jar security services -->
     <!-- TODO: SecurityComponent.class is a hack until KAOS has been fixed -->
     <target name="jar-securityservices" depends="build-securityservices">
@@ -220,7 +221,6 @@
             includes="org/cougaar/core/security/**/*.class,
 		     org/cougaar/core/security/SecurityComponent.class"
             excludes="org/cougaar/core/security/*bootstrap/**,
-                      org/cougaar/core/security/**/test/**,
                       org/cougaar/core/security/oldmonitoring/**"/>
         <jar jarfile="${securityservices.classes}/CougaarCRLextensions.jar"
             basedir="${securityservices.classes}"
@@ -297,13 +297,13 @@
     <!-- install build depended jars -->
     <target name="install-build-jars">
         <echo message="+++++ Installing jar files"/>
-        <copy todir="${cougaar.install.path}/sys">
+        <copy todir="${cougaar.install.path}/sys" overwrite="true">
             <fileset dir="${securityservices.sys}">
                 <include name="*.jar"/>
                 <exclude name="jasper-compiler.jar"/>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/lib">
+        <copy todir="${cougaar.install.path}/lib" overwrite="true">
             <fileset dir="${securityservices.lib}" includes="*.jar"/>
         </copy>
         <echo message="+++++ Installed jar files"/>        
