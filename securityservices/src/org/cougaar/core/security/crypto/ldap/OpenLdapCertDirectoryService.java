@@ -60,14 +60,14 @@ public class OpenLdapCertDirectoryService
   }
 
   public void setDirectoryServiceURL(String aURL) {
-    String attr = null;
     int slash = aURL.lastIndexOf("/");
-    int comma = aURL.indexOf(",");
-    if (slash != -1 && comma != -1) {
-      attr = aURL.substring(slash + 1, comma);
-      aURL = aURL.substring(0,slash + 1) + aURL.substring(comma+1);
+    String dn = null;
+    String bURL = aURL;
+    if (slash != -1) {
+      dn   = aURL.substring(slash+1);
+      bURL = aURL.substring(0,slash + 1);
     }
-    super.setDirectoryServiceURL(aURL);
+    super.setDirectoryServiceURL(bURL);
     if (!initializationOK) {
       return;
     }
@@ -76,12 +76,18 @@ public class OpenLdapCertDirectoryService
       context.addToEnvironment(Context.SECURITY_PRINCIPAL,
 			       "cn=manager, dc=cougaar, dc=org");
       context.addToEnvironment(Context.SECURITY_CREDENTIALS, "secret");
-      resetBaseContext(attr);
-      // in case we've reset the context, we also need to
-      // reset the password
-      context.addToEnvironment(Context.SECURITY_PRINCIPAL,
-			       "cn=manager, dc=cougaar, dc=org");
-      context.addToEnvironment(Context.SECURITY_CREDENTIALS, "secret");
+      if (bURL != aURL) { // can compare with != since it is assigned above
+	  createDcObjects(dn);
+	  // reset the context to point to the child
+	  context.close();
+	  context = null;
+	  super.setDirectoryServiceURL(aURL);
+	  // in case we've reset the context, we also need to
+	  // reset the password
+	  context.addToEnvironment(Context.SECURITY_PRINCIPAL,
+				   "cn=manager, dc=cougaar, dc=org");
+	  context.addToEnvironment(Context.SECURITY_CREDENTIALS, "secret");
+      }
     }
     catch (Exception e) {
       if (log.isDebugEnabled()) {
@@ -103,54 +109,66 @@ public class OpenLdapCertDirectoryService
     return new String[] {url, component};
   }
 
-  private void resetBaseContext(String attr) {
-    int index;
-    if (attr == null || (index = attr.indexOf("=")) == -1) {
-      return; // no attrubute to check
+    private void createDcObjects(String dn) {
+	if (dn == null) return;
+	ArrayList names = new ArrayList();
+	ArrayList vals  = new ArrayList();
+	ArrayList dns   = new ArrayList();
+	int commaIndex = -1;
+	do {
+	    dns.add(dn.substring(commaIndex+1));
+	    int eqIndex = dn.indexOf("=", commaIndex);
+	    names.add(dn.substring(commaIndex+1, eqIndex));
+	    commaIndex = dn.indexOf(",", commaIndex+1);
+	    if (commaIndex == -1) {
+		vals.add(dn.substring(eqIndex+1));
+	    } else {
+		vals.add(dn.substring(eqIndex+1, commaIndex));
+	    }
+	} while (commaIndex != -1);
+
+	int firstAvailable = -1;
+
+	for (int i = 0; i < dns.size() && firstAvailable == -1; i++) {
+	    try {
+		// check if the object exists:
+		Attributes attrs = context.getAttributes((String) dns.get(i));
+		if (attrs != null) {
+		    firstAvailable = i;
+		}
+	    } catch (NamingException e) {
+		// doesn't exist
+	    }
+	}
+
+	if (firstAvailable == -1) {
+	    firstAvailable = dns.size();
+	}
+	
+	for (int i = firstAvailable - 1; i >= 0; i--) {
+	    if (log.isInfoEnabled()) {
+		log.info("CA dn " + dns.get(i) + 
+			 " does not exist. Creating...");
+	    }
+	    BasicAttributes ba = new BasicAttributes();
+	    Attribute objClass = new BasicAttribute("objectClass","dcObject");
+	    objClass.add("organization");
+	    ba.put(objClass);
+
+	    String name = (String) names.get(i);
+	    String val  = (String) vals.get(i);
+	    ba.put(name,val);
+	    ba.put("o", "UltraLog");
+	    ba.put("description", "Certificates");
+	    try {
+		context.createSubcontext((String) dns.get(i), ba);
+	    } catch (NamingException e) {
+		if (log.isWarnEnabled()) {
+		    log.warn("Could not create dn " + dns.get(i));
+		}
+	    }
+	}
     }
-
-    Attributes attrs = null;
-    try {
-      attrs = context.getAttributes(attr);
-    } catch (NamingException ne) {
-    }
-
-    try {
-      String urlComponents[] = breakURL(ldapServerUrl);
-      String docomma = ",";
-      if (urlComponents[1].length() == 0) {
-        docomma = "";
-      }
-      String newURL = urlComponents[0] + attr + docomma + urlComponents[1];
-      
-      if (attrs == null) {
-        BasicAttributes ba = new BasicAttributes();
-        Attribute objClass = new BasicAttribute("objectClass","dcObject");
-        objClass.add("organization");
-        ba.put(objClass);
-
-        String name = attr.substring(0,index);
-        String val  = attr.substring(index+1);
-        ba.put(name,val);
-        ba.put("o", "UltraLog");
-        ba.put("description", "Certificates");
-        context.createSubcontext(attr,ba);
-      }
-
-      // reset the context to point to the child
-      context.close();
-      context = null;
-      super.setDirectoryServiceURL(newURL);
-      // the following doesn't work:
-//       context.addToEnvironment(context.PROVIDER_URL, newURL);
-//       ldapServerUrl = newURL;
-    } catch (NamingException ne) {
-      log.warn("Could not check/add base dn for CA");
-      if (log.isDebugEnabled()) {
-        log.debug("Could not check/add base dn for CA", ne);
-      }
-    }
-  }
 
   public X509CRL getCRL(SearchResult result)
   {
