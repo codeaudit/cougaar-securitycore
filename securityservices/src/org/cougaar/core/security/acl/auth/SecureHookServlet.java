@@ -71,6 +71,13 @@ public class SecureHookServlet implements Servlet {
     if (principal != null) {
       subject.getPrincipals().add(principal);
     }
+    if (_log.isDebugEnabled()) {
+      String s = "service - principal:" + principal;
+      if (req != null && req instanceof HttpServletRequest) {
+	s = s + " - req: " + ((HttpServletRequest)req).getRequestURI();
+      }
+      _log.debug(s);
+    }
 
     // This audit is commented out for now because I am moving the audit
     // to DualAuthenticator.  -Timothy
