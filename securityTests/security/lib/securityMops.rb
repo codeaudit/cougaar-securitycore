@@ -78,7 +78,7 @@ class SecurityMop21 < AbstractSecurityMop
     begin
       @score = compileResults
       puts "compiledResults #{@score}" if $VerboseDebugging
-      summary = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}")
+      summary = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}"
       @info = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}<br/>\n" + @info.join("<br/>\n")
       @calculationDone = true
       success = false
@@ -191,7 +191,8 @@ class SecurityMop22 < AbstractSecurityMop
     if (@score == 100.0)
       success = true
     end
-    saveResult(success, 'SecurityMop2.2', @info)
+    saveResult(success, 'SecurityMop2.2', d.summary)
+    saveAssertion('SecurityMop2.2', @info)
   end
 
   def scoreText
