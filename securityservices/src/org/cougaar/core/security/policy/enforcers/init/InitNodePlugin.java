@@ -46,7 +46,7 @@ import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
-import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
+import org.cougaar.core.security.policy.mediator.OwlMessagePolicyMediator;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ServletService;
 import org.cougaar.util.ConfigFinder;
@@ -56,7 +56,7 @@ public class InitNodePlugin extends ComponentPlugin {
   private ServiceBroker _sb;
   private LoggingService _log;
   private ServletNodeEnforcer    _servletEnf;
-  private ULMessageNodeEnforcer  _msgEnf;
+  private OwlMessagePolicyMediator  _msgEnf;
 
   private ServletService servletService;
   private Servlet _messageServlet;
@@ -105,7 +105,7 @@ public class InitNodePlugin extends ComponentPlugin {
       }
 
       getBlackboardService().closeTransactionDontReset();
-      _msgEnf     = new ULMessageNodeEnforcer(_sb,getAgents());
+      _msgEnf     = new OwlMessagePolicyMediator(_sb,getAgents());
       try {
         _msgEnf.registerEnforcer();
       } catch (Exception e) {
