@@ -87,10 +87,14 @@ install: installconf
 	mkdir ${COUGAAR_INSTALL_PATH}/log/plugin
 	@echo +++++++ Done installing jar files and log directories
 
-installconf:
+installconf: clean-data
 	echo +++++++ Installing configuration files
 	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/
 	cp -r test/configs/small-135 ${COUGAAR_INSTALL_PATH}/configs
 	cp sys/*.jar ${COUGAAR_INSTALL_PATH}/sys
 #	cp -r ./test/configs/demo ${COUGAAR_INSTALL_PATH}/configs/.
 #	cp -r ./test/configs/ul-mini-config  ${COUGAAR_INSTALL_PATH}/configs/.
+
+confnai:
+	echo +++++++ Installing NAI configuration files
+	cp ./test/configs/mysql/* ${COUGAAR_INSTALL_PATH}/configs/small-135

@@ -8,7 +8,8 @@ if ( $# > 0 )  then
 endif
 
 set CURDIR=`pwd`
-set defaultconf=ul-mini-config-openldap.conf
+set defaultconf=small135.conf
+#set defaultconf=ul-mini-config-openldap.conf
 
 if ( ! $?configurationFile ) then
     set configurationFile=${defaultconf}
