@@ -137,7 +137,7 @@
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
 	command="rm -rf ${testbed.cip.dir}"
-        timeout="20000"
+        timeout="60000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Creating CIP on testbed machine..."/>
