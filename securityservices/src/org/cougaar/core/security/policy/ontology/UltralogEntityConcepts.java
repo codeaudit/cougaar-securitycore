@@ -16,60 +16,37 @@ final public class UltralogEntityConcepts
 	}
 
 	// Concepts
-    public static String PlugInRoles() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "PlugInRoles"); 
-	}
-    public static String WPAccessType() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAccessType"); 
-	}
-    public static String BlackBoardAccessMode() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "BlackBoardAccessMode"); 
-	}
-    public static String ProtectionLevel() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ProtectionLevel"); 
-	}
-    public static String UltralogEntity() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UltralogEntity"); 
-	}
-    public static String Servlet() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "Servlet"); 
-	}
-    public static String AuditLevel() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "AuditLevel"); 
-	}
-    public static String BlackBoardObjects() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "BlackBoardObjects"); 
-	}
-    public static String AuthenticationLevel() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "AuthenticationLevel"); 
-	}
-    public static String ULContentValue() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ULContentValue"); 
-	}
+    public static final String PlugInRoles = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "PlugInRoles");
+    public static final String WPAccessType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAccessType");
+    public static final String BlackBoardAccessMode = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "BlackBoardAccessMode");
+    public static final String ProtectionLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ProtectionLevel");
+    public static final String UltralogEntity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UltralogEntity");
+    public static final String Servlet = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "Servlet");
+    public static final String AuditLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "AuditLevel");
+    public static final String BlackBoardObjects = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "BlackBoardObjects");
+    public static final String AuthenticationLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "AuthenticationLevel");
+    public static final String ULContentValue = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ULContentValue");
+
+    public static String PlugInRoles() { return PlugInRoles; };
+    public static String WPAccessType() { return WPAccessType; };
+    public static String BlackBoardAccessMode() { return BlackBoardAccessMode; };
+    public static String ProtectionLevel() { return ProtectionLevel; };
+    public static String UltralogEntity() { return UltralogEntity; };
+    public static String Servlet() { return Servlet; };
+    public static String AuditLevel() { return AuditLevel; };
+    public static String BlackBoardObjects() { return BlackBoardObjects; };
+    public static String AuthenticationLevel() { return AuthenticationLevel; };
+    public static String ULContentValue() { return ULContentValue; };
 
 	// Properties
 
+
 	// Instances
-    public static String WPAdd() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAdd"); 
-	}
-    public static String WPChange() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPChange"); 
-	}
-    public static String WPRemove() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPRemove"); 
-	}
+    public static final String WPAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAdd");
+    public static final String WPChange = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPChange");
+    public static final String WPRemove = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPRemove");
+
+    public static String WPAdd() { return WPAdd; };
+    public static String WPChange() { return WPChange; };
+    public static String WPRemove() { return WPRemove; };
 }

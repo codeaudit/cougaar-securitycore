@@ -17,7 +17,10 @@ final public class GroupInstancesConcepts
 
 	// Concepts
 
+
 	// Properties
 
+
 	// Instances
+
 }

@@ -16,16 +16,15 @@ final public class UltralogActorConcepts
 	}
 
 	// Concepts
-    public static String UltralogPlugins() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActorOwlURL + "UltralogPlugins"); 
-	}
+    public static final String UltralogPlugins = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActorOwlURL + "UltralogPlugins");
+
+    public static String UltralogPlugins() { return UltralogPlugins; };
 
 	// Properties
-    public static String roleOfPlugin() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActorOwlURL + "roleOfPlugin"); 
-	}
+    public static final String roleOfPlugin = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActorOwlURL + "roleOfPlugin");
+
+    public static String roleOfPlugin() { return roleOfPlugin; };
 
 	// Instances
+
 }

@@ -16,72 +16,43 @@ final public class UltralogActionConcepts
 	}
 
 	// Concepts
-    public static String WPForward() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPForward"); 
-	}
-    public static String WPUpdateSelf() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdateSelf"); 
-	}
-    public static String WPUpdateDelegate() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdateDelegate"); 
-	}
-    public static String BlackBoardAccess() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "BlackBoardAccess"); 
-	}
-    public static String WPUpdate() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdate"); 
-	}
-    public static String ServletAccess() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "ServletAccess"); 
-	}
-    public static String WPLookup() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPLookup"); 
-	}
+    public static final String WPForward = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPForward");
+    public static final String WPUpdateSelf = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdateSelf");
+    public static final String WPUpdateDelegate = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdateDelegate");
+    public static final String BlackBoardAccess = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "BlackBoardAccess");
+    public static final String WPUpdate = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdate");
+    public static final String ServletAccess = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "ServletAccess");
+    public static final String WPLookup = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPLookup");
+
+    public static String WPForward() { return WPForward; };
+    public static String WPUpdateSelf() { return WPUpdateSelf; };
+    public static String WPUpdateDelegate() { return WPUpdateDelegate; };
+    public static String BlackBoardAccess() { return BlackBoardAccess; };
+    public static String WPUpdate() { return WPUpdate; };
+    public static String ServletAccess() { return ServletAccess; };
+    public static String WPLookup() { return WPLookup; };
 
 	// Properties
-    public static String usedAuditLevel() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedAuditLevel"); 
-	}
-    public static String forwardTo() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "forwardTo"); 
-	}
-    public static String usedProtectionLevel() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedProtectionLevel"); 
-	}
-    public static String hasSubject() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "hasSubject"); 
-	}
-    public static String blackBoardAccessObject() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "blackBoardAccessObject"); 
-	}
-    public static String usedAuthenticationLevel() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedAuthenticationLevel"); 
-	}
-    public static String accessedServlet() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "accessedServlet"); 
-	}
-    public static String wpAgentEntry() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "wpAgentEntry"); 
-	}
-    public static String blackBoardAccessMode() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "blackBoardAccessMode"); 
-	}
+    public static final String usedAuditLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedAuditLevel");
+    public static final String forwardTo = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "forwardTo");
+    public static final String usedProtectionLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedProtectionLevel");
+    public static final String hasSubject = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "hasSubject");
+    public static final String blackBoardAccessObject = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "blackBoardAccessObject");
+    public static final String usedAuthenticationLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedAuthenticationLevel");
+    public static final String accessedServlet = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "accessedServlet");
+    public static final String wpAgentEntry = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "wpAgentEntry");
+    public static final String blackBoardAccessMode = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "blackBoardAccessMode");
+
+    public static String usedAuditLevel() { return usedAuditLevel; };
+    public static String forwardTo() { return forwardTo; };
+    public static String usedProtectionLevel() { return usedProtectionLevel; };
+    public static String hasSubject() { return hasSubject; };
+    public static String blackBoardAccessObject() { return blackBoardAccessObject; };
+    public static String usedAuthenticationLevel() { return usedAuthenticationLevel; };
+    public static String accessedServlet() { return accessedServlet; };
+    public static String wpAgentEntry() { return wpAgentEntry; };
+    public static String blackBoardAccessMode() { return blackBoardAccessMode; };
 
 	// Instances
+
 }

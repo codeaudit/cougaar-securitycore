@@ -16,16 +16,15 @@ final public class UltralogGroupConcepts
 	}
 
 	// Concepts
-    public static String Role() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogGroupOwlURL + "Role"); 
-	}
-    public static String Community() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogGroupOwlURL + "Community"); 
-	}
+    public static final String Role = OntologyLanguageTagSelector.selectLanguageForTag(UltralogGroupOwlURL + "Role");
+    public static final String Community = OntologyLanguageTagSelector.selectLanguageForTag(UltralogGroupOwlURL + "Community");
+
+    public static String Role() { return Role; };
+    public static String Community() { return Community; };
 
 	// Properties
 
+
 	// Instances
+
 }

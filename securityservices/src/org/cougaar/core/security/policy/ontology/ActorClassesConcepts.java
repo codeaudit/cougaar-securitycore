@@ -17,7 +17,10 @@ final public class ActorClassesConcepts
 
 	// Concepts
 
+
 	// Properties
 
+
 	// Instances
+
 }
