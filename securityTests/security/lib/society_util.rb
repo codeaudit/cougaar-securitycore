@@ -132,7 +132,7 @@ module Cougaar
     end # CorrectURLs
 
     class TestWPRegistration < Cougaar::Action
-      def initialize(run, interval = 5.minutes, delay = 5.minutes)
+      def initialize(run, interval = 5.minutes, delay = 0.minutes)
         super(run)
         @interval = interval
         @delay = delay
@@ -168,7 +168,17 @@ module Cougaar
        # Create node list
        nodes = []
        agents.each { |agent|
-         nodes = nodes | [run.society.agents[agent].node]
+         begin
+           run.society.each_agent(true) { |socagent|
+             #logInfoMsg "#{agent} - #{socagent.name}"
+             if (socagent.name == agent)
+                nodes = nodes | [socagent.node]
+                break
+             end
+           }
+         rescue => e
+           saveAssertion "wp_registration", "Unable to find agent: #{agent} #{e} #{e.backtrace.join("\n")}"
+         end
        }
        nodenames = []
        nodes.each {|node|
