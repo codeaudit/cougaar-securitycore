@@ -30,9 +30,6 @@ public class CertificateSigningRequest extends  HttpServlet
              {
                  jdexp.printStackTrace();
              }
-	 /*ServletContext context=config.getServletContext();
-	  context.setAttribute("asas",(Object)new String("dssd"));
-	 */
   }
   public void setjavaproperty(Element root)
   {
@@ -57,8 +54,8 @@ public class CertificateSigningRequest extends  HttpServlet
                 try
                 {
                         System.setProperty(propertyName,propertyValue);
-			System.out.println("setting property name :"+propertyName);
-			System.out.println("setting property value ::"+propertyValue);
+			//System.out.println("setting property name :"+propertyName);
+			//System.out.println("setting property value ::"+propertyValue);
 			context.setAttribute(propertyName,(Object)propertyValue);
 		       
                 }
