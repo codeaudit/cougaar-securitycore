@@ -57,7 +57,7 @@ java.class.path=/mnt/shared/integ92/lib/CougaarCRLextensions.jar
 # the "common" directory and "GLMTrans" directory.
 #org.cougaar.config.path="/mnt/shared/integ92/configs/common\;/mnt/shared/integ92/glmtrans/configs/demo-config/config\;"
 #org.cougaar.config.path="/mnt/shared/integ92/configs/security;/mnt/shared/integ92/configs/common;/mnt/shared/integ92/glmtrans/configs/demo-config/config;"
-org.cougaar.config.path="/mnt/shared/integ92/configs/security;
+org.cougaar.config.path="/mnt/shared/integ92/configs/security;"
 
 # Some standard memory settings.
 #
@@ -134,7 +134,7 @@ org.cougaar.lib.web.http.port=5557
 org.cougaar.workspace=/mnt/shared/integ92/workspace
 
 # Bootstrap keystore to store JAR file keys
-org.cougaar.core.security.bootstrap.keystore=/mnt/shared/integ92/configs/common/bootstrap_keystore
+org.cougaar.core.security.bootstrap.keystore=/mnt/shared/integ92/configs/security/bootstrap_keystore
 
 # Log4j Logging
 org.cougaar.core.logging.config.filename=loggingConfig.conf
@@ -159,7 +159,7 @@ java.class.name=org.cougaar.bootstrap.Bootstrapper
 
 # Enable user authentication over HTTP (or HTTPS)
 # The authentication requirements and access control parameters are specified
-# in the $CIP/configs/common/BootPolicy.ldm.xml file.
+# in the $CIP/configs/security/BootPolicy.ldm.xml file.
 org.cougaar.lib.web.tomcat.enableAuth=true
 
 # Role to take when making LDAP requests
@@ -176,7 +176,7 @@ org.cougaar.bootstrap.class=org.cougaar.core.security.securebootstrap.SecureBoot
 # Warning!!! Use JAR files ONLY when using this policy file.
 # If directories containing .class files are included in the CLASSPATH,
 # the .class files will not have sufficient privileges to be executed.
-java.Djava.security.policy=/mnt/shared/integ92/configs/common/Cougaar_Java.policy
+java.Djava.security.policy=/mnt/shared/integ92/configs/security/Cougaar_Java.policy
 
 # Use Java security manager
 org.cougaar.core.security.useSecurityManager=true
