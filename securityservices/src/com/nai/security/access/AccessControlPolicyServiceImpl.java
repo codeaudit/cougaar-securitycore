@@ -83,18 +83,18 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     private void checkOrMakeProxy(String agent){
         if(proxies.contains(agent)) return;
         
-        //if we need to add proxy, there is a good chance we need a new certificate too
-        //so check for it
-        if(debug) System.out.println("checking certs for agent " + agent);
-        KeyRing.checkOrMakeCert(agent);
-        
         AccessPolicyProxy app = new AccessPolicyProxy(agent);
         
         if(app!=null){
             pp.add(app);
             proxies.add(agent);
+            if(debug)System.out.println("Making proxy for agent " + agent);
+        
+            //if we need to add proxy, there is a good chance we need a new certificate too
+            //so check for it
+            if(debug) System.out.println("checking certs for agent " + agent);
+            KeyRing.checkOrMakeCert(agent);
         }
-	if(debug)System.out.println("Making proxy for agent " + agent);
         
         return;
     }
