@@ -97,6 +97,7 @@ public class ConfigParserServiceImpl
 
     setConfigurationFile("cryptoPolicy.xml");
     setConfigurationFile("BootPolicy.Crypto.xml");
+    setConfigurationFile("BootPolicy.MsgAccess.xml");
   }
 
   public File findWorkspacePolicyPath(String policyfilename) {

@@ -30,9 +30,11 @@ import java.util.HashSet;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.Iterator;
+import java.util.Collection;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.planning.ldm.policy.*;
@@ -55,28 +57,26 @@ public class AccessControlPolicyServiceImpl
   private KeyRingService keyRing = null;
   private SecurityPropertiesService secprop = null;
   private LoggingService log;
+  private CommunityService commu;
   private ServiceBroker serviceBroker;
 
   //named proxies
   HashSet proxies = new HashSet();
 
-    //policy source
+  //policy source
   Vector pp = new Vector();
 
-  //directive verb look-up hashmap
-  HashMap verbs = new HashMap();
+  //policy for society--usually the default, one-fits-all policy
+  AccessControlPolicy acp_in = null;
+  AccessControlPolicy acp_out = null;
+  
+  //policy for community--common policy for the team
+  HashMap incoming_c = new HashMap();
+  HashMap outgoing_c = new HashMap();
 
-  //agent actions look-up hashmap
-  HashMap agentActions = new HashMap();
-
-  //actions look-up HashMap
-  HashMap actions = new HashMap();
-
-  //Criticality attributes look-up HashMap
-  HashMap crits = new HashMap();
-
-  //integraty attributes look-up HashMap
-  HashMap integs = new HashMap();
+  //policy for agent--the one and only
+  HashMap incoming_a = new HashMap();
+  HashMap outgoing_a = new HashMap();
 
   //TrustSet map to transfer trust from parent to child child tasks
   private Hashtable trustTable = new Hashtable(20);
@@ -102,6 +102,9 @@ public class AccessControlPolicyServiceImpl
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
+    
+    commu = (CommunityService)
+      serviceBroker.getService(this, CommunityService.class, null);
 
     //setup for default policy
     AccessPolicyProxy app = new AccessPolicyProxy("DEFAULT", serviceBroker);
@@ -112,8 +115,78 @@ public class AccessControlPolicyServiceImpl
     String db = secprop.getProperty(secprop.TRANSPORT_DEBUG,
 				    "false");
     dbg = (db.equalsIgnoreCase("true") || (db.indexOf("security")>=0));
-  }
+  }//Constructor
 
+  private AccessControlPolicy getIncomingPolicy(String target){
+    //try agent first
+    AccessControlPolicy acp = (AccessControlPolicy)incoming_a.get(target);
+    
+    if(acp==null && commu!=null){
+      //find which community the agent belongs to and get the policy
+      Collection c = commu.listParentCommunities(target);
+      if(c!=null){
+        String cname = null;
+        try{
+          //agent could belongs to multiple communities, thus multiple set
+          //of policy--no policy consolidation for now, just pick one.
+          cname = (String)c.iterator().next();
+        }catch(Exception e){
+          log.debug("AccessControlPolicyServiceImpl: getting odd community name.");
+        }
+        if(cname != null && incoming_c !=null) 
+          acp = (AccessControlPolicy)incoming_c.get(target);
+      }
+    }
+    
+    if(acp==null){
+      //last try
+      acp = acp_in;
+    }
+    
+    if(acp==null){
+      if(dbg) {
+        log.debug("AccessControlPolicy ERROR: can't find policy for " 
+        + "->" +  target);
+      }
+    }
+      return acp;
+  }//getIncomingPolicy
+
+  private AccessControlPolicy getOutgoingPolicy(String source){
+    //try agent first
+    AccessControlPolicy acp = (AccessControlPolicy)outgoing_a.get(source);
+    
+    if(acp==null && commu!=null){
+      //find which community the agent belongs to and get the policy
+      Collection c = commu.listParentCommunities(source);
+      if(c!=null){
+        String cname = null;
+        try{
+          //agent could belongs to multiple communities, thus multiple set
+          //of policy--no policy consolidation for now, just pick one.
+          cname = (String)c.iterator().next();
+        }catch(Exception e){
+          log.debug("AccessControlPolicyServiceImpl: getting odd community name.");
+        }
+        if(cname != null && outgoing_c !=null) 
+          acp = (AccessControlPolicy)outgoing_c.get(source);
+      }
+    }
+    
+    if(acp==null){
+      //last try
+      acp = acp_out;
+    }
+    
+    if(acp==null){
+      if(dbg) {
+        log.debug("AccessControlPolicy ERROR: can't find policy for " 
+        + source + "->" );
+      }
+    }
+      return acp;
+  }//getOutgoingPolicy
+  
   private void checkOrMakeProxy(String agent){
     if(proxies.contains(agent)) return;
 
@@ -130,43 +203,36 @@ public class AccessControlPolicyServiceImpl
     // If we need to add proxy, there is a good chance we need
     // a new certificate too so check for it.
     if(dbg) log.debug("checking certs for agent " + agent);
-    keyRing.checkOrMakeCert(agent);
+    try{
+      keyRing.checkOrMakeCert(agent);
+    }catch(Exception e){
+      log.debug("Error checking certs for agent" + agent);
+    }
 
     return;
-  }
+  }//checkOrMakeProxy
 
-  public synchronized TrustSet getIncomingTrust(String source, String target)
+  public TrustSet getIncomingTrust(String source, String target)
   {
     checkOrMakeProxy(target);
-    HashMap h = (HashMap)crits.get(target);
-    if(h==null) {
-      h = (HashMap)crits.get("DEFAULT");
-    }
-    if(h==null) {
+    AccessControlPolicy acp = getIncomingPolicy(target);
+    if(acp==null){
+      //no point to go on.
       return null;
     }
 
-    Object obj = h.get(source + ":");
-    if(obj==null) {
-      obj = h.get("DEFAULT:");
-    }
-    if(obj==null) {
-      return null;
-    }
+    Object obj = acp.getCriticality(source);
+    if (obj==null) return null;
+    
     if(dbg) {
       log.debug("Msg IN:" + source + "->" + target
-			 + ". Criticality:" + obj);
+       + ". Criticality:" + obj);
     }
-
     TrustSet ts = new TrustSet();
     ts.addAttribute(new TrustAttribute(MissionCriticality.name, obj));
 
-    h = (HashMap)integs.get(target);
-    if(h==null) h = (HashMap)integs.get("DEFAULT");
-    if(h==null) return ts;
-    obj = h.get(source + ":");
-    if(obj==null) obj = h.get("DEFAULT:");
-    if(obj==null) return ts;
+    obj = acp.getIntegrity(source);
+    if (obj==null) return null;
 
     if(dbg) {
       log.debug("Msg IN:" + source + "->" + target
@@ -175,176 +241,122 @@ public class AccessControlPolicyServiceImpl
     ts.addAttribute(new TrustAttribute(IntegrityAttribute.name, obj));
 
     return ts;
-  }
+  }//getIncomingTrust
 
-  public synchronized TrustSet getOutgoingTrust(String source, String target) {
+  public TrustSet getOutgoingTrust(String source, String target) {
     checkOrMakeProxy(source);
-    HashMap h = (HashMap)crits.get(source);
-    if(h==null) h = (HashMap)crits.get("DEFAULT");
-    if(h==null) return null;
-
-    Object obj = h.get(":"+target);
-    if(obj==null) obj = h.get(":DEFAULT");
-    if(obj==null) return null;
+    AccessControlPolicy acp = getOutgoingPolicy(source);
+    if(acp==null){
+      //no point to go on.
+      return null;
+    }
+    
+    Object obj = acp.getCriticality(target);
+    if (obj==null) return null;
+    
     if(dbg) {
       log.debug("Msg OUT:" + source + "->" + target
-			 + ". Criticality:"+obj);
+       + ". Criticality:" + obj);
     }
 
     TrustSet ts = new TrustSet();
     ts.addAttribute(new TrustAttribute(MissionCriticality.name, obj));
 
-    h = (HashMap)integs.get(source);
-    if(h==null) h = (HashMap)integs.get("DEFAULT");
-    if(h==null) return ts;
-    obj = h.get(":" + target);
-    if(obj==null) obj = h.get(":DEFAULT");
-    if(obj==null) return ts;
+    obj = acp.getIntegrity(target);
+    if (obj==null) return null;
+
     if(dbg) {
       log.debug("Msg OUT:" + source + "->" + target
-			 + ". Integrity:" + obj);
+			 +". Integrity:"+obj);
     }
     ts.addAttribute(new TrustAttribute(IntegrityAttribute.name, obj));
 
     return ts;
-  }
+  }//getOutgoingTrust
 
-  public synchronized String getIncomingAction(String target, String level){
+  public String getIncomingAction(String target, String level){
     checkOrMakeProxy(target);
-    HashMap h = (HashMap)actions.get(target);
-    if(h==null) h = (HashMap)actions.get("DEFAULT");
-    if(h==null) return null;
-    String r = (String)h.get("Criticality"+level+":");
-    if(dbg) {
-      log.debug("Msg IN: ->" + target 
-			 +". Action:" + r + " for level " + level);
+    AccessControlPolicy acp = getIncomingPolicy(target);
+    if(acp==null){
+      //no point to go on.
+      return null;
     }
-    return r;
-  }
 
-  public synchronized String getOutgoingAction(String source, String level){
-    checkOrMakeProxy(source);
-    HashMap h = (HashMap)actions.get(source);
-    if(h==null) h = (HashMap)actions.get("DEFAULT");
-    if(h==null) return null;
-    String r = (String)h.get(":"+"Criticality"+level);
+    String r = (String)acp.getMsgAction(level);
     if(dbg) {
-      String s = "Msg OUT:" + source + "-> . Action:" +
-	(r == null ? "No policy" : r) + " for level " + level;
+      String s = "Msg In:" + "->" + target + ". Action:" +
+    	(r == null ? "No policy" : r) + " for level " + level;
       log.debug(s);
     }
     return r;
-  }
+  }//getIncomingAction
 
-  public synchronized String getIncomingAgentAction(String source,
-						    String target) {
-    checkOrMakeProxy(target);
-    HashMap h = (HashMap)agentActions.get(target);
-    if(h == null)h = (HashMap)agentActions.get("DEFAULT");
-    if(h == null) {
-      if(dbg) {
-	log.debug("Msg IN: " + source + "->" + target
-			   + "No AgentAction");
-      }
+  public String getOutgoingAction(String source, String level){
+    checkOrMakeProxy(source);
+    AccessControlPolicy acp = getOutgoingPolicy(source);
+    if(acp==null){
+      //no point to go on.
       return null;
     }
-    String r = (String)h.get("In:" + source);
-    if(r == null) {
-      r = (String)h.get("In:DEFAULT");
+    
+    String r = (String)acp.getMsgAction(level);
+    if(dbg) {
+      String s = "Msg OUT:" + source + "->" + ". Action:" +
+    	(r == null ? "No policy" : r) + " for level " + level;
+      log.debug(s);
     }
+    return r;
+  }//getOutgoingAction
+
+  public String getIncomingAgentAction(String source,
+						    String target) {
+    checkOrMakeProxy(target);
+    AccessControlPolicy acp = getIncomingPolicy(target);
+    if(acp==null){
+      //no point to go on.
+      return null;
+    }
+
+    String r = (String)acp.getAgentAction(source);
     if(dbg) {
       log.debug("Msg IN:" + source + "->" + target +
 			 ". Agent action:" + r);
     }
     return r;
+  }//getIncomingAgentAction
 
-  }
-
-  public synchronized String getOutgoingAgentAction(String source,
+  public String getOutgoingAgentAction(String source,
 						    String target) {
     checkOrMakeProxy(source);
-    HashMap h = (HashMap)agentActions.get(source);
-    if(h == null)h = (HashMap)agentActions.get("DEFAULT");
-    if(h == null) {
-      if(dbg)log.debug("Msg OUT: " + source + "->" + target
-				+ "No AgentAction");
+    AccessControlPolicy acp = getOutgoingPolicy(source);
+    if(acp==null){
+      //no point to go on.
       return null;
     }
-    String r = (String)h.get("Out:" + target);
-    if(r == null) {
-      r = (String)h.get("Out:DEFAULT");
-    }
+    
+    String r = (String)acp.getAgentAction(target);
     if(dbg) {
       log.debug("Msg OUT: " + source + "->" + target
 			 +". Outgoing agent action:" + r);
     }
     return r;
-  }
+  }//getOutgoingAgentAction
 
-
-  public synchronized Object[] getIncomingVerbs(String source, String target)
+  public Object[] getIncomingVerbs(String source, String target)
   {
     checkOrMakeProxy(target);
-    try{
-      HashMap h = (HashMap)verbs.get(target);
-      if(h == null) {
-	h = (HashMap)verbs.get("DEFAULT");
-      }
-      if(h == null) {
-	if(dbg)log.debug("Msg IN: " + source + "->" + target
-				  + ". No verb");
-	return null;
-      }
-      Vector r = (Vector)h.get("In:" + source);
-      if(r == null) {
-	r = (Vector)h.get("In:DEFAULT");
-      }
-      if(dbg) {
-	System.out.print("Msg IN:" + source + "->" + target
-			 + ". Verbs:");
-	for(int i = 0; i < r.size(); i++)
-	  System.out.print(r.get(i).toString() + " ");
-	log.debug("");
-      }
-      return r.toArray();
-    }
-    catch(Exception ex) {
-      if(dbg){
-	log.debug("Warning: bad verb list!");
-	ex.printStackTrace();
-      }
-    }
-    return new Verb[0];
-  }
-
-  public synchronized Object[] getOutgoingVerbs(String source, String target) {
-    checkOrMakeProxy(source);
-    HashMap h = (HashMap)verbs.get(source);
-    if(h == null)h = (HashMap)verbs.get("DEFAULT");
-    if(h == null) {
-      if(dbg)log.debug("Msg OUT: " + source + "->" + target
-				+ ". No verb");
+    AccessControlPolicy acp = getIncomingPolicy(target);
+    if(acp==null){
+      //no point to go on.
       return null;
     }
-
+    
+    Vector r = (Vector)acp.getVerbs(source);
     if(dbg) {
-      Iterator keys = h.keySet().iterator();
-      System.out.print("Msg OUT: " + source + "->" + target + ". Verbs:");
-      while(keys.hasNext())
-	System.out.print(" " + keys.next().toString());
-      log.debug("");
-    }
-    Vector r = (Vector)h.get("Out:" + target);
-    if(r == null) {
-      r = (Vector)h.get("Out:DEFAULT");
-    }
-    if(dbg) {
-      System.out.print("Msg OUT:" + source + "->" + target
-		       +". Verbs:");
+      log.debug("Msg IN:" + source + "->" + target
+         + ". Verbs:");
       for(int i = 0; i < r.size(); i++)
-	System.out.print(r.get(i).toString() + ":"
-			 + r.get(i).getClass().getName() + " ");
-      log.debug("");
+        log.debug(r.get(i).toString() + " ");
     }
     Verb[] verbs = new Verb[0];
     try {
@@ -356,7 +368,33 @@ public class AccessControlPolicyServiceImpl
     return verbs;
   }
 
-  public synchronized TrustSet getDirectiveTrust(String uid) {
+  public Object[] getOutgoingVerbs(String source, String target) {
+    checkOrMakeProxy(source);
+    AccessControlPolicy acp = getOutgoingPolicy(source);
+    if(acp==null){
+      //no point to go on.
+      return null;
+    }
+
+    Vector r = (Vector)acp.getVerbs(target);
+    if(dbg) {
+      log.debug("Msg OUT:" + source + "->" + target
+		       +". Verbs:");
+      for(int i = 0; i < r.size(); i++)
+      log.debug(r.get(i).toString() + ":"
+			 + r.get(i).getClass().getName() + " ");
+    }
+    Verb[] verbs = new Verb[0];
+    try {
+      return (Verb[])r.toArray(verbs);
+    }
+    catch(Exception ex) {
+      log.debug("Warning: bad verb array:" + ex);
+    }
+    return verbs;
+  }
+
+  public TrustSet getDirectiveTrust(String uid) {
     return (TrustSet)trustTable.get((Object)uid);
   }
 
@@ -374,16 +412,14 @@ public class AccessControlPolicyServiceImpl
     private String agent;
     //private boolean debug=this.debug;
     public AccessPolicyProxy(String name, ServiceBroker sb) {
-      super("org.cougaar.core.security.policy.AccessControlPolicy",
-	    "AccessControlPolicyService",
-	    sb);
+      super("org.cougaar.core.security.policy.AccessControlPolicy", name, sb);
       agent = name;
       if(debug) log.debug("--adding AccessPolicyProxy for:"+ agent);
       try {
-	registerEnforcer();
+      	registerEnforcer();
       }
       catch(Exception ex) {
-	ex.printStackTrace();
+        ex.printStackTrace();
       }
     }
 
@@ -397,237 +433,64 @@ public class AccessControlPolicyServiceImpl
 				     String policyTargetID,
 				     String policyTargetName,
 				     String policyType) {
+      if(debug) log.debug("Got outdated policy format at AccessPolicyProxy for:"
+				   + agent);
+    }
+
+    public void receivePolicyMessage(SecurityPolicy policy,
+				     String policyID,
+				     String policyName,
+				     String policyDescription,
+				     String policyScope,
+				     String policySubjectID,
+				     String policySubjectName,
+				     String policyTargetID,
+				     String policyTargetName,
+				     String policyType) {
       if(debug) log.debug("--updating AccessPolicyProxy for:"
 				   + agent);
-
-      if(policy == null) {
-	if (debug) {
-	  log.debug("AccessPolicyProxy: no policy");
-	}
-	return;
-      }
-      //whom is the policy for?
-      /*
-      if((!policySubjectName.equals(agent)) && (!agent.equals("DEFAULT"))) {
-	if (debug) {
-	  log.debug("policy not for:"+agent
-			     + " - Should be for " + policySubjectName);
-	}
-	return;
-      }
-      */
-
-      //for each RuleParameter
-      RuleParameter[] ruleParameters = policy.getRuleParameters();
-      for (int j=0; j < ruleParameters.length; j++)
-        {
-	  //for now only process KeyRuleParameter
-	  if(!(ruleParameters[j] instanceof KeyRuleParameter)) return;
-	  KeyRuleParameter krp = (KeyRuleParameter)ruleParameters[j];
-	  //process rules
-	  String name = krp.getName();
-	  String value = (String)krp.getValue();
-	  KeyRuleParameterEntry[] entry = krp.getKeys();
-
-	  if(name.endsWith("Verb")){
-	    if(name.startsWith("Outgoing")) {
-	      if(value!=null && value !="" ) {
-		if(debug)
-		  log.debug("--default out verbs specified for:"
-				     + agent);
-		updateVerb("Out:DEFAULT",value);
-	      }
-
-	      for(int i = 0; i < entry.length; i++) {
-		updateVerb("Out:" + entry[i].getKey(),
-			   entry[i].getValue());
-	      }
-	    }
-	    if(name.startsWith("Incoming")) {
-	      if(value!=null && value !="" ) {
-		if(debug) {
-		  log.debug("--default agentAction specified for:"
-				     + agent);
-		}
-		updateVerb("In:DEFAULT", value);
-	      }
-	      for(int i = 0; i < entry.length; i++) {
-		updateVerb("In:" + entry[i].getKey(), entry[i].getValue());
-	      }
-	    }
-	  }
-	  if(name.endsWith("AgentAction")){
-	    if(name.startsWith("Outgoing")) {
-	      if(value!=null && value !="" ) {
-		if(debug) {
-		  log.debug("--default agentAction specified for:"
-				     + agent);
-		}
-		updateAgentAction("Out:DEFAULT",value);
-	      }
-
-	      for(int i = 0; i < entry.length; i++) {
-		updateAgentAction("Out:" + entry[i].getKey(),
-				  entry[i].getValue());
-	      }
-	    }
-	    if(name.startsWith("Incoming")) {
-	      if(value!=null && value !="" ) {
-		if(debug) {
-		  log.debug("--default agentAction specified for:"
-				     + agent);
-		}
-		updateAgentAction("In:DEFAULT", value);
-	      }
-	      for(int i = 0; i < entry.length; i++) {
-		updateAgentAction("In:" + entry[i].getKey(),
-				  entry[i].getValue());
-	      }
-	    }
-	  }
-	  if(name.endsWith("MessageAction")){
-	    if(name.startsWith("Outgoing")) {
-	      if(value!=null && value !="" )
-		if(debug) {
-		  log.debug("--default messageAction specified for:"
-				     + agent);
-		}
-	      for(int i = 0; i < entry.length; i++) {
-		updateAction(":"+entry[i].getKey(), entry[i].getValue());
-	      }
-	    }
-	    if(name.startsWith("Incoming")) {
-	      if(value!=null && value !="" )
-		if(debug) {
-		  log.debug("--default messageAction specified for:"
-				     + agent);
-		}
-	      for(int i = 0; i < entry.length; i++) {
-		updateAction(entry[i].getKey()+":", entry[i].getValue());
-	      }
-	    }
-	  }
-	  if(name.endsWith("MessageCriticality")){
-	    if(name.startsWith("Outgoing")) {
-	      if(value!=null && value !="" ) {
-		updateCriticality(":"+"DEFAULT",value);
-	      }
-	      for(int i = 0; i < entry.length; i++) {
-		updateCriticality(":"+entry[i].getKey(), entry[i].getValue());
-	      }
-	    }
-	    if(name.startsWith("Incoming")) {
-	      if(value!=null && value !="" ) {
-		updateCriticality("DEFAULT"+":",value);
-	      }
-	      for(int i = 0; i < entry.length; i++) {
-		updateCriticality(entry[i].getKey()+":", entry[i].getValue());
-	      }
-	    }
-	  }
-	  if(name.endsWith("MessageIntegrity")){
-	    if(name.startsWith("Outgoing")) {
-	      if(value!=null && value !="" ) {
-		updateIntegrity(":"+"DEFAULT",value);
-	      }
-	      for(int i = 0; i < entry.length; i++) {
-		updateIntegrity(":"+entry[i].getKey(), entry[i].getValue());
-	      }
-	    }
-	    if(name.startsWith("Incoming")) {
-	      if(value!=null && value !="" ) {
-		updateIntegrity("DEFAULT"+":",value);
-	      }
-	      for(int i = 0; i < entry.length; i++) {
-		updateIntegrity(entry[i].getKey()+":", entry[i].getValue());
-	      }
-	    }
-	  }
+      
+      if(!(policy instanceof AccessControlPolicy)) {
+        if (debug) {
+          log.debug("AccessPolicyProxy: wrong policy type.");
         }
+        return;
+      }
+      
+      AccessControlPolicy acp = (AccessControlPolicy)policy;
+      
+      switch(acp.Type){
+      case  AccessControlPolicy.AGENT:
+        if(acp.Direction == AccessControlPolicy.INCOMING){
+          incoming_a.put(acp.Name,acp);
+        }else if(acp.Direction == AccessControlPolicy.OUTGOING){
+          outgoing_a.put(acp.Name,acp);
+        }else if(acp.Direction == AccessControlPolicy.BOTH){
+          incoming_a.put(acp.Name,acp);
+          outgoing_a.put(acp.Name,acp);
+        }
+      case  AccessControlPolicy.COMMUNITY:
+        if(acp.Direction == AccessControlPolicy.INCOMING){
+          incoming_c.put(acp.Name,acp);
+        }else if(acp.Direction == AccessControlPolicy.OUTGOING){
+          outgoing_c.put(acp.Name,acp);
+        }else if(acp.Direction == AccessControlPolicy.BOTH){
+          incoming_c.put(acp.Name,acp);
+          outgoing_c.put(acp.Name,acp);
+        }
+      case  AccessControlPolicy.SOCIETY:
+        if(acp.Direction == AccessControlPolicy.INCOMING){
+          acp_in = acp;
+        }else if(acp.Direction == AccessControlPolicy.OUTGOING){
+          acp_out = acp;
+        }else if(acp.Direction == AccessControlPolicy.BOTH){
+          acp_in = acp;
+          acp_out = acp;
+        }
+      }
+      return;
     }
-
-    private void updateVerb(String target, Object verbList) {
-      HashMap h = (HashMap)verbs.get(agent);
-      if(h == null) {
-	h = new HashMap();
-	verbs.put(agent, h);
-      }
-      Vector verbs = new Vector();
-      try {
-	StringTokenizer st = new StringTokenizer((String)verbList, ":");
-	while(st.hasMoreTokens()) {
-	  verbs.addElement(new Verb(st.nextToken()));
-	}
-	if(debug) {
-	  System.out.print("ACPS: Verbs for " + target + " =");
-	  Enumeration e = verbs.elements();
-	  while(e.hasMoreElements())
-	    System.out.print(" " + e.nextElement());
-	}
-      }
-      catch(Exception ex) {
-	if(debug) {
-	  log.debug("ACPS: Bad verbs for agent " + target);
-	  ex.printStackTrace();
-	  log.debug("ACPS: Bad verbs for agent " + target);
-	}
-      }
-      h.put(target, verbs);
-      if(debug)log.debug("updateAgentAction(" + target + ","
-				  + verbList + ")");
-    }
-
-    private void updateAgentAction(String target, Object action) {
-      HashMap h = (HashMap)agentActions.get(agent);
-      if(h == null) {
-	h = new HashMap();
-	agentActions.put(agent, h);
-      }
-      h.put(target, action);
-      if(debug)log.debug("updateAgentAction(" + target + ","
-				  + action + ")");
-    }
-
-    private void updateAction(String key, Object value){
-      HashMap h;
-      Object o = actions.get(agent);
-      if(o!=null){
-	h = (HashMap)o;
-	h.put(key,value);
-      }else{
-	h = new HashMap();
-	h.put(key,value);
-	actions.put(agent,h);
-      }
-      if(debug)log.debug("updateAction(" + key + "," + value + ")");
-    }
-
-    private void updateCriticality(String key, Object value){
-      HashMap h;
-      Object o = crits.get(agent);
-      if(o!=null){
-	h = (HashMap)o;
-	h.put(key,value);
-      }else{
-	h = new HashMap();
-	h.put(key,value);
-	crits.put(agent, h);
-      }
-    }
-
-    private void updateIntegrity(String key, Object value){
-      HashMap h;
-      Object o = integs.get(agent);
-      if(o!=null){
-	h = (HashMap)o;
-	h.put(key,value);
-      }else{
-	h = new HashMap();
-	h.put(key,value);
-	integs.put(agent,h);
-      }
-    }
-
+    
     public String getAgentName() {
       return agent;
     }
