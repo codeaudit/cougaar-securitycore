@@ -31,9 +31,33 @@ import org.cougaar.core.component.Service;
  * @author srosset
  *
  * This service manages the pedigree of blackboard objects.
+ * There is no restriction on what component can retrieve the PedigreeService,
+ * however only security components can set the pedigree. Ordinary plugins have
+ * read-only access to the pedigree data.
  */
 public interface PedigreeService extends Service {
+  /**
+   * Obtains the Pedigree of a blackboard object.
+   * @param blackboardObject - the blackboard object for which pedigree data is requested.
+   * @return - the Pedigree of the blackboard object.
+   */
   public Pedigree getPedigree(Object blackboardObject);
+
+  /**
+   * Sets the Pedigree of a blackboard object. This method can be invoked by the security
+   * services only. The Java security manager prevents ordinary plugins from
+   * writing pedigree data.
+   * @param blackboardObject - the blackboard object for which pedigree data should be set.
+   * @param pedigree - the Pedigree of the blackboard object.
+   */
   public void setPedigree(Object blackboardObject, Pedigree pedigree);
+  
+  /**
+   * Removes the Pedigree of a blackboard object. This method can be invoked by the security
+   * services only. The Java security manager prevents ordinary plugins from
+   * removing pedigree data.
+   * 
+   * @param blackboardObject - the blackboard object for which pedigree data should be removed.
+   */
   public void removePedigree(Object blackboardObject);
 }
