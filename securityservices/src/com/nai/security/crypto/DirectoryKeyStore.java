@@ -526,6 +526,7 @@ public class DirectoryKeyStore implements Runnable
   /**add keys to the key ring**/
   private void addKeyPair(String name){
     CAClient cac = new CAClient();
+    String request;
     //is node?
     String nodeName = System.getProperty("org.cougaar.node.name");
     if(name==nodeName){
@@ -533,10 +534,15 @@ public class DirectoryKeyStore implements Runnable
       KeyPair kp = cac.makeKeyPair();
       //send the public key to the ca
       PublicKey pk = kp.getPublic();
-      String request;
       //pkcs10
       request = generateSigningCertificateRequest(pk);
-                    
+      
+      String reply = cac.sendPKCS(request, "PKCS10");
+      try{ 
+          installPkcs7Reply(name, new ByteArrayInputStream(reply.getBytes()));
+      }catch(Exception e){
+        System.err.println("Error: can't get certificate for "+name);
+      }
     }else{
       //check if node cert exist
       if(certs.get(name)==null){
@@ -544,7 +550,11 @@ public class DirectoryKeyStore implements Runnable
 	addKeyPair(nodeName);
       }else{
 	KeyPair kp = cac.makeKeyPair();
-              
+          //send the public key to the ca
+          PublicKey pk = kp.getPublic();
+          //pkcs10
+          request = generateSigningCertificateRequest(pk);
+          
       }
     }
     return;
