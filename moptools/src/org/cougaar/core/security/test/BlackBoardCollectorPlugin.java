@@ -113,7 +113,7 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
   {
     //    executeServiceContract();
     executeReportForDuty();
-    //    executeReportChainReady();
+    executeReportChainReady();
   }
 
 
@@ -172,8 +172,8 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
          added.hasMoreElements();) {
       ReportChainReadyRelay rcr = (ReportChainReadyRelay) added.nextElement();
       if (rcr != null) {
-        _log.debug("Interception: ReportChainReady : " +
-                   rcr.getSource() + " : " + _agentName);
+        _event.event("Interception: ReportChainReady : " +
+                      rcr.getSource() + " : " + _agentName);
       }
     }
   }
