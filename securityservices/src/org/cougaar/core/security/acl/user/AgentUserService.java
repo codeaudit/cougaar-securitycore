@@ -31,6 +31,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.blackboard.SubscriptionWatcher;
@@ -48,9 +51,13 @@ import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.service.community.CommunityChangeEvent;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.Entity;
 import org.cougaar.util.UnaryPredicate;
+
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
 public class AgentUserService implements UserService, BlackboardClient {
 
@@ -60,7 +67,8 @@ public class AgentUserService implements UserService, BlackboardClient {
   private UIDService     _uidService;
   private MessageAddress _source;
   private Set            _myRelays = new HashSet();
-  private Object         _lock = new Object();
+//  private Object         _lock = new Object();
+  private Semaphore      _lock = new Semaphore(0);
   private HashMap        _targets = new HashMap();
   private String         _defaultDomain;
   private CommunityServiceUtil _csu;
@@ -80,7 +88,8 @@ public class AgentUserService implements UserService, BlackboardClient {
       public void signalNotify(int event) {
         super.signalNotify(event);
         synchronized(_lock) {
-          _lock.notifyAll();
+//          _lock.notifyAll();
+          _lock.release();
         }
       }
     };
@@ -136,7 +145,9 @@ public class AgentUserService implements UserService, BlackboardClient {
       if(_log.isDebugEnabled()){
         _log.debug("set communityService called ");
       }
-      setCommunityService();
+      setCommunityService(cs);
+
+      addCommunityListener(cs);
     }
     if (_bbs != null) {
       startSubscription();
@@ -147,7 +158,64 @@ public class AgentUserService implements UserService, BlackboardClient {
       _serviceBroker.addServiceListener(new BlackBoardServiceListener());
     }
   }
-  
+ 
+  private void addCommunityListener(final CommunityService cs) {
+    if (_log.isDebugEnabled()) {
+      _log.debug("addCommunityListener");
+    }
+
+    cs.addListener(new CommunityChangeListener() {
+      public String getCommunityName() {
+        return null;
+      }
+
+      public void communityChanged(CommunityChangeEvent event) {
+        Community community = event.getCommunity();
+        try {
+          Attributes attrs = community.getAttributes();
+          Attribute attr = attrs.get("CommunityType");
+          if (attr != null) {
+            for (int i = 0; i < attr.size(); i++) {
+              Object type = attr.get(i);
+              if (type.equals(COMMUNITY_TYPE)) {
+                if (_log.isDebugEnabled()) {
+                  _log.debug("Got community: " + community.getName());
+                }
+                // changes that might add agent
+                if (event.getType() == CommunityChangeEvent.ADD_COMMUNITY
+                  || event.getType() == CommunityChangeEvent.ADD_ENTITY) {
+                  if (_log.isDebugEnabled()) {
+                    _log.debug("Join community: " + community.getName());
+                  }
+
+                  _csu = null;
+                  setCommunityService(cs);
+                }
+                // change that might remove agent
+                if (event.getType() == CommunityChangeEvent.REMOVE_ENTITY
+                  || event.getType() == CommunityChangeEvent.REMOVE_COMMUNITY) {
+                  if (_log.isDebugEnabled()) {
+                    _log.debug("Leave community: " + community.getName());
+                  }
+
+                  // user not able to log in 
+                  if (_defaultDomain != null) {
+                    _targets.remove(_defaultDomain);
+                  } 
+                  _defaultDomain = null;
+                }
+
+              }
+            }
+          }
+        } catch (NamingException e) {
+          throw new RuntimeException("This should never happen");
+        }
+
+      }
+    });
+  }
+ 
   private void startSubscription() {
     _bbs.openTransaction();
     _bbs.subscribe(MY_RELAYS);
@@ -158,7 +226,10 @@ public class AgentUserService implements UserService, BlackboardClient {
     }
   }
 
-  private synchronized void setCommunityService() {
+  private synchronized void setCommunityService(CommunityService cs) {
+    if(_log.isDebugEnabled()){
+      _log.debug("setCommunityService");
+    }
     if (_csu == null) {
       _csu = new CommunityServiceUtil(_serviceBroker);
       CommunityServiceUtilListener listener = 
@@ -320,7 +391,8 @@ public class AgentUserService implements UserService, BlackboardClient {
     synchronized (_lock) {
       while ((response = (CasResponse)relay.getResponse()) == null) {
         try {
-          _lock.wait();
+//          _lock.wait();
+          _lock.attempt(MAX_WAIT);
         } catch (Exception e) {
           if (_log.isWarnEnabled()) {
             _log.warn("Exception while waiting on lock: " + e.toString());
@@ -681,7 +753,8 @@ public class AgentUserService implements UserService, BlackboardClient {
 	  if (_log.isDebugEnabled()) {
 	    _log.debug("Got Community service starting community search  for AgentUser service");
 	  }
-          setCommunityService();
+          addCommunityListener(cs);
+          setCommunityService(cs);
         }
       }
     }  
