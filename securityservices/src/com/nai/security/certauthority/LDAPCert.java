@@ -48,6 +48,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.InitialLdapContext;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -84,6 +85,7 @@ public class LDAPCert //extends LdapContext
     protected X509Certificate cert = null;
     protected LdapEntry certEntry = null;
     protected String hash = null;
+    protected String status = null;
 
     protected static SimpleDateFormat day = new SimpleDateFormat("yyyyMMdd");
     protected static SimpleDateFormat time = new SimpleDateFormat("hhmmss");
@@ -123,6 +125,7 @@ public class LDAPCert //extends LdapContext
 	//objectclass.add("xuda_certificate");
 	set.put(objectclass);	
 	init(client, signator);
+	certEntry = new LdapEntry(cert, hash, "1");
 	put();
     }
 
@@ -266,6 +269,7 @@ public class LDAPCert //extends LdapContext
 	ca_hash = hash(ca_der, issuerDigest);
 
 	cn = "cn=" + toHex(hash);
+	this.hash = toHex(hash);
         //dn = digestAlg.toLowerCase() + "=" +  toHex(hash);
 	dn = cert.getSubjectDN().getName();
 	//set.put("md5", toHex(hash));
@@ -332,6 +336,19 @@ public class LDAPCert //extends LdapContext
 	return obj;
     }
 
+    public LdapEntry revokeCertificate(String cn)
+    {
+	try {
+	    certEntry = (LdapEntry)ctx.lookup(cn);
+	    certEntry.setStatus("3");
+	    ctx.rebind(cn, certEntry);
+	}
+	catch(Exception ex) {
+	    if(debug)ex.printStackTrace();
+	}
+	return certEntry;
+    }
+
     public LdapEntry getCertificate(String hash) 
     {
 	NamingEnumeration results = null;
@@ -342,7 +359,9 @@ public class LDAPCert //extends LdapContext
 	//hash = (hash.startsWith("md5"))? hash: "md5=" + hash;	
 	try {
 	    set = ctx.getAttributes(hash);
-	    cert = (X509Certificate)ctx.lookup(hash); 
+	    certEntry = (LdapEntry)ctx.lookup(hash); 
+	    cert = certEntry.getCertificate(); 
+	    status = certEntry.getStatus();
 	    //status = (String)set.get("cert_status").get();
 	    //cert = createCert((String)set.get(PEM_ATTRIBUTE).get());
 	    if(debug) {
@@ -354,7 +373,7 @@ public class LDAPCert //extends LdapContext
 	    ex.printStackTrace();
 	    return null;
 	}
-	return new LdapEntry(cert, hash, status);
+	return certEntry;
     } 
 
 
@@ -383,9 +402,8 @@ public class LDAPCert //extends LdapContext
 		Object elm = results.nextElement();
 		if(elm instanceof NameClassPair) {
 		    NameClassPair pair = (NameClassPair)elm;
-		    if(debug)System.out.println("Adding " + pair.getName() +
-						" Class == " + pair.getClass());
-		    formatAttributes(ctx.getAttributes(pair.getName()));
+		    //if(debug)System.out.println("+++" + pair.getName());
+		    //formatAttributes(ctx.getAttributes(pair.getName()));
 		    if(ctx.getAttributes(pair.getName()).get("objectClass").contains("top"))
 			entries.add(getCertificate(pair.getName()));
 		}
@@ -400,7 +418,7 @@ public class LDAPCert //extends LdapContext
     public void put() {
 	try {
 	    //ctx.createSubcontext(dn, set);
-	    ctx.bind(cn, cert, set);
+	    ctx.bind(cn, certEntry, set);
 	}
 	
 	catch(Exception ex) {
@@ -408,12 +426,31 @@ public class LDAPCert //extends LdapContext
 	}
     }
     
+    protected void printEntries(Vector entries) {
+	Enumeration enum =entries.elements();
+	while(enum.hasMoreElements()) {
+	    try {
+		LdapEntry entry = (LdapEntry)enum.nextElement();
+		System.out.println("++++\ndn = " + 
+                  entry.getCertificate().getSubjectDN().getName());
+		System.out.println("\thash = "  + entry.getHash());
+		System.out.println("\tstatus = "  + entry.getStatus());
+	    }
+	    catch(Exception ex) {
+		if(debug)ex.printStackTrace();
+	    }
+	}
+	    
+    }
+
     public static void main(String arg[]) {
 	LDAPCert lcert = 
 	    new LDAPCert((arg.length > 1)? arg[1]: "ldap://yew:389/");
 	try {
-	    if(arg[0].equals("list") )
-		lcert.getCertificates();
+	    if(arg[0].equals("list")) {
+		Vector entries = lcert.getCertificates();
+		lcert.printEntries(entries);
+	    }
 	    else if(arg[0].equals("put")) {
 		X509Certificate cert = loadCert(arg[2]);
 		X509Certificate ca = loadCert(arg[3]);
@@ -424,6 +461,9 @@ public class LDAPCert //extends LdapContext
 	    }
 	    else if(arg[0].equals("remove")) {
 		lcert.removeObject(arg[2]);
+	    }
+	    else if(arg[0].equals("revoke")) {
+		lcert.revokeCertificate(arg[2]);
 	    }
 	}
 	catch(Exception ex) {
