@@ -135,18 +135,11 @@ public class MessageFailureSensor extends ComponentPlugin {
     // register this sensor's capabilities
     registerCapabilities(cs, ais.getName());
     //initialize the IdmefHelper class in the following services
-    AccessAgentProxy.initIdmefHelper(m_blackboard, 
-                                     m_cmrFactory, 
-                                     logger, 
-                                     sensorInfo);
-    CryptoManagerServiceImpl.initIdmefHelper(m_blackboard, 
-                                             m_cmrFactory, 
-                                             logger, 
-                                             sensorInfo);
-    MessageProtectionServiceImpl.initIdmefHelper(m_blackboard, 
-                                                 m_cmrFactory, 
-                                                 logger, 
-                                                 sensorInfo);
+    IdmefHelper idmefHelper = 
+      new IdmefHelper(m_blackboard, m_cmrFactory, logger, sensorInfo);
+    AccessAgentProxy.initIdmefHelper(idmefHelper);
+    CryptoManagerServiceImpl.initIdmefHelper(idmefHelper);
+    MessageProtectionServiceImpl.initIdmefHelper(idmefHelper);
   }  
   
   /**

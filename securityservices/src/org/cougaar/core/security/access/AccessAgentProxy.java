@@ -102,10 +102,9 @@ public class AccessAgentProxy
   }
   
   // static method used to initialize IdmefHelper
-  public static synchronized void initIdmefHelper(BlackboardService bbs, CmrFactory cmrFactory, 
-    LoggingService logger, SensorInfo info) {
+  public static synchronized void initIdmefHelper(IdmefHelper idmefHelper) {
     if(msgFailureHelper == null) {
-      msgFailureHelper = new IdmefHelper(bbs, cmrFactory, logger, info); 
+      msgFailureHelper = idmefHelper;
     }
   }
   
