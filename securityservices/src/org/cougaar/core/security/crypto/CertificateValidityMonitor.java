@@ -37,6 +37,7 @@ import org.cougaar.core.component.ServiceBroker;
 // Cougaar security services
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.util.NodeInfo;
 
 public class CertificateValidityMonitor
   implements CertValidityService, Runnable {
@@ -86,21 +87,28 @@ public class CertificateValidityMonitor
 
       if(log.isDebugEnabled())
 	log.debug("**************** CertificateValidity THREAD IS RUNNING ***********************************");
+
+      Vector list = new Vector();
+      checkValidity(NodeInfo.getNodeName());
+      // node in priority
+      // CA cert should not be in validity checking, otherwise CA cert should be
+      // checked first
       for (Enumeration enum = certListeners.keys(); enum.hasMoreElements(); ) {
         String commonName = (String)enum.nextElement();
+        if (!commonName.equals(NodeInfo.getNodeName()))
+          checkValidity(commonName);
+      }
+    }
+  }
 
-        boolean updated = false;
-        // expriy check
-        updated = keyRing.checkExpiry(commonName);
-
-        // update
-        if (updated) {
-          Vector v = (Vector)certListeners.get(commonName);
-          for (int i = 0; i < v.size(); i++) {
-            CertValidityListener listener = (CertValidityListener)v.get(i);
-            listener.updateCertificate();
-          }
-        }
+  private void checkValidity(String commonName) {
+    boolean updated = false;
+    // expriy check
+    if (keyRing.checkExpiry(commonName)) {
+      Vector v = (Vector)certListeners.get(commonName);
+      for (int i = 0; i < v.size(); i++) {
+        CertValidityListener listener = (CertValidityListener)v.get(i);
+        listener.updateCertificate();
       }
     }
   }
