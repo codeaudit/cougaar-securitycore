@@ -43,6 +43,6 @@ society.each_node do |node|
     c.classname = compFactory
     c.priority = "HIGH"
     c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-    c.add_argument(enclave + "EnclaveSecurity-COMM")
+    c.add_argument(enclave + "Security-COMM")
   end
 end
