@@ -93,6 +93,22 @@ public class HardWired {
     }
   }
 
+  public final static Set stripDomainFromRoles(Set roles)
+  {
+    Set strippedRoles = new HashSet();
+
+    for (Iterator roleIt = roles.iterator();
+         roleIt.hasNext();) {
+      String role = (String) roleIt.next();
+      int index = role.indexOf('\\');
+      if (index != -1) {
+        role = role.substring(index+1);
+      } 
+      strippedRoles.add(role);
+    }
+    return strippedRoles;
+  }
+
   /**
    * There will need to ultimately be a mechanism that grabs roles
    * from the system.  It could be that this will ultimately be in
