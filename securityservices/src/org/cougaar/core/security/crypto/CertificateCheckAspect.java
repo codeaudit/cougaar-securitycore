@@ -113,10 +113,7 @@ public class CertificateCheckAspect
       List certs = null;
       int nbcerts = 0;
       try {
-	certs = _keyRing.findCert(targetAddress, 
-				  _keyRing.LOOKUP_FORCE_LDAP_REFRESH | 
-				  _keyRing.LOOKUP_LDAP | 
-				  _keyRing.LOOKUP_KEYSTORE );
+	certs = _keyRing.findCert(targetAddress);
       }
       catch (Exception e) {
         // Nothing to do
