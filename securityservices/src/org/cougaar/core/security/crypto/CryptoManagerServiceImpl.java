@@ -1724,8 +1724,8 @@ public class CryptoManagerServiceImpl
     } else { return null; }
   }
 
-  public void setReceiveSignatureValid(String source, 
-                                       X509Certificate cert) 
+  public synchronized void setReceiveSignatureValid(String source, 
+                                                    X509Certificate cert) 
   {
     String strP = getRemotePrincipal();
     if (strP != null) {
