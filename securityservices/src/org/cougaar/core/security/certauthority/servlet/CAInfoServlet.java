@@ -217,6 +217,7 @@ public class CAInfoServlet
 
       ObjectOutputStream oos = new ObjectOutputStream(res.getOutputStream());
       oos.writeObject(_info);
+      oos.close();
     }
     catch (Exception e) {
       if (log.isWarnEnabled()) {
