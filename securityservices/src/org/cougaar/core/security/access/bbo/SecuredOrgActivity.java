@@ -42,7 +42,7 @@ import org.cougaar.planning.ldm.plan.LocationScheduleElement;
 import org.cougaar.planning.ldm.plan.Transferable;
 
 public final class SecuredOrgActivity
-  extends OwnedUniqueObject
+  //extends OwnedUniqueObject
   implements OrgActivity, SecuredObject
 {
   private        OrgActivity     _org;
