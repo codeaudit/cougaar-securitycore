@@ -36,6 +36,7 @@ public class OperationConf
   private String className;
   private String methodName;
   private String argument;
+  private Class testClass;
 
   /** The type of this operation (before or after the test)
    */
@@ -72,13 +73,18 @@ public class OperationConf
 
   public Object invokeMethod(Object o)
     throws IllegalAccessException, InvocationTargetException,
-    ClassNotFoundException, NoSuchMethodException {
+    ClassNotFoundException, NoSuchMethodException, InstantiationException {
     Method method = getMethod();
     if (method == null) {
       return null;
     }
     Object values[] = new Object[1];
     values[0] = argument;
+    if (o == null) {
+      // Create a new class instance
+      o = testClass.newInstance();
+    }
+    System.out.println("Invoking " + testClass.getName() + "." + methodName);
     return method.invoke(o, values);
   }
 
@@ -90,11 +96,11 @@ public class OperationConf
       return null;
     }
 
-    Class cl = Class.forName(className);
+    testClass = Class.forName(className);
     Class parameterTypes[] = new Class[1];
 
     parameterTypes[0] = String.class;
-    Method method = cl.getDeclaredMethod(methodName, parameterTypes);
+    Method method = testClass.getDeclaredMethod(methodName, parameterTypes);
     return method;
   }
 

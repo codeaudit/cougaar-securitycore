@@ -122,6 +122,9 @@ public class NodeServerTest
       System.out.println();
       try {
 	Thread.sleep(1000 * tcc.getHowLongBeforeStart());
+
+	// Run Pre operation
+	tcc.getPreOperation().invokeMethod(null);
 	threadList.add(runRemoteNode(tcc));
       }
       catch (Exception e) {
@@ -131,11 +134,16 @@ public class NodeServerTest
     }
     try {
       for (int i = 0 ; i < threadList.size() ; i++) {
+	NodeConfiguration tcc = (NodeConfiguration) nodeConfList.get(i);
 	System.out.println("Waiting for thread to die");
 	((Thread)threadList.get(i)).join();
+
+	// Run Post operation
+	tcc.getPostOperation().invokeMethod(null);
+
       }
     }
-    catch (java.lang.InterruptedException e) {
+    catch (Exception e) {
       Assert.fail("Unable to execute remote node");
     }
 

@@ -145,7 +145,7 @@ public class Dashboard
 	  });
 	if (rfile != null) {
 	  for (int j = 0 ; j < rfile.length ; j++) {
-	    fileList.add(rfile[i]);
+	    fileList.add(rfile[j]);
 	  }
 	}
       }

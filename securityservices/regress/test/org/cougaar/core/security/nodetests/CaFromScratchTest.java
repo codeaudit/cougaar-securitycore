@@ -24,7 +24,7 @@
  * - 
  */
 
-package test.org.cougaar.core.security.ca;
+package test.org.cougaar.core.security.nodetests;
 
 import java.io.*;
 import java.util.*;
@@ -32,13 +32,8 @@ import java.util.regex.*;
 import junit.framework.*;
 
 public class CaFromScratchTest
-  extends TestCase
 {
   private String nodeName;
-
-  public CaFromScratchTest(String name) {
-    super(name);
-  }
 
   /** Tests
 
@@ -59,18 +54,22 @@ public class CaFromScratchTest
    *  - Start CA.
    *  - End test
    */
-  public void runCaFromScratchTest() {
+  public void runCaFromScratchTest(String arg) {
+    nodeName = arg;
     String path = System.getProperty("org.cougaar.workspace")
       + File.separator + "security" + File.separator + "keystores"
       + File.separator + nodeName;
     File file = new File(path);
-    removeRecursively(file);
+    System.out.println("Removing files under " + path);
+
+    //removeRecursively(file);
     
     path = System.getProperty("org.cougaar.workspace")
-      + File.separator + "log4jlogs" + nodeName + ".log";
+      + File.separator + "log4jlogs" + File.separator + nodeName + ".log";
     file = new File(path);
-    file.delete();
 
+    System.out.println("Removing file: " + path);
+    //file.delete();
   }
 
   /** Remove a folder and subfolders

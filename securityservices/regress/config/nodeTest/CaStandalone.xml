@@ -1,12 +1,11 @@
 <!-- NodeServerTestCase.xml -->
 
-<!-- Start a CA from scratch
-     * Delete all the files in the cougaar.workspace directory
-     * Delete the log file under cougaar.install.path/workspace/log4j
+<!-- Start the CA
+     * This experiment keeps the keystore and policy file
      * Start the CA.
 -->
 
-<experiment name="Certificate Authority tests">
+<experiment name="Certificate Authority test">
   <!-- Operations to perform before the experiment -->
   <operation type="before">
     <class></class>
@@ -36,9 +35,9 @@
     <nodeArguments>caNode</nodeArguments>
     <!-- Operations to perform before the node is started -->
     <operation type="before">
-      <class>test.org.cougaar.core.security.nodetests.CaFromScratchTest</class>
-      <method>runCaFromScratchTest</method>
-      <argument>caNode</argument>
+      <class></class>
+      <method></method>
+      <argument></argument>
     </operation>
     <!-- Operations to perform after the node has terminated -->
     <operation type="after">
