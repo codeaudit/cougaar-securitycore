@@ -122,4 +122,5 @@ if [ "$install" == "1" ]; then
 	echo "Extracting security.tar to ${realCIP}"
 	cd ${realCIP}
 	unzip -qo ${startupdir}/AS_csi_secserv.zip
+        chmod 755 ${realCIP}/configs/security/bin/createJarConfigFiles
 fi
