@@ -48,7 +48,7 @@ rm -f src/com/nai/security/policy
 mv -f src/com/nai/security/* src/org/cougaar/core/security
 
 # Remove any remaining directory under com
-#rm -rf src/com
+rm -rf src/com
 
 # Remove '.sarep filesA
 find . -name '*.sarep' -exec rm -f {} \;
