@@ -1,0 +1,76 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<!DOCTYPE Policy SYSTEM "Policy.ldm.dtd" []>
+
+<!-- Policies for 24-SPTGP-HHC -->
+
+<Policies>
+
+ <Policy name="TWENTYFOUR-SPTGP-HHCAccessControlPolicy" type="org.cougaar.core.security.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="24-SPTGP-HHC"> </String>
+   </RuleParam>
+
+    <RuleParam name="ThreatConLevel">
+      <RangeSet value="">
+        <RangeValue min="2" max="2">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+        <RangeValue min="3" max="3">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+      </RangeSet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="4">
+        <KeyValue key="10-TCBN-HHC" value="3" />
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="4">
+        <KeyValue key="10-TCBN-HHC" value="3" />
+      </KeySet>
+    </RuleParam>
+
+ </Policy>
+
+ <Policy name="TWENTYFOUR-SPTGP-HHCCryptoPolicy" type="org.cougaar.core.security.CryptoPolicy">
+
+   <!-- the following rule parameters will be used for the July demo -->
+
+   <RuleParam name="secureMethod">
+     <String value="sign"> </String>
+   </RuleParam>
+
+   <RuleParam name="symmetricAlgorithm">
+     <String value=""> </String>
+   </RuleParam>
+
+   <RuleParam name="asymmetricAlgorithm">
+     <String value=""> </String>
+   </RuleParam>
+
+   <RuleParam name="signingAlgorithm">
+     <String value="MD5withRSA"> </String>
+   </RuleParam>
+
+   <RuleParam name="messageSecurityManager">
+     <String value="org.cougaar.core.society.PublicKeyMessageSecurityManager"> </String>
+   </RuleParam>
+
+   <RuleParam name="providerName">
+     <String value=""> </String>
+   </RuleParam>
+
+ </Policy>
+
+</Policies>

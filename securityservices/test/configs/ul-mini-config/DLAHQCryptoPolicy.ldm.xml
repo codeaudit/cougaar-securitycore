@@ -1,0 +1,37 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<!DOCTYPE Policy SYSTEM "Policy.ldm.dtd" []>
+
+<Policies>
+
+ <Policy name="DLAHQCryptoPolicy" type="org.cougaar.core.security.policy.CryptoPolicy">
+
+   <!-- the following rule parameters will be used for the July demo -->
+
+   <RuleParam name="secureMethod">
+     <String value="signAndEncrypt"> </String>
+   </RuleParam>
+
+   <RuleParam name="symmetricAlgorithm">
+     <String value="DESede"> </String>
+   </RuleParam>
+
+   <RuleParam name="asymmetricAlgorithm">
+     <String value="RSA/ECB/PKCS#1"> </String>
+   </RuleParam>
+
+   <RuleParam name="signingAlgorithm">
+     <String value="MD5withRSA"> </String>
+   </RuleParam>
+
+   <RuleParam name="messageSecurityManager">
+     <String value="org.cougaar.core.society.PublicKeyMessageSecurityManager"> </String>
+   </RuleParam>
+
+   <RuleParam name="providerName">
+     <String value=""> </String>
+   </RuleParam>
+
+ </Policy>
+
+</Policies>

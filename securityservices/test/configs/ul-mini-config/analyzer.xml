@@ -1,0 +1,24 @@
+<!-- 
+Additional PSPs loaded by PSP Launcher 
+  (in addition to basic SLP_Echo, PSP_Data, etc).
+ Allows a user to customize the PSPs loaded on a per-Node or
+ per-Cluster basis.
+
+ User can load a different set of PSPs that this default via:
+   1) The default XML file is named "default.psps.xml".  If it
+      is copied to the Node's running directory then that copy
+      will be used instead (see ConfigFileFinder).
+   (AND/OR)
+   2) In a cluster "ABC"'s "ABC.ini" an optional "file=" parameter can 
+      be specified for the PlanServerPlugIn, e.g. 
+       plugin = org.cougaar.lib.planserver.PlanServerPlugIn(file=ABC_mypsps.xml)
+-->
+<object type="java.util.Vector">
+
+	<element type="org.cougaar.lib.planserver.NamedPSP">
+		<Classname>com.nai.security.monitoring.ui.PSP_Threat</Classname>
+		<PSPName>/Threats.PSP</PSPName>
+	</element>
+	
+
+</object>
