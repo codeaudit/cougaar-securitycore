@@ -75,6 +75,7 @@ def testMessageIdmef(source, target,
   if (expected["Received"])
     idmefSrc = target
     idmefTgt = source
+    maxWait = 6.minutes
   end
   shouldStop = true
   if (stoppingAgent == nil)
@@ -85,7 +86,7 @@ def testMessageIdmef(source, target,
   #	puts "about to create idmef watcher"
   idmefWatcher = 
     IdmefWatcher.new(idmefNum, idmefName, shouldStop,
-                     "IDMEF\\(#{stoppingAgent}\\) Classification\\(org.cougaar.core.security.monitoring.MESSAGE_FAILURE\\) Source\\([^)]+\\) Target\\([^)]+\\) AdditionalData\\(([^,]+,)*((SOURCE_AGENT:#{source})|(TARGET_AGENT:#{target})),([^,]+,)*((SOURCE_AGENT:#{source})|(TARGET_AGENT:#{target}))(,[^,)]+)*\\)")
+                     "IDMEF\\(#{stoppingAgent}\\) Classification\\(org.cougaar.core.security.monitoring.MESSAGE_FAILURE\\) Source\\([^)]+\\) Target\\([^)]+\\) AdditionalData\\(([^,]+,)*((SOURCE_AGENT:#{idmefSrc})|(TARGET_AGENT:#{idmefTgt})),([^,]+,)*((SOURCE_AGENT:#{idmefSrc})|(TARGET_AGENT:#{idmefTgt}))(,[^,)]+)*\\)")
   idmefWatcher.start
 
   Thread.fork {
@@ -139,7 +140,7 @@ def testMessageFailure(source, target,
                attackNum, attackName + "\t" +
                source + "\t" + target + "\t" + 
                watcher.getArray().join("\t"))
-    #          puts("saved result")
+    #puts("saved result testMessageFailure ")
   }
 end # testMessageFailure
 =end
@@ -227,14 +228,18 @@ class IdmefWatcher
   end
 
   def start
+    logInfoMsg "Starting a listener with pattern --> #{@idmefText}"
     @listener = run.comms.on_cougaar_event do |event|
-      #            puts("Looking at event #{event.data}")
-      #            puts("compare against #{@idmefText}")
       if event.data =~ /#{@idmefText}/
         # it gave an event
         @idmefFound = true
+        #logInfoMsg " found pattern #{@idmefText}"
         stop
       end
+      #if event.component == 'IdmefEventPublisherPlugin'
+      #  logInfoMsg " Event data is #{event.data}"
+      #  logInfoMsg " pattern to match is #{@idmefText}"
+      #end
     end
   end # start
   
