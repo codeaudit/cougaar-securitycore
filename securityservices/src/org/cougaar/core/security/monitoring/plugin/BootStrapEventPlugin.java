@@ -125,7 +125,7 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
       event=constructbootstrapevent(obj);
       if(event!=null) {
 	events.add(event);
-	//System.out.println(" Got event after reconstruction :"+event.toString());
+	m_log.debug(" Got event after reconstruction :"+event.toString());
       }
       else {
         if(m_log.isDebugEnabled()) 
@@ -201,11 +201,11 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
 	*/
 	data.add(adddata);
       }
-      Alert alert = imessage.createAlert(this, detecttime,
+      Alert alert = imessage.createAlert(getSensorInfo(), detecttime,
 				       sources, targets,
 				       classifications, data);
       Event e = factory.newEvent(alert);
-      //System.out.println("Intrusion Alert:" + alert.toString());
+      m_log.debug("Intrusion Alert:" + alert.toString());
       //System.out.println("Publishing sensor Event :");
       
       //bbservice.openTransaction();
