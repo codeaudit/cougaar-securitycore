@@ -8,36 +8,11 @@ $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 
 require 'security/lib/common_security_rules'
 
-upp      ="org.cougaar.core.security.coordinator.UpdatePolicyPlugin"
+upp      ="org.cougaar.core.security.test.coordinator.UpdatePolicyPlugin"
 testupp  ="org.cougaar.core.security.test.coordinator.SetThreatConActionPlugin"
-testMode = true
+testMode = false
 
-society.each_agent(true) do |agent|
- if agent.name =~ /.*Society.*/
-   enclave = agent.host.enclave
-   policyMgr = nil
-   society.each_agent do |possPolicyMgr|
-     if possPolicyMgr.host.enclave != enclave then
-       next
-     end
-     possPolicyMgr.each_facet(:role) do |facet|
-       if facet[:role] == $facetPolicyManagerAgent then
-         policyMgr = possPolicyMgr
-         break
-       end 
-     end
-     if (policyMgr != nil) then
-       break
-     end
-   end
-   agent.add_component do |c|
-     c.classname = upp
-     c.add_argument(policyMgr.name)
-   end
-   if testMode then
-     agent.add_component do |c|
-       c.classname = testupp
-     end
-   end
- end
-end
+#
+# This rule is obsolete but we  can't delete it until everybody
+# updated to this empty version.
+#
