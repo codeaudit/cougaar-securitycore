@@ -100,7 +100,7 @@ public class SecureHookServlet implements Servlet {
       _hookServlet = (Servlet) hsc.newInstance();
       _hookServlet.init(config);
     } catch (Exception e) {
-      System.out.println("Couldn't start the hook servlet: " + servletName);
+      //System.out.println("Couldn't start the hook servlet: " + servletName);
       e.printStackTrace();
     }
   }

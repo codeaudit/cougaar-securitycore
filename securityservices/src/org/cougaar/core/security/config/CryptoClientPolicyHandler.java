@@ -227,10 +227,12 @@ public class CryptoClientPolicyHandler
       }
       if (CryptoDebug.debug) {
 	if (value) {
-	  System.out.println("Running as Root Certificate Authority");
+      if(log.isDebugEnabled())
+        log.debug("Running as Root Certificate Authority");
 	}
 	else {
-	  System.out.println("Running as a delegate Certificate Authority");
+      if(log.isDebugEnabled())
+        log.debug("Running as a delegate Certificate Authority");
 	}
       }
       cryptoClientPolicy.setIsRootCA(value);
