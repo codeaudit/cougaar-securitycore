@@ -810,8 +810,8 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
              // based on KeyRingService.LOOKUP_KEYSTORE which effectively looks for certificates
              // with the origin CERT_ORI_LDAP.
              */
-            if(aCertEntry.getCertificateOrigin().equals(CertificateOrigin.CERT_ORI_LDAP) &&
-               certEntry.getCertificateOrigin().equals(CertificateOrigin.CERT_ORI_KEYSTORE)) {  
+            if (certEntry.getCertificateOrigin()
+              .equals(CertificateOrigin.CERT_ORI_KEYSTORE)) {  
               if(log.isDebugEnabled()) {
                 log.debug("Changing the origin of the certificate cache entry from " + aCertEntry.getCertificateOrigin() + 
                           " to " + certEntry.getCertificateOrigin() + " for " + 
