@@ -64,7 +64,8 @@
         <pathelement location="${cougaar.install.path}/sys/mail.jar"/>
         <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
         <pathelement location="${cougaar.install.path}/sys/silk.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/xerces.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/xercesImpl.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/xmlParserAPIs.jar"/>
         <!-- don't point to the signed version of jasper-runtime.jar or the jspc task will puke! -->
         <pathelement location="${securityservices.base}/build/jasper/lib/jasper-runtime.jar"/>
         <pathelement location="${securityservices.base}/build/jasper/lib/jasper-compiler.jar"/>
@@ -93,7 +94,7 @@
         <pathelement location="${cougaar.install.path}/lib/kaos.jar"/>
         <pathelement location="${cougaar.install.path}/lib/safe.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jpcsc.jar"/>
-	<!-- DAML libraries -->
+	<!-- OWL libraries -->
         <pathelement location="${cougaar.install.path}/sys/jena.jar"/>
     </path>
 
@@ -162,6 +163,17 @@
             includes="edu/jhuapl/idmef/*.java" srcdir="${securityservices.src}"/>
         <echo message="+++++ Built JavaIDMEF"/>
     </target>
+
+    <!-- Build the web proxy library -->
+    <target name="build-webproxy" depends="init">
+        <echo message="+++++ Building webproxy"/>
+        <javac classpathref="core.class.path" debug="true" 
+            deprecation="true" destdir="${securityservices.classes}" 
+            includes="org/cougaar/core/security/policy/webproxy/*.java"
+             srcdir="${securityservices.src}"/>
+        <echo message="+++++ Built WebProxy"/>
+    </target>
+
 
     <!-- Build the Java Util library
          Overrides some java.util classes to track the memory utilization -->
@@ -255,45 +267,7 @@
         <echo message="+++++ Built jar files"/>
     </target>
  
-    <target name="check-policiesUptodate">
-      <uptodate property="policiesUptodate"
-                targetfile="${securityservices.configs}/common/DamlBootPoliciesCompleted" >
-        <srcfiles dir="${securityservices.configs}/common"
-                  includes="DamlBootPolicyList, Ontology-*.daml" />
-        <srcfiles dir="${securityservices.lib}"
-                  includes="kaos.jar" />
-      </uptodate>
-    </target>
-
-    <target name="build-policies" 
-            depends="jar-securityservices, check-policiesUptodate"
-            unless="policiesUptodate">
-     <echo message="+++++ Removing old boot policies"/>
-     <delete>
-        <fileset dir="${securityservices.configs}/common"
-                 includes="DamlBootPolicy*.info, DamlBootPolicy*.msg" />
-     </delete>
-     <echo message="++++++ Copying ontologies" />
-      <copy todir="${cougaar.install.path}/configs/security">
-        <fileset dir="${securityservices.configs}/common"
-                 includes="Ontology-*.daml" />
-      </copy>
-      <echo message="++++++ Building boot policies"/>
-      <java classname="org.cougaar.core.security.policy.builder.Main" 
-            fork="true"
-            failonerror="true"
-            dir="${securityservices.configs}/common">
-        <classpath refid="core.class.path" />
-        <!-- this is done before signing so I need an explicit path -->
-        <classpath 
-           path="${securityservices.base}/classes/securityservices.jar" />
-        <arg line="build --quiet --info --checkDepth DamlBootPolicyList" />
-      </java>
-      <touch 
-         file="${securityservices.configs}/common/DamlBootPoliciesCompleted" />
-    </target>
-
-    <target name="jar-configs" depends="build-policies">
+    <target name="jar-configs">
         <echo message="+++++ Building configuration jar files"/>
         <jar jarfile="${securityservices.classes}/securityservices_config.jar" 
             basedir="${securityservices.configs}"
@@ -303,15 +277,10 @@
                       common/*.ini,
                       common/*.xsl,
                       common/*.info,
-                      common/*.daml,
-                      common/DamlBootPolicyList,
-                      common/DamlBlackboardObjectMap,
-                      common/DamlUriMap,
-                      common/DamlUserRoleMap,
+                      common/*.owl,
+                      common/OwlBootPolicyList,
+                      common/OwlMap*
                       common/DamlTest*,
-                      common/RoleComponentMap,
-                      common/RoleAgentMap,
-                      common/RoleUriMap,
                       common/*.props,
                       common/*.policy,
                       common/bootstrap_keystore,
@@ -425,6 +394,7 @@
                 <exclude name="jasper-compiler.jar"/>
             </fileset>
         </copy>
+        <delete file="${cougaar.install.path}/sys/xerces.jar" />
         <copy todir="${cougaar.install.path}/lib" overwrite="true">
             <fileset dir="${securityservices.lib}" includes="*.jar"/>
         </copy>
@@ -432,7 +402,7 @@
     </target>
     
     <!-- install config files -->
-    <target name="install-conf" depends="install-cougaarCA, install-daml, build-policies">
+    <target name="install-conf" depends="install-cougaarCA, install-daml">
         <echo message="+++++ Installing configuration files"/>
 	<mkdir dir="${cougaar.install.path}/configs/security"/>
 	<mkdir dir="${cougaar.install.path}/configs/security/bin"/>
@@ -442,8 +412,11 @@
         <copy todir="${cougaar.install.path}/configs/security">
             <fileset dir="${securityservices.configs}/common"/>
         </copy>
-        <copy file="${cougaar.install.path}/configs/security/DamlBootPolicyList"
-              tofile="${cougaar.install.path}/configs/security/DamlBootPolicyList.orig" />
+        <!-- This looks wrong - exactly the opposite of what we want.
+       <copy file="${cougaar.install.path}/configs/security/OwlBootPolicyList"
+              tofile="${cougaar.install.path}/configs/security/OwlBootPolicyList.orig" />
+       -->
+        <delete file="${cougaar.install.path}/configs/security/OwlBootPolicyList.orig"/>
         <copy todir="${cougaar.install.path}/configs/security">
             <fileset dir="${securityservices.configs}/adaptiveMnR">
                 <patternset>
@@ -577,7 +550,46 @@
         <include name="org/cougaar/core/security/crypto/ldap/admin/*.jsp" />
         </jspc>
     </target>
-        
+
+    <target name="check-policiesUptodate">
+      <uptodate property="policiesUptodate"
+                targetfile="${securityservices.configs}/common/DamlBootPoliciesCompleted" >
+        <srcfiles dir="${securityservices.configs}/common"
+                  includes="DamlBootPolicyList, Ontology-*.daml" />
+        <srcfiles dir="${securityservices.lib}"
+                  includes="kaos.jar" />
+      </uptodate>
+    </target>
+
+    <target name="build-boot-policies" 
+            depends="jar-securityservices, check-policiesUptodate"
+            unless="policiesUptodate">
+     <echo message="+++++ Removing old boot policies"/>
+     <delete>
+        <fileset dir="${securityservices.configs}/common"
+                 includes="DamlBootPolicy*.info, DamlBootPolicy*.msg" />
+     </delete>
+     <echo message="++++++ Copying ontologies" />
+      <copy todir="${cougaar.install.path}/configs/security">
+        <fileset dir="${securityservices.configs}/common"
+                 includes="Ontology-*.daml" />
+      </copy>
+      <echo message="++++++ Building boot policies"/>
+      <java classname="org.cougaar.core.security.policy.builder.Main" 
+            fork="true"
+            failonerror="true"
+            dir="${securityservices.configs}/common">
+        <classpath refid="core.class.path" />
+        <!-- this is done before signing so I need an explicit path -->
+        <classpath 
+           path="${securityservices.base}/classes/securityservices.jar" />
+        <arg line="build --quiet --info --checkDepth DamlBootPolicyList" />
+      </java>
+      <touch 
+         file="${securityservices.configs}/common/DamlBootPoliciesCompleted" />
+    </target>
+
+
     <!-- The ALL target only compiles, jar, and sign jars -->
     <target name="all" depends="tstamp, init, sign-jars">
         <echo message="Ultra*Log/securityservices Build Complete"/>
@@ -592,6 +604,9 @@
         <echo message="***** Don't forget to run 'ant confnai' *****"/>
         <echo message="***** DO NOT FORGET to modify the alpreg.ini file *****"/>
     </target>
+
+
+        
     
     <!-- Updating repository before building -->
     <target name="cvs-update">
@@ -764,10 +779,10 @@
     <target name="clean-policies">
       <echo message="+++++ Cleaning boot policies"/>
       <delete 
-         file="${securityservices.configs}/common/DamlBootPoliciesCompleted" />
+         file="${securityservices.configs}/common/OwlBootPoliciesCompleted" />
       <delete>
         <fileset dir="${securityservices.configs}/common"
-                 includes="DamlBootPolicy*.info, DamlBootPolicy*.msg" />
+                 includes="OwlBootPolicy*.info, OwlBootPolicy*.msg" />
       </delete>
     </target>
 
@@ -790,7 +805,6 @@
         <echo message="    javadocs    - create javadocs for securityservices"/>
         <echo message="    tar-docs    - tar and zip the javadocs"/>
         <echo message="    run-tests   - run Junit tests"/>
-        <echo message="    build-policies - Generate boot policies" />
         <echo message="    clean       - Delete .class and .jar files"/>
         <echo message="    clean-log   - Delete log files"/>
         <echo message="    clean-policies - Delete Generated boot policies" />
