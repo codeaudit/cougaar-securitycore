@@ -33,7 +33,7 @@ public interface AgentIdentityClient {
    *
    *  @param the reason code as defined in RFC 2459
    */
-  void identityRevoked(int reason);
+  void identityRevoked(CrlReason reason);
 
   /** [optional] name of the agent (or is this implied?)
    */
