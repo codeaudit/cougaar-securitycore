@@ -317,7 +317,7 @@ society.each_node do |node|
     httpport = 8810
     httpsport = 9810
     
-    node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File","$COUGAAR_INSTALL_PATH/workspace/log4jlogs/${HOSTNAME}-ca.log")
+    # node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File","$COUGAAR_INSTALL_PATH/workspace/log4jlogs/${HOSTNAME}-ca.log")
 
     # You can also turn on/off http/s. Turn of by setting the port to -1
     # Note that HTTPS is off by default, and HTTP is at 8800

@@ -30,6 +30,10 @@ if cahost != nil
         c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
         c.add_argument(arg)
         c.add_argument("")
+        #  1st arg: host name where CA is running
+        #  2nd arg: Name of CA agent
+        #  3rd arg: HTTP port number of CA
+        #  4th arg: HTTPs port number of CA
         c.add_argument(cahost + ":RootCaManager:8800:9800")
       end
     end

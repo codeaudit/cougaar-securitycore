@@ -11,8 +11,7 @@ society.each_node do |node|
       c.classname = configPlugin
       c.priority = "HIGH"
       c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-      c.add_argument('CN=RootCA, OU=Root, O=DLA, L=MV, ST=CA, C=US, T=ca')
-      c.add_argument("")
+      c.add_argument("CN=RootCA, OU=Root, O=DLA, L=MV, ST=CA, C=US, T=ca")
     end
   end
 end
