@@ -28,9 +28,8 @@ package org.cougaar.core.security.services.identity;
 
 import org.cougaar.core.component.Service;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import org.apache.catalina.net.SSLServerSocketFactory;
+//import org.cougaar.lib.web.arch.server.*;
+import javax.net.ssl.SSLServerSocketFactory;
 
 public interface WebserverIdentityService extends Service {
   /**
@@ -46,6 +45,9 @@ public interface WebserverIdentityService extends Service {
    * or the catalina factory itself, with context settings using SecurityServices'
    * keystore and trust store.
    *
+   * If there is no certificate available, a factory will still be returned,
+   * but the creation of SSLServerSocket will find no cert in keystore and will fail.
+   *
    */
   SSLServerSocketFactory getServerSocketFactory();
 
@@ -58,6 +60,11 @@ public interface WebserverIdentityService extends Service {
    *                etc.
    *
    */
-  HttpsConfig setHttpsConfig(HttpsConfig httpsC);
+
+  /**
+   * HttpsConfig exists in the cougaar tomcat make path
+   * but not the securityservices make path.
+   **/
+  //HttpsConfig setHttpsConfig(HttpsConfig httpsC);
 }
 
