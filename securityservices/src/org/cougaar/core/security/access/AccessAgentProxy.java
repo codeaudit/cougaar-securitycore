@@ -42,6 +42,7 @@ import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.core.blackboard.DirectiveMessage;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.TopologyReaderService;
 import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.core.security.services.acl.AccessControlPolicyService;
@@ -71,6 +72,7 @@ public class AccessAgentProxy
   private static EventPublisher eventPublisher = null;
   private MessageAddress myID = null;
   private AccessControlPolicyService acps;
+  private Set nodeList;
   
   public AccessAgentProxy (MessageTransportService mymts,
 			   Object myobj,
@@ -92,6 +94,13 @@ public class AccessAgentProxy
     secprop = (SecurityPropertiesService)
       serviceBroker.getService(this,
 			       SecurityPropertiesService.class, null);
+
+    //load agent and node name list from topo reader
+    TopologyReaderService toporead = (TopologyReaderService) 
+      sb.getService(this, TopologyReaderService.class, null);
+    
+    nodeList = toporead.getAll(TopologyReaderService.NODE);
+    
     if(log.isDebugEnabled()) {
       log.debug("Access agent proxy for " + myID.toAddress() + " initialized");
     }
@@ -110,6 +119,17 @@ public class AccessAgentProxy
   public void sendMessage(Message message) {
     if(log.isDebugEnabled()) {
        log.debug("Send message of access binder called :"+message.toString());
+    }
+    
+    //check to see if any node agent is involved.
+    if(nodeList.contains(message.getOriginator().toString())||
+        nodeList.contains(message.getTarget().toString())){
+          //no wrapping with trust
+          mts.sendMessage(message);
+          if(log.isDebugEnabled()){
+            log.debug("no wrapping with trust for node agent." + message);
+          }
+          return;
     }
 
     if(myID != null && !message.getOriginator().equals(myID)){
@@ -141,7 +161,7 @@ public class AccessAgentProxy
       mwt = new MessageWithTrust(message, ts);
       mts.sendMessage(mwt);
       if(log.isDebugEnabled()) {
-	log.debug("DONE sending Message from Access Agent proxy"+mwt.toString());
+    	log.debug("DONE sending Message from Access Agent proxy"+mwt.toString());
       }
     }
   }
@@ -220,13 +240,13 @@ public class AccessAgentProxy
 		+ getMessageAddress().toString() +" : "+ m.toString());
     if (m instanceof MessageWithTrust ) {
       if(log.isDebugEnabled())
-	log.debug(" Got instance of MWT");
+      	log.debug(" Got instance of MWT");
       MessageWithTrust mwt = (MessageWithTrust)m;
       if (mwt == null) {
-	if(log.isWarnEnabled()) {
-	  log.warn("Message to " + mtc.getMessageAddress().toString()
-		   + " not delivered (null msg)");
-	}
+        if(log.isWarnEnabled()) {
+          log.warn("Message to " + mtc.getMessageAddress().toString()
+             + " not delivered (null msg)");
+        }
       }
 	
       Message contents =mwt.getMessage();
@@ -284,15 +304,22 @@ public class AccessAgentProxy
       return;
     }
     else {
-      if (log.isWarnEnabled()) {
-	log.warn("Dropping message. It should be wrapped in a MessageWithTrust: "
-		 + m.toString(), new Throwable());
+      //check to see if any node agent is involved.
+      if(nodeList.contains(m.getOriginator().toString())||
+          nodeList.contains(m.getTarget().toString())){
+            //no wrapping with trust
+            mtc.receiveMessage(m);
+            if(log.isDebugEnabled()){
+              log.debug("handling no wrapping with trust for node agent." + m);
+            }
+            return;
+      }else{
+        if (log.isWarnEnabled()) {
+          log.warn("Dropping message. It should be wrapped in a MessageWithTrust: "
+             + m.toString(), new Throwable());
+        }
+        return;
       }
-      /*
-	Binders cannot be attached to Node agents so For now we will allow node agent messages to go through 
-       */
-      mtc.receiveMessage(m);
-      return;
     }
   }
   
