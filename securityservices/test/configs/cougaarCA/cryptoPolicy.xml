@@ -22,6 +22,8 @@
           <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US, T=ca</CA_DN>
           <CA_URL role="rliao1">http://yew:5556/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CertDirectoryURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
+          <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
           <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
         </trustedCA>
     -->
