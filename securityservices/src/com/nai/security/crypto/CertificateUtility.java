@@ -221,7 +221,7 @@ public class CertificateUtility {
   public static String toHexinHTML(byte[] data)
   {
     StringBuffer buff=new StringBuffer("<br>");
-    buff.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+    buff.append("&nbsp;&nbsp;");
     int blockcount=0;
     int linecount=0;
     for(int i = 0; i < data.length; i++) {
@@ -231,7 +231,7 @@ public class CertificateUtility {
       blockcount++;
       if(blockcount>1)
       {
-	buff.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+	buff.append("&nbsp;&nbsp;");
 	blockcount=0;
 	linecount++;
       }
@@ -240,7 +240,7 @@ public class CertificateUtility {
 	linecount=0;
 	blockcount=0;
 	buff.append("<br>");
-	buff.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+	buff.append("&nbsp;&nbsp;");
       }
     }
     return buff.toString();

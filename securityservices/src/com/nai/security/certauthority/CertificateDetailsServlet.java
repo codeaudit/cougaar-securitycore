@@ -161,7 +161,6 @@ public class CertificateDetailsServlet extends  HttpServlet
       out.println("<input type=\"hidden\" name=\"role\" value=\""+role+"\">");
     }
     out.println("<input type=\"hidden\" name=\"cadnname\" value=\""+cadnname+"\">");
-    out.println("<p>");
     out.println("<b>Version&nbsp;&nbsp;&nbsp;:</b>"
 		+certimpl.getVersion());
     out.println("<br>");
@@ -196,7 +195,6 @@ public class CertificateDetailsServlet extends  HttpServlet
 		+ CertificateUtility.toHexinHTML(certimpl.getSignature())
 		+ "</PRE>");
     out.println("<br>");
-    out.println("<br>");
     out.println("<input type=\"submit\" value=\"Revoke Certificate \">");
     out.println("</form>");
     out.println("</body></html>");
@@ -214,11 +212,3 @@ public class CertificateDetailsServlet extends  HttpServlet
   }
   
 }
-
-
-
-
-
-
-
-
