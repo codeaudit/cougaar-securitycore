@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.crypto;
@@ -32,6 +32,7 @@ import java.security.cert.*;
 import java.util.Date;
 import sun.security.pkcs.PKCS10;
 import sun.security.x509.*;
+import sun.security.util.*;
 import org.cougaar.core.security.util.CryptoDebug;
 
 public final class KeyCertGenerator
@@ -41,16 +42,16 @@ public final class KeyCertGenerator
   /** Initialize the key pair generator.
    *  @param algorithm      The standard string name of the algorithm.
    *  RSA or DSA.
-   *  @param signatureAlg   Used when generating an instance of Signature. 
+   *  @param signatureAlg   Used when generating an instance of Signature.
    *  SHA1withDSA: The DSA with SHA-1 signature algorithm which uses the
    *               SHA-1 digest algorithm and DSA to create and verify DSA
-   *               digital signatures as defined in FIPS PUB 186. 
+   *               digital signatures as defined in FIPS PUB 186.
    *  MD2withRSA:  The MD2 with RSA Encryption signature algorithm which
    *               uses the MD2 digest algorithm and RSA to create and
-   *               verify RSA digital signatures as defined in PKCS#1. 
+   *               verify RSA digital signatures as defined in PKCS#1.
    *  MD5withRSA:  The MD5 with RSA Encryption signature algorithm which
    *               uses the MD5 digest algorithm and RSA to create and
-   *               verify RSA digital signatures as defined in PKCS#1. 
+   *               verify RSA digital signatures as defined in PKCS#1.
    *  SHA1withRSA: The signature algorithm with SHA-1 and the RSA encryption
    *               algorithm as defined in the OSI Interoperability Workshop,
    *               using the padding conventions described in PKCS #1.
@@ -109,7 +110,7 @@ public final class KeyCertGenerator
     return privateKey;
   }
 
-  public X509Certificate getSelfCertificate(X500Name x500name, long l)
+  public X509Certificate getSelfCertificate(X500Name x500name, long l, boolean isSigner)
     throws CertificateException, InvalidKeyException, SignatureException,
     NoSuchAlgorithmException, NoSuchProviderException
   {
@@ -125,7 +126,7 @@ public final class KeyCertGenerator
 	date1.setTime(date1.getTime() + l * 1000L);
 	CertificateValidity certificatevalidity = new CertificateValidity(date, date1);
 	X509CertInfo x509certinfo = new X509CertInfo();
-	x509certinfo.set("version", new CertificateVersion(0));
+	x509certinfo.set("version", new CertificateVersion(2));
 	x509certinfo.set("serialNumber", new CertificateSerialNumber((int)(date.getTime() / 1000L)));
 	AlgorithmId algorithmid = x500signer.getAlgorithmId();
 	x509certinfo.set("algorithmID", new CertificateAlgorithmId(algorithmid));
@@ -134,6 +135,18 @@ public final class KeyCertGenerator
 	x509certinfo.set("validity", certificatevalidity);
 	x509certinfo.set("issuer", new CertificateIssuerName(x500signer.getSigner()));
 	X509CertImpl x509certimpl = new X509CertImpl(x509certinfo);
+
+        String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
+
+        if (isSigner) {
+          // Set keyusage
+          KeyUsageExtension keyusage = new KeyUsageExtension();
+          keyusage.set("key_certsign", new Boolean(true));
+          if(s != null) {
+            x509certimpl.set(s, keyusage);
+          }
+        }
+
 	x509certimpl.sign(privateKey, sigAlg);
 	return x509certimpl;
       }
