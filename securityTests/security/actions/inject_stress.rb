@@ -29,6 +29,8 @@ module Cougaar
 	ret =  @@stressMap[stressorClass]
 	if (ret == nil) 
 	  ret = eval("#{stressorClass}.new(run)")
+	  ret.myexperiment=run.experiment
+	  #puts "Run.name: #{run.name} Experiment: #{run.experiment.name}"
 	  @@stressMap[stressorClass] = ret
 	end
 	return ret
@@ -46,8 +48,9 @@ module Cougaar
 	  @stressor = Stressors.getStressInstance(className, run)
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
-	  logWarningMsg "Unable to start stress: #{@stressorClassName}" + ex
-          saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}", ex)
+	  logInfoMsg "Unable to start stress: #{@stressorClassName}" + ex
+          saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}",
+             "#{ex}\n#{ex.backtrace.join("\n")}")
 	  return
 	end
       end
@@ -61,7 +64,7 @@ module Cougaar
 	begin
 	  @aMethod.call()
 	rescue => ex
-	  logWarningMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
+	  logInfoMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
           saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}",
                "#{ex}\n#{ex.backtrace.join("\n")}")
 	end
@@ -77,7 +80,9 @@ module Cougaar
 	  @stressor = Stressors.getStressInstance(className, run)
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
-	  logWarningMsg "Unable to start stress: #{className}" + ex
+	  logInfoMsg "Unable to start stress: #{className}" + ex
+          saveResult(false, "Stress: #{className}.#{methodName}",
+             "#{ex}\n#{ex.backtrace.join("\n")}")
 	  return
 	end
 
@@ -102,7 +107,7 @@ module Cougaar
 	    begin
 	      @aMethod.call()
 	    rescue => ex
-	      logWarningMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
+	      logInfoMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
               saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}", 
                   "#{ex}\n#{ex.backtrace.join("\n")}")
 	    end
@@ -124,7 +129,7 @@ module Cougaar
 	#logInfoMsg "Stopping stress: #{@stressorClassName}.#{@methodName}"
 	val = Stressors.getRunState(@stressorClassName, @methodName)
 	if (val == nil || !val)
-	  logWarningMsg "Stress: #{@stressorClassName}.#{@methodName} is not set"
+	  logInfoMsg "Stress: #{@stressorClassName}.#{@methodName} is not set"
 	  return
 	end
 	Stressors.setRunState(@stressorClassName, @methodName, false)

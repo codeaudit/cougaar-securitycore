@@ -3,8 +3,8 @@ require 'singleton'
 SnortDir = "#{ENV['CIP']}/csmart/assessment/lib/security/data"
 NoScore = "0.0  (see details)"
     
-class AbstractSecurityMop
-  attr_accessor :run, :date, :runid, :name, :descript, :score, :info, :calculationDone, :raw, :summary
+class AbstractSecurityMop < SecurityStressFramework
+  attr_accessor :date, :runid, :name, :descript, :score, :info, :calculationDone, :raw, :summary
   def initialize(run)
     @run = run
     @runid = ''

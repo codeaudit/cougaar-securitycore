@@ -187,9 +187,10 @@ class StressCountRegistrations < SecurityStressFramework
 end # StressCountRegistrations
 
 class Stress2f102 < StressCountRegistrations
-  def initialize
+  def initialize(run)
     super('2f102', "M&R Registration")
     #"#{$CIP}/workspace/test/mrreg.tbl"
+    @run = run
   end
 
   def eventCall(event)
@@ -241,7 +242,7 @@ class Stress2f102 < StressCountRegistrations
       comp = components[index]
       clz = component_classes[index]
       sensorlist = []
-      run.society.each_agent_with_component(comp) { |agent|
+      @run.society.each_agent_with_component(comp) { |agent|
         sensorlist.push("#{agent.name}/#{sensors[index]}")
       }
       if (!sensorlist.empty?)

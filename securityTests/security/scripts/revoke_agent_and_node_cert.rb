@@ -5,7 +5,7 @@
 # Revoke an agent
 
 require 'security/lib/scripting'
-require 'security/lib/stresses/javaPolicy'
+require 'security/lib/stresses/3c2'
 
 insert_before :setup_run do
   do_action  "InjectStress", "Security3c2", "postStartJabberCommunications"

@@ -7,7 +7,6 @@ require 'security/lib/rules'
 class Security3c2 < SecurityStressFramework
 
    def initialize(run)
-      super
       @run = run
       @useIdmef = true
       @revoked_node = nil
@@ -28,7 +27,7 @@ class Security3c2 < SecurityStressFramework
    end
 
    def postStartJabberCommunications
-      printDotsOnCougaarEvents
+      #printDotsOnCougaarEvents
      on_cougaar_event do |event|
 #       puts "event: #{event.event_type}, #{event.cluster_identifier}, #{event.component}, #{event.data.to_s}"
 
