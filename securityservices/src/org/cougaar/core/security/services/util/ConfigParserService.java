@@ -54,7 +54,6 @@ public interface ConfigParserService extends Service {
 
   /** Get the node crypto policy
    */
-  CryptoClientPolicy getCryptoClientPolicy();
   CaPolicy getCaPolicy(String aDN);
 
   void parsePolicy(InputStream policy);

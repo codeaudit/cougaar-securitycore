@@ -130,6 +130,9 @@ public class CryptoPolicyServiceImpl
       public CryptoPolicyProxy(ServiceBroker sb) {
 	super("org.cougaar.core.security.policy.CryptoPolicy",
 	      "CryptoPolicyService", sb);
+	if (log.isDebugEnabled()) {
+	  log.debug("Registering crypto policy service to guard");
+	}
 	try {
 	  registerEnforcer();
 	}

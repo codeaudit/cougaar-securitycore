@@ -98,8 +98,8 @@ public class ConfigParserHandler
 		+ " Returning " + size + " policy objects");
     }
 
-    SecurityPolicy[] array = (SecurityPolicy[]) Array.newInstance(policyClass, size);
-    al.toArray(array);
+    SecurityPolicy[] array =
+      (SecurityPolicy[])al.toArray(new SecurityPolicy[size]);
     return array;
   }
 

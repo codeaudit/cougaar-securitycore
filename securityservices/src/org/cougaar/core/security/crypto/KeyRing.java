@@ -100,8 +100,9 @@ final public class KeyRing
       if (role == null && log.isWarnEnabled() == true) {
 	log.warn("Keyring Warning: LDAP role not defined");
       }
-
-      CryptoClientPolicy cryptoClientPolicy = configParser.getCryptoClientPolicy();
+      SecurityPolicy[] sp =
+	configParser.getSecurityPolicies(CryptoClientPolicy.class);
+      CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
 
       // Keystore to store key pairs
       param = new DirectoryKeyStoreParameters();
@@ -261,6 +262,9 @@ final public class KeyRing
     return keystore.findCert(cougaarName);
   }
 
+  /**
+   * @param lookupType - 
+   */
   public synchronized List findCert(String cougaarName, int lookupType) {
     List c = keystore.findCert(cougaarName, lookupType);
     return c;

@@ -222,7 +222,7 @@ public class AgentIdentityServiceImpl
 	+ thisNodeAddress.toAddress() + " and " + targetNode.toAddress());
     }
 
-    // Retrieve keys of the agent
+    // Retrieve private keys of the agent
     List agentPrivKeyList = keyRing.findPrivateKey(requestorAddress.toAddress());
 
     if (agentPrivKeyList.size() == 0) {
@@ -234,6 +234,7 @@ public class AgentIdentityServiceImpl
       privKey[i] = ((PrivateKeyCert)(agentPrivKeyList.get(i))).getPrivateKey();
     }
 
+    // Retrieve certificates
     List agentCertList = keyRing.findCert(requestorAddress.toAddress());
     if (agentCertList.size() == 0) {
       throw new RuntimeException("Could not find certificates for "
@@ -246,6 +247,7 @@ public class AgentIdentityServiceImpl
 
     KeySet keySet = new KeySet(privKey, cert);
 
+    // Create a secure envelope with the agent keys and certificates
     PublicKeyEnvelope envelope = null;
     try {
       envelope = (PublicKeyEnvelope)
@@ -255,11 +257,18 @@ public class AgentIdentityServiceImpl
 					policy);
     }
     catch (GeneralSecurityException e) {
+      if (log.isErrorEnabled()) {
+	log.error("Unable to protect agent keys:" + e.toString());
+      }
       return null;
     }
     catch (IOException e) {
+      if (log.isErrorEnabled()) {
+	log.error("Unable to protect agent keys" + e.toString());
+      }
       return null;
     }
+
     KeyIdentity keyIdentity =
       new KeyIdentity(envelope.getSender(),
 		      envelope.getReceiver(),
@@ -267,7 +276,7 @@ public class AgentIdentityServiceImpl
 		      envelope.getEncryptedSymmetricKey(),
 		      envelope.getObject());
 
-    /* Step 2 & 3 */
+    /* Step 3 */
     keyRing.removeEntry(requestorAddress.toAddress());
 
     return keyIdentity;

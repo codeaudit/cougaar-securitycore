@@ -351,7 +351,7 @@ public class BBReadOnlyFilter extends BlackboardFilter {
         return;
       }
 
-      if (debug) {
+      if (log.isDebugEnabled()) {
         log.debug("ProxyBlackboard: Received policy message");
         RuleParameter[] param = policy.getRuleParameters();
         for (int i = 0 ; i < param.length ; i++) {

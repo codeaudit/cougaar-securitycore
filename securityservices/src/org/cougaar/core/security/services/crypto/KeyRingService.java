@@ -61,6 +61,10 @@ public interface KeyRingService extends Service {
    */
   List findCert(String commonName);
 
+  public static final int LOOKUP_LDAP               = 1;
+  public static final int LOOKUP_KEYSTORE           = 2;
+  public static final int LOOKUP_FORCE_LDAP_REFRESH = 4;
+
   /**
    */
   List findCert(String commonName, int lookupType);

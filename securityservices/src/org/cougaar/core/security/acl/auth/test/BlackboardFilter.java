@@ -379,12 +379,12 @@ public class BlackboardFilter extends ServiceFilter {
         return;
       }
 
-      if (debug) {
-        System.out.println("ProxyBlackboard: Received policy message");
+      if (log.isDebugEnabled()) {
+        log.debug("ProxyBlackboard: Received policy message");
         RuleParameter[] param = policy.getRuleParameters();
         for (int i = 0 ; i < param.length ; i++) {
-          System.out.println("Rule: " + param[i].getName() +
-                             " - " + param[i].getValue());
+          log.debug("Rule: " + param[i].getName() +
+		    " - " + param[i].getValue());
         }
       }
       // what is the policy change?

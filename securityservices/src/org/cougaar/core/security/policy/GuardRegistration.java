@@ -59,11 +59,6 @@ public abstract class GuardRegistration
   protected LoggingService log;
   private ConfigParserService cps = null;
 
-  /**
-   * toggles debugging messages for a vebose mode
-   */
-  protected boolean debug = true;
-
   /** The KAoS guard **/
   private EnforcerManager guard = null;
 
@@ -89,9 +84,6 @@ public abstract class GuardRegistration
       serviceBroker.getService(this,
 			       ConfigParserService.class, null);
 
-    // Setup whether we're in debug mode or not
-    debug = (Boolean.valueOf(secprop.getProperty(secprop.POLICY_DEBUG,
-						"false"))).booleanValue();
     setPolicyType(aPolicyType);
     setName(enforcerName);	// Setup the enforcer's name (agent or node)
   }
@@ -123,18 +115,17 @@ public abstract class GuardRegistration
     throws EnforcerRegistrationException {
     GuardRetriever guardRetriever;
 
-    if (debug == true) {
+    if (log.isDebugEnabled() == true) {
       // Register the policy enforcer with the guard.
       log.debug("Registering PolicyEnforcer " +
-			 getName() + " to KAoS guard for " + getPolicyType());
+		getName() + " to KAoS guard for " + getPolicyType());
     }
 
     guardRetriever = new GuardRetriever();
-
     guard = guardRetriever.getGuard();
     if (guard == null) {
-      System.err.println("FATAL ERROR: Cannot continue without guard");
-      throw new RuntimeException("ERROR");
+      log.error("FATAL ERROR: Cannot continue without guard");
+      throw new RuntimeException("ERROR: Cannot continue without guard");
     }
     // Make sure policy type has been set
     if (getPolicyType() == null) {
@@ -143,9 +134,10 @@ public abstract class GuardRegistration
     SubjectMsg sm = new SubjectMsg(getName(),getName(),"scope");
     Vector v = new Vector();
     v.add(sm);
-    EnforcementCapabilityMsg ecm = new EnforcementCapabilityMsg(getPolicyType(),v);
+    EnforcementCapabilityMsg ecm =
+      new EnforcementCapabilityMsg(getPolicyType(),v);
     guard.registerEnforcer(this, ecm);
-    if (debug) {
+    if (log.isDebugEnabled()) {
       log.debug("Registered for " + getPolicyType());
     }
   }
@@ -162,10 +154,10 @@ public abstract class GuardRegistration
 				  List policies)
   //throws PolicyMessageException
   {
-    if (debug == true) {
+    if (log.isDebugEnabled()) {
       log.debug("GuardRegistration. Received " +
-			 policies.size() + " policy messages. Type="
-			 + updateType);
+		policies.size() + " policy messages. Type="
+		+ updateType);
     }
 
     Iterator it = policies.iterator();
@@ -198,7 +190,7 @@ public abstract class GuardRegistration
     policyName =        (String) aMsg.getName();
     policyDescription = (String) aMsg.getDescription();
  
-    if (debug) {
+    if (log.isDebugEnabled()) {
       log.debug("Policy Message: " + aMsg.toString());
       log.debug("policyID:" + policyID);
       log.debug("policyName:" + policyName);
@@ -212,8 +204,8 @@ public abstract class GuardRegistration
     }
 
     if (attributes == null) {
-      if (debug == true) {
-        log.debug("GuardEnforcer. Empty policy vector");
+      if (log.isErrorEnabled()) {
+        log.error("GuardEnforcer. Empty policy vector");
       }
       return;
     }
@@ -226,15 +218,16 @@ public abstract class GuardRegistration
       String attrName = attrMsg.getName();
       Object attrValue = attrMsg.getValue();
 
-      if (debug) {
+      if (log.isDebugEnabled()) {
 	log.debug("Attr: " + attrName + " - Attr class:"
-			   + attrValue.getClass().getName());
+		  + attrValue.getClass().getName());
       }
 
       if (attrName.equals("POLICY_OBJECT")) {
 	// attrValue should be a Policy object
-	if (attrValue instanceof Policy) {
-	  processTypedPolicy((Policy)attrValue,
+	if (attrValue instanceof Policy
+	    || attrValue instanceof SecurityPolicy) {
+	  processTypedPolicy(attrValue,
 			     policyID, policyName, policyDescription,
 			     policyScope,
 			     policySubjectID, policySubjectName,
@@ -242,9 +235,9 @@ public abstract class GuardRegistration
 			     policyType);
 	  isPolicyProcessed = true;
 	}
-	else{
-	  if (debug) {
-	    log.debug("ERROR: unknown policy type");
+	else {
+	  if (log.isErrorEnabled()) {
+	    log.error("Unknown policy type");
 	  }
 	}
       }
@@ -260,8 +253,8 @@ public abstract class GuardRegistration
       }
 
       if (isPolicyProcessed == false) {
-	if (debug) {
-	  log.debug("ERROR: No recognized policy");
+	if (log.isErrorEnabled()) {
+	  log.error("No recognized policy");
 	}
       }
     }
@@ -299,9 +292,9 @@ public abstract class GuardRegistration
 			   policyType);
     }else{
       // This is not a recognized policy message
-      if (debug == true) {
-    	log.debug("GuardRegistration. ERROR. Unknown attribute:"
-			   + attribute.getClass().getName());
+      if (log.isErrorEnabled()) {
+    	log.error("GuardRegistration. ERROR. Unknown attribute:"
+		  + attribute.getClass().getName());
       }
       return;
     }
@@ -326,9 +319,9 @@ public abstract class GuardRegistration
       pt = Class.forName(policyType); 
       obj = pt.newInstance();
     }catch(Exception e){
-      if (log.isDebugEnabled()) 
-        log.debug("GuardRegistration-processXmlPolicy:received unknown Type:"
-          + policyType);
+      if (log.isErrorEnabled()) 
+        log.error("GuardRegistration-processXmlPolicy:received unknown Type:"
+		  + policyType);
     }
     
     if(obj instanceof Policy){
@@ -337,14 +330,14 @@ public abstract class GuardRegistration
       Policy[] p = xpc.getPoliciesByType(policyType);
       if (log.isDebugEnabled()) {
         log.debug("PolicyCreator.getPoliciesByType returned "
-         + p.length
-         + " policy objects");
+		  + p.length
+		  + " policy objects");
       }
       for(int j=0; j<p.length; j++) {
         if (log.isDebugEnabled()) {
         log.debug("Calling receivePolicyMessage for "
-           + p[j]
-           + " - Guard type:" + getClass().toString());
+		  + p[j]
+		  + " - Guard type:" + getClass().toString());
         }
         receivePolicyMessage(p[j],
                  policyID, policyName, policyDescription,
@@ -362,8 +355,8 @@ public abstract class GuardRegistration
         serializer.setOutputByteStream(out);
         serializer.serialize(doc);
       }catch(Exception e){
-      if (log.isDebugEnabled()) 
-        log.debug("GuardRegistration-processXmlPolicy:failed getting DOM Stream:"
+      if (log.isErrorEnabled()) 
+        log.error("GuardRegistration-processXmlPolicy:failed getting DOM Stream:"
           + e.getMessage());
       }
       ba = out.toByteArray();
@@ -373,14 +366,14 @@ public abstract class GuardRegistration
       
       if (log.isDebugEnabled()) {
         log.debug("PolicyCreator.getPoliciesByType returned "
-         + p.length
-         + " policy objects");
+		  + p.length
+		  + " policy objects");
       }
       for(int j=0; j<p.length; j++) {
         if (log.isDebugEnabled()) {
         log.debug("Calling receivePolicyMessage for "
-           + p[j]
-           + " - Guard type:" + getClass().toString());
+		  + p[j]
+		  + " - Guard type:" + getClass().toString());
         }
         receivePolicyMessage(p[j],
                  policyID, policyName, policyDescription,

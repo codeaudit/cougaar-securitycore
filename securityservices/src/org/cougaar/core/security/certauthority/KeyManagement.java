@@ -243,8 +243,10 @@ public class KeyManagement
     if (log.isDebugEnabled()) {
       log.debug("Got Ca policy "+ caPolicy.toString());
     }
+    SecurityPolicy[] sp =
+      configParser.getSecurityPolicies(CryptoClientPolicy.class);
+    cryptoClientPolicy = (CryptoClientPolicy) sp[0];
 
-    cryptoClientPolicy = configParser.getCryptoClientPolicy();
     if (cryptoClientPolicy == null) {
       if (log.isWarnEnabled()) {
 	log.warn("Unable to get crypto client policy");
@@ -278,7 +280,7 @@ public class KeyManagement
 	   cn = keyRing.getCommonName(a);
 	   log.debug("got common name from alias : " + a
 		     + " cn = " + cn);
-	   certList = keyRing.findCert(cn, DirectoryKeyStore.LOOKUP_LDAP);
+	   certList = keyRing.findCert(cn, KeyRingService.LOOKUP_LDAP);
 
 	   if (certList != null && certList.size() > 0) {
 	     c = ((CertificateStatus)certList.get(0)).getCertificate();

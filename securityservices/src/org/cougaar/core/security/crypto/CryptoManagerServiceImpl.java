@@ -95,7 +95,9 @@ public class CryptoManagerServiceImpl
 
   public Object verify(String name, String spec, SignedObject obj)
     throws CertificateException {
-    List certList = keyRing.findCert(name);
+    List certList =
+      keyRing.findCert(name,
+		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (certList == null || certList.size() == 0) {
       throw
 	new CertificateException("Verify. Unable to get certificate for "
@@ -128,7 +130,9 @@ public class CryptoManagerServiceImpl
     throws GeneralSecurityException, IOException {
     /*encrypt the secretekey with receiver's public key*/
 
-    List certList = keyRing.findCert(name);
+    List certList =
+      keyRing.findCert(name,
+		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (certList.size() == 0) {
       throw new CertificateException("asymmEncrypt. Unable to get certificate for " + name);
     }
@@ -347,7 +351,9 @@ public class CryptoManagerServiceImpl
 			 + " -> " + target.toAddress());
     }
     // Find source certificate
-    List senderList = keyRing.findCert(source.toAddress());
+    List senderList =
+      keyRing.findCert(source.toAddress(),
+		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (senderList.size() == 0) {
       throw new CertificateException("Unable to find sender certificate: " 
 				     + source.toAddress());
@@ -383,7 +389,9 @@ public class CryptoManagerServiceImpl
     SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk);
     SealedObject sealedMsg = symmEncrypt(sk, policy.symmSpec, object);
     // Find target certificate
-    List receiverList = keyRing.findCert(target.toAddress());
+    List receiverList =
+      keyRing.findCert(target.toAddress(),
+		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (receiverList.size() == 0) {
       throw new CertificateException("Unable to find target certificate: " 
 				     + target.toAddress());
@@ -431,20 +439,25 @@ public class CryptoManagerServiceImpl
     sealedObject = symmEncrypt(sk, policy.symmSpec, signedObject);
       
     // Find source certificate
-    List senderList = keyRing.findCert(source.toAddress());
+    List senderList =
+      keyRing.findCert(source.toAddress(),
+		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (senderList.size() == 0) {
       throw new CertificateException("Unable to find sender certificate: " 
 				 + source.toAddress());
     }
     X509Certificate sender = ((CertificateStatus)senderList.get(0)).getCertificate();
 
-      // Find target certificate
-    List receiverList = keyRing.findCert(target.toAddress());
+    // Find target certificate
+    List receiverList =
+      keyRing.findCert(target.toAddress(),
+		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (receiverList.size() == 0) {
       throw new CertificateException("Unable to find target certificate: " 
 				 + target.toAddress());
     }
-    X509Certificate receiver = ((CertificateStatus)receiverList.get(0)).getCertificate();
+    X509Certificate receiver =
+      ((CertificateStatus)receiverList.get(0)).getCertificate();
 
     envelope = 
       new PublicKeyEnvelope(sender, receiver, policy, sessionKey, sealedObject);

@@ -89,9 +89,10 @@ public class PolicyBootstrapper
     Object obj = null;
     try{  
       obj = type.newInstance();
-    }catch(Exception e){
-      if(log.isDebugEnabled()) log.debug("getBootPolicy: invaild type specification--"
-      + e.getMessage());
+    } catch(Exception e) {
+      if(log.isDebugEnabled())
+	log.debug("getBootPolicy: invalid type specification--"
+		  + e.getMessage());
     }
       
     if ( obj instanceof SecurityPolicy) {

@@ -206,8 +206,9 @@ public class DirectoryKeyStore
 	  param.serviceBroker.getService(this,
 					 ConfigParserService.class,
 					 null);
-
-	cryptoClientPolicy = configParser.getCryptoClientPolicy();
+	SecurityPolicy[] sp =
+	  configParser.getSecurityPolicies(CryptoClientPolicy.class);
+	cryptoClientPolicy = (CryptoClientPolicy) sp[0];
 
       } catch(Exception e) {
 	if (log.isErrorEnabled()) {
@@ -341,10 +342,6 @@ public class DirectoryKeyStore
     return pkc;
   }
 
-  public static final int LOOKUP_LDAP               = 1;
-  public static final int LOOKUP_KEYSTORE           = 2;
-  public static final int LOOKUP_FORCE_LDAP_REFRESH = 4;
-
   /** Lookup a certificate.
    * LOOKUP_LDAP set: Lookup in LDAP directory service.
    * LOOKUP_KEYSTORE: Lookup in keystore file.
@@ -368,12 +365,12 @@ public class DirectoryKeyStore
     }
 
     CertDirectoryServiceClient certFinder = certificateFinder;
-    if ((lookupType & LOOKUP_FORCE_LDAP_REFRESH) != 0
-      || (lookupType & LOOKUP_LDAP) != 0)
+    if ((lookupType & KeyRingService.LOOKUP_FORCE_LDAP_REFRESH) != 0
+      || (lookupType & KeyRingService.LOOKUP_LDAP) != 0)
       certFinder = getCertDirectoryServiceClient(commonName);
 
     // Refresh from LDAP service if requested
-    if ((lookupType & LOOKUP_FORCE_LDAP_REFRESH) != 0) {
+    if ((lookupType & KeyRingService.LOOKUP_FORCE_LDAP_REFRESH) != 0) {
       // Update cache with certificates from LDAP.
       String filter = "(cn=" + commonName + ")";
       lookupCertInLDAP(filter, certFinder);
@@ -388,13 +385,13 @@ public class DirectoryKeyStore
     }
 
     if (certList == null || certList.size() == 0) {
-      if ((lookupType & LOOKUP_FORCE_LDAP_REFRESH) != 0) {
+      if ((lookupType & KeyRingService.LOOKUP_FORCE_LDAP_REFRESH) != 0) {
 	// We have just tried to lookup in LDAP so don't bother retrying again
 	return certificateList;
       }
       else {
 	// Look up in certificate directory service
-	if ((lookupType & LOOKUP_LDAP) != 0) {
+	if ((lookupType & KeyRingService.LOOKUP_LDAP) != 0) {
 	  String filter = "(cn=" + commonName + ")";
 	  lookupCertInLDAP(filter, certFinder);
 	  certList = certCache.getValidCertificates(x500name);
@@ -411,12 +408,12 @@ public class DirectoryKeyStore
     CertificateStatus certstatus=null;
     while (it.hasNext()) {
       certstatus = (CertificateStatus) it.next();
-      if((lookupType & LOOKUP_LDAP) != 0 &&
+      if((lookupType & KeyRingService.LOOKUP_LDAP) != 0 &&
 	 certstatus.getCertificateOrigin() == CertificateOrigin.CERT_ORI_LDAP) {
 	// The caller accepts certificates from LDAP.
 	certificateList.add(certstatus);
       }
-      else if ((lookupType & LOOKUP_KEYSTORE) != 0 &&
+      else if ((lookupType & KeyRingService.LOOKUP_KEYSTORE) != 0 &&
 	       certstatus.getCertificateOrigin() == CertificateOrigin.CERT_ORI_KEYSTORE) {
 	// The caller accepts certificates from the keystore.
 	certificateList.add(certstatus);
@@ -1673,7 +1670,7 @@ public class DirectoryKeyStore
 	if (log.isDebugEnabled()) {
 	  log.debug("Searching node key again: " + nodeName);
 	}
-	List nodex509List = findCert(nodeName, LOOKUP_KEYSTORE);
+	List nodex509List = findCert(nodeName, KeyRingService.LOOKUP_KEYSTORE);
 	X509Certificate nodex509 = null;
 	if (nodex509List.size() > 0) {
 	  nodex509 =
@@ -1740,13 +1737,13 @@ public class DirectoryKeyStore
 
     String nodeAlias = findAlias(nodeName);
     if (nodeAlias != null) {
-      List nodex509List = findCert(nodeName, LOOKUP_KEYSTORE);
+      List nodex509List = findCert(nodeName, KeyRingService.LOOKUP_KEYSTORE);
       if (nodex509List.size() > 0) {
 	nodex509 = ((CertificateStatus)nodex509List.get(0)).getCertificate();
       }
       if(nodex509 == null) {
         // maybe approved and in LDAP?
-	nodex509List = findCert(nodeName, LOOKUP_LDAP);
+	nodex509List = findCert(nodeName, KeyRingService.LOOKUP_LDAP);
 	if (nodex509List.size() > 0) {
 	  nodex509 = ((CertificateStatus)nodex509List.get(0)).getCertificate();
 	}
@@ -1899,7 +1896,8 @@ public class DirectoryKeyStore
       return null;
     }
     try {
-      certificateList = findCert(a, LOOKUP_KEYSTORE | LOOKUP_LDAP);
+      certificateList =
+	findCert(a, KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -1910,7 +1908,8 @@ public class DirectoryKeyStore
   public List findCert(String name) {
     List certificateList = null;
     try {
-      certificateList = findCert(name, LOOKUP_KEYSTORE | LOOKUP_LDAP);
+      certificateList =
+	findCert(name, KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -2151,7 +2150,8 @@ public class DirectoryKeyStore
     //check first
     List certificateList = null;
     try{
-      certificateList = findCert(dname.getCommonName(), LOOKUP_KEYSTORE);
+      certificateList = findCert(dname.getCommonName(),
+				 KeyRingService.LOOKUP_KEYSTORE);
       if(certificateList != null && certificateList.size() != 0) {
 	checkOrMakeHostKey();
 	return;

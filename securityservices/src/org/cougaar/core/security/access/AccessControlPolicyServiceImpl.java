@@ -81,9 +81,6 @@ public class AccessControlPolicyServiceImpl
   //TrustSet map to transfer trust from parent to child child tasks
   private Hashtable trustTable = new Hashtable(20);
 
-
-  protected boolean dbg = false;
-
     /** Creates new AccessControlPolicyServiceImpl */
   public AccessControlPolicyServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
@@ -111,10 +108,6 @@ public class AccessControlPolicyServiceImpl
     if(app!=null){
       pp.add(app);
     }
-
-    String db = secprop.getProperty(secprop.TRANSPORT_DEBUG,
-				    "false");
-    dbg = (db.equalsIgnoreCase("true") || (db.indexOf("security")>=0));
   }//Constructor
 
   private AccessControlPolicy getIncomingPolicy(String target){
@@ -144,7 +137,7 @@ public class AccessControlPolicyServiceImpl
     }
     
     if(acp==null){
-      if(dbg) {
+      if(log.isDebugEnabled()) {
         log.debug("AccessControlPolicy ERROR: can't find policy for " 
         + "->" +  target);
       }
@@ -179,7 +172,7 @@ public class AccessControlPolicyServiceImpl
     }
     
     if(acp==null){
-      if(dbg) {
+      if(log.isDebugEnabled()) {
         log.debug("AccessControlPolicy ERROR: can't find policy for " 
         + source + "->" );
       }
@@ -195,14 +188,14 @@ public class AccessControlPolicyServiceImpl
     if(app!=null){
       pp.add(app);
       proxies.add(agent);
-      if(dbg) {
+      if(log.isDebugEnabled()) {
 	log.debug("Making proxy for agent " + agent);
       }
     }
 
     // If we need to add proxy, there is a good chance we need
     // a new certificate too so check for it.
-    if(dbg) log.debug("checking certs for agent " + agent);
+    if(log.isDebugEnabled()) log.debug("checking certs for agent " + agent);
     try{
       keyRing.checkOrMakeCert(agent);
     }catch(Exception e){
@@ -224,7 +217,7 @@ public class AccessControlPolicyServiceImpl
     Object obj = acp.getCriticality(source);
     if (obj==null) return null;
     
-    if(dbg) {
+    if(log.isDebugEnabled()) {
       log.debug("Msg IN:" + source + "->" + target
        + ". Criticality:" + obj);
     }
@@ -234,7 +227,7 @@ public class AccessControlPolicyServiceImpl
     obj = acp.getIntegrity(source);
     if (obj==null) return null;
 
-    if(dbg) {
+    if(log.isDebugEnabled()) {
       log.debug("Msg IN:" + source + "->" + target
 			 +". Integrity:"+obj);
     }
@@ -254,7 +247,7 @@ public class AccessControlPolicyServiceImpl
     Object obj = acp.getCriticality(target);
     if (obj==null) return null;
     
-    if(dbg) {
+    if(log.isDebugEnabled()) {
       log.debug("Msg OUT:" + source + "->" + target
        + ". Criticality:" + obj);
     }
@@ -265,7 +258,7 @@ public class AccessControlPolicyServiceImpl
     obj = acp.getIntegrity(target);
     if (obj==null) return null;
 
-    if(dbg) {
+    if(log.isDebugEnabled()) {
       log.debug("Msg OUT:" + source + "->" + target
 			 +". Integrity:"+obj);
     }
@@ -283,7 +276,7 @@ public class AccessControlPolicyServiceImpl
     }
 
     String r = (String)acp.getMsgAction(level);
-    if(dbg) {
+    if(log.isDebugEnabled()) {
       String s = "Msg In:" + "->" + target + ". Action:" +
     	(r == null ? "No policy" : r) + " for level " + level;
       log.debug(s);
@@ -300,7 +293,7 @@ public class AccessControlPolicyServiceImpl
     }
     
     String r = (String)acp.getMsgAction(level);
-    if(dbg) {
+    if(log.isDebugEnabled()) {
       String s = "Msg OUT:" + source + "->" + ". Action:" +
     	(r == null ? "No policy" : r) + " for level " + level;
       log.debug(s);
@@ -318,7 +311,7 @@ public class AccessControlPolicyServiceImpl
     }
 
     String r = (String)acp.getAgentAction(source);
-    if(dbg) {
+    if(log.isDebugEnabled()) {
       log.debug("Msg IN:" + source + "->" + target +
 			 ". Agent action:" + r);
     }
@@ -335,7 +328,7 @@ public class AccessControlPolicyServiceImpl
     }
     
     String r = (String)acp.getAgentAction(target);
-    if(dbg) {
+    if(log.isDebugEnabled()) {
       log.debug("Msg OUT: " + source + "->" + target
 			 +". Outgoing agent action:" + r);
     }
@@ -352,7 +345,7 @@ public class AccessControlPolicyServiceImpl
     }
     
     Vector r = (Vector)acp.getVerbs(source);
-    if(dbg) {
+    if(log.isDebugEnabled()) {
       log.debug("Msg IN:" + source + "->" + target
          + ". Verbs:");
       for(int i = 0; i < r.size(); i++)
@@ -377,7 +370,7 @@ public class AccessControlPolicyServiceImpl
     }
 
     Vector r = (Vector)acp.getVerbs(target);
-    if(dbg) {
+    if(log.isDebugEnabled()) {
       log.debug("Msg OUT:" + source + "->" + target
 		       +". Verbs:");
       for(int i = 0; i < r.size(); i++)
@@ -414,7 +407,8 @@ public class AccessControlPolicyServiceImpl
     public AccessPolicyProxy(String name, ServiceBroker sb) {
       super("org.cougaar.core.security.policy.AccessControlPolicy", name, sb);
       agent = name;
-      if(debug) log.debug("--adding AccessPolicyProxy for:"+ agent);
+      if(log.isDebugEnabled())
+	log.debug("--adding AccessPolicyProxy for:"+ agent);
       try {
       	registerEnforcer();
       }
@@ -433,8 +427,9 @@ public class AccessControlPolicyServiceImpl
 				     String policyTargetID,
 				     String policyTargetName,
 				     String policyType) {
-      if(debug) log.debug("Got outdated policy format at AccessPolicyProxy for:"
-				   + agent);
+      if(log.isDebugEnabled())
+	log.debug("Got outdated policy format at AccessPolicyProxy for:"
+		  + agent);
     }
 
     public void receivePolicyMessage(SecurityPolicy policy,
@@ -447,11 +442,12 @@ public class AccessControlPolicyServiceImpl
 				     String policyTargetID,
 				     String policyTargetName,
 				     String policyType) {
-      if(debug) log.debug("--updating AccessPolicyProxy for:"
-				   + agent);
+      if(log.isDebugEnabled())
+	log.debug("--updating AccessPolicyProxy for:"
+		  + agent);
       
       if(!(policy instanceof AccessControlPolicy)) {
-        if (debug) {
+        if (log.isDebugEnabled()) {
           log.debug("AccessPolicyProxy: wrong policy type.");
         }
         return;

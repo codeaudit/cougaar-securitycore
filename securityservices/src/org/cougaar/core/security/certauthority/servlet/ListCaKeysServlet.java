@@ -105,7 +105,7 @@ public class ListCaKeysServlet
     while (aliases.hasMoreElements()) {
       String a = (String)aliases.nextElement();
       String cn = keyRingService.getCommonName(a);
-      List certList = keyRingService.findCert(cn, DirectoryKeyStore.LOOKUP_KEYSTORE);
+      List certList = keyRingService.findCert(cn, KeyRingService.LOOKUP_KEYSTORE);
       Iterator it = certList.iterator();
       while (it.hasNext()) {
 	X509Certificate c = ((CertificateStatus)it.next()).getCertificate();

@@ -168,17 +168,6 @@ public class ConfigParserServiceImpl
     return configDoc;
   }
 
-  public CryptoClientPolicy getCryptoClientPolicy() {
-    CryptoClientPolicy[] policy =
-      (CryptoClientPolicy[])getSecurityPolicies(CryptoClientPolicy.class);
-
-    if (policy.length != 1) {
-      throw new RuntimeException("Inconsistent policy. Got "
-				 + policy.length + " crypto client policies");
-    }
-    return policy[0];
-  }
-
   public CaPolicy getCaPolicy(String aDN) {
     if (log.isDebugEnabled()) {
       log.debug("Requesting CA policy for " + aDN);
@@ -242,7 +231,13 @@ public class ConfigParserServiceImpl
   }
 
   public boolean isCertificateAuthority() {
-    return getCryptoClientPolicy().isCertificateAuthority();
+    SecurityPolicy[] secPol = getSecurityPolicies(CryptoClientPolicy.class);
+    if (secPol.length != 1) {
+      throw new RuntimeException("Inconsistent policy. Got "
+				 + secPol.length + " crypto client policies");
+    }
+    CryptoClientPolicy ccp = (CryptoClientPolicy) secPol[0];
+    return ccp.isCertificateAuthority();
   }
 
   public X500Name[] getCaDNs()
