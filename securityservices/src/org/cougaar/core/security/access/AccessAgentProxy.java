@@ -227,8 +227,8 @@ public class AccessAgentProxy
       log.debug("un registering client");
     }
     if(mts!=null) {
-      mtc=null;
       mts.unregisterClient(this);
+      mtc=null;
     }
   }
   
