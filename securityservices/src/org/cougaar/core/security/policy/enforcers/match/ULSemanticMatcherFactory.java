@@ -11,21 +11,22 @@ import kaos.policy.information.KAoSProperty;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.security.policy.enforcers.ontology.ActorClassesConcepts;
+import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 
-
-public class ComponentSemanticMatcherFactory 
+public class ULSemanticMatcherFactory 
     implements SemanticMatcherFactory
 {
 
     private ServiceBroker _sb;
     private CommunityService _communityService;
     private LoggingService _log;
-    private CommunitySemanticMatcher _semMatch;
+    private ULActorSemanticMatcher _semMatch;
 
-    public ComponentSemanticMatcherFactory(ServiceBroker sb)
+    public ULSemanticMatcherFactory(ServiceBroker sb)
     {
 	_sb               = sb;
-	_semMatch         = new  CommunitySemanticMatcher();
+	_semMatch         = new  ULActorSemanticMatcher();
 
         // get the LoggingService
         _log = (LoggingService) _sb.getService(this,
@@ -74,9 +75,8 @@ public class ComponentSemanticMatcherFactory
 	    if (_communityService == null) {
 		throw new RuntimeException("No community service");
 	    }
-	    _log.debug("ComponentSemanticMatcher: Community Service installed");
+	    _log.debug("ULSemanticMatcher: Community Service installed");
 	}
-
     }
 
     static String removeHashChar(String s)
@@ -87,8 +87,11 @@ public class ComponentSemanticMatcherFactory
 	return s;
     }
 
-    private class CommunitySemanticMatcher implements SemanticMatcher
+    private class ULActorSemanticMatcher implements SemanticMatcher
     {
+	private String communityPrefix = "MembersOfDomain";
+	private String personPrefix    = ActorClassesConcepts.ActorClassesDamlURL;
+
 	public void initSemanticMatcher ()
 	    throws SemanticMatcherInitializationException 
 	{
@@ -96,20 +99,27 @@ public class ComponentSemanticMatcherFactory
 	}
 
 	public boolean matchSemantically(String className, Object instance) 
-		throws SemanticMatcherInitializationException
+	    throws SemanticMatcherInitializationException
 	{
-	    ensureCommunityServicePresent();
-
-	    String agent = (String) instance;
-	    agent     = removeHashChar(agent);
+	    String actor = (String) instance;
+	    actor     = removeHashChar(actor);
 	    className = removeHashChar(className);
-	    String communityPrefix = "MembersOfDomain";
 	    if (className.startsWith(communityPrefix)) {
+		ensureCommunityServicePresent();
+
 		String community 
 		    = className.substring(communityPrefix.length());
 		Collection communities = 
-		    _communityService.listParentCommunities((String) agent);
+		    _communityService.listParentCommunities((String) actor);
 		return communities.contains(community);
+	    } else if (className.startsWith(personPrefix)) {
+		String role 
+		    = className.substring(personPrefix.length());
+		if (actor.equals(UserDatabase.anybody())) {
+		    return true;     /* questionable */
+		} else {
+		    return UserDatabase.getRoles(actor).contains(role);
+		}
 	    } else {
 		return false;
 	    }
@@ -118,14 +128,12 @@ public class ComponentSemanticMatcherFactory
 	public int matchSemantically(String className, Set instances)
 	    throws SemanticMatcherInitializationException
 	{
-	    ensureCommunityServicePresent();
-
-	    String communityPrefix = "MembersOfDomain";
-	    boolean someMatch     = false;
-	    boolean someDontMatch = false;
-
 	    className = removeHashChar(className);
 	    if (className.startsWith(communityPrefix)) {
+		ensureCommunityServicePresent();
+		boolean someMatch     = false;
+		boolean someDontMatch = false;
+
 		String community 
 		    = className.substring(communityPrefix.length());
 		for (Iterator agentIt = instances.iterator(); 
@@ -166,6 +174,49 @@ public class ComponentSemanticMatcherFactory
 		} else {
 		    return KAoSProperty._ALL_INST_PRESENT;
 		}
+	    } else if ((className.startsWith(personPrefix))) {
+		boolean someMatch     = false;
+		boolean someDontMatch = false;
+
+		String role
+		    = className.substring(personPrefix.length());
+		for (Iterator personIt = instances.iterator(); 
+		     personIt.hasNext();) {
+		    String person = (String) personIt.next();
+		    person = removeHashChar(person);
+
+                    Set roles = UserDatabase.getRoles(person);
+		    _log.debug("matchSemantically: Roles for person, " 
+			       + person + " = ");
+		    for(Iterator rolesIt = roles.iterator();
+			rolesIt.hasNext();) {
+			_log.debug("Role: " + rolesIt.next());
+		    }
+		    _log.debug("matchSemantically: contains role, "
+			       + role + "?");
+		    if (roles.contains(role)) {
+			_log.debug("matchSemantically: yes");
+			someMatch = true;
+		    } else {
+			_log.debug("matchSemantically: no");
+			someDontMatch = true;
+		    }
+		    if (someMatch && someDontMatch) {
+			_log.debug("matchSemantically: return partial match");
+			return 1;  // a partial match
+		    }
+		}
+		// can't have both someMatch and someDontMatch
+		_log.debug("matchSemantically: someMatch = " + someMatch);
+		_log.debug("matchSemantically: someDontMatch = " + 
+			   someDontMatch);
+		if (someMatch) {
+		    return KAoSProperty._ALL_INST_PRESENT;
+		} else if (someDontMatch) {
+		    return KAoSProperty._NO_INST_PRESENT;
+		} else {
+		    return KAoSProperty._ALL_INST_PRESENT;
+		}      
 	    } else {
 		return KAoSProperty._NO_INST_PRESENT;
 	    }
