@@ -53,6 +53,7 @@ import org.cougaar.util.ConfigFinder;
 import com.nai.security.certauthority.CAClient;
 import com.nai.security.certauthority.KeyManagement;
 import com.nai.security.policy.NodePolicy;
+import com.nai.security.util.*;
 
 public class DirectoryKeyStore implements Runnable
 {
@@ -853,8 +854,8 @@ public class DirectoryKeyStore implements Runnable
     String request = "";
     String reply = "";
     //is node?
-    String nodeName = System.getProperty("org.cougaar.core.society.Node.name");
-    if (nodeName == null) {
+    String nodeName = NodeInfo.getNodeName();
+    if (nodeName == null && debug) {
       System.out.println("DirectoryKeyStore Error: Cannot get node name");
     }
     String alias = null;

@@ -32,7 +32,7 @@ classes:
 	echo ${COUGAARCLASSES}
 	./test/bin/myalpc src
 
-jar:
+jar: classes
 # Build core.jar
 #	@echo +++++++ Building core.jar
 #	cd ${COUGAARCLASSES}; \

@@ -133,34 +133,38 @@ public class ConfParser {
     Element nodePolicyElement = configDoc.getRootElement().getChild(NODE_POLICY_ELEMENT);
     NodePolicy nodePolicy = new NodePolicy();
 
-    nodePolicy.CA_DN = nodePolicyElement.getChildText(NODE_CA_DN_ELEMENT);
-    nodePolicy.CA_URL = nodePolicyElement.getChildText(NODE_CA_URL_ELEMENT);
-    nodePolicy.CA_keystore = nodePolicyElement.getChildText(NODE_CA_KEYSTORE_ELEMENT);
-    nodePolicy.CA_keystorePassword = nodePolicyElement.getChildText(NODE_CA_KEYSTORE_PWD_ELEMENT);
+    nodePolicy.CA_DN = getElementValue(nodePolicyElement, NODE_CA_DN_ELEMENT, role);
+    nodePolicy.CA_URL = getElementValue(nodePolicyElement, NODE_CA_URL_ELEMENT, role);
+    nodePolicy.CA_keystore = getElementValue(nodePolicyElement, NODE_CA_KEYSTORE_ELEMENT, role);
+    nodePolicy.CA_keystorePassword = getElementValue(nodePolicyElement,
+                        NODE_CA_KEYSTORE_PWD_ELEMENT, role);
 
     nodePolicy.certDirectoryURL = getElementValue(nodePolicyElement, NODE_CERTDIRURL_ELEMENT, role);
 
 
-    nodePolicy.ou = nodePolicyElement.getChildText(NODE_OU_ELEMENT);
-    nodePolicy.o = nodePolicyElement.getChildText(NODE_O_ELEMENT);
-    nodePolicy.l = nodePolicyElement.getChildText(NODE_L_ELEMENT);
-    nodePolicy.st = nodePolicyElement.getChildText(NODE_ST_ELEMENT);
-    nodePolicy.c = nodePolicyElement.getChildText(NODE_C_ELEMENT);
+    nodePolicy.ou = getElementValue(nodePolicyElement, NODE_OU_ELEMENT, role);
+    nodePolicy.o = getElementValue(nodePolicyElement, NODE_O_ELEMENT, role);
+    nodePolicy.l = getElementValue(nodePolicyElement, NODE_L_ELEMENT, role);
+    nodePolicy.st = getElementValue(nodePolicyElement, NODE_ST_ELEMENT, role);
+    nodePolicy.c = getElementValue(nodePolicyElement, NODE_C_ELEMENT, role);
 
 
-    nodePolicy.keyAlgName = nodePolicyElement.getChildText(NODE_KEYALGNAME_ELEMENT);
-    nodePolicy.sigAlgName = nodePolicyElement.getChildText(NODE_SIGALGNAME_ELEMENT);
-    nodePolicy.keysize = (Integer.valueOf(nodePolicyElement.getChildText(NODE_KEYSIZE_ELEMENT))).intValue();
-    nodePolicy.validity = (Integer.valueOf(nodePolicyElement.getChildText(NODE_VALIDITY_ELEMENT))).intValue();
+    nodePolicy.keyAlgName = getElementValue(nodePolicyElement, NODE_KEYALGNAME_ELEMENT, role);
+    nodePolicy.sigAlgName = getElementValue(nodePolicyElement, NODE_SIGALGNAME_ELEMENT, role);
+    nodePolicy.keysize = (Integer.valueOf(getElementValue(nodePolicyElement,
+                               NODE_KEYSIZE_ELEMENT, role))).intValue();
+    nodePolicy.validity = (Integer.valueOf(getElementValue(nodePolicyElement,
+                               NODE_VALIDITY_ELEMENT, role))).intValue();
     return nodePolicy;
   }
 
   public String getElementValue(Element top, String elementName, String role)
   {
     String value = null;
+    String defaultValue = null;
     List conf = top.getChildren(elementName);
     if (debug) {
-      System.out.println("Looking up role:" + role );
+      System.out.println("Looking up role:" + role + " for " + elementName);
     }
     Iterator it = conf.iterator();
     while (it.hasNext()) {
@@ -171,17 +175,18 @@ public class ConfParser {
 			   + element.getAttributeValue("role") );
       }
       */
-      if (role == null) {
-	if (element.getAttributeValue("role") == null) {
-	  value = element.getText();
-	}
+      if (element.getAttributeValue("role") == null) {
+	defaultValue = element.getText();
       }
-      else {
-	if (role.equals(element.getAttributeValue("role"))) {
-	  // Found role
-	  value = element.getText();
-	}
+      else if(role != null && role.equals(element.getAttributeValue("role"))) {
+	// Found role
+	value = element.getText();
       }
+    }
+    if (value == null) {
+      // If requested role was null: caller wants to have the default value
+      // If requested role was not found: we try to find the default value
+      value = defaultValue;
     }
     if (debug) {
       System.out.println("Found value:" + value);
@@ -212,18 +217,19 @@ public class ConfParser {
       Element caClientPolicy = caPolicyElement.getChild(CA_CLIENT_POLICY_ELEMENT);
       
       caPolicy = new CaPolicy();
-      caPolicy.keyStoreFile      = caPolicyElement.getChildText(CA_KEYSTORE_ELEMENT);
-      caPolicy.keyStorePassword  = caPolicyElement.getChildText(CA_KEYSTORE_PWD_ELEMENT);
-      caPolicy.caCommonName      = caPolicyElement.getChildText(CA_CN_ELEMENT);
+      caPolicy.keyStoreFile      = getElementValue(caPolicyElement, CA_KEYSTORE_ELEMENT, role);
+      caPolicy.keyStorePassword  = getElementValue(caPolicyElement, CA_KEYSTORE_PWD_ELEMENT, role);
+      caPolicy.caCommonName      = getElementValue(caPolicyElement, CA_CN_ELEMENT, role);
       caPolicy.ldapURL           = getElementValue(caPolicyElement, CA_LDAP_URL_ELEMENT, role);
 
       //caPolicy.ldapURL           = caPolicyElement.getChildText(CA_LDAP_URL_ELEMENT);
-      caPolicy.serialNumberFile  = caPolicyElement.getChildText(CA_SERIAL_NB_FILE_ELEMENT);
+      caPolicy.serialNumberFile  = getElementValue(caPolicyElement, CA_SERIAL_NB_FILE_ELEMENT, role);
 
-      caPolicy.pkcs10Directory   = caPolicyElement.getChildText(CA_PKCS10_DIR_ELEMENT);
-      caPolicy.x509CertDirectory = caPolicyElement.getChildText(CA_X509_CERT_DIR_ELEMENT);
+      caPolicy.pkcs10Directory   = getElementValue(caPolicyElement, CA_PKCS10_DIR_ELEMENT, role);
+      caPolicy.x509CertDirectory = getElementValue(caPolicyElement, CA_X509_CERT_DIR_ELEMENT, role);
 
-      caPolicy.certVersion = (Integer.valueOf(caClientPolicy.getChildText(CA_CERTVERSION_ELEMENT))).intValue();
+      caPolicy.certVersion = (Integer.valueOf(getElementValue(caClientPolicy,
+				 CA_CERTVERSION_ELEMENT, role))).intValue();
 
       /** Acceptable algorithm ID:
        *  md2WithRSAEncryption_oid
@@ -234,13 +240,15 @@ public class ConfParser {
        *  sha1WithDSA_OIW_oid
        *  sha1WithDSA_oid
        */
-      String algIdString = caClientPolicy.getChildText(CA_ALGORITHMID_ELEMENT);
+      String algIdString = getElementValue(caClientPolicy, CA_ALGORITHMID_ELEMENT, role);
       Class algIdClass = AlgorithmId.class;
       Field algIdField = AlgorithmId.class.getDeclaredField(algIdString);
       caPolicy.algorithmId = new AlgorithmId((ObjectIdentifier)algIdField.get(null));
       
-      caPolicy.keySize = (Integer.valueOf(caClientPolicy.getChildText(CA_KEYSIZE_ELEMENT))).intValue();
-      caPolicy.howLong = (Integer.valueOf(caClientPolicy.getChildText(CA_CERTVALIDITY_ELEMENT))).intValue(); 
+      caPolicy.keySize = (Integer.valueOf(getElementValue(caClientPolicy,
+				 CA_KEYSIZE_ELEMENT, role))).intValue();
+      caPolicy.howLong = (Integer.valueOf(getElementValue(caClientPolicy,
+				 CA_CERTVALIDITY_ELEMENT, role))).intValue(); 
     }
     return caPolicy;
   }

@@ -51,6 +51,7 @@ import org.cougaar.util.ConfigFinder;
 
 import com.nai.security.policy.*;
 import com.nai.security.crypto.*;
+import com.nai.security.util.*;
 
 /** Certification Authority service
  * The following java properties are necessary:
@@ -172,7 +173,7 @@ public class KeyManagement
 					+ nodePolicy.CA_keystore);
       }
       confDirectoryName = f.getParent() + File.separatorChar
-	+ "Crypto" + System.getProperty("org.cougaar.core.society.Node.name");;
+	+ "Crypto-" + NodeInfo.getNodeName();
       if (debug) {
 	System.out.println("Configuration Directory: " + confDirectoryName);
       }
@@ -379,7 +380,7 @@ public class KeyManagement
 	System.out.println("Saving X509 certificate:");
       }
       String alias = caKeyStore.getAlias(clientX509);
-      File f = new File(x509DirectoryName + File.separatorChar + alias);
+      File f = new File(x509DirectoryName + File.separatorChar + alias + ".cer");
       f.createNewFile();
       PrintStream out = new PrintStream(new FileOutputStream(f));
       base64encode(out, clientX509.getEncoded(), PKCS7HEADER, PKCS7TRAILER);
