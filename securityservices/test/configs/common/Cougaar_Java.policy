@@ -121,6 +121,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "p
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}util.jar" signedBy "privileged" {
+        permission java.security.SecurityPermission "getPolicy";
         permission java.lang.RuntimePermission "getClassLoader";
 	permission java.lang.RuntimePermission "createClassLoader";
 };
@@ -135,6 +136,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}qos.jar" signedBy "pr
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar" signedBy "privileged"  {
+        permission java.security.SecurityPermission "getPolicy";
         permission javax.security.auth.AuthPermission "getSubject";
         permission java.lang.RuntimePermission "getClassLoader";
 	permission java.lang.RuntimePermission "createClassLoader";
