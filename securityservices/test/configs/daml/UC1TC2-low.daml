@@ -18,6 +18,17 @@
       <daml:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Agent" />
    </daml:Class>
 
+   <daml:Class rdf:ID="AdminMinusAssistant">
+      <daml:intersectionOf rdf:parseType="daml:collection">
+         <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#CAAdministrator"/>
+	 <daml:Class>
+	    <daml:complementOf>
+	       <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#AdminAssistant"/>
+	    </daml:complementOf>
+	  </daml:Class>
+       </daml:intersectionOf>
+   </daml:Class>
+
    <!-- The set of messages 
             1. from the http protocol
             2. send by a CAAdministrator
@@ -31,19 +42,13 @@
             <daml:toClass>
                <daml:Restriction>
                   <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy" />
-                  <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#CAAdministrator"/>
+                   <daml:toClass rdf:resource="AdminMinusAssistant" />
                </daml:Restriction>
             </daml:toClass>
          </daml:Restriction>
          <daml:Restriction>
             <daml:onProperty rdf:resource="#hasURL" />
-            <daml:toClass>
-               <daml:Class>
-                  <daml:oneOf rdf:parseType="daml:collection">
-                     <message:URL rdf:about="#CA_RevokeCertificateServlet" />
-                  </daml:oneOf>
-               </daml:Class>
-            </daml:toClass>
+            <daml:toClass rdf:resource="#CA_RevokeCertificateServlet" />
          </daml:Restriction>
       </daml:intersectionOf>
    </daml:Class>
@@ -81,7 +86,7 @@
             2. send by a AdminAssistant
             3. with the URL /CA/CreateCAKeyServlet
     -->
-   <daml:Class rdf:ID="Role2Messages">
+  <daml:Class rdf:ID="Role2Messages">
       <daml:intersectionOf rdf:parseType="daml:collection">
          <daml:Class rdf:about="#HTTPMessage" />
          <daml:Restriction>
@@ -89,30 +94,13 @@
             <daml:toClass>
                <daml:Restriction>
                   <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy" />
-                  <daml:toClass>
-                     <daml:Class>
-                        <daml:intersectionOf rdf:parseType="daml:collection">
-                           <daml:Class  rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#AdminAssistant"/>
-                           <daml:Class>
-                              <daml:complementOf>
-                                 <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#CAAdministrator"/>
-                              </daml:complementOf>
-                           </daml:Class>
-                        </daml:intersectionOf>
-                     </daml:Class>
-                  </daml:toClass>
+                  <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#AdminAssistant"/>
                </daml:Restriction>
             </daml:toClass>
          </daml:Restriction>
          <daml:Restriction>
             <daml:onProperty rdf:resource="#hasURL" />
-            <daml:toClass>
-               <daml:Class>
-                  <daml:oneOf rdf:parseType="daml:collection">
-                     <message:URL rdf:about="#CA_CreateCAKeyServlet" />
-                  </daml:oneOf>
-               </daml:Class>
-            </daml:toClass>
+            <daml:toClass rdf:resource="#CA_CreateCAKeyServlet" />
          </daml:Restriction>
       </daml:intersectionOf>
    </daml:Class>
@@ -234,33 +222,52 @@
       <daml:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml#Entity" />
    </daml:Class>
 
-   <Protocol rdf:ID="#HTTP" />
+   <daml:Class rdf:ID="HTTP">
+      <daml:subClassOf rdf:resource="#Protocol"/>
+   </daml:Class>
 
    <daml:Class rdf:ID="HTTPMessage">
       <daml:sameClassAs>
          <daml:Restriction>
             <daml:onProperty rdf:resource="#usesProtocol" />
-            <daml:hasValue rdf:resource="#HTTP" />
+            <daml:toClass rdf:resource="#HTTP" />
          </daml:Restriction>
       </daml:sameClassAs>
    </daml:Class>
 
-   <daml:Class rdf:ID="URL" />
+   <daml:Class rdf:ID="URL">
+      <daml:disjointUnionOf rdf:parseType="daml:collection">
+         <daml:Class rdf:about="CA_RevokeCertificateServlet"/>
+	 <daml:Class rdf:about="CA_CreateCAKeyServlet"/>              
+	 <daml:Class rdf:about="CA_SubmitCAKeyServlet"/>
+	 <daml:Class rdf:about="CA_ProcessPendingCertServlet"/>
+	 <daml:Class rdf:about="CA_CAKeyManagement"/>
+	 <daml:Class rdf:about="CA_Index"/>
+	 <daml:Class rdf:about="CA_Browser"/>
+	 <daml:Class rdf:about="CA_Main"/>
+	 <daml:Class rdf:about="CA_CertificateList"/>
+	 <daml:Class rdf:about="CA_CertificateDetailsServlet"/>
+	 <daml:Class rdf:about="CA_PendingCertificateServlet"/>
+	 <daml:Class rdf:about="CA_PendingCertDetailsServlet"/>
+	 <daml:Class rdf:about="CA_ListCAKeysServlet"/>
+	 <daml:Class rdf:about="CA_ListSubordCAServlet"/>
+      </daml:disjointUnionOf>
+   </daml:Class>
 
-   <URL rdf:ID="#CA_RevokeCertificateServlet"/>
-   <URL rdf:ID="#CA_CreateCAKeyServlet"/>              
-   <URL rdf:ID="#CA_SubmitCAKeyServlet"/>
-   <URL rdf:ID="#CA_ProcessPendingCertServlet"/>
-   <URL rdf:ID="#CA_CAKeyManagement"/>
-   <URL rdf:ID="#CA_Index"/>
-   <URL rdf:ID="#CA_Browser"/>
-   <URL rdf:ID="#CA_Main"/>
-   <URL rdf:ID="#CA_CertificateList"/>
-   <URL rdf:ID="#CA_CertificateDetailsServlet"/>
-   <URL rdf:ID="#CA_PendingCertificateServlet"/>
-   <URL rdf:ID="#CA_PendingCertDetailsServlet"/>
-   <URL rdf:ID="#CA_ListCAKeysServlet"/>
-   <URL rdf:ID="#CA_ListSubordCAServlet"/>
+   <daml:Class rdf:ID="CA_RevokeCertificateServlet"/>
+   <daml:Class rdf:ID="CA_CreateCAKeyServlet"/>              
+   <daml:Class rdf:ID="CA_SubmitCAKeyServlet"/>
+   <daml:Class rdf:ID="CA_ProcessPendingCertServlet"/>
+   <daml:Class rdf:ID="CA_CAKeyManagement"/>
+   <daml:Class rdf:ID="CA_Index"/>
+   <daml:Class rdf:ID="CA_Browser"/>
+   <daml:Class rdf:ID="CA_Main"/>
+   <daml:Class rdf:ID="CA_CertificateList"/>
+   <daml:Class rdf:ID="CA_CertificateDetailsServlet"/>
+   <daml:Class rdf:ID="CA_PendingCertificateServlet"/>
+   <daml:Class rdf:ID="CA_PendingCertDetailsServlet"/>
+   <daml:Class rdf:ID="CA_ListCAKeysServlet"/>
+   <daml:Class rdf:ID="CA_ListSubordCAServlet"/>
 
 
 </rdf:RDF>
