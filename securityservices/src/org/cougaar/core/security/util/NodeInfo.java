@@ -61,26 +61,32 @@ public class NodeInfo
       version = (String) vf.get(null);
     } catch (Exception e) {}
 
-    StringTokenizer st = new StringTokenizer(version, ".");
-    for (int i = 0 ; st.hasMoreTokens() ; i++) {
-      String s = st.nextToken();
-      switch (i) {
-      case 0:
-	major = Integer.valueOf(s).intValue();
-	break;
-      case 1:
-        {
-          if (_log.isDebugEnabled()) {
-            _log.debug("Minor version = " + s);
+    if (version == null) {
+      // Assume it is a recent version
+      major = 11;
+    }
+    else {
+      StringTokenizer st = new StringTokenizer(version, ".");
+      for (int i = 0 ; st.hasMoreTokens() ; i++) {
+        String s = st.nextToken();
+        switch (i) {
+        case 0:
+	  major = Integer.valueOf(s).intValue();
+  	  break;
+        case 1:
+          {
+            if (_log.isDebugEnabled()) {
+              _log.debug("Minor version = " + s);
+            }
+            String [] vparts = s.split("[^0-9]");
+            minor = Integer.valueOf(vparts[0]).intValue();
+            if (_log.isDebugEnabled()) {
+              _log.debug("Minor (int) version = " + minor);
+            }
           }
-          String [] vparts = s.split("[^0-9]");
-          minor = Integer.valueOf(vparts[0]).intValue();
-          if (_log.isDebugEnabled()) {
-            _log.debug("Minor (int) version = " + minor);
-          }
+	  break;
+        default:
         }
-	break;
-      default:
       }
     }
     // Cougaar 8.4: node name is in org.cougaar.core.society.Node.name
