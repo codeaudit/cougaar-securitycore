@@ -11,6 +11,7 @@ if ( ! $?CLASSPATH ) then
 endif
 
 # Cougaar 3rd party support packages
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/servlet.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xerces.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jaas.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jnet.jar
