@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.config;
@@ -50,7 +50,7 @@ import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /** Helper class to read the cryptographic service configuration.
- * 
+ *
  */
 public class ConfigParserServiceImpl
   implements ConfigParserService
@@ -76,7 +76,7 @@ public class ConfigParserServiceImpl
     catch ( Exception e ) {
       e.printStackTrace();
     }
-    role = secprop.getProperty(secprop.SECURITY_ROLE); 
+    role = secprop.getProperty(secprop.SECURITY_ROLE);
 
     // Set the ContentHandler...
     handler = new ConfigParserHandler(parser, role);
@@ -116,7 +116,7 @@ public class ConfigParserServiceImpl
       // 2) Search using the config finder.
 
       f = confFinder.locateFile(policyfilename);
-    
+
       if (f == null) {
 	if (CryptoDebug.debug) {
 	  System.out.println("Unable to read policy filename: " + policyfilename);
@@ -185,8 +185,15 @@ public class ConfigParserServiceImpl
 
     for (int i = 0 ; i < policy.length ; i++) {
       if (CryptoDebug.debug) {
-	System.out.println("Current policy: " + policy[i].caDnName.toString());
+	System.out.println("Current policy: " + policy[i]);
       }
+
+      /**
+       * a fix for the node ca policy
+       */
+      if (aDN.length() == 0 && policy[i].caDnName == null)
+        return policy[i];
+
       if (x500Name.equals(policy[i].caDnName)) {
 	return policy[i];
       }
