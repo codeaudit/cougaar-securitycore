@@ -51,7 +51,9 @@ public class CertificateSigningRequest
 {
   private CertificateManagementService signer;
   private SecurityServletSupport support;
+  private ConfigParserService configParser = null;
   private LoggingService log;
+  private X500Name[] caDNs = null;
 
   public CertificateSigningRequest(SecurityServletSupport support) {
     if (support == null) {
@@ -66,6 +68,12 @@ public class CertificateSigningRequest
   public void init(ServletConfig config) throws ServletException
   {
     super.init(config);
+
+    configParser = (ConfigParserService)
+      support.getServiceBroker().getService(this,
+					    ConfigParserService.class,
+					    null);
+    caDNs = configParser.getCaDNs();
   }
 
   public void doPost (HttpServletRequest req, HttpServletResponse res)
@@ -232,7 +240,16 @@ public class CertificateSigningRequest
     //out.println("Domain : <input name=\"domain\" type=\"text\" value=\"\">");
     //out.println(" <br> <br></td></tr>");
     out.println("<tr ><td colspan=\"3\">");
-    out.println("DN for CA <input name=\"dnname\" type=\"text\" value=\"\">");
+
+    // CA
+    out.println("Select CA: <select id=\"dnname\" name=\"cadnname\">");
+    for (int i = 0 ; i < caDNs.length ; i++) {
+      out.println("<option value=\"" + caDNs[i].toString() + "\">" 
+		  + caDNs[i].toString() + "</option>");
+    }
+    out.println("</select>");
+
+    //out.println("DN for CA <input name=\"dnname\" type=\"text\" value=\"\">");
     out.println(" <br> <br></td></tr>");
     out.println("<tr ><td colspan=\"3\">");
     out.println("<textarea name=\"pkcsdata\" rows=10 cols=80 ></textarea><br>");

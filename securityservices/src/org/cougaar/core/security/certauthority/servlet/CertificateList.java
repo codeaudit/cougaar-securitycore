@@ -56,7 +56,6 @@ public class CertificateList extends  HttpServlet
   //private String[] domains = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
   private CertDirectoryServiceClient certificateFinder=null;
-  protected boolean debug = false;
   private LoggingService log;
 
   private SecurityServletSupport support;
@@ -71,9 +70,6 @@ public class CertificateList extends  HttpServlet
   {
     try {
       secprop = support.getSecurityProperties(this);
-
-      debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
-						   "false"))).booleanValue();
       configParser = (ConfigParserService)
 	support.getServiceBroker().getService(this,
 					      ConfigParserService.class,
@@ -95,7 +91,7 @@ public class CertificateList extends  HttpServlet
 
     cadnname =(String)req.getParameter("cadnname");
     //domain =(String)req.getParameter("domain");
-    if (debug) {
+    if (log.isDebugEnabled()) {
       log.debug(cadnname);
     }
     if((cadnname==null)||( cadnname=="")) {
@@ -146,7 +142,7 @@ public class CertificateList extends  HttpServlet
     if((domain==null)||(domain=="")) {
       domain = null;
     }
-    if (debug) {
+    if (log.isDebugEnabled()) {
       log.debug("calling create table will domain:" + domain);
     }
     */
