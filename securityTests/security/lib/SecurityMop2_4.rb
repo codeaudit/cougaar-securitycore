@@ -226,7 +226,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
   def persistUserInfo
     return nil if PingSociety.isPingSociety
-    agentNames = ['OSD.GOV', '1-ad-divPolicyDomainManagerServlet', 'RearPolicyDomainManagerServlet', 'ConusPolicyDomainManagerServlet', '1-ad-divsupPolicyDomainManagerServlet']
+    agentNames = ['OSD.GOV', '1-ad-divPolicyServletManager', 'RearPolicyServletManager', 'ConusPolicyServletManager', '1-ad-divsupPolicyServletManager']
     persistedAgents = []
     agentNames.each do |agentName|
       begin
@@ -788,16 +788,16 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
   def getTests
     begin
-      fwdAgent   = run.society.agents['1-ad-divPolicyDomainManagerServlet']
-      rearAgent  = run.society.agents['RearPolicyDomainManagerServlet']
-      conusAgent = run.society.agents['ConusPolicyDomainManagerServlet']
-      transAgent = run.society.agents['1-ad-divsupPolicyDomainManagerServlet']
+      fwdAgent   = run.society.agents['1-ad-divPolicyServletManager']
+      rearAgent  = run.society.agents['RearPolicyServletManager']
+      conusAgent = run.society.agents['ConusPolicyServletManager']
+      transAgent = run.society.agents['1-ad-divsupPolicyServletManager']
       @fwdAgent   = fwdAgent
       logInfoMsg "run:#{run}, #{fwdAgent}" if $VerboseDebugging
       
       if (PingSociety.isPingSociety)
         unless fwdAgent or rearAgent or conusAgent or transAgent
-          raise " PolicyDomainManagerServlet agents is missing for  [Fwd|Rear|Conus|Trans]"
+          raise " PolicyServletManager agents is missing for  [Fwd|Rear|Conus|Trans]"
         end
         conusUser = "ConusPolicyUser"
         rearUser  = "RearPolicyUser"
@@ -811,7 +811,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
         return testCollection
       else
         unless fwdAgent and rearAgent and conusAgent and transAgent
-        raise "One of the PolicyDomainManagerServlet agents is missing [Fwd|Rear|Conus|Trans]"
+        raise "One of the PolicyServletManager agents is missing [Fwd|Rear|Conus|Trans]"
         end
         fwdUser   = "FwdPolicyUser"
         rearUser  = "RearPolicyUser"
