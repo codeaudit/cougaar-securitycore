@@ -88,8 +88,7 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
                 out.println("<OPTION value=\"POD\">POD");
                 out.println("<OPTION value=\"TCPSCAN\">TCPSCAN");
                 out.println("<OPTION value=\"UDPSCAN\">UDPSCAN");
-                 out.println("<OPTION value=\"SecurityException\">SecurityException");
-                out.println("<OPTION value=\"TEST\">TEST");
+                out.println("<OPTION value=\"SecurityException\">SecurityException");
 
                 out.println("</SELECT>");
                 out.println("<input type=\"button\"  value=\"Submit\" onClick=\"javascript:submitMe()\" >");
@@ -235,6 +234,19 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
     {
         StringBuffer out=new StringBuffer();
         out.append("<fieldset><legend>MRCM----"+robj.Type+" Vulnerability Services Available At <br></legend>");
+	if((robj.Sensors.size()<1)||(robj.Analyzers.size()<1))
+	{
+		if(robj.Sensors.size()<1)
+		{
+			out.append("<h2> No Sensor present for "+robj.Type+"</h2>");
+		}
+		else
+		{
+			
+			out.append("<h2> No Analyzer present for "+robj.Type+"</h2>");
+		}
+		return out.toString();
+	}
         out.append("<form name=\"selectForm\" Method=\"POST\" >");                
         out.append("<input type=\"hidden\"  name=\"type\" value="+robj.Type+">");
         out.append("<input type=\"hidden\"  name=\"uniqueid\" value="+robj.unique_id+">");

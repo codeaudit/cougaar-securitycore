@@ -138,7 +138,8 @@ String [] nodename=null;
                  	}
                  	else
                  	{
-                     		System.out.println("Could not get the log file for security exception through java property ");
+        			if(MonitoringUtils.debug>0)
+                     			System.out.println("Could not get the log file name for security exception through java property .Probably org.cougaar.core.security.bootstrap.SecurityManagerLogFile is not set ---- using default values");
 				String cougaarpath=System.getProperty("org.cougaar.install.path");
 				StringBuffer logfilepath=new StringBuffer();
 				logfilepath.append(cougaarpath);
