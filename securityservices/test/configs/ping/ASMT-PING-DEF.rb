@@ -46,8 +46,9 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/saveAcmeEvents.rb
   # log_node_process_info should be BEFORE setup_society_ping
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
-  - script: $CIP/csmart/lib/security/scripts/setup_society_ping.rb
+  # check_wp.rb should be before setup_society_ping.rb
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_society_ping.rb
   - script: $CIP/csmart/lib/security/scripts/revoke_agent_and_node_cert.rb
   - script: $CIP/csmart/lib/security/scripts/stress_security_uc1.rb
   - script: $CIP/csmart/lib/security/scripts/stress_security_uc3.rb
