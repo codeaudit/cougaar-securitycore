@@ -100,11 +100,12 @@ public class CACertificateEntry extends CertificateEntry
   
   public String toString() {
     StringBuffer buff=new StringBuffer();
+    buff.append(super.toString());
     if(getLastModifiedTimeStamp()!=null) {
-      buff.append("Last Modified :"+ getLastModifiedTimeStamp());
+      buff.append(" Last Modified :"+ getLastModifiedTimeStamp());
     }
     else {
-      buff.append("Last Modified :  ");
+      buff.append(" Last Modified :  ");
     }
    return  buff.toString();
   }

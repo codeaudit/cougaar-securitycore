@@ -183,4 +183,8 @@ public class CertificateEntry
       }
     }
   }
+
+  public String toString() {
+    return "uid " + _uniqueIdentifier + ", type " + _certificateType + ", status " + _certificateStatus;
+  }
 }

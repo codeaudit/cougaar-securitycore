@@ -239,6 +239,10 @@ public class NamingCertDirectoryServiceClient {
 	  }
 
 	  entry = new NamingCertEntry(dnList, certList);
+
+          if (log.isDebugEnabled()) {
+            log.debug("updated entry will be " + entry.toString() + " with hash code " + entry.hashCode());
+          }
 	  //entry.addEntry(dname, certEntry, true);
 
 	  if (ael == null) {

@@ -221,6 +221,11 @@ public class CertificateSearchServiceImpl
       }
       else if (cert instanceof NamingCertEntry) {
         NamingCertEntry nce = (NamingCertEntry)cert;
+
+        if (log.isDebugEnabled()) {
+          log.debug("Got entry : " + nce.toString() + " with hash code " + nce.hashCode());
+        }
+
         for (Iterator it = nce.getEntries().iterator(); it.hasNext(); ) {
           CertificateEntry entry = (CertificateEntry)it.next();
           X509Certificate c = entry.getCertificate();
