@@ -56,7 +56,7 @@ public class SystemUtils {
     List envVars = new ArrayList();
     StringBuffer sb = new StringBuffer( "CLASSPATH=" );
     sb.append( System.getProperty( "java.class.path" ) );
-    sb.append( System.getProperty( "path.seperator" ) );
+    sb.append( System.getProperty( "path.separator" ) );
     sb.append( System.getProperty( "sun.boot.class.path" ) );
     envVars.add( sb.toString() );
     envVars.add( "LIBRARY_PATH=" + System.getProperty( "java.library.path" ) );
