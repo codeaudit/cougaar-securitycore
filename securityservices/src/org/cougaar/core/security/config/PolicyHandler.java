@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 
@@ -86,7 +87,9 @@ public class PolicyHandler
       xmlTemplateIs = confFinder.open("caPolicyTemplate.xml");
     }
     catch (IOException e) {
-      log.error("Unable to open caPolicyTemplate.xml: " + e);
+      if (log.isErrorEnabled()) {
+        log.error("Unable to open caPolicyTemplate.xml: " + e);
+      }
       return;
     }
     InputStream policyIs = configParser.findPolicyFile("cryptoPolicy.xml");
@@ -95,8 +98,10 @@ public class PolicyHandler
     ByteArrayOutputStream newPolicyOutputStream =
       parseXmlTemplate(xmlTemplateIs, attributeTable);
 
-    log.debug("NEW CA POLICY:");
-    log.debug(newPolicyOutputStream.toString());
+    if (log.isDebugEnabled()) {
+      log.debug("NEW CA POLICY:");
+      log.debug(newPolicyOutputStream.toString());
+    }
 
     ConfigWriter writer = new ConfigWriter(serviceBroker);
     writer.replaceAttributes(false);
@@ -110,12 +115,18 @@ public class PolicyHandler
       writer.setOutput(newPolicy, "US-ASCII");
     }
     catch (UnsupportedEncodingException e) {
-      log.error("Unable to set output.");
+      if (log.isErrorEnabled()) {
+        log.error("Unable to set output.");
+      }
       return;
     }
-    log.debug("Parsing policy file");
+    if (log.isDebugEnabled()) {
+      log.debug("Parsing policy file");
+    }
     parseXmlFile(policyIs, writer);
-    log.debug("Parsing policy file done");
+    if (log.isDebugEnabled()) {
+      log.debug("Parsing policy file done");
+    }
 
     FileOutputStream newPolicyFile = null;
 
@@ -140,7 +151,9 @@ public class PolicyHandler
         newPolicyFile.write(newPolicy.toByteArray());
       }
       catch (IOException e) {
-        log.error("Unable to open policy file for modification");
+        if  (log.isErrorEnabled()) {
+          log.error("Unable to open policy file for modification");
+        }
         return;
       }
     }
@@ -165,9 +178,11 @@ public class PolicyHandler
     writer.replaceJavaProperties(true);
     writer.setAttributeTable(attributeTable);
     writer.setXmlHeader(false);
+
     ByteArrayOutputStream newPolicyOutputStream = new ByteArrayOutputStream();
     try {
-      writer.setOutput(newPolicyOutputStream, "UTF8");
+      writer.setOutput(new DebugOutputStreamWrapper(newPolicyOutputStream),
+                       "UTF8");
     }
     catch (UnsupportedEncodingException e) {
       System.err.println("error: Unable to set output.");
@@ -193,13 +208,26 @@ public class PolicyHandler
       parser.setProperty(LEXICAL_HANDLER_PROPERTY_ID, writer);
     }
     catch (SAXException e) {
-      // ignore
+      // Strange that this isn't an error to at least be logged??
+      if (log.isDebugEnabled()) {
+        log.debug("Exception setting lexical handler", e);
+      }
     }
 
     try {
+      if (log.isDebugEnabled()) {
+        log.debug("start parsing xml file");
+      }
       parser.parse(new InputSource(xmlTemplateFile));
+      if (log.isDebugEnabled()) {
+        log.debug("done parsing xml file");
+      }
     }
     catch (SAXParseException e) {
+      // Strange that this isn't at least logged as error?
+      if (log.isDebugEnabled()) {
+        log.debug("Exception parsing file",  e);
+      }
       // ignore
     }
     catch (Exception e) {
@@ -210,5 +238,26 @@ public class PolicyHandler
       e.printStackTrace(System.err);
     }
   }
+
+  private class DebugOutputStreamWrapper extends OutputStream
+  {
+    OutputStream stream;
+
+    DebugOutputStreamWrapper(OutputStream o)
+    {
+      stream = o;
+    }
+
+    public void write(int b)
+      throws IOException
+    {
+      if (log.isDebugEnabled()) {
+        char out = (char) b;
+        log.debug("DebugOutputWrapper = " + out);
+      }
+      stream.write(b);
+    }
+  }
+
 }
 
