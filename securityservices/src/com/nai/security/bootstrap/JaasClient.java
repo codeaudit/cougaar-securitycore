@@ -55,8 +55,16 @@ public class JaasClient {
 
     // Find out if there is a chained principal in the current
     // security context.
-    AccessControlContext acc = AccessController.getContext();
-    Subject subj = Subject.getSubject(acc);
+    final AccessControlContext acc = AccessController.getContext();
+
+    Subject subj = (Subject)
+      AccessController.doPrivileged(new PrivilegedAction() {
+	  public Object run() {
+	    Subject subj = Subject.getSubject(acc);
+	    return subj;
+	  }
+	});
+    
     if (subj != null) {
       Iterator it = subj.getPrincipals().iterator(); 
       Principal p = null;
@@ -196,8 +204,14 @@ public class JaasClient {
   }
 
   public static void printPrincipals() {
-    AccessControlContext acc = AccessController.getContext();
-    Subject subj = Subject.getSubject(acc);
+    final AccessControlContext acc = AccessController.getContext();
+    Subject subj = (Subject)
+      AccessController.doPrivileged(new PrivilegedAction() {
+	  public Object run() {
+	    Subject subj = Subject.getSubject(acc);
+	    return subj;
+	  }
+	});
     if (subj != null) {
       Iterator it = subj.getPrincipals().iterator(); 
       while (it.hasNext()) {
