@@ -60,10 +60,10 @@ public class ConfParser {
   }
 
   public void init() {
-    String installpath = System.getProperty("org.cougaar.install.path");
-    String defaultConfigFile = installpath + File.separatorChar
+    //String installpath = System.getProperty("org.cougaar.install.path");
+    String defaultConfigFile = /*installpath + File.separatorChar
       + "configs" + File.separatorChar + "common"
-      + File.separatorChar + "CryptoConfiguration.xml";
+      + File.separatorChar + */"CryptoPolicy.xml";
 
     configFile = System.getProperty("org.cougaar.security.crypto.config", defaultConfigFile);
     
