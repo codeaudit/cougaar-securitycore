@@ -234,10 +234,14 @@ public class SecurityServiceProvider
     services.put(SSLService.class,
 		 new SSLServiceProvider());
     serviceBroker.addService(SSLService.class, this);
+    // SSLService and WebserverIdentityService are self started
+    // they offer static functions to get socket factory
+    // in the functions the permission will be checked.
     serviceBroker.getService(this, SSLService.class, null);
     services.put(WebserverIdentityService.class,
 		 new WebserverSSLServiceProvider());
     serviceBroker.addService(WebserverIdentityService.class, this);
+    serviceBroker.getService(this, WebserverIdentityService.class, null);
 
     /* ********************************
      * LDAP user administration
