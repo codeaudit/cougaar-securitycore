@@ -1,0 +1,66 @@
+#!/usr/bin/ruby
+####################################################
+# certificate_bootstrapper_enclaves.rule
+
+society.each_node do |node|
+  enclave = nil
+  arg = nil
+  arg1 = nil
+  certAuthority = false
+  
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'RootCertificateAuthority' \
+     or facet[:role] == 'CertificateAuthority' \
+     or facet[:role] == 'RedundantRootCertificateAuthority' \
+     or facet[:role] == 'RedundantCertificateAuthority'
+      certAuthority = true
+    end
+  end
+
+  if not certAuthority
+
+    facetval = node.host.get_facet(:enclave)
+    enclave = facetval.capitalize
+    caAgent = nil
+    redundantCa = nil
+
+    society.each_agent { |agent|
+      if (agent.node.host.get_facet(:enclave) == node.host.get_facet(:enclave))
+	agent.each_facet("catype") { |caFacet|
+	  if caFacet["catype"] == "CertificateAuthority"
+	    caAgent = agent
+	  end
+	  if caFacet["catype"] == "RedundantCertificateAuthority"
+	    redundantCa = agent
+	  end
+	  if redundantCa != nil && caAgent != nil
+	    break
+	  end
+	}
+      end
+    }
+
+    if caAgent != nil
+      arg = "#{caAgent.node.host.name}:#{caAgent.name}:" +
+            "#{caAgent.node.cougaar_port}:#{caAgent.node.secure_cougaar_port}"
+    end
+    if redundantCa != nil
+      arg1 = "#{redundantCa.node.host.name}:#{redundantCa.name}:" +
+             "#{redundantCa.node.cougaar_port}:#{redundantCa.node.secure_cougaar_port}"
+    end
+   
+    if arg != nil || arg1 != nil
+      node.agent.add_component do |c|
+        c.classname = "org.cougaar.core.security.crypto.AutoConfigPlugin"
+        c.priority = "HIGH"
+        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+        if (arg != nil)
+          c.add_argument(arg)
+        end
+        if (arg1 != nil)
+          c.add_argument(arg1)
+        end
+      end
+    end
+  end
+end

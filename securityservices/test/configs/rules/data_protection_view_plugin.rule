@@ -1,0 +1,14 @@
+#!/usr/bin/ruby
+####################################################
+# Rule to insert MnRDataProtectionSensor
+
+plugin = "org.cougaar.core.security.certauthority.CaServletComponent"
+
+society.each_node do |node|
+  node.add_component do |c|
+    c.classname = plugin
+    c.add_argument("org.cougaar.core.security.dataprotection.plugin.PersistenceVerificationServlet")
+    c.add_argument("/PersistenceVerificationServlet")
+  end
+end
+

@@ -1,0 +1,29 @@
+#!/usr/bin/ruby
+####################################################
+# enclave_persistence_mgrs.rule
+
+society.each_node do |node|
+  agentname = ""
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'RedundantPersistenceManager'
+      facetval = node.host.get_facet(:enclave)
+      agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "RedundantPersistenceManager"
+      node.add_agent(agentname) do |agent|
+        agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin"
+        end
+        agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.certauthority.CaServletComponent"
+          c.add_argument("org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet")
+          c.add_argument("/KeyRecoveryServlet")
+        end
+        agent.add_component do |c|
+          c.classname= "org.cougaar.core.security.dataprotection.plugin.EncryptedRelayPlugin"
+        end
+        agent.add_component do |c|
+           c.classname="org.cougaar.core.security.dataprotection.plugin.RevokeSessionKeyPlugin"
+        end
+      end
+    end
+  end
+end

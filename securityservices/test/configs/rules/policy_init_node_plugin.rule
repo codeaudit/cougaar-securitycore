@@ -1,0 +1,14 @@
+#!/usr/bin/ruby
+####################################################
+# PolicyInitNodePlugin
+
+
+initPlugin = "org.cougaar.core.security.policy.enforcers.init.InitNodePlugin"
+
+if !$disableKaosPolicy
+  society.each_node do |node|
+    node.add_component do |c|
+        c.classname = initPlugin
+    end
+  end
+end

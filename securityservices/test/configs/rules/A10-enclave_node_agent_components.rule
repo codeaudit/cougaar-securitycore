@@ -1,0 +1,41 @@
+#!/usr/bin/ruby
+####################################################
+# enclave_safeguard_component.rule
+
+enclave = nil
+
+compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
+
+society.each_node do |node|
+  enclave = nil
+  community = nil
+  
+  facetval = node.host.get_facet(:enclave)
+  if facetval == nil
+    puts "Error: no facet for Node #{node.name} - Host #{node.host.name}"
+  end
+  enclave = facetval[0..0] + facetval[1..facetval.length].downcase
+  community = facetval + "-SECURITY-COMM"
+
+  if !$disableKaosPolicy
+    # Add the KAoS guard
+    node.agent.add_component do |c|
+      c.name = "safe.util.SAFESecurityComponentEnclave" + enclave
+      c.classname = "safe.util.SAFESecurityComponent"
+      c.priority = "HIGH"
+      c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+      c.add_argument(enclave + "PolicyDomainManager")
+      c.add_argument(enclave + "Domain")
+      c.add_argument("http://ontology.ihmc.us/DomainManagementAction.owl#RegisterAction")
+    end
+  end
+
+  # Add the security component factory
+  node.agent.add_component do |c|
+    c.name = compFactory + enclave
+    c.classname = compFactory
+    c.priority = "HIGH"
+    c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+    c.add_argument(community)
+  end
+end

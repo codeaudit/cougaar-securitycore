@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+####################################################
+# AdaptivityEngineViewer.rule
+
+society.each_agent(true) do |agent|
+  agent.add_component do |c|
+    c.classname = "org.cougaar.core.adaptivity.AEViewerServlet"
+    c.add_argument("/aeviewer")
+  end
+end

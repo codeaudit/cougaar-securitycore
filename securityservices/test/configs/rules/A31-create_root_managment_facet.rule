@@ -1,0 +1,45 @@
+#!/usr/bin/ruby
+
+if ! defined? CIP
+  CIP = ENV['COUGAAR_INSTALL_PATH']
+end
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
+require 'security/lib/common_security_rules'
+
+foundRoot = false
+
+society.each_node do |node|
+  node.each_facet(:role) do |facet|
+    if facet[:role] == $facetRootManagement
+      foundRoot = true
+      break
+    end
+  end
+  if foundRoot
+    break
+  end
+end
+
+rmName = $facetRootManagement
+mName  = $facetManagement
+
+if !foundRoot
+  puts "Warning! No #{rmName} facet found."
+  society.each_node do |node|
+    node.each_facet(:role) do |facet|
+      if facet[:role] == $facetManagement
+        node.add_facet({:role=>$facetRootManagement})
+        foundRoot = true
+        puts "Using node #{node.name} as the root manager"
+        break
+      end
+    end
+    if foundRoot
+      break
+    end
+  end
+  if !foundRoot
+    puts "Warning! There are no nodes with facet #{mName}"
+  end
+end

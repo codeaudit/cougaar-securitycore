@@ -1,0 +1,41 @@
+#!/usr/bin/ruby
+####################################################
+# enclave_persistence_mgrs.rule
+
+if ! defined? CIP
+  CIP = ENV['COUGAAR_INSTALL_PATH']
+end
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
+require 'security/lib/common_security_rules'
+
+society.each_node do |node|
+  agentname = ""
+  node.each_facet(:role) do |facet|
+    if facet[:role] == $facetManagement
+      facetval = node.host.get_facet(:enclave)
+      agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "EnclavePersistenceManager"
+      node.add_agent(agentname) do |agent|
+        # The PM agent should not be restarted. Robustness of the PM
+        # is not supported by the standard robustness restart mechanism.
+        # This facet is used by the robustness manager
+        agent.add_facet({"Restartable" => 'false'})
+
+        agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin"
+        end
+        agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.certauthority.CaServletComponent"
+          c.add_argument("org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet")
+          c.add_argument("/KeyRecoveryServlet")
+        end
+        agent.add_component do |c|
+          c.classname= "org.cougaar.core.security.dataprotection.plugin.EncryptedRelayPlugin"
+        end
+        agent.add_component do |c|
+           c.classname="org.cougaar.core.security.dataprotection.plugin.RevokeSessionKeyPlugin"
+        end
+      end
+    end
+  end
+end

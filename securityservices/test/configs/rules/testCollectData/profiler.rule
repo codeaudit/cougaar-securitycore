@@ -1,0 +1,5 @@
+society.each_node() do |node|
+  node.add_component do |c|
+    c.classname="org.cougaar.profiler.servlet.ProfilerServlet"
+  end
+end
