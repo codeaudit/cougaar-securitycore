@@ -393,6 +393,14 @@ public class DataProtectionServiceImpl
             new DataProtectionKeyImpl(skeyobj, digestAlg, policy,
                               keyRing.findCertChain(pmCert));
 //		TODO Is this the right place for this?
+				if(agentIdService==null){
+					agentIdService = (AgentIdentificationService)this.serviceBroker.getService(this,AgentIdentificationService.class, null);
+				}
+				if(agentIdService==null){
+					if(log.isErrorEnabled()){
+						log.error("AgentIdentifier Service is null");
+					}
+				}
 				 MessageAddress source = agentIdService.getMessageAddress();
 				 MessageAddress target = MessageAddress.getMessageAddress(commonName);
 				 SharedDataRelay sdr = new SharedDataRelay(uidService.nextUID(), source, target, pmDPKey, null);
