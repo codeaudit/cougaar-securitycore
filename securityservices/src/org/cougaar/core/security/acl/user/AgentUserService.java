@@ -753,8 +753,8 @@ public class AgentUserService implements UserService, BlackboardClient {
 	  if (_log.isDebugEnabled()) {
 	    _log.debug("Got Community service starting community search  for AgentUser service");
 	  }
-          addCommunityListener(cs);
           setCommunityService(cs);
+          addCommunityListener(cs);
         }
       }
     }  
