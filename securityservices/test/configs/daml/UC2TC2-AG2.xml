@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<!--
+              Use Case = 2, ThreatCon=2, for enclave AG2
+ -->
+
+<policies>
+  <policy name="Crypto Policy" type="org.cougaar.core.security.policy.CryptoPolicy">
+    <cryptoPolicy>
+	<!-- whom this policy is for -->
+	<Name>AG2</Name>
+	
+	<!-- one of AGENT,COMMUNITY,or SOCIETY -->
+	<Type>COMMUNITY</Type>
+	
+	<!-- one of INCOMING, OUTGOING, or BOTH -->
+	<Direction>BOTH</Direction>
+	
+	<!-- one policy entry for each messaging party -->
+	<PolicyEntry>
+		<MsgParty>AG1</MsgParty>
+		<!-- EACH one of the following can have more than one values -->
+		
+		<!-- one of: plain, encrypt, sign, signAndEncrypt -->
+		<SecureMethod>signAndEncrypt</SecureMethod>
+		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
+    		<SigningAlgorithm>MD5withRSA</SigningAlgorithm>
+    		<SigningAlgorithm>MD2withRSA</SigningAlgorithm>
+	</PolicyEntry>
+
+	<PolicyEntry>
+		<MsgParty>AG2</MsgParty>
+		<!-- EACH one of the following can have more than one values -->
+		
+		<!-- one of: plain, encrypt, sign, signAndEncrypt -->
+		<SecureMethod>signAndEncrypt</SecureMethod>
+		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
+    		<SigningAlgorithm>MD5withRSA</SigningAlgorithm>
+    		<SigningAlgorithm>MD2withRSA</SigningAlgorithm>
+	</PolicyEntry>
+
+    </cryptoPolicy>
+  </policy>
+</policies>

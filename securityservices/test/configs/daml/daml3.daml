@@ -1,0 +1,73 @@
+<?xml version='1.0'?>
+<rdf:RDF
+    xmlns:daml='http://www.daml.org/2001/03/daml+oil#'
+    xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+    xmlns:RDFNsId1='http://ontology.coginst.uwf.edu/Policy.daml#'
+    xmlns:RDFNsId2='http://ontology.coginst.uwf.edu/Action.daml#'
+    xmlns:RDFNsId3='http://ontology.coginst.uwf.edu/Actor.daml#'
+    xmlns:rdfs='http://www.w3.org/2000/01/rdf-schema#'>
+    <rdfs:Class rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#PosAuthorizationPolicy'
+         daml:label='coginst_PolicyClassName'/>
+    <rdfs:Class rdf:about='http://ontology.coginst.uwf.edu/Actor.daml#Actor'/>
+    <rdfs:Class rdf:about='http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#oneOf'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#toClass'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#subPropertyOf'/>
+    <daml:Property rdf:about='http://ontology.coginst.uwf.edu/Action.daml#performedOn'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#label'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#rest'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#subClassOf'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#onProperty'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#first'/>
+    <daml:ObjectProperty rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#controls'/>
+    <daml:ObjectProperty rdf:about='http://ontology.coginst.uwf.edu/Action.daml#performedBy'/>
+    <daml:ObjectProperty rdf:about='http://ontology.coginst.uwf.edu/Action.daml#replyTo'>
+        <daml:subPropertyOf rdf:resource='http://ontology.coginst.uwf.edu/Action.daml#performedOn'/>
+    </daml:ObjectProperty>
+    <daml:DatatypeProperty rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#hasPriority'/>
+    <daml:DatatypeProperty rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#hasUpdateTimeStamp'/>
+    <daml:DatatypeProperty rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#hasDescription'/>
+    <daml:DatatypeProperty rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#hasName'/>
+    <RDFNsId1:PosAuthorizationPolicy
+         RDFNsId1:hasDescription=''
+         daml:label='coginst_PolicyInstanceName'
+         RDFNsId1:hasName='foo'
+         RDFNsId1:hasPriority='1'>
+        <RDFNsId1:controls>
+            <rdfs:Class
+                 daml:label='coginst_ActionClassName'>
+                <daml:subClassOf rdf:resource='http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction'/>
+                <daml:subClassOf>
+                    <daml:Restriction
+                         daml:label='coginst_Instance'>
+                        <daml:toClass>
+                            <rdfs:Class
+                                 daml:label='coginst_TargetClassName'>
+                                <daml:oneOf rdf:parseType='daml:collection'>
+                                    <RDFNsId2:Target rdf:ID='EnclaveOnePolicyManagerNode'/>
+                                </daml:oneOf>
+                            </rdfs:Class>
+                        </daml:toClass>
+                        <daml:onProperty rdf:resource='http://ontology.coginst.uwf.edu/Action.daml#replyTo'/>
+                        <daml:label>coginst_TargetRestriction</daml:label>
+                    </daml:Restriction>
+                </daml:subClassOf>
+                <daml:subClassOf>
+                    <daml:Restriction
+                         daml:label='coginst_ActorRestriction'>
+                        <daml:toClass>
+                            <rdfs:Class
+                                 daml:label='coginst_Instance'>
+                                <daml:oneOf rdf:parseType='daml:collection'>
+                                    <RDFNsId3:Actor rdf:ID='EnclaveOne'/>
+                                </daml:oneOf>
+                                <daml:label>coginst_ActorClassName</daml:label>
+                            </rdfs:Class>
+                        </daml:toClass>
+                        <daml:onProperty rdf:resource='http://ontology.coginst.uwf.edu/Action.daml#performedBy'/>
+                    </daml:Restriction>
+                </daml:subClassOf>
+            </rdfs:Class>
+        </RDFNsId1:controls>
+    </RDFNsId1:PosAuthorizationPolicy>
+</rdf:RDF>

@@ -1,0 +1,266 @@
+<?xml version="1.0" ?> 
+<!-- DAML+OIL Language, version 03/2001   --> 
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+   xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+   xmlns:policy="http://ontology.coginst.uwf.edu/Policy.daml#">
+   <daml:Ontology rdf:about="">
+      <daml:versionInfo>
+      $ http://foo.com/bar.daml $
+      </daml:versionInfo> 
+     <rdfs:comment>
+        An ontology created by Timothy Redmond.
+     </rdfs:comment> 
+     <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/> 
+   </daml:Ontology>
+
+   <daml:Class rdf:ID="caagent">
+      <daml:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Agent" />
+   </daml:Class>
+
+   <!-- The set of messages 
+            1. from the http protocol
+            2. send by a CAAdministrator
+            3. with the URL /CA/RevokeCertificateServlet
+    -->
+   <daml:Class rdf:ID="Role1Messages">
+      <daml:intersectionOf rdf:parseType="daml:collection">
+         <daml:Class rdf:about="#HTTPMessage" />
+         <daml:Restriction>
+            <daml:onProperty rdf:resource="#msg_send" />
+            <daml:toClass>
+               <daml:Restriction>
+                  <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy" />
+                  <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#CAAdministrator"/>
+               </daml:Restriction>
+            </daml:toClass>
+         </daml:Restriction>
+         <daml:Restriction>
+            <daml:onProperty rdf:resource="#hasURL" />
+            <daml:toClass>
+               <daml:Class>
+                  <daml:oneOf rdf:parseType="daml:collection">
+                     <message:URL rdf:about="#CA_RevokeCertificateServlet" />
+                  </daml:oneOf>
+               </daml:Class>
+            </daml:toClass>
+         </daml:Restriction>
+      </daml:intersectionOf>
+   </daml:Class>
+
+   <!-- The set of actions 
+            1. where the caagent is receiving a message
+            2. the message has the Role1Message format
+    -->
+   <daml:Class rdf:ID="Role1Actions">
+      <daml:intersectionOf rdf:parseType="daml:collection">
+         <daml:Class rdf:about="#ReceiveMessageAction"/>
+         <daml:Restriction>
+            <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy" />
+            <daml:toClass rdf:resource="#caagent" />
+         </daml:Restriction>
+         <daml:Restriction>
+            <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#receivingMessage"/>
+            <daml:toClass rdf:resource="#Role1Messages" />
+         </daml:Restriction>
+      </daml:intersectionOf>
+   </daml:Class>
+
+   <policy:PosAuthorizationPolicy rdf:ID="Role1Allowed">
+        <rdfs:comment>
+            a CAAdministrator can invoke the CA_RevokeCertificateServlet of the CAService.
+        </rdfs:comment> 
+
+        <policy:controls rdf:resource="#Role1Actions"/>
+        <policy:hasPriority>1</policy:hasPriority>
+
+    </policy:PosAuthorizationPolicy>
+
+   <!-- The set of messages 
+            1. from the http protocol
+            2. send by a AdminAssistant
+            3. with the URL /CA/CreateCAKeyServlet
+    -->
+   <daml:Class rdf:ID="Role2Messages">
+      <daml:intersectionOf rdf:parseType="daml:collection">
+         <daml:Class rdf:about="#HTTPMessage" />
+         <daml:Restriction>
+            <daml:onProperty rdf:resource="#msg_send" />
+            <daml:toClass>
+               <daml:Restriction>
+                  <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy" />
+                  <daml:toClass>
+                     <daml:Class>
+                        <daml:intersectionOf rdf:parseType="daml:collection">
+                           <daml:Class  rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#AdminAssistant"/>
+                           <daml:Class>
+                              <daml:complementOf>
+                                 <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#CAAdministrator"/>
+                              </daml:complementOf>
+                           </daml:Class>
+                        </daml:intersectionOf>
+                     </daml:Class>
+                  </daml:toClass>
+               </daml:Restriction>
+            </daml:toClass>
+         </daml:Restriction>
+         <daml:Restriction>
+            <daml:onProperty rdf:resource="#hasURL" />
+            <daml:toClass>
+               <daml:Class>
+                  <daml:oneOf rdf:parseType="daml:collection">
+                     <message:URL rdf:about="#CA_CreateCAKeyServlet" />
+                  </daml:oneOf>
+               </daml:Class>
+            </daml:toClass>
+         </daml:Restriction>
+      </daml:intersectionOf>
+   </daml:Class>
+
+   <!-- The set of actions 
+            1. where the caagent is receiving a message
+            2. the message has the Role2Message format
+    -->
+   <daml:Class rdf:ID="Role2Actions">
+      <daml:intersectionOf rdf:parseType="daml:collection">
+         <daml:Class rdf:about="#ReceiveMessageAction"/>
+         <daml:Restriction>
+            <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy" />
+            <daml:toClass rdf:resource="#caagent" />
+         </daml:Restriction>
+         <daml:Restriction>
+            <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#receivingMessage"/>
+            <daml:toClass rdf:resource="#Role2Messages" />
+         </daml:Restriction>
+      </daml:intersectionOf>
+   </daml:Class>
+
+   <policy:PosAuthorizationPolicy rdf:ID="Role2Allowed">
+        <rdfs:comment>
+            a CAAdministrator can invoke the CA_RevokeCertificateServlet of the CAService.
+        </rdfs:comment> 
+
+        <policy:controls rdf:resource="#Role2Actions"/>
+        <policy:hasPriority>3</policy:hasPriority>
+
+    </policy:PosAuthorizationPolicy>
+
+   <daml:ObjectProperty rdf:ID="msgSend">
+      <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+      <rdfs:domain rdf:resource="#Message" />
+      <rdfs:range  rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#Action" />
+      <rdfs:subPropertyOf>
+         <daml:ObjectProperty>
+            <daml:inverseOf rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedOn" />
+         </daml:ObjectProperty>
+      </rdfs:subPropertyOf>
+   </daml:ObjectProperty>
+
+   <daml:ObjectProperty rdf:ID="sendingMessage">
+      <daml:inverseOf rdf:resource="#msgSend" />
+   </daml:ObjectProperty>
+
+   <daml:ObjectProperty rdf:ID="msgReceive">
+      <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+      <rdfs:domain rdf:resource="#Message" />
+      <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#Action" />
+      <rdfs:subPropertyOf>
+         <daml:ObjectProperty rdf:about="http://ontology.coginst.uwf.edu/Action.daml#performedOn" />
+      </rdfs:subPropertyOf>
+   </daml:ObjectProperty>
+
+   <daml:ObjectProperty rdf:ID="receivingMessage">
+      <daml:inverseOf rdf:resource="#msgReceive" />
+   </daml:ObjectProperty>
+
+   <daml:ObjectProperty rdf:ID="usesProtocol">
+      <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+      <rdfs:domain rdf:resource="#Message" />
+      <rdfs:range rdf:resource="#Protocol" />
+   </daml:ObjectProperty>
+
+   <daml:ObjectProperty rdf:ID="hasURL">
+      <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+      <rdfs:domain rdf:resource="#HTTPMessage" />
+      <rdfs:range rdf:resource="#URL" />
+   </daml:ObjectProperty>
+
+   <!-- Classes -->
+
+   <daml:Class rdf:ID="Message">
+      <daml:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml#Entity" />
+   </daml:Class>
+
+   <daml:Class rdf:ID="SendMessageAction">
+      <daml:sameClassAs>
+         <daml:Restriction daml:cardinality="1">
+            <daml:onProperty>
+               <daml:ObjectProperty>
+                  <daml:inverseOf rdf:resource="#msgSend" />
+               </daml:ObjectProperty>
+            </daml:onProperty>
+            <daml:toClass rdf:resource="#Message" />
+         </daml:Restriction>
+      </daml:sameClassAs>
+      <daml:subClassOf>
+         <daml:Restriction daml:cardinality="1">
+            <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy" />
+            <daml:toClass rdf:resource="#Message" />
+         </daml:Restriction>
+      </daml:subClassOf>
+   </daml:Class>
+
+   <daml:Class rdf:ID="ReceiveMessageAction">
+      <daml:sameClassAs>
+         <daml:Restriction daml:cardinality="1">
+            <daml:onProperty>
+               <daml:ObjectProperty>
+                  <daml:inverseOf rdf:resource="#msgReceive" />
+               </daml:ObjectProperty>
+            </daml:onProperty>
+            <daml:toClass rdf:resource="#Message" />
+         </daml:Restriction>
+      </daml:sameClassAs>
+      <daml:subClassOf>
+         <daml:Restriction daml:cardinality="1">
+            <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy" />
+            <daml:toClass rdf:resource="#Message" />
+         </daml:Restriction>
+      </daml:subClassOf>
+   </daml:Class>
+
+
+   <daml:Class rdf:ID="Protocol">
+      <daml:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml#Entity" />
+   </daml:Class>
+
+   <Protocol rdf:ID="#HTTP" />
+
+   <daml:Class rdf:ID="HTTPMessage">
+      <daml:sameClassAs>
+         <daml:Restriction>
+            <daml:onProperty rdf:resource="#usesProtocol" />
+            <daml:hasValue rdf:resource="#HTTP" />
+         </daml:Restriction>
+      </daml:sameClassAs>
+   </daml:Class>
+
+   <daml:Class rdf:ID="URL" />
+
+   <URL rdf:ID="#CA_RevokeCertificateServlet"/>
+   <URL rdf:ID="#CA_CreateCAKeyServlet"/>              
+   <URL rdf:ID="#CA_SubmitCAKeyServlet"/>
+   <URL rdf:ID="#CA_ProcessPendingCertServlet"/>
+   <URL rdf:ID="#CA_CAKeyManagement"/>
+   <URL rdf:ID="#CA_Index"/>
+   <URL rdf:ID="#CA_Browser"/>
+   <URL rdf:ID="#CA_Main"/>
+   <URL rdf:ID="#CA_CertificateList"/>
+   <URL rdf:ID="#CA_CertificateDetailsServlet"/>
+   <URL rdf:ID="#CA_PendingCertificateServlet"/>
+   <URL rdf:ID="#CA_PendingCertDetailsServlet"/>
+   <URL rdf:ID="#CA_ListCAKeysServlet"/>
+   <URL rdf:ID="#CA_ListSubordCAServlet"/>
+
+
+</rdf:RDF>

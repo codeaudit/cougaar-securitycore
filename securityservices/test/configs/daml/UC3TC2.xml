@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<policy name="Servlet Policy" type="org.cougaar.core.security.policy.ServletPolicy">
+  <servlet-policy>
+    <!-- set the delay time (milliseconds) when a user fails -->
+    <failure-delay>1000</failure-delay>
+
+    <agent name="caAgent">
+      <rule requireSSL="true">
+        <!-- only let the administrator do write-only stuff -->
+        <pattern>/CA/RevokeCertificateServlet</pattern>
+        <pattern>/CA/ProcessPendingCertServlet</pattern>
+        <pattern>/CA/CertificateList</pattern>
+        <role>CAAdministrator</role>
+      </rule>
+    </agent>
+
+    <agent name="caAgent">
+      <rule requireSSL="true">
+        <!-- only let the administrator do write-only stuff -->
+        <pattern>/CA/CertificateList</pattern>
+        <role>AdminAssistant-CAAdministrator</role>
+      </rule>
+    </agent>
+
+  </servlet-policy>
+
+</policy>
