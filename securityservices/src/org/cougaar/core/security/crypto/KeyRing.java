@@ -1574,11 +1574,19 @@ try {
           if (log.isDebugEnabled()) {
             log.debug("Creating self signed host key");
           }
-          certRequestor.generateKeyPair(dname, false, cap);
+          if (certRequestor == null) {
+            if (log.isWarnEnabled()) {
+              log.warn("Failed to create host key - CertRequestor is not available",
+                new Throwable());
+            }
+          }
+          else {
+            certRequestor.generateKeyPair(dname, false, cap);
+          }
         }
       } catch (Exception ex) {
         if (log.isWarnEnabled()) {
-          log.warn("Failed to create host key. " + ex);
+          log.warn("Failed to create host key. ", ex);
         }
       }
     }
