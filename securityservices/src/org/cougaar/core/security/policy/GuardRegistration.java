@@ -174,7 +174,11 @@ public abstract class GuardRegistration
   public void updatePolicies(List addedPolicies,
                              List changedPolicies,
                              List removedPolicies)
-  //throws PolicyMessageException
+  {
+    setPolicies(addedPolicies);
+  }
+
+  public void setPolicies(List addedPolicies)
   {
     if (log.isInfoEnabled()) {
       log.info("GuardRegistration. Received " +
