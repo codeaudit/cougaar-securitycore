@@ -26,15 +26,26 @@ import org.cougaar.core.security.auth.ObjectContext;
 import org.cougaar.core.mts.MessageAddress;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RoleExecutionContext implements ExecutionContext {
+  public static final String ACCESS_CACHING_PROPERTY = 
+    "org.cougaar.core.security.policy.auth.role.useAccessCaching";
+  private static final boolean ALLOW_ACCESS_CACHING
+    = Boolean.getBoolean(ACCESS_CACHING_PROPERTY);
+
   private String[] _agentRoles;
   private String[] _componentRoles;
   private String[] _userRoles;
   private String   _component = "";
   private MessageAddress _agent;
   private String   _user      = "";
+  private Map _descriptors;
+  private int _policyUpdateCounter = 0;
 
   RoleExecutionContext(MessageAddress agent, String component, String user,
                        String[] agentRoles, String[] componentRoles, 
@@ -60,6 +71,7 @@ public class RoleExecutionContext implements ExecutionContext {
     if (_userRoles != null) {
       Arrays.sort(_userRoles);
     }
+    _descriptors = new HashMap();
   }
 
   public boolean hasAgentRole(String role) { 
@@ -121,6 +133,9 @@ public class RoleExecutionContext implements ExecutionContext {
 
   public String toString() {
     StringBuffer sb = new StringBuffer(256);
+    sb.append("component " + _component + "\n");
+    sb.append("agent " + _agent + "\n");
+    sb.append("user " + _user + "\n");
     sb.append(formatRoleString("agent roles", _agentRoles));
     sb.append("\n");
     sb.append(formatRoleString("component roles", _componentRoles));
@@ -142,6 +157,53 @@ public class RoleExecutionContext implements ExecutionContext {
     sb.append(")");
     return sb.toString();
   }
+
+  public void flushAuthorizationCache()
+  {
+    _descriptors = new HashMap();
+  }
+
+  public boolean cachedIsAuthorized(String objectName,
+                                    String access,
+                                    int policyUpdateCounter)
+  {
+    if (!ALLOW_ACCESS_CACHING) {
+      return false;
+    }
+
+    if (policyUpdateCounter != _policyUpdateCounter) {
+      flushAuthorizationCache();
+      _policyUpdateCounter = policyUpdateCounter;
+      return false;
+    }
+    Set accessModes = (Set) _descriptors.get(objectName);
+    if (accessModes == null) {
+      return false;
+    } else {
+      return accessModes.contains(access);
+    }
+  }
+
+  /* package */ void updateCachedAuthorization(String objectName,
+                                               String access,
+                                               int policyUpdateCounter)
+  {
+    if (!ALLOW_ACCESS_CACHING) {
+      return;
+    }
+    if (policyUpdateCounter != _policyUpdateCounter) {
+      flushAuthorizationCache();
+    }
+
+    Set accessModes = (Set) _descriptors.get(objectName);
+    if (accessModes == null) {
+      accessModes = new HashSet();
+    }
+    accessModes.add(access);
+    _descriptors.put(objectName, accessModes);
+  }
+  
+
   /*
   private List normalizeArrayToList(String []arr) {
     if(arr == null) {
