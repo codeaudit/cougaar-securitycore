@@ -29,6 +29,7 @@ package org.cougaar.core.security.naming;
 import org.cougaar.core.service.wp.Cert;
 
 import java.util.List;
+import java.util.Iterator;
 
 final public class NamingCertEntry extends Cert
 {
@@ -80,6 +81,9 @@ final public class NamingCertEntry extends Cert
     }
     // should not need to hash the certificate, there should not
     // be more than one entry at any time
+    for (int i = 0; i < certlist.size(); i++) {
+      _hashcode += certlist.get(i).toString().hashCode();
+    }
   }
 
   public List getEntries() {
