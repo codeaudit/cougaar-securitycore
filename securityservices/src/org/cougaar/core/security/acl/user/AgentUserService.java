@@ -163,13 +163,16 @@ public class AgentUserService implements UserService, BlackboardClient {
       }
       _serviceBroker.addServiceListener(new BlackBoardServiceListener());
     }
+
+    if (_useCommunity != null) {
+      _log.warn("testing community service " + _useCommunity);
+    }
   }
 
   static String _useCommunity = System.getProperty("org.cougaar.core.security.acl.user.communityTest");
  
   private void addCommunityListener(final CommunityService cs) {
     if (_useCommunity != null && _useCommunity.equals("1")) {
-      _log.warn("Not making community service request.");
       return;
     }
 
@@ -184,7 +187,6 @@ public class AgentUserService implements UserService, BlackboardClient {
 
       public void communityChanged(CommunityChangeEvent event) {
         if (_useCommunity != null && _useCommunity.equals("2")) {
-          _log.warn("Not using results from community service request.");
           return;
         }
 
