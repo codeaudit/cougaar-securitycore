@@ -1,4 +1,4 @@
-This file contains instructions for changing crypto policies. An example of an XML based policy file is located in $COUGAAR_INSTALL_PATH/configs/common/BootPolicy.ldm.xml. This file is served as a set of default policies upon boot time, after booting, policies can be dynamicly updated via the KPAT tool.
+This file contains instructions for changing crypto policies. An example of an XML based policy file is located in $COUGAAR_INSTALL_PATH/configs/common/BootPolicy.ldm.xml, in the same location there are also three policy files for different crypto methods: BootPolicy-sign.ldm.xml,BootPolicy-encrypt.ldm.xml, and BootPolicy-plain.ldm.xml. Use the java property -Dorg.cougaar.core.security.BootPolicy to select which on of these files to use. This file is served as a set of default policies upon boot time, after booting, policies can be dynamicly updated via the KPAT tool.
 
 IncomingSecureMethod
 ====================
