@@ -141,7 +141,7 @@ class ThreatConChange < SecurityStressFramework
 
 
   def setConditionalPolicy
-    deltaPolicy(@enclave, <<END_POLICY)
+    deltaPolicy(@policyEnclave, <<END_POLICY)
 
     PolicyPrefix=%CondPolicy/
 
@@ -160,7 +160,7 @@ Delete SocietyAdminAuth
 
 END_POLICY
 
-    #deltaPolicy(@enclave,conditionalPolicy )
+    #deltaPolicy(@policyEnclave,conditionalPolicy )
   end
 
 
@@ -207,7 +207,10 @@ END_POLICY
       if mgmtComp == false
         #logInfoMsg "found first non-security node: #{node.name}"
         # get the enclave for this node
-        @enclave = node.host.get_facet(:enclave).capitalize
+        # @policyEnclave is the guy to use for policyDelta calls
+        # I have not checked all the uses of @enclave
+        @policyEnclave = node.host.get_facet(:enclave)
+        @enclave = @policyEnclave.capitalize
         #logInfoMsg "enclave: #{@enclave}"
         @pdm = "#{@enclave}PolicyDomainManager"
         #logInfoMsg "pdm: #{@pdm}"
