@@ -48,6 +48,7 @@ import org.cougaar.core.agent.*;
 import org.cougaar.core.domain.RootFactory;
 import org.cougaar.core.domain.Factory;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.agent.ClusterIdentifier;
 
 // Cougaar security services
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
@@ -74,7 +75,7 @@ class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
       Event event = (Event)relay.getContent();
-      ret = (event.getEvent() instanceof ConsolidatedCapabilities);
+      ret = (event.getEvent() instanceof AgentRegistration);
     }
     return ret;
   }
@@ -111,7 +112,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private int firstobject=0;
   private AttributeBasedAddress mgrAddress;
   private MessageAddress myAddress;
-  
+  private ClusterIdentifier destcluster;
   private String dest_community;
   private Object param;  
   private String mgrrole=null;
@@ -168,11 +169,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       }
       if(col.size()>2) {
 	dest_agent=parameters[2];
+	 destcluster=new ClusterIdentifier(dest_agent); 
 	 if (loggingService.isDebugEnabled()) 
 	   loggingService.debug(" destination agent is :###"+dest_agent +" from "+ myAddress.toAddress());
       }
     }
-     
+   
     // This needs to be converted to make mgrAddress an AttributeBasedAddress.
     // For now, just send by name.
     //
@@ -198,6 +200,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
    */
   protected void execute () {
     // Unwrap subordinate capabilities from new/changed/deleted relays
+    loggingService.debug("Update of relay called from :"+myAddress.toAddress());
     updateRelayedCapabilities();
     if (loggingService.isDebugEnabled())
       loggingService.debug(" Execute of CapabilitiesConsolidation Plugin called !!!!!!!!"+myAddress.toAddress() );
@@ -227,6 +230,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     ConsolidatedCapabilities consCapabilities=null;
     CapabilitiesObject capabilitiesobject=null;
     capabilitiesobject=(CapabilitiesObject )list.get(firstobject);
+    printhash(capabilitiesobject);
     consCapabilities=createConsolidatedCapabilities();
     RegistrationAlert registration=null;
     Classification consclassifications[]=consCapabilities.getClassifications();
@@ -264,6 +268,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
        if (loggingService.isDebugEnabled())
 	 loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+mgrAddress.toString()); 
        addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
+    }
+    else {
+      loggingService.debug(" It is the Society manager : No need to do any thging with hash table :"+ myAddress.toString());
     }
     
   }
@@ -360,7 +367,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   
   private void addOrUpdateRelay(Event event, CmrFactory factory) {
     if (loggingService.isDebugEnabled())
-      loggingService.debug("addOrUpdateRelay");
+      loggingService.debug("addOrUpdateRelay"+ myAddress.toString());
     CmrRelay relay = null;
     // Find the (one) outgoing relay
     Iterator iter = capabilitiesRelays.iterator();
@@ -374,7 +381,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     if (relay == null) {
       if (loggingService.isDebugEnabled())
 	loggingService.debug(" No relay was present creating one for Event "+ event.toString());
-      relay = factory.newCmrRelay(event, mgrAddress);
+      relay = factory.newCmrRelay(event, destcluster);
+      //relay = factory.newCmrRelay(event, mgrAddress);
       //relay =factory.newCmrRelay(event, new MessageAddress(dest_agent));
       getBlackboardService().publishAdd(relay);
     } else {
@@ -387,7 +395,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private void updateRelayedCapabilities() {
     if (capabilitiesRelays.hasChanged()) {
       if (loggingService.isDebugEnabled())
-	loggingService.debug("capabilitiesRelays has changed ");
+	loggingService.debug("capabilitiesRelays has changed in CCP at  "+ myAddress.toString());
       CmrRelay relay;
       // New relays
       Iterator iter = capabilitiesRelays.getAddedCollection().iterator();
@@ -408,6 +416,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  Event oldCapabilities = findEventFrom(relay.getSource());
 	  if (oldCapabilities != null)
 	    getBlackboardService().publishRemove(oldCapabilities);
+	  loggingService.debug(" printing replaced  relay which is not local:=========>"
+			       +relay.getContent().toString());
 	  getBlackboardService().publishAdd(relay.getContent());
 	}
       }
@@ -437,7 +447,19 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     return null;
   }
   
-  public void printConsolidationHash() {
+  public void printhash(CapabilitiesObject cap) {
+     Enumeration keys=cap.keys();
+    String key=null;
+    RegistrationAlert registration=null;
+    loggingService.debug(" CAPABILITIES OBJECT IN ADDRESS :"+myAddress.toString());
+     while(keys.hasMoreElements()) {
+	key=(String)keys.nextElement();
+	if (loggingService.isDebugEnabled())
+	  loggingService.debug(" KEY IN CAPABILITIES OBJECT IS :"+key);
+	registration=(RegistrationAlert)cap.get(key);
+	loggingService.debug(" data od reg alert is :"+registration.toString());
+     }
+    
   }
   
   
