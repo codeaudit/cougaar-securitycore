@@ -21,10 +21,11 @@
 
 package org.cougaar.core.security.policy.enforcers;
 
-import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
+import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.DAMLServletMapping;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
+import org.cougaar.core.security.policy.enforcers.util.StringPairMapping;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 
 import java.io.IOException;
@@ -72,6 +73,7 @@ public class ServletNodeEnforcer
   private List _people;
   private NodeGuard _guard;
   private DAMLServletMapping _uriMap;
+  private Map _userRoleMap;
 
   /**
    * Returns a list of the classes controlled by this enforcer - currently 
@@ -108,7 +110,13 @@ public class ServletNodeEnforcer
 
     _uriMap = new DAMLServletMapping(sb);
     _uriMap.initializeUri();
-
+    StringPairMapping userRoleStringPairs = new StringPairMapping(sb);
+    try {
+      _userRoleMap = userRoleStringPairs.loadFunctionalMap("DamlUserRoleMap");
+    } catch (IOException e) {
+      _log.fatal("Could not initialize role mapping, servlet enforcement " +
+                 "enforcer may deny valid access");
+    }
     _sb = sb;
     _log = (LoggingService) 
       _sb.getService(this, LoggingService.class, null);
@@ -355,9 +363,18 @@ public class ServletNodeEnforcer
       return false;
     }
 
-    roles = HardWired.stripDomainFromRoles(roles);
+    Set policyRoles = new HashSet();
+    for (Iterator rolesIt = roles.iterator(); rolesIt.hasNext(); ) {
+      String role = (String) rolesIt.next();
+      String policyRole = (String) _userRoleMap.get(role);
+      if (policyRole == null && _log.isWarnEnabled()) {
+        _log.warn("No policyrole for the Ultralog role :" + role);
+      } else {
+        policyRoles.add(policyRole);
+      }
+    }
 
-    String user = UserDatabase.login(roles);
+    String user = UserDatabase.login(policyRoles);
     if (_log.isDebugEnabled()) {
       _log.debug("Obtained user = " + user);
     }
