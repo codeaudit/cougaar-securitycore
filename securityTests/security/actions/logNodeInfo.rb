@@ -93,8 +93,10 @@ module Cougaar
 		command = "ps -h -p #{nodeInfo.pid} -o pcpu,pmem,sz,rss"
 		#saveAssertion "processInfo", "#{nodeInfo.host.name} #{command}"
 		response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
-		parseMemoryUsage(nodeInfo, response.body)
-		logNodeInfo(nodeInfo)
+                if (response != nil)
+                  parseMemoryUsage(nodeInfo, response.body)
+		  logNodeInfo(nodeInfo)
+                end
 	      rescue => e
 		saveAssertion "processInfo", "Unable to get process info: #{e.message}\n#{e.backtrace.join("\n")}"
 	      end
