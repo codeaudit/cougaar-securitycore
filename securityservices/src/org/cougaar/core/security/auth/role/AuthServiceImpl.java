@@ -42,7 +42,7 @@ import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
 import kaos.policy.information.KAoSProperty;
-import safe.enforcer.NodeEnforcer;
+import kaos.policy.enforcement.Enforcer;
 import safe.guard.EnforcerManagerService;
 import safe.guard.NodeGuard;
 
@@ -50,7 +50,7 @@ import safe.guard.NodeGuard;
  * TODO: This is only a stub implementation
  */
 public class AuthServiceImpl 
-  implements AuthorizationService, NodeEnforcer {
+  implements AuthorizationService, Enforcer {
   public static final String DAML_PROPERTY = 
     "org.cougaar.core.security.policy.auth.role.useDaml";
   private static final boolean USE_OWL = Boolean.getBoolean(DAML_PROPERTY);
