@@ -13,6 +13,7 @@ require 'cougaar/scripting'
 #require './create_society.rb' 
 require './ping.rb' 
 require 'cougaar/communities' 
+require 'ultralog/scripting'
 require 'ultralog/services' 
  
 require 'socket' 
@@ -91,10 +92,11 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   # 
   # replace the last parameter with your jabber server's host name  
   do_action "StartJabberCommunications"
- 
-  do_action "DeployCommunitiesFile" 
- 
+  do_action "CleanupSociety"
   do_action "VerifyHosts" 
+  #do_action "ConnectOperatorService"
+  #do_action "ClearPersistenceAndLogs"
+  do_action "DeployCommunitiesFile" 
  
   # optional: print the cougaar events 
   # 
