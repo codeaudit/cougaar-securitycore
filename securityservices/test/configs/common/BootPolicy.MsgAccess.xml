@@ -13,16 +13,12 @@
 	
 	<!-- action on message criticality, either ACCEPT or SET_ASIDE -->
 	<MessageAction>
-		<CriticalityLevel>Criticality0</CriticalityLevel>
-		<MsgAction>SET_ASIDE</MsgAction> 
-	</MessageAction> 
-	<MessageAction>
 		<CriticalityLevel>Criticality1</CriticalityLevel>
 		<MsgAction>SET_ASIDE</MsgAction> 
 	</MessageAction> 
 	<MessageAction>
 		<CriticalityLevel>Criticality2</CriticalityLevel>
-		<MsgAction>ACCEPT</MsgAction> 
+		<MsgAction>SET_ASIDE</MsgAction> 
 	</MessageAction> 
 	<MessageAction>
 		<CriticalityLevel>Criticality3</CriticalityLevel>
@@ -30,6 +26,10 @@
 	</MessageAction> 
 	<MessageAction>
 		<CriticalityLevel>Criticality4</CriticalityLevel>
+		<MsgAction>ACCEPT</MsgAction> 
+	</MessageAction> 
+	<MessageAction>
+		<CriticalityLevel>Criticality5</CriticalityLevel>
 		<MsgAction>ACCEPT</MsgAction> 
 	</MessageAction> 
 
