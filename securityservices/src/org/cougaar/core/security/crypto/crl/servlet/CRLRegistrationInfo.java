@@ -62,8 +62,8 @@ import org.cougaar.core.security.crypto.crl.blackboard.*;
  */
 public class CRLRegistrationInfo extends BaseServletComponent implements BlackboardClient  {
 
-  private MessageAddress agentId;
   private AgentIdentificationService ais;
+  private MessageAddress agentId;
   private BlackboardService blackboard;
   private DomainService ds;
   private CommunityService cs;
@@ -82,14 +82,7 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
     path=(String)l.get(0);
   }
 
-  public void setAgentIdentificationService(AgentIdentificationService ais) {
-    if (ais == null) {
-      throw new IllegalArgumentException("AgentIdentificationService is null");
-    }
-    this.ais = ais;
-    agentId = ais.getMessageAddress();
-  } 
-   public void setBlackboardService(BlackboardService blackboard) {
+  public void setBlackboardService(BlackboardService blackboard) {
     this.blackboard = blackboard;
   }
 
@@ -113,8 +106,14 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
     // FIXME release the rest!
   }
   
+  public void init(ServletConfig config)
+    throws ServletException {
+    ais = (AgentIdentificationService)
+      serviceBroker.getService(this, AgentIdentificationService.class, null);
+    agentId = ais.getMessageAddress();
+  }
 
-    public String getBlackboardClientName() {
+  public String getBlackboardClientName() {
     return toString();
   }
 
