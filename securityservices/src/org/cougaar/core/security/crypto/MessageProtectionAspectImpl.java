@@ -109,76 +109,30 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
     }
 
     public MessageAttributes deliverMessage(AttributedMessage msg) {
-      Object sign = msg.getAttribute(SIGNATURE_NEEDED);
-      if (sign != null) {
+      Object contents = msg.getRawMessage();
+      if (contents instanceof StopSigningMessage) {
         String source = msg.getOriginator().toAddress();
         String target = msg.getTarget().toAddress();
         if (_plmsgcounter++ > _warnCount && _log.isInfoEnabled()) {
           _log.info("Another " + _warnCount + " ProtectionLevel messages received");
           _plmsgcounter = 0;
         }
-        boolean signMessage;
-        if (sign instanceof Boolean) {
-          signMessage = ((Boolean) sign).booleanValue();
-        } else {
-          signMessage = Boolean.valueOf(sign.toString()).booleanValue();
-        }
         if (_log.isInfoEnabled()) {
           _log.info("Got a message from " + source +
-                    " to " + (signMessage? "start" : "stop") + 
-                    " signing messages sent from " + target);
+                    " to stop signing messages sent from " + target);
         }
-        if (signMessage) {
-          _crypto.setSendNeedsSignature(target, source);
-        } else {
-          try {
-            Hashtable certs = _keyRing.findCertPairFromNS(target, source);
-            if (certs != null) {
-              X509Certificate cert = (X509Certificate) certs.get(source);
-              _crypto.removeSendNeedsSignature(target, 
-                                               source, 
-                                               cert);
-            }
-          } catch (Exception e) {
-            _log.warn("Can't remove signature requirement for agent pair " +
-                      target + ", " + source + ": " + e, e);
+        try {
+          Hashtable certs = _keyRing.findCertPairFromNS(target, source);
+          if (certs != null) {
+            X509Certificate cert = (X509Certificate) certs.get(source);
+            _crypto.removeSendNeedsSignature(target, 
+                                             source, 
+                                             cert);
           }
+        } catch (Exception e) {
+          _log.warn("Can't remove signature requirement for agent pair " +
+                    target + ", " + source + ": " + e, e);
         }
-        MessageAttributes meta = new SimpleMessageAttributes();
-        meta.setAttribute(MessageAttributes.DELIVERY_ATTRIBUTE,
-                          MessageAttributes.DELIVERY_STATUS_DROPPED);
-        return meta;
-      }
-
-      Object cert = msg.getAttribute(NEW_CERT);
-      if (cert != null) {
-        // Just refresh the LDAP, it is easier than modifying the certificate
-        // in the cache. Perhaps a performance improvement later?
-        if (_log.isInfoEnabled()) {
-          _log.info("Got a certificate change message from " + 
-                    msg.getOriginator().toAddress());
-        } // end of if (_log.isInfoEnabled())
-        
-        List certs = _keyRing.findCert(msg.getOriginator().toAddress(), 
-                                       KeyRingService.LOOKUP_FORCE_LDAP_REFRESH | 
-                                       KeyRingService.LOOKUP_LDAP | 
-                                       KeyRingService.LOOKUP_KEYSTORE );
-	ProtectedMessageOutputStream.
-	    clearCertCache(msg.getTarget().toAddress(),
-			   msg.getOriginator().toAddress());
-        if (_log.isDebugEnabled()) {
-          _log.debug("Got " + certs.size() + " certificates");
-          Iterator iter = certs.iterator();
-          while (iter.hasNext()) {
-            CertificateStatus cs = (CertificateStatus) iter.next();
-            if (cs.getCertificate().equals(cert)) {
-              _log.debug("The certificate is in the list");
-              break;
-            } // end of if (cs.getCertificate().equals(cert))
-          } // end of while (iter.hasNext())
-        } // end of if (_log.isDebugEnabled())
-        
-        // now just drop the message
         MessageAttributes meta = new SimpleMessageAttributes();
         meta.setAttribute(MessageAttributes.DELIVERY_ATTRIBUTE,
                           MessageAttributes.DELIVERY_STATUS_DROPPED);

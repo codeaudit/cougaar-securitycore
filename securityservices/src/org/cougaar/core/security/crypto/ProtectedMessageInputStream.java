@@ -42,6 +42,7 @@ import java.security.SignatureException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
+import java.util.HashSet;
 import java.util.Hashtable;
 
 import javax.crypto.Cipher;
@@ -96,7 +97,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
   private static final int START_SIGNING = 1;
   private static final int STOP_SIGNING  = 2;
-  private static Hashtable alreadySentPLMsg = new Hashtable();
+  private static HashSet toldToSign = new HashSet();
 
   private static boolean replyProblemWarned = false;
 
@@ -106,9 +107,8 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
                                      boolean encryptedSocket,
                                      boolean isReply,
                                      ServiceBroker sb)
-    throws GeneralSecurityException, IncorrectProtectionException, 
-    IOException {
-
+    throws GeneralSecurityException, IOException
+  {
     super(null);
     init(sb);
 
@@ -168,11 +168,8 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
           _log.debug("Policy mismatch for message from " + _source + 
                      " to " + _target + " for policy " + headerPolicy);
         }
-
-        if (encryptedSocket && 
-            headerPolicy.secureMethod == SecureMethodParam.PLAIN &&
-            (!alreadyToldToStartSigning() || resendProtectionLevelAnyway())) {
-          sendSignatureValid(false); // please send me the signature next time
+        if (policyValidity == CryptoPolicyService.CRYPTO_SHOULD_SIGN) {
+          tellingToSign();
         }
         throw new IncorrectProtectionException(policyValidity);
       }
@@ -268,7 +265,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       if (_encryptedSocket && (!alreadyToldToStopSigning() ||
                                resendProtectionLevelAnyway())) {
         _crypto.setReceiveSignatureValid(_source, _senderCert);
-        sendSignatureValid(true);
+        sendStopSigningMessage();
       }
     }
     _eom = true;
@@ -280,48 +277,11 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     }
   }
 
-
-  private void sendSignatureValid(boolean isValid) {
-    if (_log.isInfoEnabled()) {
-      String vmsg;
-      if (isValid) {
-        vmsg = "stop";
-      } else {
-        vmsg = "start";
-      }
-      _log.info("Telling " + _source + " to " + vmsg +
-                " signing when talking to " + _target);
-    } 
+  private void sendStopSigningMessage() 
+  {
     MessageAddress source = MessageAddress.getMessageAddress(_target);
     MessageAddress target = MessageAddress.getMessageAddress(_source);
-    ProtectionLevelMessage pmsg = 
-      new ProtectionLevelMessage(source, target, !isValid);
-    sendProtectionMessage(pmsg);
-  }
-
-  private void sendUseNewCert() {
-    if (_log.isInfoEnabled()) {
-      _log.info("Telling " + _source + " to start using new certificate " +
-                "when talking to " + _target);
-    }
-    try {
-      Hashtable certTable = _keyRing.findCertPairFromNS(_source, _target);
-      X509Certificate cert = (X509Certificate) certTable.get(_target);
-      MessageAddress source = MessageAddress.getMessageAddress(_target);
-      MessageAddress target = MessageAddress.getMessageAddress(_source);
-      ProtectionLevelMessage pmsg = 
-        new ProtectionLevelMessage(source, target, cert);
-      sendProtectionMessage(pmsg);
-    } catch (Exception e) {
-      if (_log.isWarnEnabled()) {
-        _log.warn("Can't send a message to " + _source + 
-                  " to say that a new certificate is necessary: " +
-                  e.getMessage());
-      }
-    }
-  }
-
-  private void sendProtectionMessage(ProtectionLevelMessage pmsg) {
+    StopSigningMessage msg = new StopSigningMessage(source, target);
     if (_plmsgcounter++ > _warnCount) {
       _plmsgcounter = 0;
       if (_log.isInfoEnabled()) {
@@ -330,25 +290,16 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     }
     SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
     if (sendQ != null) {
-      AttributedMessage msg = 
-        new AttributedMessage(pmsg);
-//       int contentsId = ~_source.hashCode() ^ _target.hashCode() ^ 
-//         pmsg.hashCode();
-      msg.setContentsId(_random.nextInt());
-      if (pmsg.getMessageType() ==  pmsg.SIGNATURE_NEEDED) {
-        msg.setAttribute(MessageProtectionAspectImpl.SIGNATURE_NEEDED,
-                         new Boolean(pmsg.isSignatureNeeded()));
-      } else {
-        msg.setAttribute(MessageProtectionAspectImpl.NEW_CERT,
-                         pmsg.getCertificate());
+      AttributedMessage amsg = 
+        new AttributedMessage(msg);
+      amsg.setContentsId(_random.nextInt());
+      sendQ.sendMessage(amsg);
+      if (_log.isDebugEnabled()) {
+        _log.debug("Sent message: " + amsg);
       }
-      sendQ.sendMessage(msg);
-      _log.debug("Sent message: " + msg);
     } else if (_log.isWarnEnabled()) {
       _log.warn("Could not send message to " + _source + 
-                " to use a new certificate. Make sure that " +
-                "org.cougaar.core.security.crypto.MessagePr" +
-                "otectionAspectImpl is used.");
+                " to stop signing");
     }
   }
 
@@ -456,8 +407,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
                                         encKey, policy.symmSpec,
                                         header.getSender()[0]);
       } catch (GeneralSecurityException e2) {
-        sendUseNewCert();
-        throw new IncorrectProtectionException(header.getReceiver());
+        throw new SenderUsingInvalidCertException(header.getReceiver());
       }
     }
 
@@ -630,27 +580,25 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
   private boolean alreadyToldToStopSigning()
   {
-    return alreadyToldProtectionLevel(STOP_SIGNING);
-  }
-
-  private boolean alreadyToldToStartSigning()
-  {
-    return alreadyToldProtectionLevel(START_SIGNING);
-  }
-
-  private boolean alreadyToldProtectionLevel(int val)
-  {
-    synchronized(alreadySentPLMsg) {
+    synchronized(toldToSign) {
       ConnectionInfo ci = new ConnectionInfo(_source,null,_target);
-      Object previous = alreadySentPLMsg.get(ci);
-      if (previous != null && ((Integer) previous).intValue() == val) {
+      if (toldToSign.contains(ci)) {
         return true;
       } else {
-        alreadySentPLMsg.put(ci, new Integer(val));
+        toldToSign.add(ci);
         return false;
       }
     }
   }
+
+  private void tellingToSign()
+  {
+    synchronized(toldToSign) {
+      ConnectionInfo ci = new ConnectionInfo(_source,null,_target);
+      toldToSign.remove(ci);
+    }
+  }
+
 
   private synchronized boolean resendProtectionLevelAnyway()
   {

@@ -794,15 +794,6 @@ public class MessageProtectionServiceImpl
       return new ProtectedMessageInputStream(is, source, destination,
                                              encryptedSocket, isReply,
                                              serviceBroker);
-    } catch (IncorrectProtectionException e) {
-      // The stream has already reported the error. Just throw
-      // an IOException
-      //      FailureEvent event = new MessageFailureEvent(source.toString(),
-      //                                           destination.toString(),
-      //                                                   e.getMessage(),
-      //                                                   e.toString());
-      //      MessageFailureSensor.publishEvent(event);
-      throw new IOException(e.getMessage());
     } catch (GeneralSecurityException e) {
       String reason = MessageFailureEvent.UNKNOWN_FAILURE;
     

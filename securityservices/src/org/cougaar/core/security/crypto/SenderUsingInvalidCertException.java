@@ -28,35 +28,26 @@
 package org.cougaar.core.security.crypto;
 
 import java.io.IOException;
-import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import java.security.cert.X509Certificate;
 
-public class IncorrectProtectionException 
+
+public class SenderUsingInvalidCertException
   extends IOException
   implements java.io.Serializable 
 {
+  private X509Certificate   _cert = null;
 
-  private int _policyValidity = CryptoPolicyService.CRYPTO_POLICY_VALID;
-
-  public IncorrectProtectionException(int policyValidity) {
-    _policyValidity = policyValidity;
+  public SenderUsingInvalidCertException(X509Certificate cert) {
+    _cert = cert;
   }
 
-  public int reason()
+  public X509Certificate getCertificate() {
+    return _cert;
+  }
+
+  public String getMessage() 
   {
-    return _policyValidity;
-  }
-
-  public String getMessage() {
-    if (_policyValidity == CryptoPolicyService.CRYPTO_SHOULD_SIGN) {
-      return "Sender should be signing, Probable cause = new ssl credentials or policy mismatch";
-    } else if (_policyValidity == CryptoPolicyService.CRYPTO_SHOULD_ENCRYPT) {
-      return "Sender should be encrypting, Probable cause = policy mismatch";
-    } else if (_policyValidity == CryptoPolicyService.CRYPTO_UNAVAILABLE) {
-      return "Policy requires unavailable encryption scheme.";
-    } else if (_policyValidity != CryptoPolicyService.CRYPTO_POLICY_VALID) {
-      return "Unknown policy exception (see CryptoPolicyService.java) - " 
-        + _policyValidity;
-    }
-    return "Invalid policy";
+    return "Private key for certificate could not be found: " +
+               _cert == null ? "Null Cert" :_cert.getSubjectDN().getName();
   }
 }
