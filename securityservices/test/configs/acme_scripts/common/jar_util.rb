@@ -1,6 +1,6 @@
 require 'thread'
 
-if defined? File.rm_all == nil
+if (defined? File.rm_all) == nil
   # copied from misc so it isn't required in security services
   class File
     def self.rm_all(entry)
