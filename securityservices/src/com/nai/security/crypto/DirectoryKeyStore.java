@@ -108,9 +108,6 @@ public class DirectoryKeyStore implements Runnable
 
       param = aParam;
 
-      // Load crypto providers
-      CryptoProviders.loadCryptoProviders();
-
       // LDAP certificate directory
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
@@ -231,7 +228,7 @@ public class DirectoryKeyStore implements Runnable
 			   + " was found in keystore, generating...");
       }
       if (!param.standalone) {
-	//let's make our own key pair
+	// let's make our own key pair
 	pk = addKeyPair(commonName, null);
       }
     }
@@ -267,18 +264,6 @@ public class DirectoryKeyStore implements Runnable
 
     CertificateStatus certstatus=null;
 
-    /*
-    String alias = (String) commonName2alias.get(commonName);
-    if (alias == null) {
-      // Key does not exist in keystore
-      if (debug) {
-	System.out.println("Certificate [" + commonName
-			   + "] not in key store");
-	listKeyStoreAlias(keystore, keystorePath);
-      }
-    }
-    */
-
     // Refresh from LDAP service if requested
     if ((lookupType & LOOKUP_FORCE_LDAP_REFRESH) != 0) {
       // Update cache with certificates from LDAP.
@@ -291,6 +276,9 @@ public class DirectoryKeyStore implements Runnable
     }
 
     // Search in the local hash map.
+    if (debug) {
+      System.out.println("Search key in local hash table:" + commonName);
+    }
     certstatus = certCache.getCertificateByCommonName(commonName);
     if(certstatus != null) {
       if((lookupType & LOOKUP_LDAP) != 0 &&
@@ -323,10 +311,12 @@ public class DirectoryKeyStore implements Runnable
     if (debug) {
       if (cert != null) {
 	System.out.println("DirectoryKeyStore.findCert: " + commonName
-			   + " - Cert origin: " + certstatus.getCertificateOrigin());
+			   + " - Cert origin: "
+			   + certstatus.getCertificateOrigin());
       }
       else {
-	System.out.println("DirectoryKeyStore.findCert: " + commonName + " not found");
+	System.out.println("DirectoryKeyStore.findCert: "
+			   + commonName + " not found");
       }
     }
 
@@ -577,6 +567,9 @@ public class DirectoryKeyStore implements Runnable
   private void setKeyEntry(String alias, PrivateKey privatekey,
 			   X509Certificate[] certificate)
   {
+    if (debug) {
+      System.out.println("Setting keystore private key entry:" + alias);
+    }
     addCN2alias(alias, certificate[0]);
     try {
       keystore.setKeyEntry(alias, privatekey, param.keystorePassword,
@@ -591,6 +584,9 @@ public class DirectoryKeyStore implements Runnable
 
   private void setCertificateEntry(String alias, X509Certificate aCertificate)
   {
+    if (debug) {
+      System.out.println("Setting keystore certificate entry:" + alias);
+    }
     addCN2alias(alias, aCertificate);
     try {
       keystore.setCertificateEntry(alias, aCertificate);
@@ -1031,7 +1027,8 @@ public class DirectoryKeyStore implements Runnable
 
     try {
       if (debug) {
-	System.out.println("Signing certificate request with alias=" + signerAlias);
+	System.out.println("Signing certificate request with alias="
+			   + signerAlias);
       }
       request.encodeAndSign(x500signer);
     }
@@ -1043,9 +1040,11 @@ public class DirectoryKeyStore implements Runnable
 						   CertificateUtility.PKCS10HEADER,
 						   CertificateUtility.PKCS10TRAILER);
 
+    /*
     if (debug) {
-      System.out.println("generateSigningCertificateRequest:\n" + reply);
+      System.out.println("GenerateSigningCertificateRequest:\n" + reply);
     }
+    */
     return reply;
   }
 
@@ -1122,11 +1121,13 @@ public class DirectoryKeyStore implements Runnable
     String request = "";
     String reply = "";
 
-    if (debug) {
-      System.out.println("Creating key pair for " + commonName);
-    }
     //is node?
     String nodeName = NodeInfo.getNodeName();
+
+    if (debug) {
+      System.out.println("Creating key pair for " + commonName + " - Node name:" + nodeName);
+    }
+
     if (nodeName == null && debug) {
       System.out.println("DirectoryKeyStore Error: Cannot get node name");
       return null;
@@ -1134,7 +1135,7 @@ public class DirectoryKeyStore implements Runnable
     String alias = null;
     PrivateKey privatekey = null;
     try {
-      if(commonName == nodeName){
+      if(commonName.equals(nodeName)){
 	// We are node
 	if (keyAlias != null) {
 	  // Do not create key. There is already one in the keystore.
@@ -1166,6 +1167,9 @@ public class DirectoryKeyStore implements Runnable
       } else {
 	// check if node cert exist
 	// Don't lookup in LDAP, the key should be in the local keystore
+	if (debug) {
+	  System.out.println("Searching node key: " + nodeName);
+	}
 	X509Certificate nodex509 = findCert(nodeName, LOOKUP_KEYSTORE);
 	if(nodex509 == null) {
 	  //we don't have a node key pair, so make it
@@ -1173,13 +1177,25 @@ public class DirectoryKeyStore implements Runnable
 	    System.out.println("Recursively creating key pair for node: " + nodeName);
 	  }
 	  addKeyPair(nodeName, null);
+	  if (debug) {
+	    System.out.println("Node key created: " + nodeName);
+	  }
 	}
 	// The Node key should exist now (we may have just added it
 	// recursively).
+	if (debug) {
+	  System.out.println("Searching node key again: " + nodeName);
+	}
 	nodex509 = (X509Certificate) findCert(nodeName, LOOKUP_KEYSTORE);
+	if (debug) {
+	  System.out.println("Node key is: " + nodex509);
+	}
 	if (nodex509 == null) {
 	  // There was a problem during the generation of the node's key.
 	  // Stop the procedure.
+	  if (debug) {
+	    System.out.println("Error: Unable to get node's key");
+	  }
 	  return null;
 	}
 	if (keyAlias != null) {
@@ -1215,6 +1231,15 @@ public class DirectoryKeyStore implements Runnable
       try{ 
 	installPkcs7Reply(alias, new ByteArrayInputStream(reply.getBytes()));
 	privatekey = (PrivateKey) keystore.getKey(alias, param.keystorePassword);
+      } catch (java.security.cert.CertificateNotYetValidException e) {
+	if (debug) {
+	  Date d = new Date();
+	  System.err.println("Error: Certificate not yet valid for:"
+			     + commonName
+			     + " (" + e + ")"
+			     + " Current date is " + d.toString());
+	  e.printStackTrace();
+	}
       } catch(Exception e) {
 	if (debug) {
 	  System.err.println("Error: can't get certificate for " + commonName);
@@ -1433,7 +1458,8 @@ public class DirectoryKeyStore implements Runnable
 	  sigAlgName = "MD5WithRSA";
 	else
 	  throw new Exception("Cannot derive signature algorithm");
-    CertAndKeyGen certandkeygen = new CertAndKeyGen(keyAlgName, sigAlgName);
+    KeyCertGenerator certandkeygen = new KeyCertGenerator(keyAlgName,
+							  sigAlgName, null);
     X500Name x500name;
     x500name = new X500Name(dname);
     if (debug) {
@@ -1460,22 +1486,28 @@ public class DirectoryKeyStore implements Runnable
     certCache.addPrivateKey(privatekey, certstatus);
   }
   
-  public void checkOrMakeCert(String name){
-      //check first
-      X509Certificate c = null;
-      try{
-        c = findCert(name, LOOKUP_KEYSTORE);
-	if(c!=null) {
-	  return;
-	}
+  public void checkOrMakeCert(String name) {
+    if (debug) {
+      System.out.println("CheckOrMakeCert: " + name);
+    }
+    //check first
+    X509Certificate c = null;
+    try{
+      c = findCert(name, LOOKUP_KEYSTORE);
+      if(c!=null) {
+	return;
       }
-      catch(Exception e){
-	System.err.println("Can't locate the certificate for:"+name
-			   +"--"+e+".generating new one...");
-	e.printStackTrace();
-      }
-      //we'll have to make one
-      addKeyPair(name, null);
+    }
+    catch(Exception e){
+      System.err.println("Can't locate the certificate for:"+name
+			 +"--"+e+".generating new one...");
+      e.printStackTrace();
+    }
+    if (debug) {
+      System.out.println("checkOrMakeCert: creating key for " + name);
+    }
+    //we'll have to make one
+    addKeyPair(name, null);
   }
 
   /** Build a search filter for LDAP based on the distinguished name
