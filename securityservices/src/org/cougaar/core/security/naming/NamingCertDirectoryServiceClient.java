@@ -88,9 +88,16 @@ public class NamingCertDirectoryServiceClient {
       else {
         nodeupdated = true;
 
+        if (log.isDebugEnabled()) {
+          log.debug("updating other cert entries now node cert is created.");
+        }
         synchronized (certCache) {
           for (Iterator it = certCache.values().iterator(); it.hasNext(); ) {
             CertificateEntry cachedEntry = (CertificateEntry)it.next();
+            if (log.isDebugEnabled()) {
+              log.debug("updating " + cachedEntry.getCertificate().getSubjectDN()
+                + " after node cert updated in naming.");
+            }
             updateCert(cachedEntry);
           }
         }
@@ -133,7 +140,7 @@ public class NamingCertDirectoryServiceClient {
       }
       entry = new NamingCertEntry();
     }
-    entry.addEntry(dname, certEntry);
+    entry.addEntry(dname, certEntry, true);
     updateCert(cname, entry);
 
     return true;
@@ -193,7 +200,7 @@ public class NamingCertDirectoryServiceClient {
 
   // for now when an identity starts it will overwrite the original
   // naming service entry (the entry it updated at last start)
-  private void updateCert(String cname, Cert entry) throws Exception {
+  public void updateCert(String cname, Cert entry) throws Exception {
     URI certURI =
       URI.create("cert://"+cname);
     AddressEntry certEntry =

@@ -28,6 +28,7 @@ package org.cougaar.core.security.naming;
 
 import java.util.*;
 import java.security.cert.*;
+import java.security.*;
 import sun.security.x509.*;
 
 import org.cougaar.core.service.wp.*;
@@ -46,8 +47,21 @@ final public class NamingCertEntry extends Cert
   ArrayList dnList = new ArrayList();
   CertificateType certType = CertificateType.CERT_TYPE_END_ENTITY;
 
-  public void addEntry(String dname, CertificateEntry certEntry) {
-    dnList.add(dname);
+  public void addEntry(String dname, CertificateEntry certEntry, boolean overwrite) {
+    if (!dnList.contains(dname)) {
+      dnList.add(dname);
+    }
+    PublicKey pubKey = certEntry.getCertificate().getPublicKey();
+    for (int i = 0; i < certList.size(); i++) {
+      CertificateEntry acertEntry = (CertificateEntry)certList.get(i);
+      if (acertEntry.getCertificate().getPublicKey().equals(pubKey)) {
+        // duplicate entry
+        if (overwrite) {
+          certList.set(i, certEntry);
+        }
+        return;
+      }
+    }
     certList.add(certEntry);
   }
 
