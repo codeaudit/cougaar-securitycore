@@ -117,18 +117,27 @@ public class LinkProtocolAspect
      * processing of messages in DestinationQueueImpl. */
     public int cost(AttributedMessage message) 
     {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Entering cost function");
+      }
       int cost = super.cost(message);
+      if (_log.isDebugEnabled()) {
+        _log.debug("original cost = " + cost + " for " + getProtocolClass());
+      }
 
       if (cost == Integer.MAX_VALUE) { 
         return cost; 
-      } else if (!super.getProtocolClass().equals(RMILinkProtocol.class)
-          && !super.getProtocolClass().getName().equals(HTTP_PROTOCOL)) {
+      } else if (!getProtocolClass().equals(RMILinkProtocol.class)
+          && !getProtocolClass().getName().equals(HTTP_PROTOCOL)) {
         return cost;
       }
 
       String source = message.getOriginator().toAddress();
       String target = message.getTarget().toAddress();
 
+      if (_log.isDebugEnabled()) {
+        _log.debug("before policy check");
+      }
       SecureMethodParam smp = _cps.getSendPolicy(source, target);
       if (_log.isDebugEnabled()) {
         _log.debug("Policy = " + smp);
