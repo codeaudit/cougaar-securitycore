@@ -448,18 +448,19 @@ public class Main
       List deletePolicies = parsed.getDeletedList();
       List parsedPolicies = parsed.policies();
       if (needsConnect) {
-        printMessage("Connecting to domain manager & loading declarations");
+        printMessage("Connecting to domain manager");
         connectDomainManager();
+        printMessage("Loading declarations");
         PolicyUtils.verbsLoaded();
-        PolicyUtils.autoGenerateGroups(parsed.declarations(), 
-                                       parsed.agentGroupMap());
-
-        if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
-          printMessage("Reasoning depth insufficient. Try setting a larger value with the");
-          printMessage("--maxdepth option");
-          printMessage("Policies not built as they would be incorrect");
-          System.exit(-1);
-        }
+      }
+      PolicyUtils.autoGenerateGroups(parsed.declarations(), 
+                                     parsed.agentGroupMap());
+      
+      if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
+        printMessage("Reasoning depth insufficient. Try setting a larger value with the");
+        printMessage("--maxdepth option");
+        printMessage("Policies not built as they would be incorrect");
+        System.exit(-1);
       }
       commitUnconditionalPolicies(parsedPolicies, deletePolicies);
       commitConditionalPolicies(parsedPolicies);
