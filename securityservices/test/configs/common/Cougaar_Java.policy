@@ -254,6 +254,7 @@ grant signedBy "bootstrapper" {
 // Permissions for core infrastructure package.
 grant signedBy "privileged" {
  	permission org.cougaar.core.security.provider.SecurityServicePermission "*";	
+	permission org.cougaar.core.security.access.AccessPermission "org.cougaar.core.service.MessageTransportService";
 	// Temporary until BUG 1264 is fixed:
 	permission java.util.PropertyPermission "*", "read,write";
 
@@ -495,6 +496,10 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}", "read, write";
 
 	permission java.io.FilePermission "${/}proc${/}-", "read";
+
+	permission java.io.FilePermission "${/}mnt${/}difs${/}3459${/}*", "read, write, delete";
+	permission java.io.FilePermission "${/}mnt${/}difs${/}3459${/}-", "read, write, delete";
+	permission java.io.FilePermission "${/}mnt${/}difs${/}3459${/}", "read, write, delete";
 
 	// "persistence.clear=true" requires the permission to delete files in the
 	// the org.cougaar.workspace/P directory
