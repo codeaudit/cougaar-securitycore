@@ -73,10 +73,9 @@ import com.hp.hpl.jena.daml.common.DAMLModelImpl;
 import kaos.ontology.util.DAMLModelUtils;
 
 /**
- * Expands a DAML policy into XML that can be directly enforced. Currently
+ * Expands a DAML policy into either another DAML policy or XML. Currently
  * this expansion is fake, using a matching technique of the DAML to
- * guaranteed input and looking it up in a table and giving the XML output
- * in response.
+ * the new policy.
  */
 public class DamlExpander  extends SimplePlugin {
 
@@ -84,93 +83,154 @@ public class DamlExpander  extends SimplePlugin {
   private LoggingService            _log;
   private List                      _damlMap = new ArrayList();
   private IncrementalSubscription   _upu;
-  private String                    _expanderFile = "expander.txt";
+  private String                    _expanderFile = "expansion.list";
+  private int                       _expansionNum = 1;
+  private boolean                   _lastExpansion = true;
+
+  private static final UnaryPredicate FIRST_EXPANSION = new UnaryPredicate() {
+      public boolean execute(Object o) {
+        return (o instanceof UnexpandedPolicyUpdate &&
+                !(o instanceof DamlPolicyExpansion));
+      }
+    };
 
   private UnaryPredicate _unexPolicyUpdatePredicate = new UnaryPredicate() {
       public boolean execute(Object o) {
-        return (o instanceof UnexpandedPolicyUpdate);
+        if (o instanceof DamlPolicyExpansion) {
+          DamlPolicyExpansion dpe = (DamlPolicyExpansion) o;
+          return (dpe.getExpansionNum() == _expansionNum);
+        }
+        return false;
       }
     };
 
   /**
    * Sets the input parameter. The parameter is a filename containing
-   * DAML filename/XML filename pairs. The DAML file name is loaded
-   * and matched against new DAML policy on the blackboard
-   * and the corresponding XML policy is then published.
+   * DAML filename/DAML filename pairs.
    * 
    * @param o A <code>List</code> of paramters - only one is allowed.
    */
   public void setParameter(Object params) {
     List l = (List) params;
-    if (l.size() != 1) {
+    if (l.size() < 1) {
       throw new IllegalArgumentException("You must have one and only one parameter to DamlExpander");
     } // end of if (l.size() != 1)
     _expanderFile = (String) l.get(0);
+    if (l.size() >= 2) {
+      _expansionNum = Integer.parseInt((String) l.get(1));
+    } // end of if (l.size() >= 2)
+    if (l.size() > 2) {
+      _lastExpansion = Boolean.valueOf((String) l.get(2)).booleanValue();
+    } 
+  }
+
+  /**
+   * reports errors in the triple-to-expansion file
+   */
+  private void logFileError(int lineNum, File f, String message) {
+    if (message == null) {
+      message = "Expecting a pair of quoted triple file names";
+    } // end of if (message == null)
+    
+    _log.warn("Error on line: " + lineNum + " of " + f + ": " + message);
   }
 
   /**
    * Loads the expander table from the file. The file name must contain
    * lines that have 2 or more quoted strings in it separated by whitespace.
    * The first quoted string contains the file name of the DAML triples to
-   * match against the input DAML policy. The second and further string is
-   * the file name of XML data to publish to the blackboard when the DAML
-   * matches. 
+   * match against the input DAML policy. The rest are file names that
+   * either contain DAML triples (for DAML-to-DAML expansion) or XML
+   * for (DAML-to-XML policy expansion).
    */
   private void loadExpanderFile(String fileName) {
     try {
-       
-    ConfigFinder cf = ConfigFinder.getInstance();
-    File f = cf.locateFile(fileName);
-    BufferedReader fileIn = new BufferedReader(new FileReader(f));
-    String line;
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    DocumentBuilder db = dbf.newDocumentBuilder();
-    while ((line = fileIn.readLine()) != null) {
-      line = line.trim();
-      if (line.startsWith("#") || line.length() == 0) {
-        continue; // a comment on this line
-      } // end of if (line.startsWith("#") || line.length() == 0)
-      
-      StringTokenizer tok = new StringTokenizer(line,"\"");
-      String triple = tok.nextToken();
-      File tripleFile = cf.locateFile(triple);
-      if (tripleFile == null) {
-        if (_log.isWarnEnabled()) {
-          _log.warn("Could not find triple file " + triple + " in config path.");
-        } // end of if (_log.isWarnEnabled())
-        continue;
-      } // end of if (tripleFile == null)
-      
-      DAMLModel policyIn = new DAMLModelImpl();
-      policyIn.read(tripleFile.toURL().toString(), "N-TRIPLE");
-      Model model = Forgetful.copy(policyIn);
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilder db = dbf.newDocumentBuilder();
+      ConfigFinder cf = ConfigFinder.getInstance();
+      File f = cf.locateFile(fileName);
+      BufferedReader fileIn = new BufferedReader(new FileReader(f));
+      String line;
+      int lineNum = 0;
+      while ((line = fileIn.readLine()) != null) {
+        // read a line
+        lineNum++;
+        line = line.trim();
+        if (line.startsWith("#") || line.length() == 0) {
+          continue; // a comment on this line
+        } // end of if (line.startsWith("#") || line.length() == 0)
 
-      ArrayList xmlDocs = new ArrayList();
-      while (tok.hasMoreTokens()) {
-        tok.nextToken(); // between the two strings
-        if (!tok.hasMoreTokens()) {
-          break; // there's nothing left
-        } // end of if (!tok.hasMoreTokens())
-        String xml = tok.nextToken();
-        File xmlFile = cf.locateFile(xml);
-        // pretend for now that I only need a string
-        FileReader fxml = new FileReader(xmlFile);
-        char buf[] = new char[5000];
-        StringBuffer sbuf = new StringBuffer();
-        int len;
-        while ((len = fxml.read(buf)) != -1) {
-          sbuf.append(buf,0,len);
-        } // end of while ((len = fxml.read(buf)) > 0)
-        InputSource fromString = 
-          new InputSource(new StringReader(sbuf.toString()));
-        xmlDocs.add(db.parse(fromString));
-      } // end of while (tok.hasMoreTokens())
-      _damlMap.add(new NVPair(model, (Document[])
-                              xmlDocs.toArray(new Document[xmlDocs.size()])));
-    } // end of while ((line = fileIn.readLine()) != null)
+        Object expansion[] = parseExpansion(line, lineNum, f, db, cf);
+        if (expansion != null) {
+          _damlMap.add(expansion);
+        } // end of if (expansion != null)
+      } // end of while ((line = fileIn.readLine()) != null)
     } catch (Exception e) {
       _log.error("Couldn't load the expander file", e);
     } // end of try-catch
+  }
+
+  /**
+   * parses one line of the daml-to-expansion file
+   */
+  private Object[] parseExpansion(String line, int lineNum, File f,
+                                  DocumentBuilder db,
+                                  ConfigFinder cf) {
+    StringTokenizer tok = new StringTokenizer(line,"\"");
+
+    ArrayList expansion = new ArrayList();
+    while (tok.hasMoreTokens()) {
+      String fname = tok.nextToken();
+      File file = cf.locateFile(fname);
+
+      if (file == null) {
+        logFileError(lineNum, f, "Could not find file " + fname + 
+                     " in config path.");
+        return null;
+      } // end of if (file == null)
+
+      try {
+        // try policy expansion
+        Document xmlDoc = db.parse(file);
+        Element l = xmlDoc.getDocumentElement();
+        String type = l.getAttribute("type");
+        String name = l.getAttribute("name");
+        if (type == null || name == null) {
+          logFileError(lineNum, f, "XML policy from " + file + 
+                       " must have a name and type attribute");
+          return null;
+        } // end of if (type == null || name == null)
+        expansion.add(xmlDoc);
+      } catch (Exception e2) {
+        try {
+          // not an XML document, try DAML triples
+          DAMLModel policy = new DAMLModelImpl();
+          policy.read(file.toURL().toString(), "N-TRIPLE");
+          expansion.add(Forgetful.copy(policy));
+        } catch (Throwable e) {
+          logFileError(lineNum, f, "File " + file + 
+                       " is not a valid DAML or XML policy");
+          return null;
+        } // end of try-catch
+        
+      } // end of try-catch
+
+      if (!tok.hasMoreTokens()) {
+        break;
+      } // end of if (!tok.hasMoreTokens())
+      tok.nextToken(); // space between expansion
+    }
+    if (expansion.size() != 0) {
+      if (expansion.size() == 1) {
+        logFileError(lineNum, f, "Only found one quoted file name. Expecting two or more");
+      } else if (!(expansion.get(0) instanceof Model)) {
+        logFileError(lineNum, f, "The first file name must refer to a DAML triples file");
+      } else {
+        // all is good
+        return expansion.toArray();
+      } 
+    } 
+    return null;
   }
 
   public void setupSubscriptions() {
@@ -181,12 +241,27 @@ public class DamlExpander  extends SimplePlugin {
     _secprop = (SecurityPropertiesService)
       getBindingSite().getServiceBroker().getService(this, SecurityPropertiesService.class, null);
 
-    _upu = (IncrementalSubscription) subscribe (_unexPolicyUpdatePredicate);
-    loadExpanderFile(_expanderFile);
+    if (_expansionNum == 1) {
+      _upu = (IncrementalSubscription) subscribe (FIRST_EXPANSION);
+    } else {
+      _upu = (IncrementalSubscription) subscribe (_unexPolicyUpdatePredicate);
+    } 
+
+    if (_log.isInfoEnabled()) {
+      _log.info("Expansion #" + _expansionNum + ", using file name " +
+                _expanderFile + 
+                (_lastExpansion 
+                 ? ", is last" 
+                 : ", will pass on to next expander"));
+    } // end of if (_log.isInfoEnabled())
+
+    if (_expanderFile != null) {
+      loadExpanderFile(_expanderFile);
+    } // end of if (_expanderFile != null)
   }
     
   public void execute() {
-    _log.debug("PolicyExpanderPlugIn::execute()");
+    _log.debug("DamlExpander::execute()");
 
     // check for added UnexpandedPolicyUpdates
     Enumeration upuEnum = _upu.getAddedList();
@@ -195,15 +270,15 @@ public class DamlExpander  extends SimplePlugin {
       UnexpandedPolicyUpdate upu = (UnexpandedPolicyUpdate) upuEnum.nextElement();
       List policies = upu.getPolicies();
       Iterator policyIt = policies.iterator();
+
       while (policyIt.hasNext()) {
         PolicyMsg policyMsg = (PolicyMsg) policyIt.next();
-
         try {
-          PolicyMsg[] newMessages = expandPolicy (policyMsg);
+          PolicyMsg[] newMessages = expandPolicy(policyMsg);
           if (newMessages != null) {
             // replace the newMessage
             for (int i = 0; i < newMessages.length; i++) {
-              _log.debug("writing out xml policy: " + newMessages[i]);
+              _log.debug("writing out policy: " + newMessages[i]);
               expandedPolicies.add(newMessages[i]);
             } // end of for (int i = 0; i < newMessages.length; i++)
           } // end of if (newMessages != null)
@@ -213,9 +288,20 @@ public class DamlExpander  extends SimplePlugin {
         }
       }
       publishRemove (upu);
-      publishAdd (new ExpandedPolicyUpdate(upu.getUpdateType(),
-                                           upu.getLocators(),
-                                           expandedPolicies));
+      
+      Object newPolicy;
+      if (_lastExpansion) {
+        newPolicy = new ExpandedPolicyUpdate(upu.getUpdateType(),
+                                             upu.getLocators(),
+                                             expandedPolicies);
+      } else {
+        newPolicy = new DamlPolicyExpansion(upu.getUpdateType(),
+                                            upu.getLocators(),
+                                            expandedPolicies,
+                                            _expansionNum + 1);
+      } 
+      
+      publishAdd(newPolicy);
     }
   }
 
@@ -236,66 +322,100 @@ public class DamlExpander  extends SimplePlugin {
     // get the attributes of the policy
     Vector attributes = policyMsg.getAttributes();
 
-    // find the XMLContent attribute or DAMLContent
-    // (assumption: there is only one XMLContent or DAMLContent attribute)
-    Document xmlContent = null;
+    // find the DAMLContent
     Model    damlContent = null;
-    for (int i=0; i < attributes.size() && 
-           (xmlContent == null || damlContent == null) ; i++) {
+    for (int i=0; i < attributes.size() && damlContent == null ; i++) {
       AttributeMsg attrMsg = (AttributeMsg) attributes.elementAt(i);
-      if (attrMsg.getName().equals(AttributeMsg.XML_CONTENT)) {
-        xmlContent = (Document) attrMsg.getValue();
-        break;
-      } else if (attrMsg.getName().equals(AttributeMsg.DAML_CONTENT)) {
-        String damlString = (String) attrMsg.getValue();
-        try {
-          damlContent = DAMLModelUtils.constructDAMLModel(damlString);
-          damlContent = Forgetful.copy(damlContent);
-        } catch (Exception e) {
-          _log.warn("Can't expand the DAML Policy", e);
-        } // end of try-catch
-        break;
+      if (attrMsg.getName().equals(AttributeMsg.DAML_CONTENT)) {
+        Object val = attrMsg.getValue();
+        if (val instanceof Model) {
+          damlContent = (Model) val;
+        } else if (val instanceof String) {
+          String damlString = (String) val;
+          try {
+            damlContent = DAMLModelUtils.constructDAMLModel(damlString);
+            damlContent = Forgetful.copy(damlContent);
+          } catch (Exception e) {
+            _log.warn("Can't expand the DAML Policy", e);
+            return null;
+          } // end of try-catch
+        } 
       }
     }
 
-    if (damlContent != null && xmlContent == null) {
+    if (damlContent == null) {
+      return new PolicyMsg[] { policyMsg }; // no expansion
+    } // end of if (damlContent == null)
+    
+    if (_log.isDebugEnabled()) {
+      _log.debug("DAML recieved: " + getDamlString(damlContent));
+    } // end of if (_log.isDebugEnabled())
+    
+      // expand the DAML 
+    Iterator iter = _damlMap.iterator();
+
+    // try to find a matching DAML:
+    while (iter.hasNext()) {
+      Object map[] = (Object []) iter.next();
+
+      Model daml = (Model) map[0];
       if (_log.isDebugEnabled()) {
-        _log.debug("DAML recieved: " + getDamlString(damlContent));
+        _log.debug("Comparing against: " + getDamlString(daml));
       } // end of if (_log.isDebugEnabled())
-      // expand the DAML into XML
-      Iterator iter = _damlMap.iterator();
-      while (iter.hasNext()) {
-        NVPair nvp = (NVPair) iter.next();
-        if (_log.isDebugEnabled()) {
-          _log.debug("Comparing against: " + getDamlString(nvp.daml));
-        } // end of if (_log.isDebugEnabled())
               
-        if (nvp.daml.equals(damlContent)) {
-          // found a match for the daml content
-          PolicyMsg pm[] = new PolicyMsg[nvp.xmls.length];
-          for (int i = 0; i < nvp.xmls.length; i++) {
-            Element l = nvp.xmls[i].getDocumentElement();
-            String type = l.getAttribute("type");
-            String name = l.getAttribute("name");
-            pm[i] = new PolicyMsg(UniqueIdentifier.GenerateUID(),
-                                  name,
-                                  policyMsg.getDescription(),
-                                  type,
-                                  policyMsg.getAdministrator(),
-                                  policyMsg.getSubjects(),
-                                  policyMsg.isInForce());
-            AttributeMsg msg = 
-              new AttributeMsg(AttributeMsg.XML_CONTENT, nvp.xmls[i], true);
-            pm[i].setAttribute(msg);
-          } // end of for (int i = 0; i < nvp.xmls.length; i++)
-          return pm;
+      if (daml.equals(damlContent)) {
+        // found a match for the daml content
+        ArrayList pm = new ArrayList();
+        for (int i = 1; i < map.length; i++) {
+          PolicyMsg newPolicy;
+          if (map[i] instanceof Model) {
+            newPolicy = policyFromModel(policyMsg, (Model) map[i]);
+          } else {
+            // XML content
+            newPolicy = policyFromXML(policyMsg, (Document) map[i]);
+          } 
+          pm.add(newPolicy);
         }
+        return (PolicyMsg[]) pm.toArray(new PolicyMsg[pm.size()]);
       } // end of while (iter.hasNext())
-      _log.warn("Could not find match for DAML policy");
     }
-    return null;
+    _log.warn("Could not find match for DAML policy");
+    return new PolicyMsg[] { policyMsg };
   }
-  
+
+  private static PolicyMsg policyFromXML(PolicyMsg policyMsg,
+                                         Document xmlDoc) {
+    Element l = xmlDoc.getDocumentElement();
+    String type = l.getAttribute("type");
+    String name = l.getAttribute("name");
+    
+    PolicyMsg pm = new PolicyMsg(UniqueIdentifier.GenerateUID(),
+                                 name,
+                                 policyMsg.getDescription(),
+                                 type,
+                                 policyMsg.getAdministrator(),
+                                 policyMsg.getSubjects(),
+                                 policyMsg.isInForce());
+    AttributeMsg msg = 
+      new AttributeMsg(AttributeMsg.XML_CONTENT, xmlDoc, true);
+    pm.setAttribute(msg);
+    return pm;
+  }
+
+  private static PolicyMsg policyFromModel(PolicyMsg policyMsg, Model model) {
+    PolicyMsg pm = new PolicyMsg(UniqueIdentifier.GenerateUID(),
+                                 policyMsg.getName(),
+                                 policyMsg.getDescription(),
+                                 policyMsg.getType(),
+                                 policyMsg.getAdministrator(),
+                                 policyMsg.getSubjects(),
+                                 policyMsg.isInForce());
+    AttributeMsg msg = 
+      new AttributeMsg(AttributeMsg.DAML_CONTENT, model, true);
+    pm.setAttribute(msg);
+    return pm;
+  }
+
   private static String getDamlString(Model model) {
     try {
       StringWriter strw = new StringWriter();
@@ -306,17 +426,6 @@ public class DamlExpander  extends SimplePlugin {
     } catch (Exception e) {
       return "Couldn't get daml string: " + e.toString();
     } // end of try-catch
-  }
-
-  private static class NVPair {
-    public Model daml;
-    public Document xmls[];
-
-    public NVPair() {}
-    public NVPair(Model daml, Document xmls[]) {
-      this.daml  = daml;
-      this.xmls  = xmls;
-    }
   }
 }
 
