@@ -147,7 +147,11 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
       }
     }
     X509Certificate [] sourceChain = null;
-    if (_sourceCert != null) {
+    if (policy.secureMethod == policy.SIGNENCRYPT ||
+        policy.secureMethod == policy.SIGN) {
+      _sign = true;
+    }
+    if ((_sign || _encrypt) && _sourceCert != null) {
       sourceChain = _keyRing.buildCertificateChain(_sourceCert);
     }
     ProtectedMessageHeader header = 
@@ -166,9 +170,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
       _cipherOut = new OnTopCipherOutputStream(this.out, _cipher);
       this.out = _cipherOut;
     }
-    if (policy.secureMethod == policy.SIGNENCRYPT ||
-        policy.secureMethod == policy.SIGN) {
-      _sign = true;
+    if (_sign) {
       PrivateKey priv = getPrivateKey(_sourceCert);
       _signature =  new SignatureOutputStream(this.out, policy.signSpec, 
                                               priv);

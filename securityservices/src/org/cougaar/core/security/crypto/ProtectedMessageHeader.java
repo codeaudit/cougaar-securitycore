@@ -185,10 +185,10 @@ public class ProtectedMessageHeader implements java.io.Serializable {
     if (sign || enc) {
       out.writeObject(_policy.asymmSpec);
       out.writeObject(_receiver);
+      out.writeObject(_sender);
     }
     if (sign) {
       out.writeObject(_policy.signSpec);
-      out.writeObject(_sender);
     }
   }
 
@@ -209,10 +209,10 @@ public class ProtectedMessageHeader implements java.io.Serializable {
     if (sign || enc) {
       _policy.asymmSpec = (String) is.readObject();
       _receiver = (X509Certificate) is.readObject();
+      _sender = (X509Certificate[]) is.readObject();
     }
     if (sign) {
       _policy.signSpec = (String) is.readObject();
-      _sender = (X509Certificate[]) is.readObject();
     }
   }
 }
