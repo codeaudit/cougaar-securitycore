@@ -63,23 +63,25 @@ public class UserAuthenticatorImpl extends UserAuthenticator {
    * default initialization
    */
   public void init(SecurityServiceProvider secProvider) {
-    if (secProvider != null) {
-      serviceBroker = secProvider.getServiceBroker();
-      KeyRingService keyRing = (KeyRingService)
-                                        secProvider.getService(serviceBroker,
-                                                       this,
-                                                       KeyRingService.class);
+    try {
+      if (secProvider != null) {
+        serviceBroker = secProvider.getServiceBroker();
+        KeyRingService keyRing = (KeyRingService)
+                                          secProvider.getService(serviceBroker,
+                                                         this,
+                                                         KeyRingService.class);
 
-      UserSSLService userservice = (UserSSLService)
-                                        secProvider.getService(serviceBroker,
-                                                 this,
-                                                 UserSSLService.class);
+        UserSSLService userservice = (UserSSLService)
+                                          secProvider.getService(serviceBroker,
+                                                   this,
+                                                   UserSSLService.class);
 
-      // handler for certificates
-      KeyRingUserAuthImpl certhandler = new KeyRingUserAuthImpl(keyRing.getKeyStore());
-      registerHandler(certhandler);
-      userservice.setAuthHandler(certhandler);
-    }
+        // handler for certificates
+        KeyRingUserAuthImpl certhandler = new KeyRingUserAuthImpl(keyRing.getKeyStore());
+        registerHandler(certhandler);
+        userservice.setAuthHandler(certhandler);
+      }
+    } catch (Exception ex) {}
 
     BasicAuthHandler passhandler = new BasicAuthHandler();
     registerHandler(passhandler);
@@ -91,8 +93,13 @@ public class UserAuthenticatorImpl extends UserAuthenticator {
 
   public UserAuthenticatorImpl() {
     username = "";
-    SecurityServiceProvider secProvider = new SecurityServiceProvider();
+    SecurityServiceProvider secProvider = null;
+    try {
+      secProvider = new SecurityServiceProvider();
+    } catch (Exception ex) {
+    }
     init(secProvider);
+
     try {
       authenticateUser();
     } catch (Exception ex) {}
