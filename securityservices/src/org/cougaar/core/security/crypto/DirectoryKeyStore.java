@@ -2139,7 +2139,8 @@ public class DirectoryKeyStore
                                        WebserverIdentityService.class,
                                        null);
       if (sslwebserver != null) {
-        if (findCert(getHostName()) == null) {
+        List hostList = findCert(getHostName());
+        if (hostList == null || hostList.size() == 0) {
           addKeyPair(getHostName(), null);
           sslwebserver.updateKeystore();
         }
