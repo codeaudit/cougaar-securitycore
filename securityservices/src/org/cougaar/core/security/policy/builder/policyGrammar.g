@@ -96,20 +96,25 @@ throws PolicyCompilerException
         "AgentGroup" agentGroup:TOKEN EQ LCURLY agents =tokenList RCURLY
         {  ppf.declareAgentGroup(ParsedPolicyFile.tokenToText(agentGroup), 
                                  agents); }
-    | "DrrsPrivilege" drrsPriv:TOKEN
-        { ppf.declareInstance(ULOntologyNames.drrsPrivPrefix +
-                ParsedPolicyFile.tokenToText(drrsPriv),
-                UltralogEntityConcepts.DrrsPrivilege());
+    | "OQLUser" oqlUser:TOKEN
+        { ppf.declareInstance(ULOntologyNames.oqlRolePrefix + 
+                              ParsedPolicyFile.tokenToText(oqlUser),
+                              ActorConcepts.Person);
+        }
+    | "OQLPrivilege" oqlPriv:TOKEN
+        { ppf.declareInstance(ULOntologyNames.oqlPrivPrefix +
+                ParsedPolicyFile.tokenToText(oqlPriv),
+                UltralogEntityConcepts.OQLPrivilege());
             }
-    | "DrrsDataField" drrsDf:TOKEN
-        { ppf.declareInstance(ULOntologyNames.drrsDataFieldPrefix +
-                ParsedPolicyFile.tokenToText(drrsDf),
-                UltralogEntityConcepts.DrrsDataField());
+    | "OQLDataField" oqlDf:TOKEN
+        { ppf.declareInstance(ULOntologyNames.oqlDataFieldPrefix +
+                ParsedPolicyFile.tokenToText(oqlDf),
+                UltralogEntityConcepts.OQLDataField());
             }
-    | "DrrsDataSource" drrsDs:TOKEN
-        { ppf.declareInstance(ULOntologyNames.drrsDataSourcePrefix +
-                ParsedPolicyFile.tokenToText(drrsDs),
-                UltralogEntityConcepts.DrrsDataSource());
+    | "OQLDataSource" oqlDs:TOKEN
+        { ppf.declareInstance(ULOntologyNames.oqlDataSourcePrefix +
+                ParsedPolicyFile.tokenToText(oqlDs),
+                UltralogEntityConcepts.OQLDataSource());
             }                
     ;
 
@@ -151,6 +156,7 @@ throws PolicyCompilerException
     | "MessageEncryptionTemplate"     pp=  messageEncryptionPolicy[pn]
     | "ServletAuthenticationTemplate" pp = servletAuthentication[pn]
     | "ServletUserAccessTemplate"     pp = servletUserAccess[pn]
+    | "OQLSimplePolicyTemplate"      pp = oqlSimplePolicy[pn]
     ;
 
 
@@ -409,6 +415,30 @@ servletUserAccessModality returns [boolean m] { m = true; }
     | "cannot" { m = false; }
    ;
 
+
+/*
+ * First cut at the OQL policies.
+ */
+
+
+oqlSimplePolicy [String pn] 
+returns [ParsedPolicy pp]
+throws PolicyCompilerException
+{ boolean m;
+  Set sources;
+  pp = null; }
+    : "Priority" EQ priority:INT COMMA  
+      "A" "user" "in" "role" r:TOKEN m=servletUserAccessModality 
+        priv:TOKEN "the" "data" "sources" sources=tokenList
+        {pp = new OQLParsedPolicy(
+                pn,
+                ParsedPolicyFile.identifierToInt(priority),
+                m,
+                ParsedPolicyFile.tokenToText(r),
+                ParsedPolicyFile.tokenToText(priv),
+                sources);
+            }
+    ;
 
 
 /*
