@@ -67,6 +67,21 @@
       </owl:oneOf>
     </owl:Class>
 
+    <owl:Class rdf:ID="Community"/>
+
+    <Community rdf:ID="testCommunityOne"/>
+    <Community rdf:ID="testCommunityTwo"/>
+
+    <owl:Class rdf:ID="CommunityActionType">
+      <owl:oneOf rdf:parseType="Collection">
+        <CommunityActionType rdf:about="#JoinCommunity"/>
+        <CommunityActionType rdf:about="#LeaveCommunity"/>
+        <CommunityActionType rdf:about="#ModifyCommunityAttributes"/>
+        <CommunityActionType rdf:about="#GetCommunityDescriptor"/>
+        <CommunityActionType rdf:about="#ListCommunities"/>
+      </owl:oneOf>
+    </owl:Class>
+
     <owl:Class rdf:about="#UltralogEntity">
         <owl:unionOf rdf:parseType="Collection">
             <owl:Class rdf:about="#Servlet"/> 
