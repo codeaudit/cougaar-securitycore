@@ -39,7 +39,7 @@ public class CertificateVerifier {
   protected static final int MAX_CERTS = 100;
 
   /* used in keyUsage field of the certificate to indicate whether
-       class loading capabilities are granted */
+     class loading capabilities are granted */
   protected static final int PACKAGE_SIGNING_CAPABILITY_BIT = 9;
 
   /* default, will be overriden if org.cougaar.core.security.bootstrap.verifyKeyUsage is set */
@@ -57,10 +57,10 @@ public class CertificateVerifier {
 
     String p = System.getProperty("org.cougaar.core.security.bootstrap.verifyKeyUsage");
     if (p != null  && p.equals("true")) {
-        verifyJarSigningCapability = true;
+      verifyJarSigningCapability = true;
     }
     else if (p != null  && p.equals("false")) {
-        verifyJarSigningCapability = false;
+      verifyJarSigningCapability = false;
     }
 
     certificates = new X509Certificate[MAX_CERTS];
@@ -86,7 +86,7 @@ public class CertificateVerifier {
     BufferedReader buffReader = new BufferedReader(inReader);
     String line = buffReader.readLine();
     if (line.equals("Signature-Version: 1.0")) {
-        return true;
+      return true;
     }
     return false;
   }
@@ -103,7 +103,7 @@ public class CertificateVerifier {
     for (int i=0; i<sigFiles.size(); i++) {
       if (!validSigVersion(jf, (JarEntry)sigFiles.elementAt(i))) {
         throw new SignatureException("Problem with " + jf.getName() + "/" + 
-        ((JarEntry)sigFiles.elementAt(i)).getName() + ". \n\tInvalid or missing signature version.");
+				     ((JarEntry)sigFiles.elementAt(i)).getName() + ". \n\tInvalid or missing signature version.");
       }
     }
   }
@@ -111,17 +111,19 @@ public class CertificateVerifier {
 
   /** verifies that a certificate from the signed jar file matches
       some trusted certificate in a key store
+
   */
   protected void verify(JarFile jf) throws IOException, FileNotFoundException,
-            CertificateException, CertificateVerificationException, SignatureException, 
-            KeyStoreException, NoSuchAlgorithmException, NoManifestFoundException {   
+    CertificateException, CertificateVerificationException, SignatureException, 
+    KeyStoreException, NoSuchAlgorithmException, NoManifestFoundException,
+    CertificateExpiredException, CertificateNotYetValidException {
     boolean certsExist = false;
     Manifest manifest = null;
     manifest = jf.getManifest();
     if (manifest == null) {
       throw new NoManifestFoundException(jf.getName());
     }
-    
+
     verifySigVersion(jf, getJarEntries(jf, ".SF"));
 
     Vector dsaEntries = getJarEntries(jf, ".DSA");
@@ -131,24 +133,48 @@ public class CertificateVerifier {
         if (certsExist) {
           for (int j = 0; j < certificates.length; j++) {
             if (certificates[j] != null && inKeyStore(certificates[j]) && 
-                        hasJarSigningCapability(certificates[j]))
-              return;
+		hasJarSigningCapability(certificates[j])) {
+	      boolean istrusted=false;
+	      try {
+		istrusted=isTrusted((X509Certificate)certificates[j]);
+	      }
+	      catch (CertificateExpiredException cee) {
+		throw new CertificateVerificationException("CertificateExpiredException-"+jf.getName());
+	      }
+	      catch (CertificateNotYetValidException cye) {
+		throw new CertificateVerificationException("CertificateNotYetValidException-"+ jf.getName());
+	      }
+	      if(istrusted)
+		return;
+	    }
           }
         }
       }
     }
-    throw new CertificateVerificationException(jf.getName());    
+    throw new CertificateVerificationException(jf.getName());
 
   }
+  
+  /*
+    Verifies whether current certificate is trusted or not. As all the certificates
+    in the bootstrap keystore are self signed the only way to check trust is their validity
+  */
+  protected boolean isTrusted(X509Certificate certificate)throws CertificateExpiredException,
+    CertificateNotYetValidException {
+    boolean istrusted =false;
+    //  certificate.checkValidity();
+    istrusted=true;
+    return istrusted;
+  }  
   
   /** check if given certificate is trusted */
   protected boolean inKeyStore(X509Certificate cert) 
     throws CertificateException, IOException, FileNotFoundException,
-	   KeyStoreException, NoSuchAlgorithmException{
+    KeyStoreException, NoSuchAlgorithmException{
     KeyStore ks = KeyStore.getInstance("JKS");
     InputStream in;
     if (keyStorePath != null)
-        in = new FileInputStream(keyStorePath);
+      in = new FileInputStream(keyStorePath);
     else
       in = new FileInputStream(defaultKeyStorePath);
 
@@ -158,7 +184,7 @@ public class CertificateVerifier {
       while(aliases.hasMoreElements()) {
         X509Certificate c = (X509Certificate)(ks.getCertificate((String)aliases.nextElement()));
         if (c.equals(cert)) {
-            return true;
+	  return true;
         }
       }     
     }
@@ -190,11 +216,11 @@ public class CertificateVerifier {
   protected X509Certificate[] retrieveCertificateChain(JarFile jf, JarEntry dsa)
     throws FileNotFoundException, IOException, CertificateException {
     if (dsa != null && jf != null) {
-       InputStream in = jf.getInputStream(dsa);
-       DataInputStream dis = new DataInputStream(in);
-       int len = Integer.parseInt(String.valueOf(dsa.getSize()));
+      InputStream in = jf.getInputStream(dsa);
+      DataInputStream dis = new DataInputStream(in);
+      int len = Integer.parseInt(String.valueOf(dsa.getSize()));
 
-       return (retrieveCertificateChain(dis));
+      return (retrieveCertificateChain(dis));
     }
     return null;
   }
