@@ -120,7 +120,7 @@ class ThreatConChange < SecurityStressFramework
   #
   def performLoginFailures
     servlet = '/move'
-    user = 'george'
+    user = 'carrie'
     badPasswd = 'thisisabadpasswd'
     saveAssertion('Stress1e1', "performLoginFailures" )
     totalCount = 0
