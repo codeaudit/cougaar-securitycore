@@ -100,7 +100,7 @@
       <!-- Policy when issuing certificates -->
       <clientCertPolicy>
         <!-- The X509 version number to be created -->
-        <certVersion>0</certVersion>
+        <certVersion>2</certVersion>
         <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
         <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
         <keysize>1024</keysize>
