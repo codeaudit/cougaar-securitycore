@@ -174,6 +174,10 @@ grant signedBy "bootstrapper" {
 	permission javax.security.auth.AuthPermission "getSubjectFromDomainCombiner";
 	permission javax.security.auth.AuthPermission "setReadOnly";
 	permission javax.security.auth.AuthPermission "getPolicy";
+
+	// Note that the boostrapper only can write to the bootstrap subdirectory.
+	//permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}bootstrap${/}-", "read";
+	//permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}bootstrap${/}", "read";
 };
 
 ////////////////////////////////////////////////////////////
@@ -276,14 +280,6 @@ grant signedBy "privileged" {
 	// CSMART permissions (csmart.jar)
 	permission java.util.PropertyPermission "csmart.log.severity", "read";
 	permission java.util.PropertyPermission "csmart.log.location", "read";
-	// FIX: the following property is needed by CSMART to write a log file
-	// directly under $COUGAAR_INSTALL_PATH, but it is not good security practice.
-	permission java.io.FilePermission "${org.cougaar.install.path}${/}*", "read, write";
-	permission java.io.FilePermission "${org.cougaar.install.path}${/}csmart${/}data${/}debug.properties", "read";
-
-	permission java.io.FilePermission "${org.cougaar.workspace}${/}*", "read, write";
-	permission java.io.FilePermission "${org.cougaar.workspace}${/}-", "read, write";
-	permission java.io.FilePermission "${org.cougaar.workspace}${/}", "read, write";
 
 	permission java.util.PropertyPermission "com.nai.*", "read";
 	permission java.util.PropertyPermission "sun.*", "read";
@@ -417,16 +413,33 @@ grant signedBy "privileged" {
 	// to overwrite the configuration and replace with a different configuration.
 	// FIX: many components write debugging information to the "current"
 	// directory
-	permission java.io.FilePermission "-", "read, write";
-	permission java.io.FilePermission "*", "read, write";
-	permission java.io.FilePermission "", "read, write";
+
+	permission java.io.FilePermission "-", "read";
+	permission java.io.FilePermission "*", "read";
+	permission java.io.FilePermission "", "read";
+
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}*", "read, write";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}-", "read, write";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}", "read, write";
+
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}*", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}-", "read";
 
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}core${/}-", "read,write";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}plugin${/}-", "read,write";
-	// Note that the boostrapper only can write to the bootstrap subdirectory.
-	// However Plugins may need to read log files in that directory
-	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}bootstrap${/}-", "read";
-	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}bootstrap${/}", "read";
+
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}*", "read";
+
+	//permission java.io.FilePermission "${org.cougaar.install.path}${/}csmart${/}data${/}debug.properties", "read";
+	//permission java.io.FilePermission "${org.cougaar.install.path}${/}*", "read, write";
+	//permission java.io.FilePermission "${org.cougaar.workspace}${/}*", "read, write";
+	//permission java.io.FilePermission "${org.cougaar.workspace}${/}-", "read, write";
+	//permission java.io.FilePermission "${org.cougaar.workspace}${/}", "read, write";
+	//permission java.io.FilePermission "-", "read, write";
+	//permission java.io.FilePermission "*", "read, write";
+	//permission java.io.FilePermission "", "read, write";
+
 
 	// Reason: persistence package requires it.
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}P${/}", "read,write,delete";
@@ -452,6 +465,16 @@ grant signedBy "privileged" {
 	// FIX: Why do we need recursive access to the sys directory?
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}-", "read";
 
+	////////////////////////////////////////////////////
+	// File permissions: Configuration files
+	// FIX: In the 8.3.0 implementation, Plugins read directly from the configs
+	// directory, but this gives too many privileges.
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}log/plugin${/}-", "read,write";
+
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}configs${/}-", "read";
+	permission java.io.FilePermission "${user.home}${/}.alprc", "read";
+	permission java.io.FilePermission "${user.home}${/}.cougaarrc", "read";
+
 	// FIX: The following permission is suspiscious and should probably be removed:
 	permission java.io.FilePermission "${/}opt${/}cougaar-jars${/}", "read";
 
@@ -462,6 +485,7 @@ grant signedBy "privileged" {
 	////////////////////////////////////////////////////
 	// File permissions: Configuration files
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}configs${/}-", "read,write";
+
 	// FIX: What is .alp?
 	permission java.io.FilePermission "${user.home}${/}.alp", "read";
 	permission java.io.FilePermission "${user.home}${/}.cougaarrc", "read";
@@ -545,17 +569,6 @@ grant {
 	// insecure manner.
 	// FIX: Why do we need access to the event queue?
 	permission java.awt.AWTPermission "accessEventQueue";
-
-	////////////////////////////////////////////////////
-	// File permissions: Configuration files
-	// FIX: In the 8.3.0 implementation, Plugins read directly from the configs
-	// directory, but this gives too many privileges.
-	permission java.io.FilePermission "${org.cougaar.install.path}${/}log/plugin${/}-", "read,write";
-
-
-	permission java.io.FilePermission "${org.cougaar.install.path}${/}configs${/}-", "read";
-	permission java.io.FilePermission "${user.home}${/}.alprc", "read";
-	permission java.io.FilePermission "${user.home}${/}.cougaarrc", "read";
 
 	// "Cougaar" properies that can be read
 	permission java.util.PropertyPermission "org.cougaar.*", "read";
