@@ -227,19 +227,18 @@ public class NodeGuard implements Guard
                 envelope.setSender(_myLocator);
                 envelope.setReceiver(_dmLocator);
                 TransportMessage message = new TransportMessage(envelope, payload);
-                // if the message transport service has not been set, we don't need
+                // if the domain manager has not yet been contacted, we don't need
                 // to register the enforcer now because it will receive its policy
                 // set when the guard registers.
                 // TODO: In the future, we will need to change this
                 // because guard registration should not automatically cause
                 // policy distribution.
-                if (_sender != null) {                    
+                if (_dmReady) {
                     try {
                         _sender.sendMessage(message);
                     }
                     catch (Exception xcp) {
-		      System.out.println("Unable to send message:" + xcp);
-                        xcp.printStackTrace();
+                        System.out.println("NodeGuard::registerEnforcer:unable to send message: " + xcp);
                     }                    
                 }
             }
@@ -249,22 +248,19 @@ public class NodeGuard implements Guard
         
         
         if (_pb != null) {
-          PolicyMsg policies = null;
+          PolicyMsg policyMsg = null;
           try{
             // get the default policy for this type of enforcer
-            policies = _pb.getBootPolicy(Class.forName(enforcerType));
+            policyMsg = _pb.getBootPolicy(Class.forName(enforcerType));
           }catch(Exception e){
             e.printStackTrace();
           }
           
-	  if (policies != null) {
-	    Vector policyV = new Vector(1);
-	    policyV.addElement(policies);
-
-	    // send the policy to the enforcer
-	    enforcer.receivePolicyUpdate(KAoSConstants.SET_POLICIES,
-					 policyV);
-	  }
+          Vector policyV = new Vector(1);
+          policyV.addElement(policyMsg);
+          // send the policy to the enforcer
+          enforcer.receivePolicyUpdate(KAoSConstants.SET_POLICIES,
+                                       policyV);
         }
         		
         if (_debug) System.out.println("Guard: enforcer of type " + enforcerType + " registered successfully");
@@ -347,7 +343,7 @@ public class NodeGuard implements Guard
                     }
                 }
                 catch (Exception xcp) {
-                    xcp.printStackTrace();                    
+                    System.out.println("NodeGuard::DMReadyThread:unable to send message: " + xcp);
                 }
             }
 
@@ -523,7 +519,7 @@ public class NodeGuard implements Guard
                     _sender.sendMessage(message);
                 }
                 catch (Exception xcp) {
-                    xcp.printStackTrace();
+                    System.out.println("NodeGuard::registerAgent:unable to send message: " + xcp);
                 }                    
                 _agentDescriptions.removeElementAt(0);
             }
@@ -547,7 +543,7 @@ public class NodeGuard implements Guard
                     _sender.sendMessage(message);
                 }
                 catch (Exception xcp) {
-                    xcp.printStackTrace();
+                    System.out.println("NodeGuard::registerAgent:unable to send message: " + xcp);
                 }                    
             }
         }
