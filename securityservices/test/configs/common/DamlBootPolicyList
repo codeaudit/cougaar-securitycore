@@ -64,6 +64,7 @@ UserRole RearPolicyAdministrator
 UserRole FwdPolicyAdministrator
 UserRole ConusPolicyAdministrator
 UserRole TransPolicyAdministrator
+UserRole EnclaveaPolicyAdministrator
 UserRole PolicyAdministrator
 UserRole UserManager
 UserRole SocietyAdmin
@@ -85,6 +86,7 @@ Servlet RearPolicyServlet
 Servlet FwdPolicyServlet
 Servlet ConusPolicyServlet
 Servlet TransPolicyServlet
+Servlet EnclaveaPolicyServlet
 Servlet PolicyServlet
 Servlet SocietyAdminServlet
 Servlet UserManagerServlets
@@ -309,6 +311,18 @@ Policy PolicyServletTransAuth  = [
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named TransPolicyServlet
+]
+
+Policy PolicyServletEnclavea  = [
+  ServletUserAccessTemplate
+  A user in role EnclaveaPolicyAdministrator can access a servlet
+  named EnclaveaPolicyServlet
+]
+
+Policy PolicyServletEnclaveaAuth  = [
+  ServletAuthenticationTemplate
+  All users must use Password, PasswordSSL, CertificateSSL
+  authentication when accessing the servlet named EnclaveaPolicyServlet
 ]
 
 Policy SCmrManager  = [ 

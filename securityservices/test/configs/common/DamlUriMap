@@ -59,6 +59,7 @@
 /$FwdPolicyDomainManagerServlet/policyAdmin FwdPolicyServlet
 /$ConusPolicyDomainManagerServlet/policyAdmin ConusPolicyServlet
 /$TransPolicyDomainManagerServlet/policyAdmin TransPolicyServlet
+/$EnclaveaPolicyDomainManagerServlet/policyAdmin EnclaveaPolicyServlet
 /$*/policyAdmin PolicyServlet
 
 #

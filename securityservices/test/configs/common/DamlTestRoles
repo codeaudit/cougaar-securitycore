@@ -9,6 +9,7 @@ RearPolicyAdministrator
 FwdPolicyAdministrator
 ConusPolicyAdministrator
 TransPolicyAdministrator
+EnclaveaPolicyAdministrator
 Rover
 RoverManager
 SocietyAdmin

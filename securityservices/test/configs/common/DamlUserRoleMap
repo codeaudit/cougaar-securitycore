@@ -6,6 +6,7 @@ RearUserDomainComm\Administrator Administrator
 FwdUserDomainComm\Administrator Administrator
 ConusUserDomainComm\Administrator Administrator
 TransUserDomainComm\Administrator Administrator
+EnclaveaUserDomainComm\Administrator Administrator
 UserDomain1\CAAdministrator CAAdministrator
 UserDomain2\CAAdministrator CAAdministrator
 UserDomain3\CAAdministrator CAAdministrator
@@ -14,6 +15,7 @@ RearUserDomainComm\CAAdministrator CAAdministrator
 FwdUserDomainComm\CAAdministrator CAAdministrator
 ConusUserDomainComm\CAAdministrator CAAdministrator
 TransUserDomainComm\CAAdministrator CAAdministrator
+EnclaveaUserDomainComm\CAAdministrator CAAdministrator
 UserDomain1\General General
 UserDomain2\General General
 UserDomain3\General General
@@ -22,6 +24,7 @@ RearUserDomainComm\General General
 FwdUserDomainComm\General General
 ConusUserDomainComm\General General
 TransUserDomainComm\General General
+EnclaveaUserDomainComm\General General
 UserDomain1\Guest Guest
 UserDomain2\Guest Guest
 UserDomain3\Guest Guest
@@ -30,6 +33,7 @@ RearUserDomainComm\Guest Guest
 FwdUserDomainComm\Guest Guest
 ConusUserDomainComm\Guest Guest
 TransUserDomainComm\Guest Guest
+EnclaveaUserDomainComm\Guest Guest
 UserDomain1\Logistician Logistician
 UserDomain2\Logistician Logistician
 UserDomain3\Logistician Logistician
@@ -38,6 +42,7 @@ RearUserDomainComm\Logistician Logistician
 FwdUserDomainComm\Logistician Logistician
 ConusUserDomainComm\Logistician Logistician
 TransUserDomainComm\Logistician Logistician
+EnclaveaUserDomainComm\Logistician Logistician
 UserDomain1\LogisticsViewer LogisticsViewer
 UserDomain2\LogisticsViewer LogisticsViewer
 UserDomain3\LogisticsViewer LogisticsViewer
@@ -46,6 +51,7 @@ RearUserDomainComm\LogisticsViewer LogisticsViewer
 FwdUserDomainComm\LogisticsViewer LogisticsViewer
 ConusUserDomainComm\LogisticsViewer LogisticsViewer
 TransUserDomainComm\LogisticsViewer LogisticsViewer
+EnclaveaUserDomainComm\LogisticsViewer LogisticsViewer
 UserDomain1\MonitorManager MonitorManager
 UserDomain2\MonitorManager MonitorManager
 UserDomain3\MonitorManager MonitorManager
@@ -54,6 +60,7 @@ RearUserDomainComm\MonitorManager MonitorManager
 FwdUserDomainComm\MonitorManager MonitorManager
 ConusUserDomainComm\MonitorManager MonitorManager
 TransUserDomainComm\MonitorManager MonitorManager
+EnclaveaUserDomainComm\MonitorManager MonitorManager
 UserDomain1\PolicyAdministrator PolicyAdministrator
 UserDomain2\PolicyAdministrator PolicyAdministrator
 UserDomain3\PolicyAdministrator PolicyAdministrator
@@ -62,6 +69,7 @@ RearUserDomainComm\PolicyAdministrator RearPolicyAdministrator
 FwdUserDomainComm\PolicyAdministrator FwdPolicyAdministrator
 ConusUserDomainComm\PolicyAdministrator ConusPolicyAdministrator
 TransUserDomainComm\PolicyAdministrator TransPolicyAdministrator
+EnclaveaUserDomainComm\PolicyAdministrator EnclaveaPolicyAdministrator
 UserDomain1\UserManager UserManager
 UserDomain2\UserManager UserManager
 UserDomain3\UserManager UserManager
@@ -70,6 +78,7 @@ RearUserDomainComm\UserManager UserManager
 FwdUserDomainComm\UserManager UserManager
 ConusUserDomainComm\UserManager UserManager
 TransUserDomainComm\UserManager UserManager
+EnclaveaUserDomainComm\UserManager UserManager
 UserDomain1\SocietyAdmin SocietyAdmin
 UserDomain2\SocietyAdmin SocietyAdmin
 UserDomain3\SocietyAdmin SocietyAdmin
@@ -78,3 +87,4 @@ RearUserDomainComm\SocietyAdmin SocietyAdmin
 FwdUserDomainComm\SocietyAdmin SocietyAdmin
 ConusUserDomainComm\SocietyAdmin SocietyAdmin
 TransUserDomainComm\SocietyAdmin SocietyAdmin
+EnclaveaUserDomainComm\SocietyAdmin SocietyAdmin

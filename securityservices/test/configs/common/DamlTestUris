@@ -2,6 +2,7 @@
 /$FwdPolicyDomainManagerServlet/policyAdmin
 /$ConusPolicyDomainManagerServlet/policyAdmin
 /$TransPolicyDomainManager/policyAdmin
+/$EnclaveaPolicyDomainManager/policyAdmin
 /$baz/policyAdmin
 /$SCmrmanager/foo
 /$NCA/glsinit
