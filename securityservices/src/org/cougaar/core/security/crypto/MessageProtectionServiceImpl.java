@@ -439,9 +439,13 @@ public class MessageProtectionServiceImpl
                                            ": " + e.getMessage());
       }
 
-      if (policy == null ||
-          !cps.isReceivePolicyValid(sourceName, targetName, 
-                                    policy, false, false)) {
+      int policyValidity = CryptoPolicyService.CRYPTO_POLICY_VALID;
+      if (policy == null) {
+
+      } else if ((policyValidity 
+                  = cps.isReceivePolicyValid(sourceName, targetName, 
+                                             policy, false, false))
+                 !=CryptoPolicyService.CRYPTO_POLICY_VALID) {
         if (log.isWarnEnabled()) {
           log.warn("unprotectHeader " + sourceName +
                    " -> " + targetName + " policy " + policy +
@@ -450,9 +454,10 @@ public class MessageProtectionServiceImpl
         GeneralSecurityException gse = 
           new GeneralSecurityException("Could not use policy between " +
                                        sourceName + " and " + targetName);
-        publishMessageFailure(sourceName, targetName,
-                              MessageFailureEvent.INVALID_POLICY, 
-                              gse.toString());
+        gse.initCause(new IncorrectProtectionException(policyValidity));
+        //        publishMessageFailure(sourceName, targetName,
+        //                              MessageFailureEvent.INVALID_POLICY, 
+        //                              gse.toString());
         throw gse;
       }     
 
