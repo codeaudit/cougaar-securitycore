@@ -8,7 +8,7 @@ recipeQueryAllAgentsAndNodeAgents=\
 
 # UserAdminAgent Query
 recipeQueryUserAdminAgent=\
- SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME='UserAdminAgent'
+ SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME like 'UserAdminAgent%'
 
 
 ############################################################################################
@@ -91,6 +91,7 @@ recipeQueryNOTSecurityMnRAgents=\
     AND H.ASSEMBLY_ID :assembly_match:
 
 
+# Get the Society Security Manager agent
 #This is for LoginFailureSensor stuff
 #this one is for BootStrapEventPlugin0.sql
 recipeQuerySocietySecurityMnRAgent=\
@@ -152,10 +153,12 @@ recipeQueryAGGAgent=\
  SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME='AGG-Agent'
 
 # Both "Agg-agent" and the UofM manager are aggregators
+# The old query was excluding the security managers. However, they also have sensors, so they need to be
+# queried.
+#   AND COMPONENT_NAME NOT LIKE '%SecurityMnRManager'
 recipeQueryNotAGGAgent=\
  SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE (COMPONENT_TYPE = 'agent' OR COMPONENT_TYPE = 'node') AND \
-   COMPONENT_NAME NOT IN ('AGG-Agent', 'UMmrmanager') AND \
-   COMPONENT_NAME NOT LIKE '%SecurityMnRManager'
+   COMPONENT_NAME NOT IN ('AGG-Agent', 'UMmrmanager') 
 
 # All Node Agents that are members of Enclave1Security-COMM
 recipeQueryEnclave1SecurityCommunityNodeAgents=\
