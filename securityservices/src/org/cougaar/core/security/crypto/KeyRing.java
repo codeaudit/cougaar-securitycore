@@ -1621,6 +1621,15 @@ try {
   private Object addKeyLock = new Object();
 
   public void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy trustedCaPolicy) {
+
+  if (log.isInfoEnabled()) {
+    try {
+      throw new Throwable();
+    } catch (Throwable t) {
+      log.info("Stack : ", t);
+    }
+  }
+
     synchronized (addKeyLock) {
       if (log.isDebugEnabled()) {
         log.debug("CheckOrMakeCert: " + dname.toString() );
@@ -2139,6 +2148,7 @@ try {
     if (requestedIdentities.get(commonName) != null) {
       return false;
     }
+
     CertificateAttributesPolicy certAttribPolicy =
       cryptoClientPolicy.getCertificateAttributesPolicy(trustedCaPolicy);
     String x500dn = CertificateUtility.getX500DN(commonName,
@@ -2173,6 +2183,23 @@ try {
       }
 
     }
+    else {
+    // it claims certificates have been generated, is it true?
+      certificateList = findCert(x500name, KeyRingService.LOOKUP_KEYSTORE, false);
+      if (certificateList == null || certificateList.size() == 0) {
+        // let the certificate request thread handle it
+        CertValidityService validityService = (CertValidityService)
+          serviceBroker.getService(this,
+                                 CertValidityService.class,
+                                 null);
+        validityService.addCertRequest(x500name, false, trustedCaPolicy);
+        serviceBroker.releaseService(this,
+                                   CertValidityService.class,
+                                   validityService);
+        return false;
+      }
+    }
+
     // expired, regen key
     if (log.isDebugEnabled())
       log.debug("Certificate expired, requesting again.");
