@@ -30,6 +30,12 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.border.*;
 import java.util.*;
+import javax.swing.event.*;
+
+import java.security.cert.*;
+
+import org.cougaar.core.security.util.UIUtil;
+
 
 public class ChooseAliasDialog extends JDialog {
   private Vector aliases = new Vector();
@@ -75,14 +81,22 @@ public class ChooseAliasDialog extends JDialog {
     selectionText.setLineWrap(true);
     selectionText.setWrapStyleWord(true);
     certPanel.setLayout(gridLayout1);
+
     aliasList.setBackground(Color.lightGray);
     aliasList.setBorder(titledBorder2);
     aliasList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    aliasList.addListSelectionListener(new ListSelectionListener() {
+      public void valueChanged(ListSelectionEvent e) {
+        handleItemEvent();
+      }
+    });
+
     detailText.setBorder(border4);
     detailText.setPreferredSize(new Dimension(100, 50));
     detailText.setText("");
     detailText.setLineWrap(true);
     detailText.setWrapStyleWord(true);
+    detailText.setEditable(false);
     certPanel.setBorder(BorderFactory.createEtchedBorder());
     this.getContentPane().add(buttonPanel,  BorderLayout.SOUTH);
     this.getContentPane().add(searchPanel,  BorderLayout.CENTER);
@@ -99,6 +113,20 @@ public class ChooseAliasDialog extends JDialog {
     });
 
     setSize(300, 200);
+    UIUtil.centerWindow(this);
+  }
+
+  private void handleItemEvent() {
+    String alias = getSelection();
+    if (alias != null) {
+      try {
+        X509Certificate certimpl = (X509Certificate)
+          aliasTable.get(alias);
+        if (certimpl != null) {
+          detailText.setText(printCertificateDetails(certimpl));
+        }
+      } catch (Exception e) {}
+    }
   }
 
   private void handleButtonEvent() {
@@ -112,6 +140,8 @@ public class ChooseAliasDialog extends JDialog {
       aliases.addElement(alias);
     }
     aliasList.updateUI();
+
+    aliasTable = list;
   }
 
   public String getSelection() {
@@ -123,4 +153,38 @@ public class ChooseAliasDialog extends JDialog {
     ui.show();
   }
 
+  public static String printCertificateDetails(X509Certificate  certimpl) {
+    StringBuffer strbuf = new StringBuffer();
+    strbuf.append("Version : "
+		+certimpl.getVersion());
+    strbuf.append("\n");
+    strbuf.append("Subject : "
+		+certimpl.getSubjectDN().getName());
+    strbuf.append("\n");
+    strbuf.append("Signature Algorithm : "
+		+certimpl.getSigAlgName()
+		+" : "+certimpl.getSigAlgOID());
+    strbuf.append("\n");
+    strbuf.append("Validity :");
+    strbuf.append("\n");
+    strbuf.append("From :"
+		+certimpl.getNotBefore().toString());
+    strbuf.append("\n");
+    strbuf.append("To :"
+		+certimpl.getNotAfter().toString());
+    strbuf.append("\n");
+    strbuf.append("Issuer : "
+		+certimpl.getIssuerDN().getName());
+    strbuf.append("\n");
+    strbuf.append("Serial No : "
+		+certimpl.getSerialNumber());
+    strbuf.append("\n");
+
+    strbuf.append("Algorithm : "
+		+certimpl.getPublicKey().getAlgorithm());
+    return strbuf.toString();
+  }
+
+
+  private Hashtable aliasTable = new Hashtable();
 }
