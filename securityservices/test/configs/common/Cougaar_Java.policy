@@ -156,7 +156,7 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "swing.*", "read";
 	permission java.util.PropertyPermission "javax.*", "read";
 	// FIX: thes properties should be renamed to org.cougaar...
-	permission java.util.PropertyPermission "UTILLdmXMLPlugIn.*", "read";
+	permission java.util.PropertyPermission "UTILLdmXMLPlugin.*", "read";
 	permission java.util.PropertyPermission "alpine.*", "read";
 	permission java.util.PropertyPermission "glm_debug_messages", "read";
 	permission java.util.PropertyPermission "glm_output_stream", "read";
@@ -185,14 +185,14 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "oplan.test.database.password", "read";
 
 	// Vishnu permissions
-	permission java.util.PropertyPermission "UTILPlugInAdapter.showParameters", "read";
-	permission java.util.PropertyPermission "GroundVishnuPlugIn.MAX_DISTANCE", "read";
-	permission java.util.PropertyPermission "TranscomVishnuPlugIn.*", "read";
+	permission java.util.PropertyPermission "UTILPluginAdapter.showParameters", "read";
+	permission java.util.PropertyPermission "GroundVishnuPlugin.MAX_DISTANCE", "read";
+	permission java.util.PropertyPermission "TranscomVishnuPlugin.*", "read";
 	permission java.util.PropertyPermission "TranscomDataXMLize.*", "read";
 	permission java.util.PropertyPermission "TRANSCOM.*", "read";
 	permission java.util.PropertyPermission "GenericDataXMLize.*", "read";
 	permission java.util.PropertyPermission "vishnu.*", "read";
-	permission java.util.PropertyPermission "glmtrans.plugins.GroundVishnuPlugIn.complainAboutMissingMovabilityPG", "read"; 
+	permission java.util.PropertyPermission "glmtrans.plugins.GroundVishnuPlugin.complainAboutMissingMovabilityPG", "read"; 
 
 	// MYSQL driver
 	permission java.util.PropertyPermission "driver.mysql", "read";
@@ -337,7 +337,7 @@ grant signedBy "privileged" {
 	// Allow reading from the current directory (the directory where the node
 	// was launched). However, write permissions should not be given to the
 	// current directory. If the node were started from a directory where
-	// some configuration is stored, this would allow a malicious PlugIn
+	// some configuration is stored, this would allow a malicious Plugin
 	// to overwrite the configuration and replace with a different configuration.
 	// FIX: many components write debugging information to the "current"
 	// directory
@@ -348,7 +348,7 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}core${/}-", "read,write";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}plugin${/}-", "read,write";
 	// Note that the boostrapper only can write to the bootstrap subdirectory.
-	// However PlugIns may need to read log files in that directory
+	// However Plugins may need to read log files in that directory
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}bootstrap${/}-", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}bootstrap${/}", "read";
 
@@ -396,7 +396,7 @@ grant signedBy "privileged" {
 };
 
 ////////////////////////////////////////////////////////////
-// Permissions for code outside core (PlugIns, LDMs, etc)
+// Permissions for code outside core (Plugins, LDMs, etc)
 
 
 ////////////////////////////////////////////////////////////
@@ -464,7 +464,7 @@ grant {
 
 	////////////////////////////////////////////////////
 	// File permissions: Configuration files
-	// FIX: In the 8.3.0 implementation, PlugIns read directly from the configs
+	// FIX: In the 8.3.0 implementation, Plugins read directly from the configs
 	// directory, but this gives too many privileges.
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}log/plugin${/}-", "read,write";
 
