@@ -1,4 +1,6 @@
 #!/bin/tcsh
-set host=yew
+set host=pear
 ldapdelete -x -r -D "cn=manager, dc=cougaar, dc=org" -w secret -h ${host} "dc=${user}, dc=cougaar, dc=org"
 ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -f ${user}.ldif -w secret -h ${host}
+ldapdelete -x -r -D "cn=manager, dc=cougaar, dc=org" -w secret -h ${host} "dc=${user}-enclave1, dc=cougaar, dc=org"
+ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -f ${user}-enclave1.ldif -w secret -h ${host}
