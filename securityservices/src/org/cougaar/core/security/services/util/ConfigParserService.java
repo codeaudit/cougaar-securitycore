@@ -42,7 +42,6 @@ import org.cougaar.core.security.crypto.SecureMethodParam;
 public interface ConfigParserService extends Service {
 
   File findPolicyFile(String policyfilename);
-  File findWorkspacePolicyPath(String policyfilename);
 
   /** The mode of operation
    * @return true if executing as a certificate authority
