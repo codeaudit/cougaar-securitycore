@@ -1,3 +1,28 @@
+/*
+ * <copyright>
+ *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  under sponsorship of the Defense Advanced Research Projects
+ *  Agency (DARPA).
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the Cougaar Open Source License as published by
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
+ * </copyright>
+ *
+ * CHANGE RECORD
+ * -
+ */
 package org.cougaar.core.security.ssl;
 
 import javax.net.ssl.*;
@@ -11,20 +36,30 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
 
   SSLServerSocketFactory ssocfac;
 
-  private KeyRingSSLServerFactory() {
-    if (_sslcontext == null)
-      System.out.println("SSLContext is NULL!");
-    else
-      ssocfac = _sslcontext.getServerSocketFactory();
+  protected KeyRingSSLServerFactory(SSLContext sslcontext) {
+    ssocfac = sslcontext.getServerSocketFactory();
+  }
+
+  protected KeyRingSSLServerFactory() {
+    ssocfac = _sslcontext.getServerSocketFactory();
   }
 
   /**
    * Returns the default SSL server socket factory.
    */
   public synchronized static ServerSocketFactory getDefault() {
-    if (_default == null)
+    if (_default == null) {
+      if (_sslcontext == null) {
+        System.out.println("SSLContext is NULL!");
+        return null;
+      }
       _default = new KeyRingSSLServerFactory();
+    }
     return _default;
+  }
+
+  public static ServerSocketFactory getInstance(SSLContext sslcontext) {
+    return new KeyRingSSLServerFactory(sslcontext);
   }
 
   /**
@@ -82,7 +117,5 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   public synchronized static void init(SSLContext sslcontext) {
     if (_sslcontext == null)
       _sslcontext = sslcontext;
-    else
-      System.out.println("SSLContext already set!");
   }
 }

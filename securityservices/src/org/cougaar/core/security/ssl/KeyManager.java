@@ -1,3 +1,28 @@
+/*
+ * <copyright>
+ *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  under sponsorship of the Defense Advanced Research Projects
+ *  Agency (DARPA).
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the Cougaar Open Source License as published by
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
+ * </copyright>
+ *
+ * CHANGE RECORD
+ * -
+ */
 package org.cougaar.core.security.ssl;
 
 import javax.net.ssl.*;
@@ -9,14 +34,12 @@ import com.nai.security.util.*;
 import com.nai.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
-public final class KeyManager implements X509KeyManager {
-  private KeyRingService keyRing = null;
-  private DirectoryKeyStore keystore = null;
-  private String nodealias = null;
-  private X509Certificate nodex509 = null;
-  private String nodename = null;
-  // provides the default implementation, but it can be overwritten
-  private UserCertificateUI userUI = new UserCertificateUIImpl();
+public class KeyManager implements X509KeyManager {
+  protected KeyRingService keyRing = null;
+  protected DirectoryKeyStore keystore = null;
+  protected String nodealias = null;
+  protected X509Certificate nodex509 = null;
+  protected String nodename = null;
 
   public KeyManager(KeyRingService krs) {
     keyRing = krs;
@@ -28,10 +51,6 @@ public final class KeyManager implements X509KeyManager {
     if (CryptoDebug.debug)
       System.out.println("SSLContext:KeyManager: nodealias is " + nodealias
         + " and nodex509 is " + nodex509);
-  }
-
-  public void setUserCertificateUI(UserCertificateUI userUI) {
-    this.userUI = userUI;
   }
 
   public synchronized void updateKeystore() {
@@ -53,8 +72,8 @@ public final class KeyManager implements X509KeyManager {
   public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
     // node alias if opening socket for RMI... node service
     // if server is tomcat prompt for user certificate
-    if (CryptoDebug.debug)
-      System.out.println("chooseClientAlias: " + socket);
+    //if (CryptoDebug.debug)
+    //  System.out.println("chooseClientAlias: " + socket);
     return nodealias;
   }
 

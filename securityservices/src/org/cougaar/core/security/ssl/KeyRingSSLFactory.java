@@ -26,7 +26,6 @@
 package org.cougaar.core.security.ssl;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.Socket;
 import java.net.InetAddress;
 import javax.net.SocketFactory;
@@ -51,13 +50,12 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   /**
    * Default constructor.
    */
-  public KeyRingSSLFactory() {
+  protected KeyRingSSLFactory() {
+    _fact = _ctx.getSocketFactory();
+  }
 
-    if (_ctx == null) {
-      System.out.println("Context is null!!!!");
-    } else {
-      _fact = _ctx.getSocketFactory();
-    }
+  protected KeyRingSSLFactory(SSLContext ctx) {
+    _fact = ctx.getSocketFactory();
   }
 
   /**
@@ -69,10 +67,20 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    */
   public synchronized static SocketFactory getDefault() {
     if (_default == null) {
+      if (_ctx == null) {
+        System.out.println("Context is null!!!!");
+        return null;
+      }
       _default = new KeyRingSSLFactory();
     }
     return _default;
   }
+
+  public static SocketFactory getInstance(SSLContext ctx) {
+    return new KeyRingSSLFactory(ctx);
+  }
+
+
 
   /**
    * Creates an <code>SSLSocket</code>
@@ -160,7 +168,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   public synchronized static void init(SSLContext ctx) {
     if (_ctx == null)
       _ctx = ctx;
-    else
-      System.out.println("SSLContext already set!");
+    else {
+      System.out.println("SSLContext is already set!");
+      return;
+    }
   }
 }

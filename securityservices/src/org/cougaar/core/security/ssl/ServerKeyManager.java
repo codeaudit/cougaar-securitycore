@@ -25,29 +25,33 @@
  */
 package org.cougaar.core.security.ssl;
 
+import javax.net.ssl.*;
+import java.security.*;
+import java.security.cert.*;
+import java.net.*;
 import java.util.*;
-import javax.swing.*;
 
-import org.cougaar.core.security.ssl.ui.*;
+import com.nai.security.util.*;
+import com.nai.security.crypto.DirectoryKeyStore;
+import org.cougaar.core.security.services.crypto.KeyRingService;
 
-public class UserCertificateUIImpl implements UserCertificateUI {
-
-  public String chooseClientAlias(Hashtable aliasTable) {
-    ChooseAliasDialog dialog = new ChooseAliasDialog();
-    // get certificates from keystore
-    dialog.setList(aliasTable);
-
-    dialog.show();
-
-    // get selected alias
-    return dialog.getSelection();
+public final class ServerKeyManager extends org.cougaar.core.security.ssl.KeyManager {
+  public ServerKeyManager(KeyRingService krs) {
+    super(krs);
   }
 
-  public String getUserPassword(String alias) {
-    String pwd = JOptionPane.showInputDialog(
-      "Please enter the password which protects the certificate for " + alias + ".");
-    if (pwd.length() == 0)
-      pwd = null;
-    return pwd;
+  public synchronized void updateKeystore() {
+    // find the valid domain name, get key alias and server certificate
   }
+
+  public String chooseClientAlias(String keyType, Principal[] issuers, Socket socket) {
+    // server application has no client alias
+    return null;
+  }
+
+  public String[] getClientAliases(String keyType, Principal[] issuers) {
+    return new String [] {};
+  }
+
+
 }

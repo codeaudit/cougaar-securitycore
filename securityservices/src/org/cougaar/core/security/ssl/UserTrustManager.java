@@ -25,29 +25,24 @@
  */
 package org.cougaar.core.security.ssl;
 
-import java.util.*;
-import javax.swing.*;
+import javax.net.ssl.*;
+import java.security.*;
+import java.security.cert.*;
 
-import org.cougaar.core.security.ssl.ui.*;
+import com.nai.security.util.*;
+import com.nai.security.crypto.DirectoryKeyStore;
+import org.cougaar.core.security.services.crypto.KeyRingService;
 
-public class UserCertificateUIImpl implements UserCertificateUI {
-
-  public String chooseClientAlias(Hashtable aliasTable) {
-    ChooseAliasDialog dialog = new ChooseAliasDialog();
-    // get certificates from keystore
-    dialog.setList(aliasTable);
-
-    dialog.show();
-
-    // get selected alias
-    return dialog.getSelection();
+public class UserTrustManager extends org.cougaar.core.security.ssl.TrustManager {
+  public UserTrustManager(KeyRingService krs) {
+    super(krs);
   }
 
-  public String getUserPassword(String alias) {
-    String pwd = JOptionPane.showInputDialog(
-      "Please enter the password which protects the certificate for " + alias + ".");
-    if (pwd.length() == 0)
-      pwd = null;
-    return pwd;
+  public void checkClientTrusted(X509Certificate[] chain, String authType)
+    throws CertificateException
+  {
+    // user application should not support server
+    throw new CertificateException("User application does not support client authentication.");
   }
+
 }

@@ -1,17 +1,43 @@
+/*
+ * <copyright>
+ *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  under sponsorship of the Defense Advanced Research Projects
+ *  Agency (DARPA).
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the Cougaar Open Source License as published by
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
+ * </copyright>
+ *
+ * CHANGE RECORD
+ * -
+ */
 package org.cougaar.core.security.ssl;
 
 import javax.net.ssl.*;
 import java.security.*;
 import java.security.cert.*;
+import java.util.*;
 
 import com.nai.security.util.*;
 import com.nai.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public class TrustManager implements X509TrustManager {
-  KeyRingService keyRing = null;
-  DirectoryKeyStore keystore = null;
-  X509Certificate [] issuers;
+  protected KeyRingService keyRing = null;
+  protected DirectoryKeyStore keystore = null;
+  protected X509Certificate [] issuers;
 
   public TrustManager(KeyRingService krs) {
     keyRing = krs;
@@ -21,12 +47,8 @@ public class TrustManager implements X509TrustManager {
   }
 
   public synchronized void updateKeystore() {
-    String nodename = NodeInfo.getNodeName();
     try {
-      X509Certificate nodex509 = (X509Certificate)keyRing.findCert(nodename);
-      if (nodex509 != null) {
-        issuers = keystore.checkCertificateTrust(nodex509);
-      }
+      issuers = keystore.getTrustedIssuers();
     } catch (Exception ex) {
       if (CryptoDebug.debug)
         ex.printStackTrace();
@@ -41,18 +63,16 @@ public class TrustManager implements X509TrustManager {
    * on the authentication type.
    */
 
-  public void checkClientTrusted(X509Certificate[] chain, String authType) {
+  public void checkClientTrusted(X509Certificate[] chain, String authType)
+    throws CertificateException
+  {
     if (CryptoDebug.debug)
       System.out.println("checkClientTrusted: " + chain);
+
+    // TODO: check whether client is user or node
+
     // check whether cert is valid, then build the chain
-    try {
-      if (chain.length == 0)
-        return;
-      X509Certificate [] certchain = keystore.checkCertificateTrust(chain[0]);
-    } catch (Exception e) {
-      if (CryptoDebug.debug)
-        e.printStackTrace();
-    }
+    keystore.checkCertificateTrust(chain[0]);
   }
 
   /**
@@ -61,19 +81,16 @@ public class TrustManager implements X509TrustManager {
    * can be validated and is trusted for server SSL authentication based on
    * the authentication type.
    */
-  public void checkServerTrusted(X509Certificate[] chain, String authType) {
+  public void checkServerTrusted(X509Certificate[] chain, String authType)
+    throws CertificateException
+  {
     // check whether cert is valid, then build the chain
     if (CryptoDebug.debug)
       System.out.println("checkServerTrusted: " + chain);
 
-    try {
-      if (chain.length == 0)
-        return;
-      X509Certificate [] certchain = keystore.checkCertificateTrust(chain[0]);
-    } catch (Exception e) {
-      if (CryptoDebug.debug)
-        e.printStackTrace();
-    }
+    // TODO: check whether cert is of type node or server
+
+    keystore.checkCertificateTrust(chain[0]);
   }
 
   /**

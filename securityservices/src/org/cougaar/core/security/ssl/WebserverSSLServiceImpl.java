@@ -25,29 +25,40 @@
  */
 package org.cougaar.core.security.ssl;
 
-import java.util.*;
-import javax.swing.*;
+import javax.net.*;
+import javax.net.ssl.*;
 
-import org.cougaar.core.security.ssl.ui.*;
+import com.nai.security.util.CryptoDebug;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.identity.*;
 
-public class UserCertificateUIImpl implements UserCertificateUI {
+public class WebserverSSLServiceImpl
+  extends SSLServiceImpl implements WebserverIdentityService {
 
-  public String chooseClientAlias(Hashtable aliasTable) {
-    ChooseAliasDialog dialog = new ChooseAliasDialog();
-    // get certificates from keystore
-    dialog.setList(aliasTable);
+  private static SSLContext srvcontext = null;
 
-    dialog.show();
+  public synchronized void init(KeyRingService krs)
+    throws Exception
+  {
+    if (srvcontext != null)
+      return;
 
-    // get selected alias
-    return dialog.getSelection();
+    // create context
+    SSLContext context = SSLContext.getInstance(protocol);
+
+    // create keymanager and trust manager
+    km = new ServerKeyManager(krs);
+    tm = new ServerTrustManager(krs);
+
+    context.init(new KeyManager[] {km}, new TrustManager[] {tm}, null);
+    srvcontext = context;
+
+    if (CryptoDebug.debug)
+      System.out.println("Successfully created Webserver SSLContext.");
+
   }
 
-  public String getUserPassword(String alias) {
-    String pwd = JOptionPane.showInputDialog(
-      "Please enter the password which protects the certificate for " + alias + ".");
-    if (pwd.length() == 0)
-      pwd = null;
-    return pwd;
+  public ServerSocketFactory getWebServerSocketFactory() {
+    return KeyRingSSLServerFactory.getInstance(srvcontext);
   }
 }
