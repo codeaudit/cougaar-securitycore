@@ -22,6 +22,7 @@ package org.cougaar.core.security.monitoring.plugin;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Calendar;
@@ -230,7 +231,9 @@ public class EventQueryPlugin extends ComponentPlugin {
     aq.setUpdateMethod(UpdateMethod.PUSH);
     aq.setPredicateSpec(_predSpec);
     aq.setFormatSpec(FORMAT_SPEC);
-    return new QueryResultAdapter(aq);
+    QueryResultAdapter qra = new QueryResultAdapter(aq);
+    qra.setResultSet(new EQAggregationResultSet());
+    return qra;
   }
 
   public void setParameter(Object o) {
@@ -374,12 +377,13 @@ public class EventQueryPlugin extends ComponentPlugin {
     while (queryResults.hasMoreElements()) {
       QueryResultAdapter queryResult = 
         (QueryResultAdapter) queryResults.nextElement();
-    AggregationResultSet results = queryResult.getResultSet();
+    EQAggregationResultSet results = 
+      (EQAggregationResultSet) queryResult.getResultSet();
     if (results.exceptionThrown()) {
       _log.error("Exception when executing query: " + results.getExceptionSummary());
       _log.debug("XML: " + results.toXml());
     } else {
-      Iterator atoms = results.getAllAtoms();
+      Iterator atoms = results.getAddedAtoms();
       BlackboardService bbs = getBlackboardService();
       DocumentBuilder parser;
       try {
@@ -468,4 +472,24 @@ public class EventQueryPlugin extends ComponentPlugin {
     }
   }
 
+  /**
+   * This class extends AggregationResultSet to add newgetAddedAtoms() method.
+   * Many thanks to Krishna Yallapu for this code.
+   */
+  public static class EQAggregationResultSet extends AggregationResultSet {
+    List addedAtoms = new LinkedList();
+
+    public void incrementalUpdate (UpdateDelta delta) {
+      super.incrementalUpdate(delta);
+      addedAtoms.addAll(delta.getAddedList());
+    }
+
+    public Iterator getAddedAtoms () {
+      List addedList = new LinkedList();
+      addedList.addAll(addedAtoms);
+      Iterator iter = addedList.iterator();
+      addedAtoms.clear();
+      return iter;
+    }
+  }
 }
