@@ -24,7 +24,7 @@ module Cougaar
 					valuelist =facet.[]("service")
 					if not valuelist.nil?  
 					valuelist.each{|facetvalue|
-						if facetvalue=="nfs-software" or facetvalue=="nfs-shared"
+						if facetvalue=="nfs-software" or facetvalue=="nfs-shared" or facetvalue=="NFS" or facetvalue="nfs"
 						inlist = "FALSE"
 						nfsHosts.each{ |nhost|
 							if nhost==host.name
