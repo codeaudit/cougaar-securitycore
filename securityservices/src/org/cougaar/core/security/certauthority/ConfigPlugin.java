@@ -164,13 +164,13 @@ public class ConfigPlugin
 
   public void setParameter(Object o) {
     //Collection l = getParameters();
+    Logger logger = LoggerFactory.getInstance().createLogger(this);
 
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List argument to setParameter");
     }
     List l = (List) o;
     if (l.size() == 0 || l.size() > 3) {
-      Logger logger = LoggerFactory.getInstance().createLogger(this);
       if (logger == null) {
 	throw new RuntimeException("Unable to get LoggingService");
       }
@@ -190,7 +190,9 @@ public class ConfigPlugin
       throw new RuntimeException("Parameter incorrect: " + caDN + " : " + ldapURL);
     }
 
-    //System.out.println("Parameter: " + caDN + " : " + ldapURL);
+    if (logger.isDebugEnabled()) {
+      logger.debug("CA DN: " + caDN + " - LDAP: " + ldapURL);
+    }
 
     if (l.size() > 2) {
       // this is not a root CA, get trusted ca policy
