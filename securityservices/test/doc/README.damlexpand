@@ -96,3 +96,99 @@ How to make the daml expander work (someday):
 	       This massages the daml files that we get so that we can
 	       read them and also test them for equality.
 
+---------------------------------- BUGS ----------------------------------
+
+-1. The use cases have trouble.  Some of this might be KPAT but some
+    of the Use case need to be redone.  Also I need to put the
+    expansions in policy-highlevel.init and policy-lowlevel.init.
+    The only expansion that work is the test.msg example in the
+    examples that follow.
+
+0. I am not getting two levels of expansion.  To get this bug, in KPAT
+   make a policy with AG1Member as the subject and test.msg as the
+   policy.  It will happen during the commit.  I reach the stage where
+   I am at the end of policyMsgFromModelPolicy with the right model (I
+   think).  There is an execute done by the second stage of the
+   expansion but it doesn't see the policy update.  
+
+   The end of policyMsgFromModelPolicy can be recognized by the
+   comment "Making PolicyMsg from daml".  The (almost) beginning of
+   execute can be seen by the comment "Finished loading Expander
+   initialization file.  It sees that it has DAML content ("Policy
+   from message is already a daml model")but the content is empty.
+   Try looking at debugModel after "here is the policy coming from the
+   attributes".
+
+   Lets also check all the fields that come out of a good PolicyMsg
+   from the 
+
+
+1. There seems to be an update message with UpdateType set
+   incorrectly.  The bug can be seen from the comment "leading to a
+   mismanagement of the daml policy set".  To get this bug, in KPAT
+   make a policy with AG1Member as the subject and test.msg as the
+   policy.  It will happen during the commit.  There are several
+   things that I can try   to fix before I chase this.  This doesn't
+   look like my problem (?). 
+
+2. From the SecureNode I get the error below.  To get this bug, in
+   KPAT make a policy with AG1Member as the subject and test.msg as
+   the policy.  It will happen during the commit.  There are several
+   things that I can try to fix before I chase this.
+
+EnclaveOnePolicyManager/safe.policyManager.DomainManagerPlugin[EnclaveOne]
+caught java.lang.NullPointerException
+java.lang.NullPointerException
+        at
+	kaos.core.service.directory.KAoSDirectoryService.sendPolicyUpdate(KAoSDirectoryService.java:1719)
+        at
+	safe.policyManager.DomainManagerPlugin$MyDirectoryService.sendExpandedPolicies(Unknown Source)
+        at safe.policyManager.DomainManagerPlugin.execute(Unknown
+	Source)
+        at
+	org.cougaar.core.plugin.SimplePlugin.cycle(SimplePlugin.java:130)
+        at
+	org.cougaar.core.plugin.PluginAdapter.plugin_cycle(PluginAdapter.java:957)
+        at
+	org.cougaar.core.plugin.PluginAdapter$SharedThreading$PluginTrigger.trigger(PluginAdapter.java:1191)
+        at
+	org.cougaar.util.SyncTriggerModelImpl.runInnerTrigger(SyncTriggerModelImpl.java:229)
+        at
+	org.cougaar.util.SyncTriggerModelImpl.access$000(SyncTriggerModelImpl.java:52)
+        at
+	org.cougaar.util.SyncTriggerModelImpl$2.trigger(SyncTriggerModelImpl.java:94)
+        at
+	org.cougaar.core.agent.service.scheduler.SchedulerServiceProvider$WorkerBase.runTrigger(SchedulerServiceProvider.java:208)
+        at
+	org.cougaar.core.agent.service.scheduler.SchedulerServiceProvider$NormalScheduler$Worker.run(SchedulerServiceProvider.java:316)
+        at
+	org.cougaar.core.thread.ThreadPool$PooledThread.run(ThreadPool.java:95)
+Warning Trigger
+SD:org.cougaar.core.plugin.PluginAdapter$SharedThreading$PluginTrigger@9124b7:null
+threw org.cougaar.core.blackboard.SubscriberException: Attempt to
+close a non-open transaction
+org.cougaar.core.blackboard.SubscriberException: Attempt to close a
+non-open transaction
+        at
+	org.cougaar.core.blackboard.Subscriber.closeTransaction(Subscriber.java:858)
+        at
+	org.cougaar.core.plugin.PluginAdapter.closeTransaction(PluginAdapter.java:497)
+        at
+	org.cougaar.core.plugin.SimplePlugin.cycle(SimplePlugin.java:139)
+        at
+	org.cougaar.core.plugin.PluginAdapter.plugin_cycle(PluginAdapter.java:957)
+        at
+	org.cougaar.core.plugin.PluginAdapter$SharedThreading$PluginTrigger.trigger(PluginAdapter.java:1191)
+        at
+	org.cougaar.util.SyncTriggerModelImpl.runInnerTrigger(SyncTriggerModelImpl.java:229)
+        at
+	org.cougaar.util.SyncTriggerModelImpl.access$000(SyncTriggerModelImpl.java:52)
+        at
+	org.cougaar.util.SyncTriggerModelImpl$2.trigger(SyncTriggerModelImpl.java:94)
+        at
+	org.cougaar.core.agent.service.scheduler.SchedulerServiceProvider$WorkerBase.runTrigger(SchedulerServiceProvider.java:208)
+        at
+	org.cougaar.core.agent.service.scheduler.SchedulerServiceProvider$NormalScheduler$Worker.run(SchedulerServiceProvider.java:316)
+        at
+	org.cougaar.core.thread.ThreadPool$PooledThread.run(ThreadPool.java:95)
+
