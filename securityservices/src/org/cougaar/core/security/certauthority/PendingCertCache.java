@@ -82,26 +82,23 @@ public class PendingCertCache
     return thisCache;
   }
 
-  private PendingCertCache(String cadnname, ServiceBroker sb) 
+  private PendingCertCache(final String cadnname, ServiceBroker sb) 
     throws Exception {
     serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this, LoggingService.class, null);
     AccessController.doPrivileged(new PrivilegedAction() {
       public Object run() {
         configParser = (ConfigParserService)
            serviceBroker.getService(this, ConfigParserService.class, null);
+        signer = (CertificateManagementService)
+	   serviceBroker.getService(new CertificateManagementServiceClientImpl(cadnname),
+				 CertificateManagementService.class, null);
         return null;
       }
     });
-    log = (LoggingService)
-      serviceBroker.getService(this,
-			       LoggingService.class, null);
     try {
       caPolicy = configParser.getCaPolicy(cadnname);
-
-      signer = (CertificateManagementService)
-	serviceBroker.getService(new CertificateManagementServiceClientImpl(cadnname),
-				 CertificateManagementService.class,
-				 null);
     }
     catch (Exception e) {
       throw new Exception("Unable to read policy for DN="

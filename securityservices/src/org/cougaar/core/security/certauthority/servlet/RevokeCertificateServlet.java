@@ -116,7 +116,7 @@ extends HttpServlet
     {
       String distinguishedName=null;
       String domain=null;
-      String cadnname=null;
+      final String cadnname=req.getParameter("cadnname");
       boolean error = false;
       PrintWriter out = res.getWriter();
       res.setContentType("text/html");   
@@ -124,7 +124,6 @@ extends HttpServlet
    
       distinguishedName=req.getParameter("distinguishedName");
       domain=req.getParameter("domain");
-      cadnname=req.getParameter("cadnname");
       
       if((distinguishedName==null)||(distinguishedName=="")) {
         out.println("Error in getting the certificate unique identifier");
@@ -146,10 +145,15 @@ extends HttpServlet
       String uri = req.getRequestURI();
       String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/CertificateList";
       try {
-        keymanagement =
-          (CertificateManagementService)support.getServiceBroker().getService(
-            new CertificateManagementServiceClientImpl(cadnname),
-            CertificateManagementService.class, null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run() {
+            keymanagement =
+              (CertificateManagementService)support.getServiceBroker().getService(
+                 new CertificateManagementServiceClientImpl(cadnname),
+                 CertificateManagementService.class, null);
+            return null;
+          }
+        });
         String uniqueIdentifier=distinguishedName;
         status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
       }
@@ -183,7 +187,7 @@ extends HttpServlet
       //PrintWriter out = res.getWriter();
       PrintStream out = new PrintStream(res.getOutputStream());
       String agentName = req.getParameter("agent_name");
-      String caDN = req.getParameter("ca_dn");
+      final String caDN = req.getParameter("ca_dn");
       String replyFormat = req.getParameter("reply_format");
       boolean replyHtml = false;
       if(replyFormat != null && replyFormat.equalsIgnoreCase("html")) {
@@ -213,9 +217,14 @@ extends HttpServlet
       out.println("Trying to get CertificateManagementService for caDN " + caDN + "agent name :"+agentName+"<br> " );
       int status = 0;
       try  {
-        keymanagement =(CertificateManagementService)support.getServiceBroker().getService(
-          new CertificateManagementServiceClientImpl(caDN),
-          CertificateManagementService.class, null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run() {
+             keymanagement =(CertificateManagementService)support.getServiceBroker().getService(
+                new CertificateManagementServiceClientImpl(caDN),
+                CertificateManagementService.class, null);
+             return null;
+          }
+        });
         if(keymanagement==null) {
           out.println("CertificateManagementService  is null ");
         }
