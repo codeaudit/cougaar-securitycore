@@ -4,7 +4,7 @@ RULES = File.join(CIP, 'csmart','config','rules')
 $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib') 
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist') 
 $:.unshift File.join(CIP, 'csmart', 'config', 'lib') 
-$:.unshift File.join(CIP, 'csmart', 'lib', 'security')
+$:.unshift File.join(CIP, 'csmart', 'lib')
 
 
 # Uncomment the following line if working in the CSI testbed
@@ -18,9 +18,9 @@ require 'cougaar/communities'
 require 'ultralog/scripting'
 require 'ultralog/services' 
 
-require 'lib/cougaarMods'
-require 'actions/cond_policy'
-require 'lib/misc'
+require 'security/lib/cougaarMods'
+require 'security/actions/cond_policy'
+require 'security/lib/misc'
  
 require 'socket' 
 require 'rexml/document' 
