@@ -47,6 +47,7 @@ import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -154,77 +155,80 @@ public class CAInfoServlet
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
-	// if no parameter, returns the whole TrustedCaPolicy, otherwise it is actually a set function
-   // for test script usage
-   String howLong = req.getParameter("howLong");
-   // need to set time envelope to 0
-   if (howLong != null) {
-   		String response = "";
-   		String caDn = req.getParameter("cadn");
-   		if (caDn == null) {
-			X500Name [] caDns = configParser.getCaDNs();   
-			if (caDns.length != 0) {
-				caDn = caDns[0].getName();	
-			}
-		}
-   		CaPolicy caPolicy = configParser.getCaPolicy(caDn);
-   		if (caPolicy != null) {
-			String timeEnvelope = req.getParameter("timeEnvelope");
-   			try {
-   				Duration duration = new Duration(support.getServiceBroker());
-				duration.parse(howLong);
-   				caPolicy.howLong = duration.getDuration();
-   				if (log.isDebugEnabled()) {
-   					log.debug("Duration is set to " + caPolicy.howLong);
-   				}
-   				caPolicy.validity = howLong;
-   				if (timeEnvelope == null) {
-   					timeEnvelope = "1 s";
-   				}
-   				caPolicy.timeEnvelopeString = timeEnvelope;
-   				duration.parse(timeEnvelope);
-   				caPolicy.timeEnvelope = duration.getDuration();
+    // if no parameter, returns the whole TrustedCaPolicy,
+    // otherwise it is actually a set function
+    // for test script usage
+    String howLong = req.getParameter("howLong");
+    // need to set time envelope to 0
+
+    ServletOutputStream out = res.getOutputStream();
+    if (howLong != null) {
+      String response = "";
+      String caDn = req.getParameter("cadn");
+      if (caDn == null) {
+	X500Name [] caDns = configParser.getCaDNs();   
+	if (caDns.length != 0) {
+	  caDn = caDns[0].getName();	
+	}
+      }
+      CaPolicy caPolicy = configParser.getCaPolicy(caDn);
+      if (caPolicy != null) {
+	String timeEnvelope = req.getParameter("timeEnvelope");
+	try {
+	  Duration duration = new Duration(support.getServiceBroker());
+	  duration.parse(howLong);
+	  caPolicy.howLong = duration.getDuration();
+	  if (log.isDebugEnabled()) {
+	    log.debug("Duration is set to " + caPolicy.howLong);
+	  }
+	  caPolicy.validity = howLong;
+	  if (timeEnvelope == null) {
+	    timeEnvelope = "1 s";
+	  }
+	  caPolicy.timeEnvelopeString = timeEnvelope;
+	  duration.parse(timeEnvelope);
+	  caPolicy.timeEnvelope = duration.getDuration();
    				
-   				response = "Changed validity to " + caPolicy.validity + ", timeEnvelope to " + caPolicy.timeEnvelopeString
-   					+ " for " + caDn;
-   			} catch (Exception ex) {
-   				response = "Exception in processing " + howLong + " or " + timeEnvelope;
-   			}
-   		}
-   		else {
-   			response = "No such caDn " + caDn;
-   		}
-   		PrintWriter out = res.getWriter();
-   		out.print(response);
-   		out.flush();
-   		out.close();
-   		
-   		return;
-   }
-    
-   try {
-      synchronized (this) {
-        if (_info == null) {
-          _info = getCAInfo();
-
-          if (_info == null) {
-            return;
-          }
-        }
+	  response = "Changed validity to " + caPolicy.validity + ", timeEnvelope to " + caPolicy.timeEnvelopeString
+	    + " for " + caDn;
+	} catch (Exception ex) {
+	  response = "Exception in processing " + howLong + " or " + timeEnvelope;
+	}
       }
-
-      res.setContentType("text/html");
-
-      ObjectOutputStream oos = new ObjectOutputStream(res.getOutputStream());
-      oos.writeObject(_info);
-      oos.close();
+      else {
+	response = "No such caDn " + caDn;
+      }
+      out.print(response);
+      out.flush();
+      out.close();
     }
-    catch (Exception e) {
-      if (log.isWarnEnabled()) {
-	log.warn("Unable to response ", e);
+    else { // if (howLong != null)
+      try {
+	synchronized (this) {
+	  if (_info == null) {
+	    _info = getCAInfo();
+	    if (_info == null) {
+	      out.flush();
+	      out.close();
+	      return;
+	    }
+	  }
+	}
+
+	res.setContentType("text/html");
+	ObjectOutputStream oos = new ObjectOutputStream(out);
+	oos.writeObject(_info);
+	oos.flush();
+	oos.close();
+      }
+      catch (Exception e) {
+	if (log.isWarnEnabled()) {
+	  log.warn("Unable to response ", e);
+	}
+	out.flush();
+	out.close();
       }
     }
-
   }
 
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
