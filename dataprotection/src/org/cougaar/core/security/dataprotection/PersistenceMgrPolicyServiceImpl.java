@@ -117,7 +117,13 @@ public class PersistenceMgrPolicyServiceImpl
     _keyRing = (KeyRingService)sb.getService(this, KeyRingService.class, null);
     _cs = (CommunityService)sb.getService(this, CommunityService.class, null);
     _wps = (WhitePagesService)sb.getService(this, WhitePagesService.class, null);
-    _eventService = (EventService)sb.getService(this, EventService.class, null);
+    _eventService = (EventService)sb.getService(this, EventService.class, null);    if (_eventService == null) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Event Service unavailable - spawning listener");
+      }
+      sb.addServiceListener(new EventServiceAvailableListener());
+    }
+
     NodeIdentificationService nis = (NodeIdentificationService)
       sb.getService(this, NodeIdentificationService.class, null);
     if (nis == null) {
@@ -522,6 +528,25 @@ public class PersistenceMgrPolicyServiceImpl
       else {
         _log.warn("Response failed for " + _agent);
         lookupPMuri(_agent, WP_LOOKUP_RETRY_PERIOD);
+      }
+    }
+  }
+
+
+  private class EventServiceAvailableListener
+    implements ServiceAvailableListener
+  {
+    public void serviceAvailable(ServiceAvailableEvent ae) 
+    {
+      if (ae.getService().equals(EventService.class)) {
+        _eventService = (EventService) ae.getServiceBroker().
+          getService(this, EventService.class, null);
+        if (_eventService != null) {
+          ae.getServiceBroker().removeServiceListener(this);
+	  if (_log.isDebugEnabled()) {
+	    _log.debug("Got event service");
+	  }
+        }
       }
     }
   }
