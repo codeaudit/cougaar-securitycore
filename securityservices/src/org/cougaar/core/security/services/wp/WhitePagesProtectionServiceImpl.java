@@ -122,9 +122,15 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
 
 
 //    List certList = keyRingService.findCert(name, KeyRingService.LOOKUP_KEYSTORE);
-	List certList;
+	List certList = new ArrayList();
 	try {
-		certList = getPrivateKeys(name, keyRingService);
+		List pkeyList = getPrivateKeys(name, keyRingService);
+                if (pkeyList != null) {
+                  for (int i = 0; i < pkeyList.size(); i++) {
+                    PrivateKeyCert pkey = (PrivateKeyCert)pkeyList.get(i);
+                    certList.add(pkey.getCertificateStatus());
+                  }
+                }
 	} catch (GeneralSecurityException e1) {
 		throw (e1);
 	} catch (IOException e1) {
@@ -235,11 +241,7 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
 			   if (pkCerts == null) {
 				 return keyList;
 			   }
-			   Iterator iter = pkCerts.iterator();
-			   while (iter.hasNext()) {
-				 PrivateKeyCert pkc = (PrivateKeyCert) iter.next();
-				 keyList.add(pkc.getPrivateKey());
-			   }
+                           keyList.addAll(pkCerts);
 			 }
 			 return keyList;
 		   }
