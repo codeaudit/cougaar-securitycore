@@ -9,7 +9,7 @@
 #
 
 LOCK TABLES alib_component WRITE;
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UserAdminAgent-cpy','UserAdminAgent-cpy','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UserAdminAgent','UserAdminAgent','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UserAdminAgent|org.cougaar.core.security.certauthority.CaServletComponent','UserAdminAgent|org.cougaar.core.security.certauthority.CaServletComponent','plugin|org.cougaar.core.security.certauthority.CaServletComponent','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UserAdminAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','UserAdminAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UserAdminAgent|org.cougaar.mlm.plugin.organization.OrgReportPlugin','UserAdminAgent|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin',0.000000000000000000000000000000);
@@ -20,7 +20,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent WRITE;
-REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent-cpy','UserAdminAgent',0.000000000000000000000000000000,'UserAdminAgent');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent','UserAdminAgent',0.000000000000000000000000000000,'UserAdminAgent');
 UNLOCK TABLES;
 
 #
@@ -28,11 +28,11 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent_pg_attr WRITE;
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent-cpy','ClusterPG|ClusterIdentifier','UserAdminAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent-cpy','ItemIdentificationPG|AlternateItemIdentification','UserAdminAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent-cpy','ItemIdentificationPG|ItemIdentification','UserAdminAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent-cpy','ItemIdentificationPG|Nomenclature','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent-cpy','TypeIdentificationPG|TypeIdentification','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent','ClusterPG|MessageAddress','UserAdminAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent','ItemIdentificationPG|AlternateItemIdentification','UserAdminAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent','ItemIdentificationPG|ItemIdentification','UserAdminAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent','ItemIdentificationPG|Nomenclature','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent','TypeIdentificationPG|TypeIdentification','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
 UNLOCK TABLES;
 
 #
@@ -47,7 +47,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0007-UserAdminAgent','RCP','UserAdminAgentNEW-cpy');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0007-UserAdminAgent','RCP','UserAdminAgentNEW');
 UNLOCK TABLES;
 
 #
@@ -55,7 +55,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_arg WRITE;
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent-cpy','UserAdminAgent',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent','UserAdminAgent',1.000000000000000000000000000000);
 REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent|org.cougaar.core.security.certauthority.CaServletComponent','/useradmin',2.000000000000000000000000000000);
 REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent|org.cougaar.core.security.certauthority.CaServletComponent','org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet',1.000000000000000000000000000000);
 UNLOCK TABLES;
@@ -65,10 +65,10 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent-cpy','UserAdminAgent-cpy','COMPONENT',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent|org.cougaar.core.security.certauthority.CaServletComponent','UserAdminAgent-cpy','COMPONENT',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','UserAdminAgent-cpy','COMPONENT',1.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent|org.cougaar.mlm.plugin.organization.OrgReportPlugin','UserAdminAgent-cpy','COMPONENT',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent','UserAdminAgent','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent|org.cougaar.core.security.certauthority.CaServletComponent','UserAdminAgent','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','UserAdminAgent','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0007-UserAdminAgent','UserAdminAgent|org.cougaar.mlm.plugin.organization.OrgReportPlugin','UserAdminAgent','COMPONENT',2.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -123,7 +123,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0007UserAdminAgent','UserAdminAgent-cpy','org.cougaar.tools.csmart.recipe.CompleteAgentRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0007UserAdminAgent','UserAdminAgent','org.cougaar.tools.csmart.recipe.CompleteAgentRecipe','No description available');
 UNLOCK TABLES;
 
 #
@@ -139,7 +139,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_pg_attribute WRITE;
-REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ClusterPG|ClusterIdentifier','ClusterPG','ClusterIdentifier','ClusterIdentifier','SINGLE');
+REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ClusterPG|MessageAddress','ClusterPG','MessageAddress','MessageAddress','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|AlternateItemIdentification','ItemIdentificationPG','AlternateItemIdentification','String','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|ItemIdentification','ItemIdentificationPG','ItemIdentification','String','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|Nomenclature','ItemIdentificationPG','Nomenclature','String','SINGLE');

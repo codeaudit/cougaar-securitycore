@@ -114,7 +114,7 @@ UNLOCK TABLES;
 
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0013SecurityComponentFactoryEnclave2','SecurityComponentFactoryEnclave2-cpy','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0013SecurityComponentFactoryEnclave2','SecurityComponentFactoryEnclave2','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
 UNLOCK TABLES;
 
 --

@@ -9,7 +9,7 @@
 #
 
 LOCK TABLES alib_component WRITE;
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UMmrmManagerAgent-cpy','UMmrmManagerAgent-cpy','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('UMmrmManagerAgent','UMmrmManagerAgent','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SCmrmanager','SCmrmanager','SCmrmanager','agent',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','plugin|edu.memphis.issrl.mrmanager.SCAggregationComponent','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','plugin|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','plugin',0.000000000000000000000000000000);
@@ -32,7 +32,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent_pg_attr WRITE;
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','ClusterPG|ClusterIdentifier','SCmrmanager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','ClusterPG|MessageAddress','SCmrmanager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
 REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','ItemIdentificationPG|AlternateItemIdentification','SCmrmanager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
 REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','ItemIdentificationPG|ItemIdentification','SCmrmanager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
 REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','ItemIdentificationPG|Nomenclature','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
@@ -51,7 +51,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0011-UMmrmManagerAgent','RCP','UMmrmManagerAgent-cpy');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0011-UMmrmManagerAgent','RCP','UMmrmManagerAgent');
 UNLOCK TABLES;
 
 #
@@ -69,7 +69,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','UMmrmManagerAgent-cpy','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager','UMmrmManagerAgent','COMPONENT',0.000000000000000000000000000000);
 REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationComponent','SCmrmanager','COMPONENT',1.000000000000000000000000000000);
 REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent','SCmrmanager','COMPONENT',0.000000000000000000000000000000);
 REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0011-UMmrmManagerAgent','SCmrmanager|org.cougaar.lib.aggagent.plugin.AggregationPlugin','SCmrmanager','COMPONENT',4.000000000000000000000000000000);
@@ -134,7 +134,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0011UMmrmManagerAgent','UMmrmManagerAgent-cpy','org.cougaar.tools.csmart.recipe.CompleteAgentRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0011UMmrmManagerAgent','UMmrmManagerAgent','org.cougaar.tools.csmart.recipe.CompleteAgentRecipe','No description available');
 UNLOCK TABLES;
 
 #
@@ -150,7 +150,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_pg_attribute WRITE;
-REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ClusterPG|ClusterIdentifier','ClusterPG','ClusterIdentifier','ClusterIdentifier','SINGLE');
+REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ClusterPG|MessageAddress','ClusterPG','MessageAddress','MessageAddress','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|AlternateItemIdentification','ItemIdentificationPG','AlternateItemIdentification','String','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|ItemIdentification','ItemIdentificationPG','ItemIdentification','String','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|Nomenclature','ItemIdentificationPG','Nomenclature','String','SINGLE');

@@ -100,7 +100,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-MnRCertificateRevokerPluginMnRCertificateRevokerPlugin','MnRCertificateRevokerPlugin-cpy','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description is available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-MnRCertificateRevokerPluginMnRCertificateRevokerPlugin','MnRCertificateRevokerPlugin','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description is available');
 UNLOCK TABLES;
 
 #

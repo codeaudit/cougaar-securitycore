@@ -9,7 +9,7 @@
 #
 
 LOCK TABLES alib_component WRITE;
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('IHMCPolicyDomainManagerAgent-cpy','IHMCPolicyDomainManagerAgent-cpy','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('IHMCPolicyDomainManagerAgent|org.cougaar.core.adaptivity.OperatingModePolicyManager','IHMCPolicyDomainManagerAgent|org.cougaar.core.adaptivity.OperatingModePolicyManager','plugin|org.cougaar.core.adaptivity.OperatingModePolicyManager','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('IHMCPolicyDomainManagerAgent|org.cougaar.core.security.policy.PolicyExpanderPlugin','IHMCPolicyDomainManagerAgent|org.cougaar.core.security.policy.PolicyExpanderPlugin','plugin|org.cougaar.core.security.policy.PolicyExpanderPlugin','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('IHMCPolicyDomainManagerAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','IHMCPolicyDomainManagerAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin',0.000000000000000000000000000000);
@@ -25,7 +25,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent WRITE;
-REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent-cpy','IHMCPolicyDomainManagerAgent',0.000000000000000000000000000000,'IHMCPolicyDomainManagerAgent');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent',0.000000000000000000000000000000,'IHMCPolicyDomainManagerAgent');
 UNLOCK TABLES;
 
 #
@@ -33,11 +33,11 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent_pg_attr WRITE;
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent-cpy','ClusterPG|ClusterIdentifier','IHMCPolicyDomainManagerAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent-cpy','ItemIdentificationPG|AlternateItemIdentification','IHMCPolicyDomainManagerAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent-cpy','ItemIdentificationPG|ItemIdentification','IHMCPolicyDomainManagerAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent-cpy','ItemIdentificationPG|Nomenclature','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent-cpy','TypeIdentificationPG|TypeIdentification','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','ClusterPG|MessageAddress','IHMCPolicyDomainManagerAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','ItemIdentificationPG|AlternateItemIdentification','IHMCPolicyDomainManagerAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','ItemIdentificationPG|ItemIdentification','IHMCPolicyDomainManagerAgent',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','ItemIdentificationPG|Nomenclature','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','TypeIdentificationPG|TypeIdentification','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
 UNLOCK TABLES;
 
 #
@@ -52,7 +52,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','RCP','IHMCPolicyDomainManagerAgent-cpy');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','RCP','IHMCPolicyDomainManagerAgent');
 UNLOCK TABLES;
 
 #
@@ -60,7 +60,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_arg WRITE;
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent-cpy','IHMCPolicyDomainManagerAgent',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent',1.000000000000000000000000000000);
 REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|safe.policyManager.DomainManagerPlugin','IHMCPolicyDomainManagerDomain',1.000000000000000000000000000000);
 UNLOCK TABLES;
 
@@ -69,15 +69,15 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent-cpy','IHMCPolicyDomainManagerAgent-cpy','COMPONENT',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|org.cougaar.core.adaptivity.OperatingModePolicyManager','IHMCPolicyDomainManagerAgent-cpy','COMPONENT',7.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|org.cougaar.core.security.policy.PolicyExpanderPlugin','IHMCPolicyDomainManagerAgent-cpy','COMPONENT',6.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','IHMCPolicyDomainManagerAgent-cpy','COMPONENT',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|org.cougaar.mlm.plugin.organization.OrgReportPlugin','IHMCPolicyDomainManagerAgent-cpy','COMPONENT',1.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|safe.policyManager.ConditionMonitorPlugin','IHMCPolicyDomainManagerAgent-cpy','COMPONENT',3.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|safe.policyManager.DomainManagerPlugin','IHMCPolicyDomainManagerAgent-cpy','COMPONENT',2.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|safe.policyManager.PolicyExpanderPlugin','IHMCPolicyDomainManagerAgent-cpy','COMPONENT',5.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|safe.policyManager.SetOperatingModeServletComponent','IHMCPolicyDomainManagerAgent-cpy','COMPONENT',4.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|org.cougaar.core.adaptivity.OperatingModePolicyManager','IHMCPolicyDomainManagerAgent','COMPONENT',7.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|org.cougaar.core.security.policy.PolicyExpanderPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',6.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|org.cougaar.mlm.plugin.organization.OrgReportPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|safe.policyManager.ConditionMonitorPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',3.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|safe.policyManager.DomainManagerPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|safe.policyManager.PolicyExpanderPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',5.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0004-IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent|safe.policyManager.SetOperatingModeServletComponent','IHMCPolicyDomainManagerAgent','COMPONENT',4.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -137,7 +137,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0004IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent-cpy','org.cougaar.tools.csmart.recipe.CompleteAgentRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0004IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent','org.cougaar.tools.csmart.recipe.CompleteAgentRecipe','No description available');
 UNLOCK TABLES;
 
 #
@@ -153,7 +153,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_pg_attribute WRITE;
-REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ClusterPG|ClusterIdentifier','ClusterPG','ClusterIdentifier','ClusterIdentifier','SINGLE');
+REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ClusterPG|MessageAddress','ClusterPG','MessageAddress','MessageAddress','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|AlternateItemIdentification','ItemIdentificationPG','AlternateItemIdentification','String','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|ItemIdentification','ItemIdentificationPG','ItemIdentification','String','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|Nomenclature','ItemIdentificationPG','Nomenclature','String','SINGLE');

@@ -114,7 +114,7 @@ UNLOCK TABLES;
 
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0022TelcordiaEventAccumulatorPlugin','TelcordiaEventAccumulatorPlugin-cpy','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0022TelcordiaEventAccumulatorPlugin','TelcordiaEventAccumulatorPlugin','org.cougaar.tools.csmart.recipe.SpecificInsertionRecipe','No description available');
 UNLOCK TABLES;
 
 --

@@ -1,4 +1,5 @@
 #!/bin/tcsh
 
-mysql -h mango -f -u root -p csmart_941 < recipeQueriesAll.sql
+set db=csmart1020
+mysql -f -u root -pultralog ${db} < recipeQueriesAll.sql
 

@@ -10,7 +10,7 @@
 
 LOCK TABLES alib_component WRITE;
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SocietySecurityMnRManager','SocietySecurityMnRManager','SocietySecurityMnRManager','agent',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SocietySecurityMnRManager-cpy','SocietySecurityMnRManager-cpy','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SocietySecurityMnRManager','SocietySecurityMnRManager','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.RateCalculatorPlugin','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.RateCalculatorPlugin','plugin|org.cougaar.core.security.monitoring.plugin.RateCalculatorPlugin','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.CapabilitiesProcessingPlugin','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.CapabilitiesProcessingPlugin','plugin|org.cougaar.core.security.monitoring.plugin.CapabilitiesProcessingPlugin','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.CapabilitiesConsolidationPlugin','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.CapabilitiesConsolidationPlugin','plugin|org.cougaar.core.security.monitoring.plugin.CapabilitiesConsolidationPlugin','plugin',0.000000000000000000000000000000);
@@ -42,7 +42,7 @@ REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB
 REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ItemIdentificationPG|Nomenclature','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
 REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','TypeIdentificationPG|TypeIdentification','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
 REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ItemIdentificationPG|AlternateItemIdentification','SocietySecurityMnRManager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ClusterPG|ClusterIdentifier','SocietySecurityMnRManager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ClusterPG|MessageAddress','SocietySecurityMnRManager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
 UNLOCK TABLES;
 
 #
@@ -57,7 +57,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','RCP','SocietySecurityMnRManager-cpy');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','RCP','SocietySecurityMnRManager');
 UNLOCK TABLES;
 
 #
@@ -82,7 +82,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','SocietySecurityMnRManager-cpy','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','SocietySecurityMnRManager','COMPONENT',0.000000000000000000000000000000);
 REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.RateCalculatorPlugin','SocietySecurityMnRManager','COMPONENT',0.000000000000000000000000000000);
 REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.CapabilitiesProcessingPlugin','SocietySecurityMnRManager','COMPONENT',1.000000000000000000000000000000);
 REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.CapabilitiesConsolidationPlugin','SocietySecurityMnRManager','COMPONENT',2.000000000000000000000000000000);
@@ -159,7 +159,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0010SocietySecurityMnRManagerSocietySecurityMnRManager-cpySocietySecurityMnRManager-cpy-cpy','SocietySecurityMnRManager-cpy','org.cougaar.tools.csmart.recipe.CompleteAgentRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0010SocietySecurityMnRManagerSocietySecurityMnRManagerSocietySecurityMnRManager','SocietySecurityMnRManager','org.cougaar.tools.csmart.recipe.CompleteAgentRecipe','No description available');
 UNLOCK TABLES;
 
 #
@@ -167,7 +167,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe_arg WRITE;
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0010SocietySecurityMnRManagerSocietySecurityMnRManager-cpySocietySecurityMnRManager-cpy-cpy','Assembly Id',0.000000000000000000000000000000,'RCP-0010-SocietySecurityMnRManager-SocietySecurity');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0010SocietySecurityMnRManagerSocietySecurityMnRManagerSocietySecurityMnRManager','Assembly Id',0.000000000000000000000000000000,'RCP-0010-SocietySecurityMnRManager-SocietySecurity');
 UNLOCK TABLES;
 
 #
@@ -179,6 +179,6 @@ REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATT
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|Nomenclature','ItemIdentificationPG','Nomenclature','String','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('TypeIdentificationPG|TypeIdentification','TypeIdentificationPG','TypeIdentification','String','SINGLE');
 REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ItemIdentificationPG|AlternateItemIdentification','ItemIdentificationPG','AlternateItemIdentification','String','SINGLE');
-REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ClusterPG|ClusterIdentifier','ClusterPG','ClusterIdentifier','ClusterIdentifier','SINGLE');
+REPLACE INTO lib_pg_attribute (PG_ATTRIBUTE_LIB_ID, PG_NAME, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, AGGREGATE_TYPE) VALUES ('ClusterPG|MessageAddress','ClusterPG','MessageAddress','MessageAddress','SINGLE');
 UNLOCK TABLES;
 
