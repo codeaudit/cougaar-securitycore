@@ -24,7 +24,9 @@
 
 package org.cougaar.core.security.crypto;
 
-public class CertificateRevocationStatus {
+import java.io.Serializable;
+
+public class CertificateRevocationStatus implements Serializable {
   // enumerator name
   private final String enum_name;
   
