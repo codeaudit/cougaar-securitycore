@@ -47,6 +47,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
   protected String nodename = null;
   private ServiceBroker serviceBroker;
   protected LoggingService log;
+  private boolean warningLogged = false;
 
   public KeyManager(KeyRingService krs, ServiceBroker sb) {
     keyRing = krs;
@@ -187,7 +188,10 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     // Get the first key in the list
     List keylist = keyRing.findPrivateKey(nodename);
     if (keylist == null || keylist.size() == 0) {
-      log.warn("No private key available for " + alias);
+      if (!warningLogged) {
+	log.warn("No private key available for " + alias);
+	warningLogged = true;
+      }
       return null;
     }
 

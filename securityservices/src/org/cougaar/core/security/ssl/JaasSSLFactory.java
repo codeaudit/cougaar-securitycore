@@ -180,26 +180,30 @@ public class JaasSSLFactory extends SSLSocketFactory {
         
         // create keymanager and trust manager
         UserKeyManager km = new UserKeyManager(_krs, _sb);
-        km.setAlias(_dirKeystore.findAlias(name));
         List l = _dirKeystore.findPrivateKey(name);
         if (l.isEmpty()) {
-          _log.warn("Couldn't find private key for " + name + 
+          _log.info("Couldn't find private key for " + name + 
                     " when creating SSLSocketFactory");
+	  name = "-- no client certificate -- ";
+	  fact = (SSLSocketFactory) _factories.get(name);
+	  if (fact != null) {
+	    return fact;
+	  }
         } else {
           PrivateKeyCert pkc = (PrivateKeyCert) l.get(0);
           km.setPrivateKey(pkc.getPrivateKey());
-        } // end of else
+	  km.setAlias(_dirKeystore.findAlias(name));
 
-        l = _dirKeystore.findCert(name, KeyRingService.LOOKUP_LDAP | 
-                                  KeyRingService.LOOKUP_KEYSTORE);
-        if (l.isEmpty()) {
-          _log.warn("Couldn't find certificate for " + name + 
-                    " when creating SSLSocketFactory");
-        } else {
-          CertificateStatus certStatus = (CertificateStatus) l.get(0);
-          km.setCertificate((X509Certificate) certStatus.getCertificate());
-        } // end of else
-        
+	  l = _dirKeystore.findCert(name, KeyRingService.LOOKUP_LDAP | 
+				    KeyRingService.LOOKUP_KEYSTORE);
+	  if (l.isEmpty()) {
+	    _log.warn("Couldn't find certificate for " + name + 
+		      " when creating SSLSocketFactory");
+	  } else {
+	    CertificateStatus certStatus = (CertificateStatus) l.get(0);
+	    km.setCertificate((X509Certificate) certStatus.getCertificate());
+	  }
+        } 
         context.init(new KeyManager[] {km}, 
                      new TrustManager[] {_trustManager}, null);
         
