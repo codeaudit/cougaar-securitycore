@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This file compiles and packages the security services in a safe way.
 # It does not overwrite files from $COUGAAR_INSTALL_PATH
@@ -14,6 +14,14 @@ if [ "$?" != 0 ]; then
     echo "$0: Can't create temp file, exiting..."
     exit 1
 fi
+
+# Adapt path if using cygwin
+which cygpath.exe >& /dev/null
+if [ $? == 0 ]; then
+  # We must be under cygwin. Convert to unix path
+  tmpdir=`cygpath -wl ${tmpdir}`
+fi
+
 install=0
 if [ "$#" != "0" ]; then
   if [ "$1" == "-i" ]; then
