@@ -22,6 +22,8 @@
     <!-- cougaar install path on remote testbed -->
     <property name="testbed.cip.dir" value="~/UL/cougaar"/>
 
+    <property name="zip.file.name" value="cougaar-test.zip"/>
+
     <!-- Load additional properties which are used to upload
          project artifacts to a web server and perform tests.
          Properties stored in that file should be:
@@ -113,7 +115,7 @@
 
     <target name="zip-overlays">
        <echo message="Preparing zip file containing all overlays and Cougaar SE"/>
-       <zip destfile="cougaar-test.zip">
+       <zip destfile="${zip.file.name}">
          <!-- Add Cougaar SE ZIP files -->
          <fileset dir="${org.cougaar.build.path}">
            <patternset>
@@ -149,7 +151,7 @@
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Copying zip file to testbed machine..."/>
-      <scp file="cougaar-test.zip"
+      <scp file="${zip.file.name}"
            todir="${testbed.user.name}@${testbed.operator.host}:${testbed.cip.dir}"
            keyfile="${user.home}/.ssh/id_dsa"
            passphrase=""/>
@@ -158,35 +160,24 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="cd ${testbed.cip.dir} ; unzip -q cougaar-test.zip"
+	command="cd ${testbed.cip.dir} ; unzip -q ${zip.file.name} ; mkdir acme-1.6 ; ln -s acme-1.6 acme"
         timeout="60000"
-        output="${analysis.directory.name}/sshexec.log" append="true"/>
-
-      <echo message="Remove cougaar-test.zip on remote machine..."/>
-      <sshexec host="${testbed.operator.host}"
-	username="${testbed.user.name}"
-        keyfile="${user.home}/.ssh/id_dsa"
-	command="cd ${testbed.cip.dir} ; rm -f cougaar-test.zip ; mkdir acme-1.6 ; ln -s acme-1.6 acme"
-        timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Unzip overlay files on testbed machine..."/>
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="sh -c 'cd ${testbed.cip.dir} ; for f in *.zip ; do unzip -q -o $f ; done ; for f in *.tar.gz ; do tar xfz $f ; done ;'"
+	command="sh -c 'cd ${testbed.cip.dir} ; for f in `ls *.zip | grep -v ${zip.file.name}` ; do unzip -q -o $f ; done ; for f in *.tar.gz ; do tar xfz $f ; done ;'"
         timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Copying loggingConfig.conf file to testbed machine..."/>
-      <scp file="test/configs/logging/loggingConfig.conf"
+      <scp file="${base.directory.name}/test/configs/logging/loggingConfig.conf"
            todir="${testbed.user.name}@${testbed.operator.host}:${testbed.cip.dir}/configs/common"
            keyfile="${user.home}/.ssh/id_dsa"
            passphrase=""/>
 
-      <loadfile property="ssh-message-1"
-               srcFile="${analysis.directory.name}/sshexec.log"/>
-      <echo message="Result of SSH commands: ${ssh-message-1}"/>
     </target>
 
     <target name="run-society">
