@@ -78,6 +78,28 @@ public abstract class CertDirectoryService
 
   public void setDirectoryServiceURL(String aURL)
   {
+    boolean useSSL = false;
+    if (aURL.startsWith("ldaps://")) {
+      useSSL = true;
+      int colonIndex = aURL.indexOf(":",8);
+      int slashIndex = aURL.indexOf("/",8);
+      String host;
+      if (slashIndex == -1) slashIndex = aURL.length();
+      if (colonIndex == -1 || colonIndex > slashIndex) {
+        // there is no default port -- change the default
+        // port to 636 for ldaps
+        if (slashIndex == 0) {
+          // there is no host either -- use 0.0.0.0 as host
+          host = "0.0.0.0";
+        } else {
+          host = aURL.substring(8,slashIndex);
+        }
+        aURL = "ldap://" + host + ":636" + 
+          aURL.substring(slashIndex);
+      } else {
+        aURL = "ldap://" + aURL.substring(8);
+      }
+    }
     ldapServerUrl = aURL;
     initializationOK = false;
     if (CryptoDebug.debug) {
@@ -89,6 +111,11 @@ public abstract class CertDirectoryService
       Hashtable env = new Hashtable();
       env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
       env.put(Context.PROVIDER_URL, ldapServerUrl);
+      if (useSSL) {
+        env.put(Context.SECURITY_PROTOCOL, "ssl");
+        env.put("java.naming.ldap.factory.socket", 
+                "org.cougaar.core.security.crypto.ldap.KeyRingSSLFactory");
+      }
       
       context=new InitialDirContext(env);
       initializationOK = true;
