@@ -170,6 +170,11 @@ public class MessageProtectionServiceImpl
     ObjectOutputStream oos = new ObjectOutputStream(baos);
     oos.writeObject(po);
 
+    if (log.isDebugEnabled()) {
+      log.debug("protectHeader OK: " + source.toAddress()
+		+ " -> " + destination.toAddress());
+    }
+
     return baos.toByteArray();
   }
 
@@ -220,6 +225,11 @@ public class MessageProtectionServiceImpl
     }
     Object o =
       encryptService.unprotectObject(source, destination, po, policy);
+    if (log.isDebugEnabled()) {
+      log.debug("unprotectHeader OK: " + source.toAddress()
+		+ " -> " + destination.toAddress());
+    }
+
     return (byte[])o;
   }
 
@@ -263,7 +273,7 @@ public class MessageProtectionServiceImpl
     }
     pos =
       new MessageOutputStream(os, encryptService, cps,
-			      source, destination);
+			      source, destination, serviceBroker);
     return pos;
   }
 
@@ -306,7 +316,7 @@ public class MessageProtectionServiceImpl
     }
     pis =
       new MessageInputStream(is, encryptService, cps,
-			     source, destination);
+			     source, destination, serviceBroker);
     return pis;
   }
 }

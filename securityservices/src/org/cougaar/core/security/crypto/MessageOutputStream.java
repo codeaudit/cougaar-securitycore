@@ -32,6 +32,8 @@ import java.security.GeneralSecurityException;
 import org.cougaar.core.mts.ProtectedOutputStream;
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.services.crypto.EncryptionService;
@@ -51,6 +53,8 @@ public class MessageOutputStream
   private CryptoPolicyService cps;
   private MessageAddress source;
   private MessageAddress target;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
   private static final int DEFAULT_INIT_BUFFER_SIZE = 200;
 
@@ -58,8 +62,14 @@ public class MessageOutputStream
 			     EncryptionService enc,
 			     CryptoPolicyService cps,
 			     MessageAddress source,
-			     MessageAddress target) {
+			     MessageAddress target,
+			     ServiceBroker sb) {
     super(stream);
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+
     outputStream = stream;
     isEndOfMessage = false;
     dataOut = new ByteArrayOutputStream(DEFAULT_INIT_BUFFER_SIZE);
@@ -121,6 +131,12 @@ public class MessageOutputStream
     SecureMethodParam policy =
       cps.getSendPolicy(source.toAddress() + ":"
 			  + target.toAddress());
+
+    if (log.isDebugEnabled()) {
+      log.debug("protectMessage: " + source.toAddress()
+		+ " -> " + target.toAddress());
+    }
+
     if (policy == null) {
        throw new IOException("Could not find message policy between "
 			     + source.toAddress()
@@ -137,6 +153,10 @@ public class MessageOutputStream
     }
     catch (GeneralSecurityException e) {
       throw new IOException(e.toString());
+    }
+    if (log.isDebugEnabled()) {
+      log.debug("protectMessage OK: " + source.toAddress()
+		+ " -> " + target.toAddress());
     }
     return protectedMessage;
   }

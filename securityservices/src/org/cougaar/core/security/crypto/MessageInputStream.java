@@ -33,6 +33,8 @@ import java.security.GeneralSecurityException;
 import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.services.crypto.EncryptionService;
@@ -53,13 +55,22 @@ public class MessageInputStream
   private MessageAddress source;
   private MessageAddress target;
   private ByteArrayInputStream plainTextInputStream;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
   public MessageInputStream(InputStream stream,
 			    EncryptionService enc,
 			    CryptoPolicyService cps,
 			    MessageAddress source,
-			    MessageAddress target) {
+			    MessageAddress target,
+			    ServiceBroker sb) {
     super(stream);
+    serviceBroker = sb;
+
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+
     inputStream = stream;
     isEndOfMessage = false;
     isClosed = false;
@@ -152,6 +163,11 @@ public class MessageInputStream
     }
     ObjectInputStream ois = new ObjectInputStream(inputStream);
 
+    if (log.isDebugEnabled()) {
+      log.debug("readInputStream: " + source.toAddress()
+		+ " -> " + target.toAddress());
+    }
+
     // The object should be a ProtectedObject
     ProtectedObject protectedObject = null;
     try {
@@ -176,6 +192,12 @@ public class MessageInputStream
     catch (GeneralSecurityException e) {
       throw new IOException(e.toString());
     }
+
+    if (log.isDebugEnabled()) {
+      log.debug("readInputStream OK: " + source.toAddress()
+		+ " -> " + target.toAddress());
+    }
+
     plainTextInputStream = new ByteArrayInputStream(rawData);
     isEndOfMessage = true;
   }
