@@ -16,11 +16,11 @@ if [ "$?" != 0 ]; then
 fi
 
 # Adapt path if using cygwin
-which cygpath.exe >& /dev/null
-if [ $? == 0 ]; then
+#which cygpath.exe >& /dev/null
+#Nif [ $? == 0 ]; then
   # We must be under cygwin. Convert to unix path
-  tmpdir=`cygpath -wl ${tmpdir}`
-fi
+#  tmpdir=`cygpath -wl ${tmpdir}`
+#fi
 
 install=0
 if [ "$#" != "0" ]; then
@@ -106,19 +106,24 @@ zip -qr AS_csi_secserv.zip \
 	webtomcat/data/conf/server.xml \
 	webtomcat/data/webapps/ROOT/WEB-INF/web.xml \
 	sys/antlr.jar \
-	sys/ontologyRepInit.jar \
 	sys/bcprov-jdk14*.jar \
-	sys/ibmpkcs.jar \
-	sys/jas.jar \
-	sys/jpcsc.jar \
-	sys/polCert.jar \
-	sys/jasper-runtime.jar \
-	sys/jtp.jar \
-	sys/Tidy.jar \
+        sys/commons-logging.jar \
 	sys/dl.jar \
+	sys/ibmpkcs.jar \
+        sys/icu4j.jar \
 	sys/iw.jar \
+	sys/jas.jar \
+	sys/jasper-runtime.jar \
+	sys/jdom.jar \
+        sys/jena.jar \
+	sys/jpcsc.jar \
+	sys/jtp.jar \
 	sys/mail.jar \
-	sys/jdom.jar
+	sys/ontologyRepInit.jar \
+	sys/polCert.jar \
+        sys/xercesImpl.jar \
+        sys/xmlParserAPIs.jar \
+	sys/Tidy.jar
 
 cp AS_csi_secserv.zip ${startupdir}
 rm -rf ${tmpdir}
