@@ -75,7 +75,7 @@ public class CertificateSearchServiceImpl
       return l;
     }
     try {
-      AddressEntry ael = fetchCertEntry(cname);
+      AddressEntry ael = fetchCertEntry(cname, null);
       //AddressEntry ael = whitePagesService.refresh(cname, WhitePagesUtil.WP_CERTIFICATE_TYPE,1);
       if (ael == null) {
         if (log.isDebugEnabled()) {
@@ -132,6 +132,10 @@ public class CertificateSearchServiceImpl
    * It is up to the caller to choose what it needs
    */
   public List findCert(X500Name dname) {
+    return findCert(dname, null);
+  }
+
+  public List findCert(final X500Name dname, final SearchCallback scb) {
     if (log.isDebugEnabled()) {
       log.debug("findCert: " + dname.getName());
     }
@@ -151,12 +155,51 @@ public class CertificateSearchServiceImpl
     if (whitePagesService == null) {
       return l;
     }
-    String dnameString = dname.getName();
     try {
-      String cname = dname.getCommonName();
+      final String cname = dname.getCommonName();
       CertificateStatus cs = null;
       //AddressEntry ael = whitePagesService.get(cname,WhitePagesUtil.WP_CERTIFICATE_TYPE,1);
-      AddressEntry ael = fetchCertEntry(cname);
+      
+      Callback callback = null;
+      if (scb != null) {
+    /** Callback to handle White page response.
+     */
+      callback = new Callback() {
+      /** Handle a WhitePagesService response. */
+      public void execute(Response res) {
+        if (res.isSuccess()) {
+          if (log.isDebugEnabled()) {
+            log.debug("Got response back in callback for " + cname);
+          }
+          AddressEntry ael = ((Response.Get)res).getAddressEntry();
+          //wpCache.put(cname, ((Response.Get)res).getAddressEntry());
+            scb.searchCallback(dname.getName(), 
+              processFindResponse(cname, dname, ael));
+            
+        }
+        else {
+          if (log.isDebugEnabled()) {
+            log.debug("Got no response back for " + cname + " res: " + res);
+          }
+        }
+      }
+    };
+
+      }
+      AddressEntry ael = fetchCertEntry(cname, callback);
+      if (scb == null) {
+        return processFindResponse(cname, dname, ael);
+      }
+    } catch (Exception ex) {
+      if (log.isWarnEnabled()) {
+        log.warn("Failed to request from naming: ", ex);
+      }
+    }
+    return l;
+  }
+
+  private List processFindResponse(String cname, X500Name dname, AddressEntry ael) {
+      List l = new ArrayList();
       if (ael == null) {
         if (log.isDebugEnabled()) {
           log.debug("Unable to find cert entry in naming: " + cname);
@@ -165,6 +208,7 @@ public class CertificateSearchServiceImpl
         return l;
       }
 
+      String dnameString = dname.getName();
       Cert cert = ael.getCert();
       if (cert == Cert.PROXY) {
         // go to contact the agent with attribute cert provider
@@ -198,9 +242,11 @@ public class CertificateSearchServiceImpl
 
           CertDirectoryService lookupService = getCertDirectoryService(
             reqUri.getScheme());
+/*
           if (lookupService == null) {
             throw new Exception("No lookup service available for: " + reqUri.getScheme());
           }
+*/
           // this does not build the chain, only grab the certs from ldap
           List certList = lookupService.findCert(dname, reqUri);
           /*
@@ -242,12 +288,6 @@ public class CertificateSearchServiceImpl
         }
         // should this raise an alert?
       }
-      return l;
-    } catch (Exception ex) {
-      if (log.isWarnEnabled()) {
-        log.warn("Failed to request from naming: ", ex);
-      }
-    }
     return l;
   }
 
@@ -255,7 +295,7 @@ public class CertificateSearchServiceImpl
     return fac.getCertDirectoryService(scheme);
   }
 
-  private AddressEntry fetchCertEntry(final String cname)
+  private AddressEntry fetchCertEntry(final String cname, Callback callback)
     throws Exception
   {
     // look up cache
@@ -272,24 +312,13 @@ public class CertificateSearchServiceImpl
     }
     */
 
-    /** Callback to handle White page response.
-     */
-    Callback callback = new Callback() {
-      /** Handle a WhitePagesService response. */
-      public void execute(Response res) {
-        if (res.isSuccess()) {
-          if (log.isDebugEnabled()) {
-            log.debug("Got response back in callback for " + cname);
-          }
-          //wpCache.put(cname, ((Response.Get)res).getAddressEntry());
-        }
-        else {
-          if (log.isDebugEnabled()) {
-            log.debug("Got no response back for " + cname + " res: " + res);
-          }
-        }
-      }
-    };
+    if (callback != null) {
+      Response r = whitePagesService.submit(
+        new Request.Get(Request.NONE,
+          cname, WhitePagesUtil.WP_CERTIFICATE_TYPE), callback);
+      return null;
+    }
+
     Response r = whitePagesService.submit(
       new Request.Get(Request.NONE,
         cname, WhitePagesUtil.WP_CERTIFICATE_TYPE)/*, callback*/);
