@@ -1,0 +1,6 @@
+##Rule to add servlet to test agent restart
+society.each_agent do |agent|
+        agent.add_component do |c|
+                c.classname="org.cougaar.core.security.test.blackboard.CompromiseBlackboardServlet"
+        end
+end
