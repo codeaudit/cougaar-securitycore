@@ -238,7 +238,8 @@ public class UserManagerPlugin extends ComponentPlugin {
               continue;
             }
             if (pwd != null) {
-              pwd = KeyRingJNDIRealm.encryptPassword(user, pwd);
+              pwd = KeyRingJNDIRealm.encryptPassword(_domain + "\\" + user, 
+                                                     pwd);
             }
             map.put(UserEntries.FIELD_PASSWORD,pwd);
             _userCache.addUser(user, map);
