@@ -45,6 +45,12 @@ import org.apache.catalina.Realm;
  * </pre>
  *
  * @author George Mount <gmount@nai.com>
+ *
+ * @property org.cougaar.lib.web.tomcat.realm.class
+ *   classname for realm.
+ * @property org.cougaar.lib.web.tomcat.enableAuth 
+ *   enable default realm if classname property is
+ *   not specified.
  */
 public class SecureRealm implements Realm {
 
