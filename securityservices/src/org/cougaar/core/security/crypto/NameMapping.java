@@ -86,23 +86,50 @@ public class NameMapping {
       log.debug("AddName: " + principal.getName());
     }
 
+    Hashtable principals = (Hashtable)cn2dn.get(cn);
+    // Can have more than one dn with the same cn with multiple CA
     /* Since the common name must currently be unique, it is a configuration
      * error if two distinguished names have the same common name. */
-    synchronized(this) {
-      X500Name aPrincipal = (X500Name)cn2dn.get(cn);
-      if (aPrincipal != null &&
-	  !aPrincipal.equals(x500Name)) {
-	// Cannot continue. Configuration error.
-	throw new IllegalArgumentException("Two DNs have same CN. Keeping "
-					   + x500Name + " - "
-					   + aPrincipal.toString() + " excluded");
-      }
-      cn2dn.put(cn, x500Name);
+      /*
+    if (aPrincipal != null &&
+	!aPrincipal.equals(x500Name)) {
+      // Cannot continue. Configuration error.
+      throw new IllegalArgumentException("Two DNs have same CN. Keeping "
+					 + x500Name + " - "
+					 + aPrincipal.toString() + " excluded");
+                                         */
+    if (principals == null) {
+      principals = new Hashtable();
+      cn2dn.put(cn, principals);
     }
+
+    // This is to improve the performance if searching for x500name
+    // if use List X500Name comparison is very time consuming.
+    principals.put(x500Name.getName(), x500Name);
   }
 
-  public X500Name getX500Name(String commonName) {
-    X500Name name = (X500Name) cn2dn.get(commonName);
-    return name;
+  public List getX500Name(String commonName) {
+    List nameList = new ArrayList();
+    Hashtable principals = (Hashtable)cn2dn.get(commonName);
+    if (principals != null) {
+      nameList.addAll(principals.values());
+    }
+    return nameList;
+  }
+
+  public boolean contains(X500Name dname) {
+    Hashtable principals = null;
+    try {
+      principals = (Hashtable)cn2dn.get(dname.getCommonName());
+    }
+    catch (IOException iox) {
+      if (log.isWarnEnabled()) {
+        log.warn("Cannot get Common name: " + dname);
+      }
+    }
+    if (principals != null) {
+      return (principals.get(dname.getName()) != null);
+    }
+    return false;
   }
 }
