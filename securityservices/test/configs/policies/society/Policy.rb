@@ -26,6 +26,7 @@ require 'security/lib/cougaarMods'
 require 'security/actions/buildPolicies'
 require 'security/actions/buildCoordinatorPolicies'
 require 'security/actions/buildUserFiles'
+require 'security/actions/build_config_files'
 require 'security/actions/configFiles'
 require 'security/actions/installBootPolicies'
 require 'security/actions/saveEvents'
@@ -50,12 +51,12 @@ Cougaar::ExperimentMonitor.enable_logging
 Cougaar.new_experiment("Policy-Test").run(1) { 
 
 
-#   society_file="PolicyOne.xml"
-#   layout_file="PolicyOne-layout.xml"
+   society_file="PolicyOne.xml"
+   layout_file="PolicyOne-layout.xml"
 
-  society_file="PolicyTwo.xml"
+#  society_file="PolicyTwo.xml"
 #  layout_file="PolicyTwo-layout.xml"
-  layout_file="PolicyTwoSpread-layout.xml"
+#  layout_file="PolicyTwoSpread-layout.xml"
 
  
   # read the basic society definition 
@@ -108,9 +109,8 @@ RULES = File.join(CIP, 'csmart','config','rules')
   do_action "BuildConfigJarFiles"
   do_action "BuildPolicies"
   do_action "BuildUserFiles"  
-  do_action "DeployCommunitiesFile" 
-
-
+  do_action "BuildSignedCommunityJarFile", "myCommunity.xml", 
+                                           "#{CIP}/configs/common"
   do_action "StartSociety" 
 
   do_action "Sleep", 30.seconds 
