@@ -86,6 +86,16 @@ public class SSLSocketWrapper extends SSLSocket {
     _socket.startHandshake();
   }
 
+  public void bind(SocketAddress bindpoint)
+    throws IOException{
+    _socket.bind(bindpoint);
+  }
+
+  public void close()
+    throws IOException{
+    _socket.close();
+  }
+
   public void connect(SocketAddress endpoint)
     throws IOException {
     _socket.connect(endpoint);
@@ -97,37 +107,12 @@ public class SSLSocketWrapper extends SSLSocket {
     _socket.connect(endpoint, timeout);
   }
 
-  public void bind(SocketAddress bindpoint)
-    throws IOException{
-    _socket.bind(bindpoint);
+  public SocketChannel getChannel(){
+    return _socket.getChannel();
   }
 
   public InetAddress getInetAddress() {
     return _socket.getInetAddress() ;
-  }
-
-  public InetAddress getLocalAddress(){
-    return _socket.getLocalAddress();
-  }
-
-  public int getPort(){
-    return _socket.getPort();
-  }
-
-  public int getLocalPort(){
-    return _socket.getLocalPort();
-  }
-
-  public SocketAddress getRemoteSocketAddress(){
-    return _socket.getRemoteSocketAddress();
-  }
-
-  public SocketAddress getLocalSocketAddress(){
-    return _socket.getLocalSocketAddress();
-  }
-
-  public SocketChannel getChannel(){
-    return _socket.getChannel();
   }
 
   public InputStream getInputStream()
@@ -135,19 +120,124 @@ public class SSLSocketWrapper extends SSLSocket {
     return _socket.getInputStream();
   }
 
+  public boolean getKeepAlive()
+    throws SocketException {
+    return _socket.getKeepAlive();
+  }
+
+  public InetAddress getLocalAddress(){
+    return _socket.getLocalAddress();
+  }
+
+  public int getLocalPort(){
+    return _socket.getLocalPort();
+  }
+
+  public SocketAddress getLocalSocketAddress(){
+    return _socket.getLocalSocketAddress();
+  }
+
+  public boolean getOOBInline()
+    throws SocketException{
+    return _socket.getOOBInline();
+  }
+
   public OutputStream getOutputStream()
     throws IOException{
     return _socket.getOutputStream();
   }
 
-  public void setTcpNoDelay(boolean on)
+  public int getPort(){
+    return _socket.getPort();
+  }
+
+  public int getReceiveBufferSize()
     throws SocketException{
-    _socket.setTcpNoDelay(on);
+    return _socket.getReceiveBufferSize();
+  }
+
+  public SocketAddress getRemoteSocketAddress(){
+    return _socket.getRemoteSocketAddress();
+  }
+
+  public boolean getReuseAddress()
+    throws SocketException{
+    return _socket.getReuseAddress();
+  }
+
+  public int getSendBufferSize()
+    throws SocketException{
+    return _socket.getSendBufferSize();
+  }
+
+  public int getSoLinger()
+    throws SocketException{
+    return _socket.getSoLinger();
+  }
+
+  public int getSoTimeout()
+    throws SocketException{
+    return _socket.getSoTimeout();
   }
 
   public boolean getTcpNoDelay()
     throws SocketException{
     return _socket.getTcpNoDelay();
+  }
+
+  public int getTrafficClass()
+    throws SocketException{
+    return _socket.getTrafficClass();
+  }
+
+  public boolean isBound(){
+    return _socket.isBound();
+  }
+
+  public boolean isClosed(){
+    return _socket.isClosed();
+  }
+
+  public boolean isConnected(){
+    return _socket.isConnected();
+  }
+
+  public boolean isInputShutdown(){
+    return _socket.isInputShutdown();
+  }
+
+  public boolean isOutputShutdown(){
+    return _socket.isOutputShutdown();
+  }
+
+  public void sendUrgentData(int data)
+    throws IOException{
+    _socket.sendUrgentData(data);
+  }
+
+  public void setKeepAlive(boolean on)
+    throws SocketException{
+    _socket.setKeepAlive(on);
+  }
+
+  public void setOOBInline(boolean on)
+    throws SocketException{
+    _socket.setOOBInline(on);
+  }
+
+  public void setReceiveBufferSize(int size)
+    throws SocketException{
+    _socket.setReceiveBufferSize(size);
+  }
+
+  public void setReuseAddress(boolean on)
+    throws SocketException{
+    _socket.setReuseAddress(on);
+  }
+
+  public void setSendBufferSize(int size)
+    throws SocketException{
+    _socket.setSendBufferSize(size);
   }
 
   public void setSoLinger(boolean on,
@@ -156,89 +246,19 @@ public class SSLSocketWrapper extends SSLSocket {
     _socket.setSoLinger(on, linger);
   }
 
-  public int getSoLinger()
-    throws SocketException{
-    return _socket.getSoLinger();
-  }
-
-  public void sendUrgentData(int data)
-    throws IOException{
-    _socket.sendUrgentData(data);
-  }
-
-  public void setOOBInline(boolean on)
-    throws SocketException{
-    _socket.setOOBInline(on);
-  }
-
-  public boolean getOOBInline()
-    throws SocketException{
-    return _socket.getOOBInline();
-  }
-
   public void setSoTimeout(int timeout)
     throws SocketException{
     _socket.setSoTimeout(timeout);
   }
 
-  public int getSoTimeout()
+  public void setTcpNoDelay(boolean on)
     throws SocketException{
-    return _socket.getSoTimeout();
-  }
-
-  public void setSendBufferSize(int size)
-    throws SocketException{
-    _socket.setSendBufferSize(size);
-  }
-
-  public int getSendBufferSize()
-    throws SocketException{
-    return _socket.getSendBufferSize();
-  }
-
-  public void setReceiveBufferSize(int size)
-    throws SocketException{
-    _socket.setReceiveBufferSize(size);
-  }
-
-  public int getReceiveBufferSize()
-    throws SocketException{
-    return _socket.getReceiveBufferSize();
-  }
-
-  public void setKeepAlive(boolean on)
-    throws SocketException{
-    _socket.setKeepAlive(on);
-  }
-
-  public boolean getKeepAlive()
-    throws SocketException {
-    return _socket.getKeepAlive();
+    _socket.setTcpNoDelay(on);
   }
 
   public void setTrafficClass(int tc)
     throws SocketException{
     _socket.setTrafficClass(tc);
-  }
-
-  public int getTrafficClass()
-    throws SocketException{
-    return _socket.getTrafficClass();
-  }
-
-  public void setReuseAddress(boolean on)
-    throws SocketException{
-    _socket.setReuseAddress(on);
-  }
-
-  public boolean getReuseAddress()
-    throws SocketException{
-    return _socket.getReuseAddress();
-  }
-
-  public void close()
-    throws IOException{
-    _socket.close();
   }
 
   public void shutdownInput()
@@ -255,23 +275,7 @@ public class SSLSocketWrapper extends SSLSocket {
     return _socket.toString();
   }
 
-  public boolean isConnected(){
-    return _socket.isConnected();
-  }
-
-  public boolean isBound(){
-    return _socket.isBound();
-  }
-
-  public boolean isClosed(){
-    return _socket.isClosed();
-  }
-
-  public boolean isInputShutdown(){
-    return _socket.isInputShutdown();
-  }
-
-  public boolean isOutputShutdown(){
-    return _socket.isOutputShutdown();
+  public int hashCode() {
+    return _socket.hashCode();
   }
 }
