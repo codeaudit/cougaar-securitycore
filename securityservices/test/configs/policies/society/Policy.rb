@@ -16,6 +16,7 @@ require 'cougaar/experiment'
 require 'security/actions/saveEvents'
 require 'security/lib/cougaarMods'
 require 'security/actions/buildPolicies'
+require 'security/actions/buildUserFiles'
 require 'security/actions/configFiles'
 require 'security/actions/saveEvents'
 require 'security/actions/cond_policy'
@@ -73,10 +74,12 @@ Cougaar.new_experiment("Policy-Test").run(1) {
     "#{RULES}/security/mop/audit_servlet.rule",
     "#{RULES}/security/robustness",
     "#{RULES}/security/mts/loopback_protocol.rule",
+#    "#{RULES}/security/mts/sslRMI.rule",
 #    "#{RULES}/security/mts/http_mts.rule",
     "#{RULES}/security/mts/https_mts.rule",
-#    "#{RULES}/security/mts/sslRMI.rule",
-    "#{RULES}/security/naming"
+    "#{RULES}/security/naming",
+#    "#{RULES}/security/test/test-network-config.rule"
+
 
     "#{CIP}/csmart/lib/security/rules/mts_queue_viewer.rule"
 
@@ -95,6 +98,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
 
   do_action "BuildConfigJarFiles"
   do_action "BuildPolicies"
+  do_action "BuildUserFiles"  
   do_action "DeployCommunitiesFile" 
 
   do_action "StartSociety" 
@@ -102,7 +106,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "Sleep", 30.seconds 
   do_action "WaitForUserManagerReady"
   
-  do_action "InitDM"
+   do_action "InitDM"
 
   do_action "BlackboardTest"
   do_action "ServletTest01"
@@ -110,6 +114,5 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "DomainManagerRehydrateReset"
 
   do_action "TestResults"
-  do_action "Sleep", 3600.seconds
 }
 
