@@ -214,8 +214,7 @@ public class ExperimentMapper
 	    currentNodeConf.setNodeDescription(value);
 	  }
 	  else if (localName.equals(NODE_STARTUP_DIRECTORY)) {
-	    currentNodeConf.setNodeStartupDirectoryName(getCanonicalPath(currentNodeConf.getTopLevelDirectory()
-							+ File.separator + value));
+	    currentNodeConf.setNodeStartupDirectoryName(getCanonicalPath(value));
 	  }
 	  else if (localName.equals(PROPERTY_FILE)) {
 	    currentNodeConf.setPropertyFile(value);
@@ -269,6 +268,8 @@ public class ExperimentMapper
 	  // The parent can be an Experiment or a NodeConfiguration
 	  Object o = stack.peek();
 	  if (o instanceof Experiment) {
+	    System.out.println("Adding operation to Experiment: " +
+	      ((Experiment)o).getExperimentName());
 	    switch (currentOp.getType()) {
 	    case OperationConf.BEFORE:
 	      ((Experiment)o).setPreOperation(currentOp);
@@ -278,7 +279,9 @@ public class ExperimentMapper
 	      break;
 	    }
 	  }
-	  else {
+	  else if (o instanceof NodeConfiguration) {
+	    System.out.println("Adding operation to NodeConfiguration: " +
+			       ((NodeConfiguration)o).getNodeName());
 	    switch (currentOp.getType()) {
 	    case OperationConf.BEFORE:
 	      ((NodeConfiguration)o).setPreOperation(currentOp);
@@ -288,8 +291,9 @@ public class ExperimentMapper
 	      break;
 	    }
 	  }
-
-	  // push
+	  else {
+	    System.out.println("Unexpected class: " + o.getClass().getName());
+	  }
 	  stack.push(currentOp);
 	}
 
@@ -297,16 +301,8 @@ public class ExperimentMapper
 			     String localName,
 			     String qName,
 			     CharArrayWriter contents ){
-	  String value = getContents();
-	  if (localName.equals("class")) {
-	    currentOp.setClassName(value);
-	  }
-	  else if (localName.equals("method")) {
-	    currentOp.setMethodName(value);
-	  }
 	  stack.pop();
 	}
-
       };
 
     root.track("experiment/operation", operation);
@@ -329,6 +325,7 @@ public class ExperimentMapper
 			     CharArrayWriter contents ){
 	  String value = getContents();
 	  if (localName.equals("class")) {
+	    System.out.println("Class name:" + value);
 	    currentOp.setClassName(value);
 	  }
 	  else if (localName.equals("method")) {

@@ -84,7 +84,7 @@
     <td><img src="./Small_UL_Shield.jpg"></td>
     </tr>
     </table>
-    <br><hr>
+    <hr>
  
 <table cellpadding="2" cellspacing="2" border="1" width="100%">
    <tbody>

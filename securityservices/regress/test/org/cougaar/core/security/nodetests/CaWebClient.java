@@ -97,14 +97,9 @@ public class CaWebClient
     caListCaUrl = topLevelPageUrl + "$caAgent/CA/ListCaKeysServlet";
   }
 
-
   public static void main(String args[]) {
     CaWebClient client = new CaWebClient();
     client.testCreateCaKey("foo");
-  }
-
-  public void installCaCertificateKeystore(String arg) {
-    
   }
 
   public void testCreateCaKey(String arg) {
@@ -131,36 +126,54 @@ public class CaWebClient
     checkStringsWebResponse(caIndexUrl, e3, null);
 
     // Check caMain page
-    if (isFirstInstallation) {
-      // 
-      String e4[] = {
-	"<h1>Cougaar Certificate Authority</h1></font>",
-	"<h2>Select action in left frame</h2>",
+    String e4[] = {
+      "<h1>Cougaar Certificate Authority</h1></font>",
+      "<h2>Select action in left frame</h2>",
       };
-     checkStringsWebResponse(caMainUrl, e4, null);
+    String e44[] = {
+      "<br>At list one CA key must be generated before the CA can be used.",
+      "<br>Select \"Create CA key\" in the left frame."
+    };
+    String e5[] = {
+      "<h1>Cougaar Certificate Authority</h1></font>",
+      "<h2>Select action in left frame</h2>",
+      "<br>At list one CA key must be generated before the CA can be used.",
+      "<br>Select \"Create CA key\" in the left frame."
+     };
+
+    if (isFirstInstallation) {
+      checkStringsWebResponse(caMainUrl, e5, null);
     }
     else {
-     String e5[] = {
-	"<h1>Cougaar Certificate Authority</h1></font>",
-	"<h2>Select action in left frame</h2>",
-	"<br>At list one CA key must be generated before the CA can be used.",
-	"<br>Select \"Create CA key\" in the left frame."
-     };
-     checkStringsWebResponse(caMainUrl, e5, null);
+      checkStringsWebResponse(caMainUrl, e4, e44);
     }
 
     checkCreateCaForm(caCreateKeyUrl);
 
     // Check caListCaUrl page
+    // The first time the CA is started, it does not have agent and node keys yet.
     String e6[] = {
       "<title>CA Keys List</title>",
       "<TR><TH> DN-Certificate </TH><TH> DN-Signed By </TH></TR>",
       "TD>CN=" + cnValue + ", OU=" + ouValue + ", O=" + oValue + ", L=" + lValue
-        + ", ST=" + stValue + ", C=" + cValue + ", T=ca</TD>",
+        + ", ST=" + stValue + ", C=" + cValue + ", T=ca</TD>"
+    };
+
+    // The second time the CA is started, it should have the agent and node keys.
+    String e7[] = {
+      "<title>CA Keys List</title>",
+      "<TR><TH> DN-Certificate </TH><TH> DN-Signed By </TH></TR>",
+      "TD>CN=" + cnValue + ", OU=" + ouValue + ", O=" + oValue + ", L=" + lValue
+      + ", ST=" + stValue + ", C=" + cValue + ", T=ca</TD>",
       "<TD>CN=caAgent, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US, T=agent</TD>",
       "<TD>CN=caNode, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US, T=node</TD>"
     };
-    checkStringsWebResponse(caListCaUrl, e6, null);
+    if (isFirstInstallation) {
+      checkStringsWebResponse(caListCaUrl, e6, null);
+    }
+    else {
+      checkStringsWebResponse(caListCaUrl, e7, null);
+    }
 
   }
 

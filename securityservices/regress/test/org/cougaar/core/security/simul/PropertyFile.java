@@ -112,14 +112,19 @@ public class PropertyFile
 
   public void readPropertiesFile(NodeConfiguration tcc) {
     File f = findPropertiesFile(tcc.getPropertyFile());
+    if (f == null) {
+      Assert.fail("Property file does not exist");
+    }
     ArrayList env = new ArrayList();
+
+    // Default values
+    javaBin = "java";
+
     try {
       FileReader filereader=new FileReader(f);
       BufferedReader buffreader=new BufferedReader(filereader);
       String linedata=new String();
 
-      // Default values
-      javaBin = "java";
       while((linedata=buffreader.readLine())!=null) {
 	linedata.trim();
 	if(linedata.startsWith("#")) {
@@ -174,11 +179,10 @@ public class PropertyFile
       }
 
     }
-    catch(FileNotFoundException fnotfoundexp) {
-      Assert.fail("User parameter configuration file not found");
-    }
-    catch(IOException ioexp) {
-      Assert.fail("Cannot read User parameter configuration file: " + ioexp);
+    catch(Exception e) {
+      e.printStackTrace();
+      System.out.println("Unable to read configuration file: " + e);
+      Assert.fail("Unable to read configuration file: " + e);
     }
     env.add("COUGAAR_INSTALL_PATH=" + System.getProperty("org.cougaar.install.path"));
     env.add("COUGAAR_WORKSPACE=" + System.getProperty("org.cougaar.workspace"));
@@ -337,9 +341,13 @@ public class PropertyFile
 				     + File.separator + "security" 
 				     + File.separator + "Linux.props");
       f = new File(file);
-      System.out.println("Trying " + f.getPath() + "...");
+      System.out.print("Trying " + f.getPath() + "...");
       if (!f.exists()) {
 	f = null;
+	System.out.println(" Not found");
+      }
+      else {
+	System.out.println(" Found");
       }
     }
     Assert.assertNotNull("Unable to find properties file", f);

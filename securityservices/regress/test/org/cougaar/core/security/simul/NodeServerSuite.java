@@ -29,6 +29,7 @@ package test.org.cougaar.core.security.simul;
 import java.io.*;
 import java.util.*;
 import java.text.*;
+import java.net.*;
 import java.util.regex.*;
 import junit.framework.*;
 import java.rmi.Naming;
@@ -211,6 +212,7 @@ public class NodeServerSuite
     if (tr != null) {
       tcc.setErrors(tr.errorCount());
       tcc.setFailures(tr.failureCount());
+      tcc.setLogFilesUrls();
     }
     //tcc.setCompletionTime();
     //tcc.setStartTime();
@@ -314,7 +316,7 @@ public class NodeServerSuite
     }
     try {
       // Give the remote RMI servers some time to start...
-      Thread.sleep(10000);
+      Thread.sleep(5000);
     }
     catch (Exception e) {}
 
@@ -382,9 +384,26 @@ public class NodeServerSuite
 	Thread.sleep(2000);
       }
       catch (Exception e) {
+	System.out.println("Unable to kill old RMI server on " + tcc.getHostName() + ": " + e);
 	e.printStackTrace();
-	Assert.fail("Unable to kill old RMI server on" + tcc.getHostName() + ": " + e);
       }
+    }
+
+    // In addition, kill all java processes, but only on remote machines otherwise we will kill ourselves.
+
+    try {
+      InetAddress myHost = InetAddress.getLocalHost();
+      InetAddress otherHost = InetAddress.getByName(tcc.getHostName());
+      if (!myHost.equals(otherHost)) {
+	// Kill java process
+	System.out.println("Killing java processes on " + tcc.getHostName());
+	String commandLine = "/usr/bin/ssh " + tcc.getHostName() + " killall -w java";
+	Process killJava = thisApp.exec(commandLine);
+	killJava.waitFor();
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("Unable to kill java processes on " + tcc.getHostName() + ": " + e);
     }
 
     classPath = System.getProperty("org.cougaar.securityservices.classes");
@@ -413,7 +432,7 @@ public class NodeServerSuite
       + " " + System.getProperty("java.home") + File.separator + "bin" + File.separator
       + "java -classpath " + jarFile1 + ":" + jarFile2 + ":" + jarFile3 + ":" + jarFile4;
 
-    Properties props = System.getProperties();
+    Properties props = (Properties)System.getProperties().clone();
     // Override some properties
     props.put("java.rmi.server.codebase", "file://" + jarFile1 + ":file://" + jarFile2);
     props.put("java.security.policy",

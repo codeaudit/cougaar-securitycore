@@ -124,8 +124,10 @@ public class NodeServer
       }
 
       //System.out.println(commandLine);
-      for (int i = 0 ; i < propertyFile.getEnvironmentVariables().length ; i++) {
-	System.out.println(propertyFile.getEnvironmentVariables()[i]);
+      if (propertyFile.getEnvironmentVariables() != null) {
+	for (int i = 0 ; i < propertyFile.getEnvironmentVariables().length ; i++) {
+	  System.out.println(propertyFile.getEnvironmentVariables()[i]);
+	}
       }
       System.out.println("Node startup directory: " + nodeStartupDirectory);
 

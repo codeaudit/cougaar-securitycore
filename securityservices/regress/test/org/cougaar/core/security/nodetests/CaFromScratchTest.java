@@ -83,4 +83,43 @@ public class CaFromScratchTest
       System.out.println("Deleting directory " + file.getPath() + ": " + isDeleted);
     }
   }
+
+  /** Copy the CA certificate keystore to $CIP/configs/security. */
+  public void installCaCertificateKeystore(String nodeName) {
+    System.out.println("Copying CA keystore file");
+
+    String path1 = System.getProperty("org.cougaar.workspace")
+      + File.separator + "security" + File.separator + "keystores"
+      + File.separator + nodeName + File.separator + "keystore-CONUS-RSA";
+    File origin = new File(path1);
+
+    // Extract last path element of org.cougaar.config.path and copy
+    // the keystore file to that path.
+    String path2 = System.getProperty("org.cougaar.install.path");
+    path2 = path2 + File.separator + "configs" + File.separator
+      + "security" + File.separator + "keystore-CA-JunitTest";
+    File dest = new File(path2);
+    copyFile(origin, dest);
+  }
+
+  private void copyFile(File origin, File dest) {
+    System.out.println("Copying file " + origin.getPath()
+		       + " to " + dest.getPath());
+    try {
+      BufferedInputStream bis =
+	new BufferedInputStream(new FileInputStream(origin));
+      BufferedOutputStream bos =
+	new BufferedOutputStream(new FileOutputStream(dest));
+      int i;
+      while ((i = bis.read()) != -1) {
+	bos.write(i);
+      }
+    }
+    catch (IOException e) {
+      System.out.println("Unable to copy keystore file");
+      Assert.fail("Unable to copy keystore file from " + origin.getPath()
+	+ " to " + dest.getPath());
+    }
+  }
+
 }

@@ -73,7 +73,7 @@
     <!-- The name of the file containing java properties -->
     <propertyFile>Linux.props</propertyFile>
     <!-- Command line arguments when starting the node -->
-    <nodeArguments>org.cougaar.core.node.Node -n caNode -c</nodeArguments>
+    <nodeArguments>org.cougaar.core.node.Node -n I-COMMAND-NODE -c</nodeArguments>
    </nodeTest>
 
    <nodeTest name="I-CBTSVCSUP-NODE">
@@ -92,7 +92,7 @@
     <!-- The name of the file containing java properties -->
     <propertyFile>Linux.props</propertyFile>
     <!-- Command line arguments when starting the node -->
-    <nodeArguments>org.cougaar.core.node.Node -n caNode -c</nodeArguments>
+    <nodeArguments>org.cougaar.core.node.Node -n I-CBTSVCSUP-NODE -c</nodeArguments>
    </nodeTest>
 
    <nodeTest name="I-CONUS-DIV-NODE">
@@ -111,7 +111,7 @@
     <!-- The name of the file containing java properties -->
     <propertyFile>Linux.props</propertyFile>
     <!-- Command line arguments when starting the node -->
-    <nodeArguments>org.cougaar.core.node.Node -n caNode -c</nodeArguments>
+    <nodeArguments>org.cougaar.core.node.Node -n I-CONUS-DIV-NODE -c</nodeArguments>
    </nodeTest>
 
    <nodeTest name="I-IBCT-2BDE-NODE">
@@ -130,7 +130,7 @@
     <!-- The name of the file containing java properties -->
     <propertyFile>Linux.props</propertyFile>
     <!-- Command line arguments when starting the node -->
-    <nodeArguments>org.cougaar.core.node.Node -n caNode -c</nodeArguments>
+    <nodeArguments>org.cougaar.core.node.Node -n I-IBCT-2BDE-NODE -c</nodeArguments>
    </nodeTest>
 
    <nodeTest name="I-TRANSCOM-NODE">
@@ -149,7 +149,7 @@
     <!-- The name of the file containing java properties -->
     <propertyFile>Linux.props</propertyFile>
     <!-- Command line arguments when starting the node -->
-    <nodeArguments>org.cougaar.core.node.Node -n caNode -c</nodeArguments>
+    <nodeArguments>org.cougaar.core.node.Node -n I-TRANSCOM-NODE -c</nodeArguments>
    </nodeTest>
 
    <nodeTest name="TEST-NODE-NCADomainManager">
@@ -168,7 +168,7 @@
     <!-- The name of the file containing java properties -->
     <propertyFile>Linux.props</propertyFile>
     <!-- Command line arguments when starting the node -->
-    <nodeArguments>org.cougaar.core.node.Node -n caNode -c</nodeArguments>
+    <nodeArguments>org.cougaar.core.node.Node -n TEST-NODE-NCADomainManager -c</nodeArguments>
    </nodeTest>
 
 </experiment>

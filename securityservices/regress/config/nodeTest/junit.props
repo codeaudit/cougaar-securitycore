@@ -16,8 +16,9 @@ junit.host.hostB=tea
 junit.host.hostC=yew
 junit.host.hostD=fig
 junit.host.hostE=mango
-junit.host.hostF=apple
+junit.host.hostF=tea
 junit.host.hostG=pear
+junit.host.hostH=rose
 
 
 # The HTTP port number used by Tomcat (should match the value defined in userparameter.conf)

@@ -60,7 +60,7 @@
    <nodeTest name="CA_web_client">
     <!-- Properties that override those found in the Linux.props file -->
     <property name="junit.web.topLevelPageUrl" value="http://${junit.host.hostA}:${junit.http.port}"/>
-    <property name="junit.web.isFirstInstallation" value="false"/>
+    <property name="junit.web.isFirstInstallation" value="true"/>
     <property name="junit.ca.user.name" value="${junit.ca.user.name}"/>
     <property name="junit.ca.user.password" value="${junit.ca.user.password}"/>
 
@@ -77,6 +77,14 @@
     <propertyFile>Linux.props</propertyFile>
     <!-- Command line arguments when starting the node -->
     <nodeArguments>test.org.cougaar.core.security.nodetests.CaWebClient webClient</nodeArguments>
+    <!-- Operations to perform before the node is started -->
+    <operation type="after">
+      <!-- At that point, the CA has generated its keys.
+           The nodes need to have the certificate of the CA in order to trust it. -->
+      <class>test.org.cougaar.core.security.nodetests.CaFromScratchTest</class>
+      <method>installCaCertificateKeystore</method>
+      <argument>caNode</argument>
+    </operation>
    </nodeTest>
 
 </experiment>

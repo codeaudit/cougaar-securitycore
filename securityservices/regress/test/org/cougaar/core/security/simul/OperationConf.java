@@ -97,8 +97,13 @@ public class OperationConf
     }
 
     testClass = Class.forName(className);
-    Class parameterTypes[] = new Class[1];
+    Method ms[] = testClass.getDeclaredMethods();
+    System.out.println(testClass.getName() + " declared methods:");
+    for (int i = 0 ; i < ms.length ; i++) {
+      System.out.println(ms[i]);
+    }
 
+    Class parameterTypes[] = new Class[1];
     parameterTypes[0] = String.class;
     Method method = testClass.getDeclaredMethod(methodName, parameterTypes);
     return method;

@@ -181,26 +181,41 @@ public class NodeConfiguration
     return link;
   }
 
-  public String getLogFilesUrls() {
+  /** Should be called after the experiment to setup the links to the log files
+   *  and the status of the file (non existent, empty...)
+   */
+  public void setLogFilesUrls() {
     String s = "";
-    try {
-      String fileName = "results/" + experimentName + "/" +
-	getNodeName() + "/NODE-" + getNodeName() + "-out.log";
-      File file = new File(fileName);
-      s = s + makeLink(fileName, file.getName());
+    s = s +          makeLink("NODE-" + getNodeName() + "-out.log");
+    s = s + "<br>" + makeLink("NODE-" + getNodeName() + "-err.log");
+    s = s + "<br>" + makeLink("log4j.log");
+    logFilesUrls = s;
+  }
 
-      fileName = "results/" + experimentName + "/" +
-	getNodeName() + "/NODE-" + getNodeName() + "-err.log";
-      file = new File(fileName);
-      s = s + "<br>" + makeLink(fileName, file.getName());
-      
-      fileName = "results/" + experimentName + "/" +
-	getNodeName() + "/log4j.log";
-      file = new File(fileName);
-      s = s + "<br>" + makeLink(fileName, file.getName());
+  private String makeLink(String fileName) {
+    String link = "";
+    try {
+      link = "results/" + experimentName + "/" + getNodeName() + "/" + fileName;
+      File fileURL = new File(link);
+      link = makeLink(link, fileURL.getName());
+
+      String f = topLevelDirectory + File.separator
+	+ "regress" + File.separator + "results" + File.separator + experimentName + File.separator
+	+ getNodeName() + File.separator + fileName;
+      System.out.println("Checking status of " + f);
+      File file = new File(f);
+      if (!file.exists()) {
+	link = link + " (missing)";
+      }
+      else {
+	link = link + " (size=" + file.length() + ")";
+      }
     }
     catch (Exception e) {}
-    logFilesUrls = s;
+    return link;
+  }
+
+  public String getLogFilesUrls() {
     return logFilesUrls;
   }
   public SerializableTestResult getTestResult() {
