@@ -69,7 +69,7 @@ public class AgentUserService implements UserService, BlackboardClient {
 
   public  static final String COMMUNITY_TYPE = "User";
   public  static final String MANAGER_ROLE   = "UserManager";
-  public final static long MAX_WAIT = 3000;
+  public final static long MAX_WAIT = 10000;
 
   private final UnaryPredicate MY_RELAYS = new UnaryPredicate() {
       public boolean execute(Object obj) {
