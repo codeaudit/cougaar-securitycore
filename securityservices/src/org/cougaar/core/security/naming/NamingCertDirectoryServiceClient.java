@@ -59,8 +59,8 @@ public class NamingCertDirectoryServiceClient {
 
     log = (LoggingService)
       sb.getService(this,
-			       LoggingService.class,
-			       null);
+                    LoggingService.class,
+                    null);
 
     if (log.isDebugEnabled()) {
       log.debug("Adding service listner for naming service :");
@@ -79,7 +79,7 @@ public class NamingCertDirectoryServiceClient {
       if (!cname.equals(NodeInfo.getNodeName())) {
         if (log.isDebugEnabled()) {
           log.debug("storing " + dname
-            + " before node cert registers to naming");
+                    + " before node cert registers to naming");
         }
 
         certCache.put(dname, certEntry);
@@ -102,7 +102,17 @@ public class NamingCertDirectoryServiceClient {
       return false;
     }
 
-    return updateCertEntry(certEntry);
+    // naming bug: naming service is enabled before naming thread is created
+    // so there is a problem updating naming even though naming service is available
+    // need to wait until we successfully updated naming for an entry (should happen
+    // after agents registers
+    if (updateCertEntry(certEntry)) {
+      if (!certCache.isEmpty()) {
+        updateCertEntryFromCache();
+      }
+      return true;
+    }
+    return false;
   }
 
   private void setNamingService() {
@@ -131,12 +141,13 @@ public class NamingCertDirectoryServiceClient {
         CertificateEntry cachedEntry = (CertificateEntry)it.next();
         if (log.isDebugEnabled()) {
           log.debug("updating " + cachedEntry.getCertificate().getSubjectDN()
-            + " after node cert updated in naming.");
+                    + " after node cert updated in naming.");
         }
         try {
           updateCertEntry(cachedEntry);
         } catch (Exception ex) {
-          log.warn("Failed to update naming: " + ex);
+          log.warn("Failed to update naming: ", ex);
+          return;
         }
       }
     }
@@ -159,7 +170,7 @@ public class NamingCertDirectoryServiceClient {
     }
 
     AddressEntry ael = whitePagesService.get(cname,
-      Application.getApplication("topology"), "cert");
+                                             Application.getApplication("topology"), "cert");
     if (ael != null) {
       Cert cert = ael.getCert();
       if (cert instanceof NamingCertEntry) {
@@ -189,15 +200,21 @@ public class NamingCertDirectoryServiceClient {
   // for now when an identity starts it will overwrite the original
   // naming service entry (the entry it updated at last start)
   public void updateCert(String cname, Cert entry) throws Exception {
+    if(cname==null){
+      log.error(" cname is NULL  in updateCert:");
+    }
+     if(entry==null) {
+      log.error(" entry is NULL in updateCert:");
+    }
     URI certURI =
       URI.create("cert://"+cname);
     AddressEntry certEntry =
       new AddressEntry(
-          cname,
-          Application.getApplication("topology"),
-          certURI,
-          entry,
-          Long.MAX_VALUE);
+        cname,
+        Application.getApplication("topology"),
+        certURI,
+        entry,
+        Long.MAX_VALUE);
     whitePagesService.rebind(certEntry);
 
     if (log.isDebugEnabled()) {
@@ -209,7 +226,7 @@ public class NamingCertDirectoryServiceClient {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
       if(org.cougaar.core.service.wp.WhitePagesService.class.isAssignableFrom(sc)) {
-	log.debug("BB Service is now available");
+	log.debug("Naming Service is now available");
         setNamingService();
       }
     }
