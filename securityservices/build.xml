@@ -88,6 +88,7 @@
         <pathelement location="${cougaar.install.path}/lib/community.jar"/>
         <pathelement location="${cougaar.install.path}/lib/planning.jar"/>
         <pathelement location="${cougaar.install.path}/lib/webtomcat.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/yp.jar"/>
         <!-- KAoS libraries -->
         <pathelement location="${cougaar.install.path}/lib/kaos.jar"/>
         <pathelement location="${cougaar.install.path}/lib/safe.jar"/>
