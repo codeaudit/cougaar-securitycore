@@ -56,8 +56,8 @@ public class AdaptiveMnROperatingModes {
    * number of message failure before revoking an agent's certificate
    * possible values: { N, where N is a number }
    */
-  public final static String MAX_MESSAGE_FAILURE = 
-    "org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURE";
+  public final static String MAX_MESSAGE_FAILURES = 
+    "org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES";
   /**
    * telcordia's adaptive filter scope
    * possible values: 
