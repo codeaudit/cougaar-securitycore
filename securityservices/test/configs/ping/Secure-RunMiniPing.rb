@@ -1,5 +1,6 @@
 CIP = ENV['CIP'] 
 RULES = File.join(CIP, 'csmart','config','rules') 
+RULES1 = File.join(CIP, 'config','rules') 
  
 $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib') 
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist') 
@@ -68,13 +69,13 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
  
   # load local rules (ping_env.rule) 
   do_action "TransformSociety", false, ".", 
-    "#{RULES}/isat/nameserver.rule",
-    "#{RULES}/isat/default_servlets.rule",
-    "#{RULES}/isat/root_mobility_plugin.rule",
-    "#{RULES}/isat/logging_config_servlet.rule",
-    "#{RULES}/isat/community_plugin.rule",
-    "#{RULES}/isat/show_jars.rule",
-    "#{RULES}/isat/tic_env.rule",
+    "#{RULES1}/isat/nameserver.rule",
+    "#{RULES1}/isat/default_servlets.rule",
+    "#{RULES1}/isat/root_mobility_plugin.rule",
+    "#{RULES1}/isat/logging_config_servlet.rule",
+    "#{RULES1}/isat/community_plugin.rule",
+    "#{RULES1}/isat/show_jars.rule",
+    "#{RULES1}/isat/tic_env.rule",
 #    "#{RULES}/isat",
     "#{RULES}/security" 
  
