@@ -184,7 +184,8 @@ public class CryptoPolicyServiceImpl
                                       boolean ignoreSignature) {
     if(log.isDebugEnabled()) {
       log.debug("isReceivePolicyValid for " + source + " to " + target +
-                ", policy = " + policy);
+                ", policy = " + policy + ", ignore encryption = " +
+		ignoreEncryption + ", ignoreSignature = " + ignoreSignature);
     }
     SecureMethodParam realPolicy = getReceivePolicy(source, target);
     if (!ignoreSignature) {
