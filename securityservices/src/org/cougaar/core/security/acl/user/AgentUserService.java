@@ -101,7 +101,6 @@ public class AgentUserService implements UserService, BlackboardClient {
     };
 
   public AgentUserService(ServiceBroker sb, MessageAddress agent) {
-    try {
     _serviceBroker = sb;
     _log = (LoggingService)
       _serviceBroker.getService(this, LoggingService.class, null);
@@ -116,9 +115,6 @@ public class AgentUserService implements UserService, BlackboardClient {
     _subscription = (IncrementalSubscription) _bbs.subscribe(MY_RELAYS);
     _bbs.registerInterest(WATCHER);
     _bbs.closeTransaction();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 
   private void setCommunityService() {
