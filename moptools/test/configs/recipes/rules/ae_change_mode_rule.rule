@@ -1,0 +1,11 @@
+####################################################
+# Rule to add the AdaptivityEnginge change mode servlet
+
+
+plugin = "org.cougaar.core.security.test.blackboard.AEChangeModeServlet"
+
+society.each_agent(true) do |agent|
+   		agent.add_component do |c|
+	      c.classname = plugin
+	  	end
+end

@@ -1,0 +1,34 @@
+####################################################
+# Rule to insert MaliciousBlackboardPlugin
+
+
+plugin = "org.cougaar.core.security.test.blackboard.MaliciousBlackboardPlugin"
+servlet="org.cougaar.core.security.test.blackboard.BlackboardTestManagerServlet"
+analyzer="org.cougaar.core.security.test.blackboard.AnalyzerServlet"
+include_array=["NCA","TRANSCOM","1-35-ARBN"]
+
+society.each_agent(true) do |agent|
+ include_array.each{ |targetagent|
+  	if agent.name == targetagent
+   		agent.add_component do |c|
+	      c.classname = plugin
+    	  c.add_argument("TIMERINTERVAL=10000")
+    	  c.add_argument("DATABASEURL=jdbc:mysql://localhost/TestResults")
+    	  c.add_argument("DRIVER=org.gjt.mm.mysql.Driver")
+    	  c.add_argument("USERNAME=test")
+    	  c.add_argument("PASSWORD=test")
+     	  c.add_argument("DUMP_DIR=/home/ttschampel")
+    	end
+	  	
+	  	agent.add_component do |c|
+	  		c.classname = servlet
+	  	end
+	
+	  	if agent.name=="NCA"
+	  		agent.add_component do |c|
+		  		c.classname=analyzer	  		
+		  	end
+	  	end
+	 end
+  }
+end
