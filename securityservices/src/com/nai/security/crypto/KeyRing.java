@@ -44,8 +44,8 @@ import java.security.KeyPair;
 import sun.security.pkcs.*;
 
 import org.cougaar.util.ConfigFinder;
-import com.nai.security.certauthority.*;
-
+import com.nai.security.certauthority.CAClient;
+//import com.nai.security.certauthority.KeyManagement;
 
 /** A common holder for Security keystore information and functionality
  **/
@@ -561,33 +561,30 @@ final public class KeyRing implements Runnable {
 
   /**add keys to the key ring**/
   private static void addKeyPair(String name){
+      CAClient cac = new CAClient();
       //is node?
       String nodeName = System.getProperty("org.cougaar.node.name");
       if(name==nodeName){
           //we're node
-          KeyPair kp = makeKeys();
+          KeyPair kp = cac.makeKeyPair();
           //send the public key to the ca
           PublicKey pk = kp.getPublic();
           String request;
+          //pkcs10
           request = generateSigningCertificateRequest(pk);
-          
+                    
       }else{
           //check if node cert exist
           if(certs.get(name)==null){
               //we don't have a node key pair, so make it
               addKeyPair(nodeName);
           }else{
-              KeyPair kp = makeKeys();
+              KeyPair kp = cac.makeKeyPair();
               
           }
       }
       return;
   }
   
-  /**make a pair of keys**/
-  private static KeyPair makeKeys(){
-      KeyPairMaker kpm = new KeyPairMaker();
-      return kpm.makeKeyPair();
-  }
 }
 
