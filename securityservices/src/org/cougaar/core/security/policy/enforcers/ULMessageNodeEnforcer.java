@@ -264,7 +264,7 @@ public class ULMessageNodeEnforcer
         CypherSuite c = (CypherSuite) suitesIt.next();
         out.print("<p>Suite " + (counter++) + ":<ul>");
         out.print("<li>Symmetric = " + c.getSymmetric());
-        out.print("<li>Assymmetric = " + c.getAssymmetric());
+        out.print("<li>Asymmetric = " + c.getAsymmetric());
         out.print("<li>Checksum = " + c.getChecksum());
         out.print("</ul>");
       }
@@ -299,7 +299,7 @@ public class ULMessageNodeEnforcer
             CypherSuite c = (CypherSuite) suitesIt.next();
             out.print("<p>Suite " + (counter++) + ":<ul>");
             out.print("<li>Symmetric = " + c.getSymmetric());
-            out.print("<li>Assymmetric = " + c.getAssymmetric());
+            out.print("<li>Asymmetric = " + c.getAsymmetric());
             out.print("<li>Checksum = " + c.getChecksum());
             out.print("</ul>");
           }

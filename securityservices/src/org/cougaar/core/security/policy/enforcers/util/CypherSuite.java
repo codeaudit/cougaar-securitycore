@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class CypherSuite {
   private String _symmetric;
-  private String _assymetric;
+  private String _asymmetric;
   private String  _checksum;
 
   /**
@@ -22,10 +22,10 @@ public class CypherSuite {
    *
    */
   public CypherSuite(String symmetric,
-                     String assymetric,
+                     String asymmetric,
                      String checksum) {
     _symmetric  = symmetric;
-    _assymetric = assymetric;
+    _asymmetric = asymmetric;
     _checksum   = checksum;
   }
 
@@ -38,7 +38,7 @@ public class CypherSuite {
    * Returns the vector of assymmetric algorithms in the suite as a
    * vector of strings.
    */
-  public String getAssymmetric() { return _assymetric; }
+  public String getAsymmetric() { return _asymmetric; }
   /**
    * Returns the vector of checksum algorithms in the suite as a
    * vector of strings.
@@ -47,7 +47,7 @@ public class CypherSuite {
 
   public String toString() {
     return "CypherSuite: symmetric = " + _symmetric + 
-      ", asymmetric = " + _assymetric + 
+      ", asymmetric = " + _asymmetric + 
       ", checksum = " + _checksum;
   }
 
@@ -56,8 +56,8 @@ public class CypherSuite {
     if (_symmetric != null) {
       hash = _symmetric.hashCode();
     }
-    if (_assymetric != null) {
-      hash ^= _assymetric.hashCode();
+    if (_asymmetric != null) {
+      hash ^= _asymmetric.hashCode();
     }
     if (_checksum != null) {
       hash ^= _checksum.hashCode();
@@ -69,7 +69,7 @@ public class CypherSuite {
     if (obj instanceof CypherSuite) {
       CypherSuite c = (CypherSuite) obj;
       return (eq(c._symmetric, _symmetric) &&
-              eq(c._assymetric, _assymetric) &&
+              eq(c._asymmetric, _asymmetric) &&
               eq(c._checksum, _checksum));
     }
     return false;
