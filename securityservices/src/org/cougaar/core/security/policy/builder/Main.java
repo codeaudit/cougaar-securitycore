@@ -210,8 +210,8 @@ class Main
     String port     = args[counter++];
     String agent    = args[counter++];
     _url = "http://" + hostname + ":" + port + "/$" + agent + "/policyAdmin";
-    if (_log.isDebugEnabled()) {
-      _log.debug("_url = " + _url);
+    if (_log.isInfoEnabled()) {
+      _log.info("_url = " + _url);
     }
     return counter;
   }
@@ -342,31 +342,40 @@ class Main
   protected void buildPolicies()
     throws IOException, PolicyCompilerException
   {
-    if (_log.isDebugEnabled()) {
-      _log.debug("Parsing Policies");
+    if (_log.isInfoEnabled()) {
+      _log.info("Parsing Policies");
     }
     ParsedPolicyFile parsed = compile(_policyFile);
     List          ppolicies = parsed.policies();
+    if (_log.isDebugEnabled()) {
+      _log.debug("listing the policies parsed");
+      for (Iterator polIt = ppolicies.iterator(); polIt.hasNext();) {
+        ParsedPolicy pp = (ParsedPolicy) polIt.next();
+        _log.debug("policy = " + pp.getPolicyName());
+      }
+    }
 
-    System.out.println("Loading ontologies & declarations");
+    if (_log.isInfoEnabled()) {
+      _log.info("Loading ontologies & declarations");
+    }
     _ontology = new LocalOntologyConnection(parsed.declarations(), 
                                             parsed.agentGroupMap());
-    if (_log.isDebugEnabled()) {
-      _log.debug("Ontologies loaded");
+    if (_log.isInfoEnabled()) {
+      _log.info("Ontologies loaded");
     }
 
     if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
       String s = "Reasoning depth insufficient. Try setting a larger value with the\n"
         + "--maxdepth option\n"
         + "Policies not built as they would be incorrect";
-      if (_log.isDebugEnabled()) {
-        _log.debug(s);
+      if (_log.isWarnEnabled()) {
+        _log.warn(s);
       }
       System.exit(-1);
     }
 
-    if (_log.isDebugEnabled()) {
-      _log.debug("Writing Policies");
+    if (_log.isInfoEnabled()) {
+      _log.info("Writing Policies");
     }
     for(Iterator builtPolicyIt = buildUnconditionalPolicies(ppolicies)
                                                                 .iterator();
@@ -391,8 +400,8 @@ class Main
   private boolean checkDepth(Map agentGroupMap)
   {
     try {
-      if (_log.isDebugEnabled()) {
-        _log.debug("Checking reasoning depth");
+      if (_log.isInfoEnabled()) {
+        _log.info("Checking reasoning depth");
       }
       for (Iterator agentGroupIt = agentGroupMap.keySet().iterator();
            agentGroupIt.hasNext();) {
@@ -401,18 +410,18 @@ class Main
         Set    agents = _ontology.getInstancesOf(ULOntologyNames.agentGroupPrefix +
                                                  agentGroup);
         if (agents.size() < size) {
-          if (_log.isDebugEnabled()) {
-            _log.debug("Insufficient reasoning depth");
-            _log.debug("for agent group " + agentGroup + 
+          if (_log.isWarnEnabled()) {
+            _log.warn("Insufficient reasoning depth");
+            _log.warn("for agent group " + agentGroup + 
                 " the agent set should have size "
                 + size + "  but actually has size " + 
                 +agents.size());
           }
           return false;
         } else if (agents.size() > size) {
-          if (_log.isDebugEnabled()) {
-            _log.debug("Say what???");
-            _log.debug("for agent group " + agentGroup + 
+          if (_log.isWarnEnabled()) {
+            _log.warn("Say what???");
+            _log.warn("for agent group " + agentGroup + 
                 " the agent set should be \n\n"
                 + agentGroupMap.get(agentGroup) + 
                 "\n\n(size=" + size + ")  but actually is\n\n" 
