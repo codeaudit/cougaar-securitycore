@@ -1011,7 +1011,7 @@ public class KeyManagement  implements CertificateManagementService {
        *  version, serialNumber, algorithmID, issuer, validity, subject, key
        *  issuerID, subjectID, extensions
        */
-      X509CertImpl clientCertificate = setX509CertificateFields(clientRequest);
+      X509CertImpl clientCertificate = (X509CertImpl)setX509CertificateFields(clientRequest);
 
       // Set subject unique ID
       /*
@@ -1093,8 +1093,10 @@ public class KeyManagement  implements CertificateManagementService {
       return bytearrayoutputstream.toByteArray();
     }
 
-  private X509CertImpl setX509CertificateFields(PKCS10 clientRequest)
-    throws IOException, CertificateException
+  
+	
+  	public X509Certificate setX509CertificateFields(PKCS10 clientRequest)
+     throws IOException, CertificateException
     {
 
       /* Retrieve attributes from the PKCS10 request */

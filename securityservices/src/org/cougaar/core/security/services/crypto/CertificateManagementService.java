@@ -62,7 +62,8 @@ public interface CertificateManagementService
   public void publishCertificate(CertificateEntry certEntry);
 
   public String processPkcs10Request(InputStream request, boolean replyInHtml);
-
+  public X509Certificate setX509CertificateFields(PKCS10 clientRequest)
+			throws IOException, CertificateException;
   public CertificateResponse processPkcs10Request(PKCS10 request);
 
   public ArrayList getSigningRequests(InputStream reader)
