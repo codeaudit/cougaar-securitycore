@@ -148,7 +148,13 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
        m_log.error(" error cannot get domain service Going to loose all events :");
     }
     CmrFactory factory=(CmrFactory)dservice.getFactory("cmr");
-    IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
+    IdmefMessageFactory imessage=null;
+    if(factory!=null) {
+      imessage=factory.getIdmefMessageFactory();
+    }
+    if(imessage==null) {
+       m_log.error(" error cannot get Idmef message factory :");
+    }
     Classification classification =null;
     BootstrapEvent event=null;
     AdditionalData adddata=null;
@@ -186,12 +192,15 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
       Event e = factory.newEvent(alert);
       //System.out.println("Intrusion Alert:" + alert.toString());
       //System.out.println("Publishing sensor Event :");
+      bbservice.openTransaction();
       bbservice.publishAdd(e);
 
       // Increment the total number of events
       numberOfEvents++;
       ((BootstrapEventCondition)sensorCondition).setValue(numberOfEvents);
+     
       bbservice.publishChange(sensorCondition);
+       bbservice.closeTransaction();
     }
      
     
