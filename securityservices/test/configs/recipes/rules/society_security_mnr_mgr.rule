@@ -46,6 +46,9 @@ society.each_node do |node|
           c.classname = "org.cougaar.core.security.monitoring.plugin.MnRQueryResponderPlugin"
         end
         agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggSendCompleteEventPlugin"
+        end
+        agent.add_component do |c|
           c.classname = "org.cougaar.core.adaptivity.AdaptivityEngine"
         end
         agent.add_component do |c|
