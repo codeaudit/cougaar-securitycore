@@ -55,6 +55,12 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 	
         //if not found, try sender with default target
         if(obj==null) {
+	    tag = name.substring(0, name.indexOf(':'))+":DEFAULT";
+	    obj = send_hm.get(tag);
+	}
+
+        //if not found, try default sender with specified target
+        if(obj==null) {
 	    tag = "DEFAULT" + name.substring(name.indexOf(':'));
 	    obj = send_hm.get(tag);
 	}
@@ -182,7 +188,11 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 		  updateSecureMethod(sub+":"+"DEFAULT",value,outgoing);
 		}
 		for(int i = 0; i < entry.length; i++) {
-		  updateSecureMethod(sub+":"+entry[i].getKey(), entry[i].getValue(),outgoing);
+		    String pair = entry[i].getKey();
+		    //support for explicitly specify the whole pair.
+		    if( pair.indexOf(':') < 0 )
+			pair = sub+":"+pair;
+		  updateSecureMethod(pair, entry[i].getValue(),outgoing);
 		}
 	      }
 	      if(name.startsWith("Incoming")) {
