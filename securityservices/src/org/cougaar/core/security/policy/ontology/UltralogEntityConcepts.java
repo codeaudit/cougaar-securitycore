@@ -25,6 +25,7 @@ final public class UltralogEntityConcepts
     public static final String BlackBoardObjects = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "BlackBoardObjects");
     public static final String AuthenticationLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "AuthenticationLevel");
     public static final String ULContentValue = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ULContentValue");
+    public static final String OQLDataSet = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "OQLDataSet");
     public static final String Community = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "Community");
     public static final String WPAccessType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAccessType");
     public static final String BlackBoardAccessMode = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "BlackBoardAccessMode");
@@ -41,6 +42,7 @@ final public class UltralogEntityConcepts
     public static String BlackBoardObjects() { return BlackBoardObjects; };
     public static String AuthenticationLevel() { return AuthenticationLevel; };
     public static String ULContentValue() { return ULContentValue; };
+    public static String OQLDataSet() { return OQLDataSet; };
     public static String Community() { return Community; };
     public static String WPAccessType() { return WPAccessType; };
     public static String BlackBoardAccessMode() { return BlackBoardAccessMode; };
@@ -58,8 +60,8 @@ final public class UltralogEntityConcepts
     public static final String LeaveCommunity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "LeaveCommunity");
     public static final String WPAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAdd");
     public static final String WPChange = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPChange");
-    public static final String ListCommunities = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ListCommunities");
     public static final String JoinCommunity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "JoinCommunity");
+    public static final String ListCommunities = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ListCommunities");
     public static final String GetCommunityDescriptor = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "GetCommunityDescriptor");
     public static final String testCommunityOne = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "testCommunityOne");
 
@@ -69,8 +71,8 @@ final public class UltralogEntityConcepts
     public static String LeaveCommunity() { return LeaveCommunity; };
     public static String WPAdd() { return WPAdd; };
     public static String WPChange() { return WPChange; };
-    public static String ListCommunities() { return ListCommunities; };
     public static String JoinCommunity() { return JoinCommunity; };
+    public static String ListCommunities() { return ListCommunities; };
     public static String GetCommunityDescriptor() { return GetCommunityDescriptor; };
     public static String testCommunityOne() { return testCommunityOne; };
 }

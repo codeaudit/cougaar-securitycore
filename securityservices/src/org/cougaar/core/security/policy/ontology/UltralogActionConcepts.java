@@ -46,6 +46,7 @@ final public class UltralogActionConcepts
     public static final String usedProtectionLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedProtectionLevel");
     public static final String usedAuditLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedAuditLevel");
     public static final String communityTarget = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "communityTarget");
+    public static final String oqlHasDataSet = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "oqlHasDataSet");
     public static final String accessedServlet = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "accessedServlet");
     public static final String wpAgentEntry = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "wpAgentEntry");
     public static final String blackBoardAccessMode = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "blackBoardAccessMode");
@@ -62,6 +63,7 @@ final public class UltralogActionConcepts
     public static String usedProtectionLevel() { return usedProtectionLevel; };
     public static String usedAuditLevel() { return usedAuditLevel; };
     public static String communityTarget() { return communityTarget; };
+    public static String oqlHasDataSet() { return oqlHasDataSet; };
     public static String accessedServlet() { return accessedServlet; };
     public static String wpAgentEntry() { return wpAgentEntry; };
     public static String blackBoardAccessMode() { return blackBoardAccessMode; };
