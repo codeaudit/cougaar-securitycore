@@ -99,6 +99,11 @@ public class CertificateCache
    * 2) have a "notBefore" date in the past.
    * 3) have not expired
    */
+
+  /**
+   * NOTE: The certificates returned are valid but may NOT be trusted
+   *  because the whole chain is not checked
+   */
   public ArrayList getValidCertificates(X500Name x500Name)
   {
     ArrayList v = getCertificates(x500Name);
@@ -184,7 +189,7 @@ public class CertificateCache
 	  ioexp.printStackTrace();
 	}
 	certsCache.put((Principal)subjectname,list);
-	log.debug("revoked status in cache:");
+	log.debug("revoked status in cache:" + subjectDN);
 	break;
       }
 
@@ -387,7 +392,7 @@ public class CertificateCache
     }
   }
 
-  private void updateBigInt2Dn(X509Certificate cert) {
+  public void updateBigInt2Dn(X509Certificate cert) {
     CRLKey crlkey=null;
     String subjectDN=cert.getSubjectDN().getName();
     String issuerDN=cert.getIssuerDN().getName();
@@ -416,6 +421,10 @@ public class CertificateCache
     }
   }
 
+  /**
+   * NOTE: The certificates returned are valid but may NOT be trusted
+   *  because the whole chain is not checked
+   */
   public ArrayList getValidPrivateKeys(X500Name x500Name) {
     ArrayList v = getPrivateKeys(x500Name);
     if (v == null || v.size() == 0) {
