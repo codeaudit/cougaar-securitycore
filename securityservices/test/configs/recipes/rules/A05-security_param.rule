@@ -330,16 +330,17 @@ society.each_host do |host|
     
     #node.override_parameter("-Dorg.cougaar.core.util.ConfigFinder.verbose", "true")
     
-    # Enable the following properties for JSWAT debugging:
-    #java.Xdebug
-    #java.Xnoagent
-    #java.Djava.compiler=NONE
-    #java.Xrunjdwp:transport=dt_socket,server=y,address=9999
    
     # SSL debug
     # The property value must include the string "ssl" followed by one or more of the following modifiers:
     # record -- enable per-record tracing
+    #  The "record" modifier can be further modified by:
+    #    *  plaintext -- print hex dump of record plaintext 
     # handshake -- print each handshake message
+    #  The "handshake" modifier can be further modified by one or more of
+    #  the following:
+    #    * data -- print hex dump of each handshake message
+    #    * verbose -- verbose handshake message printing 
     # keygen -- print key generation data
     # session -- print session activity
     # defaultctx -- print default SSL initialization
@@ -348,7 +349,7 @@ society.each_host do |host|
     # keymanager -- print key manager tracing
     # trustmanager -- print trust manager tracing 
     # The special value "all" is equivalent to setting all of the above modifiers
-    #node.override_parameter("-Djavax.net.debug", "ssl,record,handshake,keygen,session,verbose,plaintext")
+    #node.override_parameter("-Djavax.net.debug", "ssl,record,handshake,keygen,session,verbose")
  
     # END DEBUG properties
     # ########################################################
@@ -408,6 +409,36 @@ society.each_node do |node|
     node.override_parameter("-Dorg.cougaar.lib.web.http.port", "#{httpport}")
     node.override_parameter("-Dorg.cougaar.lib.web.https.port", "#{httpsport}")
   end
+
+   if facet[:role] == 'jswat' \
+     # Enable the following properties for JSWAT debugging:
+     node.override_parameter("-Djava.compiler", "NONE")
+     node.add_parameter("-Xdebug")
+     node.add_parameter("-Xnoagent")
+     # transport=dt_socket: use socket to send debug commands and data
+     # transport=dt_shmem:  use shared memory to send debug commands and data
+     # address=xxxx:        listen on port xxxx
+     # suspend=y:           Suspend the VM at startup
+     node.add_parameter("-Xrunjdwp:transport=dt_socket,server=y,address=9999,suspend=y")
+   end
+
+   if facet[:role] == 'hprof' \
+     # hprof profiling
+     node.add_parameter("-Xrunhprof:heap=all,thread=y,depth=8")
+   end
+
+   if facet[:role] == 'optimizeIt' \
+     # OptimizeIt profiling
+     # 1) Install OptimizeIt on Unix
+     # 2) Set your LD_LIBRARY_PATH to include the Optimizeit lib directory:
+     #     export LD_LIBRARY_PATH=<OptItDir>/lib:$LD_LIBRARY_PATH
+     # 3) Set your CLASSPATH to include the Optimizeit optit.jar file: 
+     #     export CLASSPATH=<OptItDir>/lib/optit.jar:$CLASSPATH
+     # 4) Add -Xrunpri:startAudit=t
+     # Put oibcp.jar and optit.jar under $CIP/sys
+     node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}securebootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}oibcp.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}optit.jar")
+     node.add_parameter("-Xrunpri:startAudit=t,port=1470,pause=t,filter=$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security#{File::SEPARATOR}cougaarOptimizeIt.oif")
+   end
 
  end
 end
