@@ -784,7 +784,7 @@ public class DataProtectionServiceImpl
         }
 
       } catch(Exception e) {
-        log.warn("Unable to send keyUnlock request to persistence manager.", e);
+        log.warn("Unable to send keyUnlock request to persistence manager." + _pmp.pmName + " for " + _agent);
       }
     return null;
   }
