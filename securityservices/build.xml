@@ -451,6 +451,7 @@
                     <include name="checkTrace.rb"/>
                     <include name="runallparallel"/>
                     <include name="printProcessInfo.rb"/>
+                    <include name="checkReportChainReady.rb"/>
                 </patternset>
             </fileset>
         </copy>
