@@ -218,13 +218,14 @@ throws PolicyCompilerException
 servletAuthentication[String pn]
 returns [ParsedPolicy pp]
 throws PolicyCompilerException
-{ pp = null; }
-    : "All" "users" "must" "use" auth:TOKEN "authentication" "when"
+{   pp = null; 
+    Set auth = new HashSet(); }
+    : "All" "users" "must" "use" auth = tokenList "authentication" "when"
         "accessing" "the" "servlet" "named" servlet:TOKEN
         { pp = 
             new ServletAuthenticationParsedPolicy(
                 pn, 
-                auth.getText(), 
+                auth, 
                 servlet.getText());
         }
     ;

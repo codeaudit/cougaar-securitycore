@@ -21,25 +21,25 @@
 
 package org.cougaar.core.security.policy.builder;
 
+import java.util.*;
+
+import kaos.ontology.util.AlreadyComplement;
 import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.*;
 
 public class ServletAuthenticationParsedPolicy extends ParsedPolicy
 {
-  final String _servletClass
-    = org.cougaar.core.security.policy.enforcers.ontology.jena.
-        UltralogEntityConcepts._Servlet_;
-  final String _authClass
-    = org.cougaar.core.security.policy.enforcers.ontology.jena.
-         UltralogEntityConcepts._AuthenticationLevel_;
+  final String _servletClass = UltralogEntityConcepts._Servlet_;
+  final String _authClass = UltralogEntityConcepts._AuthenticationLevel_;
 
   String _servletInstance;
-  String _authInstance;
+  Set    _authInstances;
 
   public ServletAuthenticationParsedPolicy(String policyName,
-                                           String auth,
+                                           Set    auths,
                                            String servlet)
   {
     super(policyName, 
@@ -48,37 +48,60 @@ public class ServletAuthenticationParsedPolicy extends ParsedPolicy
           kaos.ontology.jena.ActorConcepts._Person_,
           org.cougaar.core.security.policy.enforcers.ontology.jena.
           ActionConcepts._AccessAction_);
-    _description = "All users must use " + auth + " authentication\n" +
-                    "when accessing the servlet named " + servlet;
+    _description = "All users must use ";
+    {
+      Iterator authIt = auths.iterator();
+      String auth = (String) authIt.next();
+      _description += auth;
+      while (authIt.hasNext()) {
+        auth = (String) authIt.next();
+        _description += ", " + auth;
+      }
+    }
+    _description += " authentication\n" + "when accessing the servlet named " 
+                          + servlet;
     _servletInstance = 
       org.cougaar.core.security.policy.enforcers.ontology.jena.
       EntityInstancesConcepts.EntityInstancesDamlURL
       + servlet;
-    _authInstance = 
-      org.cougaar.core.security.policy.enforcers.ontology.jena.
-      EntityInstancesConcepts.EntityInstancesDamlURL + auth;
+
+    _authInstances = new HashSet();
+    for (Iterator authIt = auths.iterator(); authIt.hasNext();) {
+      String auth = (String) authIt.next();
+      _authInstances.add(EntityInstancesConcepts.EntityInstancesDamlURL 
+                         + auth);
+    }
   }
 
   public DAMLPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
     throws PolicyCompilerException
   {
     try {
-      ontology.verifyInstanceOf(_authInstance, _authClass);
+      for (Iterator authIt = _authInstances.iterator(); authIt.hasNext();) {
+        String auth = (String) authIt.next();
+        ontology.verifyInstanceOf(auth, _authClass);
+      }
       ontology.verifyInstanceOf(_servletInstance, _servletClass);
+
       initiateBuildPolicy(ontology);
+
+      for (Iterator authIt = _authInstances.iterator(); authIt.hasNext();) {
+        String auth = (String) authIt.next();
+        _controls.addPropertyRangeInstance
+          (UltralogActionConcepts._usedAuthenticationLevel_, auth);
+      }
+      _controls.makeRangeComplement
+               (UltralogActionConcepts._usedAuthenticationLevel_, _authClass);
+
       _controls.addPropertyRangeInstance
-        (org.cougaar.core.security.policy.enforcers.ontology.jena.
-         UltralogActionConcepts._usedAuthenticationLevel_,
-         _authInstance);
-      _controls.addPropertyRangeInstance
-        (org.cougaar.core.security.policy.enforcers.ontology.jena.
-         UltralogActionConcepts._accessedServlet_,
-         _servletInstance);
+               (UltralogActionConcepts._accessedServlet_, _servletInstance);
 
       return _pb;
     } catch (ClassNameNotSet e) {
       throw new PolicyCompilerException(e);
     } catch (RangeIsBasedOnAClass e) {
+      throw new PolicyCompilerException(e);
+    } catch (AlreadyComplement e) {
       throw new PolicyCompilerException(e);
     }
   }
