@@ -134,10 +134,17 @@ public class MessageProtectionServiceImpl
 			      MessageAddress destination)
     throws GeneralSecurityException, IOException
   {
-
     SecureMethodParam policy =
       cps.getSendPolicy(source.getAddress() + ":"
 			+ destination.getAddress());
+    if (log.isDebugEnabled()) {
+      String method = "Policy ERROR";
+      if (policy != null)
+	method =  policy.getSecureMethodToString();
+      log.debug("protectHeader: " + source.toAddress()
+		+ " -> " + destination.toAddress()
+		+ " (" + method + ")");
+    }
     if (policy == null) {
        throw new RuntimeException("Could not find message policy between "
 	+ source.getAddress() + " and " + destination.getAddress());
@@ -170,6 +177,14 @@ public class MessageProtectionServiceImpl
       cps.getReceivePolicy(source.toAddress()
 			   +":"
 			   +destination.toAddress());
+    if (log.isDebugEnabled()) {
+      String method = "Policy ERROR";
+      if (policy != null)
+	method =  policy.getSecureMethodToString();
+      log.debug("unprotectHeader: " + source.toAddress()
+		+ " -> " + destination.toAddress()
+		+ " (" + method + ")");
+    }
     if (policy == null) {
        throw new RuntimeException("Could not find message policy between "
 	+ source.getAddress() + " and " + destination.getAddress());
@@ -220,6 +235,10 @@ public class MessageProtectionServiceImpl
 					       MessageAttributes attrs)
     throws IOException
   {
+    if (log.isDebugEnabled()) {
+      log.debug("getOutputStream: " + source.toAddress()
+		+ " -> " + destination.toAddress());
+    }
     pos =
       new MessageOutputStream(os, encryptService, cps,
 			      source, destination);
@@ -256,6 +275,10 @@ public class MessageProtectionServiceImpl
 					     MessageAttributes attrs)
     throws IOException
   {
+    if (log.isDebugEnabled()) {
+      log.debug("getInputStream: " + source.toAddress()
+		+ " -> " + destination.toAddress());
+    }
     pis =
       new MessageInputStream(is, encryptService, cps,
 			     source, destination);

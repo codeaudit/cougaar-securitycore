@@ -113,7 +113,7 @@ public class CaPolicyHandler
       }
       catch (IOException e) {
 	if (log.isErrorEnabled()) {
-	  log.error("Unable to parse DN");
+	  log.error("Unable to parse DN: " + getContents());
 	}
       }
     }

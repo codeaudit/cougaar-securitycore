@@ -47,4 +47,20 @@ public final class SecureMethodParam
     secureMethod = value;
   }
 
+  public String getSecureMethodToString() {
+    switch (secureMethod) {
+    case PLAIN:
+      return "PLAIN";
+    case SIGN:
+      return "SIGN";
+    case ENCRYPT:
+      return "ENCRYPT";
+    case SIGNENCRYPT:
+      return "SIGNENCRYPT";
+    case INVALID:
+      return "INVALID";
+    default:
+      return "UNKNOWN";
+    }
+  }
 }

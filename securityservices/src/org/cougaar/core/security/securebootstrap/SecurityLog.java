@@ -43,8 +43,6 @@ public class SecurityLog
     this.loudness = loudness;
     this.type=BootstrapEvent.JarVerificationAlarm;
     eventholder=EventHolder.getInstance();
-    System.out.println("Instance of Event holder in  security Log :"+eventholder.toString());
-    
   }
   public void createLogFile(String nodeName) {
 
