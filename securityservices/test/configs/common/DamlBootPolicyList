@@ -1,63 +1,180 @@
 
-# Allow communication
-http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction DamlBootPolicyAllowCommunication.info
-# Encrypt communication
-http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction DamlBootPolicyEncryptCommunication.info
-#
-# Blackboard policy for accessing all objects except OrgActivity
-http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyAllowBlackboard.info
-# Blackboard policy for adding an OrgActivity
-http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityAdd.info
-# Blackboard policy for changing an OrgActivity
-http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityChange.info
-# Blackboard policy for querying an OrgActivity, but not read it
-http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityQueryNoRead.info
-# Blackboard policy for querying an OrgActivity
-http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityQuery.info
-# Blackboard policy for removing an OrgActivity
-http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityRemove.info
-# Blackboard policy for adding, changing, querying, and removing an OrgActivity
-http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityAll.info
-#
-# Allow access to unrestricted servlets 
-# Restricted servlets are all servlets except other servlets, caread
-# servlets, and ca request servlets.
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyUnrestServlet.info
-# Require a password or a certificate for restricted servlets.
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyServletRestAuth.info
-#
-# Allow PolicyAdministrator to access the PolicyServlet
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyPolicyServlet.info
-#
-# Allow MonitorManager users to access SCmrmanager servlets
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicySCmrManager.info
-#
-# Allow Logisticians to access NCA servlets
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyNCAServlet.info
-#
-# Allow Logisticians to access aggregator servlets
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianAgg.info
-#
-# Allow LogisticianViews to access aggregator servlets
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianViewAgg.info
-#
-# Allow UserManagers to access useradmin servlets.
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyUserAdminServlets.info
-#
-# Allow Logistician to take inventory.
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianInventory.info
-#
-# Allow Logistics Viewer to take inventory.
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticsViewerInventory.info
-#
-# Allow logistician to access hierarchy servlets
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianHierarchy.info
-#
-# Allow logisticsviewer to access hierarchy servlets.
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticsViewerHierarchy.info
-#
-# Allow a CA Administrator to manage the CA Database.
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyCertWrite.info
-#
-# Allow the society admin to administrate the society.
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicySocietyAdmin.info
+Policy DamlBootPolicyAllowCommunication = [ 
+   Priority = 2,
+   $Actor.daml#Agent is authorized to perform
+   $Action.daml#EncryptedCommunicationAction as long as
+    the value of $Action.daml#hasDestination
+    is a subset of the set $Actor.daml#Agent
+]
+
+Policy DamlBootPolicyEncryptCommunication = [ 
+   Priority = 3,
+   $Actor.daml#Agent is not authorized to perform
+   $Action.daml#EncryptedCommunicationAction as long as
+    the value of $Ultralog/UltralogAction.daml#usedProtectionLevel
+    is a subset of the complement of the set
+     { $Ultralog/Names/EntityInstances.daml#NSAApprovedProtection }
+]
+
+
+Policy DamlBootPolicyAllowBlackboard = [ 
+   Priority = 2,
+   $Ultralog/UltralogActor.daml#UltralogPlugins is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess as long as
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the complement of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }
+]
+
+Policy DamlBootPolicyOrgActivityAdd = [
+   Priority = 2,
+   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityAddRole 
+   is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess
+   as long as
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+                      and
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessAdd
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRead
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessWrite
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessCreate }
+]
+
+Policy DamlBootPolicyOrgActivityChange = [
+   Priority = 2,
+   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityChangeRole 
+   is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess
+   as long as 
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+                      and
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessChange
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRead
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessWrite }
+]
+
+Policy DamlBootPolicyOrgActivityQuery = [
+   Priority = 2,
+   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityQueryRole 
+   is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess
+   as long as
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+                      and
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessQuery
+       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRead }
+]
+
+Policy DamlBootPolicyOrgActivityRemove = [
+   Priority = 2,
+   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityQueryRole 
+   is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess
+   as long as
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+                      and
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRemove }
+]
+
+Policy DamlBootPolicyOrgActivityAll = [
+   Priority = 2,
+   $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityAllRole 
+   is authorized to perform
+   $Ultralog/UltralogAction.daml#BlackBoardAccess
+   as long as
+    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
+    is a subset of the set
+     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+]
+
+
+Policy DamlBootPolicyUnrestServlet = [ 
+   Priority = 2,
+   $Actor.daml#Person is authorized to perform
+   $Action.daml#AccessAction as long as
+    the value of $Ultralog/UltralogAction.daml#accessedServlet
+    is a subset of the set { $Ultralog/Names/EntityInstances.daml#OtherServlets 
+                             $Ultralog/Names/EntityInstances.daml#CAReadServlet 
+                             $Ultralog/Names/EntityInstances.daml#CertReqServlet }
+]
+
+Policy DamlBootPolicyServletRestAuth = [ 
+   Priority = 3,
+   $Actor.daml#Person is not authorized to perform
+   $Action.daml#AccessAction as long as
+    the value of $Ultralog/UltralogAction.daml#accessedServlet
+    is a subset of the complement of the set 
+       { $Ultralog/Names/EntityInstances.daml#OtherServlets
+         $Ultralog/Names/EntityInstances.daml#CAReadServlet 
+         $Ultralog/Names/EntityInstances.daml#CertReqServlet }
+                       and
+    the value of $Ultralog/UltralogAction.daml#usedAuthenticationLevel
+    is a subset of the set
+       { $Ultralog/Names/EntityInstances.daml#NoAuth
+         $Ultralog/Names/EntityInstances.daml#NoAuthSSL }
+]
+
+
+Policy DamlBootPolicyPolicyServlet  = [ 
+  A user in role PolicyAdministrator can access a servlet named PolicyServlet
+]
+
+Policy DamlBootPolicySCmrManager  = [ 
+  A user in role MonitorManager can access a servlet named SCmrmanagerServlets
+]
+
+Policy DamlBootPolicyNCAServlet = [
+  A user in role Logistician can access a servlet named NCAServlets
+]
+
+Policy DamlBootPolicyLogisticianAgg = [
+  A user in role Logistician can access a servlet named AggegatorServlets
+]
+
+Policy DamlBootPolicyLogisticianViewAgg = [
+  A user in role LogisticsViewer can access a servlet named AggegatorServlets
+]
+
+Policy DamlBootPolicyUserAdminServlets = [
+  A user in role UserManager can access a servlet named UserManagerServlets
+]
+
+Policy DamlBootPolicyLogisticianInventory = [
+  A user in role Logistician can access a servlet named LogInventoryServlet
+]
+
+Policy DamlBootPolicyLogisticsViewerInventory = [
+  A user in role LogisticsViewer can access a servlet named LogInventoryServlet
+]
+
+Policy DamlBootPolicyLogisticianHierarchy = [
+  A user in role Logistician can access a servlet named HierarchyServlet
+]
+
+Policy DamlBootPolicyLogisticsViewerHierarchy  = [
+  A user in role LogisticsViewer can access a servlet named HierarchyServlet
+]
+
+Policy DamlBootPolicyCertWrite  = [
+  A user in role CAAdministrator can access a servlet named CAWriteServlet
+]
+
+Policy DamlBootPolicySocietyAdmin = [
+  A user in role SocietyAdmin can access a servlet named SocietyAdminServlet
+]
