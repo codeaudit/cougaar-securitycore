@@ -78,6 +78,8 @@ include_scripts:
   # Get stats about cpu load, process size, cpu utilization every 60s,
   # and store the data under $CIP/workspace/test/node_info.log.
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
+  # Logs Message queue details to a log file under $CIP/workspace/test/message_queue_log/nodename.log
+  - script: $CIP/csmart/lib/security/scripts/check_message_queue.rb 
 #  - script: $CIP/csmart/lib/security/scripts/setup_society_1000_ua.rb
   # Sanity check: Check every 5 minutes if all agents are registered in the WP.
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
