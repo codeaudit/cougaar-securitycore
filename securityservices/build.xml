@@ -314,8 +314,6 @@
     <target name="confnai">
         <copy todir="${cougaar.install.path}/configs/common"
             file="${securityservices.configs}/mysql/cougaar.rc"/>
-        <copy todir="${cougaar.install.path}"
-            file="${securityservices.configs}/mysql/tomcatKeystore"/>
     </target>
     
     <!-- create log directories -->
