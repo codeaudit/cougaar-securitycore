@@ -21,7 +21,7 @@ society.each_node do |node|
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.plugin.RateCalculatorPlugin"
           c.add_argument("20")
-          c.add_argument("3600")
+          c.add_argument("1200")
           c.add_argument("org.cougaar.core.security.monitoring.LOGIN_FAILURE")
           c.add_argument("org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE")
         end
