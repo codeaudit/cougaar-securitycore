@@ -292,11 +292,11 @@ public class KeyManagement
       serviceBroker.getService(this,
 			       CertificateCacheService.class,
 			       null);
-    
+
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in publishCAinLdap");
     }
-    
+
     Certificate c=null;
     List certList = null;
     Enumeration enum=null;
@@ -304,7 +304,7 @@ public class KeyManagement
       enum=cacheservice.getAliasList();
     }
     if(enum==null) {
-      log.error("Alias list is null in Key management publishCAinLdap:"); 
+      log.error("Alias list is null in Key management publishCAinLdap:");
     }
      if(enum!=null) {
        for(;enum.hasMoreElements();) {
@@ -347,7 +347,7 @@ public class KeyManagement
 	 List pkc = keyRing.findPrivateKey(cn);
 	 PrivateKey pk = ((PrivateKeyCert)pkc.get(0)).getPrivateKey();
 	 try {
-	   caOperations.publishCertificate((X509Certificate)c,
+	   publishCertificate((X509Certificate)c,
 					   CertificateUtility.CACert,pk);
 	 }
 	 catch (javax.naming.NameAlreadyBoundException e) {
@@ -409,7 +409,7 @@ public class KeyManagement
 	  saveX509Request(clientX509, false);
 
 	  // Publish certificate in LDAP directory
-	  caOperations.publishCertificate(clientX509,
+	  publishCertificate(clientX509,
 					  CertificateUtility.EntityCert,null);
 	}
 	else {
@@ -454,7 +454,7 @@ public class KeyManagement
 	  if (log.isDebugEnabled()) {
 	    log.debug("Publishing cert to LDAP service: " + clientX509.getSubjectDN().getName());
 	  }
-	  caOperations.publishCertificate(clientX509,
+	  publishCertificate(clientX509,
 					  CertificateUtility.EntityCert,null);
           if (configParser.isCertificateAuthority()) {
             publishCAinLdap();
@@ -630,7 +630,7 @@ public class KeyManagement
 	  if (log.isDebugEnabled()) {
 	    log.debug("Publishing cert to LDAP service");
 	  }
-	  caOperations.publishCertificate(clientX509,
+	  publishCertificate(clientX509,
 					  CertificateUtility.EntityCert,null);
           if (configParser.isCertificateAuthority()) {
             publishCAinLdap();
@@ -954,8 +954,16 @@ public class KeyManagement
 
   public void publishCertificate(X509Certificate clientX509)
     throws javax.naming.NamingException {
-    caOperations.publishCertificate(clientX509,CertificateUtility.EntityCert,
-				    null);
+    publishCertificate(clientX509,CertificateUtility.EntityCert,null);
+  }
+
+  private void publishCertificate(X509Certificate clientX509,
+    int certType, PrivateKey pk)
+    throws javax.naming.NamingException {
+    // TODO: publish to BB
+    /*
+    caOperations.publishCertificate(clientX509,certType,pk);
+                                    */
   }
 
   /** Sign a PKCS10 certificate signing request with a CA key
@@ -1236,21 +1244,21 @@ public class KeyManagement
   public void createCertificateRevocationList()
   {
   }
-  
+
   public int  revokeCertificate(String caDN ,String userUniqueIdentifier)
     throws IOException, Exception, CertificateException
   {
     String filter = "(uniqueIdentifier=" + userUniqueIdentifier + ")";
     return _revokeCertificate(caDN, filter);
   }
-  
+
   public int  revokeAgentCertificate(String caDN ,String agentName)
     throws IOException, Exception, CertificateException
   {
     String filter = "(cn=" + agentName + ")";
     return _revokeCertificate(caDN, filter);
   }
-  
+
   private int _revokeCertificate(String caDN, String ldapFilter)
   throws IOException,Exception,CertificateException
   {
@@ -1288,7 +1296,7 @@ public class KeyManagement
       X509Certificate cacert= caOperations.getCertificate(caAttributes);
       X509Certificate usercert=caOperations.getCertificate(userAttributes);
       PublicKey capublickey=cacert.getPublicKey();
-      
+
       Certificate [] certchain=keyRing.buildCertificateChain(usercert);
       boolean validchain=false;
       if((certchain!=null)&&(certchain.length>0)) {
