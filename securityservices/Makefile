@@ -120,8 +120,6 @@ install: installconf
 	mkdir ${COUGAAR_INSTALL_PATH}/log/plugin
 	@echo +++++++ Done installing jar files and log directories
 
-	#@echo +++++++ Please copy CougaarCRLextensions.jar to JAVA_HOME/jre/lib/ext/ on all machines where node is going to run
-	#@echo ################################
 installconf:
 	echo +++++++ Installing configuration files
 	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/
