@@ -11,7 +11,7 @@ parameters:
 
   - rules:
     - $CIP/csmart/config/rules/isat
-    - $CIP/csmart/config/rules/isat/uc3_nosec
+#    - $CIP/csmart/config/rules/isat/uc3_nosec
     - $CIP/csmart/config/rules/yp
     - $CIP/csmart/config/rules/logistics
     - $CIP/csmart/config/rules/assessment
