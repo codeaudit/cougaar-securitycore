@@ -3,9 +3,10 @@
 plugin="org.cougaar.core.security.blackboard.BlackboardCompromisePlugin"
 
 
-society.each_agent(true) do |agent|
+society.each_node_agent() do |agent|
        agent.add_component do |c|
-       		c.classname=plugin
+                c.classname=plugin
        end
 end
+
 
