@@ -6,53 +6,11 @@ end
 
 def waitForUserManager(agent, path="/userManagerReady", path2=nil)
   agent = run.society.agents[agent]
-
-  nameServers = run.society.name_servers
-  result = nil
-  while (result == nil)
-    nameServers.each { |nameServer|
-      begin
-        puts "talking to #{nameServer.uri}/agents?suffix=." if $COUGAAR_DEBUG
-        result, url = Cougaar::Communications::HTTP.get("#{nameServer.uri}/agents?suffix=.", 30.seconds)
-        if result =~ />#{agent.name}</
-          # agent is ready
-        else
-          sleep 3.seconds
-          result = nil
-        end
-      rescue Timeout::Error => e
-        puts "Exception! #{e.message}"
-        puts e.backtrace.join("\n")
-        sleep 3.seconds
-      rescue => e
-        puts "Exception! #{e.message}"
-        puts e.backtrace.join("\n")
-        sleep 3.seconds
-      end
-      break if (result != nil)
-    }
-  end
-
-  agentURL = agent.uri
-  url = agentURL
-  #             puts "url = #{url}"
-  re = %r"http://#{agent.node.host.name}:([0-9]*)"
-  #             puts "re = #{re}"
-  match = re.match(url.to_s)
-  #             puts "match done! #{match[1]}"
-  if match != nil && match.size > 0 && match[1] != nil
-    port = match[1].to_i
-    #               puts "port = #{port}"
-    if agent.node.cougaar_port != port
-      agent.node.override_parameter("-Dorg.cougaar.lib.web.http.port", "#{port}")
-    end
-  end
-
   url = agent.node.agent.uri + path
   while (true)
     begin
       puts "Connecting to #{url}" if $COUGAAR_DEBUG
-      result, url2 = Cougaar::Communications::HTTP.get(url)
+      result, url2 = Cougaar::Communications::HTTP.get(url, 30.seconds)
       puts url2 if $COUGAAR_DEBUG
       puts result if $COUGAAR_DEBUG
       re1 = %r"<user>(.*)</user>"
@@ -68,6 +26,9 @@ def waitForUserManager(agent, path="/userManagerReady", path2=nil)
     rescue => e
       puts "Exception! #{e.message}"
       puts e.backtrace.join("\n")
+      sleep 3.seconds
+    rescue Timeout::Error => e
+      puts "Timeout connecting to #{url}" if $COUGAAR_DEBUG
       sleep 3.seconds
     end
   end
@@ -135,16 +96,29 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
   if (execDir != nil)
     cdCmd = "cd #{execDir} && "
   end
-  `#{cdCmd}java #{defs.join(" ")} -Xmx512m -classpath #{classpath.join(':')} org.cougaar.core.security.policy.builder.Main #{args}`
+  `#{cdCmd}java #{defs.join(" ")} -Xmx512m -classpath #{classpath.join(':')} org.cougaar.core.security.policy.builder.Main #{args} 2> /dev/null`
+end
+
+$policyLockLock = Mutex.new
+$policyLock = Hash.new
+
+def getPolicyLock(enclave)
+  mutex = nil
+  $policyLockLock.synchronize {
+    mutex = $policyLock[enclave]
+    if mutex == nil
+      mutex = Mutex.new
+      $policyLock[enclave] = mutex
+    end
+  }
+  mutex
 end
 
 def deltaPolicy(enclave, text)
-  if (!(defined? @policyLock))
-    @policyLock = Mutex.new
-  end
   host, port, manager = getPolicyManager(enclave)
   waitForUserManager(manager)
-  @policyLock.synchronize {
+  mutex = getPolicyLock(enclave)
+  mutex.synchronize {
     policyFile = getPolicyFile(enclave)
     begin
       File.stat(policyFile)
