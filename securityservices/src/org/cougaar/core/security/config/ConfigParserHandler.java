@@ -90,12 +90,14 @@ public class ConfigParserHandler
       }
     }
     int size = al.size();
-    SecurityPolicy[] array = (SecurityPolicy[]) Array.newInstance(policyClass, size);
-    al.toArray(array);
+
     if (log.isDebugEnabled()) {
       log.debug("Requesting policy of type " + policyClass.getName()
-		+ " Returning " + array.length + " policy objects");
+		+ " Returning " + size + " policy objects");
     }
+
+    SecurityPolicy[] array = (SecurityPolicy[]) Array.newInstance(policyClass, size);
+    al.toArray(array);
     return array;
   }
 

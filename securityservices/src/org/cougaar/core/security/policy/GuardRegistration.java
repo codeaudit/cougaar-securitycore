@@ -182,6 +182,9 @@ public abstract class GuardRegistration
     String policyTargetName = null;
     String policyType = null;
 
+    if (aMsg == null || aMsg.getAttributes() == null) {
+      return;
+    }
     // Bootstrap policies may not have any of these fields set
     attributes = aMsg.getAttributes();
     policyID =          (String) aMsg.getId();

@@ -104,6 +104,9 @@ public class MessageProtectionServiceImpl
       log.debug("Unable to get crypto policy service");
       throw new RuntimeException("MessageProtectionService. No crypto policy service");
     }
+    if (log.isDebugEnabled()) {
+      log.debug("Done initializing MessageProtectionServiceImpl");
+    }
   }
 
   /**
@@ -134,6 +137,9 @@ public class MessageProtectionServiceImpl
 			      MessageAddress destination)
     throws GeneralSecurityException, IOException
   {
+    if (log.isDebugEnabled()) {
+      log.debug("protectHeader");
+    }
     SecureMethodParam policy =
       cps.getSendPolicy(source.getAddress() + ":"
 			+ destination.getAddress());
@@ -173,6 +179,9 @@ public class MessageProtectionServiceImpl
 				MessageAddress destination)
     throws GeneralSecurityException, IOException
   {
+    if (log.isDebugEnabled()) {
+      log.debug("unprotectHeader");
+    }
     SecureMethodParam policy =
       cps.getReceivePolicy(source.toAddress()
 			   +":"

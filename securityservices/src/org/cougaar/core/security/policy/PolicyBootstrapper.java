@@ -31,6 +31,7 @@ import java.util.Vector;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.util.ConfigFinder;
+import org.cougaar.planning.ldm.policy.Policy;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.ConfigParserService;
@@ -46,22 +47,19 @@ public class PolicyBootstrapper
 
   private ServiceBroker serviceBroker;
   private ConfigParserService cps;
-  private boolean debug = false;
   private LoggingService log;
+  private XMLPolicyCreator xpc;
 
-  static String PolicyPath =
+  static String policyPath =
     System.getProperty("org.cougaar.core.security.BootPolicy",
 		       "BootPolicy.ldm.xml");
-  
+ 
   public PolicyBootstrapper(ServiceBroker sb) {
     serviceBroker = sb;
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
-    debug = System.getProperty("org.cougaar.core.security.policy.debug",
-			       "false").equalsIgnoreCase("true");
-
-    if (debug) {
+    if (log.isDebugEnabled()) {
       log.debug("Initializing Policy bootstrapper");
     }
 
@@ -72,31 +70,63 @@ public class PolicyBootstrapper
     //absolutely required.
     if (cps == null)
       throw new RuntimeException("PolicyBootstrapper failed to get ConfigParserService.");
+
+    xpc = new XMLPolicyCreator(policyPath, new ConfigFinder(), "PolicyBootstrapper");
+
   }
   
   public PolicyMsg getBootPolicy(Class type)
   {
-    if (debug) {
+    if (log.isDebugEnabled()) {
       log.debug("getBootPolicy: " + type);
     }
-    SecurityPolicy[] policies = cps.getSecurityPolicies(type);
-    
+    Policy[] ruleParamPolicies = null;
+    SecurityPolicy[] policies = null;
+  
+    if (type.equals(SecurityPolicy.class)) {
+      policies = cps.getSecurityPolicies(type);
+    }
+    else if (type.equals(Policy.class)) {
+      if(xpc!=null) {
+	ruleParamPolicies = xpc.getPoliciesByType(type.getName());
+      }
+    }
+    if (log.isDebugEnabled()) {
+      log.debug("getBootPocicy: " + type.getName()
+	+ " - " + (policies == null ? 0 : policies.length) + " Security policies - "
+	+ (ruleParamPolicies == null ? 0 : ruleParamPolicies.length) +
+	" rule parameters policies");
+    }
+
     PolicyMsg policyMsg = null;
-    SubjectMsg sm = new SubjectMsg("bootID","default","scope");
-    Vector v = new Vector();
-    v.add(sm);
-    if (policies != null) {
-        policyMsg = new PolicyMsg ("boot",
-                                             "BootPolicy",
-                                             "boot policy",
-                                             type.toString(),
-                                             "admin",
-                                             v,
-                                             false);
+    //SubjectMsg sm = new SubjectMsg("bootID","default","scope");
+    //Vector v = new Vector();
+    //v.add(sm);
+    if (policies != null || ruleParamPolicies != null) {
+        policyMsg = new PolicyMsg ("",
+				   "",
+				   "",
+				   "",
+				   "",
+				   "",
+				   "",
+				   "",
+				   "",
+				   true,
+				   false,
+				   false);
         for (int i=0; i<policies.length; i++) {                    
             // wrap the policy in a KAoS message
             AttributeMsg attribMsg = new AttributeMsg("POLICY_OBJECT",
                                                       policies[i],
+                                                      true);
+            policyMsg.setAttribute(attribMsg);
+        }
+
+        for (int i=0; i<ruleParamPolicies.length; i++) {                    
+            // wrap the policy in a KAoS message
+            AttributeMsg attribMsg = new AttributeMsg("POLICY_OBJECT",
+                                                      ruleParamPolicies[i],
                                                       true);
             policyMsg.setAttribute(attribMsg);
         }
