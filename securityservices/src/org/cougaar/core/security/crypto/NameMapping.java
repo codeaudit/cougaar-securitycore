@@ -88,15 +88,17 @@ public class NameMapping {
 
     /* Since the common name must currently be unique, it is a configuration
      * error if two distinguished names have the same common name. */
-    X500Name aPrincipal = (X500Name)cn2dn.get(cn);
-    if (aPrincipal != null &&
-	!aPrincipal.equals(x500Name)) {
-      // Cannot continue. Configuration error.
-      throw new IllegalArgumentException("Two DNs have same CN. Keeping "
-					 + x500Name + " - "
-					 + aPrincipal.toString() + " excluded");
+    synchronized(this) {
+      X500Name aPrincipal = (X500Name)cn2dn.get(cn);
+      if (aPrincipal != null &&
+	  !aPrincipal.equals(x500Name)) {
+	// Cannot continue. Configuration error.
+	throw new IllegalArgumentException("Two DNs have same CN. Keeping "
+					   + x500Name + " - "
+					   + aPrincipal.toString() + " excluded");
+      }
+      cn2dn.put(cn, x500Name);
     }
-    cn2dn.put(cn, x500Name);
   }
 
   public X500Name getX500Name(String commonName) {

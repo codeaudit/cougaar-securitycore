@@ -206,22 +206,22 @@ public class CRLCache implements Runnable
       name =  new X500Name(distingushname);
     }
     catch(Exception exp) {
-      log.error("Unable to get CA name:" + distingushname);
+      log.error("Unable to get CA name: " + distingushname);
     }
     
     if (keystore.certCache == null) {
       log.info("Certificate cache not initialized yet");
       return;
     }
-    ArrayList certList = keystore.certCache.getValidCertificates(name);
+    List certList = keystore.certCache.getValidCertificates(name);
     CertificateStatus certstatus = null;
     if (certList != null && certList.size() != 0) {
       // For now, get the first certificate
       certstatus = (CertificateStatus) certList.get(0);
     }
     else {
-      if(log.isDebugEnabled())
-	log.debug(" Warning !!!!! No valid certificate for :"+distingushname);
+      if(log.isWarnEnabled())
+	log.warn("No valid certificate for: "+distingushname);
       return;
     }
 

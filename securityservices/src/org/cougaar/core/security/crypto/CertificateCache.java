@@ -114,7 +114,7 @@ public class CertificateCache
    * CA1 and CA2 do not have a common root CA.
    */
 
-  /** Returns an ArrayList of valid certificates.
+  /** Returns a List of valid certificates.
    * The certificates:
    * 1) have not been revoked.
    * 2) have a "notBefore" date in the past.
@@ -125,40 +125,43 @@ public class CertificateCache
    * NOTE: The certificates returned are valid but may NOT be trusted
    *  because the whole chain is not checked
    */
-  public ArrayList getValidCertificates(X500Name x500Name)
+  public List getValidCertificates(X500Name x500Name)
   {
-    ArrayList v = getCertificates(x500Name);
-    if (v == null || v.size() == 0) {
+    List allCertificates = getCertificates(x500Name);
+    if (allCertificates == null || allCertificates.size() == 0) {
       return null;
     }
-    ArrayList validCerts = new ArrayList();
-    ListIterator it = v.listIterator();
 
+    List validCerts = Collections.synchronizedList(new ArrayList());
     // return the cert with the longest notafter day first
     // most modules will use the cert
     long notafter = 0L;
 
-    while (it.hasNext()) {
-      CertificateStatus cs = (CertificateStatus) it.next();
-      boolean isTrustedAndValid = checkCertificate(cs);
-      if (isTrustedAndValid) {
-        long certtime = cs.getCertificate().getNotAfter().getTime();
-        if (certtime > notafter) {
-          notafter = certtime;
-          validCerts.add(0, cs);
-        }
-        else
-	  validCerts.add(cs);
+    synchronized(allCertificates) {
+      ListIterator it = allCertificates.listIterator();
+      while (it.hasNext()) {
+	CertificateStatus cs = (CertificateStatus) it.next();
+	boolean isTrustedAndValid = checkCertificate(cs);
+	if (isTrustedAndValid) {
+	  long certtime = cs.getCertificate().getNotAfter().getTime();
+	  if (certtime > notafter) {
+	    notafter = certtime;
+	    validCerts.add(0, cs);
+	  }
+	  else {
+	    validCerts.add(cs);
+	  }
+	}
       }
     }
     return validCerts;
   }
 
-  private ArrayList getCertificates(String distinguishedName)
+  private List getCertificates(String distinguishedName)
   {
-    ArrayList list = null;
+    List list = null;
     try {
-      list = (ArrayList) certsCache.get(distinguishedName);
+      list = (List) certsCache.get(distinguishedName);
     }
     catch (Exception e) {
       log.warn("Unable to get list of certificates from cache for "
@@ -168,7 +171,7 @@ public class CertificateCache
   }
 
   /** Return all the certificates associated with a given distinguished name */
-  public ArrayList getCertificates(X500Name x500Name)
+  public List getCertificates(X500Name x500Name)
   {
     if (x500Name == null) {
       throw new IllegalArgumentException("getCertificate: Argument is null");
@@ -181,11 +184,13 @@ public class CertificateCache
   {
   }
 
+  /**
+   */
   public  void revokeStatus(BigInteger serialno, String issuerDN, String subjectDN) {
     if(subjectDN==null) {
       return;
     }
-    ArrayList list=getCertificates(subjectDN);
+    List list=getCertificates(subjectDN);
     if(list.size()==0){
       log.warn("cert not found in cache:");
       return ;
@@ -225,7 +230,7 @@ public class CertificateCache
     // would still be considered valid
     Enumeration allcerts = certsCache.elements();
     while (allcerts.hasMoreElements()) {
-      ArrayList certList = (ArrayList)allcerts.nextElement();
+      List certList = (List)allcerts.nextElement();
       it = certList.listIterator();
       while (it.hasNext()) {
         CertificateStatus cs = (CertificateStatus)it.next();
@@ -236,7 +241,7 @@ public class CertificateCache
     }
   }
 
-  private void addCertStatus(ArrayList list, CertificateStatus certEntry,
+  private void addCertStatus(List list, CertificateStatus certEntry,
 			     PrivateKey privkey)
     throws SecurityException
   {
@@ -247,7 +252,7 @@ public class CertificateCache
       Principal principal = cert.getSubjectDN();
 
       // Are there existing certificates for this principal?
-      // If yes, add the new certificate to the ArrayList. Otherwise, create a
+      // If yes, add the new certificate to the List. Otherwise, create a
       // new entry in the hash table.
       PrivateKeyCert pcert = null;
 
@@ -442,9 +447,9 @@ public class CertificateCache
 		   + certEntry.getCertificateTrust());
       }
 
-      ArrayList list = (ArrayList)certsCache.get(principal.getName());
+      List list = (List)certsCache.get(principal.getName());
       if (list == null) {
-	list = new ArrayList();
+	list = Collections.synchronizedList(new ArrayList());
       }
 
       if(log.isDebugEnabled())
@@ -487,39 +492,41 @@ public class CertificateCache
    * NOTE: The certificates returned are valid but may NOT be trusted
    *  because the whole chain is not checked
    */
-  public ArrayList getValidPrivateKeys(X500Name x500Name) {
-    ArrayList v = getPrivateKeys(x500Name);
-    if (v == null || v.size() == 0) {
+  public List getValidPrivateKeys(X500Name x500Name) {
+    List allCertificates = getPrivateKeys(x500Name);
+    if (allCertificates == null || allCertificates.size() == 0) {
       if (log.isDebugEnabled()) {
 	log.debug("No private key for " + x500Name);
       }
       return null;
     }
-    ArrayList validPrivateKeys = new ArrayList();
-    ListIterator it = v.listIterator();
+    List validPrivateKeys = new Collections.synchronizedList(ArrayList());
 
-    while (it.hasNext()) {
-      PrivateKeyCert cs = (PrivateKeyCert) it.next();
-      boolean isTrustedAndValid = checkCertificate(cs.getCertificateStatus());
-      if (log.isDebugEnabled()) {
-	log.debug("Checking certificate trust: " + cs.getCertificateStatus()
-		  + ". Trust: " + isTrustedAndValid);
-      }
-      if (isTrustedAndValid) {
-	validPrivateKeys.add(cs);
+    synchronized(allCertificates) {
+      ListIterator it = allCertificates.listIterator();
+      while (it.hasNext()) {
+	PrivateKeyCert cs = (PrivateKeyCert) it.next();
+	boolean isTrustedAndValid = checkCertificate(cs.getCertificateStatus());
+	if (log.isDebugEnabled()) {
+	  log.debug("Checking certificate trust: " + cs.getCertificateStatus()
+		    + ". Trust: " + isTrustedAndValid);
+	}
+	if (isTrustedAndValid) {
+	  validPrivateKeys.add(cs);
+	}
       }
     }
     return validPrivateKeys;
   }
 
-  private ArrayList getPrivateKeys(String distinguishedName)
+  private List getPrivateKeys(String distinguishedName)
   {
-    ArrayList list = (ArrayList) privateKeyCache.get(distinguishedName);
+    List list = (List) privateKeyCache.get(distinguishedName);
     return list;
   }
 
   /** Return all the private keys associated with a given distinguished name */
-  public ArrayList getPrivateKeys(X500Name x500Name)
+  public List getPrivateKeys(X500Name x500Name)
   {
     return getPrivateKeys(x500Name.getName());
   }
@@ -534,11 +541,11 @@ public class CertificateCache
     Principal principal = cert.getSubjectDN();
 
     // Are there existing private keys for this principal?
-    // If yes, add the new private key to the ArrayList. Otherwise, create a
+    // If yes, add the new private key to the List. Otherwise, create a
     // new entry in the hash table.
-    ArrayList list = (ArrayList)privateKeyCache.get(principal.getName());
+    List list = (List)privateKeyCache.get(principal.getName());
     if (list == null) {
-      list = new ArrayList();
+      list = Collections.synchronizedList(new ArrayList());
     }
 
     if(log.isDebugEnabled())
@@ -569,7 +576,7 @@ public class CertificateCache
     log.debug("============== Certificates:");
     while (e.hasMoreElements()) {
       String name = (String) e.nextElement();
-      ArrayList list = (ArrayList) certsCache.get(name);
+      List list = (List) certsCache.get(name);
       ListIterator it = list.listIterator();
       log.debug("Certificates for: " + name);
       while (it.hasNext()) {
@@ -583,7 +590,7 @@ public class CertificateCache
     log.debug("============== Private keys:");
     while (e.hasMoreElements()) {
       String name = (String) e.nextElement();
-      ArrayList list = (ArrayList) privateKeyCache.get(name);
+      List list = (List) privateKeyCache.get(name);
       ListIterator it = list.listIterator();
       log.debug("PrivateKeys for: " + name);
       while (it.hasNext()) {
@@ -613,8 +620,10 @@ public class CertificateCache
     return checkCertificate(cs, false, false);
   }
 
+  /** Check the certificate validity of a certificate.
+   */
   private boolean checkCertificate(CertificateStatus cs,
-      boolean buildChain, boolean changeStatus) {
+				   boolean buildChain, boolean changeStatus) {
     boolean isTrustedAndValid = false;
 
     // What is this for? If not important for every find then

@@ -52,7 +52,7 @@ import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.util.*;
 
 /** A common holder for Security keystore information and functionality
- **/
+ */
 
 final public class KeyRing
   implements KeyRingService
@@ -73,7 +73,7 @@ final public class KeyRing
     init();
   }
 
-  private synchronized void init() {
+  private void init() {
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
@@ -368,7 +368,9 @@ final public class KeyRing
     return c;
   }
 
-  public synchronized X509Certificate findFirstAvailableCert(String name)
+  /**
+   */
+  public X509Certificate findFirstAvailableCert(String name)
     throws CertificateException {
     // check whether agent has started yet, this fixes the problem where
     // LDAP is dirty and returning old certificates. If agent has started
@@ -376,12 +378,12 @@ final public class KeyRing
     if (log.isDebugEnabled()) {
       log.debug("findFirstAvailableCert: " + name);
     }
-      try {
-        if (directoryKeystore.getNamingAttributes(name) == null)
-          return null;
-      } catch (NamingException nx) {
-        return null;
-      }
+    try {
+      if (directoryKeystore.getNamingAttributes(name) == null)
+	return null;
+    } catch (NamingException nx) {
+      return null;
+    }
 
     List certList =
       findCert(name, KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
@@ -404,7 +406,7 @@ final public class KeyRing
     return cert;
   }
 
-  public synchronized X509Certificate[] findCertChain(X509Certificate c)
+  public X509Certificate[] findCertChain(X509Certificate c)
   {
     X509Certificate[] chain = null;
     if (c == null) {
@@ -443,7 +445,7 @@ final public class KeyRing
     //return directoryKeystore.getCRL();
   }
 
-  public synchronized void checkOrMakeCert(String name)
+  public void checkOrMakeCert(String name)
   {
     if (directoryKeystore == null) {
       return;
@@ -452,7 +454,7 @@ final public class KeyRing
     return;
   }
 
-  public synchronized void checkOrMakeCert(X500Name dname)
+  public void checkOrMakeCert(X500Name dname)
   {
     if (directoryKeystore == null) {
       return;
@@ -461,7 +463,7 @@ final public class KeyRing
     return;
   }
 
-  public synchronized void checkOrMakeCert(X500Name dname, boolean isCACert) {
+  public void checkOrMakeCert(X500Name dname, boolean isCACert) {
     if (directoryKeystore == null) {
       return;
     }

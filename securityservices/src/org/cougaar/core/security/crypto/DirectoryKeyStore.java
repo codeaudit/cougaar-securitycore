@@ -131,6 +131,7 @@ public class DirectoryKeyStore
    */
   private NameMapping nameMapping;
 
+  /** */
   private List       _initKeyManager = new LinkedList();
   private boolean    _initializing = true;
 
@@ -341,14 +342,14 @@ public class DirectoryKeyStore
     return keystore;
   }
 
-  public synchronized List findPrivateKey(String cougaarName) {
+  public List findPrivateKey(String cougaarName) {
     return findPrivateKey(cougaarName, true);
   }
 
   /** Lookup a private key given a Cougaar name.
    *  Currently, the Cougaar name is the common name.
    */
-  public synchronized List findPrivateKey(String cougaarName, boolean validOnly) {
+  public List findPrivateKey(String cougaarName, boolean validOnly) {
     X500Name x500Name = nameMapping.getX500Name(cougaarName);
     if (log.isDebugEnabled()) {
       log.debug("DirectoryKeyStore.findPrivateKey("
@@ -366,11 +367,11 @@ public class DirectoryKeyStore
   /** Returns a list of private keys
    * @return A List of PrivateKeyCert
    */
-  public synchronized List findPrivateKey(X500Name x500Name) {
+  public List findPrivateKey(X500Name x500Name) {
     return findPrivateKey(x500Name, true);
   }
 
-  public synchronized List findPrivateKey(X500Name x500Name, boolean validOnly) {
+  public List findPrivateKey(X500Name x500Name, boolean validOnly) {
     // Check security permissions
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
@@ -410,8 +411,8 @@ public class DirectoryKeyStore
    * LOOKUP_FORCE_LDAP_REFRESH: Force a new lookup in the LDAP service.
    * @return A list of CertificateStatus
   */
-  public synchronized List findCert(String commonName,
-				    int lookupType)
+  public List findCert(String commonName,
+		       int lookupType)
   {
     return findCert(commonName, lookupType, true);
   }
@@ -462,10 +463,12 @@ public class DirectoryKeyStore
 
     // Search in the local hash map.
     List certList = null;
-    if (validOnly)
+    if (validOnly) {
       certList = certCache.getValidCertificates(x500name);
-    else
+    }
+    else {
       certList = certCache.getCertificates(x500name);
+    }
     if (log.isDebugEnabled()) {
       log.debug("Search key in local hash table:" + commonName
 		+ " - found " +	(certList == null ? 0 : certList.size())
@@ -482,10 +485,12 @@ public class DirectoryKeyStore
 	if ((lookupType & KeyRingService.LOOKUP_LDAP) != 0) {
 	  String filter = "(cn=" + commonName + ")";
 	  lookupCertInLDAP(filter, certFinder);
-          if (validOnly)
+          if (validOnly) {
             certList = certCache.getValidCertificates(x500name);
-          else
+	  }
+          else {
             certList = certCache.getCertificates(x500name);
+	  }
 
 	  // Did we find certificates in LDAP?
 	  if (certList == null || certList.size() == 0) {
@@ -1174,7 +1179,7 @@ public class DirectoryKeyStore
         }
       }
 
-      ArrayList list = certCache.getCertificates(name);
+      List list = certCache.getCertificates(name);
       ListIterator it = list.listIterator();
       if (log.isDebugEnabled()) {
 	log.debug("-- Checking certificates validity for: " + name);
@@ -1478,7 +1483,7 @@ public class DirectoryKeyStore
       }
     }
 
-    ArrayList listSigner = certCache.getCertificates(x500NameSigner);
+    List listSigner = certCache.getCertificates(x500NameSigner);
 
     if(principal.equals(principalSigner)) {
       // Self-signed certificate
@@ -2236,7 +2241,7 @@ public class DirectoryKeyStore
     return alias;
   }
 
-  public synchronized List findCert(Principal p) {
+  public List findCert(Principal p) {
     X500Name x500Name = null;
     String a = null;
     List certificateList = null;
@@ -2261,7 +2266,7 @@ public class DirectoryKeyStore
     return certificateList;
   }
 
-  public synchronized List findCert(String name) {
+  public List findCert(String name) {
     List certificateList = null;
     try {
       certificateList =
@@ -2395,7 +2400,7 @@ public class DirectoryKeyStore
     // reuse it
     // if a cert is deny, expired, revoke, etc, status should not be unknown
     if (!isCACert) {
-      ArrayList certList = certCache.getCertificates(dname);
+      List certList = certCache.getCertificates(dname);
       for (int i = 0; certList != null && i < certList.size(); i++) {
         CertificateStatus cs = (CertificateStatus)certList.get(i);
         if (cs.getCertificateTrust() == CertificateTrust.CERT_TRUST_SELF_SIGNED
@@ -2517,7 +2522,7 @@ public class DirectoryKeyStore
     checkOrMakeCert(dname, false);
   }
 
-  public void checkOrMakeCert(X500Name dname, boolean isCACert) {
+  public synchronized void checkOrMakeCert(X500Name dname, boolean isCACert) {
     if (log.isDebugEnabled()) {
       log.debug("CheckOrMakeCert: " + dname.toString());
     }
@@ -2967,8 +2972,9 @@ public class DirectoryKeyStore
   }
 
   /**
-   * get information from naming service, input is common name.
+   * Get the certificate LDAP URL from naming service.
    * Only agent information is registered with ldap naming.
+   * @param cname - The common name of entity with which we are trying to communicate.
    */
   public BasicAttributes getNamingAttributes(String cname)
     throws NamingException  {
@@ -3011,12 +3017,14 @@ public class DirectoryKeyStore
     }
 
     try {
+      //
       BasicAttributes attrib = getNamingAttributes(cname);
       if (log.isDebugEnabled()) {
         log.debug("getCertDirectoryServiceClient: " + cname + " attrib: "
           + attrib);
       }
       if (attrib != null) {
+	//
         Integer cdType = (Integer)getAttribute(attrib, CDTYPE_ATTR);
         cdUrl = (String)getAttribute(attrib, CDURL_ATTR);
         if (cdType != null && cdUrl != null) {
@@ -3052,6 +3060,10 @@ public class DirectoryKeyStore
     return certificateFinder;
   }
 
+  /**
+   * Check whether the /Certificate subcontext exists in the naming service.
+   * If not, create the subcontext.
+   */
   private DirContext ensureCertContext()
     throws NamingException {
   // First, get the Naming service root context

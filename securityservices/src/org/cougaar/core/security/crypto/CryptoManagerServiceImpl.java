@@ -52,7 +52,7 @@ public class CryptoManagerServiceImpl
   private KeyRingService keyRing;
   private ServiceBroker serviceBroker;
   private LoggingService log;
-  private HashMap        ciphers = new HashMap();
+  private Hashtable ciphers = new Hashtable();
 
   /** A hashtable that contains encrypted session keys.
    *  The session keys may be used for multiple messages instead of having to generate and encrypt
@@ -60,7 +60,7 @@ public class CryptoManagerServiceImpl
    *  The hashtable key is an MessageAddressPair
    *  The hashtable value is a SealedObject (the encrypted session key)
    */
-  private HashMap sessionKeys;
+  private Hashtable sessionKeys;
 
 
   public CryptoManagerServiceImpl(KeyRingService aKeyRing, ServiceBroker sb) {
@@ -69,7 +69,7 @@ public class CryptoManagerServiceImpl
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
-    sessionKeys = new HashMap();
+    sessionKeys = new Hashtable();
   }
 
   public SignedObject sign(final String name,
@@ -541,12 +541,12 @@ public class CryptoManagerServiceImpl
     }
 
     /* Have we already generated a session key for this pair of agents? */
-    HashMap targets;
+    Hashtable targets;
 
     synchronized (sessionKeys) {
-      targets = (HashMap) sessionKeys.get(source.toAddress());
+      targets = (Hashtable) sessionKeys.get(source.toAddress());
       if (targets == null) {
-	targets = new HashMap();
+	targets = new Hashtable();
 	sessionKeys.put(source.toAddress(), targets);
       }
     }
@@ -668,12 +668,12 @@ public class CryptoManagerServiceImpl
       log.debug("decrypt try: " + keyTry + " hit: " + keyHit);
     }
 
-    HashMap targets;
+    Hashtable targets;
 
     synchronized (sessionKeys) {
-      targets = (HashMap) sessionKeys.get(source.toAddress());
+      targets = (Hashtable) sessionKeys.get(source.toAddress());
       if (targets == null) {
-	targets = new HashMap();
+	targets = new Hashtable();
 	sessionKeys.put(source.toAddress(), targets);
       }
     }
