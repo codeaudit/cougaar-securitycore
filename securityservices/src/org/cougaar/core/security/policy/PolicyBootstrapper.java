@@ -60,7 +60,7 @@ public class PolicyBootstrapper
   private LoggingService log;
   private XMLPolicyCreator xpc;
 
-  private String _damlBootPolicies = "DamlBootPolicyList";
+  public static final String _damlBootPolicies = "DamlBootPolicyList";
   private HashMap _damlBootMap;
 
   static String policyPath =
@@ -121,7 +121,7 @@ public class PolicyBootstrapper
       PolicyParser parser = new PolicyParser(lexer);
       List parsedPolicies;
       try {
-        parsedPolicies = parser.policies();
+        parsedPolicies = parser.policyFile().policies();
       } catch (Exception e) { 
         throw new RuntimeException("Fatal", e);
       }
