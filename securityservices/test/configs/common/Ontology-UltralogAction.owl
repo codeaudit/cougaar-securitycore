@@ -20,28 +20,28 @@
 <!-- Section with property definitions--> 
 
     <owl:ObjectProperty rdf:ID="usedAuthenticationLevel">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/> 
         <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#AuthenticationLevel"/> 
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="usedAuditLevel">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/> 
         <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#AuditLevel"/> 
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="usedProtectionLevel">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
         <rdfs:domain rdf:resource="http://ontology.ihmc.us/Action.owl#EncryptedCommunicationAction"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#ProtectionLevel"/> 
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="accessedServlet">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#accessedEntity"/>
         <rdfs:domain rdf:resource="#ServletAccess"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#Servlet"/> 
@@ -54,14 +54,14 @@
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="blackBoardAccessObject">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
         <rdfs:domain rdf:resource="#BlackBoardAccess"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#BlackBoardObjects"/> 
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="blackBoardAccessMode">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
         <rdfs:domain rdf:resource="#BlackBoardAccess"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#BlackBoardAccessMode"/> 
@@ -69,7 +69,7 @@
 
 
     <owl:ObjectProperty rdf:ID="wpAccessType">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
         <rdfs:domain rdf:resource="#WPUpdateSelf"/> 
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#WPAccessType"/>
@@ -81,6 +81,7 @@
      <owl:Class rdf:ID="ServletAccess">
         <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#AccessAction"/>
      </owl:Class>
+
 
      <owl:Class rdf:ID="BlackBoardAccess">
         <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>

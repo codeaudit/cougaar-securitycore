@@ -38,25 +38,25 @@
     </owl:ObjectProperty>
     
     <owl:DatatypeProperty rdf:ID="hasMaxDuration">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="#DurationLimitedEntity"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/> 
     </owl:DatatypeProperty>
     
     <owl:DatatypeProperty rdf:ID="hasMaxQuantity">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="#QuantityLimitedEntity"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/> 
     </owl:DatatypeProperty>
 
     <owl:DatatypeProperty rdf:ID="hasMaxRate">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="#RateLimitedEntity"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/> 
     </owl:DatatypeProperty>
     
     <owl:DatatypeProperty rdf:ID="hasMaxSize">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="#SizeLimitedEntity"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/> 
     </owl:DatatypeProperty>
@@ -72,13 +72,6 @@
 
     <owl:Class rdf:ID="LogicalEntity">
         <rdfs:subClassOf rdf:resource="#Entity"/>
-    </owl:Class>
-    
-    <owl:Class rdf:about="#Entity">
-        <owl:unionOf rdf:parseType="Collection">
-            <owl:Class rdf:about="#PhysicalEntity" /> 
-            <owl:Class rdf:about="#LogicalEntity" /> 
-        </owl:unionOf>
     </owl:Class>
 
     <owl:Class rdf:ID="ComputingEntity">

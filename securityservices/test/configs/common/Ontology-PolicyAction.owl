@@ -34,7 +34,7 @@
 
     <owl:ObjectProperty rdf:ID="hasPolicyDiscloser">
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
-        <rdfs:domain rdf:resource="#PolicyLogginAction"/>
+        <rdfs:domain rdf:resource="#PolicyLoggingAction"/>
         <rdfs:range rdf:resource="#DisclosePolicyAction"/>
     </owl:ObjectProperty>
 

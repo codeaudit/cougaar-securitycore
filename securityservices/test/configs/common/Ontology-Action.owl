@@ -24,7 +24,7 @@
 <!--Section with property definitions-->
 
     <owl:ObjectProperty rdf:ID="performedBy">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="#Action"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Actor.owl#Actor"/>
     </owl:ObjectProperty>
@@ -40,42 +40,38 @@
     </owl:ObjectProperty>
        
     <owl:ObjectProperty rdf:ID="carriesMessage">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
         <rdfs:subPropertyOf rdf:resource="#performedOn"/>
         <rdfs:domain rdf:resource="#CommunicationAction"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Message.owl#Message"/>
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="hasPartner">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
         <rdfs:subPropertyOf rdf:resource="#performedOn"/>
         <rdfs:domain rdf:resource="#CommunicationAction"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Actor.owl#Actor"/>
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="hasDestination">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
         <rdfs:subPropertyOf rdf:resource="#hasPartner"/>
         <rdfs:domain rdf:resource="#CommunicationAction"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Actor.owl#Actor"/>
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="hasSource">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:subPropertyOf rdf:resource="#hasPartner"/>
         <rdfs:domain rdf:resource="#ReceiveCommunicationAction"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Actor.owl#Actor"/>
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="replyTo">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
         <rdfs:subPropertyOf rdf:resource="#performedOn"/>
         <rdfs:domain rdf:resource="#ResponseAction"/>
         <rdfs:range rdf:resource="#RequestAction"/>
     </owl:ObjectProperty>
         
     <owl:ObjectProperty rdf:ID="movingTo">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:subPropertyOf rdf:resource="#performedOn"/>
         <rdfs:domain rdf:resource="#MobilityAction"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Place.owl#Place"/>
@@ -90,18 +86,12 @@
 <!--Section with class definitions-->
 
     <owl:Class rdf:ID="Target">
-        <owl:unionOf rdf:parseType="Collection">
-            <owl:Class rdf:about="http://ontology.ihmc.us/Group.owl#Group"/> 
-            <owl:Class rdf:about="http://ontology.ihmc.us/Actor.owl#Actor"/> 
-            <owl:Class rdf:about="http://ontology.ihmc.us/Entity.owl#Entity"/> 
-            <owl:Class rdf:about="http://ontology.ihmc.us/Policy.owl#Policy"/>
-            <owl:Class rdf:about="http://ontology.ihmc.us/Message.owl#Message"/>
-            <owl:Class rdf:about="http://ontology.ihmc.us/Place.owl#Place"/> 
-            <owl:Class rdf:about="#Action"/> 
-        </owl:unionOf>
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#Entity"/>
     </owl:Class>
 
-    <owl:Class rdf:ID="Action"/>
+    <owl:Class rdf:ID="Action">
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#LogicalEntity"/>
+    </owl:Class>
 
     <owl:Class rdf:ID="CommunicationAction">
         <rdfs:subClassOf rdf:resource="#Action"/>
@@ -115,13 +105,6 @@
         <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
     </owl:Class>
 
-    <owl:Class rdf:about="#CommunicationAction">
-        <owl:unionOf rdf:parseType="Collection">
-            <owl:Class rdf:about="#SendCommunicationAction"/> 
-            <owl:Class rdf:about="#ReceiveCommunicationAction"/> 
-        </owl:unionOf>
-    </owl:Class>
-
     <owl:Class rdf:ID="EncryptedCommunicationAction">
         <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
     </owl:Class>
@@ -130,26 +113,12 @@
         <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
     </owl:Class>
 
-    <owl:Class rdf:about="#CommunicationAction">
-        <owl:unionOf rdf:parseType="Collection">
-            <owl:Class rdf:about="#EncryptedCommunicationAction"/> 
-            <owl:Class rdf:about="#NonEncryptedCommunicationAction"/> 
-        </owl:unionOf>
-    </owl:Class>
-
     <owl:Class rdf:ID="SignedCommunicationAction">
         <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
     </owl:Class>
 
     <owl:Class rdf:ID="NonSignedCommunicationAction">
         <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
-    </owl:Class>
-
-    <owl:Class rdf:about="#CommunicationAction">
-        <owl:unionOf rdf:parseType="Collection">
-            <owl:Class rdf:about="#SignedCommunicationAction"/> 
-            <owl:Class rdf:about="#NonSignedCommunicationAction"/> 
-        </owl:unionOf>
     </owl:Class>
 
     <owl:Class rdf:ID="RequestAction">
@@ -188,22 +157,10 @@
 
     <owl:Class rdf:ID="ResourceAction">
         <rdfs:subClassOf rdf:resource="#Action"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="#performedOn"/>
-                <owl:someValuesFrom rdf:resource="http://ontology.ihmc.us/Entity.owl#Entity"/>
-            </owl:Restriction>
-         </rdfs:subClassOf>
     </owl:Class>
 
     <owl:Class rdf:ID="AccessAction">
         <rdfs:subClassOf rdf:resource="#Action"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="#performedOn"/>
-                <owl:someValuesFrom rdf:resource="http://ontology.ihmc.us/Entity.owl#Entity"/>
-            </owl:Restriction>
-         </rdfs:subClassOf>
     </owl:Class>
 
 </rdf:RDF>

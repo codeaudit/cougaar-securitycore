@@ -13,6 +13,7 @@
         <rdfs:comment>
             An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
         </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Entity.owl"/>
     </owl:Ontology>
 
 <!--Section with property definitions--> 
@@ -20,6 +21,8 @@
 
 <!--Section with class definitions--> 
 
-    <owl:Class rdf:ID="Message"/>
+    <owl:Class rdf:ID="Message">
+       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#LogicalEntity"/>
+    </owl:Class>
   
 </rdf:RDF>

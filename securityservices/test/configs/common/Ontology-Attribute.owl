@@ -18,17 +18,17 @@
 
 <!--Section with property definitions--> 
 
-    <owl:UnambigousProperty rdf:ID="hasAttribute">
+    <owl:ObjectProperty rdf:ID="hasAttribute">
         <rdfs:domain rdf:resource="http://ontology.ihmc.us/Entity.owl#Entity"/> 
         <rdfs:range rdf:resource="#Attribute"/> 
-    </owl:UnambigousProperty>
+    </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:ID="isAssociatedWith">
         <owl:inverseOf rdf:resource="#hasAttribute"/>
     </owl:ObjectProperty> 
 
     <rdf:Property rdf:ID="hasValue">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#UniqueProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="#Attribute"/>
     </rdf:Property>
 

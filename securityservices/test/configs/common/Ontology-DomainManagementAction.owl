@@ -37,7 +37,7 @@
 
     <owl:Class rdf:ID="DeregisterAction">
          <rdfs:subClassOf rdf:resource="#DomainManagementAction"/>
-         <owl:disjointWith rdf:resource="#RegistrationAction"/>
+         <owl:disjointWith rdf:resource="#RegisterAction"/>
     </owl:Class>
 
     <owl:Class rdf:ID="ObtainMembersAction">
