@@ -113,7 +113,7 @@ public class CryptoPolicyServiceImpl
         class.isAssignableFrom(sc)) {
                 commu = (CommunityService)
                 serviceBroker.getService(this, CommunityService.class, null);
-                log.info("BlackboardService is available now");
+                log.info("CommunityService is available now");
             }
     }
   }
