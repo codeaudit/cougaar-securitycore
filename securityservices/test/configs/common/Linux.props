@@ -56,8 +56,8 @@ java.class.path=/mnt/shared/integ92/lib/CougaarCRLextensions.jar
 # Here we override the default configuration path to include both
 # the "common" directory and "GLMTrans" directory.
 #org.cougaar.config.path="/mnt/shared/integ92/configs/common\;/mnt/shared/integ92/glmtrans/configs/demo-config/config\;"
-org.cougaar.config.path="/mnt/shared/integ92/configs/security;/mnt/shared/integ92/configs/common;/mnt/shared/integ92/glmtrans/configs/demo-config/config;"
-#org.cougaar.config.path=/mnt/shared/integ92/configs/security;
+#org.cougaar.config.path="/mnt/shared/integ92/configs/security;/mnt/shared/integ92/configs/common;/mnt/shared/integ92/glmtrans/configs/demo-config/config;"
+org.cougaar.config.path="/mnt/shared/integ92/configs/security;
 
 # Some standard memory settings.
 #
