@@ -4,7 +4,7 @@ name: ASMT-PING-1
 description: MOAS
 script: BaselineTemplate.rb
 parameters:
-  - run_count: 5
+  - run_count: 1
   - society_file: $CIP/configs/ping/MiniPingSociety.rb
 #  - layout_file: $CIP/operator/layouts/AS-1K-layout.xml
   - layout_file: $CIP/configs/ping/Secure-MiniPing-layout.xml
