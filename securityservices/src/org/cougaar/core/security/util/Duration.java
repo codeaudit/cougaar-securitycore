@@ -28,6 +28,10 @@ package org.cougaar.core.security.util;
 
 import java.util.StringTokenizer;
 
+// Cougaar core infrastructure
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 /** Helper class to handle certificate validity.
  * 
  */
@@ -41,6 +45,13 @@ public class Duration {
   private final String symbol_hour   = "h";
   private final String symbol_minute = "m";
   private final String symbol_second = "s";
+  private LoggingService log;
+
+  public Duration(ServiceBroker sb) {
+    log = (LoggingService)
+      sb.getService(this,
+		    LoggingService.class, null);
+  }
 
   /** Parse a duration expressed in the following format:
    * <yyyy> y <MM> M <dd> d <hh> h <mm> m <ss> s
@@ -53,7 +64,7 @@ public class Duration {
     long val = 0;
     boolean expectNumber = true;
 
-    System.out.println("duration:" + text);
+    log.debug("duration:" + text);
 
     while (tokens.hasMoreTokens()) {
       String s = tokens.nextToken();
@@ -90,7 +101,7 @@ public class Duration {
 	expectNumber = true;
       }
     }
-     System.out.println("duration:" + duration);
+    log.debug("duration:" + duration);
   }
 
   public long getDuration()
@@ -98,9 +109,4 @@ public class Duration {
     return duration;
   }
 
-  public static void main(String[] args) {
-    Duration d = new Duration();
-    d.parse(args[0]);
-    System.out.println("Duration in seconds: " + d.getDuration());
-  }
 }

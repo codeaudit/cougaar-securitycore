@@ -137,7 +137,11 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       getBindingSite().getServiceBroker().getService(this,
 	LoggingService.class, null);
 
-    log.debug("setupSubscriptions of CapabilitiesConsolidationPlug in called :"); 
+    myAddress = getBindingSite().getAgentIdentifier();
+    if (log.isDebugEnabled()) {
+      log.debug("setupSubscriptions of CapabilitiesConsolidationPlug in called for "
+		+ myAddress.toAddress()); 
+    }
     
     //
     // This needs to be converted to make mgrAddress an AttributeBasedAddress.
@@ -150,8 +154,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
         mgrName = param;
     }
     mgrAddress = new ClusterIdentifier(mgrName);
-    
-    myAddress = getBindingSite().getAgentIdentifier();
+
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate());
     capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe(new ConsolidatedCapabilitiesRelayPredicate());
     agentRegistrations= (IncrementalSubscription)getBlackboardService().subscribe(new AgentRegistrationPredicate());

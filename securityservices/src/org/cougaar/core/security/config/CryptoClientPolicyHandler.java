@@ -217,7 +217,7 @@ public class CryptoClientPolicyHandler
       }
     }
     if (localName.equals(VALIDITY_ELEMENT)) {
-      Duration duration = new Duration();
+      Duration duration = new Duration(serviceBroker);
       duration.parse(getContents());
       currentCertAttr.howLong = duration.getDuration();
     }

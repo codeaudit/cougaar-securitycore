@@ -54,7 +54,6 @@ public class EventViewerServlet
 {
   private SimpleServletSupport support;
   private ConfigFinder confFinder;
-  private SecurityPropertiesService secprop;
 
    /** Creates new predicate to search for Events */
   class IdmefEventPredicate implements UnaryPredicate
@@ -74,8 +73,6 @@ public class EventViewerServlet
     this.support = support;
 
     confFinder = new ConfigFinder();
-    // TODO. Modify following line to use service broker instead
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
   }
 
   public void init(ServletConfig config)

@@ -121,33 +121,71 @@ public class KeyManagement
    * @param aCA_DN       - The distinguished name of the CA
    */
   public void setParameters(String aCA_DN) {
+    keyRing = null;
+    secprop = null;
+    configParser = null;
+    topLevelDirectory = null;
+    x509directory = null;
+    caPolicy = null;
+    cryptoClientPolicy = null;
+    nodeConfiguration = null;
+    caDN = null;
+    caX500Name = null;
+    caOperations = null;
+    role = null;
+
     caDN = aCA_DN;
+    if (log.isInfoEnabled()) {
+      log.info("Configuring CA:" + caDN);
+    }
+
     String caCommonName = null;
     try {
       caX500Name = new X500Name(caDN);
       caCommonName = caX500Name.getCommonName();
     }
     catch (java.io.IOException e) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to parse requested CA DN: " + caDN);
+      }
       return;
     }
 
-    this.secprop = (SecurityPropertiesService)
+    secprop = (SecurityPropertiesService)
       serviceBroker.getService(
 	this,
 	SecurityPropertiesService.class,
 	null);
+    if (secprop == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to get security properties service.");
+      }
+      throw new RuntimeException("Unable to get security properties service");
+    }
 
     // Retrieve KeyRing service
-    this.keyRing = (KeyRingService)
+    keyRing = (KeyRingService)
       serviceBroker.getService(
 	this,
 	KeyRingService.class,
 	null);
+    if (keyRing == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to get keyring service.");
+      }
+      throw new RuntimeException("Unable to get keyring service");
+    }
 
-    this.configParser = (ConfigParserService)
+    configParser = (ConfigParserService)
       serviceBroker.getService(this,
 			       ConfigParserService.class,
 			       null);
+    if (configParser == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to get policy configuration service.");
+      }
+      throw new RuntimeException("Unable to get policy configuration service");
+    }
 
     if (log.isDebugEnabled()) {
       if (configParser.isCertificateAuthority()) {
@@ -166,35 +204,10 @@ public class KeyManagement
     }
 
     try {
-      caPolicy = configParser.getCaPolicy(caDN);
-      cryptoClientPolicy = configParser.getCryptoClientPolicy();
-    }
-    catch (Exception e) {
-      if(log.isErrorEnabled()) {
-	e.printStackTrace();
-	log.error("Error: Unable to read policy for DN="
-		  + caDN + ". Role="
-		  + role + " - " + e );
-	e.printStackTrace();
-      }
-      throw new IllegalArgumentException("Error: Unable to get policy for DN="
-					 + caDN + ". Role="
-					 + role + " - " + e);
-    }
-    if (log.isDebugEnabled()) {
-      if(caPolicy==null) {
-	log.debug("Got Ca policy NULL");
-      }
-      else {
-	log.debug("Got Ca policy "+ caPolicy.toString());
-      }
-    }
-
-    try {
       init();
     }
     catch (Exception e) {
-      log.error("Unable to initialize KeyManagement: " + e);
+      log.warn("Unable to initialize KeyManagement: " + e);
       e.printStackTrace();
     }
   }
@@ -202,6 +215,14 @@ public class KeyManagement
   public void init()
     throws java.io.FileNotFoundException {
     if(configParser.isCertificateAuthority()) {
+      // Get the CA policy
+      caPolicy = configParser.getCaPolicy(caDN);
+      if (caPolicy == null) {
+	if (log.isWarnEnabled()) {
+	  log.warn("Unable to get policy for CA: " + caDN);
+	}
+	throw new RuntimeException("Unable to get CA policy");
+      }
       caOperations =
 	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
 	  caPolicy.ldapType, caPolicy.ldapURL, serviceBroker);
@@ -211,20 +232,30 @@ public class KeyManagement
       publishCAinLdap();
     }
     else{
-      try {
-	caPolicy = configParser.getCaPolicy("");
-      }
-      catch (Exception e) {
-	if (log.isErrorEnabled()) {
-	  log.error("Unable to read policy: " + e);
-	  e.printStackTrace();
+      caPolicy = configParser.getCaPolicy("");
+      if (caPolicy == null) {
+	if (log.isWarnEnabled()) {
+	  log.warn("Unable to read policy for " + caDN);
 	}
-	throw new RuntimeException("Unable to read policy:" + e);
+	throw new RuntimeException("Unable to read policy");
       }
       if (log.isDebugEnabled()) {
 	log.debug("Running in Cougaar environment");
       }
     }
+    
+    if (log.isDebugEnabled()) {
+      log.debug("Got Ca policy "+ caPolicy.toString());
+    }
+
+    cryptoClientPolicy = configParser.getCryptoClientPolicy();
+    if (cryptoClientPolicy == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to get crypto client policy");
+      }
+      throw new RuntimeException("Unable to get crypto client policy");
+    }
+
     try {
       List caX509certList = keyRing.findCert(caX500Name.getCommonName());
       if (caX509certList.size() > 0) {
@@ -772,6 +803,12 @@ public class KeyManagement
   {
     // Get X500 name of Certificate authority
     SignerInfo si = null;
+    if (caX509cert == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("X509 certificate of CA is null");
+      }
+      throw new RuntimeException("X509 certificate of CA is null");
+    }
     if (log.isDebugEnabled()) {
       log.debug("CA x509:" + caX509cert.toString());
     }

@@ -46,7 +46,6 @@ import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.MultipleEntryException;
 import org.cougaar.core.security.crlextension.x509.extensions.*;
-import org.cougaar.core.security.util.CryptoDebug;
 
 public class OpenLdapCertDirectoryService
   extends CertDirectoryService

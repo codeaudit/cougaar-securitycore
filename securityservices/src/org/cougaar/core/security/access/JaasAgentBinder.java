@@ -52,9 +52,8 @@ public class JaasAgentBinder
   /** Creates new JassAgentBinder */
   public JaasAgentBinder(BinderFactory bf, Object child) {
     super(bf,child);
-    log = (LoggingService)
-      getServiceBroker().getService(this,
-				    LoggingService.class, null);
+    System.out.println("Creating JaasAgentBinder");
+
   }
     //child binder
     protected final AgentBinder getAgentBinder() { 
@@ -86,6 +85,10 @@ public class JaasAgentBinder
     private void doStart() { super.start();}
 
     public void load() {
+      log = (LoggingService)
+	getServiceBroker().getService(this,
+				      LoggingService.class, null);
+
         JaasClient jc = new JaasClient();
         jc.doAs(getAgentName(),
             new java.security.PrivilegedAction() {

@@ -179,19 +179,20 @@ public class ConfigParserServiceImpl
   }
 
   public CaPolicy getCaPolicy(String aDN) {
+    if (log.isDebugEnabled()) {
+      log.debug("Requesting CA policy for " + aDN);
+    }
+
     CaPolicy[] policy =
       (CaPolicy[])getSecurityPolicies(CaPolicy.class);
 
     X500Name x500Name = null;
-    if (log.isDebugEnabled()) {
-      log.debug("Requesting CA policy for " + aDN);
-    }
     try {
       x500Name = new X500Name(aDN);
     }
     catch (IOException e) {
       if (log.isErrorEnabled()) {
-	log.error("Unable to parse DN");
+	log.error("Unable to parse DN: " + aDN);
       }
       return null;
     }

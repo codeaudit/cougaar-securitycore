@@ -94,7 +94,7 @@ public class ConfigParserHandler
     al.toArray(array);
     if (log.isDebugEnabled()) {
       log.debug("Requesting policy of type " + policyClass.getName()
-		+ " (size=" + array.length + ")");
+		+ " Returning " + array.length + " policy objects");
     }
     return array;
   }

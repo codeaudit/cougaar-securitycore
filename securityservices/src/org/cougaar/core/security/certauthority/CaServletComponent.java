@@ -37,6 +37,7 @@ import javax.servlet.http.*;
 import org.cougaar.core.servlet.BaseServletComponent;
 import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.service.NamingService;
 import org.cougaar.core.service.LoggingService;
@@ -44,7 +45,6 @@ import org.cougaar.core.service.LoggingService;
 // Cougaar security services
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
-import org.cougaar.core.security.util.CryptoDebug;
 
 public class CaServletComponent
   extends BaseServletComponent
@@ -60,6 +60,7 @@ public class CaServletComponent
 
   // Services
   private BlackboardService blackboardService;
+  private BlackboardQueryService blackboardQueryService;
   private NamingService namingService;
   private CertificateManagementService certificateManagementService;
   private LoggingService log;
@@ -144,6 +145,17 @@ public class CaServletComponent
           "Unable to obtain blackboard service");
     }
 
+    // get the blackboard query service
+    blackboardQueryService = (BlackboardQueryService)
+      serviceBroker.getService(
+		    this,
+		    BlackboardQueryService.class,
+		    null);
+    if (blackboardQueryService == null) {
+      throw new RuntimeException(
+          "Unable to obtain blackboard service");
+    }
+
     // Get the naming service
     namingService = (NamingService)
       serviceBroker.getService(
@@ -167,10 +179,11 @@ public class CaServletComponent
 
     support = new SecurityServletSupportImpl(getPath(),
 					     agentId,
-					     blackboardService,
+					     blackboardQueryService,
 					     namingService,
 					     certificateManagementService,
-					     serviceBroker);
+					     serviceBroker,
+					     log);
     super.load();
   }
 
@@ -180,6 +193,12 @@ public class CaServletComponent
     if (blackboardService != null) {
       serviceBroker.releaseService(
         this, BlackboardService.class, blackboardService);
+    }
+
+    // release the blackboard query service
+    if (blackboardQueryService != null) {
+      serviceBroker.releaseService(
+        this, BlackboardQueryService.class, blackboardQueryService);
     }
 
     // release the naming service

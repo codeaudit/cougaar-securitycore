@@ -77,7 +77,7 @@ public class KeyManager implements X509KeyManager {
     // between commonName and cert/alias)
     nodealias = keystore.findAlias(nodename);
     List certList = keyRing.findCert(nodename);
-    if (certList.size() > 0) {
+    if (certList != null && certList.size() > 0) {
       nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
     }
   }

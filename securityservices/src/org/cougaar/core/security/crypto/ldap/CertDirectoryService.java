@@ -34,7 +34,6 @@ import javax.naming.directory.*;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
-import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.crypto.Base64;
 
 /** RFCs that are applicable to LDAP:

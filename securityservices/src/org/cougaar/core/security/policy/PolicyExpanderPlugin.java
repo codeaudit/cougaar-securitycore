@@ -85,27 +85,22 @@ public class PolicyExpanderPlugin
       }
     };
 
-  public void setupSubscriptions()
-    {
-      // TODO. Modify following line to use service broker instead
-      secprop = SecurityServiceProvider.getSecurityProperties(null);
-      log = (LoggingService)
-	getBindingSite().getServiceBroker().getService(this,
-	LoggingService.class, null);
+  public void setupSubscriptions() {
+    secprop = (SecurityPropertiesService)
+      getBindingSite().getServiceBroker().getService(this,
+						     SecurityPropertiesService.class, null);
 
-      _ucpm = (IncrementalSubscription) subscribe(_unexCondPolicyPredicate);
-      _upu = (IncrementalSubscription) subscribe (_unexPolicyUpdatePredicate);
+    log = (LoggingService)
+      getBindingSite().getServiceBroker().getService(this,
+						     LoggingService.class, null);
 
-      // should we print debugging info?
-      String debug = secprop.getProperty(secprop.KAOS_DEBUG);
-      if (debug != null && debug.equalsIgnoreCase("true")) {
-	_debug = true;
-      }
-    }
+    _ucpm = (IncrementalSubscription) subscribe(_unexCondPolicyPredicate);
+    _upu = (IncrementalSubscription) subscribe (_unexPolicyUpdatePredicate);
+  }
     
   public void execute()
     {
-      if (_debug) log.debug("PolicyExpanderPlugIn::execute()");
+      if (log.isDebugEnabled()) log.debug("PolicyExpanderPlugIn::execute()");
       // check for added UnexpandedConditionalPolicyMsgs
       Enumeration ucpmEnum = _ucpm.getAddedList();
       while (ucpmEnum.hasMoreElements()) {
@@ -126,7 +121,7 @@ public class PolicyExpanderPlugin
 	  }                    
 	}
 	publishRemove (ucpm);
-	if (_debug) log.debug("publishAdd ConditionalPolicyMsg");
+	if (log.isDebugEnabled()) log.debug("publishAdd ConditionalPolicyMsg");
 	publishAdd (condPolicyMsg);			
       }
         
@@ -167,7 +162,7 @@ public class PolicyExpanderPlugin
   private void expandPolicy(PolicyMsg policyMsg)
     throws Exception
     {
-      if (_debug == true) {
+      if (log.isDebugEnabled()) {
 	log.debug("Expanding policy message: " + policyMsg);
       }
 
@@ -186,7 +181,7 @@ public class PolicyExpanderPlugin
 	    new XMLPolicyCreator(xmlContent, getClusterIdentifier().toAddress());
 	  Policy[] policies = policyCreator.getPolicies();
 
-	  if (_debug == true) {
+	  if (log.isDebugEnabled()) {
 	    log.debug("\n\nTHERE ARE " + policies.length
 			       + " POLICIES");
 	    PrintStream out = new PrintStream(System.out);
@@ -205,7 +200,7 @@ public class PolicyExpanderPlugin
 	      policyMsg.addSymbol(org.cougaar.core.security.
 				  policy.TypedPolicy.POLICY_OBJECT_KEY,
 				  policyObject);
-	      if (_debug == true) {
+	      if (log.isDebugEnabled()) {
 		log.debug("Adding policy object["+ i + "]: " +
 				   binderType + " - " + policyObject);
 	      }
@@ -216,7 +211,6 @@ public class PolicyExpanderPlugin
     }
   private IncrementalSubscription _ucpm;
   private IncrementalSubscription _upu;
-  private boolean _debug = false;
   
   public static final String XML_KEY = "XMLContent";
 

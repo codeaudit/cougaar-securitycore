@@ -40,7 +40,6 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
-import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.util.*;
@@ -54,7 +53,6 @@ public class PendingCertCache
 
   private CaPolicy caPolicy = null;            // the policy of the CA
   private NodeConfiguration nodeConfiguration;
-  protected boolean debug = false;
   private String caDN;
 
   private static PendingCertCache thisCache = null;
@@ -131,9 +129,9 @@ public class PendingCertCache
 
   private void init()
     throws Exception {
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
-    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
-						"false"))).booleanValue();
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this,
+			       SecurityPropertiesService.class, null);
     caDN = caPolicy.caDnName.getName();
 
     nodeConfiguration = new NodeConfiguration(caDN, serviceBroker);
@@ -193,10 +191,10 @@ public class PendingCertCache
       return null;
 
     String pubkeyValue = new String(publicKey.getEncoded());
-    if (debug) {
+    if (log.isDebugEnabled()) {
       log.debug("getting cert with pub key: ");
     }
-
+    if (log.isDebugEnabled())
     log.debug("Looking public key:\n" + publicKey.toString());
 
     for (Enumeration en = certtable.elements(); en.hasMoreElements(); ) {
@@ -245,7 +243,7 @@ public class PendingCertCache
       File fromfile = new File(frompath);
       if (fromfile.exists())
         fromfile.renameTo(new File(topath));
-      if (debug) {
+      if (log.isDebugEnabled()) {
         log.debug("moving file: " + fromfile + " to: " + topath);
       }
     }
@@ -289,7 +287,7 @@ public class PendingCertCache
     catch(IOException ioexception1) {
     }
     catch(Exception e) {
-      log.debug("Exception when loading certificate from file: " + certfile.getPath());
+      log.error("Exception when loading certificate from file: " + certfile.getPath());
       e.printStackTrace();
     }
     return certlist;

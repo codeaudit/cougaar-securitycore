@@ -41,7 +41,6 @@ import org.cougaar.core.component.ServiceBroker;
 
 
 // Cougaar security services
-import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
@@ -62,8 +61,10 @@ public class NodeConfiguration
 	serviceBroker.getService(this,
 				 LoggingService.class, null);
     log.debug("Node Crypto Initializing");
-    // TODO. Modify following line to use service broker instead
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
+
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this,
+			       SecurityPropertiesService.class, null);
 
     this.nodeDomain = nodeDomain;
     createDirectoryStructure(this.nodeDomain);
@@ -202,7 +203,6 @@ public class NodeConfiguration
   {
     /*
     //javax.servlet.ServletContext context=null;
-    CryptoDebug.initContext(servlet);
 
     NodeList children = root.getChildNodes();
 

@@ -45,8 +45,6 @@ import org.cougaar.core.security.crypto.SecureMethodParam;
 public class CryptoPolicyServiceImpl
   implements CryptoPolicyService
 {
-
-  private boolean dbg = false;
   private SecurityPropertiesService secprop = null;
   private ServiceBroker serviceBroker;
   private LoggingService log;
@@ -65,11 +63,10 @@ public class CryptoPolicyServiceImpl
       serviceBroker.getService(this,
 			       LoggingService.class, null);
 
-    // TODO. Modify following line to use service broker instead
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this,
+			       SecurityPropertiesService.class, null);
 
-    dbg = (Boolean.valueOf(secprop.getProperty(secprop.POLICY_DEBUG,
-					       "false"))).booleanValue();
     cpp = new CryptoPolicyProxy(serviceBroker);
   }
 
@@ -96,7 +93,7 @@ public class CryptoPolicyServiceImpl
 		obj = send_hm.get(tag);
 	}
 
-	if(dbg) {
+	if(log.isDebugEnabled()) {
 	  log.debug("CryptoPolicyService: outgoing policy for "
 			     + tag);
 	}
@@ -118,7 +115,7 @@ public class CryptoPolicyServiceImpl
 		obj = receive_hm.get(tag);
 	}
 	
-	if(dbg) {
+	if(log.isDebugEnabled()) {
 	  log.debug("CryptoPolicyService: incoming policy for "
 			     + tag);
 	}
@@ -155,7 +152,7 @@ public class CryptoPolicyServiceImpl
 				       String policyTargetID,
 				       String policyTargetName,
 				       String policyType) {
-	if (dbg) {
+	if (log.isDebugEnabled()) {
 	  log.debug("CryptoPolicyServiceImpl: Received policy message");
 	  RuleParameter[] param = policy.getRuleParameters();
 	  for (int i = 0 ; i < param.length ; i++) {
@@ -204,8 +201,8 @@ public class CryptoPolicyServiceImpl
 	      //defaultRuleParam=value; 
 	    }
 	    else {
-	      if(dbg) {
-		log.debug("Warning : No default value for KeyRule parameter "); 
+	      if(log.isWarnEnabled()) {
+		log.warn("Warning : No default value for KeyRule parameter "); 
 	      }
 	    }
 		
@@ -446,7 +443,7 @@ public class CryptoPolicyServiceImpl
                                       String policyTargetName, 
                                       String policyType) {
       
-      if (dbg) {
+      if (log.isDebugEnabled()) {
           log.debug("CryptoPolicyServiceImpl: Received policy message");
         }
 

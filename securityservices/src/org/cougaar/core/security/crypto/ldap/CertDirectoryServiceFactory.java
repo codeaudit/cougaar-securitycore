@@ -26,7 +26,6 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
-import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.policy.*;
 
 public class CertDirectoryServiceFactory

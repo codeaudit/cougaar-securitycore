@@ -32,7 +32,6 @@ import org.cougaar.core.service.*;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
-import org.cougaar.core.security.util.CryptoDebug;
 
 public class IdentityPlugin
   extends ComponentPlugin

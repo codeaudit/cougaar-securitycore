@@ -30,8 +30,6 @@ import java.util.Date;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
-import org.cougaar.core.security.util.CryptoDebug;
-
 public class CertificateStatus
 {
   //private boolean debug = false;

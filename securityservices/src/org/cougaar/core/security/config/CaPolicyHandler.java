@@ -206,7 +206,7 @@ public class CaPolicyHandler
       caPolicy.keySize = Integer.valueOf(getContents()).intValue();
     }
     if (localName.equals(CA_CERTVALIDITY_ELEMENT)) {
-      Duration duration = new Duration();
+      Duration duration = new Duration(serviceBroker);
       duration.parse(getContents());
       caPolicy.howLong = duration.getDuration();
     }

@@ -39,6 +39,8 @@ import org.cougaar.planning.ldm.plan.Directive;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.core.blackboard.DirectiveMessage;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.core.security.services.acl.AccessControlPolicyService;
 import org.cougaar.core.security.acl.trust.*;
@@ -49,32 +51,40 @@ import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 import java.util.*;
 
-public class AccessAgentProxy  implements MessageTransportService,MessageTransportClient{
+public class AccessAgentProxy
+  implements MessageTransportService, MessageTransportClient
+{
   private MessageTransportService mts;
   private MessageTransportClient mtc;
   private Object object;
-  private static AccessControlPolicyService acps;
   private SecurityPropertiesService secprop = null;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
+
+  private static AccessControlPolicyService acps;
   private static boolean debug = false;
   private static int infoLevel = 0;
   private static String SECURE_PROPERTY = 
   "org.cougaar.message.transport.secure";
-  public AccessAgentProxy (MessageTransportService mymts,Object myobj,AccessControlPolicyService myacps){
+
+  public AccessAgentProxy (MessageTransportService mymts,
+			   Object myobj,
+			   AccessControlPolicyService myacps,
+			   ServiceBroker sb) {
     this.mts=mymts;
     this.object=myobj;
     acps=myacps;
-    
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
+    serviceBroker = sb;
 
-    String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
-    if (db!=null &&
-	(db.equalsIgnoreCase("true") || db.indexOf("security")>=0) ) {
-      debug=true;
-    }
-    infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
-						     "0"))).intValue();
-    if(debug)
-      System.out.println("Access agent proxy got init:=========>");
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this,
+			       SecurityPropertiesService.class, null);
+    if(log.isDebugEnabled())
+      log.debug("Access agent proxy got init:=========>");
    
   }
   
@@ -87,26 +97,26 @@ public class AccessAgentProxy  implements MessageTransportService,MessageTranspo
       checkOutVerbs(message);
 	
       if(ts==null) {
-	if(debug) {
-	  System.out.println("Warning: rejecting outgoing message: " + 
-			     ((message != null)? message.toString():
-			      "Null Message"));
+	if(log.isWarnEnabled()) {
+	  log.warn("Warning: rejecting outgoing message: " + 
+		   ((message != null)? message.toString():
+		    "Null Message"));
 	}
 	return;		// the message is rejected so we abort here
       }
       MessageWithTrust mwt;
       mwt = new MessageWithTrust(message, ts);
       mts.sendMessage(mwt);
-      if(debug) {
-	System.out.println(" DONE sending Message from Access Agent proxy ====================>"+mwt.toString());
+      if(log.isDebugEnabled()) {
+	log.debug("DONE sending Message from Access Agent proxy ====================>"+mwt.toString());
       }
     
     }
   }
   
   public void registerClient(MessageTransportClient client) {
-    if(debug)
-      System.out.println(" registering client :============>");
+    if(log.isDebugEnabled())
+      log.debug(" registering client :============>");
     if(mts!=null) {
       mtc=client;
       mts.registerClient(this);
@@ -115,8 +125,8 @@ public class AccessAgentProxy  implements MessageTransportService,MessageTranspo
   }
   
   public void unregisterClient(MessageTransportClient client) {
-    if(debug)
-      System.out.println("un registering client :============>");
+    if(log.isDebugEnabled())
+      log.debug("un registering client :============>");
     if(mts!=null) {
       mtc=null;
       mts.unregisterClient(this);
@@ -157,15 +167,16 @@ public class AccessAgentProxy  implements MessageTransportService,MessageTranspo
   
   public void receiveMessage(Message m)  {
     if(mtc!=null) {
-      if(debug)
-	System.out.println(" received message of Access agent proxy in :"+ getMessageAddress().toString() +"  :        "+ m.toString());
+      if(log.isDebugEnabled())
+	log.debug(" received message of Access agent proxy in :"
+		  + getMessageAddress().toString() +"  :        "+ m.toString());
       if (m instanceof MessageWithTrust ) {
-	if(debug)
-	  System.out.println(" Got instance of MWT===================>");
+	if(log.isDebugEnabled())
+	  log.debug(" Got instance of MWT===================>");
 	MessageWithTrust mwt = (MessageWithTrust)m;
 	if (mwt == null) {
-	  if(debug) {
-	    System.out.println("WARNING: message to " + mtc.getMessageAddress().toString()
+	  if(log.isWarnEnabled()) {
+	    log.warn("WARNING: message to " + mtc.getMessageAddress().toString()
 			       + " not delivered (null msg)");
 	  }
 	}
@@ -173,39 +184,42 @@ public class AccessAgentProxy  implements MessageTransportService,MessageTranspo
 	Message contents =mwt.getMessage();
 	TrustSet tset[]=mwt.getTrusts();
 	if(contents==null) {
-	  if(debug) {
-	    System.out.println("WARNING: Rejecting incoming messagewithtrust as message contents are NULL: "
-			       + m.toString());
+	  if(log.isWarnEnabled()) {
+	    log.warn("WARNING: Rejecting incoming messagewithtrust as message contents are NULL: "
+		     + m.toString());
 	  }
 	  return;
 	}
 	if(tset==null) {
 	  mtc.receiveMessage(contents);
-	  if(debug) {
-	    System.out.println("receiving Message from Access Agent proxy ====================>");
+	  if(log.isDebugEnabled()) {
+	    log.debug("receiving Message from Access Agent proxy ====================>");
 	  }
 	  return;
 	}
 	checkInVerbs(contents);
 	incomingTrust(contents, tset);
 	if(!incomingMessageAction(contents, tset[0])) {
-	  System.out.println("WARNING: Rejecting incoming messagewithtrust : "
-			     + m.toString());
+	  if (log.isWarnEnabled())
+	    log.warn("WARNING: Rejecting incoming messagewithtrust : "
+		     + m.toString());
 	  return ;
 	 }
 	if(!incomingAgentAction(contents)) {
-	  System.out.println("WARNING: Rejecting incoming messagewithtrust : "
-			     + m.toString());
+	  if (log.isWarnEnabled())
+	    log.warn("WARNING: Rejecting incoming messagewithtrust : "
+		   + m.toString());
 	  return ;
 	}
-	if(debug) {
-	  System.out.println("DONE receiving Message from Access Agent proxy ====================>"+ contents.toString());
+	if(log.isDebugEnabled()) {
+	  log.debug("DONE receiving Message from Access Agent proxy ====================>"+ contents.toString());
 	}
 	mtc.receiveMessage(contents);
 	return;
 	
       } else {
-	System.err.println("Error: Not an MessageWithTrust: " + m);
+	if (log.isErrorEnabled())
+	  log.error("Not an MessageWithTrust: " + m);
 	return;
 	//deliverer.deliverMessage(m, dest);
       }

@@ -38,7 +38,6 @@ import sun.security.x509.*;
 import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
-import org.cougaar.core.security.util.CryptoDebug;
 
 
 /** A hash table to store certificates from keystore, caKeystore and
@@ -359,7 +358,8 @@ public class CertificateCache
       }
       else {
 	if(log.isWarnEnabled())
-	  log.warn("Certificate is not trusted yet");
+	  log.warn("Certificate is not trusted yet trust="
+		   + certEntry.getCertificateTrust());
       }
     
       ArrayList list = (ArrayList)certsCache.get(principal);

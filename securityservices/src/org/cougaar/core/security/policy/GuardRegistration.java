@@ -82,8 +82,9 @@ public abstract class GuardRegistration
       serviceBroker.getService(this,
 			       LoggingService.class, null);
 
-    // TODO. Modify following line to use service broker instead
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this,
+			       SecurityPropertiesService.class, null);
 
     // Setup whether we're in debug mode or not
     debug = (Boolean.valueOf(secprop.getProperty(secprop.POLICY_DEBUG,

@@ -31,7 +31,6 @@ import java.security.cert.X509CRL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateException;
 
-import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.crypto.Base64;
 import org.cougaar.core.security.crypto.CertificateType;
 

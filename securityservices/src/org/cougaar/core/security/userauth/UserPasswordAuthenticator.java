@@ -31,7 +31,6 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 import java.net.*;
-import org.cougaar.core.security.util.CryptoDebug;
 
 public final class UserPasswordAuthenticator extends Authenticator
   implements AuthenticationListener {

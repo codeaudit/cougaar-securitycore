@@ -450,8 +450,8 @@ public class DirectoryKeyStore
     }
     else {
       if (certs.length == 0) {
-	if (log.isDebugEnabled()) {
-	  System.err.println("Failed to get Certificate for " + filter);
+	if (log.isWarnEnabled()) {
+	  log.warn("Failed to get Certificate for " + filter);
 	}
       }
     }
@@ -1708,17 +1708,17 @@ public class DirectoryKeyStore
       installPkcs7Reply(alias, new ByteArrayInputStream(reply.getBytes()));
       privatekey = (PrivateKey) keystore.getKey(alias, param.keystorePassword);
     } catch (java.security.cert.CertificateNotYetValidException e) {
-      if (log.isDebugEnabled()) {
+      if (log.isWarnEnabled()) {
         Date d = new Date();
-        System.err.println("Error: Certificate not yet valid for:"
-                           + alias
-                           + " (" + e + ")"
-                           + " Current date is " + d.toString());
+        log.warn("Error: Certificate not yet valid for:"
+		  + alias
+		  + " (" + e + ")"
+		  + " Current date is " + d.toString());
         e.printStackTrace();
       }
     } catch(Exception e) {
-      if (log.isDebugEnabled()) {
-        System.err.println("Error: can't get certificate for " + alias);
+      if (log.isWarnEnabled()) {
+        log.warn("Error: can't get certificate for " + alias);
         e.printStackTrace();
       }
     }
@@ -2015,9 +2015,9 @@ public class DirectoryKeyStore
       }
     }
     catch(Exception e){
-      System.err.println("Can't locate the certificate for:"
-			 + dname.toString()
-			 +"--"+e+".generating new one...");
+      log.warn("Can't locate the certificate for:"
+	       + dname.toString()
+	       +"--"+e+".generating new one...");
       e.printStackTrace();
     }
     if (log.isDebugEnabled()) {
@@ -2252,8 +2252,8 @@ public class DirectoryKeyStore
 	}
 
       } catch(Exception e) {
-	System.err.println("Error: sending PKCS request to CA failed--"
-			   + e.getMessage());
+	log.warn("Error: sending PKCS request to CA failed--"
+		 + e.getMessage());
 	e.printStackTrace();
       }
       return reply;
@@ -2283,8 +2283,8 @@ public class DirectoryKeyStore
       String req = baos.toString();
       String reply = sendPKCS(req, "PKCS7");
     } catch(Exception e) {
-      System.err.println("Error: can't get the certificate signed--"
-			 + e.getMessage());
+      log.warn("Can't get the certificate signed--"
+	       + e.getMessage());
       e.printStackTrace();
     }
     return baos.toString();
@@ -2299,7 +2299,7 @@ public class DirectoryKeyStore
         list.add(cert);
       }
     } catch (Exception e) {
-      System.err.println("Error: can't get the certificates from truststore.");
+      log.warn("Error: can't get the certificates from truststore.");
       e.printStackTrace();
     }
 

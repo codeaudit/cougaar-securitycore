@@ -47,7 +47,7 @@ public  class CryptoDebug {
 
   public static void initContext(javax.servlet.Servlet servlet) {
     // TODO. Modify following line to use service broker instead
-    secprop = SecurityServiceProvider.getSecurityProperties(servlet);
+    secprop = new SecurityPropertiesServiceImpl(null);
 
     debug =
       (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,

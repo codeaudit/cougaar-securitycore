@@ -33,7 +33,6 @@ import java.util.Date;
 import sun.security.pkcs.PKCS10;
 import sun.security.x509.*;
 import sun.security.util.*;
-import org.cougaar.core.security.util.CryptoDebug;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;

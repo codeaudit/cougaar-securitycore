@@ -31,10 +31,14 @@ import org.cougaar.core.component.BinderFactoryWrapper;
  *
  */
 
-public class JaasAgentBinderFactory extends BinderFactorySupport implements BinderFactoryWrapper {
-
+public class JaasAgentBinderFactory
+  extends BinderFactorySupport
+  implements BinderFactoryWrapper
+{
     /** Creates new JaasAgentBinderFactory */
-    //public JaasAgentBinderFactory() {}
+    public JaasAgentBinderFactory() {
+      System.out.println("Creating JaasAgentBinderFactory");
+    }
     
     protected Class getBinderClass(Object child) {
       return JaasAgentBinder.class;

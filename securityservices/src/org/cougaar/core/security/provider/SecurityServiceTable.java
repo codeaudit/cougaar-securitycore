@@ -29,7 +29,6 @@ package org.cougaar.core.security.provider;
 import java.util.Hashtable;
 
 // Cougaar security services
-import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.service.LoggingService;
 
 public class SecurityServiceTable

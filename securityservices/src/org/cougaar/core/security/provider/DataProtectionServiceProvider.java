@@ -34,8 +34,6 @@ import org.cougaar.util.*;
 import org.cougaar.core.service.DataProtectionService;
 
 // Cougaar security services
-import org.cougaar.core.security.util.CryptoDebug;
-//import org.cougaar.core.security.crypto.DataProtectionServiceImpl;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;

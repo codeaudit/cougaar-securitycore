@@ -33,7 +33,9 @@ import java.util.*;
 import org.cougaar.core.servlet.SimpleServletSupportImpl;
 import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.service.NamingService;
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
@@ -50,11 +52,12 @@ public class SecurityServletSupportImpl
 
   public SecurityServletSupportImpl(String path,
 				    ClusterIdentifier agentId,
-				    BlackboardService blackboard,
+				    BlackboardQueryService blackboard,
 				    NamingService ns,
 				    CertificateManagementService sms,
-				    ServiceBroker sb) {
-    super(path, agentId, blackboard, ns);
+				    ServiceBroker sb,
+				    LoggingService log) {
+    super(path, agentId, blackboard, ns, log);
     certificateManagementService = sms;
     serviceBroker = sb;
   }

@@ -45,7 +45,6 @@ import org.cougaar.core.logging.LoggingControlService;
 import org.cougaar.core.logging.LoggingServiceProvider;
 
 // Cougaar security services
-import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.util.*;
@@ -222,7 +221,7 @@ public class SecurityServiceProvider
     services = new SecurityServiceTable(log);
 
     if (log.isDebugEnabled()) {
-      log.warn("Registering security services");
+      log.debug("Registering security services");
     }
 
     /* ********************************
@@ -304,7 +303,9 @@ public class SecurityServiceProvider
     try {
     standalone = (Boolean.valueOf(secprop.getProperty(secprop.STAND_ALONE_MODE,
 						"false"))).booleanValue();
-    } catch (Exception ex) {}
+    } catch (Exception ex) {
+      log.warn("Unable to get value of standalone mode");
+    }
     if (!standalone) {
       services.put(ServletPolicyService.class,
                    new ServletPolicyServiceProvider(serviceBroker));
@@ -343,20 +344,5 @@ public class SecurityServiceProvider
     rootServiceBroker.addService(LdapUserService.class, this);
     org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.
       setNodeServiceBroker(serviceBroker);
-  }
-
-  /* ******************************************************************
-   * HACK. FIX TODO
-   */
-  public static SecurityPropertiesService
-  getSecurityProperties(javax.servlet.Servlet servlet)
-    {
-    ServiceProvider servMgr = new SecurityPropertiesServiceProvider();
-    SecurityPropertiesService service =
-      (SecurityPropertiesService)
-      servMgr.getService(null,
-			 servlet,
-			 SecurityPropertiesService.class);
-    return service;
   }
 }
