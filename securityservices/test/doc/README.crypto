@@ -16,3 +16,15 @@ Keystores containing keys for nodes and agents
 ==============================================
 
 test/configs/certauthority/keystoreTest		Ultra*Log
+
+Keystores containing keys for the ul-mini-config society
+========================================================
+
+test/configs/ul-mini-config*/keystore-Commercial-Air	ul-manzanita
+test/configs/ul-mini-config*/keystore-2nd-Brigade	ul-redwood
+test/configs/ul-mini-config*/keystore-3rd-Brigade	ul-maple
+test/configs/ul-mini-config*/keystore-HQ		ul-joshua
+test/configs/ul-mini-config*/keystore-NCA		ul-dogwood
+test/configs/ul-mini-config*/keystore-NCADomainManager	ul-NCADomainManager
+test/configs/ul-mini-config*/keystore-Support		ul-fir
+

@@ -144,11 +144,18 @@ if ( "$useCryptoAspect" == "true") then
 	# Print transport-related debug information about the security aspect
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
 
+	# Name of configuration file for cryptographic service provider
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
+
 	# Print crypto-related debug information about the security aspect
 	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
 
+	# Role to take when making LDAP requests
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=srosset"
+
 	# Certificate server LDAP address
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.ldapserver=ldap://palm:389"
+	# Obsolete
+	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.ldapserver=ldap://pear:389"
 
 
 endif

@@ -84,7 +84,7 @@ final public class KeyRing {
       File file = new File(ksPass);
       if (!file.exists()){
 	if (debug) {
-	  System.out.println("Could not find keystore in:"+ksPass+"creating...");
+	  System.out.println("Could not find keystore in:" + ksPath + ". Creating...");
 	}
         KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
         FileOutputStream fos = new FileOutputStream(ksPath);
@@ -135,8 +135,12 @@ final public class KeyRing {
       }
     
       // LDAP certificate directory
-      String provider_url = System.getProperty("org.cougaar.security.ldapserver",
-					       "ldap://localhost");
+      String provider_url = nodePolicy.certDirectoryURL;
+
+      /* Old system property not used anymore:
+	 System.getProperty("org.cougaar.security.ldapserver",
+	 "ldap://localhost");
+      */
 
       keystore = new DirectoryKeyStore(provider_url,
 				       kss, ksPass.toCharArray(), ksPath,
