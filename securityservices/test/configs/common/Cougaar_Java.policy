@@ -150,6 +150,9 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
 ////////////////////////////////////////////////////////////
 // Permissions for core infrastructure package.
 grant signedBy "privileged" {
+	// Temporary until BUG 1264 is fixed:
+	permission java.util.PropertyPermission "*", "read,write";
+
 	////////////////////////////////////////////////////
 	// "standard" properies that can be read by anyone
 	permission java.util.PropertyPermission "java.version", "read";
