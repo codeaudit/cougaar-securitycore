@@ -28,6 +28,9 @@ package com.nai.security.crypto;
 
 import java.io.InputStream;
 
+// Cougaar core services
+import org.cougaar.core.component.ServiceBroker;
+
 public class DirectoryKeyStoreParameters {
   // LDAP server parameters
   public String ldapServerUrl;
@@ -46,4 +49,8 @@ public class DirectoryKeyStoreParameters {
 
   // Run within a node or used as utility class by a CA?
   public boolean isCertAuth;
+
+  /** Used to get services that DirectoryService needs
+   */
+  public ServiceBroker serviceBroker;
 }

@@ -158,8 +158,9 @@ public class CertificateSigningRequest
       if( (role != null) && (role != ""))  {
 	aRole = role;
       }
-      signer=new KeyManagement(CA_DN_name, aRole, 
-			       certpath, confpath, true, null);
+      signer = support.getCertificateManagementService();
+      signer.setParameters(CA_DN_name, aRole, 
+			   certpath, confpath, true, null);
     }
     catch (Exception exp)  {
       printstream.print("Error ---" + exp.toString());

@@ -34,6 +34,7 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 import java.security.cert.*;
 import java.security.PublicKey;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import com.nai.security.policy.CaPolicy;
@@ -52,15 +53,17 @@ public class PendingCertCache extends Hashtable {
 
   private static PendingCertCache thisCache = null;
   private CertificateManagementService signer = null;
+  private ServiceBroker serviceBroker;
 
   // singleton
   // only started once
   public synchronized static PendingCertCache getPendingCache(
-    String cadnname, String role, String certpath, String confpath) {
+    String cadnname, String role, String certpath, String confpath,
+    ServiceBroker sb) {
     if (thisCache == null) {
       try {
         thisCache = new PendingCertCache(cadnname, role,
-					 certpath, confpath);
+					 certpath, confpath, sb);
       }
       catch (Exception e) {
         System.out.println("Error creating PendingCertCache: " + e.toString());
@@ -70,16 +73,24 @@ public class PendingCertCache extends Hashtable {
   }
 
   private PendingCertCache(String cadnname, String role,
-			   String certpath, String confpath) 
+			   String certpath, String confpath,
+			   ServiceBroker sb) 
     throws Exception {
+    serviceBroker = sb;
     ConfParser confParser = new ConfParser(confpath, true);
     try {
       caPolicy = confParser.readCaPolicy(cadnname, role);
-      signer = new KeyManagement(cadnname, role, certpath, confpath,
-				 true, null);
+
+      signer = (CertificateManagementService)
+	serviceBroker.getService(this,
+				 CertificateManagementService.class,
+				 null);
+      signer.setParameters(cadnname, role, certpath, confpath,
+			   true, null);
     }
     catch (Exception e) {
-      throw new Exception("Unable to read policy for DN=" + cadnname + ". Role="
+      throw new Exception("Unable to read policy for DN="
+			  + cadnname + ". Role="
                           + role + " - " + e );
     }
     init();

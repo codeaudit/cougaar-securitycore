@@ -39,6 +39,7 @@ import org.cougaar.core.service.NamingService;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.crypto.CertificateManagementService;
 
 public class CaServletComponent
   extends BaseServletComponent
@@ -54,6 +55,7 @@ public class CaServletComponent
   private BlackboardService blackboardService;
   private NamingService namingService;
   private SecurityPropertiesService securityPropertiesService;
+  private CertificateManagementService certificateManagementService;
 
   /**
    * Capture the (optional) load-time parameters.
@@ -113,11 +115,24 @@ public class CaServletComponent
           "Unable to obtain security properties service");
     }
     
+    // Get the security properties service
+    certificateManagementService = (CertificateManagementService)
+      serviceBroker.getService(
+		    this,
+		    CertificateManagementService.class,
+		    null);
+    if (certificateManagementService == null) {
+      throw new RuntimeException(
+          "Unable to obtain certoficate management service");
+    }
+
     support = new SecurityServletSupportImpl(getPath(),
 					     agentId,
 					     blackboardService,
 					     namingService,
-					     securityPropertiesService);
+					     securityPropertiesService,
+					     certificateManagementService,
+					     serviceBroker);
     super.load();
   }
 
@@ -139,6 +154,13 @@ public class CaServletComponent
     if (securityPropertiesService != null) {
       serviceBroker.releaseService(
         this, SecurityPropertiesService.class, securityPropertiesService);
+    }
+
+    // release the certificate management service
+    if (certificateManagementService != null) {
+      serviceBroker.releaseService(
+        this, CertificateManagementService.class,
+	certificateManagementService);
     }
   }
 

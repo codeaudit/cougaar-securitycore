@@ -23,6 +23,7 @@ package com.nai.security.crypto.ldap;
 
 import java.util.*;
 import java.io.*;
+import java.lang.IllegalArgumentException;
 import javax.naming.*;
 import javax.naming.directory.*;
 import java.security.cert.X509Certificate;
@@ -37,7 +38,7 @@ public class NetToolsCertDirectoryService extends CertDirectoryService
   implements CertDirectoryServiceClient
 {
   public NetToolsCertDirectoryService(String aURL) 
-    throws Exception
+    throws IllegalArgumentException
   {
     super(aURL);
   }

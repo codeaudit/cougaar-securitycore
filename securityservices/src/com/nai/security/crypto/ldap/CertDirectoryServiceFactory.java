@@ -31,7 +31,6 @@ public class CertDirectoryServiceFactory
 
   public static CertDirectoryServiceClient getCertDirectoryServiceClientInstance(
 					      int serverType, String serverUrl)
-  throws Exception
   {
     CertDirectoryServiceClient ldapClient = null;
     //System.out.println("%%%%%%%%%%%%  type found is : "+serverType);
@@ -54,7 +53,6 @@ public class CertDirectoryServiceFactory
 
   public static CertDirectoryServiceCA getCertDirectoryServiceCAInstance(
 					      int serverType, String serverUrl)
-  throws Exception
   {
     CertDirectoryServiceCA instance = null;
 

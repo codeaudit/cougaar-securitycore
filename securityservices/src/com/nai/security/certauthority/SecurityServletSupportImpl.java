@@ -33,26 +33,40 @@ import org.cougaar.core.servlet.SimpleServletSupportImpl;
 import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.NamingService;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.crypto.CertificateManagementService;
 
 public class SecurityServletSupportImpl
   extends SimpleServletSupportImpl
   implements SecurityServletSupport
 {
-  SecurityPropertiesService securityPropertiesService;
+  private SecurityPropertiesService securityPropertiesService;
+  private CertificateManagementService certificateManagementService;
+  private ServiceBroker serviceBroker;
 
   public SecurityServletSupportImpl(String path,
 				    ClusterIdentifier agentId,
 				    BlackboardService blackboard,
 				    NamingService ns,
-				    SecurityPropertiesService sp) {
+				    SecurityPropertiesService sp,
+				    CertificateManagementService sms,
+				    ServiceBroker sb) {
     super(path, agentId, blackboard, ns);
     securityPropertiesService = sp;
+    certificateManagementService = sms;
+    serviceBroker = sb;
   }
 
   public SecurityPropertiesService getSecurityProperties(Servlet servlet) {
     return securityPropertiesService;
+  }
+  public CertificateManagementService getCertificateManagementService() {
+    return certificateManagementService;
+  }
+  public ServiceBroker getServiceBroker() {
+    return serviceBroker;
   }
 }

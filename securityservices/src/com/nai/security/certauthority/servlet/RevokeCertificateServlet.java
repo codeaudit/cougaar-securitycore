@@ -47,7 +47,7 @@ import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
 import com.nai.security.crypto.MultipleEntryException;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import  org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import com.nai.security.certauthority.*;
 
 public class RevokeCertificateServlet extends  HttpServlet
@@ -112,22 +112,24 @@ public class RevokeCertificateServlet extends  HttpServlet
     String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/certlist";
     try {
     
-    keymanagement=new KeyManagement(cadnname, role, certpath, confpath,
-				    true, null);
-    String uniqueIdentifier=distinguishedName;
-    status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
+      keymanagement = support.getCertificateManagementService();
+      keymanagement.setParameters(cadnname, role, certpath, confpath,
+				  true, null);
+      String uniqueIdentifier=distinguishedName;
+      status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
     }
     catch (MultipleEntryException multipleexp) {
       out.print("Multiple entry found for : " + multipleexp.getMessage());
-       out.println(appendForm(certlistUri,cadnname,role));
+      out.println(appendForm(certlistUri,cadnname,role));
 
       out.flush();
       out.close();
       return;
     }
      catch (Exception generalexp) {
-      out.print("Error has occured due to  following reason  : " +generalexp.getMessage());
-     out.println(appendForm(certlistUri,cadnname,role));  
+      out.print("Error has occured due to  following reason  : "
+		+ generalexp.getMessage());
+      out.println(appendForm(certlistUri,cadnname,role));  
       out.flush();
       out.close();
       return;
@@ -163,16 +165,19 @@ public class RevokeCertificateServlet extends  HttpServlet
   private String appendForm(String posturl, String caDNName, String role) {
     
     StringBuffer sb=new StringBuffer();
-     sb.append("<form name=\"certlist\" action=\"" +posturl + "\" method=\"post\">");
+     sb.append("<form name=\"certlist\" action=\"" +posturl
+	       + "\" method=\"post\">");
      sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
 		+caDNName + "\">");
-     sb.append("<input type=\"hidden\" name=\"role\" value=\"" + role + "\">");
+     sb.append("<input type=\"hidden\" name=\"role\" value=\""
+	       + role + "\">");
      sb.append("<a Href=\"javascript:submitme(document.certlist)\">"
 		+ "Back to List "+"</a></form>");
      return sb.toString();
   }
 
-  protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException
+  protected void doGet(HttpServletRequest req,HttpServletResponse res)
+    throws ServletException, IOException
   {
      PrintWriter out=res.getWriter();
     res.setContentType("Text/HTML");

@@ -85,12 +85,7 @@ public class KeyStoreTest
     keyRing = (KeyRingService)
       serviceBroker.getService(this,
 			       KeyRingService.class,
-			       new ServiceRevokedListener() {
-				   public void serviceRevoked(ServiceRevokedEvent re) {
-				     if (KeyRingService.class.equals(re.getService()))
-				       keyRing = null;
-				   }
-				 });
+			       null);
   }
 
   public void launch(String[] args) {
@@ -131,8 +126,12 @@ public class KeyStoreTest
     String caDN = "CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US";
 
     // Process a PKCS10 request:
-    KeyManagement km = null;
-    km = new KeyManagement(caDN, role, null, null, false, null);
+    CertificateManagementService km = null;
+    km = (CertificateManagementService)
+      serviceBroker.getService(this,
+			       CertificateManagementService.class,
+			       null);
+    km.setParameters(caDN, role, null, null, false, null);
 
     FileInputStream f = new FileInputStream(filename);
     PrintStream ps = new PrintStream(System.out);
@@ -145,8 +144,12 @@ public class KeyStoreTest
     String caDN = "CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US";
 
     // Process a signed certificate request
-    KeyManagement km = null;
-    km = new KeyManagement(caDN, role, null, null, false, null);
+    CertificateManagementService km = null;
+    km = (CertificateManagementService)
+      serviceBroker.getService(this,
+			       CertificateManagementService.class,
+			       null);
+    km.setParameters(caDN, role, null, null, false, null);
 
     FileInputStream is = new FileInputStream(filename);
     km.printPkcs7Request(is);

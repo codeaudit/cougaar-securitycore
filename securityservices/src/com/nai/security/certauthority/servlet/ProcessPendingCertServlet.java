@@ -116,9 +116,11 @@ public class ProcessPendingCertServlet extends  HttpServlet
 	String certpath=secprop.getProperty(secprop.CA_CERTPATH);
 	String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
 
-        PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname,
-									 role, certpath,
-									 confpath);
+        PendingCertCache pendingCache =
+	  PendingCertCache.getPendingCache(cadnname,
+					   role, certpath,
+					   confpath,
+					   support.getServiceBroker());
         certimpl = (X509Certificate)
           pendingCache.getCertificate(caPolicy.pendingDirectory, alias);
 

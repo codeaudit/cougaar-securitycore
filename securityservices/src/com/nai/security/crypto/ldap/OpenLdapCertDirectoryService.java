@@ -50,7 +50,6 @@ public class OpenLdapCertDirectoryService extends CertDirectoryService
  
   public static final String revoked="3";
   public OpenLdapCertDirectoryService(String aURL)
-    throws Exception
   {
     super(aURL);
   }

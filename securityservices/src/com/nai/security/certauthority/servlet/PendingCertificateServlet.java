@@ -133,7 +133,8 @@ public class PendingCertificateServlet extends  HttpServlet
     PendingCertCache pendingCache =
       PendingCertCache.getPendingCache(cadnname,
 				       role, certpath,
-				       confpath);
+				       confpath,
+				       support.getServiceBroker());
     Hashtable certtable =
       (Hashtable)pendingCache.get(caPolicy.pendingDirectory);
     out.println(createtable(certtable,

@@ -47,7 +47,7 @@ public class KeyRingServiceProvider
 					 Class serviceClass) {
     // Implemented as a singleton service
     if (keyRingService == null) {
-      keyRingService = new KeyRing();
+      keyRingService = new KeyRing(sb);
     }
     return keyRingService;
   }

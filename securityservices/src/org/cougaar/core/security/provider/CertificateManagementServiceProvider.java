@@ -45,12 +45,6 @@ public class CertificateManagementServiceProvider
 			   Object requestor, 
 			   Class serviceClass) {
 
-    String certAuthorityDN = null;
-    String role = null;
-    String certPath = null;
-    String confPath = null;
-    boolean isCertAuth = false;
-    
     // Retrieve KeyRing service
     ksr = (KeyRingService)
       sb.getService(requestor,
@@ -64,9 +58,7 @@ public class CertificateManagementServiceProvider
 
     KeyManagement km = null;
     try {
-      km =new KeyManagement(certAuthorityDN, role,
-			    certPath, confPath, isCertAuth,
-			    ksr);
+      km =new KeyManagement();
     }
     catch (Exception e) {
     }

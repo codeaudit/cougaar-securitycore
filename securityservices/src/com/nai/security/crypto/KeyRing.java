@@ -47,6 +47,7 @@ import sun.security.util.ObjectIdentifier;
 
 // Cougaar core infrastructure
 import org.cougaar.util.ConfigFinder;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import com.nai.security.policy.NodePolicy;
@@ -68,14 +69,18 @@ final public class KeyRing
   private ConfParser confParser = null;
   private PrivateKeyPKCS12 pkcs12;
   private SecurityPropertiesService secprop = null;
+  private ServiceBroker serviceBroker;
 
-  public KeyRing() {
+  public KeyRing(ServiceBroker sb) {
+    serviceBroker = sb;
     init();
   }
 
   private synchronized void init() {
-    // TODO. Modify following line to use service broker instead
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this,
+			       SecurityPropertiesService.class,
+			       null);
     try {
       String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
 
@@ -84,6 +89,8 @@ final public class KeyRing
 	+ "configs" + File.separatorChar + "common"
 	+ File.separatorChar + "keystore";
       param = new DirectoryKeyStoreParameters();
+      param.serviceBroker = serviceBroker;
+
       param.keystorePassword =
 	secprop.getProperty(secprop.KEYSTORE_PASSWORD,
 			   "alpalp").toCharArray();

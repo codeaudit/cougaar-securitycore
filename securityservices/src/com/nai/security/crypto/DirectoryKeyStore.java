@@ -28,6 +28,7 @@ package com.nai.security.crypto;
 
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -54,7 +55,6 @@ import sun.security.util.ObjectIdentifier;
 import org.cougaar.util.ConfigFinder;
 
 // Cougaar security services
-import com.nai.security.certauthority.CAClient;
 import com.nai.security.certauthority.KeyManagement;
 import com.nai.security.policy.NodePolicy;
 import com.nai.security.policy.CaPolicy;
@@ -65,6 +65,7 @@ import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.crypto.ldap.CertificateRevocationStatus;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.services.crypto.*;
 
 public class DirectoryKeyStore
 {
@@ -101,17 +102,8 @@ public class DirectoryKeyStore
   /** A hash map to quickly find an alias given a common name */
   private HashMap commonName2alias = new HashMap(89);
 
-  private CAClient caClient = null;
-
-  private String defaultOrganizationUnit = null;
-  private String defaultOrganization = null;
-  private String defaultLocality = null;
-  private String defaultState = null;
-  private String defaultCountry = null;
-  private String defaultKeyAlgName = null;
-  private int defaultKeysize = 0;
-  private long defaultValidity = 0;
-  private String defaultSigAlgName = null;
+  String role;
+  NodePolicy nodePolicy;
   private DirectoryKeyStoreParameters param = null;
 
   /* Update OIDMap to include IssuingDistribution Point Extension &
@@ -177,24 +169,18 @@ public class DirectoryKeyStore
       if (!param.isCertAuth) {
 	// We running as part of Cougaar, this class may be used to support
 	// certificate authority services. In that cases, we need CA policy
-	String role = secprop.getProperty(secprop.SECURITY_ROLE);
+	role = secprop.getProperty(secprop.SECURITY_ROLE);
 	if (role == null && CryptoDebug.debug == true) {
-	  System.out.println("DirectoryKeystore warning: LDAP role not defined");
+	  System.out.println("DirectoryKeystore warning: Role not defined");
 	}
-	caClient = new CAClient(role);
-        //the KAoS domain manager runs a plugin, check if it has a cert
-	NodePolicy nodePolicy = caClient.getNodePolicy();
-
-	defaultOrganizationUnit = nodePolicy.ou;
-	defaultOrganization = nodePolicy.o;
-	defaultLocality = nodePolicy.l;
-	defaultState = nodePolicy.st;
-	defaultCountry = nodePolicy.c;
-	defaultKeyAlgName = nodePolicy.keyAlgName;
-	defaultKeysize = nodePolicy.keysize;
-	defaultValidity = nodePolicy.howLong;
-	defaultSigAlgName = nodePolicy.sigAlgName;
-      }
+	try{
+	  ConfParser confParser = new ConfParser(null, false);
+	  nodePolicy = confParser.readNodePolicy(role);
+	} catch(Exception e) {
+	  System.out.println("Error: can't start CA client--"+e.getMessage());
+	  e.printStackTrace();
+	}
+     }
       else {
 	// Certificate Authority
       }
@@ -1278,7 +1264,7 @@ public class DirectoryKeyStore
 	if (CryptoDebug.debug) {
 	  System.out.println("Sending PKCS10 request to CA");
 	}
-	reply = caClient.sendPKCS(request, "PKCS10");
+	reply = sendPKCS(request, "PKCS10");
       } else {
         if (getNodeCert(nodeName) == null)
           return null;
@@ -1287,7 +1273,8 @@ public class DirectoryKeyStore
 	if (CryptoDebug.debug) {
 	  System.out.println("Searching node key again: " + nodeName);
 	}
-	X509Certificate nodex509 = (X509Certificate) findCert(nodeName, LOOKUP_KEYSTORE);
+	X509Certificate nodex509 =
+	  (X509Certificate) findCert(nodeName, LOOKUP_KEYSTORE);
 	if (CryptoDebug.debug) {
 	  System.out.println("Node key is: " + nodex509);
 	}
@@ -1320,7 +1307,7 @@ public class DirectoryKeyStore
 					    alias);
 	// Sign PKCS10 request with node key and send agent cert to CA
 
-	reply = caClient.signPKCS(request, nodex509.getSubjectDN().getName());
+	reply = signPKCS(request, nodex509.getSubjectDN().getName());
       }
     } catch (Exception e) {
       if (CryptoDebug.debug) {
@@ -1382,7 +1369,7 @@ public class DirectoryKeyStore
         if (CryptoDebug.debug) {
           System.out.println("Sending PKCS10 request to CA");
         }
-        reply = caClient.sendPKCS(request, "PKCS10");
+        reply = sendPKCS(request, "PKCS10");
         // check status
         String strStat = "status=";
         int statindex = reply.indexOf(strStat);
@@ -1645,18 +1632,23 @@ public class DirectoryKeyStore
     String alias = getNextAlias(keystore, commonName);
     if (CryptoDebug.debug) {
       System.out.println("Make key pair:" + alias + ", cn=" + commonName
-			 + ", ou=" + defaultOrganizationUnit
-			 + ",o=" +  defaultOrganization
-			 + ",l=" + defaultLocality
-			 + ",st=" + defaultState
-			 + ",c=" + defaultCountry);
+			 + ", ou=" + nodePolicy.ou
+			 + ",o=" + nodePolicy.o 
+			 + ",l=" + nodePolicy.l
+			 + ",st=" + nodePolicy.st
+			 + ",c=" + nodePolicy.c);
     }
     X500Name dname = new X500Name(commonName,
-				  defaultOrganizationUnit, defaultOrganization,
-				  defaultLocality, defaultState,defaultCountry);
-    doGenKeyPair(alias, dname.getName(), defaultKeyAlgName,
-		 defaultKeysize, defaultSigAlgName,
-		 defaultValidity);
+				  nodePolicy.ou,
+				  nodePolicy.o,
+				  nodePolicy.l,
+				  nodePolicy.st,
+				  nodePolicy.c);
+    doGenKeyPair(alias, dname.getName(),
+		 nodePolicy.keyAlgName,
+		 nodePolicy.keysize,
+		 nodePolicy.sigAlgName,
+		 nodePolicy.howLong);
     return alias;
   }
 
@@ -1863,4 +1855,88 @@ public class DirectoryKeyStore
       certCache.addPrivateKey(pk, cs);
     }
   }
+
+  private String sendPKCS(String request, String pkcs) {
+    if (!param.isCertAuth) {
+      String reply = "";
+      try {
+	if (CryptoDebug.debug) {
+	  System.out.println("Sending request to " + nodePolicy.CA_URL
+			     + ", DN= " + nodePolicy.CA_DN);
+	  System.out.println("DN= " + nodePolicy.CA_DN);
+	}
+	URL url = new URL(nodePolicy.CA_URL);
+	HttpURLConnection huc = (HttpURLConnection)url.openConnection();
+	// Let the system know that we want to do output
+	huc.setDoOutput(true);
+	// Let the system know that we want to do input
+	huc.setDoInput(true);
+	// No caching, we want the real thing
+	huc.setUseCaches(false);
+	// Specify the content type
+	huc.setRequestProperty("Content-Type",
+			       "application/x-www-form-urlencoded");
+	huc.setRequestMethod("POST");
+	PrintWriter out = new PrintWriter(huc.getOutputStream());
+	String content = "pkcs=" + URLEncoder.encode(pkcs);
+	content = content + "&role=" + URLEncoder.encode(role);
+	content = content + "&dnname=" + URLEncoder.encode(nodePolicy.CA_DN);
+	content = content + "&pkcsdata=" + URLEncoder.encode(request);
+	out.println(content);
+	out.flush();
+	out.close();
+
+	BufferedReader in =
+	  new BufferedReader(new InputStreamReader(huc.getInputStream()));
+	int len = 2000;     // Size of a read operation
+	char [] cbuf = new char[len];
+	while (in.ready()) {
+	  int read = in.read(cbuf, 0, len);
+	  reply = reply + new String(cbuf, 0, read);
+	}
+	in.close();
+	if (CryptoDebug.debug) {
+	  System.out.println("Reply: " + reply);
+	}
+ 
+      } catch(Exception e) {
+	System.err.println("Error: sending PKCS request to CA failed--"
+			   + e.getMessage());
+	e.printStackTrace();
+      }
+      return reply;
+    }
+    else {
+      return null;
+    }
+  }
+
+  private String signPKCS(String request, String nodeDN){
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try{
+      if (CryptoDebug.debug) {
+	System.out.println("Signing PKCS10 request with node");
+      }
+      CertificateManagementService km = (CertificateManagementService)
+	param.serviceBroker.getService(this,
+				       CertificateManagementService.class,
+				       null);
+      km.setParameters(nodeDN, role,
+		       null, null, false, null);
+
+      X509Certificate[] cf =
+	km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
+      PrintStream ps = new PrintStream(baos);
+      CertificateUtility.base64EncodeCertificates(ps, cf);
+      //get the output to the CA
+      String req = baos.toString();
+      String reply = sendPKCS(req, "PKCS7");
+    } catch(Exception e) {
+      System.err.println("Error: can't get the certificate signed--"
+			 + e.getMessage());
+      e.printStackTrace();
+    }    
+    return baos.toString();
+  }
+
 }

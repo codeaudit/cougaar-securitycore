@@ -23,6 +23,7 @@ package com.nai.security.crypto.ldap;
 
 import java.util.*;
 import java.io.*;
+import java.lang.IllegalArgumentException;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.MessageDigest;
@@ -61,7 +62,7 @@ public abstract class CertDirectoryService
   /** Creates new CertDirectoryService */
 
   public CertDirectoryService(String aURL) 
-    throws Exception
+    throws IllegalArgumentException
   {
     if (CryptoDebug.debug) {
       System.out.println("Creating Directory Service for " + aURL);
@@ -70,7 +71,8 @@ public abstract class CertDirectoryService
       setDirectoryServiceURL(aURL);
     }
     else {
-      throw new Exception("Directory Service URL not specified.");
+      throw new
+	IllegalArgumentException("Directory Service URL not specified.");
     }
   }
 

@@ -102,8 +102,13 @@ public class KeyManagement implements CertificateManagementService
 					     authority.
 					     false if run as a Cougaar
 					     node. */
- 
   /**  KeyManagement constructor
+   */
+  public KeyManagement() 
+  {
+  }
+
+  /**  Set key management parameters
    * @param aCA_DN       - The distinguished name of the CA
    * @param role         - The role
    * @param certPath     - The path where all cert requests are stored
@@ -119,19 +124,25 @@ public class KeyManagement implements CertificateManagementService
    * @param krs          - KeyRing service. Useful only in when running
    *                       as a Cougaar node.
    */
-  public KeyManagement(String aCA_DN, String role,
-		       String certPath, String confpath,
-		       boolean isCertAuth,
-		       KeyRingService krs) 
-    throws Exception
-  {
+  public void setParameters(String aCA_DN,
+			    String role,
+			    String certPath,
+			    String confpath,
+			    boolean isCertAuth,
+			    KeyRingService krs) {
     // TODO. Modify following line to use service broker instead
     secprop = SecurityServiceProvider.getSecurityProperties(null);
 
 
     caDN = aCA_DN;
-    caX500Name = new X500Name(caDN);
-    String caCommonName = caX500Name.getCommonName();
+    String caCommonName = null;
+    try {
+      caX500Name = new X500Name(caDN);
+      caCommonName = caX500Name.getCommonName();
+    }
+    catch (java.io.IOException e) {
+      return;
+    }
 
     if(CryptoDebug.debug) {
       System.out.println(" got ca dn name as :"+caDN);
@@ -183,17 +194,22 @@ public class KeyManagement implements CertificateManagementService
       }
     }
     catch (Exception e) {
-       if(CryptoDebug.debug)
+      if(CryptoDebug.debug)
 	e.printStackTrace();
-      throw new Exception("Unable to read policy for DN=" + caDN + ". Role="
-			  + role + " - " + e );
+      System.out.println("Error: Unable to read policy for DN="
+			 + caDN + ". Role="
+			 + role + " - " + e );
+      return;
     }
-    init(role, krs);
+    try {
+      init(role, krs);
+    }
+    catch (Exception e) {}
   }
 
   public void init(String role, KeyRingService krs)
-    throws Exception {
-    if(isCertAuth) {
+    throws java.io.FileNotFoundException {
+      if(isCertAuth) {
       String keystoreFile = confDirectoryName + File.separatorChar
 	+ caPolicy.keyStoreFile;
       if (CryptoDebug.debug) {
@@ -219,13 +235,12 @@ public class KeyManagement implements CertificateManagementService
 	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
 	  caPolicy.ldapType, caPolicy.ldapURL);
       if (caOperations == null) {
-	throw new Exception("Unable to communicate with LDAP server");
+	throw new RuntimeException("Unable to communicate with LDAP server");
       }
       publishCAinLdap();
     }
     else{
       keyRing = krs;
-
       try {
 	caPolicy = confParser.readCaPolicy("", role);
       }
@@ -234,15 +249,23 @@ public class KeyManagement implements CertificateManagementService
 	  System.out.println("Unable to read policy: " + e);
 	  e.printStackTrace();
 	}
-	throw new Exception("Unable to read policy:" + e);
+	throw new RuntimeException("Unable to read policy:" + e);
       }
       
-      nodePolicy = confParser.readNodePolicy(role);
+      try {
+	nodePolicy = confParser.readNodePolicy(role);
+      }
+      catch (java.lang.NoSuchFieldException e) {
+	throw new RuntimeException("Unable to read policy:" + e);
+      }
+      catch (java.lang.IllegalAccessException e) {
+	throw new RuntimeException("Unable to read policy:" + e);
+      }
       if (CryptoDebug.debug) {
 	System.out.println("Running in Cougaar environment");
       }
-      /* When running as part of Cougaar, the KeyRing class is used to store the
-       * private keys and the certificates.
+      /* When running as part of Cougaar, the KeyRing class is used to
+       * store the private keys and the certificates.
        * The KeyRing class uses the org.cougaar.security.keystore property to
        * set the location of the node keystore file.
        * top-level directory: directory where the CA keystore file is stored.
@@ -264,17 +287,24 @@ public class KeyManagement implements CertificateManagementService
       if (CryptoDebug.debug) {
 	System.out.println("Configuration Directory: " + confDirectoryName);
       }
-
     }
-    caX509cert = findCert(caX500Name.getCommonName());
-    x509DirectoryName =  confDirectoryName + File.separatorChar + "x509certificates";
-    pkcs10DirectoryName = confDirectoryName +  File.separatorChar + "pkcs10requests";
-    /*
-      x509DirectoryName =  confDirectoryName + File.separatorChar + caPolicy.x509CertDirectory;
-      pkcs10DirectoryName = confDirectoryName +  File.separatorChar + caPolicy.pkcs10Directory;
-    */
+    try {
+      caX509cert = findCert(caX500Name.getCommonName());
+    }
+    catch (java.io.IOException e) {
+      throw new RuntimeException("Unable to find CA cert: " + e);
+    }
+    x509DirectoryName =  confDirectoryName + File.separatorChar
+      + "x509certificates";
+    pkcs10DirectoryName = confDirectoryName +  File.separatorChar
+      + "pkcs10requests";
     // Create directory structure if it hasn't been created yet.
-    createDirectoryStructure();
+    try {
+      createDirectoryStructure();
+    }
+    catch (java.io.IOException e) {
+      throw new RuntimeException("Unable to create CA directories: " + e);
+    }
 
   }
  
