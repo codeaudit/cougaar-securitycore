@@ -45,7 +45,7 @@ import org.cougaar.domain.planning.ldm.policy.Policy;
 import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.core.security.policy.TypedPolicy;
 
-import org.cougaar.core.security.test.DOMWriter;
+import org.cougaar.core.security.util.DOMWriter;
 import java.io.*;
 
 import SAFE.Util.*;
