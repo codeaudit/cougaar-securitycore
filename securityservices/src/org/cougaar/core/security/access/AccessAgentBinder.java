@@ -32,8 +32,8 @@ import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
 
 public class AccessAgentBinder 
-        extends ServiceFilterBinder 
-        implements AgentBinder {
+  extends ServiceFilterBinder 
+  implements AgentBinder {
 
   private LoggingService log;
 
@@ -94,13 +94,13 @@ public class AccessAgentBinder
   }
 
   protected class AccessAgentBinderProxy extends ServiceFilterContainerProxy implements AgentManagerForBinder {
-     public void registerAgent(Agent agent) {
-        //just passing through
-        getAgentManager().registerAgent(agent);
+    public void registerAgent(Agent agent) {
+      //just passing through
+      getAgentManager().registerAgent(agent);
     }
-     public String getName() {
-       return getAgentManager().getName(); 
-     }
+    public String getName() {
+      return getAgentManager().getName(); 
+    }
     
   }
   
@@ -116,26 +116,29 @@ public class AccessAgentBinder
 	AccessControlPolicyService acps=null;
 	if (serviceBroker != null)  {
 	  try  {
-      log = (LoggingService)
-        serviceBroker.getService(this,
-              LoggingService.class, null);
-	    
-      acps = (AccessControlPolicyService)
-	      serviceBroker.getService(this,
-				      AccessControlPolicyService.class, null);
+	    log = (LoggingService) serviceBroker.getService(this,LoggingService.class, null);
+	    acps = (AccessControlPolicyService) serviceBroker.getService(this,AccessControlPolicyService.class, null);
 	    if (acps == null) {
-	     throw new RuntimeException("Access Crl Aspect. No policy service");
+	      throw new RuntimeException("Access Crl Aspect. No policy service");
 	    }
 	  }
 	  catch(Exception e)  {
-	   throw new RuntimeException("Access Control Aspect:"
-				      +e.toString());
+	    throw new RuntimeException("Access Control Aspect:"
+				       +e.toString());
 	  }
-       }else{
-	 throw new RuntimeException("Access Control Aspect: no service broker");
-       }
-      
-   return new AccessAgentProxy((MessageTransportService)service,client,acps,
+	}else{
+	  throw new RuntimeException("Access Control Aspect: no service broker");
+	}
+	SecurityManager security = System.getSecurityManager();
+	if (serviceclass == null) {
+	  throw new IllegalArgumentException("Illegal service class");
+	}
+	if(security != null) {
+	  log.debug("Checking Access Permission for :"+serviceclass.getName()+
+		    "\nRequestor is "+ client.getClass().getName()); 
+	  security.checkPermission(new AccessPermission(serviceclass.getName()));
+	}	
+      	return new AccessAgentProxy((MessageTransportService)service,client,acps,
 				    serviceBroker);
 	  
       }
