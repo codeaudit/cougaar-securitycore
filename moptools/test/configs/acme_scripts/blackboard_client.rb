@@ -1,6 +1,6 @@
 ##
 #  <copyright>
-#  Copyright 2002 InfoEther, LLC
+#  Copyright 2003 Cougaar Software, Inc.
 #  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
 #
 #  This program is free software; you can redistribute it and/or modify
