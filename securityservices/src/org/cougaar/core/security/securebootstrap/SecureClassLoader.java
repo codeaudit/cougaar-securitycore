@@ -103,7 +103,7 @@ public class SecureClassLoader  extends BaseClassLoader{
             catch (Exception e) {
               //e.printStackTrace();
               verifiedUrls.put(urlForClass, Boolean.FALSE);
-              _securelog.logJarVerificationError(urlForClass, e);
+              // _securelog.logJarVerificationError(urlForClass, e);
               c = null;
               throw new ClassNotFoundException("Class cannot be Trusted ",e);
             }
@@ -127,9 +127,14 @@ public class SecureClassLoader  extends BaseClassLoader{
     catch (SecurityException securityexp){
       if(urlForClass!=null) {
         verifiedUrls.put(urlForClass, Boolean.FALSE);
-        _securelog.logJarVerificationError(urlForClass,securityexp);
+        //_securelog.logJarVerificationError(urlForClass,securityexp);
       }
-      SecurityException sexp= new SecurityException("Jar file has been tampered :");
+      _securelog.logJarVerificationError(urlForClass,securityexp);
+      StringBuffer message=new StringBuffer("Jar file has been tampered : ");
+      if(urlForClass!=null){
+        message.append(urlForClass.toString());
+      }
+      SecurityException sexp= new SecurityException(message.toString()) ;
       sexp.setStackTrace(securityexp.getStackTrace());
       throw sexp;
     }
