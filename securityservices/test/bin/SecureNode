@@ -70,7 +70,7 @@ if ( "$useBootstrapper" == "true") then
 	# signed using trusted certificate(s), and by the security manager,
 	# which reads the Java policy file and creates protection domains
 	# associated with certificates.
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrap.keystore=$COUGAAR_INSTALL_PATH/configs/common/.bootstrap_keystore"
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrap.keystore=$COUGAAR_INSTALL_PATH/configs/common/bootstrap_keystore"
 
 
 	# The following property defines the logfile name of the Security Manager.
