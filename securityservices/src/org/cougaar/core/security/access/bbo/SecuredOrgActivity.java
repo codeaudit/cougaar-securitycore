@@ -39,6 +39,8 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   private        OrgActivity     _org;
   private final  ObjectContext   _context;
   private static SecurityManager _sm = System.getSecurityManager();
+  private        String          _adCon;
+  private        String          _opCon;
 
   private final static java.security.Permission CREATE =
     new BlackboardObjectPermission(OrgActivity.class.getName(), "create");
@@ -269,5 +271,21 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
 
   public int hashCode() {
     return getUID().hashCode();
+  }
+
+  public void setAdCon(String adCon) {
+    _adCon = adCon;
+  }
+
+  public String getAdCon() {
+    return _adCon;
+  }
+
+  public void setOpCon(String opCon) {
+    _opCon = opCon;
+  }
+
+  public String getOpCon() {
+    return _opCon;
   }
 }
