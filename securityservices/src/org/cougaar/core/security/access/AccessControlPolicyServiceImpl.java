@@ -122,16 +122,14 @@ public class AccessControlPolicyServiceImpl
       //find which community the agent belongs to and get the policy
       Collection c = commu.listParentCommunities(target);
       if(c!=null){
+        Iterator it = c.iterator();
         String cname = null;
-        try{
-          //agent could belongs to multiple communities, thus multiple set
-          //of policy--no policy consolidation for now, just pick one.
-          cname = (String)c.iterator().next();
-        }catch(Exception e){
-          log.debug("Failed getting community name.");
+        while(it.hasNext()){
+          cname = (String)it.next();
+          if(cname != null && incoming_c !=null)
+            acp = (AccessControlPolicy)incoming_c.get(cname);
+          if(acp!=null) break;
         }
-        if(cname != null && incoming_c !=null) 
-          acp = (AccessControlPolicy)incoming_c.get(cname);
       }
     }
     
@@ -146,7 +144,8 @@ public class AccessControlPolicyServiceImpl
         + "->" +  target);
       }
     }
-      return acp;
+    if(acp!=null && commu!=null) acp.setCommunityService(commu);
+    return acp;
   }//getIncomingPolicy
 
   private AccessControlPolicy getOutgoingPolicy(String source){
@@ -157,16 +156,14 @@ public class AccessControlPolicyServiceImpl
       //find which community the agent belongs to and get the policy
       Collection c = commu.listParentCommunities(source);
       if(c!=null){
+        Iterator it = c.iterator();
         String cname = null;
-        try{
-          //agent could belongs to multiple communities, thus multiple set
-          //of policy--no policy consolidation for now, just pick one.
-          cname = (String)c.iterator().next();
-        }catch(Exception e){
-          log.debug("Failed getting community name.");
+        while(it.hasNext()){
+          cname = (String)it.next();
+          if(cname != null && outgoing_c !=null)
+            acp = (AccessControlPolicy)outgoing_c.get(cname);
+          if(acp!=null) break;
         }
-        if(cname != null && outgoing_c !=null) 
-          acp = (AccessControlPolicy)outgoing_c.get(cname);
       }
     }
     
@@ -181,7 +178,8 @@ public class AccessControlPolicyServiceImpl
         + source + "->" );
       }
     }
-      return acp;
+    if(acp!=null && commu!=null) acp.setCommunityService(commu);
+    return acp;
   }//getOutgoingPolicy
   
   private synchronized void checkOrMakeProxy(String agent){
