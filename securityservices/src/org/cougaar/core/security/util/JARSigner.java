@@ -36,7 +36,7 @@ import sun.security.util.ManifestDigester;
 import sun.security.util.SignatureFile;
 
 public class JARSigner
-extends Object {
+{
   // the alias for the signing key, the private key to sign with,
   // and the certificate chain
   private String alias;
@@ -62,12 +62,9 @@ extends Object {
         je = (JarEntry)entries.nextElement();
         if( "META-INF/MANIFEST.MF".equalsIgnoreCase( je.getName() ) )
           break;
-
         else
           je = null;
-
       }
-
     }
 
     // create the manifest object
