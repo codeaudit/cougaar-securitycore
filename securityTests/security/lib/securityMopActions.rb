@@ -14,29 +14,23 @@ module Cougaar
 
       def perform
         # the first slot is a placehold so that mop 2.1 is at index 1.
-begin
-        run['mops'] = [
-          AbstractSecurityMop.new(run),
-          SecurityMop21.instance,
-          SecurityMop22.instance,
-          SecurityMop23.instance,
-          SecurityMop2_4.instance,
-          SecurityMop2_5.instance,
-          SecurityMop2_6.instance
-=begin
-          Stressors.getStressInstance('SecurityMop21', run),
-          Stressors.getStressInstance('SecurityMop22', run),
-          Stressors.getStressInstance('SecurityMop23', run),
-          Stressors.getStressInstance('SecurityMop2_4', run),
-          Stressors.getStressInstance('SecurityMop2_5', run),
-          Stressors.getStressInstance('SecurityMop2_6', run),
-=end
-          ]
-rescue Exception => e
-puts "#{e.class}: #{e.message}"
-puts e.backtrace.join("\n")
-exit
-end
+        begin
+          `rm -rf #{SecurityMopDir}` if File.exists?(SecurityMopDir)
+          Dir.mkdirs(SecurityMopDir)
+          `chmod a+rwx #{SecurityMopDir}`
+          run['mops'] = [
+            SecurityMopNil.instance,
+            SecurityMop21.instance,
+            SecurityMop22.instance,
+            SecurityMop23.instance,
+            SecurityMop2_4.instance,
+            SecurityMop2_5.instance,
+            SecurityMop2_6.instance
+            ]
+        rescue Exception => e
+          logError e
+          exit
+        end
       end
     end
 
@@ -62,25 +56,23 @@ end
     # Action which runs the six security mops every five minutes
     class InitiateSecurityMopCollection < Cougaar::Action
       attr_accessor :mops, :frequency, :thread
-      @@halt = false
       def initialize(run, frequency=3.minutes)
         super(run)
         Cougaar.setRun(run)
-        @@halt = false
+        AbstractSecurityMop.halt = false
         @frequency = frequency
         @thread = nil
         UserClass.clearCache
       end
 
       def self.halt
-        puts "halting security mops" if $VerboseDebugging
-        @@halt = true
+        AbstractSecurityMop.halt = true
       end
       def self.halted?
-        return @@halt
+        return AbstractSecurityMop.halt
       end
       def halted?
-        return @@halt
+        return self.halted?
       end
       
       def perform
@@ -94,7 +86,8 @@ end
 #        setPolicies
 #        SecurityMop2_4.instance.run = @run
 
-        @mops = [SecurityMop21.instance, SecurityMop22.instance,
+        @mops = [SecurityMopNil.instance,
+                SecurityMop21.instance, SecurityMop22.instance,
                 SecurityMop23.instance, SecurityMop2_4.instance,
                 SecurityMop2_5.instance, SecurityMop2_6.instance]
 
@@ -109,8 +102,7 @@ end
             begin
               mop.setup
             rescue Exception => e
-              logInfoMsg "WARNING: Error #{e.class} (#{e.message}) while setting up #{mop.class}"
-              puts e.backtrace.join("\n")
+              logError e
             end
           end
           sleep 2.minutes
@@ -126,9 +118,7 @@ end
                 break if halted?
                 mop.perform if firstTime or mop.doRunPeriodically
               rescue Exception => e
-                puts "error in InitiateSecurityMopCollection's thread"
-                puts "#{e.class}: #{e.message}"
-                puts e.backtrace.join("\n")
+                logError e, "error in InitiateSecurityMopCollection's thread"
               end
             end
             puts "done performing this set of security mops" if $VerboseDebugging
@@ -167,19 +157,16 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
         Dir.mkdirs(SecurityMopDir)
         `chmod a+rwx #{SecurityMopDir}`
         logInfoMsg "Halting security MOPs" if $VerboseDebugging
-#b
-#run['mops'] = [SecurityMop2_3.instance]
-#b
         mops = run['mops']
         InitiateSecurityMopCollection.halt
         sleep 1.minutes
         logInfoMsg "Shutting down security MOPs" if $VerboseDebugging
         mops.each do |mop|
           begin
+	    logInfoMsg "shutting down #{mop.class.name}"
             mop.shutdown
           rescue Exception => e
-            logInfoMsg "WARNING: Error while shutting down #{mop.class}, #{e.class} #{e.message}"
-            puts e.backtrace.join("\n")
+            logError e
           end
         end
         sleep 1.minutes
@@ -194,17 +181,38 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
         logInfoMsg "Pre-processing security MOPs" if $VerboseDebugging
         mops = run['mops']
         result = ''
-        mops.each {|mop| mop.calculate}
+        mops.each do |mop|
+          begin
+	    logInfoMsg "calculating #{mop.class.name}"
+            mop.calculate
+          rescue Exception => e
+            logError e
+          end
+        end
         retries=50
+begin
         mops.each do |mop|
           startTime = Time.now
-          while (!mop.calculationDone) do
+puts "waiting for mop calculation to complete in #{mop.class.name} (#{retries})"
+          while (!mop.isCalculationDone) do
             retries -= 1
             break if Time.now - startTime > 5.minutes
             puts "waiting for mop calculation in #{mop.class.name} (#{retries})" if $VerboseDebugging
+puts "waiting for mop calculation in #{mop.class.name} (#{retries})"
             sleep 30.seconds
           end
           result += "#{makeMopXml(mop)}\n"
+        end
+rescue Exception => e
+ logError e
+end
+        mops.each do |mop|
+          begin
+	    logInfoMsg "postCalculating #{mop.class.name}"
+            mop.postCalculate
+          rescue Exception => e
+            logError e
+          end
         end
 
 #        html = (mops.collect {|mop| makeMopXml(mop)}).join("\n")

@@ -172,13 +172,8 @@ class PostSecurityMopAnalysis
       @raw = db['raw']
       @summary = db['summary']
     end # db.transaction
-    # make so we can index beginning at 1.
-    @scores.unshift nil
-    # MOPs 2-1 thru 2-4 are expressed in negative terms.
     1.upto(4) {|n| @scores[n] = Float(100.0 - @scores[n])}
     @origScores = @scores.dup
-    @raw.unshift nil
-    @summary.unshift nil
     @summary[5] = switchem(@summary[5], 'There were ', ' servlet access attempts, ', ' were correct.')
     @summary[6] = switchem(@summary[6], 'There were ', ' servlet access attempts, ', ' were correct.')
   end

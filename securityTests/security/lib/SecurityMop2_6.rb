@@ -30,8 +30,8 @@ class SecurityMop26 < AbstractSecurityMop
     return "policy actions: (logged)#{logged}/(total)#{total} = #{answer}"
   end
 
-  def calculationDone
-    return SecurityMop2_4.instance.calculationDone
+  def isCalculationDone
+    return SecurityMop2_4.instance.isCalculationDone
   end
 
   def calculate

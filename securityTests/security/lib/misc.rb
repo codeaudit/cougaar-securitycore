@@ -180,10 +180,14 @@ end
 # Logging methods
 
 def logInfoMsg(msg='')
-  if msg and msg!=''
-    run.info_message msg
+  if run
+    if msg and msg!=''
+      run.info_message msg
+    else
+      run.info_message ''
+    end
   else
-    run.info_message ''
+    puts "[`date`]: #{msg}"
   end
 end
 
@@ -335,17 +339,17 @@ end
 
 class Dir
   def self.mkdirs(dir)
-    head, tail = File.split(dir)
-    if (head != dir)
-      mkdirs(head)
-    end
+      head, tail = File.split(dir)
+      if (head != dir)
+        mkdirs(head)
+      end
 
-    begin
-      stat = File.stat(dir)
-    rescue Exception
-      Dir.mkdir(dir)
-      #`chmod a+rwx #{dir}`
-    end
+      begin
+        stat = File.stat(dir)
+      rescue
+        Dir.mkdir(dir)
+        `chmod a+rx #{dir}`
+      end
   end # mkdirs
 end # Dir
 
@@ -461,12 +465,18 @@ def saveResultsToFile(pass, success, testnum, testname, tagId)
     file.print("</event>\n")
     file.close();
   rescue => ex
-    logWarningMsg "Unable to save test result: #{ex}"
+    logError ex, "Unable to save test result"
   end
   #logInfoMsg "saveResultsToFile - Leaving critical section - #{Time.now}"
   Thread.critical = false
   
 end 
+
+def logError(err, errorText=nil)
+  logWarningMsg errorText if errorText
+  logWarningMsg "#{err.class}: #{err.message}"
+  logWarningMsg err.backtrace.join("\n")
+end
 
 def getClasspath
   classpath = []

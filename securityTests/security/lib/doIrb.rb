@@ -45,11 +45,13 @@ class Object
      rescue ScriptError, StandardError => e
 #       $! = 'exception raised' unless $!
 #       print "ERR: ", $!, "\n"
-       puts "error: #{e.class}"
+       puts "error: #{e.class}: #{e.message}"
+       puts e.backtrace.join("\n")
      rescue SystemExit => e
        exit
      rescue Exception => e
-       puts "error: #{e.class}"
+       puts "error: #{e.class}: #{e.message}"
+       puts e.backtrace.join("\n")
      end
      break unless l 
      line = ''

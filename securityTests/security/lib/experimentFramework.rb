@@ -74,13 +74,15 @@ require 'ultralog/scripting'
 require 'timeout'
 
 def setMyRun(run)
-  if ($myRun == nil)
-    $myRun = run
-  end
+  setRun(run)
+  #if ($myRun == nil)
+  #  $myRun = run
+  #end
 end
 
 def run()
-  return $myRun
+  return getRun
+  #return $myRun
 end
 
 def summary(msg)

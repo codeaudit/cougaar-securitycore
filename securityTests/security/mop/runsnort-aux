@@ -33,6 +33,7 @@ all="$options $listenInterface $maxPacketLen $filter"
 echo "snort $all"
 
 killall -9 snort
+echo "start time: `date`"
 $snort $all &
 Pid=$!
 
@@ -44,6 +45,7 @@ let maxminutes=120
 while [ $minutenum -le $maxminutes ]; do
   if [ ! -e /proc/$Pid ]; then
     echo "Good.  Snort has been killed (after $minutenum mins), will exit."
+    echo "end time: `date`"
     exit
   fi
   sleep 60

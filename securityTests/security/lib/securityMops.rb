@@ -80,7 +80,7 @@ class SecurityMop21 < AbstractSecurityMop
       puts "compiledResults #{@score}" if $VerboseDebugging
       summary = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}"
       @info = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}<br/>\n" + @info.join("<br/>\n")
-      @calculationDone = true
+      @isCalculationDone = true
       success = false
       if (@score == 100.0)
 	success = true
@@ -179,19 +179,23 @@ class SecurityMop22 < AbstractSecurityMop
     return ["SecurityMop2.2"]
   end
 
+  def perform
+    # capturing persistent files is part of a normal cougaar run, so do nothing
+  end
+
   def calculate
     d = DataProtection.new
     @score = d.checkDataEncrypted("cougaar", 8000, false)
     @summary = d.summary
     @raw = d.filelist
     @info = d.mopHtml
-    @calculationDone = true
+    @isCalculationDone = true
 
     success = false
     if (@score == 100.0)
       success = true
     end
-    saveResult(success, 'SecurityMop2.2', d.summary)
+    saveResult(success, 'SecurityMop2.2', d.summary.join("\n"))
     saveAssertion('SecurityMop2.2', @info)
   end
 
@@ -250,8 +254,6 @@ class SecurityMop23 < AbstractSecurityMop
   end
 
   def startTcpCapture(agentnames)
-puts "startTcpCapture"
-puts agentnames
     # executable attribute not set when first unzipped.
     %w(runsnort runsnort-aux analyzesnort analyzesnort-aux).each do |file|
       f = File.join(@scriptsdir, file)
@@ -273,7 +275,6 @@ puts agentnames
     @hosts = hosts.uniq
 
     puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}" if $VerboseDebugging
-puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
     
     begin
       @hosts.each do |host|
@@ -296,7 +297,7 @@ puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
     end
   end
 
-  def calculationDone
+  def isCalculationDone
     lognames = @hosts.collect {|host| "#{host.name}.tcplog"}
     dirfiles = Dir.entries(SecurityMopDir)
     missing = lognames - dirfiles
@@ -312,9 +313,13 @@ puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
 
   def postCalculate
     begin
+puts "securitymop 2.3"
       analysis = PostSecurityMopAnalysis.new(@datadir)
       analysis.mops = run['mops']
       info = analysis.getXMLDataForMop(3)
+puts "securitymop 2.3"
+puts analysis.scores[3]
+puts info.inspect
       saveResult(analysis.scores[3] <= 0.0, 'SecurityMop2.3', info)
     rescue Exception => e
       logInfoMsg "Error: #{e.class}: #{e.message}"
@@ -337,14 +342,14 @@ end
 
 def doRemoteCmd(hostname, cmd, timeout=30)
   if hostname.kind_of?(String)
-    host = run.society.hosts[hostname]
+    host = getRun.society.hosts[hostname]
   else
     host = hostname
   end
   cmd = "command[rexec]#{cmd}"
-  logInfoMsg "doRemoteCmd: #{hostname}, #{cmd}" if $VerboseDebugging
+  logInfoMsg "doRemoteCmd: #{host.name}, #{cmd}" if $VerboseDebugging
   begin
-    answer = run.comms.new_message(host).set_body(cmd).request(timeout)
+    answer = getRun.comms.new_message(host).set_body(cmd).request(timeout)
     logInfoMsg "doRemoteCmd answer #{hostname}: #{answer.class}, #{answer}" if $VerboseDebugging
     if answer
       return getRexecBody(answer.to_s).chomp
@@ -359,7 +364,12 @@ end
 
 def getRexecBody(xml)
   answer = xml.scan(/<body>(.*)<\/body>/m)
-  return answer[0][0]
+  begin
+    return answer[0][0]
+  rescue Exception => e
+    saveAssertion "doRexecCmd", "Unable to find the body tag in result (#{xml.inspect})"
+    return ''
+  end
 end
 
 

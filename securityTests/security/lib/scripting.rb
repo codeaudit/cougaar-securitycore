@@ -15,6 +15,7 @@ end
 require 'security/lib/cougaarMods'
 
 require 'security/lib/doIrb'
+require 'security/lib/useExperiment'
 require 'security/lib/experimentFramework'
 
 require 'security/lib/summary'
@@ -24,7 +25,6 @@ require 'security/lib/misc'
 require 'security/lib/webFramework'
 require 'security/lib/userDomain'
 require 'security/lib/loadSociety'
-require 'security/lib/useExperiment'
 require 'security/lib/checkAllJabberHosts'
 require 'security/lib/caDomain'
 require 'security/lib/security'

@@ -26,7 +26,6 @@ class  SecurityMop2_4 < AbstractSecurityMop
     reset
     removePemCertificates
     @name = "2.4"
-    #@performdone = false
     @performDone = false
     @crlUpdated = false;
     @descript = "Percentage of user actions that were available for invocation counter to authorization policy"
@@ -121,11 +120,16 @@ class  SecurityMop2_4 < AbstractSecurityMop
     @performDone=true
   end
 
-   def getPerformDone
+  def getPerformDone
     return @performDone
   end
 
+  def isCalculationDone
+    return @calcDone == true
+  end
+
   def calculate
+    @calcDone = false
     Thread.fork {
       begin
         totalWaitTime=0
@@ -169,6 +173,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
         logInfoMsg e.backtrace.join("\n")
       end
     }
+    @calcDone = true
   end
   
   #def cleanupOldkeys
@@ -324,7 +329,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def doRunPeriodically
-    return true
+#    return true
+    return false
   end
 
   def perform
