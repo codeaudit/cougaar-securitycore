@@ -37,6 +37,7 @@ import edu.jhuapl.idmef.*;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -139,6 +140,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private IncrementalSubscription capabilitiesRelays;
   private IncrementalSubscription agentRegistrations;
   private IncrementalSubscription notification;
+
 //  private Community mySecurityCommunity=null;
   
   private MessageAddress myAddress;
@@ -183,7 +185,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 
     if (loggingService.isDebugEnabled()) {
       loggingService.debug("setupSubscriptions of CapabilitiesConsolidationPlugin called for "
-          + myAddress.toAddress());
+                           + myAddress.toAddress());
       loggingService.debug("Using CommunityServiceUtil for getSecurityCommunity:");
     }
     _csu.amIRoot(new RegistrationListener());
@@ -194,27 +196,23 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   }
   
 
-  public void setManagerAddress(MessageAddress mgrAddress) {
-/*
-    if(mySecurityCommunity == null) {
-      loggingService.error("Agent '" + myAddress +
-			   "' does not belong to a security community. " +
-			   "This component should only be included in an M&R Security Manager agent");  
-      return;
-    }
-    loggingService.debug("My security community : " + mySecurityCommunity.getName()
-			 + " agent name : "+ myAddress.toString());  
-
-    _managerAddress = mgrAddress;
-*/
+  public void setManagerAddress(final MessageAddress mgrAddress) {
     loggingService.debug(" setManagerAddress called with : "+ mgrAddress + " in agent :" +myAddress);
     if(_managerAddress==null) {
-       _managerAddress = mgrAddress;
-      loggingService.debug("Found security manager('" + _managerAddress + "') for manager('" + myAddress + "')");
-      getBlackboardService().openTransaction();
-      loggingService.info("Publishing notification object :");
-      getBlackboardService().publishAdd(new NotificationObject());
-      getBlackboardService().closeTransaction(); 
+      TimerTask task = new TimerTask() {
+          public void run (){
+            _managerAddress = mgrAddress;
+            loggingService.debug("Found security manager('" + _managerAddress + "') for manager('" + myAddress + "')");
+            getBlackboardService().openTransaction();
+            loggingService.info("Publishing notification object :");
+            getBlackboardService().publishAdd(new NotificationObject());
+            getBlackboardService().closeTransaction(); 
+          }
+        };
+      ThreadService ts = (ThreadService)
+        getServiceBroker().getService(this, ThreadService.class, null);
+      ts.schedule(task, 0);
+      getServiceBroker().releaseService(this, ThreadService.class, ts);
     }
     else {
       loggingService.debug("Mgr addres is not null in agent  : "+ myAddress +" Mgr address : "+_managerAddress);
@@ -236,7 +234,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
      
     if (loggingService.isDebugEnabled())
       loggingService.debug(" Execute of CapabilitiesConsolidation Plugin called"
-			    +myAddress.toAddress() );
+                           +myAddress.toAddress() );
     DomainService service=getDomainService();
     if(service==null) {
       if (loggingService.isDebugEnabled()) 
@@ -258,15 +256,15 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     if(( modifiedcapabilities_col==null)||( modifiedcapabilities_col.size()==0)){
       if (loggingService.isDebugEnabled()) 
         loggingService.debug(" No modified capabilities currently present" +
-            "RETURNING !");
+                             "RETURNING !");
       return;
     }
     
     if(modifiedcapabilities_col.size()>1) {
       if (loggingService.isDebugEnabled())
         loggingService.debug(" Error Multiple complete capabilities object on blackboard in Capabilities"+
-            " Consolidation plugin !!!!!!!!!!!!!!!!!!!"+
-            " CONFUSION CONFUSION CONFUSION  RETURNIG !!!!!!!:"+myAddress.toAddress() );
+                             " Consolidation plugin !!!!!!!!!!!!!!!!!!!"+
+                             " CONFUSION CONFUSION CONFUSION  RETURNIG !!!!!!!:"+myAddress.toAddress() );
       return;
     }
    
@@ -291,453 +289,453 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     Enumeration keys=capabilitiesobject.keys();
     String key=null;
     
-      while(keys.hasMoreElements()) {
-        key=(String)keys.nextElement();
-        if (loggingService.isDebugEnabled())
-          loggingService.debug(" KEY IN CAPABILITIES OBJECT IS :"+key);
-        if(consSources!=null)
-          loggingService.debug("Consolidated source length is :"+consSources.length);
-        if(consAddData!=null)
-          loggingService.debug("Consolidated Additional data length is :"+consAddData.length);
-        registration=(RegistrationAlert)capabilitiesobject.get(key);
-        regclassifications=registration.getClassifications();
-        regAddData=registration.getAdditionalData();
-        regSources=registration.getSources();
-        regTargets=registration.getTargets();
-        if(regSources!=null)
-          loggingService.debug("Reg source length is :"+regSources.length);
-        if(regAddData!=null)
-          loggingService.debug("Reg  Additional data length is :"+regAddData.length);
-        if(regAddData==null) {
-          loggingService.debug("Additional data is NOT NULL in Reg alert:"); 
-        }
+    while(keys.hasMoreElements()) {
+      key=(String)keys.nextElement();
+      if (loggingService.isDebugEnabled())
+        loggingService.debug(" KEY IN CAPABILITIES OBJECT IS :"+key);
+      if(consSources!=null)
+        loggingService.debug("Consolidated source length is :"+consSources.length);
+      if(consAddData!=null)
+        loggingService.debug("Consolidated Additional data length is :"+consAddData.length);
+      registration=(RegistrationAlert)capabilitiesobject.get(key);
+      regclassifications=registration.getClassifications();
+      regAddData=registration.getAdditionalData();
+      regSources=registration.getSources();
+      regTargets=registration.getTargets();
+      if(regSources!=null)
+        loggingService.debug("Reg source length is :"+regSources.length);
+      if(regAddData!=null)
+        loggingService.debug("Reg  Additional data length is :"+regAddData.length);
+      if(regAddData==null) {
+        loggingService.debug("Additional data is NOT NULL in Reg alert:"); 
+      }
 	
-        if(consclassifications==null){
-          //log.debug("consclassifications was null Creating one :"); 
-          consclassifications=new Classification[regclassifications.length];
-          System.arraycopy(regclassifications,0,consclassifications,0,regclassifications.length);
-          //printConsolidation(consclassifications,"First Classification[] is added to consolidate Classification");
-        }
-        else {
-          if (loggingService.isDebugEnabled())
-            loggingService.debug("consclassifications was NOT NULL Consolidating :"); 
-          //printConsolidation(consclassifications," Consolidated Classification before adding :");
-          consclassifications=getConsolidatedClassification(regclassifications,consclassifications);
-          //printConsolidation(consclassifications," Consolidated Classification after adding ::");
-        }
-        loggingService.debug("Done with Classification.Going to start on Source :");
-        if(consSources==null) {
-          loggingService.debug("Consolidated Sources is null :");
-          if(regSources!=null) {
-            loggingService.debug("Registration source is NOT NULL:");
-            consSources=new Source[regSources.length];
-            System.arraycopy(regSources,0,consSources,0,regSources.length);
-            Source tempsrc=null;
-            for(int i=0;i<consSources.length;i++) {
-              loggingService.debug("Looking if source has any ref in Additional data at source index :"+ i); 
-              tempsrc=consSources[i];
-              loggingService.debug("Looking if source has any ref in REG Additional data at source "+ tempsrc.toString()); 
-              int index=indexOfAgentReference(tempsrc.getIdent(),regAddData);
-              loggingService.debug("Found source has reference in REG ADDITIONAL DATA  at index:"+index); 
-              if(index!=-1){
-                loggingService.debug("source has a reference in REG additional data :");
-                if(consAddData!=null) {
-                  loggingService.debug("Consolidated Additional Data is NOT  null && index for agent reference in Reg additionaldata is  :"+index );
-                  AdditionalData tmpdata=null;
-                  loggingService.debug("Going to look if Reg Additional data is alreday in Consolidate Additional dta :");
-                  tmpdata=regAddData[index];
-                  int addindex=indexOfAdditionalData(tmpdata,consAddData);
-                  if(addindex!=-1) {
-                    loggingService.debug("Found  Reg Addition data in Consolidated Additional data at index  :"+addindex); 
-                    AdditionalData existdata=consAddData[addindex]; 
-                    loggingService.debug(" Going to get agent info of Consolidated Additional data :");
-                    org.cougaar.core.security.monitoring.idmef.Agent agentinfo=getAgent(existdata);
-                    if(agentinfo!=null) {
-                      loggingService.debug("Got agent info of Consolidated Additional data :");  
-                      String [] existingref=agentinfo.getRefIdents();
-                      if(existingref!=null) {
-                        loggingService.debug("Agent info and reference array is not null for existing additional data :");
-                        String [] newref=new String[existingref.length+1];
-                        System.arraycopy(existingref,0,newref,0,existingref.length);
-                        newref[existingref.length]=tempsrc.getIdent();
-                        agentinfo.setRefIdents(newref);
-                      }
-                      else {
-                        loggingService.debug("Agent info is not null but ref is null in existing additional data :"); 
-                        String [] newref=new String[1];
-                        newref[0]=tempsrc.getIdent();
-                        agentinfo.setRefIdents(newref);
-                      }
-                      AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,agentinfo);
-                      consAddData[addindex]=newAdddata;
+      if(consclassifications==null){
+        //log.debug("consclassifications was null Creating one :"); 
+        consclassifications=new Classification[regclassifications.length];
+        System.arraycopy(regclassifications,0,consclassifications,0,regclassifications.length);
+        //printConsolidation(consclassifications,"First Classification[] is added to consolidate Classification");
+      }
+      else {
+        if (loggingService.isDebugEnabled())
+          loggingService.debug("consclassifications was NOT NULL Consolidating :"); 
+        //printConsolidation(consclassifications," Consolidated Classification before adding :");
+        consclassifications=getConsolidatedClassification(regclassifications,consclassifications);
+        //printConsolidation(consclassifications," Consolidated Classification after adding ::");
+      }
+      loggingService.debug("Done with Classification.Going to start on Source :");
+      if(consSources==null) {
+        loggingService.debug("Consolidated Sources is null :");
+        if(regSources!=null) {
+          loggingService.debug("Registration source is NOT NULL:");
+          consSources=new Source[regSources.length];
+          System.arraycopy(regSources,0,consSources,0,regSources.length);
+          Source tempsrc=null;
+          for(int i=0;i<consSources.length;i++) {
+            loggingService.debug("Looking if source has any ref in Additional data at source index :"+ i); 
+            tempsrc=consSources[i];
+            loggingService.debug("Looking if source has any ref in REG Additional data at source "+ tempsrc.toString()); 
+            int index=indexOfAgentReference(tempsrc.getIdent(),regAddData);
+            loggingService.debug("Found source has reference in REG ADDITIONAL DATA  at index:"+index); 
+            if(index!=-1){
+              loggingService.debug("source has a reference in REG additional data :");
+              if(consAddData!=null) {
+                loggingService.debug("Consolidated Additional Data is NOT  null && index for agent reference in Reg additionaldata is  :"+index );
+                AdditionalData tmpdata=null;
+                loggingService.debug("Going to look if Reg Additional data is alreday in Consolidate Additional dta :");
+                tmpdata=regAddData[index];
+                int addindex=indexOfAdditionalData(tmpdata,consAddData);
+                if(addindex!=-1) {
+                  loggingService.debug("Found  Reg Addition data in Consolidated Additional data at index  :"+addindex); 
+                  AdditionalData existdata=consAddData[addindex]; 
+                  loggingService.debug(" Going to get agent info of Consolidated Additional data :");
+                  org.cougaar.core.security.monitoring.idmef.Agent agentinfo=getAgent(existdata);
+                  if(agentinfo!=null) {
+                    loggingService.debug("Got agent info of Consolidated Additional data :");  
+                    String [] existingref=agentinfo.getRefIdents();
+                    if(existingref!=null) {
+                      loggingService.debug("Agent info and reference array is not null for existing additional data :");
+                      String [] newref=new String[existingref.length+1];
+                      System.arraycopy(existingref,0,newref,0,existingref.length);
+                      newref[existingref.length]=tempsrc.getIdent();
+                      agentinfo.setRefIdents(newref);
                     }
                     else {
-                      loggingService.debug("Additional data are equal but  agent info is NULL :");
+                      loggingService.debug("Agent info is not null but ref is null in existing additional data :"); 
+                      String [] newref=new String[1];
+                      newref[0]=tempsrc.getIdent();
+                      agentinfo.setRefIdents(newref);
                     }
+                    AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,agentinfo);
+                    consAddData[addindex]=newAdddata;
                   }
                   else {
-                    loggingService.debug("Could not find  Reg Addition data in Consolidated Additional data. Adding to Consolidate Additional data   :"); 
-                    AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
-                    System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
-                    org.cougaar.core.security.monitoring.idmef.Agent agentinfo=getAgent(tmpdata);
-                    String [] newref=new String[1];
-                    newref[0]=tempsrc.getIdent();
-                    agentinfo.setRefIdents(newref);
-                    AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,agentinfo);
-                    tempdata[consAddData.length]=newAdddata;
-                    consAddData=tempdata;
+                    loggingService.debug("Additional data are equal but  agent info is NULL :");
                   }
-		  
                 }
                 else {
-                  loggingService.debug("Consolidated Additional Data is null . Adding reg Additional data to consolidated additional data  :");
-                  AdditionalData [] tempdata=new AdditionalData[1];
-                  AdditionalData tmpdata=null;
-                  tmpdata=regAddData[index];
+                  loggingService.debug("Could not find  Reg Addition data in Consolidated Additional data. Adding to Consolidate Additional data   :"); 
+                  AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
+                  System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
                   org.cougaar.core.security.monitoring.idmef.Agent agentinfo=getAgent(tmpdata);
                   String [] newref=new String[1];
                   newref[0]=tempsrc.getIdent();
                   agentinfo.setRefIdents(newref);
                   AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,agentinfo);
-                  tempdata[0]=newAdddata;
+                  tempdata[consAddData.length]=newAdddata;
                   consAddData=tempdata;
-		   
                 }
+		  
+              }
+              else {
+                loggingService.debug("Consolidated Additional Data is null . Adding reg Additional data to consolidated additional data  :");
+                AdditionalData [] tempdata=new AdditionalData[1];
+                AdditionalData tmpdata=null;
+                tmpdata=regAddData[index];
+                org.cougaar.core.security.monitoring.idmef.Agent agentinfo=getAgent(tmpdata);
+                String [] newref=new String[1];
+                newref[0]=tempsrc.getIdent();
+                agentinfo.setRefIdents(newref);
+                AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,agentinfo);
+                tempdata[0]=newAdddata;
+                consAddData=tempdata;
+		   
               }
             }
-          }
-          else {
-            loggingService.debug("Reg source is null : cannot do any thing :");
           }
         }
         else {
-          if (loggingService.isDebugEnabled())
-            loggingService.debug("consolidated Sources was NOT NULL Consolidating  :"); 
-          if(regSources!=null) {
-            loggingService.debug("Registration source is not null:");
-            //Source tempsource=null;
-            int sourceindex=-1;
-            for(int i=0;i<regSources.length;i++) {
-              sourceindex=getIndexOfSource(regSources[i],consSources);
-              if(sourceindex!=-1) {
-                loggingService.debug("Found reg source in Consolidated source :"); 
-                if(consAddData!=null) {
-                  loggingService.debug("Consolidate Add Data is not null . Found Reg source in Consolidated Source at index :"+sourceindex );
-                  int newagentrefindex=indexOfAgentReference(regSources[i].getIdent(),regAddData);
-                  loggingService.debug("Found reference of Reg source in Reg  Additional data at index :"+newagentrefindex); 
-                  int existingrefindex=indexOfAgentReference(consSources[sourceindex].getIdent(),consAddData);
-                  loggingService.debug("Found reference of Consolidated source in Consolidate  Additional data at index :"+existingrefindex); 
-                  if((newagentrefindex!=-1)&&(existingrefindex!=-1)){
-                    loggingService.debug("##### Both new source and existing source has ref in additional data :");
-                    org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
-                    org.cougaar.core.security.monitoring.idmef.Agent existingagentinfo=getAgent(consAddData[existingrefindex]);
-                    boolean equal=areAgentInfoEqual(newagentinfo,existingagentinfo);
-                    if(!equal) {
-                      loggingService.debug("Source are equal but agent info are not equal:");
-                      AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
-                      System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
-                      String [] newref=new String[1];
-                      newref[0]=consSources[sourceindex].getIdent();
-                      newagentinfo.setRefIdents(newref);
-                      AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,newagentinfo);
-                      tempdata[consAddData.length]=newAdddata;
-                      consAddData=tempdata;
-                    }
-                    else {
-                      loggingService.debug("Both the source and add data are equal do nothing :");
-                    }
+          loggingService.debug("Reg source is null : cannot do any thing :");
+        }
+      }
+      else {
+        if (loggingService.isDebugEnabled())
+          loggingService.debug("consolidated Sources was NOT NULL Consolidating  :"); 
+        if(regSources!=null) {
+          loggingService.debug("Registration source is not null:");
+          //Source tempsource=null;
+          int sourceindex=-1;
+          for(int i=0;i<regSources.length;i++) {
+            sourceindex=getIndexOfSource(regSources[i],consSources);
+            if(sourceindex!=-1) {
+              loggingService.debug("Found reg source in Consolidated source :"); 
+              if(consAddData!=null) {
+                loggingService.debug("Consolidate Add Data is not null . Found Reg source in Consolidated Source at index :"+sourceindex );
+                int newagentrefindex=indexOfAgentReference(regSources[i].getIdent(),regAddData);
+                loggingService.debug("Found reference of Reg source in Reg  Additional data at index :"+newagentrefindex); 
+                int existingrefindex=indexOfAgentReference(consSources[sourceindex].getIdent(),consAddData);
+                loggingService.debug("Found reference of Consolidated source in Consolidate  Additional data at index :"+existingrefindex); 
+                if((newagentrefindex!=-1)&&(existingrefindex!=-1)){
+                  loggingService.debug("##### Both new source and existing source has ref in additional data :");
+                  org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
+                  org.cougaar.core.security.monitoring.idmef.Agent existingagentinfo=getAgent(consAddData[existingrefindex]);
+                  boolean equal=areAgentInfoEqual(newagentinfo,existingagentinfo);
+                  if(!equal) {
+                    loggingService.debug("Source are equal but agent info are not equal:");
+                    AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
+                    System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
+                    String [] newref=new String[1];
+                    newref[0]=consSources[sourceindex].getIdent();
+                    newagentinfo.setRefIdents(newref);
+                    AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,newagentinfo);
+                    tempdata[consAddData.length]=newAdddata;
+                    consAddData=tempdata;
                   }
                   else {
-                    loggingService.debug("Source are equal BUT one of source has no refenece in Additional data :");
-                    if((existingrefindex==-1)&&(newagentrefindex!=-1)) {
-                      loggingService.debug("Consiolidated source has no ref in add data .Adding add data to consolidate Add Data:");
-                      org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
-                      AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
-                      System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
-                      String [] newref=new String[1];
-                      newref[0]=consSources[sourceindex].getIdent();
-                      newagentinfo.setRefIdents(newref);
-                      AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,newagentinfo);
-                      tempdata[consAddData.length]=newAdddata;
-                      consAddData=tempdata;
-                    }
+                    loggingService.debug("Both the source and add data are equal do nothing :");
                   }
                 }
                 else {
-                  loggingService.debug("Consolidate Add Data is NULL  .:");
-                  int newagentrefindex=indexOfAgentReference(regSources[i].getIdent(),regAddData);
-                  loggingService.debug("Reg source has reference in ref Additional data at index :"+newagentrefindex );
-                  if(newagentrefindex!=-1) {
+                  loggingService.debug("Source are equal BUT one of source has no refenece in Additional data :");
+                  if((existingrefindex==-1)&&(newagentrefindex!=-1)) {
+                    loggingService.debug("Consiolidated source has no ref in add data .Adding add data to consolidate Add Data:");
                     org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
-                    AdditionalData [] tempdata=new AdditionalData[1];
-                    AdditionalData tmpdata=null;
-                    tmpdata=regAddData[newagentrefindex];
+                    AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
+                    System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
                     String [] newref=new String[1];
-                    newref[0]=regSources[i].getIdent();
+                    newref[0]=consSources[sourceindex].getIdent();
                     newagentinfo.setRefIdents(newref);
                     AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,newagentinfo);
-                    tempdata[0]=newAdddata;
+                    tempdata[consAddData.length]=newAdddata;
                     consAddData=tempdata;
                   }
-		  
                 }
               }
               else {
-                loggingService.debug("New source does not exist in Consolidated Source :");
-                Source newSource=regSources[i];
-                Source[] tempsrc=new Source[consSources.length+1];
-                System.arraycopy(consSources,0,tempsrc,0,consSources.length);
-                tempsrc[consSources.length]=newSource;
-                consSources=tempsrc;
+                loggingService.debug("Consolidate Add Data is NULL  .:");
                 int newagentrefindex=indexOfAgentReference(regSources[i].getIdent(),regAddData);
+                loggingService.debug("Reg source has reference in ref Additional data at index :"+newagentrefindex );
                 if(newagentrefindex!=-1) {
                   org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
-                  if(consAddData!=null) {
-                    loggingService.debug("New source does not exist in Consolidated Source && Consolidated Additional data is not null:");
-                    AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
-                    System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
-                    String [] newref=new String[1];
-                    newref[0]=newSource.getIdent();
-                    newagentinfo.setRefIdents(newref);
-                    AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,newagentinfo);
-                    tempdata[consAddData.length]=newAdddata;
-                    consAddData=tempdata;
+                  AdditionalData [] tempdata=new AdditionalData[1];
+                  AdditionalData tmpdata=null;
+                  tmpdata=regAddData[newagentrefindex];
+                  String [] newref=new String[1];
+                  newref[0]=regSources[i].getIdent();
+                  newagentinfo.setRefIdents(newref);
+                  AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,newagentinfo);
+                  tempdata[0]=newAdddata;
+                  consAddData=tempdata;
+                }
+		  
+              }
+            }
+            else {
+              loggingService.debug("New source does not exist in Consolidated Source :");
+              Source newSource=regSources[i];
+              Source[] tempsrc=new Source[consSources.length+1];
+              System.arraycopy(consSources,0,tempsrc,0,consSources.length);
+              tempsrc[consSources.length]=newSource;
+              consSources=tempsrc;
+              int newagentrefindex=indexOfAgentReference(regSources[i].getIdent(),regAddData);
+              if(newagentrefindex!=-1) {
+                org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
+                if(consAddData!=null) {
+                  loggingService.debug("New source does not exist in Consolidated Source && Consolidated Additional data is not null:");
+                  AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
+                  System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
+                  String [] newref=new String[1];
+                  newref[0]=newSource.getIdent();
+                  newagentinfo.setRefIdents(newref);
+                  AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,newagentinfo);
+                  tempdata[consAddData.length]=newAdddata;
+                  consAddData=tempdata;
 		    
-                  }
-                  else {
-                    loggingService.debug("New source does not exist in Consolidated Source && Consolidated Additional data NULL NULL:");
-                    AdditionalData [] tempdata=new AdditionalData[1];
-                    String [] newref=new String[1];
-                    newref[0]=newSource.getIdent();
-                    newagentinfo.setRefIdents(newref);
-                    AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,newagentinfo);
-                    tempdata[0]=newAdddata;
-                    consAddData=tempdata;
+                }
+                else {
+                  loggingService.debug("New source does not exist in Consolidated Source && Consolidated Additional data NULL NULL:");
+                  AdditionalData [] tempdata=new AdditionalData[1];
+                  String [] newref=new String[1];
+                  newref[0]=newSource.getIdent();
+                  newagentinfo.setRefIdents(newref);
+                  AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,newagentinfo);
+                  tempdata[0]=newAdddata;
+                  consAddData=tempdata;
 		    
-                  }
                 }
               }
             }
-            // consSources=getConsolidateSources(regSources,consSources,consAddData,regAddData);
           }
+          // consSources=getConsolidateSources(regSources,consSources,consAddData,regAddData);
         }
+      }
 	
-        loggingService.debug(" Done with Source .Going to start on Target ++++++++++++++++++++++++++++++++++:");
-        if(consTargets==null) {
-          loggingService.debug("Consolidated Target is null :");
-          if(regTargets!=null) {
-            loggingService.debug("registration target is NOT NULL:");
-            consTargets=new Target[regTargets.length];
-            System.arraycopy(regTargets,0,consTargets,0,regTargets.length);
-            Target temptarget=null;
-            for(int i=0;i<consTargets.length;i++) {
-              loggingService.debug(" Looking if cons Target  has any ref in Additional data at cons target index :"+ i); 
-              temptarget=consTargets[i];
-              loggingService.debug("Looking if cons Targets  has any ref in REG Additional data at target "+ temptarget.toString()); 
-              int index=indexOfAgentReference(temptarget.getIdent(),regAddData);
-              loggingService.debug("Found Target has reference in REG ADDITIONAL DATA  at index:"+index); 
-              if(index!=-1){
-                loggingService.debug("target  has a reference in REG additional data :");
-                if(consAddData!=null) {
-                  loggingService.debug("Consolidated Additional Data is NOT  null && index for agent reference in Reg additionaldata is  :"+index );
-                  AdditionalData tmpdata=null;
-                  loggingService.debug("Going to look if Reg Additional data is alreday in Consolidate Additional dta :");
-                  tmpdata=regAddData[index];
-                  int addindex=indexOfAdditionalData(tmpdata,consAddData);
-                  if(addindex!=-1) {
-                    loggingService.debug("Found  Reg Addition data in Consolidated Additional data at index  :"+addindex); 
-                    AdditionalData existdata=consAddData[addindex]; 
-                    loggingService.debug("Going to get agent info of Consolidated Additional data :");
-                    org.cougaar.core.security.monitoring.idmef.Agent agentinfo=getAgent(existdata);
-                    if(agentinfo!=null) {
-                      loggingService.debug("Got agent info of Consolidated Additional data :");  
-                      String [] existingref=agentinfo.getRefIdents();
-                      if(existingref!=null) {
-                        loggingService.debug("Agent info and reference array is not null for existing additional data :");
-                        String [] newref=new String[existingref.length+1];
-                        System.arraycopy(existingref,0,newref,0,existingref.length);
-                        newref[existingref.length]=temptarget.getIdent();
-                        agentinfo.setRefIdents(newref);
-                      }
-                      else {
-                        loggingService.debug("Agent info is not null but ref is null in existing additional data :"); 
-                        String [] newref=new String[1];
-                        newref[0]=temptarget.getIdent();
-                        agentinfo.setRefIdents(newref);
-                      }
-                      AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,agentinfo);
-                      consAddData[addindex]=newAdddata;
+      loggingService.debug(" Done with Source .Going to start on Target ++++++++++++++++++++++++++++++++++:");
+      if(consTargets==null) {
+        loggingService.debug("Consolidated Target is null :");
+        if(regTargets!=null) {
+          loggingService.debug("registration target is NOT NULL:");
+          consTargets=new Target[regTargets.length];
+          System.arraycopy(regTargets,0,consTargets,0,regTargets.length);
+          Target temptarget=null;
+          for(int i=0;i<consTargets.length;i++) {
+            loggingService.debug(" Looking if cons Target  has any ref in Additional data at cons target index :"+ i); 
+            temptarget=consTargets[i];
+            loggingService.debug("Looking if cons Targets  has any ref in REG Additional data at target "+ temptarget.toString()); 
+            int index=indexOfAgentReference(temptarget.getIdent(),regAddData);
+            loggingService.debug("Found Target has reference in REG ADDITIONAL DATA  at index:"+index); 
+            if(index!=-1){
+              loggingService.debug("target  has a reference in REG additional data :");
+              if(consAddData!=null) {
+                loggingService.debug("Consolidated Additional Data is NOT  null && index for agent reference in Reg additionaldata is  :"+index );
+                AdditionalData tmpdata=null;
+                loggingService.debug("Going to look if Reg Additional data is alreday in Consolidate Additional dta :");
+                tmpdata=regAddData[index];
+                int addindex=indexOfAdditionalData(tmpdata,consAddData);
+                if(addindex!=-1) {
+                  loggingService.debug("Found  Reg Addition data in Consolidated Additional data at index  :"+addindex); 
+                  AdditionalData existdata=consAddData[addindex]; 
+                  loggingService.debug("Going to get agent info of Consolidated Additional data :");
+                  org.cougaar.core.security.monitoring.idmef.Agent agentinfo=getAgent(existdata);
+                  if(agentinfo!=null) {
+                    loggingService.debug("Got agent info of Consolidated Additional data :");  
+                    String [] existingref=agentinfo.getRefIdents();
+                    if(existingref!=null) {
+                      loggingService.debug("Agent info and reference array is not null for existing additional data :");
+                      String [] newref=new String[existingref.length+1];
+                      System.arraycopy(existingref,0,newref,0,existingref.length);
+                      newref[existingref.length]=temptarget.getIdent();
+                      agentinfo.setRefIdents(newref);
                     }
                     else {
-                      loggingService.debug("Additional data are equal but is not agent info :");
+                      loggingService.debug("Agent info is not null but ref is null in existing additional data :"); 
+                      String [] newref=new String[1];
+                      newref[0]=temptarget.getIdent();
+                      agentinfo.setRefIdents(newref);
                     }
+                    AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,agentinfo);
+                    consAddData[addindex]=newAdddata;
                   }
                   else {
-                    loggingService.debug("Could not find  Reg Addition data in Consolidated Additional data. Adding to Consolidate Additional data   :"); 
-                    AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
-                    System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
-                    org.cougaar.core.security.monitoring.idmef.Agent agentinfo=getAgent(tmpdata);
-                    String [] newref=new String[1];
-                    newref[0]=temptarget.getIdent();
-                    agentinfo.setRefIdents(newref);
-                    AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,agentinfo);
-                    tempdata[consAddData.length]=newAdddata;
-                    consAddData=tempdata;
+                    loggingService.debug("Additional data are equal but is not agent info :");
                   }
-		  
                 }
                 else {
-                  loggingService.debug("Consolidated Additional Data is null . Adding reg Additional data to consolidated additional data  :");
-                  AdditionalData [] tempdata=new AdditionalData[1];
-                  AdditionalData tmpdata=null;
-                  tmpdata=regAddData[index];
+                  loggingService.debug("Could not find  Reg Addition data in Consolidated Additional data. Adding to Consolidate Additional data   :"); 
+                  AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
+                  System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
                   org.cougaar.core.security.monitoring.idmef.Agent agentinfo=getAgent(tmpdata);
                   String [] newref=new String[1];
                   newref[0]=temptarget.getIdent();
                   agentinfo.setRefIdents(newref);
                   AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,agentinfo);
-                  tempdata[0]=newAdddata;
+                  tempdata[consAddData.length]=newAdddata;
                   consAddData=tempdata;
-		   
                 }
+		  
+              }
+              else {
+                loggingService.debug("Consolidated Additional Data is null . Adding reg Additional data to consolidated additional data  :");
+                AdditionalData [] tempdata=new AdditionalData[1];
+                AdditionalData tmpdata=null;
+                tmpdata=regAddData[index];
+                org.cougaar.core.security.monitoring.idmef.Agent agentinfo=getAgent(tmpdata);
+                String [] newref=new String[1];
+                newref[0]=temptarget.getIdent();
+                agentinfo.setRefIdents(newref);
+                AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,agentinfo);
+                tempdata[0]=newAdddata;
+                consAddData=tempdata;
+		   
               }
             }
           }
-          else {
-            loggingService.debug("##### Reg Target is null : cannot do any thing :");
-          }
         }
         else {
-          if (loggingService.isDebugEnabled())
-            loggingService.debug("consolidated Target was NOT NULL Consolidating :"); 
-          if(regTargets!=null) {
-            loggingService.debug("Registration Target  is not null:");
-            //Source tempsource=null;
-            int targetindex=-1;
-            for(int i=0;i<regTargets.length;i++) {
-              targetindex=getIndexOfTarget(regTargets[i],consTargets);
-              if(targetindex!=-1) {
-                loggingService.debug("Found reg Target in Consolidated Targete :"); 
-                if(consAddData!=null) {
-                  loggingService.debug("Consolidate Add Data is not null . Found Reg Target in Consolidated Target at index :"+targetindex );
-                  int newagentrefindex=indexOfAgentReference(regTargets[i].getIdent(),regAddData);
-                  loggingService.debug("Found reference of Reg Target in Reg  Additional data at index :"+newagentrefindex); 
-                  int existingrefindex=indexOfAgentReference(consTargets[targetindex].getIdent(),consAddData);
-                  loggingService.debug("Found reference of Consolidated Target in Consolidate  Additional data at index :"+existingrefindex); 
-                  if((newagentrefindex!=-1)&&(existingrefindex!=-1)){
-                    loggingService.debug("Both new target and existing target has ref in additional data :");
-                    org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
-                    org.cougaar.core.security.monitoring.idmef.Agent existingagentinfo=getAgent(consAddData[existingrefindex]);
-                    boolean equal=areAgentInfoEqual(newagentinfo,existingagentinfo);
-                    if(!equal) {
-                      loggingService.debug("Target are equal but agent info are not equal:");
-                      AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
-                      System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
-                      String [] newref=new String[1];
-                      newref[0]=consTargets[targetindex].getIdent();
-                      newagentinfo.setRefIdents(newref);
-                      AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,newagentinfo);
-                      tempdata[consAddData.length]=newAdddata;
-                      consAddData=tempdata;
-                    }
-                    else {
-                      loggingService.debug("Both Target and add data are equal do nothing :");
-                    }
-                  }
-                  else {
-                    loggingService.debug("Target are equal BUT one of Target has no refenece in Additional data :");
-                    if((existingrefindex==-1)&&(newagentrefindex!=-1)) {
-                      loggingService.debug("Consiolidated target has no ref in add data .Adding add data to consolidate Add Data:");
-                      org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
-                      AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
-                      System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
-                      String [] newref=new String[1];
-                      newref[0]=consTargets[targetindex].getIdent();
-                      newagentinfo.setRefIdents(newref);
-                      AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,newagentinfo);
-                      tempdata[consAddData.length]=newAdddata;
-                      consAddData=tempdata;
-                    }
-                  }
-                }
-                else {
-                  loggingService.debug("Consolidate Add Data is NULL  .:");
-                  int newagentrefindex=indexOfAgentReference(regTargets[i].getIdent(),regAddData);
-                  loggingService.debug("Reg Target has reference in ref Additional data at index :"+newagentrefindex );
-                  if(newagentrefindex!=-1) {
-                    org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
-                    AdditionalData [] tempdata=new AdditionalData[1];
-                    AdditionalData tmpdata=null;
-                    tmpdata=regAddData[newagentrefindex];
-                    String [] newref=new String[1];
-                    newref[0]=regTargets[i].getIdent();
-                    newagentinfo.setRefIdents(newref);
-                    AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,newagentinfo);
-                    tempdata[0]=newAdddata;
-                    consAddData=tempdata;
-                  }
-		  
-                }
-              }
-              else {
-                loggingService.debug("New target does not exist in Consolidated Targets :");
-                Target newTarget=regTargets[i];
-                Target [] temptarget=new Target[consTargets.length+1];
-                System.arraycopy(consTargets,0,temptarget,0,consTargets.length);
-                temptarget[consTargets.length]=newTarget;
-                consTargets=temptarget;
+          loggingService.debug("##### Reg Target is null : cannot do any thing :");
+        }
+      }
+      else {
+        if (loggingService.isDebugEnabled())
+          loggingService.debug("consolidated Target was NOT NULL Consolidating :"); 
+        if(regTargets!=null) {
+          loggingService.debug("Registration Target  is not null:");
+          //Source tempsource=null;
+          int targetindex=-1;
+          for(int i=0;i<regTargets.length;i++) {
+            targetindex=getIndexOfTarget(regTargets[i],consTargets);
+            if(targetindex!=-1) {
+              loggingService.debug("Found reg Target in Consolidated Targete :"); 
+              if(consAddData!=null) {
+                loggingService.debug("Consolidate Add Data is not null . Found Reg Target in Consolidated Target at index :"+targetindex );
                 int newagentrefindex=indexOfAgentReference(regTargets[i].getIdent(),regAddData);
-                if(newagentrefindex!=-1) {
+                loggingService.debug("Found reference of Reg Target in Reg  Additional data at index :"+newagentrefindex); 
+                int existingrefindex=indexOfAgentReference(consTargets[targetindex].getIdent(),consAddData);
+                loggingService.debug("Found reference of Consolidated Target in Consolidate  Additional data at index :"+existingrefindex); 
+                if((newagentrefindex!=-1)&&(existingrefindex!=-1)){
+                  loggingService.debug("Both new target and existing target has ref in additional data :");
                   org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
-                  if(consAddData!=null) {
-                    loggingService.debug("New target does not exist in Consolidated Target && Consolidated Additional data is not null:");
+                  org.cougaar.core.security.monitoring.idmef.Agent existingagentinfo=getAgent(consAddData[existingrefindex]);
+                  boolean equal=areAgentInfoEqual(newagentinfo,existingagentinfo);
+                  if(!equal) {
+                    loggingService.debug("Target are equal but agent info are not equal:");
                     AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
                     System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
                     String [] newref=new String[1];
-                    newref[0]=newTarget.getIdent();
+                    newref[0]=consTargets[targetindex].getIdent();
                     newagentinfo.setRefIdents(newref);
                     AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,newagentinfo);
                     tempdata[consAddData.length]=newAdddata;
                     consAddData=tempdata;
-		    
                   }
                   else {
-                    loggingService.debug("New target does not exist in Consolidated Target  && Consolidated Additional data NULL NULL:");
-                    AdditionalData [] tempdata=new AdditionalData[1];
+                    loggingService.debug("Both Target and add data are equal do nothing :");
+                  }
+                }
+                else {
+                  loggingService.debug("Target are equal BUT one of Target has no refenece in Additional data :");
+                  if((existingrefindex==-1)&&(newagentrefindex!=-1)) {
+                    loggingService.debug("Consiolidated target has no ref in add data .Adding add data to consolidate Add Data:");
+                    org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
+                    AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
+                    System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
                     String [] newref=new String[1];
-                    newref[0]=newTarget.getIdent();
+                    newref[0]=consTargets[targetindex].getIdent();
                     newagentinfo.setRefIdents(newref);
                     AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,newagentinfo);
-                    tempdata[0]=newAdddata;
+                    tempdata[consAddData.length]=newAdddata;
                     consAddData=tempdata;
-		    
                   }
+                }
+              }
+              else {
+                loggingService.debug("Consolidate Add Data is NULL  .:");
+                int newagentrefindex=indexOfAgentReference(regTargets[i].getIdent(),regAddData);
+                loggingService.debug("Reg Target has reference in ref Additional data at index :"+newagentrefindex );
+                if(newagentrefindex!=-1) {
+                  org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
+                  AdditionalData [] tempdata=new AdditionalData[1];
+                  AdditionalData tmpdata=null;
+                  tmpdata=regAddData[newagentrefindex];
+                  String [] newref=new String[1];
+                  newref[0]=regTargets[i].getIdent();
+                  newagentinfo.setRefIdents(newref);
+                  AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,newagentinfo);
+                  tempdata[0]=newAdddata;
+                  consAddData=tempdata;
+                }
+		  
+              }
+            }
+            else {
+              loggingService.debug("New target does not exist in Consolidated Targets :");
+              Target newTarget=regTargets[i];
+              Target [] temptarget=new Target[consTargets.length+1];
+              System.arraycopy(consTargets,0,temptarget,0,consTargets.length);
+              temptarget[consTargets.length]=newTarget;
+              consTargets=temptarget;
+              int newagentrefindex=indexOfAgentReference(regTargets[i].getIdent(),regAddData);
+              if(newagentrefindex!=-1) {
+                org.cougaar.core.security.monitoring.idmef.Agent newagentinfo=getAgent(regAddData[newagentrefindex]);
+                if(consAddData!=null) {
+                  loggingService.debug("New target does not exist in Consolidated Target && Consolidated Additional data is not null:");
+                  AdditionalData [] tempdata=new AdditionalData[consAddData.length+1];
+                  System.arraycopy(consAddData,0,tempdata,0,consAddData.length);
+                  String [] newref=new String[1];
+                  newref[0]=newTarget.getIdent();
+                  newagentinfo.setRefIdents(newref);
+                  AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,newagentinfo);
+                  tempdata[consAddData.length]=newAdddata;
+                  consAddData=tempdata;
+		    
+                }
+                else {
+                  loggingService.debug("New target does not exist in Consolidated Target  && Consolidated Additional data NULL NULL:");
+                  AdditionalData [] tempdata=new AdditionalData[1];
+                  String [] newref=new String[1];
+                  newref[0]=newTarget.getIdent();
+                  newagentinfo.setRefIdents(newref);
+                  AdditionalData newAdddata=createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,newagentinfo);
+                  tempdata[0]=newAdddata;
+                  consAddData=tempdata;
+		    
                 }
               }
             }
           }
         }
-        loggingService.debug("Going to get next key in capabilities hash map:");
       }
-      if(consclassifications!=null) {
-        if(consclassifications.length>0) {
-          consCapabilities.setClassifications(consclassifications);
-          consCapabilities.setSources(consSources);
-          consCapabilities.setTargets(consTargets);
-          consCapabilities.setAdditionalData(consAddData);
-          Analyzer analyzer=new Analyzer();
-          analyzer.setAnalyzerid(myAddress.toString());
-          consCapabilities.setAnalyzer(analyzer);
-          consclassifications=consCapabilities.getClassifications();
-          //printConsolidation(consclassifications," consolidated classification after processing is :");
-          if (loggingService.isDebugEnabled()) {
-            loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+_managerAddress.toString()); 
-          }
-          if(_managerAddress!=null) {
-            addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
-          }
+      loggingService.debug("Going to get next key in capabilities hash map:");
+    }
+    if(consclassifications!=null) {
+      if(consclassifications.length>0) {
+        consCapabilities.setClassifications(consclassifications);
+        consCapabilities.setSources(consSources);
+        consCapabilities.setTargets(consTargets);
+        consCapabilities.setAdditionalData(consAddData);
+        Analyzer analyzer=new Analyzer();
+        analyzer.setAnalyzerid(myAddress.toString());
+        consCapabilities.setAnalyzer(analyzer);
+        consclassifications=consCapabilities.getClassifications();
+        //printConsolidation(consclassifications," consolidated classification after processing is :");
+        if (loggingService.isDebugEnabled()) {
+          loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+_managerAddress.toString()); 
         }
-      } // end while(keys.hasMoreElements())
+        if(_managerAddress!=null) {
+          addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
+        }
+      }
+    } // end while(keys.hasMoreElements())
   }
   
   private org.cougaar.core.security.monitoring.idmef.Agent getAgent(AdditionalData data) {
@@ -789,8 +787,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
         if(data.getXMLData() instanceof org.cougaar.core.security.monitoring.idmef.Agent){ 
           agentinfo=( org.cougaar.core.security.monitoring.idmef.Agent)data.getXMLData();
           if((agentinfo.getName().equalsIgnoreCase(newagentinfo.getName()))&&
-              (agentinfo.getDescription().equalsIgnoreCase(newagentinfo.getDescription()))&&
-              (agentinfo.getAddress().equals(newagentinfo.getAddress()))) {
+             (agentinfo.getDescription().equalsIgnoreCase(newagentinfo.getDescription()))&&
+             (agentinfo.getAddress().equals(newagentinfo.getAddress()))) {
             index=i;
             break;
           }
@@ -801,7 +799,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   }
   
   private boolean areAgentInfoEqual(org.cougaar.core.security.monitoring.idmef.Agent newagent,
-      org.cougaar.core.security.monitoring.idmef.Agent existingagent) {
+                                    org.cougaar.core.security.monitoring.idmef.Agent existingagent) {
     boolean equal=false;
     boolean nameequal=false;;
     boolean addressequal=true;
@@ -977,7 +975,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     return index;
   }
   public Source[] getConsolidateSources(Source[] newSources, Source[] existingSources,
-      AdditionalData[] newAddData,AdditionalData[] existingAddData) {
+                                        AdditionalData[] newAddData,AdditionalData[] existingAddData) {
     if(newSources==null) {
       return existingSources;
     }
@@ -1107,7 +1105,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
         relay = (CmrRelay)iter.next();
         if (!relay.getSource().equals(myAddress)) { // make sure it's remote, not local
           loggingService.debug(" printing receive relay which is not local:====>"
-              +relay.getContent().toString());
+                               +relay.getContent().toString());
           getBlackboardService().publishAdd(relay.getContent());
         }
       }
@@ -1121,7 +1119,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
           if (oldCapabilities != null)
             getBlackboardService().publishRemove(oldCapabilities);
           loggingService.debug(" printing changed  relay which is not local:=======>"
-              +relay.getContent().toString());
+                               +relay.getContent().toString());
           getBlackboardService().publishAdd(relay.getContent());
         }
       }
@@ -1140,13 +1138,13 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   
 /*
   private Community getMySecurityCommunity() {
-    Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
-    if(mySecurityCommunity==null) {
-      loggingService.warn(" Canot get my role as Manager in any Security Community  :"+myAddress.toString() );
-    }
-    return mySecurityCommunity;
+  Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
+  if(mySecurityCommunity==null) {
+  loggingService.warn(" Canot get my role as Manager in any Security Community  :"+myAddress.toString() );
   }
- */ 
+  return mySecurityCommunity;
+  }
+*/ 
   
   /**
    * Find the previous AgentRegistration Event from this source (if any)
