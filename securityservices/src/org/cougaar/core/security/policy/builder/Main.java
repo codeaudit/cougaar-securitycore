@@ -23,7 +23,11 @@ package org.cougaar.core.security.policy.builder;
 import java.io.*;
 import java.util.*;
 
+import kaos.core.util.AttributeMsg;
+import kaos.core.util.KAoSConstants;
+import kaos.core.util.Msg;
 import kaos.core.util.PolicyMsg;
+import kaos.core.util.SymbolNotFoundException;
 import kaos.ontology.util.RangeIsBasedOnInstances;
 import kaos.ontology.util.ValueNotSet;
 import kaos.policy.util.PolicyBuildingNotCompleted;
@@ -39,115 +43,147 @@ class Main {
   private static Logger              _log;
   private static OntologyConnection  _ontology;
 
-
   static {
     _proxyInstaller = new WebProxyInstaller();
     _proxyInstaller.install();
     _log = Logger.getLogger("org.cougaar.core.security.policy.builder");
   }
 
+
+  private static final int BUILD_CMD  = 0;
+  private static final int JTP_CMD    = 1;
+  private static final int COMMIT_CMD = 2;
+
+  private int     _cmd;
+  private boolean _quiet;
+  private String  _policyFile;
+  private boolean _useDomainManager;
+  private String  _url;
+
+  /*
+   * Argument passing routines
+   */
+
+  /**
+   * The constructor for Main.  A Main object encapsulates the
+   * arguments passed from the command line.
+   */
+  public Main(String [] args)
+  {
+    try {
+      int counter = 0;
+
+      if (args[counter].equals("build")) {
+        counter++;
+        _cmd = BUILD_CMD;
+        if (args[counter].equals("--quiet")) {
+          counter++;
+          _quiet=true;
+        } else { 
+          _quiet = false; 
+        }
+        _policyFile = args[counter++];
+      } else if (args[counter].equals("jtp")) {
+        counter++; 
+        _cmd = JTP_CMD;
+      } else if (args[counter].equals("commit")) {
+        counter++;
+        _cmd = COMMIT_CMD;
+        if (args[counter].equals("--dm")) {
+          counter++;
+          _useDomainManager = true;
+        } else {
+          _useDomainManager = false;
+        }
+        _url = "http://" + args[counter++] + ":" + args[counter++] + 
+          "/$" + args[counter++] + "/policyAdmin";
+        System.out.println("_url = " + _url);
+        _policyFile = args[counter++];
+      } else {
+        usage();
+      }
+      if (args.length != counter) { 
+        usage();
+      }
+    } catch (IndexOutOfBoundsException e) {
+      e.printStackTrace();
+      usage();
+    }
+  }
+
   public static void usage()
   {
     int counter = 1;
     System.out.println("Arguments can take any of the following forms:");
-    System.out.println("" + (counter++) + ". build policiesFile");
+    System.out.println("" + (counter++) + ". build {--quiet} policiesFile");
     System.out.println("\tTo build policies from a grammar");
+    System.out.println("\tThe --quiet options supresses messages");
     System.out.println("" + (counter++) + ". jtp");
     System.out.println("\tTo run a loaded version of jtp");
-    System.out.println("" + (counter++) + ". commit URI policiesFile");
+    System.out.println("" + (counter++) + ". commit {--dm} " + 
+                       "host port agent policiesFile");
     System.out.println("\tTo commit policies using policy servlet");
-    System.out.println("\tat uri = URI and getting policies from .msg files");
-    System.out.println("" + (counter++) + ". commitNoDisk URI policiesFile");
-    System.out.println("\tTo commit policies using policy servlet");
-    System.out.println("\tat uri = URI and building policies from scratch");
+    System.out.println("\t--dm = use the Domain Manager to build policies");
+    System.out.println("\t\tBy default policy files are read from disk");
+    System.out.println("\thost  = host on which the servlet runs");
+    System.out.println("\tport  = port on which the servlet listens");
+    System.out.println("\tagent = agent running the servlet");
+    System.out.println("\tpoliciesFile = policies to commit");
     System.exit(-1);
   }
 
-  /*
-   * TO DO - build real options processing here.
+  /**
+   * Read the command arguments and execute the command
    */
-
   public static void main(String[] args) {
     try {
-      if (args.length == 0) {
-        usage();
-      }
-      if (args[0].equals("commit") || args[0].equals("commitNoDisk")) {
-        if (args.length < 3) {
-          usage();
-        }
-        boolean getPoliciesFromDisk = args[0].equals("commit");
-        commitPolicies(args[1], args[2], getPoliciesFromDisk);
-        System.exit(0);
-      } else {
-
-        if (args[0].equals("jtp")) {
-          System.out.println("Loading ontologies");
-          _ontology = new LocalOntologyConnection();
-          System.out.println("Ontologies loaded");
-          jtp.ui.DamlQueryAnswerer.main(args);
-        } else if (args[0].equals("build") ||
-                   args[0].equals("buildSilent")) {
-          if (args.length < 2) {
-            usage();
-          }
-          System.out.println("Loading ontologies");
-          _ontology = new LocalOntologyConnection();
-          System.out.println("Ontologies loaded");
-          writePolicies(args[1], args[0].equals("buildSilent"));
-        } else {
-          usage();
-        }
-      }
-    } catch(Exception e) {
+      Main env = new Main(args);
+      env.run();
+    } catch (Exception e) {
       e.printStackTrace();
       System.exit(-1);
     }
   }
 
-  public static void commitPolicies(String servletUri, 
-                                    String policyFile,
-                                    boolean disk)
-    throws IOException, FileNotFoundException, PolicyCompilerException,
-           ValueNotSet, ClassNotFoundException, PolicyBuildingNotCompleted,
-           RangeIsBasedOnInstances
+  /**
+   * Runs the command
+   */
+  public void run()
+    throws Exception
   {
-    _ontology = new TunnelledOntologyConnection(servletUri);
-    System.out.println("Parsing policies from grammar");
-    List policies = compile(policyFile);
-    System.out.println("Policies parsed");
-
-    System.out.println("Constructing New Policy Msgs");
-    List  newPolicies = new Vector();
-    for(Iterator policyIt = policies.iterator();
-        policyIt.hasNext();) {
-      ParsedPolicy pp = (ParsedPolicy) policyIt.next();
-      if (disk) {
-        FileInputStream fis = new FileInputStream(pp.getPolicyName() + ".msg");
-        ObjectInputStream ois = new ObjectInputStream(fis);
-        newPolicies.add((PolicyMsg) ois.readObject());
-        ois.close();
-      } else {
-        DAMLPolicyBuilderImpl pb = pp.buildPolicy(_ontology);
-        newPolicies.add(PolicyUtils.getPolicyMsg(pb));
-      }
+    switch (_cmd) {
+    case BUILD_CMD:
+      buildPolicies();
+      break;
+    case JTP_CMD:
+      runJTP();
+      break;
+    case COMMIT_CMD:
+      commitPolicies();
+      break;
+    default:
+      throw new RuntimeException("Shouldn't be here");
     }
-    System.out.println("New Policy Msgs created");
-    System.out.println("Getting Existing Policies from servlet");
-    List oldPolicies = _ontology.getPolicies();
-    System.out.println("Policies Obtained - committing");
-    _ontology.updatePolicies(newPolicies, new Vector(), oldPolicies);
-    System.out.println("Policies sent...");
+    System.exit(0);
   }
 
-  public static void writePolicies(String policyFile, boolean silent)
+  /**
+   * Builds the policies from the policyFile.
+   * Uses the _quiet flag to determine how much output to generate
+   */
+  public void buildPolicies()
     throws IOException, PolicyCompilerException
   {
-    List policies = compile(policyFile);
+    System.out.println("Loading ontologies");
+    _ontology = new LocalOntologyConnection();
+    System.out.println("Ontologies loaded");
+    System.out.println("Writing Policies");
+
+    List policies = compile(_policyFile);
     for(Iterator policyIt = policies.iterator();
         policyIt.hasNext();) {
       ParsedPolicy pp = (ParsedPolicy) policyIt.next();
-      if (!silent) {
+      if (!_quiet) {
         System.out.println("Parsed Policy: " + pp.getDescription());
       }
       DAMLPolicyBuilderImpl pb = pp.buildPolicy(_ontology);
@@ -158,21 +194,129 @@ class Main {
     }
   }
 
-  public static List compile(String file)
+  /**
+   * Runs a command line version of JTP where all the ontologies are
+   * already loaded.
+   *
+   * Doesn't work yet...
+   */
+  public void runJTP()
+    throws Exception
+  {
+    String [] args = {};
+    System.out.println("Loading ontologies");
+    _ontology = new LocalOntologyConnection();
+    System.out.println("Ontologies loaded");
+    jtp.ui.DamlQueryAnswerer.main(args);
+  }
+
+  /**
+   * Commits the policies from the _policyFile to the url.
+   * Uses the _useDomainManager to determine how the policies are
+   * constructed. 
+   */
+  public void commitPolicies()
+    throws IOException
+  {
+    try {
+      _ontology = new TunnelledOntologyConnection(_url);
+      System.out.println("Parsing policies from grammar");
+      List policies = compile(_policyFile);
+      System.out.println("Policies parsed");
+
+      System.out.println("Constructing New Policy Msgs");
+      List  newPolicies = new Vector();
+      for(Iterator policyIt = policies.iterator();
+          policyIt.hasNext();) {
+        ParsedPolicy pp = (ParsedPolicy) policyIt.next();
+        if (_useDomainManager) {
+          DAMLPolicyBuilderImpl pb = pp.buildPolicy(_ontology);
+          newPolicies.add(PolicyUtils.getPolicyMsg(pb));
+        } else {
+          FileInputStream fis = new FileInputStream(pp.getPolicyName() 
+                                                    + ".msg");
+          ObjectInputStream ois = new ObjectInputStream(fis);
+          newPolicies.add((PolicyMsg) ois.readObject());
+          ois.close();
+        }
+      }
+      System.out.println("New Policy Msgs created");
+      System.out.println("Getting Existing Policies from servlet");
+      List oldPolicies = _ontology.getPolicies();
+      List oldPolicyMsgs = new Vector();
+      for (Iterator oldPoliciesIt = oldPolicies.iterator();
+           oldPoliciesIt.hasNext();) {
+        Msg oldPolicy = (Msg) oldPoliciesIt.next();
+        oldPolicyMsgs.add(convertMsgToPolicyMsg(oldPolicy));
+      }
+      updatePolicies(newPolicies, oldPolicyMsgs);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("Error Committing policies");
+    }
+  }
+
+  /**
+   * This routine sends the policies to the domain manager to
+   * commit.  Think of it removing the oldPolicies and installing the
+   * new Policies.
+   *
+   * It has the extra wrinkle that it cannot actually do things as
+   * described above.  If a newPolicy and an old policy both have the
+   * same id then the old policy must not be removed  and the new
+   * policy must be put in the changed list.
+   */
+  public void updatePolicies(List newPolicies,
+                             List oldPolicies)
+    throws IOException
+  {
+    List oldIds = new Vector();
+    for (Iterator policyIt = oldPolicies.iterator(); policyIt.hasNext();) {
+      PolicyMsg policy = (PolicyMsg) policyIt.next();
+      oldIds.add(policy.getId());
+    }
+
+    List addedPolicies   = new Vector();
+    List changedPolicies = new Vector();
+    List removedPolicies = new Vector();
+    List commonIds       = new Vector();
+    for (Iterator policyIt = newPolicies.iterator(); policyIt.hasNext();) {
+      PolicyMsg policy = (PolicyMsg) policyIt.next();
+
+      if (oldIds.contains(policy.getId())) {
+        changedPolicies.add(policy);
+        commonIds.add(policy.getId());
+      } else {
+        addedPolicies.add(policy);
+      }
+    }
+
+    for (Iterator policyIt = oldPolicies.iterator(); policyIt.hasNext();) {
+      PolicyMsg policy = (PolicyMsg) policyIt.next();
+      if (!commonIds.contains(policy.getId())) {
+        removedPolicies.add(policy);
+      }
+    }
+
+    System.out.println("Policies Obtained - committing");
+    _ontology.updatePolicies(addedPolicies, changedPolicies, removedPolicies);
+    System.out.println("Policies sent...");
+  }
+
+  /**
+   * Compiles the policy file.
+   * Essentially manages the IO portion of the compile and hands the
+   * work off to the policy parser routines.
+   */
+   public static List compile(String file)
     throws IOException, PolicyCompilerException
   {
     FileInputStream fis = new FileInputStream(file);
-    List parsedPolicies;
-    List policies = new Vector();
+    List policies       = null;
     try {
       PolicyLexer lexer = new PolicyLexer(new DataInputStream(fis));
       PolicyParser parser = new PolicyParser(lexer);
-      parsedPolicies = parser.policies();
-      for (Iterator parsedPoliciesIt = parsedPolicies.iterator();
-           parsedPoliciesIt.hasNext();) {
-        ParsedPolicy parsedPolicy = (ParsedPolicy) parsedPoliciesIt.next();
-        policies.add(parsedPolicy);
-      }
+      policies = parser.policies();
     } catch (Exception e) {
       PolicyCompilerException pce 
         = new PolicyCompilerException("Compile failed");
@@ -182,6 +326,40 @@ class Main {
       fis.close();
     }
     return policies;
+  }
+
+  /**
+   * I don't completely understand why I need this routine but when
+   * the policies come from getPolicies() they are Msg objects
+   * not PolicyMsg objects.  The information contained in the fields
+   * is identical but I need to duplicate it in the form of a policy msg.
+   */
+  private static PolicyMsg convertMsgToPolicyMsg(Msg m)
+    throws SymbolNotFoundException
+  {
+    PolicyMsg p = new PolicyMsg((String) m.getSymbol(PolicyMsg.ID),
+                                (String) m.getSymbol(PolicyMsg.NAME),
+                                (String) m.getSymbol(PolicyMsg.DESCRIPTION),
+                                (String) m.getSymbol(PolicyMsg.TYPE),
+                                (String) m.getSymbol(PolicyMsg.ADMINISTRATOR),
+                                (Vector) m.getSymbol(PolicyMsg.SUBJECTS),
+                                ((String) m.getSymbol(PolicyMsg.INFORCE))
+                                .equals("true"));
+    p.setModality((String) m.getSymbol(PolicyMsg.MODALITY));
+    p.setPriority((String) m.getSymbol(PolicyMsg.PRIORITY));
+    Vector attribs = (Vector) m.getSymbol(PolicyMsg.ATTRIBUTES);
+    for (int i=0; i<attribs.size(); i++) {
+      Msg attrib = (Msg) attribs.elementAt(i);
+
+      p.setAttribute
+        (new AttributeMsg((String) 
+                          attrib.getSymbol(KAoSConstants.POLICY_ATTR_NAME),
+                          attrib.getSymbol(KAoSConstants.POLICY_ATTR_VALUE),
+                          ((String)
+                           attrib.getSymbol(KAoSConstants.POLICY_ATTR_IS_SEL))
+                          .equals("true")));
+    }
+    return p;
   }
 }
 

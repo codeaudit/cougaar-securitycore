@@ -49,13 +49,16 @@ public class TunnelledOntologyConnection extends OntologyConnection
 
   private static TunnelClient _brains = null;
 
+
+  /**
+   * Opens a tunnelled connection (through the policy servlet) to the
+   * KAoSDirectoryService.  
+   */
   public TunnelledOntologyConnection(String uri)
     throws IOException
   {
     super();
     try {
-      System.out.println("Authenticating...");
-
       UserAuthenticatorImpl   userAuth  = new UserAuthenticatorImpl();
       SecurityServiceProvider secprov   = new SecurityServiceProvider();
       userAuth.init(secprov);
@@ -70,6 +73,9 @@ public class TunnelledOntologyConnection extends OntologyConnection
     }
   }
 
+  /*
+   * The following are tunnelled interfaces.
+   */
   public Set getInstancesOf (String conceptName) 
     throws Exception
   {

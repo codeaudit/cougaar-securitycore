@@ -28,7 +28,7 @@ public class PolicyUtils
   public static OntologyConnection _ontology;
 
   public static final String personActorClassPrefix 
-    = "http://ontology.coginst.uwf.eud/Ultralog/UsersInRole#";
+    = "http://ontology.coginst.uwf.edu/Ultralog/UsersInRole#";
 
   public static void setOntologyConnection(OntologyConnection ontology)
   {
