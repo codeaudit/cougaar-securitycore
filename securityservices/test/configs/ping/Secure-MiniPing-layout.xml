@@ -3,7 +3,7 @@
   xmlns:xsi='http:/www.w3.org/2001/XMLSchema-instance' 
   xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'> 
   <host name='HOST1'> 
-    <facet enclave='EnclaveA'/> 
+    <facet enclave='Conus'/> 
     <node name='ROOT-CA-NODE'> 
     <!--  <facet role="jswat"/> --> 
      <!-- <facet role="ejp"/> -->
@@ -19,10 +19,12 @@
     </node> 
   </host> 
   <host name='HOST2'> 
-    <facet enclave='EnclaveA'/> 
+    <facet enclave='Conus'/> 
     <node name='NodeA'> 
       <!-- <facet role="optimizeIt"/> -->
-      <agent name='AgentA'/> 
+      <agent name='AgentA'> 
+        <facet org_id='OSD.GOV'/> 
+      </agent>
     </node> 
     <node name='NodeB'> 
       <agent name='AgentB'/> 
