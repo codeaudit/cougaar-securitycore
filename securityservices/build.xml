@@ -31,18 +31,18 @@
     <property name="cougaar.install.path" value="${env.COUGAAR_INSTALL_PATH}"/>
     <property name="cougaar.workspace" value="${env.COUGAAR_WORKSPACE}"/>
     <property name="securityservices.base" value="."/>
-    <property name="securityservices.sys" value="${securityservices.base}/sys"/>
-    <property name="securityservices.lib" value="${securityservices.base}/lib"/>
-    <property name="securityservices.docdir" value="${securityservices.base}/doc"/>
-    <property name="securityservices.configs" value="${securityservices.base}/test/configs"/> 
+    <property name="securityservices.sys" value="${securityservices.base}${file.separator}sys"/>
+    <property name="securityservices.lib" value="${securityservices.base}${file.separator}lib"/>
+    <property name="securityservices.docdir" value="${securityservices.base}${file.separator}doc"/>
+    <property name="securityservices.configs" value="${securityservices.base}${file.separator}test${file.separator}configs"/> 
     <!-- The classes directory for output classes and jar files -->
     <property name="securityservices.classes" value="classes"/>
     <!-- The output directory for signed jar files -->
-    <property name="securityservices.signed" value="${securityservices.classes}/signed"/>
+    <property name="securityservices.signed" value="${securityservices.classes}${file.separator}signed"/>
     <!-- The base directories where the java source files are located -->
-    <property name="securityservices.src" value="${securityservices.base}/src"/>
+    <property name="securityservices.src" value="${securityservices.base}${file.separator}src"/>
     <!-- The base directories where the regression test files are located -->
-    <property name="securityservices.regress" value="${securityservices.base}/regress"/>
+    <property name="securityservices.regress" value="${securityservices.base}${file.separator}regress"/>
 
     <path id="core.class.path">    
         <!-- Cougaar 3rd party support packages -->
@@ -61,6 +61,8 @@
         <pathelement location="${cougaar.install.path}/lib/webserver.jar"/>
         <!-- JUNIT libraries -->
         <pathelement location="${cougaar.install.path}/sys/junit.jar"/>
+        <!-- Overlay packages -->
+        <pathelement location="${cougaar.install.path}/lib/overlay.jar"/>
         <!-- Cougaar packages -->
         <pathelement location="${cougaar.install.path}/lib/build.jar"/>
         <pathelement location="${cougaar.install.path}/lib/glm.jar"/>
@@ -69,8 +71,6 @@
         <pathelement location="${cougaar.install.path}/lib/util.jar"/>
         <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
         <pathelement location="${cougaar.install.path}/lib/aggagent.jar"/>
-        <!-- Overlay packages -->
-        <pathelement location="${cougaar.install.path}/lib/overlay.jar"/>
         <!-- KAoS libraries -->
         <pathelement location="${cougaar.install.path}/sys/mail.jar"/>
         <pathelement location="${cougaar.install.path}/lib/kaos.jar"/>
@@ -139,12 +139,25 @@
         </jar>
     </target>
 
+    <!-- install junit files -->
+    <target name="install-junit-tests">
+        <echo message="+++++ Installing Junit test files"/>
+        <mkdir dir="${cougaar.workspace}/security/keystores/JUNIT-TEST-NODE"/>
+        <copy todir="${cougaar.workspace}/security/keystores/JUNIT-TEST-NODE">
+            <fileset dir="${securityservices.regress}/config">
+                <include name="keystore-JUNIT-TEST-NODE"/>
+            </fileset>
+        </copy>
+        <echo message="+++++ Installed Junit test files"/>        
+    </target>
+ 
     <!-- Run the Junit tests -->
-    <target name="run-tests" depends="jar-junit-tests">
+    <target name="run-tests" depends="jar-junit-tests, install-junit-tests">
        <junit fork="yes" printsummary="yes" dir="${securityservices.regress}/config">
           <sysproperty key="org.cougaar.install.path" value="${cougaar.install.path}"/>
           <sysproperty key="org.cougaar.workspace" value="${cougaar.workspace}"/>
           <sysproperty key="org.cougaar.core.security.crypto.debug" value="true"/>
+	  <sysproperty key="org.cougaar.core.security.policy.debug" value="true"/>
           <sysproperty key="org.cougaar.node.name" value="JUNIT-TEST-NODE"/>
           <sysproperty key="org.cougaar.security.role" value="JunitTest"/>
           <sysproperty key="org.cougaar.core.security.Domain" value="NCADomain"/>
@@ -155,9 +168,9 @@
                 <include name="junitTests.jar" />
              </fileset>
              <fileset dir="${cougaar.install.path}/lib">
+                <include name="overlay.jar" />
                 <include name="core.jar" />
                 <include name="util.jar" />
-                <include name="overlay.jar" />
                 <include name="webtomcat.jar" />
                 <include name="webserver.jar" />
                 <include name="safe.jar" />
@@ -310,7 +323,7 @@
     </target>
 
     <target name="compile-jsps">
-        <exec executable="build/jasper/bin/jspc.sh">
+        <exec executable="build/jasper/bin/jspc.sh" os="Linux">
             <arg line="-p org.cougaar.core.security.crypto.ldap.admin -d ${securityservices.src} -webapp ${securityservices.src}/org/cougaar/core/security/crypto/ldap/admin"/>
         </exec>
     </target>
