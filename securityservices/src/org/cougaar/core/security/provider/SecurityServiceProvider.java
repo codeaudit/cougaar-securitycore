@@ -204,7 +204,7 @@ public class SecurityServiceProvider
     // NodeAgent has not started the logging service at this point,
     // but we need it.
     try {
-      LoggingServiceProvider loggingServiceProvider = 
+      LoggingServiceProvider loggingServiceProvider =
         new LoggingServiceProvider(SystemProperties.getSystemPropertiesWithPrefix("org.cougaar.core.logging."));
       rootServiceBroker.addService(LoggingService.class,
                     loggingServiceProvider);
@@ -293,16 +293,14 @@ public class SecurityServiceProvider
 		 new CryptoPolicyServiceProvider());
     rootServiceBroker.addService(CryptoPolicyService.class, this);
 
-    services.put(ServletPolicyService.class,
-		 new ServletPolicyServiceProvider(serviceBroker));
-    rootServiceBroker.addService(ServletPolicyService.class, this);
-
     SecurityPropertiesService secprop = (SecurityPropertiesService)
       rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
     boolean standalone = false;
     try {
-    standalone = (Boolean.valueOf(secprop.getProperty(secprop.STAND_ALONE_MODE,
-						"false"))).booleanValue();
+      String nodeName = secprop.getProperty("org.cougaar.node.name",
+    					"");
+      if (nodeName == null || nodeName.equals(""))
+        standalone = true;
     } catch (Exception ex) {
       log.warn("Unable to get value of standalone mode");
     }
@@ -331,6 +329,7 @@ public class SecurityServiceProvider
       }
     }
     else {
+      log.warn("Running in standalone mode");
       services.put(UserSSLService.class,
                    new UserSSLServiceProvider());
       rootServiceBroker.addService(UserSSLService.class, this);
