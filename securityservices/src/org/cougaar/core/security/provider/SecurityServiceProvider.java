@@ -28,6 +28,7 @@ package org.cougaar.core.security.provider;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.logging.LoggingControlService;
 import org.cougaar.core.logging.LoggingServiceProvider;
 import org.cougaar.core.component.ServiceBroker;
@@ -242,20 +243,29 @@ public class SecurityServiceProvider
 
 
     /* Starting Certificate Cache  service */
+   
     newSP = new CertificateCacheServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertificateCacheService.class, newSP);
     rootServiceBroker.addService(CertificateCacheService.class, newSP);
      
-    /* Starting CRL Cache  service */
-    newSP = new CRLCacheServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CRLCacheService.class, newSP);
-    rootServiceBroker.addService(CRLCacheService.class, newSP);
-
+    
 
     /* Key lookup service */
     newSP = new KeyRingServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(KeyRingService.class, newSP);
     rootServiceBroker.addService(KeyRingService.class, newSP);
+
+
+/* Starting CRL Cache  service */
+    log.debug("Service broker passed to CRLCacheServiceProvider is :"+serviceBroker.toString());
+    newSP = new CRLCacheServiceProvider(serviceBroker, mySecurityCommunity,this);
+    services.put(CRLCacheService.class, newSP);
+    rootServiceBroker.addService(CRLCacheService.class, newSP);
+    /*CRLCacheService crlCacheService=(CRLCacheService)serviceBroker.getService(this, 
+                                                      CRLCacheService.class,
+                                                      null);
+    */
+    
 
     /* Certificate validity service */
     newSP = new CertValidityServiceProvider(serviceBroker, mySecurityCommunity);
@@ -385,7 +395,17 @@ public class SecurityServiceProvider
       log.debug("Registering  LDMServiceAvailableListener ");
       serviceBroker.addServiceListener(new LDMServiceAvailableListener ());
     }
-   
+    /*
+    if(serviceBroker.hasService(org.cougaar.core.service.BlackboardService.class)){
+       log.debug("Black Board Service is available initially in Security Service Provider ");
+    }
+    else {
+      log.debug("Registering Black Board Service Listener ");
+      serviceBroker.addServiceListener(new BBServiceAvailableListener());
+    }
+    */
+   log.debug("Root service broker is :"+rootServiceBroker.toString());
+   log.debug("Service broker is :"+ serviceBroker.toString());
   }
   
   private class LDMServiceAvailableListener implements ServiceAvailableListener
@@ -410,6 +430,19 @@ public class SecurityServiceProvider
       }
       
     }
-  } 
+  }
+  private class BBServiceAvailableListener implements ServiceAvailableListener {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      BlackboardService bbs=null;
+      //ServiceProvider newSP = null;
+      Class sc = ae.getService();
+      if( org.cougaar.core.service.BlackboardService.class.isAssignableFrom(sc)) {
+	//bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
+	log.debug("Black Board  Service is available now in Security Service provider "+ sc.getName());
+	
+      }
+      
+    }
+   }
 }
 
