@@ -5,14 +5,18 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.*;
 
+import jtp.ReasoningException;
+
 import kaos.core.util.AttributeMsg;
 import kaos.core.util.KAoSConstants;
 import kaos.core.util.PolicyMsg;
 import kaos.core.util.SubjectMsg;
+import kaos.core.util.UniqueIdentifier;
 import kaos.ontology.DefaultOntologies;
 import kaos.ontology.repository.KAoSContext;
 import kaos.ontology.repository.OntologyRepository;
 import kaos.ontology.repository.OntologyLoader;
+import kaos.ontology.util.JTPStringFormatUtils;
 import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.policy.util.PolicyBuildingNotCompleted;
 import kaos.ontology.util.RangeIsBasedOnInstances;
@@ -22,7 +26,7 @@ import kaos.policy.information.PolicyInformation;
 import kaos.policy.information.PolicyInformationManager;
 import kaos.policy.util.DAMLPolicyBuilder;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
-
+import kaos.policy.util.SpecifiedModalityTypeNotExists;
 
 public class PolicyBuilder extends DAMLPolicyBuilderImpl
 {
@@ -43,6 +47,67 @@ public class PolicyBuilder extends DAMLPolicyBuilderImpl
       System.exit(-1);
     }
     LocalPolicyInformationManager.giveIntelligence(_brains);
+  }
+
+  public static boolean ask(String question)
+    throws ReasoningException
+  {
+    return _brains.testTrue(question);
+  }
+
+  public static void assertSubClass(String smallSet, 
+                                    String bigSet)
+    throws PolicyCompilerException
+  {
+    String error = smallSet + " is not a subclass of " + bigSet;
+    try {
+      if (!ask("(" + kaos.ontology.RDFSConcepts._subClassOf_ + " " + 
+               JTPStringFormatUtils.convertStringToJTPFormat(smallSet) + " " + 
+               JTPStringFormatUtils.convertStringToJTPFormat(bigSet) + ")")) {
+        throw new PolicyCompilerException(error);
+      }
+    } catch (ReasoningException re) {
+      PolicyCompilerException pe = new PolicyCompilerException(error);
+      pe.initCause(re);
+      throw pe;
+    }
+  }
+
+  public static void assertInstanceOf(String element, 
+                                      String container)
+    throws PolicyCompilerException
+  {
+    String error = element + " is not a member of " + container;
+    try {
+      if (!ask("(" + kaos.ontology.RDFConcepts._type_ + " " + 
+               JTPStringFormatUtils.convertStringToJTPFormat(element) + " " + 
+               JTPStringFormatUtils.convertStringToJTPFormat(container) + ")")) {
+        throw new PolicyCompilerException(error);
+      }
+    } catch (ReasoningException re) {
+      PolicyCompilerException pe = new PolicyCompilerException(error);
+      pe.initCause(re);
+      throw pe;
+    }
+  }
+
+
+
+  public void setPolicyModality(boolean modality)
+  {
+    try {
+      setPolicyIDAndModalityType("#policy-grammarGenerated-" 
+                                 + UniqueIdentifier.GenerateUID(), 
+                                 (modality ?
+                                  kaos.ontology.jena.PolicyConcepts.
+                                  _PosAuthorizationPolicy_               : 
+                                  kaos.ontology.jena.PolicyConcepts.
+                                  _NegAuthorizationPolicy_));
+    } catch (SpecifiedModalityTypeNotExists e) {
+      RuntimeException fatal = new RuntimeException("This should be impossible - CODING ERROR");
+      fatal.initCause(e);
+      throw fatal;
+    }
   }
 
   public PolicyInformation getPolicyInformation()

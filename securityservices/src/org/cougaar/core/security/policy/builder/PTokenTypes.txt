@@ -15,4 +15,12 @@ LITERAL_servlet="servlet"=15
 LITERAL_named="named"=16
 LITERAL_can="can"=17
 LITERAL_cannot="cannot"=18
-WS=19
+LITERAL_All="All"=19
+LITERAL_users="users"=20
+LITERAL_must="must"=21
+LITERAL_use="use"=22
+LITERAL_authentication="authentication"=23
+LITERAL_when="when"=24
+LITERAL_accessing="accessing"=25
+LITERAL_the="the"=26
+WS=27

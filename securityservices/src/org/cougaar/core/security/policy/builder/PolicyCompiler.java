@@ -24,8 +24,8 @@ package org.cougaar.core.security.policy.builder;
 import java.io.*;
 import java.util.*;
 
-import kaos.core.util.UniqueIdentifier;
 import kaos.ontology.util.KAoSClassBuilderImpl;
+import kaos.ontology.util.JTPStringFormatUtils;
 
 import org.cougaar.core.security.policy.builder.PolicyBuilder;
 
@@ -62,19 +62,22 @@ public class PolicyCompiler
       org.cougaar.core.security.policy.enforcers.ontology.jena.
       ActorClassesConcepts.ActorClassesDamlURL
       + userRole;
-    String servletClass = 
+    String servletInstance = 
       org.cougaar.core.security.policy.enforcers.ontology.jena.
       EntityInstancesConcepts.EntityInstancesDamlURL
       + servlet;
+
+    PolicyBuilder pb = new PolicyBuilder();
+    pb.assertSubClass(userClass, kaos.ontology.jena.ActorConcepts._Person_);
+    pb.assertInstanceOf(servletInstance, 
+                        org.cougaar.core.security.policy.enforcers.ontology.jena.
+                        UltralogEntityConcepts._Servlet_);
+    System.out.println("Assertions passed");
     try {
-      PolicyBuilder pb = new PolicyBuilder();
-      pb.setPolicyIDAndModalityType("#policy-" 
-                                    + UniqueIdentifier.GenerateUID(), 
-                                    kaos.ontology.jena.PolicyConcepts.
-                                    _PosAuthorizationPolicy_);
+      pb.setPolicyModality(modality);
       pb.setPolicyName(policyName);
       pb.setPolicyDesc("A user in role " + userRole + 
-                       (modality ? "can" : "cannot")
+                       (modality ? " can" : " cannot")
                        + " access the servlet named " + servlet);
       pb.setPriority(modality ? 2 : 3);
       pb.setHasSiteOfEnforcement(kaos.ontology.jena.PolicyConcepts.
@@ -88,10 +91,10 @@ public class PolicyCompiler
         (org.cougaar.core.security.policy.enforcers.ontology.jena.
          ActionConcepts._performedBy_,
          userClass);
-      controls.setPropertyRangeClass
+      controls.addPropertyRangeInstance
         (org.cougaar.core.security.policy.enforcers.ontology.jena.
          UltralogActionConcepts._accessedServlet_,
-         servletClass);
+         servletInstance);
       pb.setControlsActionClass(controls);
       return pb;
     } catch (Exception e) {
@@ -101,5 +104,62 @@ public class PolicyCompiler
       throw pce;
     }
   }
+
+  public static PolicyBuilder servletAuthentication(String policyName,
+                                                    String auth,
+                                                    String servlet)
+    throws PolicyCompilerException
+  {
+    String authInstance = 
+      org.cougaar.core.security.policy.enforcers.ontology.jena.
+      EntityInstancesConcepts.EntityInstancesDamlURL + auth;
+    String servletInstance = 
+      org.cougaar.core.security.policy.enforcers.ontology.jena.
+      EntityInstancesConcepts.EntityInstancesDamlURL
+      + servlet;
+
+    PolicyBuilder pb = new PolicyBuilder();
+    pb.assertInstanceOf(servletInstance, 
+                        org.cougaar.core.security.policy.enforcers.ontology.jena.
+                        UltralogEntityConcepts._Servlet_);
+    pb.assertInstanceOf(authInstance, 
+                        org.cougaar.core.security.policy.enforcers.ontology.jena.
+                        UltralogEntityConcepts._AuthenticationLevel_);
+    try {
+      pb.setPolicyModality(false);
+      pb.setPolicyName(policyName);
+      pb.setPolicyDesc("All users must use " + auth + " authentication\n" +
+                       "when accessing the servlet named " + servlet);
+      pb.setPriority(3);
+      pb.setHasSiteOfEnforcement(kaos.ontology.jena.PolicyConcepts.
+                                 policyDamlURL
+                                 + "AnySite");
+      KAoSClassBuilderImpl controls = 
+        new KAoSClassBuilderImpl
+        (org.cougaar.core.security.policy.enforcers.ontology.jena.
+         ActionConcepts._AccessAction_);
+      controls.setPropertyRangeClass
+        (org.cougaar.core.security.policy.enforcers.ontology.jena.
+         ActionConcepts._performedBy_,
+         kaos.ontology.jena.ActorConcepts._Person_);
+      controls.addPropertyRangeInstance
+        (org.cougaar.core.security.policy.enforcers.ontology.jena.
+         UltralogActionConcepts._usedAuthenticationLevel_,
+         authInstance);
+      controls.addPropertyRangeInstance
+        (org.cougaar.core.security.policy.enforcers.ontology.jena.
+         UltralogActionConcepts._accessedServlet_,
+         servletInstance);
+      pb.setControlsActionClass(controls);
+      return pb;
+    } catch (Exception e) {
+      PolicyCompilerException pce
+        = new PolicyCompilerException("Compiler Failure in Servlet Policy");
+      pce.initCause(e);
+      throw pce;
+    }
+  }
+
+
 
 }

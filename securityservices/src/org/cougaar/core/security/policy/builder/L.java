@@ -48,17 +48,25 @@ public L(InputBuffer ib) {
 public L(LexerSharedInputState state) {
 	super(state);
 	literals = new Hashtable();
-	literals.put(new ANTLRHashString("a", this), new Integer(14));
-	literals.put(new ANTLRHashString("in", this), new Integer(11));
-	literals.put(new ANTLRHashString("cannot", this), new Integer(18));
-	literals.put(new ANTLRHashString("A", this), new Integer(9));
-	literals.put(new ANTLRHashString("role", this), new Integer(12));
 	literals.put(new ANTLRHashString("can", this), new Integer(17));
-	literals.put(new ANTLRHashString("access", this), new Integer(13));
+	literals.put(new ANTLRHashString("a", this), new Integer(14));
+	literals.put(new ANTLRHashString("A", this), new Integer(9));
+	literals.put(new ANTLRHashString("accessing", this), new Integer(25));
+	literals.put(new ANTLRHashString("authentication", this), new Integer(23));
+	literals.put(new ANTLRHashString("must", this), new Integer(21));
 	literals.put(new ANTLRHashString("Policy", this), new Integer(4));
-	literals.put(new ANTLRHashString("servlet", this), new Integer(15));
+	literals.put(new ANTLRHashString("the", this), new Integer(26));
+	literals.put(new ANTLRHashString("All", this), new Integer(19));
 	literals.put(new ANTLRHashString("named", this), new Integer(16));
 	literals.put(new ANTLRHashString("user", this), new Integer(10));
+	literals.put(new ANTLRHashString("role", this), new Integer(12));
+	literals.put(new ANTLRHashString("use", this), new Integer(22));
+	literals.put(new ANTLRHashString("users", this), new Integer(20));
+	literals.put(new ANTLRHashString("servlet", this), new Integer(15));
+	literals.put(new ANTLRHashString("when", this), new Integer(24));
+	literals.put(new ANTLRHashString("cannot", this), new Integer(18));
+	literals.put(new ANTLRHashString("in", this), new Integer(11));
+	literals.put(new ANTLRHashString("access", this), new Integer(13));
 caseSensitiveLiterals = true;
 setCaseSensitive(true);
 }
@@ -148,8 +156,8 @@ tryAgain:
 		int _saveIndex;
 		
 		{
-		int _cnt9=0;
-		_loop9:
+		int _cnt11=0;
+		_loop11:
 		do {
 			switch ( LA(1)) {
 			case 'a':  case 'b':  case 'c':  case 'd':
@@ -176,10 +184,10 @@ tryAgain:
 			}
 			default:
 			{
-				if ( _cnt9>=1 ) { break _loop9; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
+				if ( _cnt11>=1 ) { break _loop11; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
 			}
 			}
-			_cnt9++;
+			_cnt11++;
 		} while (true);
 		}
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {

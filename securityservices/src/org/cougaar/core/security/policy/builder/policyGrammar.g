@@ -34,34 +34,36 @@ header {
 class P extends Parser;
 
 policies
-     returns [List pl]
-     throws PolicyCompilerException
-   { pl = new Vector();
-     PolicyBuilder pb;}
+returns [List pl]
+throws PolicyCompilerException
+{   pl = new Vector();
+    PolicyBuilder pb;}
     : ( pb = policy { pl.add(pb); })+
     ;
 
 policy 
-     returns [PolicyBuilder p]
-     throws PolicyCompilerException
-  {p = null;}
- : "Policy" pn:TOKEN EQ LBRACK p = servletUserAccess[pn.getText()] RBRACK
+returns [PolicyBuilder p]
+throws PolicyCompilerException
+{p = null;}
+    : "Policy" pn:TOKEN EQ LBRACK p = innerPolicy[pn.getText()] RBRACK
+    ;
+
+innerPolicy [String pn]
+returns [PolicyBuilder p]
+throws PolicyCompilerException
+{  p = null; }
+    : p = servletUserAccess[pn]
+    | p = servletAuthentication[pn]
     ;
 
 servletUserAccess [String pn] 
-   returns [PolicyBuilder p]
-   throws PolicyCompilerException
-   { boolean m; 
-     p = null; }
+returns [PolicyBuilder p]
+throws PolicyCompilerException
+{   boolean m; 
+    p = null; }
     :   "A" "user" "in" "role" r:TOKEN m=servletUserAccessModality 
         "access" "a" "servlet" "named" n:TOKEN
-        {System.out.println(
-                "Policy name = " + pn +
-                "User Role = " + r.getText() +
-                " Modality = " + m +
-                " servlet = " + n.getText()
-            );
-         return 
+        {return 
            PolicyCompiler.servletUserAccessPolicy(
                 pn,
                 m,
@@ -74,6 +76,20 @@ servletUserAccessModality returns [boolean m] { m = true; }
     : "can" { m = true; }
     | "cannot" { m = false; }
    ;
+
+servletAuthentication[String pn]
+returns [PolicyBuilder p]
+throws PolicyCompilerException
+{ p = null; }
+    : "All" "users" "must" "use" auth:TOKEN "authentication" "when"
+        "accessing" "the" "servlet" "named" servlet:TOKEN
+        { return
+            PolicyCompiler.servletAuthentication(pn, 
+                                                 auth.getText(), 
+                                                 servlet.getText());
+        }
+    ;
+
 
 class L extends Lexer;
 

@@ -28,5 +28,13 @@ public interface PTokenTypes {
 	int LITERAL_named = 16;
 	int LITERAL_can = 17;
 	int LITERAL_cannot = 18;
-	int WS = 19;
+	int LITERAL_All = 19;
+	int LITERAL_users = 20;
+	int LITERAL_must = 21;
+	int LITERAL_use = 22;
+	int LITERAL_authentication = 23;
+	int LITERAL_when = 24;
+	int LITERAL_accessing = 25;
+	int LITERAL_the = 26;
+	int WS = 27;
 }

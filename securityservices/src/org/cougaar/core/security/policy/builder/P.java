@@ -97,13 +97,46 @@ public P(ParserSharedInputState state) {
 			match(TOKEN);
 			match(EQ);
 			match(LBRACK);
-			p=servletUserAccess(pn.getText());
+			p=innerPolicy(pn.getText());
 			match(RBRACK);
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
 			consumeUntil(_tokenSet_1);
+		}
+		return p;
+	}
+	
+	public final PolicyBuilder  innerPolicy(
+		String pn
+	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		PolicyBuilder p;
+		
+		p = null;
+		
+		try {      // for error handling
+			switch ( LA(1)) {
+			case LITERAL_A:
+			{
+				p=servletUserAccess(pn);
+				break;
+			}
+			case LITERAL_All:
+			{
+				p=servletAuthentication(pn);
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_2);
 		}
 		return p;
 	}
@@ -132,18 +165,50 @@ public P(ParserSharedInputState state) {
 			match(LITERAL_named);
 			n = LT(1);
 			match(TOKEN);
-			System.out.println(
-			"Policy name = " + pn +
-			"User Role = " + r.getText() +
-			" Modality = " + m +
-			" servlet = " + n.getText()
-			);
 			return 
 			PolicyCompiler.servletUserAccessPolicy(
 			pn,
 			m,
 			r.getText(),
 			n.getText());
+			
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_2);
+		}
+		return p;
+	}
+	
+	public final PolicyBuilder  servletAuthentication(
+		String pn
+	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		PolicyBuilder p;
+		
+		Token  auth = null;
+		Token  servlet = null;
+		p = null;
+		
+		try {      // for error handling
+			match(LITERAL_All);
+			match(LITERAL_users);
+			match(LITERAL_must);
+			match(LITERAL_use);
+			auth = LT(1);
+			match(TOKEN);
+			match(LITERAL_authentication);
+			match(LITERAL_when);
+			match(LITERAL_accessing);
+			match(LITERAL_the);
+			match(LITERAL_servlet);
+			match(LITERAL_named);
+			servlet = LT(1);
+			match(TOKEN);
+			return
+			PolicyCompiler.servletAuthentication(pn, 
+			auth.getText(), 
+			servlet.getText());
 			
 		}
 		catch (RecognitionException ex) {
@@ -208,6 +273,14 @@ public P(ParserSharedInputState state) {
 		"\"named\"",
 		"\"can\"",
 		"\"cannot\"",
+		"\"All\"",
+		"\"users\"",
+		"\"must\"",
+		"\"use\"",
+		"\"authentication\"",
+		"\"when\"",
+		"\"accessing\"",
+		"\"the\"",
 		"WS"
 	};
 	
