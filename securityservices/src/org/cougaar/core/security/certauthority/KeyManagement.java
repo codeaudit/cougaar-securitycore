@@ -310,7 +310,7 @@ public class KeyManagement
 	   caOperations.publishCertificate((X509Certificate)c,
 					   CertificateUtility.CACert,pk);
 	 }
-	 catch (javax.naming.NamingException e) {
+	 catch (Exception e) {
 	   if (log.isWarnEnabled()) {
 	     log.warn("Unable to publish CA certificate to LDAP");
 	   }
