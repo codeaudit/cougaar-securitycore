@@ -189,6 +189,7 @@ throws PolicyCompilerException
 
 class PolicyLexer extends Lexer;
 
+
 // one-or-more letters followed by a newline
 TOKEN:   ( 'a'..'z'|'A'..'Z' )+
     ;
@@ -217,10 +218,6 @@ RCURLY: '}'
 COMMA: ','
     ;
 
-// Haven't gotten comments working yet...
-//COMMENT: "/*" (~('/'))* '/'
-//		{$setType(Token.SKIP);}	//ignore this token
-//    ;
 
 
 // whitespace
@@ -231,3 +228,11 @@ WS	:	(	' '
 		)
 		{$setType(Token.SKIP);}	//ignore this token
 	;
+
+
+// I have been having trouble with comments - what is matchNot doing?
+//COMMENT: '#' (~'\n')* '\n'
+COMMENT: '#' ('0'..'9'|'a'..'z'|'A'..'Z'|'.'|','|'('|')'|';'|'-'|'\"'|'$'|'='|'['|']'|'{'|'}'|':'|'/'|'#'|'<'|'>'|'\''|' '|'\t')* '\n'
+		{$setType(Token.SKIP);}	//ignore this token
+    ;
+
