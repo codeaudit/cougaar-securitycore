@@ -408,7 +408,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       loggingService.debug("CRL agent registartion Thread  has finished:");
 
       // Check if we have old entries in the names not found.
-      Iterator it = _namesNotFound.entrySet().iterator();
+      Iterator it = _namesNotFound.keySet().iterator();
       long now = System.currentTimeMillis();
       while (it.hasNext()) {
 	String name = (String) it.next();
