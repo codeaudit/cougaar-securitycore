@@ -174,7 +174,7 @@ public class HardWired {
 
   public static final CipherSuite nsaApproved;
   static {
-    nsaApproved = new CipherSuite();
+    nsaApproved = new CipherSuite(STRONG_CRYPTO);
     nsaApproved.addSymmetric("AES#128");
     nsaApproved.addSymmetric("RC4#128");
     nsaApproved.addSymmetric("DESede#128");
@@ -185,16 +185,19 @@ public class HardWired {
 
   public static final CipherSuite secretCrypto;
   static {
-    secretCrypto = new CipherSuite();
+    secretCrypto = new CipherSuite(SECRET_CRYPTO);
     secretCrypto.addSymmetric("DES");
     secretCrypto.addAsymmetric("RSA/ECB/PKCS1Padding");
     secretCrypto.addSignature("MD5withRSA");
+    secretCrypto.addSymmetric(CipherSuite.PROTECTED_LAN,  "plain");
+    secretCrypto.addAsymmetric(CipherSuite.PROTECTED_LAN, "none");
+    secretCrypto.addSignature(CipherSuite.PROTECTED_LAN,  "none");
   }
 
 
   public static final CipherSuite weakCrypto;
   static {
-    weakCrypto = new CipherSuite();
+    weakCrypto = new CipherSuite(WEAK_CRYPTO);
     weakCrypto.addSymmetric("plain");
     weakCrypto.addAsymmetric("none");
     weakCrypto.addSignature("none");
@@ -209,11 +212,12 @@ public class HardWired {
       if (cipher.equals(WEAK_CRYPTO) ) {
         cs.addAll(weakCrypto);
       } else if (cipher.equals(STRONG_CRYPTO)) {
-        cs.addAll(nsaApproved);
+         cs.addAll( nsaApproved);
       } else if (cipher.equals(SECRET_CRYPTO)) {
         cs.addAll(secretCrypto);
       } else {
-        continue;  // I guess he is getting less than he wanted...
+        // I guess he is getting less than he wanted...
+        continue;
       }
     }
     return cs;
