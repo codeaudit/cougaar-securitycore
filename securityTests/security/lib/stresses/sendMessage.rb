@@ -29,29 +29,36 @@ class Stress3c1 < SecurityStressFramework
       component.insertionpoint = insertion
     }
   end # postTransformSociety
-  
+
+=begin  
   def postLoadSociety
+    # Now inserted through a rule
     installSendMessageServlet
   end
+=end
 end # Stress3c1
 
 # agent should successfully send a message
 class Stress3a101 < SecurityStressFramework
-  def intialize 
+  def initialize(run)
     @answered = false
     @saved = false
+    @run = run
   end
 
+=begin
   def postLoadSociety
+    # Now inserted through a rule
     installSendMessageServlet
   end
+=end
 
   def postConditionalNextOPlanStage
     # find two random agents. They should be allowed to communicate
     # if they are not in the attack node
     agent1 = nil
     agent2 = nil
-    run.society.each_agent { |agent|
+    @run.society.each_agent { |agent|
       if (agent.node.get_facet("attacker") == nil)
         if (agent1 == nil) 
           agent1 = agent
