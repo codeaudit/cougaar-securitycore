@@ -13,8 +13,8 @@ package com.cougaarsoftware.nettool;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class AgentPair {
-	private String  m_sourceAgent;
-	private String  m_destinationAgent;
+	private final String  m_sourceAgent;
+	private final String  m_destinationAgent;
 
 	public AgentPair(String src, String dst) {
 		m_sourceAgent = src;
@@ -47,5 +47,14 @@ public class AgentPair {
 		return (m_sourceAgent.equals(ge.getSourceAgent())
 				&& m_destinationAgent.equals(ge.getDestinationAgent()));
 	}
-
+	
+	public String toString() {
+		return m_sourceAgent + " -> " + m_destinationAgent;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		return m_sourceAgent.hashCode() + m_destinationAgent.hashCode();
+	}
 }
