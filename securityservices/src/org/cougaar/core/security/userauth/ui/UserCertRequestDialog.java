@@ -48,7 +48,8 @@ public class UserCertRequestDialog extends JDialog {
   JPanel buttonPanel = new JPanel();
   JButton nextButton = new JButton();
   JButton cancelButton = new JButton();
-  JPanel panels[] = new JPanel[2];
+  UserProfilePanel profilePanel;
+  PasswordPanel pwdPanel;
 
   int panelIndex = 0;
   boolean isOk = false;
@@ -72,6 +73,8 @@ public class UserCertRequestDialog extends JDialog {
     try {
       jbInit();
 
+      loadRequest();
+
       setButtonListeners();
 
       setSize(400, 300);
@@ -87,6 +90,8 @@ public class UserCertRequestDialog extends JDialog {
   private void setButtonListeners() {
     nextButton.addActionListener(createButtonListener());
     cancelButton.addActionListener(createButtonListener());
+
+    profilePanel.requestBox.addActionListener(createListListener());
   }
 
   private ActionListener createButtonListener() {
@@ -97,13 +102,20 @@ public class UserCertRequestDialog extends JDialog {
     };
   }
 
+  private ActionListener createListListener() {
+    return new ActionListener() {
+      public void actionPerformed(ActionEvent evt) {
+        processListEvent(evt);
+      }
+    };
+  }
+
   public boolean showDialog() {
     show();
     return isOk;
   }
 
   private void setCaDNs(java.util.List caDNs) {
-    UserProfilePanel profilePanel = (UserProfilePanel)panels[0];
     for (int i = 0; i < caDNs.size(); i++) {
       String cadn = (String)caDNs.get(i);
       profilePanel.dnlist.addElement(cadn);
@@ -113,18 +125,41 @@ public class UserCertRequestDialog extends JDialog {
   }
 
   private String getCaDN() {
-    UserProfilePanel profilePanel = (UserProfilePanel)panels[0];
     int index = profilePanel.cadnBox.getSelectedIndex();
     return (String)profilePanel.dnlist.get(index);
   }
 
   private char [] getPwd() {
-    return ((PasswordPanel)panels[1]).jPasswordField1.getPassword();
+    return pwdPanel.jPasswordField1.getPassword();
+  }
+
+  private void loadRequest() {
+    // get user certificates
+    try {
+      KeyStore keystore = keyRing.getKeyStore();
+      Enumeration aliases = keystore.aliases();
+      for (; aliases.hasMoreElements(); ) {
+        String alias = (String)aliases.nextElement();
+        java.security.cert.Certificate [] certChain = keystore.getCertificateChain(alias);
+        if (certChain.length == 0)
+          continue;
+        String dname = ((X509Certificate)certChain[0]).getSubjectDN().getName();
+        String title = CertificateUtility.findAttribute(dname, "t");
+        if (title.equals(DirectoryKeyStore.CERT_TITLE_USER)) {
+      // check if it is self-signed
+          if (certChain.length == 1) {
+            //System.out.println("adding: " + dname);
+            profilePanel.requestlist.addElement(dname);
+          }
+        }
+      }
+      profilePanel.requestBox.updateUI();
+    } catch (KeyStoreException kex) {}
   }
 
   public boolean generateUserCertRequest() {
     String pwd1 = new String(getPwd());
-    String pwd2 = new String(((PasswordPanel)panels[1]).jPasswordField2.getPassword());
+    String pwd2 = new String(pwdPanel.jPasswordField2.getPassword());
     if (!pwd1.equals(pwd2)) {
       JOptionPane.showMessageDialog(null, "Password does not match.");
       return false;
@@ -147,7 +182,7 @@ public class UserCertRequestDialog extends JDialog {
     keyRing.checkOrMakeCert(userx500);
 
     if (!setKeyPassword(userx500, getPwd())) {
-      JOptionPane.showMessageDialog(null, "Failed to generate user certificate.");
+      JOptionPane.showMessageDialog(null, "User certificate not received, either request failed or pending.");
       return false;
     }
 
@@ -186,7 +221,6 @@ public class UserCertRequestDialog extends JDialog {
   }
 
   public String getUserDN() {
-    UserProfilePanel profilePanel = (UserProfilePanel)panels[0];
     String dn = "cn=" + profilePanel.cnameField.getText()
       + ", ou=" + profilePanel.ouField.getText()
       + ",o=" + profilePanel.cnameField.getText()
@@ -213,6 +247,23 @@ public class UserCertRequestDialog extends JDialog {
     }
   }
 
+  private void processListEvent(ActionEvent evt) {
+    if (evt.getSource() == profilePanel.requestBox) {
+      String dname = (String)profilePanel.requestBox.getSelectedItem();
+      if (dname != null) {
+        try {
+          X500Name userdn = new X500Name(dname);
+          profilePanel.cnameField.setText(userdn.getCommonName());
+          profilePanel.ouField.setText(userdn.getOrganizationalUnit());
+          profilePanel.oField.setText(userdn.getOrganization());
+          profilePanel.lField.setText(userdn.getLocality());
+          profilePanel.stField.setText(userdn.getState());
+          profilePanel.cField.setText(userdn.getCountry());
+        } catch (IOException ioe) {}
+      }
+    }
+  }
+
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
     nextButton.setText("OK");
@@ -222,10 +273,10 @@ public class UserCertRequestDialog extends JDialog {
     buttonPanel.add(cancelButton, null);
     this.getContentPane().add(jTabbedPane1,  BorderLayout.CENTER);
 
-    panels[0] = new UserProfilePanel();
-    panels[1] = new PasswordPanel();
+    profilePanel = new UserProfilePanel();
+    pwdPanel = new PasswordPanel();
 
-    jTabbedPane1.add(panels[0], "Profile");
-    jTabbedPane1.add(panels[1], "Password");
+    jTabbedPane1.add(profilePanel, "Profile");
+    jTabbedPane1.add(pwdPanel, "Password");
   }
 }

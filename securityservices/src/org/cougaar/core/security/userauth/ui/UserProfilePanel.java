@@ -35,6 +35,7 @@ import java.util.*;
 
 public class UserProfilePanel extends JPanel {
   Vector dnlist = new Vector();
+  Vector requestlist = new Vector();
 
   GridLayout gridLayout1 = new GridLayout();
   JLabel jLabel1 = new JLabel();
@@ -63,9 +64,13 @@ public class UserProfilePanel extends JPanel {
   JLabel jLabel7 = new JLabel();
   GridLayout gridLayout7 = new GridLayout();
   JPanel cadnPanel = new JPanel();
-  FlowLayout flowLayout1 = new FlowLayout();
+  GridLayout gridLayout9 = new GridLayout();
   JLabel jLabel8 = new JLabel();
   JComboBox cadnBox = new JComboBox(dnlist);
+  JPanel oldcertPanel = new JPanel();
+  JLabel jLabel9 = new JLabel();
+  GridLayout gridLayout8 = new GridLayout();
+  JComboBox requestBox = new JComboBox(requestlist);
 
   public UserProfilePanel() {
     try {
@@ -104,9 +109,12 @@ public class UserProfilePanel extends JPanel {
     cField.setPreferredSize(new Dimension(100, 21));
     jLabel7.setText("Country:");
     gridLayout7.setColumns(2);
-    cadnPanel.setLayout(flowLayout1);
+    cadnPanel.setLayout(gridLayout9);
+    gridLayout9.setColumns(2);
     jLabel8.setText("Select CA:");
-    flowLayout1.setAlignment(FlowLayout.LEFT);
+    oldcertPanel.setLayout(gridLayout8);
+    gridLayout8.setColumns(2);
+    jLabel9.setText("Old request:");
     this.add(jLabel1, null);
     this.add(cadnPanel, null);
     cPanel.add(jLabel7, null);
@@ -121,8 +129,11 @@ public class UserProfilePanel extends JPanel {
     cnamePanel.add(cnameField, null);
     ouPanel.add(jLabel2, null);
     ouPanel.add(ouField, null);
+    oldcertPanel.add(jLabel9, null);
+    oldcertPanel.add(requestBox, null);
     cadnPanel.add(jLabel8, null);
     cadnPanel.add(cadnBox, null);
+    this.add(oldcertPanel, null);
 
     this.add(cnamePanel, null);
     this.add(ouPanel, null);
