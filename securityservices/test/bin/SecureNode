@@ -87,16 +87,16 @@ set MYPROPERTIES="$MYPROPERTIES -Dcom.nai.security.monitoringdebug=true"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.society.bootstrapper.loud=false"
 #set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.policydebug=all"
 
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=false"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=true"
 
 # Enable Jaas trace debugging
 #set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.jaasDebug=true"
 
 # Print crypto-related debug information about the security aspect
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
 
 # Print transport-related debug information about the security aspect
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
 
 #set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.debug=true"
 
@@ -181,7 +181,7 @@ if ( "$useGuardedNode" == "true") then
 	# domainName:                 The name of the domain. Right now, should be the same
 	# as org.cougaar.domain.manager.
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.Domain=NCADomain"
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.Component=safe.util.MyStandardSecurityComponent"
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.Component=safe.util.MyStandardSecurityComponent,org.cougaar.core.security.provider.SecurityComponentFactory"
 endif
 
 if ( "$usePersistence" == "true") then
@@ -208,7 +208,11 @@ case 'gmount':
 case 'rtripath':
 	set servletport=5560	
 	breaksw
+case 'mluu':
+	set servletport=5555
+	breaksw
 default:
+	@echo "WARNING: Setting HTTP port to default port number. You should edit SecureNode"
 	set servletport=8800	
         breaksw
 endsw
