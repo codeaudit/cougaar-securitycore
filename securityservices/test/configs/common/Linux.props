@@ -14,7 +14,7 @@
 org.cougaar.install.path=/mnt/shared/integ
 
 # Set the Config Finder class
-#org.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.SecureConfigFinder
+#org.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder
 #log4j.configuration=loggingConfigStatic.conf
 
 # Set the cougaar system path, which is used to find third-party jars
