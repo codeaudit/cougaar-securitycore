@@ -705,7 +705,7 @@ public class DirectoryKeyStore implements Runnable
   }
 
   /** Add keys to the key ring **/
-  private PrivateKey addKeyPair(String commonName){
+  private synchronized PrivateKey addKeyPair(String commonName){
     String request = "";
     String reply = "";
     //is node?
