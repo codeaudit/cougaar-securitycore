@@ -123,7 +123,7 @@ public class SecurityServiceProvider
     }
     if(security != null) {
       log.debug("Checking Security Permission for :"+serviceClass.getName()+
-		"\nRequestor is "+requestor.getClass().getName()); 
+		"\nRequestor is "+requestor.getClass().getName());
       security.checkPermission(new SecurityServicePermission(serviceClass.getName()));
     }
     try {
@@ -251,14 +251,9 @@ public class SecurityServiceProvider
     rootServiceBroker.addService(SecurityPropertiesService.class, this);
     SecurityPropertiesService secprop = (SecurityPropertiesService)
       rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
+      /*
     boolean standalone = false;
     try {
-    /*
-      String nodeName = secprop.getProperty("org.cougaar.node.name",
-    					"");
-      if (nodeName == null || nodeName.equals(""))
-        standalone = true;
-        */
       standalone = new Boolean(secprop.getProperty(
         "org.cougaar.core.security.standalone", "false")).booleanValue();
 
@@ -267,6 +262,7 @@ public class SecurityServiceProvider
     } catch (Exception ex) {
       log.warn("Unable to get value of standalone mode");
     }
+    */
 
     /* ********************************
      * Configuration services
@@ -292,7 +288,7 @@ public class SecurityServiceProvider
                  new CertValidityServiceProvider());
     rootServiceBroker.addService(CertValidityService.class, this);
 
-    if (!standalone) {
+    if (isExecutedWithinNode) {
       /* Encryption Service */
       services.put(EncryptionService.class,
                    new EncryptionServiceProvider());
@@ -368,7 +364,7 @@ public class SecurityServiceProvider
         setNodeServiceBroker(serviceBroker);
     }
     else {
-      log.warn("Running in standalone mode");
+      log.debug("Running in standalone mode");
       services.put(UserSSLService.class,
                    new UserSSLServiceProvider());
       rootServiceBroker.addService(UserSSLService.class, this);
