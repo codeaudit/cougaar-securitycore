@@ -29,7 +29,9 @@ ARCHIVE_TIME=${build.time}
 	<copy todir="staging/Manifest">
 		<fileset defaultexcludes="no" dir="Manifest"/>
 	</copy>
-	<zip zipfile="${zip}" defaultexcludes="no" basedir="staging"/>
+	<zip zipfile="${zip}">
+		<fileset dir="staging" defaultexcludes="no"/>
+	</zip>
 </target>
 
 </project>
