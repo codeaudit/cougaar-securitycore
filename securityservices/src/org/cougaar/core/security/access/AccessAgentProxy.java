@@ -453,9 +453,12 @@ public class AccessAgentProxy implements MessageTransportService,
     
         if (msg instanceof WPQuery) {
           // first still need to know whether source and target are allowed to talk
+/*
           if (!isMessageDenied(source, target, null, direction)) {
             return checkWPQueryMessage(source, target, (WPQuery)msg);
           }
+*/
+          return isMessageDenied(source, target, null, direction);
         }
         return isMessageDenied(source, target, null, direction);
     }
