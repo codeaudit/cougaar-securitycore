@@ -17,8 +17,8 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe_arg WRITE;
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyDomainManager4Agent','Agent Names',4.000000000000000000000000000000,'PolicyDomainManager');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyDomainManager4Agent','Alternate Type Identification',3.000000000000000000000000000000,'PolicyDomainManager');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyDomainManager4Agent','Agent Names',4.000000000000000000000000000000,'PolicyDomainManager4');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyDomainManager4Agent','Alternate Type Identification',3.000000000000000000000000000000,'PolicyDomainManager4');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyDomainManager4Agent','Asset Class',7.000000000000000000000000000000,'MilitaryOrganization');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyDomainManager4Agent','Class Name',2.000000000000000000000000000000,'org.cougaar.core.agent.ClusterImpl');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyDomainManager4Agent','Include Item Identification PG',0.000000000000000000000000000000,'true');
