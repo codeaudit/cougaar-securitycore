@@ -24,7 +24,7 @@
  * -
  */
 
-package org.cougaar.core.security.services.crypto;
+package org.cougaar.core.security.services.identity;
 
 import org.cougaar.core.component.Service;
 
@@ -38,10 +38,16 @@ public interface SSLService extends Service {
    * The RMISocketFactory subclasses should use the
    * SSL factories instantiated from this service,
    * instead of using the default JSSE implementation.
+   *
+   * This function will also set the per-class HttpsURLConnection
+   * SSLSocketFactory so that any URL/URLConnection/HttpURLConnection
+   * and HttpsURLConnection instances already created
+   * or will be created will be using the socket factories
+   * instantiated here.
    */
-  SSLServerSocketFactory getServerSocketFactory();
+  SSLServerSocketFactory static getServerSocketFactory();
 
-  SSLSocketFactory getSocketFactory();
+  SSLSocketFactory static getSocketFactory();
 
   /**
    * The sockets created with the two functions above
@@ -65,15 +71,5 @@ public interface SSLService extends Service {
         throws IOException, CertificateException;
         */
 
-  /**
-   * Opens a secure connection to the URL by overwritting the connect
-   * fuction of the URLConnection.
-   * @param       URL, needs to specify https, otherwise the
-   *              default URLConnection will be return
-   * @return      URLConnection subclass from the default implementation,
-   *              use SSLSocket to connect
-   */
-  URLConnection getURLConnection(URL url)
-	throws IOException, CertificateException;
 }
 
