@@ -1,0 +1,44 @@
+  <!-- Configuration of Certificate Authority
+       The name should be the distinguished name of the X509 certificate -->
+  <policy name="CertAuthority" type="certificateAuthorityPolicy">
+    <certificateAuthority name="$[distinguishedName]">
+      <!-- Alias of CA private key in the keystore (RSA encryption) -->
+      <distinguishedName>$[distinguishedName]</distinguishedName>
+      <!-- Certificate directory service for certificate storage -->
+      <ldapURL>$[ldapURL]</ldapURL>
+
+      <!-- The type of the certificate directory service.
+           Currently, either CougaarOpenLdap or NetTools -->
+      <ldapType>CougaarOpenLdap</ldapType>
+
+      <!-- The name of a file where the next serial number is stored -->
+      <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
+      <!-- The name of directory where to store PKCS10 certificate requests -->
+      <pkcs10Directory>pkcs10requests</pkcs10Directory>
+
+      <!-- The name of directory where to store signed certificates -->
+      <x509CertDirectory>x509certificates</x509CertDirectory>
+
+      <!-- The name of directory where to store the pending certificates, after
+      it is approved it will be moved to the certificate storage directory for
+      approved certificates (ie. x509CertDirectory) -->
+      <CertPendingDirectory>pending</CertPendingDirectory>
+
+      <!-- The name of directory where to store the denial certificates,
+      this directory should be periodicly cleaned -->
+      <CertDeniedDirectory>denied</CertDeniedDirectory>
+ 
+      <!-- Policy when issuing certificates -->
+      <clientCertPolicy>
+        <!-- The X509 version number to be created -->
+        <certVersion>0</certVersion>
+        <nodeIsSigner>false</nodeIsSigner>
+        <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
+        <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
+        <keysize>$[keysize]</keysize>
+        <!-- How long to certify for. -->
+        <certValidity>$[validity]</certValidity>
+        <requirePending>$[requirePending]</requirePending>
+      </clientCertPolicy>
+    </certificateAuthority>
+  </policy>
