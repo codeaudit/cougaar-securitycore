@@ -92,6 +92,12 @@ public class CryptoClientPolicy
     return trustedCaKeystorePassword;
   }
   public CertificateAttributesPolicy getCertificateAttributesPolicy() {
+    if (certificateAttributesPolicy == null) {
+      TrustedCaPolicy[] tc = getIssuerPolicy();
+      if (tc.length != 0) {
+        return tc[0].getCertificateAttributesPolicy();
+      }
+    }
     return certificateAttributesPolicy;
   }
   public CertificateAttributesPolicy getCertificateAttributesPolicy(
