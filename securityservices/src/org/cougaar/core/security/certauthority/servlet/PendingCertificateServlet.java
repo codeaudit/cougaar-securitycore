@@ -30,6 +30,8 @@ package org.cougaar.core.security.certauthority.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.cert.X509Certificate;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -66,10 +68,13 @@ public class PendingCertificateServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    configParser = (ConfigParserService)
-      support.getServiceBroker().getService(this,
-					    ConfigParserService.class,
-					    null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        configParser = (ConfigParserService)
+          support.getServiceBroker().getService(this, ConfigParserService.class, null);
+        return null;
+      }
+    });
     //roles = configParser.getRoles();
   }
 

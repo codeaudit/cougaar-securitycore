@@ -30,6 +30,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
+
 import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -150,37 +153,34 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 
   private void init() {
 
-    log = (LoggingService)
-      serviceBroker.getService(this,
-			       LoggingService.class,
-			       null);
-    
-    secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this,
-			       SecurityPropertiesService.class,
-			       null);
-    configParser = (ConfigParserService)
-      serviceBroker.getService(this,
-			       ConfigParserService.class,
-			       null);
     nameMapping = new NameMapping(serviceBroker);
-    _alarmService= (AlarmService)serviceBroker.getService(this,
-                                                          AlarmService.class,
-                                                          null);
-    _threadService= (ThreadService)serviceBroker.getService(this,
-                                                            ThreadService.class,
-                                                            null);
-    _blackboardService = (BlackboardService)serviceBroker.getService(this,
-                                                                     BlackboardService.class,
-                                                                     null);
+    log = (LoggingService)
+      serviceBroker.getService(this, LoggingService.class, null);
+
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        secprop = (SecurityPropertiesService)
+            serviceBroker.getService(this, SecurityPropertiesService.class, null);
+        configParser = (ConfigParserService)
+             serviceBroker.getService(this, ConfigParserService.class, null);
+        _crlCacheService = (CRLCacheService)
+             serviceBroker.getService(this, CRLCacheService.class, null);
+        return null;
+      }
+    });
+
+    _alarmService= (AlarmService)
+          serviceBroker.getService(this, AlarmService.class, null);
+    _threadService= (ThreadService)
+          serviceBroker.getService(this, ThreadService.class, null);
+    _blackboardService = (BlackboardService)
+          serviceBroker.getService(this, BlackboardService.class, null);
+ 
     if(_blackboardService == null) {
       if(log.isDebugEnabled()) {
         log.debug(" BB Service is NULL in int of Certificate cache :");
       }
     }
-    _crlCacheService = (CRLCacheService)serviceBroker.getService(this,
-                                                                 CRLCacheService.class,
-                                                                 null);
     _eventService = (EventService)serviceBroker.getService(this,
                                                            EventService.class,
                                                            null);
@@ -1838,8 +1838,13 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
     
     log.debug(" UpdateCRLCache called from MyServiceAvailableListener");
     if (_crlCacheService == null) {
-      _crlCacheService=(CRLCacheService)
-        serviceBroker.getService(this, CRLCacheService.class, null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+         public Object run() {
+           _crlCacheService=(CRLCacheService)
+               serviceBroker.getService(this, CRLCacheService.class, null);
+           return null;
+         }
+       });
     }
     Enumeration e = certsCache.keys();
     while (e.hasMoreElements()) {

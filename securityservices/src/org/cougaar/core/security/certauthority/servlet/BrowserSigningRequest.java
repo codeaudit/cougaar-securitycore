@@ -36,6 +36,8 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
@@ -88,10 +90,13 @@ public class BrowserSigningRequest
   {
     super.init(config);
     try {
-      configParser = (ConfigParserService)
-	support.getServiceBroker().getService(this,
-					      ConfigParserService.class,
-					      null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          configParser = (ConfigParserService)
+            support.getServiceBroker().getService(this, ConfigParserService.class, null);
+          return null;
+        }
+      });
     }
     catch (RuntimeException e) {
       if (log.isErrorEnabled()) {

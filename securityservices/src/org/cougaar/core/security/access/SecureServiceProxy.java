@@ -23,17 +23,10 @@
  * </copyright> 
  */ 
  
- 
- 
- 
- 
- 
- 
- 
-
-
 package org.cougaar.core.security.access;
 
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 // cougaar core
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.access.bbo.SecuredOrgActivity;
@@ -70,8 +63,13 @@ class SecureServiceProxy {
 
   SecureServiceProxy(ServiceBroker sb) {//, Object requestor) {
     _sb = sb;
-    _scs = (SecurityContextService)
-      sb.getService(this, SecurityContextService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        _scs = (SecurityContextService)
+            _sb.getService(this, SecurityContextService.class, null);
+        return null;
+      }
+    });
     _log = (LoggingService)
       sb.getService(this, LoggingService.class, null);  
 //    _requestor = requestor;

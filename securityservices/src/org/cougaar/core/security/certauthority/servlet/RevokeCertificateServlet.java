@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Enumeration;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -76,7 +78,13 @@ extends HttpServlet
     {
       context=config.getServletContext();
 
-      secprop = support.getSecurityProperties(this);
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          secprop = (SecurityPropertiesService)
+             support.getServiceBroker().getService(this, SecurityPropertiesService.class, null);
+          return null;
+        }
+      });
      
       debug = (Boolean.valueOf(secprop.getProperty(SecurityPropertiesService.CRYPTO_DEBUG,
                                                    "false"))).booleanValue();

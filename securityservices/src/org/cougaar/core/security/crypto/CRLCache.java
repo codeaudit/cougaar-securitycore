@@ -29,6 +29,9 @@ package org.cougaar.core.security.crypto;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
+
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -138,9 +141,32 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     //bindingSite=bs;
     log = (LoggingService)
       serviceBroker.getService(this, LoggingService.class, null);
-    secprop = (SecurityPropertiesService)serviceBroker.getService(this,
-                                                                  SecurityPropertiesService.class,
-                                                                  null);
+
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+         secprop = (SecurityPropertiesService)
+             serviceBroker.getService(this, SecurityPropertiesService.class, null);
+         configParser = (ConfigParserService)
+             serviceBroker.getService(this, ConfigParserService.class, null);
+         cacheService = (CertificateCacheService)
+             serviceBroker.getService(this, CertificateCacheService.class, null);
+         keyRingService = (KeyRingService)
+             serviceBroker.getService(this, KeyRingService.class, null);
+         crlMgmtService=(CrlManagementService)
+             serviceBroker.getService(this, CrlManagementService.class, null);
+         _searchService = (CertificateSearchService)
+             serviceBroker.getService(this, CertificateSearchService.class, null);
+         return null;
+      }
+    });
+
+    if (secprop == null) {
+      throw new RuntimeException("unable to get security properties service");
+    }
+    if (configParser == null) {
+      throw new RuntimeException("unable to get config parser service");
+    }
+
     //this.keystore=dkeystore;
     log.debug("Crl cache being initialized");
     long poll = 0;
@@ -155,15 +181,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     if (poll > 0) {
       setSleepTime(poll);
     }
-    configParser = (ConfigParserService)
-      serviceBroker.getService(this, ConfigParserService.class, null);
     
-    if (secprop == null) {
-      throw new RuntimeException("unable to get security properties service");
-    }
-    if (configParser == null) {
-      throw new RuntimeException("unable to get config parser service");
-    }
     SecurityPolicy[] sp =configParser.getSecurityPolicies(CryptoClientPolicy.class);
 
     CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
@@ -183,14 +201,8 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       throw new RuntimeException("Unable to get crypto Client policy");
     }
 
-    cacheService = (CertificateCacheService)
-      serviceBroker.getService(this, CertificateCacheService.class, null);
-    keyRingService = (KeyRingService)
-      serviceBroker.getService(this, KeyRingService.class, null);
     blackboardService = (BlackboardService)
       serviceBroker.getService(this, BlackboardService.class, null);
-    crlMgmtService=(CrlManagementService)
-      serviceBroker.getService(this, CrlManagementService.class, null);
     _communityService = (CommunityService)
       serviceBroker.getService(this,CommunityService.class, null);
     AgentIdentificationService ais = (AgentIdentificationService)
@@ -201,9 +213,6 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
                                    ais);
     }
     threadService=(ThreadService)serviceBroker.getService(this,ThreadService.class, null);
-    _searchService = (CertificateSearchService) serviceBroker.getService(this,
-                                                                         CertificateSearchService.class,
-                                                                         null);
     setServices();
     if (cacheService == null || keyRingService == null ||
         blackboardService == null || crlMgmtService == null ||
@@ -1174,7 +1183,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
       boolean settingServices=false;
-      ServiceBroker sb = ae.getServiceBroker();
+      final ServiceBroker sb = ae.getServiceBroker();
       log.info(" serviceAvailable Listener called :");
       if ( (sc == AgentIdentificationService.class) &&(myAddress==null) ) {
         log.info(" AgentIdentification Service is available now in CRL Cache going to call setmyCommunity");
@@ -1185,15 +1194,25 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         }
         sb.releaseService(this, AgentIdentificationService.class, ais);
       } else if ( (sc == CertificateCacheService.class ) && (cacheService==null)) {
-        cacheService = (CertificateCacheService)
-          sb.getService(CRLCache.this, CertificateCacheService.class, null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run() {
+            cacheService = (CertificateCacheService)
+              sb.getService(CRLCache.this, CertificateCacheService.class, null);
+            return null;
+          }
+        });
         if(cacheService!=null) {
           initCRLCacheFromKeystore();
         }
         settingServices=true; 
       } else if ((sc == KeyRingService.class ) && (keyRingService==null)) {
-        keyRingService = (KeyRingService)
-          sb.getService(CRLCache.this, KeyRingService.class, null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run() {
+            keyRingService = (KeyRingService)
+              sb.getService(CRLCache.this, KeyRingService.class, null);
+            return null;
+          }
+        });
         settingServices=true;
       } else if (( sc == BlackboardService.class )&& (blackboardService==null )) {
         blackboardService = (BlackboardService)
@@ -1203,8 +1222,13 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         }
         settingServices=true;
       } else if (( sc == CrlManagementService.class )&&(crlMgmtService==null)) {
-        crlMgmtService=(CrlManagementService)
-          sb.getService(CRLCache.this, CrlManagementService.class, null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run() {
+            crlMgmtService=(CrlManagementService)
+              sb.getService(CRLCache.this, CrlManagementService.class, null);
+            return null;
+          }
+        });
         settingServices=true;
       } else if ( sc == ThreadService.class) {
         ThreadService currentthreadService = (ThreadService) sb.getService(this, ThreadService.class, null);
@@ -1223,7 +1247,12 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         settingServices=true;
       }
       else if((sc == CertificateSearchService.class) &&(_searchService == null)) {
-        _searchService=(CertificateSearchService) sb.getService(this, CertificateSearchService.class, null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run() {
+            _searchService=(CertificateSearchService) sb.getService(this, CertificateSearchService.class, null);
+            return null;
+          }
+        });
         startThread();
       }
       //log.info(" Got Called in Service Listner for "+ sc.getName());

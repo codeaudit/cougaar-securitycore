@@ -30,6 +30,8 @@ package org.cougaar.core.security.certauthority.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -56,14 +58,15 @@ public class Main
   public void init(ServletConfig config)
     throws ServletException
   {
-    keyRingService = (KeyRingService)
-      support.getServiceBroker().getService(this,
-					    KeyRingService.class,
-					    null);
-     cacheService = (CertificateCacheService)
-      support.getServiceBroker().getService(this,
-					    CertificateCacheService.class,
-					    null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        keyRingService = (KeyRingService)
+           support.getServiceBroker().getService(this, KeyRingService.class, null);
+        cacheService = (CertificateCacheService)
+           support.getServiceBroker().getService(this, CertificateCacheService.class, null);
+        return null;
+      }
+    });
   }
 
   protected void doGet(HttpServletRequest req,HttpServletResponse res)

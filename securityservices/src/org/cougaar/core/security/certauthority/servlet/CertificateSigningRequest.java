@@ -40,6 +40,8 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignedObject;
 import java.security.cert.X509Certificate;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -79,7 +81,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.25 $
  */
 public class CertificateSigningRequest extends HttpServlet implements BlackboardClient {
   private CertificateManagementService signer;
@@ -119,7 +121,12 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
     try {
-      configParser = (ConfigParserService) support.getServiceBroker().getService(this, ConfigParserService.class, null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          configParser = (ConfigParserService) support.getServiceBroker().getService(this, ConfigParserService.class, null);
+          return null;
+        }
+      });
       blackboardService = (BlackboardService) support.getServiceBroker().getService(this, BlackboardService.class, null);
     } catch (RuntimeException e) {
       if (log.isErrorEnabled()) {

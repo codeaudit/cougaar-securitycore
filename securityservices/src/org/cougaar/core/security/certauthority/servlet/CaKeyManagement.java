@@ -40,22 +40,14 @@ import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.util.SecurityServletSupport;
 
 public class CaKeyManagement  extends HttpServlet {
-  private ConfigParserService configParser = null;
 
   //private CaPolicy caPolicy = null;            // the policy of the CA
 
-  private SecurityServletSupport support;
   public CaKeyManagement(SecurityServletSupport support) {
-    this.support = support;
   }
 
-  public void init(ServletConfig config) throws ServletException
-    {
-      configParser = (ConfigParserService)
-        support.getServiceBroker().getService(this,
-                                              ConfigParserService.class,
-                                              null);
-    }
+  public void init(ServletConfig config) throws ServletException {
+  }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException

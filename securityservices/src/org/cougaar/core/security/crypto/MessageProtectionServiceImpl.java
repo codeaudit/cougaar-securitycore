@@ -36,6 +36,8 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -103,17 +105,23 @@ public class MessageProtectionServiceImpl
       log.debug("Initializing MessageProtectionServiceImpl");
     }
     
-    // Retrieve KeyRing service
-    this.keyRing = (KeyRingService)
-      serviceBroker.getService(this, KeyRingService.class, null);
-    if (this.keyRing == null) {
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        // Retrieve KeyRing service
+        keyRing = (KeyRingService)
+          serviceBroker.getService(this, KeyRingService.class, null);
+        // Retrieve Encryption service
+        encryptService = (EncryptionService)
+          serviceBroker.getService(this, EncryptionService.class, null);
+        return null;
+      }
+    });
+
+    if (keyRing == null) {
       log.error("Unable to get KeyRing service");
       throw new RuntimeException("MessageProtectionService. No KeyRing service");
     }
 
-    // Retrieve Encryption service
-    this.encryptService = (EncryptionService)
-      serviceBroker.getService(this, EncryptionService.class, null);
     if (encryptService == null) {
       log.warn("Unable to get Encryption service");
       throw new RuntimeException("MessageProtectionService. No encryption service");

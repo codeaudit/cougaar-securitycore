@@ -30,6 +30,8 @@ package org.cougaar.core.security.certauthority.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Hashtable;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.ServletConfig;
@@ -51,13 +53,10 @@ import org.cougaar.core.service.identity.AgentIdentityService;
 public class CreateCaKeyServlet
   extends  HttpServlet
 {
-  private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
   private KeyRingService keyRingService= null;
   private CertificateCacheService certificateCacheService= null; 
   private LoggingService log;
-
-  protected boolean debug = false;
 
   private SecurityServletSupport support;
   private AgentIdentityService agentIdentity;
@@ -71,21 +70,17 @@ public class CreateCaKeyServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    secprop = support.getSecurityProperties(this);
-    debug = (Boolean.valueOf(secprop.getProperty(SecurityPropertiesService.CRYPTO_DEBUG,
-						"false"))).booleanValue();
-    keyRingService = (KeyRingService)
-      support.getServiceBroker().getService(this,
-					    KeyRingService.class,
-					    null);
-    certificateCacheService=(CertificateCacheService)
-      support.getServiceBroker().getService(this,
-					    CertificateCacheService.class,
-					    null);
-    configParser = (ConfigParserService)
-      support.getServiceBroker().getService(this,
-					    ConfigParserService.class,
-					    null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        keyRingService = (KeyRingService)
+          support.getServiceBroker().getService(this, KeyRingService.class, null);
+        certificateCacheService=(CertificateCacheService)
+          support.getServiceBroker().getService(this, CertificateCacheService.class, null);
+        configParser = (ConfigParserService)
+          support.getServiceBroker().getService(this, ConfigParserService.class, null);
+        return null;
+      }
+    });
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)

@@ -29,6 +29,8 @@ package org.cougaar.core.security.certauthority.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -51,13 +53,9 @@ import org.cougaar.core.service.LoggingService;
 public class ListCaKeysServlet
 extends  HttpServlet
 {
-  private SecurityPropertiesService secprop = null;
-  //private ConfigParserService configParser = null;
   private KeyRingService keyRingService= null;
   private CertificateCacheService cacheService=null;
   private LoggingService log;
-
-  protected boolean debug = false;
 
   private SecurityServletSupport support;
 
@@ -70,17 +68,15 @@ extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
     {
-      secprop = support.getSecurityProperties(this);
-      debug = (Boolean.valueOf(secprop.getProperty(SecurityPropertiesService.CRYPTO_DEBUG,
-                                                   "false"))).booleanValue();
-      keyRingService = (KeyRingService)
-        support.getServiceBroker().getService(this,
-                                              KeyRingService.class,
-                                              null);
-      cacheService=(CertificateCacheService)
-        support.getServiceBroker(). getService(this,
-                                               CertificateCacheService.class,
-                                               null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          keyRingService = (KeyRingService)
+            support.getServiceBroker().getService(this, KeyRingService.class, null);
+          cacheService=(CertificateCacheService)
+            support.getServiceBroker(). getService(this, CertificateCacheService.class, null);
+          return null;
+        }
+      });
     }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)

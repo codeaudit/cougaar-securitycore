@@ -33,6 +33,8 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
 import org.w3c.dom.Element;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 
 public class NodeConfiguration
 {
@@ -50,9 +52,13 @@ public class NodeConfiguration
 				 LoggingService.class, null);
     log.debug("Node Crypto Initializing");
 
-    secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this,
-			       SecurityPropertiesService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        secprop = (SecurityPropertiesService)
+            serviceBroker.getService(this, SecurityPropertiesService.class, null);
+        return null;
+      }
+    });
 
     this.nodeDomain = nodeDomain;
     createDirectoryStructure(this.nodeDomain);

@@ -29,6 +29,8 @@ package org.cougaar.core.security.crypto;
 
 import java.util.Iterator;
 import java.util.List;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
@@ -69,8 +71,13 @@ public class CertificateCheckAspect
 
   public void load() {
     super.load();
-    _keyRing = (KeyRingService)
-      getServiceBroker().getService(this, KeyRingService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        _keyRing = (KeyRingService)
+            getServiceBroker().getService(this, KeyRingService.class, null);
+        return null;
+      }
+    });
     _log = (LoggingService)
       getServiceBroker().getService(this, LoggingService.class, null);
   }

@@ -28,6 +28,8 @@ package org.cougaar.core.security.crypto;
 
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.SimpleMessageAttributes;
@@ -71,10 +73,15 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
 
   public void load() {
     super.load();
-    _keyRing = (KeyRingService)
-      getServiceBroker().getService(this, KeyRingService.class, null);
-    _crypto = (EncryptionService)
-      getServiceBroker().getService(this, EncryptionService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        _keyRing = (KeyRingService)
+           getServiceBroker().getService(this, KeyRingService.class, null);
+        _crypto = (EncryptionService)
+           getServiceBroker().getService(this, EncryptionService.class, null);
+        return null;
+      }
+    });
     _log = (LoggingService)
       getServiceBroker().getService(this, LoggingService.class, null);
   }

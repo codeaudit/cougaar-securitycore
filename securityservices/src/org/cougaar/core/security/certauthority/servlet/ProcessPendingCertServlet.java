@@ -29,6 +29,8 @@ package org.cougaar.core.security.certauthority.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.cert.X509Certificate;
 
 import javax.servlet.ServletConfig;
@@ -46,7 +48,6 @@ import org.cougaar.core.security.util.SecurityServletSupport;
 
 public class ProcessPendingCertServlet extends  HttpServlet
 {
-  private ConfigParserService configParser = null;
   //private CaPolicy caPolicy = null;            // the policy of the CA
   private NodeConfiguration nodeConfiguration;
   private CACertDirectoryService caOperations=null;
@@ -58,10 +59,6 @@ public class ProcessPendingCertServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    configParser = (ConfigParserService)
-      support.getServiceBroker().getService(this,
-					    ConfigParserService.class,
-					    null);
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)

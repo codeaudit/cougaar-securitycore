@@ -30,6 +30,8 @@ package org.cougaar.core.security.certauthority.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Comparator;
@@ -79,13 +81,17 @@ public class CertificateList
   public void init(ServletConfig config) throws ServletException
   {
     try {
-      secprop = support.getSecurityProperties(this);
-      configParser = (ConfigParserService)
-	support.getServiceBroker().getService(this,
-					      ConfigParserService.class,
-					      null);
-      search = (CACertDirectoryService)
-        support.getServiceBroker().getService(this, CACertDirectoryService.class, null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          secprop = (SecurityPropertiesService)
+             support.getServiceBroker().getService(this, SecurityPropertiesService.class, null);
+          configParser = (ConfigParserService)
+            support.getServiceBroker().getService(this, ConfigParserService.class, null);
+          search = (CACertDirectoryService)
+            support.getServiceBroker().getService(this, CACertDirectoryService.class, null);
+          return null;
+        }
+      });
       search.refreshBlackboard();
     }
     catch (Exception e) {

@@ -22,20 +22,13 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.access;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -61,11 +54,16 @@ class ServletServiceProxy extends SecureServiceProxy
   // for servlet to SecureServlet mapping
   private static Hashtable _servletTable = new Hashtable();
   
-  public ServletServiceProxy(ServletService ss, Object requestor, ServiceBroker sb) {
+  public ServletServiceProxy(ServletService ss, Object requestor, final ServiceBroker sb) {
     super(sb);
     _ss = ss;
-    _as = (AuthorizationService)
-      sb.getService(this, AuthorizationService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        _as = (AuthorizationService)
+            sb.getService(this, AuthorizationService.class, null);
+        return null;
+      }
+    });
     // get the name of the agent
     AgentIdentificationService ais = (AgentIdentificationService)
       sb.getService(this, AgentIdentificationService.class, null);

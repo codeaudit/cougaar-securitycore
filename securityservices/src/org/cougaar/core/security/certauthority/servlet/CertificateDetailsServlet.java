@@ -29,6 +29,8 @@ package org.cougaar.core.security.certauthority.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.cert.X509Certificate;
 
 import javax.servlet.ServletConfig;
@@ -122,10 +124,15 @@ public class CertificateDetailsServlet
       return;
     }
     */
-    CertDirServiceRequestor cdsr =
+    final CertDirServiceRequestor cdsr =
       new CertDirServiceRequestor(support.getServiceBroker(), cadnname);
-    search = (CACertDirectoryService)
-      support.getServiceBroker().getService(cdsr, CACertDirectoryService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        search = (CACertDirectoryService)
+          support.getServiceBroker().getService(cdsr, CACertDirectoryService.class, null);
+        return null;
+      }
+    });
 
     if((distinguishedName==null)||(distinguishedName=="")) {
       out.print("Error in distinguishedName ");

@@ -69,6 +69,9 @@ import org.cougaar.core.service.identity.AgentIdentityService;
 import org.cougaar.planning.ldm.LDMServesPlugin;
 import org.cougaar.planning.service.LDMService;
 
+import java.security.PrivilegedAction;
+import java.security.AccessController;
+
 public class SecurityServiceProvider
 {
   /** The name of the community of type SecurityCommunity. */
@@ -172,9 +175,15 @@ public class SecurityServiceProvider
     newSP = new SecurityPropertiesServiceProvider(rootServiceBroker, mySecurityCommunity);
     services.put(SecurityPropertiesService.class, newSP);
     rootServiceBroker.addService(SecurityPropertiesService.class, newSP);
+
     SecurityPropertiesService secprop = (SecurityPropertiesService)
-      rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
-      /*
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          return rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
+        }
+      });
+
+    /*
     boolean standalone = false;
     try {
       standalone = new Boolean(secprop.getProperty(

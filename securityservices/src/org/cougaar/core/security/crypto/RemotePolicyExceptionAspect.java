@@ -27,6 +27,8 @@
 package org.cougaar.core.security.crypto;
 
 import java.security.cert.X509Certificate;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 
 import java.util.Iterator;
 import java.util.List;
@@ -66,10 +68,15 @@ public class  RemotePolicyExceptionAspect
     super.load();
     _log = (LoggingService)
       getServiceBroker().getService(this, LoggingService.class, null);
-    _crypto = (EncryptionService)
-      getServiceBroker().getService(this, EncryptionService.class, null);
-    _keyRing = (KeyRingService)
-      getServiceBroker().getService(this, KeyRingService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        _crypto = (EncryptionService)
+           getServiceBroker().getService(this, EncryptionService.class, null);
+        _keyRing = (KeyRingService)
+           getServiceBroker().getService(this, KeyRingService.class, null);
+        return null;
+      }
+    });
   }
 
   public Object getDelegate(Object delegatee, Class type) 

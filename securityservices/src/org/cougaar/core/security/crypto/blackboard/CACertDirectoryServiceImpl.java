@@ -29,6 +29,8 @@ package org.cougaar.core.security.crypto.blackboard;
 import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -98,16 +100,16 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
   private void checkNodeCert() {
     String nodeName = NodeInfo.getNodeName();
     KeyRingService keyRingService = (KeyRingService)
-          _serviceBroker.getService(this,
-                                 KeyRingService.class,
-                                 null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+         public Object run() {
+           return _serviceBroker.getService(this, KeyRingService.class, null);
+         }
+      });
     List certList = keyRingService.findCert(nodeName, KeyRingService.LOOKUP_KEYSTORE);
     if (certList != null && certList.size() != 0) {
       persistOk = true;
     }
-    _serviceBroker.releaseService(this,
-                                 KeyRingService.class,
-				 keyRingService);
+    _serviceBroker.releaseService(this, KeyRingService.class, keyRingService);
 
     if (!persistOk) {
       if (_log.isDebugEnabled()) {
@@ -421,15 +423,21 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
 
   private synchronized void publishCA() {
     CertificateCacheService cacheservice=(CertificateCacheService)
-      _serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+         public Object run() {
+           return _serviceBroker.getService(this, CertificateCacheService.class, null);
+         }
+      });
 
     if(cacheservice==null) {
       _log.warn("Unable to get Certificate cache Service in publishCAinLdap");
     }
     KeyRingService keyRing = (KeyRingService)
-      _serviceBroker.getService(this, KeyRingService.class, null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+         public Object run() {
+           return _serviceBroker.getService(this, KeyRingService.class, null);
+         }
+      });
     if (keyRing == null) {
       _log.warn("KeyRing service not available yet, cannot update naming with CA cert.");
       return;
@@ -511,7 +519,11 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
 
   private void publishCA(CACertificateEntry certEntry) {
     KeyRingService keyRing = (KeyRingService)
-      _serviceBroker.getService(this, KeyRingService.class, null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+         public Object run() {
+           return _serviceBroker.getService(this, KeyRingService.class, null);
+         }
+      });
     if (keyRing == null) {
       _log.warn("KeyRing service not available yet, cannot update naming with CA cert.");
       return;

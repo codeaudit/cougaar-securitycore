@@ -29,6 +29,8 @@ package org.cougaar.core.security.certauthority.servlet;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.io.PrintWriter;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -78,10 +80,13 @@ public class CAInfoServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    configParser = (ConfigParserService)
-      support.getServiceBroker().getService(this,
-					    ConfigParserService.class,
-					    null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        configParser = (ConfigParserService)
+           support.getServiceBroker().getService(this, ConfigParserService.class, null);
+        return null;
+      }
+    });
     httpsport = System.getProperty("org.cougaar.lib.web.https.port", null);
   }
 
