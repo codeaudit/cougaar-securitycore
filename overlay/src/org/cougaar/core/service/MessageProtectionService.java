@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 2002 BBNT Solutions, LLC and Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -17,32 +17,27 @@
  *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
  * </copyright>
- * Created on September 12, 2001, 10:55 AM
  */
 
-
 package org.cougaar.core.service;
+
+import org.cougaar.core.component.Service;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.MessageAttributes;
+import org.cougaar.core.mts.ProtectedInputStream;
+import org.cougaar.core.mts.ProtectedOutputStream;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-// Cougaar core services
-import org.cougaar.core.component.Service;
-import org.cougaar.core.mts.Message;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.mts.MessageAttributes;
-import org.cougaar.core.mts.ProtectedInputStream;
-import org.cougaar.core.mts.ProtectedOutputStream;
-
 /** Cryptographic Service used to cryptographically protect incoming
  * and outgoing messages.
  * This service should be called by the transport service for
  * all Cougaar messages.
  */
-public interface MessageProtectionService
-  extends Service
+public interface MessageProtectionService extends Service
 {
 
   /**
@@ -67,10 +62,12 @@ public interface MessageProtectionService
    * @param source      The source of the message
    * @param destination The destination of the message
    * @return the protected header (sign and/or encrypted)
+   * @throws GeneralSecurityException
+   * @throws IOException
    */
-  byte[] protectHeader(byte[] rawData,
+  byte[] protectHeader(byte[] rawData, 
 		       MessageAddress source,
-		       MessageAddress destination)
+		       MessageAddress destination) 
     throws GeneralSecurityException, IOException;
 
   /**
@@ -80,10 +77,12 @@ public interface MessageProtectionService
    * @param source      The source of the message
    * @param destination The destination of the message
    * @return the header in the clear
+   * @throws GeneralSecurityException
+   * @throws IOException
    */
-  byte[] unprotectHeader(byte[] rawData,
+  byte[] unprotectHeader(byte[] rawData, 
 			 MessageAddress source,
-			 MessageAddress destination)
+			 MessageAddress destination) 
     throws GeneralSecurityException, IOException;
 
   /** 
@@ -110,6 +109,7 @@ public interface MessageProtectionService
    * @param destination The destination of the outgoing message
    * @param attrs       The attributes of the outgoing message
    * @return A filter output stream
+   * @throws IOException
    */
   ProtectedOutputStream getOutputStream(OutputStream os,
 					MessageAddress source,
@@ -140,6 +140,7 @@ public interface MessageProtectionService
    * @param destination The destination of the incoming message
    * @param attrs       The attributes of the incoming message
    * @return A filter intput stream
+   * @throws IOException
    */
   ProtectedInputStream getInputStream(InputStream is,
 				      MessageAddress src,
