@@ -18,6 +18,7 @@
         <pathelement location="${securityservices.base}/sys/jas.jar"/>
         <pathelement location="${securityservices.base}/sys/jdom.jar"/>
         <pathelement location="${securityservices.base}/sys/jtp.jar"/>
+        <pathelement location="${securityservices.base}/sys/xstream-1.1.jar"/>
         <!-- KAoS libraries -->
         <pathelement location="${securityservices.base}/lib/kaos.jar"/>
         <pathelement location="${securityservices.base}/lib/safe.jar"/>

@@ -38,7 +38,9 @@ import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.util.ConfigFinder;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.util.HashMap;
@@ -50,6 +52,9 @@ import kaos.core.util.AttributeMsg;
 import kaos.core.util.PolicyMsg;
 import kaos.core.util.SubjectMsg;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
 public class PolicyBootstrapper 
   implements PolicyBootstrapperService
 {
@@ -58,6 +63,7 @@ public class PolicyBootstrapper
   private ConfigParserService cps;
   private LoggingService log;
   private XMLPolicyCreator xpc;
+  private XStream xstream = new XStream(new DomDriver());
   private static ParsedPolicyFile ppf;
 
   public static final String _damlBootPolicies = "OwlBootPolicyList";
@@ -108,7 +114,6 @@ public class PolicyBootstrapper
     _damlBootMap = new HashMap();
 
     ConfigFinder cf = ConfigFinder.getInstance();
-    InputStream policyStream = null;
     URL policyFileURL = null;
     List parsedPolicies;
 
@@ -120,6 +125,9 @@ public class PolicyBootstrapper
       try {
         parsedPolicies = getParsedPolicyFile().policies();
       } catch (Exception e) { 
+        if (log.isErrorEnabled()) {
+          log.error("Unable to read policy file", e);
+        }
         throw new RuntimeException("Fatal", e);
       }
       for (Iterator parsedPoliciesIt = parsedPolicies.iterator();
@@ -131,8 +139,9 @@ public class PolicyBootstrapper
           log.debug("using grammar");
           log.debug("working on the file " + fileName);
         }
+        InputStream is = null;
         try {
-          policyStream = cf.open(fileName);
+          is = cf.open(fileName);
         } catch (IOException e) {
           if (log.isWarnEnabled()) {
             log.warn("policy  file " + fileName + " not loaded");
@@ -144,17 +153,16 @@ public class PolicyBootstrapper
                     " I am looking in the policy file " + fileName);
         }
 
-	if (policyStream == null) {
+	if (is == null) {
           if (log.isErrorEnabled()) {
             log.error("Policy not found: " + fileName);
           }
           continue;
         }
+        Reader reader = new InputStreamReader(is);
 
-        ObjectInputStream policyObjectStream 
-          = new ObjectInputStream(policyStream);
-        PolicyMsg policy = (PolicyMsg) policyObjectStream.readObject();
-        policyObjectStream.close();
+        PolicyMsg policy = (PolicyMsg)xstream.fromXML(reader);
+
         if (log.isDebugEnabled()) {
           log.debug(".PolicyBootStrapper: retrieved " + policy + 
                     "from the file " + policyFileURL);
@@ -172,9 +180,6 @@ public class PolicyBootstrapper
       }
     } catch (IOException e) {
       log.warn("Exception reading daml policies file", e);
-    } catch (ClassNotFoundException e) {
-      log.error("Policy file " + policyFileURL + 
-                " does not contain PolicyMsg object!", e);
     } catch (RuntimeException e) {
       log.warn("Exception reading daml policies file", e);
     }
