@@ -428,7 +428,14 @@ public class SecurityServiceProvider
       if(!UserServiceProvider.AGENT_SERVICE) {
         UserServiceProvider.setRootServiceBroker(rootServiceBroker);
       }
-      org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.setNodeServiceBroker(serviceBroker);
+      try {
+        org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.setNodeServiceBroker(serviceBroker);
+      }
+      catch (Exception e) {
+        if (log.isWarnEnabled()) {
+          log.warn("Unable to initialize KeyRingJNDIRealm", e);
+        }
+      }
       //serviceBroker.getService(this, UserService.class, null);
 
       /**********************************
