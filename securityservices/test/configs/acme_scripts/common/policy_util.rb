@@ -1,5 +1,9 @@
 require 'framework/jar_util'
 
+if ! defined? CIP
+  CIP = ENV['CIP']
+end
+
 def waitForUserManager(agent, path="/userManagerReady", path2=nil)
   agent = run.society.agents[agent]
 
@@ -104,7 +108,7 @@ def getPolicyManager(enclave)
 end
 
 def getPolicyFile(enclave)
-  filename = File.join($CIP,"workspace","policy","#{enclave}")
+  filename = File.join(CIP,"workspace","policy","#{enclave}")
   Dir.mkdirs(File.dirname(filename));
   filename
 end
@@ -119,8 +123,8 @@ def policyUtil(args, javaArgs = nil)
   classpath = getClasspath
 
   defs = [
-    "-Dorg.cougaar.config.path=#{File.join($CIP,'configs','security')}",
-    "-Dlog4j.configuration=#{File.join($CIP,'configs','common','loggingConfig.conf')}",
+    "-Dorg.cougaar.config.path=#{File.join(CIP,'configs','security')}",
+    "-Dlog4j.configuration=#{File.join(CIP,'configs','common','loggingConfig.conf')}",
   ]
 
   if javaArgs != nil
@@ -146,7 +150,7 @@ def deltaPolicy(enclave, text)
     end
     if !fileExists
       # load the boot policies -- we haven't done any delta yet
-      bootPolicyFile = File.join($CIP, "configs", "security",
+      bootPolicyFile = File.join(CIP, "configs", "security",
                                  "DamlBootPolicyList")
       result = commitPolicy(host, port, manager, "commit --dm", bootPolicyFile)
       logInfoMsg result
@@ -258,9 +262,9 @@ module Cougaar
 
             }
           }
-          origFile = "#{$CIP}/configs/security/DamlBootPolicyList.orig"
-          prevFile = "#{$CIP}/configs/security/DamlBootPolicyList"
-          stopFile = "#{$CIP}/configs/security/DamlBootPolicyList.completed"
+          origFile = "#{CIP}/configs/security/DamlBootPolicyList.orig"
+          prevFile = "#{CIP}/configs/security/DamlBootPolicyList"
+          stopFile = "#{CIP}/configs/security/DamlBootPolicyList.completed"
 #          puts("finished creating lines")
           origLines = File.readlines(origFile)
           policyLines = lines.concat(origLines).concat(newPolicies)
@@ -289,13 +293,13 @@ module Cougaar
 
             File.open(stopFile, "w") { }
             # add the files to the security config jar file
-            configJar = "#{$CIP}/configs/security/securityservices_config.jar"
+            configJar = "#{CIP}/configs/security/securityservices_config.jar"
             replaceFileInJar(configJar,
-                             "#{$CIP}/configs/security/DamlBootPolicyList")
-            Dir["#{$CIP}/configs/security/*.info"].each { |file|
+                             "#{CIP}/configs/security/DamlBootPolicyList")
+            Dir["#{CIP}/configs/security/*.info"].each { |file|
               replaceFileInJar(configJar, file)
             }
-            signJar(configJar, "#{$CIP}/operator/signingCA_keystore", 
+            signJar(configJar, "#{CIP}/operator/signingCA_keystore", 
                     "privileged")
           end
         end
