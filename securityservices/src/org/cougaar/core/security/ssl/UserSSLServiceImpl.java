@@ -29,10 +29,11 @@ import javax.net.*;
 import javax.net.ssl.*;
 
 import org.cougaar.core.security.util.CryptoDebug;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.identity.*;
+import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.userauth.*;
 
-public class UserSSLServiceImpl extends SSLServiceImpl {
+public class UserSSLServiceImpl extends SSLServiceImpl
+  implements UserSSLService {
   private SSLContext usrcontext = null;
 
   public synchronized void init(KeyRingService krs)
@@ -46,12 +47,22 @@ public class UserSSLServiceImpl extends SSLServiceImpl {
     tm = new UserTrustManager(krs);
 
     context.init(new KeyManager[] {km}, new TrustManager[] {tm}, null);
+
     usrcontext = context;
 
+    // set default connection socket factory
+    HttpsURLConnection.setDefaultSSLSocketFactory(
+      (SSLSocketFactory)getUserSocketFactory());
+
+    System.out.println("Successfully initialize UserSSLService.");
   }
 
   public SocketFactory getUserSocketFactory() {
     return KeyRingSSLFactory.getInstance(usrcontext);
+  }
+
+  public void setAuthHandler(AuthenticationHandler handler) {
+    ((UserKeyManager)km).setAuthHandler(handler);
   }
 
 }
