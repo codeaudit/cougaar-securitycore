@@ -51,17 +51,16 @@ public class MaliciousBlackboardPredicatePlugin extends AbstractBlackboardPlugin
       public boolean execute(Object o) {
         Object obj = o;
         boolean bol = false;
+        totalRuns++;
+        successes++;
         if (obj instanceof OrgActivity) {
           obj = null;
-          totalRuns++;
           failures++;
+		  successes--;
           bol = true;
         }
 
-        if (bol == false) {
-          totalRuns++;
-          successes++;
-        }
+        
 
         return bol;
       }

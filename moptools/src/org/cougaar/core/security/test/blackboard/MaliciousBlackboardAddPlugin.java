@@ -108,8 +108,9 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
    */
   protected void queryBlackboard() {
     //automatically increment success
-    OrgActivity orgActivity = OplanFactory.newOrgActivity(pluginName,new UID(pluginName,3434343));
+	OrgActivity orgActivity = OplanFactory.newOrgActivity(pluginName,uidService.nextUID());
     orgActivity.setActivityName(MALCICOUS_ADD_ACTIVITY_NAME);
+    orgActivity.setUID(uidService.nextUID());
     getBlackboardService().publishAdd(orgActivity);
     this.successes++;
     this.totalRuns++;

@@ -33,6 +33,10 @@
 package org.cougaar.core.security.test;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -43,10 +47,7 @@ import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.servlet.BaseServletComponent;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import org.cougaar.util.log.LoggerFactory;
 
 
 /**
@@ -63,34 +64,36 @@ public abstract class AbstractServletComponent extends BaseServletComponent
   /** Cougaar DomainService */
   protected DomainService domainService;
   protected Object parameter;
-
-  /* (non-Javadoc)
-   * @see com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent#getPath()
-   */
+	private static org.cougaar.util.log.Logger auditLogger = LoggerFactory.getInstance().createLogger(AbstractServletComponent.class);
+ 
+/**
+ * Return the path to this servlet
+ */
   protected abstract String getPath();
 
 
-  /* (non-Javadoc)
-   * @see com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent#execute(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-   */
+ /**
+  * Execute the business logic here
+  * @param request ServletRequest
+  * @param response ServletResponse
+  */
   protected abstract void execute(HttpServletRequest request,
     HttpServletResponse response);
 
 
-  /* (non-Javadoc)
-   * @see org.cougaar.core.servlet.BaseServletComponent#createServlet()
+  /**
+   * Method implementation for blackboard clietn
    */
   protected Servlet createServlet() {
     return new MyServlet();
   }
 
 
-  /* (non-Javadoc)
-   * @see org.cougaar.core.blackboard.BlackboardClient#getBlackboardClientName()
-   */
+ /**
+  * Method implementation for Blackboard Client
+  */
   public String getBlackboardClientName() {
-    // TODO Auto-generated method stub
-    return null;
+    return this.getClass().getName();
   }
 
 
@@ -128,15 +131,18 @@ public abstract class AbstractServletComponent extends BaseServletComponent
    * DOCUMENT ME!
    */
   public void load() {
+		super.load();
     this.serviceBroker = this.bindingSite.getServiceBroker();
     this.blackboardService = (BlackboardService) serviceBroker.getService(this,
         BlackboardService.class, null);
+    auditLogger.error("Getting logging service...");
     this.logging = (LoggingService) serviceBroker.getService(this,
         LoggingService.class, null);
+    auditLogger.error("Logging service:" + logging);
     this.domainService = (DomainService) serviceBroker.getService(this,
         DomainService.class, null);
 
-    super.load();
+   
   }
 
 
