@@ -43,38 +43,116 @@ import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import java.math.*;
 
-/** This class represents a single target of the current alert.
-    See Section 5.2.4.4 of the IDMEF internet-draft for more info.
-*/
-
+/** 
+ * <pre>
+ *  The Target class contains information about the possible target(s) of
+ *  the event(s) that generated an alert.  An event may have more than
+ *  one target (e.g., in the case of a port sweep).
+ *
+ *  The Target class is composed of four aggregate classes, as shown in
+ *  Figure 4.11.
+ *
+ *              +------------------+
+ *              |      Target      |
+ *              +------------------+       0..1 +----------+
+ *              | STRING ident     |<>----------|   Node   |
+ *              | ENUM decoy       |            +----------+
+ *              | STRING interface |       0..1 +----------+
+ *              |                  |<>----------|   User   |
+ *              |                  |            +----------+
+ *              |                  |       0..1 +----------+
+ *              |                  |<>----------| Process  |
+ *              |                  |            +----------+
+ *              |                  |       0..1 +----------+
+ *              |                  |<>----------| Service  |
+ *              |                  |            +----------+
+ *              |                  |       0..1 +----------+
+ *              |                  |<>----------| FileList |
+ *              |                  |            +----------+
+ *              +------------------+
+ *
+ *                    Figure 4.11 - The Target Class
+ *
+ *  The aggregate classes that make up Target are:
+ *
+ *  Node
+ *     Zero or one.  Information about the host or device at which the
+ *     event(s) (network address, network name, etc.) is being directed.
+ *
+ *  User
+ *     Zero or one.  Information about the user at which the event(s) is
+ *     being directed.
+ *
+ *  Process
+ *     Zero or one.  Information about the process at which the event(s)
+ *     is being directed.
+ *
+ *  Service
+ *     Zero or one.  Information about the network service involved in
+ *     the event(s).
+ *
+ *  FileList
+ *     Zero or one.  Information about file(s) involved in the event(s).
+ *
+ *  This is represented in the XML DTD as follows:
+ *
+ *     &lt!ENTITY % attvals.yesno                "
+ *         ( unknown | yes | no )
+ *     "&gt
+ *     &lt!ELEMENT Target                        (
+ *         Node?, User?, Process?, Service?, FileList?
+ *     )&gt
+ *     &lt!ATTLIST Target
+ *         ident               CDATA                   '0'
+ *         decoy               %attvals.yesno;         'unknown'
+ *         interface           CDATA                   #IMPLIED
+ *     &gt
+ *
+ *  The Target class has three attributes:
+ *
+ *  ident
+ *     Optional.  A unique identifier for this target, see Section 3.4.9.
+ *
+ *  decoy
+ *     Optional.  An indication of whether the target is, as far as the
+ *     analyzer can determine, a decoy.  The permitted values for this
+ *     attribute are shown below.  The default value is "unknown".
+ *
+ *     Rank   Keyword            Description
+ *     ----   -------            -----------
+ *       0    unknown            Accuracy of target information unknown
+ *       1    yes                Target is believed to be a decoy
+ *       2    no                 Target is believed to be "real"
+ *
+ *  interface
+ *     Optional.  May be used by a network-based analyzer with multiple
+ *     interfaces to indicate which interface this target was seen on.
+ *
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Draft Specification v0.7</a>.
+ */
 public class Target implements XMLSerializable {
 
-  protected IDMEF_Node node;
-
-  protected User user;
-
-  protected IDMEF_Process process;
-
-  protected Service service;
-
-  protected FileList fileList;
+  private IDMEF_Node node;
+  private User user;
+  private IDMEF_Process process;
+  private Service service;
+  private FileList fileList;
     
   //attributes
+  private String ident;
+  private String decoy;
+  private String networkInterface;
 
-  protected String ident;
-
-  protected String decoy;
-
-  protected String networkInterface;
-
-
+  private static final String ATTRIBUTE_DECOY = "decoy";
+  private static final String ATTRIBUTE_INTERFACE = "interface";
+  
   //constants
-
   public static final String UNKNOWN = "unknown";
   public static final String YES = "yes";
   public static final String NO = "no";
 
-
+  public static final String ELEMENT_NAME = "Target";
   //getters and setters
 
   public IDMEF_Node getNode(){
@@ -134,6 +212,21 @@ public class Target implements XMLSerializable {
     networkInterface = inNetworkInterface;
   }
   
+  /**
+   * Example of an equals method.
+   * <pre> 
+   * returns true when attributes of comparing object and this object are null or equal.
+   * Attributes that are compared are :
+   *  All
+   * <b>
+   * NOTE: This is specific to how systems use IDMEF messages and
+   *       what it means when two objects are equivalent.  For
+   *       example, equivalence may mean a subset of the objects
+   *       attributes.  It's advised that this method is modified
+   *       for your particular environment.
+   * </b>
+   * </pre> 
+   */
    public boolean equals( Object anObject) {
     boolean equals=false;
     boolean arenodeequal=false;
@@ -153,84 +246,84 @@ public class Target implements XMLSerializable {
       myNode=this.getNode();
       inNode=inTarget.getNode();
       if((myNode!=null) && (inNode!=null)) {
-	if(myNode.equals(inNode)) {
-	  arenodeequal=true;
-	}
+      	if(myNode.equals(inNode)) {
+      	  arenodeequal=true;
+      	}
       }
       else if( (myNode==null) && (inNode==null)) {
-	arenodeequal=true;
+	      arenodeequal=true;
       }
       IDMEF_Process myProcess;
       IDMEF_Process inProcess;
       myProcess=this.getProcess();
       inProcess=inTarget.getProcess();
       if((myProcess!=null) && (inProcess!=null)) {
-	if(myProcess.equals(inProcess)) {
-	  areprocessequal=true;
-	}
+      	if(myProcess.equals(inProcess)) {
+      	  areprocessequal=true;
+      	}
       }
       else if( (myProcess==null) && (inProcess==null)) {
-	areprocessequal=true;
+	      areprocessequal=true;
       }
       Service myService;
       Service inService;
       myService=this.getService();
       inService=inTarget.getService();
       if((myService!=null) && (inService!=null)) {
-	if(myService.equals(inService)) {
-	  areserviceequal=true;
-	}
+      	if(myService.equals(inService)) {
+      	  areserviceequal=true;
+      	}
       }
       else if( (myService==null) && (inService==null)) {
-	areserviceequal=true;
+	      areserviceequal=true;
       }
       User myUser;
       User inUser;
       myUser=this.getUser();
       inUser=inTarget.getUser();
       if((myUser!=null) && (inUser!=null)) {
-	if(myUser.equals(inUser)) {
-	  areuserequal=true;
-	}
+      	if(myUser.equals(inUser)) {
+      	  areuserequal=true;
+      	}
       }
       else if( (myUser==null) && (inUser==null)) {
-	areuserequal=true;
+	      areuserequal=true;
       }
       String myvalue;
       String invalue;
       myvalue=this.getDecoy();
       invalue=inTarget.getDecoy();
       if((myvalue!=null) && (invalue!=null)) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  aredecoyequal=true;
-	}
+      	if(myvalue.trim().equals(invalue.trim())) {
+      	  aredecoyequal=true;
+      	}
       }
       else if( (myvalue==null) && (invalue==null)) {
-	aredecoyequal=true;
+	      aredecoyequal=true;
       }
       
       myvalue=this.getNetworkInterface();
       invalue=inTarget.getNetworkInterface();
       if((myvalue!=null) && (invalue!=null)) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  areNIequal=true;
-	}
+      	if(myvalue.trim().equals(invalue.trim())) {
+      	  areNIequal=true;
+      	}
       }
       else if( (myvalue==null) && (invalue==null)) {
-	areNIequal=true;
+	      areNIequal=true;
       }
       
       if( arenodeequal && areprocessequal && areserviceequal
-	  && areuserequal &&  aredecoyequal &&  areNIequal ) {
-	equals=true;
+	      && areuserequal &&  aredecoyequal &&  areNIequal ) {
+	      equals=true;
       }
-      
     }
     return equals; 
     
   }
 
-  /**Copies arguments into corresponding fields.
+  /**
+   * Copies arguments into corresponding fields.
    */
   public Target(IDMEF_Node inNode, User inUser, IDMEF_Process inProcess,
 		Service inService, FileList inFileList, String inIdent, String inDecoy, 
@@ -246,34 +339,35 @@ public class Target implements XMLSerializable {
     networkInterface = inNetowrkInterface;
 
   }
-  /**Creates an object with all fields null.
+  /**
+   * Creates an object with all fields null.
    */
   public Target(){
     this(null, null, null, null, null, null, null, null);
   }
-  /**Creates an object from the XML Node containing the XML version of this object.
-     This method will look for the appropriate tags to fill in the fields. If it cannot find
-     a tag for a particular field, it will remain null.
-  */
+  /**
+   * Creates an object from the XML Node containing the XML version of this object.
+   * This method will look for the appropriate tags to fill in the fields. If it cannot find
+   * a tag for a particular field, it will remain null.
+   */
   public Target (Node inNode){
 
-    Node nodeNode =  XMLUtils.GetNodeForName(inNode, "Node");
+    Node nodeNode =  XMLUtils.GetNodeForName(inNode, IDMEF_Node.ELEMENT_NAME);
     if (nodeNode == null) node = null;
     else node = new IDMEF_Node (nodeNode);
 
-    Node userNode =  XMLUtils.GetNodeForName(inNode, "User");
+    Node userNode =  XMLUtils.GetNodeForName(inNode, User.ELEMENT_NAME);
     if (userNode == null) user = null;
     else user = new User (userNode);
 
-    Node processNode =  XMLUtils.GetNodeForName(inNode, "Process");
+    Node processNode =  XMLUtils.GetNodeForName(inNode, IDMEF_Process.ELEMENT_NAME);
     if (processNode == null) process = null;
     else process = new IDMEF_Process (processNode);
 
-    Node serviceNode =  XMLUtils.GetNodeForName(inNode, "Service");
+    Node serviceNode =  XMLUtils.GetNodeForName(inNode, Service.ELEMENT_NAME);
     if (serviceNode == null) service = null;
     else service = new Service (serviceNode);
 
-    // new in v1.0
     Node fileListNode = XMLUtils.GetNodeForName( inNode, FileList.ELEMENT_NAME );
     if(fileListNode != null){
       fileList = new FileList( fileListNode );
@@ -281,29 +375,28 @@ public class Target implements XMLSerializable {
 	
     NamedNodeMap nnm = inNode.getAttributes();
 
-    Node identNode = nnm.getNamedItem("ident");
+    Node identNode = nnm.getNamedItem(ATTRIBUTE_IDENT);
     if(identNode == null) ident=null;
     else ident = identNode.getNodeValue();
 
-    Node decoyNode = nnm.getNamedItem("decoy");
+    Node decoyNode = nnm.getNamedItem(ATTRIBUTE_DECOY);
     if (decoyNode == null) decoy=null;
     else decoy = decoyNode.getNodeValue();
 
-    Node networkInterfaceNode = nnm.getNamedItem("interface");
+    Node networkInterfaceNode = nnm.getNamedItem(ATTRIBUTE_INTERFACE);
     if (networkInterfaceNode == null) networkInterface=null;
     else networkInterface = networkInterfaceNode.getNodeValue();
   }
 
 
   public Node convertToXML(Document parent){
-    Element targetNode = parent.createElement("Target"
-      );
+    Element targetNode = parent.createElement(ELEMENT_NAME);
     if(ident != null)
-      targetNode.setAttribute("ident", ident);
+      targetNode.setAttribute(ATTRIBUTE_IDENT, ident);
     if(decoy != null)
-      targetNode.setAttribute("decoy", decoy);
+      targetNode.setAttribute(ATTRIBUTE_DECOY, decoy);
     if(networkInterface != null)
-      targetNode.setAttribute("interface",networkInterface);
+      targetNode.setAttribute(ATTRIBUTE_INTERFACE,networkInterface);
 
     if(node != null){
       Node nodeNode = node.convertToXML(parent);

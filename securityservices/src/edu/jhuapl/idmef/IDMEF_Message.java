@@ -44,15 +44,45 @@ import org.apache.xml.serialize.*;
 import org.apache.xerces.parsers.*;
 import java.math.*;
 
-/** This class represents an abstract IDMEF Message.
- *  It is also used to create messages from XML documents or strings.
- *  See Section 5.2.1 of the IDMEF internet-draft for more info.
+/**
+ * <pre>
+ * 
+ *  All IDMEF messages are instances of the IDMEF_Message class; it is
+ *  the top-level class of the IDMEF data model, as well as the IDMEF
+ *  DTD.  There are currently two types (subclasses) of IDMEF-Message:
+ *  Alert and Heartbeat.
+ *
+ *  Because DTDs do not support subclassing (see Section 3.3.4 of the IDMEF
+ *  specification draft v0.7), the inheritance relationship between 
+ *  IDMEF-Message and the Alert and Heartbeat subclasses shown in Figure 4.1
+ *  has been replaced with an aggregate relationship.  This is declared in 
+ *  the IDMEF DTD as follows:
+ *
+ *     &lt!ENTITY % attlist.idmef                "
+ *         version             CDATA                   #FIXED    '1.0'
+ *      "&gt
+ *     &lt!ELEMENT IDMEF-Message                 (
+ *         (Alert | Heartbeat)*
+ *      )&gt
+ *     &lt!ATTLIST IDMEF-Message
+ *         %attlist.idmef;
+ *     &gt
+ *
+ *  The IDMEF_Message class has a single attribute:
+ *
+ *  version
+ *     The version of the IDMEF-Message specification this message conforms to.  
+ *     Applications specifying a value for this attribute MUST specify the value 
+ *     "1.0".
+ *
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Draft Specification v0.7</a>.
  */
 
-public abstract class IDMEF_Message implements XMLSerializable{
+public abstract class IDMEF_Message implements XMLSerializable {
 
-    public static String ELEMENT_NAME = "IDMEF-Message";
-    public static String ATTRIBUTE_VERSION = "version";
+    public static final String ELEMENT_NAME = "IDMEF-Message";
+    public static final String ATTRIBUTE_VERSION = "version";
     
     /**The current implemented version of IDMEF*/
     protected static String version = "1.0";
@@ -63,148 +93,131 @@ public abstract class IDMEF_Message implements XMLSerializable{
 
     //initialize the dtd file location.
     static{
-	dtdFileLocation = "./idmef-message.dtd";
+	    dtdFileLocation = "./idmef-message.dtd";
     }
 
     //getters and setters
     public static void setVersion (String vers){
-	version = vers;
+	    version = vers;
     }
 
     public static String getVersion (){
-	return version;
+	    return version;
     }
 
     public static String getDtdFileLocation(){
-	return dtdFileLocation;
+	    return dtdFileLocation;
     }
     public static void setDtdFileLocation(String inDtdFileLocation){
-	dtdFileLocation = inDtdFileLocation ;
+	    dtdFileLocation = inDtdFileLocation ;
     }
 
     public Node convertToXML(Document parent){
-	Element idmefNode = parent.createElement("IDMEF-Message");
-	if(version != null)
-	    idmefNode.setAttribute("version", version);
-	return idmefNode;
+	    Element idmefNode = parent.createElement(ELEMENT_NAME);
+	    if(version != null)
+	      idmefNode.setAttribute(ATTRIBUTE_VERSION, version);
+	    return idmefNode;
     }
 
-    /**This method is used to create messages from input XML Strings. This
-       method really only parses the String and calls the createMessage(Document) method.
-       @see #createMessage(Document inputXML)
-       @param inputXML the String to turn into a message.
-       @return the Message that is created from the String.
-    */
-
+    /**
+     * This method is used to create messages from input XML Strings. This
+     * method really only parses the String and calls the createMessage(Document) method.
+     * @see #createMessage(Document inputXML)
+     * @param inputXML the String to turn into a message.
+     * @return the Message that is created from the String.
+     */
     public static IDMEF_Message createMessage(String inputXML){
-	try{
-	    DOMParser parser = new DOMParser();
-	    parser.parse(new InputSource(new StringReader(inputXML)));
-	    Document newMessage = parser.getDocument();
-
-	    return createMessage(newMessage);
-	    
-	} catch(Exception e){ e.printStackTrace();
-	}
-	return null;
+	    try{
+	      DOMParser parser = new DOMParser();
+	      parser.parse(new InputSource(new StringReader(inputXML)));
+	      Document newMessage = parser.getDocument();
+  	    return createMessage(newMessage);
+	     } 
+	     catch(Exception e){ 
+	        e.printStackTrace();
+	     }
+	     return null;
     }
-    /**This method is used to create messages from input XML Documents.
-       @param inputXML the Document to turn into a message.
-       @return the Message that is created from the String.
-    */
-
+    /**
+     * This method is used to create messages from input XML Documents.
+     * @param inputXML the Document to turn into a message.
+     * @return the Message that is created from the String.
+     */
     public static IDMEF_Message createMessage(Document inputXML){
-	Element root = inputXML.getDocumentElement();
-	//System.out.println(root.getNodeName() + root.getNodeValue());
+	    Element root = inputXML.getDocumentElement();
 	
-	NodeList children = root.getChildNodes();
-	IDMEF_Message returnValue = null;
-	for (int i=0; i<children.getLength();i++){
-	
-	    //System.out.println(children.item(i).getNodeName());
-	    if(children.item(i).getNodeName().equals("Alert")){
-		boolean isAlertSubclass = false;
-		//System.out.println("This is an alert");
-		NodeList alertChildren = children.item(i).getChildNodes();
-		for (int j=0; j<alertChildren.getLength();j++){
-		    if (alertChildren.item(j).getNodeName().equals("CorrelationAlert")){
-			//System.out.println("This is a CorrelationAlert");
-			returnValue =  new CorrelationAlert(children.item(i));
-			isAlertSubclass = true;
-		    }
-		    if (alertChildren.item(j).getNodeName().equals("ToolAlert")){
-			//System.out.println("This is a ToolAlert");
-			returnValue =  new ToolAlert(children.item(i));
-			isAlertSubclass = true;
-		    }
-		    if (alertChildren.item(j).getNodeName().equals("OverflowAlert")){
-			//System.out.println("This is a OverflowAlert");
-			returnValue =  new OverflowAlert(children.item(i));
-			isAlertSubclass = true;
-		    }
-		}
-		if (!isAlertSubclass){
-		    returnValue =  new Alert(children.item(i));
-		}
+	    NodeList children = root.getChildNodes();
+	    IDMEF_Message returnValue = null;
+	    for (int i=0; i<children.getLength();i++){
+	      if(children.item(i).getNodeName().equals(Alert.ELEMENT_NAME)){
+		      boolean isAlertSubclass = false;
+		      //System.out.println("This is an alert");
+		      NodeList alertChildren = children.item(i).getChildNodes();
+		      for (int j=0; j<alertChildren.getLength();j++){
+  		      if (alertChildren.item(j).getNodeName().equals(CorrelationAlert.ELEMENT_NAME)){
+			        //System.out.println("This is a CorrelationAlert");
+			        returnValue =  new CorrelationAlert(children.item(i));
+			        isAlertSubclass = true;
+		        }
+		        if (alertChildren.item(j).getNodeName().equals(ToolAlert.ELEMENT_NAME)){
+  			      //System.out.println("This is a ToolAlert");
+			        returnValue =  new ToolAlert(children.item(i));
+			        isAlertSubclass = true;
+		        }
+		        if (alertChildren.item(j).getNodeName().equals(OverflowAlert.ELEMENT_NAME)){
+  			      //System.out.println("This is a OverflowAlert");
+			        returnValue =  new OverflowAlert(children.item(i));
+			        isAlertSubclass = true;
+		        }
+		      }
+		      if (!isAlertSubclass){
+  		      returnValue =  new Alert(children.item(i));
+		      }
+	      }
+	      else if(children.item(i).getNodeName().equals("Heartbeat")){
+  		    //System.out.println("This is a Heartbeat");
+		      returnValue = new Heartbeat (children.item(i));
+	      }
 	    }
-	    else if(children.item(i).getNodeName().equals("Heartbeat")){
-		//System.out.println("This is a Heartbeat");
-		returnValue = new Heartbeat (children.item(i));
-		
-	    }
-	    
-	}
-	//System.out.println("This is the document I created:");
+	    //System.out.println("This is the document I created:");
+	    //if (returnValue != null) System.out.println(returnValue.serialize());
 	
-	//if (returnValue != null) System.out.println(returnValue.serialize());
-	
-	return returnValue;
+	    return returnValue;
     }
 
-    /**This method converts this message to a pretty-printed XML string.
+    /**
+     * This method converts this message to a pretty-printed XML string.
      */
     public String toString(){
-	try{
-
-	    Document document = toXML();
+	    try{
+	      Document document = toXML(); 
+  	    StringWriter buf=new StringWriter();
+	      OutputFormat of = new OutputFormat(document, "UTF-8", true);
+	      of.setDoctype("-//IETF//DTD RFCxxxx IDMEF v0.3//EN", getDtdFileLocation());
 	    
-	    StringWriter buf=new StringWriter();
-	    OutputFormat of = new OutputFormat(document, "UTF-8", true);
-	    of.setDoctype("-//IETF//DTD RFCxxxx IDMEF v0.3//EN", getDtdFileLocation());
-	    
-	    //of.getOmitDocumentType();
-	    XMLSerializer sezr = new XMLSerializer (buf , of);
-	    sezr.serialize(document);
-	    
-	    return buf.toString();
-	}catch (Exception e){
-	    return null;
-	}
+	      //of.getOmitDocumentType();
+	      XMLSerializer sezr = new XMLSerializer (buf , of);
+	      sezr.serialize(document);
+	      return buf.toString();
+	    }
+	    catch (Exception e){
+	      return null;
+	    }
     }
 
     public Document toXML() throws ParserConfigurationException{
+	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder builder = factory.newDocumentBuilder();
+	    Document document = builder.newDocument(); 
+	    Element root = document.createElement(ELEMENT_NAME); 
+	    document.appendChild (root);
+	    if(version != null){
+        root.setAttribute(ATTRIBUTE_VERSION, version );
+	    }
 	
-	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	// factory.setNamespaceAware( false );
-	DocumentBuilder builder = factory.newDocumentBuilder();
-	Document document = builder.newDocument(); 
-	// Element root = (Element) document.createElementNS("idmef", "IDMEF-Message"); 
-	Element root = document.createElement("IDMEF-Message"); 
-	document.appendChild (root);
-	if(version != null)
-	{
-        root.setAttribute( "version", version );
-	    /* 
-	    // TODO: determine if this is necessary!
-	    Attr attr = document.createAttributeNS( "idmef", "version" );
-	    attr.setValue(version);
-	    root.setAttributeNodeNS( attr );
-	    */
-	}
-	
-	Node messageNode = this.convertToXML(document);
-	root.appendChild(messageNode);
-	return document;
+	    Node messageNode = this.convertToXML(document);
+	    root.appendChild(messageNode);
+	    return document;
     }
 }
 

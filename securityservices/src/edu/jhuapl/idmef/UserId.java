@@ -43,22 +43,125 @@ import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import java.math.*;
 
-/** This class represents a single user's ID. 
-    See Section 5.2.6.2.1 of the IDMEF internet-draft for more info.
-*/
+/** 
+ * <pre>
+ *  The UserId class provides specific information about a user.  More
+ *  than one UserId can be used within the User class to indicate
+ *  attempts to transition from one user to another, or to provide
+ *  complete information about a user's (or process') privileges.
+ *
+ *  The UserId class is composed of two aggregate classes, as shown in
+ *  Figure 4.16.
+ *
+ *                  +--------------+
+ *                  |    UserId    |
+ *                  +--------------+       0..1 +--------+
+ *                  | STRING ident |<>----------|  name  |
+ *                  | ENUM type    |            +--------+
+ *                  |              |       0..1 +--------+
+ *                  |              |<>----------| number |
+ *                  |              |            +--------+
+ *                  +--------------+
+ *
+ *                    Figure 4.16 - The UserId Class
+ *
+ *  The aggregate classes that make up UserId are:
+ *
+ *  name
+ *     Zero or one.  STRING.  A user or group name.
+ *
+ *  number
+ *     Zero or one.  INTEGER.  A user or group number.
+ *
+ *  This is represented in the XML DTD as follows:
+ *
+ *     &lt!ENTITY % attvals.idtype               "
+ *         ( current-user | original-user | target-user | user-privs |
+ *           current-group | group-privs | other-privs )
+ *     "&gt
+ *     &lt!ELEMENT UserId                        (
+ *         name?, number?
+ *     )&gt
+ *     &lt!ATTLIST UserId
+ *         ident               CDATA                   '0'
+ *         type                %attvals.idtype;        'original-user'
+ *     &gt
+ *
+ *  The UserId class has two attributes:
+ *
+ *  ident
+ *     Optional.  A unique identifier for the user id.
+ *
+ *  type
+ *     Optional.  The type of user information represented.  The
+ *     permitted values for this attribute are shown below.  The default
+ *     value is "original-user".
+ *
+ *     Rank   Keyword            Description
+ *     ----   -------            -----------
+ *       0    current-user       The current user id being used by the
+ *                               user or process.  On Unix systems, this
+ *                               would be the "real" user id, in general.
+ *       1    original-user      The actual identity of the user or
+ *                               process being reported on.  On those
+ *                               systems that (a) do some type of
+ *                               auditing and (b) support extracting a
+ *                               user id from the "audit id" token, that
+ *                               value should be used.  On those systems
+ *                               that do not support this, and where the
+ *                               user has logged into the system, the
+ *                               "login id" should be used.
+ *       2    target-user        The user id the user or process is
+ *                               attempting to become.  This would apply,
+ *                               on Unix systems for example, when the
+ *                               user attempts to use "su," "rlogin,"
+ *                               "telnet," etc.
+ *       3    user-privs         Another user id the user or process has
+ *                               the ability to use, or a user id assoc-
+ *                               iated with a file permission.  On Unix
+ *                               systems, this would be the "effective"
+ *                               user id in a user or process context,
+ *                               and the owner permissions in a file
+ *                               context.  Multiple UserId elements of
+ *                               this type may be used to specify a list
+ *                               of privileges.
+ *       4    current-group      The current group id (if applicable)
+ *                               being used by the user or process.  On
+ *                               Unix systems, this would be the "real"
+ *                               group id, in general.
+ *       5    group-privs        Another group id the group or process
+ *                               has the ability to use, or a group id
+ *                               associated with a file permission.  On
+ *                               Unix systems, this would be the "effect-
+ *                               ive" group id in a group or process
+ *                               context, and the group permissions in a
+ *                               file context.  On BSD-derived Unix
+ *                               systems, multiple UserId elements of
+ *                               this type would be used to include all 
+ *                               the group ids on the "group list."
+ *       6    other-privs        Not used in a user, group, or process
+ *                               The file permissions assigned to users
+ *                               who do not match either the user or
+ *                               group permissions on the file.  On Unix
+ *                               systems, this would be the "world"
+ *                               permissions.
+ *
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Draft Specification v0.7</a>.
+ */
+public class UserId implements XMLSerializable {
 
-public class UserId implements XMLSerializable{
-
-  protected String name;
-
-  protected Integer number;
+  private String name;
+  private Integer number;
 
   //attributes
+  private String ident;
+  private String type;
 
-  protected String ident;
-
-  protected String type;
-
+  private static final String ATTRIBUTE_TYPE = "type";
+  private static final String CHILD_ELEMENT_NAME = "name";
+  private static final String CHILD_ELEMENT_NUMBER = "number";
+  
   //constants
   public static final String ELEMENT_NAME        = "UserId";
   public static final String CURRENT_USER        = "current-user";
@@ -68,7 +171,7 @@ public class UserId implements XMLSerializable{
   public static final String CURRENT_GROUP       = "current-group";
   public static final String GROUP_PRIVS         = "group-privs";
   public static final String OTHER_PRIVS         = "other-privs";
-
+  
   //getters and setters
 
   public String getName(){
@@ -99,11 +202,22 @@ public class UserId implements XMLSerializable{
   public void setType(String inType){
     type = inType;
   }
-  /* returns true when attributes of comparing object and this object are null or equal.
-    Attributes that are compared are :
-     Name
-     Number
-  */
+   /**
+   * Example of an equals method.
+   * <pre> 
+   * returns true when attributes of comparing object and this object are null or equal.
+   * Attributes that are compared are :
+   *  Name
+   *  Number
+   * <b>
+   * NOTE: This is specific to how systems use IDMEF messages and
+   *       what it means when two objects are equivalent.  For
+   *       example, equivalence may mean a subset of the objects
+   *       attributes.  It's advised that this method is modified
+   *       for your particular environment.
+   * </b>
+   * </pre>
+   */
   public boolean equals( Object anObject) {
     boolean equals=false;
     boolean arenameequal=false;
@@ -120,12 +234,12 @@ public class UserId implements XMLSerializable{
       myvalue=this.getName();
       invalue=userid.getName();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arenameequal=true;
-	}
+      	if(myvalue.trim().equals(invalue.trim())) {
+      	  arenameequal=true;
+      	}
       }
       else if((myvalue==null) && (invalue==null)) {
-	arenameequal=true;
+	      arenameequal=true;
       }
       /*
       myvalue=this.getType();
@@ -140,15 +254,15 @@ public class UserId implements XMLSerializable{
       }
       */
       if((this.getNumber()!=null) && (userid.getNumber()!=null)) {
-	if(this.getNumber().intValue()==userid.getNumber().intValue()) {
-	  arenumberequal=true;
-	}
+      	if(this.getNumber().intValue()==userid.getNumber().intValue()) {
+      	  arenumberequal=true;
+      	}
       }
       else if((this.getNumber()==null) && (userid.getNumber()==null)) {
-	arenumberequal=true;
+	      arenumberequal=true;
       }
       if( arenameequal && arenumberequal  && aretypeequal ) {
-	equals=true;
+	      equals=true;
       }
     }
     return equals;
@@ -180,74 +294,44 @@ public class UserId implements XMLSerializable{
   public UserId(Node node){
 
 
-    Node nameNode =  XMLUtils.GetNodeForName(node, "name");
+    Node nameNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_NAME);
     if (nameNode == null) name = null;
     else name = XMLUtils.getAssociatedString(nameNode);
 
-    Node numNode =  XMLUtils.GetNodeForName(node, "number");
+    Node numNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_NUMBER);
     if (numNode == null) number=null;
     else number = new Integer(XMLUtils.getAssociatedString(numNode));
 
     NamedNodeMap nnm = node.getAttributes();
 
-    Node identNode = nnm.getNamedItem("ident");
+    Node identNode = nnm.getNamedItem(ATTRIBUTE_IDENT);
     if(identNode == null) ident=null;
     else ident = identNode.getNodeValue();
 
-    Node typeNode = nnm.getNamedItem("type");
+    Node typeNode = nnm.getNamedItem(ATTRIBUTE_TYPE);
     if (typeNode == null) type=null;
     else type = typeNode.getNodeValue();
   }
 
   public Node convertToXML(Document parent){
 
-    Element useridNode = parent.createElement("UserId");
+    Element useridNode = parent.createElement(ELEMENT_NAME);
     if(ident != null)
-      useridNode.setAttribute("ident", ident);
+      useridNode.setAttribute(ATTRIBUTE_IDENT, ident);
     if(type != null)
-      useridNode.setAttribute("type", type);
+      useridNode.setAttribute(ATTRIBUTE_TYPE, type);
 
 
     if(name != null){
-      Node nameNode = parent.createElement("name");
+      Node nameNode = parent.createElement(CHILD_ELEMENT_NAME);
       nameNode.appendChild(parent.createTextNode(name));
       useridNode.appendChild(nameNode);
-	    
     }
     if(number != null){
-      Node numNode = parent.createElement("number");
+      Node numNode = parent.createElement(CHILD_ELEMENT_NUMBER);
       numNode.appendChild(parent.createTextNode(number.toString()));
       useridNode.appendChild(numNode);
-	    
     }
-
-
     return useridNode;
   }
-
-  /** Method used to test this object...probably should not be called otherwise.
-   */
-  public static void main (String args[]){
-	
-    UserId userid = new UserId("Test_Name", new Integer (100), "Test_Ident", UserId.CURRENT_USER);
-
-    try{
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      Document document = builder.newDocument(); 
-      Element root = document.createElement("Test_IDMEF_Message"); 
-      document.appendChild (root);
-      Node node = userid.convertToXML(document);
-      root.appendChild(node);
-
-      StringWriter buf=new StringWriter();
-
-      XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-      sezr.serialize(document);
-      //System.out.println(buf.getBuffer());
-	    
-    } catch (Exception e) {e.printStackTrace();}
-  }
-
-
 }

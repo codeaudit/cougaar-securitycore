@@ -43,136 +43,85 @@ import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import java.math.*;
 
-/** This class is a superclass of all the IDMEF Time classes (since they are so similar).
-    See Section 5.2.5 of the IDMEF internet-draft for more info.
-*/
-
-public class IDMEFTime implements XMLSerializable{
-
-    public String idmefDate;
+/** 
+ * This class is a superclass of all the IDMEF Time classes (since they are so similar).
+ */
+public class IDMEFTime implements XMLSerializable {
     
-    public String ntpstamp;
+    private String idmefDate;
+    private String ntpstamp;
 
-    /**This method creates a new IDMEFTime set to the current time.
+    protected static final String ATTRIBUTE_NTPSTAMP = "ntpstamp";
+    public static final String ELEMENT_NAME = "IDMEFTime";
+    
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    /**
+     * This method creates a new IDMEFTime set to the current time.
      */
-
     public IDMEFTime(){
-	Date date = new Date();
-        idmefDate = convertToIDMEFFormat(date);
-        ntpstamp = convertToNTP(date);
+	    Date date = new Date();
+      idmefDate = convertToIDMEFFormat(date);
+      ntpstamp = convertToNTP(date);
     }
   
-    /**This method creates a new IDMEFTime set to any date.
+    /**
+     * This method creates a new IDMEFTime set to any date.
      */
-
     public IDMEFTime(Date inDate){
-	idmefDate = convertToIDMEFFormat(inDate);
-        ntpstamp = convertToNTP(inDate);
+	    idmefDate = convertToIDMEFFormat(inDate);
+      ntpstamp = convertToNTP(inDate);
     }
 
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
-
+    /**
+     * Creates an object from the XML Node containing the XML version of this object.
+     * This method will look for the appropriate tags to fill in the fields. If it cannot find
+     * a tag for a particular field, it will remain null.
+     */
     public IDMEFTime (Node node){
-	idmefDate = XMLUtils.getAssociatedString(node);
-	NamedNodeMap nnm = node.getAttributes();
-	Node ntpNode = nnm.getNamedItem("ntpstamp");
-	ntpstamp = ntpNode.getNodeValue();
-	
+	    idmefDate = XMLUtils.getAssociatedString(node);
+	    NamedNodeMap nnm = node.getAttributes();
+	    Node ntpNode = nnm.getNamedItem(ATTRIBUTE_NTPSTAMP);
+	    ntpstamp = ntpNode.getNodeValue();
     }
 
-    /** Converts a Date to the IDMEF Date format. Currently only does Zulu time (UTC)
-
+    /** 
+     * Converts a Date to the IDMEF Date format. Currently only does Zulu time (UTC)
      */
-
     public static String convertToIDMEFFormat(Date date){
-
-	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss'Z'");
- 
-	return formatter.format(date);
-
-
-
+      SimpleDateFormat formatter = new SimpleDateFormat (DATE_FORMAT);
+    	return formatter.format(date);
     }
-    /** Converts a Date to the NTP format. 
-
+    
+    /** 
+     * Converts a Date to the NTP format. 
      */
-
     public static String convertToNTP(Date date){
-
-        SimpleDateFormat formatter = new SimpleDateFormat ("'.0x'SSS'00000'");
-	String currentSecs = (new Long(  (date.getTime())/1000 ).toString());
-	BigInteger seconds = new BigInteger("2208988800").add(new BigInteger(currentSecs));
-	
-	return "0x" + seconds.toString(16) + formatter.format(date);
-	
-
-
-
+      SimpleDateFormat formatter = new SimpleDateFormat ("'.0x'SSS'00000'");
+	    String currentSecs = (new Long(  (date.getTime())/1000 ).toString());
+	    BigInteger seconds = new BigInteger("2208988800").add(new BigInteger(currentSecs));
+	    return "0x" + seconds.toString(16) + formatter.format(date);
     }
+    
     public String getidmefDate(){
-	return idmefDate;
+	    return idmefDate;
 
     }
     public void setIdmefDate(Date inDate){
-        idmefDate = convertToIDMEFFormat(inDate);
+      idmefDate = convertToIDMEFFormat(inDate);
     }
 
     public String getNtpstamp(){
-	return ntpstamp;
+	    return ntpstamp;
 
     }
     public void setNtpstamp(Date inDate){
-	ntpstamp = convertToNTP(inDate);
+	    ntpstamp = convertToNTP(inDate);
     }
 
     public Node convertToXML(Document parent){
-
-	Element timeNode = parent.createElement("IDMEFTime");
-	timeNode.setAttribute("ntpstamp", getNtpstamp());
-
-
-	timeNode.appendChild(parent.createTextNode(getidmefDate()));
-	return timeNode;
+	    Element timeNode = parent.createElement(ELEMENT_NAME);
+	    timeNode.setAttribute(ATTRIBUTE_NTPSTAMP, getNtpstamp());
+	    timeNode.appendChild(parent.createTextNode(getidmefDate()));
+	    return timeNode;
     }
-
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-    public static void main(String args[]){
-	IDMEFTime t = new IDMEFTime ();
-	DetectTime d = new DetectTime ();
-	CreateTime c = new CreateTime();
-	AnalyzerTime a = new AnalyzerTime();
-	try{
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node tNode = t.convertToXML(document);
-	    root.appendChild(tNode);
-	    root.appendChild(d.convertToXML(document));
-	    root.appendChild(c.convertToXML(document));
-	    root.appendChild(a.convertToXML(document));
-
-
-	    StringWriter buf=new StringWriter();
-
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    //System.out.println(buf.getBuffer());
-	      
-
-	    IDMEFTime new_t = new IDMEFTime(tNode);
-
-	    //System.out.println("Test of Node constructor: " 
-			//       + new_t.getNtpstamp()+ " " 
-			//       + new_t.getidmefDate() );
-
-
-	} catch (Exception e) {e.printStackTrace();}
-    }
-
 }

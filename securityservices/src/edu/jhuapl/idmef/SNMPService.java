@@ -42,38 +42,88 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import java.math.*;
-/** This class represents a service having to do with SNMP. 
-    See Section 5.2.6.4.2 of the IDMEF internet-draft for more info.
-*/
+/** 
+ * <pre>
+ *  The SNMPService class carries additional information related to SNMP
+ *  traffic.
+ *
+ *  The SNMPService class is composed of three aggregate classes, as
+ *  shown in Figure 4.20.
+ *
+ *               +-------------+
+ *               |   Service   |
+ *               +-------------+
+ *                     /_\
+ *                      |
+ *               +-------------+
+ *               | SNMPService |
+ *               +-------------+       0..1 +-----------+
+ *               |             |<>----------|    oid    |
+ *               |             |            +-----------+
+ *               |             |       0..1 +-----------+
+ *               |             |<>----------| community |
+ *               |             |            +-----------+
+ *               |             |       0..1 +-----------+
+ *               |             |<>----------|  command  |
+ *               |             |            +-----------+
+ *               +-------------+
+ *
+ *                  Figure 4.20 - The SNMPService Class
+ *
+ *  The aggregate classes that make up SNMPService are:
+ *
+ *  oid
+ *     Zero or one.  STRING.  The object identifier in the request.
+ *
+ *  community
+ *     Zero or one.  STRING.  The object's community string.
+ *
+ *  command
+ *     Zero or one.  STRING.  The command sent to the SNMP server (GET,
+ *     SET.  etc.).
+ *
+ *  This is represented in the XML DTD as follows:
+ *
+ *     &lt!ELEMENT SNMPService                   (
+ *         oid?, community?, command?
+ *     )&gt
+ *
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Draft Specification v0.7</a>.
+ */
 public class SNMPService extends Service implements XMLSerializable{
 
+    private static final String CHILD_ELEMENT_OID = "oid";
+    private static final String CHILD_ELEMENT_COMMUNITY = "community";
+    private static final String CHILD_ELEMENT_COMMAND = "command";
+    
     protected String oid;
-
     protected String community;
-
     protected String command;
 
+    public static final String ELEMENT_NAME = "SNMPService";
+    
     //getters and setters 
     public String getOid(){
-	return oid;
+	    return oid;
     }
     public void setOid(String inOid){
-	oid = inOid;
+	    oid = inOid;
     }
 
 
     public String getcommunity(){
-	return community;
+	    return community;
     }
     public void setCommunity(String inCommunity){
-	community = inCommunity;
+	    community = inCommunity;
     }
 
     public String getcommand(){
-	return command;
+	    return command;
     }
     public void setCommand(String inCommand){
-	command = inCommand;
+	    command = inCommand;
     }
     /**Copies arguments into corresponding fields.
       */
@@ -82,131 +132,81 @@ public class SNMPService extends Service implements XMLSerializable{
 
 		      String inOid, String inCommunity, String inCommand){
 	
-	super(inName, inPort, inPortlist, inProtocol, inIdent);
+	    super(inName, inPort, inPortlist, inProtocol, inIdent);
 
-	oid = inOid;
-	community = inCommunity;
-	command = inCommand;
+	    oid = inOid;
+	    community = inCommunity;
+	    command = inCommand;
     }
-    /**Creates an object with all fields null.
+    /**
+     * Creates an object with all fields null.
      */
     public SNMPService(){
-	this(null, null, null, null, null, null, null, null);
+	    this(null, null, null, null, null, null, null, null);
     }
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
+    /**
+     * Creates an object from the XML Node containing the XML version of this object.
+     * This method will look for the appropriate tags to fill in the fields. If it cannot find
+     * a tag for a particular field, it will remain null.
+     */
     public SNMPService (Node node){
-
-	super(node);
-	
-
-
-	Node oidNode =  XMLUtils.GetNodeForName(node, "oid");
-	if (oidNode == null) oid = null;
-	else oid = XMLUtils.getAssociatedString(oidNode);
-
-	Node communityNode =  XMLUtils.GetNodeForName(node, "community");
-	if (communityNode == null) community = null;
-	else community = XMLUtils.getAssociatedString(communityNode);
-
-	Node commandNode =  XMLUtils.GetNodeForName(node, "command");
-	if (commandNode == null) command = null;
-	else command = XMLUtils.getAssociatedString(commandNode);
-
-
+	    super(node);
+      Node oidNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_OID);
+    	if (oidNode == null) oid = null;
+    	else oid = XMLUtils.getAssociatedString(oidNode);
+    
+    	Node communityNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_COMMUNITY);
+    	if (communityNode == null) community = null;
+    	else community = XMLUtils.getAssociatedString(communityNode);
+    
+    	Node commandNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_COMMAND);
+    	if (commandNode == null) command = null;
+    	else command = XMLUtils.getAssociatedString(commandNode);
     }
 
     public Node convertToXML(Document parent){
-
-	
-
-	Element snmpserviceNode = parent.createElement("WebService");
-	if(ident != null)
-	    snmpserviceNode.setAttribute("ident", ident);
-
-	    
-	
-	if(name != null){
-	    Node nameNode = parent.createElement("name");
-	    nameNode.appendChild(parent.createTextNode(name));
-	    snmpserviceNode.appendChild(nameNode);
-	    
-	}
-	if(port != null){
-	    Node portNode = parent.createElement("port");
-	    portNode.appendChild(parent.createTextNode(port.toString()));
-	    snmpserviceNode.appendChild(portNode);
-	    
-	}
-	if(portlist != null){
-	    Node portlistNode = parent.createElement("portlist");
-	    portlistNode.appendChild(parent.createTextNode(portlist));
-	    snmpserviceNode.appendChild(portlistNode);
-	    
-	}
-	if(protocol != null){
-	    Node protocolNode = parent.createElement("protocol");
-	    protocolNode.appendChild(parent.createTextNode(protocol));
-	    snmpserviceNode.appendChild(protocolNode);
-	    
-	}
-
-	if(oid != null){
-	    Node oidNode = parent.createElement("oid");
-	    oidNode.appendChild(parent.createTextNode(oid));
-	    snmpserviceNode.appendChild(oidNode);
-	    
-	}
-
-	if(community != null){
-	    Node communityNode = parent.createElement("community");
-	    communityNode.appendChild(parent.createTextNode(community));
-	    snmpserviceNode.appendChild(communityNode);
-	    
-	}
-
-	if(command != null){
-	    Node commandNode = parent.createElement("command");
-	    commandNode.appendChild(parent.createTextNode(command));
-	    snmpserviceNode.appendChild(commandNode);
-	    
-	}
-
-
-
-
-	return snmpserviceNode;
-    }
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-
-    public static void main (String args[]){
-
-	
-
-	try{
-	    SNMPService idmefnode = new SNMPService("Test_Name", new Integer(80), 
-					   "26, 8, 100-1098", "http", "test_ident",
-					   "test_oid", "columbia", 
-					   "fetch" );
-
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node tNode = idmefnode.convertToXML(document);
-	    root.appendChild(tNode);
-
-	    StringWriter buf=new StringWriter();
-
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    //System.out.println(buf.getBuffer());
-
-
-	} catch (Exception e) {e.printStackTrace();}
+    	Element snmpserviceNode = parent.createElement(ELEMENT_NAME);
+    	if(ident != null)
+    	    snmpserviceNode.setAttribute(ATTRIBUTE_IDENT, ident);
+        	
+    	if(name != null){
+    	    Node nameNode = parent.createElement(CHILD_ELEMENT_NAME);
+    	    nameNode.appendChild(parent.createTextNode(name));
+    	    snmpserviceNode.appendChild(nameNode);	    
+    	}
+    	if(port != null){
+    	    Node portNode = parent.createElement(CHILD_ELEMENT_PORT);
+    	    portNode.appendChild(parent.createTextNode(port.toString()));
+    	    snmpserviceNode.appendChild(portNode);
+    	}
+    	if(portlist != null){
+    	    Node portlistNode = parent.createElement(CHILD_ELEMENT_PORTLIST);
+    	    portlistNode.appendChild(parent.createTextNode(portlist));
+    	    snmpserviceNode.appendChild(portlistNode);
+    	}
+    	if(protocol != null){
+    	    Node protocolNode = parent.createElement(CHILD_ELEMENT_PROTOCOL);
+    	    protocolNode.appendChild(parent.createTextNode(protocol));
+    	    snmpserviceNode.appendChild(protocolNode);
+    	}
+    
+    	if(oid != null){
+    	    Node oidNode = parent.createElement(CHILD_ELEMENT_OID);
+    	    oidNode.appendChild(parent.createTextNode(oid));
+    	    snmpserviceNode.appendChild(oidNode);
+    	}
+    
+    	if(community != null){
+    	    Node communityNode = parent.createElement(CHILD_ELEMENT_COMMUNITY);
+    	    communityNode.appendChild(parent.createTextNode(community));
+    	    snmpserviceNode.appendChild(communityNode);
+    	}
+    
+    	if(command != null){
+    	    Node commandNode = parent.createElement(CHILD_ELEMENT_COMMAND);
+    	    commandNode.appendChild(parent.createTextNode(command));
+    	    snmpserviceNode.appendChild(commandNode);	    
+    	}
+    	return snmpserviceNode;
     }
 }

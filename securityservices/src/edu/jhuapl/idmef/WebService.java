@@ -44,57 +44,111 @@ import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import java.math.*;
 
-/** This class represents Services that are related to Web Traffic.
-    See section 5.2.6.4.1 of the IDMEF internet-draft for meanings of fields.
-*/
-
+/** 
+ * <pre>
+ *  The WebService class carries additional information related to web
+ *  traffic.
+ *
+ *  The WebService class is composed of four aggregate classes, as shown
+ *  in Figure 4.19.
+ *
+ *               +-------------+
+ *               |   Service   |
+ *               +-------------+
+ *                     /_\
+ *                      |
+ *               +-------------+
+ *               | WebService  |
+ *               +-------------+            +-------------+
+ *               |             |<>----------|     url     |
+ *               |             |            +-------------+
+ *               |             |       0..1 +-------------+
+ *               |             |<>----------|     cgi     |
+ *               |             |            +-------------+
+ *               |             |       0..1 +-------------+
+ *               |             |<>----------| http-method |
+ *               |             |            +-------------+
+ *               |             |       0..* +-------------+
+ *               |             |<>----------|     arg     |
+ *               |             |            +-------------+
+ *               +-------------+
+ *
+ *                  Figure 4.19 - The WebService Class
+ *
+ *  The aggregate classes that make up WebService are:
+ *
+ *  url
+ *     Exactly one.  STRING.  The URL in the request.
+ *
+ *  cgi
+ *     Zero or one.  STRING.  The CGI script in the request, without
+ *     arguments.
+ *
+ *  http-method
+ *     Zero or one.  STRING.  The HTTP method (PUT, GET) used in the
+ *     request.
+ *
+ *  arg
+ *     Zero or more.  STRING.  The arguments to the CGI script.
+ *
+ *  This is represented in the XML DTD as follows:
+ *
+ *     &lt!ELEMENT WebService                    (
+ *         url, cgi?, http-method?, arg*
+ *     )&gt
+ *
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Draft Specification v0.7</a>.
+ */
 public class WebService extends Service implements XMLSerializable{
 
-    protected URL url;
+    private URL url;
+    private String cgi;
+    private String method;
+    private String args[];
 
-    protected String cgi;
-
-    protected String method;
-
-    protected String args[];
-
-
+    private static final String CHILD_ELEMENT_URL = "url";
+    private static final String CHILD_ELEMENT_CGI = "cgi";
+    private static final String CHILD_ELEMENT_METHOD = "http-method";
+    private static final String CHILD_ELEMENT_ARG = "arg";
+    
+    public static final String ELEMENT_NAME = "WebService";
+    
     public URL getUrl(){
-	return url;
+	    return url;
     }
     public void setUrl(URL inUrl){
-	url = inUrl;
+	    url = inUrl;
     }
 
     public String getCgi(){
-	return cgi;
+	    return cgi;
     }
 
     public void setCgi(String inCgi){
-	cgi = inCgi;
+	    cgi = inCgi;
     }
 
     public String getMethod(){
-	return method;
+	    return method;
     }
 
     public void setMethod(String inMethod){
-	method = inMethod;
+	    method = inMethod;
     }
 
     public String[] getArgs(){
-	return args;
+	    return args;
     }
 
     public void setArgs(String[] inArgs){
-	args = inArgs;
+	    args = inArgs;
     }
 
     /**Creates a new URL from the string provided. Copies other arguments into corresponding fields.
        @param inUrl the string to create the new URL object with
        
      */
-
     public WebService(String inName, Integer inPort, String inPortlist, 
 		      String inProtocol, String inIdent, 
 
@@ -102,20 +156,18 @@ public class WebService extends Service implements XMLSerializable{
 		      String inArgs[]){
 
 
-	super(inName, inPort, inPortlist, inProtocol, inIdent);
-	URL tempUrl;
-	try {
-	    tempUrl = new URL(inUrl);
-	} catch (MalformedURLException e) {
-	    tempUrl = null;
-	}
-	
-
-	cgi = inCgi;
-	method = inMethod;
-	args = inArgs;
-	
-    
+      	super(inName, inPort, inPortlist, inProtocol, inIdent);
+      	URL tempUrl;
+      	try {
+      	    tempUrl = new URL(inUrl);
+      	} catch (MalformedURLException e) {
+      	    tempUrl = null;
+      	}
+      	
+      
+      	cgi = inCgi;
+      	method = inMethod;
+      	args = inArgs;
     }
     
      /**Copies arguments into corresponding fields.
@@ -127,19 +179,19 @@ public class WebService extends Service implements XMLSerializable{
 		      URL inUrl, String inCgi, String inMethod, 
 		      String inArgs[]){
 	
-	super(inName, inPort, inPortlist, inProtocol, inIdent);
-
-	url = inUrl;
-	cgi = inCgi;
-	method = inMethod;
-	args = inArgs;
+    	super(inName, inPort, inPortlist, inProtocol, inIdent);
+    
+    	url = inUrl;
+    	cgi = inCgi;
+    	method = inMethod;
+    	args = inArgs;
     }
 
     /**Creates an object with all fields null.
      */
 
     public WebService() {
-	this(null, null, null, null, null, (String) null, null, null, null);
+	    this(null, null, null, null, null, (String) null, null, null, null);
     }
 
     /**Creates an object from the XML Node containing the XML version of this object.
@@ -150,147 +202,110 @@ public class WebService extends Service implements XMLSerializable{
 
     public WebService (Node node) {
 
-	super(node);
-	
-	Node urlNode =  XMLUtils.GetNodeForName(node, "url");
-	if (urlNode == null) url = null;
-	else {
-	    try {
-		url = new URL(XMLUtils.getAssociatedString(urlNode));
-	    } catch (MalformedURLException e){
-		url = null;
+    	super(node);
+    	
+    	Node urlNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_URL);
+    	if (urlNode == null) url = null;
+    	else {
+    	    try {
+      		  url = new URL(XMLUtils.getAssociatedString(urlNode));
+      	  } catch (MalformedURLException e){
+      		  url = null;
+    	    }
 	    }
-	}
 
-	Node cgiNode =  XMLUtils.GetNodeForName(node, "cgi");
-	if (cgiNode == null) cgi = null;
-	else cgi = XMLUtils.getAssociatedString(cgiNode);
-
-	Node methodNode =  XMLUtils.GetNodeForName(node, "method");
-	if (methodNode == null) method = null;
-	else method = XMLUtils.getAssociatedString(methodNode);
-
-	//get args nodes here
-	NodeList children = node.getChildNodes();
-	ArrayList argNodes = new ArrayList();
-	for (int i=0; i<children.getLength(); i++){
-	    Node finger = children.item(i);
-	    if (finger.getNodeName().equals("arg")){
-		String newArg = XMLUtils.getAssociatedString(finger);
-		argNodes.add(newArg);
-	    }
-	}
-	args = new String[argNodes.size()];
-	for (int i=0; i< argNodes.size(); i++){
-	    args[i] = (String) argNodes.get(i);
-	}
-
-
+    	Node cgiNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_CGI);
+    	if (cgiNode == null) cgi = null;
+    	else cgi = XMLUtils.getAssociatedString(cgiNode);
+    
+    	Node methodNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_METHOD);
+    	if (methodNode == null) method = null;
+    	else method = XMLUtils.getAssociatedString(methodNode);
+    
+    	//get args nodes here
+    	NodeList children = node.getChildNodes();
+    	ArrayList argNodes = new ArrayList();
+    	for (int i=0; i<children.getLength(); i++){
+    	    Node finger = children.item(i);
+    	    if (finger.getNodeName().equals(CHILD_ELEMENT_ARG)){
+        		String newArg = XMLUtils.getAssociatedString(finger);
+        		argNodes.add(newArg);
+    	    }
+    	}
+    	args = new String[argNodes.size()];
+    	for (int i=0; i< argNodes.size(); i++){
+    	    args[i] = (String) argNodes.get(i);
+    	}
     }
 
 
     public Node convertToXML(Document parent){
-
-	
-
-	Element webserviceNode = parent.createElement("WebService");
-	if(ident != null)
-	    webserviceNode.setAttribute("ident", ident);
-
-	    
-	
-	if(name != null){
-	    Node nameNode = parent.createElement("name");
-	    nameNode.appendChild(parent.createTextNode(name));
-	    webserviceNode.appendChild(nameNode);
-	    
-	}
-	if(port != null){
-	    Node portNode = parent.createElement("port");
-	    portNode.appendChild(parent.createTextNode(port.toString()));
-	    webserviceNode.appendChild(portNode);
-	    
-	}
-	if(portlist != null){
-	    Node portlistNode = parent.createElement("portlist");
-	    portlistNode.appendChild(parent.createTextNode(portlist));
-	    webserviceNode.appendChild(portlistNode);
-	    
-	}
-	if(protocol != null){
-	    Node protocolNode = parent.createElement("protocol");
-	    protocolNode.appendChild(parent.createTextNode(protocol));
-	    webserviceNode.appendChild(protocolNode);
-	    
-	}
-
-	if(url != null){
-	    Node urlNode = parent.createElement("url");
-	    urlNode.appendChild(parent.createTextNode(url.toString()));
-	    webserviceNode.appendChild(urlNode);
-	    
-	}else {
-	    Node urlNode = parent.createElement("url");
-	    urlNode.appendChild(parent.createTextNode("Unknown URL"));
-	    webserviceNode.appendChild(urlNode);
-	}
-
-	if(cgi != null){
-	    Node cgiNode = parent.createElement("cgi");
-	    cgiNode.appendChild(parent.createTextNode(cgi));
-	    webserviceNode.appendChild(cgiNode);
-	    
-	}
-
-	if(method != null){
-	    Node methodNode = parent.createElement("method");
-	    methodNode.appendChild(parent.createTextNode(method));
-	    webserviceNode.appendChild(methodNode);
-	    
-	}
-
-	if (args != null){
-	    for (int i=0; i<args.length; i++){
-
-		Node argNode = parent.createElement("arg");
-		argNode.appendChild(parent.createTextNode(args[i]));
-
-		if (argNode != null) webserviceNode.appendChild(argNode);
-	    }
-	}
-
-
-	return webserviceNode;
-    }
-
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-
-    public static void main (String args[]){
-	String arglist[] = {"-b", "-c"};
-	
-
-	try{
-	    WebService idmefnode = new WebService("Test_Name", new Integer(80), 
-					   "26, 8, 100-1098", "http", "test_ident",
-					   "http://www.yahoo.com", null, "netscape", 
-					   arglist );
-
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node tNode = idmefnode.convertToXML(document);
-	    root.appendChild(tNode);
-
-	    StringWriter buf=new StringWriter();
-
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    //System.out.println(buf.getBuffer());
-
-
-	} catch (Exception e) {e.printStackTrace();}
+    
+    	Element webserviceNode = parent.createElement(ELEMENT_NAME);
+    	if(ident != null)
+    	    webserviceNode.setAttribute(ATTRIBUTE_IDENT, ident);
+        	
+    	if(name != null){
+    	    Node nameNode = parent.createElement(CHILD_ELEMENT_NAME);
+    	    nameNode.appendChild(parent.createTextNode(name));
+    	    webserviceNode.appendChild(nameNode);
+    	    
+    	}
+    	if(port != null){
+    	    Node portNode = parent.createElement(CHILD_ELEMENT_PORT);
+    	    portNode.appendChild(parent.createTextNode(port.toString()));
+    	    webserviceNode.appendChild(portNode);
+    	    
+    	}
+    	if(portlist != null){
+    	    Node portlistNode = parent.createElement(CHILD_ELEMENT_PORTLIST);
+    	    portlistNode.appendChild(parent.createTextNode(portlist));
+    	    webserviceNode.appendChild(portlistNode);
+    	    
+    	}
+    	if(protocol != null){
+    	    Node protocolNode = parent.createElement(CHILD_ELEMENT_PROTOCOL);
+    	    protocolNode.appendChild(parent.createTextNode(protocol));
+    	    webserviceNode.appendChild(protocolNode);
+    	    
+    	}
+    
+    	if(url != null){
+    	    Node urlNode = parent.createElement(CHILD_ELEMENT_URL);
+    	    urlNode.appendChild(parent.createTextNode(url.toString()));
+    	    webserviceNode.appendChild(urlNode);
+    	    
+    	}else {
+    	    Node urlNode = parent.createElement(CHILD_ELEMENT_URL);
+    	    urlNode.appendChild(parent.createTextNode("Unknown URL"));
+    	    webserviceNode.appendChild(urlNode);
+    	}
+    
+    	if(cgi != null){
+    	    Node cgiNode = parent.createElement(CHILD_ELEMENT_CGI);
+    	    cgiNode.appendChild(parent.createTextNode(cgi));
+    	    webserviceNode.appendChild(cgiNode);
+    	    
+    	}
+    
+    	if(method != null){
+    	    Node methodNode = parent.createElement(CHILD_ELEMENT_METHOD);
+    	    methodNode.appendChild(parent.createTextNode(method));
+    	    webserviceNode.appendChild(methodNode);
+    	    
+    	}
+    
+    	if (args != null){
+    	    for (int i=0; i<args.length; i++){
+    
+    		Node argNode = parent.createElement(CHILD_ELEMENT_ARG);
+    		argNode.appendChild(parent.createTextNode(args[i]));
+    
+    		if (argNode != null) webserviceNode.appendChild(argNode);
+    	    }
+    	}
+    
+    
+    	return webserviceNode;
     }
 }

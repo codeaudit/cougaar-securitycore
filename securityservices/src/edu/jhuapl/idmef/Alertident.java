@@ -43,92 +43,84 @@ import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import java.math.*;
 
-/** This class represents an alert identity.
-    See Section 5.2.2.2 of the IDMEF internet-draft for more info.
-*/
-
+/** 
+ * <pre>
+ * Alert identifiers are only unique across the alerts sent by a single analyzer, 
+ * the optional "analyzerid" attribute of "alertident" should be used to identify
+ * the analyzer that a particular alert came from.  If the "analyzerid" is not 
+ * provided, the alert is assumed to have come from the same analyzer that is 
+ * sending the ToolAlert.
+ *
+ * This is represented in the XML DTD as follows:
+ *
+ *     &lt!ELEMENT ToolAlert                     (
+ *         name, command?, alertident+
+ *       )&gt
+ *     &lt!ELEMENT alertident          (#PCDATA) &gt
+ *     &lt!ATTLIST alertident
+ *         analyzerid          CDATA                   #IMPLIED
+ *     &gt
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Specification Draft v0.7 </a>.
+ */
 public class Alertident implements XMLSerializable{
-    //attributes
-
-    protected String analyzerid;
+  //attributes
+  private String analyzerid;
     
-    //element data
+  //element data
+  private String elementData;
+  
+  // element and attribute names
+  private static final String ATTRIBUTE_ANALYZERID = "analyzerid";
+  public static final String ELEMENT_NAME = "alertident";
+  
+  //getters and setters
+  public String getAnalyzerid(){
+	  return analyzerid;
+  }
 
-    protected String elementData;
-
-    //getters and setters
-    
-    public String getAnalyzerid(){
-	return analyzerid;
-    }
-
-    public String getElementData(){
-	return elementData;
-    }
-    public void setAnalyzerId(String inAnalyzerid){
-	analyzerid = inAnalyzerid;
-    }
-    public void setElementData(String inAlertident){
-	elementData = inAlertident;
-    }
-    /**Copies arguments into corresponding fields.
-      */
-    public Alertident(String inAnalyzerid, String inAlertident){
-	analyzerid = inAnalyzerid;
-	elementData = inAlertident;
-    }
-    /**Creates an object with all fields null.
-     */
-    public Alertident(){
-	this(null, null);
-    }
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
-    public Alertident (Node node){
-	elementData = XMLUtils.getAssociatedString(node);
-	NamedNodeMap nnm = node.getAttributes();
-	Node aidNode = nnm.getNamedItem("analyzerid");
-	if (aidNode != null)
+  public String getElementData(){
+	  return elementData;
+  }
+  public void setAnalyzerId(String inAnalyzerid){
+	  analyzerid = inAnalyzerid;
+  }
+  public void setElementData(String inAlertident){
+	  elementData = inAlertident;
+  }
+  
+  /**
+   * Copies arguments into corresponding fields.
+   */
+  public Alertident(String inAnalyzerid, String inAlertident){
+	  analyzerid = inAnalyzerid;
+	  elementData = inAlertident;
+  }
+  /**
+   * Creates an object with all fields null.
+   */
+  public Alertident(){
+	  this(null, null);
+  }
+  /**
+   * Creates an object from the XML Node containing the XML version of this object.
+   * This method will look for the appropriate tags to fill in the fields. If it cannot find
+   * a tag for a particular field, it will remain null.
+   */
+  public Alertident (Node node){
+	  elementData = XMLUtils.getAssociatedString(node);
+	  NamedNodeMap nnm = node.getAttributes();
+	  Node aidNode = nnm.getNamedItem(ATTRIBUTE_ANALYZERID);
+	  if (aidNode != null)
 	    analyzerid = aidNode.getNodeValue();
-	
-    }
+  }
 
-    public Node convertToXML(Document parent){
+  public Node convertToXML(Document parent){
+  	Element alertidentNode = parent.createElement(ELEMENT_NAME);
+	  if (analyzerid != null)
+	    alertidentNode.setAttribute(ATTRIBUTE_ANALYZERID, analyzerid);
 
-	Element alertidentNode = parent.createElement("alertident");
-	if (analyzerid != null)
-	    alertidentNode.setAttribute("analyzerid", analyzerid);
-
-
-	alertidentNode.appendChild(parent.createTextNode(elementData));
-	return alertidentNode;
-    }
-
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-    public static void main(String args[]){
-
-	Alertident a = new Alertident("test_id", "test_ident");
-	try{
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node tNode = a.convertToXML(document);
-	    root.appendChild(tNode);
-
-
-
-	    StringWriter buf=new StringWriter();
-
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    //System.out.println(buf.getBuffer());
-
-	} catch (Exception e) {e.printStackTrace();}
-    }
-
+	  alertidentNode.appendChild(parent.createTextNode(elementData));
+	  return alertidentNode;
+  }
 }

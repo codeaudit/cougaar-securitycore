@@ -3,7 +3,7 @@
    <!-- ***************************************************************
     *******************************************************************
     *** Intrusion Detection Message Exchange Format (IDMEF) XML DTD ***
-    ***                 Version 1.0, 28 December 2001               ***
+    ***                   Version 1.0, 18 June 2002                 ***
     ***                                                             ***
     *** The use and extension of the IDMEF XML DTD are described in ***
     *** RFC XXXX, "Intrusion Detection Message Exchange Format Data ***
@@ -363,8 +363,8 @@
      >
 
    <!ELEMENT Service                       (
-       ((name | port | (name, port)) | portlist), protocol?,
-       SNMPService?, WebService?
+       ((name?, port?) | portlist), protocol?, SNMPService?,
+       WebService?
      )>
    <!ATTLIST Service
        ident               CDATA                   '0'
@@ -388,7 +388,7 @@
      >
 
    <!ELEMENT UserId                        (
-       name | number | (name, number)
+       name?, number?
      )>
    <!ATTLIST UserId
        ident               CDATA                   '0'
@@ -410,7 +410,7 @@
     ===================================================================
     =============================================================== -->
 
-   <!ELEMENT Action     (#PCDATA | EMPTY)* >
+   <!ELEMENT Action              (#PCDATA) >
    <!ATTLIST Action
        category            %attvals.actioncat;     'other'
        %attlist.global;
@@ -422,7 +422,7 @@
        %attlist.global;
      >
 
-   <!ELEMENT Confidence (#PCDATA | EMPTY)* >
+   <!ELEMENT Confidence          (#PCDATA) >
    <!ATTLIST Confidence
        rating              %attvals.rating;        'numeric'
        %attlist.global;
@@ -441,7 +441,7 @@
 
      >
 
-   <!ELEMENT Impact     (#PCDATA | EMPTY)* >
+   <!ELEMENT Impact              (#PCDATA) >
    <!ATTLIST Impact
        severity            %attvals.severity;      #IMPLIED
        completion          %attvals.completion;    #IMPLIED
@@ -621,4 +621,3 @@
    <!ATTLIST url
        %attlist.global;
      >
-

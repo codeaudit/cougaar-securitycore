@@ -43,28 +43,76 @@ import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import java.math.*;
 
-/** This class represents a single user. 
-    See Section 5.2.6.2 of the IDMEF internet-draft for more info.
-*/
-
+/** 
+ * <pre>
+ *  The User class is used to describe users.  It is primarily used as a
+ *  "container" class for the UserId aggregate class, as shown in Figure
+ *  4.15.
+ *
+ *                +---------------+
+ *                |     User      |
+ *                +---------------+       1..* +--------+
+ *                | STRING ident  |<>----------| UserId |
+ *                | ENUM category |            +--------+
+ *                +---------------+
+ *
+ *                     Figure 4.15 - The User Class
+ *
+ *  The aggregate class contained in User is:
+ *
+ *  UserId
+ *     One or more.  Identification of a user, as indicated by its type
+ *     attribute.
+ *
+ *  This is represented in the XML DTD as follows:
+ *
+ *     &lt!ENTITY % attvals.usercat              "
+ *         ( unknown | application | os-device )
+ *     "&gt
+ *     &lt!ELEMENT User                          (
+ *         UserId+
+ *     )&gt
+ *     &lt!ATTLIST User
+ *         ident               CDATA                   '0'
+ *         category            %attvals.usercat;       'unknown'
+ *     &gt
+ *
+ *  The User class has two attributes:
+ *
+ *  ident
+ *     Optional.  A unique identifier for the user.
+ *
+ *  category
+ *     Optional.  The type of user represented.  The permitted values
+ *     for this attribute are shown below.  The default value is
+ *     "unknown".
+ *
+ *     Rank   Keyword            Description
+ *     ----   -------            -----------
+ *       0    unknown            User type unknown
+ *       1    application        An application user
+ *       2    os-device          An operating system or device user
+ *
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Draft Specification v0.7</a>.
+ */
 public class User implements XMLSerializable{
 
-  protected UserId userIds[];
-
+  private UserId userIds[];
 
   //attributes
+  private String ident;
+  private String category;
 
-  protected String ident;
-
-  protected String category;
-
-
+  private static final String ATTRIBUTE_CATEGORY = "category";
   //constants
 
   public static final String UNKNOWN = "unknown";
   public static final String APPLICATION = "application";
   public static final String OS_DEVICE = "os-device";
 
+  public static final String ELEMENT_NAME = "User";
+  
   //getters and setters
 
   public UserId[] getUserIds(){
@@ -88,11 +136,21 @@ public class User implements XMLSerializable{
   public void setCategory(String inCategory){
     category = inCategory;
   }
-  /* 
-  returns true when attributes of comparing object and this object are null or equal.
-    Attributes that are compared are :
-    UserId
-  */ 
+   /**
+   * Example of an equals method.
+   * <pre> 
+   * returns true when attributes of comparing object and this object are null or equal.
+   * Attributes that are compared are :
+   *  UserId
+   * <b>
+   * NOTE: This is specific to how systems use IDMEF messages and
+   *       what it means when two objects are equivalent.  For
+   *       example, equivalence may mean a subset of the objects
+   *       attributes.  It's advised that this method is modified
+   *       for your particular environment.
+   * </b>
+   * </pre>
+   */
   public boolean equals( Object anObject) {
     boolean equals=false;
     boolean areuseridsequal=false;
@@ -108,20 +166,20 @@ public class User implements XMLSerializable{
       myarray=this.getUserIds();
       inarray=user.getUserIds();
       if((myarray!=null)&&(inarray!=null)) {
-	if(myarray.length==inarray.length) {
-	  UserId value;
-	  for(int i=0;i<inarray.length;i++) {
-	    value=inarray[i];
-	    if(!contains(value)) {
-	      areuseridsequal=false;
-	      break;
-	    }
-	  }
-	  areuseridsequal=true;
-	}
+      	if(myarray.length==inarray.length) {
+      	  UserId value;
+      	  for(int i=0;i<inarray.length;i++) {
+      	    value=inarray[i];
+      	    if(!contains(value)) {
+      	      areuseridsequal=false;
+      	      break;
+      	    }
+      	  }
+      	  areuseridsequal=true;
+      	}
       }
       else if((myarray==null) && (inarray==null)) {
-	areuseridsequal=true;
+	      areuseridsequal=true;
       }
       /*
       String myvalue;
@@ -129,16 +187,16 @@ public class User implements XMLSerializable{
       myvalue=this.getCategory();
       invalue=user.getCategory();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arecategoryequal=true;
-	}
+      	if(myvalue.trim().equals(invalue.trim())) {
+      	  arecategoryequal=true;
+      	}
       }
       else if((myvalue==null) && (invalue==null)) {
-	arecategoryequal=true;
+	      arecategoryequal=true;
       }
       */
       if(areuseridsequal && arecategoryequal) {
-	equals=true;
+	      equals=true;
       }
     }
       return equals;
@@ -154,22 +212,23 @@ public class User implements XMLSerializable{
     for(int i=0;i<userids.length;i++) {
       userid=userids[i];
       if(userid.equals(inuserid)) {
-	contains=true;
-	return contains;
+      	contains=true;
+      	return contains;
       }
     }
     return contains;
   } 
   
-  /**Creates an object with all fields null.
+  /**
+   * Creates an object with all fields null.
    */
   public User(){
     this(null, null, null);
   }
-  /**Copies arguments into corresponding fields.
+  /**
+   * Copies arguments into corresponding fields.
    */
   public User (UserId inUserIds[], String inIdent, String inCategory){
-
     userIds = inUserIds;
     ident = inIdent;
     category = inCategory;
@@ -184,9 +243,9 @@ public class User implements XMLSerializable{
     ArrayList useridNodes = new ArrayList();
     for (int i=0; i<children.getLength(); i++){
       Node finger = children.item(i);
-      if (finger.getNodeName().equals("UserId")){
-	UserId newUserid = new UserId(finger);
-	useridNodes.add(newUserid);
+      if (finger.getNodeName().equals(UserId.ELEMENT_NAME)){
+      	UserId newUserid = new UserId(finger);
+      	useridNodes.add(newUserid);
       }
     }
     userIds = new UserId[useridNodes.size()];
@@ -196,59 +255,30 @@ public class User implements XMLSerializable{
 
     NamedNodeMap nnm = node.getAttributes();
 
-    Node identNode = nnm.getNamedItem("ident");
+    Node identNode = nnm.getNamedItem(ATTRIBUTE_IDENT);
     if(identNode == null) ident=null;
     else ident = identNode.getNodeValue();
 
-    Node categoryNode = nnm.getNamedItem("category");
+    Node categoryNode = nnm.getNamedItem(ATTRIBUTE_CATEGORY);
     if (categoryNode == null) category=null;
     else category = categoryNode.getNodeValue();
 
   }
   public Node convertToXML(Document parent){
 
-    Element userNode = parent.createElement("User");
+    Element userNode = parent.createElement(ELEMENT_NAME);
     if(ident != null)
-      userNode.setAttribute("ident", ident);
+      userNode.setAttribute(ATTRIBUTE_IDENT, ident);
     if(category != null)
-      userNode.setAttribute("category", category);
+      userNode.setAttribute(ATTRIBUTE_CATEGORY, category);
 
 
     if (userIds != null){
       for (int i=0; i<userIds.length; i++){
-	Node currentNode = userIds[i].convertToXML(parent);
-	if (currentNode != null) userNode.appendChild(currentNode);
+    	Node currentNode = userIds[i].convertToXML(parent);
+    	if (currentNode != null) userNode.appendChild(currentNode);
       }
     }
-
-
     return userNode;
   }
-
-  /** Method used to test this object...probably should not be called otherwise.
-   */
-  public static void main (String args[]){
-
-    UserId userId_list[] = {new UserId("Test_Name", new Integer (100), "Test_Ident", UserId.CURRENT_USER)};
-
-    User user = new User(userId_list, "Test_Ident", User.APPLICATION);
-
-    try{
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      Document document = builder.newDocument(); 
-      Element root = document.createElement("Test_IDMEF_Message"); 
-      document.appendChild (root);
-      Node node = user.convertToXML(document);
-      root.appendChild(node);
-
-      StringWriter buf=new StringWriter();
-
-      XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-      sezr.serialize(document);
-      //System.out.println(buf.getBuffer());
-	    
-    } catch (Exception e) {e.printStackTrace();}
-  }
-
 }

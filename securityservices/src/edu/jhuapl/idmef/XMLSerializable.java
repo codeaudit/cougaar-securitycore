@@ -40,16 +40,18 @@ import org.apache.xml.serialize.*;
 
 import java.io.Serializable;
 
-/** This interface representes the ability to convert the implementing 
-    object into XML.*/
-
+/** 
+ * This interface representes the ability to convert the implementing 
+ * object into XML.
+ */
 public interface XMLSerializable extends Serializable {
-
-    /**This method will convert this object to XML format.
-       @param parent the parent document to create the XML in relation to
-       @return a Node tree containing the XML version of this document
-    */
-
+    // identity attribute of objects
+    public static final String ATTRIBUTE_IDENT = "ident";
+    
+    /**
+     * This method will convert this object to XML format.
+     * @param parent the parent document to create the XML in relation to
+     * @return a Node tree containing the XML version of this document
+     */
     public Node convertToXML(Document parent);
-
 }

@@ -1,24 +1,36 @@
-/*
- * <copyright>
- *  Copyright 1997-2002 Network Associates
- *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
- *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.
- * </copyright>
- */
+/* 
+ The following passage applies to all software and text files in this distribution, 
+ including this one:
+ 
+ Copyright (c) 2002 Networks Associates Technology, Inc. under sponsorship of the 
+ Defense Advanced Research Projects Agency (DARPA). 
+ All Rights Reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+    -> Redistributions of source code must retain the above copyright notice, 
+       this list of conditions and the following disclaimer.
 
+    -> Redistributions in binary form must reproduce the above copyright notice, 
+       this list of conditions and the following disclaimer in the documentation 
+       and/or other materials provided with the distribution.
+
+    -> Neither the name of the Network Associates nor the names of its 
+       contributors may be used to endorse or promote products 
+       derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
+IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+OF SUCH DAMAGE.
+*/
 package edu.jhuapl.idmef;
 
 import java.util.ArrayList;
@@ -112,21 +124,23 @@ import org.w3c.dom.NamedNodeMap;
  *       5    symbolic-link      The <name> element represents the file
  *                               to which the link points.
  * </pre>
- * @since IDMEF Message v1.0
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Draft Specification v0.7</a>.
  */
 public class Linkage implements XMLSerializable {
   // xml element and attribute names
-  public static String ELEMENT_NAME = "Linkage";
-  public static String CHILD_ELEMENT_NAME = "name";
-  public static String CHILD_ELEMENT_PATH = "path";
-  public static String ATTRIBUTE_CATEGORY = "category";
+  private static final String CHILD_ELEMENT_NAME = "name";
+  private static final String CHILD_ELEMENT_PATH = "path";
+  private static final String ATTRIBUTE_CATEGORY = "category";
+  
+  public static final String ELEMENT_NAME = "Linkage";
+ 
   // category values
-  public static String HARD_LINK = "hard-link";
-  public static String MOUNT_POINT = "mount-point";
-  public static String REPARSE_POINT = "reparse-point";
-  public static String SHORT_CUT = "shortcut";
-  public static String STREAM = "stream";
-  public static String SYMBOLIC_LINK = "symbolic-link";
+  public static final String HARD_LINK = "hard-link";
+  public static final String MOUNT_POINT = "mount-point";
+  public static final String REPARSE_POINT = "reparse-point";
+  public static final String SHORT_CUT = "shortcut";
+  public static final String STREAM = "stream";
+  public static final String SYMBOLIC_LINK = "symbolic-link";
     
   public Linkage( String name, String path, String category ){
     m_name = name;
@@ -187,6 +201,21 @@ public class Linkage implements XMLSerializable {
     m_file = file;
   }
   
+  /**
+   * Example of an equals method.
+   * <pre> 
+   * returns true when attributes of comparing object and this object are null or equal.
+   * Attributes that are compared are :
+   *  All
+   * <b>
+   * NOTE: This is specific to how systems use IDMEF messages and
+   *       what it means when two objects are equivalent.  For
+   *       example, equivalence may mean a subset of the objects
+   *       attributes.  It's advised that this method is modified
+   *       for your particular environment.
+   * </b>
+   * </pre> 
+   */
   public boolean equals(Object anObject) {
     boolean equals=false;
     boolean arecategoryequal=false;
@@ -204,43 +233,43 @@ public class Linkage implements XMLSerializable {
       myvalue=this.getName();
       invalue=linkage.getName();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arenameequal=true;
-	}
+  	    if(myvalue.trim().equals(invalue.trim())) {
+  	      arenameequal=true;
+  	    }
       }
       else if((myvalue==null) && (invalue==null)) {
-	arenameequal=true;
+	      arenameequal=true;
       }
       myvalue=this.getPath();
       invalue=linkage.getPath();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arepathequal=true;
-	}
+      	if(myvalue.trim().equals(invalue.trim())) {
+      	  arepathequal=true;
+      	}
       }
       else if((myvalue==null) && (invalue==null)) {
-	arepathequal=true;
+	      arepathequal=true;
       }
       myvalue=this.getCategory();
       invalue=linkage.getCategory();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arecategoryequal=true;
-	}
+      	if(myvalue.trim().equals(invalue.trim())) {
+      	  arecategoryequal=true;
+      	}
       }
       else if((myvalue==null) && (invalue==null)) {
-	arecategoryequal=true;
+	      arecategoryequal=true;
       }
       if((this.getFile()!=null) &&( linkage.getFile()!=null)) {
-	if(this.getFile().equals(linkage.getFile())) {
-	  areIdmefFileequal=true;
-	}
+      	if(this.getFile().equals(linkage.getFile())) {
+      	  areIdmefFileequal=true;
+      	}
       }
       else  if((this.getFile()==null) &&( linkage.getFile()==null)) {
-	areIdmefFileequal=true;
+	      areIdmefFileequal=true;
       }
       if( arenameequal && arepathequal && arecategoryequal && areIdmefFileequal) {
-	equals=true;
+	      equals=true;
       }
       
     }

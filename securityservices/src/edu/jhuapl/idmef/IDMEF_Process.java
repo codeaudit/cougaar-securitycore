@@ -43,32 +43,97 @@ import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import java.math.*;
 
-/** This class represents a single process.
-    See Section 5.2.6.3 of the IDMEF internet-draft for more info.
-*/
-
+/** 
+ * <pre>
+ *  The Process class is used to describe processes being executed on
+ *  sources, targets, and analyzers.
+ *
+ *  The Process class is composed of five aggregate classes, as shown in
+ *  Figure 4.17.
+ *
+ *                 +--------------+
+ *                 |    Process   |
+ *                 +--------------+            +------+
+ *                 | STRING ident |<>----------| name |
+ *                 |              |            +------+
+ *                 |              |       0..1 +------+
+ *                 |              |<>----------| pid  |
+ *                 |              |            +------+
+ *                 |              |       0..1 +------+
+ *                 |              |<>----------| path |
+ *                 |              |            +------+
+ *                 |              |       0..* +------+
+ *                 |              |<>----------| arg  |
+ *                 |              |            +------+
+ *                 |              |       0..* +------+
+ *                 |              |<>----------| env  |
+ *                 |              |            +------+
+ *                 +--------------+
+ *
+ *                    Figure 4.17 - The Process Class
+ *
+ *  The aggregate classes that make up Process are:
+ *
+ *  name
+ *     Exactly one.  STRING.  The name of the program being executed.
+ *     This is a short name; path and argument information are provided
+ *     elsewhere.
+ *
+ *  pid
+ *     Zero or one.  INTEGER.  The process identifier of the process.
+ *
+ *  path
+ *     Zero or one.  STRING.  The full path of the program being
+ *     executed.
+ *
+ *  arg
+ *     Zero or more.  STRING.  A command-line argument to the program.
+ *     Multiple arguments may be specified (they are assumed to have
+ *     occurred in the same order they are provided) with multiple uses
+ *     of arg.
+ *
+ *  env
+ *     Zero or more.  STRING.  An environment string associated with the
+ *     process; generally of the format "VARIABLE=value".  Multiple
+ *     environment strings may be specified with multiple uses of env.
+ *
+ *  This is represented in the XML DTD as follows:
+ *
+ *     &lt!ELEMENT Process                       (
+ *         name, pid?, path?, arg*, env*
+ *      )&gt
+ *     &lt!ATTLIST Process
+ *         ident               CDATA                   '0'
+ *     &gt
+ *
+ *  The Process class has one attribute:
+ *
+ *  ident
+ *     Optional.  A unique identifier for the process.
+ *
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Draft Specification v0.7</a>.
+ */
 public class IDMEF_Process implements XMLSerializable{
 
-  protected String name;
-    
-  protected Integer pid;
-
-  protected String path;
-
-  protected String args[];
-
-  protected String envs[];
+  private String name;    
+  private Integer pid;
+  private String path;
+  private String args[];
+  private String envs[];
 
   //attributes
-
-  protected String ident;
-
-  //constants
-  //none
-
+  private String ident;
+  // child element names
+  private static final String CHILD_ELEMENT_NAME = "name";
+  private static final String CHILD_ELEMENT_PID = "pid";
+  private static final String CHILD_ELEMENT_PATH = "path";
+  private static final String CHILD_ELEMENT_ARG = "arg";
+  private static final String CHILD_ELEMENT_ENV = "env";
+  
+  public static final String ELEMENT_NAME = "Process";
 
   //getters and setters
-
   public String getName(){
     return name;
   }
@@ -114,12 +179,21 @@ public class IDMEF_Process implements XMLSerializable{
   public void setIdent(String inIdent){
     ident = inIdent;
   }
-  /*
-    returns true when attributes of comparing object and this object are null or equal.
-    Attributes that are compared are :
-     Name
-     Path
-     
+  /**
+   * Example of an equals method.
+   * <pre> 
+   * returns true when attributes of comparing object and this object are null or equal.
+   * Attributes that are compared are :
+   *  Name
+   *  Path 
+   * <b>
+   * NOTE: This is specific to how systems use IDMEF messages and
+   *       what it means when two objects are equivalent.  For
+   *       example, equivalence may mean a subset of the objects
+   *       attributes.  It's advised that this method is modified
+   *       for your particular environment.
+   * </b>
+   * </pre> 
    */
   public boolean equals(Object anObject) {
     boolean equals=false;
@@ -139,22 +213,22 @@ public class IDMEF_Process implements XMLSerializable{
       myvalue=this.getName();
       invalue=process.getName();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arenameequal=true;
-	}
+	      if(myvalue.trim().equals(invalue.trim())) {
+	        arenameequal=true;
+	      }
       }
       else if((myvalue==null) && (invalue==null)) {
-	arenameequal=true;
+	      arenameequal=true;
       }
       myvalue=this.getPath();
       invalue=process.getPath();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arepathequal=true;
-	}
+	      if(myvalue.trim().equals(invalue.trim())) {
+	        arepathequal=true;
+	      }
       }
       else if((myvalue==null) && (invalue==null)) {
-	arepathequal=true;
+	      arepathequal=true;
       }
       /*
       String [] myarray;
@@ -206,9 +280,8 @@ public class IDMEF_Process implements XMLSerializable{
       }
       */
       if(arenameequal && arepathequal && areargsequal && areenvsequal && arepidequal) {
-	equals=true;
+	      equals=true;
       }
-
     }
     return equals;
   }
@@ -222,19 +295,22 @@ public class IDMEF_Process implements XMLSerializable{
     for(int i=0;i<container.length;i++) {
       compstring=container[i];
       if(compstring.trim().equals(inString.trim())) {
-	contains=true;
-	return contains;
+	      contains=true;
+	      return contains;
       }
       
     }
     return contains;
   } 
-  /**Creates an object with all fields null.
+  /**
+   * Creates an object with all fields null.
    */
   public IDMEF_Process(){
     this(null, null, null, null, null, null);
   }
-  /**Copies arguments into corresponding fields.
+  
+  /**
+   * Copies arguments into corresponding fields.
    */
   public IDMEF_Process(String inName, Integer inPid, String inPath,
 		       String inArgs[], String inEnvs[], String inIdent){
@@ -247,21 +323,22 @@ public class IDMEF_Process implements XMLSerializable{
     ident= inIdent;
   }
 
-  /**Creates an object from the XML Node containing the XML version of this object.
-     This method will look for the appropriate tags to fill in the fields. If it cannot find
-     a tag for a particular field, it will remain null.
-  */
+  /**
+   * Creates an object from the XML Node containing the XML version of this object.
+   * This method will look for the appropriate tags to fill in the fields. If it cannot find
+   * a tag for a particular field, it will remain null.
+   */
   public IDMEF_Process (Node node){
 
-    Node nameNode =  XMLUtils.GetNodeForName(node, "name");
+    Node nameNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_NAME);
     if (nameNode == null) name = null;
     else name = XMLUtils.getAssociatedString(nameNode);
 
-    Node pidNode =  XMLUtils.GetNodeForName(node, "pid");
+    Node pidNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_PID);
     if (pidNode == null) pid = null;
     else pid = new Integer(XMLUtils.getAssociatedString(pidNode));
 
-    Node pathNode =  XMLUtils.GetNodeForName(node, "path");
+    Node pathNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_PATH);
     if (pathNode == null) path = null;
     else path = XMLUtils.getAssociatedString(pathNode);
 
@@ -272,14 +349,14 @@ public class IDMEF_Process implements XMLSerializable{
     ArrayList envNodes = new ArrayList();
     for (int i=0; i<children.getLength(); i++){
       Node finger = children.item(i);
-      if (finger.getNodeName().equals("arg")){
-	String newArg = XMLUtils.getAssociatedString(finger);
-	argNodes.add(newArg);
-      } else if (finger.getNodeName().equals("env")){
-	String newEnv = XMLUtils.getAssociatedString(finger);
-	envNodes.add(newEnv);
+      if (finger.getNodeName().equals(CHILD_ELEMENT_ARG)){
+	      String newArg = XMLUtils.getAssociatedString(finger);
+	      argNodes.add(newArg);
+      } 
+      else if (finger.getNodeName().equals(CHILD_ELEMENT_ENV)){
+	      String newEnv = XMLUtils.getAssociatedString(finger);
+  	    envNodes.add(newEnv);
       }
-
     }
     args = new String[argNodes.size()];
     for (int i=0; i< argNodes.size(); i++){
@@ -292,33 +369,33 @@ public class IDMEF_Process implements XMLSerializable{
 
     NamedNodeMap nnm = node.getAttributes();
 
-    Node identNode = nnm.getNamedItem("ident");
+    Node identNode = nnm.getNamedItem(ATTRIBUTE_IDENT);
     if(identNode == null) ident=null;
     else ident = identNode.getNodeValue();
 
   }
   public Node convertToXML(Document parent){
 
-    Element processNode = parent.createElement("Process");
+    Element processNode = parent.createElement(ELEMENT_NAME);
     if(ident != null)
-      processNode.setAttribute("ident", ident);
+      processNode.setAttribute(ATTRIBUTE_IDENT, ident);
 
     if(name != null){
-      Node nameNode = parent.createElement("name");
+      Node nameNode = parent.createElement(CHILD_ELEMENT_NAME);
       nameNode.appendChild(parent.createTextNode(name));
       processNode.appendChild(nameNode);
 	    
     }
 
     if(pid != null){
-      Node pidNode = parent.createElement("pid");
+      Node pidNode = parent.createElement(CHILD_ELEMENT_PID);
       pidNode.appendChild(parent.createTextNode(pid.toString()));
       processNode.appendChild(pidNode);
 	    
     }
 
     if(path != null){
-      Node pathNode = parent.createElement("path");
+      Node pathNode = parent.createElement(CHILD_ELEMENT_PATH);
       pathNode.appendChild(parent.createTextNode(path));
       processNode.appendChild(pathNode);
 	    
@@ -327,47 +404,19 @@ public class IDMEF_Process implements XMLSerializable{
 
     if (args != null){
       for (int i=0; i<args.length; i++){
-	Node argNode = parent.createElement("arg");
-	argNode.appendChild(parent.createTextNode(args[i]));
-	processNode.appendChild(argNode);
+	      Node argNode = parent.createElement(CHILD_ELEMENT_ARG);
+	      argNode.appendChild(parent.createTextNode(args[i]));
+	      processNode.appendChild(argNode);
       }
     }
     if (envs != null){
       for (int i=0; i<envs.length; i++){
-	Node envNode = parent.createElement("env");
-	envNode.appendChild(parent.createTextNode(envs[i]));
-	processNode.appendChild(envNode);
+	      Node envNode = parent.createElement(CHILD_ELEMENT_ENV);
+	      envNode.appendChild(parent.createTextNode(envs[i]));
+	      processNode.appendChild(envNode);
       }
     }
 
     return processNode;
   }
-  /** Method used to test this object...probably should not be called otherwise.
-   */
-  public static void main (String args[]){
-    String arg_list[] = {"-r", "-b", "12.3.4.5"};
-    String env_list[] = {"HOME=/home/mccubb/", "PATH=/usr/sbin"};
-
-    IDMEF_Process proc = new IDMEF_Process("Test_Name", new Integer(1002), "/usr/sbin/ping",
-					   arg_list, env_list, "Test_Ident");
-	
-    try{
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      Document document = builder.newDocument(); 
-      Element root = document.createElement("Test_IDMEF_Message"); 
-      document.appendChild (root);
-      Node node = proc.convertToXML(document);
-      root.appendChild(node);
-
-      StringWriter buf=new StringWriter();
-
-      XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-      sezr.serialize(document);
-      //System.out.println(buf.getBuffer());
-
-
-    } catch (Exception e) {e.printStackTrace();}
-  }
-
 }

@@ -41,34 +41,62 @@ import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.apache.xml.serialize.*;
-/** This class represents the current time on the Analyzer.
-    See Section 5.2.5.3 of the IDMEF internet-draft for more info.
-*/
-public class AnalyzerTime extends IDMEFTime{
-    /**Produces an AnalyzerTime object with the current time.
+/** 
+ * <pre>
+ * The AnalyzerTime class is used to indicate the current date and time
+ * on the analyzer.  Its values should be filled in as late as possible
+ * in the message transmission process, ideally immediately before
+ * placing the message "on the wire."  It is represented in the XML DTD
+ * as follows:
+ *
+ *     &lt!ELEMENT AnalyzerTime        (#PCDATA) &gt
+ *     &lt!ATTLIST AnalyzerTime
+ *         ntpstamp            CDATA                   #REQUIRED
+ *     &gt
+ *
+ * The DATETIME format of the <AnalyzerTime> element content is
+ * described in Section 3.4.6 of the IDMEF Specification draft v0.7.
+ *
+ * The AnalyzerTime class has one attribute:
+ *  
+ *  ntpstamp
+ *     Required.  The NTP timestamp representing the same date and time
+ *     as the element content.  The NTPSTAMP format of this attribute's
+ *     value is described in Section 3.4.7 of the draft.
+ *
+ * If the date and time represented by the element content and the NTP
+ * timestamp differ (should "never" happen), the value in the NTP
+ * timestamp MUST be used.
+ *
+ * The use of <AnalyzerTime> to perform rudimentary time synchronization
+ * between analyzers and managers is discussed in Section 6.3 of the draft.
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Specification Draft v0.7 </a>.
+ */
+public class AnalyzerTime extends IDMEFTime {
+    
+    public static final String ELEMENT_NAME = "AnalyzerTime";
+    
+    /**
+     * Produces an AnalyzerTime object with the current time.
      */
     public AnalyzerTime (){
-	super();
+	    super();
     }
 
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
-
+    /**
+     * Creates an object from the XML Node containing the XML version of this object.
+     * This method will look for the appropriate tags to fill in the fields. If it cannot find
+     * a tag for a particular field, it will remain null.
+     */
     public AnalyzerTime (Node node){
-	super(node);
+	    super(node);
     }
 
     public Node convertToXML(Document parent){
-
-	Element timeNode = parent.createElement("AnalyzerTime");
-	timeNode.setAttribute("ntpstamp", getNtpstamp());
-
-
-	timeNode.appendChild(parent.createTextNode(getidmefDate()));
-	return timeNode;
+	    Element timeNode = parent.createElement(ELEMENT_NAME);
+	    timeNode.setAttribute(ATTRIBUTE_NTPSTAMP, getNtpstamp());
+      timeNode.appendChild(parent.createTextNode(getidmefDate()));
+	    return timeNode;
     }
-
-   
 }

@@ -42,33 +42,55 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 
-/** This class represents the time the event producing the alert was detected.
-  See Section 5.2.5.2 of the IDMEF internet-draft for more info.
-*/
-
-
-public class DetectTime extends IDMEFTime{
-
+/** 
+ * <pre>
+ *  The DetectTime class is used to indicate the date and time the
+ *  event(s) producing an alert was detected by the analyzer.  In the
+ *  case of more than one event, the time the first event was detected.
+ *  (This may or may not be the same time as CreateTime; analyzers are
+ *  not required to send alerts immediately upon detection).  It is
+ *  represented in the XML DTD as follows:
+ *
+ *     <!ELEMENT DetectTime          (#PCDATA) >
+ *     <!ATTLIST DetectTime
+ *         ntpstamp            CDATA                   #REQUIRED
+ *       >
+ *
+ *  The DATETIME format of the <DetectTime> element content is described
+ *  in Section 3.4.6.
+ *
+ *  The DetectTime class has one attribute:
+ *
+ *  ntpstamp
+ *     Required.  The NTP timestamp representing the same date and time
+ *     as the element content.  The NTPSTAMP format of this attribute's
+ *     value is described in Section 3.4.7.
+ *
+ *  If the date and time represented by the element content and the NTP
+ *  timestamp differ (should "never" happen), the value in the NTP
+ *  timestamp MUST be used.
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Specification Draft v0.7 </a>.
+ */
+public class DetectTime extends IDMEFTime {
+  public static final String ELEMENT_NAME = "DetectTime";
+  
     /**Creates a new DetectTime with the current time. */
     public DetectTime (){
-	super();
+    	super();
     }
     /**Creates an object from the XML Node containing the XML version of this object.
        This method will look for the appropriate tags to fill in the fields. If it cannot find
        a tag for a particular field, it will remain null.
     */
     public DetectTime (Node node){
-	super(node);
+  	  super(node);
     }
-
-
+    
     public Node convertToXML(Document parent){
-
-	Element timeNode = parent.createElement("DetectTime");
-	timeNode.setAttribute("ntpstamp", getNtpstamp());
-
-
-	timeNode.appendChild(parent.createTextNode(getidmefDate()));
-	return timeNode;
+    	Element timeNode = parent.createElement(ELEMENT_NAME);
+	    timeNode.setAttribute(ATTRIBUTE_NTPSTAMP, getNtpstamp());
+	    timeNode.appendChild(parent.createTextNode(getidmefDate()));
+	    return timeNode;
     }
 }

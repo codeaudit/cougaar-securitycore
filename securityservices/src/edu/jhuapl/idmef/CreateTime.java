@@ -30,7 +30,6 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
 OF SUCH DAMAGE.
 */
-
 package edu.jhuapl.idmef;
 
 import java.util.*;
@@ -42,30 +41,56 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 
-/** This class represents the time this alert was created.
-    See Section 5.2.5.1 of the IDMEF internet-draft for more info.
-*/
-
+/** 
+ * <pre>
+ *  The CreateTime class is used to indicate the date and time the alert
+ *  or heartbeat was created by the analyzer.  It is represented in the
+ *  XML DTD as follows:
+ *
+ *     &lt!ELEMENT CreateTime          (#PCDATA) &gt
+ *     &lt!ATTLIST CreateTime
+ *         ntpstamp            CDATA                   #REQUIRED
+ *     &gt
+ *
+ *  The DATETIME format of the <CreateTime> element content is described
+ *  in Section 3.4.6 of the IDMEF specification draft v0.7.
+ *
+ *  The CreateTime class has one attribute:
+ *
+ *  ntpstamp
+ *     Required.  The NTP timestamp representing the same date and time
+ *     as the element content.  The NTPSTAMP format of this attribute's
+ *     value is described in Section 3.4.7 in the draft.
+ *
+ *  If the date and time represented by the element content and the NTP
+ *  timestamp differ (should "never" happen), the value in the NTP
+ *  timestamp MUST be used.
+ *
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Specification Draft v0.7 </a>.
+ */
 public class CreateTime extends IDMEFTime{
-    /**This constructor creates a CreateTime with the current time*/
+    public static final String ELEMENT_NAME = "CreateTime";
+    
+    /**
+     * This constructor creates a CreateTime with the current time
+     */
     public CreateTime (){
-	super();
+	    super();
     }
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
+    /**
+     * Creates an object from the XML Node containing the XML version of this object.
+     * This method will look for the appropriate tags to fill in the fields. If it cannot find
+     * a tag for a particular field, it will remain null.
+     */
     public CreateTime (Node node){
-	super(node);
+	    super(node);
     }
 
     public Node convertToXML(Document parent){
-
-	Element timeNode = parent.createElement("CreateTime");
-	timeNode.setAttribute("ntpstamp", getNtpstamp());
-
-
-	timeNode.appendChild(parent.createTextNode(getidmefDate()));
-	return timeNode;
+	    Element timeNode = parent.createElement(ELEMENT_NAME);
+	    timeNode.setAttribute(ATTRIBUTE_NTPSTAMP, getNtpstamp());
+	    timeNode.appendChild(parent.createTextNode(getidmefDate()));
+	    return timeNode;
     }
 }

@@ -42,27 +42,107 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 import java.math.*;
-/** This class represents network services on sources and targets.
-    See Section 5.2.6.4 of the IDMEF internet-draft for more info.
-*/
-public class Service implements XMLSerializable{
-
+/** 
+ * <pre>
+ *  The Service class describes network services on sources and targets.
+ *  It can identify services by name, port, and protocol.  When Service
+ *  occurs as an aggregate class of Source, it is understood that the
+ *  service is one from which activity of interest is originating; and
+ *  that the service is "attached" to the Node, Process, and User
+ *  information also contained in Source.  Likewise, when Service occurs
+ *  as an aggregate class of Target, it is understood that the service is
+ *  one to which activity of interest is being directed; and that the
+ *  service is "attached" to the Node, Process, and User information also
+ *  contained in Target.
+ *
+ *  The Service class is composed of four aggregate classes, as shown in
+ *  Figure 4.18.
+ *
+ *               +--------------+
+ *               |   Service    |
+ *               +--------------+       0..1 +----------+
+ *               | STRING ident |<>----------|   name   |
+ *               |              |            +----------+
+ *               |              |       0..1 +----------+
+ *               |              |<>----------|   port   |
+ *               |              |            +----------+
+ *               |              |       0..1 +----------+
+ *               |              |<>----------| portlist |
+ *               |              |            +----------+
+ *               |              |       0..1 +----------+
+ *               |              |<>----------| protocol |
+ *               |              |            +----------+
+ *               +--------------+
+ *                      /_\
+ *                       |
+ *                       +------------+
+ *                                    |
+ *                   +-------------+  |  +-------------+
+ *                   | SNMPService |--+--| WebService  |
+ *                   +-------------+     +-------------+
+ *
+ *                    Figure 4.18 - The Service Class
+ *
+ *  The aggregate classes that make up Service are:
+ *
+ *  name
+ *     Zero or one.  STRING.  The name of the service.  Whenever
+ *     possible, the name from the IANA list of well-known ports SHOULD
+ *     be used.
+ *
+ *  port
+ *     Zero or one.  INTEGER.  The port number being used.
+ *
+ *  portlist
+ *     Zero or one.  PORTLIST.  A list of port numbers being used; see
+ *     Section 3.4.8 of IDMEF specification draft v0.7 for formatting rules.
+ *
+ *  protocol
+ *     Zero or one.  STRING.  The protocol being used.
+ *
+ *  A Service MUST be specified as either (a) a name, (b) a port, (c) a
+ *  name and a port, or (d) a portlist.  The protocol is optional in all
+ *  cases, but no other combinations are permitted.
+ *
+ *  Because DTDs do not support subclassing (see Section 3.3.4 of draft), the
+ *  inheritance relationship between Service and the SNMPService and
+ *  WebService subclasses shown in Figure 4.18 has been replaced with an
+ *  aggregate relationship.
+ *
+ *  Service is represented in the XML DTD as follows:
+ * 
+ *     &lt!ELEMENT Service                       (
+ *         ((name?, port?) | portlist), protocol?, SNMPService?,
+ *         WebService?
+ *      )&gt
+ *     &lt!ATTLIST Service
+ *         ident               CDATA                   '0'
+ *     &gt
+ *
+ *  The Service class has one attribute:
+ * 
+ *  ident
+ *     Optional.  A unique identifier for the service.
+ *
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Draft Specification v0.7</a>.
+ */
+public class Service implements XMLSerializable {
 
   protected String name;
-
   protected Integer port;
-
   protected String portlist;
-
   protected String protocol;
 
   //attributes
-
   protected String ident;
-
-  //constants
-  //none
-
+  protected static final String CHILD_ELEMENT_NAME = "name";
+  protected static final String CHILD_ELEMENT_PORT = "port";
+  protected static final String CHILD_ELEMENT_PORTLIST = "portlist";
+  protected static final String CHILD_ELEMENT_PROTOCOL = "protocol";
+  
+  public static final String ELEMENT_NAME = "Service";
+  
   //getters and setters
   public String getName(){
     return name;
@@ -102,9 +182,9 @@ public class Service implements XMLSerializable{
     ident = inIdent;
   }
 
-  /**Copies arguments into corresponding fields.
+  /**
+   * Copies arguments into corresponding fields.
    */
-
   public Service (String inName, Integer inPort, String inPortlist, 
 		  String inProtocol, String inIdent){
     name = inName;
@@ -115,43 +195,59 @@ public class Service implements XMLSerializable{
     ident = inIdent;
 
   }
-  /**Creates an object with all fields null.
+  /**
+   * Creates an object with all fields null.
    */
   public Service(){
     this(null, null, null, null, null);
 
   }
-  /**Creates an object from the XML Node containing the XML version of this object.
-     This method will look for the appropriate tags to fill in the fields. If it cannot find
-     a tag for a particular field, it will remain null.
-  */
+  /**
+   * Creates an object from the XML Node containing the XML version of this object.
+   * This method will look for the appropriate tags to fill in the fields. If it cannot find
+   * a tag for a particular field, it will remain null.
+   */
   public Service (Node node){
 
-
-    Node nameNode =  XMLUtils.GetNodeForName(node, "name");
+    Node nameNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_NAME);
     if (nameNode == null) name = null;
     else name = XMLUtils.getAssociatedString(nameNode);
 
-    Node portNode =  XMLUtils.GetNodeForName(node, "port");
+    Node portNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_PORT);
     if (portNode == null) port = null;
     else port = new Integer(XMLUtils.getAssociatedString(portNode));
 
-    Node portlistNode =  XMLUtils.GetNodeForName(node, "portlist");
+    Node portlistNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_PORTLIST);
     if (portlistNode == null) portlist = null;
     else portlist = XMLUtils.getAssociatedString(portlistNode);
 
-    Node protocolNode =  XMLUtils.GetNodeForName(node, "protocol");
+    Node protocolNode =  XMLUtils.GetNodeForName(node, CHILD_ELEMENT_PROTOCOL);
     if (protocolNode == null) protocol = null;
     else protocol = XMLUtils.getAssociatedString(protocolNode);
 
     NamedNodeMap nnm = node.getAttributes();
 
-    Node identNode = nnm.getNamedItem("ident");
+    Node identNode = nnm.getNamedItem(ATTRIBUTE_IDENT);
     if(identNode == null) ident=null;
     else ident = identNode.getNodeValue();
 
   }
   
+  /**
+   * Example of an equals method.
+   * <pre> 
+   * returns true when attributes of comparing object and this object are null or equal.
+   * Attributes that are compared are :
+   *  All
+   * <b>
+   * NOTE: This is specific to how systems use IDMEF messages and
+   *       what it means when two objects are equivalent.  For
+   *       example, equivalence may mean a subset of the objects
+   *       attributes.  It's advised that this method is modified
+   *       for your particular environment.
+   * </b>
+   * </pre> 
+   */
   public boolean equals( Object anObject) {
     boolean equals=false;
     boolean arenameequal=false;
@@ -169,44 +265,44 @@ public class Service implements XMLSerializable{
       myvalue=this.getName();
       invalue=service.getName();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arenameequal=true;
-	}
+      	if(myvalue.trim().equals(invalue.trim())) {
+      	  arenameequal=true;
+      	}
       }
       else if((myvalue==null) && (invalue==null)) {
-	arenameequal=true;
+	      arenameequal=true;
       }
       myvalue=this.getPortlist();
       invalue=service.getPortlist();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  areportlistequal=true;
-	}
+      	if(myvalue.trim().equals(invalue.trim())) {
+      	  areportlistequal=true;
+      	}
       }
       else if((myvalue==null) && (invalue==null)) {
-	areportlistequal=true;
+	      areportlistequal=true;
       }
       myvalue=this.getProtocol();
       invalue=service.getProtocol();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  areprotocolequal=true;
-	}
+      	if(myvalue.trim().equals(invalue.trim())) {
+      	  areprotocolequal=true;
+      	}
       }
       else if((myvalue==null) && (invalue==null)) {
-	areprotocolequal=true;
+	      areprotocolequal=true;
       }
       if((this.getPort()!=null) && (service.getPort()!=null)) {
-	if(this.getPort().equals(service.getPort())) {
-	  areportequal=true;
-	}
+      	if(this.getPort().equals(service.getPort())) {
+      	  areportequal=true;
+      	}
       }
       else if((this.getPort()==null) && (service.getPort()==null)) {
-	areportequal=true;
+	      areportequal=true;
       }
       
       if(arenameequal &&  areportlistequal && areprotocolequal && areportequal) {
-	equals=true;
+	      equals=true;
       }
     }
     return equals;
@@ -215,63 +311,30 @@ public class Service implements XMLSerializable{
 
   public Node convertToXML(Document parent){
 
-    Element serviceNode = parent.createElement("Service");
+    Element serviceNode = parent.createElement(ELEMENT_NAME);
     if(ident != null)
-      serviceNode.setAttribute("ident", ident);
-
-	    
+      serviceNode.setAttribute(ATTRIBUTE_IDENT, ident);
 	
     if(name != null){
-      Node nameNode = parent.createElement("name");
+      Node nameNode = parent.createElement(CHILD_ELEMENT_NAME);
       nameNode.appendChild(parent.createTextNode(name));
       serviceNode.appendChild(nameNode);
-	    
     }
     if(port != null){
-      Node portNode = parent.createElement("port");
+      Node portNode = parent.createElement(CHILD_ELEMENT_PORT);
       portNode.appendChild(parent.createTextNode(port.toString()));
       serviceNode.appendChild(portNode);
-	    
     }
     if(portlist != null){
-      Node portlistNode = parent.createElement("portlist");
+      Node portlistNode = parent.createElement(CHILD_ELEMENT_PORTLIST);
       portlistNode.appendChild(parent.createTextNode(portlist));
       serviceNode.appendChild(portlistNode);
-	    
     }
     if(protocol != null){
-      Node protocolNode = parent.createElement("protocol");
+      Node protocolNode = parent.createElement(CHILD_ELEMENT_PROTOCOL);
       protocolNode.appendChild(parent.createTextNode(protocol));
       serviceNode.appendChild(protocolNode);
-	    
     }
-
-
     return serviceNode;
   }
-  /** Method used to test this object...probably should not be called otherwise.
-   */
-  public static void main (String args[]){
-
-    Service idmefnode = new Service("Test_Name", new Integer(23), 
-				    "26, 8, 100-1098", "telnet", "test_ident");
-
-    try{
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      Document document = builder.newDocument(); 
-      Element root = document.createElement("Test_IDMEF_Message"); 
-      document.appendChild (root);
-      Node tNode = idmefnode.convertToXML(document);
-      root.appendChild(tNode);
-
-      StringWriter buf=new StringWriter();
-
-      XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-      sezr.serialize(document);
-      //System.out.println(buf.getBuffer());
-
-    } catch (Exception e) {e.printStackTrace();}
-  }
-
 }

@@ -35,64 +35,70 @@ package edu.jhuapl.idmef;
 
 import java.io.*;
 
-/**This class is just a bunch of static methods for use with common file input operations. It should be considered beta level software. */
-
+/**
+ * This class is just a bunch of static methods for use with common file input operations. 
+ * It should be considered beta level software. 
+ */
 public class FileUtils{
- /** This method is used to read a line in from an input stream into a string.
-    * For testing purposes only! Use at your own risk!
-    * @param in the InputStream to read in from.
-    * @return the string that was read in*/
-
-    public static String getNextLine(InputStream in) throws IOException{
-	StringBuffer s = new StringBuffer();
-	int next=0;
-	try{
+ /** 
+  * This method is used to read a line in from an input stream into a string.
+  * For testing purposes only! Use at your own risk!
+  * @param in the InputStream to read in from.
+  * @return the string that was read in*/
+  public static String getNextLine(InputStream in) throws IOException{
+	  StringBuffer s = new StringBuffer();
+	  int next=0;
+	  try{
 	    next = in.read();
-	}
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-	if (next == '\n' || next == -1) 
-            return new String();
-	while (next != '\n' && next != -1){
+	  }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+	  if (next == '\n' || next == -1) 
+      return new String();
+	  while (next != '\n' && next != -1){
 	    s.append( (char) next);
 	    try{
-		next = in.read();
+		    next = in.read();
 	    }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-	}
-	return s.toString().trim();
-    }
- /** This method is used to read a file into a string.
-    * For testing purposes only! Use at your own risk!
-    * @param fileName name of a file to read in from.
-    * @return the string that was read in*/
-
-    public static String readWholeFile(String fileName)throws IOException{
-	FileReader in = new FileReader(fileName);
-	return readWholeFile(in);
-    }
-    /** This method is used to read a file into a string.
-    * For testing purposes only! Use at your own risk!
-    * @param file the File to read in from.
-    * @return the string that was read in*/
-    public static String readWholeFile(File file)throws IOException{
-	FileReader in = new FileReader(file);
-	return readWholeFile(in);
-    }
-    /** This method is used to read a file into a string.
-    * For testing purposes only! Use at your own risk!
-    * @param in the FileReader to read in from.
-    * @return the string that was read in*/
-    public static String readWholeFile(FileReader in)throws IOException{
-	int next;
-	StringBuffer fileString = new StringBuffer();
-	while ((next = in.read()) != -1)
+      catch (IOException e) {
+        e.printStackTrace();
+      }
+	  }
+	  return s.toString().trim();
+  }
+ /** 
+  * This method is used to read a file into a string.
+  * For testing purposes only! Use at your own risk!
+  * @param fileName name of a file to read in from.
+  * @return the string that was read in
+  */
+  public static String readWholeFile(String fileName)throws IOException{
+	  FileReader in = new FileReader(fileName);
+  	return readWholeFile(in);
+  }
+  
+  /** 
+   * This method is used to read a file into a string.
+   * For testing purposes only! Use at your own risk!
+   * @param file the File to read in from.
+   * @return the string that was read in
+   */
+  public static String readWholeFile(File file)throws IOException{
+	  FileReader in = new FileReader(file);
+	  return readWholeFile(in);
+  }
+  /** 
+   * This method is used to read a file into a string.
+   * For testing purposes only! Use at your own risk!
+   * @param in the FileReader to read in from.
+   * @return the string that was read in
+   */
+  public static String readWholeFile(FileReader in)throws IOException{
+	  int next;
+	  StringBuffer fileString = new StringBuffer();
+	  while ((next = in.read()) != -1)
 	    fileString.append((char)next);
-
-	return fileString.toString();
-    }
-
+	  return fileString.toString();
+  }
 }

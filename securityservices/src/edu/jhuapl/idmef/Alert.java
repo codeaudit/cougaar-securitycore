@@ -44,29 +44,144 @@ import org.apache.xml.serialize.*;
 import org.xml.sax.*;
 import org.w3c.dom.*;
 
-/** This class represents an alert message.
-    See Section 5.2.2 of the IDMEF internet-draft for more info.
-*/
-
-
-public class Alert extends IDMEF_Message {
-
-    public static String ELEMENT_NAME = "Alert";
+/**
+ * <pre>
+ * Generally, every time an analyzer detects an event that it has been
+ * configured to look for, it sends an Alert message to its manager(s).
+ * Depending on the analyzer, an Alert message may correspond to a
+ * single detected event, or multiple detected events.  Alerts occur
+ * asynchronously in response to outside events.
+ *
+ * An Alert message is composed of several aggregate classes, as shown
+ * in Figure 4.2.
+ *
+ *          +---------------+
+ *          |    Alert      |
+ *          +---------------+            +------------------+
+ *          | STRING ident  |<>----------|     Analyzer     |
+ *          |               |            +------------------+
+ *          |               |            +------------------+
+ *          |               |<>----------|    CreateTime    |
+ *          |               |            +------------------+
+ *          |               |       0..1 +------------------+
+ *          |               |<>----------|    DetectTime    |
+ *          |               |            +------------------+
+ *          |               |       0..1 +------------------+
+ *          |               |<>----------|   AnalyzerTime   |
+ *          |               |            +------------------+
+ *          |               |       0..* +------------------+
+ *          |               |<>----------|      Source      |
+ *          |               |            +------------------+
+ *          |               |       0..* +------------------+
+ *          |               |<>----------|      Target      |
+ *          |               |            +------------------+
+ *          |               |       1..* +------------------+
+ *          |               |<>----------|  Classification  |
+ *          |               |            +------------------+
+ *          |               |       0..1 +------------------+
+ *          |               |<>----------|    Assessment    |
+ *          |               |            +------------------+
+ *          |               |       0..* +------------------+
+ *          |               |<>----------|  AdditionalData  |
+ *          |               |            +------------------+
+ *          +---------------+
+ *                 /_\
+ *                  |
+ *                  +----+------------+-------------+
+ *                       |            |             |
+ *            +-------------------+   |   +-------------------+
+ *            |     ToolAlert     |   |   |  CorrelationAlert |
+ *            +-------------------+   |   +-------------------+
+ *                                    |
+ *                          +-------------------+
+ *                          |   OverflowAlert   |
+ *                          +-------------------+
+ *
+ *                     Figure 4.2 - The Alert Class
+ *
+ *  The aggregate classes that make up Alert are:
+ *
+ *  Analyzer
+ *     Exactly one.  Identification information for the analyzer that
+ *     originated the alert.
+ *
+ *  CreateTime
+ *     Exactly one.  The time the alert was created.  Of the three times
+ *     that may be provided with an Alert, this is the only one that is
+ *     required.
+ *
+ *  DetectTime
+ *     Zero or one.  The time the event(s) leading up to the alert was
+ *     detected.  In the case of more than one event, the time the first
+ *     event was detected.  In some circumstances, this may not be the
+ *     same value as CreateTime.
+ *
+ *  AnalyzerTime
+ *     Zero or one.  The current time on the analyzer (see Section 6.3).
+ *
+ *  Source
+ *     Zero or more.  The source(s) of the event(s) leading up to the
+ *     alert.
+ *
+ *  Target
+ *     Zero or more.  The target(s) of the event(s) leading up to the
+ *     alert.
+ *
+ *  Classification
+ *     One or more.  The "name" of the alert, or other information
+ *     allowing the manager to determine what it is.
+ *
+ *  Assessment
+ *     Zero or one.  Information about the impact of the event, actions
+ *     taken by the analyzer in response to it, and the analyzer's
+ *     confidence in its evaluation.
+ *
+ *  AdditionalData
+ *     Zero or more.  Information included by the analyzer that does not
+ *     fit into the data model.  This may be an atomic piece of data, or
+ *     a large amount of data provided through an extension to the IDMEF
+ *     (see Section 5).
+ *
+ *  Because DTDs do not support subclassing (see Section 3.3.4), the
+ *  inheritance relationship between Alert and the ToolAlert,
+ *  CorrelationAlert, and OverflowAlert subclasses shown in Figure 4.2
+ *  has been replaced with an aggregate relationship.
+ *
+ *  Alert is represented in the XML DTD as follows:*\
+ *
+ *     &lt!ELEMENT Alert                         (
+ *         Analyzer, CreateTime, DetectTime?, AnalyzerTime?, Source*,
+ *         Target*, Classification+, Assessment?, (ToolAlert |
+ *         OverflowAlert | CorrelationAlert)?, AdditionalData*
+ *       )&gt
+ *     &lt!ATTLIST Alert
+ *         ident               CDATA                   '0'
+ *     &gt
+ *
+ *  The Alert class has one attribute:
+ *
+ *   ident
+ *     Optional.  A unique identifier for the alert.
+ * </pre>
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Specification Draft v0.7</a>.
+ */
+public class Alert extends IDMEF_Message {  
+    // attribute value
+    protected String ident;
     
     protected Analyzer analyzer; 
     protected CreateTime createTime;
     protected DetectTime detectTime;
     protected AnalyzerTime analyzerTime;
-    protected Assessment assessment;    // as of v1.0
+    protected Assessment assessment;    // as of draft v0.7
     
     protected Source []sources;
     protected Target []targets;
     protected Classification []classifications;
     protected AdditionalData []additionalData;
-    
-    // attribute
-    protected String ident;
-    
+  
+    // element name
+    public static final String ELEMENT_NAME = "Alert";
     //getters and setters
     public Analyzer getAnalyzer(){
 	    return analyzer;
@@ -115,9 +230,6 @@ public class Alert extends IDMEF_Message {
     	classifications = inClassifications;
     }
     
-    /**
-     * New in IDMEF Message draft v1.0
-     */
     public Assessment getAssessment() {
         return assessment;
     }
@@ -170,19 +282,19 @@ public class Alert extends IDMEF_Message {
 
     	//read in the arrays of aggregate classes
 
-	    Node analyzerNode =  XMLUtils.GetNodeForName(inNode, "Analyzer");
+	    Node analyzerNode =  XMLUtils.GetNodeForName(inNode, Analyzer.ELEMENT_NAME);
 	    if (analyzerNode == null) analyzer = null;
 	    else analyzer = new Analyzer (analyzerNode);
 
-	    Node createTimeNode =  XMLUtils.GetNodeForName(inNode, "CreateTime");
+	    Node createTimeNode =  XMLUtils.GetNodeForName(inNode, CreateTime.ELEMENT_NAME);
 	    if (createTimeNode == null) createTime = null;
 	    else createTime = new CreateTime (createTimeNode);
 
-    	Node detectTimeNode =  XMLUtils.GetNodeForName(inNode, "DetectTime");
+    	Node detectTimeNode =  XMLUtils.GetNodeForName(inNode, DetectTime.ELEMENT_NAME);
     	if (detectTimeNode == null) detectTime = null;
     	else detectTime = new DetectTime (detectTimeNode);  
 
-    	Node analyzerTimeNode =  XMLUtils.GetNodeForName(inNode, "AnalyzerTime");
+    	Node analyzerTimeNode =  XMLUtils.GetNodeForName(inNode, AnalyzerTime.ELEMENT_NAME);
     	if (analyzerTimeNode == null) analyzerTime = null;
     	else analyzerTime = new AnalyzerTime (analyzerTimeNode);
     	
@@ -200,19 +312,19 @@ public class Alert extends IDMEF_Message {
     	for (int i=0; i<children.getLength(); i++){
     	    Node finger = children.item(i);
     	    String nodeName = finger.getNodeName();
-    	    if (nodeName.equals("Source")){
+    	    if (nodeName.equals(Source.ELEMENT_NAME)){
         		Source newSource = new Source(finger);
          		sourceNodes.add(newSource);
 	        }
-	        else if (nodeName.equals("Target")){
+	        else if (nodeName.equals(Target.ELEMENT_NAME)){
 		        Target newTarget = new Target(finger);
         		targetNodes.add(newTarget);
       	    }
-    	    else if (nodeName.equals("Classification")){
+    	    else if (nodeName.equals(Classification.ELEMENT_NAME)){
 	        	Classification newClassification = new Classification(finger);
 		        classificationNodes.add(newClassification);
 	        }    
-	        else if (nodeName.equals("AdditionalData")){
+	        else if (nodeName.equals(AdditionalData.ELEMENT_NAME)){
 		        AdditionalData newAdditionalData = new AdditionalData(finger);
         		additionalDataNodes.add(newAdditionalData);
     	    }
@@ -250,9 +362,9 @@ public class Alert extends IDMEF_Message {
     
     public Node convertToXML(Document parent){
 
-	    Element alertNode = parent.createElement("Alert");
+	    Element alertNode = parent.createElement(ELEMENT_NAME);
 	    if(ident != null)
-	        alertNode.setAttribute("ident", ident);
+	        alertNode.setAttribute(ATTRIBUTE_IDENT, ident);
 	        
 	    if(analyzer != null){
 	        Node analyzerNode = analyzer.convertToXML(parent);
@@ -310,102 +422,4 @@ public class Alert extends IDMEF_Message {
 
     	return alertNode;
     }
-
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-     /*
-    public static void main (String args[]){
-	try{
-	    //make a node
-	    Address address_list[] = {new Address("1.1.1.1", null, null, null, null, null),
-				      new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX, null, null)};
-	    IDMEF_Node testNode = new IDMEF_Node("Test Location", 
-						 "Test Name", address_list, 
-						 "Test_Ident", 
-						 IDMEF_Node.DNS);
-	    //make a user
-	    UserId userId_list[] = {new UserId("Test_Name", new Integer (100), "Test_Ident", UserId.CURRENT_USER)};
-	    
-	    User testUser = new User(userId_list, "Test_Ident", User.APPLICATION);
-	    
-	    
-	    //make a Process
-	    String arg_list[] = {"-r", "-b", "12.3.4.5"};
-	    String env_list[] = {"HOME=/home/mccubb/", "PATH=/usr/sbin"};
-	    IDMEF_Process testProcess = new IDMEF_Process("Test_Name", new Integer(1002), "/usr/sbin/ping",
-							  arg_list, env_list, "Test_Ident");
-	    
-	    //make a service
-	    Service testService = new Service("Test_Name", new Integer(23), 
-					      "26, 8, 100-1098", "telnet", "test_ident");
-	    
-	    
-	    FileList testFileList = new FileList();
-
-	    
-
-
-	    //make an analyzer
-	    
-	    Analyzer testAnalyzer = new Analyzer(testNode, testProcess, "test_id");
-	    
-	    //make a createTime
-	    //make a detectTime
-	    //make a AnalyzerTime
-	    
-	    DetectTime d = new DetectTime ();
-	    CreateTime c = new CreateTime();
-	    AnalyzerTime a = new AnalyzerTime();
-
-	    //make a target list
-
-	    Target target[] = {new Target(testNode, testUser, testProcess, testService, "test_ident", 
-					  Target.YES, "/dev/eth0")};
-
-	    //make a source list
-	
-	    Source source[] = {new Source(testNode, testUser, testProcess, testService, "test_ident", 
-				      Source.YES, "/dev/eth0")};
-
-	    //make a Classification list
-	    Classification testClassification[] = {new Classification("Test_Name", 
-							  "http://www.yahoo.com", Classification.CVE)};
-		
-		//make an Assessment					  
-		Impact impact = new Impact( Impact.HIGH,
-		                            Impact.SUCCEEDED,
-		                            Impact.OTHER,
-		                            "test_impact" );
-		Action actions[] = { new Action( Action.OTHER, "test_action" ) };
-		Confidence confidence = new Confidence( Confidence.NUMERIC, 0.5f );					  
-	    Assessment testAssessment = new Assessment( impact, actions, confidence );
-	    
-	    //make an additionalData list
-	    AdditionalData ad[] = {new AdditionalData (AdditionalData.INTEGER, 
-						"Chris' Age", "24")};
-
-
-	    Alert testAlert = new Alert( testAnalyzer, c, d, a, source, target, 
-	            testClassification, testAssessment, ad,	"test_ident" );
-
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = (Element) document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node tNode = testAlert.convertToXML(document);
-	    root.appendChild(tNode);
-
-	    StringWriter buf=new StringWriter();
-
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    System.out.println(buf.getBuffer());
-	      
-
-	    Alert new_i = new Alert(tNode);
-
-	} catch (Exception e) {e.printStackTrace();}
-    }
-    */
 }

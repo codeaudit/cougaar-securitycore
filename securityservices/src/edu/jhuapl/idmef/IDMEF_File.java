@@ -1,24 +1,36 @@
-/*
- * <copyright>
- *  Copyright 1997-2002 Network Associates
- *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
- *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.
- * </copyright>
- */
+/* 
+ The following passage applies to all software and text files in this distribution, 
+ including this one:
+ 
+ Copyright (c) 2002 Networks Associates Technology, Inc. under sponsorship of the 
+ Defense Advanced Research Projects Agency (DARPA). 
+ All Rights Reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+    -> Redistributions of source code must retain the above copyright notice, 
+       this list of conditions and the following disclaimer.
 
+    -> Redistributions in binary form must reproduce the above copyright notice, 
+       this list of conditions and the following disclaimer in the documentation 
+       and/or other materials provided with the distribution.
+
+    -> Neither the name of the Network Associates nor the names of its 
+       contributors may be used to endorse or promote products 
+       derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
+IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+OF SUCH DAMAGE.
+*/
 package edu.jhuapl.idmef;
 
 import java.util.ArrayList;
@@ -150,7 +162,7 @@ import org.w3c.dom.NamedNodeMap;
  *  The File class has three attributes:
  *
  *  ident
- *     Optional.  A unique identifier for this file, see Section 4.4.9.
+ *     Optional.  A unique identifier for this file.
  *
  *  category
  *     Required.  The context for the information being provided.  The
@@ -170,31 +182,31 @@ import org.w3c.dom.NamedNodeMap;
  *     etc.  This attribute governs how path names and other attributes
  *     are interpreted.
  * </pre>
- * @since IDMEF Message v1.0
+ * <p>See also the <a href='http://search.ietf.org/internet-drafts/draft-ietf-idwg-idmef-xml-07.txt'>IETF IDMEF Draft Specification v0.7</a>.
  */
 public class IDMEF_File implements XMLSerializable {
-
-  // xml elements and attributes
-  public static String ELEMENT_NAME = "File";
-  public static String CHILD_ELEMENT_NAME = "name";
-  public static String CHILD_ELEMENT_PATH = "path";
-  public static String CHILD_ELEMENT_CREATE_TIME = "create-time";
-  public static String CHILD_ELEMENT_MODIFY_TIME = "modify-time";
-  public static String CHILD_ELEMENT_ACCESS_TIME = "access-time";
-  public static String CHILD_ELEMENT_DATA_SIZE = "data-size";
-  public static String CHILD_ELEMENT_DISK_SIZE = "disk-size";
-  public static String CHILD_ELEMENT_FILEACCESS = "FileAccess";
-  public static String CHILD_ELEMENT_LINKAGE = "Linkage";
-  public static String CHILD_ELEMENT_INODE = "Inode";
-                    
-  public static String ATTRIBUTE_CATEGORY = "category";
-  public static String ATTRIBUTE_FSTYPE = "fstype";
-  public static String ATTRIBUTE_IDENT = "ident";
-    
+ 
   // category values
-  public static String CURRENT = "current";
-  public static String ORIGINAL = "original";
-    
+  public static final String CURRENT = "current";
+  public static final String ORIGINAL = "original";
+  
+   // xml elements and attributes
+  public static final String ELEMENT_NAME = "File";
+  
+  private static final String CHILD_ELEMENT_NAME = "name";
+  private static final String CHILD_ELEMENT_PATH = "path";
+  private static final String CHILD_ELEMENT_CREATE_TIME = "create-time";
+  private static final String CHILD_ELEMENT_MODIFY_TIME = "modify-time";
+  private static final String CHILD_ELEMENT_ACCESS_TIME = "access-time";
+  private static final String CHILD_ELEMENT_DATA_SIZE = "data-size";
+  private static final String CHILD_ELEMENT_DISK_SIZE = "disk-size";
+  private static final String CHILD_ELEMENT_FILEACCESS = "FileAccess";
+  private static final String CHILD_ELEMENT_LINKAGE = "Linkage";
+  private static final String CHILD_ELEMENT_INODE = "Inode";
+                    
+  private static final String ATTRIBUTE_CATEGORY = "category";
+  private static final String ATTRIBUTE_FSTYPE = "fstype";
+     
   public IDMEF_File( String name, String path, 
 		     Date createTime, Date modifyTime, Date accessTime, 
 		     Integer dataSize, Integer diskSize, FileAccess []fileAccesses,
@@ -214,7 +226,13 @@ public class IDMEF_File implements XMLSerializable {
     m_fstype = fstype;
     m_ident = ident;
   }
-    
+  
+  
+  /**
+   * Creates an object from the XML Node containing the XML version of this object.
+   * This method will look for the appropriate tags to fill in the fields. If it cannot find
+   * a tag for a particular field, it will remain null.
+   */   
   public IDMEF_File( Node node ){
         
     String nodeValue = null;
@@ -236,33 +254,33 @@ public class IDMEF_File implements XMLSerializable {
 					       CHILD_ELEMENT_CREATE_TIME );
     if( cTimeNode != null ){
       try{
-	nodeValue = XMLUtils.getAssociatedString( cTimeNode );
-	m_createTime = formatter.parse( nodeValue );
+	      nodeValue = XMLUtils.getAssociatedString( cTimeNode );
+	      m_createTime = formatter.parse( nodeValue );
       }
       catch( ParseException pe ){
-	pe.printStackTrace();
+	      pe.printStackTrace();
       }
     }
     Node mTimeNode =  XMLUtils.GetNodeForName( node, 
 					       CHILD_ELEMENT_MODIFY_TIME );
     if( mTimeNode != null ){
       try{
-	nodeValue = XMLUtils.getAssociatedString( mTimeNode );
-	m_modifyTime = formatter.parse( nodeValue );
+	      nodeValue = XMLUtils.getAssociatedString( mTimeNode );
+	      m_modifyTime = formatter.parse( nodeValue );
       }
       catch( ParseException pe ){
-	pe.printStackTrace();
+	      pe.printStackTrace();
       }
     }
     Node aTimeNode =  XMLUtils.GetNodeForName( node, 
 					       CHILD_ELEMENT_ACCESS_TIME );
     if( aTimeNode != null ){
       try{
-	nodeValue = XMLUtils.getAssociatedString( aTimeNode );
-	m_accessTime = formatter.parse( nodeValue );
+	      nodeValue = XMLUtils.getAssociatedString( aTimeNode );
+	      m_accessTime = formatter.parse( nodeValue );
       }
       catch( ParseException pe ){
-	pe.printStackTrace();
+	      pe.printStackTrace();
       }
     }
     Node dataSizeNode = XMLUtils.GetNodeForName( node, 
@@ -291,10 +309,10 @@ public class IDMEF_File implements XMLSerializable {
     for (int i = 0; i < children.getLength(); i++ ){
       Node child = children.item(i);
       if( child.getNodeName().equals( FileAccess.ELEMENT_NAME ) ){
-	fileAccesses.add( new FileAccess( child ) );
+	      fileAccesses.add( new FileAccess( child ) );
       }
       else if( child.getNodeName().equals( Linkage.ELEMENT_NAME ) ){
-	linkages.add( new Linkage( child ) );
+	      linkages.add( new Linkage( child ) );
       }
     }
 
@@ -303,14 +321,14 @@ public class IDMEF_File implements XMLSerializable {
     if( size > 0 ){
       m_fileAccesses = new FileAccess[ size ];
       for( int i = 0; i < size; i++ ){
-	m_fileAccesses[ i ] = ( FileAccess )fileAccesses.get( i );
+	      m_fileAccesses[ i ] = ( FileAccess )fileAccesses.get( i );
       }    
     }
     size = linkages.size();
     if( size > 0 ){
       m_linkages = new Linkage[ size ];
       for( int i = 0; i < size; i++ ){
-	m_linkages[ i ] = ( Linkage )linkages.get( i );
+	      m_linkages[ i ] = ( Linkage )linkages.get( i );
       }
     }
         
@@ -432,8 +450,8 @@ public class IDMEF_File implements XMLSerializable {
     for(int i=0;i<linkages.length;i++) {
       linkage=linkages[i];
       if(linkage.equals(inlinkage)) {
-	contains=true;
-	return contains;
+	      contains=true;
+	      return contains;
       }
     }
     return contains;
@@ -449,13 +467,28 @@ public class IDMEF_File implements XMLSerializable {
     for(int i=0;i<fileAccesses.length;i++) {
       fileaccess=fileAccesses[i];
       if(fileaccess.equals(inFileaccess)) {
-	contains=true;
-	return contains;
+	      contains=true;
+	      return contains;
       }
     }
     return contains;
   }
-  
+ 
+  /**
+   * Example of an equals method.
+   * <pre> 
+   * returns true when attributes of comparing object and this object are null or equal.
+   * Attributes that are compared are :
+   *  All
+   * <b>
+   * NOTE: This is specific to how systems use IDMEF messages and
+   *       what it means when two objects are equivalent.  For
+   *       example, equivalence may mean a subset of the objects
+   *       attributes.  It's advised that this method is modified
+   *       for your particular environment.
+   * </b>
+   * </pre> 
+   */
   public boolean equals (Object anObject) {
     boolean equals=false;
     boolean arenameequal=false;
@@ -481,101 +514,101 @@ public class IDMEF_File implements XMLSerializable {
       myvalue=this.getName();
       invalue= idmef_file.getName();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arenameequal=true;
-	}
+	      if(myvalue.trim().equals(invalue.trim())) {
+	        arenameequal=true;
+	      }
       }
       else if((myvalue==null) && (invalue==null)) {
-	arenameequal=true;
+	      arenameequal=true;
       }
       
       myvalue=this.getPath();
       invalue=idmef_file.getPath();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arepathequal=true;
-	}
+	      if(myvalue.trim().equals(invalue.trim())) {
+	        arepathequal=true;
+	      }
       }
       else if((myvalue==null) && (invalue==null)) {
-	arepathequal=true;
+	      arepathequal=true;
       }
       
       myvalue=this.getCategory();
       invalue=idmef_file.getCategory();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arecategoryequal=true;
-	}
+	      if(myvalue.trim().equals(invalue.trim())) {
+	        arecategoryequal=true;
+	      }
       }
       else if((myvalue==null) && (invalue==null)) {
-	arecategoryequal=true;
+	      arecategoryequal=true;
       }
       
       myvalue=this.getFstype();
       invalue=idmef_file.getFstype();
       if( (myvalue!=null) && (invalue!=null) ) {
-	if(myvalue.trim().equals(invalue.trim())) {
-	  arefstypeequal=true;
-	}
+	      if(myvalue.trim().equals(invalue.trim())) {
+	        arefstypeequal=true;
+	      }
       }
       else if((myvalue==null) && (invalue==null)) {
-	arefstypeequal=true;
+	      arefstypeequal=true;
       }
       Date mydate;
       Date indate;
       mydate=this.getCreateTime();
       indate=idmef_file.getCreateTime();
       if((mydate!=null) && (indate!=null)) {
-	if(mydate.equals(indate)) {
-	  arecreateTimeequal=true;
-	}
+	      if(mydate.equals(indate)) {
+	        arecreateTimeequal=true;
+	      }
       }
       else if((mydate==null) && (indate==null)) {
-	arecreateTimeequal=true;
+	      arecreateTimeequal=true;
       }
       
       mydate=this.getModifyTime();
       indate=idmef_file.getModifyTime();
       if((mydate!=null) && (indate!=null)) {
-	if(mydate.equals(indate)) {
-	  aremodifyTimeequal=true;
-	}
+	      if(mydate.equals(indate)) {
+	        aremodifyTimeequal=true;
+	      }
       }
       else if((mydate==null) && (indate==null)) {
-	aremodifyTimeequal=true;
+	      aremodifyTimeequal=true;
       }
       
       mydate=this.getAccessTime();
       indate=idmef_file.getAccessTime();
       if((mydate!=null) && (indate!=null)) {
-	if(mydate.equals(indate)) {
-	  areaccessTimeequal=true;
-	}
+	      if(mydate.equals(indate)) {
+	        areaccessTimeequal=true;
+	      }
       }
       else if((mydate==null) && (indate==null)) {
-	areaccessTimeequal=true;
+	      areaccessTimeequal=true;
       }
       Integer myint;
       Integer inint;
       myint=this.getDataSize();
       inint=idmef_file.getDataSize();
       if((myint!=null) && (inint!=null)) {
-	if(myint.equals(inint)) {
-	  aredataSizeequal=true;
-	}
+	      if(myint.equals(inint)) {
+	        aredataSizeequal=true;
+	      }
       }
       else if((myint==null) && (inint==null)) {
-	aredataSizeequal=true;
+	      aredataSizeequal=true;
       }
       myint=this.getDiskSize();
       inint=idmef_file.getDiskSize();
       if((myint!=null) && (inint!=null)) {
-	if(myint.equals(inint)) {
-	  arediskSizeequal=true;
-	}
+	      if(myint.equals(inint)) {
+	        arediskSizeequal=true;
+	      }
       }
       else if((myint==null) && (inint==null)) {
-	arediskSizeequal=true;
+	      arediskSizeequal=true;
       }
       
       FileAccess [] myfileaccess;
@@ -583,20 +616,20 @@ public class IDMEF_File implements XMLSerializable {
       myfileaccess=this.getFileAccesses();
       infileaccess=idmef_file.getFileAccesses();
       if((myfileaccess!=null)&&(infileaccess!=null)) {
-	if(myfileaccess.length==infileaccess.length) {
-	  FileAccess fileaccess;
-	  for(int i=0;i<infileaccess.length;i++) {
-	    fileaccess=infileaccess[i];
-	    if(!containsFileAccess(fileaccess)) {
-	      arefileAccessequal=false;
-	      break;
-	    }
-	  }
-	  arefileAccessequal=true;
-	}
+	      if(myfileaccess.length==infileaccess.length) {
+	        FileAccess fileaccess;
+	        for(int i=0;i<infileaccess.length;i++) {
+	          fileaccess=infileaccess[i];
+	          if(!containsFileAccess(fileaccess)) {
+	            arefileAccessequal=false;
+	            break;
+	          }
+	        }
+	        arefileAccessequal=true;
+	      }
       }
       else if((myfileaccess==null) && (infileaccess==null)) {
-	arefileAccessequal=true;
+	      arefileAccessequal=true;
       }
       
       Linkage [] mylinkage;
@@ -604,41 +637,40 @@ public class IDMEF_File implements XMLSerializable {
       mylinkage=this.getLinkages();
       inlinkage=idmef_file.getLinkages();
       if((mylinkage!=null)&&(inlinkage!=null)) {
-	if(mylinkage.length==inlinkage.length) {
-	  Linkage linkage;
-	  for(int i=0;i<inlinkage.length;i++) {
-	    linkage=inlinkage[i];
-	    if(!containsLinkage(linkage)) {
-	      arelinkageequal=false;
-	      break;
-	    }
-	  }
-	  arelinkageequal=true;
-	}
+	      if(mylinkage.length==inlinkage.length) {
+	        Linkage linkage;
+	        for(int i=0;i<inlinkage.length;i++) {
+	          linkage=inlinkage[i];
+	          if(!containsLinkage(linkage)) {
+	            arelinkageequal=false;
+	            break;
+	          }
+	        }
+	        arelinkageequal=true;
+	      }
       }
       else if((mylinkage==null) && (inlinkage==null)) {
-	arelinkageequal=true;
+	      arelinkageequal=true;
       }
        
       if((this.getInode()!=null)&& (idmef_file.getInode()!=null)) {
-	if(this.getInode().equals(idmef_file.getInode())) {
-	  areinodeequal=true;
-	}
+	      if(this.getInode().equals(idmef_file.getInode())) {
+	        areinodeequal=true;
+	      }
       }
       else if((this.getInode()==null)&& (idmef_file.getInode()==null)) {
-	areinodeequal=true;
+	      areinodeequal=true;
       }
       if( arenameequal && arepathequal && arecategoryequal && 
-	  arefstypeequal && arecreateTimeequal && aremodifyTimeequal && 
-	  areaccessTimeequal && aredataSizeequal && arediskSizeequal && 
-	  arefileAccessequal && arelinkageequal && areinodeequal ) {
-	equals=true;
+	      arefstypeequal && arecreateTimeequal && aremodifyTimeequal && 
+	      areaccessTimeequal && aredataSizeequal && arediskSizeequal && 
+	      arefileAccessequal && arelinkageequal && areinodeequal ) {
+	        equals=true;
       }
     }
     return equals;  
   }
   
-    
   public Node convertToXML( Document parent ){
     Element fileNode = parent.createElement( IDMEF_File.ELEMENT_NAME );
     Node node = null;
