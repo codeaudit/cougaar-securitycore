@@ -97,7 +97,7 @@ public final class UserPasswordAuthenticator extends Authenticator
   public PasswordAuthentication getPasswordAuthentication() {
     synchronized (tidList) {
       Thread thread = Thread.currentThread();
-      if (_pa != null && (tidList.containsKey(thread))) {
+      if (_pa != null && (!tidList.containsKey(thread))) {
 	// this thread hasn't tried the cached password, yet
 	tidList.put(thread, DUMMY_VALUE);
 	return _pa; 
