@@ -28,7 +28,10 @@
 package org.cougaar.core.security.audit;
 
 
+import java.nio.charset.Charset;
+
 import java.util.StringTokenizer;
+import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.XMLFormatter;
 
@@ -40,45 +43,80 @@ import java.util.logging.XMLFormatter;
  * @author ttschampel
  */
 public class ServiceAuditXMLFormatter extends XMLFormatter {
-  /**
-   * Formats LogRecord output for easy audit purposes.
-   *
-   * @param record The LogRecord to format.  The message attribute of the
-   *        LogRecord should be in the format Agent;Service;Client
-   *
-   * @return formatted XML String
-   */
-  public String format(LogRecord record) {
-    String message = record.getMessage();
-    String service = null;
-    String client = null;
-    String agent = null;
-    if (message != null) {
-      StringTokenizer st = new StringTokenizer(message, ";");
-      int i = 0;
-      while (st.hasMoreTokens()) {
-        String token = st.nextToken();
-        switch (i) {
-          case 0:
-            service = token;
-            break;
-          case 1:
-            service = token;
-            break;
-          case 2:
-            client = token;
-            break;
+    /**
+     * Return the header string for a set of XML formatted records.
+     *
+     * @param h The target handler.
+     *
+     * @return header string
+     */
+    public String getHead(Handler h) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("<?xml version=\"1.0\"");
+        String encoding = h.getEncoding();
+        if (encoding == null) {
+            // Figure out the default encoding.
+            encoding = sun.io.Converters.getDefaultEncodingName();
         }
 
-        i++;
-      }
+        // Try to map the encoding name to a canonical name.
+        try {
+            Charset cs = Charset.forName(encoding);
+            encoding = cs.name();
+        } catch (Exception ex) {
+            // We hit problems finding a canonical name.
+            // Just use the raw encoding name.
+        }
+
+        sb.append(" encoding=\"");
+        sb.append(encoding);
+        sb.append("\"");
+        sb.append(" standalone=\"no\"?>\n");
+        // sb.append("<!DOCTYPE log SYSTEM \"logger.dtd\">\n");
+        sb.append("<log>\n");
+        return sb.toString();
     }
 
-    String formattedString = "\n<record>" + "\n" + "<timestamp>"
-      + record.getMillis() + "</timestamp>" + "\n" + "<agent>" + agent
-      + "</agent>" + "\n" + "<resource>" + service + "</resource>" + "\n"
-      + "<client>" + client + "</client>" + "\n</record>";
 
-    return formattedString;
-  }
+    /**
+     * Formats LogRecord output for easy audit purposes.
+     *
+     * @param record The LogRecord to format.  The message attribute of the
+     *        LogRecord should be in the format Agent;Service;Client
+     *
+     * @return formatted XML String
+     */
+    public String format(LogRecord record) {
+        String message = record.getMessage();
+        String service = null;
+        String client = null;
+        String agent = null;
+        if (message != null) {
+            StringTokenizer st = new StringTokenizer(message, ";");
+            int i = 0;
+            while (st.hasMoreTokens()) {
+                String token = st.nextToken();
+                switch (i) {
+                    case 0:
+                        service = token;
+                        break;
+                    case 1:
+                        service = token;
+                        break;
+                    case 2:
+                        client = token;
+                        break;
+                }
+
+                i++;
+            }
+        }
+
+        String formattedString = "\n<record>" + "\n" + "<timestamp>"
+            + record.getMillis() + "</timestamp>" + "\n" + "<agent>" + agent
+            + "</agent>" + "\n" + "<resource>" + service + "</resource>" + "\n"
+            + "<client>" + client + "</client>" + "\n</record>";
+
+        return formattedString;
+    }
 }
