@@ -173,7 +173,7 @@ public class PolicyUtils
         String userRole = (String) userRolesIt.next();
         userRole = 
           JTPStringFormatUtils.convertJTPFormatToString(userRole);
-        String shortRole = userRole
+        String shortRole = userRole;
 
         if (shortRole.startsWith(ulRoleGroupInstanceJena) 
             && shortRole.endsWith("Role")) {
