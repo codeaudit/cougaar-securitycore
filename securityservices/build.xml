@@ -412,6 +412,8 @@
         <copy todir="${cougaar.install.path}/configs/security">
             <fileset dir="${securityservices.configs}/common"/>
         </copy>
+        <copy file="${cougaar.install.path}/configs/security/DamlBootPolicyList"
+              tofile="${cougaar.install.path}/configs/security/DamlBootPolicyList.orig" />
         <copy todir="${cougaar.install.path}/configs/security">
             <fileset dir="${securityservices.configs}/adaptiveMnR">
                 <patternset>
