@@ -26,13 +26,6 @@
 
 package org.cougaar.core.security.crypto.ldap;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.crypto.Base64;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-import org.cougaar.core.security.services.ldap.MaxConnectionRetryException;
-import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -57,6 +50,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.Base64;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+import org.cougaar.core.security.services.ldap.MaxConnectionRetryException;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.service.LoggingService;
 
 /** RFCs that are applicable to LDAP:
  *  - RFC 2256: A summary of X.500 user schema for LDAPv3

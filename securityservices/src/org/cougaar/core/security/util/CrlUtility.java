@@ -25,12 +25,6 @@
 
 package org.cougaar.core.security.util;
 
-import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
-import org.cougaar.core.security.crlextension.x509.extensions.CougaarGeneralNames;
-import org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension;
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -51,10 +45,16 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
+import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
+import org.cougaar.core.security.crlextension.x509.extensions.CougaarGeneralNames;
+import org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
 import sun.security.util.DerInputStream;
+import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
 import sun.security.util.ObjectIdentifier;
-import sun.security.util.DerOutputStream;
 import sun.security.x509.CRLExtensions;
 import sun.security.x509.Extension;
 import sun.security.x509.GeneralName;

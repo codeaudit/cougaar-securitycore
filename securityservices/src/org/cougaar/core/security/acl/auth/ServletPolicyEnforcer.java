@@ -32,13 +32,6 @@
 
 package org.cougaar.core.security.acl.auth;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.GuardRegistration;
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.security.policy.ServletPolicy;
-import org.cougaar.core.security.services.crypto.ServletPolicyService;
-import org.cougaar.planning.ldm.policy.Policy;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,6 +45,12 @@ import org.apache.catalina.Session;
 import org.apache.catalina.deploy.SecurityCollection;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.session.StandardManager;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.GuardRegistration;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.policy.ServletPolicy;
+import org.cougaar.core.security.services.crypto.ServletPolicyService;
+import org.cougaar.planning.ldm.policy.Policy;
 
 import safe.enforcer.NodeEnforcer;
 

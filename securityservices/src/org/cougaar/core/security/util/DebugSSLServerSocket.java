@@ -26,9 +26,6 @@
 
 package org.cougaar.core.security.util;
 
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -36,6 +33,9 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.ServerSocketChannel;
+
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class DebugSSLServerSocket extends SSLServerSocketWrapper {
   private int _id = getID();

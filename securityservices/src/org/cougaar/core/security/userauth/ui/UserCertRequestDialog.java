@@ -25,16 +25,6 @@
 
 package org.cougaar.core.security.userauth.ui;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.crypto.CertificateCache;
-import org.cougaar.core.security.crypto.CertificateStatus;
-import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.PrivateKeyCert;
-import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.util.UIUtil;
-import org.cougaar.core.service.LoggingService;
-
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -50,6 +40,16 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.util.UIUtil;
+import org.cougaar.core.service.LoggingService;
 
 import sun.security.x509.X500Name;
 

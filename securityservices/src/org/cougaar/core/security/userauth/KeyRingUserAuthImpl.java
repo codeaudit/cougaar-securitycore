@@ -25,11 +25,6 @@
 
 package org.cougaar.core.security.userauth;
 
-import org.cougaar.core.security.crypto.CertificateCache;
-import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.ssl.ui.UserAliasPwdDialog;
-
 import java.net.PasswordAuthentication;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
@@ -39,6 +34,11 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 
 import javax.swing.JOptionPane;
+
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.ssl.ui.UserAliasPwdDialog;
 
 public class KeyRingUserAuthImpl extends AuthenticationHandler {
   protected CertificateCacheService cacheService = null;

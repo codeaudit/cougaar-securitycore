@@ -26,12 +26,6 @@
 
 package org.cougaar.core.security.tools;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
-import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -42,6 +36,11 @@ import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

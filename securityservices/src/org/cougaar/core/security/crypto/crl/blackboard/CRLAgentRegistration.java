@@ -26,10 +26,9 @@
 
 package org.cougaar.core.security.crypto.crl.blackboard;
 
-import org.cougaar.core.blackboard.Publishable;
-
 import java.io.Serializable;
 
+import org.cougaar.core.blackboard.Publishable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

@@ -26,14 +26,14 @@
 
 package org.cougaar.core.security.crypto;
 
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.mts.SimpleMessageAddress;
-
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.security.cert.X509Certificate;
 import java.util.StringTokenizer;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
+
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.SimpleMessageAddress;
 
 public class ProtectedMessageHeader implements java.io.Serializable {
   /** The encrypted symmetric key used to encrypt an object.

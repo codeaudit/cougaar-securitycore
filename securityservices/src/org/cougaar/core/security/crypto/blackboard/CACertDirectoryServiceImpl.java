@@ -26,6 +26,19 @@
 
 package org.cougaar.core.security.crypto.blackboard;
 
+import java.io.IOException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.naming.NameAlreadyBoundException;
+
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
@@ -45,19 +58,6 @@ import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
-
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.io.IOException;
-
-import javax.naming.NameAlreadyBoundException;
 
 import sun.security.x509.X500Name;
 

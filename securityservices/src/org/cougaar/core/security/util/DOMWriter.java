@@ -88,8 +88,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.xerces.parsers.DOMParser;
 import org.apache.catalina.util.MIME2Java;
+import org.apache.xerces.parsers.DOMParser;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;

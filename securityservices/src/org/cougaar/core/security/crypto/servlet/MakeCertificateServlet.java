@@ -36,9 +36,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.util.SecurityServletSupport;
 import org.cougaar.core.service.LoggingService;
 
 public class MakeCertificateServlet

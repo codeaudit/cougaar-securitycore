@@ -26,13 +26,6 @@
 
 package org.cougaar.core.security.crypto.ldap;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.crypto.Base64;
-import org.cougaar.core.security.crypto.CertificateRevocationStatus;
-import org.cougaar.core.security.crypto.CertificateType;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.cert.CertificateFactory;
@@ -43,6 +36,13 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.Base64;
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
+import org.cougaar.core.security.crypto.CertificateType;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 
 public class NetToolsCertDirectoryService
 extends CertDirectoryService

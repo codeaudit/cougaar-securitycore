@@ -26,9 +26,6 @@
 
 package org.cougaar.core.security.util;
 
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,6 +37,9 @@ import java.nio.channels.SocketChannel;
 
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLSession;
+
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class DebugSSLSocket extends SSLSocketWrapper {
   private int _id = getID();

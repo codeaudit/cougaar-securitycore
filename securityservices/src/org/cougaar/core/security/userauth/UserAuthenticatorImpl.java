@@ -26,6 +26,9 @@
 
 package org.cougaar.core.security.userauth;
 
+import java.util.Enumeration;
+import java.util.Vector;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
@@ -33,9 +36,6 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.UserSSLService;
 import org.cougaar.core.security.ssl.ui.AuthSchemeDialog;
 import org.cougaar.core.service.LoggingService;
-
-import java.util.Enumeration;
-import java.util.Vector;
 
 /**
  * This is the default implementation of UserAuthenticator

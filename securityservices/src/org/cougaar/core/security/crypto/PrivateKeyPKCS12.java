@@ -26,10 +26,6 @@
 
 package org.cougaar.core.security.crypto;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -38,6 +34,10 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
 import java.util.List;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.service.LoggingService;
 
 import com.ibm.security.pkcs12.PKCS12PFX;
 import com.ibm.security.pkcs8.PrivateKeyInfo;

@@ -28,6 +28,12 @@
 package org.cougaar.core.security.test.wp;
 
 
+import java.net.InetAddress;
+import java.net.URI;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.node.NodeIdentificationService;
 import org.cougaar.core.plugin.ComponentPlugin;
@@ -36,13 +42,6 @@ import org.cougaar.core.service.wp.AddressEntry;
 import org.cougaar.core.service.wp.WhitePagesService;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.UnaryPredicate;
-
-import java.net.InetAddress;
-import java.net.URI;
-
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
 
 
 /**

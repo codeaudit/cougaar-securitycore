@@ -27,12 +27,12 @@
 package org.cougaar.core.security.userauth;
 
 // Cougaar core services
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.WeakHashMap;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
 
 public final class UserPasswordAuthenticator extends Authenticator
   implements AuthenticationListener {

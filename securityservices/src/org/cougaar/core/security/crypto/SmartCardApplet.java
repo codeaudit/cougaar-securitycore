@@ -25,9 +25,9 @@
 
 package org.cougaar.core.security.crypto;
 
-import org.cougaar.core.service.LoggingService;
-
 import java.security.SecureRandom;
+
+import org.cougaar.core.service.LoggingService;
 
 import com.linuxnet.jpcsc.Card;
 import com.linuxnet.jpcsc.Context;

@@ -61,7 +61,6 @@ import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.util.NullOutputStream;
 import org.cougaar.core.security.util.OnTopCipherInputStream;
-import org.cougaar.core.security.util.SignatureInputStream;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.mts.base.SendQueue;
 import org.cougaar.mts.std.AttributedMessage;

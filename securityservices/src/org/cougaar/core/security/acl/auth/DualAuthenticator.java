@@ -32,16 +32,6 @@
 
 package org.cougaar.core.security.acl.auth;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.audit.AuditLogger;
-import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
-import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
-import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
-import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
-import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.lib.web.tomcat.SecureRealm;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
@@ -84,6 +74,15 @@ import org.apache.catalina.connector.HttpResponseWrapper;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.valves.ValveBase;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.audit.AuditLogger;
+import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
+import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
+import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
+import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
+import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.lib.web.tomcat.SecureRealm;
 
 public class DualAuthenticator extends ValveBase {
   static final byte AUTH_NONE     = AuthSuite.authNoAuth;
