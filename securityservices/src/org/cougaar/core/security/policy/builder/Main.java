@@ -45,7 +45,7 @@ import kaos.core.util.SymbolNotFoundException;
 import kaos.kpat.util.OperatingModeCondition;
 import kaos.policy.information.DAMLPolicyContainer;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
-import sun.security.provider.PolicyParser;
+import org.cougaar.core.security.policy.builder.PolicyParser;
 
 import com.hp.hpl.mesa.rdf.jena.model.RDFException;
 

@@ -25,6 +25,8 @@ package org.cougaar.core.security.policy;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.builder.ParsedPolicy;
+import org.cougaar.core.security.policy.builder.PolicyLexer;
+import org.cougaar.core.security.policy.builder.PolicyParser;
 import org.cougaar.core.security.policy.builder.ParsedPolicyFile;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.PolicyBootstrapperService;
@@ -44,7 +46,6 @@ import java.util.Vector;
 import kaos.core.util.AttributeMsg;
 import kaos.core.util.PolicyMsg;
 import kaos.core.util.SubjectMsg;
-import sun.security.provider.PolicyParser;
 
 public class PolicyBootstrapper 
   implements PolicyBootstrapperService
