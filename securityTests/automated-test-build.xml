@@ -187,6 +187,7 @@
         keyfile="${user.home}/.ssh/id_dsa"
 	command="cd ${testbed.cip.dir}/configs/ping ; ruby ASMT-PING-DEF.rb"
         timeout="1800000"
+        failonerror="false"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <!-- parse results 
