@@ -1,0 +1,7 @@
+#!/bin/sh
+
+rm -f $CIP/configs/common/config_common.jar
+jar cf config_common.jar $CIP/configs/common/*
+jarsigner -keystore ./test/configs/sign-jars/signingCA_keystore -storepass keystore config_common.jar privileged
+
+mv config_common.jar $CIP/configs/common
