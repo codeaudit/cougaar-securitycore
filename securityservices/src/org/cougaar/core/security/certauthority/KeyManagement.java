@@ -377,7 +377,7 @@ public class KeyManagement  implements CertificateManagementService {
         catch (Exception e) {
           if (log.isWarnEnabled()) {
             if (!(e instanceof NameAlreadyBoundException)){
-              log.warn("Unable to publish CA certificate to LDAP: " + e);
+              log.warn("Unable to publish CA certificate to LDAP: ", e);
             }
           }
         }
