@@ -12,6 +12,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
+import com.cougaarsoftware.nettools.parsers.*;
+
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.io.GraphMLFile;
 import edu.uci.ics.jung.io.PajekNetFile;
@@ -29,9 +31,8 @@ public class GraphFileHandler {
 	 * @param theGraphFile
 	 */
 	public Graph openGraphFile(File theGraphFile) {
-		String fileName = theGraphFile.getName();
-		Graph theGraph = null;
-		
+		String fileName = theGraphFile.getPath();
+		Graph theGraph = null;	
 		
 		if (fileName.endsWith(".net")) {
 			// A Pajek file
@@ -43,7 +44,6 @@ public class GraphFileHandler {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-			return theGraph;
 		}
 		else if (fileName.endsWith(".xml")) {
 			// A GraphXML file
@@ -53,11 +53,15 @@ public class GraphFileHandler {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-			return theGraph;
 		}
-		else {
-			return null;
+		else if (fileName.endsWith(".log")) {
+			// Parse log files and save as Graph.
+			LogParser lp = new LogParser();
+			String names[] = { fileName };
+			lp.parseCougaarLogFiles(names);
+			theGraph = lp.getGraph();
 		}
+		return theGraph;
 	}
-
+	
 }
