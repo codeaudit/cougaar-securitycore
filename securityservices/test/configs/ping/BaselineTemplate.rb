@@ -1,5 +1,3 @@
-CIP = ENV['CIP']
-
 require 'cougaar/scripting'
 require 'ultralog/scripting'
 
@@ -28,23 +26,6 @@ Cougaar.new_experiment().run(parameters[:run_count]) {
   end 
   
   do_action "LayoutSociety", parameters[:layout_file], HOSTS_FILE
-
-  # add a ping from AgentA to AgentB, and have it generate event 
-  # statistics once every 10 seconds 
-  #  
-  # see the org.cougaar.core.mobility.ping.PingAdderPlugin for 
-  # additional options. 
-  do_action "AddPing", "AgentA", "AgentB", {'eventMillis' => '10000'} 
-
-  # add the ping manager plugins 
-  # 
-  # A ping manager is required for every agent that contains a 
-  # ping adder plugin.  This rule searches for the agents and 
-  # adds the manager plugins. 
-  # 
-  # The "1000" is the time between ping timeout and event checks. 
-  # One second is fine for most tests. 
-  do_action "SetupPingTimers", 1000 
 
   do_action "TransformSociety", false, *parameters[:rules]
   if (!parameters[:community_rules].nil?)
