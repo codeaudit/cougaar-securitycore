@@ -51,6 +51,16 @@ public final class SSLServiceComponent
   protected BindingSite bindingSite = null;
   private LoggingService log;
   private String mySecurityCommunity;
+  private ServiceBroker serviceBroker;
+  private ServiceBroker rootServiceBroker;
+  private KeyRingService krs;
+  
+  // Service Providers (needed to stop the component).
+  private ServiceProvider webServerSP;
+  private ServiceProvider sslSP;
+  private SSLService sslService;
+  private SSLSocketFactory oldSSLSocketFactory;
+  private WebserverIdentityService webServerService;
 
   public SSLServiceComponent() {
   }
@@ -83,10 +93,6 @@ public final class SSLServiceComponent
     bindingSite = bs;
   }
 
-  ServiceBroker serviceBroker;
-  ServiceBroker rootServiceBroker;
-  KeyRingService krs;
-
   public void load() {
     super.load();
     setLoggingService();
@@ -101,6 +107,8 @@ public final class SSLServiceComponent
       serviceBroker.getService(this, NodeControlService.class, null);
     if (nodeControlService != null) {
       rootServiceBroker = nodeControlService.getRootServiceBroker();
+      serviceBroker.releaseService(this, NodeControlService.class, nodeControlService);
+      nodeControlService = null;
       if (rootServiceBroker == null) {
         throw new RuntimeException("Unable to get root service broker");
       }
@@ -149,18 +157,21 @@ public final class SSLServiceComponent
     SecurityPropertiesService secprop = (SecurityPropertiesService)
           rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
 
-      ServiceProvider newSP = new SSLServiceProvider(serviceBroker, mySecurityCommunity);
-      //services.put(SSLService.class, newSP);
-      rootServiceBroker.addService(SSLService.class, newSP);
+      sslSP = new SSLServiceProvider(serviceBroker, mySecurityCommunity);
+      //services.put(SSLService.class, sslSP);
+      rootServiceBroker.addService(SSLService.class, sslSP);
 
       // SSLService and WebserverIdentityService are self started
       // they offer static functions to get socket factory
       // in the functions the permission will be checked.
-      rootServiceBroker.getService(this, SSLService.class, null);
+      sslService = (SSLService)rootServiceBroker.getService(this, SSLService.class, null);
 
       JaasSSLFactory jaasSSLFactory = new JaasSSLFactory(krs, rootServiceBroker);
-      javax.net.ssl.HttpsURLConnection.
-        setDefaultSSLSocketFactory(jaasSSLFactory);
+      
+      // Remember old SSL Socket Factory, useful to stop this component and revert
+      // back to the original.
+      oldSSLSocketFactory = javax.net.ssl.HttpsURLConnection.getDefaultSSLSocketFactory();
+      javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(jaasSSLFactory);
 
       // Axis SSL socket factory (web services)
       try {
@@ -212,22 +223,54 @@ public final class SSLServiceComponent
 
       // configured to use SSL?
       if (secprop.getProperty(SecurityPropertiesService.WEBSERVER_HTTPS_PORT, null) != null) {
-        newSP = new WebserverSSLServiceProvider(serviceBroker, mySecurityCommunity);
-        //services.put(WebserverIdentityService.class, newSP);
-        rootServiceBroker.addService(WebserverIdentityService.class, newSP);
-        rootServiceBroker.getService(this, WebserverIdentityService.class, null);
+        webServerSP = new WebserverSSLServiceProvider(serviceBroker, mySecurityCommunity);
+        //services.put(WebserverIdentityService.class, webServerSP);
+        rootServiceBroker.addService(WebserverIdentityService.class, webServerSP);
+        webServerService = (WebserverIdentityService)
+          rootServiceBroker.getService(this, WebserverIdentityService.class, null);
       }
-
-    
+      rootServiceBroker.releaseService(this, SecurityPropertiesService.class, secprop);
+      secprop = null;
   }
 
   public void setState(Object loadState) {}
   public Object getState() {return null;}
 
-  public synchronized void unload() {
-    super.unload();
+  public synchronized void stop() {
     // unload services in reverse order of "load()"
     ServiceBroker sb = bindingSite.getServiceBroker();
-    // release services
+    
+    // Release WebserverIdentityService
+    rootServiceBroker.releaseService(this, WebserverIdentityService.class, webServerService);
+    
+    // Revoke WebserverIdentityService
+    rootServiceBroker.revokeService(WebserverIdentityService.class, webServerSP);
+    webServerSP = null;
+    
+    // Set SSL Socket Factory back to original.
+    javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(oldSSLSocketFactory);
+    
+    // Release SSL service
+    rootServiceBroker.releaseService(this, SSLService.class, sslService);
+    sslService = null;
+    
+    // Revoke SSL services
+    if (sslSP != null) {
+      rootServiceBroker.revokeService(SSLService.class, sslSP);
+      sslSP = null;
+    }
+    
+    // Release KeyRing service
+    if (krs != null) {
+      rootServiceBroker.releaseService(this, KeyRingService.class, krs);
+      krs = null;
+    }
+    
+    // Release logging service.
+    if (log != null) {
+      sb.releaseService(this, LoggingService.class, log);
+      log = null;
+    }
+    super.stop();
   }
 }
