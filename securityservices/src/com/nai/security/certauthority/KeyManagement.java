@@ -149,7 +149,7 @@ public class KeyManagement
 	throw new Exception("Unable to read policy" + e);
       }
 
-      nodePolicy = confParser.readNodePolicy();
+      nodePolicy = confParser.readNodePolicy(role);
       if (debug) {
 	System.out.println("Running in Cougaar environment");
       }

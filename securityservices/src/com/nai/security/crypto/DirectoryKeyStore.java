@@ -135,7 +135,11 @@ public class DirectoryKeyStore implements Runnable
       if (!standalone) {
 	// We running as part of Cougaar, this class may be used to support
 	// certificate authority services. In that cases, we need CA policy
-	caClient = new CAClient();
+	String role = System.getProperty("org.cougaar.security.role"); 
+	if (role == null && debug == true) {
+	  System.out.println("Warning: LDAP role not defined");
+	}
+	caClient = new CAClient(role);
       }
 
     } catch (Exception e) {

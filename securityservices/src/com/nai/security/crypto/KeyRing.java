@@ -97,7 +97,11 @@ final public class KeyRing {
       
       // CA keystore parameters
       confParser = new ConfParser();
-      NodePolicy nodePolicy = confParser.readNodePolicy();
+      String role = System.getProperty("org.cougaar.security.role"); 
+      if (role == null && debug == true) {
+	System.out.println("Warning: LDAP role not defined");
+      }
+      NodePolicy nodePolicy = confParser.readNodePolicy(role);
       ConfigFinder configFinder = new ConfigFinder();
       File f = configFinder.locateFile(nodePolicy.CA_keystore);
       String caksPass = null;

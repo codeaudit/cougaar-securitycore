@@ -37,7 +37,7 @@ public class CAClient {
   private NodePolicy policy;
   private boolean debug = false;
   /** Creates new CertGenerator */
-  public CAClient() {
+  public CAClient(String role) {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
 
@@ -46,7 +46,7 @@ public class CAClient {
       //kpg = KeyPairGenerator.getInstance("RSA");
             
       //get related policies 
-      policy = confParser.readNodePolicy();
+      policy = confParser.readNodePolicy(role);
             
     } catch(Exception e) {
       System.out.println("Error: can't start CA client--"+e.getMessage());

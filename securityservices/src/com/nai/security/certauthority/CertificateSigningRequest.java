@@ -72,6 +72,8 @@ public class CertificateSigningRequest extends  HttpServlet
     String pkcs=null;
     String type=null;
     String CA_DN_name=null;
+    String role = null;
+
     //System.out.println("got post request");
     String data;
     //res.setContentType("text/html");
@@ -87,7 +89,7 @@ public class CertificateSigningRequest extends  HttpServlet
       return;
     }
     try {
-      signer=new KeyManagement(CA_DN_name);
+      signer=new KeyManagement(CA_DN_name, role);
     }
     catch (Exception exp) {
       printstream.print("Error ---" + exp.toString());

@@ -98,6 +98,8 @@ public class ConfParser {
   public static final String NODE_CA_KEYSTORE_ELEMENT  = "CA_keystore";
   public static final String NODE_CA_KEYSTORE_PWD_ELEMENT  = "CA_keystorePassword";
 
+  public static final String NODE_CERTDIRURL_ELEMENT  = "CertDirectoryURL";
+
   // CA policy
   public static final String CA_POLICY_ELEMENT         = "certificateAuthority";
   public static final String CA_KEYSTORE_ELEMENT       = "keystoreFile";
@@ -122,7 +124,7 @@ public class ConfParser {
     }
   }
 
-  public NodePolicy readNodePolicy()
+  public NodePolicy readNodePolicy(String role)
     throws NoSuchFieldException, IllegalAccessException
   {
     if (debug) {
@@ -135,6 +137,9 @@ public class ConfParser {
     nodePolicy.CA_URL = nodePolicyElement.getChildText(NODE_CA_URL_ELEMENT);
     nodePolicy.CA_keystore = nodePolicyElement.getChildText(NODE_CA_KEYSTORE_ELEMENT);
     nodePolicy.CA_keystorePassword = nodePolicyElement.getChildText(NODE_CA_KEYSTORE_PWD_ELEMENT);
+
+    nodePolicy.certDirectoryURL = getElementValue(nodePolicyElement, NODE_CERTDIRURL_ELEMENT, role);
+
 
     nodePolicy.ou = nodePolicyElement.getChildText(NODE_OU_ELEMENT);
     nodePolicy.o = nodePolicyElement.getChildText(NODE_O_ELEMENT);

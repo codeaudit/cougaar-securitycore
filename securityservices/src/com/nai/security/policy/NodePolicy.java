@@ -36,6 +36,9 @@ public class NodePolicy {
   public String CA_keystore = null;
   public String CA_keystorePassword = null;
 
+
+  public String certDirectoryURL = null;
+
   public String ou = null;
   public String o = null;
   public String l = null;

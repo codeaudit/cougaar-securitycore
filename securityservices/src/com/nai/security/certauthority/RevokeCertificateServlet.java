@@ -24,6 +24,7 @@ public class RevokeCertificateServlet extends  HttpServlet
         PrintWriter out=res.getWriter();
         res.setContentType("Text/HTML");
         String hash=req.getParameter("hash");
+	String role = null;
         out.println("<html>");
         out.println("<body>");
 
@@ -37,7 +38,7 @@ public class RevokeCertificateServlet extends  HttpServlet
         //ldapentry=ldapcert.getCertificate(hash);
         try
         {
-                keymanage=new KeyManagement(ldapentry.getCertificate().getIssuerDN().getName());
+                keymanage=new KeyManagement(ldapentry.getCertificate().getIssuerDN().getName(), role);
         }
         catch(Exception exp)
         {
