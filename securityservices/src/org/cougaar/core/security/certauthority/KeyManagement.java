@@ -238,24 +238,23 @@ public class KeyManagement  implements CertificateManagementService {
 	}
 	throw new RuntimeException("Unable to get CA policy");
       }
-      
-      CertDirectoryServiceRequestor cdsr =
-	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
-                                              caPolicy.ldapPrincipal, caPolicy.ldapCredential,
-					      serviceBroker);
+       
                               
       caOperations = (CACertDirectoryService)
 	serviceBroker.getService(this,CACertDirectoryService.class, null);
       
       /*
+      CertDirectoryServiceRequestor cdsr =
+	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
+                                              caPolicy.ldapPrincipal, caPolicy.ldapCredential,
+					      serviceBroker);
       caOperations = (CertDirectoryServiceCA)
 	serviceBroker.getService(cdsr, CertDirectoryServiceCA.class, null);
-
-     
+      */
+       
       if (caOperations == null) {
 	throw new RuntimeException("Unable to communicate with LDAP server");
       }
-      */
       publishCA();
     }
     else{
