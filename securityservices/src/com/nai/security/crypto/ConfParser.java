@@ -26,16 +26,15 @@
 
 package com.nai.security.crypto;
 
-import org.jdom.*;
-import org.jdom.input.SAXBuilder;
-import org.jdom.input.*;
-
 import java.security.cert.*;
 import java.security.KeyStore;
 import java.util.*;
 import java.net.*;
 import java.io.*;
 import java.lang.reflect.*;
+
+import org.w3c.dom.*;
+import org.cougaar.util.*;
 
 import sun.security.x509.*;
 import sun.security.util.ObjectIdentifier;
@@ -71,18 +70,20 @@ public class ConfParser {
 
     configFile = System.getProperty("org.cougaar.security.crypto.config", defaultConfigFile);
     
-    try{
-      SAXBuilder builder = new SAXBuilder();
-      configDoc = builder.build(new File(configFile));
-    } catch(JDOMException e) {
-      e.printStackTrace();
-    } catch(NullPointerException e) {
-      e.printStackTrace();
+    ConfigFinder confFinder = new ConfigFinder();
+    try {
+      configDoc = confFinder.parseXMLConfigFile(configFile);
+    }
+    catch (IOException e) {
+      if (debug) {
+	System.out.println("Unable to read configFile: " + e);
+      }
     }
   }
 
-  public List getChildren(String elementName) {
-    List children = configDoc.getRootElement().getChildren(elementName);
+  public NodeList getChildren(String elementName) {
+    NodeList children =
+      configDoc.getDocumentElement().getElementsByTagName(elementName);
     return children;
   }
 
@@ -124,10 +125,54 @@ public class ConfParser {
   public static final String CA_CERTVALIDITY_ELEMENT   = "certValidity";
 
   public void iterate(String name) {
-    List conf = configDoc.getRootElement().getChildren(name);
-    Iterator it = conf.iterator();
-    while (it.hasNext()) {
+    NodeList conf = configDoc.getDocumentElement().getElementsByTagName(name);
+    for (int i = 0 ; i < conf.getLength() ; i++) {
+      Node o = conf.item(i);
     }
+  }
+
+  private void printTree(Node e, int level) {
+    for (int i = 0 ; i < level ; i++) {
+      System.out.print("  ");
+    }
+    System.out.println("Node: " + e.getNodeName()
+		       + " Type: " + e.getNodeType()
+		       + " Val: " + e.getNodeValue()
+		       );
+    NodeList nodes = e.getChildNodes();
+    if (nodes == null) {
+      return;
+    }
+    for (int j = 0 ; j < nodes.getLength() ; j++) {
+      printTree(nodes.item(j), level + 1);
+    }
+  }
+
+  /** This returns the first child element within this element
+      with the given local name and belonging to no namespace. */
+  private Element getChild(Element e, String tagName)
+  {
+    NodeList nodes = e.getElementsByTagName(tagName);
+    if (nodes == null) {
+      if (debug) {
+	System.out.println("No such tag: " + tagName);
+      }
+      return null;
+    }
+    for (int i = 0 ; i < nodes.getLength() ; i++) {
+      /*
+	System.out.println("Node: " + nodes.item(i).getNodeName()
+			   + " Type: " + nodes.item(i).getNodeType()
+			   + " Val: "
+			   + nodes.item(i).getFirstChild().getNodeValue()
+			   );
+      */
+      if (nodes.item(i).getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+	return (Element) nodes.item(i);
+      }
+    }
+
+    return null;
   }
 
   public NodePolicy readNodePolicy(String role)
@@ -136,18 +181,30 @@ public class ConfParser {
     if (debug) {
       System.out.println("Reading node policy");
     }
-    Element nodePolicyElement = configDoc.getRootElement().getChild(NODE_POLICY_ELEMENT);
+    Element nodePolicyElement = getChild(configDoc.getDocumentElement(),
+					 NODE_POLICY_ELEMENT);
 
     NodePolicy nodePolicy = new NodePolicy();
 
-    nodePolicy.CA_DN = getElementValue(nodePolicyElement, NODE_CA_DN_ELEMENT, role);
-    nodePolicy.CA_URL = getElementValue(nodePolicyElement, NODE_CA_URL_ELEMENT, role);
-    nodePolicy.CA_keystore = getElementValue(nodePolicyElement, NODE_CA_KEYSTORE_ELEMENT, role);
-    nodePolicy.CA_keystorePassword = getElementValue(nodePolicyElement,
-                        NODE_CA_KEYSTORE_PWD_ELEMENT, role);
+    nodePolicy.CA_DN =
+      getElementValue(nodePolicyElement,
+		      NODE_CA_DN_ELEMENT, role);
+    nodePolicy.CA_URL =
+      getElementValue(nodePolicyElement,
+		      NODE_CA_URL_ELEMENT, role);
+    nodePolicy.CA_keystore =
+      getElementValue(nodePolicyElement,
+		      NODE_CA_KEYSTORE_ELEMENT, role);
+    nodePolicy.CA_keystorePassword =
+      getElementValue(nodePolicyElement,
+		      NODE_CA_KEYSTORE_PWD_ELEMENT, role);
 
-    nodePolicy.certDirectoryUrl = getElementValue(nodePolicyElement, NODE_CERTDIRURL_ELEMENT, role);
-    String type = getElementValue(nodePolicyElement, NODE_CERTDIRTYPE_ELEMENT, role);
+    nodePolicy.certDirectoryUrl =
+      getElementValue(nodePolicyElement,
+		      NODE_CERTDIRURL_ELEMENT, role);
+    String type =
+      getElementValue(nodePolicyElement,
+		      NODE_CERTDIRTYPE_ELEMENT, role);
 
     if (type.equalsIgnoreCase("NetTools")) {
       nodePolicy.certDirectoryType = NodePolicy.NETTOOLS; 
@@ -163,10 +220,13 @@ public class ConfParser {
     nodePolicy.c = getElementValue(nodePolicyElement, NODE_C_ELEMENT, role);
 
 
-    nodePolicy.keyAlgName = getElementValue(nodePolicyElement, NODE_KEYALGNAME_ELEMENT, role);
-    nodePolicy.sigAlgName = getElementValue(nodePolicyElement, NODE_SIGALGNAME_ELEMENT, role);
-    nodePolicy.keysize = (Integer.valueOf(getElementValue(nodePolicyElement,
-                               NODE_KEYSIZE_ELEMENT, role))).intValue();
+    nodePolicy.keyAlgName =
+      getElementValue(nodePolicyElement, NODE_KEYALGNAME_ELEMENT, role);
+    nodePolicy.sigAlgName =
+      getElementValue(nodePolicyElement, NODE_SIGALGNAME_ELEMENT, role);
+    nodePolicy.keysize =
+      (Integer.valueOf(getElementValue(nodePolicyElement,
+			   NODE_KEYSIZE_ELEMENT, role))).intValue();
     Duration duration = new Duration();
     duration.parse(getElementValue(nodePolicyElement, NODE_VALIDITY_ELEMENT, role));
     nodePolicy.howLong = duration.getDuration();
@@ -177,25 +237,28 @@ public class ConfParser {
   {
     String value = null;
     String defaultValue = null;
-    List conf = top.getChildren(elementName);
+    NodeList conf = top.getElementsByTagName(elementName);
     if (debug) {
       System.out.print("Looking up role:" + role + " for " + elementName);
     }
-    Iterator it = conf.iterator();
-    while (it.hasNext()) {
-      Element element = (Element) it.next();
+    for (int i = 0 ; i < conf.getLength() ; i++) {
+      Element element = (Element) conf.item(i);
+      String val = element.getFirstChild().getNodeValue();
+
       /*
       if (debug) {
-	System.out.println("text:" + element.getText() + " - attribute role: " 
-			   + element.getAttributeValue("role") );
+	System.out.println("text:" + element.getNodeName()
+			   + " - role: " + element.getAttribute("role")
+			   + " - val:" + val
+			   + element.toString());
       }
       */
-      if (element.getAttributeValue("role") == null) {
-	defaultValue = element.getText();
+      if (element.getAttribute("role") == "") {
+	defaultValue = val;
       }
-      else if(role != null && role.equals(element.getAttributeValue("role"))) {
+      else if(role != null && role.equals(element.getAttribute("role"))) {
 	// Found role
-	value = element.getText();
+	value = val;
       }
     }
     if (value == null) {
@@ -204,7 +267,7 @@ public class ConfParser {
       value = defaultValue;
     }
     if (debug) {
-      System.out.println(" - Found value:" + value);
+      System.out.println(" - Value:" + value);
     }
     
     return value;
@@ -219,17 +282,18 @@ public class ConfParser {
     }
     X500Name dn = new X500Name(caDistinguishedName);
 
-    List conf = configDoc.getRootElement().getChildren(CA_POLICY_ELEMENT);
-    Iterator it = conf.iterator();
+    NodeList conf =
+      configDoc.getDocumentElement().getElementsByTagName(CA_POLICY_ELEMENT);
     CaPolicy caPolicy = null;
 
-    while (it.hasNext()) {
-      Element caPolicyElement = (Element) it.next();
-      X500Name aDN = new X500Name(caPolicyElement.getAttributeValue("name"));
+    for (int i = 0 ; i < conf.getLength() ; i++) {
+      Element caPolicyElement = (Element) conf.item(i);
+      X500Name aDN = new X500Name(caPolicyElement.getAttribute("name"));
       if (!dn.equals(aDN)) {
 	continue;
       }
-      Element caClientPolicy = caPolicyElement.getChild(CA_CLIENT_POLICY_ELEMENT);
+      Element caClientPolicy = getChild(caPolicyElement,
+					CA_CLIENT_POLICY_ELEMENT);
       
       caPolicy = new CaPolicy();
       caPolicy.keyStoreFile      = getElementValue(caPolicyElement, CA_KEYSTORE_ELEMENT, role);
@@ -290,13 +354,13 @@ public class ConfParser {
     X500Name[] caDNs = new X500Name[0];
     ArrayList caList = new ArrayList();
 
-    List conf = configDoc.getRootElement().getChildren(CA_POLICY_ELEMENT);
-    Iterator it = conf.iterator();
+    NodeList conf =
+      configDoc.getDocumentElement().getElementsByTagName(CA_POLICY_ELEMENT);
 
-    while (it.hasNext()) {
-      Element element = (Element) it.next();
+    for (int i = 0 ; i < conf.getLength() ; i++) {
+      Element element = (Element) conf.item(i);
       try {
-	X500Name aDN = new X500Name(element.getAttributeValue("name"));
+	X500Name aDN = new X500Name(element.getAttribute("name"));
 	System.out.println(aDN.toString());
 	caList.add(aDN);
       }
@@ -313,7 +377,7 @@ public class ConfParser {
     HashSet roleSet = new HashSet();
     String[] roles = new String[0];
 
-    addRole(configDoc.getRootElement(), roleSet);
+    addRole(configDoc.getDocumentElement(), roleSet);
     return (String[]) roleSet.toArray(roles);
   }
 
@@ -322,13 +386,11 @@ public class ConfParser {
     if (e == null) {
       return;
     }
-    List list = e.getChildren();
-    Iterator it = list.iterator();
-
-    while (it.hasNext()) {
-      Element element = (Element) it.next();
+    NodeList list = e.getChildNodes();
+    for (int i = 0 ; i < list.getLength() ; i++) {
+      Element element = (Element) list.item(i);
       addRole(element, set);
-      String aRole = element.getAttributeValue("role");
+      String aRole = element.getAttribute("role");
       if (aRole != null) {
 	set.add(aRole);
       }
