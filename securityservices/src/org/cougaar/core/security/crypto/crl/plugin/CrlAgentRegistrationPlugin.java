@@ -63,8 +63,8 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
   private IncrementalSubscription crlagentregistration;
   private IncrementalSubscription crlregistrationtable;
   private LoggingService loggingService=null;
+  private EventService eventService=null;
   private CrlRegistrationTable crlRegistrationTable=null;
-  private EventService   eventService;
   //private boolean completeregistration =true;
 
   /** The number of seconds between crl updates */
@@ -182,7 +182,6 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       getService(this, ThreadService.class, null);
     ts.getThread(this, new CRLUpdate()).schedule(0, _pollInterval );
     loggingService.debug("Set up subscription done:"); 
-
   }
 
   protected void execute () {
@@ -219,7 +218,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
           try {
             loggingService.debug("Adding Agent :" + crlrelay.getSource() +"for Dn:"+regagentObject.dnName);
             regobject.addAgent(crlrelay.getSource());
-            event(crlrelay.getSource(), regagentObject.dnName);
+            event("CrlRegistration", crlrelay.getSource(), regagentObject.dnName);
           }
           catch (CRLAgentRegistrationException crlagentexp) {
             loggingService.debug(" Agent has alredy been registered :"+crlrelay.getSource() );
@@ -248,7 +247,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
           regobject=new CrlRegistrationObject(regagentObject.dnName);
           try {
             regobject.addAgent(crlrelay.getSource());
-            event(crlrelay.getSource(), regagentObject.dnName);
+            event("CrlRegistration", crlrelay.getSource(), regagentObject.dnName);
           }
           catch(CRLAgentRegistrationException crlagentexp){
             loggingService.debug(" Agent has alredy been registered :"+crlrelay.getSource());
@@ -375,6 +374,8 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
                         bbs.publishChange(crlrelay);
                         loggingService.debug("Updating response  :"+agent.toString());
                         loggingService.debug("Updating response  :"+crlrelay.toString());
+
+                        event("updateCRL", agent, regObject.dnName);
                       }
                       catch(Exception exp) {
                         loggingService.warn("Unable to send updated CRL to agent :"+agent.toString()+ exp.getMessage());
@@ -622,12 +623,12 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       }
     }
   }
-  private void event(MessageAddress agent, String dn) {
+  private void event(String status, MessageAddress agent, String dn) {
     if (!eventService.isEventEnabled()) {
       return;
     }
     
-    eventService.event("[STATUS] CRLRegistration(" +
+    eventService.event("[STATUS] " + status + "(" +
                        agentId.toAddress() +
                        ") Agent(" +
                        agent.toAddress() +
