@@ -65,6 +65,7 @@ import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.services.identity.*;
 
 public class DirectoryKeyStore
 {
@@ -742,6 +743,22 @@ public class DirectoryKeyStore
       certCache.printCertificateCache();
     }
 
+    if (commonName.equals(getHostName())) {
+      WebserverIdentityService sslwebserver = (WebserverIdentityService)
+        param.serviceBroker.getService(this,
+				     WebserverIdentityService.class,
+				     null);
+      if (sslwebserver != null)
+        sslwebserver.updateKeystore();
+    }
+    if (commonName.equals(NodeInfo.getNodeName())) {
+      SSLService sslservice = (SSLService)
+        param.serviceBroker.getService(this,
+				     SSLService.class,
+				     null);
+      if (sslservice != null)
+        sslservice.updateKeystore();
+    }
   }
 
   public void deleteEntry(String alias)
@@ -814,6 +831,27 @@ public class DirectoryKeyStore
 	acertificate[i] = (X509Certificate)vector.elementAt(j);
 	// Check certificate validity
 	((X509Certificate) acertificate[i]).checkValidity();
+        // Check key usage
+        if (i > 0) {
+          // does the cert has signing capability? otherwise should not be in
+          // the upper level of the chain
+          KeyUsageExtension keyusage = null;
+          try {
+            String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
+            if(s != null) {
+              keyusage = (KeyUsageExtension)((X509CertImpl)acertificate[i]).get(s);
+            }
+          } catch (Exception ex) {
+            if (CryptoDebug.debug)
+              System.out.println("Exception in getKeyUsage: "
+                + ex.toString());
+          }
+          if (keyusage == null
+            || keyusage.getBits().length < KeyManagement.KEYUSAGE_CERT_SIGN_BIT
+            || !keyusage.getBits()[KeyManagement.KEYUSAGE_CERT_SIGN_BIT])
+            throw new CertificateChainException("Certificate does not have signing capability.",
+              CertificateTrust.CERT_TRUST_NOT_TRUSTED);
+        }
 	i++;
       }
       return acertificate;
@@ -1832,7 +1870,25 @@ public class DirectoryKeyStore
     certandkeygen.generate(keysize);
     PrivateKey privatekey = certandkeygen.getPrivateKey();
     X509Certificate ax509certificate[] = new X509Certificate[1];
-    ax509certificate[0] = certandkeygen.getSelfCertificate(dname, howLong);
+
+    boolean isSigner = false;
+    // isCA and is CA DN
+    if (param.isCertAuth) {
+      // no way to find caDN here, check if title is set
+      // This should be changed later when CA creates CA node/tomcat/agent
+      // certificate after CA key is created with agent list provided by
+      // core. Right now tomcat is requesting certificate by itself, but
+      // it should really be requested by node on its behalf when node is initialized.
+      //if (CertificateUtility.findAttribute(dname.getCommonName(), "t") == null)
+        isSigner = true;
+    }
+    // is not CA but is node and nodeIsSigner
+    else {
+      isSigner = dname.getCommonName().equals(NodeInfo.getNodeName())
+        && cryptoClientPolicy.getCertificateAttributesPolicy().nodeIsSigner;
+    }
+
+    ax509certificate[0] = certandkeygen.getSelfCertificate(dname, howLong, isSigner);
     setKeyEntry(alias, privatekey, ax509certificate);
 
     CertificateType certificateType = null;
@@ -1859,7 +1915,7 @@ public class DirectoryKeyStore
       // Update Common Name to DN hashtable
       nameMapping.addName(certstatus);
   }
-  
+
   public void checkOrMakeCert(String commonName) {
     /*
     String dn = "cn=" + commonName
@@ -1904,6 +1960,25 @@ public class DirectoryKeyStore
     }
     //we'll have to make one
     addKeyPair(dname, null);
+
+    // generate one for webserver
+    WebserverIdentityService sslwebserver = (WebserverIdentityService)
+      param.serviceBroker.getService(this,
+				     WebserverIdentityService.class,
+				     null);
+    if (sslwebserver != null) {
+      checkOrMakeCert(getHostName());
+      sslwebserver.updateKeystore();
+    }
+
+    // update SSL node cert
+    SSLService sslservice = (SSLService)
+      param.serviceBroker.getService(this,
+				     SSLService.class,
+				     null);
+    if (sslservice != null) {
+      sslservice.updateKeystore();
+    }
   }
 
    public void setSleeptime(long sleeptime)
@@ -2152,7 +2227,7 @@ public class DirectoryKeyStore
       trustedcerts[i] = (X509Certificate)list.get(i);
     return trustedcerts;
   }
-  
+
   private void saveCertificateInTrustedKeyStore(X509Certificate aCertificate,
 						String alias) {
     if (CryptoDebug.debug) {
