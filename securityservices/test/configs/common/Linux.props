@@ -120,7 +120,7 @@ org.cougaar.safe.domainName=TestDomain
 
 # MTS RMI over SSL
 # The certificates need to be createdd first before this feature is turned on.
-#org.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol
+org.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol
 
 # You can also turn on/off http/s. Turn of by setting the port to -1
 # Note that HTTPS is off by default, and HTTP is at 8800
@@ -130,8 +130,8 @@ org.cougaar.lib.web.http.port=8800
 # HTTPS port number
 # Comment out the following two lines if you don't want HTTPS
 # The certificates need to be createdd first before this feature is turned on.
-#org.cougaar.lib.web.https.port=6557
-#org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory
+org.cougaar.lib.web.https.port=6557
+org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory
 
 # Cougaar workspace
 org.cougaar.workspace=/mnt/shared/integ/workspace
@@ -154,7 +154,8 @@ java.Xbootclasspath/a=/mnt/shared/integ/lib/securebootstrapper.jar:/mnt/shared/i
 # the Message Protection Service (inter-agent message protection mechanism).
 # DON'T FORGET to delete that property in CSMART global parameters, otherwise CSMART will override it.
 # This is now added as a CSMART recipe
-#org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect,org.cougaar.core.mts.MessageProtectionAspect
+#org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect,org.cougaar.core.mts.MessageProtectionAspectImpl
+org.cougaar.message.transport.aspects=org.cougaar.core.security.crypto.MessageProtectionAspectImpl
 #org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect
 
 # Set the classname to the Bootstrapper. You must supply a command-line
@@ -254,3 +255,11 @@ org.cougaar.message.transport.debug=security
 # ########################################################
 
 class9.max.parts=5
+
+#DAML policy enforcement
+#org.cougaar.core.security.policy.enforcers.servlet.useDaml=true
+#org.cougaar.core.security.policy.enforcers.crypto.useDaml=true
+#org.cougaar.core.security.policy.enforcers.access.useDaml=true
+
+#dump messages
+#org.cougaar.core.security.crypto.dumpMessages=true
