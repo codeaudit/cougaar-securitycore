@@ -36,6 +36,7 @@ import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.role.RoleExecutionContext;
+import org.cougaar.core.security.policy.builder.PolicyUtils;
 import org.cougaar.core.security.policy.enforcers.util.DAMLBlackboardMapping;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.LoggingService;
@@ -146,9 +147,9 @@ public class ULInstanceClassifierFactory
   private class ULActorInstanceClassifier implements InstanceClassifier
   {
     private String communityPrefix  = "KAoS#MembersOfDomainCommunity";
-    private String personPrefix     = 
-      org.cougaar.core.security.policy.enforcers.ontology.jena.
-      ActorClassesConcepts.ActorClassesDamlURL;
+    private String personPrefix     = PolicyUtils.personActorClassPrefix;
+      //      org.cougaar.core.security.policy.enforcers.ontology.jena.
+      //      ActorClassesConcepts.ActorClassesDamlURL;
     private Set    _loadAgents     = new HashSet();
 
     public void init ()
