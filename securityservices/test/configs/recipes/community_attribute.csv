@@ -18,6 +18,14 @@ DISCOM-1-AD-COMM,CommunityType,Domain
 DIVARTY-1-AD-COMM,CommunityType,Domain
 NCA-COMM,CommunityType,Domain
 TRANSCOM-COMM,CommunityType,Domain
+Enclave1Robustness-COMM,CommunityType,Robustness
+Enclave2Robustness-COMM,CommunityType,Robustness
+Enclave3Robustness-COMM,CommunityType,Robustness
+Enclave4Robustness-COMM,CommunityType,Robustness
+Enclave1-COMM,CommunityType,Scalability
+Enclave2-COMM,CommunityType,Scalability
+Enclave3-COMM,CommunityType,Scalability
+Enclave4-COMM,CommunityType,Scalability
 Security-Mgmt-COMM,CommunityType,SecurityMgmt
 Enclave1Security-COMM,CommunityType,Security
 Enclave2Security-COMM,CommunityType,Security
@@ -30,12 +38,4 @@ UserDomain1,CommunityType,User
 UserDomain2,CommunityType,User
 UserDomain3,CommunityType,User
 UserDomain4,CommunityType,User
-Enclave1Robustness-COMM,CommunityType,Robustness
-Enclave2Robustness-COMM,CommunityType,Robustness
-Enclave3Robustness-COMM,CommunityType,Robustness
-Enclave4Robustness-COMM,CommunityType,Robustness
-Enclave1-COMM,CommunityType,Scalability
-Enclave2-COMM,CommunityType,Scalability
-Enclave3-COMM,CommunityType,Scalability
-Enclave4-COMM,CommunityType,Scalability
 DisallowedCommunication-COMM,CommunityType,Security
