@@ -38,12 +38,12 @@ parameters:
 # Security rules
     - $CIP/csmart/config/rules/security
 #    - $CIP/csmart/config/rules/security/testCollectData/MessageReaderAspect.rule
-#    - $CIP/csmart/config/rules/security/testCollectData/ServiceContractPlugin.rule
+    - $CIP/csmart/config/rules/security/testCollectData/ServiceContractPlugin.rule
 
 #    - $CIP/csmart/config/rules/security/mts/loopback_protocol.rule
 #    - $CIP/csmart/config/rules/security/mts/http_mts.rule
 #    - $CIP/csmart/config/rules/security/mts/https_mts.rule
-    - $CIP/csmart/config/rules/security/mts/sslRMI.rule
+#    - $CIP/csmart/config/rules/security/mts/sslRMI.rule
 #    - $CIP/csmart/config/rules/security/naming
 
 
@@ -63,7 +63,6 @@ parameters:
    # ###
    # Redundant CA and persistence managers
 #    - $CIP/csmart/config/rules/security/redundancy
-#    - $CIP/csmart/config/rules/security/robustness
     - $CIP/csmart/config/rules/security/robustness
    # Run with only redundant PM
 #    - $CIP/csmart/config/rules/security/redundancy/add_redundant_pm_facet.rule
