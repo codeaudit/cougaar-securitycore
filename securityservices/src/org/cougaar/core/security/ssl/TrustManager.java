@@ -25,6 +25,10 @@
  */
 package org.cougaar.core.security.ssl;
 
+import org.cougaar.core.security.crypto.CertificateRevokedException;
+import java.security.cert.CertificateExpiredException;
+import sun.security.x509.X500Name;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CertificateCache;
 import org.cougaar.core.security.crypto.CertificateUtility;
@@ -43,6 +47,7 @@ public class TrustManager implements X509TrustManager {
   protected X509Certificate [] issuers = new X509Certificate [] {};
   private ServiceBroker serviceBroker;
   private LoggingService log;
+  protected CertificateCacheService cacheservice = null;
 
   public TrustManager(KeyRingService krs, ServiceBroker sb) {
     serviceBroker = sb;
@@ -53,7 +58,7 @@ public class TrustManager implements X509TrustManager {
     //keystore = keyRing.getDirectoryKeyStore();
 
     updateKeystore();
-    CertificateCacheService cacheservice=(CertificateCacheService)
+    cacheservice=(CertificateCacheService)
       serviceBroker.getService(this,
                                CertificateCacheService.class,
                                null);
@@ -212,10 +217,28 @@ public class TrustManager implements X509TrustManager {
 		 + chain[0].getSubjectDN().getName()
 		 + ". Reason: ", e);
       }
+
+      if (e instanceof CertificateRevokedException) {
+        event("CertificateRevoked", chain[0].getSubjectDN().getName());
+      }
+      else if (e instanceof CertificateExpiredException) {
+        event("CertificateExpired", chain[0].getSubjectDN().getName());
+      }
+
       throw new CertificateException("Failed to build chain.");
     }
   }
 
+  void event(String status, String dn) {
+
+    String cn = dn;
+    try {
+      cn = new X500Name(dn).getCommonName();
+    }
+    catch (Exception ex) {}
+    String evt = "[STATUS] TrustManager." + status + "(" + cn + ")";
+    cacheservice.event(evt);
+  }
 
   /**
    * Only the CA in the Cougaar society for now
