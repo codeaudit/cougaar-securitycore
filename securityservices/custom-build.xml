@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="Cougaar security services custom build">
+
+    <!-- ********************************************************************************
+         * Custom build below
+         ******************************************************************************** -->
+    <dirname property="imported.basedir" file="${ant.file.imported}"/>
+    <property name="securityservices.jsp" value="${securityservices.output}/jsp"/>
+    <property name="securityservices.policy" value="${securityservices.output}/policy"/>
+
+    <path id="core.class.path">    
+        <!-- Cougaar 3rd party support packages -->
+        <pathelement location="${securityservices.base}/build/lib/antlr.jar"/>
+        <pathelement location="${securityservices.base}/sys/ibmpkcs.jar"/>
+        <pathelement location="${securityservices.base}/sys/iw.jar"/>
+        <pathelement location="${securityservices.base}/sys/jas.jar"/>
+        <pathelement location="${securityservices.base}/sys/jdom.jar"/>
+        <pathelement location="${securityservices.base}/sys/jtp.jar"/>
+        <!-- KAoS libraries -->
+        <pathelement location="${securityservices.base}/lib/kaos.jar"/>
+        <pathelement location="${securityservices.base}/lib/safe.jar"/>
+        <pathelement location="${securityservices.base}/sys/jpcsc.jar"/>
+        <!-- Overlay packages -->
+        <pathelement location="${securityservices.base}/lib/overlay.jar"/>
+        <pathelement location="${securityservices.base}/sys/mail.jar"/>
+        <!-- JUNIT libraries -->
+        <pathelement location="${securityservices.base}/build/lib/httpunit.jar"/>
+        <!-- jakarta oro -->
+        <pathelement location="${securityservices.base}/build/lib/jakarta-oro-2.0.5.jar"/>
+        <!-- don't point to the signed version of jasper-runtime.jar or the jspc task will puke! -->
+        <pathelement location="${securityservices.base}/build/jasper/lib/jasper-runtime.jar"/>
+        <pathelement location="${securityservices.base}/build/jasper/lib/jasper-compiler.jar"/>
+
+        <pathelement location="${cougaar.install.path}/sys/concurrent.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/idmef.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/icu4j.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/jpython.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/log4j.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/silk.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/xercesImpl.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/xml-apis.jar"/>
+        <!-- Tomcat libraries -->
+        <pathelement location="${cougaar.install.path}/sys/tomcat_40.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/webserver.jar"/>
+        <!-- JUNIT libraries -->
+        <pathelement location="${cougaar.install.path}/sys/junit.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/Tidy.jar"/>
+        <!-- Cougaar packages -->
+        <pathelement location="${cougaar.install.path}/lib/build.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/glm.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/planserver.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/core.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/util.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/mtsstd.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/aggagent.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/community.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/planning.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/servicediscovery.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/webtomcat.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/yp.jar"/>
+
+	<!-- OWL libraries -->
+        <pathelement location="${cougaar.install.path}/sys/jena.jar"/>
+
+    	<!-- Other security services jar files -->
+	<pathelement location="${securityservices.base}/lib/security/secure_bootstrapper.jar"/>
+	<pathelement location="${securityservices.base}/lib/security/secure_util.jar"/>
+    </path>
+
+    <target name="custom-init">
+        <mkdir dir="${securityservices.jsp}"/>
+        <mkdir dir="${securityservices.policy}"/>
+    </target>
+
+    <target name="check-policyParserUptodate">
+      <uptodate property="policyParserUptodate"
+                srcfile="${securityservices.src}/org/cougaar/core/security/policy/builder/policyGrammar.g"
+                targetfile="${securityservices.policy}/org/cougaar/core/security/policy/builder/PolicyParser.java" 
+                />
+    </target>
+
+    <!-- 
+         I am not using the antlr task because that would require
+         that people include antlr in the jakarta ant lib directory.
+      -->
+    <target name="build-policyparser" depends="custom-init, check-policyParserUptodate"
+            unless="policyParserUptodate" >
+      <mkdir dir="${securityservices.policy}/org/cougaar/core/security/policy/builder"/>
+      <copy file="${securityservices.src}/org/cougaar/core/security/policy/builder/policyGrammar.g"
+    	toDir="${securityservices.policy}/org/cougaar/core/security/policy/builder"/>
+      <java classname="antlr.Tool"
+            fork="true"
+            failonerror="true"
+            dir="${securityservices.policy}/org/cougaar/core/security/policy/builder"
+            classpathref="core.class.path" >
+        <arg value="policyGrammar.g" />
+      </java>
+    </target>
+
+    <!-- compile the jsp's into java files -->
+    <target name="compile-jsps">
+        <jspc srcdir="${securityservices.src}"
+            package="org.cougaar.core.security.crypto.ldap.admin"
+            destdir="${securityservices.jsp}"
+            classpathref="core.class.path">
+        <include name="org/cougaar/core/security/crypto/ldap/admin/*.jsp" />
+        </jspc>
+    </target>
+
+
+    <!-- Build the source code package -->
+    <target name="custom-compile" depends="custom-init, compile-jsps, build-policyparser" id="custom.compile">
+        <echo message="+++++ Building ${project.description}"/>
+        <javac classpathref="core.class.path" debug="true" 
+            deprecation="true" destdir="${securityservices.classes}"
+            source="1.4">
+          <src path="${securityservices.src}"/>
+          <src path="${securityservices.jsp}"/>
+          <src path="${securityservices.policy}"/>
+          <include name="org/cougaar/core/security/**"/>
+      	</javac>
+        <echo message="+++++ Built ${project.description}"/>
+    </target>
+
+    <!-- jar security services -->
+    <target name="custom-jar" id="custom.jar">
+        <echo message="+++++ Building jar files"/>
+        <jar jarfile="${securityservices.output}/${project.name}.jar"
+            basedir="${securityservices.classes}"
+            includes="org/cougaar/core/security/**/*.class"
+            excludes="org/cougaar/core/security/crlextension/**"/>
+        <jar jarfile="${securityservices.output}/CougaarCRLextensions.jar"
+            basedir="${securityservices.classes}"
+            includes="org/cougaar/core/security/crlextension/**"/>
+
+        <signjar jar="${securityservices.output}/CougaarCRLextensions.jar" alias="securitymodule" 
+            signedjar="${securityservices.signed}/CougaarCRLextensions.jar"
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <signjar jar="${securityservices.signed}/CougaarCRLextensions.jar" alias="privileged" 
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <echo message="+++++ Built jar files"/>
+    </target>
+
+    <!-- install DAML -->
+    <!--
+    <target name="install-daml">
+        <echo message="+++++ Installing DAML configs"/>
+        <mkdir dir="${securityservices.staging}/configs/daml"/>
+        <copy todir="${securityservices.staging}/configs/daml">
+            <fileset dir="${securityservices.configs}/daml">
+                <include name="*"/>
+            </fileset>
+        </copy>
+        <echo message="+++++ Installed DAML configs"/>
+    </target>
+    -->
+
+    <!-- install config files -->
+    <target name="custom-install-conf" id="custom.install">
+       <mkdir dir="${securityservices.staging}/operator/security"/>
+       <mkdir dir="${securityservices.staging}/workspace/log4jlogs"/>
+       <touch file="${securityservices.staging}/workspace/log4jlogs/notEmptyDir"/>
+       <mkdir dir="${securityservices.staging}/workspace/auditlogs"/>
+       <touch file="${securityservices.staging}/workspace/auditlogs/notEmptyDir"/>
+       <mkdir dir="${securityservices.staging}/workspace/security/mopresults"/>
+       <touch file="${securityservices.staging}/workspace/security/mopresults/notEmptyDir"/>
+       <mkdir dir="${securityservices.staging}/workspace/security/keystores"/>
+       <touch file="${securityservices.staging}/workspace/security/keystores/notEmptyDir"/>
+       <mkdir dir="${securityservices.staging}/workspace/test"/>
+       <touch file="${securityservices.staging}/workspace/test/notEmptyDir"/>
+       <mkdir dir="${securityservices.staging}/csmart/scripts/definitions/security"/>
+       <mkdir dir="${securityservices.staging}/csmart/config/rules/security"/>
+
+        <!-- logging.conf files are loaded directly from the
+             filesystem.  Maybe we can get this fixed in cougaar core?  -->
+        <copy todir="${securityservices.staging}/configs/security">
+            <fileset dir="${securityservices.configs}/security">
+                <patternset>
+                    <include name="cmdlineLoggingConfig.conf"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${securityservices.staging}/webtomcat/data/conf"
+            file="${securityservices.configs}/tomcat4/server.xml"/>    
+        <copy todir="${securityservices.staging}/webtomcat/data/webapps/ROOT/WEB-INF"
+            file="${securityservices.configs}/tomcat4/web.xml"/>
+        <copy todir="${securityservices.staging}/configs/ping">
+            <fileset dir="${securityservices.configs}/ping"/>
+        </copy>
+
+        <copy todir="${securityservices.staging}/operator/security">
+            <fileset dir="${securityservices.base}/test/bin">
+                <patternset>
+                    <include name="checkTrace.rb"/>
+                    <include name="runallparallel"/>
+                    <include name="printProcessInfo.rb"/>
+                    <include name="checkReportChainReady.rb"/>
+                    <include name="createJarConfigFiles"/>
+                </patternset>
+            </fileset>
+            <fileset dir="${securityservices.configs}/sign-jars">
+                <patternset>
+                    <include name="signingCA_keystore"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${securityservices.staging}/csmart/scripts/definitions/security">
+            <fileset dir="${securityservices.configs}/acme_scripts/moas">
+                <patternset>
+                    <include name="*.rb"/>
+                </patternset>
+            </fileset>
+        </copy>
+     </target>
+</project>
