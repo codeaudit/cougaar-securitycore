@@ -344,7 +344,7 @@ public class UserAdminServlet extends HttpServlet {
     
     // now do the special password field
     String pwd = req.getParameter(UserInterface.LDAP_USER_PASSWORD);
-    if (pwd != null) {
+    if (pwd != null && pwd.length() != 0) {
       int modType;
       if (orig.get(UserInterface.LDAP_USER_PASSWORD) != null) {
         // modify the password
@@ -413,7 +413,7 @@ public class UserAdminServlet extends HttpServlet {
     
     // now do the password field
     String pwd = req.getParameter(UserInterface.LDAP_USER_PASSWORD);
-    if (pwd != null) {
+    if (pwd != null && pwd.length() != 0) {
       attrs.put(UserInterface.LDAP_USER_PASSWORD, pwd.getBytes());
     }
     _userService.addUser(uid, attrs);
