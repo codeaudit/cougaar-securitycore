@@ -1,0 +1,41 @@
+<?xml version='1.0'?>
+<!--OWL Language, version 08/2003-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns="http://ontology.ihmc.us/Attribute.owl#">
+    
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo>
+            $ http://ontology.ihmc.us/Service.owl $
+        </owl:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Entity.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Attribute.owl"/>
+    </owl:Ontology>
+
+<!--Section with property definitions--> 
+
+    <owl:ObjectProperty rdf:ID="hasOperation">
+        <rdfs:domain rdf:resource="#Service"/> 
+        <rdfs:range rdf:resource="#Operation"/> 
+    </owl:ObjectProperty>
+
+<!--Section with class definitions--> 
+
+    <owl:Class rdf:ID="Service">
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#LogicalEntity"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Operation">
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Entity.owl#LogicalEntity"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="Parameter">
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Attribute.owl#Attribute"/>
+    </owl:Class>
+
+</rdf:RDF>
