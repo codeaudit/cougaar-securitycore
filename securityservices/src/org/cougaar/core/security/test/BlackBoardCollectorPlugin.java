@@ -77,13 +77,7 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
 
   private UnaryPredicate _rcrTaskPredicate = new UnaryPredicate() {
       public boolean execute(Object o) {
-	if (o instanceof ReportChainReadyRelay) {
-          Task task = (Task) o;
-	  if (task.getVerb().equals(Constants.Verb.REPORTFORDUTY)) {
-	    return true;
-          }
-	}
-	return false;
+        return o instanceof ReportChainReadyRelay;
       } 
     };
 
