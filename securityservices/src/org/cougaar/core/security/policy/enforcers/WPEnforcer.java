@@ -58,6 +58,10 @@ public class WPEnforcer
   private final String _enforcedActionType 
     = UltralogActionConcepts.WPUpdateSelf();
 
+  public static final String WPAddAccess    = "Add";
+  public static final String WPRemoveAccess = "Remove";
+  public static final String WPChangeAccess = "Change";
+
   private EnforcerManagerService _guard;
 
   /**
@@ -143,9 +147,9 @@ public class WPEnforcer
       _log.debug("Called isActionAuthorized for " + agent + 
                  " doing " + action + " on the blackboard");
     }
-    if (!(action.equals("Add") || 
-          action.equals("Remove") ||
-          action.equals("Change"))) {
+    if (!(action.equals(WPAddAccess) || 
+          action.equals(WPRemoveAccess) ||
+          action.equals(WPChangeAccess))) {
       _log.warn("Invalid action type for enforcer " + action);
       _log.warn("Denying access to agent " + agent);
       return false;
