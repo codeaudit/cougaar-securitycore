@@ -14,7 +14,7 @@
 org.cougaar.install.path=/mnt/shared/integ
 
 # Set the Config Finder class
-#org.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder
+org.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder
 #log4j.configuration=loggingConfigStatic.conf
 
 # Set the cougaar system path, which is used to find third-party jars
@@ -37,6 +37,9 @@ org.cougaar.core.security.dataprotection=true
 # this "java-io-patch" jar should always be included.  Since this jar
 # overrides "java.io" it must be prepended to the JVM's bootclasspath.
 java.Xbootclasspath/p=/mnt/shared/integ/lib/javaiopatch.jar
+
+# Use a Java profiler
+#java.Xruntracer:enabled=true
 
 # Set the class path for starting the Node, which uses ":" separators.
 #
@@ -262,6 +265,9 @@ org.cougaar.message.transport.debug=security
 #java.Xnoagent
 #java.Djava.compiler=NONE
 #java.Xrunjdwp:transport=dt_socket,server=y,address=9999,suspend=y
+
+#hprof
+#java.Xrunhprof:heap=all,thread=y,depth=8
 
 # END DEBUG properties
 # ########################################################
