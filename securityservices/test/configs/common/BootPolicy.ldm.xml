@@ -56,11 +56,13 @@
         <Key key="/*" value="PolicyAdministrator" />
       </KeySet>
     </RuleParam>
+<!--
     <RuleParam name="caAgent">
       <KeySet value="allow-role">
         <Key key="/*" value="CAAdministrator" />
       </KeySet>
     </RuleParam>
+-->
   </Policy>
 
   <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.AuthTypePolicy">
