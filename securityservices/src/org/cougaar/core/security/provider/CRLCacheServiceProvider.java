@@ -30,7 +30,6 @@ import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CRLCache;
 import org.cougaar.core.security.services.crypto.CRLCacheService;
-import org.cougaar.core.service.LoggingService;
 
 
 public class  CRLCacheServiceProvider

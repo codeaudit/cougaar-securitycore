@@ -29,7 +29,6 @@ package org.cougaar.core.security.provider;
 // Cougaar core services
 import org.cougaar.core.component.ComponentSupport;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.service.AgentIdentificationService;
 

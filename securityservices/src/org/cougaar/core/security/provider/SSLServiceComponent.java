@@ -33,18 +33,17 @@ import java.util.List;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.cougaar.core.component.BindingSite;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.node.NodeControlService;
-import org.cougaar.core.component.ServiceProvider;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.crypto.SSLService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.identity.WebserverIdentityService;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
-import org.cougaar.core.security.ssl.AxisSSLSocketFactory;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceProvider;
+import org.cougaar.core.node.NodeControlService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.crypto.SSLService;
+import org.cougaar.core.security.services.identity.WebserverIdentityService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.ssl.JaasSSLFactory;
+import org.cougaar.core.service.LoggingService;
 
 public final class SSLServiceComponent
   extends SecurityComponent

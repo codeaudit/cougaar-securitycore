@@ -30,7 +30,6 @@ import org.cougaar.community.CommunityProtectionService;
 import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.enforcers.CommunityProtectionServiceImpl;
-import org.cougaar.core.service.LoggingService;
 
 public class CommunityProtectionServiceProvider
   extends BaseSecurityServiceProvider

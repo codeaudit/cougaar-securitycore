@@ -28,7 +28,6 @@ package org.cougaar.core.security.provider;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceProvider;
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.acl.user.AgentUserService;
 import org.cougaar.core.security.acl.user.LdapUserServiceImpl;
 import org.cougaar.core.security.services.acl.UserService;

@@ -27,6 +27,9 @@
 package org.cougaar.core.security.provider;
 
 // Cougaar core services
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import org.cougaar.community.CommunityProtectionService;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
@@ -37,41 +40,30 @@ import org.cougaar.core.logging.LoggingControlService;
 import org.cougaar.core.logging.LoggingServiceProvider;
 import org.cougaar.core.node.NodeControlService;
 import org.cougaar.core.security.policy.dynamic.DynamicPolicy;
-import org.cougaar.core.security.policy.mediator.XmlPolicyMediator;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.auth.AuthorizationService;
 import org.cougaar.core.security.services.auth.SecurityContextService;
 import org.cougaar.core.security.services.crypto.CRLCacheService;
 import org.cougaar.core.security.services.crypto.CertValidityService;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CrlManagementService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.crypto.SSLService;
 import org.cougaar.core.security.services.crypto.ServletPolicyService;
 import org.cougaar.core.security.services.crypto.UserSSLService;
-import org.cougaar.core.security.services.crypto.CertificateRequestorService;
-import org.cougaar.core.security.services.identity.WebserverIdentityService;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.util.CACertDirectoryService;
 import org.cougaar.core.security.services.util.CertificateSearchService;
 import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
 import org.cougaar.core.security.services.util.PolicyBootstrapperService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.ssl.JaasSSLFactory;
-//import org.cougaar.core.service.DataProtectionService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.service.identity.AgentIdentityService;
 import org.cougaar.planning.ldm.LDMServesPlugin;
 import org.cougaar.planning.service.LDMService;
-
-import java.security.PrivilegedAction;
-import java.security.AccessController;
 
 public class SecurityServiceProvider
 {
