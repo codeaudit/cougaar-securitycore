@@ -90,6 +90,7 @@ grant codeBase "file:${org.cougaar.install.path}/lib/core.jar" signedBy "privile
 
 grant codeBase "file:${org.cougaar.install.path}/lib/securityservices.jar" signedBy "privileged" { 
 	permission com.nai.security.crypto.KeyRingPermission "readPrivateKey";
+	permission com.nai.security.crypto.KeyRingPermission "installPkcs7Reply";
 };
 
 ////////////////////////////////////////////////////////////
@@ -154,6 +155,7 @@ grant signedBy "privileged" {
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.pkcs";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.util";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.security.provider";
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.misc";
 
 	///////////////////////////////////////////////////
 	// This permission is needed by the AgentManager to associate a JAAS
@@ -398,4 +400,6 @@ grant {
 	// read at Node.java:79, but Node.java should really be fixed.
 	// Need to fix core/cluster/ClaimableImpl.java:95
 	//permission java.util.PropertyPermission "*", "read, write";
+
+	permission com.nai.security.crypto.KeyRingPermission "installPkcs7Reply";
 };
