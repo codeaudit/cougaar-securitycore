@@ -204,6 +204,7 @@
                       common/*.info,
                       common/*.daml,
                       common/DamlBootPolicyList,
+                      common/DamlBlackboardObjectMap,
                       common/DamlUriMap,
                       common/RoleComponentMap,
                       common/RoleAgentMap,
