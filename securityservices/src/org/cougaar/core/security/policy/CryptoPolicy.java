@@ -51,8 +51,14 @@ public class CryptoPolicy extends SecurityPolicy {
   public static final int DATAPROTECTION = 4;
   public int Direction = BOTH;
   private HashMap commList = new HashMap();
- 
+
   private HashMap secuMethod = new HashMap();
+
+  // for PersistenceManager, both MessageProtection and DataProtection
+  // needs to encrypt secret key with persistence manager so that
+  // data can be recovered even though all private keys are lost.
+  private Vector pmPolicies = new Vector();
+
   public void setSecuMethod(String key, String method){
     Object o = secuMethod.get(key);
     if(o==null){
@@ -164,7 +170,7 @@ public class CryptoPolicy extends SecurityPolicy {
     }
   }
 
-  public Vector getSecuMethod(String key){ 
+  public Vector getSecuMethod(String key){
     Vector v = (Vector)secuMethod.get(key);
     //try community policy if null
     if(v==null && secuMethodCom.size()>0){
@@ -176,9 +182,9 @@ public class CryptoPolicy extends SecurityPolicy {
     }
     //last try
     if(v==null) v = (Vector)secuMethod.get("DEFAULT");
-    return v; 
+    return v;
   }
-  public Vector getSymmSpec(String key) { 
+  public Vector getSymmSpec(String key) {
     Vector v = (Vector)symmSpec.get(key);
     //try community policy if null
     if(v==null && symmSpecCom.size()>0){
@@ -190,9 +196,9 @@ public class CryptoPolicy extends SecurityPolicy {
     }
     //last try
     if(v==null) v = (Vector)symmSpec.get("DEFAULT");
-    return v; 
+    return v;
   }
-  public Vector getAsymmSpec(String key) { 
+  public Vector getAsymmSpec(String key) {
     Vector v = (Vector)asymmSpec.get(key);
     //try community policy if null
     if(v==null && asymmSpecCom.size()>0){
@@ -204,9 +210,9 @@ public class CryptoPolicy extends SecurityPolicy {
     }
     //last try
     if(v==null) v = (Vector)asymmSpec.get("DEFAULT");
-    return v; 
+    return v;
   }
-  public Vector getSignSpec(String key) { 
+  public Vector getSignSpec(String key) {
     Vector v = (Vector)signSpec.get(key);
     //try community policy if null
     if(v==null && signSpecCom.size()>0){
@@ -218,7 +224,7 @@ public class CryptoPolicy extends SecurityPolicy {
     }
     //last try
     if(v==null) v = (Vector)signSpec.get("DEFAULT");
-    return v; 
+    return v;
   }
 
   //for backward compatiblity
@@ -282,11 +288,21 @@ public class CryptoPolicy extends SecurityPolicy {
     //fall through
     return null;
   }
-  
+
   public String toString() {
   return "crypto policy--NAME:" + Name +
         " TYPE:" + Type +
         " DIRECTION:" + Direction
   ;
+  }
+
+  public PersistenceManagerPolicy [] getPersistenceManagerPolicies() {
+    PersistenceManagerPolicy [] pm = new PersistenceManagerPolicy[pmPolicies.size()];
+    pmPolicies.toArray(pm);
+    return pm;
+  }
+
+  public void addPersistenceManagerPolicy(PersistenceManagerPolicy pm) {
+    pmPolicies.addElement(pm);
   }
 }
