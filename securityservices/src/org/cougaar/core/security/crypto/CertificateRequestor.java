@@ -93,7 +93,7 @@ import sun.security.x509.X509CertImpl;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.23 $
  */
 public class CertificateRequestor {
   private ServiceBroker serviceBroker;
@@ -1054,9 +1054,9 @@ synchronized (_pkcsLock) {
       }
     } catch (Exception e) {
       if (log.isWarnEnabled()) {
-        log.warn("Can't get certificate for " + alias + " Reason: " + e
-          + ". Reply from CA is:" + reply, new Throwable());
-
+        log.warn("Can't get certificate for " + alias 
+                 + ". Reply from CA is:" + reply, e);
+        log.warn("Exception caught at ", new Throwable());
       }
     }
 
