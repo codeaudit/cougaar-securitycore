@@ -242,6 +242,10 @@ public class SecurityServiceProvider
     services.put(CertDirectoryServiceCA.class, newSP);
     rootServiceBroker.addService(CertDirectoryServiceCA.class, newSP);
 
+    newSP = new CertificateSearchServiceProvider(serviceBroker, mySecurityCommunity);
+    services.put(CertificateSearchService.class, newSP);
+    rootServiceBroker.addService(CertificateSearchService.class, newSP);
+
     /* Certificate Management service */
     newSP = new CertificateManagementServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertificateManagementService.class, newSP);
@@ -249,12 +253,12 @@ public class SecurityServiceProvider
 
 
     /* Starting Certificate Cache  service */
-   
+
     newSP = new CertificateCacheServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertificateCacheService.class, newSP);
     rootServiceBroker.addService(CertificateCacheService.class, newSP);
-     
-    
+
+
 
     /* Key lookup service */
     newSP = new KeyRingServiceProvider(serviceBroker, mySecurityCommunity);
@@ -267,11 +271,11 @@ public class SecurityServiceProvider
     newSP = new CRLCacheServiceProvider(serviceBroker, mySecurityCommunity,this);
     services.put(CRLCacheService.class, newSP);
     rootServiceBroker.addService(CRLCacheService.class, newSP);
-    /*CRLCacheService crlCacheService=(CRLCacheService)serviceBroker.getService(this, 
+    /*CRLCacheService crlCacheService=(CRLCacheService)serviceBroker.getService(this,
                                                       CRLCacheService.class,
                                                       null);
     */
-    
+
 
     /* Certificate validity service */
     newSP = new CertValidityServiceProvider(serviceBroker, mySecurityCommunity);
@@ -344,16 +348,16 @@ public class SecurityServiceProvider
       // in the functions the permission will be checked.
       rootServiceBroker.getService(this, SSLService.class, null);
 
-           
-      KeyRingService krs = 
-        (KeyRingService) rootServiceBroker.getService(this, 
+
+      KeyRingService krs =
+        (KeyRingService) rootServiceBroker.getService(this,
                                                       KeyRingService.class,
                                                       null);
 
       javax.net.ssl.HttpsURLConnection.
         setDefaultSSLSocketFactory(new JaasSSLFactory(krs, rootServiceBroker));
 
-      krs.getDirectoryKeyStore().finishInitialization();
+      krs.finishInitialization();
 
       // configured to use SSL?
       if (secprop.getProperty(secprop.WEBSERVER_HTTPS_PORT, null) != null) {
@@ -388,8 +392,8 @@ public class SecurityServiceProvider
       rootServiceBroker.addService(SecurityContextService.class, newSP);
     }
     else {
-      KeyRingService krs = 
-        (KeyRingService) rootServiceBroker.getService(this, 
+      KeyRingService krs =
+        (KeyRingService) rootServiceBroker.getService(this,
                                                       KeyRingService.class,
                                                       null);
       log.info("Running in standalone mode");
@@ -397,7 +401,7 @@ public class SecurityServiceProvider
 	newSP = new UserSSLServiceProvider(serviceBroker, mySecurityCommunity);
 	services.put(UserSSLService.class, newSP);
 	rootServiceBroker.addService(UserSSLService.class, newSP);
-	krs.getDirectoryKeyStore().finishInitialization();
+	krs.finishInitialization();
       }
     }
     LDMService ldms =null;
@@ -409,7 +413,7 @@ public class SecurityServiceProvider
 	LDMServesPlugin ldm=ldms.getLDM();
 	newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
 	services.put(CrlManagementService.class, newSP);
-	rootServiceBroker.addService(CrlManagementService.class, newSP);    
+	rootServiceBroker.addService(CrlManagementService.class, newSP);
       }
     }
     else {
@@ -428,7 +432,7 @@ public class SecurityServiceProvider
    log.debug("Root service broker is :"+rootServiceBroker.toString());
    log.debug("Service broker is :"+ serviceBroker.toString());
   }
-  
+
   private class LDMServiceAvailableListener implements ServiceAvailableListener
   {
     public void serviceAvailable(ServiceAvailableEvent ae) {
@@ -442,14 +446,14 @@ public class SecurityServiceProvider
 	  LDMServesPlugin ldm=ldms.getLDM();
 	  newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
 	  services.put(CrlManagementService.class, newSP);
-	  rootServiceBroker.addService(CrlManagementService.class, newSP);    
+	  rootServiceBroker.addService(CrlManagementService.class, newSP);
 	  log.info("Added  CrlManagementService service  ");
 	}
 	else {
 	  log.info("LDM Service is null in LDMServiceAvailableListener  ");
 	}
       }
-      
+
     }
   }
   private class BBServiceAvailableListener implements ServiceAvailableListener {
@@ -460,9 +464,9 @@ public class SecurityServiceProvider
       if( org.cougaar.core.service.BlackboardService.class.isAssignableFrom(sc)) {
 	//bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
 	log.debug("Black Board  Service is available now in Security Service provider "+ sc.getName());
-	
+
       }
-      
+
     }
    }
 }
