@@ -31,6 +31,7 @@ import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.blackboard.NotificationObject;
+import org.cougaar.core.security.monitoring.blackboard.MnRManagerObject;
 import org.cougaar.core.security.monitoring.idmef.AgentRegistration;
 import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
@@ -181,6 +182,11 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
                            + myAddress.toAddress());
       loggingService.debug("Using CommunityServiceUtil for getSecurityCommunity:");
     }
+    MnRManagerObject mgrObject=new MnRManagerObject(myAddress);
+    getBlackboardService().publishAdd(mgrObject);
+    if (loggingService.isDebugEnabled()) {
+      loggingService.debug("Mgr Object is published");
+    }
     _csu.amIRoot(new RegistrationListener());
         
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate(loggingService));
@@ -197,7 +203,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
             _managerAddress = mgrAddress;
             loggingService.debug("Found security manager('" + _managerAddress + "') for manager('" + myAddress + "')");
             getBlackboardService().openTransaction();
-            loggingService.info("Publishing notification object :");
+            if(loggingService.isDebugEnabled()){
+              loggingService.debug("Publishing notification object :");
+            }
             getBlackboardService().publishAdd(new NotificationObject());
             getBlackboardService().closeTransaction(); 
           }
@@ -1187,7 +1195,10 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  }
 	}
       };
-    _csu.findSecurityManager(listener);
+    if(loggingService.isDebugEnabled()){
+      loggingService.debug("Calling CommunityService util findSecurityManager :"+ myAddress);
+    }
+    _csu.findSecurityManager(CommunityServiceUtil.MONITORING_SECURITY_COMMUNITY_TYPE,listener);
   }
 
   private class RegistrationListener implements CommunityServiceUtilListener {
