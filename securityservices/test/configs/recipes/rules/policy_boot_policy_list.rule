@@ -238,7 +238,7 @@ Policy UnrestServlet = [
    GenericTemplate
    Priority = 2,
    $Actor.owl#Person is authorized to perform
-   $Action.owl#AccessAction as long as
+   $Ultralog/UltralogAction.owl#ServletAccess as long as
     the value of $Ultralog/UltralogAction.owl#accessedServlet
     is a subset of the set { $Ultralog/Names/EntityInstances.owl#OtherServlets 
                              $Ultralog/Names/EntityInstances.owl#CAReadServlet 
