@@ -111,7 +111,7 @@ class Security3c2 < SecurityStressFramework
     # and we can test that the receiver is blocking the message.
      uri = nil
      logInfoMsg "agent1.kind_of: #{agent1.type}"
-     if (agent1.instance_of? Cougaar::Model::Agent)
+     if (agent1.kind_of? Cougaar::Model::Agent)
        uri = agent1.node.uri
      else
        uri = agent1.uri
@@ -145,7 +145,7 @@ class Security3c2 < SecurityStressFramework
     url = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=false"
     result, url = Cougaar::Communications::HTTP.get(url)
     if !(result =~ /Success/)
-      saveAssertion("Stress5k104", "Unable to re-enable CRL msg at #{agent1.name}")
+      saveAssertion("Stress5k104", "Unable to re-enable CRL msg at #{agent1.name}\nURL: #{url}\n#{result}")
     end
 
     # Now that the sender has CRLs, try again.
