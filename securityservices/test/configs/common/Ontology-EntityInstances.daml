@@ -101,4 +101,16 @@
     <ultralogEntity:ULContentValue rdf:ID="Unload"/>
     <ultralogEntity:ULContentValue rdf:ID="UserInput"/>
     <ultralogEntity:ULContentValue rdf:ID="Withdraw"/>
+
+    <ultralogEntity:PlugInRoles rdf:ID="OpPlanPlugInRole" />
+
+    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessAdd" />
+    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessRemove" />
+    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessChange" />
+    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessQuery" />
+    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessRead" />
+    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessWrite" />
+    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessCreate" />
+
+
 </rdf:RDF>
