@@ -22,6 +22,8 @@ package org.cougaar.core.security.policy.builder;
 
 import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
 
+import com.hp.hpl.jena.daml.common.DAMLModelImpl;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -45,6 +47,7 @@ import kaos.core.util.SymbolNotFoundException;
 import kaos.kpat.util.OperatingModeCondition;
 import kaos.policy.information.DAMLPolicyContainer;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
+
 import org.cougaar.core.security.policy.builder.PolicyParser;
 
 import com.hp.hpl.mesa.rdf.jena.model.RDFException;
@@ -531,13 +534,22 @@ class Main
       if (attrib.getName().equals(AttributeMsg.DAML_CONTENT)) {
         // first read the policy specific data
         DAMLPolicyContainer dpc = (DAMLPolicyContainer) attrib.getValue();
-        
+        DAMLModelImpl       model = null;
 
         System.out.println("DAML = ");
         dpc.getPolicyModel().write(new PrintWriter(System.out),
                                    "RDF/XML-ABBREV");
+        System.out.println("controls = ");
         dpc.getControlActionModel().write(new PrintWriter(System.out),
                                            "RDF/XML-ABBREV");
+        if ((model = dpc.getTriggerActionModel()) != null) {
+          System.out.println("trigger = ");
+          model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
+        }
+        if ((model = dpc.getConditionActionModel()) != null) {
+          System.out.println("Condition = ");
+          model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
+        }
       }
     }
   }

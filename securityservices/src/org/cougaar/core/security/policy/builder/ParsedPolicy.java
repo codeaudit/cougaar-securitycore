@@ -38,7 +38,7 @@ public abstract class ParsedPolicy
 {
   protected String  _policyName;
   protected int     _priority;
-  protected boolean _modality;
+  protected String  _modality;
   protected String  _action;
   protected String  _actor;
   protected String  _description;
@@ -49,7 +49,7 @@ public abstract class ParsedPolicy
 
   ParsedPolicy(String  policyName,
                int     priority,
-               boolean modality,
+               String  modality,
                String  actor,
                String  action)
   {
@@ -61,14 +61,14 @@ public abstract class ParsedPolicy
     _conditionalMode = null;
   }
 
+  /*
+   * Get and set methods
+   */
+
   public String getPolicyName()
   {
     return _policyName;
   }
-
-  /*
-   * Get and set methods
-   */
 
   public String getActor()
   {
@@ -137,7 +137,8 @@ public abstract class ParsedPolicy
     }
   }
 
-  
+
+
 
   public abstract DAMLPolicyBuilderImpl
     buildPolicy(OntologyConnection ontology)
@@ -173,11 +174,7 @@ public abstract class ParsedPolicy
       try {
         _pb.setPolicyIDAndModalityType("#policy-grammarGenerated-" 
                                        + UniqueIdentifier.GenerateUID(), 
-                                       (_modality ?
-                                        kaos.ontology.jena.PolicyConcepts.
-                                        _PosAuthorizationPolicy_               : 
-                                        kaos.ontology.jena.PolicyConcepts.
-                                        _NegAuthorizationPolicy_));
+                                       _modality);
       } catch (SpecifiedModalityTypeNotExists e) {
         RuntimeException fatal 
           = new RuntimeException("This should be impossible - CODING ERROR");

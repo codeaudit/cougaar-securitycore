@@ -28,7 +28,7 @@ import java.util.Vector;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
 
-public class GenericParsedPolicy extends ParsedPolicy
+public class GenericParsedPolicy extends ParsedAuthenticationPolicy
 {
   private List _parsedTargets;
 

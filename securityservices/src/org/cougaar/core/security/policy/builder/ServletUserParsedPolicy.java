@@ -25,7 +25,7 @@ import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
-public class ServletUserParsedPolicy extends ParsedPolicy
+public class ServletUserParsedPolicy extends ParsedAuthenticationPolicy
 {
    
   final String _servletClass

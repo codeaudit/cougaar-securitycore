@@ -35,7 +35,7 @@ import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
 
-public class BlackboardParsedPolicy extends ParsedPolicy
+public class BlackboardParsedPolicy extends ParsedAuthenticationPolicy
 {
   private Set    _accessModes;
   private Set    _objectTypes;

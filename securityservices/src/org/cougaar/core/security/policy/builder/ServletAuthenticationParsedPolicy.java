@@ -34,7 +34,7 @@ import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
-public class ServletAuthenticationParsedPolicy extends ParsedPolicy
+public class ServletAuthenticationParsedPolicy extends ParsedAuthenticationPolicy
 {
   final String _servletClass = UltralogEntityConcepts._Servlet_;
   final String _authClass = UltralogEntityConcepts._AuthenticationLevel_;
