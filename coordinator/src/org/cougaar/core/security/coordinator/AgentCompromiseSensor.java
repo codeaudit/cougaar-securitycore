@@ -64,6 +64,12 @@ public class AgentCompromiseSensor extends ComponentPlugin
         }
       };
 
+    private final UnaryPredicate diagnosisPredicate = new UnaryPredicate() {
+      public boolean execute(Object o) {
+        return (o instanceof AgentCompromiseDiagnosis);
+      }
+    };
+
     public void load() {
         super.load();
         sb = getServiceBroker();
@@ -122,61 +128,45 @@ public class AgentCompromiseSensor extends ComponentPlugin
         }
 
         blackboard.publishRemove(info);
+
       }
         
     }
 
     private void initAgentCompromiseDiagnosis() {
+      Collection c = blackboard.query(diagnosisPredicate);
+      Iterator iter = c.iterator();
+      while (iter.hasNext()) {
+        AgentCompromiseDiagnosis diagnosis = (AgentCompromiseDiagnosis)iter.next();
+        blackboard.publishRemove(diagnosis);
+      }
+
       final CommunityServiceUtilListener csu = new CommunityServiceUtilListener() {
         public void getResponse(Set agents) {
-          if(log.isDebugEnabled()){
-            log.debug(" call back for community is called :" + agents );
-          }
-          Iterator it = agents.iterator();
-          ArrayList agentList = new ArrayList();
-          while (it.hasNext()) {
-            Entity agent = (Entity)it.next();  
-            String agentName = agent.getName();
-            // new entity?
-            if (_agentCache.get(agentName) == null) {
-              agentList.add(agentName);             
-            }
-          }
-
-          // remove agent that is no longer in the community
-          // remove the diagnosis if it exists before (MnR manager restarted or agent moved across enclave)
-          Collection removeList = new ArrayList();
-          for (Enumeration en = _agentCache.keys(); en.hasMoreElements(); ) {
-            String agent = (String)en.nextElement();
-            if (!agents.contains(agent)) {
-              removeList.add(agent);
-            }
-          } 
-
-          it = removeList.iterator();
-          while (it.hasNext()) {    
-            String agent = (String)it.next();
-            AgentCompromiseDiagnosis diagnosis = (AgentCompromiseDiagnosis)_agentCache.get(agent);
-
-            if (log.isDebugEnabled()) {
-              log.debug("Removing previous diagnosis for " + agent);
-            }
-            _agentCache.remove(agent);
-
-            blackboard.publishRemove(diagnosis);
-          }
-
-          it = agentList.iterator();
-          while (it.hasNext()) {
-            String agentName = (String)it.next();
-            createDiagnosis(agentName);
-          }
+          setupRole(agents);
         }
       };
       _csu.getCommunityAgent(CommunityServiceUtil.MONITORING_SECURITY_COMMUNITY_TYPE, 
         CommunityServiceUtil.MEMBER_ROLE, csu, true);
     }
 
+    private synchronized void setupRole(Set agents) {
+          if(log.isDebugEnabled()){
+            log.debug(" call back for community is called :" + agents );
+          }
+          Iterator it = agents.iterator();
+          blackboard.openTransaction();
+          while (it.hasNext()) {
+            Entity agent = (Entity)it.next();  
+            String agentName = agent.getName();
+            // new entity?
+            if (_agentCache.get(agentName) == null) {
+              createDiagnosis(agentName);
+            }
+          }
+
+          blackboard.closeTransaction();
+    }
 
     private void createDiagnosis(String agent) {
       if (techspecError) {

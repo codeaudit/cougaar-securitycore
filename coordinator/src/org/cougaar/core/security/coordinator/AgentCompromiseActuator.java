@@ -98,6 +98,12 @@ public class AgentCompromiseActuator extends ComponentPlugin
           log.debug("received action: " + action);
         }
 
+        // check whether action has start or stopped
+        ActionRecord lastAction = action.getValue();
+        if (lastAction != null && lastAction.getAction().equals(AgentCompromiseAction.RESTART)) {
+          continue;
+        }
+
         Set newPV = action.getNewPermittedValues(); 
         if (newPV != null) {
           if (newPV.size() != 1) {
@@ -108,6 +114,12 @@ public class AgentCompromiseActuator extends ComponentPlugin
           Iterator values = newPV.iterator();
           String value = (String)values.next();
           if (value.equals(AgentCompromiseAction.RESTART)) {
+            // inform MnR to restart
+            if (action.getCompromiseInfo() == null) {
+              log.error("There is no info on the compromise for " + action);
+              continue;
+            }
+
             try {
               action.start(value);
               blackboard.publishChange(action);
@@ -117,12 +129,6 @@ public class AgentCompromiseActuator extends ComponentPlugin
               log.error("Illegal actionValue = "+action,e);
               continue;
             } 
-
-            // inform MnR to restart
-            if (action.getCompromiseInfo() == null) {
-              log.error("There is no info on the compromise for " + action);
-              continue;
-            }
 
             action.getCompromiseInfo().setType(AgentCompromiseInfo.ACTION);
             blackboard.publishAdd(action.getCompromiseInfo());      

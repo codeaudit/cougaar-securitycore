@@ -129,6 +129,8 @@ public class ThreatConLevelSensor extends ComponentPlugin
           if(log.isDebugEnabled()){
             log.debug(" call back for community is called :" + resp );
           }
+          blackboard.openTransaction();
+
           if((resp!=null)&& (!resp.isEmpty())){
             Iterator it = resp.iterator();
             if (resp.size() > 1) {
@@ -137,6 +139,8 @@ public class ThreatConLevelSensor extends ComponentPlugin
             Community community = (Community)it.next();
             createDiagnosis(community.getName());
           }
+          blackboard.closeTransaction();
+
         }
       };
       _csu.getManagedSecurityCommunity(csu);
