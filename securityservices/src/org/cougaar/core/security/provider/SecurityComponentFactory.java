@@ -60,8 +60,7 @@ public final class SecurityComponentFactory
   private void setLoggingService() {
     if (log == null) {
       ServiceBroker sb = bindingSite.getServiceBroker();
-      log = (LoggingService)
-	sb.getService(this,
+      log = (LoggingService)	sb.getService(this,
 		      LoggingService.class, null);
     }
   }
