@@ -134,6 +134,12 @@ public class KeyManagement
     throws CertificateEncodingException, IOException
   {
     X509Certificate[] certs = processPkcs10Request(request, caDN);
+    base64EncodeCertificates(out, certs);
+  }
+
+  public void base64EncodeCertificates(PrintStream out, X509Certificate[] certs)
+    throws CertificateEncodingException, IOException
+  {
     for (int i = 0 ; i < certs.length ; i++) {
       base64encode(out, certs[i].getEncoded(), PKCS7HEADER, PKCS7TRAILER);
     }
