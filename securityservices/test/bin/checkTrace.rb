@@ -5,12 +5,16 @@ $stdout.sync = true
 $stderr.sync = true
 
 # Add extra arguments to the grep function. For example, "-c" will report a count only
-$extraargs = ARGV
+#$extraargs = ARGV
 
 # The directory where the log files are located
 $logFileDirectory = "#{CIP}/workspace/log4jlogs"
 #$logFileDirectory = "#{CIP}/../srosset/log4jlogs"
 
+if ARGV.size > 0 &&  ARGV[0] != nil
+  $logFileDirectory = ARGV[0]
+end
+puts "Checking files under #{$logFileDirectory}"
 # True if performing a check for transient issues (e.g. issues that should disappear after a while)
 $searchTransientIssues=true
 
@@ -18,21 +22,21 @@ def getStartupTime(fileName)
   aFile = File.new(fileName, "r")
   firstLine = aFile.readline
   aFile.close
-  return getTime(firstLine)
+  return parseEvent(firstLine)[0]
 end
 
-def getTime(line)
+def parseEvent(line)
   startuptime = nil
-  line.scan(/^([0-9]*):([0-9]*):([0-9]*),([0-9]*) SHOUT(.*)/) { |x|
+  message = nil
+  line.scan(/^([0-9]*)-([0-9]*)-([0-9]*) ([0-9]*):([0-9]*):([0-9]*),([0-9]*) SHOUT(.*)/) { |x|
     time = x[0]
     #puts x[0] , x[1]
     # Time looks like this:
-    # 20:51:22,234
-    date = Time.now
-    startuptime = Time.local(date.year, date.month, date.day, x[0], x[1], x[2])
+    # 2004-04-12 20:51:22,234
+    startuptime = Time.local(x[0], x[1], x[2], x[3], x[4], x[5])
+    message = x[7]
   }
-
-  return startuptime
+  return [startuptime, message]
 end
 
 # Search for exceptions and log4j errors, warnings, fatals
@@ -50,7 +54,7 @@ $badMessages = [
 # The timeout is a time after which we should not see the message. For example, there
 # might be transient issues at startup, but after a while we should not see those issues.
 
-$startupTime = 10 * 60
+$startupDelay = 10 * 60
 
 $okMessages = [
   # ############################################################### 
@@ -68,50 +72,50 @@ $okMessages = [
   # ############################################################### 
   # An agent is unable to send a PKCS certificate signing request to the CA.
   # This may happen at startup if the CA agent is not up yet or is too busy.
-  [$startupTime, "Unable to send PKCS"],
+  [$startupDelay, "Unable to send PKCS"],
   # A Jar file was not signed properly.
   # This may happen at startup. Ruby is still in the middle of generating jar files,
   # but some nodes have already started and they are checking the signatures of all the jar files.
-  [$startupTime, "xml\.jar cannot be trusted"],
-  [$startupTime, "ConfigFinder - Unable to add entry"],
-  [$startupTime, "Caused by: java.lang.Exception: Jar file does not have any certificate"],
+  [$startupDelay, "xml\.jar cannot be trusted"],
+  [$startupDelay, "ConfigFinder - Unable to add entry"],
+  [$startupDelay, "Caused by: java.lang.Exception: Jar file does not have any certificate"],
   # The MTS was unable to send a message out.
   # This may happen at startup if the agent does not have a certificate, or if 
   # the remote agent does not have a certificate.
   # This applies to all four messages below.
-  [$startupTime, "DestinationQueueImpl - Failure in communication"],
-  [$startupTime, "MarshalException: error marshalling arguments"],
-  [$startupTime, "error during JRMP connection"],
-  [$startupTime, "java\.rmi\.ServerException: RemoteException occurred in server thread"],
-  [$startupTime, "java\.rmi\.UnmarshalException: error unmarshalling arguments"],
+  [$startupDelay, "DestinationQueueImpl - Failure in communication"],
+  [$startupDelay, "MarshalException: error marshalling arguments"],
+  [$startupDelay, "error during JRMP connection"],
+  [$startupDelay, "java\.rmi\.ServerException: RemoteException occurred in server thread"],
+  [$startupDelay, "java\.rmi\.UnmarshalException: error unmarshalling arguments"],
 
   # Jena is not happy when reading files with relative paths.
   # See http://groups.yahoo.com/group/jena-dev/message/5266
   # TODO: This should really be fixed.
-  [$startupTime, "{W130} Base URI is \"\""],
+  [$startupDelay, "{W130} Base URI is \"\""],
   # TODO: what is this? Probably Kaos
-  [$startupTime, "{W101} Unqualified use of rdf:ID has been deprecated"],
-  [$startupTime, "{W101} Unqualified use of rdf:resource has been deprecated"],
+  [$startupDelay, "{W101} Unqualified use of rdf:ID has been deprecated"],
+  [$startupDelay, "{W101} Unqualified use of rdf:resource has been deprecated"],
   # A message has been received in the clear.
   # In this specific circumstance, this is ok because RMI over SSL was used.
-  [$startupTime, "Could not use protection level: SecureMethodParam: PLAIN null "],
+  [$startupDelay, "Could not use protection level: SecureMethodParam: PLAIN null "],
   # Ignorable KAoS warning
-  [$startupTime, "Guard is already set"],
+  [$startupDelay, "Guard is already set"],
   # A node is trying to communicate with the CA in order to submit a certificate
   # signing request (CSR). The CSR is submitted through https.
   # However, the SSL server-side certificate is not valid yet, most likely because it
   # has not been signed by a root CA yet.
-  [$startupTime, "Host cert has not been signed by CA yet"],
+  [$startupDelay, "Host cert has not been signed by CA yet"],
   # A node is not able to find the certificate among its local identities, i.e., not a local agent.
   # This is not a correct warning, it warns about certificate from other nodes, which does not have
   # a local identity.
   # Complete message is:
   #   NameServerCertificateComponent - Fail to update node certificate for <node-name>
-  [$startupTime, "Fail to update node certificate for"],
+  [$startupDelay, "Fail to update node certificate for"],
   # The adaptivity engine complains that no plugin has published a condition.
   # However, there is no guarantee that the M&R plugin will be started before the
   # adaptivity engine. Eventually, the plugin will be loaded and publish the condition
-  [$startupTime, "No Condition named org\.cougaar\.core\.security\.monitoring\.LOGIN_FAILURE_RATE"],
+  [$startupDelay, "No Condition named"],
  
   # ############################################################### 
   # Robustness messages
@@ -120,7 +124,7 @@ $okMessages = [
   # amount of time.
   # This may happen at startup when messages stay in the queue for a long time because
   # agents do not have a certificate yet.
-  [$startupTime, "MessageTimeoutAspect"],
+  [$startupDelay, "MessageTimeoutAspect"],
   # ############################################################### 
   # Logistics warnings
   # ############################################################### 
@@ -177,61 +181,64 @@ def buildOkPattern()
   return okPattern
 end
 
-def searchIssues(removeOkPattern, logResultsDir)
-  startupTime = 0
+def getLogResultsFileName
+  if ($logResultsFileName == nil) 
+    $logResultsFileName = "log4j-issues-#{Time.new.strftime("%m-%d-%Y_%H:%M:%S")}.log"
+  end
+  return $logResultsFileName;
+end
+
+def searchIssues(removeOkPattern)
+  $startupTime = 0
   badPattern = buildBadPattern()
   okPattern = buildOkPattern()
-  if (logResultsDir != nil)
-    Dir.mkdir(logResultsDir)
-  end
+  logResultsFileName = getLogResultsFileName()
+  puts "Log4j issues saved to #{logResultsFileName}"
   Dir.new($logFileDirectory).each do |filename|
     next if !( filename =~ /\.log/ )
     filepath = "#{$logFileDirectory}/#{filename}"
-    puts "++ Checking #{filepath}"
+    command = "echo ++ Checking #{filepath} | tee -a #{logResultsFileName} 2>&1"
+    system(command)
 
-=begin
     time = getStartupTime(filepath)
-    if ((time <=> startupTime) == -1) || startupTime == 0
-      startupTime = time
-      #puts "Set startup time: " + startupTime.to_s
+    if ((time <=> $startupTime) == -1) || $startupTime == 0
+      $startupTime = time
+      #puts "Set startup time: " + startupDelay.to_s
     end
-=end
     if (removeOkPattern) 
-      command="grep #{badPattern} #{filepath} | grep #{$extraargs} #{okPattern}"
+      #command="grep #{badPattern} #{filepath} | grep #{$extraargs} #{okPattern}"
+      command="grep #{badPattern} #{filepath} | grep #{okPattern}"
     else
       command="grep #{badPattern} #{filepath}"
     end
-    if logResultsDir != nil
-      logResultsFileName = logResultsDir + "/" + filename
-      command << " | tee #{logResultsFileName}"
-    end
+    command << " | tee -a #{logResultsFileName} 2>&1"
     #puts command
     system(command)
   end
-  return startupTime
+  return $startupTime
 end
 
 def searchTransientIssues()
+  logResultsFileName = getLogResultsFileName()
   resultsDir = "#{CIP}/workspace/logAnalysis"
-  startupTime = searchIssues(false, resultsDir)
+  startupDelay = searchIssues(false, resultsDir)
   Dir.new(resultsDir).each do |filename|
-    parseTimeRelatedEvents(filename, startupTime)
+    parseTimeRelatedEvents(filename, startupDelay)
   end
 end
 
-def parseTimeRelatedEvents(fileName, startupTime)
+def parseTimeRelatedEvents(fileName, startupDelay)
   aFile = File.new(fileName, "r")
   aFile.each_line { |line|
-    time = getTime(line)
-    event = getEvent(line)
-    okMessage.each do |x|
-      if x[0] == nil 
-        continue
-      end
+    ar = parseEvent(line)
+    time = ar[0]
+    message = ar[1]
+    if ( (time <=> ($startupTime + $startupDelay)) == -1)
+      # This might be a transient issue
     end
   }
   aFile.close
 end
 
-searchIssues(true, nil)
+searchIssues(true)
 
