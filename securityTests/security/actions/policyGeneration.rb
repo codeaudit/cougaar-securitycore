@@ -43,6 +43,10 @@ module Cougaar
         raise "AbstractClass"
       end
 
+      def fromConfig
+        false
+      end
+
       def perform
         raise "Abstract Class"
       end
@@ -71,6 +75,7 @@ module Cougaar
               mutex.synchronize do
                 debug "committing policy"
                 result = commitPolicy(host, port, manager, 
+                                      (fromConfig() ? "--useConfig " : "") +
                                       (isDelta() ? "setpolicies" : "commit") +
                                       (precompiled ? " " : " --dm "),
                                       file,@staging)
@@ -85,7 +90,7 @@ module Cougaar
           debug "starting wait"
           pws.each do |pw|
             debug "waiting  for node #{pw}"
-            if !pw.wait(300) then
+            if !pw.wait(3000) then
               raise "Policy did not propagate"
             end
             debug "#{pw} wait completed."
@@ -110,6 +115,31 @@ module Cougaar
       end
     end
 
+
+    class InstallBootPolicies < Cougaar::Actions::GeneratePoliciesAction
+      def initialize(run, wait)
+        super(run)
+        @run = run
+        @wait = wait
+        @staging = File.join(CIP, "workspace")
+      end
+
+      def policyFileName
+        "OwlBootPolicyList"
+      end
+
+      def isDelta()
+        false
+      end
+
+      def fromConfig()
+        true
+      end
+
+      def perform()
+        commitPolicies(false, @wait)
+      end
+    end
 
     class BuildURPolicies < Cougaar::Actions::GeneratePoliciesAction
       def initialize(run,
