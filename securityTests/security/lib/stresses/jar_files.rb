@@ -51,7 +51,7 @@ class CleanupJarFiles < SecurityStressFramework
       File.stat(KEYSTORE_BACKUP)
       File.rename(KEYSTORE_BACKUP, KEYSTORE_FILE)
     rescue => ex
-      logInfoMsg "Did not restore backup keystore: #{ex}"
+      #logInfoMsg "Did not restore backup keystore: #{ex}"
     end
     begin
       basedir = "#{CIP}/configs/security"
