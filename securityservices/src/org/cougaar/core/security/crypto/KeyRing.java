@@ -1531,12 +1531,15 @@ final public class KeyRing  implements KeyRingService  {
 	}
 
         if (commonname!=null && commonname.equals(NodeInfo.getNodeName())) {
+        /* This functionality will be performed in KeyManagement
+          CA only needs to be updated to NS
           if (cryptoClientPolicy.isCertificateAuthority()) {
             X500Name [] caDNs = configParser.getCaDNs();
             if (caDNs.length != 0) {
               publishCAToLdap(caDNs[0].getName());
             }
           }
+          */
           updateNS(dname);
           handleRequestedIdentities(trustedCaPolicy);
         }
@@ -1618,10 +1621,10 @@ final public class KeyRing  implements KeyRingService  {
   }
 
 
-  private void publishCAToLdap(String caDN) {
     /*
       this method needs to be modifed inoder to incorporate
       publishing CA to wp/yp or ldap
+  private void publishCAToLdap(String caDN) {
       CertificateManagementService km = (CertificateManagementService)
       param.serviceBroker.getService(
       new CertificateManagementServiceClientImpl(caDN),
@@ -1629,8 +1632,8 @@ final public class KeyRing  implements KeyRingService  {
       null);
       if (log.isDebugEnabled())
       log.debug("adding CA certificate to LDAP: " + caDN);
-    */
   }
+  */
 
 
   public X509Certificate[] buildCertificateChain(X509Certificate certificate) {
@@ -2300,6 +2303,17 @@ final public class KeyRing  implements KeyRingService  {
       }
     }
 
+  public List getX500NameFromNameMapping(String name) {
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
+    if(cacheservice==null) {
+      log.warn(" Unable to get Certificate Cache service in findPrivateKey");
+      return null;
+    }
+    return cacheservice.getX500NameFromNameMapping(name);
+  }
 
 }
 
