@@ -94,7 +94,8 @@ public class KeyManagement
     return reply;
   }
 
-  public void processPkcs10Request(PrintStream out, InputStream request, String caDN) {
+  public X509CertImpl[] processPkcs10Request(InputStream request, String caDN) {
+    ArrayList ar = new ArrayList();
     try {
       // First, get all the PKCS10 requests in an array list.
       ArrayList requests = getSigningRequests(request);
@@ -109,9 +110,7 @@ public class KeyManagement
 	PKCS10 req = (PKCS10)i.next();
 
 	X509CertImpl clientX509 = signX509Certificate(req, caDN);
-
-	base64encode(out, clientX509.getEncoded(), PKCS7HEADER, PKCS7TRAILER);
-
+	ar.add(clientX509);
 	// Save the X509 reply in a file
 	saveX509Request(clientX509, caX509);
 
@@ -120,8 +119,23 @@ public class KeyManagement
       }
     }
     catch (Exception e) {
-      System.out.println("Unable to proocess request: " + e);
+      System.out.println("Unable to process request: " + e);
       e.printStackTrace();
+    }
+
+    X509CertImpl[] reply = new X509CertImpl[ar.size()];
+    for (int i = 0 ; i < ar.size() ; i++) {
+      reply[i] = (X509CertImpl)ar.get(i);
+    }
+    return reply;
+  }
+
+  public void processPkcs10Request(PrintStream out, InputStream request, String caDN)
+    throws CertificateEncodingException, IOException
+  {
+    X509CertImpl[] certs = processPkcs10Request(request, caDN);
+    for (int i = 0 ; i < certs.length ; i++) {
+      base64encode(out, certs[i].getEncoded(), PKCS7HEADER, PKCS7TRAILER);
     }
   }
 
