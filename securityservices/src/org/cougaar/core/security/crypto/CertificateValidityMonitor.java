@@ -36,6 +36,8 @@ import org.cougaar.core.service.LoggingService;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 public class CertificateValidityMonitor
   implements CertValidityService, Runnable {
@@ -44,6 +46,7 @@ public class CertificateValidityMonitor
   LoggingService log = null;
 
   static Hashtable certListeners = new Hashtable();
+  static List validityListeners = new ArrayList();
   long sleep_time = 60L * 60L * 1000L; // checking every hour
 
   public CertificateValidityMonitor(ServiceBroker sb) {
@@ -123,6 +126,14 @@ public class CertificateValidityMonitor
   }
   */
 
+  public void invalidate(String commonName) {
+    for (int i = 0; i < validityListeners.size(); i++) {
+      CertValidityListener listener = (CertValidityListener)
+        validityListeners.get(i);
+      listener.invalidate(commonName);
+    }
+  }
+
   public void updateCertificate(String commonName) {
     Vector v = (Vector)certListeners.get(commonName);
     if (v == null) {
@@ -135,7 +146,13 @@ public class CertificateValidityMonitor
   }
 
   public void addValidityListener(CertValidityListener listener) {
-    Vector v = (Vector)certListeners.get(listener.getName());
+    String name = listener.getName();
+    if (name == null) {
+      log.warn("No name for listener, cannot apply to addValidityListener");
+      return;
+    }
+
+    Vector v = (Vector)certListeners.get(name);
     if (v == null) {
       v = new Vector();
       certListeners.put(listener.getName(), v);
@@ -143,4 +160,7 @@ public class CertificateValidityMonitor
     v.add(listener);
   }
 
+  public void addInvalidateListener(CertValidityListener listener) {
+    validityListeners.add(listener);
+  }
 }
