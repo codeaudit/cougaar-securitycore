@@ -16,7 +16,7 @@
 <!ATTLIST Attribute Value CDATA #REQUIRED>
 ]>
 <Communities>
-   <Community Name="CommunityX">
+   <Community Name="X">
       <Entity Name="EnclaveOneWorkerA" >
          <Attribute ID="EntityType" Value="Agent" />
          <Attribute ID="Role"       Value="Member" />
@@ -30,7 +30,7 @@
          <Attribute ID="Role"       Value="Member" />
       </Entity>
    </Community>
-   <Community Name="CommunityY">
+   <Community Name="Y">
       <Entity Name="EnclaveOneWorkerA" >
          <Attribute ID="EntityType" Value="Agent" />
          <Attribute ID="Role"       Value="Member" />
