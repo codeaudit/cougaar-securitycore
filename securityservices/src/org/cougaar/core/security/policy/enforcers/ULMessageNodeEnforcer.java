@@ -30,7 +30,6 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import kaos.core.util.AttributeMsg;
-import kaos.core.util.SubjectListedPolicyMsg;
 import kaos.ontology.jena.*;
 import kaos.ontology.matching.*;
 import kaos.policy.information.KAoSProperty;
@@ -49,7 +48,6 @@ import org.cougaar.core.component.ServiceAvailableEvent;
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
-import kaos.policy.guard.PolicyDistributor;
 
 import safe.enforcer.AgentEnforcer;
 import safe.enforcer.NodeEnforcer;
@@ -61,7 +59,7 @@ import safe.ontology.jena.UltralogActionConcepts;
  * This class is responsible for enforcing policy for Ultralog messages.
  */
 public class ULMessageNodeEnforcer
-    implements NodeEnforcer, PolicyDistributor
+    implements NodeEnforcer
 {
   private ServiceBroker _sb;
   protected LoggingService _log;
@@ -166,77 +164,6 @@ public class ULMessageNodeEnforcer
       _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
       throw new RuntimeException("Cannot get guard");
     }
-  }
-
-
-  /**
-   * This method will allow the enforcer to receive policy updates.
-   */
-  public void receivePolicyUpdate(String updateType, List policies)
-  {
-    _log.debug("ULMessageNodeEnforcer:-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
-    _log.debug("ULMessageNodeEnforcer:This dummy got the message (err... policy)");
-    Iterator policyIterator = policies.iterator();
-    while (policyIterator.hasNext()) {
-      Object policyObject = policyIterator.next();
-      _log.debug("ULMessageNodeEnforcer:---------A Policy--------------");
-      _log.debug("ULMessageNodeEnforcer:Update type = " + updateType);
-      if (!(policyObject instanceof SubjectListedPolicyMsg)) {
-        _log.debug("ULMessageNodeEnforcer:.ULMessageNodeEnforcer:Don't handle this type of message");
-        return;
-      }
-      SubjectListedPolicyMsg policy = (SubjectListedPolicyMsg) policyObject;
-      Iterator subjectIterator 
-        = policy.getApplicableSubjectIDs().iterator();
-      while (subjectIterator.hasNext()) {
-        _log.debug("ULMessageNodeEnforcer:Subject = " + subjectIterator.next());
-      }
-      Iterator attributeIterator
-        = policy.getAttributes().iterator();
-      while (attributeIterator.hasNext()) {
-        AttributeMsg attribute
-          = (AttributeMsg) attributeIterator.next();
-        if (attribute.getName()
-            .equals(AttributeMsg.POLICY_INFORMATION)) {
-          PolicyInformation policyInfo
-            = (PolicyInformation) attribute.getValue();
-          _log.debug("ULMessageNodeEnforcer:Modality = " + 
-                     policyInfo.getModality());
-          _log.debug("ULMessageNodeEnforcer:Priority = " +
-                     policyInfo.getPriority());
-          for (Enumeration properties 
-                 = policyInfo.getAllProperties();
-               properties.hasMoreElements();) {
-            KAoSProperty property = 
-              (KAoSProperty) properties.nextElement();
-            _log.debug("ULMessageNodeEnforcer:KAoS property name = "
-                       + property.getPropertyName());
-            _log.debug("ULMessageNodeEnforcer:KAoS class name = " 
-                       + property.getClassName());
-            Iterator instanceIt 
-              = property.getAllInstances().iterator();
-            while (instanceIt.hasNext()) {
-              _log.debug("ULMessageNodeEnforcer:Instance = "
-                         + instanceIt.next());
-            }
-            _log.debug("ULMessageNodeEnforcer:Complement? " + 
-                       property.isComplement());
-          }
-        } else {
-          _log.debug("ULMessageNodeEnforcer:--------------Name/Value----------");
-          _log.debug("ULMessageNodeEnforcer:Name = " +  attribute.getName()
-                     + " with type " + 
-                     attribute.getName()
-                     .getClass().toString());
-          _log.debug("ULMessageNodeEnforcer:Value = " + attribute.getValue()
-                     + " with type "
-                     + attribute.getValue()
-                     .getClass().toString());
-          _log.debug("ULMessageNodeEnforcer:Selected = " + attribute.isSelected());
-        }
-      }
-    }
-    _log.debug("ULMessageNodeEnforcer:-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-");
   }
 
 
@@ -352,10 +279,11 @@ public class ULMessageNodeEnforcer
                                     sender,
                                     targets);
     Set verbs = 
-      _guard.getAllowableValuesForActionSingleTim(
+      _guard.getAllowableValuesForProperty(
                                    UltralogActionConcepts._hasSubject_,
                                    action,
-                                   HardWired.hasSubjectValues);
+                                   HardWired.hasSubjectValues,
+                                   false);
     if (verbs == null) { return false; }
     else { 
       _log.debug("end of isactionauthorized: kaosverb = " + kaosVerb);
@@ -388,10 +316,11 @@ public class ULMessageNodeEnforcer
                                     sender,
                                     targets);
     Set ciphers = 
-      _guard.getAllowableValuesForActionSingleTim(
+      _guard.getAllowableValuesForProperty(
                    UltralogActionConcepts._usedProtectionLevel_,
                    action,
-                   HardWired.usedProtectionLevelValues);
+                   HardWired.usedProtectionLevelValues,
+                   false);
     return HardWired.ulCiphersFromKAoSProtectionLevel(ciphers);
   }
 

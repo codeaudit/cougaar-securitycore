@@ -33,7 +33,6 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import kaos.core.util.AttributeMsg;
-import kaos.core.util.SubjectListedPolicyMsg;
 import kaos.ontology.jena.ActionConcepts;
 import kaos.ontology.matching.*;
 import kaos.policy.information.KAoSProperty;
@@ -51,7 +50,6 @@ import org.cougaar.planning.ldm.policy.RuleParameter;
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
-import kaos.policy.guard.PolicyDistributor;
 
 import safe.enforcer.AgentEnforcer;
 import safe.enforcer.NodeEnforcer;
@@ -63,7 +61,7 @@ import safe.guard.NodeGuard;
  * a servlet.
  */
 public class ServletNodeEnforcer
-    implements NodeEnforcer, PolicyDistributor
+    implements NodeEnforcer
 {
   private ServiceBroker _sb;
   protected LoggingService _log;
@@ -162,80 +160,6 @@ public class ServletNodeEnforcer
     }
   }
 
-
-  /**
-   * This method receives policy updates from the guard.
-   *
-   * This method is responsible for collecting the set of currently
-   * active policies together into a sorted set (sorted by
-   * priority).  It then uses that sorted list to answer questions
-   * about the policy.
-   */
-  public void receivePolicyUpdate(String updateType, List policies)
-  {
-    _log.info("ServletNodeEnforcer:This dummy got the message (err... policy)");
-    Iterator policyIterator = policies.iterator();
-    while (policyIterator.hasNext()) {
-      Object policyObject = policyIterator.next();
-      _log.info("ServletNodeEnforcer:---------A Policy--------------");
-      _log.info("ServletNodeEnforcer:Update type = " + updateType);
-      if (!(policyObject instanceof SubjectListedPolicyMsg)) {
-        _log.debug(".ServletNodeEnforcer:Don't handle this type of message");
-        return;
-      }
-      SubjectListedPolicyMsg policy = (SubjectListedPolicyMsg) policyObject;
-      Iterator subjectIterator 
-        = policy.getApplicableSubjectIDs().iterator();
-      while (subjectIterator.hasNext()) {
-        _log.info("ServletNodeEnforcer:Subject = " + subjectIterator.next());
-      }
-      Iterator attributeIterator
-        = policy.getAttributes().iterator();
-      while (attributeIterator.hasNext()) {
-        AttributeMsg attribute
-          = (AttributeMsg) attributeIterator.next();
-        if (attribute.getName()
-            .equals(AttributeMsg.POLICY_INFORMATION)) {
-          PolicyInformation policyInfo
-            = (PolicyInformation) attribute.getValue();
-          _log.info("ServletNodeEnforcer:Modality = " + 
-                    policyInfo.getModality());
-          _log.info("ServletNodeEnforcer:Priority = " +
-                    policyInfo.getPriority());
-          for (Enumeration properties 
-                 = policyInfo.getAllProperties();
-               properties.hasMoreElements();) {
-            KAoSProperty property = 
-              (KAoSProperty) properties.nextElement();
-            _log.info("ServletNodeEnforcer:KAoS property name = "
-                      + property.getPropertyName());
-            _log.info("ServletNodeEnforcer:KAoS class name = " 
-                      + property.getClassName());
-            Iterator instanceIt 
-              = property.getAllInstances().iterator();
-            while (instanceIt.hasNext()) {
-              _log.info("ServletNodeEnforcer:Instance = "
-                        + instanceIt.next());
-            }
-            _log.info("ServletNodeEnforcer:Complement? " + 
-                      property.isComplement());
-          }
-        } else {
-          _log.info("ServletNodeEnforcer:--------------Name/Value----------");
-          _log.info("ServletNodeEnforcer:Name = " +  attribute.getName()
-                    + " with type " + 
-                    attribute.getName()
-                    .getClass().toString());
-          _log.info("ServletNodeEnforcer:Value = " + attribute.getValue()
-                    + " with type "
-                    + attribute.getValue()
-                    .getClass().toString());
-          _log.info("ServletNodeEnforcer:Selected = " 
-                    + attribute.isSelected());
-        }
-      }
-    }
-  }
 
   /**
    ************************************************************************
@@ -394,10 +318,11 @@ public class ServletNodeEnforcer
     action.removeProperty(ActionConcepts._performedBy_);
     action.removeAllActorInstances();
     Set cipherSuites = 
-      _guard.getAllowableValuesForActionSingleTim(
+      _guard.getAllowableValuesForProperty(
                   UltralogActionConcepts._usedAuthenticationLevel_,
                   action,
-                  HardWired.usedAuthenticationLevelValues);
+                  HardWired.usedAuthenticationLevelValues,
+                  false);
     return HardWired.ulAuthSuiteFromKAoSAuthLevel(cipherSuites);
   }
 
