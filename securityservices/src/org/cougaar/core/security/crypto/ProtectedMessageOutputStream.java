@@ -175,9 +175,10 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
         _log.info("Still signing (" + _source + " -> " + _target + 
                   ") encrypted socket = " + encryptedSocket);
       }
-      PrivateKey priv = getPrivateKey(_sourceCert);
-      _signature =  new SignatureOutputStream(this.out, policy.signSpec, 
-                                              priv);
+      PrivateKey privateKey = getPrivateKey(_sourceCert);
+      _signature =  new SignatureOutputStream(this.out, 
+                                              policy.signSpec, 
+                                              privateKey);
       this.out = _signature;
       MessageDigest md = getMessageDigest(policy.signSpec);
       DigestOutputStream dout = 
@@ -225,8 +226,8 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
 
   private void getCertificates(SecureMethodParam policy) 
     throws NoKeyAvailableException, CertificateException, IOException,
-    NoSuchAlgorithmException {
-
+    NoSuchAlgorithmException 
+  {
     CertEntry certEntry;
 
     if (policy.secureMethod == policy.PLAIN) {
@@ -244,36 +245,48 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
 
     synchronized (certEntry) {
       if (certEntry.source != null && certEntry.target != null) {
+        boolean goodCache = true;
         try {
           certEntry.source.checkCertificateValidity();
           certEntry.target.checkCertificateValidity();
+          if (! _keyRing.checkPrivateKey(certEntry.source)) {
+            goodCache = false;
+            if (_log.isDebugEnabled()) {
+              _log.debug("Cached certificate does not have private key");
+            }
+          }
         } catch (Exception ex) {
           if (_log.isDebugEnabled()) {
-            _log.debug("Found invalid certificate in cache: " + ex);
+            _log.debug("Found invalid certificate in cache", ex);
           }
+          goodCache = false;
+        }
+        if (!goodCache) {
           certEntry.source = null;
           certEntry.target = null;
         }
       }
       if (certEntry.source == null || certEntry.target == null) {
-        Hashtable certs = _keyRing.findCertStatusPairFromNS(_source, _target);
+        Hashtable certs = _keyRing.findCertStatusPairFromNS(_source, 
+                                                            _target,
+                                                            true);
         if (certs != null) {
           certEntry.source = (CertificateStatus) certs.get(_source);
           certEntry.target = (CertificateStatus) certs.get(_target);
         }
       }
-      _targetCert = certEntry.target.getCertificate();
       _sourceCert = certEntry.source.getCertificate();
+      _targetCert = certEntry.target.getCertificate();
     }
 
     if (_sourceCert == null || _targetCert == null) {
-      // send a message to receiver that this message is bad:
       if (_sourceCert == null && _log.isDebugEnabled()) {
         _log.debug("Could not find sender certificate for " + _source);
       }
       if (_targetCert == null && _log.isDebugEnabled()) {
         _log.debug("Could not find target certificate for " + _target);
       }
+      // send a message to receiver that this message is bad:
       dropMessage();
       throw new NoKeyAvailableException("No valid key pair found for the " +
                                         "2 message address " + 
