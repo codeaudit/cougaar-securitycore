@@ -30,6 +30,8 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.cougaar.lib.web.tomcat.HookServlet;
+
 /**
  * This class is designed to load 
  * org.cougaar.core.security.acl.auth.SecureHookServlet if it
@@ -79,18 +81,7 @@ public class HookServletFront implements Servlet {
       }
     }
     if (_hookServlet == null) {
-      try {
-        Class c = Class.forName(_fallbackClass);
-        _hookServlet = (Servlet) c.newInstance();
-      } catch (ClassNotFoundException e) {
-        if (log) {
-          System.out.println("Error: could not find class " + _fallbackClass);
-        }
-      } catch (ClassCastException e) {
-        System.out.println("Error: the class " + _fallbackClass + " is not a Servlet");
-      } catch (Exception e) {
-        System.out.println("Critical: Could not load the class " + _fallbackClass);
-      }
+      _hookServlet = new HookServlet();
     }
   }
 

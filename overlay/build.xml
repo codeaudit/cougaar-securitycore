@@ -48,6 +48,7 @@
         <!-- Tomcat libraries -->
         <pathelement location="${cougaar.install.path}/sys/tomcat_40.jar"/>
         <pathelement location="${cougaar.install.path}/lib/webserver.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/webtomcat.jar"/>
         <!-- Cougaar packages -->
         <pathelement location="${cougaar.install.path}/lib/build.jar"/>
         <pathelement location="${cougaar.install.path}/lib/glm.jar"/>
