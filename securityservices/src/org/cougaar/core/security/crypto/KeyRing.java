@@ -506,6 +506,23 @@ final public class KeyRing  implements KeyRingService  {
       }
     }
 
+  private boolean isIgnoredCertificate(X509Certificate c) {
+    String cname = null;
+    try {
+      cname = new X500Name(c.getSubjectDN().toString()).getCommonName();
+    } catch (IOException iox) {}
+    if (log.isDebugEnabled()) {
+      log.debug("Certificate Expired :" + cname);
+    }  
+    if (cname != null && ignoredList.contains(cname)) {
+      if (log.isWarnEnabled()) {
+        log.warn("Ignoring the expired certificate " + c);
+      }
+      return true;
+    }
+    return false;
+  }
+
   /* if a full certificate chain is received, no need to build chain,
      this function takes both single cert and an unvalidated chain.
   */
@@ -532,19 +549,7 @@ final public class KeyRing  implements KeyRingService  {
 try {
         ((X509Certificate) acertificate[i]).checkValidity();
 } catch (CertificateExpiredException cee) {
-  String cname = null;
-  try {
-    cname = new X500Name(((X509Certificate) acertificate[i]).getSubjectDN().toString()).getCommonName();
-  } catch (IOException iox) {}
-  if (log.isDebugEnabled()) {
-    log.debug("Certificate Expired :" + cname);
-  }  
-  if (cname != null && ignoredList.contains(cname)) {
-    if (log.isWarnEnabled()) {
-      log.warn("Ignoring the expired certificate " + acertificate[i]);
-    }
-  }
-  else {
+  if (!isIgnoredCertificate((X509Certificate)acertificate[0])) {
     throw cee;
   }
 }
@@ -939,7 +944,13 @@ try {
     }
     try {
       // TODO: no need to build chain again here, chain is already in status
+try {
       cs.checkCertificateValidity();
+} catch (CertificateExpiredException cee) {
+  if (!isIgnoredCertificate((X509Certificate)cs.getCertificate())) {
+    throw cee;
+  }
+}
 
       if (buildChain)
         checkCertificateTrust(cs.getCertificate());
