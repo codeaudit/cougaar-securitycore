@@ -1,0 +1,23 @@
+#!/bin/sh
+
+#not in anymore:
+# oak fir 
+MACHINES="yew eucalyptus"
+
+
+invoke_remote() {
+for machine in $MACHINES; do
+  mname=
+  if [ ${#machine} -lt 7 ]; then
+    mname="${machine}:	";
+  else
+    mname="$machine:";
+  fi
+  echo -n "${mname}	"
+  ssh $machine $*
+done
+}
+
+invoke_remote "killall -9 java ; /etc/init.d/acme stop"
+sleep 1
+invoke_remote "/etc/init.d/acme start"
