@@ -28,6 +28,7 @@ package org.cougaar.core.security.crypto.servlet;
 
 import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.service.LoggingService;
 
 import java.io.IOException;
@@ -48,6 +49,7 @@ public class MakeCertificateServlet
 {
   private SecurityServletSupport _support;
   private KeyRingService _keyRing;
+  private CertificateCacheService _cacheservice;
   private LoggingService _log;
 
   public MakeCertificateServlet(SecurityServletSupport support) {
@@ -58,6 +60,9 @@ public class MakeCertificateServlet
     _keyRing = (KeyRingService)
       _support.getServiceBroker().getService(this,
 					    KeyRingService.class, null);
+    _cacheservice = (CertificateCacheService)
+      _support.getServiceBroker().getService(this,
+					    CertificateCacheService.class, null);
   }
 
   public void init(ServletConfig config)
@@ -75,6 +80,8 @@ public class MakeCertificateServlet
       try {
         _keyRing.addToIgnoredList(cname);
         // remove the entries first
+
+        _cacheservice.removeEntryFromCache(cname);
         _keyRing.removeEntry(cname);
  
         // now force to get new certificates for this identifier
