@@ -125,6 +125,7 @@
     </target>
 
     <target name="checkversion">
+       <!--
         <condition property="ant.version.incorrect" value="true">
           <not>
             <contains string="${ant.version}" substring="1.5"/>
@@ -132,6 +133,7 @@
         </condition>
         <fail message="ant version 1.5 or above is required. Current version is ${ant.version}"
               if="ant.version.incorrect"/>
+         -->
         <condition property="vm.version.incorrect" value="true">
           <not>
             <contains string="${java.vm.version}" substring="1.4.2"/>
