@@ -17,13 +17,15 @@ import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.UIDService;
 import java.util.Collection;
 import java.util.TimerTask;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
  * Plugin sends relay with the session key in it to the persistence manager
  *
  * @author ttschampel
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class SessionKeySenderPlugin extends ComponentPlugin {
     /** Plugin name */
@@ -31,6 +33,9 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
     private UIDService uidService;
     private LoggingService logging;
     private ThreadService threadService;
+    //private static HashMap _pluginMap = new HashMap();
+    private static SessionKeySenderPlugin _senderPlugin = null;
+    private static ArrayList _keyCache = new ArrayList();
 
     /**
      * Set logging service
@@ -70,8 +75,25 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
             logging.debug(pluginName + " setting up");
         }
 
+//        _pluginMap.put(this.getAgentIdentifier().getAddress(), this);
+        _senderPlugin = this;
+        processKeyCache();
+/*
         RelaySessionKey.getInstance().addPlugin(this.getAgentIdentifier()
                                                     .getAddress(), this);
+*/
+        
+    }
+
+    private void processKeyCache() {
+      logging.debug("processing keys cached");
+      synchronized (_keyCache) {
+        for (int i = 0; i < _keyCache.size(); i++) {
+          SharedDataRelay sdr = (SharedDataRelay)_keyCache.get(i);
+          sendSessionKey(sdr);
+        } // for
+        _keyCache.clear();
+      } // sync
     }
 
 
@@ -81,25 +103,45 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
     public void execute() {
     }
 
-
     /**
      * Send session key via SharedDataRelay
      *
      * @param key SharedDataRelay
      * @param pmAgent PersistenceManager Agent
      */
-    protected void sendSessionKey(Collection keyCollection, String pmAgent) {
-        MessageAddress source = this.getAgentIdentifier();
+    public static void sendSessionKey(String agent, Collection keyCollection, String pmAgent) {
+        //MessageAddress source = this.getAgentIdentifier();
+        MessageAddress source = MessageAddress.getMessageAddress(agent);
+        MessageAddress target = MessageAddress.getMessageAddress(pmAgent);
+
+        SharedDataRelay sdr = new SharedDataRelay(null, source,
+                target, keyCollection, null);
+
+/*
+        SessionKeySenderPlugin plugin = (SessionKeySenderPlugin)
+          _pluginMap.get(agent);
+        if (plugin != null) {
+          plugin.sendSessionKey(sdr);
+*/   
+        if (_senderPlugin != null) {
+          _senderPlugin.sendSessionKey(sdr);
+        }        
+        else {
+          _keyCache.add(sdr);
+        }
+     }
+
+     protected void sendSessionKey(SharedDataRelay sdr) {
         if (logging.isDebugEnabled()) {
-            logging.debug("Relaying session key...." + source);
+            logging.debug("Relaying session key...." + sdr.getSource());
+            DataProtectionKeyCollection keyCollection =
+              (DataProtectionKeyCollection)sdr.getContent();
+            logging.debug("key timestamp " + keyCollection.getTimestamp());
         }
 
-        MessageAddress target = MessageAddress.getMessageAddress(pmAgent);
-        SharedDataRelay sdr = new SharedDataRelay(uidService.nextUID(), source,
-                target, keyCollection, null);
+        sdr.setUID(uidService.nextUID());
         RelayTimerTask timerTask = new RelayTimerTask(sdr);
 		threadService.schedule(timerTask,1);
-
     }
 
     private class RelayTimerTask extends TimerTask {
