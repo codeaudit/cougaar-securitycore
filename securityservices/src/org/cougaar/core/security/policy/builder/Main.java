@@ -22,6 +22,8 @@ package org.cougaar.core.security.policy.builder;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import kaos.core.util.AttributeMsg;
 import kaos.core.util.KAoSConstants;
@@ -32,21 +34,19 @@ import kaos.ontology.util.RangeIsBasedOnInstances;
 import kaos.ontology.util.ValueNotSet;
 import kaos.policy.util.PolicyBuildingNotCompleted;
 
-import org.apache.log4j.Logger;
-
 import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
 
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
 class Main {
   private static WebProxyInstaller   _proxyInstaller;
-  private static Logger              _log;
   private static OntologyConnection  _ontology;
 
   static {
     _proxyInstaller = new WebProxyInstaller();
     _proxyInstaller.install();
-    _log = Logger.getLogger("org.cougaar.core.security.policy.builder");
+    Logger rootlog = Logger.getLogger("");
+    rootlog.setLevel(Level.WARNING);
   }
 
 
