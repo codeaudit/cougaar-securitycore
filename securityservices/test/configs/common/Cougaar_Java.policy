@@ -140,6 +140,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}sys${/}tomcat_40.jar" signed
         permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CryptoPolicyService";
         permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertValidityService";
 };
+
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "privileged" {
         permission java.security.SecurityPermission "getPolicy";
         permission java.lang.RuntimePermission "getClassLoader";
@@ -163,6 +164,11 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "p
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertificateManagementService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.LdapUserService";
 	permission org.cougaar.core.security.access.AccessPermission "org.cougaar.core.service.MessageTransportService";
+};
+
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}aggagent.jar" signedBy "privileged" {
+        permission java.lang.RuntimePermission "getClassLoader";
+        permission java.lang.RuntimePermission "createClassLoader";
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}util.jar" signedBy "privileged" {
@@ -582,6 +588,16 @@ grant signedBy "privileged" {
 	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
 	permission org.cougaar.core.security.crypto.KeyRingPermission "readPrivateKey";
 //	permission java.security.SecurityPermission "printIdentity";
+};
+
+grant { 
+	// Required by the Jython interpreter.
+	// Jython creates Java classes on the fly, and the classes are not signed.
+	// TODO: find a better solution
+	permission java.util.PropertyPermission "*", "read";
+	permission java.io.FilePermission "${java.home}${/}lib${/}-", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}-", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}lib${/}-", "read";
 };
 
 ////////////////////////////////////////////////////////////
