@@ -705,12 +705,16 @@ public class MnrCompromisePlugin extends ComponentPlugin {
   }
 
   private void addAgentControl(AgentControl ac) {
+/*
     try {
       getBlackboardService().openTransaction();
+*/
       getBlackboardService().publishAdd(ac);
+/*
     } finally {
       getBlackboardService().closeTransactionDontReset();
     }
+*/
   }
 
 
