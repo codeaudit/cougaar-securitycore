@@ -311,6 +311,21 @@ public class CertificateUtility {
     out.println("<b>Serial No &nbsp;&nbsp;:</b>"
 		+certimpl.getSerialNumber());
     out.println("<br>");
+
+    out.println("<b>Key Usage &nbsp;&nbsp;&nbsp;:</b>");
+    String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
+    if(s != null) {
+      try {
+        KeyUsageExtension keyusageextension =
+          (KeyUsageExtension)((X509CertImpl)certimpl).get(s);
+        if (keyusageextension != null)
+          out.println(keyusageextension.toString());
+      } catch (CertificateParsingException ex) {
+        out.println("Failed to get key usage. " + ex.toString());
+      }
+    }
+    out.println("<br>");
+
     out.println("<b>Algorithm &nbsp;&nbsp;:</b>"
 		+certimpl.getPublicKey().getAlgorithm());
     out.println("<br>");
