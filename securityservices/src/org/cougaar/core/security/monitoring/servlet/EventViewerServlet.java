@@ -127,23 +127,30 @@ public class EventViewerServlet
     // Query the blackboard
     Collection collection = support.queryBlackboard(new IdmefEventPredicate());
     Iterator it = collection.iterator();
+    String document = null;
+    StreamSource inputXML = null;
+    if (!it.hasNext()) {
+      out.print("No Event available");
+    }
     while (it.hasNext()) {
       IDMEF_Message msg = ((Event)it.next()).getEvent();
-      
+      document = msg.toString();
+      System.out.println("IDMEF message:\n" + document);
+      inputXML = new StreamSource(new StringReader(document));
+      doTransform(out, inputXML);
     }
-    doTransform(out);
+    out.flush();
+    out.close();
   }
 
-  private void doTransform(PrintWriter writer) {
-    StreamSource inputXML = null;
-
+  private void doTransform(PrintWriter writer, StreamSource inputXML) {
     try {
       // Use the Transformer to apply the associated Templates object to an XML document
-      // (foo.xml) and write the output to a file (foo.out).
       transformer.transform(inputXML, new StreamResult(writer));
     }
     catch (TransformerException e) {
       writer.print("Unable to get IDMEF events");
+      e.printStackTrace(writer);
     }
   }
 }
