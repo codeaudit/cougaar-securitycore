@@ -10,7 +10,36 @@ objectClass: dcObject
 objectClass: organization
 dc: COUGAAR
 o: UltraLog
-description: The Example Corporation
+description: UltraLog Certificates
+
+
+dn: dc=ychen,dc=cougaar, dc=org
+objectClass: dcObject
+objectClass: organization
+dc: COUGAAR
+o: UltraLog
+description: Yue Chen's Certificates
+
+dn: dc=rtripath,dc=cougaar, dc=org
+objectClass: dcObject
+objectClass: organization
+dc: COUGAAR
+o: UltraLog
+description: Rakesh's Certificates
+
+dn: dc=srosset,dc=cougaar, dc=org
+objectClass: dcObject
+objectClass: organization
+dc: COUGAAR
+o: UltraLog
+description: Sebastien's Certificates
+
+dn: dc=jjacobs,dc=cougaar, dc=org
+objectClass: dcObject
+objectClass: organization
+dc: COUGAAR
+o: UltraLog
+description: Jay's Certificates
 
 # Organizational Role for Directory Manager
 dn: cn=manager, dc=cougaar, dc=org
