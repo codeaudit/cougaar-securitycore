@@ -333,7 +333,7 @@ public class AccessAgentProxy
     }
     else {
       //check to see if any node agent is involved.
-      if(nodeList.contains(m.getOriginator().toString())||
+/*      if(nodeList.contains(m.getOriginator().toString())||
           nodeList.contains(m.getTarget().toString())){
         //no wrapping with trust
         mtc.receiveMessage(m);
@@ -342,7 +342,7 @@ public class AccessAgentProxy
         }
       return;
       } else {
-        if (log.isDebugEnabled()) {
+*/        if (log.isDebugEnabled()) {
           log.debug("Wrapping trust, it is not wrapped in a MessageWithTrust: "
              + m.toString());
         }
@@ -351,7 +351,7 @@ public class AccessAgentProxy
         if(m instanceof DirectiveMessage){
           Directive directive[] = 
             ((DirectiveMessage)m).getDirectives();
-          len = directive.length;
+          len = directive.length+1;
 
         }
         else{
@@ -370,7 +370,7 @@ public class AccessAgentProxy
         }
         return;
       }
-    }
+//    }
   }
   
   /** removes the nth directive from a directive message */
@@ -585,7 +585,7 @@ public class AccessAgentProxy
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
 	log.warn("No access control for message type "
-			 + msg.getClass());
+			 + msg.getClass() + ". reason:" + ex.getMessage());
       }
       return true;
     }
@@ -739,7 +739,7 @@ public class AccessAgentProxy
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
         log.warn("No access control for message type "
-		 + msg.getClass());
+		 + msg.getClass() + ". reason:" + ex.getMessage());
       }
       return true;
     }
@@ -797,7 +797,7 @@ public class AccessAgentProxy
     }
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
-        log.warn("No access control for message" + msg);
+        log.warn("No access control for message: " + msg + ". reason:" + ex.getMessage());
       }
       return true;
     }
