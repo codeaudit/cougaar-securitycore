@@ -22,8 +22,7 @@ if !(@damlBootPolicyCompleted)
   }
 
   damlFile = "#{CIP}/configs/security/DamlBootPolicyList"
-  origFile = "#{damlFile}.orig"
-  configJar = "#{CIP}/configs/security/securityservices_config.jar"
+  origFile = getConfigFile("DamlBootPolicyList")
   file = File.open(damlFile ,"w") { |file|
     file.write <<END
 #
@@ -413,14 +412,9 @@ END
   if (lines2 != lines1)
     output = policyUtil("--maxReasoningDepth 150 build --info #{damlFile}",
                         nil, "#{CIP}/configs/security")
-    replaceFileInJar(configJar, damlFile)
+    scheduleConfigChange(damlFile)
     Dir["#{CIP}/configs/security/*.info"].each { |file|
-      replaceFileInJar(configJar, file)
-    }
-    signJar(configJar, "#{CIP}/operator/signingCA_keystore",            
-                        "privileged")
-    File.open(origFile,"w") { |file|
-      file.print(lines1.join)
+      scheduleConfigChange(file)
     }
   end
 end

@@ -41,8 +41,6 @@ org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080 : PERCEIVED_THREA
 "
     end
 
-    configJar = "#{CIP}/configs/security/securityservices_config.jar"
-    
     society.each_enclave { |enclave|
       playsFile = "#{CIP}/configs/security/AMnRPlaysEnclave#{enclave.capitalize}.txt"
       file = File.open(playsFile ,"w") { |file|
@@ -99,7 +97,7 @@ PERCEIVED_THREAT_LEVEL == 2
 
 END
       }
-      replaceFileInJar(configJar, playsFile)
+      scheduleConfigChange(playsFile)
 
     }
     playsFile = "#{CIP}/configs/security/AMnRPlaysSocietyManager.txt"
@@ -122,8 +120,6 @@ PERCEIVED_THREAT_LEVEL == 2
 
 END
     }
-    replaceFileInJar(configJar, playsFile)
-    signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
-                        "privileged")
+    scheduleConfigChange(playsFile)
   end
 end 

@@ -22,38 +22,37 @@ mgrtag = "<MnRMANAGER_INFO mnr_id ="
 attributecommunity = " community = "
 attclostag = "/>"
 
-file = File.open("#{CIP}/configs/security/mnr_managers.xml" ,"w") { |file|
-  file << opentag
-  file << "\n"
-  society.each_node do |node|
-    node.each_facet(:role) do |facet|
-      if facet[:role] == $facetRootManagement
-        agentname = "SocietyMnRManager"
-        file << mgrtag
-        file << "\"#{agentname}\""
-        file << attributecommunity
-        file << "\"ROOT-SECURITY-COMM\""
-        file << attclostag 
-        file << "\n"
-      end
-      if facet[:role] == $facetManagement
-       enclave = node.host.get_facet(:enclave)
-       agentname = enclave[0..0] + enclave[1..enclave.length].downcase + "EnclaveMnRManager"  
-       file << mgrtag
-       file << "\"#{agentname}\""
-       file << attributecommunity
-       file << "\"#{enclave}-SECURITY-COMM\""
-       file << attclostag 
-       file << "\n" 
+if !(@createMRManagerCompleted)
+  @createMRManagerCompleted = true
+  filename = "#{CIP}/configs/security/mnr_managers.xml"
+  File.open(filename ,"w") { |file|
+    file << opentag
+    file << "\n"
+    society.each_node do |node|
+      node.each_facet(:role) do |facet|
+        if facet[:role] == $facetRootManagement
+          agentname = "SocietyMnRManager"
+          file << mgrtag
+          file << "\"#{agentname}\""
+          file << attributecommunity
+          file << "\"ROOT-SECURITY-COMM\""
+          file << attclostag 
+          file << "\n"
+        end
+        if facet[:role] == $facetManagement
+          enclave = node.host.get_facet(:enclave)
+          agentname = enclave[0..0] + enclave[1..enclave.length].downcase + "EnclaveMnRManager"  
+          file << mgrtag
+          file << "\"#{agentname}\""
+          file << attributecommunity
+          file << "\"#{enclave}-SECURITY-COMM\""
+          file << attclostag 
+          file << "\n" 
+        end
       end
     end
-  end
- file << closetag
- file << "\n"
-}
-configJar="#{CIP}/configs/security/securityservices_config.jar"
-replaceFileInJar(configJar,"#{CIP}/configs/security/mnr_managers.xml")
-
-signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
-                    "privileged")
- 
+    file << closetag
+    file << "\n"
+  }
+  scheduleConfigChange(filename)
+end

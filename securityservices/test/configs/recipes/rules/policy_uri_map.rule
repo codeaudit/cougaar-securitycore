@@ -21,7 +21,6 @@ if !(@damlUriMapCompleted)
   }
 
   damlFile = "#{CIP}/configs/security/DamlUriMap"
-  configJar = "#{CIP}/configs/security/securityservices_config.jar"
   file = File.open(damlFile ,"w") { |file|
     file.write <<END
 #
@@ -98,8 +97,5 @@ if !(@damlUriMapCompleted)
 
 END
   }
-  replaceFileInJar(configJar, damlFile)
-
-  signJar(configJar, "#{CIP}/operator/signingCA_keystore",            
-                      "privileged")
+  scheduleConfigChange(damlFile)
 end 

@@ -21,7 +21,6 @@ if !(@damlUserMapCompleted)
   }
 
   damlFile = "#{CIP}/configs/security/DamlUserRoleMap"
-  configJar = "#{CIP}/configs/security/securityservices_config.jar"
   file = File.open(damlFile ,"w") { |file|
     file.write <<END
 .*\\\\Administrator Administrator
@@ -38,8 +37,5 @@ if !(@damlUserMapCompleted)
 
 END
   }
-  replaceFileInJar(configJar, damlFile)
-
-  signJar(configJar, "#{CIP}/operator/signingCA_keystore",            
-                      "privileged")
+  scheduleConfigChange(damlFile)
 end 
