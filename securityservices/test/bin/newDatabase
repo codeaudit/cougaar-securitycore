@@ -8,6 +8,14 @@
 #############################################
 # Configuration. You can edit those variables
 # Do not use '_' and '%' as these are wildcard characters in mysql
+
+# Set recipe directory. Assume the script is invoked from the securityservices module
+cd `dirname $0`
+cd ../..
+cd test/configs/recipes
+# Source location for the security services recipes
+recipes_dir=`pwd`
+
 version=1020
 db_1ad=cougaar${version}
 db_csmart=csmart${version}
@@ -26,11 +34,8 @@ db_password=ul-password
 # Source location for the community files
 #community_file_attr=${CIP}/csmart/data/database/csv/community_attribute.csv
 #community_file_entity=${CIP}/csmart/data/database/csv/community_entity_attribute.csv
-community_file_attr=${COUGAAR_SECURITY_SERVICES}/test/configs/recipes/community_attribute.csv
-community_file_entity=${COUGAAR_SECURITY_SERVICES}/test/configs/recipes/community_entity_attribute.csv
-
-# Source location for the security services recipes
-recipes_dir=${COUGAAR_SECURITY_SERVICES}/test/configs/recipes
+community_file_attr=${recipes_dir}/community_attribute.csv
+community_file_entity=${recipes_dir}/community_entity_attribute.csv
 
 # Domain data file (from ZIP file)
 db_sql_file=1ad_domain_data_dump.sql
