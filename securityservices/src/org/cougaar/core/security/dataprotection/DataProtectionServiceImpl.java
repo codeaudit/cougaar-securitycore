@@ -49,6 +49,7 @@ import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceListener;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.crypto.CertificateRevokedException;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.monitoring.event.DataFailureEvent;
@@ -527,6 +528,38 @@ public class DataProtectionServiceImpl
               + ", the key is not encrypted with any persistence manager.");
             return;
           }
+
+          // check certificate expiry
+    X509Certificate[] originalCertChain = dpKey.getCertificateChain();
+    if ((originalCertChain == null) || (originalCertChain.length == 0)) {
+      if (log.isWarnEnabled()) {
+        log.warn("secret key collection for " + agent + " contains no certificate chain for the original agent");
+      }
+
+      return;
+    }
+
+    X509Certificate originalAgentCert = originalCertChain[0];
+    try {
+      keyRing.checkCertificateTrust(originalAgentCert);
+    } catch (Exception e) {
+    boolean digestVerify = false;
+
+    String sendSignature = System.getProperty("org.cougaar.core.security.dataprotection.sendSignature", "true");
+    digestVerify = sendSignature.equals("true");
+
+      String msg = "Recovery failure: certificate protecting secret key is not trusted. " + e.toString();
+      if (!(e instanceof CertificateRevokedException) || !digestVerify) {
+          CertificateException cx = new CertificateException(msg);
+          publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
+          throw new IOException(cx.getMessage());
+      }
+      else {
+        if (log.isDebugEnabled()) {
+          log.debug("Agent " + agent + " is revoked, sending it to PM for recovery.");
+        }
+      }
+    }       
 
           // no key available to decrypt
           if (log.isDebugEnabled())
