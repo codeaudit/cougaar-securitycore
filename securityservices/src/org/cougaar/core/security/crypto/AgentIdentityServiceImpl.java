@@ -169,7 +169,7 @@ public class AgentIdentityServiceImpl
           boolean isCACert = (requestor instanceof CAIdentityClientImpl);
           if (!isCACert) {
             String cn = dname.getCommonName();
-            String title = ", t=" + DirectoryKeyStore.getTitle(cn);
+            String title = ", t=" + CertificateCache.getTitle(cn);
             dname = new X500Name(requestorAddress.toAddress() + title);
           }
 	  keyRing.checkOrMakeCert(dname, isCACert);
@@ -195,8 +195,18 @@ public class AgentIdentityServiceImpl
       log.debug("release identity:"
 		+ requestorAddress.toAddress());
     }
+    CertificateCacheService cacheservice=(CertificateCacheService)
+       serviceBroker.getService(this,
+				CertificateCacheService.class,
+				null);
+     
+    if(cacheservice==null) {
+      log.warn("Unable to get Certificate cache Service in release will not be able to remove entry from cache");
+      return;
+    }
     // Remove entry from certificate cache
-    keyRing.removeEntryFromCache(requestorAddress.toAddress());
+    cacheservice.removeEntryFromCache(requestorAddress.toAddress());
+
   }
 
   /*
@@ -361,12 +371,21 @@ public class AgentIdentityServiceImpl
 		+ requestorAddress.toAddress());
     }
     // Remove entry from certificate cache
-    keyRing.removeEntryFromCache(requestorAddress.toAddress());
-
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
+    
+    if(cacheservice==null) {
+      log.warn("Unable to get Certificate cache Service in transferTo ,will not be able to remove entry from cache");
+      return keyIdentity;
+    }
+    cacheservice.removeEntryFromCache(requestorAddress.toAddress());
+    
     if (log.isDebugEnabled()) {
       log.debug("Successfully returning KeyIdentity for " + requestorAddress.toAddress());
     }
-
+    
     return keyIdentity;
   }
 
