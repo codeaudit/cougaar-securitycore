@@ -49,6 +49,7 @@ import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.identity.*;
+import org.cougaar.core.security.util.*;
 
 // Cougaar overlay
 import org.cougaar.core.security.coreservices.crypto.*;
@@ -242,6 +243,9 @@ public class SecurityServiceProvider
         */
       standalone = new Boolean(secprop.getProperty(
         "org.cougaar.core.security.standalone", "false")).booleanValue();
+
+      if (!standalone)
+        new NodeInfo().setNodeName(serviceBroker);
     } catch (Exception ex) {
       log.warn("Unable to get value of standalone mode");
     }
