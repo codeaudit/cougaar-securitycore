@@ -65,14 +65,38 @@
       </rule>
     </agent>
 
-    <agent name="UserAdminAgent">
+    <agent name="NCA">
+      <rule requireSSL="false">
+        <pattern>/glsinit</pattern>
+        <pattern>/glsreply</pattern>
+        <pattern>/editOplan</pattern>
+        <role>Logistician</role>
+      </rule>
+    </agent>
+
+    <agent name="AGG-Agent">
+      <rule requireSSL="false">
+        <pattern>/aggregator</pattern>
+        <pattern>/aggregatorkeepalive</pattern>
+        <role>Logistician</role>
+        <role>LogisticsViewer</role>
+      </rule>
+    </agent>
+
+    <agent name="*">
       <rule requireSSL="false">
         <pattern>/useradmin</pattern>
         <role>UserManager</role>
       </rule>
-    </agent>
 
-    <agent name="caAgent">
+      <rule requireSSL="false">
+        <pattern>/datagatherer</pattern>
+        <pattern>/hierarchy</pattern>
+        <pattern>/log_inventory</pattern>
+        <role>Logistician</role>
+        <role>LogisticsViewer</role>
+      </rule>
+
       <rule>
         <!-- All users and agents should be allowed to
              request a certificate -->
@@ -80,6 +104,7 @@
         <pattern>/CA/BrowserSigningRequest</pattern>
         <role>*</role>
       </rule>
+
       <rule requireSSL="false">
         <!-- This rule allows access to read-only portions of the CA. -->
         <pattern>/CA/Index</pattern>
@@ -95,6 +120,7 @@
         <!-- Currently let everyone read the certificate database. -->
         <role>*</role>
       </rule>
+
       <rule requireSSL="false">
         <!-- only let the administrator do write-only stuff -->
         <pattern>/CA/RevokeCertificateServlet</pattern>
@@ -104,17 +130,12 @@
         <pattern>/CA/CaKeyManagement</pattern>
         <role>CAAdministrator</role>
       </rule>
-    </agent>
 
-    <!-- protected in all agents -->
-    <agent name="*">
-      <rule>
-        <pattern>/MoveServlet</pattern>
-        <role>MoveAgent</role>
-      </rule>
-      <rule>
-        <pattern>/TopologyServlet</pattern>
-        <role>Topology</role>
+      <rule requireSSL="false">
+        <pattern>/move</pattern>
+        <pattern>/load</pattern>
+        <pattern>/topology</pattern>
+        <role>SocietyAdmin</role>
       </rule>
       <!-- For Rovers Managers to control and modify rovers -->
       <!-- Perhaps this should be moved to a specific agent? -->
