@@ -477,8 +477,25 @@ public class CertificateCache
 	   * possible. */
 	  Date lastTime = pcert.getCertificateStatus().getPKCS10Date();
 	  Date now = new Date();
-	  long timeDiff = (lastTime.getTime() - now.getTime()) / 1000;
-	  if ( timeDiff < pkcs10MinInterval) {
+
+	  boolean sendnow = true;
+	  long timeDiff = 0;
+	  if (lastTime == null) {
+	    /* We don't know when the request was submitted.
+	     * This can happen if the node has sent a request, then the
+	     * node was shut down and restarted. Try to resubmit it.
+	     */
+	    sendnow = true;
+	  }
+	  else {
+	    timeDiff = (lastTime.getTime() - now.getTime()) / 1000;
+	    if ( timeDiff < pkcs10MinInterval) {
+	      sendnow = false;
+	    }
+	  }
+
+	  if (sendnow == false) {
+	    // This prevents from sending the request too frequently
 	    if (debug) {
 	      System.out.println("Waiting " +
 				 (pkcs10MinInterval - timeDiff) 
