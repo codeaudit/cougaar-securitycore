@@ -79,9 +79,6 @@
     	</fileset>
 		</copy>
 		<copy todir="staging/configs/security">
-			<fileset dir="${configs}/mysql/">
-				<include name="cougaar.rc"/>
-			</fileset>
 			<fileset dir="${configs}/adaptiveMnR/">
 				<include name="AMnRPlays.txt"/>
 				<include name="AMnRPlaysEnclave.txt"/>
