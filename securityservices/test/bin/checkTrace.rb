@@ -3,14 +3,14 @@
 CIP = ENV['CIP']
 
 # Add extra arguments to the grep function. For example, "-c" will report a count only
-extraargs = ARGV
+$extraargs = ARGV
 
 # The directory where the log files are located
 #dir = "#{CIP}/workspace/log4jlogs"
-logFileDirectory = "#{CIP}/../srosset/log4jlogs"
+$logFileDirectory = "#{CIP}/../srosset/log4jlogs"
 
 # True if performing a check for transient issues (e.g. issues that should disappear after a while)
-searchTransientIssues=true
+$searchTransientIssues=true
 
 def getStartupTime(fileName)
   aFile = File.new(fileName, "r")
@@ -34,7 +34,7 @@ def getTime(line)
 end
 
 # Search for exceptions and log4j errors, warnings, fatals
-badMessages = [
+$badMessages = [
   "Exception",
   "WARN",
   "ERROR",
@@ -48,7 +48,9 @@ badMessages = [
 # The timeout is a time after which we should not see the message. For example, there
 # might be transient issues at startup, but after a while we should not see those issues.
 
-okMessages = [
+$startupTime = 10 * 60
+
+$okMessages = [
   # ############################################################### 
   # Cougaar core messages
   # ############################################################### 
@@ -64,50 +66,50 @@ okMessages = [
   # ############################################################### 
   # An agent is unable to send a PKCS certificate signing request to the CA.
   # This may happen at startup if the CA agent is not up yet or is too busy.
-  [startupTime, "Unable to send PKCS"],
+  [$startupTime, "Unable to send PKCS"],
   # A Jar file was not signed properly.
   # This may happen at startup. Ruby is still in the middle of generating jar files,
   # but some nodes have already started and they are checking the signatures of all the jar files.
-  [startupTime, "xml\.jar cannot be trusted"],
-  [startupTime, "ConfigFinder - Unable to add entry"],
-  [startupTime, "Caused by: java.lang.Exception: Jar file does not have any certificate"],
+  [$startupTime, "xml\.jar cannot be trusted"],
+  [$startupTime, "ConfigFinder - Unable to add entry"],
+  [$startupTime, "Caused by: java.lang.Exception: Jar file does not have any certificate"],
   # The MTS was unable to send a message out.
   # This may happen at startup if the agent does not have a certificate, or if 
   # the remote agent does not have a certificate.
   # This applies to all four messages below.
-  [startupTime, "DestinationQueueImpl - Failure in communication"],
-  [startupTime, "MarshalException: error marshalling arguments"],
-  [startupTime, "error during JRMP connection"],
-  [startupTime, "java\.rmi\.ServerException: RemoteException occurred in server thread"],
-  [startupTime, "java\.rmi\.UnmarshalException: error unmarshalling arguments"],
+  [$startupTime, "DestinationQueueImpl - Failure in communication"],
+  [$startupTime, "MarshalException: error marshalling arguments"],
+  [$startupTime, "error during JRMP connection"],
+  [$startupTime, "java\.rmi\.ServerException: RemoteException occurred in server thread"],
+  [$startupTime, "java\.rmi\.UnmarshalException: error unmarshalling arguments"],
 
   # Jena is not happy when reading files with relative paths.
   # See http://groups.yahoo.com/group/jena-dev/message/5266
   # TODO: This should really be fixed.
-  [startupTime, "{W130} Base URI is \"\""],
+  [$startupTime, "{W130} Base URI is \"\""],
   # TODO: what is this? Probably Kaos
-  [startupTime, "{W101} Unqualified use of rdf:ID has been deprecated"],
-  [startupTime, "{W101} Unqualified use of rdf:resource has been deprecated"],
+  [$startupTime, "{W101} Unqualified use of rdf:ID has been deprecated"],
+  [$startupTime, "{W101} Unqualified use of rdf:resource has been deprecated"],
   # A message has been received in the clear.
   # In this specific circumstance, this is ok because RMI over SSL was used.
-  [startupTime, "Could not use protection level: SecureMethodParam: PLAIN null "],
+  [$startupTime, "Could not use protection level: SecureMethodParam: PLAIN null "],
   # Ignorable KAoS warning
-  [startupTime, "Guard is already set"],
+  [$startupTime, "Guard is already set"],
   # A node is trying to communicate with the CA in order to submit a certificate
   # signing request (CSR). The CSR is submitted through https.
   # However, the SSL server-side certificate is not valid yet, most likely because it
   # has not been signed by a root CA yet.
-  [startupTime, "Host cert has not been signed by CA yet"],
+  [$startupTime, "Host cert has not been signed by CA yet"],
   # A node is not able to find the certificate among its local identities, i.e., not a local agent.
   # This is not a correct warning, it warns about certificate from other nodes, which does not have
   # a local identity.
   # Complete message is:
   #   NameServerCertificateComponent - Fail to update node certificate for <node-name>
-  [startupTime, "Fail to update node certificate for"],
+  [$startupTime, "Fail to update node certificate for"],
   # The adaptivity engine complains that no plugin has published a condition.
   # However, there is no guarantee that the M&R plugin will be started before the
   # adaptivity engine. Eventually, the plugin will be loaded and publish the condition
-  [startupTime, "No Condition named org\.cougaar\.core\.security\.monitoring\.LOGIN_FAILURE_RATE"],
+  [$startupTime, "No Condition named org\.cougaar\.core\.security\.monitoring\.LOGIN_FAILURE_RATE"],
  
   # ############################################################### 
   # Robustness messages
@@ -116,7 +118,7 @@ okMessages = [
   # amount of time.
   # This may happen at startup when messages stay in the queue for a long time because
   # agents do not have a certificate yet.
-  [startupTime, "MessageTimeoutAspect"],
+  [$startupTime, "MessageTimeoutAspect"],
   # ############################################################### 
   # Logistics warnings
   # ############################################################### 
@@ -149,9 +151,9 @@ okMessages = [
 def buildBadPattern()
   # Build grep pattern
   badPattern = "-nE \""
-  while (x = badMessages.shift) != nil
+  while (x = $badMessages.shift) != nil
     badPattern << x
-    if badMessages.size > 0
+    if $badMessages.size > 0
       badPattern << "|"
     end
   end
@@ -162,9 +164,9 @@ end
 
 def buildOkPattern()
   okPattern = "-Ev \""
-  while (x = okMessages.shift) != nil
+  while (x = $okMessages.shift) != nil
     okPattern << x[1]
-    if okMessages.size > 0
+    if $okMessages.size > 0
       okPattern << "|"
     end
   end
@@ -180,9 +182,9 @@ def searchIssues(removeOkPattern, logResultsDir)
   if (logResultsDir != nil)
     Dir.mkdir(logResultsDir)
   end
-  Dir.new(logFileDirectory).each do |filename|
+  Dir.new($logFileDirectory).each do |filename|
     next if !( filename =~ /\.log/ )
-    filepath = "#{dir}/#{filename}"
+    filepath = "#{$logFileDirectory}/#{filename}"
     puts "++ Checking #{filepath}"
     time = getStartupTime(filepath)
     if ((time <=> startupTime) == -1) || startupTime == 0
@@ -190,9 +192,9 @@ def searchIssues(removeOkPattern, logResultsDir)
       #puts "Set startup time: " + startupTime.to_s
     end
     if (removeOkPattern) 
-      command="grep #{badPattern} #{filepath}"
+      command="grep #{badPattern} #{filepath} | grep #{$extraargs} #{okPattern}"
     else
-      command="grep #{badPattern} #{filepath} | grep #{extraargs} #{okPattern}"
+      command="grep #{badPattern} #{filepath}"
     end
     if logResultsDir != nil
       logResultsFileName = logResultsDir + "/" + filename
@@ -218,8 +220,9 @@ def parseTimeRelatedEvents(fileName, startupTime)
     time = getTime(line)
     event = getEvent(line)
     okMessage.each do |x|
-      if x[0] == nil continue
-      if x[0]
+      if x[0] == nil 
+        continue
+      end
     end
   }
   aFile.close
