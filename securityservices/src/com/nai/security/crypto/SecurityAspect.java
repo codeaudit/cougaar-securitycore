@@ -355,7 +355,7 @@ public class SecurityAspect extends StandardAspect
 		removeDirective((DirectiveMessage)msg, i);
 	}
 	//return (msg.getDirectives().length > 0);
-	retrun true;
+	return true;
     }
 	
     private boolean incomingMessageAction(Message msg, TrustSet t) {
