@@ -29,8 +29,10 @@ package org.cougaar.core.security.provider;
 //Cougaar core services
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Map;
 
 import org.cougaar.community.CommunityProtectionService;
+import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
@@ -77,6 +79,7 @@ public class SecurityServiceProvider
   /** True if the application is run with a Cougaar node */
   private boolean isExecutedWithinNode = true;
   private boolean initDone = false;
+  private LDMServiceAvailableListener lDMServiceAvailableListener;
   
 //private static final String DP_PROVIDER_CLASS = "org.cougaar.core.security.provider.DataProtectionServiceProvider";
 //private static final String PMP_PROVIDER_CLASS = "org.cougaar.core.security.provider.PersistenceMgrPolicyServiceProvider";
@@ -142,7 +145,7 @@ public class SecurityServiceProvider
     rootServiceBroker.getService(this,
         LoggingService.class, null);
     
-    services = SecurityServiceTable.getInstance(log);
+    services = new SecurityServiceTable(log);
     
     if (log.isDebugEnabled()) {
       log.debug("Registering security services");
@@ -166,8 +169,8 @@ public class SecurityServiceProvider
     ServiceProvider newSP = null;
     
     newSP = new SecurityPropertiesServiceProvider(rootServiceBroker, mySecurityCommunity);
-    services.put(SecurityPropertiesService.class, newSP);
-    rootServiceBroker.addService(SecurityPropertiesService.class, newSP);
+    services.addService(SecurityPropertiesService.class, new ServiceEntry(newSP, rootServiceBroker));
+    
     
     SecurityPropertiesService secprop = (SecurityPropertiesService)
     AccessController.doPrivileged(new PrivilegedAction() {
@@ -193,62 +196,49 @@ public class SecurityServiceProvider
      * Configuration services
      */
     newSP = new ConfigParserServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(ConfigParserService.class, newSP);
-    rootServiceBroker.addService(ConfigParserService.class, newSP);
+    services.addService(ConfigParserService.class, new ServiceEntry(newSP, rootServiceBroker));
     
     /* ********************************
      * Encryption services
      */
     /* Certificate Directory lookup services */
     newSP = new CertDirectoryServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CertDirectoryServiceClient.class, newSP);
-    rootServiceBroker.addService(CertDirectoryServiceClient.class, newSP);
+    services.addService(CertDirectoryServiceClient.class, new ServiceEntry(newSP, rootServiceBroker));
     
     newSP = new CertDirectoryServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CertDirectoryServiceCA.class, newSP);
-    rootServiceBroker.addService(CertDirectoryServiceCA.class, newSP);
+    services.addService(CertDirectoryServiceCA.class, new ServiceEntry(newSP, rootServiceBroker));
     
     newSP = new CertDirectoryServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CACertDirectoryService.class, newSP);
-    rootServiceBroker.addService(CACertDirectoryService.class, newSP);
+    services.addService(CACertDirectoryService.class, new ServiceEntry(newSP, rootServiceBroker));
     
     newSP = new CertificateSearchServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CertificateSearchService.class, newSP);
-    rootServiceBroker.addService(CertificateSearchService.class, newSP);
+    services.addService(CertificateSearchService.class, new ServiceEntry(newSP, rootServiceBroker));
     
     newSP = new CertificateSearchServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CACertDirectoryService.class, newSP);
-    rootServiceBroker.addService(CACertDirectoryService.class, newSP);
+    services.addService(CACertDirectoryService.class, new ServiceEntry(newSP, rootServiceBroker));
     
     /* Certificate Management service */
     // move to certauth to be started in its own component
     /*
      newSP = new CertificateManagementServiceProvider(serviceBroker, mySecurityCommunity);
-     services.put(CertificateManagementService.class, newSP);
-     rootServiceBroker.addService(CertificateManagementService.class, newSP);
+     services.addService(CertificateManagementService.class, new ServiceEntry(newSP, rootServiceBroker));
      */
     
     /* Starting Certificate Cache  service */
     
     newSP = new CertificateCacheServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CertificateCacheService.class, newSP);
-    rootServiceBroker.addService(CertificateCacheService.class, newSP);
-    
-    
+    services.addService(CertificateCacheService.class, new ServiceEntry(newSP, rootServiceBroker));
     
     /* Key lookup service */
     newSP = new KeyRingServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(KeyRingService.class, newSP);
-    rootServiceBroker.addService(KeyRingService.class, newSP);
-    
+    services.addService(KeyRingService.class, new ServiceEntry(newSP, rootServiceBroker));
     
     /* Starting CRL Cache  service */
     if (log.isDebugEnabled()) {
       log.debug("Service broker passed to CRLCacheServiceProvider is :"+serviceBroker.toString());
     }
     newSP = new CRLCacheServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CRLCacheService.class, newSP);
-    rootServiceBroker.addService(CRLCacheService.class, newSP);
+    services.addService(CRLCacheService.class, new ServiceEntry(newSP, rootServiceBroker));
     /*CRLCacheService crlCacheService=(CRLCacheService)serviceBroker.getService(this,
      CRLCacheService.class,
      null);
@@ -257,13 +247,11 @@ public class SecurityServiceProvider
     
     /* Certificate validity service */
     newSP = new CertValidityServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CertValidityService.class, newSP);
-    rootServiceBroker.addService(CertValidityService.class, newSP);
+    services.addService(CertValidityService.class, new ServiceEntry(newSP, rootServiceBroker));
     
     /* Community Protection Service */
     newSP = new CommunityProtectionServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CommunityProtectionService.class, newSP);
-    rootServiceBroker.addService(CommunityProtectionService.class, newSP);
+    services.addService(CommunityProtectionService.class, new ServiceEntry(newSP, rootServiceBroker));
     
     if (isExecutedWithinNode) {
       
@@ -282,7 +270,7 @@ public class SecurityServiceProvider
          
          if (newSP != null) {
          ((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
-         services.put(PersistenceMgrPolicyService.class, newSP);
+         services.addService(PersistenceMgrPolicyService.class, newSP);
          rootServiceBroker.addService(PersistenceMgrPolicyService.class, newSP);
          }
          else {
@@ -292,8 +280,7 @@ public class SecurityServiceProvider
       
       /* Encryption Service */
       newSP = new EncryptionServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(EncryptionService.class, newSP);
-      rootServiceBroker.addService(EncryptionService.class, newSP);
+      services.addService(EncryptionService.class, new ServiceEntry(newSP, rootServiceBroker));
       
       /* Data protection service */
       /*
@@ -313,7 +300,7 @@ public class SecurityServiceProvider
          
          if (newSP != null) {
          ((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
-         services.put(DataProtectionService.class, newSP);
+         services.addService(DataProtectionService.class, newSP);
          rootServiceBroker.addService(DataProtectionService.class, newSP);
          }
          else {
@@ -328,16 +315,14 @@ public class SecurityServiceProvider
       
       /* Message protection service */
       newSP = new MessageProtectionServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(MessageProtectionService.class, newSP);
-      rootServiceBroker.addService(MessageProtectionService.class, newSP);
+      services.addService(MessageProtectionService.class, new ServiceEntry(newSP, rootServiceBroker));
       
       /* ********************************
        * Identity services
        */
       /* Agent identity service */
       newSP = new AgentIdentityServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(AgentIdentityService.class, newSP);
-      rootServiceBroker.addService(AgentIdentityService.class, newSP);
+      services.addService(AgentIdentityService.class, new ServiceEntry(newSP, rootServiceBroker));
       
       /* ********************************
        * Access Control services
@@ -347,19 +332,17 @@ public class SecurityServiceProvider
        * Policy services
        */
       newSP = new PolicyBootstrapperServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(PolicyBootstrapperService.class, newSP);
-      rootServiceBroker.addService(PolicyBootstrapperService.class, newSP);
+      services.addService(PolicyBootstrapperService.class, new ServiceEntry(newSP, rootServiceBroker));
+
       /*
-       
        if (!org.cougaar.core.security.access.AccessAgentProxy.USE_DAML) {
        newSP = new AccessControlPolicyServiceProvider(serviceBroker, mySecurityCommunity);
-       services.put(AccessControlPolicyService.class, newSP);
+       services.addService(AccessControlPolicyService.class, newSP);
        rootServiceBroker.addService(AccessControlPolicyService.class, newSP);
        }
        
        */    newSP = new CryptoPolicyServiceProvider(serviceBroker, mySecurityCommunity);
-       services.put(CryptoPolicyService.class, newSP);
-       rootServiceBroker.addService(CryptoPolicyService.class, newSP);
+       services.addService(CryptoPolicyService.class, new ServiceEntry(newSP, rootServiceBroker));
        
        // Request the CryptoPolicyService now. This will create the
        // singleton instance of the CryptoPolicyService, which means
@@ -378,15 +361,14 @@ public class SecurityServiceProvider
        rootServiceBroker.getService(this, CryptoPolicyService.class, null);
        
        newSP = new ServletPolicyServiceProvider(serviceBroker, mySecurityCommunity);
-       services.put(ServletPolicyService.class, newSP);
-       rootServiceBroker.addService(ServletPolicyService.class, newSP);
+       services.addService(ServletPolicyService.class, new ServiceEntry(newSP, rootServiceBroker));
        
        /* ********************************
         * SSL services
         */
        /*
         newSP = new SSLServiceProvider(serviceBroker, mySecurityCommunity);
-        services.put(SSLService.class, newSP);
+        services.addService(SSLService.class, newSP);
         rootServiceBroker.addService(SSLService.class, newSP);
         
         // SSLService and WebserverIdentityService are self started
@@ -443,16 +425,14 @@ public class SecurityServiceProvider
         * NOTE: This service should only be accessible by the security services codebase
         */
        newSP = new SecurityContextServiceProvider(serviceBroker, mySecurityCommunity);
-       services.put(SecurityContextService.class, newSP);
-       rootServiceBroker.addService(SecurityContextService.class, newSP);
+       services.addService(SecurityContextService.class, new ServiceEntry(newSP, rootServiceBroker));
        
        /**
         * Authorization service
         */
        newSP = new AuthorizationServiceProvider(serviceBroker, 
            mySecurityCommunity);
-       services.put(AuthorizationService.class, newSP);
-       rootServiceBroker.addService(AuthorizationService.class, newSP);
+       services.addService(AuthorizationService.class, new ServiceEntry(newSP, rootServiceBroker));
        
        /* ********************************
         * Change the policy to support
@@ -470,8 +450,7 @@ public class SecurityServiceProvider
       log.info("Running in standalone mode");
       if (krs != null) {
         newSP = new UserSSLServiceProvider(serviceBroker, mySecurityCommunity);
-        services.put(UserSSLService.class, newSP);
-        rootServiceBroker.addService(UserSSLService.class, newSP);
+        services.addService(UserSSLService.class, new ServiceEntry(newSP, rootServiceBroker));
         krs.finishInitialization();
       }
     }
@@ -483,16 +462,17 @@ public class SecurityServiceProvider
       if(ldms!=null){
         LDMServesPlugin ldm=ldms.getLDM();
         newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
-        services.put(CrlManagementService.class, newSP);
-        rootServiceBroker.addService(CrlManagementService.class, newSP);
+        services.addService(CrlManagementService.class, new ServiceEntry(newSP, rootServiceBroker));
       }
     }
     else {
       if (log.isDebugEnabled()) {
         log.debug("Registering  LDMServiceAvailableListener ");
       }
-      serviceBroker.addServiceListener(new LDMServiceAvailableListener ());
+      lDMServiceAvailableListener = new LDMServiceAvailableListener();
+      serviceBroker.addServiceListener(lDMServiceAvailableListener);
     }
+    
     /*
      if(serviceBroker.hasService(org.cougaar.core.service.BlackboardService.class)){
      log.debug("Black Board Service is available initially in Security Service Provider ");
@@ -511,7 +491,7 @@ public class SecurityServiceProvider
   /*
    private void registerSSLServices() {
    ServiceProvider newSP = new WebserverSSLServiceProvider(serviceBroker, mySecurityCommunity);
-   services.put(WebserverIdentityService.class, newSP);
+   services.addService(WebserverIdentityService.class, newSP);
    rootServiceBroker.addService(WebserverIdentityService.class, newSP);
    rootServiceBroker.getService(this, WebserverIdentityService.class, null);
    }
@@ -541,8 +521,7 @@ public class SecurityServiceProvider
         if(ldms!=null){
           LDMServesPlugin ldm=ldms.getLDM();
           newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
-          services.put(CrlManagementService.class, newSP);
-          rootServiceBroker.addService(CrlManagementService.class, newSP);
+          services.addService(CrlManagementService.class, new ServiceEntry(newSP, rootServiceBroker));
           if (log.isInfoEnabled()) {
             log.info("Added  CrlManagementService service  ");
           }
@@ -570,9 +549,27 @@ public class SecurityServiceProvider
   }
   
   /**
-   * 
+   * Stops the component.
    */
   public void stop() {
+    if (lDMServiceAvailableListener != null) {
+      serviceBroker.removeServiceListener(lDMServiceAvailableListener);
+      lDMServiceAvailableListener = null;
+    }
+    
+    // The following operations are not sufficient:
+    // We need to remove service listeners, release static references, etc.
+    synchronized(services) {
+      Map.Entry entries[] = {};
+      entries = (Map.Entry[])services.entrySet().toArray(entries);
+      // Unregister services in reverse order.
+      for (int i = entries.length - 1 ; i >=0 ; i--) {
+        Map.Entry entry = entries[i];
+        Class serviceClass = (Class)entry.getKey();
+        ServiceEntry se = (ServiceEntry)entry.getValue();
+        se.getServiceBroker().revokeService(serviceClass, se.getServiceProvider());
+      }
+    }
   }
 }
 

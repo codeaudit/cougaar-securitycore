@@ -22,42 +22,24 @@
  *  
  * </copyright> 
  */ 
-
-
 package org.cougaar.core.security.provider;
 
-import java.util.LinkedHashMap;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceProvider;
 
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.service.LoggingService;
 
-/**
- * A Map<Service, ServiceProvider>
- * <p>
- * The class extends from LinkedHashMap so we can iterate over the elements
- * in the order in which they were inserted.
- * 
- * @author srosset
- */
-public class SecurityServiceTable
-  extends LinkedHashMap
-{
-  private LoggingService log;
-
-  public SecurityServiceTable(LoggingService aLog) {
-    log = aLog;
-  }
-
-  public Object put(Object key, Object value) {
-    throw new UnsupportedOperationException("Use addService() instead");
-  }
+public class ServiceEntry {
+  private ServiceProvider sp;
+  private ServiceBroker   sb;
   
-  public synchronized Object addService(Class serviceClass, ServiceEntry serviceEntry) {
-    if (log.isDebugEnabled()) {
-     log.debug("Adding service " + serviceClass.getName());
+  public ServiceEntry(ServiceProvider provider, ServiceBroker sb) {
+    if (!(provider instanceof BaseSecurityServiceProvider)) {
+      String msg = "Provider is not a BaseSecurityServiceProvider: " + provider.getClass().getName();
+      throw new RuntimeException(msg);
     }
-    serviceEntry.getServiceBroker().
-      addService(serviceClass, serviceEntry.getServiceProvider());
-    return super.put(serviceClass, serviceEntry);
+    this.sp = provider;
+    this.sb = sb;
   }
+  public ServiceProvider getServiceProvider() {return sp;}
+  public ServiceBroker getServiceBroker() {return sb;}
 }

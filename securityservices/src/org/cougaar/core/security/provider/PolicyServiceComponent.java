@@ -92,10 +92,9 @@ public class PolicyServiceComponent  {
     if(log.isDebugEnabled()){
       log.debug("Creating Policy Service provider ");
     }
-    services = SecurityServiceTable.getInstance(log);
+    services = new SecurityServiceTable(log);
     newSP = new PolicyServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(PolicyService.class, newSP);
-    rootServiceBroker.addService(PolicyService.class, newSP);
+    services.addService(PolicyService.class, new ServiceEntry(newSP, rootServiceBroker));
     if(log.isDebugEnabled()){
       log.debug("Added policy Service to root service broker ");
     }
