@@ -3,12 +3,18 @@
 #  - Build a signed jar file containing the communities.xml file.
 #  - Build signed jar files containing the node XML files.
 
+require 'security/lib/path_utility'
+
 # Utility class to package society configuration jar files in signed jar files
 class JarPackagerUtility
   def JarPackagerUtility.jarAndSign(filepath, subdir)
     jar_file_name = "#{filepath}.jar"
-    cmd_jar = "cd #{subdir} ; jar cf #{jar_file_name} #{filepath}"
-    cmd_jarsign = "cd #{subdir} ; jarsigner -keystore $CIP/operator/security/signingCA_keystore -storepass keystore #{jar_file_name} privileged"
+    #puts "PWD:  #{`pwd`}"
+    cmd_jar = "cd #{PathUtility.fixPath(subdir)} && jar cf #{PathUtility.fixPath(jar_file_name)} #{PathUtility.fixPath(filepath)}"
+    #puts cmd_jar
+    p1 = "#{$CIP}/operator/security/signingCA_keystore"
+    cmd_jarsign = "cd #{PathUtility.fixPath(subdir)} && jarsigner -keystore #{PathUtility.fixPath(p1)} -storepass keystore #{PathUtility.fixPath(jar_file_name)} privileged"
+    #puts cmd_jarsign
 
     `#{cmd_jar}`
     `#{cmd_jarsign}`
@@ -45,10 +51,40 @@ class NodeConfigUtility
       @env =           @node.env_parameters
       @jvm_props =     @node.parameters
       @commandLine = "java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} >& $CIP/workspace/nodelogs/#{@node_name}.log"
+
+      # Save UNIX command line
       saveCommandLine
+
+      # Save Windows command line
+      convertToBatch(@java_class)
+      convertToBatch(@arguments)
+      convertToBatch(@env)
+      convertToBatch(@jvm_props)
+      @commandLineDos = "@java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} > %COUGAAR_INSTALL_PATH%\\workspace\\nodelogs\\#{@node_name}.log"
+
+      saveCommandLineDos
     rescue
       puts $!
       puts $!.backtrace
+    end
+  end
+
+  # Build the .bat file for Windows. This is hacky but it should work.
+  def convertToBatch(arguments)
+    arguments.each do |arg|
+      arg.gsub!(/\$COUGAAR_INSTALL_PATH/, '%COUGAAR_INSTALL_PATH%')
+      arg.gsub!(/\$CIP/, '%COUGAAR_INSTALL_PATH%')
+      arg.gsub!(/\\$\\/, '$')
+      arg.gsub!(/\\/, '')
+      a = arg.downcase
+      if a.index('http:') == nil \
+           && a.index('https:') == nil \
+           && a.index('file:') == nil \
+           && a.index('org.cougaar.core.society.starttime') == nil
+        arg.gsub!(/\//, '\\')
+      end
+      arg.gsub!(/bootclasspath\\/, 'bootclasspath/')
+      #puts arg
     end
   end
 
@@ -61,6 +97,15 @@ class NodeConfigUtility
 END
     }
     File.chmod(0755, scriptName)
+  end
+
+  def saveCommandLineDos
+    scriptName = "#{@society_config_dir}/#{@node_name}.bat"
+    file = File.open(scriptName ,"w") { |file|
+       file.write <<END
+#{@commandLineDos}
+END
+    }
   end
 
 end
@@ -82,8 +127,8 @@ module Cougaar
       end
 
       def perform()
-        cmd_copy = "cp #{@savedCommunityFile} #{@society_config_dir}/#{@community_file_name}"
-        `#{cmd_copy}`
+        p1 = "#{@society_config_dir}/#{@community_file_name}"
+        File.cp(@savedCommunityFile, p1)
         file = JarPackagerUtility.jarAndSign("communities.xml", @society_config_dir)
         File.unlink("#{@society_config_dir}/#{@community_file_name}")
         @run.info_message "Community file saved under #{file}"

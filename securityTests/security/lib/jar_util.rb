@@ -1,4 +1,6 @@
 require 'thread'
+require 'tmpdir'
+require 'security/lib/path_utility'
 
 if ! defined? CIP
   CIP = ENV['CIP']
@@ -65,17 +67,17 @@ end
 
 def createJar(contents_file, jar_file, jar_dir = nil)
   if jar_dir != nil
-    arg = "-C #{jar_dir}"
+    arg = "-C #{PathUtility.fixPath(jar_dir)}"
   else
     arg = ""
   end
-  `jar cf #{jar_file} #{arg} #{contents_file}`
+  `jar cf #{PathUtility.fixPath(jar_file)} #{arg} #{PathUtility.fixPath(contents_file)}`
   jar_file
 end
 
 def signJar(jar_file, keystore, cert, password = 'keystore')
-#  puts "jarsigner -keystore #{keystore} -storepass #{password} #{jar_file} #{cert}"
-  `cd #{File.dirname(jar_file)} && jarsigner -keystore #{keystore} -storepass #{password} #{jar_file} #{cert}`
+  #puts "jarsigner -keystore #{keystore} -storepass #{password} #{jar_file} #{cert}"
+  `cd #{PathUtility.fixPath(File.dirname(jar_file))} && jarsigner -keystore #{PathUtility.fixPath(keystore)} -storepass #{password} #{PathUtility.fixPath(jar_file)} #{cert}`
   jar_file
 end
 
@@ -100,14 +102,14 @@ public class #{componentName} extends org.cougaar.core.plugin.ComponentPlugin {
 }
 COMPONENT
   end
-  javaFile = "/tmp/jar-#{componentName}/#{componentName}.java"
+  javaFile = "#{Dir::tmpdir}/jar-#{componentName}/#{componentName}.java"
   dir = File.dirname(javaFile)
   Dir.mkdirs(dir)
   File.open(javaFile, "w") { |file|
     file.print(componentContents)
   }
   classpath = getClasspath
-  `javac -classpath #{classpath.join(':')} -d #{dir} #{javaFile}`
+  `javac -classpath #{classpath.join(':')} -d #{PathUtility.fixPath(dir)} #{PathUtility.fixPath(javaFile)}`
   jarFile = "#{CIP}/lib/#{componentName}.jar"
   createJar(".", jarFile, dir)
   File.rm_all(dir)
@@ -116,9 +118,9 @@ end
 
 def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
 #  puts "replacing #{replacementFile} in #{jarFile}"
-  jarDir = "/tmp/jarDir-#{File.basename(jarFile)}"
+  jarDir = "#{Dir::tmpdir}/jarDir-#{File.basename(jarFile)}"
   Dir.mkdirs(jarDir)
-  files = `jar tf #{jarFile}`.split
+  files = `jar tf #{PathUtility.fixPath(jarFile)}`.split
   baseFilename = File.basename(replacementFile)
   targetFile = nil
   files.each { |file|
@@ -130,27 +132,27 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
 #  puts "========================"
   if targetFile != nil
 #    puts "found file: #{targetFile}"
-    `cd #{jarDir} && jar xf #{jarFile} #{targetFile} 2&>1`
+    `cd #{PathUtility.fixPath(jarDir)} && jar xf #{PathUtility.fixPath(jarFile)} #{PathUtility.fixPath(targetFile)} 2&>1`
   else
 #    puts "the file wasn't found, so using #{baseFilename}"
     targetFile = baseFilename
   end
   option = "uf"
   if (keepManifest)
-    `cd #{jarDir} && jar xf #{jarFile} META-INF/MANIFEST.MF 2&>1`
+    `cd #{PathUtility.fixPath(jarDir)} && jar xf #{PathUtility.fixPath(jarFile)} META-INF/MANIFEST.MF 2&>1`
 #    puts `ls -l #{jarDir}/META-INF/MANIFEST.MF`
-    option = "umf #{jarDir}/META-INF/MANIFEST.MF"
+    option = "umf #{PathUtility.fixPath(jarDir)}/META-INF/MANIFEST.MF"
   end
 #  puts "Copying #{replacementFile} to #{File.join(jarDir, targetFile)}"
   File.cp(replacementFile, File.join(jarDir, targetFile) )
 #  puts "jar #{option} #{jarFile} -C #{jarDir} #{targetFile}"
-  results = `jar #{option} #{jarFile} -C #{jarDir} #{targetFile} 2&>1`
+  results = `jar #{option} #{PathUtility.fixPath(jarFile)} -C #{PathUtility.fixPath(jarDir)} #{PathUtility.fixPath(targetFile)} 2&>1`
 #  puts "result from jar: #{results}"
 #  puts "========================"
   File.rm_all(jarDir)
 end
 
-$jarDir = "/tmp/config.#{rand(100000)}"
+$jarDir = "#{Dir::tmpdir}/config.#{rand(100000)}"
 $jarChanges = 0
 $jarCreated=false
 $tmpFilesDeleted=true
@@ -183,13 +185,14 @@ def rebuildTempDir()
   end
   # the invariant is that the tmp dir has the desired files in the jar file
   # but we keep cleaning it up...
+
   if ($tmpFilesDeleted) then
     if ($jarCreated) then                     # get them from the latest jar file
 #      puts "cd #{$jarDir} && jar xvf #{$jarFile}"
-      `cd #{$jarDir} && jar xvf #{$jarFile}`
+      `cd #{PathUtility.fixPath($jarDir)} && jar xvf #{PathUtility.fixPath($jarFile)}`
     else                                      # get them from the reference file
 #      puts "cd #{$jarDir} && jar xvf #{$referenceJarFile}"
-      `cd #{$jarDir} && jar xvf #{$referenceJarFile}`
+      `cd #{PathUtility.fixPath($jarDir)} && jar xvf #{PathUtility.fixPath($jarFile)}`
     end
   end
   $tmpFilesDeleted = false
@@ -225,7 +228,7 @@ def commitConfigChanges()
   end
   rebuildTempDir()
 #  puts "cd #{$jarDir} && jar cf #{$jarFile} ."
-  `cd #{$jarDir} && jar cf #{$jarFile} .`
+  `cd #{PathUtility.fixPath($jarDir)} && jar cf #{PathUtility.fixPath($jarFile)} .`
   $jarCreated=true
   signJar($jarFile, "#{CIP}/operator/signingCA_keystore",            
           "privileged")

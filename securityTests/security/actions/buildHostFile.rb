@@ -14,8 +14,13 @@ module Cougaar
           'tredmond' => ["pine", "lemon", "yew", "tea", "cherry"],
           'rtripath' => ["elm", "birch", "pear", "palm", "apple"],
           'rliao1'   => ["willow", "chestnut", "ash", "hemlock", "pecan"],
+          'default'  => ["host_1", "host_2", "host_3", "host_4", "host_5"],
         }
-        @@hosts = hostsMap[user]
+        if hostsMap[user] != nil
+          @@hosts = hostsMap[user]
+        else
+          @@hosts = hostsMap['default']
+        end
         #puts @@hosts
         @hostFileName = hostfilename
       end
@@ -29,6 +34,7 @@ module Cougaar
       end
 
       def buildHostFile()
+        puts @hostFileName
         file = File.open(@hostFileName ,"w") { |file|
           file.write <<END
 <?xml version="1.0"?>

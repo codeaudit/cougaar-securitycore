@@ -4,6 +4,7 @@ require 'cougaar/communities'
 require 'ultralog/enclaves'
 require 'security/lib/jar_util'
 require 'security/lib/policy_util'
+require 'security/lib/path_utility'
 require 'security/lib/common_security_rules'
 
 
@@ -58,7 +59,7 @@ module Cougaar
         end
         result = `cd #{@stagingdir} && jar cf #{jarFile} .`
         # puts "result of jar = #{result}"
-        result = `jarsigner -keystore #{signingKeystore} -storepass keystore #{jarFile} privileged`
+        result = `jarsigner -keystore #{PathUtility.fixPath(signingKeystore)} -storepass keystore #{PathUtility.fixPath(jarFile)} privileged`
         # puts "result of jarsigner = #{result}"
       end # def packageAndSignJar
 
