@@ -118,141 +118,33 @@ final public class KeyRing
       }
       throw new RuntimeException("Unable to get crypto Client policy");
     }
-    // Keystore to store key pairs
+    
     param = new DirectoryKeyStoreParameters();
     param.serviceBroker = serviceBroker;
 
-    /*
-      String defaultKeystorePath = installpath + File.separatorChar
-      + "configs" + File.separatorChar + "common"
-      + File.separatorChar + "keystore";
-      param.keystorePassword =
-      secprop.getProperty(secprop.KEYSTORE_PASSWORD,
-      "alpalp").toCharArray();
-      param.keystorePath =
-      secprop.getProperty(secprop.KEYSTORE_PATH,
-      defaultKeystorePath);
-    */
-
-    String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
-    nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
-    param.keystorePath = nodeConfiguration.getNodeDirectory()
-      + cryptoClientPolicy.getKeystoreName();
-    log.debug("going to use smart card: " + cryptoClientPolicy.getUseSmartCard());
-    if (cryptoClientPolicy.getUseSmartCard()) {
-      try {
-	param.keystorePassword =
-	  SmartCardApplet.getKeystorePassword(cryptoClientPolicy.getKeystorePassword(),
-					      log);
-
-      } catch (RuntimeException e) {
-	log.error("Couldn't talk to the keystore");
-	throw e;
-      }
-    } else {
-      param.keystorePassword = cryptoClientPolicy.getKeystorePassword().toCharArray();
-    } // end of else
-
-    File file = new File(param.keystorePath);
-    if (!file.exists()){
-      if (log.isInfoEnabled()) {
-	log.info(param.keystorePath +
-		 " keystore does not exist. Creating...");
-      }
-      try {
-	KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
-	FileOutputStream fos = new FileOutputStream(param.keystorePath);
-	k.load(null, param.keystorePassword);
-	k.store(fos, param.keystorePassword);
-	fos.close();
-      }
-      catch (Exception e) {
-	log.warn("Unable to get keystore:" + e);
-	throw new RuntimeException("Unable to get keystore:" + e);
-      }
-    }
-    try {
-      param.keystoreStream = new FileInputStream(param.keystorePath);
-      param.isCertAuth = configParser.isCertificateAuthority();
-    }
-    catch (Exception e) {
-      log.warn("Unable to open keystore:" + e);
-      throw new RuntimeException("Unable to open keystore:" + e);
-    }
-
-    // CA keystore parameters
-    ConfigFinder configFinder = ConfigFinder.getInstance();
-    param.caKeystorePath = nodeConfiguration.getNodeDirectory()
-      + cryptoClientPolicy.getTrustedCaKeystoreName();
-    param.caKeystorePassword =
-      cryptoClientPolicy.getTrustedCaKeystorePassword().toCharArray();
-
-    if (log.isDebugEnabled()) {
-      log.debug("CA keystorePath=" + param.caKeystorePath);
-    }
-    File cafile = new File(param.caKeystorePath);
-    if (!cafile.exists()) {
-      if (log.isInfoEnabled()) {
-	log.info(param.caKeystorePath +
-		 "Trusted CA keystore does not exist. in "
-		 + param.caKeystorePath + ". Trying with configFinder");
-      }
-      File cafile2 = configFinder.locateFile(cryptoClientPolicy.getTrustedCaKeystoreName());
-      if (cafile2 != null) {
-	param.caKeystorePath = cafile2.getPath();
-      }
-      else {
-	if (param.isCertAuth) {
-	  if (log.isInfoEnabled()) {
-	    log.info(param.caKeystorePath +
-		     " Trusted CA keystore does not exist. Creating...");
-	  }
-	  try {
-	    KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
-	    FileOutputStream fos = new FileOutputStream(param.caKeystorePath);
-	    k.load(null, param.caKeystorePassword);
-	    k.store(fos, param.caKeystorePassword);
-	    fos.close();
-	  }
-	  catch (Exception e) {
-	    log.warn("Unable to create CA keystore:" + e);
-	    throw new RuntimeException("Unable to create CA keystore:" + e);
-	  }
-	}
-	else {
-	  log.error("CA keystore (" + param.caKeystorePath +
-		    ") unavailable. At least one CA certificate should be included");
-	}
-      }
-    }
-
-    try {
-      param.caKeystoreStream = new FileInputStream(param.caKeystorePath);
-    }
-    catch (Exception e) {
-      if (log.isWarnEnabled()) {
-	log.warn("Warning: Could not open CA keystore ("
-		 + param.caKeystorePath + "):" + e);
-      }
-      param.caKeystoreStream = null;
-      param.caKeystorePath = null;
-      param.caKeystorePassword = null;
-    }
-
-    if (log.isDebugEnabled()) {
-      log.debug("Secure message keystore: path="
-		+ param.keystorePath);
-      log.debug("Secure message CA keystore: path="
-		+ param.caKeystorePath);
-    }
-
     // LDAP certificate directory
+    param.isCertAuth = configParser.isCertificateAuthority();
+
     TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
+    
     if (trustedCaPolicy.length > 0) {
+      if (log.isDebugEnabled()) {
+	 log.debug(" TrustedCaPolicy is  :"+ trustedCaPolicy[0].toString());
+       }
       param.ldapServerUrl = trustedCaPolicy[0].certDirectoryUrl;
       param.ldapServerType = trustedCaPolicy[0].certDirectoryType;
     }
+    else {
+       if (log.isDebugEnabled()) {
+	 log.debug(" TrustedCaPolicy is Empty !!!!!!!!!!!!!!!!!!!!!!!! ");
+       }
+      
+    }
     if(param.isCertAuth) {
+       if (log.isDebugEnabled()) {
+	 log.debug(" is Cert  Authority ----------------------------------------:");
+       }
+      
       X500Name [] caDNs=configParser.getCaDNs();
       if (caDNs.length > 0) {
         String caDN=caDNs[0].getName();
@@ -261,30 +153,16 @@ final public class KeyRing
         param.ldapServerType =capolicy.ldapType;
 	param.defaultCaDn = caDN;
       }
+      else {
+	log.debug(" caDNs is empty !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-:"+ caDNs.length);
+      }
     }
+    if (log.isDebugEnabled()) {
+      log.debug(" Ladap type is :"+ param.ldapServerType); 
+     }
 
 
     directoryKeystore = new DirectoryKeyStore(param);
-
-    if (param.keystoreStream != null) {
-      try {
-	param.keystoreStream.close();
-      }
-      catch (Exception e) {
-	log.warn("Unable to close keystore:" + e);
-	throw new RuntimeException("Unable to close keystore:" + e);
-      }
-    }
-    if (param.caKeystoreStream != null) {
-      try {
-	param.caKeystoreStream.close();
-      }
-      catch (Exception e) {
-	log.warn("Unable to close CA keystore:" + e);
-	throw new RuntimeException("Unable to close CA keystore:" + e);
-      }
-    }
-
     pkcs12 = new PrivateKeyPKCS12(directoryKeystore, serviceBroker);
 
     if (directoryKeystore == null || pkcs12 == null && param.isCertAuth == false) {
@@ -300,13 +178,15 @@ final public class KeyRing
       throw new RuntimeException("No cryptographic keystores");
     }
   }
-
+  
+  /*
   public KeyStore getKeyStore() {
     if (directoryKeystore == null) {
       return null;
     }
     return directoryKeystore.getKeyStore();
   }
+  */
 
   public DirectoryKeyStore getDirectoryKeyStore() {
     return directoryKeystore;
@@ -395,6 +275,7 @@ final public class KeyRing
     return chain;
   }
 
+  /*
   public void setSleeptime(long sleeptime)
   {
     if (directoryKeystore == null) {
@@ -410,6 +291,7 @@ final public class KeyRing
     }
     return directoryKeystore.getSleeptime();
   }
+  */
 
   public Vector getCRL()
   {
@@ -490,13 +372,14 @@ final public class KeyRing
     directoryKeystore.setKeyEntry(key, cert);
   }
 
+  /*
   public String getCommonName(String alias) {
     return directoryKeystore.getCommonName(alias);
   }
-
   public Enumeration getAliasList() {
     return directoryKeystore.getAliasList();
   }
+*/
   public String getAlias(X509Certificate clientX509) {
     return directoryKeystore.getAlias(clientX509);
   }
@@ -513,13 +396,31 @@ final public class KeyRing
   public X509Certificate[] buildCertificateChain(X509Certificate certificate) {
     return directoryKeystore.buildCertificateChain(certificate);
   }
-
+  
+  public boolean checkCertificate(CertificateStatus cs,
+				  boolean buildChain, boolean changeStatus) {
+    if(directoryKeystore!=null) {
+      return directoryKeystore.checkCertificate(cs,buildChain,changeStatus);
+    }
+    return false;
+					       
+    
+  }
+  public  List getValidCertificates(X500Name x500Name) {
+     if(directoryKeystore!=null) {
+      return directoryKeystore.getValidCertificates(x500Name);
+    }
+    return null;
+  }
+/*
   public String getCaKeyStorePath() {
     return param.caKeystorePath;
   }
+  
   public String getKeyStorePath() {
     return param.keystorePath;
   }
+  */
 
   public boolean checkExpiry(String commonName) {
     return directoryKeystore.checkExpiry(commonName);
@@ -532,12 +433,19 @@ final public class KeyRing
   public void updateNS(X500Name x500name) {
     directoryKeystore.updateNS(x500name);
   }
+  public  CertDirectoryServiceClient getCACertDirServiceClient(String dname) {
+    return directoryKeystore.getCACertDirServiceClient(dname);
+  }
 
+
+/*
   public void addSSLCertificateToCache(X509Certificate cert) {
     directoryKeystore.addSSLCertificateToCache(cert);
   }
+  
   public void removeEntryFromCache(String commonName) {
     directoryKeystore.removeEntryFromCache(commonName);
   }
+*/
 }
 
