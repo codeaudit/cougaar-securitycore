@@ -1,6 +1,8 @@
 =begin experiment
 
 name: MOAS-II-AS-Save
+group: nogroup
+type: baseline
 description: MOAS-II-AS save pre-Stage5
 script: $CIP/csmart/scripts/definitions/BaselineTemplate.rb
 parameters:

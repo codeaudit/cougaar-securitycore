@@ -1,6 +1,8 @@
 =begin experiment
 
 name: MOAS-II-RESTORE-Basline
+group: nogroup
+type: baseline 
 description: MOAS-II-preStage5-Restore-Baseline
 script: $CIP/csmart/scripts/definitions/RestoreTemplate.rb
 parameters:
