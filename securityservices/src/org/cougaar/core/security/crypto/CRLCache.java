@@ -107,7 +107,7 @@ import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.util.*;
 import  org.cougaar.core.security.naming.*;
 
-final public class CRLCache implements CRLCacheService, BlackboardClient {
+final public class CRLCache implements CRLCacheService, BlackboardClient, SearchCallback {
 
   private SecurityPropertiesService secprop = null;
   //private DirectoryKeyStoreParameters param;
@@ -352,7 +352,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
       Enumeration enumkeys =crlsCache.keys();
       while(enumkeys.hasMoreElements()) {
         dnname=(String)enumkeys.nextElement();
-        if(dnname!=null) {
+        if (dnname != null) {
           updateCRLCache(dnname);
         }
       }
@@ -500,10 +500,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
     if(log.isDebugEnabled()) {
       log.debug(" Updating crl cache for :"+distingushname);
     }
-    X509CRL crl=null;
-    CRLWrapper wrapper=null;
-    PublicKey crlIssuerPublickey =null;
-    X509Certificate crlIssuerCert=null;
+
     X500Name name =null;
     try {
       name =  new X500Name(distingushname);
@@ -511,7 +508,25 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
     catch(Exception exp) {
       log.error("Unable to get CA name: " + distingushname);
     }
+    
+    event("crlPoller", distingushname, "");
 
+    _searchService.findCert(name, this);
+  }
+
+  public void searchCallback(String distingushname, List list) {
+
+    X500Name name =null;
+    try {
+      name =  new X500Name(distingushname);
+    }
+    catch(Exception exp) {
+      log.error("Unable to get CA name: " + distingushname);
+    }
+    X509CRL crl=null;
+    CRLWrapper wrapper=null;
+    PublicKey crlIssuerPublickey =null;
+    X509Certificate crlIssuerCert=null;
     if(keyRingService==null) {
       log.warn("Unable to get  Ring Service in updateCRLCache");
       return;
@@ -529,7 +544,6 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
     }
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
     crlIssuerPublickey=crlIssuerCert.getPublicKey();
-    List list=_searchService.findCert(name);
     CACertificateEntry caentry=null;
     Iterator iter=null;
     Object obj=null;
@@ -611,6 +625,10 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
       catch(Exception exp) {
 	log.warn("Unable to encode crl in CRL cache :"+ distingushname + " message :"+exp.getMessage());
       }
+      if (log.isDebugEnabled()) {
+        log.debug("Got crl for: " + distingushname);
+      }
+
       crlsCache.put(distingushname,wrapper);
     }
 
