@@ -35,7 +35,6 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateException;
-import java.util.Hashtable; 
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -158,13 +157,7 @@ public class MessageProtectionServiceImpl
     String destAddr = destination.toAddress();
     keyRing.findCert(destAddr, keyRing.LOOKUP_FORCE_LDAP_REFRESH);
     try {
-      //X509Certificate certificate = keyRing.findFirstAvailableCert(destAddr);
-      Hashtable certTable = keyRing.findCertPairFromNS(source.toAddress(), destAddr);
-      X509Certificate certificate = (X509Certificate)certTable.get(destAddr);
-      if (certificate == null) {
-	throw new CertificateException("No target " + destAddr + " cert available.");
-      }
-
+      X509Certificate certificate = keyRing.findFirstAvailableCert(destAddr);
       AttributedMessage msg = 
         new AttributedMessage(new FakeRequestMessage(destination, source, null));
       msg.setAttribute(NEW_CERT, certificate);
@@ -209,8 +202,18 @@ public class MessageProtectionServiceImpl
     if (!isInitialized) {
       setPolicyService();
     }
-     CryptoPolicy policy =
+
+    CryptoPolicy policy =
        cps.getOutgoingPolicy(source.getAddress());
+
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (destination.toAddress().endsWith("(MTS)")) {
+	log.info("Outgoing postmaster message. Skipping encryption");
+	return rawData;
+    }
+
     if (policy == null) {
       if (log.isWarnEnabled()) {
 	      log.warn("protectHeader NOK: " + source.toAddress()
@@ -282,6 +285,15 @@ public class MessageProtectionServiceImpl
     }
      CryptoPolicy policy =
        cps.getIncomingPolicy(destination.toAddress());
+
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (destination.toAddress().endsWith("(MTS)")) {
+	log.info("Incoming postmaster message. Skipping encryption");
+	return rawData;
+    }
+
     if (policy == null) {
       if (log.isWarnEnabled()) {
 	      log.warn("unprotectHeader NOK: " + source.toAddress()
@@ -396,6 +408,14 @@ public class MessageProtectionServiceImpl
       return new BasicMessageOutputStream(os, source, destination, serviceBroker);
     }
 
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (destination.toAddress().endsWith("(MTS)")) {
+      log.info("Outgoing message is a postmaster message. Skipping encryption");
+      return new BasicMessageOutputStream(os, source, destination, serviceBroker);
+    }
+
     pos =
       new MessageOutputStream(os, encryptService, cps,
 			      source, destination, serviceBroker);
@@ -445,6 +465,14 @@ public class MessageProtectionServiceImpl
     if (attrs.getAttribute(AttributeConstants.ENCRYPTED_SOCKET_ATTRIBUTE) != null) {
       // The message is encrypted using SSL. Do not do double encryption.
       log.info("Incoming message encrypted using SSL. Skipping message protection");
+      return new BasicMessageInputStream(is, source, destination, serviceBroker);
+    }
+
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (destination.toAddress().endsWith("(MTS)")) {
+      log.info("Incoming message is a postmaster message. Skipping encryption");
       return new BasicMessageInputStream(is, source, destination, serviceBroker);
     }
 
