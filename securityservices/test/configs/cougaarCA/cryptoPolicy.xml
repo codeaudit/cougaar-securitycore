@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
 
-<!DOCTYPE policies SYSTEM "securityPolicy.dtd" []>
-
 <policies>
 
   <policy name="Crypto Client Policy" type = "cryptoClientPolicy">
