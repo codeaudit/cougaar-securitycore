@@ -72,7 +72,9 @@ public class AccessAgentProxy
   private static EventPublisher eventPublisher = null;
   private MessageAddress myID = null;
   private AccessControlPolicyService acps;
+  private TopologyReaderService toporead;
   private Set nodeList;
+  private Set agentList;
   
   public AccessAgentProxy (MessageTransportService mymts,
 			   Object myobj,
@@ -96,10 +98,11 @@ public class AccessAgentProxy
 			       SecurityPropertiesService.class, null);
 
     //load agent and node name list from topo reader
-    TopologyReaderService toporead = (TopologyReaderService) 
+    toporead = (TopologyReaderService) 
       sb.getService(this, TopologyReaderService.class, null);
     
     nodeList = toporead.getAll(TopologyReaderService.NODE);
+    agentList = toporead.getAll(TopologyReaderService.AGENT);
     
     if(log.isDebugEnabled()) {
       log.debug("Access agent proxy for " + myID.toAddress() + " initialized");
@@ -122,8 +125,8 @@ public class AccessAgentProxy
     }
     
     //check to see if any node agent is involved.
-    if(nodeList.contains(message.getOriginator().toString())||
-        nodeList.contains(message.getTarget().toString())){
+    if(isNodeAgent(message.getOriginator().toString())||
+        isNodeAgent(message.getTarget().toString())){
           //no wrapping with trust
           mts.sendMessage(message);
           if(log.isDebugEnabled()){
@@ -305,8 +308,8 @@ public class AccessAgentProxy
     }
     else {
       //check to see if any node agent is involved.
-      if(nodeList.contains(m.getOriginator().toString())||
-          nodeList.contains(m.getTarget().toString())){
+      if(isNodeAgent(m.getOriginator().toString())||
+          isNodeAgent(m.getTarget().toString())){
             //no wrapping with trust
             mtc.receiveMessage(m);
             if(log.isDebugEnabled()){
@@ -746,5 +749,30 @@ public class AccessAgentProxy
         log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
     }  
+  }
+  
+  /*
+   * try to identify a node agent
+   */
+  private boolean isNodeAgent(String name){
+    if(nodeList.contains(name)){
+      return true;
+    }else if(agentList.contains(name)){
+      return false;
+    }else{
+      //we need to update list.
+      nodeList = toporead.getAll(TopologyReaderService.NODE);
+      agentList = toporead.getAll(TopologyReaderService.AGENT);
+      if(nodeList.contains(name)){
+        return true;
+      }else if(agentList.contains(name)){
+        return false;
+      }else{
+        //very unlikely event, but...
+        log.error("failed looking up agent name in topology service for:" 
+        + name, new Throwable());
+        return false;
+      }
+    }
   }
 }
