@@ -1,6 +1,39 @@
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 25 : PERCEIVED_THREAT_LEVEL = 1;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE in { 26 thru 50 } : PERCEIVED_THREAT_LEVEL = 2;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 50 : PERCEIVED_THREAT_LEVEL = 3;
+//
+// Society level play book
+//
+
+/* This playbook is used to evaluate the perceived threat level of a society and take actions
+ * when the threat level changes. The perceived threat level depends on how many login failures
+ * occur in a period of time.
+ *
+ * Every T1 seconds, the loging failure analyzer evaluates the number of login failures over the
+ * past T2 seconds. The analyzer aggregates all the login failures from all users.
+ * The current login failure analyzer recipe is setup with T1=20 seconds and T2=20 minutes.
+ *
+ * When the rate of login failures crosses a threshold, the perceived threat level changes and
+ * the preventive measure policy may change. The login failure analyzer always returns the login
+ * failure rate in number of failures per day, regardless of the settings of T1 and T2.
+ * Currently, this playbook file defines three perceived threat levels (1, 2 and 3).
+ * 
+ * In every threat level, each user is allowed R login attempts before that user is locked out
+ * for L seconds. For example, in threat level 1, user mbarger is allowed 10 login failures before
+ * the mbarger account is locked out for 60 seconds. After 60 seconds, the mbarger user can try
+ * to login again.
+ * If the lockout duration is set to -1 (as in threat level 3), then the user is locked out
+ * until an administrator unlocks the account.
+ *
+ * In threat level 1 and 2, the preventive measure policy is set to LOW. This mode allows users
+ * to login using either a password or a certificate.
+ * In threat level 3, the preventive measure policy is set to HIGH. Users must provide a certificate
+ * to login.
+ *
+ * 2160 login failures/day == 30 failures/20 minutes
+ * 1080 login failures/day == 15 failures/20 minutes
+ */
+
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080 : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE in { 1081 thru 2160 } : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 2160 : PERCEIVED_THREAT_LEVEL = 3;
 PERCEIVED_THREAT_LEVEL == 1
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 60
