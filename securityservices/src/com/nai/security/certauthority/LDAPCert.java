@@ -24,7 +24,7 @@
  * - 
  */
 
-//package com.nai.security.certauthority;
+package com.nai.security.certauthority;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -108,14 +108,28 @@ import com.nai.security.crypto.Base64;
 
     public LDAPCert(String filename) {
 	X509Certificate cert = loadCert(filename);
-	objectclass.add("xuda_certificate");
-	init(cert, cert);
-
-	System.out.println("Loaded certificate with dn = " + dn);
+	objectclass.add("xuda_ca");
 	set.put(objectclass);	
-	formatAttributes(set);
+	init(cert, cert);
     }
 
+    public LDAPCert(X509Certificate cert) {
+	objectclass.add("xuda_ca");
+	set.put(objectclass);	
+	init(cert, cert);
+    }
+
+    public LDAPCert(String certFile, String caFile) {
+	X509Certificate cert = loadCert(certFile);
+	X509Certificate ca = loadCert(caFile);
+	init(cert, ca);
+    }
+
+    public LDAPCert(X509Certificate cert, X509Certificate ca) {
+	objectclass.add("xuda_certificate");
+	set.put(objectclass);	
+	init(cert, ca);
+    }
     
     protected String toHex(byte[] data) {
 	StringBuffer buff = new StringBuffer();
@@ -160,7 +174,7 @@ import com.nai.security.crypto.Base64;
 	hash = hash(der, certDigest);
 	ca_hash = hash(ca_der, issuerDigest);
 
-        dn = digestAlg + "=" +  toHex(hash);
+        dn = digestAlg.toLowerCase() + "=" +  toHex(hash);
 	set.put("md5", toHex(hash));
 	set.put("ca_md5", toHex(ca_hash));
 	set.put("serial_no",
@@ -169,7 +183,12 @@ import com.nai.security.crypto.Base64;
 	set.put("notbefore_tim" , time.format(cert.getNotBefore()));
 	set.put("notafter_dte", day.format(cert.getNotAfter()));
 	set.put("notafter_tim" , time.format(cert.getNotAfter()));
+	set.put("pem_x509", pem);
 	parseDN(cert.getIssuerDN().getName(), set);
+	if(debug) {
+	    System.out.println("Loaded certificate with dn = " + dn);
+	    formatAttributes(set);
+	}
     }
 
     public void parseDN(String dn, Attributes attribs) { 
@@ -207,24 +226,36 @@ import com.nai.security.crypto.Base64;
     }
 
 
-
+    public void put(DirContext context) {
+	try {
+	    context.createSubcontext(dn, set);
+	}
+	catch(Exception ex) {
+	    ex.printStackTrace();
+	}
+    }
     
     public static void main(String arg[]) {
-	System.out.println("Using certificate file = " + arg[0]);
-	LDAPCert lcert = new LDAPCert(arg[0]);
-
-	
+	LDAPCert lcert;
 	Hashtable env = new Hashtable();
+
 	env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
 	env.put(Context.PROVIDER_URL, "ldap://palm:389/");
-	//else 
-	//env.put(Context.PROVIDER_URL, arg[0]);
 	
+	switch(arg.length) {
+	case 0:  return;
+	case 1:  lcert = new LDAPCert(arg[0]);
+	         break;
+	default: env.put(Context.PROVIDER_URL, "ldap://palm:389/");
+	case 2:  lcert = new LDAPCert(arg[0], arg[1]);
+	}
+	
+	System.out.println("Using certificate file = " + arg[0]);
 	if(debug)System.out.println("Initial context is " + 
 				    env.get(Context.PROVIDER_URL));
 	try {
 	    ctx = new InitialDirContext(env);
-	    //ctx.search("*", 
+	    //lcert.put(ctx); 
 	}
 	catch(Exception ex) {
 	    if(debug)ex.printStackTrace();
