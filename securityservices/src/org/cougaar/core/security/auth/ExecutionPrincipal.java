@@ -46,7 +46,11 @@ public final class ExecutionPrincipal implements Principal {
   }
   
   public String getName() {
-    return _context.toString();
+    if (_context  != null) {
+      return _context.toString();
+    } else {
+      return "";
+    }
   }
   
   public int hashCode() {
