@@ -35,6 +35,10 @@ import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.PolicyBootstrapperService;
 import org.cougaar.core.security.config.ConfigParserServiceImpl;
 
+//from kaos
+import kaos.core.util.PolicyMsg;
+import kaos.core.util.AttributeMsg;
+
 public class PolicyBootstrapper 
   implements PolicyBootstrapperService
 {
@@ -65,11 +69,35 @@ public class PolicyBootstrapper
       throw new RuntimeException("PolicyBootstrapper failed to get ConfigParserService.");
   }
   
-  public SecurityPolicy[] getBootPolicy(Class type)
+  public PolicyMsg getBootPolicy(Class type)
   {
     if (debug) {
       System.out.println("getBootPolicy: " + type);
     }
-    return cps.getSecurityPolicies(type);
+    SecurityPolicy[] policies = cps.getSecurityPolicies(type);
+    
+    PolicyMsg policyMsg = null;
+    if (policies != null) {
+        policyMsg = new PolicyMsg ("",
+                                             "",
+                                             "",
+                                             "",
+                                             "",
+                                             "",
+                                             "",
+                                             "",
+                                             "",
+                                             true,
+                                             false,
+                                             false);
+        for (int i=0; i<policies.length; i++) {                    
+            // wrap the policy in a KAoS message
+            AttributeMsg attribMsg = new AttributeMsg("POLICY_OBJECT",
+                                                      policies[i],
+                                                      true);
+            policyMsg.setAttribute(attribMsg);
+        }
+    } 
+    return policyMsg;
   }
 }

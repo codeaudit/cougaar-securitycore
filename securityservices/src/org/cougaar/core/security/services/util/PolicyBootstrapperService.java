@@ -27,8 +27,11 @@ package org.cougaar.core.security.services.util;
 import org.cougaar.core.component.Service;
 import org.cougaar.core.security.policy.SecurityPolicy;
 
+//from kaos
+import kaos.core.util.PolicyMsg;
+
 public interface PolicyBootstrapperService
   extends Service
 {
-  public SecurityPolicy[] getBootPolicy(Class type);
+  public PolicyMsg getBootPolicy(Class type);
 }
