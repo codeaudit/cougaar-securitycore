@@ -474,7 +474,6 @@
             <fileset dir="${securityservices.configs}/ping"/>
         </copy>
 
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/agentrestart"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/communities"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/robustness"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/redundancy"/>
@@ -505,13 +504,6 @@
         </copy>
         <copy todir="${cougaar.install.path}/csmart/config/rules/testCollectData">
             <fileset dir="${securityservices.configs}/recipes/rules/testCollectData">
-                <patternset>
-                    <include name="*.rule"/>
-                </patternset>
-            </fileset>
-        </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/agentrestart">
-            <fileset dir="${securityservices.configs}/recipes/rules/agentrestart">
                 <patternset>
                     <include name="*.rule"/>
                 </patternset>
