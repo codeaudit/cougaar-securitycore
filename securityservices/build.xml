@@ -142,7 +142,15 @@
         <!-- make regress directory -->
         <mkdir dir="${securityservices.results}" />
         <mkdir dir="${securityservices.results}/html" />
+
+        <!-- Fix End Of Line characters in source files -->
+        <fixcrlf srcdir="${securityservices.src}"
+          includes="**/*.java"
+           eol="lf" 
+           eof="remove"
+        />
     </target>
+
     
     <!-- Build the JavaIDMEF library -->
     <target name="build-idmef" depends="init">
