@@ -219,7 +219,7 @@
  
     <target name="check-policiesUptodate">
       <uptodate property="policiesUptodate"
-                targetfile="${securityservices.configs}/common/DamlBootPolicyAllowCommunication.info" >
+                targetfile="${securityservices.configs}/common/DamlBootPoliciesCompleted" >
         <srcfiles dir="${securityservices.configs}/common"
                   includes="DamlBootPolicyList, Ontology-*.daml" />
         <srcfiles dir="${securityservices.lib}"
@@ -243,13 +243,16 @@
       <echo message="++++++ Building boot policies"/>
       <java classname="org.cougaar.core.security.policy.builder.Main" 
             fork="true"
+            failonerror="true"
             dir="${securityservices.configs}/common">
         <classpath refid="core.class.path" />
         <!-- this is done before signing so I need an explicit path -->
         <classpath 
            path="${securityservices.base}/classes/securityservices.jar" />
-        <arg line="buildSilent DamlBootPolicyList" />
+        <arg line="build --quiet DamlBootPolicyList" />
       </java>
+      <touch 
+         file="${securityservices.configs}/common/DamlBootPoliciesCompleted" />
     </target>
 
     <target name="jar-configs" depends="build-policies">
@@ -666,11 +669,13 @@
     </target>
 
     <target name="clean-policies">
-        <echo message="+++++ Cleaning boot policies"/>
-        <delete>
-          <fileset dir="${securityservices.configs}/common"
-                   includes="DamlBootPolicy*.info, DamlBootPolicy*.msg" />
-        </delete>
+      <echo message="+++++ Cleaning boot policies"/>
+      <delete 
+         file="${securityservices.configs}/common/DamlBootPoliciesCompleted" />
+      <delete>
+        <fileset dir="${securityservices.configs}/common"
+                 includes="DamlBootPolicy*.info, DamlBootPolicy*.msg" />
+      </delete>
     </target>
 
 
