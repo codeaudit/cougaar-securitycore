@@ -58,7 +58,6 @@ public class PersistenceVerificationServlet
   public void init(ServletConfig config)
     throws ServletException
   {
-    DataProtectionStatus.initStatus();
   }
 
   public void doPost (HttpServletRequest req, HttpServletResponse res)
