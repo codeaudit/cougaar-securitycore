@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cat ${CIP}/workspace/log4jlogs/*.log   \
+     | awk -f subordinateReports.awk  \
+     | mysql -h cougaar-db -u society_config -ps0c0nfig
