@@ -13,11 +13,11 @@
     <facet service="NFS"/> 
   </host> 
   <host name='peach'> 
-    <facet service="operator"/> 
     <facet service="SMTP"/> 
     <facet service="jabber"/> 
   </host> 
   <host name='yew'> 
+    <facet service="operator"/> 
     <facet service="acme"/> 
   </host> 
   <host name='eucalyptus'> 

@@ -390,6 +390,10 @@ society.each_node do |node|
 
     httpport = 8810
     httpsport = 9810
+    if facet[:role] == 'RedundantCertificateAuthority'
+      httpport = 8840
+      httpsport = 9840
+    end
     
     # node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File","$COUGAAR_INSTALL_PATH#{File::SEPARATOR}workspace#{File::SEPARATOR}log4jlogs#{File::SEPARATOR}${HOSTNAME}-ca.log")
 

@@ -2,10 +2,20 @@
 # enclave_ca_config_component.rule
 
 cahost = nil
+caHttpPort = nil
+caHttpsPort = nil
 society.each_node do |node|
   node.each_facet(:role) do |facet|
     if facet[:role] == 'RootCertificateAuthority'
       cahost = node.host.name 
+      caHttpPort = node.cougaar_port
+      if (caHttpPort == nil)
+        raise "Unable to find HTTP port number of root CA"
+      end
+      caHttpsPort = node.secure_cougaar_port
+      if (caHttpsPort == nil)
+        raise "Unable to find HTTPS port number of root CA"
+      end
     end
   end
 end

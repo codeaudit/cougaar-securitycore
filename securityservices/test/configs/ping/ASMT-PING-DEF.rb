@@ -20,6 +20,11 @@ parameters:
     - $CIP/csmart/lib/security/rules
     - $CIP/csmart/config/rules/security/mop
     - $CIP/csmart/config/rules/security/testCollectData
+   # ###
+   # Redundant CA and persistence managers
+    - $CIP/csmart/config/rules/security/redundancy
+    - $CIP/csmart/config/rules/security/robustness
+   # ###
 # ######################################################
 #    - $CIP/csmart/config/rules/security/robustness
 #    - $CIP/csmart/config/rules/robustness
@@ -33,11 +38,19 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
   - script: setup_ping.rb
   - script: $CIP/csmart/lib/security/scripts/setup_society_ping.rb
+# ######################################################
+# Security rules
   - script: $CIP/csmart/lib/security/scripts/build_config_jarfiles.rb
   - script: $CIP/csmart/lib/security/scripts/setup_acme_user.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
-  - script: $CIP/csmart/lib/security/scripts/check_mop.rb
+  - script: $CIP/csmart/lib/security/scripts/revoke_agent_and_node_cert.rb
+  - script: $CIP/csmart/lib/security/scripts/stress_security_uc1.rb
+  - script: $CIP/csmart/lib/security/scripts/stress_security_uc3.rb
   - script: $CIP/csmart/lib/security/scripts/stress_security_uc5.rb
+  - script: $CIP/csmart/lib/security/scripts/threatcon_level_change.rb
+  - script: $CIP/csmart/lib/security/scripts/check_mop.rb
+# ######################################################
 #  - script: setup_robustness.rb
 #  - script: network_shaping.rb
 #  - script: cnccalc_include.rb

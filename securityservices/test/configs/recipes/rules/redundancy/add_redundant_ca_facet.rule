@@ -7,7 +7,7 @@ society.each_node do |node|
     if facet[:role] == 'RootCertificateAuthority' || facet[:role] == 'CertificateAuthority'
       cahost = node.host
       cahost.add_node("REDUNDANT-#{node.name}") do |redundant_node|
-        redundant_node.add_facet("Redundant#{facet[:role]}")
+        redundant_node.add_facet("role" => "Redundant#{facet[:role]}")
       end
     end
   end
