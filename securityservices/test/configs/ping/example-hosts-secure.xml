@@ -15,7 +15,7 @@
   <host name='sb007'> 
     <facet service="NFS"/> 
     <facet service="SMTP"/> 
-    <facet service="Jabber"/> 
+    <facet service="jabber"/> 
   </host> 
   <host name='sb023'> 
     <facet service="ACME"/> 
