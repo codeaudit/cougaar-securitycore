@@ -31,7 +31,7 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.util.ConfigFinder;
 
-class TestSecureConfigFinder
+public class TestSecureConfigFinder
   extends ComponentPlugin
 {
   private LoggingService _log;
@@ -94,6 +94,5 @@ class TestSecureConfigFinder
     else {
       _log.error("File should be found" , new Throwable());
     }
-
   }
 }
