@@ -36,9 +36,11 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NameClassPair;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 
@@ -98,7 +100,7 @@ public class LDAPCert //extends LdapContext
     public void pulish2Ldap(X509Certificate ca) {
 	set = new BasicAttributes(true);
 	objectclass = new BasicAttribute("objectclass");
-	objectclass.add("xuda_certifcate");
+	objectclass.add("xuda_certificate");
 	set.put(objectclass);	
 	init(ca, ca);
 	put();
@@ -108,7 +110,7 @@ public class LDAPCert //extends LdapContext
     {
 	set = new BasicAttributes(true);
 	objectclass = new BasicAttribute("objectclass");
-	objectclass.add("xuda_certifcate");
+	objectclass.add("xuda_certificate");
 	set.put(objectclass);	
 	init(client, signator);
 	put();
@@ -129,7 +131,7 @@ public class LDAPCert //extends LdapContext
 	    inStream.close();
 	}
 	catch(Exception ex) {
-	    if(debug)ex.printStackTrace();
+ 	    if(debug)ex.printStackTrace();
 	}
 	return cert;
     }
@@ -285,12 +287,41 @@ public class LDAPCert //extends LdapContext
 	}
     }
 
+    /**
+     *
+    public LdapEntry getCertificate(String hash) 
+    {
+	NamingEnumeration results = null;
+	StringBuffer name = null;
+	Attributes set = null;
+	X509Certificate cert;
+	
+	try {
+	    name = new StringBuffer();
+	    //name.append((String)ctx.getEnvironment().get(Context.PROVIDER_URL));
+	    name.append("md5=").append(hash);
+	    set = ctx.getAttributes(name.toString());
+	}
+	catch(Exception ex) {
+	    ex.printStackTrace();
+	    return null;
+	}
+	if(debug) {
+	    formatAttributes(set);
+	}
+	return new LdapEntry(null, null, null);
+    } 
+    */
+
     public Vector getCertificates() {
-	BasicAttributes match = new BasicAttributes();
 	NamingEnumeration results = null;
 	String name = null;
 	Vector entries = new Vector();
+	SearchControls controls = new SearchControls();
+	String filter = "(objectclass=xuda_certificate)";
+	BasicAttributes match = new BasicAttributes();
 
+	controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 	objectclass = new BasicAttribute("objectclass");
 	objectclass.add("xuda_certifcate");
 	match.put(objectclass);
@@ -300,10 +331,15 @@ public class LDAPCert //extends LdapContext
 			       ctx.getNameInNamespace());
 	    name = (String)ctx.getEnvironment().get(Context.PROVIDER_URL);
 	    if(debug)System.out.println("name = " + name);
-	    results = ctx.search(name, match);
+	    results = ctx.search(name, filter, controls);
+	    //results = ctx.list(name);
 	    while(results.hasMoreElements()) {
 		Object elm = results.nextElement();
-		System.out.println("Result: " + elm.getClass().toString());
+		if(elm instanceof NameClassPair) {
+		    NameClassPair pair = (NameClassPair)elm;
+		    System.out.println("++++" + pair.getName());
+		    //formatAttributes(ctx.getAttributes(pair.getName()));
+		}
 	    }
 	}
 	catch(Exception ex) {
@@ -322,7 +358,8 @@ public class LDAPCert //extends LdapContext
     }
     
     public static void main(String arg[]) {
-	LDAPCert lcert = new LDAPCert("ldap://yew:389/");
+	LDAPCert lcert = 
+	    new LDAPCert((arg.length > 0)? arg[0]: "ldap://yew:389/");
 	try {
 	    lcert.getCertificates();
 	}
