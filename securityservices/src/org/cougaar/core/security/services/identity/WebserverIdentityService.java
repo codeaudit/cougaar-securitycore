@@ -49,7 +49,7 @@ public interface WebserverIdentityService extends Service {
    * but the creation of SSLServerSocket will find no cert in keystore and will fail.
    *
    */
-  SSLServerSocketFactory getServerSocketFactory();
+  public SSLServerSocketFactory getServerSocketFactory();
 
   /**
    * This function is to set HttpsConfig parameters, Cougaar may have its own
@@ -65,6 +65,6 @@ public interface WebserverIdentityService extends Service {
    * HttpsConfig exists in the cougaar tomcat make path
    * but not the securityservices make path.
    **/
-  //HttpsConfig setHttpsConfig(HttpsConfig httpsC);
+  //public HttpsConfig setHttpsConfig(HttpsConfig httpsC);
 }
 
