@@ -1,0 +1,1882 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:st1="urn:schemas-microsoft-com:office:smarttags"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="Troubleshooting_files/filelist.xml">
+<title>This README file explains how to configure the security services</title>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="City"/>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="place"/>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="date"/>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Sebastien Rosset</o:Author>
+  <o:LastAuthor>Sebastien Rosset</o:LastAuthor>
+  <o:Revision>169</o:Revision>
+  <o:TotalTime>456</o:TotalTime>
+  <o:Created>2003-02-28T16:34:00Z</o:Created>
+  <o:LastSaved>2003-09-15T20:47:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>1358</o:Words>
+  <o:Characters>7744</o:Characters>
+  <o:Company>Network Associates, Inc.</o:Company>
+  <o:Lines>64</o:Lines>
+  <o:Paragraphs>18</o:Paragraphs>
+  <o:CharactersWithSpaces>9084</o:CharactersWithSpaces>
+  <o:Version>10.3501</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:UpdateStylesOnOpen/>
+  <w:DefaultTableStyle Number="155">Table Theme</w:DefaultTableStyle>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]--><!--[if !mso]><object
+ classid="clsid:38481807-CA0E-42D2-BF39-B33AF135CC4D" id=ieooui></object>
+<style>
+st1\:*{behavior:url(#ieooui) }
+</style>
+<![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:1627421319 -2147483648 8 0 66047 0;}
+@font-face
+	{font-family:"Trebuchet MS";
+	panose-1:2 11 6 3 2 2 2 2 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:647 0 0 0 159 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-style:italic;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:13.0pt;
+	font-family:Arial;}
+h4
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:4;
+	font-size:14.0pt;
+	font-family:"Times New Roman";}
+h5
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:5;
+	font-size:13.0pt;
+	font-family:Arial;
+	mso-bidi-font-family:"Times New Roman";
+	font-style:italic;}
+h6
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:6;
+	font-size:11.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+	{mso-style-update:auto;
+	mso-style-noshow:yes;
+	mso-style-next:Normal;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{mso-style-noshow:yes;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	background:navy;
+	font-size:10.0pt;
+	font-family:Tahoma;
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{mso-style-link:"Plain Text Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	mso-fareast-font-family:"Times New Roman";}
+span.PlainTextChar
+	{mso-style-name:"Plain Text Char";
+	mso-style-link:"Plain Text";
+	mso-ansi-font-size:12.0pt;
+	mso-bidi-font-size:12.0pt;
+	font-family:"Courier New";
+	mso-ascii-font-family:"Courier New";
+	mso-hansi-font-family:"Courier New";
+	mso-bidi-font-family:"Courier New";
+	color:black;
+	mso-ansi-language:EN-US;
+	mso-fareast-language:EN-US;
+	mso-bidi-language:AR-SA;}
+p.mstheme-label, li.mstheme-label, div.mstheme-label
+	{mso-style-name:mstheme-label;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-bannertxt, li.mstheme-bannertxt, div.mstheme-bannertxt
+	{mso-style-name:mstheme-bannertxt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:4.5pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-horiz-navtxt, li.mstheme-horiz-navtxt, div.mstheme-horiz-navtxt
+	{mso-style-name:mstheme-horiz-navtxt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-vert-navtxt, li.mstheme-vert-navtxt, div.mstheme-vert-navtxt
+	{mso-style-name:mstheme-vert-navtxt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-navtxthome, li.mstheme-navtxthome, div.mstheme-navtxthome
+	{mso-style-name:mstheme-navtxthome;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-navtxtup, li.mstheme-navtxtup, div.mstheme-navtxtup
+	{mso-style-name:mstheme-navtxtup;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-navtxtprev, li.mstheme-navtxtprev, div.mstheme-navtxtprev
+	{mso-style-name:mstheme-navtxtprev;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-navtxtnext, li.mstheme-navtxtnext, div.mstheme-navtxtnext
+	{mso-style-name:mstheme-navtxtnext;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.mstheme-topbar-font, li.mstheme-topbar-font, div.mstheme-topbar-font
+	{mso-style-name:mstheme-topbar-font;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:1.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-main, li.ms-main, div.ms-main
+	{mso-style-name:ms-main;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-bannerframe, li.ms-bannerframe, div.ms-bannerframe
+	{mso-style-name:ms-bannerframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-banner, li.ms-banner, div.ms-banner
+	{mso-style-name:ms-banner;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-navframe, li.ms-navframe, div.ms-navframe
+	{mso-style-name:ms-navframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-verticaldots, li.ms-verticaldots, div.ms-verticaldots
+	{mso-style-name:ms-verticaldots;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-titlearea, li.ms-titlearea, div.ms-titlearea
+	{mso-style-name:ms-titlearea;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-titleareaframe, li.ms-titleareaframe, div.ms-titleareaframe
+	{mso-style-name:ms-titleareaframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-pagetitle, li.ms-pagetitle, div.ms-pagetitle
+	{mso-style-name:ms-pagetitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:14.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-announcementtitle, li.ms-announcementtitle, div.ms-announcementtitle
+	{mso-style-name:ms-announcementtitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-formlabel, li.ms-formlabel, div.ms-formlabel
+	{mso-style-name:ms-formlabel;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-formbody, li.ms-formbody, div.ms-formbody
+	{mso-style-name:ms-formbody;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-formdescription, li.ms-formdescription, div.ms-formdescription
+	{mso-style-name:ms-formdescription;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-radiotext, li.ms-radiotext, div.ms-radiotext
+	{mso-style-name:ms-radiotext;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-searchbox, li.ms-searchbox, div.ms-searchbox
+	{mso-style-name:ms-searchbox;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-input, li.ms-input, div.ms-input
+	{mso-style-name:ms-input;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-long, li.ms-long, div.ms-long
+	{mso-style-name:ms-long;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-wvsel, li.ms-wvsel, div.ms-wvsel
+	{mso-style-name:ms-wvsel;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-selected, li.ms-selected, div.ms-selected
+	{mso-style-name:ms-selected;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-descriptiontext, li.ms-descriptiontext, div.ms-descriptiontext
+	{mso-style-name:ms-descriptiontext;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-toolbar, li.ms-toolbar, div.ms-toolbar
+	{mso-style-name:ms-toolbar;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-separator, li.ms-separator, div.ms-separator
+	{mso-style-name:ms-separator;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-authoringcontrols, li.ms-authoringcontrols, div.ms-authoringcontrols
+	{mso-style-name:ms-authoringcontrols;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-sectionheader, li.ms-sectionheader, div.ms-sectionheader
+	{mso-style-name:ms-sectionheader;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-sectionline, li.ms-sectionline, div.ms-sectionline
+	{mso-style-name:ms-sectionline;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-propertysheet, li.ms-propertysheet, div.ms-propertysheet
+	{mso-style-name:ms-propertysheet;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-discussiontitle, li.ms-discussiontitle, div.ms-discussiontitle
+	{mso-style-name:ms-discussiontitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-vh, li.ms-vh, div.ms-vh
+	{mso-style-name:ms-vh;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-vb, li.ms-vb, div.ms-vb
+	{mso-style-name:ms-vb;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-homepagetitle, li.ms-homepagetitle, div.ms-homepagetitle
+	{mso-style-name:ms-homepagetitle;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-addnew, li.ms-addnew, div.ms-addnew
+	{mso-style-name:ms-addnew;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-cal, li.ms-cal, div.ms-cal
+	{mso-style-name:ms-cal;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caltop, li.ms-caltop, div.ms-caltop
+	{mso-style-name:ms-caltop;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calhead, li.ms-calhead, div.ms-calhead
+	{mso-style-name:ms-calhead;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:16.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caldow, li.ms-caldow, div.ms-caldow
+	{mso-style-name:ms-caldow;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calmid, li.ms-calmid, div.ms-calmid
+	{mso-style-name:ms-calmid;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calspacer, li.ms-calspacer, div.ms-calspacer
+	{mso-style-name:ms-calspacer;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-calbot, li.ms-calbot, div.ms-calbot
+	{mso-style-name:ms-calbot;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-appt, li.ms-appt, div.ms-appt
+	{mso-style-name:ms-appt;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caldowdown, li.ms-caldowdown, div.ms-caldowdown
+	{mso-style-name:ms-caldowdown;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-caldown, li.ms-caldown, div.ms-caldown
+	{mso-style-name:ms-caldown;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-datepickeriframe, li.ms-datepickeriframe, div.ms-datepickeriframe
+	{mso-style-name:ms-datepickeriframe;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-datepicker, li.ms-datepicker, div.ms-datepicker
+	{mso-style-name:ms-datepicker;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpdow, li.ms-dpdow, div.ms-dpdow
+	{mso-style-name:ms-dpdow;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpday, li.ms-dpday, div.ms-dpday
+	{mso-style-name:ms-dpday;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpselectedday, li.ms-dpselectedday, div.ms-dpselectedday
+	{mso-style-name:ms-dpselectedday;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpnonmonth, li.ms-dpnonmonth, div.ms-dpnonmonth
+	{mso-style-name:ms-dpnonmonth;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dphead, li.ms-dphead, div.ms-dphead
+	{mso-style-name:ms-dphead;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.ms-dpfoot, li.ms-dpfoot, div.ms-dpfoot
+	{mso-style-name:ms-dpfoot;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+span.Hyperlink1
+	{mso-style-name:Hyperlink1;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#330066;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink1
+	{mso-style-name:FollowedHyperlink1;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#330066;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink2
+	{mso-style-name:FollowedHyperlink2;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#666699;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:underline;
+	text-underline:single;}
+span.Hyperlink2
+	{mso-style-name:Hyperlink2;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#009999;
+	text-decoration:underline;
+	text-underline:single;}
+span.FollowedHyperlink3
+	{mso-style-name:FollowedHyperlink3;
+	color:#666699;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink4
+	{mso-style-name:FollowedHyperlink4;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#666699;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink5
+	{mso-style-name:FollowedHyperlink5;
+	color:#666699;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.Hyperlink3
+	{mso-style-name:Hyperlink3;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#330066;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink6
+	{mso-style-name:FollowedHyperlink6;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#330066;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink7
+	{mso-style-name:FollowedHyperlink7;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#666699;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:underline;
+	text-underline:single;}
+span.Hyperlink4
+	{mso-style-name:Hyperlink4;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#009999;
+	text-decoration:underline;
+	text-underline:single;}
+span.FollowedHyperlink8
+	{mso-style-name:FollowedHyperlink8;
+	color:#666699;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink9
+	{mso-style-name:FollowedHyperlink9;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Trebuchet MS";
+	mso-ascii-font-family:"Trebuchet MS";
+	mso-hansi-font-family:"Trebuchet MS";
+	color:#666699;
+	mso-text-animation:none;
+	font-weight:normal;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.FollowedHyperlink10
+	{mso-style-name:FollowedHyperlink10;
+	color:#666699;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 65.95pt 1.0in 65.95pt;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:150945431;
+	mso-list-template-ids:-418243926;}
+@list l0:level1
+	{mso-level-start-at:12;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level2
+	{mso-level-start-at:2;
+	mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1
+	{mso-list-id:193926961;
+	mso-list-template-ids:-979893430;}
+@list l1:level1
+	{mso-level-start-at:12;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2
+	{mso-list-id:203254565;
+	mso-list-template-ids:1562910902;}
+@list l2:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l3
+	{mso-list-id:362748812;
+	mso-list-template-ids:-431722946;}
+@list l3:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l3:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+@list l4
+	{mso-list-id:481777500;
+	mso-list-template-ids:2135595008;}
+@list l4:level1
+	{mso-level-start-at:12;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level2
+	{mso-level-start-at:3;
+	mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5
+	{mso-list-id:594629079;
+	mso-list-template-ids:-209938192;}
+@list l5:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l5:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+@list l6
+	{mso-list-id:696854973;
+	mso-list-template-ids:-1071627216;}
+@list l6:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l6:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+@list l7
+	{mso-list-id:778716844;
+	mso-list-template-ids:-358427466;}
+@list l7:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l8
+	{mso-list-id:831718485;
+	mso-list-template-ids:-644192492;}
+@list l8:level1
+	{mso-level-start-at:13;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9
+	{mso-list-id:877819697;
+	mso-list-template-ids:-435802648;}
+@list l9:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l10
+	{mso-list-id:883563257;
+	mso-list-template-ids:284096290;}
+@list l10:level1
+	{mso-level-start-at:12;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10:level2
+	{mso-level-start-at:2;
+	mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11
+	{mso-list-id:890002901;
+	mso-list-template-ids:-215481796;}
+@list l11:level1
+	{mso-level-start-at:7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l12
+	{mso-list-id:1192644508;
+	mso-list-template-ids:-1156043552;}
+@list l12:level1
+	{mso-level-start-at:7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l12:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l13
+	{mso-list-id:1281913473;
+	mso-list-template-ids:6029532;}
+@list l13:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l13:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+@list l13:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l14
+	{mso-list-id:1305085514;
+	mso-list-template-ids:-878693914;}
+@list l14:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l14:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l15
+	{mso-list-id:1334332550;
+	mso-list-template-ids:-325954318;}
+@list l15:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l16
+	{mso-list-id:1414856877;
+	mso-list-template-ids:817774694;}
+@list l16:level1
+	{mso-level-start-at:12;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l16:level2
+	{mso-level-start-at:3;
+	mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l17
+	{mso-list-id:1417938922;
+	mso-list-template-ids:-1468879642;}
+@list l17:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l17:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+@list l18
+	{mso-list-id:1539196987;
+	mso-list-template-ids:1931926022;}
+@list l18:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l19
+	{mso-list-id:1707481905;
+	mso-list-template-ids:-1143557674;}
+@list l19:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l20
+	{mso-list-id:1936939313;
+	mso-list-template-ids:-515745364;}
+@list l20:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l21
+	{mso-list-id:2122219043;
+	mso-list-template-ids:1876348822;}
+@list l21:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l21:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l21:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l21:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l21:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l21:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l21:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l21:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l21:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level2 lfo16
+	{mso-level-start-at:1;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+table.MsoTableGrid
+	{mso-style-name:"Table Grid";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	border:solid windowtext 1.0pt;
+	mso-border-alt:solid windowtext .5pt;
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-border-insideh:.5pt solid windowtext;
+	mso-border-insidev:.5pt solid windowtext;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+table.MsoTableTheme
+	{mso-style-name:"Table Theme";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	border:solid #669999 1.0pt;
+	mso-border-alt:solid #669999 .5pt;
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-border-insideh:.5pt solid #669999;
+	mso-border-insidev:.5pt solid #669999;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="15362"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body bgcolor=white lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><u><span
+style='font-size:14.0pt;font-family:Tahoma;color:black'>Troubleshooting<o:p></o:p></span></u></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><b><span style='font-family:
+Tahoma;color:black'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>The society does not start or does not go
+to completion even without the security services<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'>The first thing to do is to configure and run the society without
+the security services. Install ACME and Cougaar properly (refer to the ACME and
+Cougaar documentation). Once you have been able to go to completion without the
+security services, install the security overlay.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>The RunSoc.rb script exits with an error
+message<o:p></o:p></span></u></b></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l2 level1 lfo17;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Check that ACME is
+     running on every machine. There should be one instance of Ruby running on
+     every machine.<o:p></o:p></span></li>
+ <ol style='margin-top:0in' start=1 type=1>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l2 level2 lfo17;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>cd $CIP/operator<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l2 level2 lfo17;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>./runall “ps –ef |
+      grep ruby”<o:p></o:p></span></li>
+ </ol>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l2 level1 lfo17;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>If ACME daemons are
+     not running properly, type:<o:p></o:p></span></li>
+</ul>
+
+<ul style='margin-top:0in' type=disc>
+ <ol style='margin-top:0in' start=1 type=1>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l2 level2 lfo18;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>cd $CIP/operator<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l2 level2 lfo18;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>./reset<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l2 level2 lfo18;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>./runall “service
+      acme restart”<o:p></o:p></span></li>
+ </ol>
+</ul>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l3 level1 lfo19;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>On some occasion,
+     Java processes are still alive and preventing proper communication between
+     the Jabber server and the ACME daemons. If this is the case, type:<o:p></o:p></span></li>
+ <ul style='margin-top:0in' type=circle>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l3 level2 lfo19;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>cd $CIP/operator<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l3 level2 lfo19;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>./reset<o:p></o:p></span></li>
+ </ul>
+</ul>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>The RunSoc.rb scripts is executed, but the
+security services do not seem to be enabled<o:p></o:p></span></u></b></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l17 level1 lfo20;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>First, you must
+     install the security services overlay.<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l17 level1 lfo20;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>You must edit the
+     RunSoc.rb script and add the security rules. Add the following line after
+     the “isat” and “logistics” rules. Do not forget to type the comma as a
+     field separator.<o:p></o:p></span></li>
+ <ul style='margin-top:0in' type=circle>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l17 level2 lfo20;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>#{RULE}/security<o:p></o:p></span></li>
+ </ul>
+</ul>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>The nodes die very quickly after startup<o:p></o:p></span></u></b></p>
+
+<ul style='margin-top:0in' type=square>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l9 level1 lfo21;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Configuration files
+     are stored in signed jar files. The Secure Config Finder does not load
+     unsigned files, so the node may not be able to load configuration files.
+     See below, “<i>I have changed a configuration file, but the nodes still
+     use the old data</i>”, on how to package and sign jar files containing
+     configuration data.<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>The log4j log files are not generated<o:p></o:p></span></u></b></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l13 level1 lfo22;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Make sure you have a
+     loggingConfig.conf file under $CIP/configs/common<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l13 level1 lfo22;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Make sure the
+     following properties are set properly:<o:p></o:p></span></li>
+ <ul style='margin-top:0in' type=circle>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l13 level2 lfo22;
+      tab-stops:list 1.0in'><span style='font-family:"Courier New";color:windowtext'>-Dorg.cougaar.core.logging.config.filename</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <ul style='margin-top:0in' type=square>
+   <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l13 level3 lfo22;
+       tab-stops:list 1.5in'><span style='font-family:"Courier New";color:windowtext'>value:
+       loggingConfig.conf</span><span style='font-family:Tahoma'><o:p></o:p></span></li>
+  </ul>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l13 level2 lfo22;
+      tab-stops:list 1.0in'><span style='font-family:"Courier New";color:windowtext'>-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <ul style='margin-top:0in' type=square>
+   <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l13 level3 lfo22;
+       tab-stops:list 1.5in'><span style='font-family:"Courier New";color:windowtext'>value:
+       $COUGAAR_INSTALL_PATH/workspace/log4jlogs/#{node.name}.log</span><span
+       style='font-family:Tahoma'><o:p></o:p></span></li>
+  </ul>
+ </ul>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l13 level1 lfo22;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>The log4j VM
+     properties may not be set properly (see comments above). This may cause
+     the Java security manager to block access to log4j log files. For example,
+     you may get access violations in the $CIP/log/bootstrap files:<o:p></o:p></span></li>
+ <ul style='margin-top:0in' type=circle>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l13 level2 lfo22;
+      tab-stops:list 1.0in'><span style='color:windowtext'>SecurityManager_ROOT-CA-NODE_2003-6-3-4-40.log<br>
+      &lt;logtime&gt;</span><st1:date Year="2003" Day="3" Month="7"><span
+       style='color:windowtext'>Jul 3, 2003</span></st1:date><span
+      style='color:windowtext'>&lt;/logtime&gt;<br>
+      &lt;nodeName&gt;ROOT-CA-NODE&lt;/nodeName&gt;<br>
+      &lt;securityEvent&gt;&lt;securityManagerAlarm&gt;&lt;time&gt;</span><st1:date
+      Year="2003" Day="3" Month="7"><span style='color:windowtext'>Jul 3, <br>
+       2003</span></st1:date><span style='color:windowtext'>&lt;/time&gt;&lt;perm&gt;(java.io.FilePermission
+      node.log write)&lt;/perm&gt;<br>
+      &lt;stack&gt;<br>
+      at org.cougaar.core.security.securebootstrap.CougaarSecurityManager</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l13 level2 lfo22;
+      tab-stops:list 1.0in'><span style='color:windowtext'>The node tried to
+      open the node.log file, but it does not have the permission to open that
+      file. Usually, the node tries to open &quot;node.log&quot; when log4j is
+      not configured properly. For example, you do not have a<br>
+      loggingConfig.conf file under $CIP/config/common. Another possibility is
+      that the log4j parameter in the Ruby rules is not set properly. The name
+      of the log4j file is usually set to the name of the node. Open the
+      society XML file and check that the log4j file parameter is set properly.
+      Not being able to log anything means future problems might be hidden.</span><span
+      style='font-family:Tahoma'><o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l13 level2 lfo22;
+      tab-stops:list 1.0in'><span style='color:windowtext'>There could be
+      something wrong with the log4j configuration. There should not be a
+      &quot;node.log&quot; file permission. When the log4j file name has not
+      been specified, the name &quot;node.log&quot; is used by default, but the
+      default should always be overridden. Open the society XML file and search
+      for the VM property &quot;org.cougaar.core.logging.log4j.appender&quot;
+      for a node (for example ROOT-CA-NODE). It should be set to something like
+      ROOT-CA-NODE.log.</span><span style='font-family:Tahoma'><o:p></o:p></span></li>
+ </ul>
+</ul>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>I have changed a configuration file, but
+the nodes still use the old data<o:p></o:p></span></u></b></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l6 level1 lfo23;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Configuration files
+     are stored in signed jar files. The Secure Config Finder does not load
+     unsigned files, so the node may still use an older configuration file
+     contained in a signed jar file. You must package all configuration files
+     in jar files and sign those jar files. Depending on which version of the
+     ACME service you are using, this may or may not be done automatically. One
+     way to quickly sign all the necessary Cougaar configuration files is to
+     use a script provided in the security services:<o:p></o:p></span></li>
+ <ul style='margin-top:0in' type=circle>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l6 level2 lfo23;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>Checkout the
+      security services module<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l6 level2 lfo23;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>cd
+      securityservices<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l6 level2 lfo23;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>./test/bin/createJarConfigFiles<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l6 level2 lfo23;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>This will package
+      all Cougaar configuration jar files except for the security services
+      config jar file. If you plan to modify a configuration file from the
+      security services, you must recompile and install the security services:<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l6 level2 lfo23;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>./test/bin/installsecurity
+      -i<o:p></o:p></span></li>
+ </ul>
+</ul>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>The RunSoc.rb scripts is executed properly,
+but the society is never ready for Oplan<o:p></o:p></span></u></b></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level1 lfo24;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Delete the
+     $COUGAAR_INSTALL_PATH/workspace directory before every run. This should be
+     done unless you plan to test rehydration. But rehydration should be tested
+     only after you have successfully executed the society without rehydration.<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level1 lfo24;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>First, make sure the
+     root CA starts correctly. Launch a browser, then go to <a
+     href="http://root-ca-hostname:8800/">http://root-ca-hostname:8800</a>,
+     where <b>root-ca-hostname</b> is the host name where the Root CA is
+     running. You should see a “RootCA” entry in the list of agents. Click on
+     “RootCA”, then select the “Index” servlet. You should see the root CA
+     management interface. Click on the “Certificate List” URL, then select the
+     default CA in the drop-down list. You should see the Root CA key, and four
+     subordinate CA keys, if the subordinate CAs have started correctly.<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level1 lfo24;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Make sure the
+     subordinate CAs start correctly. After the root CA is initialized, you
+     should see the subordinate CAs in the list of agents if you go to <a
+     href="http://root-ca-hostname:8800/">http://root-ca-hostname:8800</a>.
+     With default rules, you should have four subordinate CAs: Fwd, Rear, Conus
+     and Trans EnclaveCaManager.<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level1 lfo24;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Make sure all agents
+     are started correctly. If agents are started and get their keys properly,
+     agent should register in the white pages. You should see the list of all
+     agents in the root servlet.<o:p></o:p></span></li>
+ <ol style='margin-top:0in' start=1 type=1>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level2 lfo24;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>Full-1AD society:
+      there should be about 230 entries when displaying the root servlet.<o:p></o:p></span></li>
+ </ol>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level1 lfo24;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Once the society has
+     started, go to the NCA task servlet, and then display all UniqueObjects.
+     After a few minutes, all NCA subordinates should report for duty. There
+     should be one Asset entry per subordinate. After a while, NCA should
+     receive OplanReadyMsg from each subordinate.<o:p></o:p></span></li>
+</ul>
+
+<ul style='margin-top:0in' type=disc>
+ <ol style='margin-top:0in' start=1 type=1>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level2 lfo25;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>Full-1AD society:
+      NCA has 7 subordinates<o:p></o:p></span></li>
+  <ol style='margin-top:0in' start=1 type=1>
+   <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level3 lfo25;
+       tab-stops:list 1.5in'><span style='font-family:Tahoma'>USECOM<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level3 lfo25;
+       tab-stops:list 1.5in'><span style='font-family:Tahoma'>FORSCOM<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level3 lfo25;
+       tab-stops:list 1.5in'><span style='font-family:Tahoma'>HNS<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level3 lfo25;
+       tab-stops:list 1.5in'><span style='font-family:Tahoma'>DLAHQ<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level3 lfo25;
+       tab-stops:list 1.5in'><span style='font-family:Tahoma'>OSC<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level3 lfo25;
+       tab-stops:list 1.5in'><span style='font-family:Tahoma'>TRANSCOM<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level3 lfo25;
+       tab-stops:list 1.5in'><span style='font-family:Tahoma'>NATO<o:p></o:p></span></li>
+  </ol>
+ </ol>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l7 level1 lfo25;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>You should not have
+     any exception in the log4j log files. Do a “grep Exception *.log” under
+     $COUGAAR_INSTALL_PATH/workspace/log4jlogs. The exception might give you a
+     clue about the cause of the problem. A more fine-grained search for
+     problems is done by typing:<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;
+margin-left:.75in'><span style='font-family:Tahoma;color:black'>grep –E
+“WARN|ERROR|FATAL|Exception” *.log | grep –v –E “ComplainingLP|STDOUT” <o:p></o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l19 level1 lfo26;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Make sure ALL nodes
+     use the same naming service (org.cougaar.name.server property).<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l19 level1 lfo26;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Some jar files may
+     not be signed properly.<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l19 level1 lfo26;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>The Java security
+     manager may block access to VM resources. In a normal run, no access
+     permission violation should be generated. The average size of the files
+     contained in the $CIP/log/bootstrap should be around 60 bytes. Those files
+     should have the </span><span style='color:windowtext'>&lt;logtime&gt; and
+     &lt;nodeName&gt; tags only.</span><span style='font-family:Tahoma'><o:p></o:p></span></li>
+ <ol style='margin-top:0in' start=1 type=1>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l19 level2 lfo26;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>cd
+      $CIP/log/bootstrap<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l19 level2 lfo26;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>ls –l<o:p></o:p></span></li>
+ </ol>
+</ul>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>None of the agents in one particular
+enclave start<o:p></o:p></span></u></b></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l20 level1 lfo27;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>This is most likely
+     due to a configuration issue with the corresponding enclave CA. </span><span
+     style='color:windowtext'>If an enclave CA is not<br>
+     started, nodes that get their keys from that enclave CA will never be able
+     to participate in the society. There may be a problem with the host where
+     the enclave CA is supposed to run. Check that this machine is up and
+     running, that and that the ACME service is running. There may also be a society
+     configuration issue (e.g., does this enclave CA exist in the society, and
+     does the host specified in the configuration exist?)</span><span
+     style='font-family:Tahoma'><o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l20 level1 lfo27;
+     tab-stops:list .5in'><span style='color:windowtext'>Check the ACME log
+     files under the ACME installation (usually /usr/local/acme). In
+     particular, check for any problem in the run.log file.</span><span
+     style='font-family:Tahoma'><o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>The node on one particular machine never
+starts<o:p></o:p></span></u></b></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l15 level1 lfo28;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Is this machine up
+     and running? Can you ping it?<o:p></o:p></span></li>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l15 level1 lfo28;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>Is the ACME service
+     running on that machine?<o:p></o:p></span></li>
+ <li class=MsoNormal style='margin-bottom:3.0pt;mso-list:l15 level1 lfo28;
+     tab-stops:list .5in'>Check the ACME log files under the ACME installation
+     (usually /usr/local/acme). In particular, check for any problem in the
+     run.log file.</li>
+ <li class=MsoNormal style='margin-bottom:3.0pt;mso-list:l15 level1 lfo28;
+     tab-stops:list .5in'>If you are running <st1:City><st1:place>NIS</st1:place></st1:City>,
+     is <st1:City><st1:place>NIS</st1:place></st1:City> running on that
+     machine?</li>
+ <li class=MsoNormal style='margin-bottom:3.0pt;mso-list:l15 level1 lfo28;
+     tab-stops:list .5in'>Can you login as the standard Cougaar user on that
+     machine?</li>
+ <li class=MsoNormal style='margin-bottom:3.0pt;mso-list:l15 level1 lfo28;
+     tab-stops:list .5in'>Can you login as the standard ACME user on that
+     machine?</li>
+</ul>
+
+<p class=MsoNormal style='margin-bottom:3.0pt'><span style='font-family:Tahoma;
+color:black'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>It looks like certificates are not
+generated<o:p></o:p></span></u></b></p>
+
+<ul style='margin-top:0in' type=square>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level1 lfo29;
+     tab-stops:list .5in'><span style='font-family:Tahoma'>You can check that
+     certificates have been generated by typing the following commands:<o:p></o:p></span></li>
+ <ul style='margin-top:0in' type=circle>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo29;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>cd
+      $CIP/workspace/security/keystore<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo29;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>ls –l<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo29;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>There should be
+      one subdirectory per node. Each node should have a keystore file
+      containing one key for the host, one key for the node, and one key per
+      agent<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo29;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>cd $node_name<o:p></o:p></span></li>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l5 level2 lfo29;
+      tab-stops:list 1.0in'><span style='font-family:Tahoma'>keytool –list –v
+      –kestore keystore-${node_name}<o:p></o:p></span></li>
+ </ul>
+</ul>
+
+<p class=MsoNormal style='margin-bottom:3.0pt;mso-outline-level:1'><b><u><span
+style='font-family:Tahoma;color:red'>Agents do not register with the
+nameserver,<o:p></o:p></span></u></b></p>
+
+<ul style='margin-top:0in' type=square>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l14 level1 lfo30;
+     tab-stops:list .5in'>If agents do not register with the nameserver, no
+     communication will occur because certificates cannot be retrieved. This
+     problem is caused by a problem in the /etc/hosts file. Make sure you do
+     not have the loopback address assoicated with the hostname, If you have an
+     entry in your /etch/hosts file that looks like:<o:p></o:p></li>
+ <ul style='margin-top:0in' type=square>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l14 level2 lfo30;
+      tab-stops:list 1.0in'>127.0.0.1 &lt;hostname&gt; &nbsp;
+      localhost.localdomain &nbsp; &nbsp; &nbsp; &nbsp; localhost <o:p></o:p></li>
+ </ul>
+ <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l14 level1 lfo30;
+     tab-stops:list .5in'>change it to:<o:p></o:p></li>
+ <ul style='margin-top:0in' type=square>
+  <li class=MsoNormal style='color:black;margin-bottom:3.0pt;mso-list:l14 level2 lfo30;
+      tab-stops:list 1.0in'>127.0.0.1 &nbsp;localhost.localdomain &nbsp;
+      &nbsp;localhost<o:p></o:p></li>
+ </ul>
+</ul>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:12.0pt;
+margin-left:.5in'><span style='font-size:12.0pt;font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+</div>
+
+</body>
+
+</html>
