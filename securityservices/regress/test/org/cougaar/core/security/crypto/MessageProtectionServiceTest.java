@@ -45,6 +45,9 @@ public class MessageProtectionServiceTest
   private BasicNode bn;
   private SecurityServiceProvider secProvider;
 
+  private MessageAddress source = new MessageAddress("TheSender");
+  private MessageAddress destination = new MessageAddress("TheReceiver");
+
   public MessageProtectionServiceTest(String name) {
     super(name);
   }
@@ -72,23 +75,33 @@ public class MessageProtectionServiceTest
    */
   public void testHeaderEncryption() {
     // Create a test header
-    String header = "Source:foo - Target:bar";
+    String header = "Source:" + source + " - Target:" + destination;
     byte[] rawData = header.getBytes();
-    MessageAddress source = new MessageAddress("foo");
-    MessageAddress destination = new MessageAddress("bar");
     byte[] encryptedHeader = null;
     byte[] decryptedHeader = null;
 
     // Encrypt header
-    encryptedHeader = mps.protectHeader(rawData,
-					source,
-					destination);
+    try {
+      encryptedHeader = mps.protectHeader(rawData,
+					  source,
+					  destination);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      Assert.assertTrue("Exception while trying to encrypt header", false);
+    }
     Assert.assertNotNull("Encrypted Header is null", encryptedHeader);
    
     // Decrypt header
-    decryptedHeader = mps.unprotectHeader(encryptedHeader,
-					  source,
-					  destination);
+    try {
+      decryptedHeader = mps.unprotectHeader(encryptedHeader,
+					    source,
+					    destination);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      Assert.assertTrue("Exception while trying to decrypt header", false);
+    }
     String newHeader = new String (decryptedHeader);
     Assert.assertNotNull("Deccrypted Header is null", decryptedHeader);
 
@@ -108,8 +121,6 @@ public class MessageProtectionServiceTest
   /** Test stream encryption
    */
   public void testStreamEncryption() {
-    MessageAddress source = new MessageAddress("foo");
-    MessageAddress destination = new MessageAddress("bar");
     MessageAttributes attrs = null;
 
     String msgContent = "This is a message - 12345567890";
@@ -117,11 +128,18 @@ public class MessageProtectionServiceTest
     
     // Encrypt stream
     ByteArrayOutputStream os = new ByteArrayOutputStream();
-    ProtectedOutputStream pos =
-      mps.getOutputStream(os,
-			  source,
-			  destination,
-			  attrs);
+    ProtectedOutputStream pos = null;
+    try {
+      pos =
+	mps.getOutputStream(os,
+			    source,
+			    destination,
+			    attrs);
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+      Assert.assertTrue("Exception while calling getOutputStream", false);
+    }
     Assert.assertNotNull("Protected Output stream is null", pos);
 
     try {
@@ -129,32 +147,48 @@ public class MessageProtectionServiceTest
       pos.finishOutput(attrs);
     }
     catch (Exception e) {
+      e.printStackTrace();
       Assert.assertTrue("Exception while writing to the stream:" + e, false);
     }
 
     byte[] encryptedMsg = os.toByteArray();
-    System.out.println("Message after encryption: " + new String(encryptedMsg));
 
     // Decrypt stream
     InputStream is = new ByteArrayInputStream(encryptedMsg);
 
-    ProtectedInputStream pis =
-      mps.getInputStream(is,
-			 source,
-			 destination,
-			 attrs);
+    ProtectedInputStream pis = null;
+    try {
+      pis =
+	mps.getInputStream(is,
+			   source,
+			   destination,
+			   attrs);
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+      Assert.assertTrue("Exception while calling getInputStream", false);
+    }
     Assert.assertNotNull("Protected Input stream is null", pis);
 
+    int offset = 0;
+    byte[] decryptedMessage = new byte[1000];
     try {
+      while (pis.available() > 0) {
+	offset += pis.read(decryptedMessage, offset, pis.available());
+	System.out.println("Read " + offset + " bytes");
+      }
       pis.finishInput(attrs);
     }
     catch (Exception e) {
+      e.printStackTrace();
       Assert.assertTrue("Exception while reading from the stream:" + e, false);
     }
-    /*
-    while (pis.isavailable()) {
-      pis.read();
-    }
-    */
+    String decryptedString = new String(decryptedMessage, 0, offset);
+
+    Assert.assertEquals(msgContent, decryptedString);
+
+    System.out.println("Message before encryption: " + msgContent);
+    System.out.println("Message after encryption: " + new String(encryptedMsg));
+    System.out.println("Decrypted message:" + decryptedString);
   }
 }

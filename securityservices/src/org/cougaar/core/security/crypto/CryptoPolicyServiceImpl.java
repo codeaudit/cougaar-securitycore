@@ -115,40 +115,42 @@ public class CryptoPolicyServiceImpl
         return (SecureMethodParam)obj;
     }
 
-    private class CryptoPolicyProxy extends GuardRegistration implements NodeEnforcer{
+    private class CryptoPolicyProxy
+      extends GuardRegistration
+      implements NodeEnforcer{
 
-        public CryptoPolicyProxy() {
-            super("org.cougaar.core.security.policy.CryptoPolicy",
-		  "CryptoPolicyService");
-            try {
-                registerEnforcer();
-            }
-            catch(Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-
-  /**
-   * Merges an existing policy with a new policy.
-   * @param policy the new policy to be added
-   */
-  public void receivePolicyMessage(Policy policy,
-				   String policyID,
-				   String policyName,
-				   String policyDescription,
-				   String policyScope,
-				   String policySubjectID,
-				   String policySubjectName,
-				   String policyTargetID,
-				   String policyTargetName,
-				   String policyType) {
-    if (dbg) {
-      System.out.println("CryptoPolicyServiceImpl: Received policy message");
-      RuleParameter[] param = policy.getRuleParameters();
-      for (int i = 0 ; i < param.length ; i++) {
-	System.out.println("Rule: " + param[i].getName() + " - " + param[i].getValue());
+      public CryptoPolicyProxy() {
+	super("org.cougaar.core.security.policy.CryptoPolicy",
+	      "CryptoPolicyService");
+	try {
+	  registerEnforcer();
+	}
+	catch(Exception ex) {
+	  ex.printStackTrace();
+	}
       }
-    }
+
+      /**
+       * Merges an existing policy with a new policy.
+       * @param policy the new policy to be added
+       */
+      public void receivePolicyMessage(Policy policy,
+				       String policyID,
+				       String policyName,
+				       String policyDescription,
+				       String policyScope,
+				       String policySubjectID,
+				       String policySubjectName,
+				       String policyTargetID,
+				       String policyTargetName,
+				       String policyType) {
+	if (dbg) {
+	  System.out.println("CryptoPolicyServiceImpl: Received policy message");
+	  RuleParameter[] param = policy.getRuleParameters();
+	  for (int i = 0 ; i < param.length ; i++) {
+	    System.out.println("Rule: " + param[i].getName() + " - " + param[i].getValue());
+	  }
+	}
 
 	if(policy == null)return;
         //whom is the policy for?
@@ -158,7 +160,8 @@ public class CryptoPolicyServiceImpl
           isBoot = true;
           sub = "DEFAULT";
         }
-        if(policyScope.equalsIgnoreCase("Domain") || policyScope.equalsIgnoreCase("VM")) {
+        if(policyScope.equalsIgnoreCase("Domain")
+	   || policyScope.equalsIgnoreCase("VM")) {
           sub = "DEFAULT";
         }
         if(sub=="" || sub == null) return ;
@@ -329,7 +332,9 @@ public class CryptoPolicyServiceImpl
 		       
       }
 
-    private synchronized void updateSecureMethod(String key, String value,boolean incoming){
+      private synchronized void updateSecureMethod(String key,
+						   String value,
+						   boolean incoming){
         //entry in the hash map
         SecureMethodParam smp;
 	if(incoming) {
@@ -356,7 +361,9 @@ public class CryptoPolicyServiceImpl
 	}
     }
 
-    private synchronized void updateSymmetricAlgorithm(String key, String value,boolean incoming){
+    private synchronized void updateSymmetricAlgorithm(String key,
+						       String value,
+						       boolean incoming){
         //entry in the hash map
         SecureMethodParam smp;
 	if(incoming) {
@@ -436,19 +443,19 @@ public class CryptoPolicyServiceImpl
       try{
         cp = (CryptoPolicy)policy;
       }catch(Exception e){
-        System.out.println("CryptoPolicyServiceImpl:recieved unknown policy type");
+        System.out.println("CryptoPolicyServiceImpl:received unknown policy type");
         return;
       }
 
-      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSecureMethod(), true);
+      updateSecureMethod("DEFAULT:DEFAULT", cp.getInSecureMethod(), true);
       updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInAsymmSpec(), true);
-      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSymmSpec(), true);
-      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSignSpec(), true);
+      updateSymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSymmSpec(), true);
+      updateSigningAlgorithm("DEFAULT:DEFAULT", cp.getInSignSpec(), true);
 
-      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSecureMethod(), false);
-      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInAsymmSpec(), false);
-      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSymmSpec(), false);
-      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSignSpec(), false);
+      updateSecureMethod("DEFAULT:DEFAULT", cp.getOutSecureMethod(), false);
+      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getOutAsymmSpec(), false);
+      updateSymmetricAlgorithm("DEFAULT:DEFAULT", cp.getOutSymmSpec(), false);
+      updateSigningAlgorithm("DEFAULT:DEFAULT", cp.getOutSignSpec(), false);
     }     
   }
 }

@@ -153,14 +153,14 @@ public class CertificateSigningRequest
               int status = Integer.parseInt(reply.substring(statindex,
                                                             statindex + 1));
               switch (status) {
-                case KeyManagement.PENDING_STATUS_PENDING:
-                  printstream.println("Certificate is pending for approval.");
-                  break;
-                case KeyManagement.PENDING_STATUS_DENIED:
-                  printstream.println("Certificate is denied by CA.");
-                  break;
-                default:
-                  printstream.println("Unknown certificate status:" + status);
+	      case KeyManagement.PENDING_STATUS_PENDING:
+		printstream.println("Certificate is pending for approval.");
+		break;
+	      case KeyManagement.PENDING_STATUS_DENIED:
+		printstream.println("Certificate is denied by CA.");
+		break;
+	      default:
+		printstream.println("Unknown certificate status:" + status);
               }
             }
             else {

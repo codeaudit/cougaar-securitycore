@@ -30,6 +30,7 @@ import java.io.*;
 import java.util.*;
 import java.security.PrivateKey;
 import java.security.NoSuchAlgorithmException;
+import java.security.GeneralSecurityException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -81,10 +82,15 @@ public class KeyWrapping
     MessageAddress sourceAgent = null;
     MessageAddress targetAgent = null;
     SecureMethodParam policy = null;
-
-    encryptionService.protectObject(keySet,
-				    sourceAgent, targetAgent,
-				    policy);
+    try {
+      encryptionService.protectObject(keySet,
+				      sourceAgent, targetAgent,
+				      policy);
+    }
+    catch (GeneralSecurityException e) {
+    }
+    catch (IOException e) {
+    }
     return keyIdentity;
   }
 

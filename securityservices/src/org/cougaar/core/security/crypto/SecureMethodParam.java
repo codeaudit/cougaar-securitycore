@@ -28,8 +28,12 @@ public final class SecureMethodParam
   implements Serializable
 {
 
-  public static final int PLAIN = 0,
-    SIGN = 1, ENCRYPT = 2, SIGNENCRYPT = 3, USERDEFINED = 4;
+  public static final int PLAIN = 1;
+  public static final int SIGN = 2;
+  public static final int ENCRYPT = 3;
+  public static final int SIGNENCRYPT = 4;
+  public static final int INVALID = 5;
+
   public int secureMethod;
   public String symmSpec;
   public String asymmSpec;
@@ -37,7 +41,7 @@ public final class SecureMethodParam
   // public String providerName;
     
   public SecureMethodParam() {
-    secureMethod = PLAIN;
+    secureMethod = INVALID;
   }
   public SecureMethodParam(int value) {
     secureMethod = value;

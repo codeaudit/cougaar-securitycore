@@ -24,7 +24,9 @@
 package org.cougaar.core.security.services.crypto;
 
 import java.io.Serializable;
+import java.io.IOException;
 import java.security.SignedObject;
+import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
@@ -53,7 +55,7 @@ public interface EncryptionService extends Service {
   public SignedObject sign(String signerName,
 			   String signAlgSpec,
 			   Serializable object)
-    throws RuntimeException, CertificateException;
+    throws GeneralSecurityException, IOException;
   
   /** Verify the signature of a signed object.
    *
@@ -82,13 +84,7 @@ public interface EncryptionService extends Service {
   public SealedObject asymmEncrypt(String targetName,
 				   String cipherAlgSpec,
 				   Serializable object)
-    throws RuntimeException,
-	   CertificateException,
-	   java.security.NoSuchAlgorithmException,
-	   java.security.InvalidKeyException,
-	   java.io.IOException,
-	   javax.crypto.NoSuchPaddingException,
-	   javax.crypto.IllegalBlockSizeException;
+    throws GeneralSecurityException, IOException;
 
   /** Decrypt an encrypted object using public-key encryption.
    *
@@ -117,13 +113,7 @@ public interface EncryptionService extends Service {
   public SealedObject symmEncrypt(SecretKey secretKey,
 				  String cipherAlgSpec,
 				  Serializable object)
-    throws RuntimeException,
-	   CertificateException,
-	   java.security.NoSuchAlgorithmException,
-	   java.security.InvalidKeyException,
-	   java.io.IOException,
-	   javax.crypto.NoSuchPaddingException,
-	   javax.crypto.IllegalBlockSizeException;
+    throws GeneralSecurityException, IOException;
 
   /** Decrypt an encrypted object using secret key encryption.
    *
@@ -138,11 +128,13 @@ public interface EncryptionService extends Service {
   public ProtectedObject protectObject(Serializable object,
 				       MessageAddress sourceAgent,
 				       MessageAddress targetAgent,
-				       SecureMethodParam policy);
+				       SecureMethodParam policy)
+    throws GeneralSecurityException, IOException;
 
   public Object unprotectObject(MessageAddress source,
 				MessageAddress target,
 				ProtectedObject envelope,
-				SecureMethodParam policy);
+				SecureMethodParam policy)
+    throws GeneralSecurityException;
 }
 

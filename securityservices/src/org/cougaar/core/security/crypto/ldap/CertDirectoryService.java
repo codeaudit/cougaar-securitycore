@@ -124,10 +124,10 @@ public abstract class CertDirectoryService
     }
     catch(NamingException nexp) {
       if (CryptoDebug.debug) {
-	System.err.println("Warning:can't connect to LDAP server: "
+	System.out.println("Warning:can't connect to LDAP server: "
 			   + ldapServerUrl);
-	System.err.println("Reason: " + nexp + ". Use local keystore only.");
-	nexp.printStackTrace();
+	System.out.println("Reason: " + nexp + ". Use local keystore only.");
+	//nexp.printStackTrace();
       }
     }
   }

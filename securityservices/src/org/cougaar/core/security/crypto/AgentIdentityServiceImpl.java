@@ -29,8 +29,9 @@ package org.cougaar.core.security.crypto;
 import java.io.*;
 import java.util.*;
 import java.security.PrivateKey;
-import java.security.NoSuchAlgorithmException;
 import javax.crypto.SealedObject;
+import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -233,11 +234,20 @@ public class AgentIdentityServiceImpl
     
     KeySet keySet = new KeySet(privKey, cert);
 
-    PublicKeyEnvelope envelope = (PublicKeyEnvelope)
-      encryptionService.protectObject(keySet,
-				      thisNodeAddress,
-				      targetNode,
-				      policy);
+    PublicKeyEnvelope envelope = null;
+    try {
+      envelope = (PublicKeyEnvelope)
+	encryptionService.protectObject(keySet,
+					thisNodeAddress,
+					targetNode,
+					policy);
+    }
+    catch (GeneralSecurityException e) {
+      return null;
+    }
+    catch (IOException e) {
+      return null;
+    }
     KeyIdentity keyIdentity =
       new KeyIdentity(envelope.getSender(),
 		      envelope.getReceiver(),
@@ -305,10 +315,15 @@ public class AgentIdentityServiceImpl
     if (CryptoDebug.debug) {
       System.out.println("Decrypting KeyIdentity");
     }
-    Object o = encryptionService.unprotectObject(new MessageAddress(sender),
-						 thisNodeAddress,
-						 keyIdentity, policy);
-
+    Object o = null;
+    try {
+      o = encryptionService.unprotectObject(new MessageAddress(sender),
+					    thisNodeAddress,
+					    keyIdentity, policy);
+    }
+    catch (GeneralSecurityException e) {
+      return;
+    }
     if (CryptoDebug.debug) {
       System.out.println("Decrypted TransferableIdentity is " +
 			 o.getClass().getName());

@@ -32,7 +32,7 @@
           <CA_URL role="mluu">http://pear:5559/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="rliao1">http://yew:5556/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="rtripath">http://pear:5560/$caAgent/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="JunitTest">http://tea:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="JunitTest">http://localhost:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
 
           <!-- Certificate directory service for certificate storage -->
           <CertDirectoryURL>ldap://yew:389/dc=cougaar,dc=org</CertDirectoryURL>
@@ -42,7 +42,7 @@
           <CertDirectoryURL role="gmount">ldap://pear:389/dc=gmount,dc=cougaar,dc=org</CertDirectoryURL>
           <CertDirectoryURL role="mluu">ldap://pear:389/dc=mluu,dc=cougaar,dc=org</CertDirectoryURL>
           <CertDirectoryURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</CertDirectoryURL>
-          <CertDirectoryURL role="JunitTest">ldap://pear:389/dc=JunitTest,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="JunitTest">ldap://localhost:389/dc=JunitTest,dc=cougaar,dc=org</CertDirectoryURL>
 
           <!-- The type of the certificate directory service.
                Currently, either CougaarOpenLdap or NetTools -->
@@ -78,7 +78,6 @@
       </certificateAttributes>
     </cryptoClientPolicy>
   </policy>
-
   <policy name="" type="certificateAuthorityPolicy">
     <!-- Configuration of Certificate Authority -->
     <certificateAuthority>
@@ -103,15 +102,16 @@
       <!-- Policy when issuing certificates -->
       <clientCertPolicy>
         <!-- The X509 version number to be created -->
-        <certVersion>0</certVersion>
+        <certVersion>2</certVersion>
         <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
         <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
         <keysize>1024</keysize>
         <!-- How long to certify for. This is the validity of a certificate
              signed by a node.  -->
         <certValidity>1 y</certValidity>
-        <requirePending>true</requirePending>
+        <requirePending>false</requirePending>
       </clientCertPolicy>
     </certificateAuthority>
   </policy>
+
 </policies>

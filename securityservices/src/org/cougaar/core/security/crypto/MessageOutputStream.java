@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.security.GeneralSecurityException;
 
 // Cougaar core services
 import org.cougaar.core.mts.ProtectedOutputStream;
@@ -68,7 +69,7 @@ public class MessageOutputStream
     this.target = target;
   }
 
-  /* ***********************************************************************************
+  /* ***********************************************************************
    * FilterOutputStream implementation
    */
 
@@ -99,7 +100,7 @@ public class MessageOutputStream
     }
   }
 
-  /* ***********************************************************************************
+  /* **********************************************************************
    * ProtectedOutputStream implementation
    */
 
@@ -112,7 +113,11 @@ public class MessageOutputStream
     oos.writeObject(pm);
   }
 
-  private ProtectedObject protectMessage() {
+  /* ***********************************************************************
+   * Private methods
+   */
+  private ProtectedObject protectMessage()
+    throws IOException {
     SecureMethodParam policy =
       cps.getSendPolicy(source.toAddress() + ":"
 			  + target.toAddress());
@@ -121,11 +126,17 @@ public class MessageOutputStream
 	+ source.toAddress() + " and " + target.toAddress());
     }     
 
-    ProtectedObject protectedMessage =
-      enc.protectObject(dataOut.toByteArray(),
-			source,
-			target,
-			policy);
+    ProtectedObject protectedMessage = null;
+    try {
+      protectedMessage =
+	enc.protectObject(dataOut.toByteArray(),
+			  source,
+			  target,
+			  policy);
+    }
+    catch (GeneralSecurityException e) {
+      throw new IOException(e.toString());
+    }
     return protectedMessage;
   }
 }

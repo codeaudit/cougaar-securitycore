@@ -80,6 +80,11 @@ import org.cougaar.core.security.provider.SecurityServiceProvider;
 public class KeyManagement
   implements CertificateManagementService
 {
+  public static final int PENDING_STATUS_APPROVED = 1;
+  public static final int PENDING_STATUS_PENDING = 2;
+  public static final int PENDING_STATUS_DENIED = 0;
+  public static final int PENDING_STATUS_NEW = 3;
+
   private KeyRingService keyRing = null;
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
@@ -378,11 +383,6 @@ public class KeyManagement
     }
     return reply;
   }
-
-  public static final int PENDING_STATUS_APPROVED = 1;
-  public static final int PENDING_STATUS_PENDING = 2;
-  public static final int PENDING_STATUS_DENIED = 0;
-  public static final int PENDING_STATUS_NEW = 3;
 
   public void processPkcs10Request(PrintStream out, InputStream request)
   {

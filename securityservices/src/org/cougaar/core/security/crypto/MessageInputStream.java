@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.lang.ClassNotFoundException;
+import java.security.GeneralSecurityException;
 
 // Cougaar core services
 import org.cougaar.core.mts.ProtectedInputStream;
@@ -69,7 +70,7 @@ public class MessageInputStream
 
   }
 
-  /* ***********************************************************************************
+  /* ************************************************************************
    * FilterInputStream implementation
    */
   public int read()
@@ -131,7 +132,7 @@ public class MessageInputStream
   }
 
 
-  /* ***********************************************************************************
+  /* ***********************************************************************
    * ProtectedInputStream implementation
    */
   public void finishInput(MessageAttributes attributes)
@@ -141,6 +142,9 @@ public class MessageInputStream
     }
   }
 
+  /* ***********************************************************************
+   * Private methods
+   */
   private void readInputStream()
     throws IOException {
     if (isClosed) {
@@ -163,9 +167,15 @@ public class MessageInputStream
        throw new RuntimeException("Could not find message policy between "
 	+ source.toAddress() + " and " + target.toAddress());
     }
-    byte[] rawData = (byte[]) enc.unprotectObject(source,
-						 target,
-						 protectedObject, policy);
+    byte[] rawData = null;
+    try {
+      rawData = (byte[]) enc.unprotectObject(source,
+					     target,
+					     protectedObject, policy);
+    }
+    catch (GeneralSecurityException e) {
+      throw new IOException(e.toString());
+    }
     plainTextInputStream = new ByteArrayInputStream(rawData);
     isEndOfMessage = true;
   }

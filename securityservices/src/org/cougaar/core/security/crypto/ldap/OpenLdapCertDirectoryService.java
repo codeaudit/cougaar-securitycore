@@ -57,6 +57,9 @@ public class OpenLdapCertDirectoryService
 
   public void setDirectoryServiceURL(String aURL) {
     super.setDirectoryServiceURL(aURL);
+    if (!initializationOK) {
+      return;
+    }
     try {
       // TODO: secure authentication.
       context.addToEnvironment(Context.SECURITY_PRINCIPAL,

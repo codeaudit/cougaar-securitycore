@@ -30,6 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.lang.ClassNotFoundException;
+import java.security.GeneralSecurityException;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
@@ -63,11 +64,18 @@ public class MessageProtectionServiceImpl
   private SecurityPropertiesService secprop;
   private CryptoPolicyService cps = null;
 
+  private MessageOutputStream pos;
+  private MessageInputStream pis;
+
   private int infoLevel = 0;
   private boolean debug = false;
 
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
+
+    // Retrieve security properties service
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this, SecurityPropertiesService.class, null);
 
     String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
     if ( db!=null && (db.equalsIgnoreCase("true") ||
@@ -77,11 +85,7 @@ public class MessageProtectionServiceImpl
     if (infoLevel > 0) {
       System.out.println("Initializing MessageProtectionServiceImpl");
     }
-
-    // Retrieve security properties service
-    secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this, SecurityPropertiesService.class, null);
-
+    
     // Retrieve KeyRing service
     this.keyRing = (KeyRingService)
       serviceBroker.getService(
@@ -129,7 +133,9 @@ public class MessageProtectionServiceImpl
    */
   public byte[] protectHeader(byte[] rawData,
 			      MessageAddress source,
-			      MessageAddress destination) {
+			      MessageAddress destination)
+    throws GeneralSecurityException, IOException
+  {
 
     SecureMethodParam policy =
       cps.getSendPolicy(source.getAddress() + ":"
@@ -143,12 +149,9 @@ public class MessageProtectionServiceImpl
       encryptService.protectObject(rawData, source, destination, policy);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-    try {
-      ObjectOutputStream oos = new ObjectOutputStream(baos);
-      oos.writeObject(po);
-    }
-    catch (IOException e) {
-    }
+    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    oos.writeObject(po);
+
     return baos.toByteArray();
   }
 
@@ -162,7 +165,9 @@ public class MessageProtectionServiceImpl
    */
   public byte[] unprotectHeader(byte[] rawData,
 				MessageAddress source,
-				MessageAddress destination) {
+				MessageAddress destination)
+    throws GeneralSecurityException, IOException
+  {
     SecureMethodParam policy =
       cps.getReceivePolicy(source.toAddress()
 			   +":"
@@ -178,14 +183,11 @@ public class MessageProtectionServiceImpl
       ObjectInputStream ois = new ObjectInputStream(bais);
       po = (ProtectedObject) ois.readObject();
     }
-    catch (IOException e) {
-    }
     catch (ClassNotFoundException e) {
+      throw new IOException(e.toString());
     }
-
     Object o =
       encryptService.unprotectObject(source, destination, po, policy);
-
     return (byte[])o;
   }
 
@@ -217,9 +219,12 @@ public class MessageProtectionServiceImpl
   public ProtectedOutputStream getOutputStream(OutputStream os,
 					       MessageAddress source,
 					       MessageAddress destination,
-					       MessageAttributes attrs) {
-    MessageOutputStream pos =
-      new MessageOutputStream(os, encryptService, cps, source, destination);
+					       MessageAttributes attrs)
+    throws IOException
+  {
+    pos =
+      new MessageOutputStream(os, encryptService, cps,
+			      source, destination);
     return pos;
   }
 
@@ -250,10 +255,12 @@ public class MessageProtectionServiceImpl
   public ProtectedInputStream getInputStream(InputStream is,
 					     MessageAddress source,
 					     MessageAddress destination,
-					     MessageAttributes attrs) {
-
-    MessageInputStream pis =
-      new MessageInputStream(is, encryptService, cps, source, destination);
+					     MessageAttributes attrs)
+    throws IOException
+  {
+    pis =
+      new MessageInputStream(is, encryptService, cps,
+			     source, destination);
     return pis;
   }
 }
