@@ -195,6 +195,14 @@ public class SecurityServiceProvider
     if (log.isDebugEnabled()) {
       log.debug("Registering security services");
     }
+    if (log.isDebugEnabled()) {
+      if(mySecurityCommunity!=null) {
+        log.debug("Registering security services for security community "+mySecurityCommunity );
+      }
+      else {
+        log.error("Un able to get Security community as mySecurityCommunity is Null:");
+      }
+    }
 
     if (log.isInfoEnabled() && isExecutedWithinNode == false) {
       log.info("Running outside a Cougaar node");
