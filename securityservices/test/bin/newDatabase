@@ -12,6 +12,7 @@
 # Set recipe directory. Assume the script is invoked from the securityservices module
 cd `dirname $0`
 cd ../..
+security_dir=`pwd`
 cd test/configs/recipes
 # Source location for the security services recipes
 recipes_dir=`pwd`
@@ -128,7 +129,7 @@ load_sec_recipes() {
 load_cougaar_domain_plugins() {
 	echo "Unzip domain plugins"
 	unzip -o -q ${CIP}/dbms/data/mysql/1ADDomainData.zip -d /tmp
-	sarep "FORCE varchar" "\`FORCE\` varchar" /tmp/1ADDomainData.sql
+	${security_dir}/test/bin/sarep "FORCE varchar" "\`FORCE\` varchar" /tmp/1ADDomainData.sql
 	mysql -D ${db_csmart} -p${db_spassword} -u ${db_superuser} < /tmp/1ADDomainData.sql
 	rm -f /tmp/1ADDomainData.sql
 
