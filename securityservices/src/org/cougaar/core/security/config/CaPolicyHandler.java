@@ -54,14 +54,13 @@ public class CaPolicyHandler
 
   public void collectPolicy(XMLReader parser,
 			    ContentHandler parent,
-			    String role,
 			    String topLevelTag) {
     if (log.isDebugEnabled()) {
       log.debug("Reading CA policy");
     }
     caPolicy = new CaPolicy();
     currentSecurityPolicy = caPolicy;
-    super.collectPolicy(parser, parent, role, topLevelTag);
+    super.collectPolicy(parser, parent, topLevelTag);
   }
 
   private static final String POLICY_ELEMENT = "policy";

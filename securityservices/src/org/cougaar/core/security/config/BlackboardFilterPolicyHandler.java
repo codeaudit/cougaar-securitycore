@@ -66,12 +66,11 @@ public class BlackboardFilterPolicyHandler extends BaseConfigHandler {
   
   public void collectPolicy(XMLReader parser,
 			    ContentHandler parent,
-			    String role,
 			    String topLevelTag) {
     
     _policy = new BlackboardFilterPolicy();
     currentSecurityPolicy = _policy;
-    super.collectPolicy(parser, parent, role, topLevelTag);
+    super.collectPolicy(parser, parent, topLevelTag);
   }
   
   public void startElement( String namespaceURI,

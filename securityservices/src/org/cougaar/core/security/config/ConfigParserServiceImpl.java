@@ -66,13 +66,16 @@ public class ConfigParserServiceImpl
   private String role;
   private ServiceBroker serviceBroker;
   private LoggingService log;
+  /** The name of the community of type SecurityCommunity. */
+  private String mySecurityCommunity;
 
   // XML Parser
   private XMLReader parser;
   private ConfigParserHandler handler;
 
-  public ConfigParserServiceImpl(ServiceBroker sb) {
+  public ConfigParserServiceImpl(ServiceBroker sb, String community) {
     serviceBroker = sb;
+    mySecurityCommunity = community;
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
@@ -104,7 +107,7 @@ public class ConfigParserServiceImpl
     role = secprop.getProperty(secprop.SECURITY_ROLE);
 
     // Set the ContentHandler...
-    handler = new ConfigParserHandler(parser, role, serviceBroker);
+    handler = new ConfigParserHandler(parser, role, serviceBroker, mySecurityCommunity);
     parser.setContentHandler(handler);
 
     setConfigurationFile("cryptoPolicy.xml");

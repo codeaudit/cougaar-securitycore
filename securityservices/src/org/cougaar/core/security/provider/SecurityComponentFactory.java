@@ -27,6 +27,7 @@
 package org.cougaar.core.security.provider;
 
 import java.lang.reflect.*;
+import java.util.List;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -41,14 +42,39 @@ public final class SecurityComponentFactory
   extends SecurityComponent
 {
   protected BindingSite bindingSite = null;
-  private Object param = null;
   private LoggingService log;
+  private String mySecurityCommunity;
 
   public SecurityComponentFactory() {
   }
 
   public void setParameter(Object o) {
-    param = o;
+    if (!(o instanceof List)) {
+      throw new IllegalArgumentException("Expecting a List argument to setParameter");
+    }
+    setLoggingService();
+    List l = (List) o;
+    if (l.size() != 1) {
+      if (log.isWarnEnabled()) {
+        log.warn(this.getClass().getName() + " should take 1 parameter, got " + l.size()
+		 + ". Fix configuration file");
+      }
+    }
+    else {
+      mySecurityCommunity = l.get(0).toString();
+      if (log.isInfoEnabled()) {
+	log.info("Setting Security Community to " + mySecurityCommunity);
+      }
+    }
+  }
+
+  private void setLoggingService() {
+    if (log == null) {
+      ServiceBroker sb = bindingSite.getServiceBroker();
+      log = (LoggingService)
+	sb.getService(this,
+		      LoggingService.class, null);
+    }
   }
 
   public void setBindingSite(BindingSite bs) {
@@ -57,12 +83,9 @@ public final class SecurityComponentFactory
 
   public void load() {
     super.load();
+    setLoggingService();
     final ServiceBroker sb = bindingSite.getServiceBroker();
-    log = (LoggingService)
-      sb.getService(this,
-		    LoggingService.class, null);
-    SecurityServiceProvider ssp =
-      new SecurityServiceProvider(sb);
+    SecurityServiceProvider ssp = new SecurityServiceProvider(sb, mySecurityCommunity);
   }
 
   public void setState(Object loadState) {}

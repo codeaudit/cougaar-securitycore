@@ -65,14 +65,17 @@ public class SecurityServiceProvider
   private NodeControlService nodeControlService;
   private boolean initDone = false;
   private LoggingService log;
+  /** The name of the community of type SecurityCommunity. */
+  private String mySecurityCommunity;
 
   public SecurityServiceProvider() {
     setServiceBroker();
     registerServices();
   }
 
-  public SecurityServiceProvider(ServiceBroker sb) {
+  public SecurityServiceProvider(ServiceBroker sb, String community) {
     serviceBroker = sb;
+    mySecurityCommunity = community;
     registerServices();
   }
 
@@ -269,7 +272,7 @@ public class SecurityServiceProvider
      * Configuration services
      */
     services.put(ConfigParserService.class,
-		 new ConfigParserServiceProvider());
+		 new ConfigParserServiceProvider(mySecurityCommunity));
     rootServiceBroker.addService(ConfigParserService.class, this);
 
     /* ********************************

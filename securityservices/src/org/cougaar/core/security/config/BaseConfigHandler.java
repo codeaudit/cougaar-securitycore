@@ -62,6 +62,9 @@ public class BaseConfigHandler
   protected LoggingService log;
 
   protected String role;
+  /** The name of the community of type SecurityCommunity. */
+  private String mySecurityCommunity;
+
   private String topLevelTag;
 
   private Hashtable attributeTable;
@@ -86,16 +89,21 @@ public class BaseConfigHandler
 
   public void collectPolicy(XMLReader parser,
 			    ContentHandler parent,
-			    String role,
 			    String topLevelTag) {
     if (log.isDebugEnabled()) {
       log.debug("Reading policy");
     }
     this.parent = parent;
     this.parser = parser;
-    this.role = role;
     this.topLevelTag = topLevelTag;
     parser.setContentHandler(this);
+  }
+
+  public void setRole(String role) {
+    this.role = role;
+  }
+  public void setSecurityCommunity(String community) {
+    this.mySecurityCommunity = community;
   }
 
   public void startElement( String namespaceURI,
@@ -108,13 +116,17 @@ public class BaseConfigHandler
       log.debug("startElement: " + localName);
     }
     String currentRole = attr.getValue("role");
-    if (currentRole == null) {
-      endElementAction = SET_DEFAULT;
-    }
-    else if (!currentRole.equals(role)) {
+    String currentSecurityCommunity = attr.getValue("securitycommunity");
+
+    if (( (currentRole != null) && (!currentRole.equals(role)) ) ||
+	( (currentSecurityCommunity != null) && (!currentSecurityCommunity.equals(mySecurityCommunity)) )) {
       endElementAction = SKIP;
     }
+    else if (currentRole == null || currentSecurityCommunity == null) {
+      endElementAction = SET_DEFAULT;
+    }
     else {
+      // Both role and communit information match
       endElementAction = SET_VALUE;
     }
   }

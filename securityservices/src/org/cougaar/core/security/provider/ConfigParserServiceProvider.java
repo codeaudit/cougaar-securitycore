@@ -40,6 +40,12 @@ public class ConfigParserServiceProvider
   implements ServiceProvider
 {
   static private ConfigParserService configParserService;
+  /** The name of the community of type SecurityCommunity. */
+  private String mySecurityCommunity;
+
+  public ConfigParserServiceProvider(String community) {
+     mySecurityCommunity = community;
+  }
 
   /**
    * Get a service.
@@ -52,7 +58,7 @@ public class ConfigParserServiceProvider
 					Object requestor, 
 					Class serviceClass) {
     if (configParserService == null) {
-      configParserService = new ConfigParserServiceImpl(sb);
+      configParserService = new ConfigParserServiceImpl(sb, mySecurityCommunity);
     }
     return configParserService;
   }

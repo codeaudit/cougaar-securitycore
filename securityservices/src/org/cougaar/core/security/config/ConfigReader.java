@@ -60,11 +60,10 @@ public class ConfigReader
     }
   }
 
-  public void parsePolicy(String filePath, String role) {
+  public void parsePolicy(String filePath, String role, String community) {
     try {
       // Set the ContentHandler...
-      ConfigParserHandler handler = new ConfigParserHandler(parser, role,
-							    serviceBroker);
+      ConfigParserHandler handler = new ConfigParserHandler(parser, role, serviceBroker, community);
       parser.setContentHandler(handler);
 
       // Parse the file...

@@ -60,12 +60,11 @@ public class MsgAccessPolicyHandler
   
   public void collectPolicy(XMLReader parser,
 			    ContentHandler parent,
-			    String role,
 			    String topLevelTag) {
     
     acp = new AccessControlPolicy();
     currentSecurityPolicy = acp;
-    super.collectPolicy(parser, parent, role, topLevelTag);
+    super.collectPolicy(parser, parent, topLevelTag);
   }
   
   public void startElement( String namespaceURI,

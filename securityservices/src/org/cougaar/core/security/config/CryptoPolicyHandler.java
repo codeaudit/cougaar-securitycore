@@ -59,7 +59,6 @@ public class CryptoPolicyHandler
 
   public void collectPolicy(XMLReader parser,
 			    ContentHandler parent,
-			    String role,
 			    String topLevelTag) {
 
     if (log.isDebugEnabled()) {
@@ -67,7 +66,7 @@ public class CryptoPolicyHandler
     }
     cp = new CryptoPolicy();
     currentSecurityPolicy = cp;
-    super.collectPolicy(parser, parent, role, topLevelTag);
+    super.collectPolicy(parser, parent, topLevelTag);
   }
   public void startElement( String namespaceURI,
 			    String localName,

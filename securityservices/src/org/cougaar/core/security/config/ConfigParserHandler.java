@@ -53,6 +53,8 @@ public class ConfigParserHandler
   private MsgAccessPolicyHandler msgAccessPolicyHandler;
   private ServiceBroker serviceBroker;
   private LoggingService log;
+  /** The name of the community of type SecurityCommunity. */
+  private String mySecurityCommunity;
 
   /** A Vector of SecurityPolicy
    */
@@ -62,22 +64,43 @@ public class ConfigParserHandler
 
   // Constructor with XML Parser...
   ConfigParserHandler(XMLReader parser, String role,
-		      ServiceBroker sb) {
+		      ServiceBroker sb, String community) {
     super(sb);
     this.parser = parser;
     this.role = role;
     this.serviceBroker = sb;
+    this.mySecurityCommunity = community;
     this.log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
 
     cryptoClientHandler = new CryptoClientPolicyHandler(serviceBroker);
+    cryptoClientHandler.setRole(role);
+    cryptoClientHandler.setSecurityCommunity(mySecurityCommunity);
+
     servletHandler = new ServletPolicyHandler(serviceBroker);
+    servletHandler.setRole(role);
+    servletHandler.setSecurityCommunity(mySecurityCommunity);
+
     bbFilterHandler = new BlackboardFilterPolicyHandler(serviceBroker);
+    bbFilterHandler.setRole(role);
+    bbFilterHandler.setSecurityCommunity(mySecurityCommunity);
+
     userdbHandler = new LdapUserServicePolicyHandler(serviceBroker);
+    userdbHandler.setRole(role);
+    userdbHandler.setSecurityCommunity(mySecurityCommunity);
+
     caPolicyHandler = new CaPolicyHandler(serviceBroker);
+    caPolicyHandler.setRole(role);
+    caPolicyHandler.setSecurityCommunity(mySecurityCommunity);
+
     cryptoPolicyHandler = new CryptoPolicyHandler(serviceBroker);
+    cryptoPolicyHandler.setRole(role);
+    cryptoPolicyHandler.setSecurityCommunity(mySecurityCommunity);
+
     msgAccessPolicyHandler = new MsgAccessPolicyHandler(serviceBroker);
+    msgAccessPolicyHandler.setRole(role);
+    msgAccessPolicyHandler.setSecurityCommunity(mySecurityCommunity);
 
     securityPolicies = new ArrayList();
   }
@@ -128,50 +151,43 @@ public class ConfigParserHandler
 	return;
       }
       else if (policyType.equals("cryptoClientPolicy")) {
-	cryptoClientHandler.collectPolicy(parser, this,
-					  role, POLICY_ELEMENT);
+	cryptoClientHandler.collectPolicy(parser, this, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = cryptoClientHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
       }
       else if (policyType.equals("certificateAuthorityPolicy")) {
-	caPolicyHandler.collectPolicy(parser, this,
-				      role, POLICY_ELEMENT);
+	caPolicyHandler.collectPolicy(parser, this, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = caPolicyHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
       }
       else if (policyType.equals("org.cougaar.core.security.policy.CryptoPolicy")) {
-	cryptoPolicyHandler.collectPolicy(parser, this,
-				      role, POLICY_ELEMENT);
+	cryptoPolicyHandler.collectPolicy(parser, this, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = cryptoPolicyHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
       }
       else if (policyType.equals("org.cougaar.core.security.policy.AccessControlPolicy")) {
-	msgAccessPolicyHandler.collectPolicy(parser, this,
-				      role, POLICY_ELEMENT);
+	msgAccessPolicyHandler.collectPolicy(parser, this, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = msgAccessPolicyHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
       }
       else if (policyType.equals("org.cougaar.core.security.policy.ServletPolicy")) {
-	servletHandler.collectPolicy(parser, this,
-                                     role, POLICY_ELEMENT);
+	servletHandler.collectPolicy(parser, this, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = servletHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
       }
       else if (policyType.equals("org.cougaar.core.security.policy.BlackboardFilterPolicy")) {
-	bbFilterHandler.collectPolicy(parser, this,
-                                     role, POLICY_ELEMENT);
+	bbFilterHandler.collectPolicy(parser, this, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = bbFilterHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
       }
       else if (policyType.equals("org.cougaar.core.security.policy.LdapUserServicePolicy")) {
-	userdbHandler.collectPolicy(parser, this,
-                                    role, POLICY_ELEMENT);
+	userdbHandler.collectPolicy(parser, this, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = userdbHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
