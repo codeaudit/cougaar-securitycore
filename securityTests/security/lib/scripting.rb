@@ -4,6 +4,7 @@ require 'ultralog/scripting'
 #require 'security/scripts/setup_scripting'
 
 require 'security/actions/buildPolicies'
+require 'security/actions/buildCoordinatorPolicies'
 require 'security/actions/configFiles'
 require 'security/actions/inject_stress'
 require 'security/actions/cond_policy'
