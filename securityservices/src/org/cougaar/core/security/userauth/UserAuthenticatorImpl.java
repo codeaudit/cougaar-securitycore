@@ -89,7 +89,8 @@ public class UserAuthenticatorImpl extends UserAuthenticator {
     pa.setAuthHandler(passhandler);
   }
 
-  public void init() {
+  public UserAuthenticatorImpl() {
+    username = "";
     SecurityServiceProvider secProvider = new SecurityServiceProvider();
     init(secProvider);
   }
