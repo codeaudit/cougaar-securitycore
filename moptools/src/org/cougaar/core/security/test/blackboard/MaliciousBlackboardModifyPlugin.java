@@ -109,7 +109,14 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
     Iterator iterator = collection.iterator();
     if (iterator.hasNext()) {
       OrgActivity orgActivity = (OrgActivity) iterator.next();
-      orgActivity.setActivityName(ACTIVITY_NAME);
+      try {
+        orgActivity.setActivityName(ACTIVITY_NAME);
+      }
+      catch (SecurityException e) {
+        if (logging.isInfoEnabled()) {
+          logging.info("Unable to setActivityName");
+        }
+      }
       this.modId = orgActivity.getUID();
       this.totalRuns++;
       try {

@@ -113,13 +113,20 @@ public class LegitimateBlackboardSubscribePlugin extends AbstractBlackboardPlugi
     Iterator iterator = collection.iterator();
     if (iterator.hasNext()) {
       OrgActivity orgActivity = (OrgActivity) iterator.next();
-      orgActivity.setActivityName(ACTIVITY_NAME);
+      try {
+        orgActivity.setActivityName(ACTIVITY_NAME);
+      }
+      catch (SecurityException e) {
+        if (logging.isWarnEnabled()) {
+          logging.warn("queryBlackboard: unable to set activity name - OrgActivity: " + e.getMessage());
+        }
+      }
       try {
 	getBlackboardService().publishChange(orgActivity);
       }
       catch (SecurityException e) {
         if (logging.isWarnEnabled()) {
-          logging.warn("queryBlackboard: unable to modify OrgActivity");
+          logging.warn("queryBlackboard: unable to publishChange OrgActivity: " + e.getMessage());
         }
       }
       this.modId = orgActivity.getUID();
