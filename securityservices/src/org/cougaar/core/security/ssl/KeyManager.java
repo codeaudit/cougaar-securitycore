@@ -39,7 +39,6 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
-
 import javax.net.ssl.X509KeyManager;
 
 public class KeyManager implements X509KeyManager, CertValidityListener {
@@ -107,6 +106,10 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     if(keyRing!=null) {
       nodealias =  keyRing.findAlias(nodename);
     }
+    if (log.isDebugEnabled()) {
+      log.debug("updateKeystore - Node name: " + nodename +
+		" - Node alias: " + nodealias);
+    }
     if(nodealias==null) {
       if (privatekey != null) {
         log.warn("No longer have valid certificate.");
@@ -164,7 +167,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
    */
   public X509Certificate[] getCertificateChain(String alias) {
     if (log.isDebugEnabled()) {
-      log.debug("getCertificateChain: " + certChain);
+      log.debug("getCertificateChain: " + SSLDebug.getCertsDnNames(certChain));
     }
     return certChain;
   }
@@ -262,5 +265,4 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 
   protected void setManagerReady() {
   }
-
 }

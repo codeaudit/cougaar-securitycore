@@ -39,7 +39,6 @@ import org.cougaar.core.service.LoggingService;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-
 import javax.net.ssl.X509TrustManager;
 
 public class TrustManager implements X509TrustManager {
@@ -120,7 +119,7 @@ public class TrustManager implements X509TrustManager {
     }
 
     if (log.isDebugEnabled()) {
-      log.debug("checkClientTrusted: " + chain[0]);
+      log.debug("checkClientTrusted: " + SSLDebug.getCertsDnNames(chain));
     }
 
     X509Certificate usrcert = chain[0];
@@ -151,7 +150,15 @@ public class TrustManager implements X509TrustManager {
     // check whether cert is valid, then build the chain
     try {
       checkChainTrust(chain);
+      if (log.isDebugEnabled()) {
+	log.debug("checkClientTrusted - Cert is trusted: "
+		  + SSLDebug.getCertsDnNames(chain));
+      }
     } catch (CertificateException e) {
+      if (log.isDebugEnabled()) {
+	log.debug("checkClientTrusted - Cert is NOT trusted: "
+		  + SSLDebug.getCertsDnNames(chain) + " Reason: " + e);
+      }
       String msgType = "ServerTrustManager";
       if (e instanceof CertificateRevokedException) {
         event("CertificateRevoked", msgType, chain[0].getSubjectDN().getName());
@@ -166,6 +173,7 @@ public class TrustManager implements X509TrustManager {
     }
   }
 
+
   /**
    * Given the partial or complete certificate chain provided by the peer,
    * build a certificate path to a trusted root and return if it
@@ -177,15 +185,16 @@ public class TrustManager implements X509TrustManager {
   {
     // check whether cert is valid, then build the chain
     if (log.isDebugEnabled()) {
-      log.debug("checkServerTrusted: " + chain);
+      log.debug("checkServerTrusted: " + SSLDebug.getCertsDnNames(chain));
     }
 
-    // check whether cert is of type node or server
-    // Need to check whether needAuth?
     if (chain == null || chain.length == 0) {
       log.warn("checkServerTrusted: No certificate present");
       throw new CertificateException("No certificate present");
     }
+
+    // check whether cert is of type node or server
+    // Need to check whether needAuth?
     X509Certificate srvcert = chain[0];
     String srvdn = srvcert.getSubjectDN().getName();
     String title = CertificateUtility.findAttribute(srvdn, "t");
@@ -198,7 +207,15 @@ public class TrustManager implements X509TrustManager {
 
     try {
       checkChainTrust(chain);
+      if (log.isDebugEnabled()) {
+	log.debug("checkServerTrusted - Cert is trusted: "
+		  + SSLDebug.getCertsDnNames(chain));
+      }
     } catch (CertificateException e) {
+      if (log.isDebugEnabled()) {
+	log.info("checkServerTrusted - Cert is NOT trusted: "
+		 + SSLDebug.getCertsDnNames(chain) + " Reason: " + e);
+      }
       String msgType = "ClientTrustManager";
       if (e instanceof CertificateRevokedException) {
         event("CertificateRevoked", msgType, chain[0].getSubjectDN().getName());
@@ -291,7 +308,7 @@ public class TrustManager implements X509TrustManager {
     // since node configuration has only one CA, the issues will only
     // be one CA and the node itself
     if (log.isDebugEnabled()) {
-      log.debug("getAcceptedIssuers." + issuers.length);
+      log.debug("getAcceptedIssuers: " + SSLDebug.getCertsDnNames(issuers));
     }
     return issuers;
   }
