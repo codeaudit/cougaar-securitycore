@@ -46,6 +46,7 @@ import org.cougaar.core.component.ServiceBroker;
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
+import org.cougaar.core.security.config.jar.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class ConfigParserHandler
@@ -72,9 +73,9 @@ public class ConfigParserHandler
   private static final String POLICY_ELEMENT = "policy";
 
   // name of the crypto client policy file for this node.  should be of the form
-  // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name} \
-  //     /configs/cryptoPolicy.xml
+  // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
   private String cryptoPolicyFileName;
+  private boolean signJar;
 
   // Constructor with XML Parser...
   ConfigParserHandler(XMLReader parser, String role,
@@ -119,8 +120,7 @@ public class ConfigParserHandler
 
     securityPolicies = new ArrayList();
     // construct the crypto client policy file name.  should be of the form
-    // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name} \
-    //    /cryptoPolicy.xml
+    // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
     SecurityPropertiesService sps = (SecurityPropertiesService)
       sb.getService(this, SecurityPropertiesService.class, null);
     String nodeName = sps.getProperty("org.cougaar.node.name");
@@ -128,8 +128,16 @@ public class ConfigParserHandler
     String topDirectory = cougaarWsp + File.separatorChar + "security"
       + File.separatorChar + "keystores" + File.separatorChar;
     String nodeDirectory = topDirectory + nodeName;
-    cryptoPolicyFileName = nodeDirectory + File.separatorChar +
-      "configs" + File.separatorChar + "cryptoPolicy.xml";
+    String finderClass = System.getProperty(
+      "org.cougaar.util.ConfigFinder.ClassName", null);
+    signJar = (finderClass != null &&
+      finderClass.equals("org.cougaar.core.security.config.jar.SecureConfigFinder"));
+    if (!signJar) {
+      cryptoPolicyFileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
+    }
+    else {
+      cryptoPolicyFileName = nodeDirectory + File.separatorChar + "policies.jar";
+    }
     sb.releaseService(this, SecurityPropertiesService.class, sps);
   }
 
@@ -254,9 +262,9 @@ public class ConfigParserHandler
   public void addSecurityPolicy(SecurityPolicy policy) {
     securityPolicies.add(policy);
   }
-  
+
   // package level access
-  void updateSecurityPolicy(SecurityPolicy policy) 
+  void updateSecurityPolicy(SecurityPolicy policy)
     throws PolicyUpdateException {
     if(policy == null) {
       throw new PolicyUpdateException("no security policy specified");
@@ -270,8 +278,8 @@ public class ConfigParserHandler
         PolicyUpdateException(policy.getName() + " updates not supported.");
     }
   }
-  
-  private void saveCryptoClientPolicy(CryptoClientPolicy policy) 
+
+  private void saveCryptoClientPolicy(CryptoClientPolicy policy)
     throws PolicyUpdateException {
     File policyFile = new File(cryptoPolicyFileName);
     try {
@@ -300,7 +308,13 @@ public class ConfigParserHandler
       // end ca policy
       updatedPolicy.appendChild(root);
       // well just write over the previous cryptoPolicy.xml file
-      FileOutputStream fos = new FileOutputStream(policyFile);
+      OutputStream fos = null;
+      if (!signJar) {
+        fos = new FileOutputStream(policyFile);
+      }
+      else {
+        fos = new ByteArrayOutputStream();
+      }
       OutputFormat of = new OutputFormat(updatedPolicy, "US-ASCII", true);
       // no line wrapping
       of.setLineWidth(0);
@@ -308,8 +322,17 @@ public class ConfigParserHandler
       of.setIndent(2);
       XMLSerializer xs = new XMLSerializer(fos, of);
       xs.serialize(updatedPolicy);
-      fos.flush();
-      fos.close();
+
+      if (!signJar) {
+        fos.flush();
+        fos.close();
+      }
+      else {
+        // use jar file
+        JarFileHandler jarhandler = JarFileHandler.getHandler(serviceBroker);
+        jarhandler.updateJarFile("cryptoPolicy.xml", policyFile,
+          (ByteArrayOutputStream)fos);
+      }
     }
     catch(Exception e) {
       throw new PolicyUpdateException(e);

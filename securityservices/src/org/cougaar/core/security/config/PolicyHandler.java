@@ -40,6 +40,7 @@ import org.cougaar.core.service.LoggingService;
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
+import org.cougaar.core.security.config.jar.*;
 import org.cougaar.core.security.services.util.*;
 
 public class PolicyHandler
@@ -118,22 +119,35 @@ public class PolicyHandler
       + File.separatorChar + "keystores" + File.separatorChar;
     String nodeDirectory = topDirectory + nodeName;
 
-    String fileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
-    file = new File(fileName);
-    try {
-      newPolicyFile = new FileOutputStream(file);
-      newPolicyFile.write(newPolicy.toByteArray());
+    String fileName = null;
+    String finderClass = System.getProperty(
+      "org.cougaar.util.ConfigFinder.ClassName", null);
+    if (finderClass == null ||
+      !finderClass.equals("org.cougaar.core.security.config.jar.SecureConfigFinder")) {
+      fileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
+      file = new File(fileName);
+      try {
+        newPolicyFile = new FileOutputStream(file);
+        newPolicyFile.write(newPolicy.toByteArray());
+      }
+      catch (IOException e) {
+        log.error("Unable to open policy file for modification");
+        return;
+      }
     }
-    catch (IOException e) {
-      log.error("Unable to open policy file for modification");
-      return;
+    else {
+      // use jar file
+      fileName = nodeDirectory + File.separatorChar + "policies.jar";
+      file = new File(fileName);
+      JarFileHandler jarHandler = JarFileHandler.getHandler(serviceBroker);
+      jarHandler.updateJarFile("cryptoPolicy.xml", file, newPolicy);
     }
 
     // now read in the policy to ConfigParserService
     ByteArrayInputStream bis = new ByteArrayInputStream(newPolicyOutputStream.toByteArray());
     configParser.parsePolicy(bis, fileName);
   }
- 
+
   public ByteArrayOutputStream parseXmlTemplate(String xmlTemplateFile,
 						Hashtable attributeTable) {
 
