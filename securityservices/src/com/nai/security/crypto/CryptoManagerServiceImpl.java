@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -47,10 +47,21 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
 	  public Object run(){
 	    return KeyRing.findPrivateKey(name);
 	  }
-	  
+
 	});
       Signature se;
       // if(spec==null||spec=="")spec=pk.getAlgorithm();
+
+      // Richard Liao
+      // private key might not be found, if pending is required
+      // the certficates are not approved automatically.
+      // when agent is started with signAndEncrypt without
+      // obtaining a certificate successfully this will generate
+      // null pointer exception
+      if (pk == null) {
+        throw new SecurityException("Private key not found.");
+      }
+
       spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
       se=Signature.getInstance(spec);
       return new SignedObject(obj, pk, se);
@@ -61,7 +72,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
     }
   }
 
-   public Object verify(String name, String spec, SignedObject obj) 
+   public Object verify(String name, String spec, SignedObject obj)
    throws CertificateException {
        java.security.cert.Certificate c = KeyRing.findCert(name);
        if (c == null) {
@@ -83,7 +94,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
 	 return null;
       }
     }
-    
+
   public SealedObject asymmEncrypt(String name, String spec, Serializable obj)
     throws CertificateException {
     /*encrypt the secretekey with receiver's public key*/
@@ -109,7 +120,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
       throw new RuntimeException(e.toString());
     }
   }
-  
+
   public Object asymmDecrypt(final String name, String spec, SealedObject obj){
     try{
       /*get secretKey*/
@@ -119,8 +130,8 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
 	      return KeyRing.findPrivateKey(name);
 	    }
 	  });
-      
-      if(spec==null||spec=="") spec=key.getAlgorithm(); 
+
+      if(spec==null||spec=="") spec=key.getAlgorithm();
       Cipher ci;
       ci=Cipher.getInstance(spec);
       ci.init(Cipher.DECRYPT_MODE, key);
@@ -134,7 +145,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
       return null;
     }
   }
-    
+
     public SealedObject symmEncrypt(SecretKey sk, String spec, Serializable obj){
       try{
           /*create the cipher and init it with the secret key*/
@@ -147,7 +158,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
           throw new RuntimeException(e.toString());
       }
     }
-    
+
     public Object symmDecrypt(SecretKey sk, SealedObject obj){
       Object o = null;
       if (sk == null) {
@@ -194,6 +205,6 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
 	return null;
       }
     }
-    
+
 }
 
