@@ -200,6 +200,11 @@ final public class KeyRing {
     return keystore.getCRL();
   }
 
+  public void checkOrMakeCert(String name)
+  {
+      keystore.checkOrMakeCert(name);
+      return;
+  }
   /** Generate a PKCS10 request from a public key */
   //public static String generateSigningCertificateRequest(byte[] dervalue) {
   //  return keystore.generateSigningCertificateRequest(dervalue);

@@ -929,4 +929,12 @@ public class DirectoryKeyStore implements Runnable
     ax509certificate[0] = certandkeygen.getSelfCertificate(x500name, validity * 24 * 60 * 60);
     setKeyEntry(alias, privatekey, ax509certificate);
   }
+  
+  public void checkOrMakeCert(String name){
+      //check first
+      Certificate c = findCert(name);
+      if(c!=null) return;
+      //we'll have to make one
+      addKeyPair(name);
+  }
 }
