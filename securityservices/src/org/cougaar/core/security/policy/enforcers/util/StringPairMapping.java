@@ -84,7 +84,7 @@ public class StringPairMapping {
       if (_log.isErrorEnabled()) {
          _log.error("Cannot find String Pair mapping file:" + filename);
       }
-      return null;
+      return new Vector();
     }
     _log.debug(".loadPairs: Reading daml policies file "
               + mappingFile);
