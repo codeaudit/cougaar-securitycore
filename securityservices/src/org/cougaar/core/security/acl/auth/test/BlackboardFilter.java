@@ -28,13 +28,13 @@ import java.util.HashSet;
 import java.security.Principal;
 import java.util.Collection;
 
-import org.cougaar.core.security.acl.auth.UserRoles;
-
+// KAoS
 import org.cougaar.core.security.policy.GuardRegistration;
-import org.cougaar.planning.ldm.policy.Policy;
-import org.cougaar.planning.ldm.policy.RuleParameter;
 import safe.enforcer.NodeEnforcer;
 
+// Cougaar core infrastructure
+import org.cougaar.planning.ldm.policy.Policy;
+import org.cougaar.planning.ldm.policy.RuleParameter;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.component.Service;
@@ -45,6 +45,7 @@ import org.cougaar.core.blackboard.SubscriptionWatcher;
 import org.cougaar.core.persist.PersistenceNotEnabledException;
 import org.cougaar.core.persist.Persistence;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.mts.MessageAddress;
 
 import org.cougaar.core.component.ServiceFilter;
 import org.cougaar.core.component.ServiceFilterBinder;
@@ -53,7 +54,11 @@ import org.cougaar.core.component.BinderFactory;
 import org.cougaar.core.plugin.PluginManagerForBinder;
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.agent.ClusterIdentifier;
+
+// Cougaar security services
 import org.cougaar.core.security.policy.TypedPolicy;
+import org.cougaar.core.security.acl.auth.UserRoles;
+
 
 /** A plugin's view of its parent component (Container).
  * Add a line like the following to a cluster.ini file:
@@ -103,7 +108,7 @@ public class BlackboardFilter extends ServiceFilter {
       extends ServiceFilterContainerProxy
       implements PluginManagerForBinder  {
 
-      public ClusterIdentifier getAgentIdentifier() { 
+      public MessageAddress getAgentIdentifier() { 
         return getPluginManager().getAgentIdentifier(); 
       }
       public ConfigFinder getConfigFinder() { 

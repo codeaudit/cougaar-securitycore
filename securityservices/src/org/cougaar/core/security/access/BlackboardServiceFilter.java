@@ -70,7 +70,7 @@ public class BlackboardServiceFilter extends ServiceFilter{
       extends ServiceFilterContainerProxy
       implements PluginManagerForBinder
     {
-      public ClusterIdentifier getAgentIdentifier() { return getPluginManager().getAgentIdentifier(); }
+      public MessageAddress getAgentIdentifier() { return getPluginManager().getAgentIdentifier(); }
       public ConfigFinder getConfigFinder() { return getPluginManager().getConfigFinder(); }
     }
 
