@@ -134,7 +134,7 @@ public class CertDirectoryServiceProvider
 	    ldapClient = new OpenLdapCertDirectoryServiceImpl(requestor, theBroker);
 	  }
 	  catch (javax.naming.NamingException e) {
-	    log.warn("Unable to get LDAP directory service for" + serverUrl + ". Reason:" + e);
+	    log.warn("Unable to get LDAP directory service for URL:" + serverUrl + ". Reason:" + e);
 	    return null;
 	  }
 	  // Add context to connection pool

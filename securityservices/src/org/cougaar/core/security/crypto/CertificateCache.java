@@ -280,8 +280,8 @@ final public class CertificateCache implements CertificateCacheService
         if (param.isCertAuth ||
           System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
           */
-          if (log.isWarnEnabled()) {
-            log.warn(param.caKeystorePath +
+          if (log.isInfoEnabled()) {
+            log.info(param.caKeystorePath +
                      " Trusted CA keystore does not exist. Creating...");
 	  }
 	  try {

@@ -2215,8 +2215,8 @@ final public class KeyRing  implements KeyRingService  {
       }
       List certs = search.findCert(x500Name);
       if (certs == null || certs.size() == 0) {
-        if (log.isWarnEnabled()) {
-          log.warn("Failed to lookup certificate for " + x500Name);
+        if (log.isInfoEnabled()) {
+          log.info("Failed to lookup certificate for " + x500Name);
         }
       }
 
