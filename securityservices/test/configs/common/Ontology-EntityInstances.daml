@@ -19,31 +19,11 @@
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml"/>
     </daml:Ontology>
 
-    <!--           ****Temporary Hack****                             -->
-    <!--Sadly this file is scanned by a method that is looking for    -->
-    <!--strings to match the following declarations.  This routine is -->
-    <!--not very intelligent.  So be careful with formatting.         -->
-
-    <!--Servlets with an explicit agent -->
-    <ultralogEntity:Servlet rdf:ID="AggegatorServlets"/>
-    <ultralogEntity:Servlet rdf:ID="NCAServlets"/>
-    <ultralogEntity:Servlet rdf:ID="SCmrmanagerServlets"/>
-
-    <!-- Servlets that can be handled by a variety of agents-->
-    <ultralogEntity:Servlet rdf:ID="DataGrabberServlet"/>
-    <ultralogEntity:Servlet rdf:ID="CertReqServlet"/>
-    <ultralogEntity:Servlet rdf:ID="CAReadServlet"/>
-    <ultralogEntity:Servlet rdf:ID="CAWriteServlet"/>
-    <ultralogEntity:Servlet rdf:ID="HierarchyServlet"/>
-    <ultralogEntity:Servlet rdf:ID="LogInventoryServlet"/>
-    <ultralogEntity:Servlet rdf:ID="RearPolicyServlet"/>
-    <ultralogEntity:Servlet rdf:ID="FwdPolicyServlet"/>
-    <ultralogEntity:Servlet rdf:ID="ConusPolicyServlet"/>
-    <ultralogEntity:Servlet rdf:ID="TransPolicyServlet"/>
-    <ultralogEntity:Servlet rdf:ID="PolicyServlet"/>
-    <ultralogEntity:Servlet rdf:ID="SocietyAdminServlet"/>
-    <ultralogEntity:Servlet rdf:ID="UserManagerServlets"/>
-    <ultralogEntity:Servlet rdf:ID="OtherServlets"/>
+    <!--
+         The intention is that instances declared in this file are
+         specific to the Ultralog implementation but not specific to
+         a particular Ultralog society.
+      -->
 
     <ultralogEntity:AuthenticationLevel rdf:ID="NoAuth"/>
     <ultralogEntity:AuthenticationLevel rdf:ID="NoAuthSSL"/>
@@ -59,16 +39,36 @@
     <ultralogEntity:ProtectionLevel rdf:ID="SecretProtection"/>
     <ultralogEntity:ProtectionLevel rdf:ID="WeakProtection"/>
 
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessAdd" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessRemove" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessChange" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessQuery" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessRead" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessWrite" />
+    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessCreate" />
+
+    <ultralogEntity:BlackBoardObjects rdf:ID="otherBlackboardObjects" />
+
+    <ultralogEntity:ULContentValue rdf:ID="NoVerb"/>
+    <ultralogEntity:ULContentValue rdf:ID="OtherVerb"/>
+
+
+    <!-- Everything that follows does not really belong in this file. -->
+    <!-- I decided that this wasn't worth fixing though as the fix    -->
+    <!-- would also be broken.  The issue is that this file is        -->
+    <!-- scanned by the message passing enforcers to determine what   -->
+    <!-- verbs are possible. The obvious hack is to put these         -->
+    <!-- declarations in the DamlBootPolicyList and get the           -->
+    <!-- PolicyBootstrapper to supply the list of verbs.  This is     -->
+    <!-- easy but it is also wrong.  The right fix is to  use KAoS    -->
+    <!-- policy distribution mechanisms to supply this data.  I don't -->
+    <!-- think that this works yet.                                   -->
 
     <!--           ****Temporary Hack****                             -->
     <!--Sadly this file is scanned by a method that is looking for    -->
     <!--strings to match the following declarations.  This routine is -->
     <!--not very intelligent.  So be careful with formatting.         -->
     
-    <!-- Start with Two special cases -->
-    <ultralogEntity:ULContentValue rdf:ID="NoVerb"/>
-    <ultralogEntity:ULContentValue rdf:ID="OtherVerb"/>
-
     <ultralogEntity:ULContentValue rdf:ID="GetWater"/>
     <ultralogEntity:ULContentValue rdf:ID="AccountForSupply"/>
     <ultralogEntity:ULContentValue rdf:ID="Arm"/>
@@ -112,33 +112,6 @@
     <ultralogEntity:ULContentValue rdf:ID="UserInput"/>
     <ultralogEntity:ULContentValue rdf:ID="Withdraw"/>
 
-    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessAdd" />
-    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessRemove" />
-    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessChange" />
-    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessQuery" />
-    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessRead" />
-    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessWrite" />
-    <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessCreate" />
 
-    <ultralogEntity:PlugInRoles rdf:ID="OpPlanPlugInRole" />
-    <ultralogEntity:PlugInRoles rdf:ID="PolicyServletRole" />
-    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityAddRole" />
-    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityQueryRole" />
-    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityQueryNoReadRole" />
-    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityChangeRole" />
-    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityRemoveRole" />
-    <ultralogEntity:PlugInRoles rdf:ID="OrgActivityAllRole" />
-    
-    <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackBoardObjects">
-       <rdfs:subClassOf 
-         rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackboardObjects" />
-       <daml:oneOf rdf:parseType="daml:collection">
-          <ultralogEntity:BlackBoardObjects rdf:ID="BlackboardOpPlanObject" />
-          <ultralogEntity:BlackBoardObjects rdf:ID="SafeRelay" />
-          <ultralogEntity:BlackBoardObjects rdf:ID="OrgActivity" />
-          <!-- this last one should not appear in DamlBlackboardObjectMap -->
-          <ultralogEntity:BlackBoardObjects rdf:ID="otherBlackboardObjects" />
-       </daml:oneOf>
-    </daml:Class>
 
 </rdf:RDF>
