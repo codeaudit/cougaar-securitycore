@@ -81,7 +81,7 @@ class ThreadServiceProxy extends SecureServiceProxy
   public void scheduleAtFixedRate(TimerTask task, long delay, long interval) {
     throw new SecurityException("scheduleAtFixedRate(TimerTask, long, long) has been deprecated.");
   }
-  
+
   class SecureSchedulable implements Schedulable {
     Schedulable _schedulable;
     ExecutionContext _ec;
@@ -115,6 +115,16 @@ class ThreadServiceProxy extends SecureServiceProxy
       _scs.resetExecutionContext();
       return retval; 
     }
+    /*
+    For B11_4 integration: uncomment
+    public String getBlockingExcuse() {
+      String retval = null;
+      _scs.setExecutionContext(_ec);
+      retval = _schedulable.getBlockingExcuse();
+      _scs.resetExecutionContext();
+      return retval; 
+    } 
+    */
     public int getState() {
       int retval = 0;
       _scs.setExecutionContext(_ec);
