@@ -21,6 +21,8 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
 
 // KAoS policy management
 import kaos.ontology.management.UnknownConceptException;
@@ -90,15 +92,17 @@ public class ULMessageNodeEnforcer
       HardWired.setServiceBroker(sb);
       _log.debug("Creating Community Service Proxy");
       if (!_sb.hasService(CommunityService.class)) {
-        _log.fatal("Community service is missing");
+        _log.debug("Community service is missing: adding listener");
+        _sb.addServiceListener(new CommunityServiceListener());
+      } else {
+        _communityService = (CommunityService) 
+          _sb.getService(this, CommunityService.class, null);
+        if (_communityService == null) {
+          _log.debug("Community service is missing");
+        }
+        _log.debug("Community Service Created");
+        _log.debug("Community = " + _communityService);
       }
-      _communityService = 
-        (CommunityService) _sb.getService(this, CommunityService.class, null);
-      if (_communityService == null) {
-        _log.debug("Community service is missing");
-      }
-      _log.debug("Community Service Created");
-      _log.debug("Community = " + _communityService);
       _log.debug("Object Hash = " + hashCode());
     } catch (Throwable th) {
       _log.error("Exception in message node enforcer init",
@@ -370,4 +374,23 @@ public class ULMessageNodeEnforcer
     return HardWired.ulCiphersFromKAoSProtectionLevel(ciphers);
   }
 
+  /**
+   * Listens for the community service
+   */
+  private class CommunityServiceListener implements ServiceAvailableListener {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      if (ae.getService().equals(CommunityService.class)) {
+        _communityService = (CommunityService) ae.getServiceBroker().
+          getService(this, CommunityService.class, null);
+        if (_communityService != null) {
+          if (_log.isDebugEnabled()) {
+            _log.debug("Community Service Discovered");
+            _log.debug("Community = " + _communityService);
+            _log.debug("Object Hash = " + hashCode());
+          }
+          ae.getServiceBroker().removeServiceListener(this);
+        }
+      }
+    }
+  }
 }
