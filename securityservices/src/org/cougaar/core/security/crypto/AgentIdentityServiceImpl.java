@@ -69,6 +69,7 @@ public class AgentIdentityServiceImpl
   private EncryptionService encryptionService;
   private CryptoPolicyService cps;
   private KeyRingService keyRing;
+  private CertValidityService cvs;
   private Object requestor;
   private MessageAddress requestorAddress;
   private boolean clientNameIsPrincipal;
@@ -115,6 +116,12 @@ public class AgentIdentityServiceImpl
     keyRing = (KeyRingService)
       serviceBroker.getService(requestor,
 			       KeyRingService.class,
+			       null);
+
+    // Get validity service
+    cvs = (CertValidityService)
+      serviceBroker.getService(requestor,
+			       CertValidityService.class,
 			       null);
 
     // Get NodeIdentification service
@@ -170,6 +177,9 @@ public class AgentIdentityServiceImpl
       }
       else {
 	keyRing.checkOrMakeCert(requestorAddress.toAddress());
+        keyRing.updateNS(requestorAddress.toAddress());
+        cvs.addValidityListener(
+          new AgentValidityListener(requestorAddress.toAddress()));
       }
     }
   }
@@ -391,4 +401,23 @@ public class AgentIdentityServiceImpl
       }
     }
   }
+
+  class AgentValidityListener implements CertValidityListener {
+    String commonName;
+
+    public AgentValidityListener(String commonName) {
+      this.commonName = commonName;
+    }
+
+    public String getName() {
+      return commonName;
+    }
+
+    /**
+     * For agent everytime it communicates it calls findCert, no need for
+     * updating certificate
+     */
+    public void updateCertificate() {}
+  }
+
 }
