@@ -153,36 +153,39 @@ public class NameServerCertificateComponent extends ComponentPlugin {
       Bundle b = (Bundle) bundleIt.next();
       Map aeMap = b.getEntries();
       if (aeMap == null) { continue; }
-      AddressEntry entry = (AddressEntry) aeMap.get("alias");
-      
-      if (log.isDebugEnabled()) {
-        log.debug("NamingServer AddressEntry: " + entry);
-      }
-      
-      // we should match all local WP binds that aren't of type alias.
-      // this could be -HTTP, -HTTPS, -RMI_REG
-      if(!entry.getType().equals("alias")) {
-        
-        String host = entry.getURI().getHost();
-        String agent = entry.getName(); 
+      for (Iterator aeIt = aeMap.values().iterator();
+           aeIt.hasNext();) {
+        AddressEntry entry = (AddressEntry) aeIt.next();
+
         if (log.isDebugEnabled()) {
-          log.debug("Name server is " + agent + ":" + host + " Localhost:"
-                    + NodeInfo.getHostName());
+          log.debug("NamingServer AddressEntry: " + entry);
         }
-        //if (NodeInfo.getNodeName().equals(agent)) {
-        if (getAgentIdentifier().toString().equals(agent)) {
-          _isNameServer = true; 
-          _nameservers.put(agent, 
-                           new NameServerCertificate(agent, null));
-        }
-        else {
-          if (agent == null) {
-            if (log.isErrorEnabled()) {
-              log.error("Cannot add null to pending cache", new Throwable());
-            }
+      
+        // we should match all local WP binds that aren't of type alias.
+        // this could be -HTTP, -HTTPS, -RMI_REG
+        if(!entry.getType().equals("alias")) {
+        
+          String host = entry.getURI().getHost();
+          String agent = entry.getName(); 
+          if (log.isDebugEnabled()) {
+            log.debug("Name server is " + agent + ":" + host + " Localhost:"
+                      + NodeInfo.getHostName());
+          }
+          //if (NodeInfo.getNodeName().equals(agent)) {
+          if (getAgentIdentifier().toString().equals(agent)) {
+            _isNameServer = true; 
+            _nameservers.put(agent, 
+                             new NameServerCertificate(agent, null));
           }
           else {
-            _pendingCache.put(agent, agent);
+            if (agent == null) {
+              if (log.isErrorEnabled()) {
+                log.error("Cannot add null to pending cache", new Throwable());
+              }
+            }
+            else {
+              _pendingCache.put(agent, agent);
+            }
           }
         }
       }
