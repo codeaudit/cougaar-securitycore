@@ -108,6 +108,10 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
       nodealias =  keyRing.findAlias(nodename);
     }
     if(nodealias==null) {
+      if (privatekey != null) {
+        log.warn("No longer have valid certificate.");
+      }
+
       return;
     }
     List certList = keyRing.findCert(nodename);
