@@ -61,6 +61,27 @@ public class UserRoles {
   }
 
   /**
+   * Use this function to retrieve all the user name as inserted
+   * by the SecureHookServlet
+   */
+  public static String getUserName() {
+    AccessControlContext acc = AccessController.getContext();
+    Subject subject = (Subject) 
+      AccessController.doPrivileged(new GetSubject(acc));
+
+    ArrayList roles = new ArrayList();
+    if (subject != null) {
+      Set principals = subject.getPrincipals(GenericPrincipal.class);
+      Iterator i = principals.iterator();
+      while (i.hasNext()) {
+        GenericPrincipal principal = (GenericPrincipal) i.next();
+        return principal.getName();
+      }
+    }
+    return null;
+  }
+
+  /**
    * Use this function to retrieves the URI that the user
    * is currently accessing.
    */

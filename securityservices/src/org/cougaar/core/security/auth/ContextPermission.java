@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -21,23 +21,21 @@
 
 package org.cougaar.core.security.auth;
 
-import org.cougaar.core.mts.MessageAddress;
-import java.security.Permission;
-import java.util.Map;
-
 /**
- *
- * @see org.cougaar.core.security.auth.ExecutionContext
- * @see org.cougaar.core.security.auth.ObjectContext
- * @author <a href="mailto:gmount@nai.com">George Mount</a>
+ * Permission for setting and getting object and execution
+ * security context.
+ * <p>
+ * Currently we support the following permissions:<br>
+ * <ul>
+ * <li><tt>org.cougaar.core.security.auth.ContextPermission "object" "setAddress"</tt>
+ * </ul>
  */
-public interface AuthorizationEngine {
-  public ExecutionContext getContext(MessageAddress agent,
-                                     Class component);
-  public ExecutionContext getContext(ExecutionContext fixedContext,
-                                     String uri, String userName,
-                                     Map userProperties);
+public class ContextPermission extends java.security.BasicPermission {
+  public ContextPermission(String name) {
+    super(name);
+  }
 
-  public void checkPermission(Permission perm);
-
+  public ContextPermission(String name, String actions) {
+    super(name, actions);
+  }
 }

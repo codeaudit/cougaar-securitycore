@@ -31,11 +31,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.util.ConfigFinder;
-
+import org.cougaar.core.security.policy.enforcers.util.StringPairMapping.StringPair;
 
 
 /**
@@ -43,23 +47,17 @@ import org.cougaar.util.ConfigFinder;
  * concepts and the UltraLog concepts.  For now I am using
  * configuration files but some of this will change later...
  */
-public class DAMLMapping {
+public class DAMLMapping extends StringPairMapping{
 
   private boolean _initialized = false;
-  private LoggingService _log;
-  private ConfigFinder _cf;
   private List _uriMap;
 
   public DAMLMapping(ServiceBroker sb)
   {
-    _log = (LoggingService)
-      sb.getService(this,
-                    LoggingService.class, 
-                    null);
+    super(sb);
     if (_log.isDebugEnabled()) {
       _log.debug("Initializing DAML Mapper");
     }
-    _cf = ConfigFinder.getInstance();
   }
 
 
@@ -67,7 +65,7 @@ public class DAMLMapping {
   {
     try {
       _log.debug("loading uri mappings...");
-      _uriMap = mappingFromFile("DamlUriMap");
+      _uriMap = loadPairs("DamlUriMap");
     } catch (IOException e) {
       _log.error("IO Exception reading DAML <-> uri configuration file", e);
     }
@@ -101,48 +99,6 @@ public class DAMLMapping {
                 "some URI is malformed...", e);
       return null;
     }
-  }
-
-  /**
-   * This method reads a mapping from a file.  
-   *
-   * We assume that the mapping is functional.
-   */
-
-  public List mappingFromFile(String filename)
-    throws IOException
-  {
-    _log.debug("Initilizing DAML mapping using " + filename);
-
-    List mapping = new Vector();
-    File mappingFile = _cf.locateFile(filename);
-    File policyFile = null;
-    String line;
-
-    _log.debug(".DAMLMapping: Reading daml policies file "
-              + mappingFile);
-    BufferedReader damlReader 
-      = new BufferedReader(new FileReader(mappingFile));
-    while ((line = damlReader.readLine()) != null) {
-      if (line.startsWith("#")) { continue; }
-
-      int spacePt;
-      if ((spacePt = line.indexOf(' ')) == -1) { continue; }
-      String mappingIn = line.substring(0,spacePt);
-      String mappingOut = line.substring(spacePt+1);
-
-      _log.debug(".DAMLMapping: mapping item " + mappingIn +
-                " to item " + mappingOut);
-
-      if (mappingOut == null)
-        continue;
-
-      mapping.add(new StringPair(mappingIn, mappingOut));
-    }
-    damlReader.close();
-    _log.debug(".DAMLMapping: Finished Reading daml policies file " 
-              + mappingFile);
-    return mapping;
   }
 
   private class AgentUri 
@@ -224,18 +180,6 @@ public class DAMLMapping {
       return false;
     }
 
-  }
-
-  public static class StringPair
-  {
-    public String _first;
-    public String _second;
-
-    public StringPair(String first, String second)
-    {
-      _first  = first;
-      _second = second;
-    }
   }
 
 }

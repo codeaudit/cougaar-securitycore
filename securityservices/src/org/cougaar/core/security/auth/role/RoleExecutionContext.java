@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -23,17 +23,30 @@ package org.cougaar.core.security.auth.role;
 
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.ObjectContext;
+import org.cougaar.core.mts.MessageAddress;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class RoleContext implements ExecutionContext, ObjectContext {
+public class RoleExecutionContext implements ExecutionContext {
   private String[] _agentRoles;
   private String[] _componentRoles;
   private String[] _userRoles;
+  private String   _component = "";
+  private MessageAddress _agent;
+  private String   _user      = "";
 
-  RoleContext(String[] agentRoles, String[] componentRoles, 
-              String[] userRoles) {
+  RoleExecutionContext(MessageAddress agent, String component, String user,
+                       String[] agentRoles, String[] componentRoles, 
+                       String[] userRoles) {
+    if (component != null) {
+      _component      = component;
+    }
+    _agent          = agent;
+    if (user != null) { 
+      _user = user;
+    }
+
     _agentRoles     = agentRoles;
     _componentRoles = componentRoles;
     _userRoles      = userRoles;
@@ -56,38 +69,54 @@ public class RoleContext implements ExecutionContext, ObjectContext {
     
     return (Arrays.binarySearch(_agentRoles, role) > 0); 
   }
+
   public boolean hasComponentRole(String role) { 
     if (_componentRoles == null) {
       return false;
     }
     return (Arrays.binarySearch(_componentRoles, role) > 0); 
   }
+
   public boolean hasUserRole(String role) { 
     if (_userRoles == null) {
       return false;
     }
     return (Arrays.binarySearch(_userRoles, role) > 0); 
   }
+
+  public MessageAddress getAgent() {
+    return _agent;
+  }
+
+  public String getComponent() {
+    return _component;
+  }
+
   public boolean equals(Object o) {
     if(this == o) {
       return true;
     }
-    if(o instanceof RoleContext) {
-      RoleContext rc = (RoleContext)o;
+    if(o instanceof RoleExecutionContext) {
+      RoleExecutionContext rc = (RoleExecutionContext)o;
       // this object's roles
-      List aRoles = normalizeArrayToList(_agentRoles);
-      List cRoles = normalizeArrayToList(_componentRoles);
-      List uRoles = normalizeArrayToList(_userRoles);
-      // object to compare
-      List oARoles = normalizeArrayToList(rc._agentRoles);
-      List oCRoles = normalizeArrayToList(rc._componentRoles);
-      List oURoles = normalizeArrayToList(rc._userRoles);
-      // return true only if the agent, component, and user roles all match
-      return (aRoles.equals(oARoles) &&
-              cRoles.equals(oCRoles) &&
-              uRoles.equals(oURoles));     
+      boolean agentEqual;
+      if (_agent == null) {
+        agentEqual = rc._agent == null;
+      } else {
+        agentEqual = _agent.equals(rc._agent);
+      }
+      return (_component.equals(rc._component) &&
+              agentEqual &&
+              _user.equals(rc._user) &&
+              Arrays.equals(_agentRoles, rc._agentRoles) &&
+              Arrays.equals(_componentRoles, rc._componentRoles) &&
+              Arrays.equals(_userRoles, rc._userRoles));
     }
     return false;
+  }
+
+  public int hashCode() {
+    return _agent.hashCode() ^ _component.hashCode() ^ _user.hashCode();
   }
 
   public String toString() {
@@ -113,7 +142,7 @@ public class RoleContext implements ExecutionContext, ObjectContext {
     sb.append(")");
     return sb.toString();
   }
-  
+
   private List normalizeArrayToList(String []arr) {
     if(arr == null) {
       return Arrays.asList(new String[0]);

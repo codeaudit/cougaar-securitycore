@@ -8,41 +8,55 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.ObjectContext;
 import org.cougaar.core.security.services.auth.AuthorizationService;
+import org.cougaar.core.security.policy.enforcers.util.RoleMapping;
+import org.cougaar.core.security.acl.auth.UserRoles;
 // java classes
 import java.security.Permission;
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * TODO: This is only a stub implementation
  */
 public class AuthServiceImpl implements AuthorizationService {
   private ServiceBroker _sb;
+  private RoleMapping   _roleMap;
   
   public AuthServiceImpl(ServiceBroker sb) {
     _sb = sb;  
+    _roleMap = new RoleMapping(sb);
   }
   
   public ExecutionContext createExecutionContext(MessageAddress agent,
                                                  ComponentDescription component) {
-    ArrayList agentRoles = new ArrayList();
-    ArrayList componentRoles = new ArrayList();
-    String []userRoles = {""};
-    agentRoles.add(agent.toString());
-    componentRoles.add(component.getClassname());
+    String componentName = component.getClassname();
+    Set s = _roleMap.getRolesForComponent(componentName);
+    String[] compRoles = (String[]) s.toArray(new String[s.size()]);
+    s = _roleMap.getRolesForAgent(agent.toString());
+    String[] agentRoles = (String[]) s.toArray(new String[s.size()]);
+    String[] userRoles = UserRoles.getRoles();
+    String userName = UserRoles.getUserName();
     
-    return (new RoleContext((String [])agentRoles.toArray(new String [0]),
-                            (String [])componentRoles.toArray(new String [0]),
-                            userRoles));                                         
+    return (new RoleExecutionContext(agent, componentName, userName,
+                                     agentRoles, compRoles, userRoles));
   }
 
   public ExecutionContext createExecutionContext(MessageAddress agent,
-                                        String uri, String userName) {
-  
-    return new RoleContext(null, null, null);
+                                                 String uri,
+                                                 String userName) {
+    Set s = _roleMap.getRolesForUri(uri);
+    String[] compRoles = (String[]) s.toArray(new String[s.size()]);
+    s = _roleMap.getRolesForAgent(agent.toString());
+    String[] agentRoles = (String[]) s.toArray(new String[s.size()]);
+    String[] userRoles = UserRoles.getRoles();
+    
+    return (new RoleExecutionContext(agent, uri, userName,
+                                     agentRoles, compRoles, userRoles));
   }
 
   public ObjectContext createObjectContext(ExecutionContext ec, Object object) {
-    return new RoleContext(null, null, null);
+    // no context necessary
+    return new RoleObjectContext(((RoleExecutionContext)ec).getAgent());
   }
   
   public void checkPermission(Permission perm) {

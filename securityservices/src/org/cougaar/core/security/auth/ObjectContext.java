@@ -43,7 +43,7 @@ public interface ObjectContext {
    *         object on the blackboard. <code>null</code> is returned
    *         when published by a local Agent's component.
    */
-//   public MessageAddress getSource();
+  public MessageAddress getSource();
 
   /**
    * Allows the source of the blackboard object. This method
@@ -52,5 +52,5 @@ public interface ObjectContext {
    * @param address The identifier for the agent which is causing the
    * object to be published to the blackboard.
    */
-//   public void setSource(MessageAddress address);
+  public void setSource(MessageAddress address);
 }

@@ -42,7 +42,7 @@ public interface AuthorizationService extends Service {
                                                  ComponentDescription component);
 
   public ExecutionContext createExecutionContext(MessageAddress agent,
-                                        String uri, String userName);
+                                                 String uri, String userName);
 
   public ObjectContext createObjectContext(ExecutionContext ec, Object object);
   
