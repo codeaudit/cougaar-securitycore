@@ -145,7 +145,7 @@ class StressConfigJar < StressJarFile
       s = s + " and signing"
     end
     s = s + " config jar file containing #{@filename}"
-    saveUnitTestResult(@attackNum, s)
+    saveAssertion(@attackNum, s)
     @jarFile = createJarConfig(@filename, @attackName)
     if (@keystore != nil)
       signJar(@jarFile, @keystore, @cert)
@@ -169,8 +169,8 @@ class StressConfigJar < StressJarFile
   def pokeUrl
     url = "#{@testAgent.uri}/readconfig?file=#{@attackNum}.txt"
     result, url = Cougaar::Communications::HTTP.get(url)
-    #saveUnitTestResult(@attackNum, "Result from looking #{url}: #{result}")
-#    logInfoMsg("Result from looking = #{result}")
+    #saveAssertion(@attackNum, "Result from looking #{url}: #{result}")
+    #    logInfoMsg("Result from looking = #{result}")
     return result == @attackName
   end
 end # StressConfigJar
@@ -226,7 +226,7 @@ class Stress4a53 < StressConfigJar
   def preConditionalStartSociety
     super
     filename = "#{CIP}/configs/security/#{@filename}"
-    saveUnitTestResult("Stress4a53", "Adding #{filename} to #{@jarFile}...")
+    saveAssertion("Stress4a53", "Adding #{filename} to #{@jarFile}...")
     File.open(filename, "w") { |file|
       file.print("Bad contents")
     }
@@ -295,10 +295,10 @@ class StressComponentJar < StressJarFile
     @component = "Stress#{@attackNum}"
     @jarFile = createComponentJar(@component, <<COMPONENT)
     package org.cougaar.core.security.test.temp#{@component};
-public class #{@component} implements Runnable {
-  public void run() {}
-}
-COMPONENT
+    public class #{@component} implements Runnable {
+             public void run() {}
+           }
+    COMPONENT
     if (@keystore != nil)
       signJar(@jarFile, @keystore, @cert)
     end
@@ -317,10 +317,10 @@ COMPONENT
 
   def pokeUrl
     url = "#{@testAgent.uri}/runCode?class=org.cougaar.core.security.test.temp#{@component}.#{@component}"
-#    puts("looking in url #{url}")
+    #    puts("looking in url #{url}")
     result, url = Cougaar::Communications::HTTP.get(url)
-#    puts("successful #{@component}: #{(result =~ /Success/) != nil}, url = #{url}")
-#    puts("found result: #{result}")
+    #    puts("successful #{@component}: #{(result =~ /Success/) != nil}, url = #{url}")
+    #    puts("found result: #{result}")
     return ((result =~ /Success/) != nil)
   end
 end # StressComponentJar
@@ -367,20 +367,20 @@ class Stress5a4 < StressComponentJar
     super
     File.rename(@jarFile, "#{@jarFile}.bk")
     createComponentJar(@component, <<COMPONENT)
-package org.cougaar.core.security.test.temp#{@component};
-public class #{@component} implements Runnable {
-  int _tempVar = 0;
-  public void run() {}
-}
-COMPONENT
+    package org.cougaar.core.security.test.temp#{@component};
+    public class #{@component} implements Runnable {
+             int _tempVar = 0;
+             public void run() {}
+           }
+    COMPONENT
     jarDir = "/tmp/jar-#{@component}-new"
     Dir.mkdirs(jarDir)
-#    puts "======================================================"
+    #    puts "======================================================"
     foo = `cd #{jarDir} && jar xf #{@jarFile} org/cougaar/core/security/test/temp#{@component}/#{@component}.class META-INF/MANIFEST.MF`
-#    puts foo
+    #    puts foo
     foo = `jar umf #{jarDir}/META-INF/MANIFEST.MF #{@jarFile}.bk -C #{jarDir} org/cougaar/core/security/test/temp#{@component}/#{@component}.class`
-#    puts foo
-#    puts "======================================================"
+    #    puts foo
+    #    puts "======================================================"
     File.rename("#{@jarFile}.bk", @jarFile)
     File.rm_all(jarDir)
   end
