@@ -22,6 +22,8 @@
 package org.cougaar.core.security.policy.enforcers;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActionConcepts;
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
 import org.cougaar.core.security.policy.enforcers.util.DAMLServletMapping;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
@@ -339,12 +341,124 @@ public class ServletNodeEnforcer
    *      using.  
    * 
    * This function is pessimistic in that it will return false on
+   * any error.  Its implementation is based on the assumption that policies 
+   * will only require audit  - there will be no policies permitting audit 
+   * or requiring that an event is not auditted.  Thus if an event is disallowed
+   * if it is auditted then it is disallowed period.
+   */
+
+  public boolean isActionAuthorized(Set roles, 
+                                    String uri, 
+                                    String sslCipher,
+                                    int authLevel) 
+  {
+    return isActionAuthorized(roles, uri, sslCipher, authLevel, true);
+  }
+
+
+  /**
+   * This function determines whether audit is required based on the users and
+   * the authentication level.  This function assumes that the authorization
+   * check has already been done and the servlet access is allowed.
+   *
+   * @param roles - a set of Strings representing roles to which the
+   *      user belongs 
+   * @param uri - the uri that the user is trying to access
+   * @param c - the ciphersuite and authentication mode that the
+   *      communication engine is 
+   *      using.  
+   * 
+   * This function errs on the side of requiring audit if it cannot determine 
+   * if audit is required.
+   */
+
+  public boolean auditRequired(Set roles, 
+                               String uri, 
+                               String sslCipher,
+                               int authLevel) 
+  {
+    try {
+      return !(isActionAuthorized(roles, uri, sslCipher, authLevel, false));
+    } catch (Exception e) {
+      return true;
+    }
+  }
+
+  /**
+   * This function determines whether audit is required based on the users and
+   * the authentication level.  This function assumes that the authorization
+   * check has already been done and the servlet access is allowed.
+   *
+   * @param uri - the uri that the user is trying to access
+   * 
+   * This function errs on the side of requiring audit if it cannot determine 
+   * if audit is required.
+   */
+
+  public boolean auditRequired(String uri) 
+  {
+    try {
+      _log.debug("Entering auditRequired");
+    
+      String kaosuri = (String) _uriMap.ulUriToKAoSUri(uri);
+      if (kaosuri == null) {
+        _log.warn("Given UL uri mapped to the empty kaos uri");
+        return true;
+      }
+
+      Set targets = new HashSet();
+      if (!targets.add(
+               new TargetInstanceDescription
+                       (UltralogActionConcepts._accessedServlet_, kaosuri))) {
+        _log.debug("Could not make list of targets - " +
+                   "exiting with failure...");
+        return true;
+      }
+      if (!targets.add(new TargetInstanceDescription
+                       (UltralogActionConcepts._usedAuditLevel_, 
+                        EntityInstancesConcepts.EntityInstancesDamlURL 
+                        + "NoAudit"))) {
+        _log.debug("Could not make list of targets - " +
+                   "exiting with failure...");
+        return true;
+      }
+      ActionInstanceDescription action = 
+        new ActionInstanceDescription(_enforcedActionType,
+                                      UserDatabase.anybody(),  
+                                      targets);
+      if (_log.isDebugEnabled()) {
+        _log.debug("Audit Test action = " + action);
+      }
+      boolean ret = _guard.isActionAuthorized(action);
+      if (_log.isDebugEnabled()) {
+        _log.debug("is it authorized? " + ret);
+      }
+      return !ret;
+    } catch (Exception e) {
+      return true;
+    }
+  }
+
+
+  /**
+   * This function determines whether an attempt of a user to access
+   * a servlet is authorized with a given audit level.
+   *
+   * @param roles - a set of Strings representing roles to which the
+   *      user belongs 
+   * @param uri - the uri that the user is trying to access
+   * @param c - the ciphersuite and authentication mode that the
+   *      communication engine is 
+   *      using.  
+   * 
+   * This function is pessimistic in that it will return false on
    * any error.
    */
   public boolean isActionAuthorized(Set roles, 
                                     String uri, 
                                     String sslCipher,
-                                    int authLevel) 
+                                    int authLevel,
+                                    boolean audit) 
   {
     if (_log.isDebugEnabled()) {
       _log.debug("Entering isActionAuthorized with roles = " + roles + 
@@ -374,14 +488,22 @@ public class ServletNodeEnforcer
         
     Set targets = new HashSet();
     if (!targets.add(new TargetInstanceDescription
-                     (org.cougaar.core.security.policy.enforcers.ontology.jena.
-                      UltralogActionConcepts._accessedServlet_, 
-                      kaosuri)) ) {
+                     (UltralogActionConcepts._usedAuditLevel_, 
+                      audit ? EntityInstancesConcepts.EntityInstancesDamlURL
+                                 + "Audit"            :
+                              EntityInstancesConcepts.EntityInstancesDamlURL
+                                 + "NoAudit"))) {
       _log.debug("Could not make list of targets - " +
                  "exiting with failure...");
       return false;
     }
     if (!HardWired.addAuthSuiteTarget(targets, sslCipher, authLevel)) {
+      return false;
+    }
+    if (!targets.add(new TargetInstanceDescription
+                     (UltralogActionConcepts._accessedServlet_, kaosuri)) ) {
+      _log.debug("Could not make list of targets - " +
+                 "exiting with failure...");
       return false;
     }
     ActionInstanceDescription action = 
