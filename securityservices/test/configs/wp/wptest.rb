@@ -12,7 +12,7 @@ module Cougaar
 		begin
 	  	  @run.society.each_agent(true) do |agent|
           	url = "http://#{ agent.node.host.host_name}:#{@run.society.cougaar_port}/$#{agent.name}/wptest"
-	    	Cougaar::Communications::HTTP.get(url)
+          	Cougaar::Communications::HTTP.get(url)
 	    end
 	  
 	   rescue
