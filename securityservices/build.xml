@@ -373,16 +373,18 @@
         <echo message="+++++ Created log directories"/>
     </target>
 
+    <!-- no need for this task since ant1.5 or newer is being used
     <target name="compile-jsps">
         <exec executable="build/jasper/bin/jspc.sh" os="Linux">
             <arg line="-p org.cougaar.core.security.crypto.ldap.admin -d ${securityservices.src} -webapp ${securityservices.src}/org/cougaar/core/security/crypto/ldap/admin"/>
         </exec>
     </target>
+    -->
 
     <!-- compile the jsp's into java files -->
     <!-- NOTE: this task is only available on ant1.5beta1 or newer.
                uncomment this task when we move to ant1.5beta1 or higher.
-               the old compile-jsps (above) task will need to be removed.
+               the old compile-jsps (above) task will need to be removed. -->
     <target name="compile-jsps">
         <jspc srcdir="${securityservices.src}"
             destdir="${securityservices.src}"
@@ -391,7 +393,6 @@
         <include name="org/cougaar/core/security/crypto/ldap/admin/*.jsp" />
         </jspc>
     </target>
-    -->
         
     <!-- The ALL target only compiles, jar, and sign jars -->
     <target name="all" depends="tstamp, init, sign-jars">
