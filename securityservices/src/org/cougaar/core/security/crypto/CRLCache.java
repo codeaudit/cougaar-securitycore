@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.crypto;
@@ -61,7 +61,7 @@ public class CRLCache implements Runnable
 
   private Hashtable crlsCache = new Hashtable(50);
   private long sleep_time=60000l; // Check CRL every minute by default
-  
+
   //private boolean debug =false;
   private DirectoryKeyStore keystore=null;
   private CertificateCache certcache=null;
@@ -73,7 +73,7 @@ public class CRLCache implements Runnable
    * request to a certificate authority? */
   private long crlrefresh = 10;
 
-  public CRLCache(DirectoryKeyStore dkeystore, ServiceBroker sb) 
+  public CRLCache(DirectoryKeyStore dkeystore, ServiceBroker sb)
   {
     serviceBroker = sb;
     log = (LoggingService)
@@ -105,7 +105,7 @@ public class CRLCache implements Runnable
   {
     if(log.isDebugEnabled())
       log.debug(" dn name being added ::+++++++++++++++"+ dnname);
-    
+
     CRLWrapper wrapper=null;
     if(!entryExists(dnname)) {
       wrapper=new CRLWrapper(dnname);//,certcache);
@@ -117,7 +117,7 @@ public class CRLCache implements Runnable
       }
     }
   }
-  
+
   public void setSleepTime(long sleeptime) {
     sleep_time=sleeptime;
     if (log.isDebugEnabled()) {
@@ -139,12 +139,6 @@ public class CRLCache implements Runnable
     while(true) {
       if(log.isDebugEnabled())
 	log.debug("**************** CRL CACHE THREAD IS RUNNING ***********************************");
-      try {
-	Thread.sleep(sleep_time);
-      }
-      catch(InterruptedException interruptedexp) {
-	interruptedexp.printStackTrace();
-      }
       String dnname=null;
       Enumeration enumkeys =crlsCache.keys();
       for(;enumkeys.hasMoreElements();) {
@@ -152,17 +146,23 @@ public class CRLCache implements Runnable
 	updateCRLCache(dnname);
       }
       Thread td=Thread.currentThread();
-     
+
       td.setPriority(Thread.MIN_PRIORITY);
       enumkeys=crlsCache.keys();
       for(;enumkeys.hasMoreElements();) {
 	dnname=(String)enumkeys.nextElement();
 	if(dnname!=null)
 	  updateCRLInCertCache(dnname);
-	else { 
+	else {
 	  if(log.isDebugEnabled())
 	    log.debug("Warning !!! dn name is null in thread of crl cache :");
 	}
+      }
+      try {
+	Thread.sleep(sleep_time);
+      }
+      catch(InterruptedException interruptedexp) {
+	interruptedexp.printStackTrace();
       }
     }
   }
@@ -181,12 +181,12 @@ public class CRLCache implements Runnable
       return;
     }
     iter=crlset.iterator();
-    X509CRLEntry crlentry=null; 
+    X509CRLEntry crlentry=null;
     for(;iter.hasNext();) {
       crlentry=(X509CRLEntry)iter.next();
       updateCRLEntryInCertCache(crlentry,distingushName);
     }
-    
+
   }
 
 
@@ -208,18 +208,28 @@ public class CRLCache implements Runnable
 
     ArrayList certList = keystore.certCache.getValidCertificates(name);
     CertificateStatus certstatus = null;
-    if (certList != null) {
+    if (certList != null && certList.size() != 0) {
       // For now, get the first certificate
       certstatus = (CertificateStatus) certList.get(0);
     }
+    else {
+      if(log.isDebugEnabled())
+	log.debug(" Warning !!!!! No valid certificate for :"+distingushname);
+      return;
+    }
 
+    CertDirectoryServiceClient certificateFinder = null;
+    try {
+      certificateFinder =
+        keystore.getCertDirectoryServiceClient(name.getCommonName());
+    } catch (Exception ex) {}
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
     crlIssuerPublickey=crlIssuerCert.getPublicKey();
-    if(keystore.certificateFinder== null) {
+    if(certificateFinder== null) {
       if(log.isDebugEnabled())
-	log.debug(" Error !!!!! No  certificateFinder present in Directory keystore in update CRL :"+distingushname); 
+	log.debug(" Error !!!!! No  certificateFinder present in Directory keystore in update CRL :"+distingushname);
     }
-    crl=keystore.certificateFinder.getCRL(distingushname);
+    crl=certificateFinder.getCRL(distingushname);
     if(crl==null) {
       if(log.isDebugEnabled()) {
 	log.debug("Warning !!!!  No crl present for :"+distingushname);
@@ -261,9 +271,9 @@ public class CRLCache implements Runnable
       wrapper.setCRL(crl);
       crlsCache.put(distingushname,wrapper);
     }
-  
+
   }
-  
+
   private void updateCRLEntryInCertCache(X509CRLEntry crlentry,String Issuerdn)  {
     if(log.isDebugEnabled()) {
       log.debug("crl enty in updateCRLEntryInCertCache is :"+crlentry.toString());
@@ -287,9 +297,9 @@ public class CRLCache implements Runnable
 	}
 	if(oid!=null) {
 	  issuerbytes=crlentry.getExtensionValue(oid);
-	  
+
 	  if(issuerbytes==null) {
-	    
+
 	    log.debug(" Got issuerbytes as null for oid :" +oid );
 	  }
 	  try
@@ -314,7 +324,7 @@ public class CRLCache implements Runnable
 	      Object obj = Array.newInstance(Byte.TYPE, i);
 	      for(int j = 0; j < i; j++)
                 Array.setByte(obj, j, abyte0[j]);
-	      
+
 	      Object aobj[] = { new Boolean(false), obj };
 	      CertificateIssuerExtension ciext=new CertificateIssuerExtension( new Boolean(false),obj);
 	      CertAttrSet certattrset = (CertAttrSet)constructor.newInstance(aobj);
@@ -346,24 +356,24 @@ public class CRLCache implements Runnable
 	    //throw new CRLException(exception.toString());
 	    exception.printStackTrace();
 	  }
-	
+
 	}
       }
       else {
 	if(log.isDebugEnabled())
 	  log.debug("Error in getting extensions for crlentry :"+crlentry.toString());
       }
-      
+
     }
     else {
       actualIssuerDN=Issuerdn;
     }
-    
+
     crlkey=new CRLKey(bigint,actualIssuerDN);
     if(log.isDebugEnabled()) {
       log.debug("Going to look for key  in CRL Caches updateCRLEntryInCertCache  :"+crlkey.toString());
       log.debug(" cache contains  in CRL Caches updateCRLEntryInCertCache:");
-     
+
       //keystore.certCache.printbigIntCache();
       log.debug("");
       log.debug("");
@@ -371,13 +381,13 @@ public class CRLCache implements Runnable
     }
     subjectDN=keystore.certCache.getDN(crlkey);
     if(subjectDN==null) {
-      
+
       return;
     }
     if(log.isDebugEnabled())
       log.debug(" Got the dn for the revoked cert in CRL Caches updateCRLEntryInCertCache :"+subjectDN);
     keystore.certCache.revokeStatus(bigint,actualIssuerDN,subjectDN);
-        
+
   }
 
   public void setSleeptime(long sleeptime)
@@ -394,7 +404,7 @@ public class CRLCache implements Runnable
   {
     return sleep_time;
   }
-  
+
   public CRLWrapper getCRL(String dnname)
   {
     return null;
@@ -407,11 +417,11 @@ public class CRLCache implements Runnable
     if(entryExists(IssuerDN)) {
       crlwrapper=(CRLWrapper)crlsCache.get(IssuerDN);
       crl=crlwrapper.getCRL();
-	
+
     }
     return incrl;
   }
 
- 
+
 }
 
