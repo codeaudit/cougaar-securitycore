@@ -17,6 +17,7 @@ require 'security/actions/cond_policy'
 require 'security/actions/configFiles'
 require 'security/actions/saveEvents'
 require 'security/lib/cougaarMods'
+require 'security/actions/buildPolicies'
 require 'security/actions/configFiles'
 require 'security/actions/cond_policy'
 require 'security/actions/saveEvents'
@@ -83,6 +84,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "VerifyHosts" 
 
   do_action "BuildConfigJarFiles"
+  do_action "BuildPolicies"
   do_action "DeployCommunitiesFile" 
 
   do_action "StartSociety" 
