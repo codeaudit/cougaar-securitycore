@@ -231,24 +231,28 @@ public class JaasSSLFactory extends SSLSocketFactory {
     AccessControlContext acc = AccessController.getContext();
     Subject subject = (Subject) 
       AccessController.doPrivileged(new GetSubject(acc));
-    Iterator it = subject.getPrincipals().iterator(); 
-    while (it.hasNext()) {
-      Principal p = (Principal) it.next();
-      // Do not use (p instanceof ChainedPrincipal) as 
-      // the class may have been loaded by a different class loader.
-      if (p.getClass().getName().
-	  equals("org.cougaar.core.security.securebootstrap.StringPrincipal")) {
+    if (subject == null || subject.getPrincipals() == null) {
+      _log.info("No principals available. Using node agent's");
+    } else {
+      Iterator it = subject.getPrincipals().iterator(); 
+      while (it.hasNext()) {
+        Principal p = (Principal) it.next();
+        // Do not use (p instanceof ChainedPrincipal) as 
+        // the class may have been loaded by a different class loader.
+        if (p.getClass().getName().
+            equals("org.cougaar.core.security.securebootstrap.StringPrincipal")) {
+        }
+        try {
+          Class c = p.getClass();
+          Method m = c.getDeclaredMethod("getName", null);
+          return (String) m.invoke(p, null);
+        }
+        catch (Exception e) {
+          _log.error("Unable to get principal: " + e);
+        }
       }
-      try {
-	Class c = p.getClass();
-	Method m = c.getDeclaredMethod("getName", null);
-	return (String) m.invoke(p, null);
-      }
-      catch (Exception e) {
-	_log.error("Unable to get principal: " + e);
-      }
+      _log.error("Unable to get principal. Using NodeInfo.getNodeName()");
     }
-    _log.error("Unable to get principal. Using NodeInfo.getNodeName()");
     return NodeInfo.getNodeName();
 
     /*
