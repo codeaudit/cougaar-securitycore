@@ -175,7 +175,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
   private void dumpCSVResults() {
 		  try {
 			  String filename = dumpDir + File.separator + expName + 
-			    "-" + getAgentIdentifier().toAddress() + ".csv";
+			    "-" + getAgentIdentifier().toAddress() + "-" +  pluginName + ".csv";
 			  File file = new File(filename);
 			  FileWriter writer = new FileWriter(file);
 			  writer.write(
@@ -202,7 +202,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 	  private void dumpHTMLResults() {
 		  try {
 			  String filename =  dumpDir + File.separator +expName + 
-			    "-" + getAgentIdentifier().toAddress() + ".html";
+			    "-" + getAgentIdentifier().toAddress() + "-" +  pluginName + ".html";
 			  File file = new File(filename);
 			  FileWriter writer = new FileWriter(file);
 			  writer.write("<HTML><BODY><TABLE><TR>");

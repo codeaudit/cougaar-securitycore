@@ -44,6 +44,7 @@ public class MaliciousBlackboardPlugin extends AbstractBlackboardPlugin {
      */
     protected void queryBlackboard() {
         Collection orgActivities = getBlackboardService().query(this.orgActivityPredicate);
+	this.totalRuns++;
         if (orgActivities.size() > 0) {
             if (logging.isInfoEnabled()) {
                 logging.info(
@@ -52,13 +53,9 @@ public class MaliciousBlackboardPlugin extends AbstractBlackboardPlugin {
             }
 
             this.createIDMEFEvent(pluginName, "Was able to access OrgActivity object");
-            this.totalRuns++;
             this.failures++;
         }else{
         	this.successes++;
         }
-
-       
-
     }
 }
