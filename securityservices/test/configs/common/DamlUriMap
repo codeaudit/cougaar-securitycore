@@ -58,7 +58,7 @@
 /$RearPolicyDomainManagerServlet/policyAdmin RearPolicyServlet
 /$FwdPolicyDomainManagerServlet/policyAdmin FwdPolicyServlet
 /$ConusPolicyDomainManagerServlet/policyAdmin ConusPolicyServlet
-/$TransPolicyDomainManager/policyAdmin TransPolicyServlet
+/$TransPolicyDomainManagerServlet/policyAdmin TransPolicyServlet
 /$*/policyAdmin PolicyServlet
 
 #
