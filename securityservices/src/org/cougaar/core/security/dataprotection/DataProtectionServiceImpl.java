@@ -551,7 +551,7 @@ public class DataProtectionServiceImpl
     String sendSignature = System.getProperty("org.cougaar.core.security.dataprotection.sendSignature", "true");
     digestVerify = sendSignature.equals("true");
 
-      String msg = "Recovery failure: certificate protecting secret key is not trusted. " + e.toString();
+      String msg = "Recovery failure: certificate protecting secret key is not trusted for " + agent + ". " + e.toString();
       if (!(e instanceof CertificateRevokedException) || !digestVerify) {
           CertificateException cx = new CertificateException(msg);
           publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
