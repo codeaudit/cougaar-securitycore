@@ -4,6 +4,26 @@ require "security/lib/policy_util.rb"
 require "security/lib/policyGenerator/commPolicy.rb"
 require 'security/lib/web'
 
+def buildInitialUrPolicies(run,
+                           dbUser     = "society_config",
+                           dbHost     = "cougaar-db",
+                           dbPassword = "s0c0nfig",
+                           db         = "cougaar104")
+  p = CommPolicies.new(run, dbUser, dbHost, dbPassword, db)
+  p.commonDecls()
+  p.communityDecls()
+  p.allowNameService()
+  p.allowSpecialCommunity()
+  p.allowRestartCommunityNodesTalk()
+  p.allowHealthMonitoring()
+  p.allowSecurityManagement()
+  p.allowSuperiorSubordinate()
+  p.allowInterMnR()
+  p.allowServiceProviders()
+  p.allowTalkToSelf()
+  p
+end
+
 
 module Cougaar
   module Actions
@@ -117,18 +137,8 @@ module Cougaar
         debug"calculating policies"
         `rm -rf #{@staging}`
         Dir.mkdir(@staging)
-        p = CommPolicies.new(@run, @dbUser, @dbHost, @dbPassword, @db)
-        p.commonDecls()
-        p.communityDecls()
-        p.allowNameService()
-        p.allowSpecialCommunity()
-        p.allowRestartCommunityNodesTalk()
-        p.allowHealthMonitoring()
-        p.allowSecurityManagement()
-        p.allowSuperiorSubordinate()
-        p.allowInterMnR()
-        p.allowServiceProviders()
-        p.allowTalkToSelf()
+        p = buildInitialUrPolicies(@run, @dbUser, @dbHost, @dbPassword, @db)
+        p.wellDefined?
         debug"writing policies #{@staging}"
         p.writePolicies(policyFileName())
         debug "policies written"
