@@ -31,6 +31,7 @@ import java.lang.*;
 // Cougaar core services
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
+import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.*;
@@ -58,7 +59,14 @@ public class ConfigParserServiceProvider
 					Object requestor, 
 					Class serviceClass) {
     if (configParserService == null) {
-      configParserService = new ConfigParserServiceImpl(sb, mySecurityCommunity);
+      try {
+	configParserService = new ConfigParserServiceImpl(sb, mySecurityCommunity);
+      }
+      catch (Exception e) {
+	LoggingService log = (LoggingService)
+	  sb.getService(this, LoggingService.class, null);
+	log.warn("Unable to get config parser service: " + e);
+      }
     }
     return configParserService;
   }
