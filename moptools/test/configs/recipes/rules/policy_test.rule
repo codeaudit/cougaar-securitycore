@@ -1,4 +1,4 @@
-society.each_agent do |agent|
+society.each_agent(true) do |agent|
 	agent.add_component do |c|
 		c.classname="org.cougaar.core.security.test.javapolicy.AuthorizedResourceServlet"
 	end
