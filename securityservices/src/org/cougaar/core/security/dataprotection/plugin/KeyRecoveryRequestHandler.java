@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Iterator;
+import java.nio.ByteBuffer;
 
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
@@ -61,7 +62,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -91,20 +92,40 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
     bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
   }
 
-  private UnaryPredicate dataProtectionPredicate(final DataProtectionKeyImpl dpKey) {
+  private UnaryPredicate dataProtectionPredicate(
+    final DataProtectionKeyCollection keyCollection, final String agentName) {
     return new UnaryPredicate() {
-        public boolean execute(Object o) {
-        	if(o instanceof DataProtectionKeyContainer){
-        		DataProtectionKeyContainer container = (DataProtectionKeyContainer)o;
-        		Collection keyCollection = container.getKeyCollection();
-        		if(keyCollection!=null && keyCollection.size()>0){
-        			DataProtectionKeyImpl originalKey = (DataProtectionKeyImpl)keyCollection.iterator().next();
-        			return originalKey.equals(dpKey);
-        		}
-        	}
-          return false;
+      public boolean execute(Object o) {
+        if(o instanceof DataProtectionKeyContainer){
+          DataProtectionKeyContainer container = (DataProtectionKeyContainer)o;
+
+          if (!agentName.equals(container.getAgentName())) {
+            return false;
+          }
+
+/*
+          ByteBuffer bbuf1 = ByteBuffer.allocate(container.getKey().length);
+          bbuf1.put(container.getKey());
+          ByteBuffer bbuf2 = ByteBuffer.allocate(keyCollection.getSignature().length);
+          bbuf2.put(keyCollection.getSignature());
+          
+          return bbuf1.equals(bbuf2);
+*/
+          byte [] bbuf1 = container.getKey();
+          byte [] bbuf2 = keyCollection.getSignature();
+          if (bbuf1.length != bbuf2.length) {
+            return false;
+          }
+          for (int i = 0; i < bbuf1.length; i++) {
+            if (bbuf1[i] != bbuf2[i]) {
+              return false;
+            }
+          }
+          return true;
         }
-      };
+        return false;
+      }
+    };
   }
 
 
@@ -144,22 +165,6 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
     }
 
     DataProtectionKeyImpl keyImpl = (DataProtectionKeyImpl) keyCollection.get(0);
-
-    //TODO Is this in the right place 
-    //check if exists on blackboard, if not return b/c invalid snap shot
-/*
-    bbs.openTransaction();
-    
-    Collection dpKeyCollection = bbs.query(dataProtectionPredicate(keyImpl));
-    bbs.closeTransaction();
-    if (dpKeyCollection.size() == 0) {
-      if (log.isWarnEnabled()) {
-        log.warn("A request dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
-      }
-      //TODO : Put this back
-     // return;
-    }
-*/
     X509Certificate[] originalCertChain = keyImpl.getCertificateChain();
     if ((originalCertChain == null) || (originalCertChain.length == 0)) {
       if (log.isWarnEnabled()) {
@@ -170,6 +175,36 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
     }
 
     X509Certificate originalAgentCert = originalCertChain[0];
+/*
+    String agentName = null;
+    try {
+      agentName = new X500Name(originalAgentCert.getSubjectDN().getName())
+        .getCommonName();
+    } catch (IOException iox) {
+      if (log.isWarnEnabled()) {
+        log.warn("Malformed DN: " + originalAgentCert.getSubjectDN().getName());
+      }
+      return;
+    }
+
+    //TODO Is this in the right place 
+    //check if exists on blackboard, if not return b/c invalid snap shot
+    bbs.openTransaction();
+    
+    Collection results = bbs.query(dataProtectionPredicate(keyCollection), agentName);
+    bbs.closeTransaction();
+    if (results.size() == 0) {
+      if (log.isWarnEnabled()) {
+        log.warn("A request dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
+      }
+      return;
+    }
+    if (results.size() != 1) {
+      if (log.isWarnEnabled()) {
+        log.warn("A request dataprotection key has more than one key in the persistence manager blackboard: " + results.size());
+      }
+    }
+*/
 
     // Verify the trust of the certificate.
     try {
