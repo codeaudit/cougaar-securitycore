@@ -229,6 +229,10 @@ case 'mluu':
 	set httpport=5555
 	set httpsport=6555
 	breaksw
+case 'asmt':
+	set httpport=8800
+	set httpsport=8888
+	breaksw
 default:
 	@echo "WARNING: Setting HTTP port to default port number. You should edit SecureNode"
 	set httpport=8800
