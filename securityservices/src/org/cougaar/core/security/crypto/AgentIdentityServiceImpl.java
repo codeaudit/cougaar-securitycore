@@ -229,13 +229,18 @@ public class AgentIdentityServiceImpl
 	       + " to " + targetNode.toAddress());
     }
     SecureMethodParam policy =
-      cps.getSendPolicy(thisNodeAddress.toAddress() + ":"
+      new SecureMethodParam(SecureMethodParam.SIGNENCRYPT);
+    policy.symmSpec = "DES";
+    policy.asymmSpec = "RSA";
+    policy.signSpec = "MD5withRSA";
+    
+/*      cps.getSendPolicy(thisNodeAddress.toAddress() + ":"
 			  + targetNode.toAddress());
     if (policy == null) {
        throw new RuntimeException("Could not find message policy between "
 	+ thisNodeAddress.toAddress() + " and " + targetNode.toAddress());
     }
-
+*/
     // Retrieve private keys of the agent
     List agentPrivKeyList = keyRing.findPrivateKey(requestorAddress.toAddress());
 
@@ -340,11 +345,16 @@ public class AgentIdentityServiceImpl
 	       + " to " + thisNodeAddress.toAddress());
     }
 
-    SecureMethodParam policy =
-      cps.getReceivePolicy(sender
+    SecureMethodParam policy = 
+      new SecureMethodParam(SecureMethodParam.SIGNENCRYPT);
+    policy.symmSpec = "DES";
+    policy.asymmSpec = "RSA";
+    policy.signSpec = "MD5withRSA";
+    
+/*      cps.getReceivePolicy(sender
 			   +":"
 			   +thisNodeAddress.toAddress());
-
+*/
     KeySet keySet = null;
 
     KeyIdentity keyIdentity = (KeyIdentity) identity;
