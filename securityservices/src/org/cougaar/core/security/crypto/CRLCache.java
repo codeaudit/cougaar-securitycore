@@ -72,6 +72,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.CertificateSearchService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.handoff.blackboard.HandOffUnRegistration;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.security.util.CommunityServiceUtilListener;
 import org.cougaar.core.security.util.DateUtil;
@@ -170,12 +171,12 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       // This is OK for standalone applications if they don't plan to use
       // certificates for authentication, but it's not OK for nodes
       boolean exec =
-	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
+        Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
       if (exec == true) {
-	log.warn("Unable to get crypto Client policy");
+        log.warn("Unable to get crypto Client policy");
       }
       else {
-	log.info("Unable to get crypto Client policy");
+        log.info("Unable to get crypto Client policy");
       }
       throw new RuntimeException("Unable to get crypto Client policy");
     }
@@ -233,7 +234,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     if(threadService!=null && _crlcacheInitilized && _searchService !=null) {
       log.debug("Starting CRL Poller thread with Sleep time :"+ getSleepTime());
       threadService.getThread(this, new CrlPoller()).
-	schedule(0,getSleepTime());
+        schedule(0,getSleepTime());
     }
    
   }
@@ -248,7 +249,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       wrapper=new CRLWrapper(dnname);//,certcache);
       crlsCache.put(dnname,wrapper);
       if ((blackboardService != null) && (crlMgmtService != null) && (threadService!=null)) {
-	CRLAgentRegistration crlagentregistartion = new CRLAgentRegistration(dnname);
+        CRLAgentRegistration crlagentregistartion = new CRLAgentRegistration(dnname);
         AttributeBasedAddress aba = null;
         CrlRelay crlregrelay = null;
         boolean isEmpty;
@@ -310,7 +311,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
     else {
       if(log.isDebugEnabled()) {
-	log.debug("Warning !!! Entry already exists for dnname :" +dnname);
+        log.debug("Warning !!! Entry already exists for dnname :" +dnname);
       }
     }
   }
@@ -431,40 +432,40 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
     catch (NoSuchAlgorithmException  noSuchAlgorithmException) {
       if(log.isWarnEnabled()) {
-	log.warn("No such algorithm", noSuchAlgorithmException);
+        log.warn("No such algorithm", noSuchAlgorithmException);
       }
       return;
     }
     catch (InvalidKeyException invalidKeyException ) {
       if(log.isWarnEnabled()) {
-	log.warn("Invalid key", invalidKeyException);
+        log.warn("Invalid key", invalidKeyException);
       }
       return;
     }
     catch (NoSuchProviderException noSuchProviderException ){
       if(log.isWarnEnabled()) {
-	log.warn("No such provider", noSuchProviderException);
+        log.warn("No such provider", noSuchProviderException);
       }
       return;
     }
     catch (SignatureException  signatureException ) {
       if(log.isWarnEnabled()) {
-	log.warn("Signature exception", signatureException);
+        log.warn("Signature exception", signatureException);
       }
       return;
     }
     catch (CRLException cRLException ) {
       if(log.isWarnEnabled()) {
-	log.warn("CRL exception", cRLException);
+        log.warn("CRL exception", cRLException);
       }
       return;
     }
     try {
       if(keyRingService!=null) {
-	keyRingService.checkCertificateTrust(crlIssuerCert);
+        keyRingService.checkCertificateTrust(crlIssuerCert);
       }
       else {
-	log.warn("Unable to check certificate trust as keyring service is null");
+        log.warn("Unable to check certificate trust as keyring service is null");
       }
     }
     catch(Exception exp) {
@@ -480,10 +481,10 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         wrapper =new CRLWrapper(distingushname);
       }
       try {
-	wrapper.setCRL(crl.getEncoded());
+        wrapper.setCRL(crl.getEncoded());
       }
       catch(Exception exp) {
-	log.warn("Unable to set crl in cache for :"+distingushname ,exp);
+        log.warn("Unable to set crl in cache for :"+distingushname ,exp);
       }
       String lastmodified=wrapperFromDirectory.getLastModifiedTimestamp();
       if(lastmodified !=null) {
@@ -540,7 +541,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
     else {
       if(log.isWarnEnabled())
-	log.warn("No valid certificate for: "+distingushname);
+        log.warn("No valid certificate for: "+distingushname);
       return;
     }
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
@@ -564,7 +565,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
     else{
       if (log.isDebugEnabled()) {
-	log.debug("Unable to get CRL for " + distingushname + ". Will retry later");
+        log.debug("Unable to get CRL for " + distingushname + ". Will retry later");
       } 
       return;
     }
@@ -573,13 +574,13 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
     else {
       if (log.isWarnEnabled()) {
-	log.warn("Unable to get CRL for " + distingushname + ". As CACertificateEntry is NULL");
+        log.warn("Unable to get CRL for " + distingushname + ". As CACertificateEntry is NULL");
       }
       return;
     }
     if(crl==null) {
       if(log.isInfoEnabled()) {
-	log.info("No crl present for:"+distingushname + ". Will retry later");
+        log.info("No crl present for:"+distingushname + ". Will retry later");
       }
       return;
     }
@@ -608,10 +609,10 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
     try {
       if(keyRingService!=null) {
-	keyRingService.checkCertificateTrust(crlIssuerCert);
+        keyRingService.checkCertificateTrust(crlIssuerCert);
       }
       else {
-	log.warn("Unable to check certificate trust as keyring service is null");
+        log.warn("Unable to check certificate trust as keyring service is null");
       }
     }
     catch(Exception exp) {
@@ -621,10 +622,10 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     if(crl!=null) {
       wrapper=(CRLWrapper) crlsCache.get(distingushname);
       try {
-	wrapper.setCRL(crl.getEncoded());
+        wrapper.setCRL(crl.getEncoded());
       }
       catch(Exception exp) {
-	log.warn("Unable to encode crl in CRL cache :"+ distingushname + " message :"+exp.getMessage());
+        log.warn("Unable to encode crl in CRL cache :"+ distingushname + " message :"+exp.getMessage());
       }
       if (log.isDebugEnabled()) {
         log.debug("Got crl for: " + distingushname);
@@ -650,88 +651,88 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     if(hasextensions) {
       oidset= crlentry.getNonCriticalExtensionOIDs();
       if(!oidset.isEmpty()) {
-	Iterator iter=oidset.iterator();
-	if(iter.hasNext()) {
-	  oid=(String)iter.next();
-	  if(log.isDebugEnabled())
-	    log.debug(" Got oid for non critical extension in updateCRLEntryInCertCache is :"+oid);
-	}
-	if(oid!=null) {
-	  issuerbytes=crlentry.getExtensionValue(oid);
+        Iterator iter=oidset.iterator();
+        if(iter.hasNext()) {
+          oid=(String)iter.next();
+          if(log.isDebugEnabled())
+            log.debug(" Got oid for non critical extension in updateCRLEntryInCertCache is :"+oid);
+        }
+        if(oid!=null) {
+          issuerbytes=crlentry.getExtensionValue(oid);
 
-	  if(issuerbytes==null) {
-	    log.debug(" Got issuerbytes as null for oid :" +oid );
-	  }
-	  try{
-	    if(log.isDebugEnabled())
-	      log.debug(" going to get extension class in CRL Caches updateCRLEntryInCertCache :");
-	    Class class1 = OIDMap.getClass(new ObjectIdentifier(oid));
-	    if(class1 == null) {
-	      if(log.isDebugEnabled())
-		log.debug(" Class was null in CRL Caches updateCRLEntryInCertCache :");
-	      return;
-	    }
-	    Class aclass[] = {
-	      java.lang.Boolean.class, java.lang.Object.class
-	    };
-	    Constructor constructor = class1.getConstructor(aclass);
-	    DerInputStream dis=new DerInputStream(issuerbytes);
-	    DerValue val=dis.getDerValue();
-	    byte[] byted=val.getOctetString();
-	    byte abyte0[] =byted;
-	    int i = abyte0.length;
-	    Object obj = Array.newInstance(Byte.TYPE, i);
-	    for(int j = 0; j < i; j++){
-	      Array.setByte(obj, j, abyte0[j]);
-	    }
-	    Object aobj[] = { new Boolean(false), obj };
-	    //CertificateIssuerExtension ciext=new CertificateIssuerExtension( new Boolean(false),obj);
-	    CertAttrSet certattrset = (CertAttrSet)constructor.newInstance(aobj);
-	    if(certattrset instanceof CertificateIssuerExtension) {
-	      CougaarGeneralNames gn=(CougaarGeneralNames) certattrset.get
-		(CertificateIssuerExtension.ISSUERNAME);
-	      if(log.isDebugEnabled())
-		log.debug("General names are in CRL Caches updateCRLEntryInCertCache  :"+gn.toString());
-	      if(gn.size()==1){
-		GeneralName  name=(GeneralName)gn.get(0);
-		if(name.getType()==4)  {
-		  if(log.isDebugEnabled())
-		    log.debug("got actual data from extension in  CRL Caches updateCRLEntryInCertCache :"+name.toString());
-		  actualIssuerDN=name.toString();
-		}
-		else {
-		  if (log.isErrorEnabled()) {
-		    log.error("Not x500 name - Type=" + name.getType());
-		  }
-		}
-	      }
-	      else {
-		if (log.isWarnEnabled()) {
-		  log.warn("Did not get expected size of GeneralNames. Size="
-		    + gn.size());
-		}
-	      }
-	    }
-	    else {
-	      if (log.isWarnEnabled()) {
-		log.debug("Not instance of CertificateIssuerExtension");
-	      }
-	    }
-	  }
-	  catch(InvocationTargetException invocationtargetexception)  {
-	    //throw new CRLException(invocationtargetexception.getTargetException().getMessage());
-	    invocationtargetexception.printStackTrace();
-	  }
-	  catch(Exception exception)  {
-	    //throw new CRLException(exception.toString());
-	    exception.printStackTrace();
-	  }
+          if(issuerbytes==null) {
+            log.debug(" Got issuerbytes as null for oid :" +oid );
+          }
+          try{
+            if(log.isDebugEnabled())
+              log.debug(" going to get extension class in CRL Caches updateCRLEntryInCertCache :");
+            Class class1 = OIDMap.getClass(new ObjectIdentifier(oid));
+            if(class1 == null) {
+              if(log.isDebugEnabled())
+                log.debug(" Class was null in CRL Caches updateCRLEntryInCertCache :");
+              return;
+            }
+            Class aclass[] = {
+              java.lang.Boolean.class, java.lang.Object.class
+            };
+            Constructor constructor = class1.getConstructor(aclass);
+            DerInputStream dis=new DerInputStream(issuerbytes);
+            DerValue val=dis.getDerValue();
+            byte[] byted=val.getOctetString();
+            byte abyte0[] =byted;
+            int i = abyte0.length;
+            Object obj = Array.newInstance(Byte.TYPE, i);
+            for(int j = 0; j < i; j++){
+              Array.setByte(obj, j, abyte0[j]);
+            }
+            Object aobj[] = { new Boolean(false), obj };
+            //CertificateIssuerExtension ciext=new CertificateIssuerExtension( new Boolean(false),obj);
+            CertAttrSet certattrset = (CertAttrSet)constructor.newInstance(aobj);
+            if(certattrset instanceof CertificateIssuerExtension) {
+              CougaarGeneralNames gn=(CougaarGeneralNames) certattrset.get
+                (CertificateIssuerExtension.ISSUERNAME);
+              if(log.isDebugEnabled())
+                log.debug("General names are in CRL Caches updateCRLEntryInCertCache  :"+gn.toString());
+              if(gn.size()==1){
+                GeneralName  name=(GeneralName)gn.get(0);
+                if(name.getType()==4)  {
+                  if(log.isDebugEnabled())
+                    log.debug("got actual data from extension in  CRL Caches updateCRLEntryInCertCache :"+name.toString());
+                  actualIssuerDN=name.toString();
+                }
+                else {
+                  if (log.isErrorEnabled()) {
+                    log.error("Not x500 name - Type=" + name.getType());
+                  }
+                }
+              }
+              else {
+                if (log.isWarnEnabled()) {
+                  log.warn("Did not get expected size of GeneralNames. Size="
+                           + gn.size());
+                }
+              }
+            }
+            else {
+              if (log.isWarnEnabled()) {
+                log.debug("Not instance of CertificateIssuerExtension");
+              }
+            }
+          }
+          catch(InvocationTargetException invocationtargetexception)  {
+            //throw new CRLException(invocationtargetexception.getTargetException().getMessage());
+            invocationtargetexception.printStackTrace();
+          }
+          catch(Exception exception)  {
+            //throw new CRLException(exception.toString());
+            exception.printStackTrace();
+          }
 
-	}
+        }
       }
       else {
-	if(log.isDebugEnabled())
-	  log.debug("Error in getting extensions for crlentry :"+crlentry.toString());
+        if(log.isDebugEnabled())
+          log.debug("Error in getting extensions for crlentry :"+crlentry.toString());
       }
 
     }
@@ -843,9 +844,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
 
         CertDirectoryServiceClient dirServiceClient= keyRingService.getCACertDirServiceClient(dnname);
         if(dirServiceClient!=null) {
-	log.debug("Adding Dn to CRL Cache  " + dnname + dirServiceClient.getDirectoryServiceURL()
+        log.debug("Adding Dn to CRL Cache  " + dnname + dirServiceClient.getDirectoryServiceURL()
         +dirServiceClient.getDirectoryServiceType()) ;
-	addToCRLCache(dnname,dirServiceClient.getDirectoryServiceURL(),dirServiceClient.getDirectoryServiceType());
+        addToCRLCache(dnname,dirServiceClient.getDirectoryServiceURL(),dirServiceClient.getDirectoryServiceType());
         }
         else {
       */
@@ -893,7 +894,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     return false;
   }
 
-  public void publishCrlRegistration() {
+  public void publishCrlRegistration(boolean register) {
 //     ensureSecurityCommunities();
     Enumeration crlKeys = crlsCache.keys();
     String key=null;
@@ -910,7 +911,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       crlagentregistartion =
         new CRLAgentRegistration(wrapper.getDN(),
                                  wrapper.getCertDirectoryURL(),
-                                 wrapper.getCertDirectoryType());
+                                 wrapper.getCertDirectoryType(),register);
       AttributeBasedAddress aba=null;
       synchronized (_mySecurityCommunities) {
         if (!_mySecurityCommunities.isEmpty()){
@@ -930,7 +931,15 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         }
       }
     }
-    
+    if(!register){
+      try {
+        _mySecurityCommunities.clear();
+      }
+      catch (UnsupportedOperationException unsupport){
+        _mySecurityCommunities =new HashSet();
+      }
+      _crlRegistered=false;
+    }
     final Vector crlrelays=crls;
     Schedulable crlThread = threadService.getThread(CRLCache.this, new Runnable( ) {
         public void run(){
@@ -965,16 +974,16 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     log.debug("In create CrlBlackBoard method ");
     SchedulerService schedulerService= 
       (SchedulerService) serviceBroker.getService(this,
-						  SchedulerService.class,
-						  null);
+                                                  SchedulerService.class,
+                                                  null);
     if(schedulerService!=null){
       log.debug("schedulerService is NOT NULL in createCrlBlackBoard");
     }
 
     AlarmService alarmService=
       (AlarmService) serviceBroker.getService(this,
-					      AlarmService.class,
-					      null);
+                                              AlarmService.class,
+                                              null);
     if(alarmService!=null){
       log.debug("salarmService is NOT NULL in createCrlBlackBoard");
     }
@@ -1029,7 +1038,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       wrapper = (CRLWrapper) crlsCache.get(key);
       crlagentregistartion = new CRLAgentRegistration(wrapper.getDN(),
                                                       wrapper.getCertDirectoryURL(),
-                                                      wrapper.getCertDirectoryType());
+                                                      wrapper.getCertDirectoryType(),true);
       AttributeBasedAddress aba=null;
       aba=AttributeBasedAddress.getAttributeBasedAddress(communityname,
                                                          "Role",
@@ -1124,7 +1133,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
           log.debug(" publishCRLRegistration is  called from for setmySecurityCommunity  :" +_crlRegistered );
           log.debug(" Mysexcurity community is :"+ _mySecurityCommunities);
         }
-        publishCrlRegistration();
+        publishCrlRegistration(true);
       }
     }
     boolean isEmpty;
@@ -1163,7 +1172,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     if ((!_crlRegistered) && (crlMgmtService != null) &&
         (blackboardService != null) && (!isEmpty) && (threadService != null)) {
       log.info("Calling publishCrlRegistration");
-      publishCrlRegistration();
+      publishCrlRegistration(true);
     }
     if ((!_createdCRLBlackboard) && (myAddress != null) &&
         (blackboardService != null) ) {
@@ -1180,7 +1189,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       ServiceBroker sb = ae.getServiceBroker();
       log.info(" serviceAvailable Listener called :");
       if ( (sc == AgentIdentificationService.class) &&(myAddress==null) ) {
-	log.info(" AgentIdentification Service is available now in CRL Cache going to call setmyCommunity");
+        log.info(" AgentIdentification Service is available now in CRL Cache going to call setmyCommunity");
         AgentIdentificationService ais = (AgentIdentificationService)
           sb.getService(this, AgentIdentificationService.class, null);
         if(ais!=null){
@@ -1210,7 +1219,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
           sb.getService(CRLCache.this, CrlManagementService.class, null);
         settingServices=true;
       } else if ( sc == ThreadService.class) {
-	ThreadService currentthreadService = (ThreadService) sb.getService(this, ThreadService.class, null);
+        ThreadService currentthreadService = (ThreadService) sb.getService(this, ThreadService.class, null);
         if(currentthreadService!=null) {
           log.info(" Got Thread service in Service Available Listener  --  "+ currentthreadService);
           //startThread();
@@ -1244,10 +1253,40 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       boolean ret = false;
       CrlRelay relay=null;
       if (o instanceof  CrlRelay ) {
-	relay=(CrlRelay)o;
-	if(relay.getResponse()!=null) {
-	  return true;
-	}
+        relay=(CrlRelay)o;
+        if(relay.getResponse()!=null) {
+          return true;
+        }
+      }
+      return ret;
+    }
+  }
+
+  class CrlUnRegisterPredicate implements UnaryPredicate{
+    public boolean execute(Object o) {
+      boolean ret = false;
+      HandOffUnRegistration unregister = null;
+      if (o instanceof  HandOffUnRegistration ) {
+        unregister = (HandOffUnRegistration)o;
+        int command= unregister.getCommand();
+        if(command == HandOffUnRegistration.UNREGISTER_CRL){
+          return true;
+        }
+      }
+      return ret;
+    }
+  }
+
+  class CrlReRegisterPredicate implements UnaryPredicate{
+    public boolean execute(Object o) {
+      boolean ret = false;
+      HandOffUnRegistration unregister = null;
+      if (o instanceof  HandOffUnRegistration ) {
+        unregister = (HandOffUnRegistration)o;
+        int command= unregister.getCommand();
+        if(command == HandOffUnRegistration.REREGISTER_CRL){
+          return true;
+        }
       }
       return ret;
     }
@@ -1256,6 +1295,8 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
   private class CrlCacheBlackboardComponent extends BlackboardClientComponent {
     
     private IncrementalSubscription crlresponse;
+    private IncrementalSubscription unRegister;
+    private IncrementalSubscription reRegister;
 
     public CrlCacheBlackboardComponent() { 
       
@@ -1268,6 +1309,8 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       log.debug("setupSubscriptions called :");
       //log.debug("setupSubscriptions of CrlCacheBlackboardComponent called :");
       crlresponse=(IncrementalSubscription)getBlackboardService().subscribe(new CrlResponsePredicate());
+      unRegister =(IncrementalSubscription)getBlackboardService().subscribe(new CrlUnRegisterPredicate());
+      reRegister =(IncrementalSubscription)getBlackboardService().subscribe(new CrlReRegisterPredicate());
     }
 
     /**
@@ -1279,7 +1322,12 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       Collection responsecollection=null;
       CrlRelay responserelay=null;
       CRLWrapper receivedcrl=null;
+      Collection unRegistercollection=null;
       String dn=null;
+      unRegistercollection = unRegister.getAddedCollection();
+      unRegisterCRL(unRegistercollection);
+      Collection  reregCol=  reRegister.getAddedCollection();
+      reRegisterCRL(reregCol);
       responsecollection= crlresponse.getChangedCollection();
       if(log.isDebugEnabled()) {
         log.debug("Size of changed Crlrelay collection is :"+ responsecollection.size());
@@ -1287,38 +1335,57 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       resiterator=responsecollection.iterator();
       boolean responsemodified=false;
       while(resiterator.hasNext()) {
-	responserelay=(CrlRelay)resiterator.next();
-	log.debug("Received response :"+ responserelay.toString());
-	if(responserelay.getResponse()!=null) {
-	  receivedcrl=(CRLWrapper) responserelay.getResponse();
-	  dn=receivedcrl.getDN();
-	  log.debug("Received response for crl update for DN :"+ dn);
-	  Date currentLastmodified=DateUtil.getDateFromUTC(receivedcrl.getLastModifiedTimestamp());
+        responserelay=(CrlRelay)resiterator.next();
+        log.debug("Received response :"+ responserelay.toString());
+        if(responserelay.getResponse()!=null) {
+          receivedcrl=(CRLWrapper) responserelay.getResponse();
+          dn=receivedcrl.getDN();
+          log.debug("Received response for crl update for DN :"+ dn);
+          Date currentLastmodified=DateUtil.getDateFromUTC(receivedcrl.getLastModifiedTimestamp());
           log.debug("Received Crl last modified date ="+currentLastmodified.toString());
           String currentModifiedInCache=getLastModifiedTime(dn);
-	  Date cacheLastModified=DateUtil.getDateFromUTC(currentModifiedInCache);
+          Date cacheLastModified=DateUtil.getDateFromUTC(currentModifiedInCache);
           if(cacheLastModified!=null){
-	    log.debug(" Crl cache last modified date ="+cacheLastModified.toString());
+            log.debug(" Crl cache last modified date ="+cacheLastModified.toString());
           }
-	  if(cacheLastModified!=null) {
-	    if(currentLastmodified.after(cacheLastModified)) {
-	      log.debug("Updating CRL Cache for DN :"+ dn);
-	      updateCRLCache(receivedcrl);
+          if(cacheLastModified!=null) {
+            if(currentLastmodified.after(cacheLastModified)) {
+              log.debug("Updating CRL Cache for DN :"+ dn);
+              updateCRLCache(receivedcrl);
             }
-	    else {
-	      log.debug("Received dates are equal in response plugin:");
-	    }
-	  }
-	  else{
-	    log.debug("Updating CRL Cache for DN :"+ dn);
-	    updateCRLCache(receivedcrl);
+            else {
+              log.debug("Received dates are equal in response plugin:");
+            }
+          }
+          else{
+            log.debug("Updating CRL Cache for DN :"+ dn);
+            updateCRLCache(receivedcrl);
           }
         }
-	else{
-	  log.debug("Received response for crl update but response was null:");
-	}
+        else{
+          log.debug("Received response for crl update but response was null:");
+        }
       }
 
+    }
+
+    private void unRegisterCRL(Collection unregisterCol){
+      if((unregisterCol!=null ) && (unregisterCol.size()>0)){
+        if( log.isDebugEnabled()){
+          log.debug("calling Un register crl" );
+        }
+        publishCrlRegistration(false);
+        
+      }
+    }
+
+    private void reRegisterCRL(Collection register){
+      if((register!=null ) && (register.size()>0)){
+        if( log.isDebugEnabled()){
+          log.debug("calling de register crl" );
+        }
+        setSecurityCommunity();
+      }
     }
   }
 }
