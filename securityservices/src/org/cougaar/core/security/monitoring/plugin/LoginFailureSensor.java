@@ -94,16 +94,10 @@ public class LoginFailureSensor extends SensorPlugin {
     }
     List l = (List) o;
     if (l.size() > 1) {
-      if (m_log.isWarnEnabled()) {
-        m_log.warn("Unexpected number of parameters given. Expecting 1, got " + 
-                  l.size());
-      }
+      throw new IllegalArgumentException("Unexpected number of parameters given. Expecting 1, got " + l.size());
     }
     if (l.size() > 0) {
       _managerRole = l.get(0).toString();
-      if ( m_log.isInfoEnabled()) {
-        m_log.info("Setting Security Manager role to " + _managerRole);
-      }
     }
   }
   
@@ -137,6 +131,10 @@ public class LoginFailureSensor extends SensorPlugin {
   protected void setupSubscriptions() {
 
     super.setupSubscriptions();
+
+    if ( m_log.isInfoEnabled()) {
+      m_log.info("Setting Security Manager role to " + _managerRole);
+    }
 
     SensorInfo           sensor       = new LFSensor();
         
