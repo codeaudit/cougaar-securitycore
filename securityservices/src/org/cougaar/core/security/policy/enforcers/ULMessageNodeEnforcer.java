@@ -46,6 +46,7 @@ import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.builder.VerbBuilder;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
+import org.cougaar.core.security.policy.enforcers.util.CipherSuiteMapping;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
@@ -64,6 +65,7 @@ public class ULMessageNodeEnforcer
   private ServiceBroker _sb;
   protected LoggingService _log;
   private CommunityService _communityService;
+  private CipherSuiteMapping _csm;
 
   private final String _enforcedActionType 
     = ActionConcepts.EncryptedCommunicationAction();
@@ -98,8 +100,8 @@ public class ULMessageNodeEnforcer
   public ULMessageNodeEnforcer(ServiceBroker sb, List agents)
   {
     try {
-      // FIXME!!
       _sb = sb;
+      _csm = new CipherSuiteMapping();
       _agents=agents;
       _log = (LoggingService) 
         _sb.getService(this, LoggingService.class, null);
@@ -366,13 +368,13 @@ public class ULMessageNodeEnforcer
         _guard.getAllowableValuesForActionProperty(
                        UltralogActionConcepts.usedProtectionLevel(),
                        action,
-                       HardWired.usedProtectionLevelValues,
+                       _csm.usedProtectionLevelValues(),
                        false);
     } catch (ServiceFailure sf) {
       if (_log.isErrorEnabled()) {
         _log.error("This shouldn't happen",  sf);
       }
-      return HardWired.ulCiphersFromKAoSProtectionLevel(new HashSet());
+      return _csm.ulCiphersFromKAoSProtectionLevel(new HashSet());
     }
     if (_log.isDebugEnabled()) {
       for (Iterator ciphersIt = ciphers.iterator(); ciphersIt.hasNext();) {
@@ -380,7 +382,7 @@ public class ULMessageNodeEnforcer
         _log.debug("Allowed cipher = " + cipher);
       }
     }
-    return HardWired.ulCiphersFromKAoSProtectionLevel(ciphers);
+    return _csm.ulCiphersFromKAoSProtectionLevel(ciphers);
   }
 
   /**
