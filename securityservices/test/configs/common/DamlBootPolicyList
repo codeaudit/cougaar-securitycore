@@ -1,2 +1,7 @@
-http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction BootPolicyHighCrypto.msg
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction BootServletPolicy.sbj
+http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction DamlBootPolicyAllowEncryptedMessaging.sbj
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyPolicyAdmin.sbj
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicySCmrManager.sbj
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyAGGAgentLogistician.sbj
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyAGGAgentLogisticsViewer.sbj
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyNCAServlet.sbj
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicySCmrManager.sbj
