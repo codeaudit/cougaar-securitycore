@@ -16,3 +16,4 @@
 #
 /$*/tasks http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAllRole
 /$*/editOplan http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAllRole
+/$testBBPolicyAgent/OrgActivityAdd http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAddRole
