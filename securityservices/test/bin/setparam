@@ -30,6 +30,8 @@ setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/build.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/glm.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/planserver.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/core.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/bootstrap.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/util.jar
 
 # Crypto providers
 

@@ -37,7 +37,8 @@ set useBootstrapper=true
 set useJaas=false
 
 # Use of the cryptographic aspect
-set useCryptoAspect=true
+# We have to turn it off until Cougaar 9.2 supports us
+set useCryptoAspect=false
 
 # Setting useGuardedNode to true will run this node as a KAoS
 # guarded node.
