@@ -53,6 +53,7 @@ extends XURLClassLoader
     exclusions.add("java.");  // avoids javaiopatch.jar
     // let base do it instead
     exclusions.add("org.cougaar.core.security.crlextension");
+    exclusions.add("javax.xml");
 
     // BUG Cougaar 3086:
     // The SAXParserFactory.newInstance() has a local variable of
@@ -102,10 +103,9 @@ extends XURLClassLoader
     * URLConnection.setDefaultUseCaches(false).
     * The interface is really weird. It should be a static method, but it
     * is not.
+    * Commented out for now. The VM core classes have another reference to
+    * the JarFiles anyway, so executing the code below wouldn't help anyway.
     */
-    /*
-    Commented out for now. The VM core classes have another reference to
-    the JarFiles anyway, so executing the code below wouldn't help anyway.
     for (int i = 0 ; i < urls.length ; i++) {
       try {
         URLConnection myUrl = urls[i].openConnection();
@@ -118,7 +118,6 @@ extends XURLClassLoader
       }
       catch (IOException e) {}
     }
-    */
   }
   /*
    */
@@ -126,12 +125,24 @@ extends XURLClassLoader
     throws ClassNotFoundException {
     // First, check if the class has already been loaded
     Class c = findLoadedClass(name);
+
+    // Then delegate to parent class loader
+    if (c == null) {
+      ClassLoader parent = getParent();
+      if (parent == null) parent = getSystemClassLoader();
+      try {
+        c = parent.loadClass(name);
+      }
+      catch (ClassNotFoundException e) {}
+    }
+
+    // Finally, use our search path to find classes.
     if (c == null) {
       // make sure not to use this classloader to load
       // java.*.  We patch java.io. to support persistence, so it
       // may be in our jar files, yet those classes must absolutely
       // be loaded by the same loader as the rest of core java.
-      if (!excludedP(name)) {
+      //if (!excludedP(name)) {
 	try {
 	  c = findClass(name);
 	  checkPackageAccess(name);
@@ -143,14 +154,9 @@ extends XURLClassLoader
 	  // If still not found, then call findClass in order
 	  // to find the class.
 	}
-      }
+      //}
     }
     
-    if (c == null) {
-      ClassLoader parent = getParent();
-      if (parent == null) parent = getSystemClassLoader();
-      c = parent.loadClass(name);
-    }
     if (_logger.isDebugEnabled()) {
       if (c != null) {
 	// Classes loaded by the bootstrapper shouldn't have

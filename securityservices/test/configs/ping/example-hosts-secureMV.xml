@@ -17,7 +17,7 @@
     <facet service="SMTP"/> 
     <facet service="jabber"/> 
   </host> 
-  <host name='tea'> 
+  <host name='yew'> 
     <facet service="acme"/> 
   </host> 
   <host name='eucalyptus'> 
