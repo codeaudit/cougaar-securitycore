@@ -103,8 +103,8 @@ java.class.name=org.cougaar.bootstrap.Bootstrapper
 ########################################################################
 # A couple properties fir the kaos domain manager
 ########################################################################
-org.cougaar.core.security.Domain=TestDomain
-org.cougaar.safe.domainName=TestDomain
+#org.cougaar.core.security.Domain=TestDomain
+#org.cougaar.safe.domainName=TestDomain
 
 
 ########################################################################
@@ -114,7 +114,7 @@ org.cougaar.safe.domainName=TestDomain
 # Naming service over SSL.
 # True to enable naming service over SSL.
 # The certificates need to be createdd first before this feature is turned on.
-org.cougaar.core.naming.useSSL=true
+org.cougaar.core.naming.useSSL=false
 
 # MTS RMI over SSL
 # The certificates need to be createdd first before this feature is turned on.
@@ -188,7 +188,7 @@ org.cougaar.core.security.useSecurityManager=true
 org.cougaar.core.security.useAuthenticatedLoader=true
 
 # This property is used to set the interval (in seconds) at which CRLs are checked
-org.cougaar.core.security.crypto.crlpoll=600
+org.cougaar.core.security.crypto.crlpoll=60
 
 # Enable/disable use of component execution using multiple subjects.
 # Not used anymore.

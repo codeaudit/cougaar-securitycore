@@ -1,0 +1,131 @@
+#!/usr/bin/perl
+
+$cip  = $ENV{'COUGAAR_INSTALL_PATH'};
+$user = $ENV{'USER'};
+$node = shift;
+$host = `/bin/uname -n`;
+chomp $host;
+#print "$host\n";
+
+if ($user eq 'ychen') {
+  $httpport=5558;
+  $httpsport=6558;
+} elsif ($user eq 'srosset') {
+  $httpport=5561;
+  $httpsport=6561;
+} elsif ($user eq 'rliao1') {
+  $httpport=5556;
+  $httpsport=6556;
+} elsif ($user eq 'gmount') {
+  $httpport=5557;
+  $httpsport=6557;
+} elsif ($user eq 'rtripath') {
+  $httpport=5560;
+  $httpsport=6560;
+} elsif ($user eq 'mluu') {
+  $httpport=5555;
+  $httpsport=6555;
+} elsif ($user eq 'sri') {
+  $httpport=5553;
+  $httpsport=6553;
+} elsif ($user eq 'asmt') {
+  $httpport=8800;
+  $httpsport=8888;
+} elsif ($user eq 'junittest') {
+  $httpport=5570;
+  $httpsport=6670;
+} else {
+  print STDERR "WARNING: Setting HTTP port to default port number. You should edit SecureNode\n";
+  $httpport=8800;
+  $httpsport=9800;
+}
+
+@convertFrom = ( '/mnt/shared/integ',
+                 'asmt',
+                 '5557',
+                 '6557',
+                 '\$HOSTNAME.log',
+                 '\$HOSTNAME',
+                 '\\\\\\\\',
+                 '\\\\',
+                 '--BACKSLASH--'
+               );
+
+@convertTo =   ( $cip,
+                 $user,
+                 $httpport,
+                 $httpsport,
+                 "$node.html",
+                 "$host",
+                 '--BACKSLASH--',
+                 '',
+                 '\\\\'
+               );
+
+$propFile = findPropertiesFile();
+
+#print "Using properties file: $propFile\n";
+
+# Found the properties file. Now read it
+
+readPropertiesFile($propFile);
+
+# Find the location of the properties file
+sub findPropertiesFile {
+  my @propFileLocations = ( "./Linux.props",
+                            "$cip/csmart/bin/Linux.props",
+                            "$cip/configs/security/Linux.props",
+                            "$cip/configs/common/Linux.props" );
+
+  for ($i = 0; $i <= $#propFileLocations ; $i++) {
+    if ( -f $propFileLocations[$i] ) {
+      return $propFileLocations[$i];
+    }
+  }
+
+  die "Could not find javaprops.txt or Linux.props";
+}
+
+# Read the hash from the properties file
+sub readPropertiesFile {
+  my $file = shift;
+  local *FH;
+  open (FH, $file) || die "Couldn't read file $file";
+
+  while (<FH>) {
+    chomp;
+    s/^ +//;
+    if (/^\#/) {
+      # this is a comment line -- ignore it
+    } elsif (/.+/) {
+      # this is a properties line. split it:
+      $value = customizeProperty(//);
+#      push @line, makeProperty($name, $value);
+      print $value;
+    }
+  }
+}
+
+# Customize the properties for the current user
+
+sub customizeProperty {
+  my $prop = shift;
+  my $i;
+
+  print $prop;
+
+  # strip trailing white space, and quotes around values
+  $prop =~ s/( |\t)+$//;
+  if ($prop =~ /^\".*\"$/) {
+    $prop =~ s/^\"//;
+    $prop =~ s/\"$//;
+  }
+#  print "before conversion: $prop\n";
+  for ($i = 0 ; $i <= $#convertFrom; $i++) {
+    $prop =~ s/$convertFrom[$i]/$convertTo[$i]/g;
+#    print "converting from: $convertFrom[$i] to $convertTo[$i]\n";
+  }
+#  print "after conversion: $prop\n";
+  return $prop;
+}
+

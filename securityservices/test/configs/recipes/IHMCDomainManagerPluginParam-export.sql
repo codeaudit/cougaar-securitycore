@@ -10,10 +10,10 @@
 
 LOCK TABLES alib_component WRITE;
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('DomainManagerPluginParam','DomainManagerPluginParam','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave1Security-COMM','DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave1Security-COMM','plugin|safe.policyManager.DomainManagerPlugin','plugin',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave2Security-COMM','DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave2Security-COMM','plugin|safe.policyManager.DomainManagerPlugin','plugin',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave3Security-COMM','DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave3Security-COMM','plugin|safe.policyManager.DomainManagerPlugin','plugin',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave4Security-COMM','DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave4Security-COMM','plugin|safe.policyManager.DomainManagerPlugin','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave1Security-COMM','DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave1Security-COMM','Node.AgentManager.Agent.PluginManager.Plugin|safe.policyManager.DomainManagerPlugin','Node.AgentManager.Agent.PluginManager.Plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave2Security-COMM','DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave2Security-COMM','Node.AgentManager.Agent.PluginManager.Plugin|safe.policyManager.DomainManagerPlugin','Node.AgentManager.Agent.PluginManager.Plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave3Security-COMM','DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave3Security-COMM','Node.AgentManager.Agent.PluginManager.Plugin|safe.policyManager.DomainManagerPlugin','Node.AgentManager.Agent.PluginManager.Plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave4Security-COMM','DomainManagerPluginParam|safe.policyManager.DomainManagerPlugin|Enclave4Security-COMM','Node.AgentManager.Agent.PluginManager.Plugin|safe.policyManager.DomainManagerPlugin','Node.AgentManager.Agent.PluginManager.Plugin',0.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -108,7 +108,7 @@ UNLOCK TABLES;
 
 LOCK TABLES lib_component WRITE;
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('recipe|##RECIPE_CLASS##','recipe','##RECIPE_CLASS##','recipe','Added recipe');
-REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|safe.policyManager.DomainManagerPlugin','plugin','safe.policyManager.DomainManagerPlugin','plugin','Added plugin');
+REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('Node.AgentManager.Agent.PluginManager.Plugin|safe.policyManager.DomainManagerPlugin','Node.AgentManager.Agent.PluginManager.Plugin','safe.policyManager.DomainManagerPlugin','Node.AgentManager.Agent.PluginManager.Plugin','Added Node.AgentManager.Agent.PluginManager.Plugin');
 UNLOCK TABLES;
 
 #
