@@ -507,25 +507,32 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       loggingService.debug("source  result at i:"+i +" agent is :"+(String)classagents.get(i));  
     }
     targetagents=(ArrayList)searchByTarget(queryTarget,caps,sensors);
-    if((queryClassification!=null) || (querySource!=null) || (queryTarget!=null)) {
-      if(!classagents.isEmpty()|| !sourceagents.isEmpty()||!targetagents.isEmpty()) {
-	commonAgents=(ArrayList)findCommanAgents(commagents,classagents);
-	commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceagents);
-	commonAgents=(ArrayList)findCommanAgents(commonAgents,targetagents);	
-      }
-      else {
-	commonAgents=new ArrayList();
-      }
-	
-    }
-    if((commonAgents==null)||(commonAgents.isEmpty()) ){
-      loggingService.debug("!!!!!!!!!!!!!!!!!!!   got query result as empty :");  
+    if(((community!=null) || (role!=null))&& (commagents.isEmpty())) {
+      loggingService.debug(" Community Rol combination is empty :");
+      commonAgents=new ArrayList();
     }
     else {
-      loggingService.debug("Printing result of query @@@@@@@@@@@@@@@@@@:" + sensors);
-	for(int i=0;i<commonAgents.size();i++) {
-	  loggingService.debug("result at i:"+i +" agent is :"+(String)commonAgents.get(i));  
+      if((queryClassification!=null) || (querySource!=null) || (queryTarget!=null)) {
+	loggingService.debug("Either queryClassification querySource queryTarget is not null");
+	if(!classagents.isEmpty()|| !sourceagents.isEmpty()||!targetagents.isEmpty()) {
+	  loggingService.debug("Either queryClassification querySource queryTarget is notresult is not Empty");
+	  commonAgents=(ArrayList)findCommanAgents(commagents,classagents);
+	  commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceagents);
+	  commonAgents=(ArrayList)findCommanAgents(commonAgents,targetagents);	
 	}
+	else {
+	   loggingService.debug("Either queryClassification querySource queryTarget is notresult is EMPTY  Empty");
+	  commonAgents=new ArrayList();
+	}
+      }
+      else {
+	 loggingService.debug("Either queryClassification querySource queryTarget is NULL");
+	commonAgents=commagents;
+      }
+    }
+    loggingService.debug("Printing result of query @@@@@@@@@@@@@@@@@@:" + sensors);
+    for(int i=0;i<commonAgents.size();i++) {
+      loggingService.debug("result at i:"+i +" agent is :"+(String)commonAgents.get(i));  
     }
     return commonAgents;
     

@@ -23,15 +23,25 @@
 package org.cougaar.core.security.monitoring.blackboard;
  
 import java.util.List;
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.io.Serializable;
 
+import edu.jhuapl.idmef.XMLSerializable;
+import edu.jhuapl.idmef.XMLUtils;
+
+
 import org.cougaar.core.agent.ClusterIdentifier;
 
+import org.w3c.dom.*;
+import javax.xml.parsers.*;
+import org.xml.sax.*;
+import org.apache.xml.serialize.*;
 
-public class MRAgentLookUpReply implements java.io.Serializable {
 
-  private  List AgentList;
+public class MRAgentLookUpReply implements XMLSerializable  {
+
+  private  List AgentList=null;
 
   /**
    * Constructor for MRAgentLookUpReply
@@ -43,6 +53,45 @@ public class MRAgentLookUpReply implements java.io.Serializable {
   
   public List getAgentList() {
     return this.AgentList;
+  }
+  
+  private void setAgentList(List agentlist) {
+    this.AgentList=agentlist;
+  }
+  
+  /**Creates an object from the XML Node containing the XML version of this object.
+     This method will look for the appropriate tags to fill in the fields. If it cannot find
+     a tag for a particular field, it will remain null.
+  */
+  public MRAgentLookUpReply (Node node){
+    //get userid nodes here
+    NodeList children = node.getChildNodes();
+    ArrayList agentListNodes = new ArrayList();
+    for (int i=0; i<children.getLength(); i++){
+      Node finger = children.item(i);
+      if (finger.getNodeName().equals("AgentName")){
+	String agentid=XMLUtils.getAssociatedString(finger);
+	agentListNodes.add(new ClusterIdentifier(agentid));
+      }
+    }
+    
+  }
+  public Node convertToXML(Document parent){
+
+    Element agentLookUpReplyNode = parent.createElement("MRAgentLookUpReply");
+    if (AgentList!= null){
+      if(!AgentList.isEmpty()) {
+	ListIterator iter=AgentList.listIterator();
+	ClusterIdentifier agentid=null;
+	while(iter.hasNext()) {
+	  agentid=(ClusterIdentifier)iter.next();
+	  Node agentNameNode = parent.createElement("AgentName");
+	  agentNameNode.appendChild(parent.createTextNode(agentid.toString()));
+	  agentLookUpReplyNode.appendChild(agentNameNode);
+	}
+      }
+    }
+    return agentLookUpReplyNode;
   }
   
   public String toString(){
