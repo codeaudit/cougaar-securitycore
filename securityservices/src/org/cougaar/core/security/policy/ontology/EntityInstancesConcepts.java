@@ -32,13 +32,13 @@ final public class EntityInstancesConcepts
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "BlackBoardAccessRead"); 
 	}
-    public static String WeakProtection() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "WeakProtection"); 
-	}
     public static String PasswordSSL() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "PasswordSSL"); 
+	}
+    public static String WeakProtection() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "WeakProtection"); 
 	}
     public static String BlackBoardAccessRemove() 
 	{

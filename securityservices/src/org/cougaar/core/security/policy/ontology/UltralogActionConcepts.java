@@ -16,27 +16,43 @@ final public class UltralogActionConcepts
 	}
 
 	// Concepts
+    public static String WPForward() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPForward"); 
+	}
     public static String WPUpdateSelf() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdateSelf"); 
+	}
+    public static String WPUpdateDelegate() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdateDelegate"); 
 	}
     public static String BlackBoardAccess() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "BlackBoardAccess"); 
 	}
+    public static String WPUpdate() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdate"); 
+	}
     public static String ServletAccess() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "ServletAccess"); 
 	}
+    public static String WPLookup() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPLookup"); 
+	}
 
 	// Properties
-    public static String wpAccessType() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "wpAccessType"); 
-	}
     public static String usedAuditLevel() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedAuditLevel"); 
+	}
+    public static String forwardTo() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "forwardTo"); 
 	}
     public static String usedProtectionLevel() 
 	{
@@ -57,6 +73,10 @@ final public class UltralogActionConcepts
     public static String accessedServlet() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "accessedServlet"); 
+	}
+    public static String wpAgentEntry() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "wpAgentEntry"); 
 	}
     public static String blackBoardAccessMode() 
 	{
