@@ -96,7 +96,9 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
     public MessageAttributes deliverMessage(AttributedMessage msg) {
       Principal p = org.cougaar.core.security.ssl.KeyRingSSLServerFactory.getPrincipal();
 //       System.out.println("delivering message: " + msg + ", " + p);
-      msg.setAttribute(NODE_LINK_PRINCIPAL, p.getName());
+      if (p != null) {
+        msg.setAttribute(NODE_LINK_PRINCIPAL, p.getName());
+      }
       Object cert = msg.getAttribute(MessageProtectionServiceImpl.NEW_CERT);
       if (cert != null) {
         // Just refresh the LDAP, it is easier than modifying the certificate
