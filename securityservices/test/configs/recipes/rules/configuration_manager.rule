@@ -12,7 +12,7 @@ end
 
 $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 
-require 'lib/common_security_rules'
+require 'security/lib/common_security_rules'
 
 #agent role list
 agentlist =[]

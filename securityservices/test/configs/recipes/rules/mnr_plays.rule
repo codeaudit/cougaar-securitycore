@@ -10,8 +10,8 @@ $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 
 require 'cougaar/communities'
 require 'ultralog/enclaves'
-require 'lib/jar_util'
-require 'lib/common_security_rules'
+require 'security/lib/jar_util'
+require 'security/lib/common_security_rules'
 
 if !(@mnrPlaysCompleted)
   robustness = false
