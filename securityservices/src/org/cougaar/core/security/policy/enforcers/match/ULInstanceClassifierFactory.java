@@ -35,6 +35,7 @@ import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActorConcepts;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
+import kaos.ontology.jena.ActorConcepts;
 import kaos.ontology.matching.InstanceClassifier;
 import kaos.ontology.matching.InstanceClassifierFactory;
 import kaos.ontology.matching.InstanceClassifierInitializationException;
@@ -177,9 +179,19 @@ public class ULInstanceClassifierFactory
                    + className);
       }
       className = removeHashChar(className);
-      if (className
-          .equals(org.cougaar.core.security.policy.enforcers.ontology.jena.
-                  UltralogActorConcepts._UltralogPlugins_)) {
+
+      /*
+       *    Everybody is an actor
+       */
+      if (className.equals(ActorConcepts._Actor_)) {
+        _log.debug("Every actor matches Actor");
+        return true;
+      }
+
+      /*
+       * Classifying plugins (for blackboard access control at the moment)
+       */
+      if (className.equals(UltralogActorConcepts._UltralogPlugins_)) {
         if (_log.isDebugEnabled()) {
           _log.debug("Is the instance an execution context for a plugin?");
           _log.debug("Class of instance = " + instance.getClass());
@@ -222,6 +234,9 @@ public class ULInstanceClassifierFactory
         return false;
       }
 
+      /*
+       * Classifying Agents
+       */
       String actor = (String) instance;
       actor     = removeHashChar(actor);
       if (className.equals(kaos.ontology.jena.ActorConcepts._Agent_)) {
@@ -233,25 +248,24 @@ public class ULInstanceClassifierFactory
           = className.substring(communityPrefix.length());
 
         return isAgentInCommunity(community, actor);
+
+        /*
+         * Classifying Person(s)
+         */
       } else if (className.startsWith(personPrefix)) {
         if (_log.isDebugEnabled()) {
           _log.debug("Dealing with a person");
         }
-        String role 
-          = className.substring(personPrefix.length());
+        String role = className.substring(personPrefix.length());
         if (_log.isDebugEnabled()) {
           _log.debug("Matching with the role " + role);
         }
         
-        if (actor.equals(UserDatabase.anybody())) {
-          return true;     /* questionable */
-        } else {
-          Set roles = UserDatabase.getRoles(actor);
-          if (_log.isDebugEnabled()) {
-            _log.debug("Found roles " + roles + "for actor " + actor);
-          }
-          return roles.contains(role);
+        Set roles = UserDatabase.getRoles(actor);
+        if (_log.isDebugEnabled()) {
+          _log.debug("Found roles " + roles + "for actor " + actor);
         }
+        return roles.contains(role);
       } else if (className.equals(kaos.ontology.jena.ActorConcepts._Person_)) {
         return UserDatabase.isUser((String) instance);
       }
