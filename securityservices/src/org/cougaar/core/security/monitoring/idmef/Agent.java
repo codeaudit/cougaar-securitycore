@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import edu.jhuapl.idmef.Address;
 import edu.jhuapl.idmef.XMLSerializable;
+import edu.jhuapl.idmef.XMLUtils;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -106,26 +107,31 @@ public class Agent implements XMLSerializable {
     	ArrayList refIdents = new ArrayList();
         int len = children.getLength();
     	for( int i = 0; i < len; i++ ){
-    	    Node child = children.item(i);
+    	    Node child = children.item( i );
     	    String nodeName = child.getNodeName();
     	    if( ( m_description == null ) && 
     	        nodeName.equals( DESCRIPTION_ELEMENT ) ){
-        		m_description = child.getNodeValue();
+        		m_description = XMLUtils.getAssociatedString( child );
 	        }
 	        else if( ( m_location == null ) && 
     	        nodeName.equals( LOCATION_ELEMENT ) ){
-        		m_location = child.getNodeValue();
+        		m_location = XMLUtils.getAssociatedString( child );
 	        }
 	        else if( nodeName.equals( Address.ELEMENT_NAME ) ){
 	            m_address = new Address( child );
 	        }
 	        else if( nodeName.equals( REF_IDENT_ELEMENT ) ){
-                refIdents.add( child.getNodeValue() );
+                refIdents.add( XMLUtils.getAssociatedString( child ) );
     	    }
 	    }
 
-        // TODO: this is slow, change
-        m_refIdents = ( String [] ) refIdents.toArray();
+        int size = refIdents.size();
+        if( size > 0 ){
+            m_refIdents = new String[ size ];
+            for( int i = 0; i < size; i++ ){
+                m_refIdents[ i ] = ( String ) refIdents.get( i );
+            }
+        }
         
     	NamedNodeMap nnm = agentNode.getAttributes();
 
@@ -135,6 +141,13 @@ public class Agent implements XMLSerializable {
         }
     }
     
+    public String getName(){
+        return m_name;
+    }
+    public void setName( String name ){
+        m_name = name;
+    }
+        
     public String getDescription(){
         return m_description;
     }
@@ -208,39 +221,92 @@ public class Agent implements XMLSerializable {
 	            agentNode.appendChild( refIdentNode );
 	        }
 	    }
-	    /*
-	    TODO: determine if this is necessary!
-	    
-	    Element agentNode = parent.createElementNS( COUGAAR_NAMESPACE, ELEMENT_NAME );
-        
-        if( m_name != null ){
-            Attr nameAttr = parent.createAttributeNS( COUGAAR_NAMESPACE, NAME_ATTRIBUTE );
-	        nameAttr.setValue( m_name );
-	        agentNode.setAttributeNodeNS( nameAttr );
-	    }
-	    if( m_description != null ) {
-            Node descriptionElm = parent.createElementNS( COUGAAR_NAMESPACE, DESCRIPTION_ELEMENT );
-	        descriptionElm.appendChild( parent.createTextNode( m_description ) );
-	        agentNode.appendChild( descriptionElm );
-	    }
-	    if( m_location != null ) {
-	        Node locationElm = parent.createElementNS( COUGAAR_NAMESPACE, LOCATION_ELEMENT );
-	        locationElm.appendChild( parent.createTextNode( m_location ) );
-	        agentNode.appendChild( locationElm );
-	    }
-	    if( m_address != null ) {
-	        agentNode.appendChild( m_address.convertToXML( parent ) );    
-	    }
-        if( m_refIdents != null && m_refIdents.length > 0 ) {
-	        int len = m_refIdents.length;
-	        for( int i = 0; i < len; i++ ) {
-	            Node refIdentNode = parent.createElementNS( COUGAAR_NAMESPACE, REF_IDENT_ELEMENT );
-	            refIdentNode.appendChild( parent.createTextNode( m_refIdents[ i ] ) );
-	            agentNode.appendChild( refIdentNode );
-	        }
-	    }
-	    */
 	    return agentNode;
+    }
+   
+    public Agent clone( String []refIdents ){
+        Agent newAgent = new Agent( m_name, 
+                                    m_description, 
+                                    m_location, 
+                                    m_address, 
+                                    refIdents );
+        return newAgent;
+    }
+
+    public String toTaggedString(){
+        StringBuffer sb = new StringBuffer();
+        sb.append( "<" );
+        sb.append( ELEMENT_NAME );
+        if( m_name != null ){
+            sb.append( " " + NAME_ATTRIBUTE );
+            sb.append( "=\"" );
+            sb.append( m_name + "\">" );
+        }
+        else{
+            sb.append( ">" );
+        }
+        // description of agent
+        if( m_description != null ){
+            sb.append( "<" + DESCRIPTION_ELEMENT );
+            sb.append( ">" + m_description);
+            sb.append( "</" + DESCRIPTION_ELEMENT );
+            sb.append( ">" );
+        }
+        // location of agent
+        if( m_location != null ){
+            sb.append( "<" + LOCATION_ELEMENT );
+            sb.append( ">" + m_location );
+            sb.append( "</" + LOCATION_ELEMENT );
+            sb.append( ">" );
+        }
+        // address of agent
+        if( m_address != null ){
+            
+            String netmask = m_address.getNetmask();
+            String address = m_address.getAddress();
+            // attribute
+            String category = m_address.getCategory();
+            
+            sb.append( "<" + Address.ELEMENT_NAME );
+            if( category != null ){
+                sb.append( " " + Address.ATTRIBUTE_CATEGORY );
+                sb.append( "=\"" + category );
+                sb.append( "\">" );
+            }
+            else{
+                sb.append( ">" );
+            }
+            if( address != null ){
+                sb.append( "<" + Address.CHILD_ELEMENT_ADDRESS );
+                sb.append( ">" + address );
+                sb.append( "</" + Address.CHILD_ELEMENT_ADDRESS );
+                sb.append( ">" );      
+            }
+            if( netmask != null ){
+                sb.append( "<" + Address.CHILD_ELEMENT_NETMASK );
+                sb.append( ">" + netmask );
+                sb.append( "</" + Address.CHILD_ELEMENT_NETMASK );
+                sb.append( ">" );
+            }
+            sb.append( "</" + Address.ELEMENT_NAME );
+            sb.append( ">" );
+        }
+        // ref-idents
+        if( m_refIdents != null ){
+            int len = m_refIdents.length;
+            if( len > 0 ){
+                for( int i = 0; i < len; i++ ){
+                    sb.append( "<" + REF_IDENT_ELEMENT );
+                    sb.append( ">" + m_refIdents[ i ] );
+                    sb.append( "</" + REF_IDENT_ELEMENT );
+                    sb.append( ">" );
+                }   
+            }
+        }
+        
+        sb.append( "</" + ELEMENT_NAME );
+        sb.append( ">" );
+        return sb.toString();
     }
    
     private String m_name;
