@@ -4,11 +4,13 @@
 society.each_node do |node|
   agentname = ""
   enclave = ""
-  # only do this for enclaves Fwd and Conus
-  if node.name == "FWD-MGMT-NODE"
-    enclave = "Fwd" # Enclave 2
-  elsif node.name == "CONUS-MGMT-NODE" 
-    enclave = "Conus" # 3
+
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'SubManagement'
+      facetval = node.host.get_facet(:enclave)
+      enclave = facetval[0..0] + facetval[1..facetval.length].downcase
+      break
+    end
   end
 
   if enclave != ""
