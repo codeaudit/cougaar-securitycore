@@ -342,13 +342,22 @@ final public class KeyRing
   }
 
   /**
-   * @param lookupType -
+   * @param cougaarName The common name of the entity
+   * @param lookupType  The type of lookup.
+   *  One of LOOKUP_LDAP, LOOKUP_KEYSTORE and LOOKUP_FORCE_LDAP_REFRESH
    */
   public synchronized List findCert(String cougaarName, int lookupType) {
     return findCert(cougaarName, lookupType, true);
   }
 
-  public synchronized List findCert(String cougaarName, int lookupType, boolean validOnly) {
+  /**
+   * @param cougaarName The common name of the entity
+   * @param lookupType  The type of lookup.
+   *  One of LOOKUP_LDAP, LOOKUP_KEYSTORE and LOOKUP_FORCE_LDAP_REFRESH
+   * @param validOnly   True: only valid certificates. False: all certificates
+   */
+  public synchronized List findCert(String cougaarName,
+				    int lookupType, boolean validOnly) {
     if(log.isDebugEnabled())
       log.debug("Looking for cougaar name " + cougaarName
 		+ " type = " + lookupType);

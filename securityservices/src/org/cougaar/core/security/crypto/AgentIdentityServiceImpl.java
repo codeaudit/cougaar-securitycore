@@ -246,7 +246,8 @@ public class AgentIdentityServiceImpl
     }
 */
     // Retrieve private keys of the agent
-    List agentPrivKeyList = keyRing.findPrivateKey(requestorAddress.toAddress());
+    List agentPrivKeyList =
+      keyRing.findPrivateKey(requestorAddress.toAddress());
 
     if (agentPrivKeyList.size() == 0) {
       throw new RuntimeException("Could not find private keys for "
@@ -257,8 +258,11 @@ public class AgentIdentityServiceImpl
       privKey[i] = ((PrivateKeyCert)(agentPrivKeyList.get(i))).getPrivateKey();
     }
 
-    // Retrieve certificates
-    List agentCertList = keyRing.findCert(requestorAddress.toAddress());
+    // Retrieve certificates. Do not lookup certificates in LDAP, as there
+    // may be old certificates.
+    List agentCertList =
+      keyRing.findCert(requestorAddress.toAddress(),
+		       KeyRingService.LOOKUP_KEYSTORE);
     if (agentCertList.size() == 0) {
       throw new RuntimeException("Could not find certificates for "
 	+ requestorAddress.toAddress());
@@ -268,7 +272,16 @@ public class AgentIdentityServiceImpl
       cert[i] = ((CertificateStatus)(agentCertList.get(i))).getCertificate();
     }
 
-    KeySet keySet = new KeySet(privKey, cert);
+    KeySet keySet = null;
+    try {
+      keySet = new KeySet(privKey, cert);
+    }
+    catch (Exception e) {
+      log.error("Cannot move agent ["
+		+ requestorAddress.toAddress()
+		+ "]. Unable to get private and public keys: " + e);
+      return null;
+    }
 
     // Create a secure envelope with the agent keys and certificates
     PublicKeyEnvelope envelope = null;

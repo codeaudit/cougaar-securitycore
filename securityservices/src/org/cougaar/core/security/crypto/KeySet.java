@@ -30,6 +30,9 @@ import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.*;
 
+/** This class contains the list of private keys and public keys
+ *  that should be moved when an agent moves.
+ */
 public class KeySet
   implements java.io.Serializable
 {
