@@ -97,4 +97,4 @@ installconf: clean-data
 
 confnai:
 	echo +++++++ Installing NAI configuration files
-	cp ./test/configs/mysql/* ${COUGAAR_INSTALL_PATH}/configs/small-135
+	cp test/configs/mysql/cougaar.rc ${COUGAAR_INSTALL_PATH}/configs/small-135
