@@ -38,7 +38,7 @@ public class UserCertificateUIImpl implements UserCertificateUI {
     // get certificates from keystore
     dialog.setList(aliasTable);
 
-    dialog.show();
+    dialog.setVisible(true);
 
     // get selected alias
     return dialog.getSelection();

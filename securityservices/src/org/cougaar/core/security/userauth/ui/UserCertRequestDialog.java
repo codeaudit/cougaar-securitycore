@@ -125,7 +125,7 @@ public class UserCertRequestDialog extends JDialog {
   }
 
   public boolean showDialog() {
-    show();
+    setVisible(true);
     return isOk;
   }
 

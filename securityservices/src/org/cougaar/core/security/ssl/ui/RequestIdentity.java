@@ -107,7 +107,7 @@ public class RequestIdentity
   }
 
   public boolean showDialog() {
-    show();
+    setVisible(true);
     return isOk;
   }
 

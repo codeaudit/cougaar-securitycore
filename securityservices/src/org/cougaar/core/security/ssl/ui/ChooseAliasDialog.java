@@ -166,7 +166,7 @@ public class ChooseAliasDialog extends JDialog {
 
   public static void main(String [] argv) {
     ChooseAliasDialog ui = new ChooseAliasDialog();
-    ui.show();
+    ui.setVisible(true);
   }
 
   public static String printCertificateDetails(X509Certificate  certimpl) {

@@ -173,7 +173,7 @@ public class UserAliasPwdDialog extends JDialog {
   }
 
   public boolean showDialog() {
-    show();
+    setVisible(true);
     return isOk;
   }
 

@@ -237,6 +237,6 @@ public class CRLGUIPlugin
   {
     CRLGUIPlugin crlpgin=new CRLGUIPlugin();
     crlpgin.initGuiComponents();
-    frame.show();
+    frame.setVisible(true);
   }
 }

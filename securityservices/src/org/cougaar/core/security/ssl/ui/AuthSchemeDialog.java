@@ -122,7 +122,7 @@ public class AuthSchemeDialog
   }
 
   public boolean showDialog() {
-    show();
+    setVisible(true);
     return isOk;
   }
 
