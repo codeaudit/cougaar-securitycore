@@ -264,7 +264,7 @@ public class DataProtectionServiceImpl
       KeyGenerator kg = KeyGenerator.getInstance(keygenAlg);
       kg.init(random);
       SecretKey sk = kg.generateKey();
-      List certlist = keyRing.findCert(agent);
+      List certlist = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE);
       if (certlist == null || certlist.size() == 0) {
         throw new GeneralSecurityException("No certificate available for encrypting or signing.");
       }
@@ -406,7 +406,7 @@ public class DataProtectionServiceImpl
               new Integer(wait_time).toString()));
           } catch (Exception nx) {
           }
-          while ((certList = keyRing.findCert(agent)) == null || certList.size() == 0) {
+          while ((certList = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE)) == null || certList.size() == 0) {
             totalWait -= wait_time;
             if (totalWait <= 0) {
               break;
@@ -595,8 +595,10 @@ public class DataProtectionServiceImpl
                           _agent,
                           newKey.getSecureMethod().asymmSpec,
                           responseObj);
-            if (log.isDebugEnabled()) {
-              log.debug("Secretkey recovered from " + _pmp.pmDN);
+            if (skey != null) {
+              if (log.isDebugEnabled()) {
+                log.debug("Secretkey recovered from " + _pmp.pmDN);
+              }
             }
             return skey;
           }
@@ -639,7 +641,7 @@ public class DataProtectionServiceImpl
       return is;
 
     // check if there is key and certificate created for the client
-    List certList = keyRing.findCert(agent);
+    List certList = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE);
     if (certList == null || certList.size() == 0) {
       CertificateException cx = new CertificateException("No certificate available to sign.");
       publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
