@@ -115,8 +115,18 @@ public class AgentCompromiseActuator extends ComponentPlugin
 
         Set newPV = action.getNewPermittedValues(); 
         if (newPV != null) {
+          if (newPV.size() == 0) {
+            // it is not doing anything, just acknowledging some change
+            continue;
+          }
+
           if (newPV.size() != 1) {
-            log.warn("More than one possible action value. Action will not be performed");
+            log.warn("More than one possible action value. Action will not be performed: ");
+            Iterator it = newPV.iterator();
+            while (it.hasNext()) {
+              String newAct = (String)it.next();
+              log.warn("Action: " + newAct);
+            }
             continue;
           }
 
@@ -129,8 +139,19 @@ public class AgentCompromiseActuator extends ComponentPlugin
               continue;
             }
 
+            if (log.isDebugEnabled()) {
+              log.debug("Listing Permitted values: ");
+              Set permitted = action.getPermittedValues();
+              Iterator it = permitted.iterator();
+              while (it.hasNext()) {
+                String act = (String)it.next();
+                log.debug("Permitted: " + act);
+              }
+            }
+
             try {
               action.start(value);
+              action.clearNewPermittedValues();
               blackboard.publishChange(action);
                         if (log.isDebugEnabled())
                             log.debug(action + " started.");
@@ -155,6 +176,12 @@ public class AgentCompromiseActuator extends ComponentPlugin
                 blackboard.publishRemove(info);
               }
             }
+
+            if (log.isDebugEnabled()) {
+              log.debug("DoNothing: " + action);
+            }
+            action.clearNewPermittedValues();
+            blackboard.publishChange(action);
           }
         }
       }
@@ -204,6 +231,9 @@ public class AgentCompromiseActuator extends ComponentPlugin
             action.setValuesOffered(values);
             action.setCompromiseInfo(diagnosis.getCompromiseInfo());
             blackboard.publishChange(action); 
+            if (log.isDebugEnabled()) {
+              log.debug("offered action for diagnosis: " + diagnosis);
+            }
           } catch (IllegalValueException e) {
             log.error("Illegal actionValue = "+action,e);
             continue;
