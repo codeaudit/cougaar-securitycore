@@ -255,7 +255,6 @@ public class SecurityServiceProvider
     services.put(CertValidityService.class, newSP);
     rootServiceBroker.addService(CertValidityService.class, newSP);
 
-    log.error("installing the community protection service");
     /* Community Protection Service */
     newSP = new CommunityProtectionServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CommunityProtectionService.class, newSP);
