@@ -602,7 +602,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       
         RegistrationAlert reg = 
           _idmefFactory.createRegistrationAlert( _sensor, capabilities,
-                                                 _idmefFactory.newregistration );
+                                                 _idmefFactory.newregistration ,_idmefFactory.SensorType);
         NewEvent regEvent = _cmrFactory.newEvent(reg);
       
         boolean close = true;
