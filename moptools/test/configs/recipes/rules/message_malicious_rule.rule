@@ -2,7 +2,7 @@
 # Rule to insert MaliciousMessagePlugin
 
 
-plugin = "org.cougaar.core.security.test.message.MaliciousBlackboardPlugin"
+plugin = "org.cougaar.core.security.test.message.MaliciousMessagePlugin"
 include_array=["NCA","TRANSCOM","1-35-ARBN"]
 
 society.each_agent(true) do |agent|
