@@ -111,20 +111,28 @@ for ($filenum = 0; $filenum <= $#files; $filenum++) {
     `cp $tmpfile $file`;
     unlink $tmpfile;
     chdir "$ENV{PWD}";
-    `dos2unix $dir/$file`;
+    `dos2unix -q $dir/$file`;
     commit($file,$revision,0,1);
   } else {
-    `dos2unix $dir/$file`;
+    `dos2unix -q $dir/$file`;
   }
 
 # now apply the differences for each revision to the branch
-  for ($i = $#revisions - 1; $i >= 0; $i--) {
-    open DIFF, "cvs diff -r $revisions[$i+1] -r $revisions[$i] $file|";
+  for ($i = $#revisions; $i >= 0; $i--) {
+    if ($i == $#revisions) {
+      $fromrev = $revisions[i];
+      $fromrev =~ s/([0-9]*\.[0-9]*)\..*/\1/;
+    } else {
+      $fromrev = $revisions[$i + 1];
+    }
+    $torev = $revisions[$i];
+    print "cvs diff -c -r $fromrev -r $torev $file\n";
+    open DIFF, "cvs diff -c -r $fromrev -r $torev $file|";
     $diff = "";
     $startdiff = 0;
     while (<DIFF>) {
       if ($startdiff == 0) {
-        if (/^diff -r/) {
+        if (/^diff -c -r/) {
           $startdiff = 1;
         }
       } else {
@@ -140,8 +148,8 @@ for ($filenum = 0; $filenum <= $#files; $filenum++) {
       open PATCH, ">$patchfile";
       print PATCH $diff;
       close PATCH;
-      `dos2unix $patchfile`;
-      `patch $dir/$file < $patchfile`;
+      `dos2unix -q $patchfile`;
+      `patch -c $dir/$file < $patchfile`;
       unlink $patchfile;
 #      print $diff;
     }
