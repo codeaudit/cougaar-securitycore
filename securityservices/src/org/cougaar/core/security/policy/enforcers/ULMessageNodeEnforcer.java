@@ -278,6 +278,9 @@ public class ULMessageNodeEnforcer
     if (_log.isDebugEnabled()) {
       _log.debug("Called isActionAuthorized for " + sender + " to " +
                  receiver + " with verb " + verb);
+      if (verb != null) {
+        //        System.out.println("Found a verb!!! (" + verb + ")");
+      }
     }
     String kaosVerb = HardWired.kaosVerbFromVerb(verb);
     if (_log.isDebugEnabled()) {
@@ -337,6 +340,12 @@ public class ULMessageNodeEnforcer
                    action,
                    HardWired.usedProtectionLevelValues,
                    false);
+    if (_log.isDebugEnabled()) {
+      for (Iterator ciphersIt = ciphers.iterator(); ciphersIt.hasNext();) {
+        String cipher = (String) ciphersIt.next();
+        _log.debug("Allowed cipher = " + cipher);
+      }
+    }
     return HardWired.ulCiphersFromKAoSProtectionLevel(ciphers);
   }
 
