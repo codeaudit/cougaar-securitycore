@@ -257,7 +257,7 @@ society.each_host do |host|
     node.override_parameter("-Dorg.cougaar.core.security.crypto.validitypoll", "600")
     
     # turn data protection on
-#    node.override_parameter("-Dorg.cougaar.core.security.dataprotection", "true")
+    node.override_parameter("-Dorg.cougaar.core.security.dataprotection", "true")
     
     # for unzip & run
     # indicates unzip & run
