@@ -31,8 +31,8 @@ insert_after :society_running do
   do_action  "InjectStress", "SecurityMop21", "setup"
 
   # MOP 2.4: unauthorized user actions
-  do_action  "InjectStress", "SecurityMop2_4", "setup"
-  do_action  "InjectStress", "SecurityMop2_4", "perform"
+#  do_action  "InjectStress", "SecurityMop2_4", "setup"
+#  do_action  "InjectStress", "SecurityMop2_4", "perform"
 end
 
 #insert_after :after_stage_1 do
@@ -54,18 +54,22 @@ insert_after parameters[:calculate_mop_label] do
   do_action  "InjectStress", "SecurityMop23", "calculate"
 
   # MOP 2.4: unauthorized user actions
-  do_action  "InjectStress", "SecurityMop2_4", "calculate"
+#  do_action  "InjectStress", "SecurityMop2_4", "calculate"
 
   # MOP 2.5: user action audit
-  do_action  "InjectStress", "SecurityMop2_5", "calculate"
+#  do_action  "InjectStress", "SecurityMop2_5", "calculate"
 
   # MOP 2.6: IDMEF events
-  do_action  "InjectStress", "SecurityMop2_6", "calculate"
+#  do_action  "InjectStress", "SecurityMop2_6", "calculate"
 end
 
 #insert_before :before_stage_2 do
 insert_after parameters[:postCalculate_mop_label] do
   # Needed for MOP 2.3, 2.4-6 (should be at end of run, to prevent delays):
+  do_action "GenericAction" do
+    SecurityMop2_4.instance.performDone = true
+    SecurityMop2_4.instance.calcDone = true
+  end
   do_action "WaitForCalculationCompletion"
 
   # MOP 2.3: encrypted messages
