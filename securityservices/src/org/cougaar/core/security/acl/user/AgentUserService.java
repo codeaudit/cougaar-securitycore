@@ -94,6 +94,9 @@ public class AgentUserService implements UserService, BlackboardClient {
     _serviceBroker = sb;
     _log = (LoggingService)
       _serviceBroker.getService(this, LoggingService.class, null);
+    if (_log.isDebugEnabled()) {
+      _log.debug("Service Broker = " + sb);
+    }
     _bbs = (BlackboardService) 
       _serviceBroker.getService(this, BlackboardService.class, null);
     _uidService = (UIDService)
@@ -102,7 +105,7 @@ public class AgentUserService implements UserService, BlackboardClient {
       if (_log.isInfoEnabled()) {
         _log.info("Unable to get UID service");
       }
-      _serviceBroker.addServiceListener(new MyServiceListener());
+      _serviceBroker.addServiceListener(new UIDServiceListener());
     }
 
     if (agent != null) {
@@ -123,7 +126,7 @@ public class AgentUserService implements UserService, BlackboardClient {
 	  _log.debug("AgentIdentificationservice service is not avilable ");
 	  _log.debug("AddingListener for AgentIdentificationservice ");
 	}
-	_serviceBroker.addServiceListener(new MyServiceListener());
+	_serviceBroker.addServiceListener(new AgentIdentificationServiceListener());
       }
     }
 
@@ -133,7 +136,7 @@ public class AgentUserService implements UserService, BlackboardClient {
       if(_log.isDebugEnabled()){
         _log.debug("CommunityService service is not avilable ");
       }
-      _serviceBroker.addServiceListener(new MyServiceListener());
+      _serviceBroker.addServiceListener(new CommunityServiceListener());
     } else {
       if(_log.isDebugEnabled()){
         _log.debug("set communityService called ");
@@ -146,7 +149,7 @@ public class AgentUserService implements UserService, BlackboardClient {
       if(_log.isDebugEnabled()){
         _log.debug("BB service is not avilable ");
       }
-      _serviceBroker.addServiceListener(new MyServiceListener());
+      _serviceBroker.addServiceListener(new BlackBoardServiceListener());
     }
   }
   
@@ -632,10 +635,14 @@ public class AgentUserService implements UserService, BlackboardClient {
     return _defaultDomain;
   }
 
-  private class MyServiceListener implements ServiceAvailableListener {
-    public void serviceAvailable(ServiceAvailableEvent ae) {
+  private class AgentIdentificationServiceListener
+    implements ServiceAvailableListener
+  {
+    public void serviceAvailable(ServiceAvailableEvent ae)
+    {
       if (ae.getService().equals(AgentIdentificationService.class)) {
-        AgentIdentificationService ais = (AgentIdentificationService) ae.getServiceBroker().
+        AgentIdentificationService ais 
+          = (AgentIdentificationService) ae.getServiceBroker().
           getService(this, AgentIdentificationService.class, null);
         if (ais != null) {
           ae.getServiceBroker().removeServiceListener(this);
@@ -645,17 +652,35 @@ public class AgentUserService implements UserService, BlackboardClient {
           _source=ais.getMessageAddress();
         }
       }
-      else if (ae.getService().equals(BlackboardService.class)) {
+    }
+  }
+
+  private class BlackBoardServiceListener
+    implements ServiceAvailableListener
+  {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+
+      if (ae.getService().equals(BlackboardService.class)) {
         _bbs = (BlackboardService) ae.getServiceBroker().
-          getService(AgentUserService.this, BlackboardService.class, null);
+          getService(AgentUserService.this, 
+                     BlackboardService.class, 
+                     null);
         if (_bbs != null) {
           ae.getServiceBroker().removeServiceListener(this);
           startSubscription();
         }
       }
-      else if (ae.getService().equals(CommunityService.class)) {
+    }
+  }
+
+  private class CommunityServiceListener
+    implements ServiceAvailableListener
+  {
+    public void serviceAvailable(ServiceAvailableEvent ae) 
+    {
+      if (ae.getService().equals(CommunityService.class)) {
         CommunityService cs = (CommunityService) ae.getServiceBroker().
-          getService(this, CommunityService.class, null);
+                    getService(this, CommunityService.class, null);
         if (cs != null) {
           ae.getServiceBroker().removeServiceListener(this);
 	  if (_log.isDebugEnabled()) {
@@ -664,7 +689,14 @@ public class AgentUserService implements UserService, BlackboardClient {
           setCommunityService(cs);
         }
       }
-      else if (ae.getService().equals(UIDService.class)) {
+    }  
+  }
+
+  private class UIDServiceListener implements ServiceAvailableListener 
+  {
+    public void serviceAvailable(ServiceAvailableEvent ae) 
+    {
+      if (ae.getService().equals(UIDService.class)) {
         UIDService us = (UIDService) ae.getServiceBroker().
           getService(this, UIDService.class, null);
         if (us != null) {
