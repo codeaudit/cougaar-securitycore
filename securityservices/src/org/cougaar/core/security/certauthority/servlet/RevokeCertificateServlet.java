@@ -41,25 +41,26 @@ import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.ldap.LdapEntry;
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
 import org.cougaar.core.security.services.ldap.MultipleEntryException;
-import org.cougaar.core.security.services.ldap.LdapEntry;
+//import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.certauthority.*;
 
 public class RevokeCertificateServlet
-  extends HttpServlet
+extends HttpServlet
 {
   public static String HEADER_WITH_SCRIPT = "<html>" +
-    "<script language=\"javascript\">" +
-    "function submitme(form)" +
-    "{ form.submit()}</script>" +
-    "</head>" +
-    "<body>";
+  "<script language=\"javascript\">" +
+  "function submitme(form)" +
+  "{ form.submit()}</script>" +
+  "</head>" +
+  "<body>";
   private SecurityPropertiesService secprop = null;
   private CertificateManagementService keymanagement=null;
   
@@ -73,165 +74,165 @@ public class RevokeCertificateServlet
 
     this.log = (LoggingService)
       support.getServiceBroker().getService(this,
-			       LoggingService.class, null);
+                                            LoggingService.class, null);
 
   }
 
   public void init(ServletConfig config) throws ServletException
-  {
-    context=config.getServletContext();
+    {
+      context=config.getServletContext();
 
-    secprop = support.getSecurityProperties(this);
+      secprop = support.getSecurityProperties(this);
      
-    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
-						"false"))).booleanValue();
-    if(debug)
-      log.debug(" context is :"+ context.toString());
-  }
+      debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+                                                   "false"))).booleanValue();
+      if(debug)
+        log.debug(" context is :"+ context.toString());
+    }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
-  {
-    String revokeType = req.getParameter("revoke_type");
+    {
+      String revokeType = req.getParameter("revoke_type");
     
-    if(revokeType != null && revokeType.equals("agent")) {
-      revokeAgentCertificate(req, res); 
+      if(revokeType != null && revokeType.equals("agent")) {
+        revokeAgentCertificate(req, res); 
+      }
+      else {
+        revokeCertificate(req, res);
+      }
     }
-    else {
-      revokeCertificate(req, res);
-    }
-  }
   
   private void revokeCertificate(HttpServletRequest  req, HttpServletResponse res) 
     throws ServletException,IOException 
-  {
-    String distinguishedName=null;
-    String domain=null;
-    String cadnname=null;
-    boolean error = false;
-    PrintWriter out = res.getWriter();
-    res.setContentType("text/html");   
-    out.println(getHeaderWithScript());
+    {
+      String distinguishedName=null;
+      String domain=null;
+      String cadnname=null;
+      boolean error = false;
+      PrintWriter out = res.getWriter();
+      res.setContentType("text/html");   
+      out.println(getHeaderWithScript());
    
-    distinguishedName=req.getParameter("distinguishedName");
-    domain=req.getParameter("domain");
-    cadnname=req.getParameter("cadnname");
+      distinguishedName=req.getParameter("distinguishedName");
+      domain=req.getParameter("domain");
+      cadnname=req.getParameter("cadnname");
       
-    if((distinguishedName==null)||(distinguishedName=="")) {
-      out.println("Error in getting the certificate unique identifier");
-      error = true;
-    }
-    if((cadnname==null)||(cadnname=="")) {
-      out.println("Error in getting the CA's DN ");
-      error = true;
-    }
+      if((distinguishedName==null)||(distinguishedName=="")) {
+        out.println("Error in getting the certificate unique identifier");
+        error = true;
+      }
+      if((cadnname==null)||(cadnname=="")) {
+        out.println("Error in getting the CA's DN ");
+        error = true;
+      }
 
-    if(error) {
-      out.println(getFooter());
-      out.flush();
-      out.close();
-      return; 
-    }
+      if(error) {
+        out.println(getFooter());
+        out.flush();
+        out.close();
+        return; 
+      }
     
-    int status = 0;
-    String uri = req.getRequestURI();
-    String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/CertificateList";
-    try {
-      keymanagement =
-    	(CertificateManagementService)support.getServiceBroker().getService(
-    	  new CertificateManagementServiceClientImpl(cadnname),
-    	  CertificateManagementService.class, null);
-      String uniqueIdentifier=distinguishedName;
-      status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
-    }
-    catch (MultipleEntryException multipleexp) {
-      out.print("Multiple entry found for : " + multipleexp.getMessage());
-      out.println(appendForm(certlistUri,cadnname,domain));
-      out.println(getFooter());
-      out.flush();
-      out.close();
-      return;
-    }
-     catch (Exception generalexp) {
-      out.print("Error has occured due to  following reason  : "
-		    + generalexp.getMessage());
+      int status = 0;
+      String uri = req.getRequestURI();
+      String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/CertificateList";
+      try {
+        keymanagement =
+          (CertificateManagementService)support.getServiceBroker().getService(
+            new CertificateManagementServiceClientImpl(cadnname),
+            CertificateManagementService.class, null);
+        String uniqueIdentifier=distinguishedName;
+        status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
+      }
+      catch (MultipleEntryException multipleexp) {
+        out.print("Multiple entry found for : " + multipleexp.getMessage());
+        out.println(appendForm(certlistUri,cadnname,domain));
+        out.println(getFooter());
+        out.flush();
+        out.close();
+        return;
+      }
+      catch (Exception generalexp) {
+        out.print("Error has occured due to  following reason  : "
+                  + generalexp.getMessage());
+        out.println(appendForm(certlistUri,cadnname,domain));
+        out.println(getFooter()); 
+        out.flush();
+        out.close();
+        return;
+      }
+    
+      out.println(getStatusMsg(status, distinguishedName));
+      out.println("<p>");
       out.println(appendForm(certlistUri,cadnname,domain));
       out.println(getFooter()); 
-      out.flush();
-      out.close();
-      return;
     }
-    
-    out.println(getStatusMsg(status, distinguishedName));
-    out.println("<p>");
-    out.println(appendForm(certlistUri,cadnname,domain));
-    out.println(getFooter()); 
-  }
   
   private void revokeAgentCertificate(HttpServletRequest  req, HttpServletResponse res) 
     throws ServletException,IOException 
-  {
-    //PrintWriter out = res.getWriter();
-    PrintStream out = new PrintStream(res.getOutputStream());
-    String agentName = req.getParameter("agent_name");
-    String caDN = req.getParameter("ca_dn");
-    String replyFormat = req.getParameter("reply_format");
-    boolean replyHtml = false;
-    if(replyFormat != null && replyFormat.equalsIgnoreCase("html")) {
-      replyHtml = true;
-    }
-    boolean error = false;
-    if(replyHtml) {
-      out.println(getHeader());
-    }
-    if(agentName == null || agentName == "") {
-      out.println("Error getting name of agent");
-      error = true;
-    }
-    if(caDN == null || caDN == "") {
-      out.println("Error getting the certificate distinguished name");
-      error = true;
-    }
+    {
+      //PrintWriter out = res.getWriter();
+      PrintStream out = new PrintStream(res.getOutputStream());
+      String agentName = req.getParameter("agent_name");
+      String caDN = req.getParameter("ca_dn");
+      String replyFormat = req.getParameter("reply_format");
+      boolean replyHtml = false;
+      if(replyFormat != null && replyFormat.equalsIgnoreCase("html")) {
+        replyHtml = true;
+      }
+      boolean error = false;
+      if(replyHtml) {
+        out.println(getHeader());
+      }
+      if(agentName == null || agentName == "") {
+        out.println("Error getting name of agent");
+        error = true;
+      }
+      if(caDN == null || caDN == "") {
+        out.println("Error getting the certificate distinguished name");
+        error = true;
+      }
     
-    if(error) {
+      if(error) {
+        if(replyHtml) {
+          out.println(getFooter());
+        }
+        out.flush();
+        out.close();
+        return; 
+      }
+    
+      int status = 0;
+      try  {
+        keymanagement =
+          (CertificateManagementService)support.getServiceBroker().getService(
+            new CertificateManagementServiceClientImpl(caDN),
+            CertificateManagementService.class, null);
+        status = keymanagement.revokeAgentCertificate(caDN, agentName);
+      }
+      catch (MultipleEntryException mee) {
+        out.println("Multiple entry found for : " + mee.getMessage());
+        error = true;
+      }
+      catch (Exception e) {
+        out.println("Error has occured due to  following reason  : "
+                    + e.getMessage());
+        error = true;
+      }
+	  
+      if(!error) {
+        out.println(getStatusMsg(status, agentName));	   
+        if(replyHtml) {
+          out.print("<p>");
+        }
+      }
       if(replyHtml) {
         out.println(getFooter());
       }
       out.flush();
       out.close();
-      return; 
     }
-    
-	  int status = 0;
-	  try  {
-	    keymanagement =
-    	(CertificateManagementService)support.getServiceBroker().getService(
-    	  new CertificateManagementServiceClientImpl(caDN),
-    	  CertificateManagementService.class, null);
-	    status = keymanagement.revokeAgentCertificate(caDN, agentName);
-	  }
-	  catch (MultipleEntryException mee) {
-      out.println("Multiple entry found for : " + mee.getMessage());
-      error = true;
-    }
-    catch (Exception e) {
-      out.println("Error has occured due to  following reason  : "
-    	  + e.getMessage());
-      error = true;
-    }
-	  
-	  if(!error) {
-      out.println(getStatusMsg(status, agentName));	   
-	    if(replyHtml) {
-	      out.print("<p>");
-	    }
-	  }
-	  if(replyHtml) {
-      out.println(getFooter());
-    }
-    out.flush();
-    out.close();
-  }
   
   private String getStatusMsg(int status, String uId) {
     StringBuffer sb = new StringBuffer();
@@ -265,76 +266,76 @@ public class RevokeCertificateServlet
   private String appendForm(String posturl, String caDNName, String domain) {
     
     StringBuffer sb=new StringBuffer();
-     sb.append("<form name=\"certlist\" action=\"" + posturl
-	    + "\" method=\"post\">");
-     sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
-		  + caDNName + "\">");
-     sb.append("<input type=\"hidden\" name=\"domain\" value=\""
-	       + domain + "\">");
-     sb.append("<a Href=\"javascript:submitme(document.certlist)\">"
-		  + "Back to List "+"</a></form>");
-     return sb.toString();
+    sb.append("<form name=\"certlist\" action=\"" + posturl
+              + "\" method=\"post\">");
+    sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
+              + caDNName + "\">");
+    sb.append("<input type=\"hidden\" name=\"domain\" value=\""
+              + domain + "\">");
+    sb.append("<a Href=\"javascript:submitme(document.certlist)\">"
+              + "Back to List "+"</a></form>");
+    return sb.toString();
   }
 
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
     throws ServletException, IOException
-  {
-     PrintWriter out=res.getWriter();
-    res.setContentType("text/html");
+    {
+      PrintWriter out=res.getWriter();
+      res.setContentType("text/html");
     
-    if(context==null)
-      {
-	out.println(" got context as null");
-      }
-    /*Enumeration enumn= context.getServletNames();
-       for(;enumn.hasMoreElements();)
-      {
+      if(context==null)
+        {
+          out.println(" got context as null");
+        }
+      /*Enumeration enumn= context.getServletNames();
+        for(;enumn.hasMoreElements();)
+        {
 	String propname=(String)enumn.nextElement();
        	out.println(" Got servlet  name :"+propname );
-      }
-    */
-    Enumeration enum = context.getAttributeNames();
-    for(;enum.hasMoreElements();)
-      {
-	String propname=(String)enum.nextElement();
-	out.println(" Got propert name :"+propname);
-	log.debug(" Got propert name :"+propname);
-	out.flush();
-	if((propname.startsWith("java"))||(propname.startsWith("org.apache"))) {
-	  continue;
-	}
-	String value=(String )context.getAttribute(propname);
-	log.debug(" property value :"+ value);
-	out.println(" property value :"+ value);
-      }
-  }
+        }
+      */
+      Enumeration enum = context.getAttributeNames();
+      for(;enum.hasMoreElements();)
+        {
+          String propname=(String)enum.nextElement();
+          out.println(" Got propert name :"+propname);
+          log.debug(" Got propert name :"+propname);
+          out.flush();
+          if((propname.startsWith("java"))||(propname.startsWith("org.apache"))) {
+            continue;
+          }
+          String value=(String )context.getAttribute(propname);
+          log.debug(" property value :"+ value);
+          out.println(" property value :"+ value);
+        }
+    }
 
   public String getServletInfo()
-  {
-    return("Displaying details of certificate with give hash map");
-  }
+    {
+      return("Displaying details of certificate with give hash map");
+    }
 
   public String createtable(LdapEntry[] ldapentries)
-  {
-    StringBuffer sb=new StringBuffer();
-    sb.append("<table align=\"center\">\n");
-    sb.append("<TR><TH> DN-Certificate </TH><TH> Status </TH><TH> DN-Signed By </TH></TR>\n");
-    for(int i = 0 ; i < ldapentries.length ; i++) {
-      sb.append("<TR><TD><a Href=\"../CertificateDetails?distinguishedName="
-		+ ldapentries[0].getUniqueIdentifier() + "\">" 
-		+ ldapentries[0].getCertificate().getSubjectDN().getName()
-		+ "</a><TD>\n");
-      //sb.append("<TD>" + ldapentries[0].getStatus()+"</TD>\n" );
-      sb.append("<TD>" + ldapentries[0].getCertificate().getIssuerDN().getName()
-		+"</TD></TR>\n");
+    {
+      StringBuffer sb=new StringBuffer();
+      sb.append("<table align=\"center\">\n");
+      sb.append("<TR><TH> DN-Certificate </TH><TH> Status </TH><TH> DN-Signed By </TH></TR>\n");
+      for(int i = 0 ; i < ldapentries.length ; i++) {
+        sb.append("<TR><TD><a Href=\"../CertificateDetails?distinguishedName="
+                  + ldapentries[0].getUniqueIdentifier() + "\">" 
+                  + ldapentries[0].getCertificate().getSubjectDN().getName()
+                  + "</a><TD>\n");
+        //sb.append("<TD>" + ldapentries[0].getStatus()+"</TD>\n" );
+        sb.append("<TD>" + ldapentries[0].getCertificate().getIssuerDN().getName()
+                  +"</TD></TR>\n");
 
+      }
+      sb.append("</table>");
+      return sb.toString();
     }
-    sb.append("</table>");
-    return sb.toString();
-  }
 
   private class CertificateManagementServiceClientImpl
-    implements CertificateManagementServiceClient
+  implements CertificateManagementServiceClient
   {
     private String caDN;
     public CertificateManagementServiceClientImpl(String aCaDN) {

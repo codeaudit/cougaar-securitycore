@@ -41,16 +41,16 @@ import org.cougaar.core.component.ServiceBroker;
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.ldap.LdapEntry;
 
 import org.cougaar.core.security.certauthority.*;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.crypto.*;
 
 public class ListCaKeysServlet
-  extends  HttpServlet
+extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
@@ -70,24 +70,24 @@ public class ListCaKeysServlet
   }
 
   public void init(ServletConfig config) throws ServletException
-  {
-    secprop = support.getSecurityProperties(this);
-    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
-						"false"))).booleanValue();
-    keyRingService = (KeyRingService)
-      support.getServiceBroker().getService(this,
-					    KeyRingService.class,
-					    null);
-    cacheService=(CertificateCacheService)
-      support.getServiceBroker(). getService(this,
-					     CertificateCacheService.class,
-					     null);
-  }
+    {
+      secprop = support.getSecurityProperties(this);
+      debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+                                                   "false"))).booleanValue();
+      keyRingService = (KeyRingService)
+        support.getServiceBroker().getService(this,
+                                              KeyRingService.class,
+                                              null);
+      cacheService=(CertificateCacheService)
+        support.getServiceBroker(). getService(this,
+                                               CertificateCacheService.class,
+                                               null);
+    }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
-  {
-  }
+    {
+    }
 
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
     throws ServletException, IOException  {
@@ -106,7 +106,7 @@ public class ListCaKeysServlet
 
     Enumeration aliases = null;
     if(cacheService!=null) {
-     aliases= cacheService.getAliasList();
+      aliases= cacheService.getAliasList();
     }
     else {
       out.println("Unable to get  Certificate Cache Service ");

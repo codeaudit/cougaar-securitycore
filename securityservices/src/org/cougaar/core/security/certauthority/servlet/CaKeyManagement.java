@@ -38,13 +38,11 @@ import sun.security.x509.*;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.services.ldap.LdapEntry;
+import org.cougaar.core.security.crypto.ldap.LdapEntry;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.certauthority.*;
 
-public class CaKeyManagement
-  extends HttpServlet
-{
+public class CaKeyManagement  extends HttpServlet {
   private ConfigParserService configParser = null;
 
   private CaPolicy caPolicy = null;            // the policy of the CA
@@ -55,47 +53,47 @@ public class CaKeyManagement
   }
 
   public void init(ServletConfig config) throws ServletException
-  {
-    configParser = (ConfigParserService)
-      support.getServiceBroker().getService(this,
-					    ConfigParserService.class,
-					    null);
-  }
+    {
+      configParser = (ConfigParserService)
+        support.getServiceBroker().getService(this,
+                                              ConfigParserService.class,
+                                              null);
+    }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
-  {
-    PrintWriter out=res.getWriter();
+    {
+      PrintWriter out=res.getWriter();
 
-    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
-    out.println("<html>");
-    out.println("<head>");
-    out.println("<title>Certificate Authority Key Management</title>");
-    out.println("</head>");
-    out.println("<body>");
-    out.println("</body></html>");
-    out.flush();
-    out.close();
-  }
+      out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+      out.println("<html>");
+      out.println("<head>");
+      out.println("<title>Certificate Authority Key Management</title>");
+      out.println("</head>");
+      out.println("<body>");
+      out.println("</body></html>");
+      out.flush();
+      out.close();
+    }
   
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
     throws ServletException, IOException
-  {
-    res.setContentType("text/html");
-    PrintWriter out=res.getWriter();
-    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
-    out.println("<html>");
-    out.println("<head>");
-    out.println("<title>Certificate Authority Key Management</title>");
-    out.println("</head>");
-    out.println("<body>");
-    out.println("</body></html>");
-    out.flush();
-    out.close();
-  }
+    {
+      res.setContentType("text/html");
+      PrintWriter out=res.getWriter();
+      out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+      out.println("<html>");
+      out.println("<head>");
+      out.println("<title>Certificate Authority Key Management</title>");
+      out.println("</head>");
+      out.println("<body>");
+      out.println("</body></html>");
+      out.flush();
+      out.close();
+    }
   
   public String getServletInfo()
-  {
-    return("Manage keys of Certificate Authority");
-  }
+    {
+      return("Manage keys of Certificate Authority");
+    }
 }
