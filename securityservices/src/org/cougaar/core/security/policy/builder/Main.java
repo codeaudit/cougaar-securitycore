@@ -53,7 +53,6 @@ import kaos.policy.information.OntologyConditionContainer;
 import kaos.policy.information.OntologyPolicyContainer;
 import kaos.policy.util.KAoSPolicyBuilderImpl;
 
-import org.apache.log4j.BasicConfigurator;
 
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.policy.builder.PolicyParser;
@@ -62,20 +61,15 @@ import org.cougaar.util.ConfigFinder;
 import org.cougaar.util.log.LoggerFactory;
 import org.cougaar.util.log.Logger;
 
-class Main 
+public class Main 
 {
   private static WebProxyInstaller   _proxyInstaller;
-  private static OntologyConnection  _ontology;
+  private static OntologyConnection  _ontology = null;
   private static Logger              _log;
-  
   static {
-    _proxyInstaller = new WebProxyInstaller();
-    _proxyInstaller.install();
-    BasicConfigurator.configure();
     _log = LoggerFactory.getInstance().createLogger(Main.class);
   }
-
-
+  
   private static final int BUILD_CMD   = 0;
   private static final int JTP_CMD     = 1;
   private static final int COMMIT_CMD  = 2;
@@ -112,6 +106,9 @@ class Main
    */
   protected Main(String [] args)
   {
+    _proxyInstaller = new WebProxyInstaller();
+    _proxyInstaller.install();
+
     try {
       int counter = 0;
 
@@ -297,7 +294,7 @@ class Main
       buildPolicies();
       break;
     case COMMIT_CMD:
-      commitPolicies();
+      commitPolicies(true);
       break;
     case EXAMINE_CMD:
       examinePolicyFile();
@@ -427,7 +424,7 @@ class Main
       }
       return true;
     } catch (Exception e) {
-      e.printStackTrace();
+      printMessage("" + e.getStackTrace());
       return false;
     }
   }
@@ -442,7 +439,7 @@ class Main
    * commit them to the domain manager.
    */
 
-  protected void commitPolicies()
+  public void commitPolicies(boolean needsConnect)
     throws IOException
   {
     try {
@@ -450,22 +447,24 @@ class Main
       ParsedPolicyFile parsed = compile(_policyFile);
       List deletePolicies = parsed.getDeletedList();
       List parsedPolicies = parsed.policies();
-      printMessage("Connecting to domain manager & loading declarations");
-      connectDomainManager();
-      PolicyUtils.verbsLoaded();
-      PolicyUtils.autoGenerateGroups(parsed.declarations(), 
-                                     parsed.agentGroupMap());
+      if (needsConnect) {
+        printMessage("Connecting to domain manager & loading declarations");
+        connectDomainManager();
+        PolicyUtils.verbsLoaded();
+        PolicyUtils.autoGenerateGroups(parsed.declarations(), 
+                                       parsed.agentGroupMap());
 
-      if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
-        printMessage("Reasoning depth insufficient. Try setting a larger value with the");
-        printMessage("--maxdepth option");
-        printMessage("Policies not built as they would be incorrect");
-        System.exit(-1);
+        if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
+          printMessage("Reasoning depth insufficient. Try setting a larger value with the");
+          printMessage("--maxdepth option");
+          printMessage("Policies not built as they would be incorrect");
+          System.exit(-1);
+        }
       }
       commitUnconditionalPolicies(parsedPolicies, deletePolicies);
       commitConditionalPolicies(parsedPolicies);
     } catch (Exception e) {
-      e.printStackTrace();
+      printMessage("" + e.getStackTrace());
       printMessage("Error Committing policies");
     }
   }
@@ -494,9 +493,8 @@ class Main
           policyIt.hasNext();) {
         ParsedPolicy pp = (ParsedPolicy) policyIt.next();
         if (pp.getConditionalMode() == null) {
-          FileInputStream fis = new FileInputStream(pp.getPolicyName() 
-                                                    + ".msg");
-          ObjectInputStream ois = new ObjectInputStream(fis);
+          InputStream is = openFile(pp.getPolicyName() + ".msg");
+          ObjectInputStream ois = new ObjectInputStream(is);
           newPolicies.add((PolicyMsg) ois.readObject());
           ois.close();
         } 
@@ -608,8 +606,8 @@ class Main
       }
       for (Iterator modesIt = modes.iterator(); modesIt.hasNext(); ) {
         String mode = (String) modesIt.next();
-        FileInputStream fis = new FileInputStream(mode + ".cpmsg");
-        ObjectInputStream ois = new ObjectInputStream(fis);
+        InputStream is = openFile(mode + ".cpmsg");
+        ObjectInputStream ois = new ObjectInputStream(is);
         conditionalPolicies.add((ConditionalPolicyMsg) ois.readObject());
         ois.close();
       }
@@ -861,12 +859,8 @@ class Main
 
   private static void printMessage(String s)
   {
-    if (_stdout) {
-      System.out.println(s);
-    } else {
-      if (_log.isInfoEnabled()) {
-        _log.info(s);
-      }
+    if (_log.isInfoEnabled()) {
+      _log.info(s);
     }
   }
 
@@ -884,7 +878,8 @@ class Main
   /*
    * Non-command line support
    *   Historically the command line interface came first or this would 
-   *   have been designed differently.
+   *   have been designed differently.  Support for this is needed for the 
+   *   coordinator work.
    */
 
   /*
@@ -892,13 +887,14 @@ class Main
    */
   public Main()
   {
-    _stdout = false;
-    
+    _stdout            = false;
+    _useConfig         = true;
   }
 
   public void setPolicyFile(String p)
   {
     _policyFile = p;
   }
+
 }
 
