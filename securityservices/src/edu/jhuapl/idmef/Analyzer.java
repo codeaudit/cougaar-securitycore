@@ -198,70 +198,39 @@ public class Analyzer implements XMLSerializable{
 
 
 
-    public Node convertToXML(Document parent){
-	Element analyzerNode = parent.createElement("Analyzer");
-	if(analyzerid != null)
+  public Node convertToXML(Document parent){
+	  Element analyzerNode = parent.createElement("Analyzer");
+	  if(analyzerid != null){
 	    analyzerNode.setAttribute("analyzerid", analyzerid);
-
-	if(node != null){
+	  }
+    if( manufacturer != null ){
+      analyzerNode.setAttribute( "manufacturer", manufacturer );
+    }
+    if( model != null ){
+      analyzerNode.setAttribute( "model", model );
+    }
+    if( version != null ){
+      analyzerNode.setAttribute( "version", version );
+    }
+    if( analyzerClass != null ){
+      analyzerNode.setAttribute( "class", analyzerClass );
+    }
+    if( ostype != null ){
+      analyzerNode.setAttribute( "ostype", ostype );
+    }
+    if( osversion != null ){
+      analyzerNode.setAttribute( "osversion", osversion );
+    }
+    
+	  if(node != null){
 	    Node nodeNode = node.convertToXML(parent);
-	    analyzerNode.appendChild(nodeNode);
-	    
-	}
-
-	if(process != null){
+	    analyzerNode.appendChild(nodeNode);  
+	  }
+	  if(process != null){
 	    Node processNode = process.convertToXML(parent);
-	    analyzerNode.appendChild(processNode);
-	    
-	}
-
-	return analyzerNode;
-    }
-
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-     /*
-    public static void main (String args[]){
-
-	//make a node
-	Address address_list[] = {new Address("1.1.1.1", null, null, null, null, null),
-	                          new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX, null, null)};
-	IDMEF_Node testNode = new IDMEF_Node("Test Location", 
-					      "Test Name", address_list, 
-					      "Test_Ident", 
-					      IDMEF_Node.DNS);
-
-
-	//make a Process
-	String arg_list[] = {"-r", "-b", "12.3.4.5"};
-	String env_list[] = {"HOME=/home/mccubb/", "PATH=/usr/sbin"};
-	IDMEF_Process testProcess = new IDMEF_Process("Test_Name", new Integer(1002), "/usr/sbin/ping",
-					       arg_list, env_list, "Test_Ident");
-
-	//make a analyzer
-
-	Analyzer analyzer = new Analyzer(testNode, testProcess, "test_id");
-
-	try{
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = (Element) document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node tNode = analyzer.convertToXML(document);
-	    root.appendChild(tNode);
-
-	    StringWriter buf=new StringWriter();
-
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    System.out.println(buf.getBuffer());
-	      
-
-	    Analyzer new_i = new Analyzer(tNode);
-
-
-	} catch (Exception e) {e.printStackTrace();}
-    }
-    */
+	    analyzerNode.appendChild(processNode); 
+	  }
+ 
+	  return analyzerNode;
+  }
 }

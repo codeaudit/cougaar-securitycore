@@ -69,6 +69,7 @@ public class IDMEF_Node implements XMLSerializable{
     public static final String CODA             = "coda";
     public static final String DFS              = "dfs";
     public static final String DNS              = "dns";
+    public static final String HOSTS            = "hosts";
     public static final String KERBEROS         = "kerberos";
     public static final String NDS              = "nds";
     public static final String NIS              = "nis";

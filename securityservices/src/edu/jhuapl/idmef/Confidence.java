@@ -29,17 +29,18 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
 /**
+ * <pre>
  * The Confidence class is used to represent the analyzer's best
  * estimate of the validity of its analysis.  It is represented in the
  * XML DTD as follows:
- *
- *    <!ENTITY % attvals.rating               "
+ * 
+ *     &lt!ENTITY % attvals.rating               "
  *         ( low | medium | high | numeric )
- *       ">
- *     <!ELEMENT Confidence (#PCDATA | EMPTY)* >
- *     <!ATTLIST Confidence
+ *     "&gt
+ *     &lt!ELEMENT Confidence (#PCDATA | EMPTY)* &gt
+ *     &lt!ATTLIST Confidence
  *         rating              %attvals.rating;        'numeric'
- *       >
+ *     &gt
  *
  *  The Confidence class has one attribute:
  *
@@ -49,13 +50,13 @@ import org.w3c.dom.NamedNodeMap;
  *
  *     Rank   Keyword            Description
  *     ----   -------            -----------
- *       0    low                The analyzer has little confidence in
+ *       0    LOW                The analyzer has little confidence in
  *                               its validity
- *       1    medium             The analyzer has average confidence in
+ *       1    MEDIUM             The analyzer has average confidence in
  *                               its validity
- *       2    high               The analyzer has high confidence in its
+ *       2    HIGH               The analyzer has high confidence in its
  *                               validity
- *       3    numeric            The analyzer has provided a posterior
+ *       3    NUMERIC            The analyzer has provided a posterior
  *                               probability value indicating its
  *                               confidence in its validity
  *
@@ -73,7 +74,7 @@ import org.w3c.dom.NamedNodeMap;
  *  inclusive. The number of digits should be limited to those
  *  representable by a single precision floating point value, and may be
  *  represented as described in Section 4.4.2.
- *
+ * <b>
  *  NOTE: It should be noted that different types of analyzers may
  *        compute confidence values in different ways and that in many
  *        cases, confidence values from different analyzers should not be
@@ -84,7 +85,8 @@ import org.w3c.dom.NamedNodeMap;
  *        event correlators) not to make comparisons or assumptions that
  *        cannot be supported by the system's knowledge of the
  *        environment in which it is working.
- * 
+ * </b>
+ * </pre>
  * @since IDMEF Message v1.0
  */
 public class Confidence implements XMLSerializable {

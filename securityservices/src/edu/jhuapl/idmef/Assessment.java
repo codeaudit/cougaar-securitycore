@@ -30,12 +30,13 @@ import org.w3c.dom.NodeList;
 
 
 /**
+ * <pre>
  *  The Assessment class is used to provide the analyzer's assessment of
  *  an event -- its impact, actions taken in response, and confidence.
  *
  *  The Assessment class is composed of three aggregate classes, as shown
  *  in Figure below.
- *
+ *  
  *              +------------------+
  *              |   Assessment     |
  *              +------------------+       0..1 +------------+
@@ -48,7 +49,7 @@ import org.w3c.dom.NodeList;
  *              |                  |<>----------| Confidence |
  *              |                  |            +------------+
  *              +------------------+
- *
+ *  
  *  The aggregate classes that make up Assessment are:
  *
  *  Impact
@@ -62,7 +63,7 @@ import org.w3c.dom.NodeList;
  *  Confidence
  *      A measurement of the confidence the analyzer has in its evaluation
  *      of the event.
- *
+ * </pre>
  * @since IDMEF Message v1.0
  */
 public class Assessment implements XMLSerializable {

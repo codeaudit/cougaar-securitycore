@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
 
 /**
+ * <pre>
  *  The FileAccess class represents the access permissions on a file.
  *  The representation is intended to be usefule across operating
  *  systems.
@@ -69,10 +70,9 @@ import org.w3c.dom.NamedNodeMap;
  *
  *  This is represented in the XML DTD as follows:
  *
- *     <!ELEMENT FileAccess                    (
- *         UserId, permission+
- *       )>
+ *     &lt!ELEMENT FileAccess ( UserId, permission+ )&gt
  *
+ * </pre>
  * @since IDMEF Message v1.0
  */
 public class FileAccess implements XMLSerializable {

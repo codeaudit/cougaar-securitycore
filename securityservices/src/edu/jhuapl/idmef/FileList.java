@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
+ * <pre>
  * The FileList class describes files and other file-like objects on
  *  targets.  It is primarily used as a "container" class for the File
  *  aggregate class, as shown in Figure 5.21.
@@ -50,10 +51,9 @@ import org.w3c.dom.NodeList;
  *
  *  This is represented in the XML DTD as follows:
  *
- *     <!ELEMENT FileList                      (
- *         File+
- *       )>
+ *     &lt!ELEMENT FileList ( File+ )&gt
  *
+ * </pre>
  * @since IDMEF Message v1.0
  */
 public class FileList implements XMLSerializable {

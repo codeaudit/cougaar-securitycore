@@ -27,25 +27,26 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
 /**
+ * <pre>
  * The Impact class is used to provide the analyzer's assessment of the
  * impact of the event on the target(s).  It is represented in the XML
  *  DTD as follows:
  *
- *     <!ENTITY % attvals.severity             "
+ *     &lt!ENTITY % attvals.severity             "
  *         ( low | medium | high )
- *       ">
- *     <!ENTITY % attvals.completion           "
+ *     "&gt
+ *     &lt!ENTITY % attvals.completion           "
  *         ( failed | succeeded )
- *       ">
- *     <!ENTITY % attvals.impacttype           "
+ *     "&gt
+ *     &lt!ENTITY % attvals.impacttype           "
  *         ( admin | dos | file | recon | user | other )
- *       ">
- *     <!ELEMENT Impact     (#PCDATA | EMPTY)* >
- *     <!ATTLIST Impact
+ *     "&gt
+ *     &lt!ELEMENT Impact     (#PCDATA | EMPTY)* &gt
+ *     &lt!ATTLIST Impact
  *         severity            %attvals.severity;      #IMPLIED
  *         completion          %attvals.completion;    #IMPLIED
  *         type                %attvals.impacttype;    'other'
- *       >
+ *     &gt
  *
  * The Impact class has three attributes:
  *
@@ -92,7 +93,7 @@ import org.w3c.dom.NamedNodeMap;
  * All three attributes are optional.  The element itself may be empty,
  * or may contain a textual description of the impact, if the analyzer
  * is able to provide additional details.
- *
+ * </pre>
  * @since IDMEF Message v1.0
  */
 public class Impact implements XMLSerializable {

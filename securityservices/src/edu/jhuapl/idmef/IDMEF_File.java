@@ -33,6 +33,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
 
 /**
+ * <pre>
  * The File class provides specific information about a file or other
  *  file-like object that has been created, deleted, or modified on the
  *  target.  More than one File can be used within the FileList class to
@@ -133,18 +134,18 @@ import org.w3c.dom.NamedNodeMap;
  *
  *  This is represented in the XML DTD as follows:
  *
- *     <!ENTITY % attvals.filecat              "
+ *     &lt!ENTITY % attvals.filecat              "
  *         ( current | original )
- *       ">
- *     <!ELEMENT File                          (
+ *     "&gt
+ *     &lt!ELEMENT File                          (
  *         name, path, create-time?, modify-time?, access-time?,
  *         data-size?, disk-size?, FileAccess*, Linkage*, Inode?
- *       )>
- *     <!ATTLIST File
+ *     )&gt
+ *     &lt!ATTLIST File
  *         ident               CDATA                   '0'
  *         category            %attvals.filecat;       #REQUIRED
  *         fstype              CDATA                   #REQUIRED
- *       >
+ *     &gt
  *       
  *  The File class has three attributes:
  *
@@ -168,7 +169,7 @@ import org.w3c.dom.NamedNodeMap;
  *     "nfs", "afs", "ntfs", "fat16", "fat32", "pcfs", "joliet", "cdfs",
  *     etc.  This attribute governs how path names and other attributes
  *     are interpreted.
- *
+ * </pre>
  * @since IDMEF Message v1.0
  */
 public class IDMEF_File implements XMLSerializable {

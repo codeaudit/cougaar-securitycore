@@ -36,6 +36,7 @@ package edu.jhuapl.idmef;
 import java.util.*;
 import java.text.*;
 import java.io.*;
+import java.lang.reflect.Constructor;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
@@ -59,9 +60,10 @@ public class AdditionalData implements XMLSerializable{
     //element data
 
     protected String additionalData;
-
+    protected XMLSerializable xmlData;
+    
     //constants
-
+    public static final String BOOLEAN = "boolean";
     public static final String BYTE = "byte";
     public static final String CHARACTER = "character";
     public static final String DATE_TIME = "date-time";
@@ -93,7 +95,12 @@ public class AdditionalData implements XMLSerializable{
     public void setAdditionalData(String inAdditionalData){
 	additionalData = inAdditionalData;
     }
-    
+    public XMLSerializable getXMLData(){
+      return xmlData;
+    }
+    public void setXMLData( XMLSerializable inXMLData ){
+      xmlData = inXMLData;
+    }
     /**Copies arguments into corresponding fields.
       */
     public AdditionalData(String inType, String inMeaning, 
@@ -110,6 +117,11 @@ public class AdditionalData implements XMLSerializable{
         }
     }
     
+    public AdditionalData( String inMeaning, XMLSerializable inXMLData ){
+      type = XML;
+      meaning = inMeaning;
+      xmlData = inXMLData; 
+    }
     /**Creates an object with all fields null.
      */
     public AdditionalData(){
@@ -134,8 +146,32 @@ public class AdditionalData implements XMLSerializable{
 	else meaning = null;
 
     if (type != null && type.equals(this.XML)){
-	    // read in xml tag additional data as a string
-	    additionalData = inNode.getFirstChild().toString();
+      try {
+        Node attr = null;
+        String className = null;
+        Node node = inNode.getFirstChild();
+        String nodeName = node.getNodeName();
+        NamedNodeMap attributes = node.getAttributes();
+        int size = attributes.getLength();
+        for( int i = 0; i < size; i++ ){
+          attr = attributes.item( i );
+          if( attr.getNodeName().endsWith( ":class" ) ){
+            // get the fully qualified class path
+            className = attr.getNodeValue();
+            break;
+          }
+        }
+        // get the Class instance for this objecd
+        Class idmefClass = Class.forName( className );
+        Class paramList[] = { Node.class };
+        Object params[] = { node };
+        Constructor constructor = idmefClass.getConstructor( paramList );
+        // initialize the xml serializable data
+        xmlData = (XMLSerializable)constructor.newInstance( params );
+      }
+      catch( Exception e ) {
+        e.printStackTrace();
+      }
     }
     else {
 	    additionalData = XMLUtils.getAssociatedString(inNode);
@@ -153,8 +189,9 @@ public class AdditionalData implements XMLSerializable{
 	if(meaning != null)
 	    additionalDataNode.setAttribute("meaning", meaning);
 
-    if( additionalData != null ){
-        if( type.equals( XML ) ){
+    
+        if( type != null && type.equals( XML ) ){
+            /*
             try{
                 // read the xml tag additional data 
                 InputStream stream = 
@@ -162,17 +199,22 @@ public class AdditionalData implements XMLSerializable{
                 Document doc = documentBuilder.parse( stream );
                 // get the document root from the complex xml data
                 Node node = doc.getFirstChild();
-                // import the node first before appending it to the additionalData nodeS
+                // import the node first before appending it to the additionalData node
                 additionalDataNode.appendChild( parent.importNode( node, true ) );
             }
             catch( Exception e ){
                 e.printStackTrace();
             }
+            */
+            if( xmlData != null )
+              additionalDataNode.appendChild( xmlData.convertToXML( parent ) );
         }
         else{
-	        additionalDataNode.appendChild( parent.createTextNode( additionalData ) );
+          if( additionalData != null ){
+	          additionalDataNode.appendChild( parent.createTextNode( additionalData ) );
+          }
         }
-    }
+   
     
 	return additionalDataNode;
     }

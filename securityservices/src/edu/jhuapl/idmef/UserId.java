@@ -67,6 +67,7 @@ public class UserId implements XMLSerializable{
     public static final String USER_PRIVS          = "user-privs";
     public static final String CURRENT_GROUP       = "current-group";
     public static final String GROUP_PRIVS         = "group-privs";
+    public static final String OTHER_PRIVS         = "other-privs";
 
     //getters and setters
 

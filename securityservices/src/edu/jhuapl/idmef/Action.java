@@ -27,19 +27,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
 /**
+ * <pre>
  * The Action class is used to describe any actions taken by the
  * analyzer in response to the event.  Is is represented in the XML DTD
  * as follows:
- *
- *    <!ENTITY % attvals.actioncat            "
+ * 
+ *    &lt!ENTITY % attvals.actioncat            "
  *        ( block-installed | notification-sent | taken-offline |
  *          other )
- *      ">
- *    <!ELEMENT Action     (#PCDATA | EMPTY)* >
- *    <!ATTLIST Action
+ *    "&gt
+ *    &lt!ELEMENT Action     (#PCDATA | EMPTY)* &gt
+ *    &lt!ATTLIST Action
  *        category            %attvals.actioncat;     'other'
- *      >
- *
+ *    &gt
+ * 
  * Action has one attribute:
  * 
  * category
@@ -48,24 +49,23 @@ import org.w3c.dom.NamedNodeMap;
  *
  *    Rank   Keyword            Description
  *    ----   -------            -----------
- *     0    block-installed    A block of some sort was installed to
+ *     0    BLOCK_INSTALLED    A block of some sort was installed to
  *                             prevent an attack from reaching its
  *                             destination.  The block could be a port
  *                             block, address block, etc., or disabling
  *                             a user account.
- *     1    notification-sent  A notification message of some sort was
+ *     1    NOTIFICATION_SENT  A notification message of some sort was
  *                             sent out-of-band (via pager, e-mail,
  *                             etc.).  Does not include the
  *                             transmission of this alert.
- *     2    taken-offline      A system, computer, or user was taken
+ *     2    TAKEN_OFFLINE      A system, computer, or user was taken
  *                             offline, as when the computer is shut
- *                             down or a user is logged off.
- *     3    other              Anything not in one of the above
+ *          OTHER              Anything not in one of the above
  *                             categories.
  *
  * The element itself may be empty, or may contain a textual description
  * of the action, if the analyzer is able to provide additional details.
- *
+ * </pre> 
  * @since IDMEF Message v1.0
  */
 public class Action implements XMLSerializable {

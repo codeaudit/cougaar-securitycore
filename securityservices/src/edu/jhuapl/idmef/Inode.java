@@ -31,6 +31,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
+ * <pre>
  *  The Inode class is used to represent the additional information
  *  contained in a Unix file system i-node.
  *
@@ -90,11 +91,11 @@ import org.w3c.dom.Node;
  *
  *  This is represented in the XML DTD as follows:
  *
- *     <!ELEMENT Inode                         (
+ *     &lt!ELEMENT Inode                         (
  *         change-time?, (number, major-device, minor-device)?,
  *         (c-major-device, c-minor-device)?
- *       )>
- *
+ *     )&gt
+ * </pre>
  * @since IDMEF Message v1.0
  */
 public class Inode implements XMLSerializable {

@@ -57,32 +57,15 @@ public class Alert extends IDMEF_Message {
     protected CreateTime createTime;
     protected DetectTime detectTime;
     protected AnalyzerTime analyzerTime;
-    protected Source sources[];
-    protected Target targets[];
-    protected Classification classifications[];
     protected Assessment assessment;    // as of v1.0
-    protected AdditionalData additionalData[];
+    
+    protected Source []sources;
+    protected Target []targets;
+    protected Classification []classifications;
+    protected AdditionalData []additionalData;
     
     // attribute
     protected String ident;
-
-    // constants
-    // deprecated, not necessary as of v1.0
-    /*
-    public static final String UNKNOWN = "unknown";
-    public static final String BAD_UNKNOWN = "bad-unknown";
-    public static final String NOT_SUSPICIOUS = "not-suspicious";
-    public static final String ATTEMPTED_ADMIN = "attempted-admin";
-    public static final String SUCCESSFUL_ADMIN = "successful-admin";
-    public static final String ATTEMPTED_DOS = "attempted-dos";
-    public static final String SUCCESSFUL_DOS = "successful-dos";
-    public static final String ATTEMPTED_RECON = "attempted-recon";
-    public static final String SUCCESSFUL_RECON = "successful-recon";
-    public static final String SUCCESSFUL_RECON_LIMITED = "successful-recon-limited";
-    public static final String SUCCESSFUL_RECON_LARGESCALE = "successful-recon-largescale";
-    public static final String ATTEMPTED_USER = "attempted-user";
-    public static final String SUCCESSFUL_USER = "successful-user";
-    */
     
     //getters and setters
     public Analyzer getAnalyzer(){
@@ -119,14 +102,12 @@ public class Alert extends IDMEF_Message {
     public void setSources(Source[] inSources){
     	sources = inSources;
     }
-
     public Target[] getTargets(){
 	    return targets;
     }
     public void setTargets(Target[] inTargets){
 	    targets = inTargets;
     }
-
     public Classification[] getClassifications(){
 	    return classifications;
     }
@@ -143,7 +124,7 @@ public class Alert extends IDMEF_Message {
     public void setAssessment( Assessment inAssessment ) {
         assessment = inAssessment;
     }
-
+  
     public AdditionalData[] getAdditionalData(){
 	    return additionalData;
     }
@@ -158,9 +139,6 @@ public class Alert extends IDMEF_Message {
     	ident = inIdent;
     }
 
-    /**
-     * Copies arguments into corresponding fields.
-     */
     public Alert( Analyzer inAnalyzer, CreateTime ct, 
 		          DetectTime dt, AnalyzerTime at, Source[] inSources, 
 		          Target[] inTargets, Classification[] inClassifications, 
@@ -332,7 +310,6 @@ public class Alert extends IDMEF_Message {
 
     	return alertNode;
     }
-
 
     /** Method used to test this object...probably should not be called otherwise.
      */

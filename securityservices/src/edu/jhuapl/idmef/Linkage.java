@@ -29,6 +29,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NamedNodeMap;
 
 /**
+ * <pre>
  *  The Linkage class represents file system connections between the file
  *  described in the <File> element and other objects in the file system.
  *  For example, if the <File> element is a symbolic link or shortcut,
@@ -71,16 +72,16 @@ import org.w3c.dom.NamedNodeMap;
  *
  *  The is represented in the XML DTD as follows:
  *
- *     <!ENTITY % attvals.linkcat              "
+ *     &lt!ENTITY % attvals.linkcat              "
  *         ( hard-link | mount-point | reparse-point | shortcut |
  *           stream | symbolic-link )
- *       ">
- *     <!ELEMENT Linkage                       (
+ *     "&gt
+ *     &lt!ELEMENT Linkage                       (
  *         (name, path) | File
- *       )>
- *     <!ATTLIST Linkage
+ *     )&gt
+ *     &lt!ATTLIST Linkage
  *         category            %attvals.linkcat;       #REQUIRED
- *       >
+ *     &gt
  *
  *  The Linkage class has one attribute:
  *
@@ -110,7 +111,7 @@ import org.w3c.dom.NamedNodeMap;
  *                               extension of the main <File>.
  *       5    symbolic-link      The <name> element represents the file
  *                               to which the link points.
- *
+ * </pre>
  * @since IDMEF Message v1.0
  */
 public class Linkage implements XMLSerializable {
