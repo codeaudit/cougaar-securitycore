@@ -28,10 +28,13 @@ package org.cougaar.core.security.crypto.ldap;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.net.SocketException;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
+import javax.naming.CommunicationException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -64,6 +67,9 @@ public class LdapUserServiceImpl implements LdapUserService {
   public static final String PROP_UOC      = "userClass";
   public static final String PROP_ROC      = "roleClass";
   public static final String PROP_RATTR    = "roleAttr";
+  public static final String PROP_PWDATTR  = "passwordAttr";
+  public static final String PROP_AUTHATTR = "authFieldsAttr";
+  public static final String PROP_ETATTR   = "enableTimeAttr";
 
   protected InitialDirContext _context     = null;
   protected String            _url         = "ldap:///";
@@ -76,6 +82,11 @@ public class LdapUserServiceImpl implements LdapUserService {
   protected String[]          _uoc         = {"inetOrgPerson","cougaarAcct"};
   protected String[]          _roc         = {"organizationalRole"};
   protected String            _rattr       = "roleOccupant";
+  protected String            _passwordAttr= "userPassword";
+  protected String            _authAttr    = "cougaarAuthReq";
+  protected String            _enableAttr  = "cougaarAcctEnableTime";
+
+  private static final int MAX_RETRIES = 3;
 
   protected LdapUserServiceConfigurer _configurer;
 
@@ -171,26 +182,138 @@ public class LdapUserServiceImpl implements LdapUserService {
                          true /* dereference links in the directory */);
   }
 
+  private synchronized void checkContext() throws NamingException {
+    if (_context == null) {
+      Hashtable env = new Hashtable();
+      setLdapEnvironment(env);
+      _context = new InitialDirContext(env);
+    }
+  }
+
+  private synchronized void resetContext() {
+    _context = null;
+    Hashtable env = new Hashtable();
+    setLdapEnvironment(env);
+    try {
+      _context = new InitialDirContext(env);
+    } catch (NamingException e) {
+      System.out.println("LdapUserService: couldn't initialize connection to User LDAP database");
+      e.printStackTrace();
+    }
+  }
+
+  private void createUserBase() {
+    BasicAttributes attrs = new BasicAttributes();
+    attrs.put("objectClass","dcObject");
+    int commaIndex = _userBase.indexOf(",");
+    String dcComponent;
+    if (commaIndex != -1) {
+      dcComponent = _userBase.substring(0,commaIndex);
+    } else {
+      dcComponent = _userBase;
+    }
+    int equalIndex = dcComponent.indexOf("=");
+    if (equalIndex == -1) {
+      // real problem here!
+      throw new IllegalStateException("Can't create user base -- the user base specified (" + _userBase + ") is not a dcObject");
+    } 
+    dcComponent = dcComponent.substring(equalIndex + 1);
+
+    attrs.put("dc", dcComponent);
+    try {
+      _context.createSubcontext(_userBase, attrs);
+    } catch (NamingException ne) {
+      // ignore it... this is in the middle of another call, anyway
+    }
+  }
+
+  private void createRoleBase() {
+    BasicAttributes attrs = new BasicAttributes();
+    attrs.put("objectClass","dcObject");
+    int commaIndex = _roleBase.indexOf(",");
+    String dcComponent;
+    if (commaIndex != -1) {
+      dcComponent = _roleBase.substring(0,commaIndex);
+    } else {
+      dcComponent = _roleBase;
+    }
+    int equalIndex = dcComponent.indexOf("=");
+    if (equalIndex == -1) {
+      // real problem here!
+      throw new IllegalStateException("Can't create role base -- the role base specified (" + _roleBase + ") is not a dcObject");
+    } 
+    dcComponent = dcComponent.substring(equalIndex + 1);
+
+    attrs.put("dc", dcComponent);
+    try {
+      _context.createSubcontext(_roleBase, attrs);
+    } catch (NamingException ne) {
+      // ignore it... this is in the middle of another call, anyway
+    }
+  }
+
   public NamingEnumeration getUsers(String text, String field,
                                     int maxResults) throws NamingException {
-    return _context.search(_userBase,
-                           "(&(" + field + "=" + text + "),(objectClass=" +
-                           _uoc[0] + "))", 
-                           getControl(maxResults));
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        return _context.search(_userBase,
+                               "(&(" + field + "=" + text + "),(objectClass=" +
+                               _uoc[0] + "))", 
+                               getControl(maxResults));
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else if (ne instanceof NameNotFoundException) createUserBase();
+        else throw ne;
+      }
+    }
+    return null;  // it will never get here
   }
 
   public NamingEnumeration getUsers(String filter, int maxResults) throws NamingException {
-    return _context.search(_userBase, "(&(" + filter + "),(objectClass=" +
-                           _uoc[0] + "))",
-                           getControl(maxResults));
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        return _context.search(_userBase, "(&(" + filter + "),(objectClass=" +
+                               _uoc[0] + "))",
+                               getControl(maxResults));
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else if (ne instanceof NameNotFoundException) createUserBase();
+        else throw ne;
+      }
+    }
+    return null; // it will never get here
   }
 
   public Attributes        getUser(String uid) throws NamingException {
-    return _context.getAttributes(uid2dn(uid));
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        return _context.getAttributes(uid2dn(uid));
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else throw ne;
+      }
+    }
+    return null; // it will never get here
   }
 
   public void              editUser(String uid, ModificationItem[] mods) throws NamingException {
-    _context.modifyAttributes(uid2dn(uid), mods);
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        _context.modifyAttributes(uid2dn(uid), mods);
+        return;
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else throw ne;
+      }
+    }
   }
 
   public void              addUser(String uid, Attributes attrs)
@@ -200,7 +323,17 @@ public class LdapUserServiceImpl implements LdapUserService {
       oc.add(_uoc[i]);
     }
     attrs.put(oc);
-    _context.createSubcontext(uid2dn(uid), attrs);
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        _context.createSubcontext(uid2dn(uid), attrs);
+        return;
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else throw ne;
+      }
+    }
   }
 
   public void              deleteUser(String uid) throws NamingException {
@@ -217,69 +350,129 @@ public class LdapUserServiceImpl implements LdapUserService {
       String role = (String) i.next();
       unassign(uid, role);
     }
-    _context.destroySubcontext(uid2dn(uid));
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        _context.destroySubcontext(uid2dn(uid));
+        return;
+      } catch (NamingException nex) {
+        if (tryCount + 1 == MAX_RETRIES) throw nex;
+        if (nex instanceof CommunicationException) resetContext();
+        else throw nex;
+      }
+    }
   }
 
   public NamingEnumeration getRoles(String uid) 
     throws NamingException {
-    return _context.search(_roleBase,
-                           "(&(" + _rattr + "=" + uid2dn(uid) +
-                           "),(objectClass=" + _roc[0] + "))",
-                           getControl(0));
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        return _context.search(_roleBase,
+                               "(&(" + _rattr + "=" + uid2dn(uid) +
+                               "),(objectClass=" + _roc[0] + "))",
+                               getControl(0));
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else if (ne instanceof NameNotFoundException) createRoleBase();
+        else throw ne;
+      }
+    }
+    return null; // it will never get here
   }
 
   public NamingEnumeration getRoles(String searchText, String field, 
                                     int maxResults) 
     throws NamingException {
-    return _context.search(_roleBase,
-                           "(&(" + field + "=" + searchText +
-                           "),(objectClass=" + _roc[0] + "))", 
-                           getControl(maxResults));
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        return _context.search(_roleBase,
+                               "(&(" + field + "=" + searchText +
+                               "),(objectClass=" + _roc[0] + "))", 
+                               getControl(maxResults));
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else if (ne instanceof NameNotFoundException) createRoleBase();
+        else throw ne;
+      }
+    }
+    return null; // it will never get here
   }
 
   public NamingEnumeration getRoles(int maxResults) 
     throws NamingException {
-    return _context.search(_roleBase,
-                           "(objectClass=" + _roc[0] + ")",
-                           getControl(maxResults));
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        return _context.search(_roleBase,
+                               "(objectClass=" + _roc[0] + ")",
+                               getControl(maxResults));
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else if (ne instanceof NameNotFoundException) createRoleBase();
+        else throw ne;
+      }
+    }
+    return null; // it will never get here
   }
 
   public Attributes        getRole(String rid) 
     throws NamingException {
-    return _context.getAttributes(rid2dn(rid));
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        return _context.getAttributes(rid2dn(rid));
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else throw ne;
+      }
+    }
+    return null; // it will never get here
   }
 
   public void              assign(String uid, String rid) 
     throws NamingException {
     Attributes attrs = getRole(rid);
     String userDN = uid2dn(uid);
-    /* don't need to do this since roleOccupant is unsorted
-    Attribute  attr  = attrs.get(_rattr);
-    if (attr != null) {
-      NamingEnumeration ne = attr.getAll();
-      while (ne.hasMore()) {
-        String dn = ne.next().toString();
-        if (dn != null && dn.equals(userDN)) {
-          ne.close(); // abort, the user's already assigned
-          return;
-        }
-      }
-    }
-    */
-    // user's not there, so we should add her
+
     attrs = new BasicAttributes();
     attrs.put(_rattr, userDN);
-    _context.modifyAttributes(rid2dn(rid), _context.ADD_ATTRIBUTE, attrs);
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        _context.modifyAttributes(rid2dn(rid), _context.ADD_ATTRIBUTE, attrs);
+        return;
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else throw ne;
+      }
+    }
   }
 
   public void              unassign(String uid, String rid) 
     throws NamingException {
     BasicAttributes attrs = new BasicAttributes();
     attrs.put(_rattr, uid2dn(uid));
-    try {
-      _context.modifyAttributes(rid2dn(rid), _context.REMOVE_ATTRIBUTE, attrs);
-    } catch (AttributeModificationException ex) {
-      // probably wasn't there in the first place...
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        _context.modifyAttributes(rid2dn(rid), _context.REMOVE_ATTRIBUTE, 
+                                  attrs);
+        return;
+      } catch (AttributeModificationException ex) {
+        // probably wasn't there in the first place...
+        return;
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else throw ne;
+      }
     }
   }
 
@@ -290,7 +483,17 @@ public class LdapUserServiceImpl implements LdapUserService {
       oc.add(_roc[i]);
     }
     attrs.put(oc);
-    _context.createSubcontext(rid2dn(rid), attrs);
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        _context.createSubcontext(rid2dn(rid), attrs);
+        return;
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else throw ne;
+      }
+    }
   }
 
   public void              addRole(String rid, Attributes attrs) 
@@ -300,17 +503,71 @@ public class LdapUserServiceImpl implements LdapUserService {
       oc.add(_roc[i]);
     }
     attrs.put(oc);
-    _context.createSubcontext(rid2dn(rid), attrs);
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        _context.createSubcontext(rid2dn(rid), attrs);
+        return;
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else throw ne;
+      }
+    }
   }
 
   public void              editRole(String rid, ModificationItem[] mods)
     throws NamingException {
-    _context.modifyAttributes(rid2dn(rid), mods);
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        _context.modifyAttributes(rid2dn(rid), mods);
+        return;
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else throw ne;
+      }
+    }
   }
 
   public void              deleteRole(String rid) 
     throws NamingException {
-    _context.destroySubcontext(rid2dn(rid));
+    checkContext();
+    for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
+      try {
+        _context.destroySubcontext(rid2dn(rid));
+        return;
+      } catch (NamingException ne) {
+        if (tryCount + 1 == MAX_RETRIES) throw ne;
+        if (ne instanceof CommunicationException) resetContext();
+        else throw ne;
+      }
+    }
+  }
+
+  public String  getPasswordAttribute() {
+    return _passwordAttr;
+  }
+
+  public String getUserRoleAttribute() {
+    return _rattr;
+  }
+
+  public String getAuthFieldsAttribute() {
+    return _authAttr;
+  }
+
+  public String getEnableTimeAttribute() {
+    return _enableAttr;
+  }
+
+  public String getUserIDAttribute() {
+    return _urdn;
+  }
+
+  public String getRoleIDAttribute() {
+    return _rrdn;
   }
 
   public class LdapUserServiceConfigurer 
@@ -402,6 +659,12 @@ public class LdapUserServiceImpl implements LdapUserService {
           }
         } else if (PROP_RATTR.equals(name)) {
           _rattr = value;
+        } else if (PROP_PWDATTR.equals(name)) {
+          _passwordAttr = value;
+        } else if (PROP_AUTHATTR.equals(name)) {
+          _authAttr = value;
+        } else if (PROP_ETATTR.equals(name)) {
+          _enableAttr = value;
         } else {
           System.out.println("LdapUserServiceImpl: Don't know how to handle configuration parameter: " + name);
         }
@@ -415,14 +678,7 @@ public class LdapUserServiceImpl implements LdapUserService {
               // ignore -- it's gone, anyway
             }
           }
-          Hashtable env = new Hashtable();
-          setLdapEnvironment(env);
-          try {
-            _context = new InitialDirContext(env);
-          } catch (NamingException e) {
-            System.out.println("LdapUserService: couldn't initialize connection to User LDAP database");
-            e.printStackTrace();
-          }
+          resetContext();
         }
       }
     }

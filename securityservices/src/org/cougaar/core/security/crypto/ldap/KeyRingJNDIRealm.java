@@ -28,20 +28,31 @@ package org.cougaar.core.security.crypto.ldap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.TimeZone;
+import java.util.StringTokenizer;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+
+import java.security.Principal;
+import java.security.MessageDigest;
+import java.security.cert.X509Certificate;
+import java.security.NoSuchAlgorithmException;
+
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import java.security.cert.X509Certificate;
-import java.security.Principal;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
 import javax.naming.directory.SearchResult;
 
+import org.apache.catalina.Container;
 import org.apache.catalina.realm.RealmBase;
-import org.apache.catalina.realm.GenericPrincipal;
+import org.apache.catalina.core.ContainerBase;
+import org.cougaar.core.security.acl.auth.DualAuthenticator;
+
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
@@ -59,32 +70,27 @@ import org.cougaar.core.security.services.identity.IdentityDeniedException;
  * An example KeyRingJNDIRealm addition to server.xml:
  * <pre>
  *   &lt;Realm className="org.cougaar.security.crypto.ldap.KeyRingJNDIRealm" 
- *          roleName="cn"
- *          userPassword="userPassword"
  *          certComponent="CN"
  *          debug="-1" />
  * </pre>
  * <code>KeyRingJNDIRealm</code> uses the <code>LdapUserService</code>
- * for access to the LDAP database so only the roleName and userPassword
- * attributes need to be set.
- *
- * Additionally, if a client certificate is used for gathering role
- * information the subject's distinguished name will replace the user
- * distinguished name in the roleSearch. In case only a single
- * portion of the subject's dn is to be used, set the 
- * <code>certComponent</code> attribute to the component that is to be
- * used (e.g. "CN").
+ * for access to the LDAP database. In order to convert certificate
+ * subject DN's to LDAP DN's, the component used to distinguish the
+ * user must be pulled from the Certificate. The component to use should be
+ * specified in the certComponent attribute. The default is "CN".
  *
  * @see org.apache.catalina.realm.JNDIRealm
  * @see SecureJNDIRealm
  * @author George Mount <gmount@nai.com>
  */
 public class KeyRingJNDIRealm extends RealmBase {
-  private static ServiceBroker _nodeServiceBroker;
+  private static ServiceBroker    _nodeServiceBroker;
+  private static final DateFormat LDAP_TIME =
+    new SimpleDateFormat("yyyyMMddHHmmss'Z'");
+  private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
   private LdapUserService _userService;
-  private String          _certComponent;
-  private String          _passwordAttr;
-  private String          _roleAttr;
+  private String          _certComponent = "CN";
+  private static String   _realmName = "Cougaar";
 
   /** 
    * Default constructor. Uses <code>LdapUserService</code>
@@ -125,36 +131,6 @@ public class KeyRingJNDIRealm extends RealmBase {
   }
 
   /**
-   * Returns the attribute to use for password comparison. The
-   * default is "userPassword"
-   */
-  public String getUserPassword() {
-    return _passwordAttr;
-  }
-
-  /**
-   * Sets the attribute to use for password comparison.
-   */
-  public void setUserPassword(String passwordAttribute) {
-    _passwordAttr = passwordAttribute;
-  }
-
-  /**
-   * Returns the attribute to use as the role name. The
-   * default is "cn"
-   */
-  public String getRoleName() {
-    return _roleAttr;
-  }
-
-  /**
-   * Sets the attribute to use for the role name
-   */
-  public void setRoleName(String roleAttribute) {
-    _roleAttr = roleAttribute;
-  }
-
-  /**
    * Returns the certificate subject's component to be used in
    * case the subject is not to be used. Returns <code>null</code> if
    * the full dn is to be used.
@@ -167,15 +143,15 @@ public class KeyRingJNDIRealm extends RealmBase {
    * Set the certificate subject's domain component to be used in
    * case the subject is not to be used. 
    *
-   * certComponent can be
-   * <code>null</code> or empty string to use the full subject dn.
+   * certComponent cannot be
+   * <code>null</code> or empty string.
    *
    * @param certComponent The attribute from the certificate
    *                      subject DN to use as the user id.
    */
   public void setCertComponent(String certComponent) {
     if (certComponent != null && certComponent.length() == 0) {
-      certComponent = null;
+      throw new IllegalArgumentException("certComponent may not be null or empty string");
     }
     _certComponent = certComponent;
   }
@@ -187,14 +163,23 @@ public class KeyRingJNDIRealm extends RealmBase {
    * @param username The user id of the user
    * @param credentials The given authentication credentials (password)
    *                    to check against the password
-   * @return A <code>GenericPrincipal</code> representing the user
+   * @return A <code>CougaarPrincipal</code> representing the user
    * if the credentials match the database or <code>null</code> otherwise.
    */
   public Principal authenticate(String username, String credentials) {
-    if (!passwordOk(username, credentials)) {
+//     System.out.println("Authenticating " + username + " with " + credentials);
+    if (username == null || credentials == null) {
       return null;
     }
-    return getPrincipal(username);
+    try {
+      Attributes attrs = _userService.getUser(username);
+      if (!passwordOk(username, credentials, attrs)) {
+        return null;
+      }
+      return getPrincipal(attrs);
+    } catch (NamingException e) {
+      return null;
+    }
   }
 
   /**
@@ -223,15 +208,98 @@ public class KeyRingJNDIRealm extends RealmBase {
 
     String user = certs[0].getSubjectDN().getName();
 
-    if (_certComponent != null) {
-      user = getUserName(user);
-      if (user == null) {
-        // certificate is bad, bad, bad!
+    user = getUserName(user);
+    if (user == null) {
+      // certificate is bad, bad, bad!
+      return null;
+    }
+
+    try {
+//       System.out.println("Getting attributes for user: " + user);
+      Attributes attrs = _userService.getUser(user);
+      if (attrs == null) {
+        return null; // user isn't in the database
+      }
+      if (!userDisabled(attrs)) {
+        return getPrincipal(attrs);
+      }
+    } catch (NamingException ne) {
+      ne.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+     * Return the Principal associated with the specified username, which
+     * matches the digest calculated using the given parameters using the
+     * method described in RFC 2069; otherwise return <code>null</code>.
+     *
+     * @param username Username of the Principal to look up
+     * @param clientDigest Digest which has been submitted by the client
+     * @param nOnce Unique (or supposedly unique) token which has been used
+     * for this request
+     * @param realm Realm name
+     * @param md5a2 Second MD5 digest used to calculate the digest :
+     * MD5(Method + ":" + uri)
+   */
+  public Principal authenticate(String username, String clientDigest,
+                                String nOnce, String nc, String cnonce,
+                                String qop, String realm,
+                                String md5a2) {
+    /*
+      System.out.println("Digest : " + clientDigest);
+      
+      System.out.println("************ Digest info");
+      System.out.println("Username:" + username);
+      System.out.println("ClientSigest:" + clientDigest);
+      System.out.println("nOnce:" + nOnce);
+      System.out.println("nc:" + nc);
+      System.out.println("cnonce:" + cnonce);
+      System.out.println("qop:" + qop);
+      System.out.println("realm:" + realm);
+      System.out.println("md5a2:" + md5a2);
+    */
+    try {
+      Attributes userAttrs = _userService.getUser(username);
+      Attribute pwdAttr = userAttrs.get(_userService.getPasswordAttribute());
+      if (pwdAttr == null || pwdAttr.size() == 0) {
+//         System.out.println("Password attribute: " + pwdAttr);
         return null;
       }
-    }
+      String md5a1;
+      Object pwdVal = pwdAttr.get();
+      if (pwdVal instanceof byte[]) {
+        md5a1 = new String((byte[]) pwdVal);
+      } else {
+        md5a1 = pwdVal.toString();
+      }
+//       System.out.println("md5a1 = " + md5a1);
+      if (md5a1 == null)
+        return null;
+      String serverDigestValue = md5a1 + ":" + nOnce + ":" + nc + ":"
+        + cnonce + ":" + qop + ":" + md5a2;
+      String serverDigest = this.md5Encoder.
+        encode(md5Helper.digest(serverDigestValue.getBytes()));
+//       System.out.println("Server digest : " + serverDigest);
       
-    return getPrincipal(user);
+      if (serverDigest.equals(clientDigest))
+        return getPrincipal(userAttrs);
+    } catch (NamingException ne) {
+      ne.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Returns a message digest associated with the given principal's
+   * user name and password.
+   */
+  public static String encryptPassword(String username, String pwd) {
+    String digestValue = username + ":" + _realmName + ":" + pwd;
+//     System.out.println("Getting password digest for " + digestValue);
+    byte[] digest =
+      md5Helper.digest(digestValue.getBytes());
+    return md5Encoder.encode(digest);
   }
 
   /**
@@ -254,31 +322,49 @@ public class KeyRingJNDIRealm extends RealmBase {
   }
 
   /**
-   * Creates a principal with associated roles based off of the
-   * user name given
+   * Returns <code>null</code> always. 
    *
-   * @param username The user to establish as the Principal
-   * @return A <code>GenericPrincipal</code> associated with the
-   * user, having the roles assigned to that user.
+   * This is not used.
    */
   protected Principal getPrincipal(String username) {
-//     System.out.println("getting principal for: " + username);
+    return null;
+  }
+
+  /**
+   * Creates a principal with associated roles based off of the
+   * LDAP user attributes.
+   *
+   * @param userAttr The user attributes returned from the database
+   * @return A <code>CougaarPrincipal</code> associated with the
+   * user, having the roles assigned to that user.
+   */
+  protected Principal getPrincipal(Attributes userAttr) {
     try {
+      String username = userAttr.get(_userService.getUserIDAttribute()).
+        get().toString();
+      Attribute authAttr = userAttr.get(_userService.getAuthFieldsAttribute());
+      String authFields = "EITHER";
+      if (authAttr != null) {
+        Object val = authAttr.get();
+        if (val != null) {
+          authFields = val.toString();
+        }
+      }
       NamingEnumeration ne = _userService.getRoles(username);
 //       System.out.println("Got roles for " + username);
       ArrayList roles = new ArrayList();
       while (ne.hasMore()) {
         SearchResult result = (SearchResult) ne.next();
         Attributes attrs = result.getAttributes();
-        String role = attrs.get(_roleAttr).get().toString();
+        String role = attrs.get(_userService.getRoleIDAttribute()).get().toString();
         roles.add(role);
 //         System.out.println("  role: " + role);
       }
-      return new GenericPrincipal(this, username, null, roles);
+      return new CougaarPrincipal(this, username, roles, authFields);
     } catch (NamingException e) {
 //       System.out.println("Caught exception: ");
-//       e.printStackTrace();
-      return new GenericPrincipal(this, username, null);
+      e.printStackTrace();
+      return null;
     }
   }
 
@@ -295,36 +381,78 @@ public class KeyRingJNDIRealm extends RealmBase {
    * Returns true if the given user/password match the database.
    * Also logs failures to M&R.
    */
-  protected boolean passwordOk(String user, String password) {
+  protected boolean passwordOk(String username,  String password, 
+                               Attributes attrs)
+    throws NamingException {
     boolean match = false;
-    try {
-      Attributes attrs = _userService.getUser(user);
-      if (attrs == null) return false;
+    if (attrs == null) return false;
 
-      Attribute  attr  = attrs.get(_passwordAttr);
-      if (attr == null) return false;
-
-      Object     attrVal = attr.get();
-      if (attrVal == null) return false;
-
-      String passwordCheck;
-      if (attrVal instanceof byte[]) {
-        passwordCheck = new String((byte[]) attrVal);
-      } else {
-        passwordCheck = attrVal.toString();
-      }
-
-      if (hasMessageDigest()) {
-        match = digest(password).equalsIgnoreCase(passwordCheck);
-      } else {
-        match = digest(password).equals(passwordCheck);
-      }
-
-      // in the future log a password match failure in a finally block
-      return match;
-    } catch (NamingException e) {
+    if (userDisabled(attrs)) {
+//       System.out.println("Password login isn't ok.");
       return false;
     }
+    Attribute  attr  = attrs.get(_userService.getPasswordAttribute());
+//     System.out.println("attr = " + attr);
+    if (attr == null || attr.size() < 1) return false;
+
+    Object     attrVal = attr.get();
+//     System.out.println("attrVal = " + attrVal);
+    if (attrVal == null) return false;
+
+    String passwordCheck;
+    if (attrVal instanceof byte[]) {
+      passwordCheck = new String((byte[]) attrVal);
+    } else {
+      passwordCheck = attrVal.toString();
+    }
+
+    password = encryptPassword(username, password);
+    if (hasMessageDigest()) {
+      match = digest(password).equalsIgnoreCase(passwordCheck);
+    } else {
+      match = digest(password).equals(passwordCheck);
+    }
+
+    // in the future log a password match failure in a finally block
+    return match;
+  }
+
+  /**
+   * Returns true if the user account has been disabled
+   */
+  private boolean userDisabled(Attributes attrs) throws NamingException {
+    Attribute attr = attrs.get(_userService.getEnableTimeAttribute());
+    if (attr != null) {
+      Object attrVal = attr.get();
+      if (attrVal != null) {
+        String val = attrVal.toString();
+        Calendar now = Calendar.getInstance(GMT);
+        String nowStr = LDAP_TIME.format(now.getTime());
+        if (nowStr.compareToIgnoreCase(val) >= 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Converts a certificate subject DN to an LDAP DN.
+   */
+  static String certSubjectToLdapDN(String certDN) {
+    StringBuffer dn = new StringBuffer();
+    StringTokenizer tok = new StringTokenizer(certDN,"/");
+    boolean first = true;
+    
+    while (tok.hasMoreTokens()) {
+      if (first) {
+        first = false;
+      } else {
+        dn.append(',');
+      }
+      dn.append(tok.nextToken());
+    }
+    return dn.toString();
   }
 
   /**
@@ -333,5 +461,42 @@ public class KeyRingJNDIRealm extends RealmBase {
    */
   public String getName() {
     return "KeyRing JNDI Realm";
+  }
+
+  /**
+   * Set the Container with which this Realm has been associated.
+   *
+   * @param container The associated Container
+   */
+  public void setContainer(Container container) {
+    super.setContainer(container);
+    DualAuthenticator daValve = findDAValve(container);
+    if (daValve != null) {
+      _realmName = daValve.getRealmName();
+    }
+  }
+
+  private DualAuthenticator findDAValve(Container container) {
+    Container[] children = container.findChildren();
+    for (int i = 0; i < children.length; i++) {
+      if (children[i] instanceof DualAuthenticator) {
+        return (DualAuthenticator) children[i];
+      }
+      DualAuthenticator da = findDAValve(children[i]);
+      if (da != null) {
+        return da;
+      }
+    }
+    return null;
+  }
+
+  static {
+    if (md5Helper == null) {
+      try {
+        md5Helper = MessageDigest.getInstance("MD5");
+      } catch (NoSuchAlgorithmException e) {
+        e.printStackTrace();
+      }
+    }
   }
 }
