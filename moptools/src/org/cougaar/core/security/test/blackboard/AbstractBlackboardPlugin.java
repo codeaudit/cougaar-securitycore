@@ -109,47 +109,53 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
   /** Subscription to blackboard test tasks */
   protected IncrementalSubscription testingSubscription;
   protected UnaryPredicate testingPredicate = new UnaryPredicate() {
-      public boolean execute(Object o) {
-        if (o instanceof Task) {
-          Task t = (Task) o;
-          return t.getVerb().toString().equals(BlackboardTestManagerServlet.VERB);
+    public boolean execute(Object o) {
+      if (o instanceof Task) {
+        Task t = (Task) o;
+        return t.getVerb().toString().equals(BlackboardTestManagerServlet.VERB);
 
-        }
-
-        return false;
       }
-    };
 
- protected PlanningFactory getPlanningFactory(){
- 	return (PlanningFactory)domainService.getFactory("planning");
- }
+      return false;
+    }
+  };
 
   /** Predicate for operating mode */
   protected UnaryPredicate operatingModePredicate = new UnaryPredicate() {
-      public boolean execute(Object o) {
-        if (o instanceof OperatingMode) {
-          OperatingMode m = (OperatingMode) o;
-          if (m.getName() != null) {
-            return m.getName().equals(BlackboardOMTestPlugin.BLACKBOARD_TEST_OM);
-          }
+    public boolean execute(Object o) {
+      if (o instanceof OperatingMode) {
+        OperatingMode m = (OperatingMode) o;
+        if (m.getName() != null) {
+          return m.getName().equals(BlackboardOMTestPlugin.BLACKBOARD_TEST_OM);
         }
-
-        return false;
-
       }
-    };
+
+      return false;
+
+    }
+  };
 
   /** Predicate for OrgActivity objects */
   protected UnaryPredicate orgActivityPredicate = new UnaryPredicate() {
-      public boolean execute(Object o) {
-        return o instanceof OrgActivity;
-      }
-    };
+    public boolean execute(Object o) {
+      return o instanceof OrgActivity;
+    }
+  };
 
   /** Time interval between blackboard queries for org activity */
   protected long timeInterval = 0;
   /** Default polling interval for org activities */
   protected final long DEFAULT_TIME_INTERVAL = 10000;
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @return DOCUMENT ME!
+   */
+  protected PlanningFactory getPlanningFactory() {
+    return (PlanningFactory) domainService.getFactory("planning");
+  }
+
 
   /**
    * Setup logging service
@@ -176,7 +182,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
    */
   public void dumpResults() {
     if (logging.isDebugEnabled()) {
-      logging.debug("Dumping test results to database");
+      logging.debug("Dumping test results to database for " + pluginName);
     }
 
     dumpCSVResults();
@@ -198,19 +204,14 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
 
   private void dumpCSVResults() {
+    String filename = dumpDir + File.separator + expName + "-" + getAgentIdentifier().toAddress() + "-" + pluginName + ".csv";
     try {
-      String filename = dumpDir + File.separator + expName + "-"
-        + getAgentIdentifier().toAddress() + "-" + pluginName + ".csv";
       File file = new File(filename);
       FileWriter writer = new FileWriter(file);
-      writer.write(
-        "Experiment Name, Start Time, End Time, Successes, Failures, Total Tries, Agent Name, Plugin name");
+      writer.write("Experiment Name, Start Time, End Time, Successes, Failures, Total Tries, Agent Name, Plugin name");
 
       writer.write("\n");
-      writer.write(expName + "," + startTime.toString() + ","
-        + endTime.toString() + "," + successes + "," + failures + ","
-        + totalRuns + "," + this.getAgentIdentifier().getAddress() + ","
-        + pluginName);
+      writer.write(expName + "," + startTime.toString() + "," + endTime.toString() + "," + successes + "," + failures + "," + totalRuns + "," + this.getAgentIdentifier().getAddress() + "," + pluginName);
 
 
       writer.close();
@@ -218,7 +219,8 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
     } catch (Exception e) {
       if (logging.isErrorEnabled()) {
-        logging.error("error dumping test results to csv file", e);
+        logging.error("error dumping test results to csv file: " + filename, e);
+
       }
     }
   }
@@ -226,8 +228,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
   private void dumpHTMLResults() {
     try {
-      String filename = dumpDir + File.separator + expName + "-"
-        + getAgentIdentifier().toAddress() + "-" + pluginName + ".html";
+      String filename = dumpDir + File.separator + expName + "-" + getAgentIdentifier().toAddress() + "-" + pluginName + ".html";
       File file = new File(filename);
       FileWriter writer = new FileWriter(file);
       writer.write("<HTML><BODY><TABLE><TR>");
@@ -271,15 +272,13 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     Collection parameters = getParameters();
     Iterator iter = parameters.iterator();
 
-    dumpDir = System.getProperty("org.cougaar.workspace") + File.separator
-      + "security" + File.separator + "mopresults";
+    dumpDir = System.getProperty("org.cougaar.workspace") + File.separator + "security" + File.separator + "mopresults";
 
     while (iter.hasNext()) {
       try {
         String paramString = (String) iter.next();
         String param = paramString.substring(0, paramString.indexOf("="));
-        String value = paramString.substring(paramString.indexOf("=") + 1,
-            paramString.length());
+        String value = paramString.substring(paramString.indexOf("=") + 1, paramString.length());
         if (param.equals(TIME_INTERVAL_PLUGIN_PARAM)) {
           this.timeInterval = Long.parseLong(value);
         } else if (param.equals(ANALYZER_DATABASE_PLUGIN_PARAM)) {
@@ -295,8 +294,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
         }
       } catch (Exception nfe) {
         if (logging.isErrorEnabled()) {
-          logging.error(
-            "*****************************Invalid format of plugin parameter should be PARAM=VALUE");
+          logging.error("Invalid format of plugin parameter should be PARAM=VALUE");
 
         }
 
@@ -306,8 +304,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
     initAnalyzerDatabase();
     if (logging.isInfoEnabled()) {
-      logging.info("*****************************Query time period:"
-        + this.timeInterval);
+      logging.info("Query time period:" + this.timeInterval);
     }
   }
 
@@ -339,15 +336,11 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
    * Setup Plugin Subscriptions
    */
   public void setupSubscriptions() {
-    this.operatingModeSubscription = (IncrementalSubscription) getBlackboardService()
-                                                                 .subscribe(operatingModePredicate);
-    this.testingSubscription = (IncrementalSubscription) getBlackboardService()
-                                                           .subscribe(testingPredicate);
+    this.operatingModeSubscription = (IncrementalSubscription) getBlackboardService().subscribe(operatingModePredicate);
+    this.testingSubscription = (IncrementalSubscription) getBlackboardService().subscribe(testingPredicate);
 
     if (logging.isInfoEnabled()) {
-      logging.info(
-        "*****************************Done setting up subscriptions for "
-        + pluginName);
+      logging.info("Done setting up subscriptions for " + pluginName);
     }
   }
 
@@ -357,7 +350,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
    */
   public void execute() {
     if (logging.isInfoEnabled()) {
-      logging.info("*****************************" + pluginName + " executing");
+      logging.info(pluginName + " executing");
     }
 
     processOperatingMode();
@@ -392,8 +385,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
         timer.schedule(timerTask, this.timeInterval);
 
 
-        PlanningFactory pf = (PlanningFactory) domainService.getFactory(
-            "planning");
+        PlanningFactory pf = (PlanningFactory) domainService.getFactory("planning");
         NewTask newtask = pf.newTask();
         newtask.setVerb(Verb.getVerb(AnalyzerServlet.VERB));
         Vector phrases = new Vector();
@@ -429,6 +421,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
       } else if (status.equals(BlackboardTestManagerServlet.END_TESTING)) {
         this.stopTesting = true;
+        this.endTime = new Date();
         this.dumpResults();
       }
     }
@@ -462,40 +455,37 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     detectTime.setIdmefDate(new java.util.Date());
     CmrFactory cmrFactory = (CmrFactory) this.domainService.getFactory("cmr");
     ArrayList classifications = new ArrayList();
-    Classification c = (Classification) cmrFactory.getIdmefMessageFactory()
-                                                  .createClassification(classification,
-        null);
+    Classification c = (Classification) cmrFactory.getIdmefMessageFactory().createClassification(classification, null);
     classifications.add(c);
     Analyzer a = cmrFactory.getIdmefMessageFactory().createAnalyzer(new SensorInfo() {
-          public String getName() {
-            return sensorName;
-          }
+        public String getName() {
+          return sensorName;
+        }
 
 
-          public String getManufacturer() {
-            return "CSI";
-          }
+        public String getManufacturer() {
+          return "CSI";
+        }
 
 
-          public String getModel() {
-            return "BlackboardTool";
-          }
+        public String getModel() {
+          return "BlackboardTool";
+        }
 
 
-          public String getVersion() {
-            return "1.0";
-          }
+        public String getVersion() {
+          return "1.0";
+        }
 
 
-          public String getAnalyzerClass() {
-            return "BlackboardAccessControlPlugin";
-          }
-        });
+        public String getAnalyzerClass() {
+          return "BlackboardAccessControlPlugin";
+        }
+      });
 
-    Alert alert = cmrFactory.getIdmefMessageFactory().createAlert(a,
-        detectTime, null, null, classifications, null);
+    Alert alert = cmrFactory.getIdmefMessageFactory().createAlert(a, detectTime, null, null, classifications, null);
     if (logging.isInfoEnabled()) {
-      logging.info("*****************************Publishing IDMEF Event");
+      logging.info("Publishing IDMEF Event");
     }
 
     Event event = cmrFactory.newEvent(alert);

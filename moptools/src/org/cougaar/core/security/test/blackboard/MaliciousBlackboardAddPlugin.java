@@ -28,11 +28,13 @@
 package org.cougaar.core.security.test.blackboard;
 
 
+import java.util.Enumeration;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.util.UID;
+import org.cougaar.glm.ldm.oplan.OplanFactory;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Enumeration;
 
 
 /**
@@ -106,7 +108,7 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
    */
   protected void queryBlackboard() {
     //automatically increment success
-    OrgActivity orgActivity = (OrgActivity) getPlanningFactory().create(OrgActivity.class);
+    OrgActivity orgActivity = OplanFactory.newOrgActivity(pluginName,new UID(pluginName,3434343));
     orgActivity.setActivityName(MALCICOUS_ADD_ACTIVITY_NAME);
     getBlackboardService().publishAdd(orgActivity);
     this.successes++;

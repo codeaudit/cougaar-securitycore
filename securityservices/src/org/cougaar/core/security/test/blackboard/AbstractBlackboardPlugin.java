@@ -429,6 +429,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
       } else if (status.equals(BlackboardTestManagerServlet.END_TESTING)) {
         this.stopTesting = true;
+        this.endTime = new Date();
         this.dumpResults();
       }
     }

@@ -28,11 +28,12 @@
 package org.cougaar.core.security.test.blackboard;
 
 
+import java.util.Enumeration;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.util.UID;
+import org.cougaar.glm.ldm.oplan.OplanFactory;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
-
-import java.util.Enumeration;
 
 
 /**
@@ -103,7 +104,7 @@ public class LegitimateBlackboardAddPlugin extends AbstractBlackboardPlugin {
    * Add Org Activity
    */
   protected void queryBlackboard() {
-    OrgActivity orgActivity = (OrgActivity) getPlanningFactory().create(OrgActivity.class);
+	OrgActivity orgActivity = OplanFactory.newOrgActivity(pluginName,new UID(pluginName,3434343));
     this.actUID = orgActivity.getUID();
     getBlackboardService().publishAdd(orgActivity);
     this.successes++;

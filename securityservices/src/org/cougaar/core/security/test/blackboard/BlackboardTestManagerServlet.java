@@ -119,7 +119,7 @@ public class BlackboardTestManagerServlet extends BaseServletComponent
    */
   public String getBlackboardClientName() {
     // TODO Auto-generated method stub
-    return null;
+    return this.getClass().getName();
   }
 
 
