@@ -44,6 +44,8 @@ import org.cougaar.core.blackboard.*;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.SchedulerService;
 import org.cougaar.core.service.ServletService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.JaasClient;
@@ -56,7 +58,7 @@ public class PluginServiceFilter extends ServiceFilter {
   private static Hashtable _slTable = new Hashtable();
   // for servlet to SecurityServlet mapping
   private static Hashtable _servletTable = new Hashtable();
-  
+
   //  This method specifies the Binder to use (defined later)
   protected Class getBinderClass(Object child) {
     return PluginServiceFilterBinder.class;
@@ -319,16 +321,25 @@ public class PluginServiceFilter extends ServiceFilter {
   // requests.
   private static class BlackboardServiceProxy extends BlackboardServiceDelegate {
     private final Object client;
+    private Logger _log;
     public BlackboardServiceProxy(BlackboardService bs, Object client) {
       super(bs);
       this.client=client;
+      _log = LoggerFactory.getInstance().createLogger(this);
+      if (_log == null) {
+	throw new RuntimeException("Unable to get LoggingService");
+      }
     }
-    public Subscriber getSubscriber() { 
-      System.err.println("Warning: "+client+" is calling BlackboardService.getSubscriber()!");
+    public Subscriber getSubscriber() {
+      if (_log.isWarnEnabled()) {
+	_log.warn(client+" is calling BlackboardService.getSubscriber()!");
+      }
       return super.getSubscriber();
     }
     public Subscription subscribe(UnaryPredicate isMember) { 
-      System.err.println("BlackboardService.subscribe("+isMember+") called by: "+client);
+      if (_log.isWarnEnabled()) {
+	_log.warn("BlackboardService.subscribe("+isMember+") called by: "+client);
+      }
       return super.subscribe(isMember); 
     }
   }

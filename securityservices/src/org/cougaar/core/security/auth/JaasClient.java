@@ -36,21 +36,27 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.io.CharArrayWriter;
+import java.io.PrintWriter;
+
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class JaasClient {
-  private static int debug = 0;
   private ExecutionContext _context;
+  private static Logger _log;
   
-  static {
-    String s = System.getProperty("org.cougaar.core.security.jaasDebug");
-    if ("true".equals(s)) {
-      debug = 1;
+  public JaasClient() {
+    if (_log == null) {
+      _log = LoggerFactory.getInstance().createLogger(this);
+    }
+    if (_log == null) {
+      throw new RuntimeException("Unable to get LoggingService");
     }
   }
   
-  public JaasClient() {}
-  
   public JaasClient(ExecutionContext context) {
+    this();
     _context = context; 
   }
   
@@ -128,7 +134,7 @@ public class JaasClient {
       while (it.hasNext()) {
         Object p = it.next();
         if(!(p instanceof ExecutionPrincipal)) {
-	  System.out.println(p);
+	  _log.debug(p.toString());
         }
       }
     }
@@ -161,9 +167,9 @@ public class JaasClient {
       Principal p = null;
       while (it.hasNext()) {
 	p = (Principal) it.next();
-	if (debug > 0) {
-	  System.out.println("principal:" + p.getClass().getName()
-	    + " - " + p.toString());
+	if (_log.isDebugEnabled()) {
+	  _log.debug("principal:" + p.getClass().getName()
+		     + " - " + p.toString());
 	}
         // NOTE: This won't be the case going forward because this class is relocated
         //       to securityservice.jar
@@ -175,8 +181,8 @@ public class JaasClient {
 	*/
 
 	if(p instanceof ChainedPrincipal) {
-	  if (debug > 0) {
-	    System.out.println("Adding principals:" + p.toString());
+	  if (_log.isDebugEnabled()) {
+	    _log.debug("Adding principals:" + p.toString());
 	  }
           ChainedPrincipal oldCP = (ChainedPrincipal)p;
           cp.addChainedPrincipals(oldCP.getChain());
@@ -206,12 +212,12 @@ public class JaasClient {
       }
     }
     else {
-      if (debug > 0) {
-	System.out.println("No parent principal");
+      if (_log.isDebugEnabled()) {
+	_log.debug("No parent principal");
       }
     }
-    if (debug > 0) {
-      System.out.println("Adding new principal:" + newPrincipal.toString());
+    if (_log.isDebugEnabled()) {
+      _log.debug("Adding new principal:" + newPrincipal.toString());
     }
     cp.addPrincipal(newPrincipal);
     subject.getPrincipals().add(cp);
@@ -269,23 +275,25 @@ public class JaasClient {
   }
   
   private void printPrincipalsInSubject(Subject subj) {
-    System.out.print("Principals: ");
-    Iterator it = subj.getPrincipals().iterator(); 
-    while (it.hasNext()) 
-      System.out.print(it.next() + ". ");
-    try {
-      throw new Throwable();
+    if (_log.isDebugEnabled()) {
+      CharArrayWriter caw = new CharArrayWriter();
+      PrintWriter pw = new PrintWriter(caw);
+      pw.print("Principals: ");
+      Iterator it = subj.getPrincipals().iterator(); 
+      while (it.hasNext()) {
+	pw.print(it.next() + ". ");
+      }
+      Throwable t = new Throwable();
+      t.printStackTrace(pw);
+      pw.print("\nJaasClient. Calling doAs ");
+      _log.debug(caw.toString());
     }
-    catch (Throwable e) {
-      e.printStackTrace();
-    }
-    System.out.println("\nJaasClient. Calling doAs ");
   }
 
   private Object doAs(Subject subj, java.security.PrivilegedAction action, boolean displaySubject) {
     Object o = null;
 
-    if ((debug > 0) && displaySubject) {
+    if (_log.isDebugEnabled() && displaySubject) {
       printPrincipalsInSubject(subj);
     }
 
@@ -300,18 +308,19 @@ public class JaasClient {
      */
     o = Subject.doAs(subj, action);
 
-    if (debug > 0 && displaySubject) {
-      System.out.println("JaasClient. doAs done ");
+    if (_log.isDebugEnabled() && displaySubject) {
+      _log.debug("JaasClient. doAs done ");
     }
     return o;
   }
 
   private Object doAs(Subject subj,
-		     java.security.PrivilegedExceptionAction action, boolean displaySubject)
+		      java.security.PrivilegedExceptionAction action,
+		      boolean displaySubject)
     throws Exception {
     Object o = null;
 
-    if ((debug > 0) && displaySubject) {
+    if (_log.isDebugEnabled() && displaySubject) {
       printPrincipalsInSubject(subj);
     }
     
@@ -326,8 +335,8 @@ public class JaasClient {
      */
     o = Subject.doAs(subj, action);
 
-    if ((debug > 0) && displaySubject) {
-      System.out.println("JaasClient. doAs done ");
+    if (_log.isDebugEnabled() && displaySubject) {
+      _log.debug("JaasClient. doAs done ");
     }
     return o;
   }

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -70,10 +70,10 @@ public class CaServletComponent
     /**
      * Set isCertAuth here, instead of loading it from cryptoClientPolicy
      */
-    ConfigParserService configParser = (ConfigParserService)
-      serviceBroker.getService(this,
-					    ConfigParserService.class,
-					    null);
+    //ConfigParserService configParser = (ConfigParserService)
+    //  serviceBroker.getService(this,
+    //		       ConfigParserService.class,
+    //		       null);
     //SecurityPolicy[] sp =
     //  configParser.getSecurityPolicies(CryptoClientPolicy.class);
     //CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];

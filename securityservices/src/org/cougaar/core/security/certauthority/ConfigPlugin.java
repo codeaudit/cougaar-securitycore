@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -162,12 +162,16 @@ public class ConfigPlugin
 
   public void setParameter(Object o) {
     //Collection l = getParameters();
+    if (log == null) {
+      log = (LoggingService) _sb.getService(this, LoggingService.class, null);
+    }
+
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List argument to setParameter");
     }
     List l = (List) o;
     if (l.size() == 0 || l.size() > 3) {
-      System.out.println("Incorrect number of parameters. Format (caDN, ldapURL, [caURL])");
+      log.warn("Incorrect number of parameters. Format (caDN, ldapURL, [caURL])");
     }
     Iterator it = l.iterator();
 
@@ -365,7 +369,7 @@ public class ConfigPlugin
     // with the default parameter (is not CA)
 
     if (caDN == null || ldapURL == null) {
-      System.out.println("Cannot auto start CA, DN or LDAP has not been set.");
+      log.warn("Cannot auto start CA, DN or LDAP has not been set.");
       return;
 
       /*
@@ -397,8 +401,7 @@ public class ConfigPlugin
       agentIdentity.acquire(null);
     }
     catch (Exception e) {
-      System.out.println("Unable to generate CA key: " + e);
-      e.printStackTrace();
+      log.warn("Unable to generate CA key: ", e);
       return;
     }
 
