@@ -56,7 +56,9 @@ public final class UserPasswordAuthenticator extends Authenticator
    * return this for any criteria
    */
   public void setPasswordAuthentication(PasswordAuthentication pa) {
-    _pa = pa;
+    synchronized (obj) {
+      _pa = pa;
+    }
   }
 
   /**
@@ -77,10 +79,22 @@ public final class UserPasswordAuthenticator extends Authenticator
   }
   */
 
+  private Object obj = new Object();
+  private Thread curThread = null;
   public PasswordAuthentication getPasswordAuthentication() {
-    //if (_pa == null && handler != null && trial < 3) {
-    if (handler != null) {
-      try {
+    System.out.println("getPassword");
+    PasswordAuthentication tempPwd;
+    synchronized (obj) {
+      tempPwd = _pa;
+    }
+    synchronized (this) {
+      if (_pa != null && (_pa != tempPwd || curThread != Thread.currentThread())) {
+	 curThread = Thread.currentThread();
+         return _pa;
+      }
+      //if (_pa == null && handler != null && trial < 3) {
+      if (handler != null) {
+        try {
       /*
         String url = "protocol: " + getRequestingProtocol() +
           " site: " + getRequestingSite() +
@@ -89,14 +103,15 @@ public final class UserPasswordAuthenticator extends Authenticator
           " prompt: " + getRequestingPrompt() +
           " scheme: " + getRequestingScheme();
           */
-        String url = getRequestingProtocol() + "://" + getRequestingHost()
-          + ":" + getRequestingPort() + "/";
+          String url = getRequestingProtocol() + "://" + getRequestingHost()
+            + ":" + getRequestingPort() + "/";
 
-    //System.out.println("getPassword: " + handler);
-        handler.setRequestingURL(url);
-        handler.authenticateUser(handler.getUserName());
-      } catch (Exception ex) {
-        ex.printStackTrace();
+          handler.setRequestingURL(url);
+          handler.authenticateUser(handler.getUserName());
+	  curThread = Thread.currentThread();
+        } catch (Exception ex) {
+          ex.printStackTrace();
+        }
       }
     }
 
