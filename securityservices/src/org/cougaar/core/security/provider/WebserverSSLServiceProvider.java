@@ -79,8 +79,7 @@ public class WebserverSSLServiceProvider
     }
     catch (Exception e) {
       if (log.isDebugEnabled())
-	e.printStackTrace();
-      log.debug("Failed to initialize WebserverSSLService!");
+        log.debug("Failed to initialize WebserverSSLService! " + e.toString());
     }
     return sslservice;
   }
