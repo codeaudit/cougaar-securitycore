@@ -69,7 +69,9 @@ $ant install
 
 echo "Zipping files to AS_csi_mop_secserv.zip"
 cd $COUGAAR_INSTALL_PATH
+
 zip -qr AS_csi_mop_secserv.zip \
+        csmart/acme_service/src/plugins/acme_security_reporting \
 	csmart/config/rules/security/mop \
 	csmart/config/rules/security/assessment \
 	csmart/config/lib/security/mop \

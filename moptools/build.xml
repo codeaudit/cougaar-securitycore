@@ -144,7 +144,15 @@
         <echo message="+++++ Installed signed jar files"/>
     </target>
 
-    <target name="install" depends="install-signed-jars">
+    <target name="install-reporting">
+      <mkdir dir="${cougaar.install.path}/csmart/acme_service/src/plugins/acme_security_reporting"/>
+      <copy
+         todir="${cougaar.install.path}/csmart/acme_service/src/plugins/acme_security_reporting">
+        <fileset dir="csmart/plugins/acme_security_reporting"/>
+      </copy>
+    </target>
+
+    <target name="install" depends="install-signed-jars, install-reporting">
         <echo message="+++++ Installed MOP tools"/>
     </target>
     
