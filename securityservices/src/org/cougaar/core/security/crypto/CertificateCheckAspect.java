@@ -147,7 +147,7 @@ public class CertificateCheckAspect
 	}
 
 	if (certsOriginator == null || certsOriginator.size() == 0) {
-	  _keyRing.findCertPairFromNS(targetAddress, targetAddress);
+	  _keyRing.findCertPairFromNS(originatorAddress, originatorAddress);
 	}
 	else {
 	  nbcertsOriginator = certsOriginator.size();
