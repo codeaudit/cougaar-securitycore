@@ -326,9 +326,11 @@ public abstract class SensorPlugin extends ComponentPlugin {
           m_log.error("Was interrupted while sleeping: " + ix);
           tryAgain = false;
         }
-      }
-    }
-  }
+      } // while(tryAgain)
+      // no longer need the community service util
+      m_csu.releaseServices();
+    } // public void run()
+  } // class RegistrationTask
   
  
   private static class RegistrationPredicate implements UnaryPredicate {

@@ -171,6 +171,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 
     myAddress = getAgentIdentifier();
     _csu = new CommunityServiceUtil(getServiceBroker());
+    mySecurityCommunity = getMySecurityCommunity();
+
     if (loggingService.isDebugEnabled()) {
       loggingService.debug("setupSubscriptions of CapabilitiesConsolidationPlugin called for "
           + myAddress.toAddress()); 
@@ -186,12 +188,10 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   
 
   public boolean setManagerAddress() {
-    mySecurityCommunity= getMySecurityCommunity();
-    loggingService.debug(" My security community :"+mySecurityCommunity +" agent name :"+myAddress.toString());  
-    if(mySecurityCommunity==null) {
-      loggingService.error("No Info about My SecurityCommunity. This plugin should be included in M&R managers only:"
-          +myAddress.toString());  
-      return true;
+    loggingService.debug(" My security community : " + mySecurityCommunity + " agent name : "+ myAddress.toString());  
+    if(mySecurityCommunity == null) {
+      loggingService.error("Agent '" + myAddress + "' does not belong to a security community.  This component should only be included in an M&R Security Manager agent");  
+      return false;
     }
     
     destcluster = _csu.findSecurityManager(myAddress.toString());
@@ -1188,7 +1188,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
           loggingService.error("Was interrupted while sleeping: " + ix);
           tryAgain = false;
         }
-      }
-    }
-  }
-}
+      } // while(tryAgain)
+      // no longer need the community service utility
+      _csu.releaseServices();
+    } // public void run()
+  } // class ManagerRegistrationTask
+} // class CapabilitiesConsolidationPlugin
