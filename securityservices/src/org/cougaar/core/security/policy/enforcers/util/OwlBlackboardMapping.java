@@ -64,7 +64,9 @@ public class OwlBlackboardMapping  {
   public void initialize()
   {
     try {
-      _log.debug("loading daml blackboard object mappings...");
+      if (_log.isDebugEnabled()) {
+        _log.debug("loading daml blackboard object mappings...");
+      }
       _objectMap = new StringPairMapping(_sb, "OwlMapBlackboardObjects")
                                                        .buildPairList();
     } catch (IOException e) {
@@ -76,7 +78,9 @@ public class OwlBlackboardMapping  {
   public String classToDAMLName(String classname)
   {
     try {
-      _log.debug("Converting " + classname + " to KAoS name");
+      if (_log.isDebugEnabled()) {
+        _log.debug("Converting " + classname + " to KAoS name");
+      }
       for (Iterator objectIt = _objectMap.iterator();
            objectIt.hasNext();) {
         StringPair pair = (StringPair) objectIt.next();

@@ -55,7 +55,9 @@ public class OwlServletMapping
   public void initializeUri()
   {
     try {
-      _log.debug("loading uri mappings...");
+      if (_log.isDebugEnabled()) {
+        _log.debug("loading uri mappings...");
+      }
       _uriMap = new RegexpStringMapping(_sb, "OwlMapUri");
     } catch (Exception e) {
       _log.error("Exception reading DAML <-> uri configuration file", e);
