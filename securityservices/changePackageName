@@ -1,8 +1,8 @@
 #!/bin/tcsh
 
 #Remove unecessary files
-find . -name '*~' -exec rm {} \;
-find . -name '.#*' -exec rm {} \;
+find . -name '*~' -exec rm -rf {} \;
+find . -name '.#*' -exec rm -rf {} \;
 rm -rf classes/*
 rm -rf test/doc/API/
 
@@ -20,13 +20,13 @@ find . -name 'Makefile*' -exec sarep 'com.nai.security' 'org.cougaar.core.securi
 
 echo  ############################################
 # Remove 'CVS' directory under src/com
-find src/com/ -name CVS -type d -exec rm -i {} \;
+find src/com/ -name CVS -type d -exec rmdir {} \;
 
 # Move bootstrap directory to securebootstrap
-mv -i -v src/com/nai/security/bootstrap/ src/org/cougaar/core/security/securebootstrap
+mv src/com/nai/security/bootstrap/ src/org/cougaar/core/security/securebootstrap
 
 # Move com directory to org directory
-mv -i -v src/com/nai/security src/org/cougaar/core
+mv src/com/nai/security src/org/cougaar/core
 
 # Remove any remaining directory under com
-rm -i -r src/com
+rm -rf src/com
