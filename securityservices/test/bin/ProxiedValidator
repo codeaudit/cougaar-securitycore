@@ -1,6 +1,7 @@
 #!/bin/sh
 
-VALIDATOR_LIB=
+VALIDATOR_LIB=~/work/Tools/validator/libquit
+
 
 if [ "${VALIDATOR_LIB}" == "" ]
 then
