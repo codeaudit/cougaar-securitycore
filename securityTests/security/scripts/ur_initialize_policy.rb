@@ -1,6 +1,6 @@
 
 
-require 'lib/security/actions/policyGeneration.rb'
+require 'security/actions/policyGeneration.rb'
 
 insert_before :setup_run do
   do_action "BuildURPolicies"

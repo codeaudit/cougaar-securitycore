@@ -658,7 +658,7 @@ class CommPolicies
     permit(enclaveAgentsName(enclave) + @migrateSuffix, securityAgentsName,
            "AllowSecurityManagement-I",
              [ enclave ])
-    permit(securityAgentsName, enclaveAgentsName(enclave) + @migrateSuffix
+    permit(securityAgentsName, enclaveAgentsName(enclave) + @migrateSuffix,
              "AllowSecurityManagement-II",
              [ enclave ])
 
