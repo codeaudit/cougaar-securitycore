@@ -7,9 +7,9 @@ $host = `/bin/uname -n`;
 chomp $host;
 #print "$host\n";
 
-if ($user eq 'ychen') {
-  $httpport=5558;
-  $httpsport=6558;
+if ($user eq 'tredmond') {
+  $httpport=9000;
+  $httpsport=9500;
 } elsif ($user eq 'srosset') {
   $httpport=5561;
   $httpsport=6561;
