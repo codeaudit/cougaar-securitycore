@@ -24,9 +24,16 @@ attributeType ( 1.3.6.1.4.1.13215.1.1.2.1.1.2
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
         SINGLE-VALUE )
 
+attributeType ( 1.3.6.1.4.1.13215.1.1.2.1.1.3 
+        NAME 'certIsSpecial'
+        DESC 'Indicates whether or not the user certificate is accepted even when the account is not enabled. Takes boolean "TRUE" or "FALSE"'
+        EQUALITY booleanMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+        SINGLE-VALUE )
+
 objectClass ( 1.3.6.1.4.1.13215.1.1.2.1.2.1 
         NAME 'cougaarAcct'
         DESC 'Supports Cougaar user account extras'
         AUXILIARY
-        MAY  ( cougaarAcctEnableTime $ cougaarAuthReq ) )
+        MAY  ( cougaarAcctEnableTime $ cougaarAuthReq $ certIsSpecial ) )
 
