@@ -129,11 +129,11 @@ public abstract class MnRQueryBase extends ComponentPlugin {
   
 /*
   protected Community getMySecurityCommunity() {   
-    Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
-    if(mySecurityCommunity==null) {
-      loggingService.warn(" Canot get my role as Manager in any Security Community :"+myAddress.toString() );
-    }
-    return mySecurityCommunity;
+  Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
+  if(mySecurityCommunity==null) {
+  loggingService.warn(" Canot get my role as Manager in any Security Community :"+myAddress.toString() );
+  }
+  return mySecurityCommunity;
   }
 */
   
@@ -158,22 +158,31 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       callback.execute(Collections.EMPTY_LIST);
       return;
     }
-    if(sensors){
-      loggingService.debug("Looking for Local Sensors");
-    }
-    else {
-      loggingService.debug("Looking for Managers");
+    if(loggingService.isDebugEnabled()){
+      if(sensors){
+        loggingService.debug("Looking for Local Sensors");
+      }
+      else {
+        loggingService.debug("Looking for Managers");
+      }
     }
     
     //printhash(caps);
     String community=query.community;
     String role=query.role;
-    loggingService.debug("Query receive in  findAgent is :"+ query.toString());
+    if(loggingService.isDebugEnabled()){
+      loggingService.debug("Query receive in  findAgent is :"+ query.toString());
+    }
 
     if (community != null) {
       CommunityServiceUtilListener listener = 
         new CommunityServiceUtilListener() {
           public void getResponse(Set agents) {
+            if(loggingService.isDebugEnabled()) {
+              loggingService.debug(" Response received in callback for community search "+ agents.size());
+              loggingService.debug("Calling finishFindAgent:");
+            }
+            agents= agentsAsString(new HashSet(agents));
             finishFindAgent(query, caps, sensors, agents, callback);
           }
         };
@@ -195,6 +204,16 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       finishFindAgent(query, caps, sensors, Collections.EMPTY_LIST, callback);
     }
   }
+  public Set agentsAsString(Set agents){
+    Set agentName=new HashSet();
+    if(!agents.isEmpty()) {
+      Iterator iter=agents.iterator();
+      while(iter.hasNext()){
+        agentName.add(((Object)iter.next()).toString());
+      }
+    }
+    return agentName;
+  }
 
   private void finishFindAgent(MRAgentLookUp query, CapabilitiesObject caps, 
                                boolean sensors, Collection commagents,
@@ -214,8 +233,14 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     List sourceofAttackAgents;
     List targetofAttackAgents;
     Collection commonAgents=null;
+    if(loggingService.isDebugEnabled()) {
+      loggingService.debug("Size of result after community and role search is  " +commagents.size() );
+    }
     classagents=searchByClassification(queryClassification,caps,sensors);
-    // loggingService.debug("Size of result with classification is " +classagents.size() );
+    if(loggingService.isDebugEnabled()) {
+      loggingService.debug("Size of result with classification is " +classagents.size() );
+      loggingService.debug("Result with classification is "+ classagents);
+    }
     
    
     sourceagents=searchBySource(querySource,caps,sensors);
@@ -247,6 +272,10 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       }
       else {
         commonAgents=findCommanAgents(commagents,classagents);
+        if(loggingService.isDebugEnabled()) {
+          loggingService.debug("Size of resultafter combining classification and commagents is  " +commonAgents.size() );
+          loggingService.debug("Result with classification is "+ classagents);
+        }
       }
       if(!iscomagentset) {
         commonAgents=sourceagents;
@@ -277,12 +306,13 @@ public abstract class MnRQueryBase extends ComponentPlugin {
         commonAgents=findCommanAgents(commonAgents,targetofAttackAgents);
       }
     }
-    /*
+    if(loggingService.isDebugEnabled()) {
       loggingService.debug("Printing result of query:" + sensors);
-      for(int i=0;i<commonAgents.size();i++) {
-      loggingService.debug("result at i:"+i +" agent is :"+(String)commonAgents.get(i));  
+      Iterator iter=commonAgents.iterator();
+      while(iter.hasNext()){
+        loggingService.debug("agent is :"+(String)iter.next());  
       }
-     */
+    }
     callback.execute(commonAgents);
     
   }
@@ -290,6 +320,14 @@ public abstract class MnRQueryBase extends ComponentPlugin {
   
   private Collection findCommanAgents(Collection list1, Collection list2) {
     HashSet common = new HashSet(list1);
+    if(loggingService.isDebugEnabled()) {
+      loggingService.debug(" Agents before findCommanAgents in list 1 is :"+ list1);
+      Iterator iter=common.iterator();
+      if(iter.hasNext()){
+        loggingService.debug(" Trying to find out if elements in first list is string:"+(String)iter.next());
+      }
+      loggingService.debug(" Agents before findCommanAgents in list 2 is :"+ list1);
+    }
     common.retainAll(list2);
     return common;
   }
@@ -303,11 +341,11 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     /*if(searchClassification==null) {
       return agentlist;
       }
-     */
+    */
     if (loggingService.isDebugEnabled()) {
       if(searchClassification!=null){
         loggingService.debug("In find agent FUNCTION  query is :"+searchClassification.getName()+
-            "Origin  "+searchClassification.getOrigin() );
+                             "Origin  "+searchClassification.getOrigin() );
       }
     }
     while(keys.hasMoreElements()) {
@@ -370,7 +408,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       if(searchSource==null) {
       return agentlist;
       }
-     */
+    */
     if (loggingService.isDebugEnabled()) {
       //loggingService.debug("In  searchBySources FUNCTION  query is :"+searchSource);
     }
@@ -433,7 +471,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     /*if(searchTarget==null) {
       return agentlist;
       }
-     */
+    */
     if (loggingService.isDebugEnabled()) {
       //loggingService.debug(" in  searchByTargets FUNCTION  query is :"+searchTarget);
     }
@@ -497,7 +535,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     /*if(agentname==null) {
       return agentlist;
       }
-     */
+    */
     if (loggingService.isDebugEnabled()) {
       //loggingService.debug(" in  searchBySourcesofattack  FUNCTION  query is :"+agentname);
     }
@@ -593,7 +631,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     /*if(agentname==null) {
       return agentlist;
       }
-     */
+    */
     if (loggingService.isDebugEnabled()) {
       //loggingService.debug(" in  searchByTargetofattack  FUNCTION  query is :"+agentname);
     }
@@ -711,7 +749,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
   protected boolean areClassificationsEqual(Classification existingclassification,Classification newclassification) {
     boolean equal=false;
     if((existingclassification.getOrigin().trim().equalsIgnoreCase(newclassification.getOrigin().trim()))
-        &&(existingclassification.getName().trim().equalsIgnoreCase(newclassification.getName().trim()))) {
+       &&(existingclassification.getName().trim().equalsIgnoreCase(newclassification.getName().trim()))) {
       // loggingService.debug(" returning true  :");
       return true;
     }   
@@ -725,7 +763,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       currentclassification=classificationList[i];
       /*loggingService.debug("current classification :"+ classificationtoString(currentclassification));
         loggingService.debug("query classification :"+ classificationtoString(queryclassification));
-       */
+      */
       if(areClassificationsEqual(currentclassification,queryclassification)){
         isclassification=true;
         return isclassification;
@@ -756,7 +794,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     boolean serviceequal=false;
     boolean processequal=false;
     if(!(((existing instanceof Source) && (inquery instanceof Source))||
-           ((existing instanceof Target) && (inquery instanceof Target)))) {
+         ((existing instanceof Target) && (inquery instanceof Target)))) {
       return equal;
     }
     IDMEF_Node existingNode=null;
@@ -1191,7 +1229,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
   } 
 
   private class RootListener 
-    implements Runnable, CommunityServiceUtilListener {
+  implements Runnable, CommunityServiceUtilListener {
     public void getResponse(Set entities) {
       _isRoot = !(entities == null || entities.isEmpty());
       _rootReady = true;
