@@ -1,0 +1,53 @@
+--- /mnt/shared/socV4/csmart/scripts/RunSoc.rb	2003-07-02 14:37:04.000000000 -0400
++++ RunSoc.rb.blackboard	2003-07-02 18:08:12.000000000 -0400
+@@ -3,9 +3,11 @@
+ 
+ $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib')
+ $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist')
++$:.unshift File.join(CIP, 'csmart', 'config', 'lib')
+ 
+ require 'cougaar/scripting'
+ require 'ultralog/scripting'
++require 'security/mop/scripting'
+ 
+ HOSTS_FILE = Ultralog::OperatorUtils::HostManager.new.get_hosts_file
+ 
+@@ -20,7 +22,9 @@
+ 
+   do_action "TransformSociety", false, 
+     "#{RULES}/isat",
+-    "#{RULES}/logistics"
++    "#{RULES}/logistics",
++    "#{RULES}/security",
++    "#{RULES}/security/mop"
+   do_action "SaveCurrentSociety", "mySociety.xml"
+   do_action "StartJabberCommunications"
+   do_action "VerifyHosts"
+@@ -39,7 +43,15 @@
+   do_action "Sleep", 30.seconds
+   do_action "PublishNextStage"
+ 
++  # Start blackboard access control tests
++  do_action "StartSecurityBlackboardTesting"
++
+   wait_for  "PlanningComplete"  do
++    # Stop blackboard access control tests and analyze results
++    do_action "StopSecurityBlackboardTesting"
++    #do_action "AnalyzeSecurityBlackboardResults"
++    do_action "Sleep", 2.minutes
++
+     wait_for  "Command", "shutdown"
+     do_action "SaveSocietyCompletion", "completion_#{experiment.name}.xml"
+     do_action "StopSociety"
+@@ -47,6 +59,11 @@
+     do_action "StopCommunications"
+   end
+ 
++  # Stop blackboard access control tests and analyze results
++  do_action "StopSecurityBlackboardTesting"
++  #do_action "AnalyzeSecurityBlackboardResults"
++  do_action "Sleep", 2.minutes
++
+   wait_for "Command", "shutdown"
+   do_action "Sleep", 30.seconds
+   do_action "SaveSocietyCompletion", "completion_#{experiment.name}.xml"
