@@ -148,6 +148,8 @@ public class ConfParser {
   public static final String CA_SERIAL_NB_FILE_ELEMENT = "serialNumberFile";
   public static final String CA_PKCS10_DIR_ELEMENT     = "pkcs10Directory";
   public static final String CA_X509_CERT_DIR_ELEMENT  = "x509CertDirectory";
+  public static final String CA_CERT_PENDING_DIR_ELEMENT  = "CertPendingDirectory";
+  public static final String CA_CERT_DENIED_DIR_ELEMENT  = "CertDeniedDirectory";
 
   public static final String CA_CLIENT_POLICY_ELEMENT  = "clientCertPolicy";
 
@@ -156,6 +158,7 @@ public class ConfParser {
   public static final String CA_CRL_ALGORITHMID_ELEMENT= "crlalgorithmId";
   public static final String CA_KEYSIZE_ELEMENT        = "keysize";
   public static final String CA_CERTVALIDITY_ELEMENT   = "certValidity";
+  public static final String CA_REQUIREPENDING_ELEMENT   = "requirePending";
 
   public void iterate(String name) {
     NodeList conf = configDoc.getDocumentElement().getElementsByTagName(name);
@@ -390,6 +393,10 @@ public class ConfParser {
       Duration duration = new Duration();
       duration.parse(getElementValue(caClientPolicy, CA_CERTVALIDITY_ELEMENT, role));
       caPolicy.howLong = duration.getDuration();
+      String strPending = getElementValue(caClientPolicy, CA_REQUIREPENDING_ELEMENT, role);
+      caPolicy.requirePending = false;
+      if (strPending != null && strPending.equals("true"))
+        caPolicy.requirePending = true;
     }
     return caPolicy;
   }
