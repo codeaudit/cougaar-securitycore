@@ -231,6 +231,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
 	permission java.io.FilePermission "${/}usr${/}java${/}-", "read";
 	permission java.io.FilePermission "${/}usr${/}java${/}", "read";
         permission java.lang.RuntimePermission "accessClassInPackage.sun.tools.javac";
+        permission java.lang.RuntimePermission "accessClassInPackage.sun.net.www.protocol.http";
 };
 
 ////////////////////////////////////////////////////////////
@@ -617,6 +618,7 @@ grant {
 	permission java.io.FilePermission "${java.home}${/}lib${/}-", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}-", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}lib${/}-", "read";
+//        permission java.lang.RuntimePermission "accessClassInPackage.sun.net.www.protocol.http";
 };
 
 ////////////////////////////////////////////////////////////

@@ -68,6 +68,9 @@ public class HardWired {
    */
   public final static String  kaosVerbFromVerb(String verb)
   {
+    if (verb == null) {
+      verb = "NoVerb";
+    }
     return (EntityInstancesConcepts.EntityInstancesDamlURL
             + verb);
   }
@@ -219,6 +222,10 @@ public class HardWired {
     hasSubjectValues.add(
                          EntityInstancesConcepts.EntityInstancesDamlURL
                          + "GetLogSupport");
+    hasSubjectValues.add(
+                         EntityInstancesConcepts.EntityInstancesDamlURL
+                         + "NoVerb");
+    
   }
 
   /**

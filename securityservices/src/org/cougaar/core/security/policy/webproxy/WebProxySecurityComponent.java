@@ -6,10 +6,11 @@ import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.Component;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.util.GenericStateModelAdapter;
+import org.cougaar.core.component.ComponentSupport;
 
 public final class WebProxySecurityComponent
-  extends GenericStateModelAdapter
-  implements Component
+  extends ComponentSupport //GenericStateModelAdapter
+//   implements Component
 {
   private WebProxyInstaller proxyInstaller;
   protected BindingSite bindingSite = null;
@@ -25,7 +26,7 @@ public final class WebProxySecurityComponent
    * (jndi) as tomcat would have and tomcat politely does not signal
    * an error.  
    */
-  public void WebProxySecurityComponent()
+  public WebProxySecurityComponent()
   {
     proxyInstaller = new WebProxyInstaller();
     proxyInstaller.install();
@@ -33,6 +34,9 @@ public final class WebProxySecurityComponent
 
   public void setBindingSite(BindingSite bs) {
     bindingSite = bs;
+  }
+
+  public void setParameter(Object o) {
   }
 
   /**

@@ -8,6 +8,8 @@ import java.io.PrintStream;
 
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
@@ -45,6 +47,10 @@ import org.cougaar.core.security.policy.webproxy.DamlURLConnection;
 public class WebProxyInstaller
 {
   static private LoggingService _log = null;
+
+  static {
+    AccessController.doPrivileged(new LoadDamlURLStreamHandler());
+  }
 
   /**
    * This method will allow us to use command line tools like jtp and
@@ -125,6 +131,13 @@ public class WebProxyInstaller
       }
     } catch (IOException e) {
       e.printStackTrace();
+    }
+  }
+
+  private static class LoadDamlURLStreamHandler implements PrivilegedAction
+  {
+    public Object run() {
+      return new DamlURLStreamHandler();
     }
   }
 

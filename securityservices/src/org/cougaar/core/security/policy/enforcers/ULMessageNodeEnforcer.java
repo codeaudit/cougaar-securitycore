@@ -364,7 +364,11 @@ public class ULMessageNodeEnforcer
                                    action,
                                    HardWired.hasSubjectValues);
     if (verbs == null) { return false; }
-    else               { return verbs.contains(kaosVerb); }
+    else { 
+      _log.debug("end of isactionauthorized: kaosverb = " + kaosVerb);
+      _log.debug("end of isactionauthorized: verbs = " + verbs);
+      return verbs.contains(kaosVerb); 
+    }
   }
 
   /**
