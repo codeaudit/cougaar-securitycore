@@ -55,7 +55,7 @@
       <!-- How long to certify for. -->
       <certValidity>6 M</certValidity>
 
-      <requirePending>true</requirePending>
+      <requirePending>false</requirePending>
     </clientCertPolicy>
   </certificateAuthority>
 
@@ -112,7 +112,7 @@
            Six months by default. -->
       <certValidity>6 M</certValidity>
 
-      <requirePending>true</requirePending>
+      <requirePending>false</requirePending>
     </clientCertPolicy>
   </certificateAuthority>
 
