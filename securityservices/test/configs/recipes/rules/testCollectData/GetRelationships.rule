@@ -1,16 +1,15 @@
 
-puts "Starting GetRelationships - look in /tmp for the file"
 `rm /tmp/relations.sql`
 File.open("/tmp/relations.sql", "w") do |sqlFile|
-  sqlFile.puts "use test"
-  sqlFile.puts "create table if not exists unused_subordinates"
+  sqlFile.puts "use cougaar104"
+  sqlFile.puts "create table if not exists csi_subordinates"
   sqlFile.puts "     (subordinate varchar(150), superior varchar(150));"
-  sqlFile.puts "delete from unused_subordinates;"
+  sqlFile.puts "delete from csi_subordinates;"
 
   society.each_agent(true) do |agent|
     facetval = agent.get_facet(:superior_org_id)
     if facetval != nil
-      sqlFile.puts "insert into unused_subordinates (subordinate, superior) "
+      sqlFile.puts "insert into csi_subordinates (subordinate, superior) "
       sqlFile.puts "   values ('#{agent.name}', '#{facetval}');"
     end  
   end

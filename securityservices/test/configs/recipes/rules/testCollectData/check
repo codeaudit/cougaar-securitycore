@@ -1,0 +1,30 @@
+#!/bin/sh
+
+#
+# This script  is for compatibility with a very old mysql implementation.
+#
+
+mysql -h cougaar-db -u society_config -ps0c0nfig <<EOF1
+  use cougaar104
+  create table if not exists csi_unused_subordinates
+      (subordinate varchar(150), superior varchar(150));
+  delete from csi_unused_subordinates;
+  insert into csi_unused_subordinates 
+      select subordinate, superior from csi_subordinates;
+EOF1
+
+rm -f /tmp/delete.sql
+echo use cougaar104 >> /tmp/delete.sql
+mysql --skip-column-names -h cougaar-db -u society_config -ps0c0nfig \
+                                                   <<EOF2 >> /tmp/delete.sql
+  use cougaar104
+  select CONCAT('DELETE FROM csi_unused_subordinates where superior =',
+                 "'",superior,"'",' and subordinate = ',
+                 "'",subordinate, "'",';') from csi_subordinate_reported;
+EOF2
+
+mysql -h cougaar-db -u society_config -ps0c0nfig < /tmp/delete.sql
+mysql -h cougaar-db -u society_config -ps0c0nfig <<EOF3
+  use cougaar104
+  select * from csi_unused_subordinates;
+EOF3
