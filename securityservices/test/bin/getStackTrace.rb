@@ -1,22 +1,23 @@
 #!/usr/bin/ruby
 
-interval=10
+interval=15
 
 def getStack(pid, runcount)
    # As root:
-   f = File.new("/tmp/cmd-stack.sh", "w");
+   script = "/tmp/cmd-stack-#{pid}-#{runcount}.sh"
+   f = File.new(script, "w");
    f << "#!/bin/sh\n"
    f << "cd /proc/#{pid}/fd\n"
    f << "cat 1 > /tmp/stack-#{pid}.#{runcount}.log & \n"
    f << "kill -QUIT #{pid} \n"
-   f << "sleep 1\n"
+   f << "sleep 3\n"
    f << "kill $!\n"
    f.chmod(0755)
    f.close
-   out = `sh /tmp/cmd-stack.sh`
-   puts "/tmp/stack-#{pid}.#{runcount}.log"
-   sleep 1
-   #`rm /tmp/cmd-stack.sh`
+   out = `sh #{script}`
+   puts "/tmp/stack-#{pid}.#{runcount}.log : #{out}"
+   #sleep 1
+   `rm #{script}`
 end
 
 def javaProcess(runcount)
@@ -27,15 +28,19 @@ def javaProcess(runcount)
   #puts pstreeOut
   pstreeOut.scan(/#{pstreePattern}/) { |x|
     javaPid = x[1]
-    getStack(javaPid, runcount)
+    #Thread.fork {
+      getStack(javaPid, runcount)
+    #}
   }
 
 end
 
 i = 1
+`rm -f /tmp/stack-*`
+`rm -f /tmp/cmd-stack-*`
 while(true)
    javaProcess(i)
    i += 1
-   sleep(interval)
+   #sleep(interval)
 end
 
