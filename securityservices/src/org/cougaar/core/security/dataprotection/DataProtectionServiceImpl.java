@@ -228,7 +228,7 @@ public class DataProtectionServiceImpl
       // Now, add keys of persistence manager agents (TODO)
       // PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
       PersistenceManagerPolicy [] pmp = pps.getPolicies();
-      
+
       if (pmp.length == 0) {
         if (log.isDebugEnabled()) {
           log.debug("No persistence manager policy available.");
@@ -396,6 +396,12 @@ public class DataProtectionServiceImpl
 	X509Certificate agentCert = (X509Certificate)cs.getCertificate();
 
         if (skey == null) {
+          if (keyCollection.size() == 1) {
+            log.error("Cannot recover key for; " + dpsClient.getAgentIdentifier()
+              + ", the key is not encrypted with any persistence manager.");
+            return;
+          }
+
           // no key available to decrypt
           if (log.isWarnEnabled())
             log.warn("Cannot find a private key to decrypt Data Protection secret."
@@ -411,9 +417,41 @@ public class DataProtectionServiceImpl
           PersistenceManagerPolicy [] pmp = pps.getPolicies();
           // start the threads
           HttpRequestThread [] ts = new HttpRequestThread[pmp.length];
+
+          boolean nopm = true;
+          Hashtable pmNames = new Hashtable();
+          for (int idn = 1; idn < keyCollection.size(); idn++) {
+            DataProtectionKeyImpl pmkey = (DataProtectionKeyImpl)keyCollection.get(idn);
+            String pmName = pmkey.getCertificateChain()[0].getSubjectDN().getName();
+            try {
+              pmNames.put(new X500Name(pmName).getCommonName(), pmName);
+            } catch (IOException iox) {
+              log.warn("Invalid PM encrypted: " + pmName);
+            }
+          }
           for (int i = 0; i < pmp.length; i++) {
+            // did we use the pm cert to encrypt the secret key at all?
+            try {
+              X500Name pmx500 = new X500Name(pmp[i].pmDN);
+              if (pmNames.get(pmx500.getCommonName()) == null) {
+                if (log.isDebugEnabled()) {
+                  log.debug("PM is available but is not used to encrypt." + pmp[i].pmDN);
+                }
+                continue;
+              }
+            } catch (IOException iox) {
+              log.warn("Invalid pm: " + pmp[i].pmDN);
+              continue;
+            }
+
+            nopm = false;
             ts[i] = new HttpRequestThread(req, pmp[i], agent);
             ts[i].start();
+          }
+
+          if (nopm) {
+            log.error("Key is not persisted with any of the persistence managers available.");
+            return;
           }
 
           // timeout while checking results
