@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<!DOCTYPE USER-DB-CONFIG [
+<!-- The outer policy element --> 
+<!ELEMENT policy (user-db-config*)>
+<!ATTLIST policy name CDATA #REQUIRED>
+<!ATTLIST policy type CDATA #REQUIRED>
+
+<!ELEMENT user-db-config  (ldap-url?,ldap-user?,ldap-password?,user-dn?,role-dn?,user-attr?,role-attr?,user-role-attr?,auth-attr?,enable-attr?,password-attr?,user-object-class*,role-object-class*)>
+
+<!ELEMENT ldap-url (#PCDATA)>
+<!ELEMENT ldap-user (#PCDATA)>
+<!ELEMENT ldap-password (#PCDATA)>
+<!ELEMENT user-dn (#PCDATA)>
+<!ELEMENT role-dn (#PCDATA)>
+<!ELEMENT user-attr (#PCDATA)>
+<!ELEMENT role-attr (#PCDATA)>
+<!ELEMENT user-role-attr (#PCDATA)>
+<!ELEMENT auth-attr (#PCDATA)>
+<!ELEMENT enable-attr (#PCDATA)>
+<!ELEMENT password-attr (#PCDATA)>
+<!ELEMENT user-object-class (#PCDATA)>
+<!ELEMENT role-object-class (#PCDATA)>
+]>
+
+<policy name="User Database Policy" type="org.cougaar.core.security.policy.LdapUserServicePolicy">
+  <user-db-config>
+    <!-- the ldap url for the user database -->
+    <ldap-url>ldaps://u068/</ldap-url>
+
+    <!-- The user allowed to write to the ldap database. Only the
+         user admin agent and M&R agents should be given this. -->
+    <ldap-user>cn=manager,dc=cougaar,dc=org</ldap-user>
+    <ldap-password>secret</ldap-password>
+
+    <!-- The dn under which users are stored -->
+    <user-dn>dc=cougaar,dc=org</user-dn>
+
+    <!-- The dn under which roles are stored -->
+    <role-dn>dc=roles,dc=cougaar,dc=org</role-dn>
+
+    <!-- The attribute that distinguishes users -->
+    <user-attr>uid</user-attr>
+
+    <!-- The attribute that distinguishes roles -->
+    <role-attr>cn</role-attr>
+
+    <!-- The attribute in the role to store the user dn's who have that
+         role -->
+    <user-role-attr>roleOccupant</user-role-attr>
+
+    <!-- The attribute in the user that contains the authentication
+         requirement -->
+    <auth-attr>cougaarAuthReq</auth-attr>
+
+    <!-- The attribute in the user that contains the time when the user
+         is enabled -->
+    <enable-attr>cougaarAcctEnableTime</enable-attr>
+
+    <!-- The attribute in the user account that contains the password -->
+    <password-attr>userPassword</password-attr>
+
+    <!-- Define one or more objectClass that is used when creating user
+         entries -->
+    <user-object-class>inetOrgPerson</user-object-class>
+    <user-object-class>cougaarAcct</user-object-class>
+
+    <!-- Define one or more objectClass that is used when creating role
+         entries -->
+    <role-object-class>organizationalRole</role-object-class>
+  </user-db-config>
+</policy>

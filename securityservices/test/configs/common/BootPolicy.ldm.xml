@@ -1,93 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
 <!DOCTYPE Policies SYSTEM "Policy.ldm.dtd" []>
-
+-->
 <!-- Policies for BOOTPOLICY -->
 
 <Policies>
-<!-- Requires User database
- -->
-  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.LdapUserServicePolicy">
-    <RuleParam name="ldapurl">
-      <String value="ldaps://u068/"/>
-    </RuleParam>
-    <RuleParam name="user">
-      <String value="cn=manager,dc=cougaar,dc=org"/>
-    </RuleParam>
-    <RuleParam name="password">
-      <String value="secret"/>
-    </RuleParam>
-    <RuleParam name="user_dn">
-      <String value="dc=cougaar,dc=org"/>
-    </RuleParam>
-    <RuleParam name="role_dn">
-      <String value="dc=roles,dc=cougaar,dc=org"/>
-    </RuleParam>
-    <RuleParam name="user_rdn">
-      <String value="uid"/>
-    </RuleParam>
-    <RuleParam name="role_rdn">
-      <String value="cn"/>
-    </RuleParam>
-    <RuleParam name="userClass">
-      <KeySet value="1">
-        <Key key="1" value="inetOrgPerson"/>
-        <Key key="2" value="cougaarAcct"/>
-      </KeySet>
-    </RuleParam>
-    <RuleParam name="roleClass">
-      <KeySet value="1">
-        <Key key="1" value="organizationalRole"/>
-      </KeySet>
-    </RuleParam>
-    <RuleParam name="roleAttr">
-      <String value="roleOccupant"/>
-    </RuleParam>
-  </Policy>
-
-  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.ServletPolicy">
-    <RuleParam name="UserAdminAgent">
-      <KeySet value="allow-role">
-        <Key key="/*" value="UserManager" />
-      </KeySet>
-    </RuleParam>
-    <RuleParam name="DomainManager">
-      <KeySet value="allow-role">
-        <Key key="/*" value="PolicyAdministrator" />
-      </KeySet>
-    </RuleParam>
-    <RuleParam name="UMmrmanager">
-      <KeySet value="allow-role">
-        <Key key="/*" value="MonitorManager" />
-      </KeySet>
-    </RuleParam>
-<!--
-    <RuleParam name="caAgent">
-      <KeySet value="allow-role">
-        <Key key="/*" value="CAAdministrator" />
-      </KeySet>
-    </RuleParam>
--->
-  </Policy>
-
-  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.AuthTypePolicy">
-    <RuleParam name="UserAdminAgent">
-      <KeySet value="auth-constraint">
-        <Key key="/useradmin*" value="PASSWORD" />
-      </KeySet>
-    </RuleParam>
-  </Policy>
-
-<!-- BlackboardService read-only filter
-  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.BlackboardFiltePolicy">
-    <RuleParam name="read-only-rule">
-      <KeySet value="org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet">
-        <Key key="secure" value="write"/>
-        <Key key="tomcat" value="read"/>
-        <Key key="disabled" value="none"/>
-      </KeySet>
-    </RuleParam>
-  </Policy>
--->
-
+  <!-- all policies have been moved elsewhere -->
 </Policies>
