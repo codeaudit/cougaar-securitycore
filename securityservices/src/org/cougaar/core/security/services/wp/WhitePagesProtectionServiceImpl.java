@@ -39,6 +39,7 @@ import org.cougaar.core.service.wp.Request;
 import org.cougaar.util.log.Logger;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import java.security.GeneralSecurityException;
 import java.security.SignedObject;
@@ -86,7 +87,7 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
    * for signing
    *
    * @param name - The agent making the request
-   * @param object - the request object
+   * @param object - the request object (should implement Serializable)
    *
    * @return the wraped request object
    *
@@ -111,10 +112,10 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
 
 
     try {
-      Request req;
+      Serializable serialableObject;
       if (object instanceof Request) {
-        req = (Request) object;
-        signedObj = encryptService.sign(name, policy.signSpec, req);
+        serialableObject = (Serializable) object;
+        signedObj = encryptService.sign(name, policy.signSpec, serialableObject);
       } else {
         if (log.isWarnEnabled()) {
           log.warn(WhitePagesProtectionServiceImpl.NAME + " Object not serialable, cannot be signed");
@@ -140,21 +141,26 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
    * @param name - The agent making the request
    * @param wrap - the request object
    *
+   * @return the object if the siganature is valid
+   *
    * @throws CertificateException DOCUMENT ME!
    *
    * @see org.cougaar.core.security.services.wp.WhitePagesProtectionService#verfifyMessage(java.lang.String,
    *      org.cougaar.core.security.util.ProtectedRequest)
    */
-  public void unwrap(String name, Wrapper wrap) throws CertificateException {
+  public Object unwrap(String name, Wrapper wrap) throws CertificateException {
     X509Certificate[] certChain = wrap.getCertificateChain();
     for (int i = certChain.length - 1; i == 0; i--) {
       keyRingService.checkCertificateTrust(certChain[i]);
       csrv.addSSLCertificateToCache(certChain[i]);
     }
 
-    Object signedObj = encryptService.verify(name, policy.signSpec, wrap.getSignedObject());
-    if (signedObj == null) {
+    //TODO:  add checks to make sure it is a valid bind request
+    Object obj = encryptService.verify(name, policy.signSpec, wrap.getSignedObject());
+    if (obj == null) {
       throw new CertificateException("request not signed with trusted agent certificate");
     }
+
+    return obj;
   }
 }

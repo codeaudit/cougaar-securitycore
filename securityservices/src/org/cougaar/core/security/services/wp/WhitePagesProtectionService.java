@@ -58,6 +58,8 @@ public interface WhitePagesProtectionService extends Service {
    *
    * @param agent - The agent making the request
    * @param request - the request object
+   *
+   * @return the object if the signature is valid
    */
-  public void unwrap(String name, Wrapper wrap) throws CertificateException;
+  public Object unwrap(String name, Wrapper wrap) throws CertificateException;
 }
