@@ -95,8 +95,8 @@ public class AccessControlPolicyServiceImpl
     commu = (CommunityService)
       serviceBroker.getService(this, CommunityService.class, null);
     if(commu == null) {
-      if(log.isWarnEnabled()){
-        log.warn("can't get community Service.");
+      if(log.isDebugEnabled()){
+        log.debug("Can't get community Service. Registering as service listener");
       } 
       ServiceAvailableListener sal = new ServiceAvailableListener() {  
           public void serviceAvailable(ServiceAvailableEvent ae) {
