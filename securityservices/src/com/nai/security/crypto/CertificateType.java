@@ -24,7 +24,7 @@
 
 package com.nai.security.crypto;
 
-class CertificateType {
+public class CertificateType {
   // enumerator name
   private final String enum_name;
   

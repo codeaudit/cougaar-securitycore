@@ -37,6 +37,8 @@ import sun.security.pkcs.*;
 import sun.security.x509.*;
 import sun.security.util.BigInt;
 
+import com.nai.security.util.CryptoDebug;
+
 /** This class provides support for the Cryptographic Message Syntax (CMS),
     which is defined in RFC 2630. The CMS syntax is used to digitally sign,
     digest, authenticate, or encrypt arbitrary messages.
@@ -48,17 +50,18 @@ import sun.security.util.BigInt;
 */
 public class CryptographicMessage
 {
-  private boolean debug = false;
+  /* private boolean debug = false;
   private static final String debugProperty =
     "org.cougaar.core.security.crypto.debug";
-
+  */
   public CryptographicMessage()
   {
-    
+    /*
     debug =
       (Boolean.valueOf(System.getProperty(debugProperty,
 					  "false"))).booleanValue();
-   }
+    */
+  }
 
   public PKCS7 encryptData()
   {
@@ -77,7 +80,7 @@ public class CryptographicMessage
     throws CertificateException
   {
     if (signerCertificate == null) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error: Signer's certificate not provided");
       }
       throw new CertificateException("Signer's certificate not provided");
@@ -225,7 +228,7 @@ public class CryptographicMessage
 
     PKCS7 pkcs7 = new PKCS7(digestAlgorithms, contentinfo,
 			    certificates, signerInfos);
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("PKCS#7: " + pkcs7);
     }
     return pkcs7;

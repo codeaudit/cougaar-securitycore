@@ -22,22 +22,19 @@
 package com.nai.security.crypto.ldap;
 
 import com.nai.security.policy.NodePolicy;
+import com.nai.security.util.CryptoDebug;
 
 public class CertDirectoryServiceFactory
 {
-  private static boolean debug = false;
+  //private static boolean CryptoDebug.debug = false;
 
-  static {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-  }
 
   public static CertDirectoryServiceClient getCertDirectoryServiceClientInstance(
 					      int serverType, String serverUrl)
   throws Exception
   {
     CertDirectoryServiceClient ldapClient = null;
-
+    //System.out.println("%%%%%%%%%%%%  type found is : "+serverType);
     switch (serverType) {
     case NodePolicy.COUGAAR_OPENLDAP:
       ldapClient = new OpenLdapCertDirectoryService(serverUrl);
@@ -46,9 +43,11 @@ public class CertDirectoryServiceFactory
       ldapClient = new NetToolsCertDirectoryService(serverUrl);
       break;
     default:
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unknown directory service type: " + serverType);
+	System.out.println(" Creating default openldap service :");
       }
+      //ldapClient = new NetToolsCertDirectoryService(serverUrl);
     }
     return ldapClient;
   }
@@ -65,10 +64,18 @@ public class CertDirectoryServiceFactory
       break;
     default:
       // Net Tools does not support CA functions programmatically.
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unknown directory service type: " + serverType);
       }
     }
     return instance;
   }
 }
+
+
+
+
+
+
+
+

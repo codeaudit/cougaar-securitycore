@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.security.cert.CertificateException;
 
 import org.cougaar.core.security.bootstrap.BaseBootstrapper;
+import com.nai.security.util.CryptoDebug;
 
 import javax.crypto.*;
 
@@ -35,8 +36,9 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
   private boolean debug = false;
 
   public CryptoManagerServiceImpl() {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+    /* debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
+    */
   }
 
   public SignedObject sign(final String name, String spec, Serializable obj){
@@ -93,7 +95,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
     try{
       PublicKey key = cert.getPublicKey();
       if (spec==""||spec==null) spec=key.getAlgorithm();
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Encrypting for " + name + " using " + spec);
       }
       /*init the cipher*/
@@ -125,7 +127,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
       return obj.getObject(ci);
     }
     catch(Exception e){
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error: cannot recover message. Invalid key?");
 	e.printStackTrace();
       }
@@ -149,7 +151,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
     public Object symmDecrypt(SecretKey sk, SealedObject obj){
       Object o = null;
       if (sk == null) {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Secret key not provided!");
 	}
 	return o;
@@ -160,7 +162,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
       }
       catch(NullPointerException nullexp){
 	boolean loop = true;
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("in symmDecrypt" +nullexp);
 	}
 	while(loop){
@@ -173,7 +175,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
 	    return o;
 	  }
 	  catch(NullPointerException null1exp){
-	    if (debug) {
+	    if (CryptoDebug.debug) {
 	      System.err.println(
 				 "Workaround to Cougaar core bug (Context not known). Sleeping 200ms then retrying...");
 	    }

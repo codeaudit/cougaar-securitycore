@@ -49,9 +49,36 @@ public class ConfParser {
 
   private String configFile = null;
   private Document configDoc = null;
-  private boolean debug = false;
+  // private boolean debug = false;
 
   public ConfParser() {
+    /*
+    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
+    */
+    //String installpath = System.getProperty("org.cougaar.install.path");
+    String defaultConfigFile = /*installpath + File.separatorChar
+      + "configs" + File.separatorChar + "common"
+      + File.separatorChar + */"cryptoPolicy.xml";
+
+    configFile = System.getProperty("org.cougaar.security.crypto.config", defaultConfigFile);
+    System.out.println("conf file is at :"+configFile);
+    init();
+  }
+   public ConfParser(String path) {
+     /* debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
+     */
+     if(path==null) {
+       if(CryptoDebug.debug) {
+	 System.out.println(" Got conf path as: null:");
+       }
+        String defaultConfigFile= "cryptoPolicy.xml";
+	configFile=defaultConfigFile;
+     }
+     else 
+       configFile=path;
+ 
     init();
   }
 
@@ -59,27 +86,20 @@ public class ConfParser {
     return configDoc;
   }
 
-  public void init() {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-
-    //String installpath = System.getProperty("org.cougaar.install.path");
-    String defaultConfigFile = /*installpath + File.separatorChar
-      + "configs" + File.separatorChar + "common"
-      + File.separatorChar + */"cryptoPolicy.xml";
-
-    configFile = System.getProperty("org.cougaar.security.crypto.config", defaultConfigFile);
+  public void init( ) {
     
     ConfigFinder confFinder = new ConfigFinder();
     try {
       configDoc = confFinder.parseXMLConfigFile(configFile);
     }
     catch (IOException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unable to read configFile: " + e);
+	e.printStackTrace();
       }
     }
     if (configDoc == null) {
+      
       // Cannot proceed without policy
       System.err.println("ERROR: Cannot continue secure execution without policy");
       System.err.println("ERROR: Could not find crypto configuration file: " + configFile);
@@ -133,6 +153,7 @@ public class ConfParser {
 
   public static final String CA_CERTVERSION_ELEMENT    = "certVersion";
   public static final String CA_ALGORITHMID_ELEMENT    = "algorithmId";
+  public static final String CA_CRL_ALGORITHMID_ELEMENT= "crlalgorithmId";
   public static final String CA_KEYSIZE_ELEMENT        = "keysize";
   public static final String CA_CERTVALIDITY_ELEMENT   = "certValidity";
 
@@ -166,7 +187,7 @@ public class ConfParser {
   {
     NodeList nodes = e.getElementsByTagName(tagName);
     if (nodes == null) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("No such tag: " + tagName);
       }
       return null;
@@ -182,7 +203,7 @@ public class ConfParser {
   public NodePolicy readNodePolicy(String role)
     throws NoSuchFieldException, IllegalAccessException
   {
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Reading node policy");
     }
     Element nodePolicyElement = getChild(configDoc.getDocumentElement(),
@@ -242,7 +263,7 @@ public class ConfParser {
     String value = null;
     String defaultValue = null;
     NodeList conf = top.getElementsByTagName(elementName);
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.print("Looking up role:" + role + " for " + elementName);
     }
     for (int i = 0 ; i < conf.getLength() ; i++) {
@@ -270,7 +291,7 @@ public class ConfParser {
       // If requested role was not found: we try to find the default value
       value = defaultValue;
     }
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println(" - Value:" + value);
     }
     
@@ -281,8 +302,8 @@ public class ConfParser {
     throws MalformedURLException, NoSuchFieldException, IllegalAccessException,
 	   IOException
   {
-    if (debug) {
-      System.out.println("Readind CA policy");
+    if (CryptoDebug.debug) {
+      System.out.println("Reading CA policy" + "for dn : "+ caDistinguishedName + " role : "+role);
     }
     X500Name dn = new X500Name(caDistinguishedName);
 
@@ -296,7 +317,9 @@ public class ConfParser {
       }
       Element caPolicyElement = (Element) conf.item(i);
       X500Name aDN = new X500Name(caPolicyElement.getAttribute("name"));
+      System.out.println(" Got aDN is :"+ aDN.toString());
       if (!dn.equals(aDN)) {
+	System.out.println(" Not equal cont::");
 	continue;
       }
       Element caClientPolicy = getChild(caPolicyElement,
@@ -328,8 +351,8 @@ public class ConfParser {
 	}
       }
       else {
-	if (debug) { 
-	  System.out.println("No LDAP server type specified.");
+	if (CryptoDebug.debug) { 
+	  System.out.println("Error !!!!!!! No LDAP server type specified.");
 	}
       }
 
@@ -355,6 +378,13 @@ public class ConfParser {
       Class algIdClass = AlgorithmId.class;
       Field algIdField = AlgorithmId.class.getDeclaredField(algIdString);
       caPolicy.algorithmId = new AlgorithmId((ObjectIdentifier)algIdField.get(null));
+      
+      
+       String crlalgIdString = getElementValue(caClientPolicy, CA_CRL_ALGORITHMID_ELEMENT, role);
+       
+      Class crlalgIdClass = AlgorithmId.class;
+      Field crlalgIdField = AlgorithmId.class.getDeclaredField(crlalgIdString);
+      caPolicy.CRLalgorithmId = new AlgorithmId((ObjectIdentifier)crlalgIdField.get(null));
       
       caPolicy.keySize = (Integer.valueOf(getElementValue(caClientPolicy,
 				 CA_KEYSIZE_ELEMENT, role))).intValue();
@@ -421,3 +451,6 @@ public class ConfParser {
   }
 
 }
+
+
+

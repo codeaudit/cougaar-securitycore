@@ -31,8 +31,9 @@ import java.util.*;
 import java.security.cert.*;
 import java.security.Principal;
 import java.security.PrivateKey;
-
+import java.math.BigInteger;
 import sun.security.x509.*;
+import com.nai.security.util.CryptoDebug;
 
 
 /** A hash table to store certificates from keystore, caKeystore and the LDAP directory
@@ -54,7 +55,8 @@ public class CertificateCache
   private Hashtable privateKeyCache = new Hashtable(50);
 
   private Hashtable cn2dn = new Hashtable(50);
-  private boolean debug = false;
+  private Hashtable bigint2dn=new Hashtable(50);
+  //private boolean debug = false;
 
   /** How long do we wait before retrying to send a certificate signing
    * request to a certificate authority? */
@@ -66,8 +68,9 @@ public class CertificateCache
 
   public CertificateCache(DirectoryKeyStore d)
   {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+    /*debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
+    */
     directorykeystore = d;
   }
 
@@ -92,7 +95,7 @@ public class CertificateCache
     try {
       x500Name = new X500Name(distinguishedName);
     } catch(Exception e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unable to get Common Name - " + e);
       }
     }
@@ -103,7 +106,7 @@ public class CertificateCache
   {
     CertificateStatus reply = null;
 
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("CertificateCache. getCert(" + x500Name + ")");
     }
     if (x500Name == null) {
@@ -161,7 +164,7 @@ public class CertificateCache
 	}
 	else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
 	  // Try to find out certificate trust
-	  if (debug) {
+	  if (CryptoDebug.debug) {
 	    System.out.println("Certificate trust is unknown");
 	  }
 	  reply = null;
@@ -176,7 +179,7 @@ public class CertificateCache
       catch (CertificateException e) {
 	// There is no suitable private key (expired, revoked, ...)
 	// Request a new one to the Certificate Authority
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Invalid certificate: " + e);
 	}
       }
@@ -249,7 +252,45 @@ public class CertificateCache
   public void revokeCertificate(Certificate certificate)
   {
   }
-
+  public  void revokeStatus(BigInteger serialno, String issuerDN, String subjectDN) {
+    if(subjectDN==null) {
+      return;
+    }
+    ArrayList list=getCertificates(subjectDN);
+    if(list.size()==0){
+      System.out.println(" cert not found in cache:");
+      return ;
+    }
+    ListIterator it = list.listIterator();
+    boolean found = false;
+    while (it.hasNext()) {
+      CertificateStatus aCertEntry = null;
+      aCertEntry = (CertificateStatus) it.next();
+      X509Certificate c1 =(X509Certificate) aCertEntry.getCertificate();
+      String issuername=c1.getIssuerDN().getName();
+      BigInteger certserialno=c1.getSerialNumber();
+      if((issuername.equals(issuerDN))&&(certserialno.equals(serialno))){
+	found=true;
+	aCertEntry.setCertificateTrust( CertificateTrust. CERT_TRUST_REVOKED_CERT);
+	aCertEntry.setValidity(false);
+	System.out.println("revoked status in cache:");
+	X500Name subjectname=null;
+	try {
+	  subjectname= new X500Name(subjectDN);
+	}
+	catch(IOException ioexp) {
+	  ioexp.printStackTrace();
+	}
+	certsCache.put((Principal)subjectname,list);
+	System.out.println("revoked status in cache:");
+	break;
+      }
+       
+    }
+    if(!found){
+      System.out.println(" not found cert:");
+    }
+  }
   private void addCertStatus(ArrayList list, CertificateStatus certEntry,
 			     PrivateKey privkey)
     throws SecurityException
@@ -267,16 +308,16 @@ public class CertificateCache
 
       if (privkey != null) {
 	pcert = new PrivateKeyCert(privkey, certEntry);
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("add Private Key:" + principal);
 	}
       }
       else {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("add Certificate:" + principal);
 	}
       }
-      if (debug) {
+      if (CryptoDebug.debug) {
 	String a = certEntry.getCertificateAlias();
 	
 	System.out.print((a != null ? "Alias: " + a + "." : "" )
@@ -292,7 +333,7 @@ public class CertificateCache
 	else {
 	  list.add(certEntry);
 	}
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println(" (first certificate)");
 	}
       } else {
@@ -316,10 +357,14 @@ public class CertificateCache
 	    // The certificate exists in the list.
 	    // Update the certificate trust field with the new one.
 	    // All other fields cannot change.
+	    if((aCertEntry.isValid()==false)&&(certEntry.isValid()==false)) {
+	      return;
+	    }
+
 	    if (aCertEntry.getCertificateType() != certEntry.getCertificateType()
 		|| aCertEntry.getCertificateOrigin() != certEntry.getCertificateOrigin()) {
 	      // Error. Certificate type and Certificate Origin cannot change
-	      if (debug) {
+	      if (CryptoDebug.debug) {
 		System.out.println("Error. Trying to update immutable fields: ");
 		System.out.println("   " + aCertEntry.getCertificateType() + " ==> " 
 				   + certEntry.getCertificateType());
@@ -328,7 +373,7 @@ public class CertificateCache
 	      }
 	      throw new SecurityException("Error. Trying to update immutable fields");
 	    }
-	    if (debug) {
+	    if (CryptoDebug.debug) {
 	      System.out.println("\nUpdating certificate status. Old trust:"
 				 + aCertEntry.getCertificateTrust()
 				 + " - new trust:" 
@@ -366,7 +411,7 @@ public class CertificateCache
 	      else {
 		it.add(certEntry);
 	      }
-	      if (debug) {
+	      if (CryptoDebug.debug) {
 		System.out.println(" (insert before index=" + it.nextIndex() + " - size="
 				   + list.size() + ")");
 	      }
@@ -382,7 +427,7 @@ public class CertificateCache
 	    else {
 	      list.add(certEntry);
 	    }
-	    if (debug) {
+	    if (CryptoDebug.debug) {
 	      System.out.println(" (insert at list end. List size=" + list.size() + ")");
 	    }
 	  }
@@ -403,21 +448,59 @@ public class CertificateCache
       try {
 	// Update Common Name to DN hashtable
 	updateCn2Dn(principal);
+	if(CryptoDebug.debug) {
+	  System.out.println("$ Certificate dn name is :"+principal.getName());
+	  System.out.println("$ Certificate Issuer dn name is :"+cert.getIssuerDN().getName());
+	  System.out.println("$ Trust of cert is :"+certEntry.getCertificateTrust());
+	}
+	if((certEntry.getCertificateTrust()== CertificateTrust.CERT_TRUST_CA_SIGNED) ||           (certEntry.getCertificateTrust() == CertificateTrust.CERT_TRUST_CA_CERT))    {
+  updateBigInt2Dn(cert);
+         }	
+         else {
+              if(CryptoDebug.debug)
+	        System.out.println("Certificate is not trusted yet:::::");
+         }
       }
       catch (CertificateException e) {
 	System.out.println("Configuration Error:");
 	System.out.println(e.getMessage());
 	return;
       }
-
+      
       ArrayList list = (ArrayList)certsCache.get(principal);
       if (list == null) {
 	list = new ArrayList();
       }
-
+      
       addCertStatus(list, certEntry, null);
       certsCache.put(principal, list);
     }
+  }
+  private void updateBigInt2Dn(X509Certificate cert) {
+    CRLKey crlkey=null;
+    String subjectDN=cert.getSubjectDN().getName();
+    String issuerDN=cert.getIssuerDN().getName();
+    BigInteger bigint=cert.getSerialNumber();
+    crlkey=new CRLKey(bigint,issuerDN);
+    
+    if(bigint2dn.contains(crlkey)) {
+      
+      if(CryptoDebug.debug) {
+	System.out.println(" Warning !!!!!Bigint to dn mapping already contains key ::"+crlkey.toString());
+	System.out.println("Warning !!!! Overriding existing entry :"+bigint2dn.get(crlkey));
+	bigint2dn.put(crlkey,subjectDN);
+      }
+    }
+    else {
+      if(CryptoDebug.debug) {
+	System.out.println(" Adding entry to Bigint to dn mapping "+crlkey.toString() + "subjectdn ::" +subjectDN);
+      }
+    }
+    bigint2dn.put(crlkey,subjectDN);
+    if(CryptoDebug.debug) {
+      printbigIntCache();
+    }
+   
   }
 
   public PrivateKey getPrivateKey(String distinguishedName)
@@ -429,7 +512,7 @@ public class CertificateCache
     try {
       x500Name = new X500Name(distinguishedName);
     } catch(Exception e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unable to get Common Name - " + e);
       }
     }
@@ -439,7 +522,7 @@ public class CertificateCache
   public PrivateKey getPrivateKey(X500Name x500Name)
   {
     PrivateKey privkey = null;
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("CertificateCache. getPrivateKey(" + x500Name + ")");
     }
 
@@ -467,6 +550,9 @@ public class CertificateCache
       try {
 	pcert.getCertificateStatus().checkCertificateValidity();
 	privkey = pcert.getPrivateKey();
+	if(CryptoDebug.debug) {
+	  System.out.println(" Got private key and returning private key :"+x500Name.toString());
+	}
 	// Key is valid. Return it.
 	break;
       } catch (CertificateNotTrustedException e) {
@@ -496,7 +582,7 @@ public class CertificateCache
 
 	  if (sendnow == false) {
 	    // This prevents from sending the request too frequently
-	    if (debug) {
+	    if (CryptoDebug.debug) {
 	      System.out.println("Waiting " +
 				 (pkcs10MinInterval - timeDiff) 
 				 + "s before send PKCS10 request");
@@ -504,7 +590,7 @@ public class CertificateCache
 	    privkey = null;
 	  }
 	  else {
-	    if (debug) {
+	    if (CryptoDebug.debug) {
 	      System.out.println("Self-signed certificate.");
 	    }
 	    // Send a PKCS#10 request to the CA.
@@ -514,7 +600,7 @@ public class CertificateCache
 	    }
 	    catch (Exception exp) {
 	      // Unable to send request. Give up.
-	      if (debug) {
+	      if (CryptoDebug.debug) {
 		System.out.println("Unable to send PKCS10 request to CA");
 	      }
 	      privkey = null;
@@ -523,7 +609,7 @@ public class CertificateCache
 	}
 	else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
 	  // Try to find out certificate trust
-	  if (debug) {
+	  if (CryptoDebug.debug) {
 	    System.out.println("Certificate trust is unknown");
 	  }
 	  privkey = null;
@@ -537,7 +623,7 @@ public class CertificateCache
       catch (CertificateException e) {
 	// There is no suitable private key (expired, revoked, ...)
 	// Request a new one to the Certificate Authority
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Invalid certificate: " + e);
 	}
 	privkey = null;
@@ -551,7 +637,7 @@ public class CertificateCache
   {
     // Create a distinguished name from the Common Name.
     String dname = (String) cn2dn.get(commonName);
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("getPrivateKeyByCommonName: cn=" + commonName
 			 + " - dn=" + dname);
     }
@@ -617,7 +703,7 @@ public class CertificateCache
       x500Name = new X500Name(principal.getName());
       cn = x500Name.getCommonName();
     } catch(Exception e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unable to get Common Name - " + e);
       }
     }
@@ -633,7 +719,19 @@ public class CertificateCache
     }
     cn2dn.put(cn, principal.getName());
   }
-
+  public void printbigIntCache()
+  {
+    Enumeration e=bigint2dn.keys();
+    CRLKey keys=null ;
+    String dnname=null;
+    System.out.println("******************** Printing contents of bigint 2dn mapping in certcache **************************** ");
+    while(e.hasMoreElements()) {
+      keys=(CRLKey)e.nextElement();
+      System.out.println("In bigint cache  Key is :"+keys.toString() +" hash code is :"+keys.hashCode());
+      dnname=(String)bigint2dn.get(keys);
+      System.out.println("In bigint cache dn name is :: "+dnname);
+    }
+  }
   public void printCertificateCache()
   {
     // Certificates
@@ -664,12 +762,23 @@ public class CertificateCache
       }
     }
   }
+  public String getDN(CRLKey crlkey)
+  {
+    if(CryptoDebug.debug)
+    System.out.println("Going to find dn for key :"+crlkey.toString());
+    String subjectDN=null;
+    if(bigint2dn.containsKey(crlkey)) {
+      subjectDN=(String)bigint2dn.get(crlkey);
+    }
+    return subjectDN;
+    
+  }
 
   public Enumeration getKeysInCache()
   {
     return certsCache.keys();
   }
-
+  
   private class PrivateKeyCert
   {
     public PrivateKey pk;
@@ -694,3 +803,12 @@ public class CertificateCache
     }
   }
 }
+
+
+
+
+
+
+
+
+

@@ -31,10 +31,11 @@ package com.nai.security.crypto;
 
 import java.security.cert.*;
 import java.util.Date;
+import com.nai.security.util.CryptoDebug;
 
 public class CertificateStatus
 {
-  private boolean debug = false;
+  //private boolean debug = false;
 
   /** Creates new CertificateStatus */
   private X509Certificate certificate = null;
@@ -69,9 +70,9 @@ public class CertificateStatus
 			   CertificateOrigin origin, CertificateType type,
 			   CertificateTrust trust,
 			   String a) {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+    /*debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
-
+    */
     certificate = cert;
     certificateIsValid = isValid;
     certificateOrigin = origin;
@@ -92,7 +93,7 @@ public class CertificateStatus
     throws CertificateExpiredException, CertificateNotYetValidException,
 	   CertificateRevokedException, CertificateNotTrustedException
   {
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Checking certificate validity for "
 			 + ((X509Certificate) getCertificate()).getSubjectDN());
     }
@@ -108,18 +109,25 @@ public class CertificateStatus
 	// 2- Certificate has not expired ("not after" date is not in the past)
       }
       else {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Certificate has been revoked");
 	}
 	throw new CertificateRevokedException("Certificate has been revoked");
       }
     }
     else {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Certificate not trusted: " + getCertificateTrust());
       }
-      throw new CertificateNotTrustedException("Certificate not trusted:",
-					       getCertificateTrust());
+      if(getCertificateTrust() == CertificateTrust. CERT_TRUST_REVOKED_CERT) {
+	certificateIsValid=false;
+	throw new CertificateRevokedException("Certificate not trusted:"+
+      				       getCertificateTrust()); 
+      }
+      else {
+	throw new CertificateNotTrustedException("Certificate not trusted:",
+      				       getCertificateTrust());
+	  }
     }
   }
 
@@ -129,6 +137,10 @@ public class CertificateStatus
 
   public boolean isValid() {
     return certificateIsValid;
+  }
+   public void  setValidity(boolean valid) {
+     certificateIsValid=valid;
+     //return certificateIsValid;
   }
 
   public String getCertificateAlias() {

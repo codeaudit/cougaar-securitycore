@@ -57,12 +57,13 @@ import java.util.*;
 
 public class CryptoProviders {
 
-  static private boolean debug = false;
+  /* static private boolean debug = false;
 
   static {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
   }
+  */
 
   /**  Dynamically load Crypto providers */
  /** This function is commented as Crypto Providers are loaded from 

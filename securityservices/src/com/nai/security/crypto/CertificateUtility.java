@@ -33,34 +33,36 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 import sun.security.pkcs.*;
 import sun.security.x509.*;
-
+import com.nai.security.util.CryptoDebug;
 public class CertificateUtility {
-  private static boolean debug = false;
+  //private static boolean debug = false;
 
   public static final String PKCS10HEADER  = "-----BEGIN NEW CERTIFICATE REQUEST-----";
   public static final String PKCS10TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
 
   public static final String PKCS7HEADER   = "-----BEGIN CERTIFICATE-----";
   public static final String PKCS7TRAILER  = "-----END CERTIFICATE-----";
-
+  public static int CACert=1;
+  public static int EntityCert=2;
+  /*
   static {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
   }
-
+  */
   public static Collection parseX509orPKCS7Cert(InputStream inputstream)
     throws CertificateException
   {
     try {
       inputstream.mark(inputstream.available());
       X509CertImpl x509certimpl = new X509CertImpl(inputstream);
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("X509: " + x509certimpl);
       }
       
       // Print DN
       X500Name x500Name = new X500Name(x509certimpl.getSubjectDN().toString());
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("DN: " + x509certimpl.getSubjectDN().toString());
       }
       return Arrays.asList(new X509Certificate[] {
@@ -133,7 +135,7 @@ public class CertificateUtility {
     // Extract Base-64 encoded request and remove request from sbuf
     String base64pkcs = sbuf.substring(ind_start + header.length(), ind_stop - 1);
     sbuf = sbuf.substring(ind_stop + trailer.length());
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("base64pkcs: " + base64pkcs + "******");
     }
     return base64pkcs;

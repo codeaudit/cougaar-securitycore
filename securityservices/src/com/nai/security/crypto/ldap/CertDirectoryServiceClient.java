@@ -23,6 +23,7 @@ package com.nai.security.crypto.ldap;
 
 import java.util.Hashtable;
 import java.security.cert.X509Certificate;
+import java.security.cert.X509CRL;
 
 public interface CertDirectoryServiceClient {
 
@@ -35,5 +36,11 @@ public interface CertDirectoryServiceClient {
   /** Return a list of certificates that satisfy a search filter. */
   LdapEntry[] searchWithFilter(String filter);
 
-  Hashtable getCRL();
+  X509CRL  getCRL(String  distingushName);
 }
+
+
+
+
+
+

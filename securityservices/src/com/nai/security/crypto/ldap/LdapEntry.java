@@ -27,6 +27,8 @@ package com.nai.security.crypto.ldap;
 
 import java.security.cert.X509Certificate;
 import java.io.Serializable;
+import java.security.PublicKey;
+import com.nai.security.crypto.CertificateType;
 
 /**
  * A bean which represent a certificate entry in the LDAP server.
@@ -36,13 +38,15 @@ public class LdapEntry implements Serializable
   private X509Certificate cert;
   private String uniqueIdentifier;
   private CertificateRevocationStatus status;
+  private CertificateType type=null;
 
   public LdapEntry(X509Certificate cert, String id,
-		   CertificateRevocationStatus status) 
+		   CertificateRevocationStatus status, CertificateType certtype) 
   {
     this.cert = cert;
     this.uniqueIdentifier = id;
     this.status = status;
+    this.type=certtype;
   }
   
   /** 
@@ -68,6 +72,22 @@ public class LdapEntry implements Serializable
    */
   public void setStatus(CertificateRevocationStatus status) {
     this.status = status;
+  }
+   /**
+   * Public accessor method for retrieving the certificate type,
+   * certificate can be either CA certificate or entity certificate
+   */
+  public CertificateType getCertificateType() {
+    return type;
+  }
+  
+  public PublicKey getPublicKey() {
+    return cert.getPublicKey();
+  }
+  
+  public String getCertDN() {
+    String dn=cert.getSubjectDN().getName();
+    return dn;
   }
 
 }

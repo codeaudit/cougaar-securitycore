@@ -26,10 +26,12 @@ import java.io.*;
 import javax.naming.*;
 import javax.naming.directory.*;
 import java.security.cert.X509Certificate;
+import java.security.cert.X509CRL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateException;
-
+import com.nai.security.util.CryptoDebug;
 import com.nai.security.crypto.Base64;
+import com.nai.security.crypto.CertificateType;
 
 public class NetToolsCertDirectoryService extends CertDirectoryService
   implements CertDirectoryServiceClient
@@ -75,7 +77,7 @@ public class NetToolsCertDirectoryService extends CertDirectoryService
       exp.printStackTrace();
     }
     if (certificate != null) {
-      ldapEntry = new LdapEntry(certificate, uniqueIdentifier, status);
+      ldapEntry = new LdapEntry(certificate, uniqueIdentifier, status,CertificateType.CERT_TYPE_END_ENTITY);
     }
     return ldapEntry;
   }
@@ -88,7 +90,7 @@ public class NetToolsCertDirectoryService extends CertDirectoryService
       sz_uid = (String)att_uid.get();
     }
     catch (NamingException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unable to get unique identifier: " + e);
 	e.printStackTrace();
       }
@@ -107,7 +109,7 @@ public class NetToolsCertDirectoryService extends CertDirectoryService
       sz_status = (String)att_status.get();
     }
     catch (NamingException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unable to check revocation status: " + e);
 	e.printStackTrace();
       }
@@ -126,14 +128,14 @@ public class NetToolsCertDirectoryService extends CertDirectoryService
 	status = CertificateRevocationStatus.UNKNOWN;
       }
     }
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Certificate status:" + status);
     }
     return status;
   }  
 
-  public Hashtable getCRL() {
-    return new Hashtable();
+  public X509CRL  getCRL(String  distingushName) {
+    return null;
   }
 
 }

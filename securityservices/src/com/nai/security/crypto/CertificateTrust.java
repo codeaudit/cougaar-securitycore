@@ -65,4 +65,8 @@ class CertificateTrust {
   public static final CertificateTrust CERT_TRUST_CA_CERT =
     new CertificateTrust("TRUST_CA_CERT");
 
+  // The certificate is a revoked certificate
+   public static final CertificateTrust CERT_TRUST_REVOKED_CERT =
+    new CertificateTrust("TRUST_REVOKED_CERT");
+
 }

@@ -24,7 +24,7 @@
 
 package com.nai.security.crypto.ldap;
 
-class CertificateRevocationStatus {
+public class CertificateRevocationStatus {
   // enumerator name
   private final String enum_name;
   
@@ -46,4 +46,6 @@ class CertificateRevocationStatus {
 
   public static final CertificateRevocationStatus REVOKED =
     new CertificateRevocationStatus("REVOKED");
+ 
 }
+

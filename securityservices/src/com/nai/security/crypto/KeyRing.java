@@ -42,9 +42,11 @@ import java.security.cert.*;
 import java.security.KeyPair;
 
 import sun.security.pkcs.*;
-
+import sun.security.x509.OIDMap;
+import sun.security.util.ObjectIdentifier;
 import org.cougaar.util.ConfigFinder;
 import com.nai.security.policy.NodePolicy;
+import com.nai.security.util.CryptoDebug;
 
 //import com.nai.security.certauthority.KeyManagement;
 
@@ -60,9 +62,12 @@ final public class KeyRing {
   private static PrivateKeyPKCS12 pkcs12;
 
   static {
+  /*  
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
+ 						"false"))).booleanValue();
+  */   
     init();
+    
   }
 
   private static synchronized void init() {
@@ -87,7 +92,7 @@ final public class KeyRing {
 			     defaultKeystorePath);
       File file = new File(param.keystorePath);
       if (!file.exists()){
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println(param.keystorePath +
 			     " keystore does not exist. Creating...");
 	}
@@ -103,7 +108,7 @@ final public class KeyRing {
       // CA keystore parameters
       confParser = new ConfParser();
       String role = System.getProperty("org.cougaar.security.role"); 
-      if (role == null && debug == true) {
+      if (role == null && CryptoDebug.debug == true) {
 	System.out.println("Keyring Warning: LDAP role not defined");
       }
       NodePolicy nodePolicy = confParser.readNodePolicy(role);
@@ -118,7 +123,7 @@ final public class KeyRing {
 	param.caKeystoreStream = new FileInputStream(param.caKeystorePath);
       }
       catch (Exception e) {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Could not open CA keystore: " + e);
 	}
 	param.caKeystoreStream = null;
@@ -126,7 +131,7 @@ final public class KeyRing {
 	param.caKeystorePassword = null;
       }
 
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Secure message keystore: path=" + param.keystorePath);
 	System.out.println("Secure message CA keystore: path=" + param.caKeystorePath);
       }
@@ -187,7 +192,7 @@ final public class KeyRing {
   }
 
   public static synchronized Certificate findCert(String commonName) {
-    if(debug)
+    if(CryptoDebug.debug)
       System.out.println("Looking for common name " + commonName + " in keystore ");
     return keystore.findCert(commonName);
   }
@@ -237,7 +242,8 @@ final public class KeyRing {
     if (keystore == null) {
       return null;
     }
-    return keystore.getCRL();
+    return null;
+    //return keystore.getCRL();
   }
 
   public static synchronized void checkOrMakeCert(String name)

@@ -29,6 +29,7 @@ import java.security.MessageDigest;
 import javax.naming.*;
 import javax.naming.directory.*;
 
+import com.nai.security.util.CryptoDebug;
 import com.nai.security.crypto.Base64;
 
 /** RFCs that are applicable to LDAP:
@@ -43,23 +44,29 @@ public abstract class CertDirectoryService
   public static final String UID_ATTRIBUTE = "uniqueIdentifier";
   public static final String DN_ATTRIBUTE = "DN";
   public static final String STATUS_ATTRIBUTE = "info";
-
+  public static final String CACERTIFICATE_ATTRIBUTE= "cACertificate;binary";
+  public static final String USERCERTIFICATE_ATTRIBUTE ="userCertificate;binary";
+  public static final String CERTIFICATEREVOCATIONLIST_ATTRIBUTE ="certificateRevocationList;binary";
+  public static final String AUTHORITYREVOCATIONLIST_ATTRIBUTE ="authorityRevocationList;binary";
+  public static final String OBJECTCLASS_CERTIFICATIONAUTHORITY ="certificationAuthority";
+  public static final String OBJECTCLASS_INETORGPERSON ="inetOrgPerson";
   protected String ldapServerUrl;
   protected DirContext context;
   protected boolean initializationOK = false;
   protected static String CONTEXT_FACTORY = 
     "com.sun.jndi.ldap.LdapCtxFactory";
 
-  protected boolean debug = false;
+  //protected boolean CryptoDebug.debug = false;
 
   /** Creates new CertDirectoryService */
 
   public CertDirectoryService(String aURL) 
     throws Exception
   {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+    /*debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
-    if (debug) {
+    */
+    if (CryptoDebug.debug) {
       System.out.println("Creating Directory Service for " + aURL);
     }
     if (aURL != null) {
@@ -74,7 +81,7 @@ public abstract class CertDirectoryService
   {
     ldapServerUrl = aURL;
     initializationOK = false;
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Using LDAP certificate directory: "
 			 + ldapServerUrl);
     }
@@ -88,7 +95,7 @@ public abstract class CertDirectoryService
       initializationOK = true;
     }
     catch(NamingException nexp) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.err.println("Warning:can't connect to LDAP server: "
 			   + ldapServerUrl);
 	System.err.println("Reason: " + nexp + ". Use local keystore only.");
@@ -106,6 +113,9 @@ public abstract class CertDirectoryService
 
   public synchronized LdapEntry[] searchWithFilter(String filter)
   {
+    if(CryptoDebug.debug) {
+      System.out.println("Search with filter called & filter is "+filter);
+    }
     NamingEnumeration search_results = internalSearchWithFilter(filter);
     ArrayList certList = new ArrayList();
     LdapEntry[] certs = new LdapEntry[0];
@@ -126,7 +136,7 @@ public abstract class CertDirectoryService
       if (ldapEntry == null) {
 	continue;
       }
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Certificate status: "
 			   + ldapEntry.getStatus()
 			   + " - uid: " + ldapEntry.getUniqueIdentifier());
@@ -137,15 +147,17 @@ public abstract class CertDirectoryService
   }
 
 
-  private NamingEnumeration internalSearchWithFilter(String filter)
+  public  NamingEnumeration internalSearchWithFilter(String filter)
   {
     if (!isInitialized()) {
+      if(CryptoDebug.debug)
+      System.out.println(" Ldap is not init");
       return null;
     }
     NamingEnumeration results=null;
     SearchControls constraints=new SearchControls();
     constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Filter provided for search:" + filter);
       System.out.println("LDAP server url:" + ldapServerUrl);
     }
@@ -158,6 +170,12 @@ public abstract class CertDirectoryService
       System.out.println("search failed");
       searchexp.printStackTrace();
     }
+    catch(Exception exp) {
+      exp.printStackTrace();
+    }
+    if(CryptoDebug.debug) {
+      System.out.println("returning results for filter :"+filter);
+    }
     return results;
   }
 
@@ -166,7 +184,7 @@ public abstract class CertDirectoryService
   public abstract LdapEntry getCertificate(SearchResult result);
 
   private boolean isInitialized() {
-    if (debug && !initializationOK) {
+    if (CryptoDebug.debug && !initializationOK) {
       System.out.println("LDAP client not initialized");
     }
     return initializationOK;
@@ -202,7 +220,7 @@ public abstract class CertDirectoryService
       hash = toHex(certDigest.digest());
     }
     catch(Exception ex) {
-      if(debug) {
+      if(CryptoDebug.debug) {
 	ex.printStackTrace();
       }
     }
@@ -220,7 +238,7 @@ public abstract class CertDirectoryService
       inStream.close();
     }
     catch(Exception ex) {
-      if(debug)ex.printStackTrace();
+      if(CryptoDebug.debug)ex.printStackTrace();
     }
     return cert;
   }
@@ -234,7 +252,7 @@ public abstract class CertDirectoryService
       inStream.close();
     }
     catch(Exception ex) {
-      if(debug)ex.printStackTrace();
+      if(CryptoDebug.debug)ex.printStackTrace();
     }
     return cert;
   }

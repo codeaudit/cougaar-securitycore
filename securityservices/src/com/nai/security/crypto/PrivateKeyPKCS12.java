@@ -42,18 +42,20 @@ import java.security.spec.InvalidKeySpecException;
 import com.ibm.security.pkcs12.PKCS12PFX;
 import com.ibm.security.pkcs8.PrivateKeyInfo;
 import com.ibm.security.pkcsutil.PKCSException;
+import com.nai.security.util.CryptoDebug;
 
 public class PrivateKeyPKCS12
 {
-  private static boolean debug = false;
+  //private static boolean CryptoDebug.debug = false;
   private DirectoryKeyStore directory = null;
 
   public PrivateKeyPKCS12(DirectoryKeyStore aDirectory)
   {
-    String debugProperty = "org.cougaar.core.security.crypto.debug";
+    /*String debugProperty = "org.cougaar.core.security.crypto.debug";
     debug =
       (Boolean.valueOf(System.getProperty(debugProperty,
 					  "false"))).booleanValue();
+    */
     directory = aDirectory;
   }
 
@@ -73,7 +75,7 @@ public class PrivateKeyPKCS12
      * Create an array of certificates.  The certificates in the array 
      * belong to each intended receiver of the private information. 
      */
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Creating array of receiver certificates");
     }
     Certificate[] rcvrCerts = new Certificate[1];
@@ -82,7 +84,7 @@ public class PrivateKeyPKCS12
     /* 
      * Create an empty PKCS12PFX to which the data items will be added.
      */
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Creating an empty PKCS12PFX");
     }
     PKCS12PFX pfx = new PKCS12PFX();
@@ -102,17 +104,17 @@ public class PrivateKeyPKCS12
       * public-key privacy.
       */
     try {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Adding certificate to the PFX");
       }
       pfx.addBagWithPubkeyPrivacy(cert, null, rcvrCerts);
 
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Adding signer certificate to the PFX");
       }
       pfx.addBagWithPubkeyPrivacy(signerCert, null, rcvrCerts);
 
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Adding private key to the PFX");
       }
       try {
@@ -121,13 +123,13 @@ public class PrivateKeyPKCS12
 	PrivateKeyInfo pkinfo = new PrivateKeyInfo(algid, privKey.getEncoded(), null);
 	pfx.addBagWithPubkeyPrivacy(pkinfo, null, rcvrCerts);
       } catch (java.security.NoSuchAlgorithmException ex) {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Error: " + ex);
 	}
 	return null;
       }
     } catch (PKCSException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error adding data to the PFX.");
 	System.out.println("Original Exception:");
 	e.getRelatedException().printStackTrace();
@@ -143,19 +145,19 @@ public class PrivateKeyPKCS12
      * verify the signature.
      */
     try {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Adding clear-text signer certificate to the PFX");
       }
       pfx.addBag(signerCert, null);
     } catch (PKCSException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error adding signer certificate to the PFX.");
 	System.out.println("Original Exception:");
 	e.getRelatedException().printStackTrace();
       }
       return null;
     } catch (IOException e2) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error adding signer certificate to the PFX.");
 	e2.printStackTrace();
       }
@@ -169,13 +171,13 @@ public class PrivateKeyPKCS12
      * using DSA keys).  Valid digest algorithms are SHA1, MD2 and MD5 
      * (when using RSA) and SHA1 (when using DSA).
      */
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Applying a digital signature to the PFX");
     }
     try {
       pfx.applySignature("SHA1", "RSA", signerCert, signerPrivKey);
     } catch (PKCSException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error protecting PFX.");
 	System.out.println("Original Exception:");
 	e.getRelatedException().printStackTrace();
@@ -184,13 +186,13 @@ public class PrivateKeyPKCS12
       }
       return null;
     } catch (IOException e2) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error protecting PFX.");
 	e2.printStackTrace();
       }
       return null;
     } catch (NoSuchAlgorithmException e3) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("An HMAC algorithm is not supported");
 	e3.printStackTrace();
       }
@@ -201,7 +203,7 @@ public class PrivateKeyPKCS12
     try {
       pfx.encode(ba);
     } catch (IOException e2) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unable to encode PFX.");
 	e2.printStackTrace();
       }
@@ -230,12 +232,12 @@ public class PrivateKeyPKCS12
      * key mode was used to protect data privacy and ensure data integrity. 
      */
     try {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Creating PKCS12 envelope from DER encoded value");
       }
       pfx = new PKCS12PFX(pfxBytes);
     } catch (IOException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Cannot create PFX from DER-encoding."); 
 	e.printStackTrace();
 	return keypairs;
@@ -249,7 +251,7 @@ public class PrivateKeyPKCS12
       // There should be only one certificate.
       signerCerts = pfx.getAllCertificates(null, null, null);
     } catch (PKCSException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error retrieving signer certificate from PFX.");
 	System.out.println("Original Exception:");
 	e.getRelatedException().printStackTrace();
@@ -258,19 +260,19 @@ public class PrivateKeyPKCS12
 	return keypairs;
       }
     } catch (IOException e2) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error retrieving signer certificate from PFX.");
 	e2.printStackTrace();
 	return keypairs;
       }
     }
-    if(debug) {
+    if(CryptoDebug.debug) {
       System.out.println("The PKCS12 envelope contains "
 			 + ((signerCerts != null) ? signerCerts.length : 0)
 			 + " unprotected certificates");
     }
     if (signerCerts == null || signerCerts.length != 1) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unable to retrieve signer certificate");
       }
       return keypairs;
@@ -279,7 +281,7 @@ public class PrivateKeyPKCS12
 
     /* Check the trust of the signer certificate.
      */
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Checking signer certificate trust for "
 			 + signerCert.toString());
     }
@@ -289,7 +291,7 @@ public class PrivateKeyPKCS12
 	directory.checkCertificateTrust((X509Certificate)signerCert);
     }
     catch (Exception e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Warning: Signer Certificate is not trusted" + e);
       }
       return keypairs;
@@ -301,22 +303,22 @@ public class PrivateKeyPKCS12
      * private key that signed the PFX.  This public key is usually found
      * within a certificate.
      */
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Verifying the PFX digital signature");
     }
     try {
       if (pfx.verifySignature(signerCert)) {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("The PFX data is verified");
 	}
       } else {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("The PFX data is not verified");
 	}
 	return keypairs;
       }
     } catch (PKCSException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error verifying signature.");
 	System.out.println("Original Exception:");
 	e.getRelatedException().printStackTrace();
@@ -325,13 +327,13 @@ public class PrivateKeyPKCS12
       }
       return keypairs;
     } catch (NoSuchAlgorithmException e2) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Unsupported signature algorithm.");
 	e2.printStackTrace();
       }
       return keypairs;
     } catch (IOException e3) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("IOException verifying signature.");
 	e3.printStackTrace();
       }
@@ -349,18 +351,18 @@ public class PrivateKeyPKCS12
     /* 
      * Attempt to get certificates using a good certificate and private key.
      */
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Extracting certificates");
     }
     try {
       certs = pfx.getAllCertificates(null, rcvrPrivKey, rcvrCert);
       if ((certs == null) || (certs.length == 0)) {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Got no certificates");
 	}
 	return keypairs;
       } else {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Got " + certs.length + " certificates");
 	  for (int i = 0 ; i < certs.length ; i++) {
 	    System.out.println("Certificate[" + i + "]="
@@ -369,7 +371,7 @@ public class PrivateKeyPKCS12
 	}
       }
     } catch (PKCSException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error extracting certificates from PFX.");
 	System.out.println("Original Exception:");
 	e.getRelatedException().printStackTrace();
@@ -378,30 +380,30 @@ public class PrivateKeyPKCS12
       }
       return keypairs;
     } catch (IOException e2) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error extracting certificates from PFX.");
 	e2.printStackTrace();
       }
       return keypairs;
     }
 
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Extracting private keys");
     }
     try {
       keys = pfx.getAllPrivateKeys(null, rcvrPrivKey, rcvrCert);
       if ((keys == null) || (keys.length == 0)) {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Got no private keys");
 	}
 	return keypairs;
       } else {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Got " + keys.length + " private keys");
 	}
       }
     } catch (PKCSException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error extracting private keys from PFX.");
 	System.out.println("Original Exception:");
 	e.getRelatedException().printStackTrace();
@@ -410,7 +412,7 @@ public class PrivateKeyPKCS12
       }
       return keypairs;
     } catch (IOException e2) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error extracting private keys from PFX.");
 	e2.printStackTrace();
       }
@@ -419,7 +421,7 @@ public class PrivateKeyPKCS12
 
     /*
     if (keys.length != certs.length) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Error: Number of certs does not match number of private keys");
       }
       return keypairs;
@@ -430,12 +432,12 @@ public class PrivateKeyPKCS12
     for (int i = 0 ; i < keys.length ; i++) {
       /* Check the trust of each certificate.
        */
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Checking certificate trust");
       }
       X509Certificate[] certChain = null;
       if (directory == null) {
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Warning: certificate trust cannot be verified");
 	}
       }
@@ -445,7 +447,7 @@ public class PrivateKeyPKCS12
 	    directory.checkCertificateTrust((X509Certificate)certs[i]);
 	}
 	catch (Exception e) {
-	  if (debug) {
+	  if (CryptoDebug.debug) {
 	    System.out.println("Warning: Certificate is not trusted");
 	  }
 	  keypairs[i] = null;
@@ -458,7 +460,7 @@ public class PrivateKeyPKCS12
 			      CertificateType.CERT_TYPE_END_ENTITY,
 			      CertificateTrust.CERT_TRUST_CA_SIGNED,
 			      null);
-      if (debug) {
+      if (CryptoDebug.debug) {
         System.out.println("Private key in PKCS#12 envelope is trusted");
       }
       keypairs[i] = new PrivateKeyCert(keys[i], cs);
@@ -478,24 +480,24 @@ public class PrivateKeyPKCS12
     String pkcs12Alias = args[1];
     String receiverAlias = args[2];
 
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("========= Looking up key for sender node");
     }
     PrivateKey signerPrivKey = KeyRing.findPrivateKey(signerAlias);
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("========= Looking up certificate for sender node");
     }
     X509Certificate signerCertificate =
       (X509Certificate)KeyRing.findCert(signerAlias);
 
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("======== Looking up agent's key to be wrapped");
     }
     PrivateKey privKey = KeyRing.findPrivateKey(pkcs12Alias);
     X509Certificate cert =
       (X509Certificate)KeyRing.findCert(pkcs12Alias);
 
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("======== Looking up key for receiver node");
     }
     PrivateKey rcvrPrivKey = KeyRing.findPrivateKey(receiverAlias);
@@ -505,10 +507,10 @@ public class PrivateKeyPKCS12
     java.security.PublicKey pubKey = rcvrCert.getPublicKey();
     String alg = rcvrCert.getPublicKey().getAlgorithm();
 
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Encryption parameters: " + alg);
     }
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("======== Wrapping agent's key:");
     }
     try {
@@ -517,13 +519,13 @@ public class PrivateKeyPKCS12
       cipher.doFinal(privKey.getEncoded());
     }
     catch(Exception e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
 	System.out.println("Key encryption error (" + e.toString() + ")");
 	e.printStackTrace();
       }
     }
 
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("======== Creating PKCS#12 envelope");
     }
     byte[] pkcs12 = KeyRing.protectPrivateKey(privKey,
@@ -532,7 +534,7 @@ public class PrivateKeyPKCS12
 					      signerCertificate,
 					      rcvrCert);
 
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("======== Extracting PKCS#12 envelope");
     }
     PrivateKeyCert[] pkey = KeyRing.getPfx(pkcs12,

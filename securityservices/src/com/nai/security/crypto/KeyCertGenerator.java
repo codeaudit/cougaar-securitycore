@@ -32,10 +32,11 @@ import java.security.cert.*;
 import java.util.Date;
 import sun.security.pkcs.PKCS10;
 import sun.security.x509.*;
+import com.nai.security.util.CryptoDebug;
 
 public final class KeyCertGenerator
 {
-  private boolean debug = false;
+  //private boolean CryptoDebug.debug = false;
 
   /** Initialize the key pair generator.
    *  @param algorithm      The standard string name of the algorithm.
@@ -60,9 +61,10 @@ public final class KeyCertGenerator
 			  String provider)
     throws NoSuchAlgorithmException, NoSuchProviderException
   {
-    debug =
-      (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+    /*CryptoDebug.debug =
+      (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.CryptoDebug.debug",
 					  "false"))).booleanValue();
+   */    
     if (provider == null || provider.equals("")) {
       keyGen = KeyPairGenerator.getInstance(algorithm);
     }
@@ -86,7 +88,7 @@ public final class KeyCertGenerator
       {
 	if(prng == null)
 	  prng = new SecureRandom();
-	if (debug) {
+	if (CryptoDebug.debug) {
 	  System.out.println("Generate key pair. Using provider: " +
 			     keyGen.getProvider().toString());
 	}
