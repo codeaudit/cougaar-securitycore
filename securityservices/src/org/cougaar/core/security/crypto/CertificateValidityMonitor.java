@@ -95,18 +95,21 @@ public class CertificateValidityMonitor
       }
 
       Vector list = new Vector();
-      checkValidity(NodeInfo.getNodeName());
+      keyRing.checkExpiry(NodeInfo.getNodeName());
       // node in priority
       // CA cert should not be in validity checking, otherwise CA cert should be
       // checked first
       for (Enumeration enum = certListeners.keys(); enum.hasMoreElements(); ) {
         String commonName = (String)enum.nextElement();
-        if (!commonName.equals(NodeInfo.getNodeName()))
-          checkValidity(commonName);
+        if (!commonName.equals(NodeInfo.getNodeName())) {
+          //checkValidity(commonName);
+          keyRing.checkExpiry(commonName);
+        }
       }
     }
   }
 
+  /*
   private void checkValidity(String commonName) {
     boolean updated = false;
     // expriy check
@@ -116,6 +119,18 @@ public class CertificateValidityMonitor
         CertValidityListener listener = (CertValidityListener)v.get(i);
         listener.updateCertificate();
       }
+    }
+  }
+  */
+
+  public void updateCertificate(String commonName) {
+    Vector v = (Vector)certListeners.get(commonName);
+    if (v == null) {
+      return;
+    }
+    for (int i = 0; i < v.size(); i++) {
+      CertValidityListener listener = (CertValidityListener)v.get(i);
+      listener.updateCertificate();
     }
   }
 
