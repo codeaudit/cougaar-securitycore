@@ -228,11 +228,11 @@ public class EtherealHierarchyParser
       _log.warn("Unable to read file:" + _logFileName);
     }
 
-    Enumeration enum =
+    Enumeration en =
       ((DefaultMutableTreeNode)_protocolHierarchyTree).breadthFirstEnumeration();
-    while (enum.hasMoreElements()) {
+    while (en.hasMoreElements()) {
       ProtocolStatistics ps = (ProtocolStatistics)
-	((DefaultMutableTreeNode)enum.nextElement()).getUserObject();
+	((DefaultMutableTreeNode)en.nextElement()).getUserObject();
       long bytes = ps.getBytes().longValue();
       long frames = ps.getFrames().longValue();
       if (ps.getProtocolPolicy().isEncrypted() == Boolean.TRUE) {

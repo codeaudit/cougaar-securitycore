@@ -103,9 +103,9 @@ public class ProtocolHierarchyFrame
     DefaultMutableTreeNode rootNode =
       (DefaultMutableTreeNode)tree.getTree().getModel().getRoot();
     //System.out.println("class: " + rootNode.getClass().getName());
-    Enumeration enum = rootNode.breadthFirstEnumeration();
-    while (enum.hasMoreElements()) {
-      DefaultMutableTreeNode element = (DefaultMutableTreeNode)enum.nextElement();
+    Enumeration en = rootNode.breadthFirstEnumeration();
+    while (en.hasMoreElements()) {
+      DefaultMutableTreeNode element = (DefaultMutableTreeNode)en.nextElement();
       TreeNode[] path = element.getPath();
       TreePath tp = new TreePath(path);
       tree.getTree().expandPath(tp);

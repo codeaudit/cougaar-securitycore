@@ -418,9 +418,9 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
 
   private void processTesting() {
-    Enumeration enum = testingSubscription.getAddedList();
-    if (enum.hasMoreElements()) {
-      Task task = (Task) enum.nextElement();
+    Enumeration en = testingSubscription.getAddedList();
+    if (en.hasMoreElements()) {
+      Task task = (Task) en.nextElement();
       PrepositionalPhrase p = task.getPrepositionalPhrase(BlackboardTestManagerServlet.STATUS);
       String status = (String) p.getIndirectObject();
       PrepositionalPhrase expP = task.getPrepositionalPhrase(BlackboardTestManagerServlet.EXP_NAME_PREP);

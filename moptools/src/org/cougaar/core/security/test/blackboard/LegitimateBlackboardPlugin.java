@@ -82,14 +82,14 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
    * Process subscriptions
    */
   public void execute() {
-    Enumeration enum = orgStatusSubscription.getAddedList();
-    if (enum.hasMoreElements()) {
+    Enumeration en = orgStatusSubscription.getAddedList();
+    if (en.hasMoreElements()) {
       if (logging.isDebugEnabled()) {
 	logging.debug("New element in orgStatusSubscription.getAddedList");
       }
       // We previously added a fake OrgActivity object on the blackboard.
       queryOrgActivity(true);
-      OrgActivityStatus oas = (OrgActivityStatus) enum.nextElement();
+      OrgActivityStatus oas = (OrgActivityStatus) en.nextElement();
       // Now that we tested, remove the OrgActivity.
       publishRemoveOrgActivity(oas);
     }
@@ -102,8 +102,8 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
    * should be present, but can't get any through querying the blacboard
    */
   protected void queryBlackboard() {
-    Enumeration enum = orgStatusSubscription.getAddedList();
-    if (!enum.hasMoreElements()) {
+    Enumeration en = orgStatusSubscription.getAddedList();
+    if (!en.hasMoreElements()) {
       // We did not add a fake orgactivity object on the blackboard.
       // That does not mean there is necessarily one already.
       // We might have to add one.
