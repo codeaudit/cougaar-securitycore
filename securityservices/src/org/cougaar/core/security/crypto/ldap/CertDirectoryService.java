@@ -124,7 +124,7 @@ public abstract class CertDirectoryService
       if (useSSL) {
         env.put(Context.SECURITY_PROTOCOL, "ssl");
         env.put("java.naming.ldap.factory.socket", 
-                "org.cougaar.core.security.crypto.ldap.KeyRingSSLFactory");
+                "org.cougaar.core.security.ssl.KeyRingSSLFactory");
       }
       
       context=new InitialDirContext(env);
