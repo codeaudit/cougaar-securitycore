@@ -101,25 +101,28 @@ class Security3c2 < SecurityStressFramework
   end
 
   def revokeAgent(agent)
-    agent1 = @run.society.agents[agent]
-    if (agent1 == nil) 
-      raise "Unable to find source agent: #{agent}"
+    if (agent == nil) 
+      raise "Unable to revoke nil agent"
     end
 
     # Prevent CRL to reach revoked agent.
     # That way, the revoked agent will succeed sending a message out,
     # and we can test that the receiver is blocking the message.
-     uri = nil
-     logInfoMsg "agent1.kind_of: #{agent1.type}"
-     if (agent1.kind_of? Cougaar::Model::Agent)
-       uri = agent1.node.uri
-     else
-       uri = agent1.uri
-     end
+    uri = nil
+    if agent.instance_of? Cougaar::Model::Agent
+      uri = agent.node.agent.uri
+      logInfoMsg "Agent - Blocking CRL #{agent.node.name} at #{uri}"
+    elsif agent.instance_of? Cougaar::Model::Node
+      uri = agent.uri
+      logInfoMsg "Node - Blocking CRL #{agent.name} at #{uri}"
+    else
+      raise "Unexpected type: #{agent.type}"
+    end
+
     uriEnqueue = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=true"
     result, url = Cougaar::Communications::HTTP.get(uriEnqueue)
     if !(result =~ /Success/)
-      saveAssertion("Stress5k104", "Unable to block CRL msg at #{agent1.name}\nURL: #{url}\n#{result}")
+      saveAssertion("Stress5k104", "Unable to block CRL msg at #{agent.name}\nURL: #{uriEnqueue}\n#{result}")
     end
 
     # Now, revoke the agent.
@@ -138,20 +141,20 @@ class Security3c2 < SecurityStressFramework
     sleep(5.minutes)
 
     saveAssertion("Stress5k104",
-                  "Sending msg from #{agent1.name} to #{agent2.name}... Sender does not have CRL")
-    testMessage(agent1, agent2, "Sender does not have CRL")      
+                  "Sending msg from #{agent.name} to #{agent2.name}... Sender does not have CRL")
+    testMessage(agent, agent2, "Sender does not have CRL")      
 
     # Now, re-enable CRL to reach the revoked agent.
     uriDequeue = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=false"
     result, url = Cougaar::Communications::HTTP.get(uriDequeue)
     if !(result =~ /Success/)
-      saveAssertion("Stress5k104", "Unable to re-enable CRL msg at #{agent1.name}\nURL: #{url}\n#{result}")
+      saveAssertion("Stress5k104", "Unable to re-enable CRL msg at #{agent.name}\nURL: #{url}\n#{result}")
     end
 
     # Now that the sender has CRLs, try again.
     # The sender should not even send the relay message.
-    saveAssertion("Stress5k104", "Sending msg from #{agent1.name} to #{agent2.name}... Sender should have CRL")
-    testMessage(agent1, agent2, "Sender has CRL")
+    saveAssertion("Stress5k104", "Sending msg from #{agent.name} to #{agent2.name}... Sender should have CRL")
+    testMessage(agent, agent2, "Sender has CRL")
 
   end
 
@@ -193,7 +196,7 @@ class Security3c2 < SecurityStressFramework
       begin
         @revoked_agent = getAttackAgent()
         @revoked_node = getAttackNode()
-        revokeAgent(@revoked_agent.name)
+        revokeAgent(@revoked_agent)
         sleep(10.minutes)
         revokeNode(@revoked_node)
 

@@ -220,7 +220,7 @@ class UserDomain
       if useCase
         saveResult(successBoolean, useCase, msg)
       else
-        logInfoMsg msg
+        saveAssertion "", msg
       end
       #      addUserTry Time.now, msg, code
       sleep(1.seconds) unless counter>=count
