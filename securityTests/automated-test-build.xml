@@ -62,7 +62,8 @@
                - Missing statements that should have been logged but were not.
                - Extra statements that indicate failures (e.g. exceptions)
       -->
-      <!-- Step 1: download cougaar -->
+      <!-- Step 1: download cougaar. This is performed automatically
+           by the cougaarbuild ant script. -->
       <!-- Step 2: obtain the security service overlays -->
       <antcall target="get-overlays"/>
       <!-- Step 3: create ZIP file -->
@@ -149,6 +150,10 @@
         keyfile="${user.home}/.ssh/id_dsa"
 	command="cd ${testbed.cip.dir} ; for f in *.zip ; do unzip $f ; done"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
+
+      <loadfile property="ssh-message-1"
+               srcFile="${analysis.directory.name}/sshexec.log"/>
+      <echo message="Result of SSH commands: ${ssh-message-1}"/>
     </target>
 
     <target name="run-society">
