@@ -27,7 +27,9 @@ public class CmrDomain implements Domain {
   }
 
   // Could initialize constants used in the domain here, for example
-  public void initialize() { }
+  public void initialize() {
+      System.out.println(" Just to  checking whether initialize of crm domain is called: ****************"); 
+  }
 
   // Here we say that we're just going to use the same basic
   // blackboard as everyone else.
