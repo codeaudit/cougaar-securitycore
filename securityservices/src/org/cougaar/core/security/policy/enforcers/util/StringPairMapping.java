@@ -52,10 +52,7 @@ public class StringPairMapping {
 
   public StringPairMapping(ServiceBroker sb)
   {
-    _log = (LoggingService)
-      sb.getService(this,
-                    LoggingService.class, 
-                    null);
+    _log = (LoggingService) sb.getService(this, LoggingService.class, null);
     if (_log.isDebugEnabled()) {
       _log.debug("Initializing String Pair Mapper");
     }
@@ -66,7 +63,7 @@ public class StringPairMapping {
    * This method reads a mapping from a file.  
    */
 
-  public List loadPairs(String filename)
+  protected List loadPairs(String filename)
     throws IOException
   {
     _log.debug(".loadPairs Initilizing String Pair mapping using " + filename);
@@ -107,7 +104,7 @@ public class StringPairMapping {
     return mapping;
   }
 
-  public Map loadMap(String filename) throws IOException {
+  public Map buildMap(String filename) throws IOException {
     Map m = new HashMap();
     List l = loadPairs(filename);
     Iterator iter = l.iterator();
@@ -123,7 +120,7 @@ public class StringPairMapping {
     return m;
   }
 
-  public Map loadFunctionalMap(String filename) throws IOException {
+  public Map buildFunctionalMap(String filename) throws IOException {
     Map m = new HashMap();
     List l = loadPairs(filename);
     Iterator iter = l.iterator();

@@ -56,7 +56,7 @@ public class RoleMapping extends StringPairMapping {
   private void initializeComponent() {
     try {
       _log.debug("loading component/role mappings...");
-      _componentMap = loadMap("RoleComponentMap");
+      _componentMap = buildMap("RoleComponentMap");
     } catch (IOException e) {
       _log.error("IOException reading coponent -> role configuration file", e);
     }
@@ -65,7 +65,7 @@ public class RoleMapping extends StringPairMapping {
   private void initializeAgent() {
     try {
       _log.debug("loading agent/role mappings...");
-      _agentMap = loadMap("RoleAgentMap");
+      _agentMap = buildMap("RoleAgentMap");
     } catch (IOException e) {
       _log.error("IOException reading agent -> role configuration file", e);
     }
@@ -74,7 +74,7 @@ public class RoleMapping extends StringPairMapping {
   private void initializeUri() {
     try {
       _log.debug("loading uri/role mappings...");
-      _uriMap = loadMap("RoleUriMap");
+      _uriMap = buildMap("RoleUriMap");
     } catch (IOException e) {
       _log.error("IOException reading uri -> role configuration file", e);
     }
