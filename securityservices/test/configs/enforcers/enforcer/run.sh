@@ -39,5 +39,5 @@ MYCLASSES="org.cougaar.bootstrap.Bootstrapper org.cougaar.core.node.Node"
 MYARGUMENTS="-c -n $1"
 
 echo java $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS $MYCLASSES $MYARGUMENTS $2 $3
-java $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS $MYCLASSES $MYARGUMENTS $2 $3
+java $DEBUG $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS $MYCLASSES $MYARGUMENTS $2 $3
 
