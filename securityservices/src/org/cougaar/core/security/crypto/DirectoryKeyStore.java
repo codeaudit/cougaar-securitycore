@@ -2169,6 +2169,7 @@ public class DirectoryKeyStore
     PrivateKey privatekey = certandkeygen.getPrivateKey();
     X509Certificate ax509certificate[] = new X509Certificate[1];
 
+    long envelope = cryptoClientPolicy.getCertificateAttributesPolicy().regenEnvelope;
     boolean isSigner = false;
     // isCA and is CA DN
     if (isCACert)
@@ -2179,7 +2180,7 @@ public class DirectoryKeyStore
         && cryptoClientPolicy.getCertificateAttributesPolicy().nodeIsSigner;
     }
 
-    ax509certificate[0] = certandkeygen.getSelfCertificate(dname, howLong, isSigner);
+    ax509certificate[0] = certandkeygen.getSelfCertificate(dname, envelope, howLong, isSigner);
     setKeyEntry(alias, privatekey, ax509certificate);
 
     CertificateType certificateType = null;
