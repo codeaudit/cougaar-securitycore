@@ -42,18 +42,18 @@ module Cougaar
 	@stressorClassName = className
 	@methodName = methodName
 	begin
-	  #logInfoMsg "Starting stress1: #{className}.#{methodName}"
+	  #logInfoMsg "Starting stress1: #{@stressorClassName}.#{@methodName}"
 	  @stressor = Stressors.getStressInstance(className, run)
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
-	  logWarningMsg "Unable to start stress: #{className}" + ex
-          saveResult(false, 'Stress: #{className}.#{methodName}', ex)
+	  logWarningMsg "Unable to start stress: #{@stressorClassName}" + ex
+          saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}", ex)
 	  return
 	end
       end
 
       def perform()
-	logInfoMsg "Starting stress: #{@stressorClassName}.#{@methodName}" if $Dbg_action
+	logInfoMsg "Starting stress: #{@stressorclassName}.#{@methodName}" if $Dbg_action
 	if @stressor == nil
 	  return
 	end
@@ -62,7 +62,7 @@ module Cougaar
 	  @aMethod.call()
 	rescue => ex
 	  logWarningMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
-          saveResult(false, 'Stress: #{@stressorClassName}.#{methodName}',
+          saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}",
                "#{ex}\n#{ex.backtrace.join("\n")}")
 	end
 	logInfoMsg "Done invoking stress: #{@stressorClassName}.#{@methodName}" if $Dbg_action
@@ -103,7 +103,7 @@ module Cougaar
 	      @aMethod.call()
 	    rescue => ex
 	      logWarningMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
-              saveResult(false, 'Stress: #{@stressorClassName}.#{methodName}', 
+              saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}", 
                   "#{ex}\n#{ex.backtrace.join("\n")}")
 	    end
 	    id += 1
