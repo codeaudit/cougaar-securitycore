@@ -33,8 +33,8 @@ setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jsse.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jce1_2_1.jar
 
 # KAoS
-setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/kaos.jar
-setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/safe.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/kaos.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/safe.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/servlet.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/mail.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xml4j.jar
