@@ -74,8 +74,8 @@ class JoinCommunity < SecurityStressFramework
       logInfoMsg "Sleeping #{interval} secs: Waiting for MESSAGE_FAILURE"
       count += 1
     end
-    if count == 10
-      logInfoMsg "Waiting for: MESSAGE_FAILURE TimedOut"
+    if count == 50
+      logInfoMsg "Waiting for: MESSAGE_FAILURE TimedOut after #{interval*count} seconds"
       @timedOut = true
     end
   end
