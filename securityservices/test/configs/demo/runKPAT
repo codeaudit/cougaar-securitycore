@@ -34,17 +34,19 @@ if (! $?COUGAAR3RDPARTY) then
     setenv COUGAAR3RDPARTY /opt/cougaar-jars
 endif
 
-set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.cluster.startTime=08/10/2005 -Dorg.cougaar.domain.planning.ldm.lps.ComplainingLP.level=0 -Dorg.cougaar.core.cluster.SharedPlugInManager.watching=false"
+set CONFIGPATH=".;$COUGAAR_INSTALL_PATH/configs/security"
+set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.cluster.startTime=08/10/2005 -Dorg.cougaar.domain.planning.ldm.lps.ComplainingLP.level=0 -Dorg.cougaar.core.cluster.SharedPlugInManager.watching=false -Dorg.cougaar.config.path=$CONFIGPATH"
+
 
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace=$COUGAAR_INSTALL_PATH/workspace"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=$node"
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.standalone=true"
+
 
 # Logger
 rm -f kpat.log
-#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=kpat.log"
 
 set MYMEMORY=""
@@ -54,7 +56,8 @@ set javaargs="$MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
 set execclass="kaos.kpat.applet.KPATAppletMain"
 # set args=""
 #remember to change following URL to match your local configuration
-set args='http://fig:5558/$NCADomainManager/policyAdmin true'
+#set args='https://fig:6556/$NCADomainManager/policyAdmin true'
+set args='https://helmlock:6677/$caRootAgent/CA/CreateCaKeyServlet true'
 
 exec java $javaargs \
 	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
