@@ -307,6 +307,7 @@ public class OpenLdapCertDirectoryServiceImpl
 
   public X509CRL getCRL(String distingushName)
   {
+    log.debug("Get CRl called  " );
     X509CRL crl=null;
     StringBuffer  filter=new StringBuffer();
     String searchfilter= parseDN(distingushName);
@@ -315,11 +316,13 @@ public class OpenLdapCertDirectoryServiceImpl
     SearchResult  result=null;
     try {
       if(namingenum!=null) {
+	 log.debug("Get CRl serch result is not null  " );
 	if(namingenum.hasMore()) {
 	  result=(SearchResult)namingenum.next();
 	}
       }
       else {
+	 log.debug("Returning Get CRl serch result -1 " );
 	return crl;
       }
     }
@@ -327,12 +330,13 @@ public class OpenLdapCertDirectoryServiceImpl
       if(log.isWarnEnabled()) {
 	log.warn("Could not find CRL entry with filter:"+ filter.toString() + ". Reason: " + nexp);
       }
+      log.debug("Returning Get CRl serch result -2 " );
       return null;
     }
     if(result!=null) {
       crl= getCRL(result);
     }
-
+    log.debug("Returning Get CRl serch result -3 " );
     return crl;
     //return new Hashtable();
   }
@@ -831,7 +835,6 @@ public class OpenLdapCertDirectoryServiceImpl
 	      log.debug("Got extension :"+s3);
 	    }
 	    extensions.set(s3,ext);
-
 	  }
 	  else {
 	    throw new IOException (" Cannot create Extension for oid :"+oid);
@@ -971,6 +974,60 @@ public class OpenLdapCertDirectoryServiceImpl
     // Set serial number
     set.put("serialNumber",
 	    cert.getSerialNumber().toString(16).toUpperCase());
+  }
+   public String getLdapURL() {
+    return getDirectoryServiceURL();
+  }
+  
+  
+  public String getModifiedTimeStamp(String dn) {
+    log.debug("getModifiedTimeStamp in open ldap called ");
+    String lastmodified=null;
+    StringBuffer  filter=new StringBuffer();
+    String searchfilter= parseDN(dn);
+    filter.append(searchfilter);
+     log.debug("internalSearchWithFilter called in getModifiedTimeStamp of open ldap ");
+    NamingEnumeration namingenum= internalSearchWithFilter(filter.toString());
+    SearchResult  result=null;
+    try {
+      if(namingenum!=null) {
+	 log.debug("internalSearchWithFilter returned a non null result ");
+	if(namingenum.hasMore()) {
+	  result=(SearchResult)namingenum.next();
+	}
+      }
+      else {
+	return lastmodified;
+      }
+    }
+    catch (NamingException nexp) {
+      if(log.isWarnEnabled()) {
+	log.warn("Could not get last modified attribute:"+ filter.toString() + ". Reason: " + nexp);
+      }
+      return null;
+    }
+    if(result!=null) {
+      Attributes attributes = result.getAttributes();
+     lastmodified = getLastModifiedTimeStamp(attributes);
+    }
+    log.debug("getModifiedTimeStamp in open ldap is returning  ");
+    return  lastmodified;
+  } 
+    
+  private String getLastModifiedTimeStamp(Attributes attributes) {
+    
+    Attribute objectclassattribute=null;
+    ByteArrayInputStream bais=null ;
+    objectclassattribute=attributes.get(MODIFIEDTIMESTAMP);
+    String modifiedtime=null;
+    try {
+     modifiedtime=(String)objectclassattribute.get();
+    }
+    catch(NamingException nexp) {
+      log.info(" cannot get last modified time stamp");
+    }
+    return modifiedtime;
+     
   }
 
 }
