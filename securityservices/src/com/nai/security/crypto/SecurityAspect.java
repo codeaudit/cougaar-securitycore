@@ -871,6 +871,7 @@ public class SecurityAspect extends StandardAspect
     private void removeDirective(DirectiveMessage msg, int index) {
 
       Directive[] oldDirective = msg.getDirectives();
+	if(oldDirective.length == 0) return;
 
       Directive[] newDirective = new Directive[oldDirective.length - 1];
 
@@ -1294,7 +1295,7 @@ public class SecurityAspect extends StandardAspect
 
 				    + source + ", " + target + ", " + verb );
 
-	return true;		// we have no policy so return true
+	return false;		// we have no policy so return 
 
       }
 
