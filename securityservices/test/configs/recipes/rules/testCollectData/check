@@ -20,7 +20,7 @@ mysql --skip-column-names -h cougaar-db -u society_config -ps0c0nfig \
   use cougaar104
   select CONCAT('DELETE FROM csi_unused_subordinates where superior =',
                  "'",superior,"'",' and subordinate = ',
-                 "'",subordinate, "'",';') from csi_subordinate_reported;
+                 "'",subordinate, "'",';') from csi_subordinate_reporting;
 EOF2
 
 mysql -h cougaar-db -u society_config -ps0c0nfig < /tmp/delete.sql

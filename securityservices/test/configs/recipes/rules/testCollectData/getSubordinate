@@ -1,0 +1,9 @@
+#!/bin/sh
+
+mysql -h cougaar-db -u society_config -ps0c0nfig <<EOF
+use cougaar104
+select "Finding the subordinates of $1";
+select subordinate from csi_subordinates  where superior = '$1';
+select "Finding the subordinates of $1 that reported";
+select subordinate from csi_subordinate_reporting  where superior = '$1';
+EOF

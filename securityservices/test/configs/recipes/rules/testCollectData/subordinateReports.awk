@@ -1,5 +1,5 @@
 BEGIN {
-  FS = ":";
+  FS = "[ ]*:[ ]*";
   print "use cougaar104"
   print "create table if not exists csi_subordinate_reported"
   print "    (subordinate varchar(150), superior varchar(150));"
@@ -12,24 +12,24 @@ BEGIN {
     }
 
 /BlackBoardCollectorPlugin - Interception: ReportForDuty with role / {
-  if ($7 == " Subordinate") {
+  if ($7 == "Subordinate") {
     n = split($5, a, "[ ]*") ;
-    subordinate = a[n-1]  ;
+    subordinate = a[n]  ;
     subordinate = substr(subordinate, 0, length(subordinate)-1);
 
     n = split($6, a, "[ ]*") ;
-    superior = a[n-1]  ;
+    superior = a[n]  ;
     superior = substr(superior, 0, length(superior)-1);
 
     if (superior != "") {
       print "insert into csi_subordinate_reported";
-      print "   values ('" subordinate "', '" superior "');";
+      print "   values ('" subordinate "', '"  superior "');";
     }
   } 
 }
 
 /BlackBoardCollectorPlugin - Interception: ReportChainReady / {
   print "insert into csi_subordinate_reporting";
-  print "   values ('" %6 "', '" $7 "');";
+  print "   values ('" $5 "', '" $6 "');";
 }
 
