@@ -312,6 +312,8 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       if (pmsg.getMessageType() ==  pmsg.SIGNATURE_NEEDED) {
         msg.setAttribute(MessageProtectionAspectImpl.SIGNATURE_NEEDED,
                          new Boolean(pmsg.isSignatureNeeded()));
+        msg.setAttribute(MessageProtectionAspectImpl.SENDING_PRINCIPAL,
+                         _crypto.getRemotePrincipal());
       } else {
         msg.setAttribute(MessageProtectionAspectImpl.NEW_CERT,
                          pmsg.getCertificate());
