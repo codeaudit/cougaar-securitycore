@@ -87,6 +87,12 @@ implements Factory
   public ConsolidatedEvent newConsolidatedEvent(UID parentUID,MessageAddress source,IDMEF_Message aMessage) {
     return new ConsolidatedEventImpl(parentUID,source,aMessage);
   }
+  public ConsolidatedEvent newConsolidatedEvent(ConsolidatedEvent event ) {
+    return new ConsolidatedEventImpl(event.getparentUID(),event.getSource(),event.getEvent());
+  }
+   public ConsolidatedEvent newConsolidatedEvent(RemoteConsolidatedEvent event ) {
+    return new ConsolidatedEventImpl(event.getparentUID(),event.getSource(),event.getEvent());
+  }
  
   public NewEventTransfer newEventTransfer(Event event,
                                            Asset target) {
