@@ -144,8 +144,9 @@ public class CertificateVerifier {
 	      catch (CertificateNotYetValidException cye) {
 		throw new CertificateVerificationException("CertificateNotYetValidException-"+ jf.getName());
 	      }
-	      if(istrusted)
+	      if(istrusted) {
 		return;
+	      }
 	    }
           }
         }

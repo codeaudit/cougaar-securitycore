@@ -91,6 +91,8 @@ public class SecureBootstrapper
 {
   private SecurityLog securelog=null;
 
+  private boolean lazySignatureVerification = true;
+
   /** Find the primary application entry point for the application class
    *  and call it.
    *  The default implementation will look for
@@ -183,15 +185,20 @@ public class SecureBootstrapper
     for (int i = 0 ; i < urls.length ; i++) {
       JarFile jf=null;
       try {
-	//create JarFile, set verification option to true
-	//will throw exception if cannot be verified
-	jf = new JarFile(urls[i].getPath(), true);
+	// Delegate signature verification to the secure class loader
+	// if lazy evaluation is set to true
+	if (lazySignatureVerification == false) {
+	  //create JarFile, set verification option to true
+	  //will throw exception if cannot be verified
+	  jf = new JarFile(urls[i].getPath(), true);
 
-	//do certificate verification, throw an exception
-	//and exclude from urls if not trusted
-	cv.verify(jf);
-	//if (loudness > 0)
-	//System.out.println(codeArchives[i].getURL() + " has been verified");
+	  //do certificate verification, throw an exception
+	  //and exclude from urls if not trusted
+	  cv.verify(jf);
+	}
+	if (loudness > 0) {
+	  System.out.println(urls[i].getPath() + " has been verified");
+	}
 	trustedJars.add(urls[i]);
 
       } catch (Exception e) {
