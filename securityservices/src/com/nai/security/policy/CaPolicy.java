@@ -32,6 +32,7 @@ import java.net.*;
 public class CaPolicy {
 
   public String keyStoreFile = null;
+  public String keyStorePassword = null;
   public String alias = null;
   public String ldapURL = null;
   public String serialNumberFile = null;

@@ -86,6 +86,7 @@ public class ConfParser {
   // CA policy
   public static final String CA_POLICY_ELEMENT         = "certificateAuthority";
   public static final String CA_KEYSTORE_ELEMENT       = "keystoreFile";
+  public static final String CA_KEYSTORE_PWD_ELEMENT   = "keystorePassword";
   public static final String CA_ALIAS_ELEMENT          = "alias";
   public static final String CA_LDAP_URL_ELEMENT       = "ldapURL";
   public static final String CA_SERIAL_NB_FILE_ELEMENT = "serialNumberFile";
@@ -137,6 +138,7 @@ public class ConfParser {
       
       caPolicy = new CaPolicy();
       caPolicy.keyStoreFile      = caPolicyElement.getChildText(CA_KEYSTORE_ELEMENT);
+      caPolicy.keyStorePassword  = caPolicyElement.getChildText(CA_KEYSTORE_PWD_ELEMENT);
       caPolicy.alias             = caPolicyElement.getChildText(CA_ALIAS_ELEMENT);
       caPolicy.ldapURL           = caPolicyElement.getChildText(CA_LDAP_URL_ELEMENT);
       caPolicy.serialNumberFile  = caPolicyElement.getChildText(CA_SERIAL_NB_FILE_ELEMENT);

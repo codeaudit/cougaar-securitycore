@@ -61,12 +61,19 @@ public class KeyManagement
   private static final String PKCS7TRAILER  = "-----END CERTIFICATE-----";
   private String topLevelDirectory = null;
   private String x509directory = null;
-  private String caDN = null;
   private ConfParser confParser = null;
-  private CaPolicy caPolicy = null;
-  private DirectoryKeyStore caKeyStore = null;
+  private CaPolicy caPolicy = null;            // the policy of the CA
+  private DirectoryKeyStore caKeyStore = null; // the keystore where the CA private key is stored
+  private String caDN = null;                  // the distinguished name of the CA
+  private X509Certificate caX509cert = null;   // the X.509 certificate of the CA
+  private X500Name caX500Name = null;          // the X.500 name of the CA
 
-  public KeyManagement(String aCA_DN) {
+  private String x509DirectoryName;
+  private String pkcs10DirectoryName;
+  private String confDirectoryName;
+
+  public KeyManagement(String aCA_DN) 
+    throws Exception{
     caDN = aCA_DN;
     confParser = new ConfParser();
 
@@ -74,28 +81,84 @@ public class KeyManagement
       caPolicy = confParser.readCaPolicy(caDN);
     }
     catch (Exception e) {
-      System.out.println("Unable to read policy" + e);
-      e.printStackTrace();
+      throw new Exception("Unable to read policy" + e);
+    }
+    caX500Name = new X500Name(caDN);
+
+    String caCommonName = caX500Name.getCommonName();
+    String certpath = System.getProperty("org.cougaar.security.CA.certpath");
+    if (certpath != null) {
+      if (debug) {
+	System.out.println("Running as standalone CA");
+      }
+
+      /* The following directory structure will be created when running as a standalone CA:
+       * top-level directory (org.cougaar.security.CA.certpath)
+       * +-+ <CA common name>
+       *   +-+ conf
+       *     +-- <keystore file>
+       *     +-- <serial number file>
+       *     +-- <pkcs10Directory>
+       *     +-- <x509CertDirectory>
+       */
+      String topLevelDirectory = certpath + File.separatorChar + caCommonName;
+      confDirectoryName = topLevelDirectory +  File.separatorChar + "conf";
+    }
+    else {
+      if (debug) {
+	System.out.println("Running in Cougaar environment");
+      }
+      /* When running as part of Cougaar, the KeyRing class is used to store the
+       * private keys and the certificates.
+       */
+      ConfigFinder configFinder = new ConfigFinder();
+      File f = configFinder.locateFile(caPolicy.keyStoreFile);
+      if (f == null) {
+	throw new FileNotFoundException("Unable to locate CA keystore file");
+      }
+      confDirectoryName = f.getPath();
     }
 
-    String topLevelDirectory = System.getProperty("org.cougaar.security.CA.certpath");
-    /* The following directory structure will be created:
-     * top-level directory (org.cougaar.security.CA.certpath)
-     * +-+ CA common name
-     *   +-+ pkcs10Directory
-     *   +-+ x509CertDirectory
-     */
+    x509DirectoryName =  confDirectoryName + File.separatorChar + caPolicy.x509CertDirectory;
+    pkcs10DirectoryName = confDirectoryName +  File.separatorChar + caPolicy.pkcs10Directory;
 
-    // Create a KeyRing with the appropriate keystore
+    // Create directory structure if it hasn't been created yet.
+    createDirectoryStructure();
+
+    // Open keystore file
+    // TODO
+    caKeyStore = new DirectoryKeyStore();
+    String keystoreFile = confDirectoryName + File.separatorChar + caPolicy.keyStoreFile;
+    if (debug) {
+      System.out.println("CA keystore: " + keystoreFile);
+    }
+    FileInputStream f = new FileInputStream(keystoreFile);
+    caKeyStore.load(f, caPolicy.keyStorePassword.toCharArray());
+
+    // Get CA X.509 certificate
+    // TODO
+    caX509cert = (X509Certificate) caKeyStore.getCert(caPolicy.alias);
+
   }
 
-  public void processX509Request(PrintStream out, InputStream inputstream, String caDN) {
+  private void createDirectoryStructure()
+    throws IOException
+  {
+    File pkcs10dir = new File(pkcs10DirectoryName);
+    pkcs10dir.mkdirs();
+
+    File x509dir = new File(x509DirectoryName);
+    x509dir.mkdirs();
+
+    File confdir = new File(confDirectoryName);
+    confdir.mkdirs();
+  }
+
+  public void processX509Request(PrintStream out, InputStream inputstream) {
     Collection c = null;
     if(inputstream == null)
       return;
     try {
-      X500Name caX500Name = new X500Name(caDN); 
-
       // Extract X509 certificates from the input stream
       if(!inputstream.markSupported()) {
 	byte abyte0[] = getTotalBytes(new BufferedInputStream(inputstream));
@@ -111,14 +174,13 @@ public class KeyManagement
       Iterator i = c.iterator();
       while (i.hasNext()) {
 	X509CertImpl clientX509 = (X509CertImpl) i.next();
-	X509Certificate caX509 = null;
 	// Lookup certificate using DirectoryKeyStore
 
 	// Save the X509 reply in a file
-	saveX509Request(clientX509, caX509);
+	saveX509Request(clientX509);
 
 	// Publish certificate in LDAP directory
-	publish2Ldap(clientX509, caX509 );
+	publish2Ldap(clientX509);
       }
     }
     catch(Exception e) {
@@ -127,7 +189,7 @@ public class KeyManagement
     }
   }
 
-  public X509Certificate[] processPkcs10Request(InputStream request, String caDN) {
+  public X509Certificate[] processPkcs10Request(InputStream request) {
     ArrayList ar = new ArrayList();
     try {
       // First, get all the PKCS10 requests in an array list.
@@ -136,19 +198,15 @@ public class KeyManagement
       // Loop through each request and sign it.
       Iterator i = requests.iterator();
       while (i.hasNext()) {
-	// Find CA certificate in local keystore
-	X509CertImpl caX509 = null;
-	X500Name caX500Name = new X500Name(caDN); 
-
 	PKCS10 req = (PKCS10)i.next();
 
-	X509CertImpl clientX509 = signX509Certificate(req, caDN);
+	X509CertImpl clientX509 = signX509Certificate(req);
 	ar.add(clientX509);
 	// Save the X509 reply in a file
-	saveX509Request(clientX509, caX509);
+	saveX509Request(clientX509);
 
 	// Publish certificate in LDAP directory
-	publish2Ldap(clientX509, caX509 );
+	publish2Ldap(clientX509);
       }
     }
     catch (Exception e) {
@@ -163,10 +221,10 @@ public class KeyManagement
     return reply;
   }
 
-  public void processPkcs10Request(PrintStream out, InputStream request, String caDN)
+  public void processPkcs10Request(PrintStream out, InputStream request)
     throws CertificateEncodingException, IOException
   {
-    X509Certificate[] certs = processPkcs10Request(request, caDN);
+    X509Certificate[] certs = processPkcs10Request(request);
     base64EncodeCertificates(out, certs);
   }
 
@@ -187,19 +245,16 @@ public class KeyManagement
     out.println(trailer);
   }
 
-  private void saveX509Request(X509CertImpl clientX509, X509Certificate caX509)
+  private void saveX509Request(X509CertImpl clientX509)
     throws IOException, CertificateEncodingException, NoSuchAlgorithmException
   {
     String alg = "MD5"; // TODO: make this dynamic
 
-    // Create directory structure if it hasn't been created yet.
-    createDirectoryStructure(caX509);
-
-    MessageDigest md =createDigest(alg, clientX509.getTBSCertificate());
+    MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
     String digest = md.toString();
 
     String filePrefix = "x509-";
-    File f = new File(x509directory + File.separatorChar + filePrefix + digest);
+    File f = new File(x509DirectoryName + File.separatorChar + filePrefix + digest);
 
     f.createNewFile();
     PrintStream out = new PrintStream(new FileOutputStream(f));
@@ -219,23 +274,7 @@ public class KeyManagement
     return md;
   }
 
-  private void createDirectoryStructure(X509Certificate caX509)
-    throws IOException
-  {
-    X500Name caX500Name = new X500Name(caX509.getSubjectDN().toString());
-    String caCommonName = caX500Name.getCommonName();
-
-    x509directory = topLevelDirectory + File.separatorChar + caCommonName
-      + File.separatorChar + caPolicy.x509CertDirectory;
-
-    File pkcs10dir = new File(topLevelDirectory + File.separatorChar + caCommonName
-			      +  File.separatorChar + caPolicy.pkcs10Directory);
-    File x509dir = new File(x509directory);
-    pkcs10dir.mkdirs();
-    x509dir.mkdirs();
-  }
-
-  private void publish2Ldap(X509Certificate clientX509, X509Certificate caX509)
+  private void publish2Ldap(X509Certificate clientX509)
     throws IOException
   {
     X500Name clientX500Name = new X500Name(clientX509.getSubjectDN().toString()); 
@@ -383,7 +422,6 @@ public class KeyManagement
 
       // Create PKCS10 object
       PKCS10 pkcs10 = getSigningRequest(pkcs10DER);
-      System.out.println("Attributes: " + pkcs10.getAttributes());
       pkcs10requests.add(pkcs10);
     }
 
@@ -420,8 +458,7 @@ public class KeyManagement
   private synchronized int getNextSerialNumber(String filename)
     throws FileNotFoundException, IOException
   {
-    ConfigFinder configFinder = new ConfigFinder();
-    File fserial = configFinder.locateFile(filename);
+    File fserial = new File(confDirectoryName + File.separatorChar + filename);
     FileWriter fOutSerial = null;
     int nextSerialNumber = 0;
     String serialNbString = null;
@@ -438,7 +475,7 @@ public class KeyManagement
       }
       catch (Exception e) {
 	throw new FileNotFoundException("Unable to create serial number file: "
-					+ filename);
+					+ fserial.getPath());
       }
     }
     FileReader fInSerial = new FileReader(fserial);
@@ -462,18 +499,16 @@ public class KeyManagement
 
   /** Sign a PKCS10 certificate signing request with a CA key
    */
-  public X509CertImpl signX509Certificate(PKCS10 clientRequest, String caDN)
+  public X509CertImpl signX509Certificate(PKCS10 clientRequest)
     throws IOException, CertificateEncodingException, NoSuchAlgorithmException,
 	   CertificateException, SignatureException, InvalidKeyException,
 	   NoSuchProviderException
   {
     // Get X500 name of Certificate authority
     SignerInfo si = null;
-    X509Certificate caX509cert = (X509Certificate) KeyRing.getCert(caPolicy.alias);
     if (debug) {
       System.out.println("CA x509:" + caX509cert.toString());
     }
-    X500Name caX500IssuerName = new X500Name(caX509cert.getSubjectDN().toString()); 
 
     if (debug) {
       //System.out.println("x500: " + caX500IssuerName.getCommonName());
@@ -484,7 +519,7 @@ public class KeyManagement
     Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
     // caSignature.initSign(caPrivateKey);
 
-    X500Signer caX500signer = new X500Signer(caSignature, caX500IssuerName);
+    X500Signer caX500signer = new X500Signer(caSignature, caX500Name);
     if (debug) {
       System.out.println("Signer: " + caX500signer);
     }
@@ -495,7 +530,7 @@ public class KeyManagement
      *  version, serialNumber, algorithmID, issuer, validity, subject, key
      *  issuerID, subjectID, extensions
      */
-    X509CertImpl clientCertificate = setX509CertificateFields(clientRequest, caX500IssuerName);
+    X509CertImpl clientCertificate = setX509CertificateFields(clientRequest);
 
     // Set subject unique ID
     /*
@@ -688,8 +723,7 @@ public class KeyManagement
     }
   }
 
-  private X509CertImpl setX509CertificateFields(PKCS10 clientRequest,
-						X500Name caX500IssuerName)
+  private X509CertImpl setX509CertificateFields(PKCS10 clientRequest)
     throws IOException, CertificateException
   {
     /** 
@@ -717,7 +751,7 @@ public class KeyManagement
     clientCertInfo.set("algorithmID", certAlgorithmId);
 
     // Set issuer
-    CertificateIssuerName certIssuerName = new CertificateIssuerName(caX500IssuerName);
+    CertificateIssuerName certIssuerName = new CertificateIssuerName(caX500Name);
     clientCertInfo.set("issuer", certIssuerName);
 
     // Set validity
@@ -752,7 +786,13 @@ public class KeyManagement
     String option = args[0];
 
     String caDN = "CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US";
-    KeyManagement km = new KeyManagement(caDN);
+    KeyManagement km = null;
+    try {
+      km = new KeyManagement(caDN);
+    } catch (Exception e) {
+      System.out.println("Exception: " + e);
+      e.printStackTrace();      
+    }
 
     if (option.equals("-10")) {
       BufferedReader pkcs10stream = null;
@@ -764,7 +804,7 @@ public class KeyManagement
       try {
 	ArrayList pkcs10req = km.getSigningRequests(pkcs10filename);
 	for (int i = 0 ; i < pkcs10req.size() ; i++) {
-	  pkcs7Certificates.add(km.signX509Certificate((PKCS10)pkcs10req.get(i), caDN));
+	  pkcs7Certificates.add(km.signX509Certificate((PKCS10)pkcs10req.get(i)));
 	}
       }
       catch (Exception e) {
