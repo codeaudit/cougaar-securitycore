@@ -29,6 +29,7 @@ import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
+import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 
 import java.util.Enumeration;
 import java.util.List;
