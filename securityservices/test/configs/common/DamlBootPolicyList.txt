@@ -1,0 +1,48 @@
+
+Policy DamlBootPolicyPolicyServlet  = [ 
+  A user in role PolicyAdministrator can access a servlet named PolicyServlet
+]
+
+Policy DamlBootPolicySCmrManager  = [ 
+  A user in role MonitorManager can access a servlet named SCmrmanagerServlets
+]
+
+Policy DamlBootPolicyNCAServlet = [
+  A user in role Logistician can access a servlet named NCAServlets
+]
+
+Policy DamlBootPolicyLogisticianAgg = [
+  A user in role Logistician can access a servlet named AggegatorServlets
+]
+
+Policy DamlBootPolicyLogisticianViewAgg = [
+  A user in role LogisticsViewer can access a servlet named AggegatorServlets
+]
+
+Policy DamlBootPolicyUserAdminServlets = [
+  A user in role UserManager can access a servlet named UserManagerServlets
+]
+
+Policy DamlBootPolicyLogisticianInventory = [
+  A user in role Logistician can access a servlet named LogInventoryServlet
+]
+
+Policy DamlBootPolicyLogisticsViewerInventory = [
+  A user in role LogisticsViewer can access a servlet named LogInventoryServlet
+]
+
+Policy DamlBootPolicyLogisticianHierarchy = [
+  A user in role Logistician can access a servlet named HierarchyServlet
+]
+
+Policy DamlBootPolicyLogisticsViewerHierarchy  = [
+  A user in role LogisticsViewer can access a servlet named HierarchyServlet
+]
+
+Policy DamlBootPolicyCertWrite  = [
+  A user in role CAAdministrator can access a servlet named CAWriteServlet
+]
+
+Policy DamlBootPolicySocietyAdmin = [
+  A user in role SocietyAdmin can access a servlet named SocietyAdminServlet
+]
