@@ -35,7 +35,7 @@ org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080  : PERCEIVED_THRE
 "
     if (robustness)
       playclause = "
-(org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL = LOW) : PERCEIVED_THREAT_LEVEL = 1;
+(org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL == LOW) : PERCEIVED_THREAT_LEVEL = 1;
 (org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 1080) & (org.cougaar.core.robustness.DOS_ATTACK_LEVEL != LOW) : PERCEIVED_THREAT_LEVEL = 2;
 org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 1080 : PERCEIVED_THREAT_LEVEL = 2;
 "
