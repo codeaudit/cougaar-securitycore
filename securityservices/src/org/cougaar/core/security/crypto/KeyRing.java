@@ -251,6 +251,14 @@ final public class KeyRing
       param.ldapServerUrl = trustedCaPolicy[0].certDirectoryUrl;
       param.ldapServerType = trustedCaPolicy[0].certDirectoryType;
     }
+    if(param.isCertAuth) {
+      X500Name [] caDNs=configParser.getCaDNs();
+      String caDN=caDNs[0].getName();
+      CaPolicy capolicy=configParser.getCaPolicy(caDN);
+      param.ldapServerUrl =capolicy.ldapURL;
+      param.ldapServerType =capolicy.ldapType;
+    }
+    
 
     keystore = new DirectoryKeyStore(param);
 
