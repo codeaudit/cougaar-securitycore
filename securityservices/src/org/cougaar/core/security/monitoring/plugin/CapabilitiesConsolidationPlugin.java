@@ -147,7 +147,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private LoggingService loggingService;
   private boolean readcollection=false;
   Object mylock=new Object();
-  // private boolean isMgrset=false;
+  private boolean isMgrset=false;
   
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -245,13 +245,13 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       return true;
     }
     else {
-      
       synchronized(mylock){
 	myRole=getMyRole(mySecurityCommunity);
       }
       if(myRole == null) {
 	return true;
       }
+      loggingService.info(" Running under Agent :" +myAddress.toString()+ " Role is :"+myRole);  
       loggingService.debug(" My Role is  :"+myRole +" agent name :"+myAddress.toString());
       if((myRole.equalsIgnoreCase("member"))||(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave"))) {
 	if(myRole.equalsIgnoreCase("member")) {
@@ -262,15 +262,17 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  synchronized(mylock) {
 	    mgrrole="SecurityMnRManager-Society";
 	  }
+	  if(mgrrole!=null)
+	    loggingService.info(" Running under Agent :" +myAddress.toString()+ "Manager  Role is :"+mgrrole);  
 	}
       }
     }
     destcluster =getDestinationAddress(myRole);
-    if((destcluster ==null) &&(!myRole.equalsIgnoreCase("SecurityMnRManager-Society"))) {
-      return true;
+    if(myRole.equalsIgnoreCase("SecurityMnRManager-Society")) {
+      return false;
     }
     else {
-      return false;
+      return true;
     }
   }
 
@@ -288,16 +290,10 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       return;
     }
     if(myRole!=null) {
-      if(mgrrole!=null) {
-	if(destcluster == null) {
+      if(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
+	if(destcluster==null) {
 	  return;
 	}
-      }
-      else {
-	if(!myRole.equalsIgnoreCase("SecurityMnRManager-Society")) {
-	  return;
-	}
-	
       }
     }
        
@@ -1162,12 +1158,14 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  loggingService.debug(" No relay was present creating one  "+ relay.toString());
 	//relay = factory.newCmrRelay(event, mgrAddress);
 	//relay =factory.newCmrRelay(event, new MessageAddress(dest_agent));
-	loggingService.info(" Creating relay to :"+ destcluster.toString());
-	getBlackboardService().publishAdd(relay);
+	if(destcluster!=null) {
+	  loggingService.info(" Creating relay to :"+ destcluster.toString());
+	  getBlackboardService().publishAdd(relay);
+	}
       } else {
 	loggingService.debug(" relay was present Updating event  Event "+ event.toString());
 	relay.updateContent(event, null);
-	loggingService.info(" Modifying  relay to :"+ destcluster.toString());
+	loggingService.info(" Modifying  relay to :"+ relay.getTarget());
 	getBlackboardService().publishChange(relay);
       }
     }
