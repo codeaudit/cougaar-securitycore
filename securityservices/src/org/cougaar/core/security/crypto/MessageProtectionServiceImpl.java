@@ -397,7 +397,7 @@ public class MessageProtectionServiceImpl
   private void publishMessageFailure(String source, String target,
     GeneralSecurityException gse) {
     String reason = MessageFailureEvent.UNKNOWN_FAILURE;
-    
+    // need to extract the reason of failure from the exception message
     try {
       Object []objs = exceptionFormat.parse(gse.getMessage());
       if(objs.length == 1) {

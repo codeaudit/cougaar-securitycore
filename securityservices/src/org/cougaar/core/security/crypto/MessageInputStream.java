@@ -268,16 +268,17 @@ public class MessageInputStream
   
   private void publishMessageFailure(GeneralSecurityException gse) {
     String reason = MessageFailureEvent.UNKNOWN_FAILURE;
-      try {
-        Object []objs = messageFormat.parse(gse.getMessage());
-        if(objs.length == 2) {
-          reason = (String)objs[0];
-        }
+    // need to extract the reason of failure from the exception message
+    try {
+      Object []objs = messageFormat.parse(gse.getMessage());
+      if(objs.length == 1) {
+        reason = (String)objs[0];
       }
-      catch(ParseException pe) {
-        // eat this exception?
-      }
-      publishMessageFailure(reason,
-                            gse.toString());  
+    }
+    catch(ParseException pe) {
+      // eat this exception?
+    }
+    publishMessageFailure(reason,
+                          gse.toString());  
   }
 }
