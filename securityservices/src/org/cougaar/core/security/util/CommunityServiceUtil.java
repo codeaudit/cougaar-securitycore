@@ -24,6 +24,7 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.service.community.Agent;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityChangeEvent;
 import org.cougaar.core.service.community.CommunityChangeListener;
@@ -206,7 +207,7 @@ public class CommunityServiceUtil {
     CommunityChangeListener   ccl = 
       new GetCommunity(listener, ws, communityType, notRole, false);
     CommunityResponseListener crl = 
-      new ResultListener(listener, ws, ccl, notRole, false);
+      new ResultListener(listener, ws, ccl, notRole, false, Community.COMMUNITIES_ONLY);
     String filter = "(CommunityType=" + communityType + ")";
     ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if (_log.isDebugEnabled()) {
@@ -297,7 +298,7 @@ public class CommunityServiceUtil {
     CommunityChangeListener   ccl = 
       new GetCommunityWithUpdates(listener, ws, communityType, role, true);
     CommunityResponseListener crl = 
-      new ResultListener(listener, ws, ccl, role, true);
+      new ResultListener(listener, ws, ccl, role, true, Community.COMMUNITIES_ONLY);
     String filter = "(CommunityType=" + communityType + ")";
     ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if (_log.isDebugEnabled()) {
@@ -384,7 +385,7 @@ public class CommunityServiceUtil {
     CommunityChangeListener   ccl = 
       new GetCommunity(listener, ws, communityType, role, true);
     CommunityResponseListener crl = 
-      new ResultListener(listener, ws, ccl, role,true);
+      new ResultListener(listener, ws, ccl, role, true, Community.COMMUNITIES_ONLY);
     String filter = "(CommunityType=" + communityType + ")";
     ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if (_log.isDebugEnabled()) {
@@ -449,7 +450,7 @@ public class CommunityServiceUtil {
       new WarnSchedulable(_threadService.getThread(this, tt), tt);
     CommunityChangeListener   ccl = 
       new GetAgent(listener, ws, communityType, role);
-    CommunityResponseListener crl = new ResultListener(listener, ws, ccl);
+    CommunityResponseListener crl = new ResultListener(listener, ws, ccl, Community.AGENTS_ONLY);
     String filter = "(&(CommunityType=" + communityType + 
       ")(Role=" + role +"))";
     ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
@@ -473,6 +474,7 @@ public class CommunityServiceUtil {
         }
         _cs.addListener(ccl);
       } else {
+        checkCsBug(agents, Community.AGENTS_ONLY);
         HashSet set = new HashSet(agents);
         listener.getResponse(set);
         ws.cancel();
@@ -486,6 +488,29 @@ public class CommunityServiceUtil {
     }
   }
 
+  /**
+   * Checks the consistency of the community service.
+   * Logs an error if a set of entities contains at least one Community.
+   * @param agents
+   */
+  private void checkCsBug(Collection agents, int searchType) {
+    // Double-check that we get agents only, no communities.
+    Iterator it = agents.iterator();
+    while (it.hasNext()) {
+      Entity e = (Entity)it.next();
+      if (_log.isErrorEnabled()) { 
+      	if (searchType == Community.COMMUNITIES_ONLY && e instanceof Agent) {
+        _log.error("Bug in the community service. Entity " + e.getName()
+                + " (which is an agent) has been returned by cs.search(... Community.COMMUNITIES_ONLY...)");
+        }
+        else if (searchType == Community.AGENTS_ONLY && e instanceof Community) {
+          _log.error("Bug in the community service. Entity " + e.getName()
+              + " (which is a community) has been returned by cs.search(... Community.AGENTS_ONLY...)");
+        }
+      }
+    }
+  }
+  
   /**
    * Searches the community of the given name that
    * and returns agents with the given role that belong to that community.
@@ -668,7 +693,7 @@ public class CommunityServiceUtil {
       };
     */
     CommunityChangeListener   ccl =  new GetAgentInCommunity (listener, ws, communityName, role);
-    CommunityResponseListener crl =  new ResultListener(listener, ws, ccl);
+    CommunityResponseListener crl =  new ResultListener(listener, ws, ccl, Community.AGENTS_ONLY);
     String filter = "(Role=" + role +")";
     ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if(_log.isDebugEnabled()){
@@ -1180,119 +1205,133 @@ public class CommunityServiceUtil {
     }
   }
 
-  private class ResultListener implements CommunityResponseListener {
-    WarnSchedulable              _ws;
-    CommunityServiceUtilListener _listener;
-    CommunityChangeListener      _changeListener;
-    String                       _role;
-    boolean                      _containsRole;
-    boolean                      _answered = false;
-
-    public ResultListener(CommunityServiceUtilListener listener,
-                          WarnSchedulable warningTask,
-                          CommunityChangeListener changeListener) {
-      this(listener, warningTask, changeListener, null, false);
-    }
-
-    public ResultListener(CommunityServiceUtilListener listener,
-                          WarnSchedulable warningTask,
-                          CommunityChangeListener changeListener,
-                          String role, boolean containsRole) {
-      if (warningTask == null) {
-	if (_log.isErrorEnabled()) {
-	  _log.error("Warning task has not been set");
+	private class ResultListener implements CommunityResponseListener {
+		private WarnSchedulable _ws;
+		private CommunityServiceUtilListener _listener;
+		private CommunityChangeListener _changeListener;
+		private String _role;
+		boolean _containsRole;
+		boolean _answered = false;
+    int _searchType = -1;
+    
+		public ResultListener(CommunityServiceUtilListener listener,
+				WarnSchedulable warningTask,
+				CommunityChangeListener changeListener,
+        int searchType) {
+			this(listener, warningTask, changeListener, null, false, searchType);
+		}
+        
+		/**
+		 * @param listener
+		 * @param warningTask
+		 * @param changeListener
+		 * @param role
+		 * @param containsRole
+		 * @param searchType - Used for debug purposes only.
+		 */
+		public ResultListener(CommunityServiceUtilListener listener,
+				WarnSchedulable warningTask,
+				CommunityChangeListener changeListener, String role,
+				boolean containsRole, int searchType) {
+			if (warningTask == null) {
+				if (_log.isErrorEnabled()) {
+					_log.error("Warning task has not been set");
+				}
+				throw new IllegalArgumentException(
+						"Warning task has not been set");
+			}
+			if (listener == null) {
+				if (_log.isErrorEnabled()) {
+					_log.error("Listener has not been set");
+				}
+				throw new IllegalArgumentException("Listener has not been set");
+			}
+			if (changeListener == null) {
+				if (_log.isErrorEnabled()) {
+					_log.error("changeListener has not been set");
+				}
+				throw new IllegalArgumentException(
+						"changeListener has not been set");
+			}
+			_ws = warningTask;
+			_listener = listener;
+			_changeListener = changeListener;
+			_role = role;
+			_containsRole = containsRole;
+      _searchType = searchType;
+		}
+        
+		public synchronized void getResponse(CommunityResponse resp) {
+			if (!_answered) {
+				_answered = true;
+			} else {
+				return;
+			}
+			if (_log.isDebugEnabled()) {
+				_log.debug("Result listener called :" + this + " - Status: "
+						+ resp.getStatusAsString());
+			}
+			if (resp.getStatus() == CommunityResponse.SUCCESS) {
+				Object response = resp.getContent();
+				if (response == null) {
+					if (_log.isInfoEnabled()) {
+						_log.info("ResultListener (agent:" + _agent
+								+ "): response is null");
+					}
+					// didn't find any appropriate community. Start a listener
+					addListener();
+					return;
+				}
+				if (!(response instanceof Set)) {
+					String errorString = "Agent " + _agent
+							+ " Unexpected community response class:"
+							+ response.getClass().getName()
+							+ " - Should be a Set";
+					_log.error(errorString);
+					throw new RuntimeException(errorString);
+				}
+				Set set = (Set) response;
+				if (_role != null) {
+					set = withRole(set, _role, _containsRole);
+				}
+				if (!set.isEmpty()) {
+					if (_log.isDebugEnabled()) {
+						_log
+								.debug("Received Response in Result Listener------- :");
+						_log.debug(_ws.getWarning());
+						if (_containsRole) {
+							_log.debug(" For role :" + _role);
+						} else {
+							_log.debug(" When role is not :" + _role);
+						}
+					}
+          checkCsBug(set, _searchType);
+					_listener.getResponse(set);
+					_ws.cancel();
+					return;
+				}
+			}
+			// didn't find any appropriate community. Start a listener
+			addListener();
+		}
+		/**
+		 * Invoked when we didn't find any appropriate community. Start a listener
+		 */
+		private void addListener() {
+			if (_log.isDebugEnabled()) {
+				_log.debug(_ws.getWarning());
+				if (_containsRole) {
+					_log.debug(" For role :" + _role);
+				} else {
+					_log.debug(" When role is not :" + _role);
+				}
+				_log.debug("Adding Listener in Result Listener :"
+						+ _changeListener);
+			}
+			// didn't find any appropriate community... start a listener
+			_cs.addListener(_changeListener);
+		}
 	}
-	throw new IllegalArgumentException("Warning task has not been set");
-      }
-      if (listener == null) {
-	if (_log.isErrorEnabled()) {
-	  _log.error("Listener has not been set");
-	}
-	throw new IllegalArgumentException("Listener has not been set");
-      }
-      if (changeListener == null) {
-	if (_log.isErrorEnabled()) {
-	  _log.error("changeListener has not been set");
-	}
-	throw new IllegalArgumentException("changeListener has not been set");
-      }
-      _ws = warningTask;
-      _listener = listener;
-      _changeListener = changeListener;
-      _role = role;
-      _containsRole = containsRole;
-    }
-
-    public synchronized void getResponse(CommunityResponse resp) {
-      if (!_answered) {
-        _answered = true;
-      } else {
-        return;
-      }
-      if(_log.isDebugEnabled()) {
-        _log.debug ("Result listener called :"+ this + " - Status: " +
-                    resp.getStatusAsString());
-      }
-      if (resp.getStatus() == resp.SUCCESS) {
-        Object response = resp.getContent();
-
-	if (response == null) {
-	  if (_log.isInfoEnabled()) {
-	    _log.info("ResultListener (agent:" + _agent + "): response is null");
-	  }
-	  // didn't find any appropriate community. Start a listener
-	  addListener();
-	  return;
-	}
-        if (!(response instanceof Set)) {
-          String errorString = "Agent "+ _agent+ " Unexpected community response class:"
-            + response.getClass().getName() + " - Should be a Set";
-          _log.error(errorString);
-          throw new RuntimeException(errorString);
-        }
-        Set set = (Set) response;
-        if (_role != null) {
-          set = withRole(set, _role, _containsRole);
-        }
-        if (!set.isEmpty()) {
-          if(_log.isDebugEnabled()) {
-            _log.debug("Received Response in Result Listener------- :");
-            _log.debug(_ws.getWarning());
-            if(_containsRole) {
-              _log.debug(" For role :"+_role);
-            }
-            else {
-              _log.debug(" When role is not :"+_role);
-            }
-          }
-          _listener.getResponse(set);
-          _ws.cancel();
-          return;
-        }
-      }
-      // didn't find any appropriate community. Start a listener
-      addListener();
-    }
-
-    /** Invoked when we didn't find any appropriate community.
-     *  Start a listener
-     */
-    private void addListener() {
-      if(_log.isDebugEnabled()) {
-        _log.debug(_ws.getWarning());
-        if(_containsRole) {
-          _log.debug(" For role :"+_role);
-        }
-        else {
-          _log.debug(" When role is not :"+_role);
-        }
-        _log.debug("Adding Listener in Result Listener :"+_changeListener);  
-      }
-
-      // didn't find any appropriate community... start a listener
-      _cs.addListener(_changeListener);
-    }
-  }
    
   private class GetAgentInCommunity implements CommunityChangeListener {
     private String                       _communityName;
