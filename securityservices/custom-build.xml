@@ -73,6 +73,8 @@
     </path>
 
     <target name="custom-init">
+      <property name="foo" refid="core.class.path"/>
+      <echo message="${foo}"/>
         <mkdir dir="${securityservices.jsp}"/>
         <mkdir dir="${securityservices.policy}"/>
     </target>
