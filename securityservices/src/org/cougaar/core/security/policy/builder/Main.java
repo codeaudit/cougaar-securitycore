@@ -63,6 +63,10 @@ class Main {
     System.exit(-1);
   }
 
+  /*
+   * TO DO - build real options processing here.
+   */
+
   public static void main(String[] args) {
     try {
       if (args.length == 0) {
@@ -76,17 +80,21 @@ class Main {
         commitPolicies(args[1], args[2], getPoliciesFromDisk);
         System.exit(0);
       } else {
-        System.out.println("Loading ontologies");
-        _ontology = new LocalOntologyConnection();
-        System.out.println("Ontologies loaded");
 
         if (args[0].equals("jtp")) {
+          System.out.println("Loading ontologies");
+          _ontology = new LocalOntologyConnection();
+          System.out.println("Ontologies loaded");
           jtp.ui.DamlQueryAnswerer.main(args);
-        } else if (args[0].equals("build")) {
+        } else if (args[0].equals("build") ||
+                   args[0].equals("buildSilent")) {
           if (args.length < 2) {
             usage();
           }
-          writePolicies(args[1]);
+          System.out.println("Loading ontologies");
+          _ontology = new LocalOntologyConnection();
+          System.out.println("Ontologies loaded");
+          writePolicies(args[1], args[0].equals("buildSilent"));
         } else {
           usage();
         }
@@ -131,14 +139,16 @@ class Main {
     System.out.println("Policies sent...");
   }
 
-  public static void writePolicies(String policyFile)
+  public static void writePolicies(String policyFile, boolean silent)
     throws IOException, PolicyCompilerException
   {
     List policies = compile(policyFile);
     for(Iterator policyIt = policies.iterator();
         policyIt.hasNext();) {
       ParsedPolicy pp = (ParsedPolicy) policyIt.next();
-      System.out.println("Parsed Policy: " + pp.getDescription());
+      if (!silent) {
+        System.out.println("Parsed Policy: " + pp.getDescription());
+      }
       DAMLPolicyBuilderImpl pb = pp.buildPolicy(_ontology);
       PolicyUtils.writePolicyMsg(pb);
       // build again for a new policy id.
