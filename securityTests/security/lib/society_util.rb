@@ -168,9 +168,13 @@ module Cougaar
        # Create node list
        nodes = []
        agents.each { |agent|
-         nodes = nodes | [agent.node]
+         nodes = nodes | [run.society.agents[agent].node]
        }
-       saveAssertion "wp_registration", "Nodes where agents are missing: #{nodes.join(" ")}"
+       nodenames = []
+       nodes.each {|node|
+         nodenames << node.name
+       }
+       saveAssertion "wp_registration", "Nodes where agents are missing: #{nodenames.join(" ")}"
        nodes.each { |node|
          @stackTrace.getStack(node.name)
        }
