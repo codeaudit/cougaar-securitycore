@@ -276,17 +276,28 @@ public class SendMessageComponent extends ComponentPlugin {
       throws IOException {
       PrintWriter out = resp.getWriter();
       boolean useXML = getBoolean(req, "xml", false);
-      setHeader(out, "Message Sent", useXML);
       String address = req.getParameter("address");
-      MessageAddress target = MessageAddress.getMessageAddress(address);
-      TestRelay relay = addRelay(target);
-      if (useXML) {
-        out.println("  <uid>" + relay.getUID() + "</uid>");
-        out.println("  <target>" + target.toAddress() + "</target>");
+      if (address != null) {
+        setHeader(out, "Message Sent", useXML);
+        MessageAddress target = MessageAddress.getMessageAddress(address);
+        TestRelay relay = addRelay(target);
+        if (useXML) {
+          out.println("  <uid>" + relay.getUID() + "</uid>");
+          out.println("  <target>" + target.toAddress() + "</target>");
+        } else {
+          out.println("Sent message to " + target.toAddress() +
+                      " with UID (" + relay.getUID() + ")<br>");
+          out.println("<a href=\"" + getListPath() + "\">list relays</a>");
+        }
       } else {
-        out.println("Sent message to " + target.toAddress() +
-                    " with UID (" + relay.getUID() + ")<br>");
-        out.println("<a href=\"" + getListPath() + "\">list relays</a>");
+        setHeader(out, "Send Message Servlet", useXML);
+        out.println("<form name=\"send\" action=\"" + getSendPath() +
+                    "\" method=\"GET\">\n" +
+                    "<br>\n" +
+                    "Send a message to: " +
+                    "  <input type=\"text\" name=\"address\">\n" +
+                    "  <input type=\"submit\" name=\"Send\">\n" +
+                    "</form>");
       }
       setFooter(out, useXML);
     }
