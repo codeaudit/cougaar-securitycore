@@ -21,14 +21,26 @@
 
 package org.cougaar.core.security.policy.enforcers;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
+import javax.agent.service.ServiceFailure;
 import javax.naming.directory.ModificationItem;
 
+import kaos.ontology.management.UnknownConceptException;
+import kaos.ontology.repository.ActionInstanceDescription;
+import kaos.ontology.repository.TargetInstanceDescription;
+import kaos.policy.guard.KAoSSecurityException;
+
 import org.cougaar.community.CommunityProtectionService;
+import org.cougaar.community.CommunityServiceConstants;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 
 import safe.enforcer.NodeEnforcer;
 import safe.guard.EnforcerManagerService;
@@ -42,6 +54,13 @@ public class CommunityProtectionServiceImpl
   private String _enforcedActionType;
   private LoggingService _log;
   private EnforcerManagerService _guard;
+  private static Vector _controlledActionClasses = null;
+  static {
+    _controlledActionClasses = new Vector();
+    _controlledActionClasses.add(UltralogActionConcepts.CommunityAction);
+    _controlledActionClasses.add(UltralogActionConcepts.CommunityActionSelf);
+    _controlledActionClasses.add(UltralogActionConcepts.CommunityActionDelegate);
+  }
   private List _agents = new Vector();
 
   public CommunityProtectionServiceImpl(ServiceBroker sb)
@@ -78,7 +97,12 @@ public class CommunityProtectionServiceImpl
       _log.fatal("Cannot continue without guard", new Throwable());
       throw new RuntimeException("Cannot continue without guard");
     }
-    if (!_guard.registerEnforcer(this, _enforcedActionType, _agents)) {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Registering with the guard");
+    }
+    if (!_guard.registerEnforcer(this, 
+                                 UltralogActionConcepts.CommunityAction,
+                                 _agents)) {
       _sb.releaseService(this, EnforcerManagerService.class, _guard);
       _log.fatal("Could not register with the Enforcer Manager Service");
       throw new RuntimeException("Cannot register with Enforcer Manager Service");
@@ -100,9 +124,9 @@ public class CommunityProtectionServiceImpl
    *
    * @return Vector              Contains strings representing ontology originated names Action classes.
   */
-  public Vector getControlledActionClasses ()
+  public Vector getControlledActionClasses()
   {
-    return new Vector();
+    return _controlledActionClasses;
   }
 
     /**
@@ -125,9 +149,12 @@ public class CommunityProtectionServiceImpl
                            String             target,
                            ModificationItem[] attrMods)
   {
+    initOwl();
     if (_log.isDebugEnabled()) {
-      _log.debug("" + requester + " is trying to access the community " + communityName
-                 + " using the operation " + operation + " with the target " + target);
+      _log.debug("" + requester + " is trying to access the community " 
+                 + communityName + " using the operation " 
+                 + getNameForOperation(operation)
+                 + " with the target " + target);
       if (attrMods != null) {
         for (int i = 0; i < attrMods.length; i++) {
           _log.debug("attrMods[" + i + "] = " + attrMods[i]);
@@ -136,6 +163,80 @@ public class CommunityProtectionServiceImpl
         _log.debug("No attribute mods");
       }
     }
+    ActionInstanceDescription action = null;
+    try {
+      boolean delegated = !(requester.equals(target));
+      Set targets = new HashSet();
+      targets.add(new TargetInstanceDescription
+                  (UltralogActionConcepts.communityActionType,
+                   getKAoSActionType(operation)));
+      if (delegated) {
+        targets.add(new TargetInstanceDescription
+                    (UltralogActionConcepts.communityTarget,
+                     ULOntologyNames.agentPrefix + target));
+      }
+      targets.add(new TargetInstanceDescription
+                  (UltralogActionConcepts.community,
+                   ULOntologyNames.communityPrefix + communityName));
+      action =
+        new ActionInstanceDescription
+        (delegated ? 
+         UltralogActionConcepts.CommunityActionDelegate :
+         UltralogActionConcepts.CommunityActionSelf,
+         ULOntologyNames.agentPrefix + requester,
+         targets);
+      if (_log.isDebugEnabled()) {
+        _log.debug("Checking permission for action " + action);
+      }
+      kaos.policy.guard.ActionPermission kap 
+        = new kaos.policy.guard.ActionPermission("CommunityPermission", action);
+      _guard.checkPermission(kap, null);
+    } catch (KAoSSecurityException kse) {
+      _log.warn("Permission Denied");
+      _log.warn("Action = " + action);
+      return false;
+    } catch (Exception excp) {
+      _log.warn("Unexpected Exception in policy code", excp);
+      _log.warn("Operation denied: " + action);
+      return false;
+    }
     return true;
+  }
+
+  private static String getKAoSActionType(int op)
+    throws KAoSSecurityException
+  {
+    switch (op) {
+    case CommunityServiceConstants.JOIN:
+      return UltralogEntityConcepts.JoinCommunity;
+    case CommunityServiceConstants.LEAVE:
+      return UltralogEntityConcepts.LeaveCommunity;
+    case CommunityServiceConstants.MODIFY_ATTRIBUTES:
+      return UltralogEntityConcepts.ModifyCommunityAttributes;
+    case CommunityServiceConstants.GET_COMMUNITY_DESCRIPTOR:
+      return UltralogEntityConcepts.GetCommunityDescriptor;
+    case CommunityServiceConstants.LIST:
+      return UltralogEntityConcepts.ListCommunities;
+    default:
+      throw new KAoSSecurityException("Unknown action type: " + op);
+    }
+  }
+
+  public static String getNameForOperation(int op)
+  {
+    switch (op) {
+    case CommunityServiceConstants.JOIN:
+      return "Join";
+    case CommunityServiceConstants.LEAVE:
+      return "Leave";
+    case CommunityServiceConstants.MODIFY_ATTRIBUTES:
+      return "ModifyAttributes";
+    case CommunityServiceConstants.GET_COMMUNITY_DESCRIPTOR:
+      return "GetCommunityDescriptor";
+    case CommunityServiceConstants.LIST:
+      return "List";
+    default:
+      return "Unknown";
+    }
   }
 }
