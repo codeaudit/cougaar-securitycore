@@ -122,6 +122,14 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
     }
   }
 
+
+  public static void resetPrincipal()
+  {
+    synchronized (_sessionMap) {
+      _sessionMap.remove(Thread.currentThread());
+    }
+  }
+
   public void setNeedClientAuth(boolean needAuth) {
     this.needAuth = needAuth;
   }
