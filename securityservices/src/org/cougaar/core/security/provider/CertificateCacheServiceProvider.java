@@ -42,7 +42,8 @@ public class  CertificateCacheServiceProvider
     
   }
   
-  public void createCertificateCache(ServiceBroker sb){
+  private void createCertificateCache(ServiceBroker sb){
+    // Implemented as a singleton service
     if (certificateCacheService == null) {
       try {
 	certificateCacheService = new CertificateCache(sb);
@@ -71,22 +72,6 @@ public class  CertificateCacheServiceProvider
   protected synchronized Service getInternalService(ServiceBroker sb, 
 						    Object requestor, 
 						    Class serviceClass) {
-    // Implemented as a singleton service
-    if (certificateCacheService == null) {
-      try {
-	certificateCacheService = new CertificateCache(sb);
-      }
-      catch (Exception e) {
-	boolean exec =
-	  Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
-	if (exec == true) {
-	  log.warn("Unable to initialize CertificateCache Service: ", e);
-	}
-	else {
-	  log.info("Unable to initialize CertificateCache : " + e);
-	}
-      }
-    }
     return certificateCacheService;
   }
 

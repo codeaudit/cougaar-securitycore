@@ -49,23 +49,24 @@ public class  CRLCacheServiceProvider
     createCRLcache(sb);
   }
 
-public void createCRLcache(ServiceBroker sb ) {
-  if (crlCacheService == null) {
-    try {
-      crlCacheService = new CRLCache(sb);
-    }
-    catch (Exception e) {
-      boolean exec =
-	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
-      if (exec == true) {
-	log.warn("Unable to initialize CRL Cache Service: ", e);
+  private void createCRLcache(ServiceBroker sb ) {
+    // Implemented as a singleton service
+    if (crlCacheService == null) {
+      try {
+        crlCacheService = new CRLCache(sb);
       }
-      else {
-	log.info("Unable to initialize CRL Cache Service: " + e);
+      catch (Exception e) {
+        boolean exec =
+  	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
+        if (exec == true) {
+  	log.warn("Unable to initialize CRL Cache Service: ", e);
+        }
+        else {
+          log.info("Unable to initialize CRL Cache Service: " + e);
+        }
       }
     }
   }
-}
 
   /**
    * Get a service.
@@ -77,22 +78,6 @@ public void createCRLcache(ServiceBroker sb ) {
   protected synchronized Service getInternalService(ServiceBroker sb, 
 						    Object requestor, 
 						    Class serviceClass) {
-    // Implemented as a singleton service
-    if (crlCacheService == null) {
-      try {
-	crlCacheService = new CRLCache(sb);
-      }
-      catch (Exception e) {
-	boolean exec =
-	  Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
-	if (exec == true) {
-	  log.warn("Unable to initialize CRL Cache Service: ", e);
-	}
-	else {
-	  log.info("Unable to initialize CRL Cache Service: " + e);
-	}
-      }
-    }
     return crlCacheService;
   }
 
