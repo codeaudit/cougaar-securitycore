@@ -38,6 +38,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 /**
  * Intercept the "cost()" call to each of the LinkProtocol's.
@@ -164,44 +165,9 @@ public class CertificateCheckAspect
 	  ret = super.cost(message);
 	}
 	else {
-	  int targetAllCerts = 0;
-	  int originatorAllCerts = 0;
-	  boolean publishIdmef = false;
-
-	  List targetAll = _keyRing.findCert(targetAddress,
-               KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE,
-               false);
-	  if (targetAll != null && targetAll.size() > 0) {
-	    targetAllCerts = targetAll.size();
-	  }
-
-	  List originatorAll = _keyRing.findCert(originatorAddress,
-               KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE,
-               false);
-	  if (originatorAll != null && originatorAll.size() > 0) {
-	    originatorAllCerts = originatorAll.size();
-	  }
-          String s = "";
-	  if ((nbcertsTarget == 0) && (targetAllCerts > 0)) {
-	    // The target does not have valid certificates, but it has
-	    // invalid certificates.
-	    s = s + "All target certificates are invalid (" +
-	      targetAllCerts + "). ";
-	    publishIdmef = true;
-	  }
-	  if ((nbcertsOriginator == 0) && (originatorAllCerts > 0)) {
-	    // The originator does not have valid certificates, but it has
-	    // invalid certificates.
-	    s = s + "All source certificates are invalid (" +
-	      originatorAllCerts + ")";
-	    publishIdmef = true;
-	  }
-	  if (publishIdmef) {
-	    publishMessageFailure(originatorAddress, targetAddress,
-				  MessageFailureEvent.INVALID_CERTIFICATE,
-				  s);
-	  }
-	  ret = Integer.MAX_VALUE; // infinity
+	  checkBadCerts(originatorAddress, nbcertsOriginator, 
+			targetAddress, nbcertsTarget);
+	  ret = Integer.MAX_VALUE; // infincty
 	  drop = true;
 	}
       }
@@ -228,6 +194,73 @@ public class CertificateCheckAspect
 	_log.debug(s);
       }
       return ret;
+    }
+
+    /** Publish an IDMEF message, if necesary
+     */
+    private void checkBadCerts(String originatorAddress, int nbcertsOriginator,
+			       String targetAddress, int nbcertsTarget) {
+      int targetAllCerts = 0;
+      int targetBadCerts = 0;
+      int originatorAllCerts = 0;
+      int originatorBadCerts = 0;
+      boolean publishIdmef = false;
+
+      List targetAll = _keyRing.findCert(targetAddress,
+		 KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE,
+					 false);
+      if (targetAll != null && targetAll.size() > 0) {
+	targetAllCerts = targetAll.size();
+	Iterator it = targetAll.iterator();
+	while (it.hasNext()) {
+	  CertificateStatus st = (CertificateStatus)it.next();
+	  if (CertificateTrust.CERT_TRUST_REVOKED_CERT.
+	      equals(st.getCertificateTrust()) ||
+	    CertificateTrust.CERT_TRUST_NOT_TRUSTED.
+	      equals(st.getCertificateTrust())) {
+	    targetBadCerts++;
+	  }
+	}
+      }
+      List originatorAll = _keyRing.findCert(originatorAddress,
+	       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE,
+               false);
+      if (originatorAll != null && originatorAll.size() > 0) {
+	originatorAllCerts = originatorAll.size();
+	Iterator it = originatorAll.iterator();
+	while (it.hasNext()) {
+	  CertificateStatus st = (CertificateStatus)it.next();
+	  if (CertificateTrust.CERT_TRUST_REVOKED_CERT.
+	      equals(st.getCertificateTrust()) ||
+	      CertificateTrust.CERT_TRUST_NOT_TRUSTED.
+	      equals(st.getCertificateTrust())) {
+	    originatorBadCerts++;
+	  }
+	}
+      }
+      String s = "";
+      
+      if ((nbcertsTarget == 0) && (targetAllCerts > 0) &&
+	  (targetBadCerts == targetAllCerts)) {
+	// The target does not have valid certificates, but it has
+	// invalid certificates.
+	s = s + "All target certificates are invalid (" +
+	  targetAllCerts + "). ";
+	publishIdmef = true;
+      }
+      if ((nbcertsOriginator == 0) && (originatorAllCerts > 0) &&
+	  (originatorBadCerts == originatorAllCerts)) {
+	// The originator does not have valid certificates, but it has
+	// invalid certificates.
+	s = s + "All source certificates are invalid (" +
+	  originatorAllCerts + ")";
+	publishIdmef = true;
+      }
+      if (publishIdmef) {
+	publishMessageFailure(originatorAddress, targetAddress,
+			      MessageFailureEvent.INVALID_CERTIFICATE,
+			      s);
+      }
     }
 
     /**
