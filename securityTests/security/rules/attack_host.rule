@@ -11,6 +11,27 @@ society.each_host do |host|
 end
 
 if attackHost == nil
+  # fine! we'll add it to the first host where a redundant CA is running
+  society.each_host do |host|
+    host.each_node do |node|
+      node.each_facet(:role) do |facet|
+        if facet[:role] == 'RedundantCertificateAuthority'
+          host.add_facet({"attacker" => "true"})
+          attackHost = host
+          break
+        end
+      end # node.each_facet
+      if attackHost != nil
+        break
+      end
+    end #host.each_node
+    if attackHost != nil
+      break
+    end
+  end #society.each_host
+end
+
+if attackHost == nil
   # fine! we'll add it to the first non management host
   society.each_host do |host|
     mgmtComp = false
