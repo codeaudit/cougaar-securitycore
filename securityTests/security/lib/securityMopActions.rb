@@ -94,14 +94,7 @@ module Cougaar
 
       def perform
         # run initiate in it's own thread so that other actions can get underway.
-        Thread.fork do
-          begin
-            performAction
-          rescue Exception => e
-            logErrorMsg "Error in InitiateSecurityMops: #{e.class}, #{e.message}"
-            logErrorMsg e.backtrace.join("\n")
-          end
-        end
+        self.threadPerformAction
       end
 
       def performAction
@@ -184,6 +177,11 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
 
     class StopSecurityMopCollection < Cougaar::Action
       def perform
+        # self.threadPerformAction
+        performAction
+      end
+
+      def performAction
         unless AbstractSecurityMop.waitForCompletion(InitiateSecurityMopCollection)
           logErrorMsg "Aborting StopSecurityMopCollection"
           return nil
@@ -215,6 +213,11 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
 
     class SendSecurityMopRequest < Cougaar::Action
       def perform
+        # self.threadPerformAction
+        performAction
+      end
+
+      def performAction
         logInfoMsg "Pre-processing security MOPs" if $VerboseDebugging
         # if InitiateSecurityMopCollection didn't complete, StopSecurityMopCollection would
         # have aborted and there is no reason to sit through a long timeout period.

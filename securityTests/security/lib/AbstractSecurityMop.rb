@@ -1,6 +1,20 @@
 require 'singleton'
 require 'security/lib/security'
 
+class Object
+  def threadPerformAction
+    Thread.fork do
+      begin
+        self.performAction
+      rescue Exception => e
+        logErrorMsg "Error in #{anObject.class.name}: #{e.class}, #{e.message}"
+        logErrorMsg e.backtrace.join("\n")
+      end
+    end
+  end
+end
+
+
 class AbstractSecurityMop < SecurityStressFramework
   attr_accessor :date, :runid, :name, :descript, :score, :info, :isCalculationDone, :raw, :summary, :supportingData
 
