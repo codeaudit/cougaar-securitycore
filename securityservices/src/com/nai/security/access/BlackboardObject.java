@@ -68,7 +68,7 @@ public class BlackboardObject implements Serializable
     /**
      * Public accessor method for the actual object
      * 
-     * @return 
+     * @return the blackboard object
      */
     public Object getObject()
     {

@@ -1203,15 +1203,16 @@ public class DirectoryKeyStore
     return keyReply;
   }
 
-  /** Add a key pair to the key ring.
-   * 1) If needed, a new key pair is generated and stored in the keystore.
-   * 2a) If the key being generated is for the node, the a PKCS#10 request
-   *     is sent to the Certificate Authority. If the CA replies by signing
-   *     the node's certificate, the certificate is installed in the keystore.
-   * 2b) If the key being generated is an agent key, then the node acts as a
-   *     CA for the agent: the node signs the agent's certificate and also
-   *     sends the certificate to the node's CA.
-   *     If necessary, a node's key is recursively created for the node.
+  /**
+   * Add a key pair to the key ring.
+   * If needed, a new key pair is generated and stored in the keystore.
+   * If the key being generated is for the node, the a PKCS#10 request
+   * is sent to the Certificate Authority. If the CA replies by signing
+   * the node's certificate, the certificate is installed in the keystore.
+   * If the key being generated is an agent key, then the node acts as a
+   * CA for the agent: the node signs the agent's certificate and also
+   * sends the certificate to the node's CA.
+   * If necessary, a node's key is recursively created for the node.
    *
    * If the keyAlias parameter is null, then it is assumed that no key exists
    * yet in the keystore. In that case, a new key is generated.

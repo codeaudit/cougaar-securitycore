@@ -191,10 +191,11 @@ public class PSP_Assign extends PSP_BaseAdapter implements PlanServiceProvider, 
     return true;
   }
   
-  /**  Any PlanServiceProvider must be able to provide DTD of its
-   *  output IFF it is an XML PSP... ie.  returnsXML() == true;
-   *  or return null
-   **/
+  /**
+   * Return the DTD.
+   * Any PlanServiceProvider must be able to provide DTD of its
+   * output IF it is an XML PSP.
+   */
   public String getDTD()  {
     return null;
   }

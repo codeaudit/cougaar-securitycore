@@ -494,9 +494,8 @@ public class SensorPlugin extends LDMEssentialPlugin
    * 
    * @param publichcmdlist
    *               Enumeration on Collection of newly Start_publishing_Cmd
-   * @see com.nai.security.monitoring.Util.PublishCmdObj
+   * @see com.nai.security.monitoring.util.PublishCmdObj
    */
-  
   protected void process_publishCmd(Enumeration publichcmdlist)
   {
     PublishCmdObj pcmd;

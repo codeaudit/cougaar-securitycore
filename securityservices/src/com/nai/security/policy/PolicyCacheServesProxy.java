@@ -8,11 +8,11 @@ package com.nai.security.policy;
 public interface PolicyCacheServesProxy 
 {
 
-    /**
-     * Accessor method inteded for use by a system-level proxy (e.g. the 
-     * MessageTransportServiceProxy).
-     */
-     public PolicyRuleBean get(String name, String key);
+  /**
+   * Accessor method intended for use by a system-level proxy.
+   * For example, it could be used by the MessageTransportServiceProxy.
+   */
+  public PolicyRuleBean get(String name, String key);
 
 }
 
