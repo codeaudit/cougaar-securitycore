@@ -40,9 +40,9 @@ class CertificateOrigin {
 
   // The certificate is in a local keystore
   public static final CertificateOrigin CERT_ORI_KEYSTORE =
-    new CertificateOrigin("CERT_ORI_KEYSTORE");
+    new CertificateOrigin("ORI_KEYSTORE");
 
   // The certificate was retrieved from an LDAP directory
   public static final CertificateOrigin CERT_ORI_LDAP =
-    new CertificateOrigin("CERT_ORI_LDAP");
+    new CertificateOrigin("ORI_LDAP");
 }

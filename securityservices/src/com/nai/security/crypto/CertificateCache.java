@@ -278,10 +278,11 @@ public class CertificateCache
 	}
       }
       if (debug) {
-	System.out.print("Trust:" + certEntry.getCertificateTrust()
-			 + " - Type: " + certEntry.getCertificateType()
-			 + " - Origin: " + certEntry.getCertificateOrigin()
-			 + " - Valid: " + certEntry.isValid());
+	System.out.print("Alias: " + certEntry.getCertificateAlias()
+			 + ". Trust:" + certEntry.getCertificateTrust()
+			 + ". Type: " + certEntry.getCertificateType()
+			 + ". Origin: " + certEntry.getCertificateOrigin()
+			 + ". Valid: " + certEntry.isValid());
       }
       if(list.size() == 0) {
 	if (privkey != null) {
@@ -340,11 +341,6 @@ public class CertificateCache
 	    found = true;
 	    break;
 	  }
-	  else {
-	    if (debug) {
-	      System.out.println("Not cert: " + c1);
-	    }
-	  }
 	}
 
 	if(!found) {
@@ -370,10 +366,10 @@ public class CertificateCache
 		it.add(certEntry);
 	      }
 	      if (debug) {
-		System.out.println(" (insert before index=" + it.nextIndex() + "/"
+		System.out.println(" (insert before index=" + it.nextIndex() + " - size="
 				   + list.size() + ")");
 	      }
-	      it.next();
+	      // Certificate was successfully inserted in the list.
 	      break;
 	    }
 	  }

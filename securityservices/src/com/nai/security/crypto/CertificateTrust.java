@@ -40,25 +40,29 @@ class CertificateTrust {
 
   // Certificate status not known yet. Certificate should not be used.
   public static final CertificateTrust CERT_TRUST_UNKNOWN =
-    new CertificateTrust("CERT_TRUST_UNKNOWN");
+    new CertificateTrust("TRUST_UNKNOWN");
 
   // The certificate has been self issued but the CA reply has
   // not been received yet. The certificate should not be used
   // until a CA reply has been received.
   public static final CertificateTrust CERT_TRUST_SELF_SIGNED =
-    new CertificateTrust("CERT_TRUST_SELF_SIGNED");
+    new CertificateTrust("TRUST_SELF_SIGNED");
 
-  // The certificate is signed by a trusted CA
+  /** The certificate is signed by a trusted CA
+   * Note that a certificate may have been signed by a CA, but it may
+   * not be valid because it is not yet valid.
+   * One of the certificates in the chain may not be valid either. */
   public static final CertificateTrust CERT_TRUST_CA_SIGNED =
-    new CertificateTrust("CERT_TRUST_CA_SIGNED");
+    new CertificateTrust("TRUST_CA_SIGNED");
 
   // The certificate is not signed by a trusted CA
   // (and should not be used).
+  // One possible reason is when the certificate has expired.
   public static final CertificateTrust CERT_TRUST_NOT_TRUSTED =
-    new CertificateTrust("CERT_TRUST_NOT_TRUSTED");
+    new CertificateTrust("TRUST_NOT_TRUSTED");
 
   // The certificate is a trusted CA certificate
   public static final CertificateTrust CERT_TRUST_CA_CERT =
-    new CertificateTrust("CERT_TRUST_CA_CERT");
+    new CertificateTrust("TRUST_CA_CERT");
 
 }

@@ -372,16 +372,27 @@ public class DirectoryKeyStore implements Runnable
 	}
       }
       catch (CertificateExpiredException e) {
+	// The certificate is trusted but it has expired.
 	if (debug) {
 	  System.out.println("Certificate in chain has expired. "
 			     + commonName + " - " + e);
 	}
       }
       catch (CertificateNotYetValidException e) {
+	// The certificate is trusted but it is not yet valid. Add it to the cache
+	// because it may become valid when it is being used.
 	if (debug) {
 	  System.out.println("Certificate in chain is not yet valid. "
 			     + commonName + " - " + e);
 	}
+	certstatus = new CertificateStatus(cert, true,
+					   CertificateOrigin.CERT_ORI_LDAP,
+					   CertificateType.CERT_TYPE_END_ENTITY,
+					   CertificateTrust.CERT_TRUST_CA_SIGNED, null);
+	if (debug) {
+	  System.out.println("Updating cert cache with LDAP entry:" + commonName);
+	}
+	certCache.addCertificate(certstatus);
       }
     }	
     else {
@@ -882,8 +893,7 @@ public class DirectoryKeyStore implements Runnable
     Principal principal = x509certificate.getSubjectDN();
     Principal principal1 = x509certificate.getIssuerDN();
     if (debug) {
-      System.out.println("Building chain for " + principal.getName()
-			 + " signed by " + principal1.getName());
+      System.out.println("Build chain: " + principal.getName());
     }
 
     ArrayList list1 = certCache.getCertificates(principal1.getName());
@@ -898,7 +908,7 @@ public class DirectoryKeyStore implements Runnable
 	signedByAtLeastOneCA = true;
       }
       if (debug) {
-	System.out.println("buildChain. Certificate is self issued. signedByAtLeastOneCA="
+	System.out.println("Certificate is self issued. signedByAtLeastOneCA="
 			   + signedByAtLeastOneCA);
       }
       return signedByAtLeastOneCA;
@@ -907,7 +917,7 @@ public class DirectoryKeyStore implements Runnable
     //Vector vector1 = (Vector)hashtable.get(principal1);
     if(list1 == null) {
       if (debug) {
-	System.out.println("buildChain. Signer certificate not found. signedByAtLeastOneCA="
+	System.out.println("Signer certificate not found. signedByAtLeastOneCA="
 			   + signedByAtLeastOneCA);
       }
       //return false;
@@ -928,7 +938,7 @@ public class DirectoryKeyStore implements Runnable
       }
       catch(Exception exception) {
 	if (debug) {
-	  System.out.println("buildChain. Unable to verify signature: "
+	  System.out.println("Unable to verify signature: "
 			     + exception + " - "
 			     + x509certificate1.getSubjectDN().toString());
 	  exception.printStackTrace();
@@ -943,7 +953,7 @@ public class DirectoryKeyStore implements Runnable
       }
 
       if (debug) {
-	System.out.println("buildChain. Found acceptable signing key: "
+	System.out.println("Found acceptable signing key: "
 			   + x509certificate1.getSubjectDN().toString()
 			   + ". signedByAtLeastOneCA=" + signedByAtLeastOneCA);
       }
@@ -955,7 +965,7 @@ public class DirectoryKeyStore implements Runnable
       }
     }
     if (debug) {
-      System.out.println("buildChain. No valid signer key. signedByAtLeastOneCA="
+      System.out.println("No valid signer key. signedByAtLeastOneCA="
 			 +signedByAtLeastOneCA);
     }
     //return false;
@@ -1309,7 +1319,10 @@ public class DirectoryKeyStore implements Runnable
 	if (a.startsWith(alias)) {
 	  //Extract index
 	  ind = Integer.valueOf(a.substring(alias.length())).intValue();
-	  if (ind > nextIndex) {
+	  if (debug) {
+	    System.out.println("Alias: " + alias + " - val: " + ind);
+	  }
+	  if (ind >= nextIndex) {
 	    nextIndex = ind + 1;
 	  }
 	}

@@ -40,9 +40,9 @@ class CertificateType {
 
   // An end-entity certificate 
   public static final CertificateType CERT_TYPE_END_ENTITY =
-    new CertificateType("CERT_TYPE_END_ENTITY");
+    new CertificateType("TYPE_END_ENTITY");
 
   // The certificate of a trusted authority
   public static final CertificateType CERT_TYPE_CA =
-    new CertificateType("CERT_TYPE_CA");
+    new CertificateType("TYPE_CA");
 }
