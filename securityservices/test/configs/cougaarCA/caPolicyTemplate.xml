@@ -7,8 +7,8 @@
       <!-- Certificate directory service for certificate storage -->
       <ldapURL>$[ldapURL]</ldapURL>
 
-      <ldapPrincipal>cn=manager, dc=cougaar, dc=org<ldapPrincipal>
-      <ldapCredential>secret<ldapCredential>
+      <ldapPrincipal>cn=manager, dc=cougaar, dc=org</ldapPrincipal>
+      <ldapCredential>secret</ldapCredential>
 
       <!-- The type of the certificate directory service.
            Currently, either CougaarOpenLdap or NetTools -->
