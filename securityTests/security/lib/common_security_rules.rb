@@ -19,7 +19,7 @@ $facetUserManagerAgent=                     'UserManagerAgent'
 $facetRootMonitoringManagerAgent=           'RootMonitoringManagerAgent'
 $facetMonitoringManagerAgent=               'MonitoringManagerAgent'
 $facetPersistenceManagerAgent=              'PersistenceManagerAgent'
-$facetRedundantPersistenceManagerAgent=     'RedundantPersistenceManagerAgent'
+$facetRedundantPersistenceManagerAgent=     'RedundantPersistenceManager'
 $facetPolicyManagerAgent=                   'PolicyManagerAgent'
 $facetPolicyServletManagerAgent=            'PolicyServletManagerAgent'
 

@@ -26,6 +26,7 @@ def getSecurityManagersLayout(enclave)
     [$facetManagement,         "#{enclave}MonitoringManager",   [$facetMonitoringManagerAgent,$facetUserManagerAgent]],
     [$facetManagement,         "#{enclave}PersistenceManager",  [$facetPersistenceManagerAgent]],
     [$facetManagement,         "#{enclave}PolicyManager",       [$facetPolicyManagerAgent]],
+    [$facetRedundantPersistenceManagerAgent,         "#{enclave}RedundantPersistenceManager",       [$facetRedundantPersistenceManagerAgent]],
   ]
 end
 
