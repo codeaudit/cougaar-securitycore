@@ -139,7 +139,8 @@ public class DualAuthenticator extends ValveBase {
     dummyValveContext.resetInvokeCount();
     int totalConstraint = pathConstraint | userConstraint;
 
-    if (totalConstraint == CONST_NONE || certPrincipal == null || 
+    if (totalConstraint == CONST_NONE || 
+        (certPrincipal == null && (totalConstraint & CONST_CERT) != 0)  || 
         (totalConstraint & CONST_PASSWORD) != 0) {
       _secondaryAuth.invoke(request, response, dummyValveContext);
       passPrincipal = hreq.getUserPrincipal();
