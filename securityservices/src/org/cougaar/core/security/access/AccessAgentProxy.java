@@ -480,6 +480,7 @@ public class AccessAgentProxy implements MessageTransportService,
   private boolean checkWPQueryMessage(String target, WPQuery wpMsg) {
     // get where the agent really is, not from the source
     Map map = wpMsg.getMap();
+    if (map == null) { return false; }
     // the map contains (name, query)
     Iterator it = map.keySet().iterator();
     String agent = (String)it.next();
@@ -505,6 +506,8 @@ public class AccessAgentProxy implements MessageTransportService,
       return !_wpEnforcer.WPForwardOk(agent, target);
     }
     else if (wpMsg.getAction() == WPQuery.LOOKUP) {
+      return !_wpEnforcer.WPLookupOk(agent);
+    } else if (wpMsg.getAction() == WPQuery.PING) {
       return !_wpEnforcer.WPLookupOk(agent);
     }
 
