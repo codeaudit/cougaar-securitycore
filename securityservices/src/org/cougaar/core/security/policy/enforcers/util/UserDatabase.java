@@ -5,7 +5,7 @@ import java.util.*;
 public class UserDatabase
 {
   private static HashMap userToRoles = new HashMap();
-  private static String  userPrefix  = "User";
+  private static String  userPrefix  = "----User";
   private static int     userCounter = 0;
 
   public static String anybody()   // need to think about this
