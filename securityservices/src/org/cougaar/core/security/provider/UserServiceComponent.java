@@ -46,8 +46,7 @@ public class UserServiceComponent extends ComponentSupport
 
   public void load() {
     super.load();
-    MessageAddress agent = _ais.getMessageAddress();
     ServiceBroker sb = getServiceBroker();
-    sb.addService(UserService.class, new UserServiceProvider(agent));
+    sb.addService(UserService.class, new UserServiceProvider(sb));
   }
 }

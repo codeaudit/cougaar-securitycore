@@ -95,6 +95,9 @@ public class AgentUserService implements UserService, BlackboardClient {
     };
 
   public AgentUserService(ServiceBroker sb, MessageAddress agent) {
+    if (sb == null) {
+      throw new IllegalArgumentException("ServiceBroker is null");
+    }
     _serviceBroker = sb;
     _log = (LoggingService)
       _serviceBroker.getService(this, LoggingService.class, null);

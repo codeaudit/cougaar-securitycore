@@ -40,13 +40,13 @@ public class UserServiceProvider implements ServiceProvider
   protected static final boolean AGENT_SERVICE = !Boolean.getBoolean("org.cougaar.core.security.provider.UserService.ldap");
   private UserService       _service;
   private static Logger     _log=LoggerFactory.getInstance().createLogger(UserServiceProvider.class);
-  private ServiceBroker     _nodeAgentsb=null;
-
-  public UserServiceProvider(MessageAddress agent) {
-  }
+  private ServiceBroker     _serviceBroker=null;
 
   public UserServiceProvider(ServiceBroker sb ) {
-    _nodeAgentsb=sb;
+    if (sb == null) {
+      throw new IllegalArgumentException("ServiceBroker should not be null");
+    }
+    _serviceBroker=sb;
     if(AGENT_SERVICE){
       _service=new AgentUserService(sb, null);
     }
@@ -112,13 +112,13 @@ public class UserServiceProvider implements ServiceProvider
 
     if (_service == null) {
       if (AGENT_SERVICE) {
-        _service = new AgentUserService(_nodeAgentsb, null);
+        _service = new AgentUserService(_serviceBroker, null);
       }
       else {
         if(_log.isDebugEnabled()){
           _log.debug(" LdapUserServiceImpl  instance created with  "+ sb.toString());
         }
-        _service = new LdapUserServiceImpl(_nodeAgentsb);
+        _service = new LdapUserServiceImpl(_serviceBroker);
       }
     }
     else {
