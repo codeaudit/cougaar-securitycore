@@ -8,8 +8,6 @@
 
 debug = false
 
-# to use RMI set to nil
-http_protocol = "https"
 
 ns_facet = "NameServer"
 port = "8888"
@@ -69,17 +67,19 @@ society.each_node do |node|
     next unless node.has_component?(plugin)
   end
   puts "adding node #{node.name} on #{node.host.name}" if debug
+
+
+  next unless defined?($MTS_PROTOCOL)
   
   # figure out the naming server info
-  if http_protocol
-    # get the http(s) port
-    if http_protocol == 'https'
+  if $MTS_PROTOCOL == 'https' || $MTS_PROTOCOL == 'http' then
+    if $MTS_PROTOCOL == 'https' then
       port = node.secure_cougaar_port
     else
       port = node.cougaar_port
     end
     aliases.push("#{node.name}")
-    addrs.push("-#{http_protocol.upcase}:#{http_protocol}://#{node.host.name}:#{port}/\\$\\#{node.name}/httpmts")
+    addrs.push("-#{$MTS_PROTOCOL.upcase}:#{$MTS_PROTOCOL}://#{node.host.name}:#{port}/\\$\\#{node.name}/httpmts")
   else
     # use rmi
     aliases.push("")
@@ -101,22 +101,21 @@ society.each_agent(false) do |agent|
     next unless agent.has_component?(plugin)
   end
   puts "adding agent #{agent.name} on #{agent.node.host.name}" if debug
+  next unless defined?($MTS_PROTOCOL)
   
   # figure out the naming server info
-  if http_protocol
-    # get http(s) port
-    if http_protocol == 'https'
-      port = agent.node.secure_cougaar_port
+  if $MTS_PROTOCOL == 'https' || $MTS_PROTOCOL == 'http' then
+    if $MTS_PROTOCOL == 'https' then
+      port = node.secure_cougaar_port
     else
-      port = agent.node.cougaar_port
+      port = node.cougaar_port
     end
-    aliases.push("#{agent.name}")
-    # since all communication goes through the node we want the node mts addr
-    addrs.push("-#{http_protocol.upcase}:#{http_protocol}://#{agent.node.host.name}:#{port}/\\$\\#{agent.node.name}/httpmts")
+    aliases.push("#{node.name}")
+    addrs.push("-#{$MTS_PROTOCOL.upcase}:#{$MTS_PROTOCOL}://#{node.host.name}:#{port}/\\$\\#{node.name}/httpmts")
   else
     # use rmi
     aliases.push("")
-    addrs.push("#{agent.name}@#{agent.node.host.name}:#{port}")
+    addrs.push("#{node.name}@#{node.host.name}:#{port}")
   end
 end
 
@@ -126,7 +125,8 @@ puts "found servers[#{addrs.size}]=#{addrs}" if debug
 #
 # this may change to set the servers as an argument, so we
 # do this in a separate loop
-if explicit_plugin
+
+if explicit_plugin then
   objs.each {|obj| 
    if obj.kind_of? Agent
      obj.add_component do |c|
