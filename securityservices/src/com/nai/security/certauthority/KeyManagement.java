@@ -247,32 +247,13 @@ public class KeyManagement
   private void saveX509Request(X509CertImpl clientX509)
     throws IOException, CertificateEncodingException, NoSuchAlgorithmException
   {
-    String alg = "MD5"; // TODO: make this dynamic
-
-    MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
-    byte [] digest = md.digest();
-
-    X500Name clientX500Name = new X500Name(clientX509.getSubjectDN().toString());
-    String filePrefix = clientX500Name.getCommonName() + "-";
-    File f = new File(x509DirectoryName + File.separatorChar + filePrefix + toHex(digest));
-
+    String alias = caKeyStore.getAlias(clientX509);
+    File f = new File(x509DirectoryName + File.separatorChar + alias);
     f.createNewFile();
     PrintStream out = new PrintStream(new FileOutputStream(f));
     base64encode(out, clientX509.getEncoded(), PKCS7HEADER, PKCS7TRAILER);
 
     out.close();
-  }
-
-  private MessageDigest createDigest(String algorithm, byte[] data)
-    throws NoSuchAlgorithmException
-  {
-    MessageDigest md = MessageDigest.getInstance(algorithm);
-
-    // Create a digest
-    md.reset();
-    md.update(data);
-    md.digest();
-    return md;
   }
 
   private void publish2Ldap(X509Certificate clientX509)
@@ -789,16 +770,6 @@ public class KeyManagement
     X509CertImpl clientCertificate = new X509CertImpl(clientCertInfo);
 
     return clientCertificate;
-  }
-    
-  private String toHex(byte[] data) {
-    StringBuffer buff = new StringBuffer();
-    for(int i = 0; i < data.length; i++) {
-      String digit = Integer.toHexString(data[i] & 0x00ff);
-      if(digit.length() < 2)buff.append("0");
-      buff.append(digit);
-    }
-    return buff.toString();
   }
 
   public static void main(String[] args) {
