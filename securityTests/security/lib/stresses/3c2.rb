@@ -101,28 +101,50 @@ class Security3c2 < SecurityStressFramework
    end
 
    def revokeAgent(agent)
-      # Give the agents time to retrieve their certificates
-      # user admin may not be started yet
+     agent1 = @run.society.agents[agent]
+     if (agent1 == nil) 
+       raise "Unable to find source agent: #{agent}"
+     end
 
-      result = @certRevocation.revokeAgent(agent)
-      saveResult(result, "Stress5k104",
-	 "revoke an agent through administrator: #{agent}")
+     # Preven CRL to reach revoked agent.
+     # That way, the revoked agent will succeed sending a message out,
+     # and we can test that the receiver is blocking the message.
+     url = "#{agent1.uri}/crlMessageBinderServlet?crlEnqueueMsg=true"
+     result, url = Cougaar::Communications::HTTP.get(url)
+     if !(result =~ /Success/)
+       saveUnitTestResult("Stress5k104", "Unable to block CRL msg at #{agent1.name}\nURL: #{url}\n#{result}")
+     end
 
-      sleep(10.minutes)
+     # Now, revoke the agent.
+     result = @certRevocation.revokeAgent(agent)
+     saveResult(result, "Stress5k104",
+		"revoke an agent through administrator: #{agent}")
 
-      #@dest_agent = @certRevocation.selectAgent
-      @dest_agent = getValidDestAgent()
-      agent1 = @run.society.agents[agent]
-      agent2 = @dest_agent
-      saveUnitTestResult("Stress5k104", "Sending msg from #{agent1.name} to #{agent2.name}...")
+     #@dest_agent = @certRevocation.selectAgent
+     @dest_agent = getValidDestAgent()
+     agent2 = @dest_agent
+     if (agent2 == nil) 
+       raise "Unable to find destination agent"
+     end
 
-      if (agent1 == nil) 
-	raise "Unable to find source agent: #{agent}"
-      end
-      if (agent2 == nil) 
-	raise "Unable to find destination agent"
-      end
-      testMessage(agent1, agent2)      
+     # Sleep a little bit until the receiver receives the CRL
+     sleep(5.minutes)
+
+     saveUnitTestResult("Stress5k104",
+			"Sending msg from #{agent1.name} to #{agent2.name}... Sender does not have CRL")
+     testMessage(agent1, agent2, "Sender does not have CRL")      
+
+     # Now, re-enable CRL to reach the revoked agent.
+     url = "#{agent1.uri}/crlMessageBinderServlet?crlEnqueueMsg=false"
+     result, url = Cougaar::Communications::HTTP.get(url)
+     if !(result =~ /Success/)
+       saveUnitTestResult("Stress5k104", "Unable to re-enable CRL msg at #{agent1.name}")
+     end
+
+     # Now that the sender has CRLs, try again.
+     # The sender should not even send the relay message.
+     saveUnitTestResult("Stress5k104", "Sending msg from #{agent1.name} to #{agent2.name}... Sender should have CRL")
+     testMessage(agent1, agent2, "Sender has CRL")
    end
 
    def getValidDestAgent
@@ -170,12 +192,16 @@ class Security3c2 < SecurityStressFramework
 	 sleep(5.minutes)
 	 # Request new certificates for the node and agent
 	 begin
+	   logInfoMsg "Requesting new cert for #{@revoked_node.agent.name}"
 	   @certRevocation.requestNewCertificate(@revoked_node, @revoked_node.agent, "10 d")
 	   saveUnitTestResult('Stress3c2', "Requested new cert for #{@revoked_node}")
+
+	   logInfoMsg "Requesting new cert for #{@revoked_agent.name}"
 	   @certRevocation.requestNewCertificate(@revoked_node, @revoked_agent, "10 d")
 	   saveUnitTestResult('Stress3c2', "Requested new cert for #{@revoked_agent}")
 	 rescue => ex2
-	   saveUnitTestResult('Stress3c2', "Unable to request new cert: #{ex2}")
+	   saveUnitTestResult('Stress3c2',
+              "Unable to request new cert: #{ex2}\n#{ex2.backtrace.join("\n")}")
 	 end
        rescue => ex
 	 saveUnitTestResult('Stress3c2', "Unable to run test: #{ex}\n#{ex.backtrace.join("\n")}" )
@@ -193,28 +219,25 @@ class Security3c2 < SecurityStressFramework
      }
    end
 
-   def testMessage(agent1, agent2)
+   def testMessage(agent1, agent2, comment)
     if (@useIdmef)
       testMessageIdmef(agent1.name, agent2.name,
         'Stress3c21',
-	"Send message with expired cert IDMEF.",
+	"Send message with expired cert IDMEF - " + comment,
         [ true, false, false, false ],
         agent1.node.agent.name)
       testMessageIdmef(agent2.name, agent1.name,
         'Stress3c21',
-	"Receive message with expired cert IDMEF.", 
+	"Receive message with expired cert IDMEF - " + comment, 
         [ true, false, false, false ],
         agent1.node.agent.name)
     end
     testMessageFailure(agent1.name, agent2.name, 
-            'Stress3c9', "Send message with expired cert.", 
+            'Stress3c9', "Send message with expired cert - " + comment, 
              [ true, false, false, false ])
     testMessageFailure(agent2.name, agent1.name, 
-            'Stress3b9', "Receive message with expired cert.", 
+            'Stress3b9', "Receive message with expired cert - " + comment, 
             [ true, false, false, false ])
-   end
-
-   def printSummary
    end
 
 end

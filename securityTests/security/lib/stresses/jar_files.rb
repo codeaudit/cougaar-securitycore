@@ -145,7 +145,7 @@ class StressConfigJar < StressJarFile
       s = s + " and signing"
     end
     s = s + " config jar file containing #{@filename}"
-    saveUnitTestResult(@attackName, s)
+    saveUnitTestResult(@attackNum, s)
     @jarFile = createJarConfig(@filename, @attackName)
     if (@keystore != nil)
       signJar(@jarFile, @keystore, @cert)
@@ -169,7 +169,7 @@ class StressConfigJar < StressJarFile
   def pokeUrl
     url = "#{@testAgent.uri}/readconfig?file=#{@attackNum}.txt"
     result, url = Cougaar::Communications::HTTP.get(url)
-    #saveUnitTestResult(@attackName, "Result from looking #{url}: #{result}")
+    #saveUnitTestResult(@attackNum, "Result from looking #{url}: #{result}")
 #    logInfoMsg("Result from looking = #{result}")
     return result == @attackName
   end
