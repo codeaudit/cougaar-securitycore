@@ -4,6 +4,11 @@ BEGIN {
   print "create table if not exists csi_subordinate_reported"
   print "    (subordinate varchar(150), superior varchar(150));"
   print "delete from csi_subordinate_reported;"
+
+  print "create table if not exists csi_subordinate_reporting"
+  print "    (subordinate varchar(150), superior varchar(150));"
+  print "delete from csi_subordinate_reporting;"
+
     }
 
 /BlackBoardCollectorPlugin - Interception: ReportForDuty with role / {
@@ -22,3 +27,9 @@ BEGIN {
     }
   } 
 }
+
+/BlackBoardCollectorPlugin - Interception: ReportChainReady / {
+  print "insert into csi_subordinate_reporting";
+  print "   values ('" %6 "', '" $7 "');";
+}
+
