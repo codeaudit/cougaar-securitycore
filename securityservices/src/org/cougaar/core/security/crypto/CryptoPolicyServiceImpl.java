@@ -55,6 +55,7 @@ public class CryptoPolicyServiceImpl
 
   //policy source
   CryptoPolicyProxy cpp;
+  DataProtectionPolicyProxy dpp;
 
   //policy for society--usually the default, one-fits-all policy
   CryptoPolicy dcp_in = null;
@@ -87,6 +88,7 @@ public class CryptoPolicyServiceImpl
       serviceBroker.getService(this, CommunityService.class, null);
 
     cpp = new CryptoPolicyProxy(serviceBroker);
+    dpp = new DataProtectionPolicyProxy(serviceBroker);
   }
 
     public SecureMethodParam getSendPolicy(String source, String target) {
@@ -317,8 +319,6 @@ public class CryptoPolicyServiceImpl
         }else if(cp.Direction == CryptoPolicy.BOTH){
           incoming_a.put(cp.Name, cp);
           outgoing_a.put(cp.Name, cp);
-        }else if(cp.Direction == CryptoPolicy.DATAPROTECTION){
-          dataprot_a.put(cp.Name, cp);
         }
         break;
       case  CryptoPolicy.COMMUNITY:
@@ -329,11 +329,10 @@ public class CryptoPolicyServiceImpl
         }else if(cp.Direction == CryptoPolicy.BOTH){
           incoming_c.put(cp.Name, cp);
           outgoing_c.put(cp.Name, cp);
-        }else if(cp.Direction == CryptoPolicy.DATAPROTECTION){
-          dataprot_c.put(cp.Name, cp);
         }
         break;
       case  CryptoPolicy.SOCIETY:
+        log.debug("CryptoPolicy for SOCIETY: " + cp.Direction);
         if(cp.Direction == CryptoPolicy.INCOMING){
           dcp_in = cp;
         }else if(cp.Direction == CryptoPolicy.OUTGOING){
@@ -341,11 +340,100 @@ public class CryptoPolicyServiceImpl
         }else if(cp.Direction == CryptoPolicy.BOTH){
           dcp_in = cp;
           dcp_out = cp;
-        }else if(cp.Direction == CryptoPolicy.DATAPROTECTION){
+        }
+      }
+      return;
+    }
+  }
+
+    private class DataProtectionPolicyProxy
+      extends GuardRegistration
+      implements NodeEnforcer{
+
+      public DataProtectionPolicyProxy(ServiceBroker sb) {
+
+        super("org.cougaar.core.security.policy.DataProtectionPolicy",
+              "CryptoPolicyService", sb);
+        if (log.isDebugEnabled()) {
+          log.debug("Registering data protection policy service to guard");
+        }
+        try {
+          registerEnforcer();
+        }
+        catch(Exception ex) {
+          ex.printStackTrace();
+        }
+      }
+
+      /**
+       * Merges an existing policy with a new policy.
+       * @param policy the new policy to be added
+       */
+      public void receivePolicyMessage(Policy policy,
+				       String policyID,
+				       String policyName,
+				       String policyDescription,
+				       String policyScope,
+				       String policySubjectID,
+				       String policySubjectName,
+				       String policyTargetID,
+				       String policyTargetName,
+				       String policyType) {
+        if(log.isDebugEnabled())
+          log.debug("Got outdated policy format at AccessPolicyProxy for:"
+            + policySubjectID);
+      }
+
+    public void receivePolicyMessage(SecurityPolicy policy,
+                                      String policyID,
+                                      String policyName,
+                                      String policyDescription,
+                                      String policyScope,
+                                      String policySubjectID,
+                                      String policySubjectName,
+                                      String policyTargetID,
+                                      String policyTargetName,
+                                      String policyType) {
+
+      if (log.isDebugEnabled()) {
+          log.debug("Received policy message for: " + policySubjectID);
+        log.debug("CryptoPolicy: " + policy);
+        }
+
+      if(!(policy instanceof DataProtectionPolicy)) {
+        if (log.isErrorEnabled()) {
+          log.error("wrong policy type.");
+        }
+        return;
+      }
+
+      CryptoPolicy cp = null;
+      try{
+        cp = ((DataProtectionPolicy)policy).getCryptoPolicy();
+      }catch(Exception e){
+        log.debug("received unknown policy type.");
+        return;
+      }
+
+      switch(cp.Type){
+      case  CryptoPolicy.AGENT:
+        if(cp.Direction == CryptoPolicy.DATAPROTECTION){
+          dataprot_a.put(cp.Name, cp);
+        }
+        break;
+      case  CryptoPolicy.COMMUNITY:
+        if(cp.Direction == CryptoPolicy.DATAPROTECTION){
+          dataprot_c.put(cp.Name, cp);
+        }
+        break;
+      case  CryptoPolicy.SOCIETY:
+        log.debug("CryptoPolicy for SOCIETY: " + cp.Direction);
+        if(cp.Direction == CryptoPolicy.DATAPROTECTION){
           dcp_dataprot = cp;
         }
       }
       return;
     }
   }
+
 }
