@@ -1,0 +1,9 @@
+#!/bin/tcsh
+
+# Generate Java doc
+
+source ${COUGAAR_SECURITY_SERVICES}/test/bin/setparam
+
+find src -name '*.java' > /tmp/filelist.tmp
+
+javadoc -classpath ${CLASSPATH} -d test/doc/API @/tmp/filelist.tmp

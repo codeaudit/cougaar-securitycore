@@ -1,0 +1,43 @@
+
+# Set classpath property for compilation and javadoc
+
+set cougaarsubdir=$COUGAAR_INSTALL_PATH
+
+if ( ! $?CLASSPATH ) then
+	setenv CLASSPATH=""
+endif
+
+# Cougaar 3rd party support packages
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/servlet.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xerces.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jaas.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jnet.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/log4j.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jms.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jsdk.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/j2ee.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jbcl.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/silk.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/idmef.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/ibmpkcs.jar
+
+# Cougaar packages
+# build.jar and planserver.jar don't change often, so point to the jar file
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/build.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/glm.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/planserver.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/core.jar
+
+# Crypto providers
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jsse.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jce1_2_1.jar
+
+# KAoS
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/KAoS.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/safe.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/SAFE.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/servlet.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/mail.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xml4j.jar
+
+
