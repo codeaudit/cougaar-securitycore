@@ -364,6 +364,8 @@ public class ConfParser {
 
       caPolicy.pkcs10Directory   = getElementValue(caPolicyElement, CA_PKCS10_DIR_ELEMENT, role);
       caPolicy.x509CertDirectory = getElementValue(caPolicyElement, CA_X509_CERT_DIR_ELEMENT, role);
+      caPolicy.pendingDirectory = getElementValue(caPolicyElement, CA_CERT_PENDING_DIR_ELEMENT, role);
+      caPolicy.deniedDirectory = getElementValue(caPolicyElement, CA_CERT_DENIED_DIR_ELEMENT, role);
 
       caPolicy.certVersion = (Integer.valueOf(getElementValue(caClientPolicy,
 				 CA_CERTVERSION_ELEMENT, role))).intValue();
