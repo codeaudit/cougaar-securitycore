@@ -771,7 +771,7 @@ final public class KeyRing  implements KeyRingService  {
     try {
       X500Name x500Name = new X500Name(cert.getSubjectDN().getName());
       final String name = x500Name.getCommonName();
-    
+
       // relieve messages to naming, for local keys
       // do not need to go to naming
       List nameList = getX500NameFromNameMapping(name);
@@ -788,12 +788,12 @@ final public class KeyRing  implements KeyRingService  {
         }
       }
       if (log.isWarnEnabled()) {
-        log.warn("Unable to get private key of " + 
+        log.warn("Unable to get private key of " +
                  cert + " -- does not exist.");
       }
     } catch (Exception e) {
       if (log.isWarnEnabled()) {
-        log.warn("Unable to get private key of " + 
+        log.warn("Unable to get private key of " +
                  cert + " -- dn is not well formed.");
       }
     }
@@ -1223,28 +1223,13 @@ final public class KeyRing  implements KeyRingService  {
     // however, cert from local hash needs to be refreshed once naming
     // update is finished, because local hash may not have the trusted
     // cert.
-    List srcdns = findDNFromNS(source);
-    if (srcdns == null || srcdns.size() == 0) {
-      srcdns = getX500NameFromNameMapping(source);
-    }
-    List tgtdns = findDNFromNS(target);
-    if (tgtdns == null || tgtdns.size() == 0) {
-      tgtdns = getX500NameFromNameMapping(target);
-    }
-
-    if (tgtdns.size() == 0 || srcdns.size() == 0) {
-      if (log.isDebugEnabled()) {
-	log.debug("Failed to get naming attributes: " + source + " vs " + target);
-      }
-      return certTable;
-    }
 
     // find if there is a path in target that is trusted
     // TODO: if there is multiple trusted path choose the shortest one
 
     // how deep is the trusted cert
-    X509Certificate [] tgtCerts = null;
     /*
+    X509Certificate [] tgtCerts = null;
     int trustedIndex = -1;
     TrustedCaPolicy [] tc = cryptoClientPolicy.getTrustedCaPolicy();
     Hashtable tcTable = new Hashtable();
@@ -1260,6 +1245,7 @@ final public class KeyRing  implements KeyRingService  {
     }
     */
 
+    /*
     Iterator it = tgtdns.iterator();
     while (it.hasNext()) {
       X500Name dname = (X500Name)it.next();
@@ -1269,22 +1255,20 @@ final public class KeyRing  implements KeyRingService  {
         // this should not have certificate exception because the cert
         // path is supposed to be established and valid
         CertificateStatus cs = (CertificateStatus)tgtList.get(0);
-        // chain should be valid because findCert has been called
-        //tgtCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
-        // now that certificate status includes chain, no need to build chain again
-        /*
-        // CA signing certificate should never be used to communicate, if it is self signed
-        for (int i = 1; i < tgtCerts.length; i++) {
-          String principalName = tgtCerts[i].getSubjectDN().getName();
-          if (tcTable.get(principalName) != null) {
-            trustedIndex = i;
-          }
-        }
-        */
 
         // there must be one that matches, otherwise check trust is not correct
         certTable.put(target, cs.getCertificate());
       }
+    }
+    */
+
+    CertificateStatus cs = findOrRefreshCert(source);
+    if (cs != null) {
+      certTable.put(source, cs.getCertificate());
+    }
+    cs = findOrRefreshCert(target);
+    if (cs != null) {
+      certTable.put(target, cs.getCertificate());
     }
 
     /*
@@ -1303,6 +1287,7 @@ final public class KeyRing  implements KeyRingService  {
     }
     */
 
+    /*
     X509Certificate [] srcCerts = null;
     boolean found = false;
     it = srcdns.iterator();
@@ -1314,6 +1299,7 @@ final public class KeyRing  implements KeyRingService  {
         CertificateStatus cs = (CertificateStatus)srcList.get(0);
         // the trust chain should be valid
         //srcCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
+        */
 
         /*
         // we can communicate now, put a cert that is trusted by both sides here
@@ -1329,33 +1315,54 @@ final public class KeyRing  implements KeyRingService  {
           }
         }
         */
+        /*
         certTable.put(source, cs.getCertificate());
       }
     }
+    */
 
     // is it successful?
     //if (!found) {
-    if (certTable.get(source) == null) {
-      String errMsg = "Can not find matching source cert with same trust.";
+    if (certTable.get(source) == null || certTable.get(target) == null) {
+      String errMsg = "Can not find matching cert with same trust. " +
+        "source: " + certTable.get(source) + " vs target: " + certTable.get(target);
       if (log.isDebugEnabled()) {
         log.debug(errMsg);
       }
       throw new CertificateException(errMsg);
     }
 
-    /*
-    if (log.isDebugEnabled()) {
-      log.debug("Found trusted cert : " + certTable.get(source) + " for " + source);
-    }
-    if (!found) {
-      if (log.isWarnEnabled()) {
-        log.warn("No cert of " + source + " signed by " +
-                 trustedPrincipal + " has been found.");
-      }
-    }
-    */
-
     return certTable;
+  }
+
+  private CertificateStatus findOrRefreshCert(String name) {
+    List nameList = null;
+    int lookupFlags[] = { KeyRingService.LOOKUP_KEYSTORE |
+                          KeyRingService.LOOKUP_LDAP,
+                          KeyRingService.LOOKUP_KEYSTORE |
+                          KeyRingService.LOOKUP_LDAP |
+                          KeyRingService.LOOKUP_FORCE_LDAP_REFRESH };
+
+      for (int j = 0; j < lookupFlags.length; j++) {
+        if (j == 0) {
+          nameList = getX500NameFromNameMapping(name);
+        }
+        else {
+          nameList = findDNFromNS(name);
+        }
+
+        for (int i = 0; i < nameList.size(); i++) {
+          X500Name dname = (X500Name)nameList.get(i);
+
+          List certList = findCert(dname, lookupFlags[j], true);
+          if (certList == null || certList.size() == 0) {
+            continue;
+          }
+
+          return (CertificateStatus)certList.get(0);
+        }
+      }
+    return null;
   }
 
   public List findDNFromNS(String name) {
@@ -1981,7 +1988,7 @@ final public class KeyRing  implements KeyRingService  {
          log.warn("Received cert in UpdateNS is "+cs.getCertificate().getSubjectDN().getName());
         return;
       }
-      
+
       else {
       */
         certEntry = new CertificateEntry(cs.getCertificate(),

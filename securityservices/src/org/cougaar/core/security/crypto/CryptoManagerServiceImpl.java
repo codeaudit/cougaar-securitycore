@@ -205,41 +205,42 @@ public class CryptoManagerServiceImpl
     // key not found is ok here, the verifier may not have the private key
     // and it may not have the certificate of a peer
     //List nameList = keyRing.findDNFromNS(name);
+    /*
     List nameList =  keyRing.findDNFromNS(name);
     if (nameList == null || nameList.size() == 0) {
       nameList = keyRing.getX500NameFromNameMapping(name);
     }
+    */
 
+    List nameList = null;
     int lookupFlags[] = { KeyRingService.LOOKUP_KEYSTORE |
                           KeyRingService.LOOKUP_LDAP,
                           KeyRingService.LOOKUP_KEYSTORE |
                           KeyRingService.LOOKUP_LDAP |
                           KeyRingService.LOOKUP_FORCE_LDAP_REFRESH };
 
-    for (int i = 0; i < nameList.size(); i++) {
-      X500Name dname = (X500Name)nameList.get(i);
-
       for (int j = 0; j < lookupFlags.length; j++) {
-        List certList = keyRing.findCert(dname, lookupFlags[j], !expiredOk);
-        if (certList == null || certList.size() == 0) {
-          if (j < lookupFlags.length - 1) {
-            continue;
-          } // end of if (j < lookupFlags.length -1)
-
-          if (log.isWarnEnabled()) {
-            log.warn("Unable to verify object. Certificate of " + dname
-                   + " does not exist.");
-          }
-          throw new NoValidKeyException("Unable to get certificate of "
-                                      + dname);
+        if (j == 0) {
+          nameList = keyRing.getX500NameFromNameMapping(name);
+        }
+        else {
+          nameList = keyRing.findDNFromNS(name);
         }
 
-        Object o = verify(certList, obj, expiredOk, signatureIssues);
-        if (o != null)
-	  return o;
+        for (int i = 0; i < nameList.size(); i++) {
+          X500Name dname = (X500Name)nameList.get(i);
+
+          List certList = keyRing.findCert(dname, lookupFlags[j], !expiredOk);
+          if (certList == null || certList.size() == 0) {
+            continue;
+          }
+
+          Object o = verify(certList, obj, expiredOk, signatureIssues);
+          if (o != null)
+	    return o;
+        }
       }
 
-    }
     // No suitable certificate was found.
     if (log.isWarnEnabled()) {
       log.warn("Signature verification failed. Agent=" + name);
