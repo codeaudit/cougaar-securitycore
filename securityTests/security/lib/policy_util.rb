@@ -11,8 +11,8 @@ if ! defined? CIP
   CIP = ENV['CIP']
 end
 
-if ! defined?(bootPoliciesIntialized)
-  bootPolicies = []
+if ! defined?($bootPoliciesInitialized)
+  $bootPoliciesInitialized = []
 end
 
 
@@ -195,27 +195,30 @@ def loadBootPolicies(enclave)
       raise "Boot policies did not propagate for enclave #{enclave}"
     end
     logInfoMsg result if $VerboseDebugging
-    `rm -rf #{policyDir}`
+    cmd = "rm -rf #{policyDir}"
+    logInfoMsg cmd if $VerboseDebugging
+    result = `rm -rf #{policyDir}`
+    logInfoMsg result if $VerboseDebugging
+    $bootPoliciesInitialized.push(enclave)
   }
 end 
 
 def deltaPolicy(enclave, text)
   host, port, manager = getPolicyManager(enclave)
   logInfoMsg "Got policy manager for #{enclave} host #{host} port #{port} manager #{manager}" if $VerboseDebugging
-  if ! bootPoliciesInitialized.includes(enclave) then
+  if ! $bootPoliciesInitialized.include?(enclave) then
     loadBootPolicies(enclave)
-    bootPoliciesInitialized.push(enclave)
   end
   logInfoMsg " TRY TO GET LOCK TO POLICY FILE" if $VerboseDebugging
   mutex = getPolicyLock(enclave)
   logInfoMsg " GOT LOCK TO POLICY FILE" if $VerboseDebugging
   mutex.synchronize {
-    policyFile = getPolicyFile(enclave)
+    policyFile = "/tmp/policyDelta"
     # now create the delta file
     File.open(policyFile, "w") { |file|
       file.write(text)
     }
     result = commitPolicy(host, port, manager, "addpolicies --dm", policyFile)
+    logInfoMsg result if $VerboseDebugging
   }
-  logInfoMsg result if $VerboseDebugging
 end
