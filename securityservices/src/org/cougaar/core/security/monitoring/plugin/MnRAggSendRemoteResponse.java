@@ -66,6 +66,25 @@ class AggConsolidatedResponsePredicate implements  UnaryPredicate{
     return ret;
   }
 }
+class NewDetailsDrillDownPredicate implements  UnaryPredicate{
+  private MessageAddress agentAddress;
+  public  NewDetailsDrillDownPredicate(MessageAddress address){
+    agentAddress=address;
+  }
+  public boolean execute(Object o) {
+    boolean ret = false;
+    CmrRelay cmrRelay=null;
+    if (o instanceof CmrRelay ) {
+      cmrRelay=(CmrRelay)o;
+      if((!(cmrRelay.getSource().equals(agentAddress)))&&
+         (cmrRelay.getContent() instanceof DetailsDrillDownQuery) &&
+         (cmrRelay.getResponse()==null )){
+        return true;
+      }
+    }
+    return ret;
+  }
+}
 class DetailsDrillDownPredicate implements  UnaryPredicate{
   private MessageAddress agentAddress;
   public  DetailsDrillDownPredicate(MessageAddress address){
@@ -105,15 +124,15 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
 */
   private IncrementalSubscription consolidatedResponse;
   private IncrementalSubscription detailedResponse;
-   private IncrementalSubscription idmefEventResponse;
- /* 
- public void setLoggingService(LoggingService ls) {
-    loggingService = ls; 
-  }
+  private IncrementalSubscription idmefEventResponse;
+  /* 
+     public void setLoggingService(LoggingService ls) {
+     loggingService = ls; 
+     }
   
-  public LoggingService getLoggingService() {
-    return loggingService; 
-  }
+     public LoggingService getLoggingService() {
+     return loggingService; 
+     }
   */
 
   protected synchronized void setupSubscriptions() {
@@ -121,7 +140,7 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
     consolidatedResponse = (IncrementalSubscription)getBlackboardService().
       subscribe(new AggConsolidatedResponsePredicate());
     detailedResponse = (IncrementalSubscription)getBlackboardService().
-      subscribe(new DetailsDrillDownPredicate(myAddress));
+      subscribe(new NewDetailsDrillDownPredicate(myAddress));
     idmefEventResponse = (IncrementalSubscription)getBlackboardService().
       subscribe(new IdmefAndRemoteEventPredicate());
   }
@@ -130,7 +149,7 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
     Collection responsecol=null;
     if(consolidatedResponse.hasChanged()) {
       responsecol=consolidatedResponse.getAddedCollection();
-       if(loggingService.isDebugEnabled()) {
+      if(loggingService.isDebugEnabled()) {
         loggingService.debug("receive consolidated response change and size is "+responsecol.size());
       }
       sendAggResponse(responsecol);
@@ -138,14 +157,17 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
     Collection detailscol=null;
     if(detailedResponse.hasChanged()) {
       detailscol=detailedResponse.getAddedCollection();
-       if(loggingService.isDebugEnabled()) {
+      if(loggingService.isDebugEnabled()) {
         loggingService.debug("receive Details Drill Down Query and size  "+ detailscol.size());
       }
       processDetailsResponseQuery(detailscol);
     }
     Collection idmefEventCollection=null;
     if(idmefEventResponse.hasChanged()){
-       idmefEventCollection=idmefEventResponse.getAddedCollection();
+      idmefEventCollection=idmefEventResponse.getAddedCollection();
+      if(loggingService.isDebugEnabled()) {
+        loggingService.debug("receive Events/consolidated response and size is "+idmefEventCollection.size());
+      }
       processIdmefEvent(idmefEventCollection);
     }
 
@@ -153,13 +175,13 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
 
   public void processIdmefEvent(Collection idmefEventCollection) {
     if(idmefEventCollection==null) {
-       if (loggingService.isDebugEnabled()) {
+      if (loggingService.isDebugEnabled()) {
         loggingService.debug("New IDMEF Collection  is NULL  :"+myAddress.toString() );
       } 
       return; 
     }
     if(idmefEventCollection.isEmpty()) {
-       if (loggingService.isDebugEnabled()) {
+      if (loggingService.isDebugEnabled()) {
         loggingService.debug("New IDMEF Collection is empty  :"+myAddress.toString() );
       } 
       return; 
@@ -168,40 +190,40 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
     Iterator iter=idmefEventCollection.iterator();
     Event event=null;
     RemoteConsolidatedEvent remoteEvent=null;
-    UID parentUID=null;
+    UID originatorUID=null;
     List list=null;
     Object o;
     while(iter.hasNext()){
       o=iter.next();
       if(o instanceof Event) {
         event=(Event)o;
-        parentUID=DrillDownUtils.getUID(event.getEvent(),DrillDownQueryConstants.PARENT_UID);
-        if(parentUID!=null) {
-          if(map.containsKey(parentUID)){
-            list=(List)map.get(parentUID);
+        originatorUID=DrillDownUtils.getUID(event.getEvent(),DrillDownQueryConstants.ORIGINATORS_UID);
+        if(originatorUID!=null) {
+          if(map.containsKey(originatorUID)){
+            list=(List)map.get(originatorUID);
             list.add(event);
-            map.put(parentUID,list);
+            map.put(originatorUID,list);
           }
           else {
             list=new ArrayList();
             list.add(event);
-            map.put(parentUID,list);
+            map.put(originatorUID,list);
           }
         }
       }
       if(o instanceof RemoteConsolidatedEvent) {
         remoteEvent=(RemoteConsolidatedEvent)o;
-        parentUID=DrillDownUtils.getUID(remoteEvent.getEvent(),DrillDownQueryConstants.PARENT_UID);
-        if(parentUID!=null) {
-          if(map.containsKey(parentUID)){
-            list=(List)map.get(parentUID);
+        originatorUID=DrillDownUtils.getUID(remoteEvent.getEvent(),DrillDownQueryConstants.ORIGINATORS_UID);
+        if(originatorUID!=null) {
+          if(map.containsKey(originatorUID)){
+            list=(List)map.get(originatorUID);
             list.add(createConsolidatedEvent(remoteEvent));
-            map.put(parentUID,list);
+            map.put(originatorUID,list);
           }
           else {
             list=new ArrayList();
             list.add(createConsolidatedEvent(remoteEvent));
-            map.put(parentUID,list);
+            map.put(originatorUID,list);
           }
         }
       }
@@ -215,12 +237,36 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
       list=null;
       key=(UID)keys.next();
       list=(List)map.get(key);
-      relay=getCmrRelayWithDetailsDrillDownQuery(key,detailsQueryCollection);
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug("Looking for CMR Relay with DetailsDrilldown query  and originator UID is :"+ key + 
+                             " Total Details Drill Down Query present at agent "+ myAddress + " size :  "+ detailsQueryCollection.size() ); 
+      }
+      relay=getCmrRelayWithDetailsDrillDownQuery(key,detailsQueryCollection,true);
       if(relay==null) {
         if (loggingService.isDebugEnabled()) {
           loggingService.debug("No Details drill down query relay  present for parent UID :"+key.toString() );
         } 
         continue;
+      }
+      else {
+        if (loggingService.isDebugEnabled()) {
+          loggingService.debug("Found CMR Relay with DetailsDrilldown query  and parent UID is :"+ key 
+                               + " Relay uid is :"+ relay.getUID()); 
+        }
+      }
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug(" Sending Response for Relay :"+ relay.getUID());
+        Iterator i1=list.iterator();
+        while(i1.hasNext()){
+          o=i1.next();
+          if(o instanceof Event){
+            loggingService.debug(" Event is :"+ o.toString());
+            
+          }
+          if(o instanceof RemoteConsolidatedEvent) {
+            loggingService.debug(" Remote Consolidated Event is :"+ o.toString());
+          }
+        }
       }
       AggregatedResponse aggresponse=new AggregatedResponse(list); 
       relay.updateResponse(relay.getSource(),aggresponse);
@@ -229,7 +275,7 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
     
   }
 
-  public CmrRelay getCmrRelayWithDetailsDrillDownQuery(UID parentUID, Collection detailsQueryCollection) {
+  public CmrRelay getCmrRelayWithDetailsDrillDownQuery(UID givenUID, Collection detailsQueryCollection, boolean originator) {
     CmrRelay relay=null;
     DetailsDrillDownQuery detailsQuery=null;
     if(detailsQueryCollection==null) {
@@ -239,24 +285,32 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
       return relay;  
     }
     if(detailsQueryCollection.isEmpty()) {
-       if (loggingService.isDebugEnabled()) {
+      if (loggingService.isDebugEnabled()) {
         loggingService.debug("detailsQueryCollection  is NULL  :"+myAddress.toString() );
       } 
-       return relay;
+      return relay;
     }
     Iterator iter=detailsQueryCollection.iterator();
     while(iter.hasNext()) {
       relay=(CmrRelay)iter.next();
       detailsQuery=(DetailsDrillDownQuery)relay.getContent();
-      if(detailsQuery.getParentUID().equals(parentUID)) {
-        return relay;
+      if(originator) {
+        if(detailsQuery.getOriginatorUID().equals(givenUID)) {
+          return relay;
+        }
       }
+      else {
+        if(detailsQuery.getParentUID().equals(givenUID)) {
+          return relay;
+        } 
+      }
+      relay=null;
     }
     return relay;
   }
   public void processDetailsResponseQuery(Collection detailscol){
     if(detailscol.isEmpty()){
-     if (loggingService.isDebugEnabled()) {
+      if (loggingService.isDebugEnabled()) {
         loggingService.debug("New Detail Query is empty  :"+myAddress.toString() );
       } 
       return; 
@@ -264,10 +318,15 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
     Iterator iter=detailscol.iterator();
     CmrRelay relay=null;
     DetailsDrillDownQuery detailsQuery=null;
+    CmrFactory factory=null;
+   
     while(iter.hasNext()){
       relay=(CmrRelay)iter.next();
       detailsQuery=(DetailsDrillDownQuery)relay.getContent();
-      Collection detailedresponse=getBlackboardService().query(new EventsPredicate(detailsQuery.getParentUID(),myAddress));
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug(" Looking for Events and Consolidated events with originator UID :"+detailsQuery.getOriginatorUID());
+      }
+      Collection detailedresponse=getBlackboardService().query(new EventsPredicate(detailsQuery.getOriginatorUID(),myAddress));
       if(detailedresponse.isEmpty()) {
         if (loggingService.isDebugEnabled()) {
           loggingService.debug(" No response for DetailsDrillDownQuery  :"+detailsQuery.toString() );
@@ -276,10 +335,29 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
       }
       List list=new ArrayList();
       Iterator detailsiter=detailedresponse.iterator();
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug("Creating Response for Details DrillDown query :" +detailedresponse.size() ); 
+      }
+      Object obj=null;
+      ConsolidatedEvent event=null;
       while(detailsiter.hasNext()){
-        list.add(detailsiter.next());
+        obj=detailsiter.next();
+        if(obj instanceof RemoteConsolidatedEvent) {
+          if (loggingService.isDebugEnabled()) {
+            loggingService.debug("Adding Remote Consolidated response from :" +((RemoteConsolidatedEvent)obj).getSource()); 
+          }
+          event= createConsolidatedEvent((RemoteConsolidatedEvent)obj);
+          list.add(event );
+        }
+        else {
+          list.add(obj);
+        }
+      }
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug("Creating Response for Details DrillDown query  and size of response is :" +list.size() ); 
       }
       AggregatedResponse aggresponse=new AggregatedResponse(list);
+      
       relay.updateResponse(relay.getSource(),aggresponse);
       getBlackboardService().publishChange(relay);
     }
@@ -294,53 +372,56 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
       } 
       return;
     }
-    
+    if (loggingService.isDebugEnabled()) {
+      loggingService.debug("Received New Consolidate response :"+myAddress.toString() + "Size of collection is :"+responsecol.size() );
+    }
     Iterator iter=responsecol.iterator();
+    CmrRelay detailsrelay=null;
     CmrRelay relay=null;
     ConsolidatedEvent consolidatedresult=null;
     UID parentuid=null;
+    UID originatoruid=null;
     Collection detailsQueryCollection=getBlackboardService().query(new DetailsDrillDownPredicate(myAddress));
     while(iter.hasNext()){
       consolidatedresult=(ConsolidatedEvent)iter.next();
-      parentuid=consolidatedresult.getparentUID();
+      parentuid=consolidatedresult.getParentUID();
+      originatoruid=consolidatedresult.getOriginatorUID();
       if (loggingService.isDebugEnabled()) {
-        loggingService.debug("Received Consolidated response "+ 
+        loggingService.debug("Received Consolidated response to Update  "+ 
                              consolidatedresult.toString()+"\n"+
                              "parent id  "+parentuid +"\n"+
                              "Source :"+consolidatedresult.getSource() );
       }
-      relay=getCmrRelayWithDetailsDrillDownQuery(parentuid,detailsQueryCollection);
+      detailsrelay=getCmrRelayWithDetailsDrillDownQuery(originatoruid,detailsQueryCollection,true);
+      relay=findCmrRelay(parentuid);
       List list=new ArrayList();
       list.add(createNewConsolidatedEvent(consolidatedresult));
       AggregatedResponse aggresponse=new AggregatedResponse(list);
-      if(relay==null) {
+      if(detailsrelay==null) {
         if (loggingService.isDebugEnabled()) {
           loggingService.debug("No Details DrillDown query Relay present for parent UID :"+parentuid.toString() );
-          loggingService.debug("No Details DrillDown query Relay present looking for received AGG DRILL DOWN query relay  :");
+          loggingService.debug("Updating AGG DRILL DOWN query relay  :");
         } 
-        relay=findCmrRelay(parentuid);
-        if(relay!=null) {
-          relay.updateResponse(relay.getSource(),aggresponse);
-          /*new AggQueryResult(consolidatedresult.getCurrentCount(),
-            consolidatedresult.getTotal(),
-            consolidatedresult.getRate() ));
-          */
-          getBlackboardService().publishChange(relay);
-          getBlackboardService().publishRemove(consolidatedresult);
-          loggingService.debug("Successfully published response to relay :"+relay);
-          loggingService.debug("Successfully removed ConsolidatedEvent "+consolidatedresult );
-        }
-        else {
-           loggingService.error("ERROR cannot  find receive Agg relay  :"+ parentuid);
+      }
+      else {
+        detailsrelay.updateResponse(relay.getSource(),aggresponse);
+        getBlackboardService().publishChange(detailsrelay);
+        getBlackboardService().publishRemove(consolidatedresult);
+        if (loggingService.isDebugEnabled()) {
+          loggingService.debug("Successfully published response for Deatils Drilldown query relay :"+detailsrelay); 
+        } 
+      }
+      if(relay!=null) {
+        relay.updateResponse(relay.getSource(),aggresponse);
+        getBlackboardService().publishChange(relay);
+        getBlackboardService().publishRemove(consolidatedresult);
+        if (loggingService.isDebugEnabled()) {
+          loggingService.debug("Successfully published response for relay :"+relay );
+          //loggingService.debug("Successfully removed ConsolidatedEvent "+consolidatedresult );
         }
       }
       else {
-        loggingService.debug("Since there is a Details Drill down query there is no need to send ConsolidatedEvent "+consolidatedresult );
-        /*
-        relay.updateResponse(relay.getSource(),aggresponse);
-        getBlackboardService().publishChange(relay);
-        getBlackboardService().publishRemove(consolidatedresult); 
-        */
+        loggingService.error("ERROR cannot  find receive Agg relay  :"+ parentuid);
       }
         
     }
@@ -365,20 +446,8 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
     }
     return relay;
   } 
+   
   public ConsolidatedEvent createNewConsolidatedEvent(ConsolidatedEvent event) {
-    ConsolidatedEvent newConsolidateEvent=null;
-    CmrFactory factory=null;
-    if(domainService!=null) {
-      factory=(CmrFactory)domainService.getFactory("cmr");
-    } 
-    if(factory==null || event==null) {
-      return newConsolidateEvent;
-    }
-    newConsolidateEvent= factory.newConsolidatedEvent(event);
-    return newConsolidateEvent;
-  }
-
-  public ConsolidatedEvent createConsolidatedEvent(RemoteConsolidatedEvent event) {
     ConsolidatedEvent newConsolidateEvent=null;
     CmrFactory factory=null;
     if(domainService!=null) {
