@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -96,7 +96,7 @@ final public class KeyRing
       String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
 
       String role =
-	secprop.getProperty(secprop.SECURITY_ROLE); 
+	secprop.getProperty(secprop.SECURITY_ROLE);
       if (role == null && log.isWarnEnabled() == true) {
 	log.warn("Keyring Warning: LDAP role not defined");
       }
@@ -136,11 +136,11 @@ final public class KeyRing
 	k.load(null, param.keystorePassword);
         k.store(fos, param.keystorePassword);
 	fos.close();
-        
+
       }
       param.keystoreStream = new FileInputStream(param.keystorePath);
       param.isCertAuth = configParser.isCertificateAuthority();
-      
+
       // CA keystore parameters
       ConfigFinder configFinder = new ConfigFinder();
       param.caKeystorePath = nodeConfiguration.getNodeDirectory()
@@ -194,7 +194,7 @@ final public class KeyRing
 	log.debug("Secure message CA keystore: path="
 		  + param.caKeystorePath);
       }
-    
+
       // LDAP certificate directory
       TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
       if (trustedCaPolicy.length > 0) {
@@ -224,7 +224,7 @@ final public class KeyRing
     }
   }
 
-  public synchronized KeyStore getKeyStore() { 
+  public synchronized KeyStore getKeyStore() {
     if (keystore == null) {
       return null;
     }
@@ -263,7 +263,7 @@ final public class KeyRing
   }
 
   /**
-   * @param lookupType - 
+   * @param lookupType -
    */
   public synchronized List findCert(String cougaarName, int lookupType) {
     if(log.isDebugEnabled())
@@ -407,6 +407,14 @@ final public class KeyRing
   }
   public String getKeyStorePath() {
     return param.keystorePath;
+  }
+
+  public boolean checkExpiry(String commonName) {
+    return keystore.checkExpiry(commonName);
+  }
+
+  public void updateNS(String commonName) {
+    keystore.updateNS(commonName);
   }
 }
 
