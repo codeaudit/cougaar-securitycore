@@ -36,7 +36,11 @@ AgentGroup NodeAgents = { EnclaveOnePolicyManagerNode,
                           EnclaveOneWorkerNode,
                           ca1ADNode }
 
-Policy EncryptCommunication = [ 
+AgentGroup EnclaveOnePolicyManagerGroup = { EnclaveOnePolicyManager }
+
+Delete EncryptCommunication
+
+Policy EncryptCommunicationOne = [ 
    GenericTemplate
    Priority = 3,
    %EnclaveOnePolicyManager is not authorized to perform
@@ -47,4 +51,20 @@ Policy EncryptCommunication = [
                       and
     the value of $Action.daml#hasDestination
     is a subset of the complement of the set $AgentsInGroup#NodeAgents
+]
+
+Policy EncryptCommunicationTwo = [
+  MessageEncryptionTemplate
+  Require NSAApprovedProtection on all messages from members of 
+  $AgentsInGroup#EnclaveOnePolicyManagerGroup to members of 
+  $AgentsInGroup#NodeAgents
+]
+
+Policy EncryptCommunicationThree = [
+  MessageEncryptionTemplate
+  Require WeakProtection on all messages from members of the
+  complement of
+  $AgentsInGroup#EnclaveOnePolicyManagerGroup to members of the
+  complement of
+  $AgentsInGroup#NodeAgents
 ]
