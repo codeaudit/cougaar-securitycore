@@ -1408,17 +1408,6 @@ public class CryptoManagerServiceImpl
                                          String target) {
     policy = copyPolicy(policy);
 
-    // Hack because you might want to MTS yourself a message...
-    if (source.equals(target)) {
-      policy.secureMethod = policy.PLAIN;
-      return policy;
-    }
-
-    // SR - 10/21/2002. UGLY & TEMPORARY FIX
-    // The advance message clock uses an unsupported address type.
-    // Since this is demo-ware, we are not encrypting those messages.
-    // The "(MTS)" part is the only ugly part -- GM
-
     if (encryptedSocket) {
       removeEncrypt(policy); // no need for double-encryption
     }
@@ -1458,18 +1447,29 @@ public class CryptoManagerServiceImpl
                                   Object link,
                                   String source,
                                   String target) {
-
-    // Hack because you might want to MTS yourself a message...
-    if (source.equals(target)) {
-      return true;
+    if (log.isDebugEnabled()) {
+      log.debug("Checking ignore of signature -- encrypted: " + 
+		encryptedSocket +
+		", link = " + link +
+		", source = " + source +
+		", target = " + target);
     }
 
     if (encryptedSocket && link != null) {
       Set sentSet = getSentSet(link);
+      if (log.isDebugEnabled()) {
+        log.debug("Sent set for " + link + " = " + sentSet);
+      }
       synchronized (sentSet) {
         if (sentSet.contains(source)) {
+          if (log.isDebugEnabled()) {
+	  log.debug("found the source when checking " + source + 
+		    " to " + target);
+          }
           return true;
         }
+	log.debug("could not find the source when checking " + source + 
+		  " to " + target);
       }
     }
     return false;
@@ -1506,7 +1506,13 @@ public class CryptoManagerServiceImpl
       throws GeneralSecurityException, IOException {
       super(null);
 
+      log.debug("ProtectedMessageOutputStream: (" + link + 
+                "), " + source + " -> " + target + 
+                " " + stream);
+      // FIXME!! need a better way to do that...
+      link = stream;
       _sender = source.toAddress();
+
       _link   = link;
       // secret key encrypted by sender or receiver's certificate
       byte[] senderSecret   = null;
@@ -1524,9 +1530,18 @@ public class CryptoManagerServiceImpl
           certTable.get(target.toAddress());
       if (_senderCert == null || receiverCert == null) {
         // send a message to receiver that this message is bad:
+        if (_senderCert == null && log.isDebugEnabled()) {
+          log.debug("Could not find sender certificate for " + _sender);
+        }
+        if (receiverCert == null && log.isDebugEnabled()) {
+          log.debug("Could not find target certificate for " + 
+                    target.toAddress());
+        }
         ((ObjectOutputStream) this.out).writeObject("Please wait. I don't have certificates, yet");
-        throw new CertificateException("No valid key pair found for the 2 message address " + _sender + " vs "
-          + target.toAddress());
+        throw new NoKeyAvailableException("No valid key pair found for the " +
+					  "2 message address " + 
+					  _sender + " -> " +
+					  target.toAddress());
       }
 
       SecretKey secret = null;
@@ -1644,6 +1659,9 @@ public class CryptoManagerServiceImpl
                                        CryptoPolicyService cps) 
       throws GeneralSecurityException, IOException {
       super(null);
+      log.debug("ProtectedMessageInputStream: (" + link + 
+                "), " + source + " -> " + target + 
+                " " + stream);
 
       _link = link;
 
@@ -1666,8 +1684,9 @@ public class CryptoManagerServiceImpl
                                                     ignoreSignature);
 
       if (!goodPolicy) {
-        String message = "Policy mismatch. Could not find matching policy" +
-          "for received message policy " + headerPolicy;
+        String message = "Policy mismatch. Could not find matching policy " +
+          "for received message policy " + headerPolicy + " from " +
+	  sourceName + " to " + targetName;
         log.debug(message);
         throw new GeneralSecurityException(message);
       }
@@ -1707,7 +1726,10 @@ public class CryptoManagerServiceImpl
           log.debug("Other exception verifying signature", e);
           throw new IOException(e.getMessage());
         }
-        log.debug("Signature was verified");
+	if (log.isDebugEnabled()) {
+          log.debug("Signature was verified from " + _sender +
+                    " for " + _link);
+	}
         setSent(_sender, _link); // verified ok.
       }
       _eom = true;
