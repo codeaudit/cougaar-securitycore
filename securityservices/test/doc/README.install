@@ -300,7 +300,9 @@ Running the ul-mini-config society
     
         ssh-agent -k
 
-11. Go to the test/configs/demo directory and type the following command:
+11. Create the log directories as explained in the "Logging" section.
+
+12. Go to the test/configs/demo directory and type the following command:
    launch-society [configuration file] [use ssh-agent: true|false]
 
 The launch-society script launches multiple nodes from one single
