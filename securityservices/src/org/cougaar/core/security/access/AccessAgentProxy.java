@@ -73,6 +73,7 @@ public class AccessAgentProxy
   private MessageAddress myID = null;
   private AccessControlPolicyService acps;
   private Set nodeList = null;
+  private Set agentList = null;
   private TopologyReaderService toporead = null;
   
   public AccessAgentProxy (MessageTransportService mymts,
@@ -113,9 +114,10 @@ public class AccessAgentProxy
   private class updateNodeList extends Thread{
     public void run(){
       nodeList = toporead.getAll(TopologyReaderService.NODE); 
+      agentList = toporead.getAll(TopologyReaderService.AGENT); 
       if(log.isDebugEnabled()) {
         log.debug("updated NodeList, now contains: " 
-            + nodeList.size() + " nodes.");
+            + nodeList.size() + " nodes. and " + agentList.size() + " agents.");
       }
       try{
         sleep(30000);
@@ -180,7 +182,14 @@ public class AccessAgentProxy
        */
       String target = message.getTarget().toString();
       //only add trust when it's not node agent
-      if(!nodeList.contains(target)){
+      if(nodeList.contains(target)){
+        //Node agent, no wrapping with trust
+        mts.sendMessage(message);
+        if(log.isDebugEnabled()){
+          log.debug("no wrapping with trust for node agent." + message);
+        }
+        return;
+      }else if(agentList.contains(target)){
         TrustSet[] ts;
         ts = checkOutgoing(message);
 
@@ -200,13 +209,13 @@ public class AccessAgentProxy
         +mwt.toString());
         }
       }else{
-        //assumed to be Node agent, no wrapping with trust
+	//no sure. assume no trust.
         mts.sendMessage(message);
         if(log.isDebugEnabled()){
-          log.debug("no wrapping with trust for node agent." + message);
+          log.debug("no wrapping with trust for unsure agent." + message);
         }
         return;
-      }//if !node agent...else
+      }//if node agent...else
     }//if mts
   }
   
