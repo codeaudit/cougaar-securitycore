@@ -3399,7 +3399,10 @@ public class EditObjectServlet extends HttpServlet {
           // link to task in other cluster
           String encRemoteAgentID = 
             support.encodeAgentName(remoteAgentID);
-          Task allocTask = ((AllocationforCollections)ac).getAllocationTask();
+	  // TODO: We should get the Allocation task here, but the
+	  // getAllocationTask() method has disappeared.
+          // Task allocTask = ((AllocationforCollections)ac).getAllocationTask();
+          Task allocTask = ((AllocationforCollections)ac).getTask();
           out.print(
               "<li>"+
               "<font size=small color=mediumblue>"+
