@@ -160,8 +160,10 @@ public class CryptoManagerServiceImpl
     throws NoSuchAlgorithmException, NoSuchPaddingException {
     ArrayList list;
     cipherTry++;
-    if (cipherTry != 0 && ((cipherTry % 100) == 0)) {
-      log.debug("cipher try: " + cipherTry + " hit: " + cipherHit + " return: " + cipherReturn);
+    if (log.isDebugEnabled()) {
+      if (cipherTry != 0 && ((cipherTry % 100) == 0)) {
+        log.debug("cipher try: " + cipherTry + " hit: " + cipherHit + " return: " + cipherReturn);
+      }
     }
 
     synchronized (this.ciphers) {
@@ -1490,6 +1492,7 @@ public class CryptoManagerServiceImpl
         this.out = null;
         returnCipher(_symmSpec, _cipher);
       }
+      log.debug("finishOutputStream from " + _sender);
     }
   }
 
@@ -1543,13 +1546,8 @@ public class CryptoManagerServiceImpl
           headerPolicy.secureMethod == SecureMethodParam.SIGN) {
         unsignStream(header);
       }
-    }
-
-    public void close() throws IOException {
-      if (!_eom) {
-        throw new IOException("Buffered data cannot be flushed until end of message");
-      }
-      super.close();
+      log.debug("InputStream ready. Reading signed = " + 
+                _sign + ", encrypted = " + _encrypt);
     }
 
     /* **********************************************************************
@@ -1559,6 +1557,7 @@ public class CryptoManagerServiceImpl
     public void finishInput(MessageAttributes attributes)
       throws java.io.IOException {
       if (_sign) {
+        log.debug("trying to verify signature");
         try {
           _signature.verifySignature();
         } catch (SignatureException e) {
@@ -1673,9 +1672,92 @@ public class CryptoManagerServiceImpl
       keyRing.checkCertificateTrust(senderCert);
       PublicKey pub = senderCert.getPublicKey();
       SecureMethodParam policy = header.getPolicy();
+      if (log.isDebugEnabled()) {
+        log.debug("unsigning the message using " + policy.signSpec +
+                  " and public key " + pub);
+      }
       _signature = new SignatureInputStream(this.in, policy.signSpec, pub);
       this.in = _signature;
     }
-                            
+                     
+    public void close() throws IOException {
+      if (!_eom) {
+        log.error("can't close");
+        throw new IOException("Buffered data cannot be flushed until end of message");
+      }
+      this.in.close();
+    }
+
+    /* this was only for debugging... 
+    public int available() throws IOException {
+      try {
+        return this.in.available();
+      } catch (Exception e) {
+        log.debug("available: ", e);
+        return 0;
+      }
+    }
+
+    public boolean markSupported() {
+      try {
+        return this.in.markSupported();
+      } catch (Exception e) {
+        log.debug("markSupported: ", e);
+        return false;
+      }
+    }
+
+    public void mark(int readlimit) {
+      try {
+        this.in.mark(readlimit);
+      } catch (Exception e) {
+        log.debug("mark: ", e);
+      }
+    }
+
+    public long skip(long n) throws IOException {
+      try {
+        return this.in.skip(n);
+      } catch (Exception e) {
+        log.debug("skip: ", e);
+        return 0;
+      }
+    }
+
+    public void reset() throws IOException {
+      try {
+        this.in.reset();
+      } catch (Exception e) {
+        log.debug("reset: ", e);
+      }
+    }
+    
+    public int read() {
+      try {
+        return this.in.read();
+      } catch (Exception e) {
+        log.debug("shouldn't be here", e);
+        return -1;
+      }
+    }
+
+    public int read(byte[] b) throws IOException {
+      try {
+        return this.in.read(b);
+      } catch (Exception e) {
+        log.debug("read: ", e);
+        return -1;
+      }
+    }
+
+    public int read(byte[] b, int off, int len) throws IOException {
+      try {
+        return this.in.read(b, off, len);
+      } catch (Exception e) {
+        log.debug("read: ", e);
+        return -1;
+      }
+    }
+    */
   }
 }
