@@ -1,7 +1,7 @@
 =begin experiment
 
 name: MOAS-II-RESTORE-Basline
-description: MOAS-II-preStage5-Restore-Baseline
+description: MOAS-II-preStage5-Restore-withNodeRestartStress-Baseline
 script: $CIP/csmart/scripts/definitions/RestoreTemplate.rb
 parameters:
   - run_count: 1
@@ -16,10 +16,16 @@ include_scripts:
 # Security include scripts
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
   - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
+    parameters:
+      - user_mgr_label: society_running
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
   - script: $CIP/csmart/lib/security/scripts/parseResults.rb
   - script: $CIP/csmart/lib/security/scripts/security_archives.rb
-  - script: $CIP/csmart/lib/security/scripts/cleanup_societyRestore.rb
+  # Do some basic security cleanup before the society is loaded.
+  # This script should always be included whenever the society is loaded.
+  - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
+    parameters:
+      - cleanup_label: snapshot_restored
 ###########################################
 #
 # Node Kill and Restart scripts
@@ -74,7 +80,7 @@ include_scripts:
 
 ###########################################
   - script: $CIP/csmart/lib/isat/datagrabber_include.rb
-  - script: $CIP/csmart/lib/isat/network_shaping.rb
+#  - script: $CIP/csmart/lib/isat/network_shaping.rb
 #  - script: $CIP/csmart/lib/robustness/objs/deconfliction.rb
   - script: $CIP/csmart/assessment/assess/inbound_aggagent_include.rb
   - script: $CIP/csmart/assessment/assess/outofbound_aggagent_include.rb
