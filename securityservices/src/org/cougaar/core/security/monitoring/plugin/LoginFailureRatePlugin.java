@@ -115,18 +115,14 @@ import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
  *
  * @author George Mount <gmount@nai.com>
  */
-public class LoginFailureRatePlugin extends ComponentPlugin {
+public class LoginFailureRatePlugin extends LoginFailureQueryPluginBase {
   final static long SECONDSPERDAY = 60 * 60 * 24;
 
   /** predicate script for the aggregation query */
-  private static final ScriptSpec PRED_SPEC =
-    new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JAVA, 
-                   LoginFailurePredicate.class.getName());
-
   /** format script for the aggregation query */
   private static final ScriptSpec FORMAT_SPEC =
     new ScriptSpec(Language.JAVA,  XmlFormat.INCREMENT,
-                   LoginFailurePredicate.class.getName());
+                   FormatLoginFailure.class.getName());
 
   /** 
    * The number of seconds that the poll can be delayed before there
@@ -135,19 +131,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
   private static final int OVERSIZE = 600;
 
   /** Logging service */
-  private LoggingService log;
-
-  /** Aggregation query subscription */
-  private IncrementalSubscription _queryChanged;
-
-  /** Sensor list update subscription */
-  private IncrementalSubscription _sensors;
-
-  /** 
-   * Results of the subscription are only going to belong to the 
-   * _queryAdapter variable.
-   */
-  private QueryResultAdapter      _queryAdapter;
+  private LoggingService _log;
 
   /** The number of seconds between LOGIN_FAILURE_RATE updates */
   protected int    _pollInterval    = 0;
@@ -179,66 +163,6 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
    * names
    */
   protected String _socSecMgrAgent  = null;
-
-  /**
-   * for set/get DomainService
-   */
-  private DomainService  _domainService;
-
-  /**
-   * For internal logging
-   */
-  private LoggingService _log;
-
-  /**
-   * Indicates whether the sensor search query has been published or not.
-   * We shouldn't publish the query until we have sensors to search!
-   */
-  private boolean _queryPublished = false;
-
-  /**
-   * Sensor update predicate
-   */
-  private static final UnaryPredicate SENSORS_PREDICATE = 
-    new UnaryPredicate() {
-      public boolean execute(Object o) {
-        if (o instanceof CmrRelay) {
-          CmrRelay relay = (CmrRelay)o;
-          if (relay.getContent() instanceof MRAgentLookUp &&
-              relay.getResponse() != null) {
-            return true;
-          }
-        }
-        return false;
-      }
-    };
-
-  /**
-   * class used internally for determining if the query results have
-   * been updated or something that we don't care about
-   */
-  private static final UnaryPredicate LOGINFAILURE_PREDICATE =
-    new UnaryPredicate() {
-      public boolean execute(Object o) {
-        return (o instanceof QueryResultAdapter);
-      }
-    };
-
-  /**
-   * Used by the binding utility through reflection to set my DomainService
-   */
-  public void setDomainService(DomainService aDomainService) {
-    _domainService = aDomainService;
-    _log = (LoggingService) getServiceBroker().
-      getService(this, LoggingService.class, null);
-  }
-
-  /**
-   * Used by the binding utility through reflection to get my DomainService
-   */
-  public DomainService getDomainService() {
-    return _domainService;
-  }
 
   /**
    * Gets the poll interval (seconds between LOGIN_FAILURE_RATE updates)
@@ -291,34 +215,18 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     }
   }
 
-  protected void startSensorQuery() {
-    ServiceBroker        sb           = getBindingSite().getServiceBroker();
-    DomainService        ds           = getDomainService(); 
-    CmrFactory           cmrFactory   = (CmrFactory) ds.getFactory("cmr");
-    IdmefMessageFactory  imessage     = cmrFactory.getIdmefMessageFactory();
-
-    Classification classification = imessage.createClassification("LOGINFAILURE", null);
-    MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, classification);
-    ClusterIdentifier destination = new ClusterIdentifier(_socSecMgrAgent);
-    CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
-
-    _sensors = (IncrementalSubscription) 
-      getBlackboardService().subscribe(SENSORS_PREDICATE);
-
-    getBlackboardService().publishAdd(relay);
+  /**
+   * Returns the society security manager agent name
+   */
+  protected String getSocietySecurityManagerAgent() {
+    return _socSecMgrAgent;
   }
 
   /**
-   * creates the AggregationQuery for use in searching for login failure
-   * IDMEF messages
+   * returns the format ScriptSpec used in the AggregationQuery
    */
-  protected AggregationQuery createQuery() {
-    AggregationQuery aq = new AggregationQuery(QueryType.PERSISTENT);
-    aq.setName("Login Failure Rate Query");
-    aq.setUpdateMethod(UpdateMethod.PUSH);
-    aq.setPredicateSpec(PRED_SPEC);
-    aq.setFormatSpec(FORMAT_SPEC);
-    return aq;
+  protected ScriptSpec getFormatScriptSpec() {
+    return FORMAT_SPEC;
   }
 
   /**
@@ -327,16 +235,10 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
    * parameters. 
    */
   protected void setupSubscriptions() {
-    log = (LoggingService)
+    _log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
 
-    AggregationQuery aq = createQuery();
-    _queryAdapter = new QueryResultAdapter(aq);
-
-    _queryChanged = (IncrementalSubscription)
-      getBlackboardService().subscribe(LOGINFAILURE_PREDICATE);
-
-    startSensorQuery();
+    super.setupSubscriptions();
 
     ThreadService ts = (ThreadService) getServiceBroker().
       getService(this, ThreadService.class, null);
@@ -345,39 +247,16 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
   }
 
   /**
-   * Called whenever there is an update in the AggregationQuery results.
-   * Updates the count of login failures for the bucket associated with
-   * the current second. 
-   */
-  protected void execute() {
-    if (_queryChanged.hasChanged()) {
-      processLoginFailure();
-    }
-    if (_sensors.hasChanged()) {
-      updateSensors();
-    }
-  }
-
-  /**
    * Uses Aggregation query results to update the login failure count for
    * the current second.
    */
-  private void processLoginFailure() {
+  protected void processLoginFailure(QueryResultAdapter queryResult) {
     long now = System.currentTimeMillis();
-    
-    Enumeration e = _queryChanged.getChangedList();
-    QueryResultAdapter qra = null;
 
-    while (e.hasMoreElements() && qra == null) {
-      qra = (QueryResultAdapter) e.nextElement();
-      if (!qra.checkID(_queryAdapter.getID())) qra = null;
-    }
-
-    if (qra == null) return;
-    AggregationResultSet results = qra.getResultSet();
+    AggregationResultSet results = queryResult.getResultSet();
     if (results.exceptionThrown()) {
-      log.error("Exception when executing query: " + results.getExceptionSummary());
-      log.debug("XML: " + results.toXml());
+      _log.error("Exception when executing query: " + results.getExceptionSummary());
+      _log.debug("XML: " + results.toXml());
     } else {
       Iterator atoms = results.getAllAtoms();
       int count = 0;
@@ -389,31 +268,6 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
         _failures[(int)((now - _startTime)/1000)%_failures.length] += count;
         _totalFailures += count;
       }
-    }
-  }
-
-  /**
-   * Updates the Aggregation Query to use the changed sensor capabilities list
-   */
-  private synchronized void updateSensors() {
-    Enumeration e = _sensors.getChangedList();
-    AggregationQuery query = _queryAdapter.getQuery();
-    while (e.hasMoreElements()) {
-      CmrRelay relay = (CmrRelay) e.nextElement();
-      MRAgentLookUpReply reply = (MRAgentLookUpReply) relay.getResponse();
-      List agents = reply.getAgentList();
-      Iterator iter = agents.iterator();
-      while (iter.hasNext()) {
-        String agent = iter.next().toString();
-        query.addSourceCluster(agent);
-      }
-    }
-
-    if (_queryPublished) {
-      getBlackboardService().publishChange(_queryAdapter);
-    } else {
-      getBlackboardService().publishAdd(_queryAdapter);
-      _queryPublished = true;
     }
   }
 
@@ -454,36 +308,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
    * and formatting. Much easier than using Jython when the queries
    * are static.
    */
-  public static class LoginFailurePredicate
-    implements UnaryPredicate, IncrementFormat {
-
-    /**
-     * UnaryPredicate API requires this. Selects the
-     * objects that we're interested in on the remote Blackboard.
-     */
-    public boolean execute(Object obj) {
-      if (!(obj instanceof Event)) {
-        return false;
-      }
-      Event event = (Event) obj;
-      IDMEF_Message msg = event.getEvent();
-      if (!(msg instanceof Alert)) {
-        return false;
-      }
-      Alert alert = (Alert) msg;
-      if (alert.getDetectTime() == null) {
-        return false;
-      }
-      Classification[] classifications = alert.getClassifications();
-      for (int i = 0; i < classifications.length; i++) {
-        if (KeyRingJNDIRealm.LOGIN_FAILURE_ID.
-            equals(classifications[i].getName())) {
-          return true;
-        }
-      }
-      return false;
-    }
-
+  public static class FormatLoginFailure implements IncrementFormat {
     /**
      * IncrementFormat API requires this. Formats the updates into
      * ResultSetDataAtoms so that we can read them in the QueryResultAdapter
@@ -553,7 +378,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
      */
     private void reportRate(int failureCount) {
       int rate = (int) (failureCount * SECONDSPERDAY / _window);
-      log.debug("Rate = " + rate + " login failures/day");
+      _log.debug("Rate = " + rate + " login failures/day");
 
       boolean add = false;
       if (_rate == null) {

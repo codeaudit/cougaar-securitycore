@@ -21,8 +21,12 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.adaptivity.OperatingMode;
 import org.cougaar.core.adaptivity.OperatingModeImpl;
@@ -32,7 +36,12 @@ import org.cougaar.core.adaptivity.OMCThruRange;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 
 import org.cougaar.lib.aggagent.query.AggregationQuery;
 import org.cougaar.lib.aggagent.query.ScriptSpec;
@@ -66,6 +75,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.Enumeration;
 import javax.naming.NamingException;
 
 /**
@@ -75,22 +85,22 @@ import javax.naming.NamingException;
  * Operating Modes driven by the adaptivity engine.
  * Add these lines to your agent:
  * <pre>
- * plugin = org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin(600,86400)
+ * plugin = org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin(600,86400,SocietySecurityManager)
  * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
  * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
  * </pre>
  * Here, the number 600 is the duration to wait (in seconds) between checking
  * the login failures for deletion. 86400 represents the amount of time to
- * keep the login failures before deleting it.
+ * keep the login failures before deleting it. SocietySecurityManager is
+ * the agent name of the society security manager.
  */
-public class UserLockoutPlugin extends ComponentPlugin {
+public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
   int  _maxFailures   = 3;
   long _cleanInterval = 1000 * 60 * 10;      // 10 minutes
   long _rememberTime  = 1000 * 60 * 60;      // 1 hour
   long _lockoutTime   = 1000 * 60 * 60 * 24; // 1 day
 
   FailureCache _failures       = new FailureCache();
-  String _clusters[]           = null;
   private LoggingService  _log;
   private LdapUserService _userService;
   private IncrementalSubscription _maxLoginFailureSubscription;
@@ -98,29 +108,44 @@ public class UserLockoutPlugin extends ComponentPlugin {
 
   private OperatingMode _maxLoginFailureOM = null;
   private OperatingMode _lockoutDurationOM = null;
-  private IncrementalSubscription _queryChanged;
 
+  /**
+   * The Agent name to make a request to for Login Failure sensor
+   * names
+   */
+  protected String _socSecMgrAgent  = null;
+
+  /**
+   * For OperatingModes value range
+   */
   private static final OMCRange []LD_VALUES = {
     new OMCThruRange(-1.0, Double.MAX_VALUE) 
   };
+
+  /**
+   * Max login failure operating mode range
+   */
   private static final OMCRangeList MAX_LOGIN_FAILURE_RANGE =
       new OMCRangeList(new OMCThruRange(1.0, Double.MAX_VALUE ));
+
+  /**
+   * Lockout duration operating mode range
+   */
   private static final OMCRangeList LOCKOUT_DURATION_RANGE =
       new OMCRangeList(LD_VALUES);
 
-
-  private static final ScriptSpec PRED_SPEC =
-    new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JAVA,
-                   LoginFailurePredicate.class.getName());
   private static ScriptSpec FORMAT_SPEC =
     new ScriptSpec(Language.JAVA, XmlFormat.INCREMENT, 
-                   LoginFailurePredicate.class.getName());
+                   FormatLoginFailure.class.getName());
 
   private static final String MAX_LOGIN_FAILURES =
     "org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES";
   private static final String LOCKOUT_DURATION =
     "org.cougaar.core.security.monitoring.LOCKOUT_DURATION";
 
+  /**
+   * For the max login failure OperatingMode
+   */
   private static final UnaryPredicate MAX_LOGIN_FAILURE_PREDICATE =
     new UnaryPredicate() {
       public boolean execute(Object o) {
@@ -135,6 +160,9 @@ public class UserLockoutPlugin extends ComponentPlugin {
       }
     };
 
+  /**
+   * For the lockout duration OperatingMode
+   */
   private static final UnaryPredicate LOCKOUT_DURATION_PREDICATE = 
     new UnaryPredicate() {
       public boolean execute(Object o) {
@@ -170,6 +198,10 @@ public class UserLockoutPlugin extends ComponentPlugin {
       paramName = "failure memory";
       param = iter.next().toString();
       _rememberTime = Long.parseLong(param) * 1000;
+      
+      paramName = "society security manager agent name";
+      param = iter.next().toString();
+      _socSecMgrAgent = param;
     } catch (NoSuchElementException e) {
       throw new IllegalArgumentException("You must provide a " +
                                         paramName +
@@ -185,19 +217,25 @@ public class UserLockoutPlugin extends ComponentPlugin {
                                          "clean interval and failure memory " +
                                          "arguments");
     }
-
-    if (!iter.hasNext()) {
-      throw new IllegalArgumentException("You must provide at least one " +
-                                         "cluster id parameter");
-    }
-
-    ArrayList clusters = new ArrayList();
-    while (iter.hasNext()) {
-      clusters.add(iter.next().toString());
-    }
-    _clusters = (String[]) clusters.toArray(new String[clusters.size()]);
   }
 
+  /**
+   * Returns the society security manager agent name
+   */
+  protected String getSocietySecurityManagerAgent() {
+    return _socSecMgrAgent;
+  }
+
+  /**
+   * returns the format ScriptSpec used in the AggregationQuery
+   */
+  protected ScriptSpec getFormatScriptSpec() {
+    return FORMAT_SPEC;
+  }
+
+  /**
+   * Lockout a given user for the lockout duration
+   */
   public void lock(String user) throws NamingException {
     _log.debug("locking out user (" + user + ")");
     if (_lockoutTime < 0) {
@@ -207,39 +245,20 @@ public class UserLockoutPlugin extends ComponentPlugin {
     }
   }
 
-  protected AggregationQuery createQuery() {
-    AggregationQuery aq = new AggregationQuery(QueryType.PERSISTENT);
-    aq.setName("Login Rate Query");
-    aq.setUpdateMethod(UpdateMethod.PUSH);
-    
-    for (int i = 0 ; i < _clusters.length; i++) {
-      aq.addSourceCluster(_clusters[i]);
-    }
-
-    aq.setPredicateSpec(PRED_SPEC);
-    aq.setFormatSpec(FORMAT_SPEC);
-    return aq;
-  }
-
   protected void setupSubscriptions() {
     _log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
+    
+    super.setupSubscriptions();
+
     _userService = (LdapUserService)
 	getServiceBroker().getService(this, LdapUserService.class, null);
-    AggregationQuery aq = createQuery();
-    QueryResultAdapter qra = new QueryResultAdapter(aq);
     BlackboardService blackboard = getBlackboardService();
-    _queryChanged = (IncrementalSubscription)
-      getBlackboardService().subscribe(new QueryChanged());
 
-    try {
-      blackboard.publishAdd(qra);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    _maxLoginFailureSubscription = (IncrementalSubscription)blackboard.subscribe(MAX_LOGIN_FAILURE_PREDICATE);
-    _lockoutDurationSubscription = (IncrementalSubscription)blackboard.subscribe(LOCKOUT_DURATION_PREDICATE);
+    _maxLoginFailureSubscription = (IncrementalSubscription)
+      blackboard.subscribe(MAX_LOGIN_FAILURE_PREDICATE);
+    _lockoutDurationSubscription = (IncrementalSubscription)
+      blackboard.subscribe(LOCKOUT_DURATION_PREDICATE);
     
     // read init values from config file and set operating modes accordingly
     _maxLoginFailureOM = new OperatingModeImpl(MAX_LOGIN_FAILURES, 
@@ -251,9 +270,15 @@ public class UserLockoutPlugin extends ComponentPlugin {
     
     blackboard.publishAdd(_maxLoginFailureOM);
     blackboard.publishAdd(_lockoutDurationOM);
+
+    ThreadService ts = (ThreadService) getServiceBroker().
+      getService(this, ThreadService.class, null);
+    ts.schedule(ts.getTimerTask(this, _failures),
+                0, ((long)_cleanInterval) * 1000);
   }
 
-  protected void execute() {
+  public void execute() {
+    super.execute();
     if (_maxLoginFailureSubscription.hasChanged()) {
       updateMaxLoginFailures();
     }
@@ -288,12 +313,33 @@ public class UserLockoutPlugin extends ComponentPlugin {
     }
   }
 
-  private class FailureCache extends Thread {
+  /**
+   * Uses Aggregation query results to update the login failure count for
+   * the current user and potentially lock him out.
+   */
+  protected void processLoginFailure(QueryResultAdapter queryResult) {
+    AggregationResultSet results = queryResult.getResultSet();
+    if (results.exceptionThrown()) {
+      _log.error("Exception when executing query: " + results.getExceptionSummary());
+      _log.debug("XML: " + results.toXml());
+    } else {
+      Iterator atoms = results.getAllAtoms();
+      int count = 0;
+      while (atoms.hasNext()) {
+        ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
+        String user = d.getIdentifier("user").toString();
+        String reason = d.getValue("reason").toString();
+        if ("the user has entered the wrong password".equals(reason)) {
+          _failures.add(user);
+        }
+      }
+    }
+  }
+
+  private class FailureCache implements Runnable {
     HashMap _failures = new HashMap();
     
     public FailureCache() {
-      setDaemon(true);
-      start();
     }
 
     public void add(String user) {
@@ -325,25 +371,18 @@ public class UserLockoutPlugin extends ComponentPlugin {
     }
 
     public void run() {
-      while (true) {
-        long deleteTime = System.currentTimeMillis() - _rememberTime;
-        synchronized (_failures) {
-          Iterator iter = _failures.entrySet().iterator();
-          while (iter.hasNext()) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            CacheNode failure = (CacheNode) entry.getValue();
-            if (failure.lastFailure < deleteTime) {
-              iter.remove();
-            }
+      long deleteTime = System.currentTimeMillis() - _rememberTime;
+      synchronized (_failures) {
+        Iterator iter = _failures.entrySet().iterator();
+        while (iter.hasNext()) {
+          Map.Entry entry = (Map.Entry) iter.next();
+          CacheNode failure = (CacheNode) entry.getValue();
+          if (failure.lastFailure < deleteTime) {
+            iter.remove();
           }
-        }
-        try {
-          sleep(_cleanInterval);
-        } catch (InterruptedException e) {
         }
       }
     }
-
   }
 
   protected static class CacheNode {
@@ -351,34 +390,7 @@ public class UserLockoutPlugin extends ComponentPlugin {
     long lastFailure;
   }
 
-  public static class LoginFailurePredicate
-    implements UnaryPredicate, IncrementFormat {
-
-    // UnaryPredicate API
-    public boolean execute(Object obj) {
-      if (!(obj instanceof Event)) {
-        return false;
-      }
-      Event event = (Event) obj;
-      IDMEF_Message msg = event.getEvent();
-      if (!(msg instanceof Alert)) {
-        return false;
-      }
-      Alert alert = (Alert) msg;
-      Target target[];
-      if (alert.getDetectTime() == null || alert.getTargets() == null) {
-        return false;
-      }
-      Classification[] classifications = alert.getClassifications();
-      for (int i = 0; i < classifications.length; i++) {
-        if (KeyRingJNDIRealm.LOGIN_FAILURE_ID.
-            equals(classifications[i].getName())) {
-          return true;
-        }
-      }
-      return false;
-    }
-
+  public static class FormatLoginFailure implements IncrementFormat {
     // IncrementFormat API
     public void encode(UpdateDelta out, SubscriptionAccess sacc) {
       Collection added = sacc.getAddedCollection();
@@ -395,6 +407,9 @@ public class UserLockoutPlugin extends ComponentPlugin {
         Target         targets[] = failure.getTargets();
         AdditionalData addData[] = failure.getAdditionalData();
 
+        if (targets == null || addData == null) {
+          continue; // skip this guy
+        }
         for (int i = 0; i < targets.length && user == null; i++) {
           User u = targets[i].getUser();
           if (u != null) {
@@ -417,15 +432,6 @@ public class UserLockoutPlugin extends ComponentPlugin {
           addTo.add(atom);
         }
       }
-    }
-  }
-
-  private static class QueryChanged implements UnaryPredicate {
-    public QueryChanged() {
-    }
-
-    public boolean execute(Object o) {
-      return (o instanceof QueryResultAdapter);
     }
   }
 
