@@ -136,6 +136,12 @@ public class CipherStreamPlugin
   private void runSuite(Experiment exp, Provider provider) {
     int keysize = 128;
 
+    // try with big total stream size and big buffer size
+    keysize = 128;
+    exp.bufferSize = 2000;
+    exp.streamSize = 50000000;
+    executeExperiment(exp, keysize, provider);
+
     // try with small total stream size and small buffer size
     keysize = 128;
     exp.bufferSize = 10;
@@ -148,11 +154,6 @@ public class CipherStreamPlugin
     exp.streamSize = 4000;
     executeExperiment(exp, keysize, provider);
 
-    // try with big total stream size and big buffer size
-    keysize = 128;
-    exp.bufferSize = 2000;
-    exp.streamSize = 10000000;
-    executeExperiment(exp, keysize, provider);
 
     // try with big total stream size and small buffer size.
     keysize = 128;
@@ -272,7 +273,7 @@ public class CipherStreamPlugin
     long date4 = new Date().getTime();
     exp.diff43 = date4 - date3;
 
-    dumpData(cos, exp.bufferSize, exp.streamSize);
+    dumpData2(cos, exp.bufferSize, exp.streamSize);
     long date5 = new Date().getTime();
     exp.diff54 = date5 - date4;
 
@@ -336,6 +337,18 @@ public class CipherStreamPlugin
     byte[] data = new byte[bufferLength];
     for (int i = 0 ; i < (1 + streamLength / bufferLength) ; i++) {
       os.write(data);
+    }
+  }
+
+
+  private void dumpData2(OutputStream os, int bufferLength, int streamLength)
+    throws IOException {
+
+    ObjectOutputStream oos = new ObjectOutputStream(os);
+    String string = "asdfkjasd;fjjkalsdfjasdasdfkajsdfkljsadf;lkjasd;lfjasdlkfj;lasd";
+
+    for (int i = 0 ; i < 13 * (1 + streamLength / (string.length())) ; i++) {
+      oos.writeObject(string);
     }
   }
 
