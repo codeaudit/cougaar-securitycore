@@ -1,0 +1,24 @@
+KPAT HOW-TO
+===========
+
+* To start the KPAT policy editor on Linux, first edit the startKPAT script
+  to set appropriate properties. The script can be found under
+  test/configs/demo.
+  In particular, the host name where the domain manager is running
+  and the PSP port number should be configured.
+* The society must be running before launching the policy editor, and
+  all the agents in the society must have registered to the domain
+  manager.
+* Execute the startKPAT script. All the agents should be visible in the
+  left panel.
+* To set a policy for a specific agent, select the agent.
+  On the right panel, Click the "new" button in "policies applicable to..."
+  Type the following parameters:
+    - name: a name for the policy
+    - Description: a description of that policy.
+    - type: one of
+             org.cougaar.core.security.policy.AccessControlPolicy
+             org.cougaar.core.security.policy.CryptoPolicy
+* Click the "New" button to select a new policy parameter, then click
+  on the "import XML" button. Select the appropriate XML policy file.
+* Click the "in force" radio button.
