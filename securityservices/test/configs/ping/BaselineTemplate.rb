@@ -63,8 +63,13 @@ at :wait_for_initialization
 
 at :society_running
 
+  # Give some time to run the stresses
+  do_action "Sleep", 10.minutes 
+
+at :after_stage_1
+
   # however long you want to run 
-  do_action "Sleep", 40.minutes 
+  do_action "Sleep", 30.minutes 
   
   do_action "StopSociety"
   
