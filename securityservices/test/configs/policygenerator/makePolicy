@@ -11,7 +11,17 @@ setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-provider.j
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
 setenv CLASSPATH ${CLASSPATH}:../../../classes
 
+
+#################################
+# Prototype society configuration
 java \
 	-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
 	com.nai.security.tools.PolicyGenerator  \
-	small135.conf policy.conf BootPolicyTemplate.xml CryptoPolicy-
+	small135.conf policy.conf BootPolicyTemplate.xml small-135/CryptoPolicy-
+
+#################################
+# Small 135 society configuration
+java \
+	-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
+	com.nai.security.tools.PolicyGenerator  \
+	prototypesociety.conf policy.conf BootPolicyTemplate.xml prototypeSociety/CryptoPolicy-

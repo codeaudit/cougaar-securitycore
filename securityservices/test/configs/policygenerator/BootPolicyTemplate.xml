@@ -5,7 +5,7 @@
 <!-- Policies -->
 
 <Policies>
-   <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.CryptoPolicy">
+   <Policy name="Policy" type="org.cougaar.core.security.policy.CryptoPolicy">
       <RuleParam name="IncomingSecureMethod">
          <KeySet value="signAndEncrypt"/>
       </RuleParam>
