@@ -35,4 +35,10 @@ public class PersistenceManagerPolicy
   public String pmUrl;
   // PM DN to retrieve certificate
   public String pmDN;
+  
+  public String toString() {
+    return "(type=" + pmType +
+           " url=" + pmUrl +
+           " dn=" + pmDN + ")";
+  }
 }

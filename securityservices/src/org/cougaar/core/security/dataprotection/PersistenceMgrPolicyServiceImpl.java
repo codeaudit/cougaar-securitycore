@@ -125,7 +125,7 @@ public class PersistenceMgrPolicyServiceImpl
   }
   
   // register community and white pages service listener
-  public void registerServiceListener() {
+  private void registerServiceListener() {
     ServiceAvailableListener sal = new ServiceAvailableListener() {  
       public void serviceAvailable(ServiceAvailableEvent ae) {
         if(ae.getService() == CommunityService.class) {
@@ -212,7 +212,7 @@ public class PersistenceMgrPolicyServiceImpl
             }
             catch(Exception e) {
               // if an error occurs ignore this persistence manager
-              _log.error("unable to get the persistence manager's info from the white pages.");
+              _log.error("unable to get " + agent + " info from the white pages.");
               e.printStackTrace();
               continue;
             }
@@ -228,9 +228,6 @@ public class PersistenceMgrPolicyServiceImpl
             }
             // only add the agent if haven't already
             if(dns.size() > 0) {
-              if(_debug) {
-                _log.debug("adding " + agent + " persistence manager info");
-              }
               _agents.add(agent); 
             }
           } // if(!_agents.contains(pm))
