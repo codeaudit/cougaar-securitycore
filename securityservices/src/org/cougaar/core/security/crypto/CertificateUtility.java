@@ -340,5 +340,20 @@ public class CertificateUtility {
       return "Unable to compute fingerprint";
     }
   }
+
+  public static String findAttribute(String dname, String attrib) {
+    attrib = attrib + "=";
+    StringTokenizer st = new StringTokenizer(dname, ",");
+    String title = null;
+    for (int i = 0 ; st.hasMoreTokens() ; i++) {
+      String s = st.nextToken().trim().toLowerCase();
+      if (s.startsWith(attrib)) {
+        title = s.substring(attrib.length(), s.length());
+        break;
+      }
+    }
+    return title;
+  }
+
  
 }
