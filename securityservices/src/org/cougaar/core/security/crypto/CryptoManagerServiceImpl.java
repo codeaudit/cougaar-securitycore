@@ -49,6 +49,7 @@ import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.util.FailureEvent;
 import org.cougaar.core.security.monitoring.util.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.util.IdmefHelper;
+import org.cougaar.core.security.policy.CryptoPolicy;
 
 public class CryptoManagerServiceImpl
   implements EncryptionService
@@ -56,6 +57,8 @@ public class CryptoManagerServiceImpl
   private KeyRingService keyRing;
   private ServiceBroker serviceBroker;
   private LoggingService log;
+  private String failureIfOccurred = null;
+
   // helper class to publish message failure events as idmef messages
   private static IdmefHelper msgFailureHelper = null;
 
@@ -135,8 +138,8 @@ public class CryptoManagerServiceImpl
       try {
 	java.security.cert.Certificate c =
 	  ((CertificateStatus)it.next()).getCertificate();
-	// filter out those non valid certificates first
-	//System.out.println("Cert: " + c + " : " + new Date());
+    // filter out those non valid certificates first
+    //        System.out.println("Cert: " + c + " : " + new Date());
         if (expiredOk) {
           try {
             keyRing.checkCertificateTrust((X509Certificate)c);
@@ -313,7 +316,7 @@ public class CryptoManagerServiceImpl
 				       SecureMethodParam policy)
   throws GeneralSecurityException, IOException {
     ProtectedObject po = null;
-    String failureIfOccurred = null;
+    //String failureIfOccurred = null;
     if (object == null) {
       throw new IllegalArgumentException("Object to protect is null");
     }
@@ -339,19 +342,15 @@ public class CryptoManagerServiceImpl
 	po = new ProtectedObject(policy, object);
 	break;
       case SecureMethodParam.SIGN:
-      failureIfOccurred = MessageFailureEvent.SIGNING_FAILURE;
 	po = sign(object, source, target, policy);
 	break;
       case SecureMethodParam.ENCRYPT:
-      failureIfOccurred = MessageFailureEvent.ENCRYPT_FAILURE;
 	po = encrypt(object, source, target, policy);
 	break;
       case SecureMethodParam.SIGNENCRYPT:
-      failureIfOccurred = MessageFailureEvent.SIGN_AND_ENCRYPT_FAILURE;
 	po = signAndEncrypt(object, source, target, policy);
 	break;
       default:
-      failureIfOccurred = MessageFailureEvent.INVALID_POLICY;
 	throw new GeneralSecurityException("Invalid policy");
       }
     }
@@ -360,11 +359,6 @@ public class CryptoManagerServiceImpl
 	log.warn("Unable to protect object: " + source.toAddress()
 		 + " -> " + target.toAddress() + " - policy=" + method);
       }
-      publishMessageFailure(source.toString(),
-                            target.toString(),
-                            failureIfOccurred,
-                            e.toString());
-      throw e;
     }
     catch (IOException e) {
       if (log.isWarnEnabled()) {
@@ -386,9 +380,8 @@ public class CryptoManagerServiceImpl
 				SecureMethodParam policy)
   throws GeneralSecurityException {
     Object theObject = null;
-    String failureIfOccurred = null;
     if (protectedObject == null) {
-      throw new IllegalArgumentException("Object to protect is null");
+      throw new IllegalArgumentException("Object to unprotect is null");
     }
     if (source == null) {
       throw new IllegalArgumentException("Source not specified");
@@ -425,19 +418,16 @@ public class CryptoManagerServiceImpl
 	theObject = protectedObject.getObject();
 	break;
       case SecureMethodParam.SIGN:
-      failureIfOccurred = MessageFailureEvent.VERIFICATION_FAILURE;
 	theObject = verify(source, target,
 			   (PublicKeyEnvelope)protectedObject,
 			   policy);
 	break;
       case SecureMethodParam.ENCRYPT:
-	    failureIfOccurred = MessageFailureEvent.DECRYPT_FAILURE;
 	theObject = decrypt(source, target,
 			    (PublicKeyEnvelope)protectedObject,
 			    policy);
 	break;
       case SecureMethodParam.SIGNENCRYPT:
-      failureIfOccurred = MessageFailureEvent.DECRYPT_AND_VERIFY_FAILURE;
 	theObject = decryptAndVerify(source, target,
 				     (PublicKeyEnvelope)protectedObject,
 				     policy);
@@ -452,11 +442,6 @@ public class CryptoManagerServiceImpl
 	log.warn("Unable to unprotect object: " + source.toAddress()
 		 + " -> " + target.toAddress() + " - policy=" + method);
       }
-/*      publishMessageFailure(source.toString(),
-                            target.toString(),
-                            failureIfOccurred,
-                            e.toString());
-*/      throw e;
     }
     return theObject;
   }
@@ -670,9 +655,9 @@ public class CryptoManagerServiceImpl
     SecretKey sk = getSecretKey(source, target, envelope, policy);
     if (sk == null) {
       if (log.isErrorEnabled()) {
-	log.error("Error: unable to retrieve secret key");
+        log.error("Error: unable to retrieve secret key");
       }
-      return null;
+      throw new GeneralSecurityException("can't get secret key.");
     }
 
     if(log.isDebugEnabled()) {
@@ -757,5 +742,252 @@ public class CryptoManagerServiceImpl
       }
     }
   }
+
+  public ProtectedObject protectObject(Serializable object,
+				       MessageAddress source,
+				       MessageAddress target,
+				       CryptoPolicy cp)
+    throws GeneralSecurityException, IOException{
+    if (object == null) {
+      throw new IllegalArgumentException("Object to protect is null");
+    }
+    if (source == null) {
+      throw new IllegalArgumentException("Source not specified");
+    }
+    if (target == null) {
+      throw new IllegalArgumentException("Target not specified");
+    }
+    if (cp == null) {
+      throw new IllegalArgumentException("Policy not specified");
+    }
+    /* assembly SecureMethodParam:
+     * as CryptoPolicy can contain multiple entries for each parameter,
+     * every meaningful combinations needs to be checked before declare
+     * a failure, i.e. throwing IOException
+     */
+    SecureMethodParam smp = new SecureMethodParam();
+    String method = "";
+    ProtectedObject po = null;
+    Iterator iter = (cp.getSecuMethod(target.toAddress())).iterator();
+    while(iter.hasNext()){
+      method = (String)iter.next();
+      if(method.equalsIgnoreCase("plain")){
+        smp.secureMethod = SecureMethodParam.PLAIN;
+        po = getProtection(object,source,target,smp,iter.hasNext());
+        if(po!=null) return po;
+      }else if(method.equalsIgnoreCase("sign")){ 
+        smp.secureMethod = SecureMethodParam.SIGN;
+        failureIfOccurred = MessageFailureEvent.SIGNING_FAILURE;
+        Iterator iter2 = (cp.getSignSpec(target.toAddress())).iterator();
+        while(iter2.hasNext()){
+          smp.signSpec = (String)iter2.next();
+          po = getProtection(object, source,target,smp, 
+                      iter.hasNext() && iter2.hasNext());
+          if(po!=null) return po;
+        }
+      }else if(method.equalsIgnoreCase("encrypt")){ 
+        smp.secureMethod = SecureMethodParam.ENCRYPT;
+        failureIfOccurred = MessageFailureEvent.ENCRYPT_FAILURE;
+        Iterator iter2 = (cp.getSymmSpec(target.toAddress())).iterator();
+        while(iter2.hasNext()){
+          smp.symmSpec = (String)iter2.next();
+          Iterator iter3 = (cp.getAsymmSpec(target.toAddress())).iterator();
+          while(iter3.hasNext()){
+            smp.asymmSpec = (String)iter3.next();
+            po = getProtection(object, source,target,smp, 
+              iter.hasNext() && iter2.hasNext() && iter3.hasNext());
+            if(po!=null) return po;
+          }
+        }
+      }else if(method.equalsIgnoreCase("signAndEncrypt")){ 
+        smp.secureMethod = SecureMethodParam.SIGNENCRYPT;
+        failureIfOccurred = MessageFailureEvent.SIGN_AND_ENCRYPT_FAILURE;
+        Iterator iter2 = (cp.getSymmSpec(target.toAddress())).iterator();
+        while(iter2.hasNext()){
+          smp.symmSpec = (String)iter2.next();
+          Iterator iter3 = (cp.getAsymmSpec(target.toAddress())).iterator();
+          while(iter3.hasNext()){
+            smp.asymmSpec = (String)iter3.next();
+            Iterator iter4 = (cp.getSignSpec(target.toAddress())).iterator();
+            while(iter4.hasNext()){
+              smp.signSpec = (String)iter4.next();
+              po = getProtection(object, source,target,smp, 
+                iter.hasNext() && iter2.hasNext() 
+                  && iter3.hasNext() && iter4.hasNext());
+              if(po!=null) return po;
+            }
+          }
+        }
+      }else{
+        smp.secureMethod = SecureMethodParam.INVALID;
+        if (log.isErrorEnabled()) {
+          log.error("outputStream NOK: " + source.toAddress()
+             + " -> " + target.toAddress()
+             + "invalid secure method.");
+        }
+        throw new IOException("invalid secure method.");
+      }
+    }//while
+    //fall through
+    if (log.isErrorEnabled()) {
+      log.error("OutputStream NOK: " + source.toAddress()
+         + " -> " + target.toAddress()
+         + "none of the crypto parameter works: " + cp.toString());
+    }
+    throw new IOException("failed protecting object.");
+  }
+
+  public Object unprotectObject(MessageAddress source,
+				MessageAddress target,
+				ProtectedObject protectedObject,
+				CryptoPolicy cp)
+    throws GeneralSecurityException, IOException{
+    if (protectedObject == null) {
+      throw new IllegalArgumentException("Object to unprotect is null");
+    }
+    if (source == null) {
+      throw new IllegalArgumentException("Source not specified");
+    }
+    if (target == null) {
+      throw new IllegalArgumentException("Target not specified");
+    }
+    if (cp == null) {
+      throw new IllegalArgumentException("Policy not specified");
+    }
+    /* assembly SecureMethodParam:
+     * as CryptoPolicy can contain multiple entries for each parameter,
+     * every meaningful combinations needs to be checked before declare
+     * a failure, i.e. throwing IOException
+     */
+    SecureMethodParam smp = new SecureMethodParam();
+    String method = "";
+    Object rawData = null;
+    Iterator iter = (cp.getSecuMethod(source.toAddress())).iterator();
+    while(iter.hasNext()){
+      method = (String)iter.next();
+      if(method.equalsIgnoreCase("plain")){
+        smp.secureMethod = SecureMethodParam.PLAIN;
+        if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
+          rawData = getRawData(protectedObject,source,target,smp,iter.hasNext());
+          if(rawData!=null) return rawData;
+        }
+      }else if(method.equalsIgnoreCase("sign")){ 
+        smp.secureMethod = SecureMethodParam.SIGN;
+        failureIfOccurred = MessageFailureEvent.VERIFICATION_FAILURE;
+        if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
+          Iterator iter2 = (cp.getSignSpec(source.toAddress())).iterator();
+          while(iter2.hasNext()){
+            smp.signSpec = (String)iter2.next();
+            rawData = getRawData(protectedObject, source,target,smp, 
+                        iter.hasNext() && iter2.hasNext());
+            if(rawData!=null) return rawData;
+          }
+        }
+      }else if(method.equalsIgnoreCase("encrypt")){ 
+        smp.secureMethod = SecureMethodParam.ENCRYPT;
+  	    failureIfOccurred = MessageFailureEvent.DECRYPT_FAILURE;
+        if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
+          Iterator iter2 = (cp.getSymmSpec(source.toAddress())).iterator();
+          while(iter2.hasNext()){
+            smp.symmSpec = (String)iter2.next();
+            Iterator iter3 = (cp.getAsymmSpec(source.toAddress())).iterator();
+            while(iter3.hasNext()){
+              smp.asymmSpec = (String)iter3.next();
+              rawData = getRawData(protectedObject, source,target,smp, 
+                iter.hasNext() && iter2.hasNext() && iter3.hasNext());
+              if(rawData!=null) return rawData;
+            }
+          }
+        }
+      }else if(method.equalsIgnoreCase("signAndEncrypt")){ 
+        smp.secureMethod = SecureMethodParam.SIGNENCRYPT;
+        failureIfOccurred = MessageFailureEvent.DECRYPT_AND_VERIFY_FAILURE;
+        if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
+          Iterator iter2 = (cp.getSymmSpec(source.toAddress())).iterator();
+          while(iter2.hasNext()){
+            smp.symmSpec = (String)iter2.next();
+            Iterator iter3 = (cp.getAsymmSpec(source.toAddress())).iterator();
+            while(iter3.hasNext()){
+              smp.asymmSpec = (String)iter3.next();
+              Iterator iter4 = (cp.getSignSpec(source.toAddress())).iterator();
+              while(iter4.hasNext()){
+                smp.signSpec = (String)iter4.next();
+                rawData = getRawData(protectedObject, source,target,smp, 
+                  iter.hasNext() && iter2.hasNext() 
+                    && iter3.hasNext() && iter4.hasNext());
+                if(rawData!=null) return rawData;
+              }
+            }
+          }
+        }
+      }else{
+        smp.secureMethod = SecureMethodParam.INVALID;
+        if (log.isErrorEnabled()) {
+          log.error("readInputStream NOK: " + source.toAddress()
+             + " -> " + target.toAddress()
+             + "invalid secure method.");
+        }
+        throw new IOException("invalid secure method.");
+      }
+    }//while
+    //fall through
+    if (log.isErrorEnabled()) {
+      log.error("readInputStream NOK: " + source.toAddress()
+         + " -> " + target.toAddress()
+         + "none of the crypto parameter works: " + cp.toString());
+    }
+    throw new IOException("failed unprotecting object.");
+  }//unprotectObj
+  
+  private Object getRawData(ProtectedObject obj, 
+				       MessageAddress source,
+				       MessageAddress target,
+              SecureMethodParam policy, boolean goOn)
+              throws IOException
+  {
+    try {
+      return unprotectObject(source,
+               target,
+               obj, policy);
+    }
+    catch (GeneralSecurityException e) {
+      if(goOn) return null;
+      if (log.isWarnEnabled()) {
+        log.warn("readInputStream NOK: " + source.toAddress()
+           + " -> " + target.toAddress()
+           + e);
+      }
+      publishMessageFailure(source.toString(),
+                            target.toString(),
+                            failureIfOccurred,
+                            e.toString());
+      throw new IOException(e.toString());
+    }
+  }//getRawData
+
+  private ProtectedObject getProtection(Serializable obj, 
+				       MessageAddress source,
+				       MessageAddress target,
+              SecureMethodParam policy, boolean goOn)
+              throws IOException
+  {
+    try {
+      return protectObject(obj, source, target, policy);
+    }
+    catch (GeneralSecurityException e) {
+      if(goOn) return null;
+      if (log.isWarnEnabled()) {
+        log.warn("put OutputStream NOK: " + source.toAddress()
+           + " -> " + target.toAddress()
+           + e);
+      }
+      publishMessageFailure(source.toString(),
+                            target.toString(),
+                            failureIfOccurred,
+                            e.toString());
+      throw new IOException(e.toString());
+    }
+  }//getProtection
+  
 }
 
