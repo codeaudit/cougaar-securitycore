@@ -141,4 +141,6 @@ public interface KeyRingService extends Service {
   //X509CRL getCRL(String  distingushname);
 
   List getX500NameFromNameMapping(String name);
+
+  void addToIgnoredList(String cname) throws Exception;
 }

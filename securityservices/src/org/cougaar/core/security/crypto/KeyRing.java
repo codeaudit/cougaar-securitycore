@@ -52,6 +52,7 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
+import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,6 +120,11 @@ final public class KeyRing  implements KeyRingService  {
    * will be cleared after CA key has been generated.
    */
   private Hashtable requestedIdentities = new Hashtable();
+
+  /**
+   * For introducing stress to be able to use expired certificate to test the system
+   */
+  private List ignoredList = new ArrayList();
 
   static {
     try {
@@ -523,7 +529,25 @@ final public class KeyRing  implements KeyRingService  {
 
       for(int i = acertificate.length - 1; i >= 0; i--) {
         // Check certificate validity
+try {
         ((X509Certificate) acertificate[i]).checkValidity();
+} catch (CertificateExpiredException cee) {
+  String cname = null;
+  try {
+    cname = new X500Name(((X509Certificate) acertificate[i]).getSubjectDN().toString()).getCommonName();
+  } catch (IOException iox) {}
+  if (log.isDebugEnabled()) {
+    log.debug("Certificate Expired :" + cname);
+  }  
+  if (cname != null && ignoredList.contains(cname)) {
+    if (log.isWarnEnabled()) {
+      log.warn("Ignoring the expired certificate " + acertificate[i]);
+    }
+  }
+  else {
+    throw cee;
+  }
+}
         // Check key usage
         if (i > 0) {
           // does the cert has signing capability? otherwise should not be in
@@ -2380,6 +2404,22 @@ final public class KeyRing  implements KeyRingService  {
     }
     return cacheservice.getX500NameFromNameMapping(name);
   }
+
+  public void addToIgnoredList(String cname) throws Exception {
+    // for agent it must be already exist, otherwise this will introduce a security hole
+    if (cname.equals(NodeInfo.getNodeName())) {
+      ignoredList.add(cname);
+      return;
+    }
+
+    List l = findCert(cname, KeyRingService.LOOKUP_KEYSTORE);
+    if (l != null && l.size() != 0) {
+      ignoredList.add(cname);
+      return;
+    }
+
+    throw new GeneralSecurityException("Requesting to ignore unrecognized agent " + cname);
+  }  
 
 }
 
