@@ -7,6 +7,5 @@ insert_before :setup_run do
 end
 
 insert_after :wait_for_initialization do
-   do_action "Sleep", 30.minutes
    do_action "InjectStress", "TestReportChainReady", "afterReportChainReady"
 end
