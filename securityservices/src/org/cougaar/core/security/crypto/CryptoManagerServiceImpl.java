@@ -1069,7 +1069,7 @@ public class CryptoManagerServiceImpl
       target = tgt;
       sender = snd;
       receiver = rcv;
-      hashString = toString();
+      hashString = src + tgt;
     }
 
     public boolean equals(Object o) {
@@ -1083,8 +1083,18 @@ public class CryptoManagerServiceImpl
 
       if (mp.source.equals(source)
 	  && mp.target.equals(target)
+          && mp.sender == sender
+          && mp.receiver == receiver) {
+          /**
+           * NOTE: This is assuming there should be only one instance of
+           * a certificate in cert cache, and therefore improves performance
+           * by doing comparison by reference. If the assumption is not true
+           * the encryption will fail and agents will not be able to communicate.
+           */
+          /*
 	  && mp.sender.equals(sender)
 	  && mp.receiver.equals(receiver)) {
+          */
 	return true;
       }
       return false;
