@@ -58,5 +58,56 @@ In particular the file OwlMapRoleUri has the line
   ]
 </pre>
 
+<H1>Servlet Access Tests</H1>
+
+<H2>Testing the specification of the user domain </H2>
+
+One of the features that we desired in the servlet policy mechanism
+was the ablity to distinguish between the user george from the
+RearUserDomain and the uuser george from the FwdUserDomain.  The test
+that we use to make this distinction is  the 
+AllowFwdPolicyServlet.delta policy.  This policy allows policy
+administrators other than the RearUserDomain policy administrator to
+access the policy servlet.
+<p>
+In order to enable this test, we need to move the rule
+PolicyFwdUserAgent.rule to the society directory.
+This creates a new
+user administrator for the FwdUserDomain community.  
+This rule is a bit
+of a hack motivated by the desire to keep everything running on a
+single host.  Ordinarily creating a second user community would
+require setting up a new enclave that would have to live  on a new host.
+<p>
+The reason that
+this rule  is not used by default is because it interferes with the
+InitDM action.  The  InitDM action tries to login as george but  it
+does not specify the user community.  Thus the InitDM action can fail
+because it attempts to login as FwdUserDomainComm\george which is
+denied.  This is not a serious problem - it means that we may need to
+initialize the domain manager by hand with  the commands:
+<pre>
+  cd $CIP/configs/security
+  policyUtil commit --dm --auth RearUserDomainComm\\george george localhost 8800 RearPolicyDomainManagerServlet OwlBootPolicyList
+</pre>
+<p>
+Now we are ready to install the new policy.  Before installing the
+policy, note how the system behaves before  the policy is
+installed. Go to the web page:
+<pre>
+  http://localhost:8800/$RearPolicyDomainManagerServlet/policyAdmin
+</pre>
+and login as FwdUserDomainComm\george with a password of george.
+When the web page comes up it will indicate that the access is
+forbidden.  Then in the policies directory load the new policy
+<pre>
+  cd $CIP/configs/security
+  policyUtil commit --dm --auth RearUserDomainComm\\george george localhost 8800 RearPolicyDomainManagerServlet AllowFwdPolicyServlet
+</pre>
+Go to the page again and the access will be granted.
+<p>
+This test shows that the servlet policy mechanism can distinguish
+between users in different communities.
+
 
 </body>
