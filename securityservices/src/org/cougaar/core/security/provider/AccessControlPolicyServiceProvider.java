@@ -27,6 +27,7 @@
 package org.cougaar.core.security.provider;
 
 import java.lang.*;
+import java.util.HashMap;
 
 // Cougaar core services
 import org.cougaar.core.component.*;
@@ -43,13 +44,14 @@ import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.access.*;
 
 public class AccessControlPolicyServiceProvider 
   implements ServiceProvider
 {
   private KeyRingService keyRing;
   private SecurityPropertiesService sps;
-  private static AccessControlPolicyService accessControlPolicyService;
+  private HashMap agentList = new HashMap();
   private ServiceBroker theBroker;
 
   public AccessControlPolicyServiceProvider(ServiceBroker broker){
@@ -68,18 +70,27 @@ public class AccessControlPolicyServiceProvider
     LoggingService log = (LoggingService)
       sb.getService(this,
 		    LoggingService.class, null);
-    if (accessControlPolicyService == null) {
-      accessControlPolicyService =
-	new AccessControlPolicyServiceImpl(theBroker);
+    String name;
+    try{
+      AccessPolicyClient apc = (AccessPolicyClient)requestor;
+      name = apc.getName();
+    }catch(Exception e){
+      //the cast failed, not an access agent binder, no service.
+      log.error("Only AccessPolicyClient is allowed to request for the service.");
+      return null;
+    }
+    Object o = agentList.get(name);
+    if (o == null) {
+      o =	new AccessControlPolicyServiceImpl(theBroker, name);
+      agentList.put(name, o);
     }
     if (log.isDebugEnabled()) {
       log.debug("AC policy Service Request: "
 			 + requestor.getClass().getName()
-			 + " - " + serviceClass.getName()
-			 + " - service: " + accessControlPolicyService);
+			 + " - " + serviceClass.getName());
     }
 
-    return accessControlPolicyService;
+    return o;
   }
 
   /** Release a service.
@@ -92,5 +103,12 @@ public class AccessControlPolicyServiceProvider
 			     Object requestor,
 			     Class serviceClass,
 			     Object service) {
+    String name = null;
+    try{
+      AccessPolicyClient apc = (AccessPolicyClient)requestor;
+      name = apc.getName();
+    }catch(Exception e){
+    }
+    if (name!=null) agentList.remove(name);
   }
 }

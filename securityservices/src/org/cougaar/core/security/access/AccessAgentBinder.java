@@ -120,11 +120,16 @@ public class AccessAgentBinder
   
   protected class AccessAgentServiceBroker
     extends FilteringServiceBroker
-  {
+    implements AccessPolicyClient  {
+      
     public AccessAgentServiceBroker(ServiceBroker sb) {
       super(sb);
     }
     
+    public String getName(){
+      return getAgentIdentifier().toString();
+    }
+
     protected Object getServiceProxy(Object service, Class serviceclass, Object client)  {
       if(service instanceof MessageTransportService) {
 	serviceBroker = getServiceBroker();

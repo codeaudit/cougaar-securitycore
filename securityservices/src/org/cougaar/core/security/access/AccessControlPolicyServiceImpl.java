@@ -45,8 +45,6 @@ import safe.enforcer.AgentEnforcer;
 
 // Cougaar Security Services
 import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.crypto.KeyRing;
-import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.acl.AccessControlPolicyService;
 import org.cougaar.core.security.acl.trust.*;
@@ -54,17 +52,10 @@ import org.cougaar.core.security.acl.trust.*;
 public class AccessControlPolicyServiceImpl
   implements AccessControlPolicyService
 {
-  private KeyRingService keyRing = null;
   private SecurityPropertiesService secprop = null;
   private LoggingService log;
   private CommunityService commu;
   private ServiceBroker serviceBroker;
-
-  //named proxies
-  HashSet proxies = new HashSet();
-
-  //policy source
-//  Vector pp = new Vector();
 
   //policy for society--usually the default, one-fits-all policy
   AccessControlPolicy acp_in = null;
@@ -82,14 +73,8 @@ public class AccessControlPolicyServiceImpl
   private Hashtable trustTable = new Hashtable(20);
 
     /** Creates new AccessControlPolicyServiceImpl */
-  public AccessControlPolicyServiceImpl(ServiceBroker sb) {
+  public AccessControlPolicyServiceImpl(ServiceBroker sb, String name) {
     serviceBroker = sb;
-    // Get keyring service
-    keyRing = (KeyRingService)
-      serviceBroker.getService(this,
-		    KeyRingService.class,
-		    null);
-
     // Get Security Properties service
     secprop = (SecurityPropertiesService)
       serviceBroker.getService(this,
@@ -103,15 +88,7 @@ public class AccessControlPolicyServiceImpl
     commu = (CommunityService)
       serviceBroker.getService(this, CommunityService.class, null);
 
-/**no longer needed???
-    //setup for default policy
-    AccessPolicyProxy app = new AccessPolicyProxy("DEFAULT", serviceBroker);
-    if(app!=null){
-      pp.add(app);
-    }
- *
- ******/
-    
+    new AccessPolicyProxy(name, serviceBroker);
   }//Constructor
 
   private AccessControlPolicy getIncomingPolicy(String target){
@@ -181,39 +158,9 @@ public class AccessControlPolicyServiceImpl
     if(acp!=null && commu!=null) acp.setCommunityService(commu);
     return acp;
   }//getOutgoingPolicy
-  
-  private synchronized void checkOrMakeProxy(String agent){
-    if(proxies.contains(agent)) return;
-
-    AccessPolicyProxy app = new AccessPolicyProxy(agent, serviceBroker);
-
-    if(app!=null){
-      // pp.add(app);
-      proxies.add(agent);
-      if(log.isDebugEnabled()) {
-	log.debug("Making proxy for agent " + agent);
-      }
-    }
-
-    // If we need to add proxy, there is a good chance we need
-    // a new certificate too so check for it.
-    /*
-    if(log.isDebugEnabled()) {
-      log.debug("checking certs for agent " + agent);
-    }
-    try{
-      keyRing.checkOrMakeCert(agent);
-    }catch(Exception e){
-      log.debug("Error checking certs for agent" + agent);
-    }
-    */
-
-    return;
-  }//checkOrMakeProxy
 
   public TrustSet getIncomingTrust(String source, String target)
   {
-    checkOrMakeProxy(target);
     AccessControlPolicy acp = getIncomingPolicy(target);
     if(acp==null){
       //no point to go on.
@@ -243,7 +190,6 @@ public class AccessControlPolicyServiceImpl
   }//getIncomingTrust
 
   public TrustSet getOutgoingTrust(String source, String target) {
-    checkOrMakeProxy(source);
     AccessControlPolicy acp = getOutgoingPolicy(source);
     if(acp==null){
       //no point to go on.
@@ -274,7 +220,6 @@ public class AccessControlPolicyServiceImpl
   }//getOutgoingTrust
 
   public String getIncomingAction(String target, String level){
-    checkOrMakeProxy(target);
     AccessControlPolicy acp = getIncomingPolicy(target);
     if(acp==null){
       //no point to go on.
@@ -291,7 +236,6 @@ public class AccessControlPolicyServiceImpl
   }//getIncomingAction
 
   public String getOutgoingAction(String source, String level){
-    checkOrMakeProxy(source);
     AccessControlPolicy acp = getOutgoingPolicy(source);
     if(acp==null){
       //no point to go on.
@@ -309,7 +253,6 @@ public class AccessControlPolicyServiceImpl
 
   public String getIncomingAgentAction(String source,
 						    String target) {
-    checkOrMakeProxy(target);
     AccessControlPolicy acp = getIncomingPolicy(target);
     if(acp==null){
       //no point to go on.
@@ -326,7 +269,6 @@ public class AccessControlPolicyServiceImpl
 
   public String getOutgoingAgentAction(String source,
 						    String target) {
-    checkOrMakeProxy(source);
     AccessControlPolicy acp = getOutgoingPolicy(source);
     if(acp==null){
       //no point to go on.
@@ -343,7 +285,6 @@ public class AccessControlPolicyServiceImpl
 
   public Object[] getIncomingVerbs(String source, String target)
   {
-    checkOrMakeProxy(target);
     AccessControlPolicy acp = getIncomingPolicy(target);
     if(acp==null){
       //no point to go on.
@@ -372,7 +313,6 @@ public class AccessControlPolicyServiceImpl
   }
 
   public Object[] getOutgoingVerbs(String source, String target) {
-    checkOrMakeProxy(source);
     AccessControlPolicy acp = getOutgoingPolicy(source);
     if(acp==null){
       //no point to go on.
@@ -511,5 +451,4 @@ public class AccessControlPolicyServiceImpl
       return agent;
     }
   }
-
 }
