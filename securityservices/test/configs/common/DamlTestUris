@@ -1,0 +1,10 @@
+/$AGG-Agent/aggregator
+/$NCA/glsinit
+/$SCmrmanager/foo
+/$baz/CA/Index
+/$baz/CA/RevokeCertificateServlet
+/$baz/hierarchy
+/$baz/log_inventory
+/$baz/policyAdmin
+/$baz/topology
+/$baz/useradmin
