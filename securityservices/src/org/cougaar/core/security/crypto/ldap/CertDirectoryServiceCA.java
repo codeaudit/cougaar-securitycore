@@ -70,6 +70,6 @@ public interface CertDirectoryServiceCA {
   boolean isCAEntry(Attributes attributes)throws NamingException;
 
   CertificateRevocationStatus getCertificateRevocationStatus(Attributes attributes);
-
   void getContexts();
+  // String getModifiedTimeStamp(String dn);
 }

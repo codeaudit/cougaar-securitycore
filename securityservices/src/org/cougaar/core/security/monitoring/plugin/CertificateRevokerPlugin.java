@@ -42,6 +42,8 @@ import org.cougaar.core.security.policy.CryptoClientPolicy;
 import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.crypto.CertificateCache;
 import org.cougaar.core.security.services.util.ConfigParserService;
 
 // Cougaar overlay
@@ -389,7 +391,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     for(int i = 0; i < len; i++) {
       dn = certChain[i].getIssuerDN().getName();
       title = CertificateUtility.findAttribute(dn, "t");
-      if(title.equals(DirectoryKeyStore.CERT_TITLE_CA)) {
+      if(title.equals(CertificateCache.CERT_TITLE_CA)) {
         return dn;
       }
     }

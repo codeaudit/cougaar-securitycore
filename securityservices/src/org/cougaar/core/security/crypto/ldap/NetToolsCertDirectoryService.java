@@ -148,5 +148,8 @@ public class NetToolsCertDirectoryService
   public X509CRL  getCRL(String  distingushName) {
     return null;
   }
+   public String getModifiedTimeStamp(String dn) {
+     return null;
+   }
 
 }
