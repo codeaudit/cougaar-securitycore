@@ -80,6 +80,8 @@
       <if>
         <isset property="webdav.url"/>
         <then>
+          <property name="module.build.list"
+             value="securebootstrapper,securityutils,fwsupport,dataprotection,securityservices,securemonitoring,coordinator,securityTests,moptools"/>
           <for list="${module.build.list}" delimiter="," param="build.module.name">
              <sequential>
                 <!-- Name of ZIP file is:
