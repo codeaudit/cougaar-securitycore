@@ -353,9 +353,13 @@ public class AccessControlPolicyServiceImpl
       for(int i = 0; i < r.size(); i++)
         log.debug(r.get(i).toString() + " ");
     }
-    Verb[] verbs = new Verb[0];
+    Verb[] verbs = new Verb[r.size()];
     try {
-      return (Verb[])r.toArray(verbs);
+      //return (Verb[])r.toArray(verbs);
+      for(int i = 0; i < r.size(); i++){
+        Verb v = new Verb(r.get(i).toString());
+        verbs[i] = v;
+      }
     }
     catch(Exception ex) {
       log.debug("Warning: bad verb array:" + ex);
@@ -379,12 +383,16 @@ public class AccessControlPolicyServiceImpl
       log.debug(r.get(i).toString() + ":"
 			 + r.get(i).getClass().getName() + " ");
     }
-    Verb[] verbs = new Verb[0];
+    Verb[] verbs = new Verb[r.size()];
     try {
-      return (Verb[])r.toArray(verbs);
+      //return (Verb[])r.toArray(verbs);
+      for(int i = 0; i < r.size(); i++){
+        Verb v = new Verb(r.get(i).toString());
+        verbs[i] = v;
+      }
     }
     catch(Exception ex) {
-      log.debug("Warning: bad verb array:" + ex);
+      log.warn("Warning: bad verb array:" + ex);
     }
     return verbs;
   }

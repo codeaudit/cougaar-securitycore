@@ -333,72 +333,38 @@ public class AccessAgentProxy
    * @param direction true: incoming message. false: outgoing message.
    */
   private static void checkMessage(Message msg, boolean direction) {
-    //if (debug) {
-      //System.out.println("Checking message:" + msg.getClass().toString());
-    //}
-    if(msg instanceof MessageWithTrust) {
-      //System.out.println("MessageWithTrust  message:"+msg.toString());
-      //System.out.println(direction ?"incomming message" :"outgoingMessage"); 
-      if(msg instanceof DirectiveMessage) {
-	//if(debug)
-	  //System.out.println("Doing the check in DirectiveMessage of  checkMessage:");
-	Directive directive[] =
-	  ((DirectiveMessage)msg).getDirectives();
-	int len = directive.length;
-	for(int i = 0; i < len; i++) {
-	  //if (debug) {
-	    //System.out.println("Directive[" + i + "]:"
-			//       + directive[i].getClass().toString());
-	  //}
-	  if(!(directive[i] instanceof Task))
-	    continue;
-	  Task task = (Task)directive[i];
-	  String address = null;
-	  boolean match = false;
-	  //if(debug) {
-	    //System.out.println("Processing task " + task.getVerb());
-	  //}
+    if(msg instanceof DirectiveMessage) {
+      Directive directive[] = ((DirectiveMessage)msg).getDirectives();
+      int len = directive.length;
+      for(int i = 0; i < len; i++) {
+        //if (debug) {
+          //System.out.println("Directive[" + i + "]:"
+          //       + directive[i].getClass().toString());
+        //}
+        if(!(directive[i] instanceof Task))
+          continue;
+        Task task = (Task)directive[i];
+        String address = null;
+        boolean match = false;
+        //if(debug) {
+          //System.out.println("Processing task " + task.getVerb());
+        //}
 
-	  match = matchVerb(task.getSource().toString(),
-			    task.getDestination().toString(),
-			    task.getVerb(), direction);
-	  if(!match) {
-	    if(removeDirective((DirectiveMessage)msg, i)) return;
-	    directive = ((DirectiveMessage)msg).getDirectives();
-	    len = directive.length;
-	    i--;
-	  }
-	}
-      }
-      else if (msg.getClass().
-	       getName().equals("safe.comm.SAFEMessage")) {
-	// Silently ignore these messages
-      }
-      else {
-	//if (debug) {
-	  //System.out.println("Warning: unexpected message. Message Class:"
-			    // + msg.getClass().getName());
-	//}
-	/* For test purposes only 
-	   if (msg instanceof MoveCryptoMessage && direction) {
-	   MoveCryptoMessage m = (MoveCryptoMessage) msg;
-	   System.out.println("Received Transferable identity from "
-	   + m.getOriginator().toAddress()
-	   + " to " + m.getTarget().toAddress());
-	   aiService.completeTransfer(m.getTransferableIdentity(),
-	   m.getOriginator().toAddress(),
-	   m.getTarget().toAddress());
-	   }
-	*/
+        match = matchVerb(task.getSource().toString(),
+              task.getDestination().toString(),
+              task.getVerb(), direction);
+        if(match) {
+          if(removeDirective((DirectiveMessage)msg, i)) return;
+          directive = ((DirectiveMessage)msg).getDirectives();
+          len = directive.length;
+          i--;
+        }
       }
     }
-    else {
-      //if (debug) {
-	//System.out.println("Warning: unexpected message. Message Class:"
-			   //+ msg.getClass().getName());
-      //}
+    else if (msg.getClass().getName().equals("safe.comm.SAFEMessage")) {
+       // Silently ignore these messages
     }
-    
+  
   }
 
   private static boolean matchVerb(String source, String target,
@@ -414,38 +380,28 @@ public class AccessAgentProxy
       verbs = acps.getOutgoingVerbs(source, target);
     }
 
-    if( verbs[0].toString()=="ALL" ) {
-      //if(debug) {
-	//System.out.println("AccessControlProxy: got * verb, so blocking "
-			   //+verb+" for " + source + "->" + target);
-      //}
-      return true;
-    }
-
     if(verb == null || verbs.length == 0) {
-      //if(debug)
-      //System.out.println("AccessControlAspect: no out verbs for " 
-      //			  + source + ", " + target + ", " + verb );
       return false;		// we have no policy so return
     }
+
+    if( verbs[0].toString()=="ALL" ) {
+      return false;
+    }
+
+    boolean remove = true;
     for(int i = 0; i < verbs.length; i++) {
       Verb v = null;
       try{
-	v = (Verb)verbs[i];
+      	v = new Verb(verbs[i].toString());
       }
       catch(Exception e){
-	//probably a cast error, quietly skip
+        //probably a cast error, quietly skip
       }
       if (v==null) continue;
 
-      if(verb.equals(v)) {
-	//if(debug)
-        //System.out.println("AccessControlproxy: matched out verbs "
-				    //+ verbs[i] + " == " + verb);
-	return true;	// we found a match so return success
-      }
+      if(verb.equals(v)) remove = false;
     }
-    return false;		// we found no matches so return false
+    return remove;		// we don't want to remove the ones found. 
   }
   
   private TrustSet[] checkOutgoing(Message msg) {
