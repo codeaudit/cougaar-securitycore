@@ -80,7 +80,9 @@ public class SSLSocketCache
       return super.put(key, array);
     }
     else {
-      return super.put(key, value);
+      // o must be list
+      ((List)o).add(value);
+      return super.put(key, o);
     }
   }
 
