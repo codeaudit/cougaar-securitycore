@@ -172,6 +172,9 @@ public class MnRAggRateCalculator extends TimerTask implements AggregationType,j
                                           aggQuerymappingObject.getParentQueryUID(),
                                           _parentCurrentCount,_parentTotal,_parentRate);
       ConsolidatedEvent event=factory.newConsolidatedEvent(aggQuerymappingObject.getParentQueryUID(),_self,alert);
+       if( _loggingService.isDebugEnabled()) {
+         _loggingService.debug(" Created Consolidated event with source:"+ event.getSource() + " agent is  : "+ _self);
+       }
       _bbs.publishAdd(event);
       // _bbs.publishAdd(new AggQueryResult(aggQuerymappingObject.getRelayUID(),_parentCurrentCount,_parentTotal,_parentRate));
       _bbs.closeTransaction();
