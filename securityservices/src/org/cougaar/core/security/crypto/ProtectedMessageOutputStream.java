@@ -210,15 +210,20 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
    * need to worry about differences in agents. All these classes
    * should be reentrant.
    */
-  private void init(ServiceBroker sb) {
+  private void init(final ServiceBroker sb) {
     if (_log == null) {
       _log = (LoggingService) sb.getService(this, LoggingService.class, null);
-      _keyRing = (KeyRingService) 
-        sb.getService(this, KeyRingService.class, null);
-      _crypto = (EncryptionService)
-        sb.getService(this, EncryptionService.class, null);
-      _cps = (CryptoPolicyService)
-        sb.getService(this, CryptoPolicyService.class, null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          _keyRing = (KeyRingService) 
+            sb.getService(this, KeyRingService.class, null);
+          _crypto = (EncryptionService)
+            sb.getService(this, EncryptionService.class, null);
+          _cps = (CryptoPolicyService)
+            sb.getService(this, CryptoPolicyService.class, null);
+          return null;
+        }
+      });
     }
   }
 

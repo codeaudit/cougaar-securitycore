@@ -34,6 +34,8 @@ import java.io.ObjectInputStream;
 import java.security.DigestOutputStream;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -200,17 +202,22 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
    * need to worry about differences in agents. All these classes
    * should be reentrant.
    */
-  private synchronized void init(ServiceBroker sb) {
+  private synchronized void init(final ServiceBroker sb) {
     if (_log == null) {
       _log = (LoggingService) sb.getService(this, LoggingService.class, null);
-      _keyRing = (KeyRingService) 
-        sb.getService(this, KeyRingService.class, null);
-      _cacheService = (CertificateCacheService) 
-        sb.getService(this, CertificateCacheService.class, null);
-      _crypto = (EncryptionService)
-        sb.getService(this, EncryptionService.class, null);
-      _cps = (CryptoPolicyService)
-        sb.getService(this, CryptoPolicyService.class, null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          _keyRing = (KeyRingService) 
+            sb.getService(this, KeyRingService.class, null);
+          _cacheService = (CertificateCacheService) 
+            sb.getService(this, CertificateCacheService.class, null);
+          _crypto = (EncryptionService)
+            sb.getService(this, EncryptionService.class, null);
+          _cps = (CryptoPolicyService)
+            sb.getService(this, CryptoPolicyService.class, null);
+          return null;
+        }
+      });
     }
   }
 
