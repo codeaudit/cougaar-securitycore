@@ -67,8 +67,14 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
   //private boolean completeregistration =true;
 
   /** The number of seconds between crl updates */
-  protected long    _pollInterval    = 60000l;
+  protected long    _pollInterval    = 60 * 1000L;
   
+
+  /** The age after which we should put a warning in log4j if
+   * we have not been able to find a certificate.
+   */
+  private long WARNING_IF_DN_NOT_FOUND = 5 * 60 * 1000L;
+
   class CRLAgentRegistrationPredicate implements UnaryPredicate{
     public boolean execute(Object o) {
       //loggingService.debug(" Object on BB is :"+ o.toString());
@@ -259,6 +265,15 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 
   private class CRLUpdate extends TimerTask {
 
+    /**
+     * A list of DN names for which we could not find a certificate
+     * We need to give some time before the society starts, but
+     * after a while we should print a warning if we could not find
+     * the certificate.
+     * A map from DN names (String) to date of first entry (Date)
+     */
+    private Map _namesNotFound = new HashMap();
+
     public CRLUpdate () {
     }
 
@@ -271,7 +286,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       CertificateSearchService searchService=(CertificateSearchService)getBindingSite().getServiceBroker()
         .getService(this, CertificateSearchService.class, null);
       if(searchService==null) {
-        loggingService.warn(" Unable to get CRL as Search Service is NULL:");
+        loggingService.warn("Unable to get CRL as Search Service is NULL:");
         return;
       }
      
@@ -369,23 +384,41 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
                 }//end if (modified)
               }//end if(certEntryObject instanceof CACertifcteEntry)
               else {
-                loggingService.warn("List returned by search service contaians object"+
+                loggingService.warn("List returned by search service contains object"+
                                     "of type other than CA Cert Entry :"+ regObject.dnName);
                 loggingService.warn("received object in search list is :"+
                                     certEntryObject.getClass().getName());
               }
             }//end of  while(certEntryIterator.hasNext()) 
-          
+
+	    // Name was found, so remove it.
+	    _namesNotFound.remove(regObject.dnName);
           }// end of if(certList.size()>0)
           else {
-            loggingService.warn(" unable to get Certifificate entry for DN :"+ regObject.dnName);
-          
+	    if (!_namesNotFound.containsKey(regObject.dnName)) {
+	      _namesNotFound.put(regObject.dnName, new Date(System.currentTimeMillis()));
+	    }
+	    if (loggingService.isInfoEnabled()) {
+	      loggingService.info("Unable to get Certifificate entry for DN :"+ regObject.dnName);
+	    }
           }
         }//end of  while(keyiterator.hasNext())
       }//end of synchronized(crlRegistrationTable)
       bbs.closeTransaction();
       loggingService.debug("CRL agent registartion Thread  has finished:");
 
+      // Check if we have old entries in the names not found.
+      Iterator it = _namesNotFound.entrySet().iterator();
+      long now = System.currentTimeMillis();
+      while (it.hasNext()) {
+	String name = (String) it.next();
+	Date firstTime = (Date) _namesNotFound.get(name);
+	if ( (now - firstTime.getTime()) > WARNING_IF_DN_NOT_FOUND) {
+	  if (loggingService.isWarnEnabled()) {
+	    loggingService.warn("Unable to get Certifificate entry for DN :"+ name);
+	  }
+	}
+      }
     }
      
 
@@ -582,8 +615,4 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       }
     }
   }
-
-  
- 
-
 }
