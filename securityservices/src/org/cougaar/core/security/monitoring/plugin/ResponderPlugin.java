@@ -240,8 +240,8 @@ public abstract class ResponderPlugin extends ComponentPlugin {
     }
     ThreadService ts = (ThreadService) getServiceBroker().
       getService(this, ThreadService.class, null);
-    ts.schedule(_failureCache,
-                0, ((long)_cleanInterval) * 1000);
+    ts.getThread(this, _failureCache).schedule(
+      0, ((long)_cleanInterval) * 1000);
   }
 
   public void execute() {
@@ -270,7 +270,7 @@ public abstract class ResponderPlugin extends ComponentPlugin {
     }
   }
 
-  private class FailureCache extends TimerTask {
+  private class FailureCache implements Runnable {
     HashMap _failures = new HashMap();
     
     public FailureCache() {

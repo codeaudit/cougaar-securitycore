@@ -230,7 +230,8 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
               "threadService :"+threadService);
     if(threadService!=null && _crlcacheInitilized ) {
       log.debug("Starting CRL Poller thread with Sleep time :"+ getSleepTime());
-      threadService.schedule(new CrlPoller(),0,getSleepTime());
+      threadService.getThread(this, new CrlPoller()).
+	schedule(0,getSleepTime());
     }
    
   }
@@ -327,7 +328,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
     return crlsCache.containsKey(dnname);
   }
 
-  private class CrlPoller extends TimerTask {
+  private class CrlPoller implements Runnable {
     
     /** Lookup Certificate Revocation Lists */
     public void run() {

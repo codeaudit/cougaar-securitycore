@@ -48,7 +48,9 @@ import edu.jhuapl.idmef.*;
 
 
 
-public class MnRAggRateCalculator extends TimerTask implements AggregationType,java.io.Serializable{
+public class MnRAggRateCalculator
+  implements Runnable, AggregationType,java.io.Serializable
+{
   UID _parentUID;
   public long _timewindow;
   private LoggingService _loggingService;

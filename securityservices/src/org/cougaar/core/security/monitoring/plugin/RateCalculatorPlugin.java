@@ -303,8 +303,8 @@ public class RateCalculatorPlugin extends ComponentPlugin {
       bbs.publishRemove(iter.next());
     } // end of while (iter.hasMore())
 
-    ts.schedule(new RateTask(),
-                0, ((long)_pollInterval) * 1000);
+    ts.getThread(this, new RateTask()).schedule(
+      0, ((long)_pollInterval) * 1000);
   }
 
   /**
@@ -377,7 +377,7 @@ public class RateCalculatorPlugin extends ComponentPlugin {
    * rate. It relies on the ThreadService to trigger
    * its run() method.
    */
-  class RateTask extends TimerTask {
+  class RateTask implements Runnable {
     int  _lastCleared= (OVERSIZE + (int) 
                         (_startTime - 
                          System.currentTimeMillis())/1000)%_messages.length;

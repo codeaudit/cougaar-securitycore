@@ -428,7 +428,8 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
     if( loggingService.isDebugEnabled()) {
       loggingService.debug(" Setting rate window to  " +newratecalculator._timewindow);
     }
-    ts.schedule(newratecalculator,0,(long)newratecalculator._timewindow);
+    ts.getThread(this, newratecalculator).schedule(
+      0,(long)newratecalculator._timewindow);
 
   }
   
@@ -521,7 +522,8 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
       newratecalculator.setUID(queryrelay.getUID());
       newratecalculator.setDomainService(getDomainService());
       newratecalculator.setAddress(myAddress);
-      ts.schedule(newratecalculator,0,(long)newratecalculator._timewindow);
+      ts.getThread(this, newratecalculator).schedule(
+	0,(long)newratecalculator._timewindow);
     }// end of  while(iter.hasNext())
     
   }

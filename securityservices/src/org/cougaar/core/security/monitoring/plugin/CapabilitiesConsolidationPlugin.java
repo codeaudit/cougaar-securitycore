@@ -199,7 +199,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   public void setManagerAddress(final MessageAddress mgrAddress) {
     loggingService.debug(" setManagerAddress called with : "+ mgrAddress + " in agent :" +myAddress);
     if(_managerAddress==null) {
-      TimerTask task = new TimerTask() {
+      Runnable task = new Runnable() {
           public void run (){
             _managerAddress = mgrAddress;
             loggingService.debug("Found security manager('" + _managerAddress + "') for manager('" + myAddress + "')");
@@ -211,7 +211,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
         };
       ThreadService ts = (ThreadService)
         getServiceBroker().getService(this, ThreadService.class, null);
-      ts.schedule(task, 0);
+      ts.getThread(this, task).schedule(0);
       getServiceBroker().releaseService(this, ThreadService.class, ts);
     }
     else {

@@ -175,7 +175,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     */
     ThreadService ts = (ThreadService) getServiceBroker().
       getService(this, ThreadService.class, null);
-    ts.schedule(new CRLUpdate(), 0, _pollInterval );
+    ts.getThread(this, new CRLUpdate()).schedule(0, _pollInterval );
     loggingService.debug("Set up subscription done:"); 
 
   }
@@ -263,7 +263,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     }
   }
 
-  private class CRLUpdate extends TimerTask {
+  private class CRLUpdate implements Runnable {
 
     /**
      * A list of DN names for which we could not find a certificate

@@ -301,7 +301,7 @@ extends ComponentPlugin {
     }
 
 
-    TimerTask task =new TimerTask() {
+    Runnable task =new Runnable() {
       public void run() {
         RegistrationAlert reg =
           _idmefFactory.createRegistrationAlert( getSensorInfo(),
@@ -367,7 +367,7 @@ extends ComponentPlugin {
     ServiceBroker sb =getBindingSite().getServiceBroker();
     ThreadService ts = (ThreadService)
       sb.getService(this, ThreadService.class, null);
-    ts.schedule(task, 0);
+    ts.getThread(this, task).schedule(0);
     sb.releaseService(this, ThreadService.class, ts);
     if(sb!=null) {
       sb.releaseService(this,CommunityService.class,_cs);

@@ -232,15 +232,14 @@ public abstract class MnRAggQueryBase extends ComponentPlugin {
   } 
    
   private class RootListener 
-  extends TimerTask
-  implements CommunityServiceUtilListener {
+    implements Runnable, CommunityServiceUtilListener {
     public void getResponse(Set entities) {
       _isRoot = !(entities == null || entities.isEmpty());
       _rootReady = true;
       loggingService.info("The agent " + myAddress + " is root? " + _isRoot);
       ThreadService ts = (ThreadService)
         getServiceBroker().getService(this, ThreadService.class, null);
-      ts.schedule(this, 0);
+      ts.getThread(this, this).schedule(0);
       getServiceBroker().releaseService(this, ThreadService.class, ts);
     }
 

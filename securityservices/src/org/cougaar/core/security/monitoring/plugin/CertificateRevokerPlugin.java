@@ -446,7 +446,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
                                     final String agentName){
     ThreadService ts = (ThreadService)
       _serviceBroker.getService(this, ThreadService.class, null);
-    TimerTask tt = new TimerTask() {
+    Runnable tt = new Runnable() {
         final CommunityServiceUtil csu = 
           new CommunityServiceUtil(_serviceBroker);
         public void run() {
@@ -464,7 +464,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
           csu.getSecurityCommunities(listener);
         }
       };
-    ts.schedule(tt, 0);
+    ts.getThread(this, tt).schedule(0);
     _serviceBroker.releaseService(this, ThreadService.class, ts);
   }
 
