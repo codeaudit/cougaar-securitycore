@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2002 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
