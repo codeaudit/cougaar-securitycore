@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.policy;
@@ -45,7 +45,7 @@ public class TrustedCaPolicy {
 
   /** The URL used to retrieve public keys and certificates
    *  from a certificate directory service.
-   */ 
+   */
   public String certDirectoryUrl;
 
   /** The principal used to establish a connection with the certificate
@@ -63,14 +63,28 @@ public class TrustedCaPolicy {
    */
   public int certDirectoryType;
 
+  private CertificateAttributesPolicy certificateAttributesPolicy;
+
   // Values for certDirectoryType
   static public final int NETTOOLS = 1;
   static public final int COUGAAR_OPENLDAP = 2;
 
+  public CertificateAttributesPolicy getCertificateAttributesPolicy() {
+    return certificateAttributesPolicy;
+  }
+
+  public void setCertificateAttributesPolicy(CertificateAttributesPolicy cap) {
+    this.certificateAttributesPolicy = cap;
+  }
+
   public String toString() {
-    return  " - caDN=" + caDN
+    String s = " - caDN=" + caDN
       + " - caURL=" + caURL
       + " - certDirectoryURL=" + certDirectoryUrl
       + " - certDirectoryType=" + certDirectoryType;
+    if (certificateAttributesPolicy != null) {
+      s = s + "\nCertificate Attributes:" +  certificateAttributesPolicy.toString();
+    }
+    return s;
   }
 };
