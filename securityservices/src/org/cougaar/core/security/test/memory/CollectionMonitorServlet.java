@@ -34,6 +34,7 @@ import java.security.Principal;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -59,6 +60,14 @@ extends BaseServletComponent
   private static final String REQ_COMPONENT_NAME = "component";
   private static final String REQ_COLLECTION = "collection";
 
+  private static final int DEFAULT_ROWS = 20;
+  private static final int DEFAULT_LINES = 3;
+
+  /** The time, in seconds, between client requests before the servlet
+   * container will invalidate this session.
+   */
+  private static final int SESSION_INVALIDATION = 60 * 30;
+
   public void load() {
     super.load();
     _stats = CollectionMonitorStatsImpl.getInstance();
@@ -81,46 +90,136 @@ extends BaseServletComponent
   private class MyServlet extends HttpServlet {
     public void doPost (HttpServletRequest  req, HttpServletResponse res)
       throws ServletException,IOException {
-      String type =(String)req.getParameter(REQ_COLLECTION);
-      int rows = Integer.parseInt(req.getParameter(REQ_ROWS));
-      int lines = Integer.parseInt(req.getParameter(REQ_LINES));
+      parseSessionParameters(req);
+
+      int rows = getRows(req);
+      int lines = getLines(req);
+
+      String collectionType =(String)req.getParameter(REQ_COLLECTION);
+      String agentName =(String)req.getParameter(REQ_AGENT_NAME);
+      String componentName =(String)req.getParameter(REQ_COMPONENT_NAME);
+      int queryType = EntityStats.QUERY_ALL;
+
+      if (agentName != null) {
+	queryType = EntityStats.QUERY_AGENT;
+	if (agentName.equals("null")) {
+	  agentName = null;
+	}
+      }
+      if (componentName != null) {
+      }
 
       res.setContentType("text/html");
       PrintWriter out=res.getWriter();
-      try {
-	out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
-	out.println("<html>");
-	out.println("<head>");
-	out.println("<title>Collection Monitor Stats</title>");
-	out.println("</head>");
-	out.println("<body>");
-	out.println("<H2>Collection Monitor Stats</H2>");
-      
-	out.println("<table align=\"center\" border=\"2\">");
-	
-	printElementsStats(out, rows, lines, type);
+      out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+      out.println("<html>");
+      out.println("<head>");
+      out.println("<title>Collection Monitor Stats</title>");
+      out.println("</head>");
+      out.println("<body>");
 
+      printHeading(out, req);
+
+      if (collectionType == null) {
+	printGlobalStats(out, req);
+      }
+      else {
+	printDetailedStats(out, rows, lines, collectionType,
+			   queryType, agentName);
+      }
+      out.println("</body></html>");
+      out.flush();
+      out.close();
+    }
+
+    private void parseSessionParameters(HttpServletRequest req) {
+      // Parse session parameters
+      HttpSession hsession = req.getSession(true);
+      hsession.setMaxInactiveInterval(SESSION_INVALIDATION);
+      if (req.getParameter(REQ_ROWS) != null) {
+	hsession.setAttribute(REQ_ROWS, req.getParameter(REQ_ROWS));
+      }
+      if (req.getParameter(REQ_LINES) != null) {
+	hsession.setAttribute(REQ_LINES, req.getParameter(REQ_LINES));
+      }
+    }
+
+    private void printDetailedStats(PrintWriter out,
+				    int rows, int lines,
+				    String collectionType,
+				    int queryType,
+				    String agentName) {
+      try {
+	out.println("<table align=\"center\" border=\"2\">");
+
+	printElementsStats(out, rows, lines, collectionType,
+			   queryType, agentName);
 	out.println("</table>");
-	out.println("</body></html>");
+
       }
       catch (Exception e) {
 	out.println("Error: " + e.toString());
 	e.printStackTrace(out);
       }
+    }
 
-      out.flush();
-      out.close();
+    private int getRows(HttpServletRequest req) {
+      int rows = DEFAULT_ROWS;
+      HttpSession hsession = req.getSession();
+      if (hsession != null) {
+	String s = (String)hsession.getAttribute(REQ_ROWS);
+	if (s != null) {
+	  rows = Integer.parseInt(s);
+	}
+	else {
+	  rows = DEFAULT_ROWS;
+	}
+      }
+      return rows;
+    }
+
+    private int getLines(HttpServletRequest req) {
+      int lines = DEFAULT_LINES;
+      HttpSession hsession = req.getSession();
+      if (hsession != null) {
+	String s = (String)hsession.getAttribute(REQ_LINES);
+	if (s != null) {
+	  lines = Integer.parseInt(s);
+	}
+	else {
+	  lines = DEFAULT_LINES;
+	}
+      }
+      return lines;
+    }
+
+    private void printAgentStats(PrintWriter out,
+				 HttpServletRequest req,
+				 String agentName,
+				 String collectionType)
+      throws IOException {
+      if (agentName == null) {
+	printAgentStats(out, req);
+      }
+      else {
+	int rows = getRows(req);
+	int lines = getLines(req);
+	if (agentName.equals("null")) {
+	  agentName = null;
+	}
+	printDetailedStats(out, rows, lines, collectionType,
+			   EntityStats.QUERY_AGENT, agentName);
+      }
     }
 
     private void printAgentStats(PrintWriter out,
 				 HttpServletRequest req)
       throws IOException {
       out.println("<table border=\"2\">");      
-      out.println("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
 
       out.println("<tr>");
-      out.println("<th><b>Agent</th>");
       out.println("<th><b>Type</th>");
+      out.println("<th><b>Agent</th>");
       out.println("<th><b>Current Allocations</th>");
       out.println("<th><b>Total Allocations</th>");
       out.println("<th><b>Garbage Collected</th>");
@@ -144,16 +243,17 @@ extends BaseServletComponent
 	  EntityStats.Stats st = (EntityStats.Stats) m.getValue();
 
 	  out.println("<tr>");
-	  out.print("<td>");
+	  // Name of collection
+	  out.println("<td>" + es.getShortName() + "</td>");
 
+	  out.print("<td>");
 	  out.println("<a href=\"" + req.getRequestURI()
 		      + "?" + REQ_GET_REQUEST_TYPE + "=" + REQ_TYPE_AGENT
 		      + "&" + REQ_AGENT_NAME + "=" + agentName
+		      + "&" + REQ_COLLECTION + "=" + es.getType().getName()
 		      + "\">" + agentName + "</a>");
 
 	  out.print("</td>");
-	  // Radio button with name
-	  out.println("<td>" + es.getShortName() + "</td>");
 	  
 	  // Currently allocated collections
 	  out.println("<td>" + st._currentAllocations + "</td>");
@@ -170,9 +270,6 @@ extends BaseServletComponent
 	out.flush();
       }
 
-      printRequestParameters(out);
-
-      out.println("</form>");
       out.println("</table>");
     }
 
@@ -232,10 +329,14 @@ extends BaseServletComponent
 	EntityStats es = collections[i].getEntityStats();
 	out.println("<tr><td>");
 	// Radio button with name
-	out.println(
+	out.print(
 	  "<input type=\"radio\" name=\"" + REQ_COLLECTION + "\" "
-	  + "value=\"" + cl.getName() + "\"/>"
-	  + es.getShortName() + "</td>");
+	  + "value=\"" + cl.getName() + "\"");
+	if (i == 0) {
+	  // By default, first one is checked.
+	  out.print(" CHECKED");
+	}
+	out.println("/>" + es.getShortName() + "</td>");
 	// Currently allocated collections
 	out.println("<td>" +
 		    es.getCurrentAllocations(true) + "</td>");
@@ -254,28 +355,64 @@ extends BaseServletComponent
 	out.print("</tr>");
 	out.flush();
       }
-      printRequestParameters(out);
+      out.println("<tr><td><input type=\"submit\" value=\"Submit\"/></td></tr>");
 
       out.println("</form>");
       out.println("</table>");
     }
 
-    private void printRequestParameters(PrintWriter out) {
+    private void printRequestParameters(PrintWriter out,
+					HttpServletRequest  req) {
+      int rows = getRows(req);
+      int lines = getLines(req);
+      out.print("<table>");
       out.println("<tr><td><i>Number of rows:");
-      out.println("</td><td><input name=\"" + REQ_ROWS +
-		  "\" type=\"text\" value=\"20\"><br/>");
+      out.print("</td><td><input name=\"" + REQ_ROWS +
+		"\" type=\"text\" value=\"");
+      out.print(rows);
+      out.print("\"><br/>");
       out.println("</td></tr>");
 
       out.println("<tr><td><i>Number of lines in stack trace:");
       out.println("</td><td><input name=\"" + REQ_LINES +
-		  "\" type=\"text\" value=\"3\"><br/>");
+		  "\" type=\"text\" value=\"");
+      out.print(lines);
+      out.print("\"><br/>");
+      out.println("</td>");
+      out.println("<td><input type=\"submit\" value=\"Submit\"/></td></tr>");
+      out.print("</table>");
+    }
+
+    private void printHeading(PrintWriter out, HttpServletRequest req) {
+      out.println("<table border=\"1\">");
+      out.println("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
+      out.print("<tr>");
+      out.println("<td>");
+      out.println("<li><a href=\"" + req.getRequestURI()
+		  + "?" + REQ_GET_REQUEST_TYPE + "=" + REQ_TYPE_GLOBAL
+		  + "\">Global stats</a></li>");
+      
+      out.println("<li><a href=\"" + req.getRequestURI()
+		  + "?" + REQ_GET_REQUEST_TYPE + "=" + REQ_TYPE_AGENT
+		  + "\">Stats per agent</a></li>");
+      
+      out.println("<li><a href=\"" + req.getRequestURI()
+		  + "?" + REQ_GET_REQUEST_TYPE + "="
+		  + REQ_TYPE_COMPONENT
+		  + "\">Stats per component</a></li>");
+      out.println("</td><td>");
+      printRequestParameters(out, req);
       out.println("</td></tr>");
-      out.println("<tr><td><input type=\"submit\" value=\"Submit\"/></td></tr>");
+      out.println("</form>");
+      out.println("</table><br/>");
     }
 
     public void doGet(HttpServletRequest req,
 		      HttpServletResponse res) throws IOException {
-      String requestType =(String)req.getParameter(REQ_GET_REQUEST_TYPE);
+      String requestType = (String)req.getParameter(REQ_GET_REQUEST_TYPE);
+      String collectionType =
+	(String)req.getParameter(REQ_COLLECTION);
+      String agentName =(String)req.getParameter(REQ_AGENT_NAME);
 
       res.setContentType("text/html");
       PrintWriter out=res.getWriter();
@@ -287,22 +424,11 @@ extends BaseServletComponent
 	out.println("</head>");
 	out.println("<body>");
 
-	out.println("<li><a href=\"" + req.getRequestURI()
-		    + "?" + REQ_GET_REQUEST_TYPE + "=" + REQ_TYPE_GLOBAL
-		    + "\">Global stats</a></li>");
-
-	out.println("<li><a href=\"" + req.getRequestURI()
-		    + "?" + REQ_GET_REQUEST_TYPE + "=" + REQ_TYPE_AGENT
-		    + "\">Stats per agent</a></li>");
-
-	out.println("<li><a href=\"" + req.getRequestURI()
-		    + "?" + REQ_GET_REQUEST_TYPE + "="
-		    + REQ_TYPE_COMPONENT
-		    + "\">Stats per component</a></li><br/><br/>");
+	printHeading(out, req);
 
 	if (requestType != null &&
 	    requestType.equals(REQ_TYPE_AGENT)) {
-	  printAgentStats(out, req);
+	  printAgentStats(out, req, agentName, collectionType);
 	}
 	else if (requestType != null &&
 		 requestType.equals(REQ_TYPE_COMPONENT)) {
@@ -322,15 +448,23 @@ extends BaseServletComponent
       out.close();
     }
 
+    /**
+     */
     public void printElementsStats(PrintWriter out, int rows,
-				   int lines, String type) {
+				   int lines, String collectionType,
+				   int queryType,
+				   String agentName) {
 
-      EntityStats es = _entityStats.getEntityStats(type);
-      int n = es.getCurrentAllocations(true);
-      out.println("Number of " + es.getShortName()
-		  + ":" + n + "<br/>");
-      List l = es.getTopCollections(Math.min(n, rows));
-
+      EntityStats es = _entityStats.getEntityStats(collectionType);
+      List l = null;
+      if (es != null) {
+	l = es.getTopCollections(Math.min(es.getCurrentAllocations(true),
+					  rows),
+				 queryType,
+				 agentName);
+	out.println("Number of " + es.getShortName()
+		    + ":" + l.size() + "<br/>");
+      }
       out.println("<tr><th>Stack Trace</th>");
       out.println("<th>Current Size</th>");
       out.println("<th>Max Size</th>");
@@ -349,7 +483,7 @@ extends BaseServletComponent
 	   *   CollectionMonitorStatsImpl.addHashtable()
 	   *   MemoryTracker.add()
 	   */
-	  int LINES_TO_SKIP = 3;
+	  int LINES_TO_SKIP = 5;
 	  
 	  for (int i = LINES_TO_SKIP ;
 	       i < Math.min(ste.length, lines + LINES_TO_SKIP) ; i++) {

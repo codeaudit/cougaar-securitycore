@@ -122,11 +122,14 @@ public class EntityData {
 	  if (p.getClass().getName().equals(
 		"org.cougaar.core.security.auth.role.RoleExecutionContext")) {
 	    try {
-	      Method m = p.getClass().getDeclaredMethod("getAgent", null);
-	      _agentName = m.invoke(p, null).toString();
-
-	      m = p.getClass().getDeclaredMethod("getComponent", null);
-	      _componentName = (String) m.invoke(p, null);
+	      if (_agentName == null) {
+		Method m = p.getClass().getDeclaredMethod("getAgent", null);
+		_agentName = m.invoke(p, null).toString();
+	      }
+	      if (_componentName == null) {
+		Method m = p.getClass().getDeclaredMethod("getComponent", null);
+		_componentName = (String) m.invoke(p, null);
+	      }
 	    }
 	    catch (Exception e) {
 	      System.out.println("Could not get principal: " + e);
@@ -146,14 +149,22 @@ public class EntityData {
 	    if (plist != null) {
 	      switch (plist.size()) {
 	      case 1:
-		_agentName = plist.get(0).toString();
+		if (_agentName == null) {
+		  _agentName = plist.get(0).toString();
+		}
 		break;
 	      case 2:
-		_agentName = plist.get(1).toString();
+		if (_agentName == null) {
+		  _agentName = plist.get(1).toString();
+		}
 		break;
 	      case 3:
-		_componentName = plist.get(2).toString();
-		_agentName = plist.get(1).toString();
+		if (_componentName == null) {
+		  _componentName = plist.get(2).toString();
+		}
+		if (_agentName == null) {
+		  _agentName = plist.get(1).toString();
+		}
 		break;
 	      default:
 		_agentName = "chain: " + plist.size();

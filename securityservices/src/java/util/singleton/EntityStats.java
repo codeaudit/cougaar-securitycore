@@ -124,8 +124,8 @@ public class EntityStats
 	      catch (InterruptedException ex) {}
 	      // Do only one update at a time.
 	      synchronized (updaterLock) {
-		System.out.println("Updating stats for "
-		  + getShortName());
+		//System.out.println("Updating stats for "
+		//  + getShortName());
 		updateIndividualCollectionSize();
 	      }
 	    }
@@ -168,6 +168,9 @@ public class EntityStats
 
   public EntityStats getEntityStats(String type) {
     Class cl = null;
+    if (type == null) {
+      return null;
+    }
     try {
       cl = Class.forName(type);
     }
@@ -214,6 +217,7 @@ public class EntityStats
   public void updateCollections() {
     synchronized (_collections) {
       Iterator it = _collections.entrySet().iterator();
+
       while (it.hasNext()) {
 	Map.Entry me = (Map.Entry) it.next();
 	Reference wr = (Reference) me.getKey();
@@ -221,8 +225,10 @@ public class EntityStats
 	  // This is the last chance to have access to the
 	  // per-agent and per-component stats.
 	  // Update those stats.
-	  /*
 	  EntityData ed = (EntityData) me.getValue();
+	  it.remove();
+
+	  /*
 	  synchronized(_agentStats) {
 	    Stats st = (Stats) _agentStats.get(ed.getAgentName());
 	    if (st == null) {
@@ -232,7 +238,6 @@ public class EntityStats
 	    st._garbageCollected++;
 	  }
 	  */
-	  it.remove();
 	  _stats._garbageCollected++;
 	}
       }
@@ -290,42 +295,65 @@ public class EntityStats
 
   public double getMedianSize(boolean update) {
     if (update) {
-      getTopCollections(1);
+      getTopCollections(1, QUERY_ALL, null);
     }
     return _stats._medianSize;
   }
 
-  public Map getAgentStats() {
-    
-    // First, clear some stats
-    Collection c = _agentStats.values();
-    Iterator it = c.iterator();
+  public List getAgentStats(String agentName) {
+    List agentList = new ArrayList();
+
+    List entries = updateIndividualCollectionSize();
+    Iterator it = entries.iterator();
     while (it.hasNext()) {
-      Stats st = (Stats) it.next();
-      st._currentAllocations = 0;
-      st._totalNumberOfElements = 0;
+      Map.Entry m = (Map.Entry) it.next();
+      EntityData ed = (EntityData) m.getValue();
+      if (ed.getAgentName() == null && agentName == null) {
+	agentList.add(m);
+      }
+      if (ed.getAgentName() != null &&
+	  ed.getAgentName().equals(agentName)) {
+	agentList.add(m);
+      }
+    }
+    return agentList;
+  }
+
+  public Map getAgentStats() {
+    // First, clear some stats
+    synchronized (_agentStats) {
+      Collection c = _agentStats.values();
+      Iterator it = c.iterator();
+      while (it.hasNext()) {
+	Stats st = (Stats) it.next();
+	st._currentAllocations = 0;
+	st._totalNumberOfElements = 0;
+      }
     }
 
     synchronized (_collections) {
       List entries = updateIndividualCollectionSize();
-      it = entries.iterator();
+      Iterator it = entries.iterator();
       while (it.hasNext()) {
 	Map.Entry m = (Map.Entry) it.next();
 	EntityData ed = (EntityData) m.getValue();
-	Stats st = (Stats) _agentStats.get(ed.getAgentName());
-	if (st == null) {
-	  st = new Stats();
-	  _agentStats.put(ed.getAgentName(), st);
-	}
 
-	// Update stats
-	st._currentAllocations++;
-	st._totalNumberOfElements += ed.getCurrentSize(false);
+	synchronized (_agentStats) {
+	  Stats st = (Stats) _agentStats.get(ed.getAgentName());
+	  if (st == null) {
+	    st = new Stats();
+	    _agentStats.put(ed.getAgentName(), st);
+	  }
+
+	  // Update stats
+	  st._currentAllocations++;
+	  st._totalNumberOfElements += ed.getCurrentSize(false);
 	
-	// We could increment a counter every time a collection is created,
-	// but this would require to lookup the subject information.
-	st._totalAllocations = st._currentAllocations +
-	  st._garbageCollected;
+	  // We could increment a counter every time a collection is created,
+	  // but this would require to lookup the subject information.
+	  st._totalAllocations = st._currentAllocations +
+	    st._garbageCollected;
+	}
       }
     }
     return _agentStats;
@@ -340,10 +368,30 @@ public class EntityStats
     return l;
   }
 
-  public List getTopCollections(int topNumber) {
+  public static final int QUERY_ALL = 1;
+  public static final int QUERY_AGENT = 2;
+  public static final int QUERY_COMPONENT = 3;
+
+  public List getTopCollections(int topNumber,
+				int queryType,
+				String agentName) {
     List ret = null;
-    List l = updateIndividualCollectionSize();
-    Collections.sort(l, new SizeComparator());
+    List l = null;
+    switch (queryType) {
+    case QUERY_ALL:
+      l = updateIndividualCollectionSize();
+      Collections.sort(l, new SizeComparator());
+      break;
+    case QUERY_AGENT:
+      l = getAgentStats(agentName);
+      Collections.sort(l, new AgentComparator());
+      break;
+    case QUERY_COMPONENT:
+      Collections.sort(l, new ComponentComparator());
+      break;
+    default:
+      throw new IllegalArgumentException("Wrong query type:" + queryType);
+    }
 
     // Update averaged median size
     updateMedianSize(l);
