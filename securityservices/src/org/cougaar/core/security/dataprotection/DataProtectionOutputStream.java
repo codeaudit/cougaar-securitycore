@@ -46,6 +46,7 @@ import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.DataFailureEvent;
+import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
 
 public class DataProtectionOutputStream extends FilterOutputStream {
   private static LoggingService log;
@@ -226,11 +227,13 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     buffersize = size;
   }
 
+  /*
   public void addPublisher(EventPublisher publisher) {
     if(eventPublisher == null) {
       eventPublisher = publisher;
     }
   }
+  */
 
   /**
    * publish a data protection failure idmef alert
@@ -240,6 +243,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
                                               agent,
                                               reason,
                                               data);
+    /*
     if(eventPublisher != null) {
       eventPublisher.publishEvent(event);
     }
@@ -248,5 +252,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
         log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
     }
+    */
+    DataProtectionSensor.publishEvent(event);
   }
 }

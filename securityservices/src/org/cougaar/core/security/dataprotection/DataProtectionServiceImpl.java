@@ -52,6 +52,7 @@ import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.DataFailureEvent;
+import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
 
 
 public class DataProtectionServiceImpl
@@ -70,15 +71,17 @@ public class DataProtectionServiceImpl
   private CryptoClientPolicy cryptoClientPolicy;
 
   // event publisher for data protection failures
-  private static EventPublisher eventPublisher;
+  //private static EventPublisher eventPublisher;
   private Hashtable keyCache = new Hashtable();
 
+  /*
   // add event publisher
   public static void addPublisher(EventPublisher publisher) {
     if(eventPublisher == null) {
       eventPublisher = publisher;
     }
   }
+  */
 
   public DataProtectionServiceImpl(ServiceBroker sb, Object requestor)
   {
@@ -217,7 +220,7 @@ public class DataProtectionServiceImpl
     // check whether key needs to be replaced
     DataProtectionOutputStream dpos =
       new DataProtectionOutputStream(os, pke, agent, serviceBroker);
-    dpos.addPublisher(eventPublisher);
+    //dpos.addPublisher(eventPublisher);
     return dpos;
   }
 
@@ -418,7 +421,7 @@ public class DataProtectionServiceImpl
             int configwait = Integer.parseInt(System.getProperty("org.cougaar.core.security.recoverytime", new Integer(wait_time).toString()));
             wait_time = configwait;
           } catch (Exception tex) {}
- 
+
           int sleep_time = 10000;
           while (skey == null && wait_time > 0) {
             PersistenceManagerPolicy [] pmp = pps.getPolicies();
@@ -609,7 +612,7 @@ public class DataProtectionServiceImpl
 	*/
 	  DataProtectionInputStream dpis =
   	  new DataProtectionInputStream(is, pke, agent, serviceBroker);
-    dpis.addPublisher(eventPublisher);
+    //dpis.addPublisher(eventPublisher);
     return dpis;
   }
 
@@ -628,6 +631,7 @@ public class DataProtectionServiceImpl
                                               agent,
                                               reason,
                                               data);
+    /*
     if(eventPublisher != null) {
       eventPublisher.publishEvent(event);
     }
@@ -636,5 +640,7 @@ public class DataProtectionServiceImpl
         log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
     }
+    */
+    DataProtectionSensor.publishEvent(event);
   }
 }
