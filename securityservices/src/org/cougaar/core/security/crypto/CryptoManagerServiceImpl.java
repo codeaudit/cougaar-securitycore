@@ -1694,8 +1694,8 @@ public class CryptoManagerServiceImpl
     // This optimization isn't working at the moment because KeyRingSSLFactory 
     // is not storing the principal for a connection properly.  It is 
     // associating  the principal with a thread which does not work.
-    //    return needsSig;
-    return true;
+    return needsSig;
+    // return true;
   }
 
   public void setSendNeedsSignature(String source, String target) {

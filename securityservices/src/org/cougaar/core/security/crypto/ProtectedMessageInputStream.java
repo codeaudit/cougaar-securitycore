@@ -87,6 +87,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
                                      MessageAddress source,
                                      MessageAddress target,
                                      boolean encryptedSocket,
+                                     boolean isReply,
                                      ServiceBroker sb)
     throws GeneralSecurityException, IncorrectProtectionException, 
     IOException {
@@ -109,30 +110,32 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     if (_log.isDebugEnabled()) {
       _log.debug("Receiving message with header: " + header);
       _log.debug("encrypted socket = " + _encryptedSocket);
+      _log.debug("Reply  Message = " + isReply);
     }
     setAddresses(header, source, target);
     SecureMethodParam headerPolicy = header.getPolicy();
-    // check the policy
-    boolean ignoreSignature = 
-      ignoreSignature(encryptedSocket);
-    boolean goodPolicy = _cps.isReceivePolicyValid(_source, _target,
-                                                   headerPolicy,
-                                                   encryptedSocket,
-                                                   ignoreSignature);
+    if (!isReply) {
+      // check the policy
+      boolean ignoreSignature = 
+        ignoreSignature(encryptedSocket);
+      boolean goodPolicy = _cps.isReceivePolicyValid(_source, _target,
+                                                     headerPolicy,
+                                                     encryptedSocket,
+                                                     ignoreSignature);
 
-    if (!goodPolicy) {
-      if (_log.isDebugEnabled()) {
-        _log.debug("Policy mismatch for message from " + _source + 
-                   " to " + _target + " for policy " + headerPolicy);
-      }
+      if (!goodPolicy) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Policy mismatch for message from " + _source + 
+                     " to " + _target + " for policy " + headerPolicy);
+        }
 
-      if (encryptedSocket && 
-          headerPolicy.secureMethod == headerPolicy.PLAIN) {
-        sendSignatureValid(false); // please send me the signature next time
+        if (encryptedSocket && 
+            headerPolicy.secureMethod == headerPolicy.PLAIN) {
+          sendSignatureValid(false); // please send me the signature next time
+        }
+        throw new IncorrectProtectionException(headerPolicy);
       }
-      throw new IncorrectProtectionException(headerPolicy);
     }
-
     if (_log.isDebugEnabled()) {
       _log.debug("Using policy: " + headerPolicy + " from " +
                  _source + " to " + _target);
