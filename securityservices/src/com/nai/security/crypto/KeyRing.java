@@ -157,11 +157,11 @@ final public class KeyRing {
     }
   }
 
-  public static KeyStore getKeyStore() { 
+  public static synchronized KeyStore getKeyStore() { 
     return keystore.getKeyStore();
   }
 
-  public static PrivateKey findPrivateKey(String commonName) {
+  public static synchronized PrivateKey findPrivateKey(String commonName) {
     return keystore.findPrivateKey(commonName);
   }
 
@@ -173,35 +173,46 @@ final public class KeyRing {
     return keystore.findCert(commonName);
   }
 
-  /** Lookup a certificate. If lookupLDAP is true, search in the keystore only.
-   * Otherwise, search in the keystore then in the LDAP directory service.
-   */
-  public static Certificate findCert(String commonName, boolean lookupLDAP) {
+  public static synchronized Certificate findCert(String commonName, boolean lookupLDAP) {
     Certificate c = null;
     try {
-      c = keystore.findCert(commonName, lookupLDAP);
+      c = keystore.findCert(commonName, lookupLDAP, true, true);
     }
     catch (Exception e) {
     }
     return c;
   }
 
-  public static void setSleeptime(long sleeptime)
+  /** Lookup a certificate. If lookupLDAP is true, search in the keystore only.
+   * Otherwise, search in the keystore then in the LDAP directory service.
+   */
+  public static synchronized Certificate findCert(String commonName, boolean lookupLDAP,
+				     boolean lookupHashMap, boolean lookupKeyStore) {
+    Certificate c = null;
+    try {
+      c = keystore.findCert(commonName, lookupLDAP, lookupHashMap, lookupKeyStore);
+    }
+    catch (Exception e) {
+    }
+    return c;
+  }
+
+  public static synchronized void setSleeptime(long sleeptime)
   {
     keystore.setSleeptime(sleeptime);
   }
 
-  public static long getSleeptime()
+  public static synchronized long getSleeptime()
   {
     return keystore.getSleeptime();
   }
 
-  public static Vector getCRL()
+  public static synchronized Vector getCRL()
   {
     return keystore.getCRL();
   }
 
-  public static void checkOrMakeCert(String name)
+  public static synchronized void checkOrMakeCert(String name)
   {
       keystore.checkOrMakeCert(name);
       return;

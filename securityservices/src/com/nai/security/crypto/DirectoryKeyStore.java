@@ -244,15 +244,22 @@ public class DirectoryKeyStore implements Runnable
     return pk;
   }
 
-  /** Lookup a certificate. If lookupLDAP is true, search in the keystore only.
-   * Otherwise, search in the keystore then in the LDAP directory service.
-   */
-  public synchronized Certificate findCert(String commonName, boolean lookupLDAP)
+  /** Lookup a certificate.
+   * lookupLDAP = false => search in LDAP directory service not authorized.
+   * lookupHashMap = false => search in local cache not authorized (force new lookup)
+   * lookupKeyStore = false => search in keystore not authorized
+  */
+  public synchronized Certificate findCert(String commonName,
+					   boolean lookupLDAP,
+					   boolean lookupHashMap,
+					   boolean lookupKeyStore)
   throws Exception
   {
     Certificate cert = null;
     if (debug) {
-      System.out.println("DirectoryKeyStore.getCert(" + commonName + ")");
+      System.out.println("DirectoryKeyStore.findCert(" + commonName
+			 + ") LDAP=" + lookupLDAP + " - lookupHashMap=" + lookupHashMap
+			 + " - lookupKeyStore=" + lookupKeyStore);
     }
     if (commonName == null) {
       throw new Exception("Common Name is null");
@@ -263,13 +270,18 @@ public class DirectoryKeyStore implements Runnable
     if (alias == null) {
       // Key does not exist in keystore
       if (debug) {
-	System.out.println("Certificate not in key store");
+	System.out.println("Certificate [" + commonName
+			   + "] not in key store");
+	listKeyStoreAlias(keystore, keystorePath);
       }
     }
 
     try {
       // First, look in the local hash map.
-      Object o = certsAlias.get(commonName);
+      Object o = null;
+      if (lookupHashMap) {
+	o = certsAlias.get(commonName);
+      }
       if(o != null) {
 	certstatus = (CertificateStatus)o;
 	if(lookupLDAP == false &&
@@ -281,18 +293,22 @@ public class DirectoryKeyStore implements Runnable
 	  cert = certstatus.getCertificate();
 	}
 	if (debug) {
-	  System.out.println("DirectoryKeyStore.getCert. Found cert in local hash map:"
-			     + commonName );
+	  System.out.println("DirectoryKeyStore.findCert. " + commonName
+			     + " not in local hash map:");
 	}
       }
       else {
+	if (debug) {
+	  System.out.println("DirectoryKeyStore.findCert. Cert not in local hash map:"
+			     + commonName );
+	}
 	// Look in keystore file.
-	if (alias != null) {
+	if (alias != null && lookupKeyStore) {
 	  cert = keystore.getCertificate(alias);
 	  certstatus = new CertificateStatus(cert, true, CertificateStatus.CERT_KEYSTORE);
 	  certsAlias.put(commonName, certstatus);
 	  if (debug) {
-	    System.out.println("DirectoryKeyStore.getCert. Found cert in keystore file:" + commonName );
+	    System.out.println("DirectoryKeyStore.findCert. Found cert in keystore file:" + commonName );
 	  }
 	  if (cert == null) {
 	    // Also lookup the CA keystore file.
@@ -301,12 +317,16 @@ public class DirectoryKeyStore implements Runnable
 					       CertificateStatus.CERT_KEYSTORE);
 	    certsAlias.put(commonName, certstatus);
 	    if (debug) {
-	      System.out.println("DirectoryKeyStore.getCert. Found cert in CA keystore file:" + commonName );
+	      System.out.println("DirectoryKeyStore.findCert. Found cert in CA keystore file:" + commonName );
 	    }
 	  }
 	}
 	else if (lookupLDAP == true) {
 	  // Finally, look in certificate directory service
+	  if (debug) {
+	    System.out.println("DirectoryKeyStore.findCert. Looking up ["
+			       + commonName + " ] in LDAP");
+	  }
 	  cert=certificatefinder.getCertificate(commonName);
 	  if(cert!=null) {
 	    certstatus = new CertificateStatus(cert, true, CertificateStatus.CERT_LDAP);
@@ -314,7 +334,7 @@ public class DirectoryKeyStore implements Runnable
 	    X509Certificate x = (X509Certificate)cert;
 	    m.put(x.getSubjectDN(), commonName);
 	    if (debug) {
-	      System.out.println("DirectoryKeyStore.getCert. Found cert in LDAP:"
+	      System.out.println("DirectoryKeyStore.findCert. Found cert in LDAP:"
 				 + commonName );
 	    }
 	  }	
@@ -333,7 +353,7 @@ public class DirectoryKeyStore implements Runnable
 	  certstatus=new CertificateStatus(cert, true, CertificateStatus.CERT_LDAP);
 	  certsAlias.put(commonName,certstatus);
 	  if (debug) {
-	    System.out.println("DirectoryKeyStore.getCert. Found cert in LDAP:"
+	    System.out.println("DirectoryKeyStore.findCert. Found cert in LDAP:"
 			       + commonName );
 	  }
 	}
@@ -887,7 +907,7 @@ public class DirectoryKeyStore implements Runnable
       } else {
 	// check if node cert exist
 	// Don't lookup in LDAP, the key should be in the local keystore
-	X509Certificate nodex509 = (X509Certificate) findCert(nodeName, false);
+	X509Certificate nodex509 = (X509Certificate) findCert(nodeName, false, true, true);
 	if(nodex509 == null) {
 	  //we don't have a node key pair, so make it
 	  if (debug) {
@@ -897,7 +917,7 @@ public class DirectoryKeyStore implements Runnable
 	}
 	// The Node key should exist now (we may have just added it
 	// recursively.
-	nodex509 = (X509Certificate) findCert(nodeName, false);
+	nodex509 = (X509Certificate) findCert(nodeName, false, true, true);
 	if (debug) {
 	  System.out.println("Creating key pair for agent: " + commonName);
 	}
@@ -948,10 +968,22 @@ public class DirectoryKeyStore implements Runnable
   }
 
   public Certificate findCert(Principal p) {
-    String a = (String) m.get(p);
+    X500Name x500Name = null;
+    String a = null;
     Certificate c = null;
     try {
-      c=findCert(a, true);
+      x500Name = new X500Name(p.getName());
+      a = x500Name.getCommonName();
+    }
+    catch (Exception e) {
+      return null;
+    }
+    //String a = (String) m.get(p);
+    if (a == null) {
+      return null;
+    }
+    try {
+      c=findCert(a, true, true, true);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -962,7 +994,7 @@ public class DirectoryKeyStore implements Runnable
   public Certificate findCert(String name) {
     Certificate c = null;
     try {
-      c = findCert(name, true);
+      c = findCert(name, true, true, true);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -1113,10 +1145,11 @@ public class DirectoryKeyStore implements Runnable
       //check first
       Certificate c = null;
       try{
-        c = findCert(name,false);
+        c = findCert(name, false, true, true);
           if(c!=null) return;
       }catch(Exception e){
-          System.err.println("Can't locate the certificate for:"+name+"--"+e+".generating new one...");
+          System.err.println("Can't locate the certificate for:"+name
+			     +"--"+e+".generating new one...");
           e.printStackTrace();
       }
       //we'll have to make one

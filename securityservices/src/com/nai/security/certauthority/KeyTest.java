@@ -64,7 +64,7 @@ public class KeyTest implements Runnable
 
   public void run() {
     // Retrieve same key from multiple threads.
-    Certificate c = KeyRing.findCert(commonName);
+    Certificate c = KeyRing.findCert(commonName, true, false, false);
   }
 
 }

@@ -980,7 +980,7 @@ public class KeyManagement
 	  System.out.println("Certificate is : " + c);
 	}
 	KeyTest p = new KeyTest(args[2]);
-	for (int i = 0 ; i < 1 ; i++) {
+	for (int i = 0 ; i < 1000 ; i++) {
 	  System.out.println("Starting thread " + i);
 	  new Thread(p).start();
 	}
