@@ -1,0 +1,37 @@
+Adaptivity M&R:
+---------------
+
+In order to use the adaptivity engine, the following plugins will need to be loaded:
+
+org.cougaar.core.adaptivity.AdaptivityEngine
+org.cougaar.core.adaptivity.ConditionServiceProvider
+org.cougaar.core.adaptivity.OperatingModeServiceProvider
+org.cougaar.core.adaptivity.PlaybookManager(<plays file>)
+
+If your plays contain operating modes that can be remotely constrained, you must include the
+plugin on the remote agent:
+
+org.cougaar.core.adaptivity.OperatingModePolicyManager
+
+For example, if Agent A contains the adaptivity engine and plays that contrains an operating mode in Agent B then Agent B should contain the OperatingModePolicyManager plugin.
+
+An optional servlet is available to view adaptivity objects (conditions and operating
+modes) and edit operating mode policies.  Include the following plugin in your agent ini file:
+org.cougaar.core.servlet.BlackboardServletComponent(org.cougaar.core.adaptivity.AEViewerServlet, /aeviewer)
+
+AMnRPlays.txt specifies the plays for the Adaptive M&R agent.  To set remote operating modes,
+use [agent.<agent name>] preceeding the operating mode name.  For example, 
+[agent.MyAgent]org.cougaar.core.security.monitoring.MY_OPERATING_MODE = 1.  This will causes an 
+InterAgentOperationModePolicy to be created and sent to MyAgent agent. The 
+OperatingModePolicyManager in MyAgent will apply the constraint, 1, to MY_OPERATING_MODE. If all
+components reside in the same agent, then [agent.<agent name>] should not preceed the operating 
+mode name.  NOTE: "agent" in the brackets IS CASE SENSATIVE.
+
+To run the test AdaptiveMnR agent type 'Node AdaptiveNode'.  Access 
+http://localhost:8800/$AdaptiveMnR/aeviewer to view the conditions and operating modes.  Refresh
+the browser every 10 secs and the conditions should change.  When plays are selected the operating
+modes should also change.
+
+The plays are written to with the following assumptions:
+1. The Agent name of the Policy Manager is "DomainManager".  If it is different, change the plays to
+reflect the Policy Manager agent name.  
