@@ -34,6 +34,8 @@ import org.cougaar.core.component.ServiceListener;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityChangeEvent;
+import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityResponse;
@@ -53,6 +55,9 @@ import org.cougaar.core.security.util.CommunityServiceUtil;
 import java.net.URI;
 import java.util.*;
 import sun.security.x509.X500Name;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.NamingException;
 
 /**
  * The PersistenceMgrPolicyService queries the community service for agents
@@ -76,6 +81,8 @@ public class PersistenceMgrPolicyServiceImpl
   // list of persistence manager policies
   private List _policies;
   private List _agents;
+  // debug flag
+  private boolean _debug;
 
   // this is the uri of the persistence manager key recovery servlet
   private static String PM_SERVLET_URI = "/KeyRecoveryServlet";
@@ -99,10 +106,16 @@ public class PersistenceMgrPolicyServiceImpl
       }
       registerServiceListener();
     }
+    else {
+      addCommunityListener();
+    }
+
     _myCommunity = community;
     _policies = new ArrayList();
     _agents = new ArrayList();
-    
+    _debug = _log.isDebugEnabled();
+
+    /*
     // default to every 2 mins (120 secs)
     long period = 120000;
     try {
@@ -116,6 +129,52 @@ public class PersistenceMgrPolicyServiceImpl
     }
     // schedule task to lookup persistence managers from community service
     (new Timer()).schedule(new PersistenceMgrSearchTask(), 0, period);
+    */
+  }
+
+  private void addCommunityListener() {
+    if (_log.isDebugEnabled()) {
+      _log.debug("addCommunityListener");
+    }
+    searchPersistenceManagers();
+
+    _cs.addListener(new CommunityChangeListener() {
+      public String getCommunityName() {
+        return null;
+      }
+
+      public void communityChanged(CommunityChangeEvent event) {
+        Community community = event.getCommunity();
+        try {
+          if (event.getType() == CommunityChangeEvent.ADD_COMMUNITY) {
+            if (_log.isDebugEnabled()) {
+              _log.debug("Community changed: " + event);
+            }
+          }
+          // else we don't care
+          else {
+            if (_log.isDebugEnabled()) {
+              _log.debug("No action on change event: " + event);
+            }
+            return;
+          }
+
+          Attributes attrs = community.getAttributes();
+          Attribute attr = attrs.get("CommunityType");
+          if (attr != null) {
+            for (int i = 0; i < attr.size(); i++) {
+              Object type = attr.get(i);
+              if (type.equals(CommunityServiceUtil.SECURITY_COMMUNITY_TYPE)) {
+                searchPersistenceManagers();
+              }
+            }
+          }
+        } catch (NamingException e) {
+          throw new RuntimeException("This should never happen");
+        }
+
+      }
+    });
   }
 
   /**
@@ -140,6 +199,8 @@ public class PersistenceMgrPolicyServiceImpl
           _log.debug("community service is now available");
           _cs = (CommunityService)
             ae.getServiceBroker().getService(this, CommunityService.class, null);
+
+          addCommunityListener();
         }
         if(org.cougaar.core.service.wp.WhitePagesService.class.isAssignableFrom(sc)) {
         //else if(ae.getService() == WhitePagesService.class) {
@@ -169,7 +230,7 @@ public class PersistenceMgrPolicyServiceImpl
   }
 
   private void addPolicy(PersistenceManagerPolicy policy) {
-    if(_log.isDebugEnabled()) {
+    if(_debug) {
       _log.debug("adding PersistenceManagerPolicy: " + policy);
     }
     synchronized(_policies) {
@@ -191,13 +252,14 @@ public class PersistenceMgrPolicyServiceImpl
    * This task is searches for persistence managers and constructs
    * a PersistenceManagerPolicy for new persistence managers
    */
+   /*
   class PersistenceMgrSearchTask extends TimerTask  {
     // list of persistence managers
     private List _agents;
-
     public PersistenceMgrSearchTask() {
       _agents = new ArrayList();
     }
+    */
 
     private void searchPersistenceManagers() {
       CommunityResponseListener crl = new CommunityResponseListener() {
@@ -219,6 +281,7 @@ public class PersistenceMgrPolicyServiceImpl
       if (communities != null) {
         configureCommunity((Set) communities);
       }
+
     }
 
     private void configureCommunity(Set communities) {
@@ -230,12 +293,17 @@ public class PersistenceMgrPolicyServiceImpl
 
     private void processPersistenceMgrEntry(Entity manager) {
       String agent = manager.getName();
+
+      if (_log.isDebugEnabled()) {
+        _log.debug("processPersistenceMgrEntry: " + manager + " agent " + agent);
+      }
+
       if(!_agents.contains(agent)) {
 	AddressEntry entry = null;
 	try {
 	  // look up the agent's info in the white pages
 	  entry = _wps.get(agent, WhitePagesUtil.WP_HTTP_TYPE);
-	  if(_log.isDebugEnabled()) {
+	  if(_debug) {
 	    _log.debug("address entry = " + entry);
 	  }
 	}
@@ -246,7 +314,7 @@ public class PersistenceMgrPolicyServiceImpl
 	  return;
 	}
 	if (entry == null) {
-	  if(_log.isDebugEnabled()) {
+	  if(_debug) {
 	    _log.debug("address entry is null for : " + agent);
 	  }
 	  return;
@@ -278,10 +346,11 @@ public class PersistenceMgrPolicyServiceImpl
       } // if(!_agents.contains(pm))
     }
 
+    /*
     public void run() {
       // get a list of all security communities
       if(_cs == null || _wps == null) {
-        if(_log.isDebugEnabled()) {
+        if(_debug) {
           _log.debug("community service or white pages service is null!");
         }
         return;
@@ -289,4 +358,5 @@ public class PersistenceMgrPolicyServiceImpl
       searchPersistenceManagers();
     } // public void run()
   } // class PersistenceMgrSearchTask
+  */
 }
