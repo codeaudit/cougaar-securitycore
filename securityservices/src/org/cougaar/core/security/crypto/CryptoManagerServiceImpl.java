@@ -80,7 +80,10 @@ public class CryptoManagerServiceImpl
     List pkList = (List)
     AccessController.doPrivileged(new PrivilegedAction() {
 	    public Object run(){
-	      List nameList = keyRing.findDNFromNS(name);
+              // relieve messages to naming, for local keys
+              // do not need to go to naming
+	      //List nameList = keyRing.findDNFromNS(name);
+              List nameList = keyRing.findCert(name, KeyRingService.LOOKUP_KEYSTORE);
               List keyList = new ArrayList();
               for (int i = 0; i < nameList.size(); i++) {
                 X500Name dname = (X500Name)nameList.get(i);
@@ -164,10 +167,10 @@ public class CryptoManagerServiceImpl
     // need to find all certs with the name signed by multiple CAs
     List nameList = keyRing.findDNFromNS(name);
 
-    int lookupFlags[] = { KeyRingService.LOOKUP_KEYSTORE | 
+    int lookupFlags[] = { KeyRingService.LOOKUP_KEYSTORE |
                           KeyRingService.LOOKUP_LDAP,
-                          KeyRingService.LOOKUP_KEYSTORE | 
-                          KeyRingService.LOOKUP_LDAP | 
+                          KeyRingService.LOOKUP_KEYSTORE |
+                          KeyRingService.LOOKUP_LDAP |
                           KeyRingService.LOOKUP_FORCE_LDAP_REFRESH };
 
     for (int i = 0; i < nameList.size(); i++) {
@@ -206,7 +209,7 @@ public class CryptoManagerServiceImpl
                                   + name);
   }
 
-  private Object verify(List certList, SignedObject obj, boolean expiredOk, ArrayList signatureIssues) 
+  private Object verify(List certList, SignedObject obj, boolean expiredOk, ArrayList signatureIssues)
     throws CertificateException {
     Iterator it = certList.iterator();
 
@@ -297,7 +300,10 @@ public class CryptoManagerServiceImpl
     List keyList = (List)
       AccessController.doPrivileged(new PrivilegedAction() {
 	  public Object run(){
-	      List nameList = keyRing.findDNFromNS(name);
+              // relieve messages to naming, for local keys
+              // do not need to go to naming
+	      //List nameList = keyRing.findDNFromNS(name);
+              List nameList = keyRing.findCert(name, KeyRingService.LOOKUP_KEYSTORE);
               List keyList = new ArrayList();
               for (int i = 0; i < nameList.size(); i++) {
                 X500Name dname = (X500Name)nameList.get(i);
@@ -469,9 +475,17 @@ public class CryptoManagerServiceImpl
       }
     }
     catch (GeneralSecurityException gse) {
-      if (log.isWarnEnabled()) {
-	log.warn("Unable to protect object: " + source.toAddress()
-		 + " -> " + target.toAddress() + " - policy=" + method);
+      if (gse instanceof CertificateException) {
+        if (log.isDebugEnabled()) {
+          log.debug("Unable to protect object: " + source.toAddress()
+                   + " -> " + target.toAddress() + " - policy=" + method);
+        }
+      }
+      else {
+        if (log.isWarnEnabled()) {
+          log.warn("Unable to protect object: " + source.toAddress()
+                   + " -> " + target.toAddress() + " - policy=" + method);
+        }
       }
       throw gse;
     }
@@ -600,20 +614,20 @@ public class CryptoManagerServiceImpl
       if (sender == null) {
 	String msg = "Cannot create session key. Sender certificate not found: "
 	  + source.toAddress();
-	if (log.isWarnEnabled()) {
-	  log.warn(msg);
+	if (log.isDebugEnabled()) {
+	  log.debug(msg);
 	}
 	throw new CertificateException(msg);
       }
       if (receiver == null) {
 	String msg = "Cannot create session key. Receiver certificate not found: "
 	  + target.toAddress();
-	if (log.isWarnEnabled()) {
-	  log.warn(msg);
+	if (log.isDebugEnabled()) {
+	  log.debug(msg);
 	}
 	throw new CertificateException(msg);
       }
-      if (so == null || !so.receiverCert.equals(receiver) || 
+      if (so == null || !so.receiverCert.equals(receiver) ||
           !so.senderCert.equals(sender)) {
 	/*generate the secret key*/
 	int i = policy.symmSpec.indexOf("/");
@@ -1144,17 +1158,29 @@ public class CryptoManagerServiceImpl
       if(goOn) {
 	return null;
       }
-      if (log.isWarnEnabled()) {
-        log.warn("put OutputStream NOK: " + source.toAddress()
-		 + " -> " + target.toAddress()
-		 + gse);
+      // if cannot find certificate, only put debug message
+      // this happens frequently before certificate is obtained
+      // at system startup time
+      if (gse instanceof CertificateException) {
+        if (log.isDebugEnabled()) {
+          log.debug("put OutputStream NOK: " + source.toAddress()
+                   + " -> " + target.toAddress()
+                   + gse);
+        }
+      }
+      else {
+        if (log.isWarnEnabled()) {
+          log.warn("put OutputStream NOK: " + source.toAddress()
+                   + " -> " + target.toAddress()
+                   + gse);
+        }
       }
       throw gse;
     }
   }//getProtection
 
   private class SessionKeySet {
-    public SessionKeySet(SealedObject snd, SealedObject rcv, SecretKey sk, 
+    public SessionKeySet(SealedObject snd, SealedObject rcv, SecretKey sk,
 			 SealedObject eskReceiver, SealedObject eskSender,
                          X509Certificate sndCert, X509Certificate rcvCert) {
       sender = snd;
