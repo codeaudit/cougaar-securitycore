@@ -64,7 +64,9 @@ public class LegitimateBlackboardModifyPlugin extends AbstractBlackboardPlugin {
    */
   public void execute() {
     super.execute();
-    checkModOrgActivities();
+    if(!this.wasAwakened()){
+    	checkModOrgActivities();
+    }
   }
 
 
@@ -88,7 +90,7 @@ public class LegitimateBlackboardModifyPlugin extends AbstractBlackboardPlugin {
       getBlackboardService().publishChange(orgAct);
       this.modUID = orgAct.getUID();
       this.totalRuns++;
-      this.successes++;
+      
     } else {
       this.modUID = null;
     }
@@ -110,10 +112,17 @@ public class LegitimateBlackboardModifyPlugin extends AbstractBlackboardPlugin {
       }
 
       if (changed == false) {
+      	if(logging.isDebugEnabled()){
+      		logging.debug("Did not get changed activity");
+      	}
         this.createIDMEFEvent(pluginName,
           "Could not change OrgActivity on blackboard");
-        this.successes--;
         this.failures++;
+      }else{
+      	if(logging.isDebugEnabled()){
+      		logging.debug("Got changed activity");
+      	}
+      	this.successes++;
       }
     }
   }

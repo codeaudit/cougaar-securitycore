@@ -76,7 +76,9 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
    */
   public void execute() {
     super.execute();
-    checkForAddedOrgActivitySubs();
+    if(!this.wasAwakened()){
+    	checkForAddedOrgActivitySubs();
+    }
   }
 
 
@@ -96,18 +98,21 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
         }
       }
 
-      if (found) {
-        if (logging.isDebugEnabled()) {
-          logging.debug("Found added org activity");
-        }
-
-        //failure
-        this.failures++;
-        //create IDMEF Event
-        this.createIDMEFEvent(pluginName, "Was able to add OrgActivity object");
-      } else {
-        this.successes++;
-      }
+       if (found) {
+         if (logging.isDebugEnabled()) {
+           logging.debug("Found added org activity");
+         }
+         //failure
+         this.failures++;
+         //create IDMEF Event
+         this.createIDMEFEvent(pluginName, "Was able to add OrgActivity object");
+         } else {
+         	if(logging.isDebugEnabled()){
+         		logging.debug("did not find it");
+         	}
+           this.successes++;
+         }
+      
     }
   }
 

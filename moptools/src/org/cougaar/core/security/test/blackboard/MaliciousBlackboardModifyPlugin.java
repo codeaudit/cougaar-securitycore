@@ -46,7 +46,6 @@ import java.util.Iterator;
 public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
   private static final String ACTIVITY_NAME = "MaliciousBlackboardModifyPlugin";
   private IncrementalSubscription orgSubs = null;
-  
   private UID modId = null;
 
   /**
@@ -72,24 +71,33 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
    */
   public void execute() {
     super.execute();
-    checkModified();
+    if (!this.wasAwakened()) {
+      checkModified();
+    }
   }
 
 
   private void checkModified() {
     if (modId != null) {
       Enumeration enumeration = orgSubs.getChangedList();
+      boolean found = false;
       while (enumeration.hasMoreElements()) {
         OrgActivity orgActivity = (OrgActivity) enumeration.nextElement();
         if (orgActivity.getUID().equals(modId)) {
-          this.successes--;
-          this.failures++;
-          if (logging.isDebugEnabled()) {
-            logging.debug("Was able to modify OrgActivity Object!");
-          }
-
-          this.createIDMEFEvent(pluginName, "Able to modify OrgActivity on the Blackboard!");
+          found = true;
+          break;
         }
+      }
+
+      if (found) {
+        this.failures++;
+        if (logging.isDebugEnabled()) {
+          logging.debug("Was able to modify OrgActivity Object!");
+        }
+
+        this.createIDMEFEvent(pluginName, "Able to modify OrgActivity on the Blackboard!");
+      } else {
+        this.successes++;
       }
     }
   }
@@ -107,7 +115,7 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
       getBlackboardService().publishChange(orgActivity);
       this.modId = orgActivity.getUID();
       this.totalRuns++;
-      this.successes++;
+
     } else {
       this.modId = null;
 

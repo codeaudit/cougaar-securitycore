@@ -72,7 +72,9 @@ public class LegitimateBlackboardDeletePlugin extends AbstractBlackboardPlugin {
    */
   public void execute() {
     super.execute();
-    checkDeletedActivities();
+    if (!this.wasAwakened()) {
+      checkDeletedActivities();
+    }
   }
 
 
@@ -92,8 +94,9 @@ public class LegitimateBlackboardDeletePlugin extends AbstractBlackboardPlugin {
 
       if (foundIt == false) {
         this.failures++;
-        this.successes--;
         this.createIDMEFEvent(pluginName, "Did not delete org activity");
+      } else {
+        this.successes++;
       }
     }
   }
@@ -110,7 +113,6 @@ public class LegitimateBlackboardDeletePlugin extends AbstractBlackboardPlugin {
       this.deleteUID = act.getUID();
       getBlackboardService().publishRemove(act);
       this.totalRuns++;
-      this.successes++;
     } else {
       this.deleteUID = null;
     }

@@ -33,10 +33,17 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.Analyzer;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.DetectTime;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 import org.cougaar.core.adaptivity.OperatingMode;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -54,20 +61,13 @@ import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.PrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.util.DynamicUnaryPredicate;
 import org.cougaar.util.UnaryPredicate;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Serializable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Analyzer;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.DetectTime;
 
 
 /**
@@ -515,7 +515,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
       getBlackboardService().publishAdd(event);
     } catch (Exception e) {
       if (logging.isErrorEnabled()) {
-        //logging.error("Error creating IDMEF Event", e);
+        logging.error("Error creating IDMEF Event", e);
       }
     }
   }

@@ -273,7 +273,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     Iterator iter = parameters.iterator();
 
     dumpDir = System.getProperty("org.cougaar.workspace") + File.separator
-      + "security" + File.separator + "mopresults";
+      + "security" + File.separator + "blackboardresults";
 
     while (iter.hasNext()) {
       try {
@@ -554,7 +554,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
       getBlackboardService().openTransaction();
       getBlackboardService().signalClientActivity();
-      getBlackboardService().closeTransaction();
+      getBlackboardService().closeTransactionDontReset();
     }
   }
 }

@@ -28,12 +28,12 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import java.util.Enumeration;
-
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.util.UID;
 import org.cougaar.glm.ldm.oplan.OplanFactory;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
+
+import java.util.Enumeration;
 
 
 /**
@@ -43,73 +43,93 @@ import org.cougaar.glm.ldm.oplan.OrgActivity;
  * @author ttschampel
  */
 public class LegitimateBlackboardAddPlugin extends AbstractBlackboardPlugin {
-  /** Activity UID for tracking purposes */
-  private UID actUID = null;
-  /** Subscription to org activities */
-  private IncrementalSubscription orgSubs = null;
+  private static final String LEGITIMATE_ADD_ACTIVITY_NAME_ADD_ACTIVITY_NAME = "ADDED BY LEGIT BLACKBOARD ADD PLUGIN";
 
-  /**
-   * Load component
-   */
-  public void load() {
-    super.load();
-    this.setPluginName("LegitimateBlackboardAddPlugin");
-  }
+		//subscription to org activitys
+		private IncrementalSubscription orgActivitySubs = null;
+		private UID addUID = null;
 
-
-  /**
-   * Setup subscription
-   */
-  public void setupSubscriptions() {
-    super.setupSubscriptions();
-    orgSubs = (IncrementalSubscription) getBlackboardService().subscribe(orgActivityPredicate);
-  }
+		/**
+		 *
+		 */
+		public void load() {
+			super.load();
+			setPluginName("LegitimateBlackboardAddPlugin");
+		}
 
 
-  /**
-   * Process subscriptions
-   */
-  public void execute() {
-    super.execute();
-    checkAddedActivity();
+		/**
+		 * set up subscription to the org activities
+		 */
+		public void setupSubscriptions() {
+			super.setupSubscriptions();
+			//add subscription to org activities
+			orgActivitySubs = (IncrementalSubscription) getBlackboardService().subscribe(this.orgActivityPredicate);
 
-  }
-
-
-  /**
-   * Check that org activity was added
-   */
-  private void checkAddedActivity() {
-    Enumeration enumeration = orgSubs.getAddedList();
-    if (actUID != null) {
-      boolean added = false;
-
-      while (enumeration.hasMoreElements()) {
-        OrgActivity orgAct = (OrgActivity) enumeration.nextElement();
-        if (orgAct.equals(actUID)) {
-          added = true;
-        }
-      }
-
-      if (added == false) {
-      	this.failures++;
-      	this.successes--;
-      	this.createIDMEFEvent(pluginName,"Could not add OrgActivity to blackboard");
-      }
-    }
-  }
+		}
 
 
-  /**
-   * Add Org Activity
-   */
-  protected void queryBlackboard() {
-	OrgActivity orgActivity = OplanFactory.newOrgActivity(pluginName,uidService.nextUID());
-	orgActivity.setUID(uidService.nextUID());
-    this.actUID = orgActivity.getUID();
-    getBlackboardService().publishAdd(orgActivity);
-    this.successes++;
-    this.totalRuns++;
+		/**
+		 * checks for newly added org activities using the
+		 * checkForAddedOrgActivitySubs()
+		 */
+		public void execute() {
+			super.execute();
+			if(!this.wasAwakened()){
+				checkForAddedOrgActivitySubs();
+			}
+		}
 
-  }
+
+		private void checkForAddedOrgActivitySubs() {
+			if (addUID != null) {
+				Enumeration enumeration = this.orgActivitySubs.getAddedList();
+				if (logging.isDebugEnabled()) {
+					logging.debug("Check for Added Org Activity....");
+				}
+
+				boolean found = false;
+				while (enumeration.hasMoreElements()) {
+					OrgActivity orgActivity = (OrgActivity) enumeration.nextElement();
+					if (orgActivity.getUID().equals(addUID)) {
+						found = true;
+						break;
+					}
+				}
+
+				if (found) {
+					if (logging.isDebugEnabled()) {
+						logging.debug("Found added org activity");
+					}
+
+					this.successes++;
+				} else {
+					if (logging.isDebugEnabled()) {
+						logging.debug("Did not find added org activity");
+					}
+
+					//failure
+					this.failures++;
+					//create IDMEF Event
+					this.createIDMEFEvent(pluginName, "Was able to add OrgActivity object");
+
+
+				}
+				
+			}
+		}
+
+
+		/**
+		 * Try to add a OrgActivity Object to the blackboard
+		 */
+		protected void queryBlackboard() {
+			//automatically increment success
+			OrgActivity orgActivity = OplanFactory.newOrgActivity(pluginName, uidService.nextUID());
+			orgActivity.setActivityName(LEGITIMATE_ADD_ACTIVITY_NAME_ADD_ACTIVITY_NAME);
+			orgActivity.setUID(uidService.nextUID());
+			getBlackboardService().publishAdd(orgActivity);
+			this.addUID = orgActivity.getUID();
+			this.totalRuns++;
+		}
 }

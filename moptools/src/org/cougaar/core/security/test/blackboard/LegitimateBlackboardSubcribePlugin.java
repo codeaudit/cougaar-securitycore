@@ -54,7 +54,7 @@ public class LegitimateBlackboardSubcribePlugin extends AbstractBlackboardPlugin
    */
   public void load() {
     super.load();
-    this.setPluginName("MaliciousBlackboardModifyPlugin");
+    this.setPluginName("LegitimateBlackboardSubcribePlugin");
   }
 
 
@@ -72,7 +72,9 @@ public class LegitimateBlackboardSubcribePlugin extends AbstractBlackboardPlugin
    */
   public void execute() {
     super.execute();
-    checkModified();
+    if(!this.wasAwakened()){
+    	checkModified();
+    }
   }
 
 
