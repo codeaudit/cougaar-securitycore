@@ -153,7 +153,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
             @summary = "There were #{@numAccessAttempts} servlet access attempts, #{@numAccessesCorrect} were correct."
           end
           #puts "summary of result : #{@summary}"
-          sucess = false 
+          success = false 
           @summary <<"<BR> Score :#{@score}</BR>\n" 
           @summary << "#{@info}"
           if (@score == 100.0)
