@@ -242,7 +242,10 @@ public class DataProtectionServiceImpl
           }
           X500Name pmx500name = new X500Name(pmp[i].pmDN);
           String commonName = pmx500name.getCommonName();
-          List certList = keyRing.findCert(commonName);
+          // find cert with common name does not return the certs from
+          // peer, it only returns all the cert locally
+          List certList = keyRing.findCert(pmx500name, 
+           KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP, true);
           if (certList == null || certList.size() == 0) {
             if (log.isWarnEnabled()) {
               log.warn("PersistenceManager cert not found: " + pmx500name);
