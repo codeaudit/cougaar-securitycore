@@ -32,7 +32,7 @@ public class RevokeCertificateServlet extends  HttpServlet
                 out.println("Error in getting the certificate hash");
         }
         //ldapentry=ldapcert.getCertificate(hash);
-        keymanage=new KeyManagment(ldapentry.getCertificate().getIssuerDN().getName());
+        keymanage=new KeyManagement(ldapentry.getCertificate().getIssuerDN().getName());
        boolean status= keymanage.revokeCertificate(ldapentry.getCertificate());
        if(status)
         {
@@ -78,7 +78,7 @@ public class RevokeCertificateServlet extends  HttpServlet
 
 
        }
-       ldapentry=ldapcert.getCertificate(hash);
+       //ldapentry=ldapcert.getCertificate(hash);
        if(ldapentry==null)
        {
            out.println("error in retrieving certificate from LDAP ");
