@@ -28,17 +28,17 @@
 package org.cougaar.core.security.cm;
 
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.cm.message.VerifyAgentAddRequest;
 import org.cougaar.core.security.cm.message.VerifyResponse;
-import org.cougaar.core.security.cm.relay.SharedDataRelay;
+import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 
 
 /**
@@ -46,7 +46,7 @@ import java.util.Iterator;
  * configuration is on the blackboard
  *
  * @author ttschampel
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class ConfigurationManagerMessagePlugin extends ComponentPlugin {
   private static final String PLUGIN_NAME = "ConfigurationManagerMessagePlugin";

@@ -32,7 +32,7 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.cm.CMMessage;
 import org.cougaar.core.security.cm.CMMessage.CMRequest;
-import org.cougaar.core.security.cm.relay.SharedDataRelay;
+import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
@@ -45,7 +45,7 @@ import org.cougaar.core.util.UID;
  * cm agent :     <b>(org.cougaar.core.security.cm.location)</b>
  *
  * @author ttschampel
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class CMServiceImpl implements CMService {
   /** Logging Service */

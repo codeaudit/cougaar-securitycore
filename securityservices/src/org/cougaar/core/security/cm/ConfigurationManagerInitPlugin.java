@@ -29,14 +29,14 @@
 package org.cougaar.core.security.cm;
 
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 
 
 /**

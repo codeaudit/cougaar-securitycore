@@ -28,10 +28,22 @@
 package org.cougaar.core.security.certauthority.servlet;
 
 
-import sun.misc.BASE64Decoder;
-
-import sun.security.pkcs.PKCS10;
-import sun.security.x509.X500Name;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignedObject;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -45,7 +57,6 @@ import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.cm.CMMessage;
 import org.cougaar.core.security.cm.message.VerifyAgentAddRequest;
 import org.cougaar.core.security.cm.message.VerifyResponse;
-import org.cougaar.core.security.cm.relay.SharedDataRelay;
 import org.cougaar.core.security.cm.service.CMService;
 import org.cougaar.core.security.cm.service.CMServiceProvider;
 import org.cougaar.core.security.crypto.CertificateCache;
@@ -53,40 +64,21 @@ import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
 import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.SignedObject;
-import java.security.cert.X509Certificate;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import sun.misc.BASE64Decoder;
+import sun.security.pkcs.PKCS10;
+import sun.security.x509.X500Name;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  */
 public class CertificateSigningRequest extends HttpServlet implements BlackboardClient {
   private CertificateManagementService signer;

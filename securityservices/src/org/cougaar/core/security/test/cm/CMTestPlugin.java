@@ -28,18 +28,18 @@
 package org.cougaar.core.security.test.cm;
 
 
+import java.util.Enumeration;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.cm.message.VerifyAgentAddRequest;
 import org.cougaar.core.security.cm.message.VerifyResponse;
-import org.cougaar.core.security.cm.relay.SharedDataRelay;
 import org.cougaar.core.security.cm.service.CMService;
 import org.cougaar.core.security.cm.service.CMServiceProvider;
+import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Enumeration;
 
 
 /**
