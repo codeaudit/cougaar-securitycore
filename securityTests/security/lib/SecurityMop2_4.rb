@@ -28,6 +28,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     @name = "2.4"
     #@performdone = false
     @performDone = false
+    @crlUpdated = false;
     @descript = "Percentage of user actions that were available for invocation counter to authorization policy"
   end
 
@@ -208,7 +209,6 @@ class  SecurityMop2_4 < AbstractSecurityMop
            NotALogistician OtherCert
            ConusPolicyAdmin
            ConusPolicyUser FwdPolicyUser R)
-            
             logInfoMsg "Creating users for the security MOP." if $VerboseDebugging
             @conusDomain.recreateUsers(conusUsers)
           else 
@@ -242,12 +242,12 @@ class  SecurityMop2_4 < AbstractSecurityMop
           logInfoMsg " conusDomain  #{@conusDomain.agent.caDomains[0].to_s} user #{user}" if $VerboseDebugging
           File.rename("pems/#{user}_cert.pem", 'pems/RL_cert.orig.pem')
           File.rename("pems/#{user}_key.pem", 'pems/RL_key.orig.pem')
-          
+          #puts "Calling lookForCRLUpdate  "
+          lookForCRLUpdate(getOSDGOVAgent.node,"newCRL")
           revokeCertBeforeTest getOSDGOVAgent.caDomains[0],'RevokedLogistician'
           revokeCertBeforeTest @conusDomain.agent.caDomains[0],'RecreatedLogistician'
           #@conusDomain.agent.caDomains[0].revokeUserCert('RecreatedLogistician')
-          
-          
+                    
           logInfoMsg " conus domain caDomains #{@conusDomain.agent.caDomains[0].to_s}" if $VerboseDebugging
           @conusDomain.deleteUser('RecreatedLogistician')
           logInfoMsg " conus domain deleteUse RecreatedLogistician" if $VerboseDebugging
@@ -284,6 +284,18 @@ class  SecurityMop2_4 < AbstractSecurityMop
     }
   end # setup
 
+  def lookForCRLUpdate(node,pattern) 
+    run.comms.on_cougaar_event do |event|
+      checkCrlUpdateEvent(event,node,pattern )
+    end
+  end
+
+  def checkCrlUpdateEvent(event,node,pattern)
+    if ((event.component == 'CRLCache') && (event.node == node.name) &&  (event.data.include? pattern) &&  (@crlUpdated == false) )
+      #puts "GOT CRL update for Node----> #{node.name}"
+      @crlUpdated = true
+    end
+  end
   
   def captureIdmefs
     @found = false
@@ -314,14 +326,29 @@ class  SecurityMop2_4 < AbstractSecurityMop
   def perform
     Thread.fork {
       begin
+        #puts "Starting Perform thread SecurityMop 2.4"
         saveAssertion("SecurityMop2.4","in Perfom calling ensureDomains")
         ensureDomains
         logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP " if $VerboseDebugging
         #revokeCertBeforeTest
         #puts "sleeping for 3 minutes"
-        sleep 3.minutes
-        saveAssertion("SecurityMop2.4","Calling run test ")
-        runTests(@tests)
+        #sleep 3.minutes
+        #saveAssertion("SecurityMop2.4","Calling run test ")
+        maxSleepTime=4.minutes
+        sleepTime = 40.seconds
+        totalWaitTime = 0
+        #puts "Starting to wait for CRL Update" 
+        while @crlUpdated == false && totalWaitTime < maxSleepTime
+          logInfoMsg "Waited #{totalWaitTime} seconds for CRL update"
+          sleep(sleepTime) # sleep
+          totalWaitTime += sleepTime 
+        end
+        if ((totalWaitTime >= maxSleepTime) && (@crlUpdated == false) )
+          saveResult(false, "SecurityMop 2.4", "Timeout Didn't receive CRL Update")
+        elsif @crlUpdated == true
+          saveAssertion("SecurityMop2.4","Calling run Tests after CRL Update ")
+          runTests(@tests)
+        end
         runServletPolicyTests
         logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
         setPerformDone
@@ -515,7 +542,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
         end
       end # testSet.each
     end # tests.each
-    logInfoMsg "done with runTests"
+    logInfoMsg "done with runTests" if $VerboseDebugging
     #logInfoMsg "action----------------------------->   #{@actions}"
     #logInfoMsg "policies----------------------------->   #{@policies}"
     #logInfoMsg "logins----------------------------->   #{@logins}"
@@ -567,7 +594,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
         end
         conusUser = "ConusPolicyUser"
         rearUser  = "RearPolicyUser"
-        logInfoMsg "calling test on conus user "
+        logInfoMsg "calling test on conus user " if $VerboseDebugging
         testCollection = {}
         [[@conusDomain, conusAgent, conusUser, rearUser]].each do |x|
           domain = x.shift
