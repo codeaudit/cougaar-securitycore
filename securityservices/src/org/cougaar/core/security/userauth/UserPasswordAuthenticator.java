@@ -31,6 +31,7 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 import java.net.*;
+import java.util.WeakHashMap;
 
 public final class UserPasswordAuthenticator extends Authenticator
   implements AuthenticationListener {
@@ -56,9 +57,7 @@ public final class UserPasswordAuthenticator extends Authenticator
    * return this for any criteria
    */
   public void setPasswordAuthentication(PasswordAuthentication pa) {
-    synchronized (obj) {
-      _pa = pa;
-    }
+    _pa = pa;
   }
 
   /**
@@ -79,36 +78,48 @@ public final class UserPasswordAuthenticator extends Authenticator
   }
   */
 
-  private Object obj = new Object();
-  private Thread curThread = null;
+  /**
+   * The tidList contains a list of threads which have already tried using
+   * the cached password. The problem is that the getPasswordAuthentication
+   * function is not called simultaneously by the different threads so it
+   * difficult to tell the difference between "bad password" or "no password"
+   * response. Thus, this hack. Fortunately, I think we can count on Java
+   * reusing a thread for a second try at accessing a URL and thus this hack
+   * should be stable.
+   *
+   * Using a WeakHashMap because I don't want to keep around references to dead
+   * threads. Since there is no WeakHashSet, I'll just use a dummy value for the
+   * value.
+   */
+  private WeakHashMap tidList = new WeakHashMap();
+  private static final String DUMMY_VALUE = "DUMMY";
+
   public PasswordAuthentication getPasswordAuthentication() {
-    System.out.println("getPassword");
-    PasswordAuthentication tempPwd;
-    synchronized (obj) {
-      tempPwd = _pa;
-    }
-    synchronized (this) {
-      if (_pa != null && (_pa != tempPwd || curThread != Thread.currentThread())) {
-	 curThread = Thread.currentThread();
-         return _pa;
+    synchronized (tidList) {
+      Thread thread = Thread.currentThread();
+      if (_pa != null && (tidList.containsKey(thread))) {
+	// this thread hasn't tried the cached password, yet
+	tidList.put(thread, DUMMY_VALUE);
+	return _pa; 
       }
-      //if (_pa == null && handler != null && trial < 3) {
       if (handler != null) {
+	// getting a new password, clear the list
+	tidList.clear();
+	tidList.put(thread, DUMMY_VALUE);
         try {
-      /*
-        String url = "protocol: " + getRequestingProtocol() +
-          " site: " + getRequestingSite() +
-          " host: " + getRequestingHost() +
-          " port: " + getRequestingPort() +
-          " prompt: " + getRequestingPrompt() +
-          " scheme: " + getRequestingScheme();
+	  /*
+	    String url = "protocol: " + getRequestingProtocol() +
+	    " site: " + getRequestingSite() +
+	    " host: " + getRequestingHost() +
+	    " port: " + getRequestingPort() +
+	    " prompt: " + getRequestingPrompt() +
+	    " scheme: " + getRequestingScheme();
           */
           String url = getRequestingProtocol() + "://" + getRequestingHost()
             + ":" + getRequestingPort() + "/";
 
           handler.setRequestingURL(url);
           handler.authenticateUser(handler.getUserName());
-	  curThread = Thread.currentThread();
         } catch (Exception ex) {
           ex.printStackTrace();
         }
