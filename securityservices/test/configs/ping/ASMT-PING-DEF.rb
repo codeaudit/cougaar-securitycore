@@ -31,6 +31,7 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/build_config_jarfiles.rb
   - script: $CIP/csmart/lib/security/scripts/setup_acme_user.rb
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
+  - script: $CIP/csmart/lib/security/scripts/stress_security_uc5.rb
 #  - script: setup_robustness.rb
 #  - script: network_shaping.rb
 #  - script: cnccalc_include.rb
