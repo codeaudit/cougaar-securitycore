@@ -24,6 +24,8 @@ package org.cougaar.core.security.policy.enforcers.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -76,20 +78,19 @@ public class StringPairMapping {
     _log.debug(".loadPairs Initilizing String Pair mapping using " + filename);
 
     List mapping = new Vector();
-    File mappingFile = _cf.locateFile(filename);
     File policyFile = null;
     String line;
 
-    if (mappingFile == null) {
+    InputStream mappingIs = _cf.open(filename);
+
+    if (mappingIs == null) {
       if (_log.isErrorEnabled()) {
          _log.error("Cannot find String Pair mapping file:" + filename);
       }
       return new Vector();
     }
-    _log.debug(".loadPairs: Reading daml policies file "
-              + mappingFile);
     BufferedReader damlReader 
-      = new BufferedReader(new FileReader(mappingFile));
+      = new BufferedReader(new InputStreamReader(mappingIs));
     while ((line = damlReader.readLine()) != null) {
       if (line.startsWith("#")) { continue; }
 
@@ -108,7 +109,7 @@ public class StringPairMapping {
     }
     damlReader.close();
     _log.debug(".loadPairs: Finished Reading daml policies file " 
-              + mappingFile);
+              + filename);
     return mapping;
   }
 
