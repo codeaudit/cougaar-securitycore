@@ -3,7 +3,7 @@
 
 
 plugin = "org.cougaar.core.security.test.blackboard.LegitimateBlackboardPlugin"
-subscribeplugin = "org.cougaar.core.security.test.blackboard.LegitimateBlackboardSubcribePlugin"
+subscribeplugin = "org.cougaar.core.security.test.blackboard.LegitimateBlackboardSubscribePlugin"
 
 servlet="org.cougaar.core.security.test.blackboard.BlackboardTestManagerServlet"
 analyzer="org.cougaar.core.security.test.blackboard.AnalyzerServlet"
