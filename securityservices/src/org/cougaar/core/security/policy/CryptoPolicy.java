@@ -26,8 +26,58 @@
 
 package org.cougaar.core.security.policy;
 
-public class CryptoPolicy extends TypedPolicy {
-  public CryptoPolicy() {
-    super("org.cougaar.core.security.policy.CryptoPolicy");
+public class CryptoPolicy extends SecurityPolicy {
+  private String InSecureMethod;
+  private String InSymmSpec;
+  private String InAsymmSpec;
+  private String InSignSpec;
+  private String OutSecureMethod;
+  private String OutSymmSpec;
+  private String OutAsymmSpec;
+  private String OutSignSpec;
+
+  public String getInSecureMethod() {  return InSecureMethod;   }
+  public String getInSymmSpec() {      return InSymmSpec;    }
+  public String getInAsymmSpec() {      return InAsymmSpec;    }
+  public String getInSignSpec() {      return InSignSpec;    }
+  public String getOutSecureMethod() {   return OutSecureMethod;    }
+  public String getOutSymmSpec() {      return OutSymmSpec;    }
+  public String getOutAsymmSpec() {      return OutAsymmSpec;    }
+  public String getOutSignSpec() {      return OutSignSpec;    }
+
+  public void setInSecureMethod(String ism){
+    this.InSecureMethod = ism;   
+  }
+  public void setInAsymmSpec(String ias){
+    this.InAsymmSpec = ias;   
+  }
+  public void setInSymmSpec(String iss){
+    this.InSymmSpec = iss;   
+  }
+  public void setInSignSpec(String is){
+    this.InSignSpec = is;   
+  }
+  public void setOutSecureMethod(String osm){
+    this.OutSecureMethod = osm;   
+  }
+  public void setOutAsymmSpec(String oas){
+    this.OutAsymmSpec = oas;   
+  }
+  public void setOutSymmSpec(String oss){
+    this.OutSymmSpec = oss;   
+  }
+  public void setOutSignSpec(String os){
+    this.OutSignSpec = os;   
+  }
+
+  public String toString() {
+    return " InSecureMethod:" + InSecureMethod +
+      " \nInAsymmSpec:" + InAsymmSpec +
+      " \nInSymmSpec:" + InSymmSpec +
+      " \nInSignSpec:" + InSignSpec +
+      " \nOutSecureMethod:" + OutSecureMethod +
+      " \nOutAsymmSpec:" + OutAsymmSpec +
+      " \nOutSymmSpec:" + OutSymmSpec +
+      " \nOutSignSpec:" + OutSignSpec;
   }
 }
