@@ -70,6 +70,11 @@ public class SSLServerSocketWrapper extends SSLServerSocket {
     _socket.setWantClientAuth(want);
   }
 
+  public Socket accept()
+    throws IOException {
+    return _socket.accept();
+  }
+
   public void bind(SocketAddress bindpoint)
     throws IOException{
     _socket.bind(bindpoint);
@@ -80,6 +85,15 @@ public class SSLServerSocketWrapper extends SSLServerSocket {
     _socket.bind(bindpoint, backlog);
   }
 
+  public void close()
+    throws IOException{
+    _socket.close();
+  }
+
+  public ServerSocketChannel getChannel() {
+    return _socket.getChannel();
+  }
+    
   public InetAddress getInetAddress() {
     return _socket.getInetAddress() ;
   }
@@ -92,34 +106,9 @@ public class SSLServerSocketWrapper extends SSLServerSocket {
     return _socket.getLocalSocketAddress();
   }
 
-  public Socket accept()
-    throws IOException {
-    return _socket.accept();
-  }
-
-  public void setSoTimeout(int timeout)
-    throws SocketException{
-    _socket.setSoTimeout(timeout);
-  }
-
-  public int getSoTimeout()
-    throws SocketException, IOException {
-    return _socket.getSoTimeout();
-  }
-
-  public void setReceiveBufferSize(int size)
-    throws SocketException{
-    _socket.setReceiveBufferSize(size);
-  }
-
   public int getReceiveBufferSize()
     throws SocketException{
     return _socket.getReceiveBufferSize();
-  }
-
-  public void setReuseAddress(boolean on)
-    throws SocketException{
-    _socket.setReuseAddress(on);
   }
 
   public boolean getReuseAddress()
@@ -127,17 +116,9 @@ public class SSLServerSocketWrapper extends SSLServerSocket {
     return _socket.getReuseAddress();
   }
 
-  public void close()
-    throws IOException{
-    _socket.close();
-  }
-
-  public ServerSocketChannel getChannel() {
-    return _socket.getChannel();
-  }
-    
-  public String toString(){
-    return _socket.toString();
+  public int getSoTimeout()
+    throws SocketException, IOException {
+    return _socket.getSoTimeout();
   }
 
   public boolean isBound(){
@@ -146,6 +127,29 @@ public class SSLServerSocketWrapper extends SSLServerSocket {
 
   public boolean isClosed(){
     return _socket.isClosed();
+  }
+
+  public void setReceiveBufferSize(int size)
+    throws SocketException{
+    _socket.setReceiveBufferSize(size);
+  }
+
+  public void setReuseAddress(boolean on)
+    throws SocketException{
+    _socket.setReuseAddress(on);
+  }
+
+  public void setSoTimeout(int timeout)
+    throws SocketException{
+    _socket.setSoTimeout(timeout);
+  }
+
+  public String toString(){
+    return _socket.toString();
+  }
+
+  public int hashCode() {
+    return _socket.hashCode();
   }
 }
 
