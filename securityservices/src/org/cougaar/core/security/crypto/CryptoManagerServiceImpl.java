@@ -28,6 +28,7 @@ import java.security.*;
 import java.util.*;
 import java.security.cert.*;
 import javax.crypto.*;
+import sun.security.x509.*;
 
 // Cougaar core infrastructure
 import org.cougaar.core.component.ServiceRevokedListener;
@@ -79,7 +80,13 @@ public class CryptoManagerServiceImpl
     List pkList = (List)
     AccessController.doPrivileged(new PrivilegedAction() {
 	    public Object run(){
-	      return keyRing.findPrivateKey(name);
+	      List nameList = keyRing.findDNFromNS(name);
+              List keyList = new ArrayList();
+              for (int i = 0; i < nameList.size(); i++) {
+                X500Name dname = (X500Name)nameList.get(i);
+                keyList.addAll(keyRing.findPrivateKey(dname));
+              }
+              return keyList;
 	    }
 	  });
     if (pkList == null || pkList.size() == 0) {
@@ -155,37 +162,52 @@ public class CryptoManagerServiceImpl
 					 + " key is null. Unable to verify signature");
     }
 
+    // need to find all certs with the name signed by multiple CAs
+    List nameList = keyRing.findDNFromNS(name);
+
     int lookupFlags[] = { KeyRingService.LOOKUP_KEYSTORE | 
                           KeyRingService.LOOKUP_LDAP,
                           KeyRingService.LOOKUP_KEYSTORE | 
                           KeyRingService.LOOKUP_LDAP | 
                           KeyRingService.LOOKUP_FORCE_LDAP_REFRESH };
 
-    List certList = null;
-    for (int i = 0; i < lookupFlags.length; i++) {
-       
-      certList = keyRing.findCert(name, lookupFlags[i], !expiredOk);
-      
-      if (certList == null) {
-        log.info("certList is null: " + lookupFlags[i]);
-      } else {
-        log.info("certList size is " + certList.size() + ": " + lookupFlags[i]);
-      } // end of else
-      
-      
-    if (certList == null || certList.size() == 0) {
-      if (i < lookupFlags.length - 1) {
-        continue;
-      } // end of if (i < lookupFlags.length -1)
+    for (int i = 0; i < nameList.size(); i++) {
+      X500Name dname = (X500Name)nameList.get(i);
 
-      if (log.isWarnEnabled()) {
-        log.warn("Unable to verify object. Certificate of " + name
-                 + " does not exist.");
+      for (int j = 0; j < lookupFlags.length; j++) {
+        List certList = keyRing.findCert(dname, lookupFlags[j], !expiredOk);
+        if (certList == null || certList.size() == 0) {
+          if (j < lookupFlags.length - 1) {
+            continue;
+          } // end of if (j < lookupFlags.length -1)
+
+          if (log.isWarnEnabled()) {
+            log.warn("Unable to verify object. Certificate of " + dname
+                   + " does not exist.");
+          }
+          throw new NoValidKeyException("Unable to get certificate of "
+                                      + dname);
+        }
+
+        Object o = verify(certList, obj, expiredOk, signatureIssues);
+        if (o != null)
+	  return o;
       }
-      throw new NoValidKeyException("Unable to get certificate of "
-                                    + name);
-        
+
     }
+    // No suitable certificate was found.
+    if (log.isWarnEnabled()) {
+      log.warn("Signature verification failed. Agent=" + name);
+	//+ " - Tried with " + certList.size() + " certificates");
+      for (int i = 0 ; i < signatureIssues.size() ; i++) {
+	log.warn((String) signatureIssues.get(i));
+      }
+    }
+    return null;
+  }
+
+  private Object verify(List certList, SignedObject obj, boolean expiredOk, ArrayList signatureIssues) 
+    throws CertificateException {
     Iterator it = certList.iterator();
 
     while (it.hasNext()) {
@@ -211,7 +233,7 @@ public class CryptoManagerServiceImpl
 	PublicKey pk = c.getPublicKey();
 	Signature ve;
 	//if(spec==null||spec=="")spec=pk.getAlgorithm();
-	spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
+	String spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
 	if (spec == null) {
 	  log.warn("Unable to retrieve Algorithm specification from key");
 	  signatureIssues.add("Unable to retrieve Algorithm specification from key. Certificate:"
@@ -238,16 +260,7 @@ public class CryptoManagerServiceImpl
 	continue;
       }
     }
-    } // end of for (int i = 0; i < lookupFlags.length; i++)
     
-    // No suitable certificate was found.
-    if (log.isWarnEnabled()) {
-      log.warn("Signature verification failed. Agent=" + name
-	+ " - Tried with " + certList.size() + " certificates");
-      for (int i = 0 ; i < signatureIssues.size() ; i++) {
-	log.warn((String) signatureIssues.get(i));
-      }
-    }
     return null;
   }
 
@@ -285,7 +298,13 @@ public class CryptoManagerServiceImpl
     List keyList = (List)
       AccessController.doPrivileged(new PrivilegedAction() {
 	  public Object run(){
-	    return keyRing.findPrivateKey(name);
+	      List nameList = keyRing.findDNFromNS(name);
+              List keyList = new ArrayList();
+              for (int i = 0; i < nameList.size(); i++) {
+                X500Name dname = (X500Name)nameList.get(i);
+                keyList.addAll(keyRing.findPrivateKey(dname));
+              }
+              return keyList;
 	  }
 	});
     if (keyList == null || keyList.size() == 0) {
@@ -576,8 +595,9 @@ public class CryptoManagerServiceImpl
     synchronized (targets) {
       SessionKeySet so = (SessionKeySet) targets.get(target.toAddress());
       // Find target & receiver certificates
-      X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
-      X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
+      Hashtable certTable = keyRing.findCertPairFromNS(source.toAddress(), target.toAddress());
+      X509Certificate sender = (X509Certificate)certTable.get(source.toAddress());
+      X509Certificate receiver = (X509Certificate)certTable.get(target.toAddress());
       if (so == null || !so.receiverCert.equals(receiver) || 
           !so.senderCert.equals(sender)) {
 	/*generate the secret key*/
@@ -589,6 +609,11 @@ public class CryptoManagerServiceImpl
 	kg.init(random);
 	SecretKey sk = kg.generateKey();
 
+	// Find target & receiver certificates
+        /*
+	X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
+	X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
+        */
 
 	// Encrypt session key
 	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
@@ -741,8 +766,11 @@ public class CryptoManagerServiceImpl
 		       envelope.getEncryptedSymmetricKeySender());
       }
 
-      X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
-      X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
+      //X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
+      //X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
+        Hashtable certTable = keyRing.findCertPairFromNS(source.toAddress(), target.toAddress());
+        X509Certificate sender = (X509Certificate)certTable.get(source.toAddress());
+        X509Certificate receiver = (X509Certificate)certTable.get(target.toAddress());
 
       if (sk != null && sender != null && receiver != null) {
 	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
