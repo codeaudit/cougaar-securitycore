@@ -3,7 +3,7 @@
 # PolicyInitAgentPlugin
 
 
-scPlugin = "org.cougaar.core.security.test.ServiceContractReaderPlugin"
+scPlugin = "org.cougaar.core.security.test.BlackBoardCollectorPlugin"
 
 society.each_agent(true) do |agent|
   agent.add_component do |c|
