@@ -23,11 +23,11 @@
     <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
 
     <!-- Organizational unit -->
-    <ou>CONUS</ou>
+    <ou>TEST-CONUS</ou>
     <!-- Organizational -->
-    <o>DLA</o>
+    <o>TEST-DLA</o>
     <!-- City or Locality -->
-    <l>San Francisco</l>
+    <l>Santa Clara</l>
     <!-- State -->
     <st>CA</st>
     <!-- Country Code -->

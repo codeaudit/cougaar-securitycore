@@ -866,6 +866,9 @@ public class KeyManagement
 						 "IBMJCE");
       kc.generate(512);
       testRSAencryption(kc.getPublicKey(), spec);
+      if (debug) {
+	System.out.println("===================================");
+      }
     } catch (Exception e) {
       System.out.println("Exception: " + e);
       e.printStackTrace();      
