@@ -37,15 +37,6 @@ import org.cougaar.core.security.monitoring.idmef.*;
 
 
 public class DummySensor extends  ComponentPlugin  implements SensorInfo {
-    private static String OS_TYPE;
-    private static String OS_VERSION;
-    private IDMEF_Node m_node;
-    private IDMEF_Process m_process;
-   
-    static {
-        OS_TYPE = System.getProperty( "os.name" );
-        OS_VERSION = System.getProperty( "os.version" ); 
-    }
      private DomainService domainService = null;
      /**
      * Used by the binding utility through reflection to set my DomainService
@@ -95,18 +86,6 @@ public class DummySensor extends  ComponentPlugin  implements SensorInfo {
         }
         public String getAnalyzerClass(){
             return "<class>";
-        }
-        public String getOSName(){
-            return OS_TYPE;
-        }
-        public String getOSVersion(){
-            return OS_VERSION;
-        }
-        public IDMEF_Node getNode(){
-            return m_node;
-        }
-        public IDMEF_Process getProcess(){
-            return m_process;
         }
         
        
