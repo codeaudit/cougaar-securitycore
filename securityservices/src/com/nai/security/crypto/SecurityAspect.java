@@ -572,26 +572,29 @@ public class SecurityAspect extends StandardAspect
         Directive directive[] =
 
           ((DirectiveMessage)msg).getDirectives();
+	int len = directive.length;
 
-        for(int i = 0; i < directive.length; i++) {
+        for(int i = 0; i < len; i++) {
 
           if(!(directive[i] instanceof Task))
 
             continue;
 
-          if(debug)System.out.println("SecurityAscpect: processing IN task "
-
-                                      + i);
-
           Task task = (Task)directive[i];
 
-          if(matchInVerb(task.getDestination().toString(),
+          if(debug)System.out.println("SecurityAscpect: processing IN task w/Verb: "
+
+                                      + task.getVerb() + " of " + len);
+
+          if(!matchInVerb(task.getDestination().toString(),
 
                          task.getSource().toString(),
 
                          task.getVerb())) {
-            removeDirective((DirectiveMessage)msg, i);
-            if(debug)System.out.println("SecurityAscpect: removing task " + i);
+            if(removeDirective((DirectiveMessage)msg, i)) return;
+	    directive = ((DirectiveMessage)msg).getDirectives();
+	    len = directive.length;
+	    i--;
           }
         }
       }
@@ -602,7 +605,7 @@ public class SecurityAspect extends StandardAspect
       Object[] verbs = acps.getIncomingVerbs(target, source);
 
       if( verbs[0].toString()=="*" ) {
-        if(debug) System.out.println("SecurityAspect: got IN * verb, so blocking "+verb+" for " + target);
+	  if(debug) System.out.println("SecurityAspect: got IN * verb, so passing "+verb+" for " + target);
         return true;
       }
 
@@ -610,19 +613,26 @@ public class SecurityAspect extends StandardAspect
 
 	if(debug)System.out.println("SecurityAspect: no incoming verbs for"
 
-				    + target + ", " + source + ", " + verb);
+				    + target + ", " + source + ", blocking:" + verb);
 
-	return false;		// we have no policy so return true
+	return false;		// we have no policy so return
 
       }
 
       for(int i = 0; i < verbs.length; i++) {
 
-	if(!(verbs[i] instanceof Verb))continue;
+	Verb v = null;
+	try{
+	    v = (Verb)verbs[i];
+	}
+	catch(Exception e){
+	    //probably a cast error, quietly skip
+	}
+	if (v==null) continue;
 
-	if(verb.equals((Verb)verbs[i])) {
+	if(verb.equals(v)) {
 
-	  if(debug)System.out.println("SecurityAspect: matched in verbs "
+	  if(debug)System.out.println("SecurityAspect: matched in verbs, passing: "
 
 				      + verbs[i] + " == " + verb);
 
@@ -631,6 +641,8 @@ public class SecurityAspect extends StandardAspect
 	}
 
       }
+
+      if(debug)System.out.println("SecurityAspect: not matched, so blocking: "+verb);
 
       return false;		// we found no matches so return false
 
@@ -678,7 +690,7 @@ public class SecurityAspect extends StandardAspect
 
 	TrustSet policy;
 
-
+	if (directive==null) return;
 
 	if (set.length < directive.length+1){
 
@@ -784,11 +796,13 @@ public class SecurityAspect extends StandardAspect
 
       String action = null;
 
-      Directive directive[] =
+      Directive directive[] = 
 
 	((DirectiveMessage)msg).getDirectives();
+      
+      int len = directive.length;
 
-      for(int i = 0; i < directive.length; i++) {
+      for(int i = 0; i < len; i++) {
 
 	if(!(directive[i] instanceof Task))
 
@@ -816,9 +830,13 @@ public class SecurityAspect extends StandardAspect
 
 	  continue;
 
-	if(action.equals(AccessControlPolicy.SET_ASIDE))
+	if(action.equals(AccessControlPolicy.SET_ASIDE)){
 
-	  removeDirective((DirectiveMessage)msg, i);
+	  if(removeDirective(msg, i)) return false;
+	  directive = ((DirectiveMessage)msg).getDirectives();
+	  len = directive.length;
+	  i=i--;
+	}
 
       }
 
@@ -864,20 +882,24 @@ public class SecurityAspect extends StandardAspect
 
     }
 
+    
+  }
 
 
-    /** removes the nth directive and trust set from a directive message */
+    /** removes the nth directive from a directive message */
 
-    private void removeDirective(DirectiveMessage msg, int index) {
-
+    private static boolean removeDirective(DirectiveMessage msg, int index) {
       Directive[] oldDirective = msg.getDirectives();
-	if(oldDirective.length == 0) return;
+      //if(oldDirective.length == 0) return;
+      if(oldDirective.length == 1){
+	  msg.setDirectives(new Directive[0]);
+	  if(debug)System.out.println("removing last directive.");
+	  return true;
+      }
 
       Directive[] newDirective = new Directive[oldDirective.length - 1];
 
       int i;
-
-
 
       for(i = 0; i < index; i++) {
 
@@ -885,24 +907,19 @@ public class SecurityAspect extends StandardAspect
 
       }
 
-      for(i = index ; i < oldDirective.length; i++) {
+      for(i = index ; i < newDirective.length; i++) {
 
 	newDirective[i] = oldDirective[i + 1];
 
       }
+      
+      msg.setDirectives(newDirective);
 
-      if(debug)System.out.println("SecurityAspect: removed directive " +
+      if(debug)System.out.println("SecurityAspect: removed IN directive " +
 
 				  index);
-
-
-
-    }
-
-
-
-  }
-
+      return false;
+    }//removeDirective
 
 
   private void init(){
@@ -1199,8 +1216,6 @@ public class SecurityAspect extends StandardAspect
 
 	TrustSet policy;
 
-
-
 	for(int i = 0; i < directive.length; i++) {
 
 	  policy = acps.getOutgoingTrust
@@ -1254,8 +1269,9 @@ public class SecurityAspect extends StandardAspect
         Directive directive[] =
 
           ((DirectiveMessage)msg).getDirectives();
+	int len = directive.length;
 
-        for(int i = 0; i < directive.length; i++) {
+        for(int i = 0; i < len; i++) {
 
           if(!(directive[i] instanceof Task))
 
@@ -1267,13 +1283,15 @@ public class SecurityAspect extends StandardAspect
 
           Task task = (Task)directive[i];
 
-          if(matchOutVerb(task.getDestination().toString(),
+          if(!matchOutVerb(task.getDestination().toString(),
 
                          task.getSource().toString(),
 
                          task.getVerb())) {
-            removeDirective((DirectiveMessage)msg, i);
-            if(debug)System.out.println("SecurityAscpect: removing task " + i);
+            if(removeDirective((DirectiveMessage)msg, i)) return;
+	    directive = ((DirectiveMessage)msg).getDirectives();
+	    len = directive.length;
+	    i--;
           }
         }
       }
@@ -1285,7 +1303,7 @@ public class SecurityAspect extends StandardAspect
       Object[] verbs = acps.getOutgoingVerbs(source, target);
 
       if( verbs[0].toString()=="*" ) {
-        if(debug) System.out.println("SecurityAspect: got OUT * verb, so blocking "+verb+" for " + source);
+	  //if(debug) System.out.println("SecurityAspect: got OUT * verb, so blocking "+verb+" for " + source);
         return true;
       }
 
@@ -1301,9 +1319,16 @@ public class SecurityAspect extends StandardAspect
 
       for(int i = 0; i < verbs.length; i++) {
 
-	if(!(verbs[i] instanceof Verb))continue;
+	Verb v = null;
+	try{
+	    v = (Verb)verbs[i];
+	}
+	catch(Exception e){
+	    //probably a cast error, quietly skip
+	}
+	if (v==null) continue;
 
-	if(verb.equals((Verb)verbs[i])) {
+	if(verb.equals(v)) {
 
 	  if(debug)System.out.println("SecurityAspect: matched out verbs "
 
@@ -1368,8 +1393,9 @@ public class SecurityAspect extends StandardAspect
       Directive directive[] =
 
 	((DirectiveMessage)msg).getDirectives();
+      int len = directive.length;
 
-      for(int i = 0; i < directive.length; i++) {
+      for(int i = 0; i < len; i++) {
 
 	if(!(directive[i] instanceof Task))
 
@@ -1393,9 +1419,14 @@ public class SecurityAspect extends StandardAspect
 
 	  continue;
 
-	if(action.equals(AccessControlPolicy.SET_ASIDE))
+	if(action.equals(AccessControlPolicy.SET_ASIDE)){
 
-	  removeDirective((DirectiveMessage)msg, i);
+	  if(removeDirective((DirectiveMessage)msg, i)) return false;
+	  if(msg == null) return false;
+	  directive = ((DirectiveMessage)msg).getDirectives();
+	  len = directive.length;
+	  i--;
+	}
 
       }
 
@@ -1459,38 +1490,6 @@ public class SecurityAspect extends StandardAspect
 
     }
 
-
-
-    /** removes the nth directive and trust set from a directive message */
-
-    private void removeDirective(DirectiveMessage msg, int index) {
-
-      Directive[] oldDirective = msg.getDirectives();
-	if(oldDirective.length == 0) return;
-
-      Directive[] newDirective = new Directive[oldDirective.length - 1];
-
-      int i;
-
-
-
-      for(i = 0; i < index; i++) {
-
-	newDirective[i] = oldDirective[i];
-
-      }
-
-      for(i = index; i < oldDirective.length; i++) {
-
-	newDirective[i] = oldDirective[i + 1];
-
-      }
-
-      if(debug)System.out.println("SecurityAspect: removed directive " +
-
-				  index);
-
-    }
 
   }
 
