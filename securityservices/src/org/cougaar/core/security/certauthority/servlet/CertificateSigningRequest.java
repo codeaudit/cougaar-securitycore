@@ -204,10 +204,8 @@ public class CertificateSigningRequest
           printstream.println("</html>");
       }
       catch (Exception  exp)  {
+        log.debug("Caught an exception when trying to sign: ", exp);
 	printstream.print("Error ------"+exp.toString());
-	printstream.flush();
-	printstream.close();
-
       }
       finally  {
 	printstream.flush();
