@@ -66,7 +66,7 @@
     </agent>
 
     <agent name="UserAdminAgent">
-      <rule requireSSL="true">
+      <rule requireSSL="false">
         <pattern>/useradmin</pattern>
         <role>UserManager</role>
       </rule>
@@ -79,7 +79,7 @@
         <pattern>/CA/CertificateSigningRequest</pattern>
         <role>*</role>
       </rule>
-      <rule requireSSL="true">
+      <rule requireSSL="false">
         <!-- This rule allows access to read-only portions of the CA. -->
         <pattern>/CA/Index</pattern>
         <pattern>/CA/Browser</pattern>
@@ -93,7 +93,7 @@
         <!-- Currently let everyone read the certificate database. -->
         <role>*</role>
       </rule>
-      <rule requireSSL="true">
+      <rule requireSSL="false">
         <!-- only let the administrator do write-only stuff -->
         <pattern>/CA/RevokeCertificateServlet</pattern>
         <pattern>/CA/CreateCaKeyServlet</pattern>
