@@ -179,6 +179,8 @@ module Cougaar
       end
 
       def calculatePolicies
+        `rm -rf #{@staging}`
+        Dir.mkdir(@staging)
         @run.society.each_enclave do |enclave|
           File.open("#{policyFileName()}-#{enclave}", "w+") do |file|
             debug("writing file #{file}")
