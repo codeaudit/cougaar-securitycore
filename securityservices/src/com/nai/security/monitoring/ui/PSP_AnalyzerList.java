@@ -97,6 +97,10 @@ public class PSP_AnalyzerList extends PSP_BaseAdapter implements PlanServiceProv
 					if(MonitoringUtils.debug>0)
 						System.out.println("analyzer is at :"+surl);
 				}
+				is.close();
+				is=null;	
+				//urlcon.close();
+				
 			}
 			catch (Exception excp)
 			{
