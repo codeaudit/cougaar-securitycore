@@ -30,6 +30,9 @@ import org.cougaar.mts.base.StandardAspect;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.mts.base.LoopbackLinkProtocol;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
+import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
 
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
@@ -161,6 +164,43 @@ public class CertificateCheckAspect
 	  ret = super.cost(message);
 	}
 	else {
+	  int targetAllCerts = 0;
+	  int originatorAllCerts = 0;
+	  boolean publishIdmef = false;
+
+	  List targetAll = _keyRing.findCert(targetAddress,
+               KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE,
+               false);
+	  if (targetAll != null && targetAll.size() > 0) {
+	    targetAllCerts = targetAll.size();
+	  }
+
+	  List originatorAll = _keyRing.findCert(originatorAddress,
+               KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE,
+               false);
+	  if (originatorAll != null && originatorAll.size() > 0) {
+	    originatorAllCerts = originatorAll.size();
+	  }
+          String s = "";
+	  if ((nbcertsTarget == 0) && (targetAllCerts > 0)) {
+	    // The target does not have valid certificates, but it has
+	    // invalid certificates.
+	    s = s + "All target certificates are invalid (" +
+	      targetAllCerts + "). ";
+	    publishIdmef = true;
+	  }
+	  if ((nbcertsOriginator == 0) && (originatorAllCerts > 0)) {
+	    // The originator does not have valid certificates, but it has
+	    // invalid certificates.
+	    s = s + "All source certificates are invalid (" +
+	      originatorAllCerts + ")";
+	    publishIdmef = true;
+	  }
+	  if (publishIdmef) {
+	    publishMessageFailure(originatorAddress, targetAddress,
+				  MessageFailureEvent.INVALID_CERTIFICATE,
+				  s);
+	  }
 	  ret = Integer.MAX_VALUE; // infinity
 	  drop = true;
 	}
@@ -188,6 +228,16 @@ public class CertificateCheckAspect
 	_log.debug(s);
       }
       return ret;
+    }
+
+    /**
+     * publish a message failure idmef alert
+     */
+    private void publishMessageFailure(String source, String target,
+                                       String reason, String data) {
+      FailureEvent event = new MessageFailureEvent(source, target,
+                                                   reason, data);
+      MessageFailureSensor.publishEvent(event);
     }
   }
 }

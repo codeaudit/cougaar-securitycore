@@ -199,10 +199,16 @@ public class EventViewerServlet
      out.print("</td>");
 
       // Additional Data
-      out.print("<td>");
       AdditionalData[] additionalData = alert.getAdditionalData();
-      value = (additionalData != null) ? additionalData.toString() : "";
-      out.print("</td>");
+      value = "";
+      if (additionalData != null) {
+        for(int i = 0 ; i < additionalData.length ; i++) {
+          if (additionalData[i] != null) {
+            value = value + additionalData[i].toString() + "<br/>";
+          }
+        }
+      }
+      out.print("<td>" + value + "</td>");
 
     }
     // Heatbeat
@@ -229,7 +235,14 @@ public class EventViewerServlet
 
       // Additional Data
       AdditionalData[] additionalData = heartbeat.getAdditionalData();
-      value = (additionalData != null) ? additionalData.toString() : "";
+      value = "";
+      if (additionalData != null) {
+        for(int i = 0 ; i < additionalData.length ; i++) {
+          if (additionalData[i] != null) {
+            value = value + additionalData[i].toString() + "<br/>";
+          }
+        }
+      }
       out.print("<td>" + value + "</td>");
     }
     else {
