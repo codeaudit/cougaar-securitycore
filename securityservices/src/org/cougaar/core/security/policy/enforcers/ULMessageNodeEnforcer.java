@@ -328,7 +328,7 @@ public class ULMessageNodeEnforcer
    * 
    * @param verb - a String representing the verb in the message.
    */
-  boolean isActionAuthorized(String sender,
+  public boolean isActionAuthorized(String sender,
                              String receiver,
                              String verb)
   {
@@ -360,7 +360,7 @@ public class ULMessageNodeEnforcer
    * that was used in the message and needs to determine the cypher suite 
    * to use.
    */
-  Set getAllowedCypherSuites(String sender,
+  public Set getAllowedCypherSuites(String sender,
                              String receiver) {
     Set targets = new HashSet();
     targets.add(new TargetInstanceDescription
