@@ -164,7 +164,7 @@ public class BaseBootstrapper
     String base = System.getProperty("org.cougaar.install.path");
     ArrayList l =  accumulateJarsandClasspath(base);
     CodeArchive[] codeArchives = (CodeArchive[]) l.toArray(new CodeArchive[l.size()]);
-     String nodeName = getNodeName(args);
+    String nodeName = getNodeName(args);
     
     /*
       Setting up  policy & security manager
@@ -210,11 +210,21 @@ public class BaseBootstrapper
       }
       Object[] argv = new Object[1];
       argv[0] = args;
-      main.invoke(null,argv);
+      launchNode(main, argv);
     } catch (Exception e) {
       System.err.println("Failed to launch "+classname+": ");
       e.printStackTrace();
     }
+  }
+
+  /** Executes a node (or any application)
+   *  The call is in a separate method so that it can be overriden
+   *  in a derived class.
+   */
+  protected void launchNode(Method main, Object[] argv)
+    throws java.lang.IllegalAccessException,
+    java.lang.reflect.InvocationTargetException {
+    main.invoke(null, argv);
   }
 
   /**

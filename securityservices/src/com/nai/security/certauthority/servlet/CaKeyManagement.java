@@ -60,14 +60,10 @@ public class CaKeyManagement
   public void init(ServletConfig config) throws ServletException
   {
     secprop = support.getSecurityProperties(this);
-    String confpath=
-      secprop.getProperty(secprop.CRYPTO_CONFIG);
-
     configParser = (ConfigParserService)
       support.getServiceBroker().getService(this,
 					    ConfigParserService.class,
 					    null);
-    configParser.setConfigurationFile(confpath);
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)

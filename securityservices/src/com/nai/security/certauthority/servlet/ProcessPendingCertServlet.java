@@ -64,12 +64,10 @@ public class ProcessPendingCertServlet extends  HttpServlet
 
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
-    String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
     configParser = (ConfigParserService)
       support.getServiceBroker().getService(this,
 					    ConfigParserService.class,
 					    null);
-    configParser.setConfigurationFile(confpath);
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -117,8 +115,6 @@ public class ProcessPendingCertServlet extends  HttpServlet
       try {
         //certimpl=ldapentries[0].getCertificate();
 	String certpath=secprop.getProperty(secprop.CA_CERTPATH);
-	String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
-
         PendingCertCache pendingCache =
 	  PendingCertCache.getPendingCache(cadnname,
 					   role, certpath,

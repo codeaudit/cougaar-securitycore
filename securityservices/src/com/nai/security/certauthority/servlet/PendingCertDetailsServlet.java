@@ -100,13 +100,10 @@ public class PendingCertDetailsServlet extends  HttpServlet
       return;
     }
     try {
-      String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
       configParser = (ConfigParserService)
 	support.getServiceBroker().getService(this,
 					      ConfigParserService.class,
 					      null);
-      configParser.setConfigurationFile(confpath);
-
       caPolicy = configParser.getCaPolicy(cadnname);
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
@@ -130,8 +127,6 @@ public class PendingCertDetailsServlet extends  HttpServlet
     try {
 
       String certpath=secprop.getProperty(secprop.CA_CERTPATH);
-      String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
-
       PendingCertCache pendingCache =
 	PendingCertCache.getPendingCache(cadnname,
 					 role, certpath,

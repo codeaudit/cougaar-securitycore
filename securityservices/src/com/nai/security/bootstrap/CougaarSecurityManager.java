@@ -99,11 +99,13 @@ public class CougaarSecurityManager extends SecurityManager
 			 defaultLogName);
     try {
       auditlog = new PrintStream(new FileOutputStream(auditlogname));
-      auditlog.print("<logtime>"+DateFormat.getDateInstance().format(new Date())+"</logtime>\n");
+      auditlog.print("<logtime>"+DateFormat.getDateInstance().format(new Date())
+		     +"</logtime>\n");
       auditlog.print("<nodeName>"+nodeName+"</nodeName>\n");
     }
     catch (IOException e) {
-      System.err.println("Java Security Manager log file not opened properly\n" + e.toString());
+      System.err.println("Java Security Manager log file not opened properly\n"
+			 + e.toString());
     }
     if (debug > 0) {
       System.out.println("Cougaar Security Manager. Logging to " + auditlogname);
@@ -142,16 +144,30 @@ public class CougaarSecurityManager extends SecurityManager
 	  }
 	}
       }
-
-      super.checkPermission(perm);
-
+      Class[] stack = getClassContext();
+      if (stack.length > 1000) {
+	// New security manager class is not on bootstrap classpath.
+	// Cause policy to get initialized before we install the new
+	// security manager, in order to prevent infinite loops when
+	// trying to initialize the policy (which usually involves
+	// accessing some security and/or system properties, which in turn
+	// calls the installed security manager's checkPermission method
+	// which will loop infinitely if there is a non-system class
+	// (in this case: the new security manager class) on the stack).
+	try {
+	  throw new RuntimeException("ERROR: stack overflow");
+	}
+	catch (Exception exp) {
+	  System.out.println("ERROR: stack length=" + stack.length + " - " + exp);
+	  exp.printStackTrace();
+	}
+	throw new SecurityException("JDK error");
+      }
+      else {
+	super.checkPermission(perm);
+      }
     } catch (SecurityException e) {
-      try {
-	logPermissionFailure(perm, e, true);
-      }
-      catch (Throwable logException) {
-	System.err.println("SecurityManager. Unable to log exception: " + logException);
-      }
+      logPermissionFailure(perm, e, true);
       throw (new SecurityException(e.getMessage()));
     }
   }
@@ -168,33 +184,46 @@ public class CougaarSecurityManager extends SecurityManager
 
   /** Log information about a permission failure.
    **/
-  private void logPermissionFailure(Permission perm, SecurityException e, boolean displaySubject) {
+  private void logPermissionFailure(final Permission perm,
+				    final SecurityException e,
+				    final boolean displaySubject) {
+    try {
+      System.out.println("Checking permissions for " + perm + " - Exception:"+ e);
+
     // Could be used to report checkPermission failures to a Monitoring & Response
     // Plugin.
-    String curTime = DateFormat.getDateInstance().format(new Date());
-    auditlog.print("<securityEvent><securityManagerAlarm><time>" + curTime + "</time><perm>" + perm + "</perm>\n");
-    
-    // Retrieve the subject associated with the current access controller context
-    // See JaasClient to see how to report subject information when logging
-    // security exceptions.
-    if (displaySubject == true) {
+      final String curTime = DateFormat.getDateInstance().format(new Date());
       final AccessControlContext acc = AccessController.getContext();
+
       AccessController.doPrivileged(new PrivilegedAction() {
 	  public Object run() {
-	    Subject subj = Subject.getSubject(acc);
-	    if (subj != null) {
-	      Iterator it = subj.getPrincipals().iterator();
-	      while (it.hasNext()) {
-		auditlog.print("<principal>" + it.next() + "</principal>");
+	    auditlog.print("<securityEvent><securityManagerAlarm><time>"
+			   + curTime + "</time><perm>" + perm + "</perm>\n");
+
+	    // Retrieve the subject associated with the current access controller context
+	    // See JaasClient to see how to report subject information when logging
+	    // security exceptions.
+	    if (displaySubject == true) {
+	      Subject subj = Subject.getSubject(acc);
+	      if (subj != null) {
+		Iterator it = subj.getPrincipals().iterator();
+		while (it.hasNext()) {
+		  auditlog.print("<principal>" + it.next() + "</principal>");
+		}
 	      }
 	    }
+
+	    auditlog.print("<stack>\n");
+	    e.printStackTrace(auditlog);
+	    auditlog.print("</stack></securityManagerAlarm></securityEvent>\n");
+
 	    return null; // nothing to return
 	  }
 	});
     }
-    
-    auditlog.print("<stack>\n");
-    e.printStackTrace(auditlog);
-    auditlog.print("</stack></securityManagerAlarm></securityEvent>\n");
+    catch (Exception ex) {
+      System.out.println("Unable to log failure");
+      ex.printStackTrace();
+    }
   }
 }

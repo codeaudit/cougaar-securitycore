@@ -66,15 +66,10 @@ public class CertificateList extends  HttpServlet
 
       debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						   "false"))).booleanValue();
-
-      String confpath=(String)secprop.getProperty(secprop.CRYPTO_CONFIG);
-      if(debug)
-	System.out.println("^^^^^^^^^^^^^^^^ In cert list  "+confpath);
       configParser = (ConfigParserService)
 	support.getServiceBroker().getService(this,
 					      ConfigParserService.class,
 					      null);
-      configParser.setConfigurationFile(confpath);
       caDNs = configParser.getCaDNs();
       domains = configParser.getRoles();
     }

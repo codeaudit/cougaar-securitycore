@@ -39,15 +39,34 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.certauthority.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.services.crypto.*;
+import com.nai.security.util.CryptoDebug;
 
 public class Main extends  HttpServlet
 {
+  private SecurityPropertiesService secprop = null;
   private SecurityServletSupport support;
+  private ConfigParserService configParser = null;
+  private KeyRingService keyRingService= null;
+  protected boolean debug = false;
+
   public Main(SecurityServletSupport support) {
     this.support = support;
   }
  
+  public void init(ServletConfig config)
+    throws ServletException
+  {
+    secprop = support.getSecurityProperties(this);
+    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+						"false"))).booleanValue();
+    keyRingService = (KeyRingService)
+      support.getServiceBroker().getService(this,
+					    KeyRingService.class,
+					    null);
+  }
+
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
     throws ServletException, IOException  {
     PrintWriter out=res.getWriter();
@@ -57,6 +76,14 @@ public class Main extends  HttpServlet
     out.println("<body><font face=\"arial black\" color=\"#3300cc\">");
     out.println("<h1>Cougaar Certificate Authority</h1></font>");
     out.println("<h2>Select action in left frame</h2>");
+
+    Enumeration aliases = keyRingService.getAliasList();
+    if (!aliases.hasMoreElements()) {
+      // No Ca key has been generated yet
+      out.println("<br><br><b>WARNING!</b>");
+      out.println("<br>At list one CA key must be generated before the CA can be used.");
+      out.println("<br>Select \"Create CA key\" in the left frame.");
+    }
     out.println("</body></html>");
 
     out.flush();

@@ -81,18 +81,13 @@ public class ConfigParserServiceImpl
     }
     role = secprop.getProperty(secprop.SECURITY_ROLE); 
 
-    setConfigurationFile(null);
+    setConfigurationFile();
   }
 
-  public void setConfigurationFile(String path) {
+  private void setConfigurationFile() {
     String defaultConfigFile = "cryptoPolicy.xml";
-    if(path==null) {
-      configFile = secprop.getProperty(secprop.CRYPTO_CONFIG,
-				       defaultConfigFile);
-    }
-    else {
-      configFile=path;
-    }
+    configFile = secprop.getProperty(secprop.CRYPTO_CONFIG,
+				     defaultConfigFile);
     if(CryptoDebug.debug) {
       System.out.println("Policy file:" + configFile);
     }
@@ -146,6 +141,9 @@ public class ConfigParserServiceImpl
   public CaPolicy getCaPolicy(String aDN) {
     CaPolicy[] policy = handler.getCaPolicy();
     X500Name x500Name = null;
+    if (CryptoDebug.debug) {
+      System.out.println("Requesting CA policy for " + aDN);
+    }
     try {
       x500Name = new X500Name(aDN);
     }
@@ -157,6 +155,9 @@ public class ConfigParserServiceImpl
     }
 
     for (int i = 0 ; i < policy.length ; i++) {
+      if (CryptoDebug.debug) {
+	System.out.println("Current policy: " + policy[i].caDnName.toString());
+      }
       if (x500Name.equals(policy[i].caDnName)) {
 	return policy[i];
       }

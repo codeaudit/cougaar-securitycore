@@ -40,6 +40,7 @@ import java.security.PublicKey;
 import java.security.Principal;
 import java.security.cert.*;
 import java.security.KeyPair;
+import javax.security.auth.x500.X500Principal;
 
 import sun.security.pkcs.*;
 import sun.security.x509.*;
@@ -92,6 +93,7 @@ final public class KeyRing
     if (configParser == null) {
       throw new RuntimeException("unable to get config parser service");
     }
+
     try {
       String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
 
@@ -240,12 +242,13 @@ final public class KeyRing
     return keystore;
   }
 
-  public synchronized PrivateKey findPrivateKey(String commonName) {
+  public synchronized PrivateKey findPrivateKey(String cougaarName) {
     if (keystore == null) {
       return null;
     }
-    return keystore.findPrivateKey(commonName);
+    return keystore.findPrivateKey(cougaarName);
   }
+
   public synchronized PrivateKey findPrivateKey(X500Name x500name) {
     if (keystore == null) {
       return null;
@@ -253,23 +256,23 @@ final public class KeyRing
     return keystore.findPrivateKey(x500name);
   }
 
-  public synchronized Certificate findCert(Principal p) {
+  public synchronized X509Certificate findCert(Principal p) {
     if (keystore == null) {
       return null;
     }
     return keystore.findCert(p);
   }
 
-  public synchronized Certificate findCert(String commonName) {
+  public synchronized X509Certificate findCert(String cougaarName) {
     if(CryptoDebug.debug)
-      System.out.println("Looking for common name " + commonName + " in keystore ");
-    return keystore.findCert(commonName);
+      System.out.println("Looking for cougaar name " + cougaarName + " in keystore ");
+    return keystore.findCert(cougaarName);
   }
 
-  public synchronized Certificate findCert(String commonName, int lookupType) {
-    Certificate c = null;
+  public synchronized X509Certificate findCert(String cougaarName, int lookupType) {
+    X509Certificate c = null;
     try {
-      c = keystore.findCert(commonName, lookupType);
+      c = keystore.findCert(cougaarName, lookupType);
     }
     catch (Exception e) {
     }
@@ -340,10 +343,10 @@ final public class KeyRing
    *  @param rcvrCert       The certificate of the intended receiver
    */
   public byte[] protectPrivateKey(PrivateKey privKey,
-				  Certificate cert,
+				  X509Certificate cert,
 				  PrivateKey signerPrivKey,
-				  Certificate signerCert,
-				  Certificate rcvrCert)
+				  X509Certificate signerCert,
+				  X509Certificate rcvrCert)
   {
     return pkcs12.protectPrivateKey(privKey,
 				    cert,
@@ -359,15 +362,15 @@ final public class KeyRing
    */
   public PrivateKeyCert[] getPfx(byte[] pfxBytes,
 					PrivateKey rcvrPrivKey,
-					Certificate rcvrCert)
+					X509Certificate rcvrCert)
   {
     return pkcs12.getPfx(pfxBytes,
 			 rcvrPrivKey,
 			 rcvrCert);
   }
 
-  public void removeEntry(String commonName) {
-    keystore.removeEntry(commonName);
+  public void removeEntry(String cougaarName) {
+    keystore.removeEntry(cougaarName);
   }
 
   public void setKeyEntry(PrivateKey key, X509Certificate cert) {
@@ -380,7 +383,7 @@ final public class KeyRing
     return certSet;
   }
 
-  public PrivateKey[] getPrivateKeys(String commonName) {
+  public PrivateKey[] getPrivateKeys(String cougaarName) {
     PrivateKey[] keySet = null;
     return keySet;
   }

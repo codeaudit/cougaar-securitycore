@@ -108,6 +108,10 @@ public class DirectoryKeyStore
   CryptoClientPolicy cryptoClientPolicy;
   private DirectoryKeyStoreParameters param = null;
 
+  /** A mapping between Cougaar name and distinguished names
+   */
+  private NameMapping nameMapping;
+
   /* Update OIDMap to include IssuingDistribution Point Extension &
    * Certificate Issuer Extension
    */
@@ -130,6 +134,8 @@ public class DirectoryKeyStore
   public DirectoryKeyStore(DirectoryKeyStoreParameters aParam) {
     param = aParam;
 
+    nameMapping = new NameMapping();
+
     secprop = (SecurityPropertiesService)
       param.serviceBroker.getService(this,
 				     SecurityPropertiesService.class,
@@ -149,7 +155,6 @@ public class DirectoryKeyStore
     }
 
     try {
-
       // Open Keystore
       keystore = KeyStore.getInstance(KeyStore.getDefaultType());
       keystore.load(param.keystoreStream, param.keystorePassword);
@@ -205,6 +210,7 @@ public class DirectoryKeyStore
     }
 
     certCache.printbigIntCache();
+
   }
 
   public Enumeration getAliasList()
@@ -269,37 +275,35 @@ public class DirectoryKeyStore
     return keystore;
   }
 
-  public synchronized PrivateKey findPrivateKey(X500Name x500Name) {
-    PrivateKey pk = null;
-    pk = certCache. getPrivateKey(x500Name);
-    return pk;
+  /** Lookup a private key given a Cougaar name.
+   *  Currently, the Cougaar name is the common name.
+   */
+  public synchronized PrivateKey findPrivateKey(String cougaarName) {
+    X500Name x500Name = nameMapping.getX500Name(cougaarName);
+    if (x500Name == null) {
+      return null;
+    }
+    return findPrivateKey(x500Name);
   }
 
-  public synchronized PrivateKey findPrivateKey(String commonName) {
+  public synchronized PrivateKey findPrivateKey(X500Name x500Name) {
     // Check security permissions
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
       security.checkPermission(new KeyRingPermission("readPrivateKey"));
     }
     PrivateKey pk = null;
-
     // First, try with the hash map (cache)
-    pk = certCache.getPrivateKeyByCommonName(commonName);
-
+    pk = certCache.getPrivateKey(x500Name);
     if (pk != null && CryptoDebug.debug) {
       System.out.println("Found private key in hash map");
     }
 
     if (pk == null) {
-      // Key was not found in keystore either.
+      // Key was not found in keystore.
       if (CryptoDebug.debug) {
-	System.out.println("No private key for " + commonName
-			   + " was found in keystore, generating...");
-      }
-      if (!param.isCertAuth) {
-	//let's make our own key pair
-
-	pk = addKeyPair(commonName, null);
+	System.out.println("No private key for " + x500Name.toString()
+			   + " was found in keystore");
       }
     }
     /* Now, we have a private key. However, the key may not be valid for the
@@ -320,11 +324,12 @@ public class DirectoryKeyStore
    * LOOKUP_FORCE_LDAP_REFRESH: Force a new lookup in the LDAP service.
   */
   public synchronized X509Certificate findCert(String commonName,
-					   int lookupType)
+					       int lookupType)
   throws Exception
   {
 
     X509Certificate cert = null;
+    X500Name x500name = nameMapping.getX500Name(commonName);
 
     if (CryptoDebug.debug) {
       System.out.println("DirectoryKeyStore.findCert(" + commonName
@@ -352,7 +357,7 @@ public class DirectoryKeyStore
       // Update cache with certificates from LDAP.
       String filter = "(cn=" + commonName + ")";
       lookupCertInLDAP(filter);
-      certstatus = certCache.getCertificateByCommonName(commonName);
+      certstatus = certCache.getCertificate(x500name);
       if (certstatus != null) {
 	cert = certstatus.getCertificate();
       }
@@ -362,7 +367,7 @@ public class DirectoryKeyStore
     if (CryptoDebug.debug) {
       System.out.println("Search key in local hash table:" + commonName);
     }
-    certstatus = certCache.getCertificateByCommonName(commonName);
+    certstatus = certCache.getCertificate(x500name);
     if(certstatus != null) {
       if((lookupType & LOOKUP_LDAP) != 0 &&
 	 certstatus.getCertificateOrigin() == CertificateOrigin.CERT_ORI_LDAP) {
@@ -384,7 +389,7 @@ public class DirectoryKeyStore
 	if ((lookupType & LOOKUP_LDAP) != 0) {
 	  String filter = "(cn=" + commonName + ")";
 	  lookupCertInLDAP(filter);
-	  certstatus = certCache.getCertificateByCommonName(commonName);
+	  certstatus = certCache.getCertificate(x500name);
 	  if (certstatus != null) {
 	    cert = certstatus.getCertificate();
 	  }
@@ -468,6 +473,9 @@ public class DirectoryKeyStore
 	  System.out.println("Updating cert cache with LDAP entry:" + filter);
 	}
 	certCache.addCertificate(certstatus);
+	// Update Common Name to DN hashtable
+	nameMapping.addName(certstatus);
+
 	if(certs[i].getCertificateType().equals(CertificateType.CERT_TYPE_CA)) {
 	  if(CryptoDebug.debug) {
 	    System.out.println("Certificate type is CA certificate  ++++");
@@ -505,6 +513,9 @@ public class DirectoryKeyStore
 	  System.out.println("Updating cert cache with LDAP entry:" + filter);
 	}
 	certCache.addCertificate(certstatus);
+	// Update Common Name to DN hashtable
+	nameMapping.addName(certstatus);
+
       }
       catch (CertificateRevokedException certrevoked) {
 	if (CryptoDebug.debug) {
@@ -637,6 +648,8 @@ public class DirectoryKeyStore
     }
     certCache.addCertificate(certstatus);
     certCache.addPrivateKey(privatekey, certstatus);
+    // Update Common Name to DN hashtable
+    nameMapping.addName(certstatus);
   }
 
   private String getCommonName(X509Certificate x509)
@@ -973,6 +986,8 @@ public class DirectoryKeyStore
 				trust, s);
 	// Update certificate cache
 	certCache.addCertificate(certstatus);
+	// Update Common Name to DN hashtable
+	nameMapping.addName(certstatus);
 
 	// Update private key cache
 	try {
@@ -1809,6 +1824,8 @@ public class DirectoryKeyStore
       certstatus.setPKCS10Date(new Date());
       certCache.addCertificate(certstatus);
       certCache.addPrivateKey(privatekey, certstatus);
+      // Update Common Name to DN hashtable
+      nameMapping.addName(certstatus);
   }
   
   public void checkOrMakeCert(String commonName) {
@@ -1990,6 +2007,8 @@ public class DirectoryKeyStore
 
       // Update private key cache
       certCache.addPrivateKey(pk, cs);
+      // Update Common Name to DN hashtable
+      nameMapping.addName(cs);
     }
   }
 
@@ -2113,7 +2132,7 @@ public class DirectoryKeyStore
     // Store key store in permanent storage.
     try {
       FileOutputStream out = new FileOutputStream(param.caKeystorePath);
-      keystore.store(out, param.caKeystorePassword);
+      caKeystore.store(out, param.caKeystorePassword);
       out.flush();
       out.close();
     } catch(Exception e) {

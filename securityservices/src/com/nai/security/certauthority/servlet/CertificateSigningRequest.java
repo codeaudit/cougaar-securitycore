@@ -47,7 +47,6 @@ public class CertificateSigningRequest
   extends  HttpServlet
 {
   private CertificateManagementService signer;
-  private SecurityPropertiesService secprop = null;
   private SecurityServletSupport support;
 
   public CertificateSigningRequest(SecurityServletSupport support) {

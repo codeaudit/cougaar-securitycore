@@ -57,6 +57,14 @@ public class BaseConfigHandler
   protected String role;
   private String topLevelTag;
 
+  private Hashtable attributeTable;
+  private boolean replaceJavaProperties = true;
+  private boolean replaceAttributes = true;
+
+  protected static final int SET_DEFAULT = 1;
+  protected static final int SET_VALUE   = 2;
+  protected static final int SKIP = 3;
+  protected int endElementAction;
 
   public SecurityPolicy getSecurityPolicy() {
     return currentSecurityPolicy;
@@ -76,11 +84,6 @@ public class BaseConfigHandler
     parser.setContentHandler(this);
   }
 
-  protected static final int SET_DEFAULT = 1;
-  protected static final int SET_VALUE   = 2;
-  protected static final int SKIP = 3;
-  protected int endElementAction;
-
   public void startElement( String namespaceURI,
 			    String localName,
 			    String qName,
@@ -88,10 +91,6 @@ public class BaseConfigHandler
     throws SAXException {
     contents.reset();
     String currentRole = attr.getValue("role");
-    if (CryptoDebug.debug) {
-      System.out.println("currentRole=" + currentRole
-			 + " - requested role:" + role);
-    }
     if (currentRole == null) {
       endElementAction = SET_DEFAULT;
     }
@@ -112,39 +111,100 @@ public class BaseConfigHandler
       parser.setContentHandler(parent);
     }
   }
- 
+
   public void characters( char[] ch, int start, int length )
     throws SAXException {
     contents.write(ch, start, length);
+    setContents();
+  }
+
+  public void replaceAttributes(boolean value) {
+    replaceAttributes = value;
+  }
+  public void replaceJavaProperties(boolean value) {
+    replaceJavaProperties = value;
+  }
+
+  public void setAttributeTable(Hashtable hash) {
+    attributeTable = hash;
   }
 
   public String getContents() {
-    Pattern p = Pattern.compile("\\$\\{.*\\}");
-    String s = contents.toString();
+    return contentsValue;
+  }
 
-    /* Search for java properties patterns.
-     * ${} will be replaced by the value of the java property.
+  private String contentsValue;
+
+  protected void setContents() {
+    contentsValue = parseContents(contents.toString());
+  }
+
+  protected String parseContents(String s) {
+    Pattern p_javaprop = Pattern.compile("\\$\\{.*\\}");
+    Pattern p_keyvalue = Pattern.compile("\\$\\[.*\\]");
+    Matcher matcher = null;
+    StringBuffer sb = new StringBuffer();
+    boolean result = false;
+
+
+    if (replaceJavaProperties) {
+      if (CryptoDebug.debug) {
+	System.out.println("Looking up java property pattern in " + s);
+      }
+      /* Search for java properties patterns.
+     * ${java_property} will be replaced by the value of the java property.
      * For example:
      *   ${org.cougaar.node.name} will be replaced by the value
      *   of the org.cougaar.node.name java property.
      */
-    Matcher m = p.matcher(s);
-    StringBuffer sb = new StringBuffer();
-    boolean result = m.find();
-    // Loop through and create a new String 
-    // with the replacements
-    while(result) {
-      String token = m.group();
-      String propertyName = token.substring(2, token.length() - 1);
-      String propertyValue = System.getProperty(propertyName);
-      System.out.println("Replacing " + token + " with " + propertyValue);
-      m.appendReplacement(sb, propertyValue);
-      result = m.find();
+      matcher = p_javaprop.matcher(s);
+      result = matcher.find();
+      // Loop through and create a new String 
+      // with the replacements
+      while(result) {
+	String token = matcher.group();
+	String propertyName = token.substring(2, token.length() - 1);
+	String propertyValue = System.getProperty(propertyName);
+	System.out.println("Replacing " + token + " with " + propertyValue);
+	matcher.appendReplacement(sb, propertyValue);
+	result = matcher.find();
+      }
+      // Add the last segment of input to 
+      // the new String
+      matcher.appendTail(sb);
+      s = sb.toString();
     }
-    // Add the last segment of input to 
-    // the new String
-    m.appendTail(sb);
-    return sb.toString();
+
+    if (attributeTable != null && replaceAttributes) {
+      if (CryptoDebug.debug) {
+	System.out.println("Looking up attribute pattern in " + s);
+      }
+      /* Replace attributes with their value.
+       * $[attribute] will be replaced by the value of the attribute.
+       * For example:
+       *   ${attr1} will be replaced by the value
+       *   of the attr1 attribute.
+       */
+      sb.setLength(0);
+      matcher = p_keyvalue.matcher(s);
+      result = matcher.find();
+      // Loop through and create a new String 
+      // with the replacements
+      while(result) {
+	String token = matcher.group();
+	String attributeName = token.substring(2, token.length() - 1);
+	String attributeValue = (String) attributeTable.get(attributeName);
+	System.out.println("Replacing " + token + " with " + attributeValue);
+	matcher.appendReplacement(sb, attributeValue);
+	result = matcher.find();
+      }
+      // Add the last segment of input to 
+      // the new String
+      matcher.appendTail(sb);
+      s = sb.toString();
+    }
+    
+    return s;
   }
 
  

@@ -33,6 +33,8 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.math.BigInteger;
 import sun.security.x509.*;
+
+// Cougaar security services
 import com.nai.security.util.CryptoDebug;
 
 
@@ -55,7 +57,6 @@ public class CertificateCache
   private Hashtable certsCache = new Hashtable(50);
   private Hashtable privateKeyCache = new Hashtable(50);
 
-  private Hashtable cn2dn = new Hashtable(50);
   private Hashtable bigint2dn=new Hashtable(50);
   //private boolean debug = false;
 
@@ -183,18 +184,6 @@ public class CertificateCache
       }
     }
     return reply;
-  }
-
-  /** TODO: Establish clear naming conventions for the Cougaar system */
-  public CertificateStatus getCertificateByCommonName(String commonName) {
-    // Create a distinguished name from the Common Name.
-    String dname = (String) cn2dn.get(commonName);
-    if (dname == null) {
-      return null;
-    }
-    else {
-      return getCertificate(dname);
-    }
   }
 
   /** Return an ArrayList of certificates which:
@@ -449,34 +438,25 @@ public class CertificateCache
       // the certificate cache.
       Principal principal = cert.getSubjectDN();
 
-      try {
-	// Update Common Name to DN hashtable
-	updateCn2Dn(principal);
-	if(CryptoDebug.debug) {
-	  System.out.println("$ Certificate dn name is :"
-			     +principal.getName());
-	  System.out.println("$ Certificate Issuer dn name is :"
-			     +cert.getIssuerDN().getName());
-	  System.out.println("$ Trust of cert is :"
-			     +certEntry.getCertificateTrust());
-	}
-	if((certEntry.getCertificateTrust()==
-	    CertificateTrust.CERT_TRUST_CA_SIGNED) ||
-	   (certEntry.getCertificateTrust()
-	    == CertificateTrust.CERT_TRUST_CA_CERT))    {
-	  updateBigInt2Dn(cert);
-         }
-         else {
-              if(CryptoDebug.debug)
-	        System.out.println("Certificate is not trusted yet:::::");
-         }
+      if(CryptoDebug.debug) {
+	System.out.println("$ Certificate dn name is :"
+			   +principal.getName());
+	System.out.println("$ Certificate Issuer dn name is :"
+			   +cert.getIssuerDN().getName());
+	System.out.println("$ Trust of cert is :"
+			   +certEntry.getCertificateTrust());
       }
-      catch (CertificateException e) {
-	System.out.println("Configuration Error:");
-	System.out.println(e.getMessage());
-	return;
+      if((certEntry.getCertificateTrust()==
+	  CertificateTrust.CERT_TRUST_CA_SIGNED) ||
+	 (certEntry.getCertificateTrust()
+	  == CertificateTrust.CERT_TRUST_CA_CERT))    {
+	updateBigInt2Dn(cert);
       }
-
+      else {
+	if(CryptoDebug.debug)
+	  System.out.println("Certificate is not trusted yet:::::");
+      }
+    
       ArrayList list = (ArrayList)certsCache.get(principal);
       if (list == null) {
 	list = new ArrayList();
@@ -652,19 +632,6 @@ public class CertificateCache
     return privkey;
   }
 
-  /** TODO: Establish clear naming conventions for the Cougaar system */
-  public PrivateKey getPrivateKeyByCommonName(String commonName)
-  {
-    // Create a distinguished name from the Common Name.
-    String dname = (String) cn2dn.get(commonName);
-    if (CryptoDebug.debug) {
-      System.out.println("getPrivateKeyByCommonName: cn=" + commonName
-			 + " - dn=" + dname);
-    }
-    return getPrivateKey(dname);
-  }
-
-
   public ArrayList getPrivateKeys(String distinguishedName)
   {
     X500Name x500Name = null;
@@ -692,15 +659,6 @@ public class CertificateCache
     // the certificate cache.
     Principal principal = cert.getSubjectDN();
 
-    try {
-      // Update Common Name to DN hashtable
-      updateCn2Dn(principal);
-    }
-    catch (CertificateException e) {
-      System.out.println("Configuration Error: " + e);
-      return;
-    }
-
     // Are there existing private keys for this principal?
     // If yes, add the new private key to the ArrayList. Otherwise, create a
     // new entry in the hash table.
@@ -714,31 +672,6 @@ public class CertificateCache
     privateKeyCache.put(principal, list);
   }
 
-  private void updateCn2Dn(Principal principal)
-    throws CertificateException
-  {
-    X500Name x500Name;
-    String cn = null;
-    try {
-      x500Name = new X500Name(principal.getName());
-      cn = x500Name.getCommonName();
-    } catch(Exception e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to get Common Name - " + e);
-      }
-    }
-    /* Since the common name must currently be unique, it is a configuration error
-     * if two distinguished names have the same common name. */
-    String aName = (String)cn2dn.get(cn);
-    if (aName != null) {
-      if (!aName.equals(principal.getName())) {
-	// Cannot continue. Configuration error.
-	throw new CertificateException("Two DNs have same CN. Keeping "
-				       + aName + " - " + principal.getName() + " excluded");
-      }
-    }
-    cn2dn.put(cn, principal.getName());
-  }
   public void printbigIntCache()
   {
     Enumeration e=bigint2dn.keys();

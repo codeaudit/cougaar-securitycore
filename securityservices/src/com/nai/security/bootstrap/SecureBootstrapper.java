@@ -93,44 +93,37 @@ public class SecureBootstrapper extends BaseBootstrapper
   private HashMap untrustedjars;
   public static void main(String[] args) {
     int argc = args.length;
-    final String[] launchArgs = new String[argc - 1];
-    final String className = args[0];
-    final SecureBootstrapper bootstrapper=new SecureBootstrapper();
-    final String node;
+    String[] launchArgs = new String[argc - 1];
+    String className = args[0];
+    SecureBootstrapper bootstrapper=new SecureBootstrapper();
     System.arraycopy(args, 1, launchArgs, 0, launchArgs.length);
 
-    String nodeName = null;
-    String check = null;
-    String next = null;
-    boolean sawname = false;
-    for( int x = 0; x < argc;){
-      check = args[x++];
-      if (! check.startsWith("-") && !sawname) {
-        sawname = true;
-        if ("admin".equals(check)) 
-          nodeName = "Administrator";
-        else
-          nodeName = check;
-      }
-      else if (check.equals("-n")) {
-        nodeName = args[x++];
-        sawname = true;
-      }
-    }
-    node = nodeName;
+    bootstrapper.launch(className, launchArgs);
+  }
 
+  protected void launchNode(final Method main, final Object[] argv)
+    throws java.lang.IllegalAccessException,
+    java.lang.reflect.InvocationTargetException {
+    final String node = getNodeName();
     JaasClient jc = new JaasClient();
-    jc.doAs(node,
-        new java.security.PrivilegedAction() {
-              public Object run() {
-		  System.out.println("Node being loaded: "
-                                     + node
-                                     + " security context is:");
-                  JaasClient.printPrincipals();
-		  bootstrapper.launch(className, launchArgs);
-                  return null;              }
-            });
-    
+
+    try {
+      jc.doAs(node,
+	      new java.security.PrivilegedExceptionAction() {
+		  public Object run()
+		    throws java.lang.IllegalAccessException,
+		    java.lang.reflect.InvocationTargetException {
+		    System.out.println("Node being loaded: "
+				     + node
+				       + " security context is:");
+		    JaasClient.printPrincipals();
+		    main.invoke(null,argv);
+		    return null;              }
+		});
+    }
+    catch (Exception e) {
+      System.out.println("Unable to start application:" + e);
+    }
   }
 
   protected void createJarVerificationLog(String nodeName) {

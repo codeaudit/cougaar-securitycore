@@ -27,7 +27,6 @@
 package org.cougaar.core.security.services.crypto;
 
 import java.lang.*;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.Principal;
 import java.security.KeyStore;
@@ -60,15 +59,15 @@ public interface KeyRingService extends Service {
 
   /** 
    */
-  Certificate findCert(Principal p);
+  X509Certificate findCert(Principal p);
 
   /** 
    */
-  Certificate findCert(String commonName);
+  X509Certificate findCert(String commonName);
 
   /**
    */
-  Certificate findCert(String commonName, int lookupType);
+  X509Certificate findCert(String commonName, int lookupType);
 
   /**
    */
@@ -113,10 +112,10 @@ public interface KeyRingService extends Service {
   void setKeyEntry(PrivateKey key, X509Certificate cert);
 
   byte[] protectPrivateKey(PrivateKey privKey,
-				  Certificate cert,
+				  X509Certificate cert,
 				  PrivateKey signerPrivKey,
-				  Certificate signerCert,
-				  Certificate rcvrCert);
+				  X509Certificate signerCert,
+				  X509Certificate rcvrCert);
 
   /** Extract information from a PKCS#12 PFX
    * @param pfxBytes       The DER encoded PFX
@@ -125,7 +124,7 @@ public interface KeyRingService extends Service {
    */
   PrivateKeyCert[] getPfx(byte[] pfxBytes,
 				 PrivateKey rcvrPrivKey,
-				 Certificate rcvrCert);
+				 X509Certificate rcvrCert);
 
   String getAlias(X509Certificate clientX509);
   String parseDN(String aDN);

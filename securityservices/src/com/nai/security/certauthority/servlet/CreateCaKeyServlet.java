@@ -45,6 +45,7 @@ import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.crypto.*;
 import com.nai.security.util.CryptoDebug;
+import org.cougaar.core.security.config.*;
 
 public class CreateCaKeyServlet
   extends  HttpServlet
@@ -88,6 +89,11 @@ public class CreateCaKeyServlet
     String caST =(String)req.getParameter("ST");
     String caC  =(String)req.getParameter("C");
 
+    String ldapURL = (String)req.getParameter("LDAPurl");
+    String validity = (String)req.getParameter("Validity");
+    String requirePending = (String)req.getParameter("RequirePending");
+    String keySize = (String)req.getParameter("KeySize");
+
     String caDN = "cn=" + caCN
       + ", ou=" + caOU
       + ", o=" + caO
@@ -97,6 +103,16 @@ public class CreateCaKeyServlet
     if (CryptoDebug.debug) {
       System.out.println("Creating CA key for: " + caDN);
     }
+
+    // Build a hashtable of (attribute, value) pairs to replace
+    // attributes with their value in a template XML file.
+    Hashtable attributeTable = new Hashtable();
+    attributeTable.put("distinguishedName", caDN);
+    attributeTable.put("ldapURL", ldapURL);
+    attributeTable.put("keysize", keySize);
+    attributeTable.put("validity", validity);
+    attributeTable.put("requirePending", requirePending);
+
     PrintWriter out=res.getWriter();
     try {
       X500Name dname = new X500Name(caDN);
@@ -121,6 +137,8 @@ public class CreateCaKeyServlet
       return;
     }
 
+    generateCaPolicy(attributeTable);
+
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
     out.println("<head>");
@@ -128,15 +146,22 @@ public class CreateCaKeyServlet
     out.println("</head>");
     out.println("<body>");
     out.println("<H2>CA key generation</H2>");
-    out.println("CA key has been generated<br>");
-    out.println("CA private key has been stored in " + keyRingService.getKeyStorePath());
-    out.println("<br>CA certificate has been stored in " + keyRingService.getCaKeyStorePath());
+    out.println("CA key has been generated.<br><br>");
+    out.println("CA private key has been stored in:<br>"
+		+ keyRingService.getKeyStorePath());
+    out.println("<br><br>CA certificate has been stored in:<br>"
+		+ keyRingService.getCaKeyStorePath());
     out.println("<br></body></html>");
     out.flush();
     out.close();
   }
+
+  private void generateCaPolicy(Hashtable attributeTable) {
+    PolicyHandler ph = new PolicyHandler();
+    ph.addCaPolicy(attributeTable);
+  }
   
-  protected void doGet(HttpServletRequest req,HttpServletResponse res)
+  private void doCaForm(HttpServletRequest req,HttpServletResponse res) 
     throws ServletException, IOException  {
     res.setContentType("Text/HTML");
     PrintWriter out=res.getWriter();
@@ -147,42 +172,92 @@ public class CreateCaKeyServlet
     out.println("</head>");
     out.println("<body>");
     out.println("<H2>CA key generation</H2>");
+
     out.println("<table>");
+    out.println("<b>CA X.509 Attributes</b>");
+//    out.println("<TR><TH>Attribute</TH><TH>Value</TH></TR>\n");
     out.println("<form action=\"\" method =\"post\">");
 
-    out.println("<tr ><td colspan=\"3\">");
-    out.println("CN: <input name=\"CN\" type=\"text\" value=\"\">");
-    out.println(" <br> <br></td></tr>");
-
-    out.println("<tr ><td colspan=\"3\">");
-    out.println("OU: <input name=\"OU\" type=\"text\" value=\"\">");
-    out.println(" <br> <br></td></tr>");
-
-    out.println("<tr ><td colspan=\"3\">");
-    out.println("O: <input name=\"O\" type=\"text\" value=\"\">");
-    out.println(" <br> <br></td></tr>");
-
-    out.println("<tr ><td colspan=\"3\">");
-    out.println("L: <input name=\"L\" type=\"text\" value=\"\">");
-    out.println(" <br> <br></td></tr>");
-
-    out.println("<tr ><td colspan=\"3\">");
-    out.println("ST: <input name=\"ST\" type=\"text\" value=\"\">");
-    out.println(" <br> <br></td></tr>");
-
-    out.println("<tr ><td colspan=\"3\">");
-    out.println("C: <input name=\"C\" type=\"text\" value=\"\">");
-    out.println(" <br> <br></td></tr>");
-
+    out.println("<tr><td>");
+    out.println("Common Name:</td><td><input name=\"CN\" type=\"text\" value=\"\">");
     out.println("</td></tr>");
 
-    out.println("</tr><tr><td></td><td><br><input type=\"submit\">&nbsp;&nbsp;&nbsp;");
-    out.println("<input type=\"reset\"></td><td></td></tr>");
+    out.println("<tr><td>");
+    out.println("Organization unit:</td><td><input name=\"OU\" type=\"text\" value=\"\">");
+    out.println("</td></tr>");
+
+    out.println("<tr><td>");
+    out.println("Organization:</td><td><input name=\"O\" type=\"text\" value=\"\">");
+    out.println("</td></tr>");
+
+    out.println("<tr><td>");
+    out.println("Locality:</td><td><input name=\"L\" type=\"text\" value=\"\">");
+    out.println("</td></tr>");
+
+    out.println("<tr><td>");
+    out.println("State:</td><td><input name=\"ST\" type=\"text\" value=\"\">");
+    out.println("</td></tr>");
+
+    out.println("<tr><td>");
+    out.println("Country:</td><td><input name=\"C\" type=\"text\" value=\"\">");
+    out.println("</td></tr>");
+
+    // Policy parameters
+    out.println("<br><br><b>Policy</b>");
+    out.println("<tr><td>");
+    out.println("LDAP URL:</td><td><input name=\"LDAPurl\" type=\"text\" value=\"\"></td>");
+    out.println("<td><i>The directory where certificates will be published.<br>");
+    out.println("Example:    <b>ldap://pear:389/dc=cougaar,dc=org</b></i></td>");
+    out.println("</tr>");
+
+    out.println("<tr><td>");
+    out.println("Validity:</td><td><input name=\"Validity\" type=\"text\" value=\"\"></td>");
+    out.println("<td><i>The default validity of a certificate issued by this CA<br>");
+    out.println("Format:    <b>a1 y a2 M a3 d a4 h a5 m a6 s</b> ");
+    out.println("where a1...a6 is a number<br>");
+    out.println("y=year, M=month, d=day, h=hour, m=minute, s=second. At least one key is required<br>");
+    out.println("</i></td></tr>");
+
+    out.println("<tr><td>");
+    out.println("Key size:</td><td><input name=\"KeySize\" type=\"text\" value=\"\"></td>");
+    out.println("<td><i></i></td>");
+    out.println("</tr>");
+
+    out.println("<tr><td>");
+    out.println("Require pending:</td><td><input name=\"RequirePending\" type=\"text\" value=\"\"></td>");
+    out.println("<td><i>true: the administrator must manually sign the certificates.<br>");
+    out.println("false: Certificates are signed automatically.");
+    out.println("WARNING: \"false\" should be used for test purposes only");
+    out.println("</i></td>");
+
+    out.println("<br></tr><br>");
+
+    out.println("<br><input type=\"submit\">&nbsp;&nbsp;&nbsp;");
+    out.println("<input type=\"reset\">");
     out.println("</form></table>");
+
+    // Help on client configuration
+    out.println("<br><b>Client Configuration help</b><br>");
+    out.println("Every client using this CA should be configured with:<br>");
+    out.println("* The LDAP URL as specified above to retrieve certificates<br>");
+    String uri = req.getRequestURI();
+    String path = uri.substring(0, uri.lastIndexOf('/'));
+    String certpath = path + "/CertificateSigningRequest";
+
+    out.println("* The " + certpath + " URL to request certificates<br>");
+    out.println("* The public key of this CA in their trusted CA keystore<br>");
+
     out.println("</body></html>");
     out.flush();
     out.close();
-    
+  }
+
+  protected void doGet(HttpServletRequest req,HttpServletResponse res)
+    throws ServletException, IOException  {
+    String param = req.getParameter("param");
+    if (param == null) {
+      doCaForm(req, res);
+    }
   }
   
   public String getServletInfo()  {

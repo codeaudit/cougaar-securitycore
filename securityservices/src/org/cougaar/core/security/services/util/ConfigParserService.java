@@ -39,10 +39,6 @@ import org.cougaar.core.security.crypto.SecureMethodParam;
  */
 public interface ConfigParserService extends Service {
 
-  /** Set the path to the configuration file
-   */
-  void setConfigurationFile(String path);
-
   /** The mode of operation
    * @return true if executing as a certificate authority
    *         false if executing as a standard Cougaar node

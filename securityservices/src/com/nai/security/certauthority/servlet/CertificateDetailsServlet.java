@@ -99,13 +99,10 @@ public class CertificateDetailsServlet extends  HttpServlet
       return;
     }
     try {
-      String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
       configParser = (ConfigParserService)
 	support.getServiceBroker().getService(this,
 					      ConfigParserService.class,
 					      null);
-      configParser.setConfigurationFile(confpath);
-
       caPolicy = configParser.getCaPolicy(cadnname);
       certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(

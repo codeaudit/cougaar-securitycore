@@ -166,7 +166,9 @@ public class KeyManagement
 			 + caDN + ". Role="
 			 + role + " - " + e );
       e.printStackTrace();
-      return;
+      throw new IllegalArgumentException("Error: Unable to get policy for DN="
+					 + caDN + ". Role="
+					 + role + " - " + e);
     }
     if (CryptoDebug.debug) {
       if(caPolicy==null) {
@@ -213,7 +215,7 @@ public class KeyManagement
       }
     }
     try {
-      caX509cert = findCert(caX500Name.getCommonName());
+      caX509cert = (X509Certificate)keyRing.findCert(caX500Name.getCommonName());
     }
     catch (java.io.IOException e) {
       throw new RuntimeException("Error: Unable to find CA cert: " + e);
@@ -250,7 +252,7 @@ public class KeyManagement
 	 }
 	  System.out.println("trying to get with cn name :: "+ cn);
 	 try {
-	   c=findCert(cn);
+	   c=keyRing.findCert(cn);
 	   System.out.println("got certificate with cn ---> =" +cn);
 	 }
 	 catch (Exception exp2) {
@@ -258,7 +260,7 @@ public class KeyManagement
 	     
 	 }
 	 System.out.println("going to call for publishing ca with ca  : "+cn);
-	 PrivateKey pk=getPrivateKey(cn);
+	 PrivateKey pk=keyRing.findPrivateKey(cn);
 	 caOperations.publishCertificate((X509Certificate)c,CertificateUtility.CACert,pk);
 	 
        }
@@ -266,51 +268,6 @@ public class KeyManagement
      else {
        System.out.println(" CA key store is empty ::");
      }
-  }
-
-  private X509Certificate findCert(String commonName)
-  {
-    X509Certificate x509cert;
-
-    // Get CA X.509 certificate
-    if (configParser.isCertificateAuthority()) {
-      if(CryptoDebug.debug) {
-	System.out.println("Runnnig as a certificate authority");
-      }
-    }
-    x509cert = (X509Certificate)  keyRing.findCert(commonName);
-    return x509cert;
-  }
-
-  private PrivateKey getPrivateKey(X500Name x500name) {
-
-    PrivateKey privateKey=null;
-    if (configParser.isCertificateAuthority()) {
-      if(CryptoDebug.debug) {
-	System.out.println(" going to look for private key in KeyRing with x500 name:"
-			   +x500name );
-      }
-      privateKey = keyRing.findPrivateKey(x500name);
-    }
-    else {
-      if(CryptoDebug.debug) {
-	System.out.println("This method is not supported from cougaar society"); 
-      }
-    }
-    return privateKey;
-  }
-
-  private PrivateKey getPrivateKey(String commonName)
-  {
-    PrivateKey privateKey;
-    if (configParser.isCertificateAuthority()) {
-      if(CryptoDebug.debug) {
-	System.out.println(" going to look for private key in KeyRing:"
-			   +commonName );
-      }
-    }
-    privateKey = keyRing.findPrivateKey(commonName);
-    return privateKey;
   }
 
   public void processX509Request(PrintStream out, InputStream inputstream) {
@@ -760,7 +717,7 @@ public class KeyManagement
     }
 
     // Get Signature object for certificate authority
-    PrivateKey caPrivateKey = getPrivateKey(caX500Name.getCommonName());
+    PrivateKey caPrivateKey = keyRing.findPrivateKey(caX500Name);
     //Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
     // TODO
     Signature caSignature = Signature.getInstance("SHA1withRSA");
@@ -786,7 +743,7 @@ public class KeyManagement
     // Sign certificate
     clientCertificate.sign(caPrivateKey, caPolicy.algorithmId.getName());
     if (CryptoDebug.debug) {
-      System.out.println("Signing certificate: " + clientCertificate.toString());
+      System.out.println("Signed certificate: " + clientCertificate.toString());
     }
 
     return clientCertificate;
@@ -863,10 +820,11 @@ public class KeyManagement
     /* Retrieve attributes from the PKCS10 request */
     PKCS10Attributes attr = clientRequest.getAttributes();
     if (CryptoDebug.debug) {
-      System.out.println("setX509CertificateFields. PKCS10 attributes:" +clientRequest );
+      System.out.println("setX509CertificateFields. PKCS10 attributes:"
+			 +clientRequest );
       System.out.println(attr.toString());
       if(caPolicy==null) {
-	 System.out.println("###################################in setX509CertificateFields. PKCS10 attributes: ca Policy is null");
+	 System.out.println("in setX509CertificateFields. ca Policy is null");
       }
     }
 
@@ -896,6 +854,9 @@ public class KeyManagement
 
     // Set issuer
     CertificateIssuerName certIssuerName = new CertificateIssuerName(caX500Name);
+    if (CryptoDebug.debug) {
+      System.out.println("Certificate issuer is " + caX500Name.toString());
+    }
     clientCertInfo.set("issuer", certIssuerName);
 
     // Set validity
@@ -934,7 +895,7 @@ public class KeyManagement
   {
     int status=1;
     X500Name x500name=new X500Name(caDN);
-    PrivateKey caprivatekey=getPrivateKey(x500name);
+    PrivateKey caprivatekey=keyRing.findPrivateKey(x500name);
     if(caprivatekey==null) {
       throw new IOException(" Could not find PrivateKey for CA :"+caDN);
     }
