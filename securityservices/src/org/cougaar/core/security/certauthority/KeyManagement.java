@@ -138,8 +138,6 @@ public class KeyManagement  implements CertificateManagementService {
   //private CertDirectoryServiceCA caOperations = null;
   private CACertDirectoryService caOperations = null;
 
-  private String role;
-
   
 /**  KeyManagement constructor
  */
@@ -168,7 +166,6 @@ public class KeyManagement  implements CertificateManagementService {
     caDN = null;
     caX500Name = null;
     caOperations = null;
-    role = null;
 
     caDN = aCA_DN;
     if (log.isInfoEnabled()) {
@@ -234,10 +231,6 @@ public class KeyManagement  implements CertificateManagementService {
 
     nodeConfiguration = new NodeConfiguration(caDN, serviceBroker);
 
-    role = secprop.getProperty(SecurityPropertiesService.SECURITY_ROLE);
-    if (role == null && log.isWarnEnabled() == true) {
-      log.warn("Role not defined");
-    }
     init();
   }
 

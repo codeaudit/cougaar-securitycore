@@ -206,15 +206,6 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       throw new RuntimeException("unable to get config parser service");
     }
     
-    String role =
-      secprop.getProperty(SecurityPropertiesService.SECURITY_ROLE);
-
-    if (role == null && log.isInfoEnabled() == true) {
-      if (log.isInfoEnabled()) {
-	log.info("Role is not defined");
-      }
-    }
-
     if (log.isInfoEnabled()) {
       log.info(" Certificate Cache initilization called : ");
     }
