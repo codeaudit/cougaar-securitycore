@@ -50,7 +50,7 @@ def getPolicyManager(enclave)
   port    = nil
   host    = nil
   run.society.each_agent_with_component("safe.policyManager.PolicyAdminServletComponent") { |agent|
-#    puts("looking at agent #{agent.name} which has enclave #{agent.enclave} comparing against enclave #{enclave}")
+    #puts("looking at agent #{agent.name} which has enclave #{agent.enclave} comparing against enclave #{enclave}")
     if (agent.enclave == enclave)
       url = agent.uri
       re = %r"http://([^:]*):([^/]*)/\$([^/]*)"
@@ -105,7 +105,9 @@ $policyLock = Hash.new
 
 def getPolicyLock(enclave)
   mutex = nil
+  #puts "will try to get policy lock"
   $policyLockLock.synchronize {
+    #puts "GOT policy lock"
     mutex = $policyLock[enclave]
     if mutex == nil
       mutex = Mutex.new
@@ -120,6 +122,7 @@ def bootPoliciesLoaded(enclave)
   waitForUserManager(manager)
   mutex = getPolicyLock(enclave)
   mutex.synchronize {
+    #puts "TRYING TO GET POLICY FILE FOR ENCLAVE #{enclave}"
     policyFile = getPolicyFile(enclave)
     begin
       File.stat(policyFile)
@@ -127,11 +130,13 @@ def bootPoliciesLoaded(enclave)
     rescue
       fileExists = false
     end
+    #puts "boot policy file exists #{fileExists}"
     if !fileExists
-      # load the boot policies -- we haven't done any delta yet
+      #puts "load the boot policies -- we haven't done any delta yet"
       bootPolicyFile = File.join(CIP, "configs", "security",
                                  "OwlBootPolicyList")
       result = commitPolicy(host, port, manager, "commit --dm", bootPolicyFile)
+      #puts " result after commitPolicy #{result}"
 #      logInfoMsg result
     end
     fileExists  
@@ -140,15 +145,20 @@ end
 
 def deltaPolicy(enclave, text)
   host, port, manager = getPolicyManager(enclave)
+  #puts "Got policy manager for #{enclave} host #{host} port #{port} manager #{manager}"
   bootPoliciesAlreadyLoaded = bootPoliciesLoaded(enclave)
+  #puts " CHECKING IF bootPoliciesLoaded ALREADY LOADED FOR #{enclave}"
   if !bootPoliciesAlreadyLoaded
-     puts "first time so sleeping for 30 seconds"
-     sleep 30.seconds
+     #puts "first time so sleeping for 30 seconds"
+    sleep 30.seconds
   else 
-     puts "second time so I don't need to sleep"
+     #puts "second time so I don't need to sleep"
   end
+  #puts " TRY TO GET LOCK TO POLICY FILE"
   mutex = getPolicyLock(enclave)
+  # puts " GOT LOCK TO POLICY FILE"
   mutex.synchronize {
+    
     policyFile = getPolicyFile(enclave)
     # now create the delta file
     File.open(policyFile, "w") { |file|
