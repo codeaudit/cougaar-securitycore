@@ -104,6 +104,11 @@ public class AccessAgentProxy
 	}
 	return;		// the message is rejected so we abort here
       }
+      //making exceptions for SAFEMessage
+      if(message instanceof safe.comm.SAFEMessage){
+        mts.sendMessage(message);
+        return;
+      }
       MessageWithTrust mwt;
       mwt = new MessageWithTrust(message, ts);
       mts.sendMessage(mwt);
@@ -216,7 +221,8 @@ public class AccessAgentProxy
 	}
 	mtc.receiveMessage(contents);
 	return;
-	
+      } else if(m instanceof safe.comm.SAFEMessage){
+        mtc.receiveMessage(m);
       } else {
 	if (log.isErrorEnabled())
 	  log.error("Not an MessageWithTrust: " + m);
