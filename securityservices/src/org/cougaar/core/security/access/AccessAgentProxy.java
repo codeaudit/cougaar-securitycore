@@ -351,12 +351,17 @@ public class AccessAgentProxy
           Directive directive[] = 
             ((DirectiveMessage)m).getDirectives();
           int len = directive.length;
+          ts = new TrustSet[len];
+          Vector v = new Vector(len);
 
           for(int i = 0; i < len; i++) {
-            ts[i] = makeLowestTrust();
+            v.add(makeLowestTrust());
           }
+          
+          ts = (TrustSet[])v.toArray();
         }
         else{
+          ts = new TrustSet[0];
           ts[0] = makeLowestTrust();
         }
         MessageWithTrust newMessage = new MessageWithTrust(m, ts);
