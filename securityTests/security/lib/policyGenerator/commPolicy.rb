@@ -8,8 +8,8 @@ require 'cougaar/scripting'
 require 'ultralog/scripting'
 require 'security/scripts/setup_scripting'
 require 'security/lib/common_security_rules'
-require "#{CIP}/csmart/lib/security/lib/mysql.so"
-require "#{CIP}/csmart/lib/security/lib/mysql.o"
+
+require "mysql.o"
 
 Cougaar::ExperimentMonitor.enable_stdout
 Cougaar::ExperimentMonitor.enable_logging
@@ -23,7 +23,7 @@ class CommPolicies
 
   def initialize(run)
     @dbUser                = "society_config"
-    @dbHost                = "mango"
+    @dbHost                = "localhost"
     @dbPassword            = "s0c0nfig"
     @db                    = "cougaar104"
     @mysql                 = Mysql.connect(@dbHost, 
@@ -43,6 +43,7 @@ class CommPolicies
 
     @migrateSuffix         = "Migrate"
     @debug                 = false
+    @allAgents             = getAgents()
   end
 
 
@@ -159,6 +160,18 @@ class CommPolicies
                      "$AgentsInGroup##{policy[1]}\n" +
                      "]\n\n")
         end
+      end
+      if @mumbleFlag then
+        file.write("Policy AllowSelfCommunication = [\n" +
+                   "\tGenericTemplate\n" +
+                   "\tPriority = 2,\n" +
+                   "\t$Actor.owl#Agent is authorized to perform\n" +
+                   "\t$Ultralog/UltralogAction.owl#EncryptedCommunicationActionSelf as\n" +
+                   "\tlong as\n" +
+                   "\tthe value of $Action.owl#hasDestination\n" +
+                   "\tis a subset of the complement of the set\n" +
+                   "\t$Actor.owl#Agent\n" +
+                   "\t]\n")        
       end
     end
   end
@@ -300,11 +313,26 @@ class CommPolicies
   def commonDecls()
     @allAgentsName = "AllAgents"
     @allNodesName  = "AllNodes"
-    declareSet(@allAgentsName, getAgents)
+    declareSet(@allAgentsName, @allAgents)
     declareSet(@allNodesName, getNodes)
     @run.society.each_enclave do |enclave|
       declareSet(enclaveNodesName(enclave), getEnclaveNodes(enclave))
       declareSet(enclaveAgentsName(enclave), getEnclaveAgents(enclave))
+    end
+  end
+
+  def communityMembersName(community)
+    "MembersOf#{community.name}"
+  end
+
+  def communityDecls()
+    @run.society.communities.each do |community|
+      members = getMembersRecursive(community)
+      if members.empty? then
+        next
+      end
+      membersName = communityMembersName(community)
+      declareSet(membersName, members)
     end
   end
 
@@ -348,7 +376,6 @@ class CommPolicies
   def allowNameService()
     banner("Allow Name Service")
     nameServers = getNameServers()
-    agents = getAgents()
     @NameServersName = "NameServers"
     declareSet(@NameServersName, nameServers)
     permit(@NameServersName, @allAgentsName, "AllowNameService-I")
@@ -381,29 +408,28 @@ class CommPolicies
       specialMembers = getSpecialCommunityAgentsRecursive(community)
       debug "special members = #{specialMembers.join(", ")}"
       specialSetName = "Special#{community.name}Members"
-      if (!specialMembers.empty?) then
-        declareSet(specialSetName, specialMembers);
-        permit(@allNodesName, specialSetName, 
-               "Special#{community.name}Policy-I",
-               getCommunityEnclaves(community))
-        permit(specialSetName, @allNodesName,
-               "Special#{community.name}Policy-II",
-               getCommunityEnclaves(community))
-      else 
-        return
+      if (specialMembers.empty?) then
+        next
       end
-      members = getMembersRecursive(community)
-      membersName = "MembersOf#{community.name}"
-      if (!members.empty?) then
-        declareSet(membersName, members)
-        debug "members = #{members.join(", ")}"
-        permit(membersName, specialSetName, 
-               "#{community.name}Policy-I",
-               getCommunityEnclaves(community))
-        permit(specialSetName, membersName,
-               "#{community.name}Policy-II",
-               getCommunityEnclaves(community))
+      declareSet(specialSetName, specialMembers);
+      permit(@allNodesName, specialSetName, 
+             "Special#{community.name}Policy-I",
+             getCommunityEnclaves(community))
+      permit(specialSetName, @allNodesName,
+             "Special#{community.name}Policy-II",
+             getCommunityEnclaves(community))
+      membersName = communityMembersName(community)
+      members = translateSet(membersName)
+      if (members == nil || members.empty?) then
+        next
       end
+      debug "members = #{members.join(", ")}"
+      permit(membersName, specialSetName, 
+             "#{community.name}Policy-I",
+             getCommunityEnclaves(community))
+      permit(specialSetName, membersName,
+             "#{community.name}Policy-II",
+             getCommunityEnclaves(community))
     end    
   end
 
@@ -411,7 +437,8 @@ class CommPolicies
     enclaves = []
     debug("collecting enclaves")
     community.each do |entity|
-      if entity.entity_type != "Agent" then
+      debug("Found entity named #{entity.name} with type #{entity.entity_type}")
+      if entity.entity_type != "Agent" &&  entity.entity_type != "Node" then
         next
       end
       agent = nil
@@ -545,12 +572,15 @@ class CommPolicies
   def getMembers(community)
     agents = []
     community.each do |entity|
-      if entity.entity_type != "Agent" then
+      debug("type = #{entity.entity_type}, name = #{entity.name}")
+      if (entity.entity_type == "Agent" ||
+           (entity.entity_type == nil  && @allAgents.include?(entity.name)))
+        agent = entity.name
+        if !agents.include?(agent) then
+          agents.push(agent)
+        end
+      else
         next
-      end
-      agent = entity.name
-      if !agents.include?(agent) then
-        agents.push(agent)
       end
     end
     agents
@@ -563,7 +593,7 @@ class CommPolicies
   def allowSpecialCommunityMigration(agents, communityName)
     @run.society.communities.each do |community|
       if community.name == communityName then
-        membersName = "MembersOf#{community.name}"
+        membersName = communityMembersName(community)
         communityAgents = translateSet(membersName)
         specialSetName = "Special#{community.name}Members"
         agents.each do |agent|
@@ -581,6 +611,7 @@ class CommPolicies
       end
     end
   end
+
 
 
 #==========================================================================
@@ -603,6 +634,80 @@ class CommPolicies
   end
 
 #==========================================================================
+# Nodes in a restart community must be able to talk with each other
+#==========================================================================
+
+  def allowRestartCommunityNodesTalk()
+    @run.society.communities.each do |community|
+      if robustnessCommunity?(community) then
+        debug "Robustness community = #{community.name}"
+        nodes = restartNodes(community)
+        restartSetName = "RestartNodes#{community.name}"
+        declareSet(restartSetName, nodes)
+        enclaves = getCommunityEnclaves(community)
+        debug "found enclaves #{enclaves.join(", ")} for #{community.name}"
+        permit(restartSetName, restartSetName, 
+                 "AllowRestartNodesTalk", enclaves)
+      end
+    end
+  end
+
+  def robustnessCommunity?(community)
+    community.each_attribute do |id, value|
+      debug "Examining #{id} with value #{value}"
+      if id === 'CommunityType' && value == 'Robustness' then
+        return true
+      end
+    end
+    return false
+  end
+
+  def restartNodes(community)
+    nodes = []
+    community.each do |entity|
+      if entity.entity_type == 'Node' then
+        nodes.push(entity.name)
+      end
+    end
+    nodes
+  end
+
+#==========================================================================
+#  Agents can talk to their heartbeat monitor.
+#==========================================================================
+
+  def allowHealthMonitoring()
+    @run.society.communities.each do |community|
+      if robustnessCommunity?(community) then
+        healthMonitors = getHealthMonitors(community)
+        healthMonitorsName = "HealthMonitorsFor#{community.name}"
+        declareSet(healthMonitorsName, healthMonitors)
+        permit(healthMonitorsName, communityMembersName(community),
+                "AllowHealthMonitoring#{community.name}-I",
+                getCommunityEnclaves(community))
+        permit(communityMembersName(community), healthMonitorsName,
+                "AllowHealthMonitoring#{community.name}-I",
+                getCommunityEnclaves(community))
+      end
+    end
+  end
+
+  def getHealthMonitors(commmunity)
+    agents = []
+    commmunity.each do |entity|
+      entity.each_role do |role|
+        if role == 'HealthMonitor' && 
+            (entity.entity_type == "Node" || 
+             entity.entity_type == "Agent" ||
+             @allAgents.include?(entity.name)) then
+          agents.push(entity.name)
+        end
+      end
+    end
+    agents
+  end
+
+#==========================================================================
 # Everybody should be able to talk to the core security managers
 #==========================================================================
 
@@ -613,10 +718,10 @@ class CommPolicies
       securityAgentsName = "SecurityAgentsIn#{enclave}"
       declareSet(securityAgentsName, securityAgents)
       permit(enclaveAgentsName(enclave), securityAgentsName,
-             "AllowSecurityManagement-I",
+             "AllowSecurityManagement-#{enclave}-I",
              [ enclave ])
       permit(securityAgentsName, enclaveAgentsName(enclave),
-             "AllowSecurityManagement-II",
+             "AllowSecurityManagement-#{enclave}-II",
              [ enclave ])
     end
   end
@@ -701,10 +806,9 @@ class CommPolicies
     @run.society.each_agent(true) do |agent|
       superior = agent.name
       debug "superior = #{superior}"
-      allAgent = getAgents()
       subordinates = []
       directlyReportingAll(superior).each do |subordinate|
-        if allAgent.include?(subordinate) then
+        if @allAgents.include?(subordinate) then
           subordinates.push(subordinate)
         end
       end
