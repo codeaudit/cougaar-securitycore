@@ -140,7 +140,7 @@ public class CougaarSecurityManager
     if (debug > 0) {
       System.out.println("Cougaar Security Manager. Logging to " + auditlogname);
     }
-    ClassLoader cloader=eventholder.getClass().getClassLoader();
+    //ClassLoader cloader=eventholder.getClass().getClassLoader();
   }
    
   public EventHolder getMREventQueue() throws SecurityException {
