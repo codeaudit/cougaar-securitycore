@@ -13,3 +13,6 @@ ProxiedOntologyJavaMapper \
 
 ProxiedOntologyJavaMapper \
       http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml    . ${PKG}
+
+ProxiedOntologyJavaMapper \
+      http://ontology.coginst.uwf.edu/Action.daml                    . ${PKG}
