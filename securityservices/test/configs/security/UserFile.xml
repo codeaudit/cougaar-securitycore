@@ -1,32 +1,57 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
+
 <userdata>
   <user>
-    <uid>larry</uid>
-    <password>165b18366ded0dc280ff0a9f264446a1</password>
+    <uid>george</uid>
+    <password>george</password>
     <enableTime>19700101000000Z</enableTime>
     <certOk>true</certOk>
     <auth>EITHER</auth>
-    <givenName>Larry</givenName>
-    <sn>Tate</sn>
-    <cn>Larry Tate</cn>
-    <mail>larry@nowhere.com</mail>
+    <givenName>George</givenName>
+    <sn>Mount</sn>
+    <cn>George Mount</cn>
+    <mail>gmount@nai.com</mail>
+    <role>UserManager</role>
+    <role>Logistician</role>
     <role>LogisticsViewer</role>
-  </user>
-  <user>
-    <uid>sally</uid>
-    <password>c72f090d30adec811893324f8ca12d6d</password>
-    <enableTime>19700101000000Z</enableTime>
-    <certOk>true</certOk>
-    <auth>EITHER</auth>
-    <givenName>Sally</givenName>
-    <sn>Field</sn>
-    <cn>Sally Field</cn>
-    <mail>sally@nowhere.com</mail>
+    <role>PolicyAdministrator</role>
+    <role>MonitorManager</role>
+    <role>CAAdministrator</role>
     <role>SocietyAdmin</role>
   </user>
   <user>
+    <uid>mbarger</uid>
+    <password>mbarger</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Mark</givenName>
+    <sn>Barger</sn>
+    <cn>Mark Barger</cn>
+    <mail>mbarger@bbn.com</mail>
+    <role>UserManager</role>
+    <role>Logistician</role>
+    <role>LogisticsViewer</role>
+    <role>PolicyAdministrator</role>
+    <role>MonitorManager</role>
+    <role>CAAdministrator</role>
+    <role>SocietyAdmin</role>
+  </user>
+  <user>
+    <uid>ulysses</uid>
+    <password>ulysses</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Odysseus</givenName>
+    <sn>Ulysses</sn>
+    <cn>Odysseus</cn>
+    <mail>ulysses@ithaca.gov</mail>
+    <role>UserManager</role>
+  </user>
+  <user>
     <uid>lance</uid>
-    <password>8b4f8834031de4a0cd4ffc58728c6799</password>
+    <password>lance</password>
     <enableTime>19700101000000Z</enableTime>
     <certOk>true</certOk>
     <auth>EITHER</auth>
@@ -37,8 +62,32 @@
     <role>Logistician</role>
   </user>
   <user>
+    <uid>larry</uid>
+    <password>larry</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Larry</givenName>
+    <sn>Tate</sn>
+    <cn>Larry Tate</cn>
+    <mail>larry@nowhere.com</mail>
+    <role>LogisticsViewer</role>
+  </user>
+  <user>
+    <uid>paul</uid>
+    <password>paul</password>
+    <enableTime>19700101000000Z</enableTime>
+    <certOk>true</certOk>
+    <auth>EITHER</auth>
+    <givenName>Paul</givenName>
+    <sn>McCartney</sn>
+    <cn>Paul McCartney</cn>
+    <mail>paul@nowhere.com</mail>
+    <role>PolicyAdministrator</role>
+  </user>
+  <user>
     <uid>mike</uid>
-    <password>cc5e7a13503cba6a4714c8ebb7f1b6f1</password>
+    <password>mike</password>
     <enableTime>19700101000000Z</enableTime>
     <certOk>true</certOk>
     <auth>EITHER</auth>
@@ -50,7 +99,7 @@
   </user>
   <user>
     <uid>carrie</uid>
-    <password>fd8d520961e5b09f78355b125f3bd2f6</password>
+    <password>carrie</password>
     <enableTime>19700101000000Z</enableTime>
     <certOk>true</certOk>
     <auth>EITHER</auth>
@@ -61,91 +110,36 @@
     <role>CAAdministrator</role>
   </user>
   <user>
-    <uid>ulysses</uid>
-    <password>21c2a2ac74ba1d0b9e6d2205e686b948</password>
+    <uid>sally</uid>
+    <password>sally</password>
     <enableTime>19700101000000Z</enableTime>
     <certOk>true</certOk>
     <auth>EITHER</auth>
-    <givenName>Odysseus</givenName>
-    <sn>Ulysses</sn>
-    <cn>Odysseus</cn>
-    <mail>ulysses@ithaca.gov</mail>
-    <role>UserManager</role>
-  </user>
-  <user>
-    <uid>george</uid>
-    <password>9e8627c8ef9248429838d6920ed43f9c</password>
-    <enableTime>19700101000000Z</enableTime>
-    <certOk>true</certOk>
-    <auth>EITHER</auth>
-    <givenName>George</givenName>
-    <sn>Mount</sn>
-    <cn>George Mount</cn>
-    <mail>gmount@nai.com</mail>
+    <givenName>Sally</givenName>
+    <sn>Field</sn>
+    <cn>Sally Field</cn>
+    <mail>sally@nowhere.com</mail>
     <role>SocietyAdmin</role>
-    <role>UserManager</role>
-    <role>MonitorManager</role>
-    <role>PolicyAdministrator</role>
-    <role>Logistician</role>
-    <role>LogisticsViewer</role>
-    <role>CAAdministrator</role>
   </user>
-  <user>
-    <uid>mbarger</uid>
-    <password>310df7c6611419cfd01d49ed3d336807</password>
-    <enableTime>19700101000000Z</enableTime>
-    <certOk>true</certOk>
-    <auth>EITHER</auth>
-    <givenName>Mark</givenName>
-    <sn>Barger</sn>
-    <cn>Mark Barger</cn>
-    <mail>mbarger@bbn.com</mail>
-    <role>SocietyAdmin</role>
-    <role>UserManager</role>
-    <role>MonitorManager</role>
-    <role>PolicyAdministrator</role>
-    <role>Logistician</role>
-    <role>LogisticsViewer</role>
-    <role>CAAdministrator</role>
-  </user>
-  <user>
-    <uid>paul</uid>
-    <password>fc0f1c33741a39bec4011cf4446c111e</password>
-    <enableTime>19700101000000Z</enableTime>
-    <certOk>true</certOk>
-    <auth>EITHER</auth>
-    <givenName>Paul</givenName>
-    <sn>McCartney</sn>
-    <cn>Paul McCartney</cn>
-    <mail>paul@nowhere.com</mail>
-    <role>PolicyAdministrator</role>
-  </user>
-  <role>
-    <rid>SocietyAdmin</rid>
-    <description></description>
-  </role>
   <role>
     <rid>UserManager</rid>
-    <description></description>
-  </role>
-  <role>
-    <rid>MonitorManager</rid>
-    <description></description>
   </role>
   <role>
     <rid>Logistician</rid>
-    <description></description>
-  </role>
-  <role>
-    <rid>PolicyAdministrator</rid>
-    <description></description>
   </role>
   <role>
     <rid>LogisticsViewer</rid>
-    <description></description>
+  </role>
+  <role>
+    <rid>PolicyAdministrator</rid>
+  </role>
+  <role>
+    <rid>MonitorManager</rid>
   </role>
   <role>
     <rid>CAAdministrator</rid>
-    <description></description>
+  </role>
+  <role>
+    <rid>SocietyAdmin</rid>
   </role>
 </userdata>
