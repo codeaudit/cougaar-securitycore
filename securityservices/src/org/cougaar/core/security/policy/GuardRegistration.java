@@ -46,7 +46,7 @@ import kaos.core.util.*;
 // Cougaar security services
 import org.cougaar.core.security.util.DOMWriter;
 import org.cougaar.core.security.policy.XMLPolicyCreator;
-import org.cougaar.core.security.policy.TypedPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
@@ -224,8 +224,8 @@ public abstract class GuardRegistration
 
       if (attrName.equals("POLICY_OBJECT")) {
 	// attrValue should be a Policy object
-	if (attrValue instanceof Policy) {
-	  processTypedPolicy((Policy)attrValue,
+	if (attrValue instanceof SecurityPolicy) {
+	  processTypedPolicy((SecurityPolicy)attrValue,
 			     policyID, policyName, policyDescription,
 			     policyScope,
 			     policySubjectID, policySubjectName,
@@ -269,14 +269,13 @@ public abstract class GuardRegistration
 				  String policyTargetName,
 				  String policyType)
   {
-    if (attribute instanceof TypedPolicy) {
-      TypedPolicy policy = (TypedPolicy) attribute;
-      String policyTypeInMessage = policy.getType();
+    if (attribute instanceof SecurityPolicy) {
+      SecurityPolicy policy = (SecurityPolicy) attribute;
       if (debug) {
-	System.out.println("policyTypeInMessage:" + policyTypeInMessage);
+	System.out.println("policyTypeInMessage:" + attribute);
       }
       if (policyType != null && !policyType.equals("")
-	  && !policyType.equals(policyTypeInMessage)) {
+	  && !policyType.equals(attribute)) {
 	// Inconsistency in policy type
 	if (debug == true) {
 	  System.out.println("GuardRegistration. ERROR. Inconsistent policy types");
@@ -288,7 +287,7 @@ public abstract class GuardRegistration
 			   policyScope,
 			   policySubjectID, policySubjectName,
 			   policyTargetID, policyTargetName,
-			   policyTypeInMessage);
+			   policyType);
     }
     else {
       // This is not a recognized policy message
@@ -373,7 +372,6 @@ public abstract class GuardRegistration
    * @param policyTargetName   A user-readable name of the target.
    * @param policyType         The type of the policy
    */
-
   public abstract void receivePolicyMessage(Policy policy,
 				   String policyID,
 				   String policyName,
@@ -384,6 +382,17 @@ public abstract class GuardRegistration
 				   String policyTargetID,
 				   String policyTargetName,
 				   String policyType);
+
+  public /*abstract*/ void receivePolicyMessage(SecurityPolicy policy,
+				   String policyID,
+				   String policyName,
+				   String policyDescription,
+				   String policyScope,
+				   String policySubjectID,
+				   String policySubjectName,
+				   String policyTargetID,
+				   String policyTargetName,
+				   String policyType){};
 }
 
 
