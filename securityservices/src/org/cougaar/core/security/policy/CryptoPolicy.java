@@ -28,8 +28,11 @@ package org.cougaar.core.security.policy;
 
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.Collection;
+import java.util.Iterator;
 
 import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.service.community.CommunityService;
 
 public class CryptoPolicy extends SecurityPolicy {
   /**
@@ -47,7 +50,8 @@ public class CryptoPolicy extends SecurityPolicy {
   public static final int BOTH = 3;
   public static final int DATAPROTECTION = 4;
   public int Direction = BOTH;
-
+  private CommunityService commService = null;
+  
   private HashMap secuMethod = new HashMap();
   public void setSecuMethod(String key, String method){
     Object o = secuMethod.get(key);
@@ -106,21 +110,81 @@ public class CryptoPolicy extends SecurityPolicy {
 
   public Vector getSecuMethod(String key){ 
     Vector v = (Vector)secuMethod.get(key);
+    //try community policy if null
+    if(v==null && commService!=null){
+      //find which community the agent belongs to and get the policy
+      Collection c = commService.listParentCommunities(key);
+      if(c!=null){
+        Iterator it = c.iterator();
+        String cname = null;
+        while(it.hasNext()){
+          cname = (String)it.next();
+          if(cname != null) v = (Vector)secuMethod.get(cname);
+          if(v!=null) break;
+        }
+      }
+    }
+    //last try
     if(v==null) v = (Vector)secuMethod.get("DEFAULT");
     return v; 
   }
   public Vector getSymmSpec(String key) { 
     Vector v = (Vector)symmSpec.get(key);
+    //try community policy if null
+    if(v==null && commService!=null){
+      //find which community the agent belongs to and get the policy
+      Collection c = commService.listParentCommunities(key);
+      if(c!=null){
+        Iterator it = c.iterator();
+        String cname = null;
+        while(it.hasNext()){
+          cname = (String)it.next();
+          if(cname != null) v = (Vector)symmSpec.get(cname);
+          if(v!=null) break;
+        }
+      }
+    }
+    //last try
     if(v==null) v = (Vector)symmSpec.get("DEFAULT");
     return v; 
   }
   public Vector getAsymmSpec(String key) { 
     Vector v = (Vector)asymmSpec.get(key);
+    //try community policy if null
+    if(v==null && commService!=null){
+      //find which community the agent belongs to and get the policy
+      Collection c = commService.listParentCommunities(key);
+      if(c!=null){
+        Iterator it = c.iterator();
+        String cname = null;
+        while(it.hasNext()){
+          cname = (String)it.next();
+          if(cname != null) v = (Vector)asymmSpec.get(cname);
+          if(v!=null) break;
+        }
+      }
+    }
+    //last try
     if(v==null) v = (Vector)asymmSpec.get("DEFAULT");
     return v; 
   }
   public Vector getSignSpec(String key) { 
     Vector v = (Vector)signSpec.get(key);
+    //try community policy if null
+    if(v==null && commService!=null){
+      //find which community the agent belongs to and get the policy
+      Collection c = commService.listParentCommunities(key);
+      if(c!=null){
+        Iterator it = c.iterator();
+        String cname = null;
+        while(it.hasNext()){
+          cname = (String)it.next();
+          if(cname != null) v = (Vector)signSpec.get(cname);
+          if(v!=null) break;
+        }
+      }
+    }
+    //last try
     if(v==null) v = (Vector)signSpec.get("DEFAULT");
     return v; 
   }
@@ -130,7 +194,7 @@ public class CryptoPolicy extends SecurityPolicy {
     SecureMethodParam smp = new SecureMethodParam();
 
     Vector v = (Vector)secuMethod.get(key);
-    //if key not found use "DEFAULT"
+    //if not found use "DEFAULT"
     if(v==null) v=(Vector)secuMethod.get("DEFAULT");
     String method = "invalid";
     if(v!=null) method = (String)(v.firstElement());
@@ -162,6 +226,10 @@ public class CryptoPolicy extends SecurityPolicy {
     return smp;
   }
 
+  public void setCommunityService(CommunityService cs){
+    commService = cs;
+  }
+  
   public String toString() {
   return "crypto policy--NAME:" + Name +
         " TYPE:" + Type +
