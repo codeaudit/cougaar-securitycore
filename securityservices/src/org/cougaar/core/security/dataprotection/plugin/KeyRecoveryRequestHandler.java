@@ -31,14 +31,15 @@ package org.cougaar.core.security.dataprotection.plugin;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Iterator;
-import java.nio.ByteBuffer;
 
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 import javax.security.auth.x500.X500Principal;
+import java.security.MessageDigest;
 
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.component.ServiceBroker;
@@ -62,7 +63,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -103,25 +104,18 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
             return false;
           }
 
-/*
-          ByteBuffer bbuf1 = ByteBuffer.allocate(container.getKey().length);
-          bbuf1.put(container.getKey());
-          ByteBuffer bbuf2 = ByteBuffer.allocate(keyCollection.getSignature().length);
-          bbuf2.put(keyCollection.getSignature());
+          DataProtectionKeyImpl keyImpl = (DataProtectionKeyImpl)
+            keyCollection.get(0);
+          try {
+            MessageDigest dg1 = MessageDigest.getInstance(keyImpl.getDigestAlg());
+            dg1.update(keyCollection.getSignature());
           
-          return bbuf1.equals(bbuf2);
-*/
-          byte [] bbuf1 = container.getKey();
-          byte [] bbuf2 = keyCollection.getSignature();
-          if (bbuf1.length != bbuf2.length) {
-            return false;
-          }
-          for (int i = 0; i < bbuf1.length; i++) {
-            if (bbuf1[i] != bbuf2[i]) {
-              return false;
+            return MessageDigest.isEqual(dg1.digest(), container.getKey());
+          } catch (Exception ex) {
+            if (log.isWarnEnabled()) {
+              log.warn("Unable to get digest: ", ex); 
             }
           }
-          return true;
         }
         return false;
       }
@@ -175,7 +169,6 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
     }
 
     X509Certificate originalAgentCert = originalCertChain[0];
-/*
     String agentName = null;
     try {
       agentName = new X500Name(originalAgentCert.getSubjectDN().getName())
@@ -191,7 +184,7 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
     //check if exists on blackboard, if not return b/c invalid snap shot
     bbs.openTransaction();
     
-    Collection results = bbs.query(dataProtectionPredicate(keyCollection), agentName);
+    Collection results = bbs.query(dataProtectionPredicate(keyCollection, agentName));
     bbs.closeTransaction();
     if (results.size() == 0) {
       if (log.isWarnEnabled()) {
@@ -204,7 +197,6 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
         log.warn("A request dataprotection key has more than one key in the persistence manager blackboard: " + results.size());
       }
     }
-*/
 
     // Verify the trust of the certificate.
     try {
