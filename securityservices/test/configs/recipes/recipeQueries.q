@@ -218,7 +218,7 @@ recipeQueryRoverAgent=\
 recipeQueryRoverControllerAgent=\
  SELECT COMPONENT_ALIB_ID FROM alib_component WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME='TestRoverController'
 
-
+# Select the University of Memphis Manager
 recipeQueryForUMmrmangerAgent=\
  SELECT C.COMPONENT_ALIB_ID \
    FROM ALIB_COMPONENT C, ASB_COMPONENT_HIERARCHY H \
