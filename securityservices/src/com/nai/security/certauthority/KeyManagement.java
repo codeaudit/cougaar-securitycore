@@ -417,6 +417,10 @@ public class KeyManagement
     String sbuf = null;
     ArrayList pkcs10requests = new ArrayList();
 
+    if (debug) {
+      System.out.println("getSigningRequests");
+    }
+
     while (reader.available() > 0) {
       int read = reader.read(bbuf, 0, len);
       sbuf = sbuf + new String(bbuf, 0, read);

@@ -44,6 +44,7 @@ import java.security.Principal;
 import java.security.MessageDigest;
 import java.security.SignatureException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.InvalidKeyException;
 import java.security.Signature;
 import java.security.cert.*;
@@ -73,10 +74,14 @@ public class DirectoryKeyStore implements Runnable
   private boolean debug = false;
   private HashMap m = new HashMap();
 
-  // A hash map to store the private keys
-  private HashMap privateKeys = new HashMap(89);
-  // A hash map to store public keys
-  private HashMap certs = new HashMap(89);
+  // A hash map to store the private keys, indexed with common name
+  private HashMap privateKeysAlias = new HashMap(89);
+
+  // A hash map to store public keys, indexed with common name
+  private HashMap certsAlias = new HashMap(89);
+
+  // A hash map to quickly find an alias given a common name
+  private HashMap commonName2alias = new HashMap(89);
 
   private CAClient caClient = null;
 
@@ -94,9 +99,6 @@ public class DirectoryKeyStore implements Runnable
     init(stream, password, storepath, caStream, caPassword, caStorepath);
   }
 
-  public void getPublicKey(String DN) {
-  }
-
   private void init(InputStream stream, char[] password, String storepath,
 		    InputStream caStream, char[] caPassword, String caStorepath) {
     try {
@@ -108,6 +110,9 @@ public class DirectoryKeyStore implements Runnable
       keystorePath = storepath;
       keystore = KeyStore.getInstance(KeyStore.getDefaultType());
       keystore.load(stream, password);
+
+      // Initialize commonName2alias hash map
+      initCN2aliasMap();
 
       // Open CA keystore
       if (caStream != null) {
@@ -132,7 +137,7 @@ public class DirectoryKeyStore implements Runnable
 	  String a = (String)alias.nextElement();
 	  X509Certificate x=(X509Certificate)keystore.getCertificate(a);
 	  m.put(x.getSubjectDN(), a);
-	  if (debug) System.out.println(a);
+	  if (debug) System.out.println("  " + a);
 	} catch(Exception e) {
 	  //e.printStackTrace();
 	}
@@ -154,65 +159,65 @@ public class DirectoryKeyStore implements Runnable
     return keystore; 
   }
 
-  public synchronized PrivateKey getPrivateKey(String name) {
+  public synchronized PrivateKey findPrivateKey(String commonName) {
     // Check security permissions
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
       security.checkPermission(new KeyRingPermission("readPrivateKey"));
     }
     PrivateKey pk = null;
+    String alias = (String) commonName2alias.get(commonName);
+    if (alias == null) {
+      // Key does not exist in keystore
+    }
     try {
       // First, try with the hash map (cache)
-      pk = (PrivateKey) privateKeys.get(name);
-      if (pk == null) {
+      pk = (PrivateKey) privateKeysAlias.get(commonName);
+      if (pk == null && alias != null) {
 	// Then try with the key store file
-	pk = (PrivateKey) keystore.getKey(name, keystorePassword);
-	if (pk == null) {
-	  // Try with lower case.
-	  pk = (PrivateKey) keystore.getKey(name.toLowerCase(), keystorePassword);
-	  if (pk == null) {
-	    // Key was not found in keystore either.
-	    if (debug) {
-	      System.out.println("No private key for " + name
-				 + " was found in keystore, generating...");
-	    }
-	    //let's make our own key pair
-	    pk = addKeyPair(name);
-	  }
+	pk = (PrivateKey) keystore.getKey(alias, keystorePassword);
+      }
+      if (pk == null && alias != null) {
+	// Try with lower case.
+	pk = (PrivateKey) keystore.getKey(alias.toLowerCase(), keystorePassword);
+      }
+      if (pk == null) {
+	// Key was not found in keystore either.
+	if (debug) {
+	  System.out.println("No private key for " + commonName
+			     + " was found in keystore, generating...");
 	}
-	if (pk != null) {
-	  privateKeys.put(name, pk);
-	}
+	//let's make our own key pair
+	pk = addKeyPair(commonName);
+      }
+      if (pk != null) {
+	privateKeysAlias.put(commonName, pk);
       }
     } catch (Exception e) {
-      System.err.println("Failed to get PrivateKey for \"" + name + "\": "+e);
+      System.err.println("Failed to get PrivateKey for \"" + commonName + "\": "+e);
       e.printStackTrace();
     }
     return pk;
   }
 
-  public Certificate getCert(Principal p) {
-    String a = (String) m.get(p);
-    return getCert(a, true);
-  }
-
-  public Certificate getCert(String name) {
-    return getCert(name, true);
-  }
-
   /** Lookup a certificate. If lookupLDAP is true, search in the keystore only.
    * Otherwise, search in the keystore then in the LDAP directory service.
    */
-  public synchronized Certificate getCert(String name, boolean lookupLDAP) {
+  public synchronized Certificate findCert(String commonName, boolean lookupLDAP) {
     Certificate cert = null;
     if (debug) {
-      System.out.println("CertificateFinder.getCert(" + name + ")");
+      System.out.println("CertificateFinder.getCert(" + commonName + ")");
     }
 
     CertificateStatus certstatus=null;
+    String alias = (String) commonName2alias.get(commonName);
+    if (alias == null) {
+      // Key does not exist in keystore
+    }
+
     try {
       // First, look in the local hash map.
-      Object o = certs.get(name);
+      Object o = certsAlias.get(commonName);
       if(o != null) {
 	certstatus = (CertificateStatus)o;
 	if(lookupLDAP == false &&
@@ -224,50 +229,55 @@ public class DirectoryKeyStore implements Runnable
 	  cert = certstatus.getCertificate();
 	}
 	if (debug) {
-	  System.out.println("CertificateFinder.getCert. Found cert in local hash map:" + name );
+	  System.out.println("CertificateFinder.getCert. Found cert in local hash map:"
+			     + commonName );
 	}
       }
       else {
 	// Look in keystore file.
-	cert = keystore.getCertificate(name);
-	if(cert!=null) {
+	if (alias != null) {
+	  cert = keystore.getCertificate(alias);
 	  certstatus = new CertificateStatus(cert, true, CertificateStatus.CERT_KEYSTORE);
-	  certs.put(name, certstatus);
+	  certsAlias.put(commonName, certstatus);
 	  if (debug) {
-	    System.out.println("CertificateFinder.getCert. Found cert in keystore file:" + name );
+	    System.out.println("CertificateFinder.getCert. Found cert in keystore file:"
+			       + commonName );
 	  }
 	}
 	else if (lookupLDAP == true) {
 	  // Finally, look in certificate directory service
-	  cert=certificatefinder.getCertificate(name);
+	  cert=certificatefinder.getCertificate(commonName);
 	  if(cert!=null) {
 	    certstatus = new CertificateStatus(cert, true, CertificateStatus.CERT_LDAP);
-	    certs.put(name, certstatus);
+	    certsAlias.put(commonName, certstatus);
 	    X509Certificate x = (X509Certificate)cert;
-	    m.put(x.getSubjectDN(), name);
+	    m.put(x.getSubjectDN(), commonName);
 	    if (debug) {
-	      System.out.println("CertificateFinder.getCert. Found cert in LDAP:" + name );
+	      System.out.println("CertificateFinder.getCert. Found cert in LDAP:"
+				 + commonName );
 	    }
 	  }	
 	  else {
-	    System.err.println("Failed to get Certificate for " + name);
+	    System.err.println("Failed to get Certificate for " + commonName);
 	  }
 	}
       }
     } catch (KeyStoreException e) {
       // Finally, look in certificate directory service
       if (lookupLDAP == true) {
-	cert=certificatefinder.getCertificate(name);
+	cert=certificatefinder.getCertificate(commonName);
 	if(cert!=null) {
 	  certstatus=new CertificateStatus(cert, true, CertificateStatus.CERT_LDAP);
-	  certs.put(name,certstatus);
+	  certsAlias.put(commonName,certstatus);
 	  if (debug) {
-	    System.out.println("CertificateFinder.getCert. Found cert in LDAP:" + name );
+	    System.out.println("CertificateFinder.getCert. Found cert in LDAP:"
+			       + commonName );
 	  }
 	}
       }	
       else {
-	System.err.println("Failed to get Certificate for \""+name+"\": "+e);
+	System.err.println("Failed to get Certificate for \""
+			   + commonName + "\": " + e);
       }
     }
     return cert;
@@ -293,11 +303,10 @@ public class DirectoryKeyStore implements Runnable
 	if (debug) {
 	  System.out.println("CertificateFinder.run. Adding CRL for " + alias );
 	}
-	certs.put(alias,wrapperobject);
+	certsAlias.put(alias, wrapperobject);
         //make sure keystore is updated
         try{
-	  keystore.deleteEntry(alias);
-	  storeKeyStore();
+	  deleteEntry(alias);
 	  X509Certificate x = (X509Certificate)certificate;
 	  m.remove(x.getSubjectDN());
         } catch(Exception e) {
@@ -341,15 +350,18 @@ public class DirectoryKeyStore implements Runnable
   public void installPkcs7Reply(String alias, InputStream inputstream)
     throws CertificateException, KeyStoreException
   {
-    // Check security permissions
+
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
       security.checkPermission(new KeyRingPermission("installPkcs7Reply"));
     }
 
+    if (debug) {
+      System.out.println("installPkcs7Reply for " + alias);
+    }
     CertificateFactory cf = CertificateFactory.getInstance("X509");
-    PrivateKey privatekey = getPrivateKey(alias);
-    Certificate certificate = getCert(alias, false);
+    PrivateKey privatekey = findPrivateKey(alias);
+    Certificate certificate = keystore.getCertificate(alias);
     if(certificate == null) {
       throw new CertificateException(alias + " has no certificate");
     }
@@ -373,15 +385,91 @@ public class DirectoryKeyStore implements Runnable
       certificateForImport = validateReply(alias, certificate, certificateReply);
     }
     if(certificateForImport != null) {
-	keystore.setKeyEntry(alias, privatekey, keystorePassword, certificateForImport);
-	storeKeyStore();
+	setKeyEntry(alias, privatekey, certificateForImport);
     }
+  }
+
+  private String getCommonName(X509Certificate x509)
+  {
+    String cn = null;
+    X500Name clientX500Name;
+    try {
+      clientX500Name = new X500Name(x509.getSubjectDN().toString());
+      cn = clientX500Name.getCommonName();
+    } catch(Exception e) {
+      System.out.println("Unable to get Common Name - " + e);
+    }
+    return cn;
+  }
+
+  private void addCN2alias(String alias, Certificate aCertificate)
+  {
+    X509Certificate x509 = (X509Certificate)aCertificate;
+    String cn = getCommonName(x509);
+    if (debug) {
+      System.out.println("addCN2alias: " + cn + "<->" + alias);
+    }
+    commonName2alias.put(cn, alias);
+  }
+
+  private void removeCN2alias(String cn)
+  {
+    String alias = (String) commonName2alias.get(cn);
+    if (debug) {
+      System.out.println("removeCN2alias: " + cn + "<->" + alias);
+    }
+    commonName2alias.remove(cn);
+  }
+
+  /** Set a key entry in the keystore */
+  private void setKeyEntry(String alias, PrivateKey privatekey,
+			   Certificate[] certificateForImport)
+  {
+    addCN2alias(alias, (X509Certificate)certificateForImport[0]);
+    try {
+      keystore.setKeyEntry(alias, privatekey, keystorePassword, certificateForImport);
+    } catch(Exception e) {
+      System.out.println("Unable to set key entry in the keystore - "
+			 + e.getMessage());
+    }
+    // Store key store in permanent storage.
+    storeKeyStore();
+  }
+
+  private void setCertificateEntry(String alias, Certificate aCertificate)
+  {
+    addCN2alias(alias, (X509Certificate)aCertificate);
+    try {
+      keystore.setCertificateEntry(alias, aCertificate);
+    } catch(Exception e) {
+      System.out.println("Unable to set certificate in the keystore - "
+			 + e.getMessage());
+    }
+    // Store key store in permanent storage.
+    storeKeyStore();
+  }
+
+  private void deleteEntry(String alias)
+  {
+    removeCN2alias(alias);
+    try {
+      keystore.deleteEntry(alias);
+    } catch(Exception e) {
+      System.out.println("Unable to set certificate in the keystore - "
+			 + e.getMessage());
+    }
+
+    // Store key store in permanent storage.
+    storeKeyStore();
   }
 
   /** Store the keystore in permanent storage. Should be called anytime
       a key is modified, created or deleted. */
   private void storeKeyStore()
   {
+    if (debug) {
+      System.out.println("Storing keystore in permanent storage");
+    }
     try {
       FileOutputStream out = new FileOutputStream(keystorePath);
       keystore.store(out, keystorePassword);
@@ -536,14 +624,15 @@ public class DirectoryKeyStore implements Runnable
   /** Generate a PKCS10 request from a public key */
   public String generateSigningCertificateRequest(Certificate certificate,
 						  String signerAlias)
-    throws IOException, SignatureException, NoSuchAlgorithmException, InvalidKeyException
+    throws IOException, SignatureException, NoSuchAlgorithmException, InvalidKeyException,
+	   KeyStoreException, UnrecoverableKeyException
   {
     PublicKey pk = certificate.getPublicKey();
     PKCS10 request = new PKCS10(pk);
 
     // Get Signature object for certificate authority
-    PrivateKey signerPrivateKey = getPrivateKey(signerAlias);
-    X509Certificate cert = (X509Certificate)getCert(signerAlias);
+    PrivateKey signerPrivateKey = (PrivateKey) keystore.getKey(signerAlias, keystorePassword);
+    X509Certificate cert = (X509Certificate)keystore.getCertificate(signerAlias);
     Signature signerSignature = Signature.getInstance(signerPrivateKey.getAlgorithm());
     signerSignature.initSign(signerPrivateKey);
 
@@ -567,7 +656,7 @@ public class DirectoryKeyStore implements Runnable
   }
 
   /** Get a list of all the certificates in the keystore */
-  public Key[] getCertificates()
+  private Key[] getCertificates()
   {
     Enumeration en = null;
     try {
@@ -615,7 +704,7 @@ public class DirectoryKeyStore implements Runnable
 	}
 	alias = makeKeyPair(commonName);
 	// Send the public key to the Certificate Authority (PKCS10)
-	request = generateSigningCertificateRequest(getCert(alias), alias);
+	request = generateSigningCertificateRequest(keystore.getCertificate(alias), alias);
 	if (debug) {
 	  System.out.println("Sending PKCS10 request to CA");
 	}
@@ -636,7 +725,7 @@ public class DirectoryKeyStore implements Runnable
 	  alias = makeKeyPair(commonName);
 	  // Generate a pkcs10 request, then sign it with node's key
 	  //String nodeAlias = findAlias(nodeName);
-	  request = generateSigningCertificateRequest(getCert(alias), alias);
+	  request = generateSigningCertificateRequest(keystore.getCertificate(alias), alias);
 	
 	  reply = caClient.signPKCS(request, nodeName);
 	}
@@ -648,7 +737,7 @@ public class DirectoryKeyStore implements Runnable
     if (alias != null) {
       try{ 
 	installPkcs7Reply(alias, new ByteArrayInputStream(reply.getBytes()));
-	privatekey = getPrivateKey(alias);
+	privatekey = (PrivateKey) keystore.getKey(alias, keystorePassword);
       } catch(Exception e) {
 	System.err.println("Error: can't get certificate for " + commonName);
 	e.printStackTrace();
@@ -665,8 +754,7 @@ public class DirectoryKeyStore implements Runnable
       MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
       byte [] digest = md.digest();
       
-      X500Name clientX500Name = new X500Name(clientX509.getSubjectDN().toString());
-      String prefix = clientX500Name.getCommonName();
+      String prefix = getCommonName(clientX509);
       alias = prefix + "-" + toHex(digest);
     }
     catch (Exception e) {
@@ -676,29 +764,54 @@ public class DirectoryKeyStore implements Runnable
     return alias;
   }
 
-  public X509Certificate findCert(String commonName) {
+  public Certificate findCert(Principal p) {
+    String a = (String) m.get(p);
+    return findCert(a, true);
+  }
+
+  public Certificate findCert(String name) {
+    return findCert(name, true);
+  }
+
+  /*
+  public X509Certificate findCert(String commonName, boolean lookupLDAP) {
+    String alias = (String) commonName2alias.get(commonName);
+    X509Certificate x509 = (X509Certificate) getCert(alias, lookupLDAP);
+    return x509;
+  }
+  */
+  /*
+  public PrivateKey findPrivateKey(String commonName) {
+    String alias = (String) commonName2alias.get(commonName);
+    PrivateKey pk = getPrivateKey(alias);
+    return pk;
+  }
+  */
+
+  private void initCN2aliasMap()
+  {
     Key[] keys = getCertificates();
-    X509Certificate cert = null;
     for (int i = 0 ; i < keys.length ; i++) {
       if (keys[i].cert instanceof X509Certificate) {
 	X509Certificate aCert = (X509Certificate) keys[i].cert;
 	X500Name dname = null;
 	try {
 	  dname = new X500Name(aCert.getSubjectDN().getName());
-	  if (commonName.equals(dname.getCommonName())) {
-	    return aCert;
-	  }
+	  commonName2alias.put(dname.getCommonName(), keys[i].alias);
 	}
 	catch (Exception e) {
-	  System.out.println("Unable to find cert:"+ e);
+	  System.out.println("Unable to initialize commonName2alias:" + e);
 	  e.printStackTrace();
 	}
       }
     }
-    return cert;
+    if (debug) {
+      System.out.println("CommonName to Alias Hash map contains:"
+			 + commonName2alias.toString());
+    }
   }
 
-  public String findAlias(String commonName) {
+  private String findAlias(String commonName) {
     Key[] keys = getCertificates();
     String alias = null;
     for (int i = 0 ; i < keys.length ; i++) {
@@ -718,27 +831,6 @@ public class DirectoryKeyStore implements Runnable
       }
     }
     return alias;
-  }
-
-  public PrivateKey findPrivateKey(String commonName) {
-    Key[] keys = getCertificates();
-    PrivateKey privatekey = null;
-    for (int i = 0 ; i < keys.length ; i++) {
-      if (keys[i].cert instanceof X509Certificate) {
-	X509Certificate cert = (X509Certificate) keys[i].cert;
-	X500Name dname = null;
-	try {
-	  dname = new X500Name(cert.getSubjectDN().getName());
-	  if (commonName.equals(dname.getCommonName())) {
-	    return getPrivateKey(keys[i].alias);
-	  }
-	}
-	catch (Exception e) {
-	  System.out.println("Unable to find private key:"+ e);
-	}
-      }
-    }
-    return privatekey;
   }
 
   private MessageDigest createDigest(String algorithm, byte[] data)
@@ -811,7 +903,7 @@ public class DirectoryKeyStore implements Runnable
     PrivateKey privatekey = certandkeygen.getPrivateKey();
     X509Certificate ax509certificate[] = new X509Certificate[1];
     ax509certificate[0] = certandkeygen.getSelfCertificate(x500name, validity * 24 * 60 * 60);
-    keystore.setKeyEntry(alias, privatekey, keystorePassword, ax509certificate);
+    setKeyEntry(alias, privatekey, ax509certificate);
     storeKeyStore();
   }
 }

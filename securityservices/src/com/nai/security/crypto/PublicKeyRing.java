@@ -42,8 +42,8 @@ import java.security.cert.*;
 
 public class PublicKeyRing {
   
-  static java.security.cert.Certificate getCert(String name) {
-    return KeyRing.getCert(name);
+  static java.security.cert.Certificate findCert(String commonName) {
+    return KeyRing.findCert(commonName);
   }
 
   public static  void setSleeptime(long sleeptime)

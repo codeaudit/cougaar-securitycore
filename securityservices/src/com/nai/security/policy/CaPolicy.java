@@ -33,7 +33,7 @@ public class CaPolicy {
 
   public String keyStoreFile = null;
   public String keyStorePassword = null;
-  public String alias = null;
+  public String caCommonName = null;
   public String ldapURL = null;
   public String serialNumberFile = null;
   public String pkcs10Directory = null;

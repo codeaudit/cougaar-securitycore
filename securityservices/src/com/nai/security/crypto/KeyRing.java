@@ -85,7 +85,18 @@ final public class KeyRing {
 					   "alpalp");
       String caksPath = System.getProperty("org.cougaar.security.cakeystore",
 					   defaultCaKeystorePath);
-      FileInputStream cakss = new FileInputStream(caksPath);
+      FileInputStream cakss = null;
+      try {
+	cakss = new FileInputStream(caksPath);
+      }
+      catch (Exception e) {
+	if (debug) {
+	  System.out.println("Could not open CA keystore: " + e);
+	}
+	cakss = null;
+	caksPass = null;
+	caksPath = null;
+      }
 
       if (debug) {
 	System.out.println("Secure message keystore: path=" + ksPath);
@@ -99,8 +110,12 @@ final public class KeyRing {
       keystore = new DirectoryKeyStore(provider_url,
 				       kss, ksPass.toCharArray(), ksPath,
 				       cakss, caksPass.toCharArray(), caksPath);
-      kss.close();
-      cakss.close();
+      if (kss != null) {
+	kss.close();
+      }
+      if (cakss != null) {
+	cakss.close();
+      }
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -111,23 +126,23 @@ final public class KeyRing {
     return keystore.getKeyStore();
   }
 
-  public static PrivateKey getPrivateKey(String name) {
-    return keystore.getPrivateKey(name);
+  public static PrivateKey findPrivateKey(String commonName) {
+    return keystore.findPrivateKey(commonName);
   }
 
-  public static Certificate getCert(Principal p) {
-    return keystore.getCert(p);
+  public static Certificate findCert(Principal p) {
+    return keystore.findCert(p);
   }
 
-  public static Certificate getCert(String name) {
-    return keystore.getCert(name);
+  public static Certificate findCert(String commonName) {
+    return keystore.findCert(commonName);
   }
 
   /** Lookup a certificate. If lookupLDAP is true, search in the keystore only.
    * Otherwise, search in the keystore then in the LDAP directory service.
    */
-  public static Certificate getCert(String name, boolean lookupLDAP) {
-    return keystore.getCert(name, lookupLDAP);
+  public static Certificate findCert(String commonName, boolean lookupLDAP) {
+    return keystore.findCert(commonName, lookupLDAP);
   }
 
   public static void setSleeptime(long sleeptime)

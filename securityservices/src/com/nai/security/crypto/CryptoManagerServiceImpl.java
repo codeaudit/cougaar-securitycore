@@ -37,7 +37,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
     try {
       PrivateKey pk = (PrivateKey) AccessController.doPrivileged(new PrivilegedAction() {
 	  public Object run(){
-	    return KeyRing.getPrivateKey(name);
+	    return KeyRing.findPrivateKey(name);
 	  }
 	  
 	});
@@ -53,7 +53,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
 
    public Object verify(String name, String spec, SignedObject obj) 
    throws CertificateException {
-       java.security.cert.Certificate c=KeyRing.getCert(name);
+       java.security.cert.Certificate c = KeyRing.findCert(name);
        if (c == null) {
 	 throw new CertificateException("Verify. Unable to get certificate for " + name);
        }
@@ -77,7 +77,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
     throws CertificateException {
     /*encrypt the secretekey with receiver's public key*/
 
-    java.security.cert.Certificate cert=KeyRing.getCert(name);
+    java.security.cert.Certificate cert = KeyRing.findCert(name);
     if (cert == null) {
       throw new CertificateException("asymmEncrypt. Unable to get certificate for " + name);
     }
@@ -101,7 +101,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
       /*get secretKey*/
       PrivateKey key = (PrivateKey) AccessController.doPrivileged(new PrivilegedAction() {
 	  public Object run(){
-	    return KeyRing.getPrivateKey(name);
+	    return KeyRing.findPrivateKey(name);
 	  }
 	});
       

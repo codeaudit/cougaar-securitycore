@@ -57,9 +57,9 @@ public class CertificateFinder
       System.err.println("failed to start LDAP client");
     }
   }
-  public X509Certificate getCertificate(String alias)
+  public X509Certificate getCertificate(String commonName)
   {
-    NamingEnumeration search_results = client.search(alias);
+    NamingEnumeration search_results = client.search(commonName);
     int counter=0;
     X509Certificate certificate=null;
     while((search_results!=null)&&(search_results.hasMoreElements())) {
@@ -77,9 +77,10 @@ public class CertificateFinder
                 
 	  //verify CA signiture
 	  Principal issuer = certificate.getIssuerDN();
-	  java.security.cert.Certificate c=KeyRing.getCert(issuer);
+	  java.security.cert.Certificate c = KeyRing.findCert(issuer);
 	  if (c == null) {
-	    throw new CertificateException("Abort getting cert for "+alias+", Unable to get CA certificate for varifying.");
+	    throw new CertificateException("Abort getting cert for " + commonName
+					   + ", Unable to get CA certificate for verifying.");
 	  }
 	  PublicKey pk = c.getPublicKey();
 	  try {
@@ -122,8 +123,8 @@ public class CertificateFinder
 	    SearchResult singleentry=(SearchResult)search_results.next();
 	    Attributes completeattributes=singleentry.getAttributes();
 	    Attribute x509cert=completeattributes.get("pem_x509");
-	    Attribute aliasname=completeattributes.get("cn");
-	    String alias =(String)aliasname.get();
+	    Attribute aliasName=completeattributes.get("cn");
+	    String cn =(String)aliasName.get();
 	    String cert=(String)x509cert.get();
 	    char[] charcert=cert.toCharArray();
 	    byte[] certdata=Base64.decode(charcert);
@@ -140,7 +141,7 @@ public class CertificateFinder
 		certexp.printStackTrace();
 
 	      }
-	    crl.put(alias,cert);
+	    crl.put(cn, cert);
 	  }
 	catch(NamingException nameexception)
 	  {
