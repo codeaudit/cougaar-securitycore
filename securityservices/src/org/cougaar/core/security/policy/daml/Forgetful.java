@@ -34,10 +34,7 @@ import com.hp.hpl.mesa.rdf.jena.mem.ModelMem;
 import com.hp.hpl.mesa.rdf.jena.model.*;
 import com.hp.hpl.mesa.rdf.jena.rdb.RDFRDBException;
 import com.hp.hpl.mesa.rdf.jena.vocabulary.*;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.String;
 import java.util.Hashtable;
 
@@ -64,7 +61,10 @@ public class Forgetful {
 	FileReader desc2 = new FileReader(args[1]);
 	model2.read(desc2,"");
 
-	beautify(model1);
+	System.out.println("Here is the first model");
+	System.out.println(beautify(model1));
+	System.out.println("Here is the second model");
+	System.out.println(beautify(model2));
 
 	if (copy(model1).equals(copy(model2))) {
 	    System.out.println("They are equal");
@@ -73,9 +73,12 @@ public class Forgetful {
 	}
     }
 
-    static public void beautify(Model m) throws RDFException
+
+    static public String beautify(Model m) throws RDFException
     {
-	copy(m).write(new PrintWriter(System.out), "RDF/XML-ABBREV");
+        StringWriter output = new StringWriter();
+        copy(m).write((Writer) output, "RDF/XML-ABBREV");
+        return output.toString();
     }
 
     static public Model copy(Model m) throws RDFException
@@ -129,8 +132,7 @@ public class Forgetful {
     {
 	if (subject instanceof Property) {
 	    return (Resource) copyPredicate((Property) subject, out);
-	} else if (subject.isAnon() || 
-		   subject.getNameSpace().equals(anonstring)) {
+	} else if (isAnon(subject)) {
 	    return new ResourceImpl(out);
 	} else {
 	    return  new ResourceImpl(subject.getNameSpace(),
@@ -167,4 +169,24 @@ public class Forgetful {
 	    return new LiteralImpl(object.toString());
 	} 
     }
+
+    private static boolean isAnon(Resource r)
+    {
+	int i;
+	String ln = r.getLocalName();
+	if (r.isAnon() || r.getNameSpace().equals(anonstring)) {
+	    return true;
+	}  else if (ln.charAt(0) == 'A') {
+	    for (i = 1; i < ln.length(); i++) {
+		if (! ( '0' <= ln.charAt(i) && ln.charAt(i) <= '9')) {
+		    return false;
+		}
+	    }
+	    return true;
+	} else {
+	    return false;
+	}
+    }
+
 }
+	    
