@@ -1251,7 +1251,6 @@ final public class KeyRing  implements KeyRingService  {
         // chain should be valid because findCert has been called
         //tgtCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
         // now that certificate status includes chain, no need to build chain again
-        tgtCerts = cs.getCertificateChain();
         /*
         // CA signing certificate should never be used to communicate, if it is self signed
         for (int i = 1; i < tgtCerts.length; i++) {
@@ -1263,7 +1262,7 @@ final public class KeyRing  implements KeyRingService  {
         */
 
         // there must be one that matches, otherwise check trust is not correct
-        certTable.put(target, tgtCerts[0]);
+        certTable.put(target, cs.getCertificate());
       }
     }
 
@@ -1294,7 +1293,6 @@ final public class KeyRing  implements KeyRingService  {
         CertificateStatus cs = (CertificateStatus)srcList.get(0);
         // the trust chain should be valid
         //srcCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
-        srcCerts = cs.getCertificateChain();
 
         /*
         // we can communicate now, put a cert that is trusted by both sides here
@@ -1310,7 +1308,7 @@ final public class KeyRing  implements KeyRingService  {
           }
         }
         */
-        certTable.put(source, srcCerts[0]);
+        certTable.put(source, cs.getCertificate());
       }
     }
 
