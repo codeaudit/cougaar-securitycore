@@ -174,11 +174,13 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
       // first get a list of roles that currently exist:
       String oldRoles[] = _context.findSecurityRoles();
       for (int i = 0; i < oldRoles.length; i++) {
-        if (roles.contains(oldRoles[i])) {
-          roles.remove(oldRoles[i]); // don't need to add it
-        } else {
-          _context.removeSecurityRole(oldRoles[i]); // don't need it any more
-        }
+	if (oldRoles[i] != null) {
+	  if (roles.contains(oldRoles[i])) {
+	    roles.remove(oldRoles[i]); // don't need to add it
+	  } else {
+	    _context.removeSecurityRole(oldRoles[i]); // don't need it any more
+	  }
+	}
       }
       iter = roles.iterator();
       while (iter.hasNext()) {
