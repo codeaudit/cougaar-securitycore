@@ -51,6 +51,7 @@ import javax.naming.directory.DirContext;
 
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.security.certauthority.SecurityServletSupport;
+import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 
 /**
  * This class is for administration of Users and roles. 
@@ -352,8 +353,10 @@ public class UserAdminServlet extends HttpServlet {
         // add the password
         modType=DirContext.ADD_ATTRIBUTE;
       }
-      BasicAttribute pwdAttr = 
-        new BasicAttribute(UserInterface.LDAP_USER_PASSWORD, pwd);
+      pwd = KeyRingJNDIRealm.encryptPassword(uid, pwd);
+      BasicAttribute pwdAttr = new BasicAttribute(UserInterface.LDAP_USER_PASSWORD, 
+                                                  pwd.getBytes());
+                           
       mods.add(new ModificationItem(modType, pwdAttr));
     }
     _userService.editUser(uid, (ModificationItem[]) mods.toArray(MODS_ARRAY));
@@ -411,7 +414,7 @@ public class UserAdminServlet extends HttpServlet {
     // now do the password field
     String pwd = req.getParameter(UserInterface.LDAP_USER_PASSWORD);
     if (pwd != null) {
-      attrs.put(UserInterface.LDAP_USER_PASSWORD, pwd);
+      attrs.put(UserInterface.LDAP_USER_PASSWORD, pwd.getBytes());
     }
     _userService.addUser(uid, attrs);
     gotoViewUser(req, resp, uid);
