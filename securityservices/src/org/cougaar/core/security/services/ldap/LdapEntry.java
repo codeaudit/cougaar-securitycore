@@ -29,6 +29,7 @@ import java.security.cert.X509Certificate;
 import java.io.Serializable;
 import java.security.PublicKey;
 
+import  org.cougaar.core.security.crypto.CertificateRevocationStatus;
 // Cougaar security services
 import org.cougaar.core.security.crypto.CertificateType;
 
