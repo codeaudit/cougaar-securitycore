@@ -1,0 +1,12 @@
+#
+# To add these entries into a pristine ldap server try using the following:
+#
+# ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -f entries.ldif \
+#	-w passwd -h host
+#
+dn: dc=ychen,dc=cougaar, dc=org
+objectClass: dcObject
+objectClass: organization
+dc: COUGAAR
+o: UltraLog
+description: Yue Chen's Certificates
