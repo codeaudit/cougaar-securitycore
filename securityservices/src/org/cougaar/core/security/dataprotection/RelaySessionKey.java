@@ -15,7 +15,7 @@ import java.util.Collection;
 /**
  * DOCUMENT ME!
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @author $author$
  */
 public class RelaySessionKey {
@@ -64,7 +64,7 @@ public class RelaySessionKey {
         if (pluginMap.get(sourceAgent) != null) {
             SessionKeySenderPlugin plugin = (SessionKeySenderPlugin) pluginMap
                 .get(sourceAgent);
-            plugin.sendSessionKey(keycollection, pmName);
+            //plugin.sendSessionKey(keycollection, pmName);
         }
     }
 }
