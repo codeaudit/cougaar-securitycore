@@ -1,12 +1,12 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software, Inc.
+ *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -55,6 +55,7 @@ import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
+import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
 
 import java.util.*;
 
@@ -68,17 +69,17 @@ public class AccessAgentProxy
   private ServiceBroker serviceBroker;
   private LoggingService log;
   // event publisher to publish message failure
-  private static EventPublisher eventPublisher = null;
+  //private static EventPublisher eventPublisher = null;
   private MessageAddress myID = null;
   private AccessControlPolicyService acps;
-  public static final String DAML_PROPERTY = 
+  public static final String DAML_PROPERTY =
     "org.cougaar.core.security.policy.enforcers.access.useDaml";
   private static final boolean USE_DAML = Boolean.getBoolean(DAML_PROPERTY);
   private ULMessageNodeEnforcer _enforcer = null;
   //private Set nodeList = null;
   //private Set agentList = null;
   //private TopologyReaderService toporead = null;
-  
+
   public AccessAgentProxy (MessageTransportService mymts,
 			   Object myobj,
 			   AccessControlPolicyService myacps,
@@ -91,7 +92,7 @@ public class AccessAgentProxy
       _enforcer = new ULMessageNodeEnforcer(sb, new LinkedList());
       _enforcer.registerEnforcer();
     }
-    
+
     if (object instanceof Agent) {
       myID = ((Agent)object).getAgentIdentifier();
     }
@@ -105,8 +106,8 @@ public class AccessAgentProxy
 			       SecurityPropertiesService.class, null);
 
     //load agent and node name list from topo reader
-    
-    //toporead = (TopologyReaderService) 
+
+    //toporead = (TopologyReaderService)
       //sb.getService(this, TopologyReaderService.class, null);
     /*
     if(toporead!=null) {
@@ -121,10 +122,10 @@ public class AccessAgentProxy
   /*
   private class updateNodeList extends Thread{
     public void run(){
-      nodeList = toporead.getAll(TopologyReaderService.NODE); 
-      agentList = toporead.getAll(TopologyReaderService.AGENT); 
+      nodeList = toporead.getAll(TopologyReaderService.NODE);
+      agentList = toporead.getAll(TopologyReaderService.AGENT);
       if(log.isDebugEnabled()) {
-        log.debug("updated NodeList, now contains: " 
+        log.debug("updated NodeList, now contains: "
             + nodeList.size() + " nodes. and " + agentList.size() + " agents.");
       }
       try{
@@ -134,13 +135,15 @@ public class AccessAgentProxy
     }
   }
   */
+  /*
   // static method used to initialize EventPublisher
   public static synchronized void addPublisher(EventPublisher publisher) {
     if(eventPublisher == null) {
       eventPublisher = publisher;
     }
   }
-/*  
+  */
+/*
   private boolean checkNodeAgent(String name, boolean recheck){
     if(nodeList.contains(name)){
       //is NodeAgent
@@ -151,7 +154,7 @@ public class AccessAgentProxy
         checkNodeAgent(name, false);
     }
     return false;
- 
+
   }
  */
 
@@ -166,7 +169,7 @@ public class AccessAgentProxy
     if(log.isInfoEnabled()) {
        log.info("SendMessage: " +message.toString());
     }
-    
+
     if(myID != null && !message.getOriginator().equals(myID)){
       //not suppose to happen
       publishMessageFailure(message.getOriginator().toString(),
@@ -179,7 +182,7 @@ public class AccessAgentProxy
       }
       return;
     }
-      
+
     if(mts!=null) {
       boolean tossMessage = checkOutVerbs(message);
       if (tossMessage) {
@@ -191,7 +194,7 @@ public class AccessAgentProxy
 
       /*
        *TODO: the following "if" test is a big kludge, due to the fact
-       *node agents can have binders, so we are making exceptions--no 
+       *node agents can have binders, so we are making exceptions--no
        *wrapping with TrustSet--for node agents. Once Bugzilla #2103
        *is addressed remember to take this out.
        *
@@ -218,7 +221,7 @@ public class AccessAgentProxy
       mts.sendMessage(message);
     }//if(mts!=null)
   }
-  
+
   public void registerClient(MessageTransportClient client) {
     if(log.isDebugEnabled()) {
       log.debug("Registering client: "
@@ -230,7 +233,7 @@ public class AccessAgentProxy
     }
 
   }
-  
+
   public void unregisterClient(MessageTransportClient client) {
     if(log.isDebugEnabled()) {
       log.debug("un registering client");
@@ -240,7 +243,7 @@ public class AccessAgentProxy
       mtc=null;
     }
   }
-  
+
   public ArrayList flushMessages() {
     ArrayList returndata=null;
     if(mts!=null) {
@@ -248,9 +251,9 @@ public class AccessAgentProxy
     }
     return returndata;
   }
-  
+
   public String getIdentifier() {
-   
+
     String identifier=null;
     if(mts!=null) {
       identifier=mts.getIdentifier() ;
@@ -259,18 +262,18 @@ public class AccessAgentProxy
   }
 
   public boolean addressKnown(MessageAddress a) {
-   
+
     boolean addressKnown=false;
     if(mts!=null) {
-      addressKnown= mts.addressKnown(a); 
+      addressKnown= mts.addressKnown(a);
     }
     return addressKnown;
   }
-  
+
   public AgentState getAgentState() {
     AgentState as = null;
     if(mts!=null) {
-      as = mts.getAgentState(); 
+      as = mts.getAgentState();
     }
     return as;
   }
@@ -286,10 +289,10 @@ public class AccessAgentProxy
     }
     return messageaddress;
   }
-  
+
   public void receiveMessage(Message m)  {
     if(mtc == null) {
-      log.warn("Message Transport Client is null for: " 
+      log.warn("Message Transport Client is null for: "
         + m + " on the agent:" + myID);
       return;
     }
@@ -323,7 +326,7 @@ public class AccessAgentProxy
              + " not delivered (null msg)");
         }
       }
-	
+
       Message contents =mwt.getMessage();
       TrustSet tset[] = mwt.getTrusts();
       if(contents==null) {
@@ -337,7 +340,7 @@ public class AccessAgentProxy
 	}
 	return;
       }
-	
+
       // Check verb of incoming message
       boolean tossMessage = checkInVerbs(contents);
       if (tossMessage) {
@@ -380,7 +383,7 @@ public class AccessAgentProxy
 	  log.warn("Rejecting incoming messagewithtrust : "
 		   + m.toString());
       }
-	
+
       if(failureIfOccurred != null) {
 	// a failure has occurred.  publish idmef message and return
 	publishMessageFailure(m.getOriginator().toString(),
@@ -389,12 +392,12 @@ public class AccessAgentProxy
 			      m.toString());
 	return;
       }
-	      
+
       if(log.isDebugEnabled()) {
 	log.debug("DONE receiving Message from Access Agent proxy"
 		  + contents.toString());
       }
-	
+
       mtc.receiveMessage(contents);
       return;
     }
@@ -403,10 +406,10 @@ public class AccessAgentProxy
           log.debug("Wrapping trust, it is not wrapped in a MessageWithTrust: "
              + m.toString());
         }
-        
+
         int len;
         if(m instanceof DirectiveMessage){
-          Directive directive[] = 
+          Directive directive[] =
             ((DirectiveMessage)m).getDirectives();
           len = directive.length+1;
 
@@ -414,14 +417,14 @@ public class AccessAgentProxy
         else{
           len = 1;
         }
-        
+
         TrustSet[] ts = new TrustSet[len];
         for(int i = 0; i < len; i++) {
           ts[i] = makeLowestTrust();
         }
         MessageWithTrust newMessage = new MessageWithTrust(m, ts);
         receiveMessage(newMessage);
-        
+
         if (log.isDebugEnabled()) {
           log.debug("Wrapping message:" + m + "with lowest Trust.");
         }
@@ -429,7 +432,7 @@ public class AccessAgentProxy
       }
     }
   }
-  
+
   /** removes the nth directive from a directive message */
   private boolean removeDirective(DirectiveMessage msg, int index) {
     Directive[] oldDirective = msg.getDirectives();
@@ -439,10 +442,10 @@ public class AccessAgentProxy
 	    //System.out.println("WARNING: removing last directive.");
       return true;
     }
-    
+
     Directive[] newDirective = new Directive[oldDirective.length - 1];
     int i;
-    
+
     for(i = 0; i < index; i++) {
       newDirective[i] = oldDirective[i];
     }
@@ -455,7 +458,7 @@ public class AccessAgentProxy
 			 //index);
     return false;
   }//removeDirective
- 
+
   /**
    * Check verb-based policy
    * @param direction true: incoming message. false: outgoing message.
@@ -478,16 +481,16 @@ public class AccessAgentProxy
 
     for (int i = 0; i < len; i++) {
       /*
-        Modified by Rakesh 
+        Modified by Rakesh
         Modified the code to check directive source with message source and ignore
-        the target directives as the target directive will be an ABA 
+        the target directives as the target directive will be an ABA
         */
       if (!directive[i].getSource().toString().equals(source)){
           /*||
           !directive[i].getDestination().toString().equals(target)) {
           */
         // the directives are bad!
-        
+
         log.debug(" Source at directive is :"+directive[i].getSource().toString());
         log.debug(" Source is  in message :"+ source);
         /*
@@ -538,7 +541,7 @@ public class AccessAgentProxy
     return false;
   }
 
-  private boolean isMessageDenied(String source, String target, 
+  private boolean isMessageDenied(String source, String target,
                                   String verb, boolean direction) {
     if (USE_DAML) {
       boolean ret =  _enforcer.isActionAuthorized(source, target, verb);
@@ -575,20 +578,19 @@ public class AccessAgentProxy
     for(int i = 0; i < verbs.length; i++) {
       if(verb.equals(verbs[i])) {
 	if(log.isDebugEnabled()){
-	  log.debug("found verb to keep:" + verbs[i] + " for " + 
+	  log.debug("found verb to keep:" + verbs[i] + " for " +
                     source + "->" + target);
 	}
         return false;
       }
     }
     if(log.isDebugEnabled()){
-      log.debug("found unwanted verb:" + verb + " for " + 
+      log.debug("found unwanted verb:" + verb + " for " +
                 source + "->" + target);
     }
     return true;
   }
 
-  /*
   private TrustSet[] checkOutgoing(Message msg) {
     if(msg == null) {
       return null;
@@ -612,7 +614,6 @@ public class AccessAgentProxy
     }
     return trust;
   }
-  */
 
   private void compare(TrustSet msgSet, TrustSet policySet) {
     if(msgSet == null){
@@ -627,7 +628,7 @@ public class AccessAgentProxy
       String type = (String)keys.next();
       TrustAttribute msgAttribute = msgSet.getAttribute(type);
       TrustAttribute policyAttribute = policySet.getAttribute(type);
-		
+
       try {
 	if(policyAttribute.compareTo(msgAttribute) < 0) {
 	  msgSet.addAttribute(policyAttribute);
@@ -639,14 +640,13 @@ public class AccessAgentProxy
     }
   }
 
-  /*
   private TrustSet[] outgoingTrust(Message msg){
-    TrustSet[] set = new TrustSet[1]; 
+    TrustSet[] set = new TrustSet[1];
     TrustSet policySet;
 
     try {
       policySet = acps.getOutgoingTrust
-	(msg.getOriginator().toString(), 
+	(msg.getOriginator().toString(),
 	 msg.getTarget().toString());
     }
     catch(Exception ex) {
@@ -673,8 +673,7 @@ public class AccessAgentProxy
 	  set[i+1] = policy;
 	} else {
 	  if(directive[i] instanceof Task) {
-	    // TODO: This must be broken
-	    //Task task = (Task)directive[i];
+	    Task task = (Task)directive[i];
 	    set[i+1] = policy;
 	  } else {
 	    compare(set[i+1], policy);
@@ -683,12 +682,12 @@ public class AccessAgentProxy
       }
     }
     return set;
-  }  
-  */
+  }
+
   private boolean checkOutVerbs(Message msg) {
     return checkMessage(msg, false);
   }
-      
+
   private boolean outgoingAgentAction(Message msg) {
     String action;
 
@@ -722,7 +721,7 @@ public class AccessAgentProxy
 
   private boolean outgoingAgentAction(DirectiveMessage msg) {
     String action = null;
-    Directive directive[] = 
+    Directive directive[] =
       ((DirectiveMessage)msg).getDirectives();
     int len = directive.length;
 
@@ -732,7 +731,7 @@ public class AccessAgentProxy
       }
       Task task = (Task)directive[i];
       action = acps.getOutgoingAgentAction
-	(task.getSource().toString(), 
+	(task.getSource().toString(),
 	 task.getDestination().toString());
       if(action == null) {
 	continue;
@@ -750,8 +749,8 @@ public class AccessAgentProxy
       }
     }
     if(log.isDebugEnabled()) {
-      log.debug("AccessControlProxy: DirectiveMessage now contains " + 
-				msg.getDirectives().length + 
+      log.debug("AccessControlProxy: DirectiveMessage now contains " +
+				msg.getDirectives().length +
 				" directives.");
     }
     //return (msg.getDirectives().length > 0);
@@ -760,10 +759,9 @@ public class AccessAgentProxy
 
   /**
    */
-  /*
   private boolean outgoingMessageAction(Message msg, TrustSet trust) {
     String act;
-    
+
     if (msg == null || msg.getOriginator() == null
       || trust == null) {
       // can't go on, drop the message.
@@ -774,7 +772,7 @@ public class AccessAgentProxy
     }
     try {
       String msgOrigin = msg.getOriginator().toString();
-      TrustAttribute mc = trust.getAttribute(MissionCriticality.name); 
+      TrustAttribute mc = trust.getAttribute(MissionCriticality.name);
       if (mc == null) {
         // can't go on, drop the message.
         if(log.isWarnEnabled()) {
@@ -794,7 +792,7 @@ public class AccessAgentProxy
     }
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
-        log.warn("no access control for msg " + 
+        log.warn("no access control for msg " +
           msg + ". reason:" + ex);
       }
       return false;
@@ -810,7 +808,7 @@ public class AccessAgentProxy
     }
     return (!act.equals(AccessControlPolicy.SET_ASIDE));
   }
-  */ 
+
   private boolean checkInVerbs(Message msg) {
     return checkMessage(msg, true);
   }
@@ -824,7 +822,7 @@ public class AccessAgentProxy
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
         log.warn("No msg incoming trust for type = "
-		 + msg.getClass());  
+		 + msg.getClass());
       }
       return false;
     }
@@ -832,12 +830,12 @@ public class AccessAgentProxy
       //for non-directive messages set length is 1.
       compare(set[0], policySet);
     }
-    
+
     //for directive messages it's more complicated.
     if(msg instanceof DirectiveMessage) {
       Directive directive[] = ((DirectiveMessage)msg).getDirectives();
       TrustSet policy;
-      
+
       if (directive==null) {
 	return false;
       }
@@ -855,8 +853,7 @@ public class AccessAgentProxy
 	  set[i+1] = policy; //new TrustSet();
 	} else {
 	  if(directive[i] instanceof Task) {
-	    // TODO: this must be broken
-	    //Task task = (Task)directive[i];
+	    Task task = (Task)directive[i];
 	    set[i+1] = policy;
 	  } else {
 	    compare(set[i+1], policy);
@@ -866,7 +863,7 @@ public class AccessAgentProxy
     }
     return true;
   }
-	
+
   private boolean incomingAgentAction(Message msg) {
     String action;
 
@@ -894,13 +891,13 @@ public class AccessAgentProxy
     }
     return (!action.equals(AccessControlPolicy.SET_ASIDE));
   }
-  
+
   private boolean incomingAgentAction(DirectiveMessage msg) {
     String action = null;
-    Directive directive[] = 
+    Directive directive[] =
       ((DirectiveMessage)msg).getDirectives();
     int len = directive.length;
-    
+
     for(int i = 0; i < len; i++) {
       if(!(directive[i] instanceof Task)) {
 	continue;
@@ -925,7 +922,7 @@ public class AccessAgentProxy
     }
     return true;
   }
-	
+
   private boolean incomingMessageAction(Message msg, TrustSet trust) {
     String action;
     if (msg == null || trust == null) {
@@ -936,7 +933,7 @@ public class AccessAgentProxy
       return false;
     }
     try {
-      TrustAttribute mc = trust.getAttribute(MissionCriticality.name); 
+      TrustAttribute mc = trust.getAttribute(MissionCriticality.name);
       if (mc == null) {
         // can't go on, drop the message.
         if(log.isWarnEnabled()) {
@@ -952,12 +949,12 @@ public class AccessAgentProxy
         }
         return false;
       }
-      action = 
+      action =
         acps.getIncomingAction(msg.getTarget().toString(), v.toString());
     }
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
-        log.warn("No access control for message: " + 
+        log.warn("No access control for message: " +
         msg + ". reason:" + ex);
       }
       return false;
@@ -973,7 +970,7 @@ public class AccessAgentProxy
     }
     return (!action.equals(AccessControlPolicy.SET_ASIDE));
   }
-  
+
   /**
    * publish a message failure event
    */
@@ -983,16 +980,19 @@ public class AccessAgentProxy
                                                  target,
                                                  reason,
                                                  data);
+    /*
     if(eventPublisher != null) {
-      eventPublisher.publishEvent(event); 
+      eventPublisher.publishEvent(event);
     }
     else {
       if(log.isDebugEnabled()) {
         log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
-    }  
+    }
+    */
+    MessageFailureSensor.publishEvent(event);
   }
-  
+
   private TrustSet makeLowestTrust(){
     TrustSet ts = new TrustSet();
     //range 1-5, 3 is default
