@@ -3,8 +3,8 @@
 # $1 : hostname
 # $2 : configuration directory
 # $3 : node .ini file
-# $4 : Additional commands to execute
-# $5 : directory where start-node is launched
+# $4 : Name of file that contains additional commands to execute
+# $5 : directory where $4 file is located
 
 #killall -w -KILL java
 
