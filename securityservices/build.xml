@@ -53,7 +53,7 @@
 
     <path id="core.class.path">    
         <!-- Cougaar 3rd party support packages -->
-        <pathelement location="${securityservices.base}/sys/antlr.jar"/>
+        <pathelement location="${securityservices.base}/build/lib/antlr.jar"/>
         <pathelement location="${securityservices.base}/sys/ibmpkcs.jar"/>
         <pathelement location="${securityservices.base}/sys/iw.jar"/>
         <pathelement location="${securityservices.base}/sys/jas.jar"/>
@@ -67,9 +67,9 @@
         <pathelement location="${securityservices.base}/lib/overlay.jar"/>
         <pathelement location="${securityservices.base}/sys/mail.jar"/>
         <!-- JUNIT libraries -->
-        <pathelement location="${securityservices.base}/sys/httpunit.jar"/>
+        <pathelement location="${securityservices.base}/build/lib/httpunit.jar"/>
         <!-- jakarta oro -->
-        <pathelement location="${securityservices.base}/sys/jakarta-oro-2.0.5.jar"/>
+        <pathelement location="${securityservices.base}/build/lib/jakarta-oro-2.0.5.jar"/>
         <!-- don't point to the signed version of jasper-runtime.jar or the jspc task will puke! -->
         <pathelement location="${securityservices.base}/build/jasper/lib/jasper-runtime.jar"/>
         <pathelement location="${securityservices.base}/build/jasper/lib/jasper-compiler.jar"/>
@@ -673,7 +673,7 @@
             </fileset>
         </copy>
         <copy todir="${securityservices.staging}/csmart/config/rules/security/communities">
-            <fileset dir="${securityservices.configs}/recipes/rules/parameters">
+            <fileset dir="${securityservices.configs}/recipes/rules/communities">
                 <patternset>
                     <include name="community.rule"/>
                 </patternset>
