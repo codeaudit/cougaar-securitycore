@@ -272,7 +272,7 @@ public class AuthServiceImpl
         accessProp.setMultipleInstances(tmp);
       }
       Set objectsInDAML = 
-        _guard.getAllowableValuesForProperty(
+        _guard.getAllowableValuesForActionProperty(
                     org.cougaar.core.security.policy.enforcers.ontology.jena.
                     UltralogActionConcepts._blackBoardAccessObject_,
                     action,
@@ -390,6 +390,9 @@ public class AuthServiceImpl
       _log.fatal("Something is seriously wrong with policy - " +
                  "the system is probably shutting down now..." +
                  "(hope runs eternal though)", e);
+      return false;
+    } catch (InterruptedException e) {
+      _log.warn("Mediation interrupted - denying access");
       return false;
     }
   }
