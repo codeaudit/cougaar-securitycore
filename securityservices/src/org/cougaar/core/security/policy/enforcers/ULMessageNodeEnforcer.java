@@ -63,8 +63,8 @@ public class ULMessageNodeEnforcer
     org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "GetWater";
 
-  private List      _agents;
-  private NodeGuard _guard;
+  private List                   _agents;
+  private EnforcerManagerService _guard;
 
   /**
    * This returns a list of the action classes that this controls, 
@@ -136,44 +136,17 @@ public class ULMessageNodeEnforcer
       throw new RuntimeException("Guard service is not registered");
     }
 
-    EnforcerManagerService _enfMgr = 
+    _guard = 
       (EnforcerManagerService)
       _sb.getService(this, EnforcerManagerService.class, null);
-    if (_enfMgr == null) {
+    if (_guard == null) {
       _log.fatal("Cannot continue without guard", new Throwable());
       throw new RuntimeException("Cannot continue without guard");
     }
-    int retries = 0;
-    boolean registered = false;
-    while (!registered) {
-      // try this 3 times...
-      try {
-	if (!_enfMgr.registerEnforcer(this, _enforcedActionType, _agents)) {
-	  _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
-	  _log.fatal("Could not register with the Enforcer Manager Service");
-	  throw new RuntimeException("Cannot register with Enforcer Manager Service");
-	}
-	registered = true;
-      } catch (RuntimeException e) {
-	retries++;
-	if (retries > 3) {
-	  _log.error("Tried " + retries +
-		     " times to register enforcer. quitting...");
-	  throw e;
-	}
-	_log.warn("Caught exception when attempting to register the enforcer" +
-		  ". Will retry.", e);
-	try {
-	  Thread.sleep(1000);
-	} catch (InterruptedException ie) {
-	}
-      }
-    }
-    if (_enfMgr instanceof NodeGuard) {
-      _guard = (NodeGuard) _enfMgr;
-    } else { 
-      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
-      throw new RuntimeException("Cannot get guard");
+    if (!_guard.registerEnforcer(this, _enforcedActionType, _agents)) {
+      _sb.releaseService(this, EnforcerManagerService.class, _guard);
+      _log.fatal("Could not register with the Enforcer Manager Service");
+      throw new RuntimeException("Cannot register with Enforcer Manager Service");
     }
   }
 

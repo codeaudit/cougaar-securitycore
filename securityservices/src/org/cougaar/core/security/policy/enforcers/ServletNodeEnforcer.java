@@ -66,7 +66,7 @@ public class ServletNodeEnforcer
     org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "NSAApprovedProtection";
   private List _people;
-  private NodeGuard _guard;
+  private EnforcerManagerService _guard;
   private DAMLServletMapping _uriMap;
   private Map _userRoleMap;
 
@@ -139,25 +139,19 @@ public class ServletNodeEnforcer
       throw new RuntimeException("Guard service is not registered");
     }
 
-    EnforcerManagerService _enfMgr = 
+    _guard = 
       (EnforcerManagerService)
       _sb.getService(this, EnforcerManagerService.class, null);
-    if (_enfMgr == null) {
-      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
+    if (_guard == null) {
+      _sb.releaseService(this, EnforcerManagerService.class, _guard);
       _log.fatal("Cannot continue without guard", new Throwable());
       throw new RuntimeException("Cannot continue without guard");
     }
-    if (!_enfMgr.registerEnforcer(this, _enforcedActionType, _people)) {
-      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
+    if (!_guard.registerEnforcer(this, _enforcedActionType, _people)) {
+      _sb.releaseService(this, EnforcerManagerService.class, _guard);
       _log.fatal("Could not register with the Enforcer Manager Service");
       throw new SecurityException(
                    "Cannot register with Enforcer Manager Service");
-    }
-    if (_enfMgr instanceof NodeGuard) {
-      _guard = (NodeGuard) _enfMgr;
-    } else { 
-      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
-      throw new RuntimeException("Cannot get guard");
     }
   }
 
@@ -429,7 +423,16 @@ public class ServletNodeEnforcer
       if (_log.isDebugEnabled()) {
         _log.debug("Audit Test action = " + action);
       }
-      boolean ret = _guard.isActionAuthorized(action);
+      boolean ret = false;
+
+      try {
+        kaos.policy.guard.ActionPermission kap 
+          = new kaos.policy.guard.ActionPermission("foo", action);
+        _guard.checkPermission(kap, null);
+        ret = true;
+      } catch (SecurityException e) {
+        ret = false;
+      }
       if (_log.isDebugEnabled()) {
         _log.debug("is it authorized? " + ret);
       }
@@ -512,13 +515,20 @@ public class ServletNodeEnforcer
                                     targets);
     KAoSProperty userProp = action.getProperty(kaos.ontology.jena.
                                                ActionConcepts._performedBy_);
+    boolean result = false;
     try {
-      boolean result = _guard.isActionAuthorized(action);
-      UserDatabase.logout(user);
-      return result;
-    } catch (Throwable th) {
-      _log.error("Error testing if action is authorized", th);
-      return false;
+      kaos.policy.guard.ActionPermission kap 
+        = new kaos.policy.guard.ActionPermission("foo", action);
+      _guard.checkPermission(kap, null);
+      result=true;
+    } catch (SecurityException e) {
+      if (_log.isWarnEnabled()) {
+        _log.warn("Permission denied " + e);
+        _log.warn("Action = " + action);
+      }
+      result=false;
     }
+    UserDatabase.logout(user);
+    return result;
   }
 }

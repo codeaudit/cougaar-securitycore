@@ -49,7 +49,7 @@ public class SampleAgentEnforcer
   // specific to an agent.
   private String _action = ActionConcepts.actionDamlURL + "MobilityAction";
   private Vector _agents;
-  private NodeGuard _guard;
+  private EnforcerManagerService _guard;
 
 
   /*
@@ -126,25 +126,19 @@ public class SampleAgentEnforcer
       throw new SecurityException("Guard service is not registered");
     }
 
-    EnforcerManagerService _enfMgr = 
+    _guard = 
       (EnforcerManagerService)
       _sb.getService(this, EnforcerManagerService.class, null);
-    if (_enfMgr == null) {
-      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
+    if (_guard == null) {
+      _sb.releaseService(this, EnforcerManagerService.class, _guard);
       _log.fatal("Cannot continue without guard", new Throwable());
       throw new SecurityException("Cannot continue without guard");
     }
-    if (!_enfMgr.registerEnforcer(this, _action, _agents)) {
-      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
+    if (!_guard.registerEnforcer(this, _action, _agents)) {
+      _sb.releaseService(this, EnforcerManagerService.class, _guard);
       _log.fatal("Could not register with the Enforcer Manager Service");
       throw new SecurityException(
                                   "Cannot register with Enforcer Manager Service");
-    }
-    if (_enfMgr instanceof NodeGuard) {
-      _guard = (NodeGuard) _enfMgr;
-    } else { 
-      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
-      throw new SecurityException("Cannot get guard");
     }
   }
 

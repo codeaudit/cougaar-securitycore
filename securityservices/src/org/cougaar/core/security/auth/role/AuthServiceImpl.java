@@ -54,7 +54,7 @@ public class AuthServiceImpl
   private static int _counter = 0;
   private SecurityContextService _scs;
   private ServiceBroker          _sb;
-  private NodeGuard              _guard;
+  private EnforcerManagerService _guard;
   private RoleMapping            _roleMap;
   private LoggingService         _log;
 
@@ -116,25 +116,18 @@ public class AuthServiceImpl
 
   public void registerEnforcer()
   {
-    EnforcerManagerService enfMgr = 
-      (EnforcerManagerService)
-      _sb.getService(this, EnforcerManagerService.class, null);
-    if (enfMgr == null) {
-      _sb.releaseService(this, EnforcerManagerService.class, enfMgr);
+    _guard = (EnforcerManagerService)
+                     _sb.getService(this, EnforcerManagerService.class, null);
+    if (_guard == null) {
+      _sb.releaseService(this, EnforcerManagerService.class, _guard);
       _log.fatal("Cannot continue without guard", new Throwable());
       throw new RuntimeException("Cannot continue without guard");
     }
-    if (!enfMgr.registerEnforcer(this, _enforcedActionType, new Vector())) {
-      _sb.releaseService(this, EnforcerManagerService.class, enfMgr);
+    if (!_guard.registerEnforcer(this, _enforcedActionType, new Vector())) {
+      _sb.releaseService(this, EnforcerManagerService.class, _guard);
         _log.fatal("Could not register with the Enforcer Manager Service");
       throw new SecurityException(
                    "Cannot register with Enforcer Manager Service");
-    }
-    if (enfMgr instanceof NodeGuard) {
-      _guard = (NodeGuard) enfMgr;
-    } else { 
-      _sb.releaseService(this, EnforcerManagerService.class, enfMgr);
-      throw new RuntimeException("Cannot get guard");
     }
   }
 
@@ -416,15 +409,14 @@ public class AuthServiceImpl
       actorProp.setMultipleInstances(tmp);
     }
     try {
-      return _guard.isActionAuthorized(aid);
-    } catch (UnknownConceptException e) {
-      _log.fatal("Something is seriously wrong with policy - " +
-                 "the system is probably shutting down now..." +
-                 "(hope runs eternal though)", e);
-      return false;
-    } catch (InterruptedException e) {
+      kaos.policy.guard.ActionPermission kap 
+        = new kaos.policy.guard.ActionPermission("foo", aid);
+      _guard.checkPermission(kap, null);
+      return true;
+    } catch (SecurityException e) {
       if (_log.isWarnEnabled()) {
-        _log.warn("Mediation interrupted - denying access");
+        _log.warn("Permission denied " + e);
+        _log.warn("Action = " + aid);
       }
       return false;
     }
