@@ -44,7 +44,9 @@ class Stress5f < SecurityStressFramework
     @numberOfSuccess = 0
     @numberOfAgents = 0
     result = 0.0
-    @run.society.each_agent(true) do |agent|
+    #@run.society.each_agent(true) do |agent|
+    @run.society.each_node do |node|
+      agent = node.agent
       @numberOfAgents += 1
       #goodurl = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/AuthorizedResourceServlet"
       goodurl = "#{agent.uri}/AuthorizedResourceServlet"
@@ -71,7 +73,9 @@ class Stress5f < SecurityStressFramework
     @numberOfSuccess = 0
     @numberOfAgents = 0
     result = 0.0
-    @run.society.each_agent(true) do |agent|
+    #@run.society.each_agent(true) do |agent|
+    @run.society.each_node do |node|
+      agent = node.agent
       @numberOfAgents += 1
       #badurl = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/UnAuthorizedResourceServlet"
       badurl = "#{agent.uri}/UnAuthorizedResourceServlet"
