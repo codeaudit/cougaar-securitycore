@@ -26,10 +26,10 @@
    things that I can try   to fix before I chase this.  This doesn't
    look like my problem (?). 
 
-2. From the SecureNode.  To get this bug, in KPAT make a policy with
-   AG1Member as the subject and test.msg as the policy.  It will
-   happen during the commit.  There are several things that I can try
-   to fix before I chase this.
+2. From the SecureNode I get the error below.  To get this bug, in
+   KPAT make a policy with AG1Member as the subject and test.msg as
+   the policy.  It will happen during the commit.  There are several
+   things that I can try to fix before I chase this.
 
 EnclaveOnePolicyManager/safe.policyManager.DomainManagerPlugin[EnclaveOne]
 caught java.lang.NullPointerException

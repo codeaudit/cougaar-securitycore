@@ -174,6 +174,7 @@ public class Forgetful {
     {
 	int i;
 	String ln = r.getLocalName();
+	//	System.out.println("Anonymous? " + ln);
 	if (r.isAnon() || r.getNameSpace().equals(anonstring)) {
 	    return true;
 	}  else if (ln.charAt(0) == 'A') {
@@ -183,7 +184,10 @@ public class Forgetful {
 		}
 	    }
 	    return true;
+	} else if (ln.startsWith("RDFAnon")) {
+	    return true;
 	} else {
+	    //	    System.out.println("This is not anonymous: " + ln);
 	    return false;
 	}
     }

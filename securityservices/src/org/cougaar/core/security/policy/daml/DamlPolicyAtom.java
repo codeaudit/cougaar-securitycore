@@ -54,15 +54,20 @@ public class DamlPolicyAtom {
 	_log = log;
     }
 
-    public boolean equals(DamlPolicyAtom a) {
+    public boolean equals(Object a) {
 	try {
-	    return (policy.equals(a.policy) ||
-		    Forgetful.copy(policy).equals(Forgetful.copy(a.policy))
-		//		  && locator.equals(a.locator)
-		    );
+	    _log.debug("in DamlPolicyAtom.equals");
+	    if (a instanceof DamlPolicyAtom) {
+		DamlPolicyAtom otherAtom = (DamlPolicyAtom) a;
+		return ((policy.equals(otherAtom.policy) ||
+			 Forgetful.copy(policy)
+			    .equals(Forgetful.copy(otherAtom.policy)))
+		     //		  && locator.equals(a.locator)
+			  );
+	    } else { return false; }
 	} catch (Exception e) {
 	    _log.error("Exception comparing daml policies for equality", e);
 	}
-	return policy.equals(a.policy); // might not work?
+	return false;
     }
 }
