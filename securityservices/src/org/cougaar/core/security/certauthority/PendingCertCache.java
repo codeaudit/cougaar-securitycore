@@ -44,6 +44,7 @@ import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class PendingCertCache
@@ -91,10 +92,9 @@ public class PendingCertCache
       caPolicy = configParser.getCaPolicy(cadnname);
 
       signer = (CertificateManagementService)
-	serviceBroker.getService(this,
+	serviceBroker.getService(new CertificateManagementServiceClientImpl(cadnname),
 				 CertificateManagementService.class,
 				 null);
-      signer.setParameters(cadnname);
     }
     catch (Exception e) {
       throw new Exception("Unable to read policy for DN="
@@ -291,6 +291,18 @@ public class PendingCertCache
       e.printStackTrace();
     }
     return certlist;
+  }
+
+  private class CertificateManagementServiceClientImpl
+    implements CertificateManagementServiceClient
+  {
+    private String caDN;
+    public CertificateManagementServiceClientImpl(String aCaDN) {
+      caDN = aCaDN;
+    }
+    public String getCaDN() {
+      return caDN;
+    }
   }
 
 }

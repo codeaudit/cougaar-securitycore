@@ -65,6 +65,7 @@ import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
 import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
 
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
@@ -128,11 +129,9 @@ public class KeyStoreTest
     // Process a PKCS10 request:
     CertificateManagementService km = null;
     km = (CertificateManagementService)
-      serviceBroker.getService(this,
+      serviceBroker.getService(new CertificateManagementServiceClientImpl(caDN),
 			       CertificateManagementService.class,
 			       null);
-    km.setParameters(caDN);
-
     FileInputStream f = new FileInputStream(filename);
     PrintStream ps = new PrintStream(System.out);
     String reply = km.processPkcs10Request(f, false);
@@ -147,11 +146,9 @@ public class KeyStoreTest
     // Process a signed certificate request
     CertificateManagementService km = null;
     km = (CertificateManagementService)
-      serviceBroker.getService(this,
+      serviceBroker.getService(new CertificateManagementServiceClientImpl(caDN),
 			       CertificateManagementService.class,
 			       null);
-    km.setParameters(caDN);
-
     FileInputStream is = new FileInputStream(filename);
     km.printPkcs7Request(is);
     // km.printPkcs7Request(args[1]);
@@ -253,6 +250,18 @@ public class KeyStoreTest
     } catch (Exception e) {
       System.out.println("Exception: " + e);
       e.printStackTrace();      
+    }
+  }
+
+  private class CertificateManagementServiceClientImpl
+    implements CertificateManagementServiceClient
+  {
+    private String caDN;
+    public CertificateManagementServiceClientImpl(String aCaDN) {
+      caDN = aCaDN;
+    }
+    public String getCaDN() {
+      return caDN;
     }
   }
 

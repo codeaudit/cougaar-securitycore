@@ -1597,12 +1597,12 @@ public class DirectoryKeyStore
 
         caDN = configParser.getCaDNs()[0].getName();
         // sign it locally
-        CertificateManagementService km = (CertificateManagementService)
-          param.serviceBroker.getService(this,
-                                         CertificateManagementService.class,
-                                         null);
 
-        km.setParameters(caDN);
+        CertificateManagementService km = (CertificateManagementService)
+          param.serviceBroker.getService(
+	    new CertificateManagementServiceClientImpl(caDN),
+	    CertificateManagementService.class,
+	    null);
         if (log.isDebugEnabled())
           log.debug("Signing certificate locally with " + caDN);
         X509CertImpl certImpl = km.signX509Certificate(
@@ -2005,7 +2005,12 @@ public class DirectoryKeyStore
 	String a = (String)list.nextElement();
 	if (a.startsWith(alias)) {
 	  //Extract index
-	  ind = Integer.valueOf(a.substring(alias.length())).intValue();
+	  try {
+	    ind = Integer.valueOf(a.substring(alias.length())).intValue();
+	  }
+	  catch (NumberFormatException e) {
+	    continue;
+	  }
 	  if (log.isDebugEnabled()) {
 	    log.debug("Alias: " + alias + " - val: " + ind);
 	  }
@@ -2399,11 +2404,9 @@ public class DirectoryKeyStore
 	log.debug("Signing PKCS10 request with node");
       }
       CertificateManagementService km = (CertificateManagementService)
-	param.serviceBroker.getService(this,
+	param.serviceBroker.getService(new CertificateManagementServiceClientImpl(nodeDN),
 				       CertificateManagementService.class,
 				       null);
-      km.setParameters(nodeDN);
-
       X509Certificate[] cf =
 	km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
       PrintStream ps = new PrintStream(baos);
@@ -2563,5 +2566,15 @@ public class DirectoryKeyStore
     // default
     return certificateFinder;
   }
-
+  private class CertificateManagementServiceClientImpl
+    implements CertificateManagementServiceClient
+  {
+    private String caDN;
+    public CertificateManagementServiceClientImpl(String aCaDN) {
+      caDN = aCaDN;
+    }
+    public String getCaDN() {
+      return caDN;
+    }
+  }
 }

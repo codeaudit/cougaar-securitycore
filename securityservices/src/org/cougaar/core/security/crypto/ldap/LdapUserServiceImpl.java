@@ -133,6 +133,9 @@ public class LdapUserServiceImpl implements LdapUserService {
     log = (LoggingService)
 	serviceBroker.getService(this,
 	LoggingService.class, null);
+    if (log == null) {
+      throw new RuntimeException("Logging service is not available");
+    }
   }
 
   /**
@@ -663,7 +666,7 @@ public class LdapUserServiceImpl implements LdapUserService {
         return;
       }
 
-      if (debug) {
+      if (log.isDebugEnabled()) {
         log.debug("LdapUserService: Received policy message");
         RuleParameter[] param = policy.getRuleParameters();
         for (int i = 0 ; i < param.length ; i++) {

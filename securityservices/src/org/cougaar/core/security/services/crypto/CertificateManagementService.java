@@ -47,26 +47,9 @@ import sun.security.x509.X509CertImpl;
 // Cougaar core services
 import org.cougaar.core.component.Service;
 
-public interface CertificateManagementService extends Service {
-
-  /**  Set key management parameters
-   * @param aCA_DN       - The distinguished name of the CA
-   * @param role         - The role
-   * @param certPath     - The path where all cert requests are stored
-   *                       May be null, in which case it reads a java
-   *                       property. It should not be null in the case
-   *                       of a certificate authority.
-   * @param confpath     - The configuration path for the conf parser
-   *                       May be null, in which case it reads a java
-   *                       property. It should not be null in the case
-   *                       of a certificate authority.
-   * @param isCertAuth   - true if running as a certificate authority
-   *                       false if running as a Cougaar node
-   * @param krs          - KeyRing service. Useful only in when running
-   *                       as a Cougaar node.
-   */
-  public void setParameters(String aCA_DN);
-
+public interface CertificateManagementService
+  extends Service
+{
   public void processX509Request(PrintStream out, InputStream inputstream);
 
   /** Process a PKCS10 request

@@ -54,11 +54,9 @@ public class SecurityServletSupportImpl
 				    ClusterIdentifier agentId,
 				    BlackboardQueryService blackboard,
 				    NamingService ns,
-				    CertificateManagementService sms,
 				    ServiceBroker sb,
 				    LoggingService log) {
     super(path, agentId, blackboard, ns, log);
-    certificateManagementService = sms;
     serviceBroker = sb;
   }
 
@@ -74,10 +72,6 @@ public class SecurityServletSupportImpl
 	"Unable to obtain security properties service");
     }
     return securityPropertiesService;
-  }
-
-  public CertificateManagementService getCertificateManagementService() {
-    return certificateManagementService;
   }
 
   public ServiceBroker getServiceBroker() {

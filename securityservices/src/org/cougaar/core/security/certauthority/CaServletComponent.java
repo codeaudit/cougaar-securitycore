@@ -167,21 +167,10 @@ public class CaServletComponent
           "Unable to obtain naming service");
     }
    
-    // Get the certificate management service
-    certificateManagementService = (CertificateManagementService)
-      serviceBroker.getService(
-		    this,
-		    CertificateManagementService.class,
-		    null);
-    if (certificateManagementService == null) {
-      log.error("Unable to obtain certificate management service");
-    }
-
     support = new SecurityServletSupportImpl(getPath(),
 					     agentId,
 					     blackboardQueryService,
 					     namingService,
-					     certificateManagementService,
 					     serviceBroker,
 					     log);
     super.load();
@@ -205,13 +194,6 @@ public class CaServletComponent
     if (namingService != null) {
       serviceBroker.releaseService(
         this, NamingService.class, namingService);
-    }
-
-    // release the certificate management service
-    if (certificateManagementService != null) {
-      serviceBroker.releaseService(
-        this, CertificateManagementService.class,
-	certificateManagementService);
     }
   }
 

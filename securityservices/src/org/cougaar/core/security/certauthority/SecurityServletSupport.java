@@ -40,6 +40,5 @@ public interface SecurityServletSupport
   extends SimpleServletSupport
 {
   SecurityPropertiesService getSecurityProperties(Servlet servlet);
-  CertificateManagementService getCertificateManagementService();
   ServiceBroker getServiceBroker();
 }

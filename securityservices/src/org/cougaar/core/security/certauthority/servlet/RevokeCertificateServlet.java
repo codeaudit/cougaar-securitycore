@@ -49,6 +49,7 @@ import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.crypto.MultipleEntryException;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
 import org.cougaar.core.security.certauthority.*;
 
 public class RevokeCertificateServlet
@@ -116,9 +117,10 @@ public class RevokeCertificateServlet
     String uri = req.getRequestURI();
     String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/CertificateList";
     try {
-    
-      keymanagement = support.getCertificateManagementService();
-      keymanagement.setParameters(cadnname);
+      keymanagement =
+	(CertificateManagementService)support.getServiceBroker().getService(
+	  new CertificateManagementServiceClientImpl(cadnname),
+	  CertificateManagementService.class, null);
       String uniqueIdentifier=distinguishedName;
       status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
     }
@@ -237,6 +239,15 @@ public class RevokeCertificateServlet
     return sb.toString();
   }
 
-
+  private class CertificateManagementServiceClientImpl
+    implements CertificateManagementServiceClient
+  {
+    private String caDN;
+    public CertificateManagementServiceClientImpl(String aCaDN) {
+      caDN = aCaDN;
+    }
+    public String getCaDN() {
+      return caDN;
+    }
+  }
 }
-

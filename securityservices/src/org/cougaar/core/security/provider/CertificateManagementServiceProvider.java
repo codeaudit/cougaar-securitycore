@@ -26,9 +26,12 @@
 
 package org.cougaar.core.security.provider;
 
+import java.util.Hashtable;
+
 // Cougaar core infrastructure
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
+import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.certauthority.KeyManagement;
@@ -37,8 +40,15 @@ import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class CertificateManagementServiceProvider 
-  implements ServiceProvider {
+  implements ServiceProvider
+{
   private KeyRingService ksr;
+  private Hashtable cmsTable;
+  private LoggingService log;
+
+  public CertificateManagementServiceProvider() {
+    cmsTable = new Hashtable();
+  }
 
   /**
    * Get a service.
@@ -47,12 +57,48 @@ public class CertificateManagementServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public Object getService(ServiceBroker sb, 
-			   Object requestor, 
-			   Class serviceClass) {
-    KeyManagement km = null;
-    km = new KeyManagement(sb);
-    return km;
+  public synchronized Object getService(ServiceBroker sb, 
+					Object requestor, 
+					Class serviceClass) {
+    log = (LoggingService)
+      sb.getService(this,
+		    LoggingService.class, null);
+
+    CertificateManagementService cms = null;
+    if (requestor instanceof CertificateManagementServiceClient) {
+      String caDN = ((CertificateManagementServiceClient)requestor).getCaDN();
+      if (caDN == null) {
+	// A standard node agent having signing authority
+	caDN = "";
+      }
+      cms = (CertificateManagementService)cmsTable.get(caDN);
+      if (log.isDebugEnabled()) {
+	log.debug("Request CertificateManagementService for " + caDN
+	  + " - cms in hashtable: " + cms);
+      }
+      if (cms == null) {
+	try {
+	  cms = new KeyManagement(sb);
+	  ((KeyManagement)cms).setParameters(caDN);
+	  cmsTable.put(caDN, cms);
+	}
+	catch (Exception e) {
+	  cms = null;
+	  if (log.isErrorEnabled()) {
+	    log.error("Unable to initialize Key Management");
+	  }
+	}
+      }
+    }
+    else {
+      if (log.isErrorEnabled()) {
+	log.error("Requestor is not a CertificateManagementServiceClient - Client type:"
+		  + requestor.getClass().getName());
+      }
+      throw new RuntimeException("Requestor is not a CertificateManagementServiceClient:"
+				 + requestor.getClass().getName());
+    }
+    return cms;
   }
 
   /** Release a service.

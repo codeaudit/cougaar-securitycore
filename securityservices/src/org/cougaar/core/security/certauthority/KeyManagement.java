@@ -115,6 +115,9 @@ public class KeyManagement
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
+    if (log == null) {
+      throw new RuntimeException("Unable to get logging service");
+    }
   }
 
   /**  Set key management parameters
@@ -148,7 +151,7 @@ public class KeyManagement
       if (log.isWarnEnabled()) {
 	log.warn("Unable to parse requested CA DN: " + caDN);
       }
-      return;
+      throw new RuntimeException("Unable to parse requested CA DN: " + caDN);
     }
 
     secprop = (SecurityPropertiesService)
@@ -202,18 +205,10 @@ public class KeyManagement
     if (role == null && log.isWarnEnabled() == true) {
       log.warn("Role not defined");
     }
-
-    try {
-      init();
-    }
-    catch (Exception e) {
-      log.warn("Unable to initialize KeyManagement: " + e);
-      e.printStackTrace();
-    }
+    init();
   }
 
-  public void init()
-    throws java.io.FileNotFoundException {
+  public void init() {
     if(configParser.isCertificateAuthority()) {
       // Get the CA policy
       caPolicy = configParser.getCaPolicy(caDN);
@@ -269,7 +264,7 @@ public class KeyManagement
   }
 
 
-  private void publishCAinLdap()
+  private synchronized void publishCAinLdap()
   {
     log.debug("calling publish CA in ldap :");
     Certificate c=null;
@@ -336,7 +331,8 @@ public class KeyManagement
      }
   }
 
-  public void processX509Request(PrintStream out, InputStream inputstream) {
+  public synchronized void processX509Request(PrintStream out,
+					      InputStream inputstream) {
     Collection c = null;
     if(inputstream == null)
       return;
@@ -391,7 +387,7 @@ public class KeyManagement
    * - Save each signed certificate in a local file system.
    * - Publish each signed certificate in an LDAP directory service.
    */
-  public X509Certificate[] processPkcs10Request(InputStream request) {
+  public synchronized X509Certificate[] processPkcs10Request(InputStream request) {
     ArrayList ar = new ArrayList();
     try {
       if (log.isDebugEnabled()) {
@@ -440,7 +436,7 @@ public class KeyManagement
    * @param replyInHtml true if the reply is in HTML format. Set to true when the request comes from a browser.
    *
    */
-  public String processPkcs10Request(InputStream request,
+  public synchronized String processPkcs10Request(InputStream request,
 				     boolean replyInHtml)
   {
     String reply = "";

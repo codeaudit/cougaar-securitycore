@@ -42,6 +42,7 @@ import org.cougaar.util.*;
 // Cougaar security services
 import org.cougaar.core.security.services.util.*;
 import  org.cougaar.core.security.services.crypto.CertificateManagementService;
+import  org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
 import org.cougaar.core.security.certauthority.*;
 import org.cougaar.core.security.crypto.CertificateUtility;
 
@@ -104,8 +105,10 @@ public class CertificateSigningRequest
 	  aDomain = domain;
 	}
 	*/
-	signer = support.getCertificateManagementService();
-	signer.setParameters(CA_DN_name);
+	signer =
+	  (CertificateManagementService)support.getServiceBroker().getService(
+	    new CertificateManagementServiceClientImpl(CA_DN_name),
+	    CertificateManagementService.class, null);
       }
       catch (Exception exp)  {
 	printstream.print("Error ---" + exp.toString());
@@ -254,6 +257,15 @@ public class CertificateSigningRequest
     return("Accepts signing request and returns signed certificate");
   }
 
-
+  private class CertificateManagementServiceClientImpl
+    implements CertificateManagementServiceClient
+  {
+    private String caDN;
+    public CertificateManagementServiceClientImpl(String aCaDN) {
+      caDN = aCaDN;
+    }
+    public String getCaDN() {
+      return caDN;
+    }
+  }
 }
-
