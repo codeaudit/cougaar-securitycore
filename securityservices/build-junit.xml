@@ -66,6 +66,9 @@
 	  <sysproperty key="org.cougaar.securityservices.classes" value="${securityservices.classes}"/>
           <sysproperty key="org.cougaar.securityservices.regress" value="${securityservices.regress}"/>
           <sysproperty key="org.cougaar.junit.config.path" value="${securityservices.regress}/config/nodeTest"/>
+          <sysproperty key="junit.test.result.path" value="${junit.test.result.path}"/>
+          <sysproperty key="junit.config.file" value="${junit.config.file}"/>
+
           <!-- <sysproperty key="test.org.cougaar.core.security.simul.SaxMapper.trace" value="true"/> -->
 
           <classpath>

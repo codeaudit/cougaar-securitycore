@@ -510,10 +510,6 @@
           <property name="junit.test.desc"   value="CaStandaloneFromScratch"/>
           <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandaloneFromScratch.xml"/>
        </ant>
-       <ant antfile="build-junit.xml" dir="." target="run-node-tests-with-report" inheritRefs="true">
-          <property name="junit.test.desc"   value="CaStandaloneFromScratch2"/>
-          <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandaloneFromScratch2.xml"/>
-       </ant>
     </target>
 
 </project>
