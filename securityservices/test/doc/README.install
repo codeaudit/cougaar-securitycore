@@ -93,8 +93,8 @@ export COUGAARCLASSES=~/securityservices/classes	# bytecode tree root
    Make sure that alpc is in your path by adding $COUGAAR_INSTALL_PATH/build/bin
    to the PATH environment variable.
 
-setenv PATH ${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for bash shell users
-export PATH ${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for csh or tcsh users
+setenv PATH ${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for csh or tcsh shell users
+export PATH=${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for bash users
 
 7. Use the myalpc script from the securityservices directory. 
 
@@ -192,7 +192,16 @@ and executes the boostrapper, which launches the node.
 
 Running the ul-mini-config society
 ==================================
-Go to the test/configs/demo directory and type the following command:
+
+1. The COUGAAR_SECURITY_SERVICES environment variable must be set to the top-level
+   directory of the securityservices module. For instance:
+
+       setenv COUGAAR_SECURITY_SERVICES /home/u/foo/securityservices 	# for csh or tcsh shell users
+       export COUGAAR_SECURITY_SERVICES=/home/u/foo/securityservices	# for bash users
+
+2.
+
+4. Go to the test/configs/demo directory and type the following command:
    launch-society [configuration file] [use ssh-agent: true|false]
 
 The launch-society script launches multiple nodes from one single
