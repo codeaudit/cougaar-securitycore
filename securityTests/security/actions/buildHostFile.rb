@@ -10,10 +10,11 @@ module Cougaar
         user = ENV["USER"]
         hostsMap = {
           'mluu'     => ["aspen", "apricot", "peach", "olive", "almond"],
-          'srosset'  => ["sycamore", "eucalyptus", "rose", "cypress", "beech"],
+          'srosset'  => ["sycamore", "eucalyptus", "rose", "walnut", "beech"],
           'tredmond' => ["pine", "lemon", "yew", "tea", "cherry"],
           'rtripath' => ["elm", "birch", "pear", "palm", "apple"],
           'rliao1'   => ["willow", "chestnut", "ash", "hemlock", "pecan"],
+          'umemphis'   => ["cypress", "corn", "mango", "balsam", "redwood"],
           'default'  => ["host_1", "host_2", "host_3", "host_4", "host_5"],
         }
         if hostsMap[user] != nil
