@@ -26,16 +26,12 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import javax.crypto.*;
-import java.security.*;
-import java.io.*;
-import java.util.*;
+import javax.crypto.SealedObject;
+import java.security.cert.X509Certificate;
 
-// overlay
-import org.cougaar.core.service.*;
-
-// Security Services
-import org.cougaar.core.security.crypto.*;
+// Cougaar Security Services
+import org.cougaar.core.security.crypto.ProtectedObject;
+import org.cougaar.core.security.crypto.SecureMethodParam;
 
 /**
  * This key is to be put into storage by client.
@@ -43,18 +39,39 @@ import org.cougaar.core.security.crypto.*;
  *  are protected.
  * - SecretKey is the actual secret key asymmEncrypt with agent key
  */
-public class DataProtectionKeyImpl extends ProtectedObject
-  implements DataProtectionKey {
+public class DataProtectionKeyImpl
+  extends ProtectedObject
+{
   private String digestAlgSpec;
 
+  /** The certificate chain of the entity that was used to encrypt the secret key. */
+  private X509Certificate[] certificateChain;
+
+  private X509Certificate oldSigner;
+
   public DataProtectionKeyImpl(SealedObject secretKey,
-      String digestAlg, SecureMethodParam policy) {
+			       String digestAlg,
+			       SecureMethodParam policy,
+			       X509Certificate[] certChain) {
     super(policy, secretKey);
     digestAlgSpec = digestAlg;
+    certificateChain = certChain;
   }
 
   public String getDigestAlg() {
     return digestAlgSpec;
   }
 
+  /** Get the certificate chain of the entity that was used to encrypt the secret key. */
+  public X509Certificate[] getCertificateChain() {
+    return certificateChain;
+  }
+
+  public X509Certificate getOldSigner() {
+    return oldSigner;
+  }
+
+  public void setOldSigner(X509Certificate signer) {
+    oldSigner = signer;
+  }
 }
