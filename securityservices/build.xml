@@ -151,7 +151,28 @@
         </copy>
         <echo message="+++++ Installed Junit test files"/>        
     </target>
- 
+
+    <!-- Run the Junit nodes --> 
+    <target name="run-node-tests" depends="jar-junit-tests">
+       <junit fork="yes" printsummary="yes" dir="${securityservices.base}">
+          <sysproperty key="securityservices.configs" value="${securityservices.base}${file.separator}test${file.separator}configs"/>
+          <sysproperty key="org.cougaar.install.path" value="${cougaar.install.path}"/>
+          <sysproperty key="org.cougaar.junit.output.path" value="${securityservices.regress}"/>
+          <sysproperty key="org.cougaar.junit.config.path" value="${securityservices.regress}/config/nodeTest"/>
+          <classpath>
+             <fileset dir="${securityservices.classes}">
+                <include name="junitTests.jar" />
+             </fileset>
+          </classpath>
+          <formatter type="plain"/>
+          <batchtest  todir="${securityservices.regress}">
+             <fileset dir="classes">
+                <include name="test/**/NodeServerTest.class"/>
+             </fileset>
+          </batchtest>
+       </junit>
+    </target>
+
     <!-- Run the Junit tests -->
     <target name="run-tests" depends="jar-junit-tests, install-junit-tests">
        <junit fork="yes" printsummary="yes" dir="${securityservices.regress}/config">
@@ -322,9 +343,9 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/configs/common"
+        <copy todir="${cougaar.install.path}/configs/security"
             file="${securityservices.configs}/adaptiveMnR/AMnRPlays.txt"/>    
-        <copy todir="${cougaar.install.path}/configs/common"
+        <copy todir="${cougaar.install.path}/configs/security"
             file="${securityservices.configs}/adaptiveMnR/AMnRPlaysEnclave.txt"/>    
         <copy todir="${cougaar.install.path}/webtomcat/data/conf"
             file="${securityservices.configs}/tomcat4/server.xml"/>    
@@ -337,7 +358,7 @@
     </target>
     
     <target name="confnai">
-        <copy todir="${cougaar.install.path}/configs/common"
+        <copy todir="${cougaar.install.path}/configs/security"
             file="${securityservices.configs}/mysql/cougaar.rc"/>
     </target>
     
