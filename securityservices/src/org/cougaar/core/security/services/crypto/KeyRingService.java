@@ -87,6 +87,7 @@ public interface KeyRingService extends Service {
 
 
   Hashtable findCertPairFromNS(String source, String target) throws CertificateException, IOException;
+  Hashtable findCertStatusPairFromNS(String source, String target) throws CertificateException, IOException;
   List findDNFromNS(String name) throws IOException;
 
 
