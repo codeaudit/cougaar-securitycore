@@ -17,7 +17,7 @@ society.each_agent do |agent|
 #      facetval = node.host.get_facet(:enclave)
 #      agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "RedundantPersistenceManager"
 #      node.add_agent(agentname) do |agent|
-        run.info_message("adding redundant servlets for #{agent.name}")
+#        run.info_message("adding redundant servlets for #{agent.name}")
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin"
         end
