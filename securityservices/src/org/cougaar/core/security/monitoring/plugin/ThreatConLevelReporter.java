@@ -37,6 +37,7 @@ import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.EventService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.multicast.AttributeBasedAddress;
@@ -60,10 +61,12 @@ public class ThreatConLevelReporter extends ComponentPlugin {
   
   private LoggingService _log;
   private CommunityService _cs;
+  private EventService _es;
   private UIDService _uid;
   private static final String[] OPERATING_MODE_VALUES = {"LOW", "HIGH"};
   private static final OMCRangeList OMRANGE = new OMCRangeList(OPERATING_MODE_VALUES);
   private OperatingMode _currentThreatCon = null;
+  
   
   /**
    * Subscription to InterAgentOperatingModePolicy(s)
@@ -110,6 +113,7 @@ public class ThreatConLevelReporter extends ComponentPlugin {
     ServiceBroker sb = getServiceBroker();
     _log = (LoggingService)sb.getService(this, LoggingService.class, null);
     _cs = (CommunityService)sb.getService(this, CommunityService.class, null);
+    _es = (EventService)sb.getService(this, EventService.class, null);
     _uid = (UIDService)sb.getService(this, UIDService.class, null);
     BlackboardService bbs = getBlackboardService();
     _subscription = (IncrementalSubscription)
@@ -145,9 +149,9 @@ public class ThreatConLevelReporter extends ComponentPlugin {
   public void execute() {
     if (_subscription.hasChanged()) {
       // notify all the agents in a particular enclave/security community 
-      removePolicies(_subscription.getRemovedCollection());
-      addPolicies(_subscription.getAddedCollection());
-      changePolicies(_subscription.getChangedCollection());
+    	removePolicies(_subscription.getRemovedCollection());
+    	addPolicies(_subscription.getAddedCollection());
+    	changePolicies(_subscription.getChangedCollection());
     }
   }
   
@@ -160,6 +164,7 @@ public class ThreatConLevelReporter extends ComponentPlugin {
       InterAgentOperatingMode iaom = (InterAgentOperatingMode)_omMap.remove(iaomp);
       if(iaom != null) {
         getBlackboardService().publishRemove(iaom);
+        _es.event("OPERATING_MODE(remove, " + AdaptiveMnROperatingModes.THREATCON_LEVEL + ", " + iaom.getValue() + ")");
         if(debug) {
           _log.debug("removing operating mode [ " + iaom + ", " + getAgentIdentifier() + " ]"); 
         }
@@ -188,7 +193,7 @@ public class ThreatConLevelReporter extends ComponentPlugin {
         } else {
           if(debug) {
           _log.debug("not modifying operating mode value since the values the same (" + newValue + ").");
-          }
+        }
         }
         // doesn't make sense to constrain an operating mode more than once
         // therefore, we take the last constrain
@@ -208,11 +213,12 @@ public class ThreatConLevelReporter extends ComponentPlugin {
       om = (OperatingMode)_omMap.get(iaomp);
       if(om != null && modifyOperatingMode(iaomp, om)) {
         getBlackboardService().publishChange(om);
+        _es.event("OPERATING_MODE(change, " + AdaptiveMnROperatingModes.THREATCON_LEVEL + ", " + om.getValue() + ")");
         if(debug) {
           _log.debug("changed operating mode [ " + om + ", " + getAgentIdentifier() + " ]"); 
         }
       }
-      else  {
+      else {
         if(om == null) {
           _log.warn("changePolicies: InterAgentOperatingMode does not exist for " + iaomp + " from " + iaomp.getSource());
         }
@@ -249,6 +255,7 @@ public class ThreatConLevelReporter extends ComponentPlugin {
         iaom.setTarget(AttributeBasedAddress.getAttributeBasedAddress(_securityComm, "Role", "Member"));
         getBlackboardService().publishAdd(iaom);  
         _omMap.put(iaomp, iaom);
+        _es.event("OPERATING_MODE(add, " + AdaptiveMnROperatingModes.THREATCON_LEVEL + ", " + iaom.getValue() + ")");
         if(debug) {
           _log.debug("added operating mode [ " + iaom + ", " + getAgentIdentifier() + " ]"); 
         }
