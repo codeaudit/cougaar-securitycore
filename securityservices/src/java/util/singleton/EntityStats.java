@@ -50,36 +50,15 @@ import java.lang.ref.WeakReference;
 public class EntityStats
 {
   private Stats _stats;
+
+  private Runnable _statsUpdater;
+
+  /*
   private static ByteArrayOutputStream _bos;
   private static ObjectOutputStream _oos;
+  */
 
-  public static class Stats {
-    /**
-     * The total number of times the collection was allocated.
-     */
-    public int       _totalAllocations;
-
-    /**
-     * The number of currently allocated collections
-     */
-    public int       _currentAllocations;
-
-    /**
-     * The number of collections that have been garbage collected.
-     */
-    public int       _garbageCollected;
-
-    /***
-     * The total of all elements in the collections.
-     */
-    public long      _totalNumberOfElements;
-
-    /***
-     * The median size of the collections.
-     */
-    public double    _medianSize;
-
-  }
+  public static int UPDATE_STATS_FREQUENCY = 60 * 1000;
 
   /**
    * A map of all the instances of collections of the same type.
@@ -127,13 +106,42 @@ public class EntityStats
 			  new EntityStats(Arrays.class))
   };
 
+  private static Object updaterLock = new Object();
+
   public EntityStats(Class type) {
     if (type != null) {
-      _collections = new IdentityHashMap();
+      _collections = new IdentityHashMap(true);
+      /*
+       * Update stats as a background thread. Otherwise, the IdentityHashMaps
+       * may grow very large if the servlet is not invoked.
+       */
+      _statsUpdater = new Runnable() {
+	  public void run() {
+	    while (true) {
+	      try {
+		Thread.sleep(UPDATE_STATS_FREQUENCY);
+	      }
+	      catch (InterruptedException ex) {}
+	      // Do only one update at a time.
+	      synchronized (updaterLock) {
+		System.out.println("Updating stats for "
+		  + getShortName());
+		updateIndividualCollectionSize();
+	      }
+	    }
+	  }
+	};
+      Thread t = new Thread(_statsUpdater);
+      t.setDaemon(true);
+      t.setPriority(Thread.MIN_PRIORITY);
+      t.start();
     }
+
     _type = type;
     _stats = new Stats();
-  }
+    _agentStats = new HashMap(true);
+
+   }
 
   public int getTotalAllocations(boolean update) {
     if (update) {
@@ -157,6 +165,7 @@ public class EntityStats
     return null;
     //return (EntityStats) _collectionsMap.get(type);
   }
+
   public EntityStats getEntityStats(String type) {
     Class cl = null;
     try {
@@ -170,6 +179,7 @@ public class EntityStats
   }
 
 
+  /*
   public static synchronized long getObjectSize(Object o) {
     _bos.reset();
     try {
@@ -182,6 +192,7 @@ public class EntityStats
     _bos.reset();
     return ret;
   }
+  */
 
   /**
    * The number of collections currently allocated (that haven't been
@@ -193,21 +204,57 @@ public class EntityStats
       updateIndividualCollectionSize();
       //updateCollections();
     }
-    return _collections.size();
+    int ret = 0;
+    synchronized (_collections) {
+      ret = _collections.size();
+    }
+    return ret;
   }
 
   public void updateCollections() {
     synchronized (_collections) {
-      Set s = _collections.entrySet();
-      Iterator it = s.iterator();
+      Iterator it = _collections.entrySet().iterator();
       while (it.hasNext()) {
-	Reference wr = (Reference) ((Map.Entry) it.next()).getKey();
+	Map.Entry me = (Map.Entry) it.next();
+	Reference wr = (Reference) me.getKey();
 	if (wr.get() == null) {
+	  // This is the last chance to have access to the
+	  // per-agent and per-component stats.
+	  // Update those stats.
+	  /*
+	  EntityData ed = (EntityData) me.getValue();
+	  synchronized(_agentStats) {
+	    Stats st = (Stats) _agentStats.get(ed.getAgentName());
+	    if (st == null) {
+	      st = new Stats();
+	      _agentStats.put(ed.getAgentName(), st);
+	    }
+	    st._garbageCollected++;
+	  }
+	  */
 	  it.remove();
 	  _stats._garbageCollected++;
 	}
       }
     }
+  }
+
+  public List updateIndividualCollectionSize() {
+    updateCollections();
+    List l = null;
+    synchronized (_collections) {
+      l = new ArrayList(_collections.entrySet());
+      Iterator it = l.iterator();
+      long sum = 0;
+      while (it.hasNext()) {
+	Map.Entry m = (Map.Entry) it.next();
+	EntityData ed = (EntityData) m.getValue();
+	ed.updateCurrentSize();
+	sum += (long) ed.getCurrentSize(false);
+      }
+      _stats._totalNumberOfElements = sum;
+    }
+    return l;
   }
 
   public Class getType() {
@@ -234,21 +281,6 @@ public class EntityStats
     }
   }
 
-  public List updateIndividualCollectionSize() {
-    updateCollections();
-    List l = new ArrayList(_collections.entrySet());
-    Iterator it = l.iterator();
-    long sum = 0;
-    while (it.hasNext()) {
-      Map.Entry m = (Map.Entry) it.next();
-      EntityData ed = (EntityData) m.getValue();
-      ed.updateCurrentSize();
-      sum += (long) ed.getCurrentSize(false);
-    }
-    _stats._totalNumberOfElements = sum;
-    return l;
-  }
-
   public long getTotalNumberOfElements(boolean update) {
     if (update) {
       updateIndividualCollectionSize();
@@ -264,39 +296,53 @@ public class EntityStats
   }
 
   public Map getAgentStats() {
-    List l = updateIndividualCollectionSize();
-    Collections.sort(l, new AgentComparator());
-    Iterator it = l.iterator();
-
-    if (_agentStats == null) {
-      _agentStats = new HashMap();
-    }
-    String agentName = "deadbeef0123";
-    Stats agentStats = null;
+    
+    // First, clear some stats
+    Collection c = _agentStats.values();
+    Iterator it = c.iterator();
     while (it.hasNext()) {
-      Map.Entry m = (Map.Entry) it.next();
-      EntityData ed = (EntityData) m.getValue();
-      if (ed.getAgentName() != agentName) {
-	agentName = ed.getAgentName();
-	agentStats = new Stats();
-	_agentStats.put(agentName, agentStats);
+      Stats st = (Stats) it.next();
+      st._currentAllocations = 0;
+      st._totalNumberOfElements = 0;
+    }
+
+    synchronized (_collections) {
+      List entries = updateIndividualCollectionSize();
+      it = entries.iterator();
+      while (it.hasNext()) {
+	Map.Entry m = (Map.Entry) it.next();
+	EntityData ed = (EntityData) m.getValue();
+	Stats st = (Stats) _agentStats.get(ed.getAgentName());
+	if (st == null) {
+	  st = new Stats();
+	  _agentStats.put(ed.getAgentName(), st);
+	}
+
+	// Update stats
+	st._currentAllocations++;
+	st._totalNumberOfElements += ed.getCurrentSize(false);
+	
+	// We could increment a counter every time a collection is created,
+	// but this would require to lookup the subject information.
+	st._totalAllocations = st._currentAllocations +
+	  st._garbageCollected;
       }
-      // Update stats
-      agentStats._currentAllocations++;
-      agentStats._totalNumberOfElements += ed.getCurrentSize(false);
     }
     return _agentStats;
   }
 
   public List getCollectionsByComponent() {
-    List l = updateIndividualCollectionSize();
-    Collections.sort(l, new ComponentComparator());
+    List l = null;
+    synchronized (_collections) {
+      l = updateIndividualCollectionSize();
+      Collections.sort(l, new ComponentComparator());
+    }
     return l;
   }
 
   public List getTopCollections(int topNumber) {
-    List l = updateIndividualCollectionSize();
     List ret = null;
+    List l = updateIndividualCollectionSize();
     Collections.sort(l, new SizeComparator());
 
     // Update averaged median size
@@ -304,12 +350,11 @@ public class EntityStats
 
     topNumber = Math.min(topNumber, l.size());
     try {
-      ret = l.subList(0, topNumber);
+      ret = new ArrayList(l.subList(0, topNumber));
     }
     catch (IndexOutOfBoundsException e) {
       System.out.println("Error: " + e);
     }
-
     return ret;
   }
 
@@ -387,17 +432,17 @@ public class EntityStats
       String agent2 = ed2.getAgentName();
 
       if (agent1 == null && agent2 != null) {
-	return -1;
+	return 1;
       }
       else if (agent1 != null && agent2 == null) {
-	return 1;
+	return -1;
       }
       else if (agent1 == null && agent2 == null) {
 	return ed2.getCurrentSize(false) -
 	  ed1.getCurrentSize(false);
       }
       else {
-	int agentCompare = agent1.compareTo(agent2);
+	int agentCompare = agent2.compareTo(agent1);
 	if (agentCompare != 0) {
 	  return agentCompare;
 	}
@@ -426,4 +471,33 @@ public class EntityStats
       return _entityStats;
     }
   }
+  
+  public static class Stats {
+    /**
+     * The total number of times the collection was allocated.
+     */
+    public int       _totalAllocations;
+
+    /**
+     * The number of currently allocated collections
+     */
+    public int       _currentAllocations;
+
+    /**
+     * The number of collections that have been garbage collected.
+     */
+    public int       _garbageCollected;
+
+    /***
+     * The total of all elements in the collections.
+     */
+    public long      _totalNumberOfElements;
+
+    /***
+     * The median size of the collections.
+     */
+    public double    _medianSize;
+
+  }
+
 }

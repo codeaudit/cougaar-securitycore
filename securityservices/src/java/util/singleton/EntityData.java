@@ -34,11 +34,7 @@ import java.security.PrivilegedAction;
 import java.security.Principal;
 import javax.security.auth.Subject;
 
-import org.cougaar.core.security.auth.ExecutionPrincipal;
-import org.cougaar.core.security.auth.ChainedPrincipal;
-import org.cougaar.core.security.auth.ExecutionContext;
-
-import org.cougaar.core.mts.MessageAddress;
+//import org.cougaar.core.mts.MessageAddress;
 
 public class EntityData {
   /**
@@ -122,11 +118,12 @@ public class EntityData {
 	  Principal p = (Principal) it.next();
 	  // TODO: figure out why using RoleExecutionContext.class
 	  // generates a ClassNotFoundException
+
 	  if (p.getClass().getName().equals(
 		"org.cougaar.core.security.auth.role.RoleExecutionContext")) {
 	    try {
 	      Method m = p.getClass().getDeclaredMethod("getAgent", null);
-	      _agentName = ((MessageAddress) m.invoke(p, null)).toString();
+	      _agentName = m.invoke(p, null).toString();
 
 	      m = p.getClass().getDeclaredMethod("getComponent", null);
 	      _componentName = (String) m.invoke(p, null);

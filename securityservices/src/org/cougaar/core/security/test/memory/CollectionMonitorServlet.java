@@ -55,6 +55,8 @@ extends BaseServletComponent
   private static final String REQ_GET_REQUEST_TYPE = "req";
   private static final String REQ_ROWS = "Rows";
   private static final String REQ_LINES = "Lines";
+  private static final String REQ_AGENT_NAME = "agent";
+  private static final String REQ_COMPONENT_NAME = "component";
   private static final String REQ_COLLECTION = "collection";
 
   public void load() {
@@ -141,12 +143,17 @@ extends BaseServletComponent
 	  String agentName = (String) m.getKey();
 	  EntityStats.Stats st = (EntityStats.Stats) m.getValue();
 
-	  out.println("<tr><td>");
+	  out.println("<tr>");
+	  out.print("<td>");
+
+	  out.println("<a href=\"" + req.getRequestURI()
+		      + "?" + REQ_GET_REQUEST_TYPE + "=" + REQ_TYPE_AGENT
+		      + "&" + REQ_AGENT_NAME + "=" + agentName
+		      + "\">" + agentName + "</a>");
+
+	  out.print("</td>");
 	  // Radio button with name
-	  out.println(
-	    "<input type=\"radio\" name=\"" + REQ_COLLECTION + "\" "
-	    + "value=\"" + cl.getName() + "\"/>"
-	    + es.getShortName() + "</td>");
+	  out.println("<td>" + es.getShortName() + "</td>");
 	  
 	  // Currently allocated collections
 	  out.println("<td>" + st._currentAllocations + "</td>");
@@ -163,8 +170,8 @@ extends BaseServletComponent
 	out.flush();
       }
 
+      printRequestParameters(out);
 
-      out.println("<tr><td><input type=\"submit\" value=\"Submit\"/></td></tr>");
       out.println("</form>");
       out.println("</table>");
     }
@@ -247,7 +254,13 @@ extends BaseServletComponent
 	out.print("</tr>");
 	out.flush();
       }
+      printRequestParameters(out);
 
+      out.println("</form>");
+      out.println("</table>");
+    }
+
+    private void printRequestParameters(PrintWriter out) {
       out.println("<tr><td><i>Number of rows:");
       out.println("</td><td><input name=\"" + REQ_ROWS +
 		  "\" type=\"text\" value=\"20\"><br/>");
@@ -258,8 +271,6 @@ extends BaseServletComponent
 		  "\" type=\"text\" value=\"3\"><br/>");
       out.println("</td></tr>");
       out.println("<tr><td><input type=\"submit\" value=\"Submit\"/></td></tr>");
-      out.println("</form>");
-      out.println("</table>");
     }
 
     public void doGet(HttpServletRequest req,
@@ -276,18 +287,18 @@ extends BaseServletComponent
 	out.println("</head>");
 	out.println("<body>");
 
-	out.println("<a href=\"" + req.getRequestURI()
+	out.println("<li><a href=\"" + req.getRequestURI()
 		    + "?" + REQ_GET_REQUEST_TYPE + "=" + REQ_TYPE_GLOBAL
-		    + "\">Global stats</a><tab to=2/>");
+		    + "\">Global stats</a></li>");
 
-	out.println("<a href=\"" + req.getRequestURI()
+	out.println("<li><a href=\"" + req.getRequestURI()
 		    + "?" + REQ_GET_REQUEST_TYPE + "=" + REQ_TYPE_AGENT
-		    + "\">Stats per agent</a><tab to=3/>");
+		    + "\">Stats per agent</a></li>");
 
-	out.println("<a href=\"" + req.getRequestURI()
+	out.println("<li><a href=\"" + req.getRequestURI()
 		    + "?" + REQ_GET_REQUEST_TYPE + "="
 		    + REQ_TYPE_COMPONENT
-		    + "\">Stats per component</a><br/><br/>");
+		    + "\">Stats per component</a></li><br/><br/>");
 
 	if (requestType != null &&
 	    requestType.equals(REQ_TYPE_AGENT)) {

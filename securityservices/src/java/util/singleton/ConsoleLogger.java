@@ -25,10 +25,9 @@
  * - 
  */
 
-package org.cougaar.core.security.securebootstrap;
+package java.util.singleton;
 
 public class ConsoleLogger
-  extends Logger
 {
   public void debug(String s) {
     System.out.println("DEBUG:" + s);

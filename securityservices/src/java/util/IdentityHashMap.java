@@ -183,6 +183,15 @@ public class IdentityHashMap extends AbstractMap implements Map,
     }
 
     /**
+     * This is used to avoid stack overflows.
+     * The parameter is not used but the constructor should not
+     * call the memory tracker.
+     */
+    public IdentityHashMap(boolean f) {
+        init(-1);
+    }
+
+    /**
      * Constructs a new, empty map with the specified expected maximum size.
      * Putting more than the expected number of key-value mappings into
      * the map may cause the internal data structure to grow, which may be
@@ -232,9 +241,15 @@ public class IdentityHashMap extends AbstractMap implements Map,
         // assert initCapacity >= MINIMUM_CAPACITY;
         // assert initCapacity <= MAXIMUM_CAPACITY;
 
+        if (initCapacity == -1) {
+	  initCapacity = DEFAULT_CAPACITY;
+	}
+	else {
+	  MemoryTracker.add(this);
+	}
         threshold = (initCapacity * 2)/3;
         table = new Object[2 * initCapacity];
-        MemoryTracker.add(this);
+	
     }
 
     /**

@@ -198,6 +198,21 @@ public class HashMap extends AbstractMap implements Map, Cloneable,
     }
 
     /**
+     * This is used to avoid stack overflows.
+     * The parameter is not used but the constructor should not
+     * call the memory tracker.
+     */
+    private boolean _trackMemory = true;
+
+    public HashMap(boolean f) {
+      _trackMemory = false;
+      this.loadFactor = DEFAULT_LOAD_FACTOR;
+      threshold = (int)(DEFAULT_INITIAL_CAPACITY);
+      table = new Entry[DEFAULT_INITIAL_CAPACITY];
+      init();
+    }
+
+    /**
      * Constructs a new <tt>HashMap</tt> with the same mappings as the
      * specified <tt>Map</tt>.  The <tt>HashMap</tt> is created with
      * default load factor (0.75) and an initial capacity sufficient to
@@ -222,7 +237,9 @@ public class HashMap extends AbstractMap implements Map, Cloneable,
      * require explicit knowledge of subclasses.)
      */
     void init() {
-        MemoryTracker.add(this);
+      if (_trackMemory) {
+	MemoryTracker.add(this);
+      }
     }
 
     /**

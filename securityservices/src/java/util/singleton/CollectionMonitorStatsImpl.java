@@ -28,9 +28,10 @@ public class CollectionMonitorStatsImpl
   extends BaseSingleton
   implements CollectionMonitorStats
 {
+  public static long DELAY_AFTER_STARTUP = 100;
+
   private static CollectionMonitorStats _theInstance;
   private static long _startupTime;
-  private static long DELAY_AFTER_STARTUP = 500;
   private static EntityStats _entityStats;
 
   protected CollectionMonitorStatsImpl() {
@@ -71,6 +72,14 @@ public class CollectionMonitorStatsImpl
   }
 
   private void addElement(Object o, Class c) {
+    // Check recursion. Can we find a better way?
+    /*
+    Throwable t = new Throwable();
+    StackTraceElement ste[] = t.getStackTrace();
+    for (int i = 0 ; i < Math.min(15, ste.length) ; i++) {
+    }
+    */
+
     long now = System.currentTimeMillis();
     if ( (now - _startupTime) > DELAY_AFTER_STARTUP ) {
       if (_entityStats == null) {
@@ -110,11 +119,17 @@ public class CollectionMonitorStatsImpl
   public void addLinkedList(LinkedList l) {
     addElement(l, LinkedList.class);
   }
+  public void addLinkedHashMap(LinkedHashMap m) {
+    addElement(m, LinkedHashMap.class);
+  }
+  public void addLinkedHashSet(LinkedHashSet m) {
+    addElement(m, LinkedHashSet.class);
+  }
   public void addWeakHashMap(WeakHashMap m) {
     addElement(m, WeakHashMap.class);
   }
   public void addVector(Vector v) {
-    addElement(v, Vector.class);
+//    addElement(v, Vector.class);
   }
   public void addArrays(Arrays a) {
     addElement(a, Arrays.class);
@@ -123,6 +138,6 @@ public class CollectionMonitorStatsImpl
     addElement(s, Stack.class);
   }
   public void addIdentityHashMap(IdentityHashMap m) {
-    //addElement(m, IdentityHashMap.class);
+    addElement(m, IdentityHashMap.class);
   }
 }
