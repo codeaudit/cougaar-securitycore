@@ -56,11 +56,11 @@ jar:
 
 signhigh: jar
 	@echo +++++++ Signing bootstrapper.jar and core.jar
-#	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/.bootstrap_keystore \
+#	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 #		-storepass keystore ${COUGAARCLASSES}/core.jar privileged
-	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/.bootstrap_keystore \
+	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 		-storepass keystore ${COUGAARCLASSES}/bootstrapper.jar bootstrapper
-	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/.bootstrap_keystore \
+	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 		-storepass keystore ${COUGAARCLASSES}/securityservices.jar privileged
 	@echo +++++++ Done signing bootstrapper.jar and core.jar
 
