@@ -40,6 +40,7 @@ import org.cougaar.core.security.policy.dynamic.DynamicPolicy;
 import org.cougaar.core.security.policy.mediator.XmlPolicyMediator;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.auth.AuthorizationService;
+import org.cougaar.core.security.services.auth.PedigreeService;
 import org.cougaar.core.security.services.auth.SecurityContextService;
 import org.cougaar.core.security.services.crypto.CRLCacheService;
 import org.cougaar.core.security.services.crypto.CertValidityService;
@@ -69,6 +70,7 @@ import org.cougaar.core.service.identity.AgentIdentityService;
 import org.cougaar.planning.ldm.LDMServesPlugin;
 import org.cougaar.planning.service.LDMService;
 
+import java.lang.reflect.Constructor;
 import java.security.PrivilegedAction;
 import java.security.AccessController;
 
@@ -278,14 +280,16 @@ public class SecurityServiceProvider
       Class cls = null;
       try {
       	cls = Class.forName(PMP_PROVIDER_CLASS);
-      	newSP = (ServiceProvider)cls.newInstance();
+        Class [] param = {ServiceBroker.class, String.class};
+        Constructor constructor = cls.getConstructor(param);
+        Object [] values = {serviceBroker, mySecurityCommunity};
+        newSP = (ServiceProvider)constructor.newInstance(values);
       } catch (Exception ex) {
       	log.error("Exception while instantiating " + PMP_PROVIDER_CLASS + ": " + ex);
       }
 //      newSP = (BaseSecurityServiceProvider)SecurityServiceProviderCache.get(PMP_PROVIDER_CLASS);
       
       if (newSP != null) {
-      	((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
         services.put(PersistenceMgrPolicyService.class, newSP);
         rootServiceBroker.addService(PersistenceMgrPolicyService.class, newSP);
       }
@@ -307,14 +311,16 @@ public class SecurityServiceProvider
         cls = null;
         try {
         	cls = Class.forName(DP_PROVIDER_CLASS);
-        	newSP = (ServiceProvider)cls.newInstance();
+          Class [] param = {ServiceBroker.class, String.class};
+          Constructor constructor = cls.getConstructor(param);
+          Object [] values = {serviceBroker, mySecurityCommunity};
+          newSP = (ServiceProvider)constructor.newInstance(values);
         } catch (Exception ex) {
         	log.error("Exception while instantiating " + DP_PROVIDER_CLASS + ": " + ex);
         }
 //        newSP = (BaseSecurityServiceProvider)SecurityServiceProviderCache.get(DP_PROVIDER_CLASS);
        
         if (newSP != null) {
-      	((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
 	services.put(DataProtectionService.class, newSP);
 	rootServiceBroker.addService(DataProtectionService.class, newSP);
         }
