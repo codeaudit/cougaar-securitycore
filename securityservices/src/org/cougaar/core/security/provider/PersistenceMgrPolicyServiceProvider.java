@@ -38,9 +38,11 @@ public class PersistenceMgrPolicyServiceProvider
   private PersistenceMgrPolicyService _instance;
   // the security community of this node
   private String _myCommunity;
+  private ServiceBroker _serviceBroker;
   
   public PersistenceMgrPolicyServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
+    _serviceBroker = sb;
     _myCommunity = community;
   }
 
@@ -55,7 +57,7 @@ public class PersistenceMgrPolicyServiceProvider
 				    Object requestor, 
 				    Class serviceClass) {
     if(_instance == null) {
-      _instance = new PersistenceMgrPolicyServiceImpl(sb, _myCommunity);
+      _instance = new PersistenceMgrPolicyServiceImpl(_serviceBroker, _myCommunity);
     }
     return _instance;
   }
