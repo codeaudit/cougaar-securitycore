@@ -138,12 +138,12 @@ society.each_host do |host|
     # Note that some symbols, such as ";", must be encoded ("\;")
     
     # Set the Cougaar install path.
-    currentCip = node.remove_parameter("-Dorg.cougaar.install.path")
-    if (currentCip == nil)
-      node.override_parameter("-Dorg.cougaar.install.path", "#{cip}")
-    else
-      node.add_parameter("-Dorg.cougaar.install.path", "#{currentCip}")
-    end
+    #currentCip = node.remove_parameter("-Dorg.cougaar.install.path")
+    #if (currentCip == nil)
+    #  node.override_parameter("-Dorg.cougaar.install.path", "#{cip}")
+    #else
+    #  node.add_parameter("-Dorg.cougaar.install.path", "#{currentCip}")
+    #end
     
     # Set the Config Finder class
     #node.add_parameter("-Dorg.cougaar.util.ConfigFinder.ClassName", "org.cougaar.core.security.config.SecureConfigFinder")
