@@ -1691,10 +1691,9 @@ public class CryptoManagerServiceImpl
       log.debug("From " + source + " to " + target + ": need signature? " +
                 needsSig);
     }
-    // This optimization isn't working at the moment because KeyRingSSLFactory 
-    // is not storing the principal for a connection properly.  It is 
-    // associating  the principal with a thread which does not work.
     return needsSig;
+    // the following will imply that the sender always signs.  We needed it 
+    // for a little bit when we had problems with this code.
     // return true;
   }
 
