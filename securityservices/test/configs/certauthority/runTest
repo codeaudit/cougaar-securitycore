@@ -6,16 +6,28 @@ set node = "TEST-ONE-NODE"
 
 ###########################################
 # Choose one of the following exec classes:
-set choice1="1: Keystore - generate keys, send keys to CA and store result in keystore"
-set choice2="2: PKCS#12  - wrap private key in a PKCS#12 envelope"
-set choice3="3: JAAS     - simulate three security contexts (node/agent/PlugIn)"
+set choice1="1: Keystore  - generate keys, send keys to CA and store result in keystore"
+set choice2="2: PKCS#12   - wrap private key in a PKCS#12 envelope"
+set choice3="3: JAAS      - simulate three security contexts (node/agent/PlugIn)"
+set choice4="4: Hashtable - Test hashtables"
+
 echo "Select test:"
 echo "  ${choice1}"
 echo "  ${choice2}"
 echo "  ${choice3}"
-echo "Enter your choice: [1, 2, 3]"
+echo "  ${choice4}"
+echo "Enter your choice: [1, 2, 3, 4]"
 
 set choice=$<
+
+#############################
+# Execution mode
+echo "Select execution mode:"
+echo "  1: with bootstrapper"
+echo "  2: without bootstrapper"
+
+set execmode=$<
+
 switch (${choice})
 case "1":
     # keystore test
@@ -40,6 +52,13 @@ case "3":
     set args = "${node}"
     breaksw
 
+case "4":
+    # Hashtable test
+    echo "Running ${choice4} ..."
+    set execclass = com.nai.security.test.TestHashtable
+    set args = "${node}"
+    breaksw
+
 default:
     echo "Invalid choice"
     exit
@@ -47,6 +66,10 @@ endsw
 
 ##########################################
 set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar
+
+if ( ${execmode} == "2") then
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/securityservices.jar"
+endif
 
 if (! $?COUGAAR3RDPARTY) then
     setenv COUGAAR3RDPARTY /opt/cougaar-jars
@@ -84,9 +107,22 @@ set MYMEMORY=""
 set javaargs="$MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
 set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar"
 
-java $javaargs \
-    -Dorg.cougaar.security.keystore.password="Ultra*Log" \
-    com.nai.security.bootstrap.SecureBootstrapper ${execclass} $args
+
+switch (${execmode})
+case "1":
+    java $javaargs \
+	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
+	com.nai.security.bootstrap.SecureBootstrapper ${execclass} $args
+    breaksw;
+case "2":
+
+    java $javaargs \
+	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
+	${execclass} $args
+    breaksw;
+default:
+    echo "Unknown execution mode"
+endsw
 
 	#-Xdebug \
 	#-Xrunjdwp:transport=dt_socket,server=y,suspend=n \
