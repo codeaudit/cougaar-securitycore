@@ -81,7 +81,7 @@ final public class KeyRing {
 					 "alpalp");
       String ksPath = System.getProperty("org.cougaar.security.keystore",
 					 defaultKeystorePath);
-      File file = new File(ksPass);
+      File file = new File(ksPath);
       if (!file.exists()){
 	if (debug) {
 	  System.out.println("Could not find keystore in:" + ksPath + ". Creating...");
