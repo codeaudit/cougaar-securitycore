@@ -107,6 +107,7 @@ public class PolicyBootstrapper
       BufferedReader damlReader 
         = new BufferedReader(new FileReader(damlPoliciesFile));
       while ((line = damlReader.readLine()) != null) {
+        if (line.startsWith("#")) { continue; }
 
         int spacePt;
         if ((spacePt = line.indexOf(' ')) == -1) { continue; }
@@ -160,18 +161,20 @@ public class PolicyBootstrapper
                 type);
       return damlPolicies;
     } else {
-      log.debug(".PolicyBootstrapper: no daml policies for  policy type " +
-                type);
+      log.debug(".PolicyBootstrapper: attempting to get nondaml boot policies " +
+                "for type " + type);
       try {
-        PolicyMsg msg = getBootPolicy(Class.forName(type));
-        Vector msgs = new Vector();
-        msgs.add(msg);
-        return msgs;
+        if (!type.startsWith("http:")) {
+          PolicyMsg msg = getBootPolicy(Class.forName(type));
+          Vector msgs = new Vector();
+          msgs.add(msg);
+          return msgs;
+        }
       } catch (Throwable th) {
-        log.info("Exception getting xml policies - might not be an error", th);
-        return new Vector();
+        log.error("Exception getting non-daml policies", th);
       }
     }
+    return new Vector();
   }
   
   public PolicyMsg getBootPolicy(Class type)
