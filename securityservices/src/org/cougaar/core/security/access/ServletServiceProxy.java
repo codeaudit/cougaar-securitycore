@@ -24,6 +24,9 @@ package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.ServletService;
+import org.cougaar.core.service.AgentIdentificationService;
+
+import org.cougaar.core.security.acl.auth.URIPrincipal;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.JaasClient;
 
@@ -42,6 +45,7 @@ class ServletServiceProxy extends SecureServiceProxy
   
   private ServletService _ss;
   private Object _requestor;
+  private String _agentName;
   
   // for servlet to SecureServlet mapping
   private static Hashtable _servletTable = new Hashtable();
@@ -50,6 +54,11 @@ class ServletServiceProxy extends SecureServiceProxy
     super(sb);
     _ss = ss;
     _requestor = requestor;  
+    // get the name of the agent
+    AgentIdentificationService ais = (AgentIdentificationService)
+      sb.getService(this, AgentIdentificationService.class, null);
+    _agentName = ais.getName();
+    sb.releaseService(this, AgentIdentificationService.class, ais);
   }
   public int getHttpPort() {
     return _ss.getHttpPort();
@@ -71,7 +80,7 @@ class ServletServiceProxy extends SecureServiceProxy
   }
   
   private Servlet addServlet(String path, Servlet servlet) {
-    Servlet ss = new SecureServlet(servlet, _scs.getExecutionContext());
+    Servlet ss = new SecureServlet(servlet, path);
     _servletTable.put(path, ss); 
     return ss;
   }
@@ -84,15 +93,24 @@ class ServletServiceProxy extends SecureServiceProxy
    
   private class SecureServlet implements Servlet {
     private Servlet _servlet;
-    private ExecutionContext _ec;
+    private URIPrincipal _up;
     
-    public SecureServlet(Servlet servlet, ExecutionContext ec) {
+    public SecureServlet(Servlet servlet, String path) {
       _servlet = servlet;
-      _ec = ec;
+      // construct the uri for this servlet
+      _up = new URIPrincipal("/$" + _agentName + path);
     }
     
     public void destroy() {
-      _servlet.destroy(); 
+      // need to set the JAAS context since this is called by tomcat
+      JaasClient jc = new JaasClient();
+      jc.doAs(_up, 
+              new java.security.PrivilegedAction() {
+                public Object run() {
+                  _servlet.destroy(); 
+                  return null;
+                } 
+       });
     }
        
     public ServletConfig getServletConfig() {
@@ -105,19 +123,41 @@ class ServletServiceProxy extends SecureServiceProxy
     
     public void init(ServletConfig config) 
       throws ServletException {
-      _scs.setExecutionContext(_ec);
-      _servlet.init(config);
-      _scs.resetExecutionContext();
+      // need to set the JAAS context since this is called by tomcat
+      final ServletConfig fConfig = config;
+      JaasClient jc = new JaasClient();
+      Object o = jc.doAs(_up, 
+                  new java.security.PrivilegedAction() {
+                    public Object run() {
+                    Object retObj = null;
+                    try {
+                      _servlet.init(fConfig);
+                    }
+                    catch(ServletException se) {
+                      retObj = se;
+                    }
+                    return retObj;
+                  }
+                });
+      // throw exception if one was returned from the privileged action
+      if(o != null && o instanceof Exception) {
+        if(o instanceof ServletException) {
+          throw (ServletException)o;
+        }
+        else {
+          throw new RuntimeException("Unhandled exception: " + o,
+				     (Exception) o); 
+        }
+      }
     }
     
     public void service(ServletRequest req, ServletResponse res) 
       throws ServletException, IOException {
-      _scs.setExecutionContext(_ec);
       final ServletRequest fReq = req;
       final ServletResponse fRes = res;
       // add to jaas context
       JaasClient jc = new JaasClient();
-      Object o = jc.doAs(_ec, 
+      Object o = jc.doAs(_up,
                   new java.security.PrivilegedAction() {
                     public Object run() {
                     Object retObj = null;
@@ -129,19 +169,18 @@ class ServletServiceProxy extends SecureServiceProxy
                     }
                     return retObj;
                   }
-                }, false);
-      _scs.resetExecutionContext();
+                });
       // throw exception if one was returned from the privileged action
       if(o != null && o instanceof Exception) {
         if(o instanceof ServletException) {
           throw (ServletException)o;
         }
         else if(o instanceof IOException) {
-          throw (IOException)o; 
+          throw (IOException)o;
         }
         else {
           throw new RuntimeException("Unhandled exception: " + o,
-				     (Exception) o); 
+                                     (Exception) o);
         }
       }
     } // end void service
