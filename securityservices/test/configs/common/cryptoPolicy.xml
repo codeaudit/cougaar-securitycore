@@ -10,6 +10,7 @@
          deployment configuration -->
     <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
     <CA_URL role="srosset">http://pear:8080/CA_srosset/servlet/certrequest</CA_URL>
+    <CA_URL role="ychen">http://pear:8080/CA_ychen/servlet/certrequest</CA_URL>
     <CA_URL role="rliao1">http://yew:8080/CA_rliao1/servlet/certrequest</CA_URL>
     <CA_URL role="rtripath">http://pear:8080/CAnew_rtripath/servlet/certrequest</CA_URL>
     <CA_URL role="isat">http://u041e:8080/CA/servlet/certrequest</CA_URL>
