@@ -92,10 +92,45 @@ public class SecureBootstrapper extends BaseBootstrapper
   SecurityLog securelog=null;
   private HashMap untrustedjars;
   public static void main(String[] args) {
-    String[] launchArgs = new String[args.length - 1];
+    int argc = args.length;
+    final String[] launchArgs = new String[argc - 1];
+    final String className = args[0];
+    final SecureBootstrapper bootstrapper=new SecureBootstrapper();
+    final String node;
     System.arraycopy(args, 1, launchArgs, 0, launchArgs.length);
-    SecureBootstrapper bootstrapper=new SecureBootstrapper();
-    bootstrapper.launch(args[0], launchArgs);
+
+    String nodeName = null;
+    String check = null;
+    String next = null;
+    boolean sawname = false;
+    for( int x = 0; x < argc;){
+      check = args[x++];
+      if (! check.startsWith("-") && !sawname) {
+        sawname = true;
+        if ("admin".equals(check)) 
+          nodeName = "Administrator";
+        else
+          nodeName = check;
+      }
+      else if (check.equals("-n")) {
+        nodeName = args[x++];
+        sawname = true;
+      }
+    }
+    node = nodeName;
+
+    JaasClient jc = new JaasClient();
+    jc.doAs(node,
+        new java.security.PrivilegedAction() {
+              public Object run() {
+		  System.out.println("Node being loaded: "
+                                     + node
+                                     + " security context is:");
+                  JaasClient.printPrincipals();
+		  bootstrapper.launch(className, launchArgs);
+                  return null;              }
+            });
+    
   }
 
   protected void createJarVerificationLog(String nodeName) {
