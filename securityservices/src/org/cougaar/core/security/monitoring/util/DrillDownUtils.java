@@ -44,6 +44,7 @@ public class DrillDownUtils {
   public static boolean matchParentUID(IDMEF_Message message,UID givenUID){
     boolean matches =false;
     if(!(message instanceof Alert)){
+      // System.out.println(" Returning as IDMEF Message in matchParentUID is NOT INSTANCE of ALERT");
       return matches;
     }
     Alert alert=(Alert)message;
@@ -63,6 +64,30 @@ public class DrillDownUtils {
     }
     return matches; 
   }
+
+  public static boolean matchOriginatorUID(IDMEF_Message message,UID givenUID){
+    boolean matches =false;
+    if(!(message instanceof Alert)){
+      System.out.println(" Returning as IDMEF Message in matchOriginatorsUID is NOT INSTANCE of ALERT");
+      return matches;
+    }
+    Alert alert=(Alert)message;
+    AdditionalData [] additionalDataArray=alert.getAdditionalData();
+    if(additionalDataArray==null || additionalDataArray.length==0) {
+      return matches;
+    }
+    AdditionalData additionalData=null;
+    for(int i=0;i<additionalDataArray.length;i++) {
+      additionalData=additionalDataArray[i];
+      if(additionalData.getMeaning().equals(DrillDownQueryConstants.ORIGINATORS_UID)) {
+        if(additionalData.getAdditionalData().equals(givenUID.toString())){
+          matches=true;
+          return matches;
+        }
+      }
+    }
+    return matches; 
+  } 
 
   public static  UID getUID (IDMEF_Message message, String meaning){
     UID uid=null;
@@ -85,7 +110,7 @@ public class DrillDownUtils {
       }
     }
     if(stringid==null) {
-       return uid;
+      return uid;
     }
     uid=UID.toUID(stringid);
     return uid;
