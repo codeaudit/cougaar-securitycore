@@ -86,7 +86,7 @@ module Cougaar
 		  # -h   Do not display header
 		  # -p   Display info for specified PID
 		  # -o   output display
-		  command = "ps -h -p #{nodeInfo.pid} -o pcpu,pmem,sz,rss"
+		  command = "ps -h -p #{nodeInfo.pid} -o pcpu,pmem,sz,rss,rsz"
 		  #saveAssertion "processInfo", "#{nodeInfo.host.name} #{command}"
 		  response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
                   gotResults = false
@@ -142,6 +142,7 @@ module Cougaar
 	  nodeInfo.pmem = b[1]
 	  nodeInfo.mem_size = b[2]
 	  nodeInfo.rss = b[3]
+	  nodeInfo.rsz = b[4]
         end
 
         def parseUpTime(nodeInfo, str)
@@ -162,7 +163,7 @@ module Cougaar
       class NodeInfo 
         
         attr_reader :name, :host, :pid
-        attr_accessor :mem_size, :xmx, :pcpu, :pmem, :rss, :load1min, :load5min, :load15min
+        attr_accessor :mem_size, :xmx, :pcpu, :pmem, :rss, :rsz, :load1min, :load5min, :load15min
         
         def initialize(name, host, pid, mem_size=nil, xmx=nil)
           @name = name
@@ -173,13 +174,13 @@ module Cougaar
         end
 
         def NodeInfo.header_string
-	  return "Date\tTime\tHost\tPID\tNode_Name\tSZ\tXMX\tPCPU\tPMEM\tRSS\tL1\tL5\tL15"
+	  return "Date\tTime\tHost\tPID\tNode_Name\tSZ\tRSZ\tXMX\tPCPU\tPMEM\tRSS\tL1\tL5\tL15"
         end
        
         def to_s
 	  now = Time.new
           s = "#{now.strftime("%m/%d/%Y")}\t#{now.strftime("%H:%M:%S")}\t"
-          s += "#{@host.name.ljust(15)}\t#{@pid}\t#{name.ljust(27)}\t#{@mem_size}\t"
+          s += "#{@host.name.ljust(15)}\t#{@pid}\t#{name.ljust(27)}\t#{@mem_size}\t#{rsz}\t"
           value = @xmx
           @xmx.scan(/([0-9]+)(.+)/) { |match|
             value = match[0].to_i
