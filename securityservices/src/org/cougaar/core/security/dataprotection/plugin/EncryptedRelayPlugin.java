@@ -123,10 +123,12 @@ public class EncryptedRelayPlugin extends ComponentPlugin {
           byte [] digest = dg.digest();
 
           if (logging.isDebugEnabled()) {
-            logging.debug("digest ");
-            KeyRecoveryRequestHandler.printBytes(digest, logging);
+            logging.debug("signature ");
+            byte [] sig = keyCollection.getSignature();
+           
+            KeyRecoveryRequestHandler.printBytes(sig, 0, 10, logging);
 
-            logging.debug("timestamp " + timestamp);
+            logging.debug("timestamp " + timestamp + " vs " + keyCollection.getTimestamp());
           }
 
           DataProtectionKeyContainer container = new DataProtectionKeyContainer(

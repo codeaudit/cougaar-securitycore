@@ -63,7 +63,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -114,11 +114,11 @@ if (log.isDebugEnabled()) {
             dg1.update(keyCollection.getSignature());
 
             byte [] digest = dg1.digest();
+
 if (log.isDebugEnabled()) {
-  log.debug("digests ");
-  printBytes(container.getKey(), log);
-  log.debug("vs ");
-  printBytes(digest, log);
+  byte [] sig = keyCollection.getSignature();
+  log.debug("signature ");
+  printBytes(sig, 0, 10, log);
 
   log.debug("timestamp " + container.getTimestamp());
 }
@@ -204,7 +204,7 @@ if (log.isDebugEnabled()) {
       }
 //      return;
     }
-    if (results.size() != 1) {
+    else if (results.size() != 1) {
       if (log.isWarnEnabled()) {
         log.warn("A request dataprotection key has more than one key in the persistence manager blackboard: " + results.size());
       }

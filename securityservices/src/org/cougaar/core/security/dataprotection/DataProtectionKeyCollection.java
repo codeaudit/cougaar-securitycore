@@ -46,6 +46,7 @@ public class DataProtectionKeyCollection
   implements DataProtectionKey
 {
   private byte[] _sig;
+  private long _timestamp;
 
   public void add(int index, Object element) {
     if (!(element instanceof DataProtectionKeyImpl)) {
@@ -77,5 +78,13 @@ public class DataProtectionKeyCollection
 
   public void setSignature(byte [] sig) {
     _sig = sig;
+  }
+
+  public void setTimestamp(long timestamp) {
+    _timestamp = timestamp;
+  }
+
+  public long getTimestamp() {
+    return _timestamp;
   }
 }

@@ -38,6 +38,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.util.SignatureOutputStream;
 import org.cougaar.core.service.DataProtectionKeyEnvelope;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.security.dataprotection.plugin.KeyRecoveryRequestHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -224,14 +225,17 @@ public class DataProtectionOutputStream extends FilterOutputStream {
 
       DataProtectionKeyCollection keyCollection =
         (DataProtectionKeyCollection)_pke.getDataProtectionKey();
+      long timestamp = System.currentTimeMillis();
+      keyCollection.setTimestamp(timestamp);
       keyCollection.setSignature(sig);      
       _pke.setDataProtectionKey(keyCollection);
 
       String sendSignature = System.getProperty("org.cougaar.core.security.dataprotection.sendSignature", "true");
       if (sendSignature.equals("true")) {
         if (log.isDebugEnabled()) {
-          log.debug("trying to send session key using relay " + agent);
+          log.debug("trying to send session key using relay " + agent + " at time " + timestamp);
         }
+        KeyRecoveryRequestHandler.printBytes(sig, 0, 10, log);
 
         for (int i = 1; i < keyCollection.size(); i++) {
           DataProtectionKeyImpl pmKey = (DataProtectionKeyImpl)
@@ -247,7 +251,8 @@ public class DataProtectionOutputStream extends FilterOutputStream {
               continue;
             }
           }
-          RelaySessionKey.getInstance().relaySessionKey(keyCollection,pmName,agent);
+//          RelaySessionKey.getInstance().relaySessionKey(keyCollection,pmName,agent);
+          SessionKeySenderPlugin.sendSessionKey(agent, keyCollection, pmName);
         }
       }
     }
