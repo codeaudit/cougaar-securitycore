@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.config;
@@ -50,6 +50,7 @@ public class ConfigParserHandler
   private LdapUserServicePolicyHandler userdbHandler;
   private CaPolicyHandler caPolicyHandler;
   private CryptoPolicyHandler cryptoPolicyHandler;
+  private CryptoPolicyHandler dpPolicyHandler;
   private MsgAccessPolicyHandler msgAccessPolicyHandler;
   private ServiceBroker serviceBroker;
   private LoggingService log;
@@ -97,6 +98,7 @@ public class ConfigParserHandler
     cryptoPolicyHandler = new CryptoPolicyHandler(serviceBroker);
     cryptoPolicyHandler.setRole(role);
     cryptoPolicyHandler.setSecurityCommunity(mySecurityCommunity);
+    dpPolicyHandler = new CryptoPolicyHandler(serviceBroker);
 
     msgAccessPolicyHandler = new MsgAccessPolicyHandler(serviceBroker);
     msgAccessPolicyHandler.setRole(role);
@@ -168,6 +170,14 @@ public class ConfigParserHandler
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
       }
+      else if (policyType.equals("org.cougaar.core.security.policy.DataProtectionPolicy")) {
+	dpPolicyHandler.collectPolicy(parser, this,
+				      role, POLICY_ELEMENT);
+	DataProtectionPolicy newSecPolicy = new DataProtectionPolicy();
+        newSecPolicy.setCryptoPolicy((CryptoPolicy)dpPolicyHandler.getSecurityPolicy());
+	newSecPolicy.setName(attr.getValue("name"));
+	securityPolicies.add(newSecPolicy);
+      }
       else if (policyType.equals("org.cougaar.core.security.policy.AccessControlPolicy")) {
 	msgAccessPolicyHandler.collectPolicy(parser, this, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = msgAccessPolicyHandler.getSecurityPolicy();
@@ -194,7 +204,7 @@ public class ConfigParserHandler
       }
     }
   }
- 
+
   public void endElement( String namespaceURI,
 			  String localName,
 			  String qName )
