@@ -43,6 +43,7 @@ import org.cougaar.core.component.Service;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import  org.cougaar.core.security.naming.CertificateEntry;
 import org.cougaar.core.security.ssl.KeyManager;
 
 /** Low-level service to retrieve certificates and private keys
@@ -85,8 +86,10 @@ public interface KeyRingService extends Service {
   List getValidCertificates(X500Name x500Name);
   List getValidPrivateKeys(X500Name x500Name);
 
-  void updateNS(String commonName);
+  void publishCertificate(CertificateEntry certEntry);
   void updateNS(X500Name x500name);
+  void updateNS(String commonName);
+
   // String getCommonName(String alias);
 
   void removeEntry(String commonName);
