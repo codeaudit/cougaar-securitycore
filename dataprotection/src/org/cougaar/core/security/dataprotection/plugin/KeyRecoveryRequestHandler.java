@@ -30,6 +30,8 @@ package org.cougaar.core.security.dataprotection.plugin;
 
 import java.io.IOException;
 import java.security.MessageDigest;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Iterator;
@@ -60,7 +62,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -80,10 +82,15 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
 
     log = (LoggingService) serviceBroker.getService(this, LoggingService.class, null);
 
-    // Get encryption service
-    encryptionService = (EncryptionService) serviceBroker.getService(this, EncryptionService.class, null);
-    // Get keyring service
-    keyRing = (KeyRingService) serviceBroker.getService(this, KeyRingService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        // Get encryption service
+        encryptionService = (EncryptionService) serviceBroker.getService(this, EncryptionService.class, null);
+        // Get keyring service
+        keyRing = (KeyRingService) serviceBroker.getService(this, KeyRingService.class, null);
+        return null;
+      }
+    });
     //Get Blackboard service
     bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
   }

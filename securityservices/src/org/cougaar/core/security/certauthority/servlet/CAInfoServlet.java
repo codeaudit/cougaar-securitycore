@@ -100,9 +100,11 @@ public class CAInfoServlet
       return null;
     X500Name caDN = caDNs[0];
     KeyRingService krs = (KeyRingService)
-      support.getServiceBroker().getService(this,
-					    KeyRingService.class,
-					    null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          return support.getServiceBroker().getService(this, KeyRingService.class, null);
+        }
+      });
     List l = krs.findCert(caDN, KeyRingService.LOOKUP_KEYSTORE, true);
     if (l == null || l.size() == 0) {
       if (log.isDebugEnabled()) {

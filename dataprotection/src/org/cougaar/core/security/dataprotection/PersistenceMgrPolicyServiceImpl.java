@@ -26,6 +26,8 @@
 package org.cougaar.core.security.dataprotection;
 
 // Cougaar core infrastructure
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
@@ -112,7 +114,12 @@ public class PersistenceMgrPolicyServiceImpl
   public PersistenceMgrPolicyServiceImpl(ServiceBroker sb) {
     _serviceBroker = sb;
     _log = (LoggingService)sb.getService(this, LoggingService.class, null);
-    _keyRing = (KeyRingService)sb.getService(this, KeyRingService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        _keyRing = (KeyRingService)_serviceBroker.getService(this, KeyRingService.class, null);
+        return null;
+      }
+    });
     _cs = (CommunityService)sb.getService(this, CommunityService.class, null);
     _wps = (WhitePagesService)sb.getService(this, WhitePagesService.class, null);
     _eventService = (EventService)sb.getService(this, EventService.class, null);    if (_eventService == null) {

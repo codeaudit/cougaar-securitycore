@@ -116,13 +116,13 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
 	_log.debug("Registering to validity to persist when node cert becomes available.");
       }
       CertValidityService validityService = (CertValidityService)
-          _serviceBroker.getService(this,
-                                 CertValidityService.class,
-                                 null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+           public Object run() {
+             return _serviceBroker.getService(this, CertValidityService.class, null);
+           }
+        });
       validityService.addValidityListener(this);
-      _serviceBroker.releaseService(this,
-                                   CertValidityService.class,
-                                   validityService);
+      _serviceBroker.releaseService(this, CertValidityService.class, validityService);
     }
   }
 
