@@ -25,6 +25,8 @@
  */
 package org.cougaar.core.security.ssl;
 
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 import org.cougaar.core.security.util.SSLServerSocketWrapper;
 import org.cougaar.core.security.util.SSLSocketWrapper;
 
@@ -51,6 +53,7 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   private static KeyRingSSLServerFactory _default;
   private static SSLContext _sslcontext;
   private static WeakHashMap _sessionMap = new WeakHashMap();
+  private static Logger _log = LoggerFactory.getInstance().createLogger(KeyRingSSLServerFactory.class);
 
   private static SSLSocketCache   _socketCache;
 
@@ -75,28 +78,47 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   }
 
   private static void setPrincipal(SSLSocket socket) {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Entering setPrincipal");
+    }
     java.security.cert.Certificate[] peer = null;
     try {
       SSLSession session = socket.getSession();
       if (session != null) {
+        _log.debug("Have a session");
         peer = session.getPeerCertificates();
+        if (_log.isDebugEnabled()) {
+          _log.debug("peer = " + peer);
+        }
         if (peer != null && peer.length > 0 &&
             peer[0] instanceof X509Certificate) {
           X509Certificate cert = (X509Certificate) peer[0];
           synchronized (_sessionMap) {
             _sessionMap.put(Thread.currentThread(),cert.getSubjectDN());
+            if (_log.isDebugEnabled()) {
+              _log.debug("Setting principal for " + Thread.currentThread()
+                         + " to " + cert.getSubjectDN());
+            }
           }
-//         } else {
-//           System.out.println("No peer certificate!");
+        } else {
+          if (_log.isDebugEnabled()) {
+            _log.debug("No peer certificate!");
+          }
         }
-//       } else {
-//         System.out.println("No SSL Session!");
+      } else {
+        if (_log.isDebugEnabled()) {
+          _log.debug("No SSL Session!");
+        }
       }
-//       System.out.println("Setting principal for " + Thread.currentThread());
     } catch (SSLPeerUnverifiedException e) {
       // don't set anything, there is no peer
-//       System.out.println("Problem Setting principal for " + Thread.currentThread() + ", " + e);
-//       System.out.println("peer = " + peer);
+      if (_log.isDebugEnabled()) {
+        _log.debug("Problem Setting principal for " 
+                   + Thread.currentThread()
+                   + ", ", e);
+
+        _log.debug("peer = " + peer);
+      }
     }
   }
 
