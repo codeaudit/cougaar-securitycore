@@ -15,6 +15,11 @@ setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xerces.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jaas.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jnet.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/log4j.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jms.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jsdk.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/j2ee.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jbcl.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/silk.jar
 #setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/toolkit.jar
 #setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xygraf.jar
 #setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jcchart451K.jar
