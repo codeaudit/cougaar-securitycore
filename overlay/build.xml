@@ -102,7 +102,7 @@
         <echo message="+++++ Signing jar files"/>
         <signjar jar="${overlay.classes}/overlay.jar" alias="privileged" 
             signedjar="${overlay.signed}/overlay.jar"
-            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
+            keystore="${overlay.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <echo message="+++++ Signed jar files"/>
     </target>
