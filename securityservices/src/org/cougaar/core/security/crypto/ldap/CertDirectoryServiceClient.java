@@ -35,10 +35,12 @@ public interface CertDirectoryServiceClient {
 
   /** Return a list of certificates that satisfy a search filter. */
   LdapEntry[] searchWithFilter(String filter);
-
+ 
+  String getModifiedTimeStamp(String dn);
+  
   X509CRL  getCRL(String  distingushName);
-  void getContexts();
-
+  void  getContexts();
+ 
 }
 
 
