@@ -277,11 +277,13 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     if(notifications.size()>0) {
       loggingService.debug(" received notification to do publish change:");
       getBlackboardService().publishChange(capabilitiesobject);
+      /*
       Iterator notificationiterator =notifications.iterator();
       while( notificationiterator.hasNext()) {
 	Object obj=notificationiterator.next();
 	getBlackboardService().publishRemove(obj);
       }
+      */
     }
    
     //capabilitiesobject=(CapabilitiesObject)list.get(firstobject);

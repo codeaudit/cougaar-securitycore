@@ -41,10 +41,14 @@ import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class EncryptionServiceProvider 
-  implements ServiceProvider {
-
+  extends BaseSecurityServiceProvider
+{
   private KeyRingService ksr;
   static private EncryptionService encryptionService;
+
+  public EncryptionServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
+  }
 
   /**
    * Get a service.
@@ -53,9 +57,9 @@ public class EncryptionServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb, 
-					Object requestor, 
-					Class serviceClass) {
+  protected synchronized Service getInternalService(ServiceBroker sb, 
+						    Object requestor, 
+						    Class serviceClass) {
     ksr = (KeyRingService)
       sb.getService(requestor,
 		    KeyRingService.class,
@@ -79,9 +83,9 @@ public class EncryptionServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

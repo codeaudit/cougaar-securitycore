@@ -24,7 +24,6 @@ package org.cougaar.core.security.provider;
 import java.util.Hashtable;
 
 // Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.component.Service;
@@ -39,12 +38,12 @@ import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.ldap.LdapEntry;
 
 public class CertDirectoryServiceProvider
-  implements ServiceProvider
+  extends BaseSecurityServiceProvider
 {
   private Hashtable ldapConnectionPool = new Hashtable();
-  private LoggingService log;
 
-  public CertDirectoryServiceProvider() {
+  public CertDirectoryServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
   }
 
   ///////////////////////////////////////
@@ -57,14 +56,13 @@ public class CertDirectoryServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb, 
-					Object requestor, 
-					Class serviceClass) {
+  protected synchronized Service getInternalService(ServiceBroker sb, 
+						    Object requestor, 
+						    Class serviceClass) {
     Service theService = null;
     if (sb == null) {
       throw new IllegalArgumentException("Service Broker is null");
     }
-    log = (LoggingService) sb.getService(this, LoggingService.class, null);
     if (requestor == null) {
       log.error("Requestor is null");
       return null;
@@ -100,10 +98,10 @@ public class CertDirectoryServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 
   ///////////////////////////////////////

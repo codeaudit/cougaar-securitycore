@@ -61,7 +61,7 @@ public class CertificateCache
    *  The hashtable value is a List of CertificateStatus
    */
   private Hashtable certsCache = new Hashtable(50);
-
+  
   /** A hashtable that contains a cache of all the private keys (including valid and non valid private keys)
    *  The hashtable key is a Principal.
    *  The hashtable value is a List of PrivateKeyCert (which contains CertificateStatus and PrivateKey)
@@ -72,13 +72,13 @@ public class CertificateCache
    *  The hashtable key is a Principal.
    *  The hashtable value is a List of CertificateStatus
    */
-  private Hashtable certsCacheValid = new Hashtable(50);
+  //private Hashtable certsCacheValid = new Hashtable(50);
 
   /** A hashtable that contains a cache of all currently valid private keys.
    *  The hashtable key is a Principal.
    *  The hashtable value is a List of PrivateKeyCert (which contains CertificateStatus and PrivateKey)
    */
-  private Hashtable privateKeyCacheValid = new Hashtable(50);
+  //private Hashtable privateKeyCacheValid = new Hashtable(50);
 
   private Hashtable bigint2dn=new Hashtable(50);
   //private boolean debug = false;
@@ -332,9 +332,34 @@ public class CertificateCache
 	    aCertEntry.setCertificateType(certEntry.getCertificateType());
 	    // Update trust.
 	    aCertEntry.setCertificateTrust(certEntry.getCertificateTrust());
-
 	    // Update certificate (the signature may have changed)
 	    aCertEntry.setCertificate(certEntry.getCertificate());
+	    /**
+	    // Update the orgin IFF the old origin is ORI_LDAP AND new origin is ORI_KEYSTORE.
+	    // Otherwise, don't change it.
+	    //
+            // This condition could occur when an agent moves from agent X to node Y.
+	    // However, before agent X  moves, communication between node  Y (or an agent in
+            // node Y) and agent X occurs.  This event will cause an ldap lookup for the 
+	    // certificate for agent X, resulting in a new entry in the  certificate cache with
+	    // origin as CERT_ORI_LDAP. But when agent X moves to node Y, during the unwrapping
+	    // process, we add the certificate from the move to the certificate cache .  However, 
+	    // when we added the certificate to the cache (in this code), we don't update the 
+	    // status of the original entry with origin of CERT_ORI_LDAP to CERT_ORI_KEYSTORE.
+	    // Therefore, if we move agent X again, we can't find its certificate since we search
+	    // based on KeyRingService.LOOKUP_KEYSTORE which effectively looks for certificates
+	    // with the origin CERT_ORI_LDAP.
+	    */
+	    if(aCertEntry.getCertificateOrigin().equals(CertificateOrigin.CERT_ORI_LDAP) &&
+	       certEntry.getCertificateOrigin().equals(CertificateOrigin.CERT_ORI_KEYSTORE)) {  
+	      if(log.isDebugEnabled()) {
+		log.debug("Changing the origin of the certificate cache entry from " + aCertEntry.getCertificateOrigin() + 
+			  " to " + certEntry.getCertificateOrigin() + " for " + 
+			  certEntry.getCertificate().getSubjectDN().getName());
+	      }
+	      aCertEntry.setCertificateOrigin(certEntry.getCertificateOrigin());
+	    }
+
 	    found = true;
 	    break;
 	  }

@@ -41,7 +41,6 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class PolicyHandler
 {

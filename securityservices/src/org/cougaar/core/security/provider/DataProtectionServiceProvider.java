@@ -40,7 +40,11 @@ import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.dataprotection.*;
 
 public class DataProtectionServiceProvider
-  implements ServiceProvider {
+  extends BaseSecurityServiceProvider
+{
+  public DataProtectionServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
+  }
 
   /**
    * Get a service.
@@ -49,9 +53,9 @@ public class DataProtectionServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb,
-					Object requestor,
-					Class serviceClass) {
+  protected synchronized Service getInternalService(ServiceBroker sb,
+						    Object requestor,
+						    Class serviceClass) {
     return new DataProtectionServiceImpl(sb, requestor);
   }
 
@@ -61,9 +65,9 @@ public class DataProtectionServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

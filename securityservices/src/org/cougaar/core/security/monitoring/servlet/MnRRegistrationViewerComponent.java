@@ -56,7 +56,6 @@ import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.util.*;
 
 // Cougaar security services
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
@@ -102,7 +101,6 @@ public class MnRRegistrationViewerComponent
   }
   
    public void setCommunityService(CommunityService cs) {
-     System.out.println(" set community services call for Servlet component :");
      this.cs=cs;
    }
   public void setNamingService(NamingService ns) {
@@ -170,11 +168,19 @@ public class MnRRegistrationViewerComponent
       out.println("<H3> Monitoring and Response Capabilities at agent :"+ agentId.toAddress() +"</H3>");
       Collection capabilitiesCollection=null;
       try {
+	out.println("<H3> Query of the Blackboard started  :"+ agentId.toAddress() +"</H3>");
+	out.flush();
 	blackboard.openTransaction();
 	capabilitiesCollection=blackboard.query(new RegistrationPredicate());
+	out.println("<H3> Query of the Blackboard Completed   :"+ agentId.toAddress() +"</H3>");
+	out.flush();
+      }
+      catch(Exception exp) {
+	out.println("<H3> Exception has occured at  :"+ agentId.toAddress()+ "Messgae :"+ exp.getMessage() +"</H3>");
+	out.flush();
       }
       finally {
-	blackboard.closeTransactionDontReset();
+	blackboard.closeTransaction();
       }
       if((capabilitiesCollection==null)||capabilitiesCollection.isEmpty()) {
 	out.println("No Capabilities are currently present ");

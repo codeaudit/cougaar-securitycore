@@ -39,21 +39,21 @@ import org.cougaar.core.security.acl.auth.DualAuthenticator;
 import org.apache.catalina.Context;
 
 public class ServletPolicyServiceProvider 
-  implements ServiceProvider
+  extends BaseSecurityServiceProvider
 {
   static private ServletPolicyEnforcer _servletPolicyService = null;
   static private DualAuthenticator     _dualAuthenticator    = null;
   static private Context               _context              = null;
-  static private ServiceBroker         _serviceBroker        = null;
+  static private ServiceBroker         _staticServiceBroker  = null;
 
-  public ServletPolicyServiceProvider(ServiceBroker sb) {
-    _serviceBroker = sb;
-//     init();
+  public ServletPolicyServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
+    _staticServiceBroker = sb;
   }
 
   private static synchronized void init() {
     if (_servletPolicyService == null) {
-      _servletPolicyService = new ServletPolicyEnforcer(_serviceBroker);
+      _servletPolicyService = new ServletPolicyEnforcer(_staticServiceBroker);
       if (_dualAuthenticator != null) {
         _servletPolicyService.setDualAuthenticator(_dualAuthenticator);
       }
@@ -91,9 +91,9 @@ public class ServletPolicyServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public Object getService(ServiceBroker sb, 
-                           Object requestor, 
-                           Class serviceClass) {
+  protected Service getInternalService(ServiceBroker sb, 
+				       Object requestor, 
+				       Class serviceClass) {
     return _servletPolicyService;
   }
 
@@ -103,9 +103,9 @@ public class ServletPolicyServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

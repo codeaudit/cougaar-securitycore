@@ -41,7 +41,6 @@ import org.cougaar.core.servlet.SimpleServletSupport;
 import org.cougaar.util.*;
 
 // Cougaar security services
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;

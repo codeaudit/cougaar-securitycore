@@ -279,7 +279,7 @@ public class AgentIdentityServiceImpl
 				 + requestorAddress.toAddress());
     }
     if (log.isDebugEnabled()) {
-      log.debug("Moving " + agentCertList.size() + "  of " + requestorAddress.toAddress());
+      log.debug("Moving " + agentCertList.size() + " certificate of " + requestorAddress.toAddress());
     }
 
     X509Certificate[] cert = new X509Certificate[agentCertList.size()];
@@ -298,6 +298,10 @@ public class AgentIdentityServiceImpl
       throw new RuntimeException("Cannot move agent ["
 				 + requestorAddress.toAddress()
 				 + "]. Unable to get private and public keys: " + e);
+    }
+
+    if (log.isDebugEnabled()) {
+      log.debug("Creating public key envelope for " + requestorAddress.toAddress());
     }
 
     // Create a secure envelope with the agent keys and certificates
@@ -327,6 +331,11 @@ public class AgentIdentityServiceImpl
       throw new RuntimeException("Unable to move " + requestorAddress.toAddress()
 				 + " agent. Either sender or receiver is null");
     }
+
+    if (log.isDebugEnabled()) {
+      log.debug("Creating KeyIdentity for " + requestorAddress.toAddress());
+    }
+
     KeyIdentity keyIdentity =
       new KeyIdentity(envelope.getSender(),
 		      envelope.getReceiver(),
@@ -337,8 +346,16 @@ public class AgentIdentityServiceImpl
 		      envelope.getEncryptedSymmetricKeySender(),
 		      envelope.getObject());
 
+    if (log.isDebugEnabled()) {
+      log.debug("Removing key entry for " + requestorAddress.toAddress());
+    }
+
     /* Step 3 */
     keyRing.removeEntry(requestorAddress.toAddress());
+
+    if (log.isDebugEnabled()) {
+      log.debug("Successfully returning KeyIdentity for " + requestorAddress.toAddress());
+    }
 
     return keyIdentity;
   }
@@ -458,6 +475,9 @@ public class AgentIdentityServiceImpl
 	return;
       }
       /* Step 2 */
+      if (log.isDebugEnabled()) {
+	log.debug("Installing keys of " + requestorAddress.toAddress() + " to local certificate keystore");
+      }
       for (int i = 0 ; i < certificates.length ; i++) {
 	keyRing.setKeyEntry(privateKeys[i], certificates[i]);
       }

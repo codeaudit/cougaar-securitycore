@@ -31,7 +31,6 @@ import java.util.Hashtable;
 // Cougaar core infrastructure
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
-import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.certauthority.KeyManagement;
@@ -40,13 +39,13 @@ import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class CertificateManagementServiceProvider 
-  implements ServiceProvider
+  extends BaseSecurityServiceProvider
 {
   private KeyRingService ksr;
   private Hashtable cmsTable;
-  private LoggingService log;
 
-  public CertificateManagementServiceProvider() {
+  public CertificateManagementServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
     cmsTable = new Hashtable();
   }
 
@@ -57,13 +56,9 @@ public class CertificateManagementServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb, 
-					Object requestor, 
-					Class serviceClass) {
-    log = (LoggingService)
-      sb.getService(this,
-		    LoggingService.class, null);
-
+  protected synchronized Service getInternalService(ServiceBroker sb, 
+						    Object requestor, 
+						    Class serviceClass) {
     CertificateManagementService cms = null;
     if (requestor instanceof CertificateManagementServiceClient) {
       String caDN = ((CertificateManagementServiceClient)requestor).getCaDN();
@@ -107,9 +102,9 @@ public class CertificateManagementServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

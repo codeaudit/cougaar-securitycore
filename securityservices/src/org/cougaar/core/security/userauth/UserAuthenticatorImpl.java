@@ -50,7 +50,9 @@ import org.cougaar.core.component.*;
  * 2. call the init method, or subclass this to change the init method.
  *
  */
-public class UserAuthenticatorImpl extends UserAuthenticator {
+public class UserAuthenticatorImpl
+  extends UserAuthenticator
+{
   protected Vector selectedHandlers = new Vector();
   protected String username = null;
   ServiceBroker serviceBroker;
@@ -67,14 +69,9 @@ public class UserAuthenticatorImpl extends UserAuthenticator {
       if (secProvider != null) {
         serviceBroker = secProvider.getServiceBroker();
         KeyRingService keyRing = (KeyRingService)
-                                          secProvider.getService(serviceBroker,
-                                                         this,
-                                                         KeyRingService.class);
-
+	  serviceBroker.getService(this, KeyRingService.class, null);
         UserSSLService userservice = (UserSSLService)
-                                          secProvider.getService(serviceBroker,
-                                                   this,
-                                                   UserSSLService.class);
+	  serviceBroker.getService(this, UserSSLService.class, null);
 
         // handler for certificates
         KeyRingUserAuthImpl certhandler = new KeyRingUserAuthImpl(keyRing.getKeyStore());

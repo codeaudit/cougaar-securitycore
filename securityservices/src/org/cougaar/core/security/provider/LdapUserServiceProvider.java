@@ -31,6 +31,7 @@ import javax.naming.NamingException;
 // Cougaar core infrastructure
 import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.Service;
 
 // Cougaar security services
 import org.cougaar.core.security.services.crypto.LdapUserService;
@@ -39,13 +40,12 @@ import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class LdapUserServiceProvider
-  implements ServiceProvider {
-
+  extends BaseSecurityServiceProvider
+{
   private LdapUserService  _service = null;
-  private ServiceBroker    _nodeServiceBroker = null;
 
-  public LdapUserServiceProvider(ServiceBroker nsb) {
-    _nodeServiceBroker = nsb;
+  public LdapUserServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
   }
 
   /**
@@ -55,12 +55,12 @@ public class LdapUserServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb,
-                                        Object requestor,
-                                        Class serviceClass) {
+  protected synchronized Service getInternalService(ServiceBroker sb,
+						    Object requestor,
+						    Class serviceClass) {
 
     if (_service == null) {
-      _service = new LdapUserServiceImpl(sb, _nodeServiceBroker);
+      _service = new LdapUserServiceImpl(sb, serviceBroker);
     }
     return _service;
   }
@@ -71,9 +71,9 @@ public class LdapUserServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

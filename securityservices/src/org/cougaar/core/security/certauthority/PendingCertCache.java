@@ -45,7 +45,6 @@ import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class PendingCertCache
   extends Hashtable

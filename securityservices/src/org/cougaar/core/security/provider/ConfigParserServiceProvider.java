@@ -31,21 +31,18 @@ import java.lang.*;
 // Cougaar core services
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
-import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.config.*;
 
 public class ConfigParserServiceProvider 
-  implements ServiceProvider
+  extends BaseSecurityServiceProvider
 {
   static private ConfigParserService configParserService;
-  /** The name of the community of type SecurityCommunity. */
-  private String mySecurityCommunity;
 
-  public ConfigParserServiceProvider(String community) {
-     mySecurityCommunity = community;
+  public ConfigParserServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
   }
 
   /**
@@ -55,16 +52,14 @@ public class ConfigParserServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb, 
-					Object requestor, 
-					Class serviceClass) {
+  protected synchronized Service getInternalService(ServiceBroker sb, 
+						    Object requestor, 
+						    Class serviceClass) {
     if (configParserService == null) {
       try {
 	configParserService = new ConfigParserServiceImpl(sb, mySecurityCommunity);
       }
       catch (Exception e) {
-	LoggingService log = (LoggingService)
-	  sb.getService(this, LoggingService.class, null);
 	log.warn("Unable to get config parser service: " + e);
       }
     }
@@ -77,9 +72,9 @@ public class ConfigParserServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

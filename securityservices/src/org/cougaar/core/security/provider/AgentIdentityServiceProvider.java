@@ -41,8 +41,11 @@ import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.acl.*;
 
 public class AgentIdentityServiceProvider 
-  implements ServiceProvider
+  extends BaseSecurityServiceProvider
 {
+  public AgentIdentityServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
+  }
 
   /**
    * Get a service.
@@ -51,9 +54,9 @@ public class AgentIdentityServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public Object getService(ServiceBroker sb, 
-			   Object requestor, 
-			   Class serviceClass) {
+  protected Service getInternalService(ServiceBroker sb, 
+				    Object requestor, 
+				    Class serviceClass) {
     return new AgentIdentityServiceImpl(sb, requestor);
   }
 
@@ -63,9 +66,9 @@ public class AgentIdentityServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

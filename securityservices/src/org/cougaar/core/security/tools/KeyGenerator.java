@@ -33,6 +33,9 @@ import java.io.*;
 
 import org.w3c.dom.*;
 
+// Cougaar core services
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.util.*;
@@ -50,12 +53,9 @@ public class KeyGenerator {
   public KeyGenerator()
   {
     secProvider = new SecurityServiceProvider();
-
+    ServiceBroker sb = secProvider.getServiceBroker();
     configParser = (ConfigParserService)
-      secProvider.getService(null,
-			     this,
-			     ConfigParserService.class);
-
+      sb.getService(this, ConfigParserService.class, null);
   }
 
   public static void main(String args[]) {

@@ -42,9 +42,13 @@ import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 
 public class MessageProtectionServiceProvider 
-  implements ServiceProvider {
-
+  extends BaseSecurityServiceProvider
+{
   static private MessageProtectionService mps;
+
+  public MessageProtectionServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
+  }
 
   /**
    * Get a service.
@@ -53,9 +57,9 @@ public class MessageProtectionServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb, 
-					Object requestor, 
-					Class serviceClass) {
+  protected synchronized Service getInternalService(ServiceBroker sb, 
+						    Object requestor, 
+						    Class serviceClass) {
     if (mps == null) {
       mps = new MessageProtectionServiceImpl(sb);
     }
@@ -72,9 +76,9 @@ public class MessageProtectionServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

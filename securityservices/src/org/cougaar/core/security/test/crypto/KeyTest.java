@@ -47,7 +47,9 @@ import sun.security.provider.*;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
+// Core services
 import org.cougaar.util.ConfigFinder;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar Security Services
 import org.cougaar.core.security.policy.*;
@@ -67,10 +69,8 @@ public class KeyTest implements Runnable
     commonName = aCN;
 
     secProvider = new SecurityServiceProvider();
-
-    keyRing = (KeyRingService)secProvider.getService(null,
-						     this,
-						     KeyRingService.class);
+    ServiceBroker sb = secProvider.getServiceBroker();
+    keyRing = (KeyRingService)sb.getService(this, KeyRingService.class, null);
   }
 
   public void run() {

@@ -52,8 +52,6 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crlextension.x509.extensions.*;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
-
 
 public class CRLCache implements Runnable
 {
@@ -233,8 +231,14 @@ public class CRLCache implements Runnable
     if (certificateFinder == null)
       certificateFinder = certstatus.getCertFinder();
     // pretty much not found, check it is in the naming service
-    if (certificateFinder == null)
-      certificateFinder = keystore.getCertDirectoryServiceClient(distingushname);
+    if (certificateFinder == null) {
+      try {
+	certificateFinder = keystore.getCertDirectoryServiceClient(distingushname);
+      }
+      catch (Exception e) {
+	log.warn("Unable to get certificatels finder");
+      }
+    }
 
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
     crlIssuerPublickey=crlIssuerCert.getPublicKey();

@@ -149,6 +149,7 @@ public class CertificateStatus
   public boolean isValid() {
     return certificateIsValid;
   }
+
    public void  setValidity(boolean valid) {
      certificateIsValid=valid;
      //return certificateIsValid;
@@ -168,6 +169,10 @@ public class CertificateStatus
 
   public CertificateTrust getCertificateTrust() {
     return certificateTrust;
+  }
+  
+  public void setCertificateOrigin(CertificateOrigin origin) {
+    certificateOrigin = origin;
   }
 
   public void setCertificateTrust(CertificateTrust trust) {

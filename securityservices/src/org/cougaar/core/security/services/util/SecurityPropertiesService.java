@@ -29,7 +29,8 @@ package org.cougaar.core.security.services.util;
 // Cougaar core package
 import org.cougaar.core.component.Service;
 
-public interface SecurityPropertiesService extends Service
+public interface SecurityPropertiesService
+  extends Service
 {
   /* DEBUG properties */
   public static String TRANSPORT_DEBUG =

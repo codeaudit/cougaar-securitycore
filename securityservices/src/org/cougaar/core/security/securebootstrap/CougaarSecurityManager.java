@@ -245,12 +245,22 @@ public class CougaarSecurityManager
 	    }
 	    ByteArrayOutputStream outstream=new ByteArrayOutputStream();
 	    e.printStackTrace(new PrintStream(outstream));
-	    if(principals.isEmpty())
-	      eventholder.addEvent(new BootstrapEvent(type,Calendar.getInstance().getTime(),
-						      null,outstream.toString()));  
-	    else
-	      eventholder.addEvent(new BootstrapEvent(type,Calendar.getInstance().getTime(),
-						      (Principal[])principals.toArray(new Principal[0]),outstream.toString()));
+	    try {
+	      if(principals.isEmpty()) {
+		eventholder.addEvent(
+		  new BootstrapEvent(type,Calendar.getInstance().getTime(),
+				     null,outstream.toString()));  
+	      }
+	      else {
+		eventholder.addEvent(
+		  new BootstrapEvent(type,Calendar.getInstance().getTime(),
+				     (Principal[])principals.toArray(new Principal[0]),outstream.toString()));
+	      }
+	    }
+	    catch (Exception e) {
+	      auditlog.print("<IDMEF>Unable to publish IDMEF event. Reason:" + e + "<IDMEF>");
+	    }
+
 	    auditlog.print("<stack>\n");
 	    try {
 	      outstream.close();

@@ -57,7 +57,6 @@ import org.cougaar.util.*;
 import org.cougaar.core.util.UID;
 
 // Cougaar security services
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
@@ -103,7 +102,6 @@ public class MnRResponseViewerComponent
   }
   
    public void setCommunityService(CommunityService cs) {
-     System.out.println(" set community services call for Servlet component :");
      this.cs=cs;
    }
   public void setNamingService(NamingService ns) {
@@ -187,7 +185,7 @@ public class MnRResponseViewerComponent
 	querymapping=blackboard.query(new QueryMappingObjectPredicate());
       }
       finally {
-	blackboard.closeTransactionDontReset();
+	blackboard.closeTransaction();
       }
       if((querresponsecollection==null)||querresponsecollection.isEmpty()) {
 	out.println("No Query are currently present ");

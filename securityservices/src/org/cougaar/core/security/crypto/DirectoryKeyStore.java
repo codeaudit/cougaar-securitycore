@@ -65,7 +65,6 @@ import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertificateRevocationStatus;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
@@ -333,7 +332,7 @@ public class DirectoryKeyStore
     }
   }
 
-  public KeyStore getKeyStore() {
+  public synchronized KeyStore getKeyStore() {
     // Check security permissions
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
@@ -735,10 +734,11 @@ public class DirectoryKeyStore
     }
     if (certificateChain != null) {
       X500Name dname = null;
+      String alias = null;
       try {
 	dname = new X500Name(cert.getSubjectDN().getName());
 	String commonName = dname.getCommonName();
-	String alias = getNextAlias(keystore, commonName);
+	alias = getNextAlias(keystore, commonName);
 	setKeyEntry(alias, key, certificateChain);
       }
       catch (Exception e) {
@@ -746,6 +746,10 @@ public class DirectoryKeyStore
 	  log.error("Unable to setKeyEntry: " + e);
 	}
       }
+      // Updating certificate cache
+      CertificateStatus cs = addKeyToCache(cert, key, alias, CertificateType.CERT_TYPE_END_ENTITY);
+      // Update the certificate trust
+      setCertificateTrust(cert, cs, dname, null);
     }
     else {
       log.warn("Certificate chain is null");
@@ -894,7 +898,7 @@ public class DirectoryKeyStore
     addCN2alias(alias, certificate[0]);
     try {
       keystore.setKeyEntry(alias, privatekey, param.keystorePassword,
-			    certificate);
+			   certificate);
     } catch(Exception e) {
       if (log.isErrorEnabled()) {
 	log.error("Unable to set key entry in the keystore - "
@@ -1144,6 +1148,8 @@ public class DirectoryKeyStore
     }
     Enumeration e = certCache.getKeysInCache();
     X500Name name = null;
+
+    // Looping through all the keys in the certificate cache.
     while (e.hasMoreElements()) {
       String certdn = (String)e.nextElement();
       try {
@@ -1164,59 +1170,8 @@ public class DirectoryKeyStore
       while (it.hasNext()) {
 	CertificateStatus cs = (CertificateStatus) it.next();
 	X509Certificate certificate = cs.getCertificate();
-
-	try {
-	  X509Certificate[] certs = checkCertificateTrust(certificate);
-	  // Could establish a certificate chain. Certificate is trusted.
-	  // Update Certificate Status.
-	  if (log.isDebugEnabled()) {
-	    log.debug("Certificate chain established");
-	  }
-	  cs.setCertificateTrust(CertificateTrust.CERT_TRUST_CA_SIGNED);
-          certCache.updateBigInt2Dn(certificate);
+	if (setCertificateTrust(certificate, cs, name, selfsignedCAs)) {
 	  isTrusted = true;
-	}
-	catch (CertificateChainException exp) {
-	  if (log.isInfoEnabled()) {
-	    log.info("Unable to get certificate chain. Cause= "
-		     + exp.cause + " - Cert:" + certificate.toString());
-	  }
-	  if (exp.cause == CertificateTrust.CERT_TRUST_SELF_SIGNED) {
-	    // Maybe we didn't get a reply from the CA the last time
-	    // we created the certificate. Send a new PKCS10 request to the CA.
-	    cs.setCertificateTrust(CertificateTrust.CERT_TRUST_SELF_SIGNED);
-
-            // is CA certificate created but pending?
-            if (!cryptoClientPolicy.isRootCA() && param.isCertAuth) {
-              if (cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
-              // should this be moved to after initialization?
-                try {
-                  String cn = name.getCommonName();
-                  selfsignedCAs.put(cn, cn);
-                } catch (Exception ex) {
-                  log.warn("Exception in initCertCache.getCommonName: " + ex.toString());
-                }
-              }
-            }
-	  }
-	}
-	catch (CertificateExpiredException exp) {
-	  if (log.isInfoEnabled()) {
-	    log.info("Certificate in chain has expired. "
-		     + " - " + exp);
-	  }
-	}
-	catch (CertificateNotYetValidException exp) {
-	  if (log.isInfoEnabled()) {
-	    log.info("Certificate in chain is not yet valid. "
-		     + " - " + exp);
-	  }
-	}
-	catch(CertificateRevokedException certrevoked) {
-	  if(log.isInfoEnabled()) {
-	    log.info(" certificate is revoked for dn ="
-		     +((X509Certificate)certificate).getSubjectDN().getName());
-	  }
 	}
       } // END while(it.hasNext())
       if (isTrusted == false) {
@@ -1239,7 +1194,67 @@ public class DirectoryKeyStore
     }
   }
 
- private void initCRLCacheFromKeystore(KeyStore aKeystore, char[] password)
+  private boolean setCertificateTrust(X509Certificate certificate, CertificateStatus cs,
+				      X500Name name, Hashtable selfsignedCAs) {
+    boolean isTrusted = false; // Raise a warning if there is no trusted cert for that entity.
+    try {
+      X509Certificate[] certs = checkCertificateTrust(certificate);
+      // Could establish a certificate chain. Certificate is trusted.
+      // Update Certificate Status.
+      if (log.isDebugEnabled()) {
+	log.debug("Certificate chain established");
+      }
+      cs.setCertificateTrust(CertificateTrust.CERT_TRUST_CA_SIGNED);
+      certCache.updateBigInt2Dn(certificate);
+      isTrusted = true;
+    }
+    catch (CertificateChainException exp) {
+      if (log.isInfoEnabled()) {
+	log.info("Unable to get certificate chain. Cause= "
+		 + exp.cause + " - Cert:" + certificate.toString());
+      }
+      if (exp.cause == CertificateTrust.CERT_TRUST_SELF_SIGNED) {
+	// Maybe we didn't get a reply from the CA the last time
+	// we created the certificate. Send a new PKCS10 request to the CA.
+	cs.setCertificateTrust(CertificateTrust.CERT_TRUST_SELF_SIGNED);
+
+	// is CA certificate created but pending?
+	if (!cryptoClientPolicy.isRootCA() && param.isCertAuth) {
+	  // We are a subordinate CA
+	  if (cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
+	    // should this be moved to after initialization?
+	    try {
+	      String cn = name.getCommonName();
+	      selfsignedCAs.put(cn, cn);
+	    } catch (Exception ex) {
+	      log.warn("Exception in initCertCache.getCommonName: " + ex.toString());
+	    }
+	  }
+	}
+      }
+    }
+    catch (CertificateExpiredException exp) {
+      if (log.isInfoEnabled()) {
+	log.info("Certificate in chain has expired. "
+		 + " - " + exp);
+      }
+    }
+    catch (CertificateNotYetValidException exp) {
+      if (log.isInfoEnabled()) {
+	log.info("Certificate in chain is not yet valid. "
+		 + " - " + exp);
+      }
+    }
+    catch(CertificateRevokedException certrevoked) {
+      if(log.isInfoEnabled()) {
+	log.info(" certificate is revoked for dn ="
+		 +((X509Certificate)certificate).getSubjectDN().getName());
+      }
+    }
+    return isTrusted;
+  }
+
+  private void initCRLCacheFromKeystore(KeyStore aKeystore, char[] password)
     throws KeyStoreException
   {
     String s=null;
@@ -1263,46 +1278,68 @@ public class DirectoryKeyStore
     throws KeyStoreException
   {
     for(Enumeration enumeration = aKeystore.aliases(); enumeration.hasMoreElements(); ) {
-      String s = (String) enumeration.nextElement();
+      String alias = (String) enumeration.nextElement();
       X509Certificate certificate =
-	(X509Certificate) aKeystore.getCertificate(s);
-      CertificateStatus certstatus = null;
-      CertificateTrust trust = CertificateTrust.CERT_TRUST_UNKNOWN;
+	(X509Certificate) aKeystore.getCertificate(alias);
 
       if(certificate != null) {
-	if (certType == CertificateType.CERT_TYPE_CA) {
-          // cannot trust it automatically, need to be in the trust store
-          if (cryptoClientPolicy.isRootCA() || caKeystore.getCertificate(s) != null)
-            trust = CertificateTrust.CERT_TRUST_CA_CERT;
-	}
-	certstatus =
-	  new CertificateStatus(certificate, true,
-				CertificateOrigin.CERT_ORI_KEYSTORE,
-				certType,
-				trust, s, param.serviceBroker);
-	// Update certificate cache
-	if (log.isDebugEnabled()) {
-	  log.debug("addCertificate from keystore");
-	}
-	certCache.addCertificate(certstatus);
-	// Update Common Name to DN hashtable
-	nameMapping.addName(certstatus);
-
 	// Update private key cache
+	PrivateKey key = null;
 	try {
-	  PrivateKey key = (PrivateKey) aKeystore.getKey(s, password);
-	  if (key != null) {
-	    if (log.isDebugEnabled()) {
-	      log.debug("add Private Key from keystore");
-	    }
-	    certCache.addPrivateKey(key, certstatus);
-	  }
+	  key = (PrivateKey) aKeystore.getKey(alias, password);
 	}
 	catch (Exception e) {
-	  log.warn("Unable to update private keystore");
+	  log.warn("Unable to update private keystore: " + e);
 	}
+	addKeyToCache(certificate, key, alias, certType);
+      }
+      else {
+	log.error("Keystore is bad");
+	throw new RuntimeException("Keystore is bad");
       }
     }
+  }
+
+  private CertificateStatus addKeyToCache(X509Certificate certificate, PrivateKey key,
+			     String alias, CertificateType certType) {
+    if (certificate == null) {
+      log.warn("Unable to add null certificate to cache");
+      throw new IllegalArgumentException("Unable to add null certificate to cache");
+    }
+    CertificateStatus certstatus = null;
+    CertificateTrust trust = CertificateTrust.CERT_TRUST_UNKNOWN;
+    try {
+      if (certType == CertificateType.CERT_TYPE_CA) {
+	// cannot trust it automatically, need to be in the trust store
+	if (cryptoClientPolicy.isRootCA() || caKeystore.getCertificate(alias) != null)
+	  trust = CertificateTrust.CERT_TRUST_CA_CERT;
+      }
+    }
+    catch (java.security.KeyStoreException e) {
+      log.warn("Unable to get certificate from keystore: " + e);
+    }
+    certstatus =
+      new CertificateStatus(certificate, true,
+			    CertificateOrigin.CERT_ORI_KEYSTORE,
+			    certType,
+			    trust, alias, param.serviceBroker);
+    // Update certificate cache
+    if (log.isDebugEnabled()) {
+      log.debug("addCertificate from keystore");
+    }
+    // Add the certificate to the cache
+    certCache.addCertificate(certstatus);
+    // Update Common Name to DN hashtable
+    nameMapping.addName(certstatus);
+
+    if (key != null) {
+      if (log.isDebugEnabled()) {
+	log.debug("add Private Key from keystore");
+      }
+      // Add the private key to the cache
+      certCache.addPrivateKey(key, certstatus);
+    }
+    return certstatus;
   }
 
   /** */
@@ -2161,7 +2198,7 @@ public class DirectoryKeyStore
     return alias;
   }
 
-  public List findCert(Principal p) {
+  public synchronized List findCert(Principal p) {
     X500Name x500Name = null;
     String a = null;
     List certificateList = null;
@@ -2186,7 +2223,7 @@ public class DirectoryKeyStore
     return certificateList;
   }
 
-  public List findCert(String name) {
+  public synchronized List findCert(String name) {
     List certificateList = null;
     try {
       certificateList =

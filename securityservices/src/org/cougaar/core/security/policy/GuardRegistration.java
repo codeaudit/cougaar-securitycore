@@ -49,7 +49,6 @@ import kaos.core.util.*;
 // Cougaar security services
 import org.cougaar.core.security.util.DOMWriter;
 import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public abstract class GuardRegistration
   implements Enforcer

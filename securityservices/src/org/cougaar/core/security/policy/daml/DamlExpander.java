@@ -74,7 +74,6 @@ import org.cougaar.core.security.policy.daml.SerializableDaml;
 import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.core.security.policy.TypedPolicy;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.util.DOMWriter;
 // DAML stuff
 

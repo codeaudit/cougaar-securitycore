@@ -35,16 +35,30 @@ public class SecurityServiceTable
   extends Hashtable
 {
   private LoggingService log;
+  private static SecurityServiceTable securityServiceTable;
 
-  public SecurityServiceTable(LoggingService aLog) {
+  private SecurityServiceTable(LoggingService aLog) {
     log = aLog;
   }
 
-  public Object put(Object key, Object value) {
+  public Object put(Object service, Object provider) {
     if (log.isDebugEnabled()) {
-     log.debug("Adding service " 
-	       + ((Class)key).getName());
+     log.debug("Adding service " + ((Class)service).getName());
     }
-    return super.put(key, value);
+    if (!(provider instanceof BaseSecurityServiceProvider)) {
+      String msg = "Provider is not a BaseSecurityServiceProvider: " + ((Class)provider).getName();
+      log.error(msg);
+      throw new RuntimeException(msg);
+    }
+    else {
+      return super.put(service, provider);
+    }
+  }
+
+  public static synchronized SecurityServiceTable getInstance(LoggingService aLog) {
+    if (securityServiceTable == null) {
+      securityServiceTable = new SecurityServiceTable(aLog);
+    }
+    return securityServiceTable;
   }
 }

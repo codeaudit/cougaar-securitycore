@@ -49,7 +49,6 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /** A common holder for Security keystore information and functionality
  **/
@@ -58,7 +57,7 @@ final public class KeyRing
   implements KeyRingService
 {
   // keystore stores private keys and well-know public keys
-  private DirectoryKeyStore keystore;
+  private DirectoryKeyStore directoryKeystore;
   private DirectoryKeyStoreParameters param;
   private boolean debug = false;
   private PrivateKeyPKCS12 pkcs12;
@@ -264,7 +263,7 @@ final public class KeyRing
     }
 
 
-    keystore = new DirectoryKeyStore(param);
+    directoryKeystore = new DirectoryKeyStore(param);
 
     if (param.keystoreStream != null) {
       try {
@@ -285,9 +284,9 @@ final public class KeyRing
       }
     }
 
-    pkcs12 = new PrivateKeyPKCS12(keystore, serviceBroker);
+    pkcs12 = new PrivateKeyPKCS12(directoryKeystore, serviceBroker);
 
-    if (keystore == null || pkcs12 == null && param.isCertAuth == false) {
+    if (directoryKeystore == null || pkcs12 == null && param.isCertAuth == false) {
       // Cannot proceed without keystore
       boolean exec =
 	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
@@ -301,46 +300,47 @@ final public class KeyRing
     }
   }
 
-  public synchronized KeyStore getKeyStore() {
-    if (keystore == null) {
+  public KeyStore getKeyStore() {
+    if (directoryKeystore == null) {
       return null;
     }
-    return keystore.getKeyStore();
+    return directoryKeystore.getKeyStore();
   }
 
-  public synchronized DirectoryKeyStore getDirectoryKeyStore() {
-    return keystore;
+  public DirectoryKeyStore getDirectoryKeyStore() {
+    return directoryKeystore;
   }
 
-  public synchronized List findPrivateKey(String cougaarName) {
+  public List findPrivateKey(String cougaarName) {
     return findPrivateKey(cougaarName, true);
   }
 
-  public synchronized List findPrivateKey(String cougaarName, boolean validOnly) {
-    if (keystore == null) {
+  public List findPrivateKey(String cougaarName, boolean validOnly) {
+    if (directoryKeystore == null) {
       return null;
     }
-    return keystore.findPrivateKey(cougaarName, validOnly);
+    return directoryKeystore.findPrivateKey(cougaarName, validOnly);
   }
 
-  public synchronized List findPrivateKey(X500Name x500name) {
-    if (keystore == null) {
+  public List findPrivateKey(X500Name x500name) {
+    if (directoryKeystore == null) {
       return null;
     }
-    return keystore.findPrivateKey(x500name);
+    return directoryKeystore.findPrivateKey(x500name);
   }
 
-  public synchronized List findCert(Principal p) {
-    if (keystore == null) {
+  public List findCert(Principal p) {
+    if (directoryKeystore == null) {
       return null;
     }
-    return keystore.findCert(p);
+    return directoryKeystore.findCert(p);
   }
 
-  public synchronized List findCert(String cougaarName) {
-    if(log.isDebugEnabled())
+  public List findCert(String cougaarName) {
+    if(log.isDebugEnabled()) {
       log.debug("Looking for cougaar name " + cougaarName + " in keystore ");
-    return keystore.findCert(cougaarName);
+    }
+    return directoryKeystore.findCert(cougaarName);
   }
 
   /**
@@ -348,7 +348,7 @@ final public class KeyRing
    * @param lookupType  The type of lookup.
    *  One of LOOKUP_LDAP, LOOKUP_KEYSTORE and LOOKUP_FORCE_LDAP_REFRESH
    */
-  public synchronized List findCert(String cougaarName, int lookupType) {
+  public List findCert(String cougaarName, int lookupType) {
     return findCert(cougaarName, lookupType, true);
   }
 
@@ -358,16 +358,16 @@ final public class KeyRing
    *  One of LOOKUP_LDAP, LOOKUP_KEYSTORE and LOOKUP_FORCE_LDAP_REFRESH
    * @param validOnly   True: only valid certificates. False: all certificates
    */
-  public synchronized List findCert(String cougaarName,
-				    int lookupType, boolean validOnly) {
+  public List findCert(String cougaarName,
+		       int lookupType, boolean validOnly) {
     if(log.isDebugEnabled())
       log.debug("Looking for cougaar name " + cougaarName
 		+ " type = " + lookupType);
-    List c = keystore.findCert(cougaarName, lookupType, validOnly);
+    List c = directoryKeystore.findCert(cougaarName, lookupType, validOnly);
     return c;
   }
 
-  public X509Certificate findFirstAvailableCert(String name)
+  public synchronized X509Certificate findFirstAvailableCert(String name)
     throws CertificateException {
     // check whether agent has started yet, this fixes the problem where
     // LDAP is dirty and returning old certificates. If agent has started
@@ -376,7 +376,7 @@ final public class KeyRing
       log.debug("findFirstAvailableCert: " + name);
     }
       try {
-        if (keystore.getNamingAttributes(name) == null)
+        if (directoryKeystore.getNamingAttributes(name) == null)
           return null;
       } catch (NamingException nx) {
         return null;
@@ -410,61 +410,61 @@ final public class KeyRing
       return null;
     }
     try {
-      chain = keystore.checkCertificateTrust(c);
+      chain = directoryKeystore.checkCertificateTrust(c);
     }
     catch (Exception e) {
     }
     return chain;
   }
 
-  public synchronized void setSleeptime(long sleeptime)
+  public void setSleeptime(long sleeptime)
   {
-    if (keystore == null) {
+    if (directoryKeystore == null) {
       return;
     }
-    keystore.setSleeptime(sleeptime);
+    directoryKeystore.setSleeptime(sleeptime);
   }
 
-  public synchronized long getSleeptime()
+  public long getSleeptime()
   {
-    if (keystore == null) {
+    if (directoryKeystore == null) {
       return -1;
     }
-    return keystore.getSleeptime();
+    return directoryKeystore.getSleeptime();
   }
 
-  public synchronized Vector getCRL()
+  public Vector getCRL()
   {
-    if (keystore == null) {
+    if (directoryKeystore == null) {
       return null;
     }
     return null;
-    //return keystore.getCRL();
+    //return directoryKeystore.getCRL();
   }
 
   public synchronized void checkOrMakeCert(String name)
   {
-    if (keystore == null) {
+    if (directoryKeystore == null) {
       return;
     }
-    keystore.checkOrMakeCert(name);
+    directoryKeystore.checkOrMakeCert(name);
     return;
   }
 
   public synchronized void checkOrMakeCert(X500Name dname)
   {
-    if (keystore == null) {
+    if (directoryKeystore == null) {
       return;
     }
-    keystore.checkOrMakeCert(dname);
+    directoryKeystore.checkOrMakeCert(dname);
     return;
   }
 
   public synchronized void checkOrMakeCert(X500Name dname, boolean isCACert) {
-    if (keystore == null) {
+    if (directoryKeystore == null) {
       return;
     }
-    keystore.checkOrMakeCert(dname, isCACert);
+    directoryKeystore.checkOrMakeCert(dname, isCACert);
     return;
   }
 
@@ -505,31 +505,31 @@ final public class KeyRing
     if (log.isInfoEnabled()) {
       log.info("Removing entry from keystore");
     }
-    keystore.removeEntry(cougaarName);
+    directoryKeystore.removeEntry(cougaarName);
   }
 
   public void setKeyEntry(PrivateKey key, X509Certificate cert) {
-    keystore.setKeyEntry(key, cert);
+    directoryKeystore.setKeyEntry(key, cert);
   }
 
   public String getCommonName(String alias) {
-    return keystore.getCommonName(alias);
+    return directoryKeystore.getCommonName(alias);
   }
 
   public Enumeration getAliasList() {
-    return keystore.getAliasList();
+    return directoryKeystore.getAliasList();
   }
   public String getAlias(X509Certificate clientX509) {
-    return keystore.getAlias(clientX509);
+    return directoryKeystore.getAlias(clientX509);
   }
   public  String parseDN(String aDN) {
-    return keystore.parseDN(aDN);
+    return directoryKeystore.parseDN(aDN);
   }
 
   public X509Certificate[] checkCertificateTrust(X509Certificate certificate)
     throws CertificateChainException, CertificateExpiredException,
     CertificateNotYetValidException, CertificateRevokedException {
-    return keystore.checkCertificateTrust(certificate);
+    return directoryKeystore.checkCertificateTrust(certificate);
   }
 
   public String getCaKeyStorePath() {
@@ -540,15 +540,15 @@ final public class KeyRing
   }
 
   public boolean checkExpiry(String commonName) {
-    return keystore.checkExpiry(commonName);
+    return directoryKeystore.checkExpiry(commonName);
   }
 
   public void updateNS(String commonName) {
-    keystore.updateNS(commonName);
+    directoryKeystore.updateNS(commonName);
   }
 
   public void updateNS(X500Name x500name) {
-    keystore.updateNS(x500name);
+    directoryKeystore.updateNS(x500name);
   }
 }
 

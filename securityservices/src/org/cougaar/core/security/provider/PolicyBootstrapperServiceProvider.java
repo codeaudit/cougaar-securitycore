@@ -35,9 +35,13 @@ import org.cougaar.core.security.policy.PolicyBootstrapper;
 import org.cougaar.core.security.services.util.*;
 
 public class PolicyBootstrapperServiceProvider 
-  implements ServiceProvider {
-
+  extends BaseSecurityServiceProvider
+{
   static private PolicyBootstrapperService policyBootstrapper;
+
+  public PolicyBootstrapperServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
+  }
 
   /**
    * Get a service.
@@ -46,9 +50,9 @@ public class PolicyBootstrapperServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb, 
-					Object requestor, 
-					Class serviceClass) {
+  protected synchronized Service getInternalService(ServiceBroker sb, 
+						    Object requestor, 
+						    Class serviceClass) {
     if (policyBootstrapper == null) {
       policyBootstrapper = new PolicyBootstrapper(sb);
     }
@@ -61,9 +65,9 @@ public class PolicyBootstrapperServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

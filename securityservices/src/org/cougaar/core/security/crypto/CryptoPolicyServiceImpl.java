@@ -43,7 +43,6 @@ import safe.enforcer.NodeEnforcer;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 

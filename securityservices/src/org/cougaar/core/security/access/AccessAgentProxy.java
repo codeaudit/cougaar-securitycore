@@ -50,7 +50,6 @@ import org.cougaar.core.security.acl.trust.*;
 import org.cougaar.core.security.policy.AccessControlPolicy;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.acl.*;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;

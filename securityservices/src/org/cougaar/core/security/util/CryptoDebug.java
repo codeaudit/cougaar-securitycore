@@ -28,7 +28,6 @@ package org.cougaar.core.security.util;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public  class CryptoDebug {
   public static boolean debug =false;

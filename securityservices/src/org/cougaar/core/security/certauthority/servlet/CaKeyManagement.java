@@ -41,7 +41,6 @@ import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.certauthority.*;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class CaKeyManagement
   extends HttpServlet

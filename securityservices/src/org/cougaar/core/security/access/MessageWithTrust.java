@@ -31,7 +31,6 @@ import org.cougaar.core.mts.MessageAddress;
 
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.acl.*;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 import  org.cougaar.core.security.acl.trust.TrustSet;
 
 import java.io.*;

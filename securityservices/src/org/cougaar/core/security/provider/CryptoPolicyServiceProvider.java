@@ -40,13 +40,12 @@ import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.identity.*;
 
 public class CryptoPolicyServiceProvider 
-  implements ServiceProvider
+  extends BaseSecurityServiceProvider
 {
   static private CryptoPolicyService cryptoPolicyService;
-  private ServiceBroker theBroker;
 
-  public CryptoPolicyServiceProvider(ServiceBroker broker){
-    theBroker = broker;
+  public CryptoPolicyServiceProvider(ServiceBroker sb, String community){
+    super(sb, community);
   }
 
   /**
@@ -56,11 +55,11 @@ public class CryptoPolicyServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb, 
-					Object requestor, 
-					Class serviceClass) {
+  protected synchronized Service getInternalService(ServiceBroker sb, 
+						    Object requestor, 
+						    Class serviceClass) {
     if (cryptoPolicyService == null) {
-      cryptoPolicyService = new CryptoPolicyServiceImpl(theBroker);
+      cryptoPolicyService = new CryptoPolicyServiceImpl(serviceBroker);
     }
     return cryptoPolicyService;
   }
@@ -71,9 +70,9 @@ public class CryptoPolicyServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

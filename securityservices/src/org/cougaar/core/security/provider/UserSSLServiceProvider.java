@@ -29,7 +29,6 @@ package org.cougaar.core.security.provider;
 // Cougaar core infrastructure
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
@@ -39,10 +38,15 @@ import org.cougaar.core.security.ssl.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class UserSSLServiceProvider
-  implements ServiceProvider {
+  extends BaseSecurityServiceProvider
+{
   private KeyRingService ksr;
 
   static private UserSSLServiceImpl sslservice = null;
+
+  public UserSSLServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
+  }
 
   /**
    * Get a service.
@@ -51,13 +55,10 @@ public class UserSSLServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public Object getService(ServiceBroker sb,
-			   Object requestor,
-			   Class serviceClass) {
+  protected Service getInternalService(ServiceBroker sb,
+				       Object requestor,
+				       Class serviceClass) {
 
-   LoggingService log = (LoggingService)
-      sb.getService(this,
-		    LoggingService.class, null);
     if (sslservice != null)
       return sslservice;
 
@@ -90,9 +91,9 @@ public class UserSSLServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

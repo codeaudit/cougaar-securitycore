@@ -32,7 +32,6 @@ import java.util.HashMap;
 // Cougaar core services
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
@@ -47,16 +46,16 @@ import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.access.*;
 
 public class AccessControlPolicyServiceProvider 
-  implements ServiceProvider
+  extends BaseSecurityServiceProvider
 {
   private KeyRingService keyRing;
   private SecurityPropertiesService sps;
   private HashMap agentList = new HashMap();
-  private ServiceBroker theBroker;
 
-  public AccessControlPolicyServiceProvider(ServiceBroker broker){
-    theBroker = broker;
+  public AccessControlPolicyServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
   }
+
   /**
    * Get a service.
    * @param sb a Service Broker
@@ -64,33 +63,30 @@ public class AccessControlPolicyServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb, 
-					Object requestor, 
-					Class serviceClass) {
-    LoggingService log = (LoggingService)
-      sb.getService(this,
-		    LoggingService.class, null);
+  protected synchronized Service getInternalService(ServiceBroker sb, 
+						    Object requestor, 
+						    Class serviceClass) {
     String name;
-    try{
+    try {
       AccessPolicyClient apc = (AccessPolicyClient)requestor;
       name = apc.getName();
-    }catch(Exception e){
+    } catch(Exception e) {
       //the cast failed, not an access agent binder, no service.
       log.error("Only AccessPolicyClient is allowed to request for the service.");
       return null;
     }
     Object o = agentList.get(name);
     if (o == null) {
-      o =	new AccessControlPolicyServiceImpl(theBroker, name);
+      o = new AccessControlPolicyServiceImpl(serviceBroker, name);
       agentList.put(name, o);
     }
     if (log.isDebugEnabled()) {
       log.debug("AC policy Service Request: "
-			 + requestor.getClass().getName()
-			 + " - " + serviceClass.getName());
+		+ requestor.getClass().getName()
+		+ " - " + serviceClass.getName());
     }
 
-    return o;
+    return (Service)o;
   }
 
   /** Release a service.
@@ -99,16 +95,19 @@ public class AccessControlPolicyServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
     String name = null;
-    try{
+    try {
       AccessPolicyClient apc = (AccessPolicyClient)requestor;
       name = apc.getName();
-    }catch(Exception e){
+    } catch(Exception e) {
+      log.error("Unable to release service:" + e);
     }
-    if (name!=null) agentList.remove(name);
+    if (name!=null) {
+      agentList.remove(name);
+    }
   }
 }

@@ -86,9 +86,9 @@ public class SSLTest {
     try {
       ServiceBroker serviceBroker = secProvider.getServiceBroker();
       KeyRingService keyRing = (KeyRingService)
-                                        secProvider.getService(serviceBroker,
-                                                       this,
-                                                       KeyRingService.class);
+                                        serviceBroker.getService(this,
+								 KeyRingService.class,
+								 null);
       sslservice = new SSLServiceImpl(serviceBroker);
       sslservice.init(keyRing);
 
@@ -141,9 +141,9 @@ public class SSLTest {
     try {
       ServiceBroker serviceBroker = secProvider.getServiceBroker();
       UserSSLService userservice = (UserSSLService)
-                                        secProvider.getService(serviceBroker,
-                                                 this,
-                                                 UserSSLService.class);
+                                        serviceBroker.getService(this,
+								 UserSSLService.class,
+								 null);
       SocketFactory usersocfac = userservice.getUserSocketFactory();
       //String hostname = DirectoryKeyStore.getHostName();
       //int hostport = 8400;

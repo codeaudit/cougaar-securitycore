@@ -63,12 +63,11 @@ public class CryptographicMessage
   public CryptographicMessage()
   {
    secProvider = new SecurityServiceProvider();
-   keyRing = (KeyRingService)secProvider.getService(null,
-						    this,
-						    KeyRingService.class);
+   ServiceBroker sb = secProvider.getServiceBroker();
+   keyRing = (KeyRingService)sb.getService(this, KeyRingService.class,
+					   null);
    log = (LoggingService)
-     secProvider.getService(null, this,
-			    LoggingService.class);
+     sb.getService(this, LoggingService.class, null);
   }
 
   public PKCS7 encryptData()

@@ -29,7 +29,6 @@ package org.cougaar.core.security.provider;
 // Cougaar core infrastructure
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
@@ -37,9 +36,13 @@ import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.crypto.*;
 
 public class CertValidityServiceProvider
-  implements ServiceProvider {
-
+  extends BaseSecurityServiceProvider
+{
   static private CertificateValidityMonitor service = null;
+
+  public CertValidityServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
+  }
 
   /**
    * Get a service.
@@ -48,13 +51,10 @@ public class CertValidityServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public Object getService(ServiceBroker sb,
-			   Object requestor,
-			   Class serviceClass) {
+  protected Service getInternalService(ServiceBroker sb,
+				       Object requestor,
+				       Class serviceClass) {
 
-    LoggingService log = (LoggingService)
-      sb.getService(this,
-			       LoggingService.class, null);
     if (service != null)
       return service;
 
@@ -74,9 +74,9 @@ public class CertValidityServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

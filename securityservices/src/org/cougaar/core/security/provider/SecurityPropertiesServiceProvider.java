@@ -41,15 +41,16 @@ import org.cougaar.core.security.util.SecurityPropertiesServiceImpl;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class SecurityPropertiesServiceProvider
-  implements ServiceProvider
+  extends BaseSecurityServiceProvider
 {
-  /** A hashtable containing all the servlet context instances
-   */
+  /** A hashtable containing all the servlet context instances */
   static private Hashtable contextMap;
-  /** A singleton service to use when servlet context is null.
-     */
+  /** A singleton service to use when servlet context is null. */
   static private SecurityPropertiesService secProp;
 
+  public SecurityPropertiesServiceProvider(ServiceBroker sb, String community) {
+    super(sb, community);
+  }
 
   /**
    * Get a service.
@@ -58,9 +59,9 @@ public class SecurityPropertiesServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  public synchronized Object getService(ServiceBroker sb, 
-					Object requestor, 
-					Class serviceClass) {
+  protected synchronized Service getInternalService(ServiceBroker sb, 
+						    Object requestor, 
+						    Class serviceClass) {
     SecurityPropertiesService securityPropertiesService = null;
     // Instantiate one service for each servlet context
     javax.servlet.ServletContext context = null;
@@ -98,9 +99,9 @@ public class SecurityPropertiesServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @param service the service to be released.
    */
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  protected void releaseInternalService(ServiceBroker sb,
+					Object requestor,
+					Class serviceClass,
+					Object service) {
   }
 }

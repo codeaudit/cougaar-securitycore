@@ -44,7 +44,6 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class NodeConfiguration
 {

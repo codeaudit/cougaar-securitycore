@@ -100,7 +100,7 @@ public class SecurityLog
       ByteArrayOutputStream outstream=new ByteArrayOutputStream();
       e.printStackTrace(new PrintStream(outstream));
       eventholder.addEvent(new BootstrapEvent(type,Calendar.getInstance().getTime(),
-						      null,outstream.toString()));
+					      null,outstream.toString()));
     }
     else if (loudness > 0) {
       System.out.println("Unable to log JAR file verification error:" + e);
