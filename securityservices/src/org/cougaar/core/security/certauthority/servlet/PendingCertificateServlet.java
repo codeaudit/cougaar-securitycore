@@ -115,6 +115,17 @@ public class PendingCertificateServlet extends  HttpServlet
     }
     */
 
+    try {
+      nodeConfiguration = new NodeConfiguration(cadnname,
+						support.getServiceBroker());
+    }
+    catch (Exception e) {
+      out.print("Unable to read policy file: " + e);
+      out.flush();
+      out.close();
+      return;
+    }
+
     PendingCertCache pendingCache =
       PendingCertCache.getPendingCache(cadnname, support.getServiceBroker());
     Hashtable certtable =

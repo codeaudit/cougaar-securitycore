@@ -102,10 +102,8 @@ public class ProcessPendingCertServlet extends  HttpServlet
       caOperations = (CertDirectoryServiceCA)
 	support.getServiceBroker().getService(cdsr, CertDirectoryServiceCA.class, null);
         */
-      CertDirServiceRequestor cdsr =
-	new CertDirServiceRequestor(support.getServiceBroker(), cadnname);
       caOperations = (CACertDirectoryService)
-	support.getServiceBroker().getService(cdsr, CACertDirectoryService.class, null);
+	support.getServiceBroker().getService(this, CACertDirectoryService.class, null);
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);
