@@ -38,15 +38,20 @@ Cougaar::ExperimentMonitor.enable_logging
  
 Cougaar.new_experiment("Policy-Test").run(1) { 
 
-  layout_file="PolicyOne"
-#  layout_file="PolicyTwo"
+
+#  society_file="PolicyOne.xml"
+#  layout_file="PolicyOne-layout.xml"
+
+ society_file="PolicyTwo.xml"
+# layout_file="PolicyTwo-layout.xml"
+ layout_file="PolicyTwoSpread-layout.xml"
 
  
   # read the basic society definition 
   # 
   # also see the "create_society.rb" class, which illustrates how 
   # to create a society from scratch within ruby. 
-  do_action "LoadSocietyFromXML", "#{layout_file}.xml" 
+  do_action "LoadSocietyFromXML", "#{society_file}" 
  
   # find the "*hosts.xml" layout file 
   # 
@@ -58,7 +63,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
 
  
   # transform the basic society to use our host-node layout 
-  do_action "LayoutSociety", "#{layout_file}-layout.xml", hosts_file 
+  do_action "LayoutSociety", "#{layout_file}", hosts_file 
 
   do_action "TransformSociety", false, 
     ".",
@@ -93,10 +98,11 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   
   do_action "InitDM"
 
-#  do_action "BlackboardTest"
-#  do_action "ServletTest01"
+  do_action "BlackboardTest"
+  do_action "ServletTest01"
   do_action "DomainManagerRehydrateReset"
 
   do_action "TestResults"
+  do_action "Sleep", 3600.seconds 
 }
 

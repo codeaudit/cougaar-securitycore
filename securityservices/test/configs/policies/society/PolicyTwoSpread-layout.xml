@@ -1,0 +1,39 @@
+<society name='MiniPing-layout' 
+  xmlns:xsi='http:/www.w3.org/2001/XMLSchema-instance' 
+  xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'> 
+  <host name='Host1'> 
+    <facet enclave='Rear'/> 
+    <node name='RearPolicyManagerNode'> 
+      <facet role="AS-RootManagement"/> 
+      <facet role="AS-Management"/> 
+    </node>
+  </host>
+  <host name='Host2'>
+    <facet enclave='Rear'/> 
+    <node name='RearEnclaveCaNode'> 
+      <facet role="CertificateAuthority"/>
+      <agent name='testBounceTwo' />
+    </node>
+  </host>
+  <host name='Host3'>
+    <facet enclave='Rear'/> 
+    <node name='RootCaNode'>
+      <facet role="RootCertificateAuthority"/> 
+    </node>
+  </host>
+  <host name='Host4'>
+    <facet enclave='Rear'/> 
+    <node name='SecondCANode'>
+      <facet role="RedundantCertificateAuthority"/>
+    </node>
+  </host>
+  <host name='Host5'>
+    <facet enclave='Rear'/> 
+    <node name='RearWorkerNode'> 
+      <facet role="NameServer"/> 
+      <agent name='testBounceOne'/>
+      <agent name='testBBPolicyAgent'/>
+    </node> 
+  </host> 
+</society>
+

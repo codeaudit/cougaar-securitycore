@@ -75,8 +75,6 @@ module Cougaar
     class DomainManagerRehydrateReset < Cougaar::Action
       def initialize(run)
         @run = run
-        @deathTimeout  = 60
-        @reviveTimeout = 40
         super(run)
       end
     
@@ -95,6 +93,7 @@ module Cougaar
     #
     #   Initialization of parameters
     #
+        web = SRIWeb.new()
         failed = false
         policyNode, domainManager = getPolicyManagerNodeFromEnclave(enclave)
         @run.info_message("policy node = #{policyNode.name}")
@@ -103,7 +102,7 @@ module Cougaar
     #
     # Does everything start as I expect?
     #
-        if !(checkAudit(node)) then
+        if !(checkAudit(web, node)) then
           @run.info_message("No audit? - aborting test")
           return
         end
@@ -112,7 +111,6 @@ module Cougaar
     #
         @run.info_message("killing #{node.name}")
         @run['node_controller'].stop_node(node)
-        sleep(@deathTimeout)
     # the sleep ensures that the node is really gone
         pw = PolicyWaiter.new(@run, policyNode.name)
         @run.info_message( "installing no audit policy")
@@ -123,20 +121,17 @@ DONE
         @run.info_message("uri = #{persistUri}")
         Cougaar::Communications::HTTP.get(persistUri)
     # now audit is turned off and should not happen.      
-        if (!pw.wait(120) || checkAudit(policyNode)) then
+        if (!pw.wait(120) || checkAudit(web, policyNode)) then
           @run.info_message( "Audit?? commit policies failed - aborting")
           @run.info_message("Rehydration policy test aborted")
           return
         end
         @run.info_message( "killing policy manager node (#{policyNode.name})")
         @run['node_controller'].stop_node(policyNode)
-        sleep(@deathTimeout)
     # the sleep ensures that the node is really gone
         @run.info_message( "restarting node #{node.name}")
         @run['node_controller'].restart_node(self, node)
-        @run.info_message("sleeping #{@reviveTimeout} seconds - magic number")
-        sleep(@reviveTimeout)
-        if !(checkAudit(node)) then
+        if !(checkAudit(web, node)) then
           @run.info_message("This means that you didn't wait long enough " +
                             "for #{node.name} to  die?")
           @run.info_message("Test failed")
@@ -148,7 +143,7 @@ DONE
         @run.info_message( "restarting domain manager node (#{policyNode.name})")
         @run['node_controller'].restart_node(self, policyNode)
     # audit should fail here also  - this is the real test
-        if (!pw.wait(120) || checkAudit(node))
+        if (!pw.wait(120) || checkAudit(web, node))
           @run.info_message("Rehydration test failed - audit should not occur")
           return
         else 
@@ -168,17 +163,29 @@ DONE
         pw.wait(240)
       end
     
-      def checkAudit(node)
+      def checkAudit(web, node)
         @run.info_message("checking audit on node #{node.name}")
+        done = false
+        ret = false
         url = "#{node.uri}/testAuditServlet"
-        result = Cougaar::Communications::HTTP.get(url)
-        ret = (/TRUE/.match(result.to_s) != nil)
+        while ! done do
+          result = web.getHtml(url)
+          #@run.info_message("result = #{result.body}")
+          #@run.info_message("result = #{result.code}")
+          # ignore transitory connection refused and forbidden codes
+          done = (result.code == "200")
+          if done then
+            ret = (/TRUE/.match(result.body) != nil)
+          else 
+            sleep 15
+          end
+        end
         if ret then
           @run.info_message("Auditting enabled")
         else 
           @run.info_message("Auditting disabled")
         end
-        return ret
+        ret
       end
     
       def getPolicyManagerNodeFromEnclave(enclave)
