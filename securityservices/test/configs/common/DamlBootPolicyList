@@ -125,8 +125,8 @@ BlackBoardObject OrgActivity
 #
 # Policy Assumptions:
 #     1. Positive policies have priority two and can only involve the
-#        sender and the receiver.
-#     2. Negative policies have priority three.
+#        sender and the receiver and the verb
+#     2. Negative policies have priority three and do not involve the verb.
 #
 #
 # Justification:
@@ -208,11 +208,18 @@ Policy DamlBootPolicyOrgActivityAll = [
 #           templates satisfy the assumptions.
 #
 # Policy Assumptions:
+#
 #     1. Positive policies have priority two and can only involve the
 #        set of users accessing the servlet and the name of the
 #        servlet being accessed.
 #     2. Negative policies have priority three.
-#     3. Policies only require Audit.  E.g. positive polices do not
+#     3. Negative policies involving the authentication scheme
+#        cannot involve the users.  One can only have negative
+#        policies involving the user and a particular servlet in the
+#        case that the policies require authentication scheme for
+#        that servlet that actually identifies a user (e.g. not 
+#        NoAuth or NoAuthSSL).
+#     4. Policies only require Audit.  E.g. positive polices do not
 #        involve audit and no policy states that audit is illegal.
 #
 # Justification:
