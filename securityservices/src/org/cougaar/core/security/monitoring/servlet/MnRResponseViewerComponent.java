@@ -58,13 +58,14 @@ import org.cougaar.core.util.UID;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
+import org.cougaar.core.security.monitoring.plugin.MnRQueryBase;
 
 
 /**
  *  Use the TraX interface to perform a transformation.
  */
 public class MnRResponseViewerComponent
-  extends BaseServletComponent implements BlackboardClient  {
+extends BaseServletComponent implements BlackboardClient  {
   private MessageAddress agentId;
   private AgentIdentificationService ais;  
   private BlackboardService blackboard;
@@ -91,7 +92,7 @@ public class MnRResponseViewerComponent
     }
   }
 
-   public void setBlackboardService(BlackboardService blackboard) {
+  public void setBlackboardService(BlackboardService blackboard) {
     this.blackboard = blackboard;
   }
 
@@ -99,9 +100,9 @@ public class MnRResponseViewerComponent
     this.ds = ds;
   }
   
-   public void setCommunityService(CommunityService cs) {
-     this.cs=cs;
-   }
+  public void setCommunityService(CommunityService cs) {
+    this.cs=cs;
+  }
   public void setLoggingService(LoggingService ls) {
     this.logging=ls;
   }
@@ -119,14 +120,14 @@ public class MnRResponseViewerComponent
   }
   
 
-    public String getBlackboardClientName() {
+  public String getBlackboardClientName() {
     return toString();
   }
 
   // odd BlackboardClient method:
   public long currentTimeMillis() {
     throw new UnsupportedOperationException(
-        this+" asked for the current time???");
+      this+" asked for the current time???");
   }
 
   // unused BlackboardClient method:
@@ -135,8 +136,8 @@ public class MnRResponseViewerComponent
     //
     // see "ComponentPlugin" for details.
     throw new UnsupportedOperationException(
-        this+" only supports Blackboard queries, but received "+
-        "a \"trigger\" event: "+event);
+      this+" only supports Blackboard queries, but received "+
+      "a \"trigger\" event: "+event);
   }
 
   private class QueryResponseViewerServlet extends HttpServlet {
@@ -146,7 +147,7 @@ public class MnRResponseViewerComponent
 	boolean ret = false;
 	if (o instanceof CmrRelay ) {
 	  CmrRelay relay = (CmrRelay)o;
-	  ret =( relay.getContent() instanceof MRAgentLookUp );
+	  ret =(relay.getContent() instanceof MRAgentLookUp );
 	}
 	return ret;
       }
@@ -172,7 +173,7 @@ public class MnRResponseViewerComponent
       out.println("<title>MnRQuery Response  Viewer </title>");
       out.println("</head>");
       out.println("<body>");
-      out.println("<H2>MnRRegistration Viewer</H2><BR>");
+      out.println("<H2>MRAgentLookUP query Response</H2><BR>");
       out.println("<H3> Monitoring and Response Query and Response  :"+ agentId.toAddress() +"</H3>");
       Collection querresponsecollection=null;
       Collection querymapping=null;
@@ -194,150 +195,135 @@ public class MnRResponseViewerComponent
       CmrRelay relay=null;
       MRAgentLookUpReply reply=null;
       MRAgentLookUp query=null;
-      StringBuffer sb=new StringBuffer();
-      sb.append("<table align=\"center\" border=\"2\">\n");
-      sb.append("<TR><TH> Relay ID  </TH><TH> Source </TH><TH>TARGET </TH><TH>IS Originator</TH><TH>SubQuery status </TH><TH>QUERY </TH><TH> Response </TH></TR>\n");
+      StringBuffer localsb=new StringBuffer();
+      StringBuffer remotesb=new StringBuffer();
+      localsb.append("<H3> Locally published Queries & Their Response </h3>");
+      localsb.append("<table align=\"center\" border=\"2\">\n");
+      localsb.append("<TR><TH> Relay ID  </TH><TH> Source </TH><TH>TARGET </TH><TH>SubQuery -- status </TH><TH>QUERY </TH><TH> Response </TH></TR>\n");
+      remotesb.append("<H3> Remotly published Queries & Their Response </h3>");
+      remotesb.append("<table align=\"center\" border=\"2\">\n");
+      remotesb.append("<TR><TH> Relay ID  </TH><TH> Source </TH><TH>TARGET </TH><TH>SubQuery --  status </TH><TH>QUERY </TH><TH> Response </TH></TR>\n");              
       while(iter.hasNext()) {
 	relay = (CmrRelay)iter.next();
-	sb.append("<TR><TD>\n");
-	UID uid=relay.getUID();
-	sb.append(uid.toString());
-	sb.append("</TD>\n");
-	sb.append("<TD>\n");
-	if(relay.getSource()!=null) {
-	  sb.append(relay.getSource().getAddress());
-	}
-	else {
-	   sb.append(" unknown");
-	}
-	sb.append("</TD>\n");
-	sb.append("<TD>\n");
-	if(relay.getTarget()!=null) {
-	  sb.append(relay.getTarget().getAddress());
-	}
-	else {
-	  sb.append(" unknown");
-	}
-	sb.append("</TD>\n");
-	sb.append("<TD>\n");
-	QueryMapping mapping=findQueryMappingFromBB(uid,querymapping);
-	boolean isorginator=isRelayQueryOriginator(uid,querymapping);
-	if(isorginator) {
-	  sb.append(true);
-	}
-	else {
-	  sb.append(false);
-	}
-	sb.append("</TD>\n");
-	sb.append("<TD>\n");
-	if(isorginator) {
-	  if(mapping!=null) {
-	    ArrayList list=(ArrayList)mapping.getQueryList(); 
-	    OutStandingQuery outstandingquery;
-	    boolean modified=false;
-	    if(list!=null) {
-	      sb.append("<ol>"); 
-	      for(int i=0;i<list.size();i++) {
-		outstandingquery=(OutStandingQuery)list.get(i);
-		sb.append("<li>Sub Query id and Status :"+ outstandingquery.toString()+"</li>\n");
-	      }
-	      sb.append("</ol>"); 
-	    }
-	  }
-	}
-	else {
-	  sb.append("---");
-	}
-	sb.append("</TD>\n");
-	sb.append("<TD>\n");
-	if(relay.getContent()!=null){
-	  query=(MRAgentLookUp)relay.getContent();
-	  sb.append(query.toString());
-	  // sb.append("</TD>\n"); 
-	}
-	sb.append("</TD>\n");
-	sb.append("<TD>\n");
-	if(relay.getResponse()!=null){
-	  reply=(MRAgentLookUpReply)relay.getResponse();
-	  List list=reply.getAgentList();
-	  if(list!=null) {
-	    if(!list.isEmpty()) {
-	      sb.append("<ol>");
-	      ListIterator iter1=list.listIterator();
-	      MessageAddress agentid=null;
-	      while(iter1.hasNext()) {
-		agentid=(MessageAddress)iter1.next();
-		sb.append("<li> "+ agentid.toString()+"</li>\n");
-	      }
-	      sb.append("</ol>"); 
-	    }
-	  }
-	}
-	sb.append("</TD>\n");
+        UID uid=relay.getUID();
+        QueryMapping mapping=MnRQueryBase.findQueryMappingFromBB(uid,querymapping);
+	boolean isorginator=MnRQueryBase.isRelayQueryOriginator(uid,querymapping);
+        boolean isSubQuery=MnRQueryBase.isRelaySubQuery(uid,querymapping);
+        UID originalUID=null;
+        if(mapping!=null) {
+          if(!isSubQuery) {
+            originalUID=mapping.getRelayUID();
+            if(logging.isDebugEnabled()) {
+              logging.debug(" It it is not sub query then it should be the originator. Either it should have received the query from local components of from upper MnR Managers ");
+              if(uid.equals(originalUID)) {
+                logging.debug(" relay uid equals relay uid ... Vola this is correct");
+              }
+              else {
+                logging.debug(" relay uid  ! equals relay uid ... Vola this is NOT RIGHT");
+              }
+            }
+            if(relay.getSource().equals(agentId)) {
+              localsb.append(convertQueryInfoToHTML(relay,mapping));
+            }
+            else {
+              remotesb.append(convertQueryInfoToHTML(relay,mapping));
+            }
+          }
+        }
+        else {
+          if(!((relay.getSource().equals(agentId))&&((relay.getTarget()!=null) &&(relay.getTarget().equals(agentId))))) {
+            remotesb.append("<TR>Error Cannot find Query Mapping for relay"+uid.toString() +"</TR>\n");
+          }
+        }
       }
-      sb.append("</table>");
-      out.println(sb.toString());
+      localsb.append("</table>");
+      remotesb.append("</table>");
+      out.println(localsb.toString());
+      out.println("<BR> <BR>");
+      out.println(remotesb.toString()); 
       out.println("</body></html>");
       out.flush();
       out.close();
-   
     }
    
-    public QueryMapping findQueryMappingFromBB(UID givenUID, Collection queryMappingCol ) {
-    QueryMapping foundqMapping=null;
-    ArrayList relayList;
-    OutStandingQuery outstandingq;  
-    //QueryMapping tempqMapping;
-    if(!queryMappingCol.isEmpty()){
-      if (logging.isDebugEnabled()) {
-	logging.debug("Going to find uid from list of Query mapping Objects on bb in Response servlet "+queryMappingCol.size()); 
+    private String convertQueryInfoToHTML(CmrRelay relay , QueryMapping mapping ) {
+
+      MRAgentLookUpReply reply=null;
+      MRAgentLookUp query=null;
+      StringBuffer sb =new StringBuffer();
+      sb.append("<TR><TD>\n");
+      sb.append(relay.getUID().toString());
+      sb.append("</TD>\n");
+      sb.append("<TD>\n");
+      if(relay.getSource()!=null) {
+        sb.append(relay.getSource().getAddress());
       }
-      Iterator iter=queryMappingCol.iterator();
-      while(iter.hasNext()) {
-	foundqMapping=(QueryMapping)iter.next();
-	if(foundqMapping.getRelayUID().equals(givenUID)) {
-	  return foundqMapping;
-	}
-	relayList=foundqMapping.getQueryList();
-	if(relayList==null) {
-	  continue;
-	}
-	for(int i=0;i<relayList.size();i++) {
-	  outstandingq=(OutStandingQuery)relayList.get(i);
-	  if(outstandingq.getUID().equals(givenUID)) {
-	    if (logging.isDebugEnabled()) {
-	      logging.debug(" Found given uid :"+ givenUID +" in object with UID :"+outstandingq.getUID());
-	    }
-	    return foundqMapping;
-	  }
-	}
+      else {
+        sb.append(" unknown ");
       }
+      sb.append("</TD>\n");
+      sb.append("<TD>\n");
+      if(relay.getTarget()!=null) {
+        sb.append(relay.getTarget().getAddress());
+      }
+      else {
+        sb.append(" unknown");
+      }
+      sb.append("</TD>\n");
+      sb.append("<TD>\n");
+      if(mapping!=null) {
+        ArrayList list=(ArrayList)mapping.getQueryList(); 
+        OutStandingQuery outstandingquery;
+        if(!list.isEmpty()) {
+          sb.append("<ol>"); 
+          for(int i=0;i<list.size();i++) {
+            outstandingquery=(OutStandingQuery)list.get(i);
+            sb.append("<li>Sub Query id:"+ outstandingquery.getUID().toString()+" ---  "+!outstandingquery.isQueryOutStanding()+"</li>\n");
+          }
+          sb.append("</ol>"); 
+        }
+        else {
+          sb.append(" no sub queries");
+        }
+      }
+      else {
+        sb.append(" Error in getting Query Mapping Object");
+      }
+      sb.append("</TD>\n");
+      sb.append("<TD>\n");
+      if(relay.getContent()!=null){
+        query=(MRAgentLookUp)relay.getContent();
+        sb.append(query.toString());
+      }
+      else {
+        sb.append(" Error in getting MRAgentLookUp query ");
+      }
+      sb.append("</TD>\n");
+      sb.append("<TD>\n");
+      if(relay.getResponse()!=null){
+        reply=(MRAgentLookUpReply)relay.getResponse();
+        List list=reply.getAgentList();
+        if((list!=null) &&(!list.isEmpty())) {
+          sb.append("<ol>");
+          ListIterator iter1=list.listIterator();
+          MessageAddress agentid=null;
+          while(iter1.hasNext()) {
+            agentid=(MessageAddress)iter1.next();
+            sb.append("<li> "+ agentid.toString()+"</li>\n");
+          }
+          sb.append("</ol>"); 
+        }
+        else {
+          sb.append("Response is Empty ");
+        }
+      }
+      else {
+        sb.append(" No response yet "); 
+      }
+      sb.append("</TR>\n");
+      return sb.toString();
       
     }
-    else {
-      return null;
-    }
-    
-    return null;
-    }
-    public boolean isRelayQueryOriginator(UID givenUID, Collection queryMappingCol ) {
-      boolean isoriginator=false;
-      QueryMapping querymapping=null;
-      if(!queryMappingCol.isEmpty()){
-	if (logging.isDebugEnabled()) {
-	  logging.debug("Going to find if this relay id is originator of query in Response viewer servlet  :"); 
-      }
-      Iterator iter=queryMappingCol.iterator();
-      while(iter.hasNext()) {
-	querymapping=(QueryMapping)iter.next();
-	if(querymapping.getRelayUID().equals(givenUID)) {
-	  isoriginator=true;
-	  return isoriginator;
-	}
-      }
-    }
-    return isoriginator;
-  }
     
   }
 
