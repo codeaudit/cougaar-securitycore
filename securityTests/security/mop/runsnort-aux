@@ -1,6 +1,10 @@
 #!/bin/bash
 
-logdir=/var/tcplogs
+# Script to support runsnort; keep in same dir as runsnort
+# Provide logdir as argument
+logdir=${1:?missing argument}
+
+snort=/usr/sbin/snort
 
 # exclude ssh, mysql, nfs, jabber, and acme
 normalPortExclusion='!(port 22 or port 3306 or port 2049 or port 5222 or port 9444)'
@@ -29,18 +33,17 @@ all="$options $listenInterface $maxPacketLen $filter"
 echo "snort $all"
 
 killall -9 snort
-rm -rf $logdir
-mkdir $logdir
-snort $all
-Pid="$!"
+$snort $all &
+Pid=$!
+
+echo Snort pid is $Pid
 
 # now make sure snort doesn't run forever, kill after 120 minutes ...
 let minutenum=1
 let maxminutes=120
 while [ $minutenum -le $maxminutes ]; do
-  ps aux | grep $Pid | grep snort
-  if [ "$?" != "0" ]; then
-    echo "Good.  Snort has been killed, will exit."
+  if [ ! -e /proc/$Pid ]; then
+    echo "Good.  Snort has been killed (after $minutenum mins), will exit."
     exit
   fi
   sleep 60

@@ -1,7 +1,22 @@
 #!/bin/sh
 
+# Script to analyze snort output and move results to shared (NFS) dir.
+# Required args: target dir and userid (to enable su'ing to that user 
+# to permit writing to NFS dir)
+targetdir=${1:?missing argument}
+cipuser=${2:?missing argument}
+
+# Where analysis log goes
+# Must be writable by root (not NFS)
+logdir=/var/tmp/tcplogs
+
+scriptdir=`dirname $0`
+
+mkdir -p $targetdir
+
 echo "analyzing snort"
 killall -9 snort
 echo "running analyzesnort-aux in the background"
+nohup $scriptdir/analyzesnort-aux $logdir $targetdir $cipuser &> $logdir/snortanalysis.log & 
+
 #$1/csmart/assessment/lib/framework/analyzesnort-aux /mnt/shared/socB
-nohup $1/csmart/lib/security/mop/analyzesnort-aux $1 >snortanalysis.log &

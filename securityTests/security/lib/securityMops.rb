@@ -2,8 +2,6 @@ require 'singleton'
 require 'security/lib/AbstractSecurityMop'
 require 'security/lib/securityMopAnalysis'
 
-#snortDir = "#{ENV['COUGAAR_INSTALL_PATH']}/workspace/security/data"
-
 ################################################
 
 Mop2_1 = Struct.new(:agent, :type, :successes, :total)
@@ -223,11 +221,12 @@ class SecurityMop23 < AbstractSecurityMop
     super(run)
     @name = "2.3"
     @descript = "Percentage of sensitive data elements transmitted between computers that were available to an unauthorized entity"
-    @logfilename = File.join("#{ENV['CIP']}", "workspace", "security", "data", "snort.log")
-    # @logfilename = "#{ENV['CIP']}/workspace/security/data/snort.log"
-    Dir.mkdirs(@logfilename) unless File.exist?(@logfilename) 
-    #aFile = File.new(@logfilename, File::RDWR | File::APPEND | File::CREAT)
-    #afile.close
+
+    @scriptsdir = File.join(ENV['CIP'], "csmart", "lib", "security", "mop")
+    @datadir = File.join(ENV['CIP'], "workspace", "security", "mops")
+    @cipuser = `whoami`.chomp
+    `mkdir -p #{@datadir}`   # Make parent dirs as needed
+    # Dir.mkdirs(@logfilename) unless File.exist?(@logfilename) 
   end
 
   def getStressIds()
@@ -247,7 +246,7 @@ puts "startTcpCapture"
 puts agentnames
     # executable attribute not set when first unzipped.
     %w(runsnort runsnort-aux analyzesnort analyzesnort-aux).each do |file|
-      f = "#{ENV['CIP']}/csmart/lib/security/mop/#{file}"
+      f = File.join(@scriptsdir, file)
       `chmod a+x #{f}`
     end
     hosts = []
@@ -269,7 +268,7 @@ puts agentnames
 puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
     
     @hosts.each do |host|
-      doRemoteCmd(host.name, "#{ENV['CIP']}/csmart/lib/security/mop/runsnort #{ENV['CIP']} #{@logfilename}" )
+      doRemoteCmd(host.name, "#{@scriptsdir}/runsnort")
     end
   end
 
@@ -279,11 +278,10 @@ puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
 
   def stopTcpCapture
     return unless @hosts
+puts "Stopping/processing TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
     logInfoMsg (@hosts.collect {|h| h.name}).sort if $VerboseDebugging
-    `chmod a+rwx #{ENV['CIP']}/workspace/security`
     @hosts.each do |host|
-#      doRemoteCmd(host.name, "#{ENV['CIP']}/csmart/lib/security/mop/analyzesnort #{ENV['CIP']} #{@logfilename}")
-      doRemoteCmd(host.name, "#{ENV['CIP']}/csmart/lib/security/mop/analyzesnort #{ENV['CIP']} #{@logfilename}")
+      doRemoteCmd(host.name, "#{@scriptsdir}/analyzesnort #{@datadir} #{@cipuser}")
     end
   end
 
@@ -303,7 +301,7 @@ puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
 
   def postCalculate
     begin
-      analysis = PostSecurityMopAnalysis.new("#{ENV['CIP']}/workspace/security/mops")
+      analysis = PostSecurityMopAnalysis.new(@datadir)
       analysis.mops = run['mops']
       info = analysis.getXMLDataForMop(3)
       saveResult(analysis.scores[3] <= 0.0, 'SecurityMop2.3', info)

@@ -1,4 +1,15 @@
 #!/bin/sh
 
+# Script to run snort.  Run as root.  Requires no args.
+
+# Where all snort output goes
+# Must be writable by root (not NFS)
+logdir=/var/tmp/tcplogs
+
+scriptdir=`dirname $0`
+
+rm -rf $logdir
+mkdir $logdir
+
 echo "snort started"
-nohup $1/csmart/lib/security/mop/runsnort-aux >snort.log &
+nohup $scriptdir/runsnort-aux $logdir &> $logdir/snort.log &

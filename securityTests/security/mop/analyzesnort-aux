@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+# Do snort analysis.  
+# Required args: snort log dir, CIP, CIP username
+
 require 'pstore'
 
 $VerboseDebugging = true
@@ -142,7 +145,7 @@ puts [numFiles, numRealEncrypted, numEncrypted, numSyn].inspect
       db.commit
     end
     db = nil
-    moveResultFile(filename)
+    #moveResultFile(filename)
   end
 
   def moveResultFile(filename)
@@ -155,10 +158,20 @@ end
 
 
 
+logdir = ARGV[0]
+todir = ARGV[1]
+cipuser = ARGV[2]
+hostname=`hostname -s`.chomp
+resultfile = "#{hostname}.tcplog"
 
-dirname = "/var/tcplogs"
-
-a=AnalyzeSnortData.new(dirname)
+a=AnalyzeSnortData.new(logdir)
 a.analyzeLogs
 a.printTuples
-a.storeResult
+a.storeResult("#{logdir}/#{resultfile}")
+
+puts "copying result files in #{logdir} to #{todir} (user #{cipuser})" if $VerboseDebugging
+STDOUT.flush
+# Run as user rather than root to allow writing to NFS directories
+`sudo -u #{cipuser} cp #{logdir}/#{resultfile} #{todir}`
+`sudo -u #{cipuser} cp #{logdir}/snort.log #{todir}/#{hostname}.snort.log`
+`sudo -u #{cipuser} cp #{logdir}/snortanalysis.log #{todir}/#{hostname}.snortanalysis.log`
