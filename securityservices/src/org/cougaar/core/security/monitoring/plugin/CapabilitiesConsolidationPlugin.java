@@ -809,12 +809,32 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     private boolean areAgentInfoEqual(org.cougaar.core.security.monitoring.idmef.Agent newagent,
 				      org.cougaar.core.security.monitoring.idmef.Agent existingagent) {
       boolean equal=false;
+      boolean nameequal=false;;
+      boolean addressequal=true;
       if((newagent==null)||(existingagent==null)) {
 	return false;
       }
-      if((existingagent.getName().equalsIgnoreCase(newagent.getName()))&&
-	 (existingagent.getDescription().equalsIgnoreCase(newagent.getDescription()))&&
-	 (existingagent.getAddress().equals(newagent.getAddress()))) {
+      String existingagentname=null;
+      String newagentname=null;
+      existingagentname=existingagent.getName();
+      newagentname=newagent.getName();
+      if((existingagentname==null)||(newagentname==null)) {
+	return false;
+      }
+      if(existingagentname.equalsIgnoreCase(newagentname)) {
+	nameequal=true;
+      }
+      Address existingaddress=null;
+      Address newaddress=null;
+      existingaddress=existingagent.getAddress();
+      newaddress=newagent.getAddress();
+      if( (existingaddress == null) || (newaddress == null)) {
+	return false;
+      }
+      if(existingaddress.equals(newaddress)) {
+	addressequal=true;
+      }
+      if(nameequal && addressequal) {
 	equal=true;
       }
       return equal;
