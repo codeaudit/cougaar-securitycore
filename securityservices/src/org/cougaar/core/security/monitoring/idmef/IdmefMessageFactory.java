@@ -178,7 +178,6 @@ final public class IdmefMessageFactory {
   public static final String SocietyMgrType="SocietyManager";
    public static final String UnknownType="Unknown";
   private ServiceBroker serviceBroker;
-  private LoggingService log;
 
   /**
    * Constructor to create an IdmefMessageFactory instance
@@ -363,12 +362,7 @@ final public class IdmefMessageFactory {
 		  testClassification, testAssessment, ad, 
 		  "test_ident" );
     
-      log.debug("=========================== Alert message:");
-      log.debug(theAlert.toString());
-      log.debug("===========================");
-    
       return theAlert;
-        
     }
     
   /**
