@@ -56,18 +56,19 @@ public class ConfigParserServiceImpl
   implements ConfigParserService
 {
   private SecurityPropertiesService secprop = null;
+  private ConfigFinder confFinder;
   private boolean isCertAuthority = false;
   private Document configDoc = null;
   private String role;
 
   // XML Parser
   private XMLReader parser;
-  ConfigParserHandler handler;
+  private ConfigParserHandler handler;
 
   public ConfigParserServiceImpl() {
+    confFinder = new ConfigFinder();
     // TODO. Modify following line to use service broker instead
     secprop = SecurityServiceProvider.getSecurityProperties(null);
-
     try {
       // Create SAX 2 parser...
       parser = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
@@ -84,40 +85,68 @@ public class ConfigParserServiceImpl
     setConfigurationFile();
   }
 
-  private void setConfigurationFile() {
-    String configFile = null;
-    String configPath = null;
+  public File findWorkspacePolicyPath(String policyfilename) {
+    String nodeName = secprop.getProperty("org.cougaar.node.name");
 
-    String defaultConfigFile = "cryptoPolicy.xml";
-    configFile = secprop.getProperty(secprop.CRYPTO_CONFIG,
-				     defaultConfigFile);
-    if(CryptoDebug.debug) {
-      System.out.println("Policy file:" + configFile);
-    }
+    String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
+    System.out.println("Cougaar workspace is :" + cougaarWsp);
 
-    ConfigFinder confFinder = new ConfigFinder();
+    String topDirectory = cougaarWsp + File.separatorChar + "security"
+      + File.separatorChar + "keystores" + File.separatorChar;
+
+    String nodeDirectory = topDirectory + nodeName + File.separatorChar;
+
+    String configFile = nodeDirectory + policyfilename;
+
+    return new File(configFile);
+  }
+
+  /** Find a boot policy file
+   *  First, search in the workspace.
+   *  Second, search using ConfigFinder.
+   */
+  public File findPolicyFile(String policyfilename) {
     File f = null;
-    f = confFinder.locateFile(configFile);
+    String configFile = secprop.getProperty(secprop.CRYPTO_CONFIG,
+				     policyfilename);
+
+    // 1) Search using the workspace
+    f = findWorkspacePolicyPath(configFile);
+
+    if (!f.exists()) {
+      // 2) Search using the config finder.
+
+      f = confFinder.locateFile(configFile);
     
-    if (f == null) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to read configFile: " + configFile);
+      if (f == null) {
+	if (CryptoDebug.debug) {
+	  System.out.println("Unable to read configFile: " + configFile);
+	}
+	// Cannot proceed without policy
+	System.err.println("ERROR: Cannot continue secure execution without policy");
+	System.err.println("ERROR: Could not find crypto configuration file: " + configFile);
+	try {
+	  throw new RuntimeException("No policy available");
+	}
+	catch (RuntimeException ex) {
+	  ex.printStackTrace();
+	}
+	System.exit(-1);
       }
-      // Cannot proceed without policy
-      System.err.println("ERROR: Cannot continue secure execution without policy");
-      System.err.println("ERROR: Could not find crypto configuration file: " + configFile);
-      try {
-	throw new RuntimeException("No policy available");
-      }
-      catch (RuntimeException ex) {
-	ex.printStackTrace();
-      }
-      System.exit(-1);
     }
-    configPath = f.getPath();
+    if(CryptoDebug.debug) {
+      System.out.println("Policy file:" + f.getPath());
+    }
+    return f;
+  }
+
+  private void setConfigurationFile() {
+    String configPath = null;
+    String defaultFile = "cryptoPolicy.xml";
+    configPath = findPolicyFile(defaultFile).getPath();
 
     try {
-      configDoc = confFinder.parseXMLConfigFile(configFile);
+      configDoc = confFinder.parseXMLConfigFile(configPath);
       FileInputStream fis = new FileInputStream(configPath);
       parsePolicy(fis);
     }

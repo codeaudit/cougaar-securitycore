@@ -76,7 +76,10 @@ public class CreateCaKeyServlet
       support.getServiceBroker().getService(this,
 					    KeyRingService.class,
 					    null);
-
+    configParser = (ConfigParserService)
+      support.getServiceBroker().getService(this,
+					    ConfigParserService.class,
+					    null);
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -157,7 +160,7 @@ public class CreateCaKeyServlet
   }
 
   private void generateCaPolicy(Hashtable attributeTable) {
-    PolicyHandler ph = new PolicyHandler();
+    PolicyHandler ph = new PolicyHandler(configParser);
     ph.addCaPolicy(attributeTable);
   }
   

@@ -46,6 +46,7 @@ public class PolicyHandler
   private SecurityPropertiesService secprop = null;
   private ByteArrayInputStream newPolicyInputStream;
   private ByteArrayOutputStream policy;
+  private ConfigParserService configParser = null;
 
   protected static final String POLICIES_TAG = "policies";
 
@@ -58,26 +59,19 @@ public class PolicyHandler
   protected static final String LEXICAL_HANDLER_PROPERTY_ID =
   "http://xml.org/sax/properties/lexical-handler";
 
-  public PolicyHandler() {
+  public PolicyHandler(ConfigParserService configParser) {
     secprop = SecurityServiceProvider.getSecurityProperties(null);
   }
 
   public void addCaPolicy(Hashtable attributeTable) {
-    String defaultConfigFile = "cryptoPolicy.xml";
-    String configFile = secprop.getProperty(secprop.CRYPTO_CONFIG,
-				     defaultConfigFile);
-    if(CryptoDebug.debug) {
-      System.out.println("Policy file:" + configFile);
-    }
-
     ConfigFinder confFinder = new ConfigFinder();
-    File f = null;
+    File file = null;
 
-    f = confFinder.locateFile("caPolicyTemplate.xml");
-    String xmlTemplateFile = f.getPath();
+    file = confFinder.locateFile("caPolicyTemplate.xml");
+    String xmlTemplateFile = file.getPath();
 
-    f = confFinder.locateFile(configFile);
-    String policyFile = f.getPath();
+    file = configParser.findPolicyFile("cryptoPolicy.xml");
+    String policyFile = file.getPath();
 
     // First, read the XML template
     ByteArrayOutputStream newPolicyOutputStream =
@@ -106,8 +100,9 @@ public class PolicyHandler
     System.out.println("Parsing policy file done");
 
     FileOutputStream newPolicyFile = null;
+    file = configParser.findWorkspacePolicyPath("cryptoPolicy.xml");
     try {
-      newPolicyFile = new FileOutputStream(f); 
+      newPolicyFile = new FileOutputStream(file); 
       newPolicyFile.write(newPolicy.toByteArray());
     }
     catch (IOException e) {

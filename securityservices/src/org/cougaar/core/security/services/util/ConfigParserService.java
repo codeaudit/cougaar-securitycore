@@ -24,6 +24,7 @@
 package org.cougaar.core.security.services.util;
 
 import java.io.Serializable;
+import java.io.File;
 import sun.security.x509.*;
 import org.w3c.dom.*;
 import java.io.InputStream;
@@ -39,6 +40,9 @@ import org.cougaar.core.security.crypto.SecureMethodParam;
 /** Service for parsing security services configuration files
  */
 public interface ConfigParserService extends Service {
+
+  File findPolicyFile(String policyfilename);
+  File findWorkspacePolicyPath(String policyfilename);
 
   /** The mode of operation
    * @return true if executing as a certificate authority
