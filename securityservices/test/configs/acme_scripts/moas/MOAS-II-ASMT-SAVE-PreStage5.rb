@@ -63,7 +63,9 @@ include_scripts:
 # ############################################################
 # Security scripts
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
-  - script: $CIP/csmart/lib/security/scripts/setup_userManagementSAVE.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
+    parameters:
+      - user_mgr_label: wait_for_initialization
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
   - script: $CIP/csmart/lib/security/scripts/check_message_queue.rb
 #  - script: $CIP/csmart/lib/security/scripts/setup_society_1000_ua.rb
@@ -79,10 +81,15 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/threatcon_level_change.rb
   - script: $CIP/csmart/lib/security/scripts/invalid_community_request.rb
   - script: $CIP/csmart/lib/security/scripts/check_mop.rb
+    parameters:
+      - calculate_mop_label: after_stage_1
+      - postCalculate_mop_label: before_stage_2 
   - script: $CIP/csmart/lib/security/scripts/parseResults.rb
   - script: $CIP/csmart/lib/security/scripts/saveAcmeEvents.rb
   - script: $CIP/csmart/lib/security/scripts/security_archives.rb
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
+    parameters:
+      - cleanup_label: transformed_society
 
 # ############################################################
 # Robustness include scripts

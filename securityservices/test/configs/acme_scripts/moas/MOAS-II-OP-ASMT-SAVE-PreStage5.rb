@@ -74,7 +74,9 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
   # Insert a "Wait for user manager ready" action. This action must be called
   # before any other action attempts to access servlets.
-  - script: $CIP/csmart/lib/security/scripts/setup_userManagementSAVE.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
+    parameters:
+      - user_mgr_label: wait_for_initialization
   # Get stats about cpu load, process size, cpu utilization every 60s,
   # and store the data under $CIP/workspace/test/node_info.log.
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
@@ -112,6 +114,9 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/invalid_community_request.rb
 # MOP computation
   - script: $CIP/csmart/lib/security/scripts/check_mop.rb
+    parameters:
+      - calculate_mop_label: after_stage_1
+      - postCalculate_mop_label: before_stage_2 
   # Generate a output file to store the results of the security sanity checks
   # and security stresses. This file should always be included whenever the
   # security services are enabled.
@@ -125,6 +130,8 @@ include_scripts:
   # Do some basic security cleanup before the society is loaded.
   # This script should always be included whenever the society is loaded.
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
+    parameters:
+      - cleanup_label: transformed_society
 #
 ###########################################
 # ISAT scripts
