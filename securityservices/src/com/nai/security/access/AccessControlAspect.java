@@ -598,8 +598,9 @@ public class AccessControlAspect extends StandardAspect
 	   (String)trust.getAttribute(MissionCriticality.name).getValue());
       }
       catch(Exception ex) {
+	System.out.println("AccessControlAspect: Warning: no access control for message"
+			   + msg);
 	ex.printStackTrace();
-	System.out.println("AccessControlAspect: Warning: no access control for message" + msg);
             
 	return true;
       }
