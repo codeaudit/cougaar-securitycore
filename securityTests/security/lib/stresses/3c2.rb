@@ -116,8 +116,8 @@ class Security3c2 < SecurityStressFramework
      else
        uri = agent1.uri
      end
-    uri = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=true"
-    result, url = Cougaar::Communications::HTTP.get(uri)
+    uriEnqueue = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=true"
+    result, url = Cougaar::Communications::HTTP.get(uriEnqueue)
     if !(result =~ /Success/)
       saveAssertion("Stress5k104", "Unable to block CRL msg at #{agent1.name}\nURL: #{url}\n#{result}")
     end
@@ -142,8 +142,8 @@ class Security3c2 < SecurityStressFramework
     testMessage(agent1, agent2, "Sender does not have CRL")      
 
     # Now, re-enable CRL to reach the revoked agent.
-    url = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=false"
-    result, url = Cougaar::Communications::HTTP.get(url)
+    uriDequeue = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=false"
+    result, url = Cougaar::Communications::HTTP.get(uriDequeue)
     if !(result =~ /Success/)
       saveAssertion("Stress5k104", "Unable to re-enable CRL msg at #{agent1.name}\nURL: #{url}\n#{result}")
     end
