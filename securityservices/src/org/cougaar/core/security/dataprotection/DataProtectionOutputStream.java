@@ -54,19 +54,15 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private String agent;
   private SecureMethodParam policy;
   private DataProtectionKeyImpl dpKey;
-    private DigestOutputStream _digest;
+  private DigestOutputStream _digest;
   private Cipher ci;
   private SecretKey skey;
-
-  public static final String strPrefix = "--SIGNATUREBEGIN--";
-  public static final String strPostfix = "--SIGNATUREEND--";
 
   /**
    * buffer size, when reached will flush to output stream
    */
   private static int buffersize = 30000;
   private ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//   private OutputStream theos = null;
   private int totalBytes = 0;
   private boolean debug = false;
 
@@ -74,7 +70,8 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private EventPublisher eventPublisher;
 
   public DataProtectionOutputStream(OutputStream os,
-    DataProtectionKeyEnvelope pke, String agent, ServiceBroker sb)
+                                    DataProtectionKeyEnvelope pke, 
+                                    String agent, ServiceBroker sb)
     throws GeneralSecurityException, IOException {
     super(os);
 
@@ -85,13 +82,13 @@ public class DataProtectionOutputStream extends FilterOutputStream {
 			       EncryptionService.class,
 			       null);
     if (encryptionService == null) {
-       throw new RuntimeException("Encryption service not available");
+      throw new RuntimeException("Encryption service not available");
     }
 
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
-		if(log != null) {
+    if(log != null) {
       debug = log.isDebugEnabled();
     }
     this.agent = agent;
@@ -102,18 +99,15 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     policy = dpKey.getSecureMethod();
     String digestAlg = dpKey.getDigestAlg();
 
-    // encrypt stream
-//     theos = bos;
-
     if (policy.secureMethod == SecureMethodParam.ENCRYPT
-      || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+        || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
       // unprotect key
       String failureIfOccurred = DataFailureEvent.UNKNOWN_FAILURE;
       skey = null;
       try {
         failureIfOccurred = DataFailureEvent.SECRET_KEY_FAILURE;
         skey = getSecretKey();
-      //Cipher ci=Cipher.getInstance(policy.symmSpec);
+        //Cipher ci=Cipher.getInstance(policy.symmSpec);
         failureIfOccurred = DataFailureEvent.INVALID_POLICY;
         ci = encryptionService.getCipher(policy.symmSpec);
       }
@@ -139,72 +133,56 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private SecretKey getSecretKey()
     throws CertificateException
   {
-      /*
-      try {
-    int i = policy.symmSpec.indexOf("/");
-    String a =  (i > 0) 
-      ? policy.symmSpec.substring(0,i) 
-      : policy.symmSpec;
-    SecureRandom random = new SecureRandom();
-    KeyGenerator kg = KeyGenerator.getInstance(a);
-    kg.init(random);
-    return kg.generateKey();
-      }
-      catch (Exception e) {
-	  return null;
-      }
-      */
-      
     return (SecretKey)encryptionService.asymmDecrypt(agent,
-      policy.asymmSpec, (SealedObject)dpKey.getObject());
+                                                     policy.asymmSpec, (SealedObject)dpKey.getObject());
   }
 
-    public void write(int b) throws IOException {
-	bos.write(b);
-	if (bos.size() > buffersize) {
-	    writeChunk();
-	}
+  public void write(int b) throws IOException {
+    bos.write(b);
+    if (bos.size() > buffersize) {
+      writeChunk();
     }
+  }
 
-    public void write(byte b[]) throws IOException {
-	bos.write(b);
-	if (bos.size() > buffersize) {
-	    writeChunk();
-	}
+  public void write(byte b[]) throws IOException {
+    bos.write(b);
+    if (bos.size() > buffersize) {
+      writeChunk();
     }
+  }
 
-    public void write(byte b[], int offset, int len) throws IOException {
-	bos.write(b, offset, len);
-	if (bos.size() > buffersize) {
-	    writeChunk();
-	}
+  public void write(byte b[], int offset, int len) throws IOException {
+    bos.write(b, offset, len);
+    if (bos.size() > buffersize) {
+      writeChunk();
     }
+  }
 
-    public synchronized void writeChunk() throws IOException {
-	((DataOutputStream) this.out).writeInt(bos.size());
-	if (log.isDebugEnabled()) {
-	    log.debug("Writing " + bos.size() + " to stream");
-	}
+  public synchronized void writeChunk() throws IOException {
+    ((DataOutputStream) this.out).writeInt(bos.size());
+    if (debug) {
+      log.debug("Writing " + bos.size() + " to stream");
+    }
 	
-	bos.writeTo(this.out);
-	bos = new ByteArrayOutputStream();
-    }
+    bos.writeTo(this.out);
+    bos = new ByteArrayOutputStream();
+  }
 
-    public synchronized void close() throws IOException {
-	if (bos.size() > 0) {
-	    writeChunk();
-	}
-	((DataOutputStream) this.out).writeInt(0);
-	byte[] digest = _digest.getMessageDigest().digest();
-	((DataOutputStream) this.out).writeInt(digest.length);
-	this.out.write(digest);
-	super.close();
-	if (ci != null) {
-	    encryptionService.returnCipher(policy.symmSpec, ci);
-	    ci = null;
-	    this.out = null;
-	}
+  public synchronized void close() throws IOException {
+    if (bos.size() > 0) {
+      writeChunk();
     }
+    ((DataOutputStream) this.out).writeInt(0);
+    byte[] digest = _digest.getMessageDigest().digest();
+    ((DataOutputStream) this.out).writeInt(digest.length);
+    this.out.write(digest);
+    super.close();
+    if (ci != null) {
+      encryptionService.returnCipher(policy.symmSpec, ci);
+      ci = null;
+      this.out = null;
+    }
+  }
     
 
   public static int getBufferSize() {
@@ -221,7 +199,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     }
   }
 
-   /**
+  /**
    * publish a data protection failure idmef alert
    */
   private void publishDataFailure(String reason, String data) {
