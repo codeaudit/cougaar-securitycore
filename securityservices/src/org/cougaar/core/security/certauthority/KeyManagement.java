@@ -239,9 +239,11 @@ public class KeyManagement
       caOperations = (CertDirectoryServiceCA)
 	serviceBroker.getService(cdsr, CertDirectoryServiceCA.class, null);
 
+        /*
       if (caOperations == null) {
 	throw new RuntimeException("Unable to communicate with LDAP server");
       }
+      */
       publishCAinLdap();
     }
     else{
@@ -353,6 +355,11 @@ public class KeyManagement
 	 try {
 	   publishCertificate((X509Certificate)c,
 					   CertificateUtility.CACert,pk);
+
+           // need to update CA to naming
+           X500Name dname = new X500Name(
+            ((X509Certificate)c).getSubjectDN().getName());
+           keyRing.updateNS(dname);
 	 }
 	 catch (javax.naming.NameAlreadyBoundException e) {
 	   if (log.isInfoEnabled()) {
