@@ -45,4 +45,9 @@ class CertificateOrigin {
   // The certificate was retrieved from an LDAP directory
   public static final CertificateOrigin CERT_ORI_LDAP =
     new CertificateOrigin("ORI_LDAP");
+
+  // The certificate was received from a Cougaar message (in a PKCS#12
+  // envelope).
+  public static final CertificateOrigin CERT_ORI_PKCS12 =
+    new CertificateOrigin("ORI_PKCS12");
 }

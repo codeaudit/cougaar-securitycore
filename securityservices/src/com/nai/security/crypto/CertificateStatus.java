@@ -37,7 +37,7 @@ public class CertificateStatus
   private boolean debug = false;
 
   /** Creates new CertificateStatus */
-  private java.security.cert.Certificate certificate = null;
+  private X509Certificate certificate = null;
 
   /** true: certificate has not been revoked.
    * false: certificate has been revoked */
@@ -64,7 +64,7 @@ public class CertificateStatus
    * the certificate. */
   private CertificateTrust certificateTrust;
   
-  public CertificateStatus(java.security.cert.Certificate cert,
+  public CertificateStatus(X509Certificate cert,
 			   boolean isValid,
 			   CertificateOrigin origin, CertificateType type,
 			   CertificateTrust trust,
@@ -123,7 +123,7 @@ public class CertificateStatus
     }
   }
 
-  public java.security.cert.Certificate getCertificate() {
+  public X509Certificate getCertificate() {
     return certificate;
   }
 
@@ -151,7 +151,7 @@ public class CertificateStatus
     certificateTrust = trust;
   }
 
-  public void setCertificate(Certificate c) {
+  public void setCertificate(X509Certificate c) {
     certificate = c;
   }
 

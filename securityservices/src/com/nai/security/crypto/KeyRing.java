@@ -186,6 +186,20 @@ final public class KeyRing {
     return c;
   }
 
+  public static synchronized X509Certificate[] findCertChain(X509Certificate c)
+  {
+    X509Certificate[] chain = null;
+    if (c == null) {
+      return null;
+    }
+    try {
+      chain = keystore.checkCertificateTrust(c);
+    }
+    catch (Exception e) {
+    }
+    return chain;
+  }
+
   public static synchronized void setSleeptime(long sleeptime)
   {
     if (keystore == null) {
