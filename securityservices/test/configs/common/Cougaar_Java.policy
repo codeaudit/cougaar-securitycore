@@ -142,11 +142,18 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "jaxp.debug", "read";
 	permission java.util.PropertyPermission "driver.postgresql", "read";
 
+	// BlackJack permissions
+	permission java.util.PropertyPermission "blackjack_output_stream", "read";
+	permission java.util.PropertyPermission "blackjack_log_file", "read";
+
 	// Vishnu permissions
 	permission java.util.PropertyPermission "UTILPlugInAdapter.showParameters", "read";
-	permission java.util.PropertyPermission "blackjack_output_stream", "read";
 	permission java.util.PropertyPermission "GroundVishnuPlugIn.MAX_DISTANCE", "read";
-	permission java.util.PropertyPermission "vishnu.Scheduler.debug", "read";
+	permission java.util.PropertyPermission "TranscomVishnuPlugIn.*", "read";
+	permission java.util.PropertyPermission "TranscomDataXMLize.*", "read";
+	permission java.util.PropertyPermission "TRANSCOM.*", "read";
+	permission java.util.PropertyPermission "GenericDataXMLize.*", "read";
+	permission java.util.PropertyPermission "vishnu.*", "read";
 	permission java.util.PropertyPermission "glmtrans.plugins.GroundVishnuPlugIn.complainAboutMissingMovabilityPG", "read"; 
 
 	permission java.util.PropertyPermission "com.nai.*", "read";
