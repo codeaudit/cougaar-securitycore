@@ -53,9 +53,14 @@ public class TestSecureConfigFinder
   private void readFiles() {
     InputStream is = null;
     File tmpFile = new File(_absoluteNodeConf);
-    if (tmpFile.exists()) {
-      tmpFile.delete();
+    try {
+      if (tmpFile.exists()) {
+	tmpFile.delete();
+      }
     }
+    catch (Exception e) {
+      _log.warn("Error while trying to delete file" , e);
+   }
 
     // Try to read a file with an absolute path
     try {
