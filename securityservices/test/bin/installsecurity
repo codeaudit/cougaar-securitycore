@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# This file compiles and packages the security services in a safe way.
+# It does not overwrite files from $COUGAAR_INSTALL_PATH
+# Instead, it creates a security.tar file that contains all the files necessary
+# to run the security services.
+
+# This file should be run from the top directory in the securityservices module.
+
+realCIP=$COUGAAR_INSTALL_PATH
+startupdir=`pwd`
+tmpdir=mktemp -d /tmp/$0.XXXXXX || exit 1
+
+export COUGAAR_INSTALL_PATH=${tmpdir}
+#ant install
+cd $COUGAAR_INSTALL_PATH
+tar cvf security.tar \
+	log/bootstrap \
+	configs/daml \
+	configs/security \
+	lib/CougaarCRLextensions.jar \
+	lib/idmef.jar \
+	lib/kaos.jar \
+	lib/safe.jar \
+	lib/securebootstrapper.jar \
+	lib/securityservices.jar \
+	webtomcat/data/conf/server.xml \
+	webtomcat/data/webapps/ROOT/WEB-INF/web.xml \
+	sys/antlr.jar \
+	sys/ontologyRepInit.jar \
+	sys/bcprov-jdk14-112.jar \
+	sys/ibmpkcs.jar \
+	sys/jas.jar \
+	sys/jpcsc.jar \
+	sys/polCert.jar \
+	sys/jasper-runtime.jar \
+	sys/jtp.jar \
+	sys/Tidy.jar \
+	sys/dl.jar \
+	sys/iw.jar \
+	sys/jdom.jar
+
+cp security.tar ${startupdir}
+cd ${realCIP}
+tar xvf ${startupdir}/security.tar
+rm -rf ${tmpdir}
+export COUGAAR_INSTALL_PATH=${realCIP}
