@@ -27,8 +27,8 @@ class TestConfigurationManager < SecurityStressFramework
     mopValue =0.0
     run.society.each_agent(true) do |agent|
     if agent.name==@agentname
-      url = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testCMServlet?node=#{movenode}"
-      geturl = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testCMServlet?getresult=true&testtype=M"
+      url = "#{agent.uri}/testCMServlet?node=#{movenode}"
+      geturl = "#{agent.uri}/testCMServlet?getresult=true&testtype=M"
 
       Cougaar::Communications::HTTP.get(url)
       sleep 8.minutes

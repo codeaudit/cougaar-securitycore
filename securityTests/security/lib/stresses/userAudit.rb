@@ -23,7 +23,8 @@ class Stress1f1 < SecurityStressFramework
     mop = 0.0
     run.society.each_agent(true) do |agent|
       @numberOfAgents = @numberOfAgents + 1
-      url = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testAuditServlet"
+     # url = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testAuditServlet"
+      url = "#{agent.uri}/testAuditServlet"
       result = Cougaar::Communications::HTTP.get(url)
       if result.to_s =~ /TRUE/
         @numberOfSuccess = @numberOfSuccess + 1

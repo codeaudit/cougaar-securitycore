@@ -193,7 +193,7 @@ class Security5jExperiment < SecurityStressFramework
 #puts "provider #{agent.name}"
             port = @certRevocation.getParameter(manager, /http.port/, nil)
 #            url = "http://#{manager.host.name}:#{port}/$#{agent.name}/CRLRegistrationViewer"
-            url = "http://#{manager.host.name}:#{agent.node.cougaar_port}/$#{agent.name}/CRLRegistrationViewer"
+            url = "#{agent.uri}/CRLRegistrationViewer"
             response = getHtml(url)
 #            scanResult = response.to_s.scan(registrationPattern)
             registeredDn = {}

@@ -46,7 +46,8 @@ class Stress5f < SecurityStressFramework
     result = 0.0
     @run.society.each_agent(true) do |agent|
       @numberOfAgents += 1
-      goodurl = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/AuthorizedResourceServlet"
+      #goodurl = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/AuthorizedResourceServlet"
+      goodurl = "#{agent.uri}/AuthorizedResourceServlet"
       begin
         result = Cougaar::Communications::HTTP.get(goodurl)
       rescue
@@ -72,7 +73,8 @@ class Stress5f < SecurityStressFramework
     result = 0.0
     @run.society.each_agent(true) do |agent|
       @numberOfAgents += 1
-      badurl = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/UnAuthorizedResourceServlet"
+      #badurl = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/UnAuthorizedResourceServlet"
+      badurl = "#{agent.uri}/UnAuthorizedResourceServlet"
       begin
         result = Cougaar::Communications::HTTP.get(badurl)
       rescue

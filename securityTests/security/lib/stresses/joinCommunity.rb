@@ -53,8 +53,9 @@ class JoinCommunity < SecurityStressFramework
 
   def issueJoinRequest 
     # access the @attackAgent/joinCommunity?agent=@testAgent&community=@testCommunity&manager=@testManager
-    url = "http://#{@attackAgent.node.host.host_name}:#{@attackAgent.node.cougaar_port}/$#{@attackAgent.name}/joinCommunity" +
-          "?agent=#{@testAgent}&community=#{@testCommunity}&manager=#{@testManager}"
+    #url = "http://#{@attackAgent.node.host.host_name}:#{@attackAgent.node.cougaar_port}/$#{@attackAgent.name}/joinCommunity" +
+      "?agent=#{@testAgent}&community=#{@testCommunity}&manager=#{@testManager}"
+    url = "#{@attackAgent.uri}/joinCommunity" +"?agent=#{@testAgent}&community=#{@testCommunity}&manager=#{@testManager}"
     begin
       logInfoMsg "Attempting to access #{url}"
       result = Cougaar::Communications::HTTP.get(url)

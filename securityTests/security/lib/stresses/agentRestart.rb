@@ -38,8 +38,9 @@ class InjectBlackboardCompromise < SecurityStressFramework
     mopValue = 0.0
     run.society.each_agent(true) do |agent|
       if agent.name==@agentname
-        url = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/compromiseBlackboard"
-        listurl  = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/list"
+       # url = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/compromiseBlackboard"
+        url = "#{ agent.uri}/compromiseBlackboard"
+        listurl  = "#{agent.uri}/list"
         params = []
         Cougaar::Communications::HTTP.post(url, params)
 	logInfoMsg "Orginial location:#{listurl}"

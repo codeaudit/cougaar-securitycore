@@ -60,7 +60,7 @@ class UserAdmin
       @port = run.society.cougaar_port unless port
       
       @host = agent.host
-      @url = "http://#{@host.host_name}:#{@port}/$#{@agent.name}/useradmin"
+      @url = "#{@agent.uri}/useradmin"
    end
    
    def recreateUsers(users=SECURITY_USERS)
