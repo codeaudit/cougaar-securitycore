@@ -51,7 +51,7 @@ public class CryptoClientPolicy
    */
   private String trustedCaKeystorePassword;
 
-  /** An array of trusted certificate authorities.
+  /** An array of trusted certificate authorities (TrustedCaPolicy).
    */
   private Vector trustedCAs;
 
