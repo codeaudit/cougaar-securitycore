@@ -10,6 +10,7 @@ string.split("\n").each { |x|
   nodeName = cmd.gsub(/.*name=(.*) -Dorg.*/, '\1').ljust(27)
   hostName = `hostname`
   time = "#{Time.new.to_f}".ljust(16)
-  puts "#{hostName} #{time} #{nodeName} #{x}".gsub(/\n/, '')
+  s = "#{hostName} #{time} #{nodeName} #{x}".gsub(/\n/, '')
+  puts s
 }
 
