@@ -55,7 +55,7 @@ echo 'GRANT ALL PRIVILEGES ON '${db_1ad}'.* TO '${db_user}'@"%" IDENTIFIED BY "'
 echo 'GRANT ALL PRIVILEGES ON '${db_csmart}'.* TO '${db_user}'@"%" IDENTIFIED BY "'${db_password}'";' >> /tmp/mysql.grant
 mysql -D mysql -u ${db_superuser} -p${db_spassword} < /tmp/mysql.grant
 #cat /tmp/mysql.grant
-rm -f /tmp/mysql.grant
+#rm -f /tmp/mysql.grant
 # Reload grant table
 mysqladmin flush-privileges -u ${db_superuser} -p${db_spassword}
 
@@ -78,3 +78,8 @@ unzip -q ${CIP}/csmart/data/database/Domain-MySQL.ZIP -d /tmp
 echo "Loading 1ad_domain_data_dump.sql to database"
 mysql -D ${db_1ad} -p${db_spassword} -u ${db_superuser} < /tmp/${db_sql_file}
 
+# Import recipes to database
+echo "Import security services recipes to database"
+cd ${COUGAAR_SECURITY_SERVICES}/test/configs/recipes
+./recipesall.csh
+./recipesimport.csh
