@@ -41,6 +41,21 @@ public class MemoryTracker {
     else if (o instanceof TreeSet) {
       m.addTreeSet((TreeSet)o);
     }
+    else if (o instanceof Vector) {
+      m.addVector((Vector)o);
+    }
+    else if (o instanceof Stack) {
+      m.addStack((Stack)o);
+    }
+    else if (o instanceof Arrays) {
+      m.addArrays((Arrays)o);
+    }
+    else if (o instanceof LinkedHashMap) {
+      m.addLinkedHashMap((LinkedHashMap)o);
+    }
+    else if (o instanceof LinkedHashSet) {
+      m.addLinkedHashSet((LinkedHashSet)o);
+    }
 /*
     if (o instanceof AbstractList) {
       m.addList(o);

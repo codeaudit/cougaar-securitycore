@@ -113,6 +113,15 @@ public class CollectionMonitorStatsImpl
   public void addWeakHashMap(WeakHashMap m) {
     addElement(m, WeakHashMap.class);
   }
+  public void addVector(Vector v) {
+    addElement(v, Vector.class);
+  }
+  public void addArrays(Arrays a) {
+    addElement(a, Arrays.class);
+  }
+  public void addStack(Stack s) {
+    addElement(s, Stack.class);
+  }
   public void addIdentityHashMap(IdentityHashMap m) {
     //addElement(m, IdentityHashMap.class);
   }

@@ -41,6 +41,7 @@ import java.util.WeakHashMap;
 import java.util.Comparator;
 import java.util.Collection;
 import java.util.IdentityHashMap;
+import java.util.Arrays;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.lang.ref.Reference;
@@ -121,7 +122,9 @@ public class EntityStats
     new CollectionBinding(Vector.class,
 			  new EntityStats(Vector.class)),
     new CollectionBinding(WeakHashMap.class,
-			  new EntityStats(WeakHashMap.class))
+			  new EntityStats(WeakHashMap.class)),
+    new CollectionBinding(Arrays.class,
+			  new EntityStats(Arrays.class))
   };
 
   public EntityStats(Class type) {

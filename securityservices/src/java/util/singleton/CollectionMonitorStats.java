@@ -34,4 +34,9 @@ public interface CollectionMonitorStats
   public void addLinkedList(LinkedList l);
   public void addWeakHashMap(WeakHashMap m);
   public void addIdentityHashMap(IdentityHashMap m);
+  public void addVector(Vector v);
+  public void addArrays(Arrays a);
+  public void addStack(Stack s);
+  public void addLinkedHashMap(LinkedHashMap m);
+  public void addLinkedHashSet(LinkedHashSet s);
 }
