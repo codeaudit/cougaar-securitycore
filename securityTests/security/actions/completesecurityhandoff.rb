@@ -11,14 +11,15 @@ module Cougaar
         @currentnodename = nodename
         @currentcommunityname = communityname
         @partialurl= "/handoffUnRegistration"
+        @debug = false
       end
 
       def perform
-        @run.info_message (" Perform of complete security handoff called")
+        @run.info_message(" Perform of complete security handoff called")
         @run.society.each_node do |node|
           if(node.name == @currentnodename)
-	     @run.info_message ("Currentnode name : #{@currentnodename} ")
-	     @run.info_message ("Node name :#{node.name}")		
+	     @run.info_message("Currentnode name : #{@currentnodename} ")
+	     @run.info_message("Node name :#{node.name}")		
             node.each_agent do |agent|
                uri = agent.uri + @partialurl
                @run.info_message( "Agent uri #{uri}")
@@ -38,8 +39,14 @@ module Cougaar
        @run.info_message"Re register called with new enclave #{@currentcommunityname}"
        @run.info_message "Complete security handoff at : #{url} params #{params}" 
        response =  SRIWeb.instance.postHtml url, params
-       @run.info_message ("Response code: #{response.code}")
-       @run.info_message ("Response body: #{response.body}")	
+       debug("Response code: #{response.code}")
+       debug("Response body: #{response.body}")	
+     end
+
+     def debug(s)
+       if @debug then
+         @run.info_message(s)
+       end
      end
     end
   end #module Actions
