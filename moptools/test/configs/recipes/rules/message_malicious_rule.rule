@@ -1,0 +1,17 @@
+####################################################
+# Rule to insert MaliciousMessagePlugin
+
+
+plugin = "org.cougaar.core.security.test.message.MaliciousBlackboardPlugin"
+include_array=["NCA","TRANSCOM","1-35-ARBN"]
+
+society.each_agent(true) do |agent|
+  include_array.each{ |targetagent|
+    if agent.name == targetagent
+      agent.add_component do |c|
+	  	c.classname = plugin
+        c.add_argument("AGENTX")
+      end
+    end
+  }
+end
