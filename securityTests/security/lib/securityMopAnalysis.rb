@@ -156,8 +156,12 @@ class PostSecurityMopAnalysis
   def load(dirname)
     @origScores = Array.new(7)  # in case an error is raised
     @raw = Array.new(7)
+    @scores = Array.new(7)
+    @summary = Array.new(7)
     
     filename = "#{dirname}/mops"
+    return nil unless File.exists?(filename)
+    raise "No mop file to load (#{filename})" unless File.exists?(filename)
     db = PStore.new(filename)
     db.transaction do |db|
       # puts db.roots.inspect
