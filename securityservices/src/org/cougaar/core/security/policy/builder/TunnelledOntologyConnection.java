@@ -57,7 +57,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
    * Opens a tunnelled connection (through the policy servlet) to the
    * KAoSDirectoryService.  
    */
-  public TunnelledOntologyConnection(String uri)
+  public TunnelledOntologyConnection(String uri, Map declarations)
     throws IOException
   {
     super();
@@ -66,6 +66,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
       SecurityServiceProvider secprov   = new SecurityServiceProvider();
       userAuth.init(secprov);
       _brains = new TunnelClient(uri);
+      loadDeclarations(declarations);
     } catch (Exception e) {
       IOException ioe =  new IOException("Could not tunnel to client: " + uri);
       ioe.initCause(e);
@@ -81,7 +82,8 @@ public class TunnelledOntologyConnection extends OntologyConnection
    */
   public TunnelledOntologyConnection(String  uri, 
                                      String  user,
-                                     char [] password)
+                                     char [] password,
+                                     Map declarations)
     throws IOException
   {
     super();
@@ -91,6 +93,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
       userAuth.init(secprov);
       userAuth.authenticateWithPassword(user, password);
       _brains = new TunnelClient(uri);
+      loadDeclarations(declarations);
     } catch (Exception e) {
       IOException ioe =  new IOException("Could not tunnel to client: " + uri);
       ioe.initCause(e);
@@ -138,6 +141,21 @@ public class TunnelledOntologyConnection extends OntologyConnection
       throw re;
     }
   }
+
+  public void declareInstance(String instanceName,
+                               String className)
+    throws ReasoningException
+  {
+    try {
+      _brains.declareInstance(instanceName, className);
+    } catch (Exception e) {
+      ReasoningException re 
+        = new ReasoningException("Error making delclaration to JTP");
+      re.initCause(e);
+      throw re;
+    }
+  }
+
 
   public Set getSubClassesOf (String className) 
     throws Exception

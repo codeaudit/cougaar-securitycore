@@ -48,7 +48,7 @@ public class LocalOntologyConnection extends OntologyConnection
 
   private static OntologyRepository  _brains = null;
 
-  public LocalOntologyConnection()
+  public LocalOntologyConnection(Map declarations)
   {
     super();
     if (_brains  == null) {
@@ -61,7 +61,7 @@ public class LocalOntologyConnection extends OntologyConnection
         _brains.loadOntology
           ("http://ontology.coginst.uwf.edu/Ultralog/UltralogOntologies.daml",
            true);
-        PolicyUtils.autoGenerateGroups(null);
+        PolicyUtils.autoGenerateGroups(null, declarations);
       } catch (Exception e) {
         // If you need to be smart but have no brains you are screwed.
         e.printStackTrace();
@@ -93,6 +93,20 @@ public class LocalOntologyConnection extends OntologyConnection
   {
     return _brains.getRangeOnPropertyForClass(className,propertyName);
   }
+
+  public void declareInstance(String instanceName,
+                               String className)
+    throws ReasoningException
+  {
+    String jtpInstanceName 
+      = JTPStringFormatUtils.convertStringToJTPFormat(instanceName);
+    String jtpClassName
+      = JTPStringFormatUtils.convertStringToJTPFormat(className);
+    _brains.tellKifString('(' + kaos.ontology.RDFConcepts._type_ + 
+                                ' ' + jtpInstanceName + 
+                                ' ' + jtpClassName + ')');
+  }
+
 
   public Set getResourcesWithValueForProperty (String property, String value)
     throws ReasoningException

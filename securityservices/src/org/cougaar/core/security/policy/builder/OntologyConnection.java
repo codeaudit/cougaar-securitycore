@@ -110,6 +110,17 @@ public abstract class OntologyConnection
     }
   }
 
+  public void loadDeclarations(Map declarations)
+    throws ReasoningException
+  {
+    for (Iterator instanceIt = declarations.keySet().iterator(); 
+         instanceIt.hasNext();) {
+      String instanceName = (String) instanceIt.next();
+      String className    = (String) declarations.get(instanceName);
+      declareInstance(instanceName, className);
+    }
+  }
+
   /*
    * Abstract methods
    */
@@ -123,6 +134,11 @@ public abstract class OntologyConnection
   public abstract String getRangeOnPropertyForClass(String className, 
                                                     String propertyName) 
     throws ReasoningException;
+
+  public abstract void declareInstance(String instanceName,
+                                       String className)
+    throws ReasoningException;
+
 
   public abstract Set getSubClassesOf (String className)
     throws Exception;
