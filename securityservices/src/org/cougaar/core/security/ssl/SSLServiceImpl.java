@@ -52,8 +52,6 @@ public final class SSLServiceImpl implements SSLService {
     if (sslservice != null)
       throw new Exception("Only one instance of SSLService should be created.");
 
-	System.out.println("SSLService Init");
-
     try {
       // create context
       SSLContext context = SSLContext.getInstance(SSLContextProtocol);
@@ -68,6 +66,10 @@ public final class SSLServiceImpl implements SSLService {
 
       // set default connection socket factory
       HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+
+      if (CryptoDebug.debug)
+        System.out.println("Successfully created SSLContext.");
+
     } catch (Exception ex) {
       ex.printStackTrace();
     }
@@ -76,7 +78,7 @@ public final class SSLServiceImpl implements SSLService {
   public static DirectoryKeyStore createDirectoryKeyStore() {
     DirectoryKeyStore keystore = null;
 
-    //if (CryptoDebug.debug)
+    if (CryptoDebug.debug)
       System.out.println("createDirectoryKeyStore");
 
     // TODO. Modify following line to use service broker instead

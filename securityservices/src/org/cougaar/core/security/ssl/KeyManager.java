@@ -24,6 +24,10 @@ public final class KeyManager implements X509KeyManager {
 
     // get nodename, nodealias, and node certificate
     updateKeystore();
+
+    if (CryptoDebug.debug)
+      System.out.println("SSLContext:KeyManager: nodealias is " + nodealias
+        + " and nodex509 is " + nodex509);
   }
 
   public void setUserCertificateUI(UserCertificateUI userUI) {
