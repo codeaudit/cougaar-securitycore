@@ -178,6 +178,8 @@ public class DataProtectionServiceImpl
       log.debug("Reprotect with " + keyCache.size() + " entries with " + pmp.pmDN);
     }
 
+    final String agent = dpsClient.getAgentIdentifier().toAddress();
+
     for (Enumeration it = keyCache.keys(); it.hasMoreElements(); ) {
       try {
         SecretKey skey = (SecretKey)it.nextElement();
@@ -188,6 +190,30 @@ public class DataProtectionServiceImpl
 
         protectWithPM(pmp, skey, keyCollection);
         pke.setDataProtectionKey(keyCollection);
+
+        String sendSignature = System.getProperty("org.cougaar.core.security.dataprotection.sendSignature", "true");
+        if (sendSignature.equals("true")) {
+          if (keyCollection.getSignature() == null) {
+            log.warn("No signature found to send to PM for compromise recovery");
+            return;
+          }
+
+          if (log.isDebugEnabled()) {
+            log.debug("trying to send session key using relay " + agent + " at time " + keyCollection.getTimestamp());
+          }
+   
+          String pmName = null;
+          try {
+            pmName = new X500Name(pmp.pmDN).getCommonName();
+          }
+          catch (IOException iox) {
+            if (log.isWarnEnabled()) {
+              log.warn("Failed to get common name for PM cert: " + pmp.pmDN);
+              return;
+            }
+          }
+          SessionKeySenderPlugin.sendSessionKey(agent, keyCollection, pmName);
+        }
       } catch (IOException iox) {
         log.warn("Reprotect secret key failed!", iox);
       }
