@@ -12,6 +12,8 @@ public class ULOntologyNames
     = "http://ontology.ihmc.us/Ultralog/UsersInRole#";
   public static String agentGroupPrefix
     = "http://ontology.ihmc.us/AgentsInGroup#";
+  public static String blackboardObjectPrefix
+    = "http://ontology.ihmc.us/Ultralog/BlackboardObject#";
 
   /*
   public static String agentPrefix = "urn:KAoS#";
