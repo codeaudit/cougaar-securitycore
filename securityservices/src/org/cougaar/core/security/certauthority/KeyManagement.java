@@ -838,7 +838,9 @@ public class KeyManagement  implements CertificateManagementService {
       return request;
     }
 
-  private synchronized BigInteger getNextSerialNumber()
+  private Object _lock = new Object();
+
+  private  BigInteger getNextSerialNumber()
     throws FileNotFoundException, IOException
     {
       String serialNbFileName = nodeConfiguration.getNodeDirectory()
@@ -851,42 +853,46 @@ public class KeyManagement  implements CertificateManagementService {
       BigInteger nextSerialNumber = null;
       String serialNbString = null;
 
-      if (!fserial.exists()) {
-        if (log.isDebugEnabled()) {
-          log.debug("Serial Number file (" + serialNbFileName +
-                    ") does not exists. Creating...");
-        }
-        fserial = new File(serialNbFileName);
-        try {
-          fserial.createNewFile();
-          fOutSerial = new FileWriter(fserial);
-          nextSerialNumber = BigInteger.ONE;
-          serialNbString = nextSerialNumber.toString();
-          fOutSerial.write(serialNbString, 0, serialNbString.length());
-          fOutSerial.close();
-        }
-        catch (Exception e) {
-          throw new FileNotFoundException("Unable to create serial number file: "
-                                          + fserial.getPath());
-        }
+      synchronized(_lock) {
+	if (!fserial.exists()) {
+	  if (log.isDebugEnabled()) {
+	    log.debug("Serial Number file (" + serialNbFileName +
+		      ") does not exists. Creating...");
+	  }
+	  //fserial = new File(serialNbFileName);
+	  try {
+	    fserial.createNewFile();
+	    fOutSerial = new FileWriter(fserial);
+	    nextSerialNumber = BigInteger.ONE;
+	    serialNbString = nextSerialNumber.toString();
+	    fOutSerial.write(serialNbString, 0, serialNbString.length());
+	    fOutSerial.close();
+	  }
+	  catch (Exception e) {
+	    throw new FileNotFoundException("Unable to create serial number file: "
+					    + fserial.getPath());
+	  }
+	}
       }
       FileReader fInSerial = new FileReader(fserial);
       char cbuf[] = new char[200];
-      int byteRead = fInSerial.read(cbuf);
-      fInSerial.close();
-      serialNbString = new String(cbuf, 0, byteRead);
-      if (log.isDebugEnabled()) {
-        log.debug("Serial = " + serialNbString);
+
+      synchronized(_lock) {
+	int byteRead = fInSerial.read(cbuf);
+	fInSerial.close();
+	serialNbString = new String(cbuf, 0, byteRead);
+	if (log.isDebugEnabled()) {
+	  log.debug("Serial = " + serialNbString);
+	}
+	nextSerialNumber = new BigInteger(serialNbString);
+	// Write next serial number back to file.
+	fOutSerial = new FileWriter(fserial);
+
+	// For now, do a simple increment algorithm.
+	serialNbString = nextSerialNumber.add(BigInteger.ONE).toString();
+	fOutSerial.write(serialNbString, 0, serialNbString.length());
+	fOutSerial.close();
       }
-      nextSerialNumber = new BigInteger(serialNbString);
-
-      // Write next serial number back to file.
-      fOutSerial = new FileWriter(fserial);
-
-      // For now, do a simple increment algorithm.
-      serialNbString = nextSerialNumber.add(BigInteger.ONE).toString();
-      fOutSerial.write(serialNbString, 0, serialNbString.length());
-      fOutSerial.close();
 
       return nextSerialNumber;
     }
