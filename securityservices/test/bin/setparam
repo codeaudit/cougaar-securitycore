@@ -10,8 +10,6 @@ endif
 # Cougaar 3rd party support packages
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/servlet.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xerces.jar
-setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jaas.jar
-setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jnet.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/log4j.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jms.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jsdk.jar
@@ -30,14 +28,16 @@ setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/planserver.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/core.jar
 
 # Crypto providers
-setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jsse.jar
-setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jce1_2_1.jar
 
 # KAoS
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/kaos.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/safe.jar
-setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/servlet.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/mail.jar
-setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xml4j.jar
+
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jnet.jar
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jaas.jar
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jsse.jar
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jce1_2_1.jar
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xml4j.jar
 
 
