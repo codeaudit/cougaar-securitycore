@@ -164,7 +164,7 @@ public class RoleExecutionContext implements ExecutionContext {
   }
 
   public boolean cachedIsAuthorized(String objectName,
-                                    String access,
+                                    String access[],
                                     int policyUpdateCounter)
   {
     if (!ALLOW_ACCESS_CACHING) {
@@ -180,12 +180,17 @@ public class RoleExecutionContext implements ExecutionContext {
     if (accessModes == null) {
       return false;
     } else {
-      return accessModes.contains(access);
+      for (int i = 0; i < access.length; i++) {
+        if (! accessModes.contains(access[i])) {
+          return false;
+        }
+      }
+      return true;
     }
   }
 
   /* package */ void updateCachedAuthorization(String objectName,
-                                               String access,
+                                               String access [],
                                                int policyUpdateCounter)
   {
     if (!ALLOW_ACCESS_CACHING) {
@@ -199,7 +204,9 @@ public class RoleExecutionContext implements ExecutionContext {
     if (accessModes == null) {
       accessModes = new HashSet();
     }
-    accessModes.add(access);
+    for (int i = 0; i < access.length; i++) {
+      accessModes.add(access[i]);
+    }
     _descriptors.put(objectName, accessModes);
   }
   
