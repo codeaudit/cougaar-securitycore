@@ -1,11 +1,10 @@
 package org.cougaar.core.security.ssl;
 
 import java.io.*;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.*;
+import java.net.*;
 import java.security.*;
+import javax.net.*;
 
 // Cougaar core infrastructure
 import org.cougaar.util.ConfigFinder;
@@ -25,7 +24,7 @@ public final class SSLServiceImpl implements SSLService {
   // may need to move to crypto policy file?
   private static final String SSLContextProtocol = "SSL";
 
-  private SSLContext sslcontext = null;
+  private static SSLContext sslcontext = null;
   private KeyManager km = null;
   private TrustManager tm = null;
 
@@ -171,11 +170,43 @@ public final class SSLServiceImpl implements SSLService {
     km.setUserCertificateUI(userUI);
   }
 
-  public SSLSocketFactory getSocketFactory() {
-    return sslcontext.getSocketFactory();
+  public static SocketFactory getSocketFactory() {    
+    //return sslcontext.getSocketFactory();
+    if (sslcontext == null)
+      return null;
+    KeyRingSSLFactory.init(sslcontext);
+    return (SSLSocketFactory)KeyRingSSLFactory.getDefault();
   }
 
-  public SSLServerSocketFactory getServerSocketFactory() {
-    return sslcontext.getServerSocketFactory();
+  public static Socket createSocket(String host, int port) 
+        throws IOException, UnknownHostException
+  {
+	return getSocketFactory().createSocket(host, port);
+  }
+
+  public static Socket getDefaultSocket(String host, int port) 
+	throws IOException, UnknownHostException
+  {
+        return SSLSocketFactory.getDefault().createSocket(host, port);
+  }
+
+  public static ServerSocketFactory getServerSocketFactory() {
+    //return sslcontext.getServerSocketFactory();
+    if (sslcontext == null)
+      return null;
+    KeyRingSSLServerFactory.init(sslcontext);
+    return (SSLServerSocketFactory)KeyRingSSLServerFactory.getDefault();
+  }
+
+  public static ServerSocket createServerSocket(int port) 
+	throws IOException
+  {
+	return getServerSocketFactory().createServerSocket(port);
+  }
+
+  public static ServerSocket getDefaultServerSocket(int port) 
+	throws IOException
+  {
+        return SSLServerSocketFactory.getDefault().createServerSocket(port);
   }
 }

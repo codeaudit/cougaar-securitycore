@@ -17,7 +17,7 @@ public class TrustManager implements X509TrustManager {
     keyRing = krs;
     keystore = keyRing.getDirectoryKeyStore();
 
-    //updateKeystore();
+    updateKeystore();
   }
 
   public synchronized void updateKeystore() {

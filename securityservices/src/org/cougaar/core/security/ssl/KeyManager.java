@@ -53,8 +53,8 @@ public final class KeyManager implements X509KeyManager {
   public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
     // node alias if opening socket for RMI... node service
     // if server is tomcat prompt for user certificate
-    //if (CryptoDebug.debug)
-    //  System.out.println("chooseClientAlias: " + socket);
+    if (CryptoDebug.debug)
+      System.out.println("chooseClientAlias: " + socket);
     return nodealias;
   }
 
