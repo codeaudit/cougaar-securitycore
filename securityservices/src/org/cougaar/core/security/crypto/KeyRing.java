@@ -1310,7 +1310,7 @@ try {
     }
 
     // if source and target is the same no need to redo the whole thing
-    if (!source.equals(target)) {
+    if (!source.equals(target) || cs == null) {
       cs = findOrRefreshCert(target);
       if (cs != null) {
         certTable.put(target, cs.getCertificate());
