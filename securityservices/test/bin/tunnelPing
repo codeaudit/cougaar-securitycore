@@ -1,22 +1,46 @@
 #!/bin/sh
 
-hostA=${1:?Usage hostA hostB remoteConnectionPoint JabberHost}
-hostB=${2:?Usage hostA hostB remoteConnectionPoint JabberHost}
-remote=${3:?Usage hostA hostB remoteConnectionPoint JabberHost}
-jabber=${4:?Usage hostA hostB remoteConnectionPoint JabberHost}
+host1=${1:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+host2=${2:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+host3=${3:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+host4=${4:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+host5=${5:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+remote=${6:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
+jabber=${7:?Usage  host1 host2 host3 host4 host5 remoteConnectionPoint JabberHost }
 
 echo Port Mapping:
-echo "	${hostA} ports map to localhost"
-echo "		e.g. ${hostA}:8810  --> localhost:8810"
-echo "		e.g. ${hostA}:9444  --> localhost:9444"
-echo "	${hostB} ports map to localhost with port #+10000"
-echo "		e.g. ${hostB}:8800  --> localhost:18800"
-echo "		e.g. ${hostB}:9444  --> localhost:19444"
+echo "So this script is getting strechted a little!"
+echo " ROOT-CA-NODE"
+echo "      ${host1}:8820 --> localhost:8820"
+echo "      ${host1}:9820 --> localhost:9820"
+echo " CA-NODE"
+echo "      ${host2}:8810 --> localhost:8810"
+echo "      ${host2}:9810 --> localhost:9810"
+echo " MGMT-NODE"
+echo "      ${host3}:8800 --> localhost:8800"
+echo "      ${host3}:9800 --> localhost:9800"
+echo " NodeA and MESSAGE-ATTACK-NODE"
+echo "      ${host4}:8800 --> localhost:18800"
+echo "      ${host4}:9800 --> localhost:19800"
+echo "      ${host4}:8801 --> localhost:18801"
+echo "      ${host4}:9801 --> localhost:19801"
+echo " NodeB, NodeC and NodeD"
+echo "      ${host5}:8800 --> localhost:28800"
+echo "      ${host5}:9800 --> localhost:29800"
+echo "      ${host5}:8801 --> localhost:28801"
+echo "      ${host5}:9801 --> localhost:29801"
+echo "      ${host5}:8802 --> localhost:28802"
+echo "      ${host5}:9802 --> localhost:29802"
 echo "	Jabber host = ${jabber} but connect through localhost:5222"
 echo "		(needs right client)"
 echo "Leave ssh connection open for duration of the tunnel"
-ssh -L 8810:${hostA}:8810 -L 8820:${hostA}:8820 -L 8802:${hostA}:8802 \
-    -L18800:${hostB}:8800 -L 18801:${hostB}:8801 -L 18802:${hostB}:8802 \
-    -L 18803:${hostB}:8803 -L 18804:${hostB}:8804 -L 18805:${hostB}:8805 \
-    -L 5222:${jabber}:5222 -L 9444:${hostA}:9444 -L 19444:${hostB}:9444 \
+ssh -L 8820:${host1}:8820 -L 9820:${host1}:9820 \
+    -L 8810:${host2}:8810 -L 9810:${host2}:9810 \
+    -L 8800:${host3}:8800 -L 9800:${host3}:9800 \
+    -L 18800:${host4}:8800 -L 19800:${host4}:9800 \
+    -L 18801:${host4}:8801 -L 19801:${host4}:9801 \
+    -L 28800:${host5}:8800 -L 29800:${host5}:9800 \
+    -L 28801:${host5}:8801 -L 29801:${host5}:9801 \
+    -L 28802:${host5}:8802 -L 29802:${host5}:9802 \
+    -L 5222:${jabber}:5222 \
         ${remote}
