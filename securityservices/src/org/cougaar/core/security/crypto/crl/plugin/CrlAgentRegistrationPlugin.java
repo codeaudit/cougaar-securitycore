@@ -504,7 +504,6 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       Collection regrelayCollection=null;
       CrlRelay crlrelay=null;
       CRLAgentRegistration agentReg=null;
-      //bbs.openTransaction();
       regrelayCollection=bbs.query(new CRLAgentRegistrationPredicate ());
       Iterator iter=regrelayCollection.iterator();
       while(iter.hasNext()) {
@@ -512,8 +511,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	if(crlrelay.getSource().equals(agent)){
 	  agentReg=(CRLAgentRegistration)crlrelay.getContent();
 	  if(agentReg.dnName.equals(dn)) {
-            // bbs.closeTransaction();
-	    return crlrelay;
+      	    return crlrelay;
 	  }
 	}
         crlrelay=null;
