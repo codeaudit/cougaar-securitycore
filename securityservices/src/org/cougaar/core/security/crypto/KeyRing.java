@@ -66,6 +66,9 @@ import org.cougaar.core.security.naming.*;
 import org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension;
 import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
 
+import org.cougaar.core.security.monitoring.event.*;
+import org.cougaar.core.security.monitoring.plugin.*;
+
 /** A common holder for Security keystore information and functionality
  */
 final public class KeyRing  implements KeyRingService  {
@@ -1206,7 +1209,7 @@ final public class KeyRing  implements KeyRingService  {
   }
 
   public Hashtable findCertPairFromNS(String source, String target)
-    throws CertificateException  {
+    throws CertificateException, IOException  {
 
     // check whether agent has started yet, this fixes the problem where
     // LDAP is dirty and returning old certificates. If agent has started
@@ -1334,7 +1337,7 @@ final public class KeyRing  implements KeyRingService  {
     return certTable;
   }
 
-  private CertificateStatus findOrRefreshCert(String name) {
+  private CertificateStatus findOrRefreshCert(String name) throws IOException {
     List nameList = null;
     int lookupFlags[] = { KeyRingService.LOOKUP_KEYSTORE |
                           KeyRingService.LOOKUP_LDAP,
@@ -1348,6 +1351,11 @@ final public class KeyRing  implements KeyRingService  {
         }
         else {
           nameList = findDNFromNS(name);
+          // if certificate entry is not in naming then let the caller knows
+          // the reason, this happens often at the beginning
+          if (nameList.size() == 0) {
+            throw new IOException("No CertificateEntry in naming for " + name + " yet");
+          }
         }
 
         for (int i = 0; i < nameList.size(); i++) {
