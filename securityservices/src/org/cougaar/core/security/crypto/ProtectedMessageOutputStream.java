@@ -218,13 +218,13 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     synchronized (certEntry) {
       if (certEntry.source == null || certEntry.target == null) {
         Hashtable certs = _keyRing.findCertPairFromNS(_source, _target);
-        if (certs != null && certs.size() < 2) {
+        if (certs != null) {
           certEntry.source = (X509Certificate) certs.get(_source);
           certEntry.target = (X509Certificate) certs.get(_target);
         }
       }
-      _targetCert = certEntry.source;
-      _sourceCert = certEntry.target;
+      _targetCert = certEntry.target;
+      _sourceCert = certEntry.source;
     }
 
     if (_sourceCert == null || _targetCert == null) {
