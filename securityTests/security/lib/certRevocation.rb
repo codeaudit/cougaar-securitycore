@@ -70,7 +70,7 @@ class CertRevocation
   end
   
   def revokeAgent(agent)
-    caDomains = run.society.agents[agent].caDomains
+    caDomains = agent.caDomains
     return revoke(agent, caDomains)
   end
   
@@ -88,7 +88,6 @@ class CertRevocation
     ###              dnname = caDomains[0].distinguishedNames[agent]
     #puts agent
     #doIrb
-    obj = run.society.agents[agent]
     if obj == nil
       obj = run.society.nodes[agent]
       if obj != nil
@@ -139,8 +138,9 @@ class CertRevocation
     setCAExpirationAttrib(agent, timeString)
     port = getParameter(node, /http.port/, nil)
     url = "http://#{node.host.name}:#{port}/$#{node.name}/MakeCertificateServlet"
+    logInfoMsg "setCAExpirationAttrib #{url}"
     params = ["identifier=#{node.name}"]
-    logInfoMsg "Invoking #{url} #{param}"
+    logInfoMsg "Invoking #{url} #{params}"
     response = postHtml(url, params)
     raise "Failed to get new certificate. Error #{response.body.to_s}" unless response.body.to_s =~ /Success/
     
@@ -154,7 +154,7 @@ class CertRevocation
   
   def setAgentExpiration(agent, timeString)
     agent = run.society.agents[agent] if agent.kind_of?(String)
-    setCAExpirationAttrib(agent.name, timeString)
+    setCAExpirationAttrib(agent, timeString)
     removeAgentIdentities(agent)
   end
   
@@ -175,11 +175,10 @@ class CertRevocation
   end
 
   def setCAExpirationAttrib(agent, timeString)
-    agent1 = run.society.agents[agent] if agent.kind_of?(String)
-    if (agent1 == nil)
+    if (agent == nil)
       saveAssertion("Stress5k104",
-           "setCAExpirationAttrib: Unable to find agent: #{agent}")
-      raise "setCAExpirationAttrib: Unable to find agent: #{agent}"
+           "setCAExpirationAttrib: Unable to find agent: #{agent.name}")
+      raise "setCAExpirationAttrib: Unable to find agent: #{agent.name}"
     end
     caDomains = agent1.caDomains
     caManager = caDomains[0].signer
