@@ -26,11 +26,22 @@
 
 package org.cougaar.core.service.persistence;
 
+/** Implementations of this interface contain a secret key used to encrypt/decrypt persisted data.
+ *  The PersistenceProtectionServiceClient has an iterator method that returns an iterator
+ *  over a collection of PersistedKeyEnvelopes.
+ *  When the PersistenceProtectionService iterates over the keys, it should use
+ *  the getPersistedKey() method to retrieve the key. The PersistenceProtectionService can
+ *  re-encrypt the key if it wishes, and call setPersistedKey() to notify the service client
+ *  that it should persist the new key.
+ */
 public interface PersistedKeyEnvelope
 {
+  /** Returns the persisted key in this envelope.
+   */
   PersistedKey getPersistedKey();
 
-  /** Save an updated key to persisted storage.
+  /** Saves an updated key to persisted storage.
+   *  
    */
   void setPersistedKey(PersistedKey pk);
 }
