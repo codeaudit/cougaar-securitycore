@@ -150,8 +150,8 @@ public class DirectoryKeyStore implements Runnable
 	}
 	caClient = new CAClient(role);
         //the KAoS domain manager runs a plugin, check if it has a cert
-        String dn = System.getProperty("org.cougaar.domain.manager");
-        if(dn!=null) checkOrMakeCert(dn);
+        //String dn = System.getProperty("org.cougaar.domain.manager");
+        //if(dn!=null) checkOrMakeCert(dn);
       }
 
     } catch (Exception e) {
