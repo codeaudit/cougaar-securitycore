@@ -76,7 +76,6 @@
 
     <path id="securityservices.class.path">
        <path refid="core.class.path"/>
-        <pathelement location="${securityservices.signed}/bootstrapper.jar"/>
         <pathelement location="${securityservices.signed}/securebootstrapper.jar"/>
         <pathelement location="${securityservices.signed}/securityservices.jar"/>
         <pathelement location="${securityservices.signed}/CougaarCRLextensions.jar"/>
@@ -141,7 +140,7 @@
     <target name="run-tests" depends="jar-junit-tests">
        <junit fork="yes" printsummary="yes" dir="${securityservices.regress}/config">
           <sysproperty key="org.cougaar.install.path" value="${cougaar.install.path}"/>
-          <sysproperty key="org.cougaar.workspace.path" value="${cougaar.workspace}"/>
+          <sysproperty key="org.cougaar.workspace" value="${cougaar.workspace}"/>
           <sysproperty key="org.cougaar.core.security.crypto.debug" value="true"/>
           <sysproperty key="org.cougaar.node.name" value="JUNIT-TEST-NODE"/>
           <sysproperty key="org.cougaar.security.role" value="JunitTest"/>
@@ -192,9 +191,6 @@
     <!-- TODO: SecurityComponent.class is a hack until KAOS has been fixed -->
     <target name="jar-securityservices" depends="build-securityservices">
         <echo message="+++++ Building jar files"/>
-        <jar jarfile="${securityservices.classes}/bootstrapper.jar" 
-            basedir="${securityservices.classes}"
-            includes="org/cougaar/core/security/bootstrap/*.class"/>
         <jar jarfile="${securityservices.classes}/securebootstrapper.jar" 
             basedir="${securityservices.classes}"
             includes="org/cougaar/core/security/securebootstrap/*.class"/>
@@ -214,10 +210,6 @@
     <!-- sign security services -->
     <target name="sign-jars" depends="jar-idmef, jar-securityservices">
         <echo message="+++++ Signing jar files"/>
-        <signjar jar="${securityservices.classes}/bootstrapper.jar" alias="bootstrapper" 
-            signedjar="${securityservices.signed}/bootstrapper.jar"
-            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
-            storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/securebootstrapper.jar" alias="bootstrapper" 
             signedjar="${securityservices.signed}/securebootstrapper.jar"
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
@@ -240,8 +232,6 @@
     <!-- install security services -->
     <target name="install-signed-jars" depends="sign-jars">
         <echo message="+++++ Installing signed jar files"/>
-        <copy file="${securityservices.signed}/bootstrapper.jar" 
-            todir="${cougaar.install.path}/lib"/>
         <copy file="${securityservices.signed}/securebootstrapper.jar" 
             todir="${cougaar.install.path}/lib"/>
         <copy file="${securityservices.signed}/securityservices.jar" 
@@ -255,8 +245,6 @@
     
     <target name="install-unsigned-jars" depends="jar-idmef, jar-securityservices">
         <echo message="+++++ Installing jar files"/>
-        <copy file="${securityservices.classes}/bootstrapper.jar" 
-            todir="${cougaar.install.path}/lib"/>
         <copy file="${securityservices.classes}/securebootstrapper.jar" 
             todir="${cougaar.install.path}/lib"/>
         <copy file="${securityservices.classes}/securityservices.jar" 
@@ -399,7 +387,6 @@
         <delete dir="${securityservices.classes}/com" includeEmptyDirs="true" quiet="true"/>
         <delete dir="${securityservices.classes}/org" includeEmptyDirs="true" quiet="true"/>
         <delete dir="${securityservices.signed}" includeEmptyDirs="true" quiet="true"/>
-        <delete file="${securityservices.classes}/bootstrapper.jar" verbose="true"/>
         <delete file="${securityservices.classes}/securebootstrapper.jar" verbose="true"/>
         <delete file="${securityservices.classes}/securityservices.jar" verbose="true"/>
         <delete file="${securityservices.classes}/CougaarCRLextensions.jar" verbose="true"/>
