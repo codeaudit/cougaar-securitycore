@@ -9,7 +9,8 @@ require 'ultralog/scripting'
 require 'security/scripts/setup_scripting'
 require 'security/lib/common_security_rules'
 
-require "mysql.o"
+require "security/lib/mysql.o"
+require "security/lib/mysql.so"
 
 Cougaar::ExperimentMonitor.enable_stdout
 Cougaar::ExperimentMonitor.enable_logging
@@ -23,7 +24,7 @@ class CommPolicies
 
   def initialize(run)
     @dbUser                = "society_config"
-    @dbHost                = "localhost"
+    @dbHost                = "sv007"
     @dbPassword            = "s0c0nfig"
     @db                    = "cougaar104"
     @mysql                 = Mysql.connect(@dbHost, 
