@@ -23,6 +23,7 @@ END
       end
 
       def perform
+        `rm -rf #{CIP}/Logs ; mkdir #{CIP}/Logs ; rm -rf #{CIP}/log/bootstrap/*`
         @hosts.each { |host|
           @run.info_message "Reset ACME at #{host}"
           invoke_remote host, @scriptName
