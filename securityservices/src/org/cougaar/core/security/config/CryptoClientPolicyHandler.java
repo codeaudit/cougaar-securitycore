@@ -70,6 +70,8 @@ public class CryptoClientPolicyHandler
   public static final String CERT_DIRECTORY_TYPE_ELEMENT = "CertDirectoryType";
   public static final String CERT_DIRECTORY_PRINCIPAL_ELEMENT = "CertDirectorySecurityPrincipal";
   public static final String CERT_DIRECTORY_CREDENTIAL_ELEMENT = "CertDirectorySecurityCredential";
+  private static final String CA_INFOURL_ELEMENT          = "CA_infoURL";
+  private static final String CA_REQUESTURL_ELEMENT          = "CA_requestURL";
 
   // Certificate Attributes
   public static final String CERTIFICATE_ATTR_ELEMENT = "certificateAttributes";
@@ -296,6 +298,14 @@ public class CryptoClientPolicyHandler
       duration.parse(content);
       currentCertAttr.regenEnvelope = duration.getDuration();
       currentCertAttr.timeEnvelope = content;
+    }
+    else if (localName.equals(CA_INFOURL_ELEMENT)) {
+      String value = getContents();
+      cryptoClientPolicy.setInfoURL(value);
+    }
+    else if (localName.equals(CA_REQUESTURL_ELEMENT)) {
+      String value = getContents();
+      cryptoClientPolicy.setRequestURL(value);
     }
   }
   
