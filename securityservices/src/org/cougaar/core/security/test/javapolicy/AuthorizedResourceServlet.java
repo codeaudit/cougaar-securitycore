@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.PrintWriter;
 
 import java.util.ArrayList;
 
@@ -77,26 +78,32 @@ public class AuthorizedResourceServlet extends AbstractServletComponent implemen
    * @param response DOCUMENT ME!
    */
   protected void execute(HttpServletRequest request, HttpServletResponse response) {
+    PrintWriter out=response.getWriter();
+
     try {
       String workspace = System.getProperty("org.cougaar.workspace");
       if (workspace == null) {
         if (logging.isErrorEnabled()) {
           logging.error("Workspace is null");
         }
+        out.println("FALSE");
       } else {
         File file = new File(workspace + File.separator + "authorizedTest");
         FileWriter writer = new FileWriter(file);
         writer.write("TEST");
         writer.close();
+        out.println("TRUE");
       }
     } catch (IOException se) {
       //create idmef event
       if (logging.isDebugEnabled()) {
         logging.debug("Could not access resource!");
       }
-
+      out.println("FALSE");
       createIdmefEvent();
     }
+    out.flush();
+    out.close();
   }
 
 

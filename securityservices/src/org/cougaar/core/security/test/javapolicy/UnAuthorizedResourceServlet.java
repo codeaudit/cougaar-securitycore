@@ -44,6 +44,7 @@ import org.cougaar.core.security.test.AbstractServletComponent;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -53,7 +54,7 @@ import java.util.ArrayList;
 /**
  * DOCUMENT ME!
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @author $author$
  */
 public class UnAuthorizedResourceServlet extends AbstractServletComponent implements BlackboardClient {
@@ -76,15 +77,17 @@ public class UnAuthorizedResourceServlet extends AbstractServletComponent implem
    * @param response DOCUMENT ME!
    */
   protected void execute(HttpServletRequest request, HttpServletResponse response) {
+    PrintWriter out=response.getWriter();
     FileWriter writer = null;
     try {
-      String workspace = System.getProperty("org.cougaar.workspace");
-      if (workspace == null) {
+      String cip = System.getProperty("org.cougaar.install.path");
+      if (cip == null) {
         if (logging.isErrorEnabled()) {
-          logging.error("Workspace is null");
+          logging.error("cougaar install path is null");
         }
+        out.println("FALSE");
       } else {
-        File file = new File(workspace + File.separator + "unauthorizedTest");
+        File file = new File(cip + File.separator + "unauthorizedTest");
         writer = new FileWriter(file);
         writer.write("TEST");
         writer.close();
@@ -92,10 +95,11 @@ public class UnAuthorizedResourceServlet extends AbstractServletComponent implem
         if (logging.isDebugEnabled()) {
           logging.debug("Could access resource!");
         }
-
+        out.println("FALSE");
         createIdmefEvent();
       }
     } catch (IOException se) {
+      out.println("TRUE");
       //good
     } finally {
       try {
@@ -103,6 +107,8 @@ public class UnAuthorizedResourceServlet extends AbstractServletComponent implem
       } catch (Exception e) {
       }
     }
+    out.flush();
+    out.close();
   }
 
 
