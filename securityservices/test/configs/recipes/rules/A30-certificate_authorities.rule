@@ -36,15 +36,20 @@ caListCaKeysServlet = "/CA/ListCaKeysServlet"
 infoServlet = "org.cougaar.core.security.certauthority.servlet.CAInfoServlet"
 caInfoServlet = "/CA/CAInfoServlet"
 revokePlugin = "org.cougaar.core.security.certauthority.RevokeAgentCertificatePlugin"
+
+foundRootCA = false
+foundCA = false
  
 society.each_node do |node|
   agentname = ""
   role = ""
   node.each_facet(:role) do |facet|
     if facet[:role] == 'RootCertificateAuthority'
+      foundRootCA = true
       agentname = "RootCaManager"  
       role = facet[:role]
     elsif facet[:role] == 'CertificateAuthority'
+      foundCA = true
       facetval = node.host.get_facet(:enclave)
       agentname = facetval.capitalize + "EnclaveCaManager"
       role = facet[:role]
@@ -144,4 +149,12 @@ society.each_node do |node|
       end
     end
   end
+end
+
+if !foundRootCA
+  puts "Error: did not find the RootCertificateAuthority facet"
+end
+
+if !foundCA
+  puts "Error: did not find any CertificateAuthority facet"
 end
