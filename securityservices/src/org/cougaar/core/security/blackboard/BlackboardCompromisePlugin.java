@@ -133,6 +133,7 @@ public class BlackboardCompromisePlugin extends ComponentPlugin {
       }
 
       revokeAgentCert(timestamp);
+      this.getBlackboardService().publishRemove(cb);
     }
   }
 
