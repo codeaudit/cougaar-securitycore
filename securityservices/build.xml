@@ -457,6 +457,18 @@
                     <include name="*.rb"/>
                 </patternset>
             </fileset>
+            <fileset dir="${securityservices.configs}/acme_scripts/includescripts">
+                <patternset>
+                    <include name="*.rb"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/configs/ping">
+            <fileset dir="${securityservices.configs}/acme_scripts/includescripts">
+                <patternset>
+                    <include name="*.rb"/>
+                </patternset>
+            </fileset>
         </copy>
         <copy file="${securityservices.base}/test/bin/createJarConfigFiles" 
             todir="${cougaar.install.path}/configs/security/bin"/>
