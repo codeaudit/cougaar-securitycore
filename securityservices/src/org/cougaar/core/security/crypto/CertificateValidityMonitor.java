@@ -209,6 +209,12 @@ public class CertificateValidityMonitor
             keyRing.updateNS(info.m_dname);
             it.remove();
           }
+          else {
+            // if fail to get certificate, it is probably because CA is busy
+            // do not make additional request because they will simply jam
+            // CA more
+            break;
+          }
         }
       }
     }
