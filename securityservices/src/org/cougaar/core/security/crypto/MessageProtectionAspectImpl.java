@@ -165,7 +165,9 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
       System.out.println("Destination: " + getDestination());
       System.out.println("Protocol Class: " + getProtocolClass());
       */
-      attrs.setAttribute(TARGET_LINK, remoteRef.toString());
+      if (remoteRef != null) {
+        attrs.setAttribute(TARGET_LINK, remoteRef.toString());
+      }
       super.addMessageAttributes(attrs);
     }
   }
