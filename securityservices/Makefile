@@ -15,12 +15,13 @@ installclean: build-classes jar signjar install clean-data
 
 clean:
 	@echo +++++++ Removing jarfiles
-	rm -rf ${COUGAARCLASSES}/com ${COUGAARCLASSES}/org 
+	rm -rf ${COUGAARCLASSES}/com ${COUGAARCLASSES}/org ${COUGAARCLASSES}/edu
 	@echo +++++++ Removing jarfiles
 	rm -f ${COUGAARCLASSES}/bootstrapper.jar
 	rm -f ${COUGAARCLASSES}/securityservices.jar
 	rm -f ${COUGAARCLASSES}/CougaarCRLextensions.jar
-
+	rm -f ${COUGAARCLASSES}/idmef.jar
+    
 clean-data:
 	@echo +++++++ Removing configuration data
 
@@ -69,8 +70,13 @@ jar: build-classes
 	@echo +++++++ Bulding jar for extensions
 	  cd ${COUGAARCLASSES}; \
         jar cf ${COUGAARCLASSES}/CougaarCRLextensions.jar  com/nai/security/crlextension
-	
 
+# Build idmef library
+	@echo +++++++ Building idmef.jar
+	cd ${COUGAARCLASSES}; \
+	jar cf ${COUGAARCLASSES}/idmef.jar edu/jhuapl/idmef/
+	@echo +++++++ Done Building idmef.jar
+	
 build-classes: installconf
 	@echo +++++++ Compiling the source code
 	export COUGAAR_INSTALL_PATH; export COUGAARCLASSES; export CLASSPATH
@@ -96,6 +102,10 @@ signjar: jar build-classes
 
 	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 		-storepass keystore ${COUGAARCLASSES}/CougaarCRLextensions.jar privileged
+		
+	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
+		-storepass keystore ${COUGAARCLASSES}/idmef.jar privileged
+	
 	@echo +++++++ Done signing JAR files
 
 install: installconf
@@ -104,6 +114,7 @@ install: installconf
 	cp ${COUGAARCLASSES}/securebootstrapper.jar ${COUGAAR_INSTALL_PATH}/lib
 	cp ${COUGAARCLASSES}/securityservices.jar ${COUGAAR_INSTALL_PATH}/lib
 	cp ${COUGAARCLASSES}/CougaarCRLextensions.jar ${COUGAAR_INSTALL_PATH}/lib
+	cp ${COUGAARCLASSES}/idmef.jar ${COUGAAR_INSTALL_PATH}/lib
 	
 	@echo +++++++ Creating log directories
 	rm -rf ${COUGAAR_INSTALL_PATH}/log
