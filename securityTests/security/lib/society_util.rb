@@ -41,6 +41,7 @@ def testAgentRegistrations(interval = 5.minutes, delay = 5.minutes)
   Thread.fork {
     begin
 #    puts "running test agents"
+        #logInfoMsg "sleep #{delay}"
       sleep delay
       expected = getExpectedAgents
 #    puts "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
@@ -49,6 +50,7 @@ def testAgentRegistrations(interval = 5.minutes, delay = 5.minutes)
 #    puts "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
       loop = true
       while (loop)
+        #logInfoMsg "getRegisteredAgents"
         registered = getRegisteredAgents
         missing = expected - registered
 #      puts "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
@@ -57,13 +59,13 @@ def testAgentRegistrations(interval = 5.minutes, delay = 5.minutes)
 #      puts "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
         if block_given?
           yield(missing, expected)
-#      else
-#        puts "#{Time.now} Agents missing: #{missing.length}"
         end
+#        puts "#{Time.now} Agents missing: #{missing.length}"
+        #logInfoMsg "sleep #{interval}"
+        sleep interval
         #if (missing.empty?)
         #  loop = false
         #else
-          sleep interval
         #end
       end
     rescue => e
@@ -158,7 +160,7 @@ module Cougaar
 #            puts("#{Time.now} Agents who haven't registered with the white pages: #{missing.join(" ")}")
 #            puts("#{Time.now} Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
             # Get stack trace of agents that have not registered
-            #getStackTraceAgents(missing)
+            getStackTraceAgents(missing)
           end
           lastCheck = missing.length
         }

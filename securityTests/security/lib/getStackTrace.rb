@@ -25,7 +25,7 @@ class GetStackTrace < SecurityStressFramework
         #logInfoMsg "getStack #{nodename}"
         nodeInfo = getJavaPid(nodename)
         #logInfoMsg "getStack after getJavaPid #{nodename}"
-        logInfoMsg "Retrieving stack trace of #{nodename} at #{nodeInfo.node.host.name} - Java PID=#{nodeInfo.java_pid} PID=#{nodeInfo.node_pid}"
+        #logInfoMsg "Retrieving stack trace of #{nodename} at #{nodeInfo.node.host.name} - Java PID=#{nodeInfo.java_pid} PID=#{nodeInfo.node_pid}"
         stacktrace = getStackTraceFromProcFileSystem(nodeInfo, myStackTraceId)
         #stacktrace = getStackTraceFromAcme(nodeInfo)
         logfile = "#{@stackbasedir}/stack-#{nodename}-#{nodeInfo.java_pid}.#{myStackTraceId}.log"
@@ -85,29 +85,29 @@ class GetStackTrace < SecurityStressFramework
 
       # Copy the script to the host where we want to do the stack trace
       if (localhostname != host.name)
-        command = "scp #{script} #{host.name}:/tmp"
-        result = `#{command}`
+        command = "scp -q #{script} #{host.name}:/tmp"
+        result = system("#{command}")
         #logInfoMsg "Copying script to remote host: #{command} - #{result}"
         # And remove it from the operator host. It is no longer needed.
-        result = `rm -f #{script}`
+        result = File.delete(script)
       end
       # The script should be executed with root privileges
       command = "sudo sh #{script} #{pid} #{tmplogfile}"
       #logInfoMsg "Issuing command: #{command} at #{host.name}"
-      response = `ssh #{host.name} #{command}`
-      #response = @run.comms.new_message(host).set_body("command[rexec]#{command}").request(300)
+      #response = system("ssh #{host.name} #{command}")
+      response = @run.comms.new_message(host).set_body("command[rexec]#{command}").request(300)
       # The stack should be in the tmplogfile at the remote host. Copy it to the operator host
       #logInfoMsg "Response : #{response}"
       if (localhostname != host.name)
-        command = "scp #{host.name}:#{tmplogfile} /tmp"
-        result = `#{command}`
+        command = "scp -q #{host.name}:#{tmplogfile} /tmp"
+        result = system("#{command}")
         #logInfoMsg "Copying stack trace file to operator host: #{command} - #{result}"
       end
       if (File.stat(tmplogfile).file?)
         f = File.open(tmplogfile, File::RDONLY)
         stacktrace = f.read
         f.close
-        result = `rm -f #{tmplogfile}`
+        result = File.delete(tmplogfile)
       else
         # Somehow we could not get a stack trace.
       end
@@ -118,7 +118,7 @@ class GetStackTrace < SecurityStressFramework
         response = @run.comms.new_message(host).set_body("command[rexec]#{command}").request(300)
       else
         command = "sudo rm -f #{script}"
-        #result = `#{command}`
+        result = system("#{command}")
         #logInfoMsg "command: #{command} - #{result}"
       end
     rescue => e

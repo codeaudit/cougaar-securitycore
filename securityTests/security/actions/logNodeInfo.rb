@@ -162,7 +162,20 @@ module Cougaar
         def to_s
 	  now = Time.new
           s = "#{now.strftime("%m/%d/%Y")}\t#{now.strftime("%H:%M:%S")}\t"
-          s += "#{@host.name.ljust(15)}\t#{@pid}\t#{name.ljust(20)}\t#{@mem_size}\t#{@xmx}\t#{pcpu}\t#{pmem}\t#{rss}"
+          s += "#{@host.name.ljust(15)}\t#{@pid}\t#{name.ljust(20)}\t#{@mem_size}\t"
+          value = @xmx
+          @xmx.scan(/([0-9]+)(.+)/) { |match|
+            value = match[0].to_i
+            unit = match[1].downcase
+            if (unit =~ /m/)
+              value = value * 1024
+            elsif (unit =~ /g/)
+              value = value * 1024 * 1024
+            elsif (unit =~ /k/)
+              value = value
+            end
+          }
+          s += "#{value}\t#{pcpu}\t#{pmem}\t#{rss}"
         end
         
       end # end class NodeInfo
