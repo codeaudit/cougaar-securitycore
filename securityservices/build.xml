@@ -476,9 +476,47 @@
 
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/agentrestart"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/communities"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/robustness"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/redundancy"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/testCollectData"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/wpprotection"/>
         <mkdir dir="${cougaar.install.path}/csmart/scripts"/>
 
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/robustness">
+            <fileset dir="${securityservices.configs}/recipes/rules/robustness">
+                <patternset>
+                    <include name="*.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/redundancy">
+            <fileset dir="${securityservices.configs}/recipes/rules/redundancy">
+                <patternset>
+                    <include name="*.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/wpprotection">
+            <fileset dir="${securityservices.configs}/recipes/rules/wpprotection">
+                <patternset>
+                    <include name="*.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/testCollectData">
+            <fileset dir="${securityservices.configs}/recipes/rules/testCollectData">
+                <patternset>
+                    <include name="*.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/agentrestart">
+            <fileset dir="${securityservices.configs}/recipes/rules/agentrestart">
+                <patternset>
+                    <include name="*.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
         <!--
         <copy todir="${cougaar.install.path}/csmart/config/rules/security">
             <fileset dir="${securityservices.configs}/recipes/rules">
