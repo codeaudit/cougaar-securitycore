@@ -96,6 +96,9 @@ public class CRLCache implements Runnable
     if (poll != 0) {
       setSleepTime(poll);
     }
+  }
+
+  public void startThread() {
     Thread td=new Thread(this,"crlthread");
     td.setPriority(Thread.NORM_PRIORITY);
     td.start();
@@ -218,11 +221,15 @@ public class CRLCache implements Runnable
       return;
     }
 
-    CertDirectoryServiceClient certificateFinder = null;
-    try {
-      certificateFinder =
-        keystore.getCertDirectoryServiceClient(name.getCommonName());
-    } catch (Exception ex) {}
+    // check whether it is specified in the policy
+    CertDirectoryServiceClient certificateFinder = keystore.getCACertDirServiceClient(distingushname);
+    // check whether it is found in trust chain
+    if (certificateFinder == null)
+      certificateFinder = certstatus.getCertFinder();
+    // pretty much not found, check it is in the naming service
+    if (certificateFinder == null)
+      certificateFinder = keystore.getCertDirectoryServiceClient(distingushname);
+
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
     crlIssuerPublickey=crlIssuerCert.getPublicKey();
     if(certificateFinder== null) {
