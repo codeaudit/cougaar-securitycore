@@ -302,8 +302,8 @@ public class SecurityAspect extends StandardAspect
           }
           for(int i = 0; i < directive.length; i++) {
             policy = acps.getIncomingTrust
-              (directive[i].getSource().toString(),
-               directive[i].getDestination().toString());
+              (directive[i].getDestination().toString(),
+               directive[i].getSource().toString());
             if(set[i+1] == null){
                 set[i+1] = policy; //new TrustSet();
             }else{
@@ -531,8 +531,8 @@ public class SecurityAspect extends StandardAspect
 
       try {
 	  policySet = acps.getOutgoingTrust
-	      (msg.getTarget().toString(), 
-	       msg.getOriginator().toString());
+	      (msg.getOriginator().toString(), 
+	       msg.getTarget().toString());
       }
       catch(Exception ex) {
 	      System.out.println("Warning: no msg outgoing trust for type = "
