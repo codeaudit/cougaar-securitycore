@@ -26,6 +26,7 @@
 package org.cougaar.core.security.services.util;
 
 import org.cougaar.core.security.policy.PersistenceManagerPolicy;
+import org.cougaar.core.security.dataprotection.*;
 
 // Cougaar core infrastructure
 import org.cougaar.core.component.Service;
@@ -39,4 +40,6 @@ public interface PersistenceMgrPolicyService extends Service {
    * get the latest Persistence Manager Policies
    */
   PersistenceManagerPolicy [] getPolicies();
+
+  void addPMListener(String name, PersistenceMgrAvailListener listener);
 }
