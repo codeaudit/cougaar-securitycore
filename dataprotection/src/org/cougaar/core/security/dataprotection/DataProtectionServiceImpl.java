@@ -213,6 +213,40 @@ public class DataProtectionServiceImpl
     }
   }
 
+  public void removePM(PersistenceManagerPolicy pmp) {
+    if (log.isDebugEnabled()) {
+      log.debug("removePM " + pmp.pmDN);
+    }
+   
+    int totalRemoved = 0; 
+    synchronized (keyCache) {
+      for (Enumeration it = keyCache.keys(); it.hasMoreElements(); ) {
+        try {
+          SecretKey skey = (SecretKey)it.nextElement();
+          DataProtectionKeyEnvelope pke =
+            (DataProtectionKeyEnvelope)keyCache.get(skey);
+          DataProtectionKeyCollection keyCollection =
+            (DataProtectionKeyCollection)pke.getDataProtectionKey();
+        
+          for (int i = 1; i < keyCollection.size(); i++) {
+          // first one is not a PM 
+            DataProtectionKeyImpl dpKey = (DataProtectionKeyImpl)keyCollection.get(i);
+            if (dpKey.getPMPolicy().pmDN.equals(pmp.pmDN)) {
+              keyCollection.remove(i); 
+              totalRemoved++;
+              pke.setDataProtectionKey(keyCollection);        
+            }
+          }
+        } catch (IOException ex) {
+          log.warn("Failed to remove PM: ", ex);
+        }
+      }
+    }
+    if (log.isDebugEnabled()) {
+      log.debug("Total removed: " + totalRemoved + " from list of size: " + keyCache.size());
+    }
+  }  
+
   public OutputStream getOutputStream(DataProtectionKeyEnvelope pke,
 				      OutputStream os)
 	throws IOException
