@@ -36,8 +36,17 @@ public class PublicKeyEnvelope
   extends ProtectedObject
 {
   /** The encrypted symmetric key used to encrypt an object.
+   *  This key is encrypted with the public key of the target.
    */
   private SealedObject encryptedSymmetricKey;
+
+  /** The encrypted symmetric key used to encrypt an object.
+   *  This key is encrypted with the public key of the sender.
+   *  It is the same session key as the one in encryptedSymmetricKey,
+   *  however it is encrypted with the sender. This allows the
+   *  sender to recover the object if necessary.
+   */
+  private SealedObject encryptedSymmetricKeySender;
 
   /** The certificate used to encrypt the symmetric key.
    */
@@ -52,15 +61,21 @@ public class PublicKeyEnvelope
 			   X509Certificate areceiver,
 			   SecureMethodParam policy,
 			   SealedObject sKey,
+			   SealedObject sKeySender,
 			   Object encObj) {
     super(policy, encObj);
     encryptedSymmetricKey = sKey;
+    encryptedSymmetricKeySender = sKeySender;
     receiver = areceiver;
     sender = asender;
   }
 
   public SealedObject getEncryptedSymmetricKey() {
     return encryptedSymmetricKey;
+  }
+
+  public SealedObject getEncryptedSymmetricKeySender() {
+    return encryptedSymmetricKeySender;
   }
 
   public X509Certificate getReceiver() {

@@ -278,6 +278,7 @@ public class AgentIdentityServiceImpl
 		      envelope.getReceiver(),
 		      policy,
 		      envelope.getEncryptedSymmetricKey(),
+		      envelope.getEncryptedSymmetricKeySender(),
 		      envelope.getObject());
 
     /* Step 3 */

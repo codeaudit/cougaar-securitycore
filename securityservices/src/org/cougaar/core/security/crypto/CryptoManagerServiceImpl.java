@@ -37,6 +37,7 @@ import org.cougaar.core.component.ServiceRevokedListener;
 import org.cougaar.core.component.ServiceRevokedEvent;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.component.ServiceBroker;
 
 
@@ -50,7 +51,7 @@ import org.cougaar.core.security.crypto.SecureMethodParam;
 public class CryptoManagerServiceImpl
   implements EncryptionService
 {
-  private KeyRingService keyRing = null;
+  private KeyRingService keyRing;
   private ServiceBroker serviceBroker;
   private LoggingService log;
 
@@ -159,6 +160,9 @@ public class CryptoManagerServiceImpl
 	    return keyRing.findPrivateKey(name);
 	  }
 	});
+    if (keyList == null || keyList.size() == 0) {
+      return null;
+    }
     Iterator it = keyList.iterator();
     PrivateKey key = null;
     Cipher ci = null;
@@ -362,7 +366,7 @@ public class CryptoManagerServiceImpl
     SignedObject signedObject = sign(source.toAddress(), policy.signSpec, object);
 
     PublicKeyEnvelope pke =
-      new PublicKeyEnvelope(sender, null, policy, null, signedObject);
+      new PublicKeyEnvelope(sender, null, policy, null, null, signedObject);
     return pke;
   }
 
@@ -385,7 +389,10 @@ public class CryptoManagerServiceImpl
     KeyGenerator kg = KeyGenerator.getInstance(a);
     kg.init(random);
     SecretKey sk = kg.generateKey();
+    // Encrypt session key
     SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk);
+    SealedObject secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk);
+
     SealedObject sealedMsg = symmEncrypt(sk, policy.symmSpec, object);
     // Find target certificate
     List receiverList =
@@ -397,7 +404,7 @@ public class CryptoManagerServiceImpl
     }
     X509Certificate receiver = ((CertificateStatus)receiverList.get(0)).getCertificate();
 
-    pke = new PublicKeyEnvelope(null, receiver, policy, secret, sealedMsg);
+    pke = new PublicKeyEnvelope(null, receiver, policy, secret, secretSender, sealedMsg);
     return pke;
   }
 
@@ -425,6 +432,7 @@ public class CryptoManagerServiceImpl
     SecretKey sk=kg.generateKey();
 
     SealedObject sessionKey = null;
+    SealedObject sessionKeySender = null;
     SealedObject sealedObject = null;
     SignedObject signedObject = null;
       
@@ -433,6 +441,8 @@ public class CryptoManagerServiceImpl
     }
     // Encrypt session key
     sessionKey = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk);
+    // Encrypt session key with sender key
+    sessionKeySender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk);
 
     if(log.isDebugEnabled()) {
       log.debug("Signing object");
@@ -486,8 +496,38 @@ public class CryptoManagerServiceImpl
     }
 
     envelope = 
-      new PublicKeyEnvelope(sender, receiver, policy, sessionKey, sealedObject);
+      new PublicKeyEnvelope(sender, receiver, policy,
+			    sessionKey, sessionKeySender, sealedObject);
     return envelope;
+  }
+
+  /** Return the secret key of a protected object.
+   * The session key should have been encrypted with both the source
+   * and the target.
+   */
+  private SecretKey getSecretKey(MessageAddress source,
+				 MessageAddress target,
+				 PublicKeyEnvelope envelope,
+				 SecureMethodParam policy) {
+    SecretKey sk = null;
+    /* The object was encrypted for a remote agent. However,
+     * the remote agent may not be able to process that message, and
+     * the source agent wants to get the object back.
+     * There could be multiple reasons why the remote agent
+     * did not process the object: the infrastructure was
+     * not able to send the message, the remote agent did
+     * not accept the message, etc.
+     */
+    sk = (SecretKey)
+      asymmDecrypt(target.toAddress(), policy.asymmSpec,
+		   envelope.getEncryptedSymmetricKey());
+    if (sk == null) {
+      // Try with the source address
+      sk = (SecretKey)
+	asymmDecrypt(source.toAddress(), policy.asymmSpec,
+		     envelope.getEncryptedSymmetricKeySender());
+    }
+    return sk;
   }
 
   private Object decryptAndVerify(MessageAddress source,
@@ -500,14 +540,12 @@ public class CryptoManagerServiceImpl
 			 + " -> " + target.toAddress());
     }
 
-    // Retrieving the secret key, which was encrypted using the public key
+    // Retrieve the secret key, which was encrypted using the public key
     // of the target.
     if(log.isDebugEnabled()) {
       log.debug("Retrieving secret key");
     }
-    SecretKey sk=(SecretKey)
-      asymmDecrypt(target.toAddress(), policy.asymmSpec,
-		   envelope.getEncryptedSymmetricKey());
+    SecretKey sk = getSecretKey(source, target, envelope, policy);
     if (sk == null) {
       if (log.isErrorEnabled()) {
 	log.error("Error: unable to retrieve secret key");
@@ -550,9 +588,7 @@ public class CryptoManagerServiceImpl
 
     // Retrieving the secret key, which was encrypted using the public key
     // of the target.
-    SecretKey sk=(SecretKey)
-      asymmDecrypt(target.toAddress(), policy.asymmSpec,
-		   envelope.getEncryptedSymmetricKey());
+    SecretKey sk = getSecretKey(source, target, envelope, policy);
     if (sk == null) {
       if (log.isErrorEnabled()) {
 	log.error("Error: unable to retrieve secret key");

@@ -45,7 +45,8 @@ public class KeyIdentity
 		     X509Certificate areceiver,
 		     SecureMethodParam policy,
 		     SealedObject sKey,
+		     SealedObject sKeySender,
 		     Object encObj) {
-    super(asender, areceiver, policy, sKey, encObj);
+    super(asender, areceiver, policy, sKey, sKeySender, encObj);
   }
 }
