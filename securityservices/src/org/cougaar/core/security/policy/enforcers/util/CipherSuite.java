@@ -106,7 +106,7 @@ public class CipherSuite {
   }
 
   public void addSymmetric(int condition, String symm) {
-    CipherSuite cs = getConditionalCipherSuite(condition);
+    CipherSuite cs = getConditionalCipherSuite(condition, true);
     cs._symmetric.add(symm);
   }
 
@@ -138,7 +138,7 @@ public class CipherSuite {
 
   public void addAsymmetric(int condition, String asymm) 
   {
-    CipherSuite cs = getConditionalCipherSuite(condition);
+    CipherSuite cs = getConditionalCipherSuite(condition, true);
     cs._asymmetric.add(asymm);
   }
 
@@ -170,7 +170,7 @@ public class CipherSuite {
   }
 
   public void addSignature(int condition, String sig) {
-    CipherSuite cs = getConditionalCipherSuite(condition);
+    CipherSuite cs = getConditionalCipherSuite(condition, true);
     cs._signature.add(sig);
   }
 
@@ -183,7 +183,7 @@ public class CipherSuite {
     for (Iterator conditions = cs._conditionMap.keySet().iterator(); 
          conditions.hasNext();) {
       Integer conditionType = (Integer) conditions.next();
-      CipherSuite mycs = getConditionalCipherSuite(conditionType.intValue());
+      CipherSuite mycs = getConditionalCipherSuite(conditionType.intValue(), true);
       CipherSuite othercs = (CipherSuite) cs._conditionMap.get(conditionType);
       mycs._symmetric.addAll(othercs._symmetric);
       mycs._asymmetric.addAll(othercs._asymmetric);
@@ -191,16 +191,22 @@ public class CipherSuite {
     }
   }
 
-  private CipherSuite getConditionalCipherSuite(int condition)
+  public CipherSuite getConditionalCipherSuite(int condition)
+  {
+    return getConditionalCipherSuite(condition, false);
+  }
+
+  private CipherSuite getConditionalCipherSuite(int condition, boolean create)
   {
     Integer cond = new Integer(condition);
     if (condition == NetworkConfigurationService.ConnectNormal) {
       return this;
     } else {
       CipherSuite cs = (CipherSuite) _conditionMap.get(cond);
-      if (cs == null) {
+      if (cs == null && create) {
         cs = new CipherSuite();
         _conditionMap.put(cond, cs);
+        return cs;
       }
       return cs;
     }
