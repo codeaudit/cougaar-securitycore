@@ -126,6 +126,7 @@ throws PolicyCompilerException
     : "GenericTemplate"               pp = genericPolicy[pn]
     | "AuditTemplate"                 pp = audit[pn]
     | "BlackboardTemplate"            pp = blackboardPolicy[pn]
+    | "MessageEncryptionTemplate"     pp=  messageEncryptionPolicy[pn]
     | "ServletAuthenticationTemplate" pp = servletAuthentication[pn]
     | "ServletUserAccessTemplate"     pp = servletUserAccess[pn]
     ;
@@ -263,6 +264,39 @@ throws PolicyCompilerException
                                 ParsedPolicyFile.tokenToText(pluginRole), 
                                 accessModes, 
                                 objectTypes); }
+    ;
+
+
+/*
+ * The message encryption template (Require NSAAprovedProtection on all 
+ * messages from members of agentGroupX to members of the complement of 
+ * agentGroupY
+ */
+messageEncryptionPolicy[String pn]
+returns [ParsedPolicy pp]
+throws PolicyCompilerException
+{  pp = null; 
+   boolean sourceComplement = false;
+   boolean destComplement  =  false;}
+    :  "Require" protectLevel:TOKEN "on" "all" "messages" "from" "members" 
+        "of" sourceComplement = messageComplemented sourceAgentGroup:URI "to"
+        "members" "of" destComplement = messageComplemented 
+        destAgentGroup:URI
+        { pp = new MessageEncryptionParsedPolicy(
+                     pn,
+                     ParsedPolicyFile.tokenToText(protectLevel),
+                     ParsedPolicyFile.identifierToURI(sourceAgentGroup),
+                     sourceComplement,
+                     ParsedPolicyFile.identifierToURI(destAgentGroup),
+                     destComplement); }
+    ;       
+
+messageComplemented
+returns [boolean complemented]
+{  complemented = false; }
+    : "the" "complement" "of"
+        { complemented = true;}
+    |   { complemented = false;}
     ;
 
 
