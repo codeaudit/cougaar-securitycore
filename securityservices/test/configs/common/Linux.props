@@ -29,6 +29,7 @@ org.cougaar.install.path=/mnt/shared/integ
 # By default persistence is disabled.
 org.cougaar.core.persistence.enable=true
 org.cougaar.core.persistence.clear=true
+org.cougaar.core.security.dataprotection=true
 
 # Add the "java-io-patch" to allow Cougaar persistence.
 #
