@@ -95,11 +95,9 @@ public class WebProxyInstaller
       }
 
       Class cmdClass = Class.forName(className);
-      System.out.println(cmdClass);
       String [] a = {"Fix", "this"};
       Class [] parameters = { a.getClass() };
       Method m = cmdClass.getDeclaredMethod("main", parameters);
-      System.out.println("Method = " + m);
       Object [] objectArgs = { newargs };
       m.invoke(null, objectArgs);
     } catch (Exception e) {
