@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -161,6 +161,9 @@ public class AgentUserService implements UserService, BlackboardClient {
   }
 
   private void startRoleListener() {
+    if (_log.isDebugEnabled()) {
+      _log.debug("start Role listener");
+    }
     CommunityChangeListener listener = new CommunityChangeListener() {
         public void communityChanged(CommunityChangeEvent event) {
           Community community = event.getCommunity();
@@ -171,7 +174,12 @@ public class AgentUserService implements UserService, BlackboardClient {
               for (int i = 0; i < attr.size(); i++) {
                 Object type = attr.get(i);
                 if (type.equals(COMMUNITY_TYPE)) {
-                  if (setupRole(community)) {
+		  boolean b = setupRole(community);
+		  if (_log.isDebugEnabled()) {
+		    _log.debug("Got community: " + community.getName()
+		      + " - Remove listener=" + b);
+		  }
+                  if (b) {
                     _communityService.removeListener(this);
                   }
                 }
@@ -194,6 +202,11 @@ public class AgentUserService implements UserService, BlackboardClient {
     String filter = "(Role=" + MANAGER_ROLE + ")";
     Set mgrAgents = community.search(filter, Community.AGENTS_ONLY);
     Iterator it = mgrAgents.iterator();
+    if (_log.isDebugEnabled()) {
+      _log.debug("setupRole for " + communityName
+	+ " - " + mgrAgents.size() + "  manager agents");
+      _log.debug("Community: " + community.toXml());
+    }
     while (it.hasNext()) {
       Entity entity = (Entity) it.next();
       if (entity.getName().equals(_source.toString())) {
@@ -206,6 +219,9 @@ public class AgentUserService implements UserService, BlackboardClient {
         }
       }
       _defaultDomain = communityName;
+      if (_log.isDebugEnabled()) {
+	_log.debug("Setting default domain: " + _defaultDomain);
+      }
       return true;
     }
     return false;
