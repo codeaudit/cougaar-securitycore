@@ -32,12 +32,6 @@ mkdir $COUGAAR_INSTALL_PATH/lib
 mkdir $COUGAAR_INSTALL_PATH/sys
 cp ${realCIP}/lib/*.jar $COUGAAR_INSTALL_PATH/lib
 cp ${realCIP}/sys/*.jar $COUGAAR_INSTALL_PATH/sys
-mkdir -p $COUGAAR_INSTALL_PATH/csmart/config/rules/security/community
-mkdir -p $COUGAAR_INSTALL_PATH/csmart/scripts
-cp test/configs/recipes/rules/*.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security
-cp test/configs/recipes/rules/parameters/security_param_tic.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security
-cp test/configs/recipes/rules/parameters/community.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security/community
-cp test/configs/recipes/rules/parameters/RunSoc.rb.patch $COUGAAR_INSTALL_PATH/csmart/scripts
 
 #PATH=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/:$PATH
 #export PATH
@@ -69,6 +63,7 @@ zip -qr AS_csi_secserv.zip \
 	log/bootstrap \
 	configs/daml \
 	configs/security \
+	configs/ping \
 	csmart/config/rules/security \
 	csmart/scripts \
 	lib/CougaarCRLextensions.jar \

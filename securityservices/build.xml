@@ -448,6 +448,40 @@
             file="${securityservices.configs}/tomcat4/server.xml"/>    
         <copy todir="${cougaar.install.path}/webtomcat/data/webapps/ROOT/WEB-INF"
             file="${securityservices.configs}/tomcat4/web.xml"/>
+        <copy todir="${cougaar.install.path}/configs/ping">
+            <fileset dir="${securityservices.configs}/ping"/>
+        </copy>
+
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/community"/>
+        <mkdir dir="${cougaar.install.path}/csmart/scripts"/>
+
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security">
+            <fileset dir="${securityservices.configs}/recipes/rules">
+                <patternset>
+                    <include name="*.rule"/>
+                </patternset>
+            </fileset>
+            <fileset dir="${securityservices.configs}/recipes/rules/parameters">
+                <patternset>
+                    <include name="security_param_tic.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/community">
+            <fileset dir="${securityservices.configs}/recipes/rules/parameters">
+                <patternset>
+                    <include name="community.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${cougaar.install.path}/csmart/scripts">
+            <fileset dir="${securityservices.configs}/recipes/rules/parameters">
+                <patternset>
+                    <include name="RunSoc.rb.patch"/>
+                </patternset>
+            </fileset>
+        </copy>
+
         <echo message="+++++ Installed configuration files"/>
     </target>
     
