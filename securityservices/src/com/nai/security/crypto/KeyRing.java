@@ -57,6 +57,7 @@ final public class KeyRing {
   private static DirectoryKeyStoreParameters param;
   private static boolean debug = false;
   private static ConfParser confParser = null;
+  private static PrivateKeyPKCS12 pkcs12;
 
   static {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
@@ -144,9 +145,24 @@ final public class KeyRing {
 	param.caKeystoreStream.close();
       }
 
+      pkcs12 = new PrivateKeyPKCS12(keystore);
+
     } catch (Exception e) {
       e.printStackTrace();
     }
+    if (keystore == null || pkcs12 == null) {
+      // Cannot proceed without keystore
+      System.err.println("ERROR: Cannot continue secure execution");
+      System.err.println("       without cryptographic data files");
+      try {
+	throw new RuntimeException("No cryptographic keystores");
+      }
+      catch (RuntimeException e) {
+	e.printStackTrace();
+      }
+      System.exit(-1);
+    }
+      
   }
 
   public static synchronized KeyStore getKeyStore() { 
@@ -231,6 +247,39 @@ final public class KeyRing {
     }
     keystore.checkOrMakeCert(name);
     return;
+  }
+
+  /** @param privKey        The private key to store in a PKCS#12 enveloppe
+   *  @param cert           The certificate to store in a PKCS#12 enveloppe
+   *  @param signerPrivKey  The private key of the signer
+   *  @param signerCert     The certificate of the signer
+   *  @param rcvrCert       The certificate of the intended receiver
+   */
+  public static byte[] protectPrivateKey(PrivateKey privKey,
+					 Certificate cert,
+					 PrivateKey signerPrivKey,
+					 Certificate signerCert,
+					 Certificate rcvrCert)
+  {
+    return pkcs12.protectPrivateKey(privKey,
+				    cert,
+				    signerPrivKey,
+				    signerCert,
+				    rcvrCert);
+  }
+
+  /** Extract information from a PKCS#12 PFX
+   * @param pfxBytes       The DER encoded PFX
+   * @param rcvrPrivKey    The private key of the receiver
+   * @param rcvrCert       The certificate of the receiver
+   */
+  public static PrivateKeyCert[] getPfx(byte[] pfxBytes,
+					PrivateKey rcvrPrivKey,
+					Certificate rcvrCert)
+  {
+    return pkcs12.getPfx(pfxBytes,
+			 rcvrPrivKey,
+			 rcvrCert);
   }
 }
 

@@ -107,7 +107,14 @@ public abstract class GuardRegistration implements IEnforcer {
       guardRetriever = new GuardRetriever();
       guard = guardRetriever.getGuard();
       if (guard == null) {
-	throw new EnforcerRegistrationException("Guard Unavailable");
+	System.err.println("ERROR: Cannot continue secure execution without guard");
+	try {
+	  throw new EnforcerRegistrationException("Guard Unavailable");
+	}
+	catch (EnforcerRegistrationException e) {
+	  e.printStackTrace();
+	}
+	System.exit(-1);
       }
       // Make sure policy type has been set
       if (getPolicyType() == null) {
