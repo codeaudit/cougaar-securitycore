@@ -1,190 +1,89 @@
-This file contains instructions for building the NAI Labs security services 
-packages.
+This file contains instructions for building and installing the security services.
 
-Organization of the release
-===========================
-The security services are separated into two Java archives: bootstrap.jar and
-securityservices.jar. The bootstrap.jar archive contains classes necessary to
-initialize a security enhanced Ultra*Log node. The securityservices.jar archive
-contains the following services: cryptographic, access control, and monitoring
-& response.
+Requirements
+============
+Running a security-enhanced Cougaar society requires:
+* Cougaar version 9.4.1
+* JDK or JRE version 1.4
+* ANT version 1.5 or higher
 
 Directory structure
 ===================
 The securityservices module has the following directory structure:
       * top-level directory - contains a Makefile used to build the security
       services
-
       * src	- contains the source code for the security services
-
       * sys - contains the additional jar files required for security and
-      KAoS policy integration. These jar files should be copied into the
-      $COUGAAR_INSTALL_PATH directory before running a society.
-
+      KAoS policy integration.
       * test/bin - additional scripts to build and run a society:
-         signJars: signing all jar files in the lib and sys directories,
-         myalpc: compile source code,
          SecureNode: run a security-enhanced Cougaar society,
-         myrmic: compile RMI stubs
-
       * test/configs/demo - to contain all the scripts for launching a sample
-      ul-mini-config
-
+	society
       * test/configs/common - Contains essential files that should
       be shared by all Cougaar configurations.
-
-      * test/configs/ul-mini-config - keystores, access control and crypto
-      policies for ul-mini-config, and java (permissions) policy files
-
       * test/doc - documentation for the securityservices module
-
-Requirements
-============
-Running a security-enhanced Cougaar society requires:
-* Cougaar version 8.4.1.1
-* JDK or JRE version 1.3.1
-* Jar files dependencies:
-      * KAoS, which is used to propagate security policies, requires the following
-	  the jar files:
-	   - KAoS.jar
-	   - SAFE.jar
-	   - xml4j.jar (IBM's SAX Parser)
-      * jaas.jar: Java Authentication and Authorization Services
-      * cryptix-jce-api.jar: open-source cryptographic provider
-      * cryptix-jce-provider.jar: open-source cryptographic provider
-      * jce1_2-do.jar: a SUN JCE cryptographic provider
-      * postgresql.jar: a JDBC driver for Postgres database
 
 Compiling and building JAR files
 ================================
 1. Set the CVSROOT to point to NAI Labs cvs module:
 
-setenv CVSROOT :ext:user@cvs.utralog.net:/cvs/nai # for tcsh or csh shell users
-export CVSROOT=:ext:user@cvs.utralog.net:/cvs/nai # for bash shell users
+setenv CVSROOT :ext:user@cvs.utralog.net:/cvs/security/nai # for tcsh or csh shell users
+export CVSROOT=:ext:user@cvs.utralog.net:/cvs/security/nai # for bash shell users
 
 2. Unpack the security services distribution and go to the top level of the 
    source code tree. From cvs type the following:
 
        cvs co securityservices
 
-3. Copy the jar files under securityservices/sys into $COUGAAR_INSTALL_PATH/sys.
-       cd securityservices/sys
-       cp *.jar $COUGAAR_INSTALL_PATH/sys
-
-4. Sign all the jar and zip files under the $COUGAAR_INSTALL_PATH/lib and
-   $COUGAAR_INSTALL_PATH/sys directories. This can be done by typing:
-       cd ..
-       test/bin/signJars
-
-5. Copy the configuration files under securityservices/sys/test/configs/common
-   into $COUGAAR_INSTALL_PATH/configs/common.
-
-	Note: You will be overwriting the default.psps.xml file.
-
-6. Use the myalpc tool to compile all the Java source code. Several environment
-   variables will need to be set beforehand. For the purposes of this example,
-   we assume that CVS check outs are done at a users home directory. If they
-   are performed at a different location, substitute that location for the '~':
-
-setenv COUGAAR_INSTALL_PATH ~/cougaar-8.4.1.1		# needed for alpc to run
-setenv COUGAARCLASSES ~/securityservices/classes	# bytecode tree root
-
--or- 
-
-export COUGAAR_INSTALL_PATH=~/cougaar-8.4.1.1		# needed for alpc to run
-export COUGAARCLASSES=~/securityservices/classes	# bytecode tree root
-
-   Make sure that alpc is in your path by adding $COUGAAR_INSTALL_PATH/build/bin
-   to the PATH environment variable.
-
-setenv PATH ${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for csh or tcsh shell users
-export PATH=${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for bash users
-
-7. Use the myalpc script from the securityservices directory. 
-
-      cd securityservices
-      test/bin/myalpc src
-
-8. Now all the source code should be compiled under the $COUGAARCLASSES 
-   directory. Use make to build and sign the jar files. All class files are 
-   expected in the $COUGAARCLASSES directory. The makefile automatically 
-   signs the bootstrap.jar and securityservices.jar with the appropriate keys.
-
-      make signjar
-
-   Note 1:
-   The makefile assumes there is a sigingCA_keystore file in the
-   $COUGAAR_INSTALL_PATH/configs/common directory.
-
-   Note 2:
-   The Cougaar distribution includes scripts (in the build/bin directory) that
-   are used to build jar files.
-   These scripts should be updated to include the process of signing jar files,
-   by applying the same steps that are performed in NAI's makefile.
-   All jar files, including third-party jar files should be signed.
-   This procedure requires a keystore that contains private keys used to sign
-   the jar files. In an operational environment, these keys should be kept
-   private. However, to simplify the development process, the keystore can be
-   made publicly available (e.g. in the Cougaar distribution) to allow developers
-   to re-compile Cougaar if they need to. In an operational environment,
-   new keystores would be used instead.
-
-9. The signed jar files can be now be installed into the $COUGAAR_INSTALL_PATH
-   directory. 
-
-      make install
+3. Run the ant script
+       cd securityservices
+       ant install
 
 
-Configuration data
-==================
-* configs/common/BootPolicy.ldm.xml - contains the boostrap policy for the
-  cryptographic and access control service. This policy is used to set a
-  default policy used to communicate with the KAoS domain manager.
-* KAoS policy - once a security-enhanced node has been boostrapped, the
-  guard communicates with its domain manager to retrieve the latest
-  security policies. The guard communicates using Cougaar messages that
-  are secured according to the boostrapping policy.
-* configs/ul-mini-config/keystore files - each security-enhanced node
-  requires a keystore file that contain a set of private/public key pairs
-  for the node and each agent running on the node. The keystore file may
-  also contain public keys for other agents in the society, although this
-  is not required. A node may use a certificate directory service to get
-  public keys for other agents in the society.
-* configs/common/bootstrap_keystore - contains public keys of Certificate
-  Authorities that are trusted to sign jar files.
-* configs/common/SigingCA_keystore - contains public/private key pairs
-  of Certificate Authorities that are trusted to sign jar files.
-* configs/common/Cougaar_Java.policy
-  Java policy files - a security enhanced node runs in a restricted
-  environment. By default, the Java policy is set in the Cougaar_Java.policy
-  file. The SecureNode script defines which Java policy file is used.
-  Another Java policy file is provided (CougaarAllPermissions.policy), which
-  grants all permissions. This file should only be used for testing
-  purposes.
-* configs/common/cryptoProviders.xml - this file defines the set of available
-  cryptographic providers.
-* configs/common/default.psps.xml - this file should be modified to include
-  PSPs that are required to run KAoS (see Boeing/IHMC documentation for
-  more details).
-* configs/common/Policy.ldm.dtd - a more up-to-date DTD file for policy files.
+Jar files
+=========
+The security services are separated into the following Java archives:
+CougaarCRLextensions.jar: A jar file for issuing indirect CRLs.
+idmef.jar:                An implementation of the IDMEF standard
+securebootstrapper.jar:   Contains classes necessary to initialize a security
+                          enhanced Ultra*Log node.
+securityservices.jar:     The securityservices.jar archive contains the cryptographic,
+                          access control, and monitoring & response services.
 
-Logging
-=======
-Data should be logged to directories that contain only logging data.
-It is a bad idea to log data to directories that contain other data, such
-as configuration data. A component could accidentaly or maliciously overwrite
-configuration data.
-It is suggested that a $COUGAAR_INSTALL_PATH/log directory should be
-created. Several sub-directories should be created to log data for services
-that have different privileges:
-* log/bootstrap - only the bootstrapper has the privileges to write to this
-  directory.
-* log/core - only the core infrastructure services have the privileges to
-  write to this directory.
-* log/plugins - PlugIns may log data to this directory.
+Configuration
+=============
+A security-enhanced society should be configured and executed using CSMART.
+CSMART recipes for the security services have been checked in under the
+test/configs/recipes directory.
 
-Running a security-enhanced node
-================================
+1) Installing and configuring Cougaar and CSMART
+Follow the instructions provided in the core distribution to install and configure CSMART.
+
+2) Importing security services recipes to the MySQL database.
+All CSMART recipes should be imported in the MySQL database.
+The "recipesimport.csh" script under the test/configs/recipes directory imports all the
+recipes.
+
+3) Import the community configuration.
+Import the community_attribute.csv and community_entity_attribute.csv files to the MySQL
+database. This can be done by:
+   a) copying the .csv files to th $CIP/csmart/data/database/scripts/mysql directory
+   b) executing the load_communities.bat script. Note that the load_communities.sh
+      script seems to be broken.
+
+4) Configuring CSMART for a specific society.
+Create a new experiment such as the full 1ad or the small 1ad society.
+Import the security services recipes in your experiment as described in the README.config file.
+
+5) Install and configure a CA.
+At least one Certificate Authority should be installed. Follow the instructions provided in
+the README.certificateAuthority file.
+
+6) Run the society.
+Use the CSMART society experiment controller to run the society.
+
+Running a security-enhanced node standalone
+===========================================
 A security-enhanced node is executed by using the following script:
 
 	test/bin/SecureNode <options>
@@ -193,206 +92,3 @@ where <options> are the same command-line arguments as for the Node script.
 This script sets environment variables specific to the security services
 and executes the boostrapper, which launches the node.
 
-
-Running the ul-mini-config society
-==================================
-
-1. The COUGAAR_SECURITY_SERVICES environment variable must be set to the top-level
-   directory of the securityservices module. For instance:
-
-       setenv COUGAAR_SECURITY_SERVICES /home/u/foo/securityservices 	# for csh or tcsh shell users
-       export COUGAAR_SECURITY_SERVICES=/home/u/foo/securityservices	# for bash users
-
-2. Install SSH on every host where the society will be run. The goal is to be
-   able to SSH to every hosts using public/private key pairs. Depending on how
-   your home directory is setup on every host, you may have to create one or
-   several public/private key pairs. If you have NFS cross-mounted directories and
-   your home directory is the same on every host, then only one public/private key
-   pair has to be created. Otherwise, you may have to create one key pair for each
-   host.
-   Make sure that SSH works by logging in every host:
-   
-      ssh -l <user name> <hostname>
- 
-   You will now login to every machine where the society will be run and follow
-   the instructions below.
-
-   Note that, at any point during the configuration,
-   if for some reason you are not able to SSH to a host, it is most likely due to a
-   incorrect permission settings. In that case, use the debug option of SSH,
-   look at the debug messages, and fix the issues as displayed:
-   
-       ssh -v -l <user name> <hostname>
-       
-   More information may be found in the SSH man pages.
-
-3. Create a ".ssh" directory under your home directory if it does not exist already.
-
-       mkdir .ssh
-
-   Note that the .ssh directory MUST NOT be world or group readable, writable,
-   or executable. 
-
-4. Under the .shh directory, create a "config" file if it does not exist.
-   Edit the "config" file and add the following lines:
-     
-	# SSH config
-        Host *
-          ForwardAgent yes
-          ForwardX11 yes
-          FallBackToRsh no
-          Protocol 1
-
-5. Edit your .bashrc file (or cshrc depending on what shell you are using).
-   Add the following lines:
-        
-        export DISPLAY=${DISPLAY:=localhost:0.0}
-        export XAUTHORITY=${XAUTHORITY:=~root/.Xauthority} 
-      
-6. Configure SSH with public/private key pairs. Type:
-
-        ssh-keygen
-        
-   Protect your private key with a passphrase.
-   This will create two files:
-      ~/.ssh/identity     and
-      ~/.ssh/identity.pub.
-   The identity file contains a private key and the identity.pub is the corresponding
-   public key. If you use Windows/cygwin, the files should be created under
-   c:/cygwin/home/${USER}
-
-     
-7. Create a ~/.ssh/authorized_keys. This file will contain all the public keys that
-   are acceptable. It should contain the public key of every other host in the
-   society. Copy the content of the .ssh/identity.pub file into ~/.ssh/authorized_keys
-   for each host in the society. This can be done by first copying the 
-   ~/.ssh/identity.pub file to all the other hosts (in a file called identity.pub.hostX)
-   and typing:
-   
-        cat identity.pub.hostX >> authorized_keys 
-
-8. Make sure directory permissions are set properly:
-   Protect the .ssh directory by typing:
-   
-      cd ~
-      chmod 700 .ssh
-      cd .ssh
-      chmod 400 *
-      
-9. Verify that you can access every host through SSH using RSA keys.
-   From one host, type:
-   
-      ssh <hostname>
-      
-   You should be asked for the passphrase for the RSA key instead of your password.
-   If this does not work, you can view debugging information by typing:
-   
-      ssh -v <hostname>
-
-   In general, debugging information provides good hints on why the RSA connection
-   did not succeed.
-
-10. Establishing a password-less session
-    If you have to issue multiple commands, then it will be very useful to use
-    ssh-agent. From one host, type:
-    
-        eval `ssh-agent`
-        ssh-add (type your passphrase)
-
-    From now on, you should be able to SSH to any host and type commands without
-    having to enter your passphrase and password.
-    When you are done with all the commands, you can type
-    
-        ssh-agent -k
-
-11. Create the log directories as explained in the "Logging" section.
-
-12. Go to the test/configs/demo directory and type the following command:
-   launch-society [configuration file] [use ssh-agent: true|false]
-
-13. Some files will be created while the society is running. In particular,
-    the NCADomainManager agent is using persistence to store data accross
-    multiple runs of the society. This is used by the KAoS domain manager
-    to store policies. Therefore, files are created in the $COUGAAR_INSTALL_PATH/P
-    directory.
-    Log files are also created by the security manager and the authenticated
-    class loader under $COUGAAR_INSTALL_PATH/log/bootstrap.
-    The persistence mechanism creates log files under the configs/ul-mini-config
-    directory.
-    Finally, the standard output of each node is stored in a log file in
-    the test/configs/demo directory.
-    It is possible to do a fresh start by typing:
-      cd securityservices/test/configs/demo
-      rm -rf $COUGAAR_INSTALL_PATH/P
-      rm -rf *.log
-      rm -rf $COUGAAR_INSTALL_PATH/log/bootstrap/*
-    The launch-society-clean scripts removes these files and then launches
-    launch-society.
- 
-14. Note: The society may not start if jar files are in the JRE extension
-    directory, especially if these jar files contain classes with the same
-    fully-qualified names as jar files in the COUGAAR_INSTALL_PATH/sys
-    directory. The jar file verifier prevents this, otherwise a malicious
-    jar file could be introduced in the system and attempt to override
-    existing legitimate classes.
-
-The launch-society script launches multiple nodes from one single
-command. The options are the following:
-* [configuration file] : the name of a configuration file that is defines
-on which hosts to run the society.
-* [use ssh-agent: true|false]
-
-The syntax of the configuration file is the following:
-[Host name]   [Startup directory] [Node's .ini file] [Startup script]
-Where:
-[Host name]          is the host where to run the node
-[Startup directory]  is the directory from which the node will be launched
-[Node's ini file]    is the ini file (without the ini extension) for the node
-[Startup script]     is the name of a startup script where specific properties
-                     can be defined for that node.
-As an example, two configuration files are provided: ul-mini-config.conf
-and ul-mini-config-LA.conf.
-
-Java properties
-
-
-Running a society with OpenLDAP
-===============================
-
-When a society is executed with the use of an OpenLDAP directory service,
-it is possible to reset all the certificates by typing the following
-command in the securityservices/test/configs/certauthority directory:
-     addldap-ISAT
-This script removes any certificate entry in the LDAP server and
-creates a fresh certificate data model for certificate storage.
-
-
-===============
-Below  is the list of system properties used by the access control,
-cryptographic and Monitoring & Response services, and their default value:
-
-org.cougaar.message.transport.debug  ---> default is true
-our.cougaar.core.security.LogMessages ---> default is false
-LOG_PROPERTY ---> default is MTSlog.
-org.cougaar.core.security.access.Debug ---> default is true
-org.cougaar.core.security.bootstrapper.loud ---> default value is false
-     (it can be set to true,false, shout)
-org.cougaar.bootstrapper.exclusions
-org.cougaar.core.security.bootstrapper.policydebug
-org.cougaar.core.security.useSecurityManager ---> default value is true
-org.cougaar.properties.url
-org.cougaar.install.path
-org.cougaar.core.security.useAuthenticatedLoader ---> default value is true
-org.cougaar.core.security.bootstrap.JarVerificationLogFile ---> default value is set to (cougaar_installpath/log/bootstrap/JarVerification_+[nodename]+_currenttime.log
-org.cougaar.core.security.bootstrap.keystore ---> default is null
-    (It is required to set through node script in order to run bootstrap in our case it is set to cougaar_installpath/configs/common/bootstrap_keystore )
-org.cougaar.core.security.bootstrap.verifyKeyUsage ---> default value
-     is false (used for verifying jar signing capability)
-org.cougaar.core.security.bootstrap.SecurityManagerLogFile ---> default value is set to (cougaar_installpath/log/bootstrap/SecurityManager_+[nodename]+_currenttime.log
-org.cougaar.core.security.jaasDebug ---> default value is false
-org.cougaar.core.security.crypto.debug ---> default value is false
-org.cougaar.core.security.policy.debug ---> default is false
-org.cougaar.core.security.crypto.debug ----> default is false
-org.cougaar.core.security.crypto.cryptoProvidersFile ---> default value is "cryptoProviders.xml"
-org.cougaar.security.ldapserver ---> default value is  "ldap://localhost"
-org.cougaar.core.security.oldmonitoringdebug ---> default value is false
