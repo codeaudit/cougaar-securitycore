@@ -673,6 +673,7 @@ public class DirectoryKeyStore
     /**
      * update SSL certificates if node certificate is created.
      */
+    /*
     if (NodeInfo.getNodeName().equals(getCommonName(alias))) {
       // update SSL node cert
       SSLService sslservice = (SSLService)
@@ -683,6 +684,22 @@ public class DirectoryKeyStore
         sslservice.updateKeystore();
       }
 
+    }
+    */
+
+    // put agent CA attrib in naming service
+    // This is assuming requests will send to the same CA,
+    // it does not handle the situation where request is
+    // sent to the first CA, then sent to the second CA,
+    // but the certificate is approved by the 1st but not
+    // the second
+    String dname = certificateForImport[0].getSubjectDN().getName();
+    if (CertificateUtility.findAttribute(dname, "t").equals(CERT_TITLE_AGENT)) {
+      try {
+        updateNS(new X500Name(dname));
+      } catch (Exception ex) {
+        log.debug("Exception in updateNS: " + ex.toString());
+      }
     }
   }
 
@@ -2216,7 +2233,7 @@ public class DirectoryKeyStore
 				 KeyRingService.LOOKUP_KEYSTORE);
       if(certificateList != null && certificateList.size() != 0) {
 	//checkOrMakeHostKey();
-	return;
+        return;
       }
     }
     catch(Exception e){
@@ -2231,11 +2248,6 @@ public class DirectoryKeyStore
     }
     //we'll have to make one
     addKeyPair(dname, null, isCACert);
-
-    // put agent CA attrib in naming service
-    if (CertificateUtility.findAttribute(
-      dname.toString(), "t").equals(CERT_TITLE_AGENT))
-      updateNS(dname);
 
     //checkOrMakeHostKey();
   }
@@ -2557,6 +2569,23 @@ public class DirectoryKeyStore
   private static final String CDURL_ATTR = "CertDirectoryURL";
   private static final String CERT_DIR = "/Certificates";
 
+  public void updateNS(String commonName) {
+    // check whether cert exist and whether it is agent
+    List certificateList = findCert(commonName);
+    if (certificateList != null && certificateList.size() > 0) {
+      CertificateStatus cs = (CertificateStatus)certificateList.get(0);
+      X509Certificate cert = (X509Certificate)cs.getCertificate();
+      String dname = cert.getSubjectDN().getName();
+      if (CertificateUtility.findAttribute(dname, "t").equals(CERT_TITLE_AGENT)) {
+        try {
+          updateNS(new X500Name(dname));
+        } catch (Exception ex) {
+          log.debug("Exception in updateNS: " + ex.toString());
+        }
+      }
+    }
+  }
+
   private void updateNS(X500Name x500Name) {
     try {
       String agent = x500Name.getCommonName();
@@ -2677,6 +2706,25 @@ public class DirectoryKeyStore
     return null;
   }
 
+  public boolean checkExpiry(String commonName) {
+    List certificateList = findCert(commonName);
+    if(certificateList != null && certificateList.size() != 0) {
+      // check envelope
+      long envelope = cryptoClientPolicy.getCertificateAttributesPolicy().regenEnvelope;
+      CertificateStatus cs = (CertificateStatus)certificateList.get(0);
+
+      Date notafter = cs.getCertificate().getNotAfter();
+      Date curdate = new Date();
+      log.debug("Envelope: " + envelope + " ? " + curdate + " : " + notafter);
+      if (curdate.getTime() + envelope * 1000L < notafter.getTime()) {
+        return false;
+      }
+    }
+    // expired, regen key
+    addKeyPair(commonName, null);
+
+    return true;
+  }
 
   private class CertificateManagementServiceClientImpl
     implements CertificateManagementServiceClient
