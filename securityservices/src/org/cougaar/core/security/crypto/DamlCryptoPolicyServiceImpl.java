@@ -33,6 +33,8 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.security.policy.CryptoPolicy;
 import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
@@ -55,6 +57,14 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
     _log = (LoggingService) sb.getService(this, LoggingService.class, null);
     _ncs = (NetworkConfigurationService)
       sb.getService(this, NetworkConfigurationService.class, null);
+    if (_ncs == null) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("No network configuration service yet - starting listener");
+      }
+      sb.addServiceListener(new NetConfigServiceListener());
+    }
+
+
     _legacy = new CryptoPolicyServiceImpl(sb);
     _serviceBroker = sb;
 
@@ -201,6 +211,10 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
       cs = _enforcer.getAllowedCipherSuites(source, target);
     }
     if (_ncs == null) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("no network configuration service - " +
+                   "no cipher suite mods for network conditions");
+      }
       return cs;
     }
     int condition = _ncs.connectionAttributes(sending? target : source);
@@ -221,5 +235,25 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
                                           boolean sending)
   {
     return convertPolicy(getAllowedCipherSuites(source, target, sending));
+  }
+
+  private class NetConfigServiceListener
+    implements ServiceAvailableListener
+  {
+    public void serviceAvailable(ServiceAvailableEvent sae)
+    {
+      ServiceBroker sb = sae.getServiceBroker();
+      Class         sc = sae.getService();
+      if (NetworkConfigurationService.class.isAssignableFrom(sc)) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Getting network configuration service");
+        }
+        _ncs = (NetworkConfigurationService)
+          sb.getService(this, NetworkConfigurationService.class, null);
+        if (_ncs != null) {
+          sb.removeServiceListener(this);
+        }
+      }
+    }
   }
 }  
