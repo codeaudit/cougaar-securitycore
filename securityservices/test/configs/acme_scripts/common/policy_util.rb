@@ -118,7 +118,7 @@ def commitPolicy(host, port, manager, args, filename)
   policyUtil("#{args} --auth george george #{host} #{port} #{manager} #{filename}")
 end
 
-def policyUtil(args, javaArgs = nil)
+def policyUtil(args, javaArgs = nil, execDir = nil)
   # now commit the new policy
   classpath = getClasspath
 
@@ -131,7 +131,11 @@ def policyUtil(args, javaArgs = nil)
     defs << javaArgs
   end
 
-  `java #{defs.join(" ")} -Xmx512m -classpath #{classpath.join(':')} org.cougaar.core.security.policy.builder.Main #{args}`
+  cdCmd = ""
+  if (execDir != nil)
+    cdCmd = "cd #{execDir} && "
+  end
+  `#{cdCmd}java #{defs.join(" ")} -Xmx512m -classpath #{classpath.join(':')} org.cougaar.core.security.policy.builder.Main #{args}`
 end
 
 def deltaPolicy(enclave, text)
@@ -287,7 +291,7 @@ module Cougaar
               file.write(policyLines.join())
             }
 #            puts("wrote to file... starting policyUtil #{Time.now}")
-            output = policyUtil("build --maxReasoningDepth 150 --info #{prevFile}")
+            output = policyUtil("--maxReasoningDepth 150 build --info #{prevFile}", nil, "#{CIP}/configs/security")
 #            puts("done with policyUtil #{Time.now}")
 #            puts(output)
 
