@@ -586,7 +586,7 @@ class Main
         condpms.add(condpm);
       }
     } catch (PolicyCompilerException pce) {
-      ;
+      throw pce;
     } catch (Exception e) {
       PolicyCompilerException pce
         = new PolicyCompilerException("trouble building conditional polcies");

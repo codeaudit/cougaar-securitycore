@@ -203,7 +203,7 @@ public abstract class ParsedPolicy
       }
       _pb.setControlsActionClass(_controls);
     } catch (PolicyCompilerException pce) {
-      ;
+      throw pce;
     } catch (Exception e) {
       PolicyCompilerException pe 
         = new PolicyCompilerException("trouble building generic policy named "

@@ -14,6 +14,7 @@ import kaos.ontology.repository.OntologyLoader;
 import kaos.ontology.util.JTPStringFormatUtils;
 import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.policy.util.PolicyBuildingNotCompleted;
+import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.ontology.util.RangeIsBasedOnInstances;
 import kaos.ontology.util.ValueNotSet;
 import kaos.policy.information.DAMLPolicyContainer;
@@ -56,18 +57,23 @@ public class PolicyUtils
    * DAMLPolicyBuilderImpl object.
    */
   private static PolicyMsg startPolicyMsg(DAMLPolicyBuilderImpl policy)
-    throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances
+    throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances,
+           RangeIsBasedOnAClass
   {
     KAoSClassBuilderImpl controls = policy.getControlsActionClass();
     Vector subjects = new Vector();
-    if (!controls.
+    String subjectClass = null;
+    if (controls.
         isPropertyRangeBasedOnClass(kaos.ontology.jena.ActionConcepts.
                                     _performedBy_)) {
-      throw new RuntimeException("Standalone tool failed to find actors");
-    }
-    String subjectClass = controls.
-      getBasePropertyRangeClass(kaos.ontology.jena.ActionConcepts.
-                                _performedBy_);
+      subjectClass = controls.
+        getBasePropertyRangeClass(kaos.ontology.jena.ActionConcepts.
+                                  _performedBy_);
+    } else {
+      subjectClass = controls.
+        getPropertyRangeInstance(kaos.ontology.jena.ActionConcepts.
+                                     _performedBy_)[0];
+    } 
     SubjectMsg subject = new SubjectMsg(subjectClass, 
                                         null, 
                                         KAoSConstants.ACTOR_CLASS_SCOPE);
@@ -91,7 +97,8 @@ public class PolicyUtils
    * inside) from a DAMLPolicyBuilderImpl object.
    */
   public static PolicyMsg getPolicyInformationMsg(DAMLPolicyBuilderImpl policy)
-    throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances
+    throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances,
+           RangeIsBasedOnAClass
   {
     PolicyMsg policyMsg = startPolicyMsg(policy);
     policyMsg.setAttribute(new AttributeMsg(AttributeMsg.POLICY_INFORMATION,
@@ -106,7 +113,8 @@ public class PolicyUtils
    * inside) from a DAMLPolicyBuilderImpl object.
    */
   public static PolicyMsg getPolicyMsg(DAMLPolicyBuilderImpl policy)
-    throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances
+    throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances,
+           RangeIsBasedOnAClass
   {
     PolicyMsg policyMsg = startPolicyMsg(policy);
     DAMLPolicyContainer damlPolicy = policy.getPolicy();
