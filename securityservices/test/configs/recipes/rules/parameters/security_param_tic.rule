@@ -185,7 +185,16 @@ society.each_host do |host|
     # You can also turn on/off http/s. Turn of by setting the port to -1
     # Note that HTTPS is off by default, and HTTP is at 8800
     # HTTP port number
-    node.override_parameter("-Dorg.cougaar.lib.web.http.port", "#{httpport}")
+    foundHttp = false
+    node.each_parameter { |param|
+      if param =~ /^-Dorg.cougaar.lib.web.http.port=.+/
+        foundHttp = true
+        break
+      end
+    }
+    if (!foundHttp)
+      node.override_parameter("-Dorg.cougaar.lib.web.http.port", "#{httpport}")
+    end
     
     # HTTPS port number
     # Comment out the following two lines if you don't want HTTPS
