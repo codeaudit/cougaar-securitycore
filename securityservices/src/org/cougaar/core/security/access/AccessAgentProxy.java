@@ -286,7 +286,10 @@ public class AccessAgentProxy
 	}
 	return;
       }
-      // Check trust of incoming message
+      // Update TrustSet of incoming message
+      // The sender is allowed to provide a TrustSet, but the receiver
+      // does not necessarily trust the sender. The receiver needs to
+      // update the TrustSet to reflet its view of the TrustSet.
       incomingTrust(contents, tset);
 
       String failureIfOccurred = null;
