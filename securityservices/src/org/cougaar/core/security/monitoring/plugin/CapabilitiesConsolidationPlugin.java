@@ -72,7 +72,7 @@ class ModifiedCapabilitiesPredicate implements UnaryPredicate{
   public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof CapabilitiesObject ) {
-      log.debug("Capabilities Object True :");
+      //log.debug("Capabilities Object True :");
       return true;
     }
     return ret;
@@ -94,13 +94,13 @@ class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
       }
       else {
         if (log.isDebugEnabled()) {
-          log.debug(" ConsolidatedCapabilitiesRelayPredicate:" + ret);
+          // log.debug(" ConsolidatedCapabilitiesRelayPredicate:" + ret);
         }
         return ret;
       }
     }
     if (log.isDebugEnabled()) {
-      log.debug(" ConsolidatedCapabilitiesRelayPredicate:" + ret);
+      //log.debug(" ConsolidatedCapabilitiesRelayPredicate:" + ret);
     }
     return ret;
   }
@@ -118,7 +118,7 @@ class AgentRegistrationPredicate implements UnaryPredicate{
       Event e=(Event)o;
       IDMEF_Message msg=e.getEvent();
       if(msg instanceof AgentRegistration){
-        log.debug(" AgentRegistrationPredicate: True" );	
+        // log.debug(" AgentRegistrationPredicate: True" );	
         return true;
       }
     }
@@ -183,7 +183,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 
     if (loggingService.isDebugEnabled()) {
       loggingService.debug("setupSubscriptions of CapabilitiesConsolidationPlugin called for "
-          + myAddress.toAddress()); 
+          + myAddress.toAddress());
+      loggingService.debug("Using CommunityServiceUtil for getSecurityCommunity:");
     }
     _csu.getSecurityCommunity(myAddress.toAddress(), 
                               new RegistrationListener());
@@ -209,16 +210,20 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     }
     loggingService.debug("My security community : " + mySecurityCommunity.getName()
 			 + " agent name : "+ myAddress.toString());  
-*/
-    
+
     _managerAddress = mgrAddress;
-  
-    if(_managerAddress!=null) {
+*/
+    loggingService.debug(" setManagerAddress called with : "+ mgrAddress + " in agent :" +myAddress);
+    if(_managerAddress==null) {
+       _managerAddress = mgrAddress;
       loggingService.debug("Found security manager('" + _managerAddress + "') for manager('" + myAddress + "')");
       getBlackboardService().openTransaction();
       loggingService.info("Publishing notification object :");
       getBlackboardService().publishAdd(new NotificationObject());
       getBlackboardService().closeTransaction(); 
+    }
+    else {
+      loggingService.debug("Mgr addres is not null in agent  : "+ myAddress +" Mgr address : "+_managerAddress);
     }
   }
 
@@ -274,9 +279,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     ConsolidatedCapabilities consCapabilities=null;
     CapabilitiesObject capabilitiesobject=null;
     Iterator iter= modifiedcapabilities_col.iterator();
-    while (iter.hasNext()) {
+    if(iter.hasNext()) {
       capabilitiesobject=(CapabilitiesObject )iter.next();
-      break;
     }
     
     //printhash(capabilitiesobject);
@@ -1064,8 +1068,10 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   }
   
   private void addOrUpdateRelay(Event event, CmrFactory factory) {
-    if (loggingService.isDebugEnabled())
-      loggingService.debug("addOrUpdateRelay"+ myAddress.toString()+ "data is :" + event.toString());
+    if (loggingService.isDebugEnabled()){
+      //loggingService.debug("addOrUpdateRelay"+ myAddress.toString()+ "data is :" + event.toString());
+      loggingService.debug("addOrUpdateRelay"+ myAddress.toString());
+    }
     CmrRelay relay = null;
     // Find the (one) outgoing relay
     Iterator iter = capabilitiesRelays.iterator();
@@ -1078,7 +1084,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     }
     if (relay == null) {
       if (loggingService.isDebugEnabled()) {
-        loggingService.debug(" No relay was present creating one for Event "+ event.toString());
+        //loggingService.debug(" No relay was present creating one for Event "+ event.toString());
       }
       relay = factory.newCmrRelay(event, _managerAddress);
       if (loggingService.isDebugEnabled()) {
@@ -1089,7 +1095,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
         getBlackboardService().publishAdd(relay);
       }
     } else {
-      loggingService.debug(" relay was present Updating event  Event "+ event.toString());
+      //loggingService.debug(" relay was present Updating event  Event "+ event.toString());
       relay.updateContent(event, null);
       loggingService.info(" Modifying  relay to :"+ relay.getTarget());
       getBlackboardService().publishChange(relay);
@@ -1190,6 +1196,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	    Entity entity = (Entity) it.next();
 	    MessageAddress addr = MessageAddress.
 	      getMessageAddress(entity.getName());
+            loggingService.info("Setting MGR address to : "+addr);
 	    setManagerAddress(addr);
 	    _csu.releaseServices();
 	  }
@@ -1213,7 +1220,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       }
       if (_csu.isRoot(community)) {
         loggingService.info("I am the root security manager. " +
-                            "Not registerring.");
+                            "Not registering.");
       } else {
         registerManager();
       }
