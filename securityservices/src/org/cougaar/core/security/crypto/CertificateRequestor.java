@@ -92,7 +92,7 @@ import sun.security.x509.X509CertImpl;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 public class CertificateRequestor {
   private ServiceBroker serviceBroker;
@@ -731,6 +731,10 @@ public class CertificateRequestor {
       log.warn("Unable to send PKCS request to CA. CA URL:"
         + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN, e);
     }
+
+    if (log.isDebugEnabled()) {
+      log.debug("go to sleep after the current request failed.");
+    }
     try {
       Thread.sleep(waittime);
     } catch (Exception ex) {
@@ -915,6 +919,18 @@ public class CertificateRequestor {
       return reply;
     }
 
+    int waittime = 10000;
+      try {
+        String waitPoll = System.getProperty("org.cougaar.core.security.configpoll", "5000");
+        waittime = Integer.parseInt(waitPoll);
+      } catch (Exception ex) {
+        if (log.isWarnEnabled()) {
+          log.warn("Unable to parse configpoll property: " + ex.toString());
+        }
+      }
+
+
+  while (true) {
     try {
       URL url = new URL(trustedCaPolicy.caURL);
       HttpURLConnection huc = (HttpURLConnection) url.openConnection();
@@ -956,10 +972,20 @@ public class CertificateRequestor {
       if (log.isDebugEnabled()) {
         log.debug("Reply: " + reply);
       }
+      break;
     } catch (Exception e) {
       log.warn("Unable to send PKCS request to CA. CA URL:"
         + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN, e);
     }
+    if (log.isDebugEnabled()) {
+      log.debug("go to sleep after the current request failed.");
+    }
+    try {
+      Thread.sleep(waittime);
+    } catch (Exception ex) {
+      log.warn("Thread interruped: ", ex);
+    }
+  }
 
     return reply;
   }
