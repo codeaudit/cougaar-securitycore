@@ -216,7 +216,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     
     // Unwrap subordinate capabilities from new/changed/deleted relays
     loggingService.debug("Update of relay called from :"+myAddress.toAddress());
-    if((myRole!=null) && (mySecurityCommunity!=null)) {
+    if((myRole==null) && (mySecurityCommunity==null)) {
       loggingService.debug("Error Cannot continue -- as  myRole/mySecurityCommunity is null at "+ myAddress.toString());
       loggingService.debug("RETURNING from execute method:");
       return;
