@@ -195,6 +195,12 @@ public class AgentUserService implements UserService, BlackboardClient {
 
   private MessageAddress findTargetAgent(String community) 
     throws UserServiceException {
+    if (community == null) {
+      String message = "The user has no domain and there " +
+        "is no default for this agent.";
+      _log.debug(message);
+      throw new UserServiceException(message);
+    }
     synchronized (_targets) {
       MessageAddress target = (MessageAddress) _targets.get(community);
       if (target != null) {
