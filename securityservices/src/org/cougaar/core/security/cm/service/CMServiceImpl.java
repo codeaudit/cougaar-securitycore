@@ -45,7 +45,7 @@ import org.cougaar.core.util.UID;
  * cm agent :     <b>(org.cougaar.core.security.cm.location)</b>
  *
  * @author ttschampel
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class CMServiceImpl implements CMService {
   /** Logging Service */
@@ -56,6 +56,8 @@ public class CMServiceImpl implements CMService {
   private UIDService uidService;
   /** Agent Identification Service */
   private AgentIdentificationService agentIdService;
+  /** Location of Configuration Manager */
+  String cmAgentLocation = null;
 
   /**
    * Creates a new CMService object.
@@ -89,6 +91,16 @@ public class CMServiceImpl implements CMService {
         null);
     agentIdService = (AgentIdentificationService) serviceBroker.getService(this,
         AgentIdentificationService.class, null);
+    cmAgentLocation = System.getProperty(
+        "org.cougaar.core.security.cm.location");
+    if (cmAgentLocation == null) {
+      //use current agent as location
+      cmAgentLocation = agentIdService.getMessageAddress().getAddress();
+    }
+
+    if (logging.isDebugEnabled()) {
+      logging.debug("Configuration Manager location parameter is null");
+    }
   }
 
 
@@ -101,15 +113,6 @@ public class CMServiceImpl implements CMService {
    */
   public void sendMessage(CMRequest request, BlackboardService bbs) {
     //create shared data relay and publish to blackboard
-    String cmAgentLocation = System.getProperty(
-        "org.cougaar.core.security.cm.location");
-    if (cmAgentLocation == null) {
-      if (logging.isWarnEnabled()) {
-        logging.warn("Configuration Manager location parameter is null");
-      }
-      return;
-    }
-
     MessageAddress target = MessageAddress.getMessageAddress(cmAgentLocation);
 
     if (logging.isDebugEnabled()) {
