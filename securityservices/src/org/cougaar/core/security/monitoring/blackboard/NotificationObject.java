@@ -23,8 +23,10 @@
 package org.cougaar.core.security.monitoring.blackboard;
 
 import java.io.Serializable;
+import org.cougaar.core.persist;
 
 
-public class NotificationObject implements Serializable {
+public class NotificationObject implements NotPersistable
+,Serializable {
   
 }
