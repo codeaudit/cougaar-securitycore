@@ -32,13 +32,17 @@ final public class EntityInstancesConcepts
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "BlackBoardAccessRead"); 
 	}
+    public static String WeakProtection() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "WeakProtection"); 
+	}
     public static String PasswordSSL() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "PasswordSSL"); 
 	}
-    public static String WeakProtection() 
+    public static String BlackBoardAccessRemove() 
 	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "WeakProtection"); 
+		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "BlackBoardAccessRemove"); 
 	}
     public static String BlackBoardAccessWrite() 
 	{
@@ -47,10 +51,6 @@ final public class EntityInstancesConcepts
     public static String NoAuth() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "NoAuth"); 
-	}
-    public static String BlackBoardAccessRemove() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(EntityInstancesOwlURL + "BlackBoardAccessRemove"); 
 	}
     public static String BlackBoardAccessAdd() 
 	{

@@ -64,12 +64,12 @@ final public class UltralogEntityConcepts
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAdd"); 
 	}
-    public static String WPRemove() 
-	{
-		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPRemove"); 
-	}
     public static String WPChange() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPChange"); 
+	}
+    public static String WPRemove() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPRemove"); 
 	}
 }

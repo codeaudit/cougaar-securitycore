@@ -24,6 +24,10 @@ final public class UltralogActionConcepts
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "BlackBoardAccess"); 
 	}
+    public static String ServletAccess() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "ServletAccess"); 
+	}
 
 	// Properties
     public static String wpAccessType() 
