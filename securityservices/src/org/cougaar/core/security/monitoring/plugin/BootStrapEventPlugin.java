@@ -81,14 +81,15 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
       new OMCRangeList(new OMCThruRange(1.0, Double.MAX_VALUE ));
   private SensorInfo m_sensorInfo;
   private final  String[] CLASSIFICATIONS = {IdmefClassifications.SECURITY_MANAGER_EXCEPTION,IdmefClassifications.JAR_VERIFICATION_FAILURE};
-   
+  private boolean openTransaction=false; 
   /**
    * subscribe to
    */
-  protected void setupSubscriptions() {
+  protected synchronized void setupSubscriptions() {
     // For test purposes
-
+    
     super.setupSubscriptions();
+    openTransaction=true;
     sensorCondition = new BootstrapEventCondition(numberOfEvents);
     m_blackboard.publishAdd(sensorCondition);
 
@@ -99,6 +100,7 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
 				    DUMMY_OP_RANGE, 
 				    new Double(5));
     m_blackboard.publishAdd(dummyOP);
+    openTransaction=false;
   }
   
   protected void execute() {
@@ -112,6 +114,7 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
   }
   public void update(Observable o, Object arg) {
     // System.out.println(" New M&R boot strap events :");
+    
     ArrayList eventList=(ArrayList)arg;
     Iterator iterator= eventList.iterator();
     BootstrapEvent event=null;
@@ -134,20 +137,21 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
     }
     
   }
-  public void publishIDMEFEvent(Vector vectorofevents) {
-    BlackboardService bbservice=null;
+  public synchronized void publishIDMEFEvent(Vector vectorofevents) {
+    /*BlackboardService bbservice=null;
     DomainService dservice=null;
-    bbservice=getBlackboardService();
-    dservice=getDomainService();
+    */
+     m_blackboard=getBlackboardService();
+     m_domainService=getDomainService();
     // bbservice=(BlackboardService)serviceBroker.getService(this,BlackboardService.class,null);
-    if(bbservice==null) {
+    if( m_blackboard==null) {
       m_log.error(" error cannot get BlackBoard Service:");
     }
     // domainservice=(DomainService)serviceBroker.getService(this,DomainService.class,null);
-    if(dservice==null) {
+    if(m_domainService==null) {
        m_log.error(" error cannot get domain service Going to loose all events :");
     }
-    CmrFactory factory=(CmrFactory)dservice.getFactory("cmr");
+    CmrFactory factory=(CmrFactory)m_domainService.getFactory("cmr");
     IdmefMessageFactory imessage=null;
     if(factory!=null) {
       imessage=factory.getIdmefMessageFactory();
@@ -158,6 +162,12 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
     Classification classification =null;
     BootstrapEvent event=null;
     AdditionalData adddata=null;
+    boolean myopenTransaction=false;
+    if(!openTransaction){
+      m_blackboard.openTransaction();
+      openTransaction=true;
+      myopenTransaction=true;
+    }
     for(int cnt=0;cnt<vectorofevents.size();cnt++) {
       event=(BootstrapEvent)vectorofevents.elementAt(cnt);
       classification= imessage.createClassification(event.classification,
@@ -198,20 +208,23 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
       //System.out.println("Intrusion Alert:" + alert.toString());
       //System.out.println("Publishing sensor Event :");
       
-      bbservice.openTransaction();
+      //bbservice.openTransaction();
       if(m_log.isDebugEnabled()) {
 	m_log.debug("Publishing alert: " + alert);
       }
-      bbservice.publishAdd(e);
+       m_blackboard.publishAdd(e);
       
       // Increment the total number of events
       numberOfEvents++;
       ((BootstrapEventCondition)sensorCondition).setValue(numberOfEvents);
      
-      bbservice.publishChange(sensorCondition);
-       bbservice.closeTransaction();
+       m_blackboard.publishChange(sensorCondition);
+       // bbservice.closeTransaction();
     }
-     
+    if(myopenTransaction) {
+      //openTransaction=false;
+      m_blackboard.closeTransaction();
+    }
     
   }
   public BootstrapEvent constructbootstrapevent(Object o) {

@@ -1019,6 +1019,20 @@ public class DirectoryKeyStore
     return checkCertificateTrust(certificate, null);
   }
 
+  /** This method builds the certificate chain without verifying the certificate trust.
+   */
+  public X509Certificate[] buildCertificateChain(X509Certificate certificate) {
+    Vector vector = new Vector(2);
+    boolean ok = buildChain(certificate, vector, null, false);
+    X509Certificate acertificate[] = new X509Certificate[vector.size()];
+    int i = 0;
+    for(int j = vector.size() - 1; j >= 0; j--) {
+      acertificate[i] = (X509Certificate)vector.elementAt(j);
+      i++;
+    }
+    return acertificate;
+  }
+
   public X509Certificate[] checkCertificateTrust(
     X509Certificate certificate, CertDirectoryServiceClient certFinder)
     throws CertificateChainException, CertificateExpiredException,
@@ -1027,7 +1041,7 @@ public class DirectoryKeyStore
     // Prepare a vector that will contain at least the entity certificate
     // and the signer.
     Vector vector = new Vector(2);
-    boolean ok = buildChain(certificate, vector, certFinder);
+    boolean ok = buildChain(certificate, vector, certFinder, true);
     X509Certificate acertificate[] = new X509Certificate[vector.size()];
     if (ok) {
       int i = 0;
@@ -1408,13 +1422,14 @@ public class DirectoryKeyStore
    *  Returns true if we could build a chain.
    *  If any
    */
-  private boolean buildChain(X509Certificate x509certificate, Vector vector)
+  private boolean buildChain(X509Certificate x509certificate, Vector vector, boolean checkValidity)
   {
-    return buildChain(x509certificate, vector, null);
+    return buildChain(x509certificate, vector, null, checkValidity);
   }
 
   private boolean buildChain(
-    X509Certificate x509certificate, Vector vector, CertDirectoryServiceClient certFinder)
+    X509Certificate x509certificate, Vector vector, CertDirectoryServiceClient certFinder,
+    boolean checkValidity)
   {
     if (certFinder == null) {
       String cname = x509certificate.getSubjectDN().getName();
@@ -1432,7 +1447,7 @@ public class DirectoryKeyStore
       }
     }
 
-    boolean ret = internalBuildChain(x509certificate, vector, false, certFinder);
+    boolean ret = internalBuildChain(x509certificate, vector, false, certFinder, checkValidity);
     if (log.isDebugEnabled()) {
       log.debug("Certificate trust=" + ret);
     }
@@ -1441,9 +1456,12 @@ public class DirectoryKeyStore
 
   /** Check whether at least one of the certificate in the certificate chain
    * is a trusted CA. The certificate chain must have previously been built with
-   * checkCertificateTrust(). */
+   * checkCertificateTrust().
+   * @param checkValidity - False if we don't care about the validity of the chain
+   */
   private boolean internalBuildChain(X509Certificate x509certificate, Vector vector,
-    boolean signedByAtLeastOneCA, CertDirectoryServiceClient certFinder)
+    boolean signedByAtLeastOneCA, CertDirectoryServiceClient certFinder,
+				     boolean checkValidity)
   {
     Principal principal = x509certificate.getSubjectDN();
     Principal principalSigner = x509certificate.getIssuerDN();
@@ -1503,7 +1521,12 @@ public class DirectoryKeyStore
 	lookupCertInLDAP(filter, certFinder);
 
 	// Now, seach again.
-	listSigner = certCache.getValidCertificates(x500NameSigner);
+	if (checkValidity) {
+	  listSigner = certCache.getValidCertificates(x500NameSigner);
+	}
+	else {
+	  listSigner = certCache.getCertificates(x500NameSigner);
+	}
 	if (listSigner == null) {
 	  // It's OK not to have the full chain if at least one certificate in the
 	  // chain is trusted.
@@ -1524,8 +1547,10 @@ public class DirectoryKeyStore
     while(it.hasNext()) {
       CertificateStatus cs = (CertificateStatus) it.next();
       // no need to check this if it is revoked
-      if (cs.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT))
+      if (cs.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)
+	  && checkValidity) {
         continue;
+      }
       X509Certificate x509certificate1 = (X509Certificate)cs.getCertificate();
       java.security.PublicKey publickey = x509certificate1.getPublicKey();
       try {
@@ -1553,7 +1578,7 @@ public class DirectoryKeyStore
       }
 
       // Recursively build a certificate chain.
-      if(internalBuildChain(x509certificate1, vector, signedByAtLeastOneCA, certFinder)) {
+      if(internalBuildChain(x509certificate1, vector, signedByAtLeastOneCA, certFinder, checkValidity)) {
 	vector.addElement(x509certificate);
 	return true;
       }

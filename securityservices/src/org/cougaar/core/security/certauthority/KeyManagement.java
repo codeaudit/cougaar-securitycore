@@ -1260,7 +1260,8 @@ public class KeyManagement
       X509Certificate cacert= caOperations.getCertificate(caAttributes);
       X509Certificate usercert=caOperations.getCertificate(userAttributes);
       PublicKey capublickey=cacert.getPublicKey();
-      Certificate [] certchain=keyRing.checkCertificateTrust(usercert);
+      
+      Certificate [] certchain=keyRing.buildCertificateChain(usercert);
       boolean validchain=false;
       if((certchain!=null)&&(certchain.length>0)) {
 	PublicKey certpk=null;

@@ -554,7 +554,7 @@ public class OpenLdapCertDirectoryServiceImpl
 				 KeyRingService.class,
 				 null);
 
-      X509Certificate[] certChain = ksr.checkCertificateTrust(userCert);
+      X509Certificate[] certChain = ksr.buildCertificateChain(userCert);
       if (certChain.length > 1) {
 	issuercertificate = certChain[1];
       }

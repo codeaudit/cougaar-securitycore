@@ -48,6 +48,7 @@ import org.cougaar.core.service.LoggingService;
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.util.*;
 
 /** A common holder for Security keystore information and functionality
@@ -530,6 +531,10 @@ final public class KeyRing
     throws CertificateChainException, CertificateExpiredException,
     CertificateNotYetValidException, CertificateRevokedException {
     return directoryKeystore.checkCertificateTrust(certificate);
+  }
+
+  public X509Certificate[] buildCertificateChain(X509Certificate certificate) {
+    return directoryKeystore.buildCertificateChain(certificate);
   }
 
   public String getCaKeyStorePath() {
