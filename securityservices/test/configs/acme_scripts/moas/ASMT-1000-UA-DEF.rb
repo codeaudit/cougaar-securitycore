@@ -19,17 +19,24 @@ parameters:
 # Security rules
     - $CIP/csmart/config/rules/security
 #    - $CIP/csmart/config/rules/security/mop
-    - $CIP/csmart/config/rules/security/testCollectData
+#    - $CIP/csmart/config/rules/security/testCollectData
    # ###
    # Redundant CA and persistence managers
-    - $CIP/csmart/config/rules/security/redundancy
-    - $CIP/csmart/config/rules/security/robustness
+#    - $CIP/csmart/config/rules/security/redundancy
+#    - $CIP/csmart/config/rules/security/robustness
+   # Run with only redundant PM
+#    - $CIP/csmart/config/rules/security/redundancy/add_redundant_pm_facet.rule
+#    - $CIP/csmart/config/rules/security/redundancy/adjust_memory.rule
+#    - $CIP/csmart/config/rules/security/robustness/redundant_persistence_mgrs.rule
+
    # ###
 # ############################################################
 # Robustness rules
-#    - $CIP/csmart/config/rules/security/robustness
-#    - $CIP/csmart/config/rules/robustness
-#    - $CIP/csmart/config/rules/robustness/uc1
+#    - $CIP/csmart/config/rules/robustness/manager.rule
+#    - $CIP/csmart/config/rules/robustness/uc1/aruc1.rule
+#    - $CIP/csmart/config/rules/robustness/uc1/debug/mic.rule
+#    - $CIP/csmart/config/rules/robustness/uc1/tuning/collect_stats.rule
+#    - $CIP/csmart/config/rules/robustness/uc9/deconfliction.rule
 # ############################################################
   - community_rules:
     - $CIP/csmart/config/rules/security/communities
