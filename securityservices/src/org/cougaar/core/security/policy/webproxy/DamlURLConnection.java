@@ -13,6 +13,12 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.ConfigFinder;
 
+/**
+ * This class provides access to daml files as a file stream rather
+ * than as a connection to web server as they would normally be
+ * provided.  If this class can't find the ontology file then this
+ * class returns an IOException.
+ */
 public class DamlURLConnection extends URLConnection
 {
   static private LoggingService _log = null;
@@ -33,6 +39,12 @@ public class DamlURLConnection extends URLConnection
     super(null);
   }
 
+  /**
+   * Initialize the URLConnection based on the URL.
+   *
+   * Don't check for errors (e.g. file not found) yet as they will get
+   * throws when the user attempts to connect.
+   */
   public DamlURLConnection(URL u) {
     super(u);
     if (_log != null && _log.isDebugEnabled()) {
@@ -48,6 +60,11 @@ public class DamlURLConnection extends URLConnection
     _damlFile = cf.locateFile("Ontology-" + filename);
   }
 
+
+  /**
+   * This function is called even if the user bypasses this step.  If
+   * opens the Daml file as a stream.
+   */
   public void connect() throws IOException
   {
     if (_damlFile == null) {
@@ -60,6 +77,9 @@ public class DamlURLConnection extends URLConnection
     _connected = true;
   }
 
+  /**
+   * Provides the open file stream to the requesting user.
+   */
   public InputStream getInputStream() throws IOException
   {
     if (_log != null && _log.isDebugEnabled()) {

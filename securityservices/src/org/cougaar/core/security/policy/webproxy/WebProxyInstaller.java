@@ -107,7 +107,9 @@ public class WebProxyInstaller
     _log.debug("Logging Started for WebProxy Code");
   }
 
-
+  /**
+   * A simple utility test routine so that we can verify that this code works.
+   */
   public void test(PrintStream out, String webpage)
   {
      try {

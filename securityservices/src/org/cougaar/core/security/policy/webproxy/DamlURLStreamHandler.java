@@ -12,7 +12,10 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.security.policy.webproxy.DamlURLConnection;
 
 /**
- * 
+ * This code is responsible for handling http connections.  It
+ * supports daml files by reading them off of the cougaar config
+ * files.  It supports HTTP by running the default HTTP stream handler
+ * code.
  */
 class DamlURLStreamHandler extends URLStreamHandler
 {
@@ -28,7 +31,7 @@ class DamlURLStreamHandler extends URLStreamHandler
   }
 
 
-  /*
+  /**
    * This code selects either opens a connection using the regular web
    * client or using the daml client.
    */
@@ -50,8 +53,6 @@ class DamlURLStreamHandler extends URLStreamHandler
        */
       if (_log != null && _log.isDebugEnabled()) {
         _log.debug("Howard Street");
-      }
-      if (_log != null && _log.isDebugEnabled()) {
         _log.debug("Using original web client");
         _log.debug("++++++++++++++++++++++++++++++++++++++++++++++++");
       }
