@@ -65,18 +65,25 @@ jar: build-classes
 	jar cf ${COUGAARCLASSES}/securityservices.jar \
 		com/nai/security/certauthority \
 		com/nai/security/access \
-		com/nai/security/crypto \
+	        com/nai/security/crypto/ \
 		com/nai/security/monitoring \
 		com/nai/security/policy \
 		com/nai/security/test \
 		com/nai/security/util \
 		org/cougaar/core/security/policy 
 	@echo +++++++ Done Building securityservices.jar
+	@echo +++++++ Bulding jar for extensions
+	  cd ${COUGAARCLASSES}; \
+        jar cf ${COUGAARCLASSES}/CougaarCRLextensions.jar  com/nai/security/crlextension
+	
 
 build-classes: installconf
 	@echo +++++++ Compiling the source code
 	export COUGAAR_INSTALL_PATH; export COUGAARCLASSES; export CLASSPATH
 	echo ${COUGAARCLASSES}
+	@echo +++++++ JAVA HOME is at :
+	echo ${JAVA_HOME}
+	rm -rf ${COUGAARCLASSES}/*
 	./test/bin/myalpc src
 
 signjar: jar build-classes
@@ -96,6 +103,8 @@ install: installconf
 	cp ${COUGAARCLASSES}/bootstrapper.jar ${COUGAAR_INSTALL_PATH}/lib
 	cp ${COUGAARCLASSES}/securebootstrapper.jar ${COUGAAR_INSTALL_PATH}/lib
 	cp ${COUGAARCLASSES}/securityservices.jar ${COUGAAR_INSTALL_PATH}/lib
+	#cp ${COUGAARCLASSES}/CougaarCRLextensions.jar ${JAVA_HOME}/jre/lib/ext
+	
 	@echo +++++++ Creating log directories
 	rm -rf ${COUGAAR_INSTALL_PATH}/log
 	mkdir ${COUGAAR_INSTALL_PATH}/log
@@ -104,6 +113,8 @@ install: installconf
 	mkdir ${COUGAAR_INSTALL_PATH}/log/plugin
 	@echo +++++++ Done installing jar files and log directories
 
+	@echo +++++++ Please copy CougaarCRLextensions.jar to JAVA_HOME/jre/lib/ext/ on all machines where node is going to run
+	@echo ################################
 installconf:
 	echo +++++++ Installing configuration files
 	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/
