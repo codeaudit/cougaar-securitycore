@@ -15,6 +15,25 @@ SUB_COMM = {"REAR"=>	[
                       ]
            }
            
+# BUILD ROOT COMMUNITY
+ROOT_COMM_MGRS = ["SocietyMnRManager", "RearEnclaveMnRManager",
+                  "FwdEnclaveMnRManager", "ConusEnclaveMnRManager",
+                  "TransEnclaveMnRManager"]
+society.communities.add("ROOT-SECURITY-COMM") do |community|
+  community.add_attribute("CommunityType", "Security")
+  for i in 0...@ROOT_COMM_MGRS.length
+    agent.name = @ROOT_COMM_MGRS[i]
+    community.add_agent(agent.name) do |entity|
+      entity.add_role("Member")
+      case agent.name
+      when "SocietyMnRManager"
+        entity.add_role("Manager")
+        entity.add_role("Root")
+      end
+    end
+  end
+end
+
 society.each_enclave do |enclave|
 
   # BUILD CORE COMMUNITIES
