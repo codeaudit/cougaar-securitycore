@@ -210,7 +210,7 @@ public class AuthenticatedClassLoader extends URLClassLoader {
   }
 
   /** this method overrides default functionality provided by the java.lang.URLClassLoader */
-  protected Class loadClass(String name, boolean resolve) 
+  protected synchronized Class loadClass(String name, boolean resolve) 
     throws SecurityException, ClassNotFoundException {       
 
     /* Search for classes in the following order:
