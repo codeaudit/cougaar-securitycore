@@ -485,7 +485,6 @@ Policy #{policies.push("AllowRegistration").last()} = [
 END
 }
 
-  lines1 = File.readlines(damlFile)
   output = policyUtil("--maxReasoningDepth 150 build --info #{damlFile}",
                       nil, "#{CIP}/configs/security")
 # some hacky attempts to determine that there were no errors
