@@ -1,5 +1,6 @@
 #!/bin/sh
 
+#priv="bootstrapper"
 priv="privileged"
 if [ "$2" != "" ]; then
   priv=$2
