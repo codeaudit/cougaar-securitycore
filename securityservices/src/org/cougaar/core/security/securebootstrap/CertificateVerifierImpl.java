@@ -380,8 +380,10 @@ public class CertificateVerifierImpl
       InputStream in = jf.getInputStream(dsa);
       DataInputStream dis = new DataInputStream(in);
       int len = Integer.parseInt(String.valueOf(dsa.getSize()));
-
-      return (retrieveCertificateChain(dis));
+      X509Certificate[] certs = retrieveCertificateChain(dis);
+      dis.close();
+      in.close();
+      return certs;
     }
     return null;
   }
