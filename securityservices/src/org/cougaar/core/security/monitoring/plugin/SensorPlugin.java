@@ -239,6 +239,11 @@ public abstract class SensorPlugin extends ComponentPlugin {
     m_blackboard.publishAdd(regRelay);
     m_blackboard.closeTransaction();
     m_log.debug("Registered sensor successfully!");
+    ServiceBroker sb =getBindingSite().getServiceBroker();
+    if(sb!=null) {
+      sb.releaseService(this,CommunityService.class,m_cs);
+      m_cs=null;
+    }
     return false;
   }
 
@@ -295,7 +300,8 @@ public abstract class SensorPlugin extends ComponentPlugin {
 
   class RegistrationTask extends TimerTask {
     int RETRY_TIME = 10 * 1000;
-      int counter = 1;
+    int retryTime = RETRY_TIME;
+    int counter = 1;
     public void run() {
 	boolean  tryAgain = true;
 	//boolean neverfalse=true;
@@ -304,7 +310,10 @@ public abstract class SensorPlugin extends ComponentPlugin {
 	    tryAgain = registerCapabilities( m_agent);
 	    try {
 		if(tryAgain) {
-		    Thread.sleep(RETRY_TIME);
+		  if(counter<6) { 
+		    retryTime=counter* RETRY_TIME;
+		  }
+		    Thread.sleep(retryTime);
 		}
 	     }
             catch(InterruptedException ix) {
