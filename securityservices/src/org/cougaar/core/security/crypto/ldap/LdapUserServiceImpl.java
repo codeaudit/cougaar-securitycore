@@ -83,26 +83,26 @@ public class LdapUserServiceImpl implements LdapUserService {
   public static final String PROP_ETATTR   = "enableTimeAttr";
 
   protected InitialDirContext _context     = null;
-  protected String            _url         = "ldap:///";
-  protected String            _ldapUser    = null;
-  protected String            _ldapPwd     = null;
-  protected String            _userBase    = "dc=cougaar,dc=org";
-  protected String            _roleBase    = "dc=roles,dc=cougaar,dc=org";
-  protected String            _urdn        = "uid";
-  protected String            _rrdn        = "cn";
-  protected String[]          _uoc         = {"inetOrgPerson","cougaarAcct"};
-  protected String[]          _roc         = {"organizationalRole"};
-  protected String            _rattr       = "roleOccupant";
-  protected String            _passwordAttr= "userPassword";
-  protected String            _authAttr    = "cougaarAuthReq";
-  protected String            _enableAttr  = "cougaarAcctEnableTime";
+  protected String            _url;
+  protected String            _ldapUser;
+  protected String            _ldapPwd;
+  protected String            _userBase;
+  protected String            _roleBase;
+  protected String            _urdn;
+  protected String            _rrdn;
+  protected String[]          _uoc;
+  protected String[]          _roc;
+  protected String            _rattr;
+  protected String            _passwordAttr;
+  protected String            _authAttr;
+  protected String            _enableAttr;
 
   private static final int MAX_RETRIES = 3;
   private static final DateFormat DF=new SimpleDateFormat("yyyyMMddHHmmss'Z'");
   private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
 
-  private ServiceBroker serviceBroker;
-  private LoggingService log;
+  private ServiceBroker _serviceBroker;
+  private LoggingService _log;
 
   protected LdapUserServiceConfigurer _configurer;
 
@@ -113,35 +113,10 @@ public class LdapUserServiceImpl implements LdapUserService {
    * connection to the user database.
    */
   public LdapUserServiceImpl(ServiceBroker sb) {
+    _serviceBroker = sb;
+    _log = (LoggingService)
+      _serviceBroker.getService(this, LoggingService.class, null);
     _configurer = new LdapUserServiceConfigurer(sb);
-    setLogService(sb);
-  }
-
-  /**
-   * Default constructor - initializes the LDAP connection using
-   * the guard's policy. If no policy exists, there will be no
-   * connection to the user database.
-   */
-  public LdapUserServiceImpl(LdapUserServiceConfigurer configurer,
-			     ServiceBroker sb) {
-    _configurer = configurer;
-    setLogService(sb);
-  }
-
-  private void setLogService(ServiceBroker sb) {
-    serviceBroker = sb;
-    log = (LoggingService)
-	serviceBroker.getService(this,
-	LoggingService.class, null);
-    if (log == null) {
-      try {
-	throw new RuntimeException("Logging service is not available");
-      }
-      catch (Exception e) {
-	e.printStackTrace();
-      }
-      throw new RuntimeException("Logging service is not available");
-    }
   }
 
   /**
@@ -232,13 +207,10 @@ public class LdapUserServiceImpl implements LdapUserService {
     try {
       _context = new InitialDirContext(env);
     } catch (NamingException e) {
-      if (log != null) {
-	log.debug("LdapUserService: couldn't initialize connection to User LDAP database");
+      _log.error("Couldn't initialize connection to User LDAP database");
+      if (_log.isDebugEnabled()) {
+        _log.debug("Exception caught", e);
       }
-      else {
-	System.err.println("LdapUserService: couldn't initialize connection to User LDAP database");
-      }
-      e.printStackTrace();
     }
   }
 
@@ -677,16 +649,17 @@ public class LdapUserServiceImpl implements LdapUserService {
         return;
       }
 
-      if (log.isDebugEnabled()) {
-        log.debug("LdapUserService: Received policy message");
+      if (_log.isDebugEnabled()) {
+        _log.debug("LdapUserService: Received policy message");
         RuleParameter[] param = policy.getRuleParameters();
         for (int i = 0 ; i < param.length ; i++) {
-          log.debug("Rule: " + param[i].getName() +
-                             " - " + param[i].getValue());
+          _log.debug("Rule: " + param[i].getName() +
+                      " - " + param[i].getValue());
         }
       }
 
-      boolean reset = false;
+      // reset to default and get policy changes from default
+      resetDefaults();
 
       // what is the policy change?
       RuleParameter[] param = policy.getRuleParameters();
@@ -705,13 +678,10 @@ public class LdapUserServiceImpl implements LdapUserService {
           }
         }
         if (PROP_URL.equals(name)) {
-          reset = true;
           _url = value;
         } else if (PROP_USER.equals(name)) {
-          reset = true;
           _ldapUser = value;
         } else if (PROP_PASSWORD.equals(name)) {
-          reset = true;
           _ldapPwd = value;
         } else if (PROP_USER_DN.equals(name)) {
           _userBase = value;
@@ -742,21 +712,37 @@ public class LdapUserServiceImpl implements LdapUserService {
         } else if (PROP_ETATTR.equals(name)) {
           _enableAttr = value;
         } else {
-          log.debug("LdapUserServiceImpl: Don't know how to handle configuration parameter: " + name);
+          _log.warn("Don't know how to handle configuration parameter: " +
+                    name);
         }
       }
-      if (reset) {
-        synchronized (this) {
-          if (_context != null) {
-            try {
-              _context.close();
-            } catch (NamingException ne) {
-              // ignore -- it's gone, anyway
-            }
+
+      synchronized (this) {
+        if (_context != null) {
+          try {
+            _context.close();
+          } catch (NamingException ne) {
+            // ignore -- it's gone, anyway
           }
-          resetContext();
         }
+        resetContext();
       }
     }
+  }
+
+  private void resetDefaults() {
+      _url         = "ldap:///";
+      _ldapUser    = null;
+      _ldapPwd     = null;
+      _userBase    = "dc=cougaar,dc=org";
+      _roleBase    = "dc=roles,dc=cougaar,dc=org";
+      _urdn        = "uid";
+      _rrdn        = "cn";
+      _uoc         = new String[] {"inetOrgPerson","cougaarAcct"};
+      _roc         = new String[] {"organizationalRole"};
+      _rattr       = "roleOccupant";
+      _passwordAttr= "userPassword";
+      _authAttr    = "cougaarAuthReq";
+      _enableAttr  = "cougaarAcctEnableTime";
   }
 }
