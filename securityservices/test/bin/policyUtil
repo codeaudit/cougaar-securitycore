@@ -14,15 +14,13 @@ done
 rm  -rf ${LogFile}
 
 DEFS="-Xmx512m -Dorg.cougaar.config.path=${COUGAAR_INSTALL_PATH}/configs/security"
-DEFS="${DEFS} -Dlog4j.configuration=${COUGAAR_INSTALL_PATH}/configs/common/loggingConfig.conf"
 DEFS="${DEFS} -Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder"
 DEFS="${DEFS} -Dorg.cougaar.core.security.bootstrap.keystore=${COUGAAR_INSTALL_PATH}/configs/security/bootstrap_keystore"
-DEFS="${DEFS} -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=${LogFile}"
 
-LOG="${LOG} -Dlog4j.rootCategory=ERROR"
+
+#LOG="${LOG} -Dlog4j.rootCategory=WARN"
 LOG="${LOG} -Dlog4j.configuration=${COUGAAR_INSTALL_PATH}/configs/security/cmdlineLoggingConfig.conf"
 LOG="${LOG} -Dorg.cougaar.core.logging.config.filename=${COUGAAR_INSTALL_PATH}/configs/security/cmdlineLoggingConfig.conf"
-
 
 java $DEFS ${LOG} -classpath $CP org.cougaar.core.security.policy.builder.Main $*
 
@@ -35,6 +33,7 @@ java $DEFS ${LOG} -classpath $CP org.cougaar.core.security.policy.builder.Main $
 #LOG="${LOG} -Dlog4j.rootCategory=WARN,SECURITY"
 #LOG="${LOG} -log4j.appender.SECURITY=org.apache.log4j.ConsoleAppender"
 #LOG="${LOG} -log4j.appender.CNCCALC.File=node.log"
+
 
 # Debug
 #DEFS="${DEFS} -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=9999"

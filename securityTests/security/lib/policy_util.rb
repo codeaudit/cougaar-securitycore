@@ -46,10 +46,14 @@ class PolicyWaiter
 
   def wait(timeout)
     t = 0
+    puts "found = #{@found}" if $VerboseDebugging
+    puts "t = #{t}" if $VerboseDebugging
     while (!@found && timeout > t) do
       t += 1
       sleep 1
     end
+    puts "found = #{@found}" if $VerboseDebugging
+    puts "t = #{t}" if $VerboseDebugging
     if (@found) then
       if ($VerboseDebugging) then
         @run.info_message("waited #{t} seconds for the policy")
@@ -155,7 +159,6 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
   # now commit the new policy
   classpath = getClasspath
 
-  logFile = PathUtility.fixPath("#{CIP}/workspace/log4jlogs/policyUtil-#{rand(1000000)}.log")
   keystoreFile = PathUtility.fixPath("#{CIP}/configs/security/bootstrap_keystore")
   logFileCfg = PathUtility.fixPath("#{CIP}/configs/security/cmdlineLoggingConfig.conf")
   cfg = PathUtility.fixPath(File.join(CIP,'configs','security'))
@@ -164,9 +167,7 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
     "-Dorg.cougaar.config.path=#{cfg}",
     "-Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder",
     "-Dorg.cougaar.core.security.bootstrap.keystore=#{keystoreFile}",
-    "-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=#{logFile}",
-    "-Dlog4j.configuration=#{PathUtility.fixPath(File.join(CIP, 'configs', 'security', 'cmdlineLoggingConfig.conf'))}",
-    "-Dorg.cougaar.core.logging.config.filename=#{logFileCfg}"
+    "-Dlog4j.configuration=#{PathUtility.fixPath(File.join(CIP, 'configs', 'security', 'cmdlineLoggingConfig.conf'))}"
   ]
 
   if javaArgs != nil
