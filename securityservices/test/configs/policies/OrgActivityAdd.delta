@@ -1,6 +1,6 @@
 
 
-PolicyPrefix=%OrgActivityAdd/
+PolicyPrefix=%tests/
 
 Policy DamlBootPolicyOrgActivityAdd = [
    BlackboardTemplate
