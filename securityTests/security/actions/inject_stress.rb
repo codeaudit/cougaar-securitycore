@@ -96,6 +96,10 @@ module Cougaar
 	end
       end
 
+      def to_s
+        super.to_s+"(#{@stressorClassName}.#{@methodName})"
+      end
+
       def perform()
 	logInfoMsg "Starting stress: #{@stressorclassName}.#{@methodName}" if $Dbg_action
 	if @stressor == nil
@@ -133,6 +137,10 @@ module Cougaar
 	@interval = interval
 	@stressorClassName = className
 	@methodName = methodName
+      end
+
+      def to_s
+        super.to_s+"(#{@stressorClassName}.#{@methodName})"
       end
 
       def perform()
