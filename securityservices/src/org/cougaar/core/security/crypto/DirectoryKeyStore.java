@@ -2010,6 +2010,9 @@ public class DirectoryKeyStore
 	}
       }
       else {
+        // make self signed key
+        if (commonName.equals(getHostName()))
+          keyAlias = makeKeyPair(dname, false);
         if (getNodeCert(nodeName) == null)
           return null;
 
