@@ -11,6 +11,11 @@ insert_before :setup_run do
                parameters[:db]
 end
 
+
 insert_after parameters[:insertionPoint] do
-  do_action "InstallURPolicies", parameters[:wait]
+  skip = *parameters[:skippedEnclaves]
+  if skip == nil then
+    skip = []
+  end
+  do_action "InstallURPolicies", parameters[:wait], skip
 end
