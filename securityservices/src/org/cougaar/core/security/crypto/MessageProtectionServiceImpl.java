@@ -542,7 +542,8 @@ public class MessageProtectionServiceImpl
                        AttributeConstants.DELIVERY_STATUS_DELIVERED);
   }
 
-  private boolean isEncrypted(MessageAttributes attrs) {
+  private boolean isEncrypted(MessageAttributes attrs) 
+  {
     if (attrs == null) {
       return false;
     }
@@ -586,6 +587,24 @@ public class MessageProtectionServiceImpl
     return false; // not a valid attribute
   }
 
+
+  private boolean isCriticalProtectionLevelMsg(MessageAttributes attrs)
+  {
+    if (attrs == null) {
+      return false;
+    }
+    Object pLevelAttr =
+      attrs.getAttribute(MessageProtectionAspectImpl.SIGNATURE_NEEDED);
+    if (pLevelAttr instanceof Boolean) {
+      return ((Boolean) pLevelAttr).booleanValue();
+    } else {
+      return false;
+    }
+  }
+
+
+
+
   /** 
    * Gets a stream to encrypt and/or sign outgoing messages
    *
@@ -625,28 +644,15 @@ public class MessageProtectionServiceImpl
       setPolicyService();
     }
 
-    /* as of 10.4.3 -- hack is no longer needed
-    // SR - 10/21/2002. UGLY & TEMPORARY FIX
-    // The advance message clock uses an unsupported address type.
-    // Since this is demo-ware, we are not encrypting those messages.
-    if (source.toAddress().endsWith("(MTS)")) {
-      String name = source.toAddress();
-      name = name.substring(0, name.length() - 5);
-      source = MessageAddress.getMessageAddress(name);
-      log.info("Outgoing source postmaster message. Protecting with node key");
-    }
-    if (destination.toAddress().endsWith("(MTS)")) {
-      String name = destination.toAddress();
-      name = name.substring(0, name.length() - 5);
-      destination = MessageAddress.getMessageAddress(name);
-      log.info("Outgoing target postmaster message. Protecting with node key");
-    }
-    */
     try {
-      boolean encryptedSocket = isEncrypted(attrs);
+      boolean encryptedSocket    = isEncrypted(attrs);
+      boolean criticalPLevelMsg  = isCriticalProtectionLevelMsg(attrs);
       log.debug("returning encrypted service");
-      return new ProtectedMessageOutputStream(os, source, destination, 
-                                              encryptedSocket, serviceBroker);
+      return 
+        new ProtectedMessageOutputStream(os, 
+                                         source, destination, 
+                                         encryptedSocket, criticalPLevelMsg,
+                                         serviceBroker);
     } catch (DecryptSecretKeyException e) {
       AttributedMessage msg = getCertificateMessage(source, destination);
       if (msg != null) {
@@ -763,11 +769,11 @@ public class MessageProtectionServiceImpl
     } catch (IncorrectProtectionException e) {
       // The stream has already reported the error. Just throw
       // an IOException
-      FailureEvent event = new MessageFailureEvent(source.toString(),
-                                                   destination.toString(),
-                                                   e.getMessage(),
-                                                   e.toString());
-      MessageFailureSensor.publishEvent(event);
+      //      FailureEvent event = new MessageFailureEvent(source.toString(),
+      //                                           destination.toString(),
+      //                                                   e.getMessage(),
+      //                                                   e.toString());
+      //      MessageFailureSensor.publishEvent(event);
       throw new IOException(e.getMessage());
     } catch (GeneralSecurityException e) {
       String reason = MessageFailureEvent.UNKNOWN_FAILURE;

@@ -51,6 +51,8 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
   private KeyRingService _keyRing;
   private LoggingService _log;
   private EncryptionService _crypto;
+  private int              _plmsgcounter = 0;
+  private static final int _warnCount    = 100;
 
   public static final String NODE_LINK_PRINCIPAL = 
     "org.cougaar.core.security.nodeLinkPrincipal";
@@ -106,9 +108,12 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
     public MessageAttributes deliverMessage(AttributedMessage msg) {
       Object sign = msg.getAttribute(SIGNATURE_NEEDED);
       if (sign != null) {
-        String myPrincipal = (String) msg.getAttribute(SENDING_PRINCIPAL);
         String source = msg.getOriginator().toAddress();
         String target = msg.getTarget().toAddress();
+        if (_plmsgcounter++ > _warnCount) {
+          _log.warn("Another " + _warnCount + " ProtectionLevel messages received");
+          _plmsgcounter = 0;
+        }
         if (_log.isInfoEnabled()) {
           _log.info("Got a message from " + source +
                     " to switch signing from " + target +
@@ -121,14 +126,13 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
           signMessage = Boolean.valueOf(sign.toString()).booleanValue();
         }
         if (signMessage) {
-          _crypto.setSendNeedsSignature(target, myPrincipal, source);
+          _crypto.setSendNeedsSignature(target, source);
         } else {
           try {
             Hashtable certs = _keyRing.findCertPairFromNS(target, source);
             if (certs != null) {
               X509Certificate cert = (X509Certificate) certs.get(source);
               _crypto.removeSendNeedsSignature(target, 
-                                               myPrincipal, 
                                                source, 
                                                cert);
             }

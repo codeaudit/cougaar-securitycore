@@ -1640,21 +1640,34 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  private synchronized boolean 
+  private boolean 
     certOk(String source, String nodePrincipal, String target) 
     throws GeneralSecurityException 
   {
     ConnectionInfo ci = new ConnectionInfo(source, nodePrincipal, target);
-    X509Certificate cert = (X509Certificate) _sendingAgentCerts.get(ci);
+    X509Certificate cert;
+    synchronized (_sendingAgentCerts) {
+      cert = (X509Certificate) _sendingAgentCerts.get(ci);
+    }
     if (cert != null) {
       try {
+        log.debug("checking cerficate for " + source + "@[" + nodePrincipal +
+                  "] to target " + target);
         keyRing.checkCertificateTrust(cert);
+        log.debug("certificate ok");
         return true;
       } catch (GeneralSecurityException e) {
-        _sendingAgentCerts.remove(ci);
+        if (log.isInfoEnabled()) {
+          log.info("General security exception occured checking certificate - remove certificate", e);
+        }
+        synchronized (_sendingAgentCerts) {
+          _sendingAgentCerts.remove(ci);
+        }
         throw e;
       }
     }
+    log.debug("No certificate found for " + source + "@[" + nodePrincipal +
+                  "] to target " + target);
     return false;
   }
 
@@ -1679,16 +1692,10 @@ public class CryptoManagerServiceImpl
 
   public boolean sendNeedsSignature(String source, String target) 
     throws GeneralSecurityException {
-    X509Certificate [] certs = clientSSLKeyManager.getCertificateChain(null);
-    if (certs == null) {
-      throw new GeneralSecurityException("No cert for my node??");
-    }
-    String nodePrincipal = certs[0].getSubjectDN().getName();
-    boolean needsSig = !certOk(source, nodePrincipal, target);
+    boolean needsSig = !certOk(source, null, target);
     if (log.isDebugEnabled()) {
       log.debug("From " + source + " to " + target + ": need signature? " +
                 needsSig);
-      log.debug("my node principal = " + nodePrincipal);
     }
     return needsSig;
     // the following will imply that the sender always signs.  We needed it 
@@ -1696,24 +1703,37 @@ public class CryptoManagerServiceImpl
     // return true;
   }
 
-  public synchronized void setSendNeedsSignature(String source, 
-                                                 String nodePrincipal,
-                                                 String target)
+  public void setSendNeedsSignature(String source, 
+                                    String target)
   {
-    ConnectionInfo ci = new ConnectionInfo(source, nodePrincipal, target);
-    _sendingAgentCerts.remove(ci);
+    if (log.isDebugEnabled()) {
+      log.debug("Adding the need for signature from " + source 
+                + " to " + target);
+    }
+    ConnectionInfo ci = new ConnectionInfo(source, null, target);
+    synchronized (_sendingAgentCerts) {
+      _sendingAgentCerts.remove(ci);
+    }
   }
 
-  public synchronized void removeSendNeedsSignature(String source, 
-                                                    String nodePrincipal,
-                                                    String target, 
-                                                    X509Certificate cert) 
+  public void removeSendNeedsSignature(String source, 
+                                       String target, 
+                                       X509Certificate cert) 
   {
-    ConnectionInfo ci = new ConnectionInfo(source, nodePrincipal, target);
-    _sendingAgentCerts.put(ci, cert);
+    if (log.isDebugEnabled()) {
+      log.debug("Removing the need for signature from " + source 
+                + " to " + target + " where the source has cert " + cert);
+    }
+    ConnectionInfo ci = new ConnectionInfo(source, null, target);
+    synchronized (_sendingAgentCerts) {
+      _sendingAgentCerts.put(ci, cert);
+    }
   }
 
-  public String getRemotePrincipal()
+  /* 
+   * To do: does this need to be synchronized?  with what?
+   */
+  public synchronized String getRemotePrincipal()
   {
     Principal p = KeyRingSSLServerFactory.getPrincipal();
     if (p != null) {
@@ -1724,12 +1744,34 @@ public class CryptoManagerServiceImpl
     } else { return null; }
   }
 
-  public synchronized void setReceiveSignatureValid(String source, 
+  public boolean getReceiveSignatureValid(String source)
+  {
+    String strP = getRemotePrincipal();
+    if (strP != null) {
+      ConnectionInfo ci = new ConnectionInfo(source, strP, null);
+      synchronized (_sendingAgentCerts) {
+        boolean ret = (_sendingAgentCerts.get(ci) != null);
+        if (log.isDebugEnabled()) {
+          log.debug("getReceiveSignatureValid(" + source + ") using " 
+                    + strP + " returns " + ret);
+        }
+        return ret;
+      }
+    } else {
+      if (log.isDebugEnabled()) {
+        log.debug("setReceiveSignatureValid(" + source + ") not SSL");
+      }
+      return false;
+    }
+
+  }
+
+  public void setReceiveSignatureValid(String source, 
                                                     X509Certificate cert) 
   {
     String strP = getRemotePrincipal();
     if (strP != null) {
-      ConnectionInfo ci = new ConnectionInfo(source, strP);
+      ConnectionInfo ci = new ConnectionInfo(source, strP, null);
       synchronized (_sendingAgentCerts) {
         if (log.isDebugEnabled()) {
           log.debug("setReceiveSignatureValid(" + source + ") adding to " +
@@ -1761,26 +1803,24 @@ public class CryptoManagerServiceImpl
 
   /*
    * This is a private class representing certain critical information about
-   * a connection.  This information will get associated with a known 
-   * certificate for the source by the Map, clientSSLKeyManager.
-   *
-   * I am using a target of null to represent any agent on my node (e.g. 
-   * I am receiving a message in a stream for one of my agents.
+   * a connection.  One funny thing about this class is that the sender and 
+   * the receiver fill in different parts of this structure.  On the
+   * sending side, the source and target are known but it is not easy
+   * to determine determine the sourceNodePrincipal associated with
+   * the connection.  So the sender will simply use null for the
+   * source node principal.  On the receiving side, the receiver is
+   * more concerned with the source agent and the source node for the
+   * message.  If the receiver trusts the source agent, the source
+   * node and the assertion that the agent is on the node then he will
+   * trust the message (assuming ssl) and not require signatures.
+   * 
+   * I think that I can assume that the _source is never null.
    */
   private class ConnectionInfo
   {
     private String _source;
     private String _sourceNodePrincipal;
     private String _target;
-
-    public ConnectionInfo(String source, 
-                          String sourceNodePrincipal)
-    {
-      _source              = source;
-      _sourceNodePrincipal = sourceNodePrincipal;
-      _target              = null;
-    }
-
 
     public ConnectionInfo(String source, 
                           String sourceNodePrincipal,
@@ -1797,15 +1837,16 @@ public class CryptoManagerServiceImpl
         ConnectionInfo ci = (ConnectionInfo) o;
         return 
           _source.equals(ci._source) &&
-          _sourceNodePrincipal.equals(ci._sourceNodePrincipal) &&
-          (_target == null ? ci._target == null : _target.equals(ci._target));
+          compareStrings(_sourceNodePrincipal, ci._sourceNodePrincipal) &&
+          compareStrings(_target, ci._target);
       } else { return false; }
     }
 
     public int hashCode()
     {
       return
-        _source.hashCode() + _sourceNodePrincipal.hashCode() +
+        _source.hashCode() + 
+        (_sourceNodePrincipal == null ? 42 : _sourceNodePrincipal.hashCode()) +
         (_target == null ? 42 : _target.hashCode());
     }
 
@@ -1814,6 +1855,17 @@ public class CryptoManagerServiceImpl
       return 
         _source + "/" + _sourceNodePrincipal + " -> "
         + (_target == null ? "me" : _target);
+    }
+
+    private boolean compareStrings(String x, String y)
+    {
+      if (x == null) {
+        return y == null;
+      } else if (y == null) {
+        return false;
+      } else {
+        return x.equals(y);
+      }
     }
   }
 }

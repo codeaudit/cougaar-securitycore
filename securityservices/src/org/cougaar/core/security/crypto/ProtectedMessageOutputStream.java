@@ -93,6 +93,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
                                       MessageAddress source,
                                       MessageAddress target,
                                       boolean encryptedSocket,
+                                      boolean criticalPLevelMsg,
                                       ServiceBroker sb) 
     throws GeneralSecurityException, IOException {
     super(stream);
@@ -124,7 +125,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     if (_log.isDebugEnabled()) {
       _log.debug("Policy = " + policy);
     }
-    policy = modifyPolicy(policy, encryptedSocket);
+    policy = modifyPolicy(policy, encryptedSocket, criticalPLevelMsg);
 
     if (_log.isDebugEnabled()) {
       _log.debug("Modified policy = " + policy);
@@ -171,6 +172,8 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
       this.out = _cipherOut;
     }
     if (_sign) {
+      _log.warn("Still signing (" + _source + " -> " + _target + 
+                ") encrypted socket = " + encryptedSocket);
       PrivateKey priv = getPrivateKey(_sourceCert);
       _signature =  new SignatureOutputStream(this.out, policy.signSpec, 
                                               priv);
@@ -350,7 +353,8 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
   }
 
   private SecureMethodParam modifyPolicy(SecureMethodParam policy,
-                                         boolean encryptedSocket) 
+                                         boolean encryptedSocket,
+                                         boolean criticalPLevelMsg) 
     throws GeneralSecurityException {
     policy = copyPolicy(policy);
 
@@ -358,7 +362,8 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
       removeEncrypt(policy); // no need for double-encryption
     }
 
-    if (policy.secureMethod == policy.SIGN && encryptedSocket && 
+    if (policy.secureMethod == policy.SIGN &&
+        encryptedSocket && !criticalPLevelMsg &&
         !_crypto.sendNeedsSignature(_source, _target)) {
       policy.secureMethod = policy.PLAIN;
     }

@@ -56,6 +56,7 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -82,6 +83,13 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
   private static CryptoPolicyService _cps;
   private static EncryptionService   _crypto;
   private static SecureRandom        _random = new SecureRandom();
+
+  private static int       _plmsgcounter = 0;
+  private static final int _warnCount    = 100;
+
+  private static int randomResendProtectionLevelCounter = 0;
+  private static final int resendProtectionCount        = 20;
+  private static Vector sendersWithInvalidCerts         = new Vector();
 
   private static boolean replyProblemWarned = false;
 
@@ -152,8 +160,11 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
         }
 
         if (encryptedSocket && 
-            headerPolicy.secureMethod == headerPolicy.PLAIN) {
+            headerPolicy.secureMethod == headerPolicy.PLAIN &&
+            (!sendersWithInvalidCerts.contains(_source) ||
+             resendProtectionLevelAnyway())) {
           sendSignatureValid(false); // please send me the signature next time
+          sendersWithInvalidCerts.add(_source);
         }
         throw new IncorrectProtectionException(headerPolicy);
       }
@@ -246,7 +257,9 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
         _log.debug("Signature was verified from " + _source +
                    " to " + _target);
       }
-      if (_encryptedSocket) {
+      if (_encryptedSocket && (!_crypto.getReceiveSignatureValid(_source) ||
+                               resendProtectionLevelAnyway())) {
+        sendersWithInvalidCerts.remove(_source);
         _crypto.setReceiveSignatureValid(_source, _senderCert);
         sendSignatureValid(true);
       }
@@ -302,6 +315,12 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
   }
 
   private void sendProtectionMessage(ProtectionLevelMessage pmsg) {
+    if (_plmsgcounter++ > _warnCount) {
+      _plmsgcounter = 0;
+      if (_log.isWarnEnabled()) {
+        _log.warn("Another " + _warnCount + " ProtectionLevel Messages sent");
+      }
+    }
     SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
     if (sendQ != null) {
       AttributedMessage msg = 
@@ -312,8 +331,6 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       if (pmsg.getMessageType() ==  pmsg.SIGNATURE_NEEDED) {
         msg.setAttribute(MessageProtectionAspectImpl.SIGNATURE_NEEDED,
                          new Boolean(pmsg.isSignatureNeeded()));
-        msg.setAttribute(MessageProtectionAspectImpl.SENDING_PRINCIPAL,
-                         _crypto.getRemotePrincipal());
       } else {
         msg.setAttribute(MessageProtectionAspectImpl.NEW_CERT,
                          pmsg.getCertificate());
@@ -449,6 +466,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     CertificateExpiredException, InvalidKeyException, 
     CertificateNotYetValidException, CertificateRevokedException, IOException,
     SignatureException {
+    _log.warn("Still unsigning...");
     _sign = true;
     _senderCert = header.getSender()[0];
     PublicKey pub = _senderCert.getPublicKey();
@@ -554,6 +572,17 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       return !_crypto.receiveNeedsSignature(_source);
     }
     return false;
+  }
+
+
+  private synchronized boolean resendProtectionLevelAnyway()
+  {
+    if (randomResendProtectionLevelCounter++ > resendProtectionCount) {
+      randomResendProtectionLevelCounter = 0;
+      return true;
+    } else {
+      return false;
+    }
   }
 
 }
