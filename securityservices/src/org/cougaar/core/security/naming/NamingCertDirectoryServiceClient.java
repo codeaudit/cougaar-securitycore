@@ -245,14 +245,14 @@ public class NamingCertDirectoryServiceClient {
           }
 	  //entry.addEntry(dname, certEntry, true);
 
-	  if (ael == null) {
+//	  if (ael == null) {
 	    URI certURI = URI.create("cert://"+cname);
 	    ael = AddressEntry.getAddressEntry(
 	      cname,
 	      WhitePagesUtil.WP_CERTIFICATE_TYPE,
 	      certURI,
 	      entry);
-	  }
+//	  }
 
 	  // Cannot invoke wp.rebind() from within a Callback
 	  // So create a thread to do the job.
