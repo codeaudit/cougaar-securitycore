@@ -39,6 +39,7 @@ import org.cougaar.core.component.Service;
 
 // Cougaar Security Services
 import com.nai.security.crypto.PrivateKeyCert;
+import com.nai.security.crypto.DirectoryKeyStore;
 
 /** Low-level service to retrieve certificates
  */
@@ -47,6 +48,7 @@ public interface KeyRingService extends Service {
   /** ******************************
    *  Methods to access public keys
    */
+
 
   /** 
    */
@@ -74,6 +76,10 @@ public interface KeyRingService extends Service {
   /** 
    */
   public KeyStore getKeyStore();
+
+  /**
+   */
+  public DirectoryKeyStore getDirectoryKeyStore();
 
   /** 
    */
