@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -35,6 +35,9 @@ import org.w3c.dom.*;
 
 // Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 // Cougaar security services
 import org.cougaar.core.security.crypto.*;
@@ -46,9 +49,14 @@ public class KeyGenerator {
   private int nbCertificates = 0;
   private int nbCertificatesSucceed = 0;
   private String agentName = null;
+  private static Logger _log;
 
   private SecurityServiceProvider secProvider = null;
   private ConfigParserService configParser = null;
+
+  static {
+    _log = LoggerFactory.getInstance().createLogger("KeyGenerator");
+  }
 
   public KeyGenerator()
   {
@@ -67,23 +75,23 @@ public class KeyGenerator {
     int action = 0;
 
     if (args.length < 2) {
-      System.out.println("Usage: KeyGenerator <xml definition file> options <agent-name>");
-      System.out.println("     Where options are one of:");
-      System.out.println("          -genkey       : Create key pairs");
-      System.out.println("          -gencertsign  : Generate Certificate Signing Requests");
-      System.out.println("          -importsigned : Import Certificates signed by CA");
-      System.out.println("          -exportpub    : Export public keys from keystore");
-      System.out.println("          -importpub    : Import all public keys into each keystore");
-      System.out.println("          -removepub    : Remove public keys from keystore");
-      System.out.println("                        : Must have called -exportpub before");
-      System.out.println("     <agent-name>       : Optional agent name");
+      _log.debug("Usage: KeyGenerator <xml definition file> options <agent-name>");
+      _log.debug("     Where options are one of:");
+      _log.debug("          -genkey       : Create key pairs");
+      _log.debug("          -gencertsign  : Generate Certificate Signing Requests");
+      _log.debug("          -importsigned : Import Certificates signed by CA");
+      _log.debug("          -exportpub    : Export public keys from keystore");
+      _log.debug("          -importpub    : Import all public keys into each keystore");
+      _log.debug("          -removepub    : Remove public keys from keystore");
+      _log.debug("                        : Must have called -exportpub before");
+      _log.debug("     <agent-name>       : Optional agent name");
 
-      System.out.println(args.length);
+      _log.debug("Arguments: " + args.length);
       return;
     }
     if (args.length == 3) {
       agentName = args[2];
-      System.out.println("Executing for '" + agentName + "' only");
+      _log.debug("Executing for '" + agentName + "' only");
     }
     if (args[1].equals("-genkey")) {
       action = 1;
@@ -105,8 +113,8 @@ public class KeyGenerator {
     Element root = null;
     iterateKeyStore(root, action);
 
-    System.out.println("Total number of certificates:        " + nbCertificates);
-    System.out.println("Certificates successfully processed: " + nbCertificatesSucceed);
+    _log.debug("Total number of certificates:        " + nbCertificates);
+    _log.debug("Certificates successfully processed: " + nbCertificatesSucceed);
   }
 
   /** This convenience method returns the textual content of the named
@@ -139,7 +147,7 @@ public class KeyGenerator {
 	String keyStoreName =  getChildText(keyNode, "keystore");
 	String keyStorePasswd = getChildText(keyNode, "storepass");
 		
-	System.out.println("keystore: " + keyStoreName);
+	_log.debug("keystore: " + keyStoreName);
 
 	NodeList keyStoreChildren = keyNode.getChildNodes();
 
@@ -151,7 +159,7 @@ public class KeyGenerator {
 	      if (agentName != null) {
 		String alias = getChildText((Element)keyo, "alias");
 		if (alias.equals(agentName) == false) {
-		  System.out.println("Skipping " + alias + "...");
+		  _log.debug("Skipping " + alias + "...");
 		  continue;
 		}
 	      }
@@ -292,7 +300,7 @@ public class KeyGenerator {
       genKeyCom.add("-dname");
       genKeyCom.add(dname);
     }
-    System.out.println("Creating key for " + alias);
+    _log.debug("Creating key for " + alias);
     executeCommand(genKeyCom);
   }
 
@@ -317,11 +325,11 @@ public class KeyGenerator {
       String line = null;
 
       while ((line = err.readLine()) != null) {
-	System.out.println("keytool stderr:" + line);
+	_log.debug("keytool stderr:" + line);
 	isError = true;
       }
       while ((line = in.readLine()) != null) {
-	System.out.println("keytool stdout:" + line);
+	_log.debug("keytool stdout:" + line);
 	isError = true;
       }
       process.waitFor();
@@ -368,7 +376,7 @@ public class KeyGenerator {
     genKeyCom.add("-file");
     genKeyCom.add("CertificateSigningRequests/certSignReq-" + signingAuthority + "-" + alias + ".cer");
 
-    System.out.println("Creating signing certificate request for " + alias);
+    _log.debug("Creating signing certificate request for " + alias);
     executeCommand(genKeyCom);
   }
 
@@ -404,7 +412,7 @@ public class KeyGenerator {
     genKeyCom.add("-file");
     genKeyCom.add("CaSignedCertificates/SignedReq-" + signingAuthority + "-" + alias + ".cer");
 
-    System.out.println("Importing Signed Certificate for " + alias);
+    _log.debug("Importing Signed Certificate for " + alias);
     executeCommand(genKeyCom);
   }
 
@@ -434,7 +442,7 @@ public class KeyGenerator {
       genKeyCom.add(alias);
     }
     else {
-      System.out.println("Error: alias missing");
+      _log.debug("Error: alias missing");
       return;
     }
     if (fileName != null) {
@@ -442,11 +450,11 @@ public class KeyGenerator {
       genKeyCom.add("CaCertificates/" + fileName);
     }
     else {
-      System.out.println("Error: file name missing");
+      _log.debug("Error: file name missing");
       return;
     }
 
-    System.out.println("Importing trusted CA: " + alias);
+    _log.debug("Importing trusted CA: " + alias);
     executeCommand(genKeyCom);
   }
 
@@ -476,13 +484,13 @@ public class KeyGenerator {
       genKeyCom.add(alias);
     }
     else {
-      System.out.println("Error: alias missing");
+      _log.debug("Error: alias missing");
       return;
     }
     genKeyCom.add("-file");
     genKeyCom.add("PublicKeys/pubKeyCert-" + signingAuthority + "-" + alias + ".cer");
 
-    System.out.println("Exporting public key certificates: " + alias);
+    _log.debug("Exporting public key certificates: " + alias);
     executeCommand(genKeyCom);
   }
 
@@ -508,7 +516,7 @@ public class KeyGenerator {
 	String otherKeyStorePasswd = getChildText(keyNode, "storepass");
 	if (keyStoreName.equals(otherKeyStoreName)) {
 	  // Skipping
-	  System.out.println("Skipping " + otherKeyStoreName);
+	  _log.debug("Skipping " + otherKeyStoreName);
 	  continue;
 	}
 
@@ -532,13 +540,13 @@ public class KeyGenerator {
 	  genKeyCom.add(alias);
 	}
 	else {
-	  System.out.println("Error: alias missing");
+	  _log.debug("Error: alias missing");
 	  return;
 	}
 	genKeyCom.add("-file");
 	genKeyCom.add("PublicKeys/pubKeyCert-" + signingAuthority + "-" + alias + ".cer");
 		
-	System.out.println("   Importing public key certificates: " + alias
+	_log.debug("   Importing public key certificates: " + alias
 			   + " into " + otherKeyStoreName);
 	executeCommand(genKeyCom);
       }
@@ -570,13 +578,13 @@ public class KeyGenerator {
       genKeyCom.add(alias);
     }
     else {
-      System.out.println("Error: alias missing");
+      _log.debug("Error: alias missing");
       return;
     }
     genKeyCom.add("-file");
     genKeyCom.add("PublicKeys/pubKeyCert-" + signingAuthority + "-" + alias + ".cer");
 
-    System.out.println("Exporting public key certificates: " + alias);
+    _log.debug("Exporting public key certificates: " + alias);
     executeCommand(genKeyCom);
   }
 }

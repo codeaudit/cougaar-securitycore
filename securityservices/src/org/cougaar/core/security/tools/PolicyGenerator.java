@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -35,6 +35,10 @@ import org.apache.xml.serialize.*;
 import org.apache.xerces.parsers.*;
 import org.xml.sax.InputSource;
 
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
 public class PolicyGenerator
 {
   private String communityConfFile = null;
@@ -47,9 +51,14 @@ public class PolicyGenerator
   private String templateFile = null;
   private boolean debug = false;
 
+  private static Logger _log;
 
   private final String incommingSecureMethod = "IncomingSecureMethod";
   private final String outgoingSecureMethod = "OutgoingSecureMethod";
+
+  static {
+    _log = LoggerFactory.getInstance().createLogger("PolicyGenerator");
+  }
 
   public PolicyGenerator()
   {
@@ -82,9 +91,9 @@ public class PolicyGenerator
     parseFile(communityConfFile, communities);
 
     if (debug) {
-      System.out.println("======== Configuration file:");
+      _log.debug("======== Configuration file:");
       printConfiguration();
-      System.out.println("============================");
+      _log.debug("============================");
     }
   }
 
@@ -147,7 +156,7 @@ public class PolicyGenerator
 	  break;
 	case StreamTokenizer.TT_NUMBER:
 	  if (debug) {
-	    System.out.println("Nb=" + st.nval);
+	    _log.debug("Nb=" + st.nval);
 	  }
 	  break;
 	}
@@ -165,10 +174,10 @@ public class PolicyGenerator
     while (e.hasMoreElements()) {
       String c = (String) e.nextElement();
       ArrayList l = (ArrayList) communities.get(c);
-      System.out.println(c);
+      _log.debug(c);
       ListIterator it = l.listIterator();
       while (it.hasNext()) {
-	System.out.println("\t" + it.next());
+	_log.debug("\t" + it.next());
       }
     }
   }
@@ -185,7 +194,7 @@ public class PolicyGenerator
 
       // Generate the XML document
       if (debug) {
-	System.out.println("Generating policy for community " + aCommunity);
+	_log.debug("Generating policy for community " + aCommunity);
       }
 
       Document document = readPolicyTemplate();
@@ -197,7 +206,7 @@ public class PolicyGenerator
 	// The list should contain only one element.
 	String value = (String) list.get(0);
 	if (debug) {
-	  System.out.println("Modifying policy for key=" + key + " - value=" + value);
+	  _log.debug("Modifying policy for key=" + key + " - value=" + value);
 	}
 	insertPolicyElements(document, aCommunity, agentList, key, value);
       }
@@ -255,7 +264,7 @@ public class PolicyGenerator
 	  if (policyPredicate.equals(policyElementName)) {
 	    // This is where we insert specific policies
 	    if (debug) {
-	      System.out.println("Inserting specific policy for " + policyPredicate);
+	      _log.debug("Inserting specific policy for " + policyPredicate);
 	    }
 
 	    // <Keyset> nodes
@@ -268,7 +277,7 @@ public class PolicyGenerator
 	      }
 	      String defaultPolicy = ((Element)keyset).getAttribute("value");
 	      if (debug) {
-		System.out.println("Default Policy:" + defaultPolicy);
+		_log.debug("Default Policy:" + defaultPolicy);
 	      }
 	      // Insert specific policies
 	      ListIterator it = agentList.listIterator();
@@ -332,7 +341,7 @@ public class PolicyGenerator
     }
     catch (Exception e) {
       if (debug) {
-	System.out.println("Unable to open policy template file: " + e);
+	_log.debug("Unable to open policy template file: " + e);
       }
       return null;
     }
@@ -345,7 +354,7 @@ public class PolicyGenerator
       document = parser.getDocument();
     } catch (Exception e) {
       if (debug) {
-	System.out.println("Unable to parse policy template file:" + e);
+	_log.debug("Unable to parse policy template file:" + e);
       }
     }
 
@@ -359,12 +368,12 @@ public class PolicyGenerator
     String policyTemplate = args[2];
     String outputFilePrefix = args[3];
 
-    System.out.println("===================================================");
-    System.out.println("Creating policies for:");
-    System.out.println("Policy template file:        " + policyTemplate);
-    System.out.println("Community configuration file:" + communityConfFile);
-    System.out.println("Policy file:                 " + policiesFile);
-    System.out.println("Outputfile prefix:           " + outputFilePrefix);
+    _log.debug("===================================================");
+    _log.debug("Creating policies for:");
+    _log.debug("Policy template file:        " + policyTemplate);
+    _log.debug("Community configuration file:" + communityConfFile);
+    _log.debug("Policy file:                 " + policiesFile);
+    _log.debug("Outputfile prefix:           " + outputFilePrefix);
 
     PolicyGenerator pg = new PolicyGenerator();
     pg.setCommunityConfigurationFileName(communityConfFile);

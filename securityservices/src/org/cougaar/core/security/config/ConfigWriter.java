@@ -106,11 +106,16 @@ import org.xml.sax.helpers.XMLReaderFactory;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class ConfigWriter
   extends BaseConfigHandler
   implements LexicalHandler
 {
+  private static Logger _log;
+
   //
   // Constants
   //
@@ -186,6 +191,9 @@ public class ConfigWriter
   private String tagInsertionPoint;
   private ByteArrayOutputStream newNode;
 
+  static {
+    _log = LoggerFactory.getInstance().createLogger("ConfigWriter");
+  }
   //
   // Constructors
   //
@@ -500,24 +508,18 @@ public class ConfigWriter
    */
   protected void printError(String type, SAXParseException ex) {
 
-    System.err.print("[");
-    System.err.print(type);
-    System.err.print("] ");
+    String s = "[" + type + "] ";
+    
     String systemId = ex.getSystemId();
     if (systemId != null) {
       int index = systemId.lastIndexOf('/');
       if (index != -1)
 	systemId = systemId.substring(index + 1);
-      System.err.print(systemId);
+      s = s + systemId;
     }
-    System.err.print(':');
-    System.err.print(ex.getLineNumber());
-    System.err.print(':');
-    System.err.print(ex.getColumnNumber());
-    System.err.print(": ");
-    System.err.print(ex.getMessage());
-    System.err.println();
-    System.err.flush();
+    s = s + ':' + ex.getLineNumber() + ':' + ex.getColumnNumber();
+    s = s + ": " + ex.getMessage();
+    _log.warn(s);
 
   } // printError(String,SAXParseException)
 
@@ -552,7 +554,7 @@ public class ConfigWriter
 	if (option.equals("p")) {
 	  // get parser name
 	  if (++i == argv.length) {
-	    System.err.println("error: Missing argument to -p option.");
+	    _log.warn("error: Missing argument to -p option.");
 	  }
 	  String parserName = argv[i];
 
@@ -562,7 +564,7 @@ public class ConfigWriter
 	  }
 	  catch (Exception e) {
 	    parser = null;
-	    System.err.println("error: Unable to instantiate parser ("+parserName+")");
+	    _log.warn("error: Unable to instantiate parser ("+parserName+")");
 	  }
 	  continue;
 	}
@@ -600,7 +602,7 @@ public class ConfigWriter
 	  parser = XMLReaderFactory.createXMLReader(DEFAULT_PARSER_NAME);
 	}
 	catch (Exception e) {
-	  System.err.println("error: Unable to instantiate parser ("+DEFAULT_PARSER_NAME+")");
+	  _log.warn("error: Unable to instantiate parser ("+DEFAULT_PARSER_NAME+")");
 	  continue;
 	}
       }
@@ -610,13 +612,13 @@ public class ConfigWriter
 	parser.setFeature(NAMESPACES_FEATURE_ID, namespaces);
       }
       catch (SAXException e) {
-	System.err.println("warning: Parser does not support feature ("+NAMESPACES_FEATURE_ID+")");
+	_log.warn("warning: Parser does not support feature ("+NAMESPACES_FEATURE_ID+")");
       }
       try {
 	parser.setFeature(VALIDATION_FEATURE_ID, validation);
       }
       catch (SAXException e) {
-	System.err.println("warning: Parser does not support feature ("+VALIDATION_FEATURE_ID+")");
+	_log.warn("warning: Parser does not support feature ("+VALIDATION_FEATURE_ID+")");
       }
       try {
 	parser.setFeature(SCHEMA_VALIDATION_FEATURE_ID, schemaValidation);
@@ -625,7 +627,7 @@ public class ConfigWriter
 	// ignore
       }
       catch (SAXNotSupportedException e) {
-	System.err.println("warning: Parser does not support feature ("+SCHEMA_VALIDATION_FEATURE_ID+")");
+	_log.warn("warning: Parser does not support feature ("+SCHEMA_VALIDATION_FEATURE_ID+")");
       }
       try {
 	parser.setFeature(SCHEMA_FULL_CHECKING_FEATURE_ID, schemaFullChecking);
@@ -634,7 +636,7 @@ public class ConfigWriter
 	// ignore
       }
       catch (SAXNotSupportedException e) {
-	System.err.println("warning: Parser does not support feature ("+SCHEMA_FULL_CHECKING_FEATURE_ID+")");
+	_log.warn("warning: Parser does not support feature ("+SCHEMA_FULL_CHECKING_FEATURE_ID+")");
       }
 
       // setup writer
@@ -644,7 +646,7 @@ public class ConfigWriter
 	  writer.setOutput(System.out, "US-ASCII");
 	}
 	catch (UnsupportedEncodingException e) {
-	  System.err.println("error: Unable to set output.");
+	  _log.warn("error: Unable to set output.");
 	  return;
 	}
       }
@@ -668,7 +670,7 @@ public class ConfigWriter
 	// ignore
       }
       catch (Exception e) {
-	System.err.println("error: Parse error occurred - "+e.getMessage());
+	_log.warn("error: Parse error occurred - "+e.getMessage());
 	if (e instanceof SAXException) {
 	  e = ((SAXException)e).getException();
 	}
@@ -686,34 +688,32 @@ public class ConfigWriter
    */
   private static void printUsage() {
 
-    System.err.println("usage: java sax.Writer (options) uri ...");
-    System.err.println();
+    _log.warn("usage: java sax.Writer (options) uri ...");
 
-    System.err.println("options:");
-    System.err.println("  -p name  Select parser by name.");
-    System.err.println("  -n | -N  Turn on/off namespace processing.");
-    System.err.println("  -v | -V  Turn on/off validation.");
-    System.err.println("  -s | -S  Turn on/off Schema validation support.");
-    System.err.println("           NOTE: Not supported by all parsers.");
-    System.err.println("  -f  | -F Turn on/off Schema full checking.");
-    System.err.println("           NOTE: Requires use of -s and not supported by all parsers.");
-    System.err.println("  -c | -C  Turn on/off Canonical XML output.");
-    System.err.println("           NOTE: This is not W3C canonical output.");
-    System.err.println("  -h       This help screen.");
-    System.err.println();
+    _log.warn("options:");
+    _log.warn("  -p name  Select parser by name.");
+    _log.warn("  -n | -N  Turn on/off namespace processing.");
+    _log.warn("  -v | -V  Turn on/off validation.");
+    _log.warn("  -s | -S  Turn on/off Schema validation support.");
+    _log.warn("           NOTE: Not supported by all parsers.");
+    _log.warn("  -f  | -F Turn on/off Schema full checking.");
+    _log.warn("           NOTE: Requires use of -s and not supported by all parsers.");
+    _log.warn("  -c | -C  Turn on/off Canonical XML output.");
+    _log.warn("           NOTE: This is not W3C canonical output.");
+    _log.warn("  -h       This help screen.");
 
-    System.err.println("defaults:");
-    System.err.println("  Parser:     "+DEFAULT_PARSER_NAME);
-    System.err.print("  Namespaces: ");
-    System.err.println(DEFAULT_NAMESPACES ? "on" : "off");
-    System.err.print("  Validation: ");
-    System.err.println(DEFAULT_VALIDATION ? "on" : "off");
-    System.err.print("  Schema:     ");
-    System.err.println(DEFAULT_SCHEMA_VALIDATION ? "on" : "off");
-    System.err.print("  Schema full checking:     ");
-    System.err.println(DEFAULT_SCHEMA_FULL_CHECKING ? "on" : "off");
-    System.err.print("  Canonical:  ");
-    System.err.println(DEFAULT_CANONICAL ? "on" : "off");
+    _log.warn("defaults:");
+    _log.warn("  Parser:     "+DEFAULT_PARSER_NAME);
+    _log.warn("  Namespaces: ");
+    _log.warn(DEFAULT_NAMESPACES ? "on" : "off");
+    _log.warn("  Validation: ");
+    _log.warn(DEFAULT_VALIDATION ? "on" : "off");
+    _log.warn("  Schema:     ");
+    _log.warn(DEFAULT_SCHEMA_VALIDATION ? "on" : "off");
+    _log.warn("  Schema full checking:     ");
+    _log.warn(DEFAULT_SCHEMA_FULL_CHECKING ? "on" : "off");
+    _log.warn("  Canonical:  ");
+    _log.warn(DEFAULT_CANONICAL ? "on" : "off");
 
   } // printUsage()
   
