@@ -6,7 +6,7 @@ $:.unshift File.join(ENV['CIP'], 'csmart', 'acme_scripting', 'src', 'lib')
 require 'cougaar/scripting'
 require 'ultralog/scripting'
 
-MaxTime= 2 * 60 # time in seconds
+MaxTime= 5 * 60 # time in seconds
 threads = []
 Ultralog::OperatorUtils::HostManager.new.load_society.each_service_host("acme") do |host|
   threads << Thread.fork do
@@ -38,7 +38,7 @@ rescue TimeoutError => ex
   threads.each { |thread|
     if thread.alive?
       puts "Thread #{thread} is still alive - thread status:#{thread.status}"
-      #Thread.kill (thread)
+      Thread.kill (thread)
     end
   }
 end
