@@ -27,16 +27,11 @@
 package org.cougaar.core.security.userauth;
 
 import java.util.*;
-
-// Cougaar core infrastructure
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.*;
-
-// Cougaar security services
 import org.cougaar.core.security.ssl.ui.*;
 import org.cougaar.core.security.provider.*;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.component.*;
 
 /**
  * This is the default implementation of UserAuthenticator
@@ -55,41 +50,13 @@ import org.cougaar.core.security.crypto.*;
  * 2. call the init method, or subclass this to change the init method.
  *
  */
-public class UserAuthenticatorImpl
-  extends UserAuthenticator
-{
+public class UserAuthenticatorImpl extends UserAuthenticator {
   protected Vector selectedHandlers = new Vector();
   protected String username = null;
-  private ServiceBroker serviceBroker;
-  private LoggingService log;
+  ServiceBroker serviceBroker;
 
   public UserAuthenticatorImpl(String username) {
     this.username = username;
-  }
-
-  public UserAuthenticatorImpl() {
-    username = "";
-    SecurityServiceProvider secProvider = null;
-    try {
-      secProvider = new SecurityServiceProvider();
-      serviceBroker = secProvider.getServiceBroker();
-      log = (LoggingService)
-	serviceBroker.getService(this, LoggingService.class, null);
-    } catch (Exception ex) {
-      if (log != null) {
-	log.warn("Unable to create UserAuthenticatorImpl: " + ex);
-      }
-      throw new RuntimeException("Unable to create UserAuthenticatorImpl: " + ex);
-    }
-    init(secProvider);
-
-    try {
-      authenticateUser();
-    } catch (Exception ex) {
-      if (log != null) {
-	log.warn("Unable to authenticate user: " + ex);
-      }
-    }
   }
 
   /**
@@ -98,13 +65,7 @@ public class UserAuthenticatorImpl
   public void init(SecurityServiceProvider secProvider) {
     try {
       if (secProvider != null) {
-	if (serviceBroker == null) {
-	  serviceBroker = secProvider.getServiceBroker();
-	}
-	if (log == null) {
-	  log = (LoggingService)
-	    serviceBroker.getService(this, LoggingService.class, null);
-	}
+        serviceBroker = secProvider.getServiceBroker();
         KeyRingService keyRing = (KeyRingService)
                                           secProvider.getService(serviceBroker,
                                                          this,
@@ -116,15 +77,11 @@ public class UserAuthenticatorImpl
                                                    UserSSLService.class);
 
         // handler for certificates
-	if (keyRing != null) {
-	  KeyRingUserAuthImpl certhandler = new KeyRingUserAuthImpl(keyRing.getKeyStore());
-	  registerHandler(certhandler);
-	  userservice.setAuthHandler(certhandler);
-	}
+        KeyRingUserAuthImpl certhandler = new KeyRingUserAuthImpl(keyRing.getKeyStore());
+        registerHandler(certhandler);
+        userservice.setAuthHandler(certhandler);
       }
-    } catch (Exception ex) {
-      log.warn("Unable to initialize UserAuthenticatorImpl:" + ex);
-    }
+    } catch (Exception ex) {}
 
     BasicAuthHandler passhandler = new BasicAuthHandler();
     registerHandler(passhandler);
@@ -134,12 +91,26 @@ public class UserAuthenticatorImpl
     pa.setAuthHandler(passhandler);
   }
 
+  public UserAuthenticatorImpl() {
+    username = "";
+    SecurityServiceProvider secProvider = null;
+    try {
+      secProvider = new SecurityServiceProvider();
+    } catch (Exception ex) {
+    }
+    init(secProvider);
+
+    try {
+      authenticateUser();
+    } catch (Exception ex) {}
+  }
+
   public boolean authenticateUser() throws Exception {
     if (handlers.size() == 0)
       return false;
 
     if (selectedHandlers.size() == 0) {
-      AuthSchemeDialog dialog = new AuthSchemeDialog();
+      AuthSchemeDialog dialog = new AuthSchemeDialog(serviceBroker);
       Vector handlerlist = new Vector();
       for (Enumeration e = handlers.elements(); e.hasMoreElements(); )
         handlerlist.addElement(e.nextElement());
