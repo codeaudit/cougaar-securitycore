@@ -226,10 +226,13 @@ grant codeBase "file:${org.cougaar.install.path}${/}sys${/}jpcsc.jar" signedBy "
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar" signedBy "privileged"  {
         permission java.security.SecurityPermission "getPolicy";
+        permission java.security.SecurityPermission "setPolicy";
         permission javax.security.auth.AuthPermission "getSubject";
         permission java.lang.RuntimePermission "getClassLoader";
 	permission java.lang.RuntimePermission "createClassLoader";
 	permission javax.security.auth.AuthPermission "setReadOnly";
+	permission org.cougaar.core.security.auth.ContextPermission "setContextService";
+	permission org.cougaar.core.security.auth.ContextPermission "setAuthorizationService";
 	permission org.cougaar.core.security.crypto.KeyRingPermission "readPrivateKey";
 	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
         permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
