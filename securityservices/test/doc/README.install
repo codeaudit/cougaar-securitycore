@@ -356,6 +356,16 @@ and ul-mini-config-LA.conf.
 Java properties
 
 
+Running a society with OpenLDAP
+===============================
+
+When a society is executed with the use of an OpenLDAP directory service,
+it is possible to reset all the certificates by typing the following
+command in the securityservices/test/configs/certauthority directory:
+     addldap-ISAT
+This script removes any certificate entry in the LDAP server and
+creates a fresh certificate data model for certificate storage.
+
 
 ===============
 Below  is the list of system properties used by the access control,

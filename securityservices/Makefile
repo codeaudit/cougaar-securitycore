@@ -19,6 +19,13 @@ clean:
 	rm -i ${COUGAARCLASSES}/securityservices.jar
 # We use the -i option just in case you don't really want to delete everything
 
+clean-data:
+	@echo +++++++ Removing configuration data
+	rm -i test/configs/ul-mini-config-openldap/keystore-*
+	rm -ri test/configs/ul-mini-config-openldap/Crypto-*
+	rm -ri test/configs/ul-mini-config-openldap/*.log
+	rm -ri test/configs/demo/*.log
+
 classes:
 	@echo +++++++ Compiling the source code
 	export COUGAAR_INSTALL_PATH; export COUGAARCLASSES; export CLASSPATH
@@ -80,6 +87,7 @@ install: installconf
 installconf:
 	echo +++++++ Installing configuration files
 	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/
+	cp test/configs/small-135/* ${COUGAAR_INSTALL_PATH}/configs/small-135
 	cp sys/*.jar ${COUGAAR_INSTALL_PATH}/sys
 #	cp -r ./test/configs/demo ${COUGAAR_INSTALL_PATH}/configs/.
 #	cp -r ./test/configs/ul-mini-config  ${COUGAAR_INSTALL_PATH}/configs/.

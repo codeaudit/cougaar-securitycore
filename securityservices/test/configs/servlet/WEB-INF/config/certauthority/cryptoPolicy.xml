@@ -19,6 +19,7 @@
     <ldapURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="jjacobs">ldap://pear:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>
+    <ldapURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</ldapURL>
 
     <!-- The name of a file where the next serial number is stored -->
     <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
@@ -59,6 +60,7 @@
     <ldapURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="jjacobs">ldap://pear:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>
+    <ldapURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</ldapURL>
 
     <!-- The name of a file where the next serial number is stored -->
     <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>

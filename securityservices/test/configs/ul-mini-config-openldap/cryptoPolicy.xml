@@ -6,6 +6,7 @@
     <!-- The following parameter must be changed according to the appropriate
          deployment configuration -->
     <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
+    <CA_URL role="isat">http://u041e:8080/CA/servlet/certrequest</CA_URL>
     <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</CA_DN>
     <CA_keystore>keystoreNCA_CA</CA_keystore>
     <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
@@ -16,6 +17,7 @@
     <CertDirectoryURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="jjacobs">ldap://pear:389/dc=jjacobs,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</CertDirectoryURL>
 
     <!-- Organizational unit -->
     <ou>CONUS</ou>

@@ -191,6 +191,7 @@ grant signedBy "privileged" {
 	////////////////////////////////////////////////////
 	// These properties are set in Node.java
 	permission java.util.PropertyPermission "org.cougaar.core.society.Node.name", "read, write";
+	permission java.util.PropertyPermission "org.cougaar.node.name", "read, write";
 	permission java.util.PropertyPermission "org.cougaar.config", "read, write";
 	permission java.util.PropertyPermission "org.cougaar.config.server", "read, write";
 	permission java.util.PropertyPermission "org.cougaar.name.server", "read, write";
