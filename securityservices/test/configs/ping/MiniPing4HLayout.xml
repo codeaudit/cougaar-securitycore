@@ -1,0 +1,43 @@
+<?xml version='1.0'?>
+<society name='MiniPing-layout' 
+  xmlns:xsi='http:/www.w3.org/2001/XMLSchema-instance' 
+  xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'> 
+  <host name='HOST1'> 
+    <facet enclave='Conus'/> 
+    <node name='ROOT-CA-NODE'> 
+    <!--  <facet role="jswat"/> --> 
+     <!-- <facet role="ejp"/> -->
+      <facet role="NameServer"/> 
+      <facet role="RootCertificateAuthority"/> 
+    </node> 
+    <node name='CA-NODE'> 
+      <facet role="CertificateAuthority"/> 
+    </node> 
+  </host> 
+  <host name='HOST2'> 
+    <node name='MGMT-NODE'> 
+      <facet role="AS-Management"/> 
+      <facet role="AS-RootManagement"/> 
+    </node> 
+  </host> 
+  <host name='HOST3'> 
+    <facet enclave='Conus'/> 
+    <node name='NodeA'> 
+      <!-- <facet role="optimizeIt"/> -->
+      <agent name='AgentA'> 
+        <facet org_id='OSD.GOV'/> 
+      </agent>
+    </node> 
+  </host> 
+  <host name='HOST4'> 
+    <node name='NodeB'> 
+      <agent name='AgentB'/> 
+    </node> 
+    <node name='NodeC'> 
+      <agent name='AgentC'/> 
+    </node> 
+    <node name='NodeD'> 
+    </node> 
+  </host> 
+</society>
+
