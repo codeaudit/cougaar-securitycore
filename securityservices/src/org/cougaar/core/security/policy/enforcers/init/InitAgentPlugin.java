@@ -57,7 +57,9 @@ public class InitAgentPlugin extends ComponentPlugin {
 
 	// Here is an agent of interest
 	String agentName = getAgentIdentifier().toAddress();
-	_log.info("Creating Enforcers for " + agentName);
+        if (_log.isInfoEnabled()) {
+          _log.info("Creating Enforcers for " + agentName);
+        }
 
 	// Every agent needs to be registered.  We do this by creating an 
 	// agent enforcer for the agent and making sure that it is
@@ -85,6 +87,8 @@ public class InitAgentPlugin extends ComponentPlugin {
      */
   protected void execute()
   {
-    _log.debug("InitAgentPlugin.execute");
+    if (_log.isDebugEnabled()) {
+      _log.debug("InitAgentPlugin.execute");
+    }
   }
 }
