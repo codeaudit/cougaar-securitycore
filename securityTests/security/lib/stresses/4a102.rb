@@ -76,7 +76,7 @@ this is in 4a101
 #        port = CertRevocation.new.getParameter(node, /http.port/, nil)
 # request to get persistence status
 #        url = "http://#{host.name}:#{port}/$#{node.name}/PersistenceVerificationServlet"
-        url = "#{node.uri}/$#{node.name}/PersistenceVerificationServlet"
+        url = "#{node.uri}/#{node.name}/PersistenceVerificationServlet"
         puts "#{url.to_s}"
         response = getHtml(url)
         puts "#{response.to_s}"

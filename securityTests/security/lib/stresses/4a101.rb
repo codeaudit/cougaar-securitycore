@@ -81,8 +81,8 @@ puts node.name
 
         port = @certRevocation.getParameter(node, /http.port/, nil)
 # request to get persistence status
-#        url = "http://#{host.name}:#{port}/$#{node.name}/PersistenceVerificationServlet"
-        url = "#{node.uri}/$#{node.name}/PersistenceVerificationServlet"
+#        url = "#{node.uri}/PersistenceVerificationServlet"
+        url = "#{node.uri}/#{node.name}/PersistenceVerificationServlet"
         puts "#{url.to_s}"
         response = getHtml(url)
 #         puts "#{response.to_s}"
@@ -116,8 +116,8 @@ puts node.name
 
 #         port = @certRevocation.getParameter(node, /http.port/, nil)
 # request to get persistence status
-#         url = "http://#{host.name}:#{port}/$#{node.name}/PersistenceVerificationServlet"
-        url = "#{node.uri}/$#{node.name}/PersistenceVerificationServlet"
+        # url = "#{node.uri}/PersistenceVerificationServlet"
+        url = "#{node.uri}/#{node.name}/PersistenceVerificationServlet"
         puts "#{url.to_s}"
         response = getHtml(url)
         puts "#{response.to_s}"
@@ -147,7 +147,7 @@ puts node.name
 #         port = @certRevocation.getParameter(node, /http.port/, nil)
 # request to get persistence status
 #         url = "http://#{node.host.name}:#{port}/$#{node.name}/PersistenceVerificationServlet"
-    url = "#{node.uri}/$#{node.name}/PersistenceVerificationServlet"
+    url = "#{node.uri}/#{node.name}/PersistenceVerificationServlet"
     response = getHtml(url)
 puts response.body
 

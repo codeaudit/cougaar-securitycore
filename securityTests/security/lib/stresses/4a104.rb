@@ -63,7 +63,7 @@ class Security4a104Experiment < SecurityStressFramework
          port = CertRevocation.new.getParameter(node, /http.port/, nil)
 # request to get persistence status
 #         url = "http://#{host.name}:#{port}/$#{node.name}/PersistenceVerificationServlet"
-         url = "#{node.url}/$#{node.name}/PersistenceVerificationServlet"
+         url = "#{node.uri}/#{node.name}/PersistenceVerificationServlet"
        begin
          response = getHtml(url)
        rescue => ex
