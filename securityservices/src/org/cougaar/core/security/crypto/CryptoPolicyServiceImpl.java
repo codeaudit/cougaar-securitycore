@@ -417,5 +417,38 @@ public class CryptoPolicyServiceImpl
 	// hm.put(key, smp);
     }
 
-}
+    public void receivePolicyMessage(SecurityPolicy policy, 
+                                      String policyID, 
+                                      String policyName, 
+                                      String policyDescription, 
+                                      String policyScope, 
+                                      String policySubjectID, 
+                                      String policySubjectName, 
+                                      String policyTargetID, 
+                                      String policyTargetName, 
+                                      String policyType) {
+      
+      if (dbg) {
+          System.out.println("CryptoPolicyServiceImpl: Received policy message");
+        }
+
+      CryptoPolicy cp = null;
+      try{
+        cp = (CryptoPolicy)policy;
+      }catch(Exception e){
+        System.out.println("CryptoPolicyServiceImpl:recieved unknown policy type");
+        return;
+      }
+
+      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSecureMethod(), true);
+      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInAsymmSpec(), true);
+      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSymmSpec(), true);
+      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSignSpec(), true);
+
+      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSecureMethod(), false);
+      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInAsymmSpec(), false);
+      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSymmSpec(), false);
+      updateAsymmetricAlgorithm("DEFAULT:DEFAULT", cp.getInSignSpec(), false);
+    }     
+  }
 }
