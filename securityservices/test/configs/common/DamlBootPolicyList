@@ -130,8 +130,24 @@ Policy DamlBootPolicyServletRestAuth = [
          $Ultralog/Names/EntityInstances.daml#NoAuthSSL }
 ]
 
-Policy DamlBootPolicyPolicyServlet  = [ 
-  A user in role PolicyAdministrator can access a servlet named PolicyServlet
+Policy DamlBootPolicyPolicyServletRear  = [ 
+  A user in role RearPolicyAdministrator can access a servlet 
+  named RearPolicyServlet
+]
+
+Policy DamlBootPolicyPolicyServletFwd  = [ 
+  A user in role FwdPolicyAdministrator can access a servlet 
+  named FwdPolicyServlet
+]
+
+Policy DamlBootPolicyPolicyServletConus  = [ 
+  A user in role ConusPolicyAdministrator can access a servlet 
+  named ConusPolicyServlet
+]
+
+Policy DamlBootPolicyPolicyServletTrans  = [ 
+  A user in role TransPolicyAdministrator can access a servlet 
+  named TransPolicyServlet
 ]
 
 Policy DamlBootPolicySCmrManager  = [ 
