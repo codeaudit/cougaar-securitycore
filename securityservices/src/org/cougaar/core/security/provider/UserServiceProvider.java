@@ -33,24 +33,44 @@ import org.cougaar.core.security.acl.user.AgentUserService;
 import org.cougaar.core.security.acl.user.LdapUserServiceImpl;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
 
+import java.util.Iterator;
 
 public class UserServiceProvider implements ServiceProvider
 {
-  private static final boolean AGENT_SERVICE = !Boolean.getBoolean("org.cougaar.core.security.provider.UserService.ldap");
+  protected static final boolean AGENT_SERVICE = !Boolean.getBoolean("org.cougaar.core.security.provider.UserService.ldap");
   private UserService       _service;
-  private MessageAddress    _agent;
+  private MessageAddress    _agent=null;;
+  private boolean           _listenerAdded =false;
+  private static Logger     _log=LoggerFactory.getInstance().createLogger(UserServiceProvider.class);
+  private ServiceBroker     _nodesb=null;
+  private ServiceBroker     _rootsb=null;
 
   public UserServiceProvider(MessageAddress agent) {
     _agent = agent;
   }
 
-  public UserServiceProvider(ServiceBroker root) {
-    if (!AGENT_SERVICE) {
-      LdapUserServiceImpl.setRootServiceBroker(root);
+  public UserServiceProvider(ServiceBroker sb ) {
+    if(AGENT_SERVICE){
+      _service=new AgentUserService(sb);
     }
+    else{
+      _service = new LdapUserServiceImpl(sb, _agent);
+    }
+  
+    
   }
-
+  public static void  setRootServiceBroker(ServiceBroker sb){
+    if (!AGENT_SERVICE) {
+      LdapUserServiceImpl.setRootServiceBroker(sb);
+    }
+   
+  }
+  
   /**
    * Get a service.
    * @param sb a Service Broker
@@ -61,16 +81,57 @@ public class UserServiceProvider implements ServiceProvider
   public synchronized Object getService(ServiceBroker sb,
                                         Object requestor,
                                         Class serviceClass) {
-    if (_service == null) {
+    /*
+      if (_service == null) {
+      _log.debug("requestor for User service is :"+requestor.toString());
+      _log.debug("service broker is "+ sb.toString());
+      Iterator iter = sb.getCurrentServiceClasses();
+      _log.debug("Current services that can be obtained at UserServiceProvider  are:"); 
+      Object object=null;
+      while(iter.hasNext()){
+      object =iter.next();
+      _log.debug("Service ----->"+ object.toString());
+      }
       if (_agent == null) {
-        AgentIdentificationService ais = (AgentIdentificationService)
-          sb.getService(this, AgentIdentificationService.class, null);
-        _agent = ais.getMessageAddress();
+      _log.debug(" Agent is null in UserServiceProvider ");
+      AgentIdentificationService ais = (AgentIdentificationService)
+      sb.getService(this, AgentIdentificationService.class, null);
+      if((ais==null) &&(!_listenerAdded)) {
+      _log.debug("Adding AgentIdentificationService listener");
+      ServiceAvailableListener listener = new AgentIdentityServiceListener(); 
+      sb.addServiceListener(listener);
+      _listenerAdded=true;
+      return null;
+      }
+      if((ais!=null)&&(_agent==null)) {
+      _agent = ais.getMessageAddress();
+      }
       }
       if (AGENT_SERVICE) {
-        _service = new AgentUserService(sb, _agent);
+      _service = new AgentUserService(sb, _agent);
+      _log.debug(" USER SERVICE instance created with  "+ sb.toString());
+      _log.debug(" USER SERVICE instance created"+_service.toString());
       } else {
+      _log.debug(" LdapUserServiceImpl  instance created with  "+ sb.toString());
+      _service = new LdapUserServiceImpl(sb, _agent);
+      }
+      }
+    */
+
+    if (_service == null) {
+      if (AGENT_SERVICE) {
+        _service = new AgentUserService(sb);
+      }
+      else {
+        if(_log.isDebugEnabled()){
+          _log.debug(" LdapUserServiceImpl  instance created with  "+ sb.toString());
+        }
         _service = new LdapUserServiceImpl(sb, _agent);
+      }
+    }
+    else {
+      if(_log.isDebugEnabled()){
+        _log.debug("Providing with User service that is already created :"+ _service.toString());
       }
     }
     return _service;
@@ -83,8 +144,9 @@ public class UserServiceProvider implements ServiceProvider
    * @param service the service to be released.
    */
   public synchronized void releaseService(ServiceBroker sb,
-                                             Object requestor,
-                                             Class serviceClass,
-                                             Object service) {
+                                          Object requestor,
+                                          Class serviceClass,
+                                          Object service) {
   }
+  
 }
