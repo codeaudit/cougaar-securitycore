@@ -48,13 +48,7 @@ public class LdapUserServiceProvider
                                         Class serviceClass) {
 
     if (_service == null) {
-      try {
-        _service = new LdapUserServiceImpl();
-      } catch (NamingException ex) {
-        // FIXME: This should probably log somewhere
-        System.out.println("Couldn't create LdapUserService");
-        ex.printStackTrace();
-      }
+      _service = new LdapUserServiceImpl();
     }
     return _service;
   }

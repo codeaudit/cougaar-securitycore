@@ -44,75 +44,55 @@ import javax.naming.directory.SearchResult;
 import javax.naming.directory.AttributeModificationException;
 
 import org.cougaar.core.security.services.crypto.LdapUserService;
+import org.cougaar.planning.ldm.policy.RuleParameter;
+import com.nai.security.policy.GuardRegistration;
+import safe.enforcer.NodeEnforcer;
+import org.cougaar.planning.ldm.policy.Policy;
+import org.cougaar.core.security.policy.LdapUserServicePolicy;
 
 public class LdapUserServiceImpl implements LdapUserService {
 
-  private static final String PROP_BASE     =
-    "org.cougaar.core.security.crypto.ldap.";
-  public static final String PROP_URL      = PROP_BASE + "ldapurl";
-  public static final String PROP_USER     = PROP_BASE + "user";
-  public static final String PROP_PASSWORD = PROP_BASE + "password";
-  public static final String PROP_USER_DN  = PROP_BASE + "user_dn";
-  public static final String PROP_ROLE_DN  = PROP_BASE + "role_dn";
-  public static final String PROP_URDN     = PROP_BASE + "user_rdn";
-  public static final String PROP_RRDN     = PROP_BASE + "role_rdn";
-  public static final String PROP_UOC      = PROP_BASE + "userClass";
-  public static final String PROP_ROC      = PROP_BASE + "roleClass";
-  public static final String PROP_RATTR    = PROP_BASE + "roleAttr";
+  public static final String PROP_URL      = "ldapurl";
+  public static final String PROP_USER     = "user";
+  public static final String PROP_PASSWORD = "password";
+  public static final String PROP_USER_DN  = "user_dn";
+  public static final String PROP_ROLE_DN  = "role_dn";
+  public static final String PROP_URDN     = "user_rdn";
+  public static final String PROP_RRDN     = "role_rdn";
+  public static final String PROP_UOC      = "userClass";
+  public static final String PROP_ROC      = "roleClass";
+  public static final String PROP_RATTR    = "roleAttr";
 
-  protected InitialDirContext _context;
-  protected String            _url;
-  protected String            _ldapUser;
-  protected String            _ldapPwd;
-  protected String            _userBase;
-  protected String            _roleBase;
-  protected String            _urdn;
-  protected String            _rrdn;
-  protected String            _uoc;
-  protected String            _roc;
-  protected String            _rattr;
+  protected InitialDirContext _context     = null;
+  protected String            _url         = "ldap:///";
+  protected String            _ldapUser    = null;
+  protected String            _ldapPwd     = null;
+  protected String            _userBase    = "dc=cougaar,dc=org";
+  protected String            _roleBase    = "dc=roles,dc=cougaar,dc=org";
+  protected String            _urdn        = "uid";
+  protected String            _rrdn        = "cn";
+  protected String            _uoc         = "inetOrgPerson";
+  protected String            _roc         = "groupOfUniqueNames";
+  protected String            _rattr       = "uniqueMember";
+
+  protected LdapUserServiceConfigurer _configurer;
 
   /**
    * Default constructor - initializes the LDAP connection using
-   * environment variables
+   * the guard's policy. If no policy exists, there will be no
+   * connection to the user database.
    */
-  public LdapUserServiceImpl() throws NamingException {
-    initializeProperties();
-
-    Hashtable env = new Hashtable();
-    setLdapEnvironment(env);
-
-    _context = new InitialDirContext(env);
+  public LdapUserServiceImpl() {
+    _configurer = new LdapUserServiceConfigurer();
   }
 
   /**
-   * Called during construction to initialize the following properties:
-   * <ul>
-   * <li>_url
-   * <li>_ldapUser
-   * <li>_ldapPwd
-   * <li>_userBase
-   * <li>_roleBase
-   * <li>_urdn
-   * <li>_rrdn
-   * <li>_uoc
-   * <li>_roc
-   * <li>_rattr
-   * </ul>
-   * This implementation uses <code>System</code> properties using
-   * the PROP_* class variables as keys.
+   * Default constructor - initializes the LDAP connection using
+   * the guard's policy. If no policy exists, there will be no
+   * connection to the user database.
    */
-  protected void initializeProperties() {
-    _ldapUser = System.getProperty(PROP_USER);
-    _ldapPwd  = System.getProperty(PROP_PASSWORD);
-    _url      = System.getProperty(PROP_URL, "ldaps:///");
-    _userBase = System.getProperty(PROP_USER_DN,"dc=nai,dc=com");
-    _roleBase = System.getProperty(PROP_ROLE_DN,"dc=roles,dc=nai,dc=com");
-    _urdn     = System.getProperty(PROP_URDN, "cn");
-    _rrdn     = System.getProperty(PROP_RRDN, "cn");
-    _uoc      = System.getProperty(PROP_UOC, "person");
-    _roc      = System.getProperty(PROP_ROC, "groupOfUniqueNames");
-    _rattr    = System.getProperty(PROP_RATTR, "uniqueMember");
+  public LdapUserServiceImpl(LdapUserServiceConfigurer configurer) {
+    _configurer = configurer;
   }
 
   /**
@@ -299,4 +279,100 @@ public class LdapUserServiceImpl implements LdapUserService {
     _context.destroySubcontext(rid2dn(rid));
   }
 
+  public class LdapUserServiceConfigurer 
+    extends GuardRegistration
+    implements NodeEnforcer {
+    public LdapUserServiceConfigurer() {
+      super(LdapUserServicePolicy.class.getName(), "LdapUserService");
+      try {
+        registerEnforcer();
+      } catch (Exception ex) {
+        // FIXME: Shouldn't just let this drop, I think
+        ex.printStackTrace();
+      }
+    }
+
+    /**
+     * Merges an existing policy with a new policy.
+     * @param policy the new policy to be added
+     */
+    public void receivePolicyMessage(Policy policy,
+                                     String policyID,
+                                     String policyName,
+                                     String policyDescription,
+                                     String policyScope,
+                                     String policySubjectID,
+                                     String policySubjectName,
+                                     String policyTargetID,
+                                     String policyTargetName,
+                                     String policyType) {
+      if (policy == null) {
+        return;
+      }
+
+      if (debug) {
+        System.out.println("LdapUserService: Received policy message");
+        RuleParameter[] param = policy.getRuleParameters();
+        for (int i = 0 ; i < param.length ; i++) {
+          System.out.println("Rule: " + param[i].getName() +
+                             " - " + param[i].getValue());
+        }
+      }
+
+      boolean reset = false;
+
+      // what is the policy change?
+      RuleParameter[] param = policy.getRuleParameters();
+      for (int i = 0; i < param.length; i++) {
+        String name  = param[i].getName();
+        String value = param[i].getValue().toString();
+        if (PROP_URL.equals(name)) {
+          reset = true;
+          _url = value;
+        } else if (PROP_USER.equals(name)) {
+          reset = true;
+          _ldapUser = value;
+        } else if (PROP_PASSWORD.equals(name)) {
+          reset = true;
+          _ldapPwd = value;
+        } else if (PROP_USER_DN.equals(name)) {
+          _userBase = value;
+        } else if (PROP_ROLE_DN.equals(name)) {
+          _roleBase = value;
+        } else if (PROP_URDN.equals(name)) {
+          _urdn = value;
+        } else if (PROP_RRDN.equals(name)) {
+          _rrdn = value;
+        } else if (PROP_UOC.equals(name)) {
+          _uoc = value;
+        } else if (PROP_ROC.equals(name)) {
+          _roc = value;
+        } else if (PROP_RATTR.equals(name)) {
+          _rattr = value;
+        } else {
+          System.out.println("LdapUserServiceImpl: Don't know how to handle configuration parameter: " + name);
+        }
+      }
+      if (reset) {
+        synchronized (this) {
+          if (_context != null) {
+            try {
+              _context.close();
+            } catch (NamingException ne) {
+              // ignore -- it's gone, anyway
+            }
+          }
+          Hashtable env = new Hashtable();
+          setLdapEnvironment(env);
+          try {
+            System.out.println("Starting Context: " + env);
+            _context = new InitialDirContext(env);
+          } catch (NamingException e) {
+            System.out.println("LdapUserService: couldn't initialize connection to User LDAP database");
+            e.printStackTrace();
+          }
+        }
+      }
+    }
+  }
 }

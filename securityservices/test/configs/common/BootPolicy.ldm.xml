@@ -101,7 +101,53 @@
       </KeySet>
     </RuleParam>
 
-</Policy>
+   </Policy>
+
+<!-- Requires User database
+  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.LdapUserServicePolicy">
+    <RuleParam name="ldapurl">
+      <String value="ldaps://chump/"/>
+    </RuleParam>
+    <RuleParam name="user_dn">
+      <String value="dc=nai,dc=com"/>
+    </RuleParam>
+    <RuleParam name="role_dn">
+      <String value="dc=roles,dc=nai,dc=com"/>
+    </RuleParam>
+    <RuleParam name="user_rdn">
+      <String value="uid"/>
+    </RuleParam>
+    <RuleParam name="role_rdn">
+      <String value="cn"/>
+    </RuleParam>
+    <RuleParam name="userClass">
+      <String value="inetOrgPerson"/>
+    </RuleParam>
+    <RuleParam name="roleClass">
+      <String value="groupOfUniqueNames"/>
+    </RuleParam>
+    <RuleParam name="roleAttr">
+      <String value="uniqueMember"/>
+    </RuleParam>
+  </Policy>
+
+  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.ServletPolicy">
+    <RuleParam name="allow-role">
+      <KeySet value="roles">
+        <Key key="ExerciseOne" value="secure" />
+        <Key key="ExerciseOne" value="tomcat"/>
+      </KeySet>
+    </RuleParam>
+  </Policy>
+-->
+
+<!-- Test for servlet proxy
+  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.acl.auth.test.BlackboardFilter$BlackboardPolicy">
+    <RuleParam name="query">
+      <String value="secure"/>
+    </RuleParam>
+  </Policy>
+-->
 
 </Policies>
 
