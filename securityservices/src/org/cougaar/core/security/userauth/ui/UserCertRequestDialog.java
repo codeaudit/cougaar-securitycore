@@ -38,6 +38,7 @@ import java.security.cert.*;
 import sun.security.x509.*;
 
 import org.cougaar.core.component.*;
+import org.cougaar.core.service.LoggingService;
 
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.crypto.*;
@@ -56,7 +57,8 @@ public class UserCertRequestDialog extends JDialog {
 
   ServiceBroker serviceBroker;
   JTabbedPane jTabbedPane1 = new JTabbedPane();
-
+  
+  protected LoggingService log;
   KeyRingService keyRing;
 
   public UserCertRequestDialog(ServiceBroker sb) {
@@ -69,6 +71,9 @@ public class UserCertRequestDialog extends JDialog {
       serviceBroker.getService(this,
 			       KeyRingService.class,
 			       null);
+     log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
 
     try {
       jbInit();
@@ -140,18 +145,31 @@ public class UserCertRequestDialog extends JDialog {
 				    "Configuration error", JOptionPane.ERROR_MESSAGE, null);
       throw new RuntimeException("The cryptographic service is not initialized properly");
     }
-    try {
+     CertificateCacheService cacheservice=(CertificateCacheService)
+       serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
+     
+  if(cacheservice==null) {
+     log.warn("Unable to get Certificate cache Service in loadRequest");
+  }
+  
+  try {
 
-      KeyStore keystore = keyRing.getKeyStore();
-      Enumeration aliases = keystore.aliases();
+    //KeyStore keystore = keyRing.getKeyStore();
+    Enumeration aliases = null;
+    if(cacheservice!=null) {
+      cacheservice.getAliasList();
+    }
+    if(aliases!=null){
       for (; aliases.hasMoreElements(); ) {
         String alias = (String)aliases.nextElement();
-        java.security.cert.Certificate [] certChain = keystore.getCertificateChain(alias);
+        java.security.cert.Certificate [] certChain = cacheservice.getCertificateChain(alias);
         if (certChain.length == 0)
           continue;
         String dname = ((X509Certificate)certChain[0]).getSubjectDN().getName();
         String title = CertificateUtility.findAttribute(dname, "t");
-        if (title.equals(DirectoryKeyStore.CERT_TITLE_USER)) {
+        if (title.equals(CertificateCache.CERT_TITLE_USER)) {
       // check if it is self-signed
           if (certChain.length == 1) {
             //System.out.println("adding: " + dname);
@@ -160,7 +178,12 @@ public class UserCertRequestDialog extends JDialog {
         }
       }
       profilePanel.requestBox.updateUI();
+    }
+    else {
+      log.warn("Unable to get aliases as Certificate cache Service is null");
+    }
     } catch (KeyStoreException kex) {}
+  
   }
 
   public boolean generateUserCertRequest() {
@@ -203,7 +226,7 @@ public class UserCertRequestDialog extends JDialog {
    */
   public boolean setKeyPassword(X500Name dname, char [] pwd) {
     java.util.List list = keyRing.findPrivateKey(dname);
-    KeyStore keystore = keyRing.getKeyStore();
+    // KeyStore keystore = keyRing.getKeyStore();
     if (list == null || list.size() == 0)
       return false;
 
@@ -215,10 +238,23 @@ public class UserCertRequestDialog extends JDialog {
     PrivateKey privatekey = keyCert.getPrivateKey();
     CertificateStatus cs = keyCert.getCertificateStatus();
     String alias = cs.getCertificateAlias();
+     CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
+
+  if(cacheservice==null) {
+    log.warn("Unable to get Certificate cache Service in setKeyPassword");
+  }
     try {
-      java.security.cert.Certificate [] certChain =
-        keystore.getCertificateChain(alias);
-      keystore.setKeyEntry(alias, privatekey, pwd, certChain);
+      java.security.cert.Certificate [] certChain =null;
+      if(cacheservice!=null) {
+        certChain=cacheservice.getCertificateChain(alias);
+	cacheservice.setKeyEntry(alias, privatekey, pwd, certChain);
+      }
+      else {
+	 return false;
+      }
     } catch (KeyStoreException kex) {
       System.out.println("KeyStoreException: " + kex);
       return false;
@@ -233,7 +269,7 @@ public class UserCertRequestDialog extends JDialog {
       + ",l=" + profilePanel.lField.getText()
       + ",st=" + profilePanel.stField.getText()
       + ",c=" + profilePanel.cField.getText()
-      + ",t=" + DirectoryKeyStore.CERT_TITLE_USER;
+      + ",t=" + CertificateCache.CERT_TITLE_USER;
     return dn;
   }
 
