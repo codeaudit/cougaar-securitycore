@@ -214,6 +214,11 @@ public class AgentUserService implements UserService, BlackboardClient {
 	throw new UserServiceException(message);
 	
       }
+      if (!_communityService.communityExists(community)) {
+        String message = "The user has no community named " + community;
+        _log.debug(message);
+        throw new UserServiceException(message);
+      }
       Attributes attrs = _communityService.getCommunityAttributes(community);
       if (_log.isDebugEnabled()) {
         _log.debug("Attributes for Community (" + community + "): " +
