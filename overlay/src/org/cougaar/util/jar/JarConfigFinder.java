@@ -131,7 +131,7 @@ public class JarConfigFinder
        ("org.cougaar.util.jar.jarFilesOnly", "false")).booleanValue();
 
     if (getLogger().isDebugEnabled()) {
-      getLogger().debug("jar Files only: " + _jarFilesOnly);
+      getLogger().debug("jar Files only: " + jarFilesOnly());
       Iterator it = _configPathList.iterator();
       String s = "";
       while (it.hasNext()) {
