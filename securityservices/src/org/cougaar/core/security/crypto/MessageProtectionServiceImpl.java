@@ -551,6 +551,22 @@ public class MessageProtectionServiceImpl
                        AttributeConstants.DELIVERY_STATUS_DELIVERED);
   }
 
+  /*
+   * This routine is used on the receiving side of the message to see
+   * if the underlying stream is encrypted.  The receiver cannot trust
+   * the attributes which are used on the sending  side.
+   */
+  private boolean isEncrypted()
+  {
+    return KeyRingSSLServerFactory.getPrincipal() != null;
+  }
+
+  /*
+   * This routine is used on the sending side of the message to see
+   * if the underlying stream is encrypted.  We look at attributes on
+   * the message that are set by the DestinationLink.
+   */
+
   private boolean isEncrypted(MessageAttributes attrs) 
   {
     if (attrs == null) {
@@ -770,7 +786,7 @@ public class MessageProtectionServiceImpl
     */
 
     boolean isReply         = isReply(attrs);
-    boolean encryptedSocket = isEncrypted(attrs);
+    boolean encryptedSocket = isEncrypted();
     try {
       return new ProtectedMessageInputStream(is, source, destination,
                                              encryptedSocket, isReply,
@@ -816,6 +832,8 @@ public class MessageProtectionServiceImpl
 //     } catch (Exception e) {
 //       log.warn("Unexpected Exception when reading input stream", e);
 //       return null;
+    } finally {
+      KeyRingSSLServerFactory.resetPrincipal();
     }
   }
   
