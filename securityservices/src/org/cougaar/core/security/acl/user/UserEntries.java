@@ -198,64 +198,7 @@ public class UserEntries implements UniqueObject {
   public void editUser(String uid, Map added, Map edited, Set deleted) 
     throws UserServiceException {
     UserData user = getUserData(uid);
-    Iterator iter = null;
-    for (int i = 0; i < 2; i++) {
-      if (i == 0) {
-        if (added != null) {
-          iter = added.entrySet().iterator();
-        }
-      } else if (edited != null) {
-        iter = edited.entrySet().iterator();
-      }
-      while (iter != null && iter.hasNext()) {
-        Map.Entry entry = (Map.Entry) iter.next();
-        Object key = entry.getKey();
-        Object val = entry.getValue();
-        if (key.equals(FIELD_PASSWORD)) {
-          user.password = val;
-        } else if (key.equals(FIELD_ENABLE_TIME)) {
-          user.enableTime = (String)val; 
-        } else if (key.equals(FIELD_CERT_OK)) {
-          if (!(val instanceof Boolean)) {
-            val = Boolean.valueOf(val.toString());
-          }
-          user.certOk = ((Boolean) val).booleanValue();
-        } else if (key.equals(FIELD_NAME)) {
-          user.cn = (String) val;
-        } else if (key.equals(FIELD_FNAME)) {
-          user.fn = (String) val;
-        } else if (key.equals(FIELD_LNAME)) {
-          user.sn = (String) val;
-        } else if (key.equals(FIELD_AUTH)) {
-          user.auth = (String) val;
-        } else if (key.equals(FIELD_MAIL)) {
-          user.mail = (String) val;
-        }
-      }
-    }
-    if (deleted != null) {
-      iter = deleted.iterator();
-      while (iter.hasNext()) {
-        Object key = iter.next();
-        if (key.equals(FIELD_PASSWORD)) {
-          user.password = null;
-        } else if (key.equals(FIELD_ENABLE_TIME)) {
-          user.enableTime = null; 
-        } else if (key.equals(FIELD_CERT_OK)) {
-          user.certOk = false;
-        } else if (key.equals(FIELD_AUTH)) {
-          user.auth = null;
-        } else if (key.equals(FIELD_NAME)) {
-          user.cn = null;
-        } else if (key.equals(FIELD_FNAME)) {
-          user.fn = null;
-        } else if (key.equals(FIELD_LNAME)) {
-          user.sn = null;
-        } else if (key.equals(FIELD_MAIL)) {
-          user.mail = null;
-        }
-      }
-    }
+    editThing(user, added, edited, deleted);
   }
     
   public void addUser(String uid, Map attrs) throws UserServiceException {
@@ -444,17 +387,8 @@ public class UserEntries implements UniqueObject {
     }
   }
 
-  /**
-   * Modifies a role's LDAP attributes.
-   *
-   * @param rid The role's unique identifier
-   * @param added Attributes to be added
-   * @param edited Attributes to be modified
-   * @param deleted The attributes whose value should be removed
-   */
-  public void editRole(String rid, Map added, Map edited, Set deleted) 
+  private static void editThing(Object obj, Map added, Map edited, Set deleted)
     throws UserServiceException {
-    RoleData role = getRoleData(rid);
     Iterator iter = null;
     for (int i = 0; i < 2; i++) {
       if (i == 0) {
@@ -468,20 +402,89 @@ public class UserEntries implements UniqueObject {
         Map.Entry entry = (Map.Entry) iter.next();
         Object key = entry.getKey();
         Object val = entry.getValue();
-        if (key.equals(FIELD_DESCRIPTION)) {
-          role.description = (String)val;
-        } 
+        setValue(obj, key, val);
       }
     }
     if (deleted != null) {
       iter = deleted.iterator();
       while (iter.hasNext()) {
         Object key = iter.next();
-        if (key.equals(FIELD_DESCRIPTION)) {
-          role.description = null;
-        }
+        deleteValue(obj, key);
       }
     }
+  }
+
+  private static void setValue(Object obj, Object key, Object val) {
+    if (obj instanceof RoleData) {
+      RoleData role = (RoleData) obj;
+      if (key.equals(FIELD_DESCRIPTION)) {
+        role.description = (String)val;
+      } 
+    } else {
+      UserData user = (UserData) obj;
+      if (key.equals(FIELD_PASSWORD)) {
+        user.password = val;
+      } else if (key.equals(FIELD_ENABLE_TIME)) {
+        user.enableTime = (String)val; 
+      } else if (key.equals(FIELD_CERT_OK)) {
+        if (!(val instanceof Boolean)) {
+          val = Boolean.valueOf(val.toString());
+        }
+        user.certOk = ((Boolean) val).booleanValue();
+      } else if (key.equals(FIELD_NAME)) {
+        user.cn = (String) val;
+      } else if (key.equals(FIELD_FNAME)) {
+        user.fn = (String) val;
+      } else if (key.equals(FIELD_LNAME)) {
+        user.sn = (String) val;
+      } else if (key.equals(FIELD_AUTH)) {
+        user.auth = (String) val;
+      } else if (key.equals(FIELD_MAIL)) {
+        user.mail = (String) val;
+      }
+    }
+  }
+
+  private static void deleteValue(Object obj, Object key) {
+    if (obj instanceof RoleData) {
+      RoleData role = (RoleData) obj;
+      if (key.equals(FIELD_DESCRIPTION)) {
+        role.description = null;
+      } 
+    } else {
+      UserData user = (UserData) obj;
+      if (key.equals(FIELD_PASSWORD)) {
+        user.password = null;
+      } else if (key.equals(FIELD_ENABLE_TIME)) {
+        user.enableTime = null; 
+      } else if (key.equals(FIELD_CERT_OK)) {
+        user.certOk = false;
+      } else if (key.equals(FIELD_AUTH)) {
+        user.auth = null;
+      } else if (key.equals(FIELD_NAME)) {
+        user.cn = null;
+      } else if (key.equals(FIELD_FNAME)) {
+        user.fn = null;
+      } else if (key.equals(FIELD_LNAME)) {
+        user.sn = null;
+      } else if (key.equals(FIELD_MAIL)) {
+        user.mail = null;
+      }
+    }
+  }
+
+  /**
+   * Modifies a role's LDAP attributes.
+   *
+   * @param rid The role's unique identifier
+   * @param added Attributes to be added
+   * @param edited Attributes to be modified
+   * @param deleted The attributes whose value should be removed
+   */
+  public void editRole(String rid, Map added, Map edited, Set deleted) 
+    throws UserServiceException {
+    RoleData role = getRoleData(rid);
+    editThing(role, added, edited, deleted);
   }
 
   /**
