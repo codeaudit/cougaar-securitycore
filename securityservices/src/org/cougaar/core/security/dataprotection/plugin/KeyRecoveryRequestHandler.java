@@ -45,6 +45,7 @@ import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.security.crypto.CertificateRevokedException;
 import org.cougaar.core.security.dataprotection.DataProtectionKeyCollection;
 import org.cougaar.core.security.dataprotection.DataProtectionKeyImpl;
 import org.cougaar.core.security.dataprotection.DataProtectionKeyUnlockRequest;
@@ -63,7 +64,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -175,53 +176,65 @@ if (log.isDebugEnabled()) {
       return;
     }
 
-    if (keyCollection.getSignature() == null) {
-      log.warn("A request dataprotection key does not have signature, the agent is probably compromised.");
-      return;
-    }
+    boolean digestVerified = false;
+    
+    String sendSignature = System.getProperty("org.cougaar.core.security.dataprotection.sendSignature", "true");
+    if (sendSignature.equals("true")) {
+      if (keyCollection.getSignature() == null) {
+        log.warn("A request dataprotection key does not have signature, the agent is probably compromised.");
+        return;
+      }
 
-    MessageDigest dg1 = null;
-    try {
-      dg1 = MessageDigest.getInstance(keyImpl.getDigestAlg());
-      dg1.update(keyCollection.getSignature());
+      MessageDigest dg1 = null;
+      try {
+        dg1 = MessageDigest.getInstance(keyImpl.getDigestAlg());
+        dg1.update(keyCollection.getSignature());
 if (log.isDebugEnabled()) {
   byte [] sig = keyCollection.getSignature();
   log.debug("signature ");
   printBytes(sig, 0, 10, log);
 }
-    } catch (Exception ex) {
-      if (log.isWarnEnabled()) {
-        log.warn("Unable to get digest: ", ex); 
+      } catch (Exception ex) {
+        if (log.isWarnEnabled()) {
+          log.warn("Unable to get digest: ", ex); 
+        }
+        return;
       }
-      return;
-    }
     //TODO Is this in the right place 
     //check if exists on blackboard, if not return b/c invalid snap shot
-    bbs.openTransaction();
+      bbs.openTransaction();
     
-    Collection results = bbs.query(dataProtectionPredicate(keyCollection, dg1.digest(), agentName));
-    bbs.closeTransaction();
-    if (results.size() == 0) {
-      if (log.isWarnEnabled()) {
-        log.warn("A request dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
+      Collection results = bbs.query(dataProtectionPredicate(keyCollection, dg1.digest(), agentName));
+      bbs.closeTransaction();
+      if (results.size() == 0) {
+        if (log.isWarnEnabled()) {
+          log.warn("A request dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
+        }
+        return;
       }
-      return;
-    }
-    else if (results.size() != 1) {
-      if (log.isWarnEnabled()) {
-        log.warn("A request dataprotection key has more than one key in the persistence manager blackboard: " + results.size());
+      else if (results.size() != 1) {
+        if (log.isWarnEnabled()) {
+          log.warn("A request dataprotection key has more than one key in the persistence manager blackboard: " + results.size());
+        }
       }
+      digestVerified = true;
     }
 
     // Verify the trust of the certificate.
     try {
       keyRing.checkCertificateTrust(originalAgentCert);
     } catch (Exception e) {
-      if (log.isWarnEnabled()) {
-        log.warn("A request contains an untrusted certificate (from original agent):" + e);
+      if (e instanceof CertificateRevokedException && digestVerified) {
+        log.warn("certificate verification failed but digest verified, decrypting secret key for recovering compromised agent.");
       }
 
-      return;
+      else {
+        if (log.isWarnEnabled()) {
+          log.warn("A request contains an untrusted certificate (from original agent):" + e);
+        }
+
+        return;
+      }
     }
 
     X500Principal originalX500Principal = originalAgentCert.getSubjectX500Principal();
