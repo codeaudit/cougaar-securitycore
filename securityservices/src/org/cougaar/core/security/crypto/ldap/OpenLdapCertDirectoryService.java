@@ -831,9 +831,10 @@ public class OpenLdapCertDirectoryService
 
     // Set attributes from distinguished name.
     StringTokenizer parser = new StringTokenizer(cert.getSubjectDN().getName(), ",=");
+    String ldapAttrib = null;
     while(parser.hasMoreElements()) {
       try {
-        String ldapAttrib = parser.nextToken().trim().toLowerCase();
+        ldapAttrib = parser.nextToken().trim().toLowerCase();
         // 't' in certificate is 'title' in ldap
         if (ldapAttrib.equals("t"))
           ldapAttrib = "title";
@@ -841,7 +842,11 @@ public class OpenLdapCertDirectoryService
 		parser.nextToken());
       }
       catch(Exception ex) {
-	if(CryptoDebug.debug)ex.printStackTrace();
+	if(CryptoDebug.debug) {
+	  System.out.println("Error: DN=" + cert.getSubjectDN().getName()
+			     + "ldapAttrib = " + ldapAttrib);
+	  ex.printStackTrace();
+	}
       }
     }
 

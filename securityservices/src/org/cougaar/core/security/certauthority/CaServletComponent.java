@@ -120,6 +120,7 @@ public class CaServletComponent
       throw new RuntimeException("Unable to obtain agent identifier");
     }
 
+    /*
     if (CryptoDebug.debug) {
       System.out.println("Currently available services:");
       Iterator it = serviceBroker.getCurrentServiceClasses();
@@ -127,6 +128,7 @@ public class CaServletComponent
 	System.out.println(it.next().toString());
       }
     }
+    */
 
     // get the blackboard service
     blackboardService = (BlackboardService)

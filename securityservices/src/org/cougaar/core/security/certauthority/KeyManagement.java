@@ -237,21 +237,28 @@ public class KeyManagement
 	 String a = (String)enum.nextElement();
 	 String cn=null;
 	 try {
-	   cn= keyRing.getCommonName(a);
-	   System.out.println("got common name from alias : "+a +"cn = "+cn);
+	   cn = keyRing.getCommonName(a);
+	   System.out.println("got common name from alias : " + a
+			      + " cn = " + cn);
 	   certList = keyRing.findCert(cn, DirectoryKeyStore.LOOKUP_LDAP);
 
-	   c= ((CertificateStatus)certList.get(0)).getCertificate();
+	   if (certList != null && certList.size() > 0) {
+	     c = ((CertificateStatus)certList.get(0)).getCertificate();
+	   }
 	   if(c==null) {
-	     System.out.println("Found no certificate for --> :: "+ cn);
+	     System.out.println("Found no certificate in LDAP for --> "
+				+ cn);
 	   }
 	   else {
-	     System.out.println("found CA cert in ldap for :"+cn +" going to try next from ca keyStore");
+	     System.out.println("found CA cert in ldap for :"
+				+ cn
+				+ " going to try next from ca keyStore");
 	     continue;
 	   }
 	 }
 	 catch (Exception exp) {
-	   System.out.println("Found no certificate for +++ :: "+ cn +"as exp occured");
+	   System.out.println("Found no certificate in LDAP for: " + cn
+			      + " - " + exp);
 
 	   //exp.printStackTrace();
 

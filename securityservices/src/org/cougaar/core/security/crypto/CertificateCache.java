@@ -397,6 +397,9 @@ public class CertificateCache
 
   public ArrayList getValidPrivateKeys(X500Name x500Name) {
     ArrayList v = getPrivateKeys(x500Name);
+    if (v == null || v.size() == 0) {
+      return null;
+    }
     ArrayList validPrivateKeys = new ArrayList();
     ListIterator it = v.listIterator();
 

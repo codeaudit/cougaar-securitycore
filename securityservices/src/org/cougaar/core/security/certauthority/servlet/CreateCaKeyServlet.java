@@ -296,6 +296,10 @@ public class CreateCaKeyServlet
     }
 
     public String getName() {
+      if (CryptoDebug.debug) {
+	System.out.println("Creating key pair for "
+			   + principal.getName());
+      }
       return principal.getName();
     }
   }

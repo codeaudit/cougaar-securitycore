@@ -289,6 +289,13 @@ public class DirectoryKeyStore
    */
   public synchronized List findPrivateKey(String cougaarName) {
     X500Name x500Name = nameMapping.getX500Name(cougaarName);
+    if (CryptoDebug.debug) {
+      System.out.println("DirectoryKeyStore.findPrivateKey("
+			 + cougaarName
+			 + ") - x500 Name = " +
+			 ((x500Name == null) ? "not assigned yet" : x500Name.toString()));
+    }
+
     if (x500Name == null) {
       return null;
     }
@@ -308,7 +315,9 @@ public class DirectoryKeyStore
     // First, try with the hash map (cache)
     List pkc = certCache.getValidPrivateKeys(x500Name);
     if (CryptoDebug.debug) {
-      System.out.println("Found " + pkc.size() + " private keys for "
+      System.out.println("Found " +
+			 (pkc == null ? 0 : pkc.size()) +
+			 " private keys for "
 			 + x500Name.toString());
     }
 
@@ -357,7 +366,8 @@ public class DirectoryKeyStore
     List certList = certCache.getValidCertificates(x500name);
     if (CryptoDebug.debug) {
       System.out.println("Search key in local hash table:" + commonName
-	+ " - found " + certList.size() + " keys");
+	+ " - found " +	(certList == null ? 0 : certList.size())
+			 + " keys");
     }
 
     if (certList == null || certList.size() == 0) {

@@ -69,11 +69,13 @@ public class AgentIdentityServiceImpl
   private KeyRingService keyRing;
   private Object requestor;
   private MessageAddress requestorAddress;
+  private boolean clientNameIsPrincipal;
   private MessageAddress thisNodeAddress;
 
   public AgentIdentityServiceImpl(ServiceBroker sb, Object requestor)
   {
     serviceBroker = sb;
+    clientNameIsPrincipal = false;
     this.requestor = requestor;
 
     if (requestor instanceof SimpleAgent) {
@@ -84,6 +86,7 @@ public class AgentIdentityServiceImpl
     }
     else if (requestor instanceof AgentIdentityClient) {
       requestorAddress = new MessageAddress(((AgentIdentityClient)requestor).getName());
+    clientNameIsPrincipal = true;
     }
     else {
       throw new RuntimeException ("Unable to service this requestor. Unsupported client:"
@@ -136,13 +139,32 @@ public class AgentIdentityServiceImpl
       completeTransfer(transferableIdentity);
     }
     else {
-      keyRing.checkOrMakeCert(requestorAddress.toAddress());
+      if (CryptoDebug.debug) {
+	System.out.println("acquire identity:"
+			   + requestorAddress.toAddress());
+      }
+      if (clientNameIsPrincipal) {
+	try {
+	  X500Name dname = null;
+	  dname = new X500Name(requestorAddress.toAddress());
+	  keyRing.checkOrMakeCert(dname);
+	}
+	catch (Exception e) {
+	  if (CryptoDebug.debug) {
+	    System.out.println("Unable to get DN: " + e);
+	  }
+	}
+      }
+      else {
+	keyRing.checkOrMakeCert(requestorAddress.toAddress());
+      }
     }
   }
 
   public void release() {
   }
 
+  /*
   public void acquireX500Identity(Principal p)
     throws PendingRequestException,
     IdentityDeniedException {
@@ -154,6 +176,7 @@ public class AgentIdentityServiceImpl
       System.out.println("ERROR: Unable to create identity:" + e);
     }
   }
+  */
 
   /**
    * Prepare to move an agent to a remote node.
