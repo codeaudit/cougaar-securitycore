@@ -145,8 +145,7 @@ module Cougaar
         end
 
         def parseUpTime(nodeInfo, str)
-          s = `uptime`
-          s.scan(/load average: (.+),\s+(.+),\s+(.+)/) { |match|
+          str.scan(/load average: (.+),\s+(.+),\s+(.+)/) { |match|
             nodeInfo.load1min = match[0]
             nodeInfo.load5min = match[1]
             nodeInfo.load15min = match[2]
