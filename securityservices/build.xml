@@ -225,7 +225,7 @@
     
     <target name="confnai">
         <copy todir="${cougaar.install.path}/configs/small-135"
-            file="${securityservice.configs}/mysql/cougaar.rc"/>
+            file="${securityservices.configs}/mysql/cougaar.rc"/>
     </target>
     
     <!-- create log directories -->
