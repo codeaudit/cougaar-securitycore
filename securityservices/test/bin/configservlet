@@ -3,15 +3,26 @@
 echo "Don't forget to modify script before running it."
 echo ""
 
+echo "Please enter user name:"
+
 ##################
-set USER=srosset
+set USER=$<
+
+set cougaarPath=cougaar-8.8.0
+
+echo "Please enter Cougaar path: [ ${cougaarPath} ] "
+set cougaarUserPath=$<
+
+if ( ${cougaarUserPath} != "" ) then
+	set cougaarPath=${cougaarUserPath}
+endif
 
 # ############
 # Copy security services Servlet classes removes tomcat log and restarts tomcat
 
 #######################################################
 # Provide COUGAAR_install path if one is not defined
-setenv COUGAAR_INSTALL_PATH /home/u/${USER}/UL/cougaar-8.6.1pre3
+setenv COUGAAR_INSTALL_PATH /home/u/${USER}/UL/${cougaarPath}
 
 ###################################################
 # Provide COUGAAR_SECURITY_SERVICES  if one is not defined
@@ -26,7 +37,7 @@ setenv JAVA_HOME /usr/java/jdk1.3.1
 
 #####################################################
 # Application subdirectory (below $TOMCAT_HOME/webapps)
-setenv APP_HOME CAnew
+setenv APP_HOME CA_${USER}
 
 #####################################################
 # Do not modify anything below
