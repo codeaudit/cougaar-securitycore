@@ -189,7 +189,9 @@ society.each_host do |host|
    
     # Secure Config Finder 
     #
-    node.override_parameter("-Dorg.cougaar.util.ConfigFinder.ClassName", "org.cougaar.core.security.config.jar.SecureConfigFinder")
+    if node.has_facet?(:no_secure_config_finder) == false
+      node.override_parameter("-Dorg.cougaar.util.ConfigFinder.ClassName", "org.cougaar.core.security.config.jar.SecureConfigFinder")
+    end
 
     # Naming service over SSL.
     # True to enable naming service over SSL.
