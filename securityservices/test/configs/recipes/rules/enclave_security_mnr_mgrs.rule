@@ -6,16 +6,16 @@ society.each_node do |node|
   agentname = ""
   enclave = ""
   if node.name == "REAR-MGMT-NODE"
-    enclave = "1"
+    enclave = "Rear"
   elsif node.name == "FWD-MGMT-NODE"
-    enclave = "2"
+    enclave = "Fwd"
   elsif node.name == "CONUS-MGMT-NODE" 
-    enclave = "3"
+    enclave = "Conus"
   elsif node.name == "TRANS-MGMT-NODE"
-    enclave = "4"
+    enclave = "Trans"
   end
   if enclave != ""
-    agentname = "Enclave" + enclave + "SecurityMnRManager"
+    agentname = enclave + "EnclaveSecurityMnRManager"
   end
 
   if agentname != ""

@@ -4,20 +4,20 @@
 society.each_node do |node|
   agentname = ""
   enclave = ""
-  # only do this for enclaves 2 and 3
+  # only do this for enclaves Fwd and Conus
   if node.name == "FWD-MGMT-NODE"
-    enclave = "2"
+    enclave = "Fwd" # Enclave 2
   elsif node.name == "CONUS-MGMT-NODE" 
-    enclave = "3"
+    enclave = "Conus" # 3
   end
 
   if enclave != ""
     sub = 1..2  # enclave 2 has sub1 and sub2, but enclave 3 has only sub1
     sub.each do |this_sub|
-      if enclave == "3" and this_sub == 2
+      if enclave == "Conus" and this_sub == 2
         break
       end
-      agentname = "Enclave" + enclave + "Sub" + this_sub.to_s + "Manager"
+      agentname = enclave + "EnclaveSub" + this_sub.to_s + "Manager"
       node.add_agent(agentname) do |agent|
         agent.classname = "org.cougaar.core.agent.ClusterImpl"
         agent.add_component do |c|

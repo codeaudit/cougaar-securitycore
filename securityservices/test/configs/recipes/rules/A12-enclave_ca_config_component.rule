@@ -12,19 +12,19 @@ if cahost != nil
   society.each_node do |node|
     enclave = nil
     if node.name == 'REAR-CA-NODE'
-      enclave = "1"
+      enclave = "Rear"
     elsif node.name == 'FWD-CA-NODE'
-      enclave = "2"
+      enclave = "Fwd"
     elsif node.name == 'CONUS-CA-NODE'
-      enclave = "3"
+      enclave = "Conus"
     elsif node.name == 'TRANS-CA-NODE'
-      enclave = "4"
+      enclave = "Trans"
     end
     if enclave != nil
-      arg = 'CN=Enclave' + enclave + '_CA, OU=Enclave' + enclave + \
+      arg = 'CN=' + enclave + 'EnclaveCA, OU=' + enclave + 'Enclave' \
             ', O=DLA, L=MV, ST=CA, C=US, T=ca'
       node.agent.add_component do |c|
-        c.name = "Enclave" + enclave + "CaConfigPlugin"
+        c.name = enclave + "EnclaveCaConfigPlugin"
         c.classname = "org.cougaar.core.security.certauthority.ConfigPlugin"
         c.priority = "HIGH"
         c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"

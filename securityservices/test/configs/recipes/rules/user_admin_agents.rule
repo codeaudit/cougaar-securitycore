@@ -9,13 +9,13 @@ userManager = "org.cougaar.core.security.acl.user.UserManagerPlugin"
 society.each_node do |node|
   agentname = ""
   if node.name == "REAR-MGMT-NODE"
-    agentname = "UserAdminAgent1"
+    agentname = "RearUserAdminAgent"
   elsif node.name == "FWD-MGMT-NODE"
-      agentname = "UserAdminAgent2"
+      agentname = "FwdUserAdminAgent"
   elsif node.name == "CONUS-MGMT-NODE"
-    agentname = "UserAdminAgent3"
+    agentname = "ConusUserAdminAgent"
   elsif node.name == "TRANS-MGMT-NODE"
-    agentname = "UserAdminAgent4"
+    agentname = "TransUserAdminAgent"
   end
 
   if agentname != ""

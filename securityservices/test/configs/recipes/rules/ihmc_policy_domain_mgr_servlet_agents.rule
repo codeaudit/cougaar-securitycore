@@ -6,23 +6,23 @@ society.each_node do |node|
   agentname = ""
   enclave = ""
   if node.name == "REAR-MGMT-NODE"
-    enclave = "1"
+    enclave = "Rear"
   elsif node.name == "FWD-MGMT-NODE"
-    enclave = "2"
+    enclave = "Fwd"
   elsif node.name == "CONUS-MGMT-NODE" 
-    enclave = "3"
+    enclave = "Conus"
   elsif node.name == "TRANS-MGMT-NODE"
-    enclave = "4"
+    enclave = "Trans"
   end
   if enclave != ""
-    agentname = "PolicyDomainManager" + enclave + "ServletAgent"
+    agentname = enclave + "PolicyDomainManagerServletAgent"
   end
 
   if agentname != ""
     node.add_agent(agentname) do |agent|
       agent.add_component do |c|
         c.classname = "safe.policyManager.PolicyAdminServletComponent"
-        c.add_argument("PolicyDomainManager" + enclave)
+        c.add_argument(enclave + "PolicyDomainManager")
       end
     end
   end

@@ -3,6 +3,7 @@
 # plugin = org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin 
 
 userLockout = "org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin"
+
 if(!society.agents["SocietySecurityMnRManager"].nil?)	
    society.agents["SocietySecurityMnRManager"].add_component do |c|
       c.classname = userLockout
