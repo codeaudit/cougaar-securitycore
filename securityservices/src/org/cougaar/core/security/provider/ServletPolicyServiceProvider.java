@@ -33,6 +33,7 @@ import org.cougaar.util.*;
 // Cougaar security services
 import org.cougaar.core.security.acl.auth.ServletPolicyEnforcer;
 import org.cougaar.core.security.services.crypto.ServletPolicyService;
+import org.cougaar.core.security.acl.auth.DualAuthenticator;
 
 // Tomcat 4.0 
 import org.apache.catalina.Context;
@@ -47,6 +48,13 @@ public class ServletPolicyServiceProvider
       _servletPolicyService = new ServletPolicyEnforcer();
     }
     _servletPolicyService.setContext(context);
+  }
+
+  public static synchronized void setDualAuthenticator(DualAuthenticator da) {
+    if (_servletPolicyService == null) {
+      _servletPolicyService = new ServletPolicyEnforcer();
+    }
+    _servletPolicyService.setDualAuthenticator(da);
   }
 
   public Object getService(ServiceBroker sb, 
