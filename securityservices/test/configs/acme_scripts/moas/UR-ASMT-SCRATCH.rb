@@ -109,6 +109,24 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/security_archives.rb
   - script: $CIP/csmart/lib/security/scripts/saveAcmeEvents.rb
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
+  - script: $CIP/csmart/lib/security/scripts/starthandoff.rb
+    parameters:
+      - start_label: OCT_13
+      - nodename: AVN-CO-NODE
+  - script: $CIP/csmart/lib/security/scripts/completehandoff.rb
+    parameters:
+      - start_label: OCT_14
+      - nodename: AVN-CO-NODE
+      - enclave: 1-UA
+  - script: $CIP/csmart/lib/security/scripts/starthandoff.rb
+    parameters:
+      - start_label: OCT_18
+      - nodename: AVN-CO-NODE
+  - script: $CIP/csmart/lib/security/scripts/completehandoff.rb
+    parameters:
+      - start_label: OCT_19     
+      - nodename: AVN-CO-NODE
+      - enclave: CONUS-REAR
 #  - script: $CIP/csmart/lib/security/scripts/setup_society_1000_ua.rb
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
 #  - script: $CIP/csmart/lib/security/scripts/revoke_agent_and_node_cert.rb
