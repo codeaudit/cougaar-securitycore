@@ -12,7 +12,7 @@
 	<property name="jar" value="securityservices.jar"/>
 	
   <path id="all.libs">
-	 <pathelement location="/var/www/html/jars/Security_csi_overlay_HEAD.jar"/>
+	 <pathelement location="/var/www/html/jars/Security_csi_overlay_HEAD_B10_2.jar"/>
    <fileset dir="${sys}">
      <include name="**/*.jar"/>
    </fileset>
