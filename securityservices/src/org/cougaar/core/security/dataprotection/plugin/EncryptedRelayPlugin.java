@@ -29,10 +29,12 @@ package org.cougaar.core.security.dataprotection.plugin;
 
 
 import java.util.Enumeration;
+import java.security.MessageDigest;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.dataprotection.DataProtectionKeyImpl;
+import org.cougaar.core.security.dataprotection.DataProtectionKeyCollection;
 import org.cougaar.core.security.util.SharedDataRelay;
 import java.util.Collection;
 import org.cougaar.core.service.LoggingService;
@@ -57,7 +59,7 @@ public class EncryptedRelayPlugin extends ComponentPlugin {
     public boolean execute(Object o) {
       if (o instanceof SharedDataRelay) {
         SharedDataRelay sdr = (SharedDataRelay) o;
-        return (sdr.getContent() != null) && sdr.getContent() instanceof DataProtectionKeyImpl;
+        return (sdr.getContent() != null) && sdr.getContent() instanceof DataProtectionKeyCollection;
       }
 
       return false;
@@ -106,19 +108,29 @@ public class EncryptedRelayPlugin extends ComponentPlugin {
     Enumeration enumeration = subs.getAddedList();
     while (enumeration.hasMoreElements()) {
       SharedDataRelay sdr = (SharedDataRelay) enumeration.nextElement();
-      Collection keyCollection = (Collection) sdr.getContent();
+      DataProtectionKeyCollection keyCollection = (DataProtectionKeyCollection) sdr.getContent();
+      DataProtectionKeyImpl dpKey = (DataProtectionKeyImpl)
+        keyCollection.get(0);
       String agent = sdr.getSource().getAddress();
       long timestamp = System.currentTimeMillis();
       if (logging.isDebugEnabled()) {
         logging.debug("Got data protection key from " + agent);
       }
 
-      DataProtectionKeyContainer container = new DataProtectionKeyContainer();
-      container.setAgentName(agent);
-      container.setTimestamp(timestamp);
-      container.setKeyCollection(keyCollection);
-      container.setUID(uidService.nextUID());
-      getBlackboardService().publishAdd(container);
+      if (keyCollection.getSignature() != null) {
+        try {
+          MessageDigest dg = MessageDigest.getInstance(dpKey.getDigestAlg());
+          dg.update(keyCollection.getSignature());
+          DataProtectionKeyContainer container = new DataProtectionKeyContainer(
+            agent, dg.digest(), timestamp);
+          container.setUID(uidService.nextUID());
+          getBlackboardService().publishAdd(container);
+        } catch (Exception e) {
+          if (logging.isWarnEnabled()) {
+            logging.warn("Exception occurred when trying to publish to PM: ", e);
+          }
+        }
+      }
       getBlackboardService().publishRemove(sdr);
     }
   }
