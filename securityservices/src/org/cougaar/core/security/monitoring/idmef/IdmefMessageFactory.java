@@ -365,12 +365,21 @@ final public class IdmefMessageFactory {
 			    List classificationList,
 			    List dataList ){
     // temporary until JavaIDMEF is converted using dynamic lists
-    Source sources[] = ( Source [] )sourceList.toArray( ( new Source[ 0 ] ) );
-    Target targets[] = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
-    Classification classifications[] = 
-      ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
-    AdditionalData data[] = 
-      ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
+    Source sources[] = null;
+    if (sourceList != null) 
+      sources = ( Source [] )sourceList.toArray( ( new Source[ 0 ] ) );
+
+    Target targets[] = null;
+    if (targetList != null) 
+      targets = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
+
+    Classification classifications[] = null;
+    if (classificationList != null)
+      classifications = ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
+    
+    AdditionalData data[] = null;
+    if (dataList != null)
+      data = ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
                         
     return new Alert( analyzer,
 		      new CreateTime(),
@@ -403,14 +412,6 @@ final public class IdmefMessageFactory {
 			    List classificationList,
 			    List dataList ){
     if( sensor instanceof SensorInfo ){
-      // temporary until JavaIDMEF is converted using dynamic lists
-      Source sources[] = ( Source [] )sourceList.toArray( ( new Source[ 0 ] ) );
-      Target targets[] = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
-      Classification classifications[] = 
-	( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
-      AdditionalData data[] = 
-	( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
-        
       return createAlert( createAnalyzer( sensor ),
 			  detectTime,
 			  sourceList,

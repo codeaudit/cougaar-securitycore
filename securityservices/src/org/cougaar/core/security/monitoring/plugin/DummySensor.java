@@ -96,7 +96,6 @@ public class DummySensor
 
 
     /* ---------------------------------------------------------------- */
-    System.out.println("Publishing sensor Event :");
     // ********************************
     // Source
 
@@ -188,6 +187,9 @@ public class DummySensor
 				       sources, targets,
 				       classifications, data);
     Event e = factory.newEvent(alert);
+    System.out.println("Intrusion Alert:" + alert.toString());
+
+    System.out.println("Publishing sensor Event :");
     getBlackboardService().publishAdd(e);
 
   }
