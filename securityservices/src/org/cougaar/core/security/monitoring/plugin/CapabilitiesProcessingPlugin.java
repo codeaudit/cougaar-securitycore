@@ -159,9 +159,10 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   
   private MessageAddress mgrAddress;
 //  private Community mySecurityCommunity=null;
-  
+  /*
+    not used any where in code 
   private CommunityServiceUtil _csu;
-  
+  */
   /**
    * Used by the binding utility through reflection to set my DomainService
    */
@@ -198,7 +199,10 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     eventService = (EventService)getBindingSite().getServiceBroker().getService
       (this, EventService.class, null);
     myAddress = getAgentIdentifier();
+    /*
+      CommunityServiceUtil not used any where in the code 
     _csu = new CommunityServiceUtil(getServiceBroker());
+    */
     loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called :"
         + myAddress.toString()); 
 /*
