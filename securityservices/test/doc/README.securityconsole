@@ -6,7 +6,7 @@ Security console How-TO
 4.) If the umemphis.jar is not signed. Please sign the jar by giving following command from  $COUGAAR_INSTALL_PATH/lib directory 
 jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore umemphis.jar privileged
 
-5.) Copy the securityconsole directory from ${COUGAAR_SECURITY_SERVICES}/test/bin/ to $COUGAAR_INSTALL_PATH/bin/ 
+5.)  To run the security console change directory to ${COUGAAR_SECURITY_SERVICES}/test/bin/securityconsole and type ./seconLocal.sh or ./secon.sh  
 
  Note COUGAAR_SECURITY_SERVICES environment variable must be set and NAI securityservice must be installed . 
  
