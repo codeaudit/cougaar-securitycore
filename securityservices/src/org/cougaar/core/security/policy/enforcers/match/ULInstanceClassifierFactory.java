@@ -279,6 +279,13 @@ public class ULInstanceClassifierFactory
         _log.debug("Classifying agents  or people");
       }
       actor     = removeHashChar(actor);
+
+      if (className.equals(ActorConcepts.Person()) && 
+	  (actor.startsWith(ULOntologyNames.personActorClassPrefix) ||
+	   actor.startsWith(ULOntologyNames.oqlRolePrefix))) {
+	  return true;
+      }
+
       if (className.equals(ActorConcepts.Agent())) {
         if (_log.isDebugEnabled()) {
           _log.debug("Looking for agents");
