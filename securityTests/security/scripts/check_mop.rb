@@ -6,6 +6,7 @@
 #   MOP 2.4: Accountability of user actions invoked within the society
 #   MOP 2.5:
 #
+# MOPs 2.5, 2.6 depend on 2.4
 
 require 'security/lib/scripting'
 require 'security/lib/securityMops'
@@ -18,7 +19,11 @@ insert_before :setup_run do
   do_action "StoreMopsInRunHashTable"
 
   # MOP 2.3: encrypted messages
-  do_action "StartTcpCapture", ["AgentA", "AgentB"]
+  if PingSociety.isPingSociety 
+    do_action "StartTcpCapture", ["AgentA", "AgentB"]
+  else
+    do_action "StartTcpCapture", ["ConusSea.TRANSCOM.MIL", "FORSCOM.MIL", "OSD.GOV", "RearEnclaveCaManager", "RearUserAdminAgent", "11-AVN-RGT.5-CORPS.ARMY.MIL"]
+  end
 end
 
 insert_after :society_running do
@@ -55,9 +60,12 @@ insert_after :after_stage_1 do
 
   # MOP 2.6: IDMEF events
   do_action  "InjectStress", "SecurityMop2_6", "calculate"
+end
+
+insert_before :before_stage_2 do
+  # Needed for MOP 2.3, 2.4-6 (should be at end of run, to prevent delays):
+  do_action "WaitForCalculationCompletion"
 
   # MOP 2.3: encrypted messages
-  do_action "WaitForCalculationCompletion"
   do_action "InjectStress", "SecurityMop23", "postCalculate"
-
 end
