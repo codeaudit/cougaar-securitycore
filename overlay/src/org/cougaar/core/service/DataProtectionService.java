@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2002 Networks Associates Technology, Inc.
+ *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -26,9 +26,10 @@
 
 package org.cougaar.core.service;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.util.*;
+import java.security.*;
+import java.security.cert.*;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
@@ -38,8 +39,7 @@ public interface DataProtectionService
   extends Service
 {
 
-  /** 
-   * Protects a data stream by signing and/or encrypting the stream.
+  /** Protects a data stream by signing and/or encrypting the stream.
    *  The service client should create an output stream to which the
    *  encrypted and/or signed data should be persisted.
    *
@@ -65,12 +65,11 @@ public interface DataProtectionService
    *  @param os  the output stream containing the encrypted and/or signed data
    *  @return    An output stream that the client uses to protect data.
    */
-  OutputStream getOutputStream(DataProtectionKeyEnvelope pke,
+  public OutputStream getOutputStream(DataProtectionKeyEnvelope pke,
 				      OutputStream os)
-      throws IOException;
+	throws IOException, GeneralSecurityException;
 
-  /** 
-   * Unprotects a data stream by verifying and/or decrypting the stream.
+  /** Unprotects a data stream by verifying and/or decrypting the stream.
    *
    *  The client should provide a key envelope having the same key
    *  that was used to encrypt the data.
@@ -78,8 +77,7 @@ public interface DataProtectionService
    *  @param is  the input stream containing the encrypted and/or signed data
    *  @return    An input stream containing the un-encrypted and/or verified data.
    */
-  InputStream getInputStream(DataProtectionKeyEnvelope pke,
+  public InputStream getInputStream(DataProtectionKeyEnvelope pke,
 				    InputStream is)
-      throws IOException;
+	throws IOException, GeneralSecurityException;
 }
-
