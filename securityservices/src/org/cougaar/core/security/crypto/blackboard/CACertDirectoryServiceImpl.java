@@ -125,8 +125,8 @@ public class CACertDirectoryServiceImpl
         CertificateEntry entry = (CertificateEntry)certList.get(i);
         if (entry.getCertificate().getPublicKey().equals(pubKey)) {
           // Entry is being modified
-          certList.set(index, certEntry);
           index = i;
+          certList.set(index, certEntry);
           break;
         }
       }
