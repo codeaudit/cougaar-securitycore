@@ -1,6 +1,6 @@
-# MySQL dump 8.16
+# MySQL dump 8.14
 #
-# Host: localhost    Database: tempcopy
+# Host: u081    Database: tempcopy
 #--------------------------------------------------------
 # Server version	3.23.44-nt
 

@@ -1,6 +1,6 @@
-# MySQL dump 8.16
+# MySQL dump 8.14
 #
-# Host: localhost    Database: tempcopy
+# Host: u081    Database: tempcopy
 #--------------------------------------------------------
 # Server version	3.23.44-nt
 
@@ -10,6 +10,7 @@
 
 LOCK TABLES alib_component WRITE;
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SocietySecurityMnRManager-cpy','SocietySecurityMnRManager-cpy','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.EventQueryPlugin','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.EventQueryPlugin','plugin|org.cougaar.core.security.monitoring.plugin.EventQueryPlugin','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SocietySecurityMnRManager|org.cougaar.mlm.plugin.organization.OrgDataPlugin','SocietySecurityMnRManager|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('SocietySecurityMnRManager|org.cougaar.mlm.plugin.organization.OrgReportPlugin','SocietySecurityMnRManager|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin',0.000000000000000000000000000000);
 UNLOCK TABLES;
@@ -55,6 +56,8 @@ UNLOCK TABLES;
 
 LOCK TABLES asb_component_arg WRITE;
 INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager','SocietySecurityMnRManager-cpy','SocietySecurityMnRManager',1.000000000000000000000000000000);
+INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.EventQueryPlugin','SocietySecurityMnRManager',1.000000000000000000000000000000);
+INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.EventQueryPlugin','org.cougaar.core.security.monitoring.plugin.AllLoginFailures',2.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -63,6 +66,7 @@ UNLOCK TABLES;
 
 LOCK TABLES asb_component_hierarchy WRITE;
 INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager','SocietySecurityMnRManager-cpy','SocietySecurityMnRManager-cpy','COMPONENT',0.000000000000000000000000000000);
+INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.EventQueryPlugin','SocietySecurityMnRManager-cpy','COMPONENT',2.000000000000000000000000000000);
 INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager','SocietySecurityMnRManager|org.cougaar.mlm.plugin.organization.OrgDataPlugin','SocietySecurityMnRManager-cpy','COMPONENT',0.000000000000000000000000000000);
 INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager','SocietySecurityMnRManager|org.cougaar.mlm.plugin.organization.OrgReportPlugin','SocietySecurityMnRManager-cpy','COMPONENT',1.000000000000000000000000000000);
 UNLOCK TABLES;
@@ -109,6 +113,7 @@ UNLOCK TABLES;
 
 LOCK TABLES lib_component WRITE;
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('recipe|##RECIPE_CLASS##','recipe','##RECIPE_CLASS##','recipe','Added recipe');
+REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|org.cougaar.core.security.monitoring.plugin.EventQueryPlugin','plugin','org.cougaar.core.security.monitoring.plugin.EventQueryPlugin','Node.AgentManager.Agent.PluginManager.Plugin','Added plugin');
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin','org.cougaar.mlm.plugin.organization.OrgDataPlugin','Node.AgentManager.Agent.PluginManager.Plugin','Creates org assets, RFD (Replaces OrgRTDataPlugin and OrgTPRTDataPlugin');
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin','org.cougaar.mlm.plugin.organization.OrgReportPlugin','Node.AgentManager.Agent.PluginManager.Plugin','Subscribes to RFD tasks and RFS tasks and generate');
 UNLOCK TABLES;

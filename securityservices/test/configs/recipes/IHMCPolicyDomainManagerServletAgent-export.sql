@@ -1,6 +1,6 @@
-# MySQL dump 8.16
+# MySQL dump 8.14
 #
-# Host: localhost    Database: tempcopy
+# Host: u081    Database: tempcopy
 #--------------------------------------------------------
 # Server version	3.23.44-nt
 
@@ -13,6 +13,7 @@ REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('IHMCPolicyDomainServletAgent','IHMCPolicyDomainServletAgent','IHMCPolicyDomainServletAgent','agent',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('IHMCPolicyDomainServletAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','IHMCPolicyDomainServletAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('IHMCPolicyDomainServletAgent|org.cougaar.mlm.plugin.organization.OrgReportPlugin','IHMCPolicyDomainServletAgent|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('IHMCPolicyDomainServletAgent|safe.policyManager.PolicyAdminServletComponent','IHMCPolicyDomainServletAgent|safe.policyManager.PolicyAdminServletComponent','plugin|safe.policyManager.PolicyAdminServletComponent','plugin',0.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -56,6 +57,7 @@ UNLOCK TABLES;
 
 LOCK TABLES asb_component_arg WRITE;
 INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0005-IHMCPolicyDomainManagerServletAgent','IHMCPolicyDomainServletAgent','IHMCPolicyDomainServletAgent',1.000000000000000000000000000000);
+INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0005-IHMCPolicyDomainManagerServletAgent','IHMCPolicyDomainServletAgent|safe.policyManager.PolicyAdminServletComponent','IHMCPolicyDomainManagerAgent',1.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -66,6 +68,7 @@ LOCK TABLES asb_component_hierarchy WRITE;
 INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0005-IHMCPolicyDomainManagerServletAgent','IHMCPolicyDomainServletAgent','IHMCPolicyDomainManagerServletAgent-cpy','COMPONENT',0.000000000000000000000000000000);
 INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0005-IHMCPolicyDomainManagerServletAgent','IHMCPolicyDomainServletAgent|org.cougaar.mlm.plugin.organization.OrgDataPlugin','IHMCPolicyDomainServletAgent','COMPONENT',0.000000000000000000000000000000);
 INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0005-IHMCPolicyDomainManagerServletAgent','IHMCPolicyDomainServletAgent|org.cougaar.mlm.plugin.organization.OrgReportPlugin','IHMCPolicyDomainServletAgent','COMPONENT',1.000000000000000000000000000000);
+INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0005-IHMCPolicyDomainManagerServletAgent','IHMCPolicyDomainServletAgent|safe.policyManager.PolicyAdminServletComponent','IHMCPolicyDomainServletAgent','COMPONENT',2.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -113,6 +116,7 @@ REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, I
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('IHMCPolicyDomainServletAgent','agent','org.cougaar.core.agent.ClusterImpl','Node.AgentManager.Agent','Added agent');
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|org.cougaar.mlm.plugin.organization.OrgDataPlugin','plugin','org.cougaar.mlm.plugin.organization.OrgDataPlugin','Node.AgentManager.Agent.PluginManager.Plugin','Creates org assets, RFD (Replaces OrgRTDataPlugin and OrgTPRTDataPlugin');
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|org.cougaar.mlm.plugin.organization.OrgReportPlugin','plugin','org.cougaar.mlm.plugin.organization.OrgReportPlugin','Node.AgentManager.Agent.PluginManager.Plugin','Subscribes to RFD tasks and RFS tasks and generate');
+REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|safe.policyManager.PolicyAdminServletComponent','plugin','safe.policyManager.PolicyAdminServletComponent','Node.AgentManager.Agent.PluginManager.Plugin','Added plugin');
 UNLOCK TABLES;
 
 #
