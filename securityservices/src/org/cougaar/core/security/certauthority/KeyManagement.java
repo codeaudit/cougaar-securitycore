@@ -77,6 +77,8 @@ import org.cougaar.core.security.services.ldap.MultipleEntryException;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.util.*;
 
 /** Certification Authority service
@@ -286,24 +288,44 @@ public class KeyManagement
 
   private synchronized void publishCAinLdap()
   {
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
+    
+    if(cacheservice==null) {
+      log.warn("Unable to get Certificate cache Service in publishCAinLdap");
+    }
+    
     Certificate c=null;
     List certList = null;
-     Enumeration enum=keyRing.getAliasList();
+    Enumeration enum=null;
+    if(cacheservice!=null) {
+      enum=cacheservice.getAliasList();
+    }
+    if(enum==null) {
+      log.error("Alias list is null in Key management publishCAinLdap:"); 
+    }
      if(enum!=null) {
        for(;enum.hasMoreElements();) {
 	 String a = (String)enum.nextElement();
-         String cn = keyRing.getCommonName(a);
+         String cn = cacheservice.getCommonName(a);
+	 if(cn!=null) {
+	   log.debug("Got common name for alias :"+ a + cn);
+	 }
          certList = keyRing.findCert(cn);
          // is there any valid certificate here?
-         if (certList == null || certList.size() == 0)
+         if (certList == null || certList.size() == 0){
+	   log.debug(" Could not find cert in key ring for ca :"+cn);
            continue;
-
+	 }
          // is it a CA certificate? (not node, server, agent ...)
          c=((CertificateStatus)certList.get(0)).getCertificate();
          if (((CertificateStatus)certList.get(0)).getCertificateType()
-           != CertificateType.CERT_TYPE_CA)
+	     != CertificateType.CERT_TYPE_CA){
+	   log.debug(" Certificate is not ca Type  :"+cn);
            continue;
-
+	 }
          log.debug("got common name from alias : " + a
                    + " cn = " + cn);
 
@@ -1159,8 +1181,8 @@ public class KeyManagement
         log.debug("setCertificateFields: receive a request without title: " + dname);
         log.debug("Setting title as user.");
       }
-      dname += ",t=" + DirectoryKeyStore.CERT_TITLE_USER;
-      title = DirectoryKeyStore.CERT_TITLE_USER;
+      dname += ",t=" + CertificateCache.CERT_TITLE_USER;
+      title = CertificateCache.CERT_TITLE_USER;
     }
 
     X500Name clientX500Name = new X500Name(dname);
@@ -1186,7 +1208,7 @@ public class KeyManagement
 
       KeyUsageExtension keyusage = new KeyUsageExtension();
       boolean isSigner = false;
-      if (title.equals(DirectoryKeyStore.CERT_TITLE_CA))
+      if (title.equals(CertificateCache.CERT_TITLE_CA))
         isSigner = true;
       else {
         keyusage.set("digital_signature", new Boolean(true));
@@ -1194,7 +1216,7 @@ public class KeyManagement
         keyusage.set("data_encipherment", new Boolean(true));
 
         // Set keyusage
-        if (title.equals(DirectoryKeyStore.CERT_TITLE_NODE)) {
+        if (title.equals(CertificateCache.CERT_TITLE_NODE)) {
           // need signing capability?
           // only for node with key signing ability defined in CA crypto policy
           if (caPolicy.nodeIsSigner)
