@@ -18,7 +18,7 @@ public class CertificateSigningRequest extends  HttpServlet
         String pkcs=null;
 	String type=null;
 	String CA_DN_name=null;
-        System.out.println("got post request");
+        //System.out.println("got post request");
         String data;
         res.setContentType("text/html");
       //  PrintWriter out=res.getWriter();
@@ -33,7 +33,18 @@ public class CertificateSigningRequest extends  HttpServlet
                 printstream.close();
                 return;
         }
-        signer=new KeyManagement(CA_DN_name);
+	try
+	{
+        	signer=new KeyManagement(CA_DN_name);
+	}
+	catch (Exception exp)
+	{
+			
+                printstream.print("Error ---"+exp.toString());
+                printstream.flush();
+                printstream.close();
+                return;
+	}
         type=req.getParameter("pkcs");
         if((type==null)||(type==""))
         {
@@ -115,7 +126,7 @@ public class CertificateSigningRequest extends  HttpServlet
        out.close();
      }
 
-        public String getServletInfo() 
+        public String getServletInfo()
         {
           return("Accepts signing request and returns signed certificate");
         }

@@ -60,7 +60,19 @@ public class CertificateDetailsServlet extends  HttpServlet
            return;
 
        }
-
+	X509CertImpl certimpl;	
+	try
+	{
+       		certimpl=new X509CertImpl(ldapentry.getCertificate().getTBSCertificate());
+	}
+	catch (Exception exp)
+	{
+           out.println("error-----------  "+exp.toString());
+           out.flush();
+           out.close();
+           return;
+		
+	}
        out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
        out.println("<html>");
        out.println("<head>");
@@ -70,8 +82,6 @@ public class CertificateDetailsServlet extends  HttpServlet
        out.println("<H2> Certificate Details</H2><BR>");
        out.println("<form name=\"revoke\" action=\"../RevokeCertificate\" nethod=\"post\">");
        out.println("<input type=\"hidden\" name=\"hash\" value=\""+ldapentry.getHash()+"\">");
-
-       X509CertImpl certimpl=new X509CertImpl(ldapentry.getCertificate().getTBSCertificate());
        out.println("<p>");
        out.println(certimpl.toString());
        out.println("<input type=\"button\" value=\"Revoke Certificate \" onClick=\"submit\">");
