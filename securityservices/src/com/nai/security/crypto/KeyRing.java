@@ -185,6 +185,10 @@ final public class KeyRing
     return keystore.getKeyStore();
   }
 
+  public synchronized DirectoryKeyStore getDirectoryKeyStore() {
+    return keystore;
+  }
+
   public synchronized PrivateKey findPrivateKey(String commonName) {
     if (keystore == null) {
       return null;
