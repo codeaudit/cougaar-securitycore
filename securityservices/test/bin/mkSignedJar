@@ -1,0 +1,9 @@
+#!/bin/tcsh -f
+#
+# Make a JAR file containing configuration files and sign the jar file
+#
+
+set jar=$1
+jar cvf $*
+echo Signing $jar ...
+jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore $jar privileged
