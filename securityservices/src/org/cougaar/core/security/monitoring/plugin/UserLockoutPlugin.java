@@ -43,6 +43,10 @@ import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 
+// Cougaar overlay
+import org.cougaar.core.security.constants.IdmefClassifications;
+import org.cougaar.core.security.constants.AdaptiveMnROperatingModes;
+
 import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.IDMEF_Message;
@@ -113,7 +117,7 @@ public class UserLockoutPlugin extends ComponentPlugin {
             Classification cs[] = alert.getClassifications();
             if (cs != null) {
               for (int i = 0; i < cs.length; i++) {
-                if (KeyRingJNDIRealm.LOGIN_FAILURE_ID.equals(cs[i].getName())) {
+                if (IdmefClassifications.LOGIN_FAILURE.equals(cs[i].getName())) {
                   AdditionalData ad[] = alert.getAdditionalData();
                   if (ad != null) {
                     for (int j = 0; j < ad.length; j++) {
@@ -151,10 +155,8 @@ public class UserLockoutPlugin extends ComponentPlugin {
   private static final OMCRangeList LOCKOUT_DURATION_RANGE =
       new OMCRangeList(LD_VALUES);
 
-  private static final String MAX_LOGIN_FAILURES =
-    "org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES";
-  private static final String LOCKOUT_DURATION =
-    "org.cougaar.core.security.monitoring.LOCKOUT_DURATION";
+  private static final String MAX_LOGIN_FAILURES = AdaptiveMnROperatingModes.MAX_LOGIN_FAILURES;
+  private static final String LOCKOUT_DURATION = AdaptiveMnROperatingModes.LOCKOUT_DURATION;
 
   /**
    * For the max login failure OperatingMode

@@ -89,6 +89,9 @@ import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.service.LoggingService;
 
+// Cougaar overlay
+import org.cougaar.core.security.constants.IdmefClassifications;
+
 /**
  * A Realm extension for Tomcat 4.0 that uses SSL to talk to
  * the JNDI ldap source for role and authentication information.
@@ -140,10 +143,9 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   public static final int    LF_REQUIRES_CERT           = 8;
   public static final int    LF_REQUIRES_ROLE           = 9;
 
-  public static final String LOGIN_FAILURE_ID = "LOGINFAILURE";
-  public static final String FAILURE_REASON = "Reason for login failure";
+  public static final String FAILURE_REASON = "LOGIN_FAILURE_REASON";
   public static final Classification LOGINFAILURE = 
-    new Classification(LOGIN_FAILURE_ID, "", Classification.VENDOR_SPECIFIC);
+    new Classification(IdmefClassifications.LOGIN_FAILURE, "", Classification.VENDOR_SPECIFIC);
 
   protected static final AdditionalData REASONS[][] = {
     {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,

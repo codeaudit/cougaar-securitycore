@@ -67,6 +67,9 @@ import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
 import org.cougaar.core.security.monitoring.blackboard.EventImpl;
 
+// Cougaar overlay
+import org.cougaar.core.security.constants.IdmefClassifications;
+
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.ConfigFinder;
@@ -101,7 +104,7 @@ import org.w3c.dom.Document;
 
 
 /**
- * This class queries for LOGINFAILURE IDMEF messages and keeps
+ * This class queries for LOGIN_FAILURE IDMEF messages and keeps
  * an updated list of Senors with the capability. All query results
  * are placed on the blackboard. Use this plugin with the
  * LoginFailureRatePlugin and UserLockoutPlugin. Use the following
@@ -261,7 +264,7 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
                   sb.getService(this, AgentIdentificationService.class, null)).getName();
 
     Classification classification = 
-      imessage.createClassification("LOGINFAILURE", null);
+      imessage.createClassification(IdmefClassifications.LOGIN_FAILURE, null);
     MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, 
                                               classification, null, null, true );
     ClusterIdentifier destination = 

@@ -67,11 +67,14 @@ import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
 
+// Cougaar overlay
+import org.cougaar.core.security.constants.IdmefClassifications;
+
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.util.UnaryPredicate;
 
 /**
- * Queries for LOGINFAILURE IDMEF messages and creates a LOGIN_FAILURE_RATE
+ * Queries for LOGIN_FAILURE IDMEF messages and creates a LOGIN_FAILURE_RATE
  * condition from the results. The arguments to the plugin
  * component in the .ini file determine how LOGINFAILURERATEs are
  * generated.
@@ -153,7 +156,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
             Classification cs[] = alert.getClassifications();
             if (cs != null) {
               for (int i = 0; i < cs.length; i++) {
-                if (KeyRingJNDIRealm.LOGIN_FAILURE_ID.equals(cs[i].getName())) {
+                if (IdmefClassifications.LOGIN_FAILURE.equals(cs[i].getName())) {
                   return true;
                 }
               }

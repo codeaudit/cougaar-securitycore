@@ -35,6 +35,8 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.multicast.AttributeBasedAddress;
 
+// overlay class
+import org.cougaar.core.security.constants.IdmefClassifications;
 
 // securityservices classes
 import org.cougaar.core.security.access.AccessAgentProxy;
@@ -50,6 +52,7 @@ import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.monitoring.util.IdmefHelper;
 import org.cougaar.core.security.monitoring.util.MessageFailureEvent;
 
+// JavaIDMEF classes
 import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.AdditionalData;
 import edu.jhuapl.idmef.Address;
@@ -158,7 +161,7 @@ public class MessageFailureSensor extends ComponentPlugin {
   private void registerCapabilities(CommunityService cs, String agentName){
     List capabilities = new ArrayList();
     Classification classification = 
-      m_idmefFactory.createClassification(MessageFailureEvent.CLASSIFICATION_ID, null);
+      m_idmefFactory.createClassification(IdmefClassifications.MESSAGE_FAILURE, null);
     capabilities.add(classification);
       
     RegistrationAlert reg = 

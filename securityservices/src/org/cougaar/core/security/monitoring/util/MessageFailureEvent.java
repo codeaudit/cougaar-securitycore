@@ -21,12 +21,14 @@
 
 package org.cougaar.core.security.monitoring.util;
 
+// Cougaar overlay
+import org.cougaar.core.security.constants.IdmefClassifications;
+
 /**
  * This data structure represent an Message Failure Event that could occur
  * in the AccessAgentProxy, CryptoManagerService, and MessageProtectionService
  */
 public class MessageFailureEvent extends FailureEvent {
-  public final static String CLASSIFICATION_ID = "MESSAGE_FAILURE";
   public final static String REASON_ID = "MESSAGE_FAILURE_REASON";
   public final static String DATA_ID = "MESSAGE_FAILURE_DATA";
   // reasons
@@ -46,11 +48,12 @@ public class MessageFailureEvent extends FailureEvent {
   public final static String UNKNOWN_FAILURE = "Unknown Failure";
   
   public MessageFailureEvent(String source, String target, String reason, String data){
-    super(CLASSIFICATION_ID, source, target, reason, REASON_ID, data, DATA_ID);
+    super(IdmefClassifications.MESSAGE_FAILURE, source, 
+      target, reason, REASON_ID, data, DATA_ID);
   }
   
   public String toString(){
-    StringBuffer sb = new StringBuffer(100);
+    StringBuffer sb = new StringBuffer(128);
     sb.append("[classification: " + getClassification() + "]\n");
     sb.append("[source: " + getSource() + "]\n");
     sb.append("[target: " + getTarget() + "]\n");

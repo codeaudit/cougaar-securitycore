@@ -36,8 +36,6 @@ public class BootstrapEvent {
   public Date detecttime=null;
   public Principal [] principals=null;
   public String subjectStackTrace=null;
-  public static final String SecurityAlarm="SecurityManagerAlarm";
-  public static final String JarVerificationAlarm="JarVerificationAlarm";
  
   public BootstrapEvent(String type,
 			Date detectTime,

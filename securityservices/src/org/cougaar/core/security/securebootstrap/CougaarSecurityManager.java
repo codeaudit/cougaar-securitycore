@@ -26,6 +26,9 @@
 
 package org.cougaar.core.security.securebootstrap;
 
+// Cougaar overlay
+import org.cougaar.core.security.constants.IdmefClassifications;
+
 import java.io.*;
 import java.net.*;
 import java.lang.*;
@@ -102,7 +105,7 @@ public class CougaarSecurityManager extends SecurityManager
     String auditlogname =
       System.getProperty("org.cougaar.core.security.bootstrap.SecurityManagerLogFile",
 			 defaultLogName);
-    type= BootstrapEvent.SecurityAlarm;
+    type= IdmefClassifications.SECURITY_MANAGER_EXCEPTION;
     eventholder= EventHolder.getInstance();
     //System.out.println(" Event Holder in Cougaar security mananger got loaded by :"+eventholder.getClass().getClassLoader().toString() );
     //System.out.println("Instance of Event holder in Cougaar security Manger :"+eventholder.toString());

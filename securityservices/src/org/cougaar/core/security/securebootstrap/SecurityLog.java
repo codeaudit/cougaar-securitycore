@@ -26,6 +26,9 @@
 
 package org.cougaar.core.security.securebootstrap;
 
+// Cougaar overlay
+import org.cougaar.core.security.constants.IdmefClassifications;
+
 import java.io.*;
 import java.util.*;
 import java.text.*;
@@ -41,7 +44,7 @@ public class SecurityLog
   public SecurityLog(int loudness)
   {
     this.loudness = loudness;
-    this.type=BootstrapEvent.JarVerificationAlarm;
+    this.type=IdmefClassifications.JAR_VERIFICATION_FAILURE;
     eventholder=EventHolder.getInstance();
   }
   public void createLogFile(String nodeName) {

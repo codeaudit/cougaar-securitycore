@@ -48,6 +48,9 @@ import org.cougaar.core.agent.*;
 import org.cougaar.core.security.securebootstrap.EventHolder;
 import org.cougaar.core.security.securebootstrap.BootstrapEvent;
 
+// Cougaar overlay
+import org.cougaar.core.security.constants.IdmefClassifications;
+
 /*
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceAvailableListener;
@@ -331,10 +334,10 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     CmrFactory factory=(CmrFactory)dservice.getFactory("cmr");
     IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
     List capabilities = new ArrayList();
-    capabilities.add( imessage.createClassification( "Cougaar.security.nai."+BootstrapEvent.SecurityAlarm ,
+    capabilities.add( imessage.createClassification( IdmefClassifications.SECURITY_MANAGER_EXCEPTION ,
 						     "http://www.cougaar.org/security/SecurityManagerAlarm.html",
 						     Classification.VENDOR_SPECIFIC  ) );
-    capabilities.add( imessage.createClassification( "Cougaar.security.nai."+BootstrapEvent.JarVerificationAlarm, null,
+    capabilities.add( imessage.createClassification( IdmefClassifications.JAR_VERIFICATION_FAILURE, null,
 						     Classification.VENDOR_SPECIFIC  ) );
      // no need to specify targets since we may not know of the targets
     RegistrationAlert reg=
