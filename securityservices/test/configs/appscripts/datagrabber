@@ -1,0 +1,68 @@
+#!/bin/csh -f
+# This script starts the datagrabber.  
+#
+# The datagrabber only needs tops.jar, mm-mysql-2.jar, and the xerces jar
+
+# <copyright>
+#  Copyright 2001 BBNT Solutions, LLC
+#  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
+# 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the Cougaar Open Source License as published by
+#  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+# 
+#  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+#  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+#  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+#  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+#  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+#  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+#  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+#  PERFORMANCE OF THE COUGAAR SOFTWARE.
+# </copyright>
+
+
+setenv CONFIG_FILE SecureServletGrabberConfig.xml
+
+setenv LIBPATHS "${COUGAAR_INSTALL_PATH}/lib/bootstrap.jar"
+
+# Modify the argument org.cougaar.ui.userAuthClass to use a
+# UserAuthenticator other than the NAI class org.cougaar.core.security.userauth.UserAuthenticatorImpl
+
+# PROPERTIES -
+# the path where the lib and sys files located, also to create workspace files
+# default to COUGAAR_INSTALL_PATH here
+set APP_INSTALL_PATH=$COUGAAR_INSTALL_PATH
+
+# enter the application name here
+set node="APP-DATAGRABBER"
+
+##########################################
+
+# required files
+set LIBPATHS="${APP_INSTALL_PATH}/lib/core.jar"
+set LIBPATHS="${LIBPATHS}:${APP_INSTALL_PATH}/lib/util.jar"
+set LIBPATHS="${LIBPATHS}:${APP_INSTALL_PATH}/lib/bootstrap.jar:$APP_INSTALL_PATH/lib/securebootstrapper.jar"
+set LIBPATHS="${LIBPATHS}:${APP_INSTALL_PATH}/lib/CougaarCRLextensions.jar"
+set LIBPATHS="${LIBPATHS}:${APP_INSTALL_PATH}/lib/securityservices.jar"
+set LIBPATHS="${LIBPATHS}:${APP_INSTALL_PATH}/sys/log4j.jar"
+set LIBPATHS="${LIBPATHS}:${APP_INSTALL_PATH}/sys/xerces.jar"
+set LIBPATHS="${LIBPATHS}:${APP_INSTALL_PATH}/sys/ibmpkcs.jar"
+set LIBPATHS="${LIBPATHS}:${APP_INSTALL_PATH}/sys/servlet.jar"
+set LIBPATHS="${LIBPATHS}:${APP_INSTALL_PATH}/sys/mm-mysql-2.jar"
+
+set MYPROPERTIES="-Dorg.cougaar.install.path=$APP_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.cluster.startTime=08/10/2005 -Dorg.cougaar.domain.planning.ldm.lps.ComplainingLP.level=0 -Dorg.cougaar.core.cluster.SharedPlugInManager.watching=false"
+# cryptoPolicy file, default is the local directory
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.config.path=.\;${APP_INSTALL_PATH}/configs/security\;"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
+# workspace to create directory to store keystore, default below
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace=$APP_INSTALL_PATH/workspace"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=$node"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.standalone=true"
+
+echo java -server $MYPROPERTIES -Duser.timezone=GMT -Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} -classpath ${LIBPATHS} org.cougaar.bootstrap.Bootstrapper org.cougaar.mlm.ui.grabber.DataGrabber ${CONFIG_FILE}
+
+java -server $MYPROPERTIES -Duser.timezone=GMT -Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} -classpath ${LIBPATHS} org.cougaar.bootstrap.Bootstrapper org.cougaar.mlm.ui.grabber.DataGrabber ${CONFIG_FILE}
+

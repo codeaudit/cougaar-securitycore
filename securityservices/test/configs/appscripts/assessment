@@ -1,0 +1,75 @@
+#!/bin/sh
+
+# <copyright>
+#  Copyright 2001 BBNT Solutions, LLC
+#  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
+# 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the Cougaar Open Source License as published by
+#  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+# 
+#  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+#  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+#  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+#  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+#  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+#  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+#  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+#  PERFORMANCE OF THE COUGAAR SOFTWARE.
+# </copyright>
+
+echo "*******************************************************************"
+echo "* To use, set COUGAAR_INSTALL_PATH.  Set DEVELOPMENT_PATH only if *"
+echo "* you wish to override classes in the cougaar distribution.       *"
+echo "*******************************************************************"
+echo "COUGAAR_INSTALL_PATH is set to ${COUGAAR_INSTALL_PATH}"
+
+DEVELOPMENT_PATH="../classes"
+#DEVELOPMENT_PATH="${DEVELOPMENT_PATH};C:/alpine/aggregationAgent/aggagent/classes"
+LIB_PATH="${COUGAAR_INSTALL_PATH}/lib"
+SYS_PATH="${COUGAAR_INSTALL_PATH}/sys"
+DATA_PATH="../data/assessment"
+
+CP="${DEVELOPMENT_PATH}"
+CP="${CP}:${SYS_PATH}/xerces.jar"
+CP="${CP}:${SYS_PATH}/log4j.jar"
+CP="${CP}:${SYS_PATH}/ibmpkcs.jar"
+CP="${CP}:${SYS_PATH}/servlet.jar"
+CP="${CP}:${LIB_PATH}/bootstrap.jar"
+CP="${CP}:${LIB_PATH}/core.jar"
+CP="${CP}:${LIB_PATH}/util.jar"
+CP="${CP}:${LIB_PATH}/glm.jar"
+CP="${CP}:${LIB_PATH}/aggagent.jar"
+CP="${CP}:${LIB_PATH}/uiframework.jar"
+CP="${CP}:${LIB_PATH}/blackjack.jar"
+CP="${CP}:${LIB_PATH}/securebootstrapper.jar"
+CP="${CP}:${LIB_PATH}/CougaarCRLextensions.jar"
+CP="${CP}:${LIB_PATH}/securityservices.jar"
+
+DEFAULTORG="1-35-ARBN"
+NAMESERVER="http://localhost:8800"
+AGENTNAME="AGG-Agent"
+PSP="aggregator"
+KEEPALIVEPSP="aggregatorkeepalive"
+
+if [ "$COUGAAR_WORKSPACE" == "" ]; then
+  COUGAAR_WORKSPACE="$COUGAAR_INSTALL_PATH/workspace"
+fi
+
+echo "Using name server: ${NAMESERVER}"
+node="APP-STOPLIGHT"
+MYPROPERTIES="-Dorg.cougaar.security.role=${USER}"
+MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace=$COUGAAR_WORKSPACE"
+MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=$node"
+MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.config.path=.;${COUGAAR_INSTALL_PATH}/configs/security;"
+MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.standalone=true"
+MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=${node}.log"
+MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
+
+# LAUNCHER
+echo "java $MYPROPERTIES -Dcougaar.aggagent.NAMESERVER=${NAMESERVER} -Dcougaar.aggagent.AGENTNAME=${AGENTNAME} -Dcougaar.aggagent.PSP=${PSP} -Dcougaar.aggagent.KEEPALIVEPSP=${KEEPALIVEPSP} -DDEFAULTORG=${DEFAULTORG} -DDATAPATH=${DATA_PATH} -DTIMEOUT=${TIMEOUT} -classpath ${CP} org.cougaar.bootstrap.Bootstrapper mil.darpa.log.alpine.blackjack.assessui.client.BJAssessmentLauncher"
+java $MYPROPERTIES -Dcougaar.aggagent.NAMESERVER=${NAMESERVER} -Dcougaar.aggagent.AGENTNAME=${AGENTNAME} -Dcougaar.aggagent.PSP=${PSP} -Dcougaar.aggagent.KEEPALIVEPSP=${KEEPALIVEPSP} -DDEFAULTORG=${DEFAULTORG} -DDATAPATH=${DATA_PATH} -DTIMEOUT=${TIMEOUT} -classpath ${CP} org.cougaar.bootstrap.Bootstrapper mil.darpa.log.alpine.blackjack.assessui.client.BJAssessmentLauncher
+
+# DESKTOP
+# java $MYPROPERTIES -Dcougaar.aggagent.NAMESERVER=${NAMESERVER} -Dcougaar.aggagent.AGENTNAME=${AGENTNAME} -Dcougaar.aggagent.PSP=${PSP} -Dcougaar.aggagent.KEEPALIVEPSP=${KEEPALIVEPSP} -DDEFAULTORG=${DEFAULTORG} -DDATAPATH=${DATA_PATH} -classpath ${CP} org.cougaar.bootstrap.Bootstrapper mil.darpa.log.alpine.blackjack.assessui.client.BJAssessmentDesktop
