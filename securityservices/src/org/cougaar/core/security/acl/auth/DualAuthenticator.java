@@ -115,15 +115,18 @@ public class DualAuthenticator extends ValveBase {
     _log = (LoggingService) sb.getService(this, LoggingService.class, null);
   }
 
-  private void initNodeEnforcer() {
+  private synchronized void initNodeEnforcer() {
     try {
       if (USE_DAML && _enforcer == null && _serviceBroker != null) {
+        _log.debug("Creating ServletNodeEnforcer");
         ServletNodeEnforcer enforcer = new ServletNodeEnforcer(_serviceBroker);
+	_log.debug("Registering ServletNodeEnforcer: " + enforcer.getClass().getName());
         enforcer.registerEnforcer();
+	_log.debug("Done registering ServletNodeEnforcer");
         _enforcer = enforcer;
       }
     } catch (Exception e) {
-      _log.warn("Error registerring Servlet Node Enforcer", e);
+      _log.warn("Error registering Servlet Node Enforcer", e);
     }
   }
 
@@ -359,7 +362,6 @@ public class DualAuthenticator extends ValveBase {
 
   protected byte getURIAuthRequirement(String path, String cipher, 
                                        AuthSuite cwa) {
-    byte constraint = 0;
     if (USE_DAML) {
       if (cwa == null) {
         // don't bother authenticating when you already know you can't reach it
@@ -367,7 +369,7 @@ public class DualAuthenticator extends ValveBase {
       }
       int authType = cwa.getAuth();
       if (_log.isDebugEnabled()) {
-        _log.debug("using URI constraint: " + constraint);
+        _log.debug("using URI constraint: " + authType);
       }
       // now we only care about the least auth requirement...
       if ((authType & cwa.authNoAuth) != 0) {
@@ -381,6 +383,7 @@ public class DualAuthenticator extends ValveBase {
       }
     }
     HashMap checkAgainst = _constraints;
+    byte constraint = AUTH_NONE;
     do {
       Iterator iter = checkAgainst.entrySet().iterator(); 
       while (iter.hasNext()) {
