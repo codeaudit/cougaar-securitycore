@@ -42,6 +42,7 @@ public class ConfigParserHandler
   // Handler delegates
   CryptoClientPolicyHandler cryptoClientHandler;
   CaPolicyHandler caPolicyHandler;
+  CryptoPolicyHandler cryptoPolicyHandler;
 
   /** A Vector of SecurityPolicy
    */
@@ -55,6 +56,7 @@ public class ConfigParserHandler
     this.role = role;
     cryptoClientHandler = new CryptoClientPolicyHandler();
     caPolicyHandler = new CaPolicyHandler();
+    cryptoPolicyHandler = new CryptoPolicyHandler();
 
     securityPolicies = new ArrayList();
   }
@@ -94,7 +96,7 @@ public class ConfigParserHandler
       System.out.println("ConfigParserHandler: " + localName);
     }
 
-    if (localName.equals(POLICY_ELEMENT)) {
+    if (localName.equalsIgnoreCase(POLICY_ELEMENT)) {
       String policyType = attr.getValue("type");
       if (CryptoDebug.debug) {
 	System.out.println("ConfigParserHandler: policyType=" + policyType);
@@ -113,6 +115,13 @@ public class ConfigParserHandler
 	caPolicyHandler.collectPolicy(parser, this,
 				      role, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = caPolicyHandler.getSecurityPolicy();
+	newSecPolicy.setName(attr.getValue("name"));
+	securityPolicies.add(newSecPolicy);
+      }
+      else if (policyType.equals("org.cougaar.core.security.policy.CryptoPolicy")) {
+	cryptoPolicyHandler.collectPolicy(parser, this,
+				      role, POLICY_ELEMENT);
+	SecurityPolicy newSecPolicy = cryptoPolicyHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
       }

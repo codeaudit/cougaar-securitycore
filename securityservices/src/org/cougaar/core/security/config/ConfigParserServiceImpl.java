@@ -82,7 +82,8 @@ public class ConfigParserServiceImpl
     handler = new ConfigParserHandler(parser, role);
     parser.setContentHandler(handler);
 
-    setConfigurationFile();
+    setConfigurationFile("cryptoPolicy.xml");
+    setConfigurationFile("BootPolicy.Crypto.xml");
   }
 
   public File findWorkspacePolicyPath(String policyfilename) {
@@ -107,8 +108,8 @@ public class ConfigParserServiceImpl
    */
   public File findPolicyFile(String policyfilename) {
     File f = null;
-    String configFile = secprop.getProperty(secprop.CRYPTO_CONFIG,
-				     policyfilename);
+    String configFile = secprop.getProperty(secprop.CRYPTO_CONFIG, 
+            policyfilename);
 
     // 1) Search using the workspace
     f = findWorkspacePolicyPath(configFile);
@@ -140,13 +141,12 @@ public class ConfigParserServiceImpl
     return f;
   }
 
-  private void setConfigurationFile() {
-    String configPath = null;
-    String defaultFile = "cryptoPolicy.xml";
-    configPath = findPolicyFile(defaultFile).getPath();
-
+  private void setConfigurationFile(String defaultFile) {
     try {
-      configDoc = confFinder.parseXMLConfigFile(configPath);
+      String configPath = null;
+      configPath = findPolicyFile(defaultFile).getPath();
+
+      configDoc = confFinder.parseXMLConfigFile(defaultFile);
       FileInputStream fis = new FileInputStream(configPath);
       parsePolicy(fis);
     }
