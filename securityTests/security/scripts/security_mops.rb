@@ -21,14 +21,16 @@ insert_before :setup_run do
   end
 end
 
-insert_after :society_running do
+insert_before :society_running do
   do_action "InitiateSecurityMopCollection"
 end
 
-insert_after :society_stopping do
+#insert_before :stopping_society do
+insert_before "FreezeSociety" do
   do_action "StopSecurityMopCollection"
 end
 
-insert_after :society_stopped do
+insert_before :society_stopped do
+#insert_after parameters[:send_security_mop_request_label] do
   do_action "SendSecurityMopRequest"
 end

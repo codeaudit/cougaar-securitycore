@@ -5,18 +5,39 @@ module Cougaar
   module Actions
     class InsertPersistenceManagerReadyListener < Cougaar::Action
      
-      def initialize(run, persistenceManagerCount=2)
+      def initialize(run)
         super(run)
         @run = run
-        @persistenceManagerCount = persistenceManagerCount
+        @persistenceManagerCount = 0
+        #$VerboseDebugging =true
+       
       end	
       
       def perform
         @run['PersistenceManagerReady'] = false
         @persistenceMgrHash = Hash.new()
+        @persistenceEnclaveHash = Hash.new()
         @run.society.each_node do |node|
-          @persistenceMgrHash[node.name] = []
           @run.info_message("Adding node to Map -->#{node.name}")  if $VerboseDebugging
+          @persistenceMgrHash[node.name] = []
+          if  @persistenceEnclaveHash[node.enclave] == nil
+            @persistenceEnclaveHash[node.enclave] = 0
+          end
+          node.each_facet(:role) do |facet|
+            if facet[:role] == $facetManagement ||
+               facet[:role] == 'RedundantPersistenceManager'
+               @persistenceEnclaveHash[node.enclave] = @persistenceEnclaveHash[node.enclave]+1
+                           
+            end
+          end
+        end
+        @persistenceEnclaveHash.each_value{ |value|
+          @persistenceManagerCount = value
+          break
+        }
+         @run.info_message("setting persitence manager count to: #{@persistenceManagerCount}")
+        if @run.comms == nil
+           @run.info_message("Warning Unable to complete script Persitence Manager ready run.comms is nil")
         end
         @listener = 
           @run.comms.on_cougaar_event do |event|

@@ -22,7 +22,7 @@ module Cougaar
           #puts cmd
           system(cmd)
           cip = ENV['COUGAAR_INSTALL_PATH']
-          signingKeystore="#{cip}/configs/security/bin/signingCA_keystore"
+          signingKeystore="#{cip}/operator/security/signingCA_keystore"
           cmd = "jarsigner -keystore #{signingKeystore} -storepass keystore #{directory}/#{fileName} privileged"
           #puts cmd
           system(cmd)

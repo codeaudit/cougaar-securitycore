@@ -16,6 +16,7 @@ module Cougaar
 
    # myrun contains the current Run instance.  It is also a class variable.
    def self.getRun
+      $Myrun = Hash.new unless $Myrun
       $Myrun
    end
    def self.setRun(run)

@@ -19,28 +19,45 @@
 # </copyright>
 #
 
-#require 'security/lib/scripting'
-# more included scripts at the bottom of this file
-require 'security/lib/experimentFramework'
+=begin
 
-class SecurityExperimentFramework < ExperimentFramework
-end
+This file is should only be used on the analysis machine. It is necessary because
+much of the code base depends on the cougaar framework, which isn't loaded
+into the analysis code. This file defines the missing components from the
+cougaar framework.
+=end
 
-class SecurityStressFramework < StressFramework
-  def initialize(run)
-    @run = run
+
+module Cougaar
+  class Action
+  end
+  class State
+  end
+  module Actions
+    class Stressors
+    end
   end
 end
+module UltraLog
+end
 
-class PingSociety 
-  @@ping=FALSE
-    
-  def PingSociety.setPingSociety
-    @@ping =TRUE
+class Numeric
+  def second
+    return self
   end
-
-  def PingSociety.isPingSociety
-    @@ping 
+  def seconds
+    return self
   end
-
+  def minute
+    return self * 60
+  end
+  def minutes
+    return self.minute
+  end
+  def hour
+    return self * 3600
+  end
+  def hours
+    return self.hour
+  end
 end

@@ -154,8 +154,8 @@ $jarDir = "/tmp/config.#{rand(100000)}"
 $jarChanges = 0
 $jarCreated=false
 $tmpFilesDeleted=true
-$jarFile="#{CIP}/configs/security/securityservices_config.jar"
-$referenceJarFile="#{CIP}/configs/security/reference/securityservices_config.jar"
+$jarFile="#{CIP}/configs/security/configs_securityservices.jar"
+$referenceJarFile="#{CIP}/configs/security/reference/configs_securityservices.jar"
 
 def searchDir(dir, filename, dirok = true) 
   Dir.foreach(dir) { |file|

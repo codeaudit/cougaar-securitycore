@@ -9,7 +9,7 @@ description: special initialization for security
 require 'security/lib/persistence'
 
 insert_after :setup_run do
- do_action "InsertPersistenceManagerReadyListener" ,"1"
+  do_action "InsertPersistenceManagerReadyListener"
 end
 
 insert_after parameters[:persistence_mgr_watcher_label] do

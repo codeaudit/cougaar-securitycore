@@ -84,7 +84,7 @@ class SRIWeb
     if response.status == 302
       newurl = response['location']
       if newurl =~ /https/
-        msg = "Redirection to an https addres not allowed (#{newurl})"
+        msg = "Redirection to an https address not allowed (#{newurl})"
         puts msg if $WebVerboseDebugging
         response = HtmlResponse.new(491, msg)
         return response
@@ -122,19 +122,25 @@ puts "WARNING:  exception in [web.rb]getHtml" if $WebVerboseDebugging
 puts "<#{e.message.inspect}>" if $WebVerboseDebugging
       errnum = 499
       case e.message
+      # note: 491 is used when an http request is asked to relocate to an https address
       when /socket read timeout/i
         errnum = 492   # timed out
+      when /execution expired/i
+        errnum = 492   # timed out because of getHtmlSsl's timeout block
       when /Name or service not known/i
         errnum = 493   # dns lookup didn't work
       when /Connection refused/i
         errnum = 494   # web server not running on machine
+      when /Connection reset/i
+        errnum = 494   # web server not running on machine -- TCP connection made and then FIN'ed.
       when /SSL_CTX_use_PrivateKey/i
         errnum = 497   # key values mismatch
       when /alert certificate unknown/i
         errnum = 498   # certificate has probably been revoked
       else
-        logInfoMsg "Unknown web exception: #{e.message}"
+        logInfoMsg "Unknown web exception: #{e.message} on #{url}" if $VerboseDebugging
       end
+#      response['errmsg'] = e.message
       response = HtmlResponse.new(errnum, "ERROR: #{e.message}")
     end
 #puts response.class
@@ -226,6 +232,8 @@ puts "<#{e.message.inspect}>" if $WebVerboseDebugging
       case e.message
       when /socket read timeout/i
         errnum = 492   # timed out
+      when /execution expired/i
+        errnum = 492   # timed out because of getHtmlSsl's timeout block
       when /Name or service not known/i
         errnum = 493   # dns lookup didn't work
       when /Connection refused/i
@@ -235,7 +243,7 @@ puts "<#{e.message.inspect}>" if $WebVerboseDebugging
       when /alert certificate unknown/i
         errnum = 498
       else
-        logInfoMsg "Unknown web exception: #{e.message}"
+        logInfoMsg "Unknown ssl web exception: #{e.message} on #{url}" if $VerboseDebugging
       end
       response = HtmlResponse.new(errnum, "ERROR: #{e.message}")
     end

@@ -12,6 +12,7 @@ module Cougaar
 	  "#{CIP}/workspace/security",
 	  "#{CIP}/workspace/security/keystores",
 	  "#{CIP}/workspace/security/mopresults",
+	  "#{CIP}/workspace/security/mops",
 	  "#{CIP}/workspace/nodelogs",
 	  "#{CIP}/workspace/log4jlogs",
 	]

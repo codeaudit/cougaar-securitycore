@@ -12,10 +12,8 @@ begin
 rescue Exception => e
   #puts "Not loading assessment/scripting: #{e}"
 end
-require 'security/lib/cougaarMods'
 
 require 'security/lib/doIrb'
-require 'security/lib/useExperiment'
 require 'security/lib/experimentFramework'
 
 require 'security/lib/summary'
@@ -27,15 +25,9 @@ require 'security/lib/userDomain'
 require 'security/lib/loadSociety'
 require 'security/lib/checkAllJabberHosts'
 require 'security/lib/caDomain'
+
 require 'security/lib/security'
-require 'security/lib/securityMop'
-require 'security/lib/securityMops'
-require 'security/lib/securityMopActions'
-require 'security/lib/SecurityMop2_4'
-require 'security/lib/SecurityMop2_5'
-require 'security/lib/SecurityMop2_6'
-require 'security/lib/mergeMopAnalysis'
-require 'security/lib/namedCollection'
+require 'security/lib/analysisScripting'
 
 require 'security/lib/dataProtection'
 

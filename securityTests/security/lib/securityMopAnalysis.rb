@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-require 'security/lib/doIrb'
+# causes problems with analysis service
+#require 'security/lib/doIrb'
 
 
 startingScript = $0.split('/')[-1]
@@ -38,9 +39,6 @@ class Mop2_3Tuple
 end
 
 
-
-
-
 class PostSecurityMopAnalysis
   attr_accessor :dir, :runid, :datestring, :date, :html, :scores, :origScores, :raw, :mops, :supportingData, :summary
 
@@ -51,9 +49,9 @@ class PostSecurityMopAnalysis
              SecurityMop2_5.instance, SecurityMop2_6.instance]
 
     @dir = dir
-    match = dir.scan(/\/([0-9]*)\//)
-    @runid = 'unknown'
-    @runid = match[0][0] if match and match!=[]
+    @runid = 'N/A'
+#    match = dir.scan(/\/([0-9]*)\//)
+#    @runid = match[0][0] if match and match!=[]
     preprocess(dir)
   end
 
@@ -77,7 +75,9 @@ class PostSecurityMopAnalysis
         @mops[n].summary = @summary[n]
         @mops[n].date = @date
         @mops[n].runid = runid
-        xml += makeMopXml(@mops[n])
+        @mops[n].supportingData = @supportingData[n]
+        @mops[n].raw = @raw[n]
+        xml += makeMopXml(@mops[n]) unless @mops[n].class == SecurityMopNil
       rescue Exception => e
         puts "error #{e.message}"
         puts e.backtrace.join("\n")
@@ -93,6 +93,7 @@ class PostSecurityMopAnalysis
     x = "<Report>\n"
     x +=  "<metric>MOP #{mop.name}</metric>\n"
     x +=  "<id>#{Time.now}</id>\n"
+    x +=  "<runid>#{mop.runid}</runid>\n"
     x +=  "<description>#{mop.descript}</description>\n"
     x +=  "<score>#{mop.scoreText}</score>\n"
     #x +=  "<info><analysis><para>#{mop.info}</para></analysis></info>\n"
@@ -100,6 +101,26 @@ class PostSecurityMopAnalysis
     x +="</Report>\n"
     return x
   end # makeMopXml
+
+
+=begin
+  def makeAnalysisSection(mopset)
+    "<table>\n  <title><column>Run Id</column><column>Score</column><column>Detail</column><column>Exceptions</column></title>\n  " +
+       makeAnalysisSectionRows(mopset).join("\n") +
+    "</table>\n"
+  end
+
+  def makeAnalysisSectionRows(mopset)
+    data = []
+    mopset.each do |mop|
+      data << "  <row><column>#{mop.runid}</column><column>#{mop.score}</column><column>
+#{mop.summary}</column><column>
+#{mop.exceptions}</column></row>\n"
+    end
+    return data
+  end
+=end
+
 
 =begin
 # if this section is uncommented, add in:
@@ -118,7 +139,8 @@ class PostSecurityMopAnalysis
 =end
 
   def getMopData
-    @mops = @mops.collect {|m| m.dup if m}
+# what am i doing this for?
+#    @mops = @mops.collect {|m| m.dup if m}
     getXMLDataForMop1
     getXMLDataForMop2
     3.upto(6) do |n|
@@ -182,7 +204,7 @@ class PostSecurityMopAnalysis
       @summary = db['summary']
       @supportingData = db['supportingData']
     end # db.transaction
-    1.upto(4) {|n| @scores[n] = Float(100.0 - @scores[n])}
+#    1.upto(4) {|n| @scores[n] = Float(100.0 - @scores[n])}
     @origScores = @scores.dup
   end
 

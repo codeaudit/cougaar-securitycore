@@ -8,6 +8,6 @@ require 'security/lib/scripting'
 require 'security/lib/stresses/dm_rehydration_lib'
 
 
-insert_after :before_stage_4 do
+insert_after :society_running do
   do_action "InjectStress", "DomainManagerRehydrateReset", "executeStress"
 end

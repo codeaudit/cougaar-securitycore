@@ -46,7 +46,7 @@ class MergePostMopAnalysis
     transformAnalysisByMopNumber
     xml = []
     @mops.each do |mopset|
-      unless mopset == []
+      unless ((mopset == []) or (mopset.class == SecurityMopNil))
         extractInfo(mopset, analysisStart, analysisEnd)
         result = makeMopXml(mopset)
         xml << result
@@ -100,7 +100,7 @@ class MergePostSecurityMopAnalysis < MergePostMopAnalysis
   def makeMopXml(mopset)
     score = Float(mopset.inject(0) {|sum,mop| sum += mop.score}) / mopset.size
     x = "<Report>\n"
-    x +=  "<metric>#{@name}</metric>\n"
+    x +=  "<metric>MOP #{@name}</metric>\n"
     x +=  "<id>#{@time}</id>\n"
     x +=  "<description>#{@descript}</description>\n"
     x +=  "<score>#{score}</score>\n"

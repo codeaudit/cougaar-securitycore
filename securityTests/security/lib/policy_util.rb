@@ -5,14 +5,6 @@ if ! defined? CIP
   CIP = ENV['CIP']
 end
 
-VERBOSE_POLICY=false
-
-def policyLog(msg)
-  if (VERBOSE_POLICY) then
-    logInfoMsg(msg)
-  end
-end
-
 def waitForUserManager(agent, path="/userManagerReady", path2=nil)
   agent = run.society.agents[agent]
   url = agent.node.agent.uri + path
@@ -76,7 +68,7 @@ def getPolicyManager(enclave)
   if manager == nil
     raise "There is no security manager for enclave '#{enclave}'"
   else
-    policyLog "Found manager for #{host}:#{port} #{manager}" if $VerboseDebugging
+    logInfoMsg "Found manager for #{host}:#{port} #{manager}" if $VerboseDebugging
   end
   [host, port, manager]
 end
@@ -130,47 +122,56 @@ def getPolicyLock(enclave)
   mutex
 end
 
-def ensureBootPoliciesLoaded(enclave)
+def bootPoliciesLoaded(enclave)
   host, port, manager = getPolicyManager(enclave)
-  fileExists = false
   waitForUserManager(manager)
   mutex = getPolicyLock(enclave)
   mutex.synchronize {
+    #puts "TRYING TO GET POLICY FILE FOR ENCLAVE #{enclave}"
     policyFile = getPolicyFile(enclave)
-    begin
-      File.stat(policyFile)
-      fileExists = true
-    rescue
-      fileExists = false
-    end
-    if !fileExists then
-      policyLog "load the boot policies -- we haven't done any delta yet"
+   # begin
+   #   File.stat(policyFile)
+   #   fileExists = true
+   # rescue
+     fileExists = false
+   # end
+    #puts "boot policy file exists #{fileExists}"
+    if !fileExists
+      #puts "load the boot policies -- we haven't done any delta yet"
       bootPolicyFile = File.join(CIP, "configs", "security",
                                  "OwlBootPolicyList")
       result = commitPolicy(host, port, manager, "commit --dm", bootPolicyFile)
-      policyLog "Boot Policies: #{result}"
+      #puts " result after commitPolicy #{result}"
+#      logInfoMsg result
     end
+    fileExists  
   }
-  if !fileExists then
-    sleep 30.seconds
-  end
-end
+end 
 
 def deltaPolicy(enclave, text)
   host, port, manager = getPolicyManager(enclave)
-  policyLog "Got policy manager for #{enclave} host #{host} port #{port} manager #{manager}"
-  ensureBootPoliciesLoaded(enclave)
+  #puts "Got policy manager for #{enclave} host #{host} port #{port} manager #{manager}"
+  bootPoliciesAlreadyLoaded = bootPoliciesLoaded(enclave)
+  #puts " CHECKING IF bootPoliciesLoaded ALREADY LOADED FOR #{enclave}"
+  if !bootPoliciesAlreadyLoaded
+     #puts "first time so sleeping for 30 seconds"
+    sleep 30.seconds
+  else 
+     #puts "second time so I don't need to sleep"
+  end
+  #puts " TRY TO GET LOCK TO POLICY FILE"
   mutex = getPolicyLock(enclave)
+  # puts " GOT LOCK TO POLICY FILE"
   mutex.synchronize {
+    
     policyFile = getPolicyFile(enclave)
     # now create the delta file
     File.open(policyFile, "w") { |file|
       file.write(text)
     }
-    policyLog "Actual Commit"
     result = commitPolicy(host, port, manager, "addpolicies --dm", policyFile)
-    policyLog result
   }
+#    logInfoMsg result
 end
 
 module Cougaar

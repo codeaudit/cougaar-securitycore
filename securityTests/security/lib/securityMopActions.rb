@@ -75,10 +75,10 @@ module Cougaar
       def initialize(run, frequency=3.minutes)
         super(run)
         Cougaar.setRun(run)
-        AbstractSecurityMop.halt = false
         @frequency = frequency
         @thread = nil
-        run['SecurityIsInitiated'] = false
+        run['SecurityIsSetup'] = false
+        run['SecurityIsCompleted'] = false
         UserClass.clearCache
       end
 
@@ -93,13 +93,23 @@ module Cougaar
       end
 
       def perform
-        # run initiate in it's own thread so that other actions can get underway.
-        self.threadPerformAction
+	# No fork; helps avoid timing problems
+        AbstractSecurityMop.halt = false
+	begin
+	  self.performAction
+	rescue Exception => e
+	  logErrorMsg "Error in InitiateSecurityMopCollection perform: #{e.class}, #{e.message}"
+	  logErrorMsg e.backtrace.join("\n")
+	end
+
+        # or run initiate in it's own thread so that other actions can get underway.
+        #self.threadPerformAction
       end
 
       def performAction
         # give a little more time for the CA and user domain agents to get ready.
-        sleep 2.minutes unless $WasRunning
+        # (this is necessary only when following UserManagerReady)
+#        sleep 2.minutes unless $WasRunning
 
         # remove mop results dir.  will recreate in StopSecurityMopCollection
         `rm -rf #{SecurityMopDir}` if File.exists?(SecurityMopDir)
@@ -115,10 +125,8 @@ module Cougaar
 
         run['mops'] = @mops
 
-        puts "setting up" if $VerboseDebugging
-        if false # $WasRunning
-          logInfoMsg "Not setting up security MOPs because the existing society should already be set up"
-        else
+        logInfoMsg "Setting up Security MOPs" if $VerboseDebugging
+        if true   # !$WasRunning
           @mops.each do |mop|
             logInfoMsg "Setting up #{mop.class.name}" if $VerboseDebugging
             begin
@@ -127,8 +135,11 @@ module Cougaar
               logError e
             end
           end
-          sleep 2.minutes
+#          sleep 2.minutes
+        else
+          logInfoMsg "Not setting up security MOPs because the existing society should already be set up"
         end
+        logInfoMsg "Security MOP setup is complete" if $VerboseDebugging
 
         firstTime = true
         @thread = Thread.new do
@@ -136,9 +147,11 @@ module Cougaar
             puts "performing security mops" if $VerboseDebugging
             @mops.each do |mop|
               begin
-                puts "performing #{mop.class.name}" if $VerboseDebugging
-                break if halted?
-                mop.perform if firstTime or mop.doRunPeriodically
+                if firstTime or mop.doRunPeriodically
+                  logInfoMsg "performing #{mop.class.name}" if $VerboseDebugging
+                  break if halted? and !firstTime
+                  mop.perform
+                end
               rescue Exception => e
                 logError e, "error in InitiateSecurityMopCollection's thread"
               end
@@ -148,9 +161,9 @@ module Cougaar
             firstTime = false
           end
         end
+
+        AbstractSecurityMop.waitForCompletion('CompletedMinimumUnauthorizedServletAttempts', 5.minutes)
         puts "security mops thread now completed" if $VerboseDebugging
-        run['SecurityIsInitiated'] = true
-        AbstractSecurityMop.finished(InitiateSecurityMopCollection)
       end
       
       # These are the policies needed by all the mops
@@ -177,23 +190,21 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
 
     class StopSecurityMopCollection < Cougaar::Action
       def perform
-        # self.threadPerformAction
+        # we need to block until this is completed -- otherwise stopsociety
+        # might get called prior to completion
         performAction
       end
 
       def performAction
-        unless AbstractSecurityMop.waitForCompletion(InitiateSecurityMopCollection)
-          logErrorMsg "Aborting StopSecurityMopCollection"
-          return nil
-        end
+        logInfoMsg "Halting security MOPs" if $VerboseDebugging
+        InitiateSecurityMopCollection.halt
+
         `rm -rf #{SecurityMopDir}` if File.exists?(SecurityMopDir)
         Dir.mkdirs(SecurityMopDir)
-        `chmod a+rwx #{SecurityMopDir}`
-        logInfoMsg "Halting security MOPs" if $VerboseDebugging
+        #`chmod a+rwx #{SecurityMopDir}`
 
         mops = run['mops']
-        InitiateSecurityMopCollection.halt
-        sleep 1.minutes
+#        sleep 1.minutes
         logInfoMsg "Shutting down security MOPs" if $VerboseDebugging
         mops.each do |mop|
           begin
@@ -203,7 +214,43 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
             logError e
           end
         end
-        sleep 1.minutes
+#        sleep 1.minutes
+
+         AbstractSecurityMop.waitForCompletion('MOP2.4 Performed Once')
+        
+        Thread.fork do
+          calculate
+        end
+      end
+
+      def calculate
+#        result = ''
+        mops = run['mops']
+        mops.each do |mop|
+          begin
+	    logInfoMsg "calculating #{mop.class.name}" if $VerboseDebugging
+            mop.calculate
+          rescue Exception => e
+            logError e
+          end
+        end
+        retries=0
+        begin
+          mops.each do |mop|
+            next if mop.class == SecurityMopNil
+            startTime = Time.now
+            while (!mop.isCalculationDone) do
+              retries += 1
+              break if Time.now - startTime > 30.minutes
+              logInfoMsg "waiting for mop calculation in #{mop.class.name} (#{retries})" if $VerboseDebugging
+              sleep 30.seconds
+            end
+#            result += "#{makeMopXml(mop)}\n"
+          end
+        rescue Exception => e
+          logError e
+        end
+
         AbstractSecurityMop.finished(StopSecurityMopCollection)
       end
     end
@@ -221,39 +268,12 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
         logInfoMsg "Pre-processing security MOPs" if $VerboseDebugging
         # if InitiateSecurityMopCollection didn't complete, StopSecurityMopCollection would
         # have aborted and there is no reason to sit through a long timeout period.
-        unless AbstractSecurityMop.waitForCompletion(InitiateSecurityMopCollection, 1.minute)
-          logErrorMsg "Aborting SendSecurityMopRequest"
-          return nil
-        end
         unless AbstractSecurityMop.waitForCompletion(StopSecurityMopCollection)
           logErrorMsg "Aborting SendSecurityMopRequest"
           return nil
         end
         mops = run['mops']
-        result = ''
-        mops.each do |mop|
-          begin
-	    logInfoMsg "calculating #{mop.class.name}" if $VerboseDebugging
-            mop.calculate
-          rescue Exception => e
-            logError e
-          end
-        end
-        retries=50
-begin
-        mops.each do |mop|
-          startTime = Time.now
-          while (!mop.isCalculationDone) do
-            retries -= 1
-            break if Time.now - startTime > 5.minutes
-            puts "waiting for mop calculation in #{mop.class.name} (#{retries})" if $VerboseDebugging
-            sleep 30.seconds
-          end
-          result += "#{makeMopXml(mop)}\n"
-        end
-rescue Exception => e
- logError e
-end
+
         mops.each do |mop|
           begin
 	    logInfoMsg "postCalculating #{mop.class.name}" if $VerboseDebugging
@@ -263,22 +283,32 @@ end
           end
         end
 
-#        html = (mops.collect {|mop| makeMopXml(mop)}).join("\n")
+        result = ''
+        mops.each do |mop|
+          begin
+            result += "#{makeMopXml(mop)}\n" unless mop.class == SecurityMopNil
+          rescue Exception => e
+            logError e, "Error in makeMopXml(#{mop.class.name})"
+          end
+        end
 
         logInfoMsg "num security mops: #{mops.size}" if $VerboseDebugging
-
-        db = PStore.new(DbFilename)
-        db.transaction do |db|
-          db['pstoreVersion'] = 1.0
-          db['datestring'] = "#{Time.now}"
-          db['date'] = Time.now
-          db['html'] = ''
-          db['info'] = mops.collect {|mop| mop.info}
-          db['summary'] = mops.collect {|mop| mop.summary}
-          db['scores'] = mops.collect {|mop| mop.score}
-          db['raw'] = mops.collect {|mop| mop.raw}
-  db['supportingData'] = mops.collect {|mop| mop.supportingData}
-          db.commit
+        begin
+          db = PStore.new(DbFilename)
+          db.transaction do |db|
+            db['pstoreVersion'] = 1.0
+            db['datestring'] = "#{Time.now}"
+            db['date'] = Time.now
+            db['html'] = ''
+            db['info'] = mops.collect {|mop| mop.info}
+            db['summary'] = mops.collect {|mop| mop.summary}
+            db['scores'] = mops.collect {|mop| mop.score}
+            db['raw'] = mops.collect {|mop| mop.raw}
+            db['supportingData'] = mops.collect {|mop| mop.supportingData}
+            db.commit
+          end
+        rescue Exception => e
+          logError e, "Error while creating security MOP pstore"
         end
 
 html = ''
@@ -289,6 +319,8 @@ puts (mops.collect {|mop| mop.score}).inspect if $VerboseDebugging
       end
 
       def makeMopXml(mop)
+        return '' if mop.class == SecurityMopNil
+        mop.score = mop.score.round
         x = "<Report>\n"
         x +=  "<metric>MOP #{mop.name}</metric>\n"
         x +=  "<id>#{Time.now}</id>\n"

@@ -58,10 +58,12 @@ module Cougaar
   
   module Actions
     class UseExperiment < Cougaar::Action
+=begin
       DOCUMENTATION = Cougaar.document {
         @description = "Loads the experiment class specified by the parameter."
         @example = "do_action LoadExperiment, 'Security1a'"
       }
+=end
       def initialize(run, experimentClass)
         super(run)
         # If is a string, get the associated class.
@@ -85,10 +87,12 @@ module Cougaar
     end
     
     class MakeExperiment < UseExperiment
+=begin
       DOCUMENTATION = Cougaar.document {
         @description = "Makes and uses an experiment with specified name and stresses."
         @example = "do_action 'MakeExperiment', 'ExperimentClassName', [Stress1, Stress2]"
       }
+=end
       def initialize(run, experimentName, stresses)
         experiment = ExperimentFramework.new experimentName, stresses
         super(run, experiment)

@@ -20,7 +20,11 @@ class AbstractSecurityMop < SecurityStressFramework
 
   @@completed = []
 
+  def self.member?(anObject)
+    return @@completed.member?(anObject)
+  end
   def self.finished(anObject)
+    logInfoMsg "AbstractSecurityMop.finished '#{anObject}'" if $VerboseDebugging
     @@completed << anObject
   end
   def self.completed
@@ -29,14 +33,16 @@ class AbstractSecurityMop < SecurityStressFramework
   def self.waitForCompletion(completedName, maxTime=30.minutes)
     # returns true if completedName comes in before maxTime
     startTime = Time.now
-    sleepTime = 30.seconds
+    sleepTime = 5.seconds
     until @@completed.member?(completedName) do
+      logInfoMsg "Waiting for '#{completedName}' to finish" if $VerboseDebugging
       if startTime+maxTime < Time.now
         logInfoMsg "Timeout exceeded waiting for #{completedName}"
         return false
       end
       sleep sleepTime
     end
+    logInfoMsg "'#{completedName}' has completed" if $VerboseDebugging
     return true
   end
 
@@ -45,6 +51,7 @@ class AbstractSecurityMop < SecurityStressFramework
     return @@halt
   end
   def self.setHalt(haltValue)
+    logInfoMsg "AbstractSecurityMop.halt" if $VerboseDebugging
     @@halt = haltValue
   end
   def self.halt

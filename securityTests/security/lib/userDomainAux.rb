@@ -167,8 +167,13 @@ class UserDomain
       response = getHtml(aUrl)
       content = response.body
       user = UserClass.new
-      user.name = content.scan(/User ID<[^<]*<td>([^<]*)/)[0][0]
-      user.passwd = nameSansDomain(user.name)
+      processedContent= content.scan(/User ID<[^<]*<td>([^<]*)/)
+      if(processedContent !=nil)
+        user.name = processedContent[0][0]
+        user.passwd = nameSansDomain(user.name)
+      else 
+        raise "Cannot get user #{userName} from url #{aurl}" 
+      end
       user.firstname = content.scan(/name="givenName" value="([^"]*)/)[0][0]
       user.lastname = content.scan(/name="sn" value="([^"]*)/)[0][0]
       user.enableTime = content.scan(/name="enableTime" value="([^"]*)/)[0][0]
@@ -268,12 +273,13 @@ class UserDomain
 
   def recreateUsersForce(userCollection)
     userCollection.each do |user|
-      logInfoMsg "  #{user}" if $VerboseDebugging
+      logInfoMsg "  in recreateUsersForce: #{user}" if $VerboseDebugging
       user = UserClass.premadeUser(user) if user.kind_of?(String)
       begin
         recreateUser(user)
       rescue Exception => e
         logInfoMsg "Error while recreating user #{user}: #{e.class} #{e.message}"
+        raise "Error while recreating user #{user}: #{e.class} #{e.message}"
         logInfoMsg e.backtrace.join("\n")
       end
     end
@@ -289,8 +295,9 @@ class UserDomain
     params = createUserParams user
     params << "page=newUser"
     params << "action=Add+User"
+    logInfoMsg "  createUser: #{url} params #{params}" if $VerboseDebugging
     response = postHtml url, params
-    #      puts "  Status: #{response.status}"
+    logInfoMsg "  createUser: response #{response.status}" if $VerboseDebugging
     setUserRoles(user)
 
     # Create the certificate if needed.
@@ -309,23 +316,23 @@ class UserDomain
     params = createUserParams user
     params << "page=editUser"
     params << "action=Save"
+    logInfoMsg "  updateUser: #{url} params #{params}" if $VerboseDebugging
     response = postHtml(url, params)
-    if $VerboseDebugging
-      logInfoMsg "updateUser  Status: #{response.status}"
-      logInfoMsg "updateUser #{params}"
-    end
+    logInfoMsg "  updateUser: response #{response.status}" if $VerboseDebugging
     setUserRoles(user)
   end
 
   def deleteUser(userName)
-    #logInfoMsg "Deleting user #{userName}"
+    logInfoMsg "Deleting user #{userName}" if $VerboseDebugging
     params = ["page=userAction", "action=Delete", "uid=#{CGI.escape(name+'\\'+userName)}"]
+    logInfoMsg "  deleteUser: deleting user #{userName}" if $VerboseDebugging
+    logInfoMsg "  deleteUser: #{url} params #{params}" if $VerboseDebugging
     response = postHtml url, params
-    #      puts "  Status: #{response.status}"
+    logInfoMsg "  deleteUser: response #{response.status}" if $VerboseDebugging
   end
 
   def disableUser(user)
-    saveAssertion "SecurityMop2.1", "Disable User: #{user}"
+    saveAssertion " userDomain Aux", "Disable User: #{user}"
     user = getUser(user) if user.kind_of?(String)
     user.disable
     updateUser(user)

@@ -1,10 +1,13 @@
 require 'security/lib/AbstractSecurityMop'
 require 'security/lib/SecurityMop2_5'
 require 'security/lib/rules'
-require 'security/lib/userDomain'
-require 'security/lib/policy_util'
-require 'security/lib/misc.rb'
+#require 'security/lib/userDomain'
+#require 'security/lib/policy_util'
+#require 'security/lib/misc.rb'
 
+$MinimumUnauthorizedServletAttempts = 2
+
+noScore = 100
 
 class  SecurityMop2_4 < AbstractSecurityMop
   include Singleton
@@ -13,20 +16,15 @@ class  SecurityMop2_4 < AbstractSecurityMop
   attr_accessor :numPoliciesLogged,       :numLoggablePolicies,         :policies
   attr_accessor :numtotalAccessAttempts,  :numtotalAccessAttemptCorrect, :totalactions
   attr_accessor :calcDone, :performDone
+  attr_accessor :maxWaitTime, :numTimeouts
   
-  #def initialize(run)
-  #  super(run)
-  #  reset
-  #  removePemCertificates
-  #  @name = "2-4"
-  #  @descript = "Percentage of user actions that were available for invocation counter to authorization policy"
-  #end
   def initialize()
     # super(run)
     reset
     removePemCertificates
-    @name = "2.4"
+    @name = "2-4"
     @descript = "Percentage of user actions that were available for invocation counter to authorization policy"
+    @maxWaitTime = 10.minutes
   end
 
   def getStressIds()
@@ -34,7 +32,11 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def removePemCertificates
-    `rm -f pems/*.pem` unless $WasRunning
+    begin
+      `rm -f pems/*.pem` unless $WasRunning
+    rescue Exception
+      logInfoMsg "Unable to remove pem files"
+    end
   end
 
   def reset
@@ -43,6 +45,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     @numActionsLogged = @numLoggableActions = 0
     @numPoliciesLogged = @numLoggablePolicies = 0
     @numtotalAccessAttempts = @numtotalAccessAttemptCorrect=0
+    @numTimeouts = 0
     @logins = []
     @actions = []
     @policies = []
@@ -64,16 +67,16 @@ class  SecurityMop2_4 < AbstractSecurityMop
   def score4
     @supportingData = {'numAccessesCorrect'=>@numAccessesCorrect, 'numAccessAttempts'=>@numAccessAttempts}
     if @numAccessAttempts > 0
-      return (@numAccessesCorrect*100.0) / @numAccessAttempts
+      return (100.0 - (@numAccessesCorrect*100.0) / @numAccessAttempts).round
     else
-      return 0.0
+      return 100
     end
   end
   
   def scoreText
     if @supportingData['numAccessAttempts'] == 0
 #    if @summary =~ /^There weren/
-      return NoScore
+      return 100 - noScore
     else
       return @score
     end
@@ -90,9 +93,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
   def score5
     SecurityMop2_5.instance.supportingData = {'numActionsLogged'=>@numActionsLogged, 'numLoggableActions'=>@numLoggableActions}
     if @numLoggableActions > 0
-      return (@numActionsLogged*100.0)/@numLoggableActions
+      return ((@numActionsLogged*100.0)/@numLoggableActions).round
     else
-      return 0.0
+      return 0
     end
   end
   
@@ -108,9 +111,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
   def score6
     SecurityMop2_6.instance.supportingData = {'numPoliciesLogged'=>@numPoliciesLogged, 'numLoggablePolicies'=>@numLoggablePolicies}
     if @numLoggablePolicies > 0
-      return (@numPoliciesLogged*100.0)/@numLoggablePolicies
+      return ((@numPoliciesLogged*100.0)/@numLoggablePolicies).round
     else
-      return 0.0
+      return 0
     end
   end
   
@@ -137,55 +140,69 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
   def calculate
     @calcDone = false
-    Thread.fork {
-      begin
-        totalWaitTime=0
-        maxWaitTime = 30.minutes
-        sleepTime=60.seconds
-        while ((SecurityMop2_4.instance.getPerformDone == false) && (totalWaitTime < maxWaitTime))
-          logInfoMsg "Sleeping in Calculate of SecurityMop2.4 . Already slept for #{totalWaitTime}" if totalWaitTime > 0
-          sleep(sleepTime) # sleep
-          totalWaitTime += sleepTime
-        end
-        if((totalWaitTime >= maxWaitTime) && (SecurityMop2_4.instance.getPerformDone == false))
-          @summary = "MOP 2.4 did not complete."
-          logInfoMsg "Security MOPs 2.4-2.6 did not complete."
-          saveResult(false, "SecurityMop2.4", "Timeout tests incomplete") 
-          saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done Result failed ")
-          return
-        elsif (SecurityMop2_4.instance.getPerformDone == true)
-          saveAssertion("SecurityMop2.4", "Saving SecurityMop2.4 test  results")
-          @score = SecurityMop2_4.instance.score4
-          #puts " score is #{@score}"
-          @raw = SecurityMop2_4.instance.raw4
-          #puts " raw is #{@raw}"
-          @info = SecurityMop2_4.instance.html4
-          #puts " info is #{@info}"
-          if @numAccessAttempts == 0
-            @summary = "There weren't any access attempts."
-          else
-            @summary = "There were #{@numAccessAttempts} servlet access attempts, #{@numAccessesCorrect} were correct."
-          end
-          #puts "summary of result : #{@summary}"
-          success = false 
-          csisummary = "SecurityMop2.4 (unauthorized user actions)\n <BR> Score :#{@score}</BR>\n" 
-          csisummary <<  "#{@summary}\n"
-          #csisummary << "#{csiinfo}"
-          if (@score == 100.0)
-            success = true
-          end
-          saveResult(success, 'SecurityMop2.4', csisummary)
-          saveAssertion("SecurityMop2.4", @info)
-          saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done")
-        end
-      rescue Exception => e
-        saveResult(false, "SecurityMop2.4", "Error: #{e.class}")
-        logInfoMsg "error in 2.4 calculate "
-        logInfoMsg "#{e.class}: #{e.message}"
-        logInfoMsg e.backtrace.join("\n")
+    Thread.fork do
+      calculateThread
+    end
+  end
+
+  def calculateThread
+    begin
+      unless AbstractSecurityMop.waitForCompletion("2.4 Stopped")
+        logInfoMsg("MOP 2.4 never completed")
+        return
       end
-      @calcDone = true
-    }
+
+=begin
+      while ((SecurityMop2_4.instance.getPerformDone == false) && (totalWaitTime < @maxWaitTime))
+        logInfoMsg "Sleeping in Calculate of SecurityMop2.4. Already slept for #{totalWaitTime}" if totalWaitTime > 0
+        sleep(sleepTime) # sleep
+        totalWaitTime += sleepTime
+      end
+=end
+
+      totalWaitTime=0
+      sleepTime=60.seconds
+      if((totalWaitTime >= @maxWaitTime) && (SecurityMop2_4.instance.getPerformDone == false))
+        @summary = "MOP 2.4 did not complete."
+        @score = 100
+        logInfoMsg "Security MOPs 2.4-2.6 did not complete."
+        saveResult(false, "SecurityMop2.4", "Timeout tests incomplete") 
+        saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done Result failed ")
+        return
+      elsif (SecurityMop2_4.instance.getPerformDone == true)
+        saveAssertion("SecurityMop2.4", "Saving SecurityMop2.4 test  results")
+        @score = SecurityMop2_4.instance.score4
+        #puts " score is #{@score}"
+        @raw = SecurityMop2_4.instance.raw4
+        #puts " raw is #{@raw}"
+        @info = SecurityMop2_4.instance.html4
+        #puts " info is #{@info}"
+        if @numAccessAttempts == 0
+          @summary = "There weren't any access attempts."
+        else
+          @summary = "There were #{@numAccessAttempts} servlet access attempts, #{@numAccessesCorrect} were correct"
+          @summary = @summary + " (there were #{@numTimeouts} timeouts)" if @numTimeouts > 0
+          @summary = @summary + "."
+        end
+        #puts "summary of result : #{@summary}"
+        success = false 
+        csisummary = "SecurityMop2.4 (unauthorized user actions)\n <BR> Score :#{@score}</BR>\n" 
+        csisummary <<  "#{@summary}\n"
+        #csisummary << "#{csiinfo}"
+        if (@score == 0)
+          success = true
+        end
+        saveResult(success, 'SecurityMop2.4', csisummary)
+        saveAssertion("SecurityMop2.4", @info)
+        saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done")
+      end
+    rescue Exception => e
+      saveResult(false, "SecurityMop2.4", "Error: #{e.class}")
+      logInfoMsg "error in 2.4 calculate "
+      logInfoMsg "#{e.class}: #{e.message}"
+      logInfoMsg e.backtrace.join("\n")
+    end
+    @calcDone = true
   end
   
   #def cleanupOldkeys
@@ -206,11 +223,53 @@ class  SecurityMop2_4 < AbstractSecurityMop
   #    exit
   #  end
   #end
+
+  def persistUserInfo
+    return nil if PingSociety.isPingSociety
+    agentNames = ['OSD.GOV', '1-ad-divPolicyDomainManagerServlet', 'RearPolicyDomainManagerServlet', 'ConusPolicyDomainManagerServlet', '1-ad-divsupPolicyDomainManagerServlet']
+    persistedAgents = []
+    agentNames.each do |agentName|
+      begin
+        agent = getRun.society.agents[agentName]
+#        persistNow(agent, persistedAgents)
+        persistNow(agent.userDomain.agent, persistedAgents)
+#        persistNow(agent.caDomain.signer, persistedAgents)
+      rescue Exception => e
+        logInfoMsg "error while persisting"
+        logInfoMsg "#{e.class}: #{e.message}"
+        logInfoMsg  e.backtrace.join("\n")
+      end
+    end
+  end
+
+  def persistNow(agent, persistedAgents)
+    begin
+      if agent.class != Cougaar::Model::Agent
+        logInfoMsg "couldn't persist a non-agent: agent is of class #{agent.class}"
+        return false
+      end
+      if persistedAgents.member?(agent)
+        logInfoMsg "already persisted #{agent.name}" if $VerboseDebugging
+      else
+        logInfoMsg "persisting #{agent.name} on node #{agent.node.name}" if $VerboseDebugging
+        persistUri = agent.uri+"/persistenceMetrics?submit=PersistNow"
+          logInfoMsg "  #{persistUri}" if $VerboseDebugging
+        Cougaar::Communications::HTTP.get(persistUri)
+        persistedAgents << agent
+      end
+    rescue Exception => e
+      logInfoMsg "error while persisting"
+      logInfoMsg "#{e.class}: #{e.message}"
+      logInfoMsg  e.backtrace.join("\n")
+    end
+    return true
+  end
   
   def setup
     #puts "Calling capture Idmefs"
     reset
-    Thread.fork {
+    # Don't fork, to ensure setup completes before stresses
+    # Thread.fork {
       begin
         captureIdmefs
         # create users, change policy, etc.
@@ -221,22 +280,22 @@ class  SecurityMop2_4 < AbstractSecurityMop
           #cleanupOldkeys
           if (PingSociety.isPingSociety)
             conusUsers = %w(CAndPLogistician
-           PasswordLogistician CertLogistician
-           DisabledLogistician DeletedLogistician
-           RevokedLogistician RecreatedLogistician
-           NotALogistician OtherCert
-           ConusPolicyAdmin
-           ConusPolicyUser FwdPolicyUser R)
+            PasswordLogistician CertLogistician
+            DisabledLogistician DeletedLogistician
+            RevokedLogistician RecreatedLogistician
+            NotALogistician OtherCert
+            ConusPolicyAdmin
+            ConusPolicyUser FwdPolicyUser R)
             logInfoMsg "Creating users for the security MOP." if $VerboseDebugging
             @conusDomain.recreateUsers(conusUsers)
-          else 
+          else # !ping society
             conusUsers = %w(CAndPLogistician
-           PasswordLogistician CertLogistician
-           DisabledLogistician DeletedLogistician
-           RevokedLogistician RecreatedLogistician
-           NotALogistician OtherCert
-           ConusPolicyAdmin
-           ConusPolicyUser FwdPolicyUser R)
+               PasswordLogistician CertLogistician
+               DisabledLogistician DeletedLogistician
+               RevokedLogistician RecreatedLogistician
+               NotALogistician OtherCert
+               ConusPolicyAdmin
+               ConusPolicyUser FwdPolicyUser R)
             fwdUsers = %w(FwdPolicyUser CAndPLogistician R)
             rearUsers = %w(RearPolicyUser CAndPLogistician R)
             transUsers = %w(TransPolicyUser CAndPLogistician R)
@@ -246,7 +305,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
             @rearDomain.recreateUsers(rearUsers)
             @transDomain.recreateUsers(transUsers)
             @conusDomain.recreateUsers(conusUsers)
-            saveAssertion("SecurityMop2.4","creating fwdUsers rearUsers transUsers conusUsers")
+            saveAssertion("SecurityMop2.4","created fwdUsers rearUsers transUsers conusUsers")
+            
           end 
 
           sleep 15.seconds
@@ -286,7 +346,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
               logInfoMsg "calling domain recreateUsers" if $VerboseDebugging
               domain.recreateUsers([u])
             end
-          else
+          else # !ping society
             [[@fwdDomain,'Fwd'], [@rearDomain,'Rear'], [@transDomain,'Trans']].each do |domainandname|
               domain = domainandname[0]
               name = domainandname[1]
@@ -295,13 +355,14 @@ class  SecurityMop2_4 < AbstractSecurityMop
               domain.recreateUsers([u])
             end
           end
+          logInfoMsg "Completed MOP 2.4 setup" if $VerboseDebugging
+          AbstractSecurityMop.finished('MOP2.4 Setup')
         end
       rescue => ex
         saveAssertion('SecurityMop2.4 Setup failed ',
                       "Unable to perform stress: #{ex}\n#{ex.backtrace.join("\n")}" )
       end 
-      
-    }
+    # } # Thread.fork
   end # setup
 
   def lookForCRLUpdate(node,pattern) 
@@ -331,6 +392,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def searchForLoginFailure(pattern)
+    @events = []
     @idmefPattern = pattern
     @found = false
   end
@@ -352,42 +414,65 @@ class  SecurityMop2_4 < AbstractSecurityMop
     Thread.fork {
       begin
         #puts "Starting Perform thread SecurityMop 2.4"
-        saveAssertion("SecurityMop2.4","in Perfom calling ensureDomains")
-        ensureDomains
-        logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP " if $VerboseDebugging
-        #revokeCertBeforeTest
-        #puts "sleeping for 3 minutes"
-        #sleep 3.minutes
-        #saveAssertion("SecurityMop2.4","Calling run test ")
-        maxSleepTime=20.minutes
-        sleepTime = 1.minutes
-        totalWaitTime = 0
-        #puts "Starting to wait for CRL Update" 
-	 while @userCreated == false && totalWaitTime < maxSleepTime
-          logInfoMsg "Waited #{totalWaitTime} minutes  for User Creation" if $VerboseDebugging
-          sleep(sleepTime) # sleep
-          totalWaitTime += sleepTime 
+        logInfoMsg "SecurityMop2_4.perform will now wait for completion of MOP 2.4 setup" if $VerboseDebugging
+
+	if AbstractSecurityMop.waitForCompletion('MOP2.4 Setup')
+	  saveAssertion("SecurityMop2.4","in Perfom calling ensureDomains")
+	  ensureDomains
+	  logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP " if $VerboseDebugging
+	  #revokeCertBeforeTest
+	  #puts "sleeping for 3 minutes"
+	  #sleep 3.minutes
+	  #saveAssertion("SecurityMop2.4","Calling run test ")
+	  maxSleepTime=20.minutes
+	  sleepTime = 1.minutes
+	  totalWaitTime = 0
+	  #puts "Starting to wait for CRL Update" 
+	  while @userCreated == false && totalWaitTime < maxSleepTime
+            logInfoMsg "Waited #{totalWaitTime} minutes  for User Creation" if $VerboseDebugging
+	    saveAssertion "SecurityMop2.4", "Waited #{totalWaitTime} minutes  for User Creation"
+	    sleep(sleepTime) # sleep
+	    totalWaitTime += sleepTime 
+	  end
+	  if ((totalWaitTime >= maxSleepTime) && (@UserCreation == false) )
+	    saveResult(false, "SecurityMop 2.4", "Timeout Could not create Users ")
+	  end
+	  maxSleepTime=4.minutes
+	  sleepTime = 10.seconds
+	  totalWaitTime = 0
+	  while @crlUpdated == false && totalWaitTime < maxSleepTime
+	    logInfoMsg "Waited #{totalWaitTime} seconds for CRL update" if $VerboseDebugging
+	    sleep(sleepTime) # sleep
+	    totalWaitTime += sleepTime 
+	  end
+	  if ((totalWaitTime >= maxSleepTime) && (@crlUpdated == false) )
+	    saveResult(false, "SecurityMop 2.4", "Timeout Didn't receive CRL Update")
+	  elsif @crlUpdated == true
+	    saveAssertion("SecurityMop2.4","Calling run Tests after CRL Update ")
+	  end
+	  runTests(@tests)
+#	  runServletPolicyTests
+          AbstractSecurityMop.finished("2.4 Stopped") # if Cougaar::Actions::InitiateSecurityMopCollection.halted?
+          logInfoMsg " SECURITY MOP 2.4 COMPLETED ONE CYCLE " if $VerboseDebugging
+          AbstractSecurityMop.finished('MOP2.4 Performed Once')
+          AbstractSecurityMop.finished(self.class)
+          setPerformDone
+
+          while (!Cougaar::Actions::InitiateSecurityMopCollection.halted?)
+            quitTime = Time.now + 4.minutes
+            while (!Cougaar::Actions::InitiateSecurityMopCollection.halted? and Time.now<quitTime)
+              sleep 10.seconds
+            end
+            runTests(@tests)
+            # No longer require to run these test as they are added as part of Conus test use case 1A5 and 1A51
+            #runServletPolicyTests
+          end
+
+	else
+          logInfoMsg "MOP2.4 setup never completed; skipping execution of MOP2.4"
+          AbstractSecurityMop.finished('MOP2.4 Perform')
+          AbstractSecurityMop.finished(self.class)
         end
-        if ((totalWaitTime >= maxSleepTime) && (@UserCreation == false) )
-          saveResult(false, "SecurityMop 2.4", "Timeout Could not create Users ")
-	end
-	maxSleepTime=4.minutes
-        sleepTime = 40.seconds
-        totalWaitTime = 0
-        while @crlUpdated == false && totalWaitTime < maxSleepTime
-          logInfoMsg "Waited #{totalWaitTime} seconds for CRL update" if $VerboseDebugging
-          sleep(sleepTime) # sleep
-          totalWaitTime += sleepTime 
-        end
-        if ((totalWaitTime >= maxSleepTime) && (@crlUpdated == false) )
-          saveResult(false, "SecurityMop 2.4", "Timeout Didn't receive CRL Update")
-        elsif @crlUpdated == true
-          saveAssertion("SecurityMop2.4","Calling run Tests after CRL Update ")
-        end
-	runTests(@tests)
-        runServletPolicyTests
-        logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
-        setPerformDone
       rescue Exception => e
         logInfoMsg "error in perform"
         logInfoMsg "#{e.class}: #{e.message}"
@@ -405,18 +490,19 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def runServletPolicyTests
+    # this is no longer used because the policy propagation during stress could cause problems
     logInfoMsg " CALLING Policy TESTS FOR SECURITY MOP " if $VerboseDebugging
     enclave = getOSDGOVAgent.enclave
     logInfoMsg "Changing policy for #{enclave} to passwd " if $VerboseDebugging
     passwdpol = getPasswordServletPolicy
     deltaPolicy(enclave, passwdpol)
-    @tests = getPasswdPolicyTests
-    runTests(@tests)
+    tests = getPasswdPolicyTests
+    runTests(tests)
     certpol = getCertServletPolicy
     deltaPolicy(enclave, certpol)
     sleep 1.minutes
-    @tests =getCertPolicyTests
-    runTests(@tests)
+    tests =getCertPolicyTests
+    runTests(tests)
   end  
 
   def ensureDomains
@@ -444,9 +530,12 @@ class  SecurityMop2_4 < AbstractSecurityMop
     #logInfoMsg "Run test called with size :#{tests.size}"
     saveAssertion("SecurityMop2.4", "runTests called ");
     tests.each do |domain, testSet|
-      #break if Cougaar::Actions::InitiateSecurityMopCollection.halted?
+      # break out of the loop if the halt flag has been set
+      # The getPerformDone will wait for one complete set to be run. Don't use this because
+      # can extend the length of a run and affect the performance mop.
+      break if Cougaar::Actions::InitiateSecurityMopCollection.halted?  # and getPerformDone
       testSet.each do |test|
-        #break if Cougaar::Actions::InitiateSecurityMopCollection.halted?
+        break if Cougaar::Actions::InitiateSecurityMopCollection.halted?  # and getPerformDone
         type=test[0]
         agent=test[1]
         user=test[2]
@@ -455,6 +544,23 @@ class  SecurityMop2_4 < AbstractSecurityMop
         useCase=test[6]
         idmefPattern=test[7]
         scope=test[8]
+
+        # skip this agent if it isn't alive
+        # note: CSI's ping society doesn't have agent.running? method
+        agentIsRunning = (PingSociety.isPingSociety or agent.running?)
+        userAdminIsRunning = (PingSociety.isPingSociety or agent.userDomain.agent.running?)
+        if !agentIsRunning or !userAdminIsRunning
+          # agentIsKilled = (PingSociety.isPingSociety or agent.killed?)
+          begin
+            msg = "Skipping agent #{agent.name}, test #{test[2..-1].inspect}, #{test[0]} because agent is not running (#{!agentIsRunning}) or the user admin agent is not running (#{!userAdminIsRunning})"
+            saveAssertion("n/a", msg)
+            logInfoMsg msg if $VerboseDebugging
+          rescue Exception => e
+            logInfoMsg "couldn't log ignored msg in runTests"
+          end
+          next
+        end
+
         if scope !=nil
           scopeString =String.new(scope)        
           if (scopeString.include? "SecurityMop2.4")
@@ -463,14 +569,21 @@ class  SecurityMop2_4 < AbstractSecurityMop
           if (scopeString.include? "SecurityMop2.6")
             mop26=true
           end
-          if (scopeString.include? "SecurityMop2.5")
-            mop25=true
-          end
+          #bmd
+          #if (scopeString.include? "SecurityMop2.5") or (scopeString.include? "-")
+          #if (scopeString.include? "SecurityMop2.5")
+          #  mop25=true
+          #end
         else
           mop24=false
           mop26=false
           mop25=false;
         end
+
+        #bmd
+        # All access attempts apply to mops 2.4 and 2.5
+        mop24 = mop25 = true
+
         if $VerboseDebugging
           logInfoMsg "type --> #{type}"
           logInfoMsg "agent --> #{agent.name}"
@@ -502,18 +615,19 @@ class  SecurityMop2_4 < AbstractSecurityMop
           end
           if !successBoolean
             saveAssertion(useCase,
-                          " FAILED TEST :  expectedResult:#{expectedResult} actual:#{actualResult} success:#{successBoolean} scope:#{scope}, #{expectedResult.class}, #{actualResult.class}")
+                          " FAILED TEST :  expectedResult:#{expectedResult} actual:#{actualResult} success:#{successBoolean} scope:#{scope}, #{expectedResult.class}, #{actualResult.class}, #{agent.host.name}, #{servlet}, #{user}, #{password}")
 
           end
           if $VerboseDebugging
             logInfoMsg " expectedResult:#{expectedResult} actual:#{actualResult} success:#{successBoolean} idmefPattern:#{idmefPattern} scope:#{scope}, #{expectedResult.class}, #{actualResult.class}"
           end
-          if [492,493,494].member?(actualResult) # no web server or timed out 
-            msg = "ignored (no web server or timed out):  #{msg}"
-            @totalactions << "Web server Time out : #{body}"
+          if [404,493,494].member?(actualResult) # no web server or timed out 
+            msg = "ignored (no web server or timed out) at #{agent.host.name}:  #{msg}"
+            @totalactions << "Web server Time out (#{actualResult}) : #{body}"
             # @actions << msg if scope =~ /user/
             # @policies << msg if scope =~ /policy/
             #@actions << msg
+            logInfoMsg "  #{msg}" if $VerboseDebugging
             next
           end
          #@numAccessAttempts += 1
@@ -521,49 +635,85 @@ class  SecurityMop2_4 < AbstractSecurityMop
           httpsRedirect = true if actualResult == 491 and expectedResult == 491
           @actions << msg if !successBoolean
           if expectedResult==200
-            @numLoggableActions += 1
             @numtotalAccessAttemptCorrect+=1
           end
-          if actualResult == 200 
-            @numActionsLogged += 1
-            @numAccessAttempts += 1 if mop24
+
+          if actualResult == 492   # attempt timed out
+            userAdminIsRunning = (PingSociety.isPingSociety or agent.userDomain.agent.running?)
+            if userAdminIsRunning
+              # applies to mops 2.5 and 2.6 (not 2.4)
+              @numTimeouts += 1
+              @logins << "Ignored time out: #{msg}"
+              msg = "Failure: No IDMEF for timeout: #{msg}"
+              @numLoggableActions += 1 if mop25
+              @actions << msg if mop25
+              @numLoggablePolicies += 1  # 2.6
+              @policies << msg
+#bmd
+# sleep 1.minute if $VerboseDebugging   # just to see if there are any events coming in
+              logInfoMsg "@events: #{@events.inspect}" if $VerboseDebugging
+            else
+              # ignore attempt when the user admin agent is down
+              begin
+                msg = "Ignoring already executed attempt on agent #{agent.name}, test #{test[2..-1].inspect}, #{test[0]} because the user admin agent just died"
+                saveAssertion("n/a", msg)
+                logInfoMsg msg if $VerboseDebugging
+                next
+              rescue Exception => e
+                logInfoMsg "couldn't log ignored msg in runTests"
+              end
+            end
+
+          elsif actualResult == 200
+            msg = "Success: #{msg}"
+            @logins << msg
+            @actions << msg if mop25
+            @numAccessAttempts += 1   # 2.4
+            @numLoggableActions += 1 if mop25
             if expectedResult == 200
-              @numtotalAccessAttemptCorrect+=1
-              @numAccessesCorrect += 1 if mop24
+              @numtotalAccessAttemptCorrect += 1
+              @numAccessesCorrect += 1  # 2.4
+              @numActionsLogged += 1 if mop25
               @actions << " #{msg}"
             end   
             logInfoMsg  "logged:  #{msg}" if $VerboseDebugging
+
           else
-            if(mop25)
+            if (mop25)
               if expectedResult == 200
-                @actions << "Failure :User Denied Access   #{msg}"
-            end 
+                @actions << "Failure: User Denied Access   #{msg}"
+              end
             end
-            waitTime=5
+            # setting the waittime for Idmef events to 2 minutes as it is possible 
+            # that syatem will take lot more time if it is running with some kind of stress  
+            waitTime=120
             if httpsRedirect
               suc = true
             else
               suc = waitForLoginFailure(waitTime)
+   logInfoMsg "@events: #{@events.inspect}" if !suc and $VerboseDebugging
             end
             if (mop24)   # scope =~ /user/
-              @numAccessAttempts += 1
+              @numAccessAttempts += 1    # 2.4
+              @numLoggableActions += 1   # 2.5
               if successBoolean
-                @numAccessesCorrect += 1
+                @numAccessesCorrect += 1 # 2.4
+                @numActionsLogged += 1   # 2.5
                 @numtotalAccessAttemptCorrect+=1
                 @logins << " #{msg}"
                 #logInfoMsg  "Success :  #{msg}"
               else
                 if useCase!=nil
                   @logins << "Failure : test case #{useCase}  #{msg}" 
-                  saveAssertion("Failure :test case #{useCase}   #{msg}")
+                  saveAssertion(useCase, "Failure :test case #{useCase}   #{msg}")
                 else 
                   @logins << "Failure : User Allowd Access   #{msg}" 
-                  saveAssertion("Failure : User Allowd Access    #{msg}")
+                  saveAssertion("No use case specified", "Failure : User Allowd Access    #{msg}")
                 end
               end
             end
             if (mop26)   # scope =~ /policy/
-              @numLoggablePolicies += 1
+              @numLoggablePolicies += 1  # 2.6
               if suc
                 @numPoliciesLogged += 1
                 @numtotalAccessAttemptCorrect+=1
@@ -575,25 +725,34 @@ class  SecurityMop2_4 < AbstractSecurityMop
             end
           end # if actualResult == 200
           if $VerboseDebugging
-            logInfoMsg "$                 Actions logged                #{@numActionsLogged}                                                     "
-            logInfoMsg "$                 policy  loggable              #{@numLoggablePolicies}                                                 "
-            logInfoMsg "$                 policy  logged                #{@numPoliciesLogged}                                                   "
-            logInfoMsg "$                 Loggable Action               #{@numLoggableActions}                                                   "
-            logInfoMsg "$                 numAccessAttempts             #{@numAccessAttempts}                                                   "
-            logInfoMsg "$                 numAccessesCorrect            #{@numAccessesCorrect}                                                   "
+            logInfoMsg "$                 numAccessesCorrect            #{@numAccessesCorrect} "
+            logInfoMsg "$                 numAccessAttempts             #{@numAccessAttempts}  "
+            logInfoMsg "$                 Actions logged                #{@numActionsLogged}   "
+            logInfoMsg "$                 Loggable Action               #{@numLoggableActions} "
+            logInfoMsg "$                 policy  logged                #{@numPoliciesLogged}  "
+            logInfoMsg "$                 policy  loggable              #{@numLoggablePolicies}"
           end
-          rescue Exception => e
+        rescue Exception => e
           logInfoMsg "error in runTests"
           logInfoMsg "#{e.class}: #{e.message}"
           logInfoMsg  e.backtrace.join("\n")
         end
+
+        if @numLoggablePolicies == $MinimumUnauthorizedServletAttempts
+          unless AbstractSecurityMop.member?('CompletedMinimumUnauthorizedServletAttempts')
+            persistUserInfo
+            AbstractSecurityMop.finished('CompletedMinimumUnauthorizedServletAttempts')
+          end
+        end
+        # An idmef won't be generated if a similar one has been sent within the last six seconds.
+        # This sleep will prevent this from being a problem.
         sleep 6.seconds
       end # testSet.each
     end # tests.each
-    logInfoMsg "done with runTests" if $VerboseDebugging
+    #logInfoMsg "done with runTests" if $VerboseDebugging
+    #logInfoMsg "logins----------------------------->   #{@logins}"
     #logInfoMsg "action----------------------------->   #{@actions}"
     #logInfoMsg "policies----------------------------->   #{@policies}"
-    #logInfoMsg "logins----------------------------->   #{@logins}"
     logInfoMsg "done with runTests" if $VerboseDebugging
   end # runTests
   
@@ -704,11 +863,6 @@ class  SecurityMop2_4 < AbstractSecurityMop
       ['Cert',  agent, user,  false,      policyServlet,  403 ,   '1A2-1A21', 'INSUFFICIENT_PRIVILEGES',      'SecurityMop2.4-SecurityMop2.6']
     ]
     
-    if(agent == @fwdAgent)
-      tests.push(
-                 #['Basic', @fwdAgent, "#{domainName}\\R",  'R', policyServlet,  401, '3a','NO_PRIV','policy'])
-                 ['Basic', @fwdAgent, "#{domainName}\\P",  'P', policyServlet,  401, '3a','DATABASE_ERROR','user'])
-    end
     logInfoMsg "test size returned in test set is #{tests.size} " if $VerboseDebugging 
     return tests
   end # testSet
@@ -748,6 +902,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
   def conusTests
     osdgovAgent = getOSDGOVAgent
     servlet = '/TestUserPolicy'
+    servletpasswd = '/TestPasswordPolicy'
+    servletcert = '/TestCertPolicy'
     
     cAndPLog = 'CAndPLogistician'
     certLog = 'CertLogistician'
@@ -763,7 +919,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     policyServlet = '/policyAdmin'
     if (PingSociety.isPingSociety) 
       policyAgent =  run.society.agents['ConusPolicyDomainManager']
-    else 
+    else
       policyAgent = run.society.agents['FwdPolicyDomainManager']
       fwdAdmin = 'FwdPolicyAdmin'
       remoteFwdAdmin = 'ConusUserDomainComm\\R'
@@ -790,6 +946,10 @@ class  SecurityMop2_4 < AbstractSecurityMop
       ['Basic',    osdgovAgent,    certLog,     certLog,     servlet,    491,    '1A6-1A25',  'WRONG_PASSWORD',             'SecurityMop2.4-SecurityMop2.6'], 
 
       ['Cert',     osdgovAgent,    certLog,     true,        servlet,    200,    '1A103',    '',                            'SecurityMop2.5'],
+
+
+
+
       ['Basic',    osdgovAgent,    passwdLog,   passwdLog,   servlet,    200,    '1A101',    '',                            'SecurityMop2.5'], 
       ['Cert',     osdgovAgent,    passwdLog,   true,        servlet,    200,    '1A103',    '',                            'SecurityMop2.5'], 
       
@@ -804,6 +964,16 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
       #1A10 and 1A29 
       ['Cert',    osdgovAgent,    disabledLog, true,        servlet,     401,    '1A10-1A29', 'DISABLED_ACCOUNT',           'SecurityMop2.4-SecurityMop2.6'],
+      
+      ['Cert',    osdgovAgent,    cAndPLog,    true,     servletpasswd,    403,    '1A51-1A241',     'INSUFFICIENT_PRIVILEGES',     'SecurityMop2.4-SecurityMop2.6'],
+
+      ['Basic',   osdgovAgent,    cAndPLog,    cAndPLog,    servletcert,   491,    '1A5-1A24',   '',    'SecurityMop2.4-SecurityMop2.6'],
+
+      ['Cert',    osdgovAgent,    cAndPLog,    true,     servletcert,      200,    '1A51-1A241',     '',     'SecurityMop2.5'],
+
+      ['Basic',   osdgovAgent,    cAndPLog,    cAndPLog,    servletpasswd, 200,    '1A5-1A24',   '',    'SecurityMop2.5']
+      
+      
 
       #['Basic',   osdgovAgent,    notALog,     notAUser,    servlet,     401,    '1A11-1A30', 'WRONG_PASSWORD',             'SecurityMop2.4-SecurityMop2.6'],
       #['Cert',    osdgovAgent,    notALog,     true,        servlet,     401,    '1A12-1A30', 'INSUFFICIENT_PRIVILEGES',    'SecurityMop2.4-SecurityMop2.6'],

@@ -1,79 +1,62 @@
 require 'security/lib/policy_util'
 
 class DomainManagerRehydrateReset < SecurityStressFramework
-  @stressid = "DomainManagerRehydration"
   def initialize(run)
     super(run)
   end
 
   def getStressIds()
-    return [@stressid]
+    return ["xyzzy"]
   end
 
 
   def executeStress
-    Thread.fork() do
-      begin
-        enclave = getAnEnclave()
-        node    = getNonManagementNode(enclave)
-        setPoliciesExperiment(enclave, node)
-      rescue => ex
-        saveAssertion(@stressid, "Exception occured = #{ex}, #{ex.backtrace.join("\n")}")
-      end
-    end
+    enclave = getAnEnclave()
+    node    = getNonManagementNode(enclave)
+    setPoliciesExperiment(enclave, node)
   end
 
   def setPoliciesExperiment(enclave, node)
-#
-#   Initialization of parameters
-#
     failed = false
-    policyNode, domainManager = getPolicyManagerNodeFromEnclave(enclave)
-    saveAssertion(@stressid, "policy node = #{policyNode.name}")
-    saveAssertion(@stressid, "other node = #{node.name}")
+    policyNode = getPolicyManagerNodeFromEnclave(enclave)
+    run.info_message "policy node = #{policyNode.name}"
+    run.info_message "other node = #{node.name}"
     # audit should happen as part of the bootstrap policy
-#
-# Does everything start as I expect?
-#
-    if !(checkAudit(node)) then
-      saveAssertion(@stressid, "No audit? - aborting test")
+    if !checkAudit(node)
+      run.info_message "No audit? - aborting test"
       saveResult(false, 'xyzzy', "Rehydration test aborted")
     end
-#
-# Kill the node, distribute policies, kill policy node, restart node
-#
-    saveAssertion(@stressid, "killing #{node.name}")
+    run.info_message "killing #{node.name}"
     run['node_controller'].stop_node(node)
-    saveAssertion(@stressid,  "sending relay and installing policies")
+    run.info_message "sending relay and installing policies"
     deltaPolicy(enclave, <<DONE)
       Delete RequireAudit
 DONE
-    persistUri = domainManager.uri+"/persistenceMetrics?submit=PersistNow"
-    saveAssertion(@stressid, "uri = #{persistUri}")
-    Cougaar::Communications::HTTP.get(persistUri)
     sleep(30)
 # now audit is turned off and should not happen.      
     if checkAudit(policyNode)
-      saveAssertion(@stressid,  "Audit?? commit policies failed - aborting")
+      run.info_message "Audit?? commit policies failed - aborting"
       saveResult(false, 'xyzzy', "Rehydration policy aborted")
     end
-    saveAssertion(@stressid,  "killing policy manager node (#{policyNode.name})")
+    run.info_message "sleeping for persistence..."
+    sleep(7*60)
+    run.info_message "killing policy manager node (#{policyNode.name})"
     run['node_controller'].stop_node(policyNode)
-    saveAssertion(@stressid,  "restarting node #{node.name}")
+    run.info_message "restarting node #{node.name}"
     run['node_controller'].restart_node(self, node)
     sleep(30)
-    saveAssertion(@stressid,  "restarting domain manager node (#{policyNode.name})")
+    run.info_message "restarting domain manager node (#{policyNode.name})"
     run['node_controller'].restart_node(self, policyNode)
     sleep(30)
 # audit should fail here also  - this is the real test
     if checkAudit(node)
-      saveAssertion(@stressid,  "Rehydration test failed - audit should not occur")
+      run.info_message "Rehydration test failed - audit should not occur"
       saveResult(false, 'xyzzy', "Rehydration policy test failed")
     else 
-      saveAssertion(@stressid,  "Rehydration test succeeded")
+      run.info_message "Rehydration test succeeded"
       saveResult(true, 'xyzzy', "Rehydration test succeeded")
     end
-    saveAssertion(@stressid,  "restoring audit policy")
+    run.info_message "restoring audit policy"
     deltaPolicy(enclave, <<DONE)
       PolicyPrefix=%RestoredPolicy
       Policy RequireAudit = [
@@ -84,21 +67,17 @@ DONE
   end
 
   def checkAudit(node)
-    saveAssertion(@stressid,  "checking audit on node #{node.name}")
-    url = "#{node.uri}/testAuditServlet"
+    run.info_message "checking audit on node #{node.name}"
+    url = "http://#{ node.host.host_name}:#{node.cougaar_port}/$#{node.name}/testAuditServlet"
     result = Cougaar::Communications::HTTP.get(url)
-    return (/TRUE/.match(result.to_s) != nil)
+    return result.to_s =~ "TRUE"
   end
 
   def getPolicyManagerNodeFromEnclave(enclave)
     run.society.each_node do |node|
       node.each_facet(:role) do |facet|
         if facet[:role] == $facetManagement
-          node.each_agent do |agent|
-            if /PolicyDomainManager/.match(agent.name) then
-              return [node, agent]
-            end
-          end
+          return node
         end
       end
     end

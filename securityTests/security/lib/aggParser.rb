@@ -149,6 +149,9 @@ class PostAgent < NamedHash
 end
 class PostPart < NamedArray
   alias atoms children
+  def to_s
+    return "#{parent.parent.name}, #{parent.name}, #{name}"
+  end
   def discardDivider
     return parent.discardDivider
   end
@@ -274,14 +277,18 @@ class DataAtom
    end
 
    def discardTerm?(parent)
+#bmd
+#puts "discard? #{self.startTime} < #{parent.discardDivider}"
      return self.startTime < parent.discardDivider
    end
    def nearTerm?(parent)
-     return (self.discardDivider <= self.startTime) and (self.startTime < parent.nearTermDivider)
+#puts "near? #{parent.discardDivider} <= #{self.prefStartTime} < #{parent.nearTermDivider}"
+     return ((parent.discardDivider <= self.prefStartTime) and (self.prefStartTime < parent.nearTermDivider))
    end
    def farTerm?(parent)
+#puts "far? #{parent.nearTermDivider} <= #{self.prefStartTime}"
      # return !nearTerm?(parent)
-     return parent.nearTermDivider <= self.startTime
+     return parent.nearTermDivider <= self.prefStartTime
    end
 
    def days
@@ -337,10 +344,8 @@ class ExperimentResults
     end
   end
 =end
-  def getAggAgentNames(pattern)
-    keys.grep(pattern)
-  end
 
+=begin
   def findStageName
     names = getAggAgentNames(/^[io]ba_/)
     if !names.empty?
@@ -354,6 +359,20 @@ class ExperimentResults
       return NoStage
     end
   end
+=end
+
+  def findStageName(filename)
+    runlog = RunLog.new(filename)
+    firstline = runlog.rawlines[0]
+    if ((m = /^\[INFO\].*(Stage[\d]*).*/.match(firstline)) != nil)
+      return m[1]
+    end
+    return NoStage
+  end
+
+  def getAggAgentNames(pattern)
+    keys.grep(pattern)
+  end
 
   def readAggFile(path, name, filename)
     puts "Reading #{filename}"
@@ -365,12 +384,14 @@ class ExperimentResults
     unless resultSet
       resultSet = []
       agentName = filename
-      @exceptionFiles << "#{agentName} was missing"
+#      @exceptionFiles << "#{agentName} was missing"
+      @exceptionFiles << "#{filename} has agents missing"
       @missingFiles << agentName
-      puts "  #{agentName} was missing"
+      puts "  #{agentName} was missing" if $VerboseDebugging
       agent = file[agentName]
     end
 
+    haveReportedExceptions = false
     resultSet.each do |agentNode|
       agentName = agentNode.attributes['id']
       if agentName != nil
@@ -407,8 +428,10 @@ class ExperimentResults
         end
       else
         agentName = agentNode.attributes['clusterId']
-        @exceptionFiles << "#{agentName} had an exception"
-        puts "  exception #{agentName}"
+#        @exceptionFiles << "#{agentName} had an exception" this resulted in tons of msgs
+        @exceptionFiles << "#{filename} has agent exceptions" unless haveReportedExceptions
+        haveReportedExceptions = true
+        puts "  exception #{agentName}" if $VerboseDebugging
         agent = file[agentName]
       end
     end
@@ -536,7 +559,7 @@ end
 
 # public methods:
 #   diffBetween(startMsg, endMsg, startOccurrence=1, endOccurrence=1): dur or nil
-#   messageTime(msgname [can be a pattern], occurrence=1):  time or nil
+
 #   durationFor(msgname [can be a pattern], occurrence=1):  duration or nil
 #   timedlines: [ [time1,msg1], [time2,msg2], ...]
 #   durationlines: [ [msga,durationa], [msgb,durationb], ...]
@@ -553,6 +576,16 @@ class RunLog
     return [
       # stage name, time to advance to get to this stage, advance description, skip snapshot?
       nil,  # so we can index starting at 1.
+      ['Starting Planning Phase Stage - 1', 0, '', true],
+      ['Starting Planning Phase Stage - 2', 4, 'AUG 14 (C-1)'],
+      ['Starting Planning Phase Stage - 3', 46, 'SEP 29 (C+45)'],
+      ['Starting Planning Phase Stage - 4', 11, 'OCT 10 (C+56)'],
+      ['Starting Planning Phase Stage - 5', 4, 'OCT 14 (C+60)'],
+      ['Starting Planning Phase Stage - 6', 0, '', true],
+      ['Starting Planning Phase Stage - 7', 1, 'OCT 15 (C+61)']
+      ]
+  end
+=begin
       ['Stage1_C-5_InitialPlanning', 0, '', true],
       ['Stage2_C-1_2-BDEArrivalDelay', 4, 'AUG 14 (C-1)'],
       ['Stage3_C+45_2BDEOptempoHigh', 46, 'SEP 29 (C+45)'],
@@ -560,8 +593,7 @@ class RunLog
       ['Stage5n6_C+60_UAAssaultAnd1BDEOptempo', 4, 'OCT 14 (C+60)'],
       ['Stage6', 0, '', true],
       ['Stage7_C+61_UAAirAssault', 1, 'OCT 15 (C+61)']
-      ]
-  end
+=end
 
   def firstStage
     first, last = firstAndLastStageNums
@@ -576,6 +608,8 @@ class RunLog
   def firstAndLastStageNums
     firstStage = lastStage = 1
     (1..7).each do |stage|
+#bmd
+#puts RunLog.stages[stage][0]
       if messageTime(RunLog.stages[stage][0])
         firstStage = stage unless stage
         lastStage = stage
@@ -628,12 +662,17 @@ class RunLog
 
   def searchFor(array, msgname, occurrence)
     msgname = Regexp.new(msgname) if msgname.kind_of?(String)
+#bmd
+#puts msgname
+#puts array.inspect
     array.each do |line|
+#puts "-- #{line[0]} -- #{line[1]}"
       if line[0] =~ msgname
         return line[1] if occurrence <= 1
         occurrence = occurrence - 1
       end
     end
+#exit
     return nil
   end
 
@@ -693,14 +732,19 @@ exit
   end
 
   def timedlines
+#bmd
+#puts "in timedlines"
     convertRawLines unless @timedlines
+#puts @timedlines.size
     return @timedlines
   end
   def convertRawLines
     @timedlines = []
     i = 0
     rawlines.each do |line|
+#puts line
       time, msg = convertTime(line)
+#puts "#{time}: #{msg}"
       if time
         @timedlines[i] = [msg, time]
         i = i + 1
@@ -716,9 +760,12 @@ exit
 
   # returns time and message
   def convertTime(line)
-    if ((m = /^\[INFO\] (\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d) :: \[.*\]\s+(.*)/.match(line)) != nil)
-      t = Time.local(m[1].to_i, m[2].to_i, m[3].to_i,
-                     m[4].to_i, m[5].to_i, m[6].to_i)
+    if ( (m = /^\[INFO\] (\w\w\w) (\w\w\w) (\d\d) (\d\d):(\d\d):(\d\d) (\w\w\w) (\d\d\d\d) ::\s+#{value}.*/.match(line)) != nil )
+      if (m[7] == "UTC")
+        t = Time.utc(m[8].to_i, m[2], m[3].to_i, m[4].to_i, m[5].to_i, m[6].to_i)
+      else
+        t = Time.local(m[8].to_i, m[2], m[3].to_i, m[4].to_i, m[5].to_i, m[6].to_i)
+      end
       return t, m[7]
     end
     return nil, ''

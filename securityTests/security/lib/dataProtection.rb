@@ -26,6 +26,7 @@ class DataProtection
         files = Dir[filePath]
 #puts "#{agent.name}:  [#{files.to_s}]"
         files.each do |filename|
+          f = nil
           begin
             f = File.open(filename, "r")
             data = f.read(readSize)
@@ -40,22 +41,23 @@ class DataProtection
           rescue Exception => e
             logInfoMsg "Couldn't open #{filename}: #{e.message}"
           end
-          f.close
+          f.close unless f.nil?
         end
       end # agent
     end # node
 
     summary "There are #{failure} non-encrypted data files in #{size} persisted files" if showResults
-    mopvalue = 0
+    mopvalue = nil # needed to define in this lexical scope rather than if-block's lexical scope.
     if size > 0
       mopvalue = (1 - Float(failure)/size) * 100.0
     else
       mopvalue = 100.0
     end
+    mopvalue = 100.0 - mopvalue   # 0 is good!
     @numFailures = failure
     @supportingData = {'failure'=>failure, 'size'=>size}
     result = (failure==0)
-    @summary = "MOP2.2 (Protection of persisted data)", "MOP2.2 value=#{mopvalue}% - There are #{100.0-mopvalue}% non-encrypted data files in #{size} persisted files"
+    @summary = "MOP2.2 (Protection of persisted data)", "MOP2.2 value=#{mopvalue}% - There are #{mopvalue}% non-encrypted data files in #{size} persisted files"
     saveResult(result, @summary) if showResults
     
     return mopvalue

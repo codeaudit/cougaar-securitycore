@@ -69,9 +69,10 @@ more sense to put all stresses in the experiments.
 =end
 
 
-require 'cougaar/scripting'
-require 'ultralog/scripting'
+#require 'cougaar/scripting'
+#require 'ultralog/scripting'
 require 'timeout'
+
 
 def setMyRun(run)
   setRun(run)

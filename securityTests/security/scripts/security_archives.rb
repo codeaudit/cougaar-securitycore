@@ -15,4 +15,5 @@ insert_before :setup_run do
   do_action "MarkForArchive", "#{CIP}/workspace/security/keystores", "*", "Keystore files"
   do_action "MarkForArchive", "#{CIP}/workspace/security/IdmefEvent_Archival", "*", "IDMEF archival files"
   do_action "MarkForArchive", "#{CIP}/workspace/security/mopresults", "*", "Blackboard access control MOP"
+  do_action "MarkForArchive", "#{CIP}/workspace/security/mops", "*", "Security MOP results"
 end

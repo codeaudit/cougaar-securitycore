@@ -15,6 +15,10 @@ NamedArray also has:
 
 =end
 
+$DoDaily = true
+$DoTransportDaily = false
+# $ShowDifferences = true
+
 $PrintDepth = true
 NoStage = 'NoStage'
 
@@ -428,9 +432,9 @@ class MergePresentationCnC < MergePostMopAnalysis
   end
 
   def makeMopXml(mopset)
-    score = Float(mopset.inject(0) {|sum,mop| sum += mop.score.to_f}) / mopset.size
+    score = (Float(mopset.inject(0) {|sum,mop| sum += mop.score.to_f}) / mopset.size).round
     x = ["<Report>\n",
-       "  <metric>#{@name}</metric>\n",
+       "  <metric>MOP #{@name}</metric>\n",
        "  <id>#{@time}</id>\n",
        "  <description>#{@descript}</description>\n",
        "  <score>#{score}</score>\n",
@@ -488,6 +492,7 @@ class PresentationCnC
   attr_accessor :mops
   attr_accessor :descript, :totalmops
 =begin
+  attr_accessor :numTasks
   attr_accessor :numComplete, :completePopulation
   attr_accessor :numCorrect, :correctPopulation
   attr_accessor :farNumComplete, :farCompletePopulation
@@ -498,13 +503,15 @@ class PresentationCnC
 
   def initialize
     super
-    reset
+#    reset    this functionality is now in CompletenessCorrectnessDiffs
     @descript = []
     @transDescript = []
     @totalmops = CompletenessCorrectnessDiffs.new
   end
 
   def reset
+    @numTasks = 0
+
     @numComplete = @completePopulation = 0
     @numCorrect = @correctPopulation = 0
 
@@ -516,9 +523,12 @@ class PresentationCnC
   end
 
   def nodeNames
+=begin
     %w(1-AD-NODE  1-BDE-1-AD-NODE  1-CA-BN-NODE  106-TCBN-NODE  2-BDE-1-AD-NODE
        2-CA-BN-NODE  3-BDE-1-AD-NODE  3-CA-BN-NODE  AVNBDE-1-AD-NODE
        NCA  UA-NODE).sort
+=end
+    return (0..10).collect {|x| "web_#{x}"}
   end
 
   def calculate(experimentDir)
@@ -536,25 +546,26 @@ class PresentationCnC
 
     mops = CompletenessCorrectnessDiffs.new
     aggagents = %w(demand_jp8 demand_jp8_ua demand_rate shortfall inventory transport_ad transport_ua basic)
-    m = 3 ; n = 5
-    aggagents = aggagents[m..n] if $DebugMode
+    aggagents = %w(demand_jp8 demand_jp8_ua demand_rate) if $SupplyOnly
+#    m = 3 ; n = 5
+#    aggagents = aggagents[m..n] if $DebugMode
+
     aggagents.sort.each do |file|
-      pattern = /^[io]ba_#{file}_.*xml$/
+      pattern = /^[io]ba_#{file}.*xml$/
       # demand_jp8 will pick up demand_jp8_ua unless we restrict it ...
-      pattern = /^[io]ba_#{file}_[^u].*xml$/ if file == 'demand_jp8'
+      pattern = /^[io]ba_#{file}[^u]*xml$/ if file == 'demand_jp8'
       if file =~ /transport/
         isTransport = true
       else
         isTransport = false
       end
       #puts "Reading #{file} AggAgent files, please be patient ..."
-      x = loadAggExperiment(experimentDir, "experiment", pattern)
-      unless stageName != NoStage
-        stageName = x.findStageName
-      end
+      x = loadAggExperiment(experimentDir+"/AggAgentData", "experiment", pattern)
+      stageName = x.findStageName(experimentDir+"/run.log") unless stageName != NoStage
       x.discardDivider = getDiscardDividerDay(stageName)
       x.nearTermDivider = getNearTermDividerDay(stageName)
-      outBoundsFile = "oba_#{file}_#{stageName}.xml"
+      # outBoundsFile = "oba_#{file}_#{stageName}.xml"
+      outBoundsFile = "oba_#{file}.xml"
       unless x.has_key?(outBoundsFile)
         if file =~ /transport/
           @transDescript << "**********   Out of bounds file #{outBoundsFile} is missing  *********"
@@ -562,9 +573,10 @@ class PresentationCnC
           @descript << "**********   Out of bounds file #{outBoundsFile} is missing  *********"
         end
       end
+
       mops.reset
       nodeNames.each do |nodeName|
-        inBoundsFile = "iba_#{file}_#{stageName}_#{nodeName}.xml"
+        inBoundsFile = "iba_#{file}_#{nodeName}.xml"
         unless x.has_key?(inBoundsFile)
           if isTransport
             @transDescript << "#{inBoundsFile} was missing"
@@ -573,9 +585,10 @@ class PresentationCnC
           end
           next   # probably an assessment problem, and we shouldn't count against society
         end
+
         x[outBoundsFile].diff(x[inBoundsFile], mops)
-        # puts mops
       end
+
       puts if $VerboseDebugging
       puts "For the #{file} set:  #{mops}" if $VerboseDebugging
       puts if $VerboseDebugging
@@ -627,11 +640,11 @@ class PresentationCnC
   end
   def getNearTermDividerDay(stageName)
     if stageName == "Stage1"
-      return 20  # 25  # 11
+      return 21  # 25  # 11
     elsif stageName == "Stage2"
-      return 20  # 21  # 7
+      return 21  # 21  # 7
     else
-      return 20  # 20  # 6
+      return 21  # 20  # 6
     end
   end
 
@@ -656,10 +669,11 @@ class PresentationCnC
     farCompleteness = makeDescriptSection(@farCompletenessDescript)
     farCorrectness = makeDescriptSection(@farCorrectnessDescript)
     exceptionstitle = '<title><column>Exceptions</column></title>'
-    exceptions = makeDescriptSection(@descript, exceptionstitle)
-    toexceptions = makeDescriptSection(['same as MOP 1-3-2'], exceptionstitle)
-    transExceptions = makeDescriptSection(@transDescript, exceptionstitle)
-    totransexceptions = makeDescriptSection(['same as MOP 1-3-1-1'], exceptionstitle)
+    exceptions = toexceptions = transExceptions = totransexceptions = ''
+    exceptions = makeDescriptSection(@descript, exceptionstitle) unless @descript.empty?
+    toexceptions = makeDescriptSection(['same as MOP 1-3-2'], exceptionstitle) unless @descript.empty?
+    transExceptions = makeDescriptSection(@transDescript, exceptionstitle) unless @transDescript.empty?
+    totransexceptions = makeDescriptSection(['same as MOP 1-3-1-1'], exceptionstitle) unless @transDescript.empty?
 
     @mops = [[]]
     x = makeReportSection("1-3-1-1", "Completeness of information collected for presentation - Near-term Transport plan elements",
@@ -703,6 +717,7 @@ class PresentationCnC
   end
 
   def addMops(mops)
+    totalmops.numTasks += mops.numTasks
     totalmops.numComplete += mops.numComplete
     totalmops.completePopulation += mops.completePopulation
     totalmops.numCorrect += mops.numCorrect
@@ -738,6 +753,7 @@ class PresentationCnC
 end # class PresentationCnC
 
 class CompletenessCorrectnessDiffs < DepthDifferences
+  attr_accessor :numTasks
   attr_accessor :numComplete, :completePopulation
   attr_accessor :numCorrect, :correctPopulation
   attr_accessor :farNumComplete, :farCompletePopulation
@@ -751,6 +767,7 @@ class CompletenessCorrectnessDiffs < DepthDifferences
   end
 
   def reset
+    @numTasks = 0
     @numComplete = @completePopulation = 0
     @numCorrect = @correctPopulation = 0
     @farNumComplete = @farCompletePopulation = 0
@@ -766,40 +783,77 @@ class CompletenessCorrectnessDiffs < DepthDifferences
   def added(depth, result, newItem)
     # additional data does not count against (or for) completeness or correctness.
     # do nothing
+    puts "added: #{newItem}" if $ShowDifferences
   end
 
   def removed(depth, result, removedItem)
-    removedItem.each do |item|
+    atoms = removedItem.children.sort
+    atoms = makeDailyAtoms(atoms) if $DoDaily
+#    removedItem.each do |item|
+    atoms.each do |item|
+      puts "removed: #{newItem}" if $ShowDifferences
       #item.days.times do
         itemNotComplete(item, result)
       #end
     end
   end
 
+  def makeDailyAtoms(atoms)
+    a = []
+    atoms.each do |atom|
+      return atoms if !$DoTransportDaily and atom.transport?
+      name = atom.name
+      rate = nil
+      rate = (atom.rate * 100000).round / 100000.0 unless atom.rate == nil
+      if ! atom.transport?
+        startDate = atom.startTime
+        endDate = atom.endTime
+        startDate.upto(endDate-1) do |day|
+          a << DataAtom.new(name, day, day+1, rate, atom.prefStartTime, atom.prefEndTime, atom.fromLoc, atom.toLoc)
+        end
+      else
+        startDate = atom.prefStartTime
+        endDate = atom.prefEndTime
+        startDate.upto(endDate-1) do |day|
+          a << DataAtom.new(name, atom.startTime, atom.endTime, rate, day, day+1, atom.fromLoc, atom.toLoc)
+        end
+      end
+    end
+    return a
+  end
+
   def inBoth(depth, result, origItem, newItem)
     origatoms = origItem.children.sort
     newatoms = newItem.children.sort
+    origatoms = makeDailyAtoms(origatoms) if $DoDaily
+    newatoms = makeDailyAtoms(newatoms) if $DoDaily
     while origatoms!=[] and newatoms!=[]
       orig = origatoms.first
       new = newatoms.first
       if orig < new      # removed
+        puts "removed atom from #{newItem.parent.parent.name}:#{origItem.parent.name}:#{orig}" if $ShowDifferences
         itemNotComplete(orig, result)
         origatoms.shift
       elsif new < orig   # added
         # do nothing    itemNotComplete(orig, result)
+        puts "added atom to #{newItem.parent.parent.name}:#{newItem.parent.name}:#{new} => #{orig}" if $ShowDifferences
         newatoms.shift
-      else
+      else               # changed
         itemComplete(orig, result)
         if orig.transport?
+          # compare the alloc_start_time and alloc_end_times
           if (orig.startTime == new.startTime) and (orig.endTime == new.endTime)
             itemCorrect(orig, result)
           else
+            puts "rate changed from #{newItem.parent.parent.name}:#{origItem.parent.name}:#{orig} to #{new}" if $ShowDifferences
             itemNotCorrect(orig, result)
           end
         else
           if (orig.rate == new.rate)
             itemCorrect(orig, result)
           else
+            puts "inventory changed from #{origItem.parent.parent.name}:#{origItem.parent.name}:#{orig} to #{new}" if $ShowDifferences
+puts "    #{orig.rate.inspect}, #{new.rate.inspect}, #{(orig.rate-new.rate).inspect}"
             itemNotCorrect(orig, result)
           end
         end
@@ -808,16 +862,20 @@ class CompletenessCorrectnessDiffs < DepthDifferences
       end
     end
     origatoms.each do |item|
+      puts "removed atom from: #{newItem.parent.parent.name}:#{origItem.parent.name}:#{item}" if $ShowDifferences
       itemNotComplete(item, result)
     end
     # additional items don't count against the score
-    #newatoms.each do |item|
+    newatoms.each do |item|
+      puts "added atom to: #{newItem.parent.parent.name}:#{newItem.parent.name}:#{item}" if $ShowDifferences
     #  itemComplete(item, result)
     #  notCorrect
-    #end
+    end
   end
 
   def itemComplete(item, parent)
+    @numTasks += 1
+puts "itemComplete numTasks = #{@numTasks}" unless @numTasks > 0
     if item.transport?
       if item.nearTerm?(parent)
         nearComplete
@@ -825,10 +883,12 @@ class CompletenessCorrectnessDiffs < DepthDifferences
         farComplete
       end
     else  # supply
-      complete unless item.discardTerm?
+      complete unless item.discardTerm?(parent)
     end
   end
   def itemNotComplete(item, parent)
+    @numTasks += 1
+puts "itemNotComplete numTasks = #{@numTasks}" unless @numTasks > 0
     if item.transport?
       if item.nearTerm?(parent)
         nearNotComplete
@@ -836,7 +896,7 @@ class CompletenessCorrectnessDiffs < DepthDifferences
         farNotComplete
       end
     else  # supply
-      notComplete unless item.discardTerm?
+      notComplete unless item.discardTerm?(parent)
     end
   end
 
@@ -844,18 +904,18 @@ class CompletenessCorrectnessDiffs < DepthDifferences
     if item.transport?
       if item.nearTerm?(parent)
         nearCorrect
-      else
+      elsif item.farTerm?(parent)
         farCorrect
       end
     else  # supply
-      correct unless item.discardTerm?
+      correct unless item.discardTerm?(parent)
     end
   end
   def itemNotCorrect(item, parent)
     if item.transport?
       if item.nearTerm?(parent)
         nearNotCorrect
-      else
+      elsif item.farTerm?(parent)
         farNotCorrect
       end
     else  # supply
@@ -908,27 +968,35 @@ class CompletenessCorrectnessDiffs < DepthDifferences
   end
 
   def completenessMop
-    mopAux(@numComplete, @completePopulation)
+    return mopAux(@numComplete, @completePopulation)
   end
   def correctnessMop
-    mopAux(@numCorrect, @correctPopulation)
+    return mopAux(@numCorrect, @correctPopulation)
   end
   def nearCompletenessMop
-    mopAux(@nearNumComplete, @nearCompletePopulation)
+#bmd
+puts "nearcompletenessmop numTasks: #{@numTasks}"
+    return mopAux(@nearNumComplete, @nearCompletePopulation, @numTasks)
   end
   def nearCorrectnessMop
-    mopAux(@nearNumCorrect, @nearCorrectPopulation)
+    return mopAux(@nearNumCorrect, @nearCorrectPopulation, @numTasks)
   end
   def farCompletenessMop
-    mopAux(@farNumComplete, @farCompletePopulation)
+    return mopAux(@farNumComplete, @farCompletePopulation, @numTasks)
   end
   def farCorrectnessMop
-    mopAux(@farNumCorrect, @farCorrectPopulation)
+    return mopAux(@farNumCorrect, @farCorrectPopulation, @numTasks)
   end
 
-  def mopAux(numerator, denominator)
+  def mopAux(numerator, denominator, numRecords=0)
+#bmd
+puts "#{numerator}/#{denominator}, #{numRecords}"
     if denominator==0
-      return "0.0  (see details)"
+      if numRecords > 0
+        return "100.0  (only historical tasks)"
+      else
+        return "0.0  (see details)"
+      end
     else
       return (numerator*100.0) / denominator
     end
