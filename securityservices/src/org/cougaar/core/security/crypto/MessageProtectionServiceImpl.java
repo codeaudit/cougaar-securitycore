@@ -19,7 +19,7 @@
  * </copyright>
  * Created on September 12, 2001, 10:55 AM
  */
-
+ 
 package org.cougaar.core.security.crypto;
 
 import java.io.InputStream;
@@ -140,9 +140,8 @@ public class MessageProtectionServiceImpl
   public byte[] protectHeader(byte[] rawData,
 			      MessageAddress source,
 			      MessageAddress destination)
-//    throws GeneralSecurityException, IOException
+    throws GeneralSecurityException, IOException
   {
-try{
     if (!isInitialized) {
       setPolicyService();
     }
@@ -179,9 +178,6 @@ try{
     }
 
     return baos.toByteArray();
-}catch(Exception e){
-}
-return null;
   }
 
   /**
@@ -195,9 +191,8 @@ return null;
   public byte[] unprotectHeader(byte[] rawData,
 				MessageAddress source,
 				MessageAddress destination)
-//    throws GeneralSecurityException, IOException
+    throws GeneralSecurityException, IOException
   {
-try{
     if (!isInitialized) {
       setPolicyService();
     }
@@ -244,9 +239,6 @@ try{
     }
 
     return (byte[])o;
-}catch(Exception e){
-}
-return null;
   }
 
   /** 
@@ -278,7 +270,7 @@ return null;
 					       MessageAddress source,
 					       MessageAddress destination,
 					       MessageAttributes attrs)
-//    throws IOException
+    throws IOException
   {
     if (log.isDebugEnabled()) {
       log.debug("getOutputStream: " + source.toAddress()
@@ -321,7 +313,7 @@ return null;
 					     MessageAddress source,
 					     MessageAddress destination,
 					     MessageAttributes attrs)
-//    throws IOException
+    throws IOException
   {
     if (log.isDebugEnabled()) {
       log.debug("getInputStream: " + source.toAddress()
