@@ -31,12 +31,6 @@ ProxiedOntologyJavaMapper \
       http://ontology.coginst.uwf.edu/Action.daml                    . ${PKG}
 
 ProxiedOntologyJavaMapper \
-     http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml      . ${PKG}
-
-ProxiedOntologyJavaMapper \
-      http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml  . ${PKG}
-
-ProxiedOntologyJavaMapper \
       http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml   . ${PKG}
 
 ProxiedOntologyJavaMapper \
@@ -46,4 +40,14 @@ ProxiedOntologyJavaMapper \
       http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml   . ${PKG}
 
 ProxiedOntologyJavaMapper \
+     http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml      . ${PKG}
+
+ProxiedOntologyJavaMapper \
+      http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml  . ${PKG}
+
+ProxiedOntologyJavaMapper \
       http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml . ${PKG}
+
+
+ProxiedOntologyJavaMapper \
+      http://ontology.coginst.uwf.edu/Ultralog/UltralogGroup.daml . ${PKG}
