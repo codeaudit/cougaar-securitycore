@@ -98,7 +98,7 @@ public class TrustManager implements X509TrustManager {
 	  && this instanceof ServerTrustManager) {
         accept = true;
       }
-      else if(title.equals(DirectoryKeyStore.CERT_TITLE_AGENT) 
+      else if(title.equals(DirectoryKeyStore.CERT_TITLE_AGENT)
           && this instanceof ServerTrustManager) {
         accept = true;
       }
@@ -109,7 +109,7 @@ public class TrustManager implements X509TrustManager {
     }
 
     // check whether cert is valid, then build the chain
-    keystore.checkCertificateTrust(chain[0]);
+    checkChainTrust(chain);
   }
 
   /**
@@ -141,8 +141,28 @@ public class TrustManager implements X509TrustManager {
       throw new CertificateException("Wrong type of certificate present.");
     }
 
-    keystore.checkCertificateTrust(chain[0]);
+    checkChainTrust(chain);
   }
+
+  private void checkChainTrust(X509Certificate[] chain)
+    throws CertificateException
+  {
+    // check whether cert is valid, then build the chain
+    boolean isTrusted = false;
+    for (int i = 0; i < chain.length; i++) {
+      try {
+        keystore.checkCertificateTrust(chain[i]);
+        isTrusted = true;
+        break;
+      } catch (CertificateChainException ccex) {
+        // only catch chain exception, if cannot build the chain,
+        // then check if there is a trusted cert in the available chain
+      }
+    }
+    if (!isTrusted)
+      throw new CertificateException("Failed to build chain.");
+  }
+
 
   /**
    * Only the CA in the Cougaar society for now
