@@ -63,7 +63,7 @@ class CertRevocation
    end
 
    def revokeNode(node) 
-     saveUnitTestResult("Revocation", "revoking node #{node.name}")
+     saveUnitTestResult("Stress5k104", "revoking node #{node.name}")
      agent = node.agents[0]
      caDomains = run.society.agents[agent.name].caDomains
      
@@ -112,11 +112,11 @@ class CertRevocation
 #puts "response.code #{response.code}, body #{response.body}"
 #              puts "revocation response #{response.body.to_s}"
               if response.body.to_s =~ /Success/
-                saveUnitTestResult("Revocation", "successfully revoke agent: #{agent}")
+                saveUnitTestResult("Stress5k104", "successfully revoke agent: #{agent}")
                 #puts "Successfully revoked #{agent}"
                 return true
               else
-                saveUnitTestResult("Revocation", "Unable to revoke agent: #{agent}")
+                saveUnitTestResult("Stress5k104", "Unable to revoke agent: #{agent}")
                 #puts "Revoke #{agent} failed"
               end
               return false

@@ -76,7 +76,7 @@ class ResultParser
   
     outputFile = File.new(@xmlFile, "w")
     outputFile << "<?xml version='1.0'?>\n"
-    outputFile << '<?xml-stylesheet type="text/xsl" href="results.xsl"?>\n'
+    outputFile << "<?xml-stylesheet type=\"text/xsl\" href=\"results.xsl\"?>\n"
     outputFile << "<securityResults>\n"
 
     outputFile << "  <securityEvents>\n"
@@ -123,11 +123,11 @@ class ResultParser
     plannedTests = []
     aFile.each_line { |line|
       line.scan(/#{testIdPattern}/) { |x|
-	puts "Test found: #{x[0]}" 
+	#puts "Test found: #{x[0]}" 
 	@testsFound << x[0]
       }
       line.scan(/#{plannedTestPattern}/) { |x|
-	puts "Planned Test found: #{x[0]}" 
+	#puts "Planned Test found: #{x[0]}" 
 	plannedTests << x[0]
       }
     }

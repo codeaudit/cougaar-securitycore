@@ -55,8 +55,8 @@ def testMessageFailure(source, target,
     watcher.stop
 #    puts ("\n================== stopped...")
     saveResult(watcher.getHash() == expected,
-               attackNum, attackName + "\t" +
-               source + "\t" + target + "\t" + 
+               attackNum, attackName + ". " +
+               source + " => " + target + " - " + 
                watcher.getArray().join("\t"))
 #    puts("\n================== saved result")
   }
@@ -93,6 +93,7 @@ def testMessageIdmef(source, target,
     sleep(maxWait)
     #          puts "done sleeping"
     idmefWatcher.stop
+
   }
 end # testMessageIdmef
 
@@ -241,7 +242,8 @@ class IdmefWatcher
     if @listener != -1
       run.comms.remove_on_cougaar_event(@listener)
       @listener = -1
-      saveResult(@idmefFound == @expected, @attackNum, @attackName)
+      saveResult(@idmefFound == @expected, @attackNum,
+		 "#{@attackName} - Idmef event found: #{@idmefFound} - Idmef event expected: #{@expected}")
     end
   end
 end #IdmefWatcher

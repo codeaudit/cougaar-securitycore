@@ -213,18 +213,20 @@ class ThreatConChange < SecurityStressFramework
   end 
 
   def waitForLOW
-    # sleep for a max of 500 secs or at least until the THREATCON_LEVEL
+    # sleep for a max of 30 minutes or at least until the THREATCON_LEVEL
     # has gone back to the LOW state
-    count = 0
+    totalWaitTime = 0
+    sleepTime = 10.seconds
+    maxTime = 30.minutes
     # wait for the THREATCON_LEVEL LOW event
     logInfoMsg "Waiting for: THREATCON_LEVEL LOW"
-    while @enteredLOW == false && count < 50
-      #logInfoMsg "waiting(#{count}) for threat con to go back to the LOW state"
-      sleep(10) # sleep for 1 sec
-      count += 1
+    while @enteredLOW == false && totalWaitTime < maxTime
+      logInfoMsg "Waited #{totalWaitTime} for threat con to go back to the LOW state"
+      sleep(sleepTime) # sleep for 10 sec
+      totalWaitTime += sleepTime
     end
-    if count == 50 && @enteredLOW == false
-      saveResult(true, "Stress1e2", "Timeout Didn't receive THREATCON_LEVEL LOW")
+    if count >= maxTime && @enteredLOW == false
+      saveResult(false, "Stress1e2", "Timeout Didn't receive THREATCON_LEVEL LOW")
     elsif @enteredLOW == true
       saveResult(true, "Stress1e2", "Received THREATCON_LEVEL LOW")
     end

@@ -77,7 +77,7 @@ class SecurityMop21 < AbstractSecurityMop
     begin
       @score = compileResults
       puts "compiledResults #{@score}" if $VerboseDebugging
-      @info = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}<br\>\n" + @info.join("<br/>\n")
+      @info = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}<br/>\n" + @info.join("<br/>\n")
       @calculationDone = true
       sucess = false
       if (@score == 100.0)

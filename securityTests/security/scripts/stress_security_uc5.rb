@@ -18,3 +18,8 @@ insert_before :society_running do
   # Java policy checks
   do_action  "StartScheduledStress", "Stress5f", "postConditionalNextOPlanStage", 0.minute, 10.minute
 end
+
+insert_after :after_stage_1 do
+  # Java policy checks
+  do_action  "StopScheduledStress", "Stress5f", "postConditionalNextOPlanStage"
+end

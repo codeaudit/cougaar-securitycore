@@ -20,10 +20,10 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
       <th align="left">TestId</th>
       <th align="left">Description</th>
     </tr>
-    <xsl:for-each select="securityEvents/event">
+    <xsl:for-each select="event">
     <tr>
       <xsl:choose>
-      <xsl:when test="success = true">
+      <xsl:when test="success='true'">
         <!-- #33ff33 : Green --> 
         <td bgcolor="#33ff33"><xsl:value-of select="date"/></td>
         <td bgcolor="#33ff33"><xsl:value-of select="testId"/></td>

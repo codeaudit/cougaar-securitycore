@@ -84,7 +84,7 @@ class Security3c2 < SecurityStressFramework
       end
       result = @certRevocation.revokeNode(node)
        saveResult(result, "Stress5k103",
-         "revoke a node through administrator: #{node}")
+         "revoke a node through administrator: #{node.name}")
    end
 
    def revokeAgent(agent)
@@ -99,18 +99,18 @@ class Security3c2 < SecurityStressFramework
 	 "revoke an agent through administrator: #{agent}")
 
       sleep(10.minutes)
-      puts "thread awakens"
 
       #@dest_agent = @certRevocation.selectAgent
       @dest_agent = getValidDestAgent()
       agent1 = @run.society.agents[agent]
       agent2 = @dest_agent
+      saveUnitTestResult("Stress5k104", "Sending msg from #{agent1.name} to #{agent2.name}...")
 
       if (agent1 == nil) 
 	raise "Unable to find source agent: #{agent}"
       end
       if (agent2 == nil) 
-	raise "Unable to find destination agent: #{@dest_agent}"
+	raise "Unable to find destination agent"
       end
       testMessage(agent1, agent2)      
 
@@ -166,7 +166,7 @@ class Security3c2 < SecurityStressFramework
 	 @revoked_agent = getAttackAgent()
 	 @revoked_node = getAttackNode()
 	 revokeAgent(@revoked_agent.name)
-	 revokeNode(@revoked_node.name)
+	 revokeNode(@revoked_node)
        rescue => ex
 	 saveUnitTestResult('Stress3c2', "Unable to run test: #{ex}\n#{ex.backtrace.join("\n")}" )
        end
@@ -187,20 +187,20 @@ class Security3c2 < SecurityStressFramework
     if (@useIdmef)
       testMessageIdmef(agent1.name, agent2.name,
         'Stress3c21',
-	"Send message with expired cert IDMEF: #{agent1.name} => #{agent2.name}.",
+	"Send message with expired cert IDMEF.",
         [ true, false, false, false ],
         agent1.node.agent.name)
       testMessageIdmef(agent2.name, agent1.name,
         'Stress3c21',
-	"Receive message with expired cert IDMEF: #{agent1.name} => #{agent2.name}.", 
+	"Receive message with expired cert IDMEF.", 
         [ true, false, false, false ],
         agent1.node.agent.name)
     end
     testMessageFailure(agent1.name, agent2.name, 
-            'Stress3c9', "Send message with expired cert: #{agent1.name} => #{agent2.name}.", 
+            'Stress3c9', "Send message with expired cert.", 
              [ true, false, false, false ])
     testMessageFailure(agent2.name, agent1.name, 
-            'Stress3b9', "Receive message with expired cert: #{agent1.name} => #{agent2.name}.", 
+            'Stress3b9', "Receive message with expired cert.", 
             [ true, false, false, false ])
    end
 

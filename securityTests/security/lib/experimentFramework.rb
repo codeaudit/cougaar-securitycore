@@ -83,6 +83,10 @@ def run()
   return $myRun
 end
 
+def summary(msg)
+  logInfoMsg(msg)
+end
+
 class ExperimentFramework
   include Cougaar
   include UltraLog
