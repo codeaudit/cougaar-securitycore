@@ -38,11 +38,11 @@ mv -f src/com/nai/security/monitoring/ src/org/cougaar/core/security/oldmonitori
 # Move crypto directory to crypto
 mv src/com/nai/security/crypto/ldap src/org/cougaar/core/security/crypto/ldap
 mv src/com/nai/security/crypto/*.java --target-directory=src/org/cougaar/core/security/crypto
-rm -f src/com/nai/security/crypto
+rm -rf src/com/nai/security/crypto
 
 # Move policy directory to policy
 mv src/com/nai/security/policy/*.java --target-directory=src/org/cougaar/core/security/policy
-rm -f src/com/nai/security/policy
+rm -rf src/com/nai/security/policy
 
 # Move com directory to org directory
 mv -f src/com/nai/security/* src/org/cougaar/core/security
