@@ -68,13 +68,19 @@
     </owl:ObjectProperty>
 
 
-    <owl:ObjectProperty rdf:ID="wpAccessType">
+    <owl:ObjectProperty rdf:ID="wpAgentEntry">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
         <rdfs:domain rdf:resource="#WPUpdateSelf"/> 
-        <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#WPAccessType"/>
+        <rdfs:range rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent"/>
     </owl:ObjectProperty>
 
+    <owl:ObjectProperty rdf:ID="forwardTo">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
+        <rdfs:domain rdf:resource="#WPForward"/> 
+        <rdfs:range rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent"/>
+    </owl:ObjectProperty>
 
 <!-- Section with class definitions--> 
 
@@ -106,6 +112,39 @@
      </owl:Class>
 
      <owl:Class rdf:ID="WPUpdateSelf">
+       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
+     </owl:Class>
+
+     <owl:Class rdf:ID="WPUpdateDelegate">
+       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
+       <owl:disjointWith rdf:resource="#WPUpdateSelf"/>
+     </owl:Class>
+
+     <owl:Class rdf:ID="WPUpdate">
+       <owl:unionOf rdf:parseType="Collection">
+          <owl:Class rdf:about="#WPUpdateSelf"/>
+          <owl:Class rdf:about="#WPUpdateDelegate"/>
+       </owl:unionOf>
+       <rdfs:subClassOf>
+         <owl:Restriction>
+           <owl:onProperty rdf:resource="http://ontology.ihmc.us/Action.owl#performedBy"/>
+           <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent" />
+         </owl:Restriction>
+       </rdfs:subClassOf>
+     </owl:Class>
+
+     <owl:Class rdf:ID="WPLookup">
+       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
+       <rdfs:subClassOf>
+         <owl:Restriction>
+           <owl:onProperty rdf:resource="http://ontology.ihmc.us/Action.owl#performedBy"/>
+           <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Actor.owl#Agent" />
+         </owl:Restriction>
+       </rdfs:subClassOf>
+     </owl:Class>
+
+
+     <owl:Class rdf:ID="WPForward">
        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
        <rdfs:subClassOf>
          <owl:Restriction>
