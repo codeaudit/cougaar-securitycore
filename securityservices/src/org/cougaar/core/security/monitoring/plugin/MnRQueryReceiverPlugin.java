@@ -36,41 +36,58 @@ import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.service.SchedulerService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.thread.Schedulable;
-
+import org.cougaar.core.util.UID;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
-
-class CapabilitiesObjectPredicate implements UnaryPredicate{
-  public boolean execute(Object o) {
-    boolean ret = false;
-    if (o instanceof CapabilitiesObject ) {
-      return true;
-    }
-    return ret;
-  }
-}
-
-class NewQueryRelayPredicate implements  UnaryPredicate{
+/*
+  Predicate to get CMR Relay with new MRAgentLookUp query 
+*/
+class NewRemoteQueryRelayPredicate implements  UnaryPredicate{
   MessageAddress myAddress;
-  public NewQueryRelayPredicate(MessageAddress myaddress) {
+  public NewRemoteQueryRelayPredicate(MessageAddress myaddress) {
     myAddress = myaddress;
   }
   public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
-      ret = ((!relay.getSource().equals(myAddress)) &&(
-               (relay.getContent() instanceof MRAgentLookUp) &&
-               (relay.getResponse()==null)));
+      ret = ((!relay.getSource().equals(myAddress)) &&
+             ((relay.getContent() instanceof MRAgentLookUp) &&
+              (relay.getResponse()==null)));
     }
     return ret;
   }
 }
+/*
+  Predicate to get CMR Relay with new MRAgentLookUp query published locally  
+*/
+class NewLocalQueryRelayPredicate implements  UnaryPredicate{
+  MessageAddress myAddress;
+  public NewLocalQueryRelayPredicate(MessageAddress myaddress) {
+    myAddress = myaddress;
+  }
+  public boolean execute(Object o) {
+    boolean ret = false;
+    if (o instanceof CmrRelay ) {
+      CmrRelay relay = (CmrRelay)o;
+      ret = (((relay.getSource().equals(myAddress))&& ((relay.getTarget()!=null) &&(relay.getTarget().equals(myAddress) )))
+             &&((relay.getContent() instanceof MRAgentLookUp) &&
+                (relay.getResponse()==null)));
+    }
+    return ret;
+  }
+}
+/*
+  Predicate to get all Remote CMRRelay with MRAgentLookUp query 
 
+*/
 class RemoteQueryRelayPredicate implements  UnaryPredicate{
   MessageAddress myAddress;
   
@@ -82,14 +99,30 @@ class RemoteQueryRelayPredicate implements  UnaryPredicate{
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
       ret = ((!relay.getSource().equals(myAddress))&&
-             (relay.getContent() instanceof MRAgentLookUp)
-        ) ;
+             (relay.getContent() instanceof MRAgentLookUp)) ;
     }
     return ret;
   }
 }
 
-
+class LocalQueryRelayPredicate implements  UnaryPredicate{
+  MessageAddress myAddress;
+  public LocalQueryRelayPredicate(MessageAddress myaddress) {
+    myAddress = myaddress;
+  }
+  public boolean execute(Object o) {
+    boolean ret = false;
+    if (o instanceof CmrRelay ) {
+      CmrRelay relay = (CmrRelay)o;
+      ret = ((relay.getSource().equals(myAddress))&&
+             (relay.getContent() instanceof MRAgentLookUp)) ;
+    }
+    return ret;
+  }
+}
+/*
+  Predicate to get All Query Mapping Object from BB
+*/
 class QueryMappingPredicate implements UnaryPredicate{
   public boolean execute(Object o) {
     boolean ret = false;
@@ -100,14 +133,16 @@ class QueryMappingPredicate implements UnaryPredicate{
   }
 }
 
-public class MnRQueryReceiverPlugin extends MnRQueryBase {
 
-  // The domainService acts as a provider of domain factory services
+public class MnRQueryReceiverPlugin extends MnRQueryBase {
+  
   private IncrementalSubscription capabilitiesobject;
-  private IncrementalSubscription newQueryRelays;
+  private IncrementalSubscription newRemoteQueryRelays;
+  private IncrementalSubscription newLocalQueryRelays;
   private IncrementalSubscription remoteQueryRelays;
   private CapabilitiesObject      _capabilities;
   private ThreadService threadService=null;
+  private final Map latestCallBack = Collections.synchronizedMap(new HashMap());
   
   // private String param;
   private boolean root = false;
@@ -121,7 +156,7 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
                                            ? "null" 
                                            : o.getClass().getName() ));
     }
-
+     
     List l = (List) o;
     Iterator iter = l.iterator();
     String param=null; ;
@@ -132,8 +167,7 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
   }
   
   protected void setupSubscriptions() {
-    
-    super.setupSubscriptions();    
+    super.setupSubscriptions(); 
     if (loggingService.isDebugEnabled()) {
       loggingService.debug("setupSubscriptions of MnRQueryReceiverPlugin " +
                            "called :" + myAddress);
@@ -142,157 +176,122 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     capabilitiesobject= (IncrementalSubscription)
       getBlackboardService().subscribe(new CapabilitiesObjectPredicate());
 
-    newQueryRelays =(IncrementalSubscription) getBlackboardService().
-      subscribe(new NewQueryRelayPredicate(myAddress));
+    newRemoteQueryRelays =(IncrementalSubscription) getBlackboardService().
+      subscribe(new NewRemoteQueryRelayPredicate(myAddress));
 
+    newLocalQueryRelays =(IncrementalSubscription) getBlackboardService().
+      subscribe(new NewLocalQueryRelayPredicate(myAddress));
+    
     remoteQueryRelays = (IncrementalSubscription)getBlackboardService().
       subscribe(new RemoteQueryRelayPredicate(myAddress));
-
+    
     if (loggingService.isDebugEnabled()) {
       if (amIRoot()) {
         loggingService.debug("security community set as ROOT");
       }
     }
   }
- 
+
   protected synchronized void execute () {
     if (loggingService.isDebugEnabled()) {
-      loggingService.debug(myAddress + " execute().....");
+      loggingService.debug(myAddress + "MnRQueryReceiver execute().....");
     }
     CapabilitiesObject capabilities=null;
     Collection capabilitiesCollection;
-    Collection newQueryCollection;
+    Collection newRemoteQueryCollection;
+    Collection newLocalQueryCollection;
     Collection removedRemoteQueryCol;
     boolean removedRelays=false;
-    
-    if (remoteQueryRelays == null) {
-      // Configuration problem. Did not go through setupSubscription.
-      // Issue should have already reported during setupSubscription()
-      return;
-    }
+    Collection queryMappingCollection=getBlackboardService().query(new QueryMappingPredicate());
+    /*
+      Check if remote relays has changed . If it has changed then we are interested in removed
+      relays so that we can do our part of clean up
+      
+    */
 
+    if((_capabilities!=null) &&(isRootReady()) && (amIRoot())){
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug(myAddress + " _capabilities is not null so have to process all persistent queries "); 
+      }
+      processPersistantQueries(_capabilities, false);
+      _capabilities=null;
+    }
     if(remoteQueryRelays.hasChanged()) {
       removedRemoteQueryCol=remoteQueryRelays.getRemovedCollection();
-      if(removedRemoteQueryCol.size()>0) {
+      if(!removedRemoteQueryCol.isEmpty()) {
         if (loggingService.isDebugEnabled()) {
-          loggingService.debug(" REMOTE RELAY REMOVED SIZE  ----"+removedRemoteQueryCol.size() );
+          loggingService.debug(myAddress + " REMOTE RELAY Remove Notification in MnRQueryReceiver size of removed relay "+removedRemoteQueryCol.size() );
         }
         removedRelays=true;
-        removeRelays(removedRemoteQueryCol);
+        removeRelays(removedRemoteQueryCol,queryMappingCollection);
       }
     }
+    
     if(capabilitiesobject.hasChanged()) {
       if (loggingService.isDebugEnabled()) {
-        loggingService.debug(" Capabilities HAS CHANGED ----");
+        loggingService.debug(myAddress + " Sensor Registration HAS CHANGED  in MnRQueryReceiver ----");
       }
       capabilitiesCollection=capabilitiesobject.getChangedCollection();
       if (!capabilitiesCollection.isEmpty()) {
-        if (!isRootReady()) {
-          // store it for later...
-          if (!capabilitiesCollection.isEmpty()) {
-            _capabilities = (CapabilitiesObject)
-              capabilitiesCollection.iterator().next();
-            return;
+        if (loggingService.isDebugEnabled()) {
+          loggingService.debug(myAddress +" Sensor Registration HAS CHANGED  in MnRQueryReceiver and changed collection is not empty ");
+        }
+        capabilities = (CapabilitiesObject)capabilitiesCollection.iterator().next();
+        if(!isRootReady()) {
+          if (loggingService.isDebugEnabled()) {
+            loggingService.debug(myAddress + " Sensor Registration HAS CHANGED Root is not READY so processing only locally published persistent Query in MnRQueryReceiver");
           }
-        } else {
-          if (_capabilities != null) {
-            if (amIRoot()) {
-              processPersistantQueries(_capabilities);
-            }
-            _capabilities = null;
-          }
+          processPersistantQueries(capabilities, true);
+          _capabilities=capabilities;
+        }
+        else {
           if(amIRoot()) {
-            capabilities = (CapabilitiesObject)
-              capabilitiesCollection.iterator().next();
-            processPersistantQueries(capabilities);
-            return;
+            if(_capabilities!=null) {
+              _capabilities=null;
+            }
+            if (loggingService.isDebugEnabled()) {
+              loggingService.debug(myAddress + " Sensor Registration HAS CHANGED Root is READY & I'M ROOT in MnRQueryReceiver");
+              loggingService.debug(myAddress + " Processing remote persistent query ");
+            }
+            processPersistantQueries(capabilities,false);
+          }
+          else {
+            processPersistantQueries(capabilities,true);
           }
         }
       }
-    } else {
-      capabilitiesCollection=capabilitiesobject.getCollection();
-      Iterator i=capabilitiesCollection.iterator();
-      if(i.hasNext()) {
-        capabilities=(CapabilitiesObject) i.next();
+      else {
+        loggingService.warn(myAddress + " Registration has changed but query to bb returned empty collection:");
       }
     }
-
-    if(newQueryRelays.hasChanged()){
-      if (loggingService.isDebugEnabled()) {
-        loggingService.debug(" newqueryRelays HAS CHANGED ----");
-      }
-      newQueryCollection=newQueryRelays.getAddedCollection();
-      processNewQueries(capabilities,newQueryCollection);
-    }
-     
-  }
-
-  private void processPersistantQueries(final
-                                        CapabilitiesObject capabilities) {
-    QueryMapping mapping;
-    MRAgentLookUp agentlookupquery;
-    CmrRelay relay;
-    Collection remoteRelays=getBlackboardService().query(new RemoteQueryRelayPredicate(myAddress));
-    if(remoteRelays.size()<1) {
-      if (loggingService.isDebugEnabled()) {
-        loggingService.debug("Empty remote relays");
+    capabilitiesCollection=capabilitiesobject.getCollection();
+    if(capabilitiesCollection.isEmpty()){
+      if(loggingService.isWarnEnabled()){
+        loggingService.warn(myAddress + " Query to BB for Sensor registration data returned empty collection "); 
       }
       return;
     }
-    else {
+    capabilities=(CapabilitiesObject)capabilitiesCollection.iterator().next();
+    if(newRemoteQueryRelays.hasChanged()){
       if (loggingService.isDebugEnabled()) {
-        loggingService.debug("Size of  remote relays"+remoteRelays.size() );
+        loggingService.debug(myAddress + " newRemote queryRelays HAS CHANGED ----");
       }
+      newRemoteQueryCollection=newRemoteQueryRelays.getAddedCollection();
+      processNewQueries(capabilities,newRemoteQueryCollection);
     }
     
-    Collection queryMappingCollection=getBlackboardService().query(new QueryMappingPredicate());
-    Iterator iter=remoteRelays.iterator();
-    // removing mapping for remote relay 
-    while(iter.hasNext()){
-      mapping=null;
-      relay = (CmrRelay)iter.next();
-      agentlookupquery=(MRAgentLookUp)relay.getContent();
-      if(agentlookupquery==null) {
-        loggingService.warn("Contents of the relay is null:"+relay.toString());
-        continue;
+    /*
+      Check if new query is published locally and processes it
+    */
+    if(newLocalQueryRelays.hasChanged()){
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug(myAddress + " new Local queryRelays HAS CHANGED ----");
       }
-      mapping=findQueryMappingFromBB(relay.getUID(),queryMappingCollection) ;
-      if(mapping!=null) {
-        if (loggingService.isDebugEnabled()) {
-          loggingService.debug("REMOVING OLD MAPPING"+mapping.toString());
-        }
-        removeRelay(mapping);
-        getBlackboardService().publishRemove(mapping);
-      }
-    }
-    // publish new mapping for relays 
-    iter=remoteRelays.iterator();
-    while(iter.hasNext()) {
-      mapping=null;
-      relay = (CmrRelay)iter.next();
-      agentlookupquery=(MRAgentLookUp)relay.getContent();
-      if(agentlookupquery==null) {
-        if (loggingService.isDebugEnabled()) {
-          loggingService.warn("Contents of the relay is null:"+relay.toString());
-        }
-        continue;
-      }
-      if(agentlookupquery.updates) {
-        final CmrRelay fRelay = relay;
-        mapping=findQueryMappingFromBB(relay.getUID(),queryMappingCollection) ;
-        FindAgentCallback fac = new FindAgentCallback() {
-            public void execute(Collection agents) {
-              if (loggingService.isDebugEnabled()) {
-                loggingService.debug("Found response for manager and size " +
-                                     "of response :" + agents.size() );
-              }
-              createSubQuery(capabilities, agents, fRelay);
-            }
-          };
-        findAgent(agentlookupquery, capabilities, false, fac);
-      }// end agentlookupquery.updates
-    }//end while()
-  }  
+      newLocalQueryCollection=newLocalQueryRelays.getAddedCollection(); 
+      processNewQueries(capabilities,newLocalQueryCollection);
+    } 
+     
+  }
 
   private void processNewQueries(final CapabilitiesObject capabilities, 
                                  final Collection newQueries) {
@@ -316,9 +315,29 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
                 loggingService.debug("Found response for manager and size " +
                                      "of response :" + agents.size() );
               }
-              createSubQuery(capabilities, agents, relay);
+              if(latestCallBack.containsKey(relay.getUID())) {
+                FindAgentCallback callback=(FindAgentCallback )latestCallBack.get(relay.getUID());
+                if(this.equals(callback)) {
+                  createSubQuery(capabilities, agents, relay);
+                }
+                else {
+                  if (loggingService.isDebugEnabled()) {
+                    loggingService.debug(" Ignoring  call back for realy uid "+ relay.getUID() +
+                                         " callback id is stale "+ this.toString() );
+                  }
+                }
+              }
+              else {
+                if (loggingService.isDebugEnabled()) {
+                  loggingService.debug(" relay uid is not in list of active call back list" +relay.getUID());  
+                }
+              }
             }
           };
+        if (loggingService.isDebugEnabled()) {
+          loggingService.debug( myAddress +" Adding latest callback id for relay "+relay.getUID() + " callback id is :"+fac );  
+        }
+        latestCallBack.put(relay.getUID(),fac);        
         findAgent(agentlookupquery, capabilities, false, fac);
       }
       else {
@@ -326,8 +345,105 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
       }
     }// end of While
   }// end  processNewQueries
-  
 
+  private void processPersistantQueries(final CapabilitiesObject capabilities, boolean local) {
+    QueryMapping mapping;
+    MRAgentLookUp agentlookupquery;
+    CmrRelay relay;
+    Collection relaystoProcess=null;
+    if(local){
+      relaystoProcess= getBlackboardService().query(new LocalQueryRelayPredicate(myAddress));
+    }
+    else {
+      relaystoProcess=getBlackboardService().query(new RemoteQueryRelayPredicate(myAddress));
+    }
+    if(relaystoProcess.isEmpty()) {
+      if (loggingService.isDebugEnabled()) {
+        if(local) {
+          loggingService.debug(" Query to BB for Local MRAgentLookup returned EMPTY Collection");
+        }
+        else {
+          loggingService.debug(" Query to BB for Remote MRAgentLookup returned EMPTY Collection");
+        }
+      }
+      return;
+    }
+    Collection queryMappingCollection=getBlackboardService().query(new QueryMappingPredicate());
+    Iterator iter=relaystoProcess.iterator();
+    // removing mapping for query relays relay 
+    while(iter.hasNext()){
+      mapping=null;
+      relay = (CmrRelay)iter.next();
+      agentlookupquery=(MRAgentLookUp)relay.getContent();
+      if(agentlookupquery==null) {
+        loggingService.warn("Contents of the relay is null:"+relay.toString());
+        continue;
+      }
+      if(agentlookupquery.updates) {
+        if(latestCallBack.containsKey(relay.getUID())) {
+          if (loggingService.isDebugEnabled()) {
+            loggingService.debug("REMOVING all agent call back for "+relay.getUID());
+          }
+          latestCallBack.remove(relay.getUID());
+        }
+        mapping=findQueryMappingFromBB(relay.getUID(),queryMappingCollection) ;
+        if(mapping!=null) {
+          if (loggingService.isDebugEnabled()) {
+            loggingService.debug("REMOVING OLD MAPPING"+mapping.toString());
+          }
+          removeRelay(mapping,null);
+          getBlackboardService().publishRemove(mapping);
+        }
+      }
+    }
+    // publish new mapping for relays 
+    iter=relaystoProcess.iterator();
+    while(iter.hasNext()) {
+      mapping=null;
+      relay = (CmrRelay)iter.next();
+      agentlookupquery=(MRAgentLookUp)relay.getContent();
+      if(agentlookupquery==null) {
+        if (loggingService.isDebugEnabled()) {
+          loggingService.warn("Contents of the relay is null:"+relay.toString());
+        }
+        continue;
+      }
+      if(agentlookupquery.updates) {
+        final CmrRelay fRelay = relay;
+        FindAgentCallback fac = new FindAgentCallback() {
+            public void execute(Collection agents) {
+              if (loggingService.isDebugEnabled()) {
+                loggingService.debug(" Process Persitent Query Found response for manager and size " +
+                                     "of response :" + agents.size() );
+              }
+              if(latestCallBack.containsKey(fRelay.getUID())) {
+                FindAgentCallback callback=(FindAgentCallback )latestCallBack.get(fRelay.getUID());
+                if(this.equals(callback)) {
+                  createSubQuery(capabilities, agents, fRelay);
+                }
+                else {
+                  if (loggingService.isDebugEnabled()) {
+                    loggingService.debug(" Process Persitent Query Ignoring  call back for realy uid "+ fRelay.getUID() +
+                                         " callback id is stale "+ this.toString() );
+                  }
+                }
+              }
+              else {
+                if (loggingService.isDebugEnabled()) {
+                  loggingService.debug("Process Persitent Query  relay uid is not in list of active call back list" +fRelay.getUID());  
+                }
+              }
+            }
+          };
+        if (loggingService.isDebugEnabled()) {
+          loggingService.debug( myAddress +" Process Persitent Query Adding latest callback id for relay "+fRelay.getUID() + " callback id is :"+fac );  
+        }
+        latestCallBack.put(fRelay.getUID(),fac); 
+        findAgent(agentlookupquery, capabilities, false, fac);
+      }// end agentlookupquery.updates
+    }//end while()
+  }  
+  
   private void createSubQuery(CapabilitiesObject capabilities, 
                               Collection subManager, CmrRelay relay) {
     QueryMapping mapping;
@@ -378,7 +494,7 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     else {
       if (loggingService.isDebugEnabled()) {
         loggingService.debug(" No sub Manager are present with this capabilities :");
-        loggingService.debug("Creating an empty query mapping  :");
+        loggingService.debug("Creating an empty query mapping for Parent relay  :"+relay.getUID() );
       }
       mapping=new QueryMapping(relay.getUID(), null);
       publishToBB(mapping);
@@ -404,13 +520,18 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
         }
       },"QueryMappingPublisherThread");
     subqueryThread.start();
-  }
-      
-  private void removeRelays(Collection removedRelays) {
+  } 
+  
+  
+  private void removeRelays(Collection removedRelays,Collection queryMappingCollection  ) {
     CmrRelay relay;
     QueryMapping mapping;
     Iterator iter=removedRelays.iterator();
-    Collection queryMappingCollection=getBlackboardService().query(new QueryMappingPredicate());
+    if(queryMappingCollection.isEmpty()) {
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug(" queryMappingCollection in removeRelays is EMPTY");
+      }
+    }
     if (loggingService.isDebugEnabled()) {
       loggingService.debug("SIZE OF queryMappingCollection:"+queryMappingCollection.size());
     }
@@ -422,26 +543,34 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
         if (loggingService.isDebugEnabled()) {
           loggingService.debug("REMOVING MAPPING :"+mapping.toString());
         }
-        removeRelay(mapping);
+        if(isRelayQueryOriginator(relay.getUID(),queryMappingCollection)) {
+          removeRelay(mapping,null);
+        }
+        else {
+          if (loggingService.isDebugEnabled()) {
+            loggingService.debug(" Removing of one relay from Mapping object should not happen ");
+          }
+          removeRelay(mapping,relay.getUID());
+        }
       }
       else {
         if (loggingService.isDebugEnabled()) {
           loggingService.debug("REMOVING MAPPING COULD not find mapping for Relay :"+relay.getUID());
         }
       }
+      
     }// end while
   }// end removeRelays
-
-  private void removeRelay(QueryMapping mapping) {
+  /*
+    removes all relay specified in the QueryMapping unless second parameter relayuid is specified 
+    if second parameter relayuid ids not null it will remove onlt that realy 
+  */
+  private void removeRelay(QueryMapping mapping, UID relayuid) {
     if(mapping==null) {
       return;
     } 
     ArrayList list=mapping.getQueryList();
-    if(list==null) {
-      
-      return;
-    }
-    if(list.isEmpty()) {
+    if((list==null)||(list.isEmpty())){
       return;
     }
     OutStandingQuery outstandingquery;
@@ -449,42 +578,22 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     for(int i=0;i<list.size();i++) {
       outstandingquery=(OutStandingQuery)list.get(i);
       relay=findCmrRelay(outstandingquery.getUID());
-      if((relay!=null)) {
-        getBlackboardService().publishRemove(relay); 
+      if(relay!=null) {
+        if(relayuid!=null) {
+          if(relay.getUID().equals(relayuid)) {
+            
+            getBlackboardService().publishRemove(relay); 
+          }
+        }
+        else {
+          getBlackboardService().publishRemove(relay);
+        }
       }
-    }
-  }
-  
-  /*
-    private boolean isSecurityCommunity(String communityName) {
-    boolean securitycommunity=false;
-    if(communityService==null) {
-    loggingService.debug("Community service is null "+myAddress.toString()); 
-    return securitycommunity;
-    }
-    if(communityName==null) {
-    loggingService.debug("Community name  is null "+myAddress.toString());
-    return securitycommunity;
-    }
-    
-    Attributes attributes=communityService.getCommunityAttributes(communityName);
-    Attribute attribute=attributes.get("CommunityType");
-    if(attribute!=null) {
-    securitycommunity=attribute.contains(new String("Security"));
-    }
-    return securitycommunity; 
-    }
-  */
-
-  private class AllMyRelayPredicate implements UnaryPredicate {
-    public boolean execute(Object o) {
-      boolean ret = false;
-      if (o instanceof CmrRelay ) {
-        CmrRelay relay = (CmrRelay)o;
-        ret = ( (relay.getSource().equals(myAddress))&&
-                (relay.getContent() instanceof MRAgentLookUp));
+      else {
+        if (loggingService.isDebugEnabled()) {
+          loggingService.debug("REMOVING Relay COULD not find mapping for Relay :"+outstandingquery.getUID()); 
+        }
       }
-      return ret;
-    }
+    }// end of For loop
   }
 }
