@@ -61,7 +61,7 @@ public class LocalOntologyConnection extends OntologyConnection
         _brains.loadOntology
           ("http://ontology.ihmc.us/Ultralog/UltralogOntologies.owl",
            true);
-        PolicyUtils.autoGenerateGroups(declarations, agentGroupMap);
+        getPolicyUtils().autoGenerateGroups(declarations, agentGroupMap);
       } catch (Exception e) {
         // If you need to be smart but have no brains you are screwed.
         e.printStackTrace();
