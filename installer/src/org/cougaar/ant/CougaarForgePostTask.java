@@ -62,6 +62,7 @@ public class CougaarForgePostTask
   private boolean release_id_searched = false;
   private String file_id;
   private boolean file_id_searched = false;
+  private boolean verbose;
   
   public void execute() throws BuildException {
     if (url == null) {
@@ -100,8 +101,11 @@ public class CougaarForgePostTask
         cougaarBranch = m.group(2);
       }
       Property p5 = new Property("release_notes",
-          "This release contains a snapshot of the security services branch [" +
-          securityBranch + "] built using Cougaar SE branch [" + cougaarBranch + "]");
+          "This release contains a snapshot build of the security services. "
+          + "Snapshots are not for production use and are not guaranteed to be working at any "
+          + "particular point in time, and are only intended for those wishing to help with "
+          + "development or alpha testing. This release contains security code from the [" +
+          securityBranch + "] branch built against the [" + cougaarBranch + "] Cougaar SE branch.");
       addConfiguredProp(p5);
       Property p7 = new Property("submit", "Release File");
       addConfiguredProp(p7);
@@ -135,7 +139,9 @@ public class CougaarForgePostTask
   }
   
   public void login() throws IOException {
-    System.out.println("##### login");
+    if (verbose) {
+      System.out.println("login as " + getUsername());
+    }
     URL u = new URL(getUrl() + LOGIN_SERVLET);
     HttpURLConnection huc = (HttpURLConnection)u.openConnection();
     huc.setInstanceFollowRedirects(false);
@@ -171,8 +177,10 @@ public class CougaarForgePostTask
     if (release_name == null) {
       throw new RuntimeException("Release name has not been set");
     }
-    System.out.println("##### changeReleaseDate: " + release_name 
+    if (verbose) {
+      System.out.println("changeReleaseDate: " + release_name 
         + " - " + new_release_date);
+    }
     if (getReleaseId() == null) {
       return;
     }
@@ -223,7 +231,9 @@ public class CougaarForgePostTask
   }
   
   public void uploadFileToExistingRelease() throws IOException {
-    System.out.println("##### uploadFileToExistingRelease");
+    if (verbose) {
+      System.out.println("uploadFileToExistingRelease");
+    }
     if (getReleaseId() == null) {
       return;
     }
@@ -266,15 +276,19 @@ public class CougaarForgePostTask
       throw new RuntimeException("Unable to release file");
     }
     else {
-      System.out.println("File released - Release:" + props.get("release_name")
+      if (verbose) {
+        System.out.println("File released - Release:" + props.get("release_name")
           + " Date: " + props.get("release_date")
           + " File: " + props.get("userfile"));
+      }
     }
     
   }
   
   public void uploadNewFile() throws IOException {   
-    System.out.println("##### uploadFile");
+    if (verbose) {
+      System.out.println("upload File " + props.get("userfile"));
+    }
     URL u = new URL(getUrl() + UPLOAD_SERVLET + getGroupId());
     //  create a boundary string
     String boundary = MultiPartFormOutputStream.createBoundary();
@@ -296,7 +310,7 @@ public class CougaarForgePostTask
       Map.Entry me = (Map.Entry) it.next();
       String attr = (String) me.getKey();
       String value = (String) me.getValue();
-      System.out.print(attr + ": " + value + " - ");
+      //System.out.print(attr + ": " + value + " - ");
       if (!attr.equals("userfile")) {
         out.writeField(attr, value);
       }
@@ -304,7 +318,7 @@ public class CougaarForgePostTask
         out.writeFile(attr, "text/plain", new File(value));
       }
     }
-    System.out.println();
+    //System.out.println();
     out.close();
 
     BufferedReader br = new BufferedReader(new InputStreamReader(urlConn.getInputStream ()));
@@ -323,9 +337,11 @@ public class CougaarForgePostTask
       throw new RuntimeException("Unable to release file");
     }
     else {
-      System.out.println("File released - Release:" + props.get("release_name")
-          + " Date: " + props.get("release_date")
-          + " File: " + props.get("userfile"));
+      if (verbose) {
+        System.out.println("File released - Release:" + props.get("release_name")
+            + " Date: " + props.get("release_date")
+            + " File: " + props.get("userfile"));
+      }
     }
   }
 
@@ -334,7 +350,9 @@ public class CougaarForgePostTask
       return group_id;
     }
     group_id_searched = true;
-    System.out.println("##### getGroupId of " + getUnixprojectname());
+    if (verbose) {
+      System.out.println("getGroupId of " + getUnixprojectname() + "project");
+    }
     if (getUnixprojectname() == null) {
       throw new RuntimeException("Project name is not defined");
     }
@@ -352,7 +370,9 @@ public class CougaarForgePostTask
       Matcher m = p.matcher(str);
       if (m.find()) {
         group_id = m.group(1);
-        System.out.println("Group id=" + getGroupId());
+        if (verbose) {
+          System.out.println("Group id=" + getGroupId());
+        }
         break;
       }
     }
@@ -404,7 +424,9 @@ public class CougaarForgePostTask
     if (releaseName == null) {
       throw new RuntimeException("Release name not set");
     }
-    System.out.println("##### getReleaseId: " + releaseName);
+    if (verbose) {
+      System.out.println("getReleaseId: " + releaseName);
+    }
     String showReleaseServlet = "/frs/admin/showreleases.php?package_id=" + getPackageId() +
       "&group_id=" + getGroupId();
     URL u = new URL(getUrl() + showReleaseServlet);
@@ -423,7 +445,9 @@ public class CougaarForgePostTask
       Matcher m = p.matcher(str);
       if (m.find()) {
         release_id = m.group(1);
-        System.out.println("Release ID:" + release_id);
+        if (verbose) {
+          System.out.println("Release ID:" + release_id);
+        }
         break;
       }
     }
@@ -440,7 +464,9 @@ public class CougaarForgePostTask
       return file_id;
     }
     file_id_searched = true;
-    System.out.println("##### getFileId");
+    if (verbose) {
+      System.out.println("getFileId");
+    }
     String userfile = (String) props.get("userfile");
     if (userfile == null) {
       throw new RuntimeException("Userfile not specified");
@@ -475,11 +501,15 @@ public class CougaarForgePostTask
       if (m1.find()) {
         // Is it the same release ID?
         if (getReleaseId().equals(m1.group(1))) {
-          System.out.println("Release is the one we are looking for: " + m1.group(1));
+          if (verbose) {
+            System.out.println("Release is the one we are looking for: " + m1.group(1));
+          }
           releaseGood = true;
         }
         else {
-          System.out.println("Release is not the one we are looking for: " + m1.group(1));
+          if (verbose) {
+            System.out.println("Release is not the one we are looking for: " + m1.group(1));
+          }
           releaseGood = false;
         }
       }
@@ -487,7 +517,9 @@ public class CougaarForgePostTask
         Matcher m = fPattern.matcher(str);
         if (m.find()) {
           file_id = m.group(1);
-          System.out.println("File ID:" + file_id);
+          if (verbose) {
+            System.out.println("File ID:" + file_id);
+          }
           break;
         }
       }
@@ -504,7 +536,9 @@ public class CougaarForgePostTask
       return package_id;
     }
     package_id_searched = true;
-    System.out.println("##### getPackageId");
+    if (verbose) {
+      System.out.println("getPackageId");
+    }
     URL u = new URL(getUrl() + UPLOAD_SERVLET + getGroupId());
     URLConnection huc = u.openConnection();
     huc.setRequestProperty("Cookie", sessionCookie);
@@ -519,7 +553,9 @@ public class CougaarForgePostTask
       Matcher m = p.matcher(str);
       if (m.find()) {
         package_id = m.group(1);
-        System.out.println("Package ID:" + package_id);
+        if (verbose) {
+          System.out.println("Package ID:" + package_id);
+        }
         break;
       }
     }
@@ -533,7 +569,9 @@ public class CougaarForgePostTask
   // http://cougaar.org/frs/admin/editrelease.php?group_id=51&package_id=45&release_id=94
   
   private void deleteReleaseFile() throws IOException {
-    System.out.println("##### deleteReleaseFile");
+    if (verbose) {
+      System.out.println("##### deleteReleaseFile");
+    }
     // The file to be deleted
     String userfile = (String) props.get("userfile");
     if (userfile == null) {
@@ -690,5 +728,17 @@ public class CougaarForgePostTask
    */
   public void setUnixprojectname(String unixprojectname) {
     this.unixprojectname = unixprojectname;
+  }
+  /**
+   * @return Returns the verbose.
+   */
+  public boolean getVerbose() {
+    return verbose;
+  }
+  /**
+   * @param verbose The verbose to set.
+   */
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
   }
 }

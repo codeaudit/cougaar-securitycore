@@ -52,6 +52,9 @@
         	onerror="report">
           <classpath>
             <pathelement location="${securityservices.base}/classes"/>
+            <fileset dir="${securityservices.base}/build/lib">
+               <include name="*.jar"/>
+            </fileset>
           </classpath>
         </taskdef>
         <property name="ant.contrib.ext.loaded" value="true"/>
