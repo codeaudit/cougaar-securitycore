@@ -1,7 +1,7 @@
 
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -83,6 +83,9 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
   }
 
   public void setAgentIdentificationService(AgentIdentificationService ais) {
+    if (ais == null) {
+      throw new IllegalArgumentException("AgentIdentificationService is null");
+    }
     this.ais = ais;
     agentId = ais.getMessageAddress();
   } 
