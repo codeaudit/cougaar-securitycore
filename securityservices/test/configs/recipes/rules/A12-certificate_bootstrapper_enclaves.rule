@@ -17,6 +17,9 @@ society.each_node do |node|
   end
 end
 
+caHttpPort = "8810"
+caHttpsPort = "9810"
+
 society.each_node do |node|
   # Some of the  ** and node.name != ** tests are not necessary
   # but it's helpful to remember that the component should not
@@ -47,6 +50,7 @@ society.each_node do |node|
   end
 
   if arg != nil
+    arg = arg + ":" + caHttpPort + ":" + caHttpsPort
     node.agent.add_component do |c|
       c.classname = "org.cougaar.core.security.crypto.AutoConfigPlugin"
       c.priority = "HIGH"

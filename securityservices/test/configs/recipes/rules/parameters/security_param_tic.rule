@@ -363,3 +363,23 @@ society.each_host do |host|
     node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.access.useDaml", "true") 
   end
 end
+
+society.each_node do |node|
+  if node.name == 'FWD-CA-NODE' \
+	or node.name == 'REAR-CA-NODE'
+	or node.name == 'CONUS-CA-NODE'
+	or node.name == 'TRANS-CA-NODE'
+    httpport = 8810
+    httpsport = 9810
+    
+    # You can also turn on/off http/s. Turn of by setting the port to -1
+    # Note that HTTPS is off by default, and HTTP is at 8800
+    # HTTP port number
+    node.override_parameter("-Dorg.cougaar.lib.web.http.port", "#{httpport}")
+    
+    # HTTPS port number
+    # Comment out the following two lines if you don't want HTTPS
+    # The certificates need to be createdd first before this feature is turned on.
+    node.override_parameter("-Dorg.cougaar.lib.web.https.port", "#{httpsport}")
+  end
+end
