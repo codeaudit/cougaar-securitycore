@@ -509,8 +509,8 @@ public class DirectoryKeyStore
     }
     else {
       if (certs.length == 0) {
-	if (log.isWarnEnabled()) {
-	  log.warn("Failed to get Certificate for " + filter);
+	if (log.isInfoEnabled()) {
+	  log.info("Failed to get Certificate for " + filter);
 	}
       }
     }
