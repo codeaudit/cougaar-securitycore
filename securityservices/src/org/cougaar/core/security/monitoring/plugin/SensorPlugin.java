@@ -97,6 +97,7 @@ public abstract class SensorPlugin
   extends ComponentPlugin {
 
   private MessageAddress myAddress;
+  private MessageAddress myManagerAddress;
 
   /**
    * method to obtain the sensor info for the concrete class
@@ -189,6 +190,9 @@ public abstract class SensorPlugin
   }
 
   private void getSecurityManager() {
+    if(m_log.isDebugEnabled()) {
+      m_log.debug("getSecurityManager called in Sensor Plugin:"); 
+    }
     CommunityServiceUtilListener listener = new CommunityServiceUtilListener() {
 	public void getResponse(Set entities) {
 	  Iterator it = entities.iterator();
@@ -203,10 +207,20 @@ public abstract class SensorPlugin
 	    MessageAddress addr = MessageAddress.
 	      getMessageAddress(entity.getName());
 	    // Now register capabilities
-	    registerCapabilities(addr);
+            if(myManagerAddress==null) {
+              myManagerAddress=addr;
+              if(m_log.isDebugEnabled()){
+                m_log.debug("Setting Manager for Sensor Plugin -- Manager  : "+ myManagerAddress +" For Agent : " +myAddress);
+              }
+              registerCapabilities(addr);
+            }
 	  }
 	}
       };
+     if(m_log.isDebugEnabled()) {
+      m_log.debug("findSecurityManager from Communityservice util called in Sensor Plugins getSecurityManager:"
+                  +myAddress.toString()); 
+    }
     m_csu.findSecurityManager(myAddress.toString(), listener);
   }
 
@@ -286,7 +300,7 @@ public abstract class SensorPlugin
                                               data,
                                               m_idmefFactory.newregistration,
                                               m_idmefFactory.SensorType,
-                                              myManager.toString());
+                                              myAddress.toString());
     NewEvent regEvent = m_cmrFactory.newEvent(reg);
 
     CmrRelay regRelay = m_cmrFactory.newCmrRelay(regEvent, myManager);
