@@ -9,8 +9,8 @@ setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-api.jar
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-provider.jar
 
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAARCLASSES}
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/bootstrapper.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/securityservices.jar
 echo $CLASSPATH
 
 set MYPROPERTIES=""
@@ -31,7 +31,7 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.loud=sh
 	-Dorg.cougaar.core.security.bootstrap.useAuthenticatedLoader=true\
 	-Dorg.cougaar.core.security.bootstrap.useSecurityManager=true\
 	com.nai.security.bootstrap.Bootstrapper  \
-	jnditest
+	com.nai.security.test.jnditest
 
 exit
 # Certificate authority simulation
