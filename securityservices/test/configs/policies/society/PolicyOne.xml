@@ -6,7 +6,14 @@
     <facet enclave='Rear'/>
     <node name='RearWorkerNode'>
      <agent name='testBounceOne'     class='org.cougaar.core.agent.SimpleAgent' />
-     <agent name='testBBPolicyAgent' class='org.cougaar.core.agent.SimpleAgent' />
+     <agent name='testBBPolicyAgent' 
+            class='org.cougaar.core.agent.SimpleAgent'>
+        <component
+           name='org.cougaar.core.security.test.OrgActivityAddTest'
+           class='org.cougaar.core.security.test.OrgActivityAddTest'
+           priority='COMPONENT'
+           insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'/>
+     </agent>
      <agent name='FwdUserAdminAgent'>
         <component
            name='org.cougaar.core.security.certauthority.CaServletComponent(org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet,/useradmin)'
