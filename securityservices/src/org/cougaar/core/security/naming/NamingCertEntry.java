@@ -108,6 +108,7 @@ final public class NamingCertEntry extends Cert
 
   int _hashcode;
   public String toString() {
+   synchronized (certList) {
     StringBuffer buff=new StringBuffer();
     if(certList.isEmpty()) {
       buff.append("CertList is empty");
@@ -128,5 +129,6 @@ final public class NamingCertEntry extends Cert
       }
     }
     return buff.toString();
+   }
   }
 }
