@@ -23,16 +23,25 @@
 package org.cougaar.core.security.monitoring.blackboard;
 
 import org.cougaar.lib.aggagent.query.AggregationQuery;
+import org.cougaar.core.util.UID;
 
 public interface DrillDownQuery
 {
   /**
    */
+  /*
   AggregationQuery getAggQuery();
+  */
+
+  String getAggQuery();
+
   /**
    */
   AggregationType getAggregationType();
   /**
    */
   boolean wantDetails();
+
+  void  setOriginatorsUID(UID originatorUID);
+  UID getOriginatorsUID();
 }
