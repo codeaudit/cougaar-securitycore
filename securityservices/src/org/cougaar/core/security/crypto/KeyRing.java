@@ -28,6 +28,7 @@ import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
 import org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension;
 import org.cougaar.core.security.naming.CertificateEntry;
+import org.cougaar.core.security.naming.SearchCallback;
 import org.cougaar.core.security.naming.NamingCertDirectoryServiceClient;
 import org.cougaar.core.security.policy.CertificateAttributesPolicy;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
@@ -2268,11 +2269,6 @@ try {
   return;
   }
 */
-  SearchCallback _callback = new SearchCallback() {
-    public void searchCallback(String cname, List l) {
-      updateSearchResult(l);
-    }
-  };
 
   public void searchCert(X500Name x500Name)
     {
@@ -2280,7 +2276,12 @@ try {
 	log.debug("searchCert called :" + x500Name);
       }
       
-      List certs = search.findCert(x500Name, _callback);
+      SearchCallback callback = new SearchCallback() {
+        public void searchCallback(String cname, List l) {
+          updateSearchResult(l);
+        }
+      };
+      List certs = search.findCert(x500Name, callback);
       if (certs == null || certs.size() == 0) {
         if (log.isInfoEnabled()) {
           log.info("Failed to lookup certificate for " + x500Name);
@@ -2311,7 +2312,7 @@ try {
         try {
           x500Name = new X500Name(certificate.getSubjectDN().getName());
         } catch (IOException iox) {
-          log.warn("Illegal X500Name " + certificate.getSubjectDN();
+          log.warn("Illegal X500Name " + certificate.getSubjectDN());
           return;
         }
 
