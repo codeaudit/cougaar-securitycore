@@ -19,9 +19,25 @@
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml"/>
     </daml:Ontology>
 
+    <!--Servlets with an explicit agent -->
+    <ultralogEntity:Servlet rdf:ID="AggegatorServlets"/>
+    <ultralogEntity:Servlet rdf:ID="NCAServlets"/>
+    <ultralogEntity:Servlet rdf:ID="SCmrmanagerServlets"/>
+
+    <!-- Servlets that can be handled by a variety of agents-->
+    <ultralogEntity:Servlet rdf:ID="CAReadServlet"/>
+    <ultralogEntity:Servlet rdf:ID="CAWriteServlet"/>
+    <ultralogEntity:Servlet rdf:ID="HierarchyServlet"/>
+    <ultralogEntity:Servlet rdf:ID="LogInventoryServlet"/>
     <ultralogEntity:Servlet rdf:ID="PolicyServlet"/>
-    <ultralogEntity:Servlet rdf:ID="CAServlet"/>
-	            	
+    <ultralogEntity:Servlet rdf:ID="RootServlet"/>
+    <ultralogEntity:Servlet rdf:ID="UserManagerServlets"/>
+
+    <ultralogEntity:AuthenticationLevel rdf:ID="NoAuth"/>
+    <ultralogEntity:AuthenticationLevel rdf:ID="NoAuthSSL"/>
+    <ultralogEntity:AuthenticationLevel rdf:ID="Password"/>
+    <ultralogEntity:AuthenticationLevel rdf:ID="PasswordSSL"/>
+    <ultralogEntity:AuthenticationLevel rdf:ID="CertificateSSL"/>
     <ultralogEntity:AuthenticationLevel rdf:ID="Weak"/>
     <ultralogEntity:AuthenticationLevel rdf:ID="NSAApproved"/>
  
