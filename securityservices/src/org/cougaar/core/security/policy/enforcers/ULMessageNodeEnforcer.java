@@ -288,6 +288,9 @@ public class ULMessageNodeEnforcer
                  receiver + " with verb " + verb);
     }
     String kaosVerb = HardWired.kaosVerbFromVerb(verb);
+    if (_log.isDebugEnabled()) {
+      _log.debug("Verb has been Damlized and has become " + kaosVerb);
+    }
 
     Set targets = new HashSet();
     targets.add(new TargetInstanceDescription

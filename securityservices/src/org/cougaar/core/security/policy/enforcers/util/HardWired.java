@@ -160,9 +160,15 @@ public class HardWired {
     if (verb == null) {
       verb = "NoVerb";
     }
-    return (org.cougaar.core.security.policy.enforcers.ontology.jena.
-            EntityInstancesConcepts.EntityInstancesDamlURL
-            + verb);
+    verb = org.cougaar.core.security.policy.enforcers.ontology.jena.
+      EntityInstancesConcepts.EntityInstancesDamlURL
+      + verb;
+    if (hasSubjectValues.contains(verb)) {
+      return verb;
+    } else { 
+      return org.cougaar.core.security.policy.enforcers.ontology.jena.
+        EntityInstancesConcepts.EntityInstancesDamlURL + "OtherVerb";
+    }
   }
 
   /**
