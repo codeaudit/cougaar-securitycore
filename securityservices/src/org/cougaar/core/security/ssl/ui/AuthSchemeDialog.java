@@ -32,7 +32,10 @@ import javax.swing.border.*;
 
 import java.util.*;
 
+import org.cougaar.core.component.*;
+
 import org.cougaar.core.security.util.UIUtil;
+import org.cougaar.core.security.userauth.ui.*;
 
 
 public class AuthSchemeDialog
@@ -49,9 +52,12 @@ public class AuthSchemeDialog
 
   Vector authHandlers = new Vector();
 
-  public AuthSchemeDialog() {
+  ServiceBroker serviceBroker;
+
+  public AuthSchemeDialog(ServiceBroker sb) {
     super((Frame)null, "Select Authenticate Scheme", true);
 
+    serviceBroker = sb;
     try {
       jbInit();
     }
@@ -76,6 +82,8 @@ public class AuthSchemeDialog
     });
 
     createCertButton.setText("Request Identitty");
+    if (serviceBroker == null)
+      createCertButton.setEnabled(false);
     createCertButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         createCertButton_actionPerformed(e);
@@ -144,11 +152,9 @@ public class AuthSchemeDialog
   }
 
   void createCertButton_actionPerformed(ActionEvent e) {
-    // TODO: popup window to create certificate
     // and send request to CA.
-    RequestIdentity identityDialog = new RequestIdentity();
-    identityDialog.showDialog();
-    this.dispose();
+    UserCertRequestDialog dialog = new UserCertRequestDialog(serviceBroker);
+    dialog.showDialog();
   }
 
 }
