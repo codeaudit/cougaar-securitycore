@@ -237,6 +237,7 @@ public class CRLCache implements Runnable
         log.debug("Get cert finder from status: " + certificateFinder);
     }
     // pretty much not found, check it is in the naming service
+/*
     if (certificateFinder == null) {
       try {
 	certificateFinder = keystore.getCertDirectoryServiceClient(distingushname);
@@ -245,6 +246,7 @@ public class CRLCache implements Runnable
 	log.warn("Unable to get certificatels finder");
       }
     }
+*/
 
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
     crlIssuerPublickey=crlIssuerCert.getPublicKey();
