@@ -70,7 +70,7 @@ public class ConsolidatedCapabilities extends Alert implements AgentRegistration
      return XMLize.getPlanObjectXML(this, document);
   }
    
-  public String toString() {
+  /*public String toString() {
     StringBuffer buff=new StringBuffer();
     buff.append(" ConsolidatedCapabilities are :\n");
     if(getAnalyzer()!=null)
@@ -86,6 +86,7 @@ public class ConsolidatedCapabilities extends Alert implements AgentRegistration
     }
      return buff.toString();
   }
+  */
  
   public void setType(String type) {
     this.Type=type;
