@@ -8,11 +8,11 @@ compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
 society.each_node do |node|
   if node.name =~ /.*REAR.*/ \
 	or node.name == "REAR-CA-NODE" \
-	or node.name == "REAR-MGMT-NODE" \
+	or node.name == "REAR-MGMT-NODE"
     enclave = "1"
   elsif node.name =~ /.*FWD.*/ \
 	or node.name == "FWD-CA-NODE" \
-	or node.name == "FWD-MGMT-NODE" \
+	or node.name == "FWD-MGMT-NODE"
       enclave = "2"
   elsif node.name == "NCA-NODE" \
 	or node.name == "CONUS-NODE" \
