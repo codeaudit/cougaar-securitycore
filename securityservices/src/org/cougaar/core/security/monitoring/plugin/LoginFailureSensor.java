@@ -51,10 +51,12 @@ import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import org.cougaar.core.security.monitoring.idmef.Agent;
 
-import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.IDMEF_Node;
 import edu.jhuapl.idmef.IDMEF_Process;
+import edu.jhuapl.idmef.AdditionalData;
 
 /**
  * This class must be placed in the Node ini file to allow
@@ -147,18 +149,43 @@ public class LoginFailureSensor extends ComponentPlugin {
       sb.getService(this, CommunityService.class,null);
 
     setLoggingService();
-    List capabilities = new ArrayList();
-    capabilities.add(KeyRingJNDIRealm.LOGINFAILURE);
-      
-    RegistrationAlert reg = 
-      idmefFactory.createRegistrationAlert( sensor, capabilities,
-                                            idmefFactory.newregistration ,
-                                            idmefFactory.SensorType);
-    
+
     IDMEF_Node node = idmefFactory.getNodeInfo();
     IDMEF_Process process = idmefFactory.getProcessInfo();
-    Source source = new Source(node, null, process, null, null, null, null);
-    reg.setSources(new Source[] { source });
+    Agent agentinfo = idmefFactory.getAgentInfo();
+
+    Target target = idmefFactory.createTarget(node, null, process,
+                                              null, null, null);
+    String [] ref=null;
+    if (agentinfo.getRefIdents()!=null) {
+      String[] originalref=agentinfo.getRefIdents();
+      ref=new String[originalref.length+1];
+      System.arraycopy(originalref,0,ref,0,originalref.length);
+      ref[originalref.length]=target.getIdent();
+    } else {
+      ref=new String[1];
+      ref[0]=target.getIdent();
+    }
+    agentinfo.setRefIdents(ref);
+
+    AdditionalData additionalData = 
+      idmefFactory.createAdditionalData(Agent.TARGET_MEANING, agentinfo);
+
+    List capabilities = new ArrayList();
+    List targets = new ArrayList();
+    List addData = new ArrayList();
+    capabilities.add(KeyRingJNDIRealm.LOGINFAILURE);
+    targets.add(target);
+    addData.add(additionalData);
+      
+    RegistrationAlert reg = 
+      idmefFactory.createRegistrationAlert( sensor, null,
+                                            targets,
+                                            capabilities,
+                                            addData,
+                                            idmefFactory.newregistration ,
+                                            idmefFactory.SensorType,
+                                            myAddress.toString());
     
     NewEvent regEvent = cmrFactory.newEvent(reg);
     Collection communities = cs.listParentCommunities(agentName);

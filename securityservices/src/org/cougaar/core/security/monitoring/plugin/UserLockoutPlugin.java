@@ -42,6 +42,7 @@ import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
+import org.cougaar.core.security.monitoring.idmef.Agent;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
@@ -226,23 +227,33 @@ public class UserLockoutPlugin extends ComponentPlugin {
     return _domainService;
   }
 
+  private List createClassifications() {
+    ArrayList cfs = new ArrayList();
+    cfs.add(LOGIN_FAILURE);
+    return cfs;
+  }
+
   /**
    * Produce the Assessment alert
    */
   private void alertAssessment(String user) {
     ArrayList cfs = new ArrayList();
     cfs.add(LOGIN_FAILURE);
+
+    UserId uid = _idmefFactory.createUserId( user );
+    List uids = new ArrayList();
+    uids.add(uid);
+    User u = _idmefFactory.createUser(uids);
+    Target t = _idmefFactory.createTarget(null, u, null, null, null, null);
+    List targets = new ArrayList();
+    targets.add(t);
+
+    List assessment = new ArrayList();
+    assessment.add(USER_LOCKOUT_ASSESSMENT);
+
     Alert alert = _idmefFactory.createAlert(_sensor, new DetectTime(),
-                                            null, null, cfs, null);
+                                            null, targets, cfs, null);
     
-    // set the target
-    UserId uid = new UserId( user, null, null, UserId.TARGET_USER );
-    UserId uids[] = new UserId[] { uid };
-    User u = new User( uids, null, User.UNKNOWN );
-    Target t = new Target(null, u, null, null, null, null,
-                          Target.UNKNOWN, null);
-    alert.setTargets( new Target[] {t} );
-    alert.setAssessment(USER_LOCKOUT_ASSESSMENT);
     NewEvent event = _cmrFactory.newEvent(alert);
 
     getBlackboardService().publishAdd(event);
@@ -381,14 +392,12 @@ public class UserLockoutPlugin extends ComponentPlugin {
     capabilities.add(KeyRingJNDIRealm.LOGINFAILURE);
       
     RegistrationAlert reg = 
-      _idmefFactory.createRegistrationAlert( _sensor, capabilities,
+      _idmefFactory.createRegistrationAlert( _sensor, null, null,
+                                             capabilities,
+                                             null,
                                              _idmefFactory.newregistration ,
-                                             _idmefFactory.SensorType );
-    
-    IDMEF_Node node = _idmefFactory.getNodeInfo();
-    IDMEF_Process process = _idmefFactory.getProcessInfo();
-    Source source = new Source(node, null, process, null, null, null, null);
-    reg.setSources(new Source[] { source });
+                                             _idmefFactory.SensorType,
+                                             myAddress.toString());
     
     NewEvent regEvent = _cmrFactory.newEvent(reg);
     Collection communities = cs.listParentCommunities(agentName);
