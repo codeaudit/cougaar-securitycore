@@ -575,7 +575,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 	  subjectname= new X500Name(subjectDN);
 	}
 	catch(IOException ioexp) {
-	  ioexp.printStackTrace();
+	  if (log.isWarnEnabled()) {
+	    log.warn("Unable to get X500 name: " + subjectDN, ioexp);
+	  }
 	}
 	certsCache.put(subjectname.getName(),list);
 	log.debug("revoked status in cache:" + subjectDN);

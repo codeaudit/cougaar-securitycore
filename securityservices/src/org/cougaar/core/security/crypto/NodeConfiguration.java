@@ -233,7 +233,6 @@ public class NodeConfiguration
 	  secprop.setProperty(propertyName,propertyValue);
 	}
 	catch(SecurityException sexp) {
-	  sexp.printStackTrace();
 	}
       }
     }

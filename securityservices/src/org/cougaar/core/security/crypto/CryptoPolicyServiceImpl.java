@@ -289,7 +289,9 @@ public class CryptoPolicyServiceImpl
           registerEnforcer();
         }
         catch(Exception ex) {
-          ex.printStackTrace();
+	  if (log.isWarnEnabled()) {
+	    log.warn("Unable to register enforcer", ex);
+	  }
         }
       }
 
@@ -407,7 +409,9 @@ public class CryptoPolicyServiceImpl
           registerEnforcer();
         }
         catch(Exception ex) {
-          ex.printStackTrace();
+	  if (log.isWarnEnabled()) {
+	    log.warn("Unable to register enforcer", ex);
+	  }
         }
       }
 

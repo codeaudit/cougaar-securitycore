@@ -526,9 +526,8 @@ public class CertificateRequestor {
         }
 
       } catch (Exception e) {
-	e.printStackTrace();
-	if (log.isDebugEnabled()) {
-	  log.warn("Unable to create key: " + dname + " - Reason:" + e, new Throwable());
+	if (log.isWarnEnabled()) {
+	  log.warn("Unable to create key: " + dname, e);
 	}
       }
 

@@ -197,7 +197,6 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
           MT mt = (MT) remoteRef;
           System.out.println("remote address = " + mt.getMessageAddress());
         } catch (Exception e) {
-          e.printStackTrace();
         }
       }
       System.out.println("Adding remote reference: " + remoteRef);

@@ -60,9 +60,7 @@ public class IdentityPlugin
       ais.acquire(null);
     }
     catch (Exception e) {
-      log.debug("Unable to get agent identity service: "
-			 + e);
-      e.printStackTrace();
+      log.debug("Unable to get agent identity service", e);
     }
   }
 

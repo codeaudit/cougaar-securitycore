@@ -82,7 +82,9 @@ public class CertificateValidityMonitor
 	Thread.sleep(sleep_time);
       }
       catch(InterruptedException interruptedexp) {
-	interruptedexp.printStackTrace();
+	if (log.isWarnEnabled()) {
+	  log.warn("Thread interrupted", interruptedexp);
+	}
       }
 
       if(log.isDebugEnabled()) {

@@ -307,8 +307,6 @@ public class MessageProtectionServiceImpl
       // Don't throw a security exception, otherwise the MTS will never
       // retry to send the message.
       throw ioex;
-//     } catch (Throwable t) {
-//       t.printStackTrace();
     }
     oout.close();
     return bout.toByteArray();
@@ -449,7 +447,6 @@ public class MessageProtectionServiceImpl
     } catch (IOException e) {
       throw e;
     } catch (Exception e) {
-      e.printStackTrace();
       return null;
     }
   }
