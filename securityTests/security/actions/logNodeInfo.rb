@@ -98,8 +98,20 @@ module Cougaar
 		command = "ps -h -p #{nodeInfo.pid} -o pcpu,pmem,sz,rss"
 		#saveAssertion "processInfo", "#{nodeInfo.host.name} #{command}"
 		response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
+                gotResults = false
                 if (response != nil)
+                  gotResults = true
                   parseMemoryUsage(nodeInfo, response.body)
+                end
+
+                # Get load information
+                command = "uptime"
+		response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
+                if (response != nil)
+                  gotResults = true
+                  parseUpTime(nodeInfo, response.body)
+                end
+                if (gotResults)
 		  logNodeInfo(nodeInfo)
                 end
 	      rescue => e
@@ -139,7 +151,16 @@ module Cougaar
 	  nodeInfo.mem_size = b[2]
 	  nodeInfo.rss = b[3]
         end
-        
+
+        def parseUpTime(nodeInfo, str)
+          s = `uptime`
+          s.scan(/load average: (.+),\s+(.+),\s+(.+)/) { |match|
+            nodeInfo.load1min = match[0]
+            nodeInfo.load5min = match[1]
+            nodeInfo.load15min = match[2]
+          }
+        end
+ 
         def logNodeInfo(nodeInfo)
 	  @nodeInfoFile << "#{nodeInfo.to_s}\n"
 	  @nodeInfoFile.flush
@@ -150,7 +171,7 @@ module Cougaar
       class NodeInfo 
         
         attr_reader :name, :host, :pid
-        attr_accessor :mem_size, :xmx, :pcpu, :pmem, :rss
+        attr_accessor :mem_size, :xmx, :pcpu, :pmem, :rss, :load1min, :load5min, :load15min
         
         def initialize(name, host, pid, mem_size=nil, xmx=nil)
           @name = name
