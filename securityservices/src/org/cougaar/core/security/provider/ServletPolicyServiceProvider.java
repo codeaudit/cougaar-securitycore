@@ -65,6 +65,10 @@ public class ServletPolicyServiceProvider
     }
   }
 
+  public static void addAgent(String agent) {
+    _servletPolicyService.addAgent(agent);
+  }
+
   public static synchronized void setContext(Context context) {
     init();
     _context = context;

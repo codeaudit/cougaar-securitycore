@@ -69,6 +69,7 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
   SecurityConstraint  _constraints[];
   HashSet             _roles;
   long                _sleepTime = 1000;
+  HashSet             _agents = new HashSet();
 
   public ServletPolicyEnforcer(ServiceBroker sb) {
     _serviceBroker = sb;
@@ -147,6 +148,14 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
         SecurityConstraint constraint = (SecurityConstraint) iter.next();
         _context.addConstraint(constraint);
       }
+
+      // add the constraints for agents currently on the node
+      synchronized (_agents) {
+        iter = _agents.iterator();
+        while (iter.hasNext()) {
+          addStarAgent((String) iter.next());
+        }
+      }
       
       // remove the old constraints
       if (scArray != null) {
@@ -169,6 +178,49 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
         String role = iter.next().toString();
         _context.addSecurityRole(role);
       }
+    }
+  }
+
+  public void addAgent(String agentName) {
+    synchronized (_agents) {
+      if (_agents.contains(agentName)) {
+        return; // already there
+      }
+      _agents.add(agentName);
+      addStarAgent(agentName);
+    }
+  }
+
+  private void addStarAgent(String agentName) {
+    SecurityConstraint scs[] = _context.findConstraints();
+    if (scs == null) {
+      return; // no constraints! 
+    }
+
+    for (int i = 0; i < scs.length; i++) {
+      SecurityCollection starColl = scs[i].findCollection("*");
+      if (starColl == null) {
+        continue; // no "*" constraints here
+      }
+
+      // copy the constraint
+      SecurityConstraint scNew = new SecurityConstraint();
+      String roles[] = scs[i].findAuthRoles();
+      for (int j = 0; j < roles.length; j++) {
+        scNew.addAuthRole(roles[j]);
+      }
+          
+      SecurityCollection scnNew = new SecurityCollection(agentName);
+      String patterns[] = starColl.findPatterns();
+      for (int j = 0; j < patterns.length; j++) {
+        if (patterns[j].startsWith("/")) {
+          scnNew.addPattern("/$" + agentName + patterns[j]);
+        } else {
+          scnNew.addPattern("/$" + agentName + "/" + patterns[j]);
+        }
+      }
+      scNew.addCollection(scnNew);
+      _context.addConstraint(scNew);
     }
   }
 

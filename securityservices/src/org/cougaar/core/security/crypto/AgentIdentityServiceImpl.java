@@ -60,6 +60,7 @@ import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.certauthority.servlet.*;
+import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 
 
 public class AgentIdentityServiceImpl
@@ -153,6 +154,9 @@ public class AgentIdentityServiceImpl
       log.debug("acquire identity:"
 		+ requestorAddress.toAddress());
     }
+    // Add the agent to the list that the ServletPolicyEnforcer
+    // has to keep track of for rules that deal with all agents.
+    ServletPolicyServiceProvider.addAgent(requestorAddress.toAddress());
     if (transferableIdentity != null) {
       completeTransfer(transferableIdentity);
     }

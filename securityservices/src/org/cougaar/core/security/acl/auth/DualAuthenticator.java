@@ -76,7 +76,6 @@ public class DualAuthenticator extends ValveBase {
   HashMap           _constraints = new HashMap();
   HashMap           _starConstraints = new HashMap();
   long              _failSleep   = 1000;
-  HashSet           _agentList   = new HashSet();
 
   public DualAuthenticator() {
     this(new SSLAuthenticator(), new BasicAuthenticator());
@@ -114,10 +113,6 @@ public class DualAuthenticator extends ValveBase {
     HttpServletResponse hres = (HttpServletResponse) request.getResponse();
     boolean certInvoked;
     boolean passInvoked;
-
-    // expand the "*" agent identifier -- can't think of another place
-    // to get all agent names and this works.
-    expandStarConstraint(hreq.getRequestURI());
 
     int userConstraint = CONST_NONE;
     int pathConstraint = getConstraint(hreq.getRequestURI());
@@ -163,56 +158,6 @@ public class DualAuthenticator extends ValveBase {
         Thread.sleep(_failSleep);
       } catch (InterruptedException e) {
         // no sweat
-      }
-    }
-  }
-
-  private void expandStarConstraint(String uri) {
-    if (!uri.startsWith("/$")) {
-      return; // not an agent... screw it
-    }
-
-    int slashIndex = uri.indexOf("/",2);
-    if (slashIndex != -1) {
-      uri = uri.substring(2, slashIndex);
-    } else {
-      uri = uri.substring(2);
-    }
-    synchronized (_agentList) {
-      if (_agentList.contains(uri)) {
-        return; // already there
-      }
-      _agentList.add(uri);
-      SecurityConstraint scs[] = _context.findConstraints();
-      if (scs == null) {
-        return; // no constraints! 
-      }
-
-      for (int i = 0; i < scs.length; i++) {
-        SecurityCollection scn = scs[i].findCollection("*");
-        if (scn != null) {
-          SecurityConstraint scNew = new SecurityConstraint();
-          String roles[] = scs[i].findAuthRoles();
-          for (int j = 0; j < roles.length; j++) {
-            scNew.addAuthRole(roles[j]);
-          }
-          
-          SecurityCollection scnNew = new SecurityCollection("*");
-          String patterns[] = scn.findPatterns();
-          for (int j = 0; j < patterns.length; j++) {
-            if (!patterns[j].startsWith("/$")) {
-              if (patterns[j].startsWith("/")) {
-                scnNew.addPattern("/$" + uri + patterns[j]);
-              } else {
-                scnNew.addPattern("/$" + uri + "/" + patterns[j]);
-              }
-            }
-            scnNew.addPattern(patterns[j]);
-          }
-          _context.removeConstraint(scs[i]);
-          scNew.addCollection(scnNew);
-          _context.addConstraint(scNew);
-        }
       }
     }
   }
@@ -323,7 +268,6 @@ public class DualAuthenticator extends ValveBase {
    */
   public synchronized void setAuthConstraints(Map constraints, 
                                               Map starConstraints) {
-    _agentList.clear();
     _constraints = new HashMap(constraints);
     _starConstraints = new HashMap(starConstraints);
   }
