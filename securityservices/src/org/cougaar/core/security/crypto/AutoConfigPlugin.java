@@ -13,7 +13,7 @@ import org.cougaar.core.security.crypto.*;
 public class AutoConfigPlugin extends ConfigPlugin {
   Vector calist = new Vector();
 
-  protected void setParameters(Object o) {
+  public void setParameter(Object o) {
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List argument to setParameter");
     }
