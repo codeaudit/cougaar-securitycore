@@ -42,6 +42,8 @@ import org.cougaar.core.util.UID;
 //Security services
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
+import org.cougaar.core.security.monitoring.util.DrillDownUtils;
+import org.cougaar.core.security.monitoring.util.DrillDownQueryConstants;
 
 import java.util.Collection;
 import java.util.ArrayList;
@@ -60,7 +62,34 @@ class AggQueryMappingPredicate implements UnaryPredicate {
   
 }
 
-
+class EventsPredicate implements  UnaryPredicate{
+  private UID  parent_uid;
+  private MessageAddress agentAddress;
+  public  EventsPredicate(UID uid,MessageAddress address){
+    parent_uid=uid;
+    agentAddress=address;
+  }
+  public boolean execute(Object o) {
+    boolean ret = false;
+    CmrRelay cmrRelay=null;
+    RemoteConsolidatedEvent consolidatedEvent=null;
+    Event event=null;
+    if (o instanceof CmrRelay ) {
+      cmrRelay=(CmrRelay)o;
+      if((cmrRelay.getSource().equals(agentAddress))&&
+         (cmrRelay.getContent() instanceof DrillDownQuery )&&
+         (cmrRelay.getResponse() instanceof RemoteConsolidatedEvent)){
+        consolidatedEvent=(RemoteConsolidatedEvent)cmrRelay.getResponse();
+        return DrillDownUtils.matchParentUID(consolidatedEvent.getEvent(),parent_uid);
+      }
+    }
+    if(o instanceof Event ) {
+      event=(Event)o;
+      return DrillDownUtils.matchParentUID(event.getEvent(),parent_uid);
+    }
+    return ret;
+  }
+}
 
 public abstract class MnRAggQueryBase extends ComponentPlugin {
   
