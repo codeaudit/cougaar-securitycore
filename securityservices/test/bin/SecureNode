@@ -121,7 +121,8 @@ sub readPropertiesFile {
       # this is a comment line -- ignore it
     } elsif (/.+/) {
       # this is a properties line. split it:
-      ($name, $value) = split /=/;
+      ($name, $value) = split ( /=/, $_, 2);
+      #print "$name = $value\n";
       $value = customizeProperty($value);
       if ($name =~ /^env\./) {
         $name = substr $name, 4;
@@ -133,7 +134,6 @@ sub readPropertiesFile {
       } else {
         push @line, makeProperty($name, $value);
       }
-#      print "$name = $value\n";
     }
   }
 
