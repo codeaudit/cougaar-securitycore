@@ -33,6 +33,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.Vector;
 import java.security.Permission;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
@@ -41,6 +42,7 @@ import java.security.AccessControlContext;
 import java.security.PermissionCollection;
 import java.security.ProtectionDomain;
 import java.security.CodeSource;
+import java.security.Principal;
 
 // Needed to retrieve the subject associated with an accessController context
 import javax.security.auth.Subject;
@@ -66,10 +68,12 @@ import javax.security.auth.Subject;
 
  **/
 
-public class CougaarSecurityManager extends SecurityManager
+public class CougaarSecurityManager extends SecurityManager implements EventHolderinterface
 {
   private PrintStream auditlog;
   private int debug = 0;
+  private EventHolder eventholder=null;
+  private String type=null;
 
   /** The constructor initializes a log file at
       ${COUGAAR_INSTALL_PATH}/log/bootstrap/SecurityManager.log
@@ -98,6 +102,10 @@ public class CougaarSecurityManager extends SecurityManager
     String auditlogname =
       System.getProperty("org.cougaar.core.security.bootstrap.SecurityManagerLogFile",
 			 defaultLogName);
+    type= BootstrapEvent.SecurityAlarm;
+    eventholder= EventHolder.getInstance();
+    //System.out.println(" Event Holder in Cougaar security mananger got loaded by :"+eventholder.getClass().getClassLoader().toString() );
+    System.out.println("Instance of Event holder in Cougaar security Manger :"+eventholder.toString());
     try {
       auditlog = new PrintStream(new FileOutputStream(auditlogname));
       auditlog.print("<logtime>"+DateFormat.getDateInstance().format(new Date())
@@ -111,6 +119,26 @@ public class CougaarSecurityManager extends SecurityManager
     if (debug > 0) {
       System.out.println("Cougaar Security Manager. Logging to " + auditlogname);
     }
+    ClassLoader cloader=eventholder.getClass().getClassLoader();
+    if(cloader!=null)
+     System.out.println(" Event Holder in Cougaar security mananger got loaded by :"+cloader.toString() );
+    else 
+      System.out.println(" Got class loader null for event holder in security manager  :");
+  }
+
+  public EventHolder getMREventQueue() throws SecurityException {
+    if(eventholder!=null){
+      /* try {
+	checkPermission(new MRBootstrapEventPermission("getEventQueue"));
+      }
+      catch(SecurityException sexp){
+	sexp.printStackTrace();
+	throw( new SecurityException(sexp.getMessage()));
+	}*/
+      System.out.println(" returning event holder:");
+      return eventholder;
+    }
+    return null;
   }
 
 
@@ -169,6 +197,7 @@ public class CougaarSecurityManager extends SecurityManager
 	super.checkPermission(perm);
       }
     } catch (SecurityException e) {
+      
       logPermissionFailure(perm, e, stack, true);
       throw (new SecurityException(e.getMessage()));
     }
@@ -197,30 +226,45 @@ public class CougaarSecurityManager extends SecurityManager
     // Plugin.
       final String curTime = DateFormat.getDateInstance().format(new Date());
       final AccessControlContext acc = AccessController.getContext();
-
+      final Vector principals=new Vector();
       AccessController.doPrivileged(new PrivilegedAction() {
 	  public Object run() {
 	    auditlog.print("<securityEvent><securityManagerAlarm><time>"
 			   + curTime + "</time><perm>" + perm + "</perm>\n");
-
-	    // Retrieve the subject associated with the current access controller context
+	     // Retrieve the subject associated with the current access controller context
 	    // See JaasClient to see how to report subject information when logging
 	    // security exceptions.
+	    
 	    if (displaySubject == true) {
 	      Subject subj = Subject.getSubject(acc);
 	      if (subj != null) {
 		Iterator it = subj.getPrincipals().iterator();
+		int counter=0;
 		while (it.hasNext()) {
-		  auditlog.print("<principal>" + it.next() + "</principal>");
+		  principals.add((Principal) it.next());
+		  auditlog.print("<principal>" + principals.lastElement()  + "</principal>");
+		  counter++;
 		}
 	      }
 	    }
-
+	    ByteArrayOutputStream outstream=new ByteArrayOutputStream();
+	    e.printStackTrace(new PrintStream(outstream));
+	    if(principals.isEmpty())
+	      eventholder.addEvent(new BootstrapEvent(type,Calendar.getInstance().getTime(),
+						      null,outstream.toString()));  
+	    else
+	      eventholder.addEvent(new BootstrapEvent(type,Calendar.getInstance().getTime(),
+						      (Principal[])principals.toArray(new Principal[0]),outstream.toString()));
 	    auditlog.print("<stack>\n");
+	    try {
+	      outstream.close();
+	    }
+	    catch (IOException ioexp) {
+	      ioexp.printStackTrace();
+	    }
 	    printStackTrace(e, stack);
 	    //e.printStackTrace(auditlog);
 	    auditlog.print("</stack></securityManagerAlarm></securityEvent>\n");
-
 	    return null; // nothing to return
 	  }
 	});
