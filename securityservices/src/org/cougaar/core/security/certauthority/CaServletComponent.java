@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.certauthority;
@@ -44,8 +44,9 @@ import org.cougaar.core.service.NamingService;
 import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.security.policy.*;
 
 public class CaServletComponent
   extends BaseServletComponent
@@ -65,6 +66,20 @@ public class CaServletComponent
   private NamingService namingService;
   private CertificateManagementService certificateManagementService;
   private LoggingService log;
+
+  public void Initialize() {
+    /**
+     * Set isCertAuth here, instead of loading it from cryptoClientPolicy
+     */
+    ConfigParserService configParser = (ConfigParserService)
+      serviceBroker.getService(this,
+					    ConfigParserService.class,
+					    null);
+    SecurityPolicy[] sp =
+      configParser.getSecurityPolicies(CryptoClientPolicy.class);
+    CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
+    cryptoClientPolicy.setIsCertificateAuthority(true);
+  }
 
   /**
    * Capture the (optional) load-time parameters.
@@ -166,13 +181,14 @@ public class CaServletComponent
       throw new RuntimeException(
           "Unable to obtain naming service");
     }
-   
+
     support = new SecurityServletSupportImpl(getPath(),
 					     agentId,
 					     blackboardQueryService,
 					     namingService,
 					     serviceBroker,
 					     log);
+
     super.load();
   }
 
@@ -232,7 +248,7 @@ public class CaServletComponent
   }
 
   public String toString() {
-    return 
+    return
       myServletClassName+"("+myPath+")";
   }
 
