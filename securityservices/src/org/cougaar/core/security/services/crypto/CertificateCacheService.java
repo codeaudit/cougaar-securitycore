@@ -46,6 +46,7 @@ import org.cougaar.core.component.Service;
 
 // Cougaar Security Services
 import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.ssl.*;
 
 /** Low-level service to update and retrive certificates and private keys from the Certificate Cache 
  */
@@ -105,4 +106,5 @@ public interface CertificateCacheService extends Service {
   void updateBigInt2Dn(X509Certificate cert, boolean actionIsPut) ;
   boolean checkRevokedCache(X509Certificate certificate);
   void addToRevokedCache(String issuerDN, BigInteger serialno) ;
+  void addTrustListener(TrustManager tm);
 }

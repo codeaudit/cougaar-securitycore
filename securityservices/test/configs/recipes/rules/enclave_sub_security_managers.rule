@@ -5,7 +5,7 @@ society.each_node do |node|
   agentname = ""
   enclave = ""
   # only do this for enclaves 2 and 3
-  if node.name == "REAR-MGMT-NODE"
+  if node.name == "FWD-MGMT-NODE"
     enclave = "2"
   elsif node.name == "CONUS-MGMT-NODE" 
     enclave = "3"
@@ -20,12 +20,6 @@ society.each_node do |node|
       agentname = "Enclave" + enclave + "Sub" + this_sub.to_s + "Manager"
       node.add_agent(agentname) do |agent|
         agent.classname = "org.cougaar.core.agent.ClusterImpl"
-        agent.add_component do |c|
-          c.classname = "org.cougaar.mlm.plugin.organization.OrgReportPlugin"
-        end
-        agent.add_component do |c|
-          c.classname = "org.cougaar.mlm.plugin.organization.OrgDataPlugin"
-        end
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.plugin.CapabilitiesProcessingPlugin"
         end

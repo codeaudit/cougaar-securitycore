@@ -346,10 +346,13 @@ final public class KeyRing  implements KeyRingService  {
 	  X509Certificate certificate = cs.getCertificate();
 	  if (setCertificateTrust(certificate, cs, name, selfsignedCAs)) {
 	    isTrusted = true;
+            // CA cert will be published after rehydration from BB
+            /*
             if (cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
               // update to naming
               updateNS(name);
             }
+            */
 	  }
 	} // END while(it.hasNext())
 	if (isTrusted == false) {
@@ -373,7 +376,7 @@ final public class KeyRing  implements KeyRingService  {
         // get CA certificate if it is not yet obtained
         certRequestor.getNodeCert(name,null);
         // update to naming
-        updateNS(name);
+        //updateNS(name);
       } catch (Exception ex) {
         log.warn("Exception in initCertCache.getNodeCert: " + ex.toString());
       }
@@ -743,18 +746,21 @@ final public class KeyRing  implements KeyRingService  {
       return null;
     }
 
+	List certList = new ArrayList();
 //    if (cryptoClientPolicy.isCertificateAuthority()) {
       List nameList = cacheservice.getX500NameFromNameMapping(cougaarName);
       if (nameList != null && nameList.size()> 0) {
-	List certList = new ArrayList();
 	for (int i = 0; i < nameList.size(); i++) {
 	  X500Name dname = (X500Name)nameList.get(i);
-	  certList.addAll(findPrivateKey(dname, validOnly));
+          List pkey = findPrivateKey(dname, validOnly);
+          if (pkey != null) {
+	    certList.addAll(pkey);
+          }
 	}
 	return certList;
       }
       // else no cert has been created
-      return null;
+      return certList;
 /*
     }
     return findPrivateKey(CertificateUtility.getX500Name( getX500DN(cougaarName)), validOnly);
@@ -1942,6 +1948,17 @@ final public class KeyRing  implements KeyRingService  {
       log.warn("Unable to get Certificate cache Service in updateNS");
     }
 
+    String title = CertificateUtility.findAttribute(x500Name.getName(), "t");
+    if (title == null) {
+      return;
+    }
+    if (!title.equals(CertificateCache.CERT_TITLE_AGENT)
+	&& !title.equals(CertificateCache.CERT_TITLE_NODE)) {
+      if (log.isDebugEnabled()) {
+        log.debug("Not publishing " + x500Name + " to naming, because it is not an agent.");
+      }
+      return;
+    }
     /*
     List certificateList = findCert(x500Name, KeyRingService.LOOKUP_KEYSTORE,true );
     if (certificateList == null || certificateList.size() == 0) {
@@ -1959,23 +1976,19 @@ final public class KeyRing  implements KeyRingService  {
       //CertificateStatus cs = (CertificateStatus)certificateList.get(0);
       CertificateStatus cs = ((PrivateKeyCert)pkeyList.get(0)).getCertificateStatus();
       CertificateEntry certEntry=null;
+      /*
       if( cs.getCertificateType()==CertificateType.CERT_TYPE_CA) {
          log.warn("Received cert in UpdateNS is "+cs.getCertificate().getSubjectDN().getName());
-        //don't do any thing  just return
-        /*
-           certEntry = new CertificateEntry(cs.getCertificate(),
-           // of course the cert is trusted by local node, otherwise not valid
-           CertificateRevocationStatus.VALID,
-           cs.getCertificateType());
-        */
         return;
       }
+      
       else {
+      */
         certEntry = new CertificateEntry(cs.getCertificate(),
                                          // of course the cert is trusted by local node, otherwise not valid
                                          CertificateRevocationStatus.VALID,
                                          cs.getCertificateType());
-      }
+      //}
       certEntry.setCertificateChain(cs.getCertificateChain());
       namingService.updateCert(certEntry);
 

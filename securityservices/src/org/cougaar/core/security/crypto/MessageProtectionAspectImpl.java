@@ -145,6 +145,9 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
                                        _keyRing.LOOKUP_FORCE_LDAP_REFRESH | 
                                        _keyRing.LOOKUP_LDAP | 
                                        _keyRing.LOOKUP_KEYSTORE );
+	ProtectedMessageOutputStream.
+	    clearCertCache(msg.getTarget().toAddress(),
+			   msg.getOriginator().toAddress());
         if (_log.isDebugEnabled()) {
           _log.debug("Got " + certs.size() + " certificates");
           Iterator iter = certs.iterator();

@@ -141,8 +141,13 @@ public class DAMLMapping {
       String agent;
       if (uri.startsWith("/$")) {
         int index = uri.indexOf("/", 2);
-        _agent = uri.substring(2,index);
-        uri = uri.substring(index);
+	if (index == -1) {
+	    _agent = uri.substring(2);
+	    uri = "/";
+	} else {
+	    _agent = uri.substring(2,index);
+	    uri = uri.substring(index);
+	}
       } else {
         _agent = null;
       }

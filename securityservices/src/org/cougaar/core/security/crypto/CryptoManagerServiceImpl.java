@@ -108,6 +108,9 @@ public class CryptoManagerServiceImpl
             for (int i = 0; i < nameList.size(); i++) {
               X500Name dname = (X500Name)nameList.get(i);
               List pkCerts = keyRing.findPrivateKey(dname);
+              if (pkCerts == null) {
+                return keyList;
+              }
               Iterator iter = pkCerts.iterator();
               while (iter.hasNext()) {
                 PrivateKeyCert pkc = (PrivateKeyCert) iter.next();

@@ -667,9 +667,9 @@ public class MessageProtectionServiceImpl
         eventPublisher.publishEvent(event);
       }
       throw new IOException(reason);
-    } catch (Exception e) {
-      log.debug("Caught unexpected Exception", e);
-      return null;
+//     } catch (Exception e) {
+//       log.debug("Caught unexpected Exception", e);
+//       return null;
     }
   }
 
@@ -763,9 +763,9 @@ public class MessageProtectionServiceImpl
                  source + " to " + destination + ": " + e.getMessage());
       }
       throw e;
-    } catch (Exception e) {
-      log.warn("Unexpected Exception when reading input stream", e);
-      return null;
+//     } catch (Exception e) {
+//       log.warn("Unexpected Exception when reading input stream", e);
+//       return null;
     }
   }
   

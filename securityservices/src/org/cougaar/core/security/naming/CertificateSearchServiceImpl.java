@@ -61,6 +61,9 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
   }
 
   public List findDNFromNS(String cname) {
+    if (log.isDebugEnabled()) {
+      log.debug("findDNFromNS: " + cname);
+    }
     ArrayList l = new ArrayList();
     if (whitePagesService == null) {
       whitePagesService = (WhitePagesService)
@@ -126,6 +129,9 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
    * It is up to the caller to choose what it needs
    */
   public List findCert(X500Name dname) {
+    if (log.isDebugEnabled()) {
+      log.debug("findCert: " + dname.getName());
+    }
     if (keyRingService == null) {
       keyRingService=(KeyRingService)
         sb.getService(this,

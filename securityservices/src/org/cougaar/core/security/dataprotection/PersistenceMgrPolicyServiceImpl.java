@@ -232,8 +232,8 @@ public class PersistenceMgrPolicyServiceImpl
             if (entry == null) {
               if(_debug) {
                 _log.debug("address entry is null for : " + agent);
-                continue;
               }
+              continue;
             }
 
             // construct the url for this persistence manager

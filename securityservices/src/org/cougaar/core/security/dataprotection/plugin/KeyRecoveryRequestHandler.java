@@ -163,6 +163,9 @@ public class KeyRecoveryRequestHandler {
     }
 
     // Compare the names
+    // Cannot assume that the same CA is signing the new cert
+    // with the same cert attribute policy
+    /*
     if (!originalX500Principal.equals(newX500Principal)) {
       if (log.isWarnEnabled()) {
 	log.warn("A request is invalid. X.500 names do not match. Original name:"
@@ -171,6 +174,7 @@ public class KeyRecoveryRequestHandler {
       }
       return;
     }
+    */
 
     // Second, try to retrieve the secret key.
     Iterator it = keyCollection.iterator();

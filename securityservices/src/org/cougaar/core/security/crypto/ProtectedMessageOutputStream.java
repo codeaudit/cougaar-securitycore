@@ -73,6 +73,8 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
   private static final boolean DUMP_MESSAGES = 
     Boolean.getBoolean(DUMP_PROPERTY);
 
+    private static final HashMap _certCache = new HashMap();
+
   public ProtectedMessageOutputStream(OutputStream stream,
                                       MessageAddress source,
                                       MessageAddress target,
@@ -188,13 +190,28 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     }
   }
 
+    public static void clearCertCache(String source, String target) {
+	synchronized (_certCache) {
+	    _certCache.remove(source + ':' + target);
+	}
+    }
+
   private void getCertificates() 
     throws NoKeyAvailableException, CertificateException, IOException,
     NoSuchAlgorithmException {
-    Hashtable certTable = _keyRing.findCertPairFromNS(_source, _target);
+      Hashtable certTable;
+      synchronized (_certCache) {
+	  String name = _source + ':' + _target;
+	  certTable = (Hashtable) _certCache.get(name);
+	  if (certTable == null) {
+	      certTable = _keyRing.findCertPairFromNS(_source, _target);
+	      if (certTable != null && certTable.size() < 2) {
+		  _certCache.put(name, certTable);
+	      }
+	  }
+      }
+    _targetCert = (X509Certificate) certTable.get(_target);
     _sourceCert = (X509Certificate) certTable.get(_source);
-    _targetCert = (X509Certificate) 
-      certTable.get(_target);
     if (_sourceCert == null || _targetCert == null) {
       // send a message to receiver that this message is bad:
       if (_sourceCert == null && _log.isDebugEnabled()) {

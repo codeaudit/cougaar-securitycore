@@ -56,7 +56,17 @@ public class TrustManager implements X509TrustManager {
     keyRing = krs;
     //keystore = keyRing.getDirectoryKeyStore();
 
-    updateKeystore();
+    //updateKeystore();
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      serviceBroker.getService(this,
+                               CertificateCacheService.class,
+                               null);
+      if(cacheservice==null) {
+        if (log.isDebugEnabled()){
+          log.warn("Unable to get Certificate cache service in updateKeystore");
+        }
+      }
+    cacheservice.addTrustListener(this);
   }
 
   public synchronized void updateKeystore() {
@@ -90,15 +100,16 @@ public class TrustManager implements X509TrustManager {
   public void checkClientTrusted(X509Certificate[] chain, String authType)
     throws CertificateException
   {
-    if (log.isDebugEnabled()) {
-      log.debug("checkClientTrusted: " + chain);
-    }
-
     // check whether client is user or node
-    if (chain.length == 0) {
+    if (chain == null || chain.length == 0) {
       log.warn("checkClientTrusted: No certificate present");
       throw new CertificateException("No certificate present");
     }
+
+    if (log.isDebugEnabled()) {
+      log.debug("checkClientTrusted: " + chain[0]);
+    }
+
     X509Certificate usrcert = chain[0];
     String clndn = usrcert.getSubjectDN().getName();
     String title = CertificateUtility.findAttribute(clndn, "t");
@@ -144,7 +155,7 @@ public class TrustManager implements X509TrustManager {
 
     // check whether cert is of type node or server
     // Need to check whether needAuth?
-    if (chain.length == 0) {
+    if (chain == null || chain.length == 0) {
       log.warn("checkServerTrusted: No certificate present");
       throw new CertificateException("No certificate present");
     }
@@ -175,7 +186,7 @@ public class TrustManager implements X509TrustManager {
       serviceBroker.getService(this,
 			       CertificateCacheService.class,
 			       null);
-    
+   
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in checkChainTrust");
     }
@@ -198,12 +209,13 @@ public class TrustManager implements X509TrustManager {
     }
     catch (Exception e) {
       // for unzip & run there will be too many warnings
-      if (getAcceptedIssuers().length == 0) {
-        return;
+      if (issuers.length == 0) {
+        if (System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
+          return;
+        } 
       }
-
       if (log.isWarnEnabled()) {
-	log.warn("Failed to verify certificate: "
+	  log.warn("Failed to verify certificate: "
 		 + chain[0].getSubjectDN().getName()
 		 + ". Reason: " + e);
       }

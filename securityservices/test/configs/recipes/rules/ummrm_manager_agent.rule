@@ -4,8 +4,6 @@
 
 aggregationKeepAlive = "edu.memphis.issrl.mrmanager.SCAggregationKeepAliveComponent"
 aggregation = "edu.memphis.issrl.mrmanager.SCAggregationComponent"
-orgData = "org.cougaar.mlm.plugin.organization.OrgDataPlugin"
-orgReport = "org.cougaar.mlm.plugin.organization.OrgReportPlugin"
 aggregationPlugin = "org.cougaar.lib.aggagent.plugin.AggregationPlugin"
 alert = "org.cougaar.lib.aggagent.plugin.AlertPlugin"
 
@@ -23,12 +21,6 @@ society.each_node do |node|
       agent.add_component do |c|
 	c.classname = aggregation
 	c.add_argument("/manager")
-      end
-      agent.add_component do |c|
-	c.classname = orgData
-      end
-      agent.add_component do |c|
-	c.classname = orgReport
       end
       agent.add_component do |c|
 	c.classname = aggregationPlugin

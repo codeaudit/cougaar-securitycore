@@ -54,7 +54,9 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private String agent;
   private SecureMethodParam policy;
   private DataProtectionKeyImpl dpKey;
+    private DigestOutputStream _digest;
   private Cipher ci;
+  private SecretKey skey;
 
   public static final String strPrefix = "--SIGNATUREBEGIN--";
   public static final String strPostfix = "--SIGNATUREEND--";
@@ -64,7 +66,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
    */
   private static int buffersize = 30000;
   private ByteArrayOutputStream bos = new ByteArrayOutputStream();
-  private OutputStream theos = null;
+//   private OutputStream theos = null;
   private int totalBytes = 0;
   private boolean debug = false;
 
@@ -101,13 +103,13 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     String digestAlg = dpKey.getDigestAlg();
 
     // encrypt stream
-    theos = bos;
+//     theos = bos;
 
     if (policy.secureMethod == SecureMethodParam.ENCRYPT
       || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
       // unprotect key
       String failureIfOccurred = DataFailureEvent.UNKNOWN_FAILURE;
-      SecretKey skey = null;
+      skey = null;
       try {
         failureIfOccurred = DataFailureEvent.SECRET_KEY_FAILURE;
         skey = getSecretKey();
@@ -120,124 +122,90 @@ public class DataProtectionOutputStream extends FilterOutputStream {
         throw gsx;
       }
       ci.init(Cipher.ENCRYPT_MODE,skey);
-      theos = new CipherOutputStream(theos, ci);
+      this.out = new CipherOutputStream(this.out, ci);
     }
 
-    MessageDigest md = MessageDigest.getInstance(digestAlg);
-    theos = new DigestOutputStream(theos, md);
 
     if(debug) {
       log.debug("Opening output stream " + agent + " : " + new Date());
     }
+    MessageDigest md = MessageDigest.getInstance(digestAlg);
+    _digest = new DigestOutputStream(this.out, md);
+    this.out = _digest;
+
+    this.out = new DataOutputStream(this.out);
   }
 
   private SecretKey getSecretKey()
     throws CertificateException
   {
+      /*
+      try {
+    int i = policy.symmSpec.indexOf("/");
+    String a =  (i > 0) 
+      ? policy.symmSpec.substring(0,i) 
+      : policy.symmSpec;
+    SecureRandom random = new SecureRandom();
+    KeyGenerator kg = KeyGenerator.getInstance(a);
+    kg.init(random);
+    return kg.generateKey();
+      }
+      catch (Exception e) {
+	  return null;
+      }
+      */
+      
     return (SecretKey)encryptionService.asymmDecrypt(agent,
       policy.asymmSpec, (SealedObject)dpKey.getObject());
   }
 
-  public void close() throws IOException {
-    if(debug) {
-      log.debug("Closing output stream " + agent + " : " + new Date());
+    public void write(int b) throws IOException {
+	bos.write(b);
+	if (bos.size() > buffersize) {
+	    writeChunk();
+	}
     }
 
-    if (theos != null) {
-      flushToOutput(true);
+    public void write(byte b[]) throws IOException {
+	bos.write(b);
+	if (bos.size() > buffersize) {
+	    writeChunk();
+	}
     }
 
-    if (ci != null) {
-      encryptionService.returnCipher(policy.symmSpec, ci);
-      ci = null;
-      theos = null;
+    public void write(byte b[], int offset, int len) throws IOException {
+	bos.write(b, offset, len);
+	if (bos.size() > buffersize) {
+	    writeChunk();
+	}
     }
-    super.close();
-  }
 
-  public void flush() throws IOException {
-    // data is stored in memory, does not get flushed out until limit reached
-  }
+    public synchronized void writeChunk() throws IOException {
+	((DataOutputStream) this.out).writeInt(bos.size());
+	if (log.isDebugEnabled()) {
+	    log.debug("Writing " + bos.size() + " to stream");
+	}
+	
+	bos.writeTo(this.out);
+	bos = new ByteArrayOutputStream();
+    }
 
-  public void flushToOutput(boolean genDigest) throws IOException {
-    // close output stream so that cipher can be completed
-    ObjectOutputStream oos = null;
-    try {
-      theos.close();
-
-      // use this as a marker
-      oos = new ObjectOutputStream(out);
-      oos.writeInt(bos.size());
-      oos.writeInt(genDigest ? 1 : 0);
-      oos.flush();
-
-      bos.writeTo(out);
-      bos.reset();
+    public synchronized void close() throws IOException {
+	if (bos.size() > 0) {
+	    writeChunk();
+	}
+	((DataOutputStream) this.out).writeInt(0);
+	byte[] digest = _digest.getMessageDigest().digest();
+	((DataOutputStream) this.out).writeInt(digest.length);
+	this.out.write(digest);
+	super.close();
+	if (ci != null) {
+	    encryptionService.returnCipher(policy.symmSpec, ci);
+	    ci = null;
+	    this.out = null;
+	}
     }
-    catch(IOException iox) {
-      publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-      throw iox;
-    }
-    if (genDigest) {
-      // generate digest and sign
-      MessageDigest md = ((DigestOutputStream)theos).getMessageDigest();
-      String failureIfOccurred = DataFailureEvent.UNKNOWN_FAILURE;
-      try {
-        Serializable sobj = new DataProtectionDigestObject(md.digest(), totalBytes);
-        if (policy.secureMethod == SecureMethodParam.SIGN
-          || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
-          failureIfOccurred = DataFailureEvent.SIGNING_FAILURE;
-          sobj = encryptionService.sign(agent, policy.signSpec, sobj);
-        }
-        if (policy.secureMethod == SecureMethodParam.ENCRYPT
-          || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
-          failureIfOccurred = DataFailureEvent.SECRET_KEY_FAILURE;
-          SecretKey skey = getSecretKey();
-          failureIfOccurred = DataFailureEvent.ENCRYPT_FAILURE;
-          sobj = encryptionService.symmEncrypt(skey, policy.symmSpec, sobj);
-        }
-        oos = new ObjectOutputStream(out);
-        oos.writeObject(sobj);
-        oos.flush();
-      }
-      catch (GeneralSecurityException gsx) {
-        publishDataFailure(failureIfOccurred, gsx.toString());
-        throw new IOException("Cannot sign digest: " + gsx.toString());
-      }
-      catch (IOException iox) {
-        publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-        throw iox;
-      }
-    }
-  }
-
-  public void write(byte[] b) throws IOException {
-    write(b, 0, b.length);
-  }
-
-  public void write(int b) throws IOException {
-    try {
-      theos.write(b);
-    }
-    catch(IOException iox) {
-      publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-      throw iox;
-    }
-  }
-
-  public void write(byte[] b, int off, int len) throws IOException {
-    // update cipher
-    totalBytes += len;
-    try {
-      theos.write(b, off, len);
-    }
-    catch(IOException iox) {
-      publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-      throw iox;
-    }
-    if (bos.size() > buffersize)
-      flushToOutput(false);
-  }
+    
 
   public static int getBufferSize() {
     return buffersize;

@@ -10,9 +10,18 @@
 realCIP=$COUGAAR_INSTALL_PATH
 startupdir=`pwd`
 tmpdir=`mktemp -d /tmp/cip.XXXXXX`
-if [ $? != 0 ]; then
-  echo "$0: Can't create temp file, exiting..."
-  exit 1
+if [ "$?" != 0 ]; then
+    echo "$0: Can't create temp file, exiting..."
+    exit 1
+fi
+install=0
+if [ "$#" != "0" ]; then
+  if [ "$1" == "-i" ]; then
+    install=1;
+  else
+    echo "Usage: $0 [-i]"
+    exit 1
+  fi
 fi
 
 COUGAAR_INSTALL_PATH=${tmpdir}
@@ -23,6 +32,9 @@ mkdir $COUGAAR_INSTALL_PATH/lib
 mkdir $COUGAAR_INSTALL_PATH/sys
 cp ${realCIP}/lib/*.jar $COUGAAR_INSTALL_PATH/lib
 cp ${realCIP}/sys/*.jar $COUGAAR_INSTALL_PATH/sys
+mkdir -p $COUGAAR_INSTALL_PATH/csmart/config/rules/security
+cp test/configs/recipes/rules/*.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security
+cp test/configs/recipes/rules/parameters/security_param_tic.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security
 
 #PATH=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/:$PATH
 #export PATH
@@ -30,18 +42,26 @@ COUGAAR_WORKSPACE=$COUGAAR_INSTALL_PATH/workspace && export COUGAAR_WORKSPACE
 
 which ant >& /dev/null
 if [ $? != 0 ]; then
-  echo "$0: Can't find ant. Add it to your path. Exiting..."
-  rm -rf ${tmpdir}
-  exit 1
+  if [ -d "/mnt/shared/srosset/apache-ant-1.5.3-1/bin" ]; then
+    ant=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/ant
+  else
+    echo "$0: Can't find ant. Add it to your path. Exiting..."
+    rm -rf ${tmpdir}
+    exit 1
+  fi
+else
+  ant=`which ant`
 fi
 
-ant install
+$ant install
 
+echo "Zipping files to AS_csi_secserv.zip"
 cd $COUGAAR_INSTALL_PATH
-zip AS_csi_secserv.zip \
+zip -qr AS_csi_secserv.zip \
 	log/bootstrap \
 	configs/daml \
 	configs/security \
+	csmart/config/rules/security \
 	lib/CougaarCRLextensions.jar \
 	lib/idmef.jar \
 	lib/kaos.jar \
@@ -52,7 +72,7 @@ zip AS_csi_secserv.zip \
 	webtomcat/data/webapps/ROOT/WEB-INF/web.xml \
 	sys/antlr.jar \
 	sys/ontologyRepInit.jar \
-	sys/bcprov-jdk14-112.jar \
+	sys/bcprov-jdk14*.jar \
 	sys/ibmpkcs.jar \
 	sys/jas.jar \
 	sys/jpcsc.jar \
@@ -74,9 +94,10 @@ rm -rf ${tmpdir}
 #echo
 #echo -n 'Do you want to untar the file to $COUGAAR_INSTALL_PATH (y/n)? '
 #read reply
-#
+
 #if [ ${reply} == "y" ]; then
-#	echo "Extracting security.tar to ${realCIP}"
-#	cd ${realCIP}
-#	tar xf ${startupdir}/security.tar
-#fi
+if [ "$install" == "1" ]; then
+	echo "Extracting security.tar to ${realCIP}"
+	cd ${realCIP}
+	unzip -qo ${startupdir}/AS_csi_secserv.zip
+fi

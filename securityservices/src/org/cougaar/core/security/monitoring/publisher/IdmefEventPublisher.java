@@ -121,27 +121,32 @@ public class IdmefEventPublisher implements EventPublisher {
    *
    * @param event a failure event
    */
-  public void publishEvent(FailureEvent event) {
-    boolean openTransaction=false;
-    if(event == null){
-      if(m_logger != null) {
-        m_logger.warn("no event to publish!");
-      }
-      return; 
-    }
-    if(m_blackboard != null) {
-      if(m_logger.isDebugEnabled()) {
-        m_logger.debug("publishing message failure:\n" + event);
-      }
-      openTransaction= m_blackboard.isTransactionOpen();
-      if(!openTransaction) {
-        m_blackboard.openTransaction();
-      }
-      m_blackboard.publishAdd(createIDMEFAlert(event));
-      if(!openTransaction) {
-        m_blackboard.closeTransaction();
-      }
-    }
+  public void publishEvent(final FailureEvent event) {
+      Thread tt = new Thread() {
+	      public void run() {
+		  boolean openTransaction=false;
+		  if(event == null){
+		      if(m_logger != null) {
+			  m_logger.warn("no event to publish!");
+		      }
+		      return; 
+		  }
+		  if(m_blackboard != null) {
+		      if(m_logger.isDebugEnabled()) {
+			  m_logger.debug("publishing message failure:\n" + event);
+		      }
+		      openTransaction= m_blackboard.isTransactionOpen();
+		      if(!openTransaction) {
+			  m_blackboard.openTransaction();
+		      }
+		      m_blackboard.publishAdd(createIDMEFAlert(event));
+		      if(!openTransaction) {
+			  m_blackboard.closeTransaction();
+		      }
+		  }
+	      }
+	  };
+      tt.start();
   }
   
   /**

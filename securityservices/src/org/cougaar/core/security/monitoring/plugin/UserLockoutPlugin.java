@@ -112,7 +112,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
   private static final SensorInfo _sensor = new ULSensor();
 
   // fixed
-  private final String         _managerRole   = "SecurityMnRManager-Enclave";
+  private final String         _managerRole   = "Manager";
 
   private final static Action[] USER_LOCKOUT_ACTION = new Action[] {
     new Action(Action.OTHER, IdmefAssessments.USER_LOCKOUT)

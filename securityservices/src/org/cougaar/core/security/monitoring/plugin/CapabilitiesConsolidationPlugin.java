@@ -140,7 +140,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   /** Holds value of property loggingService. */
   private LoggingService loggingService;
   private boolean readcollection=false;
-  private int _pollInterval=10;
+  private long _pollInterval=10 * 1000;
   Object mylock=new Object();
   
   private CommunityServiceUtil _csu;
@@ -1170,20 +1170,25 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     int RETRY_TIME = 10 * 1000;
     int retryTime = RETRY_TIME;
     int counter = 1;
+    boolean  tryAgain = true;
+
     public void run() {
-      boolean  tryAgain = true;
-       
       //boolean neverfalse=true;
       if(tryAgain) {
         loggingService.debug("Trying to register counter: " + counter++);
         tryAgain = setManagerAddress();
+	/* this doesn't help at all
         if(counter<6) {
           _pollInterval=counter*RETRY_TIME;
         }
+	*/
         if(!tryAgain){
           this.cancel();
           _csu.releaseServices();
         }
+      } else {
+	  loggingService.warn("Running ManagerRegistrationTask even though " +
+			      "tryAgain is false and task is cancelled");
       }
     } // public void run()
   } // class ManagerRegistrationTask

@@ -19,9 +19,10 @@
 /$AGG-Agent/aggregator AggegatorServlets
 /$AGG-Agent/aggregatorkeepalive AggegatorServlets
 # 
-/$NCA/glsinit NCAServlets
-/$NCA/glsreply NCAServlets
-/$NCA/editOplan NCAServlets
+# temporarily turn these off for ACME
+#/$NCA/glsinit NCAServlets
+#/$NCA/glsreply NCAServlets
+#/$NCA/editOplan NCAServlets
 # 
 /$SCmrmanager/* SCmrmanagerServlets
 #
@@ -51,7 +52,7 @@
 /$*/CA/ProcessPendingCertServlet CAWriteServlet
 /$*/CA/CaKeyManagement CAWriteServlet
 #
-/$*/hierarchy HierarchyServlet
+#/$*/hierarchy HierarchyServlet
 /$*/log_inventory LogInventoryServlet
 #
 /$*/policyAdmin PolicyServlet

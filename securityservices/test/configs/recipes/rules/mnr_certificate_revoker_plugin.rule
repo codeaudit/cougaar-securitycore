@@ -7,6 +7,9 @@ society.each_agent() do |agent|
   if agent.name =~ /Enclave.SecurityMnRManager/
     agent.add_component do |c|
       c.classname = plugin
+      c.add_argument("600")
+      c.add_argument("86400")
+      c.add_argument("org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURE")
     end
   end
 end

@@ -55,6 +55,7 @@ import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.ssl.*;
 
 import org.cougaar.core.security.util.*;
 
@@ -117,6 +118,8 @@ final public class CertificateCache implements CertificateCacheService  {
  * The certificate being revoked may not be in cert cache.
  */
   private Hashtable revokedCache = new Hashtable();
+
+  private ArrayList trustListeners = new ArrayList();
 
   public CertificateCache(ServiceBroker sb) {
     serviceBroker = sb;
@@ -1592,7 +1595,17 @@ final public class CertificateCache implements CertificateCacheService  {
       log.error("Can't flush the certificate to the keystore--"
 		+ e.getMessage());
     }
+
+    for (Iterator it = trustListeners.iterator(); it.hasNext(); ) {
+      TrustManager tm = (TrustManager)it.next();
+      tm.updateKeystore();
+    }
   }
+
+  public void addTrustListener(TrustManager tm) {
+    trustListeners.add(tm);
+  }
+
   public X509Certificate[] getTrustedIssuers() {
     ArrayList list = new ArrayList();
     try {

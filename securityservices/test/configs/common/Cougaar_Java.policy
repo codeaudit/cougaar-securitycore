@@ -527,6 +527,9 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}xmlnodes${/}", "read";
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}xmlnodes${/}*", "read";
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}xmlnodes${/}--", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}tmp${/}", "read,write";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}tmp${/}*", "read,write";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}tmp${/}--", "read,write";
 
 	// "persistence.clear=true" requires the permission to delete files in the
 	// the org.cougaar.workspace/P directory

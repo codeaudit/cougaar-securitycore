@@ -28,12 +28,13 @@ LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrap.jar
 
 host=$1
 port=$2
+agent=$3
 
 MYPROPERTIES="-Dorg.cougaar.bootstrap.Bootstrapper.loud=shout -Dorg.cougaar.system.path=$COUGAAR_INSTALL_PATH/sys -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Dorg.cougaar.core.servlet.enable=true -Dorg.cougaar.lib.web.scanRange=100 -Dorg.cougaar.lib.web.http.port=$port -Dorg.cougaar.lib.web.https.port=-1 -Dorg.cougaar.lib.web.https.clientAuth=true -Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar"
 
 MYMEMORY=""
 MYCLASSES="org.cougaar.bootstrap.Bootstrapper kaos.kpat.applet.KPATAppletMain"
-MYARGUMENTS="http://$host:$port/\$EnclaveOnePolicyManagerServlet/policyAdmin true"
+MYARGUMENTS="http://$host:$port/\$$agent/policyAdmin true"
 
 echo java $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS $MYCLASSES $MYARGUMENTS
 java $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS $MYCLASSES $MYARGUMENTS

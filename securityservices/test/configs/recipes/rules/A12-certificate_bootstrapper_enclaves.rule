@@ -36,7 +36,8 @@ society.each_node do |node|
     arg = fwdCaHost + ":Enclave2CA"
 
   elsif (node.name == "NCA-NODE" \
-	 or node.name == "CONUS-NODE") \
+	 or node.name == "CONUS-NODE" \
+	 or node.name == "CONUS-MGMT-NODE") \
 	and node.name != 'CONUS-CA-NODE'
     # node agents in enclave 3
     arg = conusCaHost + ":Enclave3CA"

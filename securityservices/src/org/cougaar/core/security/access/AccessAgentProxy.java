@@ -506,6 +506,10 @@ public class AccessAgentProxy
           }
         }
         boolean denied = isMessageDenied(source, target, verb, direction);
+	if (denied) {
+	    // FIXME!! this is only because of bug in KAoS
+	    denied = isMessageDenied(source, target, verb, direction);
+	}
         if (denied) {
           if (log.isDebugEnabled()) {
             log.debug("Stripping task with verb " + verb);

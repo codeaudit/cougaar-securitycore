@@ -1,5 +1,36 @@
-#!/bin/sh -x
+#!/bin/sh
 
-echo Signing Single jar...
+priv="privileged"
+if [ "$2" != "" ]; then
+  priv=$2
+fi
 
-jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore ${COUGAAR_INSTALL_PATH}/lib/$1 privileged
+home=`pwd`
+dir=`dirname $0`
+dir="$dir/.."
+cd $dir
+dir=`pwd`
+cd $home
+if [ -f $1 ]; then
+  file=$1;
+elif [ -f $1.jar ]; then
+  file=$1.jar;
+else
+  dir2="$dir/../lib"
+  cd $dir2
+  dir2=`pwd`
+  cd $home
+  file="$dir2/$1"
+  if [ ! -f $file ]; then
+    file="$file.jar"
+    if [ ! -f $file ]; then
+      echo "Cannot find any jar file of name $1 or $1.jar"
+      exit 1
+    fi
+  fi
+fi
+
+echo Signing Single jar: $file
+
+echo jarsigner -keystore $dir/configs/sign-jars/signingCA_keystore -storepass keystore $file $priv
+jarsigner -keystore $dir/configs/sign-jars/signingCA_keystore -storepass keystore $file $priv

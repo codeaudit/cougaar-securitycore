@@ -191,7 +191,6 @@ public class HardWired {
   public static final CipherSuite weakCrypto;
   static {
     weakCrypto = new CipherSuite();
-    weakCrypto.addSymmetric("DES");
     weakCrypto.addSymmetric("plain");
     weakCrypto.addAsymmetric("none");
     weakCrypto.addSignature("none");
