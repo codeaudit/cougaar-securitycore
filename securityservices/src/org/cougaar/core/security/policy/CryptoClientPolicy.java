@@ -253,7 +253,7 @@ public class CryptoClientPolicy
       innerNode.appendChild(parent.createTextNode(infoURL));
       node.appendChild(innerNode);
     }
-    if(infoURL != null) {
+    if(requestURL != null) {
       // CA request url for unzip and run
       innerNode = parent.createElement(CryptoClientPolicyHandler.CA_REQUESTURL_ELEMENT);
       innerNode.appendChild(parent.createTextNode(requestURL));
