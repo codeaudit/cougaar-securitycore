@@ -10,13 +10,15 @@ set choice1="1: Keystore  - generate keys, send keys to CA and store result in k
 set choice2="2: PKCS#12   - wrap private key in a PKCS#12 envelope"
 set choice3="3: JAAS      - simulate three security contexts (node/agent/PlugIn)"
 set choice4="4: Hashtable - Test hashtables"
+set choice5="5: Log4j     - Test log4j security capabilities"
 
 echo "Select test:"
 echo "  ${choice1}"
 echo "  ${choice2}"
 echo "  ${choice3}"
 echo "  ${choice4}"
-echo "Enter your choice: [1, 2, 3, 4]"
+echo "  ${choice5}"
+echo "Enter your choice: [1, 2, 3, 4, 5]"
 
 set choice=$<
 
@@ -59,6 +61,13 @@ case "4":
     set args = "${node}"
     breaksw
 
+case "5":
+    # log4j test
+    echo "Running ${choice5} ..."
+    set execclass = com.nai.security.test.LogTest
+    set args = "log4j.conf"
+    breaksw
+
 default:
     echo "Invalid choice"
     exit
@@ -71,6 +80,7 @@ if ( ${execmode} == "2") then
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/securityservices.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/core.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xml4j.jar"
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/log4j.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xerces.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xmlparserv2.jar"
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/ibmpkcs.jar"
