@@ -115,13 +115,14 @@ public class SecurityServiceProvider
     ServiceProvider servMgr = null;
     Service service = null;
     SecurityManager security = System.getSecurityManager();
-    if( (security != null)&& (serviceClass!=null)) {
-      log.debug(" !!! Going to check Security Permission for :"+serviceClass.getName()+
-	"\nRequestor is "+requestor.getClass().getName()); 
+    if (serviceClass == null) {
+      throw new IllegalArgumentException("Illegal service class");
+    }
+    if(security != null) {
+      log.debug("Checking Security Permission for :"+serviceClass.getName()+
+		"\nRequestor is "+requestor.getClass().getName()); 
       security.checkPermission(new SecurityServicePermission(serviceClass.getName()));
     }
-    else 
-      return service;
     try {
       servMgr = (ServiceProvider) services.get(serviceClass);
       service = (Service) servMgr.getService(sb,

@@ -177,4 +177,21 @@ Start the CA and create a CA key
    CA key from the keystore-CONUS-RSA file, then import it to the node trusted CA
    keystore file.
    
-10. When creating a subordinate CA key, click on the "Submit CA key to superior" link.
+10. When creating a subordinate CA key:
+    A certificate signing request is sent to the root CA automatically after the subordinate
+    key has been generated, so you don't need to click on "submit CA key".
+    The cryptoPolicy.xml file must include the URL of the root CA.
+
+    Example for a subordinate CA policy, the trustedCA specifies
+      which CA this CA's keys should sent to to be signed.
+        <trustedCA>
+          <CA_alias>NCA_CA</CA_alias>
+          <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US, T=ca</CA_DN>
+          <CA_URL role="rliao1">http://yew:5556/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CertDirectoryURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
+    
+    The "Submit CA key to superior" and "list subordinate CA keys" links are currently not
+    available.
+
