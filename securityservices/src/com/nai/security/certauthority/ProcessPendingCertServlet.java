@@ -22,12 +22,15 @@ public class ProcessPendingCertServlet extends  HttpServlet
   private ConfParser confParser = null;
 
   protected boolean debug = false;
+  javax.servlet.ServletContext context=null;
 
   public void init(ServletConfig config) throws ServletException
   {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
-    confParser = new ConfParser();
+    context=config.getServletContext();
+      String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+      confParser = new ConfParser(confpath);
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -74,7 +77,10 @@ public class ProcessPendingCertServlet extends  HttpServlet
       X509Certificate  certimpl;
       try {
         //certimpl=ldapentries[0].getCertificate();
-        PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname, role);
+	String certpath=(String)context.getAttribute("org.cougaar.security.CA.certpath");
+	String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+
+        PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname, role, certpath, confpath);
         certimpl = (X509Certificate)
           pendingCache.getCertificate(caPolicy.pendingDirectory, alias);
 
