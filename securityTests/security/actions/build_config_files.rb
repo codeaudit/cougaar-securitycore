@@ -38,6 +38,7 @@ class NodeConfigUtility
       # Save as XML file
       to_xml_file
       JarPackagerUtility.jarAndSign(@xml_filename, @society_config_dir)
+      File.unlink("#{@society_config_dir}/#{@xml_filename}")
 
       @java_class =    @node.classname
       @arguments =     @node.prog_parameters
@@ -84,6 +85,7 @@ module Cougaar
         cmd_copy = "cp #{@savedCommunityFile} #{@society_config_dir}/#{@community_file_name}"
         `#{cmd_copy}`
         file = JarPackagerUtility.jarAndSign("communities.xml", @society_config_dir)
+        File.unlink("#{@society_config_dir}/#{@community_file_name}")
         @run.info_message "Community file saved under #{file}"
       end
     end # class
