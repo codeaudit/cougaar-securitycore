@@ -13,6 +13,10 @@
 # Set the Cougaar install path.
 org.cougaar.install.path=/mnt/shared/integ
 
+# Set the Config Finder class
+#org.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.SecureConfigFinder
+#log4j.configuration=loggingConfigStatic.conf
+
 # Set the cougaar system path, which is used to find third-party jars
 #   (e.g. "log4j.jar").
 #
@@ -20,13 +24,11 @@ org.cougaar.install.path=/mnt/shared/integ
 #   use a different directory by setting this property.
 #org.cougaar.system.path=/mnt/shared/integ
 
-
 # Enable or disable persistence.
 #
 # By default persistence is disabled.
 org.cougaar.core.persistence.enable=true
 org.cougaar.core.persistence.clear=true
-
 
 # Add the "java-io-patch" to allow Cougaar persistence.
 #
