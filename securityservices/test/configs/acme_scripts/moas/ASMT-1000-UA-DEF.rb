@@ -18,6 +18,7 @@ parameters:
 # ############################################################
 # Security rules
     - $CIP/csmart/config/rules/security
+    - $CIP/csmart/lib/security/rules
 #    - $CIP/csmart/config/rules/security/mop
 #    - $CIP/csmart/config/rules/security/testCollectData
    # ###
