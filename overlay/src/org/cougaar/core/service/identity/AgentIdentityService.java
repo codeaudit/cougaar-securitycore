@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2002 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -70,7 +70,7 @@ public interface AgentIdentityService
    * @exception  IdentityDeniedException the certificiate authority
    *             refused to sign the key
    */
-  public void acquire(TransferableIdentity id)
+  void acquire(TransferableIdentity id)
     throws PendingRequestException,
     IdentityDeniedException;
 
@@ -79,7 +79,7 @@ public interface AgentIdentityService
    * This method is useful in cases when there are constraints
    * on the X.500 name.
    */
-  public void acquireX500Identity(Principal p)
+  void acquireX500Identity(Principal p)
     throws PendingRequestException,
     IdentityDeniedException;
 
@@ -88,7 +88,7 @@ public interface AgentIdentityService
    *  This does not mean the key should be revoked or deleted.
    *  The key is not used until the agent is restarted.
    */
-  public void release();
+  void release();
 
   /**
    *  Notify the cryptographic service that an agent is about
@@ -102,7 +102,7 @@ public interface AgentIdentityService
    * @return an encrypted object that should be sent to the remote
    * node agent
    */
-  public TransferableIdentity transferTo(MessageAddress targetNode);
+  TransferableIdentity transferTo(MessageAddress targetNode);
 
 }
 

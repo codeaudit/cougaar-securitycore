@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2002 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -26,6 +26,10 @@
 
 package org.cougaar.core.service.identity;
 
+/**
+ * Mark an exception thrown when a request for credentials
+ * for a particular identity is denied.
+ */
 public class IdentityDeniedException
   extends IdentityException
 {

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2002 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -20,23 +20,24 @@
  *
  * Created on September 12, 2001, 10:55 AM
  */
-
-
 package org.cougaar.core.service.identity;
 
+/**
+ * Reasons for revoking a certificate.
+ */
 public class CrlReason
 {
   // revocation reasons:
-  public static int UNSPECIFIED            = 0;
-  public static int KEY_COMPROMISE         = 1;
-  public static int CA_COMPROMISE          = 2;
-  public static int AFFILIATION_CHANGED    = 3;
-  public static int SUPERSEDED             = 4;
-  public static int CESSATION_OF_OPERATION = 5;
-  public static int CERTIFICATE_HOLD       = 6;
-  public static int REMOVE_FROM_CRL        = 8;
-  public static int PRIVILEGE_WITHDRAWN    = 9;
-  public static int AA_COMPROMISE          = 10;
+  public static final int UNSPECIFIED            = 0;
+  public static final int KEY_COMPROMISE         = 1;
+  public static final int CA_COMPROMISE          = 2;
+  public static final int AFFILIATION_CHANGED    = 3;
+  public static final int SUPERSEDED             = 4;
+  public static final int CESSATION_OF_OPERATION = 5;
+  public static final int CERTIFICATE_HOLD       = 6;
+  public static final int REMOVE_FROM_CRL        = 8;
+  public static final int PRIVILEGE_WITHDRAWN    = 9;
+  public static final int AA_COMPROMISE          = 10;
 
   private int reason;
 

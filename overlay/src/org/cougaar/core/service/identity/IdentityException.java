@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2002 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -26,6 +26,9 @@
 
 package org.cougaar.core.service.identity;
 
+/**
+ * Class of exceptions thrown in dealing with identity credentials.
+ */
 public class IdentityException
   extends Exception
 {
