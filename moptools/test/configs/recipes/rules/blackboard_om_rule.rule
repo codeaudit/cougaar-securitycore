@@ -6,12 +6,12 @@ plugin = "org.cougaar.core.security.test.blackboard.BlackboardOMTestPlugin"
 include_array=["NCA","TRANSCOM","1-35-ARBN"]
 
 society.each_agent(true) do |agent|
- include_array.each{ |targetagent|
-  	if agent.name == targetagent
-   		agent.add_component do |c|
-	      c.classname = plugin
-    	  c.add_argument("10000")
-	  	end
-	end
+  include_array.each{ |targetagent|
+    if agent.name == targetagent
+      agent.add_component do |c|
+	c.classname = plugin
+        c.add_argument("10000")
+      end
+    end
   }
 end

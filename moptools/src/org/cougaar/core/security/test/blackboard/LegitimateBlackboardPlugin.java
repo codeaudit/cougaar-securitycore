@@ -26,37 +26,37 @@ import java.util.Iterator;
  * @author ttschampel
  */
 public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
-    /**
-     * DOCUMENT ME!
-     */
-    public void load() {
-        super.load();
-        setPluginName("LegitimateBlackboardPlugin");
+  /**
+   * DOCUMENT ME!
+   */
+  public void load() {
+    super.load();
+    setPluginName("LegitimateBlackboardPlugin");
+  }
+
+
+  /**
+   * Query for org activities and produce idmef event when  org activities
+   * should be present, but can't get any through querying the blacboard
+   */
+  protected void queryBlackboard() {
+    Collection orgActivities = getBlackboardService().query(this.orgActivityPredicate);
+    Iterator iter = orgActivities.iterator();
+    this.totalRuns++;
+    if (iter.hasNext()) {
+      //success	
+      this.successes++;
+    } else {
+      //failure
+      this.failures++;
+      this.createIDMEFEvent(new LegitAnalyzer());
     }
+  }
 
+  public class LegitAnalyzer extends Analyzer {
+    public LegitAnalyzer() {
+      this.setAnalyzerid(pluginName);
 
-    /**
-     * Query for org activities and produce idmef event when  org activities
-     * should be present, but can't get any through querying the blacboard
-     */
-    protected void queryBlackboard() {
-        Collection orgActivities = getBlackboardService().query(this.orgActivityPredicate);
-        Iterator iter = orgActivities.iterator();
-        this.totalRuns++;
-        if (iter.hasNext()) {
-            //success	
-            this.successes++;
-        } else {
-            //failure
-            this.failures++;
-            this.createIDMEFEvent(new LegitAnalyzer());
-        }
     }
-
-    public class LegitAnalyzer extends Analyzer {
-        public LegitAnalyzer() {
-            this.setAnalyzerid(pluginName);
-
-        }
-    }
+  }
 }
