@@ -105,6 +105,7 @@ public class LegitimateBlackboardAddPlugin extends AbstractBlackboardPlugin {
    */
   protected void queryBlackboard() {
 	OrgActivity orgActivity = OplanFactory.newOrgActivity(pluginName,uidService.nextUID());
+	orgActivity.setUID(uidService.nextUID());
     this.actUID = orgActivity.getUID();
     getBlackboardService().publishAdd(orgActivity);
     this.successes++;
