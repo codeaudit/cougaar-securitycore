@@ -112,12 +112,17 @@ public class PolicyBootstrapper
         int spacePt;
         if ((spacePt = line.indexOf(' ')) == -1) { continue; }
         String type = line.substring(0,spacePt);
-        policyFile = cf.locateFile(line.substring(spacePt+1));
+        String fileName = line.substring(spacePt+1);
+        policyFile = cf.locateFile(fileName);
         log.debug(".PolicyBootStrapper: for policy type " + type +
                   " I am looking in the policy file " + policyFile);
 
-	if (policyFile == null)
+	if (policyFile == null) {
+          if (log.isErrorEnabled()) {
+            log.error("Policy not found: " + fileName);
+          }
           continue;
+        }
 
         FileInputStream policyStream = new FileInputStream(policyFile);
         ObjectInputStream policyObjectStream 
@@ -141,6 +146,8 @@ public class PolicyBootstrapper
     } catch (ClassNotFoundException e) {
       log.error("Policy file " + policyFile + 
                 " does not contain PolicyMsg object!", e);
+    } catch (RuntimeException e) {
+      log.warn("Exception reading daml policies file" + e);
     }
     log.debug(".PolicyBootStrapper: Finished Reading daml policies file " 
               + damlPoliciesFile);
