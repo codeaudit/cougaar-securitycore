@@ -22,13 +22,6 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.acl.auth;
 
@@ -57,19 +50,19 @@ import safe.enforcer.NodeEnforcer;
 public class ServletPolicyEnforcer 
   implements ServletPolicyService/*, PropertyChangeListener*/ {
 
-  ServiceBroker _serviceBroker;
-  ServletGuard  _servletGuard;
+  private ServiceBroker _serviceBroker;
+  private ServletGuard  _servletGuard;
 
-  Context           _context = null;
-  DualAuthenticator _daValve = null;
+  private Context           _context = null;
+  private DualAuthenticator _daValve = null;
 
-  HashMap             _authConstraints;
-  HashMap             _starAuthConstraints;
-  SecurityConstraint  _constraints[];
-  HashSet             _roles;
-  long                _sleepTime = 1000;
-  long                _sessionLife;
-  HashSet             _agents = new HashSet();
+  private HashMap             _authConstraints;
+  private HashMap             _starAuthConstraints;
+  private SecurityConstraint  _constraints[];
+  private HashSet             _roles;
+  private long                _sleepTime = 1000;
+  private long                _sessionLife;
+  private HashSet             _agents = new HashSet();
   private static final boolean USE_DAML = 
     Boolean.getBoolean(DualAuthenticator.DAML_PROPERTY);
 
