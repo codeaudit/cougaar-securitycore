@@ -86,7 +86,7 @@ import java.util.Set;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  */
 public class CertificateSigningRequest extends HttpServlet implements BlackboardClient {
   private CertificateManagementService signer;
@@ -94,9 +94,12 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
   private ConfigParserService configParser = null;
   private LoggingService log;
   private X500Name[] caDNs = null;
+  /**local cache of node certificates to verify the signed digest of Agent Signing Requests*/
   private Map nodeCertMap = new HashMap();
+  /**Blackboard service used for Configuration Manager Stuff*/
   private BlackboardService blackboardService = null;
-
+  /**Whether to use the Configuration Manager or not (From "requirepending" element in the cryptoPolicy)*/
+  private boolean requirePending = false;
   /**
    * Creates a new CertificateSigningRequest object.
    *
@@ -183,6 +186,10 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
            }
          */
         signer = (CertificateManagementService) support.getServiceBroker().getService(new CertificateManagementServiceClientImpl(CA_DN_name), CertificateManagementService.class, null);
+        requirePending = configParser.getCaPolicy(CA_DN_name).requirePending;
+        if(log.isDebugEnabled()){
+        	log.debug("Use Configuration Manager:" + requirePending);
+        }
       } catch (Exception exp) {
         printstream.print("Error ---" + exp.toString());
         printstream.flush();
@@ -231,8 +238,12 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
         } else if (type.equalsIgnoreCase("pkcs10")) {
           bytedata = pkcs.getBytes();
           bytestream = new ByteArrayInputStream(bytedata);
-          boolean agentRequest = this.isTypeRequest(CertificateCache.CERT_TITLE_AGENT, pkcs, signer);
-          boolean nodeRequest = this.isTypeRequest(CertificateCache.CERT_TITLE_NODE, pkcs, signer);
+          boolean agentRequest = false;
+          boolean nodeRequest = false;
+          if(requirePending){
+            agentRequest =this.isTypeRequest(CertificateCache.CERT_TITLE_AGENT, pkcs, signer);
+          	nodeRequest=this.isTypeRequest(CertificateCache.CERT_TITLE_NODE, pkcs, signer);
+          }
           if (log.isDebugEnabled()) {
             log.debug("Agent Request:" + agentRequest + "  , Node request:" + nodeRequest);
           }
@@ -380,9 +391,9 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
    * CMRequest is sent to the CM Agent
    *
    * @param req
-   * @param signer DOCUMENT ME!
+   * @param signer CertificateManagementService
    *
-   * @return
+   * @return reply to send to the client
    */
   private String processSignRequestForAgent(HttpServletRequest req, CertificateManagementService signer, boolean html) {
     String reply = "status=";
@@ -433,7 +444,7 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
 
 
         if (nodeCert != null) {
-          PublicKey publicKey = nodeCert.getPublicKey(); //MD5WithRSA
+          PublicKey publicKey = nodeCert.getPublicKey(); 
           Signature signature = Signature.getInstance("SHA1withRSA");
           if (signedObject.verify(publicKey, signature)) {
             //Query blackboard
@@ -491,8 +502,7 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
       }
     }
 
-    //get signed object
-    reply = reply + status;
+   reply = reply + status;
 
     if (status == KeyManagement.PENDING_STATUS_PENDING) {
       if (log.isDebugEnabled()) {
