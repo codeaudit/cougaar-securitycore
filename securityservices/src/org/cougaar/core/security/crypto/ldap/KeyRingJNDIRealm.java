@@ -25,6 +25,7 @@
  */
 package org.cougaar.core.security.crypto.ldap;
 
+import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ import edu.jhuapl.idmef.Source;
 import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.User;
 import edu.jhuapl.idmef.UserId;
+import edu.jhuapl.idmef.AdditionalData;
 
 // Cougaar security infrastructure
 import org.cougaar.core.security.acl.auth.DualAuthenticator;
@@ -85,6 +87,7 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.coreservices.tomcat.AuthValve;
 import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.blackboard.BlackboardClient;
 
 /**
  * A Realm extension for Tomcat 4.0 that uses SSL to talk to
@@ -108,7 +111,7 @@ import org.cougaar.core.agent.ClusterIdentifier;
  * @see SecureJNDIRealm
  * @author George Mount <gmount@nai.com>
  */
-public class KeyRingJNDIRealm extends RealmBase {
+public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
   private static ServiceBroker _nodeServiceBroker;
   private static String        _realmName = "Cougaar";
@@ -134,26 +137,28 @@ public class KeyRingJNDIRealm extends RealmBase {
   public static final int    LF_USER_MISMATCH           = 7;
   public static final int    LF_REQUIRES_CERT           = 8;
 
-  public static final Classification CAPABILITIES[] = {
-    new Classification("LOGIN FAILURE - user does not exist",
-                       "", Classification.VENDOR_SPECIFIC),
-    new Classification("LOGIN FAILURE - database error", 
-                       "", Classification.VENDOR_SPECIFIC),
-    new Classification("LOGIN FAILURE - user certificate is invalid", 
-                       "", Classification.VENDOR_SPECIFIC),
-    new Classification("LOGIN FAILURE - invalid subject in user certificate",
-                       "", Classification.VENDOR_SPECIFIC),
-    new Classification("LOGIN FAILURE - the user account has been disabled",
-                       "", Classification.VENDOR_SPECIFIC),
-    new Classification("LOGIN FAILURE - the password for the user is null " +
-                       "in the database", 
-                       "", Classification.VENDOR_SPECIFIC),
-    new Classification("LOGIN FAILURE - the user has entered the wrong " +
-                       "password", "", Classification.VENDOR_SPECIFIC),
-    new Classification("LOGIN FAILURE - dual authentication user names are " +
-                       "different", "", Classification.VENDOR_SPECIFIC),
-    new Classification("LOGIN FAILURE - requires user certificate",
-                       "", Classification.VENDOR_SPECIFIC)
+  public static final Classification LOGINFAILURE = 
+    new Classification("LOGINFAILURE", "", Classification.VENDOR_SPECIFIC);
+
+  protected static final AdditionalData REASONS[][] = {
+    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+                        "user does not exist")},
+    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+                        "database error")},
+    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+                        "user certificate is invalid")},
+    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+                        "invalid subject in user certificate")},
+    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+                        "the user account has been disabled")},
+    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+                        "the password for the user is null in the database")},
+    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+                        "the user has entered the wrong password")},
+    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+                        "dual authentication user names are different")},
+    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+                        "requires user certificate")}
   };
 
   /** 
@@ -569,7 +574,7 @@ public class KeyRingJNDIRealm extends RealmBase {
 
   private synchronized boolean initAlert(ServiceBroker sb) {
     if (sb == null) return false;
-
+    try {
     if (_idmefFactory == null) {
       _blackboardService =
         (BlackboardService) sb.getService(this, BlackboardService.class, null);
@@ -577,24 +582,42 @@ public class KeyRingJNDIRealm extends RealmBase {
         (DomainService) sb.getService(this, DomainService.class, null);
       if (ds == null) {
         System.out.println("Error: There is no DomainService. I cannot alert on login failures.");
+        System.out.println("Service Broker's services:");
+        Iterator iter = sb.getCurrentServiceClasses();
+        while (iter.hasNext()) {
+          Object o = iter.next();
+          System.out.println("   " + o);
+        }
+        System.out.println("-------------------------------------------");
       } else {
-        CmrFactory cmrFactory = (CmrFactory) ds.getFactory("cmr");
-        _idmefFactory = cmrFactory.getIdmefMessageFactory();
+        _cmrFactory = (CmrFactory) ds.getFactory("cmr");
+        _idmefFactory = _cmrFactory.getIdmefMessageFactory();
       
         List capabilities = new ArrayList();
-        for (int i = 0; i < CAPABILITIES.length; i++) {
-          capabilities.add( CAPABILITIES[i] );
-        }
+        capabilities.add(LOGINFAILURE);
       
         RegistrationAlert reg = 
           _idmefFactory.createRegistrationAlert( _sensor, capabilities,
                                                  _idmefFactory.newregistration );
         NewEvent regEvent = _cmrFactory.newEvent(reg);
       
-        _blackboardService.openTransaction();
+        boolean close = true;
+        try {
+          close = _blackboardService.tryOpenTransaction();
+        } catch (Exception e) {
+          close = false;
+          e.printStackTrace();
+        }
         _blackboardService.publishAdd(regEvent);
-        _blackboardService.closeTransaction();
+        try {
+          if (close) _blackboardService.closeTransaction();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
+    }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
     return (_idmefFactory != null);
   }
@@ -606,13 +629,20 @@ public class KeyRingJNDIRealm extends RealmBase {
   public void alertLoginFailure(int failureType, String userName1, 
                                 String userName2) {
     if (!initAlert(_nodeServiceBroker)) {
+      System.out.println("Couldn't alert about " + 
+                         REASONS[failureType][0].getAdditionalData() +
+                         ", userName1: " + userName1 + ", userName2: " +
+                         userName2);
       return; // can't alert without IDMEF factory
     }
     ArrayList cfs = new ArrayList();
-    cfs.add(CAPABILITIES[failureType]);
+    cfs.add(LOGINFAILURE);
+    DetectTime dt = new DetectTime();
     Alert alert = _idmefFactory.createAlert(_sensor, new DetectTime(),
                                             null, null, cfs, null);
+
     
+    alert.setAdditionalData(REASONS[failureType]);
     Analyzer      a       = alert.getAnalyzer();
     
     if (a != null) {
@@ -647,10 +677,30 @@ public class KeyRingJNDIRealm extends RealmBase {
     }
 
     NewEvent event = _cmrFactory.newEvent(alert);
-    
-    _blackboardService.openTransaction();
-    _blackboardService.publishAdd(event);
-    _blackboardService.closeTransaction();
+
+    boolean close = true;
+    try {
+      close = _blackboardService.tryOpenTransaction();
+    } catch (Exception e) {
+      close = false;
+    }
+    try {
+      _blackboardService.publishAdd(event);
+      if (close) {
+        _blackboardService.closeTransaction();
+      }
+   } catch (Exception e) {
+   }
+  }
+
+  public long currentTimeMillis() { return System.currentTimeMillis(); }
+
+  public String getBlackboardClientName() {
+    return "KeyRingJNDIRealm";
+  }
+
+  public boolean triggerEvent(Object event) {
+    return false;
   }
 
   private static class LoginFailureSensor implements SensorInfo {
