@@ -75,6 +75,7 @@ module Cougaar
     class DomainManagerRehydrateReset < Cougaar::Action
       def initialize(run)
         @run = run
+        @reviveTimeout = 90.seconds
         super(run)
       end
     
@@ -128,7 +129,6 @@ DONE
         end
         @run.info_message( "killing policy manager node (#{policyNode.name})")
         @run['node_controller'].stop_node(policyNode)
-    # the sleep ensures that the node is really gone
         @run.info_message( "restarting node #{node.name}")
         @run['node_controller'].restart_node(self, node)
         if !(checkAudit(web, node)) then
@@ -137,13 +137,16 @@ DONE
           @run.info_message("Test failed")
           return
         end
-
+   # the two sleeps that follow are to allow the node to wake up.  Using a 
+   # policy waiter to detect the policy doesn't work because there can be 
+   # multiple policy updates as enforcers wake up.
+        sleep @reviveTimeout
    # now revive the domain manager
-        pw = PolicyWaiter.new(@run, node.name)
         @run.info_message( "restarting domain manager node (#{policyNode.name})")
         @run['node_controller'].restart_node(self, policyNode)
+        sleep @reviveTimeout
     # audit should fail here also  - this is the real test
-        if (!pw.wait(120) || checkAudit(web, node))
+        if (checkAudit(web, node))
           @run.info_message("Rehydration test failed - audit should not occur")
           return
         else 
@@ -277,24 +280,90 @@ DONE
 
 #---------------------------------Test----------------------------------
 
-    class CommunicationTest01
+    class CommunicationTest01 < Cougaar::Action
       def initialize(run)
         super(run)
         @run = run
+        @enclave = "Rear"
         @agentName1 = "testBounceOne"
         @agentName2 = "testBounceTwo"
+        @msgPingTimeout = 20.seconds
         @web = SRIWeb.new()
       end
 
+      def initUris
+        @sendUri = 
+           "#{@agent1.uri}/message/send?address=#{@agentName2}&Send=Submit"
+        @checkUri = "#{@agent1.uri}/message/list"
+        @deleteUri = "#{@agent1.uri}/message/delete?uid="
+      end
+
+      def clearRelays
+        regexp=Regexp.compile"#{@agentName1}\/([0-9]+)[^0-9]"
+        relays = @web.getHtml(@checkUri).body
+        while m = regexp.match(relays) do
+          #puts m
+          #puts m[1]
+          @web.getHtml("#{@deleteUri}#{@agentName1}/#{m[1]}")
+          relays = @web.getHtml(@checkUri).body
+        end
+      end
+
       def checkSend
-        sendUri="#{@agent1.uri}/message/send?address=#{@agentName2}&Send=Submit"
-        checkUri = "#{agent.uri}/message/list"
+        clearRelays
+        @web.getHtml(@sendUri)
+        sleep(@msgPingTimeout)
+        result = @web.getHtml(@checkUri).body
+        !(result.include?("no response"))
       end
 
       def perform
-        @agent1 = @run.society.agents[agentName1]
+        newTest(@run, "Comm Test 01")
+        @agent1 = @run.society.agents[@agentName1]
+        @agent2 = @run.society.agents[@agentName2]
+        initUris
+        clearRelays
+        @run.info_message("Attempting to send message")
+        if (checkSend) then
+          @run.info_message("Message sent and ack received")
+        else
+          @run.info_message("Should be able to talk - test failed")
+          return
+        end
+        pw1 = PolicyWaiter.new(@run, @agent1.node.name)
+        pw2 = PolicyWaiter.new(@run, @agent2.node.name)
+        @run.info_message("Inserting policy preventing  communication")
+        deltaPolicy(@enclave, <<DONE)
+          Agent #{@agentName1}
+          Agent #{@agentName2}
+
+          Policy StopCommunication = [ 
+            GenericTemplate
+            Priority = 3,
+            %urn:Agent##{@agentName1} is not authorized to perform
+            $Action.owl#EncryptedCommunicationAction  
+            as long as
+            the value of $Action.owl#hasDestination
+            is a subset of the set { %urn:Agent##{@agentName2} }
+          ]
+DONE
+        if (!pw1.wait(120) || !pw2.wait(120)) then
+          @run.info_message("no  policy received - test failed")
+          return
+        end
+        @run.info_message("Attempting to send another message")
+        if (checkSend) then
+          @run.info_message("message should not have been received - test failed")
+          return
+        end
+        $policyPassedCount += 1
+        @run.info_message("Test succeeded - restoring policies")
+        deltaPolicy(@enclave, <<DONE)
+          Delete StopCommunication
+DONE
+
       end
-    end
+    end # CommunicationTest01
 
 
 #---------------------------------End Test------------------------------
@@ -365,6 +434,8 @@ DONE
       end
     end # BlackboardTest
 #---------------------------------End Test------------------------------
+
+
 
     class TestResults < Cougaar::Action
       def initialize(run)

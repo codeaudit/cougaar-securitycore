@@ -72,6 +72,12 @@ Cougaar.new_experiment("Policy-Test").run(1) {
     "#{RULES}/security/communities",
     "#{RULES}/security/mop",
     "#{RULES}/security/robustness",
+    "#{RULES}/security/mts/loopback_protocol.rule",
+#    "#{RULES}/security/mts/http_mts.rule",
+    "#{RULES}/security/mts/https_mts.rule",
+#    "#{RULES}/security/mts/sslRMI.rule",
+    "#{RULES}/security/naming"
+
     "#{CIP}/csmart/lib/security/rules/mts_queue_viewer.rule"
 
   # optional: save the society to an XML file for easy debugging 
@@ -100,6 +106,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
 
   do_action "BlackboardTest"
   do_action "ServletTest01"
+  do_action "CommunicationTest01"
   do_action "DomainManagerRehydrateReset"
 
   do_action "TestResults"

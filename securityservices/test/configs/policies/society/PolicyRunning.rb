@@ -42,7 +42,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "StartJabberCommunications"
 
 
-#  do_action "BlackboardTest"
+  do_action "CommunicationTest01"
 #  do_action "ServletTests"
 
 #  do_action "DomainManagerRehydrateReset"
