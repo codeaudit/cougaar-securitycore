@@ -35,7 +35,8 @@ import javax.servlet.http.*;
 
 // Cougaar core infrastructure
 import org.cougaar.core.servlet.BaseServletComponent;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.blackboard.BlackboardClient;
@@ -55,7 +56,7 @@ public class CaServletComponent
   private String myServletClassName = null;
   private Servlet myServlet = null;
 
-  private ClusterIdentifier agentId;
+  private MessageAddress agentId;
   private SecurityServletSupport support;
 
   // Services
@@ -115,10 +116,9 @@ public class CaServletComponent
 		+ myServletClassName + " at " + myPath);
     }
 
-    // FIXME need AgentIdentificationService
-    org.cougaar.core.plugin.PluginBindingSite pbs =
-      (org.cougaar.core.plugin.PluginBindingSite) bindingSite;
-    this.agentId = pbs.getAgentIdentifier();
+    AgentIdentificationService ais = (AgentIdentificationService)
+      serviceBroker.getService(this, AgentIdentificationService.class, null);
+    this.agentId = ais.getMessageAddress();
 
     if (this.agentId == null) {
       throw new RuntimeException("Unable to obtain agent identifier");

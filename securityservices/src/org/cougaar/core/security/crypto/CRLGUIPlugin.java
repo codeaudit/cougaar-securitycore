@@ -39,7 +39,7 @@ import javax.swing.*;
 
 // Cougaar core infrastructure
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.component.ServiceRevokedListener;

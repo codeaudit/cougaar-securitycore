@@ -35,7 +35,7 @@ import org.cougaar.util.*;
 
 import org.cougaar.core.security.policy.EnforcerRegistrationException;
 
-public class DummyEnforcer extends SimplePlugin {
+public class DummyEnforcer extends ComponentPlugin {
 
   private DummyGuardRegistration gr;
 
@@ -46,7 +46,7 @@ public class DummyEnforcer extends SimplePlugin {
 				    getBindingSite().getServiceBroker());
   }
 
-  public void setupSubscriptions()
+  protected void setupSubscriptions()
   {
     System.out.println("DummyEnforcer.setupSubscriptions");
     try {
@@ -57,7 +57,7 @@ public class DummyEnforcer extends SimplePlugin {
     }
   }
   
-  public void execute()
+  protected void execute()
   {
     System.out.println("DummyEnforcer.execute");
   }

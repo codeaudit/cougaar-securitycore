@@ -20,8 +20,7 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.util.XMLizable;
-import org.cougaar.core.util.XMLize;
+import org.cougaar.planning.servlet.XMLize;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
 
@@ -33,7 +32,7 @@ import java.util.HashSet;
  * This class is used by EventQueryPlugin to store data onto the
  * blackboard for persistence.
  */
-public class EventQueryData implements Serializable, UniqueObject, XMLizable {
+public class EventQueryData implements Serializable, UniqueObject {
   public HashSet agents;
   public HashSet queryAdapters;
   public String  unaryPredicateClass;
@@ -41,11 +40,6 @@ public class EventQueryData implements Serializable, UniqueObject, XMLizable {
   private UID _uid;
 
   public EventQueryData() {
-  }
-
-  // XMLizable method for UI, other clients
-  public org.w3c.dom.Element getXML(org.w3c.dom.Document doc) {
-    return XMLize.getPlanObjectXML(this, doc);
   }
 
   public UID getUID() {

@@ -43,16 +43,14 @@ import edu.jhuapl.idmef.*;
 
 // Cougaar core services
 
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.component.*;
 import org.cougaar.core.service.*;
 import org.cougaar.core.service.community.*;
 import org.cougaar.core.servlet.BaseServletComponent;
 
-import org.cougaar.core.domain.RootFactory;
 import org.cougaar.core.servlet.SimpleServletSupport;
-import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.util.*;
 import org.cougaar.core.util.UID;
 
@@ -67,21 +65,16 @@ import org.cougaar.core.security.monitoring.idmef.*;
  */
 public class MnRResponseViewerComponent
   extends BaseServletComponent implements BlackboardClient  {
-  private ClusterIdentifier agentId;
+  private MessageAddress agentId;
+  private AgentIdentificationService ais;  
   private BlackboardService blackboard;
   private DomainService ds;
   private CommunityService cs;
   private NamingService ns;
-  private RootFactory rootFactory;
   private LoggingService logging;
   private String path;
 
   public void load() {
-    // FIXME need AgentIdentificationService
-    org.cougaar.core.plugin.PluginBindingSite pbs =
-      (org.cougaar.core.plugin.PluginBindingSite) bindingSite;
-    this.agentId = pbs.getAgentIdentifier();
-    
     super.load();
   }
 
@@ -92,13 +85,17 @@ public class MnRResponseViewerComponent
     List l=(List)o;
     path=(String)l.get(0);
   }
+  public void setAgentIdentificationService(AgentIdentificationService ais) {
+    this.ais = ais;
+    agentId = ais.getMessageAddress();
+  }
+
    public void setBlackboardService(BlackboardService blackboard) {
     this.blackboard = blackboard;
   }
 
   public void setDomainService(DomainService ds) {
     this.ds = ds;
-    this.rootFactory = ds.getFactory();
   }
   
    public void setCommunityService(CommunityService cs) {
@@ -266,9 +263,9 @@ public class MnRResponseViewerComponent
 	    if(!list.isEmpty()) {
 	      sb.append("<ol>");
 	      ListIterator iter1=list.listIterator();
-	      ClusterIdentifier agentid=null;
+	      MessageAddress agentid=null;
 	      while(iter1.hasNext()) {
-		agentid=(ClusterIdentifier)iter1.next();
+		agentid=(MessageAddress)iter1.next();
 		sb.append("<li> "+ agentid.toString()+"</li>\n");
 	      }
 	      sb.append("</ol>"); 

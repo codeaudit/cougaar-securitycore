@@ -41,16 +41,15 @@ import edu.jhuapl.idmef.*;
 
 // Cougaar core services
 
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.component.*;
 import org.cougaar.core.service.*;
 import org.cougaar.core.service.community.*;
 import org.cougaar.core.servlet.BaseServletComponent;
 
-import org.cougaar.core.domain.RootFactory;
 import org.cougaar.core.servlet.SimpleServletSupport;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.util.*;
 
 // Cougaar security services
@@ -65,20 +64,15 @@ import org.cougaar.core.security.monitoring.idmef.*;
  */
 public class MnRQueryServletComponent
   extends BaseServletComponent implements BlackboardClient  {
-  private ClusterIdentifier agentId;
+  private MessageAddress agentId;
+  private AgentIdentificationService ais;
   private BlackboardService blackboard;
   private DomainService ds;
   private CommunityService cs;
   private NamingService ns;
-  private RootFactory rootFactory;
   private String path;
 
   public void load() {
-    // FIXME need AgentIdentificationService
-    org.cougaar.core.plugin.PluginBindingSite pbs =
-      (org.cougaar.core.plugin.PluginBindingSite) bindingSite;
-    this.agentId = pbs.getAgentIdentifier();
-    
     super.load();
   }
 
@@ -89,13 +83,18 @@ public class MnRQueryServletComponent
     List l=(List)o;
     path=(String)l.get(0);
   }
+
+  public void setAgentIdentificationService(AgentIdentificationService ais) {
+    this.ais = ais;
+    agentId = ais.getMessageAddress(); 
+  }
+
    public void setBlackboardService(BlackboardService blackboard) {
     this.blackboard = blackboard;
   }
 
   public void setDomainService(DomainService ds) {
     this.ds = ds;
-    this.rootFactory = ds.getFactory();
   }
   
    public void setCommunityService(CommunityService cs) {
@@ -234,7 +233,7 @@ public class MnRQueryServletComponent
      }
      
      
-     ClusterIdentifier dest_address=new ClusterIdentifier("SocietySecurityManager");
+     MessageAddress dest_address=MessageAddress.getMessageAddress("SocietySecurityManager");
      CmrRelay relay = factory.newCmrRelay(agentlookup,dest_address);
      try {
        blackboard.openTransaction();
@@ -325,9 +324,9 @@ public class MnRQueryServletComponent
        //Collection agents=roster.getMemberAgents();
        //out.println("going to display agents from community :++++++++++++++++++++++++++++++++++"+ community +" <br>");
        //Iterator agentiter=agents.iterator();
-       //ClusterIdentifier agent;
+       //MessageAddress agent;
        // while(agentiter.hasNext()) {
-       //agent=(ClusterIdentifier)agentiter.next();
+       //agent=(MessageAddress)agentiter.next();
        //out.println(" Agent name:"+agent.toString() + " Community name  : "+ community +" <br>");
 	 // System.out.println(" Agent name:"+ agent + " Community name  : "+ community);
        //}

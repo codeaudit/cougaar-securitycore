@@ -46,7 +46,6 @@ import org.cougaar.core.component.ServiceBrokerSupport;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.agent.SimpleAgent;
-import org.cougaar.core.plugin.SimplePlugin;
 import org.cougaar.core.node.NodeAgent;
 import org.cougaar.core.node.NodeIdentificationService;
 import org.cougaar.core.service.LoggingService;
@@ -94,7 +93,7 @@ public class AgentIdentityServiceImpl
       requestorAddress = ((NodeAgent)requestor).getAgentIdentifier();
     }
     else if (requestor instanceof AgentIdentityClient) {
-      requestorAddress = new MessageAddress(((AgentIdentityClient)requestor).getName());
+      requestorAddress = MessageAddress.getMessageAddress(((AgentIdentityClient)requestor).getName());
     clientNameIsPrincipal = true;
     }
     else {
@@ -133,7 +132,7 @@ public class AgentIdentityServiceImpl
     if (nodeId == null) {
       throw new RuntimeException("Node Identification service not available");
     }
-    thisNodeAddress = nodeId.getNodeIdentifier();
+    thisNodeAddress = nodeId.getMessageAddress();
 
     if (encryptionService == null) {
        throw new RuntimeException("Encryption service not available");

@@ -31,7 +31,7 @@ import java.security.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.servlet.*;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
@@ -1536,11 +1536,7 @@ public class EditObjectServlet extends HttpServlet {
         // the base itself
         attachedObj = baseObj;
       }
-      // cast to XMLizable
-      XMLizable xo =
-        ((attachedObj instanceof XMLizable) ?
-         (XMLizable)attachedObj :
-         null);
+      Object xo = attachedObj;
       if (asHTML) {
         // print as HTML
         out.print("<html>\n<head>\n<title>");
@@ -2302,21 +2298,7 @@ public class EditObjectServlet extends HttpServlet {
               break;
             case ITEM_TYPE_WORKFLOW:
             default:
-              if (uo instanceof XMLizable) {
-                // XMLizable and a local UniqueObject
-                printLinkToXML(uo, true);
-              } else {
-                out.print("<font color=red>No XML for ");
-                UID uoU;
-                String uoUID;
-                if (((uoU = uo.getUID()) != null) &&
-                    ((uoUID = uoU.toString()) != null)) {
-                  out.print(uoUID);
-                } else {
-                  out.print("null");
-                }
-                out.print("</font>");
-              } 
+              printLinkToXML(uo, true);
               break;
           }
           out.print(
@@ -2706,36 +2688,22 @@ public class EditObjectServlet extends HttpServlet {
       }
 
       String inputPred = pred;
-      int inputStyle =
-        (Operator.PRETTY_FLAG |
-         Operator.VERBOSE_FLAG |
-         (((predStyle == null) ||
-           (!("xml".regionMatches(true, 0, predStyle, 0, 3)))) ?
-          Operator.PAREN_FLAG :
-          Operator.XML_FLAG));
 
       out.print("<html><head><title>");
       out.print(support.getEncodedAgentName());
       out.print(
-          " Advanced Search Results</title><head>\n"+
-          "<body bgcolor=\"#F0F0F0\"><p>\n"+
-          "Search <b>");
+         " Advanced Search Results</title><head>\n"+
+         "<body bgcolor=\"#F0F0F0\"><p>\n"+
+         "Search <b>");
       out.print(support.getEncodedAgentName());
-      out.print("</b> using ");
-      out.print(
-          (((inputStyle & Operator.PAREN_FLAG) != 0) ? 
-           "Lisp" : "XML"));
-      out.print("-style predicate: <br><pre>\n");
+      out.print("</b> using Lisp-style predicate: <br><pre>\n");
       out.print(inputPred);
       out.print("</pre><p>\n<hr><br>\n");
 
-      // get an instance of the default operator factory
-      OperatorFactory operFactory = OperatorFactory.getInstance();
-
       // parse the input to create a unary predicate
-      Operator parsedPred;
+      UnaryPredicate parsedPred = null;
       try {
-        parsedPred = operFactory.create(inputStyle, inputPred);
+        parsedPred = UnaryPredicateParser.parse(inputPred);
       } catch (Exception parseE) {
         // display compile error
         out.print(
@@ -2759,7 +2727,7 @@ public class EditObjectServlet extends HttpServlet {
       if (predDebug) {
         // this is useful in general, but clutters the screen...
         out.print("Parsed as:<pre>\n");
-        out.print(parsedPred.toString(inputStyle));
+        out.print(parsedPred);
         out.print("</pre><br><hr><br>\n");
       }
 
@@ -2830,27 +2798,7 @@ public class EditObjectServlet extends HttpServlet {
               break;
             case ITEM_TYPE_WORKFLOW:
             default:
-              if (o instanceof XMLizable) {
-                // XMLizable and a local UniqueObject
-                printLinkToXML((XMLizable)o, true);
-              } else {
-                out.print("<font color=red>No XML for ");
-                UID uoU;
-                String uoUID;
-                if (o instanceof UniqueObject) {
-                  if (((uoU = ((UniqueObject)o).getUID()) != null) &&
-                      ((uoUID = uoU.toString()) != null)) {
-                    out.print(uoUID);
-                  } else {
-                    out.print("null-UID");
-                  }
-                } else if (o != null) {
-                  out.print("non-UniqueObject");
-                } else {
-                  out.print("null");
-                }
-                out.print("</font>");
-              } 
+              printLinkToXML(o, true);
               break;
           }
           out.print(
@@ -3185,8 +3133,8 @@ public class EditObjectServlet extends HttpServlet {
     private static Enumeration getValidEndDateRanges(ScoringFunction sf) {
       Enumeration validRanges = 
         sf.getValidRanges(
-            new TimeAspectValue(AspectType.END_TIME, 0l),
-            new TimeAspectValue(AspectType.END_TIME, endOfRange));
+            TimeAspectValue.create(AspectType.END_TIME, 0l),
+            TimeAspectValue.create(AspectType.END_TIME, endOfRange));
       return validRanges;
     }
 
@@ -3399,10 +3347,10 @@ public class EditObjectServlet extends HttpServlet {
       if (asset != null) {
         // link to allocated asset
         ClusterPG clusterPG = asset.getClusterPG();
-        ClusterIdentifier agentID;
+        MessageAddress agentID;
         String remoteAgentID =
           ((((clusterPG = asset.getClusterPG()) != null) &&
-            ((agentID = clusterPG.getClusterIdentifier()) != null)) ?
+            ((agentID = clusterPG.getMessageAddress()) != null)) ?
            agentID.toString() :
            null);
         boolean isRemoteAgent = (remoteAgentID != null);
@@ -3534,9 +3482,9 @@ public class EditObjectServlet extends HttpServlet {
             "</li>\n");
       }
       // show assignor
-      ClusterIdentifier assignor = atrans.getAssignor();
+      MessageAddress assignor = atrans.getAssignor();
       if (assignor != null) {
-        String name = assignor.cleanToString();
+        String name = assignor.toString();
         String encName = 
           ((name != null) ?
            (support.encodeAgentName(name)) :
@@ -3593,18 +3541,11 @@ public class EditObjectServlet extends HttpServlet {
         }
         out.print("</ol>\n");
         if (baseObj != null) {
-          if (asset instanceof XMLizable) {
-            // link to HTML-encoded XML view
             out.print("<font size=small color=mediumblue>");
             printLinkToAttachedXML(
                 baseObj,
-                (XMLizable)asset,
+                asset,
                 true);
-            out.print("</font>");
-          } else {
-            // asset not XMLizable
-            out.print("<font color=red>Asset not XMLable</font>");
-          }
         }
         return;
       }
@@ -3848,19 +3789,11 @@ public class EditObjectServlet extends HttpServlet {
       // PGs?
       out.print("</ul>");
       if (baseObj != null) {
-        // provide XML view
-        if (asset instanceof XMLizable) {
-          // link to HTML-encoded XML view
-          out.print("<font size=small color=mediumblue>");
-          printLinkToAttachedXML(
+        out.print("<font size=small color=mediumblue>");
+        printLinkToAttachedXML(
               baseObj,
-              (XMLizable)asset,
+              asset,
               true);
-          out.print("</font>");
-        } else {
-          // asset not XMLizable
-          out.print("<font color=red>Asset not XMLable</font>");
-        }
       } else {
         // likely recursed on an AssetGroup, and the top-level group
         //   had a "View XML" link.
@@ -4016,12 +3949,12 @@ public class EditObjectServlet extends HttpServlet {
      * @param printAsHTML uses XMLtoHTMLOutputStream to pretty-print the XML
      */
     private void printXMLizableDetails(
-        XMLizable xo, boolean printAsHTML)
+        Object xo, boolean printAsHTML)
     {
       try {
         // convert to XML
         Document doc = new DocumentImpl();
-        Element element = xo.getXML((Document)doc);
+        Element element = XMLize.getPlanObjectXML(xo, doc);
         doc.appendChild(element);
 
         // print to output
@@ -4430,7 +4363,7 @@ public class EditObjectServlet extends HttpServlet {
           ((ptUID = ptU.toString()) == null)) {
         out.print("<font color=red>parent not unique</font>");
       } else {
-        ClusterIdentifier tClusterID = task.getSource();
+        MessageAddress tClusterID = task.getSource();
         String ptEncodedAgentName;
         if ((tClusterID == null) ||
             ((ptEncodedAgentName = tClusterID.toString()) == null)) {
@@ -4636,26 +4569,14 @@ public class EditObjectServlet extends HttpServlet {
     private void printLinkToXML(
         UniqueObject uo, boolean asHTML)
     {
-      if (uo instanceof XMLizable) {
+      if (uo != null) {
         // link to HTML-encoded XML view
         printLinkToAttachedXML(
             uo,
-            (XMLizable)uo,
+            uo,
             asHTML);
-      } else if (uo == null) {
-        out.print("<font color=red>null</font>");
       } else {
-        // uniqueObject not XMLizable
-        out.print("<font color=red>No XML for ");
-        UID uoU;
-        String uoUID;
-        if (((uoU = uo.getUID()) != null) &&
-            ((uoUID = uoU.toString()) != null)) {
-          out.print(uoUID);
-        } else {
-          out.print("null");
-        }
-        out.print("</font>");
+        out.print("<font color=red>null</font>");
       }
     }
 
@@ -4665,7 +4586,7 @@ public class EditObjectServlet extends HttpServlet {
      * XML objects stay in cluster.
      **/
     private void printLinkToXML(
-        XMLizable xo, boolean asHTML)
+        Object xo, boolean asHTML)
     {
       if (xo instanceof UniqueObject) {
         // link to HTML-encoded XML view
@@ -4687,7 +4608,7 @@ public class EditObjectServlet extends HttpServlet {
      * printLinkToAttachedXML.
      **/
     private void printLinkToAttachedXML(
-        UniqueObject baseObj, XMLizable xo, 
+        UniqueObject baseObj, Object xo, 
         boolean asHTML)
     {
       UID baseObjU;
@@ -4814,9 +4735,9 @@ public class EditObjectServlet extends HttpServlet {
           out.print(")\"");
         } else if (io instanceof Schedule) {
           out.print(io.getClass().getName());
-        } else if (io instanceof ClusterIdentifier) {
+        } else if (io instanceof MessageAddress) {
           out.print("CID: \"");
-          out.print(((ClusterIdentifier)io).toString());
+          out.print(((MessageAddress)io).toString());
           out.print("\"");
         } else if (io instanceof AssetTransfer) {
           out.print("AssetTransfer: \"");
@@ -5243,6 +5164,44 @@ public class EditObjectServlet extends HttpServlet {
       }
     }
 
+ private static class UnaryPredicateParser {
+   private static String CLNAME =
+     "org.cougaar.lib.contract.lang.OperatorFactoryImpl";
+   private static Integer STYLE =
+     new Integer(13); //paren-pretty-verbose
+
+   private static Exception loadE;
+   private static Object inst;
+   private static Method meth;
+
+   public static UnaryPredicate parse(
+       String s) throws Exception {
+     ensureIsLoaded();
+     return (UnaryPredicate)
+       meth.invoke(inst, new Object[] {STYLE, s});
+   }
+
+   private static synchronized void ensureIsLoaded() throws Exception {
+     if (inst == null) {
+       if (loadE == null) {
+         try {
+           Class cl = Class.forName(CLNAME);
+           meth = cl.getMethod(
+               "create",
+               new Class[] {Integer.TYPE, Object.class});
+           inst = cl.newInstance();
+           return;
+         } catch (Exception e) {
+           loadE = new RuntimeException(
+               "Unable to load "+CLNAME, e);
+         }
+       }
+       throw loadE;
+     }
+   }
+ }
+
+ /** END MISC UTILITIES **/
     /** END MISC UTILITIES **/
   }
 }

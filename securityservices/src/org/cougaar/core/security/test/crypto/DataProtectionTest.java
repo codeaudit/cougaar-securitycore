@@ -22,7 +22,7 @@ public class DataProtectionTest implements DataProtectionServiceClient {
   }
 
   public MessageAddress getAgentIdentifier() {
-    return new MessageAddress(agent);
+    return MessageAddress.getMessageAddress(agent);
   }
 
   public Iterator iterator() {

@@ -25,12 +25,11 @@ import java.util.*;
 // Cougaar core services
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.*;
+import org.cougaar.core.service.wp.*;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.agent.ClusterIdentifier;
-import org.cougaar.lib.web.service.NamingServerRegistry;
 import org.cougaar.util.UnaryPredicate;
 
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
@@ -66,8 +65,8 @@ public class RandomBouncePlugin extends ComponentPlugin {
     };
 
   private IncrementalSubscription _subscription;
-  private ClusterIdentifier _destination;
-  private ClusterIdentifier _agentId;
+  private MessageAddress _destination;
+  private MessageAddress _agentId;
   private CmrFactory _cmrFactory;
   private int _sendCount = -1;
   
@@ -188,20 +187,23 @@ public class RandomBouncePlugin extends ComponentPlugin {
     private MessageAddress getRandomAgent() {
       MessageAddress addr = null;
       try {
-        NamingService  ns = (NamingService)
-          _sb.getService(this, NamingService.class, null);
-        NamingServerRegistry reg = new NamingServerRegistry(ns.getRootContext());
+       // NamingService  ns = (NamingService)
+       //   _sb.getService(this, NamingService.class, null);
+        WhitePagesService wps = (WhitePagesService)
+            _sb.getService(this, WhitePagesService.class, null);
+        //NamingServerRegistry reg = new NamingServerRegistry(wps);
         String thisAgent = _agentId.toString();
         String agent = thisAgent;
         while(agent.equals(thisAgent)) {
-          List agents = reg.listNames();
-          agent = (String)agents.get(_random.nextInt(agents.size()));
+          Set agents = wps.list("");
+          AddressEntry []entries = (AddressEntry [])agents.toArray(new AddressEntry[0]);
+          agent = entries[_random.nextInt(agents.size())].getName();
           if(agent.equals(thisAgent)) {
             Thread.sleep(1000);
           }
         }
-        _sb.releaseService(this, NamingService.class, ns);
-        addr = new ClusterIdentifier(agent);
+        _sb.releaseService(this, WhitePagesService.class, wps);
+        addr = MessageAddress.getMessageAddress(agent);
       }
       catch(Exception e) {
         e.printStackTrace(); 

@@ -21,7 +21,7 @@
 
 package org.cougaar.core.security.auth;
 
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 
 /**
  * The <code>ObjectContext</code> is the base interface that all
@@ -43,7 +43,7 @@ public interface ObjectContext {
    *         object on the blackboard. <code>null</code> is returned
    *         when published by a local Agent's component.
    */
-//   public ClusterIdentifier getSource();
+//   public MessageAddress getSource();
 
   /**
    * Allows the source of the blackboard object. This method
@@ -52,5 +52,5 @@ public interface ObjectContext {
    * @param address The identifier for the agent which is causing the
    * object to be published to the blackboard.
    */
-//   public void setSource(ClusterIdentifier address);
+//   public void setSource(MessageAddress address);
 }

@@ -43,11 +43,10 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import org.cougaar.planning.ldm.policy.*;
-import org.cougaar.core.domain.RootFactory;
 import org.cougaar.core.util.*;
 import org.cougaar.util.*;
 import org.cougaar.core.util.UID;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 
 public class XMLPolicyCreator {
   private boolean debug = false;
@@ -200,7 +199,7 @@ public class XMLPolicyCreator {
       }
       UID uid = new UID(owner, count++);
       p.setUID(uid);
-      ClusterIdentifier ci = new ClusterIdentifier(owner);
+      MessageAddress ci = MessageAddress.getMessageAddress(owner);
       p.setOwner(ci);
     }	catch(Throwable e) {
       //System.err.println("Couldn't instantiate policy type " 

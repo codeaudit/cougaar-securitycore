@@ -467,7 +467,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
         // send the capability registeration to agents with in this community
         // that has the role specified by _managerRole
         AttributeBasedAddress messageAddress = 
-          new AttributeBasedAddress(community, "Role", _managerRole);
+          AttributeBasedAddress.getAttributeBasedAddress(community, "Role", _managerRole);
         CmrRelay relay = _cmrFactory.newCmrRelay(regEvent, messageAddress);
         if(_debug) {
           _log.debug("Sending sensor capabilities to community '" + 

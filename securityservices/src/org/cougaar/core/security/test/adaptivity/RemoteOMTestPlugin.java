@@ -31,7 +31,7 @@ import org.cougaar.core.adaptivity.OperatingModeImpl;
 import org.cougaar.core.adaptivity.InterAgentOperatingMode;
 import org.cougaar.core.adaptivity.InterAgentOperatingModePolicy;
 import org.cougaar.core.adaptivity.OMCRangeList;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ServiceUserPlugin;

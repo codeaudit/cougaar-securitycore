@@ -69,15 +69,12 @@ import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.service.AlarmService;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.agent.ClusterIdentifier;
-import org.cougaar.core.blackboard.EventSubscription;
 import org.cougaar.util.Trigger;
 import org.cougaar.util.TriggerModel;
 import org.cougaar.util.SyncTriggerModelImpl;
 import org.cougaar.core.blackboard.SubscriptionWatcher;
 
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.agent.ClusterIdentifier;
 
 // Cougaar security services
 import org.cougaar.core.security.crlextension.x509.extensions.*;
@@ -314,7 +311,7 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
 	*/
 	  
 	CrlRelay crlregrelay=crlMgmtService.newCrlRelay(crlagentregistartion,
-							new ClusterIdentifier("SocietySecurityManager"));
+							MessageAddress.getMessageAddress("SocietySecurityManager"));
 	log.debug(" CRL rely is being published :"+ crlregrelay.toString());
 	blackboardService.publishAdd(crlregrelay);
 	blackboardService.closeTransaction();
@@ -896,7 +893,7 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
       */
 	  
       crlregrelay=crlMgmtService.newCrlRelay(crlagentregistartion,
-					     new ClusterIdentifier("SocietySecurityManager"));
+					     MessageAddress.getMessageAddress("SocietySecurityManager"));
       log.debug(" CRL rely is being published :"+ crlregrelay.toString());
       blackboardService.publishAdd(crlregrelay);
       //blackboardService.closeTransaction();
@@ -1040,7 +1037,7 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
     
     private IncrementalSubscription crlresponse;
     private Object parameter = null;
-    protected ClusterIdentifier agentId;
+    protected MessageAddress agentId;
     private SchedulerService scheduler;
     protected BlackboardService blackboard;
     protected AlarmService alarmService;
@@ -1127,10 +1124,8 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
       alarmService = s;
     }
     public final void setAgentIdentificationService(AgentIdentificationService ais) {
-      MessageAddress an;
-      if ((ais != null) &&
-	  ((an = ais.getMessageAddress()) instanceof ClusterIdentifier)) {
-	agentId = (ClusterIdentifier) an;
+      if (ais != null) {
+	agentId = ais.getMessageAddress();
       } else {
 	// FIXME: Log something?
       }
@@ -1312,12 +1307,12 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
      * Also consider adding a "getNodeIdentifier()" method backed
      * by the NodeIdentificationService.
      */
-    protected ClusterIdentifier getAgentIdentifier() {
+    protected MessageAddress getAgentIdentifier() {
       return agentId;
     }
 
     /** @deprecated Use getAgentIdentifier() */
-    protected ClusterIdentifier getClusterIdentifier() {
+    protected MessageAddress getClusterIdentifier() {
       return getAgentIdentifier();
     }
 

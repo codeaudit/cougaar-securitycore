@@ -83,7 +83,7 @@ public class NodeInfo
   public void setNodeName(ServiceBroker sb) {
     NodeIdentificationService nis = (NodeIdentificationService)
       sb.getService(this, NodeIdentificationService.class, null);
-    nodeName = nis.getNodeIdentifier().toString();
+    nodeName = nis.getMessageAddress().toString();
   }
 
   public static String getHostName() {

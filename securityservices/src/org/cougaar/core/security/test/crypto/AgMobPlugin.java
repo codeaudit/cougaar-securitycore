@@ -42,19 +42,18 @@ import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.core.mts.*;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.domain.RootFactory;
 
 // Cougaar overlay
 import org.cougaar.core.service.identity.*;
 
-public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin 
+public class AgMobPlugin extends org.cougaar.core.plugin.ComponentPlugin
 {
   private static final String moveCryptoVerb = "MoveCrypto";
 
   private AgentIdentityService aiService;
-  private NodeIdentifier thisNodeID;
-  private NodeIdentifier toNodeID;
-  private ClusterIdentifier thisAgentID;
+  private MessageAddress thisNodeID;
+  private MessageAddress toNodeID;
+  private MessageAddress thisAgentID;
   private String targetNode;
 
   private MessageTransportService mts;
@@ -69,10 +68,10 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
   private JTextField textField;
   private JButton button;
 
-  public void setupSubscriptions()
+  protected void setupSubscriptions()
   {
     // get our agent's ID
-    thisAgentID = getBindingSite().getAgentIdentifier();
+    thisAgentID = getAgentIdentifier();
 
     // get the nodeID service          
     NodeIdentificationService nodeService = (NodeIdentificationService) 
@@ -82,7 +81,7 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
           null);
 
     thisNodeID = ((nodeService != null) ? 
-		  nodeService.getNodeIdentifier() :
+		  nodeService.getMessageAddress() :
 		  null);
 
     String paramOrigNode = thisNodeID.toAddress();
@@ -99,7 +98,7 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
 
 	  targetNode = textField.getText();
 	  // parse the destination node ID
-	  toNodeID = new NodeIdentifier(targetNode);
+	  toNodeID = MessageAddress.getMessageAddress(targetNode);
 	  System.out.println("Setting target Node to " + targetNode);
 
 	  if (targetNode != null) {
@@ -140,7 +139,7 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
     */
   }
 
-  public void execute()
+  protected void execute()
   {
   }
 

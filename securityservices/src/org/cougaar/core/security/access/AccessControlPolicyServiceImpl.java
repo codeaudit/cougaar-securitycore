@@ -36,6 +36,11 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.CommunityRoster;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceListener;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.planning.ldm.plan.Verb;
@@ -53,9 +58,10 @@ public class AccessControlPolicyServiceImpl
   implements AccessControlPolicyService
 {
   private SecurityPropertiesService secprop = null;
-  private LoggingService log;
+  private Logger log;
   private CommunityService commu;
   private ServiceBroker serviceBroker;
+  private ServiceListener _communitySL;
 
   //policy for society--usually the default, one-fits-all policy
   AccessControlPolicy acp_in = null;
@@ -83,15 +89,35 @@ public class AccessControlPolicyServiceImpl
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
-    
+    if(log == null) {
+      log = LoggerFactory.getInstance().createLogger(this);
+    } 
     commu = (CommunityService)
       serviceBroker.getService(this, CommunityService.class, null);
     if(commu==null && log.isWarnEnabled()){
       log.warn("can't get community Service.");
+    
+      ServiceAvailableListener sal = new ServiceAvailableListener() {  
+          public void serviceAvailable(ServiceAvailableEvent ae) {
+            if(ae.getService() == CommunityService.class) {
+              commu = (CommunityService)
+                ae.getServiceBroker().getService(this, CommunityService.class, null);
+                removeServiceListener();
+            }
+          }
+        };
+      serviceBroker.addServiceListener(sal);
+      _communitySL = sal;
     }
     //create a new policy proxy, pass the agent name the proxy is for.
     new AccessPolicyProxy(name, serviceBroker);
   }//Constructor
+
+  private void removeServiceListener() {
+    if(_communitySL != null) {
+      serviceBroker.removeServiceListener(_communitySL);
+    }
+  }
 
   private AccessControlPolicy getIncomingPolicy(String target){
     if( agent_in != null ) {

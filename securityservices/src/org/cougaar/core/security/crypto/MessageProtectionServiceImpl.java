@@ -49,8 +49,8 @@ import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.AttributeConstants;
 import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.mts.ProtectedOutputStream;
-import org.cougaar.core.mts.FakeRequestMessage;
 import org.cougaar.core.mts.SimpleMessageAttributes;
+import org.cougaar.core.node.NodeMessage;
 import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
@@ -164,9 +164,12 @@ public class MessageProtectionServiceImpl
       if (certificate == null) {
 	throw new CertificateException("No target " + destAddr + " cert available.");
       }
-
+      // NOTE: The constructor argument use to be a FakeRequestMessage for cougaar 9.x.
+      //       Cougaar 10.x removed the FakeRequestMessage class.
+      //       The source and destination arguments where also swapped (it was incorrect
+      //       for the FakeRequestMessage constructor).
       AttributedMessage msg = 
-        new AttributedMessage(new FakeRequestMessage(destination, source, null));
+        new AttributedMessage(new CertificateRequestMessage(source, destination));
       msg.setAttribute(NEW_CERT, certificate);
       msg.setContentsId(certificate.hashCode());
       return msg;
@@ -535,5 +538,12 @@ public class MessageProtectionServiceImpl
     public RetryWithNewCertificateException(String message) {
       super(message);
     }
+  }
+
+  // for certificate requests
+  class CertificateRequestMessage extends Message {
+    public CertificateRequestMessage(MessageAddress src, MessageAddress dest) {
+      super(src, dest);
+    } 
   }
 }

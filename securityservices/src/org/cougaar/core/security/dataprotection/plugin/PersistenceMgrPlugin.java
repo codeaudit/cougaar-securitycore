@@ -72,7 +72,7 @@ public class PersistenceMgrPlugin
     }
 
     requestHandler = new KeyRecoveryRequestHandler(getBindingSite().getServiceBroker(),
-						   getBindingSite().getAgentIdentifier());
+						   getAgentIdentifier());
 
     // Subscribe to all requests to unlock data protection keys
     unlockRequestsSubscription = (IncrementalSubscription)getBlackboardService().subscribe

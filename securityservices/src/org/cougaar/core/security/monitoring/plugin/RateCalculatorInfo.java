@@ -20,8 +20,7 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.util.XMLizable;
-import org.cougaar.core.util.XMLize;
+import org.cougaar.planning.servlet.XMLize;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
 
@@ -33,7 +32,7 @@ import java.util.Date;
  * it needs to persist.
  */
 public class RateCalculatorInfo 
-  implements Serializable, UniqueObject, XMLizable {
+  implements Serializable, UniqueObject {
 
   public RateCalculatorInfo(int [] messages, long startTime,
                             long lastUpdate, String conditionName,
@@ -51,11 +50,6 @@ public class RateCalculatorInfo
 
   public void setUID(UID uid) {
     _uid = uid;
-  }
-
-  // XMLizable method for UI, other clients
-  public org.w3c.dom.Element getXML(org.w3c.dom.Document doc) {
-    return XMLize.getPlanObjectXML(this, doc);
   }
 
   /** Used only for XMLizable */

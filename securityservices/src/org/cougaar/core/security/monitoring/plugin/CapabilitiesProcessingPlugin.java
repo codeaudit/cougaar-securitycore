@@ -182,7 +182,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   protected void setupSubscriptions() {
     loggingService = (LoggingService)getBindingSite().getServiceBroker().getService
       (this, LoggingService.class, null);
-    myAddress = getBindingSite().getAgentIdentifier();
+    myAddress = getAgentIdentifier();
     loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called :"
 			 + myAddress.toString()); 
     mySecurityCommunity= getMySecurityCommunity();

@@ -61,7 +61,7 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.Condition;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
@@ -391,8 +391,8 @@ public class EventQueryPlugin extends ComponentPlugin {
           imessage.createClassification(_classifications[i], null);
         MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, 
                                                   classification, null, null, true );
-        ClusterIdentifier destination = 
-          new ClusterIdentifier(_societySecurityManager);
+        MessageAddress destination = 
+          MessageAddress.getMessageAddress(_societySecurityManager);
         CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
         bbs.publishAdd(relay);
         if (_log.isDebugEnabled()) {
@@ -480,7 +480,7 @@ public class EventQueryPlugin extends ComponentPlugin {
           String xml = d.getValue("event").toString();
 
           Event event = new EventImpl(new UID(owner,Long.parseLong(id)),
-                                      new ClusterIdentifier(source),
+                                      MessageAddress.getMessageAddress(source),
                                       IDMEF_Message.createMessage(xml));
           
           bbs.publishAdd(event);

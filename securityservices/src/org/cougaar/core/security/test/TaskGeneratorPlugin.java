@@ -28,9 +28,12 @@ package org.cougaar.core.security.test;
 import java.io.*;
 import java.lang.*;
 
-import org.cougaar.core.plugin.SimplePlugin;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.service.DomainService;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.planning.ldm.PlanningFactory;
 
 /** This Plugin repeatedely sends tasks to an agent.
  * Parameters:
@@ -38,14 +41,15 @@ import org.cougaar.planning.ldm.plan.Verb;
  * - verb:  the task verb.
  */
 
-public class TaskGeneratorPlugin extends SimplePlugin
+public class TaskGeneratorPlugin extends ComponentPlugin
 {
     String theVerb;
     String theAgent;
-
+    ServiceBroker sb;
     public TaskGeneratorPlugin() {}
 
     protected void setupSubscriptions() {
+        sb = getServiceBroker();
 	// Send N malicious tasks to the agent
 	int n = 10;
 	for (int i = 0 ; i < n ; i++) {
@@ -53,17 +57,20 @@ public class TaskGeneratorPlugin extends SimplePlugin
 	}
     }
 
-    public void execute() {
+    protected void execute() {
     }
 
     protected void publishTask() {
 	NewTask task = createTask();
-	publishAdd(task);
+	blackboard.publishAdd(task);
     }
 
     protected NewTask createTask() {
 	Verb verb = new Verb(theVerb);
-	NewTask task = getFactory().newTask();
+        DomainService ds = (DomainService)
+         sb.getService(this, DomainService.class, null);
+        PlanningFactory pf = (PlanningFactory)ds.getFactory(PlanningFactory.class);
+	NewTask task = pf.newTask();
 	task.setVerb(verb);
 
 	return task;

@@ -34,13 +34,11 @@ import org.w3c.dom.Node;
 import edu.jhuapl.idmef.*;
 
 // cougaar packages
-import org.cougaar.core.agent.ClusterContext;
-import org.cougaar.planning.ldm.ClusterServesPlugin;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.planning.ldm.LDMServesPlugin;
 import org.cougaar.core.service.UIDServer;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.planning.ldm.LDMServesPlugin;
 
 // Cougaar security services
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
@@ -210,8 +208,8 @@ final public class IdmefMessageFactory {
 
             List addressList = new ArrayList();
             addressList.add( createAddress( ip, null, Address.IPV4_ADDR ) );
-            m_agentId = ( ( ClusterServesPlugin)ldm ).getMessageAddress();
-            m_uidServer = ( ( ClusterContext )ldm ).getUIDServer();
+            m_agentId = ldm.getMessageAddress();
+            m_uidServer = ldm.getUIDServer();
             /*
              * can get the process name
              * cannot get the process id since java doesn't provide you with an api to do so!

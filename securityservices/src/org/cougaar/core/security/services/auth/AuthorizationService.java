@@ -22,7 +22,7 @@
 package org.cougaar.core.security.services.auth;
 
 // cougaar classes
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.component.ComponentDescription;
 import org.cougaar.core.component.Service;
 // security services classes
@@ -38,10 +38,10 @@ import java.security.Permission;
  *
  */
 public interface AuthorizationService extends Service {
-  public ExecutionContext createExecutionContext(ClusterIdentifier agent,
+  public ExecutionContext createExecutionContext(MessageAddress agent,
                                                  ComponentDescription component);
 
-  public ExecutionContext createExecutionContext(ClusterIdentifier agent,
+  public ExecutionContext createExecutionContext(MessageAddress agent,
                                         String uri, String userName);
 
   public ObjectContext createObjectContext(ExecutionContext ec, Object object);

@@ -25,14 +25,15 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.component.*;
 import org.cougaar.core.service.*;
 import org.cougaar.core.servlet.BaseServletComponent;
 
-import org.cougaar.core.domain.RootFactory;
+import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.*;
+import org.cougaar.core.blackboard.Directive;
 import org.cougaar.core.blackboard.DirectiveMessage;
 import org.cougaar.core.mts.*;
 
@@ -40,16 +41,18 @@ public class AddTaskServlet
 extends BaseServletComponent 
 {
 
-  private ClusterIdentifier agentId;
+  private MessageAddress agentId;
 //  private BlackboardService blackboard;
   private DomainService ds;
-  private RootFactory rootFactory;
+  private AgentIdentificationService ais;
+  private PlanningFactory planningFactory;
 
   public void load() {
-    org.cougaar.core.plugin.PluginBindingSite pbs =
-      (org.cougaar.core.plugin.PluginBindingSite) bindingSite;
-    this.agentId = pbs.getAgentIdentifier();
-
+    if(agentId == null) {
+      ais = (AgentIdentificationService)
+        serviceBroker.getService(this, AgentIdentificationService.class, null);
+      agentId = ais.getMessageAddress();
+    }
     super.load();
     initTransport();
   }
@@ -77,10 +80,13 @@ extends BaseServletComponent
 //  public void setBlackboardService(BlackboardService blackboard) {
 //    this.blackboard = blackboard;
 //  }
-
+  public void setAgentIdentificationService(AgentIdentificationService ais) {
+    this.ais = ais;
+    agentId = ais.getMessageAddress();
+  }
   public void setDomainService(DomainService ds) {
     this.ds = ds;
-    this.rootFactory = ds.getFactory();
+    this.planningFactory = (PlanningFactory)ds.getFactory(PlanningFactory.class);
   }
 
   protected Servlet createServlet() {
@@ -102,7 +108,7 @@ extends BaseServletComponent
  
       
       // add a new task to the blackboard:
-      NewTask nt = rootFactory.newTask();
+      NewTask nt = planningFactory.newTask();
       nt.setSource(agentId);
       nt.setVerb(Verb.getVerb(caOU));
   //create the message
@@ -110,7 +116,7 @@ extends BaseServletComponent
     d[0] = nt;
     DirectiveMessage dm = new DirectiveMessage(d);
     dm.setSource(agentId);
-    dm.setDestination(new ClusterIdentifier(caCN));
+    dm.setDestination(MessageAddress.getMessageAddress(caCN));
     mts.sendMessage(dm);
 
       out.println(

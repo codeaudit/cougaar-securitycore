@@ -24,120 +24,65 @@ package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceFilterBinder;
+import org.cougaar.core.component.Binder;
 import org.cougaar.core.component.BinderFactory;
 import org.cougaar.core.component.ContainerAPI;
 import org.cougaar.core.agent.Agent;
-import org.cougaar.core.agent.AgentBinder;
-import org.cougaar.core.agent.AgentManagerForBinder;
+import org.cougaar.core.agent.AgentManager;
 import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.core.security.services.acl.AccessControlPolicyService;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.AgentIdentificationService;
+
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class AccessAgentBinder 
-  extends ServiceFilterBinder 
-  implements AgentBinder {
+  extends ServiceFilterBinder  {
 
   private ServiceBroker serviceBroker;
-  private LoggingService log;
+  private Logger log;
 
   public  AccessAgentBinder (BinderFactory bf,Object child) {
     super(bf,child);
   }
-  
-  /* ********************************************************************************
-   * AgentBinder interface
-   */
-  /**
-   * Get the agent's message address.
-   */
-  public MessageAddress getAgentIdentifier() {
-    AgentBinder ab = (AgentBinder) getChildBinder();
-    if (ab == null) {
-      log.error("Unable to get child binder");
-      throw new RuntimeException("AccessAgentBinder: Unable to get child binder");
-    }
 
-    MessageAddress ret = ab.getAgentIdentifier();
-    if (log == null) {
-      serviceBroker = getServiceBroker();
-      log = (LoggingService) serviceBroker.getService(this,LoggingService.class, null);
-    }
-
-    if (log.isDebugEnabled()) {
-      log.debug("getAgentIdentifier of agent "+ret);
-    }
-    return ret;
-  }
-
-  /**
-   * Obtain direct access to the agent.
-   * <p>
-   * This method may be removed from the binder API due to
-   * security concerns.
-   */
-  public Agent getAgent() {
-    AgentBinder ab = (AgentBinder) getChildBinder();
-    MessageAddress addr = ab.getAgentIdentifier();
-    Agent ret = ab.getAgent();
-    if (log.isDebugEnabled()) {
-      log.debug("getAgent of agent " + addr);
-    }
-    return ret;
-  }
-  
-  /* ********************************************************************************
-   * End AgentBinder interface
-   */
-
-  //child binder
-  protected final AgentBinder getAgentBinder() { 
-    return (AgentBinder)getChildBinder(); 
-  }    
-  //parent
-  protected final AgentManagerForBinder getAgentManager() { 
-    return (AgentManagerForBinder)getContainer(); 
-  }
-  
   protected ContainerAPI createContainerProxy() {
-    return new AccessAgentBinderProxy();
+    return new ServiceFilterContainerProxy();
   }
 
   protected ServiceBroker createFilteringServiceBroker(ServiceBroker sb) {
+    if(sb != null) {
+      log = (LoggingService)sb.getService(this, LoggingService.class, null);
+      if(log == null) {
+        log = LoggerFactory.getInstance().createLogger(this);
+      }
+    }
     return new AccessAgentServiceBroker(sb);
   }
-
-  protected class AccessAgentBinderProxy
-    extends ServiceFilterContainerProxy
-    implements AgentManagerForBinder
-  {
-    public void registerAgent(Agent agent) {
-      //just passing through
-      getAgentManager().registerAgent(agent);
-    }
-    public String getName() {
-      return getAgentManager().getName(); 
-    }
-    
-  }
-  
+ 
   protected class AccessAgentServiceBroker
     extends FilteringServiceBroker
     implements AccessPolicyClient  {
-      
+    private MessageAddress _agent;
+
     public AccessAgentServiceBroker(ServiceBroker sb) {
       super(sb);
+      //AgentIdentificationService ais = (AgentIdentificationService)
+        //sb.getService(this, AgentIdentificationService.class, null);
+      _agent = MessageAddress.getMessageAddress(getComponentDescription().getName()); 
     }
    
     /* ******************************************************************************************
-     * BEGIN AgentManagerForBinder Interface
+     * BEGIN AccessPolicyClient Interface
      * ******************************************************************************************/
     public String getName(){
-      return getAgentIdentifier().toString();
+      return _agent.toString();
     }
 
     /* ******************************************************************************************
-     * BEGIN FilteringServiceBroker
+     * END AccessPolicyClient Interface 
      * ******************************************************************************************/
 
     protected Object getServiceProxy(Object service, Class serviceclass, Object client)  {
@@ -145,8 +90,6 @@ public class AccessAgentBinder
 	serviceBroker = getServiceBroker();
 	AccessControlPolicyService acps=null;
 	if (serviceBroker != null)  {
-	  log = (LoggingService)
-	    serviceBroker.getService(this,LoggingService.class, null);
 	  acps = (AccessControlPolicyService)
 	    serviceBroker.getService(this,AccessControlPolicyService.class, null);
 	  if (acps == null) {

@@ -31,7 +31,7 @@ import edu.jhuapl.idmef.XMLSerializable;
 import edu.jhuapl.idmef.XMLUtils;
 
 
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
@@ -71,7 +71,7 @@ public class MRAgentLookUpReply implements XMLSerializable  {
       Node finger = children.item(i);
       if (finger.getNodeName().equals("AgentName")){
 	String agentid=XMLUtils.getAssociatedString(finger);
-	agentListNodes.add(new ClusterIdentifier(agentid));
+	agentListNodes.add(MessageAddress.getMessageAddress(agentid));
       }
     }
     
@@ -82,9 +82,9 @@ public class MRAgentLookUpReply implements XMLSerializable  {
     if (AgentList!= null){
       if(!AgentList.isEmpty()) {
 	ListIterator iter=AgentList.listIterator();
-	ClusterIdentifier agentid=null;
+	MessageAddress agentid=null;
 	while(iter.hasNext()) {
-	  agentid=(ClusterIdentifier)iter.next();
+	  agentid=(MessageAddress)iter.next();
 	  Node agentNameNode = parent.createElement("AgentName");
 	  agentNameNode.appendChild(parent.createTextNode(agentid.toString()));
 	  agentLookUpReplyNode.appendChild(agentNameNode);
@@ -99,9 +99,9 @@ public class MRAgentLookUpReply implements XMLSerializable  {
     if(!AgentList.isEmpty()) {
       int counter=0;
       ListIterator iter=AgentList.listIterator();
-      ClusterIdentifier agentid=null;
+      MessageAddress agentid=null;
       while(iter.hasNext()) {
-	agentid=(ClusterIdentifier)iter.next();
+	agentid=(MessageAddress)iter.next();
 	buff.append(" Agent no :"+ counter+" agent Name :"+ agentid.toString()+"\n");
 	counter++;
       }

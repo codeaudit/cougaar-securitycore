@@ -57,7 +57,7 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.Condition;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
@@ -119,7 +119,7 @@ public class BouncePlugin extends ComponentPlugin {
       }
     };
   private IncrementalSubscription _subscription;
-  private ClusterIdentifier _destination;
+  private MessageAddress _destination;
 
   private CmrFactory _cmrFactory;
   private String     _id;
@@ -153,7 +153,7 @@ public class BouncePlugin extends ComponentPlugin {
       _id = l.remove(0).toString();
     }
     if (l.size() != 0) {
-      _destination =  new ClusterIdentifier(l.remove(0).toString());
+      _destination =  MessageAddress.getMessageAddress(l.remove(0).toString());
     }
     if (l.size() != 0) {
       _sendCount = Integer.parseInt(l.remove(0).toString());

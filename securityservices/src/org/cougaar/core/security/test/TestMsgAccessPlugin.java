@@ -20,37 +20,42 @@ package org.cougaar.core.security.test;
 import java.util.*;
 
 import org.cougaar.core.blackboard.DirectiveMessage;
-import org.cougaar.planning.ldm.plan.Directive;
-import org.cougaar.core.plugin.SimplePlugin;
+import org.cougaar.core.blackboard.Directive;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.DomainService;
 import org.cougaar.core.mts.*;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.MessageTransportService;
 
+import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Verb;
 
 /**
  * This plugin tests the use of Message Access Control binder.
  */
-public class TestMsgAccessPlugin extends SimplePlugin {
+public class TestMsgAccessPlugin extends ComponentPlugin {
 
   private LoggingService log;
   private BlackboardService bbs = null;
-  private ClusterIdentifier myAgent = null;
+  private MessageAddress myAgent = null;
 
   private String theTarget = "";
   private String theVerb = "";
   private NewTask task;
 
   protected void setupSubscriptions() {
-    log =  (LoggingService) getBindingSite().getServiceBroker().
-      getService(this, LoggingService.class, null);
+    ServiceBroker sb = getServiceBroker();
+    log =  (LoggingService)sb.getService(this, LoggingService.class, null);
 
     bbs = getBlackboardService();
-
-    myAgent = getClusterIdentifier();
+    AgentIdentificationService ais = (AgentIdentificationService)
+      sb.getService(this, AgentIdentificationService.class, null); 
+    myAgent = ais.getMessageAddress();
 
     //get input
     Collection params = getParameters();
@@ -62,18 +67,20 @@ public class TestMsgAccessPlugin extends SimplePlugin {
     theVerb = (String) ((params.toArray())[1]);
     
     Verb verb = new Verb(theVerb);
-    task = getFactory().newTask();
+    DomainService ds = (DomainService)sb.getService(this, DomainService.class, null);
+    PlanningFactory pf = (PlanningFactory)ds.getFactory(PlanningFactory.class);
+    task = pf.newTask();
     task.setVerb(verb);
   //create the message
     Directive[] d = new Directive[1];
     d[0] = task;
     DirectiveMessage dm = new DirectiveMessage(d);
     dm.setSource(myAgent);
-    dm.setDestination(new ClusterIdentifier(theTarget));
+    dm.setDestination(MessageAddress.getMessageAddress(theTarget));
     mts.sendMessage(dm);
   }
 
-  public void execute() {
+  protected void execute() {
   }
 
   private MessageTransportClient mtc;

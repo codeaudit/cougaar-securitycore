@@ -21,7 +21,7 @@
 
 package org.cougaar.core.security.auth;
 
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import java.security.Permission;
 import java.util.Map;
 
@@ -32,7 +32,7 @@ import java.util.Map;
  * @author <a href="mailto:gmount@nai.com">George Mount</a>
  */
 public interface AuthorizationEngine {
-  public ExecutionContext getContext(ClusterIdentifier agent,
+  public ExecutionContext getContext(MessageAddress agent,
                                      Class component);
   public ExecutionContext getContext(ExecutionContext fixedContext,
                                      String uri, String userName,

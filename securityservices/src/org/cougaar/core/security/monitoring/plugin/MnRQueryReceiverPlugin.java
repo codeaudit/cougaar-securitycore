@@ -32,7 +32,7 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.StateModelException ;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.service.community.*;
 
@@ -103,7 +103,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
   private String mgrrole=null;
   private String myRole=null;
   
-  // private ClusterIdentifier destAddress;
+  // private MessageAddress destAddress;
 
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -140,7 +140,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     /*QueryMapping mapping=new QueryMapping();
       getBlackboardService().publishAdd(mapping);
     */
-    myAddress = getBindingSite().getAgentIdentifier();
+    myAddress = getAgentIdentifier();
     if (loggingService.isDebugEnabled()) {
       loggingService.debug("setupSubscriptions of MnRQueryReceiverPlugin called :"
 			   + myAddress.toString());
@@ -406,7 +406,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	Iterator response_iterator=response.iterator();
 	String key=null;
 	RegistrationAlert reg;
-	ClusterIdentifier dest_address;
+	MessageAddress dest_address;
 	ArrayList relay_uid_list=new ArrayList();
 	//boolean modified=false;
 	if (loggingService.isDebugEnabled()) {
@@ -415,7 +415,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	while(response_iterator.hasNext()) {
 	  key=(String)response_iterator.next();
 	  reg=(RegistrationAlert)capabilities.get(key);
-	  dest_address=new ClusterIdentifier(key);
+	  dest_address=MessageAddress.getMessageAddress(key);
 	  if (loggingService.isDebugEnabled()) {
 	    loggingService.debug("Destination address for Sub Query relay is :"
 				 +dest_address.toString());
@@ -462,7 +462,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       }
       String key=null;
       RegistrationAlert reg;
-      ClusterIdentifier dest_address;
+      MessageAddress dest_address;
       response= findAgent(agentlookupquery,capabilities,true);
       if(response.isEmpty()) {
 	if (loggingService.isDebugEnabled()) {
@@ -481,7 +481,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       while(response_iterator.hasNext()) {
 	key=(String)response_iterator.next();
 	//reg=(RegistrationAlert)capabilities.get(key);
-	dest_address=new ClusterIdentifier(key);
+	dest_address=MessageAddress.getMessageAddress(key);
 	if (loggingService.isDebugEnabled()) {
 	  loggingService.debug("Adding sensor agent to response :"+ dest_address.toString());
 	}
@@ -1222,9 +1222,9 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     CommunityRoster roster=communityService.getRoster(community);
     Collection agents=roster.getMemberAgents();
     Iterator agentiter=agents.iterator();
-    ClusterIdentifier agent;
+    MessageAddress agent;
     while(agentiter.hasNext()) {
-      agent=(ClusterIdentifier)agentiter.next();
+      agent=(MessageAddress)agentiter.next();
       list.add(agent.toString());
     }
     

@@ -26,10 +26,15 @@ package org.cougaar.core.security.access;
 
 import java.util.*;
 
+import org.cougaar.core.blackboard.*;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.plugin.*;
+import org.cougaar.core.service.DomainService;
 import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.planning.ldm.asset.*;
-import org.cougaar.core.blackboard.*;
-import org.cougaar.core.plugin.*;
+import org.cougaar.planning.ldm.LDMServesPlugin;
+import org.cougaar.planning.ldm.PlanningFactory;
+import org.cougaar.planning.service.LDMService;
 import org.cougaar.util.*;
 
 import org.cougaar.core.security.policy.*;
@@ -39,21 +44,26 @@ import org.cougaar.core.security.policy.*;
  * the cougaar-aware proxy can be informed of the society's current
  * threat con level.
  */
-public class AssetCreationPlugin extends SimplePlugin {
+public class AssetCreationPlugin extends ComponentPlugin {
 
-    public void setupSubscriptions(){
+    protected void setupSubscriptions(){
+        ServiceBroker sb = getServiceBroker();
+        DomainService ds = (DomainService)sb.getService(this, DomainService.class, null);
+        PlanningFactory pf = (PlanningFactory)ds.getFactory(PlanningFactory.class);
+        LDMService ldms = (LDMService)sb.getService(this, LDMService.class, null); 
+        LDMServesPlugin ldm = ldms.getLDM();
         ThreatConLevelAsset threatConLevelPrototype = 
-	    (ThreatConLevelAsset)theLDMF.createPrototype
+	    (ThreatConLevelAsset)pf.createPrototype
 	    (ThreatConLevelAsset.class, "tcl");
-        theLDM.cachePrototype("tcl", threatConLevelPrototype);
+        ldm.cachePrototype("tcl", threatConLevelPrototype);
         threatConLevelPrototype.setThreatConLevel(3);
-        publishAdd(threatConLevelPrototype);
+        getBlackboardService().publishAdd(threatConLevelPrototype);
     }
 
     /**
      * this method should never be called but it is defined here to conform
      * to the interface...
      */
-    public void execute(){  }
+    protected void execute(){  }
 
 }

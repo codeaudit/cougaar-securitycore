@@ -47,10 +47,9 @@ import org.cougaar.core.service.*;
 import org.cougaar.core.service.community.*;
 import org.cougaar.core.mts.*;
 import org.cougaar.core.agent.*;
-import org.cougaar.core.domain.RootFactory;
 import org.cougaar.core.domain.Factory;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 
 // Cougaar security services
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
@@ -186,7 +185,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     loggingService = (LoggingService)getBindingSite().getServiceBroker().getService
       (this,LoggingService.class, null);
 
-    myAddress = getBindingSite().getAgentIdentifier();
+    myAddress = getAgentIdentifier();
     if (loggingService.isDebugEnabled()) {
       loggingService.debug("setupSubscriptions of CapabilitiesConsolidationPlugin called for "
 			   + myAddress.toAddress()); 
@@ -222,7 +221,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       }
       loggingService.debug(" My destination community is  :"+dest_community +" agent name :"+myAddress.toString());
       if((mgrrole!=null)&&(dest_community!=null)) {
-	mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);	
+	mgrAddress=AttributeBasedAddress.getAttributeBasedAddress(dest_community,"Role",mgrrole);	
 	loggingService.debug("Created  manager address :"+ mgrAddress.toString());
       }
     }
@@ -1166,7 +1165,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	if (loggingService.isDebugEnabled())
 	  loggingService.debug(" No relay was present creating one  "+ relay.toString());
 	//relay = factory.newCmrRelay(event, mgrAddress);
-	//relay =factory.newCmrRelay(event, new MessageAddress(dest_agent));
+	//relay =factory.newCmrRelay(event, MessageAddress.getMessageAddress(dest_agent));
 	if(destcluster!=null) {
 	  loggingService.info(" Creating relay to :"+ destcluster.toString());
 	  getBlackboardService().publishAdd(relay);

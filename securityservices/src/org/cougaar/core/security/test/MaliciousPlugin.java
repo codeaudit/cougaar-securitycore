@@ -32,9 +32,9 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.cougaar.core.plugin.SimplePlugin;
+import org.cougaar.core.plugin.ComponentPlugin;
 
-public class MaliciousPlugin extends SimplePlugin
+public class MaliciousPlugin extends ComponentPlugin
 {
    public MaliciousPlugin() {}
 
@@ -53,6 +53,6 @@ public class MaliciousPlugin extends SimplePlugin
       }
     }
 
-    public void execute() {}
+    protected void execute() {}
 
 }

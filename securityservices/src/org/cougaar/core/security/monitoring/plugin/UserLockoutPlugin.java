@@ -22,7 +22,7 @@ package org.cougaar.core.security.monitoring.plugin;
 
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.multicast.AttributeBasedAddress;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
@@ -424,7 +424,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
       }
       if (isSecurityCommunity) {
         AttributeBasedAddress messageAddress = 
-          new AttributeBasedAddress(community, "Role", _managerRole);
+          AttributeBasedAddress.getAttributeBasedAddress(community, "Role", _managerRole);
         CmrRelay relay = _cmrFactory.newCmrRelay(regEvent, messageAddress);
         if (_log.isInfoEnabled()) {
           _log.info("Sending sensor capabilities to community '" + 

@@ -32,11 +32,10 @@ import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 
 // Cougaar core services
-import org.cougaar.core.util.XMLizable;
-import org.cougaar.core.util.XMLize;
+import org.cougaar.planning.servlet.XMLize;
 
 public class MRAgentLookUp
-  implements XMLSerializable, XMLizable
+  implements XMLSerializable
 {
 
   /** If set, the lookup returns sensors that are in the specified community. */
@@ -233,11 +232,4 @@ public class MRAgentLookUp
     buff.append(" Updates :"+updates +"\n" );
     return buff.toString();
   }
-
-
-  // XMLizable method for UI, other clients
-  public org.w3c.dom.Element getXML(org.w3c.dom.Document doc) {
-    return XMLize.getPlanObjectXML(this, doc);
-  }
-
 }

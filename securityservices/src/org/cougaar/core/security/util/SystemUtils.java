@@ -24,8 +24,6 @@ import java.net.InetAddress;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.cougaar.core.node.ArgTable;
-
 public class SystemUtils {
   
   public static String getNodeName(){

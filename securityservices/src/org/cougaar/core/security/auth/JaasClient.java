@@ -155,18 +155,24 @@ public class JaasClient {
 	  System.out.println("principal:" + p.getClass().getName()
 	    + " - " + p.toString());
 	}
+        // NOTE: This won't be the case going forward because this class is relocated
+        //       to securityservice.jar
 	// Do not use (p instanceof ChainedPrincipal) as 
 	// the class may have been loaded by a different class loader.
-  /*
+        /*
 	if (p.getClass().getName().
 	    equals("org.cougaar.core.security.securebootstrap.ChainedPrincipal")) {
-	  */
+	*/
+
 	if(p instanceof ChainedPrincipal) {
 	  if (debug > 0) {
 	    System.out.println("Adding principals:" + p.toString());
 	  }
-    ChainedPrincipal oldCP = (ChainedPrincipal)p;
-    cp.addChainedPrincipals(oldCP.getChain());
+          ChainedPrincipal oldCP = (ChainedPrincipal)p;
+          cp.addChainedPrincipals(oldCP.getChain());
+
+        // NOTE: This won't be the case going forward because this class is relocated
+        //       to securityservice.jar
 	  /* In the JDK 1.4 (at least on Linux, not tested on other platforms),
 	   * the thread either hangs or dies when the following statement is executed:
 	   *   ChainedPrincipal newP = (ChainedPrincipal)p;
@@ -174,7 +180,7 @@ public class JaasClient {
 	   * by a different class loader than newP.
 	   * Using introspection works.
 	   */
-	   /*
+	/*
 	  try {
 	    Class c = p.getClass();
 	    Method m = c.getDeclaredMethod("getChain", null);
@@ -184,7 +190,7 @@ public class JaasClient {
 	  catch (Exception e) {
 	    System.out.println("Unable to get principal: " + e);
 	  }
-	  */
+	*/
 	  break;
 	}
       }

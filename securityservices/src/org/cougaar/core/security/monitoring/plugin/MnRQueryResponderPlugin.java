@@ -32,7 +32,7 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.StateModelException ;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.util.UID;
 
 //Security services
@@ -98,7 +98,7 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
   private LoggingService loggingService;
   private MessageAddress myAddress=null;
   private Object param;
-  // private ClusterIdentifier destAddress;
+  // private MessageAddress destAddress;
 
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -125,7 +125,7 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
   protected void setupSubscriptions() {
     loggingService = (LoggingService)getBindingSite().getServiceBroker().getService
       (this, LoggingService.class, null);
-    myAddress = getBindingSite().getAgentIdentifier();
+    myAddress = getAgentIdentifier();
     loggingService.debug("setupSubscriptions of MnRQueryResponderPlugin called :"+ myAddress.toString());
     queryResponse= (IncrementalSubscription)getBlackboardService().subscribe
       (new QueryRespondRelayPredicate());
@@ -393,10 +393,10 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     }
     ArrayList returnList=new ArrayList();
     ListIterator existinglistiterator=existingList.listIterator();
-    ClusterIdentifier agentid=null;
+    MessageAddress agentid=null;
     boolean ispresent=false;
     while(existinglistiterator.hasNext()) {
-      agentid=(ClusterIdentifier)existinglistiterator.next();
+      agentid=(MessageAddress)existinglistiterator.next();
       if(agentid!=null) {
 	ispresent=isAgentInList(agentid.getAddress(),returnList);
 	if(!ispresent) {
@@ -407,7 +407,7 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     }
     ListIterator listiterator=newList.listIterator();
     while(listiterator.hasNext()) {
-      agentid=(ClusterIdentifier)listiterator.next();
+      agentid=(MessageAddress)listiterator.next();
       if(agentid!=null) {
 	ispresent=isAgentInList(agentid.getAddress(),returnList);
 	if(!ispresent) {
@@ -428,9 +428,9 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
       return true;
     }
     ListIterator listiterator=list.listIterator();
-    ClusterIdentifier agentid=null;
+    MessageAddress agentid=null;
     while(listiterator.hasNext()) {
-      agentid=(ClusterIdentifier)listiterator.next();
+      agentid=(MessageAddress)listiterator.next();
       if(agentid!=null){
 	if(agentid.getAddress().equalsIgnoreCase(agent)){
 	  present=true;

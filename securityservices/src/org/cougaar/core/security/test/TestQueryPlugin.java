@@ -32,7 +32,7 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.StateModelException ;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.SimpleMessageAddress;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.service.community.*;
 
@@ -115,7 +115,7 @@ public class TestQueryPlugin extends ComponentPlugin {
  protected void setupSubscriptions() {
     loggingService = (LoggingService)getBindingSite().getServiceBroker().getService
       (this, LoggingService.class, null);
-    myAddress = getBindingSite().getAgentIdentifier(); 
+    myAddress = getAgentIdentifier(); 
     testqueryRelays= (IncrementalSubscription)getBlackboardService().subscribe
       (new TestQueryRelayPredicate());
     loggingService.debug(" ready false is  true and not published .Going to publish query");
@@ -126,7 +126,7 @@ public class TestQueryPlugin extends ComponentPlugin {
       Creates an MRAgentLookUp
     */
     MRAgentLookUp agentlookup=new  MRAgentLookUp("TINY-1AD-Enclave",null,null,null,classification,null,null,true);
-    ClusterIdentifier dest_address=getSocietyManager();
+    MessageAddress dest_address=getSocietyManager();
     if(dest_address==null) {
       loggingService.debug(" No Society manager to send query to :");
       return;
@@ -175,10 +175,10 @@ public class TestQueryPlugin extends ComponentPlugin {
     
   }
   
-  public ClusterIdentifier getSocietyManager() {
+  public MessageAddress getSocietyManager() {
     Collection communitycol=null;
     String role="SecurityMnRManager-Society";
-    ClusterIdentifier societymgr=null; 
+    MessageAddress societymgr=null; 
     if(communityService==null) {
       return null;
     }
@@ -196,8 +196,8 @@ public class TestQueryPlugin extends ComponentPlugin {
 	loggingService.debug(" ERROR !!!!! too many society managers ")	;
 	return null;
       }
-      ClusterIdentifier agent [] =null; 
-      agent= (ClusterIdentifier[])agentcol.toArray(new ClusterIdentifier[1]);
+      MessageAddress agent [] =null; 
+      agent= (MessageAddress[])agentcol.toArray(new SimpleMessageAddress[1]);
       societymgr=agent[0];
     }
     return societymgr;     

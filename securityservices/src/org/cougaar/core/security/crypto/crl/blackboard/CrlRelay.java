@@ -26,14 +26,13 @@ import java.util.Collections;
 import org.cougaar.core.relay.*;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.util.UID;
-import org.cougaar.core.util.XMLizable;
-import org.cougaar.core.util.XMLize;
+import org.cougaar.planning.servlet.XMLize;
 
 /**
  * This class implements a Relay capable of transmitting registration for CRL to
  * CRL Management agent .  */
 public class CrlRelay
-  implements Relay.Source, Relay.Target, XMLizable
+  implements Relay.Source, Relay.Target
 {
   private MessageAddress source;
   private MessageAddress target;
@@ -135,11 +134,6 @@ public class CrlRelay
       return CONTENT_CHANGE;
     }
     return NO_CHANGE;
-  }
-
-  // XMLizable method for UI, other clients
-  public org.w3c.dom.Element getXML(org.w3c.dom.Document doc) {
-    return XMLize.getPlanObjectXML(this, doc);
   }
 
   public boolean equals(Object o) {

@@ -31,8 +31,7 @@ import java.lang.*;
 // Cougaar core services
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
-import org.cougaar.core.plugin.LDMService;
-import org.cougaar.core.domain.LDMServesPlugin;
+import org.cougaar.planning.ldm.LDMServesPlugin;
 
 // Cougaar security services
 

@@ -39,7 +39,7 @@ import org.w3c.dom.Document;
 // Core Cougaar
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.SimplePlugin;
+import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.planning.ldm.policy.Policy;
@@ -68,7 +68,7 @@ import org.cougaar.core.security.util.DOMWriter;
  * the comments for that method for details on how to expand policies.
  */
 public class PolicyExpanderPlugin
-  extends SimplePlugin
+  extends ComponentPlugin
 {
   private SecurityPropertiesService secprop = null;
   private LoggingService log;
@@ -84,7 +84,7 @@ public class PolicyExpanderPlugin
       }
     };
 
-  public void setupSubscriptions() {
+  protected void setupSubscriptions() {
     secprop = (SecurityPropertiesService)
       getBindingSite().getServiceBroker().getService(this,
 						     SecurityPropertiesService.class, null);
@@ -93,11 +93,11 @@ public class PolicyExpanderPlugin
       getBindingSite().getServiceBroker().getService(this,
 						     LoggingService.class, null);
 
-    _ucpm = (IncrementalSubscription) subscribe(_unexCondPolicyPredicate);
-    _upu = (IncrementalSubscription) subscribe (_unexPolicyUpdatePredicate);
+    _ucpm = (IncrementalSubscription) blackboard.subscribe(_unexCondPolicyPredicate);
+    _upu = (IncrementalSubscription) blackboard.subscribe (_unexPolicyUpdatePredicate);
   }
     
-  public void execute()
+  protected void execute()
     {
       if (log.isDebugEnabled()) log.debug("PolicyExpanderPlugIn::execute()");
       // check for added UnexpandedConditionalPolicyMsgs
@@ -119,9 +119,9 @@ public class PolicyExpanderPlugin
 	    xcp.printStackTrace();
 	  }                    
 	}
-	publishRemove (ucpm);
+	blackboard.publishRemove (ucpm);
 	if (log.isDebugEnabled()) log.debug("publishAdd ConditionalPolicyMsg");
-	publishAdd (condPolicyMsg);			
+	blackboard.publishAdd (condPolicyMsg);			
       }
         
       // check for added UnexpandedPolicyUpdates
@@ -139,8 +139,8 @@ public class PolicyExpanderPlugin
 	    xcp.printStackTrace();
 	  }
 	}
-	publishRemove (upu);
-	publishAdd (new ProposedPolicyUpdate(upu.getUpdateType(),
+	blackboard.publishRemove (upu);
+	blackboard.publishAdd (new ProposedPolicyUpdate(upu.getUpdateType(),
 					     policies));
       }
     }
@@ -175,7 +175,7 @@ public class PolicyExpanderPlugin
 	  xmlContent = (Document) attrMsg.getValue();
 
 	  XMLPolicyCreator policyCreator =
-	    new XMLPolicyCreator(xmlContent, getClusterIdentifier().toAddress());
+	    new XMLPolicyCreator(xmlContent, getMessageAddress().toAddress());
 	  Policy[] policies = policyCreator.getPolicies();
 
 	  if (log.isDebugEnabled()) {

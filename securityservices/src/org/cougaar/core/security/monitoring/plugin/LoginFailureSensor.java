@@ -214,7 +214,7 @@ public class LoginFailureSensor extends SensorPlugin {
       }
       if (isSecurityCommunity) {
         AttributeBasedAddress messageAddress = 
-          new AttributeBasedAddress(community, "Role", _managerRole);
+          AttributeBasedAddress.getAttributeBasedAddress(community, "Role", _managerRole);
         CmrRelay relay = cmrFactory.newCmrRelay(regEvent, messageAddress);
         if (m_log.isInfoEnabled()) {
           m_log.info("Sending sensor capabilities to community '" + 

@@ -77,7 +77,7 @@ public class IdmefEventLoggerPlugin extends ComponentPlugin {
       (this, LoggingService.class, null);
     secprop=(SecurityPropertiesService)getBindingSite().getServiceBroker().getService
       (this, SecurityPropertiesService.class, null);
-    myAddress = getBindingSite().getAgentIdentifier();
+    myAddress = getAgentIdentifier();
     createEventFile(myAddress.toString());
     loggingService.debug("setupSubscriptions of IDMEF event Logger  called :"
 			 + myAddress.toString());

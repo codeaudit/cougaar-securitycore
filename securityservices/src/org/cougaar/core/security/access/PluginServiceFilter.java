@@ -40,10 +40,9 @@ import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.persist.*;
 import org.cougaar.core.blackboard.*;
-import org.cougaar.core.plugin.PluginManagerForBinder;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.SchedulerService;
-import org.cougaar.core.servlet.ServletService;
+import org.cougaar.core.service.ServletService;
 
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.services.auth.SecurityContextService;
@@ -72,25 +71,14 @@ public class PluginServiceFilter extends ServiceFilter {
       super(bf,child);
     }
 
-    protected final PluginManagerForBinder getPluginManager() { return (PluginManagerForBinder)getContainer(); }
-
     // this method specifies a binder proxy to use, so as to avoid exposing the binder
     // itself to the lower level objects.
-    protected ContainerAPI createContainerProxy() { return new PluginFilteringBinderProxy(); }
+    protected ContainerAPI createContainerProxy() { return new ServiceFilterContainerProxy(); }
 
     // this method installs the "filtering" service broker
     protected ServiceBroker createFilteringServiceBroker(ServiceBroker sb) {
       return new PluginFilteringServiceBroker(sb); 
     }
-
-    // this class implements a simple proxy for a plugin wrapper binder
-    protected class PluginFilteringBinderProxy
-      extends ServiceFilterContainerProxy
-      implements PluginManagerForBinder
-    {
-      public MessageAddress getAgentIdentifier() { return getPluginManager().getAgentIdentifier(); }
-      public ConfigFinder getConfigFinder() { return getPluginManager().getConfigFinder(); }
-    } // end PluginFilteringBinderProxy
 
 
     // this class catches requests for blackboard services, and 
@@ -206,7 +194,6 @@ public class PluginServiceFilter extends ServiceFilter {
       _requestor = req;
     }
     public Trigger register(Trigger t) {
-      System.out.println("SchedulerProxy registering trigger for client: " + _requestor);
       return _scheduler.register(addTrigger(t));
     }
     
@@ -368,17 +355,17 @@ public class PluginServiceFilter extends ServiceFilter {
     public boolean haveCollectionsChanged() {
       return _bs.haveCollectionsChanged();
     }
-    public boolean publishAdd(Object o) {
-      return _bs.publishAdd(o);
+    public void publishAdd(Object o) {
+      _bs.publishAdd(o);
     }
-    public boolean publishRemove(Object o) {
-      return _bs.publishRemove(o);
+    public void publishRemove(Object o) {
+      _bs.publishRemove(o);
     }
-    public boolean publishChange(Object o) {
-      return _bs.publishChange(o);
+    public void publishChange(Object o) {
+      _bs.publishChange(o);
     }
-    public boolean publishChange(Object o, Collection changes) {
-      return _bs.publishChange(o,changes);
+    public void publishChange(Object o, Collection changes) {
+      _bs.publishChange(o,changes);
     }
     public void openTransaction() {
       _bs.openTransaction();
@@ -396,7 +383,9 @@ public class PluginServiceFilter extends ServiceFilter {
     public void closeTransactionDontReset() {
       _bs.closeTransactionDontReset();
     }
-
+    public boolean isTransactionOpen() {
+      return _bs.isTransactionOpen();
+    }
     public void signalClientActivity() {
       _bs.signalClientActivity();
     }

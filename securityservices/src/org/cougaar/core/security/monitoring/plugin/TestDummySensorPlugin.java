@@ -38,7 +38,7 @@ import org.cougaar.core.service.community.*;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
 
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 
 import java.util.Enumeration;
 import java.util.List;
@@ -57,7 +57,7 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
   private AttributeBasedAddress mgrAddress;
   //private MessageAddress mgrAddress;
   private MessageAddress myAddress;
-  private ClusterIdentifier destcluster;
+  private MessageAddress destcluster;
   private String sensor_name="SensorTest";
   private String dest_community=null;
   private Object param;
@@ -97,7 +97,7 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     log = (LoggingService)
       getBindingSite().getServiceBroker().getService(this,
 						     LoggingService.class, null);
-    myAddress = getBindingSite().getAgentIdentifier();
+    myAddress = getAgentIdentifier();
     log.debug("setupSubscriptions of  called for TestDummySensor Plugin in  :"+ myAddress.toString()); 
     DomainService service=getDomainService();
     if(service==null) {
@@ -130,8 +130,8 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
       }
       */
       log.debug(" My destination community is  :"+dest_community +" agent name :"+myAddress.toString());
-      mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
-      //mgrAddress=new MessageAddress("Tiny1ADEnclaveSecurityManager");
+      mgrAddress=AttributeBasedAddress.getAttributeBasedAddress(dest_community,"Role",mgrrole);
+      //mgrAddress=MessageAddress.getMessageAddress("Tiny1ADEnclaveSecurityManager");
       log.debug("###############$$$$$$$$$$$$$$$$$$$$$$$$$$#######$$$$$$$$$$$$$$$$$$$$$########################################################################################################################## Created  manager address :"+ mgrAddress.toString());
     }
     
@@ -201,7 +201,7 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     log.debug(" going to publish capabilities in TestDummySensorplugin from :"+myAddress.toString()
 		       +" Capabilities are :"+reg.toString() );
     }
-    //mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
+    //mgrAddress=AttributeBasedAddress.getAttributeBasedAddress(dest_community,"Role",mgrrole);
     if(log.isDebugEnabled())
       log.debug(" destination ABA address is :"+mgrAddress.toString());
     relay = factory.newCmrRelay(event,mgrAddress);
@@ -277,7 +277,7 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     getBlackboardService().publishAdd(relay1);
     log.debug("Publish DONE  ****************************************");
     //getBlackboardService().closeTransaction();
-    //mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
+    //mgrAddress=AttributeBasedAddress.getAttributeBasedAddress(dest_community,"Role",mgrrole);
    
   }
           

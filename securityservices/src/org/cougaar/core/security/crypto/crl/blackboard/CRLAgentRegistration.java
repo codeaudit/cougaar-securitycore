@@ -23,14 +23,13 @@ package org.cougaar.core.security.crypto.crl.blackboard;
 
 import java.io.Serializable;
 import org.cougaar.core.blackboard.Publishable;
-import org.cougaar.core.util.XMLizable;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 
-public class CRLAgentRegistration implements Serializable,Publishable,XMLizable{
+public class CRLAgentRegistration implements Serializable,Publishable{
   public  String dnName;
   public String ldapURL;
   public int ldapType;
@@ -54,13 +53,6 @@ public class CRLAgentRegistration implements Serializable,Publishable,XMLizable{
     }
     buffer.append("ldapType="+ldapType+"\n");
     return buffer.toString();
-  }
-  public org.w3c.dom.Element getXML(org.w3c.dom.Document doc){
-    // Element  sourceNode = convertToXML(doc);
-    // sourceNode.appendChild(sourceNode);
-    Element agentregNode = doc.createElement("CRLAgentRegistration"); 
-    doc.appendChild(convertToXML(doc));
-    return  agentregNode;
   }
 
   public Node convertToXML(Document parent){

@@ -22,10 +22,9 @@
 package org.cougaar.core.security.monitoring.blackboard;
 
 import edu.jhuapl.idmef.IDMEF_Message;
-import org.cougaar.core.util.XMLizable;
 
 // Cougaar core services
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 
 /** Event interface
  *  Monitoring & Response sensors use Event objects to signal
@@ -37,7 +36,7 @@ import org.cougaar.core.agent.ClusterIdentifier;
  *  an EventTransfer directly.
  *  
  */
-public interface Event extends CmrObject, XMLizable
+public interface Event extends CmrObject
 {
 
   /**
@@ -48,7 +47,7 @@ public interface Event extends CmrObject, XMLizable
   /**
    * Get the name of the M&R agent that created the event.
    */
-  public ClusterIdentifier getSource();
+  public MessageAddress getSource();
 
   public org.w3c.dom.Element getXML(org.w3c.dom.Document document);  
 

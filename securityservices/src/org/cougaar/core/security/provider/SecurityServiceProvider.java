@@ -43,8 +43,8 @@ import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.node.NodeControlService;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceAvailableEvent;
-import org.cougaar.core.plugin.LDMService;
-import org.cougaar.core.domain.LDMServesPlugin;
+import org.cougaar.planning.service.LDMService;
+import org.cougaar.planning.ldm.LDMServesPlugin;
 
 // Cougaar overlay
 import org.cougaar.core.security.coreservices.crypto.*;
@@ -381,7 +381,7 @@ public class SecurityServiceProvider
     }
     LDMService ldms =null;
     if(serviceBroker.hasService
-       (org.cougaar.core.plugin.LDMService.class)){
+       (org.cougaar.planning.service.LDMService.class)){
       ldms = (LDMService)	rootServiceBroker.getService(this, LDMService.class, null);
       log.info("LDM Service is available initially in Security Service Provider ");
       if(ldms!=null){
@@ -414,7 +414,7 @@ public class SecurityServiceProvider
       LDMService ldms=null;
        ServiceProvider newSP = null;
       Class sc = ae.getService();
-      if( org.cougaar.core.plugin.LDMService.class.isAssignableFrom(sc)) {
+      if( org.cougaar.planning.service.LDMService.class.isAssignableFrom(sc)) {
 	ldms = (LDMService) serviceBroker.getService(this, LDMService.class, null);
 	log.info("LDM Service is available now in Security Service provider ");
 	if(ldms!=null){

@@ -22,7 +22,7 @@ package org.cougaar.core.security.monitoring.plugin;
 
 // Cougaar core classes
 import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.BlackboardService;

@@ -31,7 +31,7 @@ import java.util.*;
 
 // Cougaar core infrastructure
 import org.cougaar.core.servlet.SimpleServletSupportImpl;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.service.NamingService;
@@ -51,7 +51,7 @@ public class SecurityServletSupportImpl
   private ServiceBroker serviceBroker;
 
   public SecurityServletSupportImpl(String path,
-				    ClusterIdentifier agentId,
+				    MessageAddress agentId,
 				    BlackboardQueryService blackboard,
 				    NamingService ns,
 				    ServiceBroker sb,

@@ -27,8 +27,8 @@ import edu.jhuapl.idmef.IDMEF_Message;
 import org.cougaar.core.util.UniqueObject;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.blackboard.Publishable;
-import org.cougaar.core.agent.ClusterIdentifier;
-import org.cougaar.core.util.XMLize;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.planning.servlet.XMLize;
 
 /** Event implementation
  */
@@ -36,7 +36,7 @@ public class EventImpl
   implements NewEvent
 {
   protected IDMEF_Message theMessage;
-  protected ClusterIdentifier theAgent;
+  protected MessageAddress theAgent;
   protected UID myUID;
 
   public EventImpl(UID aUID)
@@ -45,7 +45,7 @@ public class EventImpl
   }
 
   public EventImpl(UID aUID,
-		   ClusterIdentifier aSource,
+		   MessageAddress aSource,
 		   IDMEF_Message aMessage)
   {
     setUID(aUID);
@@ -61,7 +61,7 @@ public class EventImpl
   {
     theMessage = aMessage;
   }
-  private void setSource(ClusterIdentifier aSource) {
+  private void setSource(MessageAddress aSource) {
     theAgent = aSource;
   }
 
@@ -70,7 +70,7 @@ public class EventImpl
     return theMessage;
   }
 
-  public ClusterIdentifier getSource() {
+  public MessageAddress getSource() {
     return theAgent;
   }
 

@@ -24,14 +24,11 @@ package org.cougaar.core.security.crypto.crl;
 
 // Cougaar core services
 import org.cougaar.core.domain.Factory;
-import org.cougaar.core.agent.ClusterContext;
-import org.cougaar.core.agent.ClusterServesPlugin;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.UIDServer;
 import org.cougaar.core.util.UID;
-import org.cougaar.core.domain.RootFactory;
-import org.cougaar.core.domain.LDMServesPlugin;
 import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.LDMServesPlugin;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
@@ -42,7 +39,7 @@ import  org.cougaar.core.security.crypto.crl.blackboard.CrlRelay;
 
 final public class CrlManagement implements CrlManagementService {
   
-  protected ClusterIdentifier selfClusterId;
+  protected MessageAddress selfClusterId;
   protected UIDServer myUIDServer;
   private ServiceBroker serviceBroker;
 
@@ -51,10 +48,8 @@ final public class CrlManagement implements CrlManagementService {
   
   public CrlManagement(LDMServesPlugin ldm) {
     
-    RootFactory rf = ldm.getFactory();
-    ClusterServesPlugin cspi = (ClusterServesPlugin)ldm;
-    selfClusterId = cspi.getClusterIdentifier();
-    myUIDServer = ((ClusterContext)ldm).getUIDServer();
+    selfClusterId = ldm.getMessageAddress();
+    myUIDServer = ldm.getUIDServer();
   }
   
   /**

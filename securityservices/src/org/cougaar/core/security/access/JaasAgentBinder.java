@@ -24,18 +24,20 @@ package org.cougaar.core.security.access;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.core.component.BinderWrapper;
 import org.cougaar.core.component.BinderFactory;
-import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.ComponentDescription;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.agent.AgentManagerForBinder;
-import org.cougaar.core.agent.Agent;
-import org.cougaar.core.agent.AgentBinder;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 import org.cougaar.core.security.auth.JaasClient;
+
+import java.util.List;
+import java.util.Iterator;
 
 /*
  * add following line to the Node.ini file to activate this binder:
@@ -45,71 +47,50 @@ import org.cougaar.core.security.auth.JaasClient;
 
 public class JaasAgentBinder
   extends BinderWrapper
-  implements AgentManagerForBinder, AgentBinder
 {
-  private ServiceBroker serviceBroker;
-  private LoggingService log;
+  private ServiceBroker _serviceBroker;
+  private Logger _log;
+  private MessageAddress _agent;
 
   /** Creates new JassAgentBinder */
   public JaasAgentBinder(BinderFactory bf, Object child) {
     super(bf,child);
   }
-
-  /* ********************************************************************************
-   * AgentBinder interface
-   */
-  /**
-   * Get the agent's message address.
-   */
-  public MessageAddress getAgentIdentifier() {
-    AgentBinder ab = (AgentBinder) getChildBinder();
-    MessageAddress ret = ab.getAgentIdentifier();
-    if (log.isDebugEnabled()) {
-      log.debug("Agent "+ret+" wrapper: get agent-id from binder "+ab);
+  public void setLoggingService(LoggingService log) {
+    _log = log;
+    if(_log == null) {
+      _log = LoggerFactory.getInstance().createLogger(this);
     }
-    return ret;
   }
-
-  /**
-   * Obtain direct access to the agent.
-   * <p>
-   * This method may be removed from the binder API due to
-   * security concerns.
-   */
-  public Agent getAgent() {
-    AgentBinder ab = (AgentBinder) getChildBinder();
-    MessageAddress addr = ab.getAgentIdentifier();
-    Agent ret = ab.getAgent();
-    if (log.isDebugEnabled()) {
-      log.debug("Agent "+addr+" wrapper: get agent from binder "+ab);
-    }
-    return ret;
-  }
-  
-  /* ********************************************************************************
-   * End AgentBinder interface
-   */
-
-  //child binder
-  protected final AgentBinder getAgentBinder() { 
-    return (AgentBinder)getChildBinder(); 
-  }    
-  //parent
-  protected final AgentManagerForBinder getAgentManager() { 
-    return (AgentManagerForBinder)getContainer(); 
-  }    
-    
-   
   public String toString() {
-    return "JaasAgentBinder for "+getAgentManager();
+    return "JaasAgentBinder for "+getContainer();
   }
-  public String getName() {return getAgentManager().getName(); }
-
+  // get the name of the Agent
   private String getAgentName(){
-    MessageAddress id = getAgentBinder().getAgentIdentifier();
-    return id.toString();
+    return ((_agent == null) ? "" : _agent.toString());
   }
+  private MessageAddress getAgentIdentifier() {
+    Object o = getComponentDescription().getParameter();
+  
+    MessageAddress cid = null;
+    if (o instanceof MessageAddress) {
+      cid = (MessageAddress) o;
+    } else if (o instanceof String) {
+      cid = MessageAddress.getMessageAddress((String) o);
+    } else if (o instanceof List) {
+      List l = (List)o;
+      if (l.size() > 0) {
+        Object o1 = l.get(0);
+        if (o1 instanceof MessageAddress) {
+          cid = (MessageAddress) o1;
+        } else if (o1 instanceof String) {
+          cid = MessageAddress.getMessageAddress((String) o1);
+        }
+      }
+    }
 
+    return cid; 
+  }
   private void doLoad() { 
     super.load();
   }
@@ -119,15 +100,19 @@ public class JaasAgentBinder
   } 
 
   public void load() {
-    log = (LoggingService)
-      getServiceBroker().getService(this,
-				    LoggingService.class, null);
-    
+    AgentIdentificationService ais = (AgentIdentificationService)
+      getServiceBroker().getService(this, AgentIdentificationService.class, null);
+    if(ais == null) {
+      _agent = getAgentIdentifier();
+    }
+    else {
+      _agent = ais.getMessageAddress(); 
+    }
     JaasClient jc = new JaasClient();
     jc.doAs(getAgentName(),
             new java.security.PrivilegedAction() {
                 public Object run() {
-                  log.debug("Agent manager is loading: "
+                  _log.debug("Agent manager is loading: "
 			    + getAgentName()
 			    + " security context is:");
                   JaasClient.printPrincipals();
@@ -143,7 +128,7 @@ public class JaasAgentBinder
     jc.doAs(getAgentName(),
             new java.security.PrivilegedAction() {
                 public Object run() {
-                  log.debug("Agent manager is starting: "
+                  _log.debug("Agent manager is starting: "
 			    + getAgentName()
 			    + " security context is:");
                   JaasClient.printPrincipals();
@@ -152,10 +137,4 @@ public class JaasAgentBinder
                 }
               }, false);
   }
-
-  public void registerAgent(Agent agent) {
-    //just passing through
-    getAgentManager().registerAgent(agent);
-  }
-    
 }

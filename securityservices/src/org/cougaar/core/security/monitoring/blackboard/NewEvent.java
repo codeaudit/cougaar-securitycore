@@ -24,7 +24,7 @@ package org.cougaar.core.security.monitoring.blackboard;
 import edu.jhuapl.idmef.IDMEF_Message;
 
 // Cougaar core services
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 
 /** NewEvent interface
  *  Monitoring & Response sensors use Event objects to signal
@@ -49,5 +49,5 @@ public interface NewEvent
   /**
    * Set the name of the M&R agent that created the event.
    */
-  // public void setSource(ClusterIdentifier aSource);
+  // public void setSource(MessageAddress aSource);
 }

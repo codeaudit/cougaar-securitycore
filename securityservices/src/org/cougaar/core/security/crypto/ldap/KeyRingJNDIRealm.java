@@ -76,12 +76,12 @@ import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.identity.*;
 import org.cougaar.core.node.NodeIdentificationService;
-import org.cougaar.core.node.NodeIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.service.LoggingService;
 

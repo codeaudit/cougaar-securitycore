@@ -24,21 +24,16 @@ package org.cougaar.core.security.access;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.component.ServiceBroker;
 
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.component.BinderWrapper;
 import org.cougaar.core.component.BinderFactory;
-import org.cougaar.core.component.BindingSite;
-import org.cougaar.core.component.BinderSupport;
-import org.cougaar.core.component.Component;
 import org.cougaar.core.component.ComponentDescription;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.plugin.PluginManagerForBinder;
-import org.cougaar.core.plugin.Plugin;
-import org.cougaar.core.plugin.PluginBase;
-import org.cougaar.core.plugin.PluginBinder;
 import org.cougaar.util.ConfigFinder;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.JaasClient;
@@ -52,57 +47,23 @@ import org.cougaar.core.security.services.auth.SecurityContextService;
  */
 public class JaasPluginBinder
   extends BinderWrapper
-  implements PluginManagerForBinder, PluginBinder
 {
-  private LoggingService _log;
+  private Logger _log;
   private ExecutionContext _ec;
   private SecurityContextService _scs;
-  
+  private MessageAddress _agent;
+ 
   /** Creates new JaasPluginBinder */
   public JaasPluginBinder(BinderFactory bf, Object child) {
     super(bf,child);
   }
 
-  /************************************************************
-   * PluginManagerForBinder
-   */
-
-  public MessageAddress getAgentIdentifier() {
-    return getPluginManager().getAgentIdentifier();
-  }
-
-  public ConfigFinder getConfigFinder() {
-    return getPluginManager().getConfigFinder();
-  }
-
-  /************************************************************
-   * End PluginManagerForBinder
-   */
-  
   public String toString() {
-    return "JaasPluginBinder for " + getPluginManager();
+    return "JaasPluginBinder for " + getContainer();
   }
 
-  private ClusterIdentifier getClusterIdentifier() {
-    MessageAddress addr = getAgentIdentifier();
-    ClusterIdentifier cid = null;
-    if(addr instanceof ClusterIdentifier) {
-      cid = (ClusterIdentifier)addr;
-    }
-    else {
-      cid = new ClusterIdentifier(addr.getQosAttributes(), addr.getAddress()); 
-    }
-    return cid;
-  }
-
-  private PluginManagerForBinder getPluginManager() {
-    return (PluginManagerForBinder)getContainer();
-  }
-  
   private String getPluginName(){
-    // this method is exposed in cougaar 10.x release
-    //return getComponentDescription().getClassname();
-    return "dummy-plugin";
+    return getComponentDescription().getClassname();
   }
 
   private void doLoad() {
@@ -117,14 +78,18 @@ public class JaasPluginBinder
     ServiceBroker sb = getServiceBroker();
     _log = (LoggingService)
       sb.getService(this, LoggingService.class, null);
+    if(_log == null) {
+      _log = LoggerFactory.getInstance().createLogger(this); 
+    }
     _scs = (SecurityContextService)
       sb.getService(this, SecurityContextService.class, null);
+    AgentIdentificationService ais = (AgentIdentificationService)
+      sb.getService(this, AgentIdentificationService.class, null);
+    _agent = ais.getMessageAddress();
     AuthorizationService as = (AuthorizationService)
 	    sb.getService(this, AuthorizationService.class, null);
     // the getComponentDescription is exposed in cougaar 10.x
-    //_ec = as.createExecutionContext(getClusterIdentifier(), getComponentDescription());
-    // component description is null for now
-    _ec = as.createExecutionContext(getClusterIdentifier(), null);
+    _ec = as.createExecutionContext(_agent, getComponentDescription());
     _scs.setExecutionContext(_ec);
     JaasClient jc = new JaasClient(_ec);
     jc.doAs(getPluginName(),

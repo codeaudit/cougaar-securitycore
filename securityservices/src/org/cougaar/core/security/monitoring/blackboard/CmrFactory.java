@@ -25,14 +25,12 @@ import edu.jhuapl.idmef.IDMEF_Message;
 
 // Cougaar core services
 import org.cougaar.core.domain.Factory;
-import org.cougaar.core.agent.ClusterContext;
-import org.cougaar.core.agent.ClusterServesPlugin;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.UIDServer;
 import org.cougaar.core.util.UID;
-import org.cougaar.core.domain.RootFactory;
-import org.cougaar.core.domain.LDMServesPlugin;
 import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.LDMServesPlugin;
+import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
@@ -42,7 +40,7 @@ import org.cougaar.core.component.ServiceBroker;
 public class CmrFactory
   implements Factory
 {
-  protected ClusterIdentifier selfClusterId;
+  protected MessageAddress selfClusterId;
   protected UIDServer myUIDServer;
   private  IdmefMessageFactory idmefmessagefactory;
 
@@ -53,22 +51,21 @@ public class CmrFactory
      * extending this class
      */
     public CmrFactory() { }
-
+// change the input parameter to an agent id service and uid service or just service broker
     public CmrFactory(LDMServesPlugin ldm) {
 	// Attach our factory to the M&R factory
-	RootFactory rf = ldm.getFactory();
+	PlanningFactory pf = ldm.getFactory();
 	
 	/*
 	  See org.cougaar.tools.csmart.runtime.ldm.CSMARTFactory for
 	  an example of what to add here.
-	  rf.addAssetFactory(
+	  pf.addAssetFactory(
 	  new org.cougaar.tools.csmart.runtime.ldm.asset.AssetFactory());
-	  rf.addPropertyGroupFactory(
+	  pf.addPropertyGroupFactory(
 	  new org.cougaar.tools.csmart.runtime.ldm.asset.PropertyGroupFactory());
 	*/
-    ClusterServesPlugin cspi = (ClusterServesPlugin)ldm;
-    selfClusterId = cspi.getClusterIdentifier();
-    myUIDServer = ((ClusterContext)ldm).getUIDServer();
+    selfClusterId = ldm.getMessageAddress();
+    myUIDServer = ldm.getUIDServer();
     idmefmessagefactory=new IdmefMessageFactory(ldm);
 
   }

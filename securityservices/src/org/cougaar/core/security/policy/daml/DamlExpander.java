@@ -54,7 +54,7 @@ import org.xml.sax.InputSource;
 // Core Cougaar
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.SimplePlugin;
+import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.planning.ldm.policy.Policy;
@@ -90,7 +90,7 @@ import kaos.ontology.util.DAMLModelUtils;
  * this expansion is fake, using a matching technique of the DAML to
  * the new policy.
  */
-public class DamlExpander  extends SimplePlugin {
+public class DamlExpander  extends ComponentPlugin {
 
   private SecurityPropertiesService _secprop = null;
   private LoggingService            _log;
@@ -266,7 +266,7 @@ public class DamlExpander  extends SimplePlugin {
     return null;
   }
 
-  public void setupSubscriptions() {
+  protected void setupSubscriptions() {
     _log = (LoggingService)
       getBindingSite().getServiceBroker().getService(this,
 						     LoggingService.class, 
@@ -276,9 +276,9 @@ public class DamlExpander  extends SimplePlugin {
       getBindingSite().getServiceBroker().getService(this, SecurityPropertiesService.class, null);
 
     if (_expansionNum == 1) {
-      _upu = (IncrementalSubscription) subscribe (FIRST_EXPANSION);
+      _upu = (IncrementalSubscription) blackboard.subscribe (FIRST_EXPANSION);
     } else {
-      _upu = (IncrementalSubscription) subscribe (_unexPolicyUpdatePredicate);
+      _upu = (IncrementalSubscription) blackboard.subscribe (_unexPolicyUpdatePredicate);
     } 
 
     if (_log.isInfoEnabled()) {
@@ -317,7 +317,7 @@ public class DamlExpander  extends SimplePlugin {
 //   is converted back to DamlPolicyExpansion s which are published
 
 
-  public void execute() {
+  protected void execute() {
     if (_expanderFile != null) {
       debuglog("(Re)loading Expander initialization file");
       loadExpanderFile(_expanderFile);
@@ -383,10 +383,10 @@ public class DamlExpander  extends SimplePlugin {
 	}
 	first_policy_iteration = false;
       }
-      publishRemove(update);
+      blackboard.publishRemove(update);
       
       if (! passThroughPolicies.isEmpty()) {
-	  publishAdd(new ExpandedPolicyUpdate(updateType,
+	  blackboard.publishAdd(new ExpandedPolicyUpdate(updateType,
 					      locators,
 					      passThroughPolicies));
       }
@@ -492,7 +492,7 @@ public class DamlExpander  extends SimplePlugin {
 						  newPolicyUpdate);
 	      }
 	      System.out.println("Before publishAdd");
-	      publishAdd(newPolicyUpdate);
+	      blackboard.publishAdd(newPolicyUpdate);
 	      System.out.println("After publishAdd");
 	      //	  } // matches while (loc_iter.hasNext())
       } catch (Exception e) {
