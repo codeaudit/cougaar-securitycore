@@ -25,48 +25,48 @@ package org.cougaar.core.security.util;
 import java.util.*;
 import java.io.*;
 
-public class DumpOutputStream extends FilterOutputStream {
+public class DumpOutputStream extends OutputStream {
   FileOutputStream _fout;
-  public DumpOutputStream(OutputStream os, String filename) 
-    throws IOException {
-    super(os);
+  OutputStream     _os;
+  public DumpOutputStream(OutputStream os, String filename) throws IOException {
     _fout = new FileOutputStream(filename);
+    _os = os;
   }
 
   public synchronized void close() throws IOException {
-    super.close();
     if (_fout != null) {
       _fout.close();
     }
+    _os.close();
   }
 
   public synchronized void flush()throws IOException {
-    super.flush();
     if (_fout != null) {
       _fout.flush();
     }
+    _os.flush();
   }
 
   public synchronized void write(byte[] b) throws IOException {
-    super.write(b);
     if (_fout != null) {
       _fout.write(b);
     }
+    _os.write(b);
   }
 
   public synchronized void write(byte[] b, int off, int len) 
     throws IOException {
-    super.write(b, off, len);
     if (_fout != null) {
       _fout.write(b, off, len);
     }
+    _os.write(b, off, len);
   }
 
-  public synchronized void write(byte b) throws IOException {
-    super.write(b);
+  public synchronized void write(int b) throws IOException {
     if (_fout != null) {
       _fout.write(b);
     }
+    _os.write(b);
   }
 
   public synchronized void stopDumping() throws IOException {
