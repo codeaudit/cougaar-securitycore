@@ -338,8 +338,12 @@ public class ServletPolicyEnforcer
         }
 
         Iterator jter = rule.roles.iterator();
+        boolean hasStar = false;
         while (jter.hasNext()) {
           String role = jter.next().toString();
+          if ("*".equals(role)) {
+            hasStar = true;
+          }
           constraint.addAuthRole(role);
           roles.add(role);
         }
@@ -356,7 +360,7 @@ public class ServletPolicyEnforcer
           }
           sc.addPattern(pattern);
 
-          if (rule.auth != null) {
+          if (rule.auth != null && !hasStar) {
             if ("*".equals(rule.agentName)) {
               starAuthConstraints.put(pattern,rule.auth);
             } else {
@@ -367,10 +371,7 @@ public class ServletPolicyEnforcer
         constraint.addCollection(sc);
         constraints.add(constraint);
       }
-      if (!roles.contains("*")) {
-        // anyone can login to these, so don't make a constraint
-        setAuthConstraints(authConstraints,starAuthConstraints);
-      }
+      setAuthConstraints(authConstraints,starAuthConstraints);
       setSecurityConstraints(constraints,roles);
     }
   }
