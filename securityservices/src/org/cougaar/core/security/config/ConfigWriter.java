@@ -527,7 +527,7 @@ public class ConfigWriter
     // is there anything to do?
     if (argv.length == 0) {
       printUsage();
-      System.exit(1);
+      return;
     }
 
     // variables
@@ -639,8 +639,8 @@ public class ConfigWriter
 	  writer.setOutput(System.out, "US-ASCII");
 	}
 	catch (UnsupportedEncodingException e) {
-	  System.err.println("error: Unable to set output. Exiting.");
-	  System.exit(1);
+	  System.err.println("error: Unable to set output.");
+	  return;
 	}
       }
 

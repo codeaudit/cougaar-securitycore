@@ -125,7 +125,7 @@ public class PolicyHandler
       writer.setOutput(newPolicyOutputStream, "UTF8");
     }
     catch (UnsupportedEncodingException e) {
-      System.err.println("error: Unable to set output. Exiting.");
+      System.err.println("error: Unable to set output.");
     }
     parseXmlFile(xmlTemplateFile, writer);
 

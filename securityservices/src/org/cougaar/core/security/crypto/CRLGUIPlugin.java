@@ -237,14 +237,12 @@ public class CRLGUIPlugin
   /** Exit the Application */
   private void exitWindow(java.awt.event.WindowEvent evt) 
   {
-    System.exit (0);
   }
+
   public static void main(String args[])
   {
     CRLGUIPlugin crlpgin=new CRLGUIPlugin();
     crlpgin.initGuiComponents();
     frame.show();
   }
-     
-
 }

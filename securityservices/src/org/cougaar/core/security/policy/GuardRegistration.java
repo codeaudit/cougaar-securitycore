@@ -120,13 +120,7 @@ public abstract class GuardRegistration
     guard = guardRetriever.getGuard();
     if (guard == null) {
       System.err.println("FATAL ERROR: Cannot continue without guard");
-      try {
-	throw new RuntimeException("ERROR");
-      }
-      catch (RuntimeException e) {
-	e.printStackTrace();
-      }
-      System.exit(-1);
+      throw new RuntimeException("ERROR");
     }
     // Make sure policy type has been set
     if (getPolicyType() == null) {

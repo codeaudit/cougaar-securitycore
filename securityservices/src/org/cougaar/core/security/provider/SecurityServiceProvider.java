@@ -94,6 +94,10 @@ public class SecurityServiceProvider
 			 + requestor.getClass().getName()
 			 + " - " + serviceClass.getName());
     }
+    if (sb == null) {
+      System.out.println("WARNING: Running in a test environment");
+      sb = serviceBroker;
+    }
     ServiceProvider servMgr = null;
     Service service = null;
     try {

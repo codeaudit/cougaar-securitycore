@@ -191,7 +191,7 @@ public static void main(String[] args)
 
     if (args.length == 0) {
         System.out.println("usage:  java Base64 [-d[ecode]] filename");
-        System.exit(0);
+	return;
     }
     for (int i=0; i<args.length; i++) {
         if ("-decode".equalsIgnoreCase(args[i])) decode = true;
@@ -202,7 +202,7 @@ public static void main(String[] args)
     File file = new File(filename);
     if (!file.exists()) {
         System.out.println("Error:  file '" + filename + "' doesn't exist!");
-        System.exit(0);
+	return;
     }
 
     if (decode)

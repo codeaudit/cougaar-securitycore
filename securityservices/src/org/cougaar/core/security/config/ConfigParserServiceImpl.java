@@ -124,13 +124,7 @@ public class ConfigParserServiceImpl
 	// Cannot proceed without policy
 	System.err.println("ERROR: Cannot continue secure execution without policy");
 	System.err.println("ERROR: Could not find configuration file: " + policyfilename);
-	try {
-	  throw new RuntimeException("No policy available");
-	}
-	catch (RuntimeException ex) {
-	  ex.printStackTrace();
-	}
-	System.exit(-1);
+	throw new RuntimeException("No policy available");
       }
     }
     if(CryptoDebug.debug) {

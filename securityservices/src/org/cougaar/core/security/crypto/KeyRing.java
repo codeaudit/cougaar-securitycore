@@ -214,13 +214,7 @@ final public class KeyRing
       // Cannot proceed without keystore
       System.err.println("ERROR: Cannot continue secure execution");
       System.err.println("       without cryptographic data files");
-      try {
-	throw new RuntimeException("No cryptographic keystores");
-      }
-      catch (RuntimeException e) {
-	e.printStackTrace();
-      }
-      System.exit(-1);
+      throw new RuntimeException("No cryptographic keystores");
     }
   }
 
