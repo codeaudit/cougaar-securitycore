@@ -27,18 +27,32 @@ import edu.jhuapl.idmef.IDMEF_Message;
 import org.cougaar.core.util.UniqueObject;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.blackboard.Publishable;
+import org.cougaar.core.agent.ClusterIdentifier;
 
 /** Event implementation
  */
 public class EventImpl
-  implements Event, UniqueObject, Publishable
+  implements NewEvent, UniqueObject, Publishable
 {
   private IDMEF_Message theMessage = null;
+  private ClusterIdentifier theAgent = null;
   private UID myUID;
 
-  public EventImpl(IDMEF_Message aMessage)
+  public EventImpl(IDMEF_Message aMessage, UID aUID)
   {
-    theMessage = aMessage;
+    setEvent(aMessage);
+    setUID(aUID);
+  }
+
+  public EventImpl(UID aUID)
+  {
+    setUID(aUID);
+  }
+
+  public EventImpl(UID aUID, ClusterIdentifier aSource)
+  {
+    setUID(aUID);
+    setSource(aSource);
   }
 
   /** ******************************************************************
@@ -52,6 +66,13 @@ public class EventImpl
   public IDMEF_Message getEvent()
   {
     return theMessage;
+  }
+
+  public ClusterIdentifier getSource() {
+    return theAgent;
+  }
+  public void setSource(ClusterIdentifier aSource) {
+    theAgent = aSource;
   }
 
   /** ******************************************************************
@@ -82,5 +103,17 @@ public class EventImpl
 
   public boolean isPersistable() {
     return true;
+  }
+
+  /** ******************************************************************
+   *
+   */
+
+  public String toString() {
+    String s = null;
+    if (theMessage != null) {
+      s = theMessage.toString();
+    }
+    return s;
   }
 }

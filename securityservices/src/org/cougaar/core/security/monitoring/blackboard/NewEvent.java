@@ -26,7 +26,7 @@ import edu.jhuapl.idmef.IDMEF_Message;
 // Cougaar core services
 import org.cougaar.core.agent.ClusterIdentifier;
 
-/** Event interface
+/** NewEvent interface
  *  Monitoring & Response sensors use Event objects to signal
  *  that something happened. Event objects should be published
  *  to the blackboard.
@@ -36,17 +36,18 @@ import org.cougaar.core.agent.ClusterIdentifier;
  *  an EventTransfer directly.
  *  
  */
-public interface Event extends CmrObject 
+public interface NewEvent
+  extends CmrObject, Event
 {
 
   /**
-   * Retrieve the IDMEF message (alert or heartbeat)
+   * Set the IDMEF message
+   * @param aMessage - The IDMEF message (alert or heartbeat)
    */
-  public IDMEF_Message getEvent();
+  public void setEvent(IDMEF_Message aMessage);
 
   /**
-   * Get the name of the M&R agent that created the event.
+   * Set the name of the M&R agent that created the event.
    */
-  public ClusterIdentifier getSource();
-
+  public void setSource(ClusterIdentifier aSource);
 }

@@ -33,7 +33,7 @@ import org.cougaar.core.blackboard.Publishable;
 /** EventTransferImpl
  */
 public class EventTransferImpl 
-  implements EventTransfer, UniqueObject, Publishable
+  implements NewEventTransfer, UniqueObject, Publishable
 {
 
   private UID myUID;
@@ -47,11 +47,24 @@ public class EventTransferImpl
    * @param from  The agent that is provided this event for use
    */
 
-  public EventTransferImpl(Event aEvent, Asset to, ClusterIdentifier from)
+  public EventTransferImpl(Event aEvent,
+			   UID aUID,
+			   Asset to, ClusterIdentifier from)
   {
     setEvent(aEvent);
     setAssignee(to);
     setAssignor(from);
+    setUID(aUID);
+  }
+
+  public EventTransferImpl(UID aUID)
+  {
+    setUID(aUID);
+  }
+  public EventTransferImpl(UID aUID, ClusterIdentifier aSource)
+  {
+    setUID(aUID);
+    setAssignor(aSource);
   }
 
   /** ******************************************************************
@@ -68,40 +81,26 @@ public class EventTransferImpl
     return theEvent;
   }
 
-  private void setEvent(Event aEvent)
+  public void setEvent(Event aEvent)
   {
     theEvent = aEvent;
   }
  	
-  /** Returns the Asset to which the asset is being assigned.
-   * @return Asset representing the destination asset
-   */
   public Asset getAssignee()
   {
     return assigneeAsset;
   }
  
-  /** Returns the Cluster from which the asset was assigned.
-   * @return ClusterIdentifier representing the source of the asset
-   */
- 	
   public ClusterIdentifier getAssignor()
   {
     return assignerCluster;
   }
 
-  /**
-   * @param toAsset - Set the Asset being assigned the Asset
-   */
-  private void setAssignee(Asset toAsset) {
+  public void setAssignee(Asset toAsset) {
     assigneeAsset = toAsset;
   }
   
-  /** Sets the Cluster that the asset is assigned from.
-   * @param aCluster
-   */
- 	
-  private void setAssignor(ClusterIdentifier aCluster) {
+  public void setAssignor(ClusterIdentifier aCluster) {
     assignerCluster = aCluster;
   }
   /** ******************************************************************
@@ -132,6 +131,25 @@ public class EventTransferImpl
 
   public boolean isPersistable() {
     return true;
+  }
+
+  /** ******************************************************************
+   *
+   */
+
+  public String toString() {
+    String s = "";
+    if (getAssignor() != null) {
+      s = s + getAssignor().toString() + "->";
+    }
+    if (getAssignee() != null) {
+      s = s + getAssignee().toString() + "/";
+    }
+    Event e = getEvent();
+    if (e != null) {
+      s = s + e.toString();
+    }
+    return s;
   }
 
 }

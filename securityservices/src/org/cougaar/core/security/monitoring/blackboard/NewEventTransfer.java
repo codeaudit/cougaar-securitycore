@@ -23,30 +23,32 @@ package org.cougaar.core.security.monitoring.blackboard;
 
 import edu.jhuapl.idmef.IDMEF_Message;
 
-// Cougaar core services
+import org.cougaar.core.util.UniqueObject;
+import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.core.agent.ClusterIdentifier;
 
-/** Event interface
- *  Monitoring & Response sensors use Event objects to signal
- *  that something happened. Event objects should be published
- *  to the blackboard.
- *  Event objects may be processed locally or may be transferred
- *  to remote entities using EventTransfer objects.
- *  If the sensor knows where to send the Event, it may publish
- *  an EventTransfer directly.
- *  
+/** NewEventTransfer interface. See Event class description.
+ *  An EventTransfer logic provider is responsible for
+ *  sending EventTransfer objects to remote agents.
  */
-public interface Event extends CmrObject 
+public interface NewEventTransfer
+  extends CmrObject, EventTransfer
 {
 
-  /**
-   * Retrieve the IDMEF message (alert or heartbeat)
+  /** Set a Monitoring & Response Event.
+   * This Event is being assigned to an agent for use.
+   *
+   * @param Event - a Monitoring & Response Event
    */
-  public IDMEF_Message getEvent();
+  public void setEvent(Event aEvent);
 
-  /**
-   * Get the name of the M&R agent that created the event.
+  /** Set the Asset to which the asset is being assigned.
+   * @param Asset representing the destination asset
    */
-  public ClusterIdentifier getSource();
-
+  public void setAssignee(Asset toAsset);
+ 
+  /** Set the Cluster from which the asset was assigned.
+   * @param ClusterIdentifier representing the source of the asset
+   */
+  public void setAssignor(ClusterIdentifier aCluster);
 }
