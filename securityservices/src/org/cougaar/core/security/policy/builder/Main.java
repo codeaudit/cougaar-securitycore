@@ -42,6 +42,7 @@ import kaos.core.util.Msg;
 import kaos.core.util.PolicyMsg;
 import kaos.core.util.SymbolNotFoundException;
 import kaos.kpat.util.OperatingModeCondition;
+import kaos.ontology.repository.OntologyRepository;
 import kaos.policy.information.DAMLPolicyContainer;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
@@ -75,9 +76,11 @@ class Main
   private static final String _conditionName 
     = "org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY";
 
+  private int     _maxReasoningDepth = -1;
   private int     _cmd;
   private boolean _quiet;
   private boolean _buildinfo;
+  private boolean _checkDepth = false;
   private String  _policyFile;
   private boolean _useDomainManager;
   private boolean _cmdLineAuth;
@@ -94,10 +97,15 @@ class Main
    * The constructor for Main.  A Main object encapsulates the
    * arguments passed from the command line.
    */
-  public Main(String [] args)
+  protected Main(String [] args)
   {
     try {
       int counter = 0;
+
+      if (args[counter].equals("--maxReasoningDepth")) {
+        counter++;
+        _maxReasoningDepth = Integer.parseInt(args[counter++]);
+      }        
 
       if (args[counter].equals("build")) {
         counter++;
@@ -111,6 +119,9 @@ class Main
           } else if (args[counter].equals("--info")) {
             counter++;
             _buildinfo=true;
+          } else if (args[counter].equals("--checkDepth")) {
+            counter++;
+            _checkDepth=true;
           } else {
             usage();
           }
@@ -167,11 +178,18 @@ class Main
   public static void usage()
   {
     int counter = 1;
-    System.out.println("Arguments can take any of the following forms:");
+    System.out.println("The arguments consist of common options");
+    System.out.println("followed by a command");
+    System.out.println("There is one common option at the moment which is");
+    System.out.println("{--maxReasoningDepth num}  This controls how much");
+    System.out.println("jtp searches for the answer to a question.");
+    System.out.println("The command then has one of the following forms:");
     System.out.println("" + (counter++) + ". build {--quiet} {--info} policiesFile");
     System.out.println("\tTo build policies from a grammar");
     System.out.println("\tThe --quiet option supresses messages");
     System.out.println("\tThe --info option builds boot policies only");
+    System.out.println("\tThe --checkDepth option checks that the reasoning");
+    System.out.println("\t\tdepth is sufficient");
     System.out.println("" + (counter++) + ". commit/setpolicies/addpolicies"
                        + " {--dm} {--auth username password} ");
     System.out.println("\t\thost port agent policiesFile");
@@ -213,9 +231,10 @@ class Main
   /**
    * Runs the command
    */
-  public void run()
+  protected void run()
     throws Exception
   {
+    setDepth();
     switch (_cmd) {
     case BUILD_CMD:
       buildPolicies();
@@ -235,22 +254,42 @@ class Main
     System.exit(0);
   }
 
+  /** 
+   * Set the reasoning depth
+   */
+
+  protected void setDepth()
+  {
+    if (_maxReasoningDepth > 0) {
+      OntologyRepository.setReasoningDepth(_maxReasoningDepth);
+    }
+  }
 
   /**
    * Builds the policies from the policyFile.
    * Uses the _quiet flag to determine how much output to generate
    */
-  public void buildPolicies()
+  protected void buildPolicies()
     throws IOException, PolicyCompilerException
   {
     System.out.println("Parsing Policies");
     ParsedPolicyFile parsed = compile(_policyFile);
     List          ppolicies = parsed.policies();
 
-    System.out.println("Loading ontologies");
+    System.out.println("Loading ontologies & declarations");
     _ontology = new LocalOntologyConnection(parsed.declarations(), 
                                             parsed.agentGroupMap());
     System.out.println("Ontologies loaded");
+
+    if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
+      System.out.println
+        ("Reasoning depth insufficient. Try setting a larger value with the");
+      System.out.println
+        ("--maxdepth option");
+      System.out.println
+        ("Policies not built as they would be incorrect");
+      System.exit(-1);
+    }
 
     System.out.println("Writing Policies");
     for(Iterator builtPolicyIt = buildUnconditionalPolicies(ppolicies)
@@ -273,6 +312,40 @@ class Main
     }
   }
 
+  private boolean checkDepth(Map agentGroupMap)
+  {
+    try {
+      System.out.println("Checking reasoning depth");
+      for (Iterator agentGroupIt = agentGroupMap.keySet().iterator();
+           agentGroupIt.hasNext();) {
+        String agentGroup = (String) agentGroupIt.next();
+        int    size =((Set) agentGroupMap.get(agentGroup)).size();
+        Set    agents = _ontology.getInstancesOf(PolicyUtils.agentGroupPrefix +
+                                                 agentGroup);
+        if (agents.size() < size) {
+          System.out.println("Insufficient reasoning depth");
+          System.out.println("for agent group " + agentGroup + 
+                             " the agent set should have size "
+                             + size + "  but actually has size " + 
+                             +agents.size());
+          return false;
+        } else if (agents.size() > size) {
+          System.out.println("Say what???");
+          System.out.println("for agent group " + agentGroup + 
+                             " the agent set should be \n\n"
+                             + agentGroupMap.get(agentGroup) + 
+                             "\n\n(size=" + size + ")  but actually is\n\n" 
+                             + agents + "\n\n(size="+agents.size() + ")");
+          return false;
+        }
+      }
+      return true;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
   /**
    * Commits the policies from the _policyFile to the url.
    * Uses the _useDomainManager to determine how the policies are
@@ -283,7 +356,7 @@ class Main
    * commit them to the domain manager.
    */
 
-  public void commitPolicies()
+  protected void commitPolicies()
     throws IOException
   {
     try {
@@ -291,7 +364,7 @@ class Main
       ParsedPolicyFile parsed = compile(_policyFile);
       List deletePolicies = parsed.getDeletedList();
       List parsedPolicies = parsed.policies();
-      System.out.println("Connecting to domain manager & Initializing Ontologies");
+      System.out.println("Connecting to domain manager & loading declarations");
       if (_cmdLineAuth) {
         _ontology = new TunnelledOntologyConnection(_url,
                                                     _cmdLineUser,
@@ -317,7 +390,7 @@ class Main
    * This routine gathers unconditional policies - either from disk or
    * by building them itself - and then commits them.
    */
-  public void commitUnconditionalPolicies(List    parsed, List deletePolicies)
+  protected void commitUnconditionalPolicies(List    parsed, List deletePolicies)
     throws Exception
   {
     System.out.println("Constructing New Unconditional Policy Msgs");
@@ -373,7 +446,7 @@ class Main
    * this by having the ParsedPolicyFile class check this as policies
    * and deletion statements are added.
    */
-  public void updatePolicies(List    newPolicies,
+  protected void updatePolicies(List    newPolicies,
                              List    oldPolicies,
                              List    deletePolicies)
     throws IOException
@@ -430,7 +503,7 @@ class Main
    * This function commits conditional policies - either by building
    * them itself or by obtaining them off of disk.
    */
-  public void commitConditionalPolicies(List parsed)
+  protected void commitConditionalPolicies(List parsed)
     throws Exception
   {
     System.out.println("Obtaining Conditional Policies");
@@ -466,7 +539,7 @@ class Main
    * Essentially manages the IO portion of the compile and hands the
    * work off to the policy parser routines.
    */
-   public static ParsedPolicyFile compile(String file)
+   protected static ParsedPolicyFile compile(String file)
     throws IOException, PolicyCompilerException
   {
     FileInputStream  fis = new FileInputStream(file);
@@ -492,7 +565,7 @@ class Main
    * not PolicyMsg objects.  The information contained in the fields
    * is identical but I need to duplicate it in the form of a policy msg.
    */
-  private static PolicyMsg convertMsgToPolicyMsg(Msg m)
+  protected static PolicyMsg convertMsgToPolicyMsg(Msg m)
     throws SymbolNotFoundException
   {
     PolicyMsg p = new PolicyMsg((String) m.getSymbol(PolicyMsg.ID),
@@ -532,7 +605,7 @@ class Main
   /**
    * Provides a command line way of viewing a policy file.
    */
-  public void examinePolicyFile()
+  protected void examinePolicyFile()
     throws IOException, RDFException
   {
     FileInputStream   fis = new FileInputStream(_policyFile);
@@ -558,7 +631,7 @@ class Main
    * This currently only prints the right information for authorization 
    * policies.
    */
-  static private void examineDAMLMsg(PolicyMsg pm)
+  static protected void examineDAMLMsg(PolicyMsg pm)
     throws RDFException
   {
     Vector attribs = pm.getAttributes();
@@ -595,7 +668,7 @@ class Main
    * of 
    */
 
-  private List buildUnconditionalPolicies(List parsed)
+  protected List buildUnconditionalPolicies(List parsed)
     throws PolicyCompilerException
   {
     List built = new Vector();
@@ -620,7 +693,7 @@ class Main
    * I think that the Vector part is important because it is what the 
    * ConditionalPolicyMsg constructor takes as an argument.
    */
-  private Vector buildConditionalPolicies(List parsed)
+  protected Vector buildConditionalPolicies(List parsed)
     throws PolicyCompilerException
   {
     Vector condpms = new Vector();
@@ -670,7 +743,7 @@ class Main
    * this routine gets the name of a ConditionalPolicyMsg assuming
    * that the condition part is an OperatingModeCondition object.
    */
-  private String getConditionName(ConditionalPolicyMsg condpm)
+  protected String getConditionName(ConditionalPolicyMsg condpm)
   {
     OperatingModeCondition omc=(OperatingModeCondition) condpm.getCondition();
     return (String) omc.getValue();
