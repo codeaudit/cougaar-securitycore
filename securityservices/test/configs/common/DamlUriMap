@@ -16,58 +16,58 @@
 # Some how it seems if we know the agent then the pattern is more
 # specific.
 #
-/$AGG-Agent/aggregator AggegatorServlets
-/$AGG-Agent/aggregatorkeepalive AggegatorServlets
+/\$AGG-Agent/aggregator AggegatorServlets
+/\$AGG-Agent/aggregatorkeepalive AggegatorServlets
 # 
 # temporarily turn these off for ACME
-/$NCA/glsinit NCAServlets
-/$NCA/glsreply NCAServlets
-/$NCA/editOplan NCAServlets
+/\$NCA/glsinit NCAServlets
+/\$NCA/glsreply NCAServlets
+/\$NCA/editOplan NCAServlets
 # 
-/$SCmrmanager/* SCmrmanagerServlets
+/\$SCmrmanager/.* SCmrmanagerServlets
 #
 # Servlets with no particular agent.
 #
 #  datagatherer is not included so the automated tests work...
-#/$*/datagatherer DataGrabberServlet
-#/$*/log_inventory DataGrabberServlet
+#/\$.*/datagatherer DataGrabberServlet
+#/\$.*/log_inventory DataGrabberServlet
 #
-/$*/CA/CertificateSigningRequest CertReqServlet
-/$*/CA/BrowserSigningRequest CertReqServlet
+/\$.*/CA/CertificateSigningRequest CertReqServlet
+/\$.*/CA/BrowserSigningRequest CertReqServlet
 #
-/$*/CA/Index CAReadServlet
-/$*/CA/Browser CAReadServlet
-/$*/CA/Main CAReadServlet
-/$*/CA/CertificateList CAReadServlet
-/$*/CA/CertificateDetailsServlet CAReadServlet
-/$*/CA/DownloadCertificateServlet CAReadServlet
-/$*/CA/PendingCertificateServlet CAReadServlet
-/$*/CA/PendingCertDetailsServlet CAReadServlet
-/$*/CA/ListCaKeysServlet CAReadServlet
-/$*/CA/ListSubordCaServlet CAReadServlet
+/\$.*/CA/Index CAReadServlet
+/\$.*/CA/Browser CAReadServlet
+/\$.*/CA/Main CAReadServlet
+/\$.*/CA/CertificateList CAReadServlet
+/\$.*/CA/CertificateDetailsServlet CAReadServlet
+/\$.*/CA/DownloadCertificateServlet CAReadServlet
+/\$.*/CA/PendingCertificateServlet CAReadServlet
+/\$.*/CA/PendingCertDetailsServlet CAReadServlet
+/\$.*/CA/ListCaKeysServlet CAReadServlet
+/\$.*/CA/ListSubordCaServlet CAReadServlet
 # 
-/$*/CA/RevokeCertificateServlet CAWriteServlet
-/$*/CA/CreateCaKeyServlet CAWriteServlet
-/$*/CA/SubmitCaKeyServlet CAWriteServlet
-/$*/CA/ProcessPendingCertServlet CAWriteServlet
-/$*/CA/CaKeyManagement CAWriteServlet
+/\$.*/CA/RevokeCertificateServlet CAWriteServlet
+/\$.*/CA/CreateCaKeyServlet CAWriteServlet
+/\$.*/CA/SubmitCaKeyServlet CAWriteServlet
+/\$.*/CA/ProcessPendingCertServlet CAWriteServlet
+/\$.*/CA/CaKeyManagement CAWriteServlet
 #
-#/$*/hierarchy HierarchyServlet
-/$*/log_inventory LogInventoryServlet
+#/\$.*/hierarchy HierarchyServlet
+/\$.*/log_inventory LogInventoryServlet
 #
-/$RearPolicyDomainManagerServlet/policyAdmin RearPolicyServlet
-/$FwdPolicyDomainManagerServlet/policyAdmin FwdPolicyServlet
-/$ConusPolicyDomainManagerServlet/policyAdmin ConusPolicyServlet
-/$TransPolicyDomainManagerServlet/policyAdmin TransPolicyServlet
-/$EnclaveaPolicyDomainManagerServlet/policyAdmin EnclaveaPolicyServlet
-/$*/policyAdmin PolicyServlet
+/\$RearPolicyDomainManagerServlet/policyAdmin RearPolicyServlet
+/\$FwdPolicyDomainManagerServlet/policyAdmin FwdPolicyServlet
+/\$ConusPolicyDomainManagerServlet/policyAdmin ConusPolicyServlet
+/\$TransPolicyDomainManagerServlet/policyAdmin TransPolicyServlet
+/\$EnclaveaPolicyDomainManagerServlet/policyAdmin EnclaveaPolicyServlet
+/\$.*/policyAdmin PolicyServlet
 
 #
-/$*/move SocietyAdminServlet
-/$*/load SocietyAdminServlet
-/$*/topology SocietyAdminServlet
+/\$.*/move SocietyAdminServlet
+/\$.*/load SocietyAdminServlet
+/\$.*/topology SocietyAdminServlet
 #
-/$*/useradmin UserManagerServlets
+/\$.*/useradmin UserManagerServlets
 #
-/$*/* OtherServlets
-/* OtherServlets
+/\$.*/.* OtherServlets
+/.* OtherServlets
