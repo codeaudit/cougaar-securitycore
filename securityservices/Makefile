@@ -2,15 +2,30 @@
 SHELL = /bin/sh
 
 #----------------------------------------------------------- SETUP
-
-
+COUGAAR_INSTALL_PATH = ${HOME}/cougaar-8.4.1.1
+COUGAARCLASSES = ${COUGAAR_INSTALL_PATH}/classes
+CLASSPATH = ${COUGAARCLASSES}
 #----------------------------------------------------------- MAKE ALL
 
 #  $@      - Current target
 #  $*      - Current target without extension
 #  $<      - Current dependency
 
-all: jar signhigh copy
+all: jar signhigh 
+
+clean:
+	@echo +++++++ Removing jarfiles
+	rm -rf ${COUGAARCLASSES}/com ${COUGAARCLASSES}/org 
+	@echo +++++++ Removing jarfiles
+	rm -i ${COUGAARCLASSES}/bootstrap.jar
+	rm -i ${COUGAARCLASSES}/securityservices.jar
+# We use the -i option just in case you don't really want to delete everything
+
+classes:
+	@echo +++++++ Compiling the source code
+	export COUGAAR_INSTALL_PATH; export COUGAARCLASSES; export CLASSPATH
+	echo ${COUGAARCLASSES}
+	./test/bin/myalpc src
 
 jar:
 # Build core.jar
@@ -49,7 +64,6 @@ signhigh: jar
 		-storepass keystore ${COUGAARCLASSES}/securityservices.jar privileged
 	@echo +++++++ Done signing bootstrapper.jar and core.jar
 
-copy:
-#	cp ${COUGAARCLASSES}/core.jar ${COUGAAR_INSTALL_PATH}/lib
+install:
 	cp ${COUGAARCLASSES}/bootstrapper.jar ${COUGAAR_INSTALL_PATH}/lib
 	cp ${COUGAARCLASSES}/securityservices.jar ${COUGAAR_INSTALL_PATH}/lib
