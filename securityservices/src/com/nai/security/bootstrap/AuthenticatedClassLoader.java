@@ -250,7 +250,12 @@ public class AuthenticatedClassLoader extends URLClassLoader {
       e.printStackTrace();
     }
     if (loudness > 0) {
-      System.out.println("Loaded class: " + name + " with " + c.getClassLoader());
+      if (c != null) {
+	System.out.println("Loaded class: " + name + " with " + c.getClassLoader());
+      }
+      else {
+	System.out.println("Unable to load class: " + name);
+      }
     }
        
     return c;
