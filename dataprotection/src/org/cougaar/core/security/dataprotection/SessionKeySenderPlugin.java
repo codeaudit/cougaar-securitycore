@@ -30,7 +30,7 @@ import org.cougaar.core.component.ServiceAvailableListener;
  * Plugin sends relay with the session key in it to the persistence manager
  *
  * @author ttschampel
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class SessionKeySenderPlugin extends ComponentPlugin {
     /** Plugin name */
@@ -117,7 +117,9 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
         
 
     private void processKeyCache(String agent) {
-      logging.debug("processing keys cached");
+      if (logging.isDebugEnabled()) {
+        logging.debug("processing keys cached");
+      }
       synchronized (_keyCache) {
         List list = (List)_keyCache.get(agent);
         if (list == null)
