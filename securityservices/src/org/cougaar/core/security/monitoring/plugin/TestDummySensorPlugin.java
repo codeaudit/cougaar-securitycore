@@ -37,6 +37,8 @@ import org.cougaar.core.service.*;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
 
+import org.cougaar.core.agent.ClusterIdentifier;
+
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ArrayList;
@@ -51,6 +53,7 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
   private String mgrrole=null;
   private AttributeBasedAddress mgrAddress;
   private MessageAddress myAddress;
+  private ClusterIdentifier destcluster;
   private String sensor_name=null;
   private String dest_community=null;
   private Object param;
@@ -100,14 +103,21 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
       String params[]=new String[1];
       String parameters[]=(String[])col.toArray(new String[0]);
       mgrrole=parameters[0];
+      if(log.isDebugEnabled())
+	 log.debug("Manager role is  :"+mgrrole +" from "+
+		myAddress.toString() );
       sensor_name=parameters[1];
       dest_community=parameters[2];
+       if(log.isDebugEnabled())
+	 log.debug(" destination community  is :"+ dest_community +" from "+
+		myAddress.toString() );
       /**
 	 Below 2 lines of code was used for testing purpose.Was trying to use MessageAddress of the
 	 destination agent. This is passed as a paremeter to the plugin through ini file 
       */
-      if(col.size()>4)
+      if(col.size()>3)
 	dest_agent=parameters[3];
+      destcluster=new ClusterIdentifier(dest_agent);
     }
     if(log.isDebugEnabled())
       log.debug(" destination agent is :"+dest_agent +" from "+
@@ -127,21 +137,25 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
 							   IdmefMessageFactory.SensorType);
     
     NewEvent event=factory.newEvent(reg);
+    if(log.isDebugEnabled()) {
     log.debug(" going to publish capabilities in Test Dummy sensorplugin  1:");
-    System.out.println(" going to publish capabilities in TestDummySensorplugin from :"+myAddress.toString()
+    log.debug(" going to publish capabilities in TestDummySensorplugin from :"+myAddress.toString()
 		       +" Capabilities are :"+reg.toString() );
+    }
     mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
     if(log.isDebugEnabled())
       log.debug(" destination ABA address is :"+mgrAddress.toString());
     //MessageAddress destagent=new MessageAddress(dest_agent);
-    relay = factory.newCmrRelay(event,mgrAddress);
+     //relay = factory.newCmrRelay(event,mgrAddress);
     //relay = factory.newCmrRelay(event,destagent);
+    relay = factory.newCmrRelay(event,mgrAddress);
     if(log.isDebugEnabled())
       log.debug("From testDummysensorPlugin :"+ myAddress.toString() +"  relay is :"+relay.toString());
     getBlackboardService().publishAdd(relay);
     /*
-      This part odf the code was to test  capabilities consolidation  
-      getBlackboardService().closeTransaction();
+      This part odf the code was to test  capabilities consolidation
+    */
+    //getBlackboardService().closeTransaction();
       sensor=new TestDummySensor (sensor_name+1);
       capabilities.add( imessage.createClassification( "SecurityException", null  ) );
       capabilities.add( imessage.createClassification( "JarException", null  ) );
@@ -151,13 +165,13 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
       event=factory.newEvent(reg);
    
       relay = factory.newCmrRelay(event,mgrAddress);
-      if(log.isEnabled())
+      if(log.isDebugEnabled())
       log.debug("From testDummysensorPlugin with new Sensor  :"+ myAddress.toString() +"  relay is :"+relay.toString());
-      getBlackboardService().openTransaction();
+      //getBlackboardService().openTransaction();
       getBlackboardService().publishAdd(relay);
-    */
-    //getBlackboardService().closeTransaction();
-    //mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
+    
+      //getBlackboardService().closeTransaction();
+      //mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
    
   }
           
