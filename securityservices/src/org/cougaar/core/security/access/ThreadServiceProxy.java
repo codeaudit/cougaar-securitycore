@@ -58,23 +58,20 @@ class ThreadServiceProxy extends SecureServiceProxy
                                  _scs.getExecutionContext());
   }
 
+  // B11_0 ThreadService interface, but isn't part of the HEAD.  We SHOULD NOT use these
+  // methods.  Instead, we should invoke getThread() and invoke Schedulable.schedule().
   public void schedule(TimerTask task, long delay) {
-    _ts.schedule(new SecureTimerTask(task, _scs.getExecutionContext()), 
-                 delay);
+    throw new SecurityException("schedule(TimerTask, long) has been deprecated.");
   }
 
   public void schedule(TimerTask task, long delay, long interval) {
-    _ts.schedule(new SecureTimerTask(task, _scs.getExecutionContext()), 
-                 delay, 
-                 interval);
+    throw new SecurityException("schedule(TimerTask, long, long) has been deprecated.");
   }
             
   public void scheduleAtFixedRate(TimerTask task, long delay, long interval) {
-    _ts.scheduleAtFixedRate(new SecureTimerTask(task, _scs.getExecutionContext()), 
-                            delay, 
-                            interval);
+    throw new SecurityException("scheduleAtFixedRate(TimerTask, long, long) has been deprecated.");
   }
-
+  
   class SecureSchedulable implements Schedulable {
     Schedulable _schedulable;
     ExecutionContext _ec;

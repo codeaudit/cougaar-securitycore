@@ -12,6 +12,7 @@ package org.cougaar.core.security.dataprotection;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.util.SharedDataRelay;
+import org.cougaar.core.thread.Schedulable;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.UIDService;
@@ -26,7 +27,7 @@ import java.util.HashMap;
  * Plugin sends relay with the session key in it to the persistence manager
  *
  * @author ttschampel
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class SessionKeySenderPlugin extends ComponentPlugin {
     /** Plugin name */
@@ -145,7 +146,9 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
 
         sdr.setUID(uidService.nextUID());
         RelayTimerTask timerTask = new RelayTimerTask(sdr);
-		threadService.schedule(timerTask,1);
+		    Schedulable sch = threadService.getThread(this, timerTask);
+        sch.schedule(1);
+        sch.start();
     }
 
     private class RelayTimerTask extends TimerTask {

@@ -39,6 +39,7 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.thread.Schedulable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.TimerTask;
@@ -142,7 +143,9 @@ public class RevokeAgentCertificatePlugin extends ComponentPlugin {
             //keymanagement.revokeAgentCertificate(caDN, agentName);
             RevokeTask revokeTask = new RevokeTask(caDN, agentName, keymanagement);
             ThreadService threadService = (ThreadService)this.getServiceBroker().getService(this, ThreadService.class, null);
-            threadService.schedule(revokeTask,1);
+            Schedulable sch = threadService.getThread(this, revokeTask);
+            sch.schedule(1);
+            sch.start();
          
           } catch (Exception e) {
             if (logging.isErrorEnabled()) {
