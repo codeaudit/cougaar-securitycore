@@ -157,7 +157,7 @@ public class CertDirectoryServiceProvider
 	    ldapClient = new NetToolsCertDirectoryService(requestor, theBroker);
 	  }
 	  catch (javax.naming.NamingException e) {
-	    log.warn("Unable to get LDAP directory service for" + serverUrl + ". Reason:" + e);
+	    log.warn("Unable to get Nettools directory service for URL: " + serverUrl + ". Reason:" + e);
 	    return null;
 	  }
 
@@ -203,7 +203,7 @@ public class CertDirectoryServiceProvider
 	    caService = new OpenLdapCertDirectoryServiceImpl(requestor, theBroker);
 	  }
 	  catch (javax.naming.NamingException e) {
-	    log.warn("Unable to get LDAP directory service for" + serverUrl + ". Reason:" + e);
+	    log.warn("CA - Unable to get LDAP directory service for URL: " + serverUrl + ". Reason:" + e);
 	    return null;
 	  }
 
