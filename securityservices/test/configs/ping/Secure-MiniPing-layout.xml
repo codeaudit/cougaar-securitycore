@@ -6,9 +6,11 @@
     <node name='ROOT-CA-NODE'> 
       <facet role="RootCertificateAuthority"/> 
     </node> 
+    <node name='CA-NODE'> 
+      <facet role="CertificateAuthority"/> 
+    </node> 
     <node name='MGMT-NODE'> 
       <facet role="Management"/> 
-      <facet role="CertificateAuthority"/> 
     </node> 
     <node name='NodeA'> 
       <facet role="NameServer"/> 
