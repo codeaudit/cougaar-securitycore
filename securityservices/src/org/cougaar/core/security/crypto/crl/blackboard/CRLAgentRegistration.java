@@ -36,17 +36,20 @@ public class CRLAgentRegistration implements Serializable,Publishable{
   public  String dnName;
   public String ldapURL;
   public int ldapType;
+  private boolean registration ;
 
   public CRLAgentRegistration(String dnname) {
     dnName=dnname;
     ldapURL=null;
     ldapType=-1;
+    registration =true;
   }
   
-  public CRLAgentRegistration(String dnname, String ldapurl,int ldaptype){
+  public CRLAgentRegistration(String dnname, String ldapurl,int ldaptype, boolean register){
     dnName=dnname;
     ldapURL=ldapurl;
     ldapType=ldaptype;
+    registration = register;
   }
   public boolean isPersistable() {
     return true;
@@ -63,20 +66,30 @@ public class CRLAgentRegistration implements Serializable,Publishable{
     if(ldapType>-1){
       buffer.append("ldapType="+ldapType+"\n");
     }
+    if(registration){
+      buffer.append("to register= True \n");
+    }
+    else{
+      buffer.append("to register= False \n");
+    }
     return buffer.toString();
+  }
+  
+  public boolean toRegister(){
+    return registration;
   }
 
   public Node convertToXML(Document parent){
     // Element agentregNode = parent.createElement("CRLAgentRegistration");
     if(dnName!=null) {
-       Node dnNameNode = parent.createElement("DN");
-       dnNameNode.appendChild(parent.createTextNode(dnName));
-       parent.appendChild(dnNameNode);
+      Node dnNameNode = parent.createElement("DN");
+      dnNameNode.appendChild(parent.createTextNode(dnName));
+      parent.appendChild(dnNameNode);
     }
     if(ldapURL!=null) {
-       Node ldapURLNode = parent.createElement("LDAP URL");
-       ldapURLNode.appendChild(parent.createTextNode(ldapURL));
-       parent.appendChild(ldapURLNode);
+      Node ldapURLNode = parent.createElement("LDAP URL");
+      ldapURLNode.appendChild(parent.createTextNode(ldapURL));
+      parent.appendChild(ldapURLNode);
     }
     Node ldapTypeNode = parent.createElement("LDAP TYPE");
     ldapTypeNode.appendChild(parent.createTextNode(new StringBuffer().append(ldapType).toString()));
