@@ -111,8 +111,8 @@ public class CryptoManagerServiceImpl
           public Object run(){
             // relieve messages to naming, for local keys
             // do not need to go to naming
-//             List nameList = keyRing.getX500NameFromNameMapping(name);
-            List nameList = keyRing.findDNFromNS(name);
+            List nameList = keyRing.getX500NameFromNameMapping(name);
+            //List nameList = keyRing.findDNFromNS(name);
             if (log.isDebugEnabled()) {
               log.debug("List of names for " + name + ": " + nameList);
             }
@@ -148,8 +148,8 @@ public class CryptoManagerServiceImpl
           public Object run(){
             // relieve messages to naming, for local keys
             // do not need to go to naming
-//             List nameList = keyRing.getX500NameFromNameMapping(name);
-            List nameList = keyRing.findDNFromNS(name);
+            List nameList = keyRing.getX500NameFromNameMapping(name);
+            //List nameList = keyRing.findDNFromNS(name);
             Iterator iter = nameList.iterator();
             while (iter.hasNext()) {
               X500Name dname = (X500Name) iter.next();
@@ -247,7 +247,8 @@ public class CryptoManagerServiceImpl
 					 + " key is null. Unable to verify signature");
     }
     // need to find all certs with the name signed by multiple CAs
-    List nameList = keyRing.findDNFromNS(name);
+    //List nameList = keyRing.findDNFromNS(name);
+    List nameList = keyRing.getX500NameFromNameMapping(name);
 
     int lookupFlags[] = { KeyRingService.LOOKUP_KEYSTORE |
                           KeyRingService.LOOKUP_LDAP,
