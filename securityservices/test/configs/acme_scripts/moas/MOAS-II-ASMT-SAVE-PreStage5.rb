@@ -2,7 +2,7 @@
 
 name: MOAS-II-AS-Save
 description: MOAS-II-AS save pre-Stage5
-script: $CIP/csmart/lib/isat/OPBaselineTemplate-ExtOplan.rb
+script: $CIP/csmart/scripts/definitions/BaselineTemplate-ExtOplan.rb
 parameters:
   - run_count: 1
   - society_file: $CIP/csmart/config/societies/ua/full-tc20-232a703v.plugins.rb
@@ -23,12 +23,14 @@ parameters:
     - $CIP/csmart/config/rules/security
 #    - $CIP/csmart/lib/security/rules
 #    - $CIP/csmart/config/rules/security/mop
-#    - $CIP/csmart/config/rules/security/testCollectData
+    - $CIP/csmart/config/rules/security/testCollectData/ServiceContractPlugin.rule
    # ###
    # Redundant CA and persistence managers
-#    - $CIP/csmart/config/rules/security/redundancy
     - $CIP/csmart/config/rules/security/robustness
-   # Run with only redundant PM
+#    Enable the rules below only when the layout does not include the
+#     redundant CA and PM facets
+#    - $CIP/csmart/config/rules/security/redundancy
+   # Enable the rules below when the redundant PMs are enabled but not the redundant CAs
 #    - $CIP/csmart/config/rules/security/redundancy/add_redundant_pm_facet.rule
 #    - $CIP/csmart/config/rules/security/redundancy/adjust_memory.rule
 #    - $CIP/csmart/config/rules/security/robustness/redundant_persistence_mgrs.rule
