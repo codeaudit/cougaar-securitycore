@@ -21,6 +21,11 @@
 
 package com.nai.security.test.ssl;
 
+import java.net.*;
+import java.io.*;
+
+import javax.net.ssl.*;
+
 import org.cougaar.core.security.ssl.*;
 import org.cougaar.core.security.provider.*;
 import org.cougaar.core.security.services.crypto.*;
@@ -28,25 +33,106 @@ import com.nai.security.crypto.*;
 import org.cougaar.core.component.*;
 
 public class SSLTest {
+  SSLService sslservice;
+  String host = "localhost";
+  int port = 8900;
 
   public static void main(String[] args) {
-    new SSLTest();
+    SSLTest test = new SSLTest();
+    if (test.createService() != null) {
+      test.testSocket();
+    }
   }
 
   public SSLTest() {
-    ServiceBroker serviceBroker = new ServiceBrokerSupport();
-    SecurityServiceProvider secProvider = new SecurityServiceProvider(serviceBroker);
+  }
 
+  public SSLService createService() {
+    SecurityServiceProvider secProvider = new SecurityServiceProvider();
+
+    ServiceBroker serviceBroker = secProvider.getServiceBroker();
     KeyRingService keyRing = (KeyRingService)secProvider.getService(serviceBroker,
 						     this,
 						     KeyRingService.class);
 
     try {
-      SSLService sslservice = SSLServiceImpl.getInstance(keyRing);
+      sslservice = SSLServiceImpl.getInstance(keyRing);
+
+      System.out.println("=====> Successfully created SSLService.");
     } catch (Exception e) {
-      System.out.println("SSLService exception occurred.");
+      System.out.println("XXXXX SSLService exception occurred.");
       e.printStackTrace();
     }
+
+    return sslservice;
   }
 
+
+  public void testSocket() {
+    System.out.println("=====> Testing SSL client and server sockets.");
+    try {
+      ServerThread st = new ServerThread();
+      st.start();
+
+      SSLSocket s = (SSLSocket)sslservice.getSocketFactory().createSocket(host, port);
+
+      System.out.println("=====> Testing send server stream.");
+
+      OutputStream os = s.getOutputStream();
+      PrintWriter writer = new PrintWriter(os);
+      writer.println("Hello");
+      os.flush();
+      os.close();
+
+      System.out.println("=====> Receiving server stream.");
+      InputStream is = s.getInputStream();
+      BufferedReader in = new BufferedReader(new InputStreamReader(is));
+      while (in.ready()) {
+        String text = in.readLine();
+        System.out.println("=====> " + text);
+      }
+      s.close();
+
+      System.out.println("======> Successfully tested sockets.");
+    } catch (Exception ex) {
+      System.out.println("XXXXX Exception occurred creating sockets.");
+      ex.printStackTrace();
+    }
+
+  }
+
+
+
+  class ServerThread extends Thread {
+
+    public void run() {
+      try {
+        SSLServerSocket ss = (SSLServerSocket)
+          sslservice.getServerSocketFactory().createServerSocket(port);
+        SSLSocket s = (SSLSocket)ss.accept();
+        s.startHandshake();
+
+        InputStream is = s.getInputStream();
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+        StringBuffer textbuffer = new StringBuffer();
+        while (in.ready()) {
+          textbuffer.append(in.readLine());
+        }
+
+        System.out.println("Server received: " + textbuffer.toString());
+
+        OutputStream out = s.getOutputStream();
+        PrintWriter writer = new PrintWriter(out);
+        writer.println(textbuffer.toString());
+        out.flush();
+        out.close();
+
+        System.out.println("=====> Received socket request, responding.");
+
+      } catch (Exception ex) {
+        System.out.println("XXXXX Exception occurred creating server sockets.");
+        ex.printStackTrace();
+      }
+    }
+  }
 }
