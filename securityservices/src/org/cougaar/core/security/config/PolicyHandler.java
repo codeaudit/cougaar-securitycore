@@ -61,6 +61,7 @@ public class PolicyHandler
 
   public PolicyHandler(ConfigParserService configParser) {
     secprop = SecurityServiceProvider.getSecurityProperties(null);
+    this.configParser = configParser;
   }
 
   public void addCaPolicy(Hashtable attributeTable) {
