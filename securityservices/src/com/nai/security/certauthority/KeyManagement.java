@@ -58,6 +58,7 @@ import com.nai.security.crypto.*;
 import com.nai.security.util.*;
 import com.nai.security.crypto.ldap.CertDirectoryServiceCA;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
+import com.nai.security.crypto.ldap.CertificateRevocationStatus;
 
 /** Certification Authority service
  * The following java properties are necessary:
@@ -927,6 +928,11 @@ public class KeyManagement
       String cabindingName=caresult.getName();
       SearchResult userresult=caOperations.getLdapentry(userUniqueIdentifier,true);
       Attributes userAttributes=userresult.getAttributes();
+      CertificateRevocationStatus userstatus=caOperations.getCertificateRevocationStatus(userAttributes);
+      if(userstatus.equals(CertificateRevocationStatus.REVOKED)) {
+	status=-2;
+	return status;
+      }
       if(caOperations.isCAEntry(userAttributes)) {
 	status=-3;
 	return status;

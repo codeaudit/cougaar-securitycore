@@ -58,5 +58,7 @@ public interface CertDirectoryServiceCA {
 			    NamingException;
   public  X509Certificate getCertificate(Attributes attributes) throws CertificateException, NamingException;
   public  boolean isCAEntry(Attributes attributes)throws NamingException;
+  public  CertificateRevocationStatus getCertificateRevocationStatus(Attributes attributes);
+  
 
 }

@@ -209,6 +209,7 @@ public class OpenLdapCertDirectoryService extends CertDirectoryService
     }
     return isca;
   }
+ 
   /** Returns the CRL for the give CA certificate */
   private X509CRL getCRL(Attributes attributes) throws CRLException , NamingException, CertificateException {
 
@@ -245,7 +246,7 @@ public class OpenLdapCertDirectoryService extends CertDirectoryService
   }
 
   /** Return the revocation status of the certificate. */
-  private CertificateRevocationStatus getCertificateRevocationStatus(Attributes attributes) {
+  public  CertificateRevocationStatus getCertificateRevocationStatus(Attributes attributes) {
     CertificateRevocationStatus status = null;
 
     // Retrieve the certificate status

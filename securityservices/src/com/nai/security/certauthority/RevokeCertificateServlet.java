@@ -83,6 +83,10 @@ public class RevokeCertificateServlet extends  HttpServlet
     String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
     
     out.println("<html>");
+     out.println("<script language=\"javascript\">");
+    out.println("function submitme(form)");
+    out.println("{ form.submit()}</script>");
+    out.println("</head>");
     out.println("<body>");
 
     if((distinguishedName==null)||(distinguishedName=="")) {
@@ -117,12 +121,15 @@ public class RevokeCertificateServlet extends  HttpServlet
     }
     catch (MultipleEntryException multipleexp) {
       out.print("Multiple entry found for : " + multipleexp.getMessage());
+       out.println(appendForm(certlistUri,cadnname,role));
+
       out.flush();
       out.close();
       return;
     }
      catch (Exception generalexp) {
       out.print("Error has occured due to  following reason  : " +generalexp.getMessage());
+     out.println(appendForm(certlistUri,cadnname,role));  
       out.flush();
       out.close();
       return;
@@ -131,6 +138,11 @@ public class RevokeCertificateServlet extends  HttpServlet
  
     if(status==1) {
       out.println("Successfully Revoked certificate :"
+		  + distinguishedName);
+      out.println("<p>");
+    }
+    else if(status==-2) {
+      out.println(" Certificate has already been revoked   :"
 		  + distinguishedName);
       out.println("<p>");
     }
@@ -143,10 +155,23 @@ public class RevokeCertificateServlet extends  HttpServlet
       out.println("Error in  Revoking  certificate :"
 		  + distinguishedName);
     }
-    out.println("<a href=\""+certlistUri+ "\"> Back to Certificate List ></a>");
+  
+    
+    out.println(appendForm(certlistUri,cadnname,role));
     out.println("</body>");
     out.println("</html>");
 
+  }
+  private String appendForm(String posturl, String caDNName, String role) {
+    
+    StringBuffer sb=new StringBuffer();
+     sb.append("<form name=\"certlist\" action=\"" +posturl + "\" method=\"post\">");
+     sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
+		+caDNName + "\">");
+     sb.append("<input type=\"hidden\" name=\"role\" value=\"" + role + "\">");
+     sb.append("<a Href=\"javascript:submitme(document.certlist)\">"
+		+ "Back to List "+"</a></form>");
+     return sb.toString();
   }
 
   protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException
