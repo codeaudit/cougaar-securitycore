@@ -52,18 +52,22 @@ def getPolicyManager(enclave)
   run.society.each_agent_with_component("safe.policyManager.PolicyAdminServletComponent") { |agent|
     #puts("looking at agent #{agent.name} which has enclave #{agent.enclave} comparing against enclave #{enclave}")
     if (agent.enclave == enclave)
-      url = agent.uri
-      re = %r"http://([^:]*):([^/]*)/\$([^/]*)"
-      match = re.match(url)
+      #url = agent.uri
+      #re = %r"http://([^:]*):([^/]*)/\$([^/]*)"
+      #match = re.match(url)
       manager = agent.name
-      port = match[2].to_i
-      host = match[1]
+      port = agent.node.cougaar_port
+      host = agent.node.host.name
+      #port = match[2].to_i
+      #host = match[1]
       break;
     end
   }
 
   if manager == nil
     raise "There is no security manager for enclave '#{enclave}'"
+  else
+    logInfoMsg "Found manager for #{host}:#{port} #{manager}"
   end
   [host, port, manager]
 end
