@@ -118,6 +118,9 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
       this.failures++;
       this.createIDMEFEvent(pluginName, "Can't access OrgActivity object");
     }
+    else {
+      this.successes++;
+    }
     try {
       this.totalRuns++;
       getBlackboardService().publishRemove(oa);
