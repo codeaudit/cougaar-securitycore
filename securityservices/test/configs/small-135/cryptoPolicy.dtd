@@ -1,0 +1,18 @@
+<!ELEMENT policies (policy, javaproperties)>
+<!ELEMENT javaproperties (property)>
+<!ELEMENT property (name, value)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT value (#PCDATA)>
+
+<!ELEMENT policy (cryptoPolicy*)>
+<!ELEMENT cryptoPolicy (IncomingSecureMethod*)>
+
+<!ELEMENT IncomingSecureMethod (#PCDATA)>
+<!ELEMENT IncomingSymmetricAlgorithm (#PCDATA)>
+<!ELEMENT IncomingAsymmetricAlgorithm (#PCDATA)>
+<!ELEMENT IncomingSigningAlgorithm (#PCDATA)>
+
+<!ELEMENT OutgoingSecureMethod (#PCDATA)>
+<!ELEMENT OutgoingSymmetricAlgorithm (#PCDATA)>
+<!ELEMENT OutgoingAsymmetricAlgorithm (#PCDATA)>
+<!ELEMENT OutgoingSigningAlgorithm (#PCDATA)>

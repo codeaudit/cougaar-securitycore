@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<!DOCTYPE policies SYSTEM "cryptoPolicy.dtd" []>
+
+<policies>
+  <policy name="Crypto Policy" type="org.cougaar.core.security.policy.CryptoPolicy">
+    <cryptoPolicy>
+	<IncomingSecureMethod>signAndEncrypt</IncomingSecureMethod>
+    	<IncomingSymmetricAlgorithm>DES</IncomingSymmetricAlgorithm>
+    	<IncomingAsymmetricAlgorithm>RSA</IncomingAsymmetricAlgorithm>
+    	<IncomingSigningAlgorithm>MD5withRSA</IncomingSigningAlgorithm>
+
+    	<OutgoingSecureMethod>signAndEncrypt</OutgoingSecureMethod>
+    	<OutgoingSymmetricAlgorithm>DES</OutgoingSymmetricAlgorithm>
+    	<OutgoingAsymmetricAlgorithm>RSA</OutgoingAsymmetricAlgorithm>
+    	<OutgoingSigningAlgorithm>MD5withRSA</OutgoingSigningAlgorithm>
+    </cryptoPolicy>
+  </policy>
+</policies>
