@@ -58,8 +58,9 @@ public class SSLServiceProvider
     if (sslservice != null)
       return sslservice;
 
-    //if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug("Creating SSLService.");
+    }
 
     // Retrieve KeyRing service
     ksr = (KeyRingService)
@@ -73,12 +74,16 @@ public class SSLServiceProvider
 		      });
 
     try {
-      log.debug("Initializing SSL service");
+      if (log.isDebugEnabled()) {
+        log.debug("Initializing SSL service");
+      }
       sslservice = new SSLServiceImpl(sb);
       sslservice.init(ksr);
     }
     catch (Exception e) {
-      log.error("Failed to initialize SSLService! " + e.toString());
+      if (log.isErrorEnabled()) {
+        log.error("Failed to initialize SSLService! " + e.toString());
+      }
       e.printStackTrace();
     }
     return sslservice;

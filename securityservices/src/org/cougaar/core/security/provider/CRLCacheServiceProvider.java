@@ -45,7 +45,9 @@ public class  CRLCacheServiceProvider
     //bindingSite=bs;
     log = (LoggingService) sb.getService(this,
 					 LoggingService.class, null);
-    log.debug("Creating an instance of crl cache in Constructor of CRLCacheServiceProvider :");
+    if (log.isDebugEnabled()) {
+      log.debug("Creating an instance of crl cache in Constructor of CRLCacheServiceProvider :");
+    }
     createCRLcache(sb);
   }
 

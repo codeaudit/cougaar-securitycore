@@ -172,8 +172,10 @@ public class JaasSSLFactory extends SSLSocketFactory {
 	 l= _krs.findPrivateKey(name);
 	}
         if (l == null || l.isEmpty()) {
-          _log.info("Couldn't find private key for " + name + 
+          if (_log.isInfoEnabled()) {
+            _log.info("Couldn't find private key for " + name + 
                     " when creating SSLSocketFactory");
+          }
 	  name = "-- no client certificate -- ";
 	  fact = (SSLSocketFactory) _factories.get(name);
 	  if (fact != null) {

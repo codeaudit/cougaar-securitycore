@@ -248,7 +248,9 @@ public class SecurityServiceProvider
 
 
 /* Starting CRL Cache  service */
-    log.debug("Service broker passed to CRLCacheServiceProvider is :"+serviceBroker.toString());
+    if (log.isDebugEnabled()) {
+      log.debug("Service broker passed to CRLCacheServiceProvider is :"+serviceBroker.toString());
+    }
     newSP = new CRLCacheServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CRLCacheService.class, newSP);
     rootServiceBroker.addService(CRLCacheService.class, newSP);
@@ -473,7 +475,9 @@ public class SecurityServiceProvider
       }
     }
     else {
-      log.debug("Registering  LDMServiceAvailableListener ");
+      if (log.isDebugEnabled()) {
+        log.debug("Registering  LDMServiceAvailableListener ");
+      }
       serviceBroker.addServiceListener(new LDMServiceAvailableListener ());
     }
     /*
@@ -485,8 +489,10 @@ public class SecurityServiceProvider
       serviceBroker.addServiceListener(new BBServiceAvailableListener());
     }
     */
-   log.debug("Root service broker is :"+rootServiceBroker.toString());
-   log.debug("Service broker is :"+ serviceBroker.toString());
+   if (log.isDebugEnabled()) {
+     log.debug("Root service broker is :"+rootServiceBroker.toString());
+     log.debug("Service broker is :"+ serviceBroker.toString());
+   }
   }
 
   private class LDMServiceAvailableListener implements ServiceAvailableListener
@@ -497,16 +503,22 @@ public class SecurityServiceProvider
       Class sc = ae.getService();
       if( org.cougaar.planning.service.LDMService.class.isAssignableFrom(sc)) {
 	ldms = (LDMService) serviceBroker.getService(this, LDMService.class, null);
-	log.info("LDM Service is available now in Security Service provider ");
+        if (log.isInfoEnabled()) {
+          log.info("LDM Service is available now in Security Service provider ");
+        }
 	if(ldms!=null){
 	  LDMServesPlugin ldm=ldms.getLDM();
 	  newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
 	  services.put(CrlManagementService.class, newSP);
 	  rootServiceBroker.addService(CrlManagementService.class, newSP);
-	  log.info("Added  CrlManagementService service  ");
+          if (log.isInfoEnabled()) {
+	    log.info("Added  CrlManagementService service  ");
+          }
 	}
 	else {
-	  log.info("LDM Service is null in LDMServiceAvailableListener  ");
+          if (log.isInfoEnabled()) {
+            log.info("LDM Service is null in LDMServiceAvailableListener  ");
+          }
 	}
       }
 

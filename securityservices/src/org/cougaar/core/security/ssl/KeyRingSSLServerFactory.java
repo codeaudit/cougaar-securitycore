@@ -85,7 +85,9 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
     try {
       SSLSession session = socket.getSession();
       if (session != null) {
-        _log.debug("Have a session");
+        if (_log.isDebugEnabled()) {
+          _log.debug("Have a session");
+        }
         peer = session.getPeerCertificates();
         if (_log.isDebugEnabled()) {
           _log.debug("peer = " + peer);
