@@ -21,9 +21,9 @@
       <Logger className="org.apache.catalina.logger.FileLogger"
        verbosity="0" timestamp="true" prefix="webtomcat" directory="logs"/>
 
-      <!-- Turn on memory realm. We will later be moving to the JNDIRealm
+      <!-- This realm supports security services when they are enabled
       -->
-      <Realm className="org.cougaar.core.security.coreservices.tomcat.SecureRealm"/> 
+      <Realm className="org.cougaar.lib.web.tomcat.SecureRealm"/> 
 
       <!-- set up the host. For cougaar there is only a single host -->
       <Host name="DEFAULT" appBase="webapps" unpackWARs="true">
@@ -34,10 +34,7 @@
 
         <!-- set up the default Context -->
         <Context path="" docBase="ROOT" workDir="work"
-         className="org.cougaar.core.security.coreservices.tomcat.SecureContext">
-<!--
-        <Context path="" docBase="ROOT" workDir="work">
--->
+         className="org.cougaar.lib.web.tomcat.SecureContext">
  
           <!-- Create a session manager. I don't like the seeding mechanism
                which seems to rely on a seed within the server.xml file as
@@ -52,9 +49,7 @@
            maxActiveSession="-1" pathname="UserSessions.dat"/>
 
            <Valve className="org.apache.catalina.valves.CertificatesValve"/>
-<!--
--->
-           <Valve className="org.cougaar.core.security.coreservices.tomcat.AuthValve"
+           <Valve className="org.cougaar.lib.web.tomcat.AuthValve"
                   realmName="Cougaar" authMethod="BASIC"/>
 
         </Context>

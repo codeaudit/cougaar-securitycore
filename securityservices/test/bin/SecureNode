@@ -84,7 +84,7 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.config.path=${COUGAAR_INSTALL_PATH
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.oldmonitoringdebug=true"
 
 # Enable user authentication using security services
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.coreservices.tomcat.enableAuth=true"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.tomcat.enableAuth=true"
 
 # The java.security.debug property can be used to debug the
 # Security Manager.
