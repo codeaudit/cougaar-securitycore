@@ -154,14 +154,33 @@ public class MessageFailureSensor extends ComponentPlugin {
    */
   private void registerCapabilities(CommunityService cs, String agentName){
     List capabilities = new ArrayList();
+    List targets = new ArrayList(1);
+    List tRefList = new ArrayList(1);
+    List data = new ArrayList();
+    Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
+    // the target are agents
+    Target t = m_idmefFactory.createTarget(null, null, null, null, null, null);
+    // add the target ident to the reference ident list
+    tRefList.add(t.getIdent());
+    targets.add(t);
+    // since there isn't a data model for cougaar Agents, the Agent object is
+    // added to the AdditionalData of an IDMEF message
+    Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
+    data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+    
     Classification classification = 
       m_idmefFactory.createClassification(IdmefClassifications.MESSAGE_FAILURE, null);
     capabilities.add(classification);
       
     RegistrationAlert reg = 
-      m_idmefFactory.createRegistrationAlert( m_sensorInfo, capabilities,
-                                              m_idmefFactory.newregistration ,
-                                              m_idmefFactory.SensorType);
+      m_idmefFactory.createRegistrationAlert( m_sensorInfo, 
+                                              null,
+                                              targets,
+                                              capabilities,
+                                              data,
+                                              m_idmefFactory.newregistration,
+                                              m_idmefFactory.SensorType,
+                                              agentName);
     NewEvent regEvent = m_cmrFactory.newEvent(reg);
     // get the list of communities that this agent belongs where CommunityType is Security
     Collection communities = cs.listParentCommunities(agentName, "(CommunityType=Security)"); 
