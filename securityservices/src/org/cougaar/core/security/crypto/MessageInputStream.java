@@ -64,7 +64,7 @@ public class MessageInputStream
   private ServiceBroker serviceBroker;
   private LoggingService log;
   private EventPublisher eventPublisher;
-  private MessageFormat messageFormat = new MessageFormat("{0}-");
+  private MessageFormat messageFormat = new MessageFormat("{0} -");
   
   public MessageInputStream(InputStream stream,
 			    EncryptionService enc,

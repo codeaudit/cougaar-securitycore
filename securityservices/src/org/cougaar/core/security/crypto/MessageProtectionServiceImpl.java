@@ -80,7 +80,7 @@ public class MessageProtectionServiceImpl
   private boolean isInitialized = false;
   // event publisher to publish message failure
   private EventPublisher eventPublisher = null;
-  private MessageFormat exceptionFormat = new MessageFormat("{0}-");
+  private MessageFormat exceptionFormat = new MessageFormat("{0} -");
   
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;

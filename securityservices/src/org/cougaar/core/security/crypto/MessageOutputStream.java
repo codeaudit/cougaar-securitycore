@@ -64,7 +64,7 @@ public class MessageOutputStream
   private ServiceBroker serviceBroker;
   private LoggingService log;
   private EventPublisher eventPublisher;
-  private MessageFormat messageFormat = new MessageFormat("{0}-");
+  private MessageFormat messageFormat = new MessageFormat("{0} -");
   
   /** Set to true to dump messages to a file (for debug purposes) */
   private static boolean dumpMessages = 
