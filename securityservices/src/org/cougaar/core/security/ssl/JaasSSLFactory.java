@@ -58,6 +58,8 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
 
 // Cougaar core services
 import org.cougaar.util.log.*;
@@ -184,7 +186,8 @@ public class JaasSSLFactory extends SSLSocketFactory {
           _log.warn("Couldn't find private key for " + name + 
                     " when creating SSLSocketFactory");
         } else {
-          km.setPrivateKey((PrivateKey) l.get(0));
+          PrivateKeyCert pkc = (PrivateKeyCert) l.get(0);
+          km.setPrivateKey(pkc.getPrivateKey());
         } // end of else
 
         l = _dirKeystore.findCert(name, KeyRingService.LOOKUP_LDAP | 
@@ -193,7 +196,8 @@ public class JaasSSLFactory extends SSLSocketFactory {
           _log.warn("Couldn't find certificate for " + name + 
                     " when creating SSLSocketFactory");
         } else {
-          km.setCertificate((X509Certificate) l.get(0));
+          CertificateStatus certStatus = (CertificateStatus) l.get(0);
+          km.setCertificate((X509Certificate) certStatus.getCertificate());
         } // end of else
         
         context.init(new KeyManager[] {km}, 
