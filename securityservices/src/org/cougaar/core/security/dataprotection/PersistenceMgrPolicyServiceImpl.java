@@ -210,15 +210,22 @@ public class PersistenceMgrPolicyServiceImpl
 	      _log.error(errorString);
 	      throw new RuntimeException(errorString);
 	    }
-	    Iterator it = ((Set)response).iterator();
-	    while (it.hasNext()) {
-	      processPersistenceMgrEntry((Entity) it.next());
-	    }
+            configureCommunity((Set) response);
 	  }
 	};
 
       String filter = "(& (CommunityType=Security) (Role=" + PM_ROLE +") )";
-      _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
+      Collection communities = _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
+      if (communities != null) {
+        configureCommunity((Set) communities);
+      }
+    }
+
+    private void configureCommunity(Set communities) {
+      Iterator it = communities.iterator();
+      while (it.hasNext()) {
+        processPersistenceMgrEntry((Entity) it.next());
+      }
     }
 
     private void processPersistenceMgrEntry(Entity manager) {

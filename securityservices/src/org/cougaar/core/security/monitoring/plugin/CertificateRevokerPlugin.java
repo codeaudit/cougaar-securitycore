@@ -547,12 +547,15 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       };
     // TODO: do this truly asynchronously.
     String filter = "(Role=" + _managerRole + ")";
-    cs.searchCommunity(community, filter, true,
+    Collection communities = 
+      cs.searchCommunity(community, filter, true,
 		       Community.AGENTS_ONLY, crl);
-    try {
-      s.acquire();
-    } catch (InterruptedException ie) {
-      _log.error("Error in searchByCommunity:", ie);
+    if (communities == null) {
+      try {
+        s.acquire();
+      } catch (InterruptedException ie) {
+        _log.error("Error in searchByCommunity:", ie);
+      }
     }
 
     Collection agents=(Set)status.value;

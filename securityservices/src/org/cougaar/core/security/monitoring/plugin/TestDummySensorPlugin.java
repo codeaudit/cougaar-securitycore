@@ -310,28 +310,34 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
 	    log.error(errorString);
 	    throw new RuntimeException(errorString);
 	  }
-	  if ( ((Set)response).size() > 1) {
-	    log.warn("This agent belongs to more than one security community");
-	  }
-	  else {
-	    Iterator it = ((Set)response).iterator();
-	    while (it.hasNext()) {
-	      Community community = (Community) it.next();
-	      _mySecurityCommunity = community.getName();
-	      postSetup();
-	      break;
-	    }
-	  }
+          configureCommunity((Set) response);
 	}
       };
 
     // Request security community.
     String filter="(CommunityType=Security)";
-    communityService.searchCommunity(null, filter, false, Community.COMMUNITIES_ONLY, crl);
-
-
+    Collection communities =
+      communityService.searchCommunity(null, filter, false, Community.COMMUNITIES_ONLY, crl);
+    if (communities != null) {
+      configureCommunity((Set)communities);
+    }
   }
-  
+ 
+  private void configureCommunity(Set communities) {
+    if (communities.size() > 1) {
+      log.warn("This agent belongs to more than one security community");
+    }
+    else {
+      Iterator it = communities.iterator();
+      while (it.hasNext()) {
+        Community community = (Community) it.next();
+        _mySecurityCommunity = community.getName();
+        postSetup();
+        break;
+      }
+    }
+  }
+ 
   private String getMyRole(String mySecurityCommunity) {
     String myRole=null;
     boolean enclavemgr=false;

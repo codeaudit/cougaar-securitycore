@@ -391,26 +391,34 @@ public class UserLockoutPlugin extends ResponderPlugin {
 	    _log.error(errorString);
 	    throw new RuntimeException(errorString);
 	  }
-	  Iterator it = ((Set)response).iterator();
-	  MessageAddress messageAddress = null;
-	  while (it.hasNext()) {
-	    Community community = (Community) it.next();
-	    messageAddress = AttributeBasedAddress.
-	      getAttributeBasedAddress(community.getName(),
-				       "Role", _managerRole, null);
-	    break;
-	  }
-	  if (messageAddress == null) {
-	    _log.warn("This agent does not belong to any community. Login failures won't be reported.");
-	  }
-	  setupFailureSensor(messageAddress);
+          configureCommunity((Set)response);
 	}
       };
 
     String filter = "(CommunityType=Security)";
-    cs.searchCommunity(null, filter, false, Community.COMMUNITIES_ONLY, crl);
+    Collection communities =
+      cs.searchCommunity(null, filter, false, Community.COMMUNITIES_ONLY, crl);
+    if (communities != null) {
+      configureCommunity((Set)communities);
+    }
   }
   
+  private void configureCommunity(Set communities) {
+    Iterator it = communities.iterator();
+    MessageAddress messageAddress = null;
+    while (it.hasNext()) {
+      Community community = (Community) it.next();
+      messageAddress = AttributeBasedAddress.
+        getAttributeBasedAddress(community.getName(),
+			       "Role", _managerRole, null);
+      break;
+    }
+    if (messageAddress == null) {
+      _log.warn("This agent does not belong to any community. Login failures won't be reported.");
+    }
+    setupFailureSensor(messageAddress);
+  }
+
   private void setupFailureSensor(MessageAddress managerAddress) {
     BlackboardService    bbs          = getBlackboardService();
     ServiceBroker        sb           = getBindingSite().getServiceBroker();
