@@ -1619,12 +1619,13 @@ try {
 
   //public synchronized void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy trustedCaPolicy) {
   private Object addKeyLock = new Object();
+
   public void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy trustedCaPolicy) {
     synchronized (addKeyLock) {
       if (log.isDebugEnabled()) {
         log.debug("CheckOrMakeCert: " + dname.toString() );
-
       }
+
       if(cacheservice==null) {
         log.warn("Unable to get Certificate cache Service in checkOrMakeCert");
       }
@@ -2134,12 +2135,18 @@ try {
   }
 
   private boolean checkExpiry(String commonName, TrustedCaPolicy trustedCaPolicy) {
+    // certificate have not been generated yet, still waiting in initial stage
+    if (requestedIdentities.get(commonName) != null) {
+      return false;
+    }
     CertificateAttributesPolicy certAttribPolicy =
       cryptoClientPolicy.getCertificateAttributesPolicy(trustedCaPolicy);
     String x500dn = CertificateUtility.getX500DN(commonName,
       CertificateCache.getTitle(commonName), certAttribPolicy);
     X500Name x500name = CertificateUtility.getX500Name(x500dn);
-    List certificateList = findCert(x500name);
+
+    // check local keystore only, cert may have been generated but just have not updated to WP yet
+    List certificateList = findCert(x500name, KeyRingService.LOOKUP_KEYSTORE, true);
 
     if(certificateList != null && certificateList.size() != 0) {
       // check envelope
