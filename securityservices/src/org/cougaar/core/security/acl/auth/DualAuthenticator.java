@@ -55,6 +55,7 @@ import org.apache.catalina.connector.HttpResponseWrapper;
 
 import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
+import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 
 public class DualAuthenticator extends ValveBase {
   static final int CONST_NONE     = 0x00;
@@ -82,6 +83,7 @@ public class DualAuthenticator extends ValveBase {
                            AuthenticatorBase secondaryAuth) {
     setPrimaryAuthenticator(primaryAuth);
     setSecondaryAuthenticator(secondaryAuth);
+    ServletPolicyServiceProvider.setDualAuthenticator(this);
   }
 
   /**
