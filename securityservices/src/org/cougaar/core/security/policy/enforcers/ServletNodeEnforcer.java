@@ -240,7 +240,7 @@ public class ServletNodeEnforcer
    *
    * I broke this today - come back to it later...
    */
-  public void testEnforcer(PrintWriter out, Set uris, Set roles) 
+  public void testEnforcer(PrintWriter out, List uris, List roles) 
     throws IOException, UnknownConceptException
   {
     out.print("<p><b>Servlet Test</b></p>");
