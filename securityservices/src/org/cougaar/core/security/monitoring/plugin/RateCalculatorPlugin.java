@@ -309,6 +309,10 @@ public class RateCalculatorPlugin extends ComponentPlugin {
     public void setRate(int rate) {
       _rate = new Double((double) rate);
     }
+
+    public String toString() {
+      return _name + " = " + _rate;
+    }
   }
 
   /**
