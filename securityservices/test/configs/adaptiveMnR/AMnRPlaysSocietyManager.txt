@@ -1,6 +1,6 @@
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 10 : PERCEIVED_THREAT_LEVEL = 1;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE in { 11 thru 20 } : PERCEIVED_THREAT_LEVEL = 2;
-org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 20 : PERCEIVED_THREAT_LEVEL = 3;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 25 : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE in { 26 thru 50 } : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 50 : PERCEIVED_THREAT_LEVEL = 3;
 PERCEIVED_THREAT_LEVEL == 1
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 60
