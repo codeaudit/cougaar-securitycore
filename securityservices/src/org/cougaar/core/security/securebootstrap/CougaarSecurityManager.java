@@ -26,9 +26,6 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-// Cougaar overlay
-import org.cougaar.core.security.constants.IdmefClassifications;
-
 import java.text.DateFormat;
 import java.io.PrintStream;
 import java.io.ByteArrayOutputStream;
@@ -81,6 +78,16 @@ public class CougaarSecurityManager
   private EventHolder eventholder=null;
   private String type=null;
 
+  /**
+   * cougaar classification name prefix
+   */
+  private final static String COUGAAR_PREFIX = "org.cougaar.core.security.monitoring.";
+  /**
+   * security manager exception
+   */
+  private final static String SECURITY_MANAGER_EXCEPTION = 
+    COUGAAR_PREFIX + "SECURITY_MANAGER_EXCEPTION";
+
   /** The constructor initializes a log file at
       ${COUGAAR_INSTALL_PATH}/log/bootstrap/SecurityManager.log
   **/
@@ -108,7 +115,7 @@ public class CougaarSecurityManager
     String auditlogname =
       System.getProperty("org.cougaar.core.security.bootstrap.SecurityManagerLogFile",
 			 defaultLogName);
-    type= IdmefClassifications.SECURITY_MANAGER_EXCEPTION;
+    type= SECURITY_MANAGER_EXCEPTION;
     eventholder= EventHolder.getInstance();
     try {
       auditlog = new PrintStream(new FileOutputStream(auditlogname));

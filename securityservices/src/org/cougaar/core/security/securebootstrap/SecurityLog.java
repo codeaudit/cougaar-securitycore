@@ -26,9 +26,6 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-// Cougaar overlay
-import org.cougaar.core.security.constants.IdmefClassifications;
-
 import java.io.*;
 import java.util.*;
 import java.text.*;
@@ -40,11 +37,20 @@ public class SecurityLog
   private int loudness;
   private EventHolder eventholder=null;
   private String type=null;
+  /**
+   * cougaar classification name prefix
+   */
+  private final static String COUGAAR_PREFIX = "org.cougaar.core.security.monitoring.";
+  /**
+   * jar verification failure
+   */
+  private final static String JAR_VERIFICATION_FAILURE = 
+    COUGAAR_PREFIX + "JAR_VERIFICATION_FAILURE";
 
   public SecurityLog(int loudness)
   {
     this.loudness = loudness;
-    this.type=IdmefClassifications.JAR_VERIFICATION_FAILURE;
+    this.type=JAR_VERIFICATION_FAILURE;
     eventholder=EventHolder.getInstance();
   }
   public void createLogFile(String nodeName) {
