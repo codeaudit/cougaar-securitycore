@@ -148,15 +148,15 @@ module Cougaar
         testAgentRegistrations(@interval, @delay) { |missing, expected|
 #puts "#{Time.now} WP Registration: callback"
           if missing.empty?
-            saveResult(true, "wp_registration", "All agents have registered to the white pages")
+            saveResult(true, "wp_registration", "All agents (#{expected.size}) have registered to the white pages")
 #            puts("All agents have registered to the white pages")
           else
             if (lastCheck == missing.length)
               saveResult(false, "wp_registration", "No new agents have registered to the white pages for #{@interval} seconds")
 #              puts("No new agents have registered to the white pages for #{interval} seconds")
             end
-            saveAssertion("wp_registration", "Agents who haven't registered with the white pages: #{missing.join(" ")}")
-            saveAssertion("wp_registration", "Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
+            saveAssertion("wp_registration", "#{missing.size} agents haven't registered with the white pages: #{missing.join(" ")}")
+            saveAssertion("wp_registration", "#{(expected - missing).size} agents have registered with the white pages: #{(expected - missing).join(" ")}")
 #            puts("#{Time.now} Agents who haven't registered with the white pages: #{missing.join(" ")}")
 #            puts("#{Time.now} Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
             # Get stack trace of agents that have not registered
