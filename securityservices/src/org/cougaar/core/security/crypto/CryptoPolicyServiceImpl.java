@@ -125,7 +125,7 @@ public class CryptoPolicyServiceImpl
             log.error("failed getting community name: " + e.getMessage());
           }
           if(cname != null && outgoing_c !=null) 
-            cp = (CryptoPolicy)outgoing_c.get(source);
+            cp = (CryptoPolicy)outgoing_c.get(cname);
         }
       }
 
@@ -179,7 +179,7 @@ public class CryptoPolicyServiceImpl
             log.error("Failed getting community name: " + e.getMessage());
           }
           if(cname != null && incoming_c !=null) 
-            cp = (CryptoPolicy)incoming_c.get(target);
+            cp = (CryptoPolicy)incoming_c.get(cname);
         }
       }
 

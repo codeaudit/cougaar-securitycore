@@ -321,11 +321,11 @@ public class SecurityServiceProvider
       rootServiceBroker.addService(PolicyBootstrapperService.class, this);
 
       services.put(AccessControlPolicyService.class,
-                   new AccessControlPolicyServiceProvider());
+                   new AccessControlPolicyServiceProvider(serviceBroker));
       rootServiceBroker.addService(AccessControlPolicyService.class, this);
 
       services.put(CryptoPolicyService.class,
-                   new CryptoPolicyServiceProvider());
+                   new CryptoPolicyServiceProvider(serviceBroker));
       rootServiceBroker.addService(CryptoPolicyService.class, this);
 
       services.put(ServletPolicyService.class,

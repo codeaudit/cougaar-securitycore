@@ -64,7 +64,7 @@ public class AccessControlPolicyServiceImpl
   HashSet proxies = new HashSet();
 
   //policy source
-  Vector pp = new Vector();
+//  Vector pp = new Vector();
 
   //policy for society--usually the default, one-fits-all policy
   AccessControlPolicy acp_in = null;
@@ -128,10 +128,10 @@ public class AccessControlPolicyServiceImpl
           //of policy--no policy consolidation for now, just pick one.
           cname = (String)c.iterator().next();
         }catch(Exception e){
-          log.debug("AccessControlPolicyServiceImpl: getting odd community name.");
+          log.debug("Failed getting community name.");
         }
         if(cname != null && incoming_c !=null) 
-          acp = (AccessControlPolicy)incoming_c.get(target);
+          acp = (AccessControlPolicy)incoming_c.get(cname);
       }
     }
     
@@ -142,7 +142,7 @@ public class AccessControlPolicyServiceImpl
     
     if(acp==null){
       if(log.isDebugEnabled()) {
-        log.debug("AccessControlPolicy ERROR: can't find policy for " 
+        log.debug("can't find policy for " 
         + "->" +  target);
       }
     }
@@ -163,10 +163,10 @@ public class AccessControlPolicyServiceImpl
           //of policy--no policy consolidation for now, just pick one.
           cname = (String)c.iterator().next();
         }catch(Exception e){
-          log.debug("AccessControlPolicyServiceImpl: getting odd community name.");
+          log.debug("Failed getting community name.");
         }
         if(cname != null && outgoing_c !=null) 
-          acp = (AccessControlPolicy)outgoing_c.get(source);
+          acp = (AccessControlPolicy)outgoing_c.get(cname);
       }
     }
     
@@ -184,13 +184,13 @@ public class AccessControlPolicyServiceImpl
       return acp;
   }//getOutgoingPolicy
   
-  private void checkOrMakeProxy(String agent){
+  private synchronized void checkOrMakeProxy(String agent){
     if(proxies.contains(agent)) return;
 
     AccessPolicyProxy app = new AccessPolicyProxy(agent, serviceBroker);
 
     if(app!=null){
-      pp.add(app);
+//      pp.add(app);
       proxies.add(agent);
       if(log.isDebugEnabled()) {
 	log.debug("Making proxy for agent " + agent);

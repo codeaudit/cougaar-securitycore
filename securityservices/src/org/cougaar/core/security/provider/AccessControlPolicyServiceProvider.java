@@ -50,7 +50,11 @@ public class AccessControlPolicyServiceProvider
   private KeyRingService keyRing;
   private SecurityPropertiesService sps;
   private static AccessControlPolicyService accessControlPolicyService;
+  private ServiceBroker theBroker;
 
+  public AccessControlPolicyServiceProvider(ServiceBroker broker){
+    theBroker = broker;
+  }
   /**
    * Get a service.
    * @param sb a Service Broker
@@ -66,7 +70,7 @@ public class AccessControlPolicyServiceProvider
 		    LoggingService.class, null);
     if (accessControlPolicyService == null) {
       accessControlPolicyService =
-	new AccessControlPolicyServiceImpl(sb);
+	new AccessControlPolicyServiceImpl(theBroker);
     }
     if (log.isDebugEnabled()) {
       log.debug("AC policy Service Request: "

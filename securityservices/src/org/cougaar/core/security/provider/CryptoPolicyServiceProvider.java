@@ -43,6 +43,11 @@ public class CryptoPolicyServiceProvider
   implements ServiceProvider
 {
   static private CryptoPolicyService cryptoPolicyService;
+  private ServiceBroker theBroker;
+
+  public CryptoPolicyServiceProvider(ServiceBroker broker){
+    theBroker = broker;
+  }
 
   /**
    * Get a service.
@@ -55,7 +60,7 @@ public class CryptoPolicyServiceProvider
 					Object requestor, 
 					Class serviceClass) {
     if (cryptoPolicyService == null) {
-      cryptoPolicyService = new CryptoPolicyServiceImpl(sb);
+      cryptoPolicyService = new CryptoPolicyServiceImpl(theBroker);
     }
     return cryptoPolicyService;
   }
