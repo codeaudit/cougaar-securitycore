@@ -179,17 +179,18 @@ public class AccessAgentProxy
        *is addressed remember to take this out.
        */
       String target = message.getTarget().toString();
-      if(nodeList.contains(target)){
+      //only add trust when it's not node agent
+      if(!nodeList.contains(target)){
         TrustSet[] ts;
         ts = checkOutgoing(message);
 
         if(ts==null) {
-    if(log.isWarnEnabled()) {
-      log.warn("Rejecting outgoing message: " + 
-         ((message != null)? message.toString():
-          "Null Message"));
-    }
-    return;		// the message is rejected so we abort here
+	  if(log.isWarnEnabled()) {
+	    log.warn("Rejecting outgoing message: " + 
+		     ((message != null)? message.toString():
+		      "Null Message"));
+	  }
+	  return;		// the message is rejected so we abort here
         }
         MessageWithTrust mwt;
         mwt = new MessageWithTrust(message, ts);
@@ -205,7 +206,7 @@ public class AccessAgentProxy
           log.debug("no wrapping with trust for node agent." + message);
         }
         return;
-      }//if node agent...else
+      }//if !node agent...else
     }//if mts
   }
   
