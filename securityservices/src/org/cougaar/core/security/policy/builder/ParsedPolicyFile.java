@@ -26,11 +26,13 @@ import antlr.Token;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 public class ParsedPolicyFile 
 {
   private Map    _declarations;
+  private Map    _agentGroupMap;
   private List   _policies;
   private List   _deletedPolicies;
   private String _prefix;
@@ -39,6 +41,7 @@ public class ParsedPolicyFile
   {
     _prefix          = "";
     _declarations    = new HashMap();
+    _agentGroupMap   = new HashMap();
     _policies        = new Vector();
     _deletedPolicies = new Vector();
   }
@@ -76,10 +79,25 @@ public class ParsedPolicyFile
 
 
   /**
+   * Declares an agent group.  The interpretation of agent groups  is done in 
+   * PolicyUtils.java 
+   */
+  public void declareAgentGroup(String agentGroup, Set agents)
+  {
+    _agentGroupMap.put(agentGroup, agents);
+  }
+
+  /**
    * Get the declarations.  Most of the interpretation of declarations is done
    * inside PolicyUtils.java
    */
   public Map  declarations()   { return _declarations;    }
+
+  /**
+   * Get the agentGroupMap.  Most of the interpretation of the agent group map
+   * is done inside PolicyUtils.java
+   */
+  public Map  agentGroupMap()   { return _agentGroupMap;    }
 
   /**
    * Get the policies

@@ -86,6 +86,10 @@ throws PolicyCompilerException
                     EntityInstancesConcepts.EntityInstancesDamlURL +
                            ParsedPolicyFile.tokenToText(blackBoardObjectName),
                     UltralogEntityConcepts._BlackBoardObjects_); }
+    | { Set agents = null; }
+        "AgentGroup" agentGroup:TOKEN EQ LCURLY agents =tokenList RCURLY
+        {  ppf.declareAgentGroup(ParsedPolicyFile.tokenToText(agentGroup), 
+                                 agents); }
     ;
 
 setprefix[ParsedPolicyFile ppf]
@@ -318,16 +322,19 @@ tokenList
 returns [Set items]
 {   items = null; }
     : item:TOKEN items=moreTokenList
-        { items.add(ParsedPolicyFile.tokenToText(item)); }
+        { // System.out.println("Working on token list item " + item);
+          items.add(ParsedPolicyFile.tokenToText(item)); }
     ;
 
 moreTokenList
 returns [Set items]
 {   items = null; }
     : COMMA item:TOKEN items = moreTokenList
-        { items.add(ParsedPolicyFile.tokenToText(item)); }
+        { // System.out.println("Working on token list item " + item);
+          items.add(ParsedPolicyFile.tokenToText(item)); }
     |
-        { items = new HashSet(); }
+        { // System.out.println("Found way to end of the token list");
+            items = new HashSet(); }
     ;
 
 
@@ -338,7 +345,8 @@ options {
 
 // one-or-more letters followed by a newline
 TOKEN  
-    :   ( 'a'..'z'|'A'..'Z' )+
+    :   ( 'a'..'z'|'A'..'Z')
+        ( 'a'..'z'|'A'..'Z'|'0'..'9'|'/'|':'|'.'|'-'|'_' )*
     |   '"' (~'"')+ '"'
     ;
 
