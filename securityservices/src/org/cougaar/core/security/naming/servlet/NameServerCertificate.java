@@ -37,8 +37,10 @@ public class NameServerCertificate implements Serializable {
     this.nameserver = nameserver;
     this.certChain = certs;
     str = nameserver + " &certChain: ";
-    for (int i = 0; i < certs.length; i++) {
-      str += certs[i];
+    if (certs != null) {
+      for (int i = 0; i < certs.length; i++) {
+	str += certs[i];
+      }
     }
   }
 
