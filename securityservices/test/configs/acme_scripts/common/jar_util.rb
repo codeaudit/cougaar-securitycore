@@ -113,6 +113,7 @@ COMPONENT
 end
 
 def replaceFileInJar(jarFile, replacementFile)
+#  puts "replacing #{replacementFile} in #{jarFile}"
   jarDir = "/tmp/jarDir-#{File.basename(jarFile)}"
   Dir.mkdirs(jarDir)
   files = `jar tf #{jarFile}`.split
@@ -125,11 +126,15 @@ def replaceFileInJar(jarFile, replacementFile)
     end
   }
   if targetFile != nil
-    `jar xf #{jarDir} -C #{jarFile} #{targetFile}`
+#    puts "found file: #{targetFile}"
+    `jar xf #{jarFile} -C #{jarFile} #{targetFile}`
   else
-    targetFile = baseFilename
+#    puts "the file wasn't found, so using #{baseFilename}"
+    targetFile = "#{jarDir}/#{baseFilename}"
   end
   File.cp(replacementFile, targetFile)
-  `jar -uMf #{jarFile} -C #{jarDir} .`
+#  puts "running jar -uMf #{jarFile} -C #{jarDir} ."
+  results = `jar -uMf #{jarFile} -C #{jarDir} .`
+#  puts "result from jar: #{results}"
   File.rm_all(jarDir)
 end
