@@ -1,0 +1,15 @@
+#!/usr/bin/ruby
+####################################################
+# add_redundant_pm_facet.rule
+
+society.each_node do |node|
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'RedundantPersistenceManager'
+      pmhost = node.host
+      pmhost.add_node("REDUNDANT-#{node.name}") do |redundant_node|
+        redundant_node.add_facet("Redundant#{facet[:role]}")
+      end
+    end
+  end
+end
+
