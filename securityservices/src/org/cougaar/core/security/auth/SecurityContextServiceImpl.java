@@ -197,7 +197,6 @@ public final class SecurityContextServiceImpl
         if(_debug) {
           _log.debug("no security context for " + o + ", getting JAAS context.");
         }
-        System.out.println("$$$$$ GETTING EXECUTION CONTEXT FROM JAAS $$$$$");
         context = getExecutionContextFromJaas();  // obtain context from Jaas
         /*
         if(context != null) {
