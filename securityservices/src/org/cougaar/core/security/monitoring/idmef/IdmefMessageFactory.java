@@ -173,7 +173,10 @@ final public class IdmefMessageFactory {
   public static final int newregistration=1;
   public static final int addtoregistration=2;
   public static final int removefromregistration=3;
-
+  public static final String SensorType="Sensor";
+  public static final String EnclaveMgrType="EnclaveManager";
+  public static final String SocietyMgrType="SocietyManager";
+   public static final String UnknownType="Unknown";
   private ServiceBroker serviceBroker;
   private LoggingService log;
 
@@ -461,9 +464,9 @@ final public class IdmefMessageFactory {
    * @return a capability Registration message
    */
   public RegistrationAlert createRegistrationAlert( Object sensor, 
-					                                          List classificationList,
-					                                          List targetList,
-					                                          int type ){
+					            List classificationList,
+					            List targetList,
+					            int op_type , String type){
     // get all the info from the sensor for capability registration
     if( sensor instanceof SensorInfo ){ 
       Classification capabilities[] = null;
@@ -476,7 +479,7 @@ final public class IdmefMessageFactory {
       //TODO: move string constants to appropriate classes
       AdditionalData data[] = { createAdditionalData( AdditionalData.STRING, 
 						      "cougaar-alert-type", 
-						      "sensor-registration" ) };
+						      type ) };
         
       return new RegistrationAlert( createAnalyzer( sensor ), 
 			       null, // very difficult to know the sources at this point
@@ -484,7 +487,7 @@ final public class IdmefMessageFactory {
 			       capabilities,
 			       data,
 			       createUniqueId(),
-			       type ); 
+			       op_type,type, m_agent.getName()); 
     }
     return new RegistrationAlert();
   }
@@ -501,7 +504,7 @@ final public class IdmefMessageFactory {
    */
   public RegistrationAlert createRegistrationAlert( Object sensor, 
 					  List classificationList,
-					  int type ){
+					  int op_type ,String type){
     // get all the info from the sensor for capability registration
     if( sensor instanceof SensorInfo ){ 
       Classification capabilities[] = null;
@@ -511,18 +514,49 @@ final public class IdmefMessageFactory {
       //TODO: move string constants to appropriate classes
       AdditionalData data[] = { createAdditionalData( AdditionalData.STRING, 
 						      "cougaar-alert-type", 
-						      "sensor-registration" ) };
+						      type ) };
         
       return new RegistrationAlert( createAnalyzer( sensor ), 
 			       null, // very difficult to know the sources at this point
 			       null,
 			       capabilities,
 			       data,
-			       createUniqueId(),type ); 
+			       createUniqueId(),op_type,type,m_agent.getName() ); 
+    }
+    return new RegistrationAlert();
+  }
+   public RegistrationAlert createRegistrationAlert( Object sensor, 
+					  List classificationList,
+					  int op_type ,String type, String agentName){
+    // get all the info from the sensor for capability registration
+    if( sensor instanceof SensorInfo ){ 
+      Classification capabilities[] = null;
+      if( classificationList != null )
+	      capabilities = ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
+               
+      //TODO: move string constants to appropriate classes
+      AdditionalData data[] = { createAdditionalData( AdditionalData.STRING, 
+						      "cougaar-alert-type", 
+						      type ) };
+        
+      return new RegistrationAlert( createAnalyzer( sensor ), 
+			       null, // very difficult to know the sources at this point
+			       null,
+			       capabilities,
+			       data,
+			       createUniqueId(),op_type,type,agentName); 
     }
     return new RegistrationAlert();
   }
   
+   public RegistrationAlert createRegistrationAlert( Analyzer analyzer,
+		     Source []sources,
+		     Target []targets,
+		     Classification []capabilities,
+		     AdditionalData []data,
+		     String ident,int operationtype,String type, String agentName){
+     return  new RegistrationAlert(analyzer,sources,targets,capabilities,data,ident,operationtype,type,agentName);
+   }
   /**
    * Factory method to create initial consolidated capabilities.
    *
@@ -536,14 +570,14 @@ final public class IdmefMessageFactory {
     Classification capabilities[] = null;  // get the capabilities from the sensor
     AdditionalData data[] = { createAdditionalData( AdditionalData.STRING, 
 						    "cougaar-alert-type", 
-						    RegistrationAlert.TYPE ) };
+						     IdmefMessageFactory.UnknownType) };
                                                         
     return new ConsolidatedCapabilities(analyzer,
 					sources,
 					targets, 
 					capabilities,
 					data,
-					createUniqueId());
+					createUniqueId(),IdmefMessageFactory.UnknownType,m_agent.getName());
   }
     
   /** 
