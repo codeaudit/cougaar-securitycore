@@ -35,6 +35,7 @@ import java.util.Collection;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.CommunityRoster;
 import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.planning.ldm.policy.*;
@@ -62,17 +63,16 @@ public class AccessControlPolicyServiceImpl
   AccessControlPolicy acp_out = null;
   
   //policy for community--common policy for the team
-  HashMap incoming_c = new HashMap();
-  HashMap outgoing_c = new HashMap();
+  AccessControlPolicy commu_in = null;
+  AccessControlPolicy commu_out = null;
 
   //policy for agent--the one and only
-  HashMap incoming_a = new HashMap();
-  HashMap outgoing_a = new HashMap();
+  AccessControlPolicy agent_in = null;
+  AccessControlPolicy agent_out = null;
 
-  //TrustSet map to transfer trust from parent to child child tasks
-  private Hashtable trustTable = new Hashtable(20);
-
-    /** Creates new AccessControlPolicyServiceImpl */
+  /** 
+   * Creates new AccessControlPolicyServiceImpl 
+   */
   public AccessControlPolicyServiceImpl(ServiceBroker sb, String name) {
     serviceBroker = sb;
     // Get Security Properties service
@@ -87,76 +87,43 @@ public class AccessControlPolicyServiceImpl
     
     commu = (CommunityService)
       serviceBroker.getService(this, CommunityService.class, null);
-
+    if(commu==null && log.isWarnEnabled()){
+      log.warn("can't get community Service.");
+    }
+    //create a new policy proxy, pass the agent name the proxy is for.
     new AccessPolicyProxy(name, serviceBroker);
   }//Constructor
 
   private AccessControlPolicy getIncomingPolicy(String target){
-    //try agent first
-    AccessControlPolicy acp = (AccessControlPolicy)incoming_a.get(target);
-/*    
-    if(acp==null && commu!=null){
-      //find which community the agent belongs to and get the policy
-      Collection c = commu.listParentCommunities(target);
-      if(c!=null){
-        Iterator it = c.iterator();
-        String cname = null;
-        while(it.hasNext()){
-          cname = (String)it.next();
-          if(cname != null && incoming_c !=null)
-            acp = (AccessControlPolicy)incoming_c.get(cname);
-          if(acp!=null) break;
-        }
-      }
-    }
-*/    
-    if(acp==null){
-      //last try
-      acp = acp_in;
-    }
-    
-    if(acp==null){
+    if( agent_in != null ) {
+      return agent_in;
+    }else if( commu_in != null ){
+      return commu_in;
+    }else if( acp_in != null){
+      return acp_in;
+    }else{
       if(log.isDebugEnabled()) {
-        log.debug("can't find policy for " 
+        log.debug("Can't find policy for " 
         + "->" +  target);
       }
+      return null;
     }
-    if(acp!=null && commu!=null) acp.setCommunityService(commu);
-    return acp;
   }//getIncomingPolicy
 
   private AccessControlPolicy getOutgoingPolicy(String source){
-    //try agent first
-    AccessControlPolicy acp = (AccessControlPolicy)outgoing_a.get(source);
-    /*   
-    if(acp==null && commu!=null){
-      //find which community the agent belongs to and get the policy
-      Collection c = commu.listParentCommunities(source);
-      if(c!=null){
-        Iterator it = c.iterator();
-        String cname = null;
-        while(it.hasNext()){
-          cname = (String)it.next();
-          if(cname != null && outgoing_c !=null)
-            acp = (AccessControlPolicy)outgoing_c.get(cname);
-          if(acp!=null) break;
-        }
-      }
-    }
-    */
-    if(acp==null){
-      //last try
-      acp = acp_out;
-    }
-    
-    if(acp==null){
+    if( agent_in != null ) {
+      return agent_in;
+    }else if( commu_in != null ){
+      return commu_in;
+    }else if( acp_in != null){
+      return acp_in;
+    }else{
       if(log.isDebugEnabled()) {
-        log.debug("AccessControlPolicy ERROR: can't find policy for " 
-        + source + "->" );
+        log.debug("Can't find policy for " 
+        + source + "->");
       }
+      return null;
     }
-    if(acp!=null && commu!=null) acp.setCommunityService(commu);
-    return acp;
   }//getOutgoingPolicy
 
   public TrustSet getIncomingTrust(String source, String target)
@@ -300,7 +267,6 @@ public class AccessControlPolicyServiceImpl
     }
     Verb[] verbs = new Verb[r.size()];
     try {
-      //return (Verb[])r.toArray(verbs);
       for(int i = 0; i < r.size(); i++){
         Verb v = new Verb(r.get(i).toString());
         verbs[i] = v;
@@ -323,11 +289,9 @@ public class AccessControlPolicyServiceImpl
     if(log.isDebugEnabled()) {
       log.debug("Msg OUT:" + source + "->" + target
 		       +". Verbs:");
-      if(r!=null){
-	for(int i = 0; i < r.size(); i++)
-	  log.debug(r.get(i).toString() + ":"
+      for(int i = 0; i < r.size(); i++)
+      log.debug(r.get(i).toString() + ":"
 			 + r.get(i).getClass().getName() + " ");
-      }
     }
     Verb[] verbs = new Verb[r.size()];
     try {
@@ -341,14 +305,6 @@ public class AccessControlPolicyServiceImpl
       log.warn("Warning: bad verb array:" + ex);
     }
     return verbs;
-  }
-
-  public TrustSet getDirectiveTrust(String uid) {
-    return (TrustSet)trustTable.get((Object)uid);
-  }
-
-  public synchronized void setDirectiveTrust(String uid, TrustSet trust) {
-    trustTable.put((Object)uid, (Object)trust);
   }
 
   /** ********************************************************************
@@ -404,7 +360,7 @@ public class AccessControlPolicyServiceImpl
       
       if(!(policy instanceof AccessControlPolicy)) {
         if (log.isDebugEnabled()) {
-          log.debug("AccessPolicyProxy: wrong policy type.");
+          log.debug("receivePolicyMessage: wrong policy type: " + policy);
         }
         return;
       }
@@ -413,24 +369,79 @@ public class AccessControlPolicyServiceImpl
       
       switch(acp.Type){
       case  AccessControlPolicy.AGENT:
+        if(!agent.equalsIgnoreCase(acp.Name)){
+          if (log.isWarnEnabled()) {
+            log.warn("Agent " + agent + " received policy intended for " 
+              + acp.Name + "; policy not accepted." );
+          }
+          return;
+        }
         if(acp.Direction == AccessControlPolicy.INCOMING){
-          incoming_a.put(acp.Name,acp);
+          agent_in = acp;
         }else if(acp.Direction == AccessControlPolicy.OUTGOING){
-          outgoing_a.put(acp.Name,acp);
+          agent_out = acp;
         }else if(acp.Direction == AccessControlPolicy.BOTH){
-          incoming_a.put(acp.Name,acp);
-          outgoing_a.put(acp.Name,acp);
+          agent_in = acp;
+          agent_out = acp;
         }
         break;
       case  AccessControlPolicy.COMMUNITY:
-        if(acp.Direction == AccessControlPolicy.INCOMING){
-          incoming_c.put(acp.Name,acp);
-        }else if(acp.Direction == AccessControlPolicy.OUTGOING){
-          outgoing_c.put(acp.Name,acp);
-        }else if(acp.Direction == AccessControlPolicy.BOTH){
-          incoming_c.put(acp.Name,acp);
-          outgoing_c.put(acp.Name,acp);
+        if (commu == null) return;
+        Collection c = commu.listEntities(acp.Name);
+        if(c.contains(agent)){
+          if(acp.Direction == AccessControlPolicy.INCOMING){
+            commu_in = acp;
+          }else if(acp.Direction == AccessControlPolicy.OUTGOING){
+            commu_out = acp;
+          }else if(acp.Direction == AccessControlPolicy.BOTH){
+            commu_in = acp;
+            commu_out = acp;
+          }
+        }else{
+          if(log.isWarnEnabled()){
+            log.warn("The community--" + acp.Name + 
+              "specified in the policy does not contain the agent:" + agent);
+          }
+          return;
         }
+        
+        //expand community to a list of agents
+/*        CommunityRoster cr = commu.getRoster(acp.Name);
+        if(cr == null ){
+          //community doesn't exist.
+          if(log.isWarnEnabled()){
+          log.warn("The community--" + acp.Name + 
+            " specified in the policy can't be found.");
+          }
+          return;
+        }
+        Collection c = cr.getMemberAgents();
+        boolean match = false;
+        while(c.iterator().hasNext()){
+          String agt = c.iterator().next().toString();
+          if(agt.equalsIgnoreCase(agent)){
+            match = true;
+            break;
+          }
+        }
+        //only accept the policy for the community the agent is in.
+        if(match){
+            if(acp.Direction == AccessControlPolicy.INCOMING){
+              commu_in = acp;
+            }else if(acp.Direction == AccessControlPolicy.OUTGOING){
+              commu_out = acp;
+            }else if(acp.Direction == AccessControlPolicy.BOTH){
+              commu_in = acp;
+              commu_out = acp;
+            }
+        }else{
+          if(log.isWarnEnabled()){
+            log.warn("The community--" + acp.Name + 
+              "specified in the policy does not contain the agent:" + agent);
+          }
+          return;
+      }
+*/
         break;
       case  AccessControlPolicy.SOCIETY:
         if(acp.Direction == AccessControlPolicy.INCOMING){
@@ -441,7 +452,9 @@ public class AccessControlPolicyServiceImpl
           acp_in = acp;
           acp_out = acp;
         }
-      }
+     }//switch
+      //update community list
+      if(commu!=null) acp.setCommunityService(commu);
       return;
     }
     

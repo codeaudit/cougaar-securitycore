@@ -54,35 +54,51 @@ public class AccessControlPolicy extends SecurityPolicy {
   public static final int OUTGOING = 2;
   public static final int BOTH = 3;
   public int Direction = BOTH;
-  private CommunityService commService = null;
+  private HashMap commList = new HashMap();
 
   public static final String ACCEPT = "ACCEPT";
   public static final String SET_ASIDE = "SET_ASIDE";
   private HashMap agtActions = new HashMap();
+  private HashMap agtActionsCom = new HashMap();
   public Object getAgentAction(String key){
     Object o = agtActions.get(key);
     //try community policy if null
-/*    if(o==null && commService!=null){
+    if(o==null && agtActionsCom.size()>0){
       //find which community the agent belongs to and get the policy
-      Collection c = commService.listParentCommunities(key);
+      String c = commLookup(key);
       if(c!=null){
-        Iterator it = c.iterator();
-        String cname = null;
-        while(it.hasNext()){
-          cname = (String)it.next();
-          if(cname != null) o = agtActions.get(cname);
-          if(o!=null) break;
-        }
+        o = agtActionsCom.get(c);
       }
     }
-*/    if(o==null) o=agtActions.get("DEFAULT");
+    if(o==null) o=agtActions.get("DEFAULT");
     return o;
   }
   public void setAgentAction(String key, Object value){
     agtActions.put(key, value);
     return;
   }
+  public void setComAgentAction(String key, Object value){
+    agtActionsCom.put(key, value);
+    commList.put(key,null); //put in null for now, fill in setCommunityService.
+    return;
+  }
 
+  //lookup community name
+  private String commLookup(String agent){
+    Iterator iter = commList.keySet().iterator();
+    while(iter.hasNext()){
+      String comName = (String)iter.next();
+      Collection v = (Collection)commList.get(comName);
+      if (v != null){
+        if(v.contains(agent)){
+          return comName;
+        }
+      }
+    }
+    //fall through
+    return null;
+  }
+  
   private HashMap msgActions = new HashMap();
   public Object getMsgAction(String key){
     return msgActions.get(key);
@@ -93,82 +109,88 @@ public class AccessControlPolicy extends SecurityPolicy {
   }
   
   private HashMap integrity = new HashMap();
+  private HashMap integrityCom = new HashMap();
   public Object getIntegrity(String key){
     Object o = integrity.get(key);
     //try community policy if null
-/*    if(o==null && commService!=null){
+    if(o==null && integrityCom.size()>0){
       //find which community the agent belongs to and get the policy
-      Collection c = commService.listParentCommunities(key);
+      String c = commLookup(key);
       if(c!=null){
-        Iterator it = c.iterator();
-        String cname = null;
-        while(it.hasNext()){
-          cname = (String)it.next();
-          if(cname != null) o = integrity.get(cname);
-          if(o!=null) break;
-        }
+        o = integrityCom.get(c);
       }
     }
-*/    if(o==null) o=integrity.get("DEFAULT");
+    if(o==null) o=integrity.get("DEFAULT");
     return o;
   }
   public void setIntegrity(String key, Object value){
     integrity.put(key, value);
     return;
   }
+  public void setComIntegrity(String key, Object value){
+    integrityCom.put(key, value);
+    commList.put(key,null); //put in null for now, fill in setCommunityService.
+    return;
+  }
 
   private HashMap verbs = new HashMap();
+  private HashMap verbsCom = new HashMap();
   public Object getVerbs(String key){
     Object o = verbs.get(key);
     //try community policy if null
-/*    if(o==null && commService!=null){
+    if(o==null && verbsCom.size()>0){
       //find which community the agent belongs to and get the policy
-      Collection c = commService.listParentCommunities(key);
+      String c = commLookup(key);
       if(c!=null){
-        Iterator it = c.iterator();
-        String cname = null;
-        while(it.hasNext()){
-          cname = (String)it.next();
-          if(cname != null) o = verbs.get(cname);
-          if(o!=null) break;
-        }
+        o = verbsCom.get(c);
       }
     }
-*/    if(o==null) o=verbs.get("DEFAULT");
+    if(o==null) o=verbs.get("DEFAULT");
     return o;
   }
   public void setVerbs(String key, Object value){
     verbs.put(key, value);
     return;
   }
+  public void setComVerbs(String key, Object value){
+    verbsCom.put(key, value);
+    commList.put(key,null); //put in null for now, fill in setCommunityService.
+    return;
+  }
 
   private HashMap criticality = new HashMap();
+  private HashMap criticalityCom = new HashMap();
   public Object getCriticality(String key){
     Object o = criticality.get(key);
     //try community policy if null
-/*    if(o==null && commService!=null){
+    if(o==null && criticalityCom.size()>0){
       //find which community the agent belongs to and get the policy
-      Collection c = commService.listParentCommunities(key);
+      String c = commLookup(key);
       if(c!=null){
-        Iterator it = c.iterator();
-        String cname = null;
-        while(it.hasNext()){
-          cname = (String)it.next();
-          if(cname != null) o = criticality.get(cname);
-          if(o!=null) break;
-        }
+        o = criticalityCom.get(c);
       }
     }
-*/   if(o==null) o=criticality.get("DEFAULT");
+    if(o==null) o=criticality.get("DEFAULT");
     return o;
   }
   public void setCriticality(String key, Object value){
     criticality.put(key, value);
     return;
   }
+  public void setComCriticality(String key, Object value){
+    criticalityCom.put(key, value);
+    commList.put(key,null); //put in null for now, fill in setCommunityService.
+    return;
+  }
 
   public void setCommunityService(CommunityService cs){
-    commService = cs;
+    //fill community info
+    Iterator iter = commList.keySet().iterator();
+    while(iter.hasNext()){
+      String comName = (String)iter.next();
+      Collection c = cs.listEntities(comName);
+      commList.put(comName, c);
+    }
   }
   
   public String toString() {

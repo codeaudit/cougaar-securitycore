@@ -68,7 +68,5 @@ public interface AccessControlPolicyService
      */
     Object[] getOutgoingVerbs(String source, String target);
 
-    TrustSet getDirectiveTrust(String uid);
-    void setDirectiveTrust(String uid, TrustSet trust);
 }
 

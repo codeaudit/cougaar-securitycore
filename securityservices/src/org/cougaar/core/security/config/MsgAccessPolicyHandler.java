@@ -43,8 +43,8 @@ public class MsgAccessPolicyHandler
   extends BaseConfigHandler
 {
   private AccessControlPolicy acp;
-  private String critLevel;
   private String msgAction;
+  private String critLevel;
   private String actionParty;
   private String agtAction;
   private String filterParty;
@@ -53,6 +53,15 @@ public class MsgAccessPolicyHandler
   private String integrity;
   private String critParty;
   private String criticality;
+
+  private String actionCom;
+  private String agtActionCom;
+  private String filterCom;
+  private Vector verbsCom = null;
+  private String msgCom;
+  private String integrityCom;
+  private String critCom;
+  private String criticalityCom;
   
   public MsgAccessPolicyHandler(ServiceBroker sb) {
     super(sb);
@@ -99,6 +108,25 @@ public class MsgAccessPolicyHandler
       criticality = "";
     }
 
+    if (localName.equals("ComAgentAction")) {
+      actionCom = "";
+      agtActionCom = "";
+    }
+
+    if (localName.equals("ComVerbFilter")) {
+      filterCom = "";
+      verbsCom = new Vector();
+    }
+
+    if (localName.equals("ComMessageIntegrity")) {
+      msgCom = "";
+      integrityCom = "";
+    }
+
+    if (localName.equals("ComMessageCriticality")) {
+      critCom = "";
+      criticalityCom = "";
+    }
   }
   
   public void endElement( String namespaceURI,
@@ -145,16 +173,6 @@ public class MsgAccessPolicyHandler
       }
     }
 
-    if (localName.equals("ActionParty")) {
-      actionParty = getContents();
-    }
-    if (localName.equals("Action")) {
-      agtAction = getContents();
-    }
-    if (localName.equals("AgentAction")) {
-      acp.setAgentAction(actionParty, agtAction);
-    }
-
     if (localName.equals("CriticalityLevel")) {
       critLevel = getContents();
     }
@@ -163,6 +181,16 @@ public class MsgAccessPolicyHandler
     }
     if (localName.equals("MessageAction")) {
       acp.setMsgAction(critLevel, msgAction);
+    }
+
+    if (localName.equals("ActionParty")) {
+      actionParty = getContents();
+    }
+    if (localName.equals("Action")) {
+      agtAction = getContents();
+    }
+    if (localName.equals("AgentAction")) {
+      acp.setAgentAction(actionParty, agtAction);
     }
     
     if (localName.equals("FilterParty")) {
@@ -195,6 +223,49 @@ public class MsgAccessPolicyHandler
     if (localName.equals("MessageCriticality")) {
       acp.setCriticality(critParty, criticality);
     }
+
+    //for community
+    if (localName.equals("ActionCommunity")) {
+      actionCom = getContents();
+    }
+    if (localName.equals("ComAction")) {
+      agtActionCom = getContents();
+    }
+    if (localName.equals("ComAgentAction")) {
+      acp.setAgentAction(actionCom, agtActionCom);
+    }
+    
+    if (localName.equals("FilterCommunity")) {
+      filterCom = getContents();
+    }
+    if (localName.equals("ComVerb")) {
+      String value = getContents();
+      verbsCom.add(value);
+    }
+    if (localName.equals("ComVerbFilter")) {
+      acp.setVerbs(filterCom, verbsCom);
+    }
+
+    if (localName.equals("MsgCommunity")) {
+      msgCom = getContents();
+    }
+    if (localName.equals("ComIntegrity")) {
+      integrityCom = getContents();
+    }
+    if (localName.equals("ComMessageIntegrity")) {
+      acp.setIntegrity(msgCom, integrityCom);
+    }
+
+    if (localName.equals("CritCommunity")) {
+      critCom = getContents();
+    }
+    if (localName.equals("ComCriticality")) {
+      criticalityCom = getContents();
+    }
+    if (localName.equals("ComMessageCriticality")) {
+      acp.setCriticality(critCom, criticalityCom);
+    }
+    
     // Reset contents
     contents.reset();
   }
