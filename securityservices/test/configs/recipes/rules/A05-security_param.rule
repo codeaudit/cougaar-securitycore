@@ -217,6 +217,7 @@ society.each_host do |host|
     
     # Cougaar workspace
     #node.override_parameter("-Dorg.cougaar.workspace", "#{cws}")
+    node.override_parameter("-Djava.io.tmpdir", "$COUGAAR_INSTALL_PATH/workspace")
     
     # Bootstrap keystore to store JAR file keys
     node.override_parameter("-Dorg.cougaar.core.security.bootstrap.keystore", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security#{File::SEPARATOR}bootstrap_keystore")
