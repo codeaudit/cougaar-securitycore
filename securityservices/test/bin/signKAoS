@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo Signing KAoS jars...
+
+jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore ${COUGAAR_INSTALL_PATH}/lib/kaos.jar privileged
+jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore ${COUGAAR_INSTALL_PATH}/lib/safe.jar privileged
