@@ -258,7 +258,7 @@ public class DualAuthenticator extends ValveBase {
     return ssl.getSession().getCipherSuite();
   }
 
-  protected boolean authenticate(AuthenticatorBase auth,
+  protected boolean authenticate(AuthenticatorBase auth, 
                                  HttpRequest req, HttpResponse resp) 
     throws IOException {
     if (auth instanceof SSLAuthenticator) {
@@ -269,10 +269,12 @@ public class DualAuthenticator extends ValveBase {
     } 
     if (auth instanceof DigestAuthenticator) {
       return ((DigestAuthenticator) auth).authenticate(req, resp, _loginConfig);
-    } 
+    }
+
     try {
-      Method method =  auth.getClass().getMethod("authenticate", new Class[] { 
-        HttpRequest.class, HttpResponse.class, LoginConfig.class });
+      Method method =  
+        auth.getClass().getMethod("authenticate", new Class[] { 
+          HttpRequest.class, HttpResponse.class, LoginConfig.class });
       return ((Boolean) method.invoke(auth, new Object[] { 
         req, resp, _loginConfig })).booleanValue();
     } catch (Exception e) {
@@ -316,12 +318,22 @@ public class DualAuthenticator extends ValveBase {
   }
 
   protected byte getAuthLevel(String auth) {
-    if (auth == HttpServletRequest.BASIC_AUTH ||
-        auth == HttpServletRequest.DIGEST_AUTH ||
-        auth == HttpServletRequest.FORM_AUTH) {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Converting authorization level: " + auth);
+      /*
+      _log.debug("auth levels: " + HttpServletRequest.BASIC_AUTH +
+                 " " + HttpServletRequest.DIGEST_AUTH + " " +
+                 HttpServletRequest.FORM_AUTH + " " + 
+                 HttpServletRequest.CLIENT_CERT_AUTH);
+      */
+    }
+    if (HttpServletRequest.BASIC_AUTH.equals(auth) ||
+        HttpServletRequest.DIGEST_AUTH.equals(auth) ||
+        HttpServletRequest.FORM_AUTH.equals(auth)) {
       return AUTH_PASSWORD;
     }
-    if (auth == HttpServletRequest.CLIENT_CERT_AUTH) {
+    if (HttpServletRequest.CLIENT_CERT_AUTH.equals(auth) ||
+        org.apache.catalina.authenticator.Constants.CERT_METHOD.equals(auth)) {
       return AUTH_CERT;
     }
     if (auth == null) {
@@ -545,7 +557,7 @@ public class DualAuthenticator extends ValveBase {
       }
 
       // first try SSL authentication
-      boolean authed = authenticate(_primaryAuth,req, sslResponse);
+      boolean authed = authenticate(_primaryAuth, req, sslResponse);
       if (!authed) {
         _log.debug("Could not authenticate with SSL");
         // not CERT authed
