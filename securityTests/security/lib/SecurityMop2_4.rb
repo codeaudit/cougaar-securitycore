@@ -13,7 +13,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   attr_accessor :numActionsLogged,        :numLoggableActions,          :actions
   attr_accessor :numPoliciesLogged,       :numLoggablePolicies,         :policies
   attr_accessor :numtotalAccessAttempts,  :numtotalAccessAttemptCorrect, :totalactions
-
+  
   #def initialize(run)
   #  super(run)
   #  reset
@@ -26,6 +26,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
     reset
     removePemCertificates
     @name = "2.4"
+    #@performdone = false
+    @performDone = false
     @descript = "Percentage of user actions that were available for invocation counter to authorization policy"
   end
 
@@ -109,37 +111,63 @@ class  SecurityMop2_4 < AbstractSecurityMop
     policies
   end
   
+
   def html6
     return SecurityMop2_6.instance.to_s + "<br/><br/>\n" + policies.join("<br/>\n")
   end
+  
+  def setPerformDone
+    @performDone=true
+  end
+
+   def getPerformDone
+    return @performDone
+  end
 
   def calculate
-    begin
-      @score = SecurityMop2_4.instance.score4
-      #puts " score is #{@score}"
-      @raw = SecurityMop2_4.instance.raw4
-      #puts " raw is #{@raw}"
-      @info = SecurityMop2_4.instance.html4
-      #puts " info is #{@info}"
-      if @numAccessAttempts == 0
-      @summary = "There weren't any access attempts."
-      else
-        @summary = "There were #{@numAccessAttempts} servlet access attempts, #{@numAccessesCorrect} were correct."
+    Thread.fork {
+      begin
+        totalWaitTime=0
+        maxWaitTime = 30.minutes
+        sleeptime=60.seconds
+        while ((SecurityMop2_4.instance.getPerformDone == false) && (totalWaitTime < maxWaitTime))
+          logInfoMsg "Sleeping in Calculate of SecurityMop2.4 . Already slept for #{totalWaitTime}"
+          sleep(sleepTime) # sleep
+          totalWaitTime += sleepTime
+        end
+        if((totalWaitTime >= maxWaitTime) && (SecurityMop2_4.instance.getPerformDone == false))
+          saveResult(false, "SecurityMop2.4", "Timeout tests incomplete") 
+          logInfoMsg "Save results for SecurityMop2.4 Done Result failed "
+          return
+        elsif (SecurityMop2_4.instance.getPerformDone == true)
+          logInfoMsg "Saving SecurityMop2.4 test  results"
+          @score = SecurityMop2_4.instance.score4
+          #puts " score is #{@score}"
+          @raw = SecurityMop2_4.instance.raw4
+          #puts " raw is #{@raw}"
+          @info = SecurityMop2_4.instance.html4
+          #puts " info is #{@info}"
+          if @numAccessAttempts == 0
+            @summary = "There weren't any access attempts."
+          else
+            @summary = "There were #{@numAccessAttempts} servlet access attempts, #{@numAccessesCorrect} were correct."
+          end
+          #puts "summary of result : #{@summary}"
+          sucess = false 
+          @summary <<"<BR> Score :#{@score}</BR>\n" 
+          @summary << "#{@info}"
+          if (@score == 100.0)
+            success = true
+          end
+          saveResult(success, 'SecurityMop2.4',@summary)
+          logInfoMsg "Save results for SecurityMop2.4 Done"
+        end
+      rescue Exception => e
+        puts "error in 2.4 calculate "
+        puts "#{e.class}: #{e.message}"
+        puts e.backtrace.join("\n")
       end
-      #puts "summary of result : #{@summary}"
-      sucess = false 
-      @summary <<"<BR> Score :#{@score}</BR>\n" 
-      @summary << "#{@info}"
-      if (@score == 100.0)
-        success = true
-      end
-      saveResult(success, 'SecurityMop2.4',@summary)
-      @calculationDone = true
-    rescue Exception => e
-      puts "error in 2.4 calculate "
-      puts "#{e.class}: #{e.message}"
-      puts e.backtrace.join("\n")
-    end
+    }
   end
   
   #def cleanupOldkeys
@@ -163,90 +191,97 @@ class  SecurityMop2_4 < AbstractSecurityMop
   
   def setup
     #puts "Calling capture Idmefs"
-    captureIdmefs
-    # create users, change policy, etc.
-    unless @fwdDomain and @runcount==run.count
-      # note: NCA agent (/editOPlan) resides in conus user domain,
-      #   FwdPolicyServletAgent (/policyAdmin) resides in fwd user domain.
-      ensureDomains
-      #cleanupOldkeys
-      if (PingSociety.isPingSociety)
-        conusUsers = %w(CAndPLogistician
+    Thread.fork {
+      begin
+        captureIdmefs
+        # create users, change policy, etc.
+        unless @fwdDomain and @runcount==run.count
+          # note: NCA agent (/editOPlan) resides in conus user domain,
+          #   FwdPolicyServletAgent (/policyAdmin) resides in fwd user domain.
+          ensureDomains
+          #cleanupOldkeys
+          if (PingSociety.isPingSociety)
+            conusUsers = %w(CAndPLogistician
            PasswordLogistician CertLogistician
            DisabledLogistician DeletedLogistician
            RevokedLogistician RecreatedLogistician
            NotALogistician OtherCert
            ConusPolicyAdmin
            ConusPolicyUser FwdPolicyUser R)
-        
-        logInfoMsg "Creating users for the security MOP." if $VerboseDebugging
-        @conusDomain.recreateUsers(conusUsers)
-      else 
-        conusUsers = %w(CAndPLogistician
+            
+            logInfoMsg "Creating users for the security MOP." if $VerboseDebugging
+            @conusDomain.recreateUsers(conusUsers)
+          else 
+            conusUsers = %w(CAndPLogistician
            PasswordLogistician CertLogistician
            DisabledLogistician DeletedLogistician
            RevokedLogistician RecreatedLogistician
            NotALogistician OtherCert
            ConusPolicyAdmin
            ConusPolicyUser FwdPolicyUser R)
-        fwdUsers = %w(FwdPolicyUser CAndPLogistician R)
-        rearUsers = %w(RearPolicyUser CAndPLogistician R)
-        transUsers = %w(TransPolicyUser CAndPLogistician R)
-        
-        logInfoMsg "Creating users for the security MOP." if $VerboseDebugging
-        @fwdDomain.recreateUsers(fwdUsers)
-        @rearDomain.recreateUsers(rearUsers)
-        @transDomain.recreateUsers(transUsers)
-        @conusDomain.recreateUsers(conusUsers)
-        saveAssertion("SecurityMop2.4","creating fwdUsers rearUsers transUsers conusUsers")
-      end 
+            fwdUsers = %w(FwdPolicyUser CAndPLogistician R)
+            rearUsers = %w(RearPolicyUser CAndPLogistician R)
+            transUsers = %w(TransPolicyUser CAndPLogistician R)
+            
+            logInfoMsg "Creating users for the security MOP." if $VerboseDebugging
+            @fwdDomain.recreateUsers(fwdUsers)
+            @rearDomain.recreateUsers(rearUsers)
+            @transDomain.recreateUsers(transUsers)
+            @conusDomain.recreateUsers(conusUsers)
+            saveAssertion("SecurityMop2.4","creating fwdUsers rearUsers transUsers conusUsers")
+          end 
 
-      sleep 15.seconds
-
-      @conusDomain.disableUser('DisabledLogistician')
-      puts " conusDomain disableUser DisabledLogistician" if $VerboseDebugging
-      @conusDomain.deleteUser('DeletedLogistician')
-
-      # Keep the original cert for RecreatedLogistician
-      user = "ConusEnclaveCARecreatedLogistician"
-      puts " conusDomain  #{@conusDomain.agent.caDomains[0].to_s} user #{user}" if $VerboseDebugging
-      File.rename("pems/#{user}_cert.pem", 'pems/RL_cert.orig.pem')
-      File.rename("pems/#{user}_key.pem", 'pems/RL_key.orig.pem')
-      
-      revokeCertBeforeTest getOSDGOVAgent.caDomains[0],'RevokedLogistician'
-      revokeCertBeforeTest @conusDomain.agent.caDomains[0],'RecreatedLogistician'
-      #@conusDomain.agent.caDomains[0].revokeUserCert('RecreatedLogistician')
-      
-      
-      puts " conus domain caDomains #{@conusDomain.agent.caDomains[0].to_s}" if $VerboseDebugging
-      @conusDomain.deleteUser('RecreatedLogistician')
-      puts " conus domain deleteUse RecreatedLogistician" if $VerboseDebugging
-      @conusDomain.recreateUsersForce(['RecreatedLogistician'])
-      File.rename('pems/RL_cert.orig.pem', "pems/#{user}_cert.pem")
-      File.rename('pems/RL_key.orig.pem', "pems/#{user}_key.pem")
-
-      if(PingSociety.isPingSociety)
-        [[@conusDomain,'CONUS']].each do |domainandname|
-          domain = domainandname[0]
-          puts " Security Mop 2-4 setup domain is #{domain}" if $VerboseDebugging
-          name = domainandname[1]
-          auth = 'EITHER'
-          puts "Domain #{domain} Name : #{name}" if $VerboseDebugging
-          u = UserClass.new("P", "P", auth, 'policy', 'User', ["PolicyAdministrator"])
-          #puts "user created is : #{u.to_s}"
-          puts "calling domain recreateUsers" if $VerboseDebugging
-          domain.recreateUsers([u])
+          sleep 15.seconds
+          
+          @conusDomain.disableUser('DisabledLogistician')
+          puts " conusDomain disableUser DisabledLogistician" if $VerboseDebugging
+          @conusDomain.deleteUser('DeletedLogistician')
+          
+          # Keep the original cert for RecreatedLogistician
+          user = "ConusEnclaveCARecreatedLogistician"
+          puts " conusDomain  #{@conusDomain.agent.caDomains[0].to_s} user #{user}" if $VerboseDebugging
+          File.rename("pems/#{user}_cert.pem", 'pems/RL_cert.orig.pem')
+          File.rename("pems/#{user}_key.pem", 'pems/RL_key.orig.pem')
+          
+          revokeCertBeforeTest getOSDGOVAgent.caDomains[0],'RevokedLogistician'
+          revokeCertBeforeTest @conusDomain.agent.caDomains[0],'RecreatedLogistician'
+          #@conusDomain.agent.caDomains[0].revokeUserCert('RecreatedLogistician')
+          
+          
+          puts " conus domain caDomains #{@conusDomain.agent.caDomains[0].to_s}" if $VerboseDebugging
+          @conusDomain.deleteUser('RecreatedLogistician')
+          puts " conus domain deleteUse RecreatedLogistician" if $VerboseDebugging
+          @conusDomain.recreateUsersForce(['RecreatedLogistician'])
+          File.rename('pems/RL_cert.orig.pem', "pems/#{user}_cert.pem")
+          File.rename('pems/RL_key.orig.pem', "pems/#{user}_key.pem")
+          
+          if(PingSociety.isPingSociety)
+            [[@conusDomain,'CONUS']].each do |domainandname|
+              domain = domainandname[0]
+              puts " Security Mop 2-4 setup domain is #{domain}" if $VerboseDebugging
+              name = domainandname[1]
+              auth = 'EITHER'
+              puts "Domain #{domain} Name : #{name}" if $VerboseDebugging
+              u = UserClass.new("P", "P", auth, 'policy', 'User', ["PolicyAdministrator"])
+              #puts "user created is : #{u.to_s}"
+              puts "calling domain recreateUsers" if $VerboseDebugging
+              domain.recreateUsers([u])
+            end
+          else
+            [[@fwdDomain,'Fwd'], [@rearDomain,'Rear'], [@transDomain,'Trans']].each do |domainandname|
+              domain = domainandname[0]
+              name = domainandname[1]
+              auth = 'EITHER'
+              u = UserClass.new("P", "P", auth, 'policy', 'User', ["PolicyAdministrator"])
+              domain.recreateUsers([u])
+            end
+          end
         end
-      else
-        [[@fwdDomain,'Fwd'], [@rearDomain,'Rear'], [@transDomain,'Trans']].each do |domainandname|
-          domain = domainandname[0]
-          name = domainandname[1]
-          auth = 'EITHER'
-          u = UserClass.new("P", "P", auth, 'policy', 'User', ["PolicyAdministrator"])
-          domain.recreateUsers([u])
-        end
-      end
-    end
+      rescue => ex
+        saveAssertion('SecurityMop2.4 Setup failed ',
+                      "Unable to perform stress: #{ex}\n#{ex.backtrace.join("\n")}" )
+      end  
+    }
   end # setup
 
   
@@ -277,22 +312,29 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def perform
-    begin
-      saveAssertion("SecurityMop2.4","in Perfom calling ensureDomains")
-      ensureDomains
-      puts " CALLING Perform TESTS FOR SECURITY MOP " if $VerboseDebugging
-      #revokeCertBeforeTest
-      #puts "sleeping for 3 minutes"
-      sleep 3.minutes
-      saveAssertion("SecurityMop2.4","Calling run test ")
-      runTests(@tests)
-      runServletPolicyTests
-      puts " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
-    rescue Exception => e
-      puts "error in perform"
-      puts "#{e.class}: #{e.message}"
-      puts e.backtrace.join("\n")
-    end
+    Thread.fork {
+      begin
+        saveAssertion("SecurityMop2.4","in Perfom calling ensureDomains")
+        ensureDomains
+        puts " CALLING Perform TESTS FOR SECURITY MOP " if $VerboseDebugging
+        #revokeCertBeforeTest
+        #puts "sleeping for 3 minutes"
+        sleep 3.minutes
+        saveAssertion("SecurityMop2.4","Calling run test ")
+        runTests(@tests)
+        runServletPolicyTests
+        puts " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
+        puts " CALLING Perform TESTS FOR SECURITY MOP  DONE "
+        puts "calling setperform"
+        setPerformDone
+        puts "calling setperform done"
+        puts "Setting test done to : #{getPerformDone}"
+      rescue Exception => e
+        puts "error in perform"
+        puts "#{e.class}: #{e.message}"
+        puts e.backtrace.join("\n")
+      end
+    }
   end
 
 
