@@ -40,6 +40,7 @@ import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
 
 public final class ServerKeyManager
   extends org.cougaar.core.security.ssl.KeyManager {
@@ -76,8 +77,19 @@ public final class ServerKeyManager
 
     // no valid certificate? Use self signed cert
     if (nodealias != null && privatekey == null) {
+      CertificateCacheService cacheservice=(CertificateCacheService)
+	serviceBroker.getService(this,
+				 CertificateCacheService.class,
+				 null);
+      if(cacheservice==null) {
+	log.warn(" Unable to get Certificate Cache service in updateKeystore");
+      }
       try {
-        nodex509 = (X509Certificate)keystore.getKeyStore().getCertificate(nodealias);
+
+        nodex509 = null;
+	if(cacheservice!=null) {
+	  nodex509=cacheservice.getCertificate(nodealias);
+	}
         // No need to get private key, it is not required to
         // start server, only cert and trusted chain are.
         //privatekey = (PrivateKey)keystore.getKeyStore().getKey(nodealias, new char[] {});
