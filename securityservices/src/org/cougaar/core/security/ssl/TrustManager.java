@@ -32,9 +32,9 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.X509TrustManager;
 
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.crypto.CertificateCache;
 import org.cougaar.core.security.crypto.CertificateChainException;
 import org.cougaar.core.security.crypto.CertificateRevokedException;
+import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -122,10 +122,10 @@ public class TrustManager implements X509TrustManager {
     // we allow users, agents, or nodes to access tomcat
     boolean accept = false;
     if (title != null) {
-      if (title.equals(CertificateCache.CERT_TITLE_NODE)) {
+      if (title.equals(CertificateType.CERT_TITLE_NODE)) {
         accept = true;
       }
-      else if (title.equals(CertificateCache.CERT_TITLE_USER)
+      else if (title.equals(CertificateType.CERT_TITLE_USER)
 	  && this instanceof ServerTrustManager) {
         accept = true;
         // only allow skipping trust check for user
@@ -139,7 +139,7 @@ public class TrustManager implements X509TrustManager {
         }
 
       }
-      else if(title.equals(CertificateCache.CERT_TITLE_AGENT)
+      else if(title.equals(CertificateType.CERT_TITLE_AGENT)
           && this instanceof ServerTrustManager) {
         accept = true;
       }
@@ -202,8 +202,8 @@ public class TrustManager implements X509TrustManager {
     X509Certificate srvcert = chain[0];
     String srvdn = srvcert.getSubjectDN().getName();
     String title = CertificateUtility.findAttribute(srvdn, "t");
-    if (title == null || (!title.equals(CertificateCache.CERT_TITLE_NODE)
-			  && !title.equals(CertificateCache.CERT_TITLE_SERVER))) {
+    if (title == null || (!title.equals(CertificateType.CERT_TITLE_NODE)
+			  && !title.equals(CertificateType.CERT_TITLE_SERVER))) {
       String s = "Wrong type of server certificate. Title=" + title;
       log.warn(s);
       throw new CertificateException(s);

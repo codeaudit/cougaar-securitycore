@@ -38,7 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cougaar.core.security.crypto.Base64;
 import org.cougaar.core.security.crypto.CertDirServiceRequestor;
-import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.naming.CertificateEntry;
 import org.cougaar.core.security.services.util.CACertDirectoryService;
@@ -164,7 +164,7 @@ public class DownloadCertificateServlet extends  HttpServlet
   }
 
   public static boolean isCA(String dn) {
-    return CertificateUtility.findAttribute(dn, "t").equals(CertificateCache.CERT_TITLE_CA);
+    return CertificateUtility.findAttribute(dn, "t").equals(CertificateType.CERT_TITLE_CA);
   /*
     StringTokenizer tok = new StringTokenizer(dn,",=",true);
     boolean first = true;
@@ -196,7 +196,7 @@ public class DownloadCertificateServlet extends  HttpServlet
   }
 
   public static boolean isUser(String dn) {
-    return CertificateUtility.findAttribute(dn, "t").equals(CertificateCache.CERT_TITLE_USER);
+    return CertificateUtility.findAttribute(dn, "t").equals(CertificateType.CERT_TITLE_USER);
   /*
     StringTokenizer tok = new StringTokenizer(dn,",=",true);
     boolean first = true;

@@ -59,7 +59,7 @@ import org.cougaar.core.security.cm.message.VerifyAgentAddRequest;
 import org.cougaar.core.security.cm.message.VerifyResponse;
 import org.cougaar.core.security.cm.service.CMService;
 import org.cougaar.core.security.cm.service.CMServiceProvider;
-import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
@@ -79,7 +79,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.24 $
  */
 public class CertificateSigningRequest extends HttpServlet implements BlackboardClient {
   private CertificateManagementService signer;
@@ -234,8 +234,8 @@ public class CertificateSigningRequest extends HttpServlet implements Blackboard
           boolean agentRequest = false;
           boolean nodeRequest = false;
           if(requirePending){
-            agentRequest =this.isTypeRequest(CertificateCache.CERT_TITLE_AGENT, pkcs, signer);
-          	nodeRequest=this.isTypeRequest(CertificateCache.CERT_TITLE_NODE, pkcs, signer);
+            agentRequest =this.isTypeRequest(CertificateType.CERT_TITLE_AGENT, pkcs, signer);
+          	nodeRequest=this.isTypeRequest(CertificateType.CERT_TITLE_NODE, pkcs, signer);
           }
           if (log.isDebugEnabled()) {
             log.debug("Agent Request:" + agentRequest + "  , Node request:" + nodeRequest);

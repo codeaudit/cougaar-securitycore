@@ -35,7 +35,7 @@ import java.util.Enumeration;
 
 import javax.swing.JOptionPane;
 
-import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.ssl.ui.UserAliasPwdDialog;
@@ -63,7 +63,7 @@ public class KeyRingUserAuthImpl extends AuthenticationHandler {
 	  continue;
 	String dname = ((X509Certificate)certChain[0]).getSubjectDN().getName();
 	String title = CertificateUtility.findAttribute(dname, "t");
-	if (!title.equals(CertificateCache.CERT_TITLE_USER))
+	if (!title.equals(CertificateType.CERT_TITLE_USER))
 	  continue;
 	aliasList.add(alias + " (" + dname + ")");
       }

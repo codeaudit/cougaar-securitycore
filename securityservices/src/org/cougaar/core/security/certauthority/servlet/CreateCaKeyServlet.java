@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cougaar.core.security.config.PolicyHandler;
-import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
@@ -111,7 +111,7 @@ public class CreateCaKeyServlet
       + ", l=" + caL
       + ", st=" + caST
       + ", c=" + caC
-      + ", t=" + CertificateCache.CERT_TITLE_CA;
+      + ", t=" + CertificateType.CERT_TITLE_CA;
     if (log.isDebugEnabled()) {
       log.debug("Creating CA key for: " + caDN);
     }

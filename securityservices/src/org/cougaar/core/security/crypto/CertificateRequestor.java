@@ -93,7 +93,7 @@ import sun.security.x509.X509CertImpl;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  */
 public class CertificateRequestor {
   private ServiceBroker serviceBroker;
@@ -247,7 +247,7 @@ public class CertificateRequestor {
 
 
       if (commonName.equals(nodeName) /* || commonName.equals(NodeInfo.getHostName())*/
-        || ((title != null) && title.equals(CertificateCache.CERT_TITLE_USER))
+        || ((title != null) && title.equals(CertificateType.CERT_TITLE_USER))
         || !certAttribPolicy.nodeIsSigner) {
         // Create a self-signed key and send it to the CA.
         if (keyAlias != null) {
@@ -284,7 +284,7 @@ public class CertificateRequestor {
           }
 
           if ((title != null)
-            && title.equals(CertificateCache.CERT_TITLE_AGENT)) {
+            && title.equals(CertificateType.CERT_TITLE_AGENT)) {
             String[] requestResult = this
               .generateSigningCertificateRequestForAgent(cert, alias);
             request = requestResult[0];

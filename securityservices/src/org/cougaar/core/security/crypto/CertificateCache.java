@@ -110,15 +110,6 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
    */
   private Hashtable privateKeyCache = new Hashtable(50);
 
-  /** definition for title field of certificate */
-
-  public final static String CERT_TITLE_NODE = "node";
-  public final static String CERT_TITLE_AGENT = "agent";
-  public final static String CERT_TITLE_USER = "user";
-  public final static String CERT_TITLE_SERVER = "server";
-  public final static String CERT_TITLE_CA = "ca";
-
-
   private Hashtable bigint2dn=new Hashtable(50);
   private DirectoryKeyStoreParameters param;
   private SecurityPropertiesService secprop = null;
@@ -1378,11 +1369,11 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
   }
 
   public static String getTitle(String commonName) {
-    String title = CERT_TITLE_AGENT;
+    String title = CertificateType.CERT_TITLE_AGENT;
     if (commonName.equals(NodeInfo.getNodeName()))
-      title = CERT_TITLE_NODE;
+      title = CertificateType.CERT_TITLE_NODE;
     else if (commonName.equals(NodeInfo.getHostName()))
-      title = CERT_TITLE_SERVER;
+      title = CertificateType.CERT_TITLE_SERVER;
     return title;
   }
 
@@ -1447,7 +1438,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
                             CertificateTrust.CERT_TRUST_CA_SIGNED, alias);
     // need to check whether it is a CA
     String title = CertificateUtility.findAttribute(importCert.getSubjectDN().getName(), "t");
-    if (title != null && title.equals(CERT_TITLE_CA)) {
+    if (title != null && title.equals(CertificateType.CERT_TITLE_CA)) {
       certstatus.setCertificateType(CertificateType.CERT_TYPE_CA);
     }
 
@@ -1472,7 +1463,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 
     String title = CertificateUtility.findAttribute(dname, "t");
     CertificateType certType = CertificateType.CERT_TYPE_END_ENTITY;
-    if (title != null && title.equals(CERT_TITLE_CA))
+    if (title != null && title.equals(CertificateType.CERT_TITLE_CA))
       certType = CertificateType.CERT_TYPE_CA;
     CertificateStatus certstatus =
       new CertificateStatus(sslCert,

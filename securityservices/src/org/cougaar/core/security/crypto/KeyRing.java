@@ -666,7 +666,7 @@ try {
 	// Authority, then a self-signed certificate is OK.
 	// Self-signed certificate should only be valid if it is type CA
 	String title = CertificateUtility.findAttribute(principalSigner.getName(), "t");
-	if (title != null && !title.equals(CertificateCache.CERT_TITLE_CA)) {
+	if (title != null && !title.equals(CertificateType.CERT_TITLE_CA)) {
 	  return false;
 	}
 	else{
@@ -2003,8 +2003,8 @@ try {
     if (title == null) {
       return;
     }
-    if (!title.equals(CertificateCache.CERT_TITLE_AGENT)
-	&& !title.equals(CertificateCache.CERT_TITLE_NODE)) {
+    if (!title.equals(CertificateType.CERT_TITLE_AGENT)
+	&& !title.equals(CertificateType.CERT_TITLE_NODE)) {
       if (log.isDebugEnabled()) {
         log.debug("Not publishing " + x500Name + " to naming, because it is not an agent.");
       }

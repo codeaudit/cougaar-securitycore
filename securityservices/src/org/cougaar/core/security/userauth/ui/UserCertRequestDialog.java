@@ -42,8 +42,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.crypto.CertificateCache;
 import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
@@ -178,7 +178,7 @@ public class UserCertRequestDialog extends JDialog {
           continue;
         String dname = ((X509Certificate)certChain[0]).getSubjectDN().getName();
         String title = CertificateUtility.findAttribute(dname, "t");
-        if (title.equals(CertificateCache.CERT_TITLE_USER)) {
+        if (title.equals(CertificateType.CERT_TITLE_USER)) {
       // check if it is self-signed
           if (certChain.length == 1) {
             //System.out.println("adding: " + dname);
@@ -278,7 +278,7 @@ public class UserCertRequestDialog extends JDialog {
       + ",l=" + profilePanel.lField.getText()
       + ",st=" + profilePanel.stField.getText()
       + ",c=" + profilePanel.cField.getText()
-      + ",t=" + CertificateCache.CERT_TITLE_USER;
+      + ",t=" + CertificateType.CERT_TITLE_USER;
     return dn;
   }
 

@@ -63,7 +63,6 @@ import java.util.List;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.Base64;
-import org.cougaar.core.security.crypto.CertificateCache;
 import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.CertificateType;
@@ -1175,8 +1174,8 @@ public class KeyManagement  implements CertificateManagementService {
           log.debug("setCertificateFields: receive a request without title: " + dname);
           log.debug("Setting title as user.");
         }
-        dname += ",t=" + CertificateCache.CERT_TITLE_USER;
-        title = CertificateCache.CERT_TITLE_USER;
+        dname += ",t=" + CertificateType.CERT_TITLE_USER;
+        title = CertificateType.CERT_TITLE_USER;
       }
 
       X500Name clientX500Name = new X500Name(dname);
@@ -1202,7 +1201,7 @@ public class KeyManagement  implements CertificateManagementService {
 
         KeyUsageExtension keyusage = new KeyUsageExtension();
         boolean isSigner = false;
-        if (title.equals(CertificateCache.CERT_TITLE_CA))
+        if (title.equals(CertificateType.CERT_TITLE_CA))
           isSigner = true;
         else {
           keyusage.set("digital_signature", new Boolean(true));
@@ -1210,7 +1209,7 @@ public class KeyManagement  implements CertificateManagementService {
           keyusage.set("data_encipherment", new Boolean(true));
 
           // Set keyusage
-          if (title.equals(CertificateCache.CERT_TITLE_NODE)) {
+          if (title.equals(CertificateType.CERT_TITLE_NODE)) {
             // need signing capability?
             // only for node with key signing ability defined in CA crypto policy
             if (caPolicy.nodeIsSigner)
