@@ -481,7 +481,9 @@ public class UserLockoutPlugin extends ResponderPlugin {
     String               agentName    = ais.getName();
     MessageAddress       myAddress    = ais.getMessageAddress();
 
+    bbs.openTransaction();
     Collection c = bbs.query(new RegistrationPredicate(agentName));
+    bbs.closeTransaction();
     if (!c.isEmpty()) {
       _log.info("Rehydrating - no need to publish sensor capabilities");
       return; // this is rehydrated and we've already registered
@@ -506,7 +508,9 @@ public class UserLockoutPlugin extends ResponderPlugin {
       _log.info("Sending sensor capabilities to manager '" +
                 managerAddress + "'");
     }
+    bbs.openTransaction();
     bbs.publishAdd(relay);
+    bbs.closeTransaction();
   }
 
 
