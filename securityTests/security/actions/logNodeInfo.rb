@@ -1,3 +1,5 @@
+require 'security/lib/scripting.rb'
+
 module Cougaar
   module Actions
       class LogNodeInfo < Cougaar::Action
@@ -5,7 +7,9 @@ module Cougaar
           super(run)
           @args = args
           @nodeInfoMap = {}
-          @filename="#{CIP}/workspace/test/node_info.log"
+          dirname = "#{CIP}/workspace/test"
+          Dir.mkdir("#{dirname}") unless File.stat(dirname).directory?
+          @filename="#{dirname}/node_info.log"
 	  Cougaar::Actions::Stressors.addStressIds(['processInfo'])
 	  logInfoMsg "Saving process info to #{@filename}"
         end   
