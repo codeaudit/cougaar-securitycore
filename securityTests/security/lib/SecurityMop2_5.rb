@@ -35,31 +35,52 @@ class SecurityMop2_5 < AbstractSecurityMop
   end
 
   def calculate
-    while !calculationDone do
-      sleep 2.seconds
-    end
-    @score = SecurityMop2_4.instance.score5
-    logged = SecurityMop2_4.instance.numActionsLogged
-    total = SecurityMop2_4.instance.numLoggableActions
-    if total == 0
-      if @numAccessAttempts == 0
-        @summary = "There weren't any access attempts."
-      else
-        @summary = "There weren't any access attempts which needed to be logged."
+    Thread.fork {
+      begin
+        totalWaitTime=0
+        maxWaitTime = 30.minutes
+        sleeptime=60.seconds
+        while ((SecurityMop2_4.instance.getPerformDone == false) && (totalWaitTime < maxWaitTime))
+          logInfoMsg "Sleeping in Calculate of SecurityMop2.5 . Already slept for #{totalWaitTime}"
+          sleep(sleepTime) # sleep
+          totalWaitTime += sleepTime
+        end
+        if((totalWaitTime >= maxWaitTime) && (SecurityMop2_4.instance.getPerformDone == false))
+          saveResult(false, "SecurityMop2.5", "Timeout tests incomplete") 
+           logInfoMsg "Save results for SecurityMop2.5 Done Result failed "
+          return
+        elsif (SecurityMop2_4.instance.getPerformDone == true)
+          @score = SecurityMop2_4.instance.score5
+          logged = SecurityMop2_4.instance.numActionsLogged
+          total = SecurityMop2_4.instance.numLoggableActions
+          if total == 0
+            if @numAccessAttempts == 0
+              @summary = "There weren't any access attempts."
+            else
+              @summary = "There weren't any access attempts which needed to be logged."
+            end
+          else
+            # note: these two values are swapped, but are fixed on the analysis side
+            @summary = "There were #{total} servlet access attempts,#{logged} were correct.\n"
+          end
+          @raw = SecurityMop2_4.instance.raw5
+          @info = SecurityMop2_4.instance.html5
+          @summary <<"<BR> Score :#{@score}</BR>\n" 
+          @summary << "#{@info}"
+          success = false
+          if (@score == 100.0)
+            success = true
+          end
+          saveResult(success, 'SecurityMop2.5',@summary)
+          logInfoMsg "Save results for SecurityMop2.5 Done" 
+        end
+      rescue Exception => e
+        puts "error in 2.4 calculate "
+        puts "#{e.class}: #{e.message}"
+        puts e.backtrace.join("\n")
       end
-    else
-      # note: these two values are swapped, but are fixed on the analysis side
-      @summary = "There were #{total} servlet access attempts,#{logged} were correct.\n"
-    end
-    @raw = SecurityMop2_4.instance.raw5
-    @info = SecurityMop2_4.instance.html5
-    @summary <<"<BR> Score :#{@score}</BR>\n" 
-    @summary << "#{@info}"
-    success = false
-    if (@score == 100.0)
-      success = true
-    end
-    saveResult(success, 'SecurityMop2.5',@summary)
+    }
+    
   end
 
   def scoreText
