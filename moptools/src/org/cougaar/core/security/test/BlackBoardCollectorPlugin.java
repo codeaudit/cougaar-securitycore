@@ -154,13 +154,13 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
         }
       }
       if (roles.isEmpty()) {
-        _log.debug("Interception: ReportForDuty : " + subordinate + " : " +
-                   superior);
+        _event.event("Interception: ReportForDuty : " 
+                     + subordinate + " : " + superior);
       } else {
         for (Iterator rolesIt = roles.iterator(); rolesIt.hasNext();) {
           Object role = rolesIt.next();
-          _log.debug("Interception: ReportForDuty with role : " 
-                     + subordinate + " : " + superior + " : " + role);
+          _event.event("Interception: ReportForDuty with role : " 
+                       + subordinate + " : " + superior + " : " + role);
         }
       }
     }
