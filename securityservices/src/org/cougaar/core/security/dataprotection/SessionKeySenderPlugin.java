@@ -1,28 +1,9 @@
-/* 
- * <copyright> 
- *  Copyright 1999-2004 Cougaar Software, Inc.
- *  under sponsorship of the Defense Advanced Research Projects 
- *  Agency (DARPA). 
- *  
- *  You can redistribute this software and/or modify it under the
- *  terms of the Cougaar Open Source License as published on the
- *  Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
- * </copyright> 
- */ 
-
+/*
+ * <copyright>
+ *  Copyright 2000-2003 Cougaar Software, Inc.
+ *  All Rights Reserved
+ * </copyright>
+ */
 
 
 package org.cougaar.core.security.dataprotection;
@@ -41,12 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
+
 
 /**
  * Plugin sends relay with the session key in it to the persistence manager
  *
  * @author ttschampel
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class SessionKeySenderPlugin extends ComponentPlugin {
     /** Plugin name */
@@ -95,15 +80,44 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
             logging.debug(pluginName + " setting up");
         }
 
+        // mainly UIDService could be null
+        if (uidService != null && threadService != null && getBlackboardService() != null) {
+          servicesReady();
+        }
+        else {
+          ServiceAvailableListener listener = new ServiceAvailableListener() {
+            public void serviceAvailable(ServiceAvailableEvent ae) {
+              Class sc = ae.getService();
+              boolean settingServices=false;
+              ServiceBroker sb = ae.getServiceBroker();
+              if (sc == ThreadService.class && threadService == null) {
+                threadService = (ThreadService)
+                  getServiceBroker().getService(this, 
+                    ThreadService.class, null);
+              }
+              // uidservice and blackboard service is set explicitly by ComponentPlugin
+              if (threadService != null && uidService != null && getBlackboardService() != null) {
+                servicesReady();
+              }
+            }    
+          };
+          getServiceBroker().addServiceListener(listener);
+        }
+    }
+
+
+    private void servicesReady() {
         String agent = this.getAgentIdentifier().getAddress();
-        _pluginMap.put(agent, this);
+        synchronized (_pluginMap) {
+          _pluginMap.put(agent, this);
+        }
         processKeyCache(agent);
+    }
 /*
         RelaySessionKey.getInstance().addPlugin(this.getAgentIdentifier()
                                                     .getAddress(), this);
 */
         
-    }
 
     private void processKeyCache(String agent) {
       logging.debug("processing keys cached");
@@ -146,12 +160,14 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
           plugin.sendSessionKey(sdr);
         }        
         else {
-          List list = (List)_keyCache.get(agent);
-          if (list == null) {
-            list = new ArrayList();
-            _keyCache.put(agent, list);
+          synchronized (_keyCache) {
+            List list = (List)_keyCache.get(agent);
+            if (list == null) {
+              list = new ArrayList();
+              _keyCache.put(agent, list);
+            }
+            list.add(sdr);
           }
-          list.add(sdr);
         }
      }
 
@@ -163,7 +179,6 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
             logging.debug("key timestamp " + keyCollection.getTimestamp());
         }
 
-        sdr.setUID(uidService.nextUID());
         RelayTimerTask timerTask = new RelayTimerTask(sdr);
 		    Schedulable sch = threadService.getThread(this, timerTask);
         sch.schedule(1);
@@ -179,6 +194,7 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
 
         public void run() {
             //publish relay
+            sdr.setUID(uidService.nextUID());
             getBlackboardService().openTransaction();
             getBlackboardService().publishAdd(sdr);
             getBlackboardService().closeTransactionDontReset();
