@@ -39,13 +39,13 @@ public interface DataProtectionService extends Service {
    *  retrieve (or produce) the secret key used to encrypt the
    *  stream.
    *  @param  agentName   name of the agent which requests the service
-   *  @param  attribTag   The encryption information specified in policy
-   *                      files are defined by the attribute tag. i.e. blackboard
+   *  @param  encryptAttr The encryption information tagged as attributes.
+   *                        i.e. blackboard, trust attribute, ...
    *  @param  out         Stream to be written for output.
    *  @param  in          Stream to be encrypted
    */
-  public void encrytStream(String agentName,
-                            String attribTag,
+  public void encryptStream(String agentName,
+                            EncryptAttributes encryptAttr,
                             OutputStream out,
                             InputStream in)
     throws RuntimeException,
@@ -54,25 +54,25 @@ public interface DataProtectionService extends Service {
   /** Issues/Comments: putting attributes on a string may be
    *  a bit of an overkill
    *  @param  agentName   name of the agent which requests the service
-   *  @param  attribTag   The encryption information specified in policy
-   *                      files are defined by the attribute tag. i.e. blackboard
+   *  @param  encryptAttr The encryption information tagged as attributes.
+   *                        i.e. blackboard, trust attribute, ...
    *  @param  plainString the string to be encrypted
    *  @return the encrypted string
    */
-  public String encrypString(String agentName,
-                            String attribTag,
+  public String encryptString(String agentName,
+                            EncryptAttributes encryptAttr,
                             String plainString)
     throws RuntimeException;
 
   /**
    *  @param  agentName   name of the agent which requests the service
-   *  @param  attribTag   The encryption information specified in policy
-   *                      files are defined by the attribute tag. i.e. blackboard
+   *  @param  encryptAttr The encryption information tagged as attributes.
+   *                        i.e. blackboard, trust attribute, ...
    *  @param  inputObject the object to be encrypted
    *  @return encrypted object
    */
   public SealedObject encryptObject(String agentName,
-                            String attribTag,
+                            EncryptAttributes encryptAttr,
                             Serializable inputObject)
     throws RuntimeException;
 
@@ -86,13 +86,13 @@ public interface DataProtectionService extends Service {
 
   /**
    *  @param  agentName   name of the agent which requests the service
-   *  @param  attribTag   The encryption information specified in policy
-   *                      files are defined by the attribute tag. i.e. blackboard
+   *  @param  encryptAttr The encryption information tagged as attributes.
+   *                        i.e. blackboard, trust attribute, ...
    *  @param  in          the stream to be decrypted
    *  @param  out         the stream to be written
    */
   public void decryptStream(String agentName,
-                            String attribTag,
+                            EncryptAttributes encryptAttr,
                             OutputStream out,
                             InputStream in)
     throws RuntimeException,
@@ -100,27 +100,27 @@ public interface DataProtectionService extends Service {
 
   /**
    *  @param  agentName   name of the agent which requests the service
-   *  @param  attribTag   The encryption information specified in policy
-   *                      files are defined by the attribute tag. i.e. blackboard
+   *  @param  encryptAttr The encryption information tagged as attributes.
+   *                        i.e. blackboard, trust attribute, ...
    *  @param  encryptedString
    *                      The string to be decrypted
    *  @return the decrypted string
    */
   public String decryptString(String agentName,
-                            String attribTag,
+                            EncryptAttributes encryptAttr,
                             String encryptedString)
     throws RuntimeException;
 
   /**
    *  @param  agentName   name of the agent which requests the service
-   *  @param  attribTag   The encryption information specified in policy
-   *                      files are defined by the attribute tag. i.e. blackboard
+   *  @param  encryptAttr The encryption information tagged as attributes.
+   *                        i.e. blackboard, trust attribute, ...
    *  @param  encryptedObj
    *                      The object to be decrypted
    *  @return the decrypted object
    */
   public Object decryptObject(String agentName,
-                            String attribTag,
+                            EncryptAttributes encryptAttr,
                             SealedObject encryptedObj)
     throws RuntimeException;
 
