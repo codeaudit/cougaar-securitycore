@@ -27,6 +27,7 @@
 
 package org.cougaar.core.security.services.wp;
 
+
 import java.security.SignedObject;
 import java.security.cert.X509Certificate;
 
