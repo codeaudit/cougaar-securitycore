@@ -58,7 +58,7 @@ import org.cougaar.util.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
-import org.cougaar.core.security.services.auth.SecurityContextService;
+
 
 /**
  *  Use the TraX interface to perform a transformation.
@@ -74,14 +74,8 @@ public class MnRRegistrationViewerComponent
   private LoggingService logging;
   private String path;
 
-  private SecurityContextService _scs;
-  
   public void load() {
     super.load();
-    _scs = (SecurityContextService)
-      serviceBroker.getService(this, SecurityContextService.class, null);
-    System.out.println(getClass().getName() + " security context:");
-    System.out.println("class name of servlet service: " + servletService.getClass().getName());
   }
 
   protected String getPath() {
@@ -159,7 +153,6 @@ public class MnRRegistrationViewerComponent
     public void doGet(HttpServletRequest request,
 		      HttpServletResponse response)
       throws IOException {
-      System.out.println("RegistrationViewerServlet security context:");
       response.setContentType("text/html");
       PrintWriter out = response.getWriter();
       out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
@@ -168,7 +161,6 @@ public class MnRRegistrationViewerComponent
       out.println("<title>MnRRegistration Viewer </title>");
       out.println("</head>");
       out.println("<body>");
-      out.println("Execution Context: " + _scs.getExecutionContext());
       out.println("<H2>MnRRegistration Viewer</H2><BR>");
       out.println("<H3> Monitoring and Response Capabilities at agent :"+ agentId.toAddress() +"</H3>");
       Collection capabilitiesCollection=null;
