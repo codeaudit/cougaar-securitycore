@@ -105,7 +105,7 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
    */
   public Wrapper wrap(String name, Object object) throws CertificateException, GeneralSecurityException {
     if (log.isDebugEnabled()) {
-      log.debug(WhitePagesProtectionServiceImpl.NAME + " wrapping object: " + object + " with name + " + name);
+      log.debug(WhitePagesProtectionServiceImpl.NAME + " wrapping object: " + object + " (class: " + object.getClass().getName() + ") with name + " + name);
     }
 
     keyRingService = (KeyRingService) serviceBroker.getService(this, KeyRingService.class, null);
