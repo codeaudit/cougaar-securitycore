@@ -81,7 +81,7 @@
         <isset property="webdav.url"/>
         <then>
           <property name="module.build.list"
-             value="securebootstrapper,securityutils,fwsupport,dataprotection,securityservices,securemonitoring,coordinator,securityTests,moptools"/>
+             value="secure_bootstrapper,security_util,fwsupport,secure_data_protection,securityservices,secure_monitoring,secure-coordinator,securityTests,security_moptools"/>
           <for list="${module.build.list}" delimiter="," param="build.module.name">
              <sequential>
                 <!-- Name of ZIP file is:
@@ -93,7 +93,7 @@
                  -->
                 <echo message="Retrieving @{build.module.name} ZIP file..."/>
                 <get src="${webdav.url}/@{build.module.name}-${project.branch.name}-${cougaar.branch.name}"
-                     dest="${overlays.directory.name}/@{build.module.name}-${project.branch.name}-${cougaar.branch.name}"/>
+                     dest="${overlays.directory.name}/@{build.module.name}-${project.branch.name}-${cougaar.branch.name}.zip"/>
              </sequential>
           </for>
         </then>
