@@ -480,7 +480,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
       OperatingMode mode = (OperatingMode) changedOperatingMode
 	.nextElement();
       Comparable value = mode.getValue();
-      System.err.println(value.toString());
+      //System.err.println(value.toString());
       this.timeInterval = (new Long(value.toString())).longValue();
 
     } else {
@@ -489,7 +489,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 	OperatingMode mode = (OperatingMode) changedOperatingMode
 	  .nextElement();
 	Comparable value = mode.getValue();
-	System.err.println(value.toString());
+	//System.err.println(value.toString());
 	this.timeInterval = (new Long(value.toString())).longValue();
       }
     }
