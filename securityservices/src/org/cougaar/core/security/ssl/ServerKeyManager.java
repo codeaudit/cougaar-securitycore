@@ -48,8 +48,10 @@ public final class ServerKeyManager
   {
     super(krs, sb);
 
-    if (nodex509 == null || nodealias == null)
+    if (nodex509 == null || nodealias == null) {
+      log.warn("No valid server certificate");
       throw new CertificateException("No valid server certificate.");
+    }
   }
 
   public synchronized void updateKeystore() {

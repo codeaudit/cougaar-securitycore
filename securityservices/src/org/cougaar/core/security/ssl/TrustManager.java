@@ -76,26 +76,33 @@ public class TrustManager implements X509TrustManager {
   public void checkClientTrusted(X509Certificate[] chain, String authType)
     throws CertificateException
   {
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug("checkClientTrusted: " + chain);
+    }
 
     // check whether client is user or node
-    if (chain.length == 0)
+    if (chain.length == 0) {
+      log.warn("checkClientTrusted: No certificate present");
       throw new CertificateException("No certificate present");
+    }
     X509Certificate usrcert = chain[0];
     String clndn = usrcert.getSubjectDN().getName();
     String title = CertificateUtility.findAttribute(clndn, "t");
     // we allow application user to access only tomcat
     boolean accept = false;
     if (title != null) {
-      if (title.equals(DirectoryKeyStore.CERT_TITLE_NODE))
+      if (title.equals(DirectoryKeyStore.CERT_TITLE_NODE)) {
         accept = true;
+      }
       if (title.equals(DirectoryKeyStore.CERT_TITLE_USER)
-        && this instanceof ServerTrustManager)
+	  && this instanceof ServerTrustManager) {
         accept = true;
+      }
     }
-    if (!accept)
+    if (!accept) {
+      log.warn("Wrong type of certificate present.");
       throw new CertificateException("Wrong type of certificate present.");
+    }
 
     // check whether cert is valid, then build the chain
     keystore.checkCertificateTrust(chain[0]);
@@ -111,19 +118,24 @@ public class TrustManager implements X509TrustManager {
     throws CertificateException
   {
     // check whether cert is valid, then build the chain
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug("checkServerTrusted: " + chain);
+    }
 
     // check whether cert is of type node or server
     // Need to check whether needAuth?
-    if (chain.length == 0)
+    if (chain.length == 0) {
+      log.warn("checkServerTrusted: No certificate present");
       throw new CertificateException("No certificate present");
+    }
     X509Certificate srvcert = chain[0];
     String srvdn = srvcert.getSubjectDN().getName();
     String title = CertificateUtility.findAttribute(srvdn, "t");
     if (title == null || (!title.equals(DirectoryKeyStore.CERT_TITLE_NODE)
-      && !title.equals(DirectoryKeyStore.CERT_TITLE_SERVER)))
+			  && !title.equals(DirectoryKeyStore.CERT_TITLE_SERVER))) {
+      log.warn("Wrong type of certificate present.");
       throw new CertificateException("Wrong type of certificate present.");
+    }
 
     keystore.checkCertificateTrust(chain[0]);
   }
@@ -136,8 +148,9 @@ public class TrustManager implements X509TrustManager {
     // how about trusted CA?
     // since node configuration has only one CA, the issues will only
     // be one CA and the node itself
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug("getAcceptedIssuers." + issuers.length);
+    }
     return issuers;
   }
 }

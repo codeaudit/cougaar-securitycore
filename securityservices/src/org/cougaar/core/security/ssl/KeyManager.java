@@ -135,21 +135,24 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
    */
   public X509Certificate[] getCertificateChain(String alias) {
     // should be only asking for node's chain for now
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug("getCertificateChain: " + alias);
+    }
 
     if (nodex509 != null && alias.equals(nodealias)) {
       try {
         return keystore.checkCertificateTrust(nodex509);
       } catch (Exception e) {
-        if (log.isDebugEnabled())
-          e.printStackTrace();
+        if (log.isWarnEnabled()) {
+	  log.warn("Unable to get certificate chain for "
+		   + alias + ": " + e);
+	}
       }
     }
 
-    if (log.isDebugEnabled())
-      log.debug("Failed to getCertificateChain");
-
+    if (log.isWarnEnabled()) {
+      log.warn("Failed to getCertificateChain for " + alias);
+    }
     return new X509Certificate[] {};
   }
 
@@ -173,14 +176,17 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     if (nodex509 == null || nodealias == null || !alias.equals(nodealias))
       return null;
 
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug("getPrivateKey: " + alias);
+    }
 
     // DirectoryKeyStore sends out request if key not found
     // Get the first key in the list
     List keylist = keyRing.findPrivateKey(nodename);
-    if (keylist == null || keylist.size() == 0)
+    if (keylist == null || keylist.size() == 0) {
+      log.warn("No private key available for " + alias);
       return null;
+    }
 
     PrivateKeyCert pkc = (PrivateKeyCert)keylist.get(0);
     if (pkc == null) {
