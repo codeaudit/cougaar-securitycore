@@ -48,7 +48,7 @@ public class EventHolder extends Observable  {
   public static synchronized EventHolder getInstance() {
     
     if (_instance==null) {
-      System.out.println(" instance of event holder is null Creationg one:");
+      //System.out.println(" instance of event holder is null Creationg one:");
       _instance = new EventHolder();
     }
     
@@ -57,9 +57,9 @@ public class EventHolder extends Observable  {
  
 
   public synchronized void   register (Observer o) {
-    System.out.println(" Observer is being added :"+o.toString());
+    //System.out.println(" Observer is being added :"+o.toString());
     addObserver(o);
-    System.out.println(" No of observers is :"+ this.countObservers());
+    //System.out.println(" No of observers is :"+ this.countObservers());
     if(!atleastoneObserver)
       atleastoneObserver=true;
     if((atleastoneObserver)&&(events.size()>0)){
@@ -68,17 +68,17 @@ public class EventHolder extends Observable  {
       while(iterator.hasNext()) {
 	eventList.add((BootstrapEvent)iterator.next());
       }
-      System.out.println("Going to notify observers from register :"+eventList.size() );
+      //System.out.println("Going to notify observers from register :"+eventList.size() );
       setChanged();
       notifyObservers(eventList);
       events.clear();
       clearChanged();
-       System.out.println(" clearing events in register:");
+      // System.out.println(" clearing events in register:");
     }
     else {
-      System.out.println(" One of the conditions to notify obser ver has failed:");
-      System.out.println(" atleast one observer condition :"+atleastoneObserver);
-      System.out.println(" size of event queue :"+_instance.events.size());
+      System.out.println(" One of the conditions to notify observers has failed:");
+      //System.out.println(" atleast one observer condition :"+atleastoneObserver);
+      //System.out.println(" size of event queue :"+_instance.events.size());
     }
   }
 
@@ -88,20 +88,20 @@ public class EventHolder extends Observable  {
   
   public void addEvent(BootstrapEvent o) {
     events.add(o);
-    System.out.println(" event are being added :"+ o.toString());
-    System.out.println(" event length after event is added is :"+events.size());
+    //System.out.println(" event are being added :"+ o.toString());
+    //System.out.println(" event length after event is added is :"+events.size());
     if(atleastoneObserver)  {
       ArrayList eventList=new ArrayList();
       Iterator iterator=_instance.events.iterator();
       while(iterator.hasNext()) {
 	eventList.add((BootstrapEvent)iterator.next());
       }
-      System.out.println("Going to notify observers :");
+      //System.out.println("Going to notify observers :");
       notifyObservers(eventList);
-      System.out.println(" clearing events in add event:");
+      //System.out.println(" clearing events in add event:");
       events.clear();
     }
-    System.out.println(" No observers to Notify");
+    //System.out.println(" No observers to Notify");
   }
 
 }
