@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.config;
@@ -56,7 +56,7 @@ public class PolicyHandler
   /** Default parser name. */
   protected static final String DEFAULT_PARSER_NAME =
   "org.apache.xerces.parsers.SAXParser";
-  
+
   /** Lexical handler property id (http://xml.org/sax/properties/lexical-handler).
    */
   protected static final String LEXICAL_HANDLER_PROPERTY_ID =
@@ -120,15 +120,20 @@ public class PolicyHandler
       + File.separatorChar + "keystores" + File.separatorChar;
     String nodeDirectory = topDirectory + nodeName;
 
-    file = new File(nodeDirectory + File.separatorChar + "cryptoPolicy.xml");
+    String fileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
+    file = new File(fileName);
     try {
-      newPolicyFile = new FileOutputStream(file); 
+      newPolicyFile = new FileOutputStream(file);
       newPolicyFile.write(newPolicy.toByteArray());
     }
     catch (IOException e) {
       log.error("Unable to open policy file for modification");
       return;
     }
+
+    // now read in the policy to ConfigParserService
+    ByteArrayInputStream bis = new ByteArrayInputStream(newPolicyOutputStream.toByteArray());
+    configParser.parsePolicy(bis, fileName);
   }
 
   public ByteArrayOutputStream parseXmlTemplate(String xmlTemplateFile,
@@ -139,7 +144,7 @@ public class PolicyHandler
     writer.replaceJavaProperties(true);
     writer.setAttributeTable(attributeTable);
     writer.setXmlHeader(false);
-    ByteArrayOutputStream newPolicyOutputStream = new ByteArrayOutputStream(); 
+    ByteArrayOutputStream newPolicyOutputStream = new ByteArrayOutputStream();
     try {
       writer.setOutput(newPolicyOutputStream, "UTF8");
     }
