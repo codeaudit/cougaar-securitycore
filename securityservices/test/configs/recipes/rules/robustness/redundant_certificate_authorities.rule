@@ -39,12 +39,17 @@ revokePlugin = "org.cougaar.core.security.certauthority.RevokeAgentCertificatePl
 society.each_node do |node|
   agentname = ""
   node.each_facet(:role) do |facet|
-    if facet[:role] == 'RedundantCertificateAuthority'
+    if facet[:role] == 'RedundantCertificateAuthority' || facet[:role] == 'RedundantRootCertificateAuthority'
       facetval = node.host.get_facet(:enclave)
-      agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "EnclaveBackupCaManager"
+      if facet[:role] == 'RedundantRootCertificateAuthority'
+        agentname = "RootBackupCaManager"
+      else
+        agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "EnclaveBackupCaManager"
+      end
+
       if agentname != ""
         node.add_agent(agentname) do |agent|
-	  agent.add_facet({"catype" => facet[:role]})
+	  agent.add_facet({"catype" => 'RedundantCertificateAuthority'})
           agent.add_component do |c|
           	c.classname = caServletComponentClass
           	c.add_argument(index)
