@@ -30,6 +30,7 @@ import kaos.ontology.util.SerializableDAMLModelImpl;
 import kaos.ontology.util.ValueNotSet;
 import kaos.policy.information.DAMLPolicyContainer;
 import kaos.policy.information.PolicyInformation;
+import kaos.policy.information.PolicyInformationManager;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 import kaos.policy.util.PolicyBuildingNotCompleted;
 
@@ -64,7 +65,7 @@ public class PolicyUtils
   public static  
     PolicyInformation getPolicyInformation(DAMLPolicyBuilderImpl policy)
   {
-    return LocalPolicyInformationManager.readPolicyFromBuilder(policy);
+    return PolicyInformationManager.readPolicyFromBuilder(policy);
   }
 
 
