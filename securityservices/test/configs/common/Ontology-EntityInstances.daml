@@ -50,7 +50,11 @@
     <ultralogEntity:AuthenticationLevel rdf:ID="Password"/>
     <ultralogEntity:AuthenticationLevel rdf:ID="PasswordSSL"/>
     <ultralogEntity:AuthenticationLevel rdf:ID="CertificateSSL"/>
- 
+
+    <ultralogEntity:AuditLevel rdf:ID="NoAudit"/> 
+    <ultralogEntity:AuditLevel rdf:ID="AuditAll"/> 
+    <ultralogEntity:AuditLevel rdf:ID="AuditOnError"/> 
+
     <ultralogEntity:ProtectionLevel rdf:ID="NSAApprovedProtection"/>
     <ultralogEntity:ProtectionLevel rdf:ID="SecretProtection"/>
     <ultralogEntity:ProtectionLevel rdf:ID="WeakProtection"/>
@@ -116,94 +120,14 @@
     <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessWrite" />
     <ultralogEntity:BlackBoardAccessMode rdf:ID="BlackBoardAccessCreate" />
 
-
-
     <ultralogEntity:PlugInRoles rdf:ID="OpPlanPlugInRole" />
-
     <ultralogEntity:PlugInRoles rdf:ID="PolicyServletRole" />
-    <daml:Class rdf:ID="PluginsInRolePolicyServletRole">  <!-- temporary hack until templates arrive -->
-       <rdfs:subClassOf 
-          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
-       <rdfs:subClassOf>
-          <daml:Restriction>
-             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
-             <daml:hasValue rdf:resource="PolicyServletRole" />
-          </daml:Restriction>
-       </rdfs:subClassOf>
-    </daml:Class>
-    
     <ultralogEntity:PlugInRoles rdf:ID="OrgActivityAddRole" />
-    <daml:Class rdf:ID="PluginsInRoleOrgActivityAddRole">  <!-- temporary hack until templates arrive -->
-       <rdfs:subClassOf 
-          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
-       <rdfs:subClassOf>
-          <daml:Restriction>
-             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
-             <daml:hasValue rdf:resource="OrgActivityAddRole" />
-          </daml:Restriction>
-       </rdfs:subClassOf>
-    </daml:Class>
-    
     <ultralogEntity:PlugInRoles rdf:ID="OrgActivityQueryRole" />
-    <daml:Class rdf:ID="PluginsInRoleOrgActivityQueryRole">  <!-- temporary hack until templates arrive -->
-       <rdfs:subClassOf 
-          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
-       <rdfs:subClassOf>
-          <daml:Restriction>
-             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
-             <daml:hasValue rdf:resource="OrgActivityQueryRole" />
-          </daml:Restriction>
-       </rdfs:subClassOf>
-    </daml:Class>
-    
     <ultralogEntity:PlugInRoles rdf:ID="OrgActivityQueryNoReadRole" />
-    <daml:Class rdf:ID="PluginsInRoleOrgActivityQueryNoReadRole">  <!-- temporary hack until templates arrive -->
-       <rdfs:subClassOf 
-          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
-       <rdfs:subClassOf>
-          <daml:Restriction>
-             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
-             <daml:hasValue rdf:resource="OrgActivityQueryNoReadRole" />
-          </daml:Restriction>
-       </rdfs:subClassOf>
-    </daml:Class>
-
     <ultralogEntity:PlugInRoles rdf:ID="OrgActivityChangeRole" />
-    <daml:Class rdf:ID="PluginsInRoleOrgActivityChangeRole">  <!-- temporary hack until templates arrive -->
-       <rdfs:subClassOf 
-          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
-       <rdfs:subClassOf>
-          <daml:Restriction>
-             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
-             <daml:hasValue rdf:resource="OrgActivityChangeRole" />
-          </daml:Restriction>
-       </rdfs:subClassOf>
-    </daml:Class>
-
     <ultralogEntity:PlugInRoles rdf:ID="OrgActivityRemoveRole" />
-    <daml:Class rdf:ID="PluginsInRoleOrgActivityRemoveRole">  <!-- temporary hack until templates arrive -->
-       <rdfs:subClassOf 
-          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
-       <rdfs:subClassOf>
-          <daml:Restriction>
-             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
-             <daml:hasValue rdf:resource="OrgActivityRemoveRole" />
-          </daml:Restriction>
-       </rdfs:subClassOf>
-    </daml:Class>
-    
-    
     <ultralogEntity:PlugInRoles rdf:ID="OrgActivityAllRole" />
-    <daml:Class rdf:ID="PluginsInRoleOrgActivityAllRole">  <!-- temporary hack until templates arrive -->
-       <rdfs:subClassOf 
-          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#UltralogPlugins" />
-       <rdfs:subClassOf>
-          <daml:Restriction>
-             <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml#roleOfPlugin" />
-             <daml:hasValue rdf:resource="OrgActivityAllRole" />
-          </daml:Restriction>
-       </rdfs:subClassOf>
-    </daml:Class>
     
     <daml:Class rdf:ID="BlackboardObjects">
        <rdfs:subClassOf 

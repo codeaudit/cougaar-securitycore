@@ -43,6 +43,10 @@
         <rdfs:subClassOf rdf:resource="#UltralogEntity"/>
     </daml:Class>
 
+    <daml:Class rdf:ID="AuditLevel">
+        <rdfs:subClassOf rdf:resource="#UltralogEntity"/>
+    </daml:Class>
+
     <daml:Class rdf:ID="PlugInRoles">
         <rdfs:subClassOf rdf:resource="#UltralogEntity"/>
     </daml:Class>
@@ -61,6 +65,7 @@
             <daml:Class rdf:about="#ProtectionLevel" />
             <daml:Class rdf:about="#ULContentValue" />
             <daml:Class rdf:about="#AuthenticationLevel" />
+            <daml:Class rdf:about="#AuditLevel" />
             <daml:Class rdf:about="#PlugInRoles" />
             <daml:Class rdf:about="#BlackBoardAccessMode" />
             <daml:Class rdf:about="#BlackBoardObjects" />

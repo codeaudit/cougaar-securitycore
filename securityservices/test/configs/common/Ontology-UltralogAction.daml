@@ -41,6 +41,14 @@
         <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#Servlet"/> 
     </daml:ObjectProperty>
 
+    <daml:ObjectProperty rdf:ID="usedAuditLevel">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:subPropertyOf rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedOn"/> 
+        <rdfs:domain rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#Action"/> 
+        <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#AuditLevel"/> 
+    </daml:ObjectProperty>
+
+
     <daml:ObjectProperty rdf:ID="hasSubject">
         <rdfs:subPropertyOf rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedOn"/>
         <rdfs:domain rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#CommunicationAction"/> 
