@@ -54,6 +54,7 @@ import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import  org.cougaar.core.security.certauthority.KeyManagement;
+import  org.cougaar.core.security.naming.CACertificateEntry;
 
 public class CertificateRequestor {
 
@@ -375,8 +376,8 @@ public class CertificateRequestor {
       if(cacheservice!=null){
 	privatekey = cacheservice.getKey(alias);
       }
-      // publish CA certificate to LDAP
-      km.publishCertificate(certImpl, CertificateUtility.CACert,privatekey);
+      // publish certificate to LDAP
+      km.publishCertificate(certImpl, CertificateUtility.EntityCert,privatekey);
 
       // install
       installCertificate(alias, new X509Certificate[] {certImpl});
@@ -479,6 +480,23 @@ public class CertificateRequestor {
 							  cacheservice.getCertificate(alias),
 							  alias);
 	    privatekey = cacheservice.getKey(alias);
+            CertificateManagementService km = (CertificateManagementService)
+              serviceBroker.getService(new CertificateManagementServiceClientImpl
+                                       (dname.toString()),
+                                       CertificateManagementService.class,
+                                       null); 
+            X509CRL crl=CrlUtility.createEmptyCrl(dname.toString(),
+                                                  privatekey,
+                                                  cryptoClientPolicy.getCertificateAttributesPolicy().sigAlgName);
+            String modifiedtime=DateUtil.getCurrentUTC();
+            CACertificateEntry caCertEntry=new CACertificateEntry((X509Certificate)
+                                                             cacheservice.getCertificate(alias), 
+                                                             CertificateRevocationStatus.VALID,
+                                                             CertificateType.CERT_TYPE_CA,
+                                                             crl,
+                                                             modifiedtime);
+            km.publishCertificate(caCertEntry);
+            
 	  }
 	}
 	// else submit to upper level CA
