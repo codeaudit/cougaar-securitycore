@@ -2,6 +2,8 @@
 
 grep -nE "Exception|WARN|ERROR|FATAL" \
   $CIP/workspace/log4jlogs/*.log | \
-  grep -Ev "STDOUT|SocketException|No CertificateEntry in naming|Unable to send PKCS|Guard is already set|DestinationQueueImpl - Failure in communication|MarshalException: error marshalling arguments|Error writing to server|CommunityServiceUtil|Starting Time set to|ComplainingLP - Warning|RogueThreadDetector - Schedulable|MessageTimeoutAspect|Host cert has not been signed|PersistenceManager cert not found|- Fail to update node certificate for|Unable to get Certifificate entry for DN|Jar file does not have any certificate|No execution context available|pAssoc has null object|ConnectException: Connection refused|error unmarshalling arguments|RemoteException occurred in server thread|Error unmarshaling return|ConfigFinder - Unable to add entry|error during JRMP connection" | \
+  grep -Ev "STDOUT|SocketException|No CertificateEntry in naming|Unable to send PKCS|Guard is already set|DestinationQueueImpl - Failure in communication|MarshalException: error marshalling arguments|Error writing to server|CommunityServiceUtil|Starting Time set to|ComplainingLP - Warning|RogueThreadDetector - Schedulable|MessageTimeoutAspect|Host cert has not been signed|PersistenceManager cert not found|- Fail to update node certificate for|Unable to get Certifificate entry for DN|Jar file does not have any certificate|pAssoc has null object|ConnectException: Connection refused|error unmarshalling arguments|RemoteException occurred in server thread|Error unmarshaling return|ConfigFinder - Unable to add entry|error during JRMP connection|xml\.jar cannot be trusted" | \
   grep -Ev "Could not use protection level" | \
-  grep -Ev "BlackboardServiceProxy - QUERY DENIED"
+  grep -Ev "BlackboardServiceProxy - QUERY DENIED" 
+#  grep -Ev "BlackboardServiceProxy - QUERY DENIED" | \
+#  grep -Ev "No execution context available" 
