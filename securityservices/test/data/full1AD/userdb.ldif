@@ -105,17 +105,6 @@ roleOccupant: uid=george,dc=cougaar,dc=org
 modifiersName: cn=manager,dc=cougaar,dc=org
 modifyTimestamp: 20020605174024Z
 
-dn: dc=cougaar, dc=org
-objectClass: dcObject
-objectClass: organization
-dc: COUGAAR
-o: UltraLog
-description: UltraLog Certificates
-creatorsName: cn=manager,dc=cougaar,dc=org
-createTimestamp: 20020603103504Z
-modifiersName: cn=manager,dc=cougaar,dc=org
-modifyTimestamp: 20020603103504Z
-
 dn: uid=sebastien,dc=cougaar,dc=org
 objectClass: inetOrgPerson
 objectClass: cougaarAcct
