@@ -344,7 +344,7 @@ final public class IdmefMessageFactory {
       Impact impact = new Impact( Impact.HIGH,
 				  Impact.SUCCEEDED,
 				  Impact.OTHER,
-				  null );
+				  "test_impact" );
       Action actions[] = { new Action( Action.OTHER, "test_action" ) };
       Confidence confidence = new Confidence( Confidence.NUMERIC, new Float( 0.5f ) );					  
       Assessment testAssessment = new Assessment( impact, actions, confidence );
