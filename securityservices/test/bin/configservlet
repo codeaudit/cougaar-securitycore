@@ -9,7 +9,7 @@ set USER=srosset
 
 # Provide COUGAAR_install path if one is not defined
 
-setenv COUGAAR_INSTALL_PATH /home/u/${USER}/UL/cougaar-8.4.1.1
+setenv COUGAAR_INSTALL_PATH /home/u/${USER}/UL/cougaar-8.6.1pre3
 
 ###################################################
 
@@ -38,6 +38,10 @@ setenv  TOMCAT_HOME /var/tomcat4/
 setenv JAVA_HOME /usr/java/jdk1.3.1
 
 #####################################################
+# Application subdirectory (below $TOMCAT_HOME/webapps)
+setenv APP_HOME CA
+
+#####################################################
 # Do not modify anything below
 
 echo $COUGAAR_INSTALL_PATH
@@ -63,7 +67,7 @@ if(! $?TOMCAT_HOME) then
 echo provide path to TOMCAT_HOME
 endif
 
-echo evertthing required is there
+echo everything required is there
 
 
 
@@ -73,14 +77,15 @@ tar -cvf $TOMCAT_HOME/webapps/servlet.tar --exclude=CVS CA
 # stop tomcat server
 /etc/rc.d/init.d/tomcat4 stop
 wait
+sleep 5
 # delete log files
 rm -rf $TOMCAT_HOME/logs/*
 
-cp $COUGAAR_SECURITY_SERVICES/sys/*.jar $TOMCAT_HOME/webapps/CA/WEB-INF/lib/
-cp $COUGAARCLASSES/securityservices.jar $TOMCAT_HOME/webapps/CA/WEB-INF/lib/
-cd  $TOMCAT_HOME/webapps/CA/WEB-INF/classes
+cp $COUGAAR_SECURITY_SERVICES/sys/*.jar $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/
+cp $COUGAARCLASSES/securityservices.jar $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/
+cd  $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/classes
 
-jar -xvf $TOMCAT_HOME/webapps/CA/WEB-INF/lib/securityservices.jar \
+jar -xvf $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/securityservices.jar \
         com/nai/security/certauthority/CertificateSigningRequest.class \
         com/nai/security/certauthority/CertificateList.class \
         com/nai/security/certauthority/CertificateDetailsServlet.class \
@@ -94,3 +99,4 @@ tar -xvf servlet.tar
 /etc/rc.d/init.d/tomcat4 start
 
 wait
+sleep 4

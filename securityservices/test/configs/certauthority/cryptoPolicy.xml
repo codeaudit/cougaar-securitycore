@@ -17,6 +17,10 @@
     <CertDirectoryURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</CertDirectoryURL>
 
+    <!-- The type of the certificate directory service.
+         Currently, either CougaarOpenLdap or NetTools -->
+    <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+
     <!-- Organizational unit -->
     <ou>CONUS</ou>
     <!-- Organizational -->
@@ -33,8 +37,9 @@
     <keysize>1024</keysize>
     <!-- The signature algorithm -->
     <sigAlgName>SHA1WithRSA</sigAlgName>
-    <!-- The default validity -->
-    <validity>90</validity>
+    <!-- The validity of self-signed certificates.
+	This value is overriden when the CA signs the certificate. -->
+    <validity>10 m</validity>
   </nodeConfiguration>
 
 
@@ -59,8 +64,9 @@
 
       <keysize>1024</keysize>
 
-      <!-- How long to certify for -->
-      <certValidity>720</certValidity>
+      <!-- How long to certify for. This is the validity of a certificate
+	signed by a node. -->
+      <certValidity>10 m</certValidity>
     </clientCertPolicy>
   </certificateAuthority>
 
@@ -83,6 +89,10 @@
     <ldapURL role="rtripath">ldap://yew:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>
 
+    <!-- The type of the certificate directory service.
+         Currently, either CougaarOpenLdap or NetTools -->
+    <ldapType>CougaarOpenLdap</ldapType>
+
     <!-- The name of a file where the next serial number is stored -->
     <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
 
@@ -102,7 +112,7 @@
       <keysize>1024</keysize>
 
       <!-- How long to certify for -->
-      <certValidity>720</certValidity>
+      <certValidity>1 y</certValidity>
     </clientCertPolicy>
   </certificateAuthority>
 
