@@ -72,16 +72,12 @@ public class CollectionMonitorStatsImpl
   }
 
   private void addElement(Object o, Class c) {
-    // Check recursion. Can we find a better way?
-    /*
-    Throwable t = new Throwable();
-    StackTraceElement ste[] = t.getStackTrace();
-    for (int i = 0 ; i < Math.min(15, ste.length) ; i++) {
-    }
-    */
-
     long now = System.currentTimeMillis();
     if ( (now - _startupTime) > DELAY_AFTER_STARTUP ) {
+      if (isRecursive()) {
+	return;
+      }
+
       if (_entityStats == null) {
 	_entityStats = new EntityStats(null);
       }
@@ -96,6 +92,31 @@ public class CollectionMonitorStatsImpl
       }
       */
     }
+  }
+
+  private boolean isRecursive() {
+    // Check recursion. Can we find a better way?
+    Throwable t = new Throwable();
+    StackTraceElement ste[] = t.getStackTrace();
+    // Frame [0] should be CollectionMonitorStatsImpl.isRecursive
+    // Frame [1] should be CollectionMonitorStatsImpl.addElement
+    // Frame [2] should be CollectionMonitorStatsImpl.add... (e.g. Hashtable)
+    /*
+    for (int i = 2 ; i < ste.length ; i++) {
+      if (ste[i].getClassName().equals(getClass().getName()) &&
+	  ste[i].getMethodName().equals("addElement")) {
+	System.out.println("Call is recursive:");
+	t.printStackTrace();
+	return true;
+      }
+    }
+    */
+    if (ste.length > 1000) {
+      // Really hacky, but it works faster than above.
+      System.out.println("Call is recursive:");
+      t.printStackTrace();
+    }
+    return false;
   }
 
   public void addHashtable(Hashtable h) {
