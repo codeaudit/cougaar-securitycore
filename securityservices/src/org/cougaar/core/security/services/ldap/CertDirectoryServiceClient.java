@@ -44,6 +44,8 @@ public interface CertDirectoryServiceClient
   X509CRL  getCRL(String  distingushName);
 
   String getDirectoryServiceURL();
+  int getDirectoryServiceType();
+  String getModifiedTimeStamp(String dn);
 }
 
 
