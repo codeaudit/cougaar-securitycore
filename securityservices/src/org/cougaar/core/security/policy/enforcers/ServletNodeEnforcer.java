@@ -28,6 +28,7 @@ import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
 import org.cougaar.core.security.policy.enforcers.util.DAMLServletMapping;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
 import org.cougaar.core.security.policy.enforcers.util.StringPairMapping;
+import org.cougaar.core.security.policy.enforcers.util.RegexpStringMapping;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 import org.cougaar.core.service.LoggingService;
 
@@ -68,7 +69,7 @@ public class ServletNodeEnforcer
   private List _people;
   private EnforcerManagerService _guard;
   private DAMLServletMapping _uriMap;
-  private Map _userRoleMap;
+  private RegexpStringMapping _userRoleMap;
 
   /**
    * Returns a list of the classes controlled by this enforcer - currently 
@@ -105,9 +106,8 @@ public class ServletNodeEnforcer
 
     _uriMap = new DAMLServletMapping(sb);
     _uriMap.initializeUri();
-    StringPairMapping userRoleStringPairs = new StringPairMapping(sb);
     try {
-      _userRoleMap = userRoleStringPairs.loadFunctionalMap("DamlUserRoleMap");
+      _userRoleMap = new RegexpStringMapping(sb, "DamlUserRoleMap");
     } catch (IOException e) {
       _log.fatal("Could not initialize role mapping, servlet enforcement " +
                  "enforcer may deny valid access");
@@ -476,7 +476,7 @@ public class ServletNodeEnforcer
     Set policyRoles = new HashSet();
     for (Iterator rolesIt = roles.iterator(); rolesIt.hasNext(); ) {
       String role = (String) rolesIt.next();
-      String policyRole = (String) _userRoleMap.get(role);
+      String policyRole = _userRoleMap.functionalGet(role);
       if (policyRole == null && _log.isWarnEnabled()) {
         _log.warn("No policyrole for the Ultralog role :" + role);
       } else {
