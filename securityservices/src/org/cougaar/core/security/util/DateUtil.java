@@ -37,7 +37,7 @@ public class DateUtil {
     if(utc==null) {
       return null;
     }
-    System.out.println("Received utc is :"+ utc);
+    //System.out.println("Received utc is :"+ utc);
     TimeZone tz = TimeZone.getTimeZone("GMT");
     int year   = Integer.parseInt( utc.substring(  0, 4  ));
     int mon    = Integer.parseInt( utc.substring(  4, 6  ));
@@ -49,7 +49,7 @@ public class DateUtil {
     Calendar utcTime = Calendar.getInstance(tz);
     // set calendar to the time
     utcTime.set( year, mon-1 , day, hour, minute, second );
-     System.out.println("Received Date Object is :"+ utcTime.getTime().toString());
+    //  System.out.println("Received Date Object is :"+ utcTime.getTime().toString());
     return utcTime.getTime();
   }
 
