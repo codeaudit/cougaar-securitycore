@@ -1,0 +1,5 @@
+#!/bin/tcsh 
+
+foreach i (`cat integmachines`)
+  ssh $i "xload -update 5 " &
+end
