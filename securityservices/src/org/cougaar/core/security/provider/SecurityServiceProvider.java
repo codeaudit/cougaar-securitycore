@@ -35,6 +35,7 @@ import org.cougaar.util.*;
 import org.cougaar.core.service.identity.*;
 import org.cougaar.core.service.DataProtectionService;
 import org.cougaar.core.service.MessageProtectionService;
+import org.cougaar.core.node.NodeControlService;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -51,7 +52,9 @@ public class SecurityServiceProvider
   implements ContainerAPI, ServiceProvider, StateObject
 {
   private ServiceBroker serviceBroker;
+  private ServiceBroker rootServiceBroker;
   private SecurityServiceTable services;
+  private NodeControlService nodeControlService;
   private boolean initDone = false;
 
   public SecurityServiceProvider() {
@@ -168,6 +171,21 @@ public class SecurityServiceProvider
   }
 
   private void registerServices() {
+
+    // Get root service broker
+    nodeControlService = (NodeControlService)
+      serviceBroker.getService(this, NodeControlService.class, null);
+    if (nodeControlService != null) {
+      rootServiceBroker = nodeControlService.getRootServiceBroker();
+      if (rootServiceBroker == null) {
+	throw new RuntimeException("Unable to get root service broker");
+      }
+    }
+    else {
+      System.out.println("WARNING: Running in a test environment");
+      rootServiceBroker = serviceBroker;
+    }
+
     services = new SecurityServiceTable();
 
     if (CryptoDebug.debug) {
@@ -179,14 +197,14 @@ public class SecurityServiceProvider
      */
     services.put(SecurityPropertiesService.class,
 		 new SecurityPropertiesServiceProvider());
-    serviceBroker.addService(SecurityPropertiesService.class, this);
+    rootServiceBroker.addService(SecurityPropertiesService.class, this);
 
     /* ********************************
      * Configuration services
      */
     services.put(ConfigParserService.class,
 		 new ConfigParserServiceProvider());
-    serviceBroker.addService(ConfigParserService.class, this);
+    rootServiceBroker.addService(ConfigParserService.class, this);
 
     /* ********************************
      * Encryption services
@@ -194,27 +212,27 @@ public class SecurityServiceProvider
     /* Certificate Management service */
     services.put(CertificateManagementService.class,
 		 new CertificateManagementServiceProvider());
-    serviceBroker.addService(CertificateManagementService.class, this);
+    rootServiceBroker.addService(CertificateManagementService.class, this);
 
     /* Key lookup service */
     services.put(KeyRingService.class,
 		 new KeyRingServiceProvider());
-    serviceBroker.addService(KeyRingService.class, this);
+    rootServiceBroker.addService(KeyRingService.class, this);
 
     /* Encryption Service */
     services.put(EncryptionService.class,
 		 new EncryptionServiceProvider());
-    serviceBroker.addService(EncryptionService.class, this);
+    rootServiceBroker.addService(EncryptionService.class, this);
 
     /* Data protection service */
     services.put(DataProtectionService.class,
 		 new DataProtectionServiceProvider());
-    serviceBroker.addService(DataProtectionService.class, this);
+    rootServiceBroker.addService(DataProtectionService.class, this);
 
     /* Message protection service */
     services.put(MessageProtectionService.class,
 		 new MessageProtectionServiceProvider());
-    serviceBroker.addService(MessageProtectionService.class, this);
+    rootServiceBroker.addService(MessageProtectionService.class, this);
 
     /* ********************************
      * Identity services
@@ -222,7 +240,7 @@ public class SecurityServiceProvider
     /* Agent identity service */
     services.put(AgentIdentityService.class,
 		 new AgentIdentityServiceProvider());
-    serviceBroker.addService(AgentIdentityService.class, this);
+    rootServiceBroker.addService(AgentIdentityService.class, this);
 
     /* ********************************
      * Access Control services
@@ -233,22 +251,22 @@ public class SecurityServiceProvider
      */
     services.put(PolicyBootstrapperService.class,
 		 new PolicyBootstrapperServiceProvider());
-    serviceBroker.addService(PolicyBootstrapperService.class, this);
+    rootServiceBroker.addService(PolicyBootstrapperService.class, this);
 
     services.put(AccessControlPolicyService.class,
 		 new AccessControlPolicyServiceProvider());
-    serviceBroker.addService(AccessControlPolicyService.class, this);
+    rootServiceBroker.addService(AccessControlPolicyService.class, this);
 
     services.put(CryptoPolicyService.class,
 		 new CryptoPolicyServiceProvider());
-    serviceBroker.addService(CryptoPolicyService.class, this);
+    rootServiceBroker.addService(CryptoPolicyService.class, this);
 
     services.put(ServletPolicyService.class,
 		 new ServletPolicyServiceProvider());
-    serviceBroker.addService(ServletPolicyService.class, this);
+    rootServiceBroker.addService(ServletPolicyService.class, this);
 
     SecurityPropertiesService secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this, SecurityPropertiesService.class, null);
+      rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
     boolean standalone = false;
     try {
     standalone = (Boolean.valueOf(secprop.getProperty(secprop.STAND_ALONE_MODE,
@@ -257,31 +275,31 @@ public class SecurityServiceProvider
     if (!standalone) {
       services.put(ServletPolicyService.class,
                    new ServletPolicyServiceProvider());
-      serviceBroker.addService(ServletPolicyService.class, this);
+      rootServiceBroker.addService(ServletPolicyService.class, this);
 
     /* ********************************
      * SSL services
      */
       services.put(SSLService.class,
                    new SSLServiceProvider());
-      serviceBroker.addService(SSLService.class, this);
+      rootServiceBroker.addService(SSLService.class, this);
       // SSLService and WebserverIdentityService are self started
       // they offer static functions to get socket factory
       // in the functions the permission will be checked.
-      serviceBroker.getService(this, SSLService.class, null);
+      rootServiceBroker.getService(this, SSLService.class, null);
 
       // configured to use SSL?
       if (secprop.getProperty(secprop.WEBSERVER_HTTPS_PORT, null) != null) {
         services.put(WebserverIdentityService.class,
                      new WebserverSSLServiceProvider());
-        serviceBroker.addService(WebserverIdentityService.class, this);
-        serviceBroker.getService(this, WebserverIdentityService.class, null);
+        rootServiceBroker.addService(WebserverIdentityService.class, this);
+        rootServiceBroker.getService(this, WebserverIdentityService.class, null);
       }
     }
     else {
       services.put(UserSSLService.class,
                    new UserSSLServiceProvider());
-      serviceBroker.addService(UserSSLService.class, this);
+      rootServiceBroker.addService(UserSSLService.class, this);
     }
 
     /* ********************************
@@ -289,7 +307,7 @@ public class SecurityServiceProvider
      */
     services.put(LdapUserService.class,
                  new LdapUserServiceProvider());
-    serviceBroker.addService(LdapUserService.class, this);
+    rootServiceBroker.addService(LdapUserService.class, this);
     org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.
       setNodeServiceBroker(serviceBroker);
   }
