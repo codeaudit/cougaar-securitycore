@@ -10,6 +10,7 @@ module Cougaar
         @sleepInterval=interval
         @dirname = "#{CIP}/workspace/test/message_queue_log"
         Dir.mkdir("#{CIP}/workspace") unless File.exist?("#{CIP}/workspace")
+        Dir.mkdir("#{CIP}/workspace/test") unless File.exist?("#{CIP}/workspace/test")
         Dir.mkdir("#{@dirname}")  unless File.exist?("#{@dirname}")
         @nodefilename = Hash.new()
         @parturl="/message/queues?frame=dataFrame&agent=*"
@@ -34,19 +35,22 @@ module Cougaar
         begin 
           Thread.fork {
             #logInfoMsg " Thread started for node -->#{node.name}"
-            loop = true
             myfile = @nodefilename["#{node.name}"]
             myfile << "<HTML><HEAD> <TITLE> Message Queue Logs for #{node.name} </TITLE> </HEAD><BODY>"
             #logInfoMsg "gotfile #{myfile}"
             url="#{node.uri}/$#{node.name}#{@parturl}"
             while true
-              result = Cougaar::Communications::HTTP.get(url)
+              begin
+                result = Cougaar::Communications::HTTP.get(url,30.seconds)
+              rescue Timeout::Error => e
+                logInfoMsg "Timeout connecting to #{url}"
+              end
+                
               #logInfoMsg "Result before procesing : #{result}"
               processedresult = stripHtmltags (result.to_s)
               #logInfoMsg "Result received --> #{processedresult}"
               myfile << "#{processedresult} "
               sleep @sleepInterval
-              loop = false
             end
           }
         rescue Exception => e
