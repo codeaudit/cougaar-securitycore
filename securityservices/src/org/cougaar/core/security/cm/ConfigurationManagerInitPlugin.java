@@ -123,8 +123,10 @@ public class ConfigurationManagerInitPlugin extends ComponentPlugin {
       }
     } else {
       if (logger.isErrorEnabled()) {
-        logger.error("No Configuration Manager parameters inputted");
+        logger.error("No Configuration Manager parameters inputted, all agent permitted on all nodes!");
+        
       }
+      societyConfiguration = new SocietyConfiguration(agentMap, nodeMap);
     }
   }
 
