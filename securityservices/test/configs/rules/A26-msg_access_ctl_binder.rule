@@ -2,7 +2,7 @@
 ####################################################
 # MsgAccessCtlBinder
 
-agentBinder = "org.cougaar.core.security.access.AccessAgentBinderFactory"
+agentBinder = "org.cougaar.core.security.access.message.MessageAccessAgentBinderFactory"
 
 society.each_node do |node|
   node.add_component do |c|
