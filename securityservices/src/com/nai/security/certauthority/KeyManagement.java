@@ -127,13 +127,12 @@ public class KeyManagement
 
     // Open keystore file
     // TODO
-    caKeyStore = new DirectoryKeyStore();
     String keystoreFile = confDirectoryName + File.separatorChar + caPolicy.keyStoreFile;
     if (debug) {
       System.out.println("CA keystore: " + keystoreFile);
     }
     FileInputStream f = new FileInputStream(keystoreFile);
-    caKeyStore.load(f, caPolicy.keyStorePassword.toCharArray());
+    caKeyStore = new DirectoryKeyStore(f, caPolicy.keyStorePassword.toCharArray(), null, null);
 
     // Get CA X.509 certificate
     // TODO
@@ -786,46 +785,42 @@ public class KeyManagement
     String option = args[0];
 
     String caDN = "CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US";
-    KeyManagement km = null;
     try {
+      KeyManagement km = null;
       km = new KeyManagement(caDN);
-    } catch (Exception e) {
-      System.out.println("Exception: " + e);
-      e.printStackTrace();      
-    }
-
-    if (option.equals("-10")) {
-      BufferedReader pkcs10stream = null;
-      PrintStream dbgout = new PrintStream(System.out);
-      String pkcs10filename = args[1];
-      PKCS10 pkcs10Request = null;
-
-      ArrayList pkcs7Certificates = new ArrayList();
-      try {
-	ArrayList pkcs10req = km.getSigningRequests(pkcs10filename);
-	for (int i = 0 ; i < pkcs10req.size() ; i++) {
+      if (option.equals("-10")) {
+	FileInputStream f = new FileInputStream(args[1]);
+	PrintStream ps = new PrintStream(System.out);
+	km.processPkcs10Request(ps, f);
+	/*
+	  BufferedReader pkcs10stream = null;
+	  PrintStream dbgout = new PrintStream(System.out);
+	  String pkcs10filename = args[1];
+	  PKCS10 pkcs10Request = null;
+	  ArrayList pkcs7Certificates = new ArrayList();
+	  try {
+	  ArrayList pkcs10req = km.getSigningRequests(pkcs10filename);
+	  for (int i = 0 ; i < pkcs10req.size() ; i++) {
 	  pkcs7Certificates.add(km.signX509Certificate((PKCS10)pkcs10req.get(i)));
-	}
-      }
-      catch (Exception e) {
-	System.out.println("Exception: " + e);
-	e.printStackTrace();
-      }
+	  }
+	  }
+	  catch (Exception e) {
+	  System.out.println("Exception: " + e);
+	  e.printStackTrace();
+	  }
+	*/
 
-    }
-    else if (option.equals("-7")) {
-      try {
+      }
+      else if (option.equals("-7")) {
 	FileInputStream is = new FileInputStream(args[1]);
 	km.printPkcs7Request(is);
 	// km.printPkcs7Request(args[1]);
       }
-      catch (Exception e) {
-	System.out.println("Exception: " + e);
-	e.printStackTrace();
-      }
+    } catch (Exception e) {
+      System.out.println("Exception: " + e);
+      e.printStackTrace();      
     }
   }
-
 }
 
 
