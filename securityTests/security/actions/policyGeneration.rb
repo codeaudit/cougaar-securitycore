@@ -33,6 +33,7 @@ module Cougaar
         @run = run
         @staging = File.join(CIP, "workspace", "URPolicies")
         @debug=false
+        @skipEnclaves = []
       end
     
       def policyFileName
@@ -45,6 +46,10 @@ module Cougaar
 
       def fromConfig
         false
+      end
+
+      def skipEnclaves(enclaves)
+        @skipEnclaves = enclavs
       end
 
       def perform
@@ -60,6 +65,10 @@ module Cougaar
       def commitPolicies(precompiled, wait)
         pws=[]
         @run.society.each_enclave do |enclave|
+          if @skipEnclaves.include?(enclave) then
+            debug("skipping enclave #{enclave}")
+            next
+          end
           if wait then
             pws.push(PolicyWaiter.new(@run, getEnclaveNode(enclave)))
           end
@@ -77,7 +86,7 @@ module Cougaar
                 debug "committing policy"
                 result = commitPolicy(host, port, manager, 
                                       (fromConfig() ? "--useConfig " : "") +
-                                      (isDelta() ? "setpolicies" : "commit") +
+                                      (isDelta() ? "addpolicies" : "commit") +
                                       (precompiled ? " " : " --dm "),
                                       file,@staging)
                 debug("Result for enclave #{enclave} = #{result}")
@@ -158,11 +167,13 @@ module Cougaar
     end
 
     class InstallURPolicies < Cougaar::Actions::GeneratePoliciesAction
-      def initialize(run, wait = false)
+      def initialize(run, wait = false, skip = [])
 	super(run)
         @run = run
         @wait = wait
+        @skipEnclaves          = skip
         #@staging = File.join(CIP, "workspace", "URPolicies")
+        debug("enclaves to skip = #{skip}")
       end
 
       def policyFileName
@@ -170,7 +181,7 @@ module Cougaar
       end
 
       def isDelta
-        false
+        true
       end
 
       def perform
