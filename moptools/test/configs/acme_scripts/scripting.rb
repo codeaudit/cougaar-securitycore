@@ -15,7 +15,7 @@ module Cougaar
 
                                         @run.society.each_agent(true) do |agent|
                                                 url = "http://#{ agent.node.host.host_name}:#{@run.society.cougaar_port}/$#{agent.name}/testBlackboardManager?do=start&exp=#{@run.name}"
-
+						puts url
                                                 result = Cougaar::Communications::HTTP.get(url)
 
 
@@ -38,8 +38,8 @@ module Cougaar
                         def perform
                                 begin
                                         @run.society.each_agent(true) do |agent|
-                                                url ="http://#{agent.node.host.host_name}:#{@run.society.cougaar_port}/#{agent.name}/testBlackboardManager?do=end&exp=#{@run.name}"
-
+                                                url ="http://#{agent.node.host.host_name}:#{@run.society.cougaar_port}/$#{agent.name}/testBlackboardManager?do=end&exp=#{@run.name}"
+						puts url
                                                 req=Cougaar::Communications::HTTP.get(url)
                                         end
                                 rescue
