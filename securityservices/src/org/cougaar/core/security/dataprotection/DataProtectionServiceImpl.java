@@ -389,10 +389,12 @@ public class DataProtectionServiceImpl
             new DataProtectionKeyImpl(skeyobj, digestAlg, policy,
                               keyRing.findCertChain(pmCert));
 //	TODO Is this the right place for this?
+/*
 	if(log.isDebugEnabled()){
 		log.debug("trying to send session key using relay");
 	}
 	RelaySessionKey.getInstance().relaySessionKey(keyCollection,commonName, agent);
+*/
 	
       keyCollection.add(pmDPKey);
     }

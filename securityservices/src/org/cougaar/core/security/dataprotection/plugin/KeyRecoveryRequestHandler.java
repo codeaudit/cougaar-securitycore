@@ -61,7 +61,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -147,7 +147,7 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
 
     //TODO Is this in the right place 
     //check if exists on blackboard, if not return b/c invalid snap shot
-
+/*
     bbs.openTransaction();
     
     Collection dpKeyCollection = bbs.query(dataProtectionPredicate(keyImpl));
@@ -159,7 +159,7 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
       //TODO : Put this back
      // return;
     }
-
+*/
     X509Certificate[] originalCertChain = keyImpl.getCertificateChain();
     if ((originalCertChain == null) || (originalCertChain.length == 0)) {
       if (log.isWarnEnabled()) {
