@@ -805,7 +805,7 @@
       *               S E C U R I T Y                        *
       *                                                      *
       ********************************************************-->
-  <Community Name="RearSecurity-COMM" >
+  <Community Name="REAR-SECURITY-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
@@ -1013,6 +1013,10 @@
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
+    <Entity Name="406-SUPPLYCO" >
+      <Attribute ID="MemberType" Value="Agent" />
+      <Attribute ID="Role" Value="Member" />
+    </Entity>
     <Entity Name="565-RPRPTCO" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
@@ -1189,7 +1193,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="FwdSecurity-COMM" >
+  <Community Name="FWD-SECURITY-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
@@ -1492,7 +1496,7 @@
       <Attribute ID="MemberType" Value="Agent" />
     </Entity>
   </Community>
-  <Community Name="Enclave2SecuritySub1-COMM" >
+  <Community Name="FWD-SECURITY-SUB1-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="Enclave2Sub1Manager" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1504,7 +1508,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="Enclave2SecuritySub2-COMM" >
+  <Community Name="FWD-SECURITY-SUB2-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="Enclave2Sub2Manager" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1516,7 +1520,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="ConusSecurity-COMM" >
+  <Community Name="CONUS-SECURITY-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
@@ -1636,7 +1640,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="Enclave3SecuritySub1-COMM" >
+  <Community Name="CONUS-SECURITY-SUB1-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="Enclave3Sub1Manager" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1644,7 +1648,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="TransSecurity-COMM" >
+  <Community Name="TRANS-SECURITY-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
@@ -1764,7 +1768,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="Rear" >
+  <Community Name="REAR-USERDOMAIN-COMM" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="REAR-A" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1816,7 +1820,7 @@
       <Attribute ID="Role" Value="UserManager" />
     </Entity>
   </Community>
-  <Community Name="Fwd" >
+  <Community Name="FWD-USERDOMAIN-COMM" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="FWD-A" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1860,7 +1864,7 @@
       <Attribute ID="Role" Value="UserManager" />
     </Entity>
   </Community>
-  <Community Name="Conus" >
+  <Community Name="CONUS-USERDOMAIN-COMM" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="CONUS-CA-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
@@ -1892,7 +1896,7 @@
       <Attribute ID="Role" Value="UserManager" />
     </Entity>
   </Community>
-  <Community Name="Trans" >
+  <Community Name="TRANS-USERDOMAIN-COMM" >
     <Attribute ID="CommunityType" Value="User" />
     <Entity Name="AIR-NODE" >
       <Attribute ID="EntityType" Value="Agent" />
