@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="Cougaar security services custom build">
+
+    <!-- ********************************************************************************
+         * Custom build below
+         ******************************************************************************** -->
+    <dirname property="imported.basedir" file="${ant.file.imported}"/>
+    <property name="securityservices.jsp" value="${securityservices.output}/jsp"/>
+    <property name="securityservices.policy" value="${securityservices.output}/policy"/>
+
+    <path id="core.class.path">    
+        <pathelement location="${cougaar.install.path}/sys/log4j.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/xercesImpl.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/xml-apis.jar"/>
+        <!-- Cougaar packages -->
+        <pathelement location="${cougaar.install.path}/lib/build.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/core.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/util.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/community.jar"/>
+    	<!-- Other security services jar files -->
+        <pathelement location="${securityservices.base}/lib/security/coordinator.jar"/>
+	<pathelement location="${securityservices.base}/lib/security/secure_util.jar"/>
+    </path>
+
+</project>
