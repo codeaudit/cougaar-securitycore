@@ -20,6 +20,8 @@ rm -rf $CIP/workspace/log4jlogs/*
 rm -rf $CIP/workspace/nodelogs/*
 rm -rf $CIP/workspace/auditlogs/*
 rm -rf $CIP/workspace/security/*
+rm -rf $CIP/workspace/jarfiles/*
+rm -rf $CIP/workspace/rss/*
 rm -rf $CIP/workspace/test/*
 sleep 3
 /etc/init.d/acme start
