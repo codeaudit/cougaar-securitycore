@@ -24,7 +24,7 @@
  * - 
  */
 
-package com.nai.security.certauthority;
+//package com.nai.security.certauthority;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -79,7 +79,7 @@ public class LDAPCert //extends LdapContext
     protected String dn;
     protected Attributes set = new BasicAttributes(true);
     protected Attribute objectclass = new BasicAttribute("objectclass");
-    protected Attribute ouSet = new BasicAttribute("ou");
+    protected String cn;
     
     protected X509Certificate cert;
     
@@ -102,7 +102,7 @@ public class LDAPCert //extends LdapContext
 	ctx = context;
     }
 
-    public void pulish2Ldap(X509Certificate ca) {
+    public void publish2Ldap(X509Certificate ca) {
 	set = new BasicAttributes(true);
 	objectclass = new BasicAttribute("objectclass");
 	objectclass.add("xuda_certificate");
@@ -116,8 +116,8 @@ public class LDAPCert //extends LdapContext
     {
 	set = new BasicAttributes(true);
 	objectclass = new BasicAttribute("objectclass");
-	objectclass.add("xuda_certificate");
 	objectclass.add("top");
+	//objectclass.add("xuda_certificate");
 	set.put(objectclass);	
 	init(client, signator);
 	put();
@@ -171,6 +171,8 @@ public class LDAPCert //extends LdapContext
 	
 	env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
 	env.put(Context.PROVIDER_URL, url);
+	env.put(Context.SECURITY_PRINCIPAL,"cn=manager,dc=cougaar,dc=org");
+	env.put(Context.SECURITY_CREDENTIALS,"secret");
 	if(debug) {
 	    System.out.println(Context.INITIAL_CONTEXT_FACTORY + " = " + 
 			       env.get(Context.INITIAL_CONTEXT_FACTORY));
@@ -243,6 +245,7 @@ public class LDAPCert //extends LdapContext
 	// Use the prefix of the signature algorithm for creating a DN
 	String digestAlg = cert.getSigAlgName().substring(0,3);
 	String caDigestAlg = issuer.getSigAlgName().substring(0,3);
+	this.cert = cert;
 	try { 
 	    //certDigest = MessageDigest.getInstance("MD5");
 	    //issuerDigest = MessageDigest.getInstance("MD5");
@@ -259,18 +262,19 @@ public class LDAPCert //extends LdapContext
 	hash = hash(der, certDigest);
 	ca_hash = hash(ca_der, issuerDigest);
 
+	cn = "cn=" + toHex(hash);
         //dn = digestAlg.toLowerCase() + "=" +  toHex(hash);
 	dn = cert.getSubjectDN().getName();
-	set.put("md5", toHex(hash));
-	set.put("ca_md5", toHex(ca_hash));
+	//set.put("md5", toHex(hash));
+	//set.put("ca_md5", toHex(ca_hash));
 	set.put("serialNumber",
 		cert.getSerialNumber().toString(16).toUpperCase());
-	set.put("notbefore_dte", day.format(cert.getNotBefore()));
-	set.put("notbefore_tim" , time.format(cert.getNotBefore()));
-	set.put("notafter_dte", day.format(cert.getNotAfter()));
-	set.put("notafter_tim" , time.format(cert.getNotAfter()));
+	//set.put("notbefore_dte", day.format(cert.getNotBefore()));
+	//set.put("notbefore_tim" , time.format(cert.getNotBefore()));
+	//set.put("notafter_dte", day.format(cert.getNotAfter()));
+	//set.put("notafter_tim" , time.format(cert.getNotAfter()));
 	set.put("cert_status", "1");
-	set.put("userCertificate", pem);
+	//set.put(PEM_ATTRIBUTE, pem);
 	parseDN(cert.getSubjectDN().getName(), set);
 	if(debug) {
 	    System.out.println("Loaded certificate with dn = " + dn);
@@ -322,15 +326,17 @@ public class LDAPCert //extends LdapContext
 	//hash = (hash.startsWith("md5"))? hash: "md5=" + hash;	
 	try {
 	    set = ctx.getAttributes(hash);
-	    status = (String)set.get("cert_status").get();
-	    cert = createCert((String)set.get(PEM_ATTRIBUTE).get());
-	}
+	    cert = (X509Certificate)ctx.lookup(hash); 
+	    //status = (String)set.get("cert_status").get();
+	    //cert = createCert((String)set.get(PEM_ATTRIBUTE).get());
+	    if(debug) {
+		System.out.println("Retreived dn = " 
+				   + cert.getSubjectDN().getName());
+		//formatAttributes(set);
+	}	}
 	catch(Exception ex) {
 	    ex.printStackTrace();
 	    return null;
-	}
-	if(debug) {
-	    formatAttributes(set);
 	}
 	return new LdapEntry(cert, hash, status);
     } 
@@ -356,13 +362,14 @@ public class LDAPCert //extends LdapContext
 	    name = (String)ctx.getEnvironment().get(Context.PROVIDER_URL);
 	    if(debug)System.out.println("name = " + name);
 	    results = ctx.search(name, filter, controls);
-	    //results = ctx.list(name);
+	    results = ctx.list(name);
 	    while(results.hasMoreElements()) {
 		Object elm = results.nextElement();
 		if(elm instanceof NameClassPair) {
 		    NameClassPair pair = (NameClassPair)elm;
-		    if(debug)System.out.println("Adding " + pair.getName());
-		    //formatAttributes(ctx.getAttributes(pair.getName()));
+		    if(debug)System.out.println("Adding " + pair.getName() +
+						" Class == " + pair.getClass());
+		    formatAttributes(ctx.getAttributes(pair.getName()));
 		    entries.add(getCertificate(pair.getName()));
 		}
 	    }
@@ -375,8 +382,10 @@ public class LDAPCert //extends LdapContext
 
     public void put() {
 	try {
-	    ctx.createSubcontext(dn, set);
+	    //ctx.createSubcontext(dn, set);
+	    ctx.bind(cn, cert, set);
 	}
+	
 	catch(Exception ex) {
 	    ex.printStackTrace();
 	}
@@ -384,9 +393,20 @@ public class LDAPCert //extends LdapContext
     
     public static void main(String arg[]) {
 	LDAPCert lcert = 
-	    new LDAPCert((arg.length > 0)? arg[0]: "ldap://yew:389/");
+	    new LDAPCert((arg.length > 1)? arg[1]: "ldap://yew:389/");
 	try {
-	    lcert.getCertificates();
+	    if(arg[0].equals("list") )
+		lcert.getCertificates();
+	    else if(arg[0].equals("put")) {
+		X509Certificate cert = loadCert(arg[2]);
+		X509Certificate ca = loadCert(arg[3]);
+		lcert.publish2Ldap(cert, ca);
+	    }
+	    else if(arg[0].equals("search")) {
+		lcert.getCertificate(arg[1]);
+
+	    
+	    }
 	}
 	catch(Exception ex) {
 	    if(debug)ex.printStackTrace();
