@@ -227,6 +227,12 @@ public class DirectoryKeyStore
 	log.warn("DirectoryKeystore warning: Role not defined");
       }
 
+      // initCertCache may has already been updating crl
+      // in case of root CA cert in trusted store while direct
+      // CA is not, direct CA will be added to crlCache when
+      // node cert trust is checked
+      crlCache=new CRLCache(this, param.serviceBroker);
+
       // Initialize certificate cache
       initCertCache();
       if (!param.isCertAuth) {
@@ -515,6 +521,34 @@ public class DirectoryKeyStore
       // but let's check just to make sure. There may be some cases where
       // a particular CA is not trusted locally.
       try {
+        // Richard: need to check whether the certificate already exist in
+        // cache. This happens with multiple CAs. When CRL is updated with
+        // status, next time findCert will lookup the revoked CA cert (cannot
+        // find any valid cert from cache) from LDAP and update it in the
+        // cache as trusted
+        X509Certificate certificate = certs[i].getCertificate();
+        boolean isRevoked = false;
+        X500Name x500Name = nameMapping.getX500Name(certificate.getSubjectDN().getName());
+        if (x500Name != null) {
+          List certList = certCache.getCertificates(x500Name);
+          PublicKey publickey = certificate.getPublicKey();
+          for (int j = 0; j < certList.size(); j++) {
+            CertificateStatus cs = (CertificateStatus)certList.get(j);
+            if (cs.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT)) {
+              if (log.isDebugEnabled())
+                log.debug("Revoked cert in cache found.");
+
+              if (cs.getCertificate().getPublicKey().equals(publickey)) {
+                if (log.isDebugEnabled())
+                  log.debug("Cert from LDAP is already in cache, status REVOKED");
+                isRevoked = true;
+                break;
+              }
+            }
+          }
+        }
+        if (isRevoked)
+          continue;
 
 	X509Certificate[] certChain = checkCertificateTrust(
           certs[i].getCertificate(), certFinder);
@@ -549,8 +583,7 @@ public class DirectoryKeyStore
 	  }
 
           certstatus.setCertFinder(certFinder);
-	  crlCache.add(((X509Certificate)certs[i].getCertificate()).getSubjectDN().getName());
-
+          crlCache.add(certificate.getSubjectDN().getName());
 	}
       }
       catch (CertificateChainException e) {
@@ -973,7 +1006,6 @@ public class DirectoryKeyStore
 
    private void initCRLCache()
   {
-    crlCache=new CRLCache(this, param.serviceBroker);
     try {
       if(caKeystore != null && caKeystore.size() > 0) {
 	if (log.isDebugEnabled()) {
@@ -981,6 +1013,7 @@ public class DirectoryKeyStore
 	}
 	// Build a hash table that indexes keys in the CA keystore by DN
 	initCRLCacheFromKeystore(caKeystore, param.caKeystorePassword);
+        crlCache.startThread();
       }
     }
     catch (KeyStoreException e) {
@@ -1365,6 +1398,9 @@ public class DirectoryKeyStore
     // one trusted key.
     while(it.hasNext()) {
       CertificateStatus cs = (CertificateStatus) it.next();
+      // no need to check this if it is revoked
+      if (cs.getCertificateTrust().equals(CertificateTrust.CERT_TRUST_REVOKED_CERT))
+        continue;
       X509Certificate x509certificate1 = (X509Certificate)cs.getCertificate();
       java.security.PublicKey publickey = x509certificate1.getPublicKey();
       try {
@@ -2743,7 +2779,8 @@ public class DirectoryKeyStore
         log.debug("successfully update: " + value + " attrib: " + attributes + " in NS");
 
     } catch (Exception nx) {
-      log.warn(
+      if (log.isDebugEnabled())
+        log.warn(
           "Cannot update "+dname+
           " ldap in naming." + nx.toString());
     }
@@ -2753,11 +2790,12 @@ public class DirectoryKeyStore
 
   public CertDirectoryServiceClient getCACertDirServiceClient(String cname) {
     TrustedCaPolicy[] tc = cryptoClientPolicy.getTrustedCaPolicy();
-    for (int i = 0; i < tc.length; i++)
+    for (int i = 0; i < tc.length; i++) {
       if (cname.equals(tc[i].caDN)) {
         return CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
           tc[i].certDirectoryType, tc[i].certDirectoryUrl, param.serviceBroker);
       }
+    }
     return null;
   }
 
