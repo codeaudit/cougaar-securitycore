@@ -529,7 +529,8 @@ public class DirectoryKeyStore implements Runnable
   /**add keys to the key ring**/
   private void addKeyPair(String name){
     CAClient cac = new CAClient();
-    String request;
+    String request = "";
+    String reply = "";
     //is node?
     String nodeName = System.getProperty("org.cougaar.node.name");
     if(name==nodeName){
@@ -540,12 +541,7 @@ public class DirectoryKeyStore implements Runnable
       //pkcs10
       request = generateSigningCertificateRequest(pk);
       
-      String reply = cac.sendPKCS(request, "PKCS10");
-      try{ 
-          installPkcs7Reply(name, new ByteArrayInputStream(reply.getBytes()));
-      }catch(Exception e){
-        System.err.println("Error: can't get certificate for "+name);
-      }
+      reply = cac.sendPKCS(request, "PKCS10");
     }else{
       //check if node cert exist
       if(certs.get(name)==null){
@@ -558,8 +554,16 @@ public class DirectoryKeyStore implements Runnable
           //pkcs10
           request = generateSigningCertificateRequest(pk);
           
+          reply = cac.signPKCS(request, nodeName);
       }
     }
+    
+    try{ 
+      installPkcs7Reply(name, new ByteArrayInputStream(reply.getBytes()));
+    }catch(Exception e){
+    System.err.println("Error: can't get certificate for "+name);
+    }
+    
     return;
   }
 

@@ -22,8 +22,8 @@
 
 package com.nai.security.certauthority;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.security.*;
+import java.security.cert.*;
 import java.net.*;
 import java.io.*;
 //import java.net.HttpURLConnection.*;
@@ -55,7 +55,7 @@ public class CAClient {
     }
     
     public String sendPKCS(String request, String pkcs){
-        String reply = "error";
+        String reply = "";
         try{
             URL url = new URL(policy.CA_URL);
             HttpURLConnection huc = (HttpURLConnection)url.openConnection();
@@ -67,13 +67,29 @@ public class CAClient {
             out.close();
 
             BufferedReader in = new BufferedReader(new InputStreamReader(huc.getInputStream()));
-            while((reply = in.readLine()) != null)
-                reply += reply;
+            String input;
+            while((input = in.readLine()) != null)
+                reply = reply + input;
             in.close();
-        }catch(Exception e){
+            
+            }catch(Exception e){
             System.err.println("Error: sending PKCS request to CA failed--" + e.getMessage());
         }
-        
         return reply;
+    }
+        
+    public String signPKCS(String request, String nodeName){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try{
+            KeyManagement km = new KeyManagement(nodeName);
+            X509Certificate[] cf = km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
+            PrintStream ps = new PrintStream(baos);
+            km.base64EncodeCertificates(ps,cf);
+            //get the output to the CA
+            String reply = sendPKCS(baos.toString(), "PKCS7");
+        }catch(Exception e){
+            System.err.println("Error: can't get the certificate signed--" + e.getMessage());
+        }    
+        return baos.toString();
     }
 }
