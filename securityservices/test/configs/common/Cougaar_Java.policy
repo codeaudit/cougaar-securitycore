@@ -147,6 +147,16 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
 	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
 };
 
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar" signedBy "privileged" {
+        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
+        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLServerFactory.getDefault";
+};
+
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "privileged" {
+        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
+        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLServerFactory.getDefault";
+};
+
 ////////////////////////////////////////////////////////////
 // Permissions for core infrastructure package.
 grant signedBy "privileged" {
