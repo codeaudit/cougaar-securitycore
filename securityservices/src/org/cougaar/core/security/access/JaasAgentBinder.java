@@ -35,7 +35,7 @@ import org.cougaar.core.agent.AgentManagerForBinder;
 import org.cougaar.core.agent.Agent;
 import org.cougaar.core.agent.AgentBinder;
 
-import org.cougaar.core.security.securebootstrap.JaasClient;
+import org.cougaar.core.security.auth.JaasClient;
 
 /*
  * add following line to the Node.ini file to activate this binder:
@@ -110,10 +110,14 @@ public class JaasAgentBinder
     return id.toString();
   }
 
-  private void doLoad() { super.load();}
+  private void doLoad() { 
+    super.load();
+  }
   
-  private void doStart() { super.start();}
-  
+  private void doStart() { 
+    super.start();
+  } 
+
   public void load() {
     log = (LoggingService)
       getServiceBroker().getService(this,
@@ -148,7 +152,7 @@ public class JaasAgentBinder
                 }
               }, false);
   }
-   
+
   public void registerAgent(Agent agent) {
     //just passing through
     getAgentManager().registerAgent(agent);
