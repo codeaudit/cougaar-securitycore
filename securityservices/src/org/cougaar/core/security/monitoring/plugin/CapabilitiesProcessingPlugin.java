@@ -193,9 +193,17 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 	}
       }
     }
-    CapabilitiesObject object=new CapabilitiesObject();
-    
-    getBlackboardService().publishAdd(object);
+    Collection capabilitiescollection =getBlackboardService().query(new CompleteCapabilitiesPredicate());
+    if(capabilitiescollection.isEmpty()){
+      if(getBlackboardService().didRehydrate()) {
+	loggingService.error(" BlackBoard Rehydrated but there is no capabilities Object:");
+	return;
+      }
+      else {
+	CapabilitiesObject object=new CapabilitiesObject();
+	getBlackboardService().publishAdd(object);
+      }
+    }
     capabilities= (IncrementalSubscription)getBlackboardService().subscribe
       (new CapabilitiesPredicate());
     capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe
