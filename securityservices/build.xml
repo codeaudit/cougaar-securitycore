@@ -412,8 +412,8 @@
                the old compile-jsps (above) task will need to be removed. -->
     <target name="compile-jsps">
         <jspc srcdir="${securityservices.src}"
+            package="org.cougaar.core.security.crypto.ldap.admin"
             destdir="${securityservices.src}"
-            uriroot="${securityservices.src}"
             classpathref="core.class.path">
         <include name="org/cougaar/core/security/crypto/ldap/admin/*.jsp" />
         </jspc>
