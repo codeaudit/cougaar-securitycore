@@ -50,6 +50,7 @@ import java.security.PrivateKey;
 import java.security.PrivilegedAction;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import sun.security.x509.X500Name;
 import java.util.Date;
 
 import javax.crypto.Cipher;
@@ -69,6 +70,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private SignatureOutputStream _sigOut;
   private Cipher ci;
   private SecretKey skey;
+  private DataProtectionKeyEnvelope _pke;
 
   /**
    * buffer size, when reached will flush to output stream
@@ -87,6 +89,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
 
     init(sb);
     this.agent = agent;
+    _pke = pke;
 
     DataProtectionKeyCollection keyCollection =
       (DataProtectionKeyCollection)pke.getDataProtectionKey();
@@ -217,7 +220,38 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     }
     ((DataOutputStream) this.out).writeInt(0);
     if (_sigOut != null) {
-      _sigOut.writeSignature();
+      byte[] sig = _sigOut.writeSignature();
+
+/*
+      DataProtectionKeyCollection keyCollection =
+        (DataProtectionKeyCollection)_pke.getDataProtectionKey();
+      keyCollection.setSignature(sig);      
+      _pke.setDataProtectionKey(keyCollection);
+
+      String sendSignature = System.getProperty("org.cougaar.core.security.dataprotection.sendSignature", "true");
+      if (sendSignature.equals("true")) {
+        if (log.isDebugEnabled()) {
+          log.debug("trying to send session key using relay " + agent);
+        }
+
+        for (int i = 1; i < keyCollection.size(); i++) {
+          DataProtectionKeyImpl pmKey = (DataProtectionKeyImpl)
+            keyCollection.get(i);
+          X509Certificate pmCert = pmKey.getCertificateChain()[0];
+          String pmName = null;
+          try {
+            pmName = new X500Name(pmCert.getSubjectDN().getName()).getCommonName();
+          }
+          catch (IOException iox) {
+            if (log.isWarnEnabled()) {
+              log.warn("Failed to get common name for PM cert: " + pmCert);
+              continue;
+            }
+          }
+          RelaySessionKey.getInstance().relaySessionKey(keyCollection,pmName,agent);
+        }
+      }
+*/
     }
     super.close();
     if (ci != null) {
