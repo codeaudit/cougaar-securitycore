@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<society name='foo.com-hosts'  
+  xmlns:xsi='http:/www.w3.org/2001/XMLSchema-instance' 
+  xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'>
+  <host name='fig'>
+    <facet service="NFS"/>
+  </host>
+  <host name='peach'>
+    <facet service="SMTP"/>
+    <facet service="jabber"/>
+  </host>
+  <host name='host_1'>
+    <facet service="operator"/>
+    <facet service="acme"/>
+  </host>
+  <host name='host_2'>
+    <facet service="acme"/>
+  </host>
+  <host name='host_3'>
+    <facet service="acme"/>
+  </host>
+  <host name='host_4'>
+    <facet service="acme"/>
+  </host>
+  <host name='host_5'>
+    <facet service="acme"/>
+  </host>
+</society>
