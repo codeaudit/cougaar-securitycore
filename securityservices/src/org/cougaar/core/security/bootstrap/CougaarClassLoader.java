@@ -206,7 +206,7 @@ public class CougaarClassLoader extends XURLClassLoader {
 
   public  void printPolicy(final Class c) {
     String classname = System.getProperty("org.cougaar.core.security.bootstrapper.policydebug");
-    if (classname == null) {
+    if (classname == null || c == null) {
       return;
     }
     else if (!classname.equals("all")) {
