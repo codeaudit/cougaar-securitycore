@@ -1,0 +1,75 @@
+This document describes how to register scripts with Polaris
+and how to execute those scripts.
+
+I) Installing Cougaar
+=====================
+* Install Cougaar by invoking update_cougaar and selecting the appropriate
+  overlays. In addition to the standard set of overlays, you will need to 
+  install the security services and the SRI automation overlay.
+* On sb022, check out or updated the automation and moptools modules in the following
+  directories:
+    ~/CSI/polaris/automation  (:ext:srosset@cvs.ultralog.net:/cvs/commons/sri)
+    ~/CSI/polaris/moptools    (:ext:srosset@cvs.ultralog.net:/cvs/security/csi)
+
+II) Registering scripts with Polaris
+====================================
+1) Edit the $CIP/csmart/acme_scripting/bin/p-config.rb file
+   See Section V) below
+   This is done automatically in the registerScripts.sh script
+2) Invoke the registerScripts.sh script:
+   sh registerScripts.sh
+
+TODO: it would be nice to be able to register all scripts automatically
+(e.g. no need to manually register every script)
+
+III) Executing scripts with Polaris
+==================================
+Normally, scripts would be executed unattended as described in section III).
+However, it might be useful to run the scripts from the command line
+for debugging purposes. This section describe how to run the scripts from
+the command line.
+
+1) Edit the $CIP/csmart/acme_scripting/bin/p-config.rb file
+   See Section V) below
+   This is done automatically in the runPolaris.sh script
+2) Invoke the runPolaris.sh script
+
+TODO: it would be nice to run the scripts one after the other
+
+IV) Running nightly tests
+==========================
+This section describes how to run the scripts unattended (e.g. nightly scripts)
+
+* Type the following command as root:
+   crontab -u asmt crontab.conf
+
+  This will run all the scripts automatically
+
+V) Editing the p-config.rb file
+=================================
+Set the POLARIS_HOST environment variable to "polaris.ultralog.net" as shown below:
+
+# $POLARIS - Is Polaris running?  Should always be true.
+$POLARIS=true
+
+# $POLARIS_HOST - Which Polaris Host are you running against?
+# It should be polaris.ultralog.net for production stuff, u180 for testing.
+$POLARIS_HOST="polaris.ultralog.net"
+
+# $POLARIS_UPDATE - Should we download Cougaar and its Overlays, or reuse
+# the installation already on the the disk.
+$POLARIS_UPDATE=false
+
+# $POLARIS_CVS_HOME - This is the place where p-runner.rb will check out
+# the scripts it needs to run.
+$POLARIS_CVS_HOME="/polaris"
+
+# $POLARIS_REGIME - Set this value to the type of tests being run.  For
+# example:
+#    DEV - Developing scripts, not for reporting.
+#    ETA - Engineering Tests
+#    ASMT - Assessment
+#    ART - Art & Mark (ISAT)
+$POLARIS_REGIME="DEV"
+
+
