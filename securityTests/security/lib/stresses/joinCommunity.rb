@@ -43,7 +43,7 @@ class JoinCommunity < SecurityStressFramework
 	waitForMessageFailure
 	processResults
       rescue => ex
-	 saveUnitTestResult('StressMaliciousJoinCommunity',
+	 saveAssertion('StressMaliciousJoinCommunity',
              "Unable to run test: #{ex}\n#{ex.backtrace.join("\n")}" )
       end
     }
