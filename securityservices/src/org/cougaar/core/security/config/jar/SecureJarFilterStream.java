@@ -27,26 +27,34 @@
 package org.cougaar.core.security.config.jar;
 
 import java.io.FilterInputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
 public class SecureJarFilterStream
   extends FilterInputStream
 {
   URL _url = null;
+  private static final Logger _logger =
+    LoggerFactory.getInstance().createLogger(SecureJarFilterStream.class);
+
+  private static long m_totalTime;
 
   SecureJarFilterStream(URL u) 
     throws GeneralSecurityException, IOException {
-    super(u.openStream());
+    super(new BufferedInputStream(u.openStream()));
     _url = u;
     init();
   }
 
   SecureJarFilterStream(InputStream in) 
     throws GeneralSecurityException, IOException {
-    super(in);
+    super(new BufferedInputStream(in));
     init();
   }
 
@@ -55,9 +63,13 @@ public class SecureJarFilterStream
     // correct until we have read the whole stream.
     // So, we read the stream until the end, and we see if we
     // get any exception.
+    long a = 0;
+    if (_logger.isInfoEnabled()) {
+      a = System.currentTimeMillis();
+    }
+    byte buffer[] = new byte[1000];
     try {
-      int v = 0;
-      while ((v = in.read()) != -1);
+      while (in.read(buffer, 0, buffer.length) != -1);
     }
     catch (Exception e) {
       String message = "Invalid JAR file";
@@ -68,6 +80,11 @@ public class SecureJarFilterStream
 	new GeneralSecurityException(message);
       gse.initCause(e);
       throw gse;
+    }
+    if (_logger.isInfoEnabled()) {
+      long b = System.currentTimeMillis();
+      m_totalTime += (b - a);
+      _logger.info("Time spent: " + (b - a ) + " Total: " + m_totalTime);
     }
   }
 }
