@@ -55,6 +55,7 @@ public class ListCaKeysServlet
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
   private KeyRingService keyRingService= null;
+  private CertificateCacheService cacheService=null;
   private LoggingService log;
 
   protected boolean debug = false;
@@ -77,6 +78,10 @@ public class ListCaKeysServlet
       support.getServiceBroker().getService(this,
 					    KeyRingService.class,
 					    null);
+    cacheService=(CertificateCacheService)
+      support.getServiceBroker(). getService(this,
+					     CertificateCacheService.class,
+					     null);
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -97,14 +102,26 @@ public class ListCaKeysServlet
     out.println("<H2>CA Keys List</H2>");
     out.println("<table>");
     out.println("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
+    
 
-    Enumeration aliases = keyRingService.getAliasList();
+ log.warn("Unable to get Certificate cache Service in processPkcs7Reply");
+    Enumeration aliases = null;
+    if(cacheService!=null) {
+     aliases= cacheService.getAliasList();
+    }
+    else {
+      out.println("Unable to get  Certificate Cache Service ");
+      out.flush();
+      out.close();
+      return ;
+    
+    }
     out.println("<table align=\"center\" border=\"2\">\n");
     out.println("<TR><TH> DN-Certificate </TH><TH> DN-Signed By </TH></TR>\n");
-
+    
     while (aliases.hasMoreElements()) {
       String a = (String)aliases.nextElement();
-      String cn = keyRingService.getCommonName(a);
+      String cn = cacheService.getCommonName(a);
       List certList = keyRingService.findCert(cn, KeyRingService.LOOKUP_KEYSTORE);
       Iterator it = certList.iterator();
       while (it.hasNext()) {
