@@ -118,46 +118,71 @@ public class RoleMapping extends StringPairMapping {
     }
     return new HashSet(roles); // need to clone so they can't change it?
   }
-
+  
+  // @ param uri formatted as "/$<agent-name>/<path>"
+  // matching uri format strings could ONLY be one of the 4:
+  //  /$*/*
+  //  /$*/<path>
+  //  /$<agent-name>/*
+  //  /$<agent-name>/<path>
+  //
+  // @return the union of all the matched set of roles
+  // NOTE: the path can either be a '*' or the full path.
+  //       for example, this is an invalid pattern:
+  //       /$NCA/alpha/* or "/$NCA/*/tasks".
   public Set getRolesForUri(String uri) {
     int index;
     boolean first = true;
     String agent = null;
+    // the union of all the roles where the pattern matches the uri
+    Set roles = new HashSet();
+    
+    // get most specific mapping "/$<agent-name>/<path>"
+    Set s = (Set)_uriMap.get(uri);
+    getUnion(roles, (Set)s);
+
+    // break "/$<agent-name>/<path>" in "/$<agent-name>" and "/<path>"
     if (uri.startsWith("/$")) {
       index = uri.indexOf('/',2);
       if (index == -1) {
         agent = uri;
         uri = "/";
       } else {
-        agent = uri.substring(0, index);
-        uri = uri.substring(index+1);
+        agent = uri.substring(0, index-1);
+        uri = uri.substring(index);
       }
     }
-    index = uri.length();
-    while (index != -1) {
-      if (!first) {
-        uri = uri.substring(0, index + 1) + "*";
-      }
-      Set s;
-      if (agent != null) {
-        s = (Set) _uriMap.get(agent + uri);
-        if (s != null) {
-          return new HashSet(s); // copy the set
-        }
-        s = (Set) _uriMap.get("/$*" + uri);
-      } else {
-        s = (Set) _uriMap.get(uri);
-      }
-      if (s != null) {
-        return new HashSet(s); // copy the set
-      }
-      if (first) {
-        first = false;
-        index = uri.lastIndexOf('/', uri.length() - 2); 
-      } else {
-        index = uri.lastIndexOf('/', uri.length() - 3);
-      }
+    // else we should throw an exception since the format of the uri is not 
+    // what we expected.    
+    if(agent != null) {
+      // get "/$<agent-name>/*"
+      s = (Set)_uriMap.get(agent + "/*");
+      getUnion(roles, (Set)s);
+      // get "/$*/<path>"
+      s = (Set)_uriMap.get("/$*" + uri);
+      getUnion(roles, (Set)s);
+      // get "/$*/*"
+      s = (Set)_uriMap.get("/$*/*");
+      getUnion(roles, (Set)s);
     }
-    return new HashSet(); // no roles;
+    return roles;
   }
+  
+  private void getUnion(Set s1, Set s2) {
+    
+    if(s2 != null) {
+      s1.addAll(s2); 
+    }
+  }
+  
+  /*
+  private void printSet(Set s, String setname) {
+    Iterator i = s.iterator();
+    System.out.println("##### BEGIN Printing set " + setname + " #####");
+    while(i.hasNext()) {
+      System.out.println("" + i.next()); 
+    }
+    System.out.println("##### END Printing set #####"); 
+  }
+  */
 }
