@@ -250,9 +250,16 @@ public class ConfigParserServiceImpl
 	log.debug(handler.toString());
       }
     }
-    catch ( Exception e ) {
+    catch (Exception e) {
       // This is OK for standalone applications, but not for nodes.
-      log.warn("Unable to parse policy:" + e);
+      boolean exec =
+	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
+      if (exec == true) {
+	log.warn("Unable to parse policy:" + e);
+      }
+      else {
+	log.debug("Unable to parse policy:" + e);
+      }
     }
   }
 
