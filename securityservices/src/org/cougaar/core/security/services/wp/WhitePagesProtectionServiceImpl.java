@@ -35,7 +35,6 @@ import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.wp.WhitePagesProtectionService;
 import org.cougaar.util.log.Logger;
 
 import java.io.IOException;

@@ -38,7 +38,7 @@ import java.security.cert.X509Certificate;
  *
  * @author mabrams
  */
-public class ProtectedRequest implements org.cougaar.core.service.wp.WhitePagesProtectionService.Wrapper {
+public class ProtectedRequest implements WhitePagesProtectionService.Wrapper {
   private X509Certificate[] certificateChain = null;
   private SignedObject signedObject = null;
 
