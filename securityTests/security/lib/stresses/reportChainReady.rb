@@ -115,8 +115,6 @@ class TestReportChainReady < SecurityStressFramework
       end
     end
     puts("getting ready to calculate bad chains")
-    puts "subordinates for OSD.GOV = #{@foundSubordinates['OSD.GOV'].join(',')}"
-    puts "expected = #{@expectedSubordinates['OSD.GOV'].join(',')}"
     getBadChains(['OSD.GOV']).each do |chain|
       puts("Found bad chain ending at #{chain.last}")
       puts("Chain = " + chain.join(' -> '))
