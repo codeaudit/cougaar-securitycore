@@ -54,10 +54,10 @@ public class CertificateSigningRequest extends  HttpServlet
                 try
                 {
                         System.setProperty(propertyName,propertyValue);
-			//System.out.println("setting property name :"+propertyName);
-			//System.out.println("setting property value ::"+propertyValue);
-			context.setAttribute(propertyName,(Object)propertyValue);
-		       
+                        //System.out.println("setting property name :"+propertyName);
+                        //System.out.println("setting property value ::"+propertyValue);
+                        context.setAttribute(propertyName,(Object)propertyValue);
+
                 }
                 catch(SecurityException sexp)
                 {
@@ -73,12 +73,12 @@ public class CertificateSigningRequest extends  HttpServlet
     String type=null;
     String CA_DN_name=null;
     String role = null;
-
     //System.out.println("got post request");
     String data;
     //res.setContentType("text/html");
     //  PrintWriter out=res.getWriter();
     CA_DN_name =(String)req.getParameter("dnname");
+    role =(String)req.getParameter("role");
     ByteArrayInputStream bytestream=null;
     PrintStream printstream=new PrintStream(res.getOutputStream());
     byte [] bytedata=null;
@@ -88,53 +88,63 @@ public class CertificateSigningRequest extends  HttpServlet
       printstream.close();
       return;
     }
-    try {
-      signer=new KeyManagement(CA_DN_name, role);
+    try
+    {
+        if(( role==null)||( role==""))
+        {
+                signer=new KeyManagement(CA_DN_name,null);
+        }
+        else
+        {
+                signer=new KeyManagement(CA_DN_name,role);
+        }
     }
-    catch (Exception exp) {
+    catch (Exception exp)
+    {
       printstream.print("Error ---" + exp.toString());
       printstream.flush();
       printstream.close();
       return;
     }
+
     type=req.getParameter("pkcs");
     if((type==null)||(type==""))
       {
-	printstream.print("Error --- Unknown pkcs type:");
-	printstream.flush();
-	printstream.close();
-	return;
+        printstream.print("Error --- Unknown pkcs type:");
+        printstream.flush();
+        printstream.close();
+        return;
       }
     pkcs=(String)req.getParameter("pkcsdata");
     try
       {
-	if(type.equalsIgnoreCase("pkcs7"))
-	  {
-	    bytedata=pkcs.getBytes();
-	    bytestream=new ByteArrayInputStream(bytedata);
-	    signer.processX509Request(printstream,(InputStream)bytestream);
+                if(type.equalsIgnoreCase("pkcs7"))
+                {
+                bytedata=pkcs.getBytes();
+                bytestream=new ByteArrayInputStream(bytedata);
+                signer.processX509Request(printstream,(InputStream)bytestream);
 
-	  }
-	else if(type.equalsIgnoreCase("pkcs10"))
-	  {
-	    bytedata=pkcs.getBytes();
-	    bytestream=new ByteArrayInputStream(bytedata);
-	    signer.processPkcs10Request(printstream,(InputStream)bytestream);
+                }
+                else if(type.equalsIgnoreCase("pkcs10"))
+                {
+                bytedata=pkcs.getBytes();
+                bytestream=new ByteArrayInputStream(bytedata);
+                signer.processPkcs10Request(printstream,(InputStream)bytestream);
 
 
-	  }
-	else
-	  {
-	    printstream.print("Error ----Got a wrong parameter for type"+type);
-	  }
-      }
+                }
+                else
+                {
+                printstream.print("Error ----Got a wrong parameter for type"+type);
+                }
+    }
     catch (Exception  exp)
       {
-	printstream.print("Error ------"+exp.toString());
-	printstream.flush();
-	printstream.close();
+                printstream.print("Error ------"+exp.toString());
+                printstream.flush();
+                printstream.close();
 
-      }
+        }
     finally
       {
             printstream.flush();
@@ -155,6 +165,9 @@ public class CertificateSigningRequest extends  HttpServlet
     out.println("<H2> Certificate Signing Request</H2>");
     out.println("<table>");
     out.println("<form action=\"\" method =\"post\">");
+    out.println("<tr ><td colspan=\"3\">");
+    out.println("DN for CA <input name=\"role\" type=\"text\" value=\"\">");
+    out.println(" <br> <br></td></tr>");
     out.println("<tr ><td colspan=\"3\">");
     out.println("DN for CA <input name=\"dnname\" type=\"text\" value=\"\">");
     out.println(" <br> <br></td></tr>");

@@ -9,7 +9,7 @@ import sun.security.x509.*;
 
 public class CertificateDetailsServlet extends  HttpServlet
 {
-  private LDAPCert ldapcert=null;
+  private KeyManagement keymanage=null;
   private LdapEntry ldapentry=null;
 
     public void init(ServletConfig config) throws ServletException
@@ -23,35 +23,51 @@ public class CertificateDetailsServlet extends  HttpServlet
      protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException
      {
        res.setContentType("Text/HTML");
-       ldapcert= new LDAPCert();
-       String query=req.getQueryString();
+ 
        String hash=null;
-       PrintWriter out=res.getWriter();
-       if((query==null)||(query==""))
-       {
-        out.println("error in request");
-        out.flush();
-        out.close();
-        return;
+       String role=null;
+       String dnname=null;
 
-       }
-        int startindex=-1;
-       if(query.startsWith("?hash"))
-       {
-                startindex=query.indexOf('=');
-                if((startindex==-1)||(startindex+1>=query.length()) )
+
+       PrintWriter out=res.getWriter();
+	hash=req.getParameter("hash");
+	role=req.getParameter("role");
+	dnname=req.getParameter("dnname");
+	if((dnname==null)||(dnname==""))
+	  {
+	    out.print("Error in dn name ");
+	    out.flush();
+	    out.close();
+	  }
+          try
+          {
+                if((role==null)||(role==""))
                 {
-                        out.println("error in request format ");
+                keymanage=new KeyManagement(dnname,null);
+
+                }
+                else
+                {
+                keymanage=new KeyManagement(dnname,role);
+                }
+
+                if((hash==null)||(hash==""))
+                {
+                out.print("Error in hash ");
+                out.flush();
+                out.close();
+                }
+          }
+          catch(Exception exp)
+                {
+                        out.println("Error in creating keymanagement");
                         out.flush();
                         out.close();
                         return;
-
                 }
-                hash=query.substring(startindex+1,query.length());
 
 
-       }
-       ldapentry=ldapcert.getCertificate(hash);
+       ldapentry=keymanage.getCertificate(hash);
        if(ldapentry==null)
        {
            out.println("error in retrieving certificate from LDAP ");
@@ -79,8 +95,13 @@ public class CertificateDetailsServlet extends  HttpServlet
        out.println("</head>");
        out.println("<body>");
        out.println("<H2> Certificate Details</H2><BR>");
-       out.println("<form name=\"revoke\" action=\"../RevokeCertificate\" nethod=\"post\">");
+       out.println("<form name=\"revoke\" action=\"../RevokeCertificate\" method=\"post\">");
        out.println("<input type=\"hidden\" name=\"hash\" value=\""+ldapentry.getHash()+"\">");
+       if((role==null)||(role==""))
+       {
+	 out.println("<input type=\"hidden\" name=\"role\" value=\""+role+"\">");
+       }
+       out.println("<input type=\"hidden\" name=\"dnname\" value=\""+dnname+"\">");
        out.println("<p>");
        out.println(certimpl.toString());
        out.println("<input type=\"button\" value=\"Revoke Certificate \" onClick=\"submit\">");
@@ -114,4 +135,8 @@ public class CertificateDetailsServlet extends  HttpServlet
 
 
 }
+
+
+
+
 

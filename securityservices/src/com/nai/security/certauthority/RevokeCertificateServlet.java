@@ -9,7 +9,6 @@ import sun.security.x509.*;
 
 public class RevokeCertificateServlet extends  HttpServlet
 {
-  private LDAPCert ldapcert=null;
   private LdapEntry ldapentry=null;
   private KeyManagement keymanage=null;
 
@@ -20,11 +19,12 @@ public class RevokeCertificateServlet extends  HttpServlet
 
       public void doPost (HttpServletRequest  req, HttpServletResponse res) throws ServletException,IOException
       {
-        ldapcert= new LDAPCert();
+       
         PrintWriter out=res.getWriter();
         res.setContentType("Text/HTML");
         String hash=req.getParameter("hash");
-	String role = null;
+	String role=req.getParameter("role");
+	String dnname=req.getParameter("dnname");
         out.println("<html>");
         out.println("<body>");
 
@@ -35,18 +35,33 @@ public class RevokeCertificateServlet extends  HttpServlet
                 out.close();
                 return;
         }
-        //ldapentry=ldapcert.getCertificate(hash);
-        try
+	if((dnname==null)||(dnname==""))
         {
-                keymanage=new KeyManagement(ldapentry.getCertificate().getIssuerDN().getName(), role);
+                out.println("Error in getting the CA's DN ");
+                out.flush();
+                out.close();
+                return;
         }
-        catch(Exception exp)
+	try
+	  {
+	    if((role==null)||(role==""))
+	      {
+		keymanage=new KeyManagement(dnname,null);
+	      }
+	    else
+	      {
+		keymanage=new KeyManagement(dnname,role);
+	      }
+	  }
+	 catch(Exception exp)
         {
                 out.println("Error -------"+exp.toString());
                 out.flush();
                 out.close();
                 return;
         }
+        ldapentry=keymanage.getCertificate(hash);
+     
        boolean status= keymanage.revokeCertificate(ldapentry.getCertificate());
        if(status)
         {
