@@ -29,9 +29,11 @@ import java.util.Iterator;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.glm.ldm.Constants;
+import org.cougaar.mlm.plugin.organization.ReportChainReadyRelay;
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.plan.PrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.Task;
@@ -45,7 +47,7 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
   private String                  _agentName;
   private IncrementalSubscription _issc;
   private IncrementalSubscription _isrfd;
-
+  private IncrementalSubscription _isrcr;
 
   private UnaryPredicate _scPredicate = new UnaryPredicate() {
       private HashSet  seen = new HashSet();
@@ -73,6 +75,20 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
       } 
     };
 
+  private UnaryPredicate _rcrTaskPredicate = new UnaryPredicate() {
+      public boolean execute(Object o) {
+	if (o instanceof ReportChainReadyRelay) {
+          Task task = (Task) o;
+	  if (task.getVerb().equals(Constants.Verb.REPORTFORDUTY)) {
+	    return true;
+          }
+	}
+	return false;
+      } 
+    };
+
+
+
   protected void setupSubscriptions()
   {
     try {
@@ -85,6 +101,7 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
         _log.debug("setting up subscriptions");
         _issc = (IncrementalSubscription) blackboard.subscribe(_scPredicate);
         _isrfd = (IncrementalSubscription) blackboard.subscribe(_rfdTaskPredicate);
+        _isrcr = (IncrementalSubscription) blackboard.subscribe(_rcrTaskPredicate);
         _agentName = getAgentIdentifier().toAddress();
 
     } catch (Exception e) {
@@ -94,6 +111,14 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
   }
 
   protected void execute()
+  {
+    executeServiceContract();
+    executeReportForDuty();
+    executeReportChainReady();
+  }
+
+
+  public void executeServiceContract()
   {
     for (Enumeration added = _issc.getAddedList();
          added.hasMoreElements();) {
@@ -108,6 +133,10 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
         _log.debug("why is the service contract null");
       }
     }
+  }
+
+  public void executeReportForDuty()
+  {
     for (Enumeration added = _isrfd.getAddedList();
          added.hasMoreElements();) {
       Task  rfdTask = (Task) added.nextElement();
@@ -137,4 +166,22 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
       }
     }
   }
+
+  public void executeReportChainReady()
+  {
+    for (Enumeration added = _isrcr.getAddedList();
+         added.hasMoreElements();) {
+      ReportChainReadyRelay rcr = (ReportChainReadyRelay) added.nextElement();
+      if (rcr != null) {
+        MessageAddress target = null;
+        for (Iterator targetsIt = rcr.getTargets().iterator();
+             targetsIt.hasNext();) {
+          target = (MessageAddress) targetsIt.next();
+        }
+        _log.debug("Interception: ReportChainReady : " +
+                   rcr.getSource() + " : " + target);
+      }
+    }
+  }
+
 }
