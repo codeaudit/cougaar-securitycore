@@ -1269,6 +1269,7 @@ public class DirectoryKeyStore
 	}
 	reply = caClient.sendPKCS(request, "PKCS10");
       } else {
+	X509Certificate nodex509 = null;
 	// check if node cert exist
 	if (CryptoDebug.debug) {
 	  System.out.println("Searching node key: " + nodeName);
@@ -1297,12 +1298,12 @@ public class DirectoryKeyStore
             int statindex = reply.indexOf(strStat);
             if (statindex >= 0) {
               // in the pending mode
-              if (debug) {
+              if (CryptoDebug.debug) {
                 System.out.println("Certificate in pending mode.");
               }
               statindex += strStat.length();
               int status = Integer.parseInt(reply.substring(statindex, statindex + 1));
-              if (debug) {
+              if (CryptoDebug.debug) {
                 System.out.println("pending status is: " + reply.substring(statindex, statindex + 1));
               }
               if (status == KeyManagement.PENDING_STATUS_PENDING) {
@@ -1392,7 +1393,7 @@ public class DirectoryKeyStore
     String strStat = "status=";
     int statindex = reply.indexOf(strStat);
     if (statindex >= 0) {
-      if (debug) {
+      if (CryptoDebug.debug) {
         System.out.println("processPkcs7Reply: certificate in pending mode. ");
       }
       return null;
@@ -1402,7 +1403,7 @@ public class DirectoryKeyStore
       installPkcs7Reply(alias, new ByteArrayInputStream(reply.getBytes()));
       privatekey = (PrivateKey) keystore.getKey(alias, param.keystorePassword);
     } catch (java.security.cert.CertificateNotYetValidException e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
         Date d = new Date();
         System.err.println("Error: Certificate not yet valid for:"
                            + commonName
@@ -1411,7 +1412,7 @@ public class DirectoryKeyStore
         e.printStackTrace();
       }
     } catch(Exception e) {
-      if (debug) {
+      if (CryptoDebug.debug) {
         System.err.println("Error: can't get certificate for " + commonName);
         e.printStackTrace();
       }
