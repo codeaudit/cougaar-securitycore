@@ -500,7 +500,7 @@ public class CertificateCache
       }
       return null;
     }
-    List validPrivateKeys = new Collections.synchronizedList(ArrayList());
+    List validPrivateKeys = Collections.synchronizedList(new ArrayList());
 
     synchronized(allCertificates) {
       ListIterator it = allCertificates.listIterator();
