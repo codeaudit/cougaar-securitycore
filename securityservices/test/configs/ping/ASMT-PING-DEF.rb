@@ -22,8 +22,8 @@ parameters:
     - $CIP/csmart/config/rules/security/testCollectData
    # ###
    # Redundant CA and persistence managers
-    - $CIP/csmart/config/rules/security/redundancy
-    - $CIP/csmart/config/rules/security/robustness
+    #- $CIP/csmart/config/rules/security/redundancy
+    #- $CIP/csmart/config/rules/security/robustness
    # ###
 # ######################################################
 #    - $CIP/csmart/config/rules/security/robustness
