@@ -1,1 +1,20 @@
-# No rule currently in the M&R enclave managers
+# M&R enclave managers' playbook
+org.cougaar.core.security.crypto.MESSAGE_FAILURE_RATE <= 25 : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.crypto.MESSAGE_FAILURE_RATE in { 26 thru 50 } : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.crypto.MESSAGE_FAILURE_RATE > 50 : PERCEIVED_THREAT_LEVEL = 3;
+PERCEIVED_THREAT_LEVEL == 1
+    : [agent.Enclave1]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 10
+    : [agent.Enclave2]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 10
+    : [agent.Enclave3]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 10
+    : [agent.Enclave4]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 10;
+PERCEIVED_THREAT_LEVEL == 2
+    : [agent.Enclave1]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 5
+    : [agent.Enclave2]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 5 
+    : [agent.Enclave3]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 5 
+    : [agent.Enclave4]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 5;
+PERCEIVED_THREAT_LEVEL == 3
+    : [agent.Enclave1]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 3 
+    : [agent.Enclave2]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 3
+    : [agent.Enclave3]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 3
+    : [agent.Enclave4]org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURES = 3;
+
