@@ -220,20 +220,26 @@
       <uptodate property="policiesUptodate"
                 targetfile="${securityservices.configs}/common/DamlBootPolicyAllowCommunication.info" >
         <srcfiles dir="${securityservices.configs}/common"
-                  includes="DamlBootPolicyList" />
+                  includes="DamlBootPolicyList, Ontology-*.daml" />
         <srcfiles dir="${securityservices.lib}"
                   includes="kaos.jar" />
       </uptodate>
     </target>
 
-    <target name="build-bootpolicies" 
+    <target name="build-policies" 
             depends="jar-securityservices, check-policiesUptodate"
             unless="policiesUptodate">
-      <echo message="++++++ Building boot policies"/>
+     <echo message="+++++ Removing old boot policies"/>
+     <delete>
+        <fileset dir="${securityservices.configs}/common"
+                 includes="DamlBootPolicy*.info, DamlBootPolicy*.msg" />
+     </delete>
+     <echo message="++++++ Copying ontologies" />
       <copy todir="${cougaar.install.path}/configs/security">
         <fileset dir="${securityservices.configs}/common"
                  includes="Ontology-*.daml" />
       </copy>
+      <echo message="++++++ Building boot policies"/>
       <java classname="org.cougaar.core.security.policy.builder.Main" 
             fork="true"
             dir="${securityservices.configs}/common">
@@ -245,7 +251,7 @@
       </java>
     </target>
 
-    <target name="jar-configs" depends="build-bootpolicies">
+    <target name="jar-configs" depends="build-policies">
         <echo message="+++++ Building configuration jar files"/>
         <jar jarfile="${securityservices.classes}/securityservices_config.jar" 
             basedir="${securityservices.configs}"
@@ -376,7 +382,7 @@
     </target>
     
     <!-- install config files -->
-    <target name="install-conf" depends="install-cougaarCA, install-daml, build-bootpolicies">
+    <target name="install-conf" depends="install-cougaarCA, install-daml, build-policies">
         <echo message="+++++ Installing configuration files"/>
 	<mkdir dir="${cougaar.install.path}/configs/security"/>
         <!--
@@ -657,7 +663,16 @@
         </delete>
         <echo message="+++++ Cleaned build environment"/>
     </target>
-    
+
+    <target name="clean-policies">
+        <echo message="+++++ Cleaning boot policies"/>
+        <delete>
+          <fileset dir="${securityservices.configs}/common"
+                   includes="DamlBootPolicy*.info, DamlBootPolicy*.msg" />
+        </delete>
+    </target>
+
+
     <target name="help">
         <echo message="Ant build script for Ultra*Log securityservices."/>
         <echo message=""/>
@@ -676,8 +691,10 @@
         <echo message="    javadocs    - create javadocs for securityservices"/>
         <echo message="    tar-docs    - tar and zip the javadocs"/>
         <echo message="    run-tests   - run Junit tests"/>
+        <echo message="    build-policies - Generate boot policies" />
         <echo message="    clean       - Delete .class and .jar files"/>
         <echo message="    clean-log   - Delete log files"/>
+        <echo message="    clean-policies - Delete Generated boot policies" />
         <echo message="    help        - print out the usage message"/>
     </target>
         
