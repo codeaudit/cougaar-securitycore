@@ -88,7 +88,7 @@ public class DataProtectionServiceImpl
   private DataProtectionServiceClient dpsClient;
   // service used to obtain the persistence manager policies
   private PersistenceMgrPolicyService pps;
-  private String keygenAlg = "DES";
+  //private String keygenAlg = "AES";
   private String digestAlg = "SHA";
   private CryptoClientPolicy cryptoClientPolicy;
   private String agent=null;
@@ -326,7 +326,7 @@ public class DataProtectionServiceImpl
     }
     else if (policy.secureMethod == SecureMethodParam.ENCRYPT
       || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
-      SecretKey sk = encryptionService.createSecretKey(keygenAlg);
+      SecretKey sk = encryptionService.createSecretKey(policy.symmSpec);
       List certlist = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE);
       if (certlist == null || certlist.size() == 0) {
         throw new GeneralSecurityException("No certificate available for encrypting or signing.");
@@ -334,7 +334,7 @@ public class DataProtectionServiceImpl
       CertificateStatus cs = (CertificateStatus)certlist.get(0);
       X509Certificate agentCert = (X509Certificate)cs.getCertificate();
 
-      SealedObject skeyobj = encryptionService.asymmEncrypt(agent,
+      byte[] skeyobj = encryptionService.encryptSecretKey(
         policy.asymmSpec, sk, agentCert);
       DataProtectionKeyImpl keyImpl =
 	new DataProtectionKeyImpl(skeyobj, digestAlg, policy,
@@ -409,7 +409,7 @@ public class DataProtectionServiceImpl
       CertificateStatus cs = (CertificateStatus)certList.get(0);
       X509Certificate pmCert = cs.getCertificate();
 
-      SealedObject skeyobj = encryptionService.asymmEncrypt(commonName,
+      byte[] skeyobj = encryptionService.encryptSecretKey(
         policy.asymmSpec, sk, pmCert);
       DataProtectionKeyImpl pmDPKey =
             new DataProtectionKeyImpl(skeyobj, digestAlg, policy,
@@ -460,10 +460,11 @@ public class DataProtectionServiceImpl
         // expiration checking, there will be new function in
         // encryption service later on that enables decrypt using
         // expired certs
-        SecretKey skey = (SecretKey)encryptionService.asymmDecrypt(
-                          agent,
+        SecretKey skey = encryptionService.decryptSecretKey(
                           policy.asymmSpec,
-                          (SealedObject)dpKey.getObject());
+                          (byte[])dpKey.getObject(),
+			  policy.symmSpec,
+			  dpKey.getCertificateChain()[0]);
 
 
 	List certList = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE, true);
@@ -591,8 +592,8 @@ public class DataProtectionServiceImpl
             // reuse old signer if it exists
             X509Certificate oldSigner = dpKey.getOldSigner();
 
-            SealedObject obj = (SealedObject)encryptionService.asymmEncrypt(agent,
-                                                policy.asymmSpec, skey, agentCert);
+            byte[] obj = encryptionService.encryptSecretKey(
+	      policy.asymmSpec, skey, agentCert);
 
             DataProtectionKeyImpl keyImpl =
               new DataProtectionKeyImpl(obj, digestAlg, policy,
@@ -668,12 +669,13 @@ public class DataProtectionServiceImpl
 
         DataProtectionKeyImpl newKey = (DataProtectionKeyImpl)_req.getResponse();
         if (newKey != null) {
-          SealedObject responseObj = (SealedObject)newKey.getObject();
+          byte[] responseObj = (byte[])newKey.getObject();
           if (responseObj != null) {
-            SecretKey skey = (SecretKey)encryptionService.asymmDecrypt(
-                          _agent,
+            SecretKey skey = encryptionService.decryptSecretKey(
                           newKey.getSecureMethod().asymmSpec,
-                          responseObj);
+                          responseObj,
+			  newKey.getSecureMethod().symmSpec,
+			  newKey.getCertificateChain()[0]);
             if (skey != null) {
               if (log.isDebugEnabled()) {
                 log.debug("Secretkey recovered from " + _pmp.pmDN);

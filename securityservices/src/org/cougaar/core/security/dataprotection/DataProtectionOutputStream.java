@@ -105,6 +105,9 @@ public class DataProtectionOutputStream extends FilterOutputStream {
       try {
         failureIfOccurred = DataFailureEvent.SECRET_KEY_FAILURE;
         skey = getSecretKey();
+	if (log.isDebugEnabled()) {
+	  log.debug("skey class: " + skey.getClass().getName());
+	}
         //Cipher ci=Cipher.getInstance(policy.symmSpec);
         failureIfOccurred = DataFailureEvent.INVALID_POLICY;
         ci = encryptionService.getCipher(policy.symmSpec);
@@ -127,7 +130,8 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     }
 
     if(debug) {
-      log.debug("Opening output stream " + agent + " : " + new Date());
+      log.debug("Opening output stream " + agent + 
+		" Policy: " + policy.secureMethod + " : " + new Date());
     }
     this.out = new DataOutputStream(this.out);
   }
@@ -159,10 +163,11 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   }
 
   private SecretKey getSecretKey()
-    throws CertificateException
+    throws GeneralSecurityException
   {
-    return (SecretKey)encryptionService.asymmDecrypt(agent,
-                                                     policy.asymmSpec, (SealedObject)dpKey.getObject());
+    return encryptionService.decryptSecretKey(
+      policy.asymmSpec, (byte[])dpKey.getObject(),
+      policy.symmSpec, dpKey.getCertificateChain()[0]);
   }
 
   private PrivateKey getPrivateKey(final X509Certificate cert)

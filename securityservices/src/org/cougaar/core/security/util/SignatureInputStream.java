@@ -28,52 +28,33 @@ import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.security.Signature;
 import java.security.SignatureException;
 
-public class SignatureInputStream extends FilterInputStream {
-  Signature _signature;
-  public SignatureInputStream(InputStream os, String algorithm, 
+public class SignatureInputStream
+  extends DigestInputStream
+  implements SignedDigestInputStream
+{
+  private Signature _signature;
+  private InputStream _is;
+
+  public SignatureInputStream(InputStream is, String algorithm, 
                               PublicKey pubKey) 
     throws NoSuchAlgorithmException, InvalidKeyException {
-    super(os);
+    super(is, MessageDigest.getInstance("SHA"));
+    _is = is;
     _signature = Signature.getInstance(algorithm);
     _signature.initVerify(pubKey);
   }
 
-  public int read() throws IOException {
-    int b = super.read();
-    if (b != -1) {
-      try {
-        _signature.update((byte) b);
-      } catch (SignatureException e) {
-        // never happens... we initialize properly always
-      }
-    }
-    return b;
-  }
+  public void verifySignature()
+    throws IOException, SignatureException {
 
-  public int read(byte[] b, int off, int len) throws IOException {
-    int count = super.read(b, off, len);
-    try {
-      _signature.update(b, off, count);
-    } catch (SignatureException e) {
-      // never happens... we initialize properly always
-    }
-    return count;
-  }
+    byte[] digest = getMessageDigest().digest();
+    _signature.update(digest);
 
-  public int read(byte[] b) throws IOException {
-    int count = super.read(b);
-    try {
-      _signature.update(b, 0, count);
-    } catch (SignatureException e) {
-      // never happens... we initialize properly always
-    }
-    return count;
-  }
-
-  public void verifySignature() throws IOException, SignatureException {
     int sigTop = super.read();
     if (sigTop == -1) {
       throw new SignatureException("No signature available");

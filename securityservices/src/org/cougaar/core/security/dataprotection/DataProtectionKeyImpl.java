@@ -49,7 +49,7 @@ public class DataProtectionKeyImpl
 
   private X509Certificate oldSigner;
 
-  public DataProtectionKeyImpl(SealedObject secretKey,
+  public DataProtectionKeyImpl(byte[] secretKey,
 			       String digestAlg,
 			       SecureMethodParam policy,
 			       X509Certificate[] certChain) {

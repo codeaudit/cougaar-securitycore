@@ -176,8 +176,9 @@ public class DataProtectionInputStream extends FilterInputStream {
   private SecretKey getSecretKey()
     throws GeneralSecurityException
   {
-    return (SecretKey)encryptionService.asymmDecrypt(agent,
-                                                     policy.asymmSpec, (SealedObject)dpKey.getObject());
+    return encryptionService.decryptSecretKey(
+      policy.asymmSpec, (byte[])dpKey.getObject(),
+      policy.symmSpec, dpKey.getCertificateChain()[0]);
   }
 
   /*

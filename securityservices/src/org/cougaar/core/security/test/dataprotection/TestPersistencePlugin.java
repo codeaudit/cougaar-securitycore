@@ -30,13 +30,17 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.AlarmService;
 import org.cougaar.core.agent.service.alarm.Alarm;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.UIDService;
+import org.cougaar.util.UnaryPredicate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import org.cougaar.core.util.UID;
 import java.util.Random;
 import java.util.Date;
 import java.util.List;
+import java.util.Collection;
 
 public class TestPersistencePlugin extends ComponentPlugin
 {
@@ -45,9 +49,9 @@ public class TestPersistencePlugin extends ComponentPlugin
   private BlackboardService  _bbs;
   private long _blackboardSize;
   private Alarm _alarm = new MyAlarm();
+  private UIDService _myUIDService;
 
   public void setParameter(Object o) {
-    System.out.println("setParameter called with: " + o);
     //    Thread.dumpStack();
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List parameter " +
@@ -77,10 +81,24 @@ public class TestPersistencePlugin extends ComponentPlugin
 	getServiceBroker().getService(this, BlackboardService.class, null);
 
     _log.debug("_blackboardSize = " + (_blackboardSize / 1024) + "KB");
+
     _alarmService.addAlarm(_alarm);
   }
   
   protected void execute() {
+    if (_bbs.didRehydrate()) {
+      // Verify objects at rehydration
+      // Get rehydrated objects
+      Collection col = getBlackboardService().query(new MyObjectPredicate());
+      _log.debug("Rehydrated " + col.size() + " objects");
+    }
+    else {
+      _log.debug("Did not rehydrate");
+    }
+  }
+
+  public void setUIDService(UIDService service) {
+    _myUIDService = service;
   }
 
   private class MyAlarm
@@ -166,7 +184,7 @@ public class TestPersistencePlugin extends ComponentPlugin
       for (int i = 0 ; i < stringSize ; i++) {
 	sb.append((char)_random.nextInt());
       }
-      MyBlackboardObject mo = new MyBlackboardObject(10, sb.toString());
+      MyBlackboardObject mo = new MyBlackboardObject(10, sb.toString(), _myUIDService);
       long size = getObjectSize(mo);
       //_log.debug("stringSize=" + stringSize + " - sb.size=" + sb.toString().length()
       // + " - o.size=" + size);
@@ -188,18 +206,36 @@ public class TestPersistencePlugin extends ComponentPlugin
     }
   }
 
-  private static class MyBlackboardObject
+  public static class MyBlackboardObject
     implements Serializable
   {
     // The content is not very relevant. It's used to store some random
     // blackboard objects.
 
-    public MyBlackboardObject (int a, String s) {
+    public MyBlackboardObject (int a, String s, UIDService uidService) {
+      setUID(uidService.nextUID());
       _a = a;
       _s = s;
     }
 
+    public UID getUID() { return _uid; }
+    public void setUID(UID uid) { _uid = uid; }
+
     private int _a;
     private String _s;
+    protected UID _uid;
   }
+
+  public static class MyObjectPredicate
+    implements UnaryPredicate
+  {
+    public boolean execute(Object o) {
+      boolean ret = false;
+      if (o instanceof MyBlackboardObject) {
+	return true;
+      }
+      return ret;
+    }
+  }
+
 }

@@ -63,7 +63,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -296,7 +296,10 @@ if (log.isDebugEnabled()) {
       dpKey = (DataProtectionKeyImpl) it.next();
       try {
         policy = dpKey.getSecureMethod();
-        skey = (SecretKey) encryptionService.asymmDecrypt(persistenceAgentAddress.toAddress(), policy.asymmSpec, (SealedObject) dpKey.getObject());
+        skey = (SecretKey) encryptionService.decryptSecretKey(
+	  policy.asymmSpec, (byte[]) dpKey.getObject(),
+	  policy.symmSpec, dpKey.getCertificateChain()[0]
+	  );
         break;
       } catch (Exception e) {
         if (log.isInfoEnabled()) {
@@ -326,9 +329,9 @@ if (log.isDebugEnabled()) {
       return;
     }
 
-    SealedObject skeyobj = null;
+    byte[] skeyobj = null;
     try {
-      skeyobj = encryptionService.asymmEncrypt(newAgentName, policy.asymmSpec, skey, newAgentCert);
+      skeyobj = encryptionService.encryptSecretKey(policy.asymmSpec, skey, newAgentCert);
     } catch (Exception e) {
       if (log.isWarnEnabled()) {
         log.warn("The private key cannot be re-encrypted");

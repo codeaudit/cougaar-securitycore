@@ -29,47 +29,31 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Signature;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
 import java.security.SignatureException;
 
-public class SignatureOutputStream extends FilterOutputStream {
-  Signature _signature;
+public class SignatureOutputStream
+  extends DigestOutputStream
+  implements SignedDigestOutputStream
+{
+  private Signature _signature;
+  private OutputStream _os;
+
   public SignatureOutputStream(OutputStream os, String algorithm, 
                                PrivateKey signKey) 
     throws NoSuchAlgorithmException, InvalidKeyException {
-    super(os);
+    super(os, MessageDigest.getInstance("SHA"));
+    _os = os;
     _signature = Signature.getInstance(algorithm);
     _signature.initSign(signKey);
   }
 
-  public void write(byte[] b) throws IOException {
-    super.write(b);
-    try {
-      _signature.update(b);
-    } catch (SignatureException e) {
-      // never happens... we initialize properly always
-    }
-  }
-
-  public void write(byte[] b, int off, int len) throws IOException {
-    super.write(b, off, len);
-    try {
-      _signature.update(b, off, len);
-    } catch (SignatureException e) {
-      // never happens... we initialize properly always
-    }
-  }
-
-  public void write(byte b) throws IOException {
-    super.write(b);
-    try {
-      _signature.update(b);
-    } catch (SignatureException e) {
-      // never happens... we initialize properly always
-    }
-  }
-
   public byte[] writeSignature() throws IOException {
     try {
+      byte[] digest = getMessageDigest().digest();
+      _signature.update(digest);
+
       byte[] sig = _signature.sign();
       int len = sig.length;
       int sigTop = (len & 0xFF00) >> 8;

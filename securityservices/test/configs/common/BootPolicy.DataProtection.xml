@@ -19,7 +19,7 @@
 		
 		<!-- one of: plain, encrypt, sign, signAndEncrypt -->
 		<SecureMethod>signAndEncrypt</SecureMethod>
-		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
+		<SymmetricAlgorithm>AES</SymmetricAlgorithm>
     		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
     		<SigningAlgorithm>MD2withRSA</SigningAlgorithm>
                 

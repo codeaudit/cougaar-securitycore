@@ -6,6 +6,7 @@ import org.cougaar.core.service.DataProtectionKey;
 import org.cougaar.core.service.DataProtectionKeyEnvelope;
 import org.cougaar.core.service.DataProtectionService;
 import org.cougaar.core.service.DataProtectionServiceClient;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,7 +51,9 @@ public class DataProtectionTest implements DataProtectionServiceClient {
       if (dpe == null)
         dpe = new DataProtectionKeyEnvelopeImpl();
       FileInputStream is = new FileInputStream(new File(inf));
-      FileOutputStream fos = new FileOutputStream(new File(of), append);
+      File ffof = new File(of);
+      ffof.createNewFile();
+      FileOutputStream fos = new FileOutputStream(ffof, append);
       OutputStream os = dps.getOutputStream(dpe, fos);
       byte [] rbytes = new byte[2000];
       int result = 0;
@@ -93,7 +96,6 @@ public class DataProtectionTest implements DataProtectionServiceClient {
     }
   }
 
-  /*
   public static void main(String [] argv) {
     if (argv.length != 4) {
       System.out.println("Incorrect arguments.");
@@ -106,14 +108,17 @@ public class DataProtectionTest implements DataProtectionServiceClient {
       SecurityServiceProvider secProvider = new SecurityServiceProvider();
       ServiceBroker serviceBroker = secProvider.getServiceBroker();
       DataProtectionTest dptest = new DataProtectionTest(serviceBroker, argv[1]);
-      if (argv[0].equals("-i"))
-        dptest.testOutput(null, argv[2], argv[3]);
+      if (argv[0].equals("-o"))
+        dptest.testOutput(null, argv[3], argv[2], false);
+      else if (argv[0].equals("-i"))
+        dptest.testInput(null, argv[3], argv[2]);
+      else
+	System.out.println("Wrong argument:" + argv[0]);
     } catch (Exception ex) {
       System.out.println("Exception: " + ex.toString());
       ex.printStackTrace();
     }
   }
-  */
 
   public DataProtectionKeyEnvelope createEnvelope() {
     return new DataProtectionKeyEnvelopeImpl();
