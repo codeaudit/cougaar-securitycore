@@ -16,12 +16,20 @@ module Cougaar
         # the first slot is a placehold so that mop 2.1 is at index 1.
         run['mops'] = [
           AbstractSecurityMop.new(run),
+          SecuirtyMop21.instance,
+          SecuirtyMop22.instance,
+          SecurityMop23.instance,
+          SecurityMop2_4.instance,
+          SecurityMop2_5.instance,
+          SecurityMop2_6.instance
+=begin
           Stressors.getStressInstance('SecurityMop21', run),
           Stressors.getStressInstance('SecurityMop22', run),
           Stressors.getStressInstance('SecurityMop23', run),
           Stressors.getStressInstance('SecurityMop2_4', run),
           Stressors.getStressInstance('SecurityMop2_5', run),
           Stressors.getStressInstance('SecurityMop2_6', run),
+=end
           ]
       end
     end
@@ -38,7 +46,7 @@ module Cougaar
       end
 
       def perform
-        SecurityMop2_3.instance.startTcpCapture(@agents)
+        SecurityMop23.instance.startTcpCapture(@agents)
       end
     end # class StartTcpCapture
 
@@ -80,8 +88,8 @@ puts "halting security mops" if $VerboseDebugging
 #        setPolicies
 #        SecurityMop2_4.instance.run = @run
 
-        @mops = [SecurityMop2_1.instance, SecurityMop2_2.instance,
-                SecurityMop2_3.instance, SecurityMop2_4.instance,
+        @mops = [SecurityMop21.instance, SecurityMop22.instance,
+                SecurityMop23.instance, SecurityMop2_4.instance,
                 SecurityMop2_5.instance, SecurityMop2_6.instance]
 
         run['mops'] = @mops

@@ -14,7 +14,7 @@ class AbstractSecurityMop < SecurityStressFramework
     @raw = []
   end
   def self.instance
-    Stressors.getStressInstance(self.name, getRun),
+    return Stressors.getStressInstance(self.name, getRun)
   end
   def setup
     # default is to do nothing
