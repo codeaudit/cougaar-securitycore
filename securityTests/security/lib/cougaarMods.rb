@@ -116,9 +116,20 @@ module Cougaar
        }
 =end
 
-       def initialize(run, agent="NCA", path="/userManagerReady", timeout=nil, &block)
+       def initialize(run, agent=nil, path="/userManagerReady", timeout=nil, &block)
          super(run, timeout, &block)
-         @agent = agent
+         if agent == nil
+           @run.each_agent(true) { |agent|
+             agent.each_facet("org_id") { |facet| 
+               if facet["org_id"] == "OSD.GOV"
+	         @agent = agent
+	         break
+               end
+             }
+	   }
+         else 
+           @agent = agent
+         end
          @path = path
        end
        
