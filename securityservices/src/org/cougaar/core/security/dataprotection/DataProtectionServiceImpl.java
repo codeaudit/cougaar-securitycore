@@ -169,7 +169,7 @@ public class DataProtectionServiceImpl
 
   public OutputStream getOutputStream(DataProtectionKeyEnvelope pke,
 				      OutputStream os)
-	throws IOException, GeneralSecurityException
+	throws IOException
   {
 
     String agent = dpsClient.getAgentIdentifier().toAddress();
@@ -182,7 +182,7 @@ public class DataProtectionServiceImpl
     if (certList == null || certList.size() == 0) {
       CertificateException cx = new CertificateException("No certificate available to sign.");
       publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
-      throw cx;
+      throw new IOException(cx.getMessage());
     }
     DataProtectionKey dpKey = null;
     try {
@@ -196,7 +196,7 @@ public class DataProtectionServiceImpl
       }
       catch(GeneralSecurityException gsx) {
         publishDataFailure(agent, DataFailureEvent.CREATE_KEY_FAILURE, gsx.toString());
-        throw gsx;
+        throw new IOException(gsx.getMessage());
       }
       catch(IOException iox) {
         publishDataFailure(agent, DataFailureEvent.IO_EXCEPTION, iox.toString());
@@ -211,17 +211,21 @@ public class DataProtectionServiceImpl
       GeneralSecurityException gsx =
         new GeneralSecurityException("No data protection key present.");
       publishDataFailure(agent, DataFailureEvent.NO_KEYS, gsx.toString());
-      throw gsx;
+      throw new IOException(gsx.getMessage());
     }
     SecureMethodParam policy = ((DataProtectionKeyImpl)keyCollection.get(0)).getSecureMethod();
     if (policy.secureMethod == SecureMethodParam.PLAIN)
       return os;
 
     // check whether key needs to be replaced
-    DataProtectionOutputStream dpos =
-      new DataProtectionOutputStream(os, pke, agent, serviceBroker);
-    //dpos.addPublisher(eventPublisher);
-    return dpos;
+    try {
+      DataProtectionOutputStream dpos =
+        new DataProtectionOutputStream(os, pke, agent, serviceBroker);
+      //dpos.addPublisher(eventPublisher);
+      return dpos;
+    } catch (GeneralSecurityException gsx) {
+      throw new IOException(gsx.getMessage());
+    }
   }
 
   private DataProtectionKey createDataProtectionKey(String agent, DataProtectionKeyEnvelope pke)
@@ -564,7 +568,7 @@ public class DataProtectionServiceImpl
 
   public InputStream getInputStream(DataProtectionKeyEnvelope pke,
 				    InputStream is)
-	throws IOException, GeneralSecurityException
+	throws IOException
   {
     String agent = dpsClient.getAgentIdentifier().toAddress();
 
@@ -579,7 +583,7 @@ public class DataProtectionServiceImpl
       GeneralSecurityException gsx =
         new GeneralSecurityException("No data protection key present.");
       publishDataFailure(agent, DataFailureEvent.NO_KEYS, gsx.toString());
-      throw gsx;
+      throw new IOException(gsx.getMessage());
     }
 
     DataProtectionKeyImpl dpKey = (DataProtectionKeyImpl)keyCollection.get(0);
@@ -592,7 +596,7 @@ public class DataProtectionServiceImpl
     if (certList == null || certList.size() == 0) {
       CertificateException cx = new CertificateException("No certificate available to sign.");
       publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
-      throw cx;
+      throw new IOException(cx.getMessage());
     }
       /*
     String ofname = keyRing.getKeyStorePath();
@@ -610,10 +614,14 @@ public class DataProtectionServiceImpl
     }
     return new ByteArrayInputStream(bos.toByteArray());
 	*/
-	  DataProtectionInputStream dpis =
-  	  new DataProtectionInputStream(is, pke, agent, serviceBroker);
+    try {
+      DataProtectionInputStream dpis =
+        new DataProtectionInputStream(is, pke, agent, serviceBroker);
     //dpis.addPublisher(eventPublisher);
-    return dpis;
+      return dpis;
+    } catch (GeneralSecurityException gsx) {
+      throw new IOException(gsx.getMessage());
+    }
   }
 
   public void release() {

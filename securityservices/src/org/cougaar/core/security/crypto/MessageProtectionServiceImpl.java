@@ -283,7 +283,6 @@ public class MessageProtectionServiceImpl
 
     boolean encrypted = isEncrypted(attributes);
     oout.writeBoolean(encrypted);
-//     System.out.println("protecting header -- encrypted = " + encrypted);
     if (encrypted) {
       // no need for signature or encryption -- SSL is good!
       oout.writeObject(attributes);
@@ -463,7 +462,6 @@ public class MessageProtectionServiceImpl
       addr = null;
     }
     if (addr == null) {
-      System.out.println("couldn't find address for " + agent);
       throw new IOException("Message cannot be accepted until node name can be found");
     }
     return addr;
@@ -478,6 +476,7 @@ public class MessageProtectionServiceImpl
    * @param destination The destination of the message
    * @return the header in the clear
    */
+  /* not needed anymore...
   public byte[] unprotectHeader(byte[] rawData,
 				MessageAddress source,
 				MessageAddress target)
@@ -497,6 +496,7 @@ public class MessageProtectionServiceImpl
       return null;
     }
   }
+  */
 
   /**
    * Verify the signed and/or encrypted header of an incoming message.
@@ -506,9 +506,9 @@ public class MessageProtectionServiceImpl
    * @param target      The destination of the message
    * @return The message attributes associated with the rawData
    */
-  public MessageAttributes unprotectHeader2(byte[] rawData,
-                                            MessageAddress source,
-                                            MessageAddress target)
+  public MessageAttributes unprotectHeader(byte[] rawData,
+                                           MessageAddress source,
+                                           MessageAddress target)
     throws GeneralSecurityException, IOException
   {
     if (rawData == null) {
@@ -519,7 +519,6 @@ public class MessageProtectionServiceImpl
     
     MessageAttributes attrs;
     boolean encrypted = oin.readBoolean();
-//     System.out.println("unprotecting header using encrypted channel: " + encrypted);
     if (encrypted) {
       // FIXME!! This is a hack! There should be a way to determine
       // if the thread is an internal route or not other than by
@@ -540,10 +539,6 @@ public class MessageProtectionServiceImpl
                                              ": " + e.getMessage());
         }
       } else {
-//         System.out.println("Current Thread: " + Thread.currentThread());
-//         System.out.println("Thread group:   '" + tg.getName() + "'");
-//         System.out.println("Principal:      '" + 
-//                            KeyRingSSLServerFactory.getPrincipal() + "'");
         if (log.isWarnEnabled()) {
           log.warn("unprotectHeader (plain) " + source +
                    " -> " + target + " clear channel used");
@@ -641,7 +636,6 @@ public class MessageProtectionServiceImpl
       }
     }
     checkAspectChain(attrs);
-//     System.out.println("success!");
     return attrs;
   }
 
