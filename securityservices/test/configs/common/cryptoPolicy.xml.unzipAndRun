@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<policies>
+  <policy name="Crypto Client Policy" type = "cryptoClientPolicy">
+    <cryptoClientPolicy>
+      <isCertificateAuthority>false</isCertificateAuthority>
+      <keystoreFileName>keystore-${org.cougaar.node.name}</keystoreFileName>
+      <keystorePassword>keystorePassword</keystorePassword>
+      <trustedCAs>
+        <CA_keystore>keystoreNCA_CA</CA_keystore>
+
+        <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
+	<CA_requestURL>/CA/CertificateSigningRequest</CA_requestURL>
+	<CA_infoURL>/CA/CAInfoServlet</CA_infoURL>
+      </trustedCAs>
+
+      <certificateAttributes>
+        <distinguishedName>
+          <!-- Organizational unit -->
+          <ou>CONUS</ou>
+          <!-- Organizational -->
+          <o>DLA</o>
+          <!-- City or Locality -->
+          <l>San Francisco</l>
+          <!-- State -->
+          <st>CA</st>
+          <!-- Country Code -->
+          <c>US</c>
+          <!-- Domain -->
+          <domain>dc=srosset,dc=cougaar,dc=org</domain>
+        </distinguishedName>
+        <nodeIsSigner>true</nodeIsSigner>
+        <!-- The key algorithm -->
+        <keyAlgName>RSA</keyAlgName>
+        <!-- The key size -->
+        <keysize>1024</keysize>
+        <!-- The signature algorithm -->
+        <sigAlgName>SHA1WithRSA</sigAlgName>
+        <!-- The validity of self-signed certificates.
+             This value is overriden when the CA signs the certificate. -->
+        <validity>1 M</validity>
+      </certificateAttributes>
+    </cryptoClientPolicy>
+  </policy>
+  <policy name="" type="certificateAuthorityPolicy">
+    <!-- Configuration of Certificate Authority -->
+    <certificateAuthority>
+      <!-- The distinguished name as found in the X509 certificate -->
+      <distinguishedName></distinguishedName>
+      <!-- The name of a file where the next serial number is stored -->
+      <serialNumberFile>SerialNumber_Node</serialNumberFile>
+
+      <ldapURL></ldapURL>
+      <ldapType></ldapType>
+      <!-- Policy when issuing certificates -->
+      <clientCertPolicy>
+        <!-- The X509 version number to be created -->
+        <certVersion>2</certVersion>
+        <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
+        <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
+        <keysize>1024</keysize>
+        <!-- How long to certify for. This is the validity of a certificate
+             signed by a node.  -->
+        <certValidity>1 y</certValidity>
+        <requirePending>false</requirePending>
+      </clientCertPolicy>
+    </certificateAuthority>
+  </policy>
+
+</policies>
