@@ -3214,7 +3214,13 @@ public class DirectoryKeyStore
     // expired, regen key
     if (log.isDebugEnabled())
       log.debug("Certificate expired, requesting again.");
-    addKeyPair(commonName, null);
+    // Problem: If a certificate has been revoked, the CA should not regenerate a certificate
+    // automatically. However, this is what the CA is doing right now.
+    // In the checkExpiry method, we call findCert() first, which returns null if the certificate
+    // has been revoked. The method would then re-issue a new certificate, and a new
+    // valid certificate would be generated.
+    // For now, the code is commented out as a workaround, but this should be fixed.
+    //addKeyPair(commonName, null);
 
     return true;
   }
