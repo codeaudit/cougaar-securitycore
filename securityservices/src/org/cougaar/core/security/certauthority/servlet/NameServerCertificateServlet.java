@@ -77,6 +77,8 @@ public class NameServerCertificateServlet extends HttpServlet {
       ObjectInputStream ois = new ObjectInputStream(req.getInputStream());
 
       Object obj = ois.readObject();
+      ois.close();
+
       // this is a query
       if (obj instanceof String []) {
 
@@ -110,6 +112,8 @@ public class NameServerCertificateServlet extends HttpServlet {
 
         ObjectOutputStream oos = new ObjectOutputStream(res.getOutputStream());
         oos.writeObject(certs);
+        oos.flush();
+        oos.close(); 
         return;
       }
       else if (obj instanceof NameServerCertificate) {
