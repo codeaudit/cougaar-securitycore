@@ -24,7 +24,6 @@
 package org.cougaar.core.security.acl.auth;
 
 import org.cougaar.core.security.audit.AuditLogger;
-import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
 import org.cougaar.util.log.LoggerFactory;
 
 import java.io.IOException;
@@ -51,25 +50,12 @@ public class SecureHookServlet implements Servlet {
   private Servlet _hookServlet = null;
   private org.cougaar.util.log.Logger _log;
 
-  /**
-   * The enforcer answers policy questions about whether audit is required.
-   * Remove the _enforcer code if moving audit to DualAuthenticator is okd.
-   */
-  private static ServletNodeEnforcer _enforcer = null;
 
   /**
    * default constructor
    */
   public SecureHookServlet() {
     _log = LoggerFactory.getInstance().createLogger(SecureHookServlet.class);
-  }
-
-  /**
-   * Set the enforcer that will answer all questions about logging.
-   */
-  public static void setEnforcer(ServletNodeEnforcer enforcer)
-  { 
-    _enforcer = enforcer;
   }
 
   /**
