@@ -76,7 +76,15 @@ org.cougaar.logistics.plugin.servicediscovery.ALProviderPlugin http://ontology.c
 org.cougaar.logistics.plugin.servicediscovery.ALDynamicSDClientPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
 #  (needed by the super class)
 
+org.cougaar.logistics.plugin.policy.LogisticsPolicyManagerPlugin  http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+
+org.cougaar.mlm.plugin.organization.GLSAllocatorPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+org.cougaar.tools.csmart.plugins.oplan.OPlanDetector http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+org.cougaar.mlm.plugin.generic.PropagationPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+org.cougaar.lib.aggagent.plugin.RemoteSubscriptionPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+org.cougaar.core.mobility.service.RedirectMovePlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+org.cougaar.logistics.ldm.ClassIConsumerPrototypeProvider http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
+
 # Components that have a broken predicate:
-#org.cougaar.community.CommunityPlugin
-#org.cougaar.core.mobility.service.RedirectMovePlugin
+org.cougaar.community.CommunityPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
 
