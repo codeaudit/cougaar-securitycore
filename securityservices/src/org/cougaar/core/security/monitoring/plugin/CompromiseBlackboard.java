@@ -31,6 +31,7 @@ package org.cougaar.core.security.monitoring.plugin;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
 
+import org.cougaar.core.security.constants.IdmefClassifications;
 import java.io.Serializable;
 
 
@@ -47,7 +48,7 @@ public class CompromiseBlackboard implements UniqueObject, Serializable {
   /** Compromise of a Host */
   public static final String HOST_COMPROMISE_TYPE = "Host";
   /** constant for classification of IDMEF Event */
-  public static final String CLASSIFICATION = "Blackboard has been compromised";
+  public static final String CLASSIFICATION  = IdmefClassifications.BLACKBOARD_COMPROMISE_FAILURE ;
   /**Constant for revoke session verb*/
   public static final String REVOKE_SESSION_KEY_VERB="RevokeSessionKey";
   /**Constant for verb to revoke agent cert*/
