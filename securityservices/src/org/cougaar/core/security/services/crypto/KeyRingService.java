@@ -62,8 +62,10 @@ public interface KeyRingService extends Service {
    */
   List findCert(String commonName);
 
-  X509Certificate findFirstAvailableCert(String name)
+  Hashtable findCertPairFromNS(String source, String target)
     throws CertificateException;
+  public List findDNFromNS(String name);
+  public List findCert(X500Name dname, int lookupType, boolean validOnly);
 
   public static final int LOOKUP_LDAP               = 1;
   public static final int LOOKUP_KEYSTORE           = 2;
@@ -111,7 +113,6 @@ public interface KeyRingService extends Service {
    *  TODO: Remove these methods
    */
   void checkOrMakeCert(String name);
-  void checkOrMakeCert(X500Name dname);
   void checkOrMakeCert(X500Name dname, boolean isCACert);
   Vector getCRL();
   long getSleeptime();
