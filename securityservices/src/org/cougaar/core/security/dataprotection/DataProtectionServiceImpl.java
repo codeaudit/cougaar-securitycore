@@ -44,7 +44,10 @@ import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 
 import org.cougaar.core.blackboard.BlackboardClient;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceListener;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.SecureMethodParam;
@@ -88,9 +91,12 @@ public class DataProtectionServiceImpl
   private String keygenAlg = "DES";
   private String digestAlg = "SHA";
   private CryptoClientPolicy cryptoClientPolicy;
-	private AgentIdentificationService agentIdService;
-	 private UIDService uidService;
-	 private BlackboardService bbs;
+  private AgentIdentificationService agentIdService;
+  private ServiceListener agentIdSL;
+  private UIDService uidService;
+  private ServiceListener uidServiceSL;
+  private BlackboardService bbs;
+  private ServiceListener bbsSL;
   // event publisher for data protection failures
   //private static EventPublisher eventPublisher;
   private Hashtable keyCache = new Hashtable();
@@ -125,14 +131,68 @@ public class DataProtectionServiceImpl
       serviceBroker.getService(requestor,
 			       CryptoPolicyService.class,
 			       null);
-//	Get UID Service
-			uidService = (UIDService) this.serviceBroker.getService(requestor, UIDService.class, null);
-
-			//Get AgentIdentification Service
-			agentIdService = (AgentIdentificationService) this.serviceBroker.getService(requestor, AgentIdentificationService.class, null);
-
-			//Get Blackboard Service
-			bbs = (BlackboardService) serviceBroker.getService(requestor, BlackboardService.class, null);
+	//	Get UID Service
+	uidService = (UIDService) this.serviceBroker.getService(this, UIDService.class, null);
+	if(uidService==null){
+		if(log.isDebugEnabled()){
+			log.debug("Can't get UIDService. Registering as service listener");
+		}
+		ServiceAvailableListener sal = new ServiceAvailableListener() {  
+			public void serviceAvailable(ServiceAvailableEvent ae) {
+				if(ae.getService() == UIDService.class) {
+					if(log.isDebugEnabled()){
+						log.debug("UIDService is now available");
+					}
+					uidService = (UIDService)ae.getServiceBroker().getService(this, UIDService.class, null);
+					removeServiceListener();
+				}
+			}
+		};
+		serviceBroker.addServiceListener(sal);
+		uidServiceSL = sal;
+	}
+	//Get AgentIdentification Service
+	agentIdService = (AgentIdentificationService) this.serviceBroker.getService(this, AgentIdentificationService.class, null);
+	if(agentIdService==null){
+			if(log.isDebugEnabled()){
+				log.debug("Can't get AgentIdentificationService. Registering as service listener");
+			}
+			ServiceAvailableListener sal = new ServiceAvailableListener() {  
+				public void serviceAvailable(ServiceAvailableEvent ae) {
+					if(ae.getService() == AgentIdentificationService.class) {
+						if(log.isDebugEnabled()){
+							log.debug("agentIdService is now available");
+						}
+						agentIdService = (AgentIdentificationService)ae.getServiceBroker().getService(this, AgentIdentificationService.class, null);
+						removeServiceListener();
+					}
+				}
+			};
+			serviceBroker.addServiceListener(sal);
+			agentIdSL = sal;
+		}
+	
+	//Get Blackboard Service
+	bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
+	if(bbs==null){
+			if(log.isDebugEnabled()){
+				log.debug("Can't get BlackboardService. Registering as service listener");
+			}
+			ServiceAvailableListener sal = new ServiceAvailableListener() {  
+				public void serviceAvailable(ServiceAvailableEvent ae) {
+					if(ae.getService() == BlackboardService.class) {
+						if(log.isDebugEnabled()){
+							log.debug("bbs is now available");
+						}
+						bbs = (BlackboardService)ae.getServiceBroker().getService(this, BlackboardService.class, null);
+						removeServiceListener();
+					}
+				}
+			};
+			serviceBroker.addServiceListener(sal);
+			bbsSL = sal;
+		}
+    
     // Get keyring service
     keyRing = (KeyRingService)
       serviceBroker.getService(requestor,
@@ -176,6 +236,17 @@ public class DataProtectionServiceImpl
       pps.addPMListener(dpsClient.getAgentIdentifier().toAddress(), this);
     }
   }
+	private void removeServiceListener() {
+		if(uidServiceSL != null) {
+			serviceBroker.removeServiceListener(uidServiceSL);
+		}
+		if(agentIdSL !=null){
+			serviceBroker.removeServiceListener(agentIdSL);
+		}
+		if(bbsSL !=null){
+			serviceBroker.removeServiceListener(bbsSL);
+		}
+	}
 
   public void newPMAvailable(PersistenceManagerPolicy pmp) {
     if (log.isDebugEnabled()) {
@@ -392,22 +463,20 @@ public class DataProtectionServiceImpl
       DataProtectionKeyImpl pmDPKey =
             new DataProtectionKeyImpl(skeyobj, digestAlg, policy,
                               keyRing.findCertChain(pmCert));
-//		TODO Is this the right place for this?
-				if(agentIdService==null){
-					agentIdService = (AgentIdentificationService)this.serviceBroker.getService(this,AgentIdentificationService.class, null);
-				}
-				if(agentIdService==null){
-					if(log.isErrorEnabled()){
-						log.error("AgentIdentifier Service is null");
-					}
-				}
-				 MessageAddress source = agentIdService.getMessageAddress();
-				 MessageAddress target = MessageAddress.getMessageAddress(commonName);
-				 SharedDataRelay sdr = new SharedDataRelay(uidService.nextUID(), source, target, pmDPKey, null);
-				 //publish relay
-				 bbs.openTransaction();
-				 bbs.publishAdd(sdr);
-				 bbs.closeTransactionDontReset();
+//	TODO Is this the right place for this?
+	if(agentIdService==null || bbs==null || uidService==null){
+		if(log.isErrorEnabled()){
+			log.error("One of the required services needed to publish the relay is not present");
+		}
+		MessageAddress source = agentIdService.getMessageAddress();
+		MessageAddress target = MessageAddress.getMessageAddress(commonName);
+		SharedDataRelay sdr = new SharedDataRelay(uidService.nextUID(), source, target, pmDPKey, null);
+		//publish relay
+		bbs.openTransaction();
+		bbs.publishAdd(sdr);
+		bbs.closeTransactionDontReset();
+	}
+				
       keyCollection.add(pmDPKey);
     }
     catch (Exception iox) {
