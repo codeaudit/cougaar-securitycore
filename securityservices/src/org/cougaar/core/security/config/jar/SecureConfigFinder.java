@@ -72,7 +72,7 @@ public class SecureConfigFinder
    */
   private CertificateVerifier _certificateVerifier;
 
-  private static final String EXCEPTION_LIST_FILE_NAME = "secureConfig.dat";
+  private static final String EXCEPTION_LIST_FILE_NAME = "secureConfig.conf";
 
   /** A list of regular expressions. If a URL matches one of the
    * regular expression, the configuration file with that URL
@@ -273,6 +273,13 @@ public class SecureConfigFinder
 
   private void logSecurityEvent(URL url, Exception ex) {
     _securelog.logJarVerificationError(url, ex);
+  }
+
+  /**
+   * Determines if ConfigFinder client may specify absolute file names.
+   */
+  protected boolean acceptAbsoluteFileNames() {
+    return true;
   }
 
 }
