@@ -91,7 +91,7 @@ module Cougaar
 		# -p   Display info for specified PID
 		# -o   output display
 		command = "ps -h -p #{nodeInfo.pid} -o pcpu,pmem,sz,rss"
-		saveAssertion "processInfo", "#{nodeInfo.host.name} #{command}"
+		#saveAssertion "processInfo", "#{nodeInfo.host.name} #{command}"
 		response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(30)
 		parseMemoryUsage(nodeInfo, response.body)
 		logNodeInfo(nodeInfo)
@@ -106,7 +106,7 @@ module Cougaar
 	  @run.society.each_node { |node|
 	    if nodeInfo.name == node.name
 	      node.parameters.each { |p|
-		saveAssertion "processInfo", p
+		#saveAssertion "processInfo", p
 		p.scan(/-Xmx(.+)/) { |match|
 		  nodeInfo.xmx = match[0]
 		  break
@@ -125,7 +125,7 @@ module Cougaar
         # 111111
         #
         def parseMemoryUsage(nodeInfo, str)
-	  saveAssertion "processInfo", str
+	  #saveAssertion "processInfo", str
 	  b = str.scan(/[\w\.]+/)
 	  nodeInfo.pcpu = b[0]
 	  nodeInfo.pmem = b[1]
