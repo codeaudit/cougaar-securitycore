@@ -46,19 +46,25 @@ public interface CertDirectoryServiceCA {
                             NoSuchProviderException,
                             SignatureException;
   */
-   public SearchResult getLdapentry(String distingushName,boolean uniqueid) throws MultipleEntryException, IOException  ;
-  public boolean revokeCertificate(String CAbindingName,String userbindingName,PrivateKey caprivatekey, String crlsignalg) throws NoSuchAlgorithmException,
-                            InvalidKeyException,
-			    CertificateException,
-			    CRLException,
-                            NoSuchProviderException,
-                            SignatureException,
-                            MultipleEntryException,
-			    IOException,
-			    NamingException;
-  public  X509Certificate getCertificate(Attributes attributes) throws CertificateException, NamingException;
-  public  boolean isCAEntry(Attributes attributes)throws NamingException;
-  public  CertificateRevocationStatus getCertificateRevocationStatus(Attributes attributes);
-  
 
+  SearchResult getLdapentry(String distingushName,boolean uniqueid)
+    throws MultipleEntryException, IOException;
+
+  boolean revokeCertificate(String CAbindingName,String userbindingName,
+			    PrivateKey caprivatekey, String crlsignalg)
+    throws NoSuchAlgorithmException,
+    InvalidKeyException,
+    CertificateException,
+    CRLException,
+    NoSuchProviderException,
+    SignatureException,
+    MultipleEntryException,
+    IOException,
+    NamingException;
+
+  X509Certificate getCertificate(Attributes attributes) throws CertificateException, NamingException;
+  boolean isCAEntry(Attributes attributes)throws NamingException;
+  CertificateRevocationStatus getCertificateRevocationStatus(Attributes attributes);
+
+  void getContexts();
 }

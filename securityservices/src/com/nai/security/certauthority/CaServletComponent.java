@@ -28,6 +28,7 @@ package com.nai.security.certauthority;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.util.List;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -35,17 +36,21 @@ import javax.servlet.http.*;
 import org.cougaar.core.servlet.BaseServletComponent;
 import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.service.NamingService;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import com.nai.security.util.CryptoDebug;
 
 public class CaServletComponent
   extends BaseServletComponent
+  implements BlackboardClient
 {
   private String myPath = null;
   private Class myServletClass = null;
+  private String myServletClassName = null;
   private Servlet myServlet = null;
 
   private ClusterIdentifier agentId;
@@ -54,7 +59,6 @@ public class CaServletComponent
   // Services
   private BlackboardService blackboardService;
   private NamingService namingService;
-  private SecurityPropertiesService securityPropertiesService;
   private CertificateManagementService certificateManagementService;
 
   /**
@@ -63,25 +67,58 @@ public class CaServletComponent
    * This is typically a List of Strings.
    */
   public void setParameter(Object o) {
-    // Set path here
-    String aPath = null;
-    myPath = aPath;
+    // expecting a List of [String, String]
+    if (!(o instanceof List)) {
+      throw new IllegalArgumentException(
+        "Expecting a List parameter, not : "+
+        ((o != null) ? o.getClass().getName() : "null"));
+    }
+    List l = (List)o;
+    if (l.size() != 2) {
+      throw new IllegalArgumentException(
+          "Expecting a List with two elements,"+
+          " \"classname\" and \"path\", not "+l.size());
+    }
+    Object o1 = l.get(0);
+    Object o2 = l.get(1);
+    if ((!(o1 instanceof String)) ||
+        (!(o2 instanceof String))) {
+      throw new IllegalArgumentException(
+          "Expecting two Strings, not ("+o1+", "+o2+")");
+    }
+
+    // save the servlet classname and path
+    this.myServletClassName = (String) o1;
+    this.myPath = (String) o2;
 
     // Set servlet class here
-    String aClass = null;
     try {
-      myServletClass = Class.forName(aClass);
+      myServletClass = Class.forName(myServletClassName);
     }
-    catch (Exception e) {}
+    catch (Exception e) {
+      throw new IllegalArgumentException("Unable to find servlet class:"
+					 + e);
+    }
+    if (CryptoDebug.debug) {
+      System.out.println("Creating servlet component: "
+			 + myServletClassName + " at " + myPath);
+    }
   }
 
   public void load() {
+    if (CryptoDebug.debug) {
+      System.out.println("Loading servlet component: "
+			 + myServletClassName + " at " + myPath);
+    }
     // FIXME need AgentIdentificationService
     org.cougaar.core.plugin.PluginBindingSite pbs =
       (org.cougaar.core.plugin.PluginBindingSite) bindingSite;
     this.agentId = pbs.getAgentIdentifier();
 
-    
+    if (this.agentId == null) {
+      throw new RuntimeException("Unable to obtain agent identifier");
+    }
+
     // get the blackboard service
     blackboardService = (BlackboardService)
       serviceBroker.getService(
@@ -103,19 +140,8 @@ public class CaServletComponent
       throw new RuntimeException(
           "Unable to obtain naming service");
     }
-
-    // Get the security properties service
-    securityPropertiesService = (SecurityPropertiesService)
-      serviceBroker.getService(
-		    this,
-		    SecurityPropertiesService.class,
-		    null);
-    if (securityPropertiesService == null) {
-      throw new RuntimeException(
-          "Unable to obtain security properties service");
-    }
-    
-    // Get the security properties service
+   
+    // Get the certificate management service
     certificateManagementService = (CertificateManagementService)
       serviceBroker.getService(
 		    this,
@@ -130,7 +156,6 @@ public class CaServletComponent
 					     agentId,
 					     blackboardService,
 					     namingService,
-					     securityPropertiesService,
 					     certificateManagementService,
 					     serviceBroker);
     super.load();
@@ -150,12 +175,6 @@ public class CaServletComponent
         this, NamingService.class, namingService);
     }
 
-    // release the security properties service
-    if (securityPropertiesService != null) {
-      serviceBroker.releaseService(
-        this, SecurityPropertiesService.class, securityPropertiesService);
-    }
-
     // release the certificate management service
     if (certificateManagementService != null) {
       serviceBroker.releaseService(
@@ -170,6 +189,10 @@ public class CaServletComponent
 
   protected Servlet createServlet() {
     Object o = null;
+    if (support == null) {
+      throw new RuntimeException("Unable to initialize servlet: no security services");
+    }
+
     try {
       // All security servlets have the same constructor
       Class[] constructorParam = new Class[1];
@@ -181,10 +204,47 @@ public class CaServletComponent
       arg[0] = support;
       o = constructor.newInstance(arg);
     }
-    catch (Exception e) {}
+    catch (Exception e) {
+      if (CryptoDebug.debug) {
+	e.printStackTrace();
+	System.out.println("Unable to initialize servlet:" + e);
+      }
+    }
     if (o == null || !(o instanceof Servlet)) {
       return null;
     }
-    return (Servlet) o;
+    Servlet servlet = (Servlet) o;
+    return servlet;
   }
+
+  public String toString() {
+    return 
+      myServletClassName+"("+myPath+")";
+  }
+
+  /** ********************************************************************
+   *  BlackboardClient implementation
+   */
+
+  // odd BlackboardClient method:
+  public String getBlackboardClientName() {
+    return toString();
+  }
+
+  // odd BlackboardClient method:
+  public long currentTimeMillis() {
+    throw new UnsupportedOperationException(
+        this+" asked for the current time???");
+  }
+
+  // unused BlackboardClient method:
+  public boolean triggerEvent(Object event) {
+    // if we had Subscriptions we'd need to implement this.
+    //
+    // see "ComponentPlugin" for details.
+    throw new UnsupportedOperationException(
+        this+" only supports Blackboard queries, but received "+
+        "a \"trigger\" event: "+event);
+  }
+
 }

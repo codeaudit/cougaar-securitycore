@@ -35,22 +35,21 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
 // Cougaar security services
-import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import com.nai.security.certauthority.*;
 
 public class CertificateList extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
+  private ConfigParserService configParser = null;
 
-  private ConfParser confParser = null;
   private X500Name[] caDNs = null;
-  private String[] roles = null;
+  private String[] domains = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
   private CertDirectoryServiceClient certificateFinder=null;
   protected boolean debug = false;
@@ -62,30 +61,39 @@ public class CertificateList extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    secprop = support.getSecurityProperties(this);
+    try {
+      secprop = support.getSecurityProperties(this);
 
-    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
-						 "false"))).booleanValue();
+      debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+						   "false"))).booleanValue();
 
-    String confpath=(String)secprop.getProperty(secprop.CRYPTO_CONFIG);
-    if(debug)
-      System.out.println("^^^^^^^^^^^^^^^^ In cert list  "+confpath);
-    confParser = new ConfParser(confpath, true);
-    caDNs = confParser.getCaDNs();
-    roles = confParser.getRoles();
+      String confpath=(String)secprop.getProperty(secprop.CRYPTO_CONFIG);
+      if(debug)
+	System.out.println("^^^^^^^^^^^^^^^^ In cert list  "+confpath);
+      configParser = (ConfigParserService)
+	support.getServiceBroker().getService(this,
+					      ConfigParserService.class,
+					      null);
+      configParser.setConfigurationFile(confpath);
+      caDNs = configParser.getCaDNs();
+      domains = configParser.getRoles();
+    }
+    catch (Exception e) {
+      System.out.println("Unable to initialize servlet:" + e);
+    }
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
     PrintWriter out=res.getWriter();
-    String role=null;
+    String domain=null;
     String cadnname=null;
 
     cadnname =(String)req.getParameter("cadnname");
-    role =(String)req.getParameter("role");
+    domain =(String)req.getParameter("domain");
     if (debug) {
-      System.out.println(cadnname + " - " + role);
+      System.out.println(cadnname + " - " + domain);
     }
     if((cadnname==null)||( cadnname=="")) {
       out.print("Error ---Unknown  type CA dn name :");
@@ -95,7 +103,7 @@ public class CertificateList extends  HttpServlet
     }
     
     try {
-      caPolicy = confParser.readCaPolicy(cadnname, role);
+      caPolicy = configParser.getCaPolicy(cadnname);
       certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
 				      caPolicy.ldapType, caPolicy.ldapURL);
@@ -128,17 +136,17 @@ public class CertificateList extends  HttpServlet
 
     String uri = req.getRequestURI();
     String certDetailsUri = uri.substring(0, uri.lastIndexOf('/'))
-      + "/certdetails";
+      + "/CertificateDetailsServlet";
 
 
-    if((role==null)||(role=="")) {
-      role = null;
+    if((domain==null)||(domain=="")) {
+      domain = null;
     }
     if (debug) {
-      System.out.println("calling create table will role:" + role);
+      System.out.println("calling create table will domain:" + domain);
     }
     out.println(createtable(ldapentries,
-			    cadnname, role,
+			    cadnname, domain,
 			    certDetailsUri));
     out.println("</body></html>");
     out.flush();
@@ -165,19 +173,19 @@ public class CertificateList extends  HttpServlet
       out.println("<table>");
       out.println("<form action=\"\" method =\"post\">");
       out.println("<tr ><td colspan=\"3\">");
-      // Role
-      out.println("Name space: <select id=\"role\" name=\"role\">");
-      if (roles != null) {
-	for (int i = 0 ; i < roles.length ; i++) {
-	  out.println("<option value=\"" + roles[i] + "\">" 
-		      + roles[i] + "</option>");
+      // Domain
+      out.println("Name space: <select id=\"domain\" name=\"domain\">");
+      if (domains != null) {
+	for (int i = 0 ; i < domains.length ; i++) {
+	  out.println("<option value=\"" + domains[i] + "\">" 
+		      + domains[i] + "</option>");
 	}
       }
       else {
       }
       out.println("</select>");
       
-      //out.println("Role <input name=\"role\" type=\"text\" value=\"\">");
+      //out.println("Domain <input name=\"domain\" type=\"text\" value=\"\">");
       
       // Table separators
       out.println(" <br> <br></td></tr>");
@@ -205,11 +213,11 @@ public class CertificateList extends  HttpServlet
   
   public String getServletInfo()
   {
-    return("List all certificate specified by role and CAS dn name");
+    return("List all certificate specified by domain and CAS dn name");
   }
 
   public String createtable(LdapEntry[] ldapentries, String cadnname,
-			    String role, String certDetailUri)
+			    String domain, String certDetailUri)
   {
     StringBuffer sb=new StringBuffer();
     sb.append("<table align=\"center\" border=\"2\">\n");
@@ -223,7 +231,7 @@ public class CertificateList extends  HttpServlet
 		+ ldapentries[i].getUniqueIdentifier()+"\">");
       sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
 		+ cadnname + "\">");
-      sb.append("<input type=\"hidden\" name=\"role\" value=\"" + role + "\">");
+      sb.append("<input type=\"hidden\" name=\"domain\" value=\"" + domain + "\">");
       sb.append("<a Href=\"javascript:submitme(document.form"
 		+ i +")\">"
 		+ ldapentries[i].getCertDN()

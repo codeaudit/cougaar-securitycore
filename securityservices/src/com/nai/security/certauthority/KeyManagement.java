@@ -53,6 +53,9 @@ import sun.misc.BASE64Encoder;
 
 // Cougaar
 import org.cougaar.util.ConfigFinder;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceRevokedListener;
+import org.cougaar.core.component.ServiceRevokedEvent;
 
 // Cougaar Security Services
 import com.nai.security.policy.*;
@@ -64,7 +67,7 @@ import com.nai.security.crypto.ldap.CertificateRevocationStatus;
 
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /** Certification Authority service
@@ -79,14 +82,14 @@ public class KeyManagement
 {
   private KeyRingService keyRing = null;
   private SecurityPropertiesService secprop = null;
+  private ConfigParserService configParser = null;
 
   private String topLevelDirectory = null;
   private String x509directory = null;
-  private ConfParser confParser = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
-  private NodePolicy nodePolicy = null;        // the policy of the Node
-  private DirectoryKeyStore caKeyStore = null; /* the keystore where the
-						* CA private key is stored */
+  private CryptoClientPolicy cryptoClientPolicy;        // the policy of the Node
+  private NodeConfiguration nodeConfiguration;
+  private ServiceBroker serviceBroker;
 
   private String caDN = null;                  /* the distinguished name of
 						* the CA */
@@ -94,47 +97,20 @@ public class KeyManagement
 						  of the CA */
   private X500Name caX500Name = null;          // the X.500 name of the CA
 
-  private String x509DirectoryName;
-  private String pkcs10DirectoryName;
-  private String confDirectoryName;
   private CertDirectoryServiceCA caOperations = null;
 
-  private boolean isCertAuth;             /* true if run as a certificate
-					     authority.
-					     false if run as a Cougaar
-					     node. */
+  private String role;
+
   /**  KeyManagement constructor
    */
-  public KeyManagement(KeyRingService keyRing)
-  {
-    this.keyRing = keyRing;
+  public KeyManagement(ServiceBroker serviceBroker) {
+    this.serviceBroker = serviceBroker;
   }
 
   /**  Set key management parameters
    * @param aCA_DN       - The distinguished name of the CA
-   * @param role         - The role
-   * @param certPath     - The path where all cert requests are stored
-   *                       May be null, in which case it reads a java
-   *                       property. It should not be null in the case
-   *                       of a certificate authority.
-   * @param confpath     - The configuration path for the conf parser
-   *                       May be null, in which case it reads a java
-   *                       property. It should not be null in the case
-   *                       of a certificate authority.
-   * @param isCertAuth   - true if running as a certificate authority
-   *                       false if running as a Cougaar node
-   * @param krs          - KeyRing service. Useful only in when running
-   *                       as a Cougaar node.
    */
-  public void setParameters(String aCA_DN,
-			    String role,
-			    String certPath,
-			    String confpath,
-			    boolean isCertAuth) {
-    // TODO. Modify following line to use service broker instead
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
-
-
+  public void setParameters(String aCA_DN) {
     caDN = aCA_DN;
     String caCommonName = null;
     try {
@@ -145,54 +121,43 @@ public class KeyManagement
       return;
     }
 
-    if(CryptoDebug.debug) {
-      System.out.println(" got ca dn name as :"+caDN);
-    }
+    this.secprop = (SecurityPropertiesService)
+      serviceBroker.getService(
+	this,
+	SecurityPropertiesService.class,
+	null);
 
-    this.isCertAuth = isCertAuth;
+    // Retrieve KeyRing service
+    this.keyRing = (KeyRingService)
+      serviceBroker.getService(
+	this,
+	KeyRingService.class,
+	null);
+    
+    this.configParser = (ConfigParserService)
+      serviceBroker.getService(this,
+			       ConfigParserService.class,
+			       null);
+
     if (CryptoDebug.debug) {
-      if (isCertAuth) {
+      if (configParser.isCertificateAuthority()) {
 	System.out.println("Running as CA");
       }
       else {
 	System.out.println("Running as Cougaar node");
       }
     }
-
-    if (certPath != null) {
-      /* The following directory structure will be created automatically
-       * (except for the keystore file which must be manually installed)
-       * when running as a CA:
-       * top-level directory (org.cougaar.security.CA.certpath)
-       * +-+ <CA common name>
-       *   +-+ conf
-       *     +-- <keystore file>     (this is the CA keystore file.
-       *     |                        it must be manually installed)
-       *     +-- <serial number file>
-       *     +-- <pkcs10Directory>
-       *     +-+ <x509CertDirectory>
-       *       +-- signed X509 certificates
-       */
-      String topLevelDirectory = certPath + File.separatorChar + caCommonName;
-      confDirectoryName = topLevelDirectory +  File.separatorChar + "conf";
+  
+    nodeConfiguration = new NodeConfiguration(caDN);
+  
+    role = secprop.getProperty(secprop.SECURITY_ROLE);
+    if (role == null && CryptoDebug.debug == true) {
+      System.out.println("warning: Role not defined");
     }
-    else {
-      confDirectoryName =
-	secprop.getProperty("org.cougaar.security.CA.certpath");
-    }
- 
-    confParser = new ConfParser(confpath, isCertAuth);
 
     try {
-      caPolicy = confParser.readCaPolicy(caDN, role);
-      if (CryptoDebug.debug) {
-	if(caPolicy==null) {
-	  System.out.println(" Got Ca policy NULL");
-	}
-	else {
-	  System.out.println(" Got Ca policy "+ caPolicy.toString());
-	}
-      }
+      caPolicy = configParser.getCaPolicy(caDN);
+      cryptoClientPolicy = configParser.getCryptoClientPolicy();
     }
     catch (Exception e) {
       if(CryptoDebug.debug)
@@ -203,8 +168,17 @@ public class KeyManagement
       e.printStackTrace();
       return;
     }
+    if (CryptoDebug.debug) {
+      if(caPolicy==null) {
+	System.out.println("Got Ca policy NULL");
+      }
+      else {
+	System.out.println("Got Ca policy "+ caPolicy.toString());
+      }
+    }
+
     try {
-      init(role);
+      init();
     }
     catch (Exception e) {
       System.out.println("Error. Unable to initialize KeyManagement: " + e);
@@ -212,30 +186,9 @@ public class KeyManagement
     }
   }
 
-  public void init(String role)
+  public void init()
     throws java.io.FileNotFoundException {
-      if(isCertAuth) {
-      String keystoreFile = confDirectoryName + File.separatorChar
-	+ caPolicy.keyStoreFile;
-      if (CryptoDebug.debug) {
-	System.out.println("CA keystore: " + keystoreFile);
-      }
-
-      FileInputStream f = new FileInputStream(keystoreFile);
-      DirectoryKeyStoreParameters param = new DirectoryKeyStoreParameters();
-      param.keystoreStream = f;
-      param.keystorePassword = caPolicy.keyStorePassword.toCharArray();
-      param.keystorePath = keystoreFile;
-      param.isCertAuth = isCertAuth;
-      param.ldapServerUrl= caPolicy.ldapURL;
-      param.ldapServerType= caPolicy.ldapType;
-      caKeyStore = new DirectoryKeyStore(param);
-
-      if (CryptoDebug.debug) {
-	System.out.println("CA Certificate directory service URL: "
-			   + caPolicy.ldapURL);
-      }
-
+    if(configParser.isCertificateAuthority()) {
       caOperations =
 	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
 	  caPolicy.ldapType, caPolicy.ldapURL);
@@ -246,7 +199,7 @@ public class KeyManagement
     }
     else{
       try {
-	caPolicy = confParser.readCaPolicy("", role);
+	caPolicy = configParser.getCaPolicy("");
       }
       catch (Exception e) {
 	if (CryptoDebug.debug) {
@@ -255,41 +208,8 @@ public class KeyManagement
 	}
 	throw new RuntimeException("Unable to read policy:" + e);
       }
-      
-      try {
-	nodePolicy = confParser.readNodePolicy(role);
-      }
-      catch (java.lang.NoSuchFieldException e) {
-	throw new RuntimeException("Unable to read policy:" + e);
-      }
-      catch (java.lang.IllegalAccessException e) {
-	throw new RuntimeException("Unable to read policy:" + e);
-      }
       if (CryptoDebug.debug) {
 	System.out.println("Running in Cougaar environment");
-      }
-      /* When running as part of Cougaar, the KeyRing class is used to
-       * store the private keys and the certificates.
-       * The KeyRing class uses the org.cougaar.security.keystore property to
-       * set the location of the node keystore file.
-       * top-level directory: directory where the CA keystore file is stored.
-       * +-+ <node name>
-       *   +-+ conf
-       *     +-- <serial number file>
-       *     +-- <pkcs10Directory>
-       *     +-+ <x509CertDirectory>
-       *       +-- signed X509 certificates
-       */
-      ConfigFinder configFinder = new ConfigFinder();
-      File f = configFinder.locateFile(nodePolicy.CA_keystore);
-      if (f == null) {
-	throw new FileNotFoundException("Unable to locate CA keystore file: "
-					+ nodePolicy.CA_keystore);
-      }
-      confDirectoryName = f.getParent() + File.separatorChar
-	+ "Crypto-" + NodeInfo.getNodeName();
-      if (CryptoDebug.debug) {
-	System.out.println("Configuration Directory: " + confDirectoryName);
       }
     }
     try {
@@ -298,18 +218,6 @@ public class KeyManagement
     catch (java.io.IOException e) {
       throw new RuntimeException("Error: Unable to find CA cert: " + e);
     }
-    x509DirectoryName =  confDirectoryName + File.separatorChar
-      + "x509certificates";
-    pkcs10DirectoryName = confDirectoryName +  File.separatorChar
-      + "pkcs10requests";
-    // Create directory structure if it hasn't been created yet.
-    try {
-      createDirectoryStructure();
-    }
-    catch (java.io.IOException e) {
-      throw new RuntimeException("Unable to create CA directories: " + e);
-    }
-
   }
  
 
@@ -317,15 +225,15 @@ public class KeyManagement
   {
     System.out.println("calling publish CA in ldap :");
     Certificate c=null;
-     Enumeration enum=caKeyStore.getList();
+     Enumeration enum=keyRing.getAliasList();
      if(enum!=null) {
        for(;enum.hasMoreElements();) {
 	 String a = (String)enum.nextElement();
 	 String cn=null;
 	 try {
-	   cn= caKeyStore.getCommonName(a);
+	   cn= keyRing.getCommonName(a);
 	   System.out.println("got common name from alias : "+a +"cn = "+cn);
-	   c=caKeyStore.findCert(cn, DirectoryKeyStore.LOOKUP_LDAP);
+	   c=keyRing.findCert(cn, DirectoryKeyStore.LOOKUP_LDAP);
 	   if(c==null) {
 	     System.out.println("Found no certificate for --> :: "+ cn);
 	   }
@@ -365,27 +273,24 @@ public class KeyManagement
     X509Certificate x509cert;
 
     // Get CA X.509 certificate
-    if (isCertAuth) {
+    if (configParser.isCertificateAuthority()) {
       if(CryptoDebug.debug) {
 	System.out.println("Runnnig as a certificate authority");
       }
-	
-      x509cert = (X509Certificate) caKeyStore.findCert(commonName);
     }
-    else {
-      // Use Keyring
-      x509cert = (X509Certificate) keyRing.findCert(commonName);
-    }
+    x509cert = (X509Certificate)  keyRing.findCert(commonName);
     return x509cert;
   }
+
   private PrivateKey getPrivateKey(X500Name x500name) {
 
- PrivateKey privateKey=null;
-    if (isCertAuth) {
+    PrivateKey privateKey=null;
+    if (configParser.isCertificateAuthority()) {
       if(CryptoDebug.debug) {
-	System.out.println(" going to look for private key in caKeyStore with x500 name  ::***************************"+x500name );
+	System.out.println(" going to look for private key in KeyRing with x500 name:"
+			   +x500name );
       }
-      privateKey = caKeyStore.findPrivateKey(x500name);
+      privateKey = keyRing.findPrivateKey(x500name);
     }
     else {
       if(CryptoDebug.debug) {
@@ -398,33 +303,14 @@ public class KeyManagement
   private PrivateKey getPrivateKey(String commonName)
   {
     PrivateKey privateKey;
-    if (isCertAuth) {
+    if (configParser.isCertificateAuthority()) {
       if(CryptoDebug.debug) {
-	System.out.println(" going to look for private key in caKeyStore ::***************************"+commonName );
+	System.out.println(" going to look for private key in KeyRing:"
+			   +commonName );
       }
-      privateKey = caKeyStore.findPrivateKey(commonName);
     }
-    else {
-      // Use KeyRing
-       privateKey = keyRing.findPrivateKey(commonName);
-    }
+    privateKey = keyRing.findPrivateKey(commonName);
     return privateKey;
-  }
-
-  private void createDirectoryStructure()
-    throws IOException
-  {
-    if (CryptoDebug.debug) {
-      System.out.println("Creating directory structure under " + confDirectoryName);
-    }
-    File pkcs10dir = new File(pkcs10DirectoryName);
-    pkcs10dir.mkdirs();
-
-    File x509dir = new File(x509DirectoryName);
-    x509dir.mkdirs();
-
-    File confdir = new File(confDirectoryName);
-    confdir.mkdirs();
   }
 
   public void processX509Request(PrintStream out, InputStream inputstream) {
@@ -499,7 +385,7 @@ public class KeyManagement
 	// Save the X509 reply in a file
 	saveX509Request(clientX509, false);
 
-	if (isCertAuth) {
+	if (configParser.isCertificateAuthority()) {
 	  // Publish certificate in LDAP directory
 	  if (CryptoDebug.debug) {
 	    System.out.println("Publishing cert to LDAP service");
@@ -558,23 +444,26 @@ public class KeyManagement
 	PKCS10 req = (PKCS10)i.next();
 
 	X509CertImpl clientX509 = signX509Certificate(req);
-    // Richard - don't reply yet, otherwise the client installs
-    // those certs to keystore
-      // Richard -- reply with a status plus the certificate
-      // status -
-      // 1. success if the certificate is enclosed
-      // 2. pending if no certificate and the certificate is saved to the pending
-      //  directory
-      // 3. denied if no certificate and the certificate is saved to the denied
-      //  directory
-      // 4. if the request has never been issued
-        PendingCertCache pendingCache = PendingCertCache.getPendingCache(caPolicy, this);
+	/* Richard - don't reply yet, otherwise the client installs
+	 * those certs to keystore
+	 * Richard -- reply with a status plus the certificate
+	 * status -
+	 * 1. success if the certificate is enclosed
+	 * 2. pending if no certificate and the certificate is saved to
+	 * the pending/  directory
+	 * 3. denied if no certificate and the certificate is saved to
+	 * the denied/  directory
+	 * 4. if the request has never been issued
+	 */
+        PendingCertCache pendingCache =
+	  PendingCertCache.getPendingCache(caPolicy, this);
 
         X509CertImpl prevCert = null;
         PublicKey clientPubkey = clientX509.getPublicKey();
         int status = 0;
         for (; status < dirlist.length; status++) {
-          prevCert = (X509CertImpl)pendingCache.getCertificate(dirlist[status], clientPubkey);
+          prevCert = (X509CertImpl)
+	    pendingCache.getCertificate(dirlist[status], clientPubkey);
           if (prevCert != null)
             break;
         }
@@ -590,7 +479,7 @@ public class KeyManagement
           status = PENDING_STATUS_PENDING;
 
           pendingCache.addCertificateToList(
-            dirlist[2], caKeyStore.getAlias(clientX509), clientX509);
+            dirlist[2], keyRing.getAlias(clientX509), clientX509);
         }
 
         // put reply in xml format
@@ -612,24 +501,23 @@ public class KeyManagement
   }
 
   public String getX509DirectoryName() {
-    return x509DirectoryName;
+    return nodeConfiguration.getX509DirectoryName(caDN);
   }
 
   private void saveX509Request(X509CertImpl clientX509, boolean pending)
     throws IOException, CertificateEncodingException, NoSuchAlgorithmException
   {
-    if (isCertAuth) {
+    if (configParser.isCertificateAuthority()) {
       if (CryptoDebug.debug) {
 	System.out.println("Saving X509 certificate:");
       }
-      String alias = caKeyStore.getAlias(clientX509);
-
-      String filepath = x509DirectoryName;
+      String alias = keyRing.getAlias(clientX509);
+      String filepath = null;
       if (pending) {
-        filepath += File.separatorChar + caPolicy.pendingDirectory;
-        File pendingDir = new File(filepath);
-        if (!pendingDir.exists())
-          pendingDir.mkdirs();
+	filepath = nodeConfiguration.getPendingDirectoryName(caDN);
+      }
+      else {
+	filepath = nodeConfiguration.getX509DirectoryName(caDN);
       }
       filepath += File.separatorChar + alias + ".cer";
       if (CryptoDebug.debug) {
@@ -804,7 +692,8 @@ public class KeyManagement
   private synchronized BigInteger getNextSerialNumber(String filename)
     throws FileNotFoundException, IOException
   {
-    String serialNbFileName = confDirectoryName + File.separatorChar + filename;
+    String serialNbFileName = nodeConfiguration.getNodeDirectory()
+      + File.separatorChar + filename;
     if (CryptoDebug.debug) {
       System.out.println("Serial Number file name: " + serialNbFileName);
     }
@@ -1053,7 +942,7 @@ public class KeyManagement
       if(CryptoDebug.debug) {
 	System.out.println(" found private key going to revoke certificate in caOperations :");
       }
-      String filter=caKeyStore.parseDN(caDN);
+      String filter=keyRing.parseDN(caDN);
       SearchResult caresult=caOperations.getLdapentry(filter,false);
       Attributes caAttributes=caresult.getAttributes();
       String cabindingName=caresult.getName();
@@ -1071,7 +960,7 @@ public class KeyManagement
       String userbindingName=userresult.getName();
       X509Certificate cacert= caOperations.getCertificate(caAttributes);
       X509Certificate usercert=caOperations.getCertificate(userAttributes);
-      Certificate [] certchain=caKeyStore.checkCertificateTrust(usercert);
+      Certificate [] certchain=keyRing.checkCertificateTrust(usercert);
       PublicKey capublickey=cacert.getPublicKey();
       boolean validchain=false;
       if((certchain!=null)&&(certchain.length>0)) {

@@ -26,32 +26,18 @@
 
 package com.nai.security.policy;
 
-import sun.security.x509.*;
-import java.net.*;
+public class SecurityPolicy {
+  /** The name of this policy.
+   */
+  private String name;
 
-public class NodePolicy {
-  // Client policy
-  public String CA_DN;
-  public String CA_URL;
-  public String CA_keystore;
-  public String CA_keystorePassword;
+  // Get methods
+  public String getName() {
+    return name;
+  }
+  // Set methods
+  public void setName(String name) {
+    this.name = name;
+  }
 
-
-  public String certDirectoryUrl;
-  public int certDirectoryType;
-
-  // Values for certDirectoryType
-  static public final int NETTOOLS = 1;
-  static public final int COUGAAR_OPENLDAP = 2;
-
-  public String ou;
-  public String o;
-  public String l;
-  public String st;
-  public String c;
-
-  public String keyAlgName;
-  public int keysize;
-  public long howLong;
-  public String sigAlgName;
-};
+}

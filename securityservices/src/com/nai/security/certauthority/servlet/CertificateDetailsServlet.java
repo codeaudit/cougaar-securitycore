@@ -34,17 +34,17 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
 import com.nai.security.policy.CaPolicy;
-import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.certauthority.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 
 public class CertificateDetailsServlet extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
+  private ConfigParserService configParser = null;
 
   private CertDirectoryServiceClient certificateFinder=null;
   private CaPolicy caPolicy = null;            // the policy of the CA
@@ -59,10 +59,8 @@ public class CertificateDetailsServlet extends  HttpServlet
   public void init(ServletConfig config) throws ServletException
   {
     secprop = support.getSecurityProperties(this);
-
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
-     
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -101,8 +99,13 @@ public class CertificateDetailsServlet extends  HttpServlet
     }
     try {
       String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
-      ConfParser confParser = new ConfParser(confpath, true);
-      caPolicy = confParser.readCaPolicy(cadnname, role);
+      configParser = (ConfigParserService)
+	support.getServiceBroker().getService(this,
+					      ConfigParserService.class,
+					      null);
+      configParser.setConfigurationFile(confpath);
+
+      caPolicy = configParser.getCaPolicy(cadnname);
       certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
 				       caPolicy.ldapType, caPolicy.ldapURL);
@@ -148,7 +151,7 @@ public class CertificateDetailsServlet extends  HttpServlet
     }
 
     String uri = req.getRequestURI();
-    String certRevokeUri = uri.substring(0, uri.lastIndexOf('/')) + "/revokecertificate";
+    String certRevokeUri = uri.substring(0, uri.lastIndexOf('/')) + "/RevokeCertificateServlet";
 
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");

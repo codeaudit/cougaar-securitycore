@@ -53,6 +53,7 @@ public abstract class CertDirectoryService
   public static final String OBJECTCLASS_INETORGPERSON ="inetOrgPerson";
   protected String ldapServerUrl;
   protected DirContext context;
+  protected DirContext initialContext;
   protected boolean initializationOK = false;
   protected static String CONTEXT_FACTORY = 
     "com.sun.jndi.ldap.LdapCtxFactory";
@@ -118,6 +119,7 @@ public abstract class CertDirectoryService
       }
       
       context=new InitialDirContext(env);
+      initialContext = context;
       initializationOK = true;
     }
     catch(NamingException nexp) {
@@ -283,5 +285,23 @@ public abstract class CertDirectoryService
     return cert;
   }
 
+  public void getContexts() {
+    try {
+      String name = initialContext.getNameInNamespace();
+      System.out.println("Directory (" + name + ") contains:");
+      NamingEnumeration list = initialContext.list("");
+
+      NamingEnumeration list1 = initialContext.search("", null);
+
+      while (list.hasMore()) {
+	NameClassPair nc = (NameClassPair)list.next();
+	System.out.println(nc);
+      }
+    }
+    catch (Exception e) {
+      System.out.println("Exception: " + e);
+      e.printStackTrace();
+    }
+  }
 
 }

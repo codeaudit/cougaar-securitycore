@@ -29,7 +29,9 @@ package com.nai.security.policy;
 import sun.security.x509.*;
 import java.net.*;
 
-public class CaPolicy {
+public class CaPolicy 
+  extends SecurityPolicy
+{
 
   /** *************************************************************
    *  These fields are used by the CA and the node acting as a CA.
@@ -75,18 +77,13 @@ public class CaPolicy {
    *  These fields are used by the CA only.
    */
 
-  /** The name of a keystore file where the CA private key is
-   *  stored.
-   */
-  public String keyStoreFile;
-
-  /** The password used to open the CA keystore file.
-   */
-  public String keyStorePassword;
-
   /** The common name of the CA.
    */
   public String caCommonName;
+
+  /** The distinguished name of the CA.
+   */
+  public X500Name caDnName;
 
   /** The URL of the LDAP directory where all certificates are
    *  published.
@@ -120,5 +117,14 @@ public class CaPolicy {
   /** The algorithm ID used to sign CRLs
    */
   public AlgorithmId CRLalgorithmId;
+
+
+  public String toString() {
+    return "DN=" + caDnName.toString()
+      + " - certVersion=" + certVersion
+      + " - algorithmId=" + algorithmId
+      + " - keysize=" + keySize
+      + " - ldap=" + ldapURL;
+  }
 
 };

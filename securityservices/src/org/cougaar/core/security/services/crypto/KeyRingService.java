@@ -32,40 +32,49 @@ import java.security.cert.X509Certificate;
 import java.security.Principal;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.util.Vector;
+import java.util.*;
+import java.security.cert.*;
+import sun.security.x509.*;
 
 // Cougaar
 import org.cougaar.core.component.Service;
 
 // Cougaar Security Services
-import com.nai.security.crypto.PrivateKeyCert;
-import com.nai.security.crypto.DirectoryKeyStore;
+import com.nai.security.crypto.*;
 
 /** Low-level service to retrieve certificates
  */
 public interface KeyRingService extends Service {
 
+  /** Support for multiple certificates per entity
+   */
+  X509Certificate[] getCertificates(Principal p);
+  PrivateKey[] getPrivateKeys(String commonName);
+
   /** ******************************
    *  Methods to access public keys
    */
 
+  /** Find the list of all public keys of an entity
+   */
 
   /** 
    */
-  public Certificate findCert(Principal p);
+  Certificate findCert(Principal p);
 
   /** 
    */
-  public Certificate findCert(String commonName);
+  Certificate findCert(String commonName);
 
   /**
    */
-  public Certificate findCert(String commonName, int lookupType);
+  Certificate findCert(String commonName, int lookupType);
 
   /**
    */
-  public X509Certificate[] findCertChain(X509Certificate c);
+  X509Certificate[] findCertChain(X509Certificate c);
 
+  String getCommonName(String alias);
 
   /** ******************************
    *  Methods to access private keys
@@ -75,29 +84,34 @@ public interface KeyRingService extends Service {
 
   /** 
    */
-  public KeyStore getKeyStore();
+  KeyStore getKeyStore();
 
   /**
    */
-  public DirectoryKeyStore getDirectoryKeyStore();
+  DirectoryKeyStore getDirectoryKeyStore();
 
   /** 
    */
-  public PrivateKey findPrivateKey(String commonName);
+  PrivateKey findPrivateKey(String commonName);
+  /** 
+   */
+  PrivateKey findPrivateKey(X500Name x500name);
 
+
+  Enumeration getAliasList();
 
   /** ******************************
    *  TODO: Remove these methods
    */
-  public void checkOrMakeCert(String name);
-  public Vector getCRL();
-  public long getSleeptime();
-  public void setSleeptime(long sleeptime);
+  void checkOrMakeCert(String name);
+  Vector getCRL();
+  long getSleeptime();
+  void setSleeptime(long sleeptime);
 
-  public void removeEntry(String commonName);
-  public void setKeyEntry(PrivateKey key, X509Certificate cert);
+  void removeEntry(String commonName);
+  void setKeyEntry(PrivateKey key, X509Certificate cert);
 
-  public byte[] protectPrivateKey(PrivateKey privKey,
+  byte[] protectPrivateKey(PrivateKey privKey,
 				  Certificate cert,
 				  PrivateKey signerPrivKey,
 				  Certificate signerCert,
@@ -108,9 +122,13 @@ public interface KeyRingService extends Service {
    * @param rcvrPrivKey    The private key of the receiver
    * @param rcvrCert       The certificate of the receiver
    */
-  public PrivateKeyCert[] getPfx(byte[] pfxBytes,
+  PrivateKeyCert[] getPfx(byte[] pfxBytes,
 				 PrivateKey rcvrPrivKey,
 				 Certificate rcvrCert);
 
-
+  String getAlias(X509Certificate clientX509);
+  String parseDN(String aDN);
+  X509Certificate[] checkCertificateTrust(X509Certificate certificate)
+    throws CertificateChainException, CertificateExpiredException,
+    CertificateNotYetValidException, CertificateRevokedException;
 }

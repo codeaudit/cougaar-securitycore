@@ -38,13 +38,14 @@ import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import com.nai.security.policy.CaPolicy;
-import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import  org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
-public class PendingCertCache extends Hashtable {
+public class PendingCertCache
+  extends Hashtable
+{
   private SecurityPropertiesService secprop = null;
 
   private CaPolicy caPolicy = null;            // the policy of the CA
@@ -54,16 +55,17 @@ public class PendingCertCache extends Hashtable {
   private static PendingCertCache thisCache = null;
   private CertificateManagementService signer = null;
   private ServiceBroker serviceBroker;
+  private ConfigParserService configParser = null;
 
   // singleton
   // only started once
   public synchronized static PendingCertCache getPendingCache(
-    String cadnname, String role, String certpath, String confpath,
+    String cadnname, String role, String certpath,
     ServiceBroker sb) {
     if (thisCache == null) {
       try {
         thisCache = new PendingCertCache(cadnname, role,
-					 certpath, confpath, sb);
+					 certpath, sb);
       }
       catch (Exception e) {
         System.out.println("Error creating PendingCertCache: " + e.toString());
@@ -73,20 +75,22 @@ public class PendingCertCache extends Hashtable {
   }
 
   private PendingCertCache(String cadnname, String role,
-			   String certpath, String confpath,
+			   String certpath,
 			   ServiceBroker sb) 
     throws Exception {
     serviceBroker = sb;
-    ConfParser confParser = new ConfParser(confpath, true);
+    configParser = (ConfigParserService)
+      serviceBroker.getService(this,
+			       ConfigParserService.class,
+			       null); 
     try {
-      caPolicy = confParser.readCaPolicy(cadnname, role);
+      caPolicy = configParser.getCaPolicy(cadnname);
 
       signer = (CertificateManagementService)
 	serviceBroker.getService(this,
 				 CertificateManagementService.class,
 				 null);
-      signer.setParameters(cadnname, role, certpath, confpath,
-			   true);
+      signer.setParameters(cadnname);
     }
     catch (Exception e) {
       throw new Exception("Unable to read policy for DN="

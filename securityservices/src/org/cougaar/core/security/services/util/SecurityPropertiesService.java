@@ -47,6 +47,9 @@ public interface SecurityPropertiesService extends Service
   public static String KAOS_DEBUG =
   "SAFE.debug";
 
+  public static String COUGAAR_WORKSPACE =
+  "org.cougaar.workspace.path";
+
   public static String BOOTSTRAP_KEYSTORE =
   "org.cougaar.core.security.bootstrap.keystore";
   public static String BOOTSTRAP_VERIFYKEY =
@@ -70,6 +73,8 @@ public interface SecurityPropertiesService extends Service
 
   public String getProperty(String property);
   public String getProperty(String property, String defaultValue);
+
+  public void setProperty(String property, String value);
 
   /*
 import com.nai.security.util.SecurityPropertiesService;

@@ -32,19 +32,38 @@ import java.util.*;
 import java.io.*;
 
 import org.w3c.dom.*;
-//import org.jdom.input.SAXBuilder;
-//import org.jdom.input.*;
 
+// Cougaar security services
 import com.nai.security.crypto.*;
+import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class KeyGenerator {
 
-  private static int nbCertificates = 0;
-  private static int nbCertificatesSucceed = 0;
-  private static String agentName = null;
-  private static ConfParser confParser = null;
+  private int nbCertificates = 0;
+  private int nbCertificatesSucceed = 0;
+  private String agentName = null;
+
+  private SecurityServiceProvider secProvider = null;
+  private ConfigParserService configParser = null;
+
+  public KeyGenerator()
+  {
+    secProvider = new SecurityServiceProvider();
+
+    configParser = (ConfigParserService)
+      secProvider.getService(null,
+			     this,
+			     ConfigParserService.class);
+
+  }
 
   public static void main(String args[]) {
+    KeyGenerator kg = new KeyGenerator();
+    kg.run(args);
+  }
+
+  public void run(String args[]) {
     int action = 0;
 
     if (args.length < 2) {
@@ -81,9 +100,7 @@ public class KeyGenerator {
     }
     System.setProperty("org.cougaar.security.crypto.config", args[0]);
 
-    confParser = new ConfParser(null, false);
-
-    Element root = confParser.getConfigDocument().getDocumentElement();
+    Element root = configParser.getConfigDocument().getDocumentElement();
     iterateKeyStore(root, action);
 
     System.out.println("Total number of certificates:        " + nbCertificates);
@@ -93,7 +110,7 @@ public class KeyGenerator {
   /** This convenience method returns the textual content of the named
       child element, or returns an empty String ("") if the child has no
       textual content. */
-  private static String getChildText(Element e, String tagName)
+  private String getChildText(Element e, String tagName)
   {
     NodeList nodes = e.getElementsByTagName(tagName);
     if (nodes == null || nodes.getLength() == 0) {
@@ -108,7 +125,7 @@ public class KeyGenerator {
     return val;
   }
 
-  public static void iterateKeyStore(Element element, int action) {
+  public void iterateKeyStore(Element element, int action) {
     
     NodeList societyChildren = element.getChildNodes();
     // Iterate through each key store
@@ -175,8 +192,8 @@ public class KeyGenerator {
     }
   }
 
-  public static KeyStore loadKeyStore(String keyStoreName,
-				      String keyStorePasswd) {
+  public KeyStore loadKeyStore(String keyStoreName,
+			       String keyStorePasswd) {
     KeyStore keyStore = null;
     InputStream in = null;
     try {
@@ -198,9 +215,9 @@ public class KeyGenerator {
     return keyStore;
   }
 
-  public static void storeKeyStore(KeyStore keyStore,
-				   String keyStoreName,
-				   String keyStorePasswd) {
+  public void storeKeyStore(KeyStore keyStore,
+			    String keyStoreName,
+			    String keyStorePasswd) {
     try {
       OutputStream out = new FileOutputStream(keyStoreName);
       keyStore.store(out, keyStorePasswd.toCharArray());
@@ -215,7 +232,7 @@ public class KeyGenerator {
     }
   }
 
-  public static void iterateKey(Element element,
+  public void iterateKey(Element element,
 				String keyStoreName,
 				String keyStorePasswd) {
     String alias = getChildText(element, "alias");
@@ -227,9 +244,9 @@ public class KeyGenerator {
 
   }
 
-  public static void createKeyPairWithKeyTool(Element element,
-					      String keyStoreName,
-					      String keyStorePasswd) {
+  public void createKeyPairWithKeyTool(Element element,
+				       String keyStoreName,
+				       String keyStorePasswd) {
     String alias = getChildText(element, "alias");
     String keypass = getChildText(element, "keypass");
     String keyalg = getChildText(element, "keyalg");
@@ -277,7 +294,7 @@ public class KeyGenerator {
     executeCommand(genKeyCom);
   }
 
-  public static void executeCommand(List commandLine) {
+  public void executeCommand(List commandLine) {
     try {
       String[] command = new String[commandLine.size()];
       for (int i = 0 ; i < commandLine.size() ; i++) {
@@ -317,9 +334,9 @@ public class KeyGenerator {
     }
   }
 
-  public static void createCertificateRequestWithKeyTool(Element element,
-							 String keyStoreName,
-							 String keyStorePasswd) {
+  public void createCertificateRequestWithKeyTool(Element element,
+						  String keyStoreName,
+						  String keyStorePasswd) {
     String alias = getChildText(element, "alias");
     String keypass = getChildText(element, "keypass");
     String dname = getChildText(element, "dname");
@@ -353,9 +370,9 @@ public class KeyGenerator {
     executeCommand(genKeyCom);
   }
 
-  public static void importSigneCertificateWithKeyTool(Element element,
-						       String keyStoreName,
-						       String keyStorePasswd) {
+  public void importSigneCertificateWithKeyTool(Element element,
+						String keyStoreName,
+						String keyStorePasswd) {
     String alias = getChildText(element, "alias");
     String keypass = getChildText(element, "keypass");
     String signingAuthority = getChildText(element, "signingAuthority");
@@ -389,9 +406,9 @@ public class KeyGenerator {
     executeCommand(genKeyCom);
   }
 
-  public static void importTrustedAuthorityWithKeyTool(Element element,
-						       String keyStoreName,
-						       String keyStorePasswd) {
+  public void importTrustedAuthorityWithKeyTool(Element element,
+						String keyStoreName,
+						String keyStorePasswd) {
     String alias = getChildText(element, "alias");
     String fileName = getChildText(element, "file");
 
@@ -431,9 +448,9 @@ public class KeyGenerator {
     executeCommand(genKeyCom);
   }
 
-  public static void exportCertificatesWithKeyTool(Element element,
-						   String keyStoreName,
-						   String keyStorePasswd) {
+  public void exportCertificatesWithKeyTool(Element element,
+					    String keyStoreName,
+					    String keyStorePasswd) {
     String alias = getChildText(element, "alias");
     String signingAuthority = getChildText(element, "signingAuthority");
 
@@ -467,9 +484,9 @@ public class KeyGenerator {
     executeCommand(genKeyCom);
   }
 
-  public static void importCertificatesWithKeyTool(Element element,
-						   String keyStoreName,
-						   String keyStorePasswd) {
+  public void importCertificatesWithKeyTool(Element element,
+					    String keyStoreName,
+					    String keyStorePasswd) {
     String alias = getChildText(element, "alias");
     String signingAuthority = getChildText(element, "signingAuthority");
 
@@ -526,9 +543,9 @@ public class KeyGenerator {
     }
   }
 
-  public static void removeCertificatesWithKeyTool(Element element,
-						   String keyStoreName,
-						   String keyStorePasswd) {
+  public void removeCertificatesWithKeyTool(Element element,
+					    String keyStoreName,
+					    String keyStorePasswd) {
     String alias = getChildText(element, "alias");
     String signingAuthority = getChildText(element, "signingAuthority");
 

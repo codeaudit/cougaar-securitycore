@@ -64,4 +64,16 @@ public class SecurityPropertiesServiceImpl
     }
     return value;
   }
+
+  public void setProperty(String property, String value) {
+    if (CryptoDebug.debug) {
+      System.out.println("setProperty(" + property + ")=" + value);
+    }
+    if (servletContext != null) {
+      servletContext.setAttribute(property, value);
+    }
+    else {
+      System.setProperty(property, value);
+    }
+  }
 }

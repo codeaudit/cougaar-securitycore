@@ -34,19 +34,19 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
 // Cougaar security services
-import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import com.nai.security.certauthority.*;
 
 public class PendingCertificateServlet extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
-  private ConfParser confParser = null;
+  private ConfigParserService configParser = null;
+
   private X500Name[] caDNs = null;
   private String[] roles = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
@@ -65,9 +65,13 @@ public class PendingCertificateServlet extends  HttpServlet
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
     String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
-    confParser = new ConfParser(confpath, true);
-    caDNs = confParser.getCaDNs();
-    roles = confParser.getRoles();
+    configParser = (ConfigParserService)
+      support.getServiceBroker().getService(this,
+					    ConfigParserService.class,
+					    null);
+    configParser.setConfigurationFile(confpath);
+    caDNs = configParser.getCaDNs();
+    roles = configParser.getRoles();
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -90,7 +94,7 @@ public class PendingCertificateServlet extends  HttpServlet
     }
 
     try {
-      caPolicy = confParser.readCaPolicy(cadnname, role);
+      caPolicy = configParser.getCaPolicy(cadnname);
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
 				       caPolicy.ldapType, caPolicy.ldapURL);
@@ -133,7 +137,6 @@ public class PendingCertificateServlet extends  HttpServlet
     PendingCertCache pendingCache =
       PendingCertCache.getPendingCache(cadnname,
 				       role, certpath,
-				       confpath,
 				       support.getServiceBroker());
     Hashtable certtable =
       (Hashtable)pendingCache.get(caPolicy.pendingDirectory);

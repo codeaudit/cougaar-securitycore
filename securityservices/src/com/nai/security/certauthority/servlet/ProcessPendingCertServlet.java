@@ -34,23 +34,22 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
 // Cougaar security services
-import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceCA;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import com.nai.security.certauthority.*;
 
 public class ProcessPendingCertServlet extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
+  private ConfigParserService configParser = null;
 
   private CaPolicy caPolicy = null;            // the policy of the CA
   private CertDirectoryServiceCA caOperations=null;
-  private ConfParser confParser = null;
 
   protected boolean debug = false;
 
@@ -66,7 +65,11 @@ public class ProcessPendingCertServlet extends  HttpServlet
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
     String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
-    confParser = new ConfParser(confpath, true);
+    configParser = (ConfigParserService)
+      support.getServiceBroker().getService(this,
+					    ConfigParserService.class,
+					    null);
+    configParser.setConfigurationFile(confpath);
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -94,7 +97,7 @@ public class ProcessPendingCertServlet extends  HttpServlet
     }
 
     try {
-      caPolicy = confParser.readCaPolicy(cadnname, role);
+      caPolicy = configParser.getCaPolicy(cadnname);
       caOperations =
 	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
 				       caPolicy.ldapType, caPolicy.ldapURL);
@@ -119,7 +122,6 @@ public class ProcessPendingCertServlet extends  HttpServlet
         PendingCertCache pendingCache =
 	  PendingCertCache.getPendingCache(cadnname,
 					   role, certpath,
-					   confpath,
 					   support.getServiceBroker());
         certimpl = (X509Certificate)
           pendingCache.getCertificate(caPolicy.pendingDirectory, alias);

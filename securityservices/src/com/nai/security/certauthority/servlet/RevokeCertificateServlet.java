@@ -38,7 +38,6 @@ import java.security.PrivateKey;
 // Cougaar core infrastructure
 
 // Cougaar security services
-import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceCA;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
@@ -46,14 +45,17 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
 import com.nai.security.crypto.MultipleEntryException;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import com.nai.security.certauthority.*;
 
-public class RevokeCertificateServlet extends  HttpServlet
+public class RevokeCertificateServlet
+  extends HttpServlet
 {
   private SecurityPropertiesService secprop = null;
   private CertificateManagementService keymanagement=null;
+  private ConfigParserService configParser = null;
+
   javax.servlet.ServletContext context=null;
   protected boolean debug = false;
 
@@ -73,6 +75,11 @@ public class RevokeCertificateServlet extends  HttpServlet
     if(debug)
       System.out.println(" context is :"+ context.toString());
 
+    configParser = (ConfigParserService)
+      support.getServiceBroker().getService(this,
+					    ConfigParserService.class,
+					    null);
+
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -82,7 +89,7 @@ public class RevokeCertificateServlet extends  HttpServlet
     res.setContentType("Text/HTML");
    
     String distinguishedName=req.getParameter("distinguishedName");
-    String role=req.getParameter("role");
+    String domain=req.getParameter("domain");
     String cadnname=req.getParameter("cadnname");
    
     String certpath=secprop.getProperty(secprop.CA_CERTPATH);
@@ -113,14 +120,13 @@ public class RevokeCertificateServlet extends  HttpServlet
     try {
     
       keymanagement = support.getCertificateManagementService();
-      keymanagement.setParameters(cadnname, role, certpath, confpath,
-				  true);
+      keymanagement.setParameters(cadnname);
       String uniqueIdentifier=distinguishedName;
       status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
     }
     catch (MultipleEntryException multipleexp) {
       out.print("Multiple entry found for : " + multipleexp.getMessage());
-      out.println(appendForm(certlistUri,cadnname,role));
+      out.println(appendForm(certlistUri,cadnname,domain));
 
       out.flush();
       out.close();
@@ -129,7 +135,7 @@ public class RevokeCertificateServlet extends  HttpServlet
      catch (Exception generalexp) {
       out.print("Error has occured due to  following reason  : "
 		+ generalexp.getMessage());
-      out.println(appendForm(certlistUri,cadnname,role));  
+      out.println(appendForm(certlistUri,cadnname,domain));  
       out.flush();
       out.close();
       return;
@@ -157,20 +163,20 @@ public class RevokeCertificateServlet extends  HttpServlet
     }
   
     
-    out.println(appendForm(certlistUri,cadnname,role));
+    out.println(appendForm(certlistUri,cadnname,domain));
     out.println("</body>");
     out.println("</html>");
 
   }
-  private String appendForm(String posturl, String caDNName, String role) {
+  private String appendForm(String posturl, String caDNName, String domain) {
     
     StringBuffer sb=new StringBuffer();
      sb.append("<form name=\"certlist\" action=\"" +posturl
 	       + "\" method=\"post\">");
      sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
 		+caDNName + "\">");
-     sb.append("<input type=\"hidden\" name=\"role\" value=\""
-	       + role + "\">");
+     sb.append("<input type=\"hidden\" name=\"domain\" value=\""
+	       + domain + "\">");
      sb.append("<a Href=\"javascript:submitme(document.certlist)\">"
 		+ "Back to List "+"</a></form>");
      return sb.toString();

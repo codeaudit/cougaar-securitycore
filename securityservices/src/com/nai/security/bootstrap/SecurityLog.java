@@ -32,6 +32,7 @@ import java.text.*;
 import org.cougaar.core.security.bootstrap.*;
 
 public class SecurityLog 
+  implements Runnable
 {
   PrintStream log=null;
   public SecurityLog()
@@ -92,6 +93,9 @@ public class SecurityLog
     else if (BaseBootstrapper.loudness > 0) {
       System.out.println("Unable to log JAR file verification error:" + e);
     }
+  }
+  public void run() {
+
   }
 }
 

@@ -27,10 +27,6 @@
 package org.cougaar.core.security.provider;
 
 import java.lang.*;
-import java.util.Hashtable;
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpServlet;
 
 // Cougaar core services
 import org.cougaar.core.component.*;
@@ -38,52 +34,22 @@ import org.cougaar.util.*;
 
 // Cougaar security services
 import com.nai.security.util.CryptoDebug;
-import com.nai.security.util.SecurityPropertiesServiceImpl;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.config.*;
 
-public class SecurityPropertiesServiceProvider
+public class ConfigParserServiceProvider 
   implements ServiceProvider
 {
-  /** A hashtable containing all the servlet context instances
-   */
-  static private Hashtable contextMap;
-  /** A singleton service to use when servlet context is null.
-     */
-  static private SecurityPropertiesService secProp;
+  static private ConfigParserService configParserService;
+
   public synchronized Object getService(ServiceBroker sb, 
 					Object requestor, 
 					Class serviceClass) {
-    SecurityPropertiesService securityPropertiesService = null;
-    // Instantiate one service for each servlet context
-    javax.servlet.ServletContext context = null;
-
-    if (requestor instanceof Servlet) {
-      Servlet servlet = (Servlet) requestor;
-      ServletConfig config = servlet.getServletConfig();
-      if (config != null) {
-	context = config.getServletContext();
-      }
+    if (configParserService == null) {
+      configParserService = new ConfigParserServiceImpl();
     }
-    if (context == null) {
-      if (secProp == null) {
-	secProp = new SecurityPropertiesServiceImpl();
-      }
-      securityPropertiesService = secProp;
-    }
-    else {
-      // Figure out if the service has already been instantiated
-      // for that context.
-      securityPropertiesService =
-	(SecurityPropertiesService)contextMap.get(context);
-      if (securityPropertiesService == null) {
-	securityPropertiesService =
-	  new SecurityPropertiesServiceImpl(context);
-	contextMap.put(context, securityPropertiesService);
-      }
-    }
-    return securityPropertiesService;
+    return configParserService;
   }
-
   public void releaseService(ServiceBroker sb,
 			     Object requestor,
 			     Class serviceClass,

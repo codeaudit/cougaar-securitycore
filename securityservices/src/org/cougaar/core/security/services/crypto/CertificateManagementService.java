@@ -65,11 +65,7 @@ public interface CertificateManagementService extends Service {
    * @param krs          - KeyRing service. Useful only in when running
    *                       as a Cougaar node.
    */
-  public void setParameters(String aCA_DN,
-			    String role,
-			    String certPath,
-			    String confpath,
-			    boolean isCertAuth);
+  public void setParameters(String aCA_DN);
 
   public void processX509Request(PrintStream out, InputStream inputstream);
 

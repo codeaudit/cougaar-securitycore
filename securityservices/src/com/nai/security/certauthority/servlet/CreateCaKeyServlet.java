@@ -31,79 +31,123 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.security.cert.X509Certificate;
-
 import sun.security.x509.*;
 
-// Cougaar security services
+import com.nai.security.policy.CaPolicy;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
-import com.nai.security.policy.CaPolicy;
-import org.cougaar.core.security.services.util.*;
 import com.nai.security.certauthority.*;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.services.identity.*;
 
-public class CaKeyManagement
-  extends HttpServlet
+public class CreateCaKeyServlet
+  extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
 
-  private CaPolicy caPolicy = null;            // the policy of the CA
+  protected boolean debug = false;
 
   private SecurityServletSupport support;
-  public CaKeyManagement(SecurityServletSupport support) {
+  private AgentIdentityService agentIdentity;
+
+  public CreateCaKeyServlet(SecurityServletSupport support) {
     this.support = support;
   }
 
   public void init(ServletConfig config) throws ServletException
   {
     secprop = support.getSecurityProperties(this);
-    String confpath=
-      secprop.getProperty(secprop.CRYPTO_CONFIG);
-
-    configParser = (ConfigParserService)
+    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+						"false"))).booleanValue();
+    agentIdentity = (AgentIdentityService)
       support.getServiceBroker().getService(this,
-					    ConfigParserService.class,
+					    AgentIdentityService.class,
 					    null);
-    configParser.setConfigurationFile(confpath);
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
+    String caCN =(String)req.getParameter("CN");
     PrintWriter out=res.getWriter();
+
+    try {
+      agentIdentity.CreateCryptographicIdentity(caCN, null);
+    }
+    catch (Exception e) {
+      out.println("Unable to generate CA key: " + e);
+      out.flush();
+      out.close();
+      return;
+    }
 
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
     out.println("<head>");
-    out.println("<title>Certificate Authority Key Management</title>");
+    out.println("<title>CA key generation</title>");
     out.println("</head>");
     out.println("<body>");
+    out.println("<H2>CA key generation</H2>");
+    out.println("CA key has been generated");
     out.println("</body></html>");
     out.flush();
     out.close();
   }
   
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
-    throws ServletException, IOException
-  {
+    throws ServletException, IOException  {
     res.setContentType("Text/HTML");
     PrintWriter out=res.getWriter();
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
     out.println("<head>");
-    out.println("<title>Certificate Authority Key Management</title>");
+    out.println("<title>CA key generation</title>");
     out.println("</head>");
     out.println("<body>");
+    out.println("<H2>CA key generation</H2>");
+    out.println("<table>");
+    out.println("<form action=\"\" method =\"post\">");
+
+    out.println("<tr ><td colspan=\"3\">");
+    out.println("CN: <input name=\"CN\" type=\"text\" value=\"\">");
+    out.println(" <br> <br></td></tr>");
+
+    out.println("<tr ><td colspan=\"3\">");
+    out.println("OU: <input name=\"OU\" type=\"text\" value=\"\">");
+    out.println(" <br> <br></td></tr>");
+
+    out.println("<tr ><td colspan=\"3\">");
+    out.println("O: <input name=\"O\" type=\"text\" value=\"\">");
+    out.println(" <br> <br></td></tr>");
+
+    out.println("<tr ><td colspan=\"3\">");
+    out.println("L: <input name=\"L\" type=\"text\" value=\"\">");
+    out.println(" <br> <br></td></tr>");
+
+    out.println("<tr ><td colspan=\"3\">");
+    out.println("ST: <input name=\"ST\" type=\"text\" value=\"\">");
+    out.println(" <br> <br></td></tr>");
+
+    out.println("<tr ><td colspan=\"3\">");
+    out.println("C: <input name=\"C\" type=\"text\" value=\"\">");
+    out.println(" <br> <br></td></tr>");
+
+    out.println("</td></tr>");
+
+    out.println("</tr><tr><td></td><td><br><input type=\"submit\">&nbsp;&nbsp;&nbsp;");
+    out.println("<input type=\"reset\"></td><td></td></tr>");
+    out.println("</form></table>");
     out.println("</body></html>");
     out.flush();
     out.close();
+    
   }
   
-  public String getServletInfo()
-  {
-    return("Manage keys of Certificate Authority");
+  public String getServletInfo()  {
+    return("Generate a CA key");
   }
+  
 }

@@ -43,7 +43,8 @@ import com.nai.security.crypto.MultipleEntryException;
 import com.nai.security.crlextension.x509.extensions.*;
 import com.nai.security.util.CryptoDebug;
 
-public class OpenLdapCertDirectoryService extends CertDirectoryService
+public class OpenLdapCertDirectoryService
+  extends CertDirectoryService
   implements CertDirectoryServiceClient, CertDirectoryServiceCA
 {
   public static final String issuingdpointname="IssuingDistibutionPoint";
@@ -59,7 +60,7 @@ public class OpenLdapCertDirectoryService extends CertDirectoryService
     try {
       // TODO: secure authentication.
       context.addToEnvironment(Context.SECURITY_PRINCIPAL,
-			       "cn=manager,dc=cougaar,dc=org");
+			       "cn=manager, dc=cougaar, dc=org");
       context.addToEnvironment(Context.SECURITY_CREDENTIALS, "secret");
     }
     catch (Exception e) {
@@ -81,7 +82,7 @@ public class OpenLdapCertDirectoryService extends CertDirectoryService
     }
     catch (NamingException nexp) {
       if(CryptoDebug.debug) {
-	System.out.println("Could not retrive the attributes for :"+bindingName);
+	System.out.println("Could not retrieve the attributes for :"+bindingName);
 	nexp.printStackTrace();
       }
       return null;
@@ -848,8 +849,3 @@ public class OpenLdapCertDirectoryService extends CertDirectoryService
   }
   
 }
-
-
-
-
-

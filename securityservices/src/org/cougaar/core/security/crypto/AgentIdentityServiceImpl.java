@@ -81,13 +81,16 @@ public class AgentIdentityServiceImpl
 					  RevocationCallBack clientCallBack)
     throws PendingRequestException,
     IdentityDeniedException {
+    keyRing.checkOrMakeCert(agentName);
   }
 
   public void HoldCryptographicIdentity(String agentName) {
+    throw new RuntimeException("Feature not yet implemented");
   }
 
 
   public void RevokeCryptographicIdentity(String agentName) {
+    throw new RuntimeException("Feature not yet implemented");
   }
 
   /** @param privKey        The private keys to wrap

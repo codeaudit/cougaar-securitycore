@@ -41,89 +41,25 @@ import com.nai.security.util.CryptoDebug;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import  org.cougaar.core.security.services.crypto.CertificateManagementService;
 import com.nai.security.certauthority.*;
+import com.nai.security.crypto.CertificateUtility;
 
 public class CertificateSigningRequest
   extends  HttpServlet
 {
   private CertificateManagementService signer;
-  javax.servlet.ServletContext context=null;
-
   private SecurityPropertiesService secprop = null;
-
   private SecurityServletSupport support;
+
   public CertificateSigningRequest(SecurityServletSupport support) {
+    if (support == null) {
+      throw new IllegalArgumentException("Support services null");
+    }
     this.support = support;
   }
   
   public void init(ServletConfig config) throws ServletException
   {
     super.init(config);
-    secprop = support.getSecurityProperties(this);
-
-    String file= config.getInitParameter("configfile");
-    ConfigFinder confFinder = new ConfigFinder();
-    try {
-      Document doc = confFinder.parseXMLConfigFile(file);
-      Element root = doc.getDocumentElement();
-      setjavaproperty(root);
-    }
-    catch (IOException e) {
-      System.out.println("Unable to read configFile: " + e);
-    }
-  }
-
-
-
-  /** This convenience method returns the textual content of the named
-      child element, or returns an empty String ("") if the child has no
-      textual content. */
-  private String getChildText(Element e, String tagName)
-  {
-    NodeList nodes = e.getElementsByTagName(tagName);
-    if (nodes == null || nodes.getLength() == 0) {
-      return null;
-    }
-    // Get first element
-    Node child = nodes.item(0).getFirstChild();
-    String val = null;
-    if (child != null) {
-      val = child.getNodeValue();
-    }
-    return val;
-  }
-
-  public void setjavaproperty(Element root)
-  {
-    //javax.servlet.ServletContext context=null;
-    context=getServletContext();
-    CryptoDebug.initContext(this);
-
-    NodeList children = root.getChildNodes();
-
-    // Iterate through javaproperty
-    for (int i = 0 ; i < children.getLength() ; i++) {
-      Node o = children.item(i);
-      if (o instanceof Element &&
-	  ((Element)o).getTagName().equals("servletjavaproperties")) {
-	Element propertyelement = (Element)o;
-	String propertyName =  getChildText(propertyelement,
-					    "propertyname");
-	String propertyValue = getChildText(propertyelement,
-					    "propertyvalue");
-	if((propertyName==null )||(propertyValue==null)) {
-	  System.out.println("wrong xml format error");
-	  return;
-	}
-	try {
-	  System.out.println("setting property name in context  :"+propertyName);
-	  System.out.println("setting property value in context::"+propertyValue);
-	  context.setAttribute(propertyName,propertyValue);
-	}
-	catch(SecurityException sexp) {
-	  sexp.printStackTrace();
-	}
-      }
-    }
   }
   
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -132,13 +68,13 @@ public class CertificateSigningRequest
     String pkcs=null;
     String type=null;
     String CA_DN_name=null;
-    String role = null;
+    String domain = null;
 
     String data;
     //res.setContentType("text/html");
     //  PrintWriter out=res.getWriter();
     CA_DN_name =(String)req.getParameter("dnname");
-    role =(String)req.getParameter("role");
+    domain = CertificateUtility.getX500Domain(CA_DN_name, true, ',', true);
     ByteArrayInputStream bytestream=null;
     PrintStream printstream=new PrintStream(res.getOutputStream());
     byte [] bytedata=null;
@@ -154,13 +90,12 @@ public class CertificateSigningRequest
       return;
     }
     try  {
-      String aRole = null;
-      if( (role != null) && (role != ""))  {
-	aRole = role;
+      String aDomain = null;
+      if( (domain != null) && (domain != ""))  {
+	aDomain = domain;
       }
       signer = support.getCertificateManagementService();
-      signer.setParameters(CA_DN_name, aRole, 
-			   certpath, confpath, true);
+      signer.setParameters(CA_DN_name);
     }
     catch (Exception exp)  {
       printstream.print("Error ---" + exp.toString());
@@ -218,7 +153,7 @@ public class CertificateSigningRequest
     out.println("<table>");
     out.println("<form action=\"\" method =\"post\">");
     out.println("<tr ><td colspan=\"3\">");
-    out.println("Role : <input name=\"role\" type=\"text\" value=\"\">");
+    out.println("Domain : <input name=\"domain\" type=\"text\" value=\"\">");
     out.println(" <br> <br></td></tr>");
     out.println("<tr ><td colspan=\"3\">");
     out.println("DN for CA <input name=\"dnname\" type=\"text\" value=\"\">");

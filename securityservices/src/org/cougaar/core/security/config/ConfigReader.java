@@ -24,38 +24,42 @@
  * - 
  */
 
-package org.cougaar.core.security.provider;
+package org.cougaar.core.security.config;
 
-// Cougaar core infrastructure
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
+import org.xml.sax.*;
+import org.xml.sax.helpers.*;
+import java.io.*;
+import java.util.*;
 
 // Cougaar security services
-import com.nai.security.util.CryptoDebug;
-import com.nai.security.certauthority.KeyManagement;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.identity.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import com.nai.security.policy.*;
 
-public class CertificateManagementServiceProvider 
-  implements ServiceProvider {
-  private KeyRingService ksr;
+public class ConfigReader
+{
+  // XML Parser
+  private XMLReader parser;
 
-  public Object getService(ServiceBroker sb, 
-			   Object requestor, 
-			   Class serviceClass) {
-    KeyManagement km = null;
+  public ConfigReader() {
     try {
-      km =new KeyManagement(sb);
+      // Create SAX 2 parser...
+      parser = XMLReaderFactory.createXMLReader();
     }
-    catch (Exception e) {
+    catch ( Exception e ) {
+      e.printStackTrace();
     }
-    return km;
   }
 
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
+  public void parsePolicy(String filePath, String role) {
+    try {
+      // Set the ContentHandler...
+      ConfigParserHandler handler = new ConfigParserHandler(parser, role);
+      parser.setContentHandler(handler);
+
+      // Parse the file...
+      parser.parse( new InputSource(new FileReader(filePath)) );
+    }
+    catch ( Exception e ) {
+      e.printStackTrace();
+    }
   }
 }

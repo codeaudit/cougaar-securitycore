@@ -37,6 +37,8 @@ public interface CertDirectoryServiceClient {
   LdapEntry[] searchWithFilter(String filter);
 
   X509CRL  getCRL(String  distingushName);
+  void getContexts();
+
 }
 
 

@@ -42,7 +42,7 @@ import java.security.cert.*;
 import java.security.KeyPair;
 
 import sun.security.pkcs.*;
-import sun.security.x509.OIDMap;
+import sun.security.x509.*;
 import sun.security.util.ObjectIdentifier;
 
 // Cougaar core infrastructure
@@ -50,10 +50,10 @@ import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
-import com.nai.security.policy.NodePolicy;
+import com.nai.security.policy.*;
 import com.nai.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /** A common holder for Security keystore information and functionality
@@ -66,10 +66,11 @@ final public class KeyRing
   private DirectoryKeyStore keystore;
   private DirectoryKeyStoreParameters param;
   private boolean debug = false;
-  private ConfParser confParser = null;
   private PrivateKeyPKCS12 pkcs12;
   private SecurityPropertiesService secprop = null;
   private ServiceBroker serviceBroker;
+  private ConfigParserService configParser = null;
+  private NodeConfiguration nodeConfiguration;
 
   public KeyRing(ServiceBroker sb) {
     serviceBroker = sb;
@@ -81,22 +82,48 @@ final public class KeyRing
       serviceBroker.getService(this,
 			       SecurityPropertiesService.class,
 			       null);
+    configParser = (ConfigParserService)
+      serviceBroker.getService(this,
+			       ConfigParserService.class,
+			       null);
+    if (secprop == null) {
+      throw new RuntimeException("unable to get security properties service");
+    }
+    if (configParser == null) {
+      throw new RuntimeException("unable to get config parser service");
+    }
     try {
       String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
 
+      String role =
+	secprop.getProperty(secprop.SECURITY_ROLE); 
+      if (role == null && CryptoDebug.debug == true) {
+	System.out.println("Keyring Warning: LDAP role not defined");
+      }
+
+      CryptoClientPolicy cryptoClientPolicy = configParser.getCryptoClientPolicy();
+
       // Keystore to store key pairs
-      String defaultKeystorePath = installpath + File.separatorChar
-	+ "configs" + File.separatorChar + "common"
-	+ File.separatorChar + "keystore";
       param = new DirectoryKeyStoreParameters();
       param.serviceBroker = serviceBroker;
 
+      /*
+      String defaultKeystorePath = installpath + File.separatorChar
+	+ "configs" + File.separatorChar + "common"
+	+ File.separatorChar + "keystore";
       param.keystorePassword =
 	secprop.getProperty(secprop.KEYSTORE_PASSWORD,
 			   "alpalp").toCharArray();
       param.keystorePath =
 	secprop.getProperty(secprop.KEYSTORE_PATH,
 			     defaultKeystorePath);
+      */
+      String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
+      nodeConfiguration = new NodeConfiguration(nodeDomain);
+      param.keystorePath = nodeConfiguration.getNodeDirectory()
+	+ cryptoClientPolicy.getKeystoreName();
+      param.keystorePassword = cryptoClientPolicy.getKeystorePassword().toCharArray();
+
       File file = new File(param.keystorePath);
       if (!file.exists()){
 	if (CryptoDebug.debug) {
@@ -111,20 +138,40 @@ final public class KeyRing
         
       }
       param.keystoreStream = new FileInputStream(param.keystorePath);
-      param.isCertAuth = false;
+      param.isCertAuth = configParser.isCertificateAuthority();
       
       // CA keystore parameters
-      confParser = new ConfParser(null, param.isCertAuth);
-      String role = secprop.getProperty(secprop.SECURITY_ROLE); 
-      if (role == null && CryptoDebug.debug == true) {
-	System.out.println("Keyring Warning: LDAP role not defined");
-      }
-      NodePolicy nodePolicy = confParser.readNodePolicy(role);
       ConfigFinder configFinder = new ConfigFinder();
-      File f = configFinder.locateFile(nodePolicy.CA_keystore);
-      if (f != null) {
-	param.caKeystorePath = f.getPath();
-	param.caKeystorePassword = nodePolicy.CA_keystorePassword.toCharArray();
+      param.caKeystorePath = nodeConfiguration.getNodeDirectory()
+	+ cryptoClientPolicy.getTrustedCaKeystoreName();
+      param.caKeystorePassword =
+	cryptoClientPolicy.getTrustedCaKeystorePassword().toCharArray();
+
+      if (CryptoDebug.debug) {
+	System.out.println("CA keystorePath=" + param.caKeystorePath);
+      }
+      File cafile = new File(param.caKeystorePath);
+      if (!cafile.exists()) {
+	if (CryptoDebug.debug) {
+	  System.out.println(param.caKeystorePath +
+			     "Trusted CA keystore does not exist. in "
+			     + param.caKeystorePath + ". Trying with configFinder");
+	}
+	File cafile2 = configFinder.locateFile(cryptoClientPolicy.getTrustedCaKeystoreName());
+	if (cafile2 != null) {
+	  param.caKeystorePath = cafile2.getPath();
+	}
+	else {
+	  if (CryptoDebug.debug) {
+	    System.out.println(param.caKeystorePath +
+			       " Trusted CA keystore does not exist. Creating...");
+	  }
+	  KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
+	  FileOutputStream fos = new FileOutputStream(param.caKeystorePath);
+	  k.load(null, param.caKeystorePassword);
+	  k.store(fos, param.caKeystorePassword);
+	  fos.close();
+	}
       }
 
       try {
@@ -132,7 +179,8 @@ final public class KeyRing
       }
       catch (Exception e) {
 	if (CryptoDebug.debug) {
-	  System.out.println("Could not open CA keystore: " + e);
+	  System.out.println("Warning: Could not open CA keystore ("
+			     + param.caKeystorePath + "):" + e);
 	}
 	param.caKeystoreStream = null;
 	param.caKeystorePath = null;
@@ -147,8 +195,11 @@ final public class KeyRing
       }
     
       // LDAP certificate directory
-      param.ldapServerUrl = nodePolicy.certDirectoryUrl;
-      param.ldapServerType = nodePolicy.certDirectoryType;
+      TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
+      if (trustedCaPolicy.length > 0) {
+	param.ldapServerUrl = trustedCaPolicy[0].certDirectoryUrl;
+	param.ldapServerType = trustedCaPolicy[0].certDirectoryType;
+      }
 
       keystore = new DirectoryKeyStore(param);
 
@@ -194,6 +245,12 @@ final public class KeyRing
       return null;
     }
     return keystore.findPrivateKey(commonName);
+  }
+  public synchronized PrivateKey findPrivateKey(X500Name x500name) {
+    if (keystore == null) {
+      return null;
+    }
+    return keystore.findPrivateKey(x500name);
   }
 
   public synchronized Certificate findCert(Principal p) {
@@ -307,5 +364,37 @@ final public class KeyRing
   public void setKeyEntry(PrivateKey key, X509Certificate cert) {
     keystore.setKeyEntry(key, cert);
   }
+
+
+  public X509Certificate[] getCertificates(Principal p) {
+    X509Certificate[] certSet = null;
+    return certSet;
+  }
+
+  public PrivateKey[] getPrivateKeys(String commonName) {
+    PrivateKey[] keySet = null;
+    return keySet;
+  }
+
+  public String getCommonName(String alias) {
+    return keystore.getCommonName(alias);
+  }
+
+  public Enumeration getAliasList() {
+    return keystore.getAliasList();
+  }
+  public String getAlias(X509Certificate clientX509) {
+    return keystore.getAlias(clientX509);
+  }
+  public  String parseDN(String aDN) {
+    return keystore.parseDN(aDN);
+  }
+
+  public X509Certificate[] checkCertificateTrust(X509Certificate certificate)
+    throws CertificateChainException, CertificateExpiredException,
+    CertificateNotYetValidException, CertificateRevokedException {
+    return keystore.checkCertificateTrust(certificate);
+  }
+
 }
 

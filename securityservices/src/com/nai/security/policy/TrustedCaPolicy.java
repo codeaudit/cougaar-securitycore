@@ -24,38 +24,44 @@
  * - 
  */
 
-package org.cougaar.core.security.provider;
+package com.nai.security.policy;
 
-// Cougaar core infrastructure
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
+import sun.security.x509.*;
+import java.net.*;
 
-// Cougaar security services
-import com.nai.security.util.CryptoDebug;
-import com.nai.security.certauthority.KeyManagement;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.identity.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+public class TrustedCaPolicy {
+  /** The alias of the certificate of a trusted CA in the keystore
+   */
+  public String caAlias;
 
-public class CertificateManagementServiceProvider 
-  implements ServiceProvider {
-  private KeyRingService ksr;
+  /** The distinguished name of the trusted CA
+   */
+  public String caDN;
 
-  public Object getService(ServiceBroker sb, 
-			   Object requestor, 
-			   Class serviceClass) {
-    KeyManagement km = null;
-    try {
-      km =new KeyManagement(sb);
-    }
-    catch (Exception e) {
-    }
-    return km;
+  /** The URL used to send a PKCS10 certificate signing request
+   * to a CA
+   */
+  public String caURL;
+
+  /** The URL used to retrieve public keys and certificates
+   *  from a certificate directory service.
+   */ 
+  public String certDirectoryUrl;
+
+  /** The type of certificate directory service
+   *  (See below for a list of currently supported values)
+   */
+  public int certDirectoryType;
+
+  // Values for certDirectoryType
+  static public final int NETTOOLS = 1;
+  static public final int COUGAAR_OPENLDAP = 2;
+
+  public String toString() {
+    return "caAlias=" + caAlias
+      + " - caDN=" + caDN
+      + " - caURL=" + caURL
+      + " - certDirectoryURL=" + certDirectoryUrl
+      + " - certDirectoryType=" + certDirectoryType;
   }
-
-  public void releaseService(ServiceBroker sb,
-			     Object requestor,
-			     Class serviceClass,
-			     Object service) {
-  }
-}
+};

@@ -39,7 +39,7 @@ import com.nai.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.identity.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 
 public class SecurityServiceProvider
   extends ContainerSupport
@@ -100,6 +100,9 @@ public class SecurityServiceProvider
     catch (Exception e) {
       System.out.println("Unable to get service request");
       e.printStackTrace();
+    }
+    if (service == null) {
+      System.out.println("Warning: Service not registered: " + serviceClass.getName());
     }
     return service;
   }
@@ -226,6 +229,13 @@ public class SecurityServiceProvider
     services.put(SSLService.class,
 		 new SSLServiceProvider());
     serviceBroker.addService(SSLService.class, this);
+
+    /* ********************************
+     * Configuration services
+     */
+    services.put(ConfigParserService.class,
+		 new ConfigParserServiceProvider());
+    serviceBroker.addService(ConfigParserService.class, this);
   }
 
   /* ******************************************************************

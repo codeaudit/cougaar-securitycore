@@ -241,4 +241,42 @@ public class CertificateUtility {
     return buff.toString();
   }
 
+
+  public static String getX500Domain(String aDN, boolean setType,
+				     char separator, boolean keepOrder)
+  {
+    String domain = "";
+
+    StringTokenizer parser = new StringTokenizer(aDN, ",=");
+    while(parser.hasMoreElements()) {
+      String tok1 = parser.nextToken().trim().toLowerCase();
+      String tok2 = parser.nextToken();
+      if (tok1.equals("dc")) {
+	if (keepOrder) {
+	  if (domain.length() > 0) {
+	    domain = domain + separator;
+	  }
+	  if (setType) {
+	    domain = domain + tok1 + "=" + tok2;
+	  }
+	  else {
+	    domain = domain + tok2;
+	  }
+	}
+	else {
+	  if (domain.length() > 0) {
+	    domain = separator + domain;
+	  }
+	  if (setType) {
+	    domain = domain + tok1 + "=" + tok2;
+	  }
+	  else {
+	    domain = tok2 + domain;
+	  }
+	}
+      }
+    }
+    return domain;
+  }
+
 }

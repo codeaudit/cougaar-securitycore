@@ -27,6 +27,7 @@
 package com.nai.security.certauthority;
 
 import javax.servlet.Servlet;
+import java.util.*;
 
 // Cougaar core infrastructure
 import org.cougaar.core.servlet.SimpleServletSupportImpl;
@@ -51,21 +52,31 @@ public class SecurityServletSupportImpl
 				    ClusterIdentifier agentId,
 				    BlackboardService blackboard,
 				    NamingService ns,
-				    SecurityPropertiesService sp,
 				    CertificateManagementService sms,
 				    ServiceBroker sb) {
     super(path, agentId, blackboard, ns);
-    securityPropertiesService = sp;
     certificateManagementService = sms;
     serviceBroker = sb;
   }
 
   public SecurityPropertiesService getSecurityProperties(Servlet servlet) {
+    // Get the security properties service
+    securityPropertiesService = (SecurityPropertiesService)
+      serviceBroker.getService(
+	servlet,
+	SecurityPropertiesService.class,
+	null);
+    if (securityPropertiesService == null) {
+      throw new RuntimeException(
+	"Unable to obtain security properties service");
+    }
     return securityPropertiesService;
   }
+
   public CertificateManagementService getCertificateManagementService() {
     return certificateManagementService;
   }
+
   public ServiceBroker getServiceBroker() {
     return serviceBroker;
   }

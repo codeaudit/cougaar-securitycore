@@ -56,14 +56,13 @@ import org.cougaar.util.ConfigFinder;
 
 // Cougaar security services
 import com.nai.security.certauthority.KeyManagement;
-import com.nai.security.policy.NodePolicy;
-import com.nai.security.policy.CaPolicy;
+import com.nai.security.policy.*;
 import com.nai.security.util.*;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.crypto.ldap.CertificateRevocationStatus;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.crypto.*;
 
@@ -80,6 +79,7 @@ public class DirectoryKeyStore
   private KeyStore keystore = null;
 
   private SecurityPropertiesService secprop = null;
+  private ConfigParserService configParser = null;
 
   /** This keystore stores certificates of trusted certificate authorities. */
   private KeyStore caKeystore = null;
@@ -102,8 +102,10 @@ public class DirectoryKeyStore
   /** A hash map to quickly find an alias given a common name */
   private HashMap commonName2alias = new HashMap(89);
 
+  /** The role under which this node is running
+   */
   String role;
-  NodePolicy nodePolicy;
+  CryptoClientPolicy cryptoClientPolicy;
   private DirectoryKeyStoreParameters param = null;
 
   /* Update OIDMap to include IssuingDistribution Point Extension &
@@ -126,20 +128,27 @@ public class DirectoryKeyStore
 
   /** Initialize the directory key store */
   public DirectoryKeyStore(DirectoryKeyStoreParameters aParam) {
-    // TODO. Modify following line to use service broker instead
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
+    param = aParam;
+
+    secprop = (SecurityPropertiesService)
+      param.serviceBroker.getService(this,
+				     SecurityPropertiesService.class,
+				     null);
+    // LDAP certificate directory
+    certificateFinder =
+      CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
+	param.ldapServerType, param.ldapServerUrl);
+    if(certificateFinder == null) {
+      if (!param.isCertAuth) {
+	System.out.println("Error !  Could  not get certificate finder from factory");
+	throw new RuntimeException("Error !  Could  not get certificate finder from factory");
+      }
+      else {
+	System.out.println("INFO: CA does not have a superior");
+      }
+    }
 
     try {
-      param = aParam;
-
-      // LDAP certificate directory
-      certificateFinder =
-	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-	        param.ldapServerType, param.ldapServerUrl);
-
-      if(certificateFinder==null) {
-	System.out.println("Error !!!!!!!!!  Could  not get certificate finder from factory ");
-      }
 
       // Open Keystore
       keystore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -174,8 +183,12 @@ public class DirectoryKeyStore
 	  System.out.println("DirectoryKeystore warning: Role not defined");
 	}
 	try{
-	  ConfParser confParser = new ConfParser(null, false);
-	  nodePolicy = confParser.readNodePolicy(role);
+	  configParser = (ConfigParserService)
+	    param.serviceBroker.getService(this,
+					   ConfigParserService.class,
+					   null);
+
+	  cryptoClientPolicy = configParser.getCryptoClientPolicy();
 	} catch(Exception e) {
 	  System.out.println("Error: can't start CA client--"+e.getMessage());
 	  e.printStackTrace();
@@ -198,7 +211,7 @@ public class DirectoryKeyStore
     certCache.printbigIntCache();
   }
 
-  public Enumeration getList()
+  public Enumeration getAliasList()
   {
     Enumeration alias;
     try {
@@ -417,11 +430,11 @@ public class DirectoryKeyStore
       certs = certificateFinder.searchWithFilter(filter);
     }
     else {
-      System.out.println("Error !!!!!!  certificate finder is null:");
+      System.out.println("WARNING !  certificate finder is null:");
 
     }
     if(certs==null) {
-      System.out.println("Error !!!!!!  serach for certs is null in  lookupCertInLDAP:");
+      System.out.println("Error !  searh for certs is null in  lookupCertInLDAP:");
     }
     else {
       if (certs.length == 0) {
@@ -1691,25 +1704,23 @@ public class DirectoryKeyStore
     String alias = commonName + "-" + rdm;
     */
     String alias = getNextAlias(keystore, commonName);
+    String dn = "cn=" + commonName
+      + ", ou=" + cryptoClientPolicy.getCertificateAttributesPolicy().ou
+      + ",o=" + cryptoClientPolicy.getCertificateAttributesPolicy().o
+      + ",l=" + cryptoClientPolicy.getCertificateAttributesPolicy().l
+      + ",st=" + cryptoClientPolicy.getCertificateAttributesPolicy().st
+      + ",c=" + cryptoClientPolicy.getCertificateAttributesPolicy().c;
+    //    + "," + cryptoClientPolicy.getCertificateAttributesPolicy().domain;
+
     if (CryptoDebug.debug) {
-      System.out.println("Make key pair:" + alias + ", cn=" + commonName
-			 + ", ou=" + nodePolicy.ou
-			 + ",o=" + nodePolicy.o
-			 + ",l=" + nodePolicy.l
-			 + ",st=" + nodePolicy.st
-			 + ",c=" + nodePolicy.c);
+      System.out.println("Make key pair:" + alias + ":" + dn);
     }
-    X500Name dname = new X500Name(commonName,
-				  nodePolicy.ou,
-				  nodePolicy.o,
-				  nodePolicy.l,
-				  nodePolicy.st,
-				  nodePolicy.c);
+    X500Name dname = new X500Name(dn);
     doGenKeyPair(alias, dname.getName(),
-		 nodePolicy.keyAlgName,
-		 nodePolicy.keysize,
-		 nodePolicy.sigAlgName,
-		 nodePolicy.howLong);
+		 cryptoClientPolicy.getCertificateAttributesPolicy().keyAlgName,
+		 cryptoClientPolicy.getCertificateAttributesPolicy().keysize,
+		 cryptoClientPolicy.getCertificateAttributesPolicy().sigAlgName,
+		 cryptoClientPolicy.getCertificateAttributesPolicy().howLong);
     return alias;
   }
 
@@ -1921,12 +1932,14 @@ public class DirectoryKeyStore
     if (!param.isCertAuth) {
       String reply = "";
       try {
+	TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
 	if (CryptoDebug.debug) {
-	  System.out.println("Sending request to " + nodePolicy.CA_URL
-			     + ", DN= " + nodePolicy.CA_DN);
-	  System.out.println("DN= " + nodePolicy.CA_DN);
+	  System.out.println("Sending request to "
+			     + trustedCaPolicy[0].caURL
+			     + ", DN= "
+			     + trustedCaPolicy[0].caDN);
 	}
-	URL url = new URL(nodePolicy.CA_URL);
+	URL url = new URL(trustedCaPolicy[0].caURL);
 	HttpURLConnection huc = (HttpURLConnection)url.openConnection();
 	// Let the system know that we want to do output
 	huc.setDoOutput(true);
@@ -1941,7 +1954,8 @@ public class DirectoryKeyStore
 	PrintWriter out = new PrintWriter(huc.getOutputStream());
 	String content = "pkcs=" + URLEncoder.encode(pkcs);
 	content = content + "&role=" + URLEncoder.encode(role);
-	content = content + "&dnname=" + URLEncoder.encode(nodePolicy.CA_DN);
+	content = content + "&dnname="
+	  + URLEncoder.encode(trustedCaPolicy[0].caDN);
 	content = content + "&pkcsdata=" + URLEncoder.encode(request);
 	out.println(content);
 	out.flush();
@@ -1982,8 +1996,7 @@ public class DirectoryKeyStore
 	param.serviceBroker.getService(this,
 				       CertificateManagementService.class,
 				       null);
-      km.setParameters(nodeDN, role,
-		       null, null, false);
+      km.setParameters(nodeDN);
 
       X509Certificate[] cf =
 	km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));

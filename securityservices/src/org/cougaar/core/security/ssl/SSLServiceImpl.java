@@ -11,7 +11,6 @@ import java.security.*;
 import org.cougaar.util.ConfigFinder;
 
 // Cougaar security services
-import com.nai.security.policy.NodePolicy;
 import com.nai.security.util.CryptoDebug;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
