@@ -19,6 +19,15 @@ if cahost != nil
       enclave = "Conus"
     elsif node.name == 'TRANS-CA-NODE'
       enclave = "Trans"
+
+    elsif node.name == 'REAR-CA1-NODE'
+      enclave = "Rear1"
+    elsif node.name == 'FWD-CA1-NODE'
+      enclave = "Fwd1"
+    elsif node.name == 'CONUS-CA1-NODE'
+      enclave = "Conus1"
+    elsif node.name == 'TRANS-CA1-NODE'
+      enclave = "Trans1"
     end
     if enclave != nil
       arg = 'CN=' + enclave + 'EnclaveCA, OU=' + enclave + 'Enclave' \

@@ -5,6 +5,11 @@ fwdCaHost = nil
 rearCaHost = nil
 conusCaHost = nil
 transCaHost = nil
+fwdCaHost1 = nil
+rearCaHost1 = nil
+conusCaHost1 = nil
+transCaHost1 = nil
+
 society.each_node do |node|
   if node.name == 'REAR-CA-NODE'
     rearCaHost = node.host.name 
@@ -14,6 +19,14 @@ society.each_node do |node|
     conusCaHost = node.host.name 
   elsif node.name == 'TRANS-CA-NODE'
     transCaHost = node.host.name 
+  elsif node.name == 'REAR-CA1-NODE'
+    rearCaHost1 = node.host.name 
+  elsif node.name == 'FWD-CA1-NODE'
+    fwdCaHost1 = node.host.name 
+  elsif node.name == 'CONUS-CA1-NODE'
+    conusCaHost1 = node.host.name 
+  elsif node.name == 'TRANS-CA1-NODE'
+    transCaHost1 = node.host.name 
   end
 end
 
@@ -25,38 +38,58 @@ society.each_node do |node|
   # but it's helpful to remember that the component should not
   # go in the CA node.
   arg = nil
+  arg1 = nil
   if (node.name =~ /.*REAR.*/) \
-	and node.name != 'REAR-CA-NODE'
+	and node.name != 'REAR-CA-NODE' \
+        and node.name != 'REAR-CA1-NODE'
     # node agents in REAR enclave
     arg = rearCaHost + ":RearEnclaveCaManager"
-
+    if rearCaHost1 != nil
+      arg1 = rearCaHost1 + ":RearEnclaveCa1Manager"
+    end
   elsif (node.name =~ /.*FWD.*/) \
-	and node.name != 'FWD-CA-NODE'
+	and node.name != 'FWD-CA-NODE' \
+        and node.name != 'FWD-CA1-NODE'
     # node agents in FWD enclave
     arg = fwdCaHost + ":FwdEnclaveCaManager"
-
+    if fwdCaHost1 != nil
+      arg1 = fwdCaHost1 + ":FwdEnclaveCa1Manager"
+    end
   elsif (node.name == "NCA-NODE" \
 	 or node.name == "CONUS-NODE" \
 	 or node.name == "CONUS-MGMT-NODE") \
-	and node.name != 'CONUS-CA-NODE'
+        and node.name != 'CONUS-CA-NODE' \
+	and node.name != 'CONUS-CA1-NODE'
     # node agents in CONUS enclave
     arg = conusCaHost + ":ConusEnclaveCaManager"
-
+    if conusCaHost1 != nil
+      arg1 = conusCaHost1 + ":ConusEnclaveCa1Manager"
+    end
   elsif (node.name =~ /.*TRANS.*/ \
 	 or node.name == "AIR-NODE" \
 	 or node.name == "SEA-NODE") \
-	and node.name != 'TRANS-CA-NODE'
+        and node.name != 'TRANS-CA-NODE' \
+	and node.name != 'TRANS-CA1-NODE'
     # node agents in TRANS enclave
     arg = transCaHost + ":TransEnclaveCaManager"
+    if transCaHost1 != nil
+      arg1 = transCaHost1 + ":TransEnclaveCa1Manager"
+    end
   end
 
   if arg != nil
     arg = arg + ":" + caHttpPort + ":" + caHttpsPort
+    if arg1 != nil
+      arg1 = arg1 + ":" + caHttpPort + ":" + caHttpsPort
+    end
     node.agent.add_component do |c|
       c.classname = "org.cougaar.core.security.crypto.AutoConfigPlugin"
       c.priority = "HIGH"
       c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
       c.add_argument(arg)
+      if (arg1 != nil)
+        c.add_argument(arg1)
+      end
     end
   end
 end

@@ -47,6 +47,15 @@ society.each_node do |node|
     agentname = "ConusEnclaveCaManager"
   elsif node.name == "TRANS-CA-NODE"
     agentname = "TransEnclaveCaManager"
+
+  elsif node.name == "REAR-CA1-NODE"
+    agentname = "RearEnclaveCa1Manager"
+  elsif node.name == "FWD-CA1-NODE"
+    agentname = "FwdEnclaveCa1Manager"
+  elsif node.name == "CONUS-CA1-NODE"
+    agentname = "ConusEnclaveCa1Manager"
+  elsif node.name == "TRANS-CA1-NODE"
+    agentname = "TransEnclaveCa1Manager"
   end
 
   if agentname != ""
