@@ -3,6 +3,7 @@ package org.cougaar.core.security.ssl.ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import org.cougaar.core.security.util.UIUtil;
 
@@ -81,19 +82,30 @@ public class UserAliasPwdDialog extends JDialog {
     pwdField.setPreferredSize(new Dimension(120, 21));
     aliasField.setPreferredSize(new Dimension(120, 21));
     aliasField.setMinimumSize(new Dimension(120, 21));
+    aliasLabel.setText("Alias list:");
+    aliaslistBox.setPreferredSize(new Dimension(130, 22));
+    aliaslistBox.setMinimumSize(new Dimension(120, 21));
+    aliaslistBox.setMaximumSize(new Dimension(130, 22));
+    aliaslistBox.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        aliaslistBox_actionPerformed(e);
+      }
+    });
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(jPanel5, null);
     jPanel5.add(jPanel6, null);
-    jPanel5.add(jPanel9, null);
     jPanel9.add(jLabel1, null);
     jPanel5.add(jPanel8, null);
+    jPanel8.add(aliasLabel, null);
+    jPanel5.add(jPanel9, null);
     jPanel5.add(jPanel7, null);
     jPanel7.add(jLabel2, null);
     jPanel1.add(jPanel4, null);
     jPanel4.add(jPanel10, null);
+    jPanel4.add(jPanel12, null);
+    jPanel12.add(aliaslistBox, null);
     jPanel4.add(jPanel11, null);
     jPanel11.add(aliasField, null);
-    jPanel4.add(jPanel12, null);
     jPanel4.add(jPanel13, null);
     jPanel13.add(pwdField, null);
     this.getContentPane().add(jPanel2, BorderLayout.SOUTH);
@@ -123,7 +135,20 @@ public class UserAliasPwdDialog extends JDialog {
     return pwdField.getPassword();
   }
 
+  public void setAliasList(ArrayList list) {
+    aliaslist.addAll(list);
+    aliaslistBox.updateUI();
+  }
+
+  public void hideLookup() {
+    aliasLabel.setVisible(false);
+    aliaslistBox.setVisible(false);
+  }
+
   boolean isOk = false;
+  Vector aliaslist = new Vector();
+  JLabel aliasLabel = new JLabel();
+  JComboBox aliaslistBox = new JComboBox(aliaslist);
 
   void okButton_actionPerformed(ActionEvent e) {
     isOk =true;
@@ -132,5 +157,14 @@ public class UserAliasPwdDialog extends JDialog {
 
   void cancelButton_actionPerformed(ActionEvent e) {
     this.dispose();
+  }
+
+  void aliaslistBox_actionPerformed(ActionEvent e) {
+    int index = aliaslistBox.getSelectedIndex();
+    if (index >= 0) {
+      String aliasString = (String)aliaslist.get(index);
+      String alias = aliasString.substring(0, aliasString.indexOf(" ("));
+      aliasField.setText(alias);
+    }
   }
 }
