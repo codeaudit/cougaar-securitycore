@@ -42,7 +42,7 @@ society.each_node do |node|
   elsif node.name == "ENCLAVE2-CA-NODE"
     agentname = "Enclave2CA"
   elsif node.name == "ROOT-CA-NODE"
-    agentname = "ROOTCA"
+    agentname = "RootCA"
   elsif node.name == "ENCLAVE3-CA-NODE"
     agentname = "Enclave3CA"
   elsif node.name == "ENCLAVE4-CA-NODE"
