@@ -139,4 +139,6 @@ public interface KeyRingService extends Service {
   public String getCaKeyStorePath();
   public String getKeyStorePath();
 
+  public boolean checkExpiry(String commonName);
+  public void updateNS(String commonName);
 }
