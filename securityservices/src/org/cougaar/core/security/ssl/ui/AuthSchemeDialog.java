@@ -108,8 +108,11 @@ public class AuthSchemeDialog extends JDialog {
   public Vector getSelection() {
     Vector selection = new Vector();
     Object [] values = handlerList.getSelectedValues();
-    for (int i = 0; i < values.length; i++)
-      selection.addElement(values[i]);
+    for (int i = 0; i < values.length; i++) {
+      System.out.println("selected: " + i + " : " + handlerList.isSelectedIndex(i));
+      if (handlerList.isSelectedIndex(i))
+       selection.addElement(values[i]);
+    }
     return selection;
   }
 
