@@ -1,0 +1,40 @@
+#!/bin/tcsh
+
+#setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/lib/securityservices.jar
+
+setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/sys/jdom.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/xerces.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/jce1_2-do.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-api.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-provider.jar
+setenv CLASSPATH ${CLASSPATH}:/home/u/rtripath/jndi/test.jar
+
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAARCLASSES}
+echo $CLASSPATH
+
+set MYPROPERTIES=""
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrap.keystore=$COUGAAR_INSTALL_PATH/configs/common/bootstrap_keystore"
+set MYPROPERTIES="$MYPROPERTIES -Djava.security.policy=$COUGAAR_INSTALL_PATH/configs/common/Cougaar_AllPermission.policy"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=true"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.loud=shout"
+
+# Cougaar node simulation
+ java ${MYPROPERTIES} \
+	-Dorg.cougaar.security.crypto.config=cryptoPolicy.xml \
+	-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
+	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
+	-Dorg.cougaar.security.keystore=keystoreTest \
+	-Dorg.cougaar.core.society.Node.name=TEST3ID-HHC \
+	-Dorg.cougaar.core.security.crypto.debug=true \
+	-Dorg.cougaar.security.role=rtripath\
+	-Dorg.cougaar.core.security.bootstrap.useAuthenticatedLoader=true\
+	-Dorg.cougaar.core.security.bootstrap.useSecurityManager=true\
+	com.nai.security.bootstrap.Bootstrapper  \
+	jnditest
+
+exit
+# Certificate authority simulation
+java \
+	-Dorg.cougaar.security.CA.certpath=${COUGAAR_SECURITY_SERVICES}/test/configs/certauthority \
