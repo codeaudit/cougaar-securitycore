@@ -7,9 +7,9 @@ This configuration will run FULL-TRANS with:
   </description>
   <cougaar branch="B10_4_5" />
 
-  <society file="society/MASTER-SB-1AD-NEW-AL-STRIPPED.rb" />
+  <society file="csmart/config/societies/ad/FULL-1AD-TRANS-1359.rb" />
 
-  <layout file="operator/1ad-layout-10_4_5.xml" />
+  <layout file="operator/1ad-layout.xml" />
 
   <rules>
     <rule file="csmart/config/rules/isat"/> 
