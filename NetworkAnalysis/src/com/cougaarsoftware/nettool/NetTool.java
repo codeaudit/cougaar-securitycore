@@ -13,14 +13,12 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JMenuBar;
 import javax.swing.KeyStroke;
 
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.visualization.GraphDraw;
 
 /**
  * @author srosset
@@ -30,17 +28,17 @@ import edu.uci.ics.jung.visualization.GraphDraw;
  */
 public class NetTool extends JFrame {
 
-	private JPanel           m_graph;
 	private JMenuBar         m_menu;
 	private GraphFileHandler m_graphFileHandler;
+	private GraphRenderer    m_graphRenderer;
 
 	private static final String MENU_ITEM_OPEN = "Open";
 	private static final String MENU_ITEM_CLOSE = "Close";
 	private static final String MENU_FILE = "File";
 	
 	public NetTool() {
-		initUiComponents();
 		m_graphFileHandler = new GraphFileHandler();
+		initUiComponents();
 	}
 
 	/**
@@ -53,8 +51,8 @@ public class NetTool extends JFrame {
 			}
 		});
 		
-		m_graph = new javax.swing.JPanel();
-		getContentPane().add(m_graph, java.awt.BorderLayout.SOUTH);
+		m_graphRenderer = new GraphRenderer();
+		getContentPane().add(m_graphRenderer);
 
 		m_menu = new JMenuBar();
 		JMenu fileMenu = new JMenu(MENU_FILE);
@@ -80,7 +78,8 @@ public class NetTool extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				JMenuItem source = (JMenuItem)(e.getSource());
 				if (source.getText().equals(MENU_ITEM_CLOSE)) {
-					closeGraph(m_graph);
+					m_graphRenderer.closeGraph();
+					pack();
 				}			
 			}
 		});
@@ -90,7 +89,7 @@ public class NetTool extends JFrame {
 		pack();
 		
 		//Display the window.
-		setSize(450, 260);
+		//setSize(450, 260);
 		setVisible(true);
 		
 	}
@@ -112,23 +111,9 @@ public class NetTool extends JFrame {
 		}
 		if (theGraphFile != null && theGraphFile.exists()) {
 			Graph g = m_graphFileHandler.openGraphFile(theGraphFile);
-			displayGraph(g, m_graph);
+			m_graphRenderer.displayGraph(g);
 			pack();
 		}
-	}
-
-	private void displayGraph(Graph g, JPanel jp) {
-		if (g == null) {
-			return;
-		}
-		GraphDraw gd = new GraphDraw(g);
-		jp.removeAll();
-		jp.add(gd);
-	}
-
-	private void closeGraph(JPanel jp) {
-		jp.removeAll();
-		pack();
 	}
 	
 	public static void main(String[] args) {

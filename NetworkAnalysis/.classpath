@@ -9,6 +9,6 @@
 	<classpathentry kind="lib" path="sys/xercesSamples.jar"/>
 	<classpathentry kind="lib" path="sys/xml-apis.jar"/>
 	<classpathentry kind="lib" path="sys/xmlParserAPIs.jar"/>
-	<classpathentry kind="lib" path="commons-collections-3.0.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="sys/commons-collections-3.0.jar"/>
+	<classpathentry kind="output" path="target"/>
 </classpath>
