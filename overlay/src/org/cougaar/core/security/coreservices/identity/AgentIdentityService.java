@@ -30,6 +30,8 @@ import java.security.Principal;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.agent.ClusterIdentifier;
 
 public interface AgentIdentityService
   extends Service
@@ -73,7 +75,7 @@ public interface AgentIdentityService
    * @exception  IdentityDeniedException the certificiate authority
    *             refused to sign the key
    */
-  public void CreateCryptographicIdentity(String agentName,
+  public void CreateCryptographicIdentity(ClusterIdentifier agent,
 					  RevocationCallBack clientCallBack)
     throws PendingRequestException,
     IdentityDeniedException;
@@ -87,11 +89,11 @@ public interface AgentIdentityService
 
   /**
    */
-  public void HoldCryptographicIdentity(String agentName);
+  public void HoldCryptographicIdentity(ClusterIdentifier agent);
 
   /**
    */
-  public void RevokeCryptographicIdentity(String agentName);
+  public void RevokeCryptographicIdentity(ClusterIdentifier agent);
 
   /**
    *  Notify the cryptographic service that an agent is about
@@ -111,9 +113,9 @@ public interface AgentIdentityService
    * @return an encrypted object that should be sent to the remote
    * node agent
    */
-  public TransferableIdentity initiateTransfer(String agentName,
-					       String sourceAgent,
-					       String targetAgent);
+  public TransferableIdentity initiateTransfer(ClusterIdentifier agent,
+					       ClusterIdentifier sourceAgent,
+					       ClusterIdentifier targetAgent);
 
   /** Notify the cryptographic service that an agent previously
    *  running on a remote node is about to be installed and
@@ -125,8 +127,8 @@ public interface AgentIdentityService
    * @param agentName        the name of the agent to be installed
    */
   public void completeTransfer(TransferableIdentity identity,
-			       String sourceAgent,
-			       String targetAgent);
+			       ClusterIdentifier sourceAgent,
+			       ClusterIdentifier targetAgent);
 
 }
 
