@@ -109,27 +109,26 @@ public class CertificateList extends  HttpServlet
     out.println("<H3>Issuer: " + cadnname + "</H3>");
     out.println("<H3>LDAP:   " + caPolicy.ldapURL + "</H3>");
 
-    out.println("<table>");
     String filter = "(cn=*)";
+    LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
+    out.println("<H3>" + ldapentries.length + " entries</H3>");
+
+    out.println("<table>");
 
     String uri = req.getRequestURI();
-    String certDetailsUri = uri.substring(0, uri.lastIndexOf('/')) + "/certdetails";
- 
-   if((role==null)||(role=="")) {
-      if (debug) {
-	System.out.println("calling create table will role:null");
-      }
-      out.println(createtable(certificateFinder.searchWithFilter(filter),
-			      cadnname, null,
-			      certDetailsUri));
+    String certDetailsUri = uri.substring(0, uri.lastIndexOf('/'))
+      + "/certdetails";
+
+
+    if((role==null)||(role=="")) {
+      role = null;
     }
-    else {
-      if (debug) {
-	System.out.println("calling create table will role:"+role);
-      }
-      out.println(createtable(certificateFinder.searchWithFilter(filter),
-			      cadnname, role, certDetailsUri));
+    if (debug) {
+      System.out.println("calling create table will role:" + role);
     }
+    out.println(createtable(ldapentries,
+			    cadnname, role,
+			    certDetailsUri));
     out.println("</body></html>");
     out.flush();
     out.close();
