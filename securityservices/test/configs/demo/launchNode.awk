@@ -11,6 +11,7 @@
 # Launch an xterm window and start the node in that terminal
 func launchNode( nodeName, directory, confFile, script )
 { 
+        curdir=`pwd`
 	printf "%15-s", nodeName
 	printf " %40-s", directory
 	print ": " confFile

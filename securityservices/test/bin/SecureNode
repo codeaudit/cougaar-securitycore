@@ -157,10 +157,10 @@ endif
 if ( "$useGuardedNode" == "true") then
 	# In the future, we need to store the name of the domain manager in a configuration
 	# file.
-	# domainManagerId: Name of the agent where the domain Manager is running
-	# domainName:      The name of the domain. Right now, should be the same
-	# as domainManagerId.
-	#set MYPROPERTIES="$MYPROPERTIES -DdomainManagerId=$domainManagerId"
+	# org.cougaar.domain.manager: Name of the agent where the domain Manager is running
+	# domainName:                 The name of the domain. Right now, should be the same
+	# as org.cougaar.domain.manager.
+	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.domain.manager=$domainManagerId"
 	#set MYPROPERTIES="$MYPROPERTIES -DdomainName=$domainName"
 endif
 

@@ -70,10 +70,14 @@ cd src
 
 3. Copy the jar files under securityservices/sys into $COUGAAR_INSTALL_PATH/sys.
 
-4. Copy the configuration files under securityservices/sys/test/configs/common
+4. Sign all the jar and zip files under the $COUGAAR_INSTALL_PATH/lib and
+   $COUGAAR_INSTALL_PATH/sys directories. This can be done by typing:
+         test/bin/signJars
+
+5. Copy the configuration files under securityservices/sys/test/configs/common
    into $COUGAAR_INSTALL_PATH/configs/common.
 
-5. Use the myalpc tool to compile all the Java source code. Several environment
+6. Use the myalpc tool to compile all the Java source code. Several environment
    variables will need to be set beforehand. For the purposes of this example,
    we assume that CVS check outs are done at a users home directory. If they
    are performed at a different location, substitute that location for the '~':
@@ -92,12 +96,12 @@ export COUGAARCLASSES=~/securityservices/classes	# bytecode tree root
 setenv PATH ${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for bash shell users
 export PATH ${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for csh or tcsh users
 
-6. Use the myalpc script from the securityservices directory. 
+7. Use the myalpc script from the securityservices directory. 
 
 test/bin/myalpc src
 
 
-7. Now all the source code should be compiled under the $COUGAARCLASSES 
+8. Now all the source code should be compiled under the $COUGAARCLASSES 
    directory. Use make to build and sign the jar files. All class files are 
    expected in the $COUGAARCLASSES directory. The makefile automatically 
    signs the bootstrap.jar and securityservices.jar with the appropriate keys.
@@ -121,7 +125,7 @@ make signjar
    to re-compile Cougaar if they need to. In an operational environment,
    new keystores would be used instead.
 
-8. The signed jar files can be now be installed into the $COUGAAR_INSTALL_PATH
+9. The signed jar files can be now be installed into the $COUGAAR_INSTALL_PATH
    directory. 
 
 make install
@@ -175,8 +179,8 @@ that have different privileges:
   write to this directory.
 * log/plugins - PlugIns may log data to this directory.
 
-Running a society
-=================
+Running a security-enhanced node
+================================
 A security-enhanced node is executed by using the following script:
 
 	test/bin/SecureNode <options>
@@ -184,6 +188,29 @@ A security-enhanced node is executed by using the following script:
 where <options> are the same command-line arguments as for the Node script.
 This script sets environment variables specific to the security services
 and executes the boostrapper, which launches the node.
+
+
+Running the ul-mini-config society
+==================================
+Go to the test/configs/demo directory and type the following command:
+   launch-society [configuration file] [use ssh-agent: true|false]
+
+The launch-society script launches multiple nodes from one single
+command. The options are the following:
+* [configuration file] : the name of a configuration file that is defines
+on which hosts to run the society.
+* [use ssh-agent: true|false]
+
+The syntax of the configuration file is the following:
+[Host name]   [Startup directory] [Node's .ini file] [Startup script]
+Where:
+[Host name]          is the host where to run the node
+[Startup directory]  is the directory from which the node will be launched
+[Node's ini file]    is the ini file (without the ini extension) for the node
+[Startup script]     is the name of a startup script where specific properties
+                     can be defined for that node.
+As an example, two configuration files are provided: ul-mini-config.conf
+and ul-mini-config-LA.conf.
 
 Java properties
 ===============

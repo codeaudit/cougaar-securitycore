@@ -7,6 +7,8 @@ if ( $# > 0 )  then
     set configurationFile="$argv[1]"
 endif
 
+set CURDIR=`pwd`
+
 if ( ! $?configurationFile ) then
     set configurationFile=ul-mini-config.conf
 endif
@@ -35,7 +37,7 @@ awk -f launchNode.awk $configurationFile
 echo "Type [ENTER] to terminate the society"
 echo $<
 
-awk -f killNodes.awk $configurationFile
+awk -f killNodes.awk $configurationFile $CURDIR
 
 #netscape http://fir:5555/alpine/demo/TASKS.PSP &
 

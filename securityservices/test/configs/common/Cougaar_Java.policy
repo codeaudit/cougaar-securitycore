@@ -130,8 +130,7 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "com.nai.*", "read";
 
 	// FIX: Required for KAoS. That property should really be renamed to org.cougaar....
-	permission java.util.PropertyPermission "domainManagerId", "read";
-	permission java.util.PropertyPermission "domainName", "read";
+	// permission java.util.PropertyPermission "domainName", "read";
 
 	// This permission is needed by the AgentManager to associate a JAAS
 	// subject with an agent when it starts an agent.
