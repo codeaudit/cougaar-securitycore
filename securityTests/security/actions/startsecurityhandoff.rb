@@ -13,7 +13,11 @@ module Cougaar
       end
 
       def perform
-        @run.society.each_node do |node|
+        startDeRegistration
+      end
+
+     def startDeRegistration 
+       @run.society.each_node do |node|
           if(node.name == @currentnodename)
             node.each_agent do |agent|
               uri = agent.uri + @partialurl
@@ -24,7 +28,7 @@ module Cougaar
              deregister nodeuri 
           end
         end
-      end
+     end
 
      def deregister (url)
        params = []
@@ -34,6 +38,7 @@ module Cougaar
        logInfoMsg "Starting handoff at : #{url} params #{params}" if $VerboseDebugging
        response =  SRIWeb.instance.postHtml url, params
      end
-    end
+
+   end
   end #module Actions
 end # module Cougaar
