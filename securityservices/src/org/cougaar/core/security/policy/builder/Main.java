@@ -60,6 +60,8 @@ class Main {
   private static final int JTP_CMD     = 1;
   private static final int COMMIT_CMD  = 2;
   private static final int EXAMINE_CMD = 3;
+  private static final int PARSE_CMD   = 4;
+
 
   private int     _cmd;
   private boolean _quiet;
@@ -122,6 +124,10 @@ class Main {
         counter++;
         _cmd = EXAMINE_CMD;
         _policyFile = args[counter++];
+      } else if (args[counter].equals("parse")) {
+        counter++;
+        _cmd = PARSE_CMD;
+        _policyFile = args[counter++];
       } else {
         usage();
       }
@@ -152,6 +158,8 @@ class Main {
     System.out.println("\tagent = agent running the servlet");
     System.out.println("\tpoliciesFile = policies to commit");
     System.out.println("" + (counter++) + ". examine policyFile");
+    System.out.println("" + (counter++) + ". parse policyFile");
+    System.out.println("\tParse only for debugging purposes");
     System.exit(-1);
   }
 
@@ -183,6 +191,9 @@ class Main {
       break;
     case EXAMINE_CMD:
       examinePolicyFile();
+      break;
+    case PARSE_CMD:
+      compile(_policyFile);
       break;
     default:
       throw new RuntimeException("Shouldn't be here");
@@ -327,7 +338,8 @@ class Main {
     FileInputStream fis = new FileInputStream(file);
     List policies       = null;
     try {
-      PolicyLexer lexer = new PolicyLexer(new DataInputStream(fis));
+      //      PolicyLexer lexer = new PolicyLexer(new DataInputStream(fis));
+      PolicyLexer lexer = new PolicyLexer(fis);
       PolicyParser parser = new PolicyParser(lexer);
       policies = parser.policies();
     } catch (Exception e) {
