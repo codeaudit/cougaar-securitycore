@@ -100,6 +100,10 @@ public class AgentMobility
       System.out.println("======== Looking up key for receiver node");
     }
     PrivateKey rcvrPrivKey = keyRing.findPrivateKey(receiverAlias);
+    if (rcvrPrivKey == null) {
+      System.out.println("Unable to get receiver node private key");
+      return;
+    }
     X509Certificate rcvrCert =
       (X509Certificate)keyRing.findCert(receiverAlias);
 

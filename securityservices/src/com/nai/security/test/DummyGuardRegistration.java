@@ -27,12 +27,21 @@
 package com.nai.security.test;
 
 import java.util.*;
-import com.nai.security.policy.GuardRegistration;
+
+// Cougaar core services
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
-import SAFE.Enforcer.NodeEnforcer;  // or import SAFE.Enforcer.AgentEnforcer;
 
-public class DummyGuardRegistration extends GuardRegistration implements NodeEnforcer {
+// KAoS policy management
+import safe.enforcer.NodeEnforcer;  // or import SAFE.Enforcer.AgentEnforcer;
+
+// Cougaar security services
+import com.nai.security.policy.GuardRegistration;
+
+public class DummyGuardRegistration
+  extends GuardRegistration 
+  implements NodeEnforcer
+{
   public DummyGuardRegistration(String aPolicyType, String enforcerName) {
     super(aPolicyType, enforcerName);
   }
@@ -50,7 +59,8 @@ public class DummyGuardRegistration extends GuardRegistration implements NodeEnf
     System.out.println("DummyGuardRegistration: " + policy);
     RuleParameter[] param = policy.getRuleParameters();
     for (int i = 0 ; i < param.length ; i++) {
-      System.out.println("Rule: " + param[i].getName() + " - " + param[i].getValue());
+      System.out.println("Rule: " + param[i].getName()
+			 + " - " + param[i].getValue());
     }
   }
 }
