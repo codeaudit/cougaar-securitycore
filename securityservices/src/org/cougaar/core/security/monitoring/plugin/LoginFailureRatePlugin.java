@@ -100,29 +100,71 @@ import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
  * @author George Mount <gmount@nai.com>
  */
 public class LoginFailureRatePlugin extends ComponentPlugin {
-  static long SECONDSPERDAY = 60 * 60 * 24;
+  final static long SECONDSPERDAY = 60 * 60 * 24;
+
+  /** predicate script for the aggregation query */
   private static final ScriptSpec PRED_SPEC =
     new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JAVA, 
                    LoginFailurePredicate.class.getName());
 
+  /** format script for the aggregation query */
   private static final ScriptSpec FORMAT_SPEC =
     new ScriptSpec(Language.JAVA,  XmlFormat.INCREMENT,
                    LoginFailurePredicate.class.getName());
 
+  /** 
+   * The number of seconds that the poll can be delayed before there
+   * is a problem. 
+   */
   private static final int OVERSIZE = 600;
+
+  /** Logging service */
   private LoggingService log;
 
+  /** Aggregation query subscription */
   private IncrementalSubscription _queryChanged;
+
+  /** 
+   * Results of the subscription are only going to belong to the 
+   * _queryAdapter variable.
+   */
   private QueryResultAdapter      _queryAdapter;
 
+  /** The number of seconds between LOGIN_FAILURE_RATE updates */
   protected int    _pollInterval    = 0;
-  protected int    _window          = 0;
-  protected String _clusters[]      = null;
-  protected int    _failures[]      = null;
-  protected int    _totalFailures   = 0;
-  protected long   _startTime       = System.currentTimeMillis();
-  protected int    _lastRate        = -1;
 
+  /** 
+   * The amount of time to take into account when determining the
+   * LOGIN_FAILURE_RATE
+   */
+  protected int    _window          = 0;
+
+  /**
+   * Agent names to query for LOGINFAILURE's
+   */
+  protected String _clusters[]      = null;
+
+  /**
+   * Buckets, one second each, containing the login failures that
+   * happened within that second.
+   */
+  protected int    _failures[]      = null;
+
+  /**
+   * The total number of failures that happened within the window
+   */
+  protected int    _totalFailures   = 0;
+
+  /**
+   * The time that the service was started
+   */
+  protected long   _startTime       = System.currentTimeMillis();
+
+  /**
+   * Gets the poll interval (seconds between LOGIN_FAILURE_RATE updates)
+   * and window (the number of seconds over which the LOGIN_FAILURE_RATE
+   * is determined) from the recipe parameters.
+   */
   public void setParameter(Object o) {
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List parameter " +
@@ -174,6 +216,10 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     }
   }
 
+  /**
+   * creates the AggregationQuery for use in searching for login failure
+   * IDMEF messages
+   */
   protected AggregationQuery createQuery() {
     AggregationQuery aq = new AggregationQuery(QueryType.PERSISTENT);
     aq.setName("Login Failure Rate Query");
@@ -188,6 +234,11 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     return aq;
   }
 
+  /**
+   * Sets up the AggregationQuery and login failure rate task for
+   * updating the rate at the interval specified in the configuartion
+   * parameters. 
+   */
   protected void setupSubscriptions() {
     log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
@@ -205,6 +256,11 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
                 0, ((long)_pollInterval) * 1000);
   }
 
+  /**
+   * Called whenever there is an update in the AggregationQuery results.
+   * Updates the count of login failures for the bucket associated with
+   * the current second. 
+   */
   protected void execute() {
     
     long now = System.currentTimeMillis();
@@ -236,6 +292,10 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     }
   }
 
+  /**
+   * class used internally for determining if the query results have
+   * been updated or something that we don't care about
+   */
   private static class QueryChanged implements UnaryPredicate {
     public QueryChanged() {
     }
@@ -245,14 +305,19 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     }
   }
 
-  private static class LoginFailureRateCondition
+  /**
+   * A condition published to the blackboard whenever there is a 
+   * login failure rate change. The target for this condition is the
+   * Adaptivity Engine.
+   */
+  static class LoginFailureRateCondition
     implements Condition, Serializable {
     Double _rate;
     static final OMCRangeList RANGE = 
       new OMCRangeList(new Double(0.0), new Double(Integer.MAX_VALUE));
  
-    public LoginFailureRateCondition(int rate) {
-      _rate = new Double((double) rate);
+    public LoginFailureRateCondition() {
+      setRate(-1);
     }
       
     public OMCRangeList getAllowedValues() {
@@ -266,11 +331,24 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     public Comparable getValue() {
       return _rate;
     }
+
+    public void setRate(int rate) {
+      _rate = new Double((double) rate);
+    }
   }
 
+  /**
+   * This class is used internally for the Aggregation Query predicate
+   * and formatting. Much easier than using Jython when the queries
+   * are static.
+   */
   public static class LoginFailurePredicate
     implements UnaryPredicate, IncrementFormat {
-    // UnaryPredicate API
+
+    /**
+     * UnaryPredicate API requires this. Selects the
+     * objects that we're interested in on the remote Blackboard.
+     */
     public boolean execute(Object obj) {
       if (!(obj instanceof Event)) {
         return false;
@@ -294,7 +372,10 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
       return false;
     }
 
-    // IncrementFormat API
+    /**
+     * IncrementFormat API requires this. Formats the updates into
+     * ResultSetDataAtoms so that we can read them in the QueryResultAdapter
+     */
     public void encode(UpdateDelta out, SubscriptionAccess sacc) {
       ResultSetDataAtom atom = new ResultSetDataAtom();
       atom.addIdentifier("LoginFailureCount", "Results");
@@ -303,15 +384,31 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     }
   }
 
-  private class LoginFailureRateTask implements Runnable {
+  /**
+   * This class is used internally to periodically update the 
+   * login failure rate. It relies on the ThreadService to trigger
+   * its run() method.
+   */
+  class LoginFailureRateTask implements Runnable {
     int  _lastCleared= (OVERSIZE + (int) 
                         (_startTime - 
                          System.currentTimeMillis())/1000)%_failures.length;
     int  _prevTotal = -1;
 
+    /**
+     * The LOGIN_FAILURE_RATE that was last reported.
+     */
+    protected LoginFailureRateCondition _rate = null;
+
     public LoginFailureRateTask() {
     }
-    
+
+    /**
+     * Counts the login failures and checks to see if the rate needs
+     * to be reported to the Adaptivity Engine. It also cleans out the
+     * buckets expected to be filled before the next call to run() is
+     * triggered.
+     */
     public void run() {
       boolean report = false;
       synchronized (_failures) {
@@ -338,26 +435,27 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
       }
     }
 
+    /**
+     * Publishes a change in the login failure rate condition to the
+     * blackboard.
+     */
     private void reportRate(int failureCount) {
       int rate = (int) (failureCount * SECONDSPERDAY / _window);
       log.debug("Rate = " + rate + " login failures/day");
-      Condition cond = new LoginFailureRateCondition(rate);
-      boolean close = true;
-      try {
-        getBlackboardService().openTransaction();
-      } catch (Exception e) {
-        close = false;
+
+      boolean add = false;
+      if (_rate == null) {
+        _rate = new LoginFailureRateCondition();
+        add = true;
       }
-      try {
-        getBlackboardService().publishAdd(cond);
-      } catch (Exception e) {
+      _rate.setRate(rate);
+      getBlackboardService().openTransaction();
+      if (add) {
+        getBlackboardService().publishAdd(_rate);
+      } else {
+        getBlackboardService().publishChange(_rate);
       }
-      try {
-        if (close) {
-          getBlackboardService().closeTransaction();
-        }
-      } catch (Exception e) {
-      }
+      getBlackboardService().closeTransaction();
     }
   }
 }
