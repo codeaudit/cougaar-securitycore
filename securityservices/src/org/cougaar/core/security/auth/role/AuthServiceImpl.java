@@ -23,6 +23,8 @@ import org.cougaar.core.service.LoggingService;
 import java.security.Permission;
 import java.security.Principal;
 import java.security.ProtectionDomain;
+import java.util.Collections;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -245,7 +247,12 @@ public class AuthServiceImpl
   }
   
   public List getPermissions(ProtectionDomain domain) {
+    _log.debug("In Blackboard getPermissions function");
     RoleExecutionContext rec = getExecutionContextFromDomain(domain);
+    if (rec == null && _log.isDebugEnabled()) {
+      _log.debug("domain which has no RoleExecutionContext");
+      return new LinkedList();
+    }
     List permissions = new LinkedList();
     if (!USE_DAML) {
     // add all of the permissions for now:
@@ -264,15 +271,8 @@ public class AuthServiceImpl
                       "BlackBoardAccessAdd"));
     ActionInstanceDescription action = 
       new ActionInstanceDescription(_enforcedActionType,
-                                    "Dummy",
+                                    rec,
                                     targets);
-    KAoSProperty actorProp = 
-      action.getProperty(kaos.ontology.jena.ActionConcepts._performedBy_);
-    {
-      Vector tmp = new Vector();
-      tmp.add(rec);
-      actorProp.setMultipleInstances(tmp);
-    }
     KAoSProperty accessProp =
       action.getProperty(
                 org.cougaar.core.security.policy.enforcers.ontology.jena.
@@ -285,6 +285,9 @@ public class AuthServiceImpl
         Vector tmp = new Vector();
         tmp.add(accessModeDaml);
         accessProp.setMultipleInstances(tmp);
+      }
+      if (_log.isDebugEnabled()) {
+        _log.debug("action = " + action);
       }
       Set objectsInDAML = 
         _guard.getAllowableValuesForActionProperty(
