@@ -62,4 +62,10 @@ public class IdmefClassifications {
    */
   public final static String JAR_VERIFICATION_FAILURE = 
     COUGAAR_PREFIX + "JAR_VERIFICATION_FAILURE";
+  
+  /**
+   * Blackboard Compromise
+   */
+  public final static String BLACKBOARD_COMPROMISE_FAILURE =
+    COUGAAR_PREFIX + "BLACKBOARD_COMPROMISE_FAILURE";
 }
