@@ -76,24 +76,24 @@ public class RoleExecutionContext implements ExecutionContext {
 
   public boolean hasAgentRole(String role) { 
     if (_agentRoles == null) {
-      return false;
+      return false; 
     }
     
-    return (Arrays.binarySearch(_agentRoles, role) > 0); 
+    return (Arrays.binarySearch(_agentRoles, role) >= 0); 
   }
 
   public boolean hasComponentRole(String role) { 
     if (_componentRoles == null) {
       return false;
     }
-    return (Arrays.binarySearch(_componentRoles, role) > 0); 
+    return (Arrays.binarySearch(_componentRoles, role) >= 0); 
   }
 
   public boolean hasUserRole(String role) { 
     if (_userRoles == null) {
       return false;
     }
-    return (Arrays.binarySearch(_userRoles, role) > 0); 
+    return (Arrays.binarySearch(_userRoles, role) >= 0); 
   }
 
   public MessageAddress getAgent() {
