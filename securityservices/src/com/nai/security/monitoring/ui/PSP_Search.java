@@ -83,7 +83,7 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
                 out.println("<HTML><head>");
                 out.println(insertJavascript(psc.getServerPlugInSupport().getClusterIDAsString()));
                 out.println("<body><h2> Search for Vulnerability</h2>");
-                out.println("<form name=\"choiceForm\" Method=\"GET\" Action=\"http://localhost:5555/UI/Cap.PSP?\" >");                
+                out.println("<form name=\"choiceForm\" Method=\"GET\" >");                
                 out.println("<SELECT NAME=\"Vulnerability\" SIZE=\"1\">");
                 out.println("<OPTION value=\"POD\">POD");
                 out.println("<OPTION value=\"TCPSCAN\">TCPSCAN");
@@ -98,6 +98,7 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
 		Vector alllinks=new Vector();
 		psc.getAllURLsAndNames(alllinks,allnames);
 		//psc.getAllNames(allnames);
+		/*
 		for(int i=0;i<allnames.size();i++)
 		{
 			out.println("name at ::"+i+(String)allnames.elementAt(i)+"\n");
@@ -105,7 +106,7 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
 		for(int i=0;i<alllinks.size();i++)
 		{
 			out.println("links ::"+i+(String)alllinks.elementAt(i)+"\n");
-		}
+		}*/
 		
 
              }
@@ -173,7 +174,7 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
                 
             }
             out.println("</BODY></HTML>");
-            
+            out.flush();
             out.close();
             
         }
@@ -183,6 +184,7 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
             ex.printStackTrace(out);
             System.out.println(ex);
             out.flush();
+	out.close();
         }
     }
     
@@ -221,7 +223,7 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
         js.append("var selected = document.choiceForm.Vulnerability.selectedIndex;\n");
         //js.append("alert(selected)\n");
         js.append("strValues = strValues+document.choiceForm.Vulnerability[selected].value;\n");
-        js.append("document.choiceForm.action=\"http://localhost:5555/$" );
+        js.append("document.choiceForm.action=\"/$" );
         js.append(  clusterid);
         js.append("/Search.PSP?\"\n");
         //js.append("alert( document.choiceForm.action +strValues);\n");
@@ -233,7 +235,7 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
     {
         StringBuffer out=new StringBuffer();
         out.append("<fieldset><legend>MRCM----"+robj.Type+" Vulnerability Services Available At <br></legend>");
-        out.append("<form name=\"selectForm\" Method=\"POST\" Action=\"http://localhost:5555/UI/publish.PSP?\" >");                
+        out.append("<form name=\"selectForm\" Method=\"POST\" >");                
         out.append("<input type=\"hidden\"  name=\"type\" value="+robj.Type+">");
         out.append("<input type=\"hidden\"  name=\"uniqueid\" value="+robj.unique_id+">");
         out.append("<TABLE BORDER ALIGN=LEFT>");
@@ -273,7 +275,7 @@ public class PSP_Search extends PSP_BaseAdapter implements PlanServiceProvider, 
         js.append("alert(\" Select sensor\");return;}");
         js.append("if(selectedanalyzer==-1){\n");
         js.append("alert(\" Select analyzer\");return;}");
-        js.append("document.selectForm.action=\"http://localhost:5555/$" );
+        js.append("document.selectForm.action=\"/$" );
         js.append(  clusterid);
         js.append("/Publish.PSP?\";\n");
         js.append("document.selectForm.submit();");

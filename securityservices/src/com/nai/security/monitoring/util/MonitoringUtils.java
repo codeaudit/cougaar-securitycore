@@ -59,6 +59,7 @@ public class MonitoringUtils
     public static final String Sensor_Data="Sensor_Data";
     public static final String Send_SensorData_Preposition="From_Sensor";
     public static final String Update_Router_cmd="Update_router";
+    public static final String unavailable="Unknown PSP request!";
 
 	public static int debug=0;
 	static

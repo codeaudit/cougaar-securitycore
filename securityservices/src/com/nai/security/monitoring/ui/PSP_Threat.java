@@ -118,6 +118,8 @@ public class PSP_Threat extends PSP_BaseAdapter implements PlanServiceProvider, 
       		out.print("</pre></body></html>");
       		out.flush();
     	}
+	out.flush();
+	out.close();
 }
  protected static UnaryPredicate getUniqueObjectWithUIDPred( final String uidFilter)
   {

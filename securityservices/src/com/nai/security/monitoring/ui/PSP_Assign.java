@@ -195,6 +195,8 @@ public class PSP_Assign extends PSP_BaseAdapter implements PlanServiceProvider, 
              System.out.println("not a post response");
 
         }
+	out.flush();
+	out.close();
     }
     
     public boolean returnsXML() {
