@@ -33,6 +33,7 @@ import org.cougaar.core.mts.*;
 import org.cougaar.core.persist.*;
 import org.cougaar.core.component.*;
 import org.cougaar.planning.ldm.plan.*;
+import org.cougaar.multicast.AttributeBasedAddress;
 
 // Cougaar security services
 import org.cougaar.core.security.acl.trust.*;
@@ -79,6 +80,12 @@ public class BlackboardAccessControlAdaptor
   public void sendDirective(Directive dir, Collection changeReports) {
     service.sendDirective(dir, changeReports);
   }
+
+  /* Uncomment when Cougaar 9.4.1 is out.
+  public ABATranslation getABATranslation(AttributeBasedAddress aba) {
+    return service.getABATranslation(aba);
+  }
+  */
 
   // BlackboardService methods
 
