@@ -145,7 +145,7 @@ public class SecurityServiceProvider
     if (service == null) {
       if (log.isWarnEnabled()) {
 	log.warn("Service not registered: " + serviceClass.getName()
-	  + " Requestor:" + requestor.getClass().getName(), new Throwable());
+	  + " Requestor:" + requestor.getClass().getName());
       }
     }
     return service;
