@@ -534,21 +534,28 @@ public class KeyManagement
             dirlist[2], keyRing.getAlias(clientX509), clientX509);
         }
 
-        // no need to send back the certificate, client will get it from LDAP
-        if (replyInHtml) {
+        //if (replyInHtml) {
           if (status == PENDING_STATUS_APPROVED) {
             reply = CertificateUtility.base64encode(prevCert.getEncoded(),
               CertificateUtility.PKCS7HEADER,
                 CertificateUtility.PKCS7TRAILER);
             // convert \n to <br>
-            reply = reply.replaceAll("\n", "<br>");
+            if (replyInHtml) {
+              reply = reply.replaceAll("\n", "<br>");
+            }
+            else {
+              reply = URLEncoder.encode(reply, "UTF-8");
+            }
           }
-          else
+          else {
             reply = "status=" + status;
+          }
 
+            /*
         }
         else
           reply = "status=" + status;
+          */
 
       }
     }
