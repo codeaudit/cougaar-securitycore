@@ -105,10 +105,11 @@ public class EventViewerServlet
     out.println("<title>IDMEF Events</title>");
     out.println("</head>");
     out.println("<body>");
-    out.println("<H2>IDMEF Events</H2><BR>");
 
     // Query the blackboard
     Collection collection = support.queryBlackboard(new IdmefEventPredicate());
+   
+    out.println("<H2>IDMEF Events (" + collection.size() + " events found) </H2><BR>");
     Iterator it = collection.iterator();
     String document = null;
 
