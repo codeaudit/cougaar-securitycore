@@ -27,8 +27,8 @@ techspecs = ['AgentCompromise_AgentAssetStateDimensions.xml',
              'Security_EnclaveAssetStateDimensions.xml', 
              'Security_Threats.xml', 
              'Security_Events.xml', 
-             'Security_Sensor.xml', 
-             'Security_Actuator.xml']
+             'Security_Sensors.xml', 
+             'Security_Actuators.xml']
 
 society.each_agent(true) do |agent|
     insert_to_node = false
