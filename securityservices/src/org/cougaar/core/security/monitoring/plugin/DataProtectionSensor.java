@@ -21,6 +21,8 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
+import org.cougaar.core.service.ThreadService;
+
 // overlay classes
 import org.cougaar.core.security.constants.IdmefClassifications;
 
@@ -71,6 +73,10 @@ public class DataProtectionSensor extends  SensorPlugin
     return false;
   }
 
+  public void setThreadService(ThreadService ts) {
+    _threadService = ts;
+  }
+
   /**
    * Register this sensor's capabilities, and initialize the services that need to
    * to publish message failure events to this plugin's blackboard.
@@ -81,7 +87,7 @@ public class DataProtectionSensor extends  SensorPlugin
     //initialize the EventPublisher in the following services
     // need to get the execution context for this sensor for publishing idmef event
     EventPublisher publisher =
-      new IdmefEventPublisher(_blackboard, _scs, _cmrFactory, _log, getSensorInfo());
+      new IdmefEventPublisher(_blackboard, _scs, _cmrFactory, _log, getSensorInfo(), _threadService);
     setPublisher(publisher);
     publishIDMEFEvent();
   }
@@ -109,5 +115,6 @@ public class DataProtectionSensor extends  SensorPlugin
   }
 
   private SensorInfo _sensorInfo;
+  private ThreadService _threadService;
 }
 

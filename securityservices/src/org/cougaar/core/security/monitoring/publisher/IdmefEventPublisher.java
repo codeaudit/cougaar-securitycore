@@ -29,6 +29,8 @@ package org.cougaar.core.security.monitoring.publisher;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.thread.Schedulable;
 
 // securityservices classes
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
@@ -79,8 +81,12 @@ public class IdmefEventPublisher implements EventPublisher {
   /**
    * Constructor
    */
-  public IdmefEventPublisher(BlackboardService bbs, SecurityContextService scs, 
-    CmrFactory cmrFactory, LoggingService logger, SensorInfo info) {
+  public IdmefEventPublisher(BlackboardService bbs, 
+                             SecurityContextService scs, 
+                             CmrFactory cmrFactory, 
+                             LoggingService logger, 
+                             SensorInfo info,
+                             ThreadService ts) {
     _blackboard = bbs;
     _scs = scs;
     _logger = logger;
@@ -89,6 +95,7 @@ public class IdmefEventPublisher implements EventPublisher {
     _sensorInfo = info;
     // get the sensor's execution context
     _ec = _scs.getExecutionContext();
+    _threadService = ts;
   }
   
   /**
@@ -119,26 +126,41 @@ public class IdmefEventPublisher implements EventPublisher {
     //boolean openTransaction = false;
     if(event == null){
       if(_logger != null) {
-			  _logger.warn("no event to publish!");
-		  }
-		  return;
-		}
+        _logger.warn("no event to publish!");
+      }
+      return;
+    }
 		
-		if(_blackboard != null) {
-		  if(_logger.isDebugEnabled()) {
-			  _logger.debug("publishing message failure:\n" + event);
-		  }
-		  //openTransaction= _blackboard.isTransactionOpen();
-		  //if(!openTransaction) {
-		  _scs.setExecutionContext(_ec);
-			_blackboard.openTransaction();
-		  //}
-		  _blackboard.publishAdd(createIDMEFAlert(event));
-		    //if(!openTransaction) {
-		  _blackboard.closeTransaction();
-		  _scs.resetExecutionContext();
-		    //}
-	  }
+    if(_blackboard != null) {
+      if(_logger.isDebugEnabled()) {
+        _logger.debug("publishing message failure:\n" + event);
+      }
+      //openTransaction= _blackboard.isTransactionOpen();
+      //if(!openTransaction) {
+      _scs.setExecutionContext(_ec);
+      final boolean lock[] = new boolean[1];
+      Runnable publishIt = new Runnable() {
+          public void run() {
+            _blackboard.openTransaction();
+            _blackboard.publishAdd(createIDMEFAlert(event));
+            _blackboard.closeTransaction();
+            synchronized (lock) {
+              lock[0] = true;
+              lock.notifyAll();
+            }
+          }
+        };
+      Schedulable s = _threadService.getThread(this, publishIt);
+      s.start();
+      synchronized (lock) {
+        while (lock[0] == false) {
+          try {
+            lock.wait();
+          } catch (Exception e) {}
+        }
+      }
+      _scs.resetExecutionContext();
+    }
   }
 
   /**
@@ -239,6 +261,7 @@ public class IdmefEventPublisher implements EventPublisher {
   // factory used to create idmef objects
   protected IdmefMessageFactory _idmefFactory = null;
   protected SensorInfo _sensorInfo = null;
+  protected ThreadService _threadService = null;
   private final ExecutionContext _ec;
 }
  

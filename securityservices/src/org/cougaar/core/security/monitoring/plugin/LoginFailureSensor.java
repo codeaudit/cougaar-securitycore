@@ -84,7 +84,12 @@ public class LoginFailureSensor extends SensorPlugin {
 
   private final  String[] CLASSIFICATIONS = {IdmefClassifications.LOGIN_FAILURE};
   private SensorInfo  sensor=null;
+  private ThreadService _threadService;
   public LoginFailureSensor() {
+  }
+
+  public void setThreadService(ThreadService ts) {
+    _threadService = ts;
   }
 
   /**
@@ -143,7 +148,7 @@ public class LoginFailureSensor extends SensorPlugin {
     }
     
     EventPublisher publisher =
-      new LoginEventPublisher(_blackboard, _scs, _cmrFactory, _log, getSensorInfo());
+      new LoginEventPublisher(_blackboard, _scs, _cmrFactory, _log, getSensorInfo(), _threadService);
     setPublisher(publisher);
     publishIDMEFEvent();
   }

@@ -25,6 +25,7 @@ package org.cougaar.core.security.monitoring.publisher;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
 
 // securityservices classes
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
@@ -63,9 +64,13 @@ import java.util.HashMap;
 
 public class LoginEventPublisher extends IdmefEventPublisher {
 
-  public LoginEventPublisher(BlackboardService bbs, SecurityContextService scs, 
-    CmrFactory cmrFactory, LoggingService logger, SensorInfo info) {
-    super(bbs, scs, cmrFactory, logger, info);
+  public LoginEventPublisher(BlackboardService bbs, 
+                             SecurityContextService scs, 
+                             CmrFactory cmrFactory, 
+                             LoggingService logger,
+                             SensorInfo info, 
+                             ThreadService ts) {
+    super(bbs, scs, cmrFactory, logger, info, ts);
   }
 
   private List createClassifications() {

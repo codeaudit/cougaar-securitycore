@@ -28,6 +28,7 @@ package org.cougaar.core.security.monitoring.plugin;
 // cougaar core classes
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.MessageProtectionService;
+import org.cougaar.core.service.ThreadService;
 
 // overlay classes
 import org.cougaar.core.security.constants.IdmefClassifications;
@@ -60,6 +61,10 @@ public class MessageFailureSensor extends SensorPlugin {
     IdmefClassifications.MESSAGE_FAILURE
   };
 
+  public void setThreadService(ThreadService ts) {
+    _threadService = ts;
+  }
+
   protected SensorInfo getSensorInfo() {
     if(_sensorInfo == null) {
       _sensorInfo = new MFSensorInfo();
@@ -87,7 +92,8 @@ public class MessageFailureSensor extends SensorPlugin {
   protected void setupSubscriptions() {
     super.setupSubscriptions();
     EventPublisher publisher =
-      new IdmefEventPublisher(_blackboard, _scs, _cmrFactory, _log, getSensorInfo());
+      new IdmefEventPublisher(_blackboard, _scs, _cmrFactory,
+                              _log, getSensorInfo(), _threadService);
     setPublisher(publisher);
     publishIDMEFEvent();
   }
@@ -143,4 +149,5 @@ public class MessageFailureSensor extends SensorPlugin {
   }
 
   private SensorInfo _sensorInfo;
+  private ThreadService _threadService;
 }

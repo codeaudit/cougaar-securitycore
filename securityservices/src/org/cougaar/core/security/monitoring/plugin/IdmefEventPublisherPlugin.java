@@ -36,6 +36,7 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.idmef.Registration;
 import org.cougaar.core.security.monitoring.idmef.AgentRegistration;
+import org.cougaar.core.security.monitoring.idmef.Agent;
 import org.cougaar.core.security.constants.IdmefClassifications;
 
 import edu.jhuapl.idmef.Alert;
@@ -46,6 +47,7 @@ import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.Address;
 import edu.jhuapl.idmef.IDMEF_Node;
 import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.XMLSerializable;
 
 public class IdmefEventPublisherPlugin
   extends ComponentPlugin
@@ -174,7 +176,15 @@ public class IdmefEventPublisherPlugin
             }
             s.append(data[i].getMeaning());
             s.append(':');
-            s.append(data[i].getAdditionalData());
+            if (data[i].getAdditionalData() != null) {
+              s.append(data[i].getAdditionalData());
+            } else {
+              XMLSerializable xml = data[i].getXMLData();
+              if (xml instanceof Agent) {
+                Agent agent = (Agent) xml;
+                s.append(agent.getName());
+              }
+            }
           }
         }
         s.append(')');
