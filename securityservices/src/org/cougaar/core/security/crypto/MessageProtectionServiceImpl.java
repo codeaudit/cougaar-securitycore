@@ -209,8 +209,18 @@ public class MessageProtectionServiceImpl
     if (!isInitialized) {
       setPolicyService();
     }
-     CryptoPolicy policy =
+
+    CryptoPolicy policy =
        cps.getOutgoingPolicy(source.getAddress());
+
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (destination.toAddress().endsWith("(MTS)")) {
+	log.info("Outgoing postmaster message. Skipping encryption");
+	return rawData;
+    }
+
     if (policy == null) {
       if (log.isWarnEnabled()) {
 	      log.warn("protectHeader NOK: " + source.toAddress()
@@ -282,6 +292,15 @@ public class MessageProtectionServiceImpl
     }
      CryptoPolicy policy =
        cps.getIncomingPolicy(destination.toAddress());
+
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (destination.toAddress().endsWith("(MTS)")) {
+	log.info("Incoming postmaster message. Skipping encryption");
+	return rawData;
+    }
+
     if (policy == null) {
       if (log.isWarnEnabled()) {
 	      log.warn("unprotectHeader NOK: " + source.toAddress()
@@ -396,6 +415,14 @@ public class MessageProtectionServiceImpl
       return new BasicMessageOutputStream(os, source, destination, serviceBroker);
     }
 
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (destination.toAddress().endsWith("(MTS)")) {
+      log.info("Outgoing message is a postmaster message. Skipping encryption");
+      return new BasicMessageOutputStream(os, source, destination, serviceBroker);
+    }
+
     pos =
       new MessageOutputStream(os, encryptService, cps,
 			      source, destination, serviceBroker);
@@ -445,6 +472,14 @@ public class MessageProtectionServiceImpl
     if (attrs.getAttribute(AttributeConstants.ENCRYPTED_SOCKET_ATTRIBUTE) != null) {
       // The message is encrypted using SSL. Do not do double encryption.
       log.info("Incoming message encrypted using SSL. Skipping message protection");
+      return new BasicMessageInputStream(is, source, destination, serviceBroker);
+    }
+
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (destination.toAddress().endsWith("(MTS)")) {
+      log.info("Incoming message is a postmaster message. Skipping encryption");
       return new BasicMessageInputStream(is, source, destination, serviceBroker);
     }
 
