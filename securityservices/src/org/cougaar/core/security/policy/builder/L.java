@@ -1,7 +1,14 @@
 // $ANTLR 2.7.1: "policyGrammar.g" -> "L.java"$
 
   package org.cougaar.core.security.policy.builder;
+
+  import java.io.*;
+  import java.util.*;
+
   import org.cougaar.core.security.policy.builder.Main;
+  import org.cougaar.core.security.policy.builder.PolicyBuilder;
+  import org.cougaar.core.security.policy.builder.PolicyCompiler;
+  import org.cougaar.core.security.policy.builder.PolicyCompilerException;
 
 import java.io.InputStream;
 import antlr.TokenStreamException;
@@ -141,8 +148,8 @@ tryAgain:
 		int _saveIndex;
 		
 		{
-		int _cnt6=0;
-		_loop6:
+		int _cnt9=0;
+		_loop9:
 		do {
 			switch ( LA(1)) {
 			case 'a':  case 'b':  case 'c':  case 'd':
@@ -169,10 +176,10 @@ tryAgain:
 			}
 			default:
 			{
-				if ( _cnt6>=1 ) { break _loop6; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
+				if ( _cnt9>=1 ) { break _loop9; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
 			}
 			}
-			_cnt6++;
+			_cnt9++;
 		} while (true);
 		}
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {

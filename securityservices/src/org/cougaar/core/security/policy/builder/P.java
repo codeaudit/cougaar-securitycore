@@ -1,7 +1,14 @@
 // $ANTLR 2.7.1: "policyGrammar.g" -> "P.java"$
 
   package org.cougaar.core.security.policy.builder;
+
+  import java.io.*;
+  import java.util.*;
+
   import org.cougaar.core.security.policy.builder.Main;
+  import org.cougaar.core.security.policy.builder.PolicyBuilder;
+  import org.cougaar.core.security.policy.builder.PolicyCompiler;
+  import org.cougaar.core.security.policy.builder.PolicyCompilerException;
 
 import antlr.TokenBuffer;
 import antlr.TokenStreamException;
@@ -47,11 +54,42 @@ public P(ParserSharedInputState state) {
   tokenNames = _tokenNames;
 }
 
-	public final void policy(
-		boolean bootpolicies
-	) throws RecognitionException, TokenStreamException {
+	public final List  policies() throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		List pl;
+		
+		pl = new Vector();
+		PolicyBuilder pb;
+		
+		try {      // for error handling
+			{
+			int _cnt3=0;
+			_loop3:
+			do {
+				if ((LA(1)==LITERAL_Policy)) {
+					pb=policy();
+					pl.add(pb);
+				}
+				else {
+					if ( _cnt3>=1 ) { break _loop3; } else {throw new NoViableAltException(LT(1), getFilename());}
+				}
+				
+				_cnt3++;
+			} while (true);
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_0);
+		}
+		return pl;
+	}
+	
+	public final PolicyBuilder  policy() throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		PolicyBuilder p;
 		
 		Token  pn = null;
+		p = null;
 		
 		try {      // for error handling
 			match(LITERAL_Policy);
@@ -59,23 +97,26 @@ public P(ParserSharedInputState state) {
 			match(TOKEN);
 			match(EQ);
 			match(LBRACK);
-			servletUserAccess(bootpolicies, pn);
+			p=servletUserAccess(pn.getText());
 			match(RBRACK);
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_0);
+			consumeUntil(_tokenSet_1);
 		}
+		return p;
 	}
 	
-	public final void servletUserAccess(
-		boolean bootpolicies, antlr.Token pn
-	) throws RecognitionException, TokenStreamException {
+	public final PolicyBuilder  servletUserAccess(
+		String pn
+	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		PolicyBuilder p;
 		
 		Token  r = null;
 		Token  n = null;
-		boolean m;
+		boolean m; 
+		p = null;
 		
 		try {      // for error handling
 			match(LITERAL_A);
@@ -84,7 +125,7 @@ public P(ParserSharedInputState state) {
 			match(LITERAL_role);
 			r = LT(1);
 			match(TOKEN);
-			m=modality();
+			m=servletUserAccessModality();
 			match(LITERAL_access);
 			match(LITERAL_a);
 			match(LITERAL_servlet);
@@ -92,15 +133,14 @@ public P(ParserSharedInputState state) {
 			n = LT(1);
 			match(TOKEN);
 			System.out.println(
-			"Boot policies = " + bootpolicies +
-			"Policy name = " + pn.getText() +
+			"Policy name = " + pn +
 			"User Role = " + r.getText() +
 			" Modality = " + m +
 			" servlet = " + n.getText()
 			);
-			Main.writeServletUserAccessPolicy(
-			bootpolicies,
-			pn.getText(),
+			return 
+			PolicyCompiler.servletUserAccessPolicy(
+			pn,
 			m,
 			r.getText(),
 			n.getText());
@@ -109,11 +149,12 @@ public P(ParserSharedInputState state) {
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_1);
+			consumeUntil(_tokenSet_2);
 		}
+		return p;
 	}
 	
-	public final boolean  modality() throws RecognitionException, TokenStreamException {
+	public final boolean  servletUserAccessModality() throws RecognitionException, TokenStreamException {
 		boolean m;
 		
 		m = true;
@@ -141,7 +182,7 @@ public P(ParserSharedInputState state) {
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_2);
+			consumeUntil(_tokenSet_3);
 		}
 		return m;
 	}
@@ -172,9 +213,11 @@ public P(ParserSharedInputState state) {
 	
 	private static final long _tokenSet_0_data_[] = { 2L, 0L };
 	public static final BitSet _tokenSet_0 = new BitSet(_tokenSet_0_data_);
-	private static final long _tokenSet_1_data_[] = { 256L, 0L };
+	private static final long _tokenSet_1_data_[] = { 18L, 0L };
 	public static final BitSet _tokenSet_1 = new BitSet(_tokenSet_1_data_);
-	private static final long _tokenSet_2_data_[] = { 8192L, 0L };
+	private static final long _tokenSet_2_data_[] = { 256L, 0L };
 	public static final BitSet _tokenSet_2 = new BitSet(_tokenSet_2_data_);
+	private static final long _tokenSet_3_data_[] = { 8192L, 0L };
+	public static final BitSet _tokenSet_3 = new BitSet(_tokenSet_3_data_);
 	
 	}

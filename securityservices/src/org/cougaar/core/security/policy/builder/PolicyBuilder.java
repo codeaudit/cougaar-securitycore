@@ -84,10 +84,18 @@ public class PolicyBuilder extends DAMLPolicyBuilderImpl
     return policyMsg;
   }
 
-  public void writePolicyMsg(String filename)
+  public void writePolicyMsg()
     throws IOException
   {
     PolicyMsg pm = null;
+    String filename = null;
+    try {
+      filename = getPolicyName() + ".msg";
+    } catch (ValueNotSet e) {
+      IOException ex = new IOException("Failed to get file name for output");
+      ex.initCause(e);
+      throw ex;
+    }
     try {
       pm = getPolicyMsg();
     } catch (Exception e) {
@@ -95,10 +103,40 @@ public class PolicyBuilder extends DAMLPolicyBuilderImpl
       ioerror.initCause(e);
       throw ioerror;
     }
+    writeObject(filename, pm);
+  }
+
+  public void writePolicyInfo()
+    throws IOException
+  {
+    PolicyInformation pi = null;
+    String filename = null;
+    try {
+      filename = getPolicyName() + ".info";
+    } catch (ValueNotSet e) {
+      IOException ex = new IOException("Failed to get file name for output");
+      ex.initCause(e);
+      throw ex;
+    }
+    try {
+      pi = getPolicyInformation();
+    } catch (Exception e) {
+      IOException ioerror = new IOException("Failed to obtain policy");
+      ioerror.initCause(e);
+      throw ioerror;
+    }
+    writeObject(filename, pi);
+  }
+
+  private void writeObject(String filename, Object o)
+    throws IOException
+  {
     FileOutputStream fos = new FileOutputStream(filename);
     ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-    oos.writeObject(pm);
-    oos.close(); 
+    try {
+      oos.writeObject(o);
+    } finally {
+      oos.close(); 
+    }
   }
 }

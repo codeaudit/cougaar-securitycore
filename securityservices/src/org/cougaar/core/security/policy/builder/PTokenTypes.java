@@ -1,7 +1,14 @@
 // $ANTLR 2.7.1: "policyGrammar.g" -> "P.java"$
 
   package org.cougaar.core.security.policy.builder;
+
+  import java.io.*;
+  import java.util.*;
+
   import org.cougaar.core.security.policy.builder.Main;
+  import org.cougaar.core.security.policy.builder.PolicyBuilder;
+  import org.cougaar.core.security.policy.builder.PolicyCompiler;
+  import org.cougaar.core.security.policy.builder.PolicyCompilerException;
 
 public interface PTokenTypes {
 	int EOF = 1;

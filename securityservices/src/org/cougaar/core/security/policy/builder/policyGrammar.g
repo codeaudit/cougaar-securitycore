@@ -1,38 +1,76 @@
+/*
+ * <copyright>
+ *  Copyright 2003 Cougaar Software, Inc.
+ *  under sponsorship of the Defense Advanced Research Projects Agency *  (DARPA).
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the Cougaar Open Source License as published by
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ * </copyright>
+ */
+
 header {
   package org.cougaar.core.security.policy.builder;
+
+  import java.io.*;
+  import java.util.*;
+
   import org.cougaar.core.security.policy.builder.Main;
+  import org.cougaar.core.security.policy.builder.PolicyBuilder;
+  import org.cougaar.core.security.policy.builder.PolicyCompiler;
+  import org.cougaar.core.security.policy.builder.PolicyCompilerException;
 }
 
 class P extends Parser;
 
-policy
- [boolean bootpolicies]
- : "Policy" pn:TOKEN EQ LBRACK servletUserAccess[bootpolicies, pn] RBRACK
+policies
+     returns [List pl]
+     throws PolicyCompilerException
+   { pl = new Vector();
+     PolicyBuilder pb;}
+    : ( pb = policy { pl.add(pb); })+
     ;
 
-servletUserAccess
-   [boolean bootpolicies, antlr.Token pn]
-   { boolean m; }
-    :   "A" "user" "in" "role" r:TOKEN m=modality 
-        "access" "a" "servlet" "named" 
-        n:TOKEN
+policy 
+     returns [PolicyBuilder p]
+     throws PolicyCompilerException
+  {p = null;}
+ : "Policy" pn:TOKEN EQ LBRACK p = servletUserAccess[pn.getText()] RBRACK
+    ;
+
+servletUserAccess [String pn] 
+   returns [PolicyBuilder p]
+   throws PolicyCompilerException
+   { boolean m; 
+     p = null; }
+    :   "A" "user" "in" "role" r:TOKEN m=servletUserAccessModality 
+        "access" "a" "servlet" "named" n:TOKEN
         {System.out.println(
-                "Boot policies = " + bootpolicies +
-                "Policy name = " + pn.getText() +
+                "Policy name = " + pn +
                 "User Role = " + r.getText() +
                 " Modality = " + m +
                 " servlet = " + n.getText()
             );
-        Main.writeServletUserAccessPolicy(
-                bootpolicies,
-                pn.getText(),
+         return 
+           PolicyCompiler.servletUserAccessPolicy(
+                pn,
                 m,
                 r.getText(),
                 n.getText());
             }
     ;
 
-modality returns [boolean m] { m = true; }
+servletUserAccessModality returns [boolean m] { m = true; }
     : "can" { m = true; }
     | "cannot" { m = false; }
    ;
