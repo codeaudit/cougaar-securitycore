@@ -54,18 +54,17 @@ public class ServletPolicyServiceProvider
   private static synchronized void init() {
     if (_servletPolicyService == null) {
       _servletPolicyService = new ServletPolicyEnforcer(_serviceBroker);
-      /*
       if (_dualAuthenticator != null) {
         _servletPolicyService.setDualAuthenticator(_dualAuthenticator);
       }
       if (_context != null) {
         _servletPolicyService.setContext(_context);
       }
-      */
     }
   }
 
   public static void addAgent(String agent) {
+    init();
     _servletPolicyService.addAgent(agent);
   }
 

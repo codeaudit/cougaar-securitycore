@@ -90,6 +90,13 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
         _context.addSecurityRole(role);
       }
     }
+    synchronized (_agents) {
+      Iterator iter = _agents.iterator();
+      while (iter.hasNext()) {
+        String agent = (String) iter.next();
+        addStarAgent(agent);
+      } // end of while (iter.hasNext())
+    }
   }
 
   public synchronized void setDualAuthenticator(DualAuthenticator da) {
@@ -187,7 +194,9 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
         return; // already there
       }
       _agents.add(agentName);
-      addStarAgent(agentName);
+      if (_context != null) {
+        addStarAgent(agentName);
+      } // end of if (_context != null)
     }
   }
 
