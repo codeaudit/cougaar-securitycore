@@ -131,7 +131,7 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="mkdir ${testbed.cip.dir}"
+	command="mkdir -p ${testbed.cip.dir}"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Copying zip file to testbed machine..."/>
