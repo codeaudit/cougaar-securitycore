@@ -180,7 +180,7 @@ public class LDAPCert //extends LdapContext
     //X509Certificate cert = loadCert(certFile);
     //X509Certificate ca = loadCert(caFile);
     //set = new BasicAttributes(true);
-    //objectclass.add("xuda_certifcate");
+    //objectclass.add("xuda_certificate");
     //set.put(objectclass);	
     //init(cert, ca);
     //}
@@ -323,7 +323,7 @@ public class LDAPCert //extends LdapContext
 
 	controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 	objectclass = new BasicAttribute("objectclass");
-	objectclass.add("xuda_certifcate");
+	objectclass.add("xuda_certificate");
 	match.put(objectclass);
 
 	try {
