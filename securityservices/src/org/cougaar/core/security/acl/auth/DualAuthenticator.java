@@ -37,6 +37,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import javax.servlet.ServletOutputStream;
 
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
@@ -92,7 +93,9 @@ public class DualAuthenticator extends ValveBase {
    */
   public void invoke(Request request, Response response,
                      ValveContext context) throws IOException, ServletException {
-    setContainer(); // ensure that authentication containers are set
+    // ensure that authentication containers are set
+    setContainer(); 
+
     // create dummies so that authentication doesn't do anything
     // we really do want it to do
     DummyValveContext  dummyValveContext = new DummyValveContext();
@@ -135,7 +138,7 @@ public class DualAuthenticator extends ValveBase {
     }
 
     Realm realm = _context.getRealm();
-    
+
     if (authOk(certPrincipal, passPrincipal, totalConstraint, 
                dummyValveContext.getInvokeCount(), hres, realm)) {
       context.invokeNext(request,response);
@@ -180,23 +183,29 @@ public class DualAuthenticator extends ValveBase {
       // needed password authentication. We must have already
       // sent the bad response
       return false;
-    } else if ((totalConstraint & CONST_CERT) != 0 && 
-               certPrincipal == null) {
-      // needed certificate authentication. We need to send a response
-      // indicating that:
-      hres.sendError(hres.SC_UNAUTHORIZED,
-                     "You must provide a client certificate in order " +
-                     "to access this URL");
-
-      if (realm instanceof KeyRingJNDIRealm) {
-        KeyRingJNDIRealm krjr = (KeyRingJNDIRealm) realm;
-        krjr.alertLoginFailure( krjr.LF_REQUIRES_CERT, 
-                                passPrincipal.getName() );
+    } else if ((totalConstraint & CONST_CERT) != 0) {
+      if (certPrincipal == null) {
+        // needed certificate authentication. We need to send a response
+        // indicating that:
+        hres.sendError(hres.SC_UNAUTHORIZED,
+                       "You must provide a client certificate in order " +
+                       "to access this URL");
+        if (realm instanceof KeyRingJNDIRealm) {
+          KeyRingJNDIRealm krjr = (KeyRingJNDIRealm) realm;
+          krjr.alertLoginFailure( krjr.LF_REQUIRES_CERT, 
+                                  passPrincipal.getName() );
+        }
+        return false;
+      } else if (invokeCount == 0) {
+        hres.sendError(hres.SC_UNAUTHORIZED,
+                       "You do not have the required role to access this URL");
+        return false;
+      } else {
+        return true; // user is granted access
       }
-      return false;
-    } else if (passPrincipal == null && certPrincipal == null) {
-      // authentication is required, but we've already sent the
-      // response
+    } else if (invokeCount == 0) {
+      // nobody authenticated this user and therefore we must deny them
+      // the password authentication has already given a response.
       return false;
     } else {
       // authentication is accepted
@@ -394,7 +403,7 @@ public class DualAuthenticator extends ValveBase {
       _resp = resp;
       
     }
-    
+
     public ServletResponse getResponse() {
       return _hres;
     }

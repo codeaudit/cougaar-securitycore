@@ -51,23 +51,24 @@
         <Key key="/*" value="UserManager" />
       </KeySet>
     </RuleParam>
-    <RuleParam name="PolicyDomainManager">
+    <RuleParam name="DomainManager">
       <KeySet value="allow-role">
-        <Key key="*" value="PolicyAdministrator" />
+        <Key key="/*" value="PolicyAdministrator" />
       </KeySet>
     </RuleParam>
     <RuleParam name="caAgent">
       <KeySet value="allow-role">
-        <Key key="*" value="CAAdministrator" />
+        <Key key="/*" value="CAAdministrator" />
       </KeySet>
     </RuleParam>
-<!-- don't use this until I make changes to the policy
+  </Policy>
+
+  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.AuthTypePolicy">
     <RuleParam name="UserAdminAgent">
       <KeySet value="auth-constraint">
-        <Key key="/useradmin*" value="EITHER" />
+        <Key key="/useradmin*" value="PASSWORD" />
       </KeySet>
     </RuleParam>
--->
   </Policy>
 
 <!-- BlackboardService read-only filter
