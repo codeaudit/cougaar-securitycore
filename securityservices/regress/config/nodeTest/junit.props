@@ -1,1 +1,18 @@
+# 
+# This file contains properties that should be customized for each environment.
+#
+
+# The home directory of the Java Web Service package
 jwsdp.home=/home/u/tomcat/jwsdp-1_0
+
+# The directory where test results are saved
+org.cougaar.core.security.results.path=/home/u/junittest/UL/securityservices/regress/results
+
+# The Junit tests may run on multiple hosts.
+# Replace the following properties with whatever hosts are available in your
+# environment.
+hostA=tea
+hostB=cypress
+hostC=yew
+hostD=fig
+hostE=apple

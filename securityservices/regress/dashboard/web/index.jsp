@@ -1,5 +1,9 @@
 <%@page import="java.util.*"%>
-<%@ page import="org.cougaar.core.security.dashboard.*" %>
+<%@page import="java.io.*" %>
+<%@page import="java.net.*" %>
+<%@page import="javax.servlet.*" %>
+<%@page import="javax.servlet.http.*" %>
+<%@page import="org.cougaar.core.security.dashboard.*" %>
 <%
 /*
  * <copyright>
@@ -27,6 +31,15 @@
  * - 
  */
 %>
+
+<%!
+  public void jspInit() {
+  }
+   	
+  public void jspDestroy() {      
+  }
+%>
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
@@ -41,7 +54,7 @@
     <td>
     <h1><center><b>The UltraLog NAI Dashboard</b></center></h1>
     <h4><center>Tests summary</center></h4>
-    <h4><center>Click <a href="junitreport/index.html">here</a> to access the Junit report</center></h4>
+    <h4><center>Click <a href="results/html/index.html">here</a> to access the Junit report</center></h4>
     </td>
     <td><img src="./Small_UL_Shield.jpg"></td>
     </tr>
@@ -72,34 +85,77 @@
      </tr>
 
 <%
-	for (int i = 0 ; i < Dashboard.getNumberOfTests() ; i++) {
-	  Dashboard.analyzeResults(i);
+    StringBuffer sb = request.getRequestURL();
+    try {
+      URL url = null;
+      url = new URL(new String(sb));
+      String s1 = request.getRequestURI();
+      String s = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + s1.substring(0, s1.lastIndexOf('/')) + "/java.props";
+      System.out.println("servlet: " + s);
+      Dashboard.setJavaPropURL(s);
+      Dashboard.analyzeResults();
+    }
+    catch(Exception e) {
+      System.out.println("Unable to analyze results" + e);
+      e.printStackTrace();
+    }
+    for (int i = 0 ; i < Dashboard.getNumberOfTests() ; i++) {
 %>
      <tr>
        <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-         <%=Dashboard.getExperimentName()%>
+         <%=Dashboard.getExperimentName(i)%>
+       </font></td>
+
+       <td valign="top" bgcolor=
+<%
+       if (Dashboard.getErrors(i) > 0) {
+%>
+       "#ff0000"
+<%
+       } else {
+%>
+       "#33ff33"
+<%
+       }
+%>
+       ><font face="Helvetica, Arial, sans-serif"><br>
+         <%=String.valueOf(Dashboard.getErrors(i))%>
+       </font></td>
+
+       <td valign="top" bgcolor=
+<%
+       if (Dashboard.getFailures(i) > 0) {
+%>
+       "#ff0000"
+<%
+       } else {
+%>
+       "#33ff33"
+<%
+       }
+%>
+       ><font face="Helvetica, Arial, sans-serif"><br>
+         <%=String.valueOf(Dashboard.getFailures(i))%>
        </font></td>
 
        <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-         <%=String.valueOf(Dashboard.getErrors())%>
+       </font></td>
+       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
+         <%=String.valueOf(Dashboard.getCompletionTime(i))%>
+       </font></td>
+       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
+       </font></td>
+       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
        </font></td>
 
        <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-         <%=String.valueOf(Dashboard.getFailures())%>
+         <%=Dashboard.getResultLogFileUrls(i)%>
        </font></td>
 
        <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
+         <%=Dashboard.getLogFileUrls(i)%>
        </font></td>
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-       </font></td>
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-       </font></td>
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-       </font></td>
-       <td valign="top"><font face="Helvetica, Arial, sans-serif"><br>
-       </font></td>
-       <td valign="top"><b><a href="test.html">log</a><br>
-       </b></td>
+
      </tr>
 <%
 	}

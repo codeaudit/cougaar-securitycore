@@ -60,8 +60,9 @@ public class NodeServer
     properties = new ArrayList();
   }
 
-  public void killNode()
+  public void killServer()
     throws java.rmi.RemoteException {
+    Runtime.getRuntime().exit(0);
   }
 
   public void startNode(NodeConfiguration tcc)
@@ -72,6 +73,7 @@ public class NodeServer
     nodeName = args[0];
 
     resultPath = System.getProperty("junit.test.result.path");
+    System.out.println("Result path: " + resultPath);
     Assert.assertNotNull("Unable to get test output path. Set junit.test.result.path",
 			 resultPath);
 

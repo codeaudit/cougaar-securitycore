@@ -24,52 +24,18 @@
  * - 
  */
 
-package test.org.cougaar.core.security.simul;
+package org.cougaar.core.security.dashboard;
 
 import java.io.*;
 import java.util.*;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
 
-import org.w3c.dom.*;
-
-public class ConfigParser
+public class ExperimentResults
 {
-  private String configFile;
-  private XMLReader parser;
-  private ConfigHandler handler;
-
-  public ConfigParser(String configFile) {
-    this.configFile = configFile;
-    try {
-      // Create SAX 2 parser...
-      parser = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
-    }
-    catch ( Exception e ) {
-      e.printStackTrace();
-    }
-    // Set the ContentHandler...
-    handler = new ConfigHandler(parser);
-    parser.setContentHandler(handler);
-
-  }
-
-  public ArrayList getNodeConfigurationList() {
-    return handler.getNodeConfigurationList();
-  }
-
-  public NodeConfiguration parseNodeConfiguration() {
-    NodeConfiguration nc = new NodeConfiguration("");
-    try {
-      FileInputStream fis = new FileInputStream(configFile);
-
-      // Parse the file...
-      parser.parse(new InputSource(fis));
-    }
-    catch ( Exception e ) {
-      e.printStackTrace();
-    }
-    return nc;
-  }
-
+  public String analyzisDate;
+  public String experimentName;
+  public int errors;
+  public int failures;
+  public double completionTime;
+  public String logFilesUrls;
+  public String resultLogFilesUrls;
 }

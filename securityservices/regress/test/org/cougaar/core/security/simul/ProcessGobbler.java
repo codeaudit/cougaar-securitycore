@@ -51,12 +51,11 @@ public class ProcessGobbler
       SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss");
       File experimentOutLogFile = new File(experimentPath + File.separator
 					   + "NODE-" + nodeName 
-					   + "-output-"
-					   + "-" + df.format(currentDate) + ".log");
+					   + "-out.log");
+      //+ "-" + df.format(currentDate) 
       File experimentErrLogFile = new File(experimentPath + File.separator
 					   + "NODE-" + nodeName 
-					   + "-error-"
-					   + "-" + df.format(currentDate) + ".log");
+					   + "-err.log");
       System.out.println("Node standard output file: "
 			 + experimentOutLogFile.getPath());
       System.out.println("Node standard error file:  "

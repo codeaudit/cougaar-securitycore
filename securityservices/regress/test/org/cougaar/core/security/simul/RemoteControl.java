@@ -28,6 +28,6 @@ public interface RemoteControl
   public void startNode(NodeConfiguration tcc)
     throws java.rmi.RemoteException;
 
-  public void killNode()
+  public void killServer()
     throws java.rmi.RemoteException;
 }

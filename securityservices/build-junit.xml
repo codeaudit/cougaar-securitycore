@@ -82,10 +82,21 @@
 
 	  <test name="test.org.cougaar.core.security.simul.NodeServerTest"
                 haltonfailure="no" haltonerror="no"
-                todir="${junit.test.result.path}" >
+                todir="${junit.test.result.path}" outfile="TEST-results" >
 	    <formatter type="xml" />
 	  </test>
        </junit>
+    </target>
+
+    <!-- Generate dashboard"-->
+    <target name="dashboard">
+       <ant antfile="build-dashboard.xml" dir="." target="clean">
+       </ant>
+       <ant antfile="build-dashboard.xml" dir="." target="build">
+       </ant>
+       <!-- Should do a "install" instead of "reload" the very first time -->
+       <ant antfile="build-dashboard.xml" dir="." target="reload">
+       </ant>
     </target>
 
     <!-- Generate a report of the individual report files"-->
@@ -96,18 +107,9 @@
          </fileset>
          <report format="frames" todir="${securityservices.results}/html"/>
       </junitreport>
-    </target>
-
-    <!-- Generate dashboard"-->
-    <target name="dashboard">
-       <ant antfile="build-dashboard.xml" dir="." target="remove">
-       </ant>
-       <ant antfile="build-dashboard.xml" dir="." target="clean">
-       </ant>
-       <ant antfile="build-dashboard.xml" dir="." target="build">
-       </ant>
-       <ant antfile="build-dashboard.xml" dir="." target="install">
-       </ant>
+      <!-- Update dashbaord -->
+      <antcall target="dashboard">
+      </antcall>
     </target>
 
     <!-- Run the Junit tests -->

@@ -64,6 +64,7 @@ public class ResultParser
       parser.parse(new InputSource(fis));
     }
     catch ( Exception e ) {
+      System.out.println("Error: " + e);
       e.printStackTrace();
     }
   }

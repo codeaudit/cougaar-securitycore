@@ -40,7 +40,7 @@ public class ResultHandler
 
   private int errors;
   private int failures;
-  private int completionTime;
+  private double completionTime;
   private String name;
 
   // Buffer for collecting data from
@@ -55,9 +55,9 @@ public class ResultHandler
     return errors;
   }
   public int getFailures() {
-    return errors;
+    return failures;
   }
-  public int getCompletionTime() {
+  public double getCompletionTime() {
     return completionTime;
   }
   public String getName() {
@@ -77,7 +77,7 @@ public class ResultHandler
       errors = Integer.valueOf(attr.getValue("errors")).intValue();
       failures = Integer.valueOf(attr.getValue("failures")).intValue();
       name = attr.getValue("name");
-      completionTime = Integer.valueOf(attr.getValue("time")).intValue();
+      completionTime = Double.valueOf(attr.getValue("time")).doubleValue();
     }
   }
 

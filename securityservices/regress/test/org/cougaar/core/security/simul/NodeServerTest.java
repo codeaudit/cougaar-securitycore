@@ -47,6 +47,7 @@ public class NodeServerTest
   private TestResult testResult;
   private ConfigParser configParser;
   private ExperimentMapper experimentMapper;
+  private String configFileName;
 
   public NodeServerTest(String name) {
     super(name);
@@ -69,6 +70,9 @@ public class NodeServerTest
     userName = System.getProperty("user.name");
     Assert.assertNotNull("Unable to get user name", userName);
 
+    configFileName = System.getProperty("junit.config.file");
+    Assert.assertNotNull("Unable to get junit.config.file", configFileName);
+
   }
 
   /**
@@ -89,11 +93,10 @@ public class NodeServerTest
 
   public void testRunExperiment() {
     //readConfigurationFile();
-    String fileName = System.getProperty("junit.config.file");
-    //configParser = new ConfigParser(fileName);
+    //configParser = new ConfigParser(configFileName);
     //configParser.parseNodeConfiguration();
     experimentMapper = new ExperimentMapper();
-    Experiment experiment = (Experiment) experimentMapper.fromXML(fileName);
+    Experiment experiment = (Experiment) experimentMapper.fromXML(configFileName);
 
     nodeConfList = experiment.getNodeConfiguration();
     System.out.println(experiment.toString());
@@ -171,36 +174,54 @@ public class NodeServerTest
       this.test = test;
     }
 
+    /**
+     * Execute a remote node.
+     * The following processes are started and shut down in the following sequence:
+     * 1) This NodeServerTest application is started through the ant script.
+     * 2) The NodeServerTest app starts a local process which executes a remote RMI server through ssh.
+     * 3) An RMI server is started on the remote machine
+     * 4) The RMI server starts the node on the remote machine
+     * 5) When the remote node terminates, the RMI server is also terminated
+     * 6) The local ssh process terminates
+     * 7) This NodeServerTest application terminates
+     */
     public void run() {
+      RemoteControl nodeServer = null;
+      Runtime thisApp = Runtime.getRuntime();
+      Process nodeApp = null;
+      
+      String jarFile1 = userDir + File.separator + classPath + File.separator + "junitTests.jar";
+      String jarFile2 = System.getProperty("org.cougaar.install.path") + File.separator
+	+ "sys" + File.separator + "junit.jar";
+
+      String commandLine = "/usr/bin/ssh " + tcc.getHostName()
+	+ " " + System.getProperty("java.home") + File.separator + "bin" + File.separator
+	+ "java -classpath " + jarFile1 + ":" + jarFile2
+	+ " -Djava.rmi.server.codebase=file://" + jarFile1 + ":file://" + jarFile2
+	+ " -Djava.security.policy="
+	+ userDir + File.separator + junitConfigPath + File.separator + "JavaPolicy.conf"
+	+ " -Dorg.cougaar.install.path=" + System.getProperty("org.cougaar.install.path")
+	+ " -Dorg.cougaar.workspace=" + System.getProperty("org.cougaar.workspace")
+	+ " -Dorg.cougaar.securityservices.configs="
+	+ userDir + File.separator + System.getProperty("org.cougaar.securityservices.configs")
+	+ " -Dorg.cougaar.securityservices.base="
+	+ userDir + File.separator + System.getProperty("org.cougaar.securityservices.base")
+	+ " -Dorg.cougaar.securityservices.classes="
+	+ userDir + File.separator + System.getProperty("org.cougaar.securityservices.classes")
+	+ " -Dorg.cougaar.securityservices.regress="
+	+ userDir + File.separator + System.getProperty("org.cougaar.securityservices.regress")
+	+ " -Dorg.cougaar.junit.config.path="
+	+ userDir + File.separator + System.getProperty("org.cougaar.junit.config.path")
+	+ " -Djunit.test.result.path="
+	+ userDir + File.separator + System.getProperty("org.cougaar.securityservices.base")
+	+ File.separator + System.getProperty("junit.test.result.path")
+	+ " -Djunit.config.file=" + System.getProperty("junit.config.file")
+	+ " -Djunit.test.desc=" + System.getProperty("junit.test.desc")
+	//
+	+ " test.org.cougaar.core.security.simul.NodeServer "
+	+ tcc.getRmiRegistryPort() + "";
+
       try {
-	Runtime thisApp = Runtime.getRuntime();
-	Process nodeApp = null;
-
-	String jarFile1 = userDir + File.separator + classPath + File.separator + "junitTests.jar";
-	String jarFile2 = System.getProperty("org.cougaar.install.path") + File.separator
-	  + "sys" + File.separator + "junit.jar";
-
-	String commandLine = "/usr/bin/ssh " + tcc.getHostName()
-	  + " " + System.getProperty("java.home") + File.separator + "bin" + File.separator
-	  + "java -classpath " + jarFile1 + ":" + jarFile2
-	  + " -Djava.rmi.server.codebase=file://" + jarFile1 + ":file://" + jarFile2
-	  + " -Djava.security.policy="
-	  + userDir + File.separator + junitConfigPath + File.separator + "JavaPolicy.conf"
-	  + " -Dorg.cougaar.install.path=" + System.getProperty("org.cougaar.install.path")
-	  + " -Dorg.cougaar.workspace=" + System.getProperty("org.cougaar.workspace")
-	  + " -Dorg.cougaar.securityservices.configs="
-	  + userDir + File.separator + System.getProperty("org.cougaar.securityservices.configs")
-	  + " -Dorg.cougaar.securityservices.base="
-	  + userDir + File.separator +System.getProperty("org.cougaar.securityservices.base")
-	  + " -Dorg.cougaar.securityservices.classes="
-	  + userDir + File.separator +System.getProperty("org.cougaar.securityservices.classes")
-	  + " -Dorg.cougaar.securityservices.regress="
-	  + userDir + File.separator +System.getProperty("org.cougaar.securityservices.regress")
-	  + " -Dorg.cougaar.junit.config.path="
-	  + userDir + File.separator +System.getProperty("org.cougaar.junit.config.path")
-	  + " test.org.cougaar.core.security.simul.NodeServer "
-	  + tcc.getRmiRegistryPort() + "";
-
 	//System.out.println("Executing " + commandLine);
 	nodeApp = thisApp.exec(commandLine);
 
@@ -218,17 +239,40 @@ public class NodeServerTest
 	for (int i = 0 ; i < list.length ; i++) {
 	  System.out.println(list[i]);
 	}
-	RemoteControl nodeServer = (RemoteControl)registry.lookup("NodeServer");
+	nodeServer = (RemoteControl)registry.lookup("NodeServer");
 
 	Assert.assertNotNull("Could not create Remote NodeServer", nodeServer);
 
 	System.out.println("Calling startNode on remote server");
 	nodeServer.startNode(tcc);
+
       } catch (Exception e) { 
 	e.printStackTrace();
 	testResult.addFailure(test, new AssertionFailedError("Unable to start node: " + e));
       } catch (AssertionFailedError e) {
 	testResult.addFailure(test, e);
+      }
+
+      try {
+	System.out.println("Killing remote RMI server");
+	if (nodeServer != null) {
+	  nodeServer.killServer();
+	}
+      }
+      catch (Exception e) {
+ 	e.printStackTrace();
+	testResult.addFailure(test, new AssertionFailedError("Unable to terminate processes:" + e));
+      }
+
+      try {
+	System.out.println("Waiting for SSH process to die");
+	if (nodeApp != null) {
+	  nodeApp.waitFor();
+	}
+      }
+      catch (Exception e) {
+ 	e.printStackTrace();
+	testResult.addFailure(test, new AssertionFailedError("Unable to terminate processes:" + e));
       }
     }
   }

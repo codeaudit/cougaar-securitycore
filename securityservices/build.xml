@@ -473,11 +473,13 @@
         <delete dir="${securityservices.classes}/edu" includeEmptyDirs="true" quiet="true"/>
         <delete dir="${securityservices.classes}/com" includeEmptyDirs="true" quiet="true"/>
         <delete dir="${securityservices.classes}/org" includeEmptyDirs="true" quiet="true"/>
+        <delete dir="${securityservices.classes}/test" includeEmptyDirs="true" quiet="true"/>
         <delete dir="${securityservices.signed}" includeEmptyDirs="true" quiet="true"/>
         <delete file="${securityservices.classes}/securebootstrapper.jar" verbose="true"/>
         <delete file="${securityservices.classes}/securityservices.jar" verbose="true"/>
         <delete file="${securityservices.classes}/CougaarCRLextensions.jar" verbose="true"/>
         <delete file="${securityservices.classes}/idmef.jar" verbose="true"/>
+        <delete file="${securityservices.classes}/junitTests.jar" verbose="true"/>
         <echo message="+++++ Cleaned build environment"/>
     </target>
     

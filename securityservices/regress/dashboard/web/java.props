@@ -1,0 +1,5 @@
+#
+# Java properties
+#
+
+org.cougaar.core.security.jsp.path=/replace_me/
