@@ -1,4 +1,11 @@
 
+UserRole Guest
+
+
+Servlet CertReqServlet
+Servlet CAReadServlet
+Servlet CAWriteServlet
+
 PolicyPrefix=%AuditCA/
 
 Delete RequireAudit
@@ -8,4 +15,5 @@ Policy RequireAuditCA = [
    AuditTemplate
    Require audit for all accesses to servlet CAReadServlet,
    CertReqServlet, CAWriteServlet
+   by users in role Guest
 ]

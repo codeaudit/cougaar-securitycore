@@ -71,7 +71,7 @@ Policy AllowServlet = [
    GenericTemplate
    Priority = 2,
    $Actor.daml#Person is authorized to perform
-   $Action.daml#AccessAction as long as
+   $UltralogAction.daml#ServletAccess as long as
     the value of $Ultralog/UltralogAction.daml#accessedServlet
     is a subset of the set $Ultralog/UltralogEntity.daml#Servlet
 ]

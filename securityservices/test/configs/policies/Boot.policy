@@ -239,7 +239,7 @@ Policy UnrestServlet = [
    GenericTemplate
    Priority = 2,
    $Actor.daml#Person is authorized to perform
-   $Action.daml#AccessAction as long as
+   $UltralogAction.owl#ServletAccess as long as
     the value of $Ultralog/UltralogAction.daml#accessedServlet
     is a subset of the set { $Ultralog/Names/EntityInstances.daml#OtherServlets 
                              $Ultralog/Names/EntityInstances.daml#CAReadServlet 

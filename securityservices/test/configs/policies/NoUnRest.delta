@@ -79,34 +79,6 @@ Policy DamlBootPolicyOrgActivityAll = [
    objects of type OrgActivity
 ]
 
-#
-# The following policy is tricky to read.  But the upshot is that the
-# servlets listed:
-#    OtherServlets
-#    CAReadServlet
-#    CertReqServlet
-#     ...
-# are the only servlets that do not require at least password
-# authentication.  Everything else requires a password or better.
-#
-#Policy DamlBootPolicyServletRestAuth = [ 
-#   GenericTemplate
-#   Priority = 3,
-#   $Actor.daml#Person is not authorized to perform
-#   $Action.daml#AccessAction as long as
-#    the value of $Ultralog/UltralogAction.daml#accessedServlet
-#    is a subset of the complement of the set 
-#       { $Ultralog/Names/EntityInstances.daml#OtherServlets
-#         $Ultralog/Names/EntityInstances.daml#CAReadServlet 
-#         $Ultralog/Names/EntityInstances.daml#CertReqServlet 
-#       }
-#                       and
-#    the value of $Ultralog/UltralogAction.daml#usedAuthenticationLevel
-#    is a subset of the set
-#       { $Ultralog/Names/EntityInstances.daml#NoAuth
-#         $Ultralog/Names/EntityInstances.daml#NoAuthSSL }
-#]
-
 Policy DamlBootPolicyPolicyServletRear  = [ 
   ServletUserAccessTemplate
   A user in role RearPolicyAdministrator can access a servlet 
