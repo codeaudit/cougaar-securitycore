@@ -159,7 +159,8 @@ public class CrlMessageBinder
     public static void queueCrls(boolean enqueue) {
       _isCrlQueued = enqueue;
       if (_log.isDebugEnabled()) {
-	_log.debug("queueCrls: " + enqueue);
+	_log.debug("queueCrls: " + enqueue + " - " + _messageProxies.size()
+                   + " message proxies are enabled");
       }
       if (!_isCrlQueued) {
 	synchronized (_messageProxies) {
@@ -179,6 +180,9 @@ public class CrlMessageBinder
     private void deliverCrlMessages() {
       // Check if there are messages in the queue. If so, deliver them.
       synchronized(_crlMessages) {
+	if (_log.isDebugEnabled()) {
+          _log.debug(_crlMessages.size() + " CRL messages are to be delivered");
+        }
 	while (_crlMessages.size() > 0) {
 	  Message m = (Message) _crlMessages.remove(0);
 	  if (_log.isDebugEnabled()) {
@@ -275,7 +279,8 @@ public class CrlMessageBinder
       }
       if (_log.isDebugEnabled()) {
 	_log.debug("receiveMessage: " + getMessageAddress().toString()
-		  + " : " + m.toString());
+		   + " - Class: " + m.getClass().getName()
+		   + " Content: " + m.toString());
       }
       if (_isCrlQueued && m instanceof DirectiveMessage) {
 	Directive directives[] = ((DirectiveMessage)m).getDirectives();
@@ -285,10 +290,20 @@ public class CrlMessageBinder
 	if (directives != null) {
 	  for (int i = 0 ; i < directives.length ; i++) {
 	    Directive d = directives[i];
+	    if (_log.isDebugEnabled()) {
+	      _log.debug("Directive[" + i + "]:" + d.getClass().getName());
+	    }
+	    if (d instanceof DirectiveMessage.DirectiveWithChangeReports) {
+	      d = ((DirectiveMessage.DirectiveWithChangeReports)d).getDirective();
+	    }
 	    if (d instanceof RelayDirective.Response) {
 	      RelayDirective.Response rdr = (RelayDirective.Response) d;
+	      if (_log.isDebugEnabled()) {
+		_log.debug("Relay.response[" + i + "]:"
+			   + rdr.getResponse().getClass().getName());
+	      }
 	      if (rdr.getResponse() instanceof CRLWrapper) {
-		containsCrlMessage = false;
+		containsCrlMessage = true;
 	      }
 	      else {
 		containsNonCrlMessage = true;
