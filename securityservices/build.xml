@@ -50,6 +50,7 @@
 
     <path id="core.class.path">    
         <!-- Cougaar 3rd party support packages -->
+        <pathelement location="${cougaar.install.path}/sys/antlr.jar"/>
         <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
         <pathelement location="${cougaar.install.path}/sys/log4j.jar"/>
         <pathelement location="${cougaar.install.path}/sys/silk.jar"/>
