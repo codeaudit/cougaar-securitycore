@@ -2,7 +2,6 @@
 
 package org.cougaar.core.security.util;
 
-import java.util.Map;
 import java.util.HashMap;
 
 import org.cougaar.util.log.Logger;

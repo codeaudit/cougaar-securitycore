@@ -231,7 +231,7 @@ public class DOMWriter {
       // print document
     case Node.DOCUMENT_NODE: {
       if ( !canonical ) {
-	String  Encoding = this.getWriterEncoding();
+	String  Encoding = DOMWriter.getWriterEncoding();
 	if ( Encoding.equalsIgnoreCase( "DEFAULT" ) )
 	  Encoding = "UTF-8";
 	else if ( Encoding.equalsIgnoreCase( "Unicode" ) )

@@ -26,22 +26,9 @@
 
 package org.cougaar.core.security.certauthority.servlet;
 
-import org.cougaar.core.security.certauthority.SecurityServletSupport;
-import org.cougaar.core.security.crypto.CertificateStatus;
-import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.policy.CryptoClientPolicy;
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.security.policy.TrustedCaPolicy;
-import org.cougaar.core.security.ssl.ServerKeyManager;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.security.util.NodeInfo;
-import org.cougaar.core.security.util.Duration;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -52,6 +39,18 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.cougaar.core.security.certauthority.SecurityServletSupport;
+import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.ssl.ServerKeyManager;
+import org.cougaar.core.security.util.Duration;
+import org.cougaar.core.service.LoggingService;
 
 import sun.security.x509.X500Name;
 

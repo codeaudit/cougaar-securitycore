@@ -22,8 +22,13 @@
 
 package org.cougaar.core.security.access;
 
+import java.util.Collection;
+import java.util.Hashtable;
+
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityChangeEvent;
@@ -32,12 +37,6 @@ import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.FindCommunityCallback;
-
-import java.util.Collection;
-import java.util.Hashtable;
-
-import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 
 // this class is a proxy for the community service 
 class CommunityServiceProxy extends SecureServiceProxy 

@@ -29,7 +29,6 @@ package org.cougaar.core.security.securebootstrap;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.ProtectionDomain;
 import java.util.Hashtable;
 import java.util.jar.JarFile;
 

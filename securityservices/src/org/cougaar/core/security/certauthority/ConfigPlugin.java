@@ -284,7 +284,7 @@ public class ConfigPlugin
       while (true) {
 
         try {
-          Thread.currentThread().sleep(waittime);
+          Thread.sleep(waittime);
 
           ObjectInputStream ois = new ObjectInputStream(
             new ServletRequestUtil().sendRequest(infoURL, "", waittime));
@@ -314,7 +314,7 @@ public class ConfigPlugin
             try {
               long timeLeft = delayRequest + pollStart - System.currentTimeMillis();
               if (timeLeft > 0) {
-                Thread.currentThread().sleep(timeLeft);
+                Thread.sleep(timeLeft);
               }
             } catch (Exception ex) {} 
             if (log.isInfoEnabled()) {

@@ -20,9 +20,21 @@
  */
 package java.util.singleton;
 
-import java.util.*;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Stack;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.Vector;
+import java.util.WeakHashMap;
 
 public class CollectionMonitorStatsImpl
   extends BaseSingleton

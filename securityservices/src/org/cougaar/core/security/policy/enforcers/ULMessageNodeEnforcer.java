@@ -21,18 +21,6 @@
 
 package org.cougaar.core.security.policy.enforcers;
 
-import org.cougaar.core.component.ServiceAvailableEvent;
-import org.cougaar.core.component.ServiceAvailableListener;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.builder.VerbBuilder;
-import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
-import org.cougaar.core.security.policy.enforcers.util.HardWired;
-import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.ontology.ULOntologyNames;
-import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.community.CommunityService;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
@@ -47,9 +35,20 @@ import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
 import kaos.ontology.vocabulary.ActionConcepts;
+
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.builder.VerbBuilder;
+import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
+import org.cougaar.core.security.policy.enforcers.util.HardWired;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.CommunityService;
+
 import safe.enforcer.NodeEnforcer;
 import safe.guard.EnforcerManagerService;
-import safe.guard.NodeGuard;
 
 /**
  * This class is responsible for enforcing policy for Ultralog messages.

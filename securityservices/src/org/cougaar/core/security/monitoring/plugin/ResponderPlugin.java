@@ -21,12 +21,18 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 // Cougaar core classes
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
 import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.OMCThruRange;
 import org.cougaar.core.adaptivity.OperatingMode;
 import org.cougaar.core.adaptivity.OperatingModeImpl;
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.service.BlackboardService;
@@ -34,13 +40,6 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 /**
  * This abstract class subscribes to failures and will take a response action

@@ -26,15 +26,6 @@
 
 package org.cougaar.core.security.config.jar;
 
-import org.cougaar.core.security.securebootstrap.CertificateVerifier;
-import org.cougaar.core.security.securebootstrap.CertificateVerifierImpl;
-import org.cougaar.core.security.securebootstrap.SecurityLog;
-import org.cougaar.core.security.securebootstrap.SecurityLogImpl;
-import org.cougaar.core.security.util.ConcurrentHashMap;
-import org.cougaar.util.jar.JarConfigFinder;
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -44,16 +35,24 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import org.cougaar.core.security.securebootstrap.CertificateVerifier;
+import org.cougaar.core.security.securebootstrap.CertificateVerifierImpl;
+import org.cougaar.core.security.securebootstrap.SecurityLog;
+import org.cougaar.core.security.securebootstrap.SecurityLogImpl;
+import org.cougaar.core.security.util.ConcurrentHashMap;
+import org.cougaar.util.jar.JarConfigFinder;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 /**
  * A secure config finder that looks configuration files in signed jar files

@@ -21,16 +21,16 @@
 
 package org.cougaar.core.security.policy.enforcers;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.security.policy.ontology.ULOntologyNames;
-
 import java.util.Vector;
 
 import kaos.ontology.vocabulary.ActionConcepts;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.service.LoggingService;
+
 import safe.enforcer.AgentEnforcer;
 import safe.guard.EnforcerManagerService;
-import safe.guard.NodeGuard;
 
 /*
  * This is the enforcer associated with an agent.  It is not yet clear

@@ -2,7 +2,6 @@ package org.cougaar.core.security.dataprotection.plugin;
 
 
 
-import java.util.Collection;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
 

@@ -28,24 +28,20 @@
 package org.cougaar.core.security.dataprotection.plugin;
 
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 import javax.security.auth.x500.X500Principal;
-import java.security.MessageDigest;
 
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.crypto.CertificateRevokedException;
+import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.dataprotection.DataProtectionKeyCollection;
 import org.cougaar.core.security.dataprotection.DataProtectionKeyImpl;
 import org.cougaar.core.security.dataprotection.DataProtectionKeyUnlockRequest;
@@ -64,7 +60,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.23 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;

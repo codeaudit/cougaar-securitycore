@@ -9,15 +9,21 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 
-import edu.jhuapl.idmef.AdditionalData;
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.Classification;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.mobility.AbstractTicket;
+import org.cougaar.core.mobility.RemoveTicket;
+import org.cougaar.core.mobility.ldm.AgentControl;
+import org.cougaar.core.mobility.ldm.MobilityFactory;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.crypto.CertificateCache;
-import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
@@ -31,6 +37,7 @@ import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
+import org.cougaar.core.util.UID;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.AllocationResult;
 import org.cougaar.planning.ldm.plan.AspectType;
@@ -48,27 +55,9 @@ import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.planning.ldm.plan.Workflow;
 import org.cougaar.util.UnaryPredicate;
 
-import org.cougaar.core.mobility.AbstractTicket;
-import org.cougaar.core.mobility.RemoveTicket;
-import org.cougaar.core.mobility.ldm.AgentControl;
-import org.cougaar.core.mobility.ldm.MobilityFactory;
-import org.cougaar.core.util.UID;
-
-import java.io.PrintWriter;
-
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-
-import java.security.cert.X509Certificate;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.Vector;
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Classification;
 
 
 /**

@@ -105,17 +105,17 @@ public class ConfigParserServiceImpl
       }
     }
 
-    String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
+    String cougaarWsp=secprop.getProperty(SecurityPropertiesService.COUGAAR_WORKSPACE);
     log.debug("Cougaar workspace is :" + cougaarWsp);
     if (cougaarWsp == null || cougaarWsp.length() == 0) {
       if (isNode) {
 	// The org.cougaar.workspace property should always be set when running as a Cougaar node.
-	log.error(secprop.COUGAAR_WORKSPACE + " property has not been set");
+	log.error(SecurityPropertiesService.COUGAAR_WORKSPACE + " property has not been set");
       }
       else {
 	// When running a standalone application, it is ok not to have the workspace property set,
 	// but then SSL is not possible.
-	log.warn(secprop.COUGAAR_WORKSPACE + " property has not been set. Cannot use SSL");
+	log.warn(SecurityPropertiesService.COUGAAR_WORKSPACE + " property has not been set. Cannot use SSL");
       }
     }
 
@@ -135,7 +135,7 @@ public class ConfigParserServiceImpl
     catch ( Exception e ) {
       e.printStackTrace();
     }
-    role = secprop.getProperty(secprop.SECURITY_ROLE);
+    role = secprop.getProperty(SecurityPropertiesService.SECURITY_ROLE);
 
     // Set the ContentHandler...
     handler = new ConfigParserHandler(parser, role, serviceBroker, mySecurityCommunity);

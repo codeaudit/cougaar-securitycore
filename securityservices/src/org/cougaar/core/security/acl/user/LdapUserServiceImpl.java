@@ -401,8 +401,8 @@ public class LdapUserServiceImpl implements UserService {
 
   private static String toUTCString(long delayMillis) {
     Calendar time = Calendar.getInstance(GMT);
-    time.add(time.MINUTE, (int) (delayMillis/60000));
-    time.add(time.MILLISECOND, (int) (delayMillis % 60000));
+    time.add(Calendar.MINUTE, (int) (delayMillis/60000));
+    time.add(Calendar.MILLISECOND, (int) (delayMillis % 60000));
     return DF.format(time.getTime());
   }
 
@@ -760,7 +760,7 @@ public class LdapUserServiceImpl implements UserService {
     checkContext();
     for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
       try {
-        _context.modifyAttributes(rid2dn(rid), _context.REMOVE_ATTRIBUTE, 
+        _context.modifyAttributes(rid2dn(rid), DirContext.REMOVE_ATTRIBUTE, 
                                   attrs);
         return;
       } catch (AttributeModificationException ex) {

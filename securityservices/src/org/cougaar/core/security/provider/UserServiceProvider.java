@@ -32,13 +32,8 @@ import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.acl.user.AgentUserService;
 import org.cougaar.core.security.acl.user.LdapUserServiceImpl;
 import org.cougaar.core.security.services.acl.UserService;
-import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
-import org.cougaar.core.component.ServiceAvailableEvent;
-import org.cougaar.core.component.ServiceAvailableListener;
-
-import java.util.Iterator;
 
 public class UserServiceProvider implements ServiceProvider
 {

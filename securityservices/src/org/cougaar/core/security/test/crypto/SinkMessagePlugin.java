@@ -20,27 +20,23 @@
  */
 package org.cougaar.core.security.test.crypto;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.util.Hashtable;
+import java.util.List;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.relay.Relay;
-
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.util.UID;
-import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.thread.Schedulable;
-
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
+import org.cougaar.core.util.UID;
+import org.cougaar.util.UnaryPredicate;
 
 public class SinkMessagePlugin extends ComponentPlugin {
   /**

@@ -19,6 +19,12 @@
 
 package org.cougaar.core.security.access;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+
+import org.cougaar.community.manager.Request;
 import org.cougaar.core.agent.Agent;
 import org.cougaar.core.blackboard.Directive;
 import org.cougaar.core.blackboard.DirectiveMessage;
@@ -27,8 +33,7 @@ import org.cougaar.core.mts.AgentState;
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageTransportClient;
-import org.cougaar.core.wp.resolver.WPQuery;
-import org.cougaar.core.security.policy.enforcers.WPEnforcer;
+import org.cougaar.core.relay.RelayDirective;
 import org.cougaar.core.security.acl.trust.IntegrityAttribute;
 import org.cougaar.core.security.acl.trust.MissionCriticality;
 import org.cougaar.core.security.acl.trust.TrustAttribute;
@@ -38,24 +43,15 @@ import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
 import org.cougaar.core.security.policy.AccessControlPolicy;
 import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
+import org.cougaar.core.security.policy.enforcers.WPEnforcer;
 import org.cougaar.core.security.services.acl.AccessControlPolicyService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.MessageTransportService;
+import org.cougaar.core.wp.resolver.WPQuery;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
-
-//fix these imports
-import org.cougaar.community.RelayAdapter;
-import org.cougaar.community.manager.Request;
-//import org.cougaar.community.requests.*;
-import org.cougaar.core.relay.RelayDirective;
-
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 public class AccessAgentProxy implements MessageTransportService,
         MessageTransportClient {

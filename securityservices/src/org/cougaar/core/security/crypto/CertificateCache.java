@@ -215,10 +215,10 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       throw new RuntimeException("unable to get config parser service");
     }
 
-    String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
+    String installpath = secprop.getProperty(SecurityPropertiesService.COUGAAR_INSTALL_PATH);
     
     String role =
-      secprop.getProperty(secprop.SECURITY_ROLE);
+      secprop.getProperty(SecurityPropertiesService.SECURITY_ROLE);
 
     if (role == null && log.isInfoEnabled() == true) {
       if (log.isInfoEnabled()) {

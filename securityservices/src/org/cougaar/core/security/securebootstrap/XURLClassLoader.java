@@ -14,40 +14,35 @@
  */
 
 package org.cougaar.core.security.securebootstrap;  // CSI
-import java.net.SocketPermission; // BBN
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilePermission;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.net.SocketPermission;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLStreamHandlerFactory;
-import java.util.Enumeration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
-import java.util.jar.Manifest;
-import java.util.jar.Attributes;
-import java.util.jar.Attributes.Name;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
-import java.security.AccessController;
 import java.security.AccessControlContext;
-import java.security.SecureClassLoader;
+import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.Permission;
 import java.security.PermissionCollection;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
+import java.security.SecureClassLoader;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+import java.util.jar.Attributes.Name;
+
 import sun.misc.Resource;
 import sun.misc.URLClassPath;
 import sun.net.www.ParseUtil;
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-
-import java.io.*;
 
 /**
  * This class loader is used to load classes and resources from a search

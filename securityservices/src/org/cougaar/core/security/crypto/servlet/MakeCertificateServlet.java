@@ -26,16 +26,8 @@
 
 package org.cougaar.core.security.crypto.servlet;
 
-import org.cougaar.core.security.certauthority.SecurityServletSupport;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
 import java.security.GeneralSecurityException;
 
 import javax.servlet.ServletConfig;
@@ -43,6 +35,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.cougaar.core.security.certauthority.SecurityServletSupport;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.service.LoggingService;
 
 public class MakeCertificateServlet
   extends  HttpServlet

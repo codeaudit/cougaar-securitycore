@@ -27,11 +27,10 @@
 package org.cougaar.core.security.securebootstrap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Collections;
 import java.util.ListIterator;
-import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;

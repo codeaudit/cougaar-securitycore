@@ -113,8 +113,8 @@ public class UserEntries implements UniqueObject {
 
   private static String toUTCString(long delayMillis) {
     Calendar time = Calendar.getInstance(GMT);
-    time.add(time.MINUTE, (int) (delayMillis/60000));
-    time.add(time.MILLISECOND, (int) (delayMillis % 60000));
+    time.add(Calendar.MINUTE, (int) (delayMillis/60000));
+    time.add(Calendar.MILLISECOND, (int) (delayMillis % 60000));
     return DF.format(time.getTime());
   }
 

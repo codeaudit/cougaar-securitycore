@@ -26,7 +26,12 @@
 
 package org.cougaar.core.security.crypto;
 
-import org.cougaar.core.agent.SimpleAgent;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.util.List;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.node.NodeAgent;
@@ -44,12 +49,6 @@ import org.cougaar.core.service.identity.AgentIdentityService;
 import org.cougaar.core.service.identity.IdentityDeniedException;
 import org.cougaar.core.service.identity.PendingRequestException;
 import org.cougaar.core.service.identity.TransferableIdentity;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
-import java.util.List;
 
 import sun.security.x509.X500Name;
 

@@ -21,12 +21,27 @@
 
 package org.cougaar.core.security.policy.enforcers.match;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
+
+import kaos.ontology.matching.InstanceClassifier;
+import kaos.ontology.matching.InstanceClassifierFactory;
+import kaos.ontology.matching.InstanceClassifierInitializationException;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.ontology.vocabulary.ActorConcepts;
+import kaos.policy.information.KAoSProperty;
+
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.role.RoleExecutionContext;
-import org.cougaar.core.security.policy.builder.PolicyUtils;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.security.policy.ontology.UltralogActorConcepts;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.Agent;
 import org.cougaar.core.service.community.Community;
@@ -35,23 +50,6 @@ import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.ontology.ULOntologyNames;
-import org.cougaar.core.security.policy.ontology.UltralogActorConcepts;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
-
-import kaos.ontology.vocabulary.ActionConcepts;
-import kaos.ontology.vocabulary.ActorConcepts;
-import kaos.ontology.matching.InstanceClassifier;
-import kaos.ontology.matching.InstanceClassifierFactory;
-import kaos.ontology.matching.InstanceClassifierInitializationException;
-import kaos.policy.information.KAoSProperty;
 
 public class ULInstanceClassifierFactory
     implements InstanceClassifierFactory
@@ -390,7 +388,7 @@ public class ULInstanceClassifierFactory
       }
 
       public synchronized void getResponse(CommunityResponse response) {
-        if (response.getStatus() != response.SUCCESS) {
+        if (response.getStatus() != CommunityResponse.SUCCESS) {
           _log.warn("Problem loading community response: " + 
                     response.getStatusAsString());
           _response = new LinkedList();
@@ -437,9 +435,9 @@ public class ULInstanceClassifierFactory
         if (communitySet != null) {
           synchronized (communitySet) {
             int type = event.getType();
-            if (type == event.ADD_COMMUNITY) {
+            if (type == CommunityChangeEvent.ADD_COMMUNITY) {
               addCommunityListener(event.getCommunityName());
-            } else if (type == event.REMOVE_COMMUNITY) {
+            } else if (type == CommunityChangeEvent.REMOVE_COMMUNITY) {
               removeCommunityListener(event.getCommunityName());
             } 
             // type == event.ADD_ENTITY || type == event.REMOVE_ENTITY also...

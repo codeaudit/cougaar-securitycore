@@ -167,9 +167,9 @@ final public class KeyRing  implements KeyRingService  {
       throw new RuntimeException("unable to get config parser service");
     }
 
-    String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
+    String installpath = secprop.getProperty(SecurityPropertiesService.COUGAAR_INSTALL_PATH);
 
-    role =secprop.getProperty(secprop.SECURITY_ROLE);
+    role =secprop.getProperty(SecurityPropertiesService.SECURITY_ROLE);
     if (role == null && log.isInfoEnabled() == true) {
       log.info("Role is not defined");
     }

@@ -40,15 +40,10 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 
 import org.cougaar.core.blackboard.BlackboardClient;
-import org.cougaar.core.component.ServiceAvailableEvent;
-import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.ServiceListener;
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.crypto.CertificateRevokedException;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.SecureMethodParam;
@@ -65,15 +60,11 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
 import org.cougaar.core.security.util.NodeInfo;
-import org.cougaar.core.security.util.SharedDataRelay;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DataProtectionKey;
 import org.cougaar.core.service.DataProtectionKeyEnvelope;
 import org.cougaar.core.service.DataProtectionService;
 import org.cougaar.core.service.DataProtectionServiceClient;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.UIDService;
 
 import sun.security.x509.X500Name;
 
@@ -634,7 +625,7 @@ public class DataProtectionServiceImpl
                 break;
               }
             }
-            Thread.currentThread().sleep(sleep_time);
+            Thread.sleep(sleep_time);
             wait_time -= sleep_time;
           }
 

@@ -42,7 +42,7 @@ public class ServletRequestUtil {
       throw t.exInfo;
     }
 
-    Thread.currentThread().sleep(timeout);
+    Thread.sleep(timeout);
     /*
     t.interrupt();
     if (!t.isInterrupted()) {

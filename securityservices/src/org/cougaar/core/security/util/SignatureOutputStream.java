@@ -22,15 +22,14 @@
 
 package org.cougaar.core.security.util;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.DigestOutputStream;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Signature;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
 import java.security.SignatureException;
 
 public class SignatureOutputStream

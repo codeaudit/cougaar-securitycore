@@ -25,12 +25,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import kaos.ontology.vocabulary.ActionConcepts;
-import kaos.ontology.vocabulary.ActorConcepts;
 import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
+import kaos.ontology.vocabulary.ActorConcepts;
 import kaos.policy.util.KAoSPolicyBuilderImpl;
-
 
 import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;

@@ -22,25 +22,24 @@
  
 package org.cougaar.core.security.crypto;
 
+import java.security.cert.X509Certificate;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.SimpleMessageAttributes;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.mts.base.DestinationLink;
 import org.cougaar.mts.base.DestinationLinkDelegateImplBase;
 import org.cougaar.mts.base.ReceiveLink;
 import org.cougaar.mts.base.ReceiveLinkDelegateImplBase;
 import org.cougaar.mts.base.SendQueue;
 import org.cougaar.mts.base.SendQueueDelegateImplBase;
-import org.cougaar.mts.std.MessageProtectionAspect;
 import org.cougaar.mts.std.AttributedMessage;
-import org.cougaar.core.security.services.crypto.EncryptionService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.service.LoggingService;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Hashtable;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import org.cougaar.mts.std.MessageProtectionAspect;
 
 /**
  * This class adds the necessary
@@ -157,9 +156,9 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
         } // end of if (_log.isInfoEnabled())
         
         List certs = _keyRing.findCert(msg.getOriginator().toAddress(), 
-                                       _keyRing.LOOKUP_FORCE_LDAP_REFRESH | 
-                                       _keyRing.LOOKUP_LDAP | 
-                                       _keyRing.LOOKUP_KEYSTORE );
+                                       KeyRingService.LOOKUP_FORCE_LDAP_REFRESH | 
+                                       KeyRingService.LOOKUP_LDAP | 
+                                       KeyRingService.LOOKUP_KEYSTORE );
 	ProtectedMessageOutputStream.
 	    clearCertCache(msg.getTarget().toAddress(),
 			   msg.getOriginator().toAddress());

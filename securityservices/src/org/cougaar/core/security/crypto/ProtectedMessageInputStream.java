@@ -21,24 +21,6 @@
 
 package org.cougaar.core.security.crypto;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.mts.std.AttributedMessage;
-import org.cougaar.core.mts.MessageAttributes;
-import org.cougaar.core.mts.ProtectedInputStream;
-import org.cougaar.mts.base.SendQueue;
-import org.cougaar.core.security.monitoring.event.FailureEvent;
-import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
-import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
-import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.services.crypto.CryptoPolicyService;
-import org.cougaar.core.security.services.crypto.EncryptionService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.util.NullOutputStream;
-import org.cougaar.core.security.util.OnTopCipherInputStream;
-import org.cougaar.core.security.util.SignatureInputStream;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -56,10 +38,27 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.MessageAttributes;
+import org.cougaar.core.mts.ProtectedInputStream;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
+import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.util.NullOutputStream;
+import org.cougaar.core.security.util.OnTopCipherInputStream;
+import org.cougaar.core.security.util.SignatureInputStream;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.mts.base.SendQueue;
+import org.cougaar.mts.std.AttributedMessage;
 
 class ProtectedMessageInputStream extends ProtectedInputStream {
   private boolean                _eom;
@@ -166,7 +165,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
         }
 
         if (encryptedSocket && 
-            headerPolicy.secureMethod == headerPolicy.PLAIN &&
+            headerPolicy.secureMethod == SecureMethodParam.PLAIN &&
             (!alreadyToldToStartSigning() || resendProtectionLevelAnyway())) {
           sendSignatureValid(false); // please send me the signature next time
         }

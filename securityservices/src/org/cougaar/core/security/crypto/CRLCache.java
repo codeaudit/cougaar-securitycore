@@ -145,7 +145,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     log.debug("Crl cache being initialized");
     long poll = 0;
     try {
-      poll = (Long.valueOf(secprop.getProperty(secprop.CRL_POLLING_PERIOD))).longValue() * 1000;
+      poll = (Long.valueOf(secprop.getProperty(SecurityPropertiesService.CRL_POLLING_PERIOD))).longValue() * 1000;
     } catch (Exception e) {
       // poll will be == 0, so ok.
     }

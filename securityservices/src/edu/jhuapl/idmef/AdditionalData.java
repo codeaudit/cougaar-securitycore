@@ -207,7 +207,7 @@ public class AdditionalData implements XMLSerializable{
       if (meaningNode != null) meaning = meaningNode.getNodeValue();
       else meaning = null;
       
-      if (type != null && type.equals(this.XML)){
+      if (type != null && type.equals(AdditionalData.XML)){
         // this is an xml data, find the element node
         NodeList nodes = inNode.getChildNodes();
         Node node = null;

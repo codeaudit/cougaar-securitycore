@@ -23,6 +23,8 @@
 
 package org.cougaar.core.security.crypto;
 
+import java.util.LinkedList;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.CryptoPolicy;
 import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
@@ -30,10 +32,6 @@ import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.service.LoggingService;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
 
 public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
   private ULMessageNodeEnforcer   _enforcer;
@@ -126,8 +124,8 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
     }
 
     if (!ignoreEncryption) {
-      boolean encrypt = policy.secureMethod == policy.ENCRYPT ||
-        policy.secureMethod == policy.SIGNENCRYPT;
+      boolean encrypt = policy.secureMethod == SecureMethodParam.ENCRYPT ||
+        policy.secureMethod == SecureMethodParam.SIGNENCRYPT;
       if (encrypt) {
         if (policy.symmSpec == null ||
             policy.asymmSpec == null ||
@@ -142,8 +140,8 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
       }
     }
     if (!ignoreSignature) {
-      boolean sign = policy.secureMethod == policy.SIGN ||
-        policy.secureMethod == policy.SIGNENCRYPT;
+      boolean sign = policy.secureMethod == SecureMethodParam.SIGN ||
+        policy.secureMethod == SecureMethodParam.SIGNENCRYPT;
 
       if (sign) {
         if (policy.signSpec == null ||
@@ -185,14 +183,14 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
       policy.symmSpec = (String) cs.getSymmetric().iterator().next();
       policy.asymmSpec = (String) cs.getAsymmetric().iterator().next();
       if (sign) {
-        policy.secureMethod = policy.SIGNENCRYPT;
+        policy.secureMethod = SecureMethodParam.SIGNENCRYPT;
       } else {
-        policy.secureMethod = policy.ENCRYPT;
+        policy.secureMethod = SecureMethodParam.ENCRYPT;
       }
     } else if (sign) {
-      policy.secureMethod = policy.SIGN;
+      policy.secureMethod = SecureMethodParam.SIGN;
     } else {
-      policy.secureMethod = policy.PLAIN;
+      policy.secureMethod = SecureMethodParam.PLAIN;
     }
 
     if (sign) {

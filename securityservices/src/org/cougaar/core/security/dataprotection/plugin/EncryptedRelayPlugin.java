@@ -28,15 +28,14 @@
 package org.cougaar.core.security.dataprotection.plugin;
 
 
-import java.util.Enumeration;
 import java.security.MessageDigest;
+import java.util.Enumeration;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.security.dataprotection.DataProtectionKeyImpl;
 import org.cougaar.core.security.dataprotection.DataProtectionKeyCollection;
+import org.cougaar.core.security.dataprotection.DataProtectionKeyImpl;
 import org.cougaar.core.security.util.SharedDataRelay;
-import java.util.Collection;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.util.UnaryPredicate;

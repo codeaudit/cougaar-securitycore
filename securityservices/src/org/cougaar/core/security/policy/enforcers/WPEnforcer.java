@@ -28,24 +28,18 @@ import java.util.Vector;
 
 import javax.agent.service.ServiceFailure;
 
-import org.cougaar.core.component.ServiceAvailableEvent;
-import org.cougaar.core.component.ServiceAvailableListener;
-import org.cougaar.core.component.ServiceBroker;
-
-import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
-import org.cougaar.core.security.policy.ontology.ULOntologyNames;
-import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
-
-import org.cougaar.core.service.LoggingService;
-
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
 import kaos.policy.guard.ActionPermission;
 import kaos.policy.guard.KAoSSecurityException;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.service.LoggingService;
+
 import safe.enforcer.NodeEnforcer;
 import safe.guard.EnforcerManagerService;
-import safe.guard.NodeGuard;
 
 /**
  * This class is responsible for enforcing policy for Ultralog messages.

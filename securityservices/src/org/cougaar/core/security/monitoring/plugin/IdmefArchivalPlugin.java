@@ -22,39 +22,29 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.monitoring.idmef.Agent;
-import org.cougaar.core.security.monitoring.idmef.AgentRegistration;
-import org.cougaar.core.security.monitoring.idmef.Registration;
-import org.cougaar.core.service.EventService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.mts.MessageAddress;
-
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-
-import edu.jhuapl.idmef.IDMEF_Message;
-import edu.jhuapl.idmef.Alert;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Date;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Calendar;
-import java.util.Date;
-
-import java.io.FileWriter;
 import java.io.File;
-import java.io.ObjectOutputStream;
-import java.io.InvalidClassException;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.NotSerializableException;
-import java.io.FileNotFoundException;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.idmef.AgentRegistration;
+import org.cougaar.core.security.monitoring.idmef.Registration;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.UnaryPredicate;
+
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.IDMEF_Message;
 
 
 public class IdmefArchivalPlugin extends ComponentPlugin {
@@ -117,7 +107,7 @@ public class IdmefArchivalPlugin extends ComponentPlugin {
       //nodeName =  _secprop.getProperty("org.cougaar.node.name");
       MessageAddress myAddress = getAgentIdentifier();
       agentName= myAddress.toString() ;
-      String cougaarws  = _secprop.getProperty(_secprop.COUGAAR_WORKSPACE);
+      String cougaarws  = _secprop.getProperty(SecurityPropertiesService.COUGAAR_WORKSPACE);
       topDir= cougaarws + File.separatorChar + "security" + File.separatorChar + "IdmefEvent_Archival"  ;
       File archivaldir = new File(topDir);
       if (!archivaldir.exists()) {

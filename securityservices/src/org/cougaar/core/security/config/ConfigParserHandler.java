@@ -129,7 +129,7 @@ public class ConfigParserHandler
     SecurityPropertiesService sps = (SecurityPropertiesService)
       sb.getService(this, SecurityPropertiesService.class, null);
     String nodeName = sps.getProperty("org.cougaar.node.name");
-    String cougaarWsp = sps.getProperty(sps.COUGAAR_WORKSPACE);
+    String cougaarWsp = sps.getProperty(SecurityPropertiesService.COUGAAR_WORKSPACE);
     String topDirectory = cougaarWsp + File.separatorChar + "security"
       + File.separatorChar + "keystores" + File.separatorChar;
     String nodeDirectory = topDirectory + nodeName;

@@ -25,6 +25,24 @@
  */
 package org.cougaar.core.security.crypto.ldap;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.catalina.realm.RealmBase;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
@@ -36,25 +54,6 @@ import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.service.LoggingService;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.security.cert.X509Certificate;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
-import java.util.Collections;
-
-import javax.servlet.http.HttpServletRequest;
-import org.apache.catalina.realm.RealmBase;
 
 /**
  * A Realm extension for Tomcat 4.0 that uses SSL to talk to
@@ -345,7 +344,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 //       log.debug("md5a1 = " + md5a1);
       String serverDigestValue = md5a1 + ":" + nOnce + ":" + nc + ":"
         + cnonce + ":" + qop + ":" + md5a2;
-      String serverDigest = this.md5Encoder.
+      String serverDigest = RealmBase.md5Encoder.
         encode(md5Helper.digest(serverDigestValue.getBytes()));
 //       log.debug("Server digest : " + serverDigest);
 

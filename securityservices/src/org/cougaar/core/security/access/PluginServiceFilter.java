@@ -23,6 +23,8 @@
 package org.cougaar.core.security.access;
 
 // core classes
+import java.util.Hashtable;
+
 import org.cougaar.core.component.BinderFactory;
 import org.cougaar.core.component.ContainerAPI;
 import org.cougaar.core.component.ServiceAvailableEvent;
@@ -33,7 +35,6 @@ import org.cougaar.core.component.ServiceFilterBinder;
 import org.cougaar.core.component.ServiceListener;
 import org.cougaar.core.component.ServiceRevokedEvent;
 import org.cougaar.core.component.ServiceRevokedListener;
-import org.cougaar.core.component.ServiceFilterBinder.FilteringServiceBroker;
 import org.cougaar.core.qos.metrics.MetricsService;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.JaasClient;
@@ -51,8 +52,6 @@ import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.planning.service.PrototypeRegistryService;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
-
-import java.util.Hashtable;
 
 public class PluginServiceFilter extends ServiceFilter {
   private static Logger _log;

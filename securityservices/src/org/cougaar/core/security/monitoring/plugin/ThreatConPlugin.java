@@ -26,19 +26,16 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 
+import java.util.Collection;
+import java.util.List;
+
+import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.OperatingMode;
 import org.cougaar.core.adaptivity.OperatingModeImpl;
-import org.cougaar.core.adaptivity.OMCRangeList;
-import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * This plugin manages the threatcon.

@@ -23,6 +23,14 @@ package org.cougaar.core.security.monitoring.plugin;
 
 // Cougaar core services
 //import org.cougaar.core.service.LoggingService;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.monitoring.blackboard.CapabilitiesObject;
@@ -32,19 +40,10 @@ import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
 import org.cougaar.core.security.monitoring.blackboard.OutStandingQuery;
 import org.cougaar.core.security.monitoring.blackboard.QueryMapping;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.service.SchedulerService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.thread.Schedulable;
 import org.cougaar.core.util.UID;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import org.cougaar.util.UnaryPredicate;
 
 /*
   Predicate to get CMR Relay with new MRAgentLookUp query 

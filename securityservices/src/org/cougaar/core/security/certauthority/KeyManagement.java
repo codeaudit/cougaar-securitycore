@@ -234,7 +234,7 @@ public class KeyManagement  implements CertificateManagementService {
 
     nodeConfiguration = new NodeConfiguration(caDN, serviceBroker);
 
-    role = secprop.getProperty(secprop.SECURITY_ROLE);
+    role = secprop.getProperty(SecurityPropertiesService.SECURITY_ROLE);
     if (role == null && log.isWarnEnabled() == true) {
       log.warn("Role not defined");
     }
@@ -526,7 +526,7 @@ public class KeyManagement  implements CertificateManagementService {
             // from here process as pending
             status = PENDING_STATUS_PENDING;
 
-            pendingCache.addCertificateToList(
+            PendingCertCache.addCertificateToList(
               dirlist[2], keyRing.getAlias(clientX509), clientX509);
           }
 
@@ -643,7 +643,7 @@ public class KeyManagement  implements CertificateManagementService {
         // from here process as pending
         status = PENDING_STATUS_PENDING;
 
-        pendingCache.
+        PendingCertCache.
           addCertificateToList(dirlist[2],
                                keyRing.getAlias(clientX509), clientX509);
       }

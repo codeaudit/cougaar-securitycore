@@ -21,16 +21,14 @@
 
 package org.cougaar.core.security.policy.webproxy;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.util.ConfigFinder;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.ConfigFinder;
 
 /**
  * This class provides access to daml files as a file stream rather

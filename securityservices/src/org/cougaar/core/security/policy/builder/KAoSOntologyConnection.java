@@ -21,19 +21,14 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import org.cougaar.core.security.provider.SecurityServiceProvider;
-import org.cougaar.core.security.userauth.UserAuthenticatorImpl;
-
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 import javax.agent.service.directory.DirectoryFailure;
 
 import jtp.ReasoningException;
-
 import kaos.core.service.directory.KAoSDirectoryService;
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.util.SerializableOntModelImpl;

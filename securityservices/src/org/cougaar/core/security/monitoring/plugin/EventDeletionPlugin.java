@@ -26,6 +26,7 @@ import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.util.log.Logger;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -139,10 +140,10 @@ public class EventDeletionPlugin extends ComponentPlugin {
           } else 
               throw new IllegalArgumentException("Parameter ["+paramName+"] is unknown");
           } catch (NumberFormatException nfe) {
-              if (LOG.isEnabledFor(LOG.ERROR)) LOG.error("Cannot parse parameter ["+paramName+"]",nfe);
+              if (LOG.isEnabledFor(Logger.ERROR)) LOG.error("Cannot parse parameter ["+paramName+"]",nfe);
           }
       }
-      if (LOG.isEnabledFor(LOG.DEBUG)) {
+      if (LOG.isEnabledFor(Logger.DEBUG)) {
           LOG.debug("pollInterval = "+pollInterval/1000+" seconds");
           LOG.debug("maxAge       = "+maxAge/1000+" seconds");
           LOG.debug("maxAlerts    = "+maxAlerts);
@@ -168,8 +169,9 @@ public class EventDeletionPlugin extends ComponentPlugin {
   }
 
   public void execute() {
-      if (LOG.isEnabledFor(LOG.DEBUG))
-          dumpSubscription();
+      if (LOG.isEnabledFor(Logger.DEBUG)) {
+        dumpSubscription();
+      }
       
       try {
           if (deletableEvents.size() > maxAlerts)
@@ -179,7 +181,7 @@ public class EventDeletionPlugin extends ComponentPlugin {
               alarm = wakeAfterRealTime(pollInterval);
           }
       } catch (Exception bad_thing) {
-          if (LOG.isEnabledFor(LOG.DEBUG)) LOG.debug("Caught an exception in execute -- what the...???");
+          if (LOG.isEnabledFor(Logger.DEBUG)) LOG.debug("Caught an exception in execute -- what the...???");
           bad_thing.printStackTrace();
       }
   }
@@ -209,7 +211,7 @@ public class EventDeletionPlugin extends ComponentPlugin {
   private void deleteOldest() {
       Event[] events = (Event [])deletableEvents.toArray(new Event[0]);
       int numToDelete = events.length - (int)maxAlerts;
-      if (LOG.isEnabledFor(LOG.DEBUG)) 
+      if (LOG.isEnabledFor(Logger.DEBUG)) 
         LOG.debug("Deleting oldest "+numToDelete+" of "+events.length+" Alerts");
       for (int i=0; i<numToDelete; i++) 
           delete(events[i]);
@@ -221,7 +223,7 @@ public class EventDeletionPlugin extends ComponentPlugin {
   private void checkForExpired() {
       Date expirationTime = new Date(System.currentTimeMillis() - maxAge);
       String ntpExpTime = IDMEFTime.convertToNTP(expirationTime);
-      if (LOG.isEnabledFor(LOG.DEBUG)) 
+      if (LOG.isEnabledFor(Logger.DEBUG)) 
         LOG.debug("Checking "+deletableEvents.size() +" alerts for expiration: exp time = "+IDMEFTime.convertToIDMEFFormat(expirationTime));
 
       ArrayList toBeKilled = new ArrayList();
@@ -244,7 +246,7 @@ public class EventDeletionPlugin extends ComponentPlugin {
    * publishRemove an event.  Optionally log and/or write it to a file.
    */
   private void delete(Event e) {
-      if (LOG.isEnabledFor(LOG.DEBUG)) {
+      if (LOG.isEnabledFor(Logger.DEBUG)) {
           Alert a = (Alert)e.getEvent();
           LOG.debug("Deleting Event: "+e.getUID()+" with time: "+a.getCreateTime().getidmefDate());
       }

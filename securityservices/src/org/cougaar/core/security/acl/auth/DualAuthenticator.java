@@ -454,11 +454,11 @@ public class DualAuthenticator extends ValveBase {
         _log.debug("using URI constraint: " + authType);
       }
       // now we only care about the least auth requirement...
-      if ((authType & cwa.authNoAuth) != 0) {
+      if ((authType & AuthSuite.authNoAuth) != 0) {
         return AUTH_NONE;
-      } else if ((authType & cwa.authPassword) != 0) {
+      } else if ((authType & AuthSuite.authPassword) != 0) {
         return AUTH_PASSWORD;
-      } else if ((authType & cwa.authCertificate) != 0) {
+      } else if ((authType & AuthSuite.authCertificate) != 0) {
         return AUTH_CERT;
       } else {
         return AUTH_NEVER;
@@ -523,7 +523,7 @@ public class DualAuthenticator extends ValveBase {
   protected boolean needHttps(HttpServletRequest req, String cipher, 
                               AuthSuite cwa) {
     if (USE_DAML && (_enforcer != null)) {
-      if (cwa == null || cwa.getAuth() == cwa.authInvalid) {
+      if (cwa == null || cwa.getAuth() == AuthSuite.authInvalid) {
         return false;
       }
       return !(cwa.getSSL().contains("plain"));

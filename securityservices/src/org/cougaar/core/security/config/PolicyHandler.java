@@ -132,7 +132,7 @@ public class PolicyHandler
 
     // Add workspace/security/keystores/$nodeName directory to the search path
     String nodeName = secprop.getProperty("org.cougaar.node.name");
-    String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
+    String cougaarWsp=secprop.getProperty(SecurityPropertiesService.COUGAAR_WORKSPACE);
     String topDirectory = cougaarWsp + File.separatorChar + "security"
       + File.separatorChar + "keystores" + File.separatorChar;
     String nodeDirectory = topDirectory + nodeName;

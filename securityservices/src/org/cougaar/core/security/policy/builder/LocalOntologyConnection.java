@@ -30,12 +30,10 @@ import java.util.Vector;
 import javax.agent.service.directory.DirectoryFailure;
 
 import jtp.ReasoningException;
-
-import kaos.ontology.DefaultOntologies;
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.OntologyRepository;
-import kaos.ontology.vocabulary.RDFConcepts;
 import kaos.ontology.util.SerializableOntModelImpl;
+import kaos.ontology.vocabulary.RDFConcepts;
 
 public class LocalOntologyConnection extends OntologyConnection
 {

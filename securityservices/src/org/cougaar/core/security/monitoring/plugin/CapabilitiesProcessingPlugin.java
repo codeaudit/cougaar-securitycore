@@ -22,6 +22,13 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
@@ -35,19 +42,11 @@ import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.idmef.Registration;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.EventService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 
 import edu.jhuapl.idmef.AdditionalData;
 import edu.jhuapl.idmef.Analyzer;

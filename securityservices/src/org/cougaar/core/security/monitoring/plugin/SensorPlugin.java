@@ -326,8 +326,8 @@ public abstract class SensorPlugin extends ComponentPlugin {
                                                  targets,
                                                  capabilities,
                                                  data,
-                                                 _idmefFactory.newregistration,
-                                                 _idmefFactory.SensorType,
+                                                 IdmefMessageFactory.newregistration,
+                                                 IdmefMessageFactory.SensorType,
                                                  myAddress.toString());
          NewEvent regEvent = _cmrFactory.newEvent(reg);
         _blackboard.openTransaction();

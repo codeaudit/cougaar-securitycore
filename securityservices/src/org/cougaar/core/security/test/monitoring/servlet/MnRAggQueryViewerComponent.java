@@ -27,20 +27,6 @@
 package org.cougaar.core.security.test.monitoring.servlet;
 
 // Imported java classes
-import org.cougaar.core.blackboard.BlackboardClient;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
-import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
-import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
-import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.DomainService;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.servlet.BaseServletComponent;
-import org.cougaar.util.UnaryPredicate;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -52,9 +38,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.jhuapl.idmef.Classification;
-
-import org.cougaar.core.security.monitoring.blackboard.*;
+import org.cougaar.core.blackboard.BlackboardClient;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.DetailsDrillDownQuery;
+import org.cougaar.core.security.monitoring.blackboard.DrillDownQuery;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.servlet.BaseServletComponent;
+import org.cougaar.util.UnaryPredicate;
 
 
 /**

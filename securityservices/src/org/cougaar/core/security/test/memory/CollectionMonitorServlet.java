@@ -20,27 +20,27 @@
  */
 package org.cougaar.core.security.test.memory;
 
-import org.cougaar.core.servlet.BaseServletComponent;
-import java.io.PrintWriter;
 import java.io.IOException;
-import java.io.CharArrayWriter;
-import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.singleton.CollectionMonitorStats;
 import java.util.singleton.CollectionMonitorStatsImpl;
-import java.util.singleton.EntityStats;
 import java.util.singleton.EntityData;
-import java.security.Principal;
+import java.util.singleton.EntityStats;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-import java.beans.XMLEncoder;
+import org.cougaar.core.servlet.BaseServletComponent;
 
 public class CollectionMonitorServlet 
 extends BaseServletComponent 

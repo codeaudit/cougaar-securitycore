@@ -22,14 +22,8 @@
 package org.cougaar.core.security.policy.enforcers.util;
 
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-
 import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
-
-
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
+import org.cougaar.core.service.LoggingService;
 
 /**
  * The purpose of this class is to facilitate the mapping between DAML

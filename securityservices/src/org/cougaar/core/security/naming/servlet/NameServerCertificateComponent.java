@@ -27,6 +27,18 @@
 
 package org.cougaar.core.security.naming.servlet;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.crypto.CertValidityListener;
 import org.cougaar.core.security.crypto.CertificateStatus;
@@ -41,19 +53,6 @@ import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.util.ServletRequestUtil;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Enumeration;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class NameServerCertificateComponent extends ComponentPlugin {
   private static Logger log;
@@ -325,7 +324,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
           }
         }
         try {
-          Thread.currentThread().sleep(_period);
+          Thread.sleep(_period);
         } catch (Exception ex) {}
       }
     }
@@ -363,7 +362,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
         }
 
         try {
-          Thread.currentThread().sleep(_period);
+          Thread.sleep(_period);
         } catch (Exception ex) {}
       }
     }

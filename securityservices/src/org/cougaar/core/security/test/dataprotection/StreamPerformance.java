@@ -25,40 +25,35 @@
  */
 package org.cougaar.core.security.test.dataprotection;
 
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.AlarmService;
-import org.cougaar.core.agent.service.alarm.Alarm;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.FileOutputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.BufferedReader;
-import java.security.Provider;
-import java.security.Security;
-import java.security.SecureRandom;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
-import java.util.Random;
-import java.util.Date;
-import java.util.List;
-import java.util.Arrays;
+import java.security.Provider;
+import java.security.SecureRandom;
+import java.security.Security;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class StreamPerformance
 {

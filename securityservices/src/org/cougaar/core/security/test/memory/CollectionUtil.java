@@ -20,9 +20,6 @@
  */
 package org.cougaar.core.security.test.memory;
 
-import java.util.List;
-import java.util.singleton.CollectionMonitorStats;
-import java.util.singleton.CollectionMonitorStatsImpl;
 
 public class CollectionUtil {
 /*

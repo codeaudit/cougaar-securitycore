@@ -190,12 +190,12 @@ public class CryptoPolicyServiceImpl
 
     if (!ignoreEncryption) {
       boolean realEncrypt = 
-        realPolicy.secureMethod == policy.SIGNENCRYPT ||
-        realPolicy.secureMethod == policy.ENCRYPT;
+        realPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT ||
+        realPolicy.secureMethod == SecureMethodParam.ENCRYPT;
 
       boolean encrypt = 
-        policy.secureMethod == policy.SIGNENCRYPT ||
-        policy.secureMethod == policy.ENCRYPT;
+        policy.secureMethod == SecureMethodParam.SIGNENCRYPT ||
+        policy.secureMethod == SecureMethodParam.ENCRYPT;
 
       if (realEncrypt) {
         if (!encrypt || policy.symmSpec == null || 
@@ -209,12 +209,12 @@ public class CryptoPolicyServiceImpl
 
     if (!ignoreSignature) {
       boolean realSign = 
-        realPolicy.secureMethod == policy.SIGNENCRYPT ||
-        realPolicy.secureMethod == policy.SIGN;
+        realPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT ||
+        realPolicy.secureMethod == SecureMethodParam.SIGN;
 
       boolean sign = 
-        policy.secureMethod == policy.SIGNENCRYPT ||
-        policy.secureMethod == policy.SIGN;
+        policy.secureMethod == SecureMethodParam.SIGNENCRYPT ||
+        policy.secureMethod == SecureMethodParam.SIGN;
 
       if (realSign) {
         if (!sign || policy.signSpec == null || 

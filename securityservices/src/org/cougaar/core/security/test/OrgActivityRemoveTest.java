@@ -25,22 +25,17 @@
  */
 package org.cougaar.core.security.test;
 
-import java.io.*;
-import java.lang.*;
-import java.util.*;
-import java.security.*;
-import javax.security.auth.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
-import org.cougaar.core.blackboard.*;
-import org.cougaar.core.component.*;
-import org.cougaar.core.plugin.*;
-import org.cougaar.core.service.*;
-import org.cougaar.util.*;
-
-import org.cougaar.core.security.services.auth.*;
-import org.cougaar.core.security.auth.*;
-
-import org.cougaar.glm.ldm.oplan.*;
+import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.glm.ldm.oplan.OrgActivity;
+import org.cougaar.util.UnaryPredicate;
 
 public class OrgActivityRemoveTest extends ComponentPlugin
 {

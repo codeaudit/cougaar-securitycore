@@ -20,32 +20,28 @@
  */
 package java.util.singleton;
 
-import java.util.Map;
-import java.util.List;
-import java.util.Hashtable;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Iterator;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.TreeSet;
-import java.util.LinkedList;
-import java.util.Stack;
-import java.util.TreeMap;
-import java.util.Vector;
-import java.util.WeakHashMap;
-import java.util.Comparator;
-import java.util.Collection;
-import java.util.IdentityHashMap;
-import java.util.Arrays;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.Vector;
+import java.util.WeakHashMap;
 
 public class EntityStats
 {

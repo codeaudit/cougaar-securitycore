@@ -26,13 +26,11 @@
 
 package org.cougaar.core.security.dataprotection;
 
+import java.security.cert.X509Certificate;
+
 import org.cougaar.core.security.crypto.ProtectedObject;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.policy.PersistenceManagerPolicy;
-
-import java.security.cert.X509Certificate;
-
-import javax.crypto.SealedObject;
 
 /**
  * This key is to be put into storage by client.

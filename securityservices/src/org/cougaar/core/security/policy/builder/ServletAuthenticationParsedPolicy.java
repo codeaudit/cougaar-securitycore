@@ -21,10 +21,6 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
-import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -33,8 +29,11 @@ import kaos.ontology.util.AlreadyComplement;
 import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.ontology.vocabulary.ActorConcepts;
-import kaos.ontology.vocabulary.ActionConcepts;
 import kaos.policy.util.KAoSPolicyBuilderImpl;
+
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
 
 public class ServletAuthenticationParsedPolicy extends ParsedAuthenticationPolicy
 {

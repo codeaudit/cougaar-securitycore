@@ -362,7 +362,7 @@ public class SecurityServiceProvider
       krs.finishInitialization();
 
       // configured to use SSL?
-      if (secprop.getProperty(secprop.WEBSERVER_HTTPS_PORT, null) != null) {
+      if (secprop.getProperty(SecurityPropertiesService.WEBSERVER_HTTPS_PORT, null) != null) {
 	newSP = new WebserverSSLServiceProvider(serviceBroker, mySecurityCommunity);
         services.put(WebserverIdentityService.class, newSP);
         rootServiceBroker.addService(WebserverIdentityService.class, newSP);

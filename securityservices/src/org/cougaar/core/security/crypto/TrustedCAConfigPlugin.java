@@ -1,13 +1,11 @@
 package org.cougaar.core.security.crypto;
 
-import org.cougaar.core.security.certauthority.ConfigPlugin;
-import org.cougaar.core.security.certauthority.servlet.CAInfo;
-import org.cougaar.core.security.policy.TrustedCaPolicy;
-import org.cougaar.core.security.certauthority.servlet.CAInfo;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
+import org.cougaar.core.security.certauthority.ConfigPlugin;
+import org.cougaar.core.security.certauthority.servlet.CAInfo;
 
 /*
  * This class only add trusted policy and trusted CA certificate,

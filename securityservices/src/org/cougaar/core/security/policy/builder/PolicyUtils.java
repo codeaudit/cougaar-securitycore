@@ -1,11 +1,8 @@
 package org.cougaar.core.security.policy.builder;
 
-import com.hp.hpl.jena.ontology.OntClass;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -17,14 +14,14 @@ import kaos.core.util.AttributeMsg;
 import kaos.core.util.KAoSConstants;
 import kaos.core.util.PolicyMsg;
 import kaos.core.util.SubjectMsg;
-import kaos.ontology.vocabulary.ActionConcepts;
-import kaos.ontology.vocabulary.ActorConcepts;
-import kaos.ontology.vocabulary.GroupConcepts;
 import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.ontology.util.RangeIsBasedOnInstances;
 import kaos.ontology.util.SerializableOntModelImpl;
 import kaos.ontology.util.ValueNotSet;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.ontology.vocabulary.ActorConcepts;
+import kaos.ontology.vocabulary.GroupConcepts;
 import kaos.policy.information.OntologyPolicyContainer;
 import kaos.policy.information.PolicyInformation;
 import kaos.policy.information.PolicyInformationManager;
@@ -38,6 +35,8 @@ import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.policy.ontology.UltralogActorConcepts;
 import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
 import org.cougaar.core.security.policy.ontology.UltralogGroupConcepts;
+
+import com.hp.hpl.jena.ontology.OntClass;
 
 public class PolicyUtils
 {

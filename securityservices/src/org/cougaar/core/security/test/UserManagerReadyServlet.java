@@ -21,22 +21,17 @@
 package org.cougaar.core.security.test;
 
 // java packages
-import org.cougaar.core.servlet.ComponentServlet;
-import org.cougaar.core.security.services.acl.UserService;
-import org.cougaar.core.security.services.acl.UserServiceException;
-import org.cougaar.util.ConfigFinder;
-
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Writer;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.security.services.acl.UserServiceException;
+import org.cougaar.core.servlet.ComponentServlet;
 
 /**
  * Provides a Servlet whose only job is to read a config file and

@@ -28,10 +28,11 @@
 package org.cougaar.core.security.test.javapolicy;
 
 
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.Analyzer;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.DetectTime;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,19 +43,16 @@ import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.test.AbstractServletComponent;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.io.Serializable;
-
-import java.util.ArrayList;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Analyzer;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.DetectTime;
 
 
 /**
  * DOCUMENT ME!
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  * @author $author$
  */
 public class UnAuthorizedResourceServlet extends AbstractServletComponent implements BlackboardClient {

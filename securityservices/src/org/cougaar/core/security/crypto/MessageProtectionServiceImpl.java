@@ -167,7 +167,7 @@ public class MessageProtectionServiceImpl
                                                    MessageAddress destination) {
     // force refresh of destination certificate
     String destAddr = destination.toAddress();
-    keyRing.findCert(destAddr, keyRing.LOOKUP_FORCE_LDAP_REFRESH);
+    keyRing.findCert(destAddr, KeyRingService.LOOKUP_FORCE_LDAP_REFRESH);
     try {
       //X509Certificate certificate = keyRing.findFirstAvailableCert(destAddr);
       Hashtable certTable = keyRing.findCertPairFromNS(source.toAddress(), destAddr);

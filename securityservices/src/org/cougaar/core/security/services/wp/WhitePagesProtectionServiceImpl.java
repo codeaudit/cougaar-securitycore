@@ -28,6 +28,17 @@
 package org.cougaar.core.security.services.wp;
 
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.security.AccessController;
+import java.security.GeneralSecurityException;
+import java.security.PrivilegedAction;
+import java.security.SignedObject;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.NoValidKeyException;
@@ -41,20 +52,6 @@ import org.cougaar.core.service.wp.WhitePagesProtectionService;
 import org.cougaar.util.log.Logger;
 
 import sun.security.x509.X500Name;
-
-import java.io.IOException;
-import java.io.Serializable;
-
-import java.security.AccessController;
-import java.security.GeneralSecurityException;
-import java.security.PrivilegedAction;
-import java.security.SignedObject;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 
 /**

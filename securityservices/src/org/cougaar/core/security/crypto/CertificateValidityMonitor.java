@@ -77,7 +77,7 @@ public class CertificateValidityMonitor
 
     long poll = 0;
     try {
-      poll = (Long.valueOf(secprop.getProperty(secprop.VALIDITY_POLLING_PERIOD))).longValue() * 1000;
+      poll = (Long.valueOf(secprop.getProperty(SecurityPropertiesService.VALIDITY_POLLING_PERIOD))).longValue() * 1000;
     }
     catch (Exception e) {}
     if (poll != 0) {

@@ -211,7 +211,7 @@ public class KeyGenerator {
     try {
       in = new FileInputStream(keyStoreName);
 
-      keyStore = KeyStore.getInstance(keyStore.getDefaultType());
+      keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
       keyStore.load(in, keyStorePasswd.toCharArray());
     } catch(java.io.FileNotFoundException e) {
       e.printStackTrace();

@@ -20,7 +20,15 @@
  */
 package org.cougaar.core.security.util;
 
-import org.cougaar.community.manager.Request;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 
 import org.cougaar.community.manager.Request;
 import org.cougaar.core.component.ServiceBroker;
@@ -36,17 +44,6 @@ import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.thread.Schedulable;
-
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
@@ -940,10 +937,10 @@ public class CommunityServiceUtil {
         _cs.removeListener(this);
         return;
       }
-      if (event.getType() != event.ADD_COMMUNITY &&
-          event.getType() != event.ENTITY_ATTRIBUTES_CHANGED &&
-          event.getType() != event.COMMUNITY_ATTRIBUTES_CHANGED &&
-          event.getType() != event.ADD_ENTITY) {
+      if (event.getType() != CommunityChangeEvent.ADD_COMMUNITY &&
+          event.getType() != CommunityChangeEvent.ENTITY_ATTRIBUTES_CHANGED &&
+          event.getType() != CommunityChangeEvent.COMMUNITY_ATTRIBUTES_CHANGED &&
+          event.getType() != CommunityChangeEvent.ADD_ENTITY) {
         return; // not a change we care about
       }
       Community community = event.getCommunity();
@@ -957,7 +954,7 @@ public class CommunityServiceUtil {
 
       if (_log.isDebugEnabled()) {
         _log.debug(" Change Info for Agent "+ _agent+ " community change: " + 
-                   event.getChangeTypeAsString(event.getType()) +
+                   CommunityChangeEvent.getChangeTypeAsString(event.getType()) +
                    ", " +
                    event.getWhatChanged());
       }
@@ -1025,10 +1022,10 @@ public class CommunityServiceUtil {
         }
       }
       
-      if (event.getType() != event.ADD_COMMUNITY &&
-          event.getType() != event.ENTITY_ATTRIBUTES_CHANGED &&
-          event.getType() != event.COMMUNITY_ATTRIBUTES_CHANGED &&
-          event.getType() != event.ADD_ENTITY) {
+      if (event.getType() != CommunityChangeEvent.ADD_COMMUNITY &&
+          event.getType() != CommunityChangeEvent.ENTITY_ATTRIBUTES_CHANGED &&
+          event.getType() != CommunityChangeEvent.COMMUNITY_ATTRIBUTES_CHANGED &&
+          event.getType() != CommunityChangeEvent.ADD_ENTITY) {
         return; // not a change we care about
       }
       Community community = event.getCommunity();
@@ -1042,7 +1039,7 @@ public class CommunityServiceUtil {
 
       if (_log.isDebugEnabled()) {
         _log.debug(" Change Info for Agent "+ _agent+ " GetCommunityWithUpdates community change: " + 
-                   event.getChangeTypeAsString(event.getType()) +
+                   CommunityChangeEvent.getChangeTypeAsString(event.getType()) +
                    ", " +
                    event.getWhatChanged());
       }
@@ -1104,10 +1101,10 @@ public class CommunityServiceUtil {
         return;
       }
       
-      if (event.getType() != event.ADD_COMMUNITY &&
-          event.getType() != event.ENTITY_ATTRIBUTES_CHANGED &&
-          event.getType() != event.COMMUNITY_ATTRIBUTES_CHANGED &&
-          event.getType() != event.ADD_ENTITY) {
+      if (event.getType() != CommunityChangeEvent.ADD_COMMUNITY &&
+          event.getType() != CommunityChangeEvent.ENTITY_ATTRIBUTES_CHANGED &&
+          event.getType() != CommunityChangeEvent.COMMUNITY_ATTRIBUTES_CHANGED &&
+          event.getType() != CommunityChangeEvent.ADD_ENTITY) {
         return; // not a change we care about
       }
       Community community = event.getCommunity();
@@ -1120,7 +1117,7 @@ public class CommunityServiceUtil {
       }
       if (_log.isDebugEnabled()) {
         _log.debug(" Change Info for Agent "+ _agent+" community change: " + 
-                   event.getChangeTypeAsString(event.getType()) +
+                   CommunityChangeEvent.getChangeTypeAsString(event.getType()) +
                    ", " +
                    event.getWhatChanged());
         // printCommunityInfo(community);
@@ -1429,10 +1426,10 @@ public class CommunityServiceUtil {
         _cs.removeListener(this);
         return;
       }
-      if (event.getType() != event.ADD_COMMUNITY &&
-          event.getType() != event.ENTITY_ATTRIBUTES_CHANGED &&
-          event.getType() != event.COMMUNITY_ATTRIBUTES_CHANGED &&
-          event.getType() != event.ADD_ENTITY) {
+      if (event.getType() != CommunityChangeEvent.ADD_COMMUNITY &&
+          event.getType() != CommunityChangeEvent.ENTITY_ATTRIBUTES_CHANGED &&
+          event.getType() != CommunityChangeEvent.COMMUNITY_ATTRIBUTES_CHANGED &&
+          event.getType() != CommunityChangeEvent.ADD_ENTITY) {
         return; // not a change we care about
       }
       Community community = event.getCommunity();
@@ -1465,7 +1462,7 @@ public class CommunityServiceUtil {
 
       if (_log.isDebugEnabled()) {
         _log.debug(" Change Info for Agent "+ _agent+" community change: " + 
-                   event.getChangeTypeAsString(event.getType()) +
+                   CommunityChangeEvent.getChangeTypeAsString(event.getType()) +
                    ", " +
                    event.getWhatChanged());
       }

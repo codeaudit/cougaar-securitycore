@@ -1,6 +1,26 @@
 package org.cougaar.core.security.auth.role;
 
 // cougaar classes
+import java.security.Permission;
+import java.security.Principal;
+import java.security.ProtectionDomain;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
+import javax.agent.service.ServiceFailure;
+
+import kaos.ontology.repository.ActionInstanceDescription;
+import kaos.ontology.repository.TargetInstanceDescription;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.policy.enforcement.Enforcer;
+import kaos.policy.information.KAoSProperty;
+
 import org.cougaar.core.component.ComponentDescription;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
@@ -13,38 +33,16 @@ import org.cougaar.core.security.auth.BlackboardPermission;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.ExecutionPrincipal;
 import org.cougaar.core.security.auth.ObjectContext;
-import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
 import org.cougaar.core.security.policy.enforcers.util.OwlBlackboardMapping;
 import org.cougaar.core.security.policy.enforcers.util.RoleMapping;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
 import org.cougaar.core.security.services.auth.AuthorizationService;
 import org.cougaar.core.security.services.auth.SecurityContextService;
 import org.cougaar.core.security.util.ActionPermission;
 import org.cougaar.core.service.LoggingService;
-import java.security.Permission;
-import java.security.Principal;
-import java.security.ProtectionDomain;
-import java.util.Collections;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-
-import javax.agent.service.ServiceFailure;
-
-import kaos.ontology.vocabulary.ActionConcepts;
-import kaos.ontology.management.UnknownConceptException;
-import kaos.ontology.repository.ActionInstanceDescription;
-import kaos.ontology.repository.TargetInstanceDescription;
-import kaos.policy.information.KAoSProperty;
-import kaos.policy.enforcement.Enforcer;
 import safe.guard.EnforcerManagerService;
-import safe.guard.NodeGuard;
 
 /**
  * TODO: This is only a stub implementation

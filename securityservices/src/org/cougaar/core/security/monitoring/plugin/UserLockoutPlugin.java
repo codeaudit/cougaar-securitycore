@@ -20,12 +20,26 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+
 import org.cougaar.core.adaptivity.OMCRange;
 import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.OMCThruRange;
 import org.cougaar.core.adaptivity.OperatingMode;
 import org.cougaar.core.adaptivity.OperatingModeImpl;
 import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.constants.AdaptiveMnROperatingModes;
@@ -40,6 +54,7 @@ import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
@@ -50,26 +65,9 @@ import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.thread.Schedulable;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.component.ServiceAvailableEvent;
-import org.cougaar.core.component.ServiceAvailableListener;
-import org.cougaar.core.thread.Schedulable;
-import org.cougaar.core.service.SchedulerService;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.security.services.acl.UserServiceException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import edu.jhuapl.idmef.Action;
 import edu.jhuapl.idmef.AdditionalData;
@@ -575,8 +573,8 @@ public class UserLockoutPlugin extends ResponderPlugin {
       _idmefFactory.createRegistrationAlert( _sensor, null, null,
                                              capabilities,
                                              null,
-                                             _idmefFactory.newregistration ,
-                                             _idmefFactory.SensorType,
+                                             IdmefMessageFactory.newregistration ,
+                                             IdmefMessageFactory.SensorType,
                                              agentName);
 
     NewEvent regEvent = _cmrFactory.newEvent(reg);

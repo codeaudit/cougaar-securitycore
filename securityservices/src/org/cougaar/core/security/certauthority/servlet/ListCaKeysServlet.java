@@ -70,7 +70,7 @@ extends  HttpServlet
   public void init(ServletConfig config) throws ServletException
     {
       secprop = support.getSecurityProperties(this);
-      debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+      debug = (Boolean.valueOf(secprop.getProperty(SecurityPropertiesService.CRYPTO_DEBUG,
                                                    "false"))).booleanValue();
       keyRingService = (KeyRingService)
         support.getServiceBroker().getService(this,

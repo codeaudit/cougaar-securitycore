@@ -22,14 +22,13 @@
 
 package org.cougaar.core.security.access;
 
+import java.util.Comparator;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.service.ThreadControlService;
 import org.cougaar.core.thread.RightsSelector;
 import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.thread.RightsSelector;
-
-import java.util.Comparator;
 
 // this class is a proxy for the ThreadControlService
 class ThreadControlServiceProxy extends SecureServiceProxy 

@@ -49,10 +49,10 @@ public  class CryptoDebug {
     secprop = new SecurityPropertiesServiceImpl(null);
 
     debug =
-      (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+      (Boolean.valueOf(secprop.getProperty(SecurityPropertiesService.CRYPTO_DEBUG,
 					   "false"))).booleanValue();
     crldebug =
-      (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_CRL_DEBUG,
+      (Boolean.valueOf(secprop.getProperty(SecurityPropertiesService.CRYPTO_CRL_DEBUG,
 					   "false"))).booleanValue();
   }
 } 

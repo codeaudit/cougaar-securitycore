@@ -23,7 +23,6 @@ package org.cougaar.core.security.policy.builder;
 
 import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
-import kaos.ontology.vocabulary.ActionConcepts;
 import kaos.ontology.vocabulary.ActorConcepts;
 import kaos.policy.util.KAoSPolicyBuilderImpl;
 

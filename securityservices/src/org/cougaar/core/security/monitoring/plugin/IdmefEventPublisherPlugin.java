@@ -22,6 +22,10 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.monitoring.blackboard.Event;
@@ -31,11 +35,6 @@ import org.cougaar.core.security.monitoring.idmef.Registration;
 import org.cougaar.core.service.EventService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.HashMap;
-import java.util.Date;
 
 import edu.jhuapl.idmef.AdditionalData;
 import edu.jhuapl.idmef.Address;

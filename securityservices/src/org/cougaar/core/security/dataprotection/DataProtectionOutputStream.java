@@ -26,6 +26,23 @@
 
 package org.cougaar.core.security.dataprotection;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.AccessController;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.PrivilegedAction;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Date;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.SecretKey;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.NoValidKeyException;
 import org.cougaar.core.security.crypto.SecureMethodParam;
@@ -38,27 +55,8 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.util.SignatureOutputStream;
 import org.cougaar.core.service.DataProtectionKeyEnvelope;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.security.dataprotection.plugin.KeyRecoveryRequestHandler;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.AccessController;
-import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
-import java.security.PrivilegedAction;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import sun.security.x509.X500Name;
-import java.util.Date;
-import java.util.ArrayList;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.SealedObject;
-import javax.crypto.SecretKey;
 
 public class DataProtectionOutputStream extends FilterOutputStream {
   private static LoggingService log;

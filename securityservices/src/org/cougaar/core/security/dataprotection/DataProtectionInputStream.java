@@ -26,17 +26,6 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.crypto.SecureMethodParam;
-import org.cougaar.core.security.monitoring.event.DataFailureEvent;
-import org.cougaar.core.security.monitoring.event.FailureEvent;
-import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
-import org.cougaar.core.security.monitoring.publisher.EventPublisher;
-import org.cougaar.core.security.services.crypto.EncryptionService;
-import org.cougaar.core.security.util.SignatureInputStream;
-import org.cougaar.core.service.DataProtectionKeyEnvelope;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.FilterInputStream;
@@ -49,8 +38,18 @@ import java.util.Date;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
-import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.security.monitoring.event.DataFailureEvent;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.util.SignatureInputStream;
+import org.cougaar.core.service.DataProtectionKeyEnvelope;
+import org.cougaar.core.service.LoggingService;
 
 public class DataProtectionInputStream extends FilterInputStream {
   private LoggingService log;
@@ -97,7 +96,7 @@ public class DataProtectionInputStream extends FilterInputStream {
       debug = log.isDebugEnabled();
     }
 
-    this.agent = agent;
+    DataProtectionInputStream.agent = agent;
     DataProtectionKeyCollection keyCollection =
       (DataProtectionKeyCollection)pke.getDataProtectionKey();
     dpKey = (DataProtectionKeyImpl)keyCollection.get(0);

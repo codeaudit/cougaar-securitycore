@@ -6,7 +6,6 @@
  */
 
 package java.util;
-import  java.io.*;
 
 /**
  * <p>Hash table and linked list implementation of the <tt>Map</tt> interface,

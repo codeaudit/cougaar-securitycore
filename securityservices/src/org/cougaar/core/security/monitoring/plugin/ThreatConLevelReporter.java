@@ -25,31 +25,28 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.adaptivity.InterAgentOperatingMode;
-import org.cougaar.core.adaptivity.InterAgentOperatingModePolicy;
-import org.cougaar.core.adaptivity.OperatingMode;
-import org.cougaar.core.adaptivity.OperatingModePolicy;
-import org.cougaar.core.adaptivity.OMCRangeList;
-import org.cougaar.core.adaptivity.ConstraintPhrase;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.EventService;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.service.UIDService;
-import org.cougaar.multicast.AttributeBasedAddress;
-import org.cougaar.util.UnaryPredicate;
-
-import org.cougaar.core.security.constants.AdaptiveMnROperatingModes;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
-import java.util.Set;
+
+import org.cougaar.core.adaptivity.ConstraintPhrase;
+import org.cougaar.core.adaptivity.InterAgentOperatingMode;
+import org.cougaar.core.adaptivity.InterAgentOperatingModePolicy;
+import org.cougaar.core.adaptivity.OMCRangeList;
+import org.cougaar.core.adaptivity.OperatingMode;
+import org.cougaar.core.adaptivity.OperatingModePolicy;
+import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.constants.AdaptiveMnROperatingModes;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.EventService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.UIDService;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.multicast.AttributeBasedAddress;
+import org.cougaar.util.UnaryPredicate;
 
 /**
  * This plugin subscribes to InterAgentOperatingModePolicies that are published 

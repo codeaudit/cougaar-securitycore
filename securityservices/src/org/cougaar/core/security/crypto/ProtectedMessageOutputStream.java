@@ -130,8 +130,8 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
       _log.debug("Modified policy = " + policy);
     }
 
-    if (policy.secureMethod == policy.ENCRYPT ||
-        policy.secureMethod == policy.SIGNENCRYPT) {
+    if (policy.secureMethod == SecureMethodParam.ENCRYPT ||
+        policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
       _encrypt = true;
       // first encrypt the secret key with the target's public key
       secret = _crypto.createSecretKey(policy.symmSpec);
@@ -147,8 +147,8 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
       }
     }
     X509Certificate [] sourceChain = null;
-    if (policy.secureMethod == policy.SIGNENCRYPT ||
-        policy.secureMethod == policy.SIGN) {
+    if (policy.secureMethod == SecureMethodParam.SIGNENCRYPT ||
+        policy.secureMethod == SecureMethodParam.SIGN) {
       _sign = true;
     }
     if ((_sign || _encrypt) && _sourceCert != null) {
@@ -230,7 +230,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
   {
     CertEntry certEntry;
 
-    if (policy.secureMethod == policy.PLAIN) {
+    if (policy.secureMethod == SecureMethodParam.PLAIN) {
       return; // don't need any certificates for plain text communication
     }
 
@@ -351,18 +351,18 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
   }
 
   private static void removeEncrypt(SecureMethodParam policy) {
-    if (policy.secureMethod == policy.ENCRYPT) {
-      policy.secureMethod = policy.PLAIN;
-    } else if (policy.secureMethod == policy.SIGNENCRYPT) {
-      policy.secureMethod = policy.SIGN;
+    if (policy.secureMethod == SecureMethodParam.ENCRYPT) {
+      policy.secureMethod = SecureMethodParam.PLAIN;
+    } else if (policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+      policy.secureMethod = SecureMethodParam.SIGN;
     }
   }
 
   private static void removeSign(SecureMethodParam policy) {
-    if (policy.secureMethod == policy.SIGN) {
-      policy.secureMethod = policy.PLAIN;
-    } else if (policy.secureMethod == policy.SIGNENCRYPT) {
-      policy.secureMethod = policy.ENCRYPT;
+    if (policy.secureMethod == SecureMethodParam.SIGN) {
+      policy.secureMethod = SecureMethodParam.PLAIN;
+    } else if (policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+      policy.secureMethod = SecureMethodParam.ENCRYPT;
     }
   }
 
@@ -376,10 +376,10 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
       removeEncrypt(policy); // no need for double-encryption
     }
 
-    if (policy.secureMethod == policy.SIGN &&
+    if (policy.secureMethod == SecureMethodParam.SIGN &&
         encryptedSocket && !criticalPLevelMsg &&
         !_crypto.sendNeedsSignature(_source, _target)) {
-      policy.secureMethod = policy.PLAIN;
+      policy.secureMethod = SecureMethodParam.PLAIN;
     }
 
     return policy;

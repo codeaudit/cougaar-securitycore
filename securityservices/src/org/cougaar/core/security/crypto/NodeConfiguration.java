@@ -121,7 +121,7 @@ public class NodeConfiguration
   private void createDirectoryStructure(String aDomain) {
     String nodeName = secprop.getProperty("org.cougaar.node.name");
 
-    String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
+    String cougaarWsp=secprop.getProperty(SecurityPropertiesService.COUGAAR_WORKSPACE);
     log.debug("Cougaar workspace is :" + cougaarWsp);
 
     String topDirectory = cougaarWsp + File.separatorChar + "security"

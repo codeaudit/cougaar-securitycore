@@ -77,7 +77,7 @@ extends HttpServlet
 
       secprop = support.getSecurityProperties(this);
      
-      debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+      debug = (Boolean.valueOf(secprop.getProperty(SecurityPropertiesService.CRYPTO_DEBUG,
                                                    "false"))).booleanValue();
       if(debug)
         log.debug(" context is :"+ context.toString());

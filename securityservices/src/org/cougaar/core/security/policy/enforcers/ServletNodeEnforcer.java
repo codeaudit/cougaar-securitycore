@@ -21,22 +21,11 @@
 
 package org.cougaar.core.security.policy.enforcers;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
-import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
-import org.cougaar.core.security.policy.enforcers.util.OwlServletMapping;
-import org.cougaar.core.security.policy.enforcers.util.HardWired;
-import org.cougaar.core.security.policy.enforcers.util.RegexpStringMapping;
-import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -47,9 +36,19 @@ import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
 import kaos.ontology.vocabulary.ActionConcepts;
 import kaos.policy.information.KAoSProperty;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
+import org.cougaar.core.security.policy.enforcers.util.HardWired;
+import org.cougaar.core.security.policy.enforcers.util.OwlServletMapping;
+import org.cougaar.core.security.policy.enforcers.util.RegexpStringMapping;
+import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.service.LoggingService;
+
 import safe.enforcer.NodeEnforcer;
 import safe.guard.EnforcerManagerService;
-import safe.guard.NodeGuard;
 
 /**
  * This class is an Enforcer that intercepts human attempts to access 
@@ -192,7 +191,7 @@ public class ServletNodeEnforcer
       out.print("<p>Unknown user is attempting access to " + uri);
       AuthSuite cipherSuites = whichAuthSuite(uri);
       if (cipherSuites == null || cipherSuites.getSSL().size() == 0 ||
-          cipherSuites.getAuth() == cipherSuites.authInvalid) {
+          cipherSuites.getAuth() == AuthSuite.authInvalid) {
         out.print("<p>Permission denied " + 
                   "without even determining the user</p>");
       } else {

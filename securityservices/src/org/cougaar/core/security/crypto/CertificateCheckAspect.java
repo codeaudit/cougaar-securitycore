@@ -23,22 +23,19 @@
 package org.cougaar.core.security.crypto;
 
 
-import org.cougaar.mts.std.AttributedMessage;
-import org.cougaar.mts.base.DestinationLink;
-import org.cougaar.mts.base.DestinationLinkDelegateImplBase;
-import org.cougaar.mts.base.StandardAspect;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.mts.base.LoopbackLinkProtocol;
-import org.cougaar.core.service.LoggingService;
+import java.util.Iterator;
+import java.util.List;
+
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
-
 import org.cougaar.core.security.services.crypto.KeyRingService;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Iterator;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.mts.base.DestinationLink;
+import org.cougaar.mts.base.DestinationLinkDelegateImplBase;
+import org.cougaar.mts.base.LoopbackLinkProtocol;
+import org.cougaar.mts.base.StandardAspect;
+import org.cougaar.mts.std.AttributedMessage;
 
 /**
  * Intercept the "cost()" call to each of the LinkProtocol's.
