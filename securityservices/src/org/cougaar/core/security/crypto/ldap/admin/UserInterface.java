@@ -146,6 +146,9 @@ class UserInterface {
   };
 
   static void setAttributes(UserService userService) {
+    if (userService == null) {
+      throw new RuntimeException("Unable to set attributes. UserService is null");
+    }
     LDAP_ROLE_RDN = userService.getRoleIDAttribute();
     LDAP_USER_UID = userService.getUserIDAttribute();
     LDAP_USER_PASSWORD = userService.getPasswordAttribute();
