@@ -66,12 +66,13 @@ class SecurityMop2_5 < AbstractSecurityMop
           @raw = SecurityMop2_4.instance.raw5
           @info = SecurityMop2_4.instance.html5
           @summary <<"<BR> Score :#{@score}</BR>\n" 
-          @summary << "#{@info}"
+          #@summary << "#{@info}"
           success = false
           if (@score == 100.0)
             success = true
           end
           saveResult(success, 'SecurityMop2.5',@summary)
+          saveAssertion("SecurityMop2.5", @info)
           saveAssertion("SecurityMop2.5", "Save results for SecurityMop2.5 Done" )
         end
       rescue Exception => e
