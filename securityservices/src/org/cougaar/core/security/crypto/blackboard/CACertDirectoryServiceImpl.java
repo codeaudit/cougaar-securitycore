@@ -259,10 +259,10 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
     if (_log.isDebugEnabled()) {
       _log.debug("Get all certificates, cache size " + _certStore.size());
     }
-    Enumeration enum = _certStore.elements();
+    Enumeration en = _certStore.elements();
     List completeList = new ArrayList();
-    while (enum.hasMoreElements()) {
-      Object o = enum.nextElement();
+    while (en.hasMoreElements()) {
+      Object o = en.nextElement();
       if (o instanceof List) {
 	completeList.addAll((List)o);
       }
@@ -458,16 +458,16 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
     }
     Certificate c=null;
     List certList = null;
-    Enumeration enum=null;
+    Enumeration en=null;
     if(cacheservice!=null) {
-      enum=cacheservice.getAliasList();
+      en=cacheservice.getAliasList();
     }
-    if(enum==null) {
+    if(en==null) {
       _log.warn("Alias list is null in Key management publishCAinLdap:");
     }
-    if(enum!=null) {
-      for(;enum.hasMoreElements();) {
-        String a = (String)enum.nextElement();
+    if(en!=null) {
+      for(;en.hasMoreElements();) {
+        String a = (String)en.nextElement();
         String cn = cacheservice.getCommonName(a);
         if(cn != null && _log.isDebugEnabled()) {
           _log.debug("Got common name for alias :"+ a + cn);

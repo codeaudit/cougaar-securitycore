@@ -119,10 +119,10 @@ public class DynamicPolicy extends Policy {
       if (_policies == null) {
         _damlPolicies = _auth.getPermissions(_domain);
         _policies = new Vector(_damlPolicies);
-        Enumeration enum = 
+        Enumeration en = 
           _basePolicy.getPermissions(_domain).elements();
-        while (enum.hasMoreElements()) {
-          _policies.add(enum.nextElement());
+        while (en.hasMoreElements()) {
+          _policies.add(en.nextElement());
         }
       }
 

@@ -163,9 +163,9 @@ public class PropertyFile
       // Now, add (and potentially override) properties defined
       // in the XML experiment file.
       Properties props = tcc.getAdditionalVmProperties();
-      Enumeration enum = props.propertyNames();
-      while (enum.hasMoreElements()) {
-	String key = (String) enum.nextElement();
+      Enumeration en = props.propertyNames();
+      while (en.hasMoreElements()) {
+	String key = (String) en.nextElement();
 	String val = props.getProperty(key);
         unparsedProperties.setProperty(key, val);
       }
@@ -181,9 +181,9 @@ public class PropertyFile
 				     String.valueOf(socketLogPort));    
 
       // Now, customize and parse the properties
-      enum = unparsedProperties.propertyNames();
-      while (enum.hasMoreElements()) {
-	String key = (String) enum.nextElement();
+      en = unparsedProperties.propertyNames();
+      while (en.hasMoreElements()) {
+	String key = (String) en.nextElement();
 	String value = unparsedProperties.getProperty(key);
 	value = customizeProperty(value, tcc);
 

@@ -143,8 +143,8 @@ public class CertificateValidityMonitor
       // node in priority
       // CA cert should not be in validity checking, otherwise CA cert should be
       // checked first
-      for (Enumeration enum = certListeners.keys(); enum.hasMoreElements(); ) {
-        String commonName = (String)enum.nextElement();
+      for (Enumeration en = certListeners.keys(); en.hasMoreElements(); ) {
+        String commonName = (String)en.nextElement();
         if (!commonName.equals(NodeInfo.getNodeName())) {
           //checkValidity(commonName);
 

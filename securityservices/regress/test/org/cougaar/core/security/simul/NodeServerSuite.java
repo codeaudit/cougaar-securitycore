@@ -490,9 +490,9 @@ public class NodeServerSuite
     props.put("org.cougaar.securityservices.regress",
 	      getCanonicalPath(System.getProperty("org.cougaar.securityservices.regress")));
 
-    Enumeration enum = props.propertyNames();
-    while (enum.hasMoreElements()) {
-      String key = (String) enum.nextElement();
+    Enumeration en = props.propertyNames();
+    while (en.hasMoreElements()) {
+      String key = (String) en.nextElement();
       if (
 	(key.startsWith("java.") && !(key.startsWith("java.security.") || key.startsWith("java.rmi.")))
 	|| key.startsWith("sun.")

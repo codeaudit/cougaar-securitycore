@@ -141,10 +141,10 @@ public abstract class CertDirectoryService
 	  String cause = null;
 	  int i;
 	  if (log.isDebugEnabled()) {
-	    Enumeration enum = _config.keys();
+	    Enumeration en = _config.keys();
 	    log.debug("Connecting to LDAP using following parameters:");
-	    while (enum.hasMoreElements()) {
-	      String key = (String)enum.nextElement();
+	    while (en.hasMoreElements()) {
+	      String key = (String)en.nextElement();
 	      log.debug(key + "=" + _config.get(key));
 	    }
 	  }

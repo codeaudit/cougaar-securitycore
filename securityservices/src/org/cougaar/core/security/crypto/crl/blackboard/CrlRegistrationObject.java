@@ -67,9 +67,9 @@ public class CrlRegistrationObject implements Serializable,Publishable {
     
     if(agentAddress!=null) {
       MessageAddress msgAddress=null;
-      Enumeration enum =messageAddress.elements();
-      while(enum.hasMoreElements()) {
-        msgAddress=(MessageAddress)enum.nextElement();
+      Enumeration en =messageAddress.elements();
+      while(en.hasMoreElements()) {
+        msgAddress=(MessageAddress)en.nextElement();
         if(msgAddress.toString().equals(agentAddress.toString())) {
           throw new CRLAgentRegistrationException(" Agent " +agentAddress.toString()+
 						  "alredy registered");
@@ -82,9 +82,9 @@ public class CrlRegistrationObject implements Serializable,Publishable {
   public void removeAgent(String agentAddress) throws CRLAgentRegistrationException{
      if(agentAddress!=null) {
       MessageAddress msgAddress=null;
-      Enumeration enum =messageAddress.elements();
-      while(enum.hasMoreElements()) {
-        msgAddress=(MessageAddress)enum.nextElement();
+      Enumeration en =messageAddress.elements();
+      while(en.hasMoreElements()) {
+        msgAddress=(MessageAddress)en.nextElement();
         if(msgAddress.toString().equals(agentAddress)) {
           messageAddress.remove(msgAddress);
           break;
