@@ -16,6 +16,7 @@ society.each_node do |node|
       agentname = "SocietyMnRManager"
 
       node.add_agent(agentname) do |agent|
+=begin
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.plugin.RateCalculatorPlugin"
           c.add_argument("20")
@@ -23,6 +24,7 @@ society.each_node do |node|
           c.add_argument("org.cougaar.core.security.monitoring.LOGIN_FAILURE")
           c.add_argument("org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE")
         end
+=end
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.plugin.CapabilitiesProcessingPlugin"
         end
@@ -68,6 +70,10 @@ society.each_node do |node|
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.servlet.MnRResponseViewerComponent"
           c.add_argument("/monitoringQueryViewer")
+        end
+        agent.add_component do |c|
+          c.classname ="org.cougaar.core.security.monitoring.servlet.MnRQueryServletComponent"
+          c.add_argument("/mnrQuery")
         end
       end
     end

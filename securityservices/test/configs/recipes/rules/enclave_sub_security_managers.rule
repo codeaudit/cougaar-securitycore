@@ -11,11 +11,12 @@ require 'framework/common_security_rules'
 society.each_node do |node|
   agentname = ""
   enclave = ""
+  enclaveName = ""
 
   node.each_facet(:role) do |facet|
     if facet[:role] == $facetSubManagement
-      facetval = node.host.get_facet(:enclave)
-      enclave = facetval[0..0] + facetval[1..facetval.length].downcase
+      enclaveName = node.host.get_facet(:enclave)
+      enclave = enclaveName.capitalize
       break
     end
   end
