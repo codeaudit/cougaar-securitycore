@@ -58,6 +58,18 @@ public class KAoSAgentOntologyConnection extends OntologyConnection
     _kds = kds;
   }
 
+  /*
+   * one of the shortcomings of this type of ontology connection is that 
+   * he should not be doing policyinformation stuff.  The ontology
+   * connection associated with the PolicyInformationManager is seen
+   * throughout the jvm so installing it here could be a significant
+   * problem. 
+   */
+  protected void installOntologyConnection()
+  {
+    ;
+  }
+
 
   /*
    * Implementation of abstract methods from OntologyConnection
