@@ -80,6 +80,12 @@ public class StringPairMapping {
     File policyFile = null;
     String line;
 
+    if (mappingFile == null) {
+      if (_log.isErrorEnabled()) {
+         _log.error("Cannot find String Pair mapping file:" + filename);
+      }
+      return null;
+    }
     _log.debug(".loadPairs: Reading daml policies file "
               + mappingFile);
     BufferedReader damlReader 
