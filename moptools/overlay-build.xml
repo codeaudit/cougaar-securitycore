@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="create_cougaar_overlay" name="moptools">
+	<target name="create_cougaar_overlay">
+		<exec dir="." executable="test/bin/installsecurity" os="Linux">
+		</exec>
+	</target>
+</project>
