@@ -57,6 +57,7 @@ import sun.security.util.ObjectIdentifier;
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.service.*;
 import org.cougaar.core.naming.*;
+import org.cougaar.core.mts.*;
 import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
@@ -214,8 +215,9 @@ public class DirectoryKeyStore
 
       } catch(Exception e) {
 	if (log.isErrorEnabled()) {
-	  log.error("Can't start CA client--"+e.getMessage(), e);
+	  log.error("Can't start CA client--"+e.getMessage());
 	}
+	e.printStackTrace();
       }
 
       // We running as part of Cougaar, this class may be used to support
@@ -232,7 +234,7 @@ public class DirectoryKeyStore
       }
     }
     catch (Exception e) {
-      log.error("Unable to initialize DirectoryKeyStore", e);
+      e.printStackTrace();
     }
 
     certCache.printbigIntCache();
@@ -246,7 +248,7 @@ public class DirectoryKeyStore
       alias =keystore.aliases();
     }
     catch (Exception exp) {
-      log.error("Unable to get Alias list", exp);
+      exp.printStackTrace();
       return null;
     }
     return alias;
@@ -260,7 +262,8 @@ public class DirectoryKeyStore
       cn=getCommonName(cert);
     }
     catch (Exception exp) {
-      log.error("Unable to get Common name for " + alias, exp);
+      exp.printStackTrace();
+      cn=null;
     }
     return cn;
 
@@ -283,7 +286,8 @@ public class DirectoryKeyStore
       }
     }
     catch(Exception e) {
-      log.debug(e.toString(), e);
+      log.debug(e.toString());
+      e.printStackTrace();
     }
   }
 
@@ -500,7 +504,7 @@ public class DirectoryKeyStore
     else {
       if (certs.length == 0) {
 	if (log.isWarnEnabled()) {
-	  log.warn("Did not find certificate in LDAP for " + filter);
+	  log.warn("Failed to get Certificate for " + filter);
 	}
       }
     }
@@ -543,6 +547,8 @@ public class DirectoryKeyStore
 	    log.debug("Certificate type is CA certificate");
 	    log.debug("Updating CRLCache  with CA entry ");
 	  }
+
+          certstatus.setCertFinder(certFinder);
 	  crlCache.add(((X509Certificate)certs[i].getCertificate()).getSubjectDN().getName());
 
 	}
@@ -958,7 +964,7 @@ public class DirectoryKeyStore
 	cause = CertificateTrust.CERT_TRUST_SELF_SIGNED;
       }
       if (log.isInfoEnabled()) {
-	log.info("Certificate chain failed for: " + principal.getName() + 
+	log.info("Certificate chain failed for: " + principal.getName() +
 		 " Cause: " + cause.toString());
       }
       throw new CertificateChainException("Failed to establish chain from reply", cause);
@@ -1033,10 +1039,8 @@ public class DirectoryKeyStore
     if (log.isDebugEnabled()) {
       log.debug("++++++ Checking certificate trust");
     }
-    int certCount = 0;
     Enumeration e = certCache.getKeysInCache();
     while (e.hasMoreElements()) {
-      certCount++;
       X500Name name = (X500Name) e.nextElement();
 
       ArrayList list = certCache.getCertificates(name);
@@ -1101,13 +1105,13 @@ public class DirectoryKeyStore
 	  if(log.isInfoEnabled()) {
 	    log.info(" certificate is revoked for dn ="
 		     +((X509Certificate)certificate).getSubjectDN().getName());
+	    //certrevoked.printStackTrace();
 	  }
 	}
       } // END while(it.hasNext())
       if (isTrusted == false) {
-	if (log.isInfoEnabled()) {
-	  log.info("No trusted certificate was found for " + name.toString()
-	    + ". Keystore contains " + certCount + " untrusted certificates");
+	if (log.isWarnEnabled()) {
+	  log.warn("No trusted certificate was found for " + name.toString());
 	}
       }
     } // END while(e.hasMoreElements()
@@ -1263,7 +1267,7 @@ public class DirectoryKeyStore
       String cname = x509certificate.getSubjectDN().getName();
       String ctype = CertificateUtility.findAttribute(cname, "t");
       certFinder = certificateFinder;
-      if (ctype != null && (ctype.equals(CERT_TITLE_AGENT) || ctype.equals(CERT_TITLE_CA)))
+      if (ctype != null && (ctype.equals(CERT_TITLE_AGENT)))
         // all other types should not have cross CA communication
         // for SSL the mechanism is different, the protocol handshake
         // requires the peer to supply the chain.
@@ -1372,6 +1376,7 @@ public class DirectoryKeyStore
 			     + exception + " - "
 			     + x509certificate1
                              + " - " + cs.getCertificateAlias());
+	  //exception.printStackTrace();
 	}
 	continue;
       }
@@ -1576,8 +1581,36 @@ public class DirectoryKeyStore
     }
     else {
       try {
-        if (keyAlias != null)
+        if (keyAlias != null) {
           alias = keyAlias;
+          // lookup upper level CA's LDAP
+          if (log.isDebugEnabled())
+            log.debug("CA key already created, check upper level CA LDAP");
+
+          String filter = "(cn=" + dname.getCommonName() + ")";
+          CertDirectoryServiceClient certFinder =
+            getCACertDirServiceClient(cryptoClientPolicy.getTrustedCaPolicy()[0].caDN);
+          lookupCertInLDAP(filter, certFinder);
+
+          X509Certificate certificate = (X509Certificate) keystore.getCertificate(alias);
+          if (certificate != null) {
+            // look it up from keystore, if found in LDAP should have installed it
+            List keyList = certCache.getValidPrivateKeys(dname);
+            if (keyList != null && keyList.size() != 0)
+              privatekey = ((PrivateKeyCert)keyList.get(0)).getPrivateKey();
+            if (privatekey != null) {
+              CertificateStatus cs = ((PrivateKeyCert)keyList.get(0)).getCertificateStatus();
+              X509Certificate [] certForImport = establishCertChain(certificate,
+                cs.getCertificate());
+              setKeyEntry(alias, privatekey, certForImport);
+              saveCertificateInTrustedKeyStore((X509Certificate)
+                                               keystore.getCertificate(alias),
+                                               alias);
+              return privatekey;
+            }
+          }
+            // else send the request again
+        }
         else
           alias = makeKeyPair(dname, true);
 
@@ -1613,6 +1646,7 @@ public class DirectoryKeyStore
         if (log.isDebugEnabled()) {
           log.warn("Unable to create key: " + dname
                              + " - Reason:" + e);
+          e.printStackTrace();
         }
       }
 
@@ -1624,12 +1658,28 @@ public class DirectoryKeyStore
     String alias = null;
     PrivateKey privatekey = null;
     try {
-      String caDN = null;
       X500Name [] caDNs = configParser.getCaDNs();
       if (caDNs.length == 0) {
         if (log.isDebugEnabled())
           log.debug("No CA key created yet, the certificate can not be created.");
+
         return null;
+      }
+
+      String caDN = configParser.getCaDNs()[0].getName();
+      // is the CA key valid
+      if (!cryptoClientPolicy.isRootCA()) {
+        List certList = certCache.getValidCertificates(configParser.getCaDNs()[0]);
+        if (certList == null || certList.size() == 0) {
+          if (log.isDebugEnabled())
+            log.debug("CA key created but is not approved by upper level CA yet.");
+
+          String caAlias = findAlias(configParser.getCaDNs()[0].getCommonName());
+          if (log.isDebugEnabled())
+            log.debug("CA alias: " + caAlias);
+          addCAKeyPair(configParser.getCaDNs()[0], caAlias);
+          return null;
+        }
       }
 
       if (keyAlias != null)
@@ -1637,7 +1687,6 @@ public class DirectoryKeyStore
       else
         alias = makeKeyPair(dname, false);
 
-      caDN = configParser.getCaDNs()[0].getName();
       // sign it locally
 
       CertificateManagementService km = (CertificateManagementService)
@@ -1662,6 +1711,7 @@ public class DirectoryKeyStore
       if (log.isDebugEnabled()) {
         log.warn("Unable to create key: " + dname
                            + " - Reason:" + e);
+        e.printStackTrace();
       }
     }
     return privatekey;
@@ -1824,6 +1874,7 @@ public class DirectoryKeyStore
       if (log.isErrorEnabled()) {
 	log.error("Unable to create key: " + dname
 		  + " - Reason:" + e);
+	e.printStackTrace();
       }
     }
 
@@ -1961,10 +2012,12 @@ public class DirectoryKeyStore
 		  + alias
 		  + " (" + e + ")"
 		  + " Current date is " + d.toString());
+        //e.printStackTrace();
       }
     } catch(Exception e) {
       if (log.isWarnEnabled()) {
         log.warn("Error: can't get certificate for " + alias + " Reason: " + e);
+        //e.printStackTrace();
       }
     }
     return privatekey;
@@ -1983,6 +2036,7 @@ public class DirectoryKeyStore
     }
     catch (Exception e) {
       log.error("Unable to get alias: " + e);
+      e.printStackTrace();
     }
     return alias;
   }
@@ -2007,7 +2061,7 @@ public class DirectoryKeyStore
 	findCert(a, KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP);
     }
     catch (Exception e) {
-      log.warn("Unable to get certificate", e);
+      e.printStackTrace();
     }
     return certificateList;
   }
@@ -2019,7 +2073,7 @@ public class DirectoryKeyStore
 	findCert(name, KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP);
     }
     catch (Exception e) {
-      log.warn("Unable to get certificate", e);
+      e.printStackTrace();
     }
     return certificateList;
   }
@@ -2037,6 +2091,7 @@ public class DirectoryKeyStore
 	}
 	catch (Exception e) {
 	  log.error("Unable to initialize commonName2alias:" + e);
+	  e.printStackTrace();
 	}
       }
     }
@@ -2066,6 +2121,7 @@ public class DirectoryKeyStore
 	}
 	catch (Exception e) {
 	  log.debug("Unable to find cert:"+ e);
+	  e.printStackTrace();
 	}
       }
     }
@@ -2125,6 +2181,7 @@ public class DirectoryKeyStore
       }
     } catch(Exception e) {
       log.error(e.toString());
+      e.printStackTrace();
     }
     alias = alias + nextIndex;
     if (log.isDebugEnabled()) {
@@ -2277,7 +2334,7 @@ public class DirectoryKeyStore
     if (!param.isCertAuth) {
       if (CertificateUtility.findAttribute(dname.getName(), "t").equals(CERT_TITLE_AGENT)) {
         try {
-          //testDataProtection(dname.getCommonName(), true);
+          testDataProtection(dname.getCommonName(), true);
           testDataProtection(dname.getCommonName(), false);
           done = true;
         } catch (Exception ex) {
@@ -2290,10 +2347,6 @@ public class DirectoryKeyStore
     //check first
     List certificateList = null;
     try{
-      if (param.isCertAuth && CertificateUtility.findAttribute(
-        dname.toString(), "t").equals(CERT_TITLE_AGENT))
-        updateCAonNS();
-
       certificateList = findCert(dname.getCommonName(),
 				 KeyRingService.LOOKUP_KEYSTORE);
       if(certificateList != null && certificateList.size() != 0) {
@@ -2305,6 +2358,7 @@ public class DirectoryKeyStore
       log.warn("Can't locate the certificate for:"
 	       + dname.toString()
 	       +"--"+e+".generating new one...");
+      e.printStackTrace();
     }
     if (log.isDebugEnabled()) {
       log.debug("checkOrMakeCert: creating key for "
@@ -2498,8 +2552,8 @@ public class DirectoryKeyStore
 
   private String sendPKCS(String request, String pkcs) {
       String reply = "";
-      TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
       try {
+	TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
 	if (log.isDebugEnabled()) {
 	  log.debug("Sending request to "
 		    + trustedCaPolicy[0].caURL
@@ -2545,10 +2599,9 @@ public class DirectoryKeyStore
 	}
 
       } catch(Exception e) {
-	log.warn("Sending PKCS request to CA failed. Reason:"
-		 + e.getMessage() + " CA URL:" + trustedCaPolicy[0].caURL
-		 + ", CA DN= " + trustedCaPolicy[0].caDN,
-	  e);
+	log.warn("Error: sending PKCS request to CA failed--"
+		 + e.getMessage());
+	e.printStackTrace();
       }
 
     return reply;
@@ -2574,6 +2627,7 @@ public class DirectoryKeyStore
     } catch(Exception e) {
       log.warn("Can't get the certificate signed--"
 	       + e.getMessage());
+      e.printStackTrace();
     }
     return baos.toString();
   }
@@ -2588,6 +2642,7 @@ public class DirectoryKeyStore
       }
     } catch (Exception e) {
       log.warn("Error: can't get the certificates from truststore. " + e.toString());
+      //e.printStackTrace();
     }
 
     X509Certificate[] trustedcerts = new X509Certificate[list.size()];
@@ -2631,7 +2686,7 @@ public class DirectoryKeyStore
       try {
         hostName = InetAddress.getLocalHost().getHostName();
       } catch (UnknownHostException ex) {
-	System.err.println("Unable to get host name:" + ex);
+        ex.printStackTrace();
       }
     }
     return hostName;
@@ -2654,7 +2709,7 @@ public class DirectoryKeyStore
     if (log.isDebugEnabled())
       log.debug("updateNS: " + dname);
 
-    if (title == null || (!title.equals(CERT_TITLE_AGENT) && !title.equals(CERT_TITLE_CA)))
+    if (title == null || (!title.equals(CERT_TITLE_AGENT)))
       return;
     List certificateList = findCert(x500Name);
     if (certificateList == null || certificateList.size() == 0)
@@ -2670,7 +2725,7 @@ public class DirectoryKeyStore
       }
 
       DirContext ctx = ensureCertContext();
-      Attributes attributes = new BasicAttributes();
+      BasicAttributes attributes = new BasicAttributes();
       if (title.equals(CERT_TITLE_AGENT)) {
         attributes.put(CDTYPE_ATTR, new Integer(param.ldapServerType));
         attributes.put(CDURL_ATTR, param.ldapServerUrl);
@@ -2694,6 +2749,16 @@ public class DirectoryKeyStore
     }
 
     //log.warn("Cannot update agent ldap in naming.");
+  }
+
+  public CertDirectoryServiceClient getCACertDirServiceClient(String cname) {
+    TrustedCaPolicy[] tc = cryptoClientPolicy.getTrustedCaPolicy();
+    for (int i = 0; i < tc.length; i++)
+      if (cname.equals(tc[i].caDN)) {
+        return CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
+          tc[i].certDirectoryType, tc[i].certDirectoryUrl, param.serviceBroker);
+      }
+    return null;
   }
 
   /**
@@ -2757,7 +2822,7 @@ public class DirectoryKeyStore
     return ctx;
   }
 
-  private Object getAttribute(Attributes ats, String id) throws NamingException {
+  private Object getAttribute(BasicAttributes ats, String id) throws NamingException {
     if (ats != null) {
       Attribute at = ats.get(id);
       if (at != null) {
