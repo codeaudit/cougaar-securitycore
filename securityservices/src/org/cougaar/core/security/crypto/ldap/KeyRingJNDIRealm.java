@@ -48,6 +48,7 @@ import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Collections;
@@ -441,7 +442,11 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     if (log.isDebugEnabled()) {
       log.debug("Got roles for " + username + ": " + roles);
     }
-    return new CougaarPrincipal(this, username, new ArrayList(roles),
+    List userroles=new ArrayList();
+    if(roles!=null && !roles.isEmpty()){
+      userroles = new ArrayList(roles);
+    }
+    return new CougaarPrincipal(this, username,userroles,
                                 authFields);
   }
 
