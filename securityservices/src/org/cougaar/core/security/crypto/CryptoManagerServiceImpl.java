@@ -1524,6 +1524,8 @@ public class CryptoManagerServiceImpl
       String sourceName = header.getSenderName();
       String targetName = header.getReceiverName();
       checkAddresses(sourceName, source, targetName, target);
+      keyRing.checkCertificateTrust(header.getSender());
+      keyRing.checkCertificateTrust(header.getReceiver());
       _sender = sourceName;
 
       // check the policy
@@ -1535,7 +1537,9 @@ public class CryptoManagerServiceImpl
       SecureMethodParam headerPolicy = header.getPolicy();
 
       checkPolicy(policies, headerPolicy, sourceName, targetName);
-      log.debug("InputStream using policy: " + headerPolicy);
+      if (log.isDebugEnabled()) {
+        log.debug("InputStream using policy: " + headerPolicy);
+      }
 
       if (headerPolicy.secureMethod == SecureMethodParam.ENCRYPT ||
           headerPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
@@ -1546,8 +1550,10 @@ public class CryptoManagerServiceImpl
           headerPolicy.secureMethod == SecureMethodParam.SIGN) {
         unsignStream(header);
       }
-      log.debug("InputStream ready. Reading signed = " + 
-                _sign + ", encrypted = " + _encrypt);
+      if (log.isDebugEnabled()) {
+        log.debug("InputStream ready. Reading signed = " + 
+                  _sign + ", encrypted = " + _encrypt);
+      }
     }
 
     /* **********************************************************************
