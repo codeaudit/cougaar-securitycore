@@ -92,7 +92,7 @@ import sun.security.x509.X509CertImpl;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 public class CertificateRequestor {
   private ServiceBroker serviceBroker;
@@ -267,7 +267,7 @@ public class CertificateRequestor {
             }
 
             // Sign PKCS10 request with node key and send agent cert to CA
-            reply = this.sendPKCS(request, nodeSign, "PKCS10", trustedCaPolicy, nodeName);
+            reply = this.sendPKCS(commonName, request, nodeSign, "PKCS10", trustedCaPolicy, nodeName);
           } else {
             request = generateSigningCertificateRequest(cert, alias);
             if (log.isDebugEnabled()) {
@@ -654,7 +654,7 @@ public class CertificateRequestor {
   }
 
   Boolean _pkcsLock = new Boolean(true);
-  private String sendPKCS(String request, String nodeSignature, String pkcs,
+  private String sendPKCS(String commonName, String request, String nodeSignature, String pkcs,
     TrustedCaPolicy trustedCaPolicy, String nodeName) {
     String reply = "";
 
@@ -730,7 +730,8 @@ synchronized (_pkcsLock) {
       break;
     } catch (Exception e) {
       log.warn("Unable to send PKCS request to CA. CA URL:"
-        + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN, e);
+        + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN
+	+ ". CN=" + commonName, e);
     }
 
     if (log.isDebugEnabled()) {
