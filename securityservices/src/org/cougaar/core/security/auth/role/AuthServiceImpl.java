@@ -9,6 +9,7 @@ import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
 
 // security services classes
+import org.cougaar.core.security.acl.auth.URIPrincipal;
 import org.cougaar.core.security.acl.auth.UserRoles;
 import org.cougaar.core.security.auth.BlackboardPermission;
 import org.cougaar.core.security.auth.BlackboardObjectPermission;
@@ -397,6 +398,22 @@ public class AuthServiceImpl
     }
   }
   
+  private URIPrincipal 
+    getServletURIPrincipal(ProtectionDomain domain)
+  {
+    // get the principals from the protection domain
+    Principal p[] = domain.getPrincipals();
+    URIPrincipal up = null;
+    for(int i = 0; i < p.length; i++) {
+      // we want to look for the URIPrincipal since this is servlet context call
+      if(p[i] instanceof URIPrincipal) {
+        up = (URIPrincipal)p[i];
+        break;
+      } 
+    }
+    return up;
+  }
+    
   private class SecurityContextServiceAvailableListener
     implements ServiceAvailableListener
   {
