@@ -199,9 +199,106 @@ Running the ul-mini-config society
        setenv COUGAAR_SECURITY_SERVICES /home/u/foo/securityservices 	# for csh or tcsh shell users
        export COUGAAR_SECURITY_SERVICES=/home/u/foo/securityservices	# for bash users
 
-2.
+2. Install SSH on every host where the society will be run. The goal is to be
+   able to SSH to every hosts using public/private key pairs. Depending on how
+   your home directory is setup on every host, you may have to create one or
+   several public/private key pairs. If you have NFS cross-mounted directories and
+   your home directory is the same on every host, then only one public/private key
+   pair has to be created. Otherwise, you may have to create one key pair for each
+   host.
+   Make sure that SSH works by logging in every host:
+   
+      ssh -l <user name> <hostname>
+ 
+   You will now login to every machine where the society will be run and follow
+   the instructions below.
 
-4. Go to the test/configs/demo directory and type the following command:
+   Note that, at any point during the configuration,
+   if for some reason you are not able to SSH to a host, it is most likely due to a
+   incorrect permission settings. In that case, use the debug option of SSH,
+   look at the debug messages, and fix the issues as displayed:
+   
+       ssh -v -l <user name> <hostname>
+       
+   Also, more information may be found in the SSH man pages.
+
+3. Create a ".ssh" directory under your home directory if it does not exist already.
+
+       mkdir .ssh
+
+4. Under the .shh directory, create a "config" file if it does not exist.
+   Edit the "config" file and add the following lines:
+     
+	# SSH config
+        Host *
+          ForwardAgent yes
+          ForwardX11 yes
+          FallBackToRsh no
+          Protocol 1
+
+5. Edit your .bashrc file (or cshrc depending on what shell you are using).
+   Add the following lines:
+        
+        export DISPLAY=${DISPLAY:=localhost:0.0}
+        export XAUTHORITY=${XAUTHORITY:=~root/.Xauthority} 
+      
+6. Configure SSH with public/private key pairs. Type:
+
+        ssh-keygen
+        
+   Protect your private key with a passphrase.
+   This will create two files:
+      ~/.ssh/identity     and
+      ~/.ssh/identity.pub.
+   The identity file contains a private key and the identity.pub is the corresponding
+   public key. If you use Windows/cygwin, the files should be created under
+   c:/cygwin/home/${USER}
+
+     
+7. Create a ~/.ssh/authorized_keys. This file will contain all the public keys that
+   are acceptable. It should contain the public key of every other host in the
+   society. Copy the content of the .ssh/identity.pub file into ~/.ssh/authorized_keys
+   for each host in the society. This can be done by first copying the 
+   ~/.ssh/identity.pub file to all the other hosts (in a file called identity.pub.hostX)
+   and typing:
+   
+        cat identity.pub.hostX >> authorized_keys 
+
+8. Make sure directory permissions are set properly:
+   Protect the .ssh directory by typing:
+   
+      cd ~
+      chmod 700 .ssh
+      cd .ssh
+      chmod 400 *
+      
+9. Verify that you can access every host through SSH using RSA keys.
+   From one host, type:
+   
+      ssh <hostname>
+      
+   You should be asked for the passphrase for the RSA key instead of your password.
+   If this does not work, you can view debugging information by typing:
+   
+      ssh -v <hostname>
+
+   In general, debugging information provides good hints on why the RSA connection
+   did not succeed.
+
+10. Establishing a password-less session
+    If you have to issue multiple commands, then it will be very useful to use
+    ssh-agent. From one host, type:
+    
+        eval `ssh-agent`
+        ssh-add (type your passphrase)
+
+    From now on, you should be able to SSH to any host and type commands without
+    having to enter your passphrase and password.
+    When you are done with all the commands, you can type
+    
+        ssh-agent -k
+
+11. Go to the test/configs/demo directory and type the following command:
    launch-society [configuration file] [use ssh-agent: true|false]
 
 The launch-society script launches multiple nodes from one single
