@@ -1,4 +1,7 @@
+
     module Util
+      MESSAGE_EVENTS = [ "Sent", "Received", "Responded", "ResponseReceived" ]
+
       def has_component? (agent, comp)
         agent.each_component { |c|
           if (c.classname == comp)
@@ -10,10 +13,10 @@
   
       # finds and returns a list of agents containing the
       # given component
-      def findAgents(society, component) 
+      def findAgents(component) 
 #        print "Finding agents with component = #{component}\n"
         agents = Array.new
-        society.each_agent(true) do |agent|
+        getRun.society.each_agent(true) do |agent|
           if (has_component? agent, component) 
 #              print "Agent #{agent.name} has component\n"
             agents.push(agent)
@@ -26,8 +29,8 @@
 
       # finds and returns a list of agents containing the
       # given component
-      def findAgentNames(society, component) 
-        agents = findAgents(society, component)
+      def findAgentNames(component) 
+        agents = findAgents(component)
         names = []
         agents.each() { |agent|
           names.push(agent.name)
@@ -54,22 +57,20 @@
       end
 
       def getAgent(agentName)
-        society.each_node() do |node|
-          if node.name == agentName
-            return node.agent
-          end
-          node.each_agent() do |agent|
-            if (agent.name == agentName)
-              return agent 
-            end
+        getRun.society.each_agent(true) do |agent|
+          if (agent.name == agentName)
+            return agent 
           end
         end
         return nil
       end # findAgent
 
-      def getEnclave(agentName)
-        agent = getAgent(agentName)
-        return agent.node.host.get_facet("enclave")["enclave"]
+      def getEnclave(agent)
+        if (agent.kind_of? String)
+          agent = getAgent(agentName)
+        end
+#	logInfoMsg("Agent #{agent.name} is on Node #{agent.node.name} on Host #{agent.node.host.name} with enclave #{agent.node.host.get_facet('enclave')}")
+	agent.node.host.get_facet('enclave')
       end
 
       def getTestResultFile()
@@ -78,18 +79,18 @@
         File.new(filename,"a")
       end
 
-      def modifyPolicy(enclave, text)
+      def modifyPolicy(enclave, header, text)
         # find the manager for the given community
         managers = findAgents("safe.policyManager.PolicyAdminServletComponent")
         manager = nil
         port    = nil
         host    = nil
         managers.each { |agent|
-          facet = agent.node.host.get_facet("enclave");
-          if (facet != nil && facet["enclave"] == enclave)
-            manager = agent
+#          puts("looking at agent #{agent.name} which has enclave #{Util.getEnclave(agent)} comparing against enclave #{enclave}")
+          if (Util.getEnclave(agent) == enclave)
+            manager = agent.name
             port = agent.node.cougaar_port
-            host = agent.node.host
+            host = agent.node.host.name
             break;
           end
         }
@@ -99,9 +100,10 @@
         end
         
         # we've found the manager, now create the temporary policy file
-        `cp #{$CIP}/configs/security/DamlBootPolicyList /tmp/modPolicy`
-        
-        file = File.open("/tmp/modPolicy", "a")
+	file = File.open("/tmp/modPolicy", "w")
+	file.print(header)
+	lines = File.readlines("#{$CIP}/configs/security/DamlBootPolicyList");
+	file.puts(lines.join)
         file.print(text)
         file.close()
         
@@ -132,54 +134,103 @@
           "-Dlog4j.configuration=#{$CIP}/configs/common/loggingConfig.conf",
         ]
         
-        `java #{defs.join} -classpath #{classpath.join} org.cougaar.core.security.policy.builder.Main commit #{host} #{agent} #{port} /tmp/modPolicy`
+        results = `java #{defs.join} -classpath #{classpath.join(':')} org.cougaar.core.security.policy.builder.Main commit --dm --auth george george #{host} #{port} #{manager} /tmp/modPolicy`
+#        puts "java #{defs.join} -classpath #{classpath.join(':')} org.cougaar.core.security.policy.builder.Main commit --dm --auth george george #{host} #{port} #{manager} /tmp/modPolicy"
+	logInfoMsg results
       end # modifyPolicy
 
       def sendRelayMessage(source, target, &block)
-        result = Cougaar::Communications::HTTP.get("#{society.agents[source].uri}/message/send?xml=true?address=#{target}")
+#        puts "sending relay message from #{source} to #{target}"
+        url = getUrl(source)
+#        puts "the url = #{url}/message/send?xml=true&address=#{target}"
+        result,url = Cougaar::Communications::HTTP.get("#{url}/message/send?xml=true&address=#{target}")
         raise "Error sending message from #{source} to #{target}" unless result
-        if result =~ %r"<uid>(.+)</uid>"
-          uid = $1
-        else
+#        puts "sent relay message: #{result}"
+        uid = nil
+        result.scan("<uid>([^<]+)</uid>") { |match|
+          uid = match[0]
+        }
+        if uid == nil
           raise "Could not extract UID from response when sending " +
             "message from #{source} to #{target}"
         end
+#        puts "starting event watcher..."
         listener_num = getRun.comms.on_cougaar_event do |event|
-          if event.data =~ %r"MessageTransport\((.*)\) UID\(#{uid}\) Source\(.*\) Target\(.*\)" &&
-            if ($1 == "ResponseReceived")
+          event.data.scan(/MessageTransport\((.*)\) UID\(#{uid}\) Source\(.*\) Target\(.*\)/) { |match|
+            if (match[0] == "ResponseReceived")
               getRun.comms.remove_on_cougaar_event(listener_num)
             end
-            yield(event)
-          end
+            yield(match[0])
+          }
         end
+#        puts "listener number = #{listener_num}"
         listener_num
       end # sendRelayMessage
 
-      def relayMessageTest(source, target, attackType, responseExpected, 
+      def relayMessageTest1(source, target, 
+                           attackNum, attackName, 
                            maxWait = 5.minutes)
-        responded = false
-        responses = []
-        listener = sendRelayMessage(source, target) { |event|
-          event =~ /MessageTransport\(([^)])*\)/
-          responses.push($1)
-          if ($1 == "ResponseReceived")
-            responded = true
-          end
+        relayMessageTest(source, Target, attackNum, attackName,
+                         attackNum, attackName, [ true, true, true, true ],
+                         nil, maxWait)
+      end
+
+      def relayMessageTest(source, target, 
+                           attackNum, attackName, 
+                           idmefNum, idmefName,
+                           responsesExpected, 
+                           stoppingAgent,
+                           maxWait = 1.minutes)
+#	puts "started relayMessageTest"
+        responses = {}
+        expected = {}
+        responseArr = []
+#	puts "in relayMessageTest"
+        MESSAGE_EVENTS.each_index { |index|
+          responses[MESSAGE_EVENTS[index]] = false
+          expected[MESSAGE_EVENTS[index]] = responsesExpected
         }
-        sleep(maxWait)
-        success = "SUCCESS"
-        if (responded != responseExpected) 
-          success = "FAILED"
+#	puts "done setting expected values"
+        idmefSrc = source
+        idmefTgt = target
+        if (expected["Received"])
+          idmefSrc = target
+          idmefTgt = source
         end
-        if (!responded)
+        shouldStop = true
+        if (stoppingAgent == nil)
+          shouldStop = false
+          stoppingAgent = "[-0-9a-zA-Z_]+"
+        end
+
+#	puts "about to create idmef watcher"
+        idmefWatcher = 
+          IdmefWatcher.new(idmefNum, idmefName, shouldStop,
+                           "IDMEF\\(#{stoppingAgent}\\) Classification\\(org.cougaar.core.security.monitoring.MESSAGE_FAILURE\\) Source\\(#{idmefSrc}/\\d+\\) Target\\(#{idmefTgt}/\\d+\\)")
+        idmefWatcher.start
+
+#	puts "started idmefWatcher"        
+        listener = sendRelayMessage(source, target) { |result|
+          responses[result] = true
+          responseArr << result
+        }
+	puts "Sent relay message: #{listener}"
+#        Thread.fork {
+	puts "sleeping...."
+        sleep(maxWait)
+	puts "done sleeping"
+        idmefWatcher.stop
+        if (!responses["ResponseReceived"])
           getRun.comms.remove_on_cougaar_event(listener)
         end
 
-        file = getTestResultFile
-        file.print(success + "\t" + attackType + "\t" + 
+	puts ("stopped...")
+        saveResult(responses == expected,
+                   attackNum, attackName + "\t" +
                    source + "\t" + target + "\t" + 
-                   responses.join('\t') + "\n")
-        file.close()
+                   responseArr.join("\t"))
+	puts("saved result")
+#        }
       end # relayMessageTest
 
       def agentExists(agent)
@@ -204,11 +255,76 @@
         end
       end # agentExists
 
+      def getUrl(agent)
+        agentName = nil
+        if (agent.kind_of? String)
+          agentName = agent
+        else
+          agentName = agent.name
+        end
+        # look for the name server
+        nameServer = nil
+        getRun.society.each_node do |node|
+          node.each_facet("role") { |facet| 
+            if facet["role"] == "NameServer"
+              nameServer = node
+              break
+            end
+          }
+        end
+#          print("name server = #{nameServer.uri}\n");
+        result, url = Cougaar::Communications::HTTP.get("#{nameServer.uri}/$#{agentName}/list")
+        raise "Could not reach name server" unless result
+        # now hunt through the results for the agent and return the result
+        url = url.to_s
+        url[0..url.length - 6]
+      end # getUrl
+
+      def saveResult(pass, testnum, test)
+        success = "SUCCESS"
+        if !pass
+          success = "FAILED"
+        end
+        file = getTestResultFile()
+        file.print(success + "\t" + testnum + "\t" + test + "\n");
+        file.close();
+      end
+
       module_function :mkdirs, :mkfile, 
         :findAgents, :findAgentNames,
         :has_component?,
         :getAgent, :getEnclave,
-        :getTestResultFile, :modifyPolicy,
-        :sendRelayMessage, :agentExists
-    
+        :saveResult, :modifyPolicy,
+        :sendRelayMessage, :agentExists,
+	:relayMessageTest,
+        :getTestResultFile, :getUrl
+
+      class IdmefWatcher 
+        def initialize(attackNum, attackName, expected, idmefText)
+          @attackNum = attackNum
+          @attackName = attackName
+          @expected = expected
+          @idmefText = idmefText
+          @idmefFound = false
+          @listener = -1
+        end
+
+        def start
+          @listener = getRun.comms.on_cougaar_event do |event|
+            if event.data =~ /#{@idmefText}/
+              # it gave an event
+              @idmefFound = true
+              stop
+            end
+          end
+        end # start
+        
+        def stop
+          if @listener != -1
+            getRun.comms.remove_on_cougaar_event(@listener)
+            @listener = -1
+            Util.saveResult(@idmefFound == @expected, @attackNum, @attackName)
+          end
+        end
+      end #IdmefWatcher
     end # module Util

@@ -3,13 +3,8 @@ require "security/attack/attackutil"
 class RequireSSL < SecurityStressFramework
 #  def preConditionalGLSConnection
   def postConditionalNextOPlanStage
-    success = "SUCCESS"
-    if Util.agentExists('NO-SSL-ATTACK-NODE')
-      success = "FAILURE"
-    end
-    file = Util.getTestResultFile
-    file.print(success + "\tNon-SSL Communication\n")
-    file.close()
+    Util.saveResult(!Util.agentExists('NO-SSL-ATTACK-NODE'),
+                    '3c1', "Non-SSL Communication");
   end # postConditionalNextOPlanStage
 
   def postTransformSociety
@@ -37,10 +32,33 @@ class RequireSSL < SecurityStressFramework
   end # postTransformSociety
 end # RequireSSL
 
-class Security3c1Experiment < SecurityExperimentFramework
-  def initialize
-    super
-    @name = 'CSI-Security-3c1'
-    @stresses = [ RequireSSL ]
+# agent should successfully send a message
+class Stress3a101 < SecurityStressFramework
+  def intialize 
+    @answered = false
+    @saved = false
   end
-end
+
+  def postConditionalNextOPlanStage
+    # find two random agents. They should be allowed to communicate
+    # if they are not in the attack node
+    agent1 = nil
+    agent2 = nil
+    society.each_agent { |agent|
+      if (agent.node.get_facet["attacker"] == nil)
+        if (agent1 == nil) 
+          agent1 = agent
+        else
+          if (agent1.node != agent.node) 
+            agent2 = agent
+            break
+          end
+        end
+      end
+    }
+
+    Util.relayMessageTest(agent1.name, agent2.name, 
+                          '3ab101', "Send message successfully")
+  end # postConditionalNextOPlanStage
+end # Stress3a101
+

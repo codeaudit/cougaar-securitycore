@@ -2,10 +2,11 @@ require 'security/attack/attackutil'
 require 'framework/security'
 
 class CountRegistrationsBase < SecurityStressFramework
-  def initialize(filename, regName)
+  def initialize(filename, attack, regName)
     @filename = filename
     @count = {}
     @methodNum = -1
+    @attack = attack
     @regName = regName
   end
 
@@ -65,12 +66,8 @@ class CountRegistrationsBase < SecurityStressFramework
     else
       return nil # we've already stopped!
     end
-    success = "FAILED"
-    if (dumpStats("Final count")) 
-      success = "SUCCESS"
-    end
-    file = Util.getTestResultFile
-    file.print(success + "\t" + @regName + "\n")
+    resultOk = dumpStatus("Final count")
+    Util.saveResult(resultOk, @attack, @regName);
   end
 
   def dumpStats(message=nil)
@@ -154,16 +151,16 @@ end # CountRegistrationsBase
 
 class CountMRRegistrations < CountRegistrationsBase
   def initialize
-    super("#{$CIP}/workspace/test/mrreg.tbl", "M&R Registration")
+    super("#{$CIP}/workspace/test/mrreg.tbl", '2f102', "M&R Registration")
   end
 
   def eventCall(event)
-    if event.data =~ / SecurityManager\((.+)\) Analyzer\((.+)\) Operation\((.+)\) Classifications\((.+)\)/
+    event.data.scan / SecurityManager\((.+)\) Analyzer\((.+)\) Operation\((.+)\) Classifications\((.+)\)/ { | match |
 #      logInfoMsg "Got event: #{event.data}\n"
-      agent = $1
-      analyzer = $2
-      operation = $3
-      classifications = $4.split(/, /)
+      agent = match[0]
+      analyzer = match[1]
+      operation = match[2]
+      classifications = match[3].split(/, /)
       classifications.each { |c|
         if (operation == "Remove")
           removeFromCount(c, analyzer)
@@ -171,7 +168,7 @@ class CountMRRegistrations < CountRegistrationsBase
           addToCount(c, analyzer)
         end
       }
-    end
+    }
   end
 
   def getBaseCount
@@ -203,7 +200,7 @@ class CountMRRegistrations < CountRegistrationsBase
     components.each_index()  { |index|
       comp = components[index]
       clz = component_classes[index]
-      agents = Util.findAgentNames(run.society, comp)
+      agents = Util.findAgentNames(comp)
       if (!agents.empty?)
         sensorlist = Array.new
         agents.each() { |agent|
@@ -219,21 +216,22 @@ end # CountMRRegistrations
 
 class CountCrlRegistrations < CountRegistrationsBase
   def initialize
-    super("#{$CIP}/workspace/test/crlreg.tbl", "CRL Registration")
+    super("#{$CIP}/workspace/test/crlreg.tbl", '5j102', "CRL Registration")
     @baseCount = {}
   end
       
   def eventCall(event)
-    if event.data =~ /CrlRegistration\((.+)\) Agent\((.+)\) DN\((.+)\)/
+    event.data.scan /CrlRegistration\((.+)\) Agent\((.+)\) DN\((.+)\)/ { |match|
 #      logInfoMsg "Got reg event: #{event.data}\n"
-      ca = $1
-      agent = $2
-      dn = $3
+      ca = match[0]
+      agent = match[1]
+      dn = match[2]
       addToCount(dn, agent)
-    elsif event.data =~ /CADNAddedToCertCache\((.+)\) DN\((.+)\)/
+    }
+    event.data.scan /CADNAddedToCertCache\((.+)\) DN\((.+)\)/ { |match|
 #      logInfoMsg "Got reg req event: #{event.data}\n"
-      agent = $1
-      dn = $2
+      agent = match[0]
+      dn = match[1]
       array = @baseCount[dn]
       if (array == nil)
         array = [agent]
@@ -251,18 +249,3 @@ class CountCrlRegistrations < CountRegistrationsBase
   end
 end #CountCrlRegistrations
 
-class Security2f102Experiment < SecurityExperimentFramework
-  def initialize
-    super
-    @name = 'CSI-Security-2f102'
-    @stresses = [ CountMRRegistrations ]
-  end
-end
-
-class Security5j102Experiment < SecurityExperimentFramework
-  def initialize
-    super
-    @name = 'CSI-Security-5j102'
-    @stresses = [ CountCRLRegistrations ]
-  end
-end
