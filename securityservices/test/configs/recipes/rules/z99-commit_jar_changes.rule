@@ -1,7 +1,0 @@
-#!/usr/bin/ruby
-
-# Commit scheduled configuration file changes
-
-require 'security/lib/jar_util'
-
-commitConfigChanges
