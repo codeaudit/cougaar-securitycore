@@ -34,6 +34,8 @@ import org.cougaar.core.component.ServiceListener;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityChangeEvent;
+import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityResponse;
@@ -53,6 +55,9 @@ import org.cougaar.core.security.util.CommunityServiceUtil;
 import java.net.URI;
 import java.util.*;
 import sun.security.x509.X500Name;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.NamingException;
 
 /**
  * The PersistenceMgrPolicyService queries the community service for agents
@@ -76,6 +81,8 @@ public class PersistenceMgrPolicyServiceImpl
   // list of persistence manager policies
   private List _policies;
   private List _agents;
+  // debug flag
+  private boolean _debug;
 
   // this is the uri of the persistence manager key recovery servlet
   private static String PM_SERVLET_URI = "/KeyRecoveryServlet";
@@ -93,21 +100,29 @@ public class PersistenceMgrPolicyServiceImpl
     _keyRing = (KeyRingService)sb.getService(this, KeyRingService.class, null);
     _cs = (CommunityService)sb.getService(this, CommunityService.class, null);
     _wps = (WhitePagesService)sb.getService(this, WhitePagesService.class, null);
+
+    _myCommunity = community;
+    _policies = new ArrayList();
+    _agents = new ArrayList();
+    _debug = _log.isDebugEnabled();
+
     if(_cs == null || _wps == null) {
       if (_log.isDebugEnabled()) {
         _log.debug("Starting service listener.");
       }
       registerServiceListener();
     }
-    _myCommunity = community;
-    _policies = new ArrayList();
-    _agents = new ArrayList();
-    
+    else {
+      addCommunityListener();
+    }
+  }
+
+  private void startTimerTask() {
     // default to every 2 mins (120 secs)
     long period = 120000;
     try {
       SecurityPropertiesService sps = (SecurityPropertiesService)
-      sb.getService(this, SecurityPropertiesService.class, null);
+      _serviceBroker.getService(this, SecurityPropertiesService.class, null);
       String prop = sps.getProperty(SecurityPropertiesService.PM_SEARCH_PERIOD, "120");  // default to 120 secs
       period = Long.parseLong(prop) * 1000; // in msecs
     }
@@ -116,6 +131,50 @@ public class PersistenceMgrPolicyServiceImpl
     }
     // schedule task to lookup persistence managers from community service
     (new Timer()).schedule(new PersistenceMgrSearchTask(), 0, period);
+  }
+
+  private void addCommunityListener() {
+    if (_log.isDebugEnabled()) {
+      _log.debug("addCommunityListener");
+    }
+
+    _cs.addListener(new CommunityChangeListener() {
+      public String getCommunityName() {
+        return null;
+      }
+
+      public void communityChanged(CommunityChangeEvent event) {
+        Community community = event.getCommunity();
+        try {
+          if (event.getType() == CommunityChangeEvent.ADD_COMMUNITY) {
+            if (_log.isDebugEnabled()) {
+              _log.debug("Community changed: " + event);
+            }
+          }
+          // else we don't care
+          else {
+            if (_log.isDebugEnabled()) {
+              _log.debug("No action on change event: " + event);
+            }
+            return;
+          }
+
+          Attributes attrs = community.getAttributes();
+          Attribute attr = attrs.get("CommunityType");
+          if (attr != null) {
+            for (int i = 0; i < attr.size(); i++) {
+              Object type = attr.get(i);
+              if (type.equals(CommunityServiceUtil.SECURITY_COMMUNITY_TYPE)) {
+                startTimerTask();
+              }
+            }
+          }
+        } catch (NamingException e) {
+          throw new RuntimeException("This should never happen");
+        }
+
+      }
+    });
   }
 
   /**
@@ -140,6 +199,8 @@ public class PersistenceMgrPolicyServiceImpl
           _log.debug("community service is now available");
           _cs = (CommunityService)
             ae.getServiceBroker().getService(this, CommunityService.class, null);
+
+          addCommunityListener();
         }
         if(org.cougaar.core.service.wp.WhitePagesService.class.isAssignableFrom(sc)) {
         //else if(ae.getService() == WhitePagesService.class) {
@@ -169,7 +230,7 @@ public class PersistenceMgrPolicyServiceImpl
   }
 
   private void addPolicy(PersistenceManagerPolicy policy) {
-    if(_log.isDebugEnabled()) {
+    if(_debug) {
       _log.debug("adding PersistenceManagerPolicy: " + policy);
     }
     synchronized(_policies) {
@@ -194,7 +255,6 @@ public class PersistenceMgrPolicyServiceImpl
   class PersistenceMgrSearchTask extends TimerTask  {
     // list of persistence managers
     private List _agents;
-
     public PersistenceMgrSearchTask() {
       _agents = new ArrayList();
     }
@@ -209,19 +269,35 @@ public class PersistenceMgrPolicyServiceImpl
 	      _log.error(errorString);
 	      throw new RuntimeException(errorString);
 	    }
+
+            if (_log.isDebugEnabled()) {
+              _log.debug("Got community response");
+            }
             configureCommunity((Set) response);
 	  }
 	};
 
       String filter = "(& (CommunityType="+
 	CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ") (Role=" + PM_ROLE +") )";
+
+      if (_log.isDebugEnabled()) {
+        _log.debug("searching PM " + filter);
+      }
       Collection communities = _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
+
+      if (_log.isDebugEnabled()) {
+        _log.debug("obtained community" + communities);
+      }
       if (communities != null) {
         configureCommunity((Set) communities);
       }
+
     }
 
     private void configureCommunity(Set communities) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Got community with size " + communities.size());
+      }
       Iterator it = communities.iterator();
       while (it.hasNext()) {
         processPersistenceMgrEntry((Entity) it.next());
@@ -230,12 +306,17 @@ public class PersistenceMgrPolicyServiceImpl
 
     private void processPersistenceMgrEntry(Entity manager) {
       String agent = manager.getName();
+
+      if (_log.isDebugEnabled()) {
+        _log.debug("processPersistenceMgrEntry: " + manager + " agent " + agent);
+      }
+
       if(!_agents.contains(agent)) {
 	AddressEntry entry = null;
 	try {
 	  // look up the agent's info in the white pages
 	  entry = _wps.get(agent, WhitePagesUtil.WP_HTTP_TYPE);
-	  if(_log.isDebugEnabled()) {
+	  if(_debug) {
 	    _log.debug("address entry = " + entry);
 	  }
 	}
@@ -246,7 +327,7 @@ public class PersistenceMgrPolicyServiceImpl
 	  return;
 	}
 	if (entry == null) {
-	  if(_log.isDebugEnabled()) {
+	  if(_debug) {
 	    _log.debug("address entry is null for : " + agent);
 	  }
 	  return;
@@ -281,7 +362,7 @@ public class PersistenceMgrPolicyServiceImpl
     public void run() {
       // get a list of all security communities
       if(_cs == null || _wps == null) {
-        if(_log.isDebugEnabled()) {
+        if(_debug) {
           _log.debug("community service or white pages service is null!");
         }
         return;
