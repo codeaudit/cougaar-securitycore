@@ -9,7 +9,6 @@ import kaos.core.util.AttributeMsg;
 import kaos.core.util.KAoSConstants;
 import kaos.core.util.PolicyMsg;
 import kaos.core.util.SubjectMsg;
-import kaos.core.util.UniqueIdentifier;
 import kaos.ontology.repository.OntologyLoader;
 import kaos.ontology.util.JTPStringFormatUtils;
 import kaos.ontology.util.KAoSClassBuilderImpl;
@@ -19,41 +18,27 @@ import kaos.ontology.util.ValueNotSet;
 import kaos.policy.information.DAMLPolicyContainer;
 import kaos.policy.information.PolicyInformation;
 import kaos.policy.information.PolicyInformationManager;
-import kaos.policy.util.DAMLPolicyBuilder;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
-import kaos.policy.util.SpecifiedModalityTypeNotExists;
 
-public class PolicyBuilder extends DAMLPolicyBuilderImpl
+public class PolicyUtils
 {
+  public static OntologyConnection _ontology;
 
-  public void setPolicyModality(boolean modality)
+  public static void setOntologyConnection(OntologyConnection ontology)
   {
-    try {
-      setPolicyIDAndModalityType("#policy-grammarGenerated-" 
-                                 + UniqueIdentifier.GenerateUID(), 
-                                 (modality ?
-                                  kaos.ontology.jena.PolicyConcepts.
-                                  _PosAuthorizationPolicy_               : 
-                                  kaos.ontology.jena.PolicyConcepts.
-                                  _NegAuthorizationPolicy_));
-    } catch (SpecifiedModalityTypeNotExists e) {
-      RuntimeException fatal 
-        = new RuntimeException("This should be impossible - CODING ERROR");
-      fatal.initCause(e);
-      throw fatal;
-    }
+    _ontology = ontology;
   }
 
-  public PolicyInformation getPolicyInformation()
+  public static  
+    PolicyInformation getPolicyInformation(DAMLPolicyBuilderImpl policy)
   {
-    PolicyCompiler.loadTheBrain();
-    return LocalPolicyInformationManager.readPolicyFromBuilder(this);
+    return LocalPolicyInformationManager.readPolicyFromBuilder(policy);
   }
 
-  private PolicyMsg startPolicyMsg()
+  private static PolicyMsg startPolicyMsg(DAMLPolicyBuilderImpl policy)
     throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances
   {
-    KAoSClassBuilderImpl controls = getControlsActionClass();
+    KAoSClassBuilderImpl controls = policy.getControlsActionClass();
     Vector subjects = new Vector();
     if (!controls.
         isPropertyRangeBasedOnClass(kaos.ontology.jena.ActionConcepts.
@@ -68,54 +53,54 @@ public class PolicyBuilder extends DAMLPolicyBuilderImpl
                                         KAoSConstants.ACTOR_CLASS_SCOPE);
     subjects.addElement(subject);
     String action = controls.getClassName();
-    PolicyMsg policyMsg = new PolicyMsg(getPolicyID(),
-                                        getPolicyName(),
-                                        getPolicyDesc(),
+    PolicyMsg policyMsg = new PolicyMsg(policy.getPolicyID(),
+                                        policy.getPolicyName(),
+                                        policy.getPolicyDesc(),
                                         action,
                                         "", // admin
                                         subjects,
                                         true);
-    policyMsg.setModality(getModalityType());
-    policyMsg.setPriority("" + getPriority());
+    policyMsg.setModality(policy.getModalityType());
+    policyMsg.setPriority("" + policy.getPriority());
     return policyMsg;
   }
 
-  public PolicyMsg getPolicyInformationMsg()
+  public static PolicyMsg getPolicyInformationMsg(DAMLPolicyBuilderImpl policy)
     throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances
   {
-    PolicyMsg policyMsg = startPolicyMsg();
+    PolicyMsg policyMsg = startPolicyMsg(policy);
     policyMsg.setAttribute(new AttributeMsg(AttributeMsg.POLICY_INFORMATION,
-                                            getPolicyInformation(),
+                                            getPolicyInformation(policy),
                                             true));
     return policyMsg;
   }
 
 
-  public PolicyMsg getPolicyMsg()
+  public static PolicyMsg getPolicyMsg(DAMLPolicyBuilderImpl policy)
     throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances
   {
-    PolicyMsg policyMsg = startPolicyMsg();
-    DAMLPolicyContainer damlPolicy = getPolicy();
+    PolicyMsg policyMsg = startPolicyMsg(policy);
+    DAMLPolicyContainer damlPolicy = policy.getPolicy();
     policyMsg.setAttribute(new AttributeMsg(AttributeMsg.DAML_CONTENT,
                                             damlPolicy,
                                             true));
     return policyMsg;
   }
 
-  public void writePolicyMsg()
+  public static void writePolicyMsg(DAMLPolicyBuilderImpl policy)
     throws IOException
   {
     PolicyMsg pm = null;
     String filename = null;
     try {
-      filename = getPolicyName() + ".msg";
+      filename = policy.getPolicyName() + ".msg";
     } catch (ValueNotSet e) {
       IOException ex = new IOException("Failed to get file name for output");
       ex.initCause(e);
       throw ex;
     }
     try {
-      pm = getPolicyMsg();
+      pm = getPolicyMsg(policy);
     } catch (Exception e) {
       IOException ioerror = new IOException("Failed to obtain policy");
       ioerror.initCause(e);
@@ -124,20 +109,20 @@ public class PolicyBuilder extends DAMLPolicyBuilderImpl
     writeObject(filename, pm);
   }
 
-  public void writePolicyInfo()
+  public static void writePolicyInfo(DAMLPolicyBuilderImpl policy)
     throws IOException
   {
     PolicyMsg pm = null;
     String filename = null;
     try {
-      filename = getPolicyName() + ".info";
+      filename = policy.getPolicyName() + ".info";
     } catch (ValueNotSet e) {
       IOException ex = new IOException("Failed to get file name for output");
       ex.initCause(e);
       throw ex;
     }
     try {
-      pm = getPolicyInformationMsg();
+      pm = getPolicyInformationMsg(policy);
     } catch (Exception e) {
       IOException ioerror = new IOException("Failed to obtain policy");
       ioerror.initCause(e);
@@ -146,7 +131,7 @@ public class PolicyBuilder extends DAMLPolicyBuilderImpl
     writeObject(filename, pm);
   }
 
-  private void writeObject(String filename, Object o)
+  private static void writeObject(String filename, Object o)
     throws IOException
   {
     FileOutputStream fos = new FileOutputStream(filename);

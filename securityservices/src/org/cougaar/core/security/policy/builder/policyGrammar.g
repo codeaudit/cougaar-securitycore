@@ -20,72 +20,55 @@
  */
 
 header {
-  package org.cougaar.core.security.policy.builder;
+    package org.cougaar.core.security.policy.builder;
 
-  import java.io.*;
-  import java.util.*;
-
-  import kaos.ontology.util.KAoSClassBuilderImpl;
-
-  import org.cougaar.core.security.policy.builder.Main;
-  import org.cougaar.core.security.policy.builder.PolicyBuilder;
-  import org.cougaar.core.security.policy.builder.PolicyCompiler;
-  import org.cougaar.core.security.policy.builder.PolicyCompilerException;
+    import java.util.*;
 }
 
-class P extends Parser;
+class PolicyParser extends Parser;
 
 policies
-returns [List pl]
+returns [List ppl]
 throws PolicyCompilerException
-{   pl = new Vector();
-    PolicyBuilder pb;}
-    : ( pb = policy { pl.add(pb); })+
+{   ppl = new Vector();
+    ParsedPolicy pp;}
+    : ( pp = policy { ppl.add(pp); })+
     ;
 
 policy 
-returns [PolicyBuilder pb]
+returns [ParsedPolicy pp]
 throws PolicyCompilerException
-{pb = null;}
-    : "Policy" pn:TOKEN EQ LBRACK pb = innerPolicy[pn.getText()] RBRACK
+{pp = null;}
+    : "Policy" pn:TOKEN EQ LBRACK pp = innerPolicy[pn.getText()] RBRACK
     ;
 
 innerPolicy [String pn]
-returns [PolicyBuilder pb]
+returns [ParsedPolicy pp]
 throws PolicyCompilerException
-{  pb = null; }
-    : pb = servletUserAccess[pn]
-    | pb = servletAuthentication[pn]
-    | pb = genericPolicy[pn]
+{  pp = null; }
+    : pp = genericPolicy[pn]
+    | pp = servletUserAccess[pn]
+    | pp = servletAuthentication[pn]
     ;
 
-/*
- * The generic policy is not as neat as it could be.  It essentially breaks 
- * into two sections, the construction of the DAMLPolicyBuilderImpl (done by
- * PolicyCompiler.genericPolicyInit()) and the construction of the KAoSClassBuilderImpl
- * (done by PolicyCompiler.genericPolicyStep() with lots of guidance from the parser.
- * This is a little ugly because the parser must hold these two pieces together and 
- * also guide the steps in the genericPolicyStep (there is one step for each target that is
- * parsed.  Not a good example of separating the work of the parser and the PolicyCompiler.
- */  
 
 genericPolicy[String pn]
-returns [PolicyBuilder pb]
+returns [ParsedPolicy pp]
 throws PolicyCompilerException
-{   pb = null;
-    boolean modality = true; }        
+{   boolean modality; 
+    pp = null; }
     : "Priority" EQ priority:INT COMMA
       subject:URI "is" modality = genericAuth
         "to" "perform" action:URI "as" "long" "as"
-  { pb = PolicyCompiler.genericPolicyInit(pn,
-                                          PolicyCompiler.tokenToInt(priority),
-                                          PolicyCompiler.tokenToURI(subject),
-                                          modality,
-                                          PolicyCompiler.tokenToURI(action));
+  { GenericParsedPolicy gpp 
+            = new GenericParsedPolicy(pn,
+                                      ParsedPolicy.tokenToInt(priority),
+                                      modality,
+                                      ParsedPolicy.tokenToURI(subject),
+                                      ParsedPolicy.tokenToURI(action));
         }
-        LCURLY 
-        genericTargets[PolicyCompiler.tokenToURI(action), pb]
-        RCURLY
+        genericTargets[gpp]
+        { pp = gpp; }
     ;
 
 genericAuth
@@ -95,26 +78,25 @@ returns [boolean modality]
     | "not" "authorized" { modality = false; }
     ;
 
-genericTargets[String action, PolicyBuilder pb]
+genericTargets[GenericParsedPolicy pp]
 throws PolicyCompilerException
-    : genericTarget[action, pb] genericMoreTargets[action, pb]
+    : genericTarget[pp] genericMoreTargets[pp]
     ;
 
-genericMoreTargets[String action, PolicyBuilder pb]
+genericMoreTargets[GenericParsedPolicy pp]
 throws PolicyCompilerException
     : 
-    | "and" genericTarget[action, pb] genericMoreTargets[action, pb]
+    | "and" genericTarget[pp] genericMoreTargets[pp]
     ;
 
-genericTarget[String action, PolicyBuilder pb]
+genericTarget[GenericParsedPolicy pp]
 throws PolicyCompilerException
 {   String resType = null;
     boolean complementedTarget = false; }
     : "the" "value" "of" property:URI resType = genericRestrictionType
         complementedTarget=genericTargetModality
-        genericRange[action, 
-                     pb,
-                     PolicyCompiler.tokenToURI(property), 
+        genericRange[pp,
+                     ParsedPolicy.tokenToURI(property), 
                      resType,
                      complementedTarget]
     ;
@@ -135,36 +117,31 @@ returns [boolean complementedTarget]
     | "complement" "of" "the" "set" { complementedTarget=true; }
     ;
 
-genericRange[String               action, 
-             PolicyBuilder        pb,
+genericRange[GenericParsedPolicy  pp,
              String               property,
              String               resType,
              boolean              complementedTarget]
 throws PolicyCompilerException
     : range:URI 
-  { PolicyCompiler.genericPolicyStep(action, 
-                                     pb,
-                                     property,
-                                     resType,
-                                     (Object) PolicyCompiler.tokenToURI(range),
-                                     complementedTarget); }
+  { pp.addTarget(property,
+                resType,
+                (Object) ParsedPolicy.tokenToURI(range),
+                complementedTarget); }
     | { List instances = new Vector(); }
         LCURLY
         ( instance:URI 
             { try { 
-                instances.add(PolicyCompiler.tokenToURI(instance)); 
+                instances.add(ParsedPolicy.tokenToURI(instance)); 
               } catch (Exception e) {
                   throw new RuntimeException("shouldn't happen - " + 
                                              "see policyGrammar.g");
                 } 
             } )*
         RCURLY
-        { PolicyCompiler.genericPolicyStep(action, 
-                                           pb,
-                                           property,
-                                           resType,
-                                           (Object) instances,
-                                           complementedTarget); }
+        { pp.addTarget(property,
+                       resType,
+                       (Object) instances,
+                       complementedTarget); }
     ;
 
 
@@ -172,14 +149,13 @@ throws PolicyCompilerException
  * The Servlet Access template: (e.g. A user in role policyAdministrator is allowed to access a servlet named PolicyServlet)
  */
 servletUserAccess [String pn] 
-returns [PolicyBuilder pb]
+returns [ParsedPolicy pp]
 throws PolicyCompilerException
 {   boolean m; 
-    pb = null; }
+    pp = null; }
     :   "A" "user" "in" "role" r:TOKEN m=servletUserAccessModality 
         "access" "a" "servlet" "named" n:TOKEN
-        {return 
-           PolicyCompiler.servletUserAccessPolicy(
+        {pp = new ServletUserParsedPolicy(
                 pn,
                 m,
                 r.getText(),
@@ -197,20 +173,21 @@ servletUserAccessModality returns [boolean m] { m = true; }
  */
 
 servletAuthentication[String pn]
-returns [PolicyBuilder pb]
+returns [ParsedPolicy pp]
 throws PolicyCompilerException
-{ pb = null; }
+{ pp = null; }
     : "All" "users" "must" "use" auth:TOKEN "authentication" "when"
         "accessing" "the" "servlet" "named" servlet:TOKEN
-        { return
-            PolicyCompiler.servletAuthentication(pn, 
-                                                 auth.getText(), 
-                                                 servlet.getText());
+        { pp = 
+            new ServletAuthenticationParsedPolicy(
+                pn, 
+                auth.getText(), 
+                servlet.getText());
         }
     ;
 
 
-class L extends Lexer;
+class PolicyLexer extends Lexer;
 
 // one-or-more letters followed by a newline
 TOKEN:   ( 'a'..'z'|'A'..'Z' )+

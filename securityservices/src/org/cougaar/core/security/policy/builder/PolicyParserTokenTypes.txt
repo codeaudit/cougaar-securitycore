@@ -1,5 +1,5 @@
-// $ANTLR 2.7.1: policyGrammar.g -> PTokenTypes.txt$
-P    // output token vocab name
+// $ANTLR 2.7.1: policyGrammar.g -> PolicyParserTokenTypes.txt$
+PolicyParser    // output token vocab name
 LITERAL_Policy="Policy"=4
 TOKEN=5
 EQ=6
@@ -14,24 +14,24 @@ LITERAL_to="to"=14
 LITERAL_perform="perform"=15
 LITERAL_as="as"=16
 LITERAL_long="long"=17
-LCURLY=18
-RCURLY=19
-LITERAL_authorized="authorized"=20
-LITERAL_not="not"=21
-LITERAL_and="and"=22
-LITERAL_the="the"=23
-LITERAL_value="value"=24
-LITERAL_of="of"=25
-LITERAL_a="a"=26
-LITERAL_subset="subset"=27
-LITERAL_contains="contains"=28
-LITERAL_at="at"=29
-LITERAL_least="least"=30
-LITERAL_one="one"=31
-LITERAL_element="element"=32
-LITERAL_from="from"=33
-LITERAL_set="set"=34
-LITERAL_complement="complement"=35
+LITERAL_authorized="authorized"=18
+LITERAL_not="not"=19
+LITERAL_and="and"=20
+LITERAL_the="the"=21
+LITERAL_value="value"=22
+LITERAL_of="of"=23
+LITERAL_a="a"=24
+LITERAL_subset="subset"=25
+LITERAL_contains="contains"=26
+LITERAL_at="at"=27
+LITERAL_least="least"=28
+LITERAL_one="one"=29
+LITERAL_element="element"=30
+LITERAL_from="from"=31
+LITERAL_set="set"=32
+LITERAL_complement="complement"=33
+LCURLY=34
+RCURLY=35
 LITERAL_A="A"=36
 LITERAL_user="user"=37
 LITERAL_in="in"=38

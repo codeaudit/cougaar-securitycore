@@ -9,9 +9,9 @@ import kaos.policy.information.PolicyInformationManager;
 public class LocalPolicyInformationManager
   extends PolicyInformationManager
 {
-  private static OntologyRepository  _brains;
+  private static OntologyConnection  _brains;
 
-  public static void giveIntelligence(OntologyRepository brains)
+  public static void giveIntelligence(OntologyConnection brains)
   {
     _brains = brains;
   }

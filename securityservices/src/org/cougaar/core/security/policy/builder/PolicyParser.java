@@ -1,16 +1,8 @@
-// $ANTLR 2.7.1: "policyGrammar.g" -> "P.java"$
+// $ANTLR 2.7.1: "policyGrammar.g" -> "PolicyParser.java"$
 
-  package org.cougaar.core.security.policy.builder;
+    package org.cougaar.core.security.policy.builder;
 
-  import java.io.*;
-  import java.util.*;
-
-  import kaos.ontology.util.KAoSClassBuilderImpl;
-
-  import org.cougaar.core.security.policy.builder.Main;
-  import org.cougaar.core.security.policy.builder.PolicyBuilder;
-  import org.cougaar.core.security.policy.builder.PolicyCompiler;
-  import org.cougaar.core.security.policy.builder.PolicyCompilerException;
+    import java.util.*;
 
 import antlr.TokenBuffer;
 import antlr.TokenStreamException;
@@ -29,38 +21,38 @@ import antlr.collections.AST;
 import antlr.ASTPair;
 import antlr.collections.impl.ASTArray;
 
-public class P extends antlr.LLkParser
-       implements PTokenTypes
+public class PolicyParser extends antlr.LLkParser
+       implements PolicyParserTokenTypes
  {
 
-protected P(TokenBuffer tokenBuf, int k) {
+protected PolicyParser(TokenBuffer tokenBuf, int k) {
   super(tokenBuf,k);
   tokenNames = _tokenNames;
 }
 
-public P(TokenBuffer tokenBuf) {
+public PolicyParser(TokenBuffer tokenBuf) {
   this(tokenBuf,1);
 }
 
-protected P(TokenStream lexer, int k) {
+protected PolicyParser(TokenStream lexer, int k) {
   super(lexer,k);
   tokenNames = _tokenNames;
 }
 
-public P(TokenStream lexer) {
+public PolicyParser(TokenStream lexer) {
   this(lexer,1);
 }
 
-public P(ParserSharedInputState state) {
+public PolicyParser(ParserSharedInputState state) {
   super(state,1);
   tokenNames = _tokenNames;
 }
 
 	public final List  policies() throws RecognitionException, TokenStreamException, PolicyCompilerException {
-		List pl;
+		List ppl;
 		
-		pl = new Vector();
-		PolicyBuilder pb;
+		ppl = new Vector();
+		ParsedPolicy pp;
 		
 		try {      // for error handling
 			{
@@ -68,8 +60,8 @@ public P(ParserSharedInputState state) {
 			_loop3:
 			do {
 				if ((LA(1)==LITERAL_Policy)) {
-					pb=policy();
-					pl.add(pb);
+					pp=policy();
+					ppl.add(pp);
 				}
 				else {
 					if ( _cnt3>=1 ) { break _loop3; } else {throw new NoViableAltException(LT(1), getFilename());}
@@ -84,14 +76,14 @@ public P(ParserSharedInputState state) {
 			consume();
 			consumeUntil(_tokenSet_0);
 		}
-		return pl;
+		return ppl;
 	}
 	
-	public final PolicyBuilder  policy() throws RecognitionException, TokenStreamException, PolicyCompilerException {
-		PolicyBuilder pb;
+	public final ParsedPolicy  policy() throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		ParsedPolicy pp;
 		
 		Token  pn = null;
-		pb = null;
+		pp = null;
 		
 		try {      // for error handling
 			match(LITERAL_Policy);
@@ -99,7 +91,7 @@ public P(ParserSharedInputState state) {
 			match(TOKEN);
 			match(EQ);
 			match(LBRACK);
-			pb=innerPolicy(pn.getText());
+			pp=innerPolicy(pn.getText());
 			match(RBRACK);
 		}
 		catch (RecognitionException ex) {
@@ -107,31 +99,31 @@ public P(ParserSharedInputState state) {
 			consume();
 			consumeUntil(_tokenSet_1);
 		}
-		return pb;
+		return pp;
 	}
 	
-	public final PolicyBuilder  innerPolicy(
+	public final ParsedPolicy  innerPolicy(
 		String pn
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
-		PolicyBuilder pb;
+		ParsedPolicy pp;
 		
-		pb = null;
+		pp = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
+			case LITERAL_Priority:
+			{
+				pp=genericPolicy(pn);
+				break;
+			}
 			case LITERAL_A:
 			{
-				pb=servletUserAccess(pn);
+				pp=servletUserAccess(pn);
 				break;
 			}
 			case LITERAL_All:
 			{
-				pb=servletAuthentication(pn);
-				break;
-			}
-			case LITERAL_Priority:
-			{
-				pb=genericPolicy(pn);
+				pp=servletAuthentication(pn);
 				break;
 			}
 			default:
@@ -145,97 +137,19 @@ public P(ParserSharedInputState state) {
 			consume();
 			consumeUntil(_tokenSet_2);
 		}
-		return pb;
+		return pp;
 	}
 	
-	public final PolicyBuilder  servletUserAccess(
+	public final ParsedPolicy  genericPolicy(
 		String pn
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
-		PolicyBuilder pb;
-		
-		Token  r = null;
-		Token  n = null;
-		boolean m; 
-		pb = null;
-		
-		try {      // for error handling
-			match(LITERAL_A);
-			match(LITERAL_user);
-			match(LITERAL_in);
-			match(LITERAL_role);
-			r = LT(1);
-			match(TOKEN);
-			m=servletUserAccessModality();
-			match(LITERAL_access);
-			match(LITERAL_a);
-			match(LITERAL_servlet);
-			match(LITERAL_named);
-			n = LT(1);
-			match(TOKEN);
-			return 
-			PolicyCompiler.servletUserAccessPolicy(
-			pn,
-			m,
-			r.getText(),
-			n.getText());
-			
-		}
-		catch (RecognitionException ex) {
-			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_2);
-		}
-		return pb;
-	}
-	
-	public final PolicyBuilder  servletAuthentication(
-		String pn
-	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
-		PolicyBuilder pb;
-		
-		Token  auth = null;
-		Token  servlet = null;
-		pb = null;
-		
-		try {      // for error handling
-			match(LITERAL_All);
-			match(LITERAL_users);
-			match(LITERAL_must);
-			match(LITERAL_use);
-			auth = LT(1);
-			match(TOKEN);
-			match(LITERAL_authentication);
-			match(LITERAL_when);
-			match(LITERAL_accessing);
-			match(LITERAL_the);
-			match(LITERAL_servlet);
-			match(LITERAL_named);
-			servlet = LT(1);
-			match(TOKEN);
-			return
-			PolicyCompiler.servletAuthentication(pn, 
-			auth.getText(), 
-			servlet.getText());
-			
-		}
-		catch (RecognitionException ex) {
-			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_2);
-		}
-		return pb;
-	}
-	
-	public final PolicyBuilder  genericPolicy(
-		String pn
-	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
-		PolicyBuilder pb;
+		ParsedPolicy pp;
 		
 		Token  priority = null;
 		Token  subject = null;
 		Token  action = null;
-		pb = null;
-		boolean modality = true;
+		boolean modality; 
+		pp = null;
 		
 		try {      // for error handling
 			match(LITERAL_Priority);
@@ -254,22 +168,100 @@ public P(ParserSharedInputState state) {
 			match(LITERAL_as);
 			match(LITERAL_long);
 			match(LITERAL_as);
-			pb = PolicyCompiler.genericPolicyInit(pn,
-			PolicyCompiler.tokenToInt(priority),
-			PolicyCompiler.tokenToURI(subject),
+			GenericParsedPolicy gpp 
+			= new GenericParsedPolicy(pn,
+			ParsedPolicy.tokenToInt(priority),
 			modality,
-			PolicyCompiler.tokenToURI(action));
+			ParsedPolicy.tokenToURI(subject),
+			ParsedPolicy.tokenToURI(action));
 			
-			match(LCURLY);
-			genericTargets(PolicyCompiler.tokenToURI(action), pb);
-			match(RCURLY);
+			genericTargets(gpp);
+			pp = gpp;
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
 			consumeUntil(_tokenSet_2);
 		}
-		return pb;
+		return pp;
+	}
+	
+	public final ParsedPolicy  servletUserAccess(
+		String pn
+	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		ParsedPolicy pp;
+		
+		Token  r = null;
+		Token  n = null;
+		boolean m; 
+		pp = null;
+		
+		try {      // for error handling
+			match(LITERAL_A);
+			match(LITERAL_user);
+			match(LITERAL_in);
+			match(LITERAL_role);
+			r = LT(1);
+			match(TOKEN);
+			m=servletUserAccessModality();
+			match(LITERAL_access);
+			match(LITERAL_a);
+			match(LITERAL_servlet);
+			match(LITERAL_named);
+			n = LT(1);
+			match(TOKEN);
+			pp = new ServletUserParsedPolicy(
+			pn,
+			m,
+			r.getText(),
+			n.getText());
+			
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_2);
+		}
+		return pp;
+	}
+	
+	public final ParsedPolicy  servletAuthentication(
+		String pn
+	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		ParsedPolicy pp;
+		
+		Token  auth = null;
+		Token  servlet = null;
+		pp = null;
+		
+		try {      // for error handling
+			match(LITERAL_All);
+			match(LITERAL_users);
+			match(LITERAL_must);
+			match(LITERAL_use);
+			auth = LT(1);
+			match(TOKEN);
+			match(LITERAL_authentication);
+			match(LITERAL_when);
+			match(LITERAL_accessing);
+			match(LITERAL_the);
+			match(LITERAL_servlet);
+			match(LITERAL_named);
+			servlet = LT(1);
+			match(TOKEN);
+			pp = 
+			new ServletAuthenticationParsedPolicy(
+			pn, 
+			auth.getText(), 
+			servlet.getText());
+			
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_2);
+		}
+		return pp;
 	}
 	
 	public final boolean  genericAuth() throws RecognitionException, TokenStreamException {
@@ -307,23 +299,23 @@ public P(ParserSharedInputState state) {
 	}
 	
 	public final void genericTargets(
-		String action, PolicyBuilder pb
+		GenericParsedPolicy pp
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
 		
 		
 		try {      // for error handling
-			genericTarget(action, pb);
-			genericMoreTargets(action, pb);
+			genericTarget(pp);
+			genericMoreTargets(pp);
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_4);
+			consumeUntil(_tokenSet_2);
 		}
 	}
 	
 	public final void genericTarget(
-		String action, PolicyBuilder pb
+		GenericParsedPolicy pp
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
 		
 		Token  property = null;
@@ -338,35 +330,34 @@ public P(ParserSharedInputState state) {
 			match(URI);
 			resType=genericRestrictionType();
 			complementedTarget=genericTargetModality();
-			genericRange(action, 
-                     pb,
-                     PolicyCompiler.tokenToURI(property), 
+			genericRange(pp,
+                     ParsedPolicy.tokenToURI(property), 
                      resType,
                      complementedTarget);
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_5);
+			consumeUntil(_tokenSet_4);
 		}
 	}
 	
 	public final void genericMoreTargets(
-		String action, PolicyBuilder pb
+		GenericParsedPolicy pp
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
 		
 		
 		try {      // for error handling
 			switch ( LA(1)) {
-			case RCURLY:
+			case RBRACK:
 			{
 				break;
 			}
 			case LITERAL_and:
 			{
 				match(LITERAL_and);
-				genericTarget(action, pb);
-				genericMoreTargets(action, pb);
+				genericTarget(pp);
+				genericMoreTargets(pp);
 				break;
 			}
 			default:
@@ -378,7 +369,7 @@ public P(ParserSharedInputState state) {
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_4);
+			consumeUntil(_tokenSet_2);
 		}
 	}
 	
@@ -420,7 +411,7 @@ public P(ParserSharedInputState state) {
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_6);
+			consumeUntil(_tokenSet_5);
 		}
 		return resType;
 	}
@@ -456,14 +447,13 @@ public P(ParserSharedInputState state) {
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_7);
+			consumeUntil(_tokenSet_6);
 		}
 		return complementedTarget;
 	}
 	
 	public final void genericRange(
-		String               action, 
-             PolicyBuilder        pb,
+		GenericParsedPolicy  pp,
              String               property,
              String               resType,
              boolean              complementedTarget
@@ -478,11 +468,9 @@ public P(ParserSharedInputState state) {
 			{
 				range = LT(1);
 				match(URI);
-				PolicyCompiler.genericPolicyStep(action, 
-				pb,
-				property,
+				pp.addTarget(property,
 				resType,
-				(Object) PolicyCompiler.tokenToURI(range),
+				(Object) ParsedPolicy.tokenToURI(range),
 				complementedTarget);
 				break;
 			}
@@ -497,7 +485,7 @@ public P(ParserSharedInputState state) {
 						instance = LT(1);
 						match(URI);
 						try { 
-						instances.add(PolicyCompiler.tokenToURI(instance)); 
+						instances.add(ParsedPolicy.tokenToURI(instance)); 
 						} catch (Exception e) {
 						throw new RuntimeException("shouldn't happen - " + 
 						"see policyGrammar.g");
@@ -511,9 +499,7 @@ public P(ParserSharedInputState state) {
 				} while (true);
 				}
 				match(RCURLY);
-				PolicyCompiler.genericPolicyStep(action, 
-				pb,
-				property,
+				pp.addTarget(property,
 				resType,
 				(Object) instances,
 				complementedTarget);
@@ -528,7 +514,7 @@ public P(ParserSharedInputState state) {
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_5);
+			consumeUntil(_tokenSet_4);
 		}
 	}
 	
@@ -560,7 +546,7 @@ public P(ParserSharedInputState state) {
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_8);
+			consumeUntil(_tokenSet_7);
 		}
 		return m;
 	}
@@ -585,8 +571,6 @@ public P(ParserSharedInputState state) {
 		"\"perform\"",
 		"\"as\"",
 		"\"long\"",
-		"LCURLY",
-		"RCURLY",
 		"\"authorized\"",
 		"\"not\"",
 		"\"and\"",
@@ -603,6 +587,8 @@ public P(ParserSharedInputState state) {
 		"\"from\"",
 		"\"set\"",
 		"\"complement\"",
+		"LCURLY",
+		"RCURLY",
 		"\"A\"",
 		"\"user\"",
 		"\"in\"",
@@ -630,15 +616,13 @@ public P(ParserSharedInputState state) {
 	public static final BitSet _tokenSet_2 = new BitSet(_tokenSet_2_data_);
 	private static final long _tokenSet_3_data_[] = { 16384L, 0L };
 	public static final BitSet _tokenSet_3 = new BitSet(_tokenSet_3_data_);
-	private static final long _tokenSet_4_data_[] = { 524288L, 0L };
+	private static final long _tokenSet_4_data_[] = { 1048832L, 0L };
 	public static final BitSet _tokenSet_4 = new BitSet(_tokenSet_4_data_);
-	private static final long _tokenSet_5_data_[] = { 4718592L, 0L };
+	private static final long _tokenSet_5_data_[] = { 12884901888L, 0L };
 	public static final BitSet _tokenSet_5 = new BitSet(_tokenSet_5_data_);
-	private static final long _tokenSet_6_data_[] = { 51539607552L, 0L };
+	private static final long _tokenSet_6_data_[] = { 17179873280L, 0L };
 	public static final BitSet _tokenSet_6 = new BitSet(_tokenSet_6_data_);
-	private static final long _tokenSet_7_data_[] = { 266240L, 0L };
+	private static final long _tokenSet_7_data_[] = { 1099511627776L, 0L };
 	public static final BitSet _tokenSet_7 = new BitSet(_tokenSet_7_data_);
-	private static final long _tokenSet_8_data_[] = { 1099511627776L, 0L };
-	public static final BitSet _tokenSet_8 = new BitSet(_tokenSet_8_data_);
 	
 	}
