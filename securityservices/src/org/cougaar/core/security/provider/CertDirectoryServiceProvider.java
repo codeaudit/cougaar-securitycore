@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -32,6 +32,7 @@ import org.cougaar.core.component.Service;
 import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.crypto.ldap.OpenLdapCertDirectoryServiceImpl;
 import org.cougaar.core.security.crypto.ldap.NetToolsCertDirectoryService;
+import org.cougaar.core.security.crypto.CertificateDirectoryHandler;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
@@ -56,8 +57,8 @@ public class CertDirectoryServiceProvider
    * @param serviceClass a Class, usually an interface, which extends Service.
    * @return a service
    */
-  protected synchronized Service getInternalService(ServiceBroker sb, 
-						    Object requestor, 
+  protected synchronized Service getInternalService(ServiceBroker sb,
+						    Object requestor,
 						    Class serviceClass) {
     Service theService = null;
     if (sb == null) {
@@ -160,6 +161,10 @@ public class CertDirectoryServiceProvider
 	  ldapClient = null;
 	}
       }
+      break;
+
+    case 0:
+      ldapClient = new CertificateDirectoryHandler(requestor, theBroker);
       break;
 
     default:
