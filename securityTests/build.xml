@@ -7,6 +7,11 @@
 	<copy todir="staging/scripting/lib/cougaar">
 		<fileset dir="lib"/>
 	</copy>
+  <mkdir dir="staging/scripting/assessment02"/>
+	<copy todir="staging/scripting/assessment02">
+		<fileset dir="scripts"/>
+		<fileset dir="configs"/>
+	</copy>
 	<zip zipfile="${zip}" basedir="staging"/>
 </target>
 
