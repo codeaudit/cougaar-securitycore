@@ -28,3 +28,23 @@ file is used by simulate.rb.
 
 Running the tool simulate.rb will constuct policies and test whether
 the society would have satisfied those policies.
+
+
+---------------------------------
+Typical steps to construct a database directory:
+   1. Get the society ruby script, the baseline and the host file from
+      the run in question.
+   2. Edit them to only transform the society and generate the
+      mySociety.rb and myCommunities.xml files
+        In the baseline remember to
+          set the host file
+          remove everything after StartCommunications
+        In the Society ruby remember to 
+          remove the archive line
+          remove the scripts        
+          you may need $:.unshift File.join(CIP, 'csmart', 'lib')??
+   3. run the society ruby script
+   4. If you are going to analyze logs 
+      A. put them in log4jlogs
+      B. run generateSending.rb dataset to generate the Sending.rb
+   5. otherwise just touch Sending.rb
