@@ -1,0 +1,312 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Servlet Access Control README</title>
+  </head>
+
+  <body>
+    <h1>Servlet Access Control README</h1>
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#ums">User Admin Servlet</a>
+        <ol type="A">
+          <li><a href="#arole">Adding a Role</a></li>
+          <li><a href="#srole">Searching for a Role</a></li>
+          <li><a href="#erole">Editing a Role</a></li>
+          <li><a href="#drole">Deleting a Role</a></li>
+          <li><a href="#auser">Adding a User</a></li>
+          <li><a href="#suser">Searching for a User</a></li>
+          <li><a href="#euser">Editing a User</a></li>
+          <li><a href="#duser">Deleting a User</a></li>
+          <li><a href="#assign">Assigning Roles to a User</a></li>
+        </ol>
+      </li>
+      <li><a href="#spolicy">Servlet Policy</a>
+        <ol type="A">
+          <li><a href="#delay">Login Failure Delay</a></li>
+          <li><a href="#sesslife">Session Life</a></li>
+          <li><a href="#srassign">Servlet/Role Assignment</a></li>
+          <li><a href="#authreq">Authentication Requirements</a></li>
+          <li><a href="#sslconn">Forcing SSL Communication</a></li>
+        </ol>
+      </li>
+    </ol>
+    <a name="abstract"/>
+    <h2>Abstract</h2>
+    <p>
+      This document covers how to configure Cougaar
+      to control which users are allowed to access which
+      Servlets. The user management Servlet and Servlet
+      policy usage and format are discussed.
+    </p>
+    <a name="intro"/>
+    <h2>Introduction</h2>
+    <p>
+      Servlet access control in Cougaar is governed using a 
+      bastardization of Tomcat's internal
+      user/role mapping and role/URI mapping mechanism.
+      In order to allow a user to access a Servlet, the
+      user is granted a role, the role is granted
+      access to a URI, and the URI is assigned to the
+      Servlet.
+    </p>
+    <p>
+      In Cougaar, the URI/Servlet assignment takes place in
+      component code or configuration. For more information
+      on this, please see the Cougaar Developer's Guide.
+      Users and roles are stored in an LDAP database. Users and
+      roles are created, modified, deleted, and assigned
+      using the user management servlet, usually
+      running in its own agent. Tomcat normally uses the
+      web.xml file to restrict privileges for user roles
+      for specific URI's. However, because of Cougaar's needs,
+      a Servlet policy file is used for adjusting the privileges.
+      With this policy file, the administrator can restrict
+      the access for any URI to specified user roles as well
+      as restrict the authorization type and whether SSL
+      must be used to access the URI.
+    </p>
+    <a name="ums"/>
+    <h2>User Management Servlet</h2>
+    <p>
+      Users and roles are stored in an LDAP database. Please see
+      <a href="README.userdb.html">README.userdb.html</a> for
+      how to configure the user LDAP database.
+    </p>
+    <p>
+      Before following any of the instructions below, use a browser
+      to connect to the useradmin/ Servlet in any UserAdminAgent.
+    </p>
+    <a name="arole"/>
+    <h3>Adding a Role</h3>
+    <ol>
+      <li>Select the "Roles" link in the user admin Servlet.</li>
+      <li>Click on the "New" button.</li>
+      <li>Enter a Role Name. Example: "User Administrator"</li>
+      <li>(optional) Enter a description for the role.</li>
+      <li>Click on the "Add Role" button.</li>
+    </ol>
+    <a name="srole"/>
+    <h3>Searching for a Role</h3>
+    <ol>
+      <li>Select the "Roles" link in the user admin Servlet.</li>
+      <li>Choose a field on which to search. If you want to have all results returned, any field will work.</li>
+      <li>Enter the text to search for. This text may include "*" as a wildcard. An empty search term will return all results.</li>
+      <li>Click on the "Search" button.</li>
+      <li>The results will appear in the frame below with the role name and description. Select the role name that you want to view.</li>
+    </ol>
+    <a name="erole"/>
+    <h3>Editing a Role</h3>
+    <ol>
+      <li><a href="#srole">Search for and select the role to edit.</a></li>
+      <li>Click on the "Edit" button.</li>
+      <li>Modify the description as desired.</li>
+      <li>Click on the "Save" button.</li>
+    </ol>
+    <a name="drole"/>
+    <h3>Deleting a Role</h3>
+    <ol>
+      <li><a href="#srole">Search for and select the role to delete.</a></li>
+      <li>Click on the "Delete" button.</li>
+      <li>Click on the "Ok" button when it asks to confirm deletion.</li>
+    </ol>
+
+    <a name="auser"/>
+    <h3>Adding a User</h3>
+    <ol>
+      <li>Select the "Users" link in the user admin Servlet.</li>
+      <li>Click on the "New" button.</li>
+      <li>Enter a User ID and Last Name.</li>
+      <li>(optional) Click "Enable" to enable the user account.</li>
+      <li>(optional) Enter a password and confirm it to allow a user to use password authentication.</li>
+      <li>(optional) Change the authentication requirement to fit the needs of the system.</li>
+      <li>(optional) Fill in other fields that are useful to you.</li>
+      <li>Click on the "Add User" button.</li>
+    </ol>
+    <a name="suser"/>
+    <h3>Searching for a User</h3>
+    <ol>
+      <li>Select the "Users" link in the user admin Servlet.</li>
+      <li>Choose a field on which to search. If you want to have all results returned, any field will work.</li>
+      <li>Enter the text to search for. This text may include "*" as a wildcard. An empty search term will return all results.</li>
+      <li>Click on the "Search" button.</li>
+      <li>The results will appear in the frame below with the user id and name. Select the id of the user that you want to view.</li>
+    </ol>
+    <a name="euser"/>
+    <h3>Editing a User</h3>
+    <ol>
+      <li><a href="#suser">Search for and select the user to edit.</a></li>
+      <li>Click on the "Edit" button.</li>
+      <li>Modify the fields as desired.</li>
+      <li>Click on the "Save" button.</li>
+    </ol>
+    <a name="duser"/>
+    <h3>Deleting a User</h3>
+    <ol>
+      <li><a href="#suser">Search for and select the user to delete.</a></li>
+      <li>Click on the "Delete" button.</li>
+      <li>Click on the "Ok" button when it asks to confirm deletion.</li>
+    </ol>
+    <a name="assign"/>
+    <h3>Assigning Roles to a User</h3>
+    <ol>
+      <li><a href="#suser">Search for and select the user to assign a role.</a></li>
+      <li>Click on the "Assign Roles" button.</li>
+      <li>Select the role or roles to assign to the selected user. Use Control-Click to select multiple roles.</li>
+      <li>Click on the "Update Roles" button.</li>
+    </ol>
+    <a name="spolicy"/>
+    <h2>Servlet Policy</h2>
+    <p>
+      The Servlet Policy controls:
+    </p>
+    <ul>
+      <li>Delay on login failure.</li>
+      <li>Maximum time for a session to stay alive without rechecking authorization and authentication</li>
+      <li>Assignment of roles to URI's</li>
+      <li>Which URI's are only accessible via
+        a secure (SSL) connection</li>
+      <li>Authentication mechanisms (password or certificate) 
+        to be used for a URI</li>
+    </ul>
+    <p>
+      The policy file may be sent via KPAT or by editing the
+      BootPolicy.Servlet.xml file. The XML format for the policy
+      requires that the root element be "policy" with two
+      parameters "name" and "type". The name is up to the user
+      to define, but the type must be
+      <code>"org.cougaar.core.security.policy.ServletPolicy"</code>.
+      The only element accepted in the policy element is a
+      "servlet-policy" element.
+    </p>
+    <a name="delay"/>
+    <h3>Login Failure Delay</h3>
+    <p>
+      When a user fails to login he is forced to wait for a short amount
+      of time before the failure is returned. This is similar to the
+      delay when a user fails to login to a Unix operating system. The
+      amount of time to delay before returning the failure defaults to
+      1000 milliseconds (1 second). By including the 
+      <code>failure-delay</code> element within the
+      <code>servlet-policy</code> element,
+      the delay time may be changed. It is an integer number representing
+      the milliseconds for the delay.
+    </p>
+    <a name="sesslife"/>
+    <h3>Session Life</h3>
+    <p>
+      For performance reasons it is imperitive that Cougaar does not
+      check the user's authorization and authentication on every request.
+      However, it would be unsafe to allow a user continuous access
+      once they have been authorized. In order to fit both of these
+      requirements, the user session is cleared after a given life span
+      so that the server is forced to authenticate and authorize the user
+      again. This operation is completely invisible to the user, but the
+      there is a trade-off between session life span and server load.
+      The default session life is 60000 milliseconds (1 minute). To adjust
+      this setting, include a <code>session-life</code> element within the
+      <code>servlet-policy</code> element
+      with the session life time in milliseconds.
+    </p>
+    <a name="srassign"/>
+    <h3>Servlet/Role Assignment</h3>
+    <p>
+      Servlets are defined by their URI. Because URI's also include the
+      agent that the Servlet is running under, the agent name must be
+      given. Include the
+      <code>agent</code> element within the
+      <code>servlet-policy</code> element
+      with the <code>name</code> parameter given the name of the agent
+      for which the Servlet should be protected. For Servlets which exist
+      on many or all agents, the special "*" agent name may be used to
+      apply to all agents.
+    </p>
+    <p>
+      For each <code>agent</code> element, there must be one or more
+      <code>rule</code> element. Inside each <code>rule</code> element,
+      there should be at lease one <code>pattern</code> element in which
+      the URI that the Servlet uses is placed. One or more
+      <code>role</code> elements must be placed within the
+      <code>rule</code> element. Each <code>role</code> element contains
+      the name of one user role that is allowed to access 
+      the URI patterns given in the
+      <code>pattern</code> elements.
+    </p>
+    <p>
+      Here is an example <code>agent</code> section that allows users with
+      the roles "admin" and "root" to access the "tasks" and "list"
+      Servlets within the "FooBar" agent:
+    </p>
+    <blockquote>
+      <pre>
+&lt;agent name="FooBar">
+  &lt;rule>
+    &lt;pattern>tasks&lt;/pattern>
+    &lt;pattern>list&lt;/pattern>
+    &lt;role>admin&lt;/role>
+    &lt;role>root&lt;/role>
+  &lt;/rule>
+&lt;/agent>
+      </pre>
+    </blockquote>
+    <a name="authreq"/>
+    <h3>Authentication Requirements</h3>
+    <p>
+      Any <code>rule</code> (<a href="#srassign">see above</a>) can require
+      that the user authenticate using a specific mechanism. The default
+      is to allow the user to authenticate by using either password or
+      certificate. To change this, the <code>auth</code> parameter
+      can take the following values:
+    </p>
+    <table>
+      <tr>
+        <td><code>EITHER</code></td>
+        <td>Either password or certificate authentication may be used.</td>
+      </tr>
+      <tr>
+        <td><code>CERT</code></td>
+        <td>Certificate authentication is required.</td>
+      </tr>
+      <tr>
+        <td><code>PASSWORD</code></td>
+        <td>Password authentication is required.</td>
+      </tr>
+      <tr>
+        <td><code>BOTH</code></td>
+        <td>Both password <b>and</b> certificate authentication
+          are required.</td>
+      </tr>
+    </table>
+    <p>
+      If certificate authentication is required and the user connects
+      using HTTP (instead of HTTPS), he will be denied access always.
+      To force SSL authentication, <a href="#sslconn">see below</a>.
+    </p>
+    <a name="sslconn"/>
+    <h3>Forcing SSL Communication</h3>
+    <p>
+      Some Servlets must be secure from potential network listeners with
+      SSL. To ensure that these Servlets do not respond to requests without
+      SSL, the parameter <code>requireSSL</code> within the
+      element <code>rule</code> must be set to <code>true</code>.
+    </p>
+    <p>
+      For browsers, the user will automatically be redirected to the
+      SSL port when he attempts to traverse to the protected URL. Stand-
+      alone applications, however, sometimes do not use the standard
+      GET and POST HTTP request mechanisms and are not automatically
+      redirected. This will result in errors when attempting to connect
+      to the HTTP port. Ensure that stand-alone applications point to
+      the HTTPS port and use the HTTPS protocol for communicating with
+      secured Servlets.
+    </p>
+    <hr>
+    <address><a href="mailto:george_mount@nai.com">George Mount</a></address>
+<!-- Created: Mon Nov  4 11:25:06 PST 2002 -->
+<!-- hhmts start -->
+Last modified: Tue Nov  5 11:27:28 PST 2002
+<!-- hhmts end -->
+  </body>
+</html>
