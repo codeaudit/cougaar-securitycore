@@ -159,8 +159,9 @@ public class AuditLogger {
     FileHandler serviceFileHandler = null;
 
     try {
+      String fileName = "Logging-" + System.getProperty("org.cougaar.node.name") + ".txt";
       serviceFileHandler = new FileHandler(auditLogDirectory + resource
-          + "Logging.txt");
+          + fileName);
       serviceFileHandler.setFormatter(new ServiceAuditXMLFormatter());
 
     } catch (SecurityException e) {
@@ -189,7 +190,8 @@ public class AuditLogger {
     Logger logger = Logger.getLogger("WebLogger");
     FileHandler webFileHandler = null;
     try {
-      webFileHandler = new FileHandler(auditLogDirectory + "WebLog.txt");
+      String fileName = "WebLog-" + System.getProperty("org.cougaar.node.name") + ".txt";
+      webFileHandler = new FileHandler(auditLogDirectory + fileName);
       webFileHandler.setFormatter(new WebAuditXMLFormatter());
     } catch (SecurityException e) {
       auditLogger.warn("WebLogger" + e.getLocalizedMessage(), e);
