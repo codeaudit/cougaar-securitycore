@@ -133,7 +133,6 @@ grant signedBy "privileged" {
 	// FIX: thes properties should be renamed to org.cougaar...
 	permission java.util.PropertyPermission "UTILLdmXMLPlugIn.*", "read";
 	permission java.util.PropertyPermission "alpine.*", "read";
-	permission java.util.PropertyPermission "blackjack_debug_messages", "read";
 	permission java.util.PropertyPermission "glm_debug_messages", "read";
 	permission java.util.PropertyPermission "glm_output_stream", "read";
 	permission java.util.PropertyPermission "glm_log_file", "read";
@@ -142,9 +141,14 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "jaxp.debug", "read";
 	permission java.util.PropertyPermission "driver.postgresql", "read";
 
+	// ICIS database
+	permission java.util.PropertyPermission "icis.database", "read";
+
 	// BlackJack permissions
+	permission java.util.PropertyPermission "blackjack_debug_messages", "read";
 	permission java.util.PropertyPermission "blackjack_output_stream", "read";
 	permission java.util.PropertyPermission "blackjack_log_file", "read";
+        permission java.util.PropertyPermission "blackjack.database", "read";
 
 	// Vishnu permissions
 	permission java.util.PropertyPermission "UTILPlugInAdapter.showParameters", "read";
