@@ -200,6 +200,10 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}qos.jar" signedBy "pr
 	permission java.lang.RuntimePermission "createClassLoader";
 };
 
+grant codeBase "file:${org.cougaar.install.path}${/}sys${/}jpcsc.jar" signedBy "privileged"  {
+        permission java.lang.RuntimePermission "loadLibrary.jpcsc";
+};
+
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar" signedBy "privileged"  {
         permission java.security.SecurityPermission "getPolicy";
         permission javax.security.auth.AuthPermission "getSubject";
