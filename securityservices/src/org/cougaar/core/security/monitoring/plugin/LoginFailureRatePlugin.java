@@ -74,8 +74,6 @@ import org.cougaar.core.adaptivity.Condition;
  * <tr><td>2</td><td>Integer</td><td>Window for LOGINFAILUREs to be gathered
  * over to determin the LOGIN_FAILURE_RATE. The value is a duration in 
  * seconds.</td></tr>
- * <tr><td>3+</td><td>String</td><td>Cluster identifiers to scan for
- * login failures</td></tr>
  * </table>
  * Example:
  * <pre>
@@ -93,6 +91,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
   private static final String[] STR_ARRAY = new String[1];
   private static final String PRED_SCRIPT = 
     "from edu.jhuapl.idmef import Alert\n" +
+    "from org.cougaar.core.security.crypto.ldap import KeyRingJNDIRealm\n" +
     "from org.cougaar.core.security.monitoring.blackboard import Event\n" +
     "def getAlert(x):\n" +
     "  if isinstance(x, Event) == 0:\n" +
@@ -101,7 +100,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     "  if isinstance(event, Alert) == 0:\n" +
     "    return 0\n" +
     "  for capability in event.getClassifications():\n" +
-    "    if 'LOGINFAILURE' == capability.getName():\n" +
+    "    if KeyRingJNDIRealm.LOGIN_FAILURE_ID == capability.getName():\n" +
     "      detectTime = event.getDetectTime()\n" +
     "      if detectTime is None:\n" +
     "        return 0\n" +
@@ -334,12 +333,12 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
   }
 
   static class LoginFailureRateCondition implements Condition {
-    Integer _rate;
+    Double _rate;
     static final OMCRangeList RANGE = 
-      new OMCRangeList(new Integer(0), new Integer(Integer.MAX_VALUE));
+      new OMCRangeList(new Double(0.0), new Double(Integer.MAX_VALUE));
 
     public LoginFailureRateCondition(int rate) {
-      _rate = new Integer(rate);
+      _rate = new Double((double) rate);
     }
     
     public OMCRangeList getAllowedValues() {
@@ -347,7 +346,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     }
     
     public String getName() {
-      return "LOGIN_FAILURE_RATE";
+      return "org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE";
     }
 
     public Comparable getValue() {

@@ -20,12 +20,17 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.adaptivity.OperatingMode;
+import org.cougaar.core.adaptivity.OperatingModeImpl;
+import org.cougaar.core.adaptivity.OMCRange;
+import org.cougaar.core.adaptivity.OMCRangeList;
+import org.cougaar.core.adaptivity.OMCThruRange;
 import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.security.services.crypto.LdapUserService;
 
 import org.cougaar.lib.aggagent.query.Alert;
 import org.cougaar.lib.aggagent.query.AggregationQuery;
@@ -51,7 +56,18 @@ import javax.naming.NamingException;
 
 /**
  * This class queries login failures and will lockout users who
- * have failed to login too many times. 
+ * have failed to login too many times. The values for maximum
+ * login failures and lockout duration are retrieved from
+ * Operating Modes driven by the adaptivity engine.
+ * Add these lines to your agent:
+ * <pre>
+ * plugin = org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin(600,86400)
+ * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
+ * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
+ * </pre>
+ * Here, the number 600 is the duration to wait (in seconds) between checking
+ * the login failures for deletion. 86400 represents the amount of time to
+ * keep the login failures before deleting it.
  */
 public class UserLockoutPlugin extends ComponentPlugin {
   int  _maxFailures   = 3;
@@ -67,8 +83,20 @@ public class UserLockoutPlugin extends ComponentPlugin {
   private IncrementalSubscription _maxLoginFailureSubscription;
   private IncrementalSubscription _lockoutDurationSubscription;
 
+  private OperatingMode _maxLoginFailureOM = null;
+  private OperatingMode _lockoutDurationOM = null;
+
+  private static final OMCRange []LD_VALUES = {
+    new OMCThruRange(-1.0, Double.MAX_VALUE) 
+  };
+  private static final OMCRangeList MAX_LOGIN_FAILURE_RANGE =
+      new OMCRangeList(new OMCThruRange(1.0, Double.MAX_VALUE ));
+  private static final OMCRangeList LOCKOUT_DURATION_RANGE =
+      new OMCRangeList(LD_VALUES);
+
   private static final String[] STR_ARRAY = new String[1];
   private static final String PRED_SCRIPT = 
+    "from org.cougaar.core.security.crypto.ldap import KeyRingJNDIRealm\n" +
     "from edu.jhuapl.idmef import Alert\n" +
     "from org.cougaar.core.security.monitoring.blackboard import Event\n" +
     "def getAlert(x):\n" +
@@ -81,7 +109,7 @@ public class UserLockoutPlugin extends ComponentPlugin {
     "  if (targets is None) or (len(targets) == 0):\n" +
     "    return 0\n" +
     "  for capability in event.getClassifications():\n" +
-    "    if 'LOGINFAILURE' == capability.getName():\n" +
+    "    if KeyRingJNDIRealm.LOGIN_FAILURE_ID == capability.getName():\n" +
     "      detectTime = event.getDetectTime()\n" +
     "      if detectTime is None:\n" +
     "        return 0\n" +
@@ -128,9 +156,9 @@ public class UserLockoutPlugin extends ComponentPlugin {
     new ScriptSpec(Language.JPYTHON, XmlFormat.INCREMENT, FORMAT_SCRIPT);
 
   private static final String MAX_LOGIN_FAILURES =
-    "LoginFailureAnalyzerPlugin.MAX_LOGIN_FAILURES";
+    "org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES";
   private static final String LOCKOUT_DURATION =
-    "LoginFailureAnalyzerPlugin.LOCKOUT_DURATION";
+    "org.cougaar.core.security.monitoring.LOCKOUT_DURATION";
 
   private static final UnaryPredicate MAX_LOGIN_FAILURE_PREDICATE =
     new UnaryPredicate() {
@@ -242,16 +270,28 @@ public class UserLockoutPlugin extends ComponentPlugin {
     _alert = new LoginFailureAlert();
     _alert.setQueryAdapter(qra);
     qra.addAlert(_alert);
+    BlackboardService blackboard = getBlackboardService();
 //     getBlackboardService().openTransaction();
     try {
-      getBlackboardService().publishAdd(qra);
+      blackboard.publishAdd(qra);
     } catch (Exception e) {
       e.printStackTrace();
     }
 //     getBlackboardService().closeTransaction();
+
     _maxLoginFailureSubscription = (IncrementalSubscription)blackboard.subscribe(MAX_LOGIN_FAILURE_PREDICATE);
     _lockoutDurationSubscription = (IncrementalSubscription)blackboard.subscribe(LOCKOUT_DURATION_PREDICATE);
     
+    // read init values from config file and set operating modes accordingly
+    _maxLoginFailureOM = new OperatingModeImpl(MAX_LOGIN_FAILURES, 
+                                               MAX_LOGIN_FAILURE_RANGE, 
+                                               new Double(_maxFailures));
+    _lockoutDurationOM = new OperatingModeImpl(LOCKOUT_DURATION, 
+                                               LOCKOUT_DURATION_RANGE, 
+                                               new Double(_lockoutTime/1000));
+    
+    blackboard.publishAdd(_maxLoginFailureOM);
+    blackboard.publishAdd(_lockoutDurationOM);
   }
 
   protected void execute() {
