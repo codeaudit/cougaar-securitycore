@@ -679,7 +679,6 @@ public class AgentUserService implements UserService, BlackboardClient {
   
   private class AgentIdentificationServiceListener implements ServiceAvailableListener {
     public void serviceAvailable(ServiceAvailableEvent ae) {
-      _log.debug("Looking for  AgentIdentificationService  got called for "+ae.getService().toString());
       if (ae.getService().equals(AgentIdentificationService.class)) {
         AgentIdentificationService ais = (AgentIdentificationService) ae.getServiceBroker().
           getService(this, AgentIdentificationService.class, null);
