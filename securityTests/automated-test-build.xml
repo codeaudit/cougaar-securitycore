@@ -147,11 +147,18 @@
 	command="cd ${testbed.cip.dir} ; unzip cougaar-test.zip"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
+      <echo message="Remove cougaar-test.zip on remote machine..."/>
+      <sshexec host="${testbed.operator.host}"
+	username="${testbed.user.name}"
+        keyfile="${user.home}/.ssh/id_dsa"
+	command="cd ${testbed.cip.dir} ; rm cougaar-test.zip"
+        output="${analysis.directory.name}/sshexec.log" append="true"/>
+
       <echo message="Unzip overlay files on testbed machine..."/>
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="cd ${testbed.cip.dir} ; for f in *.zip ; do unzip $f ; done"
+	command="sh -c 'cd ${testbed.cip.dir} ; for f in *.zip ; do unzip $f ; done'"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <loadfile property="ssh-message-1"
