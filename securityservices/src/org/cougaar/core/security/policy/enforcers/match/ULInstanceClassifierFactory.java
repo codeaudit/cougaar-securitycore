@@ -48,7 +48,7 @@ public class ULInstanceClassifierFactory
   public static final String pluginPrefix =
     org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL
-    + "#PluginsInRole";
+    + "PluginsInRole";
 
   private ServiceBroker _sb;
   private CommunityService _communityService;
@@ -67,6 +67,9 @@ public class ULInstanceClassifierFactory
                                            null);
     if (_log == null) {
       throw new NullPointerException("LoggingService");
+    }
+    if (_log.isDebugEnabled()) {
+      _log.debug("ULInstanceClassifier factory initialized");
     }
   }
   /**
@@ -110,7 +113,9 @@ public class ULInstanceClassifierFactory
       if (_communityService == null) {
         throw new RuntimeException("No community service");
       }
-      _log.debug("ULInstanceClassifier: Community Service installed");
+      if (_log.isDebugEnabled()) {
+        _log.debug("ULInstanceClassifier: Community Service installed");
+      }
     }
   }
 
@@ -132,24 +137,55 @@ public class ULInstanceClassifierFactory
     public void init ()
       throws InstanceClassifierInitializationException 
     {
+      _log.debug("Initializing the Actor Instance Classifier");
       return;
     }
 
     public boolean classify(String className, Object instance) 
       throws InstanceClassifierInitializationException
     {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Classifying actor " + instance + " against the class "
+                   + className);
+      }
       className = removeHashChar(className);
       if (className
           .equals(org.cougaar.core.security.policy.enforcers.ontology.jena.
                   UltralogActorConcepts._UltralogPlugins_)) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Is the instance an execution context for a plugin?");
+          _log.debug("Class of instance = " + instance.getClass());
+        }
         return (instance instanceof RoleExecutionContext);
       }
+      if (_log.isDebugEnabled()) {
+        _log.debug("pluginPrefix = " + pluginPrefix);
+      }
       if (className.startsWith(pluginPrefix)) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("we are classifying some type of plugin");
+        }
         if (instance instanceof RoleExecutionContext) {
-          String role = className.substring(pluginPrefix.length());
+          String shortRoleName = className.substring(pluginPrefix.length());
+          if (_log.isDebugEnabled()) {
+            _log.debug("Taking a look at the RoleExecutionContext - "
+                       + "looking at short role name " + shortRoleName);
+          }
+          String damlRoleName 
+            = org.cougaar.core.security.policy.enforcers.ontology.jena.
+            EntityInstancesConcepts.EntityInstancesDamlURL + shortRoleName;
+          if (_log.isDebugEnabled()) {
+            _log.debug("damlRoleName = " + damlRoleName);
+          }
           RoleExecutionContext rec = (RoleExecutionContext) instance;
-          return rec.hasComponentRole(role);
-        } else { return false; }
+          return rec.hasComponentRole(damlRoleName);
+        } else { 
+          if (_log.isDebugEnabled()) {
+            _log.debug("But the instance is not a plugin");
+            _log.debug("Instance Class = " + instance.getClass());
+          }
+          return false; 
+        }
       }
       if (! (instance instanceof String)) {
         return false;
