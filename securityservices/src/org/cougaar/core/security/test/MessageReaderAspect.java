@@ -28,6 +28,7 @@ import org.cougaar.core.blackboard.Directive;
 import org.cougaar.core.blackboard.DirectiveMessage;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.mts.MessageAttributes;
+import org.cougaar.mlm.plugin.organization.ReportChainReadyRelay;
 import org.cougaar.mts.base.StandardAspect;
 import org.cougaar.mts.base.ReceiveLink;
 import org.cougaar.mts.base.ReceiveLinkDelegateImplBase;
@@ -86,9 +87,11 @@ public class MessageReaderAspect extends StandardAspect {
     public void sendMessage(AttributedMessage msg) {
       String sender   = msg.getOriginator().toString();
       String receiver = msg.getTarget().toString();
-      String type     = msg.getRawMessage().getClass().getName();
-      if (msg.getRawMessage() instanceof DirectiveMessage) {
-        DirectiveMessage dm = (DirectiveMessage) msg.getRawMessage();
+      Object o        = msg.getRawMessage();
+      if (o== null) { return; }
+      String type     = o.getClass().getName();
+      if (o instanceof DirectiveMessage) {
+        DirectiveMessage dm = (DirectiveMessage) o;
         Directive [] directives = dm.getDirectives();
         for (int i = 0; i < directives.length; i++) {
           if (directives[i] instanceof Task) {
@@ -98,6 +101,8 @@ public class MessageReaderAspect extends StandardAspect {
             logEvent(sender, receiver, directives[i].getClass().getName());
           }
         }
+      } else if (o instanceof ReportChainReadyRelay) {
+        logEvent(sender, receiver, "ReportChainReadyRelay Intercept");
       } else  {
         logEvent(sender, receiver, type);
         log.debug("Interception: Additional info: " 
