@@ -6,8 +6,8 @@ CIP = ENV['CIP']
 $extraargs = ARGV
 
 # The directory where the log files are located
-#dir = "#{CIP}/workspace/log4jlogs"
-$logFileDirectory = "#{CIP}/../srosset/log4jlogs"
+$logFileDirectory = "#{CIP}/workspace/log4jlogs"
+#$logFileDirectory = "#{CIP}/../srosset/log4jlogs"
 
 # True if performing a check for transient issues (e.g. issues that should disappear after a while)
 $searchTransientIssues=true
