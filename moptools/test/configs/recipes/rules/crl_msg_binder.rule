@@ -1,0 +1,20 @@
+#!/usr/bin/ruby
+####################################################
+# CRL message binder
+
+crlBinder = "org.cougaar.core.security.test.message.CrlMessageBinderFactory"
+servletName = "org.cougaar.core.security.test.message.CrlMessageBinderServlet"
+
+society.each_node do |node|
+  if node.has_facet? "NodeAttacker"
+    node.add_component do |c|
+      c.insertionpoint = "Node.AgentManager.Binder"
+      c.priority = "BINDER"
+      c.classname = crlBinder
+    end
+
+    node.add_component do |c|
+      c.classname = servletName
+    end
+  end
+end
