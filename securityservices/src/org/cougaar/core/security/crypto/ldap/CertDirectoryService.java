@@ -194,11 +194,20 @@ public abstract class CertDirectoryService
 	log.debug("Creating Directory Service for " + url);
       }
       if (url != null) {
+	// Create a subcontext in LDAP if it does not exist.
 	int slash = url.lastIndexOf("/");
-	String dn = null;
-	if(slash != -1) {
+	if (configParser.isCertificateAuthority() && slash != -1) {
+	  // try to create the directory structure:
+	  String dn = null;
 	  dn = url.substring(slash + 1);
+	  String baseURL = url.substring(0, slash);
+	  setDirectoryServiceURL(baseURL);
+	  env=initDirectoryService(requestor.getCertDirectoryPrincipal(),
+				   requestor.getCertDirectoryCredential()); 
+	  contextHolder = new ContextHolder(env);
+	  createDcObjects(dn);
 	}
+	// set the directory context to the right URL
 	setDirectoryServiceURL(url);
 	env=initDirectoryService(requestor.getCertDirectoryPrincipal(),
 				 requestor.getCertDirectoryCredential());
@@ -211,21 +220,8 @@ public abstract class CertDirectoryService
             }
 	  }
 	  catch(NameNotFoundException nfe) {
-	    // Create a subcontext in LDAP if it does not exist.
-	    if (configParser.isCertificateAuthority() && (ldapServerUrl != url)) {
-	      createDcObjects(dn);
-	      setDirectoryServiceURL(requestor.getCertDirectoryUrl());
-	      env=initDirectoryService(requestor.getCertDirectoryPrincipal(),
-				       requestor.getCertDirectoryCredential()); 
-              try {
-                synchronized(_contextLock) {  
-	          DirContext context = contextHolder.getContext();
-	          initializationOK=true; 
-                }
-              }
-              catch(NamingException ne) {
-                log.error("Unable to create ldap context: " + ne.getMessage());
-              }
+	    if (log.isWarnEnabled()) {
+	      log.warn("Couldn't connect to ldap: ", nfe);
 	    }
 	  }
 	}
