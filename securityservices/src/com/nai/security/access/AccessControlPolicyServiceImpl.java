@@ -41,11 +41,8 @@ import safe.enforcer.AgentEnforcer;
 // Cougaar Security Services
 import com.nai.security.policy.*;
 import com.nai.security.crypto.KeyRing;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
-
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class AccessControlPolicyServiceImpl
   implements AccessControlPolicyService
@@ -81,12 +78,10 @@ public class AccessControlPolicyServiceImpl
   protected boolean dbg = false;
 
     /** Creates new AccessControlPolicyServiceImpl */
-  public AccessControlPolicyServiceImpl() {
-    // Get KeyRingService
-    // TODO
-    keyRing = CryptoServiceProvider.getKeyRing();
-    // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+  public AccessControlPolicyServiceImpl(KeyRingService kr,
+					SecurityPropertiesService spr) {
+    keyRing = kr;
+    secprop = spr;
 
     //setup for default policy
     AccessPolicyProxy app = new AccessPolicyProxy("DEFAULT");

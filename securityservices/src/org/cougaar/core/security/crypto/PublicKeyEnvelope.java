@@ -44,6 +44,40 @@ public class PublicKeyEnvelope
 
   /** The certificate used to encrypt the symmetric key.
    */
-  private X509Certificate certificate;
+  private X509Certificate receiver;
 
+  /** The certificate corresponding to the private key that was used
+      to sign the object.
+   */
+  private X509Certificate sender;
+
+  /** The encrypted object
+   */
+  private SealedObject encryptedObject;
+
+  public PublicKeyEnvelope(X509Certificate asender,
+			   X509Certificate areceiver,
+			   SealedObject sKey,
+			   SealedObject encObj) {
+    encryptedSymmetricKey = sKey;
+    receiver = areceiver;
+    sender = asender;
+    encryptedObject = encObj;
+  }
+
+  public SealedObject getEncryptedSymmetricKey() {
+    return encryptedSymmetricKey;
+  }
+
+  public X509Certificate getReceiver() {
+    return receiver;
+  }
+
+  public X509Certificate getSender() {
+    return sender;
+  }
+
+  public SealedObject getEncryptedObject() {
+    return encryptedObject;
+  }
 }

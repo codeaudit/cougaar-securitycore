@@ -28,21 +28,20 @@ import java.util.*;
 import java.security.cert.CertificateException;
 import java.lang.RuntimeException;
 
+// Cougaar core infrastructure
 import org.cougaar.core.component.*;
 import org.cougaar.core.mts.*;
-
 import org.cougaar.core.blackboard.DirectiveMessage;
 import org.cougaar.core.agent.ClusterMessage;
 import org.cougaar.core.node.NodeIdentificationService;
-
 import org.cougaar.planning.ldm.plan.Directive;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.planning.ldm.plan.Task;
 
-import com.nai.security.crypto.CryptoManagerServiceProvider;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+// Cougaar security services
 import org.cougaar.core.security.policy.AccessControlPolicy;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /**
  *
@@ -66,7 +65,7 @@ public class AccessControlAspect extends StandardAspect
   
   public AccessControlAspect() {
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = SecurityServiceProvider.getSecurityProperties(null);
 
     String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
     if (db!=null &&
@@ -75,12 +74,6 @@ public class AccessControlAspect extends StandardAspect
     }
     infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
 						     "0"))).intValue();
-
-    //add crypto related services:
-    sb = new ServiceBrokerSupport();
-    CryptoManagerServiceProvider cmsp = new CryptoManagerServiceProvider();
-    sb.addService(AccessControlPolicyService.class, cmsp); 
-
   }
   
   private void init(){

@@ -64,8 +64,8 @@ import com.nai.security.crypto.ldap.CertificateRevocationStatus;
 
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
-import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /** Certification Authority service
  * The following java properties are necessary:
@@ -114,14 +114,17 @@ public class KeyManagement implements CertificateManagementService
    *                       of a standalone certificate authority.
    * @param isStandalone - true if running as a certificate authority
    *                       false if running as a Cougaar node
+   * @param krs          - KeyRing service. Useful only in non-standalone
+   *                       mode.
    */
   public KeyManagement(String aCA_DN, String role,
 		       String certPath, String confpath,
-		       boolean isStandalone) 
+		       boolean isStandalone,
+		       KeyRingService krs) 
     throws Exception
   {
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = SecurityServiceProvider.getSecurityProperties(null);
 
 
     caDN = aCA_DN;
@@ -183,10 +186,11 @@ public class KeyManagement implements CertificateManagementService
       throw new Exception("Unable to read policy for DN=" + caDN + ". Role="
 			  + role + " - " + e );
     }
-    init(role);
+    init(role, krs);
   }
 
-  public void init(String role)  throws Exception {
+  public void init(String role, KeyRingService krs)
+    throws Exception {
     if(standalone) {
       String keystoreFile = confDirectoryName + File.separatorChar
 	+ caPolicy.keyStoreFile;
@@ -218,9 +222,7 @@ public class KeyManagement implements CertificateManagementService
       publishCAinLdap();
     }
     else{
-      // TODO
-      // Use service broker instead
-      keyRing = CryptoServiceProvider.getKeyRing();
+      keyRing = krs;
 
       try {
 	caPolicy = confParser.readCaPolicy("", role);

@@ -22,6 +22,9 @@
 
 package org.cougaar.core.security.services.identity;
 
+import java.io.Serializable;
+
 public interface TransferableIdentity
+  extends Serializable
 {
 }

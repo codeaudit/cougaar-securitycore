@@ -31,6 +31,7 @@ import com.nai.security.policy.NodePolicy;
 import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.util.CryptoDebug;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class CAClient {
 
@@ -115,7 +116,8 @@ public class CAClient {
       if (CryptoDebug.debug) {
 	System.out.println("Signing PKCS10 request with node");
       }
-      KeyManagement km = new KeyManagement(nodeDN, role, null, null, false);
+      KeyManagement km = new KeyManagement(nodeDN, role,
+					   null, null, false, null);
       X509Certificate[] cf =
 	km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
       PrintStream ps = new PrintStream(baos);

@@ -24,25 +24,41 @@
  * - 
  */
 
-package org.cougaar.core.security.crypto;
+package org.cougaar.core.security.provider;
 
-import java.security.PrivateKey;
-import java.security.cert.Certificate;
-import java.io.Serializable;
+import java.lang.*;
 
-import javax.crypto.SealedObject;
-import java.security.cert.X509Certificate;
+// Cougaar core services
+import org.cougaar.core.component.*;
+import org.cougaar.util.*;
 
-import org.cougaar.core.security.services.identity.TransferableIdentity;
+// Cougaar security services
+import com.nai.security.util.CryptoDebug;
+import com.nai.security.crypto.CryptoManagerServiceImpl;
+import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.services.identity.*;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
-public class KeyIdentity extends PublicKeyEnvelope
-  implements TransferableIdentity
-{
+public class EncryptionServiceProvider 
+  implements ServiceProvider {
+  static private EncryptionService encryptionService;
+  public Object getService(ServiceBroker sb, 
+			   Object requestor, 
+			   Class serviceClass) {
 
-  public KeyIdentity(X509Certificate asender,
-		     X509Certificate areceiver,
-		     SealedObject sKey,
-		     SealedObject encObj) {
-    super(asender, areceiver, sKey, encObj);
+    KeyRingService keyRing = (KeyRingService)
+      getService(sb,
+		 requestor,
+		 KeyRingService.class);
+
+    if (encryptionService == null) {
+      encryptionService = new CryptoManagerServiceImpl(keyRing);
+    }
+    return encryptionService;
+  }
+  public void releaseService(ServiceBroker sb,
+			     Object requestor,
+			     Class serviceClass,
+			     Object service) {
   }
 }
