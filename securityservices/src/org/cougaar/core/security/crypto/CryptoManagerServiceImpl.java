@@ -947,7 +947,7 @@ public class CryptoManagerServiceImpl
       throw new IllegalArgumentException("Policy not specified");
     }
     String failureIfOccurred = MessageFailureEvent.UNKNOWN_FAILURE;
-    try {
+
       /* assembly SecureMethodParam:
        * as CryptoPolicy can contain multiple entries for each parameter,
        * every meaningful combinations needs to be checked before declare
@@ -1025,13 +1025,6 @@ public class CryptoManagerServiceImpl
           throw new GeneralSecurityException("invalid secure method.");
         }
       }//while
-    }
-    catch(GeneralSecurityException gse) {
-      // need to format exception message inorder to determine the
-      // the reason for the failure
-      String message = failureIfOccurred + " - " + gse.getMessage();
-      throw new GeneralSecurityException(message);
-    }
 
     //fall through
     if (log.isErrorEnabled()) {

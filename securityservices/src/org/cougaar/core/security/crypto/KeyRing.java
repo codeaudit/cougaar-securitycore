@@ -25,6 +25,7 @@ package org.cougaar.core.security.crypto;
 
 import java.io.*;
 import java.util.*;
+import javax.naming.*;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -140,10 +141,10 @@ final public class KeyRing
     log.debug("going to use smart card: " + cryptoClientPolicy.getUseSmartCard());
     if (cryptoClientPolicy.getUseSmartCard()) {
       try {
-	param.keystorePassword = 
+	param.keystorePassword =
 	  SmartCardApplet.getKeystorePassword(cryptoClientPolicy.getKeystorePassword(),
 					      log);
-          
+
       } catch (RuntimeException e) {
 	log.error("Couldn't talk to the keystore");
 	throw e;
@@ -224,7 +225,7 @@ final public class KeyRing
 	}
       }
     }
-    
+
     try {
       param.caKeystoreStream = new FileInputStream(param.caKeystorePath);
     }
@@ -261,7 +262,7 @@ final public class KeyRing
 	param.defaultCaDn = caDN;
       }
     }
-    
+
 
     keystore = new DirectoryKeyStore(param);
 
@@ -368,6 +369,19 @@ final public class KeyRing
 
   public X509Certificate findFirstAvailableCert(String name)
     throws CertificateException {
+    // check whether agent has started yet, this fixes the problem where
+    // LDAP is dirty and returning old certificates. If agent has started
+    // and obtained new certificates it will update naming.
+    if (log.isDebugEnabled()) {
+      log.debug("findFirstAvailableCert: " + name);
+    }
+      try {
+        if (keystore.getNamingAttributes(name) == null)
+          return null;
+      } catch (NamingException nx) {
+        return null;
+      }
+
     List certList =
       findCert(name, KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (certList == null || certList.size() == 0) {
@@ -377,6 +391,15 @@ final public class KeyRing
       throw new CertificateException("Unable to find certificate: " + name);
     }
     X509Certificate cert = ((CertificateStatus)certList.get(0)).getCertificate();
+
+/*
+    String dname = cert.getSubjectDN().getName();
+    String title = CertificateUtility.findAttribute(dname, "t");
+    if (title != null &&
+      (title.equals(DirectoryKeyStore.CERT_TITLE_AGENT)
+        || title.equals(DirectoryKeyStore.CERT_TITLE_NODE))) {
+*/
+
     return cert;
   }
 

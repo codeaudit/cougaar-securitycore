@@ -135,6 +135,10 @@ public class DirectoryKeyStore
   private List       _initKeyManager = new LinkedList();
   private boolean    _initializing = true;
 
+  /** Cache for getNamingAttributes
+   */
+  private HashMap _namingAttributesCache = new HashMap();
+
   /* Update OIDMap to include IssuingDistribution Point Extension &
    * Certificate Issuer Extension
    */
@@ -549,8 +553,7 @@ public class DirectoryKeyStore
     else {
       if (certs.length == 0) {
 	if (log.isWarnEnabled()) {
-	  log.warn("Failed to lookup certificate for " + filter + " in LDAP: "
-		   + certFinder.getDirectoryServiceURL());
+	  log.warn("Failed to lookup certificate for " + filter + " in LDAP ");
 	}
       }
     }
@@ -2895,6 +2898,39 @@ public class DirectoryKeyStore
   }
 
   /**
+   * get information from naming service, input is common name.
+   * Only agent information is registered with ldap naming.
+   */
+  public BasicAttributes getNamingAttributes(String cname)
+    throws NamingException  {
+
+    String key = cname.toLowerCase();
+    synchronized (_namingAttributesCache) {
+      BasicAttributes attrs = 
+	(BasicAttributes) _namingAttributesCache.get(key);
+      if (attrs == null) {
+	if (namingSrv == null) {
+	  namingSrv = (NamingService)
+	    param.serviceBroker.getService(this,
+					   NamingService.class,
+					   null);
+	}
+	if (namingSrv == null) {
+	  if (log.isInfoEnabled()) {
+	    log.info("Unable to find naming service. Returning " + certificateFinder);
+	  }
+	  return null;
+	}
+
+	DirContext ctx = ensureCertContext();
+	attrs = (BasicAttributes) ctx.getAttributes(key);
+	_namingAttributesCache.put(key,attrs);
+      }
+      return attrs;
+    }
+  }
+
+  /**
    * Return an LDAP certificate directory where the X.509 certificate of the entity can be found.
    * A Cougaar society can include multiple Certificate Authorities.
    * When two agents A and B communicate, their certificates may not have been signed by the same CA.
@@ -2918,23 +2954,8 @@ public class DirectoryKeyStore
       return certificateFinder;
     }
 
-    if (namingSrv == null) {
-      namingSrv = (NamingService)
-	param.serviceBroker.getService(this,
-				       NamingService.class,
-				       null);
-    }
-    if (namingSrv == null) {
-      if (log.isInfoEnabled()) {
-	log.info("Unable to find naming service. Returning " + certificateFinder);
-      }
-      return certificateFinder;
-    }
-
     try {
-      DirContext ctx = ensureCertContext();
-      String key = cname.toLowerCase();
-      BasicAttributes attrib = (BasicAttributes)ctx.getAttributes(key);
+      BasicAttributes attrib = getNamingAttributes(cname);
       if (log.isDebugEnabled()) {
         log.debug("getCertDirectoryServiceClient: " + cname + " attrib: "
           + attrib);
