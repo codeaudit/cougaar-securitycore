@@ -229,9 +229,9 @@ public class ULMessageNodeEnforcer
     if (isActionAuthorized(sender, 
                            // "##" + 
                            receiver, verb)) {
-      out.print("<p>yes</p>");
+      out.print("<p><font color=green>yes</font></p>");
     } else {
-      out.print("<p>no</p>");
+      out.print("<p><font color=red>no</font></p>");
     }
   }
 

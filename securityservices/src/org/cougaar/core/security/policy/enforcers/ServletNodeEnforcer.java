@@ -277,13 +277,15 @@ public class ServletNodeEnforcer
             String role1 = (String) rolesIt.next();
             HashSet roleSet = new HashSet();
             roleSet.add(role1);
-            out.print("<p>A user in role " + role1 + " is ");
+
             _log.debug("..servlet...testEnforcer: <p>A user in role " + role1 + " is ");
             if (isActionAuthorized(roleSet, uri, sslCipher, authLevel)) {
-              out.print("allowed.</p>");
+              out.print("<p><font color=green>" + 
+                        "A user in role " + role1 + " is allowed</font></p>");
               _log.debug("..servlet...testEnforcer: allowed.</p>");
             } else {
-              out.print("disallowed.</p>");
+              out.print("<p><font color=red>" + 
+                        "A user in role " + role1 + " is disallowed</font></p>");
               _log.debug("..servlet...testEnforcer: disallowed.</p>");
             }
             if (false) {
