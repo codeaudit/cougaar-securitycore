@@ -110,8 +110,13 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
         //whom is the policy for?
         String sub = policySubjectName;
         boolean isBoot = false;
-        if(policyScope=="") isBoot = true;
-        if(policyScope==""||policyScope=="Domain"||policyScope=="VM") sub = "DEFAULT";
+        if(policyScope==""){
+          isBoot = true;
+          sub = "DEFAULT";
+        }
+        if(policyScope.equalsIgnoreCase("Domain") || policyScope.equalsIgnoreCase("VM")) {
+          sub = "DEFAULT";
+        }
         if(sub=="" || sub == null) return ;
 
         //for each RuleParameter
@@ -133,7 +138,9 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
                 }
                 if(name.startsWith("Incoming")) {
                     if(value!=null) updateSecureMethod("DEFAULT"+":"+sub,value);
-                    if(value!=null&&isBoot) updateSecureMethod("BOOT"+":"+sub,value);
+                    if(value!=null&&isBoot) {
+                      updateSecureMethod("BOOT"+":"+sub,value);
+                    }
                     for(int i = 0; i < entry.length; i++) {
                       updateSecureMethod(entry[i].getKey()+":"+sub, entry[i].getValue());
                     }

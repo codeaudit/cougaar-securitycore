@@ -181,7 +181,7 @@ public class SecurityAspect extends StandardAspect
 	public Message getContents() {
         try{
             //unsecure the message
-            Message m = unsecure(false);
+            Message m = unsecure();
             //check tags
             if (m == null) return null;
             //TrustSet[] ts = getTrustSets();
@@ -198,63 +198,77 @@ public class SecurityAspect extends StandardAspect
         }
 	}
 
-      private Message unsecure(boolean useBoot)
+      //check if the secure method being used matches
+      //the content of message
+      private boolean policyMatch(int method)
+      {
+          if(method==SecureMethodParam.PLAIN){
+            if(msg != null) {
+              return true;
+            }
+          }else if(method==SecureMethodParam.ENCRYPT){
+            if(secret!=null && sealedMsg!=null) {
+              return true;
+            }
+          }else if(method==SecureMethodParam.SIGN){
+            if(signedMsg != null) {
+              return true;
+            }
+          }else if(method==SecureMethodParam.SIGNENCRYPT){
+            if(signedMsg!=null && secret!=null && sealedMsg!=null) {
+              return true;
+            }
+          }
+
+        return false;
+      }
+
+      private Message unsecure()
         throws RuntimeException, CertificateException {
           String Origin = getOriginator().getAddress();
           String Target = getTarget().getAddress();
           SecureMethodParam param = null;
-          if(useBoot){
-            param = cps.getReceivePolicy("BOOT"+":"+Target);
-            if(debug) System.out.println("retry unsecuring message with method "+smlist[param.secureMethod]+":"+Origin+"--"+Target);
+          param = cps.getReceivePolicy(Origin+":"+Target);
+          if(!policyMatch(param.secureMethod)){
+            //try boot policy
+            if(debug) System.out.println("unmatching unsecuring method "+smlist[param.secureMethod]+":"+Origin+"--"+Target);
+            param = cps.getReceivePolicy("BOOT"+":"+"DEFAULT");
+            if(!policyMatch(param.secureMethod)){
+              if(debug) System.out.println("couldn't match unsecuring method "+smlist[param.secureMethod]+" for :"+Origin+"--"+Target);
+              //boot didn't match, quit.
+              return null;
+            }
           }
-          else{
-            param = cps.getReceivePolicy(Origin+":"+Target);
-          }
+
           if(param==null) throw new RuntimeException("no policy available for un-securing the message:"+this);
           String keyName;
 
           if(debug) System.out.println("unsecuring message with method "+smlist[param.secureMethod]+":"+Origin+"--"+Target);
-          if(param.secureMethod==param.PLAIN){
-            if(!useBoot && msg == null) {
-              //probably wrong param, try boot instead
-              return unsecure(true);
-            }else{
-              return msg;
-            }
-          }else if(param.secureMethod==param.ENCRYPT){
-            if(!useBoot && (secret==null || sealedMsg==null)) {
-              //probably wrong param, try boot instead
-              return unsecure(true);
-            }else{
-              keyName = Target;
-              SecretKey sk = (SecretKey)cms.asymmDecrypt(keyName, param.asymmSpec, secret);
-              return (Message)cms.symmDecrypt(sk,sealedMsg);
-            }
-          }else if(param.secureMethod==param.SIGN){
-            if(!useBoot && signedMsg == null) {
-              //probably wrong param, try boot instead
-              return unsecure(true);
-            }else{
-              keyName = Origin;
-              return (Message)cms.verify(keyName, param.signSpec, signedMsg);
-            }
-          }else if(param.secureMethod==param.SIGNENCRYPT){
-            if(!useBoot && (signedMsg==null || secret==null || sealedMsg==null)) {
-              //probably wrong param, try boot instead
-              return unsecure(true);
-            }else{
-              keyName = Origin;
+          if(param.secureMethod==SecureMethodParam.PLAIN){
+            return msg;
 
-              // Verify the signature
-              SealedObject so=(SealedObject)cms.verify(keyName, param.signSpec, signedMsg);
-              if (so==null) return null;    //should we do something more???
-              keyName = Target;
+          }else if(param.secureMethod==SecureMethodParam.ENCRYPT){
+            keyName = Target;
+            SecretKey sk = (SecretKey)cms.asymmDecrypt(keyName, param.asymmSpec, secret);
+            return (Message)cms.symmDecrypt(sk,sealedMsg);
 
-              // Retrieving the secret key, which was encrypted using the public key
-              // of the target.
-              SecretKey sk=(SecretKey)cms.asymmDecrypt(keyName, param.asymmSpec, secret);
-              return (Message)cms.symmDecrypt(sk, so);
-            }
+          }else if(param.secureMethod==SecureMethodParam.SIGN){
+            keyName = Origin;
+            return (Message)cms.verify(keyName, param.signSpec, signedMsg);
+
+          }else if(param.secureMethod==SecureMethodParam.SIGNENCRYPT){
+            keyName = Origin;
+
+            // Verify the signature
+            SealedObject so=(SealedObject)cms.verify(keyName, param.signSpec, signedMsg);
+            if (so==null) return null;    //should we do something more???
+            keyName = Target;
+
+            // Retrieving the secret key, which was encrypted using the public key
+            // of the target.
+            SecretKey sk=(SecretKey)cms.asymmDecrypt(keyName, param.asymmSpec, secret);
+            return (Message)cms.symmDecrypt(sk, so);
+
           }
           return null;
       }
