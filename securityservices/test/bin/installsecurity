@@ -14,14 +14,18 @@ if [ $? != 0 ]; then
   echo "$0: Can't create temp file, exiting..."
   exit 1
 fi
-set COUGAAR_INSTALL_PATH=${tmpdir}
-export COUGAAR_INSTALL_PATH
+PATH=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/:$PATH
+export PATH
+
 which ant >& /dev/null
 if [ $? != 0 ]; then
   echo "$0: Can't find ant. Add it to your path. Exiting..."
   rm -rf ${tmpdir}
   exit 1
 fi
+
+COUGAAR_INSTALL_PATH=${tmpdir}
+export COUGAAR_INSTALL_PATH
 ant install
 cd $COUGAAR_INSTALL_PATH
 tar cvf security.tar \
