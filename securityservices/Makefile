@@ -65,7 +65,7 @@ signjar: jar
 		-storepass keystore ${COUGAARCLASSES}/securityservices.jar privileged
 	@echo +++++++ Done signing bootstrapper.jar and core.jar
 
-install:
+install: installconf
 	@echo +++++++ Installing jar files into ${COUGAAR_INSTALL_PATH}
 	cp ${COUGAARCLASSES}/bootstrapper.jar ${COUGAAR_INSTALL_PATH}/lib
 	cp ${COUGAARCLASSES}/securityservices.jar ${COUGAAR_INSTALL_PATH}/lib
@@ -78,6 +78,8 @@ install:
 	@echo +++++++ Done installing jar files and log directories
 
 installconf:
-	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/.
+	echo +++++++ Installing configuration files
+	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/
+	cp sys/*.jar ${COUGAAR_INSTALL_PATH}/sys
 #	cp -r ./test/configs/demo ${COUGAAR_INSTALL_PATH}/configs/.
 #	cp -r ./test/configs/ul-mini-config  ${COUGAAR_INSTALL_PATH}/configs/.
