@@ -27,127 +27,19 @@ import org.cougaar.core.relay.*;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
+import org.cougaar.core.security.util.RelayBase;
 
-public class CasRelay implements Relay.Source, Relay.Target, java.io.Serializable {
-  private UID _uid;
-  private MessageAddress _source;
-  private CasRequest  _content;
-  private CasResponse _response;
-  private transient Set _targets;
-
-  private static class CasRelayFactory implements Relay.TargetFactory, 
-    java.io.Serializable {
-      public Relay.Target create(UID uid, MessageAddress source, 
-                                 Object content, Relay.Token token) {
-        return new CasRelay(uid, source, content);
-      }
-  };
-
-  private static final Relay.TargetFactory FACTORY = new CasRelayFactory();
-
-  private CasRelay(UID uid, MessageAddress source, Object content) {
-    _uid = uid;
-    _source = source;
-    _content = (CasRequest) content;
-    _response = null;
-    _targets = null;
+public class CasRelay extends RelayBase {
+  public CasRelay(UID uid, MessageAddress source, Object content) {
+    super(uid, source, content);
   }
 
   public CasRelay(UID uid, MessageAddress source, MessageAddress target) {
-    _uid = uid;
-    _source = source;
-    _content = null;
-    _response = null;
-    if (target != null) {
-      _targets = Collections.singleton(target);
-    } else {
-      _targets = Collections.EMPTY_SET;
-    }
+    super(uid, source, target);
   }
 
   public CasRelay(UID uid, MessageAddress source, Set targets) {
-    _uid = uid;
-    _source = source;
-    _content = null;
-    _response = null;
-    _targets = targets;
-  }
-
-  public UID getUID() { return _uid; }
-
-  public void setUID(UID uid) { _uid = uid; }
-
-  public Set getTargets() {
-    return _targets;
-  }
-
-  public MessageAddress[] getTargetList() {
-    return (MessageAddress[]) 
-      _targets.toArray(new MessageAddress[_targets.size()]);
-  }
-
-  public Object getContent() {
-    return _content;
-  }
-
-  public Relay.TargetFactory getTargetFactory() {
-    return FACTORY;
-  }
-
-  public int updateResponse(MessageAddress target, Object response) {
-    if ((response == null && _response != null) ||
-        (response != null && !response.equals(_response))) {
-      _response = (CasResponse) response;
-      return Relay.RESPONSE_CHANGE;
-    }
-    return Relay.NO_CHANGE;
-  }
-
-  public MessageAddress getSource() {
-    return _source;
-  }
-
-  public Object getResponse() {
-    return _response;
-  }
-
-  public void setResponse(CasResponse response) {
-    _response = response;
-  }
-
-  public int updateContent(Object content, Token token) {
-    if ((content == null && _content != null) ||
-        (content != null && !content.equals(_content))) {
-      _content = (CasRequest) content;
-      return Relay.CONTENT_CHANGE;
-    }
-    return Relay.NO_CHANGE;
-  }
-
-  public boolean equals(Object o) {
-    if (o == this) {
-      return true;
-    }
-    if (!(o instanceof CasRelay)) {
-      return false;
-    }
-    return _uid.equals(((CasRelay)o).getUID());
-  }
-
-  public int hashCode() {
-    return _uid.hashCode();
-  }
-
-  public String toString() {
-    return "CasRelay(" + _uid + ", " + _content + ", " + _response + ")";
-  }
-
-  public boolean isSource() {
-    return (_targets != null);
-  }
-
-  public boolean isTarget() {
-    return (_targets == null || _targets.contains(_source));
+    super(uid, source, targets);
   }
 
   public void disableUser(String uid) {
