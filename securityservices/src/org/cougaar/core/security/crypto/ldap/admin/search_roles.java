@@ -161,14 +161,14 @@ public class search_roles extends HttpJspBase {
 
             // end
             // begin [file="/search_roles.jsp";from=(66,78);to=(66,124)]
-                out.print(URLEncoder.encode(UserInterface.LDAP_ROLE_RDN));
+                out.print(URLEncoder.encode(UserInterface.LDAP_ROLE_RDN, "UTF-8"));
             // end
             // HTML // begin [file="/search_roles.jsp";from=(66,126);to=(66,127)]
                 out.write("=");
 
             // end
             // begin [file="/search_roles.jsp";from=(66,130);to=(66,152)]
-                out.print(URLEncoder.encode(rid));
+                out.print(URLEncoder.encode(rid, "UTF-8"));
             // end
             // HTML // begin [file="/search_roles.jsp";from=(66,154);to=(67,39)]
                 out.write("\" \r\n               target=\"UserMatchFrame\">");

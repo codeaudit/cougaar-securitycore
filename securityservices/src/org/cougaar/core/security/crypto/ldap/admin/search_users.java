@@ -161,14 +161,14 @@ public class search_users extends HttpJspBase {
 
             // end
             // begin [file="/search_users.jsp";from=(66,78);to=(66,124)]
-                out.print(URLEncoder.encode(UserInterface.LDAP_USER_UID));
+                out.print(URLEncoder.encode(UserInterface.LDAP_USER_UID, "UTF-8"));
             // end
             // HTML // begin [file="/search_users.jsp";from=(66,126);to=(66,127)]
                 out.write("=");
 
             // end
             // begin [file="/search_users.jsp";from=(66,130);to=(66,152)]
-                out.print(URLEncoder.encode(uid));
+                out.print(URLEncoder.encode(uid, "UTF-8"));
             // end
             // HTML // begin [file="/search_users.jsp";from=(66,154);to=(67,39)]
                 out.write("\" \r\n               target=\"UserMatchFrame\">");

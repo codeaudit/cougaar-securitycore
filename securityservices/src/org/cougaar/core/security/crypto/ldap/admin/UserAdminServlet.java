@@ -285,16 +285,16 @@ public class UserAdminServlet extends HttpServlet {
     throws ServletException, IOException {
     resp.sendRedirect(req.getRequestURI() + "?" +
                       UserInterface.PAGE + "=" + UserInterface.PAGE_DISPLAY_USER + "&" +
-                      URLEncoder.encode(UserInterface.LDAP_USER_UID) +
-                      "=" + URLEncoder.encode(uid));
+                      URLEncoder.encode(UserInterface.LDAP_USER_UID, "UTF-8") +
+                      "=" + URLEncoder.encode(uid, "UTF-8"));
   }
 
   private void gotoViewRole(HttpServletRequest req, HttpServletResponse resp, String rid) 
     throws ServletException, IOException {
     resp.sendRedirect(req.getRequestURI() + "?" +
                       UserInterface.PAGE + "=" + UserInterface.PAGE_DISPLAY_ROLE + "&" +
-                      URLEncoder.encode(UserInterface.LDAP_ROLE_RDN) +
-                      "=" + URLEncoder.encode(rid));
+                      URLEncoder.encode(UserInterface.LDAP_ROLE_RDN, "UTF-8") +
+                      "=" + URLEncoder.encode(rid, "UTF-8"));
   }
 
   private void gotoViewEmptyPage(HttpServletRequest req, HttpServletResponse resp,

@@ -64,7 +64,7 @@
 <% 
         if (i == 0) {
 %><a href="<%=request.getRequestURI() + "?" +
-              UserInterface.PAGE + "=" + UserInterface.PAGE_DISPLAY_USER%>&<%=URLEncoder.encode(UserInterface.LDAP_USER_UID)%>=<%=URLEncoder.encode(uid)%>" 
+              UserInterface.PAGE + "=" + UserInterface.PAGE_DISPLAY_USER%>&<%=URLEncoder.encode(UserInterface.LDAP_USER_UID, "UTF-8")%>=<%=URLEncoder.encode(uid, "UTF-8")%>" 
                target="UserMatchFrame"><%
         } 
 %><%=val%><%
