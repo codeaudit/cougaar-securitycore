@@ -236,7 +236,10 @@ public class SecurityServiceProvider
     services.put(SSLService.class,
 		 new SSLServiceProvider());
     serviceBroker.addService(SSLService.class, this);
-
+    serviceBroker.getService(this, SSLService.class, null);
+    services.put(WebserverIdentityService.class,
+		 new WebserverSSLServiceProvider());
+    serviceBroker.addService(WebserverIdentityService.class, this);
   }
 
   /* ******************************************************************

@@ -33,14 +33,15 @@ import org.cougaar.util.*;
 // Cougaar security services
 import com.nai.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.ssl.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
-public class SSLServiceProvider
+public class WebserverSSLServiceProvider
   implements ServiceProvider {
   private KeyRingService ksr;
 
-  static private SSLServiceImpl sslservice = null;
+  static private WebserverSSLServiceImpl sslservice = null;
 
   public Object getService(ServiceBroker sb,
 			   Object requestor,
@@ -48,9 +49,6 @@ public class SSLServiceProvider
 
     if (sslservice != null)
       return sslservice;
-
-    //if (CryptoDebug.debug)
-      System.out.println("Creating SSLService.");
 
     // Retrieve KeyRing service
     ksr = (KeyRingService)
@@ -64,12 +62,11 @@ public class SSLServiceProvider
 		      });
 
     try {
-      sslservice = new SSLServiceImpl();
+      sslservice = new WebserverSSLServiceImpl();
       sslservice.init(ksr);
     }
     catch (Exception e) {
-      System.out.println("Failed to initialize SSLService! " + e.toString());
-      e.printStackTrace();
+      System.out.println("Failed to initialized WebserverSSLService!");
     }
     return sslservice;
   }
