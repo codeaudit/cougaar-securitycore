@@ -47,6 +47,7 @@ module Cougaar
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
 	  logWarningMsg "Unable to start stress: #{className}" + ex
+          saveResult(false, 'Stress: #{className}.#{methodName}', ex)
 	  return
 	end
       end
@@ -59,8 +60,10 @@ module Cougaar
 	logInfoMsg "Invoking stress: #{@stressorClassName}.#{@methodName}"
 	begin
 	  @aMethod.call()
-	rescue
+	rescue => ex
 	  logWarningMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
+          saveResult(false, 'Stress: #{@stressorClassName}.#{methodName}',
+               "#{ex}\n#{ex.backtrace.join("\n")}")
 	end
 	logInfoMsg "Done invoking stress: #{@stressorClassName}.#{@methodName}" if $Dbg_action
       end
@@ -98,8 +101,10 @@ module Cougaar
 	    logInfoMsg "Invoking stress: #{@stressorClassName}.#{@methodName}"
 	    begin
 	      @aMethod.call()
-	    rescue
+	    rescue => ex
 	      logWarningMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
+              saveResult(false, 'Stress: #{@stressorClassName}.#{methodName}', 
+                  "#{ex}\n#{ex.backtrace.join("\n")}")
 	    end
 	    id += 1
 	    sleep @interval
