@@ -37,7 +37,10 @@ import org.cougaar.core.service.LoggingService;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.cert.X509Certificate;
+import java.net.URLEncoder;
 import java.util.List;
+import java.util.Comparator;
+import java.util.Collections;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -60,6 +63,11 @@ public class CertificateList
   private LoggingService log;
 
   private SecurityServletSupport support;
+  public static final int STATUS_ORDERING = 1;
+  public static final int DN_ORDERING = 2;
+  public static final int FROM_ORDERING = 3;
+  public static final int TO_ORDERING = 4;
+
   public CertificateList(SecurityServletSupport support) {
     this.support = support;
     log = (LoggingService)
@@ -84,16 +92,29 @@ public class CertificateList
     }
   }
 
-  public void doPost (HttpServletRequest  req, HttpServletResponse res)
+  /** Return requested ordering from request
+   */
+  private int getOrdering(HttpServletRequest req) {
+    int ordering = 0;
+    try {
+      ordering = Integer.parseInt(req.getParameter("ordering"));
+    }
+    catch (Exception e) {
+      // Nothing to do. Use the default ordering value
+    }
+    return ordering;
+  }
+  private String getCaDn(HttpServletRequest req) {
+    return req.getParameter("cadnname");
+  }
+
+  public void doPost (HttpServletRequest req, HttpServletResponse res)
     throws ServletException,IOException
   {
     PrintWriter out=res.getWriter();
-    //String domain=null;
-    String cadnname=null;
-
-    cadnname =(String)req.getParameter("cadnname");
+    String cadnname = getCaDn(req);
     if (log.isDebugEnabled()) {
-      log.debug(cadnname);
+      log.debug("doPost:" + cadnname);
     }
     if((cadnname==null)||( cadnname=="")) {
       out.print("Error ---Unknown  type CA dn name :");
@@ -101,7 +122,50 @@ public class CertificateList
       out.close();
       return;
     }
+    doCertificateList(cadnname, out, req, getOrdering(req));
+    out.println("</body></html>");
+    out.flush();
+    out.close();
+  }
 
+  protected void doGet(HttpServletRequest req,HttpServletResponse res)
+    throws ServletException, IOException
+  {
+    res.setContentType("text/html");
+    PrintWriter out=res.getWriter();
+    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+    out.println("<html>");
+    out.println("<head>");
+    out.println("<title>Certificate List</title>");
+    out.println("</head>");
+    out.println("<body>");
+    out.println("<H2>Certificate List</H2>");
+
+    String cadnname = getCaDn(req);
+    if (log.isDebugEnabled()) {
+      log.debug("doGet: " + cadnname);
+    }
+    if ((cadnname==null)||( cadnname=="")) {
+      doCaList(out, req);
+    }
+    else {
+      doCertificateList(cadnname, out, req, getOrdering(req));
+    }
+    out.println("</body></html>");
+    out.flush();
+    out.close();
+  }
+
+  public String getServletInfo()
+  {
+    return("List all certificate specified by CAS dn name");
+  }
+
+  /**
+   * Display the list of certificates
+   */
+  private void doCertificateList(String cadnname, PrintWriter out,
+				 HttpServletRequest req, int ordering) {
     /*
     try {
       caPolicy = configParser.getCaPolicy(cadnname);
@@ -157,26 +221,14 @@ public class CertificateList
       log.debug("calling create table will domain:" + domain);
     }
     */
-    out.println(createtable(l,
-			    cadnname, certDetailsUri));
-    out.println("</body></html>");
-    out.flush();
-    out.close();
+    out.println(createtable(l, cadnname,
+			    certDetailsUri, ordering));
   }
 
-  protected void doGet(HttpServletRequest req,HttpServletResponse res)
-    throws ServletException, IOException
-  {
-    res.setContentType("text/html");
-    PrintWriter out=res.getWriter();
-    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
-    out.println("<html>");
-    out.println("<head>");
-    out.println("<title>Certificate List from Ldap </title>");
-    out.println("</head>");
-    out.println("<body>");
-    out.println("<H2>Certificate List</H2>");
-
+  /**
+   * Display a drop-down list to display the list of CAs
+   */
+  private void doCaList(PrintWriter out, HttpServletRequest req) {
     caDNs = configParser.getCaDNs();
     if (log.isDebugEnabled()) {
       if (caDNs == null || caDNs.length == 0) {
@@ -232,23 +284,54 @@ public class CertificateList
       out.println("<input type=\"reset\"></td><td></td></tr>");
       out.println("</form></table>");
     }
-    out.println("</body></html>");
-    out.flush();
-    out.close();
-  }
-
-  public String getServletInfo()
-  {
-    return("List all certificate specified by CAS dn name");
   }
 
   public String createtable(List l, String cadnname,
-			    String certDetailUri)
+			    String certDetailUri,
+			    int ordering)
   {
     StringBuffer sb=new StringBuffer();
     sb.append("<table align=\"center\" border=\"2\">\n");
-    sb.append("<TR><TH> DN-Certificate </TH><TH> Status </TH><TH> DN-Signed By </TH></TR>\n");
+    String encodedCaName = "";
+    try {
+      encodedCaName = URLEncoder.encode(cadnname, "UTF-8");
+    }
+    catch (Exception e) {
+      // Nothing to do
+    }
+    sb.append("<TR><TH>" +
+	      "<a Href=\"?cadnname="
+	      + encodedCaName + "&ordering="
+	      + DN_ORDERING + "\">DN-Certificate</a>" +
+	      "</TH><TH>" +
+	      "<a Href=\"?cadnname="
+	      + encodedCaName + "&ordering="
+	      + STATUS_ORDERING + "\">Status</a>" + 
+	      "</TH><TH>" +
+	      "<a Href=\"?cadnname="
+	      + encodedCaName + "&ordering="
+	      + FROM_ORDERING + "\">From</a>" + 
+	      "</TH><TH>" +
+	      "<a Href=\"?cadnname="
+	      + encodedCaName + "&ordering="
+	      + TO_ORDERING + "\">To</a>" + 
+	      "</TH><TH>DN-Signed By</TH></TR>\n");
 
+    switch (ordering) {
+    case STATUS_ORDERING:
+      Collections.sort(l, new StatusComparator());
+      break;
+    case FROM_ORDERING:
+      Collections.sort(l, new FromComparator());
+      break;
+    case TO_ORDERING:
+      Collections.sort(l, new ToComparator());
+      break;
+    case DN_ORDERING:
+    default:
+      Collections.sort(l, new DnComparator());
+      break;
+    }
     //for(int i = 0 ; i < ldapentries.length ; i++) {
     for(int i = 0 ; i < l.size() ; i++) {
       CertificateEntry entry = (CertificateEntry)l.get(i);
@@ -267,6 +350,8 @@ public class CertificateList
 		+ cert.getSubjectDN().getName()
 		+"</a></form></TD>\n");
       sb.append("<TD>"+entry.getCertificateRevocationStatus()+"</TD>\n" );
+      sb.append("<TD>"+cert.getNotBefore().toString()+"</TD>\n" );
+      sb.append("<TD>"+cert.getNotAfter().toString()+"</TD>\n" );
       sb.append("<TD>"+cert.getIssuerDN().getName()
 		+"</TD></TR>\n");
     }
@@ -274,4 +359,91 @@ public class CertificateList
     return sb.toString();
   }
 
+  private class DnComparator
+    implements Comparator
+  {
+    public int compare (Object o1, Object o2) {
+      CertificateEntry entry1 = (CertificateEntry)o1;
+      CertificateEntry entry2 = (CertificateEntry)o2;
+      X509Certificate cert1 = entry1.getCertificate();
+      X509Certificate cert2 = entry2.getCertificate();
+      String name1 = cert1.getSubjectDN().getName()
+	+ cert1.getSerialNumber();
+      String name2 = cert2.getSubjectDN().getName()
+	+ cert2.getSerialNumber();
+      return (name1.compareTo(name2));
+    }
+    public boolean equals(Object obj) {
+      return obj.equals(this);
+    }
+  }
+
+  private class StatusComparator
+    implements Comparator
+  {
+    public int compare (Object o1, Object o2) {
+      CertificateEntry entry1 = (CertificateEntry)o1;
+      CertificateEntry entry2 = (CertificateEntry)o2;
+      X509Certificate cert1 = entry1.getCertificate();
+      X509Certificate cert2 = entry2.getCertificate();
+      String name1 = entry1.getCertificateRevocationStatus() +
+	cert1.getSubjectDN().getName()
+	+ cert1.getSerialNumber();
+      String name2 = entry2.getCertificateRevocationStatus() +
+	cert2.getSubjectDN().getName()
+	+ cert2.getSerialNumber();
+      return (name1.compareTo(name2));
+    }
+    public boolean equals(Object obj) {
+      return obj.equals(this);
+    }
+  }
+  private class FromComparator
+    implements Comparator
+  {
+    public int compare (Object o1, Object o2) {
+      CertificateEntry entry1 = (CertificateEntry)o1;
+      CertificateEntry entry2 = (CertificateEntry)o2;
+      X509Certificate cert1 = entry1.getCertificate();
+      X509Certificate cert2 = entry2.getCertificate();
+      if (cert1.getNotBefore() != cert2.getNotBefore()) {
+	return cert1.getNotBefore().compareTo(cert2.getNotBefore());
+      }
+      else {
+	String name1 = cert1.getSubjectDN().getName()
+	  + cert1.getSerialNumber();
+	String name2 = entry2.getCertificateRevocationStatus() +
+	  cert2.getSubjectDN().getName()
+	  + cert2.getSerialNumber();
+	return (name1.compareTo(name2));
+      }
+    }
+    public boolean equals(Object obj) {
+      return obj.equals(this);
+    }
+  }
+  private class ToComparator
+    implements Comparator
+  {
+    public int compare (Object o1, Object o2) {
+      CertificateEntry entry1 = (CertificateEntry)o1;
+      CertificateEntry entry2 = (CertificateEntry)o2;
+      X509Certificate cert1 = entry1.getCertificate();
+      X509Certificate cert2 = entry2.getCertificate();
+      if (cert1.getNotAfter() != cert2.getNotAfter()) {
+	return cert1.getNotAfter().compareTo(cert2.getNotAfter());
+      }
+      else {
+	String name1 = cert1.getSubjectDN().getName()
+	  + cert1.getSerialNumber();
+	String name2 = entry2.getCertificateRevocationStatus() +
+	  cert2.getSubjectDN().getName()
+	  + cert2.getSerialNumber();
+	return (name1.compareTo(name2));
+      }
+    }
+    public boolean equals(Object obj) {
+      return obj.equals(this);
+    }
+  }
 }
