@@ -160,13 +160,15 @@ public class MnRQueryServletComponent
     out.println("<body>");
     out.println("<H2>MnRQuery </H2><BR>");
     out.println("<table>");
-    out.println("<form action=\"query\" method =\"post\">");
+    out.println("<form action=\"\" method =\"post\">");
     out.println("<tr ><td>Community </td><td>");
     out.println("<TextArea name=community row=1 col=40></TextArea></td></tr>");
     out.println("<tr ><td>Role </td><td>");
     out.println("<TextArea name=role row=1 col=40></TextArea></td></tr>");
     out.println("<tr ><td>ClassificationName </td><td>");
     out.println("<TextArea name=classificationName row=1 col=40></TextArea></td></tr>");
+    out.println("<tr ><td>Manager Address </td><td>");
+    out.println("<TextArea name=mgraddress row=1 col=40></TextArea></td></tr>");
     out.println("<tr></tr><tr><td><input type=\"submit\">&nbsp;&nbsp;&nbsp;</td>");
     out.println("<td><input type=\"reset\"></td></tr>");
     out.println("</form></table>");
@@ -184,9 +186,11 @@ public class MnRQueryServletComponent
      String classname=null;
      String role=null;
      String community=null;
+     String mgrAddress=null;
      classname =(String)request.getParameter("classificationName");
      role=(String)request.getParameter("role");
      community=(String)request.getParameter("community");
+     mgrAddress=(String)request.getParameter("mgraddress");
      if((classname==null)&&(role==null)&&(community==null)){
        out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
        out.println("<html>");
@@ -213,25 +217,27 @@ public class MnRQueryServletComponent
      CmrFactory factory=(CmrFactory)ds.getFactory("cmr");
      IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
      Classification classification=imessage.createClassification(classname, null );
-     MRAgentLookUp agentlookup=new  MRAgentLookUp(null,null,null,null,classification,null,null);
-     if((community!=null)&& (community!="")) {
+     MRAgentLookUp agentlookup=new  MRAgentLookUp(null,null,null,null,classification,null,null,true);
+     if((community!=null)&& (!community.equals(""))) {
        System.out.println(" setting community to :"+community); 
        agentlookup.community=community;
-       
      }
-     if((role!=null)) {
-       if(role.equals("")) {
-	 
-       }
-       else {
-	 System.out.println("setting role to :"+role);
-	 agentlookup.role=role;
-       }
-       
+     else {
+       agentlookup.community=null;
      }
-     
-     
-     MessageAddress dest_address=MessageAddress.getMessageAddress("SocietySecurityManager");
+     if((role!=null) && (!role.equals(""))) {
+       System.out.println("setting role to :"+role);
+       agentlookup.role=role;
+     }
+     else {
+       agentlookup.role=null;
+     }
+     if(mgrAddress!=null) {
+       if(mgrAddress.equals("")) {
+         out.println("<H2> MAnager  Address is null :</H2>");
+       }
+     }
+     MessageAddress dest_address=MessageAddress.getMessageAddress(mgrAddress);
      CmrRelay relay = factory.newCmrRelay(agentlookup,dest_address);
      try {
        blackboard.openTransaction();
@@ -250,7 +256,14 @@ public class MnRQueryServletComponent
      out.println("<H2>MnRQuery </H2><BR>");
       boolean printed=false;
      while(!atleastone) {
-       Collection responsecol=blackboard.query(new QueryEventPredicate());
+       
+       Collection responsecol=null;
+       try {
+         blackboard.openTransaction();
+        responsecol=blackboard.query(new QueryEventPredicate());
+       }finally {
+         blackboard.closeTransactionDontReset();
+       }
        Iterator it = responsecol.iterator();
        MRAgentLookUpReply  reply;
       
@@ -269,124 +282,13 @@ public class MnRQueryServletComponent
 	   //out.println("relay receive was :"+relay.toString());
 	 }
        }
+       out.println("no response yet :");
+        out.flush();
      }
      out.flush();
      out.close();
          
    }
   }
-  /*
-  public void dummy() {    
-    
-    
-    // boolean exists=cs.communityExists(classname);
-    // out.println(" checking whether community :"+ classname +"  exists  :"+exists +" <br>");
-    // System.out.println(" checking whether community :"+ classname +"  exists  :"+exists  +" <br>");
-    // out.println(" Going to get all communities :" +" <br>"  );
-    // System.out.println(" Going to get all communities :" +" <br>");
-    
-     Collection communities =cs.listAllCommunities();
-     CommunityRoster roster;
-     Iterator iter=communities.iterator();
-     String community;
-     while(iter.hasNext()) {
-       out.println("-------------------------------------------------------------------------------<br>");
-       community=(String)iter.next();
-       out.println(" Got community name as :"+ community +" <br>");
-      out.println(" Going to get attributes for community :"+ community +" <br>");
-       Attributes atts=cs.getCommunityAttributes(community);
-       NamingEnumeration natts=atts.getAll();
-       Attribute att;
-       try {
-	 while(natts.hasMore()) {
-	   att=(Attribute)natts.next();
-	   out.println(" attribute ID ---------------->"+ att.getID()+ "<br>");
-	   NamingEnumeration attval=att.getAll();
-	   Object attvalue;
-	   out.println(" going to print values for attribute with id---------------------------->"+att.getID()+ "<br>" ); 
-	   while(attval.hasMore()){
-	     attvalue=attval.next();
-	     out.println("value for att ============> :"+attvalue+ "<br>" ); 
-	   }
-	 }
-       }
-       catch (Exception exp) {
-	 exp.printStackTrace();
-	 out.println(" exception occured :"+ exp.getMessage() + "<br>");
-	 out.flush();
-	 out.close();
-       }
-       
-       // out.println(" Getting agents from community ------------->:"+ community +" <br>");
-       //      roster=cs.getRoster(community);
-       //Collection agents=roster.getMemberAgents();
-       //out.println("going to display agents from community :++++++++++++++++++++++++++++++++++"+ community +" <br>");
-       //Iterator agentiter=agents.iterator();
-       //MessageAddress agent;
-       // while(agentiter.hasNext()) {
-       //agent=(MessageAddress)agentiter.next();
-       //out.println(" Agent name:"+agent.toString() + " Community name  : "+ community +" <br>");
-	 // System.out.println(" Agent name:"+ agent + " Community name  : "+ community);
-       //}
-       //out.println(" going to get member communities +++++++++++++++++++++++++++ <br>");
-       //Collection  commember=roster.getMemberCommunities();
-       //Iterator itercommember=commember.iterator();
-       //String comm;
-       //while(itercommember.hasNext()) {
-       //comm=(String)itercommember.next();
-       // out.println(" member community name:"+ comm +" <br>"  );
-	 // System.out.println(" memeber community name:"+ comm  +" <br>");
-       //}
-       
-       out.println(" Going to get community with community Type Security =============================<br>");
-       String filter="(CommunityType=" + CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ")";
-       Collection parent=cs.search(filter);
-       Iterator itercommember=parent.iterator();
-        String comm;
-       out.println(" List of t communities is as follows --------------------------------->>>>>>>>>>>:<br>");
-       while(itercommember.hasNext()) {
-	 comm=(String)itercommember.next();
-       	 out.println("community name with communityType attribute security :"+ comm +" <br>"  );
-	 // System.out.println(" memeber community name:"+ comm  +" <br>");
-	 out.println("Going to Perform search with filter value  community "+ comm +" role society: <br>"  );
-//         filter="(Role=SecurityMnRManager-Society)";
-	 Collection searchresult=cs.searchByRole(comm,"SecurityMnRManager-Society");
-	 Iterator jiter=searchresult.iterator();
-	 out.println("Result of search  is as follows --------------------------------->>>>>>>>>>>:");
-	 while(jiter.hasNext()) {
-	   comm=(String)jiter.next();
-	   out.println("Perform search and result :"+ comm +" <br>"  );
-	   // System.out.println(" memeber community name:"+ comm  +" <br>");
-	 }	
-       }
-	
-     }
-     
-     out.println(" Performing search on Naming service :<br>");
-     String myfilter="(Role=SecurityMnRManager-Society)";
-     //NamingService ns=(NamingService)cs.getNamingService(); 
-     try {
-       DirContext context= ns.getRootContext();
-       SearchControls ctls = new SearchControls();
-       ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-       NamingEnumeration ne= context.search("",myfilter,ctls);
-       while(ne.hasMore()) {
-	 SearchResult  result=(SearchResult)ne.next();
-	 out.println("Result is :"+ result.getObject().toString());
-       }
-     }
-     catch (Exception exp) {
-       exp.printStackTrace();
-       out.println(" Error in doing search :"+ exp.getMessage());
-     }
-     
-     out.flush();
-     out.close();
-
-
-
-  }
-  */
-
 }
 
