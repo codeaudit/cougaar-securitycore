@@ -114,10 +114,12 @@ public class PluginServiceFilter extends ServiceFilter {
       // here's where we catch the service request for Blackboard and proxy the
       // returned service.  See FilteringServiceBroker for more options.
       protected Object getServiceProxy(Object service, Class serviceClass, Object client) {
+        /*
         if (service instanceof BlackboardService) {
           return new BlackboardServiceProxy((BlackboardService) service, client);
         } 
-        else if(service instanceof SchedulerService) {
+        */
+        if(service instanceof SchedulerService) {
           return new SchedulerServiceProxy(_scs, (SchedulerService) service, client); 
         }
         else if(service instanceof ServletService) {
