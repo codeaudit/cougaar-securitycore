@@ -108,9 +108,9 @@ public class ServletNodeEnforcer
     _uriMap.initializeUri();
     try {
       _userRoleMap = new RegexpStringMapping(sb, "DamlUserRoleMap");
-    } catch (IOException e) {
+    } catch (Exception e) {
       _log.fatal("Could not initialize role mapping, servlet enforcement " +
-                 "enforcer may deny valid access");
+                 "enforcer may deny valid access", e);
     }
     _sb = sb;
     _log = (LoggingService) 
