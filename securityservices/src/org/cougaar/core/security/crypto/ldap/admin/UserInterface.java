@@ -118,12 +118,13 @@ class UserInterface {
     { "mail", "Email Address" },
 
     { "title", "Title" },
+
     { "street", "Address Line 1" },
-    { "postalAddress", "Address Line 2" },
+//     { "postalAddress", "Address Line 2" },
     { "l", "City" },
     { "st", "State" },
     { "postalCode", "Zip Code" },
-    { "c", "Country" },
+//     { "c", "Country" },
 
     {"telephoneNumber", "Work Phone #"},
     { "homePhone", "Home Phone #" },

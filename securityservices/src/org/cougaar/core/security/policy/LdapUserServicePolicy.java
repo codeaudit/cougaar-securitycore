@@ -27,7 +27,8 @@
 package org.cougaar.core.security.policy;
 
 public class LdapUserServicePolicy extends SecurityPolicy {
-  private final static String DEF_UOC[] = { "inetOrgPerson", "cougaarAcct" };
+  private final static String DEF_UOC[] = { "inetOrgPerson", "cougaarAcct", 
+                                            "organizationalPerson" };
   private final static String DEF_ROC[] = { "organizationalRole" };
   
   public String ldapUrl            = "ldap:///";
