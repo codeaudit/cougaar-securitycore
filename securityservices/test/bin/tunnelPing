@@ -24,13 +24,9 @@ echo "      ${host4}:8800 --> localhost:18800"
 echo "      ${host4}:9800 --> localhost:19800"
 echo "      ${host4}:8801 --> localhost:18801"
 echo "      ${host4}:9801 --> localhost:19801"
-echo " NodeB, NodeC and NodeD"
+echo " NodeB"
 echo "      ${host5}:8800 --> localhost:28800"
 echo "      ${host5}:9800 --> localhost:29800"
-echo "      ${host5}:8801 --> localhost:28801"
-echo "      ${host5}:9801 --> localhost:29801"
-echo "      ${host5}:8802 --> localhost:28802"
-echo "      ${host5}:9802 --> localhost:29802"
 echo "	Jabber host = ${jabber} but connect through localhost:5222"
 echo "		(needs right client)"
 echo "Leave ssh connection open for duration of the tunnel"
@@ -40,7 +36,5 @@ ssh -L 8820:${host1}:8820 -L 9820:${host1}:9820 \
     -L 18800:${host4}:8800 -L 19800:${host4}:9800 \
     -L 18801:${host4}:8801 -L 19801:${host4}:9801 \
     -L 28800:${host5}:8800 -L 29800:${host5}:9800 \
-    -L 28801:${host5}:8801 -L 29801:${host5}:9801 \
-    -L 28802:${host5}:8802 -L 29802:${host5}:9802 \
     -L 5222:${jabber}:5222 \
         ${remote}
