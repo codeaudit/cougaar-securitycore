@@ -1,0 +1,35 @@
+Here is a list of users and passwords:
+
+amarinea/amarinea
+george/george
+sebastien/sebastien
+james/james
+mbarger/mbarger
+gordon/gordon
+rkilmer/rkilmer
+saul/saul
+al-inventory/al-inventory (Basic Auth) keystorePassword (stand-alone
+certificate)
+kpat/kpat (basic auth) keystorePassword (stand-alone certificate)
+stoplight/keystorePassword(stand-alone certificate)
+datagrabber/keystorePassword(stand-alone certificate)
+
+Currently the role assignments are as follows:
+
+amarinea - UserManager, MonitorManager
+george - UserManager, Logistician
+sebastien - CAAdministrator
+james - PolicyAdministrator
+mbarger - all roles
+gordon - LogisticsViewer
+rkilmer - SocietyAdmin
+saul - RoverManager
+
+Stand-alone applications:
+
+al-inventory - LogisticsViewer
+kpat - PolicyAdministrator
+stoplight - LogisticsViewer
+datagrabber - LogisticsViewer
+
+
