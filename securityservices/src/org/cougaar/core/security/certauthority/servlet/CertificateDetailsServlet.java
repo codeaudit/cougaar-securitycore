@@ -165,7 +165,7 @@ public class CertificateDetailsServlet
     out.println("<title>Certificate details </title>");
     out.println("</head>");
     out.println("<body>");
-    out.println("<H2> Certificate Details</H2><BR>");
+    out.println("<H2> Certificate Details</H2>");
     out.println("<form name=\"revoke\" action=\"" +
 		certRevokeUri + "\" method=\"post\">");
     out.println("<input type=\"hidden\" name=\"distinguishedName\" value=\""
