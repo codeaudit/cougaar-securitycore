@@ -26,6 +26,7 @@ $okMessages= [
   [nil, /STDOUT - -/],
   [nil, /STDOUT - $/],
   [nil, /STDOUT - R$/],
+  [nil, /STDOUT - http:\/\/www.w3.org\/2000\/10\/XMLSchema#/],
   [nil, /WARN  -.*STDOUT -.*SHOUT \[DOTS\]/],
   [nil, /STDOUT - \./],
   [nil, /STDOUT - P$/],

@@ -80,6 +80,7 @@ include_scripts:
   # check_wp.rb should be before setup_society_ping.rb
 #  - script: $CIP/csmart/lib/security/scripts/check_wp.rb
   - script: $CIP/csmart/lib/security/scripts/setup_society_ping.rb
+  - script: $CIP/csmart/lib/security/scripts/healthcheck.rb
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
     parameters:
       - cleanup_label: transformed_society
@@ -95,13 +96,13 @@ include_scripts:
 CIP = ENV['CIP']
 $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib')
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist')
+$:.unshift File.join(CIP, 'csmart', 'lib')
 
 if File.exist?("#{CIP}/acme")
   # Below is the path when using open-source ACME
   $:.unshift File.join(CIP, 'acme', 'acme_scripting',  'src', 'lib')
   $:.unshift File.join(CIP, 'acme', 'acme_service', 'src', 'redist')
   require 'cougaar/scripting'
-  $:.unshift File.join(CIP, 'csmart', 'lib')
   require 'security/actions/cleanup_society'
 else
   require 'cougaar/scripting'
