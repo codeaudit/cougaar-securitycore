@@ -71,7 +71,7 @@ class ServletServiceProxy extends SecureServiceProxy
   }
   
   private Servlet addServlet(String path, Servlet servlet) {
-    Servlet ss = new SecureServlet(_scs.getExecutionContext(), servlet);
+    Servlet ss = new SecureServlet(servlet, _scs.getExecutionContext());
     _servletTable.put(path, ss); 
     return ss;
   }
@@ -83,12 +83,12 @@ class ServletServiceProxy extends SecureServiceProxy
   }
    
   private class SecureServlet implements Servlet {
-    private ExecutionContext _ec;
     private Servlet _servlet;
+    private ExecutionContext _ec;
     
-    public SecureServlet(ExecutionContext ec, Servlet servlet) {
-      _ec = ec;
+    public SecureServlet(Servlet servlet, ExecutionContext ec) {
       _servlet = servlet;
+      _ec = ec;
     }
     
     public void destroy() {
@@ -105,7 +105,9 @@ class ServletServiceProxy extends SecureServiceProxy
     
     public void init(ServletConfig config) 
       throws ServletException {
+      _scs.setExecutionContext(_ec);
       _servlet.init(config);
+      _scs.resetExecutionContext();
     }
     
     public void service(ServletRequest req, ServletResponse res) 

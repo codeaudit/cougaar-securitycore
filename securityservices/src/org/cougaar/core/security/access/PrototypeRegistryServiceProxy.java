@@ -48,15 +48,15 @@ class PrototypeRegistryServiceProxy extends SecureServiceProxy
   }
   
   public void addLatePropertyProvider(LatePropertyProvider lpp) {
-    
+    _prs.addLatePropertyProvider(new SecureLatePropertyProvider(lpp, _scs.getExecutionContext()));
   }
             
   public void addPropertyProvider(PropertyProvider prov) {
-    
+    _prs.addPropertyProvider(new SecurePropertyProvider(prov, _scs.getExecutionContext()));
   }
             
   public void addPrototypeProvider(PrototypeProvider prov) {
-    
+    _prs.addPrototypeProvider(new SecurePrototypeProvider(prov, _scs.getExecutionContext()));
   }
             
   public void cachePrototype(String aTypeName, Asset aPrototype) {
@@ -153,7 +153,7 @@ class PrototypeRegistryServiceProxy extends SecureServiceProxy
       _lpp = lpp; 
       _ec = ec;
     }
-    // PropertyProvider interface
+    // LatePropertyProvider interface
     public PropertyGroup fillPropertyGroup(Asset anAsset, Class pg, long time) {
       PropertyGroup retval = null;
       _scs.setExecutionContext(_ec);
@@ -209,7 +209,7 @@ class PrototypeRegistryServiceProxy extends SecureServiceProxy
       _pp = pp; 
       _ec = ec;
     }
-    // PropertyProvider interface
+    // PrototypeProvider interface
     public Asset getPrototype(String aTypeName, Class anAssetClassHint) {
       Asset retval = null;
       _scs.setExecutionContext(_ec);
