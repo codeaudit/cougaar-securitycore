@@ -30,6 +30,8 @@ import javax.net.*;
 import java.net.*;
 import java.io.IOException;
 
+import org.cougaar.core.security.crypto.KeyRingPermission;
+
 public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   private static KeyRingSSLServerFactory _default;
   private static SSLContext _sslcontext;
@@ -54,6 +56,11 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
    * Returns the default SSL server socket factory.
    */
   public synchronized static ServerSocketFactory getDefault() {
+    SecurityManager security = System.getSecurityManager();
+    if (security != null) {
+      security.checkPermission(new KeyRingPermission("KeyRingSSLServerFactory.getDefault"));
+    }
+
     if (_default == null) {
       if (_sslcontext == null) {
         System.out.println("SSLContext is NULL!");
