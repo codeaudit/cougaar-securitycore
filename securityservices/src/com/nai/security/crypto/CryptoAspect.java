@@ -133,16 +133,16 @@ public class CryptoAspect extends StandardAspect
   }
 
   /** ***************************************************
-   *  SecurityEnvelope
+   *  CryptoSecurityEnvelope
    */
-  private static class SecurityEnvelope extends MessageEnvelope {
+  private static class CryptoSecurityEnvelope extends MessageEnvelope {
     //for crypto
     private SignedObject signedMsg = null;
     private SealedObject sealedMsg = null;
     private SealedObject secret = null;    // The encrypted session key
     private Message msg = null;
         
-    SecurityEnvelope(Message m) 
+    CryptoSecurityEnvelope(Message m) 
       throws RuntimeException, CertificateException,
 	     java.security.NoSuchAlgorithmException,
 	     java.security.InvalidKeyException,
@@ -156,9 +156,15 @@ public class CryptoAspect extends StandardAspect
       String Target = m.getTarget().getAddress();
       String keyName;
       SecureMethodParam s = cps.getSendPolicy(Origin+":"+Target);
-      if(s==null) throw new RuntimeException("no policy available for securing the message:"+m);
-      if(debug) System.out.println("securing message with method "+smlist[s.secureMethod]+":"+Origin+"--"+Target);
-
+      if(s==null) {
+	throw new
+	  RuntimeException("No policy available for securing the message:"+m);
+      }
+      if(debug) {
+	System.out.println("securing message with method "
+			   +smlist[s.secureMethod]+":"
+			   + Origin + "--" + Target);
+      }
       if(s.secureMethod==s.PLAIN){
 	msg = m;
 	return;
@@ -204,7 +210,8 @@ public class CryptoAspect extends StandardAspect
       }else {
 	throw new RuntimeException("SecurityAspect: incorrect secureMethod parameter.");
       }
-    }
+      }
+
     public Message getContents() {
       try{
 	//unsecure the message
@@ -274,6 +281,13 @@ public class CryptoAspect extends StandardAspect
 	keyName = Target;
 	SecretKey sk = (SecretKey)
 	  cms.asymmDecrypt(keyName, param.asymmSpec, secret);
+	if (sk == null) {
+	  if (debug) {
+	    System.out.println("Error: unable to retrieve secret key");
+	  }
+	  return null;
+	}
+
 	return (Message)cms.symmDecrypt(sk,sealedMsg);
 
       }else if(param.secureMethod==SecureMethodParam.SIGN){
@@ -293,6 +307,12 @@ public class CryptoAspect extends StandardAspect
 	// of the target.
 	SecretKey sk=(SecretKey)
 	  cms.asymmDecrypt(keyName, param.asymmSpec, secret);
+	if (sk == null) {
+	  if (debug) {
+	    System.out.println("Error: unable to retrieve secret key");
+	  }
+	  return null;
+	}
 	return (Message)cms.symmDecrypt(sk, so);
       }
       return null;
@@ -316,8 +336,8 @@ public class CryptoAspect extends StandardAspect
 	     MisdeliveredMessageException
     {
       try {
-	SecurityEnvelope se;
-        se = new SecurityEnvelope(message);
+	CryptoSecurityEnvelope se;
+        se = new CryptoSecurityEnvelope(message);
 	if (se != null) {
 	  link.forwardMessage(se);
 	}
@@ -360,33 +380,38 @@ public class CryptoAspect extends StandardAspect
     public void deliverMessage(Message m, MessageAddress dest) 
       throws MisdeliveredMessageException
     {
-      try {
-        if (m instanceof SecurityEnvelope ) {
-	  SecurityEnvelope se = (SecurityEnvelope)m;
-	  if (se == null) {
-	    if(debug) {
-	      System.out.println("Unable to deliver message (msg is null) to " + dest);
-	    }
-	    throw new MisdeliveredMessageException(m);
+      if (m instanceof CryptoSecurityEnvelope ) {
+	CryptoSecurityEnvelope se = (CryptoSecurityEnvelope)m;
+	if (se == null) {
+	  if(debug) {
+	    System.out.println("Unable to deliver message (msg is null) to "
+			       + dest);
 	  }
-	  Message contents = se.getContents();
-	  if(contents == null) {
-	    if(debug) {
-	      System.out.println("Rejecting incoming message: "
-				 + se.toString());
-	    }
-	    return;
-	  }else{
-	    //System.out.println("________delivering this:"+contents+" to:"+dest+"using:"+deliverer);
-	    deliverer.deliverMessage(contents, dest);
+	  throw new MisdeliveredMessageException(m);
+	}
+	Message contents = se.getContents();
+	if(contents == null) {
+	  if(debug) {
+	    System.out.println("Rejecting incoming message: "
+			       + se.toString());
 	  }
-        } else {
-	  System.err.println("Warning: Not a SecurityEnvelope: " + m);
-	  deliverer.deliverMessage(m, dest);
-        }
-      } catch (Exception e) {
-	System.out.println("Unable to unsecure message: " + m + ". Reason: " + e.getMessage());
-        e.printStackTrace();
+	  return;
+	}else{
+	  deliverer.deliverMessage(contents, dest);
+	}
+      } else {
+	/* Incoming messages should always be wrapped in a
+	 * SecurityEnvelope. This allows the cryptographic service
+	 * to verify that the incoming message satisfies the
+	 * cryptographic policy.
+	 * If an incoming message is not wrapped in a security
+	 * envelope, then we discard the message.
+	 */
+	if (debug) {
+	  System.err.println("Error: Not a CryptoSecurityEnvelope: " + m);
+	}
+	return;
+	//deliverer.deliverMessage(m, dest);
       }
     }
   }
