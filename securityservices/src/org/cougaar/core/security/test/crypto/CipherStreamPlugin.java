@@ -80,6 +80,30 @@ public class CipherStreamPlugin
     runTest();
   }
 
+  public static String cipherSpecs[] = {
+    "AES", "Blowfish", "DES", "DESede",
+    "RC2", "RC4", "RC5",
+    "RSA"
+  };
+  //"PBEWithMD5AndDES", "PBEWithHmacSHA1AndDESede",
+
+  public static String modeSpecs[] = {
+    "NONE", "CBC", "CFB", "ECB", "OFB", "PCBC"
+  };
+
+  public static String paddingSpecs[] = {
+    "NoPadding"
+  };
+
+  // , "PKCS5Padding"
+  //"SSL3Padding"
+  //"OAEPWithMD5AndMGF1Padding", 
+
+  public static String keyGeneratorSpecs[] = {
+    "AES", "Blowfish", "DES", "DESede", "HmacMD5", "HmacSHA1"
+  };
+
+
   private void runTest() {
     if (getBindingSite() == null) {
       SecurityServiceProvider ssp = new SecurityServiceProvider();
@@ -94,29 +118,62 @@ public class CipherStreamPlugin
       log = (LoggingService)getBindingSite().getServiceBroker().getService
 	(this, LoggingService.class, null);
     }
-    String cipherSpecs[] = {
-      "AES", "Blowfish", "DES", "DESede",
-      "RC2", "RC4", "RC5",
-      "RSA"
-    };
-    //"PBEWithMD5AndDES", "PBEWithHmacSHA1AndDESede",
 
-    String modeSpecs[] = {
-      "NONE", "CBC", "CFB", "ECB", "OFB", "PCBC"
-    };
+    Experiment exp = new Experiment();
 
-    String paddingSpecs[] = {
-      "NoPadding", "OAEPWithMD5AndMGF1Padding", "PKCS5Padding"
-    };
-    //"SSL3Padding"
+    // Run with default provider
+    runSuite(exp, null);
 
-    String keyGeneratorSpecs[] = {
-      "AES", "Blowfish", "DES", "DESede", "HmacMD5", "HmacSHA1"
-    };
+    // Run with specified provider
+    /*
+    Provider[] providers = Security.getProviders();
+    for (int i = 0 ; i < providers.length ; i++) {
+      runSuite(exp, providers[i]);
+    }
+    */
+  }
 
-    int experimentNumber = 0;
+  private void runSuite(Experiment exp, Provider provider) {
     int keysize = 128;
-    System.out.println("experimentNumber, keysize, cipherSpec, keyGenSpec"
+
+    // try with small total stream size and small buffer size
+    keysize = 128;
+    exp.bufferSize = 10;
+    exp.streamSize = 4000;
+    executeExperiment(exp, keysize, provider);
+
+    // try with small total stream size and big buffer size
+    keysize = 128;
+    exp.bufferSize = 2000;
+    exp.streamSize = 4000;
+    executeExperiment(exp, keysize, provider);
+
+    // try with big total stream size and big buffer size
+    keysize = 128;
+    exp.bufferSize = 2000;
+    exp.streamSize = 10000000;
+    executeExperiment(exp, keysize, provider);
+
+    // try with big total stream size and small buffer size.
+    keysize = 128;
+    exp.bufferSize = 10;
+    exp.streamSize = 10000000;
+    executeExperiment(exp, keysize, provider);
+
+    // Try with bigger key length
+    keysize = 256;
+    exp.bufferSize = 2000;
+    exp.streamSize = 10000000;
+    executeExperiment(exp, keysize, provider);
+
+  }
+
+  private void executeExperiment(Experiment exp, int keysize,
+				 Provider provider) {
+
+    System.out.println("experimentNumber, bufferSize, streamSize, "
+		       + "keysize, cipherSpec, keyGenSpec"
+		       + ", provider"
 		       + ", diff21"
 		       + ", diff32"
 		       + ", diff43"
@@ -125,22 +182,16 @@ public class CipherStreamPlugin
 		       + ", diff61"
       );
 
-    Experiment exp = new Experiment();
-
     for (int j = 0 ; j < cipherSpecs.length ; j++) {
       for (int k = 0 ; k < keyGeneratorSpecs.length ; k++) {
 	for (int l = 0 ; l < modeSpecs.length ; l++) {
 	  for (int m = 0 ; m < paddingSpecs.length ; m++) {
 	    try {
 	      String transform = cipherSpecs[j] + "/" + modeSpecs[l] + "/" + paddingSpecs[m];
-	      for (int i = 0 ; i < 4 ; i++) {
-		experimentNumber++;
-
-		exp.experimentNumber = experimentNumber;
+	      for (int i = 0 ; i < 1 ; i++) {
+		exp.experimentNumber++;
 		exp.cipherSpec = transform;
 		exp.keyGenSpec = keyGeneratorSpecs[k];
-		exp.bufferSize = bufferSize;
-		exp.streamSize = streamSize;
 		exp.keysize = keysize;
 		exp.diff21 = 0;
 		exp.diff32 = 0;
@@ -148,8 +199,9 @@ public class CipherStreamPlugin
 		exp.diff54 = 0;
 		exp.diff65 = 0;
 		exp.diff61 = 0;
+		exp.provider = "";
 
-		testStreamEncryption(exp);
+		testStreamEncryption(exp, provider);
 	      }
 	    }
 	    catch (Exception e) {
@@ -162,7 +214,9 @@ public class CipherStreamPlugin
     }
   }
 
-  private void testStreamEncryption(Experiment exp)
+  private Hashtable ciphers = new Hashtable();
+
+  private void testStreamEncryption(Experiment exp, Provider provider)
     throws Exception {
 
     if (exp.keyGenSpec.equals("DES") || exp.cipherSpec.equals("DES")) {
@@ -174,11 +228,14 @@ public class CipherStreamPlugin
       exp.keysize = 112;
     }
 
+    /*
     log.info("Test stream encryption. Cipher=" + exp.cipherSpec
 	     + " - keygen=" + exp.keyGenSpec
 	     + " - keylength=" + exp.keysize
 	     + " - buffer size=" + exp.bufferSize
 	     + " - stream size=" + exp.streamSize);
+    */
+
     long date1 = new Date().getTime();
     SecretKey sk = null;
     SecureRandom random = new SecureRandom();
@@ -189,9 +246,20 @@ public class CipherStreamPlugin
     long date2 = new Date().getTime();
     exp.diff21 = date2 - date1;
 
-    Cipher ci;
-    ci=Cipher.getInstance(exp.cipherSpec);
+    String key = exp.cipherSpec + "/" + (provider == null ? "" : provider.toString());
+    Cipher ci = (Cipher) ciphers.get(key);
+    if (ci == null) {
+      if (provider == null) {
+	ci=Cipher.getInstance(exp.cipherSpec);
+      }
+      else {
+	ci=Cipher.getInstance(exp.cipherSpec, provider);
+      }
+      ciphers.put(key, ci);
+    }
     ci.init(Cipher.ENCRYPT_MODE, sk);
+
+    exp.provider = ci.getProvider().toString();
 
     long date3 = new Date().getTime();
     exp.diff32 = date3 - date2;
@@ -213,20 +281,26 @@ public class CipherStreamPlugin
     exp.diff65 = date6 - date5;
     exp.diff61 = date6 - date1;
 
+    /*
     log.info("date2 - date1=" + (exp.diff21));
     log.info("date3 - date2=" + (exp.diff32));
     log.info("date4 - date3=" + (exp.diff43));
     log.info("date5 - date4=" + (exp.diff54));
     log.info("date6 - date5=" + (exp.diff65));
     log.info("date6 - date1=" + (exp.diff61));
+    */
 
     printResults(exp, "");
   }
 
   private void printResults(Experiment exp, String msg) {
     System.out.println(exp.experimentNumber
+		       + ", " + exp.bufferSize
+		       + ", " + exp.streamSize
 		       + ", " + exp.keysize
-		       + ", " + exp.cipherSpec + ", " + exp.keyGenSpec
+		       + ", " + exp.cipherSpec
+		       + ", " + exp.keyGenSpec
+		       + ", " + exp.provider
 		       + ", " + (exp.diff21)
 		       + ", " + (exp.diff32)
 		       + ", " + (exp.diff43)
@@ -253,12 +327,14 @@ public class CipherStreamPlugin
 
     public int bufferSize;
     public int streamSize;
+
+    public String provider;
   }
 
   private void dumpData(OutputStream os, int bufferLength, int streamLength)
     throws IOException {
     byte[] data = new byte[bufferLength];
-    for (int i = 0 ; i < (streamLength / bufferLength) ; i++) {
+    for (int i = 0 ; i < (1 + streamLength / bufferLength) ; i++) {
       os.write(data);
     }
   }
