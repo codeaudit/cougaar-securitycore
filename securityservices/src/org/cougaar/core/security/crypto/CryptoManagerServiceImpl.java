@@ -83,7 +83,7 @@ public class CryptoManagerServiceImpl
               // relieve messages to naming, for local keys
               // do not need to go to naming
 	      //List nameList = keyRing.findDNFromNS(name);
-              List nameList = keyRing.findCert(name, KeyRingService.LOOKUP_KEYSTORE);
+              List nameList = keyRing.getX500NameFromNameMapping(name);
               List keyList = new ArrayList();
               for (int i = 0; i < nameList.size(); i++) {
                 X500Name dname = (X500Name)nameList.get(i);
@@ -303,7 +303,7 @@ public class CryptoManagerServiceImpl
               // relieve messages to naming, for local keys
               // do not need to go to naming
 	      //List nameList = keyRing.findDNFromNS(name);
-              List nameList = keyRing.findCert(name, KeyRingService.LOOKUP_KEYSTORE);
+              List nameList = keyRing.getX500NameFromNameMapping(name);
               List keyList = new ArrayList();
               for (int i = 0; i < nameList.size(); i++) {
                 X500Name dname = (X500Name)nameList.get(i);
