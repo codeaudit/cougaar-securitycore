@@ -11,14 +11,14 @@
 
 
 # Set the Cougaar install path.
-org.cougaar.install.path=/mnt/shared/integ92
+org.cougaar.install.path=/mnt/shared/integ
 
 # Set the cougaar system path, which is used to find third-party jars
 #   (e.g. "log4j.jar").
 #
 # This defaults to "{org.cougaar.install.path} + /sys", but one can
 #   use a different directory by setting this property.
-#org.cougaar.system.path=/mnt/shared/integ92
+#org.cougaar.system.path=/mnt/shared/integ
 
 
 # Enable or disable persistence.
@@ -33,16 +33,16 @@ org.cougaar.core.persistence.clear=true
 # If persistence is disabled then this has no effect.  For simplicity
 # this "java-io-patch" jar should always be included.  Since this jar
 # overrides "java.io" it must be prepended to the JVM's bootclasspath.
-java.Xbootclasspath/p=/mnt/shared/integ92/lib/javaiopatch.jar
+java.Xbootclasspath/p=/mnt/shared/integ/lib/javaiopatch.jar
 
 # Set the class path for starting the Node, which uses ":" separators.
 #
 # Typically only bootstrap.jar needs to be in here.
-# java.class.path=/mnt/shared/integ92/lib/bootstrap.jar
+# java.class.path=/mnt/shared/integ/lib/bootstrap.jar
 # However, the Jython interpreter requires the JAR files
 # referenced from Python be on the "real" classpath.
-java.class.path=/mnt/shared/integ92/lib/CougaarCRLextensions.jar
-#java.class.path=/mnt/shared/integ92/lib/idmef.jar:/mnt/shared/integ92/lib/core.jar:/mnt/shared/integ92/lib/securityservices.jar:/mnt/shared/integ92/lib/aggagent.jar:/mnt/shared/integ92/lib/CougaarCRLextensions.jar
+java.class.path=/mnt/shared/integ/lib/CougaarCRLextensions.jar
+#java.class.path=/mnt/shared/integ/lib/idmef.jar:/mnt/shared/integ/lib/core.jar:/mnt/shared/integ/lib/securityservices.jar:/mnt/shared/integ/lib/aggagent.jar:/mnt/shared/integ/lib/CougaarCRLextensions.jar
 
 
 # Set the config path, which uses ";" separators.
@@ -56,9 +56,9 @@ java.class.path=/mnt/shared/integ92/lib/CougaarCRLextensions.jar
 #
 # Here we override the default configuration path to include both
 # the "common" directory and "GLMTrans" directory.
-#org.cougaar.config.path="/mnt/shared/integ92/configs/common\;/mnt/shared/integ92/glmtrans/configs/demo-config/config\;"
-#org.cougaar.config.path="/mnt/shared/integ92/configs/security;/mnt/shared/integ92/configs/common;/mnt/shared/integ92/glmtrans/configs/demo-config/config;"
-org.cougaar.config.path=".;/mnt/shared/integ92/configs/security;"
+#org.cougaar.config.path="/mnt/shared/integ/configs/common\;/mnt/shared/integ/configs/glmtrans\;"
+#org.cougaar.config.path="/mnt/shared/integ/configs/security;/mnt/shared/integ/configs/common;/mnt/shared/integ/configs/glmtrans;"
+org.cougaar.config.path=".;/mnt/shared/integ/configs/security;"
 
 # Some standard memory settings.
 #
@@ -132,26 +132,27 @@ org.cougaar.lib.web.http.port=5557
 #org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory
 
 # Cougaar workspace
-org.cougaar.workspace=/mnt/shared/integ92/workspace
+org.cougaar.workspace=/mnt/shared/integ/workspace
 
 # Bootstrap keystore to store JAR file keys
-org.cougaar.core.security.bootstrap.keystore=/mnt/shared/integ92/configs/security/bootstrap_keystore
+org.cougaar.core.security.bootstrap.keystore=/mnt/shared/integ/configs/security/bootstrap_keystore
 
 # Log4j Logging
 org.cougaar.core.logging.config.filename=loggingConfig.conf
-org.cougaar.core.logging.log4j.appender.SECURITY.File=/mnt/shared/integ92/workspace/log4jlogs/$HOSTNAME.log
+org.cougaar.core.logging.log4j.appender.SECURITY.File=/mnt/shared/integ/workspace/log4jlogs/$HOSTNAME.log
 #org.cougaar.core.logging.log4j.appender.A1.File=log4jnode.log
 
 # Add the secure bootstrapper to the bootstrap class path
 # This is needed because of a bug in the SDK 1.4.
 # Internal Java runtime classes can create infinite recursive calls
-java.Xbootclasspath/a=/mnt/shared/integ92/lib/securebootstrapper.jar:/mnt/shared/integ92/lib/bootstrap.jar
+java.Xbootclasspath/a=/mnt/shared/integ/lib/securebootstrapper.jar:/mnt/shared/integ/lib/bootstrap.jar
 
 # Aspects: MessageProtectionAspect
 # Add the MessageProtectionAspect to the org.cougaar.message.transport.aspects property to turn on
 # the Message Protection Service (inter-agent message protection mechanism).
 # DON'T FORGET to delete that property in CSMART global parameters, otherwise CSMART will override it.
-org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect,org.cougaar.core.mts.MessageProtectionAspect
+# This is now added as a CSMART recipe
+#org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect,org.cougaar.core.mts.MessageProtectionAspect
 #org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect
 
 # Set the classname to the Bootstrapper. You must supply a command-line
@@ -177,7 +178,7 @@ org.cougaar.bootstrap.class=org.cougaar.core.security.securebootstrap.SecureBoot
 # Warning!!! Use JAR files ONLY when using this policy file.
 # If directories containing .class files are included in the CLASSPATH,
 # the .class files will not have sufficient privileges to be executed.
-java.Djava.security.policy=/mnt/shared/integ92/configs/security/Cougaar_Java.policy
+java.Djava.security.policy=/mnt/shared/integ/configs/security/Cougaar_Java.policy
 
 # Use Java security manager
 org.cougaar.core.security.useSecurityManager=true

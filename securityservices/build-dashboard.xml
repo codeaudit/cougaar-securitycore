@@ -141,7 +141,8 @@
     </target>
 
   <target name="make-war-file" depends="sign-dashboard-jar">
-    <war destfile="${build}/dashboard.war" webxml="${securityservices.regress}/dashboard/dashboard-web.xml">
+    <war destfile="${build}/dashboard.war"
+         webxml="${securityservices.regress}/dashboard/dashboard-web.xml">
       <fileset dir="${securityservices.regress}/dashboard/web"/>
       <lib dir="${securityservices.signed}">
         <include name="*.jar"/>
