@@ -73,6 +73,14 @@ public class NamingCertDirectoryServiceClient {
 
     NamingCertEntry entry = null;
 
+    if (whitePagesService == null) {
+      whitePagesService = (WhitePagesService)
+        sb.getService(this, WhitePagesService.class, null);
+    }
+    if (whitePagesService == null) {
+      throw new Exception("Cannot get white page service.");
+    }
+
     AddressEntry ael = whitePagesService.get(cname,
       Application.getApplication("topology"), "cert");
     if (ael != null) {
