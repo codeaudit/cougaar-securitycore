@@ -33,5 +33,6 @@ import org.cougaar.core.security.crypto.*;
 public interface CertValidityService extends Service {
   public void addValidityListener(CertValidityListener listener);
 
+  public void updateCertificate(String commonName);
 }
 
