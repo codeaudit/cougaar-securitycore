@@ -50,6 +50,17 @@ import org.cougaar.mts.std.AttributedMessage;
 
  * We do the check for the RMI policy at this point
  */
+
+/*
+ * Here is the situation with cost
+ *  HTTPLinkProtocol.cost   =  500
+ *  RMILinkProtocol.cost    = 1000
+ *  HTTPSLinkProtocol.cost  = 1500
+ *  SSLRMILinkProtocol.cost = 2000
+ *      The boost of 2000 makes the cheapest unencrypted protocol more 
+ *      expensive than any of the encrypted protocols.
+ */
+
 public class LinkProtocolAspect
   extends StandardAspect
 {
@@ -104,14 +115,16 @@ public class LinkProtocolAspect
      * This method returns a simple measure of the cost of sending the
      * given message via the associated transport. Only called during
      * processing of messages in DestinationQueueImpl. */
-    public int cost(AttributedMessage message) {
-      if (!super.getProtocolClass().equals(RMILinkProtocol.class)
-          && !super.getProtocolClass().getName().equals(HTTP_PROTOCOL)) {
-        return super.cost(message);
-      }
-
+    public int cost(AttributedMessage message) 
+    {
       int cost = super.cost(message);
-      if (cost == Integer.MAX_VALUE) { return cost; }
+
+      if (cost == Integer.MAX_VALUE) { 
+        return cost; 
+      } else if (!super.getProtocolClass().equals(RMILinkProtocol.class)
+          && !super.getProtocolClass().getName().equals(HTTP_PROTOCOL)) {
+        return cost;
+      }
 
       String source = message.getOriginator().toAddress();
       String target = message.getTarget().toAddress();
