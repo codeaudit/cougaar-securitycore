@@ -19,6 +19,7 @@ require 'ultralog/scripting'
 require 'ultralog/services' 
 
 require 'security/lib/cougaarMods'
+require 'security/actions/configFiles'
 require 'security/actions/cond_policy'
 require 'security/lib/misc'
  
@@ -32,7 +33,7 @@ Cougaar::ExperimentMonitor.enable_logging
  
 Cougaar.new_experiment("Policy-Test").run(1) { 
 
-  layout_file="PolicyOne"
+  layout_file="PolicyTwo"
  
   # read the basic society definition 
   # 
@@ -56,7 +57,8 @@ Cougaar.new_experiment("Policy-Test").run(1) {
     ".",
     "#{RULES}/isat",
     "#{RULES}/security",
-    "#{RULES}/security/communities"
+    "#{RULES}/security/communities",
+    "#{RULES}/security/robustness"
 
   # optional: save the society to an XML file for easy debugging 
   do_action "SaveCurrentSociety", "mySociety.xml" 
@@ -70,8 +72,8 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "StartJabberCommunications"
   do_action "VerifyHosts" 
 
+  do_action "BuildConfigJarFiles"
   do_action "DeployCommunitiesFile" 
- 
   do_action "StartSociety" 
 
   do_action "Sleep", 30.seconds 

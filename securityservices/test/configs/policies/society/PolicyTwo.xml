@@ -11,7 +11,7 @@
     <node name='RootCaNode'/>
   </host>
   <host name='Europa.local'>
-    <node name='SecondCA'/>
+    <node name='SecondCANode'/>
     <node name='RearWorkerNode'>
      <agent name='testBounceOne'     class='org.cougaar.core.agent.SimpleAgent' />
      <agent name='testBBPolicyAgent' 
