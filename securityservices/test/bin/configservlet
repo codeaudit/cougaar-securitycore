@@ -93,8 +93,4 @@ tar -xvf servlet.tar
 #start tomcat
 /etc/rc.d/init.d/tomcat4 start
 
-
-
-
-
-
+wait

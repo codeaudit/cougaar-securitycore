@@ -21,12 +21,13 @@ clean:
 
 clean-data:
 	@echo +++++++ Removing configuration data
-	rm -i test/configs/ul-mini-config-openldap/keystore-*
-	rm -ri test/configs/ul-mini-config-openldap/Crypto-*
-	rm -ri test/configs/ul-mini-config-openldap/*.log
-	rm -ri test/configs/certauthority/Crypto-*
-	rm -ri test/configs/certauthority/keystoreTest
-	rm -ri test/configs/demo/*.log
+	rm -f test/configs/ul-mini-config-openldap/keystore-*
+	rm -rf test/configs/ul-mini-config-openldap/Crypto-*
+	rm -f test/configs/ul-mini-config-openldap/*.log
+	rm -rf test/configs/certauthority/Crypto-*
+	rm -f test/configs/certauthority/keystoreTest
+	rm -f test/configs/demo/*.log
+	rm -f test/configs/demo/*.swp
 
 classes:
 	@echo +++++++ Compiling the source code
