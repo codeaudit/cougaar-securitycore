@@ -7,6 +7,7 @@ final public class UltralogEntityConcepts
 	// Concepts
     final public static String _Servlet_ = UltralogEntityDamlURL + "Servlet";
     final public static String _BlackBoardObjects_ = UltralogEntityDamlURL + "BlackBoardObjects";
+    final public static String _AuditLevel_ = UltralogEntityDamlURL + "AuditLevel";
     final public static String _AuthenticationLevel_ = UltralogEntityDamlURL + "AuthenticationLevel";
     final public static String _ULContentValue_ = UltralogEntityDamlURL + "ULContentValue";
     final public static String _ProtectionLevel_ = UltralogEntityDamlURL + "ProtectionLevel";
