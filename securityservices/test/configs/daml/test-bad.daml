@@ -1,0 +1,59 @@
+<?xml version='1.0'?>
+<rdf:RDF
+    xmlns:rdfs='http://www.w3.org/2000/01/rdf-schema#'
+    xmlns:RDFNsId1='http://ontology.coginst.uwf.edu/Policy.daml#'
+    xmlns:daml='http://www.daml.org/2001/03/daml+oil#'
+    xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+    <rdfs:Class rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#PosAuthorizationPolicy'
+         daml:label='coginst_PolicyClassName'/>
+    <rdfs:Class rdf:about='http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#AG1Member'
+         daml:label='coginst_ActorClassName'>
+        <daml:label>coginst_Class</daml:label>
+        <daml:label>coginst_TargetClassName</daml:label>
+    </rdfs:Class>
+    <rdfs:Class rdf:about='http://ontology.coginst.uwf.edu/Action.daml#CommunicationAction'/>
+    <rdfs:Class rdf:about='http://ontology.coginst.uwf.edu/PolicyInstances.daml#0e5bf05e-00f0-0000-8000-0000deadbeefAction'
+         daml:label='coginst_ActionClassName'>
+        <daml:subClassOf>
+            <daml:Restriction rdf:about='http://ontology.coginst.uwf.edu/PolicyInstances.daml#0e5bf05e-00f0-0000-8000-0000deadbeefTargetRestriction0'
+                 daml:label='coginst_TargetRestriction'>
+                <daml:label>coginst_Class</daml:label>
+                <daml:onProperty>
+                    <daml:ObjectProperty rdf:about='http://ontology.coginst.uwf.edu/Action.daml#hasDestination'/>
+                </daml:onProperty>
+                <daml:toClass rdf:resource='http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#AG1Member'/>
+            </daml:Restriction>
+        </daml:subClassOf>
+        <daml:subClassOf rdf:resource='http://ontology.coginst.uwf.edu/Action.daml#CommunicationAction'/>
+        <daml:subClassOf>
+            <daml:Restriction rdf:about='http://ontology.coginst.uwf.edu/PolicyInstances.daml#0e5bf05e-00f0-0000-8000-0000deadbeefActorRestriction1'
+                 daml:label='coginst_ActorRestriction'>
+                <daml:onProperty rdf:resource='http://ontology.coginst.uwf.edu/Action.daml#performedBy'
+                     rdf:type='http://www.daml.org/2001/03/daml+oil#ObjectProperty'/>
+                <daml:toClass rdf:resource='http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#AG1Member'/>
+            </daml:Restriction>
+        </daml:subClassOf>
+    </rdfs:Class>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#subClassOf'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#toClass'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#subPropertyOf'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#label'/>
+    <daml:Property rdf:about='http://www.daml.org/2001/03/daml+oil#onProperty'/>
+    <daml:Property rdf:about='http://ontology.coginst.uwf.edu/Action.daml#performedOn'/>
+    <daml:ObjectProperty rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#controls'/>
+    <daml:ObjectProperty rdf:about='http://ontology.coginst.uwf.edu/Action.daml#hasDestination'>
+        <daml:subPropertyOf rdf:resource='http://ontology.coginst.uwf.edu/Action.daml#performedOn'/>
+    </daml:ObjectProperty>
+    <daml:DatatypeProperty rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#hasName'/>
+    <daml:DatatypeProperty rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#hasUpdateTimeStamp'/>
+    <daml:DatatypeProperty rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#hasDescription'/>
+    <daml:DatatypeProperty rdf:about='http://ontology.coginst.uwf.edu/Policy.daml#hasPriority'/>
+    <RDFNsId1:PosAuthorizationPolicy rdf:about='http://ontology.coginst.uwf.edu/PolicyInstances.daml#0e5bf05e-00f0-0000-8000-0000deadbeef'
+         daml:label='coginst_PolicyInstanceName'
+         RDFNsId1:hasName='foo'
+         RDFNsId1:hasPriority='1'
+         RDFNsId1:hasUpdateTimeStamp='1031033218741'
+         RDFNsId1:hasDescription='foo'>
+        <RDFNsId1:controls rdf:resource='http://ontology.coginst.uwf.edu/PolicyInstances.daml#0e5bf05e-00f0-0000-8000-0000deadbeefAction'/>
+    </RDFNsId1:PosAuthorizationPolicy>
+</rdf:RDF>
