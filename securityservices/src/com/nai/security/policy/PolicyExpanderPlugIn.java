@@ -45,6 +45,9 @@ import org.cougaar.domain.planning.ldm.policy.Policy;
 import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.core.security.policy.TypedPolicy;
 
+import org.cougaar.core.security.test.DOMWriter;
+import java.io.*;
+
 import SAFE.Util.*;
 	
 public class PolicyExpanderPlugIn extends SimplePlugIn
@@ -279,9 +282,19 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
 
                     XMLPolicyCreator policyCreator = new XMLPolicyCreator(xmlContent, getClusterIdentifier().toAddress());
                     Policy[] policies = policyCreator.getPolicies();
+                    if (debug == true) {
+                      System.out.println("\n\nTHERE ARE " + policies.length + " POLICIES");
+                      OutputStream os = 
+                          new FileOutputStream(System.getProperty("org.cougaar.install.path") + "/TEST_XML"); 
+                      PrintStream out = new PrintStream(os);
+                      DOMWriter xmlwriter = new DOMWriter(out);
+                      xmlwriter.print(xmlContent);
+                    }
+
                     for (int j=0; j<policies.length; j++) {
                       if (policies[j] instanceof TypedPolicy){
                         TypedPolicy policyObject = (TypedPolicy) policies[j];
+                        //System.out.println("policy has: " + policyObject.getRuleParameters().length + " rule parameters");
                         String binderType = policyObject.getType();
                         Msg newPolicy = (Msg) policy.clone();
                         newPolicy.addSymbol(PolicyConstants.
