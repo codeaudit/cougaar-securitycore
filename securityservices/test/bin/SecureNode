@@ -48,7 +48,8 @@ if (! $?COUGAAR3RDPARTY) then
 endif
 
 if ( "$useBootstrapper" == "true") then
-	set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar
+	set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar
+	
 else
 	set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/core.jar:$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar
 endif
@@ -105,14 +106,14 @@ if ( "$useBootstrapper" == "true") then
 	# In particular, it will show information about the JAR file signature
 	# verification process.
 	# Acceptable values: true, shout, false
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.loud=true"
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.society.bootstrapper.loud=false"
 	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.policydebug=all"
 	
 	# This property specifies whether to use the authenticated class loader or
 	# the legacy class loader.
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useAuthenticatedLoader=true"
 
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=true"
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=false"
 
 else
 	#
@@ -148,10 +149,10 @@ if ( "$useCryptoAspect" == "true") then
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
 
 	# Print crypto-related debug information about the security aspect
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
 
 	# Role to take when making LDAP requests
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=srosset"
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=rtripath"
 
 	# Certificate server LDAP address
 	# Obsolete
@@ -235,7 +236,11 @@ endif
 # exec instead of eval
 if ( "$useBootstrapper" == "true") then
 	#exec java $javaargs org.cougaar.core.security.bootstrap.Bootstrapper org.cougaar.core.society.Node $args
-	exec java $javaargs com.nai.security.bootstrap.Bootstrapper org.cougaar.core.society.Node $args
+	echo $****************************
+	echo $javaargs
+
+	echo $****************************
+	exec java $javaargs com.nai.security.bootstrap.SecureBootstrapper org.cougaar.core.society.Node $args
 else
 	exec java $javaargs org.cougaar.core.society.Node $args
 endif
