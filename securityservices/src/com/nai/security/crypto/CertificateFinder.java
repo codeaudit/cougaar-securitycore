@@ -86,7 +86,7 @@ public class CertificateFinder
 	  try {
 	    certificate.verify(pk);
 	  }catch(Exception e){
-	    System.out.println("Could not varify CA:"+issuer+" signature");
+	    System.out.println("Could not verify CA:"+issuer+" signature");
 	    certificate = null;
 	  }
 	}
