@@ -30,41 +30,71 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 import junit.framework.*;
+import java.rmi.Naming;
+import java.rmi.registry.*;
 
 public class NodeServerTest
   extends TestCase
 {
-  private NodeServer ns;
-
-  /** A list of TestCaseConf */
-  private ArrayList testCaseConfList;
+  /** A list of NodeConfiguration */
+  private ArrayList nodeConfList;
   private String junitConfigPath;
+  private String classPath;
   private String userDir;
+  private String userName;
+
+  private TestResult testResult;
+  private ConfigParser configParser;
 
   public NodeServerTest(String name) {
     super(name);
   }
 
   public void setUp() {
-    ns = new NodeServer();
-    Assert.assertNotNull("Could not create NodeServer", ns);
-
     junitConfigPath = System.getProperty("org.cougaar.junit.config.path");
     Assert.assertNotNull("Unable to get org.cougaar.junit.config.path", junitConfigPath);
+
+    classPath = System.getProperty("org.cougaar.securityservices.classes");
+    Assert.assertNotNull("Unable to get org.cougaar.securityservices.classes", classPath);
 
     userDir = System.getProperty("user.dir");
     Assert.assertNotNull("Unable to get user dir", userDir);
     System.out.println("Startup directory is " + userDir);
 
+    userName = System.getProperty("user.name");
+    Assert.assertNotNull("Unable to get user name", userName);
+
   }
 
-  public void testNodes() {
-    readConfigurationFile();
-    for (int i = 0 ; i < testCaseConfList.size() ; i++) {
-      TestCaseConf tcc = (TestCaseConf) testCaseConfList.get(i);
+  /**
+   * Runs the test case and collects the results in TestResult.
+   */
+  public void run(TestResult result) {
+    System.out.println("Starting test...");
+    this.testResult = result;
+
+    testResult.startTest(this);
+    Protectable p = new ThreadedProtectable(this);
+    testResult.runProtected(this, p);
+    testResult.endTest(this);
+
+    System.out.println("End test...");
+  }
+
+
+  public void testRunExperiment() {
+    //readConfigurationFile();
+    String fileName = junitConfigPath + File.separator + "NodeServerTestCase.xml";
+    configParser = new ConfigParser(fileName);
+    configParser.parseNodeConfiguration();
+    nodeConfList = configParser.getNodeConfigurationList();
+
+    ArrayList threadList = new ArrayList();
+    for (int i = 0 ; i < nodeConfList.size() ; i++) {
+      NodeConfiguration tcc = (NodeConfiguration) nodeConfList.get(i);
       System.out.println("#####################################################");
       System.out.println("Test Case # " + i);
-      System.out.println("Node Startup Directory: " + tcc.getDirectoryName());
+      System.out.println("Node Startup Directory: " + tcc.getNodeStartupDirectoryName());
       System.out.println("Property File:          " + tcc.getPropertyFile());
       System.out.println("Max Execution Time:     " + tcc.getMaxExecutionTime());
       System.out.print("Arguments:              ");
@@ -72,132 +102,156 @@ public class NodeServerTest
 	System.out.print(tcc.getArguments()[j] + " ");
       }
       System.out.println();
-      ns.startNode(tcc.getArguments(), tcc.getDirectoryName(),
-		   tcc.getPropertyFile(), tcc.getMaxExecutionTime());
+      try {
+	Thread.sleep(1000 * tcc.getHowLongBeforeStart());
+	threadList.add(runRemoteNode(tcc));
+      }
+      catch (Exception e) {
+	e.printStackTrace();
+	Assert.fail("Unable to execute remote node: " + e);
+      }
     }
-  }
-
-  private void readConfigurationFile() {
-    // 1) Directory where the node should be started
-    // 2) Linux.props file
-    // 3) Command-Line arguments
-
-    testCaseConfList = new ArrayList();
-
     try {
-      File f = null;
-      String fileName = junitConfigPath + File.separator + "NodeServerTestCase.conf";
-      f = new File(fileName);
-      if (!f.exists()) {
-	Assert.assertTrue("Unable to find " + fileName, false);
-	return;
-      }
-      FileReader filereader=new FileReader(f);
-      BufferedReader buffreader=new BufferedReader(filereader);
-      String linedata=new String();
-
-      while((linedata=buffreader.readLine())!=null) {
-	linedata.trim();
-	if(linedata.startsWith("#")) {
-	  continue;
-	}
-	StringTokenizer st = new StringTokenizer(linedata);
-	if (!st.hasMoreTokens()) {
-	  // Empty line. Continue
-	  continue;
-	}
-
-	int maxTime = Integer.valueOf(st.nextToken()).intValue();
-
-	if (!st.hasMoreTokens()) {
-	  Assert.assertTrue("Incorrect configuration file. Expected Directory Name", false);
-	  throw new RuntimeException("Incorrect configuration file. Expected Directory Name");
-	}
-	String directoryName = parseString(st.nextToken());
-
-	if (!st.hasMoreTokens()) {
-	  Assert.assertTrue("Incorrect configuration file. Expected property File", false);
-	  throw new RuntimeException("Incorrect configuration file. Expected property File");
-	}
-	String propFile = parseString(st.nextToken());
-	ArrayList argsList = new ArrayList();
-	while (st.hasMoreTokens()) {
-	  argsList.add(parseString(st.nextToken()));
-	}
-	String[] args = (String[]) argsList.toArray(new String[1]);
-	TestCaseConf tcc = new TestCaseConf(directoryName,
-					    propFile,
-					    args, maxTime);
-	testCaseConfList.add(tcc);
+      for (int i = 0 ; i < threadList.size() ; i++) {
+	System.out.println("Waiting for thread to die");
+	((Thread)threadList.get(i)).join();
       }
     }
-    catch(FileNotFoundException fnotfoundexp) {
-      Assert.assertTrue("User parameter configuration file not found", false);
+    catch (java.lang.InterruptedException e) {
+      Assert.fail("Unable to execute remote node");
     }
-    catch(IOException ioexp) {
-      Assert.assertTrue("Cannot read User parameter configuration file: " + ioexp, false);
+  }
+  
+  private Thread runRemoteNode(NodeConfiguration tcc) {
+    RemoteNode rn = new RemoteNode(tcc, testResult, this);
+    rn.start();
+    return rn;
+  }
+
+  private class RemoteNode
+    extends Thread
+  {
+    private NodeConfiguration tcc;
+    private TestResult testResult;
+    private Test test;
+
+    public RemoteNode(NodeConfiguration nc, TestResult testResult, Test test) {
+      if (testResult == null) {
+	throw new IllegalArgumentException("testResult is null");
+      }
+      if (test == null) {
+	throw new IllegalArgumentException("test is null");
+      }
+      this.tcc = nc;
+      this.testResult = testResult;
+      this.test = test;
+    }
+
+    public void run() {
+      try {
+	Runtime thisApp = Runtime.getRuntime();
+	Process nodeApp = null;
+
+	String jarFile1 = userDir + File.separator + classPath + File.separator + "junitTests.jar";
+	String jarFile2 = System.getProperty("org.cougaar.install.path") + File.separator
+	  + "sys" + File.separator + "junit.jar";
+
+	String commandLine = "/usr/bin/ssh " + tcc.getHostName()
+	  + " " + System.getProperty("java.home") + File.separator + "bin" + File.separator
+	  + "java -classpath " + jarFile1 + ":" + jarFile2
+	  + " -Djava.rmi.server.codebase=file://" + jarFile1 + ":file://" + jarFile2
+	  + " -Djava.security.policy="
+	  + userDir + File.separator + junitConfigPath + File.separator + "JavaPolicy.conf"
+	  + " -Dorg.cougaar.install.path=" + System.getProperty("org.cougaar.install.path")
+	  + " -Dorg.cougaar.workspace=" + System.getProperty("org.cougaar.workspace")
+	  + " -Dorg.cougaar.securityservices.configs="
+	  + userDir + File.separator + System.getProperty("org.cougaar.securityservices.configs")
+	  + " -Dorg.cougaar.securityservices.base="
+	  + userDir + File.separator +System.getProperty("org.cougaar.securityservices.base")
+	  + " -Dorg.cougaar.securityservices.classes="
+	  + userDir + File.separator +System.getProperty("org.cougaar.securityservices.classes")
+	  + " -Dorg.cougaar.securityservices.regress="
+	  + userDir + File.separator +System.getProperty("org.cougaar.securityservices.regress")
+	  + " -Dorg.cougaar.junit.config.path="
+	  + userDir + File.separator +System.getProperty("org.cougaar.junit.config.path")
+	  + " test.org.cougaar.core.security.simul.NodeServer "
+	  + tcc.getRmiRegistryPort() + "";
+
+	System.out.println("Executing " + commandLine);
+	nodeApp = thisApp.exec(commandLine);
+
+	ProcessGobbler pg = new ProcessGobbler(userDir + File.separator + System.getProperty("org.cougaar.securityservices.regress"), "ssh-" + tcc.getHostName(), nodeApp);
+	pg.dumpProcessStream();
+
+	ProcessMonitor pm = new ProcessMonitor(nodeApp, testResult, test);
+	pm.start();
+	// Give the remote application some time to start...
+	Thread.sleep(4000);
+
+	Registry registry = LocateRegistry.getRegistry(tcc.getHostName(), tcc.getRmiRegistryPort());
+	String list[] = registry.list();
+	System.out.println("Registered objects in " + tcc.getHostName() + " registry: ");
+	for (int i = 0 ; i < list.length ; i++) {
+	  System.out.println(list[i]);
+	}
+	RemoteControl nodeServer = (RemoteControl)registry.lookup("NodeServer");
+
+	Assert.assertNotNull("Could not create Remote NodeServer", nodeServer);
+
+	System.out.println("Calling startNode on remote server");
+	nodeServer.startNode(tcc);
+      } catch (Exception e) { 
+	e.printStackTrace();
+	testResult.addFailure(test, new AssertionFailedError("Unable to start node: " + e));
+      } catch (AssertionFailedError e) {
+	testResult.addFailure(test, e);
+      }
     }
   }
 
-  private String parseString(String s) {
-    Pattern p_javaprop = Pattern.compile("\\$\\{.*\\}");
-    Matcher matcher = null;
-    StringBuffer sb = new StringBuffer();
-    boolean result = false;
+  private class ProcessMonitor
+    extends Thread
+  {
+    private Process nodeApp;
+    private TestResult testResult;
+    private Test test;
 
-    /* Search for java properties patterns.
-     * ${java_property} will be replaced by the value of the java property.
-     * For example:
-     *   ${org.cougaar.node.name} will be replaced by the value
-     *   of the org.cougaar.node.name java property.
-     */
-    matcher = p_javaprop.matcher(s);
-    result = matcher.find();
-    // Loop through and create a new String 
-    // with the replacements
-    while(result) {
-      String token = matcher.group();
-      String propertyName = token.substring(2, token.length() - 1);
-      String propertyValue = System.getProperty(propertyName);
-      if (propertyValue == null) {
-	Assert.assertTrue("The " + propertyName + " property is not defined", false);
-	throw new RuntimeException("The " + propertyName + " property is not defined");
+    public ProcessMonitor(Process nodeApp, TestResult testResult, Test test) {
+      if (testResult == null) {
+	throw new IllegalArgumentException("testResult is null");
       }
-      matcher.appendReplacement(sb, propertyValue);
-      result = matcher.find();
+      if (test == null) {
+	throw new IllegalArgumentException("test is null");
+      }
+      this.nodeApp = nodeApp;
+      this.testResult = testResult;
+      this.test = test;
     }
-    // Add the last segment of input to 
-    // the new String
-    matcher.appendTail(sb);
-    s = sb.toString();
 
-    return s;
+    public void run() {
+      try {
+	nodeApp.waitFor();
+	if (nodeApp.exitValue() != 0) {
+	  Assert.fail("Unable to establish SSH session");
+	}
+      } catch (Exception e) { 
+	e.printStackTrace();
+	testResult.addFailure(test, new AssertionFailedError("Unable to start node: " + e));
+      } catch (AssertionFailedError e) {
+	testResult.addFailure(test, e);
+      }
+    }
   }
 
-  private class TestCaseConf {
-    private String directoryName;
-    private String propertyFile;
-    private String arguments[];
-    private int maxExecutionTime;
-
-    public TestCaseConf(String dn, String propFile, String args[], int maxTime) {
-      directoryName = dn;
-      propertyFile = propFile;
-      arguments = args;
-      maxExecutionTime = maxTime;
+  private class ThreadedProtectable
+    implements Protectable
+  {
+    private TestCase testCase;
+    public ThreadedProtectable(TestCase tc) {
+      testCase = tc;
     }
-
-    public String getDirectoryName() {
-      return directoryName;
-    }
-    public String getPropertyFile() {
-      return propertyFile;
-    }
-    public String[] getArguments() {
-      return arguments;
-    }
-    public int getMaxExecutionTime() {
-      return maxExecutionTime;
+    public void protect() throws Throwable {
+      testCase.runBare();
     }
   }
 }

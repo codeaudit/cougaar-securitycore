@@ -1,0 +1,83 @@
+<project name="build-dashboard" default="build" basedir=".">
+  <target name="init">
+      <tstamp/>
+  </target>
+
+  <!-- Configure the context path for this application -->
+  <property name="example" value="dashboard" />
+  <property name="path" value="/${example}"/>
+  <property name="securityservices.base" value="."/>
+  <!-- The base directories where the regression test files are located -->
+  <property name="securityservices.regress" value="${securityservices.base}${file.separator}regress"/>
+
+  <property name="build"   value="${securityservices.regress}/build" />
+
+  <property name="username"   value="junittest" />
+  <property name="password"   value="Ultra*Log" />
+  <property name="hostname"   value="cypress" />
+
+  <!-- Configure properties to access the Manager application -->
+  <property name="url"      value="http://${hostname}:8080/manager"/>
+  <property file="build.properties"/>
+  <property file="${user.home}/build.properties"/>
+
+  <!-- Configure the custom Ant tasks for the Manager application -->
+
+  <path id="classpath">
+    <fileset dir="${jwsdp.home}/common/lib">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+  <taskdef name="list" classname="org.apache.catalina.ant.ListTask"/>	
+  <taskdef name="install"  classname="org.apache.catalina.ant.InstallTask"/>
+  <taskdef name="reload"   classname="org.apache.catalina.ant.ReloadTask"/>
+  <taskdef name="remove" classname="org.apache.catalina.ant.RemoveTask"/>	
+
+  <target name="prepare" depends="init"
+   	description="Create build directories.">
+    <mkdir dir="${build}" />
+    <mkdir dir="${build}/WEB-INF" />
+    <mkdir dir="${build}/WEB-INF/classes" />		
+  </target>
+
+
+  <!-- Executable Targets -->
+
+  <target name="list" description="List web applications" >
+    <list url="${url}" username="${username}" password="${password}" />
+  </target>
+
+  <target name="install" description="Install web application"
+          depends="build">
+    <install url="${url}" username="${username}" password="${password}"
+          path="${path}" war="file:${build}"/>
+  </target>
+
+  <target name="reload" description="Reload web application"
+          depends="build">
+    <reload  url="${url}" username="${username}" password="${password}"
+          path="${path}"/>
+  </target>
+
+  <target name="remove" description="Remove web application">
+    <remove url="${url}" username="${username}" password="${password}"
+          path="${path}"/>
+  </target>
+
+  <target name="build" depends="prepare" 
+     description="Compile app Java files and copy HTML and JSP pages" >
+    <javac srcdir="src" destdir="${build}/WEB-INF/classes">
+    	<include name="**/*.java" />
+     	<classpath refid="classpath"/>
+    </javac>
+    <copy todir="${build}">
+      <fileset dir="web">
+        <include name="*.html" />
+        <include name="*.jsp" />
+        <include name="*.gif" />
+      </fileset>
+    </copy>
+  </target>
+
+
+</project>

@@ -133,7 +133,7 @@
     </target>
 
     <!-- jar Junit tests -->
-    <target name="jar-junit-tests" depends="build-junit-tests">
+    <target name="jar-junit-tests" depends="build-junit-tests, compile-junit-rmi">
         <jar jarfile="${securityservices.classes}/junitTests.jar">
             <fileset dir="${securityservices.classes}"
                 includes="test/**/*.class"/>
@@ -152,24 +152,35 @@
         <echo message="+++++ Installed Junit test files"/>        
     </target>
 
+    <!-- Create RMI stubs -->
+    <target name="compile-junit-rmi" depends="build-junit-tests">
+      <rmic classname="test.org.cougaar.core.security.simul.NodeServer"
+            classpathref="securityservices.class.path"
+            base="${securityservices.classes}"/>
+    </target>
+
     <!-- Run the Junit nodes --> 
     <target name="run-node-tests" depends="jar-junit-tests">
-       <junit fork="yes" printsummary="yes" dir="${securityservices.base}">
-          <sysproperty key="securityservices.configs" value="${securityservices.base}${file.separator}test${file.separator}configs"/>
+       <junit fork="yes" printsummary="yes" dir="${securityservices.base}" timeout="600000" showoutput="yes">
           <sysproperty key="org.cougaar.install.path" value="${cougaar.install.path}"/>
-          <sysproperty key="org.cougaar.junit.output.path" value="${securityservices.regress}"/>
+          <sysproperty key="org.cougaar.workspace" value="${cougaar.workspace}"/>
+          <sysproperty key="org.cougaar.securityservices.configs" value="${securityservices.configs}"/>
+	  <sysproperty key="org.cougaar.securityservices.base" value="${securityservices.base}"/>
+	  <sysproperty key="org.cougaar.securityservices.classes" value="${securityservices.classes}"/>
+          <sysproperty key="org.cougaar.securityservices.regress" value="${securityservices.regress}"/>
           <sysproperty key="org.cougaar.junit.config.path" value="${securityservices.regress}/config/nodeTest"/>
           <classpath>
              <fileset dir="${securityservices.classes}">
                 <include name="junitTests.jar" />
              </fileset>
-          </classpath>
-          <formatter type="plain"/>
-          <batchtest  todir="${securityservices.regress}">
-             <fileset dir="classes">
-                <include name="test/**/NodeServerTest.class"/>
+             <fileset dir="${cougaar.install.path}/sys">
+                <include name="xerces.jar" />
              </fileset>
-          </batchtest>
+          </classpath>
+
+	  <test name="test.org.cougaar.core.security.simul.NodeServerTest" haltonfailure="yes" todir="${securityservices.regress}" outfile="result" >
+	    <formatter type="plain" />
+	  </test>
        </junit>
     </target>
 

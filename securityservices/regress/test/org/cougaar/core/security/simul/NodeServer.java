@@ -27,11 +27,15 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.text.*;
+import java.rmi.Naming;
+import java.rmi.RMISecurityManager;
+import java.rmi.registry.LocateRegistry;
 
 public class NodeServer
+  extends java.rmi.server.UnicastRemoteObject
+  implements RemoteControl
 {
-  private int httpPort;
-  private int httpsPort;
+  private int rmiRegistryPort;
 
   /** Environment variables when launching a node. */
   private String environmentVariables[];
@@ -41,26 +45,41 @@ public class NodeServer
   private String mainClassName;
 
   private String cip;
-  private String userName;
   private String hostName;
   private String nodeName;
+  private String userName;
 
   private String commandLine;
   private File nodeStartupDirectory;
-  private String testOutputPath;
+  private String experimentPath;
   private String junitConfigPath;
 
-  public NodeServer() {
+  public NodeServer()
+    throws java.rmi.RemoteException {
+    super();
     properties = new ArrayList();
   }
 
-  public void startNode(String args[], String directoryName,
-			String propertyFile, int maxExecutionTime) {
+  public void killNode()
+    throws java.rmi.RemoteException {
+  }
+
+  public void startNode(NodeConfiguration tcc)
+    throws java.rmi.RemoteException {
+
+    System.out.println("NodeServer.startNode");
+    String args[] = tcc.getArguments();
     nodeName = args[0];
-    nodeStartupDirectory = new File(directoryName);
+
+    experimentPath = System.getProperty("org.cougaar.securityservices.regress");
+    Assert.assertNotNull("Unable to get test output path. Set org.cougaar.securityservices.regress",
+			 experimentPath);
+
+    nodeStartupDirectory = new File(tcc.getNodeStartupDirectoryName());
     if (!nodeStartupDirectory.exists() || !nodeStartupDirectory.isDirectory()) {
-      Assert.assertTrue("Unable to go to " + nodeStartupDirectory.getPath(), false);
+      Assert.fail("Unable to go to " + nodeStartupDirectory.getPath());
     }
+
     userName = System.getProperty("user.name");
     Assert.assertNotNull("Unable to get user name", userName);
 
@@ -70,21 +89,16 @@ public class NodeServer
     junitConfigPath = System.getProperty("org.cougaar.junit.config.path");
     Assert.assertNotNull("Unable to get org.cougaar.junit.config.path", junitConfigPath);
 
-    testOutputPath = System.getProperty("org.cougaar.junit.output.path");
-    Assert.assertNotNull("Unable to get test output path. Set org.cougaar.junit.output.path",
-			 testOutputPath);
-
     try {
       hostName = InetAddress.getLocalHost().getHostName();
     }
     catch (Exception e) {
-      Assert.assertTrue("Unable to get host name: " + e, false);
+      Assert.fail("Unable to get host name: " + e);
       return;
     }
 
-    setUserParameters();
-    File f = findPropertiesFile(propertyFile);
-    readPropertiesFile(f);
+    File f = findPropertiesFile(tcc.getPropertyFile());
+    readPropertiesFile(f, tcc);
 
     commandLine = javaBin + " ";
     for (int i = 0 ; i < properties.size() ; i++) {
@@ -109,30 +123,23 @@ public class NodeServer
 			     null, // environmentVariables
 			     nodeStartupDirectory);
 
-      // Kill the node after n seconds
-      NodeTimeoutController ntc = new NodeTimeoutController(nodeApp, maxExecutionTime);
+     // Kill the node after n seconds
+      System.out.println("Node will be forcible killed in "
+			 + tcc.getMaxExecutionTime() + " seconds.");
+      NodeTimeoutController ntc =
+	new NodeTimeoutController(nodeApp, tcc.getMaxExecutionTime());
       ntc.start();
 
-      Date currentDate = new Date();
-      SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
-      File experimentLogFile = new File(testOutputPath + File.separator + "NODE-" + nodeName 
-					+ " " + df.format(currentDate) + ".log");
-      System.out.println("Node standard output file: " + experimentLogFile.getPath());
-      experimentLogFile.createNewFile();
-      FileOutputStream experimentLog = new FileOutputStream(experimentLogFile);
+      ProcessGobbler pg = new ProcessGobbler(experimentPath, nodeName, nodeApp);
+      pg.dumpProcessStream();
 
       PrintWriter outWriter = new PrintWriter(nodeApp.getOutputStream(), true);
       outWriter.println("cd " + nodeStartupDirectory.getAbsoluteFile());
       outWriter.println(commandLine);
       outWriter.flush();
 
-      StreamGobbler nodeAppOut = new StreamGobbler(nodeApp.getInputStream(), experimentLog, STDOUT);
-      StreamGobbler nodeAppErr = new StreamGobbler(nodeApp.getErrorStream(), experimentLog, STDERR);
-
-      nodeAppOut.start();
-      nodeAppErr.start();
-
       // any error???
+      System.out.println("Waiting for node to exit");
       int exitVal = nodeApp.waitFor();
       System.out.println("ExitValue: " + exitVal); 
 
@@ -140,71 +147,24 @@ public class NodeServer
       //nodeAppOut.join();
       //nodeAppErr.join();
 
-      if (nodeAppErr.getWrittenBytes() > 0) {
+      if (pg.getErrStreamGobbler().getWrittenBytes() > 0) {
 	// There was an error
-	Assert.assertTrue("The node wrote " +
-			  nodeAppErr.getWrittenBytes() + " bytes to STDERR", false);
+	Assert.fail("The node wrote " +
+			  pg.getErrStreamGobbler().getWrittenBytes() + " bytes to STDERR");
       }
 
-      experimentLog.close();
+      pg.getExperimentOutLog().close();
+      pg.getExperimentErrLog().close();
       //nodeApp.getInputStream().close();
       //nodeApp.getErrorStream().close();
 
     }
     catch (Exception e) {
       e.printStackTrace();
-      Assert.assertTrue("Unable to start node: " + e, false);
+      Assert.fail("Unable to start node: " + e);
     }
   }
 
-  private void setUserParameters() {
-    File userParamFile = new File(junitConfigPath + File.separator + "userParameters.conf");
-    if (!userParamFile.exists()) {
-      throw new RuntimeException("Unable to find user parameter configuration file");
-    }
-    try {
-      FileReader filereader=new FileReader(userParamFile);
-      BufferedReader buffreader=new BufferedReader(filereader);
-      String linedata=new String();
-
-      // Set default values
-      httpPort = 8800;
-      httpsPort = 9800;
-
-      while((linedata=buffreader.readLine())!=null) {
-	linedata.trim();
-	if(linedata.startsWith("#")) {
-	  continue;
-	}
-	StringTokenizer st = new StringTokenizer(linedata, ",");
-	if (!st.hasMoreTokens()) {
-	  // Empty line. Continue
-	  continue;
-	}
-	String aUserName = st.nextToken();
-	if (userName.equals(aUserName)) {
-	  // Get HTTP port number
-	  if (!st.hasMoreTokens()) {
-	    throw new RuntimeException("Incorrect configuration file. Expected HTTP port number");
-	  }
-	  httpPort = Integer.valueOf(st.nextToken()).intValue();
-	  // Get HTTPS port number
-	  if (!st.hasMoreTokens()) {
-	    throw new RuntimeException("Incorrect configuration file. Expected HTTPS port number");
-	  }
-	  httpsPort = Integer.valueOf(st.nextToken()).intValue();
-	}
-      }
-    }
-    catch(FileNotFoundException fnotfoundexp) {
-      Assert.assertTrue("User parameter configuration file not found", false);
-      fnotfoundexp.printStackTrace();
-    }
-    catch(IOException ioexp) {
-      Assert.assertTrue("Cannot read User parameter configuration file: " + ioexp, false);
-      ioexp.printStackTrace();
-    }
-  }
 
   private File findPropertiesFile(String propertyFile) {
     File f = null;
@@ -231,7 +191,7 @@ public class NodeServer
     return f;
   }
 
-  private void readPropertiesFile(File f) {
+  private void readPropertiesFile(File f, NodeConfiguration tcc) {
     ArrayList env = new ArrayList();
     try {
       FileReader filereader=new FileReader(f);
@@ -253,7 +213,7 @@ public class NodeServer
 	String property = st.nextToken();
 	String propertyValue = null;
 	if (st.hasMoreTokens()) {
-	  propertyValue = customizeProperty(st.nextToken());
+	  propertyValue = customizeProperty(st.nextToken(), tcc);
 	}
 
 	if (property.startsWith("env.")) {
@@ -274,15 +234,15 @@ public class NodeServer
       }
     }
     catch(FileNotFoundException fnotfoundexp) {
-      Assert.assertTrue("User parameter configuration file not found", false);
+      Assert.fail("User parameter configuration file not found");
     }
     catch(IOException ioexp) {
-      Assert.assertTrue("Cannot read User parameter configuration file: " + ioexp, false);
+      Assert.fail("Cannot read User parameter configuration file: " + ioexp);
     }
     environmentVariables = (String[])env.toArray(new String[0]);
   }
 
-  private String customizeProperty(String propertyValue) {
+  private String customizeProperty(String propertyValue, NodeConfiguration tcc) {
     String convertFrom[] = {
       "/mnt/shared/integ92",
       "asmt",
@@ -295,8 +255,8 @@ public class NodeServer
     String convertTo[] = {
       cip,
       userName,
-      Integer.toString(httpPort),
-      Integer.toString(httpsPort),
+      Integer.toString(tcc.getHttpPort()),
+      Integer.toString(tcc.getHttpsPort()),
       nodeName + ".log",
       hostName
     };
@@ -399,6 +359,48 @@ public class NodeServer
     return argument;
   }
 
+  public static void main (String args[]) {
+    // Create and install a security manager
+    if (System.getSecurityManager() == null) {
+      System.setSecurityManager(new RMISecurityManager());
+    }
+
+    int rmiRegistryPort =
+      Integer.valueOf(args[0]).intValue();
+
+    // Create the RMI objects
+
+    try {
+      NodeServer obj = new NodeServer();
+
+      obj.createRMIRegistry(rmiRegistryPort);
+
+      // Bind this object instance to the name "HelloServer"
+      String hostName = null;
+      try {
+	hostName = InetAddress.getLocalHost().getHostName();
+      }
+      catch (Exception e) {
+	Assert.fail("Unable to get host name: " + e);
+	return;
+      }
+      Naming.rebind("//" + hostName + ":" + rmiRegistryPort + "/NodeServer", obj);
+	
+      System.out.println("NodeServer bound in registry");
+    } catch (Exception e) {
+      System.out.println("NodeImpl err: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  /** Create an RMI registry.
+   */
+  private void createRMIRegistry(int rmiport)
+    throws java.rmi.RemoteException {
+    rmiRegistryPort = rmiport;
+    LocateRegistry.createRegistry(rmiRegistryPort);
+  }
+
   private class NodeTimeoutController
     extends Thread
   {
@@ -419,47 +421,6 @@ public class NodeServer
       }
       System.out.println("Forcibly destroying node");
       theNode.destroy();
-    }
-  }
-
-  public static int STDERR = 1;
-  public static int STDOUT = 2;
-
-  private class StreamGobbler
-    extends Thread
-  {
-    private InputStream is;
-    private OutputStream os;
-    private int bytesWritten;
-
-    StreamGobbler(InputStream is, OutputStream os, int streamType) {
-      this.is = is;
-      this.os = os;
-    }
-
-    public int getWrittenBytes() {
-      return bytesWritten;
-    }
-
-    public void run() {
-      try {
-	byte buffer[] = new byte[2000];
-	int bytes = 0;
-	BufferedInputStream bir = new BufferedInputStream(is);
-	//InputStream bir = is;
-
-	while (bytes != -1) {
-	  bytes = bir.read(buffer, 0, buffer.length);
-	  if (bytes > 0) {
-	    os.write(buffer, 0, bytes);
-	    os.flush();
-	    bytesWritten += bytes;
-	  }
-	}
-      }
-      catch (IOException ioe) {
-	ioe.printStackTrace();  
-      }
     }
   }
 }
