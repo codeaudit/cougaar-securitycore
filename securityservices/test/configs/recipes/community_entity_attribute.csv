@@ -693,6 +693,8 @@ Enclave2Security-COMM,594-MDM-TRKCO,Role,Member
 Enclave2Security-COMM,594-MDM-TRKCO,MemberType,Agent
 Enclave3Security-COMM,NCA-NODE,Role,Member
 Enclave3Security-COMM,NCA-NODE,MemberType,Agent
+Enclave3Security-COMM,ROOT-CA-NODE,Role,Member
+Enclave3Security-COMM,ROOT-CA-NODE,MemberType,Agent
 Enclave3Security-COMM,NAME-AGG-NODE,Role,Member
 Enclave3Security-COMM,NAME-AGG-NODE,MemberType,Agent
 Enclave3Security-COMM,ROBUST-1,Role,Member
@@ -1739,3 +1741,13 @@ ALTRANSPORT-COMM,TRANSCOM,Role,AdaptiveLogisticsManager
 ALTRANSPORT-COMM,TRANSCOM,Role,Member
 ALTRANSPORT-COMM,TheaterGround,EntityType,Agent
 ALTRANSPORT-COMM,TheaterGround,Role,Member
+UserDomain1,REAR-A,Role,Member
+UserDomain1,REAR-A,MemberType,Agent
+UserDomain2,REAR-B,Role,Member
+UserDomain2,REAR-B,MemberType,Agent
+UserDomain3,FWD-A,Role,Member
+UserDomain3,FWD-A,MemberType,Agent
+UserDomain3,ROOT-CA-NODE,Role,Member
+UserDomain3,ROOT-CA-NODE,MemberType,Agent
+UserDomain4,FWD-B,Role,Member
+UserDomain4,FWD-B,MemberType,Agent

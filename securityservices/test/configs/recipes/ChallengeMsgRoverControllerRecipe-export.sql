@@ -21,7 +21,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent WRITE;
-INSERT INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController','ChallengeMsgRoverController',0.000000000000000000000000000000,'ChallengeMsgRoverController');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController','ChallengeMsgRoverController',0.000000000000000000000000000000,'ChallengeMsgRoverController');
 UNLOCK TABLES;
 
 #
@@ -43,7 +43,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-INSERT INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','RCP','ChallengeMsgRoverRecipe [1]');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','RCP','ChallengeMsgRoverRecipe [1]');
 UNLOCK TABLES;
 
 #
@@ -51,10 +51,10 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_arg WRITE;
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController','ChallengeMsgRoverController',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.sensors.message.Message_ControllerPlugIn','RoverName=ChallengeMsgRover',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.sensors.message.Message_ControllerPlugIn','RemoveIncomingReports=false',2.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.ui.components.RoverLocationPlugIn','RoverName=ChallengeMsgRover',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController','ChallengeMsgRoverController',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.sensors.message.Message_ControllerPlugIn','RoverName=ChallengeMsgRover',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.sensors.message.Message_ControllerPlugIn','RemoveIncomingReports=false',2.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.ui.components.RoverLocationPlugIn','RoverName=ChallengeMsgRover',1.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -62,10 +62,10 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.ui.components.RoverLocationPlugIn','ChallengeMsgRoverController','COMPONENT',2.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.ui.RoverControlUIServlet','ChallengeMsgRoverController','COMPONENT',1.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController','ChallengeMsgRoverControllerRecipe','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.sensors.message.Message_ControllerPlugIn','ChallengeMsgRoverController','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.ui.components.RoverLocationPlugIn','ChallengeMsgRoverController','COMPONENT',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.ui.RoverControlUIServlet','ChallengeMsgRoverController','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController','ChallengeMsgRoverControllerRecipe','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-ChallengeMsgRoverControllerRecipe-Challen','ChallengeMsgRoverController|org.cougaar.lib.rover.sensors.message.Message_ControllerPlugIn','ChallengeMsgRoverController','COMPONENT',0.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #

@@ -22,7 +22,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent WRITE;
-INSERT INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController','ChallengeRoverController',0.000000000000000000000000000000,'ChallengeRoverController');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController','ChallengeRoverController',0.000000000000000000000000000000,'ChallengeRoverController');
 UNLOCK TABLES;
 
 #
@@ -44,7 +44,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-INSERT INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','RCP','ChallengeRoverRecipe [1]');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','RCP','ChallengeRoverRecipe [1]');
 UNLOCK TABLES;
 
 #
@@ -52,13 +52,13 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_arg WRITE;
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController','ChallengeRoverController',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.sensors.challenge.PeriodicChallenge_ControllerPlugIn','RoverName=ChallengeRover',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.ui.components.RoverMessagePlugIn','RoverName=ChallengeRover',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.ui.components.RoverLocationPlugIn','RoverName=ChallengeRover',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.sensors.challenge.PeriodicChallenge_ControllerPlugIn','RemoveIncomingReports=false',2.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.sensors.challenge.PeriodicChallenge_ControllerPlugIn','MoveByAgent=false',3.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.sensors.challenge.PeriodicChallenge_ControllerPlugIn','Visit=FWD-F+REAR-F',4.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController','ChallengeRoverController',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.sensors.challenge.PeriodicChallenge_ControllerPlugIn','RoverName=ChallengeRover',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.ui.components.RoverMessagePlugIn','RoverName=ChallengeRover',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.ui.components.RoverLocationPlugIn','RoverName=ChallengeRover',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.sensors.challenge.PeriodicChallenge_ControllerPlugIn','RemoveIncomingReports=false',2.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.sensors.challenge.PeriodicChallenge_ControllerPlugIn','MoveByAgent=false',3.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.sensors.challenge.PeriodicChallenge_ControllerPlugIn','Visit=FWD-F+REAR-F',4.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -66,11 +66,11 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.ui.components.RoverLocationPlugIn','ChallengeRoverController','COMPONENT',1.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.ui.components.RoverMessagePlugIn','ChallengeRoverController','COMPONENT',2.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.ui.RoverControlUIServlet','ChallengeRoverController','COMPONENT',3.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController','ChallengeRoverControllerRecipe','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.sensors.challenge.PeriodicChallenge_ControllerPlugIn','ChallengeRoverController','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.ui.components.RoverLocationPlugIn','ChallengeRoverController','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.ui.components.RoverMessagePlugIn','ChallengeRoverController','COMPONENT',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.ui.RoverControlUIServlet','ChallengeRoverController','COMPONENT',3.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController','ChallengeRoverControllerRecipe','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeRoverControllerRecipe-ChallengeR','ChallengeRoverController|org.cougaar.lib.rover.sensors.challenge.PeriodicChallenge_ControllerPlugIn','ChallengeRoverController','COMPONENT',0.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #

@@ -21,7 +21,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent WRITE;
-INSERT INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover','ChallengeMsgRover',0.000000000000000000000000000000,'ChallengeMsgRover');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover','ChallengeMsgRover',0.000000000000000000000000000000,'ChallengeMsgRover');
 UNLOCK TABLES;
 
 #
@@ -43,7 +43,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-INSERT INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','RCP','ChallengeMsgRover');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','RCP','ChallengeMsgRover');
 UNLOCK TABLES;
 
 #
@@ -51,9 +51,9 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_arg WRITE;
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover','ChallengeMsgRover',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover|org.cougaar.lib.rover.sensors.message.Message_PilotPlugIn','MoveByAgent=true',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover|org.cougaar.lib.rover.sensors.message.Message_PilotPlugIn','Visit=1-4-ADABN+141-SIGBN+501-MIBN-CEWI+501-MPCO+69-CHEMCO+1-94-FABN+25-FABTRY-TGTACQ+1-36-INFBN+1-37-ARBN+16-ENGBN+2-3-FABN+2-37-ARBN+1-35-ARBN+1-6-INFBN+2-6-INFBN+4-27-FABN+40-ENGBN+1-13-ARBN+1-41-INFBN+2-70-ARBN+4-1-FABN+26-SSC',2.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover','ChallengeMsgRover',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover|org.cougaar.lib.rover.sensors.message.Message_PilotPlugIn','MoveByAgent=true',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover|org.cougaar.lib.rover.sensors.message.Message_PilotPlugIn','Visit=1-4-ADABN+141-SIGBN+501-MIBN-CEWI+501-MPCO+69-CHEMCO+1-94-FABN+25-FABTRY-TGTACQ+1-36-INFBN+1-37-ARBN+16-ENGBN+2-3-FABN+2-37-ARBN+1-35-ARBN+1-6-INFBN+2-6-INFBN+4-27-FABN+40-ENGBN+1-13-ARBN+1-41-INFBN+2-70-ARBN+4-1-FABN+26-SSC',2.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -61,10 +61,10 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover','ChallengeMsgRoverRecipe','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover|org.cougaar.lib.rover.sensors.message.Message_AuditorPlugIn','ChallengeMsgRover','COMPONENT',1.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover|org.cougaar.lib.rover.sensors.message.Message_TapInspectorPlugIn','ChallengeMsgRover','COMPONENT',2.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover|org.cougaar.lib.rover.sensors.message.Message_PilotPlugIn','ChallengeMsgRover','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover','ChallengeMsgRoverRecipe','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover|org.cougaar.lib.rover.sensors.message.Message_AuditorPlugIn','ChallengeMsgRover','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover|org.cougaar.lib.rover.sensors.message.Message_TapInspectorPlugIn','ChallengeMsgRover','COMPONENT',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-ChallengeMsgRover-ChallengeMsgRover-C-Cha','ChallengeMsgRover|org.cougaar.lib.rover.sensors.message.Message_PilotPlugIn','ChallengeMsgRover','COMPONENT',0.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #

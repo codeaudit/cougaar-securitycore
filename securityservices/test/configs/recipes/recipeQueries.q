@@ -265,7 +265,10 @@ recipeQueryNotAGGAgent=\
 
 # All Node Agents that are members of Enclave1Security-COMM
 recipeQueryEnclave1SecurityCommunityNodeAgents=\
- SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT, COMMUNITY_ENTITY_ATTRIBUTE WHERE COMPONENT_TYPE = 'node' AND \
+ SELECT COMPONENT_ALIB_ID \
+	FROM ALIB_COMPONENT, \
+	COMMUNITY_ENTITY_ATTRIBUTE \
+ WHERE COMPONENT_TYPE = 'node' AND \
    COMPONENT_NAME = ENTITY_ID and COMMUNITY_ID = 'Enclave1Security-COMM'
 
 # All Node Agents that are members of Enclave2Security-COMM

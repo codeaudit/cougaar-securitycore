@@ -23,6 +23,10 @@ Enclave1Security-COMM,CommunityType,Security
 Enclave2Security-COMM,CommunityType,Security
 Enclave3Security-COMM,CommunityType,Security
 Enclave4Security-COMM,CommunityType,Security
+UserDomain1,CommunityType,User
+UserDomain2,CommunityType,User
+UserDomain3,CommunityType,User
+UserDomain4,CommunityType,User
 Enclave1Robustness-COMM,CommunityType,Robustness
 Enclave2Robustness-COMM,CommunityType,Robustness
 Enclave3Robustness-COMM,CommunityType,Robustness
