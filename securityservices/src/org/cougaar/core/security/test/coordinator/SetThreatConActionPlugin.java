@@ -1,6 +1,6 @@
 /**
  * Last Modified by: $Author: tredmond $
- * On: $Date: 2004-09-18 02:35:48 $
+ * On: $Date: 2004-10-26 06:00:24 $
  */
 package org.cougaar.core.security.test.coordinator;
 
@@ -85,8 +85,11 @@ public class SetThreatConActionPlugin extends BaseServletComponent
         queryStr = queryStr.toUpperCase();
         if (queryStr.equals("LOW") || queryStr.equals("HIGH")) {
           _blackboard.openTransaction();
+          String level = queryStr.equals("LOW") ? 
+            ThreatConActionInfo.LOWDiagnosis : 
+            ThreatConActionInfo.HIGHDiagnosis;
           ThreatConActionInfo tcai = 
-            new ThreatConActionInfo("Rear", queryStr);
+            new ThreatConActionInfo("Rear", level);
           _blackboard.publishAdd(tcai);
           out.println("published operating mode (value = " + queryStr + ")");
           _blackboard.closeTransactionDontReset();
