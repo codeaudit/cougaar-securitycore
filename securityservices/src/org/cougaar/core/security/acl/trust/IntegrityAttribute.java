@@ -30,7 +30,9 @@ import java.io.*;
  * @version 1.0
  * @since cougaar-7.2
  */
-public class IntegrityAttribute extends TrustAttribute implements Comparable, Serializable
+public class IntegrityAttribute
+  extends TrustAttribute
+  implements Comparable, Serializable
 {
     /**
      * Name of this class for TrustSet to lookup
@@ -134,9 +136,9 @@ public class IntegrityAttribute extends TrustAttribute implements Comparable, Se
      * @see #getIntegrityLevel
      */
     public int compareTo(IntegrityAttribute integrity) {
-        if(!(integrity instanceof IntegrityAttribute))
-            throw new ClassCastException("Incompatible Integrity Level Comparison!!");
-        return getIntegrityLevel().compareTo(integrity.getIntegrityLevel());                                      
+      if(!(integrity instanceof IntegrityAttribute))
+	throw new ClassCastException("Incompatible Integrity Level Comparison!!");
+      return getIntegrityLevel().compareTo(integrity.getIntegrityLevel());                                      
     }
 
     /**
