@@ -10,7 +10,7 @@
     <property name="project.branch.name" value="${anthill.project.branch.name}"/>
 
     <!-- The parent directory of org.cougaar.install.path -->
-    <property name="org.cougaar.install.path.parent" value="${user.home}/nightly-cougaar"/>
+    <property name="org.cougaar.install.path.parent" value="${user.home}/UL"/>
 
     <!-- The name of the directory where Cougaar will be built 
          (or a cache of downloaded files) -->
@@ -19,7 +19,7 @@
     <!-- The name of the directory where overlays are downloaded -->
     <property name="overlays.directory.name" value="${base.directory.name}/staging"/>
 
-    <property name="testbed.cip.dir" value="~/nightly-cougaar-test/cougaar"/>
+    <property name="testbed.cip.dir" value="~/UL/cougaar"/>
 
     <!-- Load additional properties which are used to upload
          project artifacts to a web server and perform tests.
