@@ -21,7 +21,7 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import kaos.ontology.jena.PolicyConcepts;
+import kaos.ontology.vocabulary.PolicyConcepts;
 
 /**
  * When we are only interested in positive and negative authentication policies,
@@ -51,8 +51,8 @@ abstract class ParsedAuthenticationPolicy
 
   private static String  booleanModalityToString(boolean modality)
   {
-    return modality ? PolicyConcepts._PosAuthorizationPolicy_    : 
-                      PolicyConcepts._NegAuthorizationPolicy_    ;
+    return modality ? PolicyConcepts.PosAuthorizationPolicy()    : 
+                      PolicyConcepts.NegAuthorizationPolicy()    ;
   }
 
   public boolean getAuthModality()

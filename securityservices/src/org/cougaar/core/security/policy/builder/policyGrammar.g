@@ -23,8 +23,13 @@ header {
     package org.cougaar.core.security.policy.builder;
 
     import java.util.*;
-    import kaos.ontology.jena.*;
-    import org.cougaar.core.security.policy.enforcers.ontology.jena.*;
+    import kaos.ontology.vocabulary.ActorConcepts;
+    import kaos.ontology.vocabulary.PolicyConstants;
+    import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+    import org.cougaar.core.security.policy.ontology.GroupInstancesConcepts;
+    import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+    import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
+    import org.cougaar.core.security.policy.ontology.UltralogGroupConcepts;
 }
 
 class PolicyParser extends Parser;
@@ -55,18 +60,19 @@ throws PolicyCompilerException
     : setprefix[ppf]
     | "Delete" policyName:TOKEN
         { ppf.addDeletion(ParsedPolicyFile.tokenToText(policyName)); }
-    | "Agent" agentName:URI
-        { ppf.declareInstance(ParsedPolicyFile.identifierToURI(agentName),
-                              ActorConcepts._Agent_); }
+    | "Agent" agentName:TOKEN
+        { ppf.declareInstance(ULOntologyNames.agentPrefix 
+                                + ParsedPolicyFile.tokenToText(agentName),
+                              ActorConcepts.Agent()); }
     | "UserRole" userRoleName:TOKEN
-        { ppf.declareInstance(GroupInstancesConcepts.GroupInstancesDamlURL
+        { ppf.declareInstance(GroupInstancesConcepts.GroupInstancesOwlURL()
                               + ParsedPolicyFile.tokenToText(userRoleName)
                               + "Role",
-                              UltralogGroupConcepts._Role_); }
+                              UltralogGroupConcepts.Role()); }
     | "Servlet" servletName:TOKEN
-        { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
+        { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesOwlURL()
                               + ParsedPolicyFile.tokenToText(servletName),
-                              UltralogEntityConcepts._Servlet_); }
+                              UltralogEntityConcepts.Servlet()); }
     | "PlugInRole" pluginRoleName:TOKEN
         {   String pluginRoleText
                        = ParsedPolicyFile.tokenToText(pluginRoleName);
@@ -78,14 +84,14 @@ throws PolicyCompilerException
                                    + pluginRoleText
                                       .substring(0,pluginRoleText.length() -4));
             }
-            ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
+            ppf.declareInstance(EntityInstancesConcepts.EntityInstancesOwlURL()
                               + pluginRoleText,
-                              UltralogEntityConcepts._PlugInRoles_); }
+                              UltralogEntityConcepts.PlugInRoles()); }
     | "BlackBoardObject" blackBoardObjectName:TOKEN
         { ppf.declareInstance(
-                    EntityInstancesConcepts.EntityInstancesDamlURL +
+                    EntityInstancesConcepts.EntityInstancesOwlURL() +
                            ParsedPolicyFile.tokenToText(blackBoardObjectName),
-                    UltralogEntityConcepts._BlackBoardObjects_); }
+                    UltralogEntityConcepts.BlackBoardObjects()); }
     | { Set agents = null; }
         "AgentGroup" agentGroup:TOKEN EQ LCURLY agents =tokenList RCURLY
         {  ppf.declareAgentGroup(ParsedPolicyFile.tokenToText(agentGroup), 
@@ -186,9 +192,9 @@ genericRestrictionType
 returns [String resType]
 {  resType = null; }
     : "is" "a" "subset" "of" "the"
-        { resType = kaos.ontology.jena.PolicyConcepts._toClassRestriction; }
+        { resType = PolicyConstants._toClassRestriction; }
     | "contains" "at" "least" "one" "element" "from" "the"
-        { resType = kaos.ontology.jena.PolicyConcepts._hasClassRestriction; }
+        { resType = PolicyConstants._hasClassRestriction; }
     ;
 
 genericTargetModality
@@ -430,11 +436,11 @@ TOKEN
 // I have implemented two different types of URL
 // In the "%" version, everything after the % represents the URI being 
 // represented.  In the $ version, the $ is a shorthand for the URI prefix
-//     http://ontology.coginst.uwf.edu/
+//     http://ontology.ihmc.us/
 // Thus for example 
-//         $Action.daml#hasDestination 
+//         $Action.owl#hasDestination 
 // represents the URL
-//       http://ontology.coginst.uwf.edu/Action.daml#hasDestination
+//       http://ontology.ihmc.us/Action.owl#hasDestination
 //
 URI: '$'  ( 'a'..'z'|'A'..'Z'|'0'..'9'|'/'|':'|'.'|'#'|'-'|'_')+ 
     | '%' ( 'a'..'z'|'A'..'Z'|'0'..'9'|'/'|':'|'.'|'#'|'-'|'_')+ 

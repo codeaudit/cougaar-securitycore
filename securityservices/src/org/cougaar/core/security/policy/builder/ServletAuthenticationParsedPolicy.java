@@ -21,9 +21,9 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActionConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogEntityConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,12 +32,14 @@ import java.util.Set;
 import kaos.ontology.util.AlreadyComplement;
 import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
-import kaos.policy.util.DAMLPolicyBuilderImpl;
+import kaos.ontology.vocabulary.ActorConcepts;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.policy.util.KAoSPolicyBuilderImpl;
 
 public class ServletAuthenticationParsedPolicy extends ParsedAuthenticationPolicy
 {
-  final String _servletClass = UltralogEntityConcepts._Servlet_;
-  final String _authClass = UltralogEntityConcepts._AuthenticationLevel_;
+  final String _servletClass = UltralogEntityConcepts.Servlet();
+  final String _authClass = UltralogEntityConcepts.AuthenticationLevel();
 
   String _servletInstance;
   Set    _authInstances;
@@ -49,9 +51,8 @@ public class ServletAuthenticationParsedPolicy extends ParsedAuthenticationPolic
     super(policyName, 
           3,
           false,
-          kaos.ontology.jena.ActorConcepts._Person_,
-          org.cougaar.core.security.policy.enforcers.ontology.jena.
-          ActionConcepts._AccessAction_);
+          ActorConcepts.Person(),
+          ActionConcepts.AccessAction());
     _description = "All users must use ";
     {
       Iterator authIt = auths.iterator();
@@ -65,19 +66,18 @@ public class ServletAuthenticationParsedPolicy extends ParsedAuthenticationPolic
     _description += " authentication\n" + "when accessing the servlet named " 
                           + servlet;
     _servletInstance = 
-      org.cougaar.core.security.policy.enforcers.ontology.jena.
-      EntityInstancesConcepts.EntityInstancesDamlURL
+      EntityInstancesConcepts.EntityInstancesOwlURL()
       + servlet;
 
     _authInstances = new HashSet();
     for (Iterator authIt = auths.iterator(); authIt.hasNext();) {
       String auth = (String) authIt.next();
-      _authInstances.add(EntityInstancesConcepts.EntityInstancesDamlURL 
+      _authInstances.add(EntityInstancesConcepts.EntityInstancesOwlURL() 
                          + auth);
     }
   }
 
-  public DAMLPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
+  public KAoSPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
     throws PolicyCompilerException
   {
     try {
@@ -92,13 +92,13 @@ public class ServletAuthenticationParsedPolicy extends ParsedAuthenticationPolic
       for (Iterator authIt = _authInstances.iterator(); authIt.hasNext();) {
         String auth = (String) authIt.next();
         _controls.addPropertyRangeInstance
-          (UltralogActionConcepts._usedAuthenticationLevel_, auth);
+          (UltralogActionConcepts.usedAuthenticationLevel(), auth);
       }
       _controls.makeRangeComplement
-               (UltralogActionConcepts._usedAuthenticationLevel_, _authClass);
+               (UltralogActionConcepts.usedAuthenticationLevel(), _authClass);
 
       _controls.addPropertyRangeInstance
-               (UltralogActionConcepts._accessedServlet_, _servletInstance);
+               (UltralogActionConcepts.accessedServlet(), _servletInstance);
 
       return _pb;
     } catch (ClassNameNotSet e) {

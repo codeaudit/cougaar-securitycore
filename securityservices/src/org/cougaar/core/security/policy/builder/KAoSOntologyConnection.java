@@ -30,13 +30,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.agent.service.directory.DirectoryFailure;
+
 import jtp.ReasoningException;
 
 import kaos.core.service.directory.KAoSDirectoryService;
 import kaos.ontology.management.UnknownConceptException;
-import kaos.ontology.util.SerializableDAMLModelImpl;
-
-import com.hp.hpl.jena.daml.DAMLModel;
+import kaos.ontology.util.SerializableOntModelImpl;
 
 /**
  * This class represents a connection to the reasoner (the ontology
@@ -60,7 +60,7 @@ public class KAoSOntologyConnection extends OntologyConnection
    */
 
   public  Set getInstancesOf (String conceptName) 
-    throws Exception
+    throws UnknownConceptException, DirectoryFailure
   {
     return _kds.getInstancesOf(conceptName);
   }
@@ -112,7 +112,7 @@ public class KAoSOntologyConnection extends OntologyConnection
 
 
   public Set getSubClassesOf (String className)
-    throws Exception
+    throws UnknownConceptException, DirectoryFailure
   {
     return _kds.getSubClassesOf(className);
   }
@@ -123,11 +123,11 @@ public class KAoSOntologyConnection extends OntologyConnection
     return _kds.testTrue(statement);
   }
 
-  public  void loadOntology(SerializableDAMLModelImpl  myDAMLModel, 
+  public  void loadOntology(SerializableOntModelImpl   myOntModel, 
                             boolean                    recursiveLoad)
     throws ReasoningException, IOException
   {
-    _kds.loadOntology(myDAMLModel, recursiveLoad);
+    _kds.loadOntology(myOntModel, recursiveLoad);
   }
 
 

@@ -1,9 +1,6 @@
 package org.cougaar.core.security.policy.builder;
 
-
-import com.hp.hpl.jena.daml.DAMLClass;
-import com.hp.hpl.jena.daml.DAMLList;
-import com.hp.hpl.jena.daml.common.DAMLModelImpl;
+import com.hp.hpl.jena.ontology.OntClass;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,37 +17,33 @@ import kaos.core.util.AttributeMsg;
 import kaos.core.util.KAoSConstants;
 import kaos.core.util.PolicyMsg;
 import kaos.core.util.SubjectMsg;
-import kaos.ontology.jena.ActionConcepts;
-import kaos.ontology.jena.ActorConcepts;
-import kaos.ontology.util.JTPStringFormatUtils;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.ontology.vocabulary.ActorConcepts;
+import kaos.ontology.vocabulary.GroupConcepts;
 import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.ontology.util.RangeIsBasedOnInstances;
-import kaos.ontology.util.SerializableDAMLModelImpl;
+import kaos.ontology.util.SerializableOntModelImpl;
 import kaos.ontology.util.ValueNotSet;
-import kaos.policy.information.DAMLPolicyContainer;
+import kaos.policy.information.OntologyPolicyContainer;
 import kaos.policy.information.PolicyInformation;
 import kaos.policy.information.PolicyInformationManager;
-import kaos.policy.util.DAMLPolicyBuilderImpl;
+import kaos.policy.util.KAoSPolicyBuilderImpl;
 import kaos.policy.util.PolicyBuildingNotCompleted;
 
 import org.cougaar.core.security.policy.PolicyBootstrapper;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.GroupInstancesConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActorConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogEntityConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogGroupConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.GroupInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.security.policy.ontology.UltralogActorConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogGroupConcepts;
 
 public class PolicyUtils
 {
+  private static boolean _verbsAlreadyLoaded=false;
   public static OntologyConnection _ontology;
 
-  public static final String pluginsInRoleClassPrefix
-    = "http://ontology.coginst.uwf.edu/Ultralog/PluginsInRole#";
-  public static final String personActorClassPrefix 
-    = "http://ontology.coginst.uwf.edu/Ultralog/UsersInRole#";
-  public static final String agentGroupPrefix
-    = "http://ontology.coginst.uwf.edu/AgentsInGroup#";
 
   public static void setOntologyConnection(OntologyConnection ontology)
   {
@@ -59,23 +52,24 @@ public class PolicyUtils
 
 
   /**
-   * Turns a DAMLPolicyBuilderImpl into a PolicyInformation object.
+   * Turns a KAoSPolicyBuilderImpl into a PolicyInformation object.
    * Uses the utility provided by the PolicyInformationManager class.
    */
   public static  
-    PolicyInformation getPolicyInformation(DAMLPolicyBuilderImpl policy)
+    PolicyInformation getPolicyInformation(KAoSPolicyBuilderImpl policy)
   {
-    return PolicyInformationManager.readPolicyFromBuilder(policy);
+    PolicyInformation pi = PolicyInformationManager.readPolicyFromBuilder(policy);
+    return pi;
   }
 
 
   /*
    * A policy message has several items in common regardless of
-   * whether it is a policy information message or a daml policy
+   * whether it is a policy information message or a owl policy
    * message.  This routine builds the common part based on a
-   * DAMLPolicyBuilderImpl object.
+   * KAoSPolicyBuilderImpl object.
    */
-  private static PolicyMsg startPolicyMsg(DAMLPolicyBuilderImpl policy)
+  private static PolicyMsg startPolicyMsg(KAoSPolicyBuilderImpl policy)
     throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances,
            RangeIsBasedOnAClass
   {
@@ -83,17 +77,12 @@ public class PolicyUtils
     Vector subjects = new Vector();
     String subjectClass = null;
     if (controls.
-        isPropertyRangeBasedOnClass(ActionConcepts._performedBy_)) {
+        isPropertyRangeBasedOnClass(ActionConcepts.performedBy())) {
       subjectClass = controls.
-        getBasePropertyRangeClass(kaos.ontology.jena.ActionConcepts.
-                                  _performedBy_);
+        getBasePropertyRangeClass(ActionConcepts.performedBy());
     } else {
-      //      subjectClass = controls.
-      //  getCurrentPropertyRangeClass(kaos.ontology.jena.ActionConcepts.
-      //                                     _performedBy_);
-      subjectClass = controls.
-        getPropertyRangeInstance(kaos.ontology.jena.ActionConcepts.
-                                 _performedBy_)[0];
+      subjectClass = 
+        controls.getPropertyRangeInstance(ActionConcepts.performedBy())[0];
     } 
     SubjectMsg subject = new SubjectMsg(subjectClass, 
                                         null, 
@@ -115,9 +104,9 @@ public class PolicyUtils
 
   /**
    * This routine makes a PolicyMsg (with a PolicyInformation object
-   * inside) from a DAMLPolicyBuilderImpl object.
+   * inside) from a KAoSPolicyBuilderImpl object.
    */
-  public static PolicyMsg getPolicyInformationMsg(DAMLPolicyBuilderImpl policy)
+  public static PolicyMsg getPolicyInformationMsg(KAoSPolicyBuilderImpl policy)
     throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances,
            RangeIsBasedOnAClass
   {
@@ -130,28 +119,28 @@ public class PolicyUtils
 
 
   /**
-   * This routine makes a PolicyMsg (with a DAML object
-   * inside) from a DAMLPolicyBuilderImpl object.
+   * This routine makes a PolicyMsg (with a ontology  object
+   * inside) from a KAoSPolicyBuilderImpl object.
    */
-  public static PolicyMsg getPolicyMsg(DAMLPolicyBuilderImpl policy)
+  public static PolicyMsg getPolicyMsg(KAoSPolicyBuilderImpl policy)
     throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances,
            RangeIsBasedOnAClass
   {
     PolicyMsg policyMsg = startPolicyMsg(policy);
-    DAMLPolicyContainer damlPolicy = policy.getPolicy();
-    policyMsg.setAttribute(new AttributeMsg(AttributeMsg.DAML_CONTENT,
-                                            damlPolicy,
+    OntologyPolicyContainer policyContainer = policy.getPolicy();
+    policyMsg.setAttribute(new AttributeMsg(AttributeMsg.ONTOLOGY_CONTENT,
+                                            policyContainer,
                                             true));
     return policyMsg;
   }
 
 
   /**
-   * This routine writes a PolicyMsg (with a DAML object
-   * inside) from a DAMLPolicyBuilderImpl object.  It chooses the name
+   * This routine writes a PolicyMsg (with a Ontology object
+   * inside) from a KAoSPolicyBuilderImpl object.  It chooses the name
    * of the file to write from the name of the policy.
    */
-  public static void writePolicyMsg(DAMLPolicyBuilderImpl policy)
+  public static void writePolicyMsg(KAoSPolicyBuilderImpl policy)
     throws IOException
   {
     PolicyMsg pm = null;
@@ -176,10 +165,10 @@ public class PolicyUtils
 
   /**
    * This routine writes a PolicyMsg (with a PolicyInformation object
-   * inside) from a DAMLPolicyBuilderImpl object.  It chooses the name
+   * inside) from a KAoSPolicyBuilderImpl object.  It chooses the name
    * of the file to write from the name of the policy.
    */
-  public static void writePolicyInfo(DAMLPolicyBuilderImpl policy)
+  public static void writePolicyInfo(KAoSPolicyBuilderImpl policy)
     throws IOException
   {
     PolicyMsg pm = null;
@@ -248,6 +237,7 @@ public class PolicyUtils
     throws Exception
   {
     loadDeclarations(declarations);
+    loadVerbs();
     loadAgentGroups(agentGroupMap);
     generateUserActorClasses();
     generateBlackboardActorClasses();
@@ -264,6 +254,22 @@ public class PolicyUtils
     }
   }
 
+  public static void verbsLoaded()
+  {
+    _verbsAlreadyLoaded = true;
+  }
+
+  public static void loadVerbs()
+    throws ReasoningException
+  {
+    if (_verbsAlreadyLoaded) { return; }
+    for (Iterator verbIt = VerbBuilder.hasSubjectValues().iterator();
+         verbIt.hasNext();) {
+      String verb = (String) verbIt.next();
+      _ontology.declareInstance(verb, UltralogEntityConcepts.ULContentValue());
+    }
+    _verbsAlreadyLoaded = true;
+  }
 
   public static void loadAgentGroups(Map agentGroupMap)
     throws Exception
@@ -271,23 +277,21 @@ public class PolicyUtils
     for (Iterator agentGroupIt = agentGroupMap.keySet().iterator();
          agentGroupIt.hasNext();) {
       String agentGroup = (String) agentGroupIt.next();
-      SerializableDAMLModelImpl model = new SerializableDAMLModelImpl();
+      SerializableOntModelImpl model = new SerializableOntModelImpl();
 
-      DAMLList agentList        = model.createDAMLList(null);
-      DAMLClass agentClass = model.createDAMLClass(ActorConcepts._Agent_);
-      DAMLClass agentGroupClass
-        = model.createDAMLClass(agentGroupPrefix + agentGroup);
+      OntClass agentClass = model.createClass(ActorConcepts.Agent());
+      OntClass agentGroupClass
+        = model.createClass(ULOntologyNames.agentGroupPrefix + agentGroup);
 
-      agentGroupClass.prop_subClassOf().add(agentClass);
+      agentGroupClass.setSuperClass(agentClass);
       
       for (Iterator agentIt = ((Set) agentGroupMap.get(agentGroup)).iterator();
            agentIt.hasNext();) {
-        String agent = (String) agentIt.next();
-        _ontology.verifyInstanceOf(agent, ActorConcepts._Agent_);
-        agentList.add(model.createDAMLInstance(agentClass,  "#" + agent));
+        String agent =  ULOntologyNames.agentPrefix + (String) agentIt.next();
+        _ontology.verifyInstanceOf(agent, ActorConcepts.Agent());
+        model.createIndividual(agent, agentGroupClass);
       }
-      agentGroupClass.prop_oneOf().add(agentList);
-      // model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
+      //      model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
       _ontology.loadOntology(model, false);
     }
   }
@@ -296,9 +300,9 @@ public class PolicyUtils
    * This function
    * <ul>
    * <li> gets all instances of the class 
-   *        http://ontology.coginst.uwf.edu/Ultralog/UltralogGroup.daml#Role
+   *        http://www.ihmc.us/Ultralog/UltralogGroup.owl#Role
    * <li> checks to see if they are in the ontology 
-   *       http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml
+   *       http://www.ihmc.us/Ultralog/Names/GroupInstances.owl
    * <li> checks to see if they end in the string "Role"
    * <li> if so creates an actor class consisting of all the actors
    *      in this role
@@ -315,20 +319,16 @@ public class PolicyUtils
    */
   public static void generateUserActorClasses()
   {
-    String ulRoleGroupJena = UltralogGroupConcepts._Role_;
-    String ulRoleGroupJtp
-      = JTPStringFormatUtils.convertStringToJTPFormat(ulRoleGroupJena);
-    String ulRoleGroupInstanceJena
-      = GroupInstancesConcepts.GroupInstancesDamlURL;
+    String ulRoleGroup = UltralogGroupConcepts.Role();
+    String ulRoleGroupInstanceJena 
+      = GroupInstancesConcepts.GroupInstancesOwlURL();
 
     try {
       Set userRoles;
-      userRoles = _ontology.getIndividualTargets(ulRoleGroupJtp);
+      userRoles = _ontology.getIndividualTargets(ulRoleGroup);
       for (Iterator userRolesIt = userRoles.iterator();
            userRolesIt.hasNext();) {
         String userRole = (String) userRolesIt.next();
-        userRole = 
-          JTPStringFormatUtils.convertJTPFormatToString(userRole);
         String shortRole = userRole;
 
         if (shortRole.startsWith(ulRoleGroupInstanceJena) 
@@ -338,17 +338,18 @@ public class PolicyUtils
         } else {
           continue;
         }
-        String myClassName = personActorClassPrefix + shortRole;
+        String myClassName = ULOntologyNames.personActorClassPrefix 
+                                       + shortRole;
         KAoSClassBuilderImpl classBuilder
           = new KAoSClassBuilderImpl(myClassName);
 
-        classBuilder.addImmediateBaseClass(ActorConcepts._Person_);
-        classBuilder.addBaseClass(ActorConcepts._Person_);
-        classBuilder.addRequiredValueOnProperty(kaos.ontology.jena.GroupConcepts._isMemberOf_, 
+        classBuilder.addImmediateBaseClass(ActorConcepts.Person());
+        classBuilder.addBaseClass(ActorConcepts.Person());
+        classBuilder.addRequiredValueOnProperty(GroupConcepts.isMemberOf(), 
                                                 userRole);
 						
           // Load the class into the JTP context
-        _ontology.loadOntology(classBuilder.getDAMLClass(), false);
+        _ontology.loadOntology(classBuilder.getOntClass(), false);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -359,9 +360,9 @@ public class PolicyUtils
    * This function
    * <ul>
    * <li> gets all instances of the class 
-   *  http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#PlugInRoles
+   *  http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#PlugInRoles
    * <li> checks to see if they are in the ontology 
-   *       http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml
+   *       http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl
    * <li> checks to see if they end in the string "Role"
    * <li> if so creates an actor class consisting of all the actors
    *      in this role
@@ -378,19 +379,16 @@ public class PolicyUtils
    */
   public static void generateBlackboardActorClasses()
   {
-    String ulRoleGroupJena = UltralogEntityConcepts._PlugInRoles_;
-    String ulRoleGroupJtp
-      = JTPStringFormatUtils.convertStringToJTPFormat(ulRoleGroupJena);
+    String ulRoleGroup = UltralogEntityConcepts.PlugInRoles();
     String ulRoleGroupInstanceJena 
-      = EntityInstancesConcepts.EntityInstancesDamlURL;
+      = EntityInstancesConcepts.EntityInstancesOwlURL();
 
     try {
       Set bbRoles;
-      bbRoles = _ontology.getIndividualTargets(ulRoleGroupJtp);
+      bbRoles = _ontology.getIndividualTargets(ulRoleGroup);
       for (Iterator bbRolesIt = bbRoles.iterator();
            bbRolesIt.hasNext();) {
         String bbRole = (String) bbRolesIt.next();
-        bbRole = JTPStringFormatUtils.convertJTPFormatToString(bbRole);
         String shortRole = bbRole;
 
         if (shortRole.startsWith(ulRoleGroupInstanceJena) 
@@ -400,21 +398,21 @@ public class PolicyUtils
         } else {
           continue;
         }
-        String myClassName = pluginsInRoleClassPrefix + shortRole;
+        String myClassName = ULOntologyNames.pluginsInRoleClassPrefix 
+                                        + shortRole;
         KAoSClassBuilderImpl classBuilder 
           = new KAoSClassBuilderImpl(myClassName);
-        classBuilder.addImmediateBaseClass(UltralogActorConcepts._UltralogPlugins_);
-        classBuilder.addBaseClass(UltralogActorConcepts._UltralogPlugins_);
-        classBuilder.addRequiredValueOnProperty(UltralogActorConcepts._roleOfPlugin_,
+        classBuilder.addImmediateBaseClass(UltralogActorConcepts.UltralogPlugins());
+        classBuilder.addBaseClass(UltralogActorConcepts.UltralogPlugins());
+        classBuilder.addRequiredValueOnProperty(UltralogActorConcepts.roleOfPlugin(),
                                                 bbRole);
 						
           // Load the class into the JTP context
-        _ontology.loadOntology(classBuilder.getDAMLClass(), false);
+        _ontology.loadOntology(classBuilder.getOntClass(), false);
       }
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
-
 
 }

@@ -23,19 +23,19 @@ package org.cougaar.core.security.policy.builder;
 
 import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
-import kaos.policy.util.DAMLPolicyBuilderImpl;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.ontology.vocabulary.ActorConcepts;
+import kaos.policy.util.KAoSPolicyBuilderImpl;
 
-import org.cougaar.core.security.policy.enforcers.ontology.jena.
-  UltralogEntityConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.
-  ActionConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.
-  EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
 
 public class ServletUserParsedPolicy extends ParsedAuthenticationPolicy
 {
    
-  final String _servletClass = UltralogEntityConcepts._Servlet_;
+  final String _servletClass = UltralogEntityConcepts.Servlet();
 
   String _userClass;
   String _servletInstance;
@@ -49,13 +49,13 @@ public class ServletUserParsedPolicy extends ParsedAuthenticationPolicy
     super(policyName, 
           modality ? 2 : 3,
           modality,
-          PolicyUtils.personActorClassPrefix + userRole,
-          ActionConcepts._AccessAction_);
+          ULOntologyNames.personActorClassPrefix + userRole,
+          ActionConcepts.AccessAction());
     _description = "A user in role " + userRole + (modality? " can":" cannot")
                          + "  access a servlet named " + servletName;
-    _userClass = PolicyUtils.personActorClassPrefix + userRole;
+    _userClass = ULOntologyNames.personActorClassPrefix + userRole;
     _servletInstance 
-      = EntityInstancesConcepts.EntityInstancesDamlURL + servletName;
+      = EntityInstancesConcepts.EntityInstancesOwlURL() + servletName;
   }
 
 /**
@@ -63,18 +63,15 @@ public class ServletUserParsedPolicy extends ParsedAuthenticationPolicy
    * the servlet access policy.
    */
 
-  public DAMLPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
+  public KAoSPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
     throws PolicyCompilerException
   {
     try {
-      ontology.verifySubClass(_userClass, 
-                              kaos.ontology.jena.ActorConcepts._Person_);
+      ontology.verifySubClass(_userClass, ActorConcepts.Person());
       ontology.verifyInstanceOf(_servletInstance, _servletClass);
       initiateBuildPolicy(ontology);
       _controls.addPropertyRangeInstance
-        (org.cougaar.core.security.policy.enforcers.ontology.jena.
-         UltralogActionConcepts._accessedServlet_,
-         _servletInstance);
+        (UltralogActionConcepts.accessedServlet(), _servletInstance);
       return _pb;
     } catch ( ClassNameNotSet e ) {
       throw new PolicyCompilerException(e);

@@ -28,13 +28,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.agent.service.directory.DirectoryFailure;
+
 import jtp.ReasoningException;
-import kaos.ontology.util.JTPStringFormatUtils;
-import kaos.ontology.util.SerializableDAMLModelImpl;
+
+import kaos.ontology.management.UnknownConceptException;
+import kaos.ontology.util.SerializableOntModelImpl;
+import kaos.ontology.vocabulary.RDFConcepts;
+import kaos.ontology.vocabulary.RDFSConcepts;
 import kaos.policy.information.PolicyInformationManager;
 import kaos.policy.information.OntologyInterfaces;
-
-import com.hp.hpl.jena.daml.DAMLModel;
 
 
 /*
@@ -49,9 +52,6 @@ import com.hp.hpl.jena.daml.DAMLModel;
  * However it is not clear how to start the KAoSDirectoryService in a
  * standalone application.  The KAoSDirectoryService is abstract
  * (easily fixed) but it also obtains services using a service root.
- * I looked briefly at DAMLBasedKAoSDirectory but this class uses a
- * backwards pointer to the KAoSDirectoryService which is passed to it
- * in its constructor.  This may be fixable?
  *
  * Conceivably if this gets me into trouble we could switch to a mode
  * where all policy building is done locally and I use the tunnel
@@ -62,6 +62,7 @@ import com.hp.hpl.jena.daml.DAMLModel;
 public abstract class OntologyConnection
   implements OntologyInterfaces
 {
+  public static boolean _disableChecking = false;
   /*
    * For various reasons, this class needs intelligence.  I also
    * provide a convenience method for outsiders to load intelligence.
@@ -74,16 +75,23 @@ public abstract class OntologyConnection
   }
 
 
+  public static void disableChecking()
+  {
+    _disableChecking =  true;
+  }
+
   public void verifySubClass(String smallSet, 
                              String bigSet)
     throws PolicyCompilerException
   {
+    if (_disableChecking) {
+      return;
+    }
     String error = smallSet + " is not a subclass of " + bigSet;
     try {
       if (!testTrue
-          ("(" + kaos.ontology.RDFSConcepts._subClassOf_ + " " + 
-           JTPStringFormatUtils.convertStringToJTPFormat(smallSet) + " " + 
-           JTPStringFormatUtils.convertStringToJTPFormat(bigSet) + ")")) {
+          ("(" + RDFSConcepts._subClassOf_ + " "
+           + smallSet + " " + bigSet + ")")) {
         throw new PolicyCompilerException(error);
       }
     } catch (ReasoningException re) {
@@ -97,12 +105,14 @@ public abstract class OntologyConnection
                                String container)
     throws PolicyCompilerException
   {
+    if (_disableChecking) {
+      return;
+    }
     String error = element + " is not a member of " + container;
     try {
       if (!testTrue
-          ("(" + kaos.ontology.RDFConcepts._type_ + " " + 
-           JTPStringFormatUtils.convertStringToJTPFormat(element) + " " + 
-           JTPStringFormatUtils.convertStringToJTPFormat(container) + ")")) {
+          ("(" + RDFConcepts._type_ + " " + 
+           element + " " + container + ")")) {
         throw new PolicyCompilerException(error);
       }
     } catch (ReasoningException re) {
@@ -128,7 +138,7 @@ public abstract class OntologyConnection
    */
 
   public abstract Set getInstancesOf (String conceptName) 
-    throws Exception;
+    throws UnknownConceptException, DirectoryFailure;
 
   public abstract Vector getPropertiesApplicableTo (String className)
     throws ReasoningException ;
@@ -146,7 +156,7 @@ public abstract class OntologyConnection
 
 
   public abstract Set getSubClassesOf (String className)
-    throws Exception;
+    throws UnknownConceptException, DirectoryFailure;
 
   public abstract boolean testTrue (String statement) 
     throws ReasoningException;
@@ -155,7 +165,7 @@ public abstract class OntologyConnection
    * Not implemented on the tunnelled ontology
    */
 
-  public abstract void loadOntology(SerializableDAMLModelImpl  myDAMLModel, 
+  public abstract void loadOntology(SerializableOntModelImpl  myOntModel, 
                                     boolean                    recursiveLoad)
     throws ReasoningException, IOException;
 
@@ -173,4 +183,17 @@ public abstract class OntologyConnection
 
   public abstract void setConditionalPolicies(Vector condPols)
     throws Exception;
+
+    /**
+     * Get set of namspaces imported by the given namespace. Curently it tries to match the concept name with the local name of the ontology definitions url
+     *
+     * @param conceptName     The name of the namespace in the Jena format
+     *
+     * @return                Set of ontology definition url potentially matching the search concept
+     */
+    public Set getOntologyDefinitionForConcept (String conceptName) 
+      throws DirectoryFailure
+  {
+    throw new DirectoryFailure("Not implemented yet");
+  }
 }

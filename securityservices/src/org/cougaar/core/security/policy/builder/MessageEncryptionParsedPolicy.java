@@ -21,25 +21,20 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActionConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogEntityConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import kaos.ontology.jena.ActionConcepts;
-import kaos.ontology.jena.ActorConcepts;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.ontology.vocabulary.ActorConcepts;
 import kaos.ontology.util.AlreadyComplement;
 import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
-import kaos.policy.util.DAMLPolicyBuilderImpl;
-
-
-import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActionConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogEntityConcepts;
+import kaos.policy.util.KAoSPolicyBuilderImpl;
 
 public class MessageEncryptionParsedPolicy 
   extends ParsedAuthenticationPolicy
@@ -62,14 +57,14 @@ public class MessageEncryptionParsedPolicy
           3,
           false,
           sourceAgentGroup,
-          ActionConcepts._EncryptedCommunicationAction_);
+          ActionConcepts.EncryptedCommunicationAction());
     _description = "Require " + protectionLevel + 
       " on all messages from members of " + 
       (sourceComplement ? "the complement of %" : "%")  + sourceAgentGroup + 
       " to all members of  " + (destComplement ? "the complement of %" : "%") +
       destAgentGroup;
 
-    _protectionLevel = EntityInstancesConcepts.EntityInstancesDamlURL
+    _protectionLevel = EntityInstancesConcepts.EntityInstancesOwlURL()
                                                             + protectionLevel;
     _sourceAgentGroup = sourceAgentGroup;
     _sourceComplement = sourceComplement;
@@ -78,34 +73,34 @@ public class MessageEncryptionParsedPolicy
   }
 
 
-  public DAMLPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
+  public KAoSPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
     throws PolicyCompilerException
   {
     try {
       ontology.verifyInstanceOf(_protectionLevel, 
-                                UltralogEntityConcepts.UltralogEntityDamlURL
+                                UltralogEntityConcepts.UltralogEntityOwlURL()
                                 + "ProtectionLevel");
-      ontology.verifySubClass(_sourceAgentGroup, ActorConcepts._Agent_);
-      ontology.verifySubClass(_destAgentGroup,   ActorConcepts._Agent_);
+      ontology.verifySubClass(_sourceAgentGroup, ActorConcepts.Agent());
+      ontology.verifySubClass(_destAgentGroup,   ActorConcepts.Agent());
 
       initiateBuildPolicy(ontology);
 
       if (_sourceComplement) {
-        _controls.makeRangeComplement(ActionConcepts._performedBy_, 
-                                      ActorConcepts._Agent_);
+        _controls.makeRangeComplement(ActionConcepts.performedBy(), 
+                                      ActorConcepts.Agent());
       }
-      _controls.setPropertyRangeClass(ActionConcepts._hasDestination_, 
+      _controls.setPropertyRangeClass(ActionConcepts.hasDestination(), 
                                       _destAgentGroup);
       if (_destComplement) {
-        _controls.makeRangeComplement(ActionConcepts._hasDestination_, 
-                                      ActorConcepts._Agent_);
+        _controls.makeRangeComplement(ActionConcepts.hasDestination(), 
+                                      ActorConcepts.Agent());
       }
       _controls.addPropertyRangeInstance(
-                             UltralogActionConcepts._usedProtectionLevel_,
+                             UltralogActionConcepts.usedProtectionLevel(),
                              _protectionLevel);
       _controls.makeRangeComplement(
-                            UltralogActionConcepts._usedProtectionLevel_,
-                            UltralogEntityConcepts.UltralogEntityDamlURL
+                            UltralogActionConcepts.usedProtectionLevel(),
+                            UltralogEntityConcepts.UltralogEntityOwlURL()
                                 + "ProtectionLevel");
       return _pb;
     } catch (ClassNameNotSet e) {

@@ -119,7 +119,7 @@ public class ParsedPolicyFile
 
   /**
    * This is a utility routine that gives me a shorthand which replaces the 
-   * "$" with the string "http://ontology.coginst.uwf.edu/".  I am thinking 
+   * "$" with the string "http://ontology.ihmc.us/".  I am thinking 
    * of removing this function.
    */
   public static String identifierToURI(Token u)
@@ -129,7 +129,7 @@ public class ParsedPolicyFile
     try {
       if (str.startsWith("$")) {
         str =  str.substring(1, str.length());
-        return "http://ontology.coginst.uwf.edu/" + str;
+        return "http://ontology.ihmc.us/" + str;
       } else {
         return str.substring(1, str.length());
       }

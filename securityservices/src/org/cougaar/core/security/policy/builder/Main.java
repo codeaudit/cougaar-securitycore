@@ -20,8 +20,8 @@
  */
 package org.cougaar.core.security.policy.builder;
 
-import com.hp.hpl.jena.daml.common.DAMLModelImpl;
-import com.hp.hpl.mesa.rdf.jena.model.RDFException;
+import com.hp.hpl.jena.ontology.impl.OntModelImpl;
+import com.hp.hpl.jena.rdf.model.RDFException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,13 +43,14 @@ import kaos.core.util.PolicyMsg;
 import kaos.core.util.SymbolNotFoundException;
 import kaos.kpat.util.OperatingModeCondition;
 import kaos.ontology.repository.OntologyRepository;
-import kaos.policy.information.DAMLPolicyContainer;
-import kaos.policy.util.DAMLPolicyBuilderImpl;
+import kaos.policy.information.OntologyPolicyContainer;
+import kaos.policy.util.KAoSPolicyBuilderImpl;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.policy.builder.PolicyParser;
 import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
 
@@ -102,10 +103,18 @@ class Main
     try {
       int counter = 0;
 
-      if (args[counter].equals("--maxReasoningDepth")) {
-        counter++;
-        _maxReasoningDepth = Integer.parseInt(args[counter++]);
-      }        
+      // First process the common arguments.
+      while (true) {
+        if (args[counter].equals("--maxReasoningDepth")) {
+          counter++;
+          _maxReasoningDepth = Integer.parseInt(args[counter++]);
+        } else if (args[counter].equals("--disableChecking")) {
+          counter++;
+          OntologyConnection.disableChecking();
+        } else {
+          break;
+        }
+      }
 
       if (args[counter].equals("build")) {
         counter++;
@@ -180,9 +189,11 @@ class Main
     int counter = 1;
     System.out.println("The arguments consist of common options");
     System.out.println("followed by a command");
-    System.out.println("There is one common option at the moment which is");
+    System.out.println("There are two common option at the moment:");
     System.out.println("{--maxReasoningDepth num}  This controls how much");
-    System.out.println("jtp searches for the answer to a question.");
+    System.out.println("\tjtp searches for the answer to a question.");
+    System.out.println("{--disableChecking}  This disables consistency checking");
+    System.out.println("\tIt is not recommended unless you are in a hurry");
     System.out.println("The command then has one of the following forms:");
     System.out.println("" + (counter++) + ". build {--quiet} {--info} policiesFile");
     System.out.println("\tTo build policies from a grammar");
@@ -295,7 +306,7 @@ class Main
     for(Iterator builtPolicyIt = buildUnconditionalPolicies(ppolicies)
                                                                 .iterator();
         builtPolicyIt.hasNext();) {
-      DAMLPolicyBuilderImpl pb = (DAMLPolicyBuilderImpl) builtPolicyIt.next();
+      KAoSPolicyBuilderImpl pb = (KAoSPolicyBuilderImpl) builtPolicyIt.next();
       if (_buildinfo) {
         PolicyUtils.writePolicyInfo(pb);
       } else {
@@ -320,7 +331,7 @@ class Main
            agentGroupIt.hasNext();) {
         String agentGroup = (String) agentGroupIt.next();
         int    size =((Set) agentGroupMap.get(agentGroup)).size();
-        Set    agents = _ontology.getInstancesOf(PolicyUtils.agentGroupPrefix +
+        Set    agents = _ontology.getInstancesOf(ULOntologyNames.agentGroupPrefix +
                                                  agentGroup);
         if (agents.size() < size) {
           System.out.println("Insufficient reasoning depth");
@@ -400,8 +411,8 @@ class Main
       List builtPolicies = buildUnconditionalPolicies(parsed);
       for (Iterator builtPolicyIt = builtPolicies.iterator();
            builtPolicyIt.hasNext();) {
-        DAMLPolicyBuilderImpl pb
-          = (DAMLPolicyBuilderImpl) builtPolicyIt.next();
+        KAoSPolicyBuilderImpl pb
+          = (KAoSPolicyBuilderImpl) builtPolicyIt.next();
         newPolicies.add(PolicyUtils.getPolicyMsg(pb));
       }
     } else {
@@ -621,17 +632,18 @@ class Main
       System.out.println("File has unknown format");
     }
     System.out.println("Policy = " + pm);
-    examineDAMLMsg(pm);
+    examineOntMsg(pm);
   }
 
   /*
-   * This routine looks to see if the policy message has a daml part and if 
-   * so it prints it out.  This is good for those guys who want to see DAML.
+   * This routine looks to see if the policy message has a ontology part and 
+   * if so it prints it out.  This is good for those guys who want to see the 
+   * underlying ontology.
    * 
    * This currently only prints the right information for authorization 
    * policies.
    */
-  static protected void examineDAMLMsg(PolicyMsg pm)
+  static protected void examineOntMsg(PolicyMsg pm)
     throws RDFException
   {
     Vector attribs = pm.getAttributes();
@@ -639,13 +651,13 @@ class Main
     for (Iterator attribsIt = attribs.iterator(); attribsIt.hasNext(); ) {
       AttributeMsg attrib = (AttributeMsg) attribsIt.next();
       
-      // Check if the AttributeMsg is the DAML_CONTENT
-      if (attrib.getName().equals(AttributeMsg.DAML_CONTENT)) {
+      // Check if the AttributeMsg is the ONTOLOGY_CONTENT
+      if (attrib.getName().equals(AttributeMsg.ONTOLOGY_CONTENT)) {
         // first read the policy specific data
-        DAMLPolicyContainer dpc = (DAMLPolicyContainer) attrib.getValue();
-        DAMLModelImpl       model = null;
+        OntologyPolicyContainer dpc = (OntologyPolicyContainer) attrib.getValue();
+        OntModelImpl       model = null;
 
-        System.out.println("DAML = ");
+        System.out.println("Policy Model = ");
         dpc.getPolicyModel().write(new PrintWriter(System.out),
                                    "RDF/XML-ABBREV");
         System.out.println("controls = ");
@@ -713,7 +725,7 @@ class Main
           if (existingPoliciesForMode == null) {
             existingPoliciesForMode = new Vector();
           }
-          DAMLPolicyBuilderImpl pb = pp.buildPolicy(_ontology);
+          KAoSPolicyBuilderImpl pb = pp.buildPolicy(_ontology);
           existingPoliciesForMode.add(PolicyUtils.getPolicyMsg(pb));
           built.put(mode, existingPoliciesForMode);
         }

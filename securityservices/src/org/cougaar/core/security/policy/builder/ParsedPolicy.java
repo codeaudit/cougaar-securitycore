@@ -21,16 +21,16 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import org.cougaar.core.security.policy.enforcers.ontology.jena.ActionConcepts;
-
 import java.util.Iterator;
 import java.util.List;
 
 import jtp.ReasoningException;
 import kaos.core.util.UniqueIdentifier;
-import kaos.ontology.util.JTPStringFormatUtils;
 import kaos.ontology.util.KAoSClassBuilderImpl;
-import kaos.policy.util.DAMLPolicyBuilderImpl;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.ontology.vocabulary.ActorConcepts;
+import kaos.ontology.vocabulary.PolicyConcepts;
+import kaos.policy.util.KAoSPolicyBuilderImpl;
 import kaos.policy.util.SpecifiedModalityTypeNotExists;
 
 public abstract class ParsedPolicy 
@@ -44,7 +44,7 @@ public abstract class ParsedPolicy
   protected String  _description;
   private   String  _conditionalMode;
   
-  protected DAMLPolicyBuilderImpl    _pb;
+  protected KAoSPolicyBuilderImpl    _pb;
   protected KAoSClassBuilderImpl _controls;
 
   ParsedPolicy(String  policyName,
@@ -106,7 +106,7 @@ public abstract class ParsedPolicy
   }
 
 
-  public abstract DAMLPolicyBuilderImpl
+  public abstract KAoSPolicyBuilderImpl
     buildPolicy(OntologyConnection ontology)
     throws PolicyCompilerException;
   
@@ -133,10 +133,9 @@ public abstract class ParsedPolicy
     boolean actorIsInstance = false;
     try {
       String policyId = null;
-      _pb = new DAMLPolicyBuilderImpl();
+      _pb = new KAoSPolicyBuilderImpl();
       actorIsInstance = checkActorIsInstance(ontology);
-      ontology.verifySubClass(_action,  
-                              kaos.ontology.jena.ActionConcepts._Action_);
+      ontology.verifySubClass(_action, ActionConcepts.Action());
 
       try {
         policyId="#policy-grammarGenerated-" + UniqueIdentifier.GenerateUID();
@@ -150,18 +149,16 @@ public abstract class ParsedPolicy
       _pb.setPolicyName(getPolicyName());
       _pb.setPriority(_priority);
       _pb.setPolicyDesc(_description);
-      _pb.setHasSiteOfEnforcement(kaos.ontology.jena.PolicyConcepts.
-                                 policyDamlURL
-                                 + "AnySite");
+      _pb.setHasSiteOfEnforcement(PolicyConcepts.AnySite());
 
       // build the KAoSClassBuilderImp (e.g. the targets)
       _controls = new KAoSClassBuilderImpl(policyId.substring(1) + _action);
       _controls.addImmediateBaseClass(_action);
       if (actorIsInstance) {
-        _controls.addPropertyRangeInstance(ActionConcepts._performedBy_, 
+        _controls.addPropertyRangeInstance(ActionConcepts.performedBy(), 
                                            _actor);
       } else {
-        _controls.setPropertyRangeClass(ActionConcepts._performedBy_, _actor);
+        _controls.setPropertyRangeClass(ActionConcepts.performedBy(), _actor);
       }
       _pb.setControlsActionClass(_controls);
     } catch (PolicyCompilerException pce) {
@@ -179,13 +176,11 @@ public abstract class ParsedPolicy
     throws PolicyCompilerException
   {
     try {
-      ontology.verifySubClass(_actor, 
-                              kaos.ontology.jena.ActorConcepts._Actor_);
+      ontology.verifySubClass(_actor, ActorConcepts.Actor());
       return false;
     } catch (PolicyCompilerException pceClass) {
       try {
-        ontology.verifyInstanceOf(_actor, 
-                                  kaos.ontology.jena.ActorConcepts._Actor_);
+        ontology.verifyInstanceOf(_actor, ActorConcepts.Actor());
         return true;
       } catch (PolicyCompilerException pceInstance) {
         PolicyCompilerException pce = 
@@ -213,14 +208,10 @@ public abstract class ParsedPolicy
                                ParsedTarget       target)
     throws PolicyCompilerException
   {
-    String jtpAction = JTPStringFormatUtils.convertStringToJTPFormat(_action);
-    String jtpProperty 
-      = JTPStringFormatUtils.convertStringToJTPFormat(target.getProperty());
     String fullRange = null;
     try {
-      String jtpFullRange = ontology.getRangeOnPropertyForClass(jtpAction, 
-                                                                 jtpProperty);
-      fullRange =JTPStringFormatUtils.convertJTPFormatToString(jtpFullRange);
+      fullRange= ontology.getRangeOnPropertyForClass(_action, 
+                                                     target.getProperty());
     } catch (Exception e) {
       throw new PolicyCompilerException(e);
     }
@@ -230,8 +221,8 @@ public abstract class ParsedPolicy
      */
     try {
       List applicableJtpProperties
-        = ontology.getPropertiesApplicableTo(jtpAction);
-      if (!applicableJtpProperties.contains(jtpProperty)) {
+        = ontology.getPropertiesApplicableTo(_action);
+      if (!applicableJtpProperties.contains(target.getProperty())) {
         throw new PolicyCompilerException(target.getProperty()
                                           + " is not applicable to " 
                                           + _action);
@@ -241,8 +232,6 @@ public abstract class ParsedPolicy
         for (Iterator instanceIt = instances.iterator();
              instanceIt.hasNext();) {
           String instance = (String) instanceIt.next();
-          String jtpInstance 
-            = JTPStringFormatUtils.convertStringToJTPFormat(instance);
           ontology.verifyInstanceOf(instance, fullRange);
         }
       } else {

@@ -21,25 +21,21 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActionConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogEntityConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import kaos.ontology.jena.ActionConcepts;
-import kaos.ontology.jena.ActorConcepts;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.ontology.vocabulary.ActorConcepts;
 import kaos.ontology.util.AlreadyComplement;
 import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
-import kaos.policy.util.DAMLPolicyBuilderImpl;
+import kaos.policy.util.KAoSPolicyBuilderImpl;
 
-
-import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActionConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogEntityConcepts;
 
 public class MessageAuthParsedPolicy 
   extends ParsedAuthenticationPolicy
@@ -61,7 +57,7 @@ public class MessageAuthParsedPolicy
           modality? 2 : 3,
           modality,
           sourceAgentGroup,
-          ActionConcepts._EncryptedCommunicationAction_);
+          ActionConcepts.EncryptedCommunicationAction());
     _description = (modality ? "Allow" : "Deny") + 
       " messages from members of " + 
       (sourceComplement ? "the complement of %" : "%")  + sourceAgentGroup + 
@@ -75,24 +71,24 @@ public class MessageAuthParsedPolicy
   }
 
 
-  public DAMLPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
+  public KAoSPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
     throws PolicyCompilerException
   {
     try {
-      ontology.verifySubClass(_sourceAgentGroup, ActorConcepts._Agent_);
-      ontology.verifySubClass(_destAgentGroup,   ActorConcepts._Agent_);
+      ontology.verifySubClass(_sourceAgentGroup, ActorConcepts.Agent());
+      ontology.verifySubClass(_destAgentGroup,   ActorConcepts.Agent());
 
       initiateBuildPolicy(ontology);
 
       if (_sourceComplement) {
-        _controls.makeRangeComplement(ActionConcepts._performedBy_, 
-                                      ActorConcepts._Agent_);
+        _controls.makeRangeComplement(ActionConcepts.performedBy(), 
+                                      ActorConcepts.Agent());
       }
-      _controls.setPropertyRangeClass(ActionConcepts._hasDestination_, 
+      _controls.setPropertyRangeClass(ActionConcepts.hasDestination(), 
                                       _destAgentGroup);
       if (_destComplement) {
-        _controls.makeRangeComplement(ActionConcepts._hasDestination_, 
-                                      ActorConcepts._Agent_);
+        _controls.makeRangeComplement(ActionConcepts.hasDestination(), 
+                                      ActorConcepts.Agent());
       }
       return _pb;
     } catch (ClassNameNotSet e) {

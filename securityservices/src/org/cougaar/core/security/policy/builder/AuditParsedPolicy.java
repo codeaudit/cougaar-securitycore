@@ -25,20 +25,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import kaos.ontology.jena.ActorConcepts;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.ontology.vocabulary.ActorConcepts;
 import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
-import kaos.policy.util.DAMLPolicyBuilderImpl;
+import kaos.policy.util.KAoSPolicyBuilderImpl;
 
 
-import org.cougaar.core.security.policy.enforcers.ontology.jena.
-  ActionConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.
-  EntityInstancesConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.
-  UltralogActionConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.
-  UltralogEntityConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
 
 class AuditParsedPolicy extends ParsedAuthenticationPolicy
 {
@@ -51,15 +48,15 @@ class AuditParsedPolicy extends ParsedAuthenticationPolicy
     super(policyName,
           3,
           false,
-          userRole == null ? ActorConcepts._Person_
-                           : PolicyUtils.personActorClassPrefix + userRole,
-          ActionConcepts._AccessAction_);
+          userRole == null ? ActorConcepts.Person()
+                           : ULOntologyNames.personActorClassPrefix + userRole,
+          ActionConcepts.AccessAction());
     if (servletNames != null) {
       _servlets = new HashSet();
       for (Iterator  servletIt = servletNames.iterator(); 
            servletIt.hasNext();) {
         String servletInstance = (String) servletIt.next();
-        _servlets.add(EntityInstancesConcepts.EntityInstancesDamlURL 
+        _servlets.add(EntityInstancesConcepts.EntityInstancesOwlURL() 
                       + servletInstance);
       }
     } else {
@@ -90,26 +87,26 @@ class AuditParsedPolicy extends ParsedAuthenticationPolicy
     }
   }
 
-  public DAMLPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
+  public KAoSPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
     throws PolicyCompilerException
   {
     try {
-      ontology.verifySubClass(getActor(), ActorConcepts._Person_);
+      ontology.verifySubClass(getActor(), ActorConcepts.Person());
       initiateBuildPolicy(ontology);
 
       if (_servlets != null) {
         for (Iterator servletIt = _servlets.iterator(); servletIt.hasNext();) {
           String servletInstance = (String) servletIt.next();
           ontology.verifyInstanceOf(servletInstance, 
-                                    UltralogEntityConcepts._Servlet_);
+                                    UltralogEntityConcepts.Servlet());
           _controls.addPropertyRangeInstance
-                                (UltralogActionConcepts._accessedServlet_,
+                                (UltralogActionConcepts.accessedServlet(),
                                  servletInstance);
         }
       }
       _controls.addPropertyRangeInstance
-                       (UltralogActionConcepts._usedAuditLevel_, 
-                        EntityInstancesConcepts.EntityInstancesDamlURL +
+                      (UltralogActionConcepts.usedAuditLevel(), 
+                        EntityInstancesConcepts.EntityInstancesOwlURL() +
                         "NoAudit");
       return _pb;
     } catch ( ClassNameNotSet e ) {

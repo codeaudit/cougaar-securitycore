@@ -30,11 +30,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.agent.service.directory.DirectoryFailure;
+
 import jtp.ReasoningException;
 import kaos.kpat.tunnel.TunnelClient;
-import kaos.ontology.util.SerializableDAMLModelImpl;
+import kaos.ontology.management.UnknownConceptException;
+import kaos.ontology.util.SerializableOntModelImpl;
 
-import com.hp.hpl.jena.daml.DAMLModel;
 
 /**
  * This class represents a connection to the reasoner (the ontology
@@ -53,8 +55,6 @@ public class TunnelledOntologyConnection extends OntologyConnection
 
   private static TunnelClient _brains = null;
 
-
-
   /**
    * Opens a tunnelled connection (through the policy servlet) to the
    * KAoSDirectoryService.  
@@ -70,6 +70,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
       SecurityServiceProvider secprov   = new SecurityServiceProvider();
       userAuth.init(secprov);
       _brains = new TunnelClient(uri);
+      PolicyUtils.verbsLoaded();
       PolicyUtils.autoGenerateGroups(declarations, agentGroupMap);
     } catch (Exception e) {
       IOException ioe =  new IOException("Could not tunnel to client: " + uri);
@@ -110,7 +111,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
    * The following are tunnelled interfaces.
    */
   public Set getInstancesOf (String conceptName) 
-    throws Exception
+    throws UnknownConceptException, DirectoryFailure
   {
     return _brains.getInstancesOf(conceptName);
   }
@@ -176,7 +177,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
 
 
   public Set getSubClassesOf (String className) 
-    throws Exception
+    throws UnknownConceptException, DirectoryFailure
   {
     return _brains.getSubClassesOf(className);
   }
@@ -199,12 +200,12 @@ public class TunnelledOntologyConnection extends OntologyConnection
    * Not implemented on the tunnelled ontology
    */
 
-  public void loadOntology(SerializableDAMLModelImpl  myDAMLModel, 
+  public void loadOntology(SerializableOntModelImpl  myOntModel, 
                            boolean                    recursiveLoad)
     throws ReasoningException, IOException
   {
     try {
-      _brains.loadOntology(myDAMLModel, recursiveLoad);
+      _brains.loadOntology(myOntModel, recursiveLoad);
     } catch (Exception e) {
       if (e instanceof IOException) {
         throw (IOException) e;

@@ -21,10 +21,11 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActionConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActorConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogEntityConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActorConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,7 +33,7 @@ import java.util.Set;
 
 import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
-import kaos.policy.util.DAMLPolicyBuilderImpl;
+import kaos.policy.util.KAoSPolicyBuilderImpl;
 
 
 public class BlackboardParsedPolicy extends ParsedAuthenticationPolicy
@@ -49,8 +50,8 @@ public class BlackboardParsedPolicy extends ParsedAuthenticationPolicy
     super(policyName, 
           2,
           true,
-          PolicyUtils.pluginsInRoleClassPrefix + plugInRole,
-          UltralogActionConcepts._BlackBoardAccess_);
+          ULOntologyNames.pluginsInRoleClassPrefix + plugInRole,
+          UltralogActionConcepts.BlackBoardAccess());
     _accessModes = accessModes;
     _objectTypes  = objectTypes;
     makeDescription(plugInRole);
@@ -123,13 +124,13 @@ public class BlackboardParsedPolicy extends ParsedAuthenticationPolicy
    * This routine does the core work of constructing the policy defined by 
    * the Blackboard Access Policy.
    */
-  public DAMLPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
+  public KAoSPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
     throws PolicyCompilerException
   {
     try {
       Set    jenaAccessModes = new HashSet();
       ontology.verifySubClass(getActor(), 
-                              UltralogActorConcepts._UltralogPlugins_);
+                              UltralogActorConcepts.UltralogPlugins());
       // The stuff we gave to super is valid...
       initiateBuildPolicy(ontology);
 
@@ -137,22 +138,22 @@ public class BlackboardParsedPolicy extends ParsedAuthenticationPolicy
            accessModesIt.hasNext(); ) {
         String accessMode = (String) accessModesIt.next();
         String jenaAccessMode 
-          =  EntityInstancesConcepts.EntityInstancesDamlURL
+          =  EntityInstancesConcepts.EntityInstancesOwlURL()
                     + "BlackBoardAccess" + accessMode;
         ontology.verifyInstanceOf(jenaAccessMode, 
-                                  UltralogEntityConcepts._BlackBoardAccessMode_);
+                                  UltralogEntityConcepts.BlackBoardAccessMode());
         _controls.addPropertyRangeInstance
-              (UltralogActionConcepts._blackBoardAccessMode_, jenaAccessMode);
+              (UltralogActionConcepts.blackBoardAccessMode(), jenaAccessMode);
       }
       for (Iterator objectTypeIt = _objectTypes.iterator();
            objectTypeIt.hasNext(); ) {
         String objectType = (String) objectTypeIt.next();
-        String jenaObjectClass = EntityInstancesConcepts.EntityInstancesDamlURL
+        String jenaObjectClass = EntityInstancesConcepts.EntityInstancesOwlURL()
                                           + objectType;
         ontology.verifyInstanceOf(jenaObjectClass,
-                                  UltralogEntityConcepts._BlackBoardObjects_);
+                                  UltralogEntityConcepts.BlackBoardObjects());
         _controls.addPropertyRangeInstance(
-                           UltralogActionConcepts._blackBoardAccessObject_,
+                           UltralogActionConcepts.blackBoardAccessObject(),
                            jenaObjectClass);
       }
       return _pb;

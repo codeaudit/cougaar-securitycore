@@ -25,7 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import kaos.policy.util.DAMLPolicyBuilderImpl;
+import kaos.ontology.vocabulary.PolicyConstants;
+import kaos.policy.util.KAoSPolicyBuilderImpl;
 
 
 public class GenericParsedPolicy extends ParsedAuthenticationPolicy
@@ -73,7 +74,7 @@ public class GenericParsedPolicy extends ParsedAuthenticationPolicy
       _description += "\t\tand\n";
     }
     _description += "the value of " + property + "\n";
-    if (resType.equals(kaos.ontology.jena.PolicyConcepts._toClassRestriction)) {
+    if (resType.equals(PolicyConstants._toClassRestriction)) {
       _description += "is a subset of the";
     } else {
       _description += "contains at least one of the";
@@ -103,7 +104,7 @@ public class GenericParsedPolicy extends ParsedAuthenticationPolicy
     }
   }
 
-  public DAMLPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
+  public KAoSPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
     throws PolicyCompilerException
   {
     initiateBuildPolicy(ontology);

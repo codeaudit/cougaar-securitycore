@@ -27,16 +27,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.agent.service.directory.DirectoryFailure;
+
 import jtp.ReasoningException;
+
 import kaos.ontology.DefaultOntologies;
-import kaos.ontology.repository.KAoSContext;
+import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.OntologyRepository;
-import kaos.ontology.util.JTPStringFormatUtils;
-import kaos.ontology.util.SerializableDAMLModelImpl;
-
-import com.hp.hpl.jena.daml.DAMLModel;
-
-
+import kaos.ontology.vocabulary.RDFConcepts;
+import kaos.ontology.util.SerializableOntModelImpl;
 
 public class LocalOntologyConnection extends OntologyConnection
 {
@@ -52,14 +51,11 @@ public class LocalOntologyConnection extends OntologyConnection
   {
     super();
     if (_brains  == null) {
-      KAoSContext kaosReasoner 
-        = new KAoSContext(DefaultOntologies.ultralogOntologiesDaml);
       _brains = new OntologyRepository();
       try {
-        _brains.loadOntology("http://ontology.coginst.uwf.edu/Policy.daml",
-                             true);
+        _brains.loadOntology("http://ontology.ihmc.us/Policy.owl", true);
         _brains.loadOntology
-          ("http://ontology.coginst.uwf.edu/Ultralog/UltralogOntologies.daml",
+          ("http://ontology.ihmc.us/Ultralog/UltralogOntologies.owl",
            true);
         PolicyUtils.autoGenerateGroups(declarations, agentGroupMap);
       } catch (Exception e) {
@@ -71,7 +67,7 @@ public class LocalOntologyConnection extends OntologyConnection
   }
 
   public Set getInstancesOf (String conceptName) 
-    throws Exception
+    throws UnknownConceptException, DirectoryFailure
   {
     return _brains.getInstancesOf(conceptName);
   }
@@ -98,7 +94,7 @@ public class LocalOntologyConnection extends OntologyConnection
     throws ReasoningException
   {
     return _brains.getResourcesWithValueForProperty(
-                                       kaos.ontology.RDFConcepts._type_, 
+                                       RDFConcepts._type_, 
                                        baseTargetClass); 
   }
 
@@ -107,13 +103,9 @@ public class LocalOntologyConnection extends OntologyConnection
                                String className)
     throws ReasoningException
   {
-    String jtpInstanceName 
-      = JTPStringFormatUtils.convertStringToJTPFormat(instanceName);
-    String jtpClassName
-      = JTPStringFormatUtils.convertStringToJTPFormat(className);
-    _brains.tellKifString('(' + kaos.ontology.RDFConcepts._type_ + 
-                                ' ' + jtpInstanceName + 
-                                ' ' + jtpClassName + ')');
+    _brains.tellKifString('(' + RDFConcepts._type_ 
+                          + ' ' + instanceName 
+                          + ' ' + className + ')');
   }
 
 
@@ -126,7 +118,7 @@ public class LocalOntologyConnection extends OntologyConnection
 
 
   public Set getSubClassesOf (String className) 
-    throws Exception
+    throws UnknownConceptException, DirectoryFailure
   {
     return _brains.getSubClassesOf(className);
   }
@@ -143,11 +135,11 @@ public class LocalOntologyConnection extends OntologyConnection
    * Not implemented on the tunnelled ontology
    */
 
-  public void loadOntology (SerializableDAMLModelImpl  myDAMLModel, 
+  public void loadOntology (SerializableOntModelImpl  myOntModel, 
                             boolean                   recursiveLoad)
     throws ReasoningException, IOException
   {
-    _brains.loadOntology(myDAMLModel, recursiveLoad);
+    _brains.loadOntology(myOntModel, recursiveLoad);
   }
 
   /*
