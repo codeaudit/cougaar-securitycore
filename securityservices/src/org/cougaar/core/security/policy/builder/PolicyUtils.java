@@ -27,6 +27,7 @@ package org.cougaar.core.security.policy.builder;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -65,15 +66,14 @@ import com.hp.hpl.jena.ontology.OntClass;
 
 public class PolicyUtils
 {
-  private static boolean _verbsAlreadyLoaded=false;
-  public static OntologyConnection _ontology;
+  private boolean _verbsAlreadyLoaded=false;
+  private OntologyConnection _ontology;
 
 
-  public static void setOntologyConnection(OntologyConnection ontology)
+  public PolicyUtils(OntologyConnection ontology)
   {
     _ontology = ontology;
   }
-
 
   /**
    * Turns a KAoSPolicyBuilderImpl into a PolicyInformation object.
@@ -252,12 +252,12 @@ public class PolicyUtils
     throws Exception
   {
     ParsedPolicyFile ppf = PolicyBootstrapper.getParsedPolicyFile();
-    setOntologyConnection(new KAoSOntologyConnection(kds));
-    autoGenerateGroups(ppf.declarations(), ppf.agentGroupMap());
+    PolicyUtils pu = new PolicyUtils(new KAoSOntologyConnection(kds));
+    pu.autoGenerateGroups(ppf.declarations(), ppf.agentGroupMap());
   }
 
-  public static void autoGenerateGroups(Map declarations,
-                                        Map agentGroupMap)
+  public void autoGenerateGroups(Map declarations,
+                                 Map agentGroupMap)
     throws Exception
   {
     loadDeclarations(declarations);
@@ -267,7 +267,7 @@ public class PolicyUtils
     generateBlackboardActorClasses();
   }
 
-  public static void loadDeclarations(Map declarations)
+  public void loadDeclarations(Map declarations)
     throws ReasoningException, IOException
   {
     for (Iterator instanceIt = declarations.keySet().iterator(); 
@@ -285,12 +285,12 @@ public class PolicyUtils
     }
   }
 
-  public static void verbsLoaded()
+  public void verbsLoaded()
   {
     _verbsAlreadyLoaded = true;
   }
 
-  public static void loadVerbs()
+  public void loadVerbs()
     throws ReasoningException
   {
     if (_verbsAlreadyLoaded) { return; }
@@ -302,7 +302,7 @@ public class PolicyUtils
     _verbsAlreadyLoaded = true;
   }
 
-  public static void loadAgentGroups(Map agentGroupMap)
+  public void loadAgentGroups(Map agentGroupMap)
     throws Exception
   {
     for (Iterator agentGroupIt = agentGroupMap.keySet().iterator();
@@ -322,7 +322,7 @@ public class PolicyUtils
         // _ontology.verifyInstanceOf(agent, ActorConcepts.Agent());
         model.createIndividual(agent, agentGroupClass);
       }
-      //      model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
+      //model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
       _ontology.loadOntology(model, false);
     }
   }
@@ -348,7 +348,7 @@ public class PolicyUtils
    * A small hack in OntologyRepository.getAllNamespaces() ensures
    * that theses namespaces show up in KPAT.
    */
-  public static void generateUserActorClasses()
+  public void generateUserActorClasses()
   {
     String ulRoleGroup = UltralogGroupConcepts.Role();
     String ulRoleGroupInstanceJena 
@@ -408,7 +408,7 @@ public class PolicyUtils
    * A small hack in OntologyRepository.getAllNamespaces() ensures
    * that theses namespaces show up in KPAT.
    */
-  public static void generateBlackboardActorClasses()
+  public void generateBlackboardActorClasses()
   {
     String ulRoleGroup = UltralogEntityConcepts.PlugInRoles();
     String ulRoleGroupInstanceJena 
