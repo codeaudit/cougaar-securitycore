@@ -26,8 +26,8 @@
 
 package org.cougaar.core.security.config.jar;
 
-import java.io.FilterInputStream;
 import java.io.BufferedInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

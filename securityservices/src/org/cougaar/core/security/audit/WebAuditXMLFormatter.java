@@ -35,7 +35,6 @@ package org.cougaar.core.security.audit;
 
 
 import java.nio.charset.Charset;
-
 import java.util.StringTokenizer;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;

@@ -30,7 +30,6 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.AccessControlPolicy;
 import org.cougaar.core.security.policy.CryptoPolicy;
 import org.cougaar.core.security.policy.PersistenceManagerPolicy;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;

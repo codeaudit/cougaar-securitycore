@@ -26,13 +26,6 @@
 
 package org.cougaar.core.security.config;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.config.jar.JarFileHandler;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.util.ConfigFinder;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -43,6 +36,12 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.config.jar.JarFileHandler;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.ConfigFinder;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;

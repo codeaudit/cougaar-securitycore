@@ -26,16 +26,6 @@
 
 package org.cougaar.core.security.config;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.policy.CryptoClientPolicy;
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.util.ConfigFinder;
-import org.cougaar.util.jar.JarConfigFinder;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,6 +36,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.PolicyUpdateException;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.ConfigFinder;
+import org.cougaar.util.jar.JarConfigFinder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

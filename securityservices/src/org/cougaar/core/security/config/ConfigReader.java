@@ -26,11 +26,10 @@
 
 package org.cougaar.core.security.config;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.FileReader;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;

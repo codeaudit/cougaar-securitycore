@@ -32,10 +32,6 @@
 
 package org.cougaar.core.security.auth;
 
-import org.cougaar.core.security.acl.auth.URIPrincipal;
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
 import java.security.AccessControlContext;
@@ -45,6 +41,10 @@ import java.security.PrivilegedAction;
 import java.util.Iterator;
 
 import javax.security.auth.Subject;
+
+import org.cougaar.core.security.acl.auth.URIPrincipal;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class JaasClient {
   private ExecutionContext _context;

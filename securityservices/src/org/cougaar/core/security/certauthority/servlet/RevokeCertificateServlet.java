@@ -27,14 +27,6 @@
 
 package org.cougaar.core.security.certauthority.servlet;
 
-import org.cougaar.core.security.certauthority.SecurityServletSupport;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
-import org.cougaar.core.security.services.crypto.CertificateManagementService;
-import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
-import org.cougaar.core.security.services.ldap.MultipleEntryException;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -45,6 +37,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.cougaar.core.security.crypto.ldap.LdapEntry;
+import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
+import org.cougaar.core.security.services.ldap.MultipleEntryException;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.util.SecurityServletSupport;
+import org.cougaar.core.service.LoggingService;
 
 public class RevokeCertificateServlet
 extends HttpServlet

@@ -27,10 +27,10 @@
 
 package org.cougaar.core.security.certauthority.servlet;
 
+import java.security.Principal;
+
 import org.cougaar.core.service.identity.AgentIdentityClient;
 import org.cougaar.core.service.identity.CrlReason;
-
-import java.security.Principal;
 
 
 public class CAIdentityClientImpl

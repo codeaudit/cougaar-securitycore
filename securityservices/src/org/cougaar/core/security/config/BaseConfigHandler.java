@@ -26,15 +26,14 @@
 
 package org.cougaar.core.security.config;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.CharArrayWriter;
 import java.util.Hashtable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.service.LoggingService;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;

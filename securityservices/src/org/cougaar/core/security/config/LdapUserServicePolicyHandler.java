@@ -26,12 +26,11 @@
 
 package org.cougaar.core.security.config;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.LdapUserServicePolicy;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.LdapUserServicePolicy;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;

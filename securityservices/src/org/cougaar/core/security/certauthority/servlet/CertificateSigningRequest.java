@@ -54,7 +54,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.security.certauthority.KeyManagement;
-import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.cm.CMMessage;
 import org.cougaar.core.security.cm.message.VerifyAgentAddRequest;
 import org.cougaar.core.security.cm.message.VerifyResponse;
@@ -65,6 +64,7 @@ import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
 import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.util.SecurityServletSupport;
 import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
@@ -79,7 +79,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.23 $
  */
 public class CertificateSigningRequest extends HttpServlet implements BlackboardClient {
   private CertificateManagementService signer;

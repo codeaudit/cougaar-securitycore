@@ -31,23 +31,6 @@
 
 package org.cougaar.core.security.acl.user;
 
-import org.cougaar.core.component.ServiceAvailableEvent;
-import org.cougaar.core.component.ServiceAvailableListener;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.security.policy.GuardRegistration;
-import org.cougaar.core.security.policy.LdapUserServicePolicy;
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.security.services.acl.UserService;
-import org.cougaar.core.security.services.acl.UserServiceException;
-import org.cougaar.core.security.util.CommunityServiceUtil;
-import org.cougaar.core.security.util.CommunityServiceUtilListener;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.planning.ldm.policy.Policy;
-
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
@@ -79,6 +62,23 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.policy.GuardRegistration;
+import org.cougaar.core.security.policy.LdapUserServicePolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.security.services.acl.UserServiceException;
+import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.planning.ldm.policy.Policy;
 
 import safe.enforcer.NodeEnforcer;
 

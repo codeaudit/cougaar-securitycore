@@ -25,6 +25,13 @@
  
 package org.cougaar.core.security.acl.user;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.blackboard.SubscriptionWatcher;
@@ -37,23 +44,14 @@ import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.security.util.CommunityServiceUtilListener;
+import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.Entity;
-import org.cougaar.core.service.AgentIdentificationService;
-
 import org.cougaar.util.UnaryPredicate;
-
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 public class AgentUserService implements UserService, BlackboardClient {
 

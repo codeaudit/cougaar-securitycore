@@ -27,12 +27,12 @@
 
 package org.cougaar.core.security.auth.role;
 
+import java.io.Serializable;
+import java.security.Permission;
+
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.auth.ContextPermission;
 import org.cougaar.core.security.auth.ObjectContext;
-
-import java.io.Serializable;
-import java.security.Permission;
 
 public class RoleObjectContext implements ObjectContext, Serializable {
   private MessageAddress _agent;

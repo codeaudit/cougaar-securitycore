@@ -26,11 +26,10 @@
 
 package org.cougaar.core.security.config;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.AccessControlPolicy;
-
 import java.util.Vector;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.AccessControlPolicy;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;

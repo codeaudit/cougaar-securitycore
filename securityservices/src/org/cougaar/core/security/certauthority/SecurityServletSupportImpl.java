@@ -27,14 +27,15 @@
 
 package org.cougaar.core.security.certauthority;
 
+import javax.servlet.Servlet;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.util.SecurityServletSupport;
 import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.servlet.SimpleServletSupportImpl;
-
-import javax.servlet.Servlet;
 
 public class SecurityServletSupportImpl
   extends SimpleServletSupportImpl

@@ -27,14 +27,14 @@
 
 package org.cougaar.core.security.auth.role;
 
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.security.auth.ExecutionContext;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.auth.ExecutionContext;
 
 public class RoleExecutionContext implements ExecutionContext {
   public static final String ACCESS_CACHING_PROPERTY = 

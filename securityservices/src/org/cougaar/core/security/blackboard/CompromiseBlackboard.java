@@ -29,10 +29,10 @@
 package org.cougaar.core.security.blackboard;
 
 
+import java.io.Serializable;
+
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
-
-import java.io.Serializable;
 
 
 /**

@@ -41,7 +41,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
@@ -51,6 +50,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.ssl.ServerKeyManager;
 import org.cougaar.core.security.util.Duration;
+import org.cougaar.core.security.util.SecurityServletSupport;
 import org.cougaar.core.service.LoggingService;
 
 import sun.security.x509.X500Name;

@@ -34,8 +34,6 @@
 package org.cougaar.core.security.audit;
 
 
-import org.cougaar.util.log.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -51,6 +49,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.catalina.realm.GenericPrincipal;
+import org.cougaar.util.log.LoggerFactory;
 
 
 /**

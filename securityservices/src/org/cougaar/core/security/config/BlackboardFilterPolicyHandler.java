@@ -26,12 +26,11 @@
 
 package org.cougaar.core.security.config;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.BlackboardFilterPolicy;
-
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.BlackboardFilterPolicy;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;

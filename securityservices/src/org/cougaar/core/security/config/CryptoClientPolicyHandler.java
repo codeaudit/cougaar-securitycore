@@ -29,10 +29,10 @@ package org.cougaar.core.security.config;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.CertificateAttributesPolicy;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.CryptoClientPolicyConstants;
 import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.util.Duration;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -44,42 +44,6 @@ public class CryptoClientPolicyHandler
   private CryptoClientPolicy cryptoClientPolicy;
   private TrustedCaPolicy currentTrustedCa;
   private CertificateAttributesPolicy currentCertAttr;
-
-  public static final String IS_CERT_AUTH_ELEMENT = "isCertificateAuthority";
-  public static final String IS_ROOT_CA_ELEMENT = "isRootCA";
-  public static final String CA_KEYSTORE_ELEMENT          = "CA_keystore";
-  public static final String CA_KEYSTORE_PASSWORD_ELEMENT = "CA_keystorePassword";
-
-  public static final String KEYSTORE_FILE_ELEMENT          = "keystoreFileName";
-  public static final String KEYSTORE_PASSWORD_ELEMENT      = "keystorePassword";
-  public static final String KEYSTORE_USE_SMART_CARD        = "keystoreUseSmartCard";
-
-  // Trusted Ca attributes
-  public static final String TRUSTED_CA_ELEMENT          = "trustedCA";
-  public static final String CA_URL_ELEMENT              = "CA_URL";
-  public static final String CA_DN_ELEMENT               = "CA_DN";
-  public static final String CERT_DIRECTORY_URL_ELEMENT  = "CertDirectoryURL";
-  public static final String CERT_DIRECTORY_TYPE_ELEMENT = "CertDirectoryType";
-  public static final String CERT_DIRECTORY_PRINCIPAL_ELEMENT = "CertDirectorySecurityPrincipal";
-  public static final String CERT_DIRECTORY_CREDENTIAL_ELEMENT = "CertDirectorySecurityCredential";
-  public static final String CA_INFOURL_ELEMENT          = "CA_infoURL";
-  public static final String CA_REQUESTURL_ELEMENT          = "CA_requestURL";
-
-  // Certificate Attributes
-  public static final String CERTIFICATE_ATTR_ELEMENT = "certificateAttributes";
-  //public static final String CACERTIFICATE_ATTR_ELEMENT = "caCertificateAttributes";
-  public static final String OU_ELEMENT           = "ou";
-  public static final String O_ELEMENT            = "o";
-  public static final String L_ELEMENT            = "l";
-  public static final String ST_ELEMENT           = "st";
-  public static final String C_ELEMENT            = "c";
-  public static final String DOMAIN_ELEMENT       = "domain";
-  public static final String KEYALGNAME_ELEMENT   = "keyAlgName";
-  public static final String SIGALGNAME_ELEMENT   = "sigAlgName";
-  public static final String KEYSIZE_ELEMENT      = "keysize";
-  public static final String VALIDITY_ELEMENT     = "validity";
-  public static final String ENVELOPE_ELEMENT     = "timeEnvelope";
-  public static final String NODE_IS_SIGNER_ELEMENT = "nodeIsSigner";
 
   public CryptoClientPolicyHandler(ServiceBroker sb) {
     super(sb);
@@ -104,11 +68,11 @@ public class CryptoClientPolicyHandler
     throws SAXException {
     super.startElement(namespaceURI, localName, qName, attr);
 
-    if (localName.equals(TRUSTED_CA_ELEMENT)) {
+    if (localName.equals(CryptoClientPolicyConstants.TRUSTED_CA_ELEMENT)) {
       currentTrustedCa = new TrustedCaPolicy();
       cryptoClientPolicy.addTrustedCaPolicy(currentTrustedCa);
     }
-    if (localName.equals(CERTIFICATE_ATTR_ELEMENT)) {
+    if (localName.equals(CryptoClientPolicyConstants.CERTIFICATE_ATTR_ELEMENT)) {
     // default cert attribute
       currentCertAttr = new CertificateAttributesPolicy();
       if (currentTrustedCa != null) {
@@ -142,7 +106,7 @@ public class CryptoClientPolicyHandler
 		+ " = " + getContents());
     }
 
-    if (localName.equals(IS_CERT_AUTH_ELEMENT)) {
+    if (localName.equals(CryptoClientPolicyConstants.IS_CERT_AUTH_ELEMENT)) {
       String st_value = getContents();
       boolean value = false;
       if (st_value.equalsIgnoreCase("true")) {
@@ -159,21 +123,21 @@ public class CryptoClientPolicyHandler
       cryptoClientPolicy.setIsCertificateAuthority(value);
     }
 
-    else if (localName.equals(KEYSTORE_FILE_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.KEYSTORE_FILE_ELEMENT)) {
       cryptoClientPolicy.setKeystoreName(getContents());
     }
-    else if (localName.equals(KEYSTORE_PASSWORD_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.KEYSTORE_PASSWORD_ELEMENT)) {
       cryptoClientPolicy.setKeystorePassword(getContents());
     }
-    else if (localName.equals(KEYSTORE_USE_SMART_CARD)) {
+    else if (localName.equals(CryptoClientPolicyConstants.KEYSTORE_USE_SMART_CARD)) {
       cryptoClientPolicy.setUseSmartCard(true);
     } // end of if (localName.equals(KEYSTORE_USE_SMART_CARD))
 
     // trusted CA keystore
-    else if (localName.equals(CA_KEYSTORE_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.CA_KEYSTORE_ELEMENT)) {
       cryptoClientPolicy.setTrustedCaKeystoreName(getContents());
     }
-    else if (localName.equals(CA_KEYSTORE_PASSWORD_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.CA_KEYSTORE_PASSWORD_ELEMENT)) {
       cryptoClientPolicy.setTrustedCaKeystorePassword(getContents());
     }
 
@@ -183,22 +147,22 @@ public class CryptoClientPolicyHandler
       currentTrustedCa.caAlias = getContents();
     }
     */
-    else if (localName.equals(CA_URL_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.CA_URL_ELEMENT)) {
       currentTrustedCa.caURL = getContents();
     }
-    else if (localName.equals(CA_DN_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.CA_DN_ELEMENT)) {
       currentTrustedCa.caDN = getContents();
     }
-    else if (localName.equals(CERT_DIRECTORY_URL_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.CERT_DIRECTORY_URL_ELEMENT)) {
       currentTrustedCa.certDirectoryUrl = getContents();
     }
-    else if (localName.equals(CERT_DIRECTORY_PRINCIPAL_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.CERT_DIRECTORY_PRINCIPAL_ELEMENT)) {
       currentTrustedCa.certDirectoryPrincipal = getContents();
     }
-    else if (localName.equals(CERT_DIRECTORY_CREDENTIAL_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.CERT_DIRECTORY_CREDENTIAL_ELEMENT)) {
       currentTrustedCa.certDirectoryCredential = getContents();
     }
-    else if (localName.equals(CERT_DIRECTORY_TYPE_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.CERT_DIRECTORY_TYPE_ELEMENT)) {
       String type = getContents();
       if (type.equalsIgnoreCase("NetTools")) {
 	currentTrustedCa.certDirectoryType = TrustedCaPolicy.NETTOOLS;
@@ -209,35 +173,35 @@ public class CryptoClientPolicyHandler
     }
 
     // Certificate attributes
-    else if (localName.equals(OU_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.OU_ELEMENT)) {
       currentCertAttr.ou = getContents();
     }
-    else if (localName.equals(O_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.O_ELEMENT)) {
       currentCertAttr.o = getContents();
     }
-    else if (localName.equals(L_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.L_ELEMENT)) {
       currentCertAttr.l = getContents();
     }
-    else if (localName.equals(ST_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.ST_ELEMENT)) {
       currentCertAttr.st = getContents();
     }
-    else if (localName.equals(C_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.C_ELEMENT)) {
       currentCertAttr.c = getContents();
     }
-    else if (localName.equals(DOMAIN_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.DOMAIN_ELEMENT)) {
       currentCertAttr.domain = getContents();
     }
-    else if (localName.equals(KEYALGNAME_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.KEYALGNAME_ELEMENT)) {
       currentCertAttr.keyAlgName = getContents();
     }
-    else if (localName.equals(SIGALGNAME_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.SIGALGNAME_ELEMENT)) {
       currentCertAttr.sigAlgName = getContents();
     }
-    else if (localName.equals(KEYSIZE_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.KEYSIZE_ELEMENT)) {
       String val = getContents();
       currentCertAttr.keysize = Integer.parseInt(val);
     }
-    else if (localName.equals(NODE_IS_SIGNER_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.NODE_IS_SIGNER_ELEMENT)) {
       String val = getContents();
       currentCertAttr.nodeIsSigner = false;
       if (val.equalsIgnoreCase("true")) {
@@ -245,7 +209,7 @@ public class CryptoClientPolicyHandler
       }
     }
 
-    else if (localName.equals(IS_ROOT_CA_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.IS_ROOT_CA_ELEMENT)) {
       String st_value = getContents();
       boolean value = true;
       if (st_value.equalsIgnoreCase("false")) {
@@ -264,29 +228,29 @@ public class CryptoClientPolicyHandler
       cryptoClientPolicy.setIsRootCA(value);
     }
 
-    else if (localName.equals(VALIDITY_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.VALIDITY_ELEMENT)) {
       Duration duration = new Duration(serviceBroker);
       String content = getContents();
       duration.parse(content);
       currentCertAttr.howLong = duration.getDuration();
       currentCertAttr.validity = content;
     }
-    else if (localName.equals(ENVELOPE_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.ENVELOPE_ELEMENT)) {
       Duration duration = new Duration(serviceBroker);
       String content = getContents();
       duration.parse(content);
       currentCertAttr.regenEnvelope = duration.getDuration();
       currentCertAttr.timeEnvelope = content;
     }
-    else if (localName.equals(CA_INFOURL_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.CA_INFOURL_ELEMENT)) {
       String value = getContents();
       cryptoClientPolicy.setInfoURL(value);
     }
-    else if (localName.equals(CA_REQUESTURL_ELEMENT)) {
+    else if (localName.equals(CryptoClientPolicyConstants.CA_REQUESTURL_ELEMENT)) {
       String value = getContents();
       cryptoClientPolicy.setRequestURL(value);
     }
-    if (localName.equals(TRUSTED_CA_ELEMENT)) {
+    if (localName.equals(CryptoClientPolicyConstants.TRUSTED_CA_ELEMENT)) {
     // reset TrustedCaPolicy
       currentTrustedCa = null;
     }

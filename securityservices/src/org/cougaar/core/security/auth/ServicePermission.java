@@ -32,9 +32,9 @@
 
 package org.cougaar.core.security.auth;
 
-import org.cougaar.core.security.util.ActionPermission;
-
 import java.io.Serializable;
+
+import org.cougaar.core.security.util.ActionPermission;
 
 /**
  * Base abstract class for service permissions.

@@ -38,10 +38,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.naming.servlet.NameServerCertificate;
 import org.cougaar.core.security.naming.servlet.NameServerCertificateComponent;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.util.SecurityServletSupport;
 import org.cougaar.core.service.LoggingService;
 
 public class NameServerCertificateServlet extends HttpServlet {

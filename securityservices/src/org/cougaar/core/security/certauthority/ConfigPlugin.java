@@ -26,6 +26,15 @@
 
 package org.cougaar.core.security.certauthority;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.security.cert.X509Certificate;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.security.auth.x500.X500Principal;
+
 import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.certauthority.servlet.CAIdentityClientImpl;
@@ -40,23 +49,14 @@ import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.provider.SecurityComponent;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.util.ServletRequestUtil;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.identity.AgentIdentityService;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.security.cert.X509Certificate;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.security.auth.x500.X500Principal;
 
 import sun.security.x509.X500Name;
 

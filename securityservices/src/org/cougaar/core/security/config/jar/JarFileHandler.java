@@ -26,15 +26,6 @@
 
 package org.cougaar.core.security.config.jar;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.crypto.CertValidityListener;
-import org.cougaar.core.security.crypto.PrivateKeyCert;
-import org.cougaar.core.security.services.crypto.CertValidityService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.util.JARSigner;
-import org.cougaar.core.security.util.NodeInfo;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,6 +37,15 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.jar.JarFile;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.CertValidityListener;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
+import org.cougaar.core.security.services.crypto.CertValidityService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.util.JARSigner;
+import org.cougaar.core.security.util.NodeInfo;
+import org.cougaar.core.service.LoggingService;
 
 public class JarFileHandler
   implements CertValidityListener
