@@ -195,6 +195,7 @@
                     <include name="printProcessInfo.rb"/>
                     <include name="checkReportChainReady.rb"/>
                     <include name="createJarConfigFiles"/>
+                    <include name="policyUtil"/>
                 </patternset>
             </fileset>
             <fileset dir="${securityservices.configs}/sign-jars">
