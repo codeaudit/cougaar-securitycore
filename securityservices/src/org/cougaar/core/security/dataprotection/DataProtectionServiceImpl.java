@@ -115,6 +115,9 @@ public class DataProtectionServiceImpl
   {
     String agent = dpsClient.getAgentIdentifier().toAddress();
 
+    if (log.isDebugEnabled())
+      log.debug("getOutputStream for " + agent);
+
     // check if there is key and certificate created for the client
     List certList = keyRing.findCert(agent);
     if (certList == null || certList.size() == 0)
@@ -137,6 +140,8 @@ public class DataProtectionServiceImpl
 
   private DataProtectionKey createDataProtectionKey(String agent)
     throws GeneralSecurityException, IOException {
+    //SecureMethodParam policy =
+    cps.getSendPolicy(agent, agent);
     SecureMethodParam policy = cps.getDataProtectionPolicy(agent);
     if (policy == null)
        throw new RuntimeException("Could not find data protection policy for " + agent);
@@ -244,12 +249,30 @@ public class DataProtectionServiceImpl
   {
     String agent = dpsClient.getAgentIdentifier().toAddress();
 
+    if (log.isDebugEnabled())
+      log.debug("getInputStream for " + agent);
+
     // check if there is key and certificate created for the client
     List certList = keyRing.findCert(agent);
     if (certList == null || certList.size() == 0)
       throw new CertificateException("No certificate available to sign.");
 
-    return new DataProtectionInputStream(is, pke, agent, serviceBroker);
+      /*
+    String ofname = keyRing.getKeyStorePath();
+    ofname = ofname.substring(0, ofname.lastIndexOf("/")) + "/" + agent + ".data";
+    System.out.println("reading file: " + ofname);
+    return new FileInputStream(new File(ofname));
+    */
+    InputStream in = new DataProtectionInputStream(is, pke, agent, serviceBroker);
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    byte [] bytes = new byte[2000];
+    while (true) {
+      int result = in.read(bytes);
+      if (result == -1)
+        break;
+      bos.write(bytes, 0, result);
+    }
+    return new ByteArrayInputStream(bos.toByteArray());
   }
 
   public void release() {
