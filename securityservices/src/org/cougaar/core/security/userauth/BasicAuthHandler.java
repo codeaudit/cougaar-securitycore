@@ -17,36 +17,33 @@ public class BasicAuthHandler extends AuthenticationHandler {
     this.listener = listener;
   }
 
-  public void authenticateUser(String username, char [] password) throws Exception
-  {
-    _pa = new PasswordAuthentication(username, password);
-  }
-
   public void authenticateUser(String username) throws Exception
   {
     PasswordAuthentication pa = null;
-    //if (_pa.getPassword().length == 0) {
-    /*
-      String pwd = JOptionPane.showInputDialog(
-        "Please enter the password for user " + username + ".");
-        */
+    if (_pa == null) {
       UserAliasPwdDialog dialog = new UserAliasPwdDialog();
       dialog.setAlias(username);
       dialog.hideLookup();
       dialog.setPrompt("\nPlease enter the password to access the remote site.");
+      dialog.setHost(requestUrl);
 
       boolean ok = dialog.showDialog();
       char[] pwd = dialog.getPwd();
       username = dialog.getAlias();
-      if (ok)
+      if (ok) {
         pa = new PasswordAuthentication(username, pwd);
-      else
+        if (dialog.isCached()) {
+          _pa = pa;
+        }
+      }
+      else {
         pa = null;
-    /*
+      }
     }
-    else
+    else {
+      //System.out.println("trying with previous ...");
       pa = _pa;
-      */
+    }
 
     if (listener != null)
       listener.setPasswordAuthentication(pa);
@@ -56,9 +53,19 @@ public class BasicAuthHandler extends AuthenticationHandler {
     return username;
   }
 
+  public void setRequestingURL(String url) {
+    // if the same url is asking for password,
+    // the previous password is incorrect
+    // reset password
+    if (requestUrl != null && requestUrl.equals(url)) {
+      //System.out.println("retrying ...");
+      _pa = null;
+    }
+    super.setRequestingURL(url);
+  }
+
   public void setUserName(String username) {
     this.username = username;
-    _pa = new PasswordAuthentication(username, new char[] {});
   }
 
   public String getDescription() {

@@ -81,8 +81,23 @@ public final class UserPasswordAuthenticator extends Authenticator
     //if (_pa == null && handler != null && trial < 3) {
     if (handler != null) {
       try {
+      /*
+        String url = "protocol: " + getRequestingProtocol() +
+          " site: " + getRequestingSite() +
+          " host: " + getRequestingHost() +
+          " port: " + getRequestingPort() +
+          " prompt: " + getRequestingPrompt() +
+          " scheme: " + getRequestingScheme();
+          */
+        String url = getRequestingProtocol() + "://" + getRequestingHost()
+          + ":" + getRequestingPort() + "/";
+
+    //System.out.println("getPassword: " + handler);
+        handler.setRequestingURL(url);
         handler.authenticateUser(handler.getUserName());
-      } catch (Exception ex) {}
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
     }
 
     // should have a table of password authentication based on

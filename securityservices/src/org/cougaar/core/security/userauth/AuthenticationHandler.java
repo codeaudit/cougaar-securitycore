@@ -28,6 +28,7 @@ package org.cougaar.core.security.userauth;
 
 public abstract class AuthenticationHandler {
   protected boolean authenticated = false;
+  protected String requestUrl = null;
 
   /**
    * short description to show on list box
@@ -48,17 +49,7 @@ public abstract class AuthenticationHandler {
   /**
    * Default to be called by UserAuthenticator
    */
-  public void authenticateUser(String name)
-    throws Exception
-  {
-    if (!isAuthenticated())
-      authenticateUser(name, new char[] {});
-  }
-
-  /**
-   * To be called after creating the handler to auto login
-   */
-  public abstract void authenticateUser(String name, char [] pwd) throws Exception;
+  public abstract void authenticateUser(String name) throws Exception;
 
   public abstract void setAuthListener(AuthenticationListener listener);
 
@@ -76,5 +67,9 @@ public abstract class AuthenticationHandler {
 
   public boolean authenticateAtLogin() {
     return true;
+  }
+
+  public void setRequestingURL(String url) {
+    requestUrl = url;
   }
 }

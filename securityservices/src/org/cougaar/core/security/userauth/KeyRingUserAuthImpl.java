@@ -67,6 +67,7 @@ public class KeyRingUserAuthImpl extends AuthenticationHandler {
       }
     } catch (KeyStoreException kex) {}
     dialog.setAliasList(aliasList);
+    dialog.setHost(requestUrl);
 
     boolean ok = dialog.showDialog();
 
@@ -143,9 +144,9 @@ public class KeyRingUserAuthImpl extends AuthenticationHandler {
     return login;
   }
 
-  public void authenticateUser(String username, char [] password)
+  public void authenticateUser(String username)
     throws Exception {
-    authenticated = loginUser(username, password);
+    authenticated = loginUser(username, new char [] {});
     // clean password?
   }
 }
