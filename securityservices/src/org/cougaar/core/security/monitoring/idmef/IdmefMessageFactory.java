@@ -18,17 +18,25 @@
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
  * </copyright>
  */
-
 package org.cougaar.core.security.monitoring.idmef;
 
-
+// java packages
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Date;
-
-import edu.jhuapl.idmef.*;
 import org.w3c.dom.Node;
-import org.cougaar.core.domain.LDMServesPlugin;
 
+// JavaIDMEF packages
+import edu.jhuapl.idmef.*;
+
+// cougaar packages
+import org.cougaar.core.agent.ClusterContext;
+import org.cougaar.core.agent.ClusterServesPlugin;
+import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.domain.LDMServesPlugin;
+import org.cougaar.core.node.ArgTableIfc;
+import org.cougaar.core.service.UIDServer;
 
 /********************************************************************* 
  * 
@@ -152,23 +160,63 @@ import org.cougaar.core.domain.LDMServesPlugin;
 final public class IdmefMessageFactory {
 
     public static String CLASSIFICATION_ORIGIN = "Cougaar";
-    private LDMServesPlugin LDM;
-
-    public IdmefMessageFactory(LDMServesPlugin ldm){
-	LDM=ldm;
-    }
-    /*public static IdmefMessageFactory getFactory() {
-        if( m_idmefMessageFactory == null ) {
-            synchronized( factoryLock ) {
-                if( m_idmefMessageFactory == null ) {
-                    m_idmefMessageFactory = new IdmefMessageFactory();
-                }
-            }
-        }
-        return m_idmefMessageFactory;
-    }
-    */
+    
+    /**
+     * Constructor to create an IdmefMessageFactory instance
+     *
+     * @param ldm the LDMServesPlugin
+     */
+    public IdmefMessageFactory( LDMServesPlugin ldm ){
         
+        String agentName = "unknown";
+        Address agentAddress = null;
+        
+        m_ldm = ldm;
+        osName = System.getProperty( "os.name" );
+        osVersion = System.getProperty( "os.version" ); 
+      
+        if( ldm != null ){
+            String ip = "localhost";
+            try{
+                ip = InetAddress.getLocalHost().getHostAddress();
+            }
+            catch( UnknownHostException uhe ){
+                // what should we do here?
+            }
+            Address addresses[] = { createAddress( ip, null, Address.IPV4_ADDR ) };
+            m_agentId = ( ( ClusterServesPlugin)ldm ).getClusterIdentifier();
+            m_uidServer = ( ( ClusterContext )ldm ).getUIDServer();
+            /*
+             * can get the process name
+             * cannot get the process id since java doesn't provide you with an api to do so!
+             * can get the path 
+             * can get the program arguments via the System.getProperty( ArgTableIfc.<names> );
+             * can get the env variables
+             */ 
+            m_process = createProcess( null, null, null, null, null ); // get the process info from the LDMServesPlugin ( program name, args, env, etc.. )
+            /**
+             * name and address
+             * get the name from the System.getProperty( ArgTableIfc.NAME_KEY );
+             * get the address from
+             *
+             */
+            
+            m_node = createNode( System.getProperty( ArgTableIfc.NAME_KEY ),
+                                 addresses );    // get the node info from the LDMServesPlugin ( name and address )
+            agentName = m_agentId.toString();
+            agentAddress = createAddress( m_agentId.getAddress(), null, Address.URL_ADDR );
+        }
+        
+        m_agent = new Agent( agentName,
+                             null,  // description
+                             null,  // location
+                             agentAddress,
+                             null );  // how am i suppose to link this to the analyzer, source, or target
+        m_agentData = createAdditionalData( AdditionalData.XML, 
+                                            AGENT_INFO,
+                                            m_agent.toString() );
+    }
+    
    /** 
     * Stub Factory method to create an alert.
     *
@@ -228,8 +276,8 @@ final public class IdmefMessageFactory {
         //make an analyzer
         Analyzer testAnalyzer = new Analyzer( testNode, testProcess, "test_id", 
                                               "test_manufacturer", "test_model",
-                                              "test_version", "test_class", OS_TYPE,
-                                              OS_VERSION );
+                                              "test_version", "test_class", osName,
+                                              osVersion );
         
         //make a createTime
         //make a detectTime
@@ -308,14 +356,14 @@ final public class IdmefMessageFactory {
                               AdditionalData []data ){
         return new Alert( analyzer,
                           new CreateTime(),
-                          new DetectTime(),
+                          new DetectTime(),     // is this needed? if not, null.
                           new AnalyzerTime(),   // is this needed? if not, null.
                           sources,
                           targets,
                           classifications,
                           null,                 // assessment null for now
                           data,
-                          createUniqueId() );  // should we generated unique id for messages?
+                          createUniqueId() );  // this unique id is used for consolidated events
     }
     
     /**
@@ -329,7 +377,7 @@ final public class IdmefMessageFactory {
      *
      * @return an Alert message
      */
-    public Alert createAlert( Sensor sensor,
+    public Alert createAlert( Object sensor,
                               Source []sources,
                               Target []targets,
                               Classification []classifications,
@@ -339,6 +387,10 @@ final public class IdmefMessageFactory {
                             targets,
                             classifications,
                             data );  // should we generated unique id for messages?
+    }
+    
+    public Alert createAlert( Node alertNode ){
+        return new Alert( alertNode );   
     }
     
     /**
@@ -351,7 +403,7 @@ final public class IdmefMessageFactory {
      *
      * @return a capability Registration message
      */
-    public Registration createRegistration( Sensor sensor, 
+    public Registration createRegistration( Object sensor, 
                                             String []events,
                                             String []origins ){
         int len = events.length;
@@ -385,20 +437,25 @@ final public class IdmefMessageFactory {
      *
      * @return a capability Registration message
      */
-    public Registration createRegistration( Sensor sensor ){
+    public Registration createRegistration( Object sensor ){
         // get all the info from the sensor for capability registration
-        Source sources[] = null; // get the source info from the sensor
-        Target targets[] = null; // get the target info from the sensor
-        Classification capabilities[] = null;  // get the capabilities from the sensor
-        AdditionalData data[] = { createAdditionalData( AdditionalData.STRING, 
-                                                        "cougaar-alert-type", 
-                                                        Registration.TYPE ) };
+        if( sensor instanceof SensorInfo ){ 
+            SensorInfo sensorInfo = ( SensorInfo )sensor;
+            Source sources[] = null; // get the source info from the sensor
+            Target targets[] = null; // get the target info from the sensor
+            Classification capabilities[] = null;  // get the capabilities from the sensor
+            AdditionalData data[] = { m_agentData, // default agent information
+                                      createAdditionalData( AdditionalData.STRING, 
+                                                            "cougaar-alert-type", 
+                                                            Registration.TYPE ) };
                                                         
-        return new Registration( createAnalyzer( sensor ),
-                                 sources,
-                                 targets, 
-                                 capabilities,
-                                 data );
+            return new Registration( createAnalyzer( sensorInfo ),
+                                     sources,
+                                     targets, 
+                                     capabilities,
+                                     data );
+        }
+        return new Registration();
     }
     
     /** 
@@ -427,9 +484,12 @@ final public class IdmefMessageFactory {
      *
      * @return a Heartbeat message
      */
-    public Heartbeat createHeartBeat( Sensor sensor,
-                                      AdditionalData []data ){                                        
-        return createHeartBeat( createAnalyzer( sensor ), data );
+    public Heartbeat createHeartBeat( Object sensor,
+                                      AdditionalData []data ){
+        if( sensor instanceof SensorInfo ){
+            return createHeartBeat( createAnalyzer( sensor ), data );
+        }
+        return new Heartbeat();
     }
      
    /**
@@ -440,26 +500,30 @@ final public class IdmefMessageFactory {
     *
     * @return an Analyzer object
     */
-    public Analyzer createAnalyzer( Sensor sensor ){
-        String analyzerId = sensor.getName();           // get the sensor id
-        String manufacturer = sensor.getManufacturer(); // get the sensor manufacturer
-        String model = sensor.getModel();               // get the sensor model
-        String version = sensor.getVersion();           // get the sensor version
-        String analyzerClass = sensor.getAnalyzerClass();    // get the sensor class
-        String osType = sensor.getOSType();
-        String osVersion = sensor.getOSVersion();
-        IDMEF_Node node = sensor.getNode();             // get the node that the sensor resides
-        IDMEF_Process process = sensor.getProcess();    // get the process that the sensor resides
+    public Analyzer createAnalyzer( Object sensor ){
         
-        return new Analyzer( node,  // node 
-                             process,  // process
-                             analyzerId,
-                             manufacturer,  // manufacturer
-                             model,  // model
-                             version,  // version
-                             analyzerClass,  // class
-                             osType,
-                             osVersion );
+        if( sensor instanceof SensorInfo ){
+            SensorInfo sensorInfo = ( SensorInfo )sensor;
+            String analyzerId = sensorInfo.getName() + m_agent.getName();           // get the sensor id
+            String manufacturer = sensorInfo.getManufacturer(); // get the sensor manufacturer
+            String model = sensorInfo.getModel();               // get the sensor model
+            String version = sensorInfo.getVersion();           // get the sensor version
+            String analyzerClass = sensorInfo.getAnalyzerClass();    // get the sensor class
+            // this info can be determined at factory initialization
+            IDMEF_Node node = m_node;             // get the node that the sensor resides
+            IDMEF_Process process = m_process;    // get the process that the sensor resides
+        
+            return new Analyzer( node,  // node 
+                                 process,  // process
+                                 analyzerId,
+                                 manufacturer,  // manufacturer
+                                 model,  // model
+                                 version,  // version
+                                 analyzerClass,  // class
+                                 osName,
+                                 osVersion );
+        }
+        return createAnalyzer( null, null, null, null, null );
     }
                                            
    /**
@@ -483,15 +547,21 @@ final public class IdmefMessageFactory {
                              model,  // model
                              version,  // version
                              analyzerClass,  // class
-                             OS_TYPE,
-                             OS_VERSION );
+                             osName,
+                             osVersion );
     }
     
    /**
     * Factory method to create an Analyzer
     *
     * @param analyzerId unique across all analyzers in the intrusion 
-    *                   detection environment.
+    *                   detection environment.  The analyzerId MUST be
+    *                   unique.  One way to obtain uniqueness is to
+    *                   combine the agent id where the sensor rides
+    *                   with the sensor name.   For example the format
+    *                   is of the following (without quotes):
+    *                   "<agent address>/<sensor name>"
+    *
     * @param node node host or device on which the analyzer resides 
     * @param process process in which the analyzer is executing
     *
@@ -511,8 +581,8 @@ final public class IdmefMessageFactory {
                              model,  // model
                              version,  // version
                              analyzerClass,  // class
-                             OS_TYPE,
-                             OS_VERSION );    
+                             osName,
+                             osVersion );    
     }
     
    /**
@@ -988,22 +1058,6 @@ final public class IdmefMessageFactory {
     }
     
     /**
-     * Factory method to create an AdditionalData
-     *
-     * @param xmlData xml serializable data representing a complex object
-     * @param meaning A string describing the meaning of the element content.
-     *                These values will be vendor/implementation dependent; 
-     *                the method for ensuring that managers understand the
-     *                strings sent by analyzer is outside the scope of this
-     *                specification. (Optional)
-     *
-     * @return an AdditionalData object
-     */
-    public AdditionalData createAdditionalData( XMLSerializable xmlData, String meaning ){
-        return new AdditionalData( xmlData, meaning );
-    }
-    
-    /**
      * Factory method to create an IDMEF File
      * 
      * @param file the file associated with this alert
@@ -1057,7 +1111,7 @@ final public class IdmefMessageFactory {
      *
      * @return a FileAccess object
      */    
-    public FileAccess createFileAccesses( String userId, String []permissions ){
+    public FileAccess createFileAccess( String userId, String []permissions ){
         return new FileAccess( createUserId( userId ), permissions );
     }
     
@@ -1334,18 +1388,57 @@ final public class IdmefMessageFactory {
     public Confidence createConfidence( String rating, Float numeric ){
         return new Confidence( rating, numeric );
     }
+
+    /**
+     * Creates a new Agent that references an analyzer, source, or
+     * target.
+     * 
+     * @param name the name of the agent
+     * @param description a description of the agent
+     * @param location descriptive location of the agent (e.g., Santa Clara, CA)
+     * @param address a url Address of this agent
+     * @param refIdents an array listing of analyzer, source, or target identifiers
+     *                  this agent references.
+     * 
+     * @return a new Agent
+     */    
+    public Agent createAgent( String name, String description, 
+            String location, Address address, String []refIdents ){
+        return new Agent( name, description, location,
+                          address, refIdents );                
+    }
     
     /**
-     * Factory method to create a unique id
+     * Creates a new Agent that references the identities in refIdents.
+     * This method clones this factory's agent with the refIdents set.
+     * 
+     * @param refIdents an array listing of analyzer, source, or target identifiers
+     *                  this agent references.
+     * 
+     * @return a new Agent
+     */
+    public Agent createAgent( String []refIdents ){
+        Agent newAgent = ( Agent )m_agent.clone( refIdents );    
+        return newAgent;
+    }
+    
+    /** 
+     * Get the Agent object that this message factory belongs to
+     *
+     * @return an Agent object
+     */
+    public Agent getAgentInfo(){
+        return m_agent;
+    }
+    
+    /**
+     * Factory method to create a unique id from the UIDServer
      *
      * @return a unique String id
      */      
     private String createUniqueId(){
         // delegate to some global unique id generator
-        return null;   
-    }
-    
-    private IdmefMessageFactory(){ 
+        return m_uidServer.nextUID().toString();
     }
     
     /**
@@ -1357,7 +1450,7 @@ final public class IdmefMessageFactory {
      *
      * NOTE: this class should be removed
      */
-    private class SensorImpl implements Sensor {
+    private class SensorImpl implements SensorInfo {
         
         public String getName(){
             return "<sensor-name>";
@@ -1374,11 +1467,11 @@ final public class IdmefMessageFactory {
         public String getAnalyzerClass(){
             return "<class>";
         }
-        public String getOSType(){
-            return OS_TYPE;
+        public String getOSName(){
+            return osName;
         }
         public String getOSVersion(){
-            return OS_VERSION;
+            return osVersion;
         }
         public IDMEF_Node getNode(){
             return m_node;
@@ -1392,12 +1485,21 @@ final public class IdmefMessageFactory {
     }
     
     // Need for Analyzer information as per IDMEF v1.0 draft
-    private static String OS_TYPE;
-    private static String OS_VERSION;
-    private static IdmefMessageFactory m_idmefMessageFactory;
-    private static Object factoryLock = new Object();
-    static {
-        OS_TYPE = System.getProperty( "os.name" );
-        OS_VERSION = System.getProperty( "os.version" ); 
-    }
+    private String osName;
+    private String osVersion;
+    
+    private static String PROCESS_NAME = "org.cougaar.core.node.Node";
+    private static String AGENT_INFO = "agent-info";
+    
+    private Agent m_agent;
+    private IdmefMessageFactory m_idmefMessageFactory;
+    // agent information 
+    // there is only one IdmefMessageFactory per Cougaar Agent
+    private AdditionalData m_agentData;
+    private ClusterIdentifier m_agentId;
+    private UIDServer m_uidServer;
+    private IDMEF_Process m_process;
+    private IDMEF_Node m_node;
+    private LDMServesPlugin m_ldm;
+    
 }
