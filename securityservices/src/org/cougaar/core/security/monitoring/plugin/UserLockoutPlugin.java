@@ -190,11 +190,19 @@ public class UserLockoutPlugin extends ResponderPlugin {
     super.execute();
   }
   
+  public void start() {
+    setUserService();
+    super.start();
+  }
+
+  private void setUserService() {
+    _userService = (LdapUserService)
+	getServiceBroker().getService(this, LdapUserService.class, null);
+  }
+
   protected void setupSubscriptions() {
     super.setupSubscriptions();
    
-    _userService = (LdapUserService)
-	getServiceBroker().getService(this, LdapUserService.class, null);
     BlackboardService blackboard = getBlackboardService();
 
     _lockoutDurationSubscription = (IncrementalSubscription)
@@ -215,11 +223,24 @@ public class UserLockoutPlugin extends ResponderPlugin {
     if (_log.isDebugEnabled()) {
       _log.debug("locking out user (" + culprit + ")");
     } // end of if (_log.isDebugEnabled())
-    if (_lockoutTime < 0) {
-      _userService.disableUser(culprit);
-    } else {
-      _userService.disableUser(culprit, _lockoutTime);
-    } 
+    if (_userService == null) {
+      _log.info("LDAP User service was not set. Trying to get it");
+    }
+    else {
+      setUserService();
+    }
+    if (_userService == null) {
+      String msg = "LDAP User service is not available. Cannot take action against " + culprit;
+      _log.error(msg);
+      throw new RuntimeException(msg);
+    }
+    else {
+      if (_lockoutTime < 0) {
+	_userService.disableUser(culprit);
+      } else {
+	_userService.disableUser(culprit, _lockoutTime);
+      }
+    }
   }
  
   protected UnaryPredicate getFailurePredicate(){
