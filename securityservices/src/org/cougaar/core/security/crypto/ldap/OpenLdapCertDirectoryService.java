@@ -114,7 +114,7 @@ public class OpenLdapCertDirectoryService
       else {
 	CaPolicy caPolicy = configParser.getCaPolicy(caDistinguishedName);
 	if (caPolicy == null) {
-	  log.error("Unable to get CA policy");
+	  log.info("Unable to get CA policy");
 	}
 	else {
 	  ldapPrincipal = caPolicy.ldapPrincipal;
@@ -144,7 +144,6 @@ public class OpenLdapCertDirectoryService
     catch (Exception e) {
       if (log.isDebugEnabled()) {
 	log.debug("Unable to set directory service URL: " + e);
-	e.printStackTrace();
       }
     }
   }

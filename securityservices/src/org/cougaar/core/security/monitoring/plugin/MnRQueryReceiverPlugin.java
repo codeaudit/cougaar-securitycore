@@ -316,9 +316,11 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     
     CmrRelay relay;
     boolean newquery=false;
+    boolean modified=false;
     while (iter.hasNext()) {
       newquery=false;
       mapping=null;
+      modified=false;
       relay = (CmrRelay)iter.next();
       Collection queryMappingCollection=querymapping.getCollection();
       if(relay.getContent() instanceof MRAgentLookUp) {
@@ -348,6 +350,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	      removeRelay(mapping);
 	      mapping.setQueryList(null);
 	      mapping.setResultPublished(false);
+	      modified=true;
 	    }
 	    else {
 	      loggingService.debug("Query Originator wa true but mapping object is null :");
@@ -405,7 +408,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	RegistrationAlert reg;
 	ClusterIdentifier dest_address;
 	ArrayList relay_uid_list=new ArrayList();
-	boolean modified=false;
+	//boolean modified=false;
 	if (loggingService.isDebugEnabled()) {
 	  loggingService.debug("Going through list of agents found in Query receiver plugin  :");
 	}
@@ -543,7 +546,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     for(int i=0;i<list.size();i++) {
       outstandingquery=(OutStandingQuery)list.get(i);
       relay=findCmrRelay(outstandingquery.getUID());
-      if((relay!=null)&&(relay.getSource().equals(myAddress))) {
+      if((relay!=null)) {
 	getBlackboardService().publishRemove(relay); 
       }
     }

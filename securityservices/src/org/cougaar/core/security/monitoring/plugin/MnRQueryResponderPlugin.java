@@ -307,10 +307,14 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     boolean outStandingQuery=false;
     ArrayList list=(ArrayList)map.getQueryList();
     OutStandingQuery outstandingquery;
+    if(list==null) {
+      return outStandingQuery;
+    }
     for(int i=0;i<list.size();i++) {
       outstandingquery=(OutStandingQuery)list.get(i);
       boolean currentstatus=outstandingquery.isQueryOutStanding();
       if(currentstatus){
+	outStandingQuery=currentstatus;
 	return outStandingQuery;
       }
     }
@@ -330,7 +334,12 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
       }
       ArrayList list=map.getQueryList();
       if(list==null) {
-	loggingService.debug("Got the mapping list as null:");
+	reply=new MRAgentLookUpReply(agentList);
+	map.setResultPublished(true);
+	relay.updateResponse(relay.getSource(),reply);
+	getBlackboardService().publishChange(relay);
+	getBlackboardService().publishChange(map);
+	loggingService.debug("Got the mapping list as null setting the relay response as empty:");
 	return;
       }
       OutStandingQuery outstandingquery;
@@ -434,7 +443,14 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     
   public CmrRelay  findCmrRelay (UID key) {
     CmrRelay relay=null;
-    Iterator iter = allqueryRelays.getCollection().iterator();
+    Collection relaycollection=allqueryRelays.getCollection();
+    if(relaycollection==null) {
+      return null;
+    }
+    Iterator iter = relaycollection.iterator();
+    if(iter==null) {
+       return null;
+    }
     while(iter.hasNext()) {
       relay=(CmrRelay)iter.next();
       if(relay.getUID().equals(key)) {

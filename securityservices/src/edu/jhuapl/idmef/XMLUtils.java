@@ -228,10 +228,14 @@ public class XMLUtils{
             return null;
 	}
         Node firstChild = children.item(0);
+	if (firstChild == null) {
+	  System.out.println("XMLUtils: Node does not have a child");
+	  return null;
+	}
         if (firstChild.getNodeType() != Node.TEXT_NODE){
-	    System.out.println("XMLUtils: Node is not a text node");
-  	    System.out.println("XMLUtils: Node = " + firstChild.getNodeName() + ", Parent Node = " + node.getNodeName() );
-            return null;
+	  System.out.println("XMLUtils: Node is not a text node");
+	  System.out.println("XMLUtils: Node = " + firstChild.getNodeName() + ", Parent Node = " + node.getNodeName() );
+	  return null;
 	}
         String stringToReturn = firstChild.getNodeValue().trim();
         if (stringToReturn.equals("")){

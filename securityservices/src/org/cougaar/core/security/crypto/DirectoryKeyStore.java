@@ -177,7 +177,7 @@ public class DirectoryKeyStore
           throw new RuntimeException("Could  not get certificate finder from factory");
         } else {
           if (log.isInfoEnabled()) {
-            log.info("CA does not have a superior");
+            log.info("CA: LDAP directory service not set yet.");
           }
         }
       }
