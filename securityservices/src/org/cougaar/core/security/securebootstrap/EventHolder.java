@@ -76,7 +76,7 @@ public class EventHolder extends Observable  {
       // System.out.println(" clearing events in register:");
     }
     else {
-      System.out.println(" One of the conditions to notify observers has failed:");
+      //System.out.println(" One of the conditions to notify observers has failed:");
       //System.out.println(" atleast one observer condition :"+atleastoneObserver);
       //System.out.println(" size of event queue :"+_instance.events.size());
     }
