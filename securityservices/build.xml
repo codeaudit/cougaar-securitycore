@@ -342,7 +342,7 @@
     <target name="compile-jsps">
         <jspc srcdir="${securityservices.src}"
             destdir="${securityservices.src}"
-            package="org.cougaar.core.security.crypto.ldap.admin"
+            uriroot="${securityservices.src}"
             classpathref="core.class.path">
         <include name="org/cougaar/core/security/crypto/ldap/admin/*.jsp" />
         </jspc>
