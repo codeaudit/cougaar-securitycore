@@ -181,9 +181,24 @@
             includes="org/cougaar/core/security/crlextension/**"/>
         <echo message="+++++ Built jar files"/>
     </target>
+ 
+
+    <target name="jar-configs">
+        <echo message="+++++ Building configuration jar files"/>
+        <jar jarfile="${securityservices.classes}/securityservices_config.jar" 
+            basedir="${securityservices.configs}/common"
+            includes="*.xml,
+                      *.dtd,
+                      *.conf,
+                      *.ini,
+                      *.xsl,
+                      *.props,
+                      bootstrap_keystore"/>
+        <echo message="+++++ Built configuration jar files"/>
+    </target>
     
     <!-- sign security services -->
-    <target name="sign-jars" depends="jar-idmef, jar-securityservices">
+    <target name="sign-jars" depends="jar-idmef, jar-securityservices, jar-configs">
         <echo message="+++++ Signing jar files"/>
         <signjar jar="${securityservices.classes}/securebootstrapper.jar" alias="bootstrapper" 
             signedjar="${securityservices.signed}/securebootstrapper.jar"
@@ -199,6 +214,10 @@
             storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/idmef.jar" alias="privileged" 
             signedjar="${securityservices.signed}/idmef.jar"
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <signjar jar="${securityservices.classes}/securityservices_config.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/securityservices_config.jar"
             keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <echo message="+++++ Signed jar files"/>
@@ -560,34 +579,47 @@
        </ant>
 
        <!-- Run the experiments -->
+       <ant description="Test 1: Secure Config Finder"
+            antfile="build-junit.xml" dir="." target="run-node-tests" inheritRefs="true">
+          <property name="junit.test.desc"   value="SecureConfigFinder"/>
+          <property name="junit.test.testClass"   value="test.org.cougaar.core.security.config.SecureConfigFinderTest"/>
+          <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/SecureNodeTest.xml"/>
+       </ant>
+
+<!--
        <ant description="Test 1: Start a CA from scratch"
             antfile="build-junit.xml" dir="." target="run-node-tests" inheritRefs="true">
           <property name="junit.test.desc"   value="CaStandaloneFromScratch"/>
+          <property name="junit.test.testClass"   value="test.org.cougaar.core.security.simul.NodeServerSuite"/>
           <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandaloneFromScratch.xml"/>
        </ant>
-<!--
--->
 
        <ant description="Test 2: Restart the CA after test 1. Create a CA key by invoking a web client"
           antfile="build-junit.xml" dir="." target="run-node-tests" inheritRefs="true">
          <property name="junit.test.desc"   value="CaStandaloneCreateKey"/>
+         <property name="junit.test.testClass"   value="test.org.cougaar.core.security.simul.NodeServerSuite"/>
          <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandaloneCreateKey.xml"/>
        </ant>
 
        <ant description="Test 3: Restart the CA after test 2"
           antfile="build-junit.xml" dir="." target="run-node-tests" inheritRefs="true">
          <property name="junit.test.desc"   value="CaStandaloneRestart"/>
+         <property name="junit.test.testClass"   value="test.org.cougaar.core.security.simul.NodeServerSuite"/>
          <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandalone.xml"/>
        </ant>
        <ant description="Test 4: Start the small 135 society"
             antfile="build-junit.xml" dir="." target="run-node-tests" inheritRefs="true">
          <property name="junit.test.desc"   value="small-135"/>
+         <property name="junit.test.testClass"   value="test.org.cougaar.core.security.simul.NodeServerSuite"/>
          <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/Small-135.xml"/>
        </ant>
 
+-->
        <!-- Update dashboard -->
+<!--
        <antcall target="dashboard">
        </antcall>
+-->
     </target>
 
     <!-- Update dashboard -->
