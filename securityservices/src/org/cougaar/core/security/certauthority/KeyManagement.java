@@ -68,7 +68,7 @@ import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.Base64;
-import org.cougaar.core.security.crypto.DirectoryKeyStore;
+//import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
 
 import org.cougaar.core.security.services.ldap.CertificateRevocationStatus;
@@ -77,8 +77,11 @@ import org.cougaar.core.security.services.ldap.MultipleEntryException;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.crypto.CertificateCache;
+
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateUtility;
+
 import org.cougaar.core.security.services.util.*;
 
 /** Certification Authority service
@@ -1275,7 +1278,7 @@ public class KeyManagement
       if(log.isDebugEnabled()) {
 	log.debug("Found private key going to revoke certificate in caOperations :");
       }
-      String filter=keyRing.parseDN(caDN);
+      String filter=CertificateUtility.parseDNforFilter(caDN);
       SearchResult caresult=caOperations.getLdapentry(filter,false);
       Attributes caAttributes=caresult.getAttributes();
       String cabindingName=caresult.getName();

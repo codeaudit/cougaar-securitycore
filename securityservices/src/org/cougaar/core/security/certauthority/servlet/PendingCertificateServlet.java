@@ -38,12 +38,7 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
-import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
 import org.cougaar.core.security.crypto.NodeConfiguration;
-import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.services.ldap.LdapEntry;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.certauthority.*;
 
@@ -54,9 +49,7 @@ public class PendingCertificateServlet extends  HttpServlet
 
   private X500Name[] caDNs = null;
   //private String[] roles = null;
-  private CaPolicy caPolicy = null;            // the policy of the CA
   private NodeConfiguration nodeConfiguration;
-  private CertDirectoryServiceClient certificateFinder=null;
 
   private SecurityServletSupport support;
   public PendingCertificateServlet(SecurityServletSupport support) {
@@ -90,25 +83,6 @@ public class PendingCertificateServlet extends  HttpServlet
     }
     if((cadnname==null)||( cadnname=="")) {
       out.print("Error ---Unknown  type CA dn name :");
-      out.flush();
-      out.close();
-      return;
-    }
-
-    try {
-      caPolicy = configParser.getCaPolicy(cadnname);
-      nodeConfiguration = new NodeConfiguration(cadnname,
-						support.getServiceBroker());
-
-      CertDirectoryServiceRequestor cdsr =
-	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
-					      support.getServiceBroker(), cadnname);
-      certificateFinder = (CertDirectoryServiceClient)
-	support.getServiceBroker().getService(cdsr, CertDirectoryServiceClient.class, null);
-
-    }
-    catch (Exception e) {
-      out.print("Unable to read policy file: " + e);
       out.flush();
       out.close();
       return;

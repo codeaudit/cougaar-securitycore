@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.certauthority.servlet;
@@ -44,9 +44,12 @@ import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
 import org.cougaar.core.security.certauthority.*;
 import org.cougaar.core.security.services.util.*;
+/*
 import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+*/
+import org.cougaar.core.security.naming.*;
 
 public class CertificateDetailsServlet
   extends  HttpServlet
@@ -54,9 +57,10 @@ public class CertificateDetailsServlet
   private ConfigParserService configParser = null;
   private LoggingService log;
 
-  private CertDirectoryServiceClient certificateFinder=null;
+  //private CertDirectoryServiceClient certificateFinder=null;
+  private CertificateSearchService search;
   private CaPolicy caPolicy = null;            // the policy of the CA
-  
+
   private SecurityServletSupport support;
   public CertificateDetailsServlet(SecurityServletSupport support) {
     this.support = support;
@@ -72,7 +76,7 @@ public class CertificateDetailsServlet
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
-    
+
     res.setContentType("text/html");
     String distinguishedName=null;
     String role=null;
@@ -110,12 +114,18 @@ public class CertificateDetailsServlet
 					      null);
       caPolicy = configParser.getCaPolicy(cadnname);
 
+      /*
       CertDirectoryServiceRequestor cdsr =
 	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
 					      support.getServiceBroker(), cadnname);
       certificateFinder = (CertDirectoryServiceClient)
 	support.getServiceBroker().getService(cdsr, CertDirectoryServiceClient.class, null);
+        */
 
+      search = (CertificateSearchService)
+        support.getServiceBroker().getService(this,
+                                                      CertificateSearchService.class,
+                                                      null);
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);
@@ -123,32 +133,39 @@ public class CertificateDetailsServlet
       out.close();
       return;
     }
-    
+
     if((distinguishedName==null)||(distinguishedName=="")) {
       out.print("Error in distinguishedName ");
       out.flush();
       out.close();
       return;
     }
- 
+
+    /*
     String filter = "(uniqueIdentifier=" +distinguishedName + ")";
     LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
     if(ldapentries==null || ldapentries.length == 0) {
       out.println("Error: no such certificate in LDAP ");
+      */
+    List l = search.findCertByIdentifier(distinguishedName);
+    if (l == null || l.size() == 0) {
+      out.println("Error: no such certificate in cert directory ");
       out.flush();
       out.close();
       return;
     }
-    if (ldapentries.length != 1) {
+    //if (ldapentries.length != 1) {
+    if (l.size() != 1) {
       out.println("Error: there are multiple certificates with the same UID");
       out.flush();
       out.close();
       return;
     }
-    
+
     X509Certificate  certimpl;
     try {
-      certimpl=ldapentries[0].getCertificate();
+      //certimpl=ldapentries[0].getCertificate();
+      certimpl=((CertificateEntry)l.get(0)).getCertificate();
     }
     catch (Exception exp) {
       out.println("error-----------  "+exp.toString());
@@ -160,11 +177,11 @@ public class CertificateDetailsServlet
     String uri = req.getRequestURI();
     String certRevokeUri = uri.substring(0, uri.lastIndexOf('/')) + "/RevokeCertificateServlet";
     String downloadCertUri = null;
-    if (DownloadCertificateServlet.isCA(certimpl.getSubjectDN().getName()) || 
+    if (DownloadCertificateServlet.isCA(certimpl.getSubjectDN().getName()) ||
         DownloadCertificateServlet.isUser(certimpl.getSubjectDN().getName())) {
       downloadCertUri = "DownloadCertificateServlet";
-    } 
-    
+    }
+
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
     out.println("<head>");
@@ -175,7 +192,7 @@ public class CertificateDetailsServlet
     out.println("<form name=\"revoke\" action=\"" +
 		certRevokeUri + "\" method=\"post\">");
     out.println("<input type=\"hidden\" name=\"distinguishedName\" value=\""
-		+ ldapentries[0].getUniqueIdentifier()+"\">");
+		+ distinguishedName+"\">");
     if((role==null)||(role=="")) {
       if (log.isInfoEnabled()) {
 	log.info("got role as null or empty in certificate details");
@@ -194,13 +211,13 @@ public class CertificateDetailsServlet
       out.println("<form name=\"revoke\" action=\"" +
                   downloadCertUri + "\" method=\"post\">");
       out.println("<input type=\"hidden\" name=\"distinguishedName\" value=\""
-                  + ldapentries[0].getUniqueIdentifier()+"\">");
+                  + distinguishedName+"\">");
       out.println("<input type=\"hidden\" name=\"cadnname\" value=\""+
                   cadnname+"\">");
       out.println("<input type=\"submit\" value=\"Install Certificate \">");
       out.println("</form>");
     } // end of if (downloadCertUri != null)
-    
+
     out.println("</body></html>");
     out.flush();
     out.close();
@@ -208,11 +225,11 @@ public class CertificateDetailsServlet
 
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
     throws ServletException, IOException  {
-    
+
   }
-  
+
   public String getServletInfo()  {
     return("Displaying details of certificate with give hash map");
   }
-  
+
 }
