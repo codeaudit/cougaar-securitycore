@@ -52,7 +52,11 @@ public class ULOntologyNames
   public static String cipherPrefix
     = EntityInstancesConcepts.EntityInstancesOwlURL();
 
-  public static String drrsPrivPrefix = "urn:DrrsPrivilege#";
-  public static String drrsDataFieldPrefix = "urn:DrrsDataField#";
-  public static String drrsDataSourcePrefix = "urn:DrrsDataSource#";
+  // For now the notion of OQL users and the UsersInRole defined above will 
+  // never overlap.  If we want them to overlap we will have to modify the 
+  // UserDatabase.java
+  public static String oqlRolePrefix       = "urn:UserInOQLRole#";
+  public static String oqlPrivPrefix       = "urn:OQLPrivilege#";
+  public static String oqlDataFieldPrefix  = "urn:OQLDataField#";
+  public static String oqlDataSourcePrefix = "urn:OQLDataSource#";
 }
