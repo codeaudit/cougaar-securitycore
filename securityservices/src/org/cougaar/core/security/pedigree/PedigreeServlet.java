@@ -47,7 +47,6 @@ public class PedigreeServlet
 extends  HttpServlet
 {
   private SecurityServletSupport        _support;
-  private PedigreeManagerService        _pedigreeService;
   private LoggingService                _log;
   
   public PedigreeServlet(SecurityServletSupport support) {
@@ -55,8 +54,6 @@ extends  HttpServlet
     _log = (LoggingService)
     _support.getServiceBroker().getService(this,
         LoggingService.class, null);
-    _pedigreeService = (PedigreeManagerService)
-    _support.getServiceBroker().getService(this, PedigreeManagerService.class, null);
   }
   
   public void doPost (HttpServletRequest req, HttpServletResponse res)
