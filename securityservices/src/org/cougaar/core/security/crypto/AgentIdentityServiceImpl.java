@@ -172,8 +172,6 @@ public class AgentIdentityServiceImpl
             dname = new X500Name(requestorAddress.toAddress() + title);
           }
 	  keyRing.checkOrMakeCert(dname, isCACert);
-          if (isCACert)
-            keyRing.updateNS(dname);
 	}
 	catch (Exception e) {
 	  if (log.isErrorEnabled()) {
