@@ -2,23 +2,12 @@
 
 <project basedir="." name="Cougaar security tests custom build">
 
+     <!-- install config files -->
     <target name="custom-install-conf" id="custom.install">
        <copy todir="staging/csmart/lib/security">
          <fileset dir="security"/>
        </copy>
-    </target>
 
-    <target name="custom-compile" id="custom.compile">
-      <!-- Do nothing. There is nothing to compile here. -->
-    </target>
-
-    <target name="custom-jar" id="custom.jar">
-      <!-- Do nothing. There is nothing to compile here. -->
-    </target>
- 
-     <!-- install config files -->
-    <target name="custom-install-conf" id="custom.install">
- 
          <copy todir="${securityservices.staging}/operator/security">
             <fileset dir="${securityservices.base}/test/bin">
                 <patternset>
@@ -45,6 +34,14 @@
                 </patternset>
             </fileset>
         </copy>
+    </target>
+
+    <target name="custom-compile" id="custom.compile">
+      <!-- Do nothing. There is nothing to compile here. -->
+    </target>
+
+    <target name="custom-jar" id="custom.jar">
+      <!-- Do nothing. There is nothing to compile here. -->
     </target>
  
 </project>
