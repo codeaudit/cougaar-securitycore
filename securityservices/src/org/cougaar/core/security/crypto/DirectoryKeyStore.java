@@ -1307,6 +1307,24 @@ public class DirectoryKeyStore
     throws IOException, SignatureException, NoSuchAlgorithmException, InvalidKeyException,
 	   KeyStoreException, UnrecoverableKeyException
   {
+    PKCS10 request = generatePKCS10Request(certificate, signerAlias);
+    String reply = CertificateUtility.base64encode(request.getEncoded(),
+						   CertificateUtility.PKCS10HEADER,
+						   CertificateUtility.PKCS10TRAILER);
+
+    /*
+    if (debug) {
+      log.debug("GenerateSigningCertificateRequest:\n" + reply);
+    }
+    */
+    return reply;
+  }
+
+  public PKCS10 generatePKCS10Request(X509Certificate certificate,
+						  String signerAlias)
+    throws IOException, SignatureException, NoSuchAlgorithmException, InvalidKeyException,
+	   KeyStoreException, UnrecoverableKeyException
+  {
     PublicKey pk = certificate.getPublicKey();
     PKCS10 request = new PKCS10(pk);
 
@@ -1335,17 +1353,7 @@ public class DirectoryKeyStore
 	log.error("Unable to sign certificate request." + e);
       }
     }
-
-    String reply = CertificateUtility.base64encode(request.getEncoded(),
-						   CertificateUtility.PKCS10HEADER,
-						   CertificateUtility.PKCS10TRAILER);
-
-    /*
-    if (debug) {
-      log.debug("GenerateSigningCertificateRequest:\n" + reply);
-    }
-    */
-    return reply;
+    return request;
   }
 
   /** Get a list of all the certificates in the keystore */
@@ -1514,10 +1522,11 @@ public class DirectoryKeyStore
     /**
      * Handle CA cert
      */
+    String caDN = null;
     if (isCACert) {
 
       if (!param.isCertAuth) {
-        System.out.println("Cannot make CA cert, this node is not a CA");
+        log.error("Cannot make CA cert, this node is not a CA");
         return null;
       }
       else {
@@ -1525,16 +1534,19 @@ public class DirectoryKeyStore
           if (keyAlias != null)
             alias = keyAlias;
           else
-            alias = makeKeyPair(dname);
+            alias = makeKeyPair(dname, isCACert);
 
           // does it need to be submitted to somewhere else to handle?
-          if (cryptoClientPolicy.isRootCA()) {
+          // TODO: uncomment this to make the case for non-root CA
+          //if (cryptoClientPolicy.isRootCA()) {
             // Save the certificate in the trusted CA keystore
             saveCertificateInTrustedKeyStore((X509Certificate)
                                              keystore.getCertificate(alias),
                                              alias);
             privatekey = (PrivateKey)keystore.getKey(alias, param.keystorePassword);
+          /*
           }
+          // else submit to upper level CA
           else {
             request =
               generateSigningCertificateRequest((X509Certificate)
@@ -1546,6 +1558,7 @@ public class DirectoryKeyStore
             reply = sendPKCS(request, "PKCS10");
             privatekey = processPkcs7Reply(alias, reply);
           }
+          */
         } catch (Exception e) {
           if (log.isDebugEnabled()) {
             log.warn("Unable to create key: " + dname
@@ -1557,32 +1570,15 @@ public class DirectoryKeyStore
         return privatekey;
       }
     }
-    /*
-    else {
-      if (param.isCertAuth) {
-        boolean hasCaCert = false;
-        // CA cert needs to be the first one generated
-        Enumeration keyen = certCache.getKeysInCache();
-        for (; keyen.hasMoreElements() && !hasCaCert; ) {
-          X500Name certdn = (X500Name)keyen.nextElement();
-          ArrayList validCerts = certCache.getValidCertificates(certdn);
-          for (int i = 0; i < validCerts.size(); i++) {
-            CertificateStatus cs = (CertificateStatus)validCerts.get(i);
-            if (cs.getCertificateType() == TYPE_CA) {
-              hasCaCert = true;
-              break;
-            }
-          }
-        }
-        // queue up cert request if CA cert is not generated?
-        if (!hasCaCert) {
-          System.out.println("Cannot create " + commonName
-            + ". CA Certificate is not created yet.");
-          return null;
-        }
+    else if (param.isCertAuth) {
+      X500Name [] caDNs = configParser.getCaDNs();
+      if (caDNs.length == 0) {
+        if (log.isDebugEnabled())
+          log.debug("No CA key created yet, the certificate can not be created.");
+        return null;
       }
+      caDN = configParser.getCaDNs()[0].getName();
     }
-    */
 
     try {
       /* If the requested key is for the node, the key is self signed.
@@ -1607,21 +1603,41 @@ public class DirectoryKeyStore
 	  if (log.isDebugEnabled()) {
 	    log.debug("Creating key pair for node: " + nodeName);
 	  }
-	  alias = makeKeyPair(dname);
+	  alias = makeKeyPair(dname, false);
 	}
 	// At this point, the key pair has been added to the keystore,
 	// but we don't have the reply from the certificate authority yet.
 	// Send the public key to the Certificate Authority (PKCS10)
 	if (!param.isCertAuth) {
-	  request =
-	    generateSigningCertificateRequest((X509Certificate)
-					      keystore.getCertificate(alias),
-					      alias);
-	  if (log.isDebugEnabled()) {
-	    log.debug("Sending PKCS10 request to CA");
-	  }
+          request =
+            generateSigningCertificateRequest((X509Certificate)
+                                              keystore.getCertificate(alias),
+                                              alias);
+          if (log.isDebugEnabled()) {
+            log.debug("Sending PKCS10 request to CA");
+          }
 	  reply = sendPKCS(request, "PKCS10");
 	}
+        else {
+          // sign it locally
+          CertificateManagementService km = (CertificateManagementService)
+            param.serviceBroker.getService(this,
+                                           CertificateManagementService.class,
+                                           null);
+          km.setParameters(caDN);
+          if (log.isDebugEnabled())
+            log.debug("Signing certificate locally with " + caDN);
+          X509CertImpl certImpl = km.signX509Certificate(
+            generatePKCS10Request((X509Certificate)
+                                  keystore.getCertificate(alias),
+                                  alias));
+
+          // publish to LDAP
+
+          // install
+          installCertificate(alias, new X509Certificate[] {certImpl});
+          return (PrivateKey)keystore.getKey(alias, param.keystorePassword);
+        }
       }
       else {
         if (getNodeCert(nodeName) == null)
@@ -1659,7 +1675,7 @@ public class DirectoryKeyStore
 	  if (log.isDebugEnabled()) {
 	    log.debug("Creating key pair for agent: " + dname);
 	  }
-	  alias = makeKeyPair(dname);
+	  alias = makeKeyPair(dname, false);
 	}
 	// Generate a pkcs10 request, then sign it with node's key
 	//String nodeAlias = findAlias(nodeName);
@@ -1983,7 +1999,7 @@ public class DirectoryKeyStore
     return alias;
   }
 
-  public String makeKeyPair(X500Name dname)
+  public String makeKeyPair(X500Name dname, boolean isCACert)
     throws Exception
   {
     //generate key pair.
@@ -1997,12 +2013,12 @@ public class DirectoryKeyStore
     if (log.isDebugEnabled()) {
       log.debug("Make key pair:" + alias + ":" + dname.toString());
     }
-    doGenKeyPair(alias, dname);
+    doGenKeyPair(alias, dname, isCACert);
     return alias;
   }
 
   /** Generate a key pair and a self-signed certificate */
-  public void doGenKeyPair(String alias, X500Name dname)
+  public void doGenKeyPair(String alias, X500Name dname, boolean isCACert)
     throws Exception
   {
     String keyAlgName = cryptoClientPolicy.getCertificateAttributesPolicy().keyAlgName;
@@ -2033,15 +2049,8 @@ public class DirectoryKeyStore
 
     boolean isSigner = false;
     // isCA and is CA DN
-    if (param.isCertAuth) {
-      // no way to find caDN here, check if title is set
-      // This should be changed later when CA creates CA node/tomcat/agent
-      // certificate after CA key is created with agent list provided by
-      // core. Right now tomcat is requesting certificate by itself, but
-      // it should really be requested by node on its behalf when node is initialized.
-      //if (CertificateUtility.findAttribute(dname.getCommonName(), "t") == null)
-        isSigner = true;
-    }
+    if (isCACert)
+      isSigner = true;
     // is not CA but is node and nodeIsSigner
     else {
       isSigner = dname.getCommonName().equals(NodeInfo.getNodeName())
@@ -2053,7 +2062,7 @@ public class DirectoryKeyStore
 
     CertificateType certificateType = null;
     CertificateTrust certificateTrust = null;
-    if (!param.isCertAuth) {
+    if (isCACert) {
       // Add the certificate to the certificate cache. The key cannot be used
       // yet because it has not been signed by the Certificate Authority.
       certificateType = CertificateType.CERT_TYPE_END_ENTITY;
@@ -2466,7 +2475,7 @@ public class DirectoryKeyStore
       String agent = x500Name.getCommonName();
       List certs = findCert(agent);
       if (certs.size() != 0) {
-        if (log.isDebugEnabled()) 
+        if (log.isDebugEnabled())
           log.debug("updateNS: " + agent);
 
         if (namingSrv == null)
