@@ -495,8 +495,9 @@ public class LDAPCert //extends LdapContext
 
     }
 
-  public void publishCRLentry(X509CRLEntry crlEntry) {
-      String serialNo = crlEntry.getSerialNumber().toString(16).toUpperCase();
+  public boolean publishCRLentry(X509CRLEntry crlEntry) {
+    boolean success=true;  
+    String serialNo = crlEntry.getSerialNumber().toString(16).toUpperCase();
       String filter = "(serialNumber=" + serialNo + ")";
       String name;
       SearchControls controls = new SearchControls();
@@ -516,7 +517,9 @@ public class LDAPCert //extends LdapContext
 	  }
       }
       catch(Exception ex) {
+	success=false;
 	  if(debug)ex.printStackTrace();
       }
+      return success;
   }
 }

@@ -914,7 +914,7 @@ public class KeyManagement
     Date currentDate = new Date();
     X509CRLEntryImpl crlentry = new X509CRLEntryImpl(serialNumber, currentDate);
 
-    certificateDirectory.publishCRLentry(crlentry);
+    reply =certificateDirectory.publishCRLentry(crlentry);
     return reply;
   }
 
@@ -970,7 +970,62 @@ public class KeyManagement
       e.printStackTrace();      
     }
   }
+  public String toHexinHTML(byte[] data)
+  {
+    StringBuffer buff=new StringBuffer();
+    int blockcount=0;
+    int linecount=0;
+    for(int i = 0; i < data.length; i++) {
+      String digit = Integer.toHexString(data[i] & 0x00ff);
+      if(digit.length() < 2)buff.append("0");
+      buff.append(digit);
+      blockcount++;
+      linecount++;
+      if(blockcount>1)
+      {
+	buff.append("&nbsp;");
+	blockcount=0;
+	linecount++;
+      }
+      if(linecount>8)
+      {
+	linecount=0;
+	blockcount=0;
+	buff.append("<br>");
+      }
+    }
+    return buff.toString();
+  }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
