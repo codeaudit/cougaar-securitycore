@@ -52,9 +52,15 @@ public class CryptoPolicyHandler
   private static final String ISA_ELEMENT = "SymmetricAlgorithm";
   private static final String IAA_ELEMENT = "AsymmetricAlgorithm";
   private static final String IS_ELEMENT = "SigningAlgorithm";
+  private static final String PMS_ELEMENT = "PersistenceManagers";
+  private static final String PM_ELEMENT = "PersistenceManager";
+  private static final String PMTYPE_ELEMENT = "PMType";
+  private static final String PMURL_ELEMENT = "PM_URL";
+  private static final String PMDN_ELEMENT = "PM_DN";
 
   private String msgCom;
-  
+  private PersistenceManagerPolicy pmPolicy;
+
   public CryptoPolicyHandler(ServiceBroker sb) {
     super(sb);
   }
@@ -80,6 +86,9 @@ public class CryptoPolicyHandler
     if (localName.equals(POLICY_ELEMENT)) {
       msgParty = "";
       msgCom = "";
+    }
+    if (localName.equals(PM_ELEMENT)) {
+      pmPolicy = new PersistenceManagerPolicy();
     }
   }
 
@@ -153,7 +162,7 @@ public class CryptoPolicyHandler
       String value = getContents();
       cp.setSignSpec(msgParty,value);
     }
-    
+
     //now for community
     if (localName.equals("MsgCommunity")) {
       msgCom = getContents();
@@ -173,6 +182,21 @@ public class CryptoPolicyHandler
     if (localName.equals("ComSigningAlgorithm")) {
       String value = getContents();
       cp.setComSignSpec(msgCom,value);
+    }
+    if (localName.equals(PM_ELEMENT)) {
+      cp.addPersistenceManagerPolicy(pmPolicy);
+    }
+    if (localName.equals(PMTYPE_ELEMENT)) {
+      String value = getContents();
+      pmPolicy.pmType = value;
+    }
+    if (localName.equals(PMDN_ELEMENT)) {
+      String value = getContents();
+      pmPolicy.pmDN = value;
+    }
+    if (localName.equals(PMURL_ELEMENT)) {
+      String value = getContents();
+      pmPolicy.pmUrl = value;
     }
 
     // Reset contents

@@ -22,6 +22,14 @@
 		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
     		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
     		<SigningAlgorithm>MD2withRSA</SigningAlgorithm>
+                
+		<PersistenceManagers>
+			<PersistenceManager>
+				<PMType>URL</PMType>
+				<PM_DN>CN=agent1, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US, T=agent</PM_DN>
+				<PM_URL>http://fig:5556/$agent1/KeyRecoveryServlet</PM_URL>
+			</PersistenceManager>
+		</PersistenceManagers>
 	</PolicyEntry>
 
 	<!--
