@@ -117,12 +117,37 @@ public class BaseBootstrapper
       args[2] = System.getProperty("org.cougaar.node.name", "unknown-node");
       args[3] = "-c";
     }
-    
+  
     String[] launchArgs = new String[args.length - 1];
     System.arraycopy(args, 1, launchArgs, 0, launchArgs.length);
     BaseBootstrapper basebootstrapper=new BaseBootstrapper();
     basebootstrapper.launch(args[0], launchArgs);
   }
+   
+  /** Get the node name from the command line arguments */
+  private static String getNodeName(String[] args) {
+    int argc = args.length;
+    String check = null;
+    String next = null;
+    boolean sawname = false;
+    String nodeName = null;
+    for( int x = 0; x < argc;){
+      check = args[x++];
+      if (! check.startsWith("-") && !sawname) {
+        sawname = true;
+        if ("admin".equals(check)) 
+          nodeName = "Administrator";
+        else
+          nodeName = check;
+      }
+      else if (check.equals("-n")) {
+        nodeName = args[x++];
+        sawname = true;
+      }
+    }
+    return nodeName;
+  }
+
 
   public void launch(String classname, String[] args){
     if (isBootstrapped) {
@@ -135,10 +160,8 @@ public class BaseBootstrapper
     String base = System.getProperty("org.cougaar.install.path");
     ArrayList l =  accumulateJarsandClasspath(base);
     CodeArchive[] codeArchives = (CodeArchive[]) l.toArray(new CodeArchive[l.size()]);
-    String nodeName = null;
-    if (args.length > 1) {
-      nodeName = args[1];
-    }
+     String nodeName = getNodeName(args);
+    
     /*
       Setting up  policy & security manager
       if there is a policy and security manager then override the set 
