@@ -140,6 +140,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
     }
     
     public Object symmDecrypt(SecretKey sk, SealedObject obj){
+      Object o = null;
         try{
               return obj.getObject(sk);
         }
@@ -151,10 +152,18 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
 	  while(loop){
 	    try{
 	      Thread.sleep(200);
-              return obj.getObject(sk);
+	      o = obj.getObject(sk);
+	      if (debug) {
+		System.out.println("Workaround to Cougaar core bug. Succeeded");
+	      }
+              return o;
 	    }
 	    catch(NullPointerException null1exp){
-	      null1exp.printStackTrace();
+	      if (debug) {
+		System.err.println(
+		  "Workaround to Cougaar core bug (Context not known). Sleeping 200ms then retrying...");
+	      }
+	      //null1exp.printStackTrace();
 	      continue;
 	    }
 	    catch(Exception exp1){

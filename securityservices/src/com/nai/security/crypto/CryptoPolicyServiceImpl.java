@@ -117,23 +117,23 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
    * Merges an existing policy with a new policy.
    * @param policy the new policy to be added
    */
-      public void receivePolicyMessage(Policy policy,
-				       String policyID,
-				       String policyName,
-				       String policyDescription,
-				       String policyScope,
-				       String policySubjectID,
-				       String policySubjectName,
-				       String policyTargetID,
-				       String policyTargetName,
-				       String policyType) {
-	if (dbg) {
-	  System.out.println("CryptoPolicyServiceImpl: " + policy);
-	  RuleParameter[] param = policy.getRuleParameters();
-	  for (int i = 0 ; i < param.length ; i++) {
-	    System.out.println("Rule: " + param[i].getName() + " - " + param[i].getValue());
-	  }
-	}
+  public void receivePolicyMessage(Policy policy,
+				   String policyID,
+				   String policyName,
+				   String policyDescription,
+				   String policyScope,
+				   String policySubjectID,
+				   String policySubjectName,
+				   String policyTargetID,
+				   String policyTargetName,
+				   String policyType) {
+    if (dbg) {
+      System.out.println("CryptoPolicyServiceImpl: " + policy);
+      RuleParameter[] param = policy.getRuleParameters();
+      for (int i = 0 ; i < param.length ; i++) {
+	System.out.println("Rule: " + param[i].getName() + " - " + param[i].getValue());
+      }
+    }
 
 	if(policy == null)return;
         //whom is the policy for?
@@ -163,7 +163,7 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
         //for each RuleParameter
 	RuleParameter[] ruleParameters = policy.getRuleParameters();
         for (int j=0; j < ruleParameters.length; j++)
-	  {
+        {
             if(!(ruleParameters[j] instanceof KeyRuleParameter)) return;
             KeyRuleParameter krp = (KeyRuleParameter)ruleParameters[j];
             //process rules on all the parameters within secureMethodParam
