@@ -289,7 +289,9 @@ public class ServletNodeEnforcer
    */
   public AuthSuite whichAuthSuite(String uri) 
   {
-    _log.debug("Entering whichAuthSuite");
+    if (_log.isDebugEnabled()) {
+      _log.debug("Entering whichAuthSuite");
+    }
     
     String kaosuri = (String) _uriMap.ulUriToKAoSUri(uri);
     if (kaosuri == null) {
@@ -402,7 +404,9 @@ public class ServletNodeEnforcer
   public boolean auditRequired(String uri) 
   {
     try {
-      _log.debug("Entering auditRequired");
+      if (_log.isDebugEnabled()) {
+        _log.debug("Entering auditRequired");
+      }
     
       String kaosuri = (String) _uriMap.ulUriToKAoSUri(uri);
       if (kaosuri == null) {
