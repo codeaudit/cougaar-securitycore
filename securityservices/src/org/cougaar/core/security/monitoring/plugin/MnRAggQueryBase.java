@@ -74,14 +74,9 @@ class EventsPredicate implements  UnaryPredicate{
     CmrRelay cmrRelay=null;
     RemoteConsolidatedEvent consolidatedEvent=null;
     Event event=null;
-    if (o instanceof CmrRelay ) {
-      cmrRelay=(CmrRelay)o;
-      if((cmrRelay.getSource().equals(agentAddress))&&
-         (cmrRelay.getContent() instanceof DrillDownQuery )&&
-         (cmrRelay.getResponse() instanceof RemoteConsolidatedEvent)){
-        consolidatedEvent=(RemoteConsolidatedEvent)cmrRelay.getResponse();
-        return DrillDownUtils.matchParentUID(consolidatedEvent.getEvent(),parent_uid);
-      }
+    if (o instanceof RemoteConsolidatedEvent ) {
+      consolidatedEvent=(RemoteConsolidatedEvent)o;
+      return DrillDownUtils.matchParentUID(consolidatedEvent.getEvent(),parent_uid);
     }
     if(o instanceof Event ) {
       event=(Event)o;
