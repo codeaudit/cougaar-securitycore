@@ -144,7 +144,7 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
 
       throw new GeneralSecurityException(WhitePagesProtectionServiceImpl.NAME + " " + e.getMessage());
     }
-
+    	
     return new ProtectedRequest(certChain, signedObj);
   }
 
@@ -185,7 +185,8 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
     }
 
     X509Certificate[] certChain = wrap.getCertificateChain();
-    for (int i = certChain.length - 1; i == 0; i--) {
+	
+	for (int i = 0; i < certChain.length; i++) {		
       keyRingService.checkCertificateTrust(certChain[i]);
       csrv.addSSLCertificateToCache(certChain[i]);
     }
