@@ -22,15 +22,6 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.access;
 
@@ -55,7 +46,7 @@ import org.cougaar.core.security.acl.trust.TrustAttribute;
 import org.cougaar.core.security.acl.trust.TrustSet;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
-import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
+import org.cougaar.core.security.monitoring.publisher.SecurityEventPublisher;
 import org.cougaar.core.security.policy.AccessControlPolicy;
 import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 import org.cougaar.core.security.policy.enforcers.WPEnforcer;
@@ -1056,7 +1047,7 @@ public class AccessAgentProxy implements MessageTransportService,
          * else { if(log.isDebugEnabled()) { log.debug("EventPublisher
          * uninitialized, unable to publish event:\n" + event); } }
          */
-        MessageFailureSensor.publishEvent(event);
+        SecurityEventPublisher.publishEvent(event);
     }
 
     private TrustSet makeLowestTrust() {

@@ -22,15 +22,6 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.access;
 

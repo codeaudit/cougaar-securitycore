@@ -32,7 +32,7 @@ import java.util.List;
 
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
-import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
+import org.cougaar.core.security.monitoring.publisher.SecurityEventPublisher;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.mts.base.DestinationLink;
@@ -271,7 +271,7 @@ public class CertificateCheckAspect
                                        String reason, String data) {
       FailureEvent event = new MessageFailureEvent(source, target,
                                                    reason, data);
-      MessageFailureSensor.publishEvent(event);
+      SecurityEventPublisher.publishEvent(event);
     }
   }
 }

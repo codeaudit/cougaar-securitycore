@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
  
 <!-- 
-    Ant build script for Ultra*Log securityservices. 
+    Ant build script for UltraLog securityservices. 
      
     Usage: ant [-v] <target>
      
@@ -37,8 +37,10 @@
     <property name="securityservices.lib" value="${securityservices.base}${file.separator}lib"/>
     <property name="securityservices.docdir" value="${securityservices.base}${file.separator}doc"/>
     <property name="securityservices.configs" value="${securityservices.base}${file.separator}test${file.separator}configs"/> 
+    <property name="securityservices.staging" value="${securityservices.base}${file.separator}staging"/>
     <!-- The classes directory for output classes and jar files -->
     <property name="securityservices.classes" value="classes"/>
+    <property name="securityservices.jsp" value="classes/jsp"/>
     <!-- The output directory for signed jar files -->
     <property name="securityservices.signed" value="${securityservices.classes}${file.separator}signed"/>
     <!-- The base directories where the java source files are located -->
@@ -50,34 +52,42 @@
 
     <path id="core.class.path">    
         <!-- Cougaar 3rd party support packages -->
-        <pathelement location="${cougaar.install.path}/sys/antlr.jar"/>
+        <pathelement location="${securityservices.base}/sys/antlr.jar"/>
+        <pathelement location="${securityservices.base}/sys/ibmpkcs.jar"/>
+        <pathelement location="${securityservices.base}/sys/iw.jar"/>
+        <pathelement location="${securityservices.base}/sys/jas.jar"/>
+        <pathelement location="${securityservices.base}/sys/jdom.jar"/>
+        <pathelement location="${securityservices.base}/sys/jtp.jar"/>
+        <!-- KAoS libraries -->
+        <pathelement location="${securityservices.base}/lib/kaos.jar"/>
+        <pathelement location="${securityservices.base}/lib/safe.jar"/>
+        <pathelement location="${securityservices.base}/sys/jpcsc.jar"/>
+        <!-- Overlay packages -->
+        <pathelement location="${securityservices.base}/lib/overlay.jar"/>
+        <pathelement location="${securityservices.base}/sys/mail.jar"/>
+        <!-- JUNIT libraries -->
+        <pathelement location="${securityservices.base}/sys/httpunit.jar"/>
+        <!-- jakarta oro -->
+        <pathelement location="${securityservices.base}/sys/jakarta-oro-2.0.5.jar"/>
+        <!-- don't point to the signed version of jasper-runtime.jar or the jspc task will puke! -->
+        <pathelement location="${securityservices.base}/build/jasper/lib/jasper-runtime.jar"/>
+        <pathelement location="${securityservices.base}/build/jasper/lib/jasper-compiler.jar"/>
+
         <pathelement location="${cougaar.install.path}/sys/concurrent.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/ibmpkcs.jar"/>
         <pathelement location="${cougaar.install.path}/sys/idmef.jar"/>
         <pathelement location="${cougaar.install.path}/sys/icu4j.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/iw.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/jas.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/jdom.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jpython.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/jtp.jar"/>
         <pathelement location="${cougaar.install.path}/sys/log4j.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/mail.jar"/>
         <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
         <pathelement location="${cougaar.install.path}/sys/silk.jar"/>
         <pathelement location="${cougaar.install.path}/sys/xercesImpl.jar"/>
         <pathelement location="${cougaar.install.path}/sys/xml-apis.jar"/>
-        <!-- don't point to the signed version of jasper-runtime.jar or the jspc task will puke! -->
-        <pathelement location="${securityservices.base}/build/jasper/lib/jasper-runtime.jar"/>
-        <pathelement location="${securityservices.base}/build/jasper/lib/jasper-compiler.jar"/>
         <!-- Tomcat libraries -->
         <pathelement location="${cougaar.install.path}/sys/tomcat_40.jar"/>
         <pathelement location="${cougaar.install.path}/lib/webserver.jar"/>
         <!-- JUNIT libraries -->
         <pathelement location="${cougaar.install.path}/sys/junit.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/httpunit.jar"/>
         <pathelement location="${cougaar.install.path}/sys/Tidy.jar"/>
-        <!-- Overlay packages -->
-        <pathelement location="${cougaar.install.path}/lib/overlay.jar"/>
         <!-- Cougaar packages -->
         <pathelement location="${cougaar.install.path}/lib/build.jar"/>
         <pathelement location="${cougaar.install.path}/lib/glm.jar"/>
@@ -92,26 +102,31 @@
         <pathelement location="${cougaar.install.path}/lib/servicediscovery.jar"/>
         <pathelement location="${cougaar.install.path}/lib/webtomcat.jar"/>
         <pathelement location="${cougaar.install.path}/lib/yp.jar"/>
-        <!-- KAoS libraries -->
-        <pathelement location="${cougaar.install.path}/lib/kaos.jar"/>
-        <pathelement location="${cougaar.install.path}/lib/safe.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/jpcsc.jar"/>
 
-        <!-- jakarta oro -->
-        <pathelement location="${cougaar.install.path}/sys/jakarta-oro-2.0.5.jar"/>
 	<!-- OWL libraries -->
         <pathelement location="${cougaar.install.path}/sys/jena.jar"/>
+
+    	<!-- Other security services jar files -->
+	    <pathelement location="${securityservices.base}/lib/security/secure_bootstrapper.jar"/>
+	    <pathelement location="${securityservices.base}/lib/security/secure_util.jar"/>
+
     </path>
 
+    <property name="project.description"
+		value="UltraLog security services"/>
+	<property name="project.name"
+		value="securityservices"/>
+
+	<!--
     <path id="securityservices.class.path">
        <path refid="core.class.path"/>
-        <pathelement location="${securityservices.signed}/securebootstrapper.jar"/>
         <pathelement location="${securityservices.signed}/securityservices.jar"/>
         <pathelement location="${securityservices.signed}/CougaarCRLextensions.jar"/>
         <pathelement location="${securityservices.signed}/javautil.jar"/>
         <pathelement location="${securityservices.signed}/idmef.jar"/>
     </path>
-
+    -->
+	
     <!-- task definition for javamake -->
     <!-- <taskdef name="javamake" classname="com.sun.tools.javamake.ant.JavaMake"/> -->
     <!-- javamake global property file -->
@@ -121,7 +136,7 @@
         <tstamp>
             <format property="currentTime" pattern="MM/dd/yyyy hh:mm:ss"/>
         </tstamp>
-        <echo message="Build started at ${currentTime}"/>
+        <echo message="Build started at ${currentTime} - CIP=${cougaar.install.path}"/>
     </target>
 
     <target name="checkversion">
@@ -143,15 +158,12 @@
               if="vm.version.incorrect"/>
     </target>
 
-    <target name="init" depends="install-build-jars">
+    <target name="init" depends="tstamp">
+    	<echo message="Initializing ${project.description} build..."/>
         <mkdir dir="${securityservices.classes}"/>
+        <mkdir dir="${securityservices.jsp}"/>
         <mkdir dir="${securityservices.signed}"/>
         <mkdir dir="${securityservices.docdir}"/>
-        <mkdir dir="${cougaar.workspace}/log4jlogs"/>
-        <mkdir dir="${cougaar.workspace}/auditlogs"/>
-        <mkdir dir="${cougaar.workspace}/security/mopresults"/>
-        <mkdir dir="${cougaar.workspace}/security/keystores"/>
-        <mkdir dir="${cougaar.workspace}/test"/>
 
         <!-- make regress directory -->
         <mkdir dir="${securityservices.results}" />
@@ -164,18 +176,9 @@
            eof="remove"
         />
     </target>
-
     
-    <!-- Build the JavaIDMEF library -->
-    <target name="build-idmef" depends="init">
-        <echo message="+++++ Building JavaIDMEF"/>
-        <javac classpathref="core.class.path" debug="true" 
-            deprecation="true" destdir="${securityservices.classes}" 
-            includes="edu/jhuapl/idmef/*.java" srcdir="${securityservices.src}"/>
-        <echo message="+++++ Built JavaIDMEF"/>
-    </target>
-
     <!-- Build the web proxy library -->
+	<!--
     <target name="build-webproxy" depends="init">
         <echo message="+++++ Building webproxy"/>
         <javac classpathref="core.class.path" debug="true" 
@@ -184,10 +187,11 @@
              srcdir="${securityservices.src}"/>
         <echo message="+++++ Built WebProxy"/>
     </target>
-
+    -->
 
     <!-- Build the Java Util library
          Overrides some java.util classes to track the memory utilization -->
+	<!--
     <target name="build-java-util" depends="init">
         <echo message="+++++ Building Java Util"/>
         <javac classpathref="core.class.path" debug="true" 
@@ -195,7 +199,7 @@
             includes="java/util/**" srcdir="${securityservices.src}"/>
         <echo message="+++++ Built Java util"/>
     </target>
-
+    -->
 
     <target name="check-policyParserUptodate">
       <uptodate property="policyParserUptodate"
@@ -203,7 +207,6 @@
                 targetfile="${securityservices.src}/org/cougaar/core/security/policy/builder/PolicyParser.java" 
                 />
     </target>
-
 
     <!-- 
          I am not using the antlr task because that would require
@@ -221,30 +224,20 @@
     </target>
 
     <!-- Build the org.cougaar.core.security package -->
-    <target name="build-securityservices" depends="init, build-idmef, compile-jsps, build-policyparser">
-        <echo message="+++++ Building security services"/>
+    <target name="build-securityservices" depends="init, compile-jsps, build-policyparser">
+        <echo message="+++++ Building ${project.description}"/>
         <javac classpathref="core.class.path" debug="true" 
             deprecation="true" destdir="${securityservices.classes}"
-            source="1.4"
-            includes="org/cougaar/core/security/**" srcdir="${securityservices.src}"/>
-        <echo message="+++++ Built security services"/>
+            source="1.4">
+          <src path="${securityservices.src}"/>
+          <src path="${securityservices.jsp}"/>
+          <include name="org/cougaar/core/security/**"/>
+      	</javac>
+        <echo message="+++++ Built ${project.description}"/>
     </target>
-    
-    <!-- jar JavaIDMEF -->
-    <target name="jar-idmef" depends="build-idmef">
-        <jar jarfile="${securityservices.classes}/idmef.jar">
-            <fileset dir="${securityservices.classes}"
-                includes="edu/jhuapl/idmef/*.class"/>
-            <fileset dir="${securityservices.src}" includes="edu/jhuapl/idmef/*.dtd"/>
-            <manifest>
-              <attribute name="Built-By" value="${user.name}"/>
-              <attribute name="Sealed" value="true"/>
-              <attribute name="Class-Path" value="/"/>
-            </manifest>
-        </jar>
-    </target>
-    
+        
     <!-- jar Java Util -->
+	<!--
     <target name="jar-java-util" depends="build-java-util">
         <jar jarfile="${securityservices.classes}/javautil.jar">
             <fileset dir="${securityservices.classes}"
@@ -255,7 +248,8 @@
             </manifest>
         </jar>
     </target>
-    
+    -->
+	
     <!-- org/cougaar/core/security/**/test/**, -->
     <!-- jar security services -->
     <!-- TODO: SecurityComponent.class is a hack until KAOS has been fixed -->
@@ -263,10 +257,7 @@
 
     <target name="jar-securityservices" depends="build-securityservices">
         <echo message="+++++ Building jar files"/>
-        <jar jarfile="${securityservices.classes}/securebootstrapper.jar" 
-            basedir="${securityservices.classes}"
-            includes="org/cougaar/core/security/securebootstrap/*.class"/>
-        <jar jarfile="${securityservices.classes}/securityservices.jar"
+        <jar jarfile="${securityservices.classes}/${project.name}.jar"
             basedir="${securityservices.classes}"
             includes="org/cougaar/core/security/**/*.class,
 		     org/cougaar/core/security/SecurityComponent.class"
@@ -280,7 +271,7 @@
  
     <target name="jar-configs">
         <echo message="+++++ Building configuration jar files"/>
-        <jar jarfile="${securityservices.classes}/securityservices_config.jar" 
+        <jar jarfile="${securityservices.classes}/configs_${project.name}.jar" 
             basedir="${securityservices.configs}"
             includes="common/*.xml,
                       common/*.dtd,
@@ -297,69 +288,63 @@
                       common/bootstrap_keystore,
                       adaptiveMnR/AMnR*.txt,
                       adaptiveMnR/dummy*.txt"/>
+    	<!--
         <jar jarfile="${securityservices.classes}/log4j_config.jar" 
             basedir="${securityservices.configs}/confnai"
             includes="loggingConfig.conf"/>
+        -->
         <echo message="+++++ Built configuration jar files"/>
     </target>
     
     <!-- sign security services -->
-    <target name="sign-jars" depends="jar-idmef, jar-securityservices, jar-configs, jar-java-util">
+    <target name="sign-jars" depends="jar-securityservices, jar-configs">
         <echo message="+++++ Signing jar files"/>
-        <signjar jar="${securityservices.classes}/securebootstrapper.jar" alias="bootstrapper" 
-            signedjar="${securityservices.signed}/securebootstrapper.jar"
-            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
-            storepass="keystore" verbose="false"/>
-        <signjar jar="${securityservices.classes}/securityservices.jar" alias="privileged" 
-            signedjar="${securityservices.signed}/securityservices.jar"
+        <signjar jar="${securityservices.classes}/${project.name}.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/${project.name}.jar"
             keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/CougaarCRLextensions.jar" alias="privileged" 
             signedjar="${securityservices.signed}/CougaarCRLextensions.jar"
             keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
-        <signjar jar="${securityservices.classes}/idmef.jar" alias="privileged" 
-            signedjar="${securityservices.signed}/idmef.jar"
-            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
-            storepass="keystore" verbose="false"/>
-        <signjar jar="${securityservices.classes}/javautil.jar" alias="privileged" 
-            signedjar="${securityservices.signed}/javautil.jar"
-            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
-            storepass="keystore" verbose="false"/>
 
-        <signjar jar="${securityservices.classes}/securityservices_config.jar" alias="privileged" 
-            signedjar="${securityservices.signed}/securityservices_config.jar"
+        <signjar jar="${securityservices.classes}/configs_${project.name}.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/configs_${project.name}.jar"
             keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
+    	<!--
         <signjar jar="${securityservices.classes}/log4j_config.jar" alias="privileged" 
             signedjar="${securityservices.signed}/log4j_config.jar"
             keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
+        -->
         <echo message="+++++ Signed jar files"/>
     </target>
 
     <!-- install Cougaar CA -->
+	<!--
     <target name="install-cougaarCA" depends="sign-jars">
         <echo message="+++++ Installing Cougaar CA"/>
-        <mkdir dir="${cougaar.install.path}/configs/cougaarCA"/>
-        <copy todir="${cougaar.install.path}/configs/cougaarCA">
+        <mkdir dir="${securityservices.staging}/configs/cougaarCA"/>
+        <copy todir="${securityservices.staging}/configs/cougaarCA">
             <fileset dir="${securityservices.configs}/cougaarCA">
                 <include name="*"/>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/configs/cougaarCA">
+        <copy todir="${securityservices.staging}/configs/cougaarCA">
             <fileset dir="${securityservices.base}/test/bin">
                 <include name="SecureNode"/>
             </fileset>
         </copy>
         <echo message="+++++ Installed Cougaar CA"/>
     </target>
-    
-    <!-- install Cougaar CA -->
+    -->
+	
+    <!-- install DAML -->
     <target name="install-daml" depends="sign-jars">
         <echo message="+++++ Installing DAML configs"/>
-        <mkdir dir="${cougaar.install.path}/configs/daml"/>
-        <copy todir="${cougaar.install.path}/configs/daml">
+        <mkdir dir="${securityservices.staging}/configs/daml"/>
+        <copy todir="${securityservices.staging}/configs/daml">
             <fileset dir="${securityservices.configs}/daml">
                 <include name="*"/>
             </fileset>
@@ -370,67 +355,86 @@
     <!-- install security services -->
     <target name="install-signed-jars" depends="sign-jars">
         <echo message="+++++ Installing signed jar files"/>
-        <copy file="${securityservices.signed}/securebootstrapper.jar" 
-            todir="${cougaar.install.path}/lib"/>
-        <copy file="${securityservices.signed}/securityservices.jar" 
-            todir="${cougaar.install.path}/lib"/>
+        <delete dir="${securityservices.staging}" includeEmptyDirs="true" quiet="true"/>
+        <mkdir dir="${securityservices.staging}"/>
+        <copy file="${securityservices.signed}/${project.name}.jar" 
+            todir="${securityservices.staging}/lib"/>
         <copy file="${securityservices.signed}/CougaarCRLextensions.jar" 
-            todir="${cougaar.install.path}/lib"/>
+            todir="${securityservices.staging}/lib"/>
+    	<!--
         <copy file="${securityservices.signed}/idmef.jar" 
-            todir="${cougaar.install.path}/lib"/>
+            todir="${securityservices.staging}/lib"/>
         <copy file="${securityservices.signed}/javautil.jar" 
-            todir="${cougaar.install.path}/lib"/>
+            todir="${securityservices.staging}/lib"/>
+         -->
         <echo message="+++++ Installed signed jar files"/>
     </target>
     
+	<!--
     <target name="install-unsigned-jars" depends="jar-idmef, jar-securityservices">
         <echo message="+++++ Installing jar files"/>
         <copy file="${securityservices.classes}/securebootstrapper.jar" 
-            todir="${cougaar.install.path}/lib"/>
+            todir="${securityservices.staging}/lib"/>
         <copy file="${securityservices.classes}/securityservices.jar" 
-            todir="${cougaar.install.path}/lib"/>
+            todir="${securityservices.staging}/lib"/>
         <copy file="${securityservices.classes}/CougaarCRLextensions.jar" 
-            todir="${cougaar.install.path}/lib"/>
+            todir="${securityservices.staging}/lib"/>
         <copy file="${securityservices.classes}/idmef.jar" 
-            todir="${cougaar.install.path}/lib"/>
+            todir="${securityservices.staging}/lib"/>
         <echo message="+++++ Installed jar files"/>
     </target>
-    
-    <!-- install build depended jars -->
-    <target name="install-build-jars">
+    -->
+	
+    <!-- install 3rd party jars files -->
+    <target name="install-3rdparty-jars">
         <echo message="+++++ Installing jar files"/>
-        <copy todir="${cougaar.install.path}/sys" overwrite="true">
+        <copy todir="${securityservices.staging}/sys" overwrite="true">
             <fileset dir="${securityservices.sys}">
                 <include name="*.jar"/>
                 <exclude name="jasper-compiler.jar"/>
+                <exclude name="antlr.jar"/>
+                <exclude name="httpunit.jar"/>
+                <exclude name="jakarta-oro*.jar"/>
             </fileset>
         </copy>
-        <!-- <delete file="${cougaar.install.path}/sys/xerces.jar" /> -->
-        <copy todir="${cougaar.install.path}/lib" overwrite="true">
-            <fileset dir="${securityservices.lib}" includes="*.jar"/>
+        <copy todir="${securityservices.staging}/lib" overwrite="true">
+            <fileset dir="${securityservices.lib}">
+            	<include name="*.jar"/>
+                <exclude name="overlay.jar"/>
+            </fileset>
         </copy>
         <echo message="+++++ Installed jar files"/>        
     </target>
     
     <!-- install config files -->
-    <target name="install-conf" depends="install-cougaarCA, install-daml">
-        <echo message="+++++ Installing configuration files"/>
-	<mkdir dir="${cougaar.install.path}/configs/security"/>
-	<mkdir dir="${cougaar.install.path}/configs/security/bin"/>
-	<mkdir dir="${cougaar.install.path}/configs/security/reference"/>
-	<mkdir dir="${cougaar.install.path}/csmart/scripts/definitions/security"/>
+    <target name="install-conf" depends="install-daml, install-signed-jars, install-3rdparty-jars">
+       <echo message="+++++ Installing configuration files"/>
+
+       <mkdir dir="${securityservices.staging}/workspace/log4jlogs"/>
+       <touch file="${securityservices.staging}/workspace/log4jlogs/notEmptyDir"/>
+       <mkdir dir="${securityservices.staging}/workspace/auditlogs"/>
+       <touch file="${securityservices.staging}/workspace/auditlogs/notEmptyDir"/>
+       <mkdir dir="${securityservices.staging}/workspace/security/mopresults"/>
+       <touch file="${securityservices.staging}/workspace/security/mopresults/notEmptyDir"/>
+       <mkdir dir="${securityservices.staging}/workspace/security/keystores"/>
+       <touch file="${securityservices.staging}/workspace/security/keystores/notEmptyDir"/>
+       <mkdir dir="${securityservices.staging}/workspace/test"/>
+       <touch file="${securityservices.staging}/workspace/test/notEmptyDir"/>
+
+       <mkdir dir="${securityservices.staging}/Manifest"/>
+       <mkdir dir="${securityservices.staging}/configs/security"/>
+       <mkdir dir="${securityservices.staging}/operator/security"/>
+       <!-- <mkdir dir="${securityservices.staging}/configs/security/bin"/> -->
+       <mkdir dir="${securityservices.staging}/configs/security/reference"/>
+       <mkdir dir="${securityservices.staging}/csmart/scripts/definitions/security"/>
         <!--
             Do not copy files individually. Files are now stored in JAR files
-        -->
-        <copy todir="${cougaar.install.path}/configs/security">
+        <copy todir="${securityservices.staging}/configs/security">
             <fileset dir="${securityservices.configs}/common"/>
         </copy>
-        <!-- This looks wrong - exactly the opposite of what we want.
-       <copy file="${cougaar.install.path}/configs/security/OwlBootPolicyList"
-              tofile="${cougaar.install.path}/configs/security/OwlBootPolicyList.orig" />
-       -->
-        <delete file="${cougaar.install.path}/configs/security/OwlBootPolicyList.orig"/>
-        <copy todir="${cougaar.install.path}/configs/security">
+        -->
+    	<!--
+        <copy todir="${securityservices.staging}/configs/security">
             <fileset dir="${securityservices.configs}/adaptiveMnR">
                 <patternset>
                     <include name="AMnR*.txt"/>
@@ -438,7 +442,7 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/configs">
+        <copy todir="${securityservices.staging}/configs">
             <fileset dir="${securityservices.configs}">
                 <patternset>
                     <include name="small-135/*"/>
@@ -446,14 +450,21 @@
                 </patternset>
             </fileset>
         </copy>
+        -->
 
-        <copy todir="${cougaar.install.path}/operator">
+        <copy todir="${securityservices.staging}/operator/security">
             <fileset dir="${securityservices.base}/test/bin">
                 <patternset>
                     <include name="checkTrace.rb"/>
                     <include name="runallparallel"/>
                     <include name="printProcessInfo.rb"/>
                     <include name="checkReportChainReady.rb"/>
+                    <include name="createJarConfigFiles"/>
+                </patternset>
+            </fileset>
+            <fileset dir="${securityservices.configs}/sign-jars">
+                <patternset>
+                    <include name="signingCA_keystore"/>
                 </patternset>
             </fileset>
         </copy>
@@ -461,8 +472,7 @@
         <!-- The bootstrap_keystore itself should be outside a Jar file
              so that we can verify jar files.
              The Java policy file must also be outside a jar file.
-        -->
-        <copy todir="${cougaar.install.path}/configs/security">
+        <copy todir="${securityservices.staging}/configs/security">
             <fileset dir="${securityservices.configs}/common">
                 <patternset>
                     <include name="bootstrap_keystore"/>
@@ -470,87 +480,86 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/scripts/definitions/security">
+        -->
+        <copy todir="${securityservices.staging}/csmart/scripts/definitions/security">
             <fileset dir="${securityservices.configs}/acme_scripts/moas">
                 <patternset>
                     <include name="*.rb"/>
                 </patternset>
             </fileset>
         </copy>
-        <copy file="${securityservices.base}/test/bin/createJarConfigFiles" 
-            todir="${cougaar.install.path}/configs/security/bin"/>
-        <copy file="${securityservices.configs}/sign-jars/signingCA_keystore" 
-            todir="${cougaar.install.path}/configs/security/bin"/>
-        <copy file="${securityservices.signed}/securityservices_config.jar" 
-            todir="${cougaar.install.path}/configs/security"/>
-        <!-- Also copy securityservices_config.jar in another location where
+        <copy file="${securityservices.signed}/configs_securityservices.jar" 
+            todir="${securityservices.staging}/configs/security"/>
+        <!-- Also copy configs_securityservices.jar in another location where
              we know it won't be modified, to keep a reference file.
-             The securityservices_config.jar file is modified every time the
+             The configs_securityservices.jar file is modified every time the
              society is ran. -->
-        <copy file="${securityservices.signed}/securityservices_config.jar" 
-            todir="${cougaar.install.path}/configs/security/reference"/>
+        <copy file="${securityservices.signed}/configs_${project.name}.jar" 
+            todir="${securityservices.staging}/configs/security/reference"/>
+    	<!--
         <copy file="${securityservices.signed}/log4j_config.jar" 
-            todir="${cougaar.install.path}/configs/security"/>
-        <copy todir="${cougaar.install.path}/webtomcat/data/conf"
+            todir="${securityservices.staging}/configs/security"/>
+        -->
+        <copy todir="${securityservices.staging}/webtomcat/data/conf"
             file="${securityservices.configs}/tomcat4/server.xml"/>    
-        <copy todir="${cougaar.install.path}/webtomcat/data/webapps/ROOT/WEB-INF"
+        <copy todir="${securityservices.staging}/webtomcat/data/webapps/ROOT/WEB-INF"
             file="${securityservices.configs}/tomcat4/web.xml"/>
-        <copy todir="${cougaar.install.path}/configs/ping">
+        <copy todir="${securityservices.staging}/configs/ping">
             <fileset dir="${securityservices.configs}/ping"/>
         </copy>
 
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/communities"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/robustness"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/redundancy"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/testCollectData"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/wpprotection"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/base"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/monitoring"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/crypto"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/jaas"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/debug"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/accesscontrol"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/misc"/>
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/signConfig"/>
-        <mkdir dir="${cougaar.install.path}/csmart/scripts"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/communities"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/robustness"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/redundancy"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/testCollectData"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/wpprotection"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/ruleset"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/ruleset/base"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/ruleset/monitoring"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/ruleset/crypto"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/ruleset/jaas"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/ruleset/debug"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/ruleset/accesscontrol"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/ruleset/misc"/>
+        <mkdir dir="${securityservices.staging}/csmart/config/rules/security/ruleset/signConfig"/>
+        <mkdir dir="${securityservices.staging}/csmart/scripts"/>
 
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/robustness">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/robustness">
             <fileset dir="${securityservices.configs}/recipes/rules/robustness">
                 <patternset>
                     <include name="*.rule"/>
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/redundancy">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/redundancy">
             <fileset dir="${securityservices.configs}/recipes/rules/redundancy">
                 <patternset>
                     <include name="*.rule"/>
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/wpprotection">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/wpprotection">
             <fileset dir="${securityservices.configs}/recipes/rules/wpprotection">
                 <patternset>
                     <include name="*.rule"/>
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/testCollectData">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/testCollectData">
             <fileset dir="${securityservices.configs}/recipes/rules/testCollectData">
                 <patternset>
                     <include name="*.rule"/>
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/signConfig">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/ruleset/signConfig">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
                     <include name="z99-commit_jar_changes.rule"/>
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/base">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/ruleset/base">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
                     <include name="A05-security_param.rule"/>
@@ -567,7 +576,7 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/crypto">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/ruleset/crypto">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
                     <include name="A12-certificate_bootstrapper_enclaves.rule"/>
@@ -582,7 +591,7 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/monitoring">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/ruleset/monitoring">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
                     <include name="A27-security_domain_addition.rule"/>
@@ -611,7 +620,7 @@
             </fileset>
         </copy>
 
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/jaas">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/ruleset/jaas">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
                     <include name="A20-jaas_agent_binder.rule"/>
@@ -620,7 +629,7 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/accesscontrol">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/ruleset/accesscontrol">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
                     <include name="A26-msg_access_ctl_binder.rule"/>
@@ -628,7 +637,7 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/debug">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/ruleset/debug">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
                     <include name="AdaptivityEngineViewer.rule"/>
@@ -638,7 +647,7 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/misc">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/ruleset/misc">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
                     <include name="configuration_manager.rule"/>
@@ -647,22 +656,22 @@
             </fileset>
         </copy>
 
-        <!--
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
                     <include name="*.rule"/>
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/config/rules/security/community">
+        <copy todir="${securityservices.staging}/csmart/config/rules/security/communities">
             <fileset dir="${securityservices.configs}/recipes/rules/parameters">
                 <patternset>
                     <include name="community.rule"/>
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/scripts">
+    	<!--
+        <copy todir="${securityservices.staging}/csmart/scripts">
             <fileset dir="${securityservices.configs}/recipes/rules/parameters">
                 <patternset>
                     <include name="RunSoc.rb.patch"/>
@@ -673,35 +682,25 @@
         <echo message="+++++ Installed configuration files"/>
     </target>
     
+	<!--
     <target name="confnai">
-        <copy todir="${cougaar.install.path}/configs/security">
+        <copy todir="${securityservices.staging}/configs/security">
             <fileset dir="${securityservices.configs}/confnai">
                 <patternset>
                     <include name="cougaar.rc"/>
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/configs/common">
+        <copy todir="${securityservices.staging}/configs/common">
             <fileset dir="${securityservices.configs}/confnai">
                 <patternset>
                     <include name="loggingConfig.conf"/>
                 </patternset>
             </fileset>
         </copy>
-
     </target>
-    
-    <!-- create log directories -->
-    <target name="create-log-dirs">
-        <echo message="+++++ Creating log directories"/>
-        <delete dir="${cougaar.install.path}/log" includeEmptyDirs="true" quiet="true"/>
-        <delete file="${cougaar.install.path}/sys/tomcat_33.jar" verbose="true"/>
-        <mkdir dir="${cougaar.install.path}/log/bootstrap"/>
-        <mkdir dir="${cougaar.install.path}/log/core"/>
-        <mkdir dir="${cougaar.install.path}/log/plugin"/>
-        <echo message="+++++ Created log directories"/>
-    </target>
-
+    -->
+	
     <!-- no need for this task since ant1.5 or newer is being used
     <target name="compile-jsps">
         <exec executable="build/jasper/bin/jspc.sh" os="Linux">
@@ -717,7 +716,7 @@
     <target name="compile-jsps">
         <jspc srcdir="${securityservices.src}"
             package="org.cougaar.core.security.crypto.ldap.admin"
-            destdir="${securityservices.src}"
+            destdir="${securityservices.jsp}"
             classpathref="core.class.path">
         <include name="org/cougaar/core/security/crypto/ldap/admin/*.jsp" />
         </jspc>
@@ -742,7 +741,7 @@
                  includes="OwlBootPolicy*.info, OwlBootPolicy*.msg" />
      </delete>
      <echo message="++++++ Copying ontologies" />
-      <copy todir="${cougaar.install.path}/configs/security">
+      <copy todir="${securityservices.staging}/configs/security">
         <fileset dir="${securityservices.configs}/common"
                  includes="Ontology-*.owl" />
       </copy>
@@ -763,23 +762,25 @@
 
 
     <!-- The ALL target only compiles, jar, and sign jars -->
-    <target name="all" depends="tstamp, init, sign-jars">
-        <echo message="Ultra*Log/securityservices Build Complete"/>
-        <echo message="***** Don't forget to run 'ant install' *****"/>
-        <echo message="***** Don't forget to run 'ant confnai' *****"/>
-        <echo message="***** DO NOT FORGET to modify the alpreg.ini file *****"/>
+    <target name="all" depends="install-conf">
+        <tstamp>
+            <format property="zipTime" pattern="MM/dd/yyyy hh:mm:ss"/>
+        </tstamp>
+    	<echo message="Built ${zipTime}"
+    	   file="${securityservices.staging}/Manifest/securityservices.txt"/>
+     	<echo message="#### Building Zip file"/>
+		<zip zipfile="${project.name}.zip" basedir="staging"/>	
+        <echo message="+++++ Generated ZIP file"/>
+        <echo message="UltraLog securityservices Build Complete"/>
     </target>
-    
+
     <!-- The INSTALL target does everything but cvs-update and javadoc -->
-    <target name="install" depends="tstamp, init, install-conf, install-signed-jars, create-log-dirs">
-        <echo message="Ultra*Log/securityservices Build Complete"/>
-        <echo message="***** Don't forget to run 'ant confnai' *****"/>
-        <echo message="***** DO NOT FORGET to modify the alpreg.ini file *****"/>
+    <target name="install" depends="all">
+        <echo message="UltraLog security services Install"/>
+		<unzip src="${securityservices.base}/${project.name}.zip"
+    	     dest="${cougaar.install.path}"/>	
     </target>
 
-
-        
-    
     <!-- Updating repository before building -->
     <target name="cvs-update">
       <cvs cvsRoot="${env.CVSROOT}" command="update -d"/>
@@ -787,7 +788,24 @@
     <target name="cvs-update-junit">
       <cvs  command="update -d -A"/>
     </target>
-    
+
+    <target name="update-dependencies">
+    	<!-- Dependencies are:
+    	     * securebootstrapper
+    	     * securityutils
+    	-->
+    	<antCall target="update-dependency">
+    		<param name="dependency.module.name" value="securityutils"/>
+    	</antCall>
+    </target>
+	<target name="update-dependency">
+       <property name="cvs.command.module" value="checkout"/>
+       <available property="cvs.command.module" value="update -d"
+        	file="${securityservices.base}../${dependency.module.name}" type="dir"/>
+	   <cvs cvsRoot="${env.CVSROOT}" command="${cvs.command.module}"
+	           dest="${securityservices.base}../${dependency.module.name}"/>
+    </target>
+		
     <!-- use 'ant with-update' to update repository executing the ALL target -->
     <target name="with-update" depends="cvs-update, all"/>
     
@@ -796,7 +814,7 @@
         <echo message="Creating JavaDocs for security services and JavaIDMEF"/>
         <delete file="${securityservices.docdir}/javadoc.tar.gz" verbose="true"/>
         <javadoc classpathref="core.class.path" destdir="${securityservices.docdir}"
-            windowtitle="Ultra*Log/securityservices API" sourcepath="${securityservices.src}" 
+            windowtitle="UltraLog securityservices API" sourcepath="${securityservices.src}" 
             packagenames="edu.jhuapl.idmef.*, org.cougaar.core.security.*" 
             excludepackagenames="org.cougaar.core.security.oldmonitoring.*, 
                                  org.cougaar.core.security.test.*"
@@ -821,83 +839,6 @@
             </fileset>
         </delete>
     </target>
-
-		<target name="create_cougaar_overlay">
-			<echo message="#### Preparing staging area"/>
-			<delete dir="staging"/>
-			<mkdir dir="staging"/>
-
-        <echo message="#### Copying configuration files to staging area"/>
-        <copy todir="staging/configs">
-            <fileset dir="${securityservices.configs}">
-                <patternset>
-                    <include name="common/*"/>
-                    <include name="small-135/*"/>
-                    <exclude name="**/CVS/**"/>
-                </patternset>
-            </fileset>
-        </copy>
-        <copy todir="staging/webtomcat/data/conf"
-            file="${securityservices.configs}/tomcat4/server.xml"/>    
-        <copy todir="staging/webtomcat/data/webapps/ROOT/WEB-INF"
-            file="${securityservices.configs}/tomcat4/web.xml"/>
-        <copy todir="staging/configs/common"
-            file="${securityservices.configs}/mysql/cougaar.rc"/>
-       <mkdir dir="staging/configs/cougaarCA"/>
-        <copy todir="staging/configs/cougaarCA">
-            <fileset dir="${securityservices.configs}/cougaarCA">
-                <include name="*"/>
-            </fileset>
-        </copy>
-        <copy todir="staging/configs/cougaarCA">
-            <fileset dir="${securityservices.base}/test/bin">
-                <include name="SecureNode"/>
-            </fileset>
-        </copy>
-			<echo message="#### Compiling code/building jars"/>
-			<antcall target="jar-idmef"/>
-			<antcall target="jar-securityservices"/>
-
-			<echo message="#### Signing jars"/>
-        <signjar jar="${securityservices.classes}/securebootstrapper.jar" alias="bootstrapper" 
-            signedjar="${securityservices.signed}/securebootstrapper.jar"
-            keystore="staging/configs/common/signingCA_keystore" 
-            storepass="keystore" verbose="false"/>
-        <signjar jar="${securityservices.classes}/securityservices.jar" alias="privileged" 
-            signedjar="${securityservices.signed}/securityservices.jar"
-            keystore="staging/configs/common/signingCA_keystore" 
-            storepass="keystore" verbose="false"/>
-        <signjar jar="${securityservices.classes}/CougaarCRLextensions.jar" alias="privileged" 
-            signedjar="${securityservices.signed}/CougaarCRLextensions.jar"
-            keystore="staging/configs/common/signingCA_keystore" 
-            storepass="keystore" verbose="false"/>
-        <signjar jar="${securityservices.classes}/idmef.jar" alias="privileged" 
-            signedjar="${securityservices.signed}/idmef.jar"
-            keystore="staging/configs/common/signingCA_keystore" 
-            storepass="keystore" verbose="false"/>
-
-			<echo message="#### Copying jars to staging area"/>
-        <copy todir="staging/sys">
-            <fileset dir="${securityservices.sys}">
-                <include name="*.jar"/>
-                <exclude name="jasper-compiler.jar"/>
-            </fileset>
-        </copy>
-        <copy todir="staging/lib">
-            <fileset dir="${securityservices.lib}" includes="*.jar"/>
-        </copy>
-				<copy file="${securityservices.signed}/securebootstrapper.jar" 
-            todir="staging/lib"/>
-        <copy file="${securityservices.signed}/securityservices.jar" 
-            todir="staging/lib"/>
-        <copy file="${securityservices.signed}/CougaarCRLextensions.jar" 
-            todir="staging/lib"/>
-        <copy file="${securityservices.signed}/idmef.jar" 
-            todir="staging/lib"/>
-			
-			<echo message="#### Building Zip file"/>
-			<zip zipfile="nai_cougaar_overlay.zip" basedir="staging"/>	
-		</target>
    
     <!-- Delete log files -->
     <target name="clean-log" depends="init">
@@ -911,9 +852,6 @@
         </delete>
         <delete quiet="true">
           <fileset  dir="${securityservices.configs}/cougaarCA" includes="*.log"/>
-        </delete>
-        <delete quiet="true">
-          <fileset  dir="${cougaar.install.path}/configs/small-135" includes="*.log"/>
         </delete>
         <delete quiet="true">
           <fileset  dir="${securityservices.results}" includes="TEST-*"/>
@@ -1043,7 +981,7 @@
        </ant>
     </target>
 
-    <target name="confjar" depends="confnai">
+    <target name="confjar">
         
         <delete quiet="true">
           <fileset  dir="${cougaar.install.path}/configs/common" includes="*.jar"/>
@@ -1081,4 +1019,4 @@
     </target>
  </project>
 
-<!-- End Ultra*Log/securityservices ant build script -->
+<!-- End UltraLog securityservices ant build script -->

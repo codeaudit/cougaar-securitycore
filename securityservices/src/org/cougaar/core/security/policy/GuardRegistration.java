@@ -27,8 +27,8 @@
 package org.cougaar.core.security.policy;
 
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.planning.ldm.policy.Policy;
 

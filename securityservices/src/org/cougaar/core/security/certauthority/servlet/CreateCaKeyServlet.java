@@ -32,8 +32,8 @@ import org.cougaar.core.security.config.PolicyHandler;
 import org.cougaar.core.security.crypto.CertificateCache;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.identity.AgentIdentityService;
 

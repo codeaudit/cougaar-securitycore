@@ -38,7 +38,7 @@ import org.cougaar.mts.std.AttributedMessage;
 import org.cougaar.core.node.NodeIdentificationService;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
-import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
+import org.cougaar.core.security.monitoring.publisher.SecurityEventPublisher;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -722,7 +722,7 @@ public class MessageProtectionServiceImpl
         eventPublisher.publishEvent(event);
       }
       */
-      MessageFailureSensor.publishEvent(event);
+      SecurityEventPublisher.publishEvent(event);
       throw new IOException(reason);
 //     } catch (Exception e) {
 //       log.debug("Caught unexpected Exception", e);
@@ -824,7 +824,7 @@ public class MessageProtectionServiceImpl
         eventPublisher.publishEvent(event);
       }
       */
-      MessageFailureSensor.publishEvent(event);
+      SecurityEventPublisher.publishEvent(event);
       throw new IOException(reason);
     } catch (MessageDumpedException e) {
       if (log.isInfoEnabled()) {
@@ -859,7 +859,7 @@ public class MessageProtectionServiceImpl
       }
     } 
     */
-    MessageFailureSensor.publishEvent(event); 
+    SecurityEventPublisher.publishEvent(event); 
   }
   
   private void publishMessageFailure(String source, String target,

@@ -49,7 +49,7 @@ import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
-import org.cougaar.core.security.monitoring.plugin.LoginFailureSensor;
+import org.cougaar.core.security.monitoring.publisher.SecurityEventPublisher;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -744,7 +744,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
                                               targets,
                                               LoginFailureEvent.FAILURE_REASONS[failureType],
                                               exceptionString);
-    LoginFailureSensor.publishEvent(event);
+    SecurityEventPublisher.publishEvent(event);
   }
 
   public long currentTimeMillis() { return System.currentTimeMillis(); }

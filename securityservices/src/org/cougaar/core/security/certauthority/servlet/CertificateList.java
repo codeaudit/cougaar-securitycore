@@ -30,9 +30,9 @@ package org.cougaar.core.security.certauthority.servlet;
 import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.naming.CertificateEntry;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.util.CACertDirectoryService;
 import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
 
 import java.io.IOException;

@@ -48,7 +48,7 @@ import org.cougaar.core.security.crypto.NoValidKeyException;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.monitoring.event.DataFailureEvent;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
-import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
+import org.cougaar.core.security.monitoring.publisher.SecurityEventPublisher;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -313,7 +313,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
       }
     }
     */
-    DataProtectionSensor.publishEvent(event);
+    SecurityEventPublisher.publishEvent(event);
   }
 
   private static ByteArrayOutputStream getStream() {

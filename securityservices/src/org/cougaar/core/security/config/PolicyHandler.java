@@ -28,8 +28,8 @@ package org.cougaar.core.security.config;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.config.jar.JarFileHandler;
-import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.ConfigFinder;
 

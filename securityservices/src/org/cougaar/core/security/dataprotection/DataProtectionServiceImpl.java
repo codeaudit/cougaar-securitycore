@@ -49,7 +49,7 @@ import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.monitoring.event.DataFailureEvent;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
-import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
+import org.cougaar.core.security.monitoring.publisher.SecurityEventPublisher;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
 import org.cougaar.core.security.policy.CryptoPolicy;
 import org.cougaar.core.security.policy.PersistenceManagerPolicy;
@@ -827,7 +827,7 @@ public class DataProtectionServiceImpl
       }
     }
     */
-    DataProtectionSensor.publishEvent(event);
+    SecurityEventPublisher.publishEvent(event);
   }
 
 	/* (non-Javadoc)

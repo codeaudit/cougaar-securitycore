@@ -22,13 +22,6 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.auth;
 

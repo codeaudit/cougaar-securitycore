@@ -31,7 +31,7 @@ package org.cougaar.core.security.test.wp;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cougaar.core.security.test.AbstractServletComponent;
+import org.cougaar.core.security.servlet.AbstractServletComponent;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Verb;
@@ -40,7 +40,7 @@ import org.cougaar.planning.ldm.plan.Verb;
 /**
  * DOCUMENT ME!
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * @author $author$
  */
 public class WPTestServlet extends AbstractServletComponent {

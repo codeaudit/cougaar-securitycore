@@ -30,7 +30,7 @@ package org.cougaar.core.security.dataprotection.plugin;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.security.monitoring.plugin.CompromiseBlackboard;
+import org.cougaar.core.security.constants.BlackboardCompromise;
 import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.planning.ldm.plan.Task;
@@ -61,7 +61,7 @@ public class RevokeSessionKeyPlugin extends ComponentPlugin {
         SharedDataRelay sdr = (SharedDataRelay) o;
         if ((sdr.getContent() != null) && sdr.getContent() instanceof Task) {
           Task t = (Task) sdr.getContent();
-          return (t.getVerb() != null) && t.getVerb().toString().equals(CompromiseBlackboard.REVOKE_SESSION_KEY_VERB);
+          return (t.getVerb() != null) && t.getVerb().toString().equals(BlackboardCompromise.REVOKE_SESSION_KEY_VERB);
         }
       }
 
@@ -137,8 +137,8 @@ public class RevokeSessionKeyPlugin extends ComponentPlugin {
         logging.debug("Got relay and task to revoke session key:" + task);
       }
 
-      String agentName = (String) task.getPrepositionalPhrase(CompromiseBlackboard.FOR_AGENT_PREP).getIndirectObject();
-      long compromiseTimestamp = ((Long) task.getPrepositionalPhrase(CompromiseBlackboard.COMPROMISE_TIMESTAMP_PREP).getIndirectObject()).longValue();
+      String agentName = (String) task.getPrepositionalPhrase(BlackboardCompromise.FOR_AGENT_PREP).getIndirectObject();
+      long compromiseTimestamp = ((Long) task.getPrepositionalPhrase(BlackboardCompromise.COMPROMISE_TIMESTAMP_PREP).getIndirectObject()).longValue();
       if (logging.isDebugEnabled()) {
         logging.debug("Revoke session keys for " + agentName + " after " + new Date(compromiseTimestamp));
       }

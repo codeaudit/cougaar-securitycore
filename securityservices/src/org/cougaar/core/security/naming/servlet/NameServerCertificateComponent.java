@@ -35,8 +35,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.crypto.CertValidityListener;

@@ -53,7 +53,7 @@ import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
-import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
+import org.cougaar.core.security.monitoring.publisher.SecurityEventPublisher;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
@@ -233,7 +233,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       }
     }
     */
-    MessageFailureSensor.publishEvent(event);  
+    SecurityEventPublisher.publishEvent(event);  
   }
 
   /* **********************************************************************

@@ -35,7 +35,7 @@ import java.util.TimerTask;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.security.monitoring.plugin.CompromiseBlackboard;
+import org.cougaar.core.security.constants.BlackboardCompromise;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
 import org.cougaar.core.security.util.SharedDataRelay;
@@ -63,7 +63,7 @@ public class RevokeAgentCertificatePlugin extends ComponentPlugin {
         SharedDataRelay sdr = (SharedDataRelay) o;
         if ((sdr.getContent() != null) && sdr.getContent() instanceof Task) {
           Task t = (Task) sdr.getContent();
-          return (t.getVerb() != null) && t.getVerb().toString().equals(CompromiseBlackboard.REVOKE_AGENT_CERT_VERB);
+          return (t.getVerb() != null) && t.getVerb().toString().equals(BlackboardCompromise.REVOKE_AGENT_CERT_VERB);
         }
       }
 
@@ -118,10 +118,10 @@ public class RevokeAgentCertificatePlugin extends ComponentPlugin {
       }
 
       //get caDNs
-      ArrayList caDNs = (ArrayList) task.getPrepositionalPhrase(CompromiseBlackboard.CA_DN_PREP).getIndirectObject();
+      ArrayList caDNs = (ArrayList) task.getPrepositionalPhrase(BlackboardCompromise.CA_DN_PREP).getIndirectObject();
 
       //get agent name
-      String agentName = (String) task.getPrepositionalPhrase(CompromiseBlackboard.FOR_AGENT_PREP).getIndirectObject();
+      String agentName = (String) task.getPrepositionalPhrase(BlackboardCompromise.FOR_AGENT_PREP).getIndirectObject();
       if (caDNs == null) {
         if (logging.isErrorEnabled()) {
           logging.error("Recevied revoke agent request without a CADN");

@@ -63,7 +63,7 @@ public class CryptoPolicyBean {
         return targetName;
     }
 
-    public void setTargetName(String targeName){
+    public void setTargetName(String targetName){
         this.targetName = targetName;        
     }
 

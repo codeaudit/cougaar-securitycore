@@ -29,5 +29,8 @@
 	<classpathentry kind="lib" path="sys/commons-logging.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="com.cougaarsoftware.cougaar.ide.core.COUGAAR_CONTAINER"/>
+	<classpathentry kind="src" path="profilersrc"/>
+	<classpathentry kind="lib" path="lib/security/secure_bootstrapper.jar"/>
+	<classpathentry kind="lib" path="lib/security/secure_util.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

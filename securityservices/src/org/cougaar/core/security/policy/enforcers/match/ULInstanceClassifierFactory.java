@@ -38,7 +38,6 @@ import kaos.ontology.matching.InstanceClassifierFactory;
 import kaos.ontology.matching.InstanceClassifierInitializationException;
 import kaos.ontology.vocabulary.ActionConcepts;
 import kaos.ontology.vocabulary.ActorConcepts;
-import kaos.policy.information.KAoSProperty;
 
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
@@ -55,24 +54,7 @@ import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.ontology.ULOntologyNames;
-import org.cougaar.core.security.policy.ontology.UltralogActorConcepts;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
-
-import kaos.ontology.vocabulary.ActionConcepts;
-import kaos.ontology.vocabulary.ActorConcepts;
-import kaos.ontology.matching.InstanceClassifier;
-import kaos.ontology.matching.InstanceClassifierFactory;
-import kaos.ontology.matching.InstanceClassifierInitializationException;
 import kaos.ontology.matching.InstanceClassifierClassCastException;
-import kaos.policy.information.KAoSProperty;
 
 
 public class ULInstanceClassifierFactory
