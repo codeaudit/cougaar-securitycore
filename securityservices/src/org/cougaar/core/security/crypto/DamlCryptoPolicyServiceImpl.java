@@ -26,13 +26,18 @@
 
 package org.cougaar.core.security.crypto;
 
+import java.io.IOException;
+
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.CryptoPolicy;
 import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
-import org.cougaar.core.security.policy.enforcers.util.HardWired;
+import org.cougaar.core.security.policy.enforcers.util.CipherSuiteMapping;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.service.LoggingService;
 
@@ -41,11 +46,25 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
   private LoggingService          _log;
   private CryptoPolicyServiceImpl _legacy;
   private ServiceBroker           _serviceBroker;
+  private CipherSuite             _defaultCipherSuite;
 
-  public DamlCryptoPolicyServiceImpl(ServiceBroker sb) {
+  public DamlCryptoPolicyServiceImpl(ServiceBroker sb) 
+  {
     _log = (LoggingService) sb.getService(this, LoggingService.class, null);
     _legacy = new CryptoPolicyServiceImpl(sb);
     _serviceBroker = sb;
+
+    // The following is hacky but only applies to unguarded mode...
+    Set defaultCipherNames = new HashSet();
+    defaultCipherNames.add(ULOntologyNames.cipherPrefix + "NSAApprovedProtection");
+    try {
+      _defaultCipherSuite 
+        = (new CipherSuiteMapping()).ulCiphersFromKAoSProtectionLevel(defaultCipherNames);
+    } catch (IOException ioe) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Failed to update default cipher suite - only a problem in Guardless mode");
+      }
+    }
   }
 
   private synchronized void initDaml() {
@@ -57,7 +76,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
       catch (Exception e) {
         _enforcer = null;
         if (_log.isWarnEnabled()) {
-          _log.warn("Guard not available. Running without guard");
+          _log.warn("Guard not available. Running without guard",e);
         }
       }
     }
@@ -93,7 +112,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
       cs = _enforcer.getAllowedCipherSuites(source, target);
     }
     else {
-      cs = HardWired.nsaApproved;
+      cs = _defaultCipherSuite;
     }
     if (_log.isDebugEnabled()) {
       _log.debug("Comparing against cipher suite: " + cs);
@@ -181,8 +200,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
       return convertPolicy(cs);
     }
     else {
-      return convertPolicy(HardWired.nsaApproved);
+      return convertPolicy(_defaultCipherSuite);
     }
   }
-
 }  
