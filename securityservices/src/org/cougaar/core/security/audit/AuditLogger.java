@@ -160,6 +160,16 @@ public class AuditLogger {
   }
 
   /**
+   * Retrieve the audit logging directory
+   *
+   * @return
+   */
+  public static String getLoggingDirectory() {
+    return auditLogDirectory;
+  }
+
+
+  /**
    * Create a Logger to Audit access to a service
    *
    * @param resource Name of Resource or Service
