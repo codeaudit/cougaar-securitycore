@@ -23,7 +23,7 @@ class Security4a1Experiment < SecurityStressFramework
   end
 
 
- postStartJabberCommunications
+  def postStartJabberCommunications
 #      printDotsOnCougaarEvents
      on_cougaar_event do |event|
 
