@@ -19,7 +19,7 @@ CMMessagePlugin="org.cougaar.core.security.cm.ConfigurationManagerMessagePlugin"
 society.each_agent(true) do |agent|
         if agent.has_facet?("cm_role")
                 facet = agent.get_facet("cm_role")
-                puts "#{agent.name} cm role: #{facet}"
+                #puts "#{agent.name} cm role: #{facet}"
                 agentlist.concat ["agent,#{agent.name}=#{facet}"]
         end
 end
@@ -28,7 +28,7 @@ society.each_node do |node|
         if node.has_facet?("role")
                 facet=node.get_facet("role")
                 if facet=="Management"
-                        puts "#{node.name} has management role"
+                        #puts "#{node.name} has management role"
                         nodelist.concat ["node,#{node.name}=Management"]
                 end
         end
@@ -36,7 +36,7 @@ end
 
 society.each_agent(true) do |agent|
         include_array.each{ |targetagent|
-                puts "#{targetagent}"
+                #puts "#{targetagent}"
                 if agent.name ==targetagent
                         agent.add_component do |c|
                                 c.classname=CMInitPlugin
