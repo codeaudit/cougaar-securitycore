@@ -39,7 +39,7 @@ class SecurityMop2_5 < AbstractSecurityMop
       begin
         totalWaitTime=0
         maxWaitTime = 30.minutes
-        sleeptime=60.seconds
+        sleepTime=60.seconds
         while ((SecurityMop2_4.instance.getPerformDone == false) && (totalWaitTime < maxWaitTime))
           logInfoMsg "Sleeping in Calculate of SecurityMop2.5 . Already slept for #{totalWaitTime}"
           sleep(sleepTime) # sleep
