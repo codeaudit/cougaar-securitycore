@@ -1,0 +1,24 @@
+<society name='SecureMiniPing-WP-layout' 
+  xmlns:xsi='http:/www.w3.org/2001/XMLSchema-instance' 
+  xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'> 
+  <host name='HOST1'> 
+    <facet enclave='EnclaveA'/> 
+    <node name='ROOT-CA-NODE'> 
+      <facet role="RootCertificateAuthority"/> 
+      <facet role="NameServer"/> 
+    </node> 
+    <node name='CA-NODE'>
+      <facet role="CertificateAuthority"/> 
+    </node>
+    <node name='MGMT-NODE'> 
+      <facet role="Management"/> 
+    </node> 
+    <node name='NodeA'> 
+      <agent name='AgentA'/> 
+    </node> 
+    <node name='NodeB'>
+      <agent name='AgentB'/>
+    </node>
+  </host>
+</society>
+
