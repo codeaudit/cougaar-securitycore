@@ -122,19 +122,25 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
         _log = (LoggingService) 
           _sb.getService(this, LoggingService.class, null);
         HardWired.setServiceBroker(sb);
-        _log.debug("Creating Community Service Proxy");
+        if (_log.isDebugEnabled()) {
+          _log.debug("Creating Community Service Proxy");
+        }
         if (!_sb.hasService(CommunityService.class)) {
-          _log.debug("Community service is missing: adding listener");
+          if (_log.isDebugEnabled()) {
+            _log.debug("Community service is missing: adding listener");
+          }
           _sb.addServiceListener(new CommunityServiceListener());
         }
         else {
           _communityService = (CommunityService) 
             _sb.getService(this, CommunityService.class, null);
-          if (_communityService == null) {
-            _log.debug("Community service is missing");
+          if (_log.isDebugEnabled()) {
+            if (_communityService == null) {
+              _log.debug("Community service is missing");
+            }
+            _log.debug("Community Service Created");
+            _log.debug("Community = " + _communityService);
           }
-          _log.debug("Community Service Created");
-          _log.debug("Community = " + _communityService);
         }
         if(!_sb.hasService(PolicyService.class)){
           if(_log.isDebugEnabled()){
@@ -172,10 +178,14 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
                 }});
           registerMediator();
         }
-        _log.debug("Object Hash = " + hashCode());
+        if (_log.isDebugEnabled()) {
+          _log.debug("Object Hash = " + hashCode());
+        }
       } catch (Throwable th) {
-        _log.error("Exception in message node enforcer init",
-                   th);
+        if (_log.isErrorEnabled()) {
+          _log.error("Exception in message node enforcer init",
+                     th);
+        }
       }
       AgentIdentificationService ais= (AgentIdentificationService)_sb.getService(this, AgentIdentificationService.class,null);
       if(ais!=null){

@@ -113,8 +113,10 @@ public class PolicyBootstrapper
     List parsedPolicies;
 
     try {
-      log.debug(".PolicyBootStrapper: Reading daml policies file "
+      if (log.isDebugEnabled()) {
+        log.debug(".PolicyBootStrapper: Reading daml policies file "
                 + cf.find(_damlBootPolicies));
+      }
       try {
         parsedPolicies = getParsedPolicyFile().policies();
       } catch (Exception e) { 
@@ -176,7 +178,9 @@ public class PolicyBootstrapper
     } catch (RuntimeException e) {
       log.warn("Exception reading daml policies file", e);
     }
-    log.debug(".PolicyBootStrapper: Finished Reading daml policies file");
+    if (log.isDebugEnabled()) {
+      log.debug(".PolicyBootStrapper: Finished Reading daml policies file");
+    }
   }
 
 
@@ -190,12 +194,16 @@ public class PolicyBootstrapper
   {
     List damlPolicies = (List) _damlBootMap.get(type);
     if (damlPolicies != null) {
-      log.debug(".PolicyBootStrapper: Obtained policies for policy type " + 
+      if (log.isDebugEnabled()) {
+        log.debug(".PolicyBootStrapper: Obtained policies for policy type " + 
                 type);
+      }
       return damlPolicies;
     } else {
-      log.debug(".PolicyBootstrapper: attempting to get nondaml boot policies " +
+      if (log.isDebugEnabled()) {
+        log.debug(".PolicyBootstrapper: attempting to get nondaml boot policies " +
                 "for type " + type);
+      }
       try {
         if (!type.startsWith("http:")) {
           PolicyMsg msg = getBootPolicy(Class.forName(type));
