@@ -908,6 +908,9 @@ public class DirectoryKeyStore
 	// Self signed certificate
 	cause = CertificateTrust.CERT_TRUST_SELF_SIGNED;
       }
+      if (log.isWarnEnabled()) {
+	log.warn("Certificate chain failed for: " + principal.getName());
+      }
       throw new CertificateChainException("Failed to establish chain from reply", cause);
     }
   }
@@ -2512,7 +2515,7 @@ public class DirectoryKeyStore
           log.warn("Cannot update agent ldap in naming." + nx.toString());
         }
       */
-      log.warn("Cannot update agent ldap in naming.");
+      //log.warn("Cannot update agent ldap in naming.");
       }
     } catch (IOException ix) {
     }
@@ -2554,7 +2557,7 @@ public class DirectoryKeyStore
             cdType.intValue(), cdUrl, param.serviceBroker);
       }
     } catch (NamingException nx) {
-      log.warn("Cannot get certificate information from naming serve "
+      log.info("Cannot get certificate information from naming server"
         + nx.toString());
     }
     // default

@@ -35,8 +35,8 @@
       <frame name="SearchFrame" src="<%=request.getRequestURI() + "?" +
                                         UserInterface.PAGE + "=" +
                                         UserInterface.PAGE_SEARCH_USER%>">
-        <frame name="SearchResultsFrame">
+      <frame name="SearchResultsFrame" src="about:blank">
     </frameset>
-    <frame name="UserMatchFrame">
+    <frame name="UserMatchFrame" src="about:blank">
   </frameset>
 </html>
