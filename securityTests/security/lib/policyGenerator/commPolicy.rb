@@ -8,7 +8,8 @@ require 'cougaar/scripting'
 require 'ultralog/scripting'
 require 'security/scripts/setup_scripting'
 require 'security/lib/common_security_rules'
-require "mysql.o"
+require "#{CIP}/csmart/lib/security/lib/mysql.so"
+require "#{CIP}/csmart/lib/security/lib/mysql.o"
 
 Cougaar::ExperimentMonitor.enable_stdout
 Cougaar::ExperimentMonitor.enable_logging
@@ -22,7 +23,7 @@ class CommPolicies
 
   def initialize(run)
     @dbUser                = "society_config"
-    @dbHost                = "localhost"
+    @dbHost                = "mango"
     @dbPassword            = "s0c0nfig"
     @db                    = "cougaar104"
     @mysql                 = Mysql.connect(@dbHost, 
