@@ -295,7 +295,7 @@ public class CougaarForgePostTask
     }
     File uploadFile = new File((String)props.get("userfile"));
     if (!uploadFile.exists()) {
-      throw new RuntimeException("File does not exist: " + uploadFile.getPath());
+      throw new RuntimeException("File does not exist: " + uploadFile.getCanonicalPath());
     }
     URL u = new URL(getUrl() + UPLOAD_SERVLET + getGroupId());
     //  create a boundary string
