@@ -15,22 +15,22 @@ ARCHIVE_TIME=${build.time}
 	<delete dir="staging"/>			
   <mkdir dir="staging/csmart/assessment/"/>
 	<copy todir="staging/csmart/assessment/configs/">
-		<fileset defaultexcludes="no" dir="configs"/>
+		<fileset dir="configs"/>
 	</copy>
 	<copy todir="staging/csmart/assessment/lib/">
-		<fileset defaultexcludes="no" dir="lib03"/>
+		<fileset dir="lib03"/>
 	</copy>
 	<copy todir="staging/csmart/assessment/scripts/">
-		<fileset defaultexcludes="no" dir="scripts03"/>
+		<fileset dir="scripts03"/>
 	</copy>
 	<copy todir="staging/csmart/assessment/assess/">
-		<fileset defaultexcludes="no" dir="assess03"/>
+		<fileset dir="assess03"/>
 	</copy>
 	<copy todir="staging/Manifest">
-		<fileset defaultexcludes="no" dir="Manifest"/>
+		<fileset dir="Manifest"/>
 	</copy>
 	<zip zipfile="${zip}">
-		<fileset dir="staging" defaultexcludes="no"/>
+		<fileset dir="staging"/>
 	</zip>
 </target>
 
