@@ -30,12 +30,13 @@ import java.io.*;
 import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import sun.security.x509.*;
+import sun.security.util.*;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
 import org.cougaar.core.security.crypto.ldap.LdapEntry;
@@ -46,12 +47,13 @@ public class PendingCertDetailsServlet extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
-  private NodeConfiguration nodeConfiguration;
+
   private CertDirectoryServiceClient certificateFinder=null;
   private CaPolicy caPolicy = null;            // the policy of the CA
-  protected boolean debug = false;
-  private SecurityServletSupport support;
 
+  protected boolean debug = false;
+
+  private SecurityServletSupport support;
   public PendingCertDetailsServlet(SecurityServletSupport support) {
     this.support = support;
   }
@@ -70,7 +72,7 @@ public class PendingCertDetailsServlet extends  HttpServlet
     res.setContentType("Text/HTML");
 
     String alias=null;
-    //String role=null;
+    String role=null;
     String cadnname=null;
 
     PrintWriter out=res.getWriter();
@@ -84,11 +86,12 @@ public class PendingCertDetailsServlet extends  HttpServlet
     }
 
     alias=req.getParameter("alias");
-    //role=req.getParameter("role");
+    role=req.getParameter("role");
     cadnname=req.getParameter("cadnname");
     if (debug) {
       System.out.println("PendingCertDetailsServlet. Search alias="
 			 + alias
+			 + " - role: " + role
 			 + " - cadnname: " + cadnname);
     }
     if((cadnname==null)||(cadnname=="")) {
@@ -103,8 +106,6 @@ public class PendingCertDetailsServlet extends  HttpServlet
 					      ConfigParserService.class,
 					      null);
       caPolicy = configParser.getCaPolicy(cadnname);
-      nodeConfiguration = new NodeConfiguration(cadnname);
-    
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
 				       caPolicy.ldapType, caPolicy.ldapURL);
@@ -126,11 +127,13 @@ public class PendingCertDetailsServlet extends  HttpServlet
     X509Certificate  certimpl;
     try {
 
+      String certpath=secprop.getProperty(secprop.CA_CERTPATH);
       PendingCertCache pendingCache =
 	PendingCertCache.getPendingCache(cadnname,
+					 role, certpath,
 					 support.getServiceBroker());
       certimpl = (X509Certificate)pendingCache.getCertificate(
-        nodeConfiguration.getPendingDirectoryName(cadnname), alias);
+        caPolicy.pendingDirectory, alias);
     }
     catch (Exception exp) {
       out.println("error-----------  "+exp.toString());
@@ -140,7 +143,7 @@ public class PendingCertDetailsServlet extends  HttpServlet
     }
 
     String uri = req.getRequestURI();
-    String certApprovalUri = uri.substring(0, uri.lastIndexOf('/')) + "/ProcessPendingCertServlet";
+    String certApprovalUri = uri.substring(0, uri.lastIndexOf('/')) + "/processpending";
 
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
@@ -153,7 +156,6 @@ public class PendingCertDetailsServlet extends  HttpServlet
 		certApprovalUri + "\" method=\"post\">");
     out.println("<input type=\"hidden\" name=\"alias\" value=\""
 		+ alias+"\">");
-    /*
     if((role==null)||(role=="")) {
       if (debug) {
 	System.out.println("got role as null or empty in certificate details:::::++++");
@@ -162,13 +164,49 @@ public class PendingCertDetailsServlet extends  HttpServlet
     else {
       out.println("<input type=\"hidden\" name=\"role\" value=\""+role+"\">");
     }
-    */
     out.println("<input type=\"hidden\" name=\"cadnname\" value=\""+cadnname+"\">");
     out.println("<p>");
     out.println("<p>");
+    out.println("<b>Version&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getVersion());
+    out.println("<br>");
+    out.println("<b>Subject&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSubjectDN().getName());
+    out.println("<br>");
+    out.println("<b>Signature Algorithm &nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSigAlgName()+ ",<b>&nbsp;OID&nbsp; :</b>"+certimpl.getSigAlgOID());
+    out.println("<br>");
+    out.println("<b>Key&nbsp;&nbsp;&nbsp;:</b>"
+		+ CertificateUtility.toHexinHTML(certimpl.getPublicKey().getEncoded()));
+    out.println("<br>");
+    out.println("<b>Validity&nbsp;&nbsp;&nbsp;:</b>");
+    out.println("<br>");
+    out.println("<b>&nbsp;&nbsp;&nbsp;From &nbsp;:</b>"+certimpl.getNotBefore().toString());
+    out.println("<br>");
+    out.println("<b>&nbsp;&nbsp;&nbsp;To &nbsp;:</b>"+certimpl.getNotAfter().toString());
+    out.println("<br>");
+    out.println("<b>Issuer&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getIssuerDN().getName());
+    out.println("<br>");
+    out.println("<b>Serial No &nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSerialNumber());
+    out.println("<br>");
 
-    CertificateUtility.printCertificateDetails(out, certimpl);
-   
+    out.println("<b>Key Usage &nbsp;&nbsp;&nbsp;:</b>");
+    String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
+    if(s != null) {
+      try {
+        KeyUsageExtension keyusageextension =
+          (KeyUsageExtension)((X509CertImpl)certimpl).get(s);
+        if (keyusageextension != null)
+          out.println(keyusageextension.toString());
+      } catch (CertificateParsingException ex) {
+        out.println("Failed to get key usage. " + ex.toString());
+      }
+    }
+    out.println("<br>");
+
+    out.println("<b>Algorithm&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getPublicKey().getAlgorithm());
+    out.println("<br>");
+    out.println("<b>Signature &nbsp;&nbsp;&nbsp;:</b>"
+		+ CertificateUtility.toHexinHTML(certimpl.getSignature()));
+    out.println("<br>");
+    out.println("<br>");
     out.println("<br>");
     out.println("<input type=\"submit\" name=\"actiontype\" value=\"Approve Certificate \">");
     out.println("<input type=\"submit\" name=\"actiontype\" value=\"Deny Certificate \">");
