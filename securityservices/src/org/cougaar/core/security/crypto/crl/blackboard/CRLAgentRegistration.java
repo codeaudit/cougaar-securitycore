@@ -33,6 +33,12 @@ public class CRLAgentRegistration implements Serializable,Publishable{
   public  String dnName;
   public String ldapURL;
   public int ldapType;
+
+  public CRLAgentRegistration(String dnname) {
+    dnName=dnname;
+    ldapURL=null;
+    ldapType=-1;
+  }
   
   public CRLAgentRegistration(String dnname, String ldapurl,int ldaptype){
     dnName=dnname;
@@ -51,7 +57,9 @@ public class CRLAgentRegistration implements Serializable,Publishable{
     if(ldapURL!=null){
       buffer.append("ldapurl="+ldapURL+"\n");
     }
-    buffer.append("ldapType="+ldapType+"\n");
+    if(ldapType>-1){
+      buffer.append("ldapType="+ldapType+"\n");
+    }
     return buffer.toString();
   }
 
