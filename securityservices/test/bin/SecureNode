@@ -40,7 +40,7 @@ if ($user eq 'ychen') {
   $httpsport=9800;
 }
 
-@convertFrom = ( '/mnt/shared/integ92',
+@convertFrom = ( '/mnt/shared/integ',
                  'asmt',
                  '5557',
                  '6557',

@@ -22,6 +22,15 @@
     </layout>
   </appender>
 
+  <appender name="FileFailureAppender" class="org.apache.log4j.FileAppender">
+    <param name="File" value="node.log"/>
+    <param name="Append" value="false" />
+    <layout class="org.apache.log4j.HTMLLayout"/>
+    <filter class="org.apache.log4j.varia.StringMatchFilter">
+      <param name="" value=""/>
+    </filter>
+  </appender>
+
   <appender name="SocketAppender" class="org.apache.log4j.net.SocketAppender">
      <param name="RemoteHost" value="localhost"/>
      <param name="Port" value="5000"/>
@@ -32,13 +41,14 @@
   </appender>
 	
   <category name="org.cougaar.core.security">
-     <priority value="warn" class="org.cougaar.core.security"/>
+     <priority value="warn"/>
      <param name="Suffix"   value=" (Freedom as in the capacity to exercise choice.)"/>
+     <appender-ref ref="FileHtmlWarnAppender" />
   </category>
 	
   <root>
-    <priority value ="warn"/>
-    <appender-ref ref="FileAppender" />
+    <priority value ="debug"/>
+    <appender-ref ref="FileHtmlDebugAppender" />
   </root>
 
 </log4j:configuration>

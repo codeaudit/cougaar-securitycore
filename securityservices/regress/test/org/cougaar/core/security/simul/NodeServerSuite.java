@@ -417,20 +417,29 @@ public class NodeServerSuite
     userDir = System.getProperty("user.dir");
     Assert.assertNotNull("Unable to get user dir", userDir);
 
+    String jarFiles = "";
     String jarFile1 = getCanonicalPath(classPath + File.separator + "junitTests.jar");
-
     String jarFile2 = getCanonicalPath(System.getProperty("org.cougaar.install.path")
-						       + File.separator
-						       + "sys" + File.separator + "junit.jar");
-    String jarFile3 = getCanonicalPath(System.getProperty("org.cougaar.install.path")
-						       + File.separator
-						       + "sys" + File.separator + "httpunit.jar");
-    String jarFile4 = getCanonicalPath(System.getProperty("org.cougaar.install.path")
-						       + File.separator
-						       + "sys" + File.separator + "Tidy.jar");
-    String commandLine = "/usr/bin/ssh " + tcc.getHostName()
-      + " " + System.getProperty("java.home") + File.separator + "bin" + File.separator
-      + "java -classpath " + jarFile1 + ":" + jarFile2 + ":" + jarFile3 + ":" + jarFile4;
+				       + File.separator
+				       + "sys" + File.separator + "junit.jar");
+    jarFiles = addJarFile(jarFiles, jarFile1);
+    jarFiles = addJarFile(jarFiles, jarFile2);
+    jarFiles = addJarFile(jarFiles,
+			  System.getProperty("org.cougaar.install.path")
+			  + File.separator
+			  + "sys" + File.separator + "httpunit.jar");
+    jarFiles = addJarFile(jarFiles,
+			  System.getProperty("org.cougaar.install.path")
+			  + File.separator
+			  + "sys" + File.separator + "Tidy.jar");
+    jarFiles = addJarFile(jarFiles,
+			  System.getProperty("org.cougaar.install.path")
+			  + File.separator
+			  + "sys" + File.separator + "log4j.jar");
+    
+    String commandLine = "/usr/bin/ssh " + tcc.getHostName() + " " +
+      System.getProperty("java.home") + File.separator + "bin" + File.separator
+      + "java -classpath " + jarFiles;
 
     Properties props = (Properties)System.getProperties().clone();
     // Override some properties
@@ -500,6 +509,16 @@ public class NodeServerSuite
       e.printStackTrace();
       Assert.fail("Unable to start RMI server on " + tcc.getHostName());
     }
+  }
+
+  private String addJarFile(String path, String jarfile) {
+    if (path.length() != 0) {
+      path = path + ":" + getCanonicalPath(jarfile);
+    }
+    else {
+      path = getCanonicalPath(jarfile);
+    }
+    return path;
   }
 
   private void killRmiServers() {

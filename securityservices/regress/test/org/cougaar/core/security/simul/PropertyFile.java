@@ -110,7 +110,12 @@ public class PropertyFile
     return props;
   }
 
-  public void readPropertiesFile(NodeConfiguration tcc) {
+  /**
+   *  Read a configuration file containing java properties
+   *  @param tcc the configuration of a Cougaar node.
+   *  @param socketLogPort the port number of a log4j socket appender.
+   */
+  public void readPropertiesFile(NodeConfiguration tcc, int socketLogPort) {
     File f = findPropertiesFile(tcc.getPropertyFile());
     if (f == null) {
       Assert.fail("Property file does not exist");
@@ -158,6 +163,9 @@ public class PropertyFile
 	    // Override Log4j configuration file
 	    propertyValue = tcc.getLog4jLogFile();
 	  }
+	  else if (property.equals("org.cougaar.core.logging.log4j.appender.SECURITY-SOCKET.port")) {
+	    propertyValue = String.valueOf(socketLogPort);
+	  }
 	  StringTokenizer st1 = new StringTokenizer(makeProperty(property, propertyValue, tcc));
 	  while (st1.hasMoreTokens()) {
 	    String arg = st1.nextToken();
@@ -199,7 +207,7 @@ public class PropertyFile
     }
 
     String convertFrom[] = {
-      "/mnt/shared/integ92",
+      "/mnt/shared/integ",
       "asmt",
       "5557",
       "6557",

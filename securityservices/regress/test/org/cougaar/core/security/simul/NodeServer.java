@@ -22,7 +22,6 @@
 
 package test.org.cougaar.core.security.simul;
 
-import junit.framework.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -31,11 +30,15 @@ import java.rmi.Naming;
 import java.rmi.RMISecurityManager;
 import java.rmi.registry.LocateRegistry;
 
+import junit.framework.*;
+import org.apache.log4j.net.*;
+
 public class NodeServer
   extends java.rmi.server.UnicastRemoteObject
   implements RemoteControl
 {
   private static int rmiRegistryPort;
+  private static int nextLog4jSocketPort = 11000;
 
   public NodeServer()
     throws java.rmi.RemoteException {
@@ -67,9 +70,7 @@ public class NodeServer
     String commandLine;
     File nodeStartupDirectory;
     String resultPath;
-    String junitConfigPath;
     PropertyFile propertyFile;
-
 
     System.out.println("NodeServer.startNode");
     String args[] = tcc.getNodeArguments();
@@ -90,11 +91,12 @@ public class NodeServer
       Assert.fail("Unable to go to " + nodeStartupDirectory.getPath());
     }
 
-    junitConfigPath = System.getProperty("org.cougaar.junit.config.path");
-    Assert.assertNotNull("Unable to get org.cougaar.junit.config.path", junitConfigPath);
 
+    propertyFile.readPropertiesFile(tcc, nextLog4jSocketPort);
 
-    propertyFile.readPropertiesFile(tcc);
+    // Start log4j SocketServer
+    startLog4jSocketServer(nextLog4jSocketPort);
+    nextLog4jSocketPort++;
 
     // Construct command array
     propertyFile.getProperties().add(0, propertyFile.getJavaBin());
@@ -214,6 +216,24 @@ public class NodeServer
       System.out.println("NodeImpl err: " + e.getMessage());
       e.printStackTrace();
     }
+  }
+
+  private void startLog4jSocketServer(final int portNumber) {
+    System.out.println("Starting simple socket server thread");
+    Thread socketServer = new Thread() {
+	public void run() {
+	  String junitConfigPath;
+	  junitConfigPath = System.getProperty("org.cougaar.junit.config.path");
+	  Assert.assertNotNull("Unable to get org.cougaar.junit.config.path", junitConfigPath);
+	  String configFile = "loggingConfig.xml";
+	  String args[] = new String[2];
+	  args[0] = String.valueOf(portNumber);
+	  args[1] = junitConfigPath + File.separator + configFile;
+	  System.out.println("Starting simple socket server");
+	  SimpleSocketServer.main(args);
+	}
+      };
+    socketServer.start();
   }
 
   /** Create an RMI registry.
