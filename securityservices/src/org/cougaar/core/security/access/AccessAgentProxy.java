@@ -238,8 +238,8 @@ public class AccessAgentProxy
     Directive[] oldDirective = msg.getDirectives();
     if(oldDirective.length == 1){
       msg.setDirectives(new Directive[0]);
-      if(debug)
-	System.out.println("WARNING: removing last directive.");
+      //if(debug)
+	//System.out.println("WARNING: removing last directive.");
       return true;
     }
     
@@ -254,9 +254,9 @@ public class AccessAgentProxy
     }
     msg.setDirectives(newDirective);
     
-    if(debug)
-      System.out.println("WARNING: removed IN directive " +
-			 index);
+    //if(debug)
+      //System.out.println("WARNING: removed IN directive " +
+			 //index);
     return false;
   }//removeDirective
  
@@ -265,31 +265,31 @@ public class AccessAgentProxy
    * @param direction true: incoming message. false: outgoing message.
    */
   private static void checkMessage(Message msg, boolean direction) {
-    if (debug) {
-      System.out.println("Checking message:" + msg.getClass().toString());
-    }
+    //if (debug) {
+      //System.out.println("Checking message:" + msg.getClass().toString());
+    //}
     if(msg instanceof MessageWithTrust) {
-      System.out.println("MessageWithTrust  message:"+msg.toString());
-      System.out.println(direction ?"incomming message" :"outgoingMessage"); 
+      //System.out.println("MessageWithTrust  message:"+msg.toString());
+      //System.out.println(direction ?"incomming message" :"outgoingMessage"); 
       if(msg instanceof DirectiveMessage) {
-	if(debug)
-	  System.out.println("Doing the check in DirectiveMessage of  checkMessage:");
+	//if(debug)
+	  //System.out.println("Doing the check in DirectiveMessage of  checkMessage:");
 	Directive directive[] =
 	  ((DirectiveMessage)msg).getDirectives();
 	int len = directive.length;
 	for(int i = 0; i < len; i++) {
-	  if (debug) {
-	    System.out.println("Directive[" + i + "]:"
-			       + directive[i].getClass().toString());
-	  }
+	  //if (debug) {
+	    //System.out.println("Directive[" + i + "]:"
+			//       + directive[i].getClass().toString());
+	  //}
 	  if(!(directive[i] instanceof Task))
 	    continue;
 	  Task task = (Task)directive[i];
 	  String address = null;
 	  boolean match = false;
-	  if(debug) {
-	    System.out.println("Processing task " + task.getVerb());
-	  }
+	  //if(debug) {
+	    //System.out.println("Processing task " + task.getVerb());
+	  //}
 
 	  match = matchVerb(task.getSource().toString(),
 			    task.getDestination().toString(),
@@ -307,10 +307,10 @@ public class AccessAgentProxy
 	// Silently ignore these messages
       }
       else {
-	if (debug) {
-	  System.out.println("Warning: unexpected message. Message Class:"
-			     + msg.getClass().getName());
-	}
+	//if (debug) {
+	  //System.out.println("Warning: unexpected message. Message Class:"
+			    // + msg.getClass().getName());
+	//}
 	/* For test purposes only 
 	   if (msg instanceof MoveCryptoMessage && direction) {
 	   MoveCryptoMessage m = (MoveCryptoMessage) msg;
@@ -325,10 +325,10 @@ public class AccessAgentProxy
       }
     }
     else {
-      if (debug) {
-	System.out.println("Warning: unexpected message. Message Class:"
-			   + msg.getClass().getName());
-      }
+      //if (debug) {
+	//System.out.println("Warning: unexpected message. Message Class:"
+			   //+ msg.getClass().getName());
+      //}
     }
     
   }
@@ -346,16 +346,17 @@ public class AccessAgentProxy
       verbs = acps.getOutgoingVerbs(source, target);
     }
 
-    if( verbs[0].toString()=="*" ) {
-      if(debug) {
-	System.out.println("AccessControlProxy: got * verb, so blocking "
-			   +verb+" for " + source + "->" + target);
-      }
+    if( verbs[0].toString()=="NONE" ) {
+      //if(debug) {
+	//System.out.println("AccessControlProxy: got * verb, so blocking "
+			   //+verb+" for " + source + "->" + target);
+      //}
       return true;
     }
 
     if(verb == null || verbs.length == 0) {
-      //if(debug)System.out.println("AccessControlAspect: no out verbs for " 
+      //if(debug)
+      //System.out.println("AccessControlAspect: no out verbs for " 
       //			  + source + ", " + target + ", " + verb );
       return false;		// we have no policy so return
     }
@@ -370,8 +371,9 @@ public class AccessAgentProxy
       if (v==null) continue;
 
       if(verb.equals(v)) {
-	if(debug)System.out.println("AccessControlproxy: matched out verbs "
-				    + verbs[i] + " == " + verb);
+	//if(debug)
+        //System.out.println("AccessControlproxy: matched out verbs "
+				    //+ verbs[i] + " == " + verb);
 	return true;	// we found a match so return success
       }
     }
@@ -414,7 +416,8 @@ public class AccessAgentProxy
 	 msg.getTarget().toString());
     }
     catch(Exception ex) {
-      System.out.println("Warning: no msg outgoing trust for type = "
+      if(log.isDebugEnabled())
+      log.debug("Warning: no msg outgoing trust for type = "
 			 + msg.getClass());  
       return null;
     }
@@ -459,20 +462,20 @@ public class AccessAgentProxy
 	(msg.getOriginator().toString(), msg.getTarget().toString());
     }
     catch(Exception ex) {
-      System.out.println("Warning: no access control for message type "
+      if(log.isDebugEnabled())
+      log.debug("Warning: no access control for message type "
 			 + msg.getClass());
       return true;
     }
     if(action == null) {
-      if(debug) {
-	System.out.println("AccessControlProxy: no action(out) set");
-      }
+      if(log.isDebugEnabled())
+        log.debug("AccessControlProxy: no action(out) set");
       return true;
     }
 
-    if(debug) {
-      System.out.println("AccessControlProxy: action(out) = " + action);
-    }
+    if(log.isDebugEnabled())
+      log.debug("AccessControlProxy: action(out) = " + action);
+    
     if(msg instanceof DirectiveMessage)
       return outgoingAgentAction((DirectiveMessage)msg) &
 	action.equals(AccessControlPolicy.ACCEPT);
@@ -503,7 +506,8 @@ public class AccessAgentProxy
 	i--;
       }
     }
-    if(debug)System.out.println("AccessControlProxy: DirectiveMessage now contains " + 
+  if(log.isDebugEnabled())
+    log.debug("AccessControlProxy: DirectiveMessage now contains " + 
 				msg.getDirectives().length + 
 				" directives.");
     //return (msg.getDirectives().length > 0);
@@ -521,19 +525,19 @@ public class AccessAgentProxy
       act = acps.getOutgoingAction(msgOrigin, trustValue);
     }
     catch(Exception ex) {
-      System.out.println("AccessControlProxy: Warning: no access control for msg"
+      if(log.isDebugEnabled())
+        log.debug("AccessControlProxy: Warning: no access control for msg"
 			 + msg);
       return true;
     }
     if(act == null) {
-      if(debug) {
-	System.out.println("AccessControlProxy: No action(out) set");
-      }
+      if(log.isDebugEnabled())
+        log.debug("AccessControlProxy: No action(out) set");
+      
       return true;
     }
-    if(debug) {
-      System.out.println("AccessControlProxy: action(out) = " + act);
-    }
+      if(log.isDebugEnabled())
+        log.debug("AccessControlProxy: action(out) = " + act);
     
     return (!act.equals(AccessControlPolicy.SET_ASIDE));
   }
@@ -549,7 +553,8 @@ public class AccessAgentProxy
 	(msg.getOriginator().toString(), msg.getTarget().toString());
     }
     catch(Exception ex) {
-      System.out.println("Warning: no msg incoming trust for type = "
+      if(log.isDebugEnabled())
+        log.debug("Warning: no msg incoming trust for type = "
 			 + msg.getClass());  
       return;
     }
@@ -593,11 +598,13 @@ public class AccessAgentProxy
 	(msg.getOriginator().toString(), msg.getTarget().toString());
     }
     catch(Exception ex) {
-      System.out.println("Warning: no access control for message type "
+      if(log.isDebugEnabled())
+        log.debug("Warning: no access control for message type "
 			 + msg.getClass());
       return true;
     }
-    if(debug)System.out.println("AccessControlProxy: action(in) = "
+    if(log.isDebugEnabled())
+      log.debug("AccessControlProxy: action(in) = "
 				+ action);
     if(action == null)
       return true;
@@ -616,8 +623,8 @@ public class AccessAgentProxy
     for(int i = 0; i < len; i++) {
       if(!(directive[i] instanceof Task))
 	continue;
-      if(debug)System.out.println("AccessControlProxy: processing in task "
-				  + i);
+    if(log.isDebugEnabled())
+      log.debug("AccessControlProxy: processing in task " + i);
       Task task = (Task)directive[i];
       action = acps.getIncomingAgentAction
 	(task.getSource().toString(), task.getDestination().toString());
@@ -642,12 +649,13 @@ public class AccessAgentProxy
 	 (String)t.getAttribute(MissionCriticality.name).getValue());
     }
     catch(Exception ex) {
-      System.out.println("Warning: no access control for message" + msg);
+      if(log.isDebugEnabled())
+        log.debug("Warning: no access control for message" + msg);
       return true;
     }
     if(debug) {
-      System.out.println("AccessControlProxy: action(in) = "
-			 + action);
+      if(log.isDebugEnabled())
+        log.debug("AccessControlProxy: action(in) = "	 + action);
     }
     if(action == null)
       return true;
