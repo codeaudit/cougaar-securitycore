@@ -9,6 +9,8 @@ society.each_node do |node|
     c.insertionpoint = "Node.AgentManager.Agent.MessageTransport.Aspect"
     c.priority = "INTERNAL"
     c.classname = plugin
-    c.order = 120
+    if defined? c.order
+      c.order = 120
+    end
   end
 end
