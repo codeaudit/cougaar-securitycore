@@ -1,6 +1,6 @@
 =begin experiment
 
-name: The-MOAS
+name: The-MOAS-Migration-No-Kills
 group: Stress
 description: baseline integrated ur restore run 
 script: $CIP/csmart/scripts/definitions/RestoreTemplate.rb
