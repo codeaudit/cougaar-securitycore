@@ -885,7 +885,7 @@ public class SecurityAspect extends StandardAspect
 
       }
 
-      for(i = index + 1; i < oldDirective.length; i++) {
+      for(i = index ; i < oldDirective.length; i++) {
 
 	newDirective[i] = oldDirective[i + 1];
 
@@ -1480,7 +1480,7 @@ public class SecurityAspect extends StandardAspect
 
       }
 
-      for(i = index + 1; i < oldDirective.length; i++) {
+      for(i = index; i < oldDirective.length; i++) {
 
 	newDirective[i] = oldDirective[i + 1];
 
