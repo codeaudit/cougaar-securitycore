@@ -181,11 +181,12 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
 	    */
 	    mapping=findQueryMappingFromBB(relay.getUID(),querymapping_col);
 	    if(mapping!=null) {
-	      /*if(mapping.isResultPublished()) {
-		loggingService.debug("Relay received has a mapping object with result published as true :" +mapping.toString());
-		continue;
+	      if(mapping.isResultPublished()) {
+		if (loggingService.isDebugEnabled())  {
+		  loggingService.debug("Relay received has a mapping object with result published as true :" +mapping.toString());
 		}
-	      */
+		continue;
+	      }
 	      ArrayList list=mapping.getQueryList(); 
 	      OutStandingQuery outstandingquery;
 	      boolean modified=false;
@@ -449,7 +450,7 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     }
     Iterator iter = relaycollection.iterator();
     if(iter==null) {
-       return null;
+      return null;
     }
     while(iter.hasNext()) {
       relay=(CmrRelay)iter.next();
