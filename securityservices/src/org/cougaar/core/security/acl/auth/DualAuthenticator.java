@@ -73,6 +73,7 @@ public class DualAuthenticator extends ValveBase {
   LoginConfig       _loginConfig = new LoginConfig();
   Context           _context     = null;
   HashMap           _constraints = new HashMap();
+  HashMap           _starConstraints = new HashMap();
   long              _failSleep   = 1000;
   HashSet           _agentList   = new HashSet();
 
@@ -304,9 +305,11 @@ public class DualAuthenticator extends ValveBase {
    *                    "EITHER" to not have any password requirements beyond
    *                    what is required by the role-based constraints.
    */
-  public synchronized void setAuthConstraints(Map constraints) {
+  public synchronized void setAuthConstraints(Map constraints, 
+                                              Map starConstraints) {
     _agentList.clear();
     _constraints = new HashMap(constraints);
+    _starConstraints = new HashMap(starConstraints);
   }
 
   /**
@@ -327,30 +330,46 @@ public class DualAuthenticator extends ValveBase {
     return CONST_NONE;
   }
 
+  private static boolean checkMatch(String path, String wildPath) {
+    if (wildPath.startsWith("*")) {
+      return path.endsWith(wildPath.substring(1));
+    } else if (wildPath.endsWith("*")) {
+      return path.startsWith(wildPath.substring(0,wildPath.length()-1));
+    } else {
+      return path.equals(wildPath);
+    }
+  }
+
   private synchronized int getConstraint(String path) {
     int constraint = 0;
-    Iterator iter = _constraints.entrySet().iterator();
-    while (iter.hasNext()) {
-      Map.Entry entry = (Map.Entry) iter.next();
-      String wildPath = (String) entry.getKey();
-      boolean match;
-
-      if (wildPath.startsWith("*")) {
-        match = path.endsWith(wildPath.substring(1));
-      } else if (wildPath.endsWith("*")) {
-        match = path.startsWith(wildPath.substring(0,wildPath.length()-1));
-      } else {
-        match = path.equals(wildPath);
-      }
-      if (match) {
-        String type = (String) entry.getValue();
-        constraint |= convertConstraint(type);
-        if ((constraint & CONST_BOTH) == CONST_BOTH) {
-          return constraint;
+    HashMap checkAgainst = _constraints;
+    do {
+      Iterator iter = checkAgainst.entrySet().iterator(); 
+      while (iter.hasNext()) {
+        Map.Entry entry = (Map.Entry) iter.next();
+        String wildPath = (String) entry.getKey();
+        boolean match = checkMatch(path,wildPath);
+        
+        if (match) {
+          String type = (String) entry.getValue();
+          constraint |= convertConstraint(type);
+          if ((constraint & CONST_BOTH) == CONST_BOTH) {
+            return constraint;
+          }
         }
       }
-    }
-    return constraint;
+      
+      if (checkAgainst == _starConstraints) {
+        return constraint; // only go through twice
+      }
+
+      int index = 0;
+      if (!path.startsWith("/$") || (index = path.indexOf("/", 2)) == -1) {
+        return constraint;
+      }
+      path = path.substring(index);
+      checkAgainst = _starConstraints;
+    } while (true);
   }
 
   private static AuthenticatorBase getAuthenticator(Class authClass) {

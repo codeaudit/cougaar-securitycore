@@ -65,6 +65,7 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
   DualAuthenticator _daValve = null;
 
   HashMap             _authConstraints;
+  HashMap             _starAuthConstraints;
   SecurityConstraint  _constraints[];
   HashSet             _roles;
   long                _sleepTime = 1000;
@@ -92,14 +93,16 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
 
   public synchronized void setDualAuthenticator(DualAuthenticator da) {
     _daValve = da;
-    _daValve.setAuthConstraints(_authConstraints);
+    _daValve.setAuthConstraints(_authConstraints, _starAuthConstraints);
   }
   
-  public synchronized void setAuthConstraints(HashMap constraints) {
+  public synchronized void setAuthConstraints(HashMap constraints, 
+                                              HashMap starConstraints) {
     if (_daValve == null) {
       _authConstraints = constraints;
+      _starAuthConstraints = starConstraints;
     } else {
-      _daValve.setAuthConstraints(constraints);
+      _daValve.setAuthConstraints(constraints, starConstraints);
     }
   }
 
@@ -228,6 +231,7 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
       List rules = policy.getRules();
       Iterator iter = rules.iterator();
       HashMap authConstraints = new HashMap();
+      HashMap starAuthConstraints = new HashMap();
       HashSet roles = new HashSet();
       while (iter.hasNext()) {
         ServletPolicy.ServletPolicyRule rule = 
@@ -255,13 +259,17 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
           sc.addPattern(pattern);
 
           if (rule.auth != null) {
-            authConstraints.put(pattern,rule.auth);
+            if ("*".equals(rule.agentName)) {
+              starAuthConstraints.put(pattern,rule.auth);
+            } else {
+              authConstraints.put(pattern,rule.auth);
+            }
           }
         }
         constraint.addCollection(sc);
         constraints.add(constraint);
       }
-      setAuthConstraints(authConstraints);
+      setAuthConstraints(authConstraints,starAuthConstraints);
       setSecurityConstraints(constraints,roles);
     }
   }
