@@ -39,7 +39,6 @@ import org.cougaar.core.agent.ClusterMessage;
 import org.cougaar.core.node.NodeIdentificationService;
 
 // Cougaar security services
-import com.nai.security.access.AccessControlPolicyService;
 import com.nai.security.access.IntegrityAttribute;
 import com.nai.security.access.MissionCriticality;
 import com.nai.security.access.TrustSet;
@@ -95,12 +94,23 @@ public class CryptoAspect extends StandardAspect
 	  serviceBroker.getService(this, EncryptionService.class, null);
 	cps = (CryptoPolicyService)
 	  serviceBroker.getService(this, CryptoPolicyService.class, null);
+	if (cms == null) {
+	  System.out.println("Unable to get Encryption service");
+	  throw new RuntimeException("Crypto Aspect. No encryption service");
+	}
+	if (cps == null) {
+	  System.out.println("Unable to get crypto policy service");
+	  throw new RuntimeException("Crypto Aspect. No crypto policy service");
+	}
+
       }
       catch(Exception e){
+	System.out.println("CryptoAspect error: Unable to get sub services");
 	throw new RuntimeException("failed to initialize security Aspect:"
 				   +e.toString());
       }
     } else {
+      System.out.println("CryptoAspect error: Unable to get service broker");
       throw new
 	RuntimeException("CryptoAspect init: No service broker");
     }

@@ -80,7 +80,8 @@ public class SecurityServiceProvider
 			   Object requestor, 
 			   Class serviceClass) {
     if (CryptoDebug.debug) {
-      System.out.println("Security Service Request: " + requestor.getClass().getName()
+      System.out.println("Security Service Request: "
+			 + requestor.getClass().getName()
 			 + " - " + serviceClass.getName());
     }
     ServiceProvider servMgr = (ServiceProvider) services.get(serviceClass);
