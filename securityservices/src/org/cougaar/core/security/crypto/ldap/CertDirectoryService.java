@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -47,7 +47,7 @@ import org.cougaar.core.security.services.util.ConfigParserService;
  *              Defines acceptable attributes for DNs
  *  - RFC 1779: A string representation of distinguished names
  *  - RFC 2253: UTF-8 string representation of distinguished names
- *  - RFC 1274: 
+ *  - RFC 1274:
  */
 public abstract class CertDirectoryService
 {
@@ -68,13 +68,13 @@ public abstract class CertDirectoryService
   protected static final int RETRY_TIMEOUT = 100;
 
   protected String ldapServerUrl;
-  
+
   protected int ldaptype;
   /* protected DirContext context;
   protected DirContext initialContext;
   */
   protected boolean initializationOK = false;
-  protected static String CONTEXT_FACTORY = 
+  protected static String CONTEXT_FACTORY =
     "com.sun.jndi.ldap.LdapCtxFactory";
   protected ServiceBroker serviceBroker;
   protected LoggingService log;
@@ -92,18 +92,18 @@ public abstract class CertDirectoryService
 
   protected  class ContextHolder {
     /** Time after which LDAP connection is automatically closed. */
-    private int _timeToSleep = 10 * 1000; 
+    private int _timeToSleep = 10 * 1000;
     protected DirContext _context;
     private boolean _connectionClosed = true;
     private CloseConnectionTask _closeConnectionTask = new CloseConnectionTask();
     private Timer _timer = new Timer();
     private Hashtable _config;
- 
+
     private class CloseConnectionTask extends TimerTask {
       public void run() {
 	try {
 	  synchronized(_contextLock) {
-	    _context.close();  
+	    _context.close();
 	    _connectionClosed = true;
 	  }
 	}
@@ -177,7 +177,7 @@ public abstract class CertDirectoryService
       }
     }
   }
-  
+
   /** Creates new CertDirectoryService */
   public CertDirectoryService(CertDirectoryServiceRequestor requestor, ServiceBroker sb)
     throws javax.naming.NamingException
@@ -199,7 +199,7 @@ public abstract class CertDirectoryService
       if (log.isDebugEnabled()) {
 	log.debug("Creating Directory Service for " + url);
       }
-      
+
       if (url != null) {
 	// Create a subcontext in LDAP if it does not exist.
 	int slash = url.lastIndexOf("/");
@@ -210,7 +210,7 @@ public abstract class CertDirectoryService
 	  String baseURL = url.substring(0, slash);
 	  setDirectoryServiceURL(baseURL);
 	  env=initDirectoryService(requestor.getCertDirectoryPrincipal(),
-				   requestor.getCertDirectoryCredential()); 
+				   requestor.getCertDirectoryCredential());
 	  contextHolder = new ContextHolder(env);
 	  createDcObjects(dn);
 	}
@@ -246,7 +246,7 @@ public abstract class CertDirectoryService
   public int getDirectoryServiceType() {
     return ldaptype;
   }
-    
+
   /**
    * Construct a URL to the LDAP certificate directory.
    * ldap://host:port/dccomponents
@@ -289,16 +289,16 @@ public abstract class CertDirectoryService
       }
     }
     ldapServerUrl=bURL;
-      
+
   }
-    
+
   protected Hashtable  initDirectoryService(String principal, String credentials) {
     Hashtable env = new Hashtable();
     env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
     env.put(Context.PROVIDER_URL,ldapServerUrl);
     if (useSSL) {
       env.put(Context.SECURITY_PROTOCOL, "ssl");
-      env.put("java.naming.ldap.factory.socket", 
+      env.put("java.naming.ldap.factory.socket",
 	      "org.cougaar.core.security.ssl.KeyRingSSLFactory");
     }
     if((principal!=null)&&(credentials!=null)) {
@@ -309,7 +309,7 @@ public abstract class CertDirectoryService
   }
 
 
-  private void createDcObjects(String dn) 
+  private void createDcObjects(String dn)
     throws NamingException {
     if (dn == null) return;
     ArrayList names = new ArrayList();
@@ -327,9 +327,9 @@ public abstract class CertDirectoryService
 	vals.add(dn.substring(eqIndex+1, commaIndex));
       }
     } while (commaIndex != -1);
-   
+
     int firstAvailable = -1;
-    
+
     synchronized(_contextLock) {
       DirContext context = null;
       try {
@@ -342,7 +342,7 @@ public abstract class CertDirectoryService
       for (int i = 0; i < dns.size() && firstAvailable == -1; i++) {
 	try {
 	  // check if the object exists:
-       
+
 	  Attributes attrs =null;
 	  attrs= context.getAttributes((String) dns.get(i));
 	  if (attrs != null) {
@@ -353,21 +353,21 @@ public abstract class CertDirectoryService
 	  log.warn("Unable to get the DNS attributes:" + e);
 	}
       }
-   
+
       if (firstAvailable == -1) {
 	firstAvailable = dns.size();
       }
-   
+
       for (int i = firstAvailable - 1; i >= 0; i--) {
 	if (log.isInfoEnabled()) {
-	  log.info("CA dn " + dns.get(i) + 
+	  log.info("CA dn " + dns.get(i) +
 		   " does not exist. Creating...");
 	}
 	BasicAttributes ba = new BasicAttributes();
 	Attribute objClass = new BasicAttribute("objectClass","dcObject");
 	objClass.add("organization");
 	ba.put(objClass);
-     
+
 	String name = (String) names.get(i);
 	String val  = (String) vals.get(i);
 	ba.put(name,val);
@@ -384,7 +384,7 @@ public abstract class CertDirectoryService
       }
     }
   }
- 
+
 /*
    for (int i = 0 ; i < MAX_RETRIES ; i++) {
       try {
@@ -393,10 +393,10 @@ public abstract class CertDirectoryService
 	env.put(Context.PROVIDER_URL, ldapServerUrl);
 	if (useSSL) {
 	  env.put(Context.SECURITY_PROTOCOL, "ssl");
-	  env.put("java.naming.ldap.factory.socket", 
+	  env.put("java.naming.ldap.factory.socket",
 		  "org.cougaar.core.security.ssl.KeyRingSSLFactory");
 	}
-      
+
 	context=new InitialDirContext(env);
 
 	initialContext = context;
@@ -414,7 +414,7 @@ public abstract class CertDirectoryService
     }
   }
 */
- 
+
 
   /** Return all the certificates that have a given common name.
    * It is up to the caller to verify the validity of the certificate. */
@@ -468,7 +468,7 @@ public abstract class CertDirectoryService
       }
       NamingEnumeration results=null;
       SearchControls constraints=new SearchControls();
-      
+
       constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
       constraints.setReturningAttributes(returnAttributes);
       if (log.isDebugEnabled()) {
@@ -500,7 +500,7 @@ public abstract class CertDirectoryService
 	log.debug("returning results for filter :"+filter);
       }
       return results;
-    } 
+    }
 
   /** Should be implemented by a class specialized for a particular
    *  Certificate Directory Service. */
@@ -512,7 +512,7 @@ public abstract class CertDirectoryService
     }
     return initializationOK;
   }
-    
+
   protected String toHex(byte[] data) {
     StringBuffer buff = new StringBuffer();
     for(int i = 0; i < data.length; i++) {
@@ -523,38 +523,11 @@ public abstract class CertDirectoryService
     return buff.toString();
   }
 
-  protected String getDigestAlgorithm(X509Certificate cert) {
-    String digestAlg = cert.getSigAlgName().substring(0,3);
-    return digestAlg;
-  }
-
-  protected String getHashValue(X509Certificate cert) {
-    MessageDigest certDigest;
-    byte[] der = null;
-    String hash = null;
-
-    // Use the prefix of the signature algorithm for creating a DN
-    // Acceptable values: SHA, MD2, MD4, MD5
-    try { 
-      certDigest = MessageDigest.getInstance(getDigestAlgorithm(cert));
-      der = cert.getTBSCertificate();
-      certDigest.reset();
-      certDigest.update(der);
-      hash = toHex(certDigest.digest());
-    }
-    catch(Exception ex) {
-      if(log.isDebugEnabled()) {
-	ex.printStackTrace();
-      }
-    }
-    return hash;
-  }
-
   public X509Certificate getCertificateInstance(String pem) {
     X509Certificate cert = null;
 
     try {
-      InputStream inStream = 
+      InputStream inStream =
 	new ByteArrayInputStream(Base64.decode(pem.toCharArray()));
       CertificateFactory cf = CertificateFactory.getInstance("X.509");
       cert = (X509Certificate)cf.generateCertificate(inStream);
@@ -590,7 +563,7 @@ public abstract class CertDirectoryService
 	name=context.getNameInNamespace();
 	log.debug("Directory (" + name + ") contains:");
 	NamingEnumeration list = context.list("");
-      
+
 	//NamingEnumeration list1 = initialContext.search("", null);
 
 	while (list.hasMore()) {

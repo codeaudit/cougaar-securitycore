@@ -26,6 +26,8 @@
 
 package org.cougaar.core.security.crypto;
 
+import sun.security.x509.*;
+
 // Cougaar core infrastructure
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
@@ -34,9 +36,7 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.security.policy.CryptoClientPolicy;
-import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.policy.*;
 
 public class CertDirectoryServiceRequestorImpl
   implements CertDirectoryServiceRequestor
@@ -52,9 +52,13 @@ public class CertDirectoryServiceRequestorImpl
     init(url, type, principal, credential, sb);
   }
 
-  public CertDirectoryServiceRequestorImpl(String url, int type, ServiceBroker sb, String caDn) {
+  /**
+   * Only url is needed, will match with existing ldap urls from CaPolicy
+   */
+  public CertDirectoryServiceRequestorImpl(String url, ServiceBroker sb) {
     String principal = null;
     String credential = null;
+    int type = 0;
 
     if (log == null) {
       log = (LoggingService) sb.getService(this, LoggingService.class, null);
@@ -67,20 +71,38 @@ public class CertDirectoryServiceRequestorImpl
       if (!configParser.isCertificateAuthority()) {
 	SecurityPolicy[] sp = configParser.getSecurityPolicies(CryptoClientPolicy.class);
 	CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
-	principal = cryptoClientPolicy.getTrustedCaPolicy()[0].certDirectoryPrincipal;
-	credential = cryptoClientPolicy.getTrustedCaPolicy()[0].certDirectoryCredential;
+
+        // for now, default to the first LDAP credential we find
+        // it should actually be searching for one that matches the URL
+        TrustedCaPolicy tc = cryptoClientPolicy.getTrustedCaPolicy()[0];
+	principal = tc.certDirectoryPrincipal;
+	credential = tc.certDirectoryCredential;
+        type = tc.certDirectoryType;
       }
       else {
-	if (caDn != null) {
+        X500Name [] caDNs = configParser.getCaDNs();
+	for (int i = 0; i < caDNs.length; i++) {
+          X500Name dname = caDNs[i];
+          String caDn = dname.getName();
+
 	  CaPolicy caPolicy = configParser.getCaPolicy(caDn);
 	  if (caPolicy == null) {
 	    log.info("Unable to get CA policy");
+            continue;
 	  }
 	  else {
 	    principal = caPolicy.ldapPrincipal;
 	    credential = caPolicy.ldapCredential;
+            type = caPolicy.ldapType;
 	  }
 	}
+
+        if (principal == null) {
+          if (log.isDebugEnabled()) {
+            log.debug("NO policy found for ldap URL " + url
+              + ", using default credentials.");
+          }
+        }
       }
     }
     catch (Exception e) {

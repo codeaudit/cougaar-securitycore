@@ -175,7 +175,7 @@ public class AgentIdentityServiceImpl
 	}
 	catch (Exception e) {
 	  if (log.isErrorEnabled()) {
-	    log.error("Unable to get DN: " + e);
+	    log.error("Unable to get DN: ", e);
 	  }
 	}
       }
@@ -198,7 +198,7 @@ public class AgentIdentityServiceImpl
        serviceBroker.getService(this,
 				CertificateCacheService.class,
 				null);
-     
+
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in release will not be able to remove entry from cache");
       return;
@@ -374,17 +374,17 @@ public class AgentIdentityServiceImpl
       serviceBroker.getService(this,
 			       CertificateCacheService.class,
 			       null);
-    
+
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in transferTo ,will not be able to remove entry from cache");
       return keyIdentity;
     }
     cacheservice.removeEntryFromCache(requestorAddress.toAddress());
-    
+
     if (log.isDebugEnabled()) {
       log.debug("Successfully returning KeyIdentity for " + requestorAddress.toAddress());
     }
-    
+
     return keyIdentity;
   }
 

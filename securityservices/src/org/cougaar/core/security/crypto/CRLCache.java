@@ -161,7 +161,7 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
       }
       throw new RuntimeException("Unable to get crypto Client policy");
     }
-    param = new DirectoryKeyStoreParameters();
+    //param = new DirectoryKeyStoreParameters();
     String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
     nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
     //param.keystorePath = nodeConfiguration.getNodeDirectory()
@@ -541,7 +541,7 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
       return;
     }
 
-    
+/*    
     // check whether it is specified in the policy
     CertDirectoryServiceClient certificateFinder =null;
     if(keyRingService!=null) {
@@ -555,15 +555,19 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
         log.debug("Get cert finder from status: " + certificateFinder);
     }
     // pretty much not found, check it is in the naming service
+*/
     
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
     crlIssuerPublickey=crlIssuerCert.getPublicKey();
+/*
     if(certificateFinder== null) {
       if(log.isWarnEnabled())
 	log.warn("No certificateFinder present in Directory keystore in update CRL :"+distingushname);
     }
+*/
     try {
-      crl=certificateFinder.getCRL(distingushname);
+      //crl=keyRingService.getCRL(distingushname);
+      crl = null;
     }
     catch (Exception e) {
       if (log.isWarnEnabled()) {
@@ -839,6 +843,9 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
     for (int i = 0; i < trustedcerts.length; i++) {
       certificate = trustedcerts[i];
       dnname=certificate.getSubjectDN().getName();
+      /*
+        This information is no longer required it is job of the search impl to figure out where to obtain certificate info from
+
       CertDirectoryServiceClient dirServiceClient= keyRingService.getCACertDirServiceClient(dnname);
       if(dirServiceClient!=null) {
 	log.debug("Adding Dn to CRL Cache  " + dnname + dirServiceClient.getDirectoryServiceURL()
@@ -846,14 +853,10 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
 	addToCRLCache(dnname,dirServiceClient.getDirectoryServiceURL(),dirServiceClient.getDirectoryServiceType());
       }
       else {
-	/*
-	log.debug("Adding Dn to CRL Cache  " + dnname + param.ldapServerUrl+param.ldapServerType) ;
-	addToCRLCache(dnname,param.ldapServerUrl,param.ldapServerType);
-	*/
-        if (log.isWarnEnabled()) {
-          log.warn("Failed to get CA CertDirService, CRL from " + dnname + " cannot be verified.");
-        }
-      }
+      */
+	log.debug("Adding Dn to CRL Cache  " + dnname) ;
+	addToCRLCache(dnname,null,0);
+      //}
     }
   }
 

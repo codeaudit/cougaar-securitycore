@@ -239,7 +239,9 @@ public class CRLGUIPlugin
 
   private void jCrlButtonMouseClicked(java.awt.event.MouseEvent evt) 
   {
-    Vector crllist=keyRing.getCRL();
+    //Vector crllist=keyRing.getCRL();
+    // the keyRing function does not do anything and has been removed
+    Vector crllist = new Vector();
     jCrlList.setListData(crllist);
   
   }

@@ -24,7 +24,7 @@
 package org.cougaar.core.security.crypto;
 
 import java.security.cert.*;
-import java.util.Date;
+import java.util.*;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -64,7 +64,11 @@ public class CertificateStatus
   private CertificateTrust certificateTrust;
   private ServiceBroker serviceBroker;
   private LoggingService log;
-  private CertDirectoryServiceClient certFinder;
+  /**
+   * Pointer reference to the issuer chain, element is CertificateStatus,
+   * starting from the first signer.
+   */
+  private X509Certificate [] certChain;
 
   public CertificateStatus(X509Certificate cert,
 			   boolean isValid,
@@ -97,6 +101,7 @@ public class CertificateStatus
     */
     // for multiple CA, CA cert cannot be treated as trusted automatically
     certificateTrust = trust;
+    certChain = new X509Certificate [] {cert};
   }
 
   /** Return true if the certificate is valid */
@@ -170,7 +175,7 @@ public class CertificateStatus
   public CertificateTrust getCertificateTrust() {
     return certificateTrust;
   }
-  
+
   public void setCertificateOrigin(CertificateOrigin origin) {
     certificateOrigin = origin;
   }
@@ -216,12 +221,12 @@ public class CertificateStatus
     return lastTimeSigningRequest;
   }
 
-  public void setCertFinder(CertDirectoryServiceClient certFinder) {
-    this.certFinder = certFinder;
+  public void setCertificateChain(X509Certificate [] chain) {
+    certChain = chain;
   }
 
-  public CertDirectoryServiceClient getCertFinder() {
-    return certFinder;
+  public X509Certificate [] getCertificateChain() {
+    return certChain;
   }
 
   public String toString()

@@ -52,7 +52,7 @@ public class AutoConfigPlugin extends ConfigPlugin {
     X500Name dname = null;
     try {
       String nodename = NodeInfo.getNodeName();
-      dname = new X500Name(DirectoryKeyStore.getX500DN(nodename,
+      dname = new X500Name(CertificateUtility.getX500DN(nodename,CertificateCache.CERT_TITLE_NODE,
         tcp.getCertificateAttributesPolicy()));
     } catch (IOException iox) {}
 

@@ -122,7 +122,7 @@ public class OpenLdapCertDirectoryServiceImpl
   /** Get a certificate given a SearchResult */
   public LdapEntry getCertificate(SearchResult result) {
     String bindingName = result.getName();
-    
+
     X509Certificate certificate = null;
     LdapEntry ldapEntry = null;
     String uniqueIdentifier = null;
@@ -145,9 +145,9 @@ public class OpenLdapCertDirectoryServiceImpl
     }
     // Check the revocation status of that certificate.
     status = getCertificateRevocationStatus(attributes);
-    
+
     uniqueIdentifier = getUniqueIdentifier(attributes);
-    
+
     if (log.isDebugEnabled()) {
       log.debug("look up:" + bindingName);
     }
@@ -362,10 +362,10 @@ public class OpenLdapCertDirectoryServiceImpl
       setLdapAttributes(cert, set, type,privatekey);
 
       // Set unique identifier
-      String dn = "uniqueIdentifier=" +
-	getDigestAlgorithm(cert) + "-" + getHashValue(cert);
+      String dn = "uniqueIdentifier=" + CertificateUtility.getUniqueIdentifier(cert);
+	//getDigestAlgorithm(cert) + "-" + getHashValue(cert);
       //String dn =  "cn=" + getHashValue(cert);
-      
+
       /* String pem_cert = null;
 	 pem_cert =
 	 CertificateUtility.base64encode(cert.getEncoded(),
@@ -509,7 +509,7 @@ public class OpenLdapCertDirectoryServiceImpl
 
     Attributes caAttributes=null;
     Attributes userAttributes=null;
-    
+
     synchronized(_contextLock) {
       DirContext context = contextHolder.getContext();
       caAttributes= context.getAttributes(caBindingName);
@@ -753,7 +753,7 @@ public class OpenLdapCertDirectoryServiceImpl
       log.debug("going to modify attribute in OpenLdap for user binding name :"+ bindingname_revokedcert);
     }
     synchronized(_contextLock) {
-      DirContext context = contextHolder.getContext(); 
+      DirContext context = contextHolder.getContext();
       context.modifyAttributes(bindingname_revokedcert,mit);
 
       byte[] crldata=crl.getEncoded();
@@ -944,7 +944,7 @@ public class OpenLdapCertDirectoryServiceImpl
     set.put(STATUS_ATTRIBUTE, "1");
 
     // Set Certificate hash
-    set.put(UID_ATTRIBUTE, getHashValue(cert));
+    set.put(UID_ATTRIBUTE, CertificateUtility.getHashValue(cert));
 
     // Set attributes from distinguished name.
     StringTokenizer parser = new StringTokenizer(cert.getSubjectDN().getName(), ",=");
@@ -978,8 +978,8 @@ public class OpenLdapCertDirectoryServiceImpl
    public String getLdapURL() {
     return getDirectoryServiceURL();
   }
-  
-  
+
+
   public String getModifiedTimeStamp(String dn) {
     log.debug("getModifiedTimeStamp in open ldap called ");
     String lastmodified=null;
@@ -1012,10 +1012,10 @@ public class OpenLdapCertDirectoryServiceImpl
     }
     log.debug("getModifiedTimeStamp in open ldap is returning  ");
     return  lastmodified;
-  } 
-    
+  }
+
   private String getLastModifiedTimeStamp(Attributes attributes) {
-    
+
     Attribute objectclassattribute=null;
     ByteArrayInputStream bais=null ;
     objectclassattribute=attributes.get(MODIFIEDTIMESTAMP);
@@ -1027,7 +1027,7 @@ public class OpenLdapCertDirectoryServiceImpl
       log.info(" cannot get last modified time stamp");
     }
     return modifiedtime;
-     
+
   }
 
 }
