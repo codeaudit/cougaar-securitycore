@@ -39,6 +39,7 @@ import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.StateModelException ;
+import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.planning.ldm.plan.*;
 import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
@@ -46,6 +47,7 @@ import org.cougaar.core.mts.*;
 import org.cougaar.core.agent.*;
 import org.cougaar.core.domain.RootFactory;
 import org.cougaar.core.domain.Factory;
+import org.cougaar.core.mts.MessageAddress;
 
 // Cougaar security services
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
@@ -78,6 +80,7 @@ class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
   }
 }
 
+//  This code is not required any more 
 class AgentRegistrationPredicate implements UnaryPredicate{
  public boolean execute(Object o) {
     boolean ret = false;
@@ -107,9 +110,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private LoggingService log;
 
   private int firstobject=0;
-  private MessageAddress mgrAddress;
+  private AttributeBasedAddress mgrAddress;
   private MessageAddress myAddress;
   
+  private String dest_community;
+  private Object param;  
+  private String mgrrole=null;
   /** Holds value of property loggingService. */
   private LoggingService loggingService;  
   
@@ -127,7 +133,15 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   public DomainService getDomainService() {
     return domainService;
   }
-        
+  
+    public void setParameter(Object o){
+    this.param=o;
+  }
+
+  public java.util.Collection getParameters() {
+    return (Collection)param;
+  }
+     
   
   /**
    * subscribe to tasks and programming assets
@@ -142,18 +156,35 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       log.debug("setupSubscriptions of CapabilitiesConsolidationPlug in called for "
 		+ myAddress.toAddress()); 
     }
+     Collection col=getParameters();
+    if(col.size()>2) {
+       log.debug("setupSubscriptions of CapabilitiesProcessingPlugin called  too many parameters :"); 
+    }
+    if(col.size()!=0){
+      String parameters[]=(String[])col.toArray(new String[0]);
+      mgrrole=parameters[0];
+      if(col.size()>1) {
+	dest_community=parameters[1];
+      }
+    }
     
+    
+    // System.out.println(" got Role as  in ccp%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"+role);
     //
     // This needs to be converted to make mgrAddress an AttributeBasedAddress.
     // For now, just send by name.
     //
+    /*
     String mgrName = "MRManager";
     Iterator params = getParameters().iterator();
     while (params.hasNext()) {
         String param = (String)params.next();
         mgrName = param;
     }
-    mgrAddress = new ClusterIdentifier(mgrName);
+    */
+    if(dest_community!=null)
+      mgrAddress=new AttributeBasedAddress(dest_community,"SecurityMnRManager",mgrrole);
+     //mgrAddress = new ClusterIdentifier(mgrrole);
 
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate());
     capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe(new ConsolidatedCapabilitiesRelayPredicate());
@@ -188,6 +219,18 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       log.debug(" Error Multiple complete capabilities object on blackboard in Capabilities Consolidation plugin !!!!!!!!!!!!!!!!!!! CONFUSION CONFUSION CONFUSION  RETURNIG !!!!!!!:");
       return;
     }
+   
+    ConsolidatedCapabilities myconsolidation=null;
+    if(mgrrole==null) {
+      Event ev=findEventFrom(myAddress);
+      if(ev!=null) {
+	myconsolidation=(ConsolidatedCapabilities)ev.getEvent();
+	System.out.println(" top consolidation is &&&&&&&&&&&&&&&&&&&&&&&&&:"+myconsolidation.toString());
+      }
+      else {
+	System.out.println(" top consolidation is &&&&&&&&&&&&&&&&&&&&&&&&&:  NULL NULL ");
+      }
+    }
 
     ConsolidatedCapabilities consCapabilities=null;
     CapabilitiesObject capabilitiesobject=null;
@@ -198,39 +241,44 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     Classification regclassifications[]=null;
     Enumeration keys=capabilitiesobject.keys();
     String key=null;
-	
-    while(keys.hasMoreElements()) {
-      key=(String)keys.nextElement();
-      log.debug(" KEY IN CAPABILITIES OBJECT IS :"+key);
-      registration=(RegistrationAlert)capabilitiesobject.get(key);
-      regclassifications=registration.getClassifications();
-      if(consclassifications==null){
-	//log.debug("consclassifications was null Creating one :"); 
-	consclassifications=new Classification[regclassifications.length];
-	System.arraycopy(regclassifications,0,consclassifications,0,regclassifications.length);
-	//printConsolidation(consclassifications," First one added after creating cons obj:");
-      }
-      else {
-	//log.debug("consclassifications was NOT NULL Consolidating !!!!!!!!!! :"); 
-	//printConsolidation(consclassifications," Already cons obj present before adding new %%%%%%%%%%%%%%%% :");
-	consclassifications=getConsolidatedClassification(regclassifications,consclassifications);
-	//printConsolidation(consclassifications," Already cons obj present added new $$$$$$$$$$$$$$$$$$ :");
-      }
+    if(mgrrole!=null) {
+      while(keys.hasMoreElements()) {
+	key=(String)keys.nextElement();
+	log.debug(" KEY IN CAPABILITIES OBJECT IS :"+key);
+	registration=(RegistrationAlert)capabilitiesobject.get(key);
+	regclassifications=registration.getClassifications();
+	if(consclassifications==null){
+	  //log.debug("consclassifications was null Creating one :"); 
+	  consclassifications=new Classification[regclassifications.length];
+	  System.arraycopy(regclassifications,0,consclassifications,0,regclassifications.length);
+	  printConsolidation(consclassifications," First one added after creating cons obj:");
+	}
+	else {
+	  log.debug("consclassifications was NOT NULL Consolidating !!!!!!!!!! :"); 
+	  printConsolidation(consclassifications," Already cons obj present before adding new %%%%%%%%%%%%%%%% :");
+	  consclassifications=getConsolidatedClassification(regclassifications,consclassifications);
+	  printConsolidation(consclassifications," Already cons obj present added new $$$$$$$$$$$$$$$$$$ :");
+	}
 	    
+      }
+      consCapabilities.setClassifications(consclassifications);
+      Analyzer analyzer=new Analyzer();
+      analyzer.setAnalyzerid(myAddress.toString());
+      consCapabilities.setAnalyzer(analyzer);
+      log.debug("@@@@@@@@@@@@@@@@@@@@@@@@@   **********************  consolidated classification is @@@@@@@@@@@@@@@@@@@@@@@@@:");
+      consclassifications=consCapabilities.getClassifications();
+      printConsolidation(consclassifications," consolidated classification after processing is :");
+      System.out.println("======================================>Relay to be created will be  :"+ consCapabilities.toString()); 
+      log.debug("======================================>Relay to be created will be  :"+ consCapabilities.toString());
+      /*  if(role.equals(IdmefMessageFactory.SocietyMgrType)) {
+	  getBlackboardService().publishAdd(factory.newEvent(consCapabilities));
+	  }
+	  else {
+      */
+      addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
     }
-    consCapabilities.setClassifications(consclassifications);
-    log.debug(" consolidated classification is :");
-    consclassifications=consCapabilities.getClassifications();
-    printConsolidation(consclassifications," consolidated classification after processing is :");
-    //converttoString(consclassifications);
-    /*
-      currently have commented the below code as Capabilities processing plugin has also subscribed to it and it will 
-      get into loop.
-     
-     NewEvent event=factory.newEvent(consCapabilities);
-     getBlackboardService().publishAdd(event);
-    */
-    addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
+    
+    // }
   }
 
 
@@ -243,6 +291,10 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
     IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
     ConsolidatedCapabilities conscapabilities=imessage.createConsolidatedCapabilities();
+    if(mgrrole==null)
+      conscapabilities.setType(IdmefMessageFactory.SocietyMgrType);
+    else 
+      conscapabilities.setType(IdmefMessageFactory.EnclaveMgrType);
     return conscapabilities;
   }
 
@@ -328,6 +380,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
         }
       }
       if (relay == null) {
+	 if (loggingService.isDebugEnabled())
+          loggingService.debug(" No relay was present creating one for Event "+ event.toString());
           relay = factory.newCmrRelay(event, mgrAddress);
           getBlackboardService().publishAdd(relay);
       } else {
@@ -338,12 +392,15 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   
    private void updateRelayedCapabilities() {
        if (capabilitiesRelays.hasChanged()) {
+	  if (loggingService.isDebugEnabled())
+	    loggingService.debug("capabilitiesRelays has changed ");
            CmrRelay relay;
            // New relays
            Iterator iter = capabilitiesRelays.getAddedCollection().iterator();
            while (iter.hasNext()) {
                relay = (CmrRelay)iter.next();
                if (!relay.getSource().equals(myAddress)) { // make sure it's remote, not local
+		 System.out.println(" printing receive relay which is not my address:=========================>"+relay.getContent().toString());
                    getBlackboardService().publishAdd(relay.getContent());
                }
            }
@@ -384,7 +441,11 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
        }
        return null;
    }
+  
+  public void printConsolidationHash() {
     
+    
+  }
   /** Getter for property loggingService.
    * @return Value of property loggingService.
    */
