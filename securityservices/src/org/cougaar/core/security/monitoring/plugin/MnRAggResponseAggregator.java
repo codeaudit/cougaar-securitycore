@@ -113,11 +113,11 @@ class RemoteConsolidatedPredicate implements UnaryPredicate {
     parentUID=puid;
     
   }
-   public boolean execute(Object o) {
-     RemoteConsolidatedEvent rconsolidated=null; 
+  public boolean execute(Object o) {
+    RemoteConsolidatedEvent rconsolidated=null; 
     if( o instanceof RemoteConsolidatedEvent){
       rconsolidated=(RemoteConsolidatedEvent)o;
-      if(rconsolidated.getparentUID().equals(parentUID)){
+      if(rconsolidated.getParentUID().equals(parentUID)){
         return true;
       }
     }
@@ -173,7 +173,7 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
     AggregatedResponse aggResponse=null;
     UID relayuid=null;
     //QueryResultAdapter sensorResponse=null;
-     BlackboardService bbs = getBlackboardService();
+    BlackboardService bbs = getBlackboardService();
     Collection aggQueryMappingCol=bbs.query(new AggQueryMappingPredicate()); 
     while(iter.hasNext()) {
       if( loggingService.isDebugEnabled()) {
@@ -183,11 +183,13 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
       //remoteResponse=(ConsolidatedEvent)relay.getResponse();
       relayuid=relay.getUID();
       Collection remoteConsolidatedResponseCol=bbs.query(new RemoteConsolidatedPredicate(relayuid)); 
-      
+      if( loggingService.isDebugEnabled()) {
+        loggingService.debug(" Remote Consolidated Event size  : "+ remoteConsolidatedResponseCol.size());
+      }
       AggQueryMapping aggQueryMapping=findAggQueryMappingFromBB(relayuid,aggQueryMappingCol);
       aggResponse=(AggregatedResponse)relay.getResponse();
       Iterator consolidatedIterator=aggResponse.getEvents();
-       ConsolidatedEvent remoteResponse=null;
+      ConsolidatedEvent remoteResponse=null;
       while(consolidatedIterator.hasNext()){
         remoteResponse=(ConsolidatedEvent)consolidatedIterator.next();
         if( loggingService.isDebugEnabled()) {
@@ -208,6 +210,10 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
             queryresult=(AggQueryResult)queryList.get(i);
             if(queryresult.getUID().equals(relayuid)) {
               message=remoteResponse.getEvent();
+              if( loggingService.isDebugEnabled()) {
+                loggingService.debug(" Received Remote response :"+message.toString());
+                loggingService.debug(" Query mapping Object before Modification  :"+aggQueryMapping.toString());
+              }
               if(message instanceof Alert){
                 queryresult.setCurrentCount(getRateData((Alert)message,DrillDownQueryConstants.TOTAL_CURRENT_EVENTS));
                 queryresult.setTotal(getRateData((Alert)message,DrillDownQueryConstants.TOTAL_EVENTS));
@@ -217,17 +223,30 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
                 if(loggingService.isDebugEnabled()) {
                   loggingService.debug(" publishing REMOTE Consolidated : "+remoteConsolidatedEvent.toString());
                   if(remoteConsolidatedEvent.getSource()!=null){
-                   loggingService.debug(" Source REMOTE Consolidated : "+remoteConsolidatedEvent.getSource().toString()); 
+                    loggingService.debug(" Source REMOTE Consolidated : "+remoteConsolidatedEvent.getSource().toString()); 
                   }
                   else {
-                     loggingService.debug(" Source of REMOTE Consolidated is NULL : ");
+                    loggingService.debug(" Source of REMOTE Consolidated is NULL : ");
                   }
+                }
+                if(loggingService.isDebugEnabled()) {
+                  if(remoteConsolidatedEvent.getEvent() instanceof Alert) {
+                    loggingService.debug("Newly created Remote consolidated Events  is INSTANCE of ALERT");
+                    loggingService.debug("Source REMOTE Consolidated : "+remoteConsolidatedEvent.getSource().toString()); 
+                  }
+                  else {
+                    loggingService.debug("Newly created Remote consolidated Events  is NOT INSTANCE of ALERT");
+                  }
+                  
                 }
                 bbs.publishAdd(remoteConsolidatedEvent);
               }
             }// end of if(queryresult.getUID().equals(relayuid))
           }//end of for
           bbs.publishChange(aggQueryMapping); 
+          if( loggingService.isErrorEnabled()) {
+            loggingService.error(" Query mapping Object AFTER  Modification  :"+aggQueryMapping.toString());
+          }
         }// end of synchronized
       }
            
@@ -237,9 +256,9 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
   
   private void removeOldRemoteConsolidatedResponse(Collection oldConsolidatedResponse){
     if(oldConsolidatedResponse.isEmpty()){
-       if( loggingService.isDebugEnabled()) {
-         loggingService.debug(" No old Remote Consolidated Response available:");
-       }
+      if( loggingService.isDebugEnabled()) {
+        loggingService.debug(" No old Remote Consolidated Response available:");
+      }
     }
     if( loggingService.isDebugEnabled()) {
       if(oldConsolidatedResponse.size()>1) {
@@ -293,6 +312,11 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
     }
     Collection aggQueryMappingCol=getBlackboardService().query(new AggQueryMappingPredicate()); 
     AggQueryMapping aggQueryMapping=findAggQueryMappingFromBB(uid,aggQueryMappingCol);
+    if( loggingService.isDebugEnabled()) {
+      loggingService.debug("Found mapping object for UID :"+ uid +" Query mapping Object "+aggQueryMapping.toString());
+      
+    }
+    int counter=0;
     while (atoms.hasNext()) {
       ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
       String owner = d.getIdentifier("owner").toString();
@@ -305,10 +329,12 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
         if( loggingService.isDebugEnabled()){
           loggingService.error("Cannot get Agg queryMapping object for UID ."+ uid);
         }
-        event = new EventImpl(new UID(owner,Long.parseLong(id)),
-                              MessageAddress.getMessageAddress(source),
-                              IDMEF_Message.createMessage(xml));
-        bbs.publishAdd(event);
+        /*
+          event = new EventImpl(new UID(owner,Long.parseLong(id)),
+          MessageAddress.getMessageAddress(source),
+          IDMEF_Message.createMessage(xml));
+          bbs.publishAdd(event);
+        */
         continue;
       }
       if(message instanceof Alert) {
@@ -352,10 +378,15 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
       }
       bbs.publishChange(aggQueryMapping);
       bbs.publishAdd(event);
-       
-      if( loggingService.isDebugEnabled()){
+      /*
+        if( loggingService.isDebugEnabled()){
         loggingService.debug("received event is :"+event.toString());
-      }
+        }
+      */
+      counter++;
+    }// end of while
+    if( loggingService.isDebugEnabled()){
+      loggingService.debug("Published total : "+ counter +" for uid :"+ uid);
     }
   }
 
@@ -372,7 +403,7 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
     }
     imessage=factory.getIdmefMessageFactory();
     if(imessage==null) {
-     if( loggingService.isDebugEnabled()){
+      if( loggingService.isDebugEnabled()){
         loggingService.debug("Unable to add parent UID and Originators UID to Events Additional data as IDMEF Message Factory is NULL "
                              +queryMapping.toString());
       } 
@@ -407,21 +438,21 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
     for(int i=0;i<additionalDataArray.length;i++) {
       additionalData=additionalDataArray[i];
       if((additionalData.getMeaning().equals(meaning))&&
-        (additionalData.getType().equals(AdditionalData.INTEGER))){
+         (additionalData.getType().equals(AdditionalData.INTEGER))){
         count=additionalData.getAdditionalData();
         try {
-        currentcount=Integer.parseInt(count.trim());
+          currentcount=Integer.parseInt(count.trim());
         }catch( NumberFormatException nexp) {
-           return currentcount;
+          return currentcount;
         }
         return currentcount;
       }
     }
-     return currentcount;
+    return currentcount;
   }
   
   public double getRate(Alert alert) {
-     double rate=-1.0d;
+    double rate=-1.0d;
     AdditionalData additionalDataArray [] =alert.getAdditionalData();
     if(additionalDataArray==null){
       return rate;
@@ -434,17 +465,17 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
     for(int i=0;i<additionalDataArray.length;i++) {
       additionalData=additionalDataArray[i];
       if((additionalData.getMeaning().equals(DrillDownQueryConstants.RATE))&&
-        (additionalData.getType().equals(AdditionalData.REAL))){
+         (additionalData.getType().equals(AdditionalData.REAL))){
         count=additionalData.getAdditionalData();
         try {
-       rate=Double.parseDouble(count.trim());
+          rate=Double.parseDouble(count.trim());
         }catch( NumberFormatException nexp) {
-           return rate;
+          return rate;
         }
         return rate;
       }
     }
-     return rate;
+    return rate;
   }
   
  
