@@ -37,6 +37,7 @@ module Cougaar
 	if (ret == nil) 
 	  ret = eval("#{stressorClass}.new(run)")
 	  ret.myexperiment = MyExperiment.new(run)
+	  setMyRun(run)
 	  #puts "Run.name: #{run.name} Experiment: #{run.experiment.name}"
 	  @@stressMap[stressorClass] = ret
 	end
