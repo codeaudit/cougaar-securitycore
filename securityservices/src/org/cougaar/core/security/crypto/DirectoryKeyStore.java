@@ -111,6 +111,13 @@ public class DirectoryKeyStore
    */
   private Hashtable _namingAttributesCache = new Hashtable();
 
+  /**
+   * Cache for CA to store key pair request that is blocked because CA
+   * key has not been generated yet. Key will be generated and cache
+   * will be cleared after CA key has been generated.
+   */
+  private Hashtable caCertList = new Hashtable();
+
   /* Update OIDMap to include IssuingDistribution Point Extension &
    * Certificate Issuer Extension
    */
@@ -1517,6 +1524,9 @@ public class DirectoryKeyStore
   private PrivateKey addKeyPairOnCA(X500Name dname, String keyAlias) {
     String alias = null;
     PrivateKey privatekey = null;
+    if (log.isDebugEnabled()) {
+      log.debug("Creating cert on CA: " + dname.toString() + " : " + keyAlias);
+    }
     CertificateCacheService cacheservice=(CertificateCacheService)
       param.serviceBroker.getService(this,
 				     CertificateCacheService.class,
@@ -1542,7 +1552,16 @@ public class DirectoryKeyStore
 	    log.debug("Creating self signed host key");
 	  makeKeyPair(dname, false, certAttribPolicy);
 	}
-	return null;
+
+        // store DNs so that there is no need to restart CA to generate all the certs
+        caCertList.put(dname.toString(), (keyAlias == null) ? "" : keyAlias);
+
+        if (getCommonName(dname).equals(NodeInfo.getHostName())) {
+          if (log.isDebugEnabled())
+            log.debug("Creating self signed host key");
+          makeKeyPair(dname, false, certAttribPolicy);
+        }
+        return null;
       }
       String caDN = configParser.getCaDNs()[0].getName();
       // is the CA key valid
@@ -1667,15 +1686,37 @@ public class DirectoryKeyStore
       String alias = null;
       PrivateKey privatekey = null;
 
-      /**
-       * Handle CA cert
-       */
-      if (isCACert) {
-	return addCAKeyPair(dname, keyAlias);
+    /**
+     * Handle CA cert
+     */
+    if (isCACert) {
+      return addCAKeyPair(dname, keyAlias);
+    }
+    else if (param.isCertAuth) {
+      privatekey = addKeyPairOnCA(dname, keyAlias);
+
+      // if it is successful, finish the ones that has been delayed for
+      // CA key generation
+      if (privatekey != null) {
+        // get rid of the one that has already been generated
+        caCertList.remove(dname.toString());
+
+        for (Enumeration en = caCertList.keys(); en.hasMoreElements(); ) {
+          String certdname = (String)en.nextElement();
+          keyAlias = (String)caCertList.get(certdname);
+
+          if (keyAlias == "")
+            keyAlias = null;
+          dname = getX500Name(certdname);
+          if (dname == null)
+            continue;
+          if (addKeyPairOnCA(dname, keyAlias) != null) {
+            caCertList.remove(certdname);
+          }
+        }
       }
-      else if (param.isCertAuth) {
-	return addKeyPairOnCA(dname, keyAlias);
-      }
+      return privatekey;
+    }
 
       try {
 	/* If the requested key is for the node, the key is self signed.
