@@ -26,6 +26,7 @@ cp ${realCIP}/sys/*.jar $COUGAAR_INSTALL_PATH/sys
 
 #PATH=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/:$PATH
 #export PATH
+COUGAAR_WORKSPACE=$COUGAAR_INSTALL_PATH/workspace && export COUGAAR_WORKSPACE
 
 which ant >& /dev/null
 if [ $? != 0 ]; then
