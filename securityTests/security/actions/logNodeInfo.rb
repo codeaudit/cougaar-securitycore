@@ -22,19 +22,8 @@ module Cougaar
 	  @nodeInfoFile << "#{NodeInfo.header_string()}\n"
 	  @nodeInfoFile.flush
 	  getNodePids()
-          Thread.fork {
-            begin
-	      sleep_time = 30.seconds
-	      while true
-		getMemoryUsage()
-		sleep sleep_time
-	      end
-            rescue => e
-              @run.error_message "Unable to perform LogNodeInfo action"
-              @run.error_message "#{e.message}\n#{e.backtrace.join("\n")}"
-            end
-	    @nodeInfoFile.close
-          }                    
+	  getMemoryUsage()
+	  #@nodeInfoFile.close
         end
         
         def getNodePids
@@ -91,32 +80,36 @@ module Cougaar
 	    # Doing the rexec takes a long time, so we launch one thread per host
 	    # to parallelize the actions.
 	    Thread.fork() {
-	      begin
-		# -h   Do not display header
-		# -p   Display info for specified PID
-		# -o   output display
-		command = "ps -h -p #{nodeInfo.pid} -o pcpu,pmem,sz,rss"
-		#saveAssertion "processInfo", "#{nodeInfo.host.name} #{command}"
-		response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
-                gotResults = false
-                if (response != nil)
-                  gotResults = true
-                  parseMemoryUsage(nodeInfo, response.body)
-                end
+	      sleep_time = 60.seconds
+              while (true)
+	        begin
+		  # -h   Do not display header
+		  # -p   Display info for specified PID
+		  # -o   output display
+		  command = "ps -h -p #{nodeInfo.pid} -o pcpu,pmem,sz,rss"
+		  #saveAssertion "processInfo", "#{nodeInfo.host.name} #{command}"
+		  response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
+                  gotResults = false
+                  if (response != nil)
+                    gotResults = true
+                    parseMemoryUsage(nodeInfo, response.body)
+                  end
 
-                # Get load information
-                command = "uptime"
-		response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
-                if (response != nil)
-                  gotResults = true
-                  parseUpTime(nodeInfo, response.body)
-                end
-                if (gotResults)
-		  logNodeInfo(nodeInfo)
-                end
-	      rescue => e
-		saveAssertion "processInfo", "Unable to get process info: #{e.message}\n#{e.backtrace.join("\n")}"
-	      end
+                  # Get load information
+                  command = "uptime"
+		  response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
+                  if (response != nil)
+                    gotResults = true
+                    parseUpTime(nodeInfo, response.body)
+                  end
+                  if (gotResults)
+		    logNodeInfo(nodeInfo)
+                  end
+	        rescue => e
+	  	  saveAssertion "processInfo", "Unable to get process info: #{e.message}\n#{e.backtrace.join("\n")}"
+	        end
+		sleep sleep_time
+              end # while
 	    }
            }      
         end
