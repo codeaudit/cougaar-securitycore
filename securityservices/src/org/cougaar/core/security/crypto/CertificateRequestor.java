@@ -93,7 +93,7 @@ import sun.security.x509.X509CertImpl;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 public class CertificateRequestor {
   private ServiceBroker serviceBroker;
@@ -1692,11 +1692,6 @@ synchronized (_pkcsLock) {
     alias = alias + nextIndex;
     if (log.isDebugEnabled()) {
       log.debug("Next alias for " + name + " is " + alias);
-      try {
-        throw new Exception("");
-      } catch (Exception ex) {
-        log.debug("Stack for request: ", ex);
-      }
     }
 
     return alias;
