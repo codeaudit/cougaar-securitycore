@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-package com.cougaarsoftware.nettool;
+package com.cougaarsoftware.nettool.parsers;
 
 import java.text.DateFormat;
 import java.text.ParseException;

@@ -12,7 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import com.cougaarsoftware.nettools.parsers.*;
+import com.cougaarsoftware.nettool.parsers.*;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.io.GraphMLFile;
