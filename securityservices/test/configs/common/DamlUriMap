@@ -16,8 +16,9 @@
 # Some how it seems if we know the agent then the pattern is more
 # specific.
 #
-/\$AGG-Agent/aggregator AggegatorServlets
-/\$AGG-Agent/aggregatorkeepalive AggegatorServlets
+#commented out because of FreezeSociety
+#/\$AGG-Agent/aggregator AggegatorServlets
+#/\$AGG-Agent/aggregatorkeepalive AggegatorServlets
 # 
 # temporarily turn these off for ACME
 /\$NCA/glsinit NCAServlets
@@ -53,7 +54,8 @@
 /\$.*/CA/CaKeyManagement CAWriteServlet
 #
 #/\$.*/hierarchy HierarchyServlet
-/\$.*/log_inventory LogInventoryServlet
+# commented out because of FreezeSociety
+#/\$.*/log_inventory LogInventoryServlet
 #
 /\$RearPolicyDomainManagerServlet/policyAdmin RearPolicyServlet
 /\$FwdPolicyDomainManagerServlet/policyAdmin FwdPolicyServlet
