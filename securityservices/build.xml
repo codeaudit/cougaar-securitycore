@@ -146,6 +146,10 @@
         <mkdir dir="${securityservices.signed}"/>
         <mkdir dir="${securityservices.docdir}"/>
         <mkdir dir="${cougaar.workspace}/log4jlogs"/>
+        <mkdir dir="${cougaar.workspace}/auditlogs"/>
+        <mkdir dir="${cougaar.workspace}/security/mopresults"/>
+        <mkdir dir="${cougaar.workspace}/security/keystores"/>
+        <mkdir dir="${cougaar.workspace}/test"/>
 
         <!-- make regress directory -->
         <mkdir dir="${securityservices.results}" />

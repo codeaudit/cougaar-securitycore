@@ -121,7 +121,8 @@ zip -qr AS_csi_secserv.zip \
 	sys/polCert.jar \
         sys/xercesImpl.jar \
         sys/xmlParserAPIs.jar \
-	sys/Tidy.jar
+        sys/Tidy.jar \
+        workspace
 
 cp AS_csi_secserv.zip ${startupdir}
 rm -rf ${tmpdir}
