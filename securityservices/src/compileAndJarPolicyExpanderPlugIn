@@ -12,9 +12,9 @@ foreach jar (`ls ${COUGAAR_INSTALL_PATH}/lib/*.jar` `ls ${COUGAAR_INSTALL_PATH}/
  	endif
 end
 
-#foreach zip (`ls ${COUGAAR_INSTALL_PATH}/lib/*.zip` `ls $COUGAAR_INSTALL_PATH/sys/*.zip`)
-#       setenv CLASSPATH ${CLASSPATH}:$zip
-#end
+foreach zip (`ls ${COUGAAR_INSTALL_PATH}/lib/*.zip` `ls $COUGAAR_INSTALL_PATH/sys/*.zip`)
+       setenv CLASSPATH ${CLASSPATH}:$zip
+end
 
 echo compiling com/nai/security/policy/PolicyExpanderPlugIn.java ...
 javac -classpath ${CLASSPATH} com/nai/security/policy/PolicyExpanderPlugIn.java
