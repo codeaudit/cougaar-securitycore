@@ -48,7 +48,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-
+import org.xml.sax.EntityResolver;
 /**
  * <pre>
  * 
@@ -94,6 +94,7 @@ public abstract class IDMEF_Message implements XMLSerializable {
 
     /**The current location of the idmef DTD File*/
     protected static String dtdFileLocation = null;
+    protected static String entityDtdFileLocation = null;
     
     private static String PUBLIC_ID = "-//IETF//DTD RFC XXXX IDMEF v1.0//EN";
 
@@ -113,6 +114,12 @@ public abstract class IDMEF_Message implements XMLSerializable {
     public static void setDtdFileLocation(String inDtdFileLocation){
 	    dtdFileLocation = inDtdFileLocation ;
     }
+    public static String getEntityDtdFileLocation(){
+	    return entityDtdFileLocation;
+    }
+    public static void setEntityDtdFileLocation(String inEntityDtdFileLocation){
+	    entityDtdFileLocation = inEntityDtdFileLocation ;
+    }
 
     public Node convertToXML(Document parent){
 	    Element idmefNode = parent.createElement(ELEMENT_NAME);
@@ -131,6 +138,11 @@ public abstract class IDMEF_Message implements XMLSerializable {
     public static IDMEF_Message createMessage(String inputXML){
 	    try{
 	      DOMParser parser = new DOMParser();
+              /*
+              parser.setEntityResolver(new EntityResolver() {
+                  public InputSource resolveEntity(String publicId, String systemId) { return null; }
+                });
+              */
 	      parser.parse(new InputSource(new StringReader(inputXML)));
 	      Document newMessage = parser.getDocument();
   	    return createMessage(newMessage);
@@ -193,7 +205,7 @@ public abstract class IDMEF_Message implements XMLSerializable {
     public String toString(){
 	    try{
 	      Document document = toXML(); 
-  	    StringWriter buf=new StringWriter();
+  	    StringWriter buf=new StringWriter(2048);
 	      OutputFormat of = new OutputFormat(document, "UTF-8", true);
              
 	      if(getDtdFileLocation() != null) {
@@ -204,18 +216,25 @@ public abstract class IDMEF_Message implements XMLSerializable {
 	      } 
 	      //of.getOmitDocumentType();
 	      XMLSerializer sezr = new XMLSerializer (buf , of);
-	      sezr.serialize(document);
+	      synchronized(sezr) {
+  	      sezr.setOutputFormat(of);
+	        sezr.setOutputCharStream(buf);
+            /*  
+              if(getEntityDtdFileLocation() != null) {
+                sezr.externalEntityDecl("x-cougaar", null, getEntityDtdFileLocation());
+              }
+             */ 
+	        sezr.serialize(document);
+	      }
 	      return buf.toString();
 	    }
 	    catch (Exception e){
 	      return null;
 	    }
     }
-
+   
     public Document toXML() throws ParserConfigurationException{
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
+	    Document document = newDocument(); 
 	    Element root = document.createElement(ELEMENT_NAME); 
 	    document.appendChild (root);
 	    if(version != null){
@@ -226,6 +245,21 @@ public abstract class IDMEF_Message implements XMLSerializable {
 	    root.appendChild(messageNode);
 	    return document;
     }
+   
+    public static Document newDocument() throws ParserConfigurationException {
+      if(builder == null) {
+        synchronized(factory) {
+          if(builder == null) {
+            builder = factory.newDocumentBuilder();
+          }
+        }
+      }
+      
+      synchronized(builder) {
+        return builder.newDocument();
+      }
+    }
+    private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    private static DocumentBuilder builder = null;
 }
-
 
